@@ -8,7 +8,7 @@ export default function Home() {
     <>
       <Container width='md' className='mt-2 sm:mt-10'>
         <Card>
-          <CardHeader className='border-b border-border/10 pb-8'>
+          <CardHeader className='border-b border-border/10 pb-8 items-start'>
             <CardTitle className='text-3xl font-bold tracking-tight sm:text-4xl'>
               Thabo Lebese
             </CardTitle>
@@ -20,7 +20,7 @@ export default function Home() {
                 <GraduationCap className='size-5' />
                 Bachelor of Computer Science
               </Badge>
-              <div className='pl-2 pt-2 flex gap-2 items-center text-sm text-muted-foreground/80'>
+              <div className='pl-2 flex gap-2 items-center text-sm text-muted-foreground/80'>
                 Year 3 • Semester 2
               </div>
             </div>
