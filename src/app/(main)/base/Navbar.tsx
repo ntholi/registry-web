@@ -9,10 +9,10 @@ import UserButton from './UserButton';
 const exceptions = ['/login', '/register'];
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { status } = useSession();
 
   if (exceptions.includes(window.location.pathname)) return null;
-  if (!session) return redirect('/login');
+  if (status === 'unauthenticated') return redirect('/login');
 
   return (
     <nav className='border-b p-2'>
