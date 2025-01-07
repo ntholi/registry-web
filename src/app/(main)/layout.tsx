@@ -1,6 +1,12 @@
+import Navbar from './base/Navbar';
 import './globals.css';
 import { PropsWithChildren } from 'react';
 
 export default function RootLayout({ children }: PropsWithChildren) {
-  return <>{children}</>;
+  return (
+    <>
+      <Navbar />
+      {children}
+    </>
+  );
 }
