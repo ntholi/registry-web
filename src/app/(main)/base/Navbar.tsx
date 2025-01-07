@@ -18,7 +18,7 @@ export default function Navbar() {
     <nav className='border-b p-2'>
       <Container width='lg' className='flex items-center justify-between py-0'>
         <div className='flex items-center'>
-          <Link href='/student'>
+          <Link href='/'>
             <Logo className='mr-4 h-10 w-auto' />
           </Link>
         </div>

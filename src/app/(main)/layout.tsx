@@ -6,8 +6,9 @@ import './globals.css';
 import Providers from './providers';
 
 export const metadata: Metadata = {
-  title: 'Graduation Clearance',
-  description: 'Limkokwing Registry App, for Graduation Clearance',
+  title: 'Student Portal',
+  description:
+    'Student Portal Limkokwing University of Creative Technology, Lesotho',
   icons: {
     icon: '/logo.png',
   },
