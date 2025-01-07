@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { LogOut, Moon, Sun } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 
 export default function UserButton() {
@@ -43,7 +43,11 @@ export default function UserButton() {
         <DropdownMenuLabel>{session.user.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await signOut();
+            }}
+          >
             <LogOut className='mr-2 h-4 w-4' />
             <span>Log out</span>
           </DropdownMenuItem>
