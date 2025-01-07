@@ -22,7 +22,10 @@ export default function Navbar() {
             <Logo className='mr-4 h-10 w-auto' />
           </Link>
         </div>
-        <UserButton />
+        <div className='flex items-center gap-4'>
+          <span className='text-xs text-muted-foreground'>901011676</span>
+          <UserButton />
+        </div>
       </Container>
     </nav>
   );
