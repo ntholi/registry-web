@@ -1,10 +1,9 @@
 import { Toaster } from '@/components/ui/sonner';
 import type { Metadata } from 'next';
-import { SessionProvider } from 'next-auth/react';
 import Footer from './base/Footer';
+import Navbar from './base/Navbar';
 import './globals.css';
 import Providers from './providers';
-import Navbar from './base/Navbar';
 
 export const metadata: Metadata = {
   title: 'Graduation Clearance',
@@ -29,17 +28,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
-      <body suppressHydrationWarning>
-        <SessionProvider>
-          <Providers>
-            <Navbar />
-            {children}
-            <Footer />
-            <Toaster />
-          </Providers>
-        </SessionProvider>
-      </body>
-    </html>
+    <Providers>
+      <Navbar />
+      <div className='min-h-[87vh]'>{children}</div>
+      <Footer />
+      <Toaster />
+    </Providers>
   );
 }

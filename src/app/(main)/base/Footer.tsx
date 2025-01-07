@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className='flex justify-end border-t bg-white p-2 dark:bg-black md:p-3'>
       <Link
-        href={'https://github.com/ntholi/graduation-clearance'}
+        href={'https://github.com/ntholi/registry-web'}
         className='flex items-center gap-2 text-muted-foreground'
         target='_blank'
       >

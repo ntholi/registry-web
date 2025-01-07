@@ -1,12 +1,17 @@
-import { auth } from '@/auth';
+'use client';
 import { Container } from '@/components/ui/container';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import Logo from './Logo';
 import UserButton from './UserButton';
 
-export default async function Navbar() {
-  const session = await auth();
+const exceptions = ['/login', '/register'];
+
+export default function Navbar() {
+  const { data: session } = useSession();
+
+  if (exceptions.includes(window.location.pathname)) return null;
   if (!session) return redirect('/login');
 
   return (
