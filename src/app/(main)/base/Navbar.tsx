@@ -1,8 +1,8 @@
 import { auth } from '@/auth';
+import { Container } from '@/components/ui/container';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import Logo from './Logo';
-import { Container } from '@/components/ui/container';
 import UserButton from './UserButton';
 
 export default async function Navbar() {
