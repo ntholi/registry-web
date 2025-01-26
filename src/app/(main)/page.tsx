@@ -6,7 +6,7 @@ import { GraduationCap } from 'lucide-react';
 export default function Home() {
   return (
     <>
-      <Container width='md' className='mt-2 sm:mt-10'>
+      <Container width='lg' className='sm:py-10'>
         <Card>
           <CardHeader className='border-b border-border/10 pb-8 items-start'>
             <CardTitle className='text-3xl font-bold tracking-tight sm:text-4xl'>

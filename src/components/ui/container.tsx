@@ -22,12 +22,8 @@ export function Container({ children, as, width = 'lg', ...props }: Props) {
     as || 'div',
     {
       ...props,
-      className: cn(
-        'container mx-auto px-4 py-4 sm:px-6',
-        widthMap[width],
-        props.className,
-      ),
+      className: cn('container mx-auto p-4', widthMap[width], props.className),
     },
-    children,
+    children
   );
 }

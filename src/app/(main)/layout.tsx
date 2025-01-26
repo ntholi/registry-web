@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <Providers>
       <Navbar />
-      <div className='min-h-[87vh]'>{children}</div>
+      <div className='min-h-[95vh] gradient'>{children}</div>
       <Footer />
       <Toaster />
     </Providers>
