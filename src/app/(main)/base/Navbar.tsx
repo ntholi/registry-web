@@ -23,7 +23,14 @@ export default function Navbar() {
           </Link>
         </div>
         <div className='flex items-center gap-4'>
-          <span className='text-xs text-muted-foreground'>901011676</span>
+          <div>
+            <span className='block text-xs font-medium leading-none'>
+              Thabo Lebese
+            </span>
+            <span className='text-[0.7rem] text-muted-foreground'>
+              901011676
+            </span>
+          </div>
           <UserButton />
         </div>
       </Container>
