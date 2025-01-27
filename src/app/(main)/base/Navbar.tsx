@@ -24,10 +24,7 @@ export default function Navbar() {
         </div>
         <div className='flex items-center gap-4'>
           <div>
-            <span className='block text-xs font-medium leading-none'>
-              Thabo Lebese
-            </span>
-            <span className='text-[0.7rem] text-muted-foreground'>
+            <span className='text-sm font-medium text-muted-foreground'>
               901011676
             </span>
           </div>
