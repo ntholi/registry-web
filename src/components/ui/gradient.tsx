@@ -9,7 +9,7 @@ export default function Gradient({ children, className }: Props) {
   return (
     <div
       className={cn(
-        'bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] via-20% to-60% from-slate-900 via-slate-950 to-black',
+        'bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] via-20% to-80% from-sky-100 via-sky-50 to-white dark:from-slate-950 dark:via-slate-950 dark:to-black',
         className
       )}
     >
