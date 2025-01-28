@@ -1,6 +1,9 @@
+import { DetailsView, DetailsViewHeader } from '@/components/adease';
 import { getStudent } from '@/server/students/actions';
+import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import StudentView from './StudentView';
+import AcademicsView from './AcademicsView';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -14,5 +17,22 @@ export default async function StudentDetails({ params }: Props) {
     return notFound();
   }
 
-  return <StudentView student={student} />;
+  return (
+    <DetailsView>
+      <DetailsViewHeader title={student.name} queryKey={['students']} />
+
+      <Tabs defaultValue='academics'>
+        <TabsList>
+          <TabsTab value='academics'>Academics</TabsTab>
+          <TabsTab value='info'>Info</TabsTab>
+        </TabsList>
+        <TabsPanel value='academics' pt={'xl'} p={'sm'}>
+          <AcademicsView student={student} />
+        </TabsPanel>
+        <TabsPanel value='info' pt={'xl'} p={'sm'}>
+          <StudentView student={student} />
+        </TabsPanel>
+      </Tabs>
+    </DetailsView>
+  );
 }
