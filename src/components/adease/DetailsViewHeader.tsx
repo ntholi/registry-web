@@ -5,8 +5,9 @@ import { ActionIcon, Divider, Flex, Group, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { DeleteButton } from './DeleteButton';
+import React from 'react';
 
 export interface DetailsViewHeaderProps {
   title: string;
@@ -23,9 +24,10 @@ export function DetailsViewHeader({
 }: DetailsViewHeaderProps) {
   const pathname = usePathname();
   const isMobile = useMediaQuery('(max-width: 768px)');
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [view, setView] = useViewSelect();
+  const [, setView] = useViewSelect();
+  const searchParams = useSearchParams();
+  const newSearchParams = new URLSearchParams(searchParams);
+  newSearchParams.set('view', 'details');
 
   return (
     <>
@@ -35,7 +37,7 @@ export function DetailsViewHeader({
             <ActionIcon variant='default' onClick={() => setView('nav')}>
               <IconArrowNarrowLeft size={'1rem'} />
             </ActionIcon>
-            <Title order={3} fw={100} size={'1.1rem'}>
+            <Title order={3} fw={100} size={'1rem'}>
               {title}
             </Title>
           </Group>
@@ -54,7 +56,7 @@ export function DetailsViewHeader({
           )}
           <ActionIcon
             component={Link}
-            href={`${pathname}/edit`}
+            href={`${pathname}/edit?${newSearchParams.toString()}`}
             variant='outline'
           >
             <IconEdit size={'1rem'} />

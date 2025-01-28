@@ -1,44 +1,46 @@
 'use client';
+
 import { Shell } from '@/components/adease';
-import {
-  ActionIcon,
-  Avatar,
-  Flex,
-  Group,
-  Stack,
-  Text,
-  LoadingOverlay,
-  Image,
-  useComputedColorScheme,
-} from '@mantine/core';
+import { ActionIcon, Avatar, Flex, Group, Stack, Text, LoadingOverlay, Image } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import {
-  Icon,
-  IconChevronRight,
-  IconLogout2,
-  IconUsers,
-} from '@tabler/icons-react';
+import { Icon, IconChevronRight, IconLogout2, IconUsers } from '@tabler/icons-react';
 import { usePathname } from 'next/navigation';
 import { Indicator, NavLink } from '@mantine/core';
 import Link from 'next/link';
-import { UserRole } from '@/db/schema';
+import { useQuery } from '@tanstack/react-query';
+
+type NotificationConfig = {
+  queryKey: string[];
+  queryFn: () => Promise<number>;
+};
+
+export type NavItem = {
+  label: string;
+  href?: string;
+  icon: Icon;
+  children?: NavItem[];
+  notificationCount?: NotificationConfig;
+};
 
 const navigation: NavItem[] = [
   {
     label: 'Users',
     href: '/admin/users',
     icon: IconUsers,
-    roles: ['admin'],
   },
 ];
 
-export default function Dashboard({ children }: { children: React.ReactNode }) {
+export default function Dashboard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { status } = useSession();
 
-  if (status == 'loading') {
+  if (status === 'loading') {
     return (
       <Flex h='100vh' w='100vw' justify='center' align='center'>
         <LoadingOverlay visible />
@@ -50,7 +52,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
     <Shell>
       <Shell.Header>
         <Group>
-          <Logo />
+          <Image src={'/images/logo.png'} height={40} alt='logo' />
         </Group>
       </Shell.Header>
       <Shell.Navigation>
@@ -100,15 +102,6 @@ function UserButton() {
   );
 }
 
-export type NavItem = {
-  label: string;
-  href?: string;
-  icon: Icon;
-  children?: NavItem[];
-  notificationCount?: () => number;
-  roles?: UserRole[];
-};
-
 export function Navigation({ navigation }: { navigation: NavItem[] }) {
   return (
     <>
@@ -120,27 +113,30 @@ export function Navigation({ navigation }: { navigation: NavItem[] }) {
 }
 
 function DisplayWithNotification({ item }: { item: NavItem }) {
-  if (item.notificationCount) {
-    const value = item.notificationCount();
-    return (
-      <Indicator
-        position='middle-end'
-        color='red'
-        offset={20}
-        size={23}
-        label={value}
-        disabled={!value}
-      >
-        <ItemDisplay item={item} />
-      </Indicator>
-    );
-  }
-  return <ItemDisplay item={item} />;
+  const { data: notificationCount = 0 } = useQuery({
+    queryKey: item.notificationCount?.queryKey ?? [],
+    queryFn: () => item.notificationCount?.queryFn() ?? Promise.resolve(0),
+    enabled: !!item.notificationCount,
+  });
+
+  return (
+    <Indicator
+      position='middle-end'
+      color='red'
+      offset={20}
+      size={23}
+      label={notificationCount}
+      disabled={!notificationCount}
+    >
+      <ItemDisplay item={item} />
+    </Indicator>
+  );
 }
 
 function ItemDisplay({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const Icon = item.icon;
+
   const navLink = (
     <NavLink
       label={item.label}
@@ -148,9 +144,7 @@ function ItemDisplay({ item }: { item: NavItem }) {
       href={item.href || ''}
       active={item.href ? pathname.startsWith(item.href) : false}
       leftSection={<Icon size='1.1rem' />}
-      rightSection={
-        item.href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined
-      }
+      rightSection={item.href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined}
       opened={!!item.children}
     >
       {item.children?.map((child, index) => (
@@ -159,16 +153,4 @@ function ItemDisplay({ item }: { item: NavItem }) {
     </NavLink>
   );
   return navLink;
-}
-
-function Logo() {
-  const colorScheme = useComputedColorScheme('dark');
-  return (
-    <Image
-      src={`/images/logo-${colorScheme}.png`}
-      w={'auto'}
-      h={50}
-      alt='logo'
-    />
-  );
 }

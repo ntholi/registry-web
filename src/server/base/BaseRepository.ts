@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { count, eq, like, or, sql } from 'drizzle-orm';
+import { count, eq, like, or, sql, SQL } from 'drizzle-orm';
 import { SQLiteTable, SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 type ModelInsert<T extends SQLiteTable> = T['$inferInsert'];
@@ -16,16 +16,14 @@ export interface FindAllParams<T extends SQLiteTable> {
   searchProperties?: (keyof ModelSelect<T>)[];
   orderBy?: OrderBy<T>[];
   pageSize?: number;
+  condition?: SQL;
 }
 
 class BaseRepository<
   T extends SQLiteTable,
-  PK extends keyof T & keyof ModelSelect<T>,
+  PK extends keyof T & keyof ModelSelect<T>
 > {
-  constructor(
-    private table: T,
-    private primaryKey: PK,
-  ) {}
+  constructor(private table: T, private primaryKey: PK) {}
 
   async findFirst(): Promise<ModelSelect<T> | undefined> {
     return await db
@@ -51,50 +49,80 @@ class BaseRepository<
     return await db.select().from(this.table);
   }
 
-  async findAll(
-    params: FindAllParams<T>,
-  ): Promise<{ items: ModelSelect<T>[]; pages: number }> {
+  protected async queryExpressions(params: FindAllParams<T>) {
     const {
       page = 1,
       search,
       searchProperties = [],
       orderBy = [],
       pageSize = 15,
+      condition,
     } = params;
 
     const offset = (page - 1) * pageSize;
 
     let orderByExpressions = orderBy.map((order) => {
       const column = this.table[order.field] as SQLiteColumn;
-      return sql`${column} ${order.direction === 'desc' ? sql`DESC` : sql`ASC`}`;
+      return sql`${column} ${
+        order.direction === 'desc' ? sql`DESC` : sql`ASC`
+      }`;
     });
 
     if (orderByExpressions.length === 0 && 'createdAt' in this.table) {
       orderByExpressions = [sql`${this.table.createdAt} DESC`];
     }
 
+    let whereCondition: SQL | undefined;
+
+    if (search && searchProperties.length > 0) {
+      const searchCondition = or(
+        ...searchProperties.map((property) =>
+          like(this.table[property as keyof T] as SQLiteColumn, `%${search}%`)
+        )
+      );
+
+      whereCondition = condition
+        ? sql`${searchCondition} AND ${condition}`
+        : searchCondition;
+    } else {
+      whereCondition = condition;
+    }
+
+    return {
+      orderByExpressions,
+      whereCondition,
+      offset,
+      pageSize,
+    };
+  }
+
+  protected async paginatedResults<E extends ModelSelect<T>>(
+    data: E[],
+    whereCondition: SQL | undefined,
+    pageSize: number
+  ) {
+    const totalCount = await this.count(whereCondition);
+    return {
+      data,
+      pages: Math.ceil(totalCount / pageSize),
+    };
+  }
+
+  async findAll(
+    params: FindAllParams<T>
+  ): Promise<{ data: ModelSelect<T>[]; pages: number }> {
+    const { orderByExpressions, whereCondition, offset, pageSize } =
+      await this.queryExpressions(params);
+
     const data = await db
       .select()
       .from(this.table)
-      .where(
-        or(
-          ...searchProperties.map((property) =>
-            like(
-              this.table[property as keyof T] as SQLiteColumn,
-              `%${search}%`,
-            ),
-          ),
-        ),
-      )
       .orderBy(...orderByExpressions)
+      .where(whereCondition)
       .limit(pageSize)
       .offset(offset);
 
-    const totalCount = await this.count();
-    return {
-      items: data,
-      pages: Math.ceil(totalCount / pageSize),
-    };
+    return await this.paginatedResults(data, whereCondition, pageSize);
   }
 
   async exists(id: ModelSelect<T>[PK]): Promise<boolean> {
@@ -113,7 +141,7 @@ class BaseRepository<
 
   async update(
     id: ModelSelect<T>[PK],
-    data: Partial<ModelInsert<T>>,
+    data: Partial<ModelInsert<T>>
   ): Promise<ModelSelect<T>> {
     const [updated] = (await db
       .update(this.table)
@@ -129,8 +157,9 @@ class BaseRepository<
       .where(eq(this.table[this.primaryKey] as SQLiteColumn, id));
   }
 
-  async count(): Promise<number> {
-    const [result] = await db.select({ count: count() }).from(this.table);
+  async count(condition?: SQL): Promise<number> {
+    const query = db.select({ count: count() }).from(this.table);
+    const [result] = await (condition ? query.where(condition) : query);
     return result?.count ?? 0;
   }
 

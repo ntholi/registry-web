@@ -1,5 +1,6 @@
 'use client';
 import {
+  ActionIcon,
   Button,
   CloseButton,
   Divider,
@@ -7,7 +8,8 @@ import {
   Group,
   Title,
 } from '@mantine/core';
-import { IconDeviceFloppy } from '@tabler/icons-react';
+import { useMediaQuery } from '@mantine/hooks';
+import { IconArrowNarrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
 
 type Props = {
   title?: string;
@@ -16,10 +18,21 @@ type Props = {
 };
 
 export default function FormHeader({ title, isLoading, onClose }: Props) {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   return (
     <>
       <Flex justify={title ? 'space-between' : 'end'} align={'center'}>
-        {title && (
+        {isMobile ? (
+          <Group>
+            <ActionIcon variant='default' onClick={onClose}>
+              <IconArrowNarrowLeft size={'1rem'} />
+            </ActionIcon>
+            <Title order={3} fw={100} size={'1rem'}>
+              {title}
+            </Title>
+          </Group>
+        ) : (
           <Title order={3} fw={100}>
             {title}
           </Title>
@@ -32,7 +45,12 @@ export default function FormHeader({ title, isLoading, onClose }: Props) {
           >
             Save
           </Button>
-          <CloseButton size={'lg'} onClick={onClose} />
+          {!isMobile && (
+            <>
+              <Divider orientation='vertical' />
+              <CloseButton size={'lg'} onClick={onClose} />
+            </>
+          )}
         </Group>
       </Flex>
       <Divider my={15} />

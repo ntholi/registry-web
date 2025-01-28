@@ -9,21 +9,23 @@ import {
   Group,
   Paper,
   ScrollArea,
+  Skeleton,
   Stack,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next-nprogress-bar';
+import { useSearchParams } from 'next/navigation';
 import React from 'react';
 import { ListItem } from './ListItem';
 import { Pagination } from './Pagination';
 import { SearchField } from './SearchField';
 
 export type ListLayoutProps<T> = {
-  getItems: (
+  getData: (
     page: number,
-    search: string
-  ) => Promise<{ items: T[]; pages: number }>;
+    search: string,
+  ) => Promise<{ data: T[]; pages: number }>;
   renderItem: (item: T) => React.ReactNode;
   path: string;
   queryKey: string[];
@@ -32,7 +34,7 @@ export type ListLayoutProps<T> = {
 };
 
 export function ListLayout<T>({
-  getItems,
+  getData,
   renderItem,
   actionIcons,
   children,
@@ -46,13 +48,12 @@ export function ListLayout<T>({
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [view, setView] = useViewSelect();
 
-  const { data = { items: [], pages: 0 } } = useQuery({
-    queryKey: [...queryKey, page, search],
-    queryFn: () => getItems(page, search),
-    staleTime: 0,
-  });
-
-  const { items, pages } = data;
+  const { isLoading, data: { data, pages } = { data: [], pages: 0 } } =
+    useQuery({
+      queryKey: [...queryKey, page, search],
+      queryFn: () => getData(page, search),
+      staleTime: 0,
+    });
 
   const renderListItem = (item: T) => {
     const itemElement = renderItem(item);
@@ -63,14 +64,17 @@ export function ListLayout<T>({
         >,
         {
           path,
-          onClick: () => {
+          onClick: async () => {
             if (isMobile) {
-              setView('details');
+              await setView('details');
             }
             const itemId = (itemElement.props as { id: string }).id;
-            router.push(`${path}/${itemId}`);
+            const newSearchParams = new URLSearchParams(searchParams);
+            newSearchParams.set('view', 'details');
+            const url = `${path}/${itemId}?${newSearchParams.toString()}`;
+            router.push(url);
           },
-        }
+        },
       );
     }
     return itemElement;
@@ -103,11 +107,19 @@ export function ListLayout<T>({
             </Stack>
             <Divider />
             <ScrollArea type='always' style={{ flex: 1 }} p={'sm'}>
-              {items.map((item: T, index: number) => (
-                <React.Fragment key={index}>
-                  {renderListItem(item)}
-                </React.Fragment>
-              ))}
+              {isLoading ? (
+                <>
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Skeleton height={35} key={index} mb={'md'} />
+                  ))}
+                </>
+              ) : (
+                data.map((item: T, index: number) => (
+                  <React.Fragment key={index}>
+                    {renderListItem(item)}
+                  </React.Fragment>
+                ))
+              )}
             </ScrollArea>
 
             <Divider />
