@@ -9,6 +9,7 @@ import {
   Text,
   LoadingOverlay,
   Image,
+  useComputedColorScheme,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { signOut, useSession } from 'next-auth/react';
@@ -49,7 +50,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
     <Shell>
       <Shell.Header>
         <Group>
-          <Image src={'/images/logo.png'} height={40} alt='logo' />
+          <Logo />
         </Group>
       </Shell.Header>
       <Shell.Navigation>
@@ -158,4 +159,16 @@ function ItemDisplay({ item }: { item: NavItem }) {
     </NavLink>
   );
   return navLink;
+}
+
+function Logo() {
+  const colorScheme = useComputedColorScheme('dark');
+  return (
+    <Image
+      src={`/images/logo-${colorScheme}.png`}
+      w={'auto'}
+      h={50}
+      alt='logo'
+    />
+  );
 }

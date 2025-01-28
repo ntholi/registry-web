@@ -1,3 +1,5 @@
+import { NothingSelected } from '@/components/adease';
+
 export default function Page() {
-  return <>Hello</>;
+  return <NothingSelected title='Users' />;
 }
