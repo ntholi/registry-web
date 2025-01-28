@@ -14,15 +14,15 @@ type Props = {
 export default async function StudentDetails({ params }: Props) {
   const { id } = await params;
   const student = await getStudent(Number(id));
-  
+
   if (!student) {
     return notFound();
   }
 
   return (
     <DetailsView>
-      <DetailsViewHeader 
-        title={'Student'} 
+      <DetailsViewHeader
+        title={'Student'}
         queryKey={['students']}
         handleDelete={async () => {
           'use server';
@@ -30,21 +30,19 @@ export default async function StudentDetails({ params }: Props) {
         }}
       />
       <DetailsViewBody>
+        <FieldView label='Student No'>{student.stdNo}</FieldView>
         <FieldView label='National Id'>{student.nationalId}</FieldView>
         <FieldView label='Name'>{student.name}</FieldView>
-        <FieldView label='Email'>{student.email}</FieldView>
-        <FieldView label='Phone1'>{student.phone1}</FieldView>
-        <FieldView label='Phone2'>{student.phone2}</FieldView>
+        <FieldView label='Phone 1'>{student.phone1}</FieldView>
+        <FieldView label='Phone 2'>{student.phone2}</FieldView>
         <FieldView label='Religion'>{student.religion}</FieldView>
-        <FieldView label='Date Of Birth'>{student.dateOfBirth}</FieldView>
+        <FieldView label='Date of Birth'>
+          {new Date(student.dateOfBirth).toLocaleDateString()}
+        </FieldView>
         <FieldView label='Gender'>{student.gender}</FieldView>
         <FieldView label='Marital Status'>{student.maritalStatus}</FieldView>
-        <FieldView label='Birth Place'>{student.birthPlace}</FieldView>
-        <FieldView label='Home Town'>{student.homeTown}</FieldView>
-        <FieldView label='High School'>{student.highSchool}</FieldView>
-        <FieldView label='Next Of Kin Names'>{student.nextOfKinNames}</FieldView>
-        <FieldView label='Next Of Kin Phone'>{student.nextOfKinPhone}</FieldView>
-        <FieldView label='Next Of Kin Relationship'>{student.nextOfKinRelationship}</FieldView>
+        <FieldView label='Structure ID'>{student.structureId}</FieldView>
+        <FieldView label='User ID'>{student.userId}</FieldView>
       </DetailsViewBody>
     </DetailsView>
   );

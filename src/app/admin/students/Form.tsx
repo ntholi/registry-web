@@ -2,7 +2,7 @@
 
 import { students } from '@/db/schema';
 import { Form } from '@/components/adease';
-import { TextInput } from '@mantine/core';
+import { TextInput, Select } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
@@ -40,39 +40,27 @@ export default function StudentForm({ onSubmit, defaultValues, title }: Props) {
             {...form.getInputProps('nationalId')}
           />
           <TextInput label='Name' {...form.getInputProps('name')} />
-          <TextInput label='Email' {...form.getInputProps('email')} />
-          <TextInput label='Phone1' {...form.getInputProps('phone1')} />
-          <TextInput label='Phone2' {...form.getInputProps('phone2')} />
+          <TextInput label='Phone 1' {...form.getInputProps('phone1')} />
+          <TextInput label='Phone 2' {...form.getInputProps('phone2')} />
           <TextInput label='Religion' {...form.getInputProps('religion')} />
           <DateInput
-            label='Date Of Birth'
+            label='Date of Birth'
             {...form.getInputProps('dateOfBirth')}
           />
-          <TextInput label='Gender' {...form.getInputProps('gender')} />
-          <TextInput
+          <Select
+            label='Gender'
+            data={['male', 'female']}
+            {...form.getInputProps('gender')}
+          />
+          <Select
             label='Marital Status'
+            data={['single', 'married', 'divorced', 'widowed']}
             {...form.getInputProps('maritalStatus')}
           />
           <TextInput
-            label='Birth Place'
-            {...form.getInputProps('birthPlace')}
-          />
-          <TextInput label='Home Town' {...form.getInputProps('homeTown')} />
-          <TextInput
-            label='High School'
-            {...form.getInputProps('highSchool')}
-          />
-          <TextInput
-            label='Next Of Kin Names'
-            {...form.getInputProps('nextOfKinNames')}
-          />
-          <TextInput
-            label='Next Of Kin Phone'
-            {...form.getInputProps('nextOfKinPhone')}
-          />
-          <TextInput
-            label='Next Of Kin Relationship'
-            {...form.getInputProps('nextOfKinRelationship')}
+            label='Structure ID'
+            type='number'
+            {...form.getInputProps('structureId')}
           />
         </>
       )}
