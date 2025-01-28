@@ -7,6 +7,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
 import { nanoid } from 'nanoid';
+import { relations } from 'drizzle-orm';
 
 export const userRoles = ['admin', 'student'] as const;
 export type UserRole = (typeof userRoles)[number];
@@ -21,6 +22,16 @@ export const users = sqliteTable('users', {
   emailVerified: integer({ mode: 'timestamp_ms' }),
   image: text(),
 });
+
+export const usersRelations = relations(users, ({ one, many }) => ({
+  student: one(students, {
+    fields: [users.id],
+    references: [students.userId],
+  }),
+  accounts: many(accounts),
+  sessions: many(sessions),
+  authenticators: many(authenticators),
+}));
 
 export const accounts = sqliteTable(
   'accounts',
@@ -46,6 +57,13 @@ export const accounts = sqliteTable(
   })
 );
 
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
 export const sessions = sqliteTable('sessions', {
   sessionToken: text().primaryKey(),
   userId: text()
@@ -53,6 +71,13 @@ export const sessions = sqliteTable('sessions', {
     .references(() => users.id, { onDelete: 'cascade' }),
   expires: integer({ mode: 'timestamp_ms' }).notNull(),
 });
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
 
 export const verificationTokens = sqliteTable(
   'verification_tokens',
@@ -91,6 +116,13 @@ export const authenticators = sqliteTable(
   })
 );
 
+export const authenticatorsRelations = relations(authenticators, ({ one }) => ({
+  user: one(users, {
+    fields: [authenticators.userId],
+    references: [users.id],
+  }),
+}));
+
 export const genderEnum = ['Male', 'Female', 'Other'] as const;
 export const maritalStatusEnum = [
   'Single',
@@ -113,6 +145,18 @@ export const students = sqliteTable('students', {
   userId: text().references(() => users.id, { onDelete: 'set null' }),
 });
 
+export const studentsRelations = relations(students, ({ one, many }) => ({
+  user: one(users, {
+    fields: [students.userId],
+    references: [users.id],
+  }),
+  structure: one(structures, {
+    fields: [students.structureId],
+    references: [structures.id],
+  }),
+  programs: many(studentPrograms),
+}));
+
 export const programStatusEnum = [
   'Active',
   'Changed',
@@ -130,6 +174,17 @@ export const studentPrograms = sqliteTable('student_programs', {
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
 });
+
+export const studentProgramsRelations = relations(
+  studentPrograms,
+  ({ one, many }) => ({
+    student: one(students, {
+      fields: [studentPrograms.stdNo],
+      references: [students.stdNo],
+    }),
+    semesters: many(studentSemesters),
+  })
+);
 
 export const semesterStatusEnum = [
   'Active',
@@ -151,6 +206,17 @@ export const studentSemesters = sqliteTable('student_semesters', {
     .references(() => studentPrograms.id, { onDelete: 'cascade' })
     .notNull(),
 });
+
+export const studentSemestersRelations = relations(
+  studentSemesters,
+  ({ one, many }) => ({
+    program: one(studentPrograms, {
+      fields: [studentSemesters.studentProgramId],
+      references: [studentPrograms.id],
+    }),
+    modules: many(studentModules),
+  })
+);
 
 export const moduleTypeEnum = ['Major', 'Minor', 'Core'] as const;
 export const moduleStatusEnum = [
@@ -188,11 +254,22 @@ export const studentModules = sqliteTable('student_modules', {
     .notNull(),
 });
 
+export const studentModulesRelations = relations(studentModules, ({ one }) => ({
+  semester: one(studentSemesters, {
+    fields: [studentModules.studentSemesterId],
+    references: [studentSemesters.id],
+  }),
+}));
+
 export const programs = sqliteTable('programs', {
   id: integer().primaryKey(),
   code: text().notNull().unique(),
   name: text().notNull(),
 });
+
+export const programsRelations = relations(programs, ({ many }) => ({
+  structures: many(structures),
+}));
 
 export const structures = sqliteTable('structures', {
   id: integer().primaryKey(),
@@ -202,6 +279,15 @@ export const structures = sqliteTable('structures', {
     .notNull(),
 });
 
+export const structuresRelations = relations(structures, ({ one, many }) => ({
+  program: one(programs, {
+    fields: [structures.programId],
+    references: [programs.id],
+  }),
+  semesters: many(semesters),
+  students: many(students),
+}));
+
 export const modules = sqliteTable('modules', {
   id: integer().primaryKey(),
   code: text().notNull(),
@@ -209,6 +295,10 @@ export const modules = sqliteTable('modules', {
   type: text({ enum: moduleTypeEnum }).notNull(),
   credits: real().notNull(),
 });
+
+export const modulesRelations = relations(modules, ({ many }) => ({
+  semesters: many(semesterModules),
+}));
 
 export const semesters = sqliteTable('semesters', {
   id: integer().primaryKey(),
@@ -220,6 +310,14 @@ export const semesters = sqliteTable('semesters', {
   totalCredits: real().notNull(),
 });
 
+export const semestersRelations = relations(semesters, ({ one, many }) => ({
+  structure: one(structures, {
+    fields: [semesters.structureId],
+    references: [structures.id],
+  }),
+  modules: many(semesterModules),
+}));
+
 export const semesterModules = sqliteTable('semester_modules', {
   id: integer().primaryKey(),
   semesterId: integer()
@@ -229,3 +327,17 @@ export const semesterModules = sqliteTable('semester_modules', {
     .references(() => modules.id)
     .notNull(),
 });
+
+export const semesterModulesRelations = relations(
+  semesterModules,
+  ({ one }) => ({
+    semester: one(semesters, {
+      fields: [semesterModules.semesterId],
+      references: [semesters.id],
+    }),
+    module: one(modules, {
+      fields: [semesterModules.moduleId],
+      references: [modules.id],
+    }),
+  })
+);
