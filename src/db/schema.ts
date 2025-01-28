@@ -90,10 +90,6 @@ export const authenticators = sqliteTable(
   })
 );
 
-export const structures = sqliteTable('structures', {
-  id: integer().primaryKey(),
-});
-
 export const genderEnum = ['Male', 'Female', 'Other'] as const;
 export const maritalStatusEnum = [
   'Single',
@@ -188,5 +184,47 @@ export const studentModules = sqliteTable('student_modules', {
   grade: text().notNull(),
   studentSemesterId: integer()
     .references(() => studentSemesters.id, { onDelete: 'cascade' })
+    .notNull(),
+});
+
+export const programs = sqliteTable('programs', {
+  id: integer().primaryKey(),
+  code: text().notNull().unique(),
+  name: text().notNull(),
+});
+
+export const structures = sqliteTable('structures', {
+  id: integer().primaryKey(),
+  code: text().notNull().unique(),
+  programId: integer()
+    .references(() => programs.id)
+    .notNull(),
+});
+
+export const modules = sqliteTable('modules', {
+  id: integer().primaryKey(),
+  code: text().notNull(),
+  name: text().notNull(),
+  type: text({ enum: moduleTypeEnum }).notNull(),
+  credits: real().notNull(),
+});
+
+export const semesters = sqliteTable('semesters', {
+  id: integer().primaryKey(),
+  structureId: integer()
+    .references(() => structures.id)
+    .notNull(),
+  year: integer().notNull(),
+  semesterNumber: integer().notNull(),
+  totalCredits: real().notNull(),
+});
+
+export const semesterModules = sqliteTable('semester_modules', {
+  id: integer().primaryKey(),
+  semesterId: integer()
+    .references(() => semesters.id)
+    .notNull(),
+  moduleId: integer()
+    .references(() => modules.id)
     .notNull(),
 });
