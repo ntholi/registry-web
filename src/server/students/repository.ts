@@ -15,7 +15,15 @@ export default class StudentRepository extends BaseRepository<
     return await db.query.students.findFirst({
       where: eq(students.stdNo, stdNo),
       with: {
-        structure: true,
+        programs: {
+          with: {
+            semesters: {
+              with: {
+                modules: true,
+              },
+            },
+          },
+        },
       },
     });
   }
