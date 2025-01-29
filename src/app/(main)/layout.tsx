@@ -1,8 +1,8 @@
+import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
 import type { Metadata } from 'next';
 import Footer from './base/Footer';
 import Navbar from './base/Navbar';
-import './globals.css';
 import Providers from './providers';
 import Gradient from '@/components/ui/gradient';
 
@@ -11,12 +11,12 @@ export const metadata: Metadata = {
   description:
     'Student Portal Limkokwing University of Creative Technology, Lesotho',
   icons: {
-    icon: '/logo.png',
+    icon: '/images/logo.png',
   },
   openGraph: {
     images: [
       {
-        url: '/logo.png',
+        url: '/images/logo.png',
         width: 1371,
         height: 691,
       },

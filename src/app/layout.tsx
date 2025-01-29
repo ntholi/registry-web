@@ -3,9 +3,9 @@ import Providers from './providers';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Limkokwing Registry',
+  title: 'Student Portal',
   description:
-    'Registry Department App for Limkokwing University of Creative Technology',
+    'Student Portal App for Limkokwing University of Creative Technology',
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
