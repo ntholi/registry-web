@@ -132,21 +132,21 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
 const getAlertStyles = (status: string) => {
   switch (status) {
     case 'approved':
-      return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 border-green-300 dark:border-green-700';
+      return 'text-green-800 dark:text-green-100 border-green-300 dark:border-green-700';
     case 'rejected':
-      return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 border-red-300 dark:border-red-700';
+      return 'text-red-800 dark:text-red-100 border-red-300 dark:border-red-700';
     default:
-      return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 border-yellow-300 dark:border-yellow-700';
+      return 'text-yellow-800 dark:text-yellow-100 border-yellow-300 dark:border-yellow-700';
   }
 };
 
 const getAlertIcon = (status: string) => {
   switch (status) {
     case 'approved':
-      return <CheckCircleIcon className='h-4 w-4' />;
+      return <CheckCircleIcon className='size-4' />;
     case 'rejected':
-      return <XCircleIcon className='h-4 w-4' />;
+      return <XCircleIcon className='size-4' />;
     default:
-      return <InfoIcon className='h-4 w-4' />;
+      return <InfoIcon className='size-4' />;
   }
 };
