@@ -110,7 +110,9 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                 className={cn('border', getAlertStyles(existingSignup.status))}
               >
                 {getAlertIcon(existingSignup.status)}
-                <AlertTitle>Status</AlertTitle>
+                <AlertTitle className='capitalize'>
+                  {existingSignup.status}
+                </AlertTitle>
                 <AlertDescription>{existingSignup.message}</AlertDescription>
               </Alert>
             )}
