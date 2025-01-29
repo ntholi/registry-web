@@ -33,20 +33,21 @@ export default function AcademicsView({ student }: Props) {
 
   return (
     <Stack gap='md'>
-      <Accordion variant='separated'>
+      <Accordion variant='separated' radius='md'>
         {student.programs.map((program) => (
           <Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
             <Accordion.Control>
-              <Group gap='xl'>
-                <div>
-                  <Text fw={600} size='lg'>
-                    {program.name}
+              <Stack gap='sm'>
+                <Text fw={600} size='lg'>
+                  {program.name}
+                </Text>
+                <Group gap={'xs'}>
+                  <Text size='sm' c={'dimmed'}>
+                    Status:
                   </Text>
-                  <Text size='sm' c='dimmed' mt={4}>
-                    {program.code}
-                  </Text>
-                </div>
-              </Group>
+                  <Text size='sm'>{program.status}</Text>
+                </Group>
+              </Stack>
             </Accordion.Control>
 
             <Accordion.Panel>
