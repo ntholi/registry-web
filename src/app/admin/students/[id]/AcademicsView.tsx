@@ -101,14 +101,12 @@ type ModuleTableProps = {
 function ModuleTable({ modules }: ModuleTableProps) {
   return (
     <Box>
-      <Table verticalSpacing='sm'>
+      <Table verticalSpacing='xs'>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Code</Table.Th>
             <Table.Th>Name</Table.Th>
-            <Table.Th>Type</Table.Th>
             <Table.Th>Status</Table.Th>
-            <Table.Th>Credits</Table.Th>
             <Table.Th>Marks</Table.Th>
             <Table.Th>Grade</Table.Th>
           </Table.Tr>
@@ -117,19 +115,22 @@ function ModuleTable({ modules }: ModuleTableProps) {
           {modules.map((module) => (
             <Table.Tr key={module.id}>
               <Table.Td>
-                <Text fw={500}>{module.code}</Text>
+                <Text size='sm' fw={500}>
+                  {module.code}
+                </Text>
               </Table.Td>
-              <Table.Td>{module.name}</Table.Td>
               <Table.Td>
-                <Text size='sm'>{module.type}</Text>
+                <Text size='sm'>{module.name}</Text>
               </Table.Td>
               <Table.Td>
                 <Text size='sm'>{module.status}</Text>
               </Table.Td>
-              <Table.Td>{module.credits}</Table.Td>
-              <Table.Td>{module.marks}</Table.Td>
+              <Table.Td>
+                <Text size='sm'>{module.marks}</Text>
+              </Table.Td>
               <Table.Td>
                 <Badge
+                  size='sm'
                   variant='light'
                   color={
                     module.grade === 'F' || module.grade === 'NM'
