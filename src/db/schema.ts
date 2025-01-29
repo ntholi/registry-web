@@ -7,7 +7,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
 import { nanoid } from 'nanoid';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 export const dashboardUsers = ['admin', 'registry', 'finance'];
 export const userRoles = ['user', 'student', ...dashboardUsers] as const;
@@ -123,6 +123,17 @@ export const authenticatorsRelations = relations(authenticators, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const signups = sqliteTable('signups', {
+  userId: text()
+    .primaryKey()
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  name: text().notNull(),
+  stdNo: text().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }),
+});
 
 export const genderEnum = ['Male', 'Female', 'Other'] as const;
 export const maritalStatusEnum = [
