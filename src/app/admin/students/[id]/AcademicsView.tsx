@@ -14,6 +14,7 @@ import {
   Text,
   Title,
 } from '@mantine/core';
+import SemesterStatus from '@/components/SemesterStatus';
 
 type Props = {
   student: Awaited<ReturnType<typeof getStudent>>;
@@ -32,7 +33,7 @@ export default function AcademicsView({ student }: Props) {
 
   return (
     <Stack gap='md'>
-      <Accordion variant='contained'>
+      <Accordion variant='separated'>
         {student.programs.map((program) => (
           <Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
             <Accordion.Control>
@@ -56,7 +57,7 @@ export default function AcademicsView({ student }: Props) {
                       <Stack gap='md'>
                         <Group justify='space-between'>
                           <Title order={4}>{semester.term}</Title>
-                          <Badge size='sm'>{semester.status}</Badge>
+                          <SemesterStatus status={semester.status} />
                         </Group>
 
                         <Divider />
@@ -100,15 +101,15 @@ type ModuleTableProps = {
 
 function ModuleTable({ modules }: ModuleTableProps) {
   return (
-    <Box>
-      <Table verticalSpacing='xs'>
+    <Box style={{ overflow: 'auto' }}>
+      <Table verticalSpacing='xs' striped>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Code</Table.Th>
+            <Table.Th w={100}>Code</Table.Th>
             <Table.Th>Name</Table.Th>
-            <Table.Th>Status</Table.Th>
-            <Table.Th>Marks</Table.Th>
-            <Table.Th>Grade</Table.Th>
+            <Table.Th w={100}>Status</Table.Th>
+            <Table.Th w={100}>Marks</Table.Th>
+            <Table.Th w={100}>Grade</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>

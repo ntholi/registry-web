@@ -188,6 +188,7 @@ export const studentProgramsRelations = relations(
 
 export const semesterStatusEnum = [
   'Active',
+  'Outstanding',
   'Deferred',
   'Deleted',
   'DNR',

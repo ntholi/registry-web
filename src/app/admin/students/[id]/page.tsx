@@ -24,7 +24,7 @@ export default async function StudentDetails({ params }: Props) {
       <Tabs defaultValue='academics'>
         <TabsList>
           <TabsTab value='academics'>Academics</TabsTab>
-          <TabsTab value='info'>Info</TabsTab>
+          <TabsTab value='info'>Student</TabsTab>
         </TabsList>
         <TabsPanel value='academics' pt={'xl'} p={'sm'}>
           <AcademicsView student={student} />
