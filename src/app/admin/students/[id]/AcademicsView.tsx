@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useMemo, useCallback } from 'react';
 import SemesterStatus from '@/components/SemesterStatus';
 import { getStudent } from '@/server/students/actions';
 import {
@@ -14,6 +15,7 @@ import {
   Text,
   ThemeIcon,
   Title,
+  Anchor,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 
@@ -22,15 +24,50 @@ type Props = {
 };
 
 export default function AcademicsView({ student }: Props) {
-  if (!student?.programs?.length) {
-    return (
-      <Card shadow='sm' padding='lg' radius='md' withBorder>
-        <Text fw={500} c='dimmed'>
-          No academic programs found
-        </Text>
-      </Card>
-    );
-  }
+  const [openPrograms, setOpenPrograms] = useState<string[]>([]);
+
+  const moduleLocations = useMemo(() => {
+    const locations: Record<
+      string,
+      Array<{ programId: string; moduleId: number }>
+    > = {};
+
+    student?.programs.forEach((program) => {
+      program.semesters?.forEach((semester) => {
+        semester.modules?.forEach((module) => {
+          if (!locations[module.code]) {
+            locations[module.code] = [];
+          }
+          locations[module.code].push({
+            programId: program.id?.toString() ?? '',
+            moduleId: module.id,
+          });
+        });
+      });
+    });
+
+    return locations;
+  }, [student?.programs]);
+
+  const scrollToModule = useCallback(
+    (moduleId: number, programId: string) => {
+      if (!openPrograms.includes(programId)) {
+        setOpenPrograms((prev) => [...prev, programId]);
+        setTimeout(() => {
+          const element = document.querySelector(
+            `[data-module-id="${moduleId}"]`
+          );
+          element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      } else {
+        const element = document.querySelector(
+          `[data-module-id="${moduleId}"]`
+        );
+        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    },
+    [openPrograms]
+  );
 
   const getProgramStatusColor = (status: string) => {
     switch (status) {
@@ -49,9 +86,25 @@ export default function AcademicsView({ student }: Props) {
     }
   };
 
+  if (!student?.programs?.length) {
+    return (
+      <Card shadow='sm' padding='lg' radius='md' withBorder>
+        <Text fw={500} c='dimmed'>
+          No academic programs found
+        </Text>
+      </Card>
+    );
+  }
+
   return (
     <Stack gap='md'>
-      <Accordion variant='separated' radius='md'>
+      <Accordion
+        variant='separated'
+        radius='md'
+        multiple
+        value={openPrograms}
+        onChange={setOpenPrograms}
+      >
         {student.programs.map((program) => (
           <Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
             <Accordion.Control>
@@ -90,7 +143,28 @@ export default function AcademicsView({ student }: Props) {
                         <Divider />
 
                         {semester.modules?.length ? (
-                          <ModuleTable modules={semester.modules} />
+                          <ModuleTable
+                            modules={semester.modules}
+                            moduleLocations={moduleLocations}
+                            onModuleClick={(moduleId, code) => {
+                              const locations = moduleLocations[code];
+                              if (!locations || locations.length <= 1) return;
+
+                              const currentIndex = locations.findIndex(
+                                (loc) => loc.moduleId === moduleId
+                              );
+
+                              const nextLocation =
+                                locations[
+                                  (currentIndex + 1) % locations.length
+                                ];
+
+                              scrollToModule(
+                                nextLocation.moduleId,
+                                nextLocation.programId
+                              );
+                            }}
+                          />
                         ) : (
                           <Text c='dimmed'>
                             No modules found for this semester
@@ -124,9 +198,18 @@ type ModuleTableProps = {
     grade: string;
     credits: number;
   }[];
+  moduleLocations: Record<
+    string,
+    Array<{ programId: string; moduleId: number }>
+  >;
+  onModuleClick: (moduleId: number, code: string) => void;
 };
 
-function ModuleTable({ modules }: ModuleTableProps) {
+function ModuleTable({
+  modules,
+  moduleLocations,
+  onModuleClick,
+}: ModuleTableProps) {
   return (
     <Table verticalSpacing='xs'>
       <Table.Thead>
@@ -140,9 +223,15 @@ function ModuleTable({ modules }: ModuleTableProps) {
       </Table.Thead>
       <Table.Tbody>
         {modules.map((module) => (
-          <Table.Tr key={module.id}>
+          <Table.Tr key={module.id} data-module-id={module.id}>
             <Table.Td>
-              <Text size='sm'>{module.code}</Text>
+              {moduleLocations[module.code].length > 1 ? (
+                <Anchor size='sm' onClick={() => onModuleClick(module.id, module.code)}>
+                  {module.code}
+                </Anchor>
+              ) : (
+                <Text size='sm'>{module.code}</Text>
+              )}
             </Table.Td>
             <Table.Td>
               <Text size='sm'>{module.name}</Text>
