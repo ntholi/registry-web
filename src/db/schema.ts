@@ -124,6 +124,7 @@ export const authenticatorsRelations = relations(authenticators, ({ one }) => ({
   }),
 }));
 
+export const signupStatusEnum = ['pending', 'approved', 'rejected'] as const;
 export const signups = sqliteTable('signups', {
   userId: text()
     .primaryKey()
@@ -131,6 +132,7 @@ export const signups = sqliteTable('signups', {
     .references(() => users.id, { onDelete: 'cascade' }),
   name: text().notNull(),
   stdNo: text().notNull(),
+  status: text({ enum: signupStatusEnum }).notNull().default('pending'),
   message: text().default('Pending approval'),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   updatedAt: integer({ mode: 'timestamp' }),
