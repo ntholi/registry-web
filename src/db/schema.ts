@@ -10,7 +10,7 @@ import { nanoid } from 'nanoid';
 import { relations } from 'drizzle-orm';
 
 export const dashboardUsers = ['admin', 'registry', 'finance'];
-export const userRoles = ['student', ...dashboardUsers] as const;
+export const userRoles = ['user', 'student', ...dashboardUsers] as const;
 export type UserRole = (typeof userRoles)[number];
 
 export const users = sqliteTable('users', {
@@ -18,7 +18,7 @@ export const users = sqliteTable('users', {
     .primaryKey()
     .$defaultFn(() => nanoid()),
   name: text(),
-  role: text({ enum: userRoles }).notNull().default('student'),
+  role: text({ enum: userRoles }).notNull().default('user'),
   email: text().unique(),
   emailVerified: integer({ mode: 'timestamp_ms' }),
   image: text(),
