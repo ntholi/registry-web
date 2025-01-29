@@ -14,14 +14,14 @@ export default async function SignupPage() {
   const existingSignup = await getSignup(session.user.id);
 
   return (
-    <Container>
+    <Container className='flex items-center justify-center flex-col w-full h-screen'>
       <div className='mb-8'>
         <h1 className='text-3xl font-bold'>Student Registration</h1>
         <p className='text-muted-foreground'>
           Fill in your details to register as a student
         </p>
       </div>
-      <SignupForm existingSignup={existingSignup} userId={session.user.id} />
+      <SignupForm existingSignup={existingSignup} />
     </Container>
   );
 }

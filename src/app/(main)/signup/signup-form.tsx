@@ -1,9 +1,7 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -14,40 +12,37 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { createSignup } from '@/server/signups/actions';
+import { createSignup, getSignup } from '@/server/signups/actions';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import * as z from 'zod';
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters.',
   }),
-  stdNo: z.string().min(2, {
-    message: 'Student number must be at least 2 characters.',
+  stdNo: z.string().regex(/^9010\d{5}$/, {
+    message: 'Student number must be a 9-digit number starting with 9010.',
   }),
 });
 
 type SignupFormProps = {
-  existingSignup?: {
-    userId: string;
-    name: string;
-    stdNo: string;
-    message?: string | null;
-    createdAt?: number | null;
-    updatedAt?: number | null;
-  } | null;
-  userId: string;
+  existingSignup: Awaited<ReturnType<typeof getSignup>>;
 };
 
-export function SignupForm({ existingSignup, userId }: SignupFormProps) {
+export function SignupForm({ existingSignup }: SignupFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: session } = useSession();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: existingSignup?.name || '',
+      name: existingSignup?.name || session?.user?.name || '',
       stdNo: existingSignup?.stdNo || '',
     },
   });
@@ -55,12 +50,14 @@ export function SignupForm({ existingSignup, userId }: SignupFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
-      await createSignup({
-        ...values,
-        userId,
-      });
-      toast.success('Registration submitted successfully');
-      router.refresh();
+      if (session?.user?.id) {
+        await createSignup({
+          ...values,
+          userId: session?.user?.id,
+        });
+        toast.success('Registration submitted successfully');
+        router.refresh();
+      }
     } catch (error) {
       toast.error('Failed to submit registration');
       console.error(error);
@@ -70,52 +67,57 @@ export function SignupForm({ existingSignup, userId }: SignupFormProps) {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input placeholder="John Doe" {...field} />
-              </FormControl>
-              <FormDescription>
-                Enter your full name as it appears on your documents
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Card className='w-full sm:w-1/2'>
+      <CardContent className='p-6'>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Enter your full name as it appears in your student record.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="stdNo"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Student Number</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. 12345" {...field} />
-              </FormControl>
-              <FormDescription>
-                Enter your student number if you have one
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name='stdNo'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Student Number</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        {existingSignup?.message && (
-          <div className="rounded-lg bg-muted p-4">
-            <p className="text-sm">Status: {existingSignup.message}</p>
-          </div>
-        )}
+            {existingSignup?.message && (
+              <div className='rounded-lg bg-muted p-4'>
+                <p className='text-sm'>Status: {existingSignup.message}</p>
+              </div>
+            )}
 
-        <Button type="submit" disabled={isSubmitting}>
-          {existingSignup ? 'Update Registration' : 'Submit Registration'}
-        </Button>
-      </form>
-    </Form>
+            <Button
+              className='w-full sm:w-auto'
+              type='submit'
+              disabled={isSubmitting}
+            >
+              {existingSignup ? 'Update Registration' : 'Submit Registration'}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }
