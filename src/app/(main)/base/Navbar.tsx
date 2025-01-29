@@ -25,7 +25,7 @@ export default function Navbar() {
         <div className='flex items-center gap-4'>
           <div>
             <span className='text-sm font-medium text-muted-foreground'>
-              901011676
+              9010XXXXX
             </span>
           </div>
           <UserButton />

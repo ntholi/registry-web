@@ -9,6 +9,11 @@ export async function getStudent(stdNo: number) {
   return service.get(stdNo);
 }
 
+export async function getStudentByUserId(userId: string | undefined | null) {
+  if (!userId) return;
+  return service.findStudentByUserId(userId);
+}
+
 export async function findAllStudents(page: number = 1, search = '') {
   return service.findAll({ page, search });
 }

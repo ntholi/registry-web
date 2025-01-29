@@ -1,16 +1,24 @@
+import { auth } from '@/auth';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
+import { getStudentByUserId } from '@/server/students/actions';
 import { GraduationCap } from 'lucide-react';
+import { notFound } from 'next/navigation';
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+  const student = await getStudentByUserId(session?.user?.id);
+
+  if (!student) return notFound();
+
   return (
     <>
       <Container width='lg' className='sm:py-10'>
         <Card>
           <CardHeader className='border-b border-border/10 pb-8 items-start'>
             <CardTitle className='text-3xl font-bold tracking-tight sm:text-4xl'>
-              Thabo Lebese
+              {student.name}
             </CardTitle>
             <div className='flex flex-col space-y-1 items-start'>
               <Badge
@@ -18,10 +26,10 @@ export default function Home() {
                 className='flex items-center gap-2 rounded-full'
               >
                 <GraduationCap className='size-5' />
-                Bachelor of Computer Science
+                {student.structure?.program.name}
               </Badge>
               <div className='pl-2 flex gap-2 items-center text-sm text-muted-foreground/80'>
-                Year 3 • Semester 2
+                Year {student.userId} • Semester {student.userId}
               </div>
             </div>
           </CardHeader>

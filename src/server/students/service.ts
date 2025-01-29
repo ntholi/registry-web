@@ -16,6 +16,13 @@ class StudentService {
     return withAuth(async () => this.repository.findById(stdNo), []);
   }
 
+  async findStudentByUserId(userId: string) {
+    return withAuth(
+      async () => this.repository.findStudentByUserId(userId),
+      ['all']
+    );
+  }
+
   async findAll(params: FindAllParams<typeof students>) {
     return withAuth(async () => this.repository.findAll(params), []);
   }
