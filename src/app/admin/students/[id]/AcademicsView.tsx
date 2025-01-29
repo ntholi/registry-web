@@ -1,155 +1,132 @@
 'use client';
 
-import { useState } from 'react';
+import { getStudent } from '@/server/students/actions';
 import {
-  Card,
-  Title,
-  Text,
-  Stack,
-  Group,
+  Accordion,
   Badge,
   Box,
-  UnstyledButton,
-  ActionIcon,
+  Card,
+  Divider,
+  Group,
+  Paper,
+  Stack,
   Table,
-  Accordion,
+  Text,
+  Title,
 } from '@mantine/core';
-import { IconBook, IconChevronLeft, IconSchool } from '@tabler/icons-react';
-import { getStudent } from '@/server/students/actions';
 
 type Props = {
   student: Awaited<ReturnType<typeof getStudent>>;
 };
 
 export default function AcademicsView({ student }: Props) {
-  const [selectedProgram, setSelectedProgram] = useState<number | null>(null);
-  const currentProgram =
-    selectedProgram !== null ? student?.programs[selectedProgram] : null;
-
-  if (selectedProgram !== null && currentProgram) {
+  if (!student?.programs?.length) {
     return (
-      <Stack>
-        <Group>
-          <ActionIcon
-            variant='subtle'
-            size='lg'
-            onClick={() => setSelectedProgram(null)}
-            aria-label='Back to programs'
-          >
-            <IconChevronLeft />
-          </ActionIcon>
-          <Box>
-            <Text size='sm' c='dimmed'>
-              Program
-            </Text>
-            <Title order={3}>{currentProgram.name}</Title>
-          </Box>
-        </Group>
-
-        <Card withBorder shadow='sm'>
-          <Group>
-            <Badge>{currentProgram.level}</Badge>
-            <Text size='sm'>{currentProgram.description}</Text>
-          </Group>
-        </Card>
-
-        <Accordion variant='contained'>
-          {currentProgram.semesters.map((semester) => (
-            <Accordion.Item key={semester.id} value={semester.id.toString()}>
-              <Accordion.Control>
-                <Group>
-                  <Text fw={500}>Semester {semester.number}</Text>
-                  <Badge size='sm' variant='outline'>
-                    {semester.modules.length} Modules
-                  </Badge>
-                </Group>
-              </Accordion.Control>
-              <Accordion.Panel>
-                <Table>
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Code</Table.Th>
-                      <Table.Th>Module Name</Table.Th>
-                      <Table.Th>Credits</Table.Th>
-                      <Table.Th>Grade</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {semester.modules.map((module) => (
-                      <Table.Tr key={module.id}>
-                        <Table.Td>
-                          <Group gap='xs'>
-                            <IconBook
-                              size={16}
-                              style={{ color: 'var(--mantine-color-gray-6)' }}
-                            />
-                            {module.code}
-                          </Group>
-                        </Table.Td>
-                        <Table.Td>{module.name}</Table.Td>
-                        <Table.Td>{module.credits}</Table.Td>
-                        <Table.Td>{module.grade || '-'}</Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </Accordion.Panel>
-            </Accordion.Item>
-          ))}
-        </Accordion>
-      </Stack>
+      <Card shadow='sm' padding='lg' radius='md' withBorder>
+        <Text fw={500} c='dimmed'>
+          No academic programs found
+        </Text>
+      </Card>
     );
   }
 
   return (
-    <Stack>
-      <Title order={2}>Academic Programs</Title>
-      <Group grow>
-        {student.programs.map((program, index) => (
-          <UnstyledButton
-            key={program.id}
-            onClick={() => setSelectedProgram(index)}
-            style={{ flex: '1 1 300px' }}
-          >
-            <Card
-              withBorder
-              shadow='sm'
-              padding='lg'
-              radius='md'
-              style={{
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                ':hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: 'var(--mantine-shadow-md)',
-                },
-              }}
-            >
-              <Stack gap='xs'>
-                <Group>
-                  <IconSchool
-                    size={24}
-                    style={{ color: 'var(--mantine-color-gray-6)' }}
-                  />
-                  <Box>
-                    <Text fw={500} size='lg' lineClamp={1}>
-                      {program.name}
-                    </Text>
-                    <Text size='sm' c='dimmed'>
-                      {program.level}
-                    </Text>
-                  </Box>
-                </Group>
-                <Text size='sm' lineClamp={2} c='dimmed'>
-                  {program.description}
-                </Text>
-                <Badge variant='outline' w='fit-content'>
-                  {program.semesters.length} Semesters
-                </Badge>
+    <Stack gap='md'>
+      <Accordion variant='contained'>
+        {student.programs.map((program) => (
+          <Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
+            <Accordion.Control>
+              <Group gap='xl'>
+                <div>
+                  <Text fw={600} size='lg'>
+                    {program.name}
+                  </Text>
+                  <Text size='sm' c='dimmed' mt={4}>
+                    {program.code}
+                  </Text>
+                </div>
+              </Group>
+            </Accordion.Control>
+
+            <Accordion.Panel>
+              <Stack gap='xl'>
+                {program.semesters?.length ? (
+                  program.semesters.map((semester) => (
+                    <Paper key={semester.id} p='md' withBorder>
+                      <Stack gap='md'>
+                        <Group justify='space-between'>
+                          <Title order={4}>{semester.term}</Title>
+                          <Badge size='sm'>{semester.status}</Badge>
+                        </Group>
+
+                        <Divider />
+
+                        {semester.modules?.length ? (
+                          <Box>
+                            <Table verticalSpacing='sm'>
+                              <Table.Thead>
+                                <Table.Tr>
+                                  <Table.Th>Code</Table.Th>
+                                  <Table.Th>Name</Table.Th>
+                                  <Table.Th>Type</Table.Th>
+                                  <Table.Th>Status</Table.Th>
+                                  <Table.Th>Credits</Table.Th>
+                                  <Table.Th>Marks</Table.Th>
+                                  <Table.Th>Grade</Table.Th>
+                                </Table.Tr>
+                              </Table.Thead>
+                              <Table.Tbody>
+                                {semester.modules.map((module) => (
+                                  <Table.Tr key={module.id}>
+                                    <Table.Td>
+                                      <Text fw={500}>{module.code}</Text>
+                                    </Table.Td>
+                                    <Table.Td>{module.name}</Table.Td>
+                                    <Table.Td>
+                                      <Text size='sm'>{module.type}</Text>
+                                    </Table.Td>
+                                    <Table.Td>
+                                      <Text size='sm'>{module.status}</Text>
+                                    </Table.Td>
+                                    <Table.Td>{module.credits}</Table.Td>
+                                    <Table.Td>{module.marks}</Table.Td>
+                                    <Table.Td>
+                                      <Badge
+                                        variant='light'
+                                        color={
+                                          module.grade === 'F'
+                                            ? 'red'
+                                            : module.grade === 'D'
+                                            ? 'orange'
+                                            : 'green'
+                                        }
+                                      >
+                                        {module.grade}
+                                      </Badge>
+                                    </Table.Td>
+                                  </Table.Tr>
+                                ))}
+                              </Table.Tbody>
+                            </Table>
+                          </Box>
+                        ) : (
+                          <Text c='dimmed'>
+                            No modules found for this semester
+                          </Text>
+                        )}
+                      </Stack>
+                    </Paper>
+                  ))
+                ) : (
+                  <Text c='dimmed'>
+                    No semesters available for this program
+                  </Text>
+                )}
               </Stack>
-            </Card>
-          </UnstyledButton>
+            </Accordion.Panel>
+          </Accordion.Item>
         ))}
-      </Group>
+      </Accordion>
     </Stack>
   );
 }
