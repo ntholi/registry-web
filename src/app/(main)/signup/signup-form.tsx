@@ -20,6 +20,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { InfoIcon } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -103,9 +105,11 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
             />
 
             {existingSignup?.message && (
-              <div className='rounded-lg bg-muted p-4'>
-                <p className='text-sm'>Status: {existingSignup.message}</p>
-              </div>
+              <Alert>
+                <InfoIcon className='h-4 w-4' />
+                <AlertTitle>Status</AlertTitle>
+                <AlertDescription>{existingSignup.message}</AlertDescription>
+              </Alert>
             )}
 
             <Button
