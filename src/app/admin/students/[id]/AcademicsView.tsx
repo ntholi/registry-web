@@ -36,9 +36,7 @@ export default function AcademicsView({ student }: Props) {
         {student.programs.map((program) => (
           <Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
             <Accordion.Control>
-              <Text fw={600} size='lg'>
-                {program.name}
-              </Text>
+              <Text fw={600}>{program.name}</Text>
               <Group gap={'xs'}>
                 <Text size='sm' c={'dimmed'}>
                   Status:
@@ -54,7 +52,9 @@ export default function AcademicsView({ student }: Props) {
                     <Paper key={semester.id} p='md' withBorder>
                       <Stack gap='md'>
                         <Group justify='space-between'>
-                          <Title order={4}>{semester.term}</Title>
+                          <Title order={4} size={'1rem'}>
+                            {semester.term}
+                          </Title>
                           <SemesterStatus status={semester.status} />
                         </Group>
 
@@ -102,7 +102,7 @@ function ModuleTable({ modules }: ModuleTableProps) {
     <Table verticalSpacing='xs'>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th w={95}>Code</Table.Th>
+          <Table.Th w={90}>Code</Table.Th>
           <Table.Th>Name</Table.Th>
           <Table.Th w={100}>Status</Table.Th>
           <Table.Th w={62}>Marks</Table.Th>
@@ -113,9 +113,7 @@ function ModuleTable({ modules }: ModuleTableProps) {
         {modules.map((module) => (
           <Table.Tr key={module.id}>
             <Table.Td>
-              <Text size='sm' fw={500}>
-                {module.code}
-              </Text>
+              <Text size='sm'>{module.code}</Text>
             </Table.Td>
             <Table.Td>
               <Text size='sm'>{module.name}</Text>
