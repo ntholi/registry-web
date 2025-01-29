@@ -17,7 +17,7 @@ export default function Logo({ className, width = 90, height = 90 }: Props) {
       width={width}
       height={height}
       className={className}
-      src={theme === 'dark' ? '/logo-white.png' : '/logo-black.png'}
+      src={`/images/logo-${theme}.png`}
       alt='Logo'
     />
   );
