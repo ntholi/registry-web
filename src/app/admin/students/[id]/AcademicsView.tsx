@@ -62,53 +62,7 @@ export default function AcademicsView({ student }: Props) {
                         <Divider />
 
                         {semester.modules?.length ? (
-                          <Box>
-                            <Table verticalSpacing='sm'>
-                              <Table.Thead>
-                                <Table.Tr>
-                                  <Table.Th>Code</Table.Th>
-                                  <Table.Th>Name</Table.Th>
-                                  <Table.Th>Type</Table.Th>
-                                  <Table.Th>Status</Table.Th>
-                                  <Table.Th>Credits</Table.Th>
-                                  <Table.Th>Marks</Table.Th>
-                                  <Table.Th>Grade</Table.Th>
-                                </Table.Tr>
-                              </Table.Thead>
-                              <Table.Tbody>
-                                {semester.modules.map((module) => (
-                                  <Table.Tr key={module.id}>
-                                    <Table.Td>
-                                      <Text fw={500}>{module.code}</Text>
-                                    </Table.Td>
-                                    <Table.Td>{module.name}</Table.Td>
-                                    <Table.Td>
-                                      <Text size='sm'>{module.type}</Text>
-                                    </Table.Td>
-                                    <Table.Td>
-                                      <Text size='sm'>{module.status}</Text>
-                                    </Table.Td>
-                                    <Table.Td>{module.credits}</Table.Td>
-                                    <Table.Td>{module.marks}</Table.Td>
-                                    <Table.Td>
-                                      <Badge
-                                        variant='light'
-                                        color={
-                                          module.grade === 'F'
-                                            ? 'red'
-                                            : module.grade === 'D'
-                                            ? 'orange'
-                                            : 'green'
-                                        }
-                                      >
-                                        {module.grade}
-                                      </Badge>
-                                    </Table.Td>
-                                  </Table.Tr>
-                                ))}
-                              </Table.Tbody>
-                            </Table>
-                          </Box>
+                          <ModuleTable modules={semester.modules} />
                         ) : (
                           <Text c='dimmed'>
                             No modules found for this semester
@@ -128,5 +82,70 @@ export default function AcademicsView({ student }: Props) {
         ))}
       </Accordion>
     </Stack>
+  );
+}
+
+type ModuleTableProps = {
+  modules: {
+    id: number;
+    code: string;
+    name: string;
+    type: string;
+    status: string;
+    marks: string;
+    grade: string;
+    credits: number;
+  }[];
+};
+
+function ModuleTable({ modules }: ModuleTableProps) {
+  return (
+    <Box>
+      <Table verticalSpacing='sm'>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Code</Table.Th>
+            <Table.Th>Name</Table.Th>
+            <Table.Th>Type</Table.Th>
+            <Table.Th>Status</Table.Th>
+            <Table.Th>Credits</Table.Th>
+            <Table.Th>Marks</Table.Th>
+            <Table.Th>Grade</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {modules.map((module) => (
+            <Table.Tr key={module.id}>
+              <Table.Td>
+                <Text fw={500}>{module.code}</Text>
+              </Table.Td>
+              <Table.Td>{module.name}</Table.Td>
+              <Table.Td>
+                <Text size='sm'>{module.type}</Text>
+              </Table.Td>
+              <Table.Td>
+                <Text size='sm'>{module.status}</Text>
+              </Table.Td>
+              <Table.Td>{module.credits}</Table.Td>
+              <Table.Td>{module.marks}</Table.Td>
+              <Table.Td>
+                <Badge
+                  variant='light'
+                  color={
+                    module.grade === 'F' || module.grade === 'NM'
+                      ? 'red'
+                      : module.grade === 'D'
+                      ? 'orange'
+                      : 'green'
+                  }
+                >
+                  {module.grade}
+                </Badge>
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+    </Box>
   );
 }
