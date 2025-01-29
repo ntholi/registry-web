@@ -12,8 +12,10 @@ import {
   Stack,
   Table,
   Text,
+  ThemeIcon,
   Title,
 } from '@mantine/core';
+import { IconSchool } from '@tabler/icons-react';
 
 type Props = {
   student: Awaited<ReturnType<typeof getStudent>>;
@@ -53,18 +55,23 @@ export default function AcademicsView({ student }: Props) {
         {student.programs.map((program) => (
           <Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
             <Accordion.Control>
-              <Stack gap={'xs'}>
-                <Text>{program.name}</Text>
-                <Group gap={'xs'}>
-                  <Badge
-                    color={getProgramStatusColor(program.status)}
-                    size='xs'
-                    variant='light'
-                  >
-                    {program.status}
-                  </Badge>
-                </Group>
-              </Stack>
+              <Group>
+                <ThemeIcon variant='light' color='gray' size={'xl'}>
+                  <IconSchool size='1.1rem' />
+                </ThemeIcon>
+                <Stack gap={5}>
+                  <Text fw={500}>{program.name}</Text>
+                  <Group gap={'xs'}>
+                    <Badge
+                      color={getProgramStatusColor(program.status)}
+                      size='xs'
+                      variant='transparent'
+                    >
+                      {program.status}
+                    </Badge>
+                  </Group>
+                </Stack>
+              </Group>
             </Accordion.Control>
 
             <Accordion.Panel>
