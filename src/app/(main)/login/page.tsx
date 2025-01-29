@@ -11,6 +11,10 @@ import { redirect } from 'next/navigation';
 import Logo from '../base/Logo';
 import GoogleIcon from './GoogleIcon';
 
+export const metadata = {
+  title: 'Sign in',
+};
+
 export default async function LoginForm() {
   const session = await auth();
 

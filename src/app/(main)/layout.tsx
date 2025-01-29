@@ -4,6 +4,10 @@ import { Toaster } from '@/components/ui/sonner';
 import type { Metadata } from 'next';
 import Footer from './base/Footer';
 import Providers from './providers';
+import { PropsWithChildren } from 'react';
+import { auth } from '@/auth';
+import { dashboardUsers } from '@/db/schema';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Student Portal',
@@ -23,11 +27,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: PropsWithChildren) {
+  const session = await auth();
+
+  if (session?.user?.role && dashboardUsers.includes(session.user.role)) {
+    redirect('/admin');
+  }
+
   return (
     <Providers>
       <Gradient className='min-h-screen'>{children}</Gradient>
