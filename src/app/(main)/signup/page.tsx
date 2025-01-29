@@ -11,6 +11,10 @@ export default async function SignupPage() {
     redirect('/login');
   }
 
+  if (session?.user?.role === 'student') {
+    redirect('/');
+  }
+
   const existingSignup = await getSignup(session.user.id);
 
   return (
