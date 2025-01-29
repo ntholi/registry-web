@@ -131,6 +131,7 @@ export const signups = sqliteTable('signups', {
     .references(() => users.id, { onDelete: 'cascade' }),
   name: text().notNull(),
   stdNo: text().notNull(),
+  message: text().default('Pending approval'),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   updatedAt: integer({ mode: 'timestamp' }),
 });

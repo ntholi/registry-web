@@ -12,8 +12,8 @@ class SignupService {
     return withAuth(async () => this.repository.findFirst(), []);
   }
 
-  async get(id: string) {
-    return withAuth(async () => this.repository.findById(id), []);
+  async get(userId: string) {
+    return withAuth(async () => this.repository.findById(userId), []);
   }
 
   async findAll(params: FindAllParams<typeof signups>) {

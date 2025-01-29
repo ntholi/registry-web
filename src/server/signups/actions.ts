@@ -1,14 +1,12 @@
 'use server';
 
-
 import { signups } from '@/db/schema';
-import { signupsService as service} from './service';
+import { signupsService as service } from './service';
 
 type Signup = typeof signups.$inferInsert;
 
-
-export async function getSignup(id: string) {
-  return service.get(id);
+export async function getSignup(userId: string) {
+  return service.get(userId);
 }
 
 export async function findAllSignups(page: number = 1, search = '') {

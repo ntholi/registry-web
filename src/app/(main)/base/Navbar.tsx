@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import Logo from './Logo';
 import UserButton from './UserButton';
 
-const exceptions = ['/login', '/register'];
+const exceptions = ['/login', '/signup'];
 
 export default function Navbar() {
   const { status } = useSession();

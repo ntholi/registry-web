@@ -1,12 +1,12 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { signups } from '@/db/schema'
+import { signups } from '@/db/schema';
 
 export default class SignupRepository extends BaseRepository<
   typeof signups,
-  'id'
+  'userId'
 > {
   constructor() {
-    super(signups, 'id');
+    super(signups, 'userId');
   }
 }
 

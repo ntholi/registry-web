@@ -8,7 +8,7 @@ export default async function layout({ children }: PropsWithChildren) {
   const session = await auth();
 
   if (session?.user?.role === 'user') {
-    redirect('/register');
+    redirect('/signup');
   }
 
   if (session?.user?.role && dashboardUsers.includes(session.user.role)) {
