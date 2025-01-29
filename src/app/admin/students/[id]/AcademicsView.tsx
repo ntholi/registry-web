@@ -30,19 +30,41 @@ export default function AcademicsView({ student }: Props) {
     );
   }
 
+  const getProgramStatusColor = (status: string) => {
+    switch (status) {
+      case 'Active':
+        return 'green';
+      case 'Changed':
+        return 'blue';
+      case 'Completed':
+        return 'cyan';
+      case 'Deleted':
+        return 'red';
+      case 'Inactive':
+        return 'gray';
+      default:
+        return 'gray';
+    }
+  };
+
   return (
     <Stack gap='md'>
       <Accordion variant='separated' radius='md'>
         {student.programs.map((program) => (
           <Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
             <Accordion.Control>
-              <Text fw={600}>{program.name}</Text>
-              <Group gap={'xs'}>
-                <Text size='sm' c={'dimmed'}>
-                  Status:
-                </Text>
-                <Text size='sm'>{program.status}</Text>
-              </Group>
+              <Stack gap={'xs'}>
+                <Text>{program.name}</Text>
+                <Group gap={'xs'}>
+                  <Badge
+                    color={getProgramStatusColor(program.status)}
+                    size='xs'
+                    variant='light'
+                  >
+                    {program.status}
+                  </Badge>
+                </Group>
+              </Stack>
             </Accordion.Control>
 
             <Accordion.Panel>

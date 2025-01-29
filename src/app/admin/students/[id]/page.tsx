@@ -21,7 +21,7 @@ export default async function StudentDetails({ params }: Props) {
     <DetailsView>
       <DetailsViewHeader title={student.name} queryKey={['students']} />
 
-      <Tabs defaultValue='academics'>
+      <Tabs defaultValue='academics' variant='outline' mt={'xl'}>
         <TabsList>
           <TabsTab value='academics'>Academics</TabsTab>
           <TabsTab value='info'>Student</TabsTab>
