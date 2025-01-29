@@ -1,13 +1,33 @@
-# Limkokwing Registry Department App
+# Limkokwing Registry Portal
 
-A web application built for Limkokwing University of Creative Technology's Registry Department to streamline administrative processes and enhance student record management.
+A modern web portal for Limkokwing University's Registry Department that manages student records, course registrations, and administrative processes.
+
+## Features
+
+- 🔐 Secure authentication with NextAuth.js
+- 🎨 Dark/Light theme support
+- 📱 Responsive design using Tailwind CSS
+- 🏗️ UI with shadcn/ui and mantine for dashboard
+- 🎯 Type-safe database operations with Drizzle ORM
+- 🔄 Real-time updates and interactive UI
+- 📊 Student registration management
 
 ## Tech Stack
 
-- Next.js 14 (App Router)
+### Frontend
+
+- Next.js 15
 - TypeScript
 - Tailwind CSS
-- shadcn/ui
+- shadcn/ui & mantine components
+- Tanstack Query
+
+### Backend
+
+- Next.js API routes
+- Drizzle ORM
+- PostgreSQL database
+- NextAuth.js for authentication
 
 ## Getting Started
 
