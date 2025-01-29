@@ -9,7 +9,8 @@ import type { AdapterAccountType } from 'next-auth/adapters';
 import { nanoid } from 'nanoid';
 import { relations } from 'drizzle-orm';
 
-export const userRoles = ['admin', 'student'] as const;
+export const dashboardUsers = ['admin', 'registry', 'finance'];
+export const userRoles = ['student', ...dashboardUsers] as const;
 export type UserRole = (typeof userRoles)[number];
 
 export const users = sqliteTable('users', {
