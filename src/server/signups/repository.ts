@@ -1,5 +1,8 @@
 import BaseRepository from '@/server/base/BaseRepository';
 import { signups } from '@/db/schema';
+import { db } from '@/db';
+
+type SignUp = typeof signups.$inferInsert;
 
 export default class SignupRepository extends BaseRepository<
   typeof signups,
@@ -7,6 +10,23 @@ export default class SignupRepository extends BaseRepository<
 > {
   constructor() {
     super(signups, 'userId');
+  }
+
+  async create(data: SignUp) {
+    const [record] = await db
+      .insert(signups)
+      .values(data)
+      .onConflictDoUpdate({
+        target: signups.userId,
+        set: {
+          name: data.name,
+          stdNo: data.stdNo,
+          status: data.status,
+          message: data.message,
+        },
+      })
+      .returning();
+    return record;
   }
 }
 
