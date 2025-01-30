@@ -64,9 +64,10 @@ export default function RegisterForm({ structureId, semester }: Props) {
                   control={form.control}
                   name='modules'
                   render={({ field }) => (
-                    <FormItem className='flex items-start space-x-4 p-4 rounded-lg border hover:bg-accent/50 transition-colors'>
+                    <FormItem className='relative flex w-full items-start gap-2 rounded-lg border border-input p-4 shadow-sm shadow-black/5 has-[[data-state=checked]]:border-ring'>
                       <FormControl>
                         <Checkbox
+                          className='order-1 after:absolute after:inset-0'
                           checked={field.value?.includes(module.code)}
                           onCheckedChange={(checked) => {
                             return checked
@@ -79,20 +80,14 @@ export default function RegisterForm({ structureId, semester }: Props) {
                           }}
                         />
                       </FormControl>
-                      <div className='flex-1 space-y-1'>
-                        <FormLabel className='text-base font-medium cursor-pointer'>
+                      <div className='grid grow gap-1.5'>
+                        <FormLabel className='text-base font-medium'>
                           {module.name}
                         </FormLabel>
-                        <div className='flex items-center space-x-2'>
-                          <span className='text-sm font-mono text-muted-foreground'>
-                            {module.code}
-                          </span>
-                          <span className='text-sm text-muted-foreground'>
-                            •
-                          </span>
-                          <span className='text-sm capitalize text-muted-foreground'>
-                            {module.type}
-                          </span>
+                        <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                          <span className='font-mono'>{module.code}</span>
+                          <span>•</span>
+                          <span className='capitalize'>{module.type}</span>
                         </div>
                       </div>
                     </FormItem>
