@@ -1,13 +1,26 @@
 'use server';
 
 import { db } from '@/db';
+import { semesters } from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
 
-export async function getSemesterModules(stdNo: number, semester: number) {
-  return db.query.semesterModules.findMany({
+export async function getSemesterModules(
+  structureId: number,
+  semester: number
+) {
+  const result = await db.query.semesters.findFirst({
     where: and(
-      eq(semesterModules.stdNo, stdNo),
-      eq(semesterModules.semester, semester)
+      eq(semesters.structureId, structureId),
+      eq(semesters.semesterNumber, semester)
     ),
+    with: {
+      semesterModules: {
+        with: {
+          module: true,
+        },
+      },
+    },
   });
+
+  return result?.semesterModules.map((semesterModule) => semesterModule.module);
 }

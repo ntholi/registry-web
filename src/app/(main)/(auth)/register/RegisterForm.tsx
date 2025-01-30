@@ -3,15 +3,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useQuery } from '@tanstack/react-query';
+import { getSemesterModules } from './actions';
 
 type Props = {
-  stdNo: number;
+  structureId: number;
   semester: number;
 };
-export default function RegisterForm({ stdNo, semester }: Props) {
+export default function RegisterForm({ structureId, semester }: Props) {
   const { data: modules } = useQuery({
-    queryKey: ['modules', stdNo],
-    queryFn: () => getSemesterModules(stdNo, semester),
+    queryKey: ['semesterModules', structureId, semester],
+    queryFn: () => getSemesterModules(structureId, semester),
   });
 
   return (

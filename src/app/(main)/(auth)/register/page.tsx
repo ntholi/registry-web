@@ -32,7 +32,16 @@ export default async function RegistrationPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <RegisterForm stdNo={student.stdNo} />
+          {student.structureId ? (
+            <RegisterForm
+              structureId={student.structureId}
+              semester={student.sem + 1}
+            />
+          ) : (
+            <p className='text-red-500'>
+              You are not registered for any program
+            </p>
+          )}
         </CardContent>
       </Card>
     </Container>
