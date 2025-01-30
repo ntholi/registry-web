@@ -231,7 +231,7 @@ export const structures = sqliteTable('structures', {
     .notNull(),
 });
 
-export const semesters = sqliteTable('semesters', {
+export const structureSemesters = sqliteTable('structure_semesters', {
   id: integer().primaryKey(),
   structureId: integer()
     .references(() => structures.id, { onDelete: 'cascade' })
@@ -252,7 +252,7 @@ export const modules = sqliteTable('modules', {
 export const semesterModules = sqliteTable('semester_modules', {
   id: integer().primaryKey(),
   semesterId: integer()
-    .references(() => semesters.id, { onDelete: 'cascade' })
+    .references(() => structureSemesters.id, { onDelete: 'cascade' })
     .notNull(),
   moduleId: integer()
     .references(() => modules.id, { onDelete: 'cascade' })

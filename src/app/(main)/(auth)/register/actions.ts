@@ -1,17 +1,17 @@
 'use server';
 
 import { db } from '@/db';
-import { semesters } from '@/db/schema';
+import { structureSemesters } from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
 
 export async function getSemesterModules(
   structureId: number,
   semester: number
 ) {
-  const result = await db.query.semesters.findFirst({
+  const result = await db.query.structureSemesters.findFirst({
     where: and(
-      eq(semesters.structureId, structureId),
-      eq(semesters.semesterNumber, semester)
+      eq(structureSemesters.structureId, structureId),
+      eq(structureSemesters.semesterNumber, semester)
     ),
     with: {
       semesterModules: {

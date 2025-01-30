@@ -10,7 +10,7 @@ import {
   studentModules,
   programs,
   structures,
-  semesters,
+  structureSemesters,
   modules,
   semesterModules,
 } from './schema';
@@ -96,17 +96,20 @@ export const structuresRelations = relations(structures, ({ one, many }) => ({
     fields: [structures.programId],
     references: [programs.id],
   }),
-  semesters: many(semesters),
+  semesters: many(structureSemesters),
   students: many(students),
 }));
 
-export const semestersRelations = relations(semesters, ({ one, many }) => ({
-  structure: one(structures, {
-    fields: [semesters.structureId],
-    references: [structures.id],
-  }),
-  semesterModules: many(semesterModules),
-}));
+export const semestersRelations = relations(
+  structureSemesters,
+  ({ one, many }) => ({
+    structure: one(structures, {
+      fields: [structureSemesters.structureId],
+      references: [structures.id],
+    }),
+    semesterModules: many(semesterModules),
+  })
+);
 
 export const modulesRelations = relations(modules, ({ many }) => ({
   semesters: many(semesterModules),
@@ -115,9 +118,9 @@ export const modulesRelations = relations(modules, ({ many }) => ({
 export const semesterModulesRelations = relations(
   semesterModules,
   ({ one }) => ({
-    semester: one(semesters, {
+    semester: one(structureSemesters, {
       fields: [semesterModules.semesterId],
-      references: [semesters.id],
+      references: [structureSemesters.id],
     }),
     module: one(modules, {
       fields: [semesterModules.moduleId],
