@@ -263,6 +263,7 @@ export const semesterModules = sqliteTable('semester_modules', {
 export const terms = sqliteTable('terms', {
   id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull().unique(),
+  isActive: integer({ mode: 'boolean' }).notNull().default(false),
 });
 
 export const registrationRequests = sqliteTable(

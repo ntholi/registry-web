@@ -1,13 +1,12 @@
 'use client';
 
-import { terms } from '@/db/schema';
 import { Form } from '@/components/adease';
-import { TextInput } from '@mantine/core';
+import { terms } from '@/db/schema';
+import { Switch, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 
 type Term = typeof terms.$inferInsert;
-
 
 type Props = {
   onSubmit: (values: Term) => Promise<Term>;
@@ -21,13 +20,13 @@ type Props = {
 
 export default function TermForm({ onSubmit, defaultValues, title }: Props) {
   const router = useRouter();
-  
+
   return (
-    <Form 
+    <Form
       title={title}
-      action={onSubmit} 
+      action={onSubmit}
       queryKey={['terms']}
-      schema={createInsertSchema(terms)} 
+      schema={createInsertSchema(terms)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
         router.push(`/admin/terms/${id}`);
@@ -36,6 +35,10 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
       {(form) => (
         <>
           <TextInput label='Name' {...form.getInputProps('name')} />
+          <Switch
+            label='Set as Active Term'
+            {...form.getInputProps('isActive', { type: 'checkbox' })}
+          />
         </>
       )}
     </Form>

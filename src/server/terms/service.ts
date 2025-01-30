@@ -2,6 +2,8 @@ import { terms } from '@/db/schema';
 import TermRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
+import { db } from '@/db';
+import { eq } from 'drizzle-orm';
 
 type Term = typeof terms.$inferInsert;
 
@@ -21,11 +23,27 @@ class TermService {
   }
 
   async create(data: Term) {
-    return withAuth(async () => this.repository.create(data), []);
+    return withAuth(async () => {
+      if (data.isActive) {
+        await db
+          .update(terms)
+          .set({ isActive: false })
+          .where(eq(terms.isActive, true));
+      }
+      return this.repository.create(data);
+    }, []);
   }
 
   async update(id: number, data: Term) {
-    return withAuth(async () => this.repository.update(id, data), []);
+    return withAuth(async () => {
+      if (data.isActive) {
+        await db
+          .update(terms)
+          .set({ isActive: false })
+          .where(eq(terms.isActive, true));
+      }
+      return this.repository.update(id, data);
+    }, []);
   }
 
   async delete(id: number) {
