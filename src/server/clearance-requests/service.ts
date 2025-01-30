@@ -16,6 +16,13 @@ class ClearanceRequestService {
     return withAuth(async () => this.repository.findById(id), []);
   }
 
+  async getByStdNo(termId: number, stdNo: number) {
+    return withAuth(
+      async () => this.repository.getByStdNo(termId, stdNo),
+      ['student']
+    );
+  }
+
   async findAll(params: FindAllParams<typeof clearanceRequests>) {
     return withAuth(async () => this.repository.findAll(params), []);
   }

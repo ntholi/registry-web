@@ -1,25 +1,35 @@
 'use server';
 
-
 import { clearanceRequests } from '@/db/schema';
-import { clearanceRequestsService as service} from './service';
+import { clearanceRequestsService as service } from './service';
 
 type ClearanceRequest = typeof clearanceRequests.$inferInsert;
 
-
 export async function getClearanceRequest(id: number) {
   return service.get(id);
+}
+
+export async function getClearanceRequestByStdNo(
+  termId: number,
+  stdNo: number
+) {
+  return service.getByStdNo(termId, stdNo);
 }
 
 export async function findAllClearanceRequests(page: number = 1, search = '') {
   return service.findAll({ page, search });
 }
 
-export async function createClearanceRequest(clearanceRequest: ClearanceRequest) {
+export async function createClearanceRequest(
+  clearanceRequest: ClearanceRequest
+) {
   return service.create(clearanceRequest);
 }
 
-export async function updateClearanceRequest(id: number, clearanceRequest: ClearanceRequest) {
+export async function updateClearanceRequest(
+  id: number,
+  clearanceRequest: ClearanceRequest
+) {
   return service.update(id, clearanceRequest);
 }
 
