@@ -126,7 +126,9 @@ export const students = sqliteTable('students', {
   gender: text({ enum: genderEnum }).notNull(),
   maritalStatus: text({ enum: maritalStatusEnum }).notNull(),
   religion: text(),
-  structureId: integer().references(() => structures.id),
+  structureId: integer().references(() => structures.id, {
+    onDelete: 'set null',
+  }),
   userId: text().references(() => users.id, { onDelete: 'set null' }),
 });
 
@@ -234,8 +236,8 @@ export const semesters = sqliteTable('semesters', {
   structureId: integer()
     .references(() => structures.id, { onDelete: 'cascade' })
     .notNull(),
-  year: integer().notNull(),
   semesterNumber: integer().notNull(),
+  name: text().notNull(),
   totalCredits: real().notNull(),
 });
 
