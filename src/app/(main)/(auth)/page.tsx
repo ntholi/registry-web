@@ -1,11 +1,11 @@
 import { auth } from '@/auth';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
-import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
-import { GraduationCap } from 'lucide-react';
+import { ClipboardList, UserPlus } from 'lucide-react';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import Hero from './home/Hero';
 
 export default async function Home() {
   const session = await auth();
@@ -13,57 +13,35 @@ export default async function Home() {
 
   if (!student) return notFound();
 
+  const links = [
+    {
+      href: '/register',
+      icon: UserPlus,
+      text: 'Register',
+    },
+    {
+      href: '/transcripts',
+      icon: ClipboardList,
+      text: 'My Transcripts',
+    },
+  ];
+
   return (
-    <>
-      <Container width='lg' className='sm:py-10'>
-        <Card>
-          <CardHeader className='border-b border-border/10 pb-8 items-start'>
-            <CardTitle className='text-3xl font-bold tracking-tight sm:text-4xl'>
-              {student.name}
-            </CardTitle>
-            <div className='flex flex-col space-y-1 items-start'>
-              <Badge
-                variant='secondary'
-                className='flex items-center gap-2 rounded-full'
-              >
-                <GraduationCap className='size-5' />
-                {student.structure?.program.name}
-              </Badge>
-              <div className='pl-2 flex gap-2 items-center text-sm text-muted-foreground/80'>
-                {formatSemester(student.sem)}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className='grid gap-6 grid-cols-2'>
-              <div className='rounded-xl bg-muted/30 p-6 shadow-sm transition-all hover:shadow'>
-                <h3 className='text-sm font-medium text-muted-foreground'>
-                  CGPA
-                </h3>
-                <div className='mt-3 flex items-baseline'>
-                  <span className='text-4xl font-bold tracking-tight'>3.8</span>
-                  <span className='ml-2 text-sm text-muted-foreground'>
-                    {' '}
-                    / 4.0
-                  </span>
-                </div>
-              </div>
-              <div className='rounded-xl bg-muted/30 p-6 shadow-sm transition-all hover:shadow'>
-                <h3 className='text-sm font-medium text-muted-foreground'>
-                  Total Credits
-                </h3>
-                <div className='mt-3 flex items-baseline'>
-                  <span className='text-4xl font-bold tracking-tight'>85</span>
-                  <span className='ml-2 text-sm text-muted-foreground'>
-                    {' '}
-                    / 120
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </Container>
-    </>
+    <Container width='lg' className='sm:pt-10'>
+      <Hero student={student} />
+      <div className='sm:mt-8 mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2'>
+        {links.map((link, index) => (
+          <Link key={index} href={link.href}>
+            <Button
+              variant='outline'
+              className='w-full h-24 flex flex-col items-center justify-center gap-2 hover:bg-muted/50'
+            >
+              <link.icon className='size-6' />
+              <span className='font-medium'>{link.text}</span>
+            </Button>
+          </Link>
+        ))}
+      </div>
+    </Container>
   );
 }
