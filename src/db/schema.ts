@@ -119,6 +119,7 @@ export const students = sqliteTable('students', {
   stdNo: integer().primaryKey(),
   name: text().notNull(),
   nationalId: text().notNull(),
+  sem: integer().notNull(),
   dateOfBirth: integer({ mode: 'timestamp_ms' }).notNull(),
   phone1: text(),
   phone2: text(),
