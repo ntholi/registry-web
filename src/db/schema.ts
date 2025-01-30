@@ -261,14 +261,44 @@ export const semesterModules = sqliteTable('semester_modules', {
 });
 
 export const terms = sqliteTable('terms', {
-  id: integer().primaryKey(),
+  id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull().unique(),
+});
+
+export const registrationRequests = sqliteTable(
+  'registration_requests',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    stdNo: integer('std_no')
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    termId: integer('term_id')
+      .references(() => terms.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(
+      sql`(unixepoch())`
+    ),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }),
+  },
+  (table) => ({
+    uniqueClearanceRequest: unique().on(table.stdNo, table.termId),
+  })
+);
+
+export const requestedModules = sqliteTable('requested_modules', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  registrationRequestId: integer('registration_request_id')
+    .references(() => registrationRequests.id, { onDelete: 'cascade' })
+    .notNull(),
+  moduleId: integer('module_id')
+    .references(() => modules.id, { onDelete: 'cascade' })
+    .notNull(),
 });
 
 export const clearanceRequests = sqliteTable(
   'clearance_requests',
   {
-    id: integer().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     stdNo: integer()
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
@@ -292,7 +322,7 @@ export const departmentEnum = [
 ] as const;
 
 export const clearedSemesters = sqliteTable('cleared_semesters', {
-  id: integer().primaryKey(),
+  id: integer().primaryKey({ autoIncrement: true }),
   clearanceRequestId: integer()
     .references(() => clearanceRequests.id, { onDelete: 'cascade' })
     .notNull(),
