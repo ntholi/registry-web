@@ -18,6 +18,10 @@ class TermService {
     return withAuth(async () => this.repository.findById(id), []);
   }
 
+  async getActive() {
+    return withAuth(async () => this.repository.getActive(), ['all']);
+  }
+
   async findAll(params: FindAllParams<typeof terms>) {
     return withAuth(async () => this.repository.findAll(params), []);
   }

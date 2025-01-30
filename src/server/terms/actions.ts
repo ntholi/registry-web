@@ -1,14 +1,16 @@
 'use server';
 
-
 import { terms } from '@/db/schema';
-import { termsService as service} from './service';
+import { termsService as service } from './service';
 
 type Term = typeof terms.$inferInsert;
 
-
 export async function getTerm(id: number) {
   return service.get(id);
+}
+
+export async function getActiveTerm() {
+  return service.getActive();
 }
 
 export async function findAllTerms(page: number = 1, search = '') {
