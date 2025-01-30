@@ -277,10 +277,19 @@ export const studentModulesRelations = relations(studentModules, ({ one }) => ({
   }),
 }));
 
+export const schools = sqliteTable('schools', {
+  id: integer().primaryKey(),
+  code: text().notNull().unique(),
+  name: text().notNull(),
+});
+
 export const programs = sqliteTable('programs', {
   id: integer().primaryKey(),
   code: text().notNull().unique(),
   name: text().notNull(),
+  schoolId: integer()
+    .references(() => schools.id, { onDelete: 'cascade' })
+    .notNull(),
 });
 
 export const programsRelations = relations(programs, ({ many }) => ({
@@ -291,7 +300,7 @@ export const structures = sqliteTable('structures', {
   id: integer().primaryKey(),
   code: text().notNull().unique(),
   programId: integer()
-    .references(() => programs.id)
+    .references(() => programs.id, { onDelete: 'cascade' })
     .notNull(),
 });
 
@@ -304,22 +313,10 @@ export const structuresRelations = relations(structures, ({ one, many }) => ({
   students: many(students),
 }));
 
-export const modules = sqliteTable('modules', {
-  id: integer().primaryKey(),
-  code: text().notNull(),
-  name: text().notNull(),
-  type: text({ enum: moduleTypeEnum }).notNull(),
-  credits: real().notNull(),
-});
-
-export const modulesRelations = relations(modules, ({ many }) => ({
-  semesters: many(semesterModules),
-}));
-
 export const semesters = sqliteTable('semesters', {
   id: integer().primaryKey(),
   structureId: integer()
-    .references(() => structures.id)
+    .references(() => structures.id, { onDelete: 'cascade' })
     .notNull(),
   year: integer().notNull(),
   semesterNumber: integer().notNull(),
@@ -334,13 +331,25 @@ export const semestersRelations = relations(semesters, ({ one, many }) => ({
   modules: many(semesterModules),
 }));
 
+export const modules = sqliteTable('modules', {
+  id: integer().primaryKey(),
+  code: text().notNull(),
+  name: text().notNull(),
+  type: text({ enum: moduleTypeEnum }).notNull(),
+  credits: real().notNull(),
+});
+
+export const modulesRelations = relations(modules, ({ many }) => ({
+  semesters: many(semesterModules),
+}));
+
 export const semesterModules = sqliteTable('semester_modules', {
   id: integer().primaryKey(),
   semesterId: integer()
-    .references(() => semesters.id)
+    .references(() => semesters.id, { onDelete: 'cascade' })
     .notNull(),
   moduleId: integer()
-    .references(() => modules.id)
+    .references(() => modules.id, { onDelete: 'cascade' })
     .notNull(),
 });
 
