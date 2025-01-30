@@ -29,6 +29,7 @@ import { usePathname } from 'next/navigation';
 import { Indicator, NavLink } from '@mantine/core';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
+import { getActiveTerm } from '@/server/terms/actions';
 
 type NotificationConfig = {
   queryKey: string[];
@@ -68,6 +69,10 @@ const navigation: NavItem[] = [
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
+  const { data: activeTerm } = useQuery({
+    queryKey: ['active-term'],
+    queryFn: () => getActiveTerm(),
+  });
 
   if (status === 'loading') {
     return (
@@ -91,6 +96,13 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
       <Shell.User>
         <UserButton />
       </Shell.User>
+      <Shell.Footer>
+        <Group justify="center" py="xs">
+          <Text size="sm" c="dimmed">
+            Active Term: {activeTerm?.name || 'No active term'}
+          </Text>
+        </Group>
+      </Shell.Footer>
     </Shell>
   );
 }

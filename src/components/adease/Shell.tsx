@@ -19,6 +19,7 @@ type ShellComposition = {
   Navigation: React.FC<PropsWithChildren>;
   Body: React.FC<PropsWithChildren>;
   User: React.FC<PropsWithChildren>;
+  Footer: React.FC<PropsWithChildren>;
 };
 
 const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
@@ -42,6 +43,10 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
     (child) => React.isValidElement(child) && child.type === Shell.User
   );
 
+  const footer = React.Children.toArray(children).find(
+    (child) => React.isValidElement(child) && child.type === Shell.Footer
+  );
+
   return (
     <AppShell
       header={{ height: 60 }}
@@ -51,6 +56,7 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
         collapsed: { mobile: !opened },
       }}
       padding='md'
+      footer={{ height: footer ? 40 : 0 }}
     >
       <AppShell.Header>
         <Group h='100%' px='md' justify='space-between'>
@@ -84,6 +90,11 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
       <AppShell.Main bg={colorScheme === 'dark' ? 'dark.8' : 'gray.0'}>
         {body}
       </AppShell.Main>
+      {footer && (
+        <AppShell.Footer p="xs">
+          {footer}
+        </AppShell.Footer>
+      )}
     </AppShell>
   );
 };
@@ -101,6 +112,10 @@ Shell.Body = function ShellBody({ children }: PropsWithChildren) {
 };
 
 Shell.User = function ShellUser({ children }: PropsWithChildren) {
+  return <>{children}</>;
+};
+
+Shell.Footer = function ShellFooter({ children }: PropsWithChildren) {
   return <>{children}</>;
 };
 
