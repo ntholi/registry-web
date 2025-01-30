@@ -8,7 +8,7 @@ import {
   Group,
   ScrollArea,
   useComputedColorScheme,
-  useMantineColorScheme
+  useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import React, { PropsWithChildren } from 'react';
@@ -90,11 +90,7 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
       <AppShell.Main bg={colorScheme === 'dark' ? 'dark.8' : 'gray.0'}>
         {body}
       </AppShell.Main>
-      {footer && (
-        <AppShell.Footer p="xs">
-          {footer}
-        </AppShell.Footer>
-      )}
+      {footer && <AppShell.Footer>{footer}</AppShell.Footer>}
     </AppShell>
   );
 };

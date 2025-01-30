@@ -6,16 +6,15 @@ import {
   Avatar,
   Flex,
   Group,
+  Image,
+  Indicator,
+  LoadingOverlay,
+  NavLink,
   Stack,
   Text,
-  LoadingOverlay,
-  Image,
   useComputedColorScheme,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { signOut, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import React from 'react';
 import {
   Icon,
   IconCalendar,
@@ -25,11 +24,11 @@ import {
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
-import { usePathname } from 'next/navigation';
-import { Indicator, NavLink } from '@mantine/core';
-import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { getActiveTerm } from '@/server/terms/actions';
+import { signOut, useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import React from 'react';
 
 type NotificationConfig = {
   queryKey: string[];
@@ -69,10 +68,6 @@ const navigation: NavItem[] = [
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
-  const { data: activeTerm } = useQuery({
-    queryKey: ['active-term'],
-    queryFn: () => getActiveTerm(),
-  });
 
   if (status === 'loading') {
     return (
@@ -96,13 +91,6 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
       <Shell.User>
         <UserButton />
       </Shell.User>
-      <Shell.Footer>
-        <Group justify="center" py="xs">
-          <Text size="sm" c="dimmed">
-            Active Term: {activeTerm?.name || 'No active term'}
-          </Text>
-        </Group>
-      </Shell.Footer>
     </Shell>
   );
 }
