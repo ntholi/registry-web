@@ -4,6 +4,7 @@ import {
   sqliteTable,
   text,
   real,
+  unique,
 } from 'drizzle-orm/sqlite-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
 import { nanoid } from 'nanoid';
@@ -257,4 +258,48 @@ export const semesterModules = sqliteTable('semester_modules', {
   moduleId: integer()
     .references(() => modules.id, { onDelete: 'cascade' })
     .notNull(),
+});
+
+export const terms = sqliteTable('terms', {
+  id: integer().primaryKey(),
+  name: text().notNull().unique(),
+});
+
+export const clearanceRequests = sqliteTable(
+  'clearance_requests',
+  {
+    id: integer().primaryKey(),
+    stdNo: integer()
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    termId: integer()
+      .references(() => terms.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
+  },
+  (table) => ({
+    uniqueClearanceRequest: unique().on(table.stdNo, table.termId),
+  })
+);
+
+export const departmentEnum = [
+  'finance',
+  'registry',
+  'library',
+  'resource',
+  'academic',
+] as const;
+
+export const clearedSemesters = sqliteTable('cleared_semesters', {
+  id: integer().primaryKey(),
+  clearanceRequestId: integer()
+    .references(() => clearanceRequests.id, { onDelete: 'cascade' })
+    .notNull(),
+  department: text({ enum: departmentEnum }).notNull(),
+  clearedBy: text()
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }),
 });
