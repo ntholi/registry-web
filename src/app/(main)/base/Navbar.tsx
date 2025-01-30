@@ -9,7 +9,7 @@ import UserButton from './UserButton';
 const exceptions = ['/login', '/signup'];
 
 export default function Navbar() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
 
   if (exceptions.includes(window.location.pathname)) return null;
   if (status === 'unauthenticated') return redirect('/login');
@@ -25,7 +25,7 @@ export default function Navbar() {
         <div className='flex items-center gap-4'>
           <div>
             <span className='text-sm font-medium text-muted-foreground'>
-              9010XXXXX
+              {session?.user?.stdNo}
             </span>
           </div>
           <UserButton />
