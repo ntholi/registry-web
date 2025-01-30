@@ -33,7 +33,7 @@ export default function Header({ student }: Props) {
           <div className='rounded-xl bg-muted/30 p-6 shadow-sm transition-all hover:shadow'>
             <h3 className='text-sm font-medium text-muted-foreground'>CGPA</h3>
             <div className='mt-3 flex items-baseline'>
-              <span className='text-4xl font-bold tracking-tight'>3.8</span>
+              <span className='text-4xl font-bold tracking-tight'>X</span>
               <span className='ml-2 text-sm text-muted-foreground'> / 4.0</span>
             </div>
           </div>
@@ -42,7 +42,7 @@ export default function Header({ student }: Props) {
               Total Credits
             </h3>
             <div className='mt-3 flex items-baseline'>
-              <span className='text-4xl font-bold tracking-tight'>85</span>
+              <span className='text-4xl font-bold tracking-tight'>xx</span>
               <span className='ml-2 text-sm text-muted-foreground'> / 120</span>
             </div>
           </div>

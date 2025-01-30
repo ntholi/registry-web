@@ -12,7 +12,7 @@ export default async function Home() {
   if (!student) return notFound();
 
   return (
-    <Container width='lg' className='sm:pt-10'>
+    <Container width='lg' className='pt-4 sm:pt-10'>
       <Hero student={student} />
       <HomeLinks />
     </Container>
