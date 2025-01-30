@@ -18,7 +18,9 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 import {
   Icon,
+  IconCalendar,
   IconChevronRight,
+  IconCopyCheck,
   IconLogout2,
   IconUser,
   IconUsers,
@@ -51,6 +53,16 @@ const navigation: NavItem[] = [
     label: 'Students',
     href: '/admin/students',
     icon: IconUsers,
+  },
+  {
+    label: 'Clearance Requests',
+    href: '/admin/clearance-requests',
+    icon: IconCopyCheck,
+  },
+  {
+    label: 'Terms',
+    href: '/admin/terms',
+    icon: IconCalendar,
   },
 ];
 
