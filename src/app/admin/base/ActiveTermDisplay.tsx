@@ -32,9 +32,12 @@ export default function ActiveTermDisplay() {
       </Text>
     );
 
-  return (
-    <Text size='sm'>
-      Active Term: {activeTerm ? activeTerm.name : 'No active term'}
-    </Text>
-  );
+  if (!activeTerm)
+    return (
+      <Text size='sm' c='red'>
+        No active term
+      </Text>
+    );
+
+  return <Text size='sm'>Active Term: {activeTerm.name}</Text>;
 }
