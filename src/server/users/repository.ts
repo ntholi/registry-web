@@ -1,7 +1,10 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { users } from '@/db/schema';
+import { users } from '@/db/schema'
 
-export default class UserRepository extends BaseRepository<typeof users, 'id'> {
+export default class UserRepository extends BaseRepository<
+  typeof users,
+  'id'
+> {
   constructor() {
     super(users, 'id');
   }

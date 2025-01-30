@@ -6,9 +6,7 @@ import { FindAllParams } from '../base/BaseRepository';
 type User = typeof users.$inferInsert;
 
 class UserService {
-  constructor(
-    private readonly repository: UserRepository = new UserRepository()
-  ) {}
+  constructor(private readonly repository = new UserRepository()) {}
 
   async first() {
     return withAuth(async () => this.repository.findFirst(), []);
