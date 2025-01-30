@@ -1,11 +1,11 @@
 'use server';
 
 import { auth } from '@/auth';
-import { users } from '@/db/schema';
+import { UserRole } from '@/db/schema';
 import { Session } from 'next-auth';
 import { forbidden, unauthorized } from 'next/navigation';
 
-type Role = (typeof users.$inferSelect)['role'] | 'all';
+type Role = UserRole | 'all';
 
 export default async function withAuth<T>(
   fn: () => Promise<T>,
