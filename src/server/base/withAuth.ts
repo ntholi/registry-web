@@ -2,13 +2,17 @@
 
 import { auth } from '@/auth';
 import { users } from '@/db/schema';
+import { Session } from 'next-auth';
+import { forbidden, unauthorized } from 'next/navigation';
 
 type Role = (typeof users.$inferSelect)['role'] | 'all';
 
 export default async function withAuth<T>(
   fn: () => Promise<T>,
-  roles: Role[] = []
+  roles: Role[] = [],
+  accessCheck?: (session: Session) => Promise<boolean>
 ) {
+  const session = await auth();
   const stack = new Error().stack;
   const callerLine = stack?.split('\n')[2] || '';
   const methodMatch = callerLine.match(/at\s+(.*?)\s+\(/);
@@ -18,19 +22,23 @@ export default async function withAuth<T>(
   if (roles.includes('all')) {
     return fn();
   }
-  const session = await auth();
 
   if (!session?.user) {
     console.error(`Auth Error caused by ${method}`);
-    throw new Error('Unauthorized - Please sign in');
+    return unauthorized();
   }
 
-  if (
-    roles.length > 0 &&
-    !['admin', ...roles].includes(session.user.role as Role)
-  ) {
+  if (!['admin', ...roles].includes(session.user.role as Role)) {
     console.error(`Permission Error caused by ${method}`);
-    throw new Error('Unauthorized - Insufficient permissions');
+    return forbidden();
+  }
+
+  if (accessCheck && session.user.role !== 'admin') {
+    const isAuthorized = await accessCheck(session);
+    if (!isAuthorized) {
+      console.error(`Custom Auth Check Failed by ${method}`);
+      return forbidden();
+    }
   }
 
   return fn();
