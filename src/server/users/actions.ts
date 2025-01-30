@@ -1,11 +1,9 @@
 'use server';
 
-
 import { users } from '@/db/schema';
-import { usersService } from './service';
+import { usersService }@/db/schema
 
 type User = typeof users.$inferInsert;
-
 
 export async function getUser(id: string) {
   return usersService.get(id);
