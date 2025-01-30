@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
+import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
 import { GraduationCap } from 'lucide-react';
 import { notFound } from 'next/navigation';
@@ -29,7 +30,7 @@ export default async function Home() {
                 {student.structure?.program.name}
               </Badge>
               <div className='pl-2 flex gap-2 items-center text-sm text-muted-foreground/80'>
-                Year {student.userId} • Semester {student.userId}
+                {formatSemester(student.sem)}
               </div>
             </div>
           </CardHeader>

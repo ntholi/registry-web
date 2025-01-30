@@ -12,3 +12,10 @@ export function formatDate(timestamp: number | Date) {
     day: 'numeric',
   });
 }
+
+export function formatSemester(sem: number) {
+  const year = Math.ceil(sem / 2);
+  const semester = sem % 2 === 0 ? 2 : 1;
+
+  return `Year ${year} • Semester ${semester}`;
+}
