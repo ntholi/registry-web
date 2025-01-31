@@ -13,9 +13,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { getSemesterModules } from './actions';
-import {
-  createRegistrationWithModules,
-} from '@/server/registration-requests/actions';
+import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -51,10 +49,10 @@ export default function RegisterForm({ stdNo, structureId, semester }: Props) {
       return createRegistrationWithModules({
         stdNo,
         termId: currentTerm.id,
-        moduleIds: values.modules.map(moduleId => ({
+        moduleIds: values.modules.map((moduleId) => ({
           moduleId,
-          moduleStatus: 'Compulsory' as const
-        }))
+          moduleStatus: 'Compulsory' as const,
+        })),
       });
     },
     onSuccess: () => {
@@ -62,7 +60,7 @@ export default function RegisterForm({ stdNo, structureId, semester }: Props) {
         title: 'Registration submitted successfully',
         description: 'Your registration request is pending approval.',
       });
-      router.push('/dashboard');
+      router.push('/registration');
     },
     onError: (error) => {
       toast({
