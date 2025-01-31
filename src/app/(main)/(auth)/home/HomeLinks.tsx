@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 const links = [
   {
-    href: '/register',
+    href: '/registration',
     icon: UserPlus,
     text: 'Register',
   },

@@ -8,7 +8,7 @@ export default async function Page() {
   const session = await auth();
 
   if (!session?.user?.stdNo) {
-    redirect('/register');
+    redirect('/signup');
   }
 
   return (

@@ -17,7 +17,7 @@ export default async function RegistrationPage() {
   const student = await getStudentByUserId(session?.user?.id);
 
   if (!student) {
-    redirect('/register');
+    redirect('/signup');
   }
 
   return (

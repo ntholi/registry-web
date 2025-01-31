@@ -6,7 +6,7 @@ export default async function ClearancePage() {
   const session = await auth();
 
   if (!session?.user?.stdNo) {
-    redirect('/register');
+    redirect('/signup');
   }
 
   return (
