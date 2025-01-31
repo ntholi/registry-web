@@ -20,10 +20,8 @@ export async function findAllClearanceRequests(page: number = 1, search = '') {
   return service.findAll({ page, search });
 }
 
-export async function createClearanceRequest(
-  clearanceRequest: ClearanceRequest
-) {
-  return service.create(clearanceRequest);
+export async function createClearanceRequest(value: ClearanceRequest) {
+  return service.create(value);
 }
 
 export async function updateClearanceRequest(

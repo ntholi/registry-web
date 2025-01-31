@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getActiveTerm } from '@/server/terms/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
 import { Text } from '@mantine/core';
 
 export default function ActiveTermDisplay() {
@@ -13,7 +13,7 @@ export default function ActiveTermDisplay() {
   } = useQuery({
     queryKey: ['activeTerm'],
     queryFn: async () => {
-      const term = await getActiveTerm();
+      const term = await getCurrentTerm();
       return term || null;
     },
   });

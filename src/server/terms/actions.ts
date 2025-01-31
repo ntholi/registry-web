@@ -9,7 +9,7 @@ export async function getTerm(id: number) {
   return service.get(id);
 }
 
-export async function getActiveTerm() {
+export async function getCurrentTerm() {
   return service.getActive();
 }
 
