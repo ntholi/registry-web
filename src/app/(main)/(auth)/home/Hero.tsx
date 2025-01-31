@@ -12,15 +12,11 @@ type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
 };
 
-export default function Header({ student }: Props) {
-  const {
-    data: scores,
-    isLoading,
-    isError,
-  } = useQuery({
+export default function Hero({ student }: Props) {
+  const { data: scores } = useQuery({
     queryKey: ['student-scores', student.stdNo],
     queryFn: () => getStudentScore(student.stdNo),
-    staleTime: 60_000,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   return (
