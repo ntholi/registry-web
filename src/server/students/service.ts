@@ -13,18 +13,18 @@ class StudentService {
   }
 
   async get(stdNo: number) {
-    return withAuth(async () => this.repository.findById(stdNo), []);
+    return withAuth(async () => this.repository.findById(stdNo), ['dashboard']);
   }
 
   async findStudentByUserId(userId: string) {
     return withAuth(
       async () => this.repository.findStudentByUserId(userId),
-      ['all']
+      ['auth']
     );
   }
 
   async findAll(params: FindAllParams<typeof students>) {
-    return withAuth(async () => this.repository.findAll(params), []);
+    return withAuth(async () => this.repository.findAll(params), ['dashboard']);
   }
 
   async create(data: Student) {

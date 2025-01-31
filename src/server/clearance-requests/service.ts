@@ -13,7 +13,7 @@ class ClearanceRequestService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), []);
+    return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
   async getByStdNo(termId: number, stdNo: number) {
@@ -24,7 +24,7 @@ class ClearanceRequestService {
   }
 
   async findAll(params: FindAllParams<typeof clearanceRequests>) {
-    return withAuth(async () => this.repository.findAll(params), []);
+    return withAuth(async () => this.repository.findAll(params), ['dashboard']);
   }
 
   async create(data: ClearanceRequest) {
