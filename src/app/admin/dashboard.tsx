@@ -50,7 +50,7 @@ const navigation: NavItem[] = [
     label: 'Users',
     href: '/admin/users',
     icon: IconUser,
-    roles: [...dashboardUsers],
+    roles: ['admin'],
   },
   {
     label: 'Students',
