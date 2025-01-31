@@ -40,7 +40,7 @@ export async function getStudentScore(stdNo: number) {
   >();
 
   let cumulativePoints = 0;
-  let cumulativeCredits = 0;
+  let requiredCredits = 0;
 
   for (const mod of modules) {
     const points = gradePoints[mod.grade as keyof typeof gradePoints] || 0;
@@ -63,12 +63,12 @@ export async function getStudentScore(stdNo: number) {
       semester.earnedCredits += mod.credits;
       cumulativePoints += points * mod.credits;
     }
-    cumulativeCredits += mod.credits;
+    requiredCredits += mod.credits;
   }
 
   return {
-    cgpa: cumulativeCredits > 0 ? cumulativePoints / cumulativeCredits : 0,
+    cgpa: requiredCredits > 0 ? cumulativePoints / requiredCredits : 0,
     creditsEarned: cumulativePoints,
-    cumulativeCredits,
+    requiredCredits,
   };
 }

@@ -1,14 +1,28 @@
+'use client';
+
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
+import { getStudentScore } from './actions';
 import { GraduationCap } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
 };
 
 export default function Header({ student }: Props) {
+  const {
+    data: scores,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['student-scores', student.stdNo],
+    queryFn: () => getStudentScore(student.stdNo),
+    staleTime: 60_000,
+  });
+
   return (
     <Card>
       <CardHeader className='border-b border-border/10 pb-8 items-start'>
@@ -33,8 +47,10 @@ export default function Header({ student }: Props) {
           <div className='rounded-xl bg-muted/30 p-6 shadow-sm transition-all hover:shadow'>
             <h3 className='text-sm font-medium text-muted-foreground'>CGPA</h3>
             <div className='mt-3 flex items-baseline'>
-              <span className='text-4xl font-bold tracking-tight'>X</span>
-              <span className='ml-2 text-sm text-muted-foreground'> / 4.0</span>
+              <span className='text-4xl font-bold tracking-tight'>
+                {scores?.cgpa.toFixed(2)}
+              </span>
+              <span className='ml-2 text-sm text-muted-foreground'>/ 4.0</span>
             </div>
           </div>
           <div className='rounded-xl bg-muted/30 p-6 shadow-sm transition-all hover:shadow'>
@@ -42,8 +58,12 @@ export default function Header({ student }: Props) {
               Total Credits
             </h3>
             <div className='mt-3 flex items-baseline'>
-              <span className='text-4xl font-bold tracking-tight'>xx</span>
-              <span className='ml-2 text-sm text-muted-foreground'> / 120</span>
+              <span className='text-4xl font-bold tracking-tight'>
+                {scores?.creditsEarned}
+              </span>
+              <span className='ml-2 text-sm text-muted-foreground'>
+                / {scores?.requiredCredits ?? 120}
+              </span>
             </div>
           </div>
         </div>
