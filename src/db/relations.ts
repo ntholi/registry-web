@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 import {
   accounts,
   authenticators,
-  clearanceResponse,
+  clearanceResponses,
   clearanceRequests,
   modules,
   programs,
@@ -143,19 +143,19 @@ export const clearanceRequestsRelations = relations(
       fields: [clearanceRequests.termId],
       references: [terms.id],
     }),
-    clearedSemesters: many(clearanceResponse),
+    clearedSemesters: many(clearanceResponses),
   })
 );
 
 export const clearedSemestersRelations = relations(
-  clearanceResponse,
+  clearanceResponses,
   ({ one }) => ({
     clearanceRequest: one(clearanceRequests, {
-      fields: [clearanceResponse.clearanceRequestId],
+      fields: [clearanceResponses.clearanceRequestId],
       references: [clearanceRequests.id],
     }),
     clearedByUser: one(users, {
-      fields: [clearanceResponse.clearedBy],
+      fields: [clearanceResponses.clearedBy],
       references: [users.id],
     }),
   })
