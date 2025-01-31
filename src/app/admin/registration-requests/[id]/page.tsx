@@ -32,14 +32,14 @@ export default async function RegistrationRequestDetails({ params }: Props) {
       />
       <Tabs defaultValue='modules' variant='outline' mt={'xl'}>
         <TabsList>
-          <TabsTab value='details'>Details</TabsTab>
           <TabsTab value='modules'>Modules</TabsTab>
+          <TabsTab value='details'>Details</TabsTab>
         </TabsList>
         <TabsPanel value='modules' pt={'xl'} p={'sm'}>
-          <RequestDetailsView value={registrationRequest} />
+          <ModulesView value={registrationRequest} />
         </TabsPanel>
         <TabsPanel value='details' pt={'xl'} p={'sm'}>
-          <ModulesView value={registrationRequest} />
+          <RequestDetailsView value={registrationRequest} />
         </TabsPanel>
       </Tabs>
     </DetailsView>
