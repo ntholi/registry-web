@@ -1,5 +1,9 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { registrationRequests, requestedModules } from '@/db/schema';
+import {
+  ModuleStatus,
+  registrationRequests,
+  requestedModules,
+} from '@/db/schema';
 import { db } from '@/db';
 import { count, eq } from 'drizzle-orm';
 
@@ -45,6 +49,37 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
   async createRequestedModules(modules: RequestedModule[]) {
     return db.insert(requestedModules).values(modules).returning();
+  }
+
+  async createRegistrationWithModules(data: {
+    stdNo: number;
+    termId: number;
+    moduleIds: { moduleId: number; moduleStatus: ModuleStatus }[];
+  }) {
+    return await db.transaction(async (tx) => {
+      // Create registration request
+      const [request] = await tx
+        .insert(registrationRequests)
+        .values({
+          stdNo: data.stdNo,
+          termId: data.termId,
+          status: 'pending',
+        })
+        .returning();
+
+      // Create requested modules
+      const modulesToCreate = data.moduleIds.map((module) => ({
+        ...module,
+        registrationRequestId: request.id,
+      }));
+
+      const modules = await tx
+        .insert(requestedModules)
+        .values(modulesToCreate)
+        .returning();
+
+      return { request, modules };
+    });
   }
 }
 

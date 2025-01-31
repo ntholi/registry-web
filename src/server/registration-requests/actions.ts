@@ -46,3 +46,28 @@ export async function createRequestedModules(
 ) {
   return service.createRequestedModules(stdNo, modules);
 }
+
+export async function createRegistrationWithModules(data: {
+  stdNo: number;
+  termId: number;
+  modules: string[];
+  availableModules: { id: number; code: string }[];
+}) {
+  const moduleIds = data.modules.map((moduleCode) => {
+    const foundModule = data.availableModules.find(
+      (m) => m.code === moduleCode
+    );
+    if (!foundModule) throw new Error(`Module ${moduleCode} not found`);
+
+    return {
+      moduleId: foundModule.id,
+      moduleStatus: 'Compulsory' as const,
+    };
+  });
+
+  return service.createRegistrationWithModules({
+    stdNo: data.stdNo,
+    termId: data.termId,
+    moduleIds,
+  });
+}

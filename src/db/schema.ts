@@ -200,6 +200,8 @@ export const moduleStatusEnum = [
   'Supplementary',
 ] as const;
 
+export type ModuleStatus = (typeof moduleStatusEnum)[number];
+
 export const studentModules = sqliteTable('student_modules', {
   id: integer().primaryKey(),
   code: text().notNull(),

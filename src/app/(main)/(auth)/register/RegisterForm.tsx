@@ -14,8 +14,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { getSemesterModules } from './actions';
 import {
-  createRegistrationRequest,
-  createRequestedModules,
+  createRegistrationWithModules,
 } from '@/server/registration-requests/actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -46,29 +45,15 @@ export default function RegisterForm({ stdNo, structureId, semester }: Props) {
 
   const { mutate: submitRegistration, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const registrationRequest = {
+      if (!modules) throw new Error('No modules available');
+      if (!currentTerm) throw new Error('No current term found');
+
+      return createRegistrationWithModules({
         stdNo,
-        termId: currentTerm!.id,
-        status: 'pending' as const,
-      };
-
-      const request = await createRegistrationRequest(registrationRequest);
-
-      // Create requested modules
-      const requestedModules = values.modules.map((moduleCode) => {
-        const foundModule = modules?.find((m) => m.code === moduleCode);
-        if (!foundModule) throw new Error(`Module ${moduleCode} not found`);
-
-        return {
-          moduleId: foundModule.id,
-          registrationRequestId: request.id,
-          moduleStatus: 'Compulsory' as const,
-        };
+        termId: currentTerm.id,
+        modules: values.modules,
+        availableModules: modules,
       });
-
-      await createRequestedModules(stdNo, requestedModules);
-
-      return request;
     },
     onSuccess: () => {
       toast({

@@ -1,4 +1,8 @@
-import { registrationRequests, requestedModules } from '@/db/schema';
+import {
+  ModuleStatus,
+  registrationRequests,
+  requestedModules,
+} from '@/db/schema';
 import RegistrationRequestRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
@@ -61,6 +65,18 @@ class RegistrationRequestService {
 
   async count() {
     return withAuth(async () => this.repository.count(), []);
+  }
+
+  async createRegistrationWithModules(data: {
+    stdNo: number;
+    termId: number;
+    moduleIds: { moduleId: number; moduleStatus: ModuleStatus }[];
+  }) {
+    return withAuth(
+      async () => this.repository.createRegistrationWithModules(data),
+      ['student'],
+      async (session) => session.user?.stdNo === data.stdNo
+    );
   }
 }
 
