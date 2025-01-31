@@ -56,11 +56,11 @@ export default function RegisterForm({ stdNo, structureId, semester }: Props) {
 
       // Create requested modules
       const requestedModules = values.modules.map((moduleCode) => {
-        const module = modules?.find((m) => m.code === moduleCode);
-        if (!module) throw new Error(`Module ${moduleCode} not found`);
+        const foundModule = modules?.find((m) => m.code === moduleCode);
+        if (!foundModule) throw new Error(`Module ${moduleCode} not found`);
 
         return {
-          moduleId: module.id,
+          moduleId: foundModule.id,
           registrationRequestId: request.id,
           moduleStatus: 'Compulsory' as const,
         };
