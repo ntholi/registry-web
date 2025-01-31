@@ -28,11 +28,19 @@ class ClearanceRequestService {
   }
 
   async create(data: ClearanceRequest) {
-    return withAuth(async () => this.repository.create(data), []);
+    return withAuth(
+      async () => this.repository.create(data),
+      ['student'],
+      async (session) => session.user?.stdNo === data.stdNo
+    );
   }
 
   async update(id: number, data: ClearanceRequest) {
-    return withAuth(async () => this.repository.update(id, data), []);
+    return withAuth(
+      async () => this.repository.update(id, data),
+      ['student'],
+      async (session) => session.user?.stdNo === data.stdNo
+    );
   }
 
   async delete(id: number) {
