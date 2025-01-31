@@ -1,33 +1,82 @@
 'use client';
 
-import { students } from '@/db/schema';
 import { formatDate } from '@/lib/utils';
-import { Grid, Group, Paper, Stack, Text } from '@mantine/core';
+import { getStudent } from '@/server/students/actions';
+import {
+  ActionIcon,
+  Anchor,
+  Card,
+  Grid,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Tooltip,
+} from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { IconCopy } from '@tabler/icons-react';
+import Link from 'next/link';
 
 type Props = {
-  student: typeof students.$inferSelect;
+  student: Awaited<ReturnType<typeof getStudent>>;
 };
 
 export default function StudentView({ student }: Props) {
+  if (!student) return null;
+
   return (
     <Stack gap='xl'>
+      {student.user && (
+        <Card withBorder>
+          <Group wrap='nowrap' gap='xs'>
+            <div style={{ flex: 1 }}>
+              <Text size='sm' c='dimmed'>
+                User
+              </Text>
+              <Anchor
+                component={Link}
+                href={`/admin/users/${student.user?.id}`}
+                size='sm'
+                fw={500}
+              >
+                {student.user?.email}
+              </Anchor>
+            </div>
+            <Tooltip label='Copy'>
+              <ActionIcon
+                variant='subtle'
+                color='gray'
+                onClick={() => {
+                  navigator.clipboard.writeText(String(student.user?.email));
+                  notifications.show({
+                    message: 'Copied to clipboard',
+                    color: 'green',
+                  });
+                }}
+              >
+                <IconCopy size={16} />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
+        </Card>
+      )}
       <div>
         <Paper p='md' radius='md' withBorder>
           <Grid gutter='xl'>
             <Grid.Col span={{ base: 12, sm: 6 }}>
-              <InfoItem
-                label='Student Number'
-                value={student.stdNo.toString()}
-              />
+              <InfoItem label='Student Number' value={student.stdNo} copyable />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 6 }}>
+              <InfoItem label='Full Name' value={student.name} copyable />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem label='National ID' value={student.nationalId} />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
-              <InfoItem label='Full Name' value={student.name} />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6 }}>
-              <InfoItem label='Date of Birth' value={student.dateOfBirth} />
+              <InfoItem
+                label='Date of Birth'
+                value={formatDate(student.dateOfBirth)}
+              />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem label='Gender' value={student.gender} />
@@ -56,12 +105,12 @@ export default function StudentView({ student }: Props) {
 function InfoItem({
   label,
   value,
+  copyable = false,
 }: {
   label: string;
-  value: string | null | Date;
+  value: number | string | null;
+  copyable?: boolean;
 }) {
-  const displayValue = value instanceof Date ? formatDate(value) : value;
-
   return (
     <Group wrap='nowrap' gap='xs'>
       <div style={{ flex: 1 }}>
@@ -69,9 +118,26 @@ function InfoItem({
           {label}
         </Text>
         <Text size='sm' fw={500}>
-          {displayValue || 'N/A'}
+          {value ?? 'N/A'}
         </Text>
       </div>
+      {copyable && value && (
+        <Tooltip label='Copy'>
+          <ActionIcon
+            variant='subtle'
+            color='gray'
+            onClick={() => {
+              navigator.clipboard.writeText(String(value));
+              notifications.show({
+                message: 'Copied to clipboard',
+                color: 'green',
+              });
+            }}
+          >
+            <IconCopy size={16} />
+          </ActionIcon>
+        </Tooltip>
+      )}
     </Group>
   );
 }
