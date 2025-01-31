@@ -206,11 +206,13 @@ function ItemDisplay({ item }: { item: NavItem }) {
 function Logo() {
   const colorScheme = useComputedColorScheme('dark');
   return (
-    <Image
-      src={`/images/logo-${colorScheme}.png`}
-      w={'auto'}
-      h={50}
-      alt='logo'
-    />
+    <Link href='/admin'>
+      <Image
+        src={`/images/logo-${colorScheme}.png`}
+        w={'auto'}
+        h={50}
+        alt='logo'
+      />
+    </Link>
   );
 }
