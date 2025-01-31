@@ -345,7 +345,7 @@ export const departmentEnum = [
   'academic',
 ] as const;
 
-export const clearedSemesters = sqliteTable('cleared_semesters', {
+export const clearanceResponse = sqliteTable('clearance_responses', {
   id: integer().primaryKey({ autoIncrement: true }),
   clearanceRequestId: integer()
     .references(() => clearanceRequests.id, { onDelete: 'cascade' })
