@@ -5,7 +5,10 @@ import {
   DetailsViewBody,
 } from '@/components/adease';
 import { notFound } from 'next/navigation';
-import { getClearanceRequest, deleteClearanceRequest } from '@/server/clearance-requests/actions';
+import {
+  getClearanceRequest,
+  deleteClearanceRequest,
+} from '@/server/clearance-requests/actions';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -14,15 +17,15 @@ type Props = {
 export default async function ClearanceRequestDetails({ params }: Props) {
   const { id } = await params;
   const clearanceRequest = await getClearanceRequest(Number(id));
-  
+
   if (!clearanceRequest) {
     return notFound();
   }
 
   return (
     <DetailsView>
-      <DetailsViewHeader 
-        title={'Clearance Request'} 
+      <DetailsViewHeader
+        title={'Clearance Request'}
         queryKey={['clearanceRequests']}
         handleDelete={async () => {
           'use server';
@@ -31,7 +34,6 @@ export default async function ClearanceRequestDetails({ params }: Props) {
       />
       <DetailsViewBody>
         <FieldView label='Std No'>{clearanceRequest.stdNo}</FieldView>
-        <FieldView label='Term'>{clearanceRequest.term}</FieldView>
       </DetailsViewBody>
     </DetailsView>
   );

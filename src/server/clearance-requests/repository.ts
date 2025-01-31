@@ -11,6 +11,15 @@ export default class ClearanceRequestRepository extends BaseRepository<
     super(clearanceRequests, 'id');
   }
 
+  override async findById(id: number) {
+    return await db.query.clearanceRequests.findFirst({
+      where: eq(clearanceRequests.id, id),
+      with: {
+        student: true,
+      },
+    });
+  }
+
   async getByStdNo(termId: number, stdNo: number) {
     return await db.query.clearanceRequests.findFirst({
       where: and(

@@ -326,6 +326,9 @@ export const clearanceRequests = sqliteTable(
     termId: integer()
       .references(() => terms.id, { onDelete: 'cascade' })
       .notNull(),
+    registrationRequestId: integer()
+      .references(() => registrationRequests.id, { onDelete: 'cascade' })
+      .notNull(),
     createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
     updatedAt: integer({ mode: 'timestamp' }),
   },

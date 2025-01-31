@@ -135,6 +135,10 @@ export const clearanceRequestsRelations = relations(
       fields: [clearanceRequests.stdNo],
       references: [students.stdNo],
     }),
+    registrationRequest: one(registrationRequests, {
+      fields: [clearanceRequests.registrationRequestId],
+      references: [registrationRequests.id],
+    }),
     term: one(terms, {
       fields: [clearanceRequests.termId],
       references: [terms.id],
