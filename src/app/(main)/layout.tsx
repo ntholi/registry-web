@@ -1,5 +1,5 @@
 import Gradient from '@/components/ui/gradient';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from '@/components/ui/toaster';
 import type { Metadata } from 'next';
 import { PropsWithChildren } from 'react';
 import Footer from './base/Footer';
