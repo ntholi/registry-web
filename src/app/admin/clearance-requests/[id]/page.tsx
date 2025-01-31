@@ -8,8 +8,10 @@ import {
   Badge,
   Card,
   Divider,
+  Flex,
   Grid,
   GridCol,
+  Paper,
   Stack,
   Table,
   TableTbody,
@@ -17,6 +19,8 @@ import {
   TableTh,
   TableThead,
   TableTr,
+  Text,
+  Title,
 } from '@mantine/core';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -44,17 +48,24 @@ export default async function ClearanceRequestDetails({ params }: Props) {
           await deleteClearanceRequest(Number(id));
         }}
       />
-      <Stack p='lg' gap={'xl'}>
+      <Stack p='lg'>
         <Grid>
           <GridCol span={{ base: 12, md: 7 }}>
-            <FieldView label='Student'>
-              <Anchor
-                component={Link}
-                href={`/admin/students/${request.stdNo}`}
-              >
-                {request.student.name}
-              </Anchor>
-            </FieldView>
+            <Paper withBorder p='md'>
+              <Stack>
+                <FieldView label='Student' underline={false}>
+                  <Anchor
+                    component={Link}
+                    href={`/admin/students/${request.stdNo}`}
+                  >
+                    {request.student.name}
+                  </Anchor>
+                </FieldView>
+                <FieldView label='Program' underline={false}>
+                  {request.student.structure?.program.name}
+                </FieldView>
+              </Stack>
+            </Paper>
           </GridCol>
           <GridCol span={{ base: 12, md: 5 }}>
             <ClearanceSwitch request={request} />
@@ -99,19 +110,30 @@ function ModulesTable({ requestedModules }: { requestedModules: Module }) {
   ));
 
   return (
-    <Card withBorder>
-      <Table>
-        <TableThead>
-          <TableTr>
-            <TableTh w={95}>Code</TableTh>
-            <TableTh>Name</TableTh>
-            <TableTh w={60}>Credits</TableTh>
-            <TableTh w={62}>Type</TableTh>
-            <TableTh w={120}>Status</TableTh>
-          </TableTr>
-        </TableThead>
-        <TableTbody>{rows}</TableTbody>
-      </Table>
-    </Card>
+    <Stack>
+      <Flex justify={'space-between'}>
+        <Title order={4} fw={500}>
+          Requested Modules
+        </Title>
+        <Text c='dimmed' size='sm'>
+          {requestedModules.length}
+          {requestedModules.length === 1 ? ' Module' : ' Modules'}
+        </Text>
+      </Flex>
+      <Card withBorder>
+        <Table>
+          <TableThead>
+            <TableTr>
+              <TableTh w={95}>Code</TableTh>
+              <TableTh>Name</TableTh>
+              <TableTh w={60}>Credits</TableTh>
+              <TableTh w={62}>Type</TableTh>
+              <TableTh w={120}>Status</TableTh>
+            </TableTr>
+          </TableThead>
+          <TableTbody>{rows}</TableTbody>
+        </Table>
+      </Card>
+    </Stack>
   );
 }

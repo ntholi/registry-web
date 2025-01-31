@@ -36,7 +36,7 @@ export function FieldView({
       <Text size='sm' c='dimmed'>
         {label}
       </Text>
-      {underline && <Divider />}s
+      {underline && <Divider />}
     </Box>
   );
 }
