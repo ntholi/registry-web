@@ -293,6 +293,7 @@ export const registrationRequests = sqliteTable(
 
 export const requestedModules = sqliteTable('requested_modules', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  moduleStatus: text({ enum: moduleStatusEnum }).notNull(),
   registrationRequestId: integer('registration_request_id')
     .references(() => registrationRequests.id, { onDelete: 'cascade' })
     .notNull(),
