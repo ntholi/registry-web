@@ -3,7 +3,18 @@ import {
   deleteClearanceRequest,
   getClearanceRequest,
 } from '@/server/clearance-requests/actions';
-import { Anchor, Divider, Grid, GridCol, Paper, Stack } from '@mantine/core';
+import {
+  Accordion,
+  AccordionControl,
+  AccordionItem,
+  AccordionPanel,
+  Anchor,
+  Grid,
+  GridCol,
+  Paper,
+  Stack,
+  Textarea,
+} from '@mantine/core';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ClearanceSwitch from './ClearanceSwitch';
@@ -54,10 +65,22 @@ export default async function ClearanceRequestDetails({ params }: Props) {
             <ClearanceSwitch request={request} />
           </GridCol>
         </Grid>
-        <Divider />
-        <ModulesTable
-          requestedModules={request.registrationRequest.requestedModules}
-        />
+        <Accordion defaultValue='modules' variant='separated'>
+          <AccordionItem value='comments'>
+            <AccordionControl>Comments</AccordionControl>
+            <AccordionPanel>
+              <Textarea />
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem value='modules'>
+            <AccordionControl>Modules</AccordionControl>
+            <AccordionPanel>
+              <ModulesTable
+                requestedModules={request.registrationRequest.requestedModules}
+              />
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
       </Stack>
     </DetailsView>
   );

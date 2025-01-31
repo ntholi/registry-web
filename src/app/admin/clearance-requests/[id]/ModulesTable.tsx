@@ -2,16 +2,12 @@ import { getClearanceRequest } from '@/server/clearance-requests/actions';
 import {
   Badge,
   Card,
-  Flex,
-  Stack,
   Table,
   TableTbody,
   TableTd,
   TableTh,
   TableThead,
   TableTr,
-  Text,
-  Title,
 } from '@mantine/core';
 
 type Module = NonNullable<
@@ -48,30 +44,19 @@ export function ModulesTable({
   ));
 
   return (
-    <Stack>
-      <Flex justify={'space-between'}>
-        <Title order={4} fw={500}>
-          Requested Modules
-        </Title>
-        <Text c='dimmed' size='sm'>
-          {requestedModules.length}
-          {requestedModules.length === 1 ? ' Module' : ' Modules'}
-        </Text>
-      </Flex>
-      <Card withBorder>
-        <Table>
-          <TableThead>
-            <TableTr>
-              <TableTh w={95}>Code</TableTh>
-              <TableTh>Name</TableTh>
-              <TableTh w={60}>Credits</TableTh>
-              <TableTh w={62}>Type</TableTh>
-              <TableTh w={120}>Status</TableTh>
-            </TableTr>
-          </TableThead>
-          <TableTbody>{rows}</TableTbody>
-        </Table>
-      </Card>
-    </Stack>
+    <Card withBorder>
+      <Table>
+        <TableThead>
+          <TableTr>
+            <TableTh w={95}>Code</TableTh>
+            <TableTh>Name</TableTh>
+            <TableTh w={60}>Credits</TableTh>
+            <TableTh w={62}>Type</TableTh>
+            <TableTh w={120}>Status</TableTh>
+          </TableTr>
+        </TableThead>
+        <TableTbody>{rows}</TableTbody>
+      </Table>
+    </Card>
   );
 }
