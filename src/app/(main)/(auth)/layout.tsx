@@ -11,7 +11,11 @@ export default async function layout({ children }: PropsWithChildren) {
     redirect('/signup');
   }
 
-  if (session?.user?.role && dashboardUsers.includes(session.user.role)) {
+  if (
+    session?.user?.role &&
+    session.user.role !== 'student' &&
+    dashboardUsers.includes(session.user.role)
+  ) {
     redirect('/admin');
   }
   return (
