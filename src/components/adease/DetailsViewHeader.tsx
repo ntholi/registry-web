@@ -8,12 +8,16 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { DeleteButton } from './DeleteButton';
 import React from 'react';
+import { UserRole } from '@/db/schema';
+import { useSession } from 'next-auth/react';
 
 export interface DetailsViewHeaderProps {
   title: string;
   queryKey: string[];
   handleDelete?: () => Promise<void>;
   onDeleteSuccess?: () => Promise<void>;
+  deleteRoles?: UserRole[];
+  editRoles?: UserRole[];
 }
 
 export function DetailsViewHeader({
@@ -21,7 +25,10 @@ export function DetailsViewHeader({
   queryKey,
   handleDelete,
   onDeleteSuccess,
+  deleteRoles,
+  editRoles,
 }: DetailsViewHeaderProps) {
+  const { data: session } = useSession();
   const pathname = usePathname();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [, setView] = useViewSelect();
@@ -47,20 +54,25 @@ export function DetailsViewHeader({
           </Title>
         )}
         <Group>
-          {handleDelete && (
-            <DeleteButton
-              handleDelete={handleDelete}
-              onSuccess={onDeleteSuccess}
-              queryKey={queryKey}
-            />
+          {handleDelete &&
+            (deleteRoles?.includes(session?.user?.role as UserRole) ||
+              session?.user?.role === 'admin') && (
+              <DeleteButton
+                handleDelete={handleDelete}
+                onSuccess={onDeleteSuccess}
+                queryKey={queryKey}
+              />
+            )}
+          {(editRoles?.includes(session?.user?.role as UserRole) ||
+            session?.user?.role === 'admin') && (
+            <ActionIcon
+              component={Link}
+              href={`${pathname}/edit?${newSearchParams.toString()}`}
+              variant='outline'
+            >
+              <IconEdit size={'1rem'} />
+            </ActionIcon>
           )}
-          <ActionIcon
-            component={Link}
-            href={`${pathname}/edit?${newSearchParams.toString()}`}
-            variant='outline'
-          >
-            <IconEdit size={'1rem'} />
-          </ActionIcon>
         </Group>
       </Flex>
       <Divider my={15} />
