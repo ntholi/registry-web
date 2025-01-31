@@ -1,9 +1,10 @@
 'use server';
 
-import { registrationRequests } from '@/db/schema';
+import { registrationRequests, requestedModules } from '@/db/schema';
 import { registrationRequestsService as service } from './service';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
+type RequestedModule = typeof requestedModules.$inferInsert;
 
 export async function getRegistrationRequest(id: number) {
   return service.get(id);
@@ -39,4 +40,8 @@ export async function updateRegistrationRequest(
 
 export async function deleteRegistrationRequest(id: number) {
   return service.delete(id);
+}
+
+export async function createRequestedModules(modules: RequestedModule[]) {
+  return service.createRequestedModules(modules);
 }

@@ -1,9 +1,10 @@
-import { registrationRequests } from '@/db/schema';
+import { registrationRequests, requestedModules } from '@/db/schema';
 import RegistrationRequestRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
+type RequestedModule = typeof requestedModules.$inferInsert;
 
 class RegistrationRequestService {
   constructor(
@@ -32,6 +33,10 @@ class RegistrationRequestService {
 
   async create(data: RegistrationRequest) {
     return withAuth(async () => this.repository.create(data), []);
+  }
+
+  async createRequestedModules(modules: RequestedModule[]) {
+    return withAuth(async () => this.repository.createRequestedModules(modules), []);
   }
 
   async update(id: number, data: RegistrationRequest) {

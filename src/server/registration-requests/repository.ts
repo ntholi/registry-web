@@ -1,7 +1,9 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { registrationRequests } from '@/db/schema';
+import { registrationRequests, requestedModules } from '@/db/schema';
 import { db } from '@/db';
 import { count, eq } from 'drizzle-orm';
+
+type RequestedModule = typeof requestedModules.$inferInsert;
 
 export default class RegistrationRequestRepository extends BaseRepository<
   typeof registrationRequests,
@@ -24,6 +26,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
       .where(eq(registrationRequests.status, 'pending'));
 
     return value;
+  }
+
+  async createRequestedModules(modules: RequestedModule[]) {
+    return db.insert(requestedModules).values(modules).returning();
   }
 }
 

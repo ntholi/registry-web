@@ -287,7 +287,9 @@ export const registrationRequests = sqliteTable(
     termId: integer('term_id')
       .references(() => terms.id, { onDelete: 'cascade' })
       .notNull(),
-    status: text({ enum: registrationRequestStatusEnum }).notNull(),
+    status: text({ enum: registrationRequestStatusEnum })
+      .notNull()
+      .default('pending'),
     message: text().default('Pending approval'),
     createdAt: integer('created_at', { mode: 'timestamp' }).default(
       sql`(unixepoch())`
@@ -301,7 +303,9 @@ export const registrationRequests = sqliteTable(
 
 export const requestedModules = sqliteTable('requested_modules', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  moduleStatus: text({ enum: moduleStatusEnum }).notNull(),
+  moduleStatus: text({ enum: moduleStatusEnum })
+    .notNull()
+    .default('Compulsory'),
   registrationRequestId: integer('registration_request_id')
     .references(() => registrationRequests.id, { onDelete: 'cascade' })
     .notNull(),

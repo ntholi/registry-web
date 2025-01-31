@@ -9,13 +9,21 @@ import {
   FormItem,
   FormLabel,
 } from '@/components/ui/form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { getSemesterModules } from './actions';
+import {
+  createRegistrationRequest,
+  createRequestedModules,
+} from '@/server/registration-requests/actions';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useCurrentTerm } from '@/hooks/use-current-term';
 
 type Props = {
+  stdNo: number;
   structureId: number;
   semester: number;
 };
@@ -26,10 +34,56 @@ const formSchema = z.object({
   }),
 });
 
-export default function RegisterForm({ structureId, semester }: Props) {
+export default function RegisterForm({ stdNo, structureId, semester }: Props) {
+  const { toast } = useToast();
+  const { currentTerm } = useCurrentTerm();
+  const router = useRouter();
+
   const { data: modules } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
     queryFn: () => getSemesterModules(structureId, semester),
+  });
+
+  const { mutate: submitRegistration, isPending } = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const registrationRequest = {
+        stdNo,
+        termId: currentTerm!.id,
+        status: 'pending' as const,
+      };
+
+      const request = await createRegistrationRequest(registrationRequest);
+
+      // Create requested modules
+      const requestedModules = values.modules.map((moduleCode) => {
+        const module = modules?.find((m) => m.code === moduleCode);
+        if (!module) throw new Error(`Module ${moduleCode} not found`);
+
+        return {
+          moduleId: module.id,
+          registrationRequestId: request.id,
+          moduleStatus: 'Compulsory' as const,
+        };
+      });
+
+      await createRequestedModules(requestedModules);
+
+      return request;
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Registration submitted successfully',
+        description: 'Your registration request is pending approval.',
+      });
+      router.push('/dashboard');
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error submitting registration',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -40,8 +94,7 @@ export default function RegisterForm({ structureId, semester }: Props) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Handle form submission
+    submitRegistration(values);
   }
 
   return (
@@ -98,8 +151,13 @@ export default function RegisterForm({ structureId, semester }: Props) {
         </div>
 
         <div className='flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t'>
-          <Button type='submit' size='lg' className='w-full sm:w-auto'>
-            Register Selected Modules
+          <Button
+            type='submit'
+            size='lg'
+            className='w-full sm:w-auto'
+            disabled={isPending}
+          >
+            {isPending ? 'Submitting...' : 'Register Selected Modules'}
           </Button>
         </div>
       </form>
