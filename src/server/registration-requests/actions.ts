@@ -1,6 +1,10 @@
 'use server';
 
-import { registrationRequests, requestedModules } from '@/db/schema';
+import {
+  ModuleStatus,
+  registrationRequests,
+  requestedModules,
+} from '@/db/schema';
 import { registrationRequestsService as service } from './service';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
@@ -50,24 +54,11 @@ export async function createRequestedModules(
 export async function createRegistrationWithModules(data: {
   stdNo: number;
   termId: number;
-  modules: string[];
-  availableModules: { id: number; code: string }[];
+  moduleIds: { moduleId: number; moduleStatus: ModuleStatus }[];
 }) {
-  const moduleIds = data.modules.map((moduleCode) => {
-    const foundModule = data.availableModules.find(
-      (m) => m.code === moduleCode
-    );
-    if (!foundModule) throw new Error(`Module ${moduleCode} not found`);
-
-    return {
-      moduleId: foundModule.id,
-      moduleStatus: 'Compulsory' as const,
-    };
-  });
-
   return service.createRegistrationWithModules({
     stdNo: data.stdNo,
     termId: data.termId,
-    moduleIds,
+    moduleIds: data.moduleIds,
   });
 }

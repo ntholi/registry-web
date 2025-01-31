@@ -57,7 +57,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
     moduleIds: { moduleId: number; moduleStatus: ModuleStatus }[];
   }) {
     return await db.transaction(async (tx) => {
-      // Create registration request
       const [request] = await tx
         .insert(registrationRequests)
         .values({
@@ -67,7 +66,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
         })
         .returning();
 
-      // Create requested modules
       const modulesToCreate = data.moduleIds.map((module) => ({
         ...module,
         registrationRequestId: request.id,

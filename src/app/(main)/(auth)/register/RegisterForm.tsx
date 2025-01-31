@@ -28,7 +28,7 @@ type Props = {
 };
 
 const formSchema = z.object({
-  modules: z.array(z.string()).min(1, {
+  modules: z.array(z.number()).min(1, {
     message: 'You must select at least one module.',
   }),
 });
@@ -51,8 +51,10 @@ export default function RegisterForm({ stdNo, structureId, semester }: Props) {
       return createRegistrationWithModules({
         stdNo,
         termId: currentTerm.id,
-        modules: values.modules,
-        availableModules: modules,
+        moduleIds: values.modules.map(moduleId => ({
+          moduleId,
+          moduleStatus: 'Compulsory' as const
+        }))
       });
     },
     onSuccess: () => {
@@ -98,7 +100,7 @@ export default function RegisterForm({ stdNo, structureId, semester }: Props) {
           <div className='space-y-4'>
             {modules?.map((module) => (
               <FormField
-                key={module.code}
+                key={module.id}
                 control={form.control}
                 name='modules'
                 render={({ field }) => (
@@ -106,13 +108,13 @@ export default function RegisterForm({ stdNo, structureId, semester }: Props) {
                     <FormControl>
                       <Checkbox
                         className='order-1 after:absolute after:inset-0'
-                        checked={field.value?.includes(module.code)}
+                        checked={field.value?.includes(module.id)}
                         onCheckedChange={(checked) => {
                           return checked
-                            ? field.onChange([...field.value, module.code])
+                            ? field.onChange([...field.value, module.id])
                             : field.onChange(
                                 field.value?.filter(
-                                  (value) => value !== module.code
+                                  (value) => value !== module.id
                                 )
                               );
                         }}
