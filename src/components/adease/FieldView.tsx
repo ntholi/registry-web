@@ -3,10 +3,16 @@ import React from 'react';
 
 export interface FieldViewProps extends BoxProps {
   label: string;
+  underline?: boolean;
   children?: React.ReactNode;
 }
 
-export function FieldView({ label, children, ...props }: FieldViewProps) {
+export function FieldView({
+  label,
+  underline = true,
+  children,
+  ...props
+}: FieldViewProps) {
   const isText = typeof children === 'string' || typeof children === 'number';
   return (
     <Box {...props}>
@@ -30,7 +36,7 @@ export function FieldView({ label, children, ...props }: FieldViewProps) {
       <Text size='sm' c='dimmed'>
         {label}
       </Text>
-      <Divider />
+      {underline && <Divider />}s
     </Box>
   );
 }
