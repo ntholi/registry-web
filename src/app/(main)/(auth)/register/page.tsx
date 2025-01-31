@@ -34,6 +34,7 @@ export default async function RegistrationPage() {
         <CardContent>
           {student.structureId ? (
             <RegisterForm
+              stdNo={student.stdNo}
               structureId={student.structureId}
               semester={student.sem + 1}
             />

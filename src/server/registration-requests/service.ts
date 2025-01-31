@@ -32,15 +32,27 @@ class RegistrationRequestService {
   }
 
   async create(data: RegistrationRequest) {
-    return withAuth(async () => this.repository.create(data), []);
+    return withAuth(
+      async () => this.repository.create(data),
+      ['student'],
+      async (session) => session.user?.stdNo === data.stdNo
+    );
   }
 
-  async createRequestedModules(modules: RequestedModule[]) {
-    return withAuth(async () => this.repository.createRequestedModules(modules), []);
+  async createRequestedModules(stdNo: number, modules: RequestedModule[]) {
+    return withAuth(
+      async () => this.repository.createRequestedModules(modules),
+      ['student'],
+      async (session) => session.user?.stdNo === stdNo
+    );
   }
 
   async update(id: number, data: RegistrationRequest) {
-    return withAuth(async () => this.repository.update(id, data), []);
+    return withAuth(
+      async () => this.repository.update(id, data),
+      ['student'],
+      async (session) => session.user?.stdNo === data.stdNo
+    );
   }
 
   async delete(id: number) {

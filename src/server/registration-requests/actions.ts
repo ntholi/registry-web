@@ -25,10 +25,8 @@ export async function findAllRegistrationRequests(
   return service.findAll({ page, search });
 }
 
-export async function createRegistrationRequest(
-  registrationRequest: RegistrationRequest
-) {
-  return service.create(registrationRequest);
+export async function createRegistrationRequest(value: RegistrationRequest) {
+  return service.create(value);
 }
 
 export async function updateRegistrationRequest(
@@ -42,6 +40,9 @@ export async function deleteRegistrationRequest(id: number) {
   return service.delete(id);
 }
 
-export async function createRequestedModules(modules: RequestedModule[]) {
-  return service.createRequestedModules(modules);
+export async function createRequestedModules(
+  stdNo: number,
+  modules: RequestedModule[]
+) {
+  return service.createRequestedModules(stdNo, modules);
 }

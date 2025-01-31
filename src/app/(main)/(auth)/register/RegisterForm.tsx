@@ -66,7 +66,7 @@ export default function RegisterForm({ stdNo, structureId, semester }: Props) {
         };
       });
 
-      await createRequestedModules(requestedModules);
+      await createRequestedModules(stdNo, requestedModules);
 
       return request;
     },
