@@ -24,6 +24,7 @@ import {
   IconCopyCheck,
   IconDeviceIpadHorizontalPlus,
   IconLogout2,
+  IconMessageReply,
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
@@ -60,12 +61,17 @@ const navigation: NavItem[] = [
     icon: IconUsers,
     roles: [...dashboardUsers],
   },
-
   {
     label: 'Clearance Requests',
     href: '/admin/clearance-requests',
     icon: IconCopyCheck,
     roles: [...dashboardUsers],
+  },
+  {
+    label: 'Clearance Responses',
+    href: '/admin/clearance-responses',
+    icon: IconMessageReply,
+    roles: ['admin'],
   },
   {
     label: 'Registration Requests',
