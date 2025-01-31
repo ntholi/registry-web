@@ -6,10 +6,20 @@ import { FindAllParams } from '../base/BaseRepository';
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 
 class RegistrationRequestService {
-  constructor(private readonly repository = new RegistrationRequestRepository()) {}
+  constructor(
+    private readonly repository = new RegistrationRequestRepository()
+  ) {}
 
   async first() {
     return withAuth(async () => this.repository.findFirst(), []);
+  }
+
+  async pending() {
+    return withAuth(async () => this.repository.pending(), ['registry']);
+  }
+
+  async countPending() {
+    return withAuth(async () => this.repository.countPending(), ['registry']);
   }
 
   async get(id: number) {

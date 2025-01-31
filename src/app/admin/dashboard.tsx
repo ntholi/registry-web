@@ -2,6 +2,7 @@
 
 import { Shell } from '@/components/adease';
 import { dashboardUsers, UserRole } from '@/db/schema';
+import { countPendingRegistrationRequests } from '@/server/registration-requests/actions';
 import {
   ActionIcon,
   Avatar,
@@ -71,6 +72,10 @@ const navigation: NavItem[] = [
     href: '/admin/registration-requests',
     icon: IconDeviceIpadHorizontalPlus,
     roles: ['registry'],
+    notificationCount: {
+      queryKey: ['registrationRequests'],
+      queryFn: () => countPendingRegistrationRequests(),
+    },
   },
   {
     label: 'Terms',

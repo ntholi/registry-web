@@ -272,9 +272,9 @@ export const terms = sqliteTable('terms', {
 });
 
 export const registrationRequestStatusEnum = [
-  'Pending',
-  'Approved',
-  'Rejected',
+  'pending',
+  'approved',
+  'rejected',
 ] as const;
 
 export const registrationRequests = sqliteTable(
