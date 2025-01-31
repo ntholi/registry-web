@@ -13,6 +13,21 @@ export default class RegistrationRequestRepository extends BaseRepository<
     super(registrationRequests, 'id');
   }
 
+  async findById(id: number) {
+    return db.query.registrationRequests.findFirst({
+      where: eq(registrationRequests.id, id),
+      with: {
+        student: true,
+        term: true,
+        requestedModules: {
+          with: {
+            module: true,
+          },
+        },
+      },
+    });
+  }
+
   async pending() {
     return db.query.registrationRequests.findMany({
       where: eq(registrationRequests.status, 'pending'),

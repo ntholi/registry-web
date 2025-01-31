@@ -18,6 +18,8 @@ import {
   structures,
   terms,
   users,
+  registrationRequests,
+  requestedModules,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -151,6 +153,35 @@ export const clearedSemestersRelations = relations(
     clearedByUser: one(users, {
       fields: [clearedSemesters.clearedBy],
       references: [users.id],
+    }),
+  })
+);
+
+export const registrationRequestsRelations = relations(
+  registrationRequests,
+  ({ many, one }) => ({
+    student: one(students, {
+      fields: [registrationRequests.stdNo],
+      references: [students.stdNo],
+    }),
+    term: one(terms, {
+      fields: [registrationRequests.termId],
+      references: [terms.id],
+    }),
+    requestedModules: many(requestedModules),
+  })
+);
+
+export const requestedModulesRelations = relations(
+  requestedModules,
+  ({ one }) => ({
+    registrationRequest: one(registrationRequests, {
+      fields: [requestedModules.registrationRequestId],
+      references: [registrationRequests.id],
+    }),
+    module: one(modules, {
+      fields: [requestedModules.moduleId],
+      references: [modules.id],
     }),
   })
 );
