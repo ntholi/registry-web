@@ -1,11 +1,11 @@
 'use server';
 
 import { auth } from '@/auth';
-import { UserRole } from '@/db/schema';
+import { dashboardUsers, UserRole } from '@/db/schema';
 import { Session } from 'next-auth';
 import { forbidden, unauthorized } from 'next/navigation';
 
-type Role = UserRole | 'all' | 'auth';
+type Role = UserRole | 'all' | 'auth' | 'dashboard';
 
 export default async function withAuth<T>(
   fn: () => Promise<T>,
@@ -24,6 +24,15 @@ export default async function withAuth<T>(
   }
 
   if (roles.includes('auth') && session?.user) {
+    return fn();
+  }
+
+  if (
+    roles.includes('dashboard') &&
+    dashboardUsers.includes(
+      session?.user?.role as (typeof dashboardUsers)[number]
+    )
+  ) {
     return fn();
   }
 
