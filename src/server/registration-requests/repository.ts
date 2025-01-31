@@ -38,6 +38,13 @@ export default class RegistrationRequestRepository extends BaseRepository<
         eq(registrationRequests.stdNo, stdNo),
         eq(registrationRequests.termId, termId)
       ),
+      with: {
+        requestedModules: {
+          with: {
+            module: true,
+          },
+        },
+      },
     });
   }
 

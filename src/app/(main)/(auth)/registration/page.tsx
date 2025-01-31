@@ -20,7 +20,7 @@ export default async function page() {
     redirect('/registration/request');
   }
 
-  if (request.status == 'pending') {
+  if (request.status === 'pending') {
     redirect('/clearance/request');
   }
 
