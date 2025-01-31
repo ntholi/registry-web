@@ -1,4 +1,5 @@
 'use client';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -8,48 +9,41 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useCurrentTerm } from '@/hooks/use-current-term';
+import { ModuleStatus, terms } from '@/db/schema';
 import { useToast } from '@/hooks/use-toast';
 import { createClearanceRequest } from '@/server/clearance-requests/actions';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { Badge } from '@/components/ui/badge';
 import { Check, Clock } from 'lucide-react';
-import { ModuleStatus } from '@/db/schema';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   stdNo: number;
+  term: NonNullable<typeof terms.$inferSelect>;
+  registrationRequestId: number;
 };
 
-export default function ClearanceRequestForm({ stdNo }: Props) {
+export default function ClearanceRequestForm({
+  stdNo,
+  term,
+  registrationRequestId,
+}: Props) {
   const router = useRouter();
   const { toast } = useToast();
-  const { currentTerm } = useCurrentTerm();
 
   const { data: modules, isLoading } = useQuery({
-    queryKey: ['studentModules', stdNo, currentTerm?.id],
+    queryKey: ['studentModules', stdNo, term.id],
     queryFn: async () => {
-      if (!currentTerm?.id) throw new Error('Current term not found');
-      return getRegistrationRequestByStdNo(stdNo, currentTerm.id);
+      return getRegistrationRequestByStdNo(stdNo, term.id);
     },
     select: (data) => data?.requestedModules,
-    enabled: !!currentTerm?.id,
   });
 
   async function handleSubmit() {
     try {
-      if (!currentTerm) {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'Missing required information (current term)',
-        });
-        return;
-      }
-
       await createClearanceRequest({
-        termId: currentTerm.id,
+        termId: term.id,
+        registrationRequestId,
         stdNo,
       });
 
@@ -80,7 +74,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         <div className='space-y-1'>
           <p className='text-sm font-medium'>Term</p>
           <p className='text-sm text-muted-foreground'>
-            {currentTerm?.name || 'Loading...'}
+            {term?.name || 'Loading...'}
           </p>
         </div>
         <div className='space-y-1'>
@@ -135,7 +129,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         <div className='flex justify-end'>
           <Button
             onClick={handleSubmit}
-            disabled={!currentTerm || isLoading}
+            disabled={!term.id || isLoading}
             className='w-full sm:w-auto'
           >
             Submit Request
