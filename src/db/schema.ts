@@ -345,6 +345,7 @@ export const clearanceResponses = sqliteTable('clearance_responses', {
     .references(() => clearanceRequests.id, { onDelete: 'cascade' })
     .notNull(),
   department: text({ enum: dashboardUsers }).notNull(),
+  message: text(),
   clearedBy: text()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
