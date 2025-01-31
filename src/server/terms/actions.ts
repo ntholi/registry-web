@@ -10,7 +10,11 @@ export async function getTerm(id: number) {
 }
 
 export async function getCurrentTerm() {
-  return service.getActive();
+  const term = await service.getActive();
+  if (!term) {
+    throw new Error('No active term');
+  }
+  return term;
 }
 
 export async function findAllTerms(page: number = 1, search = '') {

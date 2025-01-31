@@ -5,7 +5,7 @@ import {
   requestedModules,
 } from '@/db/schema';
 import { db } from '@/db';
-import { count, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 
@@ -29,6 +29,15 @@ export default class RegistrationRequestRepository extends BaseRepository<
           },
         },
       },
+    });
+  }
+
+  async findByStdNo(stdNo: number, termId: number) {
+    return db.query.registrationRequests.findFirst({
+      where: and(
+        eq(registrationRequests.stdNo, stdNo),
+        eq(registrationRequests.termId, termId)
+      ),
     });
   }
 

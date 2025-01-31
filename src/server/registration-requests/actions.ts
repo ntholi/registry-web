@@ -14,6 +14,13 @@ export async function getRegistrationRequest(id: number) {
   return service.get(id);
 }
 
+export async function getRegistrationRequestByStdNo(
+  stdNo: number,
+  termId: number
+) {
+  return service.getByStdNo(stdNo, termId);
+}
+
 export async function pendingRegistrationRequests() {
   return service.pending();
 }

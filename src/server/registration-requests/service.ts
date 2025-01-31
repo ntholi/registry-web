@@ -19,6 +19,14 @@ class RegistrationRequestService {
     return withAuth(async () => this.repository.findFirst(), []);
   }
 
+  async getByStdNo(stdNo: number, termId: number) {
+    return withAuth(
+      async () => this.repository.findByStdNo(stdNo, termId),
+      ['student'],
+      async (session) => session.user?.stdNo === stdNo
+    );
+  }
+
   async pending() {
     return withAuth(async () => this.repository.pending(), ['registry']);
   }

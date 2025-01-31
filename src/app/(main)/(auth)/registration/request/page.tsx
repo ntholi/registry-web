@@ -21,7 +21,7 @@ export default async function RegistrationPage() {
   }
 
   return (
-    <Container className='py-8'>
+    <Container className='pt-4 sm:pt-10'>
       <Card className='max-w-3xl mx-auto'>
         <CardHeader>
           <CardTitle className='text-2xl font-bold'>
