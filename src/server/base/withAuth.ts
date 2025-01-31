@@ -5,7 +5,7 @@ import { UserRole } from '@/db/schema';
 import { Session } from 'next-auth';
 import { forbidden, unauthorized } from 'next/navigation';
 
-type Role = UserRole | 'all';
+type Role = UserRole | 'all' | 'auth';
 
 export default async function withAuth<T>(
   fn: () => Promise<T>,
@@ -20,6 +20,10 @@ export default async function withAuth<T>(
   const method = methodMatch ? methodMatch[1] : 'unknown method';
 
   if (roles.includes('all')) {
+    return fn();
+  }
+
+  if (roles.includes('auth') && session?.user) {
     return fn();
   }
 
