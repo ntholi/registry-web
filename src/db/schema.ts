@@ -11,10 +11,11 @@ import { nanoid } from 'nanoid';
 import { sql } from 'drizzle-orm';
 
 export const dashboardUsers = [
-  'admin',
-  'registry',
   'finance',
+  'registry',
   'library',
+  'resource',
+  'academic',
 ] as const;
 export const userRoles = ['user', 'student', ...dashboardUsers] as const;
 export type UserRole = (typeof userRoles)[number];
@@ -337,20 +338,12 @@ export const clearanceRequests = sqliteTable(
   })
 );
 
-export const departmentEnum = [
-  'finance',
-  'registry',
-  'library',
-  'resource',
-  'academic',
-] as const;
-
-export const clearanceResponse = sqliteTable('clearance_responses', {
+export const clearanceResponses = sqliteTable('clearance_responses', {
   id: integer().primaryKey({ autoIncrement: true }),
   clearanceRequestId: integer()
     .references(() => clearanceRequests.id, { onDelete: 'cascade' })
     .notNull(),
-  department: text({ enum: departmentEnum }).notNull(),
+  department: text({ enum: dashboardUsers }).notNull(),
   clearedBy: text()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
