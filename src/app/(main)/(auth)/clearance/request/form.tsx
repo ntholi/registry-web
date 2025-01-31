@@ -10,12 +10,13 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { createClearanceRequest } from '@/server/clearance-requests/actions';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { useQuery } from '@tanstack/react-query';
-import { Check, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
+import { Check, Clock } from 'lucide-react';
+import { ModuleStatus } from '@/db/schema';
 
 type Props = {
   stdNo: number;
@@ -29,7 +30,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
   const { data: modules, isLoading } = useQuery({
     queryKey: ['student-modules', stdNo, currentTerm?.id],
     queryFn: () => getRegistrationRequestByStdNo(stdNo, currentTerm?.id),
-    select: (data) => data?.requestedModules.map((module) => module.module),
+    select: (data) => data?.requestedModules,
     enabled: !!currentTerm?.id,
   });
 
@@ -73,13 +74,13 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent className='space-y-6'>
-        <div className='space-y-2'>
+        <div className='space-y-1'>
           <p className='text-sm font-medium'>Term</p>
           <p className='text-sm text-muted-foreground'>
             {currentTerm?.name || 'Loading...'}
           </p>
         </div>
-        <div className='space-y-2'>
+        <div className='space-y-1'>
           <p className='text-sm font-medium'>Student Number</p>
           <p className='text-sm text-muted-foreground'>
             {stdNo || 'Loading...'}
@@ -103,7 +104,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
               </div>
             ) : modules && modules.length > 0 ? (
               <div className='space-y-4'>
-                {modules.map((module) => (
+                {modules.map(({ module, moduleStatus }) => (
                   <div
                     key={module.id}
                     className='flex items-start justify-between gap-4 pb-4 last:pb-0 border-b last:border-0'
@@ -114,21 +115,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
                         {module.code}
                       </p>
                     </div>
-                    <div
-                      className={cn(
-                        'flex items-center gap-1 px-2 py-1 text-xs rounded-full',
-                        module.status === 'COMPLETED'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-yellow-100 text-yellow-700'
-                      )}
-                    >
-                      {module.status === 'COMPLETED' ? (
-                        <Check className='w-3 h-3' />
-                      ) : (
-                        <Clock className='w-3 h-3' />
-                      )}
-                      {module.status}
-                    </div>
+                    <ModuleStatusBadge status={moduleStatus} />
                   </div>
                 ))}
               </div>
@@ -153,5 +140,21 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function ModuleStatusBadge({ status }: { status: ModuleStatus }) {
+  return (
+    <Badge
+      variant={status === 'Compulsory' ? 'secondary' : 'destructive'}
+      className='flex items-center gap-1'
+    >
+      {status === 'Compulsory' ? (
+        <Check className='w-3 h-3' />
+      ) : (
+        <Clock className='w-3 h-3' />
+      )}
+      {status}
+    </Badge>
   );
 }
