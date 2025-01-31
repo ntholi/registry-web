@@ -5,6 +5,7 @@ import { getClearanceRequest } from '@/server/clearance-requests/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getClearanceRequest>>>;
@@ -13,18 +14,20 @@ type Props = {
 
 export default function ClearanceSwitch({ request, comment }: Props) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [value, setValue] = useState<'cleared' | 'not-cleared'>('not-cleared');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
+      if (!session?.user?.id) return;
       await createClearanceResponse({
         clearanceRequestId: request.id,
         message: comment,
         department: 'registry',
+        clearedBy: session?.user?.id,
       });
-
       router.refresh();
     } finally {
       setLoading(false);
