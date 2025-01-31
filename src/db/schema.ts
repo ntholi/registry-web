@@ -16,6 +16,7 @@ export const dashboardUsers = [
   'library',
   'resource',
   'academic',
+  'admin',
 ] as const;
 export const userRoles = ['user', 'student', ...dashboardUsers] as const;
 export type UserRole = (typeof userRoles)[number];
