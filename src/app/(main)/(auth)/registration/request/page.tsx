@@ -10,7 +10,7 @@ import { Container } from '@/components/ui/container';
 import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
 import { redirect } from 'next/navigation';
-import RegisterForm from './RegisterForm';
+import RegisterForm from './Form';
 
 export default async function RegistrationPage() {
   const session = await auth();

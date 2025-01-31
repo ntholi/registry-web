@@ -12,7 +12,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { getSemesterModules } from './actions';
+import { getSemesterModules } from '../actions';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
