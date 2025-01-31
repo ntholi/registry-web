@@ -20,6 +20,10 @@ export default async function page() {
     redirect('/registration/request');
   }
 
+  if (request.status == 'pending') {
+    redirect('/clearance/request');
+  }
+
   return (
     <Container className='pt-4 sm:pt-10'>
       <div>page</div>
