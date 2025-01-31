@@ -1,6 +1,7 @@
 'use client';
 
 import { Shell } from '@/components/adease';
+import { UserRole } from '@/db/schema';
 import {
   ActionIcon,
   Avatar,
@@ -39,6 +40,7 @@ export type NavItem = {
   label: string;
   href?: string;
   icon: Icon;
+  roles?: UserRole[];
   children?: NavItem[];
   notificationCount?: NotificationConfig;
 };
@@ -48,16 +50,19 @@ const navigation: NavItem[] = [
     label: 'Users',
     href: '/admin/users',
     icon: IconUser,
+    roles: ['finance', 'registry'],
   },
   {
     label: 'Students',
     href: '/admin/students',
     icon: IconUsers,
+    roles: ['finance', 'registry'],
   },
   {
     label: 'Clearance Requests',
     href: '/admin/clearance-requests',
     icon: IconCopyCheck,
+    roles: ['finance', 'registry'],
   },
   {
     label: 'Terms',
@@ -165,6 +170,17 @@ function DisplayWithNotification({ item }: { item: NavItem }) {
 function ItemDisplay({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const Icon = item.icon;
+  const { data: session } = useSession();
+
+  if (
+    item.roles &&
+    (!session?.user?.role ||
+      !item.roles.includes(session.user.role as UserRole))
+  ) {
+    if (session?.user?.role !== 'admin') {
+      return null;
+    }
+  }
 
   const navLink = (
     <NavLink
