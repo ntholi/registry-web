@@ -15,6 +15,7 @@ import {
   Textarea,
 } from '@mantine/core';
 import Link from 'next/link';
+import { useState } from 'react';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
 
@@ -22,7 +23,9 @@ type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getClearanceRequest>>>;
 };
 
-export default function index({ request }: Props) {
+export default function RequestBody({ request }: Props) {
+  const [comment, setComment] = useState('');
+
   return (
     <Stack p='lg'>
       <Grid>
@@ -44,14 +47,18 @@ export default function index({ request }: Props) {
           </Paper>
         </GridCol>
         <GridCol span={{ base: 12, md: 5 }}>
-          <ClearanceSwitch request={request} />
+          <ClearanceSwitch request={request} comment={comment} />
         </GridCol>
       </Grid>
       <Accordion defaultValue='modules' variant='separated'>
         <AccordionItem value='comments'>
           <AccordionControl>Comments</AccordionControl>
           <AccordionPanel>
-            <Textarea />
+            <Textarea
+              value={comment}
+              onChange={(e) => setComment(e.currentTarget.value)}
+              placeholder='Enter your comments here...'
+            />
           </AccordionPanel>
         </AccordionItem>
         <AccordionItem value='modules'>
