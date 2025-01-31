@@ -214,7 +214,7 @@ function ModuleTable({
     <Table verticalSpacing='xs'>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th w={90}>Code</Table.Th>
+          <Table.Th w={95}>Code</Table.Th>
           <Table.Th>Name</Table.Th>
           <Table.Th w={100}>Status</Table.Th>
           <Table.Th w={62}>Marks</Table.Th>
@@ -226,7 +226,10 @@ function ModuleTable({
           <Table.Tr key={module.id} data-module-id={module.id}>
             <Table.Td>
               {moduleLocations[module.code].length > 1 ? (
-                <Anchor size='sm' onClick={() => onModuleClick(module.id, module.code)}>
+                <Anchor
+                  size='sm'
+                  onClick={() => onModuleClick(module.id, module.code)}
+                >
                   {module.code}
                 </Anchor>
               ) : (
@@ -237,7 +240,14 @@ function ModuleTable({
               <Text size='sm'>{module.name}</Text>
             </Table.Td>
             <Table.Td>
-              <Text size='sm'>{module.status}</Text>
+              <Text
+                size='sm'
+                c={
+                  ['Drop', 'Delete'].includes(module.status) ? 'red' : undefined
+                }
+              >
+                {module.status}
+              </Text>
             </Table.Td>
             <Table.Td>
               <Text size='sm'>{module.marks}</Text>
