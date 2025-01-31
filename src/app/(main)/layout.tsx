@@ -8,7 +8,7 @@ import Providers from './providers';
 export default async function MainLayout({ children }: PropsWithChildren) {
   return (
     <Providers>
-      <Gradient className='min-h-[calc(100vh-3rem)] pb-8'>{children}</Gradient>
+      <Gradient className='min-h-[calc(100vh)] pb-8'>{children}</Gradient>
       <Footer />
       <Toaster />
     </Providers>

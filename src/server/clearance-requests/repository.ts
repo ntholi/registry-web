@@ -16,6 +16,15 @@ export default class ClearanceRequestRepository extends BaseRepository<
       where: eq(clearanceRequests.id, id),
       with: {
         student: true,
+        registrationRequest: {
+          with: {
+            requestedModules: {
+              with: {
+                module: true,
+              },
+            },
+          },
+        },
       },
     });
   }
