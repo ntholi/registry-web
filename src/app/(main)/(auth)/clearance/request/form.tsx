@@ -7,10 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
 import { createClearanceRequest } from '@/server/clearance-requests/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
-import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
 type Props = {
@@ -20,11 +19,7 @@ type Props = {
 export default function ClearanceRequestForm({ stdNo }: Props) {
   const router = useRouter();
   const { toast } = useToast();
-
-  const { data: currentTerm } = useQuery({
-    queryKey: ['current-term'],
-    queryFn: () => getCurrentTerm(),
-  });
+  const { currentTerm } = useCurrentTerm();
 
   async function handleSubmit() {
     try {
