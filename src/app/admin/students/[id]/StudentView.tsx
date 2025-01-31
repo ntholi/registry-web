@@ -11,6 +11,7 @@ import {
   Paper,
   Stack,
   Text,
+  Title,
   Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -88,16 +89,21 @@ export default function StudentView({ student }: Props) {
         </Paper>
       </div>
 
-      <Paper p='md' radius='md' withBorder>
-        <Grid gutter='xl'>
-          <Grid.Col span={{ base: 12, sm: 6 }}>
-            <InfoItem label='Primary Phone' value={student.phone1} />
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 6 }}>
-            <InfoItem label='Secondary Phone' value={student.phone2} />
-          </Grid.Col>
-        </Grid>
-      </Paper>
+      <div>
+        <Title order={4} mb='xs' fw={100}>
+          Contact Information
+        </Title>
+        <Paper p='md' radius='md' withBorder>
+          <Grid gutter='xl'>
+            <Grid.Col span={{ base: 12, sm: 6 }}>
+              <InfoItem label='Primary Phone' value={student.phone1} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 6 }}>
+              <InfoItem label='Secondary Phone' value={student.phone2} />
+            </Grid.Col>
+          </Grid>
+        </Paper>
+      </div>
     </Stack>
   );
 }
