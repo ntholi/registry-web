@@ -15,7 +15,15 @@ export default class ClearanceRequestRepository extends BaseRepository<
     return await db.query.clearanceRequests.findFirst({
       where: eq(clearanceRequests.id, id),
       with: {
-        student: true,
+        student: {
+          with: {
+            structure: {
+              with: {
+                program: true,
+              },
+            },
+          },
+        },
         registrationRequest: {
           with: {
             requestedModules: {
