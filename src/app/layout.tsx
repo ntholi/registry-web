@@ -3,9 +3,21 @@ import Providers from './providers';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Student Portal',
+  title: 'Registry Portal',
   description:
-    'Student Portal App for Limkokwing University of Creative Technology',
+    'Registry Portal Limkokwing University of Creative Technology, Lesotho',
+  icons: {
+    icon: '/images/logo.png',
+  },
+  openGraph: {
+    images: [
+      {
+        url: '/images/logo.png',
+        width: 1371,
+        height: 691,
+      },
+    ],
+  },
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
