@@ -10,7 +10,12 @@ import type { AdapterAccountType } from 'next-auth/adapters';
 import { nanoid } from 'nanoid';
 import { sql } from 'drizzle-orm';
 
-export const dashboardUsers = ['admin', 'registry', 'finance'] as const;
+export const dashboardUsers = [
+  'admin',
+  'registry',
+  'finance',
+  'library',
+] as const;
 export const userRoles = ['user', 'student', ...dashboardUsers] as const;
 export type UserRole = (typeof userRoles)[number];
 

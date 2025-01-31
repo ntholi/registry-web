@@ -1,7 +1,7 @@
 'use client';
 
 import { Shell } from '@/components/adease';
-import { UserRole } from '@/db/schema';
+import { dashboardUsers, UserRole } from '@/db/schema';
 import {
   ActionIcon,
   Avatar,
@@ -50,24 +50,25 @@ const navigation: NavItem[] = [
     label: 'Users',
     href: '/admin/users',
     icon: IconUser,
-    roles: ['finance', 'registry'],
+    roles: [...dashboardUsers],
   },
   {
     label: 'Students',
     href: '/admin/students',
     icon: IconUsers,
-    roles: ['finance', 'registry'],
+    roles: [...dashboardUsers],
   },
   {
     label: 'Clearance Requests',
     href: '/admin/clearance-requests',
     icon: IconCopyCheck,
-    roles: ['finance', 'registry'],
+    roles: [...dashboardUsers],
   },
   {
     label: 'Terms',
     href: '/admin/terms',
     icon: IconCalendar,
+    roles: ['admin'],
   },
 ];
 
