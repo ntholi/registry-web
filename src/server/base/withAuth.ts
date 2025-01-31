@@ -24,19 +24,27 @@ export default async function withAuth<T>(
   }
 
   if (!session?.user) {
-    console.error(`Auth Error caused by ${method}`);
+    console.error('No session', method);
     return unauthorized();
   }
 
   if (!['admin', ...roles].includes(session.user.role as Role)) {
-    console.error(`Permission Error caused by ${method}`);
+    console.error('Permission Error', method);
     return forbidden();
   }
 
   if (accessCheck && session.user.role !== 'admin') {
     const isAuthorized = await accessCheck(session);
     if (!isAuthorized) {
-      console.error(`Custom Auth Check Failed by ${method}`);
+      console.error(
+        'Custom Auth Check',
+        {
+          role: session.user.role,
+          userId: session.user.id,
+          stdNo: session.user.stdNo,
+        },
+        method
+      );
       return forbidden();
     }
   }
