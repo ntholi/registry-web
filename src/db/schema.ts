@@ -271,6 +271,12 @@ export const terms = sqliteTable('terms', {
   isActive: integer({ mode: 'boolean' }).notNull().default(false),
 });
 
+export const registrationRequestStatusEnum = [
+  'Pending',
+  'Approved',
+  'Rejected',
+] as const;
+
 export const registrationRequests = sqliteTable(
   'registration_requests',
   {
@@ -281,6 +287,8 @@ export const registrationRequests = sqliteTable(
     termId: integer('term_id')
       .references(() => terms.id, { onDelete: 'cascade' })
       .notNull(),
+    status: text({ enum: registrationRequestStatusEnum }).notNull(),
+    message: text().default('Pending approval'),
     createdAt: integer('created_at', { mode: 'timestamp' }).default(
       sql`(unixepoch())`
     ),

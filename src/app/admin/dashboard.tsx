@@ -21,6 +21,7 @@ import {
   IconCalendar,
   IconChevronRight,
   IconCopyCheck,
+  IconDeviceIpadHorizontalPlus,
   IconLogout2,
   IconUser,
   IconUsers,
@@ -58,11 +59,18 @@ const navigation: NavItem[] = [
     icon: IconUsers,
     roles: [...dashboardUsers],
   },
+
   {
     label: 'Clearance Requests',
     href: '/admin/clearance-requests',
     icon: IconCopyCheck,
     roles: [...dashboardUsers],
+  },
+  {
+    label: 'Registration Requests',
+    href: '/admin/registration-requests',
+    icon: IconDeviceIpadHorizontalPlus,
+    roles: ['registry'],
   },
   {
     label: 'Terms',
