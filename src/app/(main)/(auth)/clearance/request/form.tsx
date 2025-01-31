@@ -28,8 +28,11 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
   const { currentTerm } = useCurrentTerm();
 
   const { data: modules, isLoading } = useQuery({
-    queryKey: ['student-modules', stdNo, currentTerm?.id],
-    queryFn: () => getRegistrationRequestByStdNo(stdNo, currentTerm?.id),
+    queryKey: ['studentModules', stdNo, currentTerm?.id],
+    queryFn: async () => {
+      if (!currentTerm?.id) throw new Error('Current term not found');
+      return getRegistrationRequestByStdNo(stdNo, currentTerm.id);
+    },
     select: (data) => data?.requestedModules,
     enabled: !!currentTerm?.id,
   });
