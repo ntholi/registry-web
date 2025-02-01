@@ -6,13 +6,13 @@ import { Container } from '@/components/ui/container';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import {
-  AlertTriangle,
   BookOpen,
   Calendar,
-  CheckCircle2,
-  Clock,
+  CircleAlert,
+  CircleCheck,
   EyeIcon,
   PenSquare,
+  TriangleAlert,
 } from 'lucide-react'; // Add this import at the top with other imports
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -130,29 +130,20 @@ type StatusBadgeProps = {
 function StatusMessage({ message, status }: StatusBadgeProps) {
   const config = {
     pending: {
-      bgColor: 'bg-yellow-50 dark:bg-yellow-950/30',
-      borderColor: 'border-yellow-200 dark:border-yellow-800',
-      textColor: 'text-yellow-900 dark:text-yellow-200',
-      iconColor: 'text-yellow-600 dark:text-yellow-400',
-      icon: Clock,
+      className: 'border-amber-500/50 text-amber-600 dark:text-amber-400',
+      icon: TriangleAlert,
       defaultMessage:
         'Your registration request is currently under review, this might take a few days. Come back later to check the status.',
     },
     approved: {
-      bgColor: 'bg-green-50 dark:bg-green-950/30',
-      borderColor: 'border-green-200 dark:border-green-800',
-      textColor: 'text-green-900 dark:text-green-200',
-      iconColor: 'text-green-600 dark:text-green-400',
-      icon: CheckCircle2,
+      className: 'border-emerald-500/50 text-emerald-600 dark:text-emerald-400',
+      icon: CircleCheck,
       defaultMessage:
         'Your registration request has been approved. You are now officially registered for the selected modules.',
     },
     rejected: {
-      bgColor: 'bg-red-50 dark:bg-red-950/30',
-      borderColor: 'border-red-200 dark:border-red-800',
-      textColor: 'text-red-900 dark:text-red-200',
-      iconColor: 'text-red-600 dark:text-red-400',
-      icon: AlertTriangle,
+      className: 'border-red-500/50 text-red-600 dark:text-red-400',
+      icon: CircleAlert,
       defaultMessage:
         'Your registration request has been rejected. Click "View Full Details" for more information.',
     },
@@ -162,19 +153,18 @@ function StatusMessage({ message, status }: StatusBadgeProps) {
   const Icon = currentConfig.icon;
 
   return (
-    <div
-      className={`rounded-lg ${currentConfig.bgColor} p-6 border-2 ${currentConfig.borderColor} shadow-sm`}
-    >
-      <div className='flex gap-3'>
+    <div className={`rounded-lg border p-6 ${currentConfig.className}`}>
+      <p className='text-sm'>
         <Icon
-          className={`h-5 w-5 ${currentConfig.iconColor} flex-shrink-0 mt-0.5`}
+          className='-mt-0.5 me-3 inline-flex opacity-60'
+          size={16}
+          strokeWidth={2}
+          aria-hidden='true'
         />
-        <p className={`text-sm ${currentConfig.textColor} leading-relaxed`}>
-          {status === 'rejected'
-            ? message || currentConfig.defaultMessage
-            : currentConfig.defaultMessage}
-        </p>
-      </div>
+        {status === 'rejected'
+          ? message || currentConfig.defaultMessage
+          : currentConfig.defaultMessage}
+      </p>
     </div>
   );
 }
