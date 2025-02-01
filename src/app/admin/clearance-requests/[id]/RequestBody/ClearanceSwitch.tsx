@@ -1,6 +1,6 @@
 'use client';
 
-import { registrationRequestStatusEnum } from '@/db/schema';
+import { dashboardUsers, registrationRequestStatusEnum } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import { getClearanceRequest } from '@/server/clearance-requests/actions';
 import { createClearanceResponse } from '@/server/clearance-responses/actions';
@@ -22,20 +22,23 @@ export default function ClearanceSwitch({ request, comment }: Props) {
   const router = useRouter();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
-  const [status, setStatus] = useState(request.clearanceResponse?.status);
+  const [status, setStatus] = useState<Status>(
+    request.responses.find((r) => r.department === session?.user?.role)
+      ?.status ?? 'pending'
+  );
 
   const { mutate: submitResponse, isPending } = useMutation({
     mutationFn: async () => {
-      if (!session?.user?.id) {
+      if (!session?.user?.id || !session.user?.role) {
         throw new Error('User not authenticated');
       }
 
-      // Then create the clearance response
       return createClearanceResponse({
         clearanceRequestId: request.id,
         message: comment,
-        department: 'registry',
+        department: session.user.role as (typeof dashboardUsers)[number],
         clearedBy: session.user.id,
+        status,
       });
     },
     onSuccess: () => {
