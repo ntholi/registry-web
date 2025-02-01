@@ -143,19 +143,19 @@ export const clearanceRequestsRelations = relations(
       fields: [clearanceRequests.termId],
       references: [terms.id],
     }),
-    clearanceResponse: many(clearanceResponses),
+    responses: many(clearanceResponses),
     clearedSemesters: many(clearanceResponses),
   })
 );
 
-export const clearedSemestersRelations = relations(
+export const clearanceResponsesRelations = relations(
   clearanceResponses,
   ({ one }) => ({
     clearanceRequest: one(clearanceRequests, {
       fields: [clearanceResponses.clearanceRequestId],
       references: [clearanceRequests.id],
     }),
-    clearedByUser: one(users, {
+    clearedBy: one(users, {
       fields: [clearanceResponses.clearedBy],
       references: [users.id],
     }),

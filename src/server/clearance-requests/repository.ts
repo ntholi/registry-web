@@ -24,6 +24,11 @@ export default class ClearanceRequestRepository extends BaseRepository<
             },
           },
         },
+        responses: {
+          with: {
+            clearedBy: true,
+          },
+        },
         registrationRequest: {
           with: {
             requestedModules: {
