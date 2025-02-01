@@ -175,6 +175,7 @@ export const semesterStatusEnum = [
 export const studentSemesters = sqliteTable('student_semesters', {
   id: integer().primaryKey(),
   term: text().notNull(),
+  semesterNumber: integer(),
   status: text({ enum: semesterStatusEnum }).notNull(),
   studentProgramId: integer()
     .references(() => studentPrograms.id, { onDelete: 'cascade' })
