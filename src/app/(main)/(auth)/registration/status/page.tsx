@@ -11,11 +11,12 @@ import { Container } from '@/components/ui/container';
 import { formatDate } from '@/lib/utils';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
-import { ArrowLeftIcon } from 'lucide-react';
+import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import StatusBadge, { getStatusIcon } from '../components/StatusBadge';
 import { getRegistrationClearances } from './actions';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default async function page() {
   const session = await auth();
@@ -55,22 +56,20 @@ export default async function page() {
         <Card>
           <CardHeader>
             <div className='flex items-center justify-between'>
-              <div>
-                <CardTitle>Registration Status</CardTitle>
-                <CardDescription>
-                  Your registration request for {term.name}
-                </CardDescription>
-              </div>
+              <CardTitle>Registration Status</CardTitle>
               <StatusBadge status={request.status} />
             </div>
+            <CardDescription>
+              Your registration request for {term.name}
+            </CardDescription>
           </CardHeader>
           <CardContent className='space-y-6'>
             {request.message && (
-              <div className='rounded-lg bg-muted p-4'>
-                <p className='text-sm text-muted-foreground'>
-                  {request.message}
-                </p>
-              </div>
+              <Alert>
+                <InfoIcon className='h-4 w-4' />
+                <AlertTitle className='capitalize'>{request.status}</AlertTitle>
+                <AlertDescription>{request.message}</AlertDescription>
+              </Alert>
             )}
           </CardContent>
         </Card>
@@ -92,7 +91,7 @@ export default async function page() {
                   <div className='flex gap-3'>
                     {getStatusIcon(clearance.status)}
                     <div>
-                      <p className='font-medium capitalize'>
+                      <p className='font-medium text-sm sm:text-base capitalize'>
                         {clearance.department} Department
                       </p>
                       {clearance.message && (
