@@ -2,8 +2,10 @@
 
 import { dashboardUsers, registrationRequestStatusEnum } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
-import { getClearanceRequest } from '@/server/clearance-requests/actions';
-import { createClearanceResponse } from '@/server/clearance-tasks/actions';
+import {
+  createClearanceTask,
+  getClearanceTask,
+} from '@/server/clearance-tasks/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 type Props = {
-  request: NonNullable<Awaited<ReturnType<typeof getClearanceRequest>>>;
+  request: NonNullable<Awaited<ReturnType<typeof getClearanceTask>>>;
   setAccordion: (value: 'comments' | 'modules') => void;
   comment: string;
 };
@@ -27,10 +29,7 @@ export default function ClearanceSwitch({
   const router = useRouter();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
-  const [status, setStatus] = useState<Status>(
-    request.responses.find((r) => r.department === session?.user?.role)
-      ?.status ?? 'pending'
-  );
+  const [status, setStatus] = useState<Status>(request.status);
 
   const { mutate: submitResponse, isPending } = useMutation({
     mutationFn: async () => {
@@ -38,8 +37,8 @@ export default function ClearanceSwitch({
         throw new Error('User not authenticated');
       }
 
-      return createClearanceResponse({
-        clearanceRequestId: request.id,
+      return createClearanceTask({
+        registrationRequestId: request.id,
         message: comment,
         department: session.user.role as (typeof dashboardUsers)[number],
         clearedBy: session.user.id,
