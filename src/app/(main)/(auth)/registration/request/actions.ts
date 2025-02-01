@@ -7,7 +7,7 @@ import {
   studentPrograms,
   studentSemesters,
 } from '@/db/schema';
-import { and, eq, gte, lt } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 export async function getSemesterModules(
   structureId: number,

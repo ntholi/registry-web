@@ -10,7 +10,7 @@ import { Container } from '@/components/ui/container';
 import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
 import { redirect } from 'next/navigation';
-import RegisterForm from './Form';
+import ModulesForm from './Form';
 
 export default async function RegistrationPage() {
   const session = await auth();
@@ -33,7 +33,7 @@ export default async function RegistrationPage() {
         </CardHeader>
         <CardContent>
           {student.structureId ? (
-            <RegisterForm
+            <ModulesForm
               stdNo={student.stdNo}
               structureId={student.structureId}
               semester={student.sem + 1}

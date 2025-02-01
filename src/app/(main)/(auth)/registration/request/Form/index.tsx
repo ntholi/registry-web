@@ -27,7 +27,7 @@ const formSchema = z.object({
 
 export type RegisterFormSchema = z.infer<typeof formSchema>;
 
-export default function RegisterForm({ structureId, semester }: Props) {
+export default function ModulesForm({ structureId, semester }: Props) {
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
@@ -35,11 +35,6 @@ export default function RegisterForm({ structureId, semester }: Props) {
   const { data: modules, isLoading } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
     queryFn: () => getSemesterModules(structureId, semester),
-  });
-
-  const { data: repeatModules } = useQuery({
-    queryKey: ['repeatModules', structureId, semester],
-    queryFn: () => getRepeatModules(structureId, semester),
   });
 
   const { mutate: submitRegistration, isPending } = useMutation({
@@ -80,7 +75,7 @@ export default function RegisterForm({ structureId, semester }: Props) {
   const form = useForm<RegisterFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      modules: [],
+      modules: modules?.map((m) => m.id) || [],
     },
   });
 
