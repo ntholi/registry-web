@@ -11,7 +11,15 @@ import {
 import { Container } from '@/components/ui/container';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
-import { BookOpen, Calendar, EyeIcon, PenSquare } from 'lucide-react';
+import {
+  AlertTriangle,
+  BookOpen,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  EyeIcon,
+  PenSquare,
+} from 'lucide-react'; // Add this import at the top with other imports
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import StatusBadge from './components/StatusBadge';
@@ -88,13 +96,7 @@ export default async function RegistrationStatusPage() {
 
         <CardContent>
           <div className='space-y-8'>
-            {request.message && (
-              <div className='rounded-lg bg-muted/50 p-6 border'>
-                <p className='text-sm text-muted-foreground leading-relaxed'>
-                  {request.message}
-                </p>
-              </div>
-            )}
+            <StatusMessage status={request.status} message={request.message} />
 
             <div>
               <div className='flex items-center gap-2 mb-4'>
@@ -127,5 +129,62 @@ export default async function RegistrationStatusPage() {
         </CardContent>
       </Card>
     </Container>
+  );
+}
+
+type StatusBadgeProps = {
+  message: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+};
+
+function StatusMessage({ message, status }: StatusBadgeProps) {
+  const config = {
+    pending: {
+      bgColor: 'bg-yellow-50 dark:bg-yellow-950/30',
+      borderColor: 'border-yellow-200 dark:border-yellow-800',
+      textColor: 'text-yellow-900 dark:text-yellow-200',
+      iconColor: 'text-yellow-600 dark:text-yellow-400',
+      icon: Clock,
+      defaultMessage:
+        'Your registration request is currently under review, this might take a few days. Come back later to check the status.',
+    },
+    approved: {
+      bgColor: 'bg-green-50 dark:bg-green-950/30',
+      borderColor: 'border-green-200 dark:border-green-800',
+      textColor: 'text-green-900 dark:text-green-200',
+      iconColor: 'text-green-600 dark:text-green-400',
+      icon: CheckCircle2,
+      defaultMessage:
+        'Your registration request has been approved. You are now officially registered for the selected modules.',
+    },
+    rejected: {
+      bgColor: 'bg-red-50 dark:bg-red-950/30',
+      borderColor: 'border-red-200 dark:border-red-800',
+      textColor: 'text-red-900 dark:text-red-200',
+      iconColor: 'text-red-600 dark:text-red-400',
+      icon: AlertTriangle,
+      defaultMessage:
+        'Your registration request has been rejected. Click "View Full Details" for more information.',
+    },
+  };
+
+  const currentConfig = config[status] || config.pending;
+  const Icon = currentConfig.icon;
+
+  return (
+    <div
+      className={`rounded-lg ${currentConfig.bgColor} p-6 border-2 ${currentConfig.borderColor} shadow-sm`}
+    >
+      <div className='flex gap-3'>
+        <Icon
+          className={`h-5 w-5 ${currentConfig.iconColor} flex-shrink-0 mt-0.5`}
+        />
+        <p className={`text-sm ${currentConfig.textColor} leading-relaxed`}>
+          {status === 'rejected'
+            ? message || currentConfig.defaultMessage
+            : currentConfig.defaultMessage}
+        </p>
+      </div>
+    </div>
   );
 }
