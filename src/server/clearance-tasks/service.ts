@@ -22,7 +22,7 @@ class ClearanceTaskService {
   ) {
     return withAuth(
       async () => this.repository.findByDepartment(department, params),
-      []
+      ['dashboard']
     );
   }
 

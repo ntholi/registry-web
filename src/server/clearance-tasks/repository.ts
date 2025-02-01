@@ -46,6 +46,13 @@ export default class ClearanceTaskRepository extends BaseRepository<
       await this.queryExpressions(params);
     const data = await db.query.clearanceTasks.findMany({
       where: and(whereCondition, eq(clearanceTasks.department, department)),
+      with: {
+        registrationRequest: {
+          with: {
+            student: true,
+          },
+        },
+      },
       orderBy: orderByExpressions,
       limit: pageSize,
       offset,

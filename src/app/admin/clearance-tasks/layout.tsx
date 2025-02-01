@@ -13,7 +13,13 @@ export default function Layout({ children }: PropsWithChildren) {
       actionIcons={[
         <NewLink key={'new-link'} href='/admin/clearance-tasks/new' />,
       ]}
-      renderItem={(it) => <ListItem id={it.id} label={it.id} />}
+      renderItem={(it) => (
+        <ListItem
+          id={it.id}
+          label={it.registrationRequest.student.stdNo}
+          description={it.registrationRequest.student.name}
+        />
+      )}
     >
       {children}
     </ListLayout>
