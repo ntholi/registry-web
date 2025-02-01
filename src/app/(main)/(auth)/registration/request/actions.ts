@@ -6,7 +6,7 @@ import {
   studentModules,
   studentPrograms,
 } from '@/db/schema';
-import { and, eq, lt } from 'drizzle-orm';
+import { and, eq, inArray, lt } from 'drizzle-orm';
 
 export async function getSemesterModules(
   structureId: number,
@@ -31,11 +31,14 @@ export async function getSemesterModules(
   );
 }
 
-export async function getRepeatModules(stdNo: number) {
+export async function getRepeatModules(stdNo: number, semester: number) {
+  const semesterNumbers = Array.from({ length: 4 }, (_, i) => semester + i * 2);
+
   const result = await db.query.studentPrograms.findFirst({
     where: eq(studentPrograms.stdNo, stdNo),
     with: {
       semesters: {
+        where: inArray(structureSemesters.semesterNumber, semesterNumbers),
         with: {
           modules: {
             where: lt(studentModules.marks, '50'),
@@ -44,6 +47,7 @@ export async function getRepeatModules(stdNo: number) {
       },
     },
   });
+
   const modules =
     result?.semesters
       .filter((semester) => semester.modules.length > 0)
