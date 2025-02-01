@@ -11,7 +11,7 @@ import {
 import { Container } from '@/components/ui/container';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
-import { BookOpen, Calendar, EyeIcon } from 'lucide-react';
+import { BookOpen, Calendar, EyeIcon, PenSquare } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import StatusBadge from './components/StatusBadge';
@@ -53,7 +53,7 @@ export default async function RegistrationStatusPage() {
               <StatusBadge status={request.status} />
             </div>
 
-            <div className='flex sm:justify-end'>
+            <div className='flex flex-col sm:flex-row sm:justify-end gap-3'>
               <Button
                 variant='default'
                 size='lg'
@@ -66,6 +66,20 @@ export default async function RegistrationStatusPage() {
                 >
                   <EyeIcon className='mr-2 h-5 w-5' />
                   View Full Details
+                </Link>
+              </Button>
+              <Button
+                variant='outline'
+                size='lg'
+                asChild
+                className='w-full sm:w-auto'
+              >
+                <Link
+                  href='/registration/update'
+                  className='flex items-center justify-center'
+                >
+                  <PenSquare className='mr-2 h-5 w-5' />
+                  Update Modules
                 </Link>
               </Button>
             </div>
