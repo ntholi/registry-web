@@ -12,7 +12,7 @@ import { getStudentByUserId } from '@/server/students/actions';
 import { redirect } from 'next/navigation';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
-import UpdateForm from './Form';
+import ModulesForm from './Form';
 
 export default async function UpdateRegistrationPage() {
   const session = await auth();
@@ -49,7 +49,7 @@ export default async function UpdateRegistrationPage() {
         </CardHeader>
         <CardContent>
           {student.structureId ? (
-            <UpdateForm
+            <ModulesForm
               stdNo={student.stdNo}
               structureId={student.structureId}
               semester={student.sem + 1}

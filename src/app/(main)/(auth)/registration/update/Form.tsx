@@ -16,6 +16,7 @@ import {
 } from '@/server/registration-requests/actions';
 import { getSemesterModules } from '../request/actions';
 import ModuleInput from '../request/Form/ModuleInput';
+import { useEffect } from 'react';
 
 type Props = {
   stdNo: number;
@@ -32,7 +33,7 @@ const formSchema = z.object({
 
 export type UpdateFormSchema = z.infer<typeof formSchema>;
 
-export default function UpdateForm({
+export default function ModulesForm({
   structureId,
   semester,
   registrationId,
@@ -54,9 +55,17 @@ export default function UpdateForm({
   const form = useForm<UpdateFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      modules: existingModules?.map((m) => m.moduleId) || [],
+      modules: [],
     },
   });
+
+  useEffect(() => {
+    if (existingModules) {
+      form.reset({
+        modules: existingModules.map((m) => m.moduleId),
+      });
+    }
+  }, [existingModules, form]);
 
   const { mutate: submitUpdate, isPending } = useMutation({
     mutationFn: async (values: UpdateFormSchema) => {
