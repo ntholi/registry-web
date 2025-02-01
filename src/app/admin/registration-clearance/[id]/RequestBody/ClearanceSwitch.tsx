@@ -52,7 +52,7 @@ export default function ClearanceSwitch({
         color: 'green',
       });
       queryClient.invalidateQueries({
-        queryKey: ['registrationClearances', request.id],
+        queryKey: ['registrationClearances'],
       });
       router.refresh();
     },
