@@ -37,6 +37,11 @@ export default function RegisterForm({ structureId, semester }: Props) {
     queryFn: () => getSemesterModules(structureId, semester),
   });
 
+  const { data: repeatModules } = useQuery({
+    queryKey: ['repeatModules', structureId, semester],
+    queryFn: () => getRepeatModules(structureId, semester),
+  });
+
   const { mutate: submitRegistration, isPending } = useMutation({
     mutationFn: async (values: RegisterFormSchema) => {
       if (!modules) throw new Error('No modules available');
