@@ -34,19 +34,24 @@ export async function getSemesterModules(
 export async function getRepeatModules(stdNo: number, semester: number) {
   const semesterNumbers = Array.from({ length: 4 }, (_, i) => semester + i * 2);
 
-  const result = await db.query.studentPrograms.findFirst({
-    where: eq(studentPrograms.stdNo, stdNo),
-    with: {
-      semesters: {
-        where: inArray(structureSemesters.semesterNumber, semesterNumbers),
-        with: {
-          modules: {
-            where: lt(studentModules.marks, '50'),
+  const semesters = await db.query.studentPrograms
+    .findFirst({
+      where: eq(studentPrograms.stdNo, stdNo),
+      with: {
+        semesters: {
+          with: {
+            modules: {
+              where: lt(studentModules.marks, '50'),
+            },
           },
         },
       },
-    },
-  });
+    })
+    .then((it) =>
+      it?.semesters.filter((semester) =>
+        semesterNumbers.includes(semester.semesterNumber)
+      )
+    );
 
   const modules =
     result?.semesters

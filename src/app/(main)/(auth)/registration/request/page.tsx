@@ -20,7 +20,7 @@ export default async function RegistrationPage() {
   if (!student) {
     redirect('/signup');
   }
-  const repeatModules = await getRepeatModules(student.stdNo);
+  const repeatModules = await getRepeatModules(student.stdNo, student.sem + 1);
   console.log(repeatModules);
 
   return (
