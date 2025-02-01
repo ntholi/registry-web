@@ -12,7 +12,7 @@ export default class SignupRepository extends BaseRepository<
     super(signups, 'userId');
   }
 
-  async create(data: SignUp) {
+  override async create(data: SignUp) {
     const [record] = await db
       .insert(signups)
       .values(data)

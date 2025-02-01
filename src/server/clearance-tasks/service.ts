@@ -27,7 +27,7 @@ class ClearanceTaskService {
   }
 
   async create(data: ClearanceTask) {
-    return withAuth(async () => this.repository.create(data), []);
+    return withAuth(async () => this.repository.create(data), ['dashboard']);
   }
 
   async update(id: number, data: ClearanceTask) {
