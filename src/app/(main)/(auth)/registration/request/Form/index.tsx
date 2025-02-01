@@ -5,7 +5,6 @@ import { Form } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
-import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -28,7 +27,7 @@ const formSchema = z.object({
 
 export type RegisterFormSchema = z.infer<typeof formSchema>;
 
-export default function RegisterForm({ stdNo, structureId, semester }: Props) {
+export default function RegisterForm({ structureId, semester }: Props) {
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
@@ -43,14 +42,19 @@ export default function RegisterForm({ stdNo, structureId, semester }: Props) {
       if (!modules) throw new Error('No modules available');
       if (!currentTerm) throw new Error('No current term found');
 
-      return createRegistrationWithModules({
-        stdNo,
-        termId: currentTerm.id,
-        moduleIds: values.modules.map((moduleId) => ({
-          moduleId,
-          moduleStatus: 'Compulsory' as const,
-        })),
+      const selectedModules = values.modules.map((moduleId) => {
+        const found = modules.find((it) => it.id === moduleId);
+        if (found) {
+          return {
+            ...found,
+            moduleStatus: 'Compulsory' as const,
+          };
+        }
       });
+      sessionStorage.setItem(
+        'selectedModules',
+        JSON.stringify(selectedModules)
+      );
     },
     onSuccess: () => {
       toast({

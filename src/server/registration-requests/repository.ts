@@ -71,7 +71,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
   async createRegistrationWithModules(data: {
     stdNo: number;
     termId: number;
-    moduleIds: { moduleId: number; moduleStatus: ModuleStatus }[];
+    modules: { id: number; status: ModuleStatus }[];
   }) {
     return await db.transaction(async (tx) => {
       const [request] = await tx
@@ -93,8 +93,9 @@ export default class RegistrationRequestRepository extends BaseRepository<
           .returning();
       });
 
-      const modulesToCreate = data.moduleIds.map((module) => ({
-        ...module,
+      const modulesToCreate = data.modules.map((module) => ({
+        moduleId: module.id,
+        moduleStatus: module.status,
         registrationRequestId: request.id,
       }));
 

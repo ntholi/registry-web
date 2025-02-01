@@ -61,11 +61,11 @@ export async function createRequestedModules(
 export async function createRegistrationWithModules(data: {
   stdNo: number;
   termId: number;
-  moduleIds: { moduleId: number; moduleStatus: ModuleStatus }[];
+  modules: { id: number; status: ModuleStatus }[];
 }) {
   return service.createRegistrationWithModules({
     stdNo: data.stdNo,
     termId: data.termId,
-    moduleIds: data.moduleIds,
+    modules: data.modules,
   });
 }

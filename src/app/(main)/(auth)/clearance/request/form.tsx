@@ -9,44 +9,55 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ModuleStatus, terms } from '@/db/schema';
+import { ModuleStatus } from '@/db/schema';
+import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
-import { createClearanceRequest } from '@/server/clearance-requests/actions';
-import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
-import { useQuery } from '@tanstack/react-query';
+import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { Check, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import React from 'react';
 
 type Props = {
   stdNo: number;
-  term: NonNullable<typeof terms.$inferSelect>;
-  registrationRequestId: number;
 };
 
-export default function ClearanceRequestForm({
-  stdNo,
-  term,
-  registrationRequestId,
-}: Props) {
+type Module = {
+  name: string;
+  code: string;
+  id: number;
+};
+
+export default function ClearanceRequestForm({ stdNo }: Props) {
   const router = useRouter();
   const { toast } = useToast();
+  const { currentTerm } = useCurrentTerm();
 
-  const { data: modules, isLoading } = useQuery({
-    queryKey: ['studentModules', stdNo, term.id],
-    queryFn: async () => {
-      return getRegistrationRequestByStdNo(stdNo, term.id);
-    },
-    select: (data) => data?.requestedModules,
-  });
+  const [modules, setStoredModules] = React.useState<
+    Array<{ module: Module; moduleStatus: ModuleStatus }>
+  >([]);
+
+  console.log('Modules: ', modules);
+
+  React.useEffect(() => {
+    const stored = sessionStorage.getItem('selectedModules');
+    if (stored) {
+      setStoredModules(JSON.parse(stored));
+    }
+  }, []);
 
   async function handleSubmit() {
     try {
-      await createClearanceRequest({
-        termId: term.id,
-        registrationRequestId,
+      if (!currentTerm) throw new Error('No Current Term');
+      await createRegistrationWithModules({
+        termId: currentTerm.id,
         stdNo,
+        modules: modules.map((it) => ({
+          id: it.module.id,
+          status: it.moduleStatus,
+        })),
       });
 
+      sessionStorage.removeItem('selectedModules');
       toast({
         title: 'Success',
         description: 'Clearance request submitted successfully',
@@ -74,7 +85,7 @@ export default function ClearanceRequestForm({
         <div className='space-y-1'>
           <p className='text-sm font-medium'>Term</p>
           <p className='text-sm text-muted-foreground'>
-            {term?.name || 'Loading...'}
+            {currentTerm?.name || 'Loading...'}
           </p>
         </div>
         <div className='space-y-1'>
@@ -93,13 +104,7 @@ export default function ClearanceRequestForm({
           </div>
 
           <ScrollArea className='h-[200px] rounded-md border p-4'>
-            {isLoading ? (
-              <div className='flex items-center justify-center h-full'>
-                <p className='text-sm text-muted-foreground'>
-                  Loading modules...
-                </p>
-              </div>
-            ) : modules && modules.length > 0 ? (
+            {modules && modules.length > 0 ? (
               <div className='space-y-4'>
                 {modules.map(({ module, moduleStatus }) => (
                   <div
@@ -129,7 +134,7 @@ export default function ClearanceRequestForm({
         <div className='flex justify-end'>
           <Button
             onClick={handleSubmit}
-            disabled={!term.id || isLoading}
+            disabled={!currentTerm?.id}
             className='w-full sm:w-auto'
           >
             Submit Request

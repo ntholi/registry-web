@@ -22,5 +22,7 @@ export async function getSemesterModules(
     },
   });
 
-  return result?.semesterModules.map((semesterModule) => semesterModule.module);
+  return (
+    result?.semesterModules.map((semesterModule) => semesterModule.module) || []
+  );
 }

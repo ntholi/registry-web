@@ -78,7 +78,7 @@ class RegistrationRequestService {
   async createRegistrationWithModules(data: {
     stdNo: number;
     termId: number;
-    moduleIds: { moduleId: number; moduleStatus: ModuleStatus }[];
+    modules: { id: number; status: ModuleStatus }[];
   }) {
     return withAuth(
       async () => this.repository.createRegistrationWithModules(data),
