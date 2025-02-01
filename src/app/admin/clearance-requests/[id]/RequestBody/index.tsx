@@ -25,6 +25,9 @@ type Props = {
 
 export default function RequestBody({ request }: Props) {
   const [comment, setComment] = useState('');
+  const [accordion, setAccordion] = useState<'comments' | 'modules'>(
+    'comments'
+  );
 
   return (
     <Stack p='lg'>
@@ -47,10 +50,18 @@ export default function RequestBody({ request }: Props) {
           </Paper>
         </GridCol>
         <GridCol span={{ base: 12, md: 5 }}>
-          <ClearanceSwitch request={request} comment={comment} />
+          <ClearanceSwitch
+            request={request}
+            setAccordion={setAccordion}
+            comment={comment}
+          />
         </GridCol>
       </Grid>
-      <Accordion defaultValue='modules' variant='separated'>
+      <Accordion
+        value={accordion}
+        onChange={(it) => setAccordion(it as 'comments' | 'modules')}
+        variant='separated'
+      >
         <AccordionItem value='comments'>
           <AccordionControl>Comments</AccordionControl>
           <AccordionPanel>

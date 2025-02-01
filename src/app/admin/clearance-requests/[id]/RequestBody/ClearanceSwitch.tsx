@@ -13,12 +13,17 @@ import { useState } from 'react';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getClearanceRequest>>>;
+  setAccordion: (value: 'comments' | 'modules') => void;
   comment: string;
 };
 
 type Status = (typeof registrationRequestStatusEnum)[number];
 
-export default function ClearanceSwitch({ request, comment }: Props) {
+export default function ClearanceSwitch({
+  request,
+  comment,
+  setAccordion,
+}: Props) {
   const router = useRouter();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
@@ -58,7 +63,6 @@ export default function ClearanceSwitch({ request, comment }: Props) {
         message: error.message || 'Failed to submit response',
         color: 'red',
       });
-      // Reset status on error
       setStatus(request.registrationRequest.status);
     },
   });
@@ -72,7 +76,12 @@ export default function ClearanceSwitch({ request, comment }: Props) {
       <Stack>
         <SegmentedControl
           value={status}
-          onChange={(it) => setStatus(it as Status)}
+          onChange={(it) => {
+            setStatus(it as Status);
+            if ((it as Status) === 'rejected') {
+              setAccordion('comments');
+            } else setAccordion('modules');
+          }}
           data={registrationRequestStatusEnum.map((status) => ({
             label: toTitleCase(status),
             value: status,
