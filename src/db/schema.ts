@@ -302,7 +302,7 @@ export const registrationRequests = sqliteTable(
     updatedAt: integer('updated_at', { mode: 'timestamp' }),
   },
   (table) => ({
-    uniqueClearanceRequest: unique().on(table.stdNo, table.termId),
+    uniqueRegistrationRequests: unique().on(table.stdNo, table.termId),
   })
 );
 

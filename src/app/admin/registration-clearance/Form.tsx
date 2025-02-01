@@ -38,10 +38,6 @@ export default function RegistrationClearanceForm({
     >
       {(form) => (
         <>
-          <TextInput
-            label='Clearance Request'
-            {...form.getInputProps('clearanceRequest')}
-          />
           <TextInput label='Department' {...form.getInputProps('department')} />
           <TextInput label='Status' {...form.getInputProps('status')} />
           <TextInput label='Message' {...form.getInputProps('message')} />

@@ -68,7 +68,7 @@ const navigation: NavItem[] = [
     icon: IconCopyCheck,
     roles: [...dashboardUsers],
     notificationCount: {
-      queryKey: ['pendingRegistrationClearances'],
+      queryKey: ['registrationClearances'],
       queryFn: () => countPendingRegistrationClearances(),
     },
   },
@@ -84,7 +84,7 @@ const navigation: NavItem[] = [
     icon: IconDeviceIpadHorizontalPlus,
     roles: ['registry'],
     notificationCount: {
-      queryKey: ['pendingRegistrationRequests'],
+      queryKey: ['registrationRequests'],
       queryFn: () => countPendingRegistrationRequests(),
     },
   },
