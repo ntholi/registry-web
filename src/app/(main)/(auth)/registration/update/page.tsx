@@ -1,17 +1,18 @@
 import { auth } from '@/auth';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
-import { formatSemester } from '@/lib/utils';
-import { getStudentByUserId } from '@/server/students/actions';
-import { redirect } from 'next/navigation';
-import { getCurrentTerm } from '@/server/terms/actions';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
+import { getStudentByUserId } from '@/server/students/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
+import { ArrowLeftIcon } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import ModulesForm from './Form';
 
 export default async function UpdateRegistrationPage() {
@@ -37,14 +38,22 @@ export default async function UpdateRegistrationPage() {
   }
 
   return (
-    <Container className='pt-4 sm:pt-10'>
-      <Card className='max-w-3xl mx-auto'>
+    <Container width='md' className='pt-4 sm:pt-10'>
+      <div className='flex items-center gap-4'>
+        <Button variant='outline' size='icon' asChild>
+          <Link href='/registration'>
+            <ArrowLeftIcon className='h-4 w-4' />
+          </Link>
+        </Button>
+        <div>
+          <h1 className='text-2xl font-semibold'>Update Registration</h1>
+        </div>
+      </div>
+      <Card className='mt-6'>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold'>
-            Update Module Registration
-          </CardTitle>
           <CardDescription>
-            Modify your module selection for {formatSemester(student.sem + 1)}
+            Select or deselect the modules you wish to add or remove from your
+            registration.
           </CardDescription>
         </CardHeader>
         <CardContent>

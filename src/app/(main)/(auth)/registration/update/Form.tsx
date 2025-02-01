@@ -97,13 +97,10 @@ export default function ModulesForm({ structureId, semester, request }: Props) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
         <div className='space-y-4'>
-          <div className='flex items-center justify-between pb-4 border-b'>
+          <div className='pb-4 border-b'>
             <h3 className='hidden sm:block text-lg font-semibold'>
               Registered Modules
             </h3>
-            <p className='text-sm text-muted-foreground'>
-              Modify your module selection
-            </p>
           </div>
           {isLoading ? (
             <LoadingSkeleton />
