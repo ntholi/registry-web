@@ -1,12 +1,14 @@
-import { clearanceTasks, DashboardUser } from '@/db/schema';
-import ClearanceTaskRepository from './repository';
+import { registrationClearances, DashboardUser } from '@/db/schema';
+import RegistrationClearanceRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
 
-type ClearanceTask = typeof clearanceTasks.$inferInsert;
+type RegistrationClearance = typeof registrationClearances.$inferInsert;
 
-class ClearanceTaskService {
-  constructor(private readonly repository = new ClearanceTaskRepository()) {}
+class RegistrationClearanceService {
+  constructor(
+    private readonly repository = new RegistrationClearanceRepository()
+  ) {}
 
   async first() {
     return withAuth(async () => this.repository.findFirst(), []);
@@ -18,7 +20,7 @@ class ClearanceTaskService {
 
   async findByDepartment(
     department: DashboardUser,
-    params: FindAllParams<typeof clearanceTasks>
+    params: FindAllParams<typeof registrationClearances>
   ) {
     return withAuth(
       async () => this.repository.findByDepartment(department, params),
@@ -26,10 +28,11 @@ class ClearanceTaskService {
     );
   }
 
-  async respond(data: ClearanceTask) {
+  async respond(data: RegistrationClearance) {
     return withAuth(
       async (session) => {
-        if (!data.id) throw Error('ClearanceTask id cannot be null/undefined');
+        if (!data.id)
+          throw Error('RegistrationClearance id cannot be null/undefined');
         return this.repository.update(data.id, {
           ...data,
           responseDate: new Date(),
@@ -40,7 +43,7 @@ class ClearanceTaskService {
     );
   }
 
-  async update(id: number, data: ClearanceTask) {
+  async update(id: number, data: RegistrationClearance) {
     return withAuth(async () => this.repository.update(id, data), []);
   }
 
@@ -53,4 +56,4 @@ class ClearanceTaskService {
   }
 }
 
-export const clearanceTasksService = new ClearanceTaskService();
+export const registrationClearancesService = new RegistrationClearanceService();

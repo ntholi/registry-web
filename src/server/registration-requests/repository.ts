@@ -1,6 +1,6 @@
 import BaseRepository from '@/server/base/BaseRepository';
 import {
-  clearanceTasks,
+  registrationClearances,
   ModuleStatus,
   registrationRequests,
   requestedModules,
@@ -85,7 +85,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
       ['finance', 'resource', 'library'].forEach(async (department) => {
         await tx
-          .insert(clearanceTasks)
+          .insert(registrationClearances)
           .values({
             registrationRequestId: request.id,
             department: department as 'finance' | 'resource' | 'library',

@@ -2,9 +2,9 @@ import { DetailsView, DetailsViewHeader } from '@/components/adease';
 import { notFound } from 'next/navigation';
 import RequestBody from './RequestBody';
 import {
-  deleteClearanceTask,
-  getClearanceTask,
-} from '@/server/clearance-tasks/actions';
+  deleteRegistrationClearance,
+  getRegistrationClearance,
+} from '@/server/registration-clearance/actions';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -12,7 +12,7 @@ type Props = {
 
 export default async function ClearanceRequestDetails({ params }: Props) {
   const { id } = await params;
-  const request = await getClearanceTask(Number(id));
+  const request = await getRegistrationClearance(Number(id));
 
   if (!request) {
     return notFound();
@@ -22,10 +22,10 @@ export default async function ClearanceRequestDetails({ params }: Props) {
     <DetailsView>
       <DetailsViewHeader
         title={'Clearance'}
-        queryKey={['clearanceTasks']}
+        queryKey={['registrationClearances']}
         handleDelete={async () => {
           'use server';
-          await deleteClearanceTask(Number(id));
+          await deleteRegistrationClearance(Number(id));
         }}
       />
       <RequestBody request={request} />

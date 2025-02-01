@@ -63,7 +63,7 @@ const navigation: NavItem[] = [
   },
   {
     label: 'Clearance',
-    href: '/admin/clearance-tasks',
+    href: '/admin/registration-clearance',
     icon: IconCopyCheck,
     roles: [...dashboardUsers],
     // queryFn: () => countPendingClearanceRequests(),

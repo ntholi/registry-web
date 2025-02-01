@@ -17,10 +17,10 @@ import Link from 'next/link';
 import { useState } from 'react';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
-import { getClearanceTask } from '@/server/clearance-tasks/actions';
+import { getRegistrationClearance } from '@/server/registration-clearance/actions';
 
 type Props = {
-  request: NonNullable<Awaited<ReturnType<typeof getClearanceTask>>>;
+  request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
 };
 
 export default function RequestBody({ request }: Props) {

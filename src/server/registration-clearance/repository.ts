@@ -1,19 +1,19 @@
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { clearanceTasks, DashboardUser } from '@/db/schema';
+import { registrationClearances, DashboardUser } from '@/db/schema';
 import { db } from '@/db';
 import { and, eq } from 'drizzle-orm';
 
-export default class ClearanceTaskRepository extends BaseRepository<
-  typeof clearanceTasks,
+export default class RegistrationClearanceRepository extends BaseRepository<
+  typeof registrationClearances,
   'id'
 > {
   constructor() {
-    super(clearanceTasks, 'id');
+    super(registrationClearances, 'id');
   }
 
   async findById(id: number) {
-    return await db.query.clearanceTasks.findFirst({
-      where: eq(clearanceTasks.id, id),
+    return await db.query.registrationClearances.findFirst({
+      where: eq(registrationClearances.id, id),
       with: {
         registrationRequest: {
           with: {
@@ -40,12 +40,15 @@ export default class ClearanceTaskRepository extends BaseRepository<
 
   async findByDepartment(
     department: DashboardUser,
-    params: FindAllParams<typeof clearanceTasks>
+    params: FindAllParams<typeof registrationClearances>
   ) {
     const { orderByExpressions, whereCondition, offset, pageSize } =
       await this.queryExpressions(params);
-    const data = await db.query.clearanceTasks.findMany({
-      where: and(whereCondition, eq(clearanceTasks.department, department)),
+    const data = await db.query.registrationClearances.findMany({
+      where: and(
+        whereCondition,
+        eq(registrationClearances.department, department)
+      ),
       with: {
         registrationRequest: {
           with: {
@@ -62,4 +65,5 @@ export default class ClearanceTaskRepository extends BaseRepository<
   }
 }
 
-export const clearanceTasksRepository = new ClearanceTaskRepository();
+export const registrationClearancesRepository =
+  new RegistrationClearanceRepository();

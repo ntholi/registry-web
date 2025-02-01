@@ -2,16 +2,16 @@
 
 import { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
-import { clearanceTaskByDepartment } from '@/server/clearance-tasks/actions';
+import { registrationClearanceByDepartment } from '@/server/registration-clearance/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <ListLayout
-      path={'/admin/clearance-tasks'}
-      queryKey={['clearanceTasks']}
-      getData={clearanceTaskByDepartment}
+      path={'/admin/registration-clearance'}
+      queryKey={['registrationClearances']}
+      getData={registrationClearanceByDepartment}
       actionIcons={[
-        <NewLink key={'new-link'} href='/admin/clearance-tasks/new' />,
+        <NewLink key={'new-link'} href='/admin/registration-clearance/new' />,
       ]}
       renderItem={(it) => (
         <ListItem

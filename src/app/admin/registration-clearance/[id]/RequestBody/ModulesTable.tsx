@@ -9,10 +9,10 @@ import {
   TableTr,
   Text,
 } from '@mantine/core';
-import { getClearanceTask } from '@/server/clearance-tasks/actions';
+import { getRegistrationClearance } from '@/server/registration-clearance/actions';
 
 type Module = NonNullable<
-  Awaited<ReturnType<typeof getClearanceTask>>
+  Awaited<ReturnType<typeof getRegistrationClearance>>
 >['registrationRequest']['requestedModules'];
 
 export function ModulesTable({

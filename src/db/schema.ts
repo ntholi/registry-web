@@ -319,8 +319,8 @@ export const requestedModules = sqliteTable('requested_modules', {
     .notNull(),
 });
 
-export const clearanceTasks = sqliteTable(
-  'clearance_tasks',
+export const registrationClearances = sqliteTable(
+  'registration_clearances',
   {
     id: integer().primaryKey({ autoIncrement: true }),
     registrationRequestId: integer()
@@ -335,7 +335,7 @@ export const clearanceTasks = sqliteTable(
     responseDate: integer({ mode: 'timestamp' }),
   },
   (table) => ({
-    uniqueClearanceTask: unique().on(
+    uniqueRegistrationClearance: unique().on(
       table.registrationRequestId,
       table.department
     ),

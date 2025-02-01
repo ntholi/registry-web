@@ -3,9 +3,9 @@
 import { dashboardUsers, registrationRequestStatusEnum } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import {
-  createClearanceTask,
-  getClearanceTask,
-} from '@/server/clearance-tasks/actions';
+  createRegistrationClearance,
+  getRegistrationClearance,
+} from '@/server/registration-clearance/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 type Props = {
-  request: NonNullable<Awaited<ReturnType<typeof getClearanceTask>>>;
+  request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
   setAccordion: (value: 'comments' | 'modules') => void;
   comment: string;
 };
@@ -37,7 +37,7 @@ export default function ClearanceSwitch({
         throw new Error('User not authenticated');
       }
 
-      return createClearanceTask({
+      return createRegistrationClearance({
         id: request.id,
         registrationRequestId: request.registrationRequestId,
         message: comment,

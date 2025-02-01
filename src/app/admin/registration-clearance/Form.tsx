@@ -1,41 +1,47 @@
 'use client';
 
-import { clearanceTasks } from '@/db/schema';
+import { registrationClearances } from '@/db/schema';
 import { Form } from '@/components/adease';
 import { TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 
-type ClearanceTask = typeof clearanceTasks.$inferInsert;
-
+type RegistrationClearance = typeof registrationClearances.$inferInsert;
 
 type Props = {
-  onSubmit: (values: ClearanceTask) => Promise<ClearanceTask>;
-  defaultValues?: ClearanceTask;
-  onSuccess?: (value: ClearanceTask) => void;
+  onSubmit: (values: RegistrationClearance) => Promise<RegistrationClearance>;
+  defaultValues?: RegistrationClearance;
+  onSuccess?: (value: RegistrationClearance) => void;
   onError?: (
     error: Error | React.SyntheticEvent<HTMLDivElement, Event>
   ) => void;
   title?: string;
 };
 
-export default function ClearanceTaskForm({ onSubmit, defaultValues, title }: Props) {
+export default function RegistrationClearanceForm({
+  onSubmit,
+  defaultValues,
+  title,
+}: Props) {
   const router = useRouter();
-  
+
   return (
-    <Form 
+    <Form
       title={title}
-      action={onSubmit} 
-      queryKey={['clearanceTasks']}
-      schema={createInsertSchema(clearanceTasks)} 
+      action={onSubmit}
+      queryKey={['registrationClearances']}
+      schema={createInsertSchema(registrationClearances)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
-        router.push(`/admin/clearance-tasks/${id}`);
+        router.push(`/admin/registration-clearance/${id}`);
       }}
     >
       {(form) => (
         <>
-          <TextInput label='Clearance Request' {...form.getInputProps('clearanceRequest')} />
+          <TextInput
+            label='Clearance Request'
+            {...form.getInputProps('clearanceRequest')}
+          />
           <TextInput label='Department' {...form.getInputProps('department')} />
           <TextInput label='Status' {...form.getInputProps('status')} />
           <TextInput label='Message' {...form.getInputProps('message')} />

@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 import {
   accounts,
   authenticators,
-  clearanceTasks,
+  registrationClearances,
   modules,
   programs,
   registrationRequests,
@@ -138,7 +138,7 @@ export const registrationRequestsRelations = relations(
       fields: [registrationRequests.termId],
       references: [terms.id],
     }),
-    clearanceTasks: many(clearanceTasks),
+    registrationClearance: many(registrationClearances),
     requestedModules: many(requestedModules),
   })
 );
@@ -157,13 +157,16 @@ export const requestedModulesRelations = relations(
   })
 );
 
-export const clearanceTasksRelations = relations(clearanceTasks, ({ one }) => ({
-  registrationRequest: one(registrationRequests, {
-    fields: [clearanceTasks.registrationRequestId],
-    references: [registrationRequests.id],
-  }),
-  clearedBy: one(users, {
-    fields: [clearanceTasks.clearedBy],
-    references: [users.id],
-  }),
-}));
+export const registrationClearanceRelations = relations(
+  registrationClearances,
+  ({ one }) => ({
+    registrationRequest: one(registrationRequests, {
+      fields: [registrationClearances.registrationRequestId],
+      references: [registrationRequests.id],
+    }),
+    clearedBy: one(users, {
+      fields: [registrationClearances.clearedBy],
+      references: [users.id],
+    }),
+  })
+);
