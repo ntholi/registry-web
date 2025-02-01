@@ -13,7 +13,10 @@ export async function getClearanceTask(id: number) {
 export async function clearanceTaskByDepartment(page: number = 1, search = '') {
   const session = await auth();
   if (!session?.user?.role) {
-    return [];
+    return {
+      data: [],
+      pages: 0,
+    };
   }
 
   return service.findByDepartment(session.user.role as DashboardUser, {
