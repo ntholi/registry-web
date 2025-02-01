@@ -3,23 +3,22 @@ import {
   accounts,
   authenticators,
   clearanceTasks,
-  clearanceRequests,
   modules,
   programs,
+  registrationRequests,
+  requestedModules,
   schools,
   semesterModules,
   sessions,
   signups,
+  structureSemesters,
+  structures,
   studentModules,
   studentPrograms,
   studentSemesters,
   students,
-  structureSemesters,
-  structures,
   terms,
   users,
-  registrationRequests,
-  requestedModules,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -46,7 +45,7 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
     references: [structures.id],
   }),
   programs: many(studentPrograms),
-  clearanceRequests: many(clearanceRequests),
+  registrationRequests: many(registrationRequests),
 }));
 
 export const studentProgramsRelations = relations(
@@ -139,6 +138,7 @@ export const registrationRequestsRelations = relations(
       fields: [registrationRequests.termId],
       references: [terms.id],
     }),
+    clearanceTasks: many(clearanceTasks),
     requestedModules: many(requestedModules),
   })
 );
@@ -157,30 +157,10 @@ export const requestedModulesRelations = relations(
   })
 );
 
-export const clearanceRequestsRelations = relations(
-  clearanceRequests,
-  ({ many, one }) => ({
-    student: one(students, {
-      fields: [clearanceRequests.stdNo],
-      references: [students.stdNo],
-    }),
-    registrationRequest: one(registrationRequests, {
-      fields: [clearanceRequests.registrationRequestId],
-      references: [registrationRequests.id],
-    }),
-    term: one(terms, {
-      fields: [clearanceRequests.termId],
-      references: [terms.id],
-    }),
-    tasks: many(clearanceTasks),
-    clearedSemesters: many(clearanceTasks),
-  })
-);
-
 export const clearanceTasksRelations = relations(clearanceTasks, ({ one }) => ({
-  clearanceRequest: one(clearanceRequests, {
-    fields: [clearanceTasks.clearanceRequestId],
-    references: [clearanceRequests.id],
+  registrationRequest: one(registrationRequests, {
+    fields: [clearanceTasks.registrationRequestId],
+    references: [registrationRequests.id],
   }),
   clearedBy: one(users, {
     fields: [clearanceTasks.clearedBy],

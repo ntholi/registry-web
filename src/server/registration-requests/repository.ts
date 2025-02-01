@@ -1,5 +1,6 @@
 import BaseRepository from '@/server/base/BaseRepository';
 import {
+  clearanceTasks,
   ModuleStatus,
   registrationRequests,
   requestedModules,
@@ -81,6 +82,16 @@ export default class RegistrationRequestRepository extends BaseRepository<
           status: 'pending',
         })
         .returning();
+
+      ['finance', 'resource', 'library'].forEach(async (department) => {
+        await tx
+          .insert(clearanceTasks)
+          .values({
+            registrationRequestId: request.id,
+            department: department as 'finance' | 'resource' | 'library',
+          })
+          .returning();
+      });
 
       const modulesToCreate = data.moduleIds.map((module) => ({
         ...module,

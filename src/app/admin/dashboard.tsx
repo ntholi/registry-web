@@ -62,11 +62,11 @@ const navigation: NavItem[] = [
     roles: [...dashboardUsers],
   },
   {
-    label: 'Clearance Requests',
-    href: '/admin/clearance-requests',
+    label: 'Clearance',
+    href: '/admin/clearance-tasks',
     icon: IconCopyCheck,
     roles: [...dashboardUsers],
-    queryFn: () => countPendingClearanceRequests(),
+    // queryFn: () => countPendingClearanceRequests(),
   },
   {
     label: 'Clearance Responses',

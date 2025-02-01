@@ -319,48 +319,24 @@ export const requestedModules = sqliteTable('requested_modules', {
     .notNull(),
 });
 
-export const clearanceRequests = sqliteTable(
-  'clearance_requests',
-  {
-    id: integer().primaryKey({ autoIncrement: true }),
-    stdNo: integer()
-      .references(() => students.stdNo, { onDelete: 'cascade' })
-      .notNull(),
-    termId: integer()
-      .references(() => terms.id, { onDelete: 'cascade' })
-      .notNull(),
-    registrationRequestId: integer()
-      .references(() => registrationRequests.id, { onDelete: 'cascade' })
-      .notNull(),
-    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-    updatedAt: integer({ mode: 'timestamp' }),
-  },
-  (table) => ({
-    uniqueClearanceRequest: unique().on(table.stdNo, table.termId),
-  })
-);
-
 export const clearanceTasks = sqliteTable(
   'clearance_tasks',
   {
     id: integer().primaryKey({ autoIncrement: true }),
-    clearanceRequestId: integer()
-      .references(() => clearanceRequests.id, { onDelete: 'cascade' })
+    registrationRequestId: integer()
+      .references(() => registrationRequests.id, { onDelete: 'cascade' })
       .notNull(),
     department: text({ enum: dashboardUsers }).notNull(),
     status: text({ enum: registrationRequestStatusEnum })
       .notNull()
       .default('pending'),
     message: text().default('Pending approval'),
-    clearedBy: text()
-      .references(() => users.id, { onDelete: 'cascade' })
-      .notNull(),
-    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-    updatedAt: integer({ mode: 'timestamp' }),
+    clearedBy: text().references(() => users.id, { onDelete: 'cascade' }),
+    dateCleared: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueClearanceTask: unique().on(
-      table.clearanceRequestId,
+      table.registrationRequestId,
       table.department
     ),
   })

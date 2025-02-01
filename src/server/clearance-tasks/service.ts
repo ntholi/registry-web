@@ -1,4 +1,4 @@
-import { clearanceTasks } from '@/db/schema';
+import { clearanceTasks, DashboardUser } from '@/db/schema';
 import ClearanceTaskRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
@@ -16,8 +16,14 @@ class ClearanceTaskService {
     return withAuth(async () => this.repository.findById(id), []);
   }
 
-  async findAll(params: FindAllParams<typeof clearanceTasks>) {
-    return withAuth(async () => this.repository.findAll(params), []);
+  async findByDepartment(
+    department: DashboardUser,
+    params: FindAllParams<typeof clearanceTasks>
+  ) {
+    return withAuth(
+      async () => this.repository.findByDepartment(department, params),
+      []
+    );
   }
 
   async create(data: ClearanceTask) {

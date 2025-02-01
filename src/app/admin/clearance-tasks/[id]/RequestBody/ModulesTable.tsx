@@ -1,4 +1,3 @@
-import { getClearanceRequest } from '@/server/clearance-requests/actions';
 import {
   Badge,
   Card,
@@ -10,9 +9,10 @@ import {
   TableTr,
   Text,
 } from '@mantine/core';
+import { getClearanceTask } from '@/server/clearance-tasks/actions';
 
 type Module = NonNullable<
-  Awaited<ReturnType<typeof getClearanceRequest>>
+  Awaited<ReturnType<typeof getClearanceTask>>
 >['registrationRequest']['requestedModules'];
 
 export function ModulesTable({

@@ -1,25 +1,35 @@
 'use server';
 
-
-import { clearanceTasks } from '@/db/schema';
-import { clearanceTasksService as service} from './service';
+import { clearanceTasks, DashboardUser } from '@/db/schema';
+import { clearanceTasksService as service } from './service';
+import { auth } from '@/auth';
 
 type ClearanceTask = typeof clearanceTasks.$inferInsert;
-
 
 export async function getClearanceTask(id: number) {
   return service.get(id);
 }
 
-export async function findAllClearanceTasks(page: number = 1, search = '') {
-  return service.findAll({ page, search });
+export async function clearanceTaskByDepartment(page: number = 1, search = '') {
+  const session = await auth();
+  if (!session?.user?.role) {
+    return [];
+  }
+
+  return service.findByDepartment(session.user.role as DashboardUser, {
+    page,
+    search,
+  });
 }
 
 export async function createClearanceTask(clearanceTask: ClearanceTask) {
   return service.create(clearanceTask);
 }
 
-export async function updateClearanceTask(id: number, clearanceTask: ClearanceTask) {
+export async function updateClearanceTask(
+  id: number,
+  clearanceTask: ClearanceTask
+) {
   return service.update(id, clearanceTask);
 }
 

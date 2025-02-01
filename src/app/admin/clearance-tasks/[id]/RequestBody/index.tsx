@@ -1,7 +1,6 @@
 'use client';
 
 import { FieldView } from '@/components/adease';
-import { getClearanceRequest } from '@/server/clearance-requests/actions';
 import {
   Accordion,
   AccordionControl,
@@ -18,14 +17,16 @@ import Link from 'next/link';
 import { useState } from 'react';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
+import { getClearanceTask } from '@/server/clearance-tasks/actions';
 
 type Props = {
-  request: NonNullable<Awaited<ReturnType<typeof getClearanceRequest>>>;
+  request: NonNullable<Awaited<ReturnType<typeof getClearanceTask>>>;
 };
 
 export default function RequestBody({ request }: Props) {
   const [comment, setComment] = useState('');
   const [accordion, setAccordion] = useState<'comments' | 'modules'>('modules');
+  const { student } = request.registrationRequest;
 
   return (
     <Stack p='lg'>
@@ -36,13 +37,13 @@ export default function RequestBody({ request }: Props) {
               <FieldView label='Student' underline={false}>
                 <Anchor
                   component={Link}
-                  href={`/admin/students/${request.stdNo}`}
+                  href={`/admin/students/${student.stdNo}`}
                 >
-                  {request.student.name}
+                  {student.name}
                 </Anchor>
               </FieldView>
               <FieldView label='Program' underline={false}>
-                {request.student.structure?.program.name}
+                {student.structure?.program.name}
               </FieldView>
             </Stack>
           </Paper>
