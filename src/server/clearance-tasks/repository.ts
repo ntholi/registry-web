@@ -60,18 +60,6 @@ export default class ClearanceTaskRepository extends BaseRepository<
 
     return await this.paginatedResults(data, whereCondition, pageSize);
   }
-
-  override async create(data: typeof clearanceTasks.$inferInsert) {
-    const [record] = await db
-      .insert(clearanceTasks)
-      .values(data)
-      .onConflictDoUpdate({
-        target: clearanceTasks.id,
-        set: data,
-      })
-      .returning();
-    return record;
-  }
 }
 
 export const clearanceTasksRepository = new ClearanceTaskRepository();

@@ -38,10 +38,10 @@ export default function ClearanceSwitch({
       }
 
       return createClearanceTask({
-        registrationRequestId: request.id,
+        id: request.id,
+        registrationRequestId: request.registrationRequestId,
         message: comment,
         department: session.user.role as (typeof dashboardUsers)[number],
-        clearedBy: session.user.id,
         status,
       });
     },

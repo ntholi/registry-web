@@ -8,7 +8,7 @@ import { forbidden, unauthorized } from 'next/navigation';
 type Role = UserRole | 'all' | 'auth' | 'dashboard';
 
 export default async function withAuth<T>(
-  fn: () => Promise<T>,
+  fn: (session?: Session | null) => Promise<T>,
   roles: Role[] = [],
   accessCheck?: (session: Session) => Promise<boolean>
 ) {
@@ -20,11 +20,11 @@ export default async function withAuth<T>(
   const method = methodMatch ? methodMatch[1] : 'unknown method';
 
   if (roles.includes('all')) {
-    return fn();
+    return fn(session);
   }
 
   if (roles.includes('auth') && session?.user) {
-    return fn();
+    return fn(session);
   }
 
   if (
@@ -33,7 +33,7 @@ export default async function withAuth<T>(
       session?.user?.role as (typeof dashboardUsers)[number]
     )
   ) {
-    return fn();
+    return fn(session);
   }
 
   if (!session?.user) {
@@ -62,5 +62,5 @@ export default async function withAuth<T>(
     }
   }
 
-  return fn();
+  return fn(session);
 }

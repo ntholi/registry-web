@@ -2,7 +2,6 @@ import { clearanceTasks, DashboardUser } from '@/db/schema';
 import ClearanceTaskRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
-import { auth } from '@/auth';
 
 type ClearanceTask = typeof clearanceTasks.$inferInsert;
 
@@ -27,15 +26,16 @@ class ClearanceTaskService {
     );
   }
 
-  async create(data: ClearanceTask) {
-    const session = await auth();
+  async respond(data: ClearanceTask) {
     return withAuth(
-      async () =>
-        this.repository.create({
+      async (session) => {
+        if (!data.id) throw Error('ClearanceTask id cannot be null/undefined');
+        return this.repository.update(data.id, {
           ...data,
           responseDate: new Date(),
           clearedBy: session?.user?.id,
-        }),
+        });
+      },
       ['dashboard']
     );
   }

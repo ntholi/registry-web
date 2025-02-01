@@ -26,7 +26,7 @@ export async function clearanceTaskByDepartment(page: number = 1, search = '') {
 }
 
 export async function createClearanceTask(clearanceTask: ClearanceTask) {
-  return service.create(clearanceTask);
+  return service.respond(clearanceTask);
 }
 
 export async function updateClearanceTask(
