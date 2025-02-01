@@ -25,9 +25,7 @@ type Props = {
 
 export default function RequestBody({ request }: Props) {
   const [comment, setComment] = useState('');
-  const [accordion, setAccordion] = useState<'comments' | 'modules'>(
-    'comments'
-  );
+  const [accordion, setAccordion] = useState<'comments' | 'modules'>('modules');
 
   return (
     <Stack p='lg'>
@@ -67,8 +65,9 @@ export default function RequestBody({ request }: Props) {
           <AccordionPanel>
             <Textarea
               value={comment}
+              description='Optional '
               onChange={(e) => setComment(e.currentTarget.value)}
-              placeholder='Enter your comments here...'
+              placeholder='Why is the student not cleared?'
             />
           </AccordionPanel>
         </AccordionItem>
