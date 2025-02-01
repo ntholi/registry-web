@@ -91,7 +91,7 @@ export default async function RegistrationStatusPage() {
             <div>
               <div className='flex items-center gap-2 mb-4'>
                 <BookOpen className='h-5 w-5 text-primary' />
-                <h3 className='font-semibold text-lg'>Registered Modules</h3>
+                <h3 className='font-semibold text-lg'>Requested Modules</h3>
               </div>
               <div className='grid gap-3'>
                 {request.requestedModules?.map((rm) => (

@@ -2,16 +2,6 @@
 
 A modern web portal for Limkokwing University's Registry Department that manages student records, course registrations, and administrative processes.
 
-## Features
-
-- 🔐 Secure authentication with NextAuth.js
-- 🎨 Dark/Light theme support
-- 📱 Responsive design using Tailwind CSS
-- 🏗️ UI with shadcn/ui and mantine for dashboard
-- 🎯 Type-safe database operations with Drizzle ORM
-- 🔄 Real-time updates and interactive UI
-- 📊 Student registration management
-
 ## Tech Stack
 
 ### Frontend
@@ -19,8 +9,8 @@ A modern web portal for Limkokwing University's Registry Department that manages
 - Next.js 15
 - TypeScript
 - Tailwind CSS
-- shadcn/ui & mantine components
 - Tanstack Query
+- shadcn/ui & mantine components
 
 ### Backend
 
