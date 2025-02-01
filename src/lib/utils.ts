@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(timestamp: number | Date) {
+export function formatDate(timestamp: number | Date | undefined | null) {
+  if (!timestamp) return '';
   return new Date(timestamp).toLocaleDateString('en-ZA', {
     year: 'numeric',
     month: 'long',
