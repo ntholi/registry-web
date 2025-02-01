@@ -18,6 +18,7 @@ export const dashboardUsers = [
   'academic',
   'admin',
 ] as const;
+export type DashboardUser = (typeof dashboardUsers)[number];
 export const userRoles = ['user', 'student', ...dashboardUsers] as const;
 export type UserRole = (typeof userRoles)[number];
 

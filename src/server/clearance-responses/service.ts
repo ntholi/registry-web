@@ -1,7 +1,8 @@
-import { clearanceResponses } from '@/db/schema';
+import { clearanceResponses, DashboardUser, dashboardUsers } from '@/db/schema';
 import ClearanceResponseRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
+import { auth } from '@/auth';
 
 type ClearanceResponse = typeof clearanceResponses.$inferInsert;
 
@@ -12,6 +13,21 @@ class ClearanceResponseService {
 
   async first() {
     return withAuth(async () => this.repository.findFirst(), []);
+  }
+
+  async countPending() {
+    const session = await auth();
+    if (
+      !session?.user?.role ||
+      !dashboardUsers.includes(session.user.role as DashboardUser)
+    ) {
+      return 0;
+    }
+    return withAuth(
+      async () =>
+        this.repository.countPending(session.user.role as DashboardUser),
+      ['dashboard']
+    );
   }
 
   async get(id: number) {
