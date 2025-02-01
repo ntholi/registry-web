@@ -6,7 +6,9 @@ import { FindAllParams } from '../base/BaseRepository';
 type ClearanceResponse = typeof clearanceResponses.$inferInsert;
 
 class ClearanceResponseService {
-  constructor(private readonly repository = new ClearanceResponseRepository()) {}
+  constructor(
+    private readonly repository = new ClearanceResponseRepository()
+  ) {}
 
   async first() {
     return withAuth(async () => this.repository.findFirst(), []);
@@ -21,7 +23,7 @@ class ClearanceResponseService {
   }
 
   async create(data: ClearanceResponse) {
-    return withAuth(async () => this.repository.create(data), []);
+    return withAuth(async () => this.repository.create(data), ['dashboard']);
   }
 
   async update(id: number, data: ClearanceResponse) {
