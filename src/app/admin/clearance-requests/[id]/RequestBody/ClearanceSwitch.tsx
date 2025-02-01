@@ -3,7 +3,7 @@
 import { dashboardUsers, registrationRequestStatusEnum } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import { getClearanceRequest } from '@/server/clearance-requests/actions';
-import { createClearanceResponse } from '@/server/clearance-responses/actions';
+import { createClearanceResponse } from '@/server/clearance-tasks/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
