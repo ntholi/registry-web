@@ -13,7 +13,7 @@ class UserService {
   }
 
   async get(id: string) {
-    return withAuth(async () => this.repository.findById(id), []);
+    return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
   async findAll(params: FindAllParams<typeof users>) {
