@@ -21,6 +21,10 @@ export async function getRegistrationRequestByStdNo(
   return service.getByStdNo(stdNo, termId);
 }
 
+export async function getRequestedModules(registrationRequestId: number) {
+  return service.getRequestedModules(registrationRequestId);
+}
+
 export async function pendingRegistrationRequests() {
   return service.pending();
 }
@@ -68,4 +72,11 @@ export async function createRegistrationWithModules(data: {
     termId: data.termId,
     modules: data.modules,
   });
+}
+
+export async function updateRegistrationWithModules(
+  registrationRequestId: number,
+  modules: { id: number; status: ModuleStatus }[]
+) {
+  return service.updateRegistrationWithModules(registrationRequestId, modules);
 }

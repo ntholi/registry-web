@@ -64,6 +64,15 @@ export default class RegistrationRequestRepository extends BaseRepository<
     return value;
   }
 
+  async getRequestedModules(registrationRequestId: number) {
+    return db.query.requestedModules.findMany({
+      where: eq(requestedModules.registrationRequestId, registrationRequestId),
+      with: {
+        module: true,
+      },
+    });
+  }
+
   async createRequestedModules(modules: RequestedModule[]) {
     return db.insert(requestedModules).values(modules).returning();
   }
@@ -105,6 +114,37 @@ export default class RegistrationRequestRepository extends BaseRepository<
         .returning();
 
       return { request, modules };
+    });
+  }
+
+  async updateRegistrationWithModules(
+    registrationRequestId: number,
+    modules: { id: number; status: ModuleStatus }[]
+  ) {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(registrationRequests)
+        .set({
+          status: 'pending',
+          updatedAt: new Date(),
+        })
+        .where(eq(registrationRequests.id, registrationRequestId));
+
+      await tx
+        .delete(requestedModules)
+        .where(
+          eq(requestedModules.registrationRequestId, registrationRequestId)
+        );
+
+      if (modules.length > 0) {
+        await tx.insert(requestedModules).values(
+          modules.map((module) => ({
+            registrationRequestId,
+            moduleId: module.id,
+            moduleStatus: module.status,
+          }))
+        );
+      }
     });
   }
 }

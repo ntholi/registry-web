@@ -27,6 +27,13 @@ class RegistrationRequestService {
     );
   }
 
+  async getRequestedModules(registrationRequestId: number) {
+    return withAuth(
+      async () => this.repository.getRequestedModules(registrationRequestId),
+      ['student']
+    );
+  }
+
   async pending() {
     return withAuth(async () => this.repository.pending(), ['registry']);
   }
@@ -84,6 +91,20 @@ class RegistrationRequestService {
       async () => this.repository.createRegistrationWithModules(data),
       ['student'],
       async (session) => session.user?.stdNo === data.stdNo
+    );
+  }
+
+  async updateRegistrationWithModules(
+    registrationRequestId: number,
+    modules: { id: number; status: ModuleStatus }[]
+  ) {
+    return withAuth(
+      async () =>
+        this.repository.updateRegistrationWithModules(
+          registrationRequestId,
+          modules
+        ),
+      ['student']
     );
   }
 }
