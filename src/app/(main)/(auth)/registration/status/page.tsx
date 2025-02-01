@@ -1,8 +1,5 @@
 import { auth } from '@/auth';
-import { Container } from '@/components/ui/container';
-import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
-import { redirect } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -10,38 +7,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { db } from '@/db';
-import { eq } from 'drizzle-orm';
-import { registrationClearances } from '@/db/schema';
-import { ArrowLeftIcon, CheckCircle2, Clock, XCircle } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Container } from '@/components/ui/container';
 import { formatDate } from '@/lib/utils';
-
-function getStatusColor(status: string) {
-  switch (status.toLowerCase()) {
-    case 'approved':
-      return 'bg-green-500/15 text-green-700 hover:bg-green-500/25';
-    case 'rejected':
-      return 'bg-red-500/15 text-red-700 hover:bg-red-500/25';
-    case 'pending':
-    default:
-      return 'bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/25';
-  }
-}
-
-function getStatusIcon(status: string) {
-  switch (status.toLowerCase()) {
-    case 'approved':
-      return <CheckCircle2 className='h-5 w-5 text-green-600' />;
-    case 'rejected':
-      return <XCircle className='h-5 w-5 text-red-600' />;
-    case 'pending':
-    default:
-      return <Clock className='h-5 w-5 text-yellow-600' />;
-  }
-}
+import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
+import { ArrowLeftIcon } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import StatusBadge, { getStatusIcon } from '../components/StatusBadge';
+import { getRegistrationClearances } from './actions';
 
 export default async function page() {
   const session = await auth();
@@ -59,14 +33,7 @@ export default async function page() {
   if (!request) {
     redirect('/registration/request');
   }
-
-  // Get clearances for this registration request
-  const clearances = await db.query.registrationClearances.findMany({
-    where: eq(registrationClearances.registrationRequestId, request.id),
-    with: {
-      clearedBy: true,
-    },
-  });
+  const clearances = await getRegistrationClearances(request.id);
 
   return (
     <Container className='pt-4 sm:pt-10'>
@@ -94,12 +61,7 @@ export default async function page() {
                   Your registration request for {term.name}
                 </CardDescription>
               </div>
-              <Badge
-                className={getStatusColor(request.status)}
-                variant='outline'
-              >
-                {request.status}
-              </Badge>
+              <StatusBadge status={request.status} />
             </div>
           </CardHeader>
           <CardContent className='space-y-6'>
@@ -110,26 +72,6 @@ export default async function page() {
                 </p>
               </div>
             )}
-
-            <div>
-              <h3 className='font-semibold mb-3'>Registered Modules</h3>
-              <div className='grid gap-3'>
-                {request.requestedModules?.map((rm) => (
-                  <div
-                    key={rm.id}
-                    className='flex items-center justify-between p-3 rounded-lg border'
-                  >
-                    <div>
-                      <p className='font-medium'>{rm.module.name}</p>
-                      <p className='text-sm text-muted-foreground'>
-                        {rm.module.code}
-                      </p>
-                    </div>
-                    <Badge variant='secondary'>{rm.moduleStatus}</Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
           </CardContent>
         </Card>
 
@@ -165,12 +107,7 @@ export default async function page() {
                       )}
                     </div>
                   </div>
-                  <Badge
-                    className={getStatusColor(clearance.status)}
-                    variant='outline'
-                  >
-                    {clearance.status}
-                  </Badge>
+                  <StatusBadge status={clearance.status} />
                 </div>
               ))}
             </div>

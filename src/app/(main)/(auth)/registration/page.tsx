@@ -15,18 +15,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { EyeIcon } from 'lucide-react';
-
-function getStatusColor(status: string) {
-  switch (status.toLowerCase()) {
-    case 'approved':
-      return 'bg-green-500/15 text-green-700 hover:bg-green-500/25';
-    case 'rejected':
-      return 'bg-red-500/15 text-red-700 hover:bg-red-500/25';
-    case 'pending':
-    default:
-      return 'bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/25';
-  }
-}
+import StatusBadge from './components/StatusBadge';
 
 export default async function page() {
   const session = await auth();
@@ -55,9 +44,7 @@ export default async function page() {
                 Your current registration status for {term.name}
               </CardDescription>
             </div>
-            <Badge className={getStatusColor(request.status)} variant='outline'>
-              {request.status}
-            </Badge>
+            <StatusBadge status={request.status} />
           </div>
         </CardHeader>
         <CardContent>
