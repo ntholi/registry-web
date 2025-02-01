@@ -1,8 +1,6 @@
 import { auth } from '@/auth';
-import { Container } from '@/components/ui/container';
-import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
-import { redirect } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -10,19 +8,21 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Container } from '@/components/ui/container';
+import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
+import { BookOpen, Calendar, EyeIcon } from 'lucide-react';
 import Link from 'next/link';
-import { Separator } from '@/components/ui/separator';
-import { EyeIcon } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import StatusBadge from './components/StatusBadge';
 
-export default async function page() {
+export default async function RegistrationStatusPage() {
   const session = await auth();
 
   if (!session?.user?.stdNo) {
     redirect('/signup');
   }
+
   const term = await getCurrentTerm();
   const request = await getRegistrationRequestByStdNo(
     session.user.stdNo,
@@ -34,58 +34,80 @@ export default async function page() {
   }
 
   return (
-    <Container className='pt-4 sm:pt-10'>
-      <Card>
-        <CardHeader>
-          <div className='flex items-center justify-between'>
-            <div>
-              <CardTitle className='text-2xl'>Registration Status</CardTitle>
-              <CardDescription>
-                Your current registration status for {term.name}
-              </CardDescription>
+    <Container className='max-w-4xl pt-4 sm:pt-10'>
+      <Card className='shadow-lg'>
+        <CardHeader className='pb-4'>
+          <div className='flex flex-col space-y-4'>
+            <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+              <div>
+                <CardTitle className='text-2xl font-bold'>
+                  Registration Status
+                </CardTitle>
+                <div className='flex items-center mt-2 text-muted-foreground'>
+                  <Calendar className='h-4 w-4 mr-2' />
+                  <CardDescription className='text-sm'>
+                    {term.name}
+                  </CardDescription>
+                </div>
+              </div>
+              <StatusBadge status={request.status} />
             </div>
-            <StatusBadge status={request.status} />
+
+            <div className='flex sm:justify-end'>
+              <Button
+                variant='default'
+                size='lg'
+                asChild
+                className='w-full sm:w-auto'
+              >
+                <Link
+                  href='/registration/status'
+                  className='flex items-center justify-center'
+                >
+                  <EyeIcon className='mr-2 h-5 w-5' />
+                  View Full Details
+                </Link>
+              </Button>
+            </div>
           </div>
         </CardHeader>
+
         <CardContent>
-          <div className='space-y-6'>
+          <div className='space-y-8'>
             {request.message && (
-              <div className='rounded-lg bg-muted p-4'>
-                <p className='text-sm text-muted-foreground'>
+              <div className='rounded-lg bg-muted/50 p-6 border'>
+                <p className='text-sm text-muted-foreground leading-relaxed'>
                   {request.message}
                 </p>
               </div>
             )}
 
             <div>
-              <h3 className='font-semibold mb-3'>Registered Modules</h3>
-              <div className='space-y-2'>
+              <div className='flex items-center gap-2 mb-4'>
+                <BookOpen className='h-5 w-5 text-primary' />
+                <h3 className='font-semibold text-lg'>Registered Modules</h3>
+              </div>
+              <div className='grid gap-3'>
                 {request.requestedModules?.map((rm) => (
                   <div
                     key={rm.id}
-                    className='flex items-center justify-between p-3 rounded-lg border'
+                    className='flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors'
                   >
                     <div>
                       <p className='font-medium'>{rm.module.name}</p>
-                      <p className='text-sm text-muted-foreground'>
+                      <p className='text-sm text-muted-foreground mt-1'>
                         {rm.module.code}
                       </p>
                     </div>
-                    <Badge variant='secondary'>{rm.moduleStatus}</Badge>
+                    <Badge
+                      variant='secondary'
+                      className='ml-4 whitespace-nowrap'
+                    >
+                      {rm.moduleStatus}
+                    </Badge>
                   </div>
                 ))}
               </div>
-            </div>
-
-            <Separator />
-
-            <div className='flex justify-end'>
-              <Button asChild>
-                <Link href='/registration/status'>
-                  <EyeIcon className='mr-2 h-4 w-4' />
-                  View Full Details
-                </Link>
-              </Button>
             </div>
           </div>
         </CardContent>
