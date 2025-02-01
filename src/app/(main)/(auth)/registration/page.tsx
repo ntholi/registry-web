@@ -1,13 +1,7 @@
 import { auth } from '@/auth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
@@ -44,53 +38,49 @@ export default async function RegistrationStatusPage() {
   return (
     <Container className='max-w-4xl pt-4 sm:pt-10'>
       <Card className='shadow-lg'>
-        <CardHeader className='pb-4'>
-          <div className='flex flex-col space-y-4'>
-            <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
-              <div>
-                <CardTitle className='text-2xl font-bold'>
-                  Registration Status
-                </CardTitle>
-                <div className='flex items-center mt-2 text-muted-foreground'>
-                  <Calendar className='h-4 w-4 mr-2' />
-                  <CardDescription className='text-sm'>
-                    {term.name}
-                  </CardDescription>
-                </div>
-              </div>
+        <CardHeader className='pb-4 gap-6'>
+          <div>
+            <div className='flex justify-between'>
+              <CardTitle className='text-xl sm:text-2xl font-bold'>
+                Registration Status
+              </CardTitle>
               <StatusBadge status={request.status} />
             </div>
-
-            <div className='flex flex-col sm:flex-row sm:justify-end gap-3'>
-              <Button
-                variant='default'
-                size='lg'
-                asChild
-                className='w-full sm:w-auto'
-              >
-                <Link
-                  href='/registration/status'
-                  className='flex items-center justify-center'
-                >
-                  <EyeIcon className='mr-2 h-5 w-5' />
-                  View Full Details
-                </Link>
-              </Button>
-              <Button
-                variant='outline'
-                size='lg'
-                asChild
-                className='w-full sm:w-auto'
-              >
-                <Link
-                  href='/registration/update'
-                  className='flex items-center justify-center'
-                >
-                  <PenSquare className='mr-2 h-5 w-5' />
-                  Update Modules
-                </Link>
-              </Button>
+            <div className='flex items-center mt-2 text-muted-foreground'>
+              <Calendar className='h-4 w-4 mr-2' />
+              <p className='text-sm text-muted-foreground'>Term: {term.name}</p>
             </div>
+          </div>
+
+          <div className='flex flex-col sm:flex-row sm:justify-end gap-3'>
+            <Button
+              variant='default'
+              size='lg'
+              asChild
+              className='w-full sm:w-auto'
+            >
+              <Link
+                href='/registration/status'
+                className='flex items-center justify-center'
+              >
+                <EyeIcon className='mr-2 h-5 w-5' />
+                View Full Details
+              </Link>
+            </Button>
+            <Button
+              variant='outline'
+              size='lg'
+              asChild
+              className='w-full sm:w-auto'
+            >
+              <Link
+                href='/registration/update'
+                className='flex items-center justify-center'
+              >
+                <PenSquare className='mr-2 h-5 w-5' />
+                Update Modules
+              </Link>
+            </Button>
           </div>
         </CardHeader>
 
