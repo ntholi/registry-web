@@ -332,7 +332,7 @@ export const clearanceTasks = sqliteTable(
       .default('pending'),
     message: text(),
     clearedBy: text().references(() => users.id, { onDelete: 'cascade' }),
-    dateCleared: integer({ mode: 'timestamp' }),
+    responseDate: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueClearanceTask: unique().on(

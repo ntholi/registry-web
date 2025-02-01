@@ -2,6 +2,7 @@ import { clearanceTasks, DashboardUser } from '@/db/schema';
 import ClearanceTaskRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
+import { auth } from '@/auth';
 
 type ClearanceTask = typeof clearanceTasks.$inferInsert;
 
@@ -27,7 +28,16 @@ class ClearanceTaskService {
   }
 
   async create(data: ClearanceTask) {
-    return withAuth(async () => this.repository.create(data), ['dashboard']);
+    const session = await auth();
+    return withAuth(
+      async () =>
+        this.repository.create({
+          ...data,
+          responseDate: new Date(),
+          clearedBy: session?.user?.id,
+        }),
+      ['dashboard']
+    );
   }
 
   async update(id: number, data: ClearanceTask) {
