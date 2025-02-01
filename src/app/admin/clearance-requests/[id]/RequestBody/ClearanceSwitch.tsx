@@ -1,57 +1,83 @@
 'use client';
 
-import { createClearanceResponse } from '@/server/clearance-responses/actions';
+import { registrationRequestStatusEnum } from '@/db/schema';
+import { toTitleCase } from '@/lib/utils';
 import { getClearanceRequest } from '@/server/clearance-requests/actions';
+import { createClearanceResponse } from '@/server/clearance-responses/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getClearanceRequest>>>;
   comment: string;
 };
 
+type Status = (typeof registrationRequestStatusEnum)[number];
+
 export default function ClearanceSwitch({ request, comment }: Props) {
   const router = useRouter();
   const { data: session } = useSession();
-  const [value, setValue] = useState<'cleared' | 'not-cleared'>('not-cleared');
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const [status, setStatus] = useState(request.clearanceResponse?.status);
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      if (!session?.user?.id) return;
-      await createClearanceResponse({
+  const { mutate: submitResponse, isPending } = useMutation({
+    mutationFn: async () => {
+      if (!session?.user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      // Then create the clearance response
+      return createClearanceResponse({
         clearanceRequestId: request.id,
         message: comment,
         department: 'registry',
-        clearedBy: session?.user?.id,
+        clearedBy: session.user.id,
+      });
+    },
+    onSuccess: () => {
+      notifications.show({
+        title: 'Success',
+        message: 'Response submitted successfully',
+        color: 'green',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['clearanceRequest', request.id],
       });
       router.refresh();
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    onError: (error) => {
+      notifications.show({
+        title: 'Error',
+        message: error.message || 'Failed to submit response',
+        color: 'red',
+      });
+      // Reset status on error
+      setStatus(request.registrationRequest.status);
+    },
+  });
+
+  function handleSubmit() {
+    submitResponse();
+  }
 
   return (
     <Paper withBorder p='md'>
       <Stack>
         <SegmentedControl
-          value={value}
-          onChange={(val) => setValue(val as 'cleared' | 'not-cleared')}
-          data={[
-            { label: 'Not Cleared', value: 'not-cleared' },
-            { label: 'Cleared', value: 'cleared' },
-          ]}
+          value={status}
+          onChange={(it) => setStatus(it as Status)}
+          data={registrationRequestStatusEnum.map((status) => ({
+            label: toTitleCase(status),
+            value: status,
+          }))}
           fullWidth
+          disabled={isPending}
         />
-        <Button
-          onClick={handleSubmit}
-          loading={loading}
-          variant={value === 'cleared' ? 'filled' : 'outline'}
-          color={value === 'cleared' ? 'green' : 'red'}
-        >
+        <Button onClick={handleSubmit} loading={isPending}>
           Submit Response
         </Button>
       </Stack>

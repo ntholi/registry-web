@@ -143,6 +143,7 @@ export const clearanceRequestsRelations = relations(
       fields: [clearanceRequests.termId],
       references: [terms.id],
     }),
+    clearanceResponse: many(clearanceResponses),
     clearedSemesters: many(clearanceResponses),
   })
 );
