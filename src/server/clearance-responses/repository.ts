@@ -1,19 +1,19 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { clearanceResponses, DashboardUser } from '@/db/schema';
+import { clearanceTasks, DashboardUser } from '@/db/schema';
 import { db } from '@/db';
 import { eq } from 'drizzle-orm';
 
 export default class ClearanceResponseRepository extends BaseRepository<
-  typeof clearanceResponses,
+  typeof clearanceTasks,
   'id'
 > {
   constructor() {
-    super(clearanceResponses, 'id');
+    super(clearanceTasks, 'id');
   }
 
   async countPending(department: DashboardUser) {
     return await db.query.clearanceResponses.findMany({
-      where: eq(clearanceResponses.status, 'pending'),
+      where: eq(clearanceTasks.status, 'pending'),
     });
   }
 }

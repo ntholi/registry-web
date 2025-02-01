@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 import {
   accounts,
   authenticators,
-  clearanceResponses,
+  clearanceTasks,
   clearanceRequests,
   modules,
   programs,
@@ -128,40 +128,6 @@ export const semesterModulesRelations = relations(
   })
 );
 
-export const clearanceRequestsRelations = relations(
-  clearanceRequests,
-  ({ many, one }) => ({
-    student: one(students, {
-      fields: [clearanceRequests.stdNo],
-      references: [students.stdNo],
-    }),
-    registrationRequest: one(registrationRequests, {
-      fields: [clearanceRequests.registrationRequestId],
-      references: [registrationRequests.id],
-    }),
-    term: one(terms, {
-      fields: [clearanceRequests.termId],
-      references: [terms.id],
-    }),
-    responses: many(clearanceResponses),
-    clearedSemesters: many(clearanceResponses),
-  })
-);
-
-export const clearanceResponsesRelations = relations(
-  clearanceResponses,
-  ({ one }) => ({
-    clearanceRequest: one(clearanceRequests, {
-      fields: [clearanceResponses.clearanceRequestId],
-      references: [clearanceRequests.id],
-    }),
-    clearedBy: one(users, {
-      fields: [clearanceResponses.clearedBy],
-      references: [users.id],
-    }),
-  })
-);
-
 export const registrationRequestsRelations = relations(
   registrationRequests,
   ({ many, one }) => ({
@@ -190,3 +156,34 @@ export const requestedModulesRelations = relations(
     }),
   })
 );
+
+export const clearanceRequestsRelations = relations(
+  clearanceRequests,
+  ({ many, one }) => ({
+    student: one(students, {
+      fields: [clearanceRequests.stdNo],
+      references: [students.stdNo],
+    }),
+    registrationRequest: one(registrationRequests, {
+      fields: [clearanceRequests.registrationRequestId],
+      references: [registrationRequests.id],
+    }),
+    term: one(terms, {
+      fields: [clearanceRequests.termId],
+      references: [terms.id],
+    }),
+    tasks: many(clearanceTasks),
+    clearedSemesters: many(clearanceTasks),
+  })
+);
+
+export const clearanceTasksRelations = relations(clearanceTasks, ({ one }) => ({
+  clearanceRequest: one(clearanceRequests, {
+    fields: [clearanceTasks.clearanceRequestId],
+    references: [clearanceRequests.id],
+  }),
+  clearedBy: one(users, {
+    fields: [clearanceTasks.clearedBy],
+    references: [users.id],
+  }),
+}));

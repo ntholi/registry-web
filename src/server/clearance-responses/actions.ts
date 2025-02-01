@@ -1,9 +1,9 @@
 'use server';
 
-import { clearanceResponses } from '@/db/schema';
+import { clearanceTasks } from '@/db/schema';
 import { clearanceResponsesService as service } from './service';
 
-type ClearanceResponse = typeof clearanceResponses.$inferInsert;
+type ClearanceResponse = typeof clearanceTasks.$inferInsert;
 
 export async function getClearanceResponse(id: number) {
   return service.get(id);

@@ -1,10 +1,10 @@
-import { clearanceResponses, DashboardUser, dashboardUsers } from '@/db/schema';
+import { clearanceTasks, DashboardUser, dashboardUsers } from '@/db/schema';
 import ClearanceResponseRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
 import { auth } from '@/auth';
 
-type ClearanceResponse = typeof clearanceResponses.$inferInsert;
+type ClearanceResponse = typeof clearanceTasks.$inferInsert;
 
 class ClearanceResponseService {
   constructor(
@@ -34,7 +34,7 @@ class ClearanceResponseService {
     return withAuth(async () => this.repository.findById(id), []);
   }
 
-  async findAll(params: FindAllParams<typeof clearanceResponses>) {
+  async findAll(params: FindAllParams<typeof clearanceTasks>) {
     return withAuth(async () => this.repository.findAll(params), []);
   }
 

@@ -340,17 +340,28 @@ export const clearanceRequests = sqliteTable(
   })
 );
 
-export const clearanceResponses = sqliteTable('clearance_responses', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  clearanceRequestId: integer()
-    .references(() => clearanceRequests.id, { onDelete: 'cascade' })
-    .notNull(),
-  department: text({ enum: dashboardUsers }).notNull(),
-  status: text({ enum: registrationRequestStatusEnum }).notNull(),
-  message: text(),
-  clearedBy: text()
-    .references(() => users.id, { onDelete: 'cascade' })
-    .notNull(),
-  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' }),
-});
+export const clearanceTasks = sqliteTable(
+  'clearance_tasks',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    clearanceRequestId: integer()
+      .references(() => clearanceRequests.id, { onDelete: 'cascade' })
+      .notNull(),
+    department: text({ enum: dashboardUsers }).notNull(),
+    status: text({ enum: registrationRequestStatusEnum })
+      .notNull()
+      .default('pending'),
+    message: text().default('Pending approval'),
+    clearedBy: text()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
+  },
+  (table) => ({
+    uniqueClearanceTask: unique().on(
+      table.clearanceRequestId,
+      table.department
+    ),
+  })
+);
