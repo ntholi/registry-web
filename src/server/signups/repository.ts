@@ -22,7 +22,6 @@ export default class SignupRepository extends BaseRepository<
           name: data.name,
           stdNo: data.stdNo,
           status: 'pending',
-          message: 'Pending approval',
         },
       })
       .returning();

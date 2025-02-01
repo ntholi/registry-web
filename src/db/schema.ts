@@ -295,7 +295,7 @@ export const registrationRequests = sqliteTable(
     status: text({ enum: registrationRequestStatusEnum })
       .notNull()
       .default('pending'),
-    message: text().default('Pending approval'),
+    message: text(),
     createdAt: integer('created_at', { mode: 'timestamp' }).default(
       sql`(unixepoch())`
     ),
@@ -330,7 +330,7 @@ export const clearanceTasks = sqliteTable(
     status: text({ enum: registrationRequestStatusEnum })
       .notNull()
       .default('pending'),
-    message: text().default('Pending approval'),
+    message: text(),
     clearedBy: text().references(() => users.id, { onDelete: 'cascade' }),
     dateCleared: integer({ mode: 'timestamp' }),
   },
