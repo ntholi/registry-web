@@ -24,7 +24,7 @@ type Props = {
 };
 
 export default function RequestBody({ request }: Props) {
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState(request.message || undefined);
   const [accordion, setAccordion] = useState<'comments' | 'modules'>('modules');
   const { student } = request.registrationRequest;
 

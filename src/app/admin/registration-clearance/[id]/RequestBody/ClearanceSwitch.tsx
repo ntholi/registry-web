@@ -16,7 +16,7 @@ import { useState } from 'react';
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
   setAccordion: (value: 'comments' | 'modules') => void;
-  comment: string;
+  comment?: string;
 };
 
 type Status = (typeof registrationRequestStatusEnum)[number];
