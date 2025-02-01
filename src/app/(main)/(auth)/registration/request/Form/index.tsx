@@ -46,7 +46,7 @@ export default function RegisterForm({ structureId, semester }: Props) {
         const found = modules.find((it) => it.id === moduleId);
         if (found) {
           return {
-            ...found,
+            module: found,
             moduleStatus: 'Compulsory' as const,
           };
         }

@@ -36,8 +36,6 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
     Array<{ module: Module; moduleStatus: ModuleStatus }>
   >([]);
 
-  console.log('Modules: ', modules);
-
   React.useEffect(() => {
     const stored = sessionStorage.getItem('selectedModules');
     if (stored) {
