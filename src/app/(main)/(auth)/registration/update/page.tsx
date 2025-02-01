@@ -27,12 +27,12 @@ export default async function UpdateRegistrationPage() {
     redirect('/');
   }
 
-  const existingRequest = await getRegistrationRequestByStdNo(
+  const request = await getRegistrationRequestByStdNo(
     student.stdNo,
     currentTerm.id
   );
 
-  if (!existingRequest) {
+  if (!request) {
     redirect('/registration/request');
   }
 
@@ -53,7 +53,7 @@ export default async function UpdateRegistrationPage() {
               stdNo={student.stdNo}
               structureId={student.structureId}
               semester={student.sem + 1}
-              registrationId={existingRequest.id}
+              request={request}
             />
           ) : (
             <p className='text-red-500'>

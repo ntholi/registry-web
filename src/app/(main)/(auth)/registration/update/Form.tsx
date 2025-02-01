@@ -3,26 +3,28 @@
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
+import {
+  getRegistrationRequestByStdNo,
+  updateRegistrationWithModules,
+} from '@/server/registration-requests/actions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import {
-  getRequestedModules,
-  updateRegistrationWithModules,
-} from '@/server/registration-requests/actions';
 import { getSemesterModules } from '../request/actions';
 import ModuleInput from '../request/Form/ModuleInput';
-import { useEffect } from 'react';
 
 type Props = {
   stdNo: number;
   structureId: number;
   semester: number;
-  registrationId: number;
+  request: NonNullable<
+    Awaited<ReturnType<typeof getRegistrationRequestByStdNo>>
+  >;
 };
 
 const formSchema = z.object({
@@ -33,53 +35,50 @@ const formSchema = z.object({
 
 export type UpdateFormSchema = z.infer<typeof formSchema>;
 
-export default function ModulesForm({
-  structureId,
-  semester,
-  registrationId,
-}: Props) {
+export default function ModulesForm({ structureId, semester, request }: Props) {
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 
-  const { data: modules, isLoading: isLoadingModules } = useQuery({
+  const { data: modules, isLoading } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
     queryFn: () => getSemesterModules(structureId, semester),
-  });
-
-  const { data: existingModules, isLoading: isLoadingExisting } = useQuery({
-    queryKey: ['requestedModules', registrationId],
-    queryFn: () => getRequestedModules(registrationId),
   });
 
   const form = useForm<UpdateFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      modules: [],
+      modules: request.requestedModules
+        .map((it) => it.module)
+        .map((it) => it.id),
     },
   });
-
-  useEffect(() => {
-    if (existingModules) {
-      form.reset({
-        modules: existingModules.map((m) => m.moduleId),
-      });
-    }
-  }, [existingModules, form]);
 
   const { mutate: submitUpdate, isPending } = useMutation({
     mutationFn: async (values: UpdateFormSchema) => {
       if (!modules) throw new Error('No modules available');
       if (!currentTerm) throw new Error('No current term found');
 
-      await updateRegistrationWithModules(registrationId, values.modules);
+      const selectedModules = values.modules
+        .map((moduleId) => {
+          const found = modules.find((it) => it.id === moduleId);
+          if (found) {
+            return {
+              id: found.id,
+              status: 'Compulsory' as const,
+            };
+          }
+        })
+        .filter(Boolean) as { id: number; status: ModuleStatus }[];
+
+      await updateRegistrationWithModules(request.id, selectedModules);
     },
     onSuccess: () => {
       toast({
         title: 'Registration updated successfully',
         description: 'Your registration has been updated.',
       });
-      router.push('/registration/status');
+      router.push('/registration');
     },
     onError: (error) => {
       toast({
@@ -93,8 +92,6 @@ export default function ModulesForm({
   function onSubmit(values: UpdateFormSchema) {
     submitUpdate(values);
   }
-
-  const isLoading = isLoadingModules || isLoadingExisting;
 
   return (
     <Form {...form}>
