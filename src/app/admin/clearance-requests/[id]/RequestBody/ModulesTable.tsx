@@ -8,6 +8,7 @@ import {
   TableTh,
   TableThead,
   TableTr,
+  Text,
 } from '@mantine/core';
 
 type Module = NonNullable<
@@ -24,7 +25,11 @@ export function ModulesTable({
       <TableTd fw={500}>{module.code}</TableTd>
       <TableTd>{module.name}</TableTd>
       <TableTd>{module.credits}</TableTd>
-      <TableTd>{module.type}</TableTd>
+      <TableTd>
+        <Text size='sm' c={module.type === 'Delete' ? 'red' : undefined}>
+          {module.type}
+        </Text>
+      </TableTd>
       <TableTd>
         <Badge
           variant='light'
@@ -50,7 +55,7 @@ export function ModulesTable({
           <TableTr>
             <TableTh w={95}>Code</TableTh>
             <TableTh>Name</TableTh>
-            <TableTh w={60}>Credits</TableTh>
+            <TableTh w={68}>Credits</TableTh>
             <TableTh w={62}>Type</TableTh>
             <TableTh w={120}>Status</TableTh>
           </TableTr>

@@ -72,7 +72,7 @@ export default function ClearanceSwitch({
   }
 
   return (
-    <Paper withBorder p='md'>
+    <Paper withBorder p='md' py={21}>
       <Stack>
         <SegmentedControl
           value={status}

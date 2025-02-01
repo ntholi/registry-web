@@ -180,7 +180,7 @@ export const studentSemesters = sqliteTable('student_semesters', {
     .notNull(),
 });
 
-export const moduleTypeEnum = ['Major', 'Minor', 'Core'] as const;
+export const moduleTypeEnum = ['Major', 'Minor', 'Core', 'Delete'] as const;
 export const moduleStatusEnum = [
   'Add',
   'Compulsory',
