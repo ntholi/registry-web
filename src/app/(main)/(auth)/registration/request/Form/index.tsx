@@ -61,7 +61,7 @@ export default function RegisterForm({ structureId, semester }: Props) {
         title: 'Registration submitted successfully',
         description: 'Your registration request is pending approval.',
       });
-      router.push('/clearance/request');
+      router.push('registration/clearance');
     },
     onError: (error) => {
       toast({
