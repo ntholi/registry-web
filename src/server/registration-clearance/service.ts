@@ -2,6 +2,7 @@ import { registrationClearances, DashboardUser } from '@/db/schema';
 import RegistrationClearanceRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { FindAllParams } from '../base/BaseRepository';
+import { auth } from '@/auth';
 
 type RegistrationClearance = typeof registrationClearances.$inferInsert;
 
@@ -16,6 +17,13 @@ class RegistrationClearanceService {
 
   async get(id: number) {
     return withAuth(async () => this.repository.findById(id), ['dashboard']);
+  }
+
+  async countPending() {
+    const session = await auth();
+    if (!session?.user?.role) return 0;
+
+    return this.repository.countPending(session.user.role as DashboardUser);
   }
 
   async findByDepartment(

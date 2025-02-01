@@ -2,6 +2,7 @@
 
 import { Shell } from '@/components/adease';
 import { dashboardUsers, UserRole } from '@/db/schema';
+import { countPendingRegistrationClearances } from '@/server/registration-clearance/actions';
 import { countPendingRegistrationRequests } from '@/server/registration-requests/actions';
 import {
   ActionIcon,
@@ -66,7 +67,10 @@ const navigation: NavItem[] = [
     href: '/admin/registration-clearance',
     icon: IconCopyCheck,
     roles: [...dashboardUsers],
-    // queryFn: () => countPendingClearanceRequests(),
+    notificationCount: {
+      queryKey: ['pendingRegistrationClearances'],
+      queryFn: () => countPendingRegistrationClearances(),
+    },
   },
   {
     label: 'Clearance Responses',
@@ -80,7 +84,7 @@ const navigation: NavItem[] = [
     icon: IconDeviceIpadHorizontalPlus,
     roles: ['registry'],
     notificationCount: {
-      queryKey: ['registrationRequests'],
+      queryKey: ['pendingRegistrationRequests'],
       queryFn: () => countPendingRegistrationRequests(),
     },
   },

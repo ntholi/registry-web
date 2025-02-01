@@ -10,6 +10,10 @@ export async function getRegistrationClearance(id: number) {
   return service.get(id);
 }
 
+export async function countPendingRegistrationClearances() {
+  return service.countPending();
+}
+
 export async function registrationClearanceByDepartment(
   page: number = 1,
   search = ''

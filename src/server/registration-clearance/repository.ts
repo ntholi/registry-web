@@ -1,7 +1,7 @@
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
 import { registrationClearances, DashboardUser } from '@/db/schema';
 import { db } from '@/db';
-import { and, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 
 export default class RegistrationClearanceRepository extends BaseRepository<
   typeof registrationClearances,
@@ -62,6 +62,19 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     });
 
     return await this.paginatedResults(data, whereCondition, pageSize);
+  }
+
+  async countPending(department: DashboardUser) {
+    const [result] = await db
+      .select({ count: count() })
+      .from(registrationClearances)
+      .where(
+        and(
+          eq(registrationClearances.department, department),
+          eq(registrationClearances.status, 'pending')
+        )
+      );
+    return result.count;
   }
 }
 
