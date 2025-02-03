@@ -13,7 +13,7 @@ import { ModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
-import { Check, Clock } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
@@ -24,6 +24,7 @@ type Props = {
 type Module = {
   name: string;
   code: string;
+  status: ModuleStatus;
   id: number;
 };
 
@@ -32,9 +33,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
 
-  const [modules, setStoredModules] = React.useState<
-    Array<{ module: Module; moduleStatus: ModuleStatus }>
-  >([]);
+  const [modules, setStoredModules] = React.useState<Array<Module>>([]);
 
   React.useEffect(() => {
     const stored = sessionStorage.getItem('selectedModules');
@@ -50,10 +49,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
       await createRegistrationWithModules({
         termId: currentTerm.id,
         stdNo,
-        modules: modules.map((it) => ({
-          id: it.module.id,
-          status: it.moduleStatus,
-        })),
+        modules,
       });
 
       sessionStorage.removeItem('selectedModules');
@@ -105,18 +101,16 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
           <ScrollArea className='h-[200px] rounded-md border p-4'>
             {modules && modules.length > 0 ? (
               <div className='space-y-4'>
-                {modules.map(({ module, moduleStatus }) => (
+                {modules.map((it) => (
                   <div
-                    key={module.id}
+                    key={it.id}
                     className='flex items-start justify-between gap-4 pb-4 last:pb-0 border-b last:border-0'
                   >
                     <div className='space-y-1'>
-                      <p className='text-sm font-medium'>{module.name}</p>
-                      <p className='text-xs text-muted-foreground'>
-                        {module.code}
-                      </p>
+                      <p className='text-sm font-medium'>{it.name}</p>
+                      <p className='text-xs text-muted-foreground'>{it.code}</p>
                     </div>
-                    <ModuleStatusBadge status={moduleStatus} />
+                    <ModuleStatusBadge status={it.status} />
                   </div>
                 ))}
               </div>
@@ -150,11 +144,7 @@ function ModuleStatusBadge({ status }: { status: ModuleStatus }) {
       variant={status === 'Compulsory' ? 'secondary' : 'destructive'}
       className='flex items-center gap-1'
     >
-      {status === 'Compulsory' ? (
-        <Check className='w-3 h-3' />
-      ) : (
-        <Clock className='w-3 h-3' />
-      )}
+      <Check className='w-3 h-3' />
       {status}
     </Badge>
   );

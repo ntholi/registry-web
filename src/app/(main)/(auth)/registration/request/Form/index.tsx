@@ -45,10 +45,7 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
       const selectedModules = values.modules.map((moduleId) => {
         const found = modules.find((it) => it.id === moduleId);
         if (found) {
-          return {
-            module: found,
-            moduleStatus: 'Compulsory' as const,
-          };
+          return found;
         }
       });
       sessionStorage.setItem(
