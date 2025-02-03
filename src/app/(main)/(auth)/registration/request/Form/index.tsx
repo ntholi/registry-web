@@ -54,7 +54,7 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
       );
     },
     onSuccess: () => {
-      router.push('/registration/clearance');
+      router.push('/registration');
     },
     onError: (error) => {
       toast({
