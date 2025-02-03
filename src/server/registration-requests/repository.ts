@@ -82,6 +82,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
     termId: number;
     modules: { id: number; status: ModuleStatus }[];
   }) {
+    if (!data.modules.length) throw new Error('No modules selected');
+
     return await db.transaction(async (tx) => {
       const [request] = await tx
         .insert(registrationRequests)

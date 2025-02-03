@@ -58,7 +58,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         description: 'Clearance request submitted successfully',
       });
 
-      router.push('/clearance');
+      router.push('/registration/status');
     } catch {
       toast({
         variant: 'destructive',
@@ -92,7 +92,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
 
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
-            <p className='text-sm font-medium'>Enrolled Modules</p>
+            <p className='text-sm font-medium'>Modules Requested</p>
             <p className='text-xs text-muted-foreground'>
               {modules?.length || 0} modules
             </p>
