@@ -27,14 +27,14 @@ const formSchema = z.object({
 
 export type RegisterFormSchema = z.infer<typeof formSchema>;
 
-export default function ModulesForm({ structureId, semester }: Props) {
+export default function ModulesForm({ stdNo, structureId, semester }: Props) {
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 
   const { data: modules, isLoading } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
-    queryFn: () => getSemesterModules(structureId, semester),
+    queryFn: () => getSemesterModules(stdNo, structureId, semester),
   });
 
   const { mutate: submitRegistration, isPending } = useMutation({

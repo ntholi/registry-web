@@ -5,6 +5,7 @@ import { structureSemesters, studentPrograms } from '@/db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 
 export async function getSemesterModules(
+  stdNo: number,
   structureId: number,
   semester: number
 ) {
@@ -22,9 +23,13 @@ export async function getSemesterModules(
     },
   });
 
-  return (
-    result?.semesterModules.map((semesterModule) => semesterModule.module) || []
-  );
+  const data =
+    result?.semesterModules.map((semesterModule) => semesterModule.module) ||
+    [];
+
+  const repeatModules = await getRepeatModules(stdNo, semester);
+
+  return [...data, ...repeatModules];
 }
 
 export async function getRepeatModules(stdNo: number, semester: number) {

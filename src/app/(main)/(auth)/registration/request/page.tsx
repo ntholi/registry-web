@@ -11,7 +11,6 @@ import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
 import { redirect } from 'next/navigation';
 import ModulesForm from './Form';
-import { getRepeatModules } from './actions';
 
 export default async function RegistrationPage() {
   const session = await auth();
@@ -20,8 +19,6 @@ export default async function RegistrationPage() {
   if (!student) {
     redirect('/signup');
   }
-  const repeatModules = await getRepeatModules(student.stdNo, student.sem + 1);
-  console.log(repeatModules);
 
   return (
     <Container className='pt-4 sm:pt-10'>
