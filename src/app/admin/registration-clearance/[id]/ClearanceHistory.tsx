@@ -4,6 +4,7 @@ import { formatDateTime } from '@/lib/utils';
 import { getClearanceHistory } from '@/server/registration-clearance/actions';
 import {
   Accordion,
+  Anchor,
   Badge,
   Center,
   Group,
@@ -13,6 +14,7 @@ import {
   Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 
 type Props = {
   clearanceId: number;
@@ -85,7 +87,14 @@ export default function ClearanceHistory({ clearanceId }: Props) {
                       <Table.Td>{formatDateTime(audit.date)}</Table.Td>
                       <Table.Td>{audit.newStatus}</Table.Td>
                       <Table.Td>{audit.message || '-'}</Table.Td>
-                      <Table.Td>{audit.createdBy}</Table.Td>
+                      <Table.Td>
+                        <Anchor
+                          component={Link}
+                          href={`/admin/users/${audit.createdBy}`}
+                        >
+                          {audit.createdBy}
+                        </Anchor>
+                      </Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
