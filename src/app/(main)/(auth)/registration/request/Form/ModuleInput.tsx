@@ -7,11 +7,12 @@ import {
 } from '@/components/ui/form';
 import { Control } from 'react-hook-form';
 import { RegisterFormSchema } from '.';
-import { modules } from '@/db/schema';
+import { getSemesterModules } from '../actions';
+import { Badge } from '@/components/ui/badge';
 
 type Props = {
   control: Control<RegisterFormSchema>;
-  module: typeof modules.$inferSelect;
+  module: Awaited<ReturnType<typeof getSemesterModules>>[number];
 };
 
 export default function ModuleInput({ control, module }: Props) {
@@ -47,6 +48,14 @@ export default function ModuleInput({ control, module }: Props) {
               <span className='capitalize'>{module.type}</span>
             </div>
           </div>
+          <Badge
+            variant={
+              module.status === 'Compulsory' ? 'secondary' : 'destructive'
+            }
+            className='absolute bottom-4 right-4'
+          >
+            {module.status}
+          </Badge>
         </FormItem>
       )}
     />
