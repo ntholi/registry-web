@@ -1,7 +1,14 @@
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { registrationClearances, DashboardUser } from '@/db/schema';
+import {
+  registrationClearances,
+  DashboardUser,
+  registrationClearanceAudit,
+  requestedModules,
+} from '@/db/schema';
 import { db } from '@/db';
 import { and, count, eq } from 'drizzle-orm';
+
+type Model = typeof registrationClearances.$inferInsert;
 
 export default class RegistrationClearanceRepository extends BaseRepository<
   typeof registrationClearances,
@@ -9,6 +16,82 @@ export default class RegistrationClearanceRepository extends BaseRepository<
 > {
   constructor() {
     super(registrationClearances, 'id');
+  }
+
+  override async create(data: Model) {
+    const [inserted] = await db.transaction(async (tx) => {
+      const [clearance] = await tx
+        .insert(registrationClearances)
+        .values(data)
+        .returning();
+
+      const modulesList = await tx.query.requestedModules.findMany({
+        where: eq(
+          requestedModules.registrationRequestId,
+          data.registrationRequestId
+        ),
+        with: {
+          module: true,
+        },
+      });
+
+      await tx.insert(registrationClearanceAudit).values({
+        registrationClearanceId: clearance.id,
+        previousStatus: null,
+        newStatus: clearance.status,
+        actionTakenBy: clearance.clearedBy!,
+        message: clearance.message,
+        modules: modulesList.map((rm) => rm.module.code),
+      });
+
+      return [clearance];
+    });
+
+    return inserted;
+  }
+
+  override async update(id: number, data: Model) {
+    const [updated] = await db.transaction(async (tx) => {
+      const current = await tx
+        .select()
+        .from(registrationClearances)
+        .where(eq(registrationClearances.id, id))
+        .limit(1)
+        .then(([result]) => result);
+
+      if (!current) throw new Error('Registration clearance not found');
+
+      const [clearance] = await tx
+        .update(registrationClearances)
+        .set(data)
+        .where(eq(registrationClearances.id, id))
+        .returning();
+
+      if (data.status && data.status !== current.status) {
+        const modulesList = await tx.query.requestedModules.findMany({
+          where: eq(
+            requestedModules.registrationRequestId,
+            current.registrationRequestId
+          ),
+          with: {
+            module: true,
+          },
+        });
+
+        await tx.insert(registrationClearanceAudit).values({
+          registrationClearanceId: id,
+          previousStatus: current.status,
+          newStatus: clearance.status,
+          actionTakenBy: clearance.clearedBy!,
+          message: data.message,
+          modules: modulesList.map((rm) => rm.module.code),
+        });
+      }
+
+      return [clearance];
+    });
+
+    return updated;
   }
 
   async findById(id: number) {

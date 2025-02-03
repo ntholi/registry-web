@@ -356,7 +356,8 @@ export const registrationClearanceAudit = sqliteTable(
       .references(() => users.id, { onDelete: 'set null' })
       .notNull(),
     date: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-    message: text({ mode: 'json' })
+    message: text(),
+    modules: text({ mode: 'json' })
       .notNull()
       .$type<string[]>()
       .default(sql`(json_array())`),
