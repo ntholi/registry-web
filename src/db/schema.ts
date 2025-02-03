@@ -342,3 +342,23 @@ export const registrationClearances = sqliteTable(
     ),
   })
 );
+
+export const registrationClearanceAudit = sqliteTable(
+  'registration_clearance_audit',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    registrationClearanceId: integer()
+      .references(() => registrationClearances.id, { onDelete: 'cascade' })
+      .notNull(),
+    previousStatus: text({ enum: registrationRequestStatusEnum }),
+    newStatus: text({ enum: registrationRequestStatusEnum }).notNull(),
+    actionTakenBy: text()
+      .references(() => users.id, { onDelete: 'set null' })
+      .notNull(),
+    date: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    message: text({ mode: 'json' })
+      .notNull()
+      .$type<string[]>()
+      .default(sql`(json_array())`),
+  }
+);
