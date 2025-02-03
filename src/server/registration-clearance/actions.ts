@@ -49,6 +49,6 @@ export async function deleteRegistrationClearance(id: number) {
   return service.delete(id);
 }
 
-export async function getClearanceHistory(id: number) {
-  return service.getHistory(id);
+export async function getClearanceHistory(registrationRequestId: number) {
+  return service.getHistory(registrationRequestId);
 }

@@ -167,9 +167,12 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     return result.count;
   }
 
-  async findHistoryById(id: number) {
+  async findHistory(registrationRequestId: number) {
     return db.query.registrationClearances.findMany({
-      where: eq(registrationClearances.registrationRequestId, id),
+      where: eq(
+        registrationClearances.registrationRequestId,
+        registrationRequestId
+      ),
       with: {
         registrationRequest: {
           with: {

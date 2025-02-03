@@ -14,6 +14,18 @@ export function formatDate(timestamp: number | Date | undefined | null) {
   });
 }
 
+export function formatDateTime(timestamp: number | Date | undefined | null) {
+  if (!timestamp) return '';
+  return new Date(timestamp).toLocaleDateString('en-ZA', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  });
+}
+
 export function formatSemester(sem: number) {
   const year = Math.ceil(sem / 2);
   const semester = sem % 2 === 0 ? 2 : 1;

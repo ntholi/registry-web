@@ -63,9 +63,9 @@ class RegistrationClearanceService {
     return withAuth(async () => this.repository.count(), []);
   }
 
-  async getHistory(id: number) {
+  async getHistory(registrationRequestId: number) {
     return withAuth(
-      async () => this.repository.findHistoryById(id),
+      async () => this.repository.findHistory(registrationRequestId),
       ['dashboard']
     );
   }

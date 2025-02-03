@@ -1,40 +1,37 @@
 'use client';
 
-import React from 'react';
-import { Accordion, Table, Text, Stack } from '@mantine/core';
+import { Accordion, Center, Loader, Stack, Table, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 
 import { getClearanceHistory } from '@/server/registration-clearance/actions';
-import { registrationClearances } from '@/db/schema';
+import { formatDate } from '@/lib/utils';
 
 type Props = {
   clearanceId: number;
 };
 
-type RegistrationClearance = typeof registrationClearances.$inferSelect;
-type RegistrationClearanceAudit = typeof registrationClearances.$inferSelect;
-
-type ClearanceWithAudit = RegistrationClearance & {
-  registrationRequest: {
-    term: {
-      name: string;
-    };
-  };
-  audits: RegistrationClearanceAudit[];
-};
-
 export default function ClearanceHistory({ clearanceId }: Props) {
-  const { data: history, isLoading } = useQuery<ClearanceWithAudit[]>({
+  const { data: history, isLoading } = useQuery({
     queryKey: ['clearanceHistory', clearanceId],
     queryFn: () => getClearanceHistory(clearanceId),
   });
 
   if (isLoading) {
-    return <Text>Loading history...</Text>;
+    return (
+      <Center pt={'xl'}>
+        <Loader size={'sm'} />
+      </Center>
+    );
   }
 
   if (!history?.length) {
-    return <Text>No history found</Text>;
+    return (
+      <Center pt={'xl'}>
+        <Text c='dimmed' size='sm'>
+          No history found
+        </Text>
+      </Center>
+    );
   }
 
   return (
@@ -64,12 +61,10 @@ export default function ClearanceHistory({ clearanceId }: Props) {
               <Table.Tbody>
                 {clearance.audits.map((audit) => (
                   <Table.Tr key={audit.id}>
-                    <Table.Td>
-                      {new Date(audit.createdAt).toLocaleDateString()}
-                    </Table.Td>
-                    <Table.Td>{audit.status}</Table.Td>
+                    <Table.Td>{formatDate(audit.date)}</Table.Td>
+                    <Table.Td>{audit.newStatus}</Table.Td>
                     <Table.Td>{audit.message || '-'}</Table.Td>
-                    <Table.Td>{audit.updatedBy || '-'}</Table.Td>
+                    <Table.Td>{audit.createdBy || '-'}</Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>
