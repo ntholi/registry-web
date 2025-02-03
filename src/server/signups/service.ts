@@ -13,7 +13,7 @@ class SignupService {
   }
 
   async get(userId: string) {
-    return withAuth(async () => this.repository.findById(userId), []);
+    return withAuth(async () => this.repository.findById(userId), ['auth']);
   }
 
   async findAll(params: FindAllParams<typeof signups>) {
@@ -21,11 +21,11 @@ class SignupService {
   }
 
   async create(data: Signup) {
-    return withAuth(async () => this.repository.create(data), []);
+    return withAuth(async () => this.repository.create(data), ['auth']);
   }
 
   async update(id: string, data: Signup) {
-    return withAuth(async () => this.repository.update(id, data), []);
+    return withAuth(async () => this.repository.update(id, data), ['auth']);
   }
 
   async delete(id: string) {
