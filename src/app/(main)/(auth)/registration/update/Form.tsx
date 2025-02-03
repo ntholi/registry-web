@@ -35,14 +35,19 @@ const formSchema = z.object({
 
 export type UpdateFormSchema = z.infer<typeof formSchema>;
 
-export default function ModulesForm({ structureId, semester, request }: Props) {
+export default function ModulesForm({
+  stdNo,
+  structureId,
+  semester,
+  request,
+}: Props) {
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 
   const { data: modules, isLoading } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
-    queryFn: () => getSemesterModules(structureId, semester),
+    queryFn: () => getSemesterModules(stdNo, structureId, semester),
   });
 
   const form = useForm<UpdateFormSchema>({
@@ -99,7 +104,7 @@ export default function ModulesForm({ structureId, semester, request }: Props) {
         <div className='space-y-4'>
           <div className='pb-4 border-b'>
             <h3 className='hidden sm:block text-lg font-semibold'>
-              Registered Modules
+              Requested Modules
             </h3>
           </div>
           {isLoading ? (
