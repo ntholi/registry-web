@@ -62,6 +62,13 @@ class RegistrationClearanceService {
   async count() {
     return withAuth(async () => this.repository.count(), []);
   }
+
+  async getHistory(id: number) {
+    return withAuth(
+      async () => this.repository.findHistoryById(id),
+      ['dashboard']
+    );
+  }
 }
 
 export const registrationClearancesService = new RegistrationClearanceService();

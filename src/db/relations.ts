@@ -19,6 +19,7 @@ import {
   students,
   terms,
   users,
+  registrationClearanceAudit,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -159,7 +160,7 @@ export const requestedModulesRelations = relations(
 
 export const registrationClearanceRelations = relations(
   registrationClearances,
-  ({ one }) => ({
+  ({ one, many }) => ({
     registrationRequest: one(registrationRequests, {
       fields: [registrationClearances.registrationRequestId],
       references: [registrationRequests.id],
@@ -167,6 +168,17 @@ export const registrationClearanceRelations = relations(
     clearedBy: one(users, {
       fields: [registrationClearances.respondedBy],
       references: [users.id],
+    }),
+    audits: many(registrationClearanceAudit),
+  })
+);
+
+export const registrationClearanceAuditRelations = relations(
+  registrationClearanceAudit,
+  ({ one }) => ({
+    registrationClearance: one(registrationClearances, {
+      fields: [registrationClearanceAudit.registrationClearanceId],
+      references: [registrationClearances.id],
     }),
   })
 );

@@ -166,6 +166,22 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       );
     return result.count;
   }
+
+  async findHistoryById(id: number) {
+    return db.query.registrationClearances.findMany({
+      where: eq(registrationClearances.registrationRequestId, id),
+      with: {
+        registrationRequest: {
+          with: {
+            term: true,
+          },
+        },
+        audits: {
+          orderBy: (audit, { desc }) => [desc(audit.date)],
+        },
+      },
+    });
+  }
 }
 
 export const registrationClearancesRepository =
