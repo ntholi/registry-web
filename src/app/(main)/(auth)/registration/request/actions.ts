@@ -1,12 +1,8 @@
 'use server';
 
 import { db } from '@/db';
-import {
-  structureSemesters,
-  studentModules,
-  studentPrograms,
-} from '@/db/schema';
-import { and, eq, inArray, lt } from 'drizzle-orm';
+import { structureSemesters, studentPrograms } from '@/db/schema';
+import { and, eq, inArray } from 'drizzle-orm';
 
 export async function getSemesterModules(
   structureId: number,
@@ -42,9 +38,7 @@ export async function getRepeatModules(stdNo: number, semester: number) {
       semesters: {
         where: (semester) => inArray(semester.semesterNumber, semesterNumbers),
         with: {
-          modules: {
-            where: lt(studentModules.marks, '50'),
-          },
+          modules: true,
         },
       },
     },
@@ -52,7 +46,26 @@ export async function getRepeatModules(stdNo: number, semester: number) {
 
   if (!studentProgram) return [];
 
-  return studentProgram
+  const allModules = studentProgram
     .flatMap((program) => program.semesters)
     .flatMap((semester) => semester.modules);
+
+  const modulesByName = allModules.reduce<Record<string, typeof allModules>>(
+    (acc, module) => {
+      if (!acc[module.name]) {
+        acc[module.name] = [];
+      }
+      acc[module.name].push(module);
+      return acc;
+    },
+    {}
+  );
+
+  return Object.values(modulesByName)
+    .filter((attempts) => {
+      const failed = attempts.some((module) => parseFloat(module.marks) < 50);
+      const passed = attempts.some((module) => parseFloat(module.marks) >= 50);
+      return failed && !passed;
+    })
+    .map((attempts) => attempts[0]);
 }
