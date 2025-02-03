@@ -23,15 +23,12 @@ export async function getSemesterModules(
     },
   });
 
-  const data =
-    result?.semesterModules.map((semesterModule) => semesterModule.module) ||
-    [];
-
+  const data = result?.semesterModules.map((sm) => sm.module) || [];
   const repeatModules = await getRepeatModules(stdNo, semester);
 
   return [
     ...data.map((it) => ({ ...it, status: 'Compulsory' as const })),
-    ...repeatModules.map((it) => ({ ...it, status: 'Repeat' as const })),
+    ...repeatModules.map((it) => ({ ...it, status: it.repeatCount })),
   ];
 }
 
@@ -40,40 +37,70 @@ export async function getRepeatModules(stdNo: number, semester: number) {
     semester % 2 === 0 ? 2 * (i + 1) : 2 * i + 1
   );
 
-  const studentProgram = await db.query.studentPrograms.findMany({
+  const studentModules = await db.query.studentPrograms.findMany({
     where: eq(studentPrograms.stdNo, stdNo),
     with: {
       semesters: {
         where: (semester) => inArray(semester.semesterNumber, semesterNumbers),
         with: {
-          modules: true,
+          modules: {
+            columns: {
+              name: true,
+              marks: true,
+              code: true,
+              type: true,
+              status: true,
+              credits: true,
+              grade: true,
+              id: true,
+              studentSemesterId: true,
+            },
+          },
         },
       },
     },
   });
 
-  if (!studentProgram) return [];
+  const moduleMap = new Map<
+    string,
+    {
+      failCount: number;
+      passed: boolean;
+      firstModule: (typeof studentModules)[0]['semesters'][0]['modules'][0] & {
+        repeatCount: string;
+      };
+    }
+  >();
 
-  const allModules = studentProgram
-    .flatMap((program) => program.semesters)
-    .flatMap((semester) => semester.modules);
+  for (const program of studentModules) {
+    for (const semester of program.semesters) {
+      for (const mod of semester.modules) {
+        const marks = parseFloat(mod.marks);
+        const currentModule = moduleMap.get(mod.name);
 
-  const modulesByName = allModules.reduce<Record<string, typeof allModules>>(
-    (acc, module) => {
-      if (!acc[module.name]) {
-        acc[module.name] = [];
+        if (!currentModule) {
+          moduleMap.set(mod.name, {
+            failCount: marks < 50 ? 1 : 0,
+            passed: marks >= 50,
+            firstModule: {
+              ...mod,
+              repeatCount: `Repeat${marks < 50 ? 1 : ''}`,
+            },
+          });
+          continue;
+        }
+
+        if (marks >= 50) {
+          currentModule.passed = true;
+        } else if (marks < 50) {
+          currentModule.failCount++;
+          currentModule.firstModule.repeatCount = `Repeat${currentModule.failCount}`;
+        }
       }
-      acc[module.name].push(module);
-      return acc;
-    },
-    {}
-  );
+    }
+  }
 
-  return Object.values(modulesByName)
-    .filter((attempts) => {
-      const failed = attempts.some((module) => parseFloat(module.marks) < 50);
-      const passed = attempts.some((module) => parseFloat(module.marks) >= 50);
-      return failed && !passed;
-    })
-    .map((attempts) => attempts[0]);
+  return Array.from(moduleMap.values())
+    .filter(({ passed }) => !passed)
+    .map(({ firstModule }) => firstModule);
 }
