@@ -63,15 +63,15 @@ export default async function page() {
               Your registration request for {term.name}
             </CardDescription>
           </CardHeader>
-          <CardContent className='space-y-6'>
-            {request.message && (
+          {request.message && (
+            <CardContent>
               <Alert>
                 <InfoIcon className='h-4 w-4' />
                 <AlertTitle className='capitalize'>{request.status}</AlertTitle>
                 <AlertDescription>{request.message}</AlertDescription>
               </Alert>
-            )}
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
 
         <Card>
