@@ -28,7 +28,7 @@ export async function getSemesterModules(
 
   return [
     ...data.map((it) => ({ ...it, status: 'Compulsory' as const })),
-    ...repeatModules.map((it) => ({ ...it, status: it.repeatCount })),
+    ...repeatModules.map((it) => ({ ...it })),
   ];
 }
 
@@ -43,19 +43,7 @@ export async function getRepeatModules(stdNo: number, semester: number) {
       semesters: {
         where: (semester) => inArray(semester.semesterNumber, semesterNumbers),
         with: {
-          modules: {
-            columns: {
-              name: true,
-              marks: true,
-              code: true,
-              type: true,
-              status: true,
-              credits: true,
-              grade: true,
-              id: true,
-              studentSemesterId: true,
-            },
-          },
+          modules: true,
         },
       },
     },
@@ -102,5 +90,12 @@ export async function getRepeatModules(stdNo: number, semester: number) {
 
   return Array.from(moduleMap.values())
     .filter(({ passed }) => !passed)
-    .map(({ firstModule }) => firstModule);
+    .map(({ firstModule }) => ({
+      id: firstModule.id,
+      code: firstModule.code,
+      name: firstModule.name,
+      type: firstModule.type,
+      credits: firstModule.credits,
+      status: firstModule.repeatCount,
+    }));
 }
