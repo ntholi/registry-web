@@ -23,7 +23,7 @@ type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
 };
 
-export default function RequestBody({ request }: Props) {
+export default function ClearanceDetails({ request }: Props) {
   const [comment, setComment] = useState(request.message || undefined);
   const [accordion, setAccordion] = useState<'comments' | 'modules'>('modules');
   const { student } = request.registrationRequest;
