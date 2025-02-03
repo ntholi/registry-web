@@ -44,7 +44,7 @@ class RegistrationClearanceService {
         return this.repository.update(data.id, {
           ...data,
           responseDate: new Date(),
-          clearedBy: session?.user?.id,
+          respondedBy: session?.user?.id,
         });
       },
       ['dashboard']

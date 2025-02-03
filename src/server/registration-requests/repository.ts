@@ -138,6 +138,18 @@ export default class RegistrationRequestRepository extends BaseRepository<
           eq(requestedModules.registrationRequestId, registrationRequestId)
         );
 
+      await tx
+        .update(registrationClearances)
+        .set({
+          status: 'pending',
+        })
+        .where(
+          eq(
+            registrationClearances.registrationRequestId,
+            registrationRequestId
+          )
+        );
+
       if (modules.length > 0) {
         await tx.insert(requestedModules).values(
           modules.map((module) => ({

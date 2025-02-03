@@ -165,7 +165,7 @@ export const registrationClearanceRelations = relations(
       references: [registrationRequests.id],
     }),
     clearedBy: one(users, {
-      fields: [registrationClearances.clearedBy],
+      fields: [registrationClearances.respondedBy],
       references: [users.id],
     }),
   })

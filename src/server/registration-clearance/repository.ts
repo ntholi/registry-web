@@ -7,6 +7,7 @@ import {
 } from '@/db/schema';
 import { db } from '@/db';
 import { and, count, eq } from 'drizzle-orm';
+import { auth } from '@/auth';
 
 type Model = typeof registrationClearances.$inferInsert;
 
@@ -19,7 +20,10 @@ export default class RegistrationClearanceRepository extends BaseRepository<
   }
 
   override async create(data: Model) {
+    const session = await auth();
+
     const [inserted] = await db.transaction(async (tx) => {
+      if (!session?.user?.id) throw new Error('Unauthorized');
       const [clearance] = await tx
         .insert(registrationClearances)
         .values(data)
@@ -39,7 +43,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         registrationClearanceId: clearance.id,
         previousStatus: null,
         newStatus: clearance.status,
-        actionTakenBy: clearance.clearedBy!,
+        createdBy: session.user.id,
         message: clearance.message,
         modules: modulesList.map((rm) => rm.module.code),
       });
@@ -51,7 +55,10 @@ export default class RegistrationClearanceRepository extends BaseRepository<
   }
 
   override async update(id: number, data: Model) {
+    const session = await auth();
+
     const [updated] = await db.transaction(async (tx) => {
+      if (!session?.user?.id) throw new Error('Unauthorized');
       const current = await tx
         .select()
         .from(registrationClearances)
@@ -82,7 +89,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
           registrationClearanceId: id,
           previousStatus: current.status,
           newStatus: clearance.status,
-          actionTakenBy: clearance.clearedBy!,
+          createdBy: session.user.id,
           message: data.message,
           modules: modulesList.map((rm) => rm.module.code),
         });

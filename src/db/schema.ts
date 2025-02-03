@@ -332,7 +332,7 @@ export const registrationClearances = sqliteTable(
       .notNull()
       .default('pending'),
     message: text(),
-    clearedBy: text().references(() => users.id, { onDelete: 'cascade' }),
+    respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
     responseDate: integer({ mode: 'timestamp' }),
   },
   (table) => ({
@@ -352,7 +352,7 @@ export const registrationClearanceAudit = sqliteTable(
       .notNull(),
     previousStatus: text({ enum: registrationRequestStatusEnum }),
     newStatus: text({ enum: registrationRequestStatusEnum }).notNull(),
-    actionTakenBy: text()
+    createdBy: text()
       .references(() => users.id, { onDelete: 'set null' })
       .notNull(),
     date: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
