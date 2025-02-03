@@ -61,7 +61,7 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
         title: 'Registration submitted successfully',
         description: 'Your registration request is pending approval.',
       });
-      router.push('registration/clearance');
+      router.push('/registration/clearance');
     },
     onError: (error) => {
       toast({
@@ -75,7 +75,7 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
   const form = useForm<RegisterFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      modules: modules?.map((m) => m.id) || [],
+      modules: [],
     },
   });
 
