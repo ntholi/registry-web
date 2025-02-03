@@ -32,31 +32,27 @@ export async function getSemesterModules(
 }
 
 export async function getRepeatModules(stdNo: number, semester: number) {
-  const semesterNumbers = Array.from({ length: 4 }, (_, i) => semester + i * 2);
+  const semesterNumbers = Array.from({ length: 5 }, (_, i) =>
+    semester % 2 === 0 ? 2 * (i + 1) : 2 * i + 1
+  );
 
-  const semesters = await db.query.studentPrograms
-    .findFirst({
-      where: eq(studentPrograms.stdNo, stdNo),
-      with: {
-        semesters: {
-          with: {
-            modules: {
-              where: lt(studentModules.marks, '50'),
-            },
+  const studentProgram = await db.query.studentPrograms.findMany({
+    where: eq(studentPrograms.stdNo, stdNo),
+    with: {
+      semesters: {
+        where: (semester) => inArray(semester.semesterNumber, semesterNumbers),
+        with: {
+          modules: {
+            where: lt(studentModules.marks, '50'),
           },
         },
       },
-    })
-    .then((it) =>
-      it?.semesters.filter((semester) =>
-        semesterNumbers.includes(semester.semesterNumber)
-      )
-    );
+    },
+  });
 
-  const modules =
-    result?.semesters
-      .filter((semester) => semester.modules.length > 0)
-      .map((semester) => semester.modules) || [];
+  if (!studentProgram) return [];
 
-  return modules;
+  return studentProgram
+    .flatMap((program) => program.semesters)
+    .flatMap((semester) => semester.modules);
 }
