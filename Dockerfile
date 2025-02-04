@@ -32,7 +32,21 @@ RUN pnpm install --frozen-lockfile --prod=false
 COPY . .
 
 # Build application
-RUN npx next build --experimental-build-mode compile
+RUN --mount=type=secret,id=TURSO_DATABASE_URL \
+    --mount=type=secret,id=TURSO_AUTH_TOKEN \
+    --mount=type=secret,id=AUTH_SECRET \
+    --mount=type=secret,id=AUTH_GOOGLE_ID \
+    --mount=type=secret,id=AUTH_GOOGLE_SECRET \
+    --mount=type=secret,id=AUTH_URL \
+    --mount=type=secret,id=AUTH_TRUST_HOST \
+    TURSO_DATABASE_URL="$(cat /run/secrets/TURSO_DATABASE_URL)" \
+    TURSO_AUTH_TOKEN="$(cat /run/secrets/TURSO_AUTH_TOKEN)" \
+    AUTH_SECRET="$(cat /run/secrets/AUTH_SECRET)" \
+    AUTH_GOOGLE_ID="$(cat /run/secrets/AUTH_GOOGLE_ID)" \
+    AUTH_GOOGLE_SECRET="$(cat /run/secrets/AUTH_GOOGLE_SECRET)" \
+    AUTH_URL="$(cat /run/secrets/AUTH_URL)" \
+    AUTH_TRUST_HOST="$(cat /run/secrets/AUTH_TRUST_HOST)" \
+    npx next build --experimental-build-mode compile
 
 # Remove development dependencies
 RUN pnpm prune --prod
@@ -43,6 +57,9 @@ FROM base
 
 # Copy built application
 COPY --from=build /app /app
+
+# Adjust entrypoint to be executable on Linux
+RUN chmod +x ./docker-entrypoint.js
 
 # Entrypoint sets up the container.
 ENTRYPOINT [ "/app/docker-entrypoint.js" ]
