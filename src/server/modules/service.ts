@@ -42,25 +42,25 @@ class ModuleService {
   async getModulesByStructure(structureId: number) {
     return withAuth(
       async () => this.repository.getModulesByStructure(structureId),
-      []
+      ['dashboard']
     );
   }
 
   async getSchools() {
-    return withAuth(async () => this.repository.getSchools(), []);
+    return withAuth(async () => this.repository.getSchools(), ['dashboard']);
   }
 
   async getProgramsBySchool(schoolId: number) {
     return withAuth(
       async () => this.repository.getProgramsBySchool(schoolId),
-      []
+      ['dashboard']
     );
   }
 
   async getStructuresByProgram(programId: number) {
     return withAuth(
       async () => this.repository.getStructuresByProgram(programId),
-      []
+      ['dashboard']
     );
   }
 }
