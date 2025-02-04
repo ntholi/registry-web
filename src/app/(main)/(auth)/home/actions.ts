@@ -1,8 +1,8 @@
 'use server';
 
 import { db } from '@/db';
-import { students, studentSemesters } from '@/db/schema';
-import { and, eq } from 'drizzle-orm';
+import { studentSemesters, studentPrograms } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 const gradePoints = {
   A: 4.0,
@@ -18,17 +18,24 @@ const gradePoints = {
 } as const;
 
 export async function getStudentScore(stdNo: number) {
-  const modules = await db.query.studentModules.findMany({
-    where: and(
-      eq(students.stdNo, stdNo),
-      eq(studentSemesters.status, 'Active')
-    ),
+  const program = await db.query.studentPrograms.findFirst({
+    where: eq(studentPrograms.stdNo, stdNo),
     with: {
-      semester: {
-        columns: { term: true },
+      semesters: {
+        where: eq(studentSemesters.status, 'Active'),
+        with: {
+          modules: true,
+        },
       },
     },
   });
+
+  if (!program)
+    return {
+      cgpa: 0,
+      creditsEarned: 0,
+      requiredCredits: 0,
+    };
 
   const semesterMap = new Map<
     string,
@@ -42,28 +49,29 @@ export async function getStudentScore(stdNo: number) {
   let cumulativePoints = 0;
   let requiredCredits = 0;
 
-  for (const mod of modules) {
-    const points = gradePoints[mod.grade as keyof typeof gradePoints] || 0;
-    const term = mod.semester.term;
+  for (const sem of program.semesters) {
+    for (const mod of sem.modules) {
+      const points = gradePoints[mod.grade as keyof typeof gradePoints] || 0;
+      const term = sem.term;
 
-    if (!semesterMap.has(term)) {
-      semesterMap.set(term, {
-        totalPoints: 0,
-        totalCredits: 0,
-        earnedCredits: 0,
-      });
+      if (!semesterMap.has(term)) {
+        semesterMap.set(term, {
+          totalPoints: 0,
+          totalCredits: 0,
+          earnedCredits: 0,
+        });
+      }
+
+      const semester = semesterMap.get(term)!;
+      semester.totalPoints += points * mod.credits;
+      semester.totalCredits += mod.credits;
+
+      if (points >= 1.0) {
+        semester.earnedCredits += mod.credits;
+        cumulativePoints += points * mod.credits;
+      }
+      requiredCredits += mod.credits;
     }
-
-    const semester = semesterMap.get(term)!;
-    semester.totalPoints += points * mod.credits;
-    semester.totalCredits += mod.credits;
-
-    if (points >= 1.0) {
-      // Passing grade
-      semester.earnedCredits += mod.credits;
-      cumulativePoints += points * mod.credits;
-    }
-    requiredCredits += mod.credits;
   }
 
   return {
