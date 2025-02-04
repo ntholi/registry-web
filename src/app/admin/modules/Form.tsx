@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 
 type Module = typeof modules.$inferInsert;
 
-
 type Props = {
   onSubmit: (values: Module) => Promise<Module>;
   defaultValues?: Module;
@@ -21,13 +20,13 @@ type Props = {
 
 export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
   const router = useRouter();
-  
+
   return (
-    <Form 
+    <Form
       title={title}
-      action={onSubmit} 
+      action={onSubmit}
       queryKey={['modules']}
-      schema={createInsertSchema(modules)} 
+      schema={createInsertSchema(modules)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
         router.push(`/admin/modules/${id}`);
@@ -38,7 +37,7 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
           <TextInput label='Code' {...form.getInputProps('code')} />
           <TextInput label='Name' {...form.getInputProps('name')} />
           <TextInput label='Type' {...form.getInputProps('type')} />
-          <NumberInput label='Credis' {...form.getInputProps('credis')} />
+          <NumberInput label='Credits' {...form.getInputProps('credits')} />
         </>
       )}
     </Form>

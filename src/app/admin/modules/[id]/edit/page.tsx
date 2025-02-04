@@ -9,8 +9,8 @@ type Props = {
 
 export default async function ModuleEdit({ params }: Props) {
   const { id } = await params;
-  const module = await getModule(Number(id));
-  if (!module) {
+  const item = await getModule(Number(id));
+  if (!item) {
     return notFound();
   }
 
@@ -18,7 +18,7 @@ export default async function ModuleEdit({ params }: Props) {
     <Box p={'lg'}>
       <Form
         title={'Edit Module'}
-        defaultValues={module}
+        defaultValues={item}
         onSubmit={async (value) => {
           'use server';
           return await updateModule(Number(id), value);
