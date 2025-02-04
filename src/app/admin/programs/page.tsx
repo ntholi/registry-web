@@ -31,7 +31,7 @@ export default function ProgramsPage() {
 
   return (
     <div className='p-4 space-y-4'>
-      <Title order={2}>Program Structure Modules</Title>
+      <Title order={2}>Program Modules</Title>
 
       <Paper shadow='xs' p='md'>
         <FilterSelect onStructureSelect={handleStructureSelect} />

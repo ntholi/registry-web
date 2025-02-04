@@ -26,6 +26,7 @@ import {
   IconDeviceIpadHorizontalPlus,
   IconLogout2,
   IconMessageReply,
+  IconSchool,
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
@@ -71,6 +72,12 @@ const navigation: NavItem[] = [
       queryKey: ['registrationClearances'],
       queryFn: () => countPendingRegistrationClearances(),
     },
+  },
+  {
+    label: 'Programs',
+    href: '/admin/programs',
+    icon: IconSchool,
+    roles: [...dashboardUsers],
   },
   {
     label: 'Clearance Responses',
