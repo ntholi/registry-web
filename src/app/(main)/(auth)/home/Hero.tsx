@@ -14,7 +14,7 @@ type Props = {
 
 export default function Hero({ student }: Props) {
   const { data: scores } = useQuery({
-    queryKey: ['student-scores', student.stdNo],
+    queryKey: ['studentScores', student.stdNo],
     queryFn: () => getStudentScore(student.stdNo),
     staleTime: 1000 * 60 * 5,
   });
