@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Table, Title, Paper, Text, Stack } from '@mantine/core';
 import FilterSelect from './FilterSelect';
 import { getModulesByStructure } from '@/server/modules/actions';
@@ -24,10 +24,10 @@ interface Semester {
 export default function ProgramsPage() {
   const [semesters, setSemesters] = useState<Semester[]>([]);
 
-  const handleStructureSelect = async (structureId: number) => {
+  const handleStructureSelect = useCallback(async (structureId: number) => {
     const data = await getModulesByStructure(structureId);
     setSemesters(data);
-  };
+  }, []);
 
   return (
     <div className='p-4 space-y-4'>
