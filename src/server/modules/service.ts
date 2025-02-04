@@ -35,6 +35,31 @@ class ModuleService {
   async count() {
     return withAuth(async () => this.repository.count(), []);
   }
+
+  async getModulesByStructure(structureId: number) {
+    return withAuth(
+      async () => this.repository.getModulesByStructure(structureId),
+      []
+    );
+  }
+
+  async getSchools() {
+    return withAuth(async () => this.repository.getSchools(), []);
+  }
+
+  async getProgramsBySchool(schoolId: number) {
+    return withAuth(
+      async () => this.repository.getProgramsBySchool(schoolId),
+      []
+    );
+  }
+
+  async getStructuresByProgram(programId: number) {
+    return withAuth(
+      async () => this.repository.getStructuresByProgram(programId),
+      []
+    );
+  }
 }
 
 export const modulesService = new ModuleService();
