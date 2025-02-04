@@ -13,19 +13,22 @@ class ModuleService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), []);
+    return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
   async findAll(params: FindAllParams<typeof modules>) {
-    return withAuth(async () => this.repository.findAll(params), []);
+    return withAuth(async () => this.repository.findAll(params), ['dashboard']);
   }
 
   async create(data: Module) {
-    return withAuth(async () => this.repository.create(data), []);
+    return withAuth(async () => this.repository.create(data), ['dashboard']);
   }
 
   async update(id: number, data: Module) {
-    return withAuth(async () => this.repository.update(id, data), []);
+    return withAuth(
+      async () => this.repository.update(id, data),
+      ['dashboard']
+    );
   }
 
   async delete(id: number) {
