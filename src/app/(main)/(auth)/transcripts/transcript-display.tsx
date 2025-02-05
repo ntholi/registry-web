@@ -112,8 +112,8 @@ const renderModuleDrawer = (module: Module) => (
       <Card className='p-4 space-y-2 cursor-pointer hover:bg-accent'>
         <div className='flex justify-between items-center'>
           <div>
-            <p className='font-medium'>{module.name}</p>
-            <p className='text-sm text-muted-foreground font-mono'>
+            <p className='text-sm'>{module.name}</p>
+            <p className='text-xs text-muted-foreground font-mono'>
               {module.code}
             </p>
           </div>
