@@ -41,7 +41,11 @@ export async function getRepeatModules(stdNo: number, semester: number) {
     where: eq(studentPrograms.stdNo, stdNo),
     with: {
       semesters: {
-        where: (semester) => inArray(semester.semesterNumber, semesterNumbers),
+        where: (semester) =>
+          and(
+            eq(semester.status, 'Active'),
+            inArray(semester.semesterNumber, semesterNumbers)
+          ),
         with: {
           modules: true,
         },
