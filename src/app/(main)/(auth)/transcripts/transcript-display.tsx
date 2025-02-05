@@ -62,14 +62,18 @@ export function TranscriptDisplay({ program }: Props) {
       ) : (
         <Accordion
           type='single'
-          className='w-full'
+          className='w-full pt-2'
           collapsible
           defaultValue={program.semesters[0]?.id.toString()}
         >
           {program.semesters.map((semester) => (
-            <AccordionItem key={semester.id} value={semester.id.toString()}>
+            <AccordionItem
+              key={semester.id}
+              value={semester.id.toString()}
+              className='mt-2 rounded-md'
+            >
               <AccordionTrigger className='bg-muted dark:bg-muted/20 p-4 rounded-md'>
-                <div className='flex justify-between items-center w-full'>
+                <div className='flex justify-between items-center w-full pe-2'>
                   <div className='flex items-center space-x-2'>
                     <CalendarIcon className='h-4 w-4' />
                     <span>{semester.term}</span>

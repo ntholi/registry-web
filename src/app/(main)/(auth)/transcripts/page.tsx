@@ -13,10 +13,13 @@ export default async function TranscriptsPage() {
 
   return (
     <Container width='md' className='pt-4 sm:pt-10'>
+      <h1 className='text-2xl sm:text-3xl font-bold text-center mb-8'>
+        Academic Transcript
+      </h1>
       {programs.map((program) => (
         <Card key={program.code}>
-          <CardHeader>
-            <CardTitle className='flex items-center space-x-2'>
+          <CardHeader className='border-b'>
+            <CardTitle className='flex items-center space-x-2 '>
               <GraduationCapIcon className='h-6 w-6' />
               <span>{program.name}</span>
             </CardTitle>
