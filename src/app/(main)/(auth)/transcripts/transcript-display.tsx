@@ -124,33 +124,47 @@ const renderModuleDrawer = (module: Module) => (
     </DrawerTrigger>
     <DrawerContent>
       <DrawerHeader>
-        <DrawerTitle>{module.name}</DrawerTitle>
-        <DrawerDescription>{module.code}</DrawerDescription>
+        <DrawerTitle className='text-2xl font-bold'>{module.name}</DrawerTitle>
+        <DrawerDescription className='text-lg font-mono'>
+          {module.code}
+        </DrawerDescription>
       </DrawerHeader>
-      <div className='p-4 space-y-4'>
-        <div className='grid grid-cols-2 gap-4'>
+      <div className='p-6 space-y-6'>
+        <div className='flex justify-between items-center'>
           <div>
-            <p className='text-sm text-muted-foreground'>Type</p>
-            <Badge variant='outline'>{module.type}</Badge>
+            <p className='text-sm font-medium text-muted-foreground'>Type</p>
+            <p className='text-lg font-semibold'>{module.type}</p>
           </div>
-          <div>
-            <p className='text-sm text-muted-foreground'>Credits</p>
-            <Badge variant='secondary'>{module.credits}</Badge>
+
+          <div className='w-14'>
+            <p className='text-sm font-medium text-muted-foreground'>Credits</p>
+            <p className='text-lg font-semibold'>{module.credits}</p>
           </div>
+        </div>
+
+        <div className='flex justify-between items-center'>
           <div>
-            <p className='text-sm text-muted-foreground'>Status</p>
-            <Badge>{module.status}</Badge>
+            <p className='text-sm font-medium text-muted-foreground'>Status</p>
+            <Badge className='mt-1' variant='outline'>
+              {module.status}
+            </Badge>
           </div>
-          <div>
-            <p className='text-sm text-muted-foreground'>Grade</p>
-            <Badge variant={module.grade === 'F' ? 'destructive' : 'default'}>
+
+          <div className='w-14'>
+            <p className='text-sm font-medium text-muted-foreground'>Grade</p>
+            <Badge
+              className='mt-1'
+              variant={module.grade === 'F' ? 'destructive' : 'default'}
+            >
               {module.grade}
             </Badge>
           </div>
-          <div>
-            <p className='text-sm text-muted-foreground'>Marks</p>
-            <p className='font-medium'>{module.marks}</p>
-          </div>
+        </div>
+        <div className='pt-4 border-t flex flex-col items-center'>
+          <p className='text-sm font-medium text-muted-foreground mb-2'>
+            Marks
+          </p>
+          <p className='text-3xl font-bold'>{module.marks}</p>
         </div>
       </div>
     </DrawerContent>
