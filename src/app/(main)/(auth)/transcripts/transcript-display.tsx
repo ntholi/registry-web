@@ -22,6 +22,12 @@ import { useMediaQuery } from '@/utils/use-media-query';
 import { CalendarIcon } from 'lucide-react';
 import { getTranscript } from './actions';
 import { cn } from '@/lib/utils';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 const passGrades = [
   'A+',
@@ -49,11 +55,43 @@ export function TranscriptDisplay({ program }: Props) {
 
   return (
     <>
-      {program.semesters.map((semester) => (
-        <div key={semester.id}>
-          {isDesktop ? renderDesktopView(semester) : renderMobileView(semester)}
-        </div>
-      ))}
+      {isDesktop ? (
+        program.semesters.map((semester) => (
+          <div key={semester.id}>{renderDesktopView(semester)}</div>
+        ))
+      ) : (
+        <Accordion
+          type='single'
+          className='w-full'
+          collapsible
+          defaultValue={program.semesters[0]?.id.toString()}
+        >
+          {program.semesters.map((semester) => (
+            <AccordionItem key={semester.id} value={semester.id.toString()}>
+              <AccordionTrigger className='bg-muted dark:bg-muted/20 p-4 rounded-md'>
+                <div className='flex justify-between items-center w-full'>
+                  <div className='flex items-center space-x-2'>
+                    <CalendarIcon className='h-4 w-4' />
+                    <span>{semester.term}</span>
+                  </div>
+                  <Badge
+                    variant={
+                      semester.status === 'Active' ? 'outline' : 'destructive'
+                    }
+                  >
+                    {semester.status}
+                  </Badge>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className='space-y-2 mt-2'>
+                  {semester.modules.map((module) => renderModuleDrawer(module))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      )}
     </>
   );
 }
@@ -143,13 +181,11 @@ const renderModuleDrawer = (module: Module) => (
             <p className='text-sm font-medium text-muted-foreground'>Type</p>
             <p className='text-lg font-semibold'>{module.type}</p>
           </div>
-
           <div className='w-14'>
             <p className='text-sm font-medium text-muted-foreground'>Credits</p>
             <p className='text-lg font-semibold'>{module.credits}</p>
           </div>
         </div>
-
         <div className='flex justify-between items-center'>
           <div>
             <p className='text-sm font-medium text-muted-foreground'>Status</p>
@@ -157,7 +193,6 @@ const renderModuleDrawer = (module: Module) => (
               {module.status}
             </Badge>
           </div>
-
           <div className='w-14'>
             <p className='text-sm font-medium text-muted-foreground'>Grade</p>
             <Badge
@@ -184,21 +219,4 @@ const renderModuleDrawer = (module: Module) => (
       </div>
     </DrawerContent>
   </Drawer>
-);
-
-const renderMobileView = (semester: Semester) => (
-  <div className='space-y-4 my-4'>
-    <div className='flex justify-between items-center bg-muted dark:bg-muted/40 p-4 rounded-md'>
-      <div className='flex items-center space-x-2'>
-        <CalendarIcon className='h-4 w-4' />
-        <span>{semester.term}</span>
-      </div>
-      <Badge variant={semester.status === 'Active' ? 'outline' : 'destructive'}>
-        {semester.status}
-      </Badge>
-    </div>
-    <div className='space-y-2'>
-      {semester.modules.map((module) => renderModuleDrawer(module))}
-    </div>
-  </div>
 );
