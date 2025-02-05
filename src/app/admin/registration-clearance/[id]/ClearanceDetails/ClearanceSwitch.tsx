@@ -11,7 +11,7 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
@@ -30,6 +30,11 @@ export default function ClearanceSwitch({
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<Status>(request.status);
+  const [isStatusChanged, setIsStatusChanged] = useState(false);
+
+  useEffect(() => {
+    setIsStatusChanged(status !== request.status);
+  }, [status, request.status]);
 
   const { mutate: submitResponse, isPending } = useMutation({
     mutationFn: async () => {
@@ -88,7 +93,11 @@ export default function ClearanceSwitch({
           fullWidth
           disabled={isPending}
         />
-        <Button onClick={handleSubmit} loading={isPending}>
+        <Button
+          onClick={handleSubmit}
+          loading={isPending}
+          variant={isStatusChanged ? 'filled' : 'default'}
+        >
           Submit Response
         </Button>
       </Stack>
