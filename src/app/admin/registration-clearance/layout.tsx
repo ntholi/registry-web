@@ -1,9 +1,10 @@
 'use client';
 
-import { ListItem, ListLayout, NewLink } from '@/components/adease';
+import { ListItem, ListLayout } from '@/components/adease';
 import { registrationClearanceByDepartment } from '@/server/registration-clearance/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { PropsWithChildren } from 'react';
+import Filter from './Filter';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
@@ -11,9 +12,7 @@ export default function Layout({ children }: PropsWithChildren) {
       path={'/admin/registration-clearance'}
       queryKey={['registrationClearances']}
       getData={registrationClearanceByDepartment}
-      actionIcons={[
-        <NewLink key={'new-link'} href='/admin/registration-clearance/new' />,
-      ]}
+      actionIcons={[<Filter key={'filter'} />]}
       renderItem={(it) => (
         <ListItem
           id={it.id}
@@ -31,10 +30,10 @@ export default function Layout({ children }: PropsWithChildren) {
 function getStatusIcon(status: 'pending' | 'approved' | 'rejected') {
   switch (status) {
     case 'pending':
-      return <IconClock size={18} color='yellow' />;
+      return <IconClock size={'1rem'} color='orange' />;
     case 'approved':
-      return <IconCheck size={18} color='green' />;
+      return <IconCheck size={'1rem'} color='green' />;
     case 'rejected':
-      return <IconAlertCircle size={18} color='red' />;
+      return <IconAlertCircle size={'1rem'} color='red' />;
   }
 }
