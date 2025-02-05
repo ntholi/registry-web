@@ -2,7 +2,7 @@
 
 import { db } from '@/db';
 import { structureSemesters, studentPrograms } from '@/db/schema';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, notInArray } from 'drizzle-orm';
 
 export async function getSemesterModules(
   stdNo: number,
@@ -43,7 +43,7 @@ export async function getRepeatModules(stdNo: number, semester: number) {
       semesters: {
         where: (semester) =>
           and(
-            eq(semester.status, 'Active'),
+            notInArray(semester.status, ['Deleted', 'Deferred']),
             inArray(semester.semesterNumber, semesterNumbers)
           ),
         with: {
