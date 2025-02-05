@@ -1,8 +1,8 @@
 'use server';
 
 import { db } from '@/db';
-import { studentSemesters, studentPrograms } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { studentPrograms, studentSemesters } from '@/db/schema';
+import { eq, notInArray } from 'drizzle-orm';
 
 const gradePoints = {
   'A+': 4.0,
@@ -34,7 +34,12 @@ export async function getStudentScore(stdNo: number) {
     where: eq(studentPrograms.stdNo, stdNo),
     with: {
       semesters: {
-        where: eq(studentSemesters.status, 'Active'),
+        where: notInArray(studentSemesters.status, [
+          'Deleted',
+          'DroppedOut',
+          'Deferred',
+          'Inactive',
+        ]),
         with: {
           modules: true,
         },
