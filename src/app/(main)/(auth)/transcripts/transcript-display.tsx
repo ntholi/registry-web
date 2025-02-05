@@ -60,17 +60,12 @@ export function TranscriptDisplay({ program }: Props) {
           <div key={semester.id}>{renderDesktopView(semester)}</div>
         ))
       ) : (
-        <Accordion
-          type='single'
-          className='w-full pt-2'
-          collapsible
-          defaultValue={program.semesters[0]?.id.toString()}
-        >
+        <Accordion type='single' className='w-full pt-2' collapsible>
           {program.semesters.map((semester) => (
             <AccordionItem
               key={semester.id}
               value={semester.id.toString()}
-              className='mt-2 rounded-md'
+              className='mt-2 rounded-md border-0'
             >
               <AccordionTrigger className='bg-muted dark:bg-muted/20 p-4 rounded-md'>
                 <div className='flex justify-between items-center w-full pe-2'>
