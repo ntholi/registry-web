@@ -15,7 +15,8 @@ type Props = {
 export default function Hero({ student }: Props) {
   const { data: scores } = useQuery({
     queryKey: ['studentScores', student.stdNo],
-    queryFn: () => getStudentScore(student.stdNo),
+    queryFn: () => getStudentScore(student.stdNo, student.structureId!),
+    enabled: !!student.structureId,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -44,7 +45,7 @@ export default function Hero({ student }: Props) {
             <h3 className='text-sm font-medium text-muted-foreground'>CGPA</h3>
             <div className='mt-3 flex items-baseline'>
               <span className='text-4xl font-bold tracking-tight'>
-                {scores?.cgpa.toFixed(2)}
+                {scores?.gpa.toFixed(2)}
               </span>
               <span className='ml-2 text-sm text-muted-foreground'>/ 4.0</span>
             </div>
@@ -55,10 +56,10 @@ export default function Hero({ student }: Props) {
             </h3>
             <div className='mt-3 flex items-baseline'>
               <span className='text-4xl font-bold tracking-tight'>
-                {scores?.creditsEarned}
+                {scores?.creditsCompleted.toFixed(2)}
               </span>
               <span className='ml-2 text-sm text-muted-foreground'>
-                / {scores?.requiredCredits ?? 120}
+                / {scores?.creditsRequired.toFixed(2)}
               </span>
             </div>
           </div>

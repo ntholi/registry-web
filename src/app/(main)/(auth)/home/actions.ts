@@ -1,10 +1,14 @@
 'use server';
 
 import { db } from '@/db';
-import { studentPrograms, studentSemesters } from '@/db/schema';
-import { eq, notInArray } from 'drizzle-orm';
+import {
+  structureSemesters,
+  studentPrograms,
+  studentSemesters,
+} from '@/db/schema';
+import { and, eq, notInArray } from 'drizzle-orm';
 
-const gradePoints = {
+const grades = {
   'A+': 4.0,
   A: 4.0,
   'A-': 4.0,
@@ -14,24 +18,40 @@ const gradePoints = {
   'C+': 2.67,
   C: 2.33,
   'C-': 2.0,
+  F: 0.0,
   PC: 2.0,
   PX: 2.0,
   AP: 2.0,
-  X: 0,
-  GNS: 0,
-  ANN: 0,
-  FIN: 0,
-  FX: 0,
-  DNC: 0,
-  DNA: 0,
-  PP: 0,
-  DNS: 0,
-  F: 0.0,
-} as const;
+  X: 0.0,
+  GNS: 0.0,
+  ANN: 0.0,
+  FIN: 0.0,
+  FX: 0.0,
+  DNC: 0.0,
+  DNA: 0.0,
+  PP: 0.0,
+  DNS: 0.0,
+};
 
-export async function getStudentScore(stdNo: number) {
+const gradeValues = Object.keys(grades) as Array<keyof typeof grades>;
+
+function isValidGrade(grade: string): grade is keyof typeof grades {
+  return gradeValues.includes(grade as keyof typeof grades);
+}
+
+function getPoints(grade: keyof typeof grades): number {
+  const points = grades[grade];
+  if (points) return points;
+
+  return 0;
+}
+
+export async function getStudentScore(stdNo: number, structureId: number) {
   const program = await db.query.studentPrograms.findFirst({
-    where: eq(studentPrograms.stdNo, stdNo),
+    where: and(
+      eq(studentPrograms.stdNo, stdNo),
+      eq(studentPrograms.status, 'Active')
+    ),
     with: {
       semesters: {
         where: notInArray(studentSemesters.status, [
@@ -47,53 +67,42 @@ export async function getStudentScore(stdNo: number) {
     },
   });
 
-  if (!program)
+  if (!program?.semesters.length) {
     return {
-      cgpa: 0,
-      creditsEarned: 0,
-      requiredCredits: 0,
+      gpa: 0,
+      creditsCompleted: 0,
+      creditsRequired: 0,
     };
-
-  const semesterMap = new Map<
-    string,
-    {
-      totalPoints: number;
-      totalCredits: number;
-      earnedCredits: number;
-    }
-  >();
-
-  let cumulativePoints = 0;
-  let requiredCredits = 0;
-
-  for (const sem of program.semesters) {
-    for (const mod of sem.modules) {
-      const points = gradePoints[mod.grade as keyof typeof gradePoints] || 0;
-      const term = sem.term;
-
-      if (!semesterMap.has(term)) {
-        semesterMap.set(term, {
-          totalPoints: 0,
-          totalCredits: 0,
-          earnedCredits: 0,
-        });
-      }
-
-      const semester = semesterMap.get(term)!;
-      semester.totalPoints += points * mod.credits;
-      semester.totalCredits += mod.credits;
-
-      if (points >= 1.0) {
-        semester.earnedCredits += mod.credits;
-        cumulativePoints += points * mod.credits;
-      }
-      requiredCredits += mod.credits;
-    }
   }
 
+  const modules = program.semesters.flatMap((semester) => semester.modules);
+  let totalPoints = 0;
+  let totalCredits = 0;
+  let creditsCompleted = 0;
+
+  modules.forEach((module) => {
+    if (isValidGrade(module.grade)) {
+      const points = getPoints(module.grade);
+      if (points > 0) {
+        totalPoints += points * module.credits;
+        totalCredits += module.credits;
+        creditsCompleted += module.credits;
+      }
+    }
+  });
+
+  const semesters = await db.query.structureSemesters.findMany({
+    where: eq(structureSemesters.structureId, structureId),
+  });
+
+  const creditsRequired = semesters.reduce(
+    (sum, semester) => sum + semester.totalCredits,
+    0
+  );
+
   return {
-    cgpa: requiredCredits > 0 ? cumulativePoints / requiredCredits : 0,
-    creditsEarned: cumulativePoints,
-    requiredCredits,
+    gpa: totalCredits > 0 ? Number((totalPoints / totalCredits).toFixed(2)) : 0,
+    creditsCompleted,
+    creditsRequired,
   };
 }

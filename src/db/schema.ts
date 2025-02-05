@@ -204,7 +204,19 @@ export const moduleStatusEnum = [
   'Supplementary',
 ] as const;
 
+export const gradeEnum = [
+  'A+', 'A', 'A-',
+  'B+', 'B', 'B-',
+  'C+', 'C', 'C-',
+  'F', 'PC', 'PX', 'AP',
+  'X', 'GNS', 'ANN',
+  'FIN', 'FX',
+  'DNC', 'DNA',
+  'PP', 'DNS',
+] as const;
+
 export type ModuleStatus = (typeof moduleStatusEnum)[number];
+export type Grade = (typeof gradeEnum)[number];
 
 export const studentModules = sqliteTable('student_modules', {
   id: integer().primaryKey(),
@@ -214,7 +226,7 @@ export const studentModules = sqliteTable('student_modules', {
   status: text({ enum: moduleStatusEnum }).notNull(),
   credits: real().notNull(),
   marks: text().notNull(),
-  grade: text().notNull(),
+  grade: text({ enum: gradeEnum }).notNull(),
   studentSemesterId: integer()
     .references(() => studentSemesters.id, { onDelete: 'cascade' })
     .notNull(),
