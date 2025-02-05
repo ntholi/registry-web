@@ -7,6 +7,7 @@ import {
 } from '@/db/schema';
 import { db } from '@/db';
 import { and, count, eq } from 'drizzle-orm';
+import { MAX_REG_MODULES } from '@/lib/constants';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 
@@ -83,6 +84,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
     modules: { id: number; status: ModuleStatus }[];
   }) {
     if (!data.modules.length) throw new Error('No modules selected');
+    if (data.modules.length > MAX_REG_MODULES)
+      throw new Error(`You can only select up to ${MAX_REG_MODULES} modules.`);
 
     return await db.transaction(async (tx) => {
       const [request] = await tx

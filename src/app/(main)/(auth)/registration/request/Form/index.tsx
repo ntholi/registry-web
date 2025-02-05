@@ -12,6 +12,9 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { getSemesterModules } from '../actions';
 import ModuleInput from './ModuleInput';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+import { MAX_REG_MODULES } from '@/lib/constants';
 
 type Props = {
   stdNo: number;
@@ -20,9 +23,14 @@ type Props = {
 };
 
 const formSchema = z.object({
-  modules: z.array(z.number()).min(1, {
-    message: 'You must select at least one module.',
-  }),
+  modules: z
+    .array(z.number())
+    .min(1, {
+      message: 'You must select at least one module.',
+    })
+    .max(MAX_REG_MODULES, {
+      message: `You can only select up to ${MAX_REG_MODULES} modules.`,
+    }),
 });
 
 export type RegisterFormSchema = z.infer<typeof formSchema>;
@@ -102,6 +110,16 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
             </div>
           )}
         </div>
+
+        {form.formState.errors.modules && (
+          <Alert variant='destructive'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              {form.formState.errors.modules.message}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className='flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t'>
           <Button
