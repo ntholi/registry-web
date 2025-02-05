@@ -1,21 +1,22 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { getModulesByStructure } from '@/server/modules/actions';
 import {
-  Table,
-  Title,
-  Paper,
-  Text,
-  Stack,
-  Container,
   Badge,
+  Box,
+  Divider,
   Group,
+  Paper,
   Skeleton,
+  Stack,
+  Table,
+  Text,
+  Title,
   Transition,
 } from '@mantine/core';
 import { IconBook2, IconSchool } from '@tabler/icons-react';
+import { useCallback, useState } from 'react';
 import FilterSelect from './FilterSelect';
-import { getModulesByStructure } from '@/server/modules/actions';
 
 interface Module {
   moduleId: number;
@@ -48,13 +49,14 @@ export default function ProgramsPage() {
   }, []);
 
   return (
-    <Container size='xl' className='py-8'>
+    <Paper withBorder p={'lg'} m={'md'}>
       <Stack gap='xl'>
-        <div>
-          <Group justify='space-between' mb='xs'>
-            <Title order={2}>Program Structure</Title>
-          </Group>
-        </div>
+        <Box>
+          <Title order={2} fw={500}>
+            Program Structure
+          </Title>
+          <Divider />
+        </Box>
 
         <Paper shadow='sm' p='md' radius='md' withBorder>
           <FilterSelect onStructureSelect={handleStructureSelect} />
@@ -155,6 +157,6 @@ export default function ProgramsPage() {
           </Paper>
         )}
       </Stack>
-    </Container>
+    </Paper>
   );
 }

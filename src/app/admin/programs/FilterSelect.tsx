@@ -1,13 +1,12 @@
 'use client';
 
-import { Select, Group, Stack } from '@mantine/core';
-import { useEffect, useState } from 'react';
-import { IconBuilding, IconSchool, IconList } from '@tabler/icons-react';
 import {
-  getSchools,
   getProgramsBySchool,
+  getSchools,
   getStructuresByProgram,
 } from '@/server/modules/actions';
+import { Grid, Select, Stack } from '@mantine/core';
+import { useEffect, useState } from 'react';
 
 interface FilterSelectProps {
   onStructureSelect: (structureId: number) => void;
@@ -90,61 +89,43 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
 
   return (
     <Stack gap='md'>
-      <Group grow>
-        <Select
-          label='School'
-          placeholder='Select a school'
-          data={schools}
-          value={selectedSchool}
-          onChange={setSelectedSchool}
-          searchable
-          clearable
-          leftSection={<IconBuilding size={16} />}
-          styles={{
-            input: {
-              '&:focus': {
-                borderColor: 'var(--mantine-color-blue-5)',
-              },
-            },
-          }}
-        />
-        <Select
-          label='Program'
-          placeholder='Select a program'
-          data={programs}
-          value={selectedProgram}
-          onChange={setSelectedProgram}
-          searchable
-          clearable
-          disabled={!selectedSchool}
-          leftSection={<IconSchool size={16} />}
-          styles={{
-            input: {
-              '&:focus': {
-                borderColor: 'var(--mantine-color-blue-5)',
-              },
-            },
-          }}
-        />
-        <Select
-          label='Structure'
-          placeholder='Select a structure'
-          data={structures}
-          value={selectedStructure}
-          onChange={setSelectedStructure}
-          searchable
-          clearable
-          disabled={!selectedProgram}
-          leftSection={<IconList size={16} />}
-          styles={{
-            input: {
-              '&:focus': {
-                borderColor: 'var(--mantine-color-blue-5)',
-              },
-            },
-          }}
-        />
-      </Group>
+      <Grid>
+        <Grid.Col span={5}>
+          <Select
+            label='School'
+            placeholder='Select a school'
+            data={schools}
+            value={selectedSchool}
+            onChange={setSelectedSchool}
+            searchable
+            clearable
+          />
+        </Grid.Col>
+        <Grid.Col span={5}>
+          <Select
+            label='Program'
+            placeholder='Select a program'
+            data={programs}
+            value={selectedProgram}
+            onChange={setSelectedProgram}
+            searchable
+            clearable
+            disabled={!selectedSchool}
+          />
+        </Grid.Col>
+        <Grid.Col span={2}>
+          <Select
+            label='Structure'
+            placeholder='Select a structure'
+            data={structures}
+            value={selectedStructure}
+            onChange={setSelectedStructure}
+            searchable
+            clearable
+            disabled={!selectedProgram}
+          />
+        </Grid.Col>
+      </Grid>
     </Stack>
   );
 }
