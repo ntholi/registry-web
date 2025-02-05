@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GraduationCapIcon } from 'lucide-react';
 import { getTranscript } from './actions';
 import { TranscriptDisplay } from './transcript-display';
+import { Container } from '@/components/ui/container';
 
 export default async function TranscriptsPage() {
   const session = await auth();
@@ -11,7 +12,7 @@ export default async function TranscriptsPage() {
   const programs = await getTranscript(session.user.stdNo);
 
   return (
-    <div className='container mx-auto py-8 px-4 space-y-8'>
+    <Container className='pt-4 sm:pt-10'>
       {programs.map((program) => (
         <Card key={program.id}>
           <CardHeader>
@@ -25,6 +26,6 @@ export default async function TranscriptsPage() {
           </CardContent>
         </Card>
       ))}
-    </div>
+    </Container>
   );
 }

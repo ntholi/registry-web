@@ -20,33 +20,29 @@ import {
 } from '@/components/ui/table';
 import { useMediaQuery } from '@/utils/use-media-query';
 import { CalendarIcon } from 'lucide-react';
+import { getTranscript } from './actions';
 
-interface Module {
-  id: number;
-  code: string;
-  name: string;
-  type: string;
-  status: string;
-  marks: number;
-  grade: string;
-  credits: number;
-}
+const passGrades = [
+  'A+',
+  'A',
+  'A-',
+  'B+',
+  'B',
+  'B-',
+  'C+',
+  'C',
+  'C-',
+  'PC',
+  'PX',
+] as const;
 
-interface Semester {
-  id: number;
-  term: number;
-  status: string;
-  modules: Module[];
-}
+type Props = {
+  program: Awaited<ReturnType<typeof getTranscript>>[number];
+};
+type Semester = NonNullable<Props['program']>['semesters'][number];
+type Module = NonNullable<Semester['modules']>[number];
 
-interface Program {
-  id: number;
-  code: string;
-  name: string;
-  semesters: Semester[];
-}
-
-export function TranscriptDisplay({ program }: { program: Program }) {
+export function TranscriptDisplay({ program }: Props) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   return (
@@ -59,6 +55,54 @@ export function TranscriptDisplay({ program }: { program: Program }) {
     </>
   );
 }
+
+const renderDesktopView = (semester: Semester) => (
+  <div className='rounded-md border my-4'>
+    <div className='bg-muted p-4 flex justify-between items-center'>
+      <div className='flex items-center space-x-2'>
+        <CalendarIcon className='h-4 w-4' />
+        <span>{semester.term}</span>
+      </div>
+      <Badge variant={semester.status === 'Active' ? 'default' : 'destructive'}>
+        {semester.status}
+      </Badge>
+    </div>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Code</TableHead>
+          <TableHead>Module Name</TableHead>
+          <TableHead>Type</TableHead>
+          <TableHead>Credits</TableHead>
+          <TableHead>Marks</TableHead>
+          <TableHead>Grade</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {semester.modules.map((module) => (
+          <TableRow key={module.id}>
+            <TableCell className='font-mono'>{module.code}</TableCell>
+            <TableCell>{module.name}</TableCell>
+            <TableCell>{module.type}</TableCell>
+            <TableCell>{module.credits}</TableCell>
+            <TableCell>{module.marks}</TableCell>
+            <TableCell>
+              <Badge
+                variant={
+                  passGrades.includes(module.grade)
+                    ? 'secondary'
+                    : 'destructive'
+                }
+              >
+                {module.grade}
+              </Badge>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </div>
+);
 
 const renderModuleDrawer = (module: Module) => (
   <Drawer>
@@ -104,7 +148,7 @@ const renderModuleDrawer = (module: Module) => (
           </div>
           <div>
             <p className='text-sm text-muted-foreground'>Marks</p>
-            <p className='font-medium'>{module.marks}%</p>
+            <p className='font-medium'>{module.marks}</p>
           </div>
         </div>
       </div>
@@ -112,60 +156,12 @@ const renderModuleDrawer = (module: Module) => (
   </Drawer>
 );
 
-const renderDesktopView = (semester: Semester) => (
-  <div className='rounded-md border my-4'>
-    <div className='bg-muted p-4 flex justify-between items-center'>
-      <div className='flex items-center space-x-2'>
-        <CalendarIcon className='h-4 w-4' />
-        <span>Term {semester.term}</span>
-      </div>
-      <Badge variant={semester.status === 'Active' ? 'default' : 'destructive'}>
-        {semester.status}
-      </Badge>
-    </div>
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Code</TableHead>
-          <TableHead>Module Name</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Credits</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Marks</TableHead>
-          <TableHead>Grade</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {semester.modules.map((module) => (
-          <TableRow key={module.id}>
-            <TableCell className='font-mono'>{module.code}</TableCell>
-            <TableCell>{module.name}</TableCell>
-            <TableCell>
-              <Badge variant='outline'>{module.type}</Badge>
-            </TableCell>
-            <TableCell>{module.credits}</TableCell>
-            <TableCell>
-              <Badge>{module.status}</Badge>
-            </TableCell>
-            <TableCell>{module.marks}%</TableCell>
-            <TableCell>
-              <Badge variant={module.grade === 'F' ? 'destructive' : 'default'}>
-                {module.grade}
-              </Badge>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </div>
-);
-
 const renderMobileView = (semester: Semester) => (
   <div className='space-y-4 my-4'>
     <div className='flex justify-between items-center bg-muted p-4 rounded-md'>
       <div className='flex items-center space-x-2'>
         <CalendarIcon className='h-4 w-4' />
-        <span>Term {semester.term}</span>
+        <span>{semester.term}</span>
       </div>
       <Badge variant={semester.status === 'Active' ? 'default' : 'destructive'}>
         {semester.status}
