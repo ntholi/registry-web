@@ -21,6 +21,7 @@ import {
 import { useMediaQuery } from '@/utils/use-media-query';
 import { CalendarIcon } from 'lucide-react';
 import { getTranscript } from './actions';
+import { cn } from '@/lib/utils';
 
 const passGrades = [
   'A+',
@@ -116,7 +117,14 @@ const renderModuleDrawer = (module: Module) => (
               {module.code}
             </p>
           </div>
-          <Badge variant={module.grade === 'F' ? 'destructive' : 'default'}>
+          <Badge
+            variant={'outline'}
+            className={cn(
+              passGrades.includes(module.grade as PassGrade)
+                ? 'text-white'
+                : 'text-red-400'
+            )}
+          >
             {module.grade}
           </Badge>
         </div>
@@ -154,7 +162,11 @@ const renderModuleDrawer = (module: Module) => (
             <p className='text-sm font-medium text-muted-foreground'>Grade</p>
             <Badge
               className='mt-1'
-              variant={module.grade === 'F' ? 'destructive' : 'default'}
+              variant={
+                passGrades.includes(module.grade as PassGrade)
+                  ? 'default'
+                  : 'destructive'
+              }
             >
               {module.grade}
             </Badge>
@@ -164,7 +176,10 @@ const renderModuleDrawer = (module: Module) => (
           <p className='text-sm font-medium text-muted-foreground mb-2'>
             Marks
           </p>
-          <p className='text-3xl font-bold'>{module.marks}</p>
+          <p className='text-3xl font-bold'>
+            {module.marks}
+            <span className='text-muted-foreground text-lg'>/100</span>
+          </p>
         </div>
       </div>
     </DrawerContent>
@@ -173,12 +188,12 @@ const renderModuleDrawer = (module: Module) => (
 
 const renderMobileView = (semester: Semester) => (
   <div className='space-y-4 my-4'>
-    <div className='flex justify-between items-center bg-muted p-4 rounded-md'>
+    <div className='flex justify-between items-center bg-muted dark:bg-muted/40 p-4 rounded-md'>
       <div className='flex items-center space-x-2'>
         <CalendarIcon className='h-4 w-4' />
         <span>{semester.term}</span>
       </div>
-      <Badge variant={semester.status === 'Active' ? 'default' : 'destructive'}>
+      <Badge variant={semester.status === 'Active' ? 'outline' : 'destructive'}>
         {semester.status}
       </Badge>
     </div>
