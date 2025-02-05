@@ -13,7 +13,7 @@ export default async function TranscriptsPage() {
 
   return (
     <Container width='md' className='pt-4 sm:pt-10'>
-      <h1 className='text-2xl sm:text-3xl font-bold text-center mb-8'>
+      <h1 className='text-2xl sm:text-3xl font-bold text-center sm:mb-8 mb-6'>
         Academic Transcript
       </h1>
       {programs.map((program) => (

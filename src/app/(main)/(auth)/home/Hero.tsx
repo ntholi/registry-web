@@ -7,13 +7,14 @@ import { getStudentByUserId } from '@/server/students/actions';
 import { getStudentScore } from './actions';
 import { GraduationCap } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
 };
 
 export default function Hero({ student }: Props) {
-  const { data: scores } = useQuery({
+  const { data: scores, isLoading } = useQuery({
     queryKey: ['studentScores', student.stdNo],
     queryFn: () => getStudentScore(student.stdNo, student.structureId!),
     enabled: !!student.structureId,
@@ -44,10 +45,18 @@ export default function Hero({ student }: Props) {
           <div className='rounded-xl bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
             <h3 className='text-sm font-medium text-muted-foreground'>CGPA</h3>
             <div className='mt-3 flex items-baseline'>
-              <span className='text-2xl sm:text-4xl font-bold tracking-tight'>
-                {scores?.gpa.toFixed(2)}
-              </span>
-              <span className='ml-2 text-sm text-muted-foreground'>/ 4.0</span>
+              {isLoading ? (
+                <Skeleton className='h-10 w-24' />
+              ) : (
+                <>
+                  <span className='text-2xl sm:text-4xl font-bold tracking-tight'>
+                    {scores?.gpa.toFixed(2)}
+                  </span>
+                  <span className='ml-2 text-sm text-muted-foreground'>
+                    / 4.0
+                  </span>
+                </>
+              )}
             </div>
           </div>
           <div className='rounded-xl bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
@@ -55,12 +64,18 @@ export default function Hero({ student }: Props) {
               Total Credits
             </h3>
             <div className='mt-3 flex items-baseline'>
-              <span className='text-2xl sm:text-4xl font-bold tracking-tight'>
-                {scores?.creditsCompleted.toFixed(0)}
-              </span>
-              <span className='ml-2 text-sm text-muted-foreground'>
-                / {scores?.creditsRequired.toFixed(0)}
-              </span>
+              {isLoading ? (
+                <Skeleton className='h-10 w-24' />
+              ) : (
+                <>
+                  <span className='text-2xl sm:text-4xl font-bold tracking-tight'>
+                    {scores?.creditsCompleted.toFixed(0)}
+                  </span>
+                  <span className='ml-2 text-sm text-muted-foreground'>
+                    / {scores?.creditsRequired.toFixed(0)}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
