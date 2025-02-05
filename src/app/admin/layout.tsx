@@ -8,7 +8,7 @@ import React, { PropsWithChildren } from 'react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Admin | Registry Portal',
+  title: 'Admin | Student Portal',
 };
 
 export default function AdminLayout({ children }: PropsWithChildren) {
