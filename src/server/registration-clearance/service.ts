@@ -70,6 +70,13 @@ class RegistrationClearanceService {
       ['dashboard']
     );
   }
+
+  async findNextPending(department: DashboardUser, currentId: number) {
+    return withAuth(
+      async () => this.repository.findNextPending(department, currentId),
+      ['dashboard']
+    );
+  }
 }
 
 export const registrationClearancesService = new RegistrationClearanceService();

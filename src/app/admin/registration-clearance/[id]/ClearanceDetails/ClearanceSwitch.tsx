@@ -5,6 +5,7 @@ import { toTitleCase } from '@/lib/utils';
 import {
   createRegistrationClearance,
   getRegistrationClearance,
+  getNextPendingRegistrationClearance,
 } from '@/server/registration-clearance/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -42,24 +43,34 @@ export default function ClearanceSwitch({
         throw new Error('User not authenticated');
       }
 
-      return createRegistrationClearance({
+      const result = await createRegistrationClearance({
         id: request.id,
         registrationRequestId: request.registrationRequestId,
         message: comment,
         department: session.user.role as (typeof dashboardUsers)[number],
         status,
       });
+
+      const nextClearance = await getNextPendingRegistrationClearance(
+        request.id
+      );
+      return { result, nextClearance };
     },
-    onSuccess: () => {
-      notifications.show({
-        title: 'Success',
-        message: 'Response submitted successfully',
-        color: 'green',
-      });
+    onSuccess: ({ nextClearance }) => {
       queryClient.invalidateQueries({
         queryKey: ['registrationClearances'],
       });
-      router.refresh();
+      notifications.show({
+        title: 'Success',
+        message: 'Registration clearance updated successfully',
+        color: 'green',
+      });
+
+      if (nextClearance) {
+        router.replace(`/admin/registration-clearance/${nextClearance.id}`);
+      } else {
+        router.replace('/admin/registration-clearance');
+      }
     },
     onError: (error) => {
       notifications.show({

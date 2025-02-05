@@ -6,7 +6,7 @@ import {
   requestedModules,
 } from '@/db/schema';
 import { db } from '@/db';
-import { and, count, eq } from 'drizzle-orm';
+import { and, count, eq, gt } from 'drizzle-orm';
 import { auth } from '@/auth';
 
 type Model = typeof registrationClearances.$inferInsert;
@@ -182,6 +182,24 @@ export default class RegistrationClearanceRepository extends BaseRepository<
           orderBy: (audit, { desc }) => [desc(audit.date)],
         },
       },
+    });
+  }
+
+  async findNextPending(department: DashboardUser, currentId: number) {
+    return db.query.registrationClearances.findFirst({
+      where: and(
+        eq(registrationClearances.status, 'pending'),
+        eq(registrationClearances.department, department),
+        gt(registrationClearances.id, currentId),
+      ),
+      with: {
+        registrationRequest: {
+          with: {
+            student: true,
+          },
+        },
+      },
+      orderBy: (clearances, { asc }) => [asc(clearances.id)],
     });
   }
 }

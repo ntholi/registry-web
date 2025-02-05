@@ -57,3 +57,12 @@ export async function deleteRegistrationClearance(id: number) {
 export async function getClearanceHistory(clearanceId: number) {
   return service.getHistory(clearanceId);
 }
+
+export async function getNextPendingRegistrationClearance(currentId: number) {
+  const session = await auth();
+  if (!session?.user?.role) {
+    return null;
+  }
+
+  return service.findNextPending(session.user.role as DashboardUser, currentId);
+}
