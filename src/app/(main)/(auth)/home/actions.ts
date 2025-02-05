@@ -93,12 +93,19 @@ export async function getStudentScore(stdNo: number, structureId: number) {
 
   const semesters = await db.query.structureSemesters.findMany({
     where: eq(structureSemesters.structureId, structureId),
+    with: {
+      semesterModules: {
+        with: {
+          module: true,
+        },
+      },
+    },
   });
 
-  const creditsRequired = semesters.reduce(
-    (sum, semester) => sum + semester.totalCredits,
-    0
-  );
+  const creditsRequired = semesters
+    .flatMap((it) => it.semesterModules)
+    .flatMap((it) => it.module)
+    .reduce((sum, it) => sum + it.credits, 0);
 
   return {
     gpa: totalCredits > 0 ? Number((totalPoints / totalCredits).toFixed(2)) : 0,
