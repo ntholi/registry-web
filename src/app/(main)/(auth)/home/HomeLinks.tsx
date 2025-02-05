@@ -17,14 +17,14 @@ const links = [
 
 export default function HomeLinks() {
   return (
-    <div className='sm:mt-8 mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2'>
+    <div className='sm:mt-8 mt-4 grid gap-2.5 sm:gap-4 grid-cols-1 sm:grid-cols-2'>
       {links.map(({ href, icon: Icon, text }, index) => (
         <Link key={index} href={href}>
           <Button
             variant='outline'
-            className='w-full h-24 flex flex-col items-center justify-center gap-2 hover:bg-muted/50'
+            className='w-full h-24 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 rounded-xl sm:rounded-lg'
           >
-            <Icon className='w-6 h-6' />
+            <Icon className='size-6' />
             <span className='font-medium'>{text}</span>
           </Button>
         </Link>
