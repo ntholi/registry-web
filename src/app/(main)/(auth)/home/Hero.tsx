@@ -41,25 +41,25 @@ export default function Hero({ student }: Props) {
       </CardHeader>
       <CardContent>
         <div className='grid gap-6 grid-cols-2'>
-          <div className='rounded-xl bg-muted/30 p-6 shadow-sm transition-all hover:shadow'>
+          <div className='rounded-xl bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
             <h3 className='text-sm font-medium text-muted-foreground'>CGPA</h3>
             <div className='mt-3 flex items-baseline'>
-              <span className='text-4xl font-bold tracking-tight'>
+              <span className='text-2xl sm:text-4xl font-bold tracking-tight'>
                 {scores?.gpa.toFixed(2)}
               </span>
               <span className='ml-2 text-sm text-muted-foreground'>/ 4.0</span>
             </div>
           </div>
-          <div className='rounded-xl bg-muted/30 p-6 shadow-sm transition-all hover:shadow'>
+          <div className='rounded-xl bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
             <h3 className='text-sm font-medium text-muted-foreground'>
               Total Credits
             </h3>
             <div className='mt-3 flex items-baseline'>
-              <span className='text-4xl font-bold tracking-tight'>
-                {scores?.creditsCompleted.toFixed(2)}
+              <span className='text-2xl sm:text-4xl font-bold tracking-tight'>
+                {scores?.creditsCompleted.toFixed(0)}
               </span>
               <span className='ml-2 text-sm text-muted-foreground'>
-                / {scores?.creditsRequired.toFixed(2)}
+                / {scores?.creditsRequired.toFixed(0)}
               </span>
             </div>
           </div>
