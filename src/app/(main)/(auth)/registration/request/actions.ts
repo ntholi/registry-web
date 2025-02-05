@@ -26,9 +26,13 @@ export async function getSemesterModules(
   const data = result?.semesterModules.map((sm) => sm.module) || [];
   const repeatModules = await getRepeatModules(stdNo, semester);
 
+  if (repeatModules.length >= 3) {
+    return repeatModules;
+  }
+
   return [
     ...data.map((it) => ({ ...it, status: 'Compulsory' as const })),
-    ...repeatModules.map((it) => ({ ...it })),
+    ...repeatModules,
   ];
 }
 
