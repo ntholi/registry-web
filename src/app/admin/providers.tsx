@@ -7,7 +7,7 @@ import React from 'react';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <MantineProvider defaultColorScheme='auto'>
+    <MantineProvider defaultColorScheme='dark'>
       <Notifications />
       <ModalsProvider>
         {children}

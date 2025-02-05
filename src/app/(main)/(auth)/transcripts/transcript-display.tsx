@@ -158,8 +158,8 @@ const renderModuleDrawer = (module: Module) => (
             variant={'outline'}
             className={cn(
               passGrades.includes(module.grade as PassGrade)
-                ? 'text-white'
-                : 'text-red-400'
+                ? 'dark:text-white'
+                : 'text-red-400 dark:text-red-500'
             )}
           >
             {module.grade}

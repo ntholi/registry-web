@@ -6,7 +6,7 @@ const links = [
   {
     href: '/registration',
     icon: UserPlus,
-    text: 'Register',
+    text: 'Registration',
   },
   {
     href: '/transcripts',

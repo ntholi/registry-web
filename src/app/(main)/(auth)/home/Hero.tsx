@@ -42,7 +42,7 @@ export default function Hero({ student }: Props) {
       </CardHeader>
       <CardContent>
         <div className='grid gap-6 grid-cols-2'>
-          <div className='rounded-xl bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
+          <div className='rounded-xl bg-muted dark:bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
             <h3 className='text-sm font-medium text-muted-foreground'>CGPA</h3>
             <div className='mt-3 flex items-baseline'>
               {isLoading ? (
@@ -59,7 +59,7 @@ export default function Hero({ student }: Props) {
               )}
             </div>
           </div>
-          <div className='rounded-xl bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
+          <div className='rounded-xl bg-muted dark:bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
             <h3 className='text-sm font-medium text-muted-foreground'>
               Total Credits
             </h3>
