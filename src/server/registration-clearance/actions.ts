@@ -16,7 +16,8 @@ export async function countPendingRegistrationClearances() {
 
 export async function registrationClearanceByDepartment(
   page: number = 1,
-  search = ''
+  search = '',
+  showPending: boolean = true
 ) {
   const session = await auth();
   if (!session?.user?.role) {
@@ -26,10 +27,14 @@ export async function registrationClearanceByDepartment(
     };
   }
 
-  return service.findByDepartment(session.user.role as DashboardUser, {
-    page,
-    search,
-  });
+  return service.findByDepartment(
+    session.user.role as DashboardUser,
+    {
+      page,
+      search,
+    },
+    showPending ? 'pending' : undefined
+  );
 }
 
 export async function createRegistrationClearance(

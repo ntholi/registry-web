@@ -5,13 +5,21 @@ import { registrationClearanceByDepartment } from '@/server/registration-clearan
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { PropsWithChildren } from 'react';
 import Filter from './Filter';
+import { parseAsBoolean, useQueryState } from 'nuqs';
 
 export default function Layout({ children }: PropsWithChildren) {
+  const [showPending] = useQueryState(
+    'pending',
+    parseAsBoolean.withDefault(true)
+  );
+
   return (
     <ListLayout
       path={'/admin/registration-clearance'}
-      queryKey={['registrationClearances']}
-      getData={registrationClearanceByDepartment}
+      queryKey={['registrationClearances', showPending.toString()]}
+      getData={(page, search) =>
+        registrationClearanceByDepartment(page, search, showPending)
+      }
       actionIcons={[<Filter key={'filter'} />]}
       renderItem={(it) => (
         <ListItem

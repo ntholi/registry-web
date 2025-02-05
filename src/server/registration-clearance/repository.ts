@@ -130,14 +130,16 @@ export default class RegistrationClearanceRepository extends BaseRepository<
 
   async findByDepartment(
     department: DashboardUser,
-    params: FindAllParams<typeof registrationClearances>
+    params: FindAllParams<typeof registrationClearances>,
+    status?: 'pending' | 'approved' | 'rejected'
   ) {
     const { orderByExpressions, whereCondition, offset, pageSize } =
       await this.queryExpressions(params);
     const data = await db.query.registrationClearances.findMany({
       where: and(
         whereCondition,
-        eq(registrationClearances.department, department)
+        eq(registrationClearances.department, department),
+        status ? eq(registrationClearances.status, status) : undefined
       ),
       with: {
         registrationRequest: {

@@ -28,10 +28,11 @@ class RegistrationClearanceService {
 
   async findByDepartment(
     department: DashboardUser,
-    params: FindAllParams<typeof registrationClearances>
+    params: FindAllParams<typeof registrationClearances>,
+    status?: 'pending' | 'approved' | 'rejected'
   ) {
     return withAuth(
-      async () => this.repository.findByDepartment(department, params),
+      async () => this.repository.findByDepartment(department, params, status),
       ['dashboard']
     );
   }
