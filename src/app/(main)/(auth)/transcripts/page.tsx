@@ -12,9 +12,9 @@ export default async function TranscriptsPage() {
   const programs = await getTranscript(session.user.stdNo);
 
   return (
-    <Container className='pt-4 sm:pt-10'>
+    <Container width='md' className='pt-4 sm:pt-10'>
       {programs.map((program) => (
-        <Card key={program.id}>
+        <Card key={program.code}>
           <CardHeader>
             <CardTitle className='flex items-center space-x-2'>
               <GraduationCapIcon className='h-6 w-6' />

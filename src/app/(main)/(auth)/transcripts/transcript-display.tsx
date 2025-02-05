@@ -35,6 +35,7 @@ const passGrades = [
   'PC',
   'PX',
 ] as const;
+type PassGrade = (typeof passGrades)[number];
 
 type Props = {
   program: Awaited<ReturnType<typeof getTranscript>>[number];
@@ -58,12 +59,12 @@ export function TranscriptDisplay({ program }: Props) {
 
 const renderDesktopView = (semester: Semester) => (
   <div className='rounded-md border my-4'>
-    <div className='bg-muted p-4 flex justify-between items-center'>
+    <div className='bg-muted dark:bg-muted/50 p-4 flex justify-between items-center'>
       <div className='flex items-center space-x-2'>
         <CalendarIcon className='h-4 w-4' />
         <span>{semester.term}</span>
       </div>
-      <Badge variant={semester.status === 'Active' ? 'default' : 'destructive'}>
+      <Badge variant={semester.status === 'Active' ? 'outline' : 'destructive'}>
         {semester.status}
       </Badge>
     </div>
@@ -89,7 +90,7 @@ const renderDesktopView = (semester: Semester) => (
             <TableCell>
               <Badge
                 variant={
-                  passGrades.includes(module.grade)
+                  passGrades.includes(module.grade as PassGrade)
                     ? 'secondary'
                     : 'destructive'
                 }
