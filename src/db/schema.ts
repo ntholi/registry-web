@@ -293,8 +293,28 @@ export const modules = sqliteTable('modules', {
   name: text().notNull(),
   type: text({ enum: moduleTypeEnum }).notNull(),
   credits: real().notNull(),
+  prerequisite: text({ mode: 'json' })
+    .$type<string[]>()
+    .default(sql`(json_array())`),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
+
+export const modulePrerequisites = sqliteTable(
+  'module_prerequisites',
+  {
+    id: integer().primaryKey(),
+    moduleId: integer()
+      .references(() => modules.id, { onDelete: 'cascade' })
+      .notNull(),
+    prerequisiteId: integer()
+      .references(() => modules.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  },
+  (table) => ({
+    uniquePrerequisite: unique().on(table.moduleId, table.prerequisiteId),
+  })
+);
 
 export const semesterModules = sqliteTable('semester_modules', {
   id: integer().primaryKey(),
