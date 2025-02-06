@@ -139,6 +139,7 @@ export const students = sqliteTable('students', {
     onDelete: 'set null',
   }),
   userId: text().references(() => users.id, { onDelete: 'set null' }),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const programStatusEnum = [
@@ -157,6 +158,7 @@ export const studentPrograms = sqliteTable('student_programs', {
   stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const semesterStatusEnum = [
@@ -180,6 +182,7 @@ export const studentSemesters = sqliteTable('student_semesters', {
   studentProgramId: integer()
     .references(() => studentPrograms.id, { onDelete: 'cascade' })
     .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const moduleTypeEnum = ['Major', 'Minor', 'Core', 'Delete'] as const;
@@ -244,12 +247,14 @@ export const studentModules = sqliteTable('student_modules', {
   studentSemesterId: integer()
     .references(() => studentSemesters.id, { onDelete: 'cascade' })
     .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const schools = sqliteTable('schools', {
   id: integer().primaryKey(),
   code: text().notNull().unique(),
   name: text().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const programs = sqliteTable('programs', {
@@ -259,6 +264,7 @@ export const programs = sqliteTable('programs', {
   schoolId: integer()
     .references(() => schools.id, { onDelete: 'cascade' })
     .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const structures = sqliteTable('structures', {
@@ -267,6 +273,7 @@ export const structures = sqliteTable('structures', {
   programId: integer()
     .references(() => programs.id, { onDelete: 'cascade' })
     .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const structureSemesters = sqliteTable('structure_semesters', {
@@ -277,6 +284,7 @@ export const structureSemesters = sqliteTable('structure_semesters', {
   semesterNumber: integer().notNull(),
   name: text().notNull(),
   totalCredits: real().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const modules = sqliteTable('modules', {
@@ -285,6 +293,7 @@ export const modules = sqliteTable('modules', {
   name: text().notNull(),
   type: text({ enum: moduleTypeEnum }).notNull(),
   credits: real().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const semesterModules = sqliteTable('semester_modules', {
@@ -295,12 +304,14 @@ export const semesterModules = sqliteTable('semester_modules', {
   moduleId: integer()
     .references(() => modules.id, { onDelete: 'cascade' })
     .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const terms = sqliteTable('terms', {
   id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull().unique(),
   isActive: integer({ mode: 'boolean' }).notNull().default(false),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const registrationRequestStatusEnum = [
@@ -344,6 +355,7 @@ export const requestedModules = sqliteTable('requested_modules', {
   moduleId: integer('module_id')
     .references(() => modules.id, { onDelete: 'cascade' })
     .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const registrationClearances = sqliteTable(
@@ -360,6 +372,7 @@ export const registrationClearances = sqliteTable(
     message: text(),
     respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
     responseDate: integer({ mode: 'timestamp' }),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     uniqueRegistrationClearance: unique().on(
