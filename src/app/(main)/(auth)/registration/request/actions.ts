@@ -37,9 +37,8 @@ export async function getSemesterModules(
 }
 
 export async function getRepeatModules(stdNo: number, semester: number) {
-  const semesterNumbers = Array.from({ length: 5 }, (_, i) =>
-    semester % 2 === 0 ? 2 * (i + 1) : 2 * i + 1
-  );
+  const semesterNumbers =
+    semester % 2 === 0 ? [2, 4, 6, 8, 10] : [1, 3, 5, 7, 9];
 
   const studentModules = await db.query.studentPrograms.findMany({
     where: and(
@@ -60,52 +59,38 @@ export async function getRepeatModules(stdNo: number, semester: number) {
     },
   });
 
-  const moduleMap = new Map<
-    string,
-    {
-      failCount: number;
-      passed: boolean;
-      firstModule: (typeof studentModules)[0]['semesters'][0]['modules'][0] & {
-        repeatCount: string;
+  type Module = (typeof studentModules)[0]['semesters'][0]['modules'][0];
+
+  const moduleHistory = studentModules
+    .flatMap((p) => p.semesters)
+    .flatMap((s) => s.modules)
+    .reduce((acc, mod) => {
+      const marks = parseFloat(mod.marks);
+      const passed = marks >= 50;
+
+      acc[mod.name] = acc[mod.name] || {
+        failCount: 0,
+        passed: false,
+        module: mod,
       };
-    }
-  >();
 
-  const modules = studentModules
-    .flatMap((it) => it.semesters)
-    .flatMap((it) => it.modules);
-  for (const mod of modules) {
-    const marks = parseFloat(mod.marks);
-    const currentModule = moduleMap.get(mod.name);
+      if (passed) {
+        acc[mod.name].passed = true;
+      } else {
+        acc[mod.name].failCount++;
+      }
 
-    if (!currentModule) {
-      moduleMap.set(mod.name, {
-        failCount: marks < 50 ? 1 : 0,
-        passed: marks >= 50,
-        firstModule: {
-          ...mod,
-          repeatCount: `Repeat${marks < 50 ? 1 : ''}`,
-        },
-      });
-      continue;
-    }
+      return acc;
+    }, {} as Record<string, { failCount: number; passed: boolean; module: Module }>);
 
-    if (marks >= 50) {
-      currentModule.passed = true;
-    } else if (marks < 50) {
-      currentModule.failCount++;
-      currentModule.firstModule.repeatCount = `Repeat${currentModule.failCount}`;
-    }
-  }
-
-  return Array.from(moduleMap.values())
+  return Object.values(moduleHistory)
     .filter(({ passed }) => !passed)
-    .map(({ firstModule }) => ({
-      id: firstModule.id,
-      code: firstModule.code,
-      name: firstModule.name,
-      type: firstModule.type,
-      credits: firstModule.credits,
-      status: firstModule.repeatCount,
+    .map(({ failCount, module }) => ({
+      id: module.id,
+      code: module.code,
+      name: module.name,
+      type: module.type,
+      credits: module.credits,
+      status: `Repeat${failCount}`,
     }));
 }
