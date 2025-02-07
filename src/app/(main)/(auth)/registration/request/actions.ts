@@ -4,6 +4,58 @@ import { db } from '@/db';
 import { structureSemesters, studentPrograms } from '@/db/schema';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
 
+export async function getFailedPrerequisites(stdNo: number) {
+  const failedModulesQuery = await db.query.studentPrograms.findMany({
+    where: eq(studentPrograms.stdNo, stdNo),
+    with: {
+      semesters: {
+        with: {
+          modules: true,
+        },
+      },
+    },
+  });
+
+  const failedModules = new Set(
+    failedModulesQuery
+      .flatMap((prog) => prog.semesters)
+      .flatMap((sem) => sem.modules)
+      .filter((mod) => parseFloat(mod.marks) < 50)
+      .map((mod) => mod.code)
+  );
+
+  const prerequisites = await db.query.modulePrerequisites.findMany({
+    with: {
+      module: true,
+      prerequisite: true,
+    },
+  });
+
+  return prerequisites.reduce(
+    (acc, { module, prerequisite }) => {
+      if (failedModules.has(prerequisite.code)) {
+        const entry = {
+          moduleCode: module.code,
+          prerequisiteCode: prerequisite.code,
+          failed: true,
+        };
+
+        acc[module.code] = acc[module.code] || [];
+        acc[module.code].push(entry);
+      }
+      return acc;
+    },
+    {} as Record<
+      string,
+      Array<{
+        moduleCode: string;
+        prerequisiteCode: string;
+        failed: boolean;
+      }>
+    >
+  );
+}
+
 export async function getSemesterModules(
   stdNo: number,
   structureId: number,
@@ -25,13 +77,18 @@ export async function getSemesterModules(
 
   const data = result?.semesterModules.map((sm) => sm.module) || [];
   const repeatModules = await getRepeatModules(stdNo, semester);
+  const failedPrerequisites = await getFailedPrerequisites(stdNo);
 
   if (repeatModules.length >= 3) {
     return repeatModules;
   }
 
   return [
-    ...data.map((it) => ({ ...it, status: 'Compulsory' as const })),
+    ...data.map((module) => ({
+      ...module,
+      status: 'Compulsory' as const,
+      prerequisites: failedPrerequisites[module.code] || [],
+    })),
     ...repeatModules,
   ];
 }
