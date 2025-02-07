@@ -5,87 +5,77 @@ import {
   getSchools,
   getStructuresByProgram,
 } from '@/server/modules/actions';
-import { Grid, Select, Stack } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { Grid, Select, Stack, Loader } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 interface FilterSelectProps {
   onStructureSelect: (structureId: number) => void;
 }
 
 export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
-  const [schools, setSchools] = useState<{ value: string; label: string }[]>(
-    []
-  );
-  const [programs, setPrograms] = useState<{ value: string; label: string }[]>(
-    []
-  );
-  const [structures, setStructures] = useState<
-    { value: string; label: string }[]
-  >([]);
-
   const [selectedSchool, setSelectedSchool] = useState<string | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
   const [selectedStructure, setSelectedStructure] = useState<string | null>(
     null
   );
 
-  useEffect(() => {
-    const loadSchools = async () => {
+  const { data: schools = [], isLoading: isLoadingSchools } = useQuery({
+    queryKey: ['schools'],
+    queryFn: async () => {
       const schoolData = await getSchools();
-      setSchools(
-        schoolData.map((school) => ({
-          value: school.id.toString(),
-          label: `${school.code} - ${school.name}`,
-        }))
+      return schoolData.map((school) => ({
+        value: school.id.toString(),
+        label: `${school.code} - ${school.name}`,
+      }));
+    },
+  });
+
+  const { data: programs = [], isLoading: isLoadingPrograms } = useQuery({
+    queryKey: ['programs', selectedSchool],
+    queryFn: async () => {
+      if (!selectedSchool) return [];
+      const programData = await getProgramsBySchool(parseInt(selectedSchool));
+      return programData.map((program) => ({
+        value: program.id.toString(),
+        label: `${program.code} - ${program.name}`,
+      }));
+    },
+    enabled: !!selectedSchool,
+  });
+
+  const { data: structures = [], isLoading: isLoadingStructures } = useQuery({
+    queryKey: ['structures', selectedProgram],
+    queryFn: async () => {
+      if (!selectedProgram) return [];
+      const structureData = await getStructuresByProgram(
+        parseInt(selectedProgram)
       );
-    };
-    loadSchools();
-  }, []);
+      return structureData.map((structure) => ({
+        value: structure.id.toString(),
+        label: structure.code,
+      }));
+    },
+    enabled: !!selectedProgram,
+  });
 
-  useEffect(() => {
-    const loadPrograms = async () => {
-      if (selectedSchool) {
-        const programData = await getProgramsBySchool(parseInt(selectedSchool));
-        setPrograms(
-          programData.map((program) => ({
-            value: program.id.toString(),
-            label: `${program.code} - ${program.name}`,
-          }))
-        );
-        setSelectedProgram(null);
-        setSelectedStructure(null);
-      } else {
-        setPrograms([]);
-      }
-    };
-    loadPrograms();
-  }, [selectedSchool]);
+  const handleSchoolChange = (value: string | null) => {
+    setSelectedSchool(value);
+    setSelectedProgram(null);
+    setSelectedStructure(null);
+  };
 
-  useEffect(() => {
-    const loadStructures = async () => {
-      if (selectedProgram) {
-        const structureData = await getStructuresByProgram(
-          parseInt(selectedProgram)
-        );
-        setStructures(
-          structureData.map((structure) => ({
-            value: structure.id.toString(),
-            label: structure.code,
-          }))
-        );
-        setSelectedStructure(null);
-      } else {
-        setStructures([]);
-      }
-    };
-    loadStructures();
-  }, [selectedProgram]);
+  const handleProgramChange = (value: string | null) => {
+    setSelectedProgram(value);
+    setSelectedStructure(null);
+  };
 
-  useEffect(() => {
-    if (selectedStructure) {
-      onStructureSelect(parseInt(selectedStructure));
+  const handleStructureChange = (value: string | null) => {
+    setSelectedStructure(value);
+    if (value) {
+      onStructureSelect(parseInt(value));
     }
-  }, [selectedStructure, onStructureSelect]);
+  };
 
   return (
     <Stack gap='md'>
@@ -93,36 +83,36 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
         <Grid.Col span={5}>
           <Select
             label='School'
-            placeholder='Select a school'
             data={schools}
             value={selectedSchool}
-            onChange={setSelectedSchool}
+            onChange={handleSchoolChange}
             searchable
             clearable
+            rightSection={isLoadingSchools ? <Loader size='xs' /> : null}
           />
         </Grid.Col>
         <Grid.Col span={5}>
           <Select
             label='Program'
-            placeholder='Select a program'
             data={programs}
             value={selectedProgram}
-            onChange={setSelectedProgram}
+            onChange={handleProgramChange}
             searchable
             clearable
             disabled={!selectedSchool}
+            rightSection={isLoadingPrograms ? <Loader size='xs' /> : null}
           />
         </Grid.Col>
         <Grid.Col span={2}>
           <Select
             label='Structure'
-            placeholder='Select a structure'
             data={structures}
             value={selectedStructure}
-            onChange={setSelectedStructure}
+            onChange={handleStructureChange}
             searchable
             clearable
             disabled={!selectedProgram}
+            rightSection={isLoadingStructures ? <Loader size='xs' /> : null}
           />
         </Grid.Col>
       </Grid>
