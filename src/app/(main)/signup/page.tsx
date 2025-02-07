@@ -20,9 +20,9 @@ export default async function SignupPage() {
   return (
     <Container className='flex items-center justify-center flex-col w-full h-screen'>
       <div className='mb-8'>
-        <h1 className='text-3xl font-bold'>Student Registration</h1>
+        <h1 className='text-3xl font-bold'>Sign Up</h1>
         <p className='text-muted-foreground'>
-          Fill in your details to register as a student
+          Fill in your details to signup as a student
         </p>
       </div>
       <SignupForm existingSignup={existingSignup} />

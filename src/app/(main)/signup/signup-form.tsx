@@ -122,7 +122,7 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
               type='submit'
               disabled={isSubmitting}
             >
-              {existingSignup ? 'Update Registration' : 'Submit Registration'}
+              {existingSignup ? 'Update Details' : 'Sign up'}
             </Button>
           </form>
         </Form>
