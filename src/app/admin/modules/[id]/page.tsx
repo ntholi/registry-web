@@ -1,17 +1,25 @@
 import {
   DetailsView,
+  DetailsViewBody,
   DetailsViewHeader,
   FieldView,
-  DetailsViewBody,
 } from '@/components/adease';
-import { notFound } from 'next/navigation';
 import {
-  getModule,
   deleteModule,
+  getModule,
   getModulePrerequisites,
 } from '@/server/modules/actions';
+import {
+  Anchor,
+  Fieldset,
+  List,
+  ListItem,
+  ThemeIcon,
+  Text,
+} from '@mantine/core';
+import { IconCircleCheck } from '@tabler/icons-react';
 import Link from 'next/link';
-import { Box } from '@mantine/core';
+import { notFound } from 'next/navigation';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -42,23 +50,34 @@ export default async function ModuleDetails({ params }: Props) {
         <FieldView label='Type'>{item.type}</FieldView>
         <FieldView label='Credits'>{item.credits}</FieldView>
 
-        {prerequisites.length === 0 && (
-          <FieldView label='Prerequisites'>No prerequisites</FieldView>
-        )}
-        <Box>
-          <ul className='list-disc pl-5'>
-            {prerequisites.map((it) => (
-              <li key={it.id}>
-                <Link
-                  href={`/admin/modules/${it.id}`}
-                  className='text-blue-600 hover:text-blue-800'
-                >
-                  {it.code} - {it.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Box>
+        <Fieldset legend='Prerequisites'>
+          {prerequisites.length === 0 ? (
+            <Text size='sm'>No Prerequisites</Text>
+          ) : (
+            <List
+              spacing='xs'
+              size='sm'
+              center
+              icon={
+                <ThemeIcon color='gray' variant='light' size={'sm'} radius='xl'>
+                  <IconCircleCheck />
+                </ThemeIcon>
+              }
+            >
+              {prerequisites.map((it) => (
+                <ListItem key={it.id}>
+                  <Anchor
+                    size='sm'
+                    component={Link}
+                    href={`/admin/modules/${it.id}`}
+                  >
+                    {it.code} - {it.name}
+                  </Anchor>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Fieldset>
       </DetailsViewBody>
     </DetailsView>
   );
