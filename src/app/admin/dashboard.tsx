@@ -20,6 +20,7 @@ import {
 import { modals } from '@mantine/modals';
 import {
   Icon,
+  IconBook,
   IconCalendar,
   IconChevronRight,
   IconCopyCheck,
@@ -72,6 +73,12 @@ const navigation: NavItem[] = [
       queryKey: ['registrationClearances'],
       queryFn: () => countPendingRegistrationClearances(),
     },
+  },
+  {
+    label: 'Modules',
+    href: '/admin/modules',
+    icon: IconBook,
+    roles: [...dashboardUsers],
   },
   {
     label: 'Programs',
