@@ -2,9 +2,10 @@ import { relations } from 'drizzle-orm';
 import {
   accounts,
   authenticators,
-  registrationClearances,
   modules,
+  modulePrerequisites,
   programs,
+  registrationClearances,
   registrationRequests,
   requestedModules,
   schools,
@@ -33,6 +34,13 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   student: one(students, {
     fields: [users.id],
     references: [students.userId],
+  }),
+}));
+
+export const signupsRelations = relations(signups, ({ one }) => ({
+  user: one(users, {
+    fields: [signups.userId],
+    references: [users.id],
   }),
 }));
 
@@ -112,7 +120,24 @@ export const structureSemestersRelations = relations(
 
 export const modulesRelations = relations(modules, ({ many }) => ({
   semesters: many(semesterModules),
+  prerequisites: many(modulePrerequisites),
+  prerequisiteFor: many(modulePrerequisites),
+  requestedModules: many(requestedModules),
 }));
+
+export const modulePrerequisitesRelations = relations(
+  modulePrerequisites,
+  ({ one }) => ({
+    module: one(modules, {
+      fields: [modulePrerequisites.moduleId],
+      references: [modules.id],
+    }),
+    prerequisite: one(modules, {
+      fields: [modulePrerequisites.prerequisiteId],
+      references: [modules.id],
+    }),
+  })
+);
 
 export const semesterModulesRelations = relations(
   semesterModules,
@@ -128,6 +153,10 @@ export const semesterModulesRelations = relations(
   })
 );
 
+export const termsRelations = relations(terms, ({ many }) => ({
+  registrationRequests: many(registrationRequests),
+}));
+
 export const registrationRequestsRelations = relations(
   registrationRequests,
   ({ many, one }) => ({
@@ -139,7 +168,7 @@ export const registrationRequestsRelations = relations(
       fields: [registrationRequests.termId],
       references: [terms.id],
     }),
-    registrationClearance: many(registrationClearances),
+    registrationClearances: many(registrationClearances),
     requestedModules: many(requestedModules),
   })
 );
@@ -179,6 +208,10 @@ export const registrationClearanceAuditRelations = relations(
     registrationClearance: one(registrationClearances, {
       fields: [registrationClearanceAudit.registrationClearanceId],
       references: [registrationClearances.id],
+    }),
+    user: one(users, {
+      fields: [registrationClearanceAudit.createdBy],
+      references: [users.id],
     }),
   })
 );
