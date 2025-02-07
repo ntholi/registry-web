@@ -23,9 +23,9 @@ export default async function SignupPage() {
       <Logo
         width={300}
         height={300}
-        className='absolute left-1/2 top-0 mt-4 h-20 sm:h-28 w-auto -translate-x-1/2 md:mt-10'
+        className='absolute left-1/2 top-0 mt-4 h-20 sm:h-28 w-auto -translate-x-1/2 md:mt-5'
       />
-      <Container className='flex items-center justify-center flex-col w-full h-screen gap-8'>
+      <Container className='flex items-center justify-center flex-col w-full h-screen gap-8 md:pt-10'>
         <div className='text-center'>
           <h1 className='text-3xl sm:text-4xl font-semibold'>Sign Up</h1>
           <p className='text-muted-foreground'>
