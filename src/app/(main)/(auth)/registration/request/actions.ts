@@ -42,7 +42,10 @@ export async function getRepeatModules(stdNo: number, semester: number) {
   );
 
   const studentModules = await db.query.studentPrograms.findMany({
-    where: eq(studentPrograms.stdNo, stdNo),
+    where: and(
+      eq(studentPrograms.stdNo, stdNo),
+      eq(studentPrograms.status, 'Active')
+    ),
     with: {
       semesters: {
         where: (semester) =>
