@@ -2,11 +2,14 @@
 
 import { db } from '@/db';
 import { studentPrograms } from '@/db/schema';
-import { eq, notInArray } from 'drizzle-orm';
+import { and, eq, inArray, notInArray } from 'drizzle-orm';
 
 export async function getTranscript(stdNo: number) {
   const programs = await db.query.studentPrograms.findMany({
-    where: eq(studentPrograms.stdNo, stdNo),
+    where: and(
+      eq(studentPrograms.stdNo, stdNo),
+      inArray(studentPrograms.status, ['Active', 'Completed'])
+    ),
     with: {
       semesters: {
         where: (semester) =>
