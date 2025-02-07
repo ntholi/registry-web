@@ -2,6 +2,7 @@
 
 import { getModulesByStructure } from '@/server/modules/actions';
 import {
+  Anchor,
   Badge,
   Box,
   Divider,
@@ -14,7 +15,8 @@ import {
   Title,
   Transition,
 } from '@mantine/core';
-import { IconBook2, IconSchool } from '@tabler/icons-react';
+import { IconSchool } from '@tabler/icons-react';
+import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import FilterSelect from './FilterSelect';
 
@@ -55,7 +57,7 @@ export default function ProgramsPage() {
           <Title order={2} fw={500}>
             Program Structure
           </Title>
-          <Divider />
+          <Divider mt={5} />
         </Box>
 
         <Paper shadow='sm' p='md' radius='md' withBorder>
@@ -123,7 +125,15 @@ export default function ProgramsPage() {
                       <Table.Tbody>
                         {semester.modules.map((module) => (
                           <Table.Tr key={module.moduleId}>
-                            <Table.Td fw={500}>{module.moduleCode}</Table.Td>
+                            <Table.Td>
+                              <Anchor
+                                size='sm'
+                                component={Link}
+                                href={`/admin/modules/${module.moduleId}`}
+                              >
+                                {module.moduleCode}
+                              </Anchor>
+                            </Table.Td>
                             <Table.Td>{module.moduleName}</Table.Td>
                             <Table.Td>{module.moduleType}</Table.Td>
                             <Table.Td>{module.moduleCredits}</Table.Td>
@@ -141,17 +151,9 @@ export default function ProgramsPage() {
         {!loading && semesters.length === 0 && (
           <Paper shadow='sm' p='xl' radius='md' withBorder>
             <Stack align='center' gap='xs'>
-              <IconBook2
-                size={48}
-                stroke={1.5}
-                color='var(--mantine-color-gray-5)'
-              />
+              <IconSchool size={48} />
               <Text size='lg' fw={500}>
                 No Program Structure Selected
-              </Text>
-              <Text c='dimmed' ta='center'>
-                Select a school, program, and structure above to view the module
-                structure
               </Text>
             </Stack>
           </Paper>
