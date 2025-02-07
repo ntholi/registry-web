@@ -1,14 +1,15 @@
-import BaseRepository from '@/server/base/BaseRepository';
+import { db } from '@/db';
 import {
+  modulePrerequisites,
   modules,
+  programs,
+  schools,
   semesterModules,
   structureSemesters,
   structures,
-  programs,
-  schools,
 } from '@/db/schema';
+import BaseRepository from '@/server/base/BaseRepository';
 import { eq } from 'drizzle-orm';
-import { db } from '@/db';
 
 export default class ModuleRepository extends BaseRepository<
   typeof modules,
@@ -16,6 +17,40 @@ export default class ModuleRepository extends BaseRepository<
 > {
   constructor() {
     super(modules, 'id');
+  }
+
+  async findByCode(code: string) {
+    return db.query.modules.findFirst({
+      where: eq(modules.code, code),
+    });
+  }
+
+  async addPrerequisite(moduleId: number, prerequisiteId: number) {
+    return db.insert(modulePrerequisites).values({
+      moduleId,
+      prerequisiteId,
+    });
+  }
+
+  async clearPrerequisites(moduleId: number) {
+    return db
+      .delete(modulePrerequisites)
+      .where(eq(modulePrerequisites.moduleId, moduleId));
+  }
+
+  async getPrerequisites(moduleId: number) {
+    return db
+      .select({
+        id: modules.id,
+        code: modules.code,
+        name: modules.name,
+        type: modules.type,
+        credits: modules.credits,
+      })
+      .from(modulePrerequisites)
+      .innerJoin(modules, eq(modules.id, modulePrerequisites.prerequisiteId))
+      .where(eq(modulePrerequisites.moduleId, moduleId))
+      .orderBy(modules.code);
   }
 
   async getModulesByStructure(structureId: number) {

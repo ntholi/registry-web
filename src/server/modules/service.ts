@@ -16,6 +16,10 @@ class ModuleService {
     return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
+  async getByCode(code: string) {
+    return withAuth(async () => this.repository.findByCode(code), ['dashboard']);
+  }
+
   async findAll(params: FindAllParams<typeof modules>) {
     return withAuth(async () => this.repository.findAll(params), ['dashboard']);
   }
@@ -60,6 +64,27 @@ class ModuleService {
   async getStructuresByProgram(programId: number) {
     return withAuth(
       async () => this.repository.getStructuresByProgram(programId),
+      ['dashboard']
+    );
+  }
+
+  async addPrerequisite(moduleId: number, prerequisiteId: number) {
+    return withAuth(
+      async () => this.repository.addPrerequisite(moduleId, prerequisiteId),
+      ['dashboard']
+    );
+  }
+
+  async clearPrerequisites(moduleId: number) {
+    return withAuth(
+      async () => this.repository.clearPrerequisites(moduleId),
+      ['dashboard']
+    );
+  }
+
+  async getPrerequisites(moduleId: number) {
+    return withAuth(
+      async () => this.repository.getPrerequisites(moduleId),
       ['dashboard']
     );
   }

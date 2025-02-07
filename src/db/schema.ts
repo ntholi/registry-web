@@ -293,9 +293,6 @@ export const modules = sqliteTable('modules', {
   name: text().notNull(),
   type: text({ enum: moduleTypeEnum }).notNull(),
   credits: real().notNull(),
-  prerequisite: text({ mode: 'json' })
-    .$type<string[]>()
-    .default(sql`(json_array())`),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
