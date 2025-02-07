@@ -7,6 +7,7 @@ import {
 } from '@/server/modules/actions';
 import { Grid, Select, Stack, Loader } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import { useQueryState } from 'nuqs';
 import { useState } from 'react';
 
 interface FilterSelectProps {
@@ -14,11 +15,9 @@ interface FilterSelectProps {
 }
 
 export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
-  const [selectedSchool, setSelectedSchool] = useState<string | null>(null);
-  const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
-  const [selectedStructure, setSelectedStructure] = useState<string | null>(
-    null
-  );
+  const [school, setSchool] = useQueryState('school');
+  const [program, setProgram] = useQueryState('program');
+  const [structure, setStructure] = useState<string | null>('structure');
 
   const { data: schools = [], isLoading: isLoadingSchools } = useQuery({
     queryKey: ['schools'],
@@ -32,46 +31,44 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
   });
 
   const { data: programs = [], isLoading: isLoadingPrograms } = useQuery({
-    queryKey: ['programs', selectedSchool],
+    queryKey: ['programs', school],
     queryFn: async () => {
-      if (!selectedSchool) return [];
-      const programData = await getProgramsBySchool(parseInt(selectedSchool));
+      if (!school) return [];
+      const programData = await getProgramsBySchool(parseInt(school));
       return programData.map((program) => ({
         value: program.id.toString(),
         label: `${program.code} - ${program.name}`,
       }));
     },
-    enabled: !!selectedSchool,
+    enabled: !!school,
   });
 
   const { data: structures = [], isLoading: isLoadingStructures } = useQuery({
-    queryKey: ['structures', selectedProgram],
+    queryKey: ['structures', program],
     queryFn: async () => {
-      if (!selectedProgram) return [];
-      const structureData = await getStructuresByProgram(
-        parseInt(selectedProgram)
-      );
+      if (!program) return [];
+      const structureData = await getStructuresByProgram(parseInt(program));
       return structureData.map((structure) => ({
         value: structure.id.toString(),
         label: structure.code,
       }));
     },
-    enabled: !!selectedProgram,
+    enabled: !!program,
   });
 
   const handleSchoolChange = (value: string | null) => {
-    setSelectedSchool(value);
-    setSelectedProgram(null);
-    setSelectedStructure(null);
+    setSchool(value);
+    setProgram(null);
+    setStructure(null);
   };
 
   const handleProgramChange = (value: string | null) => {
-    setSelectedProgram(value);
-    setSelectedStructure(null);
+    setProgram(value);
+    setStructure(null);
   };
 
   const handleStructureChange = (value: string | null) => {
-    setSelectedStructure(value);
+    setStructure(value);
     if (value) {
       onStructureSelect(parseInt(value));
     }
@@ -84,7 +81,8 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
           <Select
             label='School'
             data={schools}
-            value={selectedSchool}
+            value={school}
+            disabled={!school}
             onChange={handleSchoolChange}
             searchable
             clearable
@@ -95,11 +93,11 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
           <Select
             label='Program'
             data={programs}
-            value={selectedProgram}
+            value={program}
             onChange={handleProgramChange}
             searchable
             clearable
-            disabled={!selectedSchool}
+            disabled={!school || !programs}
             rightSection={isLoadingPrograms ? <Loader size='xs' /> : null}
           />
         </Grid.Col>
@@ -107,11 +105,11 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
           <Select
             label='Structure'
             data={structures}
-            value={selectedStructure}
+            value={structure}
             onChange={handleStructureChange}
             searchable
             clearable
-            disabled={!selectedProgram}
+            disabled={!program || !structures}
             rightSection={isLoadingStructures ? <Loader size='xs' /> : null}
           />
         </Grid.Col>
