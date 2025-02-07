@@ -57,6 +57,8 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
         await createSignup({
           ...values,
           userId: session.user.id,
+          name: values.name.trim(),
+          stdNo: values.stdNo.trim(),
         });
         toast.success('Registration submitted successfully');
         router.refresh();
@@ -81,7 +83,10 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value.trim())}
+                    />
                   </FormControl>
                   <FormDescription>
                     Enter your full name as it appears in your student record.
@@ -98,7 +103,10 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                 <FormItem>
                   <FormLabel>Student Number</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value.trim())}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
