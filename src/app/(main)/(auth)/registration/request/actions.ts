@@ -71,31 +71,30 @@ export async function getRepeatModules(stdNo: number, semester: number) {
     }
   >();
 
-  for (const program of studentModules) {
-    for (const semester of program.semesters) {
-      for (const mod of semester.modules) {
-        const marks = parseFloat(mod.marks);
-        const currentModule = moduleMap.get(mod.name);
+  const modules = studentModules
+    .flatMap((it) => it.semesters)
+    .flatMap((it) => it.modules);
+  for (const mod of modules) {
+    const marks = parseFloat(mod.marks);
+    const currentModule = moduleMap.get(mod.name);
 
-        if (!currentModule) {
-          moduleMap.set(mod.name, {
-            failCount: marks < 50 ? 1 : 0,
-            passed: marks >= 50,
-            firstModule: {
-              ...mod,
-              repeatCount: `Repeat${marks < 50 ? 1 : ''}`,
-            },
-          });
-          continue;
-        }
+    if (!currentModule) {
+      moduleMap.set(mod.name, {
+        failCount: marks < 50 ? 1 : 0,
+        passed: marks >= 50,
+        firstModule: {
+          ...mod,
+          repeatCount: `Repeat${marks < 50 ? 1 : ''}`,
+        },
+      });
+      continue;
+    }
 
-        if (marks >= 50) {
-          currentModule.passed = true;
-        } else if (marks < 50) {
-          currentModule.failCount++;
-          currentModule.firstModule.repeatCount = `Repeat${currentModule.failCount}`;
-        }
-      }
+    if (marks >= 50) {
+      currentModule.passed = true;
+    } else if (marks < 50) {
+      currentModule.failCount++;
+      currentModule.firstModule.repeatCount = `Repeat${currentModule.failCount}`;
     }
   }
 
