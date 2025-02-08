@@ -10,7 +10,11 @@ export async function getFailedPrerequisites(stdNo: number) {
     with: {
       semesters: {
         with: {
-          modules: true,
+          studentModules: {
+            with: {
+              module: true,
+            },
+          },
         },
       },
     },
@@ -19,9 +23,9 @@ export async function getFailedPrerequisites(stdNo: number) {
   const failedModules = new Set(
     failedModulesQuery
       .flatMap((prog) => prog.semesters)
-      .flatMap((sem) => sem.modules)
+      .flatMap((sem) => sem.studentModules)
       .filter((mod) => parseFloat(mod.marks) < 50)
-      .map((mod) => mod.code)
+      .map((mod) => mod.module.code)
   );
 
   const prerequisites = await db.query.modulePrerequisites.findMany({
@@ -109,36 +113,41 @@ export async function getRepeatModules(stdNo: number, semester: number) {
             inArray(semester.semesterNumber, semesterNumbers)
           ),
         with: {
-          modules: true,
+          studentModules: {
+            with: {
+              module: true,
+            },
+          },
         },
       },
     },
   });
 
-  type Module = (typeof studentModules)[0]['semesters'][0]['modules'][0];
+  type Module = (typeof studentModules)[0]['semesters'][0]['studentModules'][0];
 
   const moduleHistory = studentModules
     .flatMap((p) => p.semesters)
-    .flatMap((s) => s.modules)
+    .flatMap((s) => s.studentModules)
     .reduce((acc, mod) => {
       const marks = parseFloat(mod.marks);
       const passed = marks >= 50;
 
-      acc[mod.name] = acc[mod.name] || {
+      acc[mod.module.name] = acc[mod.module.name] || {
         failCount: 0,
         passed: false,
-        module: mod,
+        module: mod.module,
       };
 
       if (passed) {
-        acc[mod.name].passed = true;
+        acc[mod.module.name].passed = true;
       } else {
-        acc[mod.name].failCount++;
+        acc[mod.module.name].failCount++;
       }
 
       return acc;
-    }, {} as Record<string, { failCount: number; passed: boolean; module: Module }>);
+    }, {} as Record<string, { failCount: number; passed: boolean; module: Module['module'] }>);
 
+  console.log(moduleHistory);
   return Object.values(moduleHistory)
     .filter(({ passed }) => !passed)
     .map(({ failCount, module }) => ({

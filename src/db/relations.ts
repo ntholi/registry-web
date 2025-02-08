@@ -75,7 +75,7 @@ export const studentSemestersRelations = relations(
       fields: [studentSemesters.studentProgramId],
       references: [studentPrograms.id],
     }),
-    modules: many(studentModules),
+    studentModules: many(studentModules),
   })
 );
 
@@ -83,6 +83,10 @@ export const studentModulesRelations = relations(studentModules, ({ one }) => ({
   semester: one(studentSemesters, {
     fields: [studentModules.studentSemesterId],
     references: [studentSemesters.id],
+  }),
+  module: one(modules, {
+    fields: [studentModules.moduleId],
+    references: [modules.id],
   }),
 }));
 

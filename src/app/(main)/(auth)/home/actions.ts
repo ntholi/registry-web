@@ -61,7 +61,11 @@ export async function getStudentScore(stdNo: number, structureId: number) {
           'Inactive',
         ]),
         with: {
-          modules: true,
+          studentModules: {
+            with: {
+              module: true,
+            },
+          },
         },
       },
     },
@@ -75,18 +79,20 @@ export async function getStudentScore(stdNo: number, structureId: number) {
     };
   }
 
-  const modules = program.semesters.flatMap((semester) => semester.modules);
+  const modules = program.semesters.flatMap(
+    (semester) => semester.studentModules
+  );
   let totalPoints = 0;
   let totalCredits = 0;
   let creditsCompleted = 0;
 
-  modules.forEach((module) => {
-    if (isValidGrade(module.grade)) {
-      const points = getPoints(module.grade);
+  modules.forEach((stdModule) => {
+    if (isValidGrade(stdModule.grade)) {
+      const points = getPoints(stdModule.grade);
       if (points > 0) {
-        totalPoints += points * module.credits;
-        totalCredits += module.credits;
-        creditsCompleted += module.credits;
+        totalPoints += points * stdModule.module.credits;
+        totalCredits += stdModule.module.credits;
+        creditsCompleted += stdModule.module.credits;
       }
     }
   });
