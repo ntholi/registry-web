@@ -237,11 +237,10 @@ export type Grade = (typeof gradeEnum)[number];
 
 export const studentModules = sqliteTable('student_modules', {
   id: integer().primaryKey(),
-  code: text().notNull(),
-  name: text().notNull(),
-  type: text({ enum: moduleTypeEnum }).notNull(),
+  moduleId: integer()
+    .references(() => modules.id, { onDelete: 'cascade' })
+    .notNull(),
   status: text({ enum: moduleStatusEnum }).notNull(),
-  credits: real().notNull(),
   marks: text().notNull(),
   grade: text({ enum: gradeEnum }).notNull(),
   studentSemesterId: integer()
