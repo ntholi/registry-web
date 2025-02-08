@@ -147,9 +147,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
           status: 'pending',
         })
         .where(
-          eq(
-            registrationClearances.registrationRequestId,
-            registrationRequestId
+          and(
+            eq(
+              registrationClearances.registrationRequestId,
+              registrationRequestId
+            ),
+            eq(registrationClearances.department, 'finance')
           )
         );
 
