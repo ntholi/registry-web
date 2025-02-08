@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatDateTime } from '@/lib/utils';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
@@ -101,7 +101,7 @@ export default async function page() {
                       )}
                       {clearance.responseDate && (
                         <p className='text-xs text-muted-foreground mt-2'>
-                          Responded on {formatDate(clearance.responseDate)}
+                          Responded on {formatDateTime(clearance.responseDate)}
                         </p>
                       )}
                     </div>
@@ -114,9 +114,9 @@ export default async function page() {
         </Card>
 
         <div className='text-center text-sm text-muted-foreground'>
-          <p>Registration submitted on {formatDate(request.createdAt)}</p>
+          <p>Registration submitted on {formatDateTime(request.createdAt)}</p>
           {request.updatedAt && (
-            <p>Last updated on {formatDate(request.updatedAt)}</p>
+            <p>Last updated on {formatDateTime(request.updatedAt)}</p>
           )}
         </div>
       </div>

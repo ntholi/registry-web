@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(timestamp: number | Date | undefined | null) {
   if (!timestamp) return '';
-  return new Date(timestamp).toLocaleDateString('en-ZA', {
+  return new Date(timestamp).toLocaleDateString('en-GB', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -16,13 +16,12 @@ export function formatDate(timestamp: number | Date | undefined | null) {
 
 export function formatDateTime(timestamp: number | Date | undefined | null) {
   if (!timestamp) return '';
-  return new Date(timestamp).toLocaleDateString('en-ZA', {
+  return new Date(timestamp).toLocaleDateString('en-GB', {
     year: 'numeric',
-    month: 'long',
+    month: '2-digit',
     day: 'numeric',
     hour: 'numeric',
     minute: 'numeric',
-    second: 'numeric',
   });
 }
 
