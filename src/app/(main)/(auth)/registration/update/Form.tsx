@@ -15,7 +15,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { getSemesterModules } from '../request/actions';
+import { getFailedPrerequisites, getSemesterModules } from '../request/actions';
 import ModuleInput from '../request/Form/ModuleInput';
 
 type Props = {
@@ -45,10 +45,18 @@ export default function ModulesForm({
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 
-  const { data: modules, isLoading } = useQuery({
+  const { data: modules, isLoading: modulesLoading } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
     queryFn: () => getSemesterModules(stdNo, structureId, semester),
   });
+
+  const { data: failedPrerequisites, isLoading: prerequisitesLoading } =
+    useQuery({
+      queryKey: ['failedPrerequisites', stdNo],
+      queryFn: () => getFailedPrerequisites(stdNo),
+    });
+
+  const isLoading = modulesLoading || prerequisitesLoading;
 
   const form = useForm<UpdateFormSchema>({
     resolver: zodResolver(formSchema),
@@ -116,6 +124,7 @@ export default function ModulesForm({
                   key={module.id}
                   control={form.control}
                   module={module}
+                  failedPrerequisites={failedPrerequisites?.[module.code] || []}
                 />
               ))}
             </div>
