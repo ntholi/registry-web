@@ -10,7 +10,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { getSemesterModules } from '../actions';
+import { getSemesterModules, getFailedPrerequisites } from '../actions';
 import ModuleInput from './ModuleInput';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -40,10 +40,17 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 
-  const { data: modules, isLoading } = useQuery({
+  const { data: modules, isLoading: modulesLoading } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
     queryFn: () => getSemesterModules(stdNo, structureId, semester),
   });
+
+  const { data: failedPrerequisites, isLoading: prerequisitesLoading } = useQuery({
+    queryKey: ['failedPrerequisites', stdNo],
+    queryFn: () => getFailedPrerequisites(stdNo),
+  });
+
+  const isLoading = modulesLoading || prerequisitesLoading;
 
   const { mutate: submitRegistration, isPending } = useMutation({
     mutationFn: async (values: RegisterFormSchema) => {
@@ -98,17 +105,18 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
           </div>
           {isLoading ? (
             <LoadingSkeleton />
-          ) : (
+          ) : modules ? (
             <div className='space-y-4'>
-              {modules?.map((module) => (
+              {modules.map((module) => (
                 <ModuleInput
                   key={module.id}
                   control={form.control}
                   module={module}
+                  failedPrerequisites={failedPrerequisites?.[module.code] || []}
                 />
               ))}
             </div>
-          )}
+          ) : null}
         </div>
 
         {form.formState.errors.modules && (

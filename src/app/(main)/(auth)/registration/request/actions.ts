@@ -48,7 +48,6 @@ export async function getFailedPrerequisites(stdNo: number) {
     {} as Record<
       string,
       Array<{
-        moduleCode: string;
         prerequisiteCode: string;
         failed: boolean;
       }>

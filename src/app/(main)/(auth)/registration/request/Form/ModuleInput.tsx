@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   FormControl,
@@ -5,17 +6,27 @@ import {
   FormItem,
   FormLabel,
 } from '@/components/ui/form';
+import { AlertCircle } from 'lucide-react';
 import { Control } from 'react-hook-form';
 import { RegisterFormSchema } from '.';
 import { getSemesterModules } from '../actions';
-import { Badge } from '@/components/ui/badge';
 
 type Props = {
   control: Control<RegisterFormSchema>;
   module: Awaited<ReturnType<typeof getSemesterModules>>[number];
+  failedPrerequisites: Array<{
+    prerequisiteCode: string;
+    failed: boolean;
+  }>;
 };
 
-export default function ModuleInput({ control, module }: Props) {
+export default function ModuleInput({
+  control,
+  module,
+  failedPrerequisites,
+}: Props) {
+  const hasFailedPrerequisites = failedPrerequisites.length > 0;
+
   return (
     <FormField
       key={module.id}
@@ -27,6 +38,7 @@ export default function ModuleInput({ control, module }: Props) {
             <Checkbox
               className='order-1 after:absolute after:inset-0'
               checked={field.value?.includes(module.id)}
+              disabled={hasFailedPrerequisites}
               onCheckedChange={(checked) => {
                 return checked
                   ? field.onChange([...field.value, module.id])
@@ -39,23 +51,39 @@ export default function ModuleInput({ control, module }: Props) {
             />
           </FormControl>
           <div className='grid grow gap-1.5'>
-            <FormLabel className='text-base font-medium'>
-              {module.name}
-            </FormLabel>
+            <div className='flex items-center gap-2'>
+              <FormLabel className='text-sm sm:text-base'>
+                {module.name}
+              </FormLabel>
+              {hasFailedPrerequisites && (
+                <AlertCircle className='h-4 w-4 text-destructive' />
+              )}
+            </div>
             <div className='flex items-center gap-2 text-sm text-muted-foreground'>
               <span className='font-mono'>{module.code}</span>
               <span>•</span>
               <span className='capitalize'>{module.type}</span>
             </div>
           </div>
-          <Badge
-            variant={
-              module.status === 'Compulsory' ? 'secondary' : 'destructive'
-            }
-            className='absolute bottom-4 right-4'
-          >
-            {module.status}
-          </Badge>
+          <div className='absolute bottom-3 right-4'>
+            {hasFailedPrerequisites ? (
+              <Badge variant='destructive' className='mb-1'>
+                Failed Prerequisites (
+                {failedPrerequisites
+                  .map((it) => it.prerequisiteCode)
+                  .join(', ')}
+                )
+              </Badge>
+            ) : (
+              <Badge
+                variant={
+                  module.status === 'Compulsory' ? 'secondary' : 'destructive'
+                }
+              >
+                {module.status}
+              </Badge>
+            )}
+          </div>
         </FormItem>
       )}
     />
