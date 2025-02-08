@@ -1,4 +1,5 @@
 import { auth } from '@/auth';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -8,7 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
-import { formatDate, formatDateTime } from '@/lib/utils';
+import { formatDateTime } from '@/lib/utils';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
@@ -16,7 +17,6 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import StatusBadge, { getStatusIcon } from '../components/StatusBadge';
 import { getRegistrationClearances } from './actions';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default async function page() {
   const session = await auth();

@@ -20,7 +20,7 @@ import {
 import { IconSchool } from '@tabler/icons-react';
 
 type Props = {
-  student: Awaited<ReturnType<typeof getStudent>>;
+  student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
 };
 
 export default function AcademicsView({ student }: Props) {
@@ -32,15 +32,15 @@ export default function AcademicsView({ student }: Props) {
       Array<{ programId: string; moduleId: number }>
     > = {};
 
-    student?.programs.forEach((program) => {
+    student.programs.forEach((program) => {
       program.semesters?.forEach((semester) => {
-        semester.modules?.forEach((module) => {
-          if (!locations[module.code]) {
-            locations[module.code] = [];
+        semester.studentModules?.forEach((stdMod) => {
+          if (!locations[stdMod.module.code]) {
+            locations[stdMod.module.code] = [];
           }
-          locations[module.code].push({
+          locations[stdMod.module.code].push({
             programId: program.id?.toString() ?? '',
-            moduleId: module.id,
+            moduleId: stdMod.id,
           });
         });
       });
@@ -142,9 +142,18 @@ export default function AcademicsView({ student }: Props) {
 
                         <Divider />
 
-                        {semester.modules?.length ? (
+                        {semester.studentModules?.length ? (
                           <ModuleTable
-                            modules={semester.modules}
+                            modules={semester.studentModules.map((sm) => ({
+                              id: sm.moduleId,
+                              status: sm.status,
+                              code: sm.module.code,
+                              name: sm.module.name,
+                              credits: sm.module.credits,
+                              type: sm.module.type,
+                              marks: sm.marks,
+                              grade: sm.grade,
+                            }))}
                             moduleLocations={moduleLocations}
                             onModuleClick={(moduleId, code) => {
                               const locations = moduleLocations[code];
