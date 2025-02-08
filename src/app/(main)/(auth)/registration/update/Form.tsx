@@ -17,6 +17,17 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { getFailedPrerequisites, getSemesterModules } from '../request/actions';
 import ModuleInput from '../request/Form/ModuleInput';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 type Props = {
   stdNo: number;
@@ -108,7 +119,7 @@ export default function ModulesForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+      <form className='space-y-6'>
         <div className='space-y-4'>
           <div className='pb-4 border-b'>
             <h3 className='hidden sm:block text-lg font-semibold'>
@@ -132,14 +143,34 @@ export default function ModulesForm({
         </div>
 
         <div className='flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t'>
-          <Button
-            type='submit'
-            size='lg'
-            className='w-full sm:w-auto'
-            disabled={isPending || isLoading}
-          >
-            {isPending ? 'Updating...' : 'Update Registration'}
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type='button'
+                size='lg'
+                className='w-full sm:w-auto'
+                disabled={isPending || isLoading}
+              >
+                {isPending ? 'Updating...' : 'Update Registration'}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirm Registration Update</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Updating your registration might resend a registration
+                  clearance request to the finance department. Are you sure you
+                  want to proceed?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </form>
     </Form>
