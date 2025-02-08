@@ -10,9 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, Moon, Sun } from 'lucide-react';
+import { LogOut, Moon, Sun, User } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 
 export default function UserButton() {
   const { data: session } = useSession();
@@ -43,6 +44,12 @@ export default function UserButton() {
         <DropdownMenuLabel>{session.user.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link href='/profile'>
+              <User className='mr-2 h-4 w-4' />
+              <span>Profile</span>
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={async () => {
               await signOut();

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import Logo from './Logo';
 import UserButton from './UserButton';
+import { Button } from '@/components/ui/button';
 
 const exceptions = ['/login', '/signup'];
 
@@ -22,12 +23,10 @@ export default function Navbar() {
             <Logo className='mr-4 h-10 w-auto' />
           </Link>
         </div>
-        <div className='flex items-center gap-4'>
-          <div>
-            <span className='text-sm font-medium text-muted-foreground'>
-              {session?.user?.stdNo}
-            </span>
-          </div>
+        <div className='flex items-center gap-2'>
+          <Button variant='link' asChild>
+            <Link href='/profile'>{session?.user?.stdNo}</Link>
+          </Button>
           <UserButton />
         </div>
       </Container>
