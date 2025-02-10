@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
+import { formatDate } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
 import { redirect } from 'next/navigation';
 
@@ -67,9 +68,7 @@ export default async function ProfilePage() {
                     Date of Birth
                   </dt>
                   <dd className='text-sm font-semibold'>
-                    {student.dateOfBirth
-                      ? new Date(student.dateOfBirth).toLocaleDateString()
-                      : 'Not provided'}
+                    {formatDate(student.dateOfBirth)}
                   </dd>
                 </div>
                 <div>
@@ -101,7 +100,7 @@ export default async function ProfilePage() {
                   <dt className='text-sm font-medium text-muted-foreground'>
                     Current Semester
                   </dt>
-                  <dd className='text-sm font-semibold'>{student.sem}</dd>
+                  <dd className='text-sm font-semibold'>0{student.sem}</dd>
                 </div>
               </dl>
             </CardContent>
