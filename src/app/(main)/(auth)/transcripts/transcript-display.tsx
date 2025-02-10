@@ -146,7 +146,7 @@ const renderDesktopView = (semester: Semester) => (
 const renderModuleDrawer = (module: Module) => (
   <Drawer key={module.id}>
     <DrawerTrigger asChild>
-      <Card className='p-4 space-y-2 cursor-pointer hover:bg-accent'>
+      <Card className='p-4 space-y-2 cursor-pointer hover:bg-accent rounded-sm'>
         <div className='flex justify-between items-center'>
           <div>
             <p className='text-sm'>{module.name}</p>
