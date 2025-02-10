@@ -152,8 +152,9 @@ export const programStatusEnum = [
 
 export const studentPrograms = sqliteTable('student_programs', {
   id: integer().primaryKey(),
-  code: text().notNull(),
-  name: text().notNull(),
+  programId: integer()
+    .references(() => programs.id, { onDelete: 'cascade' })
+    .notNull(),
   status: text({ enum: programStatusEnum }).notNull(),
   stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
@@ -256,10 +257,12 @@ export const schools = sqliteTable('schools', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
+export const programLevelEnum = ['certificate', 'diploma', 'degree'] as const;
 export const programs = sqliteTable('programs', {
   id: integer().primaryKey(),
   code: text().notNull().unique(),
   name: text().notNull(),
+  level: text({ enum: programLevelEnum }).notNull(),
   schoolId: integer()
     .references(() => schools.id, { onDelete: 'cascade' })
     .notNull(),
