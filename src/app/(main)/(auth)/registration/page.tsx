@@ -52,36 +52,38 @@ export default async function RegistrationStatusPage() {
             </div>
           </div>
 
-          <div className='flex flex-col sm:flex-row sm:justify-end gap-3'>
-            <Button
-              variant='default'
-              size='lg'
-              asChild
-              className='w-full sm:w-auto'
-            >
-              <Link
-                href='/registration/status'
-                className='flex items-center justify-center'
+          {request.status !== 'approved' && (
+            <div className='flex flex-col sm:flex-row sm:justify-end gap-3'>
+              <Button
+                variant='default'
+                size='lg'
+                asChild
+                className='w-full sm:w-auto'
               >
-                <EyeIcon className='mr-2 h-5 w-5' />
-                View Full Details
-              </Link>
-            </Button>
-            <Button
-              variant='outline'
-              size='lg'
-              asChild
-              className='w-full sm:w-auto'
-            >
-              <Link
-                href='/registration/update'
-                className='flex items-center justify-center'
+                <Link
+                  href='/registration/status'
+                  className='flex items-center justify-center'
+                >
+                  <EyeIcon className='mr-2 h-5 w-5' />
+                  View Full Details
+                </Link>
+              </Button>
+              <Button
+                variant='outline'
+                size='lg'
+                asChild
+                className='w-full sm:w-auto'
               >
-                <PenSquare className='mr-2 h-5 w-5' />
-                Update Modules
-              </Link>
-            </Button>
-          </div>
+                <Link
+                  href='/registration/update'
+                  className='flex items-center justify-center'
+                >
+                  <PenSquare className='mr-2 h-5 w-5' />
+                  Update Modules
+                </Link>
+              </Button>
+            </div>
+          )}
         </CardHeader>
 
         <CardContent>

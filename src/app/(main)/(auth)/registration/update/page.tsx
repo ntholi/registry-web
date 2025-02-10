@@ -33,6 +33,10 @@ export default async function UpdateRegistrationPage() {
     currentTerm.id
   );
 
+  if (request?.status === 'approved') {
+    redirect('/');
+  }
+
   if (!request) {
     redirect('/registration/request');
   }
