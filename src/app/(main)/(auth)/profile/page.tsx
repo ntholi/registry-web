@@ -17,8 +17,8 @@ export default async function ProfilePage() {
         <Card>
           <CardContent>
             <div className='flex flex-col items-center space-y-4'>
-              <Avatar className='size-28 -m-10'>
-                <AvatarImage src={session.user.image ?? ''} />
+              <Avatar className='size-32 -m-10'>
+                <AvatarImage src={largeImage(session.user.image)} />
                 <AvatarFallback>
                   {session.user.name?.[0]?.toUpperCase() ?? 'U'}
                 </AvatarFallback>
@@ -110,4 +110,9 @@ export default async function ProfilePage() {
       </div>
     </Container>
   );
+}
+
+function largeImage(url: string | null | undefined) {
+  if (!url) return undefined;
+  return url.includes('google') ? url.replace('=s96-c', '') : url;
 }
