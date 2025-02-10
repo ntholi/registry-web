@@ -5,6 +5,7 @@ import { AlertCircle } from 'lucide-react';
 import Hero from './home/Hero';
 import HomeLinks from './home/HomeLinks';
 import { Session } from 'next-auth';
+import Notifications from './home/notifications';
 
 export default async function Home() {
   const session = await auth();
@@ -17,6 +18,7 @@ export default async function Home() {
   return (
     <Container width='lg' className='pt-4 sm:pt-10'>
       <Hero student={student} />
+      <Notifications />
       <HomeLinks />
     </Container>
   );

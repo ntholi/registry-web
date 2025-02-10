@@ -1,7 +1,9 @@
 'use server';
 
+import { auth } from '@/auth';
 import { db } from '@/db';
 import {
+  registrationRequests,
   structureSemesters,
   studentPrograms,
   studentSemesters,
@@ -118,4 +120,33 @@ export async function getStudentScore(stdNo: number, structureId: number) {
     creditsCompleted,
     creditsRequired,
   };
+}
+
+export type Notification = {
+  id: string;
+  title: string;
+  message: string;
+  type: 'registration' | 'academic' | 'finance' | 'general';
+  status: 'pending' | 'approved' | 'rejected' | 'info';
+  timestamp: Date;
+};
+
+export async function getNotifications(): Promise<Notification[]> {
+  const session = await auth();
+  if (!session?.user?.stdNo) return [];
+
+  const regRequests = await db.query.registrationRequests.findMany({
+    where: eq(registrationRequests.stdNo, session.user.stdNo),
+    orderBy: (requests) => requests.createdAt,
+    limit: 5,
+  });
+
+  return regRequests.map((req) => ({
+    id: req.id.toString(),
+    title: 'Registration Request',
+    message: req.message || '',
+    type: 'registration',
+    status: req.status,
+    timestamp: req.createdAt ?? new Date(),
+  }));
 }
