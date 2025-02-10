@@ -17,7 +17,7 @@ const links = [
 
 export default function HomeLinks() {
   return (
-    <div className='mt-2 grid gap-2.5 sm:gap-4 grid-cols-1 sm:grid-cols-2'>
+    <div className='mt-4 grid gap-2.5 sm:gap-4 grid-cols-1 sm:grid-cols-2'>
       {links.map(({ href, icon: Icon, text }, index) => (
         <Link key={index} href={href}>
           <Button
