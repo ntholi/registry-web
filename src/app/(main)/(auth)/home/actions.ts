@@ -144,7 +144,7 @@ export async function getNotifications(): Promise<Notification[]> {
 
   return regRequests.map((req) => ({
     id: req.id.toString(),
-    title: 'Registration Request',
+    title: 'Registration Status',
     message: `${
       req.message || statusFromRequest(req.status)
     } Click to view details`,

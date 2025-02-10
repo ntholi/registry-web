@@ -109,13 +109,13 @@ function NotificationCard({
             <h3 className='font-medium'>{title}</h3>
             <time
               dateTime={timestamp.toISOString()}
-              className='text-sm text-muted-foreground'
+              className='text-xs text-muted-foreground'
             >
               {formatDate(timestamp)}
             </time>
           </div>
           {message && (
-            <p className='text-sm text-muted-foreground'>{message}</p>
+            <p className='text-xs text-muted-foreground'>{message}</p>
           )}
         </div>
       </div>
