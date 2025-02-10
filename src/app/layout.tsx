@@ -3,9 +3,9 @@ import Providers from './providers';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Student Portal',
+  title: 'Limkokwing Portal',
   description:
-    'Student Portal Limkokwing University of Creative Technology, Lesotho',
+    'Limkokwing Portal Limkokwing University of Creative Technology, Lesotho',
   icons: {
     icon: '/images/logo.png',
   },
