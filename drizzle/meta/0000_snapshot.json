@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5767f4d4-f8bd-4ca6-8139-7f2b5c9ea5d9",
+  "id": "03b880d6-cb0f-43ab-9861-4a0cb73101c6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -356,6 +356,13 @@
         },
         "name": {
           "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "level": {
+          "name": "level",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -1234,18 +1241,32 @@
           "notNull": true,
           "autoincrement": false
         },
-        "code": {
-          "name": "code",
-          "type": "text",
+        "std_no": {
+          "name": "std_no",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "name": {
-          "name": "name",
+        "start_term": {
+          "name": "start_term",
           "type": "text",
           "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "structure_id": {
+          "name": "structure_id",
+          "type": "integer",
+          "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "stream": {
+          "name": "stream",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "status": {
@@ -1255,11 +1276,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "std_no": {
-          "name": "std_no",
-          "type": "integer",
+        "assist_provider": {
+          "name": "assist_provider",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -1282,6 +1303,19 @@
           ],
           "columnsTo": [
             "std_no"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "student_programs_structure_id_structures_id_fk": {
+          "name": "student_programs_structure_id_structures_id_fk",
+          "tableFrom": "student_programs",
+          "tableTo": "structures",
+          "columnsFrom": [
+            "structure_id"
+          ],
+          "columnsTo": [
+            "id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"

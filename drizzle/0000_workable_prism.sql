@@ -51,6 +51,7 @@ CREATE TABLE `programs` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`code` text NOT NULL,
 	`name` text NOT NULL,
+	`level` text NOT NULL,
 	`school_id` integer NOT NULL,
 	`created_at` integer DEFAULT (unixepoch()),
 	FOREIGN KEY (`school_id`) REFERENCES `schools`(`id`) ON UPDATE no action ON DELETE cascade
@@ -175,12 +176,15 @@ CREATE TABLE `student_modules` (
 --> statement-breakpoint
 CREATE TABLE `student_programs` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`code` text NOT NULL,
-	`name` text NOT NULL,
-	`status` text NOT NULL,
 	`std_no` integer NOT NULL,
+	`start_term` text,
+	`structure_id` integer NOT NULL,
+	`stream` text,
+	`status` text NOT NULL,
+	`assist_provider` text,
 	`created_at` integer DEFAULT (unixepoch()),
-	FOREIGN KEY (`std_no`) REFERENCES `students`(`std_no`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`std_no`) REFERENCES `students`(`std_no`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`structure_id`) REFERENCES `structures`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `student_semesters` (

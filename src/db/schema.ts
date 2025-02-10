@@ -152,13 +152,16 @@ export const programStatusEnum = [
 
 export const studentPrograms = sqliteTable('student_programs', {
   id: integer().primaryKey(),
-  programId: integer()
-    .references(() => programs.id, { onDelete: 'cascade' })
-    .notNull(),
-  status: text({ enum: programStatusEnum }).notNull(),
   stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
+  startTerm: text(),
+  structureId: integer()
+    .references(() => structures.id, { onDelete: 'cascade' })
+    .notNull(),
+  stream: text(),
+  status: text({ enum: programStatusEnum }).notNull(),
+  assistProvider: text(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
