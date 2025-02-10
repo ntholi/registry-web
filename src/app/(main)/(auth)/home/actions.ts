@@ -10,6 +10,7 @@ import {
 } from '@/db/schema';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { and, eq, notInArray } from 'drizzle-orm';
+import { isAfter, subHours } from 'date-fns';
 
 const grades = {
   'A+': 4.0,
@@ -148,6 +149,7 @@ export async function getNotifications(): Promise<Notification[]> {
 
   if (
     req?.status === 'approved' &&
+    req?.dateApproved &&
     isAfter(subHours(new Date(), 8), req.dateApproved)
   )
     return [];
@@ -164,7 +166,8 @@ export async function getNotifications(): Promise<Notification[]> {
       type: 'registration',
       status: req.status,
       timestamp: req.createdAt ?? new Date(),
-      href: `/registration/status`,
+      href:
+        req.status === 'approved' ? `/registration` : `/registration/status`,
     },
   ];
 }
@@ -178,11 +181,4 @@ function statusFromRequest(status: 'pending' | 'approved' | 'rejected') {
     case 'approved':
       return 'Your registration request has been approved';
   }
-}
-function isAfter(eightHoursAgo: any, dateApproved: Date | null) {
-  throw new Error('Function not implemented.');
-}
-
-function subHours(arg0: Date, arg1: number): any {
-  throw new Error('Function not implemented.');
 }
