@@ -10,6 +10,7 @@ import {
   Info,
   TriangleAlert,
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Notifications() {
   const { data: notifications = [] } = useQuery({
@@ -76,19 +77,24 @@ function NotificationCard({
   status,
   timestamp,
   type,
+  href,
+  className,
   ...props
-}: Notification & React.HTMLAttributes<HTMLDivElement>) {
+}: Notification & React.HTMLAttributes<HTMLAnchorElement>) {
   const config = notificationConfig[status];
   const Icon = config.icon;
 
   return (
-    <div
+    <Link
+      href={href}
       role='article'
       tabIndex={0}
       className={cn(
-        'group relative rounded-lg border p-4',
+        'group relative rounded-lg border p-4 block no-underline',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-        config.className
+        'hover:bg-accent/50 transition-colors',
+        config.className,
+        className
       )}
       {...props}
     >
@@ -99,29 +105,20 @@ function NotificationCard({
           aria-hidden='true'
         />
         <div className='flex-1 space-y-2'>
-          <div className='flex items-start justify-between gap-x-4'>
-            <p className={cn('font-medium leading-none', config.textColor)}>
-              {title}
-            </p>
+          <div className='flex items-center justify-between gap-4'>
+            <h3 className='font-medium'>{title}</h3>
             <time
-              dateTime={new Date(timestamp).toISOString()}
-              className='text-xs text-muted-foreground whitespace-nowrap'
+              dateTime={timestamp.toISOString()}
+              className='text-sm text-muted-foreground'
             >
               {formatDate(timestamp)}
             </time>
           </div>
           {message && (
-            <p className='text-sm text-muted-foreground leading-relaxed'>
-              {message}
-            </p>
-          )}
-          {type === 'registration' && (
-            <p className='text-xs text-muted-foreground flex items-center gap-1 pt-1'>
-              Click to view registration details
-            </p>
+            <p className='text-sm text-muted-foreground'>{message}</p>
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -129,6 +129,7 @@ export type Notification = {
   type: 'registration' | 'academic' | 'finance' | 'general';
   status: 'pending' | 'approved' | 'rejected' | 'info';
   timestamp: Date;
+  href: string;
 };
 
 export async function getNotifications(): Promise<Notification[]> {
@@ -144,9 +145,21 @@ export async function getNotifications(): Promise<Notification[]> {
   return regRequests.map((req) => ({
     id: req.id.toString(),
     title: 'Registration Request',
-    message: req.message || '',
+    message: req.message || statusFromRequest(req.status),
     type: 'registration',
     status: req.status,
     timestamp: req.createdAt ?? new Date(),
+    href: `/registration`,
   }));
+}
+
+function statusFromRequest(status: 'pending' | 'approved' | 'rejected') {
+  switch (status) {
+    case 'pending':
+      return 'Your registration request is currently under review, this might take a few days. Come back later to check the status.';
+    case 'rejected':
+      return 'Your registration request has been rejected';
+    case 'approved':
+      return 'Your registration request has been approved';
+  }
 }
