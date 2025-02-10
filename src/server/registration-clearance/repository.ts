@@ -6,7 +6,7 @@ import {
   requestedModules,
 } from '@/db/schema';
 import { db } from '@/db';
-import { and, count, eq, gt } from 'drizzle-orm';
+import { and, count, desc, eq, gt } from 'drizzle-orm';
 import { auth } from '@/auth';
 
 type Model = typeof registrationClearances.$inferInsert;
@@ -179,7 +179,10 @@ export default class RegistrationClearanceRepository extends BaseRepository<
           },
         },
         audits: {
-          orderBy: (audit, { desc }) => [desc(audit.date)],
+          orderBy: desc(registrationClearanceAudit.date),
+          with: {
+            user: true,
+          },
         },
       },
     });
@@ -190,7 +193,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       where: and(
         eq(registrationClearances.status, 'pending'),
         eq(registrationClearances.department, department),
-        gt(registrationClearances.id, currentId),
+        gt(registrationClearances.id, currentId)
       ),
       with: {
         registrationRequest: {

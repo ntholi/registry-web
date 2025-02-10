@@ -92,7 +92,7 @@ export default function ClearanceHistory({ clearanceId }: Props) {
                           component={Link}
                           href={`/admin/users/${audit.createdBy}`}
                         >
-                          {audit.createdBy}
+                          {audit.user.name}
                         </Anchor>
                       </Table.Td>
                     </Table.Tr>
