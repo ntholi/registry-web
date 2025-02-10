@@ -11,6 +11,11 @@ export async function getTranscript(stdNo: number) {
       inArray(studentPrograms.status, ['Active', 'Completed'])
     ),
     with: {
+      structure: {
+        with: {
+          program: true,
+        },
+      },
       semesters: {
         where: (semester) =>
           notInArray(semester.status, ['Deleted', 'Deferred']),
@@ -27,8 +32,8 @@ export async function getTranscript(stdNo: number) {
 
   return programs.map((program) => ({
     id: program.id,
-    code: program.code,
-    name: program.name,
+    code: program.structure.program.code,
+    name: program.structure.program.name,
     semesters: program.semesters.map((semester) => ({
       id: semester.id,
       term: semester.term,
