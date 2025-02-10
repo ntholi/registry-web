@@ -8,6 +8,7 @@ import {
   studentPrograms,
   studentSemesters,
 } from '@/db/schema';
+import { getCurrentTerm } from '@/server/terms/actions';
 import { and, eq, notInArray } from 'drizzle-orm';
 
 const grades = {
@@ -134,25 +135,38 @@ export type Notification = {
 
 export async function getNotifications(): Promise<Notification[]> {
   const session = await auth();
+  const term = await getCurrentTerm();
   if (!session?.user?.stdNo) return [];
 
-  const regRequests = await db.query.registrationRequests.findMany({
-    where: eq(registrationRequests.stdNo, session.user.stdNo),
+  const req = await db.query.registrationRequests.findFirst({
+    where: and(
+      eq(registrationRequests.stdNo, session.user.stdNo),
+      eq(registrationRequests.termId, term.id)
+    ),
     orderBy: (requests) => requests.createdAt,
-    limit: 5,
   });
 
-  return regRequests.map((req) => ({
-    id: req.id.toString(),
-    title: 'Registration Status',
-    message: `${
-      req.message || statusFromRequest(req.status)
-    } Click to view details`,
-    type: 'registration',
-    status: req.status,
-    timestamp: req.createdAt ?? new Date(),
-    href: `/registration/status`,
-  }));
+  if (
+    req?.status === 'approved' &&
+    isAfter(subHours(new Date(), 8), req.dateApproved)
+  )
+    return [];
+
+  if (!req) return [];
+
+  return [
+    {
+      id: req.id.toString(),
+      title: 'Registration Status',
+      message: `${
+        req.message || statusFromRequest(req.status)
+      } Click to view details`,
+      type: 'registration',
+      status: req.status,
+      timestamp: req.createdAt ?? new Date(),
+      href: `/registration/status`,
+    },
+  ];
 }
 
 function statusFromRequest(status: 'pending' | 'approved' | 'rejected') {
@@ -164,4 +178,11 @@ function statusFromRequest(status: 'pending' | 'approved' | 'rejected') {
     case 'approved':
       return 'Your registration request has been approved';
   }
+}
+function isAfter(eightHoursAgo: any, dateApproved: Date | null) {
+  throw new Error('Function not implemented.');
+}
+
+function subHours(arg0: Date, arg1: number): any {
+  throw new Error('Function not implemented.');
 }

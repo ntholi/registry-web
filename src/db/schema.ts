@@ -360,6 +360,7 @@ export const registrationRequests = sqliteTable(
       sql`(unixepoch())`
     ),
     updatedAt: integer('updated_at', { mode: 'timestamp' }),
+    dateApproved: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueRegistrationRequests: unique().on(table.stdNo, table.termId),
