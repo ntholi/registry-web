@@ -45,7 +45,7 @@ export async function getNotifications(): Promise<Notification[]> {
       title: 'Registration Status',
       message: `${
         req.message || statusFromRequest(req.status)
-      } Click to view details`,
+      }. Click to view details`,
       type: 'registration',
       status: req.status,
       timestamp: req.createdAt ?? new Date(),
@@ -58,7 +58,7 @@ export async function getNotifications(): Promise<Notification[]> {
 function statusFromRequest(status: 'pending' | 'approved' | 'rejected') {
   switch (status) {
     case 'pending':
-      return 'Your registration request is currently under review.';
+      return 'Your registration request is currently under review';
     case 'rejected':
       return 'Your registration request has been rejected';
     case 'approved':
