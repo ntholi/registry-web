@@ -4,7 +4,7 @@ import { auth } from '@/auth';
 import { db } from '@/db';
 import { registrationRequests } from '@/db/schema';
 import { getCurrentTerm } from '@/server/terms/actions';
-import { isAfter, subHours } from 'date-fns';
+import { isAfter, subDays } from 'date-fns';
 import { and, eq } from 'drizzle-orm';
 
 export type Notification = {
@@ -33,7 +33,7 @@ export async function getNotifications(): Promise<Notification[]> {
   if (
     req?.status === 'approved' &&
     req?.dateApproved &&
-    isAfter(subHours(new Date(), 8), req.dateApproved)
+    isAfter(subDays(new Date(), 2), req.dateApproved)
   )
     return [];
 
