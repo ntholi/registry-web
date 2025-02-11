@@ -23,7 +23,7 @@ export default function Notifications() {
   }
 
   return (
-    <section aria-label='Notifications' className='space-y-6 py-4'>
+    <section aria-label='Notifications' className='space-y-4 pb-4 px-0.5'>
       <div className='flex items-center gap-3 px-1'>
         <div className='relative'>
           <Bell className='h-5 w-5 text-muted-foreground' />

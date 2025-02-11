@@ -17,8 +17,8 @@ export default async function Home() {
 
   return (
     <Container width='lg' className='pt-4 sm:pt-10'>
-      <Hero student={student} />
       <Notifications />
+      <Hero student={student} />
       <HomeLinks />
     </Container>
   );
