@@ -49,8 +49,7 @@ export async function getNotifications(): Promise<Notification[]> {
       type: 'registration',
       status: req.status,
       timestamp: req.createdAt ?? new Date(),
-      href:
-        req.status === 'approved' ? `/registration` : `/registration/status`,
+      href: '/registration/status',
     },
   ];
 }
