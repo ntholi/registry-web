@@ -113,7 +113,7 @@ export default function AcademicsView({ student }: Props) {
                   <IconSchool size='1.1rem' />
                 </ThemeIcon>
                 <Stack gap={5}>
-                  <Text fw={500}>{program.name}</Text>
+                  <Text fw={500}>{program.structure.program.name}</Text>
                   <Group gap={'xs'}>
                     <Badge
                       color={getProgramStatusColor(program.status)}

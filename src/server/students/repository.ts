@@ -31,6 +31,11 @@ export default class StudentRepository extends BaseRepository<
         user: true,
         programs: {
           with: {
+            structure: {
+              with: {
+                program: true,
+              },
+            },
             semesters: {
               with: {
                 studentModules: {

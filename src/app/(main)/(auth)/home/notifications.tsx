@@ -76,7 +76,6 @@ function NotificationCard({
   message,
   status,
   timestamp,
-  type,
   href,
   className,
   ...props

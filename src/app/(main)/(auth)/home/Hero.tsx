@@ -4,10 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
-import { getStudentScore } from './actions';
 import { GraduationCap } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getStudentScore } from './actions/transcript';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
