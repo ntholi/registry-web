@@ -1,7 +1,7 @@
 'use client';
 
 import { cn, formatDate } from '@/lib/utils';
-import { getNotifications, type Notification } from './actions';
+import { getNotifications, type Notification } from './actions/notifications';
 import { useQuery } from '@tanstack/react-query';
 import {
   Bell,

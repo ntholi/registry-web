@@ -5,7 +5,7 @@ import { AlertCircle } from 'lucide-react';
 import Hero from './home/Hero';
 import HomeLinks from './home/HomeLinks';
 import { Session } from 'next-auth';
-import Notifications from './home/notifications';
+import Notifications from './home/Notifications';
 
 export default async function Home() {
   const session = await auth();
