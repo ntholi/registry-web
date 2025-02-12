@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import Link from 'next/link';
 import RequestStatusSwitch from './RequestStatusSwitch';
+import { formatSemester } from '@/lib/utils';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -52,7 +53,7 @@ export default function RequestDetailsView({ value }: Props) {
               <Text fw={500}>{value.term.name}</Text>
             </FieldView>
             <FieldView label='Semester' underline={false}>
-              {value.semesterNumber}
+              {formatSemester(value.semesterNumber)}
             </FieldView>
           </Stack>
         </Paper>

@@ -23,7 +23,7 @@ export default async function RegistrationRequestDetails({ params }: Props) {
   return (
     <DetailsView>
       <DetailsViewHeader
-        title={`${registrationRequest.student.name} | Registration Request`}
+        title={`${registrationRequest.student.name}`}
         queryKey={['registrationRequests']}
         handleDelete={async () => {
           'use server';
