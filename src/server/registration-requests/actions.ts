@@ -44,11 +44,16 @@ export async function createRegistrationRequest(value: RegistrationRequest) {
   return service.create(value);
 }
 
-export async function updateRegistrationRequest(
-  id: number,
-  registrationRequest: RegistrationRequest,
-) {
-  return service.update(id, registrationRequest);
+export async function updateRegistrationRequest({
+  id,
+  status,
+  message,
+}: {
+  id: number;
+  status: RegistrationRequest['status'];
+  message?: string;
+}) {
+  return service.update(id, { status, message });
 }
 
 export async function deleteRegistrationRequest(id: number) {

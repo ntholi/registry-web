@@ -2,8 +2,18 @@
 
 import { FieldView } from '@/components/adease';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { Anchor, Stack, Badge, Group, Card, Text, Paper } from '@mantine/core';
+import {
+  Anchor,
+  Badge,
+  Grid,
+  GridCol,
+  Group,
+  Paper,
+  Stack,
+  Text,
+} from '@mantine/core';
 import Link from 'next/link';
+import RequestStatusSwitch from './RequestStatusSwitch';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -24,28 +34,32 @@ export default function RequestDetailsView({ value }: Props) {
   };
 
   return (
-    <Paper withBorder shadow='sm' radius='md' p='lg'>
-      <Stack gap='md'>
-        <Group justify='space-between'>
-          <FieldView label='Student'>
-            <Anchor
-              component={Link}
-              href={`/admin/students/${value.stdNo}`}
-              size='sm'
-              fw={500}
-            >
-              {value.student.name} ({value.student.stdNo})
-            </Anchor>
-          </FieldView>
-          <Badge color={getStatusColor(value.status)}>{value.status}</Badge>
-        </Group>
-        <FieldView label='Term'>
-          <Text fw={500}>{value.term.name}</Text>
-        </FieldView>
-        <FieldView label='Message'>
-          <Text>{value.message || 'No message provided'}</Text>
-        </FieldView>
-      </Stack>
-    </Paper>
+    <Grid>
+      <GridCol span={{ base: 12, md: 7 }}>
+        <Paper withBorder p='md'>
+          <Stack gap='md'>
+            <FieldView label='Student' underline={false}>
+              <Anchor
+                component={Link}
+                href={`/admin/students/${value.stdNo}`}
+                size='sm'
+                fw={500}
+              >
+                {value.student.name} ({value.student.stdNo})
+              </Anchor>
+            </FieldView>
+            <FieldView label='Term' underline={false}>
+              <Text fw={500}>{value.term.name}</Text>
+            </FieldView>
+            <FieldView label='Semester' underline={false}>
+              {value.semesterNumber}
+            </FieldView>
+          </Stack>
+        </Paper>
+      </GridCol>
+      <GridCol span={{ base: 12, md: 5 }}>
+        <RequestStatusSwitch request={{ id: value.id, status: value.status }} />
+      </GridCol>
+    </Grid>
   );
 }
