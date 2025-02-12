@@ -3,16 +3,17 @@ import {
   deleteRegistrationRequest,
   getRegistrationRequest,
 } from '@/server/registration-requests/actions';
-import { Stack } from '@mantine/core';
+import { Tabs, TabsList, TabsPanel, TabsTab, Stack } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import RequestDetailsView from './RequestDetailsView';
 import ModulesView from './ModulesView';
+import ClearanceAccordion from './ClearanceAccordion';
 
-type Props = {
+interface Props {
   params: Promise<{ id: string }>;
-};
+}
 
-export default async function RegistrationRequestDetails({ params }: Props) {
+export default async function RegistrationRequestDetails({ params }: Props): Promise<JSX.Element> {
   const { id } = await params;
   const registrationRequest = await getRegistrationRequest(Number(id));
 
@@ -23,17 +24,30 @@ export default async function RegistrationRequestDetails({ params }: Props) {
   return (
     <DetailsView>
       <DetailsViewHeader
-        title={`${registrationRequest.student.name}`}
+        title={registrationRequest.student.name}
         queryKey={['registrationRequests']}
         handleDelete={async () => {
           'use server';
           await deleteRegistrationRequest(Number(id));
         }}
       />
-      <Stack gap='xl' mt='xl' p='sm'>
-        <RequestDetailsView value={registrationRequest} />
-        <ModulesView value={registrationRequest} />
-      </Stack>
+      <Tabs defaultValue="details" variant="outline">
+        <TabsList>
+          <TabsTab value="details">Details</TabsTab>
+          <TabsTab value="clearance">Clearance</TabsTab>
+        </TabsList>
+        <TabsPanel value="details">
+          <Stack gap="xl" mt="xl" p="sm">
+            <RequestDetailsView value={registrationRequest} />
+            <ModulesView value={registrationRequest} />
+          </Stack>
+        </TabsPanel>
+        <TabsPanel value="clearance">
+          <Stack gap="xl" mt="xl" p="sm">
+            <ClearanceAccordion value={registrationRequest} />
+          </Stack>
+        </TabsPanel>
+      </Tabs>
     </DetailsView>
   );
 }
