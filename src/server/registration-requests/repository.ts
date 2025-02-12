@@ -38,7 +38,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
     return db.query.registrationRequests.findFirst({
       where: and(
         eq(registrationRequests.stdNo, stdNo),
-        eq(registrationRequests.termId, termId)
+        eq(registrationRequests.termId, termId),
       ),
       with: {
         requestedModules: {
@@ -78,22 +78,48 @@ export default class RegistrationRequestRepository extends BaseRepository<
     return db.insert(requestedModules).values(modules).returning();
   }
 
+  private async handleRegistrationModules(
+    tx: any,
+    registrationRequestId: number,
+    modules: { id: number; status: ModuleStatus }[],
+  ) {
+    if (!modules.length) throw new Error('No modules selected');
+    if (modules.length > MAX_REG_MODULES)
+      throw new Error(`You can only select up to ${MAX_REG_MODULES} modules.`);
+
+    await tx
+      .delete(requestedModules)
+      .where(eq(requestedModules.registrationRequestId, registrationRequestId));
+
+    const modulesToCreate = modules.map((module) => ({
+      moduleId: module.id,
+      moduleStatus: module.status,
+      registrationRequestId,
+    }));
+
+    return tx.insert(requestedModules).values(modulesToCreate).returning();
+  }
+
   async createRegistrationWithModules(data: {
+    currentSemester: number;
     stdNo: number;
     termId: number;
     modules: { id: number; status: ModuleStatus }[];
   }) {
-    if (!data.modules.length) throw new Error('No modules selected');
-    if (data.modules.length > MAX_REG_MODULES)
-      throw new Error(`You can only select up to ${MAX_REG_MODULES} modules.`);
+    const semesterNumber = data.modules.every((it) =>
+      it.status.startsWith('Repeat'),
+    )
+      ? data.currentSemester - 1
+      : data.currentSemester + 1;
 
-    return await db.transaction(async (tx) => {
+    return db.transaction(async (tx) => {
       const [request] = await tx
         .insert(registrationRequests)
         .values({
           stdNo: data.stdNo,
           termId: data.termId,
           status: 'pending',
+          semesterNumber,
         })
         .returning();
 
@@ -107,16 +133,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
           .returning();
       });
 
-      const modulesToCreate = data.modules.map((module) => ({
-        moduleId: module.id,
-        moduleStatus: module.status,
-        registrationRequestId: request.id,
-      }));
-
-      const modules = await tx
-        .insert(requestedModules)
-        .values(modulesToCreate)
-        .returning();
+      const modules = await this.handleRegistrationModules(
+        tx,
+        request.id,
+        data.modules,
+      );
 
       return { request, modules };
     });
@@ -124,9 +145,9 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
   async updateRegistrationWithModules(
     registrationRequestId: number,
-    modules: { id: number; status: ModuleStatus }[]
+    modules: { id: number; status: ModuleStatus }[],
   ) {
-    await db.transaction(async (tx) => {
+    return db.transaction(async (tx) => {
       await tx
         .update(registrationRequests)
         .set({
@@ -134,12 +155,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
           updatedAt: new Date(),
         })
         .where(eq(registrationRequests.id, registrationRequestId));
-
-      await tx
-        .delete(requestedModules)
-        .where(
-          eq(requestedModules.registrationRequestId, registrationRequestId)
-        );
 
       await tx
         .update(registrationClearances)
@@ -150,21 +165,13 @@ export default class RegistrationRequestRepository extends BaseRepository<
           and(
             eq(
               registrationClearances.registrationRequestId,
-              registrationRequestId
+              registrationRequestId,
             ),
-            eq(registrationClearances.department, 'finance')
-          )
+            eq(registrationClearances.department, 'finance'),
+          ),
         );
 
-      if (modules.length > 0) {
-        await tx.insert(requestedModules).values(
-          modules.map((module) => ({
-            registrationRequestId,
-            moduleId: module.id,
-            moduleStatus: module.status,
-          }))
-        );
-      }
+      return this.handleRegistrationModules(tx, registrationRequestId, modules);
     });
   }
 }

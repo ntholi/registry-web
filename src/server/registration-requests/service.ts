@@ -12,7 +12,7 @@ type RequestedModule = typeof requestedModules.$inferInsert;
 
 class RegistrationRequestService {
   constructor(
-    private readonly repository = new RegistrationRequestRepository()
+    private readonly repository = new RegistrationRequestRepository(),
   ) {}
 
   async first() {
@@ -23,14 +23,14 @@ class RegistrationRequestService {
     return withAuth(
       async () => this.repository.findByStdNo(stdNo, termId),
       ['student'],
-      async (session) => session.user?.stdNo === stdNo
+      async (session) => session.user?.stdNo === stdNo,
     );
   }
 
   async getRequestedModules(registrationRequestId: number) {
     return withAuth(
       async () => this.repository.getRequestedModules(registrationRequestId),
-      ['student']
+      ['student'],
     );
   }
 
@@ -54,7 +54,7 @@ class RegistrationRequestService {
     return withAuth(
       async () => this.repository.create(data),
       ['student'],
-      async (session) => session.user?.stdNo === data.stdNo
+      async (session) => session.user?.stdNo === data.stdNo,
     );
   }
 
@@ -62,7 +62,7 @@ class RegistrationRequestService {
     return withAuth(
       async () => this.repository.createRequestedModules(modules),
       ['student'],
-      async (session) => session.user?.stdNo === stdNo
+      async (session) => session.user?.stdNo === stdNo,
     );
   }
 
@@ -70,7 +70,7 @@ class RegistrationRequestService {
     return withAuth(
       async () => this.repository.update(id, data),
       ['student'],
-      async (session) => session.user?.stdNo === data.stdNo
+      async (session) => session.user?.stdNo === data.stdNo,
     );
   }
 
@@ -83,6 +83,7 @@ class RegistrationRequestService {
   }
 
   async createRegistrationWithModules(data: {
+    currentSemester: number;
     stdNo: number;
     termId: number;
     modules: { id: number; status: ModuleStatus }[];
@@ -90,21 +91,21 @@ class RegistrationRequestService {
     return withAuth(
       async () => this.repository.createRegistrationWithModules(data),
       ['student'],
-      async (session) => session.user?.stdNo === data.stdNo
+      async (session) => session.user?.stdNo === data.stdNo,
     );
   }
 
   async updateRegistrationWithModules(
     registrationRequestId: number,
-    modules: { id: number; status: ModuleStatus }[]
+    modules: { id: number; status: ModuleStatus }[],
   ) {
     return withAuth(
       async () =>
         this.repository.updateRegistrationWithModules(
           registrationRequestId,
-          modules
+          modules,
         ),
-      ['student']
+      ['student'],
     );
   }
 }

@@ -54,7 +54,7 @@ export const accounts = sqliteTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  })
+  }),
 );
 
 export const sessions = sqliteTable('sessions', {
@@ -76,7 +76,7 @@ export const verificationTokens = sqliteTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  })
+  }),
 );
 
 export const authenticators = sqliteTable(
@@ -99,7 +99,7 @@ export const authenticators = sqliteTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  })
+  }),
 );
 
 export const signupStatusEnum = ['pending', 'approved', 'rejected'] as const;
@@ -315,7 +315,7 @@ export const modulePrerequisites = sqliteTable(
   },
   (table) => ({
     uniquePrerequisite: unique().on(table.moduleId, table.prerequisiteId),
-  })
+  }),
 );
 
 export const semesterModules = sqliteTable('semester_modules', {
@@ -355,16 +355,17 @@ export const registrationRequests = sqliteTable(
     status: text({ enum: registrationRequestStatusEnum })
       .notNull()
       .default('pending'),
+    semesterNumber: integer().notNull(),
     message: text(),
     createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(unixepoch())`
+      sql`(unixepoch())`,
     ),
     updatedAt: integer('updated_at', { mode: 'timestamp' }),
     dateApproved: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueRegistrationRequests: unique().on(table.stdNo, table.termId),
-  })
+  }),
 );
 
 export const requestedModules = sqliteTable('requested_modules', {
@@ -400,9 +401,9 @@ export const registrationClearances = sqliteTable(
   (table) => ({
     uniqueRegistrationClearance: unique().on(
       table.registrationRequestId,
-      table.department
+      table.department,
     ),
-  })
+  }),
 );
 
 export const registrationClearanceAudit = sqliteTable(
@@ -425,5 +426,5 @@ export const registrationClearanceAudit = sqliteTable(
       .notNull()
       .$type<string[]>()
       .default(sql`(json_array())`),
-  }
+  },
 );

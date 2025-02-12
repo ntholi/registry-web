@@ -19,6 +19,7 @@ import React from 'react';
 
 type Props = {
   stdNo: number;
+  currentSemester: number;
 };
 
 type Module = {
@@ -28,7 +29,10 @@ type Module = {
   id: number;
 };
 
-export default function ClearanceRequestForm({ stdNo }: Props) {
+export default function ClearanceRequestForm({
+  stdNo,
+  currentSemester,
+}: Props) {
   const router = useRouter();
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
@@ -50,6 +54,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         termId: currentTerm.id,
         stdNo,
         modules,
+        currentSemester,
       });
 
       sessionStorage.removeItem('selectedModules');
@@ -79,13 +84,13 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
       <CardContent className='space-y-6'>
         <div className='space-y-1'>
           <p className='text-sm font-medium'>Term</p>
-          <p className='text-sm text-muted-foreground'>
+          <p className='text-muted-foreground text-sm'>
             {currentTerm?.name || 'Loading...'}
           </p>
         </div>
         <div className='space-y-1'>
           <p className='text-sm font-medium'>Student Number</p>
-          <p className='text-sm text-muted-foreground'>
+          <p className='text-muted-foreground text-sm'>
             {stdNo || 'Loading...'}
           </p>
         </div>
@@ -93,7 +98,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
             <p className='text-sm font-medium'>Modules Requested</p>
-            <p className='text-xs text-muted-foreground'>
+            <p className='text-muted-foreground text-xs'>
               {modules?.length || 0} modules
             </p>
           </div>
@@ -104,19 +109,19 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
                 {modules.map((it) => (
                   <div
                     key={it.id}
-                    className='flex items-start justify-between gap-4 pb-4 last:pb-0 border-b last:border-0'
+                    className='flex items-start justify-between gap-4 border-b pb-4 last:border-0 last:pb-0'
                   >
                     <div className='space-y-1'>
                       <p className='text-sm font-medium'>{it.name}</p>
-                      <p className='text-xs text-muted-foreground'>{it.code}</p>
+                      <p className='text-muted-foreground text-xs'>{it.code}</p>
                     </div>
                     <ModuleStatusBadge status={it.status} />
                   </div>
                 ))}
               </div>
             ) : (
-              <div className='flex items-center justify-center h-full'>
-                <p className='text-sm text-muted-foreground'>
+              <div className='flex h-full items-center justify-center'>
+                <p className='text-muted-foreground text-sm'>
                   No modules found
                 </p>
               </div>
@@ -144,7 +149,7 @@ function ModuleStatusBadge({ status }: { status: ModuleStatus }) {
       variant={status === 'Compulsory' ? 'secondary' : 'destructive'}
       className='flex items-center gap-1'
     >
-      <Check className='w-3 h-3' />
+      <Check className='h-3 w-3' />
       {status}
     </Badge>
   );
