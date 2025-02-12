@@ -23,7 +23,7 @@ export default function Notifications() {
   });
 
   const visibleNotifications = notifications.filter(
-    (notification) => !closedIds.has(notification.id)
+    (notification) => !closedIds.has(notification.id),
   );
 
   if (visibleNotifications.length === 0) {
@@ -31,11 +31,11 @@ export default function Notifications() {
   }
 
   return (
-    <section aria-label='Notifications' className='space-y-4 pb-4 px-0.5'>
+    <section aria-label='Notifications' className='space-y-4 px-0.5 pb-4'>
       <div className='flex items-center gap-3 px-1'>
         <div className='relative'>
           <Bell className='h-5 w-5 text-muted-foreground' />
-          <span className='absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground'>
+          <span className='absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground'>
             {visibleNotifications.length}
           </span>
         </div>
@@ -108,11 +108,11 @@ function NotificationCard({
       role='article'
       tabIndex={0}
       className={cn(
-        'group relative rounded-lg border p-4 block no-underline',
+        'group relative block rounded-lg border p-4 no-underline',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-        'hover:bg-accent/50 transition-colors',
+        'transition-colors hover:bg-accent/50',
         config.className,
-        className
+        className,
       )}
       {...props}
     >
@@ -136,7 +136,7 @@ function NotificationCard({
           variant='ghost'
           size='icon'
           onClick={handleClose}
-          className='absolute rounded-full right-2 top-2 sm:opacity-0 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 group-hover:opacity-70'
+          className='absolute right-2 top-2 rounded-full ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 group-hover:opacity-70 sm:opacity-0'
           aria-label='Close notification'
         >
           <X className='h-4 w-4' />

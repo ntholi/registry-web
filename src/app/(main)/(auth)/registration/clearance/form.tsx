@@ -63,7 +63,7 @@ export default function ClearanceRequestForm({
         description: 'Clearance request submitted successfully',
       });
 
-      router.push('/registration/status');
+      router.push('/registration');
     } catch {
       toast({
         variant: 'destructive',
@@ -84,13 +84,13 @@ export default function ClearanceRequestForm({
       <CardContent className='space-y-6'>
         <div className='space-y-1'>
           <p className='text-sm font-medium'>Term</p>
-          <p className='text-muted-foreground text-sm'>
+          <p className='text-sm text-muted-foreground'>
             {currentTerm?.name || 'Loading...'}
           </p>
         </div>
         <div className='space-y-1'>
           <p className='text-sm font-medium'>Student Number</p>
-          <p className='text-muted-foreground text-sm'>
+          <p className='text-sm text-muted-foreground'>
             {stdNo || 'Loading...'}
           </p>
         </div>
@@ -98,7 +98,7 @@ export default function ClearanceRequestForm({
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
             <p className='text-sm font-medium'>Modules Requested</p>
-            <p className='text-muted-foreground text-xs'>
+            <p className='text-xs text-muted-foreground'>
               {modules?.length || 0} modules
             </p>
           </div>
@@ -113,7 +113,7 @@ export default function ClearanceRequestForm({
                   >
                     <div className='space-y-1'>
                       <p className='text-sm font-medium'>{it.name}</p>
-                      <p className='text-muted-foreground text-xs'>{it.code}</p>
+                      <p className='text-xs text-muted-foreground'>{it.code}</p>
                     </div>
                     <ModuleStatusBadge status={it.status} />
                   </div>
@@ -121,7 +121,7 @@ export default function ClearanceRequestForm({
               </div>
             ) : (
               <div className='flex h-full items-center justify-center'>
-                <p className='text-muted-foreground text-sm'>
+                <p className='text-sm text-muted-foreground'>
                   No modules found
                 </p>
               </div>
