@@ -23,11 +23,11 @@ export default function Hero({ student }: Props) {
 
   return (
     <Card>
-      <CardHeader className='border-b border-border/10 pb-8 items-start'>
+      <CardHeader className='items-start border-b border-border/10 pb-8'>
         <CardTitle className='text-3xl font-bold tracking-tight sm:text-4xl'>
           {student.name}
         </CardTitle>
-        <div className='flex flex-col space-y-1 items-start'>
+        <div className='flex flex-col items-start space-y-1'>
           <Badge
             variant='secondary'
             className='flex items-center gap-2 rounded-full'
@@ -35,21 +35,21 @@ export default function Hero({ student }: Props) {
             <GraduationCap className='size-5' />
             {student.structure?.program.name}
           </Badge>
-          <div className='pl-2 flex gap-2 items-center text-sm text-muted-foreground/80'>
+          <div className='flex items-center gap-2 pl-2 text-sm text-muted-foreground/80'>
             {formatSemester(student.sem)}
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className='grid gap-6 grid-cols-2'>
-          <div className='rounded-xl bg-muted dark:bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
+        <div className='grid grid-cols-2 gap-6'>
+          <div className='rounded-xl border bg-muted p-5 shadow transition-all hover:shadow-lg dark:border-none dark:bg-muted/30 sm:p-6'>
             <h3 className='text-sm font-medium text-muted-foreground'>CGPA</h3>
             <div className='mt-3 flex items-baseline'>
               {isLoading ? (
                 <Skeleton className='h-10 w-24' />
               ) : (
                 <>
-                  <span className='text-2xl sm:text-4xl font-bold tracking-tight'>
+                  <span className='text-2xl font-bold tracking-tight sm:text-4xl'>
                     {scores?.gpa.toFixed(2)}
                   </span>
                   <span className='ml-2 text-sm text-muted-foreground'>
@@ -59,7 +59,7 @@ export default function Hero({ student }: Props) {
               )}
             </div>
           </div>
-          <div className='rounded-xl bg-muted dark:bg-muted/30 p-5 sm:p-6 shadow-sm transition-all hover:shadow'>
+          <div className='rounded-xl border bg-muted p-5 shadow transition-all hover:shadow dark:border-none dark:bg-muted/30 sm:p-6'>
             <h3 className='text-sm font-medium text-muted-foreground'>
               Total Credits
             </h3>
@@ -68,7 +68,7 @@ export default function Hero({ student }: Props) {
                 <Skeleton className='h-10 w-24' />
               ) : (
                 <>
-                  <span className='text-2xl sm:text-4xl font-bold tracking-tight'>
+                  <span className='text-2xl font-bold tracking-tight sm:text-4xl'>
                     {scores?.creditsCompleted.toFixed(0)}
                   </span>
                   <span className='ml-2 text-sm text-muted-foreground'>
