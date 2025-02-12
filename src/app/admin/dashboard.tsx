@@ -65,10 +65,20 @@ const navigation: NavItem[] = [
     roles: [...dashboardUsers],
   },
   {
+    label: 'Registration Requests',
+    href: '/admin/registration-requests',
+    icon: IconDeviceIpadHorizontalPlus,
+    roles: ['registry'],
+    notificationCount: {
+      queryKey: ['registrationRequests'],
+      queryFn: () => countPendingRegistrationRequests(),
+    },
+  },
+  {
     label: 'Clearance',
     href: '/admin/registration-clearance',
     icon: IconCopyCheck,
-    roles: [...dashboardUsers],
+    roles: ['finance', 'resource', 'library'],
     notificationCount: {
       queryKey: ['registrationClearances'],
       queryFn: () => countPendingRegistrationClearances(),
@@ -91,16 +101,6 @@ const navigation: NavItem[] = [
     href: '/admin/clearance-responses',
     icon: IconMessageReply,
     roles: ['admin'],
-  },
-  {
-    label: 'Registration Requests',
-    href: '/admin/registration-requests',
-    icon: IconDeviceIpadHorizontalPlus,
-    roles: ['registry'],
-    notificationCount: {
-      queryKey: ['registrationRequests'],
-      queryFn: () => countPendingRegistrationRequests(),
-    },
   },
   {
     label: 'Terms',
