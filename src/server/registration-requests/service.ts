@@ -16,7 +16,7 @@ class RegistrationRequestService {
   ) {}
 
   async first() {
-    return withAuth(async () => this.repository.findFirst(), []);
+    return withAuth(async () => this.repository.findFirst(), ['registry']);
   }
 
   async getByStdNo(stdNo: number, termId: number) {
@@ -43,11 +43,11 @@ class RegistrationRequestService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), []);
+    return withAuth(async () => this.repository.findById(id), ['registry']);
   }
 
   async findAll(params: FindAllParams<typeof registrationRequests>) {
-    return withAuth(async () => this.repository.findAll(params), []);
+    return withAuth(async () => this.repository.findAll(params), ['registry']);
   }
 
   async create(data: RegistrationRequest) {

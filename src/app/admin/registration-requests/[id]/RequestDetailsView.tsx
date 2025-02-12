@@ -2,7 +2,7 @@
 
 import { FieldView } from '@/components/adease';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { Anchor, Stack, Badge, Group, Card, Text } from '@mantine/core';
+import { Anchor, Stack, Badge, Group, Card, Text, Paper } from '@mantine/core';
 import Link from 'next/link';
 
 type Props = {
@@ -24,7 +24,7 @@ export default function RequestDetailsView({ value }: Props) {
   };
 
   return (
-    <Card withBorder shadow='sm' radius='md' p='lg'>
+    <Paper withBorder shadow='sm' radius='md' p='lg'>
       <Stack gap='md'>
         <Group justify='space-between'>
           <FieldView label='Student'>
@@ -46,6 +46,6 @@ export default function RequestDetailsView({ value }: Props) {
           <Text>{value.message || 'No message provided'}</Text>
         </FieldView>
       </Stack>
-    </Card>
+    </Paper>
   );
 }
