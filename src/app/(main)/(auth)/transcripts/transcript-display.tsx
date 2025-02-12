@@ -19,7 +19,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useMediaQuery } from '@/utils/use-media-query';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, CheckCircle2, ChevronRight } from 'lucide-react';
 import { getTranscript } from './actions';
 import { cn } from '@/lib/utils';
 import {
@@ -146,24 +146,28 @@ const renderDesktopView = (semester: Semester) => (
 const renderModuleDrawer = (module: Module) => (
   <Drawer key={module.id}>
     <DrawerTrigger asChild>
-      <Card className='p-4 space-y-2 cursor-pointer hover:bg-accent rounded-sm'>
+      <Card className='p-4 space-y-2 cursor-pointer hover:bg-accent rounded'>
         <div className='flex justify-between items-center'>
           <div>
-            <p className='text-sm'>{module.name}</p>
+            <p className='text-sm font-light'>{module.name}</p>
             <p className='text-xs text-muted-foreground font-mono'>
               {module.code}
             </p>
           </div>
-          <Badge
-            variant={'outline'}
-            className={cn(
-              passGrades.includes(module.grade as PassGrade)
-                ? 'dark:text-white'
-                : 'text-red-400 dark:text-red-500'
-            )}
-          >
-            {module.grade}
-          </Badge>
+          <div className='flex gap-2 items-center'>
+            <Badge
+              variant={'outline'}
+              className={cn(
+                'w-9 flex justify-center py-1',
+                passGrades.includes(module.grade as PassGrade)
+                  ? 'text-green-700 dark:text-green-400'
+                  : 'text-red-700 dark:text-red-400'
+              )}
+            >
+              {module.grade}
+            </Badge>
+            <ChevronRight className='h-5 w-5 text-muted-foreground' />
+          </div>
         </div>
       </Card>
     </DrawerTrigger>
