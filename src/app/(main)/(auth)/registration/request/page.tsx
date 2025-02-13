@@ -12,6 +12,7 @@ import { getStudentByUserId } from '@/server/students/actions';
 import { redirect } from 'next/navigation';
 import ModulesForm from './Form';
 import { getCurrentTerm } from '@/server/terms/actions';
+import { getFailedModules } from '../remain/actions';
 
 export default async function RegistrationPage() {
   const session = await auth();
@@ -20,6 +21,11 @@ export default async function RegistrationPage() {
 
   if (!student) {
     redirect('/signup');
+  }
+
+  const failedModules = await getFailedModules(student.stdNo, student.sem);
+  if (failedModules.length >= 3) {
+    redirect('/registration/remain');
   }
 
   return (
