@@ -42,7 +42,6 @@ export default function ClearanceRequestForm({
   React.useEffect(() => {
     const stored = sessionStorage.getItem('selectedModules');
     if (stored) {
-      console.log({ stored });
       setStoredModules(JSON.parse(stored));
     }
   }, []);

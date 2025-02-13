@@ -31,8 +31,6 @@ export default async function UserDetails({ params }: Props) {
     return notFound();
   }
 
-  console.log('users', largeProfilePic(users.image));
-
   return (
     <DetailsView>
       <DetailsViewHeader

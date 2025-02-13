@@ -45,10 +45,11 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
     queryFn: () => getSemesterModules(stdNo, structureId, semester),
   });
 
-  const { data: failedPrerequisites, isLoading: prerequisitesLoading } = useQuery({
-    queryKey: ['failedPrerequisites', stdNo],
-    queryFn: () => getFailedPrerequisites(stdNo),
-  });
+  const { data: failedPrerequisites, isLoading: prerequisitesLoading } =
+    useQuery({
+      queryKey: ['failedPrerequisites', stdNo],
+      queryFn: () => getFailedPrerequisites(stdNo, semester, structureId),
+    });
 
   const isLoading = modulesLoading || prerequisitesLoading;
 
@@ -65,7 +66,7 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
       });
       sessionStorage.setItem(
         'selectedModules',
-        JSON.stringify(selectedModules)
+        JSON.stringify(selectedModules),
       );
     },
     onSuccess: () => {
@@ -95,8 +96,8 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
         <div className='space-y-4'>
-          <div className='flex items-center justify-between pb-4 border-b'>
-            <h3 className='hidden sm:block text-lg font-semibold'>
+          <div className='flex items-center justify-between border-b pb-4'>
+            <h3 className='hidden text-lg font-semibold sm:block'>
               Available Modules
             </h3>
             <p className='text-sm text-muted-foreground'>
@@ -129,7 +130,7 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
           </Alert>
         )}
 
-        <div className='flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t'>
+        <div className='flex flex-col justify-end gap-4 border-t pt-4 sm:flex-row'>
           <Button
             type='submit'
             size='lg'
@@ -149,8 +150,8 @@ function LoadingSkeleton() {
     <>
       {Array.from({ length: 5 }).map((_, index) => (
         <div key={index} className='flex items-start gap-2 p-4'>
-          <Skeleton className='h-4 w-4 mt-1' />
-          <div className='space-y-2 flex-1'>
+          <Skeleton className='mt-1 h-4 w-4' />
+          <div className='flex-1 space-y-2'>
             <Skeleton className='h-10 w-full' />
             <Skeleton className='h-4 w-1/4' />
           </div>
