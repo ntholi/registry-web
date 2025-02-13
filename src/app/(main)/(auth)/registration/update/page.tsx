@@ -1,5 +1,4 @@
 import { auth } from '@/auth';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -10,11 +9,9 @@ import { Container } from '@/components/ui/container';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getStudentByUserId } from '@/server/students/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
-import { ArrowLeftIcon } from 'lucide-react';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import ModulesForm from './Form';
 import BackButton from '../status/BackButton';
+import ModulesForm from './Form';
 
 export default async function UpdateRegistrationPage() {
   const session = await auth();

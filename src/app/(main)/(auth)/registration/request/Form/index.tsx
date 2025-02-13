@@ -42,7 +42,7 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
 
   const { data: modules, isLoading: modulesLoading } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
-    queryFn: () => getSemesterModules(stdNo, structureId, semester),
+    queryFn: () => getSemesterModules(stdNo, semester, structureId),
   });
 
   const { data: failedPrerequisites, isLoading: prerequisitesLoading } =

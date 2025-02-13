@@ -92,8 +92,8 @@ export async function getFailedPrerequisites(
 
 export async function getSemesterModules(
   stdNo: number,
-  structureId: number,
   semester: number,
+  structureId: number,
 ) {
   const studentModules = await db.query.studentPrograms.findMany({
     where: and(
