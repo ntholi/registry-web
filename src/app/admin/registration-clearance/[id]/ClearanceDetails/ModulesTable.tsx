@@ -20,7 +20,15 @@ export function ModulesTable({
 }: {
   requestedModules: Module;
 }) {
-  const rows = requestedModules.map(({ module, moduleStatus }) => (
+  const rows = [...requestedModules]
+    .sort((a, b) => {
+      const aIsRepeat = a.moduleStatus.startsWith('Repeat');
+      const bIsRepeat = b.moduleStatus.startsWith('Repeat');
+      if (aIsRepeat && !bIsRepeat) return -1;
+      if (!aIsRepeat && bIsRepeat) return 1;
+      return 0;
+    })
+    .map(({ module, moduleStatus }) => (
     <TableTr key={module.id}>
       <TableTd fw={500}>{module.code}</TableTd>
       <TableTd>{module.name}</TableTd>
