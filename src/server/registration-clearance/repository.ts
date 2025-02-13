@@ -32,7 +32,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       const modulesList = await tx.query.requestedModules.findMany({
         where: eq(
           requestedModules.registrationRequestId,
-          data.registrationRequestId
+          data.registrationRequestId,
         ),
         with: {
           module: true,
@@ -78,7 +78,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         const modulesList = await tx.query.requestedModules.findMany({
           where: eq(
             requestedModules.registrationRequestId,
-            current.registrationRequestId
+            current.registrationRequestId,
           ),
           with: {
             module: true,
@@ -123,7 +123,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
             },
           },
         },
-        clearedBy: true,
+        respondedBy: true,
       },
     });
   }
@@ -131,7 +131,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
   async findByDepartment(
     department: DashboardUser,
     params: FindAllParams<typeof registrationClearances>,
-    status?: 'pending' | 'approved' | 'rejected'
+    status?: 'pending' | 'approved' | 'rejected',
   ) {
     const { orderByExpressions, whereCondition, offset, pageSize } =
       await this.queryExpressions(params);
@@ -139,7 +139,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       where: and(
         whereCondition,
         eq(registrationClearances.department, department),
-        status ? eq(registrationClearances.status, status) : undefined
+        status ? eq(registrationClearances.status, status) : undefined,
       ),
       with: {
         registrationRequest: {
@@ -163,8 +163,8 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       .where(
         and(
           eq(registrationClearances.department, department),
-          eq(registrationClearances.status, 'pending')
-        )
+          eq(registrationClearances.status, 'pending'),
+        ),
       );
     return result.count;
   }
@@ -193,7 +193,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       where: and(
         eq(registrationClearances.status, 'pending'),
         eq(registrationClearances.department, department),
-        gt(registrationClearances.id, currentId)
+        gt(registrationClearances.id, currentId),
       ),
       with: {
         registrationRequest: {

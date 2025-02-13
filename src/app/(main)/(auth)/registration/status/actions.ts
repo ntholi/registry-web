@@ -8,10 +8,10 @@ export async function getRegistrationClearances(registrationRequestId: number) {
   return await db.query.registrationClearances.findMany({
     where: eq(
       registrationClearances.registrationRequestId,
-      registrationRequestId
+      registrationRequestId,
     ),
     with: {
-      clearedBy: true,
+      respondedBy: true,
     },
   });
 }

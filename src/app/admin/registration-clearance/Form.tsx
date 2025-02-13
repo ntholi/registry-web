@@ -13,7 +13,7 @@ type Props = {
   defaultValues?: RegistrationClearance;
   onSuccess?: (value: RegistrationClearance) => void;
   onError?: (
-    error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+    error: Error | React.SyntheticEvent<HTMLDivElement, Event>,
   ) => void;
   title?: string;
 };
@@ -41,7 +41,10 @@ export default function RegistrationClearanceForm({
           <TextInput label='Department' {...form.getInputProps('department')} />
           <TextInput label='Status' {...form.getInputProps('status')} />
           <TextInput label='Message' {...form.getInputProps('message')} />
-          <TextInput label='Cleared By' {...form.getInputProps('clearedBy')} />
+          <TextInput
+            label='Responded By'
+            {...form.getInputProps('respondedBy')}
+          />
         </>
       )}
     </Form>
