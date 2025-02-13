@@ -11,11 +11,8 @@ export async function getFailedPrerequisites(
 ) {
   const allSemesterModules = await getAllSemesterModules(semester, structureId);
 
-  // Get all modules that should have been completed by this semester
   const requiredModuleNames = new Set(
-    allSemesterModules
-      .flatMap((sem) => sem.semesterModules)
-      .map((mod) => mod.module.name),
+    allSemesterModules.map(({ name }) => name),
   );
 
   const attemptedModules = await db.query.studentPrograms.findMany({
@@ -33,7 +30,6 @@ export async function getFailedPrerequisites(
     },
   });
 
-  // Create a map of attempted modules with their marks
   const attemptedModuleResults = new Map(
     attemptedModules
       .flatMap((prog) => prog.semesters)
@@ -58,9 +54,7 @@ export async function getFailedPrerequisites(
       .map(
         (moduleName) =>
           // Find the module code for this module name
-          allSemesterModules
-            .flatMap((sem) => sem.semesterModules)
-            .find((mod) => mod.module.name === moduleName)?.module.code,
+          allSemesterModules.find(({ name }) => name === moduleName)?.code,
       )
       .filter((code): code is string => code !== undefined),
   );
@@ -101,7 +95,6 @@ export async function getSemesterModules(
   structureId: number,
   semester: number,
 ) {
-  // Get all modules student has attempted
   const studentModules = await db.query.studentPrograms.findMany({
     where: and(
       eq(studentPrograms.stdNo, stdNo),
@@ -122,24 +115,17 @@ export async function getSemesterModules(
     },
   });
 
-  // Create a set of attempted module codes
-  const attemptedModuleCodes = new Set(
+  const attemptedModuleNames = new Set(
     studentModules
       .flatMap((p) => p.semesters)
       .flatMap((s) => s.studentModules)
-      .map((m) => m.module.code),
+      .map((m) => m.module.name),
   );
 
   const allSemesterModules = await getAllSemesterModules(semester, structureId);
 
-  // Get all eligible modules from structure
-  const allEligibleModules = allSemesterModules.flatMap((sem) =>
-    sem.semesterModules.map((sm) => sm.module),
-  );
-
-  // Filter out modules that have been attempted
-  const eligibleModules = allEligibleModules.filter(
-    (module) => !attemptedModuleCodes.has(module.code),
+  const eligibleModules = allSemesterModules.filter(
+    (module) => !attemptedModuleNames.has(module.name),
   );
 
   const repeatModules = await getRepeatModules(stdNo, semester);
@@ -233,7 +219,7 @@ export async function getRepeatModules(stdNo: number, semester: number) {
 }
 
 async function getAllSemesterModules(semester: number, structureId: number) {
-  return await db.query.structureSemesters.findMany({
+  const semesters = await db.query.structureSemesters.findMany({
     where: and(
       eq(structureSemesters.structureId, structureId),
       inArray(
@@ -249,4 +235,6 @@ async function getAllSemesterModules(semester: number, structureId: number) {
       },
     },
   });
+
+  return semesters.flatMap((s) => s.semesterModules).map((sm) => sm.module);
 }
