@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "03b880d6-cb0f-43ab-9861-4a0cb73101c6",
+  "id": "6811d819-bb99-4712-9700-45b037eb0044",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -643,6 +643,13 @@
           "autoincrement": false,
           "default": "'pending'"
         },
+        "semester_number": {
+          "name": "semester_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "message": {
           "name": "message",
           "type": "text",
@@ -660,6 +667,13 @@
         },
         "updated_at": {
           "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "date_approved": {
+          "name": "date_approved",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,

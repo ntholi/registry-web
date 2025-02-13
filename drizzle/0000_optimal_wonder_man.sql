@@ -90,9 +90,11 @@ CREATE TABLE `registration_requests` (
 	`std_no` integer NOT NULL,
 	`term_id` integer NOT NULL,
 	`status` text DEFAULT 'pending' NOT NULL,
+	`semester_number` integer NOT NULL,
 	`message` text,
 	`created_at` integer DEFAULT (unixepoch()),
 	`updated_at` integer,
+	`date_approved` integer,
 	FOREIGN KEY (`std_no`) REFERENCES `students`(`std_no`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`term_id`) REFERENCES `terms`(`id`) ON UPDATE no action ON DELETE cascade
 );
