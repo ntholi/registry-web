@@ -4,14 +4,12 @@ import { Form } from '@/components/adease';
 import { modules, registrationRequests } from '@/db/schema';
 import { getModulesForStructure } from '@/server/modules/actions';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { findAllTerms, getCurrentTerm } from '@/server/terms/actions';
+import { findAllTerms } from '@/server/terms/actions';
 import {
   Autocomplete,
   Button,
   Grid,
   GridCol,
-  Group,
-  NumberInput,
   Select,
   Stack,
   Table,
@@ -79,6 +77,17 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
     setSelectedModules(selectedModules.filter((m) => m.id !== moduleId));
   };
 
+  const semesterOptions = [
+    { value: '1', label: 'Year 1 Sem 1' },
+    { value: '2', label: 'Year 1 Sem 2' },
+    { value: '3', label: 'Year 2 Sem 1' },
+    { value: '4', label: 'Year 2 Sem 2' },
+    { value: '5', label: 'Year 3 Sem 1' },
+    { value: '6', label: 'Year 3 Sem 2' },
+    { value: '7', label: 'Year 4 Sem 1' },
+    { value: '8', label: 'Year 4 Sem 2' },
+  ];
+
   return (
     <Form
       title={title}
@@ -109,12 +118,13 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
                 label: term.name,
               })) || []
             }
+            required
             {...form.getInputProps('termId')}
           />
-          <NumberInput
-            label='Semester Number'
-            min={1}
-            max={8}
+          <Select
+            label='Semester'
+            data={semesterOptions}
+            required
             {...form.getInputProps('semesterNumber')}
           />
 
