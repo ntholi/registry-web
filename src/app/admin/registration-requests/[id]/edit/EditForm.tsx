@@ -94,6 +94,8 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
       action={async (values) => {
         const result = await onSubmit({
           ...values,
+          termId: Number(values.termId),
+          semesterNumber: Number(values.semesterNumber),
           requestedModules: selectedModules.map((module) => ({
             moduleId: module.id,
             moduleStatus: 'Compulsory' as const,
@@ -103,7 +105,11 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
       }}
       queryKey={['registrationRequests']}
       schema={createInsertSchema(registrationRequests)}
-      defaultValues={defaultValues}
+      defaultValues={{
+        ...defaultValues,
+        termId: defaultValues?.termId?.toString(),
+        semesterNumber: defaultValues?.semesterNumber?.toString(),
+      }}
       onSuccess={({ id }) => {
         router.push(`/admin/registration-requests/${id}`);
       }}
