@@ -57,11 +57,6 @@ export default function ClearanceRequestForm({
       });
 
       sessionStorage.removeItem('selectedModules');
-      toast({
-        title: 'Success',
-        description: 'Clearance request submitted successfully',
-      });
-
       router.push('/registration');
     } catch {
       toast({
@@ -87,12 +82,6 @@ export default function ClearanceRequestForm({
             {currentTerm?.name || 'Loading...'}
           </p>
         </div>
-        <div className='space-y-1'>
-          <p className='text-sm font-medium'>Student Number</p>
-          <p className='text-sm text-muted-foreground'>
-            {stdNo || 'Loading...'}
-          </p>
-        </div>
 
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
@@ -102,7 +91,7 @@ export default function ClearanceRequestForm({
             </p>
           </div>
 
-          <ScrollArea className='h-[200px] rounded-md border p-4'>
+          <ScrollArea className='h-[44vh] rounded-md border p-4'>
             {modules && modules.length > 0 ? (
               <div className='space-y-4'>
                 {modules.map((it) => (

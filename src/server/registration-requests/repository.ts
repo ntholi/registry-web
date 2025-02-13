@@ -127,6 +127,9 @@ export default class RegistrationRequestRepository extends BaseRepository<
     termId: number;
     modules: { id: number; status: ModuleStatus }[];
   }) {
+    // If every selected module's status begins with "Repeat", it implies that all chosen modules are repeat courses,
+    // so we adjust by setting the semester to the previous one
+    // Otherwise, we assume a progression to the next semester
     const semesterNumber = data.modules.every((it) =>
       it.status.startsWith('Repeat'),
     )
