@@ -1,7 +1,7 @@
 'use client';
 
 import { DashboardUser, registrationRequestStatusEnum } from '@/db/schema';
-import { formatDate, formatDateTime, toTitleCase } from '@/lib/utils';
+import { formatDateTime, toTitleCase } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
 import {
   Accordion,
@@ -12,7 +12,7 @@ import {
   Text,
   ThemeIcon,
 } from '@mantine/core';
-import { IconCheck, IconX, IconClock } from '@tabler/icons-react';
+import { IconCheck, IconClock, IconX } from '@tabler/icons-react';
 import Link from 'next/link';
 
 interface Props {

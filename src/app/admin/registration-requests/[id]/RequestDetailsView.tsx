@@ -1,41 +1,19 @@
 'use client';
 
 import { FieldView } from '@/components/adease';
+import { registrationRequestStatusEnum } from '@/db/schema';
+import { formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import {
-  Anchor,
-  Badge,
-  Grid,
-  GridCol,
-  Group,
-  Paper,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { Anchor, Grid, GridCol, Stack, Text } from '@mantine/core';
 import Link from 'next/link';
 import RequestStatusSwitch from './RequestStatusSwitch';
-import { formatSemester } from '@/lib/utils';
-import { registrationRequestStatusEnum } from '@/db/schema';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
-  clearanceStatus: typeof registrationRequestStatusEnum[number];
+  clearanceStatus: (typeof registrationRequestStatusEnum)[number];
 };
 
 export default function RequestDetailsView({ value, clearanceStatus }: Props) {
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'approved':
-        return 'green';
-      case 'pending':
-        return 'yellow';
-      case 'rejected':
-        return 'red';
-      default:
-        return 'gray';
-    }
-  };
-
   return (
     <Grid>
       <GridCol span={{ base: 12, md: 7 }}>
@@ -59,8 +37,8 @@ export default function RequestDetailsView({ value, clearanceStatus }: Props) {
         </Stack>
       </GridCol>
       <GridCol span={{ base: 12, md: 5 }}>
-        <RequestStatusSwitch 
-          request={{ id: value.id, status: value.status }} 
+        <RequestStatusSwitch
+          request={{ id: value.id, status: value.status }}
           disabled={clearanceStatus !== 'approved'}
         />
       </GridCol>

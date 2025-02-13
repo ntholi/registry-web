@@ -1,25 +1,24 @@
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
+import { DashboardUser, registrationRequestStatusEnum } from '@/db/schema';
 import {
   deleteRegistrationRequest,
   getRegistrationRequest,
 } from '@/server/registration-requests/actions';
-import { DashboardUser, registrationRequestStatusEnum } from '@/db/schema';
 import {
+  Divider,
+  Group,
+  Stack,
   Tabs,
   TabsList,
   TabsPanel,
   TabsTab,
-  Stack,
-  Divider,
-  Badge,
-  Group,
   ThemeIcon,
 } from '@mantine/core';
+import { IconCheck, IconClock, IconX } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import RequestDetailsView from './RequestDetailsView';
-import ModulesView from './ModulesView';
 import ClearanceAccordion from './ClearanceAccordion';
-import { IconCheck, IconX, IconClock } from '@tabler/icons-react';
+import ModulesView from './ModulesView';
+import RequestDetailsView from './RequestDetailsView';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -65,10 +64,6 @@ function getStatusIcon(status: (typeof registrationRequestStatusEnum)[number]) {
     default:
       return <IconClock size={16} />;
   }
-}
-
-function toTitleCase(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 export default async function RegistrationRequestDetails({ params }: Props) {

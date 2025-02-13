@@ -7,12 +7,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
-import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
-import { redirect } from 'next/navigation';
-import ModulesForm from './Form';
 import { getCurrentTerm } from '@/server/terms/actions';
+import { redirect } from 'next/navigation';
 import { getFailedModules } from '../remain/actions';
+import ModulesForm from './Form';
 
 export default async function RegistrationPage() {
   const session = await auth();

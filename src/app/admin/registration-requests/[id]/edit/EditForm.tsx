@@ -10,12 +10,12 @@ import {
   Button,
   Grid,
   GridCol,
+  Loader,
   Select,
   Stack,
   Table,
   Text,
   ThemeIcon,
-  Loader,
 } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -38,6 +38,13 @@ type Props = {
   title?: string;
   term: string;
 };
+
+type FormSubmission = {
+  requestedModules: {
+    moduleId: number;
+    moduleStatus: 'Compulsory';
+  }[];
+} & typeof registrationRequests.$inferInsert;
 
 export default function EditForm({ onSubmit, defaultValues, title }: Props) {
   const router = useRouter();
@@ -101,7 +108,7 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
             moduleId: module.id,
             moduleStatus: 'Compulsory' as const,
           })),
-        });
+        } as FormSubmission);
         return result;
       }}
       queryKey={['registrationRequests']}

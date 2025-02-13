@@ -1,5 +1,11 @@
 'use client';
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import {
@@ -18,16 +24,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useMediaQuery } from '@/utils/use-media-query';
-import { CalendarIcon, CheckCircle2, ChevronRight } from 'lucide-react';
-import { getTranscript } from './actions';
 import { cn } from '@/lib/utils';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+import { useMediaQuery } from '@/utils/use-media-query';
+import { CalendarIcon, ChevronRight } from 'lucide-react';
+import { getTranscript } from './actions';
 
 const passGrades = [
   'A+',
@@ -67,8 +67,8 @@ export function TranscriptDisplay({ program }: Props) {
               value={semester.id.toString()}
               className='mt-2 rounded-md border-0'
             >
-              <AccordionTrigger className='bg-muted dark:bg-muted/20 p-4 rounded-md'>
-                <div className='flex justify-between items-center w-full pe-2'>
+              <AccordionTrigger className='rounded-md bg-muted p-4 dark:bg-muted/20'>
+                <div className='flex w-full items-center justify-between pe-2'>
                   <div className='flex items-center space-x-2'>
                     <CalendarIcon className='h-4 w-4' />
                     <span>{semester.term}</span>
@@ -83,7 +83,7 @@ export function TranscriptDisplay({ program }: Props) {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <div className='space-y-2 mt-2'>
+                <div className='mt-2 space-y-2'>
                   {semester.modules.map((module) => renderModuleDrawer(module))}
                 </div>
               </AccordionContent>
@@ -96,8 +96,8 @@ export function TranscriptDisplay({ program }: Props) {
 }
 
 const renderDesktopView = (semester: Semester) => (
-  <div className='rounded-md border my-4'>
-    <div className='bg-muted dark:bg-muted/50 p-4 flex justify-between items-center'>
+  <div className='my-4 rounded-md border'>
+    <div className='flex items-center justify-between bg-muted p-4 dark:bg-muted/50'>
       <div className='flex items-center space-x-2'>
         <CalendarIcon className='h-4 w-4' />
         <span>{semester.term}</span>
@@ -146,22 +146,22 @@ const renderDesktopView = (semester: Semester) => (
 const renderModuleDrawer = (module: Module) => (
   <Drawer key={module.id}>
     <DrawerTrigger asChild>
-      <Card className='p-4 space-y-2 cursor-pointer hover:bg-accent rounded'>
-        <div className='flex justify-between items-center'>
+      <Card className='cursor-pointer space-y-2 rounded p-4 hover:bg-accent'>
+        <div className='flex items-center justify-between'>
           <div>
             <p className='text-sm font-light'>{module.name}</p>
-            <p className='text-xs text-muted-foreground font-mono'>
+            <p className='font-mono text-xs text-muted-foreground'>
               {module.code}
             </p>
           </div>
-          <div className='flex gap-2 items-center'>
+          <div className='flex items-center gap-2'>
             <Badge
               variant={'outline'}
               className={cn(
-                'w-9 flex justify-center py-1',
+                'flex w-9 justify-center py-1',
                 passGrades.includes(module.grade as PassGrade)
                   ? 'text-green-700 dark:text-green-400'
-                  : 'text-red-700 dark:text-red-400'
+                  : 'text-red-700 dark:text-red-400',
               )}
             >
               {module.grade}
@@ -174,12 +174,12 @@ const renderModuleDrawer = (module: Module) => (
     <DrawerContent>
       <DrawerHeader>
         <DrawerTitle className='text-2xl font-bold'>{module.name}</DrawerTitle>
-        <DrawerDescription className='text-lg font-mono'>
+        <DrawerDescription className='font-mono text-lg'>
           {module.code}
         </DrawerDescription>
       </DrawerHeader>
-      <div className='p-6 space-y-6'>
-        <div className='flex justify-between items-center'>
+      <div className='space-y-6 p-6'>
+        <div className='flex items-center justify-between'>
           <div>
             <p className='text-sm font-medium text-muted-foreground'>Type</p>
             <p className='text-lg font-semibold'>{module.type}</p>
@@ -189,7 +189,7 @@ const renderModuleDrawer = (module: Module) => (
             <p className='text-lg font-semibold'>{module.credits}</p>
           </div>
         </div>
-        <div className='flex justify-between items-center'>
+        <div className='flex items-center justify-between'>
           <div>
             <p className='text-sm font-medium text-muted-foreground'>Status</p>
             <Badge className='mt-1' variant='outline'>
@@ -210,13 +210,13 @@ const renderModuleDrawer = (module: Module) => (
             </Badge>
           </div>
         </div>
-        <div className='pt-4 border-t flex flex-col items-center'>
-          <p className='text-sm font-medium text-muted-foreground mb-2'>
+        <div className='flex flex-col items-center border-t pt-4'>
+          <p className='mb-2 text-sm font-medium text-muted-foreground'>
             Marks
           </p>
           <p className='text-3xl font-bold'>
             {module.marks}
-            <span className='text-muted-foreground text-lg'>/100</span>
+            <span className='text-lg text-muted-foreground'>/100</span>
           </p>
         </div>
       </div>

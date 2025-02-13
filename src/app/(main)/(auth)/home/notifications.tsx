@@ -1,7 +1,7 @@
 'use client';
 
-import { cn, formatDate } from '@/lib/utils';
-import { getNotifications, type Notification } from './actions/notifications';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import {
   Bell,
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { getNotifications, type Notification } from './actions/notifications';
 
 export default function Notifications() {
   const [closedIds, setClosedIds] = useState<Set<string>>(new Set());

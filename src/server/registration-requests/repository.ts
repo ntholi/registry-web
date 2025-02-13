@@ -1,13 +1,13 @@
-import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
+import { db } from '@/db';
 import {
-  registrationClearances,
   ModuleStatus,
+  registrationClearances,
   registrationRequests,
   requestedModules,
 } from '@/db/schema';
-import { db } from '@/db';
-import { and, count, eq } from 'drizzle-orm';
 import { MAX_REG_MODULES } from '@/lib/constants';
+import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
+import { and, count, eq } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 
