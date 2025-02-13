@@ -15,6 +15,7 @@ import {
   Table,
   Text,
   ThemeIcon,
+  Loader,
 } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -45,7 +46,7 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
   );
   const [availableModules, setAvailableModules] = useState<Module[]>([]);
 
-  const { data: terms } = useQuery({
+  const { data: terms, isLoading: isLoadingTerms } = useQuery({
     queryKey: ['terms'],
     queryFn: () => findAllTerms(1),
     select: (it) => it.data,
@@ -125,6 +126,8 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
               })) || []
             }
             required
+            disabled={isLoadingTerms}
+            rightSection={isLoadingTerms ? <Loader size='xs' /> : undefined}
             {...form.getInputProps('termId')}
           />
           <Select
