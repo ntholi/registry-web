@@ -16,6 +16,7 @@ type Props = {
   };
   comment?: string;
   setAccordion?: (value: 'comments' | 'modules') => void;
+  disabled?: boolean;
 };
 
 type Status = (typeof registrationRequestStatusEnum)[number];
@@ -24,6 +25,7 @@ export default function RequestStatusSwitch({
   request,
   comment,
   setAccordion,
+  disabled,
 }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -85,11 +87,12 @@ export default function RequestStatusSwitch({
             label: toTitleCase(status),
             value: status,
           }))}
+          disabled={disabled}
         />
         <Button
           onClick={handleSubmit}
           loading={isPending}
-          disabled={!isStatusChanged}
+          disabled={!isStatusChanged || disabled}
         >
           Submit Response
         </Button>

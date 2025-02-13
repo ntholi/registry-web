@@ -15,12 +15,14 @@ import {
 import Link from 'next/link';
 import RequestStatusSwitch from './RequestStatusSwitch';
 import { formatSemester } from '@/lib/utils';
+import { registrationRequestStatusEnum } from '@/db/schema';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
+  clearanceStatus: typeof registrationRequestStatusEnum[number];
 };
 
-export default function RequestDetailsView({ value }: Props) {
+export default function RequestDetailsView({ value, clearanceStatus }: Props) {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'approved':
@@ -57,7 +59,10 @@ export default function RequestDetailsView({ value }: Props) {
         </Stack>
       </GridCol>
       <GridCol span={{ base: 12, md: 5 }}>
-        <RequestStatusSwitch request={{ id: value.id, status: value.status }} />
+        <RequestStatusSwitch 
+          request={{ id: value.id, status: value.status }} 
+          disabled={clearanceStatus !== 'approved'}
+        />
       </GridCol>
     </Grid>
   );
