@@ -1,9 +1,10 @@
 'use client';
 
 import { DashboardUser, registrationRequestStatusEnum } from '@/db/schema';
-import { formatDate, toTitleCase } from '@/lib/utils';
+import { formatDate, formatDateTime, toTitleCase } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { Accordion, Badge, Group, Stack, Text } from '@mantine/core';
+import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
+import { IconCheck, IconX, IconClock } from '@tabler/icons-react';
 
 interface Props {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -12,6 +13,73 @@ interface Props {
 type Status = (typeof registrationRequestStatusEnum)[number];
 
 const departments: DashboardUser[] = ['finance', 'library', 'resource'];
+
+export default function ClearanceAccordion({ value }: Props) {
+  return (
+    <Accordion variant='separated'>
+      {departments.map((dept) => {
+        const clearance = value.clearances?.find((c) => c.department === dept);
+        const status = clearance?.status || 'pending';
+        return (
+          <Accordion.Item key={dept} value={dept}>
+            <Accordion.Control>
+              <Group justify='space-between'>
+                <Group>
+                  <ThemeIcon
+                    color={getStatusColor(status)}
+                    variant='light'
+                    size='lg'
+                  >
+                    {getStatusIcon(status)}
+                  </ThemeIcon>
+                  <Text fw={500}>{toTitleCase(dept)}</Text>
+                </Group>
+              </Group>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack gap='sm'>
+                <Group>
+                  <Text c='dimmed' size='sm' w={120}>
+                    Status:
+                  </Text>
+                  <Badge
+                    size='sm'
+                    color={getStatusColor(status)}
+                    variant='light'
+                  >
+                    {toTitleCase(status)}
+                  </Badge>
+                </Group>
+                <Group>
+                  <Text c='dimmed' size='sm' w={120}>
+                    Response Date:
+                  </Text>
+                  <Text>
+                    {clearance?.responseDate
+                      ? formatDateTime(clearance.responseDate)
+                      : '-'}
+                  </Text>
+                </Group>
+                <Group>
+                  <Text c='dimmed' size='sm' w={120}>
+                    Responded By:
+                  </Text>
+                  <Text size='sm'>{clearance?.respondedBy || '-'}</Text>
+                </Group>
+                <Group align='flex-start'>
+                  <Text c='dimmed' size='sm' w={120}>
+                    Message:
+                  </Text>
+                  <Text>{clearance?.message || '-'}</Text>
+                </Group>
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        );
+      })}
+    </Accordion>
+  );
+}
 
 const getStatusColor = (status: Status) => {
   switch (status) {
@@ -24,50 +92,13 @@ const getStatusColor = (status: Status) => {
   }
 };
 
-export default function ClearanceAccordion({ value }: Props) {
-  return (
-    <Accordion variant='contained'>
-      {departments.map((dept) => {
-        const clearance = value.clearances?.find((c) => c.department === dept);
-        return (
-          <Accordion.Item key={dept} value={dept}>
-            <Accordion.Control>
-              <Group justify='space-between'>
-                <Text>{toTitleCase(dept)}</Text>
-                {clearance && (
-                  <Badge color={getStatusColor(clearance.status)}>
-                    {clearance.status}
-                  </Badge>
-                )}
-              </Group>
-            </Accordion.Control>
-            <Accordion.Panel>
-              <Stack gap='xs'>
-                <Group>
-                  <Text fw={500}>Status:</Text>
-                  <Text>{clearance?.status || 'Pending'}</Text>
-                </Group>
-                <Group>
-                  <Text fw={500}>Response Date:</Text>
-                  <Text>
-                    {clearance?.responseDate
-                      ? formatDate(clearance.responseDate)
-                      : 'Not yet responded'}
-                  </Text>
-                </Group>
-                <Group>
-                  <Text fw={500}>Responded By:</Text>
-                  <Text>{clearance?.respondedBy || 'Not yet responded'}</Text>
-                </Group>
-                <Group>
-                  <Text fw={500}>Message:</Text>
-                  <Text>{clearance?.message || 'No message'}</Text>
-                </Group>
-              </Stack>
-            </Accordion.Panel>
-          </Accordion.Item>
-        );
-      })}
-    </Accordion>
-  );
-}
+const getStatusIcon = (status: Status) => {
+  switch (status) {
+    case 'approved':
+      return <IconCheck size='1rem' />;
+    case 'rejected':
+      return <IconX size='1rem' />;
+    default:
+      return <IconClock size='1rem' />;
+  }
+};

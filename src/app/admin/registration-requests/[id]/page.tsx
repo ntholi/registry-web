@@ -3,7 +3,14 @@ import {
   deleteRegistrationRequest,
   getRegistrationRequest,
 } from '@/server/registration-requests/actions';
-import { Tabs, TabsList, TabsPanel, TabsTab, Stack } from '@mantine/core';
+import {
+  Tabs,
+  TabsList,
+  TabsPanel,
+  TabsTab,
+  Stack,
+  Divider,
+} from '@mantine/core';
 import { notFound } from 'next/navigation';
 import RequestDetailsView from './RequestDetailsView';
 import ModulesView from './ModulesView';
@@ -37,8 +44,9 @@ export default async function RegistrationRequestDetails({ params }: Props) {
           <TabsTab value='clearance'>Clearance</TabsTab>
         </TabsList>
         <TabsPanel value='details'>
-          <Stack gap='xl' mt='xl' p='sm'>
+          <Stack mt='xl' p='sm'>
             <RequestDetailsView value={registrationRequest} />
+            <Divider />
             <ModulesView value={registrationRequest} />
           </Stack>
         </TabsPanel>
