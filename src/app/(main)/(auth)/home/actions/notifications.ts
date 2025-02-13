@@ -12,7 +12,7 @@ export type Notification = {
   title: string;
   message: string;
   type: 'registration' | 'academic' | 'finance' | 'general';
-  status: 'pending' | 'approved' | 'rejected' | 'info';
+  status: 'pending' | 'approved' | 'rejected' | 'registered';
   timestamp: Date;
   href: string;
 };
@@ -25,13 +25,13 @@ export async function getNotifications(): Promise<Notification[]> {
   const req = await db.query.registrationRequests.findFirst({
     where: and(
       eq(registrationRequests.stdNo, session.user.stdNo),
-      eq(registrationRequests.termId, term.id)
+      eq(registrationRequests.termId, term.id),
     ),
     orderBy: (requests) => requests.createdAt,
   });
 
   if (
-    req?.status === 'approved' &&
+    req?.status === 'registered' &&
     req?.dateApproved &&
     isAfter(subDays(new Date(), 2), req.dateApproved)
   )
@@ -54,7 +54,9 @@ export async function getNotifications(): Promise<Notification[]> {
   ];
 }
 
-function statusFromRequest(status: 'pending' | 'approved' | 'rejected') {
+function statusFromRequest(
+  status: 'pending' | 'approved' | 'rejected' | 'registered',
+) {
   switch (status) {
     case 'pending':
       return 'Your registration request is currently under review';

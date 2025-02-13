@@ -11,6 +11,7 @@ import {
   CircleAlert,
   CircleCheck,
   EyeIcon,
+  Info,
   PenSquare,
   TriangleAlert,
 } from 'lucide-react';
@@ -28,7 +29,7 @@ export default async function RegistrationStatusPage() {
   const term = await getCurrentTerm();
   const request = await getRegistrationRequestByStdNo(
     session.user.stdNo,
-    term.id
+    term.id,
   );
 
   if (!request) {
@@ -38,22 +39,22 @@ export default async function RegistrationStatusPage() {
   return (
     <Container className='max-w-4xl pt-4 sm:pt-10'>
       <Card className='shadow-lg'>
-        <CardHeader className='pb-4 gap-6'>
+        <CardHeader className='gap-6 pb-4'>
           <div>
             <div className='flex justify-between'>
-              <CardTitle className='text-xl sm:text-2xl font-bold'>
+              <CardTitle className='text-xl font-bold sm:text-2xl'>
                 Registration Status
               </CardTitle>
               <StatusBadge status={request.status} />
             </div>
-            <div className='flex items-center mt-2 text-muted-foreground'>
-              <Calendar className='h-4 w-4 mr-2' />
+            <div className='mt-2 flex items-center text-muted-foreground'>
+              <Calendar className='mr-2 h-4 w-4' />
               <p className='text-sm text-muted-foreground'>Term: {term.name}</p>
             </div>
           </div>
 
           {request.status !== 'approved' && (
-            <div className='flex flex-col sm:flex-row sm:justify-end gap-3'>
+            <div className='flex flex-col gap-3 sm:flex-row sm:justify-end'>
               <Button
                 variant='default'
                 size='lg'
@@ -91,19 +92,19 @@ export default async function RegistrationStatusPage() {
             <StatusMessage status={request.status} message={request.message} />
 
             <div>
-              <div className='flex items-center gap-2 mb-4'>
+              <div className='mb-4 flex items-center gap-2'>
                 <BookOpen className='h-5 w-5 text-primary' />
-                <h3 className='font-semibold text-lg'>Requested Modules</h3>
+                <h3 className='text-lg font-semibold'>Requested Modules</h3>
               </div>
               <div className='grid gap-3'>
                 {request.requestedModules?.map((rm) => (
                   <div
                     key={rm.id}
-                    className='flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors'
+                    className='flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5'
                   >
                     <div>
                       <p className='font-medium'>{rm.module.name}</p>
-                      <p className='text-sm text-muted-foreground mt-1'>
+                      <p className='mt-1 text-sm text-muted-foreground'>
                         {rm.module.code}
                       </p>
                     </div>
@@ -126,7 +127,7 @@ export default async function RegistrationStatusPage() {
 
 type StatusBadgeProps = {
   message: string | null;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'registered' | 'rejected';
 };
 
 function StatusMessage({ message, status }: StatusBadgeProps) {
@@ -138,10 +139,16 @@ function StatusMessage({ message, status }: StatusBadgeProps) {
         'Your registration request is currently under review, this might take a few days. Come back later to check the status.',
     },
     approved: {
+      className: 'border-blue-500/50 text-blue-600 dark:text-blue-400',
+      icon: Info,
+      defaultMessage:
+        'Your registration request has been approved. Please wait while we process your registration.',
+    },
+    registered: {
       className: 'border-emerald-500/50 text-emerald-600 dark:text-emerald-400',
       icon: CircleCheck,
       defaultMessage:
-        'Your registration request has been approved. You are now officially registered for the selected modules.',
+        'Registration successful. You are now officially registered for the selected modules.',
     },
     rejected: {
       className: 'border-red-500/50 text-red-600 dark:text-red-400',

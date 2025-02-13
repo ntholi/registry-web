@@ -340,6 +340,7 @@ export const registrationRequestStatusEnum = [
   'pending',
   'approved',
   'rejected',
+  'registered',
 ] as const;
 
 export const registrationRequests = sqliteTable(

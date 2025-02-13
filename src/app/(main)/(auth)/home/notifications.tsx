@@ -66,6 +66,11 @@ const notificationConfig = {
     icon: TriangleAlert,
   },
   approved: {
+    className: 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/50',
+    textColor: 'text-blue-600 dark:text-blue-400',
+    icon: Info,
+  },
+  registered: {
     className: 'border-emerald-500/50 bg-emerald-50/50 dark:bg-emerald-950/50',
     textColor: 'text-emerald-600 dark:text-emerald-400',
     icon: CircleCheck,
@@ -74,11 +79,6 @@ const notificationConfig = {
     className: 'border-red-500/50 bg-red-50/50 dark:bg-red-950/50',
     textColor: 'text-red-600 dark:text-red-400',
     icon: CircleAlert,
-  },
-  info: {
-    className: 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/50',
-    textColor: 'text-blue-600 dark:text-blue-400',
-    icon: Info,
   },
 };
 
