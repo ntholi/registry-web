@@ -84,7 +84,7 @@ export default class ModuleRepository extends BaseRepository<
           ...semester,
           modules: modulesList,
         };
-      })
+      }),
     );
 
     return semestersWithModules;
@@ -108,6 +108,19 @@ export default class ModuleRepository extends BaseRepository<
       .from(structures)
       .where(eq(structures.programId, programId))
       .orderBy(structures.code);
+  }
+
+  async getModulesForStructure(structureId: number) {
+    return await db.query.structureSemesters.findMany({
+      where: eq(structureSemesters.structureId, structureId),
+      with: {
+        semesterModules: {
+          with: {
+            module: true,
+          },
+        },
+      },
+    });
   }
 }
 

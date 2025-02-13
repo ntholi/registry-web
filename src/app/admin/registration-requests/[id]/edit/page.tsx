@@ -1,7 +1,7 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import Form from '../../Form';
 import { getRegistrationRequest, updateRegistrationRequest } from '@/server/registration-requests/actions';
+import EditForm from './EditForm';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -16,7 +16,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 
   return (
     <Box p={'lg'}>
-      <Form
+      <EditForm
         title={'Edit Registration Request'}
         defaultValues={registrationRequest}
         onSubmit={async (value) => {

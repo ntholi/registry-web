@@ -18,7 +18,7 @@ export async function findAllModules(page: number = 1, search = '') {
 }
 
 export async function createModule(
-  module: Module & { prerequisiteCodes?: string[] }
+  module: Module & { prerequisiteCodes?: string[] },
 ) {
   const { prerequisiteCodes, ...moduleData } = module;
   const newModule = await modulesService.create(moduleData);
@@ -30,7 +30,7 @@ export async function createModule(
         if (mod) {
           await modulesService.addPrerequisite(newModule.id, mod.id);
         }
-      })
+      }),
     );
   }
 
@@ -39,7 +39,7 @@ export async function createModule(
 
 export async function updateModule(
   id: number,
-  module: Module & { prerequisiteCodes?: string[] }
+  module: Module & { prerequisiteCodes?: string[] },
 ) {
   const { prerequisiteCodes, ...moduleData } = module;
   const updatedModule = await modulesService.update(id, moduleData);
@@ -53,7 +53,7 @@ export async function updateModule(
         if (mod) {
           await modulesService.addPrerequisite(id, mod.id);
         }
-      })
+      }),
     );
   }
 
@@ -86,4 +86,8 @@ export async function getStructuresByProgram(programId: number) {
 
 export async function getModulePrerequisites(moduleId: number) {
   return modulesService.getPrerequisites(moduleId);
+}
+
+export async function getModulesForStructure(structureId: number) {
+  return modulesService.getModulesForStructure(structureId);
 }
