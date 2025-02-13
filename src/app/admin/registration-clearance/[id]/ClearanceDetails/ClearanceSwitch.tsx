@@ -20,7 +20,10 @@ type Props = {
   comment?: string;
 };
 
-type Status = (typeof registrationRequestStatusEnum)[number];
+type Status = Exclude<
+  (typeof registrationRequestStatusEnum)[number],
+  'registered'
+>;
 
 export default function ClearanceSwitch({
   request,
@@ -30,7 +33,7 @@ export default function ClearanceSwitch({
   const router = useRouter();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
-  const [status, setStatus] = useState<Status>(request.status);
+  const [status, setStatus] = useState<Status>(request.status as Status);
   const [isStatusChanged, setIsStatusChanged] = useState(false);
 
   useEffect(() => {
@@ -52,7 +55,7 @@ export default function ClearanceSwitch({
       });
 
       const nextClearance = await getNextPendingRegistrationClearance(
-        request.id
+        request.id,
       );
       return { result, nextClearance };
     },
@@ -78,7 +81,7 @@ export default function ClearanceSwitch({
         message: error.message || 'Failed to submit response',
         color: 'red',
       });
-      setStatus(request.registrationRequest.status);
+      setStatus(request.registrationRequest.status as Status);
     },
   });
 
@@ -97,10 +100,12 @@ export default function ClearanceSwitch({
               setAccordion('comments');
             } else setAccordion('modules');
           }}
-          data={registrationRequestStatusEnum.map((status) => ({
-            label: toTitleCase(status),
-            value: status,
-          }))}
+          data={registrationRequestStatusEnum
+            .filter((status) => status !== 'registered')
+            .map((status) => ({
+              label: toTitleCase(status),
+              value: status,
+            }))}
           fullWidth
           disabled={isPending}
         />
