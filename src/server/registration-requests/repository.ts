@@ -1,4 +1,4 @@
-import BaseRepository from '@/server/base/BaseRepository';
+import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
 import {
   registrationClearances,
   ModuleStatus,
@@ -17,6 +17,22 @@ export default class RegistrationRequestRepository extends BaseRepository<
 > {
   constructor() {
     super(registrationRequests, 'id');
+  }
+
+  override async findAll(params: FindAllParams<typeof registrationRequests>) {
+    const { orderByExpressions, whereCondition, offset, pageSize } =
+      await this.queryExpressions(params);
+    const data = await db.query.registrationRequests.findMany({
+      where: whereCondition,
+      with: {
+        student: true,
+      },
+      orderBy: orderByExpressions,
+      limit: pageSize,
+      offset,
+    });
+
+    return await this.paginatedResults(data, whereCondition, pageSize);
   }
 
   async findById(id: number) {
