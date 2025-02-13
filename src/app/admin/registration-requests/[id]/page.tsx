@@ -84,6 +84,7 @@ export default async function RegistrationRequestDetails({ params }: Props) {
       <DetailsViewHeader
         title={registrationRequest.student.name}
         queryKey={['registrationRequests']}
+        editRoles={['registry']}
         handleDelete={async () => {
           'use server';
           await deleteRegistrationRequest(Number(id));

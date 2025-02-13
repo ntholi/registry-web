@@ -69,8 +69,7 @@ class RegistrationRequestService {
   async update(id: number, data: Partial<RegistrationRequest>) {
     return withAuth(
       async () => this.repository.update(id, data),
-      ['student'],
-      async (session) => session.user?.stdNo === data.stdNo,
+      ['student', 'registry'],
     );
   }
 
