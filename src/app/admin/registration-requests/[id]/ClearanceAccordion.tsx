@@ -21,7 +21,7 @@ interface Props {
 
 type Status = (typeof registrationRequestStatusEnum)[number];
 
-const departments: DashboardUser[] = ['finance', 'library', 'resource'];
+const departments: DashboardUser[] = ['finance', 'library'];
 
 export default function ClearanceAccordion({ value }: Props) {
   return (

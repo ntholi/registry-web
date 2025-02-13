@@ -30,7 +30,7 @@ function getOverallClearanceStatus(
     Awaited<ReturnType<typeof getRegistrationRequest>>
   >,
 ) {
-  const departments: DashboardUser[] = ['finance', 'library', 'resource'];
+  const departments: DashboardUser[] = ['finance', 'library'];
   const statuses = departments.map((dept) => {
     const clearance = registrationRequest.clearances?.find(
       (c) => c.department === dept,
@@ -95,7 +95,6 @@ export default async function RegistrationRequestDetails({ params }: Props) {
           <TabsTab value='details'>Details</TabsTab>
           <TabsTab value='clearance'>
             <Group gap='xs'>
-              Clearance
               <ThemeIcon
                 color={getStatusColor(
                   getOverallClearanceStatus(registrationRequest),
@@ -105,6 +104,7 @@ export default async function RegistrationRequestDetails({ params }: Props) {
               >
                 {getStatusIcon(getOverallClearanceStatus(registrationRequest))}
               </ThemeIcon>
+              Clearance
             </Group>
           </TabsTab>
         </TabsList>

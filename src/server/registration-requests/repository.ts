@@ -144,12 +144,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
         })
         .returning();
 
-      ['finance', 'resource', 'library'].forEach(async (department) => {
+      ['finance', 'library'].forEach(async (department) => {
         await tx
           .insert(registrationClearances)
           .values({
             registrationRequestId: request.id,
-            department: department as 'finance' | 'resource' | 'library',
+            department: department as 'finance' | 'library',
           })
           .returning();
       });

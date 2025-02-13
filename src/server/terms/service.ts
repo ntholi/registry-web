@@ -23,7 +23,7 @@ class TermService {
   }
 
   async findAll(params: FindAllParams<typeof terms>) {
-    return withAuth(async () => this.repository.findAll(params), []);
+    return withAuth(async () => this.repository.findAll(params), ['dashboard']);
   }
 
   async create(data: Term) {

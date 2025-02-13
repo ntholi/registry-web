@@ -78,7 +78,7 @@ const navigation: NavItem[] = [
     label: 'Clearance',
     href: '/admin/registration-clearance',
     icon: IconCopyCheck,
-    roles: ['finance', 'resource', 'library'],
+    roles: ['finance', 'library'],
     notificationCount: {
       queryKey: ['registrationClearances'],
       queryFn: () => countPendingRegistrationClearances(),
