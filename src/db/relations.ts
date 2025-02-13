@@ -69,7 +69,7 @@ export const studentProgramsRelations = relations(
       references: [structures.id],
     }),
     semesters: many(studentSemesters),
-  })
+  }),
 );
 
 export const studentSemestersRelations = relations(
@@ -80,7 +80,7 @@ export const studentSemestersRelations = relations(
       references: [studentPrograms.id],
     }),
     studentModules: many(studentModules),
-  })
+  }),
 );
 
 export const studentModulesRelations = relations(studentModules, ({ one }) => ({
@@ -123,7 +123,7 @@ export const structureSemestersRelations = relations(
       references: [structures.id],
     }),
     semesterModules: many(semesterModules),
-  })
+  }),
 );
 
 export const modulesRelations = relations(modules, ({ many }) => ({
@@ -144,7 +144,7 @@ export const modulePrerequisitesRelations = relations(
       fields: [modulePrerequisites.prerequisiteId],
       references: [modules.id],
     }),
-  })
+  }),
 );
 
 export const semesterModulesRelations = relations(
@@ -158,7 +158,7 @@ export const semesterModulesRelations = relations(
       fields: [semesterModules.moduleId],
       references: [modules.id],
     }),
-  })
+  }),
 );
 
 export const termsRelations = relations(terms, ({ many }) => ({
@@ -176,9 +176,9 @@ export const registrationRequestsRelations = relations(
       fields: [registrationRequests.termId],
       references: [terms.id],
     }),
-    registrationClearances: many(registrationClearances),
+    clearances: many(registrationClearances),
     requestedModules: many(requestedModules),
-  })
+  }),
 );
 
 export const requestedModulesRelations = relations(
@@ -192,7 +192,7 @@ export const requestedModulesRelations = relations(
       fields: [requestedModules.moduleId],
       references: [modules.id],
     }),
-  })
+  }),
 );
 
 export const registrationClearanceRelations = relations(
@@ -207,7 +207,7 @@ export const registrationClearanceRelations = relations(
       references: [users.id],
     }),
     audits: many(registrationClearanceAudit),
-  })
+  }),
 );
 
 export const registrationClearanceAuditRelations = relations(
@@ -221,5 +221,5 @@ export const registrationClearanceAuditRelations = relations(
       fields: [registrationClearanceAudit.createdBy],
       references: [users.id],
     }),
-  })
+  }),
 );

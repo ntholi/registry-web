@@ -30,6 +30,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
             module: true,
           },
         },
+        clearances: true,
       },
     });
   }

@@ -13,7 +13,7 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-export default async function RegistrationRequestDetails({ params }: Props): Promise<JSX.Element> {
+export default async function RegistrationRequestDetails({ params }: Props) {
   const { id } = await params;
   const registrationRequest = await getRegistrationRequest(Number(id));
 
@@ -31,19 +31,19 @@ export default async function RegistrationRequestDetails({ params }: Props): Pro
           await deleteRegistrationRequest(Number(id));
         }}
       />
-      <Tabs defaultValue="details" variant="outline">
+      <Tabs defaultValue='details' variant='outline'>
         <TabsList>
-          <TabsTab value="details">Details</TabsTab>
-          <TabsTab value="clearance">Clearance</TabsTab>
+          <TabsTab value='details'>Details</TabsTab>
+          <TabsTab value='clearance'>Clearance</TabsTab>
         </TabsList>
-        <TabsPanel value="details">
-          <Stack gap="xl" mt="xl" p="sm">
+        <TabsPanel value='details'>
+          <Stack gap='xl' mt='xl' p='sm'>
             <RequestDetailsView value={registrationRequest} />
             <ModulesView value={registrationRequest} />
           </Stack>
         </TabsPanel>
-        <TabsPanel value="clearance">
-          <Stack gap="xl" mt="xl" p="sm">
+        <TabsPanel value='clearance'>
+          <Stack gap='xl' mt='xl' p='sm'>
             <ClearanceAccordion value={registrationRequest} />
           </Stack>
         </TabsPanel>
