@@ -44,8 +44,8 @@ export default function ModuleInput({
                   ? field.onChange([...field.value, module.id])
                   : field.onChange(
                       field.value?.filter(
-                        (value: number) => value !== module.id
-                      )
+                        (value: number) => value !== module.id,
+                      ),
                     );
               }}
             />
@@ -68,7 +68,7 @@ export default function ModuleInput({
           <div className='absolute bottom-3 right-4'>
             {hasFailedPrerequisites ? (
               <Badge variant='destructive' className='mb-1'>
-                Failed Prerequisites (
+                Prerequisite (
                 {failedPrerequisites
                   .map((it) => it.prerequisiteCode)
                   .join(', ')}

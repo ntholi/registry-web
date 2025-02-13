@@ -11,10 +11,12 @@ import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
 import { redirect } from 'next/navigation';
 import ModulesForm from './Form';
+import { getCurrentTerm } from '@/server/terms/actions';
 
 export default async function RegistrationPage() {
   const session = await auth();
   const student = await getStudentByUserId(session?.user?.id);
+  const term = await getCurrentTerm();
 
   if (!student) {
     redirect('/signup');
@@ -22,14 +24,12 @@ export default async function RegistrationPage() {
 
   return (
     <Container className='pt-4 sm:pt-10'>
-      <Card className='max-w-3xl mx-auto'>
+      <Card className='mx-auto max-w-3xl'>
         <CardHeader>
           <CardTitle className='text-2xl font-bold'>
             Module Registration
           </CardTitle>
-          <CardDescription>
-            Register for {formatSemester(student.sem + 1)}
-          </CardDescription>
+          <CardDescription>Register for {term.name}</CardDescription>
         </CardHeader>
         <CardContent>
           {student.structureId ? (
