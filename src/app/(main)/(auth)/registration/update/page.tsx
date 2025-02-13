@@ -14,6 +14,7 @@ import { ArrowLeftIcon } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import ModulesForm from './Form';
+import BackButton from '../status/BackButton';
 
 export default async function UpdateRegistrationPage() {
   const session = await auth();
@@ -30,7 +31,7 @@ export default async function UpdateRegistrationPage() {
 
   const request = await getRegistrationRequestByStdNo(
     student.stdNo,
-    currentTerm.id
+    currentTerm.id,
   );
 
   if (request?.status === 'approved') {
@@ -44,11 +45,7 @@ export default async function UpdateRegistrationPage() {
   return (
     <Container width='md' className='pt-4 sm:pt-10'>
       <div className='flex items-center gap-4'>
-        <Button variant='outline' size='icon' asChild>
-          <Link href='/registration'>
-            <ArrowLeftIcon className='h-4 w-4' />
-          </Link>
-        </Button>
+        <BackButton />
         <div>
           <h1 className='text-2xl font-semibold'>Update Registration</h1>
         </div>
