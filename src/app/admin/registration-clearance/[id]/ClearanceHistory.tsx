@@ -45,7 +45,7 @@ export default function ClearanceHistory({ clearanceId }: Props) {
   }
 
   return (
-    <Paper shadow='sm' radius='md' pt='xl' px='xs'>
+    <Paper shadow='sm' radius='md' p={'lg'}>
       <Accordion variant='separated'>
         {history.map((clearance) => (
           <Accordion.Item key={clearance.id} value={clearance.id.toString()}>

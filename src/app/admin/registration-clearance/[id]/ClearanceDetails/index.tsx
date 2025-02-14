@@ -40,7 +40,7 @@ export default function ClearanceDetails({ request }: Props) {
           <Paper withBorder p='md'>
             <Stack>
               <FieldView label='Student Number' underline={false}>
-                <Group>
+                <Group justify='space-between'>
                   <Anchor
                     component={Link}
                     href={`/admin/students/${student.stdNo}`}
@@ -59,7 +59,7 @@ export default function ClearanceDetails({ request }: Props) {
                         });
                       }}
                     >
-                      <IconCopy size={16} />
+                      <IconCopy size={'1rem'} />
                     </ActionIcon>
                   </Tooltip>
                 </Group>

@@ -5,8 +5,10 @@ import {
 } from '@/server/registration-clearance/actions';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import AcademicsLoader from './AcademicsLoader';
 import ClearanceDetails from './ClearanceDetails';
 import ClearanceHistory from './ClearanceHistory';
+import { auth } from '@/auth';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -15,6 +17,7 @@ type Props = {
 export default async function ClearanceRequestDetails({ params }: Props) {
   const { id } = await params;
   const request = await getRegistrationClearance(Number(id));
+  const session = await auth();
 
   if (!request) {
     return notFound();
@@ -33,10 +36,16 @@ export default async function ClearanceRequestDetails({ params }: Props) {
       <Tabs defaultValue='details' variant='outline'>
         <TabsList>
           <TabsTab value='details'>Details</TabsTab>
+          {session?.user?.role === 'finance' && (
+            <TabsTab value='academics'>Academics</TabsTab>
+          )}
           <TabsTab value='history'>History</TabsTab>
         </TabsList>
         <TabsPanel value='details'>
           <ClearanceDetails request={request} />
+        </TabsPanel>
+        <TabsPanel value='academics'>
+          <AcademicsLoader stdNo={request.registrationRequest.student.stdNo} />
         </TabsPanel>
         <TabsPanel value='history'>
           <ClearanceHistory clearanceId={Number(id)} />
