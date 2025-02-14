@@ -13,12 +13,12 @@ type Module = typeof modules.$inferInsert;
 
 type Props = {
   onSubmit: (
-    values: Module & { prerequisiteCodes?: string[] }
+    values: Module & { prerequisiteCodes?: string[] },
   ) => Promise<Module>;
   defaultValues?: Module & { prerequisiteCodes?: string[] };
   onSuccess?: (value: Module) => void;
   onError?: (
-    error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+    error: Error | React.SyntheticEvent<HTMLDivElement, Event>,
   ) => void;
   title?: string;
 };
@@ -31,11 +31,15 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
     queryFn: () => findAllModules(1, ''),
   });
 
-  const prerequisiteOptions =
-    modulesList?.data.map((module) => ({
-      value: module.code,
-      label: `${module.code} - ${module.name}`,
-    })) ?? [];
+  const prerequisiteOptions = Array.from(
+    new Set(modulesList?.data.map((module) => module.code)),
+  ).map((code) => {
+    const module = modulesList?.data.find((m) => m.code === code);
+    return {
+      value: code,
+      label: `${code} - ${module?.name || ''}`,
+    };
+  });
 
   const schema = z.object({
     ...createInsertSchema(modules).shape,
