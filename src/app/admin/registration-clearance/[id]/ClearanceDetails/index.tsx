@@ -6,18 +6,23 @@ import {
   AccordionControl,
   AccordionItem,
   AccordionPanel,
+  ActionIcon,
   Anchor,
   Grid,
   GridCol,
+  Group,
   Paper,
   Stack,
   Textarea,
+  Tooltip,
 } from '@mantine/core';
 import Link from 'next/link';
 import { useState } from 'react';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
 import { getRegistrationClearance } from '@/server/registration-clearance/actions';
+import { notifications } from '@mantine/notifications';
+import { IconCopy } from '@tabler/icons-react';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
@@ -34,13 +39,30 @@ export default function ClearanceDetails({ request }: Props) {
         <GridCol span={{ base: 12, md: 7 }}>
           <Paper withBorder p='md'>
             <Stack>
-              <FieldView label='Student' underline={false}>
-                <Anchor
-                  component={Link}
-                  href={`/admin/students/${student.stdNo}`}
-                >
-                  {student.name}
-                </Anchor>
+              <FieldView label='Student Number' underline={false}>
+                <Group>
+                  <Anchor
+                    component={Link}
+                    href={`/admin/students/${student.stdNo}`}
+                  >
+                    {student.stdNo}
+                  </Anchor>
+                  <Tooltip label='Copy'>
+                    <ActionIcon
+                      variant='subtle'
+                      color='gray'
+                      onClick={() => {
+                        navigator.clipboard.writeText(String(student.stdNo));
+                        notifications.show({
+                          message: 'Copied to clipboard',
+                          color: 'green',
+                        });
+                      }}
+                    >
+                      <IconCopy size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
               </FieldView>
               <FieldView label='Program' underline={false}>
                 {student.structure?.program.name}

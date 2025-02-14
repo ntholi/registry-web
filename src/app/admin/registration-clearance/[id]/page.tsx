@@ -23,7 +23,7 @@ export default async function ClearanceRequestDetails({ params }: Props) {
   return (
     <DetailsView>
       <DetailsViewHeader
-        title={'Clearance'}
+        title={request.registrationRequest.student.name}
         queryKey={['registrationClearances']}
         handleDelete={async () => {
           'use server';
