@@ -25,7 +25,8 @@ export function formatDateTime(timestamp: number | Date | undefined | null) {
   });
 }
 
-export function formatSemester(sem: number) {
+export function formatSemester(sem: number | undefined | null) {
+  if (!sem) return '';
   const year = Math.ceil(sem / 2);
   const semester = sem % 2 === 0 ? 2 : 1;
 

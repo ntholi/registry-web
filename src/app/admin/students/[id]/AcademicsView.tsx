@@ -18,6 +18,7 @@ import {
   Anchor,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
+import { formatSemester } from '@/lib/utils';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -55,18 +56,18 @@ export default function AcademicsView({ student }: Props) {
         setOpenPrograms((prev) => [...prev, programId]);
         setTimeout(() => {
           const element = document.querySelector(
-            `[data-module-id="${moduleId}"]`
+            `[data-module-id="${moduleId}"]`,
           );
           element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 300);
       } else {
         const element = document.querySelector(
-          `[data-module-id="${moduleId}"]`
+          `[data-module-id="${moduleId}"]`,
         );
         element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     },
-    [openPrograms]
+    [openPrograms],
   );
 
   const getProgramStatusColor = (status: string) => {
@@ -134,9 +135,14 @@ export default function AcademicsView({ student }: Props) {
                     <Paper key={semester.id} p='md' withBorder>
                       <Stack gap='md'>
                         <Group justify='space-between'>
-                          <Title order={4} size={'1rem'}>
-                            {semester.term}
-                          </Title>
+                          <Group gap={'xs'}>
+                            <Badge radius={'xs'} variant='default'>
+                              {semester.term}
+                            </Badge>
+                            <Text size='sm'>
+                              {formatSemester(semester.semesterNumber)}
+                            </Text>
+                          </Group>
                           <SemesterStatus status={semester.status} />
                         </Group>
 
@@ -160,7 +166,7 @@ export default function AcademicsView({ student }: Props) {
                               if (!locations || locations.length <= 1) return;
 
                               const currentIndex = locations.findIndex(
-                                (loc) => loc.moduleId === moduleId
+                                (loc) => loc.moduleId === moduleId,
                               );
 
                               const nextLocation =
@@ -170,7 +176,7 @@ export default function AcademicsView({ student }: Props) {
 
                               scrollToModule(
                                 nextLocation.moduleId,
-                                nextLocation.programId
+                                nextLocation.programId,
                               );
                             }}
                           />
@@ -269,8 +275,8 @@ function ModuleTable({
                   module.grade === 'F' || module.grade === 'NM'
                     ? 'red'
                     : module.grade === 'D'
-                    ? 'orange'
-                    : 'green'
+                      ? 'orange'
+                      : 'green'
                 }
               >
                 {module.grade}
