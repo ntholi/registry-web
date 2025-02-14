@@ -1,12 +1,14 @@
 'use client';
 
-import { modules, moduleTypeEnum } from '@/db/schema';
 import { Form } from '@/components/adease';
-import { TextInput, NumberInput, MultiSelect, Select } from '@mantine/core';
+import { modules, moduleTypeEnum } from '@/db/schema';
+import { findAllModules } from '@/server/modules/actions';
+import { MultiSelect, NumberInput, Select, TextInput } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
+import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { findAllModules } from '@/server/modules/actions';
+import { useState } from 'react';
 import { z } from 'zod';
 
 type Module = typeof modules.$inferInsert;
@@ -25,21 +27,26 @@ type Props = {
 
 export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
   const { data: modulesList } = useQuery({
-    queryKey: ['modules'],
-    queryFn: () => findAllModules(1, ''),
+    queryKey: ['modules', debouncedSearch],
+    queryFn: () => findAllModules(1, debouncedSearch),
   });
 
   const prerequisiteOptions = Array.from(
     new Set(modulesList?.data.map((module) => module.code)),
-  ).map((code) => {
-    const module = modulesList?.data.find((m) => m.code === code);
-    return {
-      value: code,
-      label: `${code} - ${module?.name || ''}`,
-    };
-  });
+  )
+    .map((code) => {
+      const module = modulesList?.data.find((m) => m.code === code);
+      if (!module) return null;
+      return {
+        value: code,
+        label: `${module.code} - ${module.name}`,
+      };
+    })
+    .filter(Boolean) as { value: string; label: string }[];
 
   const schema = z.object({
     ...createInsertSchema(modules).shape,
@@ -72,6 +79,7 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
             placeholder='Select module prerequisites'
             data={prerequisiteOptions}
             searchable
+            onSearchChange={setSearchQuery}
             {...form.getInputProps('prerequisiteCodes')}
           />
         </>
