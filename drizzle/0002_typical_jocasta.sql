@@ -1,0 +1,1 @@
+ALTER TABLE `registration_requests` ADD `sponsor_id` integer NOT NULL REFERENCES sponsors(id);

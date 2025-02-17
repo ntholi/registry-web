@@ -21,6 +21,7 @@ import {
   terms,
   users,
   registrationClearanceAudit,
+  sponsors,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -175,6 +176,10 @@ export const registrationRequestsRelations = relations(
     term: one(terms, {
       fields: [registrationRequests.termId],
       references: [terms.id],
+    }),
+    sponsor: one(sponsors, {
+      fields: [registrationRequests.sponsorId],
+      references: [sponsors.id],
     }),
     clearances: many(registrationClearances),
     requestedModules: many(requestedModules),

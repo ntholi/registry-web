@@ -347,6 +347,9 @@ export const registrationRequests = sqliteTable(
   'registration_requests',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    sponsorId: integer('sponsor_id')
+      .references(() => sponsors.id, { onDelete: 'cascade' })
+      .notNull(),
     stdNo: integer('std_no')
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
@@ -429,3 +432,10 @@ export const registrationClearanceAudit = sqliteTable(
       .default(sql`(json_array())`),
   },
 );
+
+export const sponsors = sqliteTable('sponsors', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  name: text(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }),
+});
