@@ -1,11 +1,9 @@
 'use server';
 
-
 import { sponsors } from '@/db/schema';
 import { sponsorsService as service} from './service';
 
 type Sponsor = typeof sponsors.$inferInsert;
-
 
 export async function getSponsor(id: number) {
   return service.get(id);
@@ -25,4 +23,8 @@ export async function updateSponsor(id: number, sponsor: Sponsor) {
 
 export async function deleteSponsor(id: number) {
   return service.delete(id);
+}
+
+export async function getSponsoredStudent(stdNo: number) {
+  return service.getSponsoredStudent(stdNo);
 }

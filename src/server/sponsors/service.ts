@@ -41,6 +41,13 @@ class SponsorService {
     );
   }
 
+  async getSponsoredStudent(stdNo: number) {
+    return withAuth(
+      async () => this.repository.findSponsoredStudent(stdNo),
+      ['all'],
+    );
+  }
+
   async count() {
     return withAuth(async () => this.repository.count(), ['all']);
   }

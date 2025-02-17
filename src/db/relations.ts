@@ -22,6 +22,7 @@ import {
   users,
   registrationClearanceAudit,
   sponsors,
+  sponsoredStudents,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -225,6 +226,25 @@ export const registrationClearanceAuditRelations = relations(
     user: one(users, {
       fields: [registrationClearanceAudit.createdBy],
       references: [users.id],
+    }),
+  }),
+);
+
+export const sponsorsRelations = relations(sponsors, ({ many }) => ({
+  registrationRequests: many(registrationRequests),
+  sponsoredStudents: many(sponsoredStudents),
+}));
+
+export const sponsoredStudentsRelations = relations(
+  sponsoredStudents,
+  ({ one }) => ({
+    sponsor: one(sponsors, {
+      fields: [sponsoredStudents.sponsorId],
+      references: [sponsors.id],
+    }),
+    student: one(students, {
+      fields: [sponsoredStudents.stdNo],
+      references: [students.stdNo],
     }),
   }),
 );

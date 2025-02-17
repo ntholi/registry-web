@@ -23,6 +23,7 @@ import { ModulesTable } from './ModulesTable';
 import { getRegistrationClearance } from '@/server/registration-clearance/actions';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
+import SponsorInfo from '../SponsorInfo';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
@@ -67,6 +68,7 @@ export default function ClearanceDetails({ request }: Props) {
               <FieldView label='Program' underline={false}>
                 {student.structure?.program.name}
               </FieldView>
+              <SponsorInfo stdNo={request.registrationRequest.stdNo} />
             </Stack>
           </Paper>
         </GridCol>

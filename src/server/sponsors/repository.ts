@@ -1,5 +1,7 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { sponsors } from '@/db/schema'
+import { sponsors, sponsoredStudents } from '@/db/schema';
+import { db } from '@/db';
+import { eq } from 'drizzle-orm';
 
 export default class SponsorRepository extends BaseRepository<
   typeof sponsors,
@@ -7,6 +9,19 @@ export default class SponsorRepository extends BaseRepository<
 > {
   constructor() {
     super(sponsors, 'id');
+  }
+
+  async findSponsoredStudent(stdNo: number) {
+    const data = await db.query.sponsoredStudents.findFirst({
+      where: eq(sponsoredStudents.stdNo, stdNo),
+      with: {
+        sponsor: true,
+      },
+    });
+
+    console.log('Sponsored Student', data);
+
+    return data;
   }
 }
 
