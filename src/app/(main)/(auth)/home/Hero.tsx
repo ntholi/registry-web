@@ -7,7 +7,7 @@ import { getStudentByUserId } from '@/server/students/actions';
 import { GraduationCap } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getStudentScore } from './actions/transcript';
+import { getStudentScore } from './actions/scores';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
