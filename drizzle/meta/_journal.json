@@ -29,6 +29,13 @@
       "when": 1739792367622,
       "tag": "0003_yielding_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1739793264927,
+      "tag": "0004_conscious_wraith",
+      "breakpoints": true
     }
   ]
 }

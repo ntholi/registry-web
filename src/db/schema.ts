@@ -439,3 +439,23 @@ export const sponsors = sqliteTable('sponsors', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   updatedAt: integer({ mode: 'timestamp' }),
 });
+
+export const sponsoredStudents = sqliteTable(
+  'sponsored_students',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    sponsorId: integer()
+      .references(() => sponsors.id, { onDelete: 'cascade' })
+      .notNull(),
+    stdNo: integer()
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    borrowerNo: text(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
+  },
+  (table) => ({
+    uniqueSponsoredStudent: unique().on(table.sponsorId, table.stdNo),
+    uniqueSponsorStudentId: unique().on(table.sponsorId, table.borrowerNo),
+  }),
+);
