@@ -21,6 +21,7 @@ import { modals } from '@mantine/modals';
 import {
   Icon,
   IconBook,
+  IconBuildingBank,
   IconCalendar,
   IconChevronRight,
   IconCopyCheck,
@@ -107,6 +108,12 @@ const navigation: NavItem[] = [
     href: '/admin/terms',
     icon: IconCalendar,
     roles: ['admin'],
+  },
+  {
+    label: 'Sponsors',
+    href: '/admin/sponsors',
+    icon: IconBuildingBank,
+    roles: ['admin', 'finance'],
   },
 ];
 

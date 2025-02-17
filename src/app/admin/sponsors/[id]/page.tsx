@@ -14,15 +14,15 @@ type Props = {
 export default async function SponsorDetails({ params }: Props) {
   const { id } = await params;
   const sponsor = await getSponsor(Number(id));
-  
+
   if (!sponsor) {
     return notFound();
   }
 
   return (
     <DetailsView>
-      <DetailsViewHeader 
-        title={'Sponsor'} 
+      <DetailsViewHeader
+        title={'Sponsor'}
         queryKey={['sponsors']}
         handleDelete={async () => {
           'use server';

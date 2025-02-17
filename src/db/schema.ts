@@ -435,7 +435,7 @@ export const registrationClearanceAudit = sqliteTable(
 
 export const sponsors = sqliteTable('sponsors', {
   id: integer().primaryKey({ autoIncrement: true }),
-  name: text(),
+  name: text().notNull().unique(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   updatedAt: integer({ mode: 'timestamp' }),
 });
