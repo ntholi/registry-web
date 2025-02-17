@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import SponsorSelect from './sponsor-select';
 import { ModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +39,7 @@ export default function ClearanceRequestForm({
   const { currentTerm } = useCurrentTerm();
 
   const [modules, setStoredModules] = React.useState<Array<Module>>([]);
+  const [sponsorData, setSponsorData] = React.useState<{ sponsor: string; borrowerNo?: string } | null>(null);
 
   React.useEffect(() => {
     const stored = sessionStorage.getItem('selectedModules');
@@ -49,11 +51,20 @@ export default function ClearanceRequestForm({
   async function handleSubmit() {
     try {
       if (!currentTerm) throw new Error('No Current Term');
+      if (!sponsorData?.sponsor) throw new Error('Please select a sponsor');
+      if (sponsorData.sponsor === 'NMDS' && !sponsorData.borrowerNo) {
+        throw new Error('Please enter your NMDS borrower number');
+      }
+
       await createRegistrationWithModules({
-        termId: currentTerm.id,
         stdNo,
-        modules,
-        currentSemester,
+        termId: currentTerm.id,
+        modules: modules.map((module) => ({
+          moduleId: module.id,
+          moduleStatus: module.status,
+        })),
+        sponsor: sponsorData.sponsor,
+        borrowerNo: sponsorData.borrowerNo,
       });
 
       sessionStorage.removeItem('selectedModules');
@@ -82,6 +93,8 @@ export default function ClearanceRequestForm({
             {currentTerm?.name || 'Loading...'}
           </p>
         </div>
+
+        <SponsorSelect onSponsorChange={setSponsorData} />
 
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
@@ -120,7 +133,7 @@ export default function ClearanceRequestForm({
         <div className='flex justify-end'>
           <Button
             onClick={handleSubmit}
-            disabled={!currentTerm?.id}
+            disabled={!currentTerm?.id || !sponsorData?.sponsor}
             className='w-full sm:w-auto'
           >
             Submit Request

@@ -68,10 +68,11 @@ export async function createRequestedModules(
 }
 
 export async function createRegistrationWithModules(data: {
-  currentSemester: number;
   stdNo: number;
   termId: number;
-  modules: { id: number; status: ModuleStatus }[];
+  modules: { moduleId: number; moduleStatus: ModuleStatus }[];
+  sponsor: string;
+  borrowerNo?: string;
 }) {
   return service.createRegistrationWithModules(data);
 }

@@ -4,6 +4,9 @@ import {
   registrationClearances,
   registrationRequests,
   requestedModules,
+  sponsoredStudents,
+  sponsors,
+  students,
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
@@ -102,7 +105,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
   private async handleRegistrationModules(
     tx: any,
     registrationRequestId: number,
-    modules: { id: number; status: ModuleStatus }[],
+    modules: { moduleId: number; moduleStatus: ModuleStatus }[],
   ) {
     if (!modules.length) throw new Error('No modules selected');
     if (modules.length > MAX_REG_MODULES)
@@ -113,8 +116,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
       .where(eq(requestedModules.registrationRequestId, registrationRequestId));
 
     const modulesToCreate = modules.map((module) => ({
-      moduleId: module.id,
-      moduleStatus: module.status,
+      moduleId: module.moduleId,
+      moduleStatus: module.moduleStatus,
       registrationRequestId,
     }));
 
@@ -122,21 +125,44 @@ export default class RegistrationRequestRepository extends BaseRepository<
   }
 
   async createRegistrationWithModules(data: {
-    currentSemester: number;
     stdNo: number;
     termId: number;
-    modules: { id: number; status: ModuleStatus }[];
+    modules: { moduleId: number; moduleStatus: ModuleStatus }[];
+    sponsor: string;
+    borrowerNo?: string;
   }) {
-    // If every selected module's status begins with "Repeat", it implies that all chosen modules are repeat courses,
-    // so we adjust by setting the semester to the previous one
-    // Otherwise, we assume a progression to the next semester
-    const semesterNumber = data.modules.every((it) =>
-      it.status.startsWith('Repeat'),
-    )
-      ? data.currentSemester - 1
-      : data.currentSemester + 1;
-
     return db.transaction(async (tx) => {
+      // Get the student's current semester
+      const student = await tx.query.students.findFirst({
+        where: (students, { eq }) => eq(students.stdNo, data.stdNo),
+      });
+
+      if (!student) {
+        throw new Error('Student not found');
+      }
+
+      // Determine semester number based on repeat modules
+      const semesterNumber = data.modules.every((it) =>
+        it.moduleStatus.startsWith('Repeat'),
+      )
+        ? student.sem - 1
+        : student.sem + 1;
+
+      const [sponsor] = await tx.query.sponsors.findMany({
+        where: (sponsors, { eq }) => eq(sponsors.name, data.sponsor),
+        limit: 1,
+      });
+
+      if (!sponsor) throw new Error(`Sponsor '${data.sponsor}' not found`);
+
+      if (sponsor) {
+        await tx.insert(sponsoredStudents).values({
+          sponsorId: sponsor.id,
+          stdNo: data.stdNo,
+          borrowerNo: data.borrowerNo,
+        });
+      }
+
       const [request] = await tx
         .insert(registrationRequests)
         .values({
@@ -144,9 +170,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
           termId: data.termId,
           status: 'pending',
           semesterNumber,
+          sponsorId: sponsor?.id,
         })
         .returning();
 
+      // Create clearance requests
       ['finance', 'library'].forEach(async (department) => {
         await tx
           .insert(registrationClearances)
@@ -157,6 +185,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
           .returning();
       });
 
+      // Handle modules
       const modules = await this.handleRegistrationModules(
         tx,
         request.id,
