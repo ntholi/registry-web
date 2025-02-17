@@ -31,7 +31,7 @@ export default function SponsorSelect({ onSponsorChange }: SponsorSelectProps) {
   const handleSponsorChange = (value: string) => {
     setSelectedSponsor(value);
     if (value === 'NMDS') {
-      onSponsorChange({ sponsor: value }); // Initial update without borrowerNo
+      setBorrowerNo('');
     } else {
       onSponsorChange({ sponsor: value });
     }
@@ -39,7 +39,7 @@ export default function SponsorSelect({ onSponsorChange }: SponsorSelectProps) {
 
   const handleBorrowerNoChange = (value: string) => {
     setBorrowerNo(value);
-    if (selectedSponsor === 'NMDS') {
+    if (selectedSponsor === 'NMDS' && value.trim()) {
       onSponsorChange({ sponsor: selectedSponsor, borrowerNo: value });
     }
   };

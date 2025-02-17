@@ -224,7 +224,16 @@ export default class RegistrationRequestRepository extends BaseRepository<
           ),
         );
 
-      return this.handleRegistrationModules(tx, registrationRequestId, modules);
+      const convertedModules = modules.map((module) => ({
+        moduleId: module.id,
+        moduleStatus: module.status,
+      }));
+
+      return this.handleRegistrationModules(
+        tx,
+        registrationRequestId,
+        convertedModules,
+      );
     });
   }
 }
