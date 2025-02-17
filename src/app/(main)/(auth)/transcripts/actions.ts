@@ -8,7 +8,7 @@ export async function getTranscript(stdNo: number) {
   const programs = await db.query.studentPrograms.findMany({
     where: and(
       eq(studentPrograms.stdNo, stdNo),
-      inArray(studentPrograms.status, ['Active', 'Completed'])
+      inArray(studentPrograms.status, ['Active', 'Completed']),
     ),
     with: {
       structure: {
@@ -21,6 +21,7 @@ export async function getTranscript(stdNo: number) {
           notInArray(semester.status, ['Deleted', 'Deferred']),
         with: {
           studentModules: {
+            where: (module) => notInArray(module.status, ['Delete', 'Drop']),
             with: {
               module: true,
             },
