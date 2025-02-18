@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { structureSemesters, studentPrograms } from '@/db/schema';
+import { modules, structureSemesters, studentPrograms } from '@/db/schema';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
 
 export async function getFailedPrerequisites(
@@ -10,10 +10,6 @@ export async function getFailedPrerequisites(
   structureId: number,
 ) {
   const allSemesterModules = await getAllSemesterModules(semester, structureId);
-
-  const requiredModuleNames = new Set(
-    allSemesterModules.map(({ name }) => name),
-  );
 
   const attemptedModules = await db.query.studentPrograms.findMany({
     where: eq(studentPrograms.stdNo, stdNo),
@@ -40,26 +36,16 @@ export async function getFailedPrerequisites(
       .map((mod) => [mod.module.name, parseFloat(mod.marks)]),
   );
 
-  // A module is failed if:
-  // 1. It's in requiredModuleNames but not attempted (missing prerequisite)
-  // 2. It was attempted but got marks < 50
   const failedModules = new Set(
-    [...requiredModuleNames]
-      .filter((moduleName) => {
-        const marks = attemptedModuleResults.get(moduleName);
+    [...allSemesterModules]
+      .filter((it) => {
+        const marks = attemptedModuleResults.get(it.name);
         if (marks === undefined) {
-          // Module was required but never attempted
           return true;
         }
-        // Module was attempted but failed
         return marks < 50;
       })
-      .map(
-        (moduleName) =>
-          // Find the module code for this module name
-          allSemesterModules.find(({ name }) => name === moduleName)?.code,
-      )
-      .filter((code): code is string => code !== undefined),
+      .map((it) => it.name),
   );
 
   const prerequisites = await db.query.modulePrerequisites.findMany({
@@ -71,7 +57,7 @@ export async function getFailedPrerequisites(
 
   return prerequisites.reduce(
     (acc, { module, prerequisite }) => {
-      if (failedModules.has(prerequisite.code)) {
+      if (failedModules.has(prerequisite.name)) {
         const entry = {
           moduleCode: module.code,
           prerequisiteCode: prerequisite.code,
