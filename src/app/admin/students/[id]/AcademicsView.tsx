@@ -14,6 +14,7 @@ import {
   Table,
   Text,
   ThemeIcon,
+  Tooltip,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { formatSemester } from '@/lib/utils';
@@ -25,6 +26,14 @@ type Props = {
 
 export default function AcademicsView({ student, showMarks }: Props) {
   const [openPrograms, setOpenPrograms] = useState<string[]>([]);
+  const [selectedModule, setSelectedModule] = useState<{
+    code: string;
+    attempts: {
+      term: string;
+      grade: string;
+      semesterNumber: number;
+    }[];
+  } | null>(null);
 
   if (!student?.programs?.length) {
     return (
@@ -100,6 +109,7 @@ export default function AcademicsView({ student, showMarks }: Props) {
                               credits: sm.module.credits,
                             }))}
                             showMarks={showMarks}
+                            allSemesters={program.semesters}
                           />
                         ) : (
                           <Text c='dimmed'>
@@ -152,9 +162,64 @@ type ModuleTableProps = {
     credits: number;
   }[];
   showMarks?: boolean;
+  allSemesters?: {
+    term: string;
+    semesterNumber: number | null;
+    studentModules: {
+      module: {
+        code: string;
+      };
+      grade: string;
+    }[];
+  }[];
 };
 
-function ModuleTable({ modules, showMarks }: ModuleTableProps) {
+function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
+  const getModuleAttempts = (moduleCode: string) => {
+    if (!allSemesters) return [];
+
+    return allSemesters
+      .filter((sem) =>
+        sem.studentModules.some((m) => m.module.code === moduleCode),
+      )
+      .map((sem) => ({
+        term: sem.term,
+        semesterNumber: sem.semesterNumber ?? 0,
+        grade:
+          sem.studentModules.find((m) => m.module.code === moduleCode)?.grade ??
+          '',
+      }))
+      .sort((a, b) => (b.semesterNumber ?? 0) - (a.semesterNumber ?? 0));
+  };
+
+  const renderAttemptHistory = (moduleCode: string) => {
+    const attempts = getModuleAttempts(moduleCode);
+
+    if (attempts.length <= 1) {
+      return (
+        <Text size='sm' c='dimmed'>
+          This module has not been reattempted yet.
+        </Text>
+      );
+    }
+
+    return (
+      <Stack gap='xs'>
+        {attempts.map((attempt, index) => (
+          <Group key={index} justify='space-between' gap='xl'>
+            <Text size='sm'>
+              {attempt.term}{' '}
+              {attempt.semesterNumber
+                ? `(${formatSemester(attempt.semesterNumber)})`
+                : ''}
+            </Text>
+            <Badge size='sm'>{attempt.grade}</Badge>
+          </Group>
+        ))}
+      </Stack>
+    );
+  };
+
   return (
     <Table>
       <Table.Thead>
@@ -171,7 +236,23 @@ function ModuleTable({ modules, showMarks }: ModuleTableProps) {
         {modules.map((module) => (
           <Table.Tr key={module.id}>
             <Table.Td>
-              <Text size='sm'>{module.code}</Text>
+              {module.grade === 'F' ? (
+                <Tooltip
+                  label={renderAttemptHistory(module.code)}
+                  color='gray'
+                  withArrow
+                  multiline
+                >
+                  <Text
+                    size='sm'
+                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    {module.code}
+                  </Text>
+                </Tooltip>
+              ) : (
+                <Text size='sm'>{module.code}</Text>
+              )}
             </Table.Td>
             <Table.Td>
               <Text size='sm'>{module.name}</Text>
