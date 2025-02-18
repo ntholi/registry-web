@@ -51,7 +51,7 @@ export default function ModuleSimulator() {
       <Card withBorder>
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap='md'>
-            <Title order={3}>Module Query Simulator</Title>
+            <Title order={3}>Query Simulator</Title>
 
             <Grid>
               <Grid.Col span={4}>

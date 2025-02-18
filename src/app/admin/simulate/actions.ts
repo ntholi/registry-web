@@ -35,8 +35,8 @@ export async function getStudentModules(
   }
 
   if (queryType === 'semester') {
-    return getSemesterModules(stdNo, student.sem, student.structureId);
+    return getSemesterModules(stdNo, student.sem + 1, student.structureId);
   } else {
-    return getRepeatModules(stdNo, student.sem);
+    return getRepeatModules(stdNo, student.sem + 1);
   }
 }
