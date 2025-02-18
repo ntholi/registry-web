@@ -19,8 +19,6 @@ export default class SponsorRepository extends BaseRepository<
       },
     });
 
-    console.log('Sponsored Student', data);
-
     return data;
   }
 }

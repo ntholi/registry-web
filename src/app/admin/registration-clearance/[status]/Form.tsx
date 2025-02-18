@@ -10,6 +10,7 @@ type RegistrationClearance = typeof registrationClearances.$inferInsert;
 
 type Props = {
   onSubmit: (values: RegistrationClearance) => Promise<RegistrationClearance>;
+  status: 'pending' | 'approved' | 'rejected';
   defaultValues?: RegistrationClearance;
   onSuccess?: (value: RegistrationClearance) => void;
   onError?: (
@@ -20,6 +21,7 @@ type Props = {
 
 export default function RegistrationClearanceForm({
   onSubmit,
+  status,
   defaultValues,
   title,
 }: Props) {
@@ -33,7 +35,7 @@ export default function RegistrationClearanceForm({
       schema={createInsertSchema(registrationClearances)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
-        router.push(`/admin/registration-clearance/${id}`);
+        router.push(`/admin/registration-clearance/${status}/${id}`);
       }}
     >
       {(form) => (

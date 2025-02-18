@@ -70,9 +70,11 @@ export default function ClearanceSwitch({
       });
 
       if (nextClearance) {
-        router.replace(`/admin/registration-clearance/${nextClearance.id}`);
+        router.replace(
+          `/admin/registration-clearance/pending/${nextClearance.id}`,
+        );
       } else {
-        router.replace('/admin/registration-clearance');
+        router.replace('/admin/registration-clearance/pending');
       }
     },
     onError: (error) => {

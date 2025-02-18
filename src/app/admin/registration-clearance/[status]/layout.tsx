@@ -1,17 +1,33 @@
 'use client';
 
 import { ListItem, ListLayout } from '@/components/adease';
-import { registrationClearanceByDepartment } from '@/server/registration-clearance/actions';
+import { registrationClearanceByStatus } from '@/server/registration-clearance/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { PropsWithChildren } from 'react';
+import { useParams } from 'next/navigation';
+
+type Status = 'pending' | 'approved' | 'rejected';
+
+const statusTitles = {
+  pending: 'Pending Clearance Requests',
+  approved: 'Approved Clearances',
+  rejected: 'Rejected Clearances',
+};
 
 export default function Layout({ children }: PropsWithChildren) {
+  const params = useParams();
+  const status = params.status as Status;
+
+  if (!statusTitles[status]) {
+    return <div>Invalid status: {status}</div>;
+  }
+
   return (
     <ListLayout
-      path={'/admin/registration-clearance'}
-      queryKey={['registrationClearances']}
+      path={'/admin/registration-clearance/' + status}
+      queryKey={['registrationClearances', status]}
       getData={(page, search) =>
-        registrationClearanceByDepartment(page, search)
+        registrationClearanceByStatus(status, page, search)
       }
       renderItem={(it) => (
         <ListItem

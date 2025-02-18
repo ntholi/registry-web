@@ -37,6 +37,30 @@ export async function registrationClearanceByDepartment(
   );
 }
 
+export async function registrationClearanceByStatus(
+  status: 'pending' | 'approved' | 'rejected',
+  page: number = 1,
+  search = '',
+) {
+  const session = await auth();
+  if (!session?.user?.role) {
+    return {
+      data: [],
+      pages: 0,
+    };
+  }
+
+  return service.findByDepartment(
+    session.user.role as DashboardUser,
+    {
+      page,
+      search,
+      orderBy: [{ field: 'createdAt', direction: 'desc' }],
+    },
+    status,
+  );
+}
+
 export async function createRegistrationClearance(
   registrationClearance: RegistrationClearance,
 ) {
