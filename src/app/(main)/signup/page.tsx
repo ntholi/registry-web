@@ -5,6 +5,7 @@ import { getSignup } from '@/server/signups/actions';
 import { redirect } from 'next/navigation';
 import { Container } from '@/components/ui/container';
 import Logo from '../base/Logo';
+import { dashboardUsers } from '@/db/schema';
 
 export default async function SignupPage() {
   const session = await auth();
@@ -14,7 +15,12 @@ export default async function SignupPage() {
 
   if (session?.user?.role === 'student') {
     redirect('/');
-  } else if (session.user.role === 'admin') {
+  } else if (
+    session.user.role &&
+    dashboardUsers.includes(
+      session.user.role as (typeof dashboardUsers)[number],
+    )
+  ) {
     redirect('/admin');
   }
 
