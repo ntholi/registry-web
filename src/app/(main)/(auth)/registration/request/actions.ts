@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { modules, structureSemesters, studentPrograms } from '@/db/schema';
+import { structureSemesters, studentPrograms } from '@/db/schema';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
 
 export async function getFailedPrerequisites(

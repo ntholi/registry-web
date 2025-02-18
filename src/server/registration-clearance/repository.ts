@@ -188,12 +188,11 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     });
   }
 
-  async findNextPending(department: DashboardUser, currentId: number) {
+  async findNextPending(department: DashboardUser) {
     return db.query.registrationClearances.findFirst({
       where: and(
         eq(registrationClearances.status, 'pending'),
         eq(registrationClearances.department, department),
-        gt(registrationClearances.id, currentId),
       ),
       with: {
         registrationRequest: {
@@ -202,7 +201,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
           },
         },
       },
-      orderBy: (clearances, { asc }) => [asc(clearances.id)],
+      orderBy: (clearances) => [desc(clearances.createdAt)],
     });
   }
 }

@@ -54,9 +54,7 @@ export default function ClearanceSwitch({
         status,
       });
 
-      const nextClearance = await getNextPendingRegistrationClearance(
-        request.id,
-      );
+      const nextClearance = await getNextPendingRegistrationClearance();
       return { result, nextClearance };
     },
     onSuccess: ({ nextClearance }) => {

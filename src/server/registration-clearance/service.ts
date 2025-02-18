@@ -8,7 +8,7 @@ type RegistrationClearance = typeof registrationClearances.$inferInsert;
 
 class RegistrationClearanceService {
   constructor(
-    private readonly repository = new RegistrationClearanceRepository()
+    private readonly repository = new RegistrationClearanceRepository(),
   ) {}
 
   async first() {
@@ -29,11 +29,11 @@ class RegistrationClearanceService {
   async findByDepartment(
     department: DashboardUser,
     params: FindAllParams<typeof registrationClearances>,
-    status?: 'pending' | 'approved' | 'rejected'
+    status?: 'pending' | 'approved' | 'rejected',
   ) {
     return withAuth(
       async () => this.repository.findByDepartment(department, params, status),
-      ['dashboard']
+      ['dashboard'],
     );
   }
 
@@ -48,7 +48,7 @@ class RegistrationClearanceService {
           respondedBy: session?.user?.id,
         });
       },
-      ['dashboard']
+      ['dashboard'],
     );
   }
 
@@ -67,14 +67,14 @@ class RegistrationClearanceService {
   async getHistory(clearanceId: number) {
     return withAuth(
       async () => this.repository.findHistory(clearanceId),
-      ['dashboard']
+      ['dashboard'],
     );
   }
 
-  async findNextPending(department: DashboardUser, currentId: number) {
+  async findNextPending(department: DashboardUser) {
     return withAuth(
-      async () => this.repository.findNextPending(department, currentId),
-      ['dashboard']
+      async () => this.repository.findNextPending(department),
+      ['dashboard'],
     );
   }
 }
