@@ -4,29 +4,23 @@ import { ListItem, ListLayout } from '@/components/adease';
 import { registrationClearanceByDepartment } from '@/server/registration-clearance/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { PropsWithChildren } from 'react';
-import Filter from './Filter';
-import { parseAsBoolean, useQueryState } from 'nuqs';
 
 export default function Layout({ children }: PropsWithChildren) {
-  const [showPending] = useQueryState(
-    'pending',
-    parseAsBoolean.withDefault(true)
-  );
-
   return (
     <ListLayout
       path={'/admin/registration-clearance'}
-      queryKey={['registrationClearances', showPending.toString()]}
+      queryKey={['registrationClearances']}
       getData={(page, search) =>
-        registrationClearanceByDepartment(page, search, showPending)
+        registrationClearanceByDepartment(page, search)
       }
-      actionIcons={[<Filter key={'filter'} />]}
       renderItem={(it) => (
         <ListItem
           id={it.id}
           label={it.registrationRequest.student.stdNo}
           description={it.registrationRequest.student.name}
-          rightSection={getStatusIcon(it.status)}
+          rightSection={getStatusIcon(
+            it.status as 'pending' | 'approved' | 'rejected',
+          )}
         />
       )}
     >

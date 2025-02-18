@@ -17,7 +17,6 @@ export async function countPendingRegistrationClearances() {
 export async function registrationClearanceByDepartment(
   page: number = 1,
   search = '',
-  showPending: boolean = true
 ) {
   const session = await auth();
   if (!session?.user?.role) {
@@ -32,20 +31,21 @@ export async function registrationClearanceByDepartment(
     {
       page,
       search,
+      orderBy: [{ field: 'createdAt', direction: 'desc' }],
     },
-    showPending ? 'pending' : undefined
+    'pending',
   );
 }
 
 export async function createRegistrationClearance(
-  registrationClearance: RegistrationClearance
+  registrationClearance: RegistrationClearance,
 ) {
   return service.respond(registrationClearance);
 }
 
 export async function updateRegistrationClearance(
   id: number,
-  registrationClearance: RegistrationClearance
+  registrationClearance: RegistrationClearance,
 ) {
   return service.update(id, registrationClearance);
 }
