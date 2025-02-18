@@ -189,7 +189,14 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
           sem.studentModules.find((m) => m.module.code === moduleCode)?.grade ??
           '',
       }))
-      .sort((a, b) => (b.semesterNumber ?? 0) - (a.semesterNumber ?? 0));
+      .sort((a, b) => {
+        const [yearA, monthA] = a.term.split('-').map(Number);
+        const [yearB, monthB] = b.term.split('-').map(Number);
+        if (yearA !== yearB) {
+          return yearA - yearB;
+        }
+        return monthA - monthB;
+      });
   };
 
   const renderAttemptHistory = (moduleCode: string) => {
