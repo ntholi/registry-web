@@ -27,7 +27,7 @@ export default async function StudentDetails({ params }: Props) {
           <TabsTab value='info'>Student</TabsTab>
         </TabsList>
         <TabsPanel value='academics' pt={'xl'} p={'sm'}>
-          <AcademicsView student={student} />
+          <AcademicsView student={student} showMarks />
         </TabsPanel>
         <TabsPanel value='info' pt={'xl'} p={'sm'}>
           <StudentView student={student} />

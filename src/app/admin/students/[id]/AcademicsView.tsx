@@ -14,7 +14,6 @@ import {
   Table,
   Text,
   ThemeIcon,
-  Title,
   Anchor,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
@@ -22,9 +21,10 @@ import { formatSemester } from '@/lib/utils';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+  showMarks?: boolean;
 };
 
-export default function AcademicsView({ student }: Props) {
+export default function AcademicsView({ student, showMarks }: Props) {
   const [openPrograms, setOpenPrograms] = useState<string[]>([]);
 
   const moduleLocations = useMemo(() => {
@@ -179,6 +179,7 @@ export default function AcademicsView({ student }: Props) {
                                 nextLocation.programId,
                               );
                             }}
+                            showMarks={showMarks}
                           />
                         ) : (
                           <Text c='dimmed'>
@@ -218,12 +219,14 @@ type ModuleTableProps = {
     Array<{ programId: string; moduleId: number }>
   >;
   onModuleClick: (moduleId: number, code: string) => void;
+  showMarks?: boolean;
 };
 
 function ModuleTable({
   modules,
   moduleLocations,
   onModuleClick,
+  showMarks,
 }: ModuleTableProps) {
   return (
     <Table verticalSpacing='xs'>
@@ -233,6 +236,7 @@ function ModuleTable({
           <Table.Th>Name</Table.Th>
           <Table.Th w={100}>Status</Table.Th>
           <Table.Th w={67}>Credits</Table.Th>
+          {showMarks && <Table.Th w={70}>Marks</Table.Th>}
           <Table.Th w={60}>Grade</Table.Th>
         </Table.Tr>
       </Table.Thead>
@@ -267,6 +271,11 @@ function ModuleTable({
             <Table.Td>
               <Text size='sm'>{module.credits}</Text>
             </Table.Td>
+            {showMarks && (
+              <Table.Td>
+                <Text size='sm'>{module.marks}</Text>
+              </Table.Td>
+            )}
             <Table.Td>
               <Badge
                 size='sm'
