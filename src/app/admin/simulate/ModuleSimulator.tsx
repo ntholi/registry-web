@@ -1,15 +1,11 @@
 'use client';
 
 import {
-  getRepeatModules,
-  getSemesterModules,
-} from '@/app/(main)/(auth)/registration/request/actions';
-import {
   Button,
   Card,
-  Group,
+  Grid,
   NumberInput,
-  Radio,
+  Select,
   Stack,
   Table,
   Text,
@@ -17,16 +13,12 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
+import { getStudentModules, type ModuleResult } from './actions';
 
-type ModuleResult = {
-  id: number;
-  code: string;
-  name: string;
-  type: string;
-  credits: number;
-  status: string;
-  prerequisites?: { code: string; name: string }[];
-};
+const queryTypes = [
+  { value: 'semester', label: 'Semester Modules' },
+  { value: 'repeat', label: 'Repeat Modules' },
+] as const;
 
 export default function ModuleSimulator() {
   const [results, setResults] = useState<ModuleResult[]>([]);
@@ -35,29 +27,18 @@ export default function ModuleSimulator() {
   const form = useForm({
     initialValues: {
       stdNo: '',
-      queryType: 'semester',
-      semester: 1,
-      structureId: 1,
+      queryType: 'semester' as const,
     },
   });
 
   const handleSubmit = async (values: typeof form.values) => {
     setLoading(true);
     try {
-      if (values.queryType === 'semester') {
-        const modules = await getSemesterModules(
-          Number(values.stdNo),
-          values.semester,
-          values.structureId,
-        );
-        setResults(modules);
-      } else {
-        const modules = await getRepeatModules(
-          Number(values.stdNo),
-          values.semester,
-        );
-        setResults(modules);
-      }
+      const modules = await getStudentModules(
+        Number(values.stdNo),
+        values.queryType,
+      );
+      setResults(modules);
     } catch (error) {
       console.error('Error fetching modules:', error);
     } finally {
@@ -72,42 +53,28 @@ export default function ModuleSimulator() {
           <Stack gap='md'>
             <Title order={3}>Module Query Simulator</Title>
 
-            <NumberInput
-              label='Student Number'
-              placeholder='Enter student number'
-              required
-              {...form.getInputProps('stdNo')}
-            />
-
-            <Radio.Group
-              label='Query Type'
-              {...form.getInputProps('queryType')}
-            >
-              <Group mt='xs'>
-                <Radio value='semester' label='Semester Modules' />
-                <Radio value='repeat' label='Repeat Modules' />
-              </Group>
-            </Radio.Group>
-
-            <Group grow>
-              <NumberInput
-                label='Semester'
-                min={1}
-                max={10}
-                {...form.getInputProps('semester')}
-              />
-              {form.values.queryType === 'semester' && (
+            <Grid>
+              <Grid.Col span={4}>
                 <NumberInput
-                  label='Structure ID'
-                  min={1}
-                  {...form.getInputProps('structureId')}
+                  label='Student Number'
+                  placeholder='Enter student number'
+                  required
+                  {...form.getInputProps('stdNo')}
                 />
-              )}
-            </Group>
-
-            <Button type='submit' loading={loading}>
-              Fetch Modules
-            </Button>
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <Select
+                  label='Query Type'
+                  data={queryTypes}
+                  {...form.getInputProps('queryType')}
+                />
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <Button type='submit' loading={loading} fullWidth mt={24}>
+                  Fetch Modules
+                </Button>
+              </Grid.Col>
+            </Grid>
           </Stack>
         </form>
       </Card>
@@ -136,9 +103,9 @@ export default function ModuleSimulator() {
                     <Table.Td>{module.credits}</Table.Td>
                     <Table.Td>{module.status}</Table.Td>
                     <Table.Td>
-                      {module.prerequisites?.map((prereq) => (
-                        <Text key={prereq.code} size='sm'>
-                          {prereq.code} - {prereq.name}
+                      {module.prerequisites?.map((it) => (
+                        <Text size='sm' key={it.prerequisiteCode}>
+                          {it.prerequisiteCode}
                         </Text>
                       ))}
                     </Table.Td>
