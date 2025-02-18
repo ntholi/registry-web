@@ -2,7 +2,7 @@
 
 import AcademicsView from '@/app/admin/students/[id]/AcademicsView';
 import { getStudent } from '@/server/students/actions';
-import { Box, Center } from '@mantine/core';
+import { Box, Center, Loader } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
@@ -16,7 +16,13 @@ export default function AcademicsLoader({ stdNo }: Props) {
     queryKey: ['students', stdNo],
   });
 
-  if (isLoading) return <Center mt={'1rem'}>Loading...</Center>;
+  if (isLoading) {
+    return (
+      <Center mt={'4rem'}>
+        <Loader size='sm' />
+      </Center>
+    );
+  }
 
   if (!student) return null;
 

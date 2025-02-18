@@ -232,7 +232,7 @@ function ModuleTable({
           <Table.Th w={95}>Code</Table.Th>
           <Table.Th>Name</Table.Th>
           <Table.Th w={100}>Status</Table.Th>
-          <Table.Th w={62}>Marks</Table.Th>
+          <Table.Th w={67}>Credits</Table.Th>
           <Table.Th w={60}>Grade</Table.Th>
         </Table.Tr>
       </Table.Thead>
@@ -265,7 +265,7 @@ function ModuleTable({
               </Text>
             </Table.Td>
             <Table.Td>
-              <Text size='sm'>{module.marks}</Text>
+              <Text size='sm'>{module.credits}</Text>
             </Table.Td>
             <Table.Td>
               <Badge
