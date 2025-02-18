@@ -77,13 +77,29 @@ const navigation: NavItem[] = [
   },
   {
     label: 'Clearance',
-    href: '/admin/registration-clearance',
     icon: IconCopyCheck,
     roles: ['finance', 'library'],
-    notificationCount: {
-      queryKey: ['registrationClearances'],
-      queryFn: () => countPendingRegistrationClearances(),
-    },
+    children: [
+      {
+        label: 'Requests',
+        href: '/admin/registration-clearance/pending',
+        icon: IconMessageReply,
+        notificationCount: {
+          queryKey: ['registrationClearances'],
+          queryFn: () => countPendingRegistrationClearances(),
+        },
+      },
+      {
+        label: 'Approved',
+        href: '/admin/registration-clearance/approved',
+        icon: IconCopyCheck,
+      },
+      {
+        label: 'Rejected',
+        href: '/admin/registration-clearance/rejected',
+        icon: IconCopyCheck,
+      },
+    ],
   },
   {
     label: 'Modules',
