@@ -59,7 +59,10 @@ export default function ClearanceSwitch({
     },
     onSuccess: ({ nextClearance }) => {
       queryClient.invalidateQueries({
-        queryKey: ['registrationClearances'],
+        queryKey: ['registrationClearances', request.status],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['registrationClearances', status],
       });
       notifications.show({
         title: 'Success',
