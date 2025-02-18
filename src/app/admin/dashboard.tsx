@@ -41,6 +41,7 @@ import React from 'react';
 type NotificationConfig = {
   queryKey: string[];
   queryFn: () => Promise<number>;
+  refetchInterval?: number;
 };
 
 export type NavItem = {
@@ -87,6 +88,7 @@ const navigation: NavItem[] = [
         notificationCount: {
           queryKey: ['registrationClearances'],
           queryFn: () => countPendingRegistrationClearances(),
+          refetchInterval: 1000 * 10,
         },
       },
       {
@@ -213,6 +215,7 @@ function DisplayWithNotification({ item }: { item: NavItem }) {
     queryKey: item.notificationCount?.queryKey ?? [],
     queryFn: () => item.notificationCount?.queryFn() ?? Promise.resolve(0),
     enabled: !!item.notificationCount,
+    refetchInterval: item.notificationCount?.refetchInterval,
   });
 
   return (
