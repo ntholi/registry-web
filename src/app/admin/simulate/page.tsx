@@ -3,7 +3,7 @@ import ModuleSimulator from './ModuleSimulator';
 
 export default function SimulatePage() {
   return (
-    <Container size='lg' py='lg'>
+    <Container size='lg' py='lg' px='xl'>
       <ModuleSimulator />
     </Container>
   );
