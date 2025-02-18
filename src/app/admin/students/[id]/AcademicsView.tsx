@@ -36,13 +36,15 @@ export default function AcademicsView({ student, showMarks }: Props) {
     student.programs.forEach((program) => {
       program.semesters?.forEach((semester) => {
         semester.studentModules?.forEach((stdMod) => {
-          if (!locations[stdMod.module.code]) {
-            locations[stdMod.module.code] = [];
+          if (stdMod.grade === 'F' || stdMod.grade === 'PP') {
+            if (!locations[stdMod.module.code]) {
+              locations[stdMod.module.code] = [];
+            }
+            locations[stdMod.module.code].push({
+              programId: program.id?.toString() ?? '',
+              moduleId: stdMod.id,
+            });
           }
-          locations[stdMod.module.code].push({
-            programId: program.id?.toString() ?? '',
-            moduleId: stdMod.id,
-          });
         });
       });
     });
@@ -244,7 +246,7 @@ function ModuleTable({
         {modules.map((module) => (
           <Table.Tr key={module.id} data-module-id={module.id}>
             <Table.Td>
-              {moduleLocations[module.code].length > 1 ? (
+              {moduleLocations[module.code] ? (
                 <Anchor
                   size='sm'
                   onClick={() => onModuleClick(module.id, module.code)}
