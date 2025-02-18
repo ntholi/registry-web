@@ -5,6 +5,7 @@ import SemesterStatus from '@/components/SemesterStatus';
 import { getStudent } from '@/server/students/actions';
 import {
   Accordion,
+  Anchor,
   Badge,
   Card,
   Divider,
@@ -204,25 +205,44 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
 
     if (attempts.length <= 1) {
       return (
-        <Text size='sm' c='dimmed'>
-          This module has not been reattempted yet.
-        </Text>
+        <Stack p='md'>
+          <Text size='sm' c='red'>
+            Did not Repeat
+          </Text>
+        </Stack>
       );
     }
 
     return (
-      <Stack gap='xs'>
-        {attempts.map((attempt, index) => (
-          <Group key={index} justify='space-between' gap='xl'>
-            <Text size='sm'>
-              {attempt.term}{' '}
-              {attempt.semesterNumber
-                ? `(${formatSemester(attempt.semesterNumber)})`
-                : ''}
-            </Text>
-            <Badge size='sm'>{attempt.grade}</Badge>
-          </Group>
-        ))}
+      <Stack p='xs' gap='md'>
+        <Text fw={500} size='sm'>
+          Module Attempt History
+        </Text>
+        <Stack gap='xs'>
+          {attempts.map((attempt, index) => (
+            <Card key={index} p='xs' withBorder>
+              <Group justify='space-between' gap='xl'>
+                <Stack gap={2}>
+                  <Text size='sm' fw={500}>
+                    {attempt.term}
+                  </Text>
+                  <Text size='xs' c='dimmed'>
+                    {attempt.semesterNumber
+                      ? formatSemester(attempt.semesterNumber)
+                      : ''}
+                  </Text>
+                </Stack>
+                <Badge
+                  size='md'
+                  variant='light'
+                  color={attempt.grade === 'F' ? 'red' : 'green'}
+                >
+                  {attempt.grade}
+                </Badge>
+              </Group>
+            </Card>
+          ))}
+        </Stack>
       </Stack>
     );
   };
@@ -249,13 +269,10 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
                   color='gray'
                   withArrow
                   multiline
+                  position='right'
+                  transitionProps={{ transition: 'fade', duration: 200 }}
                 >
-                  <Text
-                    size='sm'
-                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    {module.code}
-                  </Text>
+                  <Anchor size='sm'>{module.code}</Anchor>
                 </Tooltip>
               ) : (
                 <Text size='sm'>{module.code}</Text>
