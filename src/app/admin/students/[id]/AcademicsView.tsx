@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState } from 'react';
 import SemesterStatus from '@/components/SemesterStatus';
 import { getStudent } from '@/server/students/actions';
 import {
@@ -14,7 +14,6 @@ import {
   Table,
   Text,
   ThemeIcon,
-  Anchor,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { formatSemester } from '@/lib/utils';
@@ -26,68 +25,6 @@ type Props = {
 
 export default function AcademicsView({ student, showMarks }: Props) {
   const [openPrograms, setOpenPrograms] = useState<string[]>([]);
-
-  const moduleLocations = useMemo(() => {
-    const locations: Record<
-      string,
-      Array<{ programId: string; moduleId: number }>
-    > = {};
-
-    student.programs.forEach((program) => {
-      program.semesters?.forEach((semester) => {
-        semester.studentModules?.forEach((stdMod) => {
-          if (stdMod.grade === 'F' || stdMod.grade === 'PP') {
-            if (!locations[stdMod.module.code]) {
-              locations[stdMod.module.code] = [];
-            }
-            locations[stdMod.module.code].push({
-              programId: program.id?.toString() ?? '',
-              moduleId: stdMod.id,
-            });
-          }
-        });
-      });
-    });
-
-    return locations;
-  }, [student?.programs]);
-
-  const scrollToModule = useCallback(
-    (moduleId: number, programId: string) => {
-      if (!openPrograms.includes(programId)) {
-        setOpenPrograms((prev) => [...prev, programId]);
-        setTimeout(() => {
-          const element = document.querySelector(
-            `[data-module-id="${moduleId}"]`,
-          );
-          element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
-      } else {
-        const element = document.querySelector(
-          `[data-module-id="${moduleId}"]`,
-        );
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    },
-    [openPrograms],
-  );
-
-  const getProgramStatusColor = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return 'green';
-      case 'Changed':
-        return 'blue';
-      case 'Completed':
-        return 'cyan';
-      case 'Deleted':
-        return 'red';
-      case 'Inactive':
-        return 'gray';
-      default:
-        return 'gray';
-    }
-  };
 
   if (!student?.programs?.length) {
     return (
@@ -154,33 +91,14 @@ export default function AcademicsView({ student, showMarks }: Props) {
                           <ModuleTable
                             modules={semester.studentModules.map((sm) => ({
                               id: sm.moduleId,
-                              status: sm.status,
                               code: sm.module.code,
                               name: sm.module.name,
-                              credits: sm.module.credits,
                               type: sm.module.type,
+                              status: sm.status,
                               marks: sm.marks,
                               grade: sm.grade,
+                              credits: sm.module.credits,
                             }))}
-                            moduleLocations={moduleLocations}
-                            onModuleClick={(moduleId, code) => {
-                              const locations = moduleLocations[code];
-                              if (!locations || locations.length <= 1) return;
-
-                              const currentIndex = locations.findIndex(
-                                (loc) => loc.moduleId === moduleId,
-                              );
-
-                              const nextLocation =
-                                locations[
-                                  (currentIndex + 1) % locations.length
-                                ];
-
-                              scrollToModule(
-                                nextLocation.moduleId,
-                                nextLocation.programId,
-                              );
-                            }}
                             showMarks={showMarks}
                           />
                         ) : (
@@ -205,6 +123,23 @@ export default function AcademicsView({ student, showMarks }: Props) {
   );
 }
 
+const getProgramStatusColor = (status: string) => {
+  switch (status) {
+    case 'Active':
+      return 'green';
+    case 'Changed':
+      return 'blue';
+    case 'Completed':
+      return 'cyan';
+    case 'Deleted':
+      return 'red';
+    case 'Inactive':
+      return 'gray';
+    default:
+      return 'gray';
+  }
+};
+
 type ModuleTableProps = {
   modules: {
     id: number;
@@ -216,46 +151,27 @@ type ModuleTableProps = {
     grade: string;
     credits: number;
   }[];
-  moduleLocations: Record<
-    string,
-    Array<{ programId: string; moduleId: number }>
-  >;
-  onModuleClick: (moduleId: number, code: string) => void;
   showMarks?: boolean;
 };
 
-function ModuleTable({
-  modules,
-  moduleLocations,
-  onModuleClick,
-  showMarks,
-}: ModuleTableProps) {
+function ModuleTable({ modules, showMarks }: ModuleTableProps) {
   return (
-    <Table verticalSpacing='xs'>
+    <Table>
       <Table.Thead>
         <Table.Tr>
           <Table.Th w={95}>Code</Table.Th>
-          <Table.Th>Name</Table.Th>
+          <Table.Th w={270}>Name</Table.Th>
           <Table.Th w={100}>Status</Table.Th>
-          <Table.Th w={67}>Credits</Table.Th>
-          {showMarks && <Table.Th w={70}>Marks</Table.Th>}
-          <Table.Th w={60}>Grade</Table.Th>
+          <Table.Th>Credits</Table.Th>
+          {showMarks && <Table.Th>Marks</Table.Th>}
+          <Table.Th>Grade</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
         {modules.map((module) => (
-          <Table.Tr key={module.id} data-module-id={module.id}>
+          <Table.Tr key={module.id}>
             <Table.Td>
-              {moduleLocations[module.code] ? (
-                <Anchor
-                  size='sm'
-                  onClick={() => onModuleClick(module.id, module.code)}
-                >
-                  {module.code}
-                </Anchor>
-              ) : (
-                <Text size='sm'>{module.code}</Text>
-              )}
+              <Text size='sm'>{module.code}</Text>
             </Table.Td>
             <Table.Td>
               <Text size='sm'>{module.name}</Text>
