@@ -54,10 +54,10 @@ export default function ClearanceSwitch({
         status,
       });
 
-      const nextClearance = await getNextPendingRegistrationClearance();
-      return { result, nextClearance };
+      // const nextClearance = await getNextPendingRegistrationClearance();
+      return { result };
     },
-    onSuccess: ({ nextClearance }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['registrationClearances', request.status],
       });
@@ -70,13 +70,13 @@ export default function ClearanceSwitch({
         color: 'green',
       });
 
-      if (nextClearance) {
-        router.replace(
-          `/admin/registration-clearance/pending/${nextClearance.id}`,
-        );
-      } else {
-        router.replace('/admin/registration-clearance/pending');
-      }
+      // if (nextClearance) {
+      //   router.replace(
+      //     `/admin/registration-clearance/pending/${nextClearance.id}`,
+      //   );
+      // } else {
+      //   router.replace('/admin/registration-clearance/pending');
+      // }
     },
     onError: (error) => {
       notifications.show({
