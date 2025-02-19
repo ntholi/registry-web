@@ -261,7 +261,7 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
       </Table.Thead>
       <Table.Tbody>
         {modules.map((module) => (
-          <Table.Tr key={module.id}>
+          <Table.Tr key={`${module.id}-${module.marks}`}>
             <Table.Td>
               {failed(module.grade) ? (
                 <Tooltip
