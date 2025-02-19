@@ -16,6 +16,8 @@ import {
   Text,
   ThemeIcon,
   Tooltip,
+  useComputedColorScheme,
+  useMantineColorScheme,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { formatSemester } from '@/lib/utils';
@@ -176,6 +178,7 @@ type ModuleTableProps = {
 };
 
 function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
+  const colorScheme = useComputedColorScheme('dark');
   const getModuleAttempts = (moduleCode: string) => {
     if (!allSemesters) return [];
 
@@ -266,10 +269,9 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
               {failed(module.grade) ? (
                 <Tooltip
                   label={renderAttemptHistory(module.code)}
-                  color='gray'
+                  color={colorScheme}
                   withArrow
                   multiline
-                  position='right'
                   transitionProps={{ transition: 'fade', duration: 200 }}
                 >
                   <Anchor size='sm'>{module.code}</Anchor>
