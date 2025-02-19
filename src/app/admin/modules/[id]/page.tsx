@@ -45,6 +45,7 @@ export default async function ModuleDetails({ params }: Props) {
         }}
       />
       <DetailsViewBody>
+        <FieldView label='ID'>{item.id}</FieldView>
         <FieldView label='Code'>{item.code}</FieldView>
         <FieldView label='Name'>{item.name}</FieldView>
         <FieldView label='Type'>{item.type}</FieldView>
