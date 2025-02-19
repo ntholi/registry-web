@@ -25,17 +25,20 @@ import {
 import { modals } from '@mantine/modals';
 import {
   Icon,
-  IconBook,
+  IconBarrierBlock,
+  IconBookmark,
   IconBuildingBank,
-  IconCalendar,
+  IconBuildingStore,
+  IconCalendarEvent,
   IconChevronRight,
+  IconClipboardCheck,
   IconCopyCheck,
-  IconDeviceIpadHorizontalPlus,
+  IconFileCheck,
   IconLogout2,
-  IconMessageReply,
-  IconSchool,
-  IconUser,
-  IconUsers,
+  IconMessageQuestion,
+  IconSquareRoundedCheck,
+  IconUserCog,
+  IconUsersGroup,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { signOut, useSession } from 'next-auth/react';
@@ -63,19 +66,19 @@ const navigation: NavItem[] = [
   {
     label: 'Users',
     href: '/admin/users',
-    icon: IconUser,
+    icon: IconUserCog,
     roles: ['admin'],
   },
   {
     label: 'Students',
     href: '/admin/students',
-    icon: IconUsers,
+    icon: IconUsersGroup,
     roles: [...dashboardUsers],
   },
   {
     label: 'Registration Requests',
     href: '/admin/registration-requests',
-    icon: IconDeviceIpadHorizontalPlus,
+    icon: IconClipboardCheck,
     roles: ['registry'],
     notificationCount: {
       queryKey: ['registrationRequests'],
@@ -91,7 +94,7 @@ const navigation: NavItem[] = [
       {
         label: 'Requests',
         href: '/admin/registration-clearance/pending',
-        icon: IconMessageReply,
+        icon: IconMessageQuestion,
         notificationCount: {
           queryKey: ['registrationClearances'],
           queryFn: () => countPendingRegistrationClearances(),
@@ -102,7 +105,7 @@ const navigation: NavItem[] = [
       {
         label: 'Approved',
         href: '/admin/registration-clearance/approved',
-        icon: IconCopyCheck,
+        icon: IconSquareRoundedCheck,
         notificationCount: {
           queryKey: ['registrationClearances', 'approved'],
           queryFn: () => countApprovedRegistrationClearances(),
@@ -113,7 +116,7 @@ const navigation: NavItem[] = [
       {
         label: 'Rejected',
         href: '/admin/registration-clearance/rejected',
-        icon: IconCopyCheck,
+        icon: IconBarrierBlock,
         notificationCount: {
           queryKey: ['registrationClearances', 'rejected'],
           queryFn: () => countRejectedRegistrationClearances(),
@@ -126,25 +129,25 @@ const navigation: NavItem[] = [
   {
     label: 'Modules',
     href: '/admin/modules',
-    icon: IconBook,
+    icon: IconBookmark,
     roles: [...dashboardUsers],
   },
   {
     label: 'Programs',
     href: '/admin/programs',
-    icon: IconSchool,
+    icon: IconBuildingStore,
     roles: [...dashboardUsers],
   },
   {
     label: 'Clearance Responses',
     href: '/admin/clearance-responses',
-    icon: IconMessageReply,
+    icon: IconMessageQuestion,
     roles: ['admin'],
   },
   {
     label: 'Terms',
     href: '/admin/terms',
-    icon: IconCalendar,
+    icon: IconCalendarEvent,
     roles: ['admin'],
   },
   {
