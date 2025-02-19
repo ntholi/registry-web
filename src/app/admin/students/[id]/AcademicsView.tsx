@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import SemesterStatus from '@/components/SemesterStatus';
+import { formatSemester } from '@/lib/utils';
 import { getStudent } from '@/server/students/actions';
 import {
   Accordion,
@@ -17,10 +17,9 @@ import {
   ThemeIcon,
   Tooltip,
   useComputedColorScheme,
-  useMantineColorScheme,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
-import { formatSemester } from '@/lib/utils';
+import { useState } from 'react';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -29,14 +28,6 @@ type Props = {
 
 export default function AcademicsView({ student, showMarks }: Props) {
   const [openPrograms, setOpenPrograms] = useState<string[]>([]);
-  const [selectedModule, setSelectedModule] = useState<{
-    code: string;
-    attempts: {
-      term: string;
-      grade: string;
-      semesterNumber: number;
-    }[];
-  } | null>(null);
 
   if (!student?.programs?.length) {
     return (
@@ -224,8 +215,8 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
       });
   };
 
-  const renderAttemptHistory = (moduleCode: string) => {
-    const attempts = getModuleAttempts(moduleCode);
+  const renderAttemptHistory = (module: ModuleTableProps['modules'][0]) => {
+    const attempts = getModuleAttempts(module.code);
 
     if (attempts.length <= 1) {
       return (
@@ -240,7 +231,7 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
     return (
       <Stack p='xs' gap='md'>
         <Text fw={500} size='sm'>
-          Module Attempt History
+          {module.name}
         </Text>
         <Stack gap='xs'>
           {attempts.map((attempt, index) => (
@@ -259,7 +250,13 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
                 <Badge
                   size='md'
                   variant='light'
-                  color={failed(attempt.grade) ? 'red' : 'green'}
+                  color={
+                    failed(attempt.grade)
+                      ? 'red'
+                      : attempt.grade === 'NM'
+                        ? 'orange'
+                        : 'green'
+                  }
                 >
                   {attempt.grade}
                 </Badge>
@@ -277,10 +274,10 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
         <Table.Tr>
           <Table.Th w={95}>Code</Table.Th>
           <Table.Th w={270}>Name</Table.Th>
-          <Table.Th w={100}>Status</Table.Th>
-          <Table.Th>Credits</Table.Th>
-          {showMarks && <Table.Th>Marks</Table.Th>}
-          <Table.Th>Grade</Table.Th>
+          <Table.Th w={105}>Status</Table.Th>
+          <Table.Th w={72}>Credits</Table.Th>
+          {showMarks && <Table.Th w={66}>Marks</Table.Th>}
+          <Table.Th w={65}>Grade</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
@@ -289,17 +286,13 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
             <Table.Td>
               {modulesWithFailHistory.includes(module.code) ? (
                 <Tooltip
-                  label={renderAttemptHistory(module.code)}
+                  label={renderAttemptHistory(module)}
                   color={colorScheme}
                   withArrow
                   multiline
                   transitionProps={{ transition: 'fade', duration: 200 }}
                 >
-                  <Anchor
-                    underline='always'
-                    size='sm'
-                    c={failed(module.grade) ? 'red' : 'blue'}
-                  >
+                  <Anchor size='sm' c={failed(module.grade) ? 'red' : 'blue'}>
                     {module.code}
                   </Anchor>
                 </Tooltip>
