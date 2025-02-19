@@ -16,6 +16,7 @@ import {
   Image,
   Indicator,
   LoadingOverlay,
+  MantineColor,
   NavLink,
   Stack,
   Text,
@@ -46,6 +47,7 @@ type NotificationConfig = {
   queryKey: string[];
   queryFn: () => Promise<number>;
   refetchInterval?: number;
+  color?: MantineColor;
 };
 
 export type NavItem = {
@@ -78,6 +80,7 @@ const navigation: NavItem[] = [
     notificationCount: {
       queryKey: ['registrationRequests'],
       queryFn: () => countPendingRegistrationRequests(),
+      color: 'red',
     },
   },
   {
@@ -93,6 +96,7 @@ const navigation: NavItem[] = [
           queryKey: ['registrationClearances'],
           queryFn: () => countPendingRegistrationClearances(),
           refetchInterval: 1000 * 3,
+          color: 'red',
         },
       },
       {
@@ -103,6 +107,7 @@ const navigation: NavItem[] = [
           queryKey: ['registrationClearances', 'approved'],
           queryFn: () => countApprovedRegistrationClearances(),
           refetchInterval: 1000 * 3,
+          color: 'gray',
         },
       },
       {
@@ -113,6 +118,7 @@ const navigation: NavItem[] = [
           queryKey: ['registrationClearances', 'rejected'],
           queryFn: () => countRejectedRegistrationClearances(),
           refetchInterval: 1000 * 3,
+          color: 'gray',
         },
       },
     ],
@@ -235,7 +241,7 @@ function DisplayWithNotification({ item }: { item: NavItem }) {
   return (
     <Indicator
       position='middle-end'
-      color='red'
+      color={item.notificationCount?.color ?? 'red'}
       offset={20}
       size={23}
       label={notificationCount}
