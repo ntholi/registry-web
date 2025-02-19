@@ -235,7 +235,7 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
                 <Badge
                   size='md'
                   variant='light'
-                  color={attempt.grade === 'F' ? 'red' : 'green'}
+                  color={failed(attempt.grade) ? 'red' : 'green'}
                 >
                   {attempt.grade}
                 </Badge>
@@ -263,7 +263,7 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
         {modules.map((module) => (
           <Table.Tr key={module.id}>
             <Table.Td>
-              {module.grade === 'F' ? (
+              {failed(module.grade) ? (
                 <Tooltip
                   label={renderAttemptHistory(module.code)}
                   color='gray'
@@ -304,9 +304,9 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
                 size='sm'
                 variant='light'
                 color={
-                  module.grade === 'F' || module.grade === 'NM'
+                  failed(module.grade)
                     ? 'red'
-                    : module.grade === 'D'
+                    : module.grade === 'NM'
                       ? 'orange'
                       : 'green'
                 }
@@ -319,4 +319,19 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
       </Table.Tbody>
     </Table>
   );
+}
+
+function failed(grade: string) {
+  return [
+    'F',
+    'X',
+    'GNS',
+    'ANN',
+    'FIN',
+    'FX',
+    'DNC',
+    'DNA',
+    'PP',
+    'DNS',
+  ].includes(grade);
 }
