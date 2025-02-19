@@ -90,6 +90,11 @@ export async function getSemesterModules(
       eq(studentPrograms.status, 'Active'),
     ),
     with: {
+      structure: {
+        with: {
+          program: true,
+        },
+      },
       semesters: {
         where: (semester) =>
           notInArray(semester.status, ['Deleted', 'Deferred']),
@@ -105,6 +110,19 @@ export async function getSemesterModules(
     },
   });
 
+  const repeatModules = await getRepeatModules(stdNo, semester);
+
+  // For internship students, if they have failed modules, they can only repeat those modules
+  const activeProgram = studentModules.find((it) => it.status === 'Active')
+    ?.structure.program;
+  if (
+    activeProgram?.level === 'diploma' &&
+    semester === 5 &&
+    repeatModules.length > 0
+  ) {
+    return repeatModules;
+  }
+
   const attemptedModuleNames = new Set(
     studentModules
       .flatMap((p) => p.semesters)
@@ -118,7 +136,6 @@ export async function getSemesterModules(
     (module) => !attemptedModuleNames.has(module.name),
   );
 
-  const repeatModules = await getRepeatModules(stdNo, semester);
   const failedPrerequisites = await getFailedPrerequisites(
     stdNo,
     semester,
