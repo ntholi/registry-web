@@ -179,6 +179,27 @@ type ModuleTableProps = {
 
 function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
   const colorScheme = useComputedColorScheme('dark');
+
+  const getModulesWithFailHistory = (moduleCode: string) => {
+    if (!allSemesters) return false;
+
+    const attempts = allSemesters
+      .filter((sem) =>
+        sem.studentModules.some((m) => m.module.code === moduleCode),
+      )
+      .map((sem) => ({
+        grade:
+          sem.studentModules.find((m) => m.module.code === moduleCode)?.grade ??
+          '',
+      }));
+
+    return attempts.some((attempt) => failed(attempt.grade));
+  };
+
+  const modulesWithFailHistory = modules
+    .filter((module) => getModulesWithFailHistory(module.code))
+    .map((module) => module.code);
+
   const getModuleAttempts = (moduleCode: string) => {
     if (!allSemesters) return [];
 
@@ -266,7 +287,7 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
         {modules.map((module) => (
           <Table.Tr key={`${module.id}-${module.marks}`}>
             <Table.Td>
-              {failed(module.grade) ? (
+              {modulesWithFailHistory.includes(module.code) ? (
                 <Tooltip
                   label={renderAttemptHistory(module.code)}
                   color={colorScheme}
@@ -274,7 +295,13 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
                   multiline
                   transitionProps={{ transition: 'fade', duration: 200 }}
                 >
-                  <Anchor size='sm'>{module.code}</Anchor>
+                  <Anchor
+                    underline='always'
+                    size='sm'
+                    c={failed(module.grade) ? 'red' : 'blue'}
+                  >
+                    {module.code}
+                  </Anchor>
                 </Tooltip>
               ) : (
                 <Text size='sm'>{module.code}</Text>
