@@ -372,6 +372,12 @@ export const registrationRequests = sqliteTable(
   }),
 );
 
+export const requestedModuleStatusEnum = [
+  'pending',
+  'approved',
+  'rejected',
+] as const;
+
 export const requestedModules = sqliteTable('requested_modules', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   moduleStatus: text({ enum: moduleStatusEnum })
@@ -383,6 +389,9 @@ export const requestedModules = sqliteTable('requested_modules', {
   moduleId: integer('module_id')
     .references(() => modules.id, { onDelete: 'cascade' })
     .notNull(),
+  status: text({ enum: requestedModuleStatusEnum })
+    .notNull()
+    .default('pending'),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
