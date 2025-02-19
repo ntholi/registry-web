@@ -19,11 +19,14 @@ class RegistrationClearanceService {
     return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
-  async countPending() {
+  async countByStatus(status: 'pending' | 'approved' | 'rejected') {
     const session = await auth();
     if (!session?.user?.role) return 0;
 
-    return this.repository.countPending(session.user.role as DashboardUser);
+    return this.repository.countPending(
+      status,
+      session.user.role as DashboardUser,
+    );
   }
 
   async findByDepartment(

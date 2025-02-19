@@ -11,7 +11,15 @@ export async function getRegistrationClearance(id: number) {
 }
 
 export async function countPendingRegistrationClearances() {
-  return service.countPending();
+  return service.countByStatus('pending');
+}
+
+export async function countApprovedRegistrationClearances() {
+  return service.countByStatus('approved');
+}
+
+export async function countRejectedRegistrationClearances() {
+  return service.countByStatus('rejected');
 }
 
 export async function registrationClearanceByDepartment(

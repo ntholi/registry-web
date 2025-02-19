@@ -156,14 +156,17 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     return await this.paginatedResults(data, whereCondition, pageSize);
   }
 
-  async countPending(department: DashboardUser) {
+  async countPending(
+    status: 'pending' | 'approved' | 'rejected',
+    department: DashboardUser,
+  ) {
     const [result] = await db
       .select({ count: count() })
       .from(registrationClearances)
       .where(
         and(
           eq(registrationClearances.department, department),
-          eq(registrationClearances.status, 'pending'),
+          eq(registrationClearances.status, status),
         ),
       );
     return result.count;

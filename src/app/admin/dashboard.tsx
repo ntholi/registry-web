@@ -2,7 +2,11 @@
 
 import { Shell } from '@/components/adease';
 import { dashboardUsers, UserRole } from '@/db/schema';
-import { countPendingRegistrationClearances } from '@/server/registration-clearance/actions';
+import {
+  countApprovedRegistrationClearances,
+  countPendingRegistrationClearances,
+  countRejectedRegistrationClearances,
+} from '@/server/registration-clearance/actions';
 import { countPendingRegistrationRequests } from '@/server/registration-requests/actions';
 import {
   ActionIcon,
@@ -88,18 +92,28 @@ const navigation: NavItem[] = [
         notificationCount: {
           queryKey: ['registrationClearances'],
           queryFn: () => countPendingRegistrationClearances(),
-          refetchInterval: 1000 * 10,
+          refetchInterval: 1000 * 3,
         },
       },
       {
         label: 'Approved',
         href: '/admin/registration-clearance/approved',
         icon: IconCopyCheck,
+        notificationCount: {
+          queryKey: ['registrationClearances', 'approved'],
+          queryFn: () => countApprovedRegistrationClearances(),
+          refetchInterval: 1000 * 3,
+        },
       },
       {
         label: 'Rejected',
         href: '/admin/registration-clearance/rejected',
         icon: IconCopyCheck,
+        notificationCount: {
+          queryKey: ['registrationClearances', 'rejected'],
+          queryFn: () => countRejectedRegistrationClearances(),
+          refetchInterval: 1000 * 3,
+        },
       },
     ],
   },
