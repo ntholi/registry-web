@@ -5,14 +5,13 @@ import { toTitleCase } from '@/lib/utils';
 import {
   createRegistrationClearance,
   getRegistrationClearance,
-  getNextPendingRegistrationClearance,
 } from '@/server/registration-clearance/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
@@ -53,27 +52,23 @@ export default function ClearanceSwitch({
         department: session.user.role as (typeof dashboardUsers)[number],
         status,
       });
-
-      // const nextClearance = await getNextPendingRegistrationClearance();
       return { result };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['registrationClearances'],
+        queryKey: ['registrationClearances', 'pending'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['registrationClearances', 'approved'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['registrationClearances', 'rejected'],
       });
       notifications.show({
         title: 'Success',
         message: 'Registration clearance updated successfully',
         color: 'green',
       });
-
-      // if (nextClearance) {
-      //   router.replace(
-      //     `/admin/registration-clearance/pending/${nextClearance.id}`,
-      //   );
-      // } else {
-      //   router.replace('/admin/registration-clearance/pending');
-      // }
     },
     onError: (error) => {
       notifications.show({
