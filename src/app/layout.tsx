@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Limkokwing Student Portal',
   description:
     'Student Portal for Limkokwing University of Creative Technology, Lesotho',
+  keywords: ['Student Portal', 'Limkokwing Lesotho'],
   icons: {
     icon: '/images/logo.png',
   },
