@@ -2,7 +2,7 @@
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -16,7 +16,12 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { createSignup, getSignup } from '@/server/signups/actions';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckCircleIcon, InfoIcon, XCircleIcon } from 'lucide-react';
+import {
+  CheckCircleIcon,
+  InfoIcon,
+  XCircleIcon,
+  AlertCircle,
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -75,7 +80,7 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
     <Card className='w-full sm:w-1/2'>
       <CardContent className='p-6'>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
             <FormField
               control={form.control}
               name='name'
@@ -135,6 +140,15 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
           </form>
         </Form>
       </CardContent>
+      <CardFooter className='rounded-lg rounded-t-none bg-yellow-50/10 p-4 text-yellow-500'>
+        <div className='flex items-start'>
+          <AlertCircle className='mr-2 h-5 w-5 flex-shrink-0' />
+          <p className='text-[0.81rem]'>
+            This app is currently in beta testing. If you encounter any issues,
+            please report them to the Registry Department.
+          </p>
+        </div>
+      </CardFooter>
     </Card>
   );
 }
