@@ -1,4 +1,4 @@
-# Limkokwing Registry Portal
+# Limkokwing Student Portal
 
 A modern web portal for Limkokwing University's Registry Department that manages student records, course registrations, and administrative processes.
 
