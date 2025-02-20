@@ -98,7 +98,6 @@ const navigation: NavItem[] = [
         notificationCount: {
           queryKey: ['registrationClearances'],
           queryFn: () => countPendingRegistrationClearances(),
-          refetchInterval: 1000 * 3,
           color: 'red',
         },
       },
@@ -107,9 +106,8 @@ const navigation: NavItem[] = [
         href: '/admin/registration-clearance/approved',
         icon: IconSquareRoundedCheck,
         notificationCount: {
-          queryKey: ['registrationClearances', 'approved'],
+          queryKey: ['registrationClearances'],
           queryFn: () => countApprovedRegistrationClearances(),
-          refetchInterval: 1000 * 3,
           color: 'gray',
         },
       },
@@ -118,9 +116,8 @@ const navigation: NavItem[] = [
         href: '/admin/registration-clearance/rejected',
         icon: IconBarrierBlock,
         notificationCount: {
-          queryKey: ['registrationClearances', 'rejected'],
+          queryKey: ['registrationClearances'],
           queryFn: () => countRejectedRegistrationClearances(),
-          refetchInterval: 1000 * 3,
           color: 'gray',
         },
       },

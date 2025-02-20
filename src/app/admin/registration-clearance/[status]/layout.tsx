@@ -25,7 +25,7 @@ export default function Layout({ children }: PropsWithChildren) {
   return (
     <ListLayout
       path={'/admin/registration-clearance/' + status}
-      queryKey={['registrationClearances', status]}
+      queryKey={['registrationClearances']}
       getData={(page, search) =>
         registrationClearanceByStatus(status, page, search)
       }
