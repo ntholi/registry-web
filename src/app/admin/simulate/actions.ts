@@ -18,12 +18,33 @@ export type ModuleResult = {
   prerequisites?: { moduleCode: string; prerequisiteCode: string }[];
 };
 
+export type ModuleQueryResponse = {
+  student: {
+    name: string;
+    stdNo: number;
+    semester: number;
+    program: {
+      structureCode?: string;
+      name?: string;
+      code?: string;
+    };
+  };
+  modules: ModuleResult[];
+};
+
 export async function getStudentModules(
   stdNo: number,
   queryType: 'semester' | 'repeat',
-): Promise<ModuleResult[]> {
+): Promise<ModuleQueryResponse> {
   const student = await db.query.students.findFirst({
     where: eq(students.stdNo, stdNo),
+    with: {
+      structure: {
+        with: {
+          program: true,
+        },
+      },
+    },
   });
 
   if (!student) {
@@ -34,9 +55,22 @@ export async function getStudentModules(
     throw new Error('Student has no structure assigned');
   }
 
-  if (queryType === 'semester') {
-    return getSemesterModules(stdNo, student.sem + 1, student.structureId);
-  } else {
-    return getRepeatModules(stdNo, student.sem + 1);
-  }
+  const modules =
+    queryType === 'semester'
+      ? await getSemesterModules(stdNo, student.sem + 1, student.structureId)
+      : await getRepeatModules(stdNo, student.sem + 1);
+
+  return {
+    student: {
+      name: student.name,
+      stdNo: student.stdNo,
+      semester: student.sem,
+      program: {
+        structureCode: student.structure?.code,
+        name: student.structure?.program.name,
+        code: student.structure?.program.code,
+      },
+    },
+    modules,
+  };
 }
