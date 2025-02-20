@@ -28,8 +28,8 @@ export default async function SignupPage() {
 
   return (
     <>
-      <Container className='flex h-screen w-full flex-col items-center justify-center gap-4'>
-        <Logo width={200} height={200} />
+      <Container className='mt-10 flex h-screen w-full flex-col items-center gap-4'>
+        <Logo width={300} height={300} />
         <div className='text-center'>
           <h1 className='text-3xl font-semibold sm:text-4xl'>Sign Up</h1>
           <p className='mt-1.5 text-muted-foreground'>
