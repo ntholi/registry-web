@@ -4,9 +4,10 @@ import {
   DashboardUser,
   registrationClearanceAudit,
   requestedModules,
+  registrationRequests,
 } from '@/db/schema';
 import { db } from '@/db';
-import { and, count, desc, eq, gt } from 'drizzle-orm';
+import { and, count, desc, eq, gt, inArray } from 'drizzle-orm';
 import { auth } from '@/auth';
 
 type Model = typeof registrationClearances.$inferInsert;
@@ -133,8 +134,22 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     params: FindAllParams<typeof registrationClearances>,
     status?: 'pending' | 'approved' | 'rejected',
   ) {
-    const { orderByExpressions, whereCondition, offset, pageSize } =
+    const { orderByExpressions, offset, pageSize } =
       await this.queryExpressions(params);
+
+    const ids = await db.query.registrationRequests.findMany({
+      where: eq(registrationRequests.stdNo, Number(params.search)),
+      columns: {
+        id: true,
+      },
+    });
+    const whereCondition = ids.length
+      ? inArray(
+          registrationClearances.registrationRequestId,
+          ids.map((id) => id.id),
+        )
+      : undefined;
+
     const data = await db.query.registrationClearances.findMany({
       where: and(
         whereCondition,
