@@ -23,7 +23,7 @@ export default function SponsorInfo({ stdNo }: Props) {
     <FieldView label='Sponsor' underline={false}>
       <Text fw={500} size='sm'>
         {sponsorInfo
-          ? `${sponsorInfo.sponsor?.name} | ${sponsorInfo.borrowerNo}`
+          ? `${sponsorInfo.sponsor?.name}${sponsorInfo.borrowerNo ? ` | ${sponsorInfo.borrowerNo}` : ''}`
           : 'Not Found'}
       </Text>
     </FieldView>
