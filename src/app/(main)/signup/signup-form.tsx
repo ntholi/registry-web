@@ -126,7 +126,12 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                 <AlertTitle className='capitalize'>
                   {existingSignup.status}
                 </AlertTitle>
-                <AlertDescription>{existingSignup.message}</AlertDescription>
+                <AlertDescription>
+                  {existingSignup.message}
+                  {existingSignup.status === 'pending' && (
+                    <span>Might take a few hours to process.</span>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
 
