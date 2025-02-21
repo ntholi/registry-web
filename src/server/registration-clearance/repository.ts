@@ -1,14 +1,14 @@
-import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
+import { auth } from '@/auth';
+import { db } from '@/db';
 import {
-  registrationClearances,
   DashboardUser,
   registrationClearanceAudit,
-  requestedModules,
+  registrationClearances,
   registrationRequests,
+  requestedModules,
 } from '@/db/schema';
-import { db } from '@/db';
-import { and, count, desc, eq, gt, inArray } from 'drizzle-orm';
-import { auth } from '@/auth';
+import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
+import { and, count, desc, eq, inArray, like } from 'drizzle-orm';
 
 type Model = typeof registrationClearances.$inferInsert;
 
@@ -138,7 +138,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       await this.queryExpressions(params);
 
     const ids = await db.query.registrationRequests.findMany({
-      where: eq(registrationRequests.stdNo, Number(params.search)),
+      where: like(registrationRequests.stdNo, `%${params.search}%`),
       columns: {
         id: true,
       },
