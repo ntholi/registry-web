@@ -4,6 +4,17 @@ import { PropsWithChildren } from 'react';
 import Footer from './base/Footer';
 import './globals.css';
 import Providers from './providers';
+import { Metadata } from 'next';
+import { auth } from '@/auth';
+import { toTitleCase } from '@/lib/utils';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await auth();
+  return {
+    title: `Student Portal | ${toTitleCase(session?.user?.name?.split(' ')[0])} | Limkokwing`,
+    description: 'Student Portal | Limkokwing',
+  };
+}
 
 export default async function MainLayout({ children }: PropsWithChildren) {
   return (
