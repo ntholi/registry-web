@@ -129,7 +129,7 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                 <AlertDescription>
                   {existingSignup.message}
                   {existingSignup.status === 'pending' && (
-                    <span>Might take a few hours to process.</span>
+                    <span>. Might take a few hours to process.</span>
                   )}
                 </AlertDescription>
               </Alert>
