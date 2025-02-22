@@ -100,7 +100,7 @@ export default async function RegistrationStatusPage() {
                 {request.requestedModules?.map((rm) => (
                   <div
                     key={rm.id}
-                    className='flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5'
+                    className='flex items-end justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5'
                   >
                     <div>
                       <p className='font-medium'>{rm.module.name}</p>
@@ -108,12 +108,19 @@ export default async function RegistrationStatusPage() {
                         {rm.module.code}
                       </p>
                     </div>
-                    <Badge
-                      variant='secondary'
-                      className='ml-4 whitespace-nowrap'
-                    >
-                      {rm.moduleStatus}
-                    </Badge>
+                    <div className='flex items-center gap-2'>
+                      <Badge
+                        variant={
+                          rm.status === 'registered' ? 'success' : 'secondary'
+                        }
+                        className='flex items-center gap-1'
+                      >
+                        {rm.status === 'registered' && (
+                          <CircleCheck className='size-3' />
+                        )}
+                        {rm.status.charAt(0).toUpperCase() + rm.status.slice(1)}
+                      </Badge>
+                    </div>
                   </div>
                 ))}
               </div>
