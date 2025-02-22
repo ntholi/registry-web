@@ -1,21 +1,19 @@
 'use server';
 
 import { db } from '@/db';
-import { structureSemesters, studentPrograms } from '@/db/schema';
+import {
+  structureSemesters,
+  studentPrograms,
+  studentSemesters,
+} from '@/db/schema';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
 
 export async function getFailedPrerequisites(
   stdNo: number,
-  semester: number,
   structureId: number,
 ) {
-  const previousSemesterModules = await getSemesterModules(
-    semester - 1,
-    structureId,
-  );
-
-  const attemptedModules = await db.query.studentPrograms.findMany({
+  const stdPrograms = await db.query.studentPrograms.findMany({
     where: eq(studentPrograms.stdNo, stdNo),
     with: {
       semesters: {
@@ -33,8 +31,17 @@ export async function getFailedPrerequisites(
     },
   });
 
+  const semesterNo = determineNextSemester(
+    stdPrograms.flatMap((it) => it.semesters),
+  );
+
+  const previousSemesterModules = await getSemesterModules(
+    semesterNo - 1,
+    structureId,
+  );
+
   const attemptedModuleResults = new Map(
-    attemptedModules
+    stdPrograms
       .flatMap((prog) => prog.semesters)
       .flatMap((sem) => sem.studentModules)
       .map((mod) => [mod.module.name, parseFloat(mod.marks)]),
@@ -85,10 +92,9 @@ export async function getFailedPrerequisites(
 
 export async function getStudentSemesterModules(
   stdNo: number,
-  semesterNo: number,
   structureId: number,
 ) {
-  const studentModules = await db.query.studentPrograms.findMany({
+  const stdPrograms = await db.query.studentPrograms.findMany({
     where: and(
       eq(studentPrograms.stdNo, stdNo),
       eq(studentPrograms.status, 'Active'),
@@ -114,11 +120,15 @@ export async function getStudentSemesterModules(
     },
   });
 
+  const semesterNo = determineNextSemester(
+    stdPrograms.flatMap((it) => it.semesters),
+  );
+
   const repeatModules = await getRepeatModules(stdNo);
 
   // For internship students, if they have failed modules, they can only repeat those modules
-  const stdProgram = studentModules.find((it) => it.status === 'Active')
-    ?.structure.program;
+  const stdProgram = stdPrograms.find((it) => it.status === 'Active')?.structure
+    .program;
   if (
     stdProgram?.level === 'diploma' &&
     semesterNo === 5 &&
@@ -128,7 +138,7 @@ export async function getStudentSemesterModules(
   }
 
   const attemptedModuleNames = new Set(
-    studentModules
+    stdPrograms
       .flatMap((p) => p.semesters)
       .flatMap((s) => s.studentModules)
       .map((m) => m.module.name),
@@ -140,11 +150,7 @@ export async function getStudentSemesterModules(
     (module) => !attemptedModuleNames.has(module.name),
   );
 
-  const failedPrerequisites = await getFailedPrerequisites(
-    stdNo,
-    semesterNo,
-    structureId,
-  );
+  const failedPrerequisites = await getFailedPrerequisites(stdNo, structureId);
 
   if (repeatModules.length >= 3) {
     return repeatModules;
@@ -250,4 +256,16 @@ async function getSemesterModules(semester: number, structureId: number) {
   });
 
   return semesters.flatMap((s) => s.semesterModules).map((sm) => sm.module);
+}
+
+function determineNextSemester(
+  semesters: (typeof studentSemesters.$inferSelect)[],
+) {
+  const numbers = semesters
+    .map((program) => program.semesterNumber)
+    .map(Number);
+
+  const value = Math.max(...numbers) + 1;
+  console.log('Next Semester: ', value);
+  return value;
 }

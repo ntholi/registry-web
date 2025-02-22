@@ -57,11 +57,7 @@ export async function getStudentModules(
 
   const modules =
     queryType === 'semester'
-      ? await getStudentSemesterModules(
-          stdNo,
-          student.sem + 1,
-          student.structureId,
-        )
+      ? await getStudentSemesterModules(stdNo, student.structureId)
       : await getRepeatModules(stdNo);
 
   return {

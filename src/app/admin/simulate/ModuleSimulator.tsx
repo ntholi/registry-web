@@ -1,35 +1,29 @@
 'use client';
 
+import { formatSemester } from '@/lib/utils';
 import {
+  Alert,
+  Badge,
+  Box,
   Button,
   Card,
+  Divider,
+  Flex,
   Grid,
+  Group,
   NumberInput,
+  Paper,
   Select,
   Stack,
   Table,
   Text,
   Title,
-  rem,
-  Group,
-  Badge,
   Transition,
-  Paper,
-  Alert,
-  Divider,
-  SimpleGrid,
-  Flex,
-  Box,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useState } from 'react';
-import {
-  getStudentModules,
-  type ModuleResult,
-  type ModuleQueryResponse,
-} from './actions';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { formatSemester } from '@/lib/utils';
+import { useState } from 'react';
+import { getStudentModules, type ModuleQueryResponse } from './actions';
 
 const queryTypes = [
   { value: 'semester', label: 'Semester Modules' },

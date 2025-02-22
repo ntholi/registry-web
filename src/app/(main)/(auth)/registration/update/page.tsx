@@ -59,7 +59,6 @@ export default async function UpdateRegistrationPage() {
             <ModulesForm
               stdNo={student.stdNo}
               structureId={student.structureId}
-              semester={student.sem + 1}
               request={request}
             />
           ) : (

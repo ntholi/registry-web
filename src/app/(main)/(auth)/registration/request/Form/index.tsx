@@ -19,7 +19,6 @@ import { MAX_REG_MODULES } from '@/lib/constants';
 type Props = {
   stdNo: number;
   structureId: number;
-  semester: number;
 };
 
 const formSchema = z.object({
@@ -35,20 +34,20 @@ const formSchema = z.object({
 
 export type RegisterFormSchema = z.infer<typeof formSchema>;
 
-export default function ModulesForm({ stdNo, structureId, semester }: Props) {
+export default function ModulesForm({ stdNo, structureId }: Props) {
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 
   const { data: modules, isLoading: modulesLoading } = useQuery({
-    queryKey: ['semesterModules', structureId, semester],
-    queryFn: () => getStudentSemesterModules(stdNo, semester, structureId),
+    queryKey: ['semesterModules', structureId],
+    queryFn: () => getStudentSemesterModules(stdNo, structureId),
   });
 
   const { data: failedPrerequisites, isLoading: prerequisitesLoading } =
     useQuery({
       queryKey: ['failedPrerequisites', stdNo],
-      queryFn: () => getFailedPrerequisites(stdNo, semester, structureId),
+      queryFn: () => getFailedPrerequisites(stdNo, structureId),
     });
 
   const isLoading = modulesLoading || prerequisitesLoading;

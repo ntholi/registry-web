@@ -35,7 +35,6 @@ import {
 type Props = {
   stdNo: number;
   structureId: number;
-  semester: number;
   request: NonNullable<
     Awaited<ReturnType<typeof getRegistrationRequestByStdNo>>
   >;
@@ -49,25 +48,20 @@ const formSchema = z.object({
 
 export type UpdateFormSchema = z.infer<typeof formSchema>;
 
-export default function ModulesForm({
-  stdNo,
-  structureId,
-  semester,
-  request,
-}: Props) {
+export default function ModulesForm({ stdNo, structureId, request }: Props) {
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 
   const { data: modules, isLoading: modulesLoading } = useQuery({
-    queryKey: ['semesterModules', structureId, semester],
-    queryFn: () => getStudentSemesterModules(stdNo, semester, structureId),
+    queryKey: ['semesterModules', structureId],
+    queryFn: () => getStudentSemesterModules(stdNo, structureId),
   });
 
   const { data: failedPrerequisites, isLoading: prerequisitesLoading } =
     useQuery({
       queryKey: ['failedPrerequisites', stdNo],
-      queryFn: () => getFailedPrerequisites(stdNo, semester, structureId),
+      queryFn: () => getFailedPrerequisites(stdNo, structureId),
     });
 
   const isLoading = modulesLoading || prerequisitesLoading;

@@ -41,7 +41,6 @@ export default async function RegistrationPage() {
             <ModulesForm
               stdNo={student.stdNo}
               structureId={student.structureId}
-              semester={student.sem + 1}
             />
           ) : (
             <p className='text-red-500'>
