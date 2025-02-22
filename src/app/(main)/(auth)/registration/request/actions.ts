@@ -236,13 +236,15 @@ async function getSemesterModules(
   semester: number,
   structureId: number,
 ): Promise<(typeof modules.$inferSelect)[]> {
+  const term = await getCurrentTerm();
+  const semesterNumbers = Array.from(
+    { length: semester },
+    (_, i) => i + 1,
+  ).filter((i) => i % term.semester === 0);
   const semesters = await db.query.structureSemesters.findMany({
     where: and(
       eq(structureSemesters.structureId, structureId),
-      inArray(
-        structureSemesters.semesterNumber,
-        Array.from({ length: semester }, (_, i) => i + 1),
-      ),
+      inArray(structureSemesters.semesterNumber, semesterNumbers),
     ),
     with: {
       semesterModules: { with: { module: true } },
