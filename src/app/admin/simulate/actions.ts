@@ -62,7 +62,7 @@ export async function getStudentModules(
           student.sem + 1,
           student.structureId,
         )
-      : await getRepeatModules(stdNo, student.sem + 1);
+      : await getRepeatModules(stdNo);
 
   return {
     student: {

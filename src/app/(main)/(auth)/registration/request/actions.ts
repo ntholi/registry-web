@@ -2,6 +2,7 @@
 
 import { db } from '@/db';
 import { structureSemesters, studentPrograms } from '@/db/schema';
+import { getCurrentTerm } from '@/server/terms/actions';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
 
 export async function getFailedPrerequisites(
@@ -113,13 +114,13 @@ export async function getStudentSemesterModules(
     },
   });
 
-  const repeatModules = await getRepeatModules(stdNo, semesterNo);
+  const repeatModules = await getRepeatModules(stdNo);
 
   // For internship students, if they have failed modules, they can only repeat those modules
-  const activeProgram = studentModules.find((it) => it.status === 'Active')
+  const stdProgram = studentModules.find((it) => it.status === 'Active')
     ?.structure.program;
   if (
-    activeProgram?.level === 'diploma' &&
+    stdProgram?.level === 'diploma' &&
     semesterNo === 5 &&
     repeatModules.length > 0
   ) {
@@ -159,9 +160,10 @@ export async function getStudentSemesterModules(
   ];
 }
 
-export async function getRepeatModules(stdNo: number, semester: number) {
+export async function getRepeatModules(stdNo: number) {
+  const term = await getCurrentTerm();
   const semesterNumbers =
-    semester % 2 === 0 ? [2, 4, 6, 8, 10] : [1, 3, 5, 7, 9];
+    term.semester % 2 === 0 ? [2, 4, 6, 8, 10] : [1, 3, 5, 7, 9];
 
   const studentModules = await db.query.studentPrograms.findMany({
     where: and(
