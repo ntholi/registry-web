@@ -367,6 +367,7 @@ export const registrationRequests = sqliteTable(
     status: text({ enum: registrationRequestStatusEnum })
       .notNull()
       .default('pending'),
+    semesterStatus: text({enum: ['Active', 'Repeat']}).notNull().default('Active'),
     semesterNumber: integer().notNull(),
     message: text(),
     createdAt: integer('created_at', { mode: 'timestamp' }).default(

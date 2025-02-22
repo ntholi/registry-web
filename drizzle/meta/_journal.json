@@ -57,6 +57,13 @@
       "when": 1740217881894,
       "tag": "0007_clammy_ikaris",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1740253076160,
+      "tag": "0008_supreme_the_leader",
+      "breakpoints": true
     }
   ]
 }
