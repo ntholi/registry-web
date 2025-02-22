@@ -35,7 +35,7 @@ export default async function SignupPage() {
         <div className='text-center'>
           <h1 className='text-3xl font-semibold sm:text-4xl'>Sign Up</h1>
           <p className='mt-1.5 text-muted-foreground'>
-            Fill in your details to signup as a student
+            Fill in your details to request your student account.
           </p>
         </div>
         <SignupForm existingSignup={existingSignup} />
