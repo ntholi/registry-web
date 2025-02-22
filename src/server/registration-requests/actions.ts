@@ -6,6 +6,7 @@ import {
   requestedModules,
 } from '@/db/schema';
 import { registrationRequestsService as service } from './service';
+import { getCurrentTerm } from '../terms/actions';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
@@ -69,12 +70,16 @@ export async function createRequestedModules(
 
 export async function createRegistrationWithModules(data: {
   stdNo: number;
-  termId: number;
   modules: { moduleId: number; moduleStatus: ModuleStatus }[];
   sponsor: string;
+  semesterNumber: number;
   borrowerNo?: string;
 }) {
-  return service.createRegistrationWithModules(data);
+  const term = await getCurrentTerm();
+  return service.createRegistrationWithModules({
+    ...data,
+    termId: term.id,
+  });
 }
 
 export async function updateRegistrationWithModules(

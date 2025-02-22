@@ -16,7 +16,6 @@ export default async function Page() {
     <Container width='sm' className='pt-4 sm:pt-10'>
       <ClearanceRequestForm
         stdNo={student.stdNo}
-        currentSemester={student.sem}
       />
     </Container>
   );

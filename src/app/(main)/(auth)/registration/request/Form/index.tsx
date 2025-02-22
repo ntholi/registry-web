@@ -55,10 +55,17 @@ export default function ModulesForm({ stdNo, structureId }: Props) {
           return found;
         }
       });
+      
       sessionStorage.setItem(
         'selectedModules',
         JSON.stringify(selectedModules),
       );
+      
+      // Store semester information
+      sessionStorage.setItem('semesterInfo', JSON.stringify({
+        semesterNo: semester.semesterNo,
+        semesterStatus: semester.semesterStatus
+      }));
     },
     onSuccess: () => {
       router.push('/registration/clearance');

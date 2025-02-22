@@ -17,6 +17,7 @@ import { Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import SponsorSelect from './sponsor-select';
+import { formatSemester } from '@/lib/utils';
 
 type Props = {
   stdNo: number;
@@ -32,41 +33,49 @@ type Module = {
 export default function ClearanceRequestForm({ stdNo }: Props) {
   const router = useRouter();
   const { toast } = useToast();
-  const { currentTerm } = useCurrentTerm();
 
   const [modules, setStoredModules] = React.useState<Array<Module>>([]);
   const [sponsorData, setSponsorData] = React.useState<{
     sponsor: string;
     borrowerNo?: string;
   } | null>(null);
+  const [semesterInfo, setSemesterInfo] = React.useState<{
+    semesterNo: number;
+    semesterStatus: string;
+  } | null>(null);
 
   React.useEffect(() => {
     const stored = sessionStorage.getItem('selectedModules');
+    const storedSemesterInfo = sessionStorage.getItem('semesterInfo');
     if (stored) {
       setStoredModules(JSON.parse(stored));
+    }
+    if (storedSemesterInfo) {
+      setSemesterInfo(JSON.parse(storedSemesterInfo));
     }
   }, []);
 
   async function handleSubmit() {
     try {
-      if (!currentTerm) throw new Error('No Current Term');
       if (!sponsorData?.sponsor) throw new Error('Please select a sponsor');
       if (sponsorData.sponsor === 'NMDS' && !sponsorData.borrowerNo) {
         throw new Error('Please enter your NMDS borrower number');
       }
+      if (!semesterInfo) throw new Error('Semester information not found');
 
       await createRegistrationWithModules({
         stdNo,
-        termId: currentTerm.id,
         modules: modules.map((module) => ({
           moduleId: module.id,
           moduleStatus: module.status,
         })),
         sponsor: sponsorData.sponsor,
         borrowerNo: sponsorData.borrowerNo,
+        semesterNumber: semesterInfo.semesterNo,
       });
 
       sessionStorage.removeItem('selectedModules');
+      sessionStorage.removeItem('semesterInfo');
       router.push('/registration');
     } catch {
       toast({
@@ -87,9 +96,9 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
       </CardHeader>
       <CardContent className='space-y-6'>
         <div className='space-y-1'>
-          <p className='text-sm font-medium'>Term</p>
+          <p className='text-sm font-medium'>Semester</p>
           <p className='text-sm text-muted-foreground'>
-            {currentTerm?.name || 'Loading...'}
+              {formatSemester(semesterInfo?.semesterNo)}
           </p>
         </div>
 
@@ -132,7 +141,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         <div className='flex justify-end'>
           <Button
             onClick={handleSubmit}
-            disabled={!currentTerm?.id || !sponsorData?.sponsor}
+            disabled={!sponsorData?.sponsor}
             className='w-full sm:w-auto'
           >
             Submit Request

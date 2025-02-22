@@ -127,6 +127,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
     termId: number;
     modules: { moduleId: number; moduleStatus: ModuleStatus }[];
     sponsor: string;
+    semesterNumber: number;
     borrowerNo?: string;
   }) {
     return db.transaction(async (tx) => {
@@ -138,13 +139,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
       if (!student) {
         throw new Error('Student not found');
       }
-
-      // Determine semester number based on repeat modules
-      const semesterNumber = data.modules.every((it) =>
-        it.moduleStatus.startsWith('Repeat'),
-      )
-        ? student.sem - 1
-        : student.sem + 1;
 
       const [sponsor] = await tx.query.sponsors.findMany({
         where: (sponsors, { eq }) => eq(sponsors.name, data.sponsor),
@@ -167,7 +161,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
           stdNo: data.stdNo,
           termId: data.termId,
           status: 'pending',
-          semesterNumber,
+          semesterNumber: data.semesterNumber,
           sponsorId: sponsor?.id,
         })
         .returning();
