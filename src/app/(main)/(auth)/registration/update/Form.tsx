@@ -15,7 +15,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { getFailedPrerequisites, getSemesterModules } from '../request/actions';
+import {
+  getFailedPrerequisites,
+  getStudentSemesterModules,
+} from '../request/actions';
 import ModuleInput from '../request/Form/ModuleInput';
 import {
   AlertDialog,
@@ -58,7 +61,7 @@ export default function ModulesForm({
 
   const { data: modules, isLoading: modulesLoading } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
-    queryFn: () => getSemesterModules(stdNo, semester, structureId),
+    queryFn: () => getStudentSemesterModules(stdNo, semester, structureId),
   });
 
   const { data: failedPrerequisites, isLoading: prerequisitesLoading } =

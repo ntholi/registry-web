@@ -9,7 +9,10 @@ export async function getFailedPrerequisites(
   semester: number,
   structureId: number,
 ) {
-  const allSemesterModules = await getAllSemesterModules(semester, structureId);
+  const previousSemesterModules = await getSemesterModules(
+    semester - 1,
+    structureId,
+  );
 
   const attemptedModules = await db.query.studentPrograms.findMany({
     where: eq(studentPrograms.stdNo, stdNo),
@@ -37,7 +40,7 @@ export async function getFailedPrerequisites(
   );
 
   const failedModules = new Set(
-    [...allSemesterModules]
+    [...previousSemesterModules]
       .filter((it) => {
         const marks = attemptedModuleResults.get(it.name);
         if (marks === undefined) {
@@ -79,7 +82,7 @@ export async function getFailedPrerequisites(
   );
 }
 
-export async function getSemesterModules(
+export async function getStudentSemesterModules(
   stdNo: number,
   semester: number,
   structureId: number,
@@ -130,7 +133,7 @@ export async function getSemesterModules(
       .map((m) => m.module.name),
   );
 
-  const allSemesterModules = await getAllSemesterModules(semester, structureId);
+  const allSemesterModules = await getSemesterModules(semester, structureId);
 
   const eligibleModules = allSemesterModules.filter(
     (module) => !attemptedModuleNames.has(module.name),
@@ -226,7 +229,7 @@ export async function getRepeatModules(stdNo: number, semester: number) {
     }));
 }
 
-async function getAllSemesterModules(semester: number, structureId: number) {
+async function getSemesterModules(semester: number, structureId: number) {
   const semesters = await db.query.structureSemesters.findMany({
     where: and(
       eq(structureSemesters.structureId, structureId),

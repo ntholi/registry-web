@@ -5,7 +5,7 @@ import { students } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import {
   getRepeatModules,
-  getSemesterModules,
+  getStudentSemesterModules,
 } from '@/app/(main)/(auth)/registration/request/actions';
 
 export type ModuleResult = {
@@ -57,7 +57,11 @@ export async function getStudentModules(
 
   const modules =
     queryType === 'semester'
-      ? await getSemesterModules(stdNo, student.sem + 1, student.structureId)
+      ? await getStudentSemesterModules(
+          stdNo,
+          student.sem + 1,
+          student.structureId,
+        )
       : await getRepeatModules(stdNo, student.sem + 1);
 
   return {

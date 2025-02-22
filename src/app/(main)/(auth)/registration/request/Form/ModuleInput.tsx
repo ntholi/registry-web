@@ -9,11 +9,11 @@ import {
 import { AlertCircle } from 'lucide-react';
 import { Control } from 'react-hook-form';
 import { RegisterFormSchema } from '.';
-import { getSemesterModules } from '../actions';
+import { getStudentSemesterModules } from '../actions';
 
 type Props = {
   control: Control<RegisterFormSchema>;
-  module: Awaited<ReturnType<typeof getSemesterModules>>[number];
+  module: Awaited<ReturnType<typeof getStudentSemesterModules>>[number];
   failedPrerequisites: Array<{
     prerequisiteCode: string;
     failed: boolean;

@@ -10,7 +10,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { getSemesterModules, getFailedPrerequisites } from '../actions';
+import { getStudentSemesterModules, getFailedPrerequisites } from '../actions';
 import ModuleInput from './ModuleInput';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -42,7 +42,7 @@ export default function ModulesForm({ stdNo, structureId, semester }: Props) {
 
   const { data: modules, isLoading: modulesLoading } = useQuery({
     queryKey: ['semesterModules', structureId, semester],
-    queryFn: () => getSemesterModules(stdNo, semester, structureId),
+    queryFn: () => getStudentSemesterModules(stdNo, semester, structureId),
   });
 
   const { data: failedPrerequisites, isLoading: prerequisitesLoading } =
