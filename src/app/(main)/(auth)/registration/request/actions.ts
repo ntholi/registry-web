@@ -46,7 +46,7 @@ export async function getFailedPrerequisites(
     },
   });
 
-  const semesterNo = determineNextSemester(
+  const semesterNo = await determineNextSemester(
     programs.flatMap((p) => p.semesters),
   );
   const prevSemesterModules = await getSemesterModules(
@@ -106,7 +106,7 @@ export async function getStudentSemesterModules(
     },
   });
 
-  const semesterNo = determineNextSemester(
+  const semesterNo = await determineNextSemester(
     stdPrograms.flatMap((p) => p.semesters),
   );
   const repeatModules = await getRepeatModules(stdNo);
@@ -252,13 +252,15 @@ async function getSemesterModules(
   return semesters.flatMap((s) => s.semesterModules.map((sm) => sm.module));
 }
 
-const determineNextSemester = (
+const determineNextSemester = async (
   semesters: (typeof studentSemesters.$inferSelect)[],
-): number => {
+): Promise<number> => {
   const value =
     Math.max(...semesters.map((s) => Number(s.semesterNumber)), 0) + 1;
-  if (semesters.length === 0) {
-    return 1;
+  const term = await getCurrentTerm();
+  if (term.semester % 2 !== 0) {
+    return value % 2 === 0 ? value + 1 : value;
+  } else {
+    return value % 2 === 1 ? value + 1 : value;
   }
-  return value;
 };
