@@ -1,13 +1,10 @@
-import React from 'react';
-import { auth } from '@/auth';
 import { SignupForm } from '@/app/(main)/signup/signup-form';
+import { auth } from '@/auth';
+import { Container } from '@/components/ui/container';
+import { dashboardUsers } from '@/db/schema';
 import { getSignup } from '@/server/signups/actions';
 import { redirect } from 'next/navigation';
-import { Container } from '@/components/ui/container';
 import Logo from '../base/Logo';
-import { dashboardUsers } from '@/db/schema';
-import { Card, CardFooter } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
 
 export default async function SignupPage() {
   const session = await auth();

@@ -86,7 +86,6 @@ function NotificationCard({
   title,
   message,
   status,
-  timestamp,
   href,
   className,
   onClose,

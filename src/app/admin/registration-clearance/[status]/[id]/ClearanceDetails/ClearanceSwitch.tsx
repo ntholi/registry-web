@@ -29,7 +29,6 @@ export default function ClearanceSwitch({
   comment,
   setAccordion,
 }: Props) {
-  const router = useRouter();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<Status>(request.status as Status);

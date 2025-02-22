@@ -5,8 +5,6 @@ import {
   registrationRequests,
   requestedModules,
   sponsoredStudents,
-  sponsors,
-  students,
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';

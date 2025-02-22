@@ -33,7 +33,6 @@ import {
   IconChevronRight,
   IconClipboardCheck,
   IconCopyCheck,
-  IconFileCheck,
   IconLogout2,
   IconMessageQuestion,
   IconSquareRoundedCheck,

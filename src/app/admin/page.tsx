@@ -1,4 +1,4 @@
-import { Stack, Title } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import ActiveTermDisplay from './base/ActiveTermDisplay';
 import RoleDisplay from './base/RoleDisplay';
 

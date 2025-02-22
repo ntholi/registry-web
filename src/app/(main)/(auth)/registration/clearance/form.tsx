@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import SponsorSelect from './sponsor-select';
 import { ModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
@@ -17,10 +16,10 @@ import { createRegistrationWithModules } from '@/server/registration-requests/ac
 import { Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import SponsorSelect from './sponsor-select';
 
 type Props = {
   stdNo: number;
-  currentSemester: number;
 };
 
 type Module = {
@@ -30,16 +29,16 @@ type Module = {
   id: number;
 };
 
-export default function ClearanceRequestForm({
-  stdNo,
-  currentSemester,
-}: Props) {
+export default function ClearanceRequestForm({ stdNo }: Props) {
   const router = useRouter();
   const { toast } = useToast();
   const { currentTerm } = useCurrentTerm();
 
   const [modules, setStoredModules] = React.useState<Array<Module>>([]);
-  const [sponsorData, setSponsorData] = React.useState<{ sponsor: string; borrowerNo?: string } | null>(null);
+  const [sponsorData, setSponsorData] = React.useState<{
+    sponsor: string;
+    borrowerNo?: string;
+  } | null>(null);
 
   React.useEffect(() => {
     const stored = sessionStorage.getItem('selectedModules');

@@ -1,6 +1,5 @@
 import { auth } from '@/auth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -12,8 +11,7 @@ import { Container } from '@/components/ui/container';
 import { formatDateTime } from '@/lib/utils';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
-import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
-import Link from 'next/link';
+import { InfoIcon } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import StatusBadge, { getStatusIcon } from '../components/StatusBadge';
 import { getRegistrationClearances } from './actions';
