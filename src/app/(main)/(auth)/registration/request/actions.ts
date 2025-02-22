@@ -13,7 +13,7 @@ export async function getFailedPrerequisites(
   stdNo: number,
   structureId: number,
 ) {
-  const stdPrograms = await db.query.studentPrograms.findMany({
+  const programs = await db.query.studentPrograms.findMany({
     where: eq(studentPrograms.stdNo, stdNo),
     with: {
       semesters: {
@@ -32,7 +32,7 @@ export async function getFailedPrerequisites(
   });
 
   const semesterNo = determineNextSemester(
-    stdPrograms.flatMap((it) => it.semesters),
+    programs.flatMap((it) => it.semesters),
   );
 
   const previousSemesterModules = await getSemesterModules(
@@ -40,22 +40,15 @@ export async function getFailedPrerequisites(
     structureId,
   );
 
-  const attemptedModuleResults = new Map(
-    stdPrograms
-      .flatMap((prog) => prog.semesters)
-      .flatMap((sem) => sem.studentModules)
-      .map((mod) => [mod.module.name, parseFloat(mod.marks)]),
-  );
+  const passedModules = programs
+    .flatMap((it) => it.semesters)
+    .flatMap((it) => it.studentModules)
+    .filter((it) => parseFloat(it.marks) >= 50)
+    .map((it) => it.module.name);
 
   const failedModules = new Set(
     [...previousSemesterModules]
-      .filter((it) => {
-        const marks = attemptedModuleResults.get(it.name);
-        if (marks === undefined) {
-          return true;
-        }
-        return marks < 50;
-      })
+      .filter((it) => !passedModules.includes(it.name))
       .map((it) => it.name),
   );
 
