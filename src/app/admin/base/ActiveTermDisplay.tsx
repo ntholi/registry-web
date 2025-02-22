@@ -39,5 +39,12 @@ export default function ActiveTermDisplay() {
       </Text>
     );
 
-  return <Text size='sm'>Active Term: {activeTerm.name}</Text>;
+  return (
+    <Text size='sm'>
+      Active Term:
+      <Text component='span' c='green'>
+        {` ${activeTerm.name}`}
+      </Text>
+    </Text>
+  );
 }

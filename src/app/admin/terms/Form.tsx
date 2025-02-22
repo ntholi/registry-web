@@ -2,7 +2,7 @@
 
 import { Form } from '@/components/adease';
 import { terms } from '@/db/schema';
-import { Switch, TextInput } from '@mantine/core';
+import { NumberInput, Switch, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 
@@ -13,7 +13,7 @@ type Props = {
   defaultValues?: Term;
   onSuccess?: (value: Term) => void;
   onError?: (
-    error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+    error: Error | React.SyntheticEvent<HTMLDivElement, Event>,
   ) => void;
   title?: string;
 };
@@ -35,6 +35,13 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
       {(form) => (
         <>
           <TextInput label='Name' {...form.getInputProps('name')} />
+          <NumberInput
+            min={1}
+            max={2}
+            label='Semester'
+            description='Semester 1 or Semester 2'
+            {...form.getInputProps('semester')}
+          />
           <Switch
             label='Set as Active Term'
             {...form.getInputProps('isActive', { type: 'checkbox' })}
