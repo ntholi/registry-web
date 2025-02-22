@@ -118,7 +118,8 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
               )}
             />
 
-            {existingSignup?.message && (
+            {(existingSignup?.message ||
+              existingSignup?.status === 'pending') && (
               <Alert
                 className={cn('border', getAlertStyles(existingSignup.status))}
               >
@@ -129,7 +130,10 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                 <AlertDescription>
                   {existingSignup.message}
                   {existingSignup.status === 'pending' && (
-                    <span>. Might take a few hours to process.</span>
+                    <span>
+                      It might take a few hours to setup your account, please
+                      check back later.
+                    </span>
                   )}
                 </AlertDescription>
               </Alert>
