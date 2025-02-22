@@ -22,9 +22,7 @@ export async function getFailedPrerequisites(
         with: {
           studentModules: {
             where: (module) => notInArray(module.status, ['Delete', 'Drop']),
-            with: {
-              module: true,
-            },
+            with: { module: true },
           },
         },
       },
@@ -32,38 +30,35 @@ export async function getFailedPrerequisites(
   });
 
   const semesterNo = determineNextSemester(
-    programs.flatMap((it) => it.semesters),
+    programs.flatMap((p) => p.semesters),
   );
-
-  const previousSemesterModules = await getSemesterModules(
+  const prevSemesterModules = await getSemesterModules(
     semesterNo - 1,
     structureId,
   );
 
-  const passedModules = programs
-    .flatMap((it) => it.semesters)
-    .flatMap((it) => it.studentModules)
-    .filter((it) => parseFloat(it.marks) >= 50)
-    .map((it) => it.module.name);
+  const passedModules = new Set(
+    programs
+      .flatMap((p) => p.semesters)
+      .flatMap((s) => s.studentModules)
+      .filter((m) => parseFloat(m.marks) >= 50)
+      .map((m) => m.module.name),
+  );
 
   const failedModules = new Set(
-    [...previousSemesterModules]
-      .filter((it) => !passedModules.includes(it.name))
-      .map((it) => it.name),
+    prevSemesterModules
+      .filter((m) => !passedModules.has(m.name))
+      .map((m) => m.name),
   );
 
   const prerequisites = await db.query.modulePrerequisites.findMany({
-    with: {
-      module: true,
-      prerequisite: true,
-    },
+    with: { module: true, prerequisite: true },
   });
 
   return prerequisites.reduce(
     (acc, { module, prerequisite }) => {
       if (failedModules.has(prerequisite.name)) {
-        acc[module.code] = acc[module.code] || [];
-        acc[module.code].push(prerequisite.code);
+        acc[module.code] = [...(acc[module.code] || []), prerequisite.code];
       }
       return acc;
     },
@@ -81,20 +76,13 @@ export async function getStudentSemesterModules(
       eq(studentPrograms.status, 'Active'),
     ),
     with: {
-      structure: {
-        with: {
-          program: true,
-        },
-      },
+      structure: { with: { program: true } },
       semesters: {
-        where: (semester) =>
-          notInArray(semester.status, ['Deleted', 'Deferred']),
+        where: (s) => notInArray(s.status, ['Deleted', 'Deferred']),
         with: {
           studentModules: {
-            where: (module) => notInArray(module.status, ['Delete', 'Drop']),
-            with: {
-              module: true,
-            },
+            where: (m) => notInArray(m.status, ['Delete', 'Drop']),
+            with: { module: true },
           },
         },
       },
@@ -102,55 +90,49 @@ export async function getStudentSemesterModules(
   });
 
   const semesterNo = determineNextSemester(
-    stdPrograms.flatMap((it) => it.semesters),
+    stdPrograms.flatMap((p) => p.semesters),
   );
-
   const repeatModules = await getRepeatModules(stdNo);
 
-  // For internship students, if they have failed modules, they can only repeat those modules
-  const stdProgram = stdPrograms.find((it) => it.status === 'Active')?.structure
-    .program;
+  const activeProgram = stdPrograms.find((p) => p.status === 'Active');
   if (
-    stdProgram?.level === 'diploma' &&
+    //Internship Students
+    activeProgram?.structure?.program?.level === 'diploma' &&
     semesterNo === 5 &&
-    repeatModules.length > 0
+    repeatModules.length
   ) {
     return repeatModules;
   }
 
-  const attemptedModuleNames = new Set(
+  if (repeatModules.length >= 3) return repeatModules;
+
+  const attemptedModules = new Set(
     stdPrograms
       .flatMap((p) => p.semesters)
       .flatMap((s) => s.studentModules)
       .map((m) => m.module.name),
   );
 
-  const allSemesterModules = await getSemesterModules(semesterNo, structureId);
-
-  const eligibleModules = allSemesterModules.filter(
-    (module) => !attemptedModuleNames.has(module.name),
-  );
+  const eligibleModules = (
+    await getSemesterModules(semesterNo, structureId)
+  ).filter((m) => !attemptedModules.has(m.name));
 
   const failedPrerequisites = await getFailedPrerequisites(stdNo, structureId);
 
-  if (repeatModules.length >= 3) {
-    return repeatModules;
-  }
-
   return [
-    ...eligibleModules.map((module) => ({
-      ...module,
-      status: module.type === 'Elective' ? 'Elective' : 'Compulsory',
-      prerequisites: failedPrerequisites[module.code] || [],
+    ...eligibleModules.map((m) => ({
+      ...m,
+      status: m.type === 'Elective' ? 'Elective' : 'Compulsory',
+      prerequisites: failedPrerequisites[m.code] || [],
     })),
     ...repeatModules,
   ];
 }
 
 export async function getRepeatModules(stdNo: number) {
-  const term = await getCurrentTerm();
+  const { semester } = await getCurrentTerm();
   const semesterNumbers =
-    term.semester % 2 === 0 ? [2, 4, 6, 8, 10] : [1, 3, 5, 7, 9];
+    semester % 2 === 0 ? [2, 4, 6, 8, 10] : [1, 3, 5, 7, 9];
 
   const studentModules = await db.query.studentPrograms.findMany({
     where: and(
@@ -159,51 +141,39 @@ export async function getRepeatModules(stdNo: number) {
     ),
     with: {
       semesters: {
-        where: (semester) =>
+        where: (s) =>
           and(
-            notInArray(semester.status, ['Deleted', 'Deferred']),
-            inArray(semester.semesterNumber, semesterNumbers),
+            notInArray(s.status, ['Deleted', 'Deferred']),
+            inArray(s.semesterNumber, semesterNumbers),
           ),
         with: {
           studentModules: {
-            where: (module) => notInArray(module.status, ['Delete', 'Drop']),
-            with: {
-              module: true,
-            },
+            where: (m) => notInArray(m.status, ['Delete', 'Drop']),
+            with: { module: true },
           },
         },
       },
     },
   });
 
-  type Module = (typeof studentModules)[0]['semesters'][0]['studentModules'][0];
-
   const moduleHistory = studentModules
     .flatMap((p) => p.semesters)
     .flatMap((s) => s.studentModules)
     .reduce(
-      (acc, mod) => {
-        const marks = parseFloat(mod.marks);
-        const passed = marks >= 50;
-
-        acc[mod.module.name] = acc[mod.module.name] || {
+      (acc, { marks, module }) => {
+        const passed = parseFloat(marks) >= 50;
+        acc[module.name] = acc[module.name] || {
           failCount: 0,
           passed: false,
-          module: mod.module,
+          module,
         };
 
-        if (passed) {
-          acc[mod.module.name].passed = true;
-        } else {
-          acc[mod.module.name].failCount++;
-        }
+        if (passed) acc[module.name].passed = true;
+        else acc[module.name].failCount++;
 
         return acc;
       },
-      {} as Record<
-        string,
-        { failCount: number; passed: boolean; module: Module['module'] }
-      >,
+      {} as Record<string, { failCount: number; passed: boolean; module: any }>,
     );
 
   return Object.values(moduleHistory)
@@ -228,25 +198,18 @@ async function getSemesterModules(semester: number, structureId: number) {
       ),
     ),
     with: {
-      semesterModules: {
-        with: {
-          module: true,
-        },
-      },
+      semesterModules: { with: { module: true } },
     },
   });
 
-  return semesters.flatMap((s) => s.semesterModules).map((sm) => sm.module);
+  return semesters.flatMap((s) => s.semesterModules.map((sm) => sm.module));
 }
 
-function determineNextSemester(
+const determineNextSemester = (
   semesters: (typeof studentSemesters.$inferSelect)[],
-) {
-  const numbers = semesters
-    .map((program) => program.semesterNumber)
-    .map(Number);
-
-  const value = Math.max(...numbers) + 1;
+) => {
+  const value =
+    Math.max(...semesters.map((s) => Number(s.semesterNumber)), 0) + 1;
   console.log('Next Semester: ', value);
   return value;
-}
+};
