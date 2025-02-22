@@ -333,6 +333,7 @@ export const terms = sqliteTable('terms', {
   id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull().unique(),
   isActive: integer({ mode: 'boolean' }).notNull().default(false),
+  semester: integer().notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 

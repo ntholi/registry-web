@@ -1,0 +1,1 @@
+ALTER TABLE `terms` ADD `semester` integer DEFAULT 1 NOT NULL;
