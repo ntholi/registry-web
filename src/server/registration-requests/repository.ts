@@ -127,6 +127,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
     termId: number;
     modules: { moduleId: number; moduleStatus: ModuleStatus }[];
     sponsor: string;
+    semesterStatus: 'Active' | 'Repeat';
     semesterNumber: number;
     borrowerNo?: string;
   }) {
@@ -162,6 +163,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
           termId: data.termId,
           status: 'pending',
           semesterNumber: data.semesterNumber,
+          semesterStatus: data.semesterStatus,
           sponsorId: sponsor?.id,
         })
         .returning();

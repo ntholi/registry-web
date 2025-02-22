@@ -86,6 +86,7 @@ class RegistrationRequestService {
     termId: number;
     modules: { moduleId: number; moduleStatus: ModuleStatus }[];
     sponsor: string;
+    semesterStatus: 'Active' | 'Repeat';
     semesterNumber: number;
     borrowerNo?: string;
   }) {

@@ -72,6 +72,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         sponsor: sponsorData.sponsor,
         borrowerNo: sponsorData.borrowerNo,
         semesterNumber: semesterInfo.semesterNo,
+        semesterStatus: semesterInfo.semesterStatus as 'Active' | 'Repeat',
       });
 
       sessionStorage.removeItem('selectedModules');
@@ -98,7 +99,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         <div className='space-y-1'>
           <p className='text-sm font-medium'>Semester</p>
           <p className='text-sm text-muted-foreground'>
-              {formatSemester(semesterInfo?.semesterNo)}
+            {formatSemester(semesterInfo?.semesterNo)}
           </p>
         </div>
 

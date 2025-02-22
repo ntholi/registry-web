@@ -73,6 +73,7 @@ export async function createRegistrationWithModules(data: {
   modules: { moduleId: number; moduleStatus: ModuleStatus }[];
   sponsor: string;
   semesterNumber: number;
+  semesterStatus: 'Active' | 'Repeat';
   borrowerNo?: string;
 }) {
   const term = await getCurrentTerm();
