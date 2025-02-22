@@ -140,7 +140,7 @@ export async function getStudentSemesterModules(
   return [
     ...eligibleModules.map((module) => ({
       ...module,
-      status: 'Compulsory' as const,
+      status: module.type === 'Elective' ? 'Elective' : 'Compulsory',
       prerequisites: failedPrerequisites[module.code] || [],
     })),
     ...repeatModules,

@@ -189,7 +189,14 @@ export const studentSemesters = sqliteTable('student_semesters', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const moduleTypeEnum = ['Major', 'Minor', 'Core', 'Delete'] as const;
+export const moduleTypeEnum = [
+  'Major',
+  'Minor',
+  'Core',
+  'Delete',
+  'Elective',
+] as const;
+
 export const moduleStatusEnum = [
   'Add',
   'Compulsory',
