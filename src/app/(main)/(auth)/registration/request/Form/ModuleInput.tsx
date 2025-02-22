@@ -13,8 +13,10 @@ import { getStudentSemesterModules } from '../actions';
 
 type Props = {
   control: Control<RegisterFormSchema>;
-  module: Awaited<ReturnType<typeof getStudentSemesterModules>>[number];
-  failedPrerequisites: string[];
+  module: Awaited<
+    ReturnType<typeof getStudentSemesterModules>
+  >['modules'][number];
+  failedPrerequisites?: string[];
 };
 
 export default function ModuleInput({
@@ -22,7 +24,7 @@ export default function ModuleInput({
   module,
   failedPrerequisites,
 }: Props) {
-  const hasFailedPrerequisites = failedPrerequisites.length > 0;
+  const hasFailedPrerequisites = (failedPrerequisites?.length ?? 0) > 0;
 
   return (
     <FormField
@@ -65,7 +67,7 @@ export default function ModuleInput({
           <div className='absolute bottom-3 right-4'>
             {hasFailedPrerequisites ? (
               <Badge variant='destructive' className='mb-1'>
-                Prerequisite ({failedPrerequisites.join(', ')})
+                Prerequisite ({failedPrerequisites?.join(', ')})
               </Badge>
             ) : (
               <Badge

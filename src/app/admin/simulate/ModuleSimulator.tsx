@@ -23,22 +23,17 @@ import {
 import { useForm } from '@mantine/form';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useState } from 'react';
-import { getStudentModules, type ModuleQueryResponse } from './actions';
-
-const queryTypes = [
-  { value: 'semester', label: 'Semester Modules' },
-  { value: 'repeat', label: 'Repeat Modules' },
-] as const;
+import { getStudentModules } from './actions';
 
 export default function ModuleSimulator() {
-  const [results, setResults] = useState<ModuleQueryResponse | null>(null);
+  const [results, setResults] =
+    useState<Awaited<ReturnType<typeof getStudentModules>>>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm({
     initialValues: {
       stdNo: '',
-      queryType: 'semester' as const,
     },
   });
 
@@ -46,17 +41,14 @@ export default function ModuleSimulator() {
     setLoading(true);
     setError(null);
     try {
-      const response = await getStudentModules(
-        Number(values.stdNo),
-        values.queryType,
-      );
+      const response = await getStudentModules(Number(values.stdNo));
       setResults(response);
     } catch (error) {
       console.error('Error fetching modules:', error);
       setError(
         error instanceof Error ? error.message : 'An unexpected error occurred',
       );
-      setResults(null);
+      setResults(undefined);
     } finally {
       setLoading(false);
     }
@@ -74,18 +66,11 @@ export default function ModuleSimulator() {
             </Group>
 
             <Grid>
-              <Grid.Col span={5}>
+              <Grid.Col span={8}>
                 <NumberInput
                   label='Student Number'
                   required
                   {...form.getInputProps('stdNo')}
-                />
-              </Grid.Col>
-              <Grid.Col span={5}>
-                <Select
-                  label='Query Type'
-                  data={queryTypes}
-                  {...form.getInputProps('queryType')}
                 />
               </Grid.Col>
               <Grid.Col span={2}>

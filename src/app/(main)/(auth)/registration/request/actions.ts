@@ -2,12 +2,29 @@
 
 import { db } from '@/db';
 import {
+  modules,
   structureSemesters,
   studentPrograms,
   studentSemesters,
 } from '@/db/schema';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
+
+type ModuleWithStatus = {
+  id: number;
+  code: string;
+  name: string;
+  type: string;
+  credits: number;
+  status: 'Compulsory' | 'Elective' | `Repeat${number}`;
+  prerequisites?: string[];
+};
+
+type SemesterModules = {
+  modules: ModuleWithStatus[];
+  semesterNo: number;
+  semesterStatus: 'Active' | 'Repeat';
+};
 
 export async function getFailedPrerequisites(
   stdNo: number,
@@ -69,7 +86,7 @@ export async function getFailedPrerequisites(
 export async function getStudentSemesterModules(
   stdNo: number,
   structureId: number,
-) {
+): Promise<SemesterModules> {
   const stdPrograms = await db.query.studentPrograms.findMany({
     where: and(
       eq(studentPrograms.stdNo, stdNo),
@@ -101,10 +118,21 @@ export async function getStudentSemesterModules(
     semesterNo === 5 &&
     repeatModules.length
   ) {
-    return repeatModules;
+    return {
+      modules: repeatModules,
+      semesterNo: semesterNo - 2,
+      semesterStatus: 'Repeat',
+    };
   }
 
-  if (repeatModules.length >= 3) return repeatModules;
+  if (repeatModules.length >= 3) {
+    //Remain in semester
+    return {
+      modules: repeatModules,
+      semesterNo: semesterNo - 1,
+      semesterStatus: 'Repeat',
+    };
+  }
 
   const attemptedModules = new Set(
     stdPrograms
@@ -119,17 +147,29 @@ export async function getStudentSemesterModules(
 
   const failedPrerequisites = await getFailedPrerequisites(stdNo, structureId);
 
-  return [
-    ...eligibleModules.map((m) => ({
-      ...m,
-      status: m.type === 'Elective' ? 'Elective' : 'Compulsory',
-      prerequisites: failedPrerequisites[m.code] || [],
-    })),
-    ...repeatModules,
-  ];
+  return {
+    modules: [
+      ...eligibleModules.map(
+        (m): ModuleWithStatus => ({
+          id: m.id,
+          code: m.code,
+          name: m.name,
+          type: m.type,
+          credits: m.credits,
+          status: m.type === 'Elective' ? 'Elective' : 'Compulsory',
+          prerequisites: failedPrerequisites[m.code] || [],
+        }),
+      ),
+      ...repeatModules,
+    ],
+    semesterNo,
+    semesterStatus: 'Active',
+  };
 }
 
-export async function getRepeatModules(stdNo: number) {
+export async function getRepeatModules(
+  stdNo: number,
+): Promise<ModuleWithStatus[]> {
   const { semester } = await getCurrentTerm();
   const semesterNumbers =
     semester % 2 === 0 ? [2, 4, 6, 8, 10] : [1, 3, 5, 7, 9];
@@ -156,6 +196,7 @@ export async function getRepeatModules(stdNo: number) {
     },
   });
 
+  type Module = typeof modules.$inferSelect;
   const moduleHistory = studentModules
     .flatMap((p) => p.semesters)
     .flatMap((s) => s.studentModules)
@@ -173,7 +214,10 @@ export async function getRepeatModules(stdNo: number) {
 
         return acc;
       },
-      {} as Record<string, { failCount: number; passed: boolean; module: any }>,
+      {} as Record<
+        string,
+        { failCount: number; passed: boolean; module: Module }
+      >,
     );
 
   return Object.values(moduleHistory)
@@ -188,7 +232,10 @@ export async function getRepeatModules(stdNo: number) {
     }));
 }
 
-async function getSemesterModules(semester: number, structureId: number) {
+async function getSemesterModules(
+  semester: number,
+  structureId: number,
+): Promise<(typeof modules.$inferSelect)[]> {
   const semesters = await db.query.structureSemesters.findMany({
     where: and(
       eq(structureSemesters.structureId, structureId),
@@ -207,9 +254,11 @@ async function getSemesterModules(semester: number, structureId: number) {
 
 const determineNextSemester = (
   semesters: (typeof studentSemesters.$inferSelect)[],
-) => {
+): number => {
   const value =
     Math.max(...semesters.map((s) => Number(s.semesterNumber)), 0) + 1;
-  console.log('Next Semester: ', value);
+  if (semesters.length === 0) {
+    return 1;
+  }
   return value;
 };

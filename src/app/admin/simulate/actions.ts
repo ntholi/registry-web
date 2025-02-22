@@ -1,41 +1,11 @@
 'use server';
 
+import { getStudentSemesterModules } from '@/app/(main)/(auth)/registration/request/actions';
 import { db } from '@/db';
 import { students } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import {
-  getRepeatModules,
-  getStudentSemesterModules,
-} from '@/app/(main)/(auth)/registration/request/actions';
 
-export type ModuleResult = {
-  id: number;
-  code: string;
-  name: string;
-  type: string;
-  credits: number;
-  status: string;
-  prerequisites?: string[];
-};
-
-export type ModuleQueryResponse = {
-  student: {
-    name: string;
-    stdNo: number;
-    semester: number;
-    program: {
-      structureCode?: string;
-      name?: string;
-      code?: string;
-    };
-  };
-  modules: ModuleResult[];
-};
-
-export async function getStudentModules(
-  stdNo: number,
-  queryType: 'semester' | 'repeat',
-): Promise<ModuleQueryResponse> {
+export async function getStudentModules(stdNo: number) {
   const student = await db.query.students.findFirst({
     where: eq(students.stdNo, stdNo),
     with: {
@@ -55,10 +25,7 @@ export async function getStudentModules(
     throw new Error('Student has no structure assigned');
   }
 
-  const modules =
-    queryType === 'semester'
-      ? await getStudentSemesterModules(stdNo, student.structureId)
-      : await getRepeatModules(stdNo);
+  const semester = await getStudentSemesterModules(stdNo, student.structureId);
 
   return {
     student: {
@@ -71,6 +38,8 @@ export async function getStudentModules(
         code: student.structure?.program.code,
       },
     },
-    modules,
+    modules: semester.modules,
+    semesterStatus: semester.semesterStatus,
+    semesterNo: semester.semesterNo,
   };
 }

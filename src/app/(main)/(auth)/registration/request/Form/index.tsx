@@ -1,20 +1,20 @@
 'use client';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
+import { MAX_REG_MODULES } from '@/lib/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { getStudentSemesterModules, getFailedPrerequisites } from '../actions';
+import { getStudentSemesterModules } from '../actions';
 import ModuleInput from './ModuleInput';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { MAX_REG_MODULES } from '@/lib/constants';
 
 type Props = {
   stdNo: number;
@@ -39,26 +39,18 @@ export default function ModulesForm({ stdNo, structureId }: Props) {
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 
-  const { data: modules, isLoading: modulesLoading } = useQuery({
+  const { data: semester, isLoading } = useQuery({
     queryKey: ['semesterModules', structureId],
     queryFn: () => getStudentSemesterModules(stdNo, structureId),
   });
 
-  const { data: failedPrerequisites, isLoading: prerequisitesLoading } =
-    useQuery({
-      queryKey: ['failedPrerequisites', stdNo],
-      queryFn: () => getFailedPrerequisites(stdNo, structureId),
-    });
-
-  const isLoading = modulesLoading || prerequisitesLoading;
-
   const { mutate: submitRegistration, isPending } = useMutation({
     mutationFn: async (values: RegisterFormSchema) => {
-      if (!modules) throw new Error('No modules available');
+      if (!semester) throw new Error('No modules available');
       if (!currentTerm) throw new Error('No current term found');
 
       const selectedModules = values.modules.map((moduleId) => {
-        const found = modules.find((it) => it.id === moduleId);
+        const found = semester.modules.find((it) => it.id === moduleId);
         if (found) {
           return found;
         }
@@ -105,14 +97,14 @@ export default function ModulesForm({ stdNo, structureId }: Props) {
           </div>
           {isLoading ? (
             <LoadingSkeleton />
-          ) : modules ? (
+          ) : semester ? (
             <div className='space-y-4'>
-              {modules.map((module) => (
+              {semester.modules.map((module) => (
                 <ModuleInput
                   key={module.id}
                   control={form.control}
                   module={module}
-                  failedPrerequisites={failedPrerequisites?.[module.code] || []}
+                  failedPrerequisites={module.prerequisites}
                 />
               ))}
             </div>

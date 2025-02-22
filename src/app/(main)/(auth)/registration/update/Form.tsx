@@ -1,5 +1,16 @@
 'use client';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,22 +26,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import {
-  getFailedPrerequisites,
-  getStudentSemesterModules,
-} from '../request/actions';
+import { getStudentSemesterModules } from '../request/actions';
 import ModuleInput from '../request/Form/ModuleInput';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 
 type Props = {
   stdNo: number;
@@ -53,18 +50,10 @@ export default function ModulesForm({ stdNo, structureId, request }: Props) {
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 
-  const { data: modules, isLoading: modulesLoading } = useQuery({
+  const { data: semester, isLoading } = useQuery({
     queryKey: ['semesterModules', structureId],
     queryFn: () => getStudentSemesterModules(stdNo, structureId),
   });
-
-  const { data: failedPrerequisites, isLoading: prerequisitesLoading } =
-    useQuery({
-      queryKey: ['failedPrerequisites', stdNo],
-      queryFn: () => getFailedPrerequisites(stdNo, structureId),
-    });
-
-  const isLoading = modulesLoading || prerequisitesLoading;
 
   const form = useForm<UpdateFormSchema>({
     resolver: zodResolver(formSchema),
@@ -77,12 +66,12 @@ export default function ModulesForm({ stdNo, structureId, request }: Props) {
 
   const { mutate: submitUpdate, isPending } = useMutation({
     mutationFn: async (values: UpdateFormSchema) => {
-      if (!modules) throw new Error('No modules available');
+      if (!semester) throw new Error('No modules available');
       if (!currentTerm) throw new Error('No current term found');
 
       const selectedModules = values.modules
         .map((moduleId) => {
-          const found = modules.find((it) => it.id === moduleId);
+          const found = semester.modules.find((it) => it.id === moduleId);
           if (found) {
             return {
               id: found.id,
@@ -127,12 +116,12 @@ export default function ModulesForm({ stdNo, structureId, request }: Props) {
             <LoadingSkeleton />
           ) : (
             <div className='space-y-4'>
-              {modules?.map((module) => (
+              {semester?.modules.map((module) => (
                 <ModuleInput
                   key={module.id}
                   control={form.control}
                   module={module}
-                  failedPrerequisites={failedPrerequisites?.[module.code] || []}
+                  failedPrerequisites={module.prerequisites}
                 />
               ))}
             </div>
