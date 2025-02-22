@@ -84,7 +84,7 @@ export async function getFailedPrerequisites(
 
 export async function getStudentSemesterModules(
   stdNo: number,
-  semester: number,
+  semesterNo: number,
   structureId: number,
 ) {
   const studentModules = await db.query.studentPrograms.findMany({
@@ -113,14 +113,14 @@ export async function getStudentSemesterModules(
     },
   });
 
-  const repeatModules = await getRepeatModules(stdNo, semester);
+  const repeatModules = await getRepeatModules(stdNo, semesterNo);
 
   // For internship students, if they have failed modules, they can only repeat those modules
   const activeProgram = studentModules.find((it) => it.status === 'Active')
     ?.structure.program;
   if (
     activeProgram?.level === 'diploma' &&
-    semester === 5 &&
+    semesterNo === 5 &&
     repeatModules.length > 0
   ) {
     return repeatModules;
@@ -133,7 +133,7 @@ export async function getStudentSemesterModules(
       .map((m) => m.module.name),
   );
 
-  const allSemesterModules = await getSemesterModules(semester, structureId);
+  const allSemesterModules = await getSemesterModules(semesterNo, structureId);
 
   const eligibleModules = allSemesterModules.filter(
     (module) => !attemptedModuleNames.has(module.name),
@@ -141,7 +141,7 @@ export async function getStudentSemesterModules(
 
   const failedPrerequisites = await getFailedPrerequisites(
     stdNo,
-    semester,
+    semesterNo,
     structureId,
   );
 
