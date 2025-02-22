@@ -172,14 +172,14 @@ export default function ModuleSimulator() {
                         </Table.Td>
                         <Table.Td>
                           <Group gap={4}>
-                            {module.prerequisites?.map((it) => (
+                            {module.prerequisites?.map((code) => (
                               <Badge
-                                key={it.prerequisiteCode}
+                                key={code}
                                 size='sm'
                                 variant='default'
                                 radius='sm'
                               >
-                                {it.prerequisiteCode}
+                                {code}
                               </Badge>
                             ))}
                           </Group>

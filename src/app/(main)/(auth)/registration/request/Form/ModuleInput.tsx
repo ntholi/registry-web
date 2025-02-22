@@ -14,10 +14,7 @@ import { getStudentSemesterModules } from '../actions';
 type Props = {
   control: Control<RegisterFormSchema>;
   module: Awaited<ReturnType<typeof getStudentSemesterModules>>[number];
-  failedPrerequisites: Array<{
-    prerequisiteCode: string;
-    failed: boolean;
-  }>;
+  failedPrerequisites: string[];
 };
 
 export default function ModuleInput({
@@ -68,11 +65,7 @@ export default function ModuleInput({
           <div className='absolute bottom-3 right-4'>
             {hasFailedPrerequisites ? (
               <Badge variant='destructive' className='mb-1'>
-                Prerequisite (
-                {failedPrerequisites
-                  .map((it) => it.prerequisiteCode)
-                  .join(', ')}
-                )
+                Prerequisite ({failedPrerequisites.join(', ')})
               </Badge>
             ) : (
               <Badge

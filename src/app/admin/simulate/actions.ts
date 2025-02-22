@@ -15,7 +15,7 @@ export type ModuleResult = {
   type: string;
   credits: number;
   status: string;
-  prerequisites?: { moduleCode: string; prerequisiteCode: string }[];
+  prerequisites?: string[];
 };
 
 export type ModuleQueryResponse = {

@@ -62,24 +62,12 @@ export async function getFailedPrerequisites(
   return prerequisites.reduce(
     (acc, { module, prerequisite }) => {
       if (failedModules.has(prerequisite.name)) {
-        const entry = {
-          moduleCode: module.code,
-          prerequisiteCode: prerequisite.code,
-          failed: true,
-        };
-
         acc[module.code] = acc[module.code] || [];
-        acc[module.code].push(entry);
+        acc[module.code].push(prerequisite.code);
       }
       return acc;
     },
-    {} as Record<
-      string,
-      Array<{
-        prerequisiteCode: string;
-        failed: boolean;
-      }>
-    >,
+    {} as Record<string, string[]>,
   );
 }
 
