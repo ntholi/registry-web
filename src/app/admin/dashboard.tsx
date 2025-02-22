@@ -89,7 +89,7 @@ const navigation: NavItem[] = [
   {
     label: 'Clearance',
     icon: IconCopyCheck,
-    roles: ['finance', 'library'],
+    roles: ['finance', 'library', 'resource'],
     children: [
       {
         label: 'Requests',
