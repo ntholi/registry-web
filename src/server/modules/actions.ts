@@ -65,23 +65,19 @@ export async function deleteModule(id: number) {
 }
 
 export async function getModulesByStructure(structureId: number) {
-  const modules = await modulesService.getModulesByStructure(structureId);
-  return modules;
+  return await modulesService.getModulesByStructure(structureId);
 }
 
 export async function getSchools() {
-  const schools = await modulesService.getSchools();
-  return schools;
+  return await modulesService.getSchools();
 }
 
 export async function getProgramsBySchool(schoolId: number) {
-  const programs = await modulesService.getProgramsBySchool(schoolId);
-  return programs;
+  return await modulesService.getProgramsBySchool(schoolId);
 }
 
 export async function getStructuresByProgram(programId: number) {
-  const structures = await modulesService.getStructuresByProgram(programId);
-  return structures;
+  return await modulesService.getStructuresByProgram(programId);
 }
 
 export async function getModulePrerequisites(moduleId: number) {

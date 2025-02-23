@@ -59,16 +59,15 @@ export default function ProgramsPage() {
       <Stack gap='lg'>
         <Paper shadow='sm' p='md' withBorder>
           <FilterSelect onStructureSelect={handleStructureSelect} />
+          {structure && (
+            <Card mt={'xl'} withBorder p='sm'>
+              <Text fw={500}>{structure?.program?.name}</Text>
+              <Text size='sm' c='dimmed'>
+                {structure.code}
+              </Text>
+            </Card>
+          )}
         </Paper>
-
-        {structure && (
-          <Paper shadow='sm' p='md' withBorder>
-            <Title order={4} fw={500}>
-              {structure?.program?.name}
-            </Title>
-            <Text size='sm'>{structure.code}</Text>
-          </Paper>
-        )}
 
         <Transition mounted={loading} transition='fade' duration={400}>
           {(styles) => (

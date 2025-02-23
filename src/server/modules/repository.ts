@@ -91,7 +91,7 @@ export default class ModuleRepository extends BaseRepository<
   }
 
   async getSchools() {
-    return db.select().from(schools).orderBy(schools.code);
+    return db.select().from(schools).orderBy(schools.id);
   }
 
   async getProgramsBySchool(schoolId: number) {

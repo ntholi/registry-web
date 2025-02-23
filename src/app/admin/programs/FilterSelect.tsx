@@ -5,13 +5,27 @@ import {
   getSchools,
   getStructuresByProgram,
 } from '@/server/modules/actions';
-import { Grid, Select, Stack, Loader } from '@mantine/core';
+import {
+  Grid,
+  Select,
+  Stack,
+  Loader,
+  ComboboxItem,
+  ComboboxLikeRenderOptionInput,
+  Box,
+  Text,
+} from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useState } from 'react';
 
 interface FilterSelectProps {
   onStructureSelect: (structureId: number) => void;
+}
+
+interface SelectOption extends ComboboxItem {
+  code: string;
+  name: string;
 }
 
 export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
@@ -23,10 +37,14 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
     queryKey: ['schools'],
     queryFn: async () => {
       const schoolData = await getSchools();
-      return schoolData.map((school) => ({
-        value: school.id.toString(),
-        label: `${school.code} - ${school.name}`,
-      }));
+      return schoolData
+        .filter((it) => !it.code.includes('UNUSED') && it.code !== 'UNC')
+        .map((school) => ({
+          value: school.id.toString(),
+          label: school.name.replace('Faculty of', ''),
+          code: school.code,
+          name: school.name.replace('Faculty of', ''),
+        }));
     },
   });
 
@@ -37,7 +55,9 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
       const programData = await getProgramsBySchool(parseInt(school));
       return programData.map((program) => ({
         value: program.id.toString(),
-        label: `${program.code} - ${program.name}`,
+        label: program.code,
+        code: program.code,
+        name: program.name,
       }));
     },
     enabled: !!school,
@@ -51,6 +71,8 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
       return structureData.map((structure) => ({
         value: structure.id.toString(),
         label: structure.code,
+        code: structure.code,
+        name: structure.code,
       }));
     },
     enabled: !!program,
@@ -74,6 +96,21 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
     }
   };
 
+  function renderOption(item: ComboboxLikeRenderOptionInput<ComboboxItem>) {
+    const { code, name } = item.option as SelectOption;
+    if (code === name) {
+      return <Text size='sm'>{code}</Text>;
+    }
+    return (
+      <Box>
+        <Text size='sm'>{code}</Text>
+        <Text size='sm' c='dimmed'>
+          {name}
+        </Text>
+      </Box>
+    );
+  }
+
   return (
     <Stack gap='md'>
       <Grid>
@@ -87,6 +124,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             searchable
             clearable
             rightSection={isLoadingSchools ? <Loader size='xs' /> : null}
+            renderOption={renderOption}
           />
         </Grid.Col>
         <Grid.Col span={4}>
@@ -99,6 +137,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             clearable
             disabled={!school || !programs}
             rightSection={isLoadingPrograms ? <Loader size='xs' /> : null}
+            renderOption={renderOption}
           />
         </Grid.Col>
         <Grid.Col span={4}>
@@ -111,6 +150,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             clearable
             disabled={!program || !structures}
             rightSection={isLoadingStructures ? <Loader size='xs' /> : null}
+            renderOption={renderOption}
           />
         </Grid.Col>
       </Grid>
