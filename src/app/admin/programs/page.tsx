@@ -26,6 +26,7 @@ import { getStructure } from '@/server/structures/actions';
 import PrerequisiteDisplay from './PrerequisiteDisplay';
 import { useSession } from 'next-auth/react';
 import DeleteButton from './DeleteButton';
+import EditButton from './EditButton';
 
 interface Module {
   moduleId: number;
@@ -144,13 +145,7 @@ export default function ProgramsPage() {
                             {session?.user?.role === 'admin' && (
                               <Table.Td>
                                 <Group>
-                                  <ActionIcon
-                                    component={Link}
-                                    href={`/admin/modules/${module.id}/edit`}
-                                    variant='subtle'
-                                  >
-                                    <IconEdit size={'1rem'} />
-                                  </ActionIcon>
+                                  <EditButton moduleId={module.id}/>
                                   <DeleteButton
                                     semesterModuleId={id}
                                     moduleName={module.name}
