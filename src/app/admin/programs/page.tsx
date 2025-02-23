@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import FilterSelect from './FilterSelect';
 import { formatSemester } from '@/lib/utils';
+import { getStructure } from '@/server/structures/actions';
 
 interface Module {
   moduleId: number;
@@ -38,14 +39,15 @@ interface Semester {
 }
 
 export default function ProgramsPage() {
-  const [semesters, setSemesters] = useState<Semester[]>([]);
+  const [structure, setStructure] =
+    useState<Awaited<ReturnType<typeof getStructure>>>();
   const [loading, setLoading] = useState(false);
 
   const handleStructureSelect = useCallback(async (structureId: number) => {
     try {
       setLoading(true);
-      const data = await getModulesByStructure(structureId);
-      setSemesters(data);
+      const data = await getStructure(structureId);
+      setStructure(data);
     } finally {
       setLoading(false);
     }
@@ -73,14 +75,10 @@ export default function ProgramsPage() {
           )}
         </Transition>
 
-        <Transition
-          mounted={!loading && semesters.length > 0}
-          transition='fade'
-          duration={400}
-        >
+        <Transition mounted={!loading} transition='fade' duration={400}>
           {(styles) => (
             <Stack gap='lg' style={styles}>
-              {semesters.map((semester) => (
+              {structure?.semesters.map((semester) => (
                 <Paper
                   key={semester.id}
                   shadow='sm'
@@ -108,20 +106,20 @@ export default function ProgramsPage() {
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
-                        {semester.modules.map((module) => (
-                          <Table.Tr key={module.moduleId}>
+                        {semester.semesterModules.map(({ module }) => (
+                          <Table.Tr key={module.id}>
                             <Table.Td>
                               <Anchor
                                 size='sm'
                                 component={Link}
-                                href={`/admin/modules/${module.moduleId}`}
+                                href={`/admin/modules/${module.id}`}
                               >
-                                {module.moduleCode}
+                                {module.code}
                               </Anchor>
                             </Table.Td>
-                            <Table.Td>{module.moduleName}</Table.Td>
-                            <Table.Td>{module.moduleType}</Table.Td>
-                            <Table.Td>{module.moduleCredits}</Table.Td>
+                            <Table.Td>{module.name}</Table.Td>
+                            <Table.Td>{module.type}</Table.Td>
+                            <Table.Td>{module.credits}</Table.Td>
                           </Table.Tr>
                         ))}
                       </Table.Tbody>
@@ -133,7 +131,7 @@ export default function ProgramsPage() {
           )}
         </Transition>
 
-        {!loading && semesters.length === 0 && (
+        {!loading && !structure && (
           <Paper shadow='sm' p='xl' radius='md' withBorder>
             <Stack align='center' gap='xs'>
               <IconSchool size={48} />
