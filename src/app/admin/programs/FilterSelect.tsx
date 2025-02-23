@@ -6,18 +6,18 @@ import {
   getStructuresByProgram,
 } from '@/server/modules/actions';
 import {
-  Grid,
-  Select,
-  Stack,
-  Loader,
+  Box,
   ComboboxItem,
   ComboboxLikeRenderOptionInput,
-  Box,
+  Grid,
+  Loader,
+  Select,
+  Stack,
   Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
-import { useState } from 'react';
+import { useEffect } from 'react';
 
 interface FilterSelectProps {
   onStructureSelect: (structureId: number) => void;
@@ -77,6 +77,12 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
     },
     enabled: !!program,
   });
+
+  useEffect(() => {
+    if (structure && program) {
+      onStructureSelect(parseInt(structure));
+    }
+  }, [structure, program, onStructureSelect]);
 
   const handleSchoolChange = (value: string | null) => {
     setSchool(value);
