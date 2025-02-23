@@ -19,6 +19,7 @@ import { IconSchool } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import FilterSelect from './FilterSelect';
+import { formatSemester } from '@/lib/utils';
 
 interface Module {
   moduleId: number;
@@ -51,15 +52,8 @@ export default function ProgramsPage() {
   }, []);
 
   return (
-    <Paper withBorder p={'lg'} m={'md'}>
+    <Box p={'lg'}>
       <Stack gap='xl'>
-        <Box>
-          <Title order={2} fw={500}>
-            Program Structure
-          </Title>
-          <Divider mt={5} />
-        </Box>
-
         <Paper shadow='sm' p='md' radius='md' withBorder>
           <FilterSelect onStructureSelect={handleStructureSelect} />
         </Paper>
@@ -96,28 +90,19 @@ export default function ProgramsPage() {
                 >
                   <Stack gap='md'>
                     <Group justify='space-between' align='center'>
-                      <div>
-                        <Group gap='xs' mb={4}>
-                          <IconSchool size={20} />
-                          <Title order={3} className='!m-0'>
-                            Semester {semester.semesterNumber}
-                          </Title>
-                          <Text size='sm' c='dimmed'>
-                            {' '}
-                            - {semester.name}
-                          </Text>
-                        </Group>
-                      </div>
-                      <Badge variant='default'>
-                        {semester.totalCredits} Credits
-                      </Badge>
+                      <Group gap='xs' mb={4}>
+                        <IconSchool size={20} />
+                        <Title order={5} fw={500}>
+                          {formatSemester(semester.semesterNumber)}
+                        </Title>
+                      </Group>
                     </Group>
 
-                    <Table highlightOnHover withTableBorder withColumnBorders>
+                    <Table withTableBorder withColumnBorders>
                       <Table.Thead>
                         <Table.Tr>
-                          <Table.Th>Module Code</Table.Th>
-                          <Table.Th>Module Name</Table.Th>
+                          <Table.Th w={150}>Code</Table.Th>
+                          <Table.Th w={400}>Name</Table.Th>
                           <Table.Th>Type</Table.Th>
                           <Table.Th>Credits</Table.Th>
                         </Table.Tr>
@@ -159,6 +144,6 @@ export default function ProgramsPage() {
           </Paper>
         )}
       </Stack>
-    </Paper>
+    </Box>
   );
 }

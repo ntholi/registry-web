@@ -77,19 +77,19 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
   return (
     <Stack gap='md'>
       <Grid>
-        <Grid.Col span={5}>
+        <Grid.Col span={4}>
           <Select
             label='School'
             data={schools}
             value={school}
-            disabled={!school}
+            disabled={!schools}
             onChange={handleSchoolChange}
             searchable
             clearable
             rightSection={isLoadingSchools ? <Loader size='xs' /> : null}
           />
         </Grid.Col>
-        <Grid.Col span={5}>
+        <Grid.Col span={4}>
           <Select
             label='Program'
             data={programs}
@@ -101,7 +101,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             rightSection={isLoadingPrograms ? <Loader size='xs' /> : null}
           />
         </Grid.Col>
-        <Grid.Col span={2}>
+        <Grid.Col span={4}>
           <Select
             label='Structure'
             data={structures}
