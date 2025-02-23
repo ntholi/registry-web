@@ -5,6 +5,7 @@ import {
   Anchor,
   Badge,
   Box,
+  Card,
   Divider,
   Group,
   Paper,
@@ -55,10 +56,19 @@ export default function ProgramsPage() {
 
   return (
     <Box p={'lg'}>
-      <Stack gap='xl'>
-        <Paper shadow='sm' p='md' radius='md' withBorder>
+      <Stack gap='lg'>
+        <Paper shadow='sm' p='md' withBorder>
           <FilterSelect onStructureSelect={handleStructureSelect} />
         </Paper>
+
+        {structure && (
+          <Paper shadow='sm' p='md' withBorder>
+            <Title order={4} fw={500}>
+              {structure?.program?.name}
+            </Title>
+            <Text size='sm'>{structure.code}</Text>
+          </Paper>
+        )}
 
         <Transition mounted={loading} transition='fade' duration={400}>
           {(styles) => (
@@ -132,7 +142,7 @@ export default function ProgramsPage() {
         </Transition>
 
         {!loading && !structure && (
-          <Paper shadow='sm' p='xl' radius='md' withBorder>
+          <Paper shadow='sm' p='xl' withBorder>
             <Stack align='center' gap='xs'>
               <IconSchool size={48} />
               <Text size='lg' fw={500}>
