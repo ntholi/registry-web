@@ -31,7 +31,7 @@ interface SelectOption extends ComboboxItem {
 export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
   const [school, setSchool] = useQueryState('school');
   const [program, setProgram] = useQueryState('program');
-  const [structure, setStructure] = useState<string | null>('structure');
+  const [structure, setStructure] = useQueryState('structure');
 
   const { data: schools = [], isLoading: isLoadingSchools } = useQuery({
     queryKey: ['schools'],
