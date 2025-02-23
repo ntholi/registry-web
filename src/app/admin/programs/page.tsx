@@ -22,6 +22,7 @@ import { useCallback, useState } from 'react';
 import FilterSelect from './FilterSelect';
 import { formatSemester } from '@/lib/utils';
 import { getStructure } from '@/server/structures/actions';
+import PrerequisiteDisplay from './PrerequisiteDisplay';
 
 interface Module {
   moduleId: number;
@@ -112,6 +113,7 @@ export default function ProgramsPage() {
                           <Table.Th w={400}>Name</Table.Th>
                           <Table.Th>Type</Table.Th>
                           <Table.Th>Credits</Table.Th>
+                          <Table.Th>Prerequisites</Table.Th>
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
@@ -129,6 +131,9 @@ export default function ProgramsPage() {
                             <Table.Td>{module.name}</Table.Td>
                             <Table.Td>{module.type}</Table.Td>
                             <Table.Td>{module.credits}</Table.Td>
+                            <Table.Td>
+                              <PrerequisiteDisplay moduleId={module.id} />
+                            </Table.Td>
                           </Table.Tr>
                         ))}
                       </Table.Tbody>
