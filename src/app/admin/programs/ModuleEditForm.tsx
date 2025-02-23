@@ -6,6 +6,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 type Module = typeof modules.$inferInsert;
 
@@ -16,6 +17,7 @@ type Props = {
 
 export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<Module>({
     initialValues: defaultValues || {
@@ -34,6 +36,7 @@ export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
 
   const handleSubmit = async (values: Module) => {
     try {
+      setIsSubmitting(true);
       await onSubmit(values);
       notifications.show({
         title: 'Success',
@@ -48,6 +51,8 @@ export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
         message: error instanceof Error ? error.message : 'Failed to update module',
         color: 'red',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -58,18 +63,21 @@ export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
           label="Code"
           placeholder="Enter module code"
           required
+          disabled={isSubmitting}
           {...form.getInputProps('code')}
         />
         <TextInput
           label="Name"
           placeholder="Enter module name"
           required
+          disabled={isSubmitting}
           {...form.getInputProps('name')}
         />
         <Select
           label="Type"
           data={moduleTypeEnum.map((type) => ({ value: type, label: type }))}
           required
+          disabled={isSubmitting}
           {...form.getInputProps('type')}
         />
         <NumberInput
@@ -78,6 +86,7 @@ export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
           required
           min={0}
           max={100}
+          disabled={isSubmitting}
           {...form.getInputProps('credits')}
         />
       </Stack>
