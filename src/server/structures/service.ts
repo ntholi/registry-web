@@ -32,6 +32,10 @@ class StructureService {
     return withAuth(async () => this.repository.delete(id), []);
   }
 
+  async deleteSemesterModule(id: number) {
+    withAuth(async () => this.repository.deleteSemesterModule(id), []);
+  }
+
   async count() {
     return withAuth(async () => this.repository.count(), []);
   }

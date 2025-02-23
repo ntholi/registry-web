@@ -25,6 +25,7 @@ import { formatSemester } from '@/lib/utils';
 import { getStructure } from '@/server/structures/actions';
 import PrerequisiteDisplay from './PrerequisiteDisplay';
 import { useSession } from 'next-auth/react';
+import DeleteButton from './DeleteButton';
 
 interface Module {
   moduleId: number;
@@ -123,7 +124,7 @@ export default function ProgramsPage() {
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
-                        {semester.semesterModules.map(({ module }) => (
+                        {semester.semesterModules.map(({ module, id }) => (
                           <Table.Tr key={module.id}>
                             <Table.Td>
                               <Anchor
@@ -138,7 +139,7 @@ export default function ProgramsPage() {
                             <Table.Td>{module.type}</Table.Td>
                             <Table.Td>{module.credits}</Table.Td>
                             <Table.Td>
-                              <PrerequisiteDisplay moduleId={module.id} />
+                              <PrerequisiteDisplay moduleId={id} />
                             </Table.Td>
                             {session?.user?.role === 'admin' && (
                               <Table.Td>
@@ -150,9 +151,10 @@ export default function ProgramsPage() {
                                   >
                                     <IconEdit size={'1rem'} />
                                   </ActionIcon>
-                                  <ActionIcon variant='light' color='red'>
-                                    <IconTrashFilled size={'1rem'} />
-                                  </ActionIcon>
+                                  <DeleteButton
+                                    semesterModuleId={id}
+                                    moduleName={module.name}
+                                  />
                                 </Group>
                               </Table.Td>
                             )}

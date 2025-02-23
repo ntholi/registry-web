@@ -1,14 +1,16 @@
 'use server';
 
-
 import { structures } from '@/db/schema';
-import { structuresService as service} from './service';
+import { structuresService as service } from './service';
 
 type Structure = typeof structures.$inferInsert;
 
-
 export async function getStructure(id: number) {
   return service.get(id);
+}
+
+export async function deleteSemesterModule(id: number) {
+  await service.deleteSemesterModule(id);
 }
 
 export async function findAllStructures(page: number = 1, search = '') {
