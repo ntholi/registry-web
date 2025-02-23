@@ -25,7 +25,7 @@ export default function PrerequisiteDisplay({ moduleId }: Props) {
   return (
     <Group gap={'xs'}>
       {data?.map((it, i) => (
-        <Fragment key={it.id}>
+        <Text key={it.id}>
           <Anchor
             component={Link}
             href={`/admin/modules/${it.id}`}
@@ -34,7 +34,7 @@ export default function PrerequisiteDisplay({ moduleId }: Props) {
             {it.name}
           </Anchor>
           {data.length > 1 && i < data.length - 1 && ','}
-        </Fragment>
+        </Text>
       ))}
     </Group>
   );

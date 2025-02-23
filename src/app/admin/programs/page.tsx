@@ -2,6 +2,7 @@
 
 import { getModulesByStructure } from '@/server/modules/actions';
 import {
+  ActionIcon,
   Anchor,
   Badge,
   Box,
@@ -16,13 +17,14 @@ import {
   Title,
   Transition,
 } from '@mantine/core';
-import { IconSchool } from '@tabler/icons-react';
+import { IconEdit, IconSchool, IconTrashFilled } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import FilterSelect from './FilterSelect';
 import { formatSemester } from '@/lib/utils';
 import { getStructure } from '@/server/structures/actions';
 import PrerequisiteDisplay from './PrerequisiteDisplay';
+import { useSession } from 'next-auth/react';
 
 interface Module {
   moduleId: number;
@@ -44,6 +46,7 @@ export default function ProgramsPage() {
   const [structure, setStructure] =
     useState<Awaited<ReturnType<typeof getStructure>>>();
   const [loading, setLoading] = useState(false);
+  const { data: session } = useSession();
 
   const handleStructureSelect = useCallback(async (structureId: number) => {
     try {
@@ -109,11 +112,14 @@ export default function ProgramsPage() {
                     <Table withTableBorder withColumnBorders>
                       <Table.Thead>
                         <Table.Tr>
-                          <Table.Th w={150}>Code</Table.Th>
-                          <Table.Th w={400}>Name</Table.Th>
-                          <Table.Th>Type</Table.Th>
-                          <Table.Th>Credits</Table.Th>
-                          <Table.Th>Prerequisites</Table.Th>
+                          <Table.Th w={120}>Code</Table.Th>
+                          <Table.Th w={330}>Name</Table.Th>
+                          <Table.Th w={120}>Type</Table.Th>
+                          <Table.Th w={100}>Credits</Table.Th>
+                          <Table.Th w={400}>Prerequisites</Table.Th>
+                          {session?.user?.role === 'admin' && (
+                            <Table.Th w={100}>Actions</Table.Th>
+                          )}
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
@@ -134,6 +140,22 @@ export default function ProgramsPage() {
                             <Table.Td>
                               <PrerequisiteDisplay moduleId={module.id} />
                             </Table.Td>
+                            {session?.user?.role === 'admin' && (
+                              <Table.Td>
+                                <Group>
+                                  <ActionIcon
+                                    component={Link}
+                                    href={`/admin/modules/${module.id}/edit`}
+                                    variant='subtle'
+                                  >
+                                    <IconEdit size={'1rem'} />
+                                  </ActionIcon>
+                                  <ActionIcon variant='light' color='red'>
+                                    <IconTrashFilled size={'1rem'} />
+                                  </ActionIcon>
+                                </Group>
+                              </Table.Td>
+                            )}
                           </Table.Tr>
                         ))}
                       </Table.Tbody>
