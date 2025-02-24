@@ -305,7 +305,9 @@ export const modules = sqliteTable('modules', {
   name: text().notNull(),
   type: text({ enum: moduleTypeEnum }).notNull(),
   credits: real().notNull(),
-  semesterId: integer().references(() => structureSemesters.id, { onDelete: 'set null' }),
+  semesterId: integer().references(() => structureSemesters.id, {
+    onDelete: 'set null',
+  }),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
@@ -326,6 +328,7 @@ export const modulePrerequisites = sqliteTable(
   }),
 );
 
+//TODO: DELETE THIS TABLE
 export const semesterModules = sqliteTable('semester_modules', {
   id: integer().primaryKey(),
   semesterId: integer()

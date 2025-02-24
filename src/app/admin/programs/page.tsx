@@ -1,13 +1,11 @@
 'use client';
 
-import { getModulesByStructure } from '@/server/modules/actions';
+import { formatSemester } from '@/lib/utils';
+import { getStructure } from '@/server/structures/actions';
 import {
-  ActionIcon,
   Anchor,
-  Badge,
   Box,
   Card,
-  Divider,
   Group,
   Paper,
   Skeleton,
@@ -17,32 +15,14 @@ import {
   Title,
   Transition,
 } from '@mantine/core';
-import { IconEdit, IconSchool, IconTrashFilled } from '@tabler/icons-react';
+import { IconSchool } from '@tabler/icons-react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
-import FilterSelect from './FilterSelect';
-import { formatSemester } from '@/lib/utils';
-import { getStructure } from '@/server/structures/actions';
-import PrerequisiteDisplay from './PrerequisiteDisplay';
-import { useSession } from 'next-auth/react';
 import DeleteButton from './DeleteButton';
 import EditButton from './EditButton';
-
-interface Module {
-  moduleId: number;
-  moduleCode: string;
-  moduleName: string;
-  moduleType: string;
-  moduleCredits: number;
-}
-
-interface Semester {
-  id: number;
-  semesterNumber: number;
-  name: string;
-  totalCredits: number;
-  modules: Module[];
-}
+import FilterSelect from './FilterSelect';
+import PrerequisiteDisplay from './PrerequisiteDisplay';
 
 export default function ProgramsPage() {
   const [structure, setStructure] =
@@ -145,7 +125,7 @@ export default function ProgramsPage() {
                             {session?.user?.role === 'admin' && (
                               <Table.Td>
                                 <Group>
-                                  <EditButton moduleId={module.id}/>
+                                  <EditButton moduleId={module.id} />
                                   <DeleteButton
                                     semesterModuleId={module.id}
                                     moduleName={module.name}

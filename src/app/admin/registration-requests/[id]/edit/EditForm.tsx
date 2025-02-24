@@ -61,7 +61,13 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
 
   const { data: structureModules } = useQuery({
     queryKey: ['structureModules', defaultValues?.student.structureId],
-    queryFn: () => getModulesForStructure(defaultValues?.student.structureId!),
+    queryFn: () => {
+      const structureId = defaultValues?.student.structureId;
+      if (structureId) {
+        return getModulesForStructure(structureId);
+      }
+      return Promise.resolve([]);
+    },
     enabled: !!defaultValues?.student.structureId,
   });
 
@@ -73,9 +79,9 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
   }, [structureModules]);
 
   const handleAddModule = (moduleCode: string) => {
-    const module = availableModules.find((m) => m.code === moduleCode);
-    if (module && !selectedModules.find((m) => m.id === module.id)) {
-      setSelectedModules([...selectedModules, module]);
+    const mod = availableModules.find((it) => it.code === moduleCode);
+    if (mod && !selectedModules.find((it) => it.id === mod.id)) {
+      setSelectedModules([...selectedModules, mod]);
     }
   };
 
@@ -102,8 +108,8 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
           ...values,
           termId: Number(values.termId),
           semesterNumber: Number(values.semesterNumber),
-          requestedModules: selectedModules.map((module) => ({
-            moduleId: module.id,
+          requestedModules: selectedModules.map((m) => ({
+            moduleId: m.id,
             moduleStatus: 'Compulsory' as const,
           })),
         } as FormSubmission);
@@ -149,9 +155,9 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
                 <Autocomplete
                   label='Add Module'
                   placeholder='Search modules'
-                  data={availableModules.map((module) => ({
-                    value: module.code,
-                    label: `${module.code} - ${module.name}`,
+                  data={availableModules.map((m) => ({
+                    value: m.code,
+                    label: `${m.code} - ${m.name}`,
                   }))}
                   onChange={handleAddModule}
                 />
@@ -178,18 +184,18 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {selectedModules.map((module) => (
-                  <Table.Tr key={module.id}>
-                    <Table.Td>{module.code}</Table.Td>
-                    <Table.Td>{module.name}</Table.Td>
-                    <Table.Td>{module.type}</Table.Td>
-                    <Table.Td>{module.credits}</Table.Td>
+                {selectedModules.map((m) => (
+                  <Table.Tr key={m.id}>
+                    <Table.Td>{m.code}</Table.Td>
+                    <Table.Td>{m.name}</Table.Td>
+                    <Table.Td>{m.type}</Table.Td>
+                    <Table.Td>{m.credits}</Table.Td>
                     <Table.Td>
                       <ThemeIcon
                         color='red'
                         variant='light'
                         style={{ cursor: 'pointer' }}
-                        onClick={() => handleRemoveModule(module.id)}
+                        onClick={() => handleRemoveModule(m.id)}
                       >
                         <IconTrash size={16} />
                       </ThemeIcon>

@@ -101,6 +101,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
   }
 
   private async handleRegistrationModules(
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
     tx: any,
     registrationRequestId: number,
     modules: { moduleId: number; moduleStatus: ModuleStatus }[],

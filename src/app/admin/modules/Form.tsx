@@ -36,14 +36,14 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
   });
 
   const prerequisiteOptions = Array.from(
-    new Set(modulesList?.data.map((module) => module.code)),
+    new Set(modulesList?.data.map((mod) => mod.code)),
   )
     .map((code) => {
-      const module = modulesList?.data.find((m) => m.code === code);
-      if (!module) return null;
+      const foundModule = modulesList?.data.find((m) => m.code === code);
+      if (!foundModule) return null;
       return {
         value: code,
-        label: `${module.code} - ${module.name}`,
+        label: `${foundModule.code} - ${foundModule.name}`,
       };
     })
     .filter(Boolean) as { value: string; label: string }[];

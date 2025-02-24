@@ -13,7 +13,6 @@ import {
   Group,
   NumberInput,
   Paper,
-  Select,
   Stack,
   Table,
   Text,
@@ -144,20 +143,20 @@ export default function ModuleSimulator() {
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
-                    {results?.modules.map((module) => (
-                      <Table.Tr key={module.id}>
-                        <Table.Td fw={500}>{module.code}</Table.Td>
-                        <Table.Td>{module.name}</Table.Td>
-                        <Table.Td>{module.type}</Table.Td>
-                        <Table.Td>{module.credits}</Table.Td>
+                    {results?.modules.map((m) => (
+                      <Table.Tr key={m.id}>
+                        <Table.Td fw={500}>{m.code}</Table.Td>
+                        <Table.Td>{m.name}</Table.Td>
+                        <Table.Td>{m.type}</Table.Td>
+                        <Table.Td>{m.credits}</Table.Td>
                         <Table.Td>
                           <Badge variant='dot' radius='sm'>
-                            {module.status}
+                            {m.status}
                           </Badge>
                         </Table.Td>
                         <Table.Td>
                           <Group gap={4}>
-                            {module.prerequisites?.map((code) => (
+                            {m.prerequisites?.map((code) => (
                               <Badge
                                 key={code}
                                 size='sm'

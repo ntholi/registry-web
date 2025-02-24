@@ -10,14 +10,13 @@ import {
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ModuleStatus } from '@/db/schema';
-import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
+import { formatSemester } from '@/lib/utils';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import SponsorSelect from './sponsor-select';
-import { formatSemester } from '@/lib/utils';
 
 type Props = {
   stdNo: number;

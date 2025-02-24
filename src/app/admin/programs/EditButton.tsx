@@ -1,39 +1,24 @@
 'use client';
 
-import { ActionIcon, Button, Group, Loader, Stack } from '@mantine/core';
-import { IconEdit } from '@tabler/icons-react';
-import { modals } from '@mantine/modals';
 import { getModule, updateModule } from '@/server/modules/actions';
-import ModuleEditForm from './ModuleEditForm';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import { ActionIcon, Button, Group } from '@mantine/core';
+import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
+import { IconEdit } from '@tabler/icons-react';
+import { useState } from 'react';
+import ModuleEditForm from './ModuleEditForm';
 
 type Props = {
   moduleId: number;
 };
 
 export default function EditButton({ moduleId }: Props) {
-  const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const openEditModal = async () => {
-    const loadingModalId = modals.open({
-      title: 'Edit Module',
-      size: 'md',
-      withCloseButton: false,
-      closeOnClickOutside: false,
-      children: (
-        <Stack h={300} align='center' justify='center'>
-          <Loader size='md' />
-        </Stack>
-      ),
-    });
-
-    setLoading(true);
     try {
-      const module = await getModule(moduleId);
-      if (!module) {
+      const mod = await getModule(moduleId);
+      if (!mod) {
         throw new Error('Module not found');
       }
 
@@ -44,7 +29,7 @@ export default function EditButton({ moduleId }: Props) {
         children: (
           <div>
             <ModuleEditForm
-              defaultValues={module}
+              defaultValues={mod}
               onSubmit={async (values) => {
                 setIsSubmitting(true);
                 try {
@@ -83,8 +68,6 @@ export default function EditButton({ moduleId }: Props) {
         color: 'red',
       });
       modals.closeAll();
-    } finally {
-      setLoading(false);
     }
   };
 

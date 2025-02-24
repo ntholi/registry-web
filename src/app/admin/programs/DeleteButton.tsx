@@ -41,7 +41,7 @@ export default function DeleteButton({
     modals.openConfirmModal({
       title: 'Confirm Delete',
       children: (
-        <Text size='sm'>Are you sure you want to delete '{moduleName}'?</Text>
+        <Text size='sm'>Are you sure you want to delete {moduleName}?</Text>
       ),
       labels: { confirm: 'Delete', cancel: 'Cancel' },
       onConfirm: handleDelete,

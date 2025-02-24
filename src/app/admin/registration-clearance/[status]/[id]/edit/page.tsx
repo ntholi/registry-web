@@ -7,11 +7,11 @@ import {
 } from '@/server/registration-clearance/actions';
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; status: string }>;
 };
 
 export default async function RegistrationClearanceEdit({ params }: Props) {
-  const { id } = await params;
+  const { id, status } = await params;
   const registrationClearance = await getRegistrationClearance(Number(id));
   if (!registrationClearance) {
     return notFound();
@@ -21,6 +21,7 @@ export default async function RegistrationClearanceEdit({ params }: Props) {
     <Box p={'lg'}>
       <Form
         title={'Edit Clearance Task'}
+        status={status as 'pending' | 'approved' | 'rejected'}
         defaultValues={registrationClearance}
         onSubmit={async (value) => {
           'use server';
