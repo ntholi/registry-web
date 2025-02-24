@@ -241,17 +241,24 @@ async function getSemesterModules(
     { length: semester },
     (_, i) => i + 1,
   ).filter((i) => i % term.semester === 0);
+  
+  // Get all semesters for the structure
   const semesters = await db.query.structureSemesters.findMany({
     where: and(
       eq(structureSemesters.structureId, structureId),
       inArray(structureSemesters.semesterNumber, semesterNumbers),
     ),
-    with: {
-      semesterModules: { with: { module: true } },
-    },
   });
-
-  return semesters.flatMap((s) => s.semesterModules.map((sm) => sm.module));
+  
+  // Get the semesterIds
+  const semesterIds = semesters.map(s => s.id);
+  
+  // Query modules directly using semesterId
+  if (semesterIds.length === 0) return [];
+  
+  return await db.query.modules.findMany({
+    where: inArray(modules.semesterId, semesterIds)
+  });
 }
 
 const determineNextSemester = async (

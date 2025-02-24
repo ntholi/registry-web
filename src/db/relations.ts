@@ -9,7 +9,6 @@ import {
   registrationRequests,
   requestedModules,
   schools,
-  semesterModules,
   sessions,
   signups,
   structureSemesters,
@@ -124,12 +123,12 @@ export const structureSemestersRelations = relations(
       fields: [structureSemesters.structureId],
       references: [structures.id],
     }),
-    semesterModules: many(semesterModules),
+    modules: many(modules),
   }),
 );
 
 export const modulesRelations = relations(modules, ({ many, one }) => ({
-  semesters: many(semesterModules),
+  semesters: many(modules),
   prerequisites: many(modulePrerequisites),
   prerequisiteFor: many(modulePrerequisites),
   requestedModules: many(requestedModules),
@@ -148,20 +147,6 @@ export const modulePrerequisitesRelations = relations(
     }),
     prerequisite: one(modules, {
       fields: [modulePrerequisites.prerequisiteId],
-      references: [modules.id],
-    }),
-  }),
-);
-
-export const semesterModulesRelations = relations(
-  semesterModules,
-  ({ one }) => ({
-    semester: one(structureSemesters, {
-      fields: [semesterModules.semesterId],
-      references: [structureSemesters.id],
-    }),
-    module: one(modules, {
-      fields: [semesterModules.moduleId],
       references: [modules.id],
     }),
   }),

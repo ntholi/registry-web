@@ -67,9 +67,7 @@ export default function EditForm({ onSubmit, defaultValues, title }: Props) {
 
   useEffect(() => {
     if (structureModules) {
-      const modules = structureModules.flatMap((semester) =>
-        semester.semesterModules.map((sm) => sm.module),
-      );
+      const modules = structureModules.flatMap((s) => s.modules);
       setAvailableModules(modules);
     }
   }, [structureModules]);

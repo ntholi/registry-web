@@ -11,6 +11,8 @@ process.env.DATABASE_URL = isProd
   ? process.env.TURSO_DATABASE_URL
   : process.env.LOCAL_DATABASE_URL;
 
+console.log('Using', isProd ? 'Production' : 'Dev', 'Environment');
+
 const drizzleBinPath = path.resolve(
   process.cwd(),
   'node_modules',

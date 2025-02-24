@@ -1,8 +1,7 @@
+import 'dotenv/config';
 import { db } from '@/db';
 import { modules, semesterModules } from '@/db/schema';
-import 'dotenv/config';
 import { sql } from 'drizzle-orm';
-
 
 async function main() {
   try {
@@ -15,21 +14,25 @@ async function main() {
           semesterId: semesterModules.semesterId,
         })
         .from(semesterModules);
-      
-      console.log(`Found ${semesterModulesData.length} entries in semesterModules table`);
-      
+
+      console.log(
+        `Found ${semesterModulesData.length} entries in semesterModules table`,
+      );
+
       let updatedCount = 0;
       for (const record of semesterModulesData) {
         await tx
           .update(modules)
-          .set({ 
-            semesterId: record.semesterId 
+          .set({
+            semesterId: record.semesterId,
           })
           .where(sql`${modules.id} = ${record.moduleId}`);
         updatedCount++;
       }
-      
-      console.log(`Successfully updated semesterId for ${updatedCount} modules`);
+
+      console.log(
+        `Successfully updated semesterId for ${updatedCount} modules`,
+      );
     });
 
     console.log('Migration completed successfully');

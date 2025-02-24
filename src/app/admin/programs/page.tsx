@@ -125,7 +125,7 @@ export default function ProgramsPage() {
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
-                        {semester.semesterModules.map(({ module, id }) => (
+                        {semester.modules.map((module) => (
                           <Table.Tr key={module.id}>
                             <Table.Td>
                               <Anchor
@@ -140,14 +140,14 @@ export default function ProgramsPage() {
                             <Table.Td>{module.type}</Table.Td>
                             <Table.Td>{module.credits}</Table.Td>
                             <Table.Td>
-                              <PrerequisiteDisplay moduleId={id} />
+                              <PrerequisiteDisplay moduleId={module.id} />
                             </Table.Td>
                             {session?.user?.role === 'admin' && (
                               <Table.Td>
                                 <Group>
                                   <EditButton moduleId={module.id}/>
                                   <DeleteButton
-                                    semesterModuleId={id}
+                                    semesterModuleId={module.id}
                                     moduleName={module.name}
                                   />
                                 </Group>

@@ -4,7 +4,6 @@ import {
   modules,
   programs,
   schools,
-  semesterModules,
   structureSemesters,
   structures,
 } from '@/db/schema';
@@ -76,8 +75,6 @@ export default class ModuleRepository extends BaseRepository<
             moduleCredits: modules.credits,
           })
           .from(modules)
-          .innerJoin(semesterModules, eq(semesterModules.moduleId, modules.id))
-          .where(eq(semesterModules.semesterId, semester.id))
           .orderBy(modules.code);
 
         return {
@@ -114,11 +111,7 @@ export default class ModuleRepository extends BaseRepository<
     return await db.query.structureSemesters.findMany({
       where: eq(structureSemesters.structureId, structureId),
       with: {
-        semesterModules: {
-          with: {
-            module: true,
-          },
-        },
+        modules: true
       },
     });
   }
