@@ -126,7 +126,7 @@ const navigation: NavItem[] = [
     label: 'Modules',
     href: '/admin/modules',
     icon: IconBookmark,
-    roles: [...dashboardUsers],
+    roles: ['registry'],
   },
   {
     label: 'Programs',
