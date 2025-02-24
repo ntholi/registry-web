@@ -305,6 +305,7 @@ export const modules = sqliteTable('modules', {
   name: text().notNull(),
   type: text({ enum: moduleTypeEnum }).notNull(),
   credits: real().notNull(),
+  semesterId: integer().references(() => structureSemesters.id, { onDelete: 'set null' }),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
