@@ -6,6 +6,7 @@ import {
   Anchor,
   Box,
   Card,
+  Flex,
   Group,
   Paper,
   Skeleton,
@@ -16,10 +17,10 @@ import {
   Transition,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import EditButton from './EditButton';
 import FilterSelect from './FilterSelect';
 import HideButton from './HideButton';
@@ -123,17 +124,26 @@ export default function ProgramsPage() {
                               </Anchor>
                             </Table.Td>
                             <Table.Td>
-                              <Text c={module.hidden ? 'dark' : undefined}>
+                              <Text
+                                size='sm'
+                                c={module.hidden ? 'dark' : undefined}
+                              >
                                 {module.name}
                               </Text>
                             </Table.Td>
                             <Table.Td>
-                              <Text c={module.hidden ? 'dark' : undefined}>
+                              <Text
+                                size='sm'
+                                c={module.hidden ? 'dark' : undefined}
+                              >
                                 {module.type}
                               </Text>
                             </Table.Td>
                             <Table.Td>
-                              <Text c={module.hidden ? 'dark' : undefined}>
+                              <Text
+                                size='sm'
+                                c={module.hidden ? 'dark' : undefined}
+                              >
                                 {module.credits}
                               </Text>
                             </Table.Td>
@@ -142,7 +152,7 @@ export default function ProgramsPage() {
                             </Table.Td>
                             {session?.user?.role === 'admin' && (
                               <Table.Td>
-                                <Group>
+                                <Flex>
                                   <EditButton
                                     moduleId={module.id}
                                     structureId={selectedStructureId!}
@@ -152,7 +162,7 @@ export default function ProgramsPage() {
                                     hidden={module.hidden}
                                     structureId={selectedStructureId!}
                                   />
-                                </Group>
+                                </Flex>
                               </Table.Td>
                             )}
                           </Table.Tr>
