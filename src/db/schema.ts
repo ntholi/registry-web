@@ -308,6 +308,7 @@ export const modules = sqliteTable('modules', {
   semesterId: integer().references(() => structureSemesters.id, {
     onDelete: 'set null',
   }),
+  hidden: integer({ mode: 'boolean' }).notNull().default(false),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
