@@ -14,14 +14,16 @@ import {
   Text,
   Title,
   Transition,
+  alpha,
+  MantineTheme,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
-import DeleteButton from './DeleteButton';
 import EditButton from './EditButton';
 import FilterSelect from './FilterSelect';
+import HideButton from './HideButton';
 import PrerequisiteDisplay from './PrerequisiteDisplay';
 
 export default function ProgramsPage() {
@@ -39,6 +41,13 @@ export default function ProgramsPage() {
       setLoading(false);
     }
   }, []);
+
+  const refreshStructure = useCallback(async () => {
+    if (structure) {
+      const data = await getStructure(structure.id);
+      setStructure(data);
+    }
+  }, [structure]);
 
   return (
     <Box p={'lg'}>
@@ -106,19 +115,35 @@ export default function ProgramsPage() {
                       </Table.Thead>
                       <Table.Tbody>
                         {semester.modules.map((module) => (
-                          <Table.Tr key={module.id}>
+                          <Table.Tr 
+                            key={module.id}
+                            className={module.hidden ? 'bg-yellow-50/20' : undefined}
+                          >
                             <Table.Td>
                               <Anchor
                                 size='sm'
                                 component={Link}
                                 href={`/admin/modules/${module.id}`}
+                                c={module.hidden ? 'dark' : undefined}
                               >
                                 {module.code}
                               </Anchor>
                             </Table.Td>
-                            <Table.Td>{module.name}</Table.Td>
-                            <Table.Td>{module.type}</Table.Td>
-                            <Table.Td>{module.credits}</Table.Td>
+                            <Table.Td>
+                              <Text c={module.hidden ? 'dark' : undefined}>
+                                {module.name}
+                              </Text>
+                            </Table.Td>
+                            <Table.Td>
+                              <Text c={module.hidden ? 'dark' : undefined}>
+                                {module.type}
+                              </Text>
+                            </Table.Td>
+                            <Table.Td>
+                              <Text c={module.hidden ? 'dark' : undefined}>
+                                {module.credits}
+                              </Text>
+                            </Table.Td>
                             <Table.Td>
                               <PrerequisiteDisplay moduleId={module.id} />
                             </Table.Td>
@@ -126,9 +151,10 @@ export default function ProgramsPage() {
                               <Table.Td>
                                 <Group>
                                   <EditButton moduleId={module.id} />
-                                  <DeleteButton
-                                    semesterModuleId={module.id}
-                                    moduleName={module.name}
+                                  <HideButton 
+                                    moduleId={module.id}
+                                    hidden={module.hidden}
+                                    onUpdate={refreshStructure}
                                   />
                                 </Group>
                               </Table.Td>

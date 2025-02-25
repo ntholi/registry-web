@@ -87,3 +87,11 @@ export async function getModulePrerequisites(moduleId: number) {
 export async function getModulesForStructure(structureId: number) {
   return modulesService.getModulesForStructure(structureId);
 }
+
+export async function updateModuleVisibility(id: number, hidden: boolean) {
+  const existingModule = await modulesService.get(id);
+  if (!existingModule) {
+    throw new Error('Module not found');
+  }
+  return modulesService.update(id, { ...existingModule, hidden });
+}
