@@ -1,6 +1,10 @@
 'use client';
 
-import { getModule, updateModule } from '@/server/modules/actions';
+import {
+  getModule,
+  updateModule,
+  getModulePrerequisites,
+} from '@/server/modules/actions';
 import { ActionIcon, Button, Group } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
@@ -17,19 +21,26 @@ export default function EditButton({ moduleId }: Props) {
 
   const openEditModal = async () => {
     try {
-      const mod = await getModule(moduleId);
+      const [mod, prerequisites] = await Promise.all([
+        getModule(moduleId),
+        getModulePrerequisites(moduleId),
+      ]);
+
       if (!mod) {
         throw new Error('Module not found');
       }
 
       modals.closeAll();
       modals.open({
-        title: 'Edit Module',
+        title: 'Edit Module Visibility & Prerequisites',
         size: 'md',
         children: (
           <div>
             <ModuleEditForm
-              defaultValues={mod}
+              defaultValues={{
+                ...mod,
+                prerequisiteCodes: prerequisites.map((p) => p.code),
+              }}
               onSubmit={async (values) => {
                 setIsSubmitting(true);
                 try {

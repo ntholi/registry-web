@@ -1,14 +1,16 @@
 'use client';
 
 import { modules, moduleTypeEnum } from '@/db/schema';
-import { NumberInput, Select, Stack, TextInput } from '@mantine/core';
+import { MultiSelect, Stack, Switch } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { findAllModules } from '@/server/modules/actions';
 
-type Module = typeof modules.$inferInsert;
+type Module = typeof modules.$inferInsert & { prerequisiteCodes?: string[] };
 
 type Props = {
   defaultValues?: Module;
@@ -18,7 +20,26 @@ type Props = {
 export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const { data: modulesList } = useQuery({
+    queryKey: ['modules', searchQuery],
+    queryFn: () => findAllModules(1, searchQuery),
+  });
+
+  const prerequisiteOptions = Array.from(
+    new Set(modulesList?.data?.map((mod) => mod.code) || []),
+  )
+    .map((code) => {
+      const foundModule = modulesList?.data?.find((m) => m.code === code);
+      if (!foundModule) return null;
+      return {
+        value: code,
+        label: `${foundModule.code} - ${foundModule.name}`,
+      };
+    })
+    .filter(Boolean) as { value: string; label: string }[];
+
   const form = useForm<Module>({
     initialValues: defaultValues || {
       id: 0,
@@ -26,11 +47,8 @@ export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
       name: '',
       type: 'Core',
       credits: 0,
-    },
-    validate: {
-      code: (value) => (!value ? 'Code is required' : null),
-      name: (value) => (!value ? 'Name is required' : null),
-      credits: (value) => (value <= 0 ? 'Credits must be greater than 0' : null),
+      hidden: false,
+      prerequisiteCodes: [],
     },
   });
 
@@ -48,7 +66,8 @@ export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
     } catch (error) {
       notifications.show({
         title: 'Error',
-        message: error instanceof Error ? error.message : 'Failed to update module',
+        message:
+          error instanceof Error ? error.message : 'Failed to update module',
         color: 'red',
       });
     } finally {
@@ -57,37 +76,25 @@ export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
   };
 
   return (
-    <form id="module-edit-form" onSubmit={form.onSubmit(handleSubmit)}>
-      <Stack gap="md">
-        <TextInput
-          label="Code"
-          placeholder="Enter module code"
-          required
+    <form id='module-edit-form' onSubmit={form.onSubmit(handleSubmit)}>
+      <Stack gap='md'>
+        <Switch
+          label='Module Visibility'
+          description='Toggle module visibility in the program structure'
+          checked={!form.values.hidden}
+          onChange={(event) =>
+            form.setFieldValue('hidden', !event.currentTarget.checked)
+          }
           disabled={isSubmitting}
-          {...form.getInputProps('code')}
         />
-        <TextInput
-          label="Name"
-          placeholder="Enter module name"
-          required
+        <MultiSelect
+          label='Prerequisites'
+          description='Select modules that must be completed before this module'
+          data={prerequisiteOptions}
+          searchable
+          onSearchChange={setSearchQuery}
           disabled={isSubmitting}
-          {...form.getInputProps('name')}
-        />
-        <Select
-          label="Type"
-          data={moduleTypeEnum.map((type) => ({ value: type, label: type }))}
-          required
-          disabled={isSubmitting}
-          {...form.getInputProps('type')}
-        />
-        <NumberInput
-          label="Credits"
-          placeholder="Enter credits"
-          required
-          min={0}
-          max={100}
-          disabled={isSubmitting}
-          {...form.getInputProps('credits')}
+          {...form.getInputProps('prerequisiteCodes')}
         />
       </Stack>
     </form>
