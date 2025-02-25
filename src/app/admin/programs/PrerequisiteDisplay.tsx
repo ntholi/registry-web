@@ -26,7 +26,6 @@ export default function PrerequisiteDisplay({ moduleId }: Props) {
       {data?.map((it, i) => (
         <Text key={it.id}>
           <Anchor
-            size='sm'
             component={Link}
             href={`/admin/modules/${it.id}`}
             size='0.85rem'

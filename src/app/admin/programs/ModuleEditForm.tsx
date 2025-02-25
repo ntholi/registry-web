@@ -1,14 +1,14 @@
 'use client';
 
-import { modules, moduleTypeEnum } from '@/db/schema';
+import { modules } from '@/db/schema';
+import { findAllModules } from '@/server/modules/actions';
 import { MultiSelect, Stack, Switch } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { findAllModules } from '@/server/modules/actions';
 
 type Module = typeof modules.$inferInsert & { prerequisiteCodes?: string[] };
 
