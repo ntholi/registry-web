@@ -10,6 +10,7 @@ import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import ModuleEditForm from './ModuleEditForm';
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
 
 export default function EditButton({ moduleId }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
   const openEditModal = async () => {
     try {
@@ -45,6 +47,9 @@ export default function EditButton({ moduleId }: Props) {
                 setIsSubmitting(true);
                 try {
                   const result = await updateModule(moduleId, values);
+                  queryClient.invalidateQueries({
+                    queryKey: ['modulePrerequisites', moduleId],
+                  });
                   return result;
                 } finally {
                   setIsSubmitting(false);

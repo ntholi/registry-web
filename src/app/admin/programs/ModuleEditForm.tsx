@@ -89,7 +89,6 @@ export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
         />
         <MultiSelect
           label='Prerequisites'
-          description='Select modules that must be completed before this module'
           data={prerequisiteOptions}
           searchable
           onSearchChange={setSearchQuery}
