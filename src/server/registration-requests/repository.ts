@@ -8,7 +8,8 @@ import {
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { and, count, eq } from 'drizzle-orm';
+import { and, count, eq, inArray, like } from 'drizzle-orm';
+import { map } from 'zod';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 
@@ -21,8 +22,14 @@ export default class RegistrationRequestRepository extends BaseRepository<
   }
 
   override async findAll(params: FindAllParams<typeof registrationRequests>) {
-    const { orderByExpressions, whereCondition, offset, pageSize } =
+    const { orderByExpressions, offset, pageSize } =
       await this.queryExpressions(params);
+
+    const whereCondition = like(
+      registrationRequests.stdNo,
+      `%${params.search}%`,
+    );
+
     const data = await db.query.registrationRequests.findMany({
       where: whereCondition,
       with: {
