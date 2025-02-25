@@ -15,9 +15,10 @@ import ModuleEditForm from './ModuleEditForm';
 
 type Props = {
   moduleId: number;
+  structureId: number;
 };
 
-export default function EditButton({ moduleId }: Props) {
+export default function EditButton({ moduleId, structureId }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
 
@@ -47,9 +48,14 @@ export default function EditButton({ moduleId }: Props) {
                 setIsSubmitting(true);
                 try {
                   const result = await updateModule(moduleId, values);
-                  queryClient.invalidateQueries({
-                    queryKey: ['modulePrerequisites', moduleId],
-                  });
+                  await Promise.all([
+                    queryClient.invalidateQueries({
+                      queryKey: ['modulePrerequisites', moduleId],
+                    }),
+                    queryClient.invalidateQueries({
+                      queryKey: ['structure', structureId],
+                    }),
+                  ]);
                   return result;
                 } finally {
                   setIsSubmitting(false);

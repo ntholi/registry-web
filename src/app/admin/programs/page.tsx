@@ -14,40 +14,31 @@ import {
   Text,
   Title,
   Transition,
-  alpha,
-  MantineTheme,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import EditButton from './EditButton';
 import FilterSelect from './FilterSelect';
 import HideButton from './HideButton';
 import PrerequisiteDisplay from './PrerequisiteDisplay';
 
 export default function ProgramsPage() {
-  const [structure, setStructure] =
-    useState<Awaited<ReturnType<typeof getStructure>>>();
-  const [loading, setLoading] = useState(false);
+  const [selectedStructureId, setSelectedStructureId] = useState<number>();
   const { data: session } = useSession();
 
-  const handleStructureSelect = useCallback(async (structureId: number) => {
-    try {
-      setLoading(true);
-      const data = await getStructure(structureId);
-      setStructure(data);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data: structure, isLoading } = useQuery({
+    queryKey: ['structure', selectedStructureId],
+    queryFn: () =>
+      selectedStructureId ? getStructure(selectedStructureId) : null,
+    enabled: !!selectedStructureId,
+  });
 
-  const refreshStructure = useCallback(async () => {
-    if (structure) {
-      const data = await getStructure(structure.id);
-      setStructure(data);
-    }
-  }, [structure]);
+  const handleStructureSelect = useCallback((structureId: number) => {
+    setSelectedStructureId(structureId);
+  }, []);
 
   return (
     <Box p={'lg'}>
@@ -64,7 +55,7 @@ export default function ProgramsPage() {
           )}
         </Paper>
 
-        <Transition mounted={loading} transition='fade' duration={400}>
+        <Transition mounted={isLoading} transition='fade' duration={400}>
           {(styles) => (
             <Stack gap='md' style={styles}>
               {[1, 2, 3].map((i) => (
@@ -79,7 +70,7 @@ export default function ProgramsPage() {
           )}
         </Transition>
 
-        <Transition mounted={!loading} transition='fade' duration={400}>
+        <Transition mounted={!isLoading} transition='fade' duration={400}>
           {(styles) => (
             <Stack gap='lg' style={styles}>
               {structure?.semesters.map((semester) => (
@@ -115,9 +106,11 @@ export default function ProgramsPage() {
                       </Table.Thead>
                       <Table.Tbody>
                         {semester.modules.map((module) => (
-                          <Table.Tr 
+                          <Table.Tr
                             key={module.id}
-                            className={module.hidden ? 'bg-yellow-50/20' : undefined}
+                            className={
+                              module.hidden ? 'bg-yellow-50/20' : undefined
+                            }
                           >
                             <Table.Td>
                               <Anchor
@@ -150,11 +143,14 @@ export default function ProgramsPage() {
                             {session?.user?.role === 'admin' && (
                               <Table.Td>
                                 <Group>
-                                  <EditButton moduleId={module.id} />
-                                  <HideButton 
+                                  <EditButton
+                                    moduleId={module.id}
+                                    structureId={selectedStructureId!}
+                                  />
+                                  <HideButton
                                     moduleId={module.id}
                                     hidden={module.hidden}
-                                    onUpdate={refreshStructure}
+                                    structureId={selectedStructureId!}
                                   />
                                 </Group>
                               </Table.Td>
@@ -170,7 +166,7 @@ export default function ProgramsPage() {
           )}
         </Transition>
 
-        {!loading && !structure && (
+        {!isLoading && !structure && (
           <Paper shadow='sm' p='xl' withBorder>
             <Stack align='center' gap='xs'>
               <IconSchool size={48} />

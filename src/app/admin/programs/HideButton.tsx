@@ -1,50 +1,51 @@
+'use client';
+
 import { updateModuleVisibility } from '@/server/modules/actions';
-import { ActionIcon, Tooltip } from '@mantine/core';
+import { ActionIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 type Props = {
   moduleId: number;
   hidden: boolean;
-  onUpdate?: () => void;
+  structureId: number;
 };
 
-export default function HideButton({ moduleId, hidden, onUpdate }: Props) {
-  const [isLoading, setIsLoading] = useState(false);
+export default function HideButton({ moduleId, hidden, structureId }: Props) {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleClick = async () => {
     try {
-      setIsLoading(true);
+      setIsUpdating(true);
       await updateModuleVisibility(moduleId, !hidden);
-      notifications.show({
-        title: hidden ? 'Module Shown' : 'Module Hidden',
-        message: `Module has been ${hidden ? 'shown' : 'hidden'} successfully`,
-        color: 'green',
+      await queryClient.invalidateQueries({
+        queryKey: ['structure', structureId],
       });
-      onUpdate?.();
     } catch (error) {
       notifications.show({
         title: 'Error',
-        message: 'Failed to update module visibility',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update module visibility',
         color: 'red',
       });
     } finally {
-      setIsLoading(false);
+      setIsUpdating(false);
     }
   };
 
   return (
-    <Tooltip label={hidden ? 'Show Module' : 'Hide Module'}>
-      <ActionIcon
-        variant="light"
-        color={hidden ? 'blue' : 'yellow'}
-        onClick={handleClick}
-        loading={isLoading}
-        disabled={isLoading}
-      >
-        {hidden ? <IconEye size={16} /> : <IconEyeOff size={16} />}
-      </ActionIcon>
-    </Tooltip>
+    <ActionIcon
+      variant='subtle'
+      onClick={handleClick}
+      disabled={isUpdating}
+      color={hidden ? 'red' : 'blue'}
+    >
+      {hidden ? <IconEyeOff size={'1rem'} /> : <IconEye size={'1rem'} />}
+    </ActionIcon>
   );
 }
