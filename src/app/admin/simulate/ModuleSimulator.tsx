@@ -16,11 +16,12 @@ import {
   Stack,
   Table,
   Text,
+  TextInput,
   Title,
   Transition,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconSearch } from '@tabler/icons-react';
 import { useState } from 'react';
 import { getStudentModules } from './actions';
 
@@ -65,8 +66,8 @@ export default function ModuleSimulator() {
             </Group>
 
             <Grid>
-              <Grid.Col span={8}>
-                <NumberInput
+              <Grid.Col span={10}>
+                <TextInput
                   label='Student Number'
                   required
                   {...form.getInputProps('stdNo')}
@@ -76,6 +77,7 @@ export default function ModuleSimulator() {
                 <Button
                   type='submit'
                   loading={loading}
+                  leftSection={<IconSearch size={'1rem'} />}
                   fullWidth
                   mt={24}
                   size='sm'

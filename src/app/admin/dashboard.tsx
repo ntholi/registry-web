@@ -36,6 +36,7 @@ import {
   IconLogout2,
   IconMessageQuestion,
   IconSquareRoundedCheck,
+  IconTestPipe,
   IconUserCog,
   IconUsersGroup,
 } from '@tabler/icons-react';
@@ -151,6 +152,12 @@ const navigation: NavItem[] = [
     href: '/admin/sponsors',
     icon: IconBuildingBank,
     roles: ['admin', 'finance'],
+  },
+  {
+    label: 'Simulator',
+    href: '/admin/simulate',
+    icon: IconTestPipe,
+    roles: ['registry'],
   },
 ];
 
