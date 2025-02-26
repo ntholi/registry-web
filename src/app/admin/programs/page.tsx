@@ -148,7 +148,10 @@ export default function ProgramsPage() {
                               </Text>
                             </Table.Td>
                             <Table.Td>
-                              <PrerequisiteDisplay moduleId={module.id} />
+                              <PrerequisiteDisplay
+                                moduleId={module.id}
+                                hidden={module.hidden}
+                              />
                             </Table.Td>
                             {session?.user?.role === 'admin' && (
                               <Table.Td>

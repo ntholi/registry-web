@@ -5,9 +5,10 @@ import Link from 'next/link';
 
 type Props = {
   moduleId: number;
+  hidden: boolean;
 };
 
-export default function PrerequisiteDisplay({ moduleId }: Props) {
+export default function PrerequisiteDisplay({ moduleId, hidden }: Props) {
   const { data, isLoading } = useQuery({
     queryFn: async () => await getModulePrerequisites(moduleId),
     queryKey: ['modulePrerequisites', moduleId],
@@ -27,6 +28,7 @@ export default function PrerequisiteDisplay({ moduleId }: Props) {
         <Text key={it.id}>
           <Anchor
             component={Link}
+            c={hidden ? 'dark' : undefined}
             href={`/admin/modules/${it.id}`}
             size='0.85rem'
           >

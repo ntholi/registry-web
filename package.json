@@ -10,7 +10,7 @@
     "db:push": "tsx scripts/db-command.ts push",
     "db:generate": "tsx scripts/db-command.ts generate",
     "db:migrate": "tsx scripts/db-command.ts migrate",
-    "db:studio": "tsx scripts/db-command.ts studio",
+    "db:studio": "drizzle-kit studio",
     "migrate:modules": "tsx migrations/migrate-semester-modules.ts"
   },
   "dependencies": {
