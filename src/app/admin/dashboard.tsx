@@ -136,12 +136,6 @@ const navigation: NavItem[] = [
     roles: [...dashboardUsers],
   },
   {
-    label: 'Clearance Responses',
-    href: '/admin/clearance-responses',
-    icon: IconMessageQuestion,
-    roles: ['admin'],
-  },
-  {
     label: 'Terms',
     href: '/admin/terms',
     icon: IconCalendarEvent,
