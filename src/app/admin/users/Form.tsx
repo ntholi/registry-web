@@ -1,9 +1,8 @@
 'use client';
 
-import { users, userRoles } from '@/db/schema';
 import { Form } from '@/components/adease';
-import { TextInput, Select } from '@mantine/core';
-import { createInsertSchema } from 'drizzle-zod';
+import { userRoles, users } from '@/db/schema';
+import { Select, TextInput } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 

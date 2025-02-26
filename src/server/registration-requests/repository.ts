@@ -8,8 +8,7 @@ import {
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { and, count, eq, inArray, like } from 'drizzle-orm';
-import { map } from 'zod';
+import { and, count, eq, like } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 

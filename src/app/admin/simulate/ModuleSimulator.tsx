@@ -11,7 +11,6 @@ import {
   Flex,
   Grid,
   Group,
-  NumberInput,
   Paper,
   Stack,
   Table,

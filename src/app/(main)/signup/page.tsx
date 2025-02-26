@@ -5,7 +5,6 @@ import { dashboardUsers } from '@/db/schema';
 import { getSignup } from '@/server/signups/actions';
 import { redirect } from 'next/navigation';
 import Logo from '../base/Logo';
-import { Button } from '@/components/ui/button';
 import LogoutButton from './LogoutButton';
 
 export default async function SignupPage() {

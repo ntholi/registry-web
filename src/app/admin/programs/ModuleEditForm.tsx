@@ -1,10 +1,7 @@
 'use client';
 
 import { modules } from '@/db/schema';
-import {
-  findAllModules,
-  findModulesByStructure,
-} from '@/server/modules/actions';
+import { findModulesByStructure } from '@/server/modules/actions';
 import { MultiSelect, Stack, Switch } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
