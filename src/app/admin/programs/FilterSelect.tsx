@@ -68,12 +68,12 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
     queryFn: async () => {
       if (!program) return [];
       const structureData = await getStructuresByProgram(parseInt(program));
-      return structureData.map((structure) => ({
+      return structureData.map((structure, index) => ({
         id: structure.id,
         value: structure.id.toString(),
         label: structure.code,
         code: structure.code,
-        name: structure.code,
+        name: index === 0 ? 'Current' : 'Old',
       }));
     },
     enabled: !!program,
@@ -84,13 +84,6 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
       onStructureSelect(parseInt(structure));
     }
   }, [structure, program, onStructureSelect]);
-
-  if (structures.length > 0) {
-    if (!structure) {
-      const sorted = structures.sort((a, b) => b.id - a.id);
-      setStructure(sorted[0].id.toString());
-    }
-  }
 
   const handleSchoolChange = (value: string | null) => {
     setSchool(value);
@@ -118,7 +111,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
     return (
       <Box>
         <Text size='sm'>{code}</Text>
-        <Text size='sm' c='dimmed'>
+        <Text size='0.85rem' c='dimmed'>
           {name}
         </Text>
       </Box>

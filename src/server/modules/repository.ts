@@ -8,7 +8,7 @@ import {
   structures,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { eq, like, or } from 'drizzle-orm';
+import { eq, like, or, desc } from 'drizzle-orm';
 
 export default class ModuleRepository extends BaseRepository<
   typeof modules,
@@ -120,7 +120,7 @@ export default class ModuleRepository extends BaseRepository<
       .select()
       .from(structures)
       .where(eq(structures.programId, programId))
-      .orderBy(structures.code);
+      .orderBy(desc(structures.id));
   }
 
   async getModulesForStructure(structureId: number) {
