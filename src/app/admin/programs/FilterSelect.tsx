@@ -69,6 +69,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
       if (!program) return [];
       const structureData = await getStructuresByProgram(parseInt(program));
       return structureData.map((structure) => ({
+        id: structure.id,
         value: structure.id.toString(),
         label: structure.code,
         code: structure.code,
@@ -83,6 +84,13 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
       onStructureSelect(parseInt(structure));
     }
   }, [structure, program, onStructureSelect]);
+
+  if (structures.length > 0) {
+    if (!structure) {
+      const sorted = structures.sort((a, b) => b.id - a.id);
+      setStructure(sorted[0].id.toString());
+    }
+  }
 
   const handleSchoolChange = (value: string | null) => {
     setSchool(value);
@@ -120,7 +128,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
   return (
     <Stack gap='md'>
       <Grid>
-        <Grid.Col span={4}>
+        <Grid.Col span={5}>
           <Select
             label='School'
             data={schools}
@@ -133,7 +141,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             renderOption={renderOption}
           />
         </Grid.Col>
-        <Grid.Col span={4}>
+        <Grid.Col span={5}>
           <Select
             label='Program'
             data={programs}
@@ -146,7 +154,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             renderOption={renderOption}
           />
         </Grid.Col>
-        <Grid.Col span={4}>
+        <Grid.Col span={2}>
           <Select
             label='Structure'
             data={structures}
