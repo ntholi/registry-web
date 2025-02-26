@@ -111,7 +111,7 @@ export async function getStudentSemesterModules(
   if (
     //Internship Students
     activeProgram?.structure?.program?.level === 'diploma' &&
-    semesterNo === 5 &&
+    semesterNo === 6 &&
     repeatModules.length
   ) {
     return {
