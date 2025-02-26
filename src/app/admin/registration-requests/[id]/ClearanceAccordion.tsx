@@ -63,7 +63,7 @@ export default function ClearanceAccordion({ value }: Props) {
                   <Text c='dimmed' size='sm' w={120}>
                     Response Date:
                   </Text>
-                  <Text>
+                  <Text size='sm'>
                     {clearance?.responseDate
                       ? formatDateTime(clearance.responseDate)
                       : '-'}
@@ -89,7 +89,7 @@ export default function ClearanceAccordion({ value }: Props) {
                   <Text c='dimmed' size='sm' w={120}>
                     Message:
                   </Text>
-                  <Text>{clearance?.message || '-'}</Text>
+                  <Text size='sm'>{clearance?.message || '-'}</Text>
                 </Group>
               </Stack>
             </Accordion.Panel>
