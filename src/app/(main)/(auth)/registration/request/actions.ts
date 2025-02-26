@@ -26,10 +26,7 @@ type SemesterModules = {
   semesterStatus: 'Active' | 'Repeat';
 };
 
-export async function getFailedPrerequisites(
-  stdNo: number,
-  structureId: number,
-) {
+export async function getFailedPrerequisites(stdNo: number) {
   const programs = await db.query.studentPrograms.findMany({
     where: eq(studentPrograms.stdNo, stdNo),
     with: {
@@ -46,13 +43,10 @@ export async function getFailedPrerequisites(
     },
   });
 
-  const semesterNo = await determineNextSemester(
-    programs.flatMap((p) => p.semesters),
-  );
-  const prevSemesterModules = await getSemesterModules(
-    semesterNo - 1,
-    structureId,
-  );
+  const prevSemesterModules = await programs
+    .flatMap((p) => p.semesters)
+    .flatMap((s) => s.studentModules)
+    .map((m) => m.module);
 
   const passedModules = new Set(
     programs
@@ -75,7 +69,9 @@ export async function getFailedPrerequisites(
   return prerequisites.reduce(
     (acc, { module, prerequisite }) => {
       if (failedModules.has(prerequisite.name)) {
-        acc[module.code] = [...(acc[module.code] || []), prerequisite.code];
+        acc[module.code] = Array.from(
+          new Set([...(acc[module.code] || []), prerequisite.code]),
+        );
       }
       return acc;
     },
@@ -145,7 +141,7 @@ export async function getStudentSemesterModules(
     await getSemesterModules(semesterNo, structureId)
   ).filter((m) => !attemptedModules.has(m.name));
 
-  const failedPrerequisites = await getFailedPrerequisites(stdNo, structureId);
+  const failedPrerequisites = await getFailedPrerequisites(stdNo);
 
   return {
     modules: [
