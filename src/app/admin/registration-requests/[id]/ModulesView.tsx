@@ -1,7 +1,7 @@
 'use client';
 
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { Badge, Box, Text, Table, Title, Stack } from '@mantine/core';
+import { Badge, Box, Text, Table, Title, Stack, Flex } from '@mantine/core';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -24,8 +24,8 @@ export default function ModulesView({ value }: Props) {
             moduleStatus === 'Compulsory'
               ? 'green'
               : moduleStatus.startsWith('Repeat')
-              ? 'red'
-              : 'blue'
+                ? 'red'
+                : 'blue'
           }
         >
           {moduleStatus}
@@ -36,13 +36,13 @@ export default function ModulesView({ value }: Props) {
 
   return (
     <Stack>
-      <Box>
+      <Flex justify='space-between' align='center'>
         <Title order={4}>Modules</Title>
         <Text c='dimmed' size='sm'>
-          Requested {requestedModules.length}{' '}
+          {requestedModules.length}{' '}
           {requestedModules.length === 1 ? 'Module' : 'Modules'}
         </Text>
-      </Box>
+      </Flex>
 
       <Table highlightOnHover withTableBorder>
         <Table.Thead>

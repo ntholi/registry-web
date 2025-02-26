@@ -46,7 +46,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
     return db.query.registrationRequests.findFirst({
       where: eq(registrationRequests.id, id),
       with: {
-        student: true,
+        student: {
+          with: {
+            structure: true,
+          },
+        },
         term: true,
         requestedModules: {
           with: {

@@ -4,9 +4,8 @@ import { FieldView } from '@/components/adease';
 import { registrationRequestStatusEnum } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { Anchor, Grid, GridCol, Stack, Text } from '@mantine/core';
+import { Anchor, Flex, Grid, GridCol, Stack, Text } from '@mantine/core';
 import Link from 'next/link';
-import RequestStatusSwitch from './RequestStatusSwitch';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -28,19 +27,13 @@ export default function RequestDetailsView({ value, clearanceStatus }: Props) {
               {value.student.name} ({value.student.stdNo})
             </Anchor>
           </FieldView>
-          <FieldView label='Term' underline={false}>
-            <Text fw={500}>{value.term.name}</Text>
+          <FieldView label='Structure' underline={false}>
+            <Text fw={500}>{value.student.structure?.code}</Text>
           </FieldView>
           <FieldView label='Semester' underline={false}>
             {formatSemester(value.semesterNumber)}
           </FieldView>
         </Stack>
-      </GridCol>
-      <GridCol span={{ base: 12, md: 5 }}>
-        <RequestStatusSwitch
-          request={{ id: value.id, status: value.status }}
-          disabled={clearanceStatus !== 'approved'}
-        />
       </GridCol>
     </Grid>
   );
