@@ -13,11 +13,11 @@ class StructureService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), []);
+    return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
   async findAll(params: FindAllParams<typeof structures>) {
-    return withAuth(async () => this.repository.findAll(params), []);
+    return withAuth(async () => this.repository.findAll(params), ['dashboard']);
   }
 
   async create(data: Structure) {
