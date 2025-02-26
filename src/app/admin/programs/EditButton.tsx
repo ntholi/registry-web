@@ -44,6 +44,7 @@ export default function EditButton({ moduleId, structureId }: Props) {
                 ...mod,
                 prerequisiteCodes: prerequisites.map((p) => p.code),
               }}
+              structureId={structureId}
               onSubmit={async (values) => {
                 setIsSubmitting(true);
                 try {

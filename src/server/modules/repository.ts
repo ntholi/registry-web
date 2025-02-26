@@ -8,7 +8,7 @@ import {
   structures,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { eq } from 'drizzle-orm';
+import { eq, like, or } from 'drizzle-orm';
 
 export default class ModuleRepository extends BaseRepository<
   typeof modules,
@@ -22,6 +22,22 @@ export default class ModuleRepository extends BaseRepository<
     return db.query.modules.findFirst({
       where: eq(modules.code, code),
     });
+  }
+
+  async findModulesByStructure(structureId: number, search = '') {
+    const data = await db.query.structureSemesters.findMany({
+      where: eq(structureSemesters.structureId, structureId),
+      with: {
+        modules: {
+          where: or(
+            like(modules.code, `%${search}%`),
+            like(modules.name, `%${search}%`),
+          ),
+        },
+      },
+      orderBy: structureSemesters.semesterNumber,
+    });
+    return data.flatMap((it) => it.modules);
   }
 
   async addPrerequisite(moduleId: number, prerequisiteId: number) {
@@ -111,7 +127,7 @@ export default class ModuleRepository extends BaseRepository<
     return await db.query.structureSemesters.findMany({
       where: eq(structureSemesters.structureId, structureId),
       with: {
-        modules: true
+        modules: true,
       },
     });
   }

@@ -27,6 +27,13 @@ class ModuleService {
     return withAuth(async () => this.repository.findAll(params), ['dashboard']);
   }
 
+  async findModulesByStructure(structureId: number, search = '') {
+    return withAuth(
+      async () => this.repository.findModulesByStructure(structureId, search),
+      ['dashboard'],
+    );
+  }
+
   async create(data: Module) {
     return withAuth(async () => this.repository.create(data), ['dashboard']);
   }

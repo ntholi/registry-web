@@ -17,6 +17,10 @@ export async function findAllModules(page: number = 1, search = '') {
   });
 }
 
+export async function findModulesByStructure(structureId: number, search = '') {
+  return modulesService.findModulesByStructure(structureId, search);
+}
+
 export async function createModule(
   module: Module & { prerequisiteCodes?: string[] },
 ) {

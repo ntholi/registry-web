@@ -1,7 +1,10 @@
 'use client';
 
 import { modules } from '@/db/schema';
-import { findAllModules } from '@/server/modules/actions';
+import {
+  findAllModules,
+  findModulesByStructure,
+} from '@/server/modules/actions';
 import { MultiSelect, Stack, Switch } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
@@ -14,24 +17,29 @@ type Module = typeof modules.$inferInsert & { prerequisiteCodes?: string[] };
 
 type Props = {
   defaultValues?: Module;
+  structureId: number;
   onSubmit: (values: Module) => Promise<Module>;
 };
 
-export default function ModuleEditForm({ defaultValues, onSubmit }: Props) {
+export default function ModuleEditForm({
+  defaultValues,
+  structureId,
+  onSubmit,
+}: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const { data: modulesList } = useQuery({
     queryKey: ['modules', searchQuery],
-    queryFn: () => findAllModules(1, searchQuery),
+    queryFn: () => findModulesByStructure(structureId, searchQuery),
   });
 
   const prerequisiteOptions = Array.from(
-    new Set(modulesList?.data?.map((mod) => mod.code) || []),
+    new Set(modulesList?.map((mod) => mod.code) || []),
   )
     .map((code) => {
-      const foundModule = modulesList?.data?.find((m) => m.code === code);
+      const foundModule = modulesList?.find((m) => m.code === code);
       if (!foundModule) return null;
       return {
         value: code,
