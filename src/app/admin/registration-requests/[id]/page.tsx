@@ -104,17 +104,14 @@ export default async function RegistrationRequestDetails({ params }: Props) {
           </TabsTab>
         </TabsList>
         <TabsPanel value='details'>
-          <Stack mt='xl' p='sm'>
-            <RequestDetailsView
-              value={registrationRequest}
-              clearanceStatus={getOverallClearanceStatus(registrationRequest)}
-            />
+          <Stack mt='md' p='sm'>
+            <RequestDetailsView value={registrationRequest} />
             <Divider />
             <ModulesView value={registrationRequest} />
           </Stack>
         </TabsPanel>
         <TabsPanel value='clearance'>
-          <Stack gap='xl' mt='xl' p='sm'>
+          <Stack gap='xl' mt='md' p='sm'>
             <ClearanceAccordion value={registrationRequest} />
           </Stack>
         </TabsPanel>
