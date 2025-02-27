@@ -14,7 +14,7 @@ import GoogleIcon from './GoogleIcon';
 import { AlertCircle } from 'lucide-react';
 
 export const metadata = {
-  title: 'Sign in',
+  title: 'Student Portal | Sign in',
 };
 
 export default async function LoginForm() {

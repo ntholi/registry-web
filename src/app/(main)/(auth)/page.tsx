@@ -10,6 +10,7 @@ import Notifications from './home/Notifications';
 export default async function Home() {
   const session = await auth();
   const student = await getStudentByUserId(session?.user?.id);
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
   if (!student) {
     return <StudentNotFound session={session} />;
@@ -27,9 +28,9 @@ export default async function Home() {
 function StudentNotFound({ session }: { session?: Session | null }) {
   return (
     <Container width='lg' className='pt-4 sm:pt-28'>
-      <div className='text-center py-10 max-w-md mx-auto'>
-        <AlertCircle className='size-16 mx-auto mb-4' />
-        <h2 className='text-3xl font-bold mb-4'>Student Not Found</h2>
+      <div className='mx-auto max-w-md py-10 text-center'>
+        <AlertCircle className='mx-auto mb-4 size-16' />
+        <h2 className='mb-4 text-3xl font-bold'>Student Not Found</h2>
         <p className='mb-6'>
           Student number: {session?.user?.stdNo || 'undefined'}
           <br />

@@ -11,9 +11,8 @@ import { toTitleCase } from '@/lib/utils';
 
 export async function generateMetadata(): Promise<Metadata> {
   const session = await auth();
-  const title = session?.user?.role ?? 'Student';
   return {
-    title: `${toTitleCase(title)} Portal | Limkokwing`,
+    title: `${toTitleCase(session?.user?.role)} Portal | Limkokwing`,
   };
 }
 
