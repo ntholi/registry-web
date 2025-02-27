@@ -463,18 +463,24 @@ export const sponsors = sqliteTable('sponsors', {
   updatedAt: integer({ mode: 'timestamp' }),
 });
 
-export const sponsoredStudents = sqliteTable('sponsored_students', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  sponsorId: integer()
-    .references(() => sponsors.id, { onDelete: 'cascade' })
-    .notNull(),
-  stdNo: integer()
-    .references(() => students.stdNo, { onDelete: 'cascade' })
-    .notNull(),
-  borrowerNo: text(),
-  termId: integer()
-    .references(() => terms.id, { onDelete: 'cascade' })
-    .notNull(),
-  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' }),
-});
+export const sponsoredStudents = sqliteTable(
+  'sponsored_students',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    sponsorId: integer()
+      .references(() => sponsors.id, { onDelete: 'cascade' })
+      .notNull(),
+    stdNo: integer()
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    borrowerNo: text(),
+    termId: integer()
+      .references(() => terms.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
+  },
+  (table) => ({
+    uniqueSponsoredTerm: unique().on(table.stdNo, table.termId),
+  }),
+);
