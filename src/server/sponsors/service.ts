@@ -41,10 +41,22 @@ class SponsorService {
     );
   }
 
-  async getSponsoredStudent(stdNo: number) {
+  async getSponsoredStudent(stdNo: number, termId: number) {
     return withAuth(
-      async () => this.repository.findSponsoredStudent(stdNo),
+      async () => this.repository.findSponsoredStudent(stdNo, termId),
       ['all'],
+    );
+  }
+
+  async updateStudentSponsorship(data: {
+    stdNo: number;
+    termId: number;
+    sponsorId: number;
+    borrowerNo?: string;
+  }) {
+    return withAuth(
+      async () => this.repository.upsertSponsoredStudent(data),
+      ['auth'],
     );
   }
 

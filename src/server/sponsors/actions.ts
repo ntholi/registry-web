@@ -1,7 +1,7 @@
 'use server';
 
 import { sponsors } from '@/db/schema';
-import { sponsorsService as service} from './service';
+import { sponsorsService as service } from './service';
 
 type Sponsor = typeof sponsors.$inferInsert;
 
@@ -25,6 +25,32 @@ export async function deleteSponsor(id: number) {
   return service.delete(id);
 }
 
-export async function getSponsoredStudent(stdNo: number) {
-  return service.getSponsoredStudent(stdNo);
+export async function getSponsoredStudent(stdNo: number, termId: number) {
+  return service.getSponsoredStudent(stdNo, termId);
+}
+
+export async function updateStudentSponsorship(data: {
+  stdNo: number;
+  termId: number;
+  sponsorName: string;
+  borrowerNo?: string;
+}) {
+  const sponsors = await service.findAll({
+    page: 1,
+    search: data.sponsorName,
+    searchProperties: ['name'],
+  });
+
+  const sponsor = sponsors.data.find((s) => s.name === data.sponsorName);
+
+  if (!sponsor) {
+    throw new Error(`Sponsor with name "${data.sponsorName}" not found`);
+  }
+
+  return service.updateStudentSponsorship({
+    stdNo: data.stdNo,
+    termId: data.termId,
+    sponsorId: sponsor.id,
+    borrowerNo: data.borrowerNo,
+  });
 }
