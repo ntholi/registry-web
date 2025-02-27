@@ -31,7 +31,7 @@ export default async function SignupPage() {
       <Container className='mt-10 flex min-h-screen w-full flex-col items-center gap-4'>
         <Logo width={220} height={220} />
         <div className='text-center'>
-          <h1 className='text-3xl font-semibold sm:text-4xl'>Sign Up</h1>
+          <h1 className='text-3xl font-semibold sm:text-4xl'>Setup Account</h1>
           <p className='mt-1.5 text-muted-foreground'>
             Fill in your details to request your student account.
           </p>

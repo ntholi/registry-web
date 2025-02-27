@@ -131,6 +131,7 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                   {existingSignup.message}
                   {existingSignup.status === 'pending' && (
                     <span>
+                      {' '}
                       It might take a few hours to setup your account, please
                       check back later.
                     </span>

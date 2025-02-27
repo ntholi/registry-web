@@ -36,7 +36,7 @@ export default async function LoginForm() {
         height={500}
         className='absolute left-1/2 top-0 mt-4 h-32 w-auto -translate-x-1/2 md:mt-10'
       />
-      <Card className='w-full max-w-sm mt-10'>
+      <Card className='mt-10 w-full max-w-sm'>
         <CardHeader>
           <CardTitle className='text-2xl'>Sign in</CardTitle>
           <CardDescription>
@@ -51,7 +51,7 @@ export default async function LoginForm() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className='bg-yellow-100 text-yellow-800 p-4 mt-4 rounded-b-lg'>
+        <CardFooter className='mt-4 rounded-b-lg bg-yellow-100 p-4 text-yellow-800'>
           <div className='flex items-start'>
             <AlertCircle className='mr-2 h-5 w-5 flex-shrink-0' />
             <p className='text-[0.8rem]'>
