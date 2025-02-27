@@ -143,7 +143,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
     borrowerNo?: string;
   }) {
     return db.transaction(async (tx) => {
-      // Get the student's current semester
       const student = await tx.query.students.findFirst({
         where: (students, { eq }) => eq(students.stdNo, data.stdNo),
       });
@@ -163,6 +162,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
         await tx.insert(sponsoredStudents).values({
           sponsorId: sponsor.id,
           stdNo: data.stdNo,
+          termId: data.termId,
           borrowerNo: data.borrowerNo,
         });
       }

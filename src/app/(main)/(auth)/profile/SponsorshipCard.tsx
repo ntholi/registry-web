@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { getCurrentTerm } from '@/server/terms/actions';
 import {
   getSponsoredStudent,
   updateStudentSponsorship,

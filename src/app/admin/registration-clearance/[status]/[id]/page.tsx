@@ -9,6 +9,7 @@ import AcademicsLoader from './AcademicsLoader';
 import ClearanceDetails from './ClearanceDetails';
 import ClearanceHistory from './ClearanceHistory';
 import { auth } from '@/auth';
+import { getCurrentTerm } from '@/server/terms/actions';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -18,6 +19,7 @@ export default async function ClearanceRequestDetails({ params }: Props) {
   const { id } = await params;
   const request = await getRegistrationClearance(Number(id));
   const session = await auth();
+  const term = await getCurrentTerm();
 
   if (!request) {
     return notFound();
@@ -42,7 +44,7 @@ export default async function ClearanceRequestDetails({ params }: Props) {
           <TabsTab value='history'>History</TabsTab>
         </TabsList>
         <TabsPanel value='details'>
-          <ClearanceDetails request={request} />
+          <ClearanceDetails request={request} termId={term.id} />
         </TabsPanel>
         <TabsPanel value='academics'>
           <AcademicsLoader stdNo={request.registrationRequest.student.stdNo} />

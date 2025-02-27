@@ -27,9 +27,10 @@ import SponsorInfo from '../SponsorInfo';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
+  termId: number;
 };
 
-export default function ClearanceDetails({ request }: Props) {
+export default function ClearanceDetails({ request, termId }: Props) {
   const [comment, setComment] = useState(request.message || undefined);
   const [accordion, setAccordion] = useState<'comments' | 'modules'>('modules');
   const { student } = request.registrationRequest;
@@ -68,7 +69,10 @@ export default function ClearanceDetails({ request }: Props) {
               <FieldView label='Program' underline={false}>
                 {student.structure?.program.name}
               </FieldView>
-              <SponsorInfo stdNo={request.registrationRequest.stdNo} />
+              <SponsorInfo
+                stdNo={request.registrationRequest.stdNo}
+                termId={termId}
+              />
             </Stack>
           </Paper>
         </GridCol>

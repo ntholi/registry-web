@@ -7,12 +7,13 @@ import { getSponsoredStudent as getSponsor } from '@/server/sponsors/actions';
 
 type Props = {
   stdNo: number;
+  termId: number;
 };
 
-export default function SponsorInfo({ stdNo }: Props) {
+export default function SponsorInfo({ stdNo, termId }: Props) {
   const { data: sponsorInfo, isLoading } = useQuery({
-    queryKey: ['sponsoredStudents', stdNo],
-    queryFn: () => getSponsor(stdNo),
+    queryKey: ['sponsoredStudents', stdNo, termId],
+    queryFn: () => getSponsor(stdNo, termId),
   });
 
   if (isLoading) {
