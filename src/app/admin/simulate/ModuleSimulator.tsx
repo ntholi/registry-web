@@ -53,6 +53,11 @@ export default function ModuleSimulator() {
     }
   };
 
+  // Check if a module has failed prerequisites
+  const hasFailedPrerequisites = (prerequisites: string[] | undefined) => {
+    return prerequisites && prerequisites.length > 0;
+  };
+
   return (
     <Stack>
       <Paper withBorder shadow='sm' p='lg' radius='md'>
@@ -142,33 +147,68 @@ export default function ModuleSimulator() {
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
-                    {results?.modules.map((m) => (
-                      <Table.Tr key={m.id}>
-                        <Table.Td fw={500}>{m.code}</Table.Td>
-                        <Table.Td>{m.name}</Table.Td>
-                        <Table.Td>{m.type}</Table.Td>
-                        <Table.Td>{m.credits}</Table.Td>
-                        <Table.Td>
-                          <Badge variant='dot' radius='sm'>
-                            {m.status}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          <Group gap={4}>
-                            {m.prerequisites?.map((code) => (
-                              <Badge
-                                key={code}
-                                size='sm'
-                                variant='default'
-                                radius='sm'
-                              >
-                                {code}
-                              </Badge>
-                            ))}
-                          </Group>
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
+                    {results?.modules.map((m) => {
+                      const preFailed = hasFailedPrerequisites(m.prerequisites);
+                      return (
+                        <Table.Tr key={m.id}>
+                          <Table.Td fw={500}>
+                            <Text
+                              td={preFailed ? 'line-through' : undefined}
+                              c={preFailed ? 'dimmed' : undefined}
+                            >
+                              {m.code}
+                            </Text>
+                          </Table.Td>
+                          <Table.Td>
+                            <Text
+                              td={preFailed ? 'line-through' : undefined}
+                              c={preFailed ? 'dimmed' : undefined}
+                            >
+                              {m.name}
+                            </Text>
+                          </Table.Td>
+                          <Table.Td>
+                            <Text
+                              td={preFailed ? 'line-through' : undefined}
+                              c={preFailed ? 'dimmed' : undefined}
+                            >
+                              {m.type}
+                            </Text>
+                          </Table.Td>
+                          <Table.Td>
+                            <Text
+                              td={preFailed ? 'line-through' : undefined}
+                              c={preFailed ? 'dimmed' : undefined}
+                            >
+                              {m.credits}
+                            </Text>
+                          </Table.Td>
+                          <Table.Td>
+                            <Badge
+                              variant='dot'
+                              radius='sm'
+                              color={preFailed ? 'red' : undefined}
+                            >
+                              {m.status}
+                            </Badge>
+                          </Table.Td>
+                          <Table.Td>
+                            <Group gap={4}>
+                              {m.prerequisites?.map((code) => (
+                                <Badge
+                                  key={code}
+                                  size='sm'
+                                  color='red'
+                                  radius='sm'
+                                >
+                                  {code}
+                                </Badge>
+                              ))}
+                            </Group>
+                          </Table.Td>
+                        </Table.Tr>
+                      );
+                    })}
                   </Table.Tbody>
                 </Table>
               </Paper>
