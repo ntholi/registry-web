@@ -125,7 +125,7 @@ export async function getStudentSemesterModules(
     //Remain in semester
     return {
       modules: repeatModules,
-      semesterNo: semesterNo - 1,
+      semesterNo: semesterNo,
       semesterStatus: 'Repeat',
     };
   }
@@ -261,10 +261,18 @@ const determineNextSemester = async (
 ): Promise<number> => {
   const value =
     Math.max(...semesters.map((s) => Number(s.semesterNumber)), 0) + 1;
+  console.log(
+    semesters.map((s) => Number(s.semesterNumber)),
+    '->',
+    value,
+  );
   const term = await getCurrentTerm();
-  if (term.semester % 2 !== 0) {
-    return value % 2 === 0 ? value + 1 : value;
+
+  const isSameParity = (term.semester % 2 === 0) === (value % 2 === 0);
+
+  if (isSameParity) {
+    return value;
   } else {
-    return value % 2 === 1 ? value + 1 : value;
+    return value - 1;
   }
 };

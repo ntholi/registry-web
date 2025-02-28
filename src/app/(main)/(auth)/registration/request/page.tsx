@@ -23,7 +23,7 @@ export default async function RegistrationPage() {
   }
 
   const failedModules = await getFailedModules(student.stdNo, student.sem);
-  if (failedModules.length >= 3) {
+  if (failedModules.length >= 3 && term.semester % student.sem !== 0) {
     redirect('/registration/remain');
   }
 
