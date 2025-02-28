@@ -113,9 +113,7 @@ export default function ModuleSimulator() {
                     <Text size='sm'>
                       {results?.student.name} ({results?.student.stdNo})
                     </Text>
-                    <Text size='sm'>
-                      {formatSemester((results?.student.semester ?? -1) + 1)}
-                    </Text>
+                    <Text size='sm'>{formatSemester(results?.semesterNo)}</Text>
                   </Flex>
                 </Card>
               </Stack>

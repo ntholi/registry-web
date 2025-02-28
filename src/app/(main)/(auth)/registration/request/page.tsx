@@ -23,7 +23,8 @@ export default async function RegistrationPage() {
   }
 
   const failedModules = await getFailedModules(student.stdNo, student.sem);
-  if (failedModules.length >= 3 && term.semester % student.sem !== 0) {
+  const isSameParity = (term.semester % 2 === 0) === (student.sem % 2 === 0);
+  if (failedModules.length >= 3 && !isSameParity) {
     redirect('/registration/remain');
   }
 
