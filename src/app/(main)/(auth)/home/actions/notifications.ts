@@ -12,7 +12,7 @@ export type Notification = {
   title: string;
   message: string;
   type: 'registration' | 'academic' | 'finance' | 'general';
-  status: 'pending' | 'approved' | 'rejected' | 'registered';
+  status: 'pending' | 'approved' | 'partial' | 'rejected' | 'registered';
   timestamp: Date;
   href: string;
 };
@@ -55,7 +55,7 @@ export async function getNotifications(): Promise<Notification[]> {
 }
 
 function statusFromRequest(
-  status: 'pending' | 'approved' | 'rejected' | 'registered',
+  status: 'pending' | 'approved' | 'partial' | 'rejected' | 'registered',
 ) {
   switch (status) {
     case 'pending':
@@ -64,5 +64,7 @@ function statusFromRequest(
       return 'Your registration request has been rejected';
     case 'approved':
       return 'Your registration request has been approved';
+    case 'partial':
+      return 'Your registration request is partially completed';
   }
 }

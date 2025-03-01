@@ -65,10 +65,15 @@ const notificationConfig = {
     textColor: 'text-amber-600 dark:text-amber-400',
     icon: TriangleAlert,
   },
-  approved: {
+  partial: {
     className: 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/50',
     textColor: 'text-blue-600 dark:text-blue-400',
     icon: Info,
+  },
+  approved: {
+    className: 'border-emerald-500/50 bg-emerald-50/50 dark:bg-emerald-950/50',
+    textColor: 'text-emerald-600 dark:text-emerald-400',
+    icon: CircleCheck,
   },
   registered: {
     className: 'border-emerald-500/50 bg-emerald-50/50 dark:bg-emerald-950/50',
