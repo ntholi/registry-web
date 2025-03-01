@@ -8,16 +8,13 @@ import { getCurrentTerm } from '@/server/terms/actions';
 import {
   BookOpen,
   Calendar,
-  CircleAlert,
   CircleCheck,
   EyeIcon,
-  Info,
   PenSquare,
-  TriangleAlert,
 } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import StatusBadge from './components/StatusBadge';
+import StatusBadge, { getStatusStyles } from './components/StatusBadge';
 
 export default async function RegistrationStatusPage() {
   const session = await auth();
@@ -134,42 +131,31 @@ export default async function RegistrationStatusPage() {
 
 type StatusBadgeProps = {
   message: string | null;
-  status: 'pending' | 'approved' | 'registered' | 'rejected';
+  status: 'pending' | 'approved' | 'registered' | 'rejected' | 'partial';
 };
 
 function StatusMessage({ message, status }: StatusBadgeProps) {
-  const config = {
-    pending: {
-      className: 'border-amber-500/50 text-amber-600 dark:text-amber-400',
-      icon: TriangleAlert,
-      defaultMessage:
-        'Your registration request is currently under review, this might take a few days. Come back later to check the status.',
-    },
-    approved: {
-      className: 'border-blue-500/50 text-blue-600 dark:text-blue-400',
-      icon: Info,
-      defaultMessage:
-        'Your registration request has been approved. Please wait while we process your registration.',
-    },
-    registered: {
-      className: 'border-emerald-500/50 text-emerald-600 dark:text-emerald-400',
-      icon: CircleCheck,
-      defaultMessage:
-        'Registration successful. You are now officially registered for the selected modules.',
-    },
-    rejected: {
-      className: 'border-red-500/50 text-red-600 dark:text-red-400',
-      icon: CircleAlert,
-      defaultMessage:
-        'Your registration request has been rejected. Click "View Full Details" for more information.',
-    },
+  const styles = getStatusStyles(status);
+  const Icon = styles.icon;
+
+  // Define message content based on status
+  const defaultMessages = {
+    pending:
+      'Your registration request is currently under review, this might take a few days. Come back later to check the status.',
+    approved:
+      'Your registration request has been approved. Please wait while we process your registration.',
+    registered:
+      'Registration successful. You are now officially registered for the selected modules.',
+    rejected:
+      'Your registration request has been rejected. Click "View Full Details" for more information.',
+    partial:
+      'Your registration request has been partially processed. Some modules are pending approval.',
   };
 
-  const currentConfig = config[status] || config.pending;
-  const Icon = currentConfig.icon;
+  const defaultMessage = defaultMessages[status] || defaultMessages.pending;
 
   return (
-    <div className={`rounded-lg border p-6 ${currentConfig.className}`}>
+    <div className={`rounded-lg border p-6 ${styles.className}`}>
       <p className='text-sm'>
         <Icon
           className='-mt-0.5 me-3 inline-flex opacity-60'
@@ -177,9 +163,7 @@ function StatusMessage({ message, status }: StatusBadgeProps) {
           strokeWidth={2}
           aria-hidden='true'
         />
-        {status === 'rejected'
-          ? message || currentConfig.defaultMessage
-          : currentConfig.defaultMessage}
+        {status === 'rejected' ? message || defaultMessage : defaultMessage}
       </p>
     </div>
   );

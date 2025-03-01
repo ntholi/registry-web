@@ -1,6 +1,14 @@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  CircleAlert,
+  CircleCheck,
+  TriangleAlert,
+} from 'lucide-react';
 
 type Status = 'success' | 'info' | 'warning' | 'danger';
 type StatusMapping =
@@ -13,6 +21,8 @@ type StatusMapping =
 type Props = {
   status: Status | StatusMapping;
 };
+//TODO: Unify this with the notifications.tsx component so that this component becomes
+//  one true source of truth for status badges and colors
 
 export default function StatusBadge({ status }: Props) {
   const mappedStatus = mapToStatusType(status);
@@ -80,4 +90,28 @@ export function getStatusIcon(status: string, statusType?: Status) {
         <AlertTriangle className='h-5 w-5 text-yellow-600 dark:text-yellow-400' />
       );
   }
+}
+
+export function getStatusStyles(status: Status | StatusMapping) {
+  const config = {
+    warning: {
+      className: 'border-amber-500/50 text-amber-600 dark:text-amber-400',
+      icon: TriangleAlert,
+    },
+    info: {
+      className: 'border-blue-500/50 text-blue-600 dark:text-blue-400',
+      icon: Info,
+    },
+    success: {
+      className: 'border-emerald-500/50 text-emerald-600 dark:text-emerald-400',
+      icon: CircleCheck,
+    },
+    danger: {
+      className: 'border-red-500/50 text-red-600 dark:text-red-400',
+      icon: CircleAlert,
+    },
+  };
+
+  const statusType = mapToStatusType(status);
+  return config[statusType] || config.warning;
 }
