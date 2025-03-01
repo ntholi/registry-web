@@ -12,19 +12,17 @@ type StatusMapping =
 
 type Props = {
   status: Status | StatusMapping;
-  statusType?: Status;
-  customText?: string;
 };
 
-export default function StatusBadge({ status, statusType, customText }: Props) {
-  const mappedStatus = statusType || mapToStatusType(status);
+export default function StatusBadge({ status }: Props) {
+  const mappedStatus = mapToStatusType(status);
 
   return (
     <Badge
       className={cn('capitalize', getStatusColor(mappedStatus))}
       variant='outline'
     >
-      {customText || status}
+      {status}
     </Badge>
   );
 }
