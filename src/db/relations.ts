@@ -2,15 +2,19 @@ import { relations } from 'drizzle-orm';
 import {
   accounts,
   authenticators,
-  modules,
   modulePrerequisites,
+  modules,
   programs,
+  registrationClearanceAudit,
   registrationClearances,
   registrationRequests,
   requestedModules,
   schools,
+  semesterModules,
   sessions,
   signups,
+  sponsoredStudents,
+  sponsors,
   structureSemesters,
   structures,
   studentModules,
@@ -19,9 +23,6 @@ import {
   students,
   terms,
   users,
-  registrationClearanceAudit,
-  sponsors,
-  sponsoredStudents,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -56,6 +57,7 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
   }),
   programs: many(studentPrograms),
   registrationRequests: many(registrationRequests),
+  sponsorships: many(sponsoredStudents),
 }));
 
 export const studentProgramsRelations = relations(
@@ -114,6 +116,7 @@ export const structuresRelations = relations(structures, ({ many, one }) => ({
   }),
   semesters: many(structureSemesters),
   students: many(students),
+  studentPrograms: many(studentPrograms),
 }));
 
 export const structureSemestersRelations = relations(
@@ -124,6 +127,7 @@ export const structureSemestersRelations = relations(
       references: [structures.id],
     }),
     modules: many(modules),
+    semesterModules: many(semesterModules),
   }),
 );
 
@@ -136,6 +140,8 @@ export const modulesRelations = relations(modules, ({ many, one }) => ({
     fields: [modules.semesterId],
     references: [structureSemesters.id],
   }),
+  semesterModules: many(semesterModules),
+  studentModules: many(studentModules),
 }));
 
 export const modulePrerequisitesRelations = relations(
@@ -152,8 +158,23 @@ export const modulePrerequisitesRelations = relations(
   }),
 );
 
+export const semesterModulesRelations = relations(
+  semesterModules,
+  ({ one }) => ({
+    semester: one(structureSemesters, {
+      fields: [semesterModules.semesterId],
+      references: [structureSemesters.id],
+    }),
+    module: one(modules, {
+      fields: [semesterModules.moduleId],
+      references: [modules.id],
+    }),
+  }),
+);
+
 export const termsRelations = relations(terms, ({ many }) => ({
   registrationRequests: many(registrationRequests),
+  sponsoredStudents: many(sponsoredStudents),
 }));
 
 export const registrationRequestsRelations = relations(
@@ -234,6 +255,10 @@ export const sponsoredStudentsRelations = relations(
     student: one(students, {
       fields: [sponsoredStudents.stdNo],
       references: [students.stdNo],
+    }),
+    term: one(terms, {
+      fields: [sponsoredStudents.termId],
+      references: [terms.id],
     }),
   }),
 );
