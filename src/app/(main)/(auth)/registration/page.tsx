@@ -50,7 +50,7 @@ export default async function RegistrationStatusPage() {
             </div>
           </div>
 
-          {request.status !== 'approved' && (
+          {request.status !== 'registered' && (
             <div className='flex flex-col gap-3 sm:flex-row sm:justify-end'>
               <Button
                 variant='default'
@@ -91,7 +91,11 @@ export default async function RegistrationStatusPage() {
             <div>
               <div className='mb-4 flex items-center gap-2'>
                 <BookOpen className='h-5 w-5 text-primary' />
-                <h3 className='text-lg font-semibold'>Requested Modules</h3>
+                <h3 className='text-lg font-semibold'>
+                  {request.status === 'registered'
+                    ? 'Registered Modules'
+                    : 'Requested Modules'}
+                </h3>
               </div>
               <div className='grid gap-3'>
                 {request.requestedModules?.map((rm) => (
@@ -138,7 +142,6 @@ function StatusMessage({ message, status }: StatusBadgeProps) {
   const styles = getStatusStyles(status);
   const Icon = styles.icon;
 
-  // Define message content based on status
   const defaultMessages = {
     pending:
       'Your registration request is currently under review, this might take a few days. Come back later to check the status.',
