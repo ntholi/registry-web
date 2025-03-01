@@ -353,6 +353,7 @@ export const registrationRequestStatusEnum = [
   'pending',
   'approved',
   'rejected',
+  'partial',
   'registered',
 ] as const;
 
