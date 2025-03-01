@@ -8,7 +8,7 @@ import {
   requestedModules,
 } from '@/db/schema';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { and, count, desc, eq, inArray, like } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, like } from 'drizzle-orm';
 
 type Model = typeof registrationClearances.$inferInsert;
 
@@ -134,8 +134,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     params: FindAllParams<typeof registrationClearances>,
     status?: 'pending' | 'approved' | 'rejected',
   ) {
-    const { orderByExpressions, offset, pageSize } =
-      await this.queryExpressions(params);
+    const { offset, pageSize } = await this.queryExpressions(params);
 
     const ids = await db.query.registrationRequests.findMany({
       where: like(registrationRequests.stdNo, `%${params.search}%`),
@@ -163,7 +162,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
           },
         },
       },
-      orderBy: orderByExpressions,
+      orderBy: asc(registrationClearances.createdAt),
       limit: pageSize,
       offset,
     });

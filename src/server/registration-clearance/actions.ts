@@ -39,7 +39,6 @@ export async function registrationClearanceByDepartment(
     {
       page,
       search,
-      orderBy: [{ field: 'createdAt', direction: 'desc' }],
     },
     'pending',
   );
