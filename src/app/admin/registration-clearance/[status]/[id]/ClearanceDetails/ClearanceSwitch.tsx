@@ -1,6 +1,10 @@
 'use client';
 
-import { dashboardUsers, registrationRequestStatusEnum } from '@/db/schema';
+import {
+  clearanceRequestStatusEnum,
+  dashboardUsers,
+  registrationRequestStatusEnum,
+} from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import {
   createRegistrationClearance,
@@ -19,7 +23,7 @@ type Props = {
 };
 
 type Status = Exclude<
-  (typeof registrationRequestStatusEnum)[number],
+  (typeof clearanceRequestStatusEnum)[number],
   'registered'
 >;
 
@@ -93,12 +97,10 @@ export default function ClearanceSwitch({
               setAccordion('comments');
             } else setAccordion('modules');
           }}
-          data={registrationRequestStatusEnum
-            .filter((status) => status !== 'registered')
-            .map((status) => ({
-              label: toTitleCase(status),
-              value: status,
-            }))}
+          data={clearanceRequestStatusEnum.map((status) => ({
+            label: toTitleCase(status),
+            value: status,
+          }))}
           fullWidth
           disabled={isPending}
         />

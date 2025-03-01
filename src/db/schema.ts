@@ -410,6 +410,12 @@ export const requestedModules = sqliteTable('requested_modules', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
+export const clearanceRequestStatusEnum = [
+  'pending',
+  'approved',
+  'rejected',
+] as const;
+
 export const registrationClearances = sqliteTable(
   'registration_clearances',
   {
@@ -418,7 +424,7 @@ export const registrationClearances = sqliteTable(
       .references(() => registrationRequests.id, { onDelete: 'cascade' })
       .notNull(),
     department: text({ enum: dashboardUsers }).notNull(),
-    status: text({ enum: registrationRequestStatusEnum })
+    status: text({ enum: clearanceRequestStatusEnum })
       .notNull()
       .default('pending'),
     message: text(),
