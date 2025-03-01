@@ -1,22 +1,49 @@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { AlertCircle, Check, Info, AlertTriangle } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
 type Status = 'success' | 'info' | 'warning' | 'danger';
+type StatusMapping =
+  | 'pending'
+  | 'partial'
+  | 'approved'
+  | 'rejected'
+  | 'registered';
 
 type Props = {
-  status: Status;
+  status: Status | StatusMapping;
+  statusType?: Status;
+  customText?: string;
 };
 
-export default function StatusBadge({ status }: Props) {
+export default function StatusBadge({ status, statusType, customText }: Props) {
+  const mappedStatus = statusType || mapToStatusType(status);
+
   return (
     <Badge
-      className={cn('capitalize', getStatusColor(status))}
+      className={cn('capitalize', getStatusColor(mappedStatus))}
       variant='outline'
     >
-      {status}
+      {customText || status}
     </Badge>
   );
+}
+
+function mapToStatusType(status: Status | StatusMapping): Status {
+  switch (status) {
+    case 'pending':
+      return 'warning';
+    case 'partial':
+      return 'info';
+    case 'approved':
+      return 'success';
+    case 'rejected':
+      return 'danger';
+    case 'registered':
+      return 'success';
+    default:
+      return status as Status;
+  }
 }
 
 function getStatusColor(status: Status) {
@@ -33,10 +60,18 @@ function getStatusColor(status: Status) {
   }
 }
 
-export function getStatusIcon(status: string) {
-  switch (status.toLowerCase()) {
+export function getStatusIcon(status: string, statusType?: Status) {
+  const mappedStatus =
+    statusType ||
+    (typeof status === 'string'
+      ? mapToStatusType(status as Status | StatusMapping)
+      : 'warning');
+
+  switch (mappedStatus) {
     case 'success':
-      return <Check className='h-5 w-5 text-green-600 dark:text-green-400' />;
+      return (
+        <CheckCircle className='h-5 w-5 text-green-600 dark:text-green-400' />
+      );
     case 'info':
       return <Info className='h-5 w-5 text-blue-600 dark:text-blue-400' />;
     case 'danger':
