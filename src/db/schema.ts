@@ -329,18 +329,6 @@ export const modulePrerequisites = sqliteTable(
   }),
 );
 
-//TODO: DELETE THIS TABLE
-export const semesterModules = sqliteTable('semester_modules', {
-  id: integer().primaryKey(),
-  semesterId: integer()
-    .references(() => structureSemesters.id, { onDelete: 'cascade' })
-    .notNull(),
-  moduleId: integer()
-    .references(() => modules.id, { onDelete: 'cascade' })
-    .notNull(),
-  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
 export const terms = sqliteTable('terms', {
   id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull().unique(),

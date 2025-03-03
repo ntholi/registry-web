@@ -120,6 +120,13 @@
       "when": 1741024394846,
       "tag": "0016_strong_oracle",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1741024457766,
+      "tag": "0017_worthless_the_initiative",
+      "breakpoints": true
     }
   ]
 }

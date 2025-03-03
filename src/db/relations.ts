@@ -10,7 +10,6 @@ import {
   registrationRequests,
   requestedModules,
   schools,
-  semesterModules,
   sessions,
   signups,
   sponsoredStudents,
@@ -127,7 +126,6 @@ export const structureSemestersRelations = relations(
       references: [structures.id],
     }),
     modules: many(modules),
-    semesterModules: many(semesterModules),
   }),
 );
 
@@ -140,7 +138,6 @@ export const modulesRelations = relations(modules, ({ many, one }) => ({
     fields: [modules.semesterId],
     references: [structureSemesters.id],
   }),
-  semesterModules: many(semesterModules),
   studentModules: many(studentModules),
 }));
 
@@ -153,20 +150,6 @@ export const modulePrerequisitesRelations = relations(
     }),
     prerequisite: one(modules, {
       fields: [modulePrerequisites.prerequisiteId],
-      references: [modules.id],
-    }),
-  }),
-);
-
-export const semesterModulesRelations = relations(
-  semesterModules,
-  ({ one }) => ({
-    semester: one(structureSemesters, {
-      fields: [semesterModules.semesterId],
-      references: [structureSemesters.id],
-    }),
-    module: one(modules, {
-      fields: [semesterModules.moduleId],
       references: [modules.id],
     }),
   }),

@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  clearanceRequestStatusEnum,
-  dashboardUsers,
-  registrationRequestStatusEnum,
-} from '@/db/schema';
+import { clearanceRequestStatusEnum, dashboardUsers } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import {
   createRegistrationClearance,
