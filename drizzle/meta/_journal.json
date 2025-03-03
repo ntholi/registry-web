@@ -113,6 +113,13 @@
       "when": 1740682686694,
       "tag": "0015_good_jack_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1741024394846,
+      "tag": "0016_strong_oracle",
+      "breakpoints": true
     }
   ]
 }
