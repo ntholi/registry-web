@@ -121,7 +121,6 @@ export default function ModulesForm({ stdNo, structureId, request }: Props) {
                   key={module.id}
                   control={form.control}
                   module={module}
-                  failedPrerequisites={module.prerequisites}
                 />
               ))}
             </div>
