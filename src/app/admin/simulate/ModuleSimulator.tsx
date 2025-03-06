@@ -53,11 +53,6 @@ export default function ModuleSimulator() {
     }
   };
 
-  // Check if a module has failed prerequisites
-  const hasFailedPrerequisites = (prerequisites: string[] | undefined) => {
-    return prerequisites && prerequisites.length > 0;
-  };
-
   return (
     <Stack>
       <Paper withBorder shadow='sm' p='lg' radius='md'>
@@ -148,37 +143,42 @@ export default function ModuleSimulator() {
                   </Table.Thead>
                   <Table.Tbody>
                     {results?.modules.map((m) => {
-                      const preFailed = hasFailedPrerequisites(m.prerequisites);
+                      const preFailed =
+                        m.prerequisites && m.prerequisites.length > 0;
                       return (
                         <Table.Tr key={m.id}>
                           <Table.Td fw={500}>
                             <Text
+                              size='sm'
                               td={preFailed ? 'line-through' : undefined}
-                              c={preFailed ? 'dimmed' : undefined}
+                              c={preFailed ? 'dark' : undefined}
                             >
                               {m.code}
                             </Text>
                           </Table.Td>
                           <Table.Td>
                             <Text
+                              size='sm'
                               td={preFailed ? 'line-through' : undefined}
-                              c={preFailed ? 'dimmed' : undefined}
+                              c={preFailed ? 'dark' : undefined}
                             >
                               {m.name}
                             </Text>
                           </Table.Td>
                           <Table.Td>
                             <Text
+                              size='sm'
                               td={preFailed ? 'line-through' : undefined}
-                              c={preFailed ? 'dimmed' : undefined}
+                              c={preFailed ? 'dark' : undefined}
                             >
                               {m.type}
                             </Text>
                           </Table.Td>
                           <Table.Td>
                             <Text
+                              size='sm'
                               td={preFailed ? 'line-through' : undefined}
-                              c={preFailed ? 'dimmed' : undefined}
+                              c={preFailed ? 'dark' : undefined}
                             >
                               {m.credits}
                             </Text>
@@ -194,15 +194,10 @@ export default function ModuleSimulator() {
                           </Table.Td>
                           <Table.Td>
                             <Group gap={4}>
-                              {m.prerequisites?.map((code) => (
-                                <Badge
-                                  key={code}
-                                  size='sm'
-                                  color='red'
-                                  radius='sm'
-                                >
-                                  {code}
-                                </Badge>
+                              {m.prerequisites?.map((p) => (
+                                <Text key={p.code} size='sm' c='red'>
+                                  {p.name}
+                                </Text>
                               ))}
                             </Group>
                           </Table.Td>
