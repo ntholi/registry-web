@@ -5,6 +5,7 @@ import {
   modules,
   ModuleStatus,
   moduleStatusEnum,
+  registrationRequestStatusEnum,
 } from '@/db/schema';
 import { Form } from '@/components/adease';
 import {
@@ -67,6 +68,7 @@ export default function RegistrationRequestForm({
   const [structureId, setStructureId] = useState<number | null>(null);
   const [selectedSponsor, setSelectedSponsor] = useState<string | null>(null);
   const [borrowerNo, setBorrowerNo] = useState<string>('');
+  const [hasValidStudent, setHasValidStudent] = useState<boolean>(false);
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -126,7 +128,12 @@ export default function RegistrationRequestForm({
       const student = await getStudent(stdNo);
       if (student && student.structureId) {
         setStructureId(student.structureId);
+        setHasValidStudent(true);
+      } else {
+        setHasValidStudent(false);
       }
+    } else {
+      setHasValidStudent(false);
     }
   };
 
@@ -191,22 +198,14 @@ export default function RegistrationRequestForm({
         }}
       >
         {(form) => (
-          <Stack gap='md'>
-            <Grid>
-              <GridCol span={6}>
-                <StdNoInput
-                  {...form.getInputProps('stdNo')}
-                  onChange={(value) => {
-                    form.getInputProps('stdNo').onChange(value);
-                    if (value) handleStudentSelect(Number(value));
-                  }}
-                />
-              </GridCol>
-              <GridCol span={6}>
-                <TextInput label='Term' {...form.getInputProps('term')} />
-              </GridCol>
-            </Grid>
-
+          <Stack gap='xs'>
+            <StdNoInput
+              {...form.getInputProps('stdNo')}
+              onChange={(value) => {
+                form.getInputProps('stdNo').onChange(value);
+                if (value) handleStudentSelect(Number(value));
+              }}
+            />
             <Paper withBorder p='md'>
               <Text fw={500} mb='sm'>
                 Sponsorship Information
@@ -225,6 +224,7 @@ export default function RegistrationRequestForm({
                     onChange={setSelectedSponsor}
                     placeholder='Select sponsor'
                     clearable
+                    disabled={!hasValidStudent}
                   />
                 </GridCol>
                 <GridCol span={6}>
@@ -238,22 +238,19 @@ export default function RegistrationRequestForm({
                         value={borrowerNo}
                         onChange={(e) => setBorrowerNo(e.target.value)}
                         placeholder='Enter NMDS borrower number'
+                        disabled={!hasValidStudent}
                       />
                     )}
                 </GridCol>
               </Grid>
             </Paper>
-
-            <TextInput label='Status' {...form.getInputProps('status')} />
-            <TextInput label='Message' {...form.getInputProps('message')} />
-
             <Paper withBorder p='md' mt='md'>
               <Group justify='space-between' mb='md'>
                 <Text fw={500}>Selected Modules</Text>
                 <Button
                   leftSection={<IconPlus size='1rem' />}
                   onClick={openModuleModal}
-                  disabled={!structureId}
+                  disabled={!structureId || !hasValidStudent}
                   size='sm'
                 >
                   Add Module
@@ -302,12 +299,14 @@ export default function RegistrationRequestForm({
                             }))}
                             size='xs'
                             style={{ width: '120px' }}
+                            disabled={!hasValidStudent}
                           />
                         </Table.Td>
                         <Table.Td>
                           <ActionIcon
                             color='red'
                             onClick={() => handleRemoveModule(module.id)}
+                            disabled={!hasValidStudent}
                           >
                             <IconTrash size='1rem' />
                           </ActionIcon>
