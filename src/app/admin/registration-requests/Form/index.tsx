@@ -156,9 +156,12 @@ export default function RegistrationRequestForm({
 
   const processFormSubmission = async (values: RegistrationRequest) => {
     try {
+      if (!selectedSponsor) {
+        throw new Error('Semester is required');
+      }
       const result = await onSubmit({
         ...values,
-        sponsorId: selectedSponsor ? parseInt(selectedSponsor) : undefined,
+        sponsorId: parseInt(selectedSponsor),
       });
 
       if (result && result.id && selectedModules.length > 0) {
