@@ -1,40 +1,42 @@
 'use client';
 
+import { Form } from '@/components/adease';
 import {
-  registrationRequests,
   modules,
   ModuleStatus,
   moduleStatusEnum,
-  registrationRequestStatusEnum,
+  registrationRequests,
 } from '@/db/schema';
-import { Form } from '@/components/adease';
+import { formatSemester } from '@/lib/utils';
+import { getModulesForStructure } from '@/server/modules/actions';
+import { updateRegistrationWithModules } from '@/server/registration-requests/actions';
 import {
+  findAllSponsors,
+  updateStudentSponsorship,
+} from '@/server/sponsors/actions';
+import { getStudent } from '@/server/students/actions';
+import {
+  ActionIcon,
   Button,
+  Divider,
   Grid,
   GridCol,
+  Group,
+  Modal,
+  Paper,
+  Select,
   Stack,
   Table,
-  TextInput,
   Text,
-  Group,
-  ActionIcon,
-  Paper,
-  Modal,
-  Select,
-  Box,
+  TextInput,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
-import StdNoInput from '../../base/StdNoInput';
 import { useState } from 'react';
-import { IconSearch, IconPlus, IconTrash } from '@tabler/icons-react';
-import { useDisclosure } from '@mantine/hooks';
-import { getModulesForStructure } from '@/server/modules/actions';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getStudent } from '@/server/students/actions';
-import { updateRegistrationWithModules } from '@/server/registration-requests/actions';
-import { findAllSponsors } from '@/server/sponsors/actions';
-import { updateStudentSponsorship } from '@/server/sponsors/actions';
+import StdNoInput from '../../base/StdNoInput';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type Module = typeof modules.$inferSelect;
@@ -69,6 +71,7 @@ export default function RegistrationRequestForm({
   const [selectedSponsor, setSelectedSponsor] = useState<string | null>(null);
   const [borrowerNo, setBorrowerNo] = useState<string>('');
   const [hasValidStudent, setHasValidStudent] = useState<boolean>(false);
+  const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -81,12 +84,23 @@ export default function RegistrationRequestForm({
     enabled: !!structureId,
   });
 
-  // Fetch sponsors
   const { data: sponsors } = useQuery({
     queryKey: ['sponsors'],
     queryFn: () => findAllSponsors(1),
     select: (data) => data.data,
   });
+
+  const semesterOptions = structureModules
+    ? [...new Set(structureModules.map((sem) => sem.id.toString()))].map(
+        (id) => {
+          const semester = structureModules.find((s) => s.id.toString() === id);
+          return {
+            value: String(semester?.semesterNumber),
+            label: formatSemester(semester?.semesterNumber),
+          };
+        },
+      )
+    : [];
 
   const filteredModules = structureModules
     ? structureModules.flatMap((sem) =>
@@ -129,11 +143,14 @@ export default function RegistrationRequestForm({
       if (student && student.structureId) {
         setStructureId(student.structureId);
         setHasValidStudent(true);
+        setSelectedSemester(null);
       } else {
         setHasValidStudent(false);
+        setSelectedSemester(null);
       }
     } else {
       setHasValidStudent(false);
+      setSelectedSemester(null);
     }
   };
 
@@ -206,6 +223,18 @@ export default function RegistrationRequestForm({
                 if (value) handleStudentSelect(Number(value));
               }}
             />
+
+            <Select
+              label='Semester'
+              description='Select the semester the student is registering for'
+              placeholder='Select semester'
+              data={semesterOptions}
+              value={selectedSemester}
+              onChange={setSelectedSemester}
+              disabled={!hasValidStudent || semesterOptions.length === 0}
+              required
+            />
+
             <Paper withBorder p='md'>
               <Text fw={500} mb='sm'>
                 Sponsorship Information
@@ -248,17 +277,17 @@ export default function RegistrationRequestForm({
             </Paper>
             <Paper withBorder p='md' mt='md'>
               <Group justify='space-between' mb='md'>
-                <Text fw={500}>Selected Modules</Text>
-                <Button
-                  leftSection={<IconPlus size='1rem' />}
+                <Text fw={500}>Modules</Text>
+                <ActionIcon
                   onClick={openModuleModal}
-                  disabled={!structureId || !hasValidStudent}
-                  size='sm'
+                  disabled={
+                    !structureId || !hasValidStudent || !selectedSemester
+                  }
                 >
-                  Add Module
-                </Button>
+                  <IconPlus size='1rem' />
+                </ActionIcon>
               </Group>
-
+              <Divider my='xs' />
               <Table striped highlightOnHover>
                 <Table.Thead>
                   <Table.Tr>
