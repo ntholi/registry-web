@@ -105,7 +105,8 @@ export async function getStudentSemesterModules(
   const semesterNo = await determineNextSemester(
     stdPrograms.flatMap((p) => p.semesters),
   );
-  const repeatModules = await getRepeatModules(stdNo);
+  const failedPrerequisites = await getFailedPrerequisites(stdNo);
+  const repeatModules = await getRepeatModules(stdNo, failedPrerequisites);
 
   const activeProgram = stdPrograms.find((p) => p.status === 'Active');
   if (
@@ -141,8 +142,6 @@ export async function getStudentSemesterModules(
     await getSemesterModules(semesterNo, structureId)
   ).filter((m) => !attemptedModules.has(m.name));
 
-  const failedPrerequisites = await getFailedPrerequisites(stdNo);
-
   return {
     modules: [
       ...eligibleModules.map(
@@ -165,6 +164,7 @@ export async function getStudentSemesterModules(
 
 export async function getRepeatModules(
   stdNo: number,
+  failedPrerequisites?: Record<string, string[]>,
 ): Promise<ModuleWithStatus[]> {
   const { semester } = await getCurrentTerm();
   const semesterNumbers =
@@ -216,6 +216,10 @@ export async function getRepeatModules(
       >,
     );
 
+  if (!failedPrerequisites) {
+    failedPrerequisites = await getFailedPrerequisites(stdNo);
+  }
+
   return Object.values(moduleHistory)
     .filter(({ passed }) => !passed)
     .map(({ failCount, module }) => ({
@@ -225,6 +229,7 @@ export async function getRepeatModules(
       type: module.type,
       credits: module.credits,
       status: `Repeat${failCount}`,
+      prerequisites: failedPrerequisites![module.code] || [],
     }));
 }
 
