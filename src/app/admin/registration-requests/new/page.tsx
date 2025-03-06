@@ -5,7 +5,10 @@ import { createRegistrationRequest } from '@/server/registration-requests/action
 export default async function NewPage() {
   return (
     <Box p={'lg'}>
-      <Form title={'Create Registration Request'} onSubmit={createRegistrationRequest} />
+      <Form
+        title={'Create Registration Request'}
+        onSubmit={createRegistrationRequest}
+      />
     </Box>
   );
 }

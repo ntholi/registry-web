@@ -24,7 +24,7 @@ import {
 } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
-import StdNoInput from '../base/StdNoInput';
+import StdNoInput from '../../base/StdNoInput';
 import { useState } from 'react';
 import { IconSearch, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
