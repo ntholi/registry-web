@@ -75,7 +75,7 @@ export default function ModulesForm({ stdNo, structureId, request }: Props) {
           if (found) {
             return {
               id: found.id,
-              status: 'Compulsory' as const,
+              status: found.status,
             };
           }
         })
