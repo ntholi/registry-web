@@ -1,6 +1,11 @@
 'use client';
 
-import { registrationRequests, modules, ModuleStatus } from '@/db/schema';
+import {
+  registrationRequests,
+  modules,
+  ModuleStatus,
+  moduleStatusEnum,
+} from '@/db/schema';
 import { Form } from '@/components/adease';
 import {
   Button,
@@ -14,6 +19,8 @@ import {
   ActionIcon,
   Paper,
   Modal,
+  Select,
+  Box,
 } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
@@ -25,6 +32,8 @@ import { getModulesForStructure } from '@/server/modules/actions';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getStudent } from '@/server/students/actions';
 import { updateRegistrationWithModules } from '@/server/registration-requests/actions';
+import { findAllSponsors } from '@/server/sponsors/actions';
+import { updateStudentSponsorship } from '@/server/sponsors/actions';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type Module = typeof modules.$inferSelect;
@@ -56,6 +65,8 @@ export default function RegistrationRequestForm({
   const [moduleOpened, { open: openModuleModal, close: closeModuleModal }] =
     useDisclosure(false);
   const [structureId, setStructureId] = useState<number | null>(null);
+  const [selectedSponsor, setSelectedSponsor] = useState<string | null>(null);
+  const [borrowerNo, setBorrowerNo] = useState<string>('');
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -66,6 +77,13 @@ export default function RegistrationRequestForm({
       return [];
     },
     enabled: !!structureId,
+  });
+
+  // Fetch sponsors
+  const { data: sponsors } = useQuery({
+    queryKey: ['sponsors'],
+    queryFn: () => findAllSponsors(1),
+    select: (data) => data.data,
   });
 
   const filteredModules = structureModules
@@ -92,6 +110,17 @@ export default function RegistrationRequestForm({
     setSelectedModules(selectedModules.filter((m) => m.id !== moduleId));
   };
 
+  const handleChangeModuleStatus = (
+    moduleId: number,
+    newStatus: ModuleStatus,
+  ) => {
+    setSelectedModules(
+      selectedModules.map((module) =>
+        module.id === moduleId ? { ...module, status: newStatus } : module,
+      ),
+    );
+  };
+
   const handleStudentSelect = async (stdNo: number) => {
     if (stdNo) {
       const student = await getStudent(stdNo);
@@ -103,7 +132,10 @@ export default function RegistrationRequestForm({
 
   const processFormSubmission = async (values: RegistrationRequest) => {
     try {
-      const result = await onSubmit(values);
+      const result = await onSubmit({
+        ...values,
+        sponsorId: selectedSponsor ? parseInt(selectedSponsor) : undefined,
+      });
 
       if (result && result.id && selectedModules.length > 0) {
         await updateRegistrationWithModules(
@@ -113,6 +145,22 @@ export default function RegistrationRequestForm({
             status: module.status,
           })),
         );
+
+        if (selectedSponsor) {
+          const selectedSponsorObj = sponsors?.find(
+            (s) => s.id.toString() === selectedSponsor,
+          );
+
+          if (selectedSponsorObj) {
+            await updateStudentSponsorship({
+              stdNo: Number(values.stdNo),
+              termId: Number(values.termId),
+              sponsorName: selectedSponsorObj.name,
+              borrowerNo:
+                selectedSponsorObj.name === 'NMDS' ? borrowerNo : undefined,
+            });
+          }
+        }
 
         queryClient.invalidateQueries({
           queryKey: ['registrationRequest', result.id],
@@ -158,6 +206,44 @@ export default function RegistrationRequestForm({
                 <TextInput label='Term' {...form.getInputProps('term')} />
               </GridCol>
             </Grid>
+
+            <Paper withBorder p='md'>
+              <Text fw={500} mb='sm'>
+                Sponsorship Information
+              </Text>
+              <Grid>
+                <GridCol span={6}>
+                  <Select
+                    label='Sponsor'
+                    data={
+                      sponsors?.map((sponsor) => ({
+                        value: sponsor.id.toString(),
+                        label: sponsor.name,
+                      })) || []
+                    }
+                    value={selectedSponsor}
+                    onChange={setSelectedSponsor}
+                    placeholder='Select sponsor'
+                    clearable
+                  />
+                </GridCol>
+                <GridCol span={6}>
+                  {selectedSponsor &&
+                    selectedSponsor ===
+                      sponsors
+                        ?.find((s) => s.name === 'NMDS')
+                        ?.id.toString() && (
+                      <TextInput
+                        label='Borrower Number'
+                        value={borrowerNo}
+                        onChange={(e) => setBorrowerNo(e.target.value)}
+                        placeholder='Enter NMDS borrower number'
+                      />
+                    )}
+                </GridCol>
+              </Grid>
+            </Paper>
+
             <TextInput label='Status' {...form.getInputProps('status')} />
             <TextInput label='Message' {...form.getInputProps('message')} />
 
@@ -201,7 +287,23 @@ export default function RegistrationRequestForm({
                         <Table.Td>{module.name}</Table.Td>
                         <Table.Td>{module.type}</Table.Td>
                         <Table.Td>{module.credits}</Table.Td>
-                        <Table.Td>{module.status}</Table.Td>
+                        <Table.Td>
+                          <Select
+                            value={module.status}
+                            onChange={(value) =>
+                              handleChangeModuleStatus(
+                                module.id,
+                                value as ModuleStatus,
+                              )
+                            }
+                            data={moduleStatusEnum.map((status) => ({
+                              value: status,
+                              label: status,
+                            }))}
+                            size='xs'
+                            style={{ width: '120px' }}
+                          />
+                        </Table.Td>
                         <Table.Td>
                           <ActionIcon
                             color='red'
