@@ -228,19 +228,21 @@ export default function RegistrationRequestForm({
                   />
                 </GridCol>
                 <GridCol span={6}>
-                  {selectedSponsor &&
-                    selectedSponsor ===
-                      sponsors
-                        ?.find((s) => s.name === 'NMDS')
-                        ?.id.toString() && (
-                      <TextInput
-                        label='Borrower Number'
-                        value={borrowerNo}
-                        onChange={(e) => setBorrowerNo(e.target.value)}
-                        placeholder='Enter NMDS borrower number'
-                        disabled={!hasValidStudent}
-                      />
-                    )}
+                  <TextInput
+                    label='Borrower Number'
+                    value={borrowerNo}
+                    onChange={(e) => setBorrowerNo(e.target.value)}
+                    disabled={
+                      !(
+                        hasValidStudent &&
+                        selectedSponsor &&
+                        selectedSponsor ===
+                          sponsors
+                            ?.find((s) => s.name === 'NMDS')
+                            ?.id.toString()
+                      )
+                    }
+                  />
                 </GridCol>
               </Grid>
             </Paper>
