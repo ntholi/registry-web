@@ -43,7 +43,7 @@ export async function getFailedPrerequisites(stdNo: number) {
     },
   });
 
-  const prevSemesterModules = await programs
+  const prevSemesterModules = programs
     .flatMap((p) => p.semesters)
     .flatMap((s) => s.studentModules)
     .map((m) => m.module);
@@ -53,13 +53,13 @@ export async function getFailedPrerequisites(stdNo: number) {
       .flatMap((p) => p.semesters)
       .flatMap((s) => s.studentModules)
       .filter((m) => parseFloat(m.marks) >= 50)
-      .map((m) => m.module.name),
+      .map((m) => m.module.code),
   );
 
   const failedModules = new Set(
     prevSemesterModules
-      .filter((m) => !passedModules.has(m.name))
-      .map((m) => m.name),
+      .filter((m) => !passedModules.has(m.code))
+      .map((m) => m.code),
   );
 
   const prerequisites = await db.query.modulePrerequisites.findMany({
@@ -68,7 +68,7 @@ export async function getFailedPrerequisites(stdNo: number) {
 
   return prerequisites.reduce(
     (acc, { module, prerequisite }) => {
-      if (failedModules.has(prerequisite.name)) {
+      if (failedModules.has(prerequisite.code)) {
         acc[module.code] = Array.from(
           new Set([...(acc[module.code] || []), prerequisite.code]),
         );
