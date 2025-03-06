@@ -6,7 +6,12 @@ import {
   FormItem,
   FormLabel,
 } from '@/components/ui/form';
-import { AlertCircle } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { AlertCircle, Info } from 'lucide-react';
 import { Control } from 'react-hook-form';
 import { RegisterFormSchema } from '.';
 import { getStudentSemesterModules } from '../actions';
@@ -16,15 +21,10 @@ type Props = {
   module: Awaited<
     ReturnType<typeof getStudentSemesterModules>
   >['modules'][number];
-  failedPrerequisites?: string[];
 };
 
-export default function ModuleInput({
-  control,
-  module,
-  failedPrerequisites,
-}: Props) {
-  const hasFailedPrerequisites = (failedPrerequisites?.length ?? 0) > 0;
+export default function ModuleInput({ control, module }: Props) {
+  const hasFailedPrerequisites = (module.prerequisites?.length ?? 0) > 0;
 
   return (
     <FormField
@@ -66,9 +66,26 @@ export default function ModuleInput({
           </div>
           <div className='absolute bottom-3 right-4'>
             {hasFailedPrerequisites ? (
-              <Badge variant='destructive' className='mb-1'>
-                Prerequisite ({failedPrerequisites?.join(', ')})
-              </Badge>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Badge variant='destructive' className='mb-1 cursor-pointer'>
+                    Prerequisites <Info className='ml-1 inline h-3 w-3' />
+                  </Badge>
+                </PopoverTrigger>
+                <PopoverContent className='border-foreground/60'>
+                  <div className='space-y-2'>
+                    <h4 className='text-sm font-semibold'>Prerequisites:</h4>
+                    <ul className='list-inside list-disc space-y-1 text-xs'>
+                      {module.prerequisites?.map((prereq) => (
+                        <li key={prereq.code}>
+                          <span className='font-medium'>{prereq.code}</span> -{' '}
+                          {prereq.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </PopoverContent>
+              </Popover>
             ) : (
               <Badge
                 variant={

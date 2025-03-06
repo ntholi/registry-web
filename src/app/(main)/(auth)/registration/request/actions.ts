@@ -17,7 +17,12 @@ type ModuleWithStatus = {
   type: string;
   credits: number;
   status: 'Compulsory' | 'Elective' | `Repeat${number}`;
-  prerequisites?: string[];
+  prerequisites?: PrerequisiteInfo[];
+};
+
+type PrerequisiteInfo = {
+  code: string;
+  name: string;
 };
 
 type SemesterModules = {
@@ -56,10 +61,16 @@ export async function getFailedPrerequisites(stdNo: number) {
       .map((m) => m.module.code),
   );
 
-  const failedModules = new Set(
-    prevSemesterModules
-      .filter((m) => !passedModules.has(m.code))
-      .map((m) => m.code),
+  const failedModules = prevSemesterModules.filter(
+    (m) => !passedModules.has(m.code),
+  );
+
+  const failedModulesByCode = failedModules.reduce(
+    (acc, module) => {
+      acc[module.code] = { code: module.code, name: module.name };
+      return acc;
+    },
+    {} as Record<string, PrerequisiteInfo>,
   );
 
   const prerequisites = await db.query.modulePrerequisites.findMany({
@@ -68,14 +79,18 @@ export async function getFailedPrerequisites(stdNo: number) {
 
   return prerequisites.reduce(
     (acc, { module, prerequisite }) => {
-      if (failedModules.has(prerequisite.code)) {
-        acc[module.code] = Array.from(
-          new Set([...(acc[module.code] || []), prerequisite.code]),
-        );
+      if (failedModulesByCode[prerequisite.code]) {
+        acc[module.code] = acc[module.code] || [];
+        const prereqInfo = failedModulesByCode[prerequisite.code];
+
+        // Check if this prerequisite is already in the array to avoid duplicates
+        if (!acc[module.code].some((p) => p.code === prereqInfo.code)) {
+          acc[module.code].push(prereqInfo);
+        }
       }
       return acc;
     },
-    {} as Record<string, string[]>,
+    {} as Record<string, PrerequisiteInfo[]>,
   );
 }
 
@@ -164,7 +179,7 @@ export async function getStudentSemesterModules(
 
 export async function getRepeatModules(
   stdNo: number,
-  failedPrerequisites?: Record<string, string[]>,
+  failedPrerequisites?: Record<string, PrerequisiteInfo[]>,
 ): Promise<ModuleWithStatus[]> {
   const { semester } = await getCurrentTerm();
   const semesterNumbers =
