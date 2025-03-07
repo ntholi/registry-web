@@ -42,5 +42,9 @@ export async function getFailedModules(stdNo: number, semester: number) {
       marks: mod.marks,
     }));
 
-  return failedModules;
+  const uniqueFailedModules = Array.from(
+    new Map(failedModules.map((item) => [item.code, item])).values(),
+  );
+
+  return uniqueFailedModules;
 }
