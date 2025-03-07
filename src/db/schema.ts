@@ -233,6 +233,7 @@ export const gradeEnum = [
   'PX',
   'AP',
   'X',
+  'Def',
   'GNS',
   'ANN',
   'FIN',
