@@ -88,10 +88,7 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.value.trim())}
-                    />
+                    <Input {...field} />
                   </FormControl>
                   <FormDescription>
                     Enter your full name as it appears in your student record.
@@ -108,10 +105,7 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                 <FormItem>
                   <FormLabel>Student Number</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.value.trim())}
-                    />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
