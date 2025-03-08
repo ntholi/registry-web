@@ -9,7 +9,6 @@ import {
 } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 import { getModulesForStructure } from '@/server/modules/actions';
-import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { findAllSponsors } from '@/server/sponsors/actions';
 import { getStudent } from '@/server/students/actions';
 import {
@@ -29,7 +28,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -39,7 +38,17 @@ type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type Module = typeof modules.$inferSelect;
 
 type Props = {
-  onSubmit: (values: RegistrationRequest) => Promise<RegistrationRequest>;
+  onSubmit: (
+    values: RegistrationRequest,
+    formData?: {
+      sponsor: string | null;
+      semester: string | null;
+      semesterStatus: 'Active' | 'Repeat';
+      selectedModules: SelectedModule[];
+      borrowerNo: string;
+      sponsors: any[];
+    },
+  ) => Promise<RegistrationRequest>;
   defaultValues?: RegistrationRequest;
   onSuccess?: (value: RegistrationRequest) => void;
   onError?: (
@@ -59,7 +68,6 @@ export default function RegistrationRequestForm({
   onSuccess,
 }: Props) {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [moduleOpened, { open: openModuleModal, close: closeModuleModal }] =
@@ -154,63 +162,20 @@ export default function RegistrationRequestForm({
     }
   };
 
-  const processFormSubmission = async (values: RegistrationRequest) => {
-    try {
-      if (!selectedSponsor) {
-        throw new Error('Sponsor is required');
-      }
-
-      if (!selectedSemester) {
-        throw new Error('Semester is required');
-      }
-
-      if (selectedModules.length === 0) {
-        throw new Error('At least one module must be selected');
-      }
-
-      const result = await createRegistrationWithModules({
-        stdNo: Number(values.stdNo),
-        semesterNumber: Number(selectedSemester),
-        semesterStatus: semesterStatus,
-        sponsor:
-          sponsors?.find((s) => s.id.toString() === selectedSponsor)?.name ||
-          '',
-        borrowerNo:
-          selectedSponsor &&
-          sponsors?.find((s) => s.id.toString() === selectedSponsor)?.name ===
-            'NMDS'
-            ? borrowerNo
-            : undefined,
-        modules: selectedModules.map((module) => ({
-          moduleId: module.id,
-          moduleStatus: module.status,
-        })),
-      });
-
-      if (result && result.request && result.request.id) {
-        queryClient.invalidateQueries({
-          queryKey: ['registrationRequest', result.request.id],
-        });
-
-        if (onSuccess) {
-          onSuccess(result.request);
-        }
-
-        return result.request;
-      }
-
-      return values;
-    } catch (error) {
-      console.error('Error submitting registration request:', error);
-      throw error;
-    }
-  };
-
   return (
     <>
       <Form
         title={title}
-        action={processFormSubmission}
+        action={(values: RegistrationRequest) =>
+          onSubmit(values as RegistrationRequest, {
+            sponsor: selectedSponsor,
+            semester: selectedSemester,
+            semesterStatus,
+            selectedModules,
+            borrowerNo,
+            sponsors: sponsors || [],
+          })
+        }
         queryKey={['registrationRequests']}
         schema={createInsertSchema(registrationRequests)}
         defaultValues={defaultValues}
