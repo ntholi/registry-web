@@ -18,15 +18,13 @@ export default async function Home() {
   if (!student) {
     return (
       <div className='flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-4'>
-        <div className='flex w-full max-w-md flex-col items-center space-y-8 rounded-xl border bg-card p-10'>
+        <div className='flex w-full max-w-md flex-col items-center space-y-8 rounded-xl p-10'>
           <div className='space-y-2 text-center'>
-            <h1 className='bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-4xl font-bold text-transparent'>
-              Student Portal
-            </h1>
+            <h1 className='text-4xl font-bold'>Student Portal</h1>
             <h2 className='text-muted-foreground'>Limkokwing Student Portal</h2>
           </div>
 
-          <Loader className='relative size-16 animate-spin text-primary' />
+          <p>Loading...</p>
         </div>
       </div>
     );
