@@ -9,11 +9,8 @@ import {
 } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 import { getModulesForStructure } from '@/server/modules/actions';
-import { updateRegistrationWithModules } from '@/server/registration-requests/actions';
-import {
-  findAllSponsors,
-  updateStudentSponsorship,
-} from '@/server/sponsors/actions';
+import { createRegistrationWithModules } from '@/server/registration-requests/actions';
+import { findAllSponsors } from '@/server/sponsors/actions';
 import { getStudent } from '@/server/students/actions';
 import {
   ActionIcon,
@@ -72,6 +69,9 @@ export default function RegistrationRequestForm({
   const [borrowerNo, setBorrowerNo] = useState<string>('');
   const [hasValidStudent, setHasValidStudent] = useState<boolean>(false);
   const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
+  const [semesterStatus, setSemesterStatus] = useState<'Active' | 'Repeat'>(
+    'Active',
+  );
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -157,48 +157,49 @@ export default function RegistrationRequestForm({
   const processFormSubmission = async (values: RegistrationRequest) => {
     try {
       if (!selectedSponsor) {
+        throw new Error('Sponsor is required');
+      }
+
+      if (!selectedSemester) {
         throw new Error('Semester is required');
       }
-      const result = await onSubmit({
-        ...values,
-        sponsorId: parseInt(selectedSponsor),
+
+      if (selectedModules.length === 0) {
+        throw new Error('At least one module must be selected');
+      }
+
+      const result = await createRegistrationWithModules({
+        stdNo: Number(values.stdNo),
+        semesterNumber: Number(selectedSemester),
+        semesterStatus: semesterStatus,
+        sponsor:
+          sponsors?.find((s) => s.id.toString() === selectedSponsor)?.name ||
+          '',
+        borrowerNo:
+          selectedSponsor &&
+          sponsors?.find((s) => s.id.toString() === selectedSponsor)?.name ===
+            'NMDS'
+            ? borrowerNo
+            : undefined,
+        modules: selectedModules.map((module) => ({
+          moduleId: module.id,
+          moduleStatus: module.status,
+        })),
       });
 
-      if (result && result.id && selectedModules.length > 0) {
-        await updateRegistrationWithModules(
-          result.id,
-          selectedModules.map((module) => ({
-            id: module.id,
-            status: module.status,
-          })),
-        );
+      if (result && result.request && result.request.id) {
+        queryClient.invalidateQueries({
+          queryKey: ['registrationRequest', result.request.id],
+        });
 
-        if (selectedSponsor) {
-          const selectedSponsorObj = sponsors?.find(
-            (s) => s.id.toString() === selectedSponsor,
-          );
-
-          if (selectedSponsorObj) {
-            await updateStudentSponsorship({
-              stdNo: Number(values.stdNo),
-              termId: Number(values.termId),
-              sponsorName: selectedSponsorObj.name,
-              borrowerNo:
-                selectedSponsorObj.name === 'NMDS' ? borrowerNo : undefined,
-            });
-          }
+        if (onSuccess) {
+          onSuccess(result.request);
         }
 
-        queryClient.invalidateQueries({
-          queryKey: ['registrationRequest', result.id],
-        });
+        return result.request;
       }
 
-      if (result && result.id && onSuccess) {
-        onSuccess(result);
-      }
-
-      return result;
+      return values;
     } catch (error) {
       console.error('Error submitting registration request:', error);
       throw error;
@@ -227,16 +228,30 @@ export default function RegistrationRequestForm({
               }}
             />
 
-            <Select
-              label='Semester'
-              description='Select the semester the student is registering for'
-              placeholder='Select semester'
-              data={semesterOptions}
-              value={selectedSemester}
-              onChange={setSelectedSemester}
-              disabled={!hasValidStudent || semesterOptions.length === 0}
-              required
-            />
+            <Group grow>
+              <Select
+                label='Semester'
+                placeholder='Select semester'
+                data={semesterOptions}
+                value={selectedSemester}
+                onChange={setSelectedSemester}
+                disabled={!hasValidStudent || semesterOptions.length === 0}
+                required
+              />
+
+              <Select
+                label='Semester Status'
+                data={[
+                  { value: 'Active', label: 'Active' },
+                  { value: 'Repeat', label: 'Repeat' },
+                ]}
+                value={semesterStatus}
+                onChange={(value) =>
+                  setSemesterStatus(value as 'Active' | 'Repeat')
+                }
+                disabled={!hasValidStudent}
+              />
+            </Group>
 
             <Paper withBorder p='md'>
               <Text fw={500} mb='sm'>
@@ -257,6 +272,7 @@ export default function RegistrationRequestForm({
                     placeholder='Select sponsor'
                     clearable
                     disabled={!hasValidStudent}
+                    required
                   />
                 </GridCol>
                 <GridCol span={6}>
