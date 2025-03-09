@@ -41,11 +41,7 @@ type Props = {
   onSubmit: (
     values: RegistrationRequest,
     formData?: {
-      sponsor: string | null;
-      semester: string | null;
-      semesterStatus: 'Active' | 'Repeat';
       selectedModules: SelectedModule[];
-      borrowerNo: string;
       sponsors: any[];
     },
   ) => Promise<RegistrationRequest>;
@@ -73,13 +69,7 @@ export default function RegistrationRequestForm({
   const [moduleOpened, { open: openModuleModal, close: closeModuleModal }] =
     useDisclosure(false);
   const [structureId, setStructureId] = useState<number | null>(null);
-  const [selectedSponsor, setSelectedSponsor] = useState<string | null>(null);
-  const [borrowerNo, setBorrowerNo] = useState<string>('');
   const [hasValidStudent, setHasValidStudent] = useState<boolean>(false);
-  const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
-  const [semesterStatus, setSemesterStatus] = useState<'Active' | 'Repeat'>(
-    'Active',
-  );
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -151,14 +141,13 @@ export default function RegistrationRequestForm({
       if (student && student.structureId) {
         setStructureId(student.structureId);
         setHasValidStudent(true);
-        setSelectedSemester(null);
       } else {
+        setStructureId(null);
         setHasValidStudent(false);
-        setSelectedSemester(null);
       }
     } else {
+      setStructureId(null);
       setHasValidStudent(false);
-      setSelectedSemester(null);
     }
   };
 
@@ -168,172 +157,170 @@ export default function RegistrationRequestForm({
         title={title}
         action={(values: RegistrationRequest) =>
           onSubmit(values as RegistrationRequest, {
-            sponsor: selectedSponsor,
-            semester: selectedSemester,
-            semesterStatus,
             selectedModules,
-            borrowerNo,
             sponsors: sponsors || [],
           })
         }
         queryKey={['registrationRequests']}
-        schema={createInsertSchema(registrationRequests)}
         defaultValues={defaultValues}
         onSuccess={({ id }) => {
           router.push(`/admin/registration-requests/${id}`);
         }}
       >
-        {(form) => (
-          <Stack gap='xs'>
-            <StdNoInput
-              {...form.getInputProps('stdNo')}
-              onChange={(value) => {
-                form.getInputProps('stdNo').onChange(value);
-                if (value) handleStudentSelect(Number(value));
-              }}
-            />
+        {(form) => {
+          // Access sponsor value from form for conditional rendering
+          const sponsorId = form.values.sponsorId;
+          const selectedSponsor = sponsorId ? String(sponsorId) : null;
+          const isNMDSSponsor =
+            selectedSponsor ===
+            sponsors?.find((s) => s.name === 'NMDS')?.id.toString();
+          const selectedSemester = form.values.semesterNumber
+            ? String(form.values.semesterNumber)
+            : null;
 
-            <Group grow>
-              <Select
-                label='Semester'
-                placeholder='Select semester'
-                data={semesterOptions}
-                value={selectedSemester}
-                onChange={setSelectedSemester}
-                disabled={!hasValidStudent || semesterOptions.length === 0}
-                required
+          return (
+            <Stack gap='xs'>
+              <StdNoInput
+                {...form.getInputProps('stdNo')}
+                onChange={(value) => {
+                  form.getInputProps('stdNo').onChange(value);
+                  if (value) handleStudentSelect(Number(value));
+                }}
               />
 
-              <Select
-                label='Semester Status'
-                data={[
-                  { value: 'Active', label: 'Active' },
-                  { value: 'Repeat', label: 'Repeat' },
-                ]}
-                value={semesterStatus}
-                onChange={(value) =>
-                  setSemesterStatus(value as 'Active' | 'Repeat')
-                }
-                disabled={!hasValidStudent}
-              />
-            </Group>
+              <Group grow>
+                <Select
+                  label='Semester'
+                  placeholder='Select semester'
+                  data={semesterOptions}
+                  {...form.getInputProps('semesterNumber')}
+                  onChange={(value: string | null) => {
+                    form.setFieldValue('semesterNumber', Number(value));
+                  }}
+                  disabled={!hasValidStudent || semesterOptions.length === 0}
+                  required
+                />
 
-            <Paper withBorder p='md'>
-              <Text fw={500} mb='sm'>
-                Sponsorship Information
-              </Text>
-              <Grid>
-                <GridCol span={6}>
-                  <Select
-                    label='Sponsor'
-                    data={
-                      sponsors?.map((sponsor) => ({
-                        value: sponsor.id.toString(),
-                        label: sponsor.name,
-                      })) || []
-                    }
-                    value={selectedSponsor}
-                    onChange={setSelectedSponsor}
-                    placeholder='Select sponsor'
-                    clearable
-                    disabled={!hasValidStudent}
-                    required
-                  />
-                </GridCol>
-                <GridCol span={6}>
-                  <TextInput
-                    label='Borrower Number'
-                    value={borrowerNo}
-                    onChange={(e) => setBorrowerNo(e.target.value)}
-                    disabled={
-                      !(
-                        hasValidStudent &&
-                        selectedSponsor &&
-                        selectedSponsor ===
-                          sponsors
-                            ?.find((s) => s.name === 'NMDS')
-                            ?.id.toString()
-                      )
-                    }
-                  />
-                </GridCol>
-              </Grid>
-            </Paper>
-            <Paper withBorder p='md' mt='md'>
-              <Group justify='space-between' mb='md'>
-                <Text fw={500}>Modules</Text>
-                <ActionIcon
-                  onClick={openModuleModal}
-                  disabled={
-                    !structureId || !hasValidStudent || !selectedSemester
-                  }
-                >
-                  <IconPlus size='1rem' />
-                </ActionIcon>
+                <Select
+                  label='Semester Status'
+                  data={[
+                    { value: 'Active', label: 'Active' },
+                    { value: 'Repeat', label: 'Repeat' },
+                  ]}
+                  {...form.getInputProps('semesterStatus')}
+                  disabled={!hasValidStudent}
+                />
               </Group>
-              <Divider my='xs' />
-              <Table striped highlightOnHover>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Code</Table.Th>
-                    <Table.Th>Name</Table.Th>
-                    <Table.Th>Type</Table.Th>
-                    <Table.Th>Credits</Table.Th>
-                    <Table.Th>Status</Table.Th>
-                    <Table.Th>Action</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {selectedModules.length === 0 ? (
+
+              <Paper withBorder p='md'>
+                <Text fw={500} mb='sm'>
+                  Sponsorship Information
+                </Text>
+                <Grid>
+                  <GridCol span={6}>
+                    <Select
+                      label='Sponsor'
+                      data={
+                        sponsors?.map((sponsor) => ({
+                          value: sponsor.id.toString(),
+                          label: sponsor.name,
+                        })) || []
+                      }
+                      {...form.getInputProps('sponsorId')}
+                      onChange={(value: string | null) => {
+                        form.setFieldValue('sponsorId', Number(value));
+                      }}
+                      placeholder='Select sponsor'
+                      clearable
+                      disabled={!hasValidStudent}
+                      required
+                    />
+                  </GridCol>
+                  <GridCol span={6}>
+                    <TextInput
+                      label='Borrower Number'
+                      {...form.getInputProps('borrowerNo')}
+                      disabled={!(hasValidStudent && isNMDSSponsor)}
+                    />
+                  </GridCol>
+                </Grid>
+              </Paper>
+              <Paper withBorder p='md' mt='md'>
+                <Group justify='space-between' mb='md'>
+                  <Text fw={500}>Modules</Text>
+                  <ActionIcon
+                    onClick={openModuleModal}
+                    disabled={
+                      !structureId || !hasValidStudent || !selectedSemester
+                    }
+                  >
+                    <IconPlus size='1rem' />
+                  </ActionIcon>
+                </Group>
+                <Divider my='xs' />
+                <Table striped highlightOnHover>
+                  <Table.Thead>
                     <Table.Tr>
-                      <Table.Td colSpan={6} align='center'>
-                        <Text c='dimmed' size='sm'>
-                          No modules selected
-                        </Text>
-                      </Table.Td>
+                      <Table.Th>Code</Table.Th>
+                      <Table.Th>Name</Table.Th>
+                      <Table.Th>Type</Table.Th>
+                      <Table.Th>Credits</Table.Th>
+                      <Table.Th>Status</Table.Th>
+                      <Table.Th>Action</Table.Th>
                     </Table.Tr>
-                  ) : (
-                    selectedModules.map((module) => (
-                      <Table.Tr key={module.id}>
-                        <Table.Td>{module.code}</Table.Td>
-                        <Table.Td>{module.name}</Table.Td>
-                        <Table.Td>{module.type}</Table.Td>
-                        <Table.Td>{module.credits}</Table.Td>
-                        <Table.Td>
-                          <Select
-                            value={module.status}
-                            onChange={(value) =>
-                              handleChangeModuleStatus(
-                                module.id,
-                                value as ModuleStatus,
-                              )
-                            }
-                            data={moduleStatusEnum.map((status) => ({
-                              value: status,
-                              label: status,
-                            }))}
-                            size='xs'
-                            style={{ width: '120px' }}
-                            disabled={!hasValidStudent}
-                          />
-                        </Table.Td>
-                        <Table.Td>
-                          <ActionIcon
-                            color='red'
-                            onClick={() => handleRemoveModule(module.id)}
-                            disabled={!hasValidStudent}
-                          >
-                            <IconTrash size='1rem' />
-                          </ActionIcon>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {selectedModules.length === 0 ? (
+                      <Table.Tr>
+                        <Table.Td colSpan={6} align='center'>
+                          <Text c='dimmed' size='sm'>
+                            No modules selected
+                          </Text>
                         </Table.Td>
                       </Table.Tr>
-                    ))
-                  )}
-                </Table.Tbody>
-              </Table>
-            </Paper>
-          </Stack>
-        )}
+                    ) : (
+                      selectedModules.map((module) => (
+                        <Table.Tr key={module.id}>
+                          <Table.Td>{module.code}</Table.Td>
+                          <Table.Td>{module.name}</Table.Td>
+                          <Table.Td>{module.type}</Table.Td>
+                          <Table.Td>{module.credits}</Table.Td>
+                          <Table.Td>
+                            <Select
+                              value={module.status}
+                              onChange={(value) =>
+                                handleChangeModuleStatus(
+                                  module.id,
+                                  value as ModuleStatus,
+                                )
+                              }
+                              data={moduleStatusEnum.map((status) => ({
+                                value: status,
+                                label: status,
+                              }))}
+                              size='xs'
+                              style={{ width: '120px' }}
+                              disabled={!hasValidStudent}
+                            />
+                          </Table.Td>
+                          <Table.Td>
+                            <ActionIcon
+                              color='red'
+                              onClick={() => handleRemoveModule(module.id)}
+                              disabled={!hasValidStudent}
+                            >
+                              <IconTrash size='1rem' />
+                            </ActionIcon>
+                          </Table.Td>
+                        </Table.Tr>
+                      ))
+                    )}
+                  </Table.Tbody>
+                </Table>
+              </Paper>
+            </Stack>
+          );
+        }}
       </Form>
 
       <Modal
