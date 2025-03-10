@@ -64,7 +64,7 @@ export default function RegistrationRequestForm({
 }: Props) {
   const router = useRouter();
   const [structureId, setStructureId] = useState<number | null>(null);
-  const formRef = useRef<any>(null);
+  const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -112,21 +112,6 @@ export default function RegistrationRequestForm({
     }
   };
 
-  // Function for modal to access
-  const handleAddModuleToForm = (module: Module) => {
-    if (
-      formRef.current &&
-      !formRef.current.values.selectedModules?.find(
-        (m: SelectedModule) => m.id === module.id,
-      )
-    ) {
-      formRef.current.setFieldValue('selectedModules', [
-        ...(formRef.current.values.selectedModules || []),
-        { ...module, status: 'Compulsory' as ModuleStatus },
-      ]);
-    }
-  };
-
   return (
     <Form
       title={title}
@@ -146,8 +131,6 @@ export default function RegistrationRequestForm({
       }}
     >
       {(form) => {
-        formRef.current = form;
-
         const sponsorId = form.values.sponsorId;
         const selectedSponsor = sponsorId ? String(sponsorId) : null;
         const isNMDSSponsor =
@@ -158,6 +141,20 @@ export default function RegistrationRequestForm({
           : null;
 
         const selectedModules = form.values.selectedModules || [];
+
+        const handleAddModuleToForm = (module: Module) => {
+          const newModule: SelectedModule = {
+            ...module,
+            status: moduleStatusEnum[0],
+          };
+          if (!selectedModules.some((m) => m.id === newModule.id)) {
+            setSelectedModules((prev) => [...prev, newModule]);
+            form.setFieldValue('selectedModules', [
+              ...selectedModules,
+              newModule,
+            ]);
+          }
+        };
 
         const handleRemoveModule = (moduleId: number) => {
           form.setFieldValue(
