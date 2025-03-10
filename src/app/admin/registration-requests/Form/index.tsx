@@ -18,7 +18,6 @@ import {
   Grid,
   GridCol,
   Group,
-  Modal,
   Paper,
   Select,
   Stack,
@@ -27,11 +26,12 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState, useRef } from 'react';
 import StdNoInput from '../../base/StdNoInput';
+import ModulesDialog from './ModulesDialog';
 
 interface SelectedModule extends Module {
   status: ModuleStatus;
@@ -65,7 +65,6 @@ export default function RegistrationRequestForm({
   onSuccess,
 }: Props) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
   const [moduleOpened, { open: openModuleModal, close: closeModuleModal }] =
     useDisclosure(false);
   const [structureId, setStructureId] = useState<number | null>(null);
@@ -102,13 +101,7 @@ export default function RegistrationRequestForm({
     : [];
 
   const filteredModules = structureModules
-    ? structureModules.flatMap((sem) =>
-        sem.modules.filter(
-          (mod) =>
-            mod.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            mod.name.toLowerCase().includes(searchQuery.toLowerCase()),
-        ),
-      )
+    ? structureModules.flatMap((sem) => sem.modules)
     : [];
 
   const handleStudentSelect = async (stdNo: number) => {
@@ -343,75 +336,14 @@ export default function RegistrationRequestForm({
         }}
       </Form>
 
-      <Modal
+      <ModulesDialog
         opened={moduleOpened}
         onClose={closeModuleModal}
-        title='Select Module'
-        size='lg'
-      >
-        <Stack>
-          <TextInput
-            placeholder='Search modules...'
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            leftSection={<IconSearch size='1rem' />}
-          />
-
-          <Paper style={{ maxHeight: '400px', overflow: 'auto' }}>
-            <Table striped highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Code</Table.Th>
-                  <Table.Th>Name</Table.Th>
-                  <Table.Th>Type</Table.Th>
-                  <Table.Th>Credits</Table.Th>
-                  <Table.Th>Action</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {isLoading ? (
-                  <Table.Tr>
-                    <Table.Td colSpan={5} align='center'>
-                      <Text>Loading modules...</Text>
-                    </Table.Td>
-                  </Table.Tr>
-                ) : filteredModules.length === 0 ? (
-                  <Table.Tr>
-                    <Table.Td colSpan={5} align='center'>
-                      <Text c='dimmed'>No modules found</Text>
-                    </Table.Td>
-                  </Table.Tr>
-                ) : (
-                  filteredModules.map((module) => (
-                    <Table.Tr key={module.id}>
-                      <Table.Td>{module.code}</Table.Td>
-                      <Table.Td>{module.name}</Table.Td>
-                      <Table.Td>{module.type}</Table.Td>
-                      <Table.Td>{module.credits}</Table.Td>
-                      <Table.Td>
-                        <Button
-                          size='xs'
-                          variant='light'
-                          onClick={() => handleAddModuleToForm(module)}
-                          disabled={formRef.current?.values?.selectedModules?.some(
-                            (m: SelectedModule) => m.id === module.id,
-                          )}
-                        >
-                          {formRef.current?.values?.selectedModules?.some(
-                            (m: SelectedModule) => m.id === module.id,
-                          )
-                            ? 'Added'
-                            : 'Add'}
-                        </Button>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))
-                )}
-              </Table.Tbody>
-            </Table>
-          </Paper>
-        </Stack>
-      </Modal>
+        onAddModule={handleAddModuleToForm}
+        modules={filteredModules}
+        isLoading={isLoading}
+        selectedModules={formRef.current?.values?.selectedModules || []}
+      />
     </>
   );
 }
