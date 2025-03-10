@@ -126,9 +126,9 @@ export default function RegistrationRequestForm({
         ...defaultValues,
         selectedModules: defaultValues?.selectedModules || [],
       }}
-      onSuccess={({ id }) => {
-        router.push(`/admin/registration-requests/${id}`);
-      }}
+      // onSuccess={({ id }) => {
+      //   router.push(`/admin/registration-requests/${id}`);
+      // }}
     >
       {(form) => {
         const sponsorId = form.values.sponsorId;

@@ -20,18 +20,12 @@ interface FormData {
 }
 
 export default async function NewPage() {
-  async function handleSubmit(
-    values: RegistrationRequest,
-    formData?: FormData,
-  ) {
+  async function handleSubmit(values: RegistrationRequest) {
     'use server';
 
     console.log('values', values);
-    console.log('formData', formData);
 
     return 0;
-
-    if (!formData) return values;
 
     const {
       sponsor,
