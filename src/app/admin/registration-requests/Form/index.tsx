@@ -64,7 +64,6 @@ export default function RegistrationRequestForm({
 }: Props) {
   const router = useRouter();
   const [structureId, setStructureId] = useState<number | null>(null);
-  const [hasValidStudent, setHasValidStudent] = useState<boolean>(false);
   const formRef = useRef<any>(null);
 
   const { data: structureModules, isLoading } = useQuery({
@@ -105,14 +104,11 @@ export default function RegistrationRequestForm({
       const student = await getStudent(stdNo);
       if (student && student.structureId) {
         setStructureId(student.structureId);
-        setHasValidStudent(true);
       } else {
         setStructureId(null);
-        setHasValidStudent(false);
       }
     } else {
       setStructureId(null);
-      setHasValidStudent(false);
     }
   };
 
@@ -203,7 +199,7 @@ export default function RegistrationRequestForm({
                 onChange={(value: string | null) => {
                   form.setFieldValue('semesterNumber', Number(value));
                 }}
-                disabled={!hasValidStudent || semesterOptions.length === 0}
+                disabled={!structureId || semesterOptions.length === 0}
                 required
               />
 
@@ -214,7 +210,7 @@ export default function RegistrationRequestForm({
                   { value: 'Repeat', label: 'Repeat' },
                 ]}
                 {...form.getInputProps('semesterStatus')}
-                disabled={!hasValidStudent}
+                disabled={!structureId}
               />
             </Group>
 
@@ -238,7 +234,7 @@ export default function RegistrationRequestForm({
                     }}
                     placeholder='Select sponsor'
                     clearable
-                    disabled={!hasValidStudent}
+                    disabled={!structureId}
                     required
                   />
                 </GridCol>
@@ -246,7 +242,7 @@ export default function RegistrationRequestForm({
                   <TextInput
                     label='Borrower Number'
                     {...form.getInputProps('borrowerNo')}
-                    disabled={!(hasValidStudent && isNMDSSponsor)}
+                    disabled={!(structureId && isNMDSSponsor)}
                   />
                 </GridCol>
               </Grid>
@@ -259,9 +255,7 @@ export default function RegistrationRequestForm({
                   modules={filteredModules}
                   isLoading={isLoading}
                   selectedModules={selectedModules}
-                  disabled={
-                    !structureId || !hasValidStudent || !selectedSemester
-                  }
+                  disabled={!structureId || !structureId || !selectedSemester}
                 />
               </Group>
               <Divider my='xs' />
@@ -307,14 +301,14 @@ export default function RegistrationRequestForm({
                             }))}
                             size='xs'
                             style={{ width: '120px' }}
-                            disabled={!hasValidStudent}
+                            disabled={!structureId}
                           />
                         </Table.Td>
                         <Table.Td>
                           <ActionIcon
                             color='red'
                             onClick={() => handleRemoveModule(module.id)}
-                            disabled={!hasValidStudent}
+                            disabled={!structureId}
                           >
                             <IconTrash size='1rem' />
                           </ActionIcon>
