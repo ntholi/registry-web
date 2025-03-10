@@ -26,6 +26,11 @@ export default async function NewPage() {
   ) {
     'use server';
 
+    console.log('values', values);
+    console.log('formData', formData);
+
+    return 0;
+
     if (!formData) return values;
 
     const {

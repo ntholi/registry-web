@@ -29,13 +29,18 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import StdNoInput from '../../base/StdNoInput';
 
-type RegistrationRequest = typeof registrationRequests.$inferInsert;
+interface SelectedModule extends Module {
+  status: ModuleStatus;
+}
+
 type Module = typeof modules.$inferSelect;
+type RegistrationRequest = typeof registrationRequests.$inferInsert & {
+  selectedModules?: SelectedModule[];
+};
 
 type Props = {
   onSubmit: (
@@ -53,10 +58,6 @@ type Props = {
   title?: string;
 };
 
-interface SelectedModule extends Module {
-  status: ModuleStatus;
-}
-
 export default function RegistrationRequestForm({
   onSubmit,
   defaultValues,
@@ -64,12 +65,12 @@ export default function RegistrationRequestForm({
   onSuccess,
 }: Props) {
   const router = useRouter();
-  const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [moduleOpened, { open: openModuleModal, close: closeModuleModal }] =
     useDisclosure(false);
   const [structureId, setStructureId] = useState<number | null>(null);
   const [hasValidStudent, setHasValidStudent] = useState<boolean>(false);
+  const formRef = useRef<any>(null);
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -110,31 +111,6 @@ export default function RegistrationRequestForm({
       )
     : [];
 
-  const handleAddModule = (module: Module) => {
-    if (!selectedModules.find((m) => m.id === module.id)) {
-      setSelectedModules([
-        ...selectedModules,
-        { ...module, status: 'Compulsory' },
-      ]);
-    }
-    closeModuleModal();
-  };
-
-  const handleRemoveModule = (moduleId: number) => {
-    setSelectedModules(selectedModules.filter((m) => m.id !== moduleId));
-  };
-
-  const handleChangeModuleStatus = (
-    moduleId: number,
-    newStatus: ModuleStatus,
-  ) => {
-    setSelectedModules(
-      selectedModules.map((module) =>
-        module.id === moduleId ? { ...module, status: newStatus } : module,
-      ),
-    );
-  };
-
   const handleStudentSelect = async (stdNo: number) => {
     if (stdNo) {
       const student = await getStudent(stdNo);
@@ -151,24 +127,45 @@ export default function RegistrationRequestForm({
     }
   };
 
+  // Function for modal to access
+  const handleAddModuleToForm = (module: Module) => {
+    if (
+      formRef.current &&
+      !formRef.current.values.selectedModules?.find(
+        (m: SelectedModule) => m.id === module.id,
+      )
+    ) {
+      formRef.current.setFieldValue('selectedModules', [
+        ...(formRef.current.values.selectedModules || []),
+        { ...module, status: 'Compulsory' as ModuleStatus },
+      ]);
+    }
+    closeModuleModal();
+  };
+
   return (
     <>
       <Form
         title={title}
         action={(values: RegistrationRequest) =>
-          onSubmit(values as RegistrationRequest, {
-            selectedModules,
+          onSubmit(values, {
+            selectedModules: values.selectedModules || [],
             sponsors: sponsors || [],
           })
         }
         queryKey={['registrationRequests']}
-        defaultValues={defaultValues}
+        defaultValues={{
+          ...defaultValues,
+          selectedModules: defaultValues?.selectedModules || [],
+        }}
         onSuccess={({ id }) => {
           router.push(`/admin/registration-requests/${id}`);
         }}
       >
         {(form) => {
-          // Access sponsor value from form for conditional rendering
+          // Update form reference without causing re-render
+          formRef.current = form;
+
           const sponsorId = form.values.sponsorId;
           const selectedSponsor = sponsorId ? String(sponsorId) : null;
           const isNMDSSponsor =
@@ -177,6 +174,29 @@ export default function RegistrationRequestForm({
           const selectedSemester = form.values.semesterNumber
             ? String(form.values.semesterNumber)
             : null;
+
+          const selectedModules = form.values.selectedModules || [];
+
+          const handleRemoveModule = (moduleId: number) => {
+            form.setFieldValue(
+              'selectedModules',
+              selectedModules.filter((m: SelectedModule) => m.id !== moduleId),
+            );
+          };
+
+          const handleChangeModuleStatus = (
+            moduleId: number,
+            newStatus: ModuleStatus,
+          ) => {
+            form.setFieldValue(
+              'selectedModules',
+              selectedModules.map((module: SelectedModule) =>
+                module.id === moduleId
+                  ? { ...module, status: newStatus }
+                  : module,
+              ),
+            );
+          };
 
           return (
             <Stack gap='xs'>
@@ -279,7 +299,7 @@ export default function RegistrationRequestForm({
                         </Table.Td>
                       </Table.Tr>
                     ) : (
-                      selectedModules.map((module) => (
+                      selectedModules.map((module: SelectedModule) => (
                         <Table.Tr key={module.id}>
                           <Table.Td>{module.code}</Table.Td>
                           <Table.Td>{module.name}</Table.Td>
@@ -372,12 +392,14 @@ export default function RegistrationRequestForm({
                         <Button
                           size='xs'
                           variant='light'
-                          onClick={() => handleAddModule(module)}
-                          disabled={selectedModules.some(
-                            (m) => m.id === module.id,
+                          onClick={() => handleAddModuleToForm(module)}
+                          disabled={formRef.current?.values?.selectedModules?.some(
+                            (m: SelectedModule) => m.id === module.id,
                           )}
                         >
-                          {selectedModules.some((m) => m.id === module.id)
+                          {formRef.current?.values?.selectedModules?.some(
+                            (m: SelectedModule) => m.id === module.id,
+                          )
                             ? 'Added'
                             : 'Add'}
                         </Button>
