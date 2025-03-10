@@ -1,69 +1,44 @@
-import { modules, ModuleStatus, registrationRequests } from '@/db/schema';
+import { modules, ModuleStatus } from '@/db/schema';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { Box } from '@mantine/core';
 import Form from '../Form';
 
-type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type Module = typeof modules.$inferSelect;
-
 interface SelectedModule extends Module {
   status: ModuleStatus;
 }
 
-interface FormData {
-  sponsor: string | null;
-  semester: string | null;
+type RegistrationRequest = {
+  stdNo: number;
   semesterStatus: 'Active' | 'Repeat';
-  selectedModules: SelectedModule[];
-  borrowerNo: string;
-  sponsors: Array<{ id: number; name: string }>;
-}
+  sponsorId: number;
+  borrowerNo?: string;
+  semesterNumber: number;
+  selectedModules: Array<SelectedModule>;
+};
 
 export default async function NewPage() {
   async function handleSubmit(values: RegistrationRequest) {
     'use server';
 
-    console.log('values', values);
-
-    return 0;
-
     const {
-      sponsor,
-      semester,
+      stdNo,
       semesterStatus,
-      selectedModules,
+      sponsorId,
       borrowerNo,
-      sponsors,
-    } = formData;
-
+      semesterNumber,
+      selectedModules,
+    } = values;
     try {
-      if (!sponsor) {
-        throw new Error('Sponsor is required');
-      }
-
-      if (!semester) {
-        throw new Error('Semester is required');
-      }
-
-      if (selectedModules.length === 0) {
-        throw new Error('At least one module must be selected');
-      }
-
       const result = await createRegistrationWithModules({
         stdNo: Number(values.stdNo),
-        semesterNumber: Number(semester),
-        semesterStatus: semesterStatus,
+        semesterNumber,
+        semesterStatus,
         sponsor:
           sponsors?.find(
             (s: { id: number; name: string }) => s.id.toString() === sponsor,
           )?.name || '',
-        borrowerNo:
-          sponsor &&
-          sponsors?.find(
-            (s: { id: number; name: string }) => s.id.toString() === sponsor,
-          )?.name === 'NMDS'
-            ? borrowerNo
-            : undefined,
+        borrowerNo,
         modules: selectedModules.map((module: SelectedModule) => ({
           moduleId: module.id,
           moduleStatus: module.status,
