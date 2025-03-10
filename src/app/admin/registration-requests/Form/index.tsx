@@ -131,15 +131,6 @@ export default function RegistrationRequestForm({
       // }}
     >
       {(form) => {
-        const sponsorId = form.values.sponsorId;
-        const selectedSponsor = sponsorId ? String(sponsorId) : null;
-        const isNMDSSponsor =
-          selectedSponsor ===
-          sponsors?.find((s) => s.name === 'NMDS')?.id.toString();
-        const selectedSemester = form.values.semesterNumber
-          ? String(form.values.semesterNumber)
-          : null;
-
         const selectedModules = form.values.selectedModules || [];
 
         const handleAddModuleToForm = (module: Module) => {
@@ -239,7 +230,9 @@ export default function RegistrationRequestForm({
                   <TextInput
                     label='Borrower Number'
                     {...form.getInputProps('borrowerNo')}
-                    disabled={!(structureId && isNMDSSponsor)}
+                    disabled={
+                      !(structureId && isNMDS(form.values.sponsorId, sponsors))
+                    }
                   />
                 </GridCol>
               </Grid>
@@ -252,7 +245,9 @@ export default function RegistrationRequestForm({
                   modules={filteredModules}
                   isLoading={isLoading}
                   selectedModules={selectedModules}
-                  disabled={!structureId || !structureId || !selectedSemester}
+                  disabled={
+                    !structureId || !structureId || !form.values.semesterNumber
+                  }
                 />
               </Group>
               <Divider my='xs' />
@@ -321,4 +316,12 @@ export default function RegistrationRequestForm({
       }}
     </Form>
   );
+}
+
+function isNMDS(
+  sponsorId: number,
+  sponsors?: Array<{ id: number; name: string }>,
+) {
+  if (!sponsors) return false;
+  return sponsorId === sponsors.find((s) => s.name === 'NMDS')?.id;
 }
