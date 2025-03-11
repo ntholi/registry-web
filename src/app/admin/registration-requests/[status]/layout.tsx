@@ -35,9 +35,22 @@ export default function Layout({ children }: PropsWithChildren) {
     <ListLayout
       path={'/admin/registration-requests/' + status}
       queryKey={['registrationRequests', status]}
-      getData={(page, search) =>
-        findAllRegistrationRequests(page, search, status)
-      }
+      getData={async (page, search) => {
+        const response = await findAllRegistrationRequests(
+          page,
+          search,
+          status,
+        );
+        return {
+          data: response.data.map((item) => ({
+            id: item.id,
+            stdNo: item.stdNo,
+            status: item.status as Status,
+            student: item.student,
+          })),
+          pages: response.pages,
+        };
+      }}
       actionIcons={[
         <NewLink key={'new-link'} href='/admin/registration-requests/new' />,
       ]}

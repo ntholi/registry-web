@@ -1,4 +1,3 @@
-import { auth } from '@/auth';
 import { db } from '@/db';
 import {
   ModuleStatus,
@@ -10,9 +9,8 @@ import {
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { and, eq, or, like, sql, count } from 'drizzle-orm';
+import { and, count, eq, like, or } from 'drizzle-orm';
 
-type Model = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
 
 export default class RegistrationRequestRepository extends BaseRepository<

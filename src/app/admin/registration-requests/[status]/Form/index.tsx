@@ -19,7 +19,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import StdNoInput from '../../base/StdNoInput';
+import StdNoInput from '../../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 
