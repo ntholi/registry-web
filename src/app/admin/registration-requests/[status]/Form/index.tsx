@@ -114,7 +114,7 @@ export default function RegistrationRequestForm({
         semesterNumber: defaultValues?.semesterNumber.toString(),
       }}
       onSuccess={({ id }) => {
-        router.push(`/admin/registration-requests/${id}`);
+        router.push(`/admin/registration-requests/pending/${id}`);
       }}
     >
       {(form) => {
