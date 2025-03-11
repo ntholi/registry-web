@@ -7,6 +7,7 @@ import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import EditForm from '../../Form';
 import { RegistrationRequest, SelectedModule } from '../../new/page';
+import { getModulesForStructure } from '@/server/modules/actions';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -23,6 +24,10 @@ export default async function RegistrationRequestEdit({ params }: Props) {
     ...rm.module,
     status: rm.moduleStatus,
   }));
+
+  const structureModules = registrationRequest.student?.structureId
+    ? await getModulesForStructure(registrationRequest.student.structureId)
+    : undefined;
 
   async function handleSubmit(values: RegistrationRequest) {
     'use server';
@@ -46,6 +51,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
           selectedModules,
         }}
         onSubmit={handleSubmit}
+        structureModules={structureModules}
       />
     </Box>
   );

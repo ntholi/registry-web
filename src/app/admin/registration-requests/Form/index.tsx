@@ -49,15 +49,17 @@ type Props = {
     error: Error | React.SyntheticEvent<HTMLDivElement, Event>,
   ) => void;
   title?: string;
+  structureModules?: Awaited<ReturnType<typeof getModulesForStructure>>;
 };
 
 export default function RegistrationRequestForm({
   onSubmit,
   defaultValues,
   title,
+  structureModules: initialStructureModules,
 }: Props) {
   const router = useRouter();
-  const [structureId, setStructureId] = useState<number | null>(null);
+  const [structureId, setStructureId] = useState<number | null>();
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -67,7 +69,8 @@ export default function RegistrationRequestForm({
       }
       return [];
     },
-    enabled: !!structureId,
+    enabled: !!structureId && !initialStructureModules,
+    initialData: initialStructureModules,
   });
 
   const { data: sponsors } = useQuery({
@@ -87,6 +90,8 @@ export default function RegistrationRequestForm({
         },
       )
     : [];
+
+  console.log('semesterOptions', semesterOptions);
 
   const filteredModules = structureModules
     ? structureModules.flatMap((sem) => sem.modules)
@@ -113,6 +118,7 @@ export default function RegistrationRequestForm({
       defaultValues={{
         ...defaultValues,
         selectedModules: defaultValues?.selectedModules || [],
+        semesterNumber: defaultValues?.semesterNumber.toString(),
       }}
       onSuccess={({ id }) => {
         router.push(`/admin/registration-requests/${id}`);
