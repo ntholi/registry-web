@@ -158,6 +158,7 @@ export default function RegistrationRequestForm({
           <Stack gap='xs'>
             <StdNoInput
               {...form.getInputProps('stdNo')}
+              disabled={!!defaultValues}
               onChange={(value) => {
                 form.getInputProps('stdNo').onChange(value);
                 if (value) handleStudentSelect(Number(value));
@@ -188,17 +189,19 @@ export default function RegistrationRequestForm({
               />
             </Group>
 
-            <SponsorInput
-              sponsorId={Number(form.values.sponsorId)}
-              borrowerNo={form.values.borrowerNo}
-              onSponsorChange={(value) =>
-                form.setFieldValue('sponsorId', value)
-              }
-              onBorrowerNoChange={(value) =>
-                form.setFieldValue('borrowerNo', value)
-              }
-              disabled={!structureId}
-            />
+            {!defaultValues && (
+              <SponsorInput
+                sponsorId={Number(form.values.sponsorId)}
+                borrowerNo={form.values.borrowerNo}
+                onSponsorChange={(value) =>
+                  form.setFieldValue('sponsorId', value)
+                }
+                onBorrowerNoChange={(value) =>
+                  form.setFieldValue('borrowerNo', value)
+                }
+                disabled={!structureId}
+              />
+            )}
 
             <Paper withBorder p='md' mt='md'>
               <Group justify='space-between' mb='md'>
