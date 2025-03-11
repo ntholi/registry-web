@@ -4,20 +4,16 @@ import { Form } from '@/components/adease';
 import { modules, ModuleStatus, moduleStatusEnum } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 import { getModulesForStructure } from '@/server/modules/actions';
-import { findAllSponsors } from '@/server/sponsors/actions';
 import { getStudent } from '@/server/students/actions';
 import {
   ActionIcon,
   Divider,
-  Grid,
-  GridCol,
   Group,
   Paper,
   Select,
   Stack,
   Table,
   Text,
-  TextInput,
 } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -25,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import StdNoInput from '../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
+import SponsorInput from './SponsorInput';
 
 interface SelectedModule extends Module {
   status: ModuleStatus;
@@ -73,12 +70,6 @@ export default function RegistrationRequestForm({
     initialData: initialStructureModules,
   });
 
-  const { data: sponsors } = useQuery({
-    queryKey: ['sponsors'],
-    queryFn: () => findAllSponsors(1),
-    select: (data) => data.data,
-  });
-
   const semesterOptions = structureModules
     ? [...new Set(structureModules.map((sem) => sem.id.toString()))].map(
         (id) => {
@@ -90,8 +81,6 @@ export default function RegistrationRequestForm({
         },
       )
     : [];
-
-  console.log('semesterOptions', semesterOptions);
 
   const filteredModules = structureModules
     ? structureModules.flatMap((sem) => sem.modules)
@@ -195,41 +184,18 @@ export default function RegistrationRequestForm({
               />
             </Group>
 
-            <Paper withBorder p='md'>
-              <Text fw={500} mb='sm'>
-                Sponsorship Information
-              </Text>
-              <Grid>
-                <GridCol span={6}>
-                  <Select
-                    label='Sponsor'
-                    data={
-                      sponsors?.map((sponsor) => ({
-                        value: sponsor.id.toString(),
-                        label: sponsor.name,
-                      })) || []
-                    }
-                    {...form.getInputProps('sponsorId')}
-                    onChange={(value: string | null) => {
-                      form.setFieldValue('sponsorId', Number(value));
-                    }}
-                    placeholder='Select sponsor'
-                    clearable
-                    disabled={!structureId}
-                    required
-                  />
-                </GridCol>
-                <GridCol span={6}>
-                  <TextInput
-                    label='Borrower Number'
-                    {...form.getInputProps('borrowerNo')}
-                    disabled={
-                      !(structureId && isNMDS(form.values.sponsorId, sponsors))
-                    }
-                  />
-                </GridCol>
-              </Grid>
-            </Paper>
+            <SponsorInput
+              sponsorId={Number(form.values.sponsorId)}
+              borrowerNo={form.values.borrowerNo}
+              onSponsorChange={(value) =>
+                form.setFieldValue('sponsorId', value)
+              }
+              onBorrowerNoChange={(value) =>
+                form.setFieldValue('borrowerNo', value)
+              }
+              disabled={!structureId}
+            />
+
             <Paper withBorder p='md' mt='md'>
               <Group justify='space-between' mb='md'>
                 <Text fw={500}>Modules</Text>
@@ -309,12 +275,4 @@ export default function RegistrationRequestForm({
       }}
     </Form>
   );
-}
-
-function isNMDS(
-  sponsorId: number,
-  sponsors?: Array<{ id: number; name: string }>,
-) {
-  if (!sponsors) return false;
-  return sponsorId === sponsors.find((s) => s.name === 'NMDS')?.id;
 }
