@@ -47,6 +47,7 @@ type Props = {
   ) => void;
   title?: string;
   structureModules?: Awaited<ReturnType<typeof getModulesForStructure>>;
+  structureId?: number;
 };
 
 export default function RegistrationRequestForm({
@@ -54,9 +55,12 @@ export default function RegistrationRequestForm({
   defaultValues,
   title,
   structureModules: initialStructureModules,
+  structureId: initialStructureId,
 }: Props) {
   const router = useRouter();
-  const [structureId, setStructureId] = useState<number | null>();
+  const [structureId, setStructureId] = useState<number | null>(
+    initialStructureId ?? null,
+  );
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],

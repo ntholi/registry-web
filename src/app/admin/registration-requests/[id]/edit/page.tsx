@@ -1,13 +1,12 @@
+import { getModulesForStructure } from '@/server/modules/actions';
 import {
   getRegistrationRequest,
-  getRequestedModules,
   updateRegistrationWithModules,
 } from '@/server/registration-requests/actions';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import EditForm from '../../Form';
 import { RegistrationRequest, SelectedModule } from '../../new/page';
-import { getModulesForStructure } from '@/server/modules/actions';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -52,6 +51,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
         }}
         onSubmit={handleSubmit}
         structureModules={structureModules}
+        structureId={registrationRequest.student?.structureId || undefined}
       />
     </Box>
   );
