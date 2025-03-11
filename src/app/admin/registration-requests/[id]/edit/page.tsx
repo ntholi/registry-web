@@ -1,5 +1,6 @@
 import {
   getRegistrationRequest,
+  getRequestedModules,
   updateRegistrationWithModules,
 } from '@/server/registration-requests/actions';
 import { Box } from '@mantine/core';
@@ -17,6 +18,12 @@ export default async function RegistrationRequestEdit({ params }: Props) {
   if (!registrationRequest) {
     return notFound();
   }
+
+  const selectedModules = registrationRequest.requestedModules.map((rm) => ({
+    ...rm.module,
+    status: rm.moduleStatus,
+  }));
+
   async function handleSubmit(values: RegistrationRequest) {
     'use server';
     const { selectedModules } = values;
@@ -34,7 +41,10 @@ export default async function RegistrationRequestEdit({ params }: Props) {
     <Box p={'lg'}>
       <EditForm
         title={'Edit Registration Request'}
-        defaultValues={registrationRequest}
+        defaultValues={{
+          ...registrationRequest,
+          selectedModules,
+        }}
         onSubmit={handleSubmit}
       />
     </Box>
