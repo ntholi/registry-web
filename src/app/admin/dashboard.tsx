@@ -7,7 +7,10 @@ import {
   countPendingRegistrationClearances,
   countRejectedRegistrationClearances,
 } from '@/server/registration-clearance/actions';
-import { countPendingRegistrationRequests } from '@/server/registration-requests/actions';
+import {
+  countPendingRegistrationRequests,
+  countRegisteredRegistrationRequests,
+} from '@/server/registration-requests/actions';
 import {
   ActionIcon,
   Avatar,
@@ -94,6 +97,11 @@ const navigation: NavItem[] = [
         label: 'Registered',
         href: '/admin/registration-requests/registered',
         icon: IconSquareRoundedCheck,
+        notificationCount: {
+          queryKey: ['registrationRequests', 'registered'],
+          queryFn: () => countRegisteredRegistrationRequests(),
+          color: 'gray',
+        },
       },
       {
         label: 'Rejected',
