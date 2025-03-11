@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { db } from '@/db';
 import {
   ModuleStatus,
@@ -5,11 +6,13 @@ import {
   registrationRequests,
   requestedModules,
   sponsoredStudents,
+  students,
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { and, count, eq, like } from 'drizzle-orm';
+import { and, eq, or, like, sql, count } from 'drizzle-orm';
 
+type Model = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
 
 export default class RegistrationRequestRepository extends BaseRepository<
@@ -82,19 +85,60 @@ export default class RegistrationRequestRepository extends BaseRepository<
     });
   }
 
-  async pending() {
-    return db.query.registrationRequests.findMany({
-      where: eq(registrationRequests.status, 'pending'),
+  async findByStatus(
+    status: 'pending' | 'registered' | 'rejected',
+    params: FindAllParams<typeof registrationRequests>,
+  ) {
+    const { offset, pageSize } = await this.queryExpressions(params);
+
+    const query = db.query.registrationRequests.findMany({
+      where: and(
+        eq(registrationRequests.status, status),
+        params.search
+          ? or(
+              like(students.name, `%${params.search}%`),
+              like(registrationRequests.stdNo, `%${params.search}%`),
+            )
+          : undefined,
+      ),
+      with: {
+        student: true,
+      },
+      limit: pageSize,
+      offset,
     });
+
+    const [total, items] = await Promise.all([
+      db
+        .select({ value: count() })
+        .from(registrationRequests)
+        .where(
+          and(
+            eq(registrationRequests.status, status),
+            params.search
+              ? or(
+                  like(students.name, `%${params.search}%`),
+                  like(registrationRequests.stdNo, `%${params.search}%`),
+                )
+              : undefined,
+          ),
+        )
+        .then((res) => res[0].value),
+      query,
+    ]);
+
+    return {
+      data: items,
+      pages: Math.ceil(total / pageSize),
+    };
   }
 
-  async countPending() {
-    const [{ count: value }] = await db
-      .select({ count: count() })
+  async countByStatus(status: 'pending' | 'registered' | 'rejected') {
+    const [result] = await db
+      .select({ value: count() })
       .from(registrationRequests)
-      .where(eq(registrationRequests.status, 'pending'));
-
-    return value;
+      .where(eq(registrationRequests.status, status));
+    return result.value;
   }
 
   async getRequestedModules(registrationRequestId: number) {

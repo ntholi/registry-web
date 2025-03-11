@@ -77,14 +77,30 @@ const navigation: NavItem[] = [
   },
   {
     label: 'Registration Requests',
-    href: '/admin/registration-requests',
     icon: IconClipboardCheck,
     roles: ['registry'],
-    notificationCount: {
-      queryKey: ['registrationRequests'],
-      queryFn: () => countPendingRegistrationRequests(),
-      color: 'red',
-    },
+    children: [
+      {
+        label: 'Pending',
+        href: '/admin/registration-requests/pending',
+        icon: IconMessageQuestion,
+        notificationCount: {
+          queryKey: ['registrationRequests', 'pending'],
+          queryFn: () => countPendingRegistrationRequests(),
+          color: 'red',
+        },
+      },
+      {
+        label: 'Registered',
+        href: '/admin/registration-requests/registered',
+        icon: IconSquareRoundedCheck,
+      },
+      {
+        label: 'Rejected',
+        href: '/admin/registration-requests/rejected',
+        icon: IconBarrierBlock,
+      },
+    ],
   },
   {
     label: 'Clearance',

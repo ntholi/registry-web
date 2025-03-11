@@ -34,12 +34,21 @@ class RegistrationRequestService {
     );
   }
 
-  async pending() {
-    return withAuth(async () => this.repository.pending(), ['registry']);
+  async findByStatus(
+    status: 'pending' | 'registered' | 'rejected',
+    params: FindAllParams<typeof registrationRequests>,
+  ) {
+    return withAuth(
+      async () => this.repository.findByStatus(status, params),
+      ['dashboard'],
+    );
   }
 
-  async countPending() {
-    return withAuth(async () => this.repository.countPending(), ['registry']);
+  async countByStatus(status: 'pending' | 'registered' | 'rejected') {
+    return withAuth(
+      async () => this.repository.countByStatus(status),
+      ['dashboard'],
+    );
   }
 
   async get(id: number) {
