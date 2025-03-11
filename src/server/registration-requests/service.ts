@@ -85,7 +85,7 @@ class RegistrationRequestService {
     stdNo: number;
     termId: number;
     modules: { moduleId: number; moduleStatus: ModuleStatus }[];
-    sponsor: string;
+    sponsorId: number;
     semesterStatus: 'Active' | 'Repeat';
     semesterNumber: number;
     borrowerNo?: string;

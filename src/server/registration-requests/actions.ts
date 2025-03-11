@@ -71,7 +71,7 @@ export async function createRequestedModules(
 export async function createRegistrationWithModules(data: {
   stdNo: number;
   modules: { moduleId: number; moduleStatus: ModuleStatus }[];
-  sponsor: string;
+  sponsorId: number;
   semesterNumber: number;
   semesterStatus: 'Active' | 'Repeat';
   borrowerNo?: string;

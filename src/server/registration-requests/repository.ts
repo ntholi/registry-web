@@ -137,7 +137,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
     stdNo: number;
     termId: number;
     modules: { moduleId: number; moduleStatus: ModuleStatus }[];
-    sponsor: string;
+    sponsorId: number;
     semesterStatus: 'Active' | 'Repeat';
     semesterNumber: number;
     borrowerNo?: string;
@@ -151,21 +151,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
         throw new Error('Student not found');
       }
 
-      const [sponsor] = await tx.query.sponsors.findMany({
-        where: (sponsors, { eq }) => eq(sponsors.name, data.sponsor),
-        limit: 1,
+      await tx.insert(sponsoredStudents).values({
+        sponsorId: data.sponsorId,
+        stdNo: data.stdNo,
+        termId: data.termId,
+        borrowerNo: data.borrowerNo,
       });
-
-      if (!sponsor) throw new Error(`Sponsor '${data.sponsor}' not found`);
-
-      if (sponsor) {
-        await tx.insert(sponsoredStudents).values({
-          sponsorId: sponsor.id,
-          stdNo: data.stdNo,
-          termId: data.termId,
-          borrowerNo: data.borrowerNo,
-        });
-      }
 
       const [request] = await tx
         .insert(registrationRequests)
@@ -175,7 +166,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
           status: 'pending',
           semesterNumber: data.semesterNumber,
           semesterStatus: data.semesterStatus,
-          sponsorId: sponsor?.id,
+          sponsorId: data.sponsorId,
         })
         .returning();
 
@@ -190,7 +181,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
           .returning();
       });
 
-      // Handle modules
       const modules = await this.handleRegistrationModules(
         tx,
         request.id,

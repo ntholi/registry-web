@@ -13,13 +13,14 @@ import {
 
 interface SponsorSelectProps {
   onSponsorChange: (sponsorData: {
-    sponsor: string;
+    sponsorId: number;
+    sponsorName: string;
     borrowerNo?: string;
   }) => void;
 }
 
 export default function SponsorSelect({ onSponsorChange }: SponsorSelectProps) {
-  const [selectedSponsor, setSelectedSponsor] = useState<string>('');
+  const [selectedSponsorId, setSelectedSponsorId] = useState<string>('');
   const [borrowerNo, setBorrowerNo] = useState<string>('');
 
   const { data: sponsors } = useQuery({
@@ -29,32 +30,53 @@ export default function SponsorSelect({ onSponsorChange }: SponsorSelectProps) {
   });
 
   const handleSponsorChange = (value: string) => {
-    setSelectedSponsor(value);
-    if (value === 'NMDS') {
+    setSelectedSponsorId(value);
+    const selectedSponsor = sponsors?.find(
+      (sponsor) => sponsor.id === parseInt(value),
+    );
+
+    if (!selectedSponsor) return;
+
+    if (selectedSponsor.name === 'NMDS') {
       setBorrowerNo('');
     } else {
-      onSponsorChange({ sponsor: value });
+      onSponsorChange({
+        sponsorId: selectedSponsor.id,
+        sponsorName: selectedSponsor.name,
+      });
     }
   };
 
   const handleBorrowerNoChange = (value: string) => {
     setBorrowerNo(value);
-    if (selectedSponsor === 'NMDS' && value.trim()) {
-      onSponsorChange({ sponsor: selectedSponsor, borrowerNo: value });
+    const selectedSponsor = sponsors?.find(
+      (sponsor) => sponsor.id === parseInt(selectedSponsorId),
+    );
+
+    if (selectedSponsor?.name === 'NMDS' && value.trim()) {
+      onSponsorChange({
+        sponsorId: selectedSponsor.id,
+        sponsorName: selectedSponsor.name,
+        borrowerNo: value,
+      });
     }
+  };
+
+  const getNMDSSponsor = () => {
+    return sponsors?.find((sponsor) => sponsor.name === 'NMDS');
   };
 
   return (
     <div className='space-y-4'>
       <div className='space-y-2'>
         <Label htmlFor='sponsor'>Sponsor</Label>
-        <Select value={selectedSponsor} onValueChange={handleSponsorChange}>
+        <Select value={selectedSponsorId} onValueChange={handleSponsorChange}>
           <SelectTrigger id='sponsor'>
             <SelectValue placeholder='Select a sponsor' />
           </SelectTrigger>
           <SelectContent>
             {sponsors?.map((sponsor) => (
-              <SelectItem key={sponsor.id} value={sponsor.name}>
+              <SelectItem key={sponsor.id} value={sponsor.id.toString()}>
                 {sponsor.name}
               </SelectItem>
             ))}
@@ -62,18 +84,19 @@ export default function SponsorSelect({ onSponsorChange }: SponsorSelectProps) {
         </Select>
       </div>
 
-      {selectedSponsor === 'NMDS' && (
-        <div className='space-y-2'>
-          <Label htmlFor='borrowerNo'>NMDS Borrower Number</Label>
-          <Input
-            id='borrowerNo'
-            value={borrowerNo}
-            onChange={(e) => handleBorrowerNoChange(e.target.value)}
-            placeholder='Enter your NMDS borrower number'
-            required
-          />
-        </div>
-      )}
+      {selectedSponsorId &&
+        getNMDSSponsor()?.id.toString() === selectedSponsorId && (
+          <div className='space-y-2'>
+            <Label htmlFor='borrowerNo'>NMDS Borrower Number</Label>
+            <Input
+              id='borrowerNo'
+              value={borrowerNo}
+              onChange={(e) => handleBorrowerNoChange(e.target.value)}
+              placeholder='Enter your NMDS borrower number'
+              required
+            />
+          </div>
+        )}
     </div>
   );
 }

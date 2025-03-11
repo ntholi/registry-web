@@ -35,7 +35,8 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
 
   const [modules, setStoredModules] = React.useState<Array<Module>>([]);
   const [sponsorData, setSponsorData] = React.useState<{
-    sponsor: string;
+    sponsorId: number;
+    sponsorName: string;
     borrowerNo?: string;
   } | null>(null);
   const [semesterInfo, setSemesterInfo] = React.useState<{
@@ -56,8 +57,8 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
 
   async function handleSubmit() {
     try {
-      if (!sponsorData?.sponsor) throw new Error('Please select a sponsor');
-      if (sponsorData.sponsor === 'NMDS' && !sponsorData.borrowerNo) {
+      if (!sponsorData?.sponsorId) throw new Error('Please select a sponsor');
+      if (sponsorData.sponsorName === 'NMDS' && !sponsorData.borrowerNo) {
         throw new Error('Please enter your NMDS borrower number');
       }
       if (!semesterInfo) throw new Error('Semester information not found');
@@ -68,7 +69,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
           moduleId: module.id,
           moduleStatus: module.status,
         })),
-        sponsor: sponsorData.sponsor,
+        sponsorId: sponsorData.sponsorId,
         borrowerNo: sponsorData.borrowerNo,
         semesterNumber: semesterInfo.semesterNo,
         semesterStatus: semesterInfo.semesterStatus as 'Active' | 'Repeat',
@@ -77,11 +78,14 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
       sessionStorage.removeItem('selectedModules');
       sessionStorage.removeItem('semesterInfo');
       router.push('/registration');
-    } catch {
+    } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to submit clearance request',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Failed to submit clearance request',
       });
     }
   }
@@ -141,7 +145,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
         <div className='flex justify-end'>
           <Button
             onClick={handleSubmit}
-            disabled={!sponsorData?.sponsor}
+            disabled={!sponsorData?.sponsorId}
             className='w-full sm:w-auto'
           >
             Submit Request
