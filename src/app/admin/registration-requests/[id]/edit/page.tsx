@@ -40,6 +40,8 @@ export default async function RegistrationRequestEdit({ params }: Props) {
         id: module.id,
         status: module.status,
       })) || [],
+      values.semesterNumber,
+      values.semesterStatus,
     );
     return { id: values.id, ...res.request };
   }

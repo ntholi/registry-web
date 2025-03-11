@@ -101,12 +101,16 @@ class RegistrationRequestService {
   async updateRegistrationWithModules(
     registrationRequestId: number,
     modules: { id: number; status: ModuleStatus }[],
+    semesterNumber?: number,
+    semesterStatus?: 'Active' | 'Repeat',
   ) {
     return withAuth(
       async () =>
         this.repository.updateRegistrationWithModules(
           registrationRequestId,
           modules,
+          semesterNumber,
+          semesterStatus,
         ),
       ['student', 'registry'],
     );

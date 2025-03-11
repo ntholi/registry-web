@@ -86,6 +86,13 @@ export async function createRegistrationWithModules(data: {
 export async function updateRegistrationWithModules(
   registrationRequestId: number,
   modules: { id: number; status: ModuleStatus }[],
+  semesterNumber?: number,
+  semesterStatus?: 'Active' | 'Repeat',
 ) {
-  return service.updateRegistrationWithModules(registrationRequestId, modules);
+  return service.updateRegistrationWithModules(
+    registrationRequestId,
+    modules,
+    semesterNumber,
+    semesterStatus,
+  );
 }

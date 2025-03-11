@@ -203,6 +203,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
   async updateRegistrationWithModules(
     registrationRequestId: number,
     modules: { id: number; status: ModuleStatus }[],
+    semesterNumber?: number,
+    semesterStatus?: 'Active' | 'Repeat',
   ) {
     return db.transaction(async (tx) => {
       await tx
@@ -210,6 +212,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
         .set({
           status: 'pending',
           updatedAt: new Date(),
+          semesterNumber,
+          semesterStatus,
         })
         .where(eq(registrationRequests.id, registrationRequestId));
 
