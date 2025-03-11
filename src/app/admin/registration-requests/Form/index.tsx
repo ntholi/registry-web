@@ -36,18 +36,13 @@ interface SelectedModule extends Module {
 }
 
 type Module = typeof modules.$inferSelect;
+
 type RegistrationRequest = typeof registrationRequests.$inferInsert & {
   selectedModules?: SelectedModule[];
 };
 
 type Props = {
-  onSubmit: (
-    values: RegistrationRequest,
-    formData?: {
-      selectedModules: SelectedModule[];
-      sponsors: any[];
-    },
-  ) => Promise<RegistrationRequest>;
+  onSubmit: (values: RegistrationRequest) => Promise<RegistrationRequest>;
   defaultValues?: RegistrationRequest;
   onSuccess?: (value: RegistrationRequest) => void;
   onError?: (
@@ -115,12 +110,7 @@ export default function RegistrationRequestForm({
   return (
     <Form
       title={title}
-      action={(values: RegistrationRequest) =>
-        onSubmit(values, {
-          selectedModules: values.selectedModules || [],
-          sponsors: sponsors || [],
-        })
-      }
+      action={(values: RegistrationRequest) => onSubmit(values)}
       queryKey={['registrationRequests']}
       defaultValues={{
         ...defaultValues,

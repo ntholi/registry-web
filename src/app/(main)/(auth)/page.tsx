@@ -1,7 +1,7 @@
 import { auth } from '@/auth';
 import { Container } from '@/components/ui/container';
 import { getStudentByUserId } from '@/server/students/actions';
-import { AlertCircle, Loader } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Session } from 'next-auth';
 import Hero from './home/Hero';
 import HomeLinks from './home/HomeLinks';

@@ -2,6 +2,7 @@ import { modules, ModuleStatus } from '@/db/schema';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { Box } from '@mantine/core';
 import Form from '../Form';
+import { getCurrentTerm } from '@/server/terms/actions';
 
 type Module = typeof modules.$inferSelect;
 interface SelectedModule extends Module {
@@ -14,7 +15,7 @@ type RegistrationRequest = {
   sponsorId: number;
   borrowerNo?: string;
   semesterNumber: number;
-  selectedModules: Array<SelectedModule>;
+  selectedModules?: Array<SelectedModule>;
 };
 
 export default async function NewPage() {
@@ -31,18 +32,16 @@ export default async function NewPage() {
     } = values;
     try {
       const result = await createRegistrationWithModules({
-        stdNo: Number(values.stdNo),
+        stdNo: stdNo,
         semesterNumber,
         semesterStatus,
-        sponsor:
-          sponsors?.find(
-            (s: { id: number; name: string }) => s.id.toString() === sponsor,
-          )?.name || '',
+        sponsorId,
         borrowerNo,
-        modules: selectedModules.map((module: SelectedModule) => ({
-          moduleId: module.id,
-          moduleStatus: module.status,
-        })),
+        modules:
+          selectedModules?.map((module: SelectedModule) => ({
+            moduleId: module.id,
+            moduleStatus: module.status,
+          })) || [],
       });
 
       if (result && result.request && result.request.id) {
