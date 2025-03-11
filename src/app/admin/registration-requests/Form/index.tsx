@@ -1,12 +1,7 @@
 'use client';
 
 import { Form } from '@/components/adease';
-import {
-  modules,
-  ModuleStatus,
-  moduleStatusEnum,
-  registrationRequests,
-} from '@/db/schema';
+import { modules, ModuleStatus, moduleStatusEnum } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 import { getModulesForStructure } from '@/server/modules/actions';
 import { findAllSponsors } from '@/server/sponsors/actions';
@@ -27,7 +22,7 @@ import {
 import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import StdNoInput from '../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 
@@ -37,8 +32,13 @@ interface SelectedModule extends Module {
 
 type Module = typeof modules.$inferSelect;
 
-type RegistrationRequest = typeof registrationRequests.$inferInsert & {
-  selectedModules?: SelectedModule[];
+type RegistrationRequest = {
+  stdNo: number;
+  semesterStatus: 'Active' | 'Repeat';
+  sponsorId: number;
+  borrowerNo?: string;
+  semesterNumber: number;
+  selectedModules?: Array<SelectedModule>;
 };
 
 type Props = {

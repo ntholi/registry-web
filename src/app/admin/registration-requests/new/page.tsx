@@ -2,7 +2,6 @@ import { modules, ModuleStatus } from '@/db/schema';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { Box } from '@mantine/core';
 import Form from '../Form';
-import { getCurrentTerm } from '@/server/terms/actions';
 
 type Module = typeof modules.$inferSelect;
 interface SelectedModule extends Module {
