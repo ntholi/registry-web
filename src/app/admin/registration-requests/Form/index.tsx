@@ -33,6 +33,7 @@ interface SelectedModule extends Module {
 type Module = typeof modules.$inferSelect;
 
 type RegistrationRequest = {
+  id?: number;
   stdNo: number;
   semesterStatus: 'Active' | 'Repeat';
   sponsorId: number;
@@ -44,7 +45,6 @@ type RegistrationRequest = {
 type Props = {
   onSubmit: (values: RegistrationRequest) => Promise<RegistrationRequest>;
   defaultValues?: RegistrationRequest;
-  onSuccess?: (value: RegistrationRequest) => void;
   onError?: (
     error: Error | React.SyntheticEvent<HTMLDivElement, Event>,
   ) => void;
@@ -55,11 +55,9 @@ export default function RegistrationRequestForm({
   onSubmit,
   defaultValues,
   title,
-  onSuccess,
 }: Props) {
   const router = useRouter();
   const [structureId, setStructureId] = useState<number | null>(null);
-  const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -116,9 +114,9 @@ export default function RegistrationRequestForm({
         ...defaultValues,
         selectedModules: defaultValues?.selectedModules || [],
       }}
-      // onSuccess={({ id }) => {
-      //   router.push(`/admin/registration-requests/${id}`);
-      // }}
+      onSuccess={({ id }) => {
+        router.push(`/admin/registration-requests/${id}`);
+      }}
     >
       {(form) => {
         const selectedModules = form.values.selectedModules || [];
@@ -129,7 +127,6 @@ export default function RegistrationRequestForm({
             status: moduleStatusEnum[0],
           };
           if (!selectedModules.some((m) => m.id === newModule.id)) {
-            setSelectedModules((prev) => [...prev, newModule]);
             form.setFieldValue('selectedModules', [
               ...selectedModules,
               newModule,

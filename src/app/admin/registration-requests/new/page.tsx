@@ -9,6 +9,7 @@ interface SelectedModule extends Module {
 }
 
 type RegistrationRequest = {
+  id?: number;
   stdNo: number;
   semesterStatus: 'Active' | 'Repeat';
   sponsorId: number;
@@ -20,7 +21,6 @@ type RegistrationRequest = {
 export default async function NewPage() {
   async function handleSubmit(values: RegistrationRequest) {
     'use server';
-
     const {
       stdNo,
       semesterStatus,
@@ -29,29 +29,20 @@ export default async function NewPage() {
       semesterNumber,
       selectedModules,
     } = values;
-    try {
-      const result = await createRegistrationWithModules({
-        stdNo: stdNo,
-        semesterNumber,
-        semesterStatus,
-        sponsorId,
-        borrowerNo,
-        modules:
-          selectedModules?.map((module: SelectedModule) => ({
-            moduleId: module.id,
-            moduleStatus: module.status,
-          })) || [],
-      });
+    const res = await createRegistrationWithModules({
+      stdNo: stdNo,
+      semesterNumber,
+      semesterStatus,
+      sponsorId,
+      borrowerNo,
+      modules:
+        selectedModules?.map((module: SelectedModule) => ({
+          moduleId: module.id,
+          moduleStatus: module.status,
+        })) || [],
+    });
 
-      if (result && result.request && result.request.id) {
-        return result.request;
-      }
-
-      return values;
-    } catch (error) {
-      console.error('Error submitting registration request:', error);
-      throw error;
-    }
+    return res.request;
   }
 
   return (
