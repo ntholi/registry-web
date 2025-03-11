@@ -93,10 +93,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
       where: and(
         eq(registrationRequests.status, status),
         params.search
-          ? or(
-              like(students.name, `%${params.search}%`),
-              like(registrationRequests.stdNo, `%${params.search}%`),
-            )
+          ? like(registrationRequests.stdNo, `%${params.search}%`)
           : undefined,
       ),
       with: {
@@ -114,10 +111,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
           and(
             eq(registrationRequests.status, status),
             params.search
-              ? or(
-                  like(students.name, `%${params.search}%`),
-                  like(registrationRequests.stdNo, `%${params.search}%`),
-                )
+              ? like(registrationRequests.stdNo, `%${params.search}%`)
               : undefined,
           ),
         )
