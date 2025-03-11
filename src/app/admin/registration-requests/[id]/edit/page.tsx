@@ -31,14 +31,17 @@ export default async function RegistrationRequestEdit({ params }: Props) {
   async function handleSubmit(values: RegistrationRequest) {
     'use server';
     const { selectedModules } = values;
+    if (!values.id) {
+      throw new Error('Registration request ID is required');
+    }
     const res = await updateRegistrationWithModules(
-      Number(id),
+      values.id,
       selectedModules?.map((module: SelectedModule) => ({
         id: module.id,
         status: module.status,
       })) || [],
     );
-    return res.request;
+    return { id: values.id, ...res.request };
   }
 
   return (

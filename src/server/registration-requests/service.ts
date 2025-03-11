@@ -108,7 +108,7 @@ class RegistrationRequestService {
           registrationRequestId,
           modules,
         ),
-      ['student'],
+      ['student', 'registry'],
     );
   }
 }
