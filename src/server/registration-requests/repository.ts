@@ -150,13 +150,22 @@ export default class RegistrationRequestRepository extends BaseRepository<
       if (!student) {
         throw new Error('Student not found');
       }
-
-      await tx.insert(sponsoredStudents).values({
-        sponsorId: data.sponsorId,
-        stdNo: data.stdNo,
-        termId: data.termId,
-        borrowerNo: data.borrowerNo,
-      });
+      await tx
+        .insert(sponsoredStudents)
+        .values({
+          sponsorId: data.sponsorId,
+          stdNo: data.stdNo,
+          termId: data.termId,
+          borrowerNo: data.borrowerNo,
+        })
+        .onConflictDoUpdate({
+          target: [sponsoredStudents.stdNo, sponsoredStudents.termId],
+          set: {
+            borrowerNo: data.borrowerNo,
+            sponsorId: data.sponsorId,
+            updatedAt: new Date(),
+          },
+        });
 
       const [request] = await tx
         .insert(registrationRequests)
