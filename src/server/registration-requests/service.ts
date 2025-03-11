@@ -92,8 +92,9 @@ class RegistrationRequestService {
   }) {
     return withAuth(
       async () => this.repository.createRegistrationWithModules(data),
-      ['student'],
-      async (session) => session.user?.stdNo === data.stdNo,
+      ['student', 'registry'],
+      async (session) =>
+        session.user?.stdNo === data.stdNo || session.user?.role === 'registry',
     );
   }
 

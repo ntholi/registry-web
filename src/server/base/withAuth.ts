@@ -10,7 +10,7 @@ type Role = UserRole | 'all' | 'auth' | 'dashboard';
 export default async function withAuth<T>(
   fn: (session?: Session | null) => Promise<T>,
   roles: Role[] = [],
-  accessCheck?: (session: Session) => Promise<boolean>
+  accessCheck?: (session: Session) => Promise<boolean>,
 ) {
   const session = await auth();
   const stack = new Error().stack;
@@ -30,7 +30,7 @@ export default async function withAuth<T>(
   if (
     roles.includes('dashboard') &&
     dashboardUsers.includes(
-      session?.user?.role as (typeof dashboardUsers)[number]
+      session?.user?.role as (typeof dashboardUsers)[number],
     )
   ) {
     return fn(session);
@@ -42,7 +42,10 @@ export default async function withAuth<T>(
   }
 
   if (!['admin', ...roles].includes(session.user.role as Role)) {
-    console.error('Permission Error', method);
+    console.error('Permission Error', method, {
+      currentRole: session.user.role,
+      expectedRoles: ['admin', ...roles],
+    });
     return forbidden();
   }
 
@@ -55,8 +58,9 @@ export default async function withAuth<T>(
           role: session.user.role,
           userId: session.user.id,
           stdNo: session.user.stdNo,
+          expectedRoles: ['admin', ...roles],
         },
-        method
+        method,
       );
       return forbidden();
     }
