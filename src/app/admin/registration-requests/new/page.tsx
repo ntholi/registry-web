@@ -4,11 +4,11 @@ import { Box } from '@mantine/core';
 import Form from '../Form';
 
 type Module = typeof modules.$inferSelect;
-interface SelectedModule extends Module {
+export interface SelectedModule extends Module {
   status: ModuleStatus;
 }
 
-type RegistrationRequest = {
+export type RegistrationRequest = {
   id?: number;
   stdNo: number;
   semesterStatus: 'Active' | 'Repeat';

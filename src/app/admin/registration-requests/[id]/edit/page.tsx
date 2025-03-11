@@ -1,11 +1,11 @@
-import { Box } from '@mantine/core';
-import { notFound } from 'next/navigation';
 import {
   getRegistrationRequest,
-  updateRegistrationRequest,
+  updateRegistrationWithModules,
 } from '@/server/registration-requests/actions';
-import EditForm from './EditForm';
-import { getCurrentTerm } from '@/server/terms/actions';
+import { Box } from '@mantine/core';
+import { notFound } from 'next/navigation';
+import EditForm from '../../Form';
+import { RegistrationRequest, SelectedModule } from '../../new/page';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -13,13 +13,21 @@ type Props = {
 
 export default async function RegistrationRequestEdit({ params }: Props) {
   const { id } = await params;
-  const term = await getCurrentTerm();
   const registrationRequest = await getRegistrationRequest(Number(id));
   if (!registrationRequest) {
     return notFound();
   }
-  if (!term) {
-    throw Error('No Current Term');
+  async function handleSubmit(values: RegistrationRequest) {
+    'use server';
+    const { selectedModules } = values;
+    const res = await updateRegistrationWithModules(
+      Number(id),
+      selectedModules?.map((module: SelectedModule) => ({
+        id: module.id,
+        status: module.status,
+      })) || [],
+    );
+    return res.request;
   }
 
   return (
@@ -27,15 +35,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
       <EditForm
         title={'Edit Registration Request'}
         defaultValues={registrationRequest}
-        term={term.name}
-        onSubmit={async (value) => {
-          'use server';
-          return await updateRegistrationRequest({
-            id: Number(id),
-            status: value.status,
-            message: value.message ?? undefined,
-          });
-        }}
+        onSubmit={handleSubmit}
       />
     </Box>
   );

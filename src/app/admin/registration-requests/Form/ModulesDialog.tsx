@@ -1,8 +1,7 @@
-import { modules, ModuleStatus } from '@/db/schema';
+import { modules } from '@/db/schema';
 import {
   ActionIcon,
   Button,
-  Divider,
   Modal,
   Paper,
   Stack,
@@ -12,7 +11,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
-import { useState, ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 
 type Module = typeof modules.$inferSelect;
 
