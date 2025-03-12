@@ -52,7 +52,10 @@ export default function Layout({ children }: PropsWithChildren) {
         };
       }}
       actionIcons={[
-        <NewLink key={'new-link'} href='/admin/registration-requests/new' />,
+        <NewLink
+          key={'new-link'}
+          href='/admin/registration-requests/pending/new'
+        />,
       ]}
       renderItem={(it: ListItem) => (
         <ListItem

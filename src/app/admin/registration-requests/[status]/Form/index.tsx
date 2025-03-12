@@ -3,10 +3,12 @@
 import { Form } from '@/components/adease';
 import { modules, ModuleStatus, moduleStatusEnum } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
+import { getStudentSemesterModules } from '@/app/(main)/(auth)/registration/request/actions';
 import { getModulesForStructure } from '@/server/modules/actions';
 import { getStudent } from '@/server/students/actions';
 import {
   ActionIcon,
+  Button,
   Divider,
   Group,
   Paper,
@@ -61,6 +63,7 @@ export default function RegistrationRequestForm({
   const [structureId, setStructureId] = useState<number | null>(
     initialStructureId ?? null,
   );
+  const [isLoadingModules, setIsLoadingModules] = useState(false);
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -100,6 +103,27 @@ export default function RegistrationRequestForm({
       }
     } else {
       setStructureId(null);
+    }
+  };
+
+  const handleLoadModules = async (stdNo: number, form: any) => {
+    if (!stdNo || !structureId) return;
+
+    setIsLoadingModules(true);
+    try {
+      const semesterData = await getStudentSemesterModules(stdNo, structureId);
+      const mappedModules = semesterData.modules.map((module) => ({
+        ...module,
+        status: module.status as ModuleStatus,
+      }));
+
+      form.setFieldValue('selectedModules', mappedModules);
+      form.setFieldValue('semesterNumber', semesterData.semesterNo.toString());
+      form.setFieldValue('semesterStatus', semesterData.semesterStatus);
+    } catch (error) {
+      console.error('Error loading student modules:', error);
+    } finally {
+      setIsLoadingModules(false);
     }
   };
 
@@ -156,14 +180,30 @@ export default function RegistrationRequestForm({
 
         return (
           <Stack gap='xs'>
-            <StdNoInput
-              {...form.getInputProps('stdNo')}
-              disabled={!!defaultValues}
-              onChange={(value) => {
-                form.getInputProps('stdNo').onChange(value);
-                if (value) handleStudentSelect(Number(value));
-              }}
-            />
+            <Group align='center'>
+              <div style={{ flexGrow: 1 }}>
+                <StdNoInput
+                  {...form.getInputProps('stdNo')}
+                  disabled={!!defaultValues}
+                  onChange={(value) => {
+                    form.getInputProps('stdNo').onChange(value);
+                    if (value) handleStudentSelect(Number(value));
+                  }}
+                />
+              </div>
+              <Button
+                onClick={() =>
+                  handleLoadModules(Number(form.values.stdNo), form)
+                }
+                disabled={
+                  !form.values.stdNo || !structureId || isLoadingModules
+                }
+                loading={isLoadingModules}
+                variant='light'
+              >
+                Load Modules
+              </Button>
+            </Group>
 
             <Group grow>
               <Select
