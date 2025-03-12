@@ -418,6 +418,7 @@ export const registrationClearances = sqliteTable(
       .notNull()
       .default('pending'),
     message: text(),
+    emailSent: integer({ mode: 'boolean' }).notNull().default(false),
     respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
     responseDate: integer({ mode: 'timestamp' }),
     createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
