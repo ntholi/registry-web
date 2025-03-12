@@ -3,7 +3,17 @@
 import { FieldView } from '@/components/adease';
 import { formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { Anchor, Badge, Flex, Stack, Text } from '@mantine/core';
+import {
+  Anchor,
+  Badge,
+  Flex,
+  Stack,
+  Text,
+  ActionIcon,
+  Tooltip,
+} from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { IconCopy } from '@tabler/icons-react';
 import Link from 'next/link';
 
 type Props = {
@@ -35,14 +45,32 @@ export default function RequestDetailsView({ value }: Props) {
 function StudentNameView({ stdNo, name }: { stdNo: number; name: string }) {
   return (
     <FieldView label='Student' underline={false}>
-      <Anchor
-        component={Link}
-        href={`/admin/students/${stdNo}`}
-        size='sm'
-        fw={500}
-      >
-        {name} ({stdNo})
-      </Anchor>
+      <Flex align='center' gap='xs'>
+        <Anchor
+          component={Link}
+          href={`/admin/students/${stdNo}`}
+          size='sm'
+          fw={500}
+        >
+          {name} ({stdNo})
+        </Anchor>
+        <Tooltip label='Copy student number'>
+          <ActionIcon
+            variant='subtle'
+            color='gray'
+            size='sm'
+            onClick={() => {
+              navigator.clipboard.writeText(String(stdNo));
+              notifications.show({
+                message: 'Student number copied to clipboard',
+                color: 'green',
+              });
+            }}
+          >
+            <IconCopy size={16} />
+          </ActionIcon>
+        </Tooltip>
+      </Flex>
     </FieldView>
   );
 }
