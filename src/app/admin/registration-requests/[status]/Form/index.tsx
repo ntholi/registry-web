@@ -17,7 +17,7 @@ import {
   Table,
   Text,
 } from '@mantine/core';
-import { IconTrash } from '@tabler/icons-react';
+import { IconDownload, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -200,8 +200,9 @@ export default function RegistrationRequestForm({
                 }
                 loading={isLoadingModules}
                 variant='light'
+                leftSection={<IconDownload size={16} />}
               >
-                Load Modules
+                Load
               </Button>
             </Group>
 
