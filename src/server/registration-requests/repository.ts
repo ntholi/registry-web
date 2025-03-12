@@ -5,11 +5,10 @@ import {
   registrationRequests,
   requestedModules,
   sponsoredStudents,
-  students,
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { and, count, eq, like, or } from 'drizzle-orm';
+import { and, count, eq, like } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 

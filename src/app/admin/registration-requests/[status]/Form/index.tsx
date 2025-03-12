@@ -1,9 +1,9 @@
 'use client';
 
+import { getStudentSemesterModules } from '@/app/(main)/(auth)/registration/request/actions';
 import { Form } from '@/components/adease';
 import { modules, ModuleStatus, moduleStatusEnum } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
-import { getStudentSemesterModules } from '@/app/(main)/(auth)/registration/request/actions';
 import { getModulesForStructure } from '@/server/modules/actions';
 import { getStudent } from '@/server/students/actions';
 import {
@@ -106,6 +106,7 @@ export default function RegistrationRequestForm({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLoadModules = async (stdNo: number, form: any) => {
     if (!stdNo || !structureId) return;
 
