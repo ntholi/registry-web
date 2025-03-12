@@ -27,9 +27,14 @@ import SponsorInput from './SponsorInput';
 
 interface SelectedModule extends Module {
   status: ModuleStatus;
+  semesterNumber?: number;
+  semesterName?: string;
 }
 
-type Module = typeof modules.$inferSelect;
+type Module = typeof modules.$inferSelect & {
+  semesterNumber?: number;
+  semesterName?: string;
+};
 
 type RegistrationRequest = {
   id?: number;
@@ -90,7 +95,13 @@ export default function RegistrationRequestForm({
     : [];
 
   const filteredModules = structureModules
-    ? structureModules.flatMap((sem) => sem.modules)
+    ? structureModules.flatMap((sem) =>
+        sem.modules.map((module) => ({
+          ...module,
+          semesterNumber: sem.semesterNumber,
+          semesterName: sem.name,
+        })),
+      )
     : [];
 
   const handleStudentSelect = async (stdNo: number) => {
