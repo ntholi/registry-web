@@ -13,16 +13,7 @@ type Props = {
 export default function RequestDetailsView({ value }: Props) {
   return (
     <Stack gap='md'>
-      <FieldView label='Student' underline={false}>
-        <Anchor
-          component={Link}
-          href={`/admin/students/${value.stdNo}`}
-          size='sm'
-          fw={500}
-        >
-          {value.student.name} ({value.student.stdNo})
-        </Anchor>
-      </FieldView>
+      <StudentNameView stdNo={value.stdNo} name={value.student.name} />
       <FieldView label='Structure' underline={false}>
         <Text fw={500}>{value.student.structure?.code}</Text>
       </FieldView>
@@ -38,5 +29,20 @@ export default function RequestDetailsView({ value }: Props) {
         </Badge>
       </Flex>
     </Stack>
+  );
+}
+
+function StudentNameView({ stdNo, name }: { stdNo: number; name: string }) {
+  return (
+    <FieldView label='Student' underline={false}>
+      <Anchor
+        component={Link}
+        href={`/admin/students/${stdNo}`}
+        size='sm'
+        fw={500}
+      >
+        {name} ({stdNo})
+      </Anchor>
+    </FieldView>
   );
 }
