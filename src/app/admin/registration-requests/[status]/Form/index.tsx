@@ -148,7 +148,7 @@ export default function RegistrationRequestForm({
         const handleAddModuleToForm = (module: Module) => {
           const newModule: SelectedModule = {
             ...module,
-            status: moduleStatusEnum[0],
+            status: 'Compulsory',
           };
           if (!selectedModules.some((m) => m.id === newModule.id)) {
             form.setFieldValue('selectedModules', [
