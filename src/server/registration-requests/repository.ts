@@ -8,7 +8,7 @@ import {
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { and, count, eq, like } from 'drizzle-orm';
+import { and, count, eq, exists, like } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 
@@ -125,11 +125,34 @@ export default class RegistrationRequestRepository extends BaseRepository<
   }
 
   async countByStatus(status: 'pending' | 'registered' | 'rejected') {
-    const [result] = await db
-      .select({ value: count() })
-      .from(registrationRequests)
-      .where(eq(registrationRequests.status, status));
-    return result.value;
+    if (status === 'registered') {
+      const [result] = await db
+        .select({ value: count() })
+        .from(registrationRequests)
+        .where(eq(registrationRequests.status, status));
+      return result.value;
+    } else {
+      const [result] = await db
+        .select({ value: count() })
+        .from(registrationRequests)
+        .where(
+          exists(
+            db
+              .select()
+              .from(registrationClearances)
+              .where(
+                and(
+                  eq(
+                    registrationClearances.registrationRequestId,
+                    registrationRequests.id,
+                  ),
+                  eq(registrationClearances.status, status),
+                ),
+              ),
+          ),
+        );
+      return result.value;
+    }
   }
 
   async getRequestedModules(registrationRequestId: number) {

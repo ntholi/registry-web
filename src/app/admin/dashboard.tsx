@@ -10,6 +10,7 @@ import {
 import {
   countPendingRegistrationRequests,
   countRegisteredRegistrationRequests,
+  countRejectedRegistrationRequests,
 } from '@/server/registration-requests/actions';
 import {
   ActionIcon,
@@ -107,6 +108,11 @@ const navigation: NavItem[] = [
         label: 'Rejected',
         href: '/admin/registration-requests/rejected',
         icon: IconBarrierBlock,
+        notificationCount: {
+          queryKey: ['registrationRequests', 'rejected'],
+          queryFn: () => countRejectedRegistrationRequests(),
+          color: 'gray',
+        },
       },
     ],
   },
