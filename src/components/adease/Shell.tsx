@@ -30,21 +30,21 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
   const { setColorScheme } = useMantineColorScheme();
 
   const Header = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === Shell.Header
+    (child) => React.isValidElement(child) && child.type === Shell.Header,
   );
   const navigation = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === Shell.Navigation
+    (child) => React.isValidElement(child) && child.type === Shell.Navigation,
   );
   const body = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === Shell.Body
+    (child) => React.isValidElement(child) && child.type === Shell.Body,
   );
 
   const user = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === Shell.User
+    (child) => React.isValidElement(child) && child.type === Shell.User,
   );
 
   const footer = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === Shell.Footer
+    (child) => React.isValidElement(child) && child.type === Shell.Footer,
   );
 
   return (
@@ -78,8 +78,8 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
           </ActionIcon>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p='xs'>
-        <AppShell.Section grow component={ScrollArea} onClick={close}>
+      <AppShell.Navbar>
+        <AppShell.Section grow component={ScrollArea} onClick={close} p={'sm'}>
           {navigation}
         </AppShell.Section>
         <AppShell.Section>
