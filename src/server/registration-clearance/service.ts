@@ -23,7 +23,7 @@ class RegistrationClearanceService {
     const session = await auth();
     if (!session?.user?.role) return 0;
 
-    return this.repository.countPending(
+    return this.repository.countByStatus(
       status,
       session.user.role as DashboardUser,
     );

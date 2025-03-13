@@ -170,7 +170,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     return await this.paginatedResults(data, whereCondition, pageSize);
   }
 
-  async countPending(
+  async countByStatus(
     status: 'pending' | 'approved' | 'rejected',
     department: DashboardUser,
   ) {
