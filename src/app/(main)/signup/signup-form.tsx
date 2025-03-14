@@ -120,17 +120,16 @@ export function SignupForm({ existingSignup }: SignupFormProps) {
                 {getAlertIcon(existingSignup.status)}
                 <AlertTitle className='capitalize'>
                   {existingSignup.status === 'pending'
-                    ? 'Setting up account...'
-                    : status}
+                    ? 'Setting up account'
+                    : existingSignup.status}
                 </AlertTitle>
                 <AlertDescription>
-                  {existingSignup.message}
-                  {existingSignup.status === 'pending' && (
+                  {existingSignup.status === 'pending' ? (
                     <span>
-                      {' '}
-                      It might take a few hours to setup your account, please
-                      check back later.
+                      This might take a few hours, please check back later.
                     </span>
+                  ) : (
+                    existingSignup.message
                   )}
                 </AlertDescription>
               </Alert>

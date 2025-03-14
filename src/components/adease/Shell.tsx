@@ -82,7 +82,7 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
         <AppShell.Section grow component={ScrollArea} onClick={close} p={'sm'}>
           {navigation}
         </AppShell.Section>
-        <AppShell.Section>
+        <AppShell.Section p={'sm'}>
           <Divider />
           {user}
         </AppShell.Section>
