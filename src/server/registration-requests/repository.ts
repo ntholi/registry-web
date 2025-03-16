@@ -8,7 +8,7 @@ import {
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { and, count, eq, exists, like } from 'drizzle-orm';
+import { and, count, eq, exists, inArray, like } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 
@@ -88,13 +88,31 @@ export default class RegistrationRequestRepository extends BaseRepository<
   ) {
     const { offset, pageSize } = await this.queryExpressions(params);
 
-    const query = db.query.registrationRequests.findMany({
-      where: and(
+    let whereCondition;
+    if (status === 'registered') {
+      whereCondition = and(
         eq(registrationRequests.status, status),
         params.search
           ? like(registrationRequests.stdNo, `%${params.search}%`)
           : undefined,
-      ),
+      );
+    } else {
+      whereCondition = and(
+        inArray(
+          registrationRequests.id,
+          db
+            .select({ id: registrationClearances.registrationRequestId })
+            .from(registrationClearances)
+            .where(eq(registrationClearances.status, status)),
+        ),
+        params.search
+          ? like(registrationRequests.stdNo, `%${params.search}%`)
+          : undefined,
+      );
+    }
+
+    const query = db.query.registrationRequests.findMany({
+      where: whereCondition,
       with: {
         student: true,
       },
@@ -106,14 +124,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
       db
         .select({ value: count() })
         .from(registrationRequests)
-        .where(
-          and(
-            eq(registrationRequests.status, status),
-            params.search
-              ? like(registrationRequests.stdNo, `%${params.search}%`)
-              : undefined,
-          ),
-        )
+        .where(whereCondition)
         .then((res) => res[0].value),
       query,
     ]);
