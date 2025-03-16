@@ -7,11 +7,7 @@ import {
   countPendingRegistrationClearances,
   countRejectedRegistrationClearances,
 } from '@/server/registration-clearance/actions';
-import {
-  countPendingRegistrationRequests,
-  countRegisteredRegistrationRequests,
-  countRejectedRegistrationRequests,
-} from '@/server/registration-requests/actions';
+import { countByStatus } from '@/server/registration-requests/actions';
 import {
   ActionIcon,
   Avatar,
@@ -90,7 +86,7 @@ const navigation: NavItem[] = [
         icon: IconMessageQuestion,
         notificationCount: {
           queryKey: ['registrationRequests', 'pending'],
-          queryFn: () => countPendingRegistrationRequests(),
+          queryFn: () => countByStatus('pending'),
           color: 'red',
         },
       },
@@ -100,7 +96,7 @@ const navigation: NavItem[] = [
         icon: IconSquareRoundedCheck,
         notificationCount: {
           queryKey: ['registrationRequests', 'registered'],
-          queryFn: () => countRegisteredRegistrationRequests(),
+          queryFn: () => countByStatus('registered'),
           color: 'gray',
         },
       },
@@ -110,7 +106,17 @@ const navigation: NavItem[] = [
         icon: IconBarrierBlock,
         notificationCount: {
           queryKey: ['registrationRequests', 'rejected'],
-          queryFn: () => countRejectedRegistrationRequests(),
+          queryFn: () => countByStatus('rejected'),
+          color: 'gray',
+        },
+      },
+      {
+        label: 'Approved',
+        href: '/admin/registration-requests/approved',
+        icon: IconSquareRoundedCheck,
+        notificationCount: {
+          queryKey: ['registrationRequests', 'approved'],
+          queryFn: () => countByStatus('approved'),
           color: 'gray',
         },
       },

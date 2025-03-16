@@ -26,22 +26,16 @@ export async function getRequestedModules(registrationRequestId: number) {
   return service.getRequestedModules(registrationRequestId);
 }
 
-export async function countPendingRegistrationRequests() {
-  return service.countByStatus('pending');
-}
-
-export async function countRegisteredRegistrationRequests() {
-  return service.countByStatus('registered');
-}
-
-export async function countRejectedRegistrationRequests() {
-  return service.countByStatus('rejected');
+export async function countByStatus(
+  status: 'pending' | 'registered' | 'rejected' | 'approved',
+) {
+  return service.countByStatus(status);
 }
 
 export async function findAllRegistrationRequests(
   page = 1,
   search = '',
-  status?: 'pending' | 'registered' | 'rejected',
+  status?: 'pending' | 'registered' | 'rejected' | 'approved',
 ) {
   return service.findByStatus(status ?? 'pending', {
     page,

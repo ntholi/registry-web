@@ -35,7 +35,7 @@ class RegistrationRequestService {
   }
 
   async findByStatus(
-    status: 'pending' | 'registered' | 'rejected',
+    status: 'pending' | 'registered' | 'rejected' | 'approved',
     params: FindAllParams<typeof registrationRequests>,
   ) {
     return withAuth(
@@ -44,7 +44,9 @@ class RegistrationRequestService {
     );
   }
 
-  async countByStatus(status: 'pending' | 'registered' | 'rejected') {
+  async countByStatus(
+    status: 'pending' | 'registered' | 'rejected' | 'approved',
+  ) {
     return withAuth(
       async () => this.repository.countByStatus(status),
       ['dashboard'],

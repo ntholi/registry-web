@@ -6,12 +6,13 @@ import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { PropsWithChildren } from 'react';
 import { useParams } from 'next/navigation';
 
-type Status = 'pending' | 'registered' | 'rejected';
+type Status = 'pending' | 'registered' | 'rejected' | 'approved';
 
 const statusTitles = {
   pending: 'Pending Registration Requests',
   registered: 'Registered Students',
   rejected: 'Rejected Requests',
+  approved: 'Approved Requests',
 };
 
 type ListItem = {

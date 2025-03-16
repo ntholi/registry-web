@@ -8,7 +8,7 @@ import {
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
-import { and, count, eq, exists, inArray, like } from 'drizzle-orm';
+import { and, count, eq, exists, inArray, like, ne, not } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 
@@ -83,7 +83,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
   }
 
   async findByStatus(
-    status: 'pending' | 'registered' | 'rejected',
+    status: 'pending' | 'registered' | 'rejected' | 'approved',
     params: FindAllParams<typeof registrationRequests>,
   ) {
     const { offset, pageSize } = await this.queryExpressions(params);
@@ -92,6 +92,50 @@ export default class RegistrationRequestRepository extends BaseRepository<
     if (status === 'registered') {
       whereCondition = and(
         eq(registrationRequests.status, status),
+        params.search
+          ? like(registrationRequests.stdNo, `%${params.search}%`)
+          : undefined,
+      );
+    } else if (status === 'approved') {
+      // For approved status, require ALL clearances to be approved
+      const approvedRequestIds = db
+        .select({ id: registrationRequests.id })
+        .from(registrationRequests)
+        .where(
+          and(
+            not(
+              exists(
+                db
+                  .select()
+                  .from(registrationClearances)
+                  .where(
+                    and(
+                      eq(
+                        registrationClearances.registrationRequestId,
+                        registrationRequests.id,
+                      ),
+                      ne(registrationClearances.status, 'approved'),
+                    ),
+                  ),
+              ),
+            ),
+            exists(
+              db
+                .select()
+                .from(registrationClearances)
+                .where(
+                  eq(
+                    registrationClearances.registrationRequestId,
+                    registrationRequests.id,
+                  ),
+                ),
+            ),
+            ne(registrationRequests.status, 'registered'),
+          ),
+        );
+
+      whereCondition = and(
+        inArray(registrationRequests.id, approvedRequestIds),
         params.search
           ? like(registrationRequests.stdNo, `%${params.search}%`)
           : undefined,
@@ -135,12 +179,52 @@ export default class RegistrationRequestRepository extends BaseRepository<
     };
   }
 
-  async countByStatus(status: 'pending' | 'registered' | 'rejected') {
+  async countByStatus(
+    status: 'pending' | 'registered' | 'rejected' | 'approved',
+  ) {
     if (status === 'registered') {
       const [result] = await db
         .select({ value: count() })
         .from(registrationRequests)
         .where(eq(registrationRequests.status, status));
+      return result.value;
+    } else if (status === 'approved') {
+      // For approved status, require ALL clearances to be approved
+      const [result] = await db
+        .select({ value: count() })
+        .from(registrationRequests)
+        .where(
+          and(
+            not(
+              exists(
+                db
+                  .select()
+                  .from(registrationClearances)
+                  .where(
+                    and(
+                      eq(
+                        registrationClearances.registrationRequestId,
+                        registrationRequests.id,
+                      ),
+                      ne(registrationClearances.status, 'approved'),
+                    ),
+                  ),
+              ),
+            ),
+            exists(
+              db
+                .select()
+                .from(registrationClearances)
+                .where(
+                  eq(
+                    registrationClearances.registrationRequestId,
+                    registrationRequests.id,
+                  ),
+                ),
+            ),
+            ne(registrationRequests.status, 'registered'),
+          ),
+        );
       return result.value;
     } else {
       const [result] = await db
