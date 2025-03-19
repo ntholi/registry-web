@@ -192,7 +192,11 @@ export async function getRepeatModules(
     ),
     with: {
       semesters: {
-        where: (s) => and(notInArray(s.status, ['Deleted', 'Deferred'])),
+        where: (s) =>
+          and(
+            notInArray(s.status, ['Deleted', 'Deferred']),
+            inArray(s.semesterNumber, semesterNumbers),
+          ),
         with: {
           studentModules: {
             where: (m) => notInArray(m.status, ['Delete', 'Drop']),
