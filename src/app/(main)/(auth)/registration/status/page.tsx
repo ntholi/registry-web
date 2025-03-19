@@ -11,7 +11,7 @@ import { Container } from '@/components/ui/container';
 import { formatDateTime } from '@/lib/utils';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
-import { InfoIcon } from 'lucide-react';
+import { AlertCircleIcon, InfoIcon } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import StatusBadge, { getStatusIcon } from '../components/StatusBadge';
 import { getRegistrationClearances } from './actions';
@@ -34,6 +34,10 @@ export default async function page() {
     redirect('/registration/request');
   }
   const clearances = await getRegistrationClearances(request.id);
+
+  const pendingDepartments = clearances
+    .filter((clearance) => clearance.status !== 'approved')
+    .map((clearance) => clearance.department);
 
   return (
     <Container className='pt-4 sm:pt-10'>
@@ -58,17 +62,28 @@ export default async function page() {
               Your registration request for {term.name}
             </CardDescription>
           </CardHeader>
-          {request.message && (
-            <CardContent>
+          <CardContent>
+            {request.message && (
               <Alert>
                 <InfoIcon className='h-4 w-4' />
                 <AlertTitle className='capitalize'>{request.status}</AlertTitle>
                 <AlertDescription>{request.message}</AlertDescription>
               </Alert>
-            </CardContent>
-          )}
+            )}
+          </CardContent>
         </Card>
-
+        {pendingDepartments.length > 0 && (
+          <Alert className='border-amber-500 bg-amber-50 py-4 text-amber-800 dark:bg-amber-950/30 dark:text-amber-300'>
+            <AlertCircleIcon className='h-5 w-5 text-amber-500' />
+            <AlertTitle>Pending departmental clearance</AlertTitle>
+            <AlertDescription className='text-amber-700 dark:text-amber-300'>
+              Registration cannot proceed until cleared by:{' '}
+              <span className='font-medium capitalize'>
+                {pendingDepartments.join(', ')}
+              </span>
+            </AlertDescription>
+          </Alert>
+        )}
         <Card>
           <CardHeader>
             <CardTitle>Department Clearances</CardTitle>
