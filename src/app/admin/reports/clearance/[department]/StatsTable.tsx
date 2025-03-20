@@ -72,9 +72,9 @@ export function StatsTable({ data }: Props) {
                     color={
                       percentOfTotal >= 30
                         ? 'blue'
-                        : percentOfTotal >= 15
-                          ? 'cyan'
-                          : 'teal'
+                        : percentOfTotal >= 20
+                          ? 'blue'
+                          : 'red'
                     }
                   />
                 </div>
