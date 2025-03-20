@@ -28,6 +28,7 @@ export const users = sqliteTable('users', {
     .$defaultFn(() => nanoid()),
   name: text(),
   role: text({ enum: userRoles }).notNull().default('user'),
+  isDepartmentAdmin: integer({ mode: 'boolean' }).notNull().default(false),
   email: text().unique(),
   emailVerified: integer({ mode: 'timestamp_ms' }),
   image: text(),

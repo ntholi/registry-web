@@ -63,8 +63,11 @@ export type NavItem = {
   notificationCount?: NotificationConfig;
 };
 
-function getNavigation(department: DashboardUser) {
-  return [
+function getNavigation() {
+  const { data: session } = useSession();
+  const department = session?.user?.role as DashboardUser;
+
+  const navItems = [
     {
       label: 'Users',
       href: '/admin/users',
@@ -162,18 +165,6 @@ function getNavigation(department: DashboardUser) {
       ],
     },
     {
-      label: 'Reports',
-      icon: IconChartLine,
-      roles: ['finance', 'library', 'resource'],
-      children: [
-        {
-          label: 'Clearance',
-          href: `/admin/reports/clearance/${department}`,
-          icon: IconCopyCheck,
-        },
-      ],
-    },
-    {
       label: 'Modules',
       href: '/admin/modules',
       icon: IconBookmark,
@@ -204,13 +195,29 @@ function getNavigation(department: DashboardUser) {
       roles: ['registry'],
     },
   ] as NavItem[];
+
+  if (session?.user?.isDepartmentAdmin) {
+    navItems.push({
+      label: 'Reports',
+      icon: IconChartLine,
+      roles: ['finance', 'library', 'resource'],
+      children: [
+        {
+          label: 'Clearance',
+          href: `/admin/reports/clearance/${department}`,
+          icon: IconCopyCheck,
+        },
+      ],
+    });
+  }
+
+  return navItems;
 }
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
-  const { data: session } = useSession();
 
-  const navigation = getNavigation(session?.user?.role as DashboardUser);
+  const navigation = getNavigation();
 
   if (status === 'loading') {
     return (
