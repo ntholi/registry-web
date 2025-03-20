@@ -23,24 +23,18 @@ export async function getClearanceStatsByDepartment(
   const overallStats = await db
     .select({
       total: count(registrationClearances.id),
-      approved: count(
-        and(
-          eq(registrationClearances.status, 'approved'),
-          eq(registrationClearances.department, department),
+      approved:
+        sql`SUM(CASE WHEN ${registrationClearances.status} = 'approved' AND ${registrationClearances.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
+          Number,
         ),
-      ),
-      rejected: count(
-        and(
-          eq(registrationClearances.status, 'rejected'),
-          eq(registrationClearances.department, department),
+      rejected:
+        sql`SUM(CASE WHEN ${registrationClearances.status} = 'rejected' AND ${registrationClearances.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
+          Number,
         ),
-      ),
-      pending: count(
-        and(
-          eq(registrationClearances.status, 'pending'),
-          eq(registrationClearances.department, department),
+      pending:
+        sql`SUM(CASE WHEN ${registrationClearances.status} = 'pending' AND ${registrationClearances.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
+          Number,
         ),
-      ),
     })
     .from(registrationClearances)
     .where(
