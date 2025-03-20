@@ -1,7 +1,7 @@
 'use client';
 
 import { Shell } from '@/components/adease';
-import { dashboardUsers, UserRole } from '@/db/schema';
+import { DashboardUser, dashboardUsers, UserRole } from '@/db/schema';
 import {
   countApprovedRegistrationClearances,
   countPendingRegistrationClearances,
@@ -30,6 +30,7 @@ import {
   IconBuildingBank,
   IconBuildingStore,
   IconCalendarEvent,
+  IconChartLine,
   IconChevronRight,
   IconClipboardCheck,
   IconCopyCheck,
@@ -62,137 +63,154 @@ export type NavItem = {
   notificationCount?: NotificationConfig;
 };
 
-const navigation: NavItem[] = [
-  {
-    label: 'Users',
-    href: '/admin/users',
-    icon: IconUserCog,
-    roles: ['admin'],
-  },
-  {
-    label: 'Students',
-    href: '/admin/students',
-    icon: IconUsersGroup,
-    roles: [...dashboardUsers],
-  },
-  {
-    label: 'Registration Requests',
-    icon: IconClipboardCheck,
-    roles: ['registry'],
-    children: [
-      {
-        label: 'Pending',
-        href: '/admin/registration-requests/pending',
-        icon: IconMessageQuestion,
-        notificationCount: {
-          queryKey: ['registrationRequests', 'pending'],
-          queryFn: () => countByStatus('pending'),
-          color: 'red',
+function getNavigation(department: DashboardUser) {
+  return [
+    {
+      label: 'Users',
+      href: '/admin/users',
+      icon: IconUserCog,
+      roles: ['admin'],
+    },
+    {
+      label: 'Students',
+      href: '/admin/students',
+      icon: IconUsersGroup,
+      roles: [...dashboardUsers],
+    },
+    {
+      label: 'Registration Requests',
+      icon: IconClipboardCheck,
+      roles: ['registry'],
+      children: [
+        {
+          label: 'Pending',
+          href: '/admin/registration-requests/pending',
+          icon: IconMessageQuestion,
+          notificationCount: {
+            queryKey: ['registrationRequests', 'pending'],
+            queryFn: () => countByStatus('pending'),
+            color: 'red',
+          },
         },
-      },
-      {
-        label: 'Registered',
-        href: '/admin/registration-requests/registered',
-        icon: IconSquareRoundedCheck,
-        notificationCount: {
-          queryKey: ['registrationRequests', 'registered'],
-          queryFn: () => countByStatus('registered'),
-          color: 'gray',
+        {
+          label: 'Registered',
+          href: '/admin/registration-requests/registered',
+          icon: IconSquareRoundedCheck,
+          notificationCount: {
+            queryKey: ['registrationRequests', 'registered'],
+            queryFn: () => countByStatus('registered'),
+            color: 'gray',
+          },
         },
-      },
-      {
-        label: 'Rejected',
-        href: '/admin/registration-requests/rejected',
-        icon: IconBarrierBlock,
-        notificationCount: {
-          queryKey: ['registrationRequests', 'rejected'],
-          queryFn: () => countByStatus('rejected'),
-          color: 'gray',
+        {
+          label: 'Rejected',
+          href: '/admin/registration-requests/rejected',
+          icon: IconBarrierBlock,
+          notificationCount: {
+            queryKey: ['registrationRequests', 'rejected'],
+            queryFn: () => countByStatus('rejected'),
+            color: 'gray',
+          },
         },
-      },
-      {
-        label: 'Approved',
-        href: '/admin/registration-requests/approved',
-        icon: IconSquareRoundedCheck,
-        notificationCount: {
-          queryKey: ['registrationRequests', 'approved'],
-          queryFn: () => countByStatus('approved'),
-          color: 'gray',
+        {
+          label: 'Approved',
+          href: '/admin/registration-requests/approved',
+          icon: IconSquareRoundedCheck,
+          notificationCount: {
+            queryKey: ['registrationRequests', 'approved'],
+            queryFn: () => countByStatus('approved'),
+            color: 'gray',
+          },
         },
-      },
-    ],
-  },
-  {
-    label: 'Clearance',
-    icon: IconCopyCheck,
-    roles: ['finance', 'library', 'resource'],
-    children: [
-      {
-        label: 'Requests',
-        href: '/admin/registration-clearance/pending',
-        icon: IconMessageQuestion,
-        notificationCount: {
-          queryKey: ['registrationClearances', 'pending'],
-          queryFn: () => countPendingRegistrationClearances(),
-          color: 'red',
+      ],
+    },
+    {
+      label: 'Clearance',
+      icon: IconCopyCheck,
+      roles: ['finance', 'library', 'resource'],
+      children: [
+        {
+          label: 'Requests',
+          href: '/admin/registration-clearance/pending',
+          icon: IconMessageQuestion,
+          notificationCount: {
+            queryKey: ['registrationClearances', 'pending'],
+            queryFn: () => countPendingRegistrationClearances(),
+            color: 'red',
+          },
         },
-      },
-      {
-        label: 'Approved',
-        href: '/admin/registration-clearance/approved',
-        icon: IconSquareRoundedCheck,
-        notificationCount: {
-          queryKey: ['registrationClearances', 'approved'],
-          queryFn: () => countApprovedRegistrationClearances(),
-          color: 'gray',
+        {
+          label: 'Approved',
+          href: '/admin/registration-clearance/approved',
+          icon: IconSquareRoundedCheck,
+          notificationCount: {
+            queryKey: ['registrationClearances', 'approved'],
+            queryFn: () => countApprovedRegistrationClearances(),
+            color: 'gray',
+          },
         },
-      },
-      {
-        label: 'Rejected',
-        href: '/admin/registration-clearance/rejected',
-        icon: IconBarrierBlock,
-        notificationCount: {
-          queryKey: ['registrationClearances', 'rejected'],
-          queryFn: () => countRejectedRegistrationClearances(),
-          color: 'gray',
+        {
+          label: 'Rejected',
+          href: '/admin/registration-clearance/rejected',
+          icon: IconBarrierBlock,
+          notificationCount: {
+            queryKey: ['registrationClearances', 'rejected'],
+            queryFn: () => countRejectedRegistrationClearances(),
+            color: 'gray',
+          },
         },
-      },
-    ],
-  },
-  {
-    label: 'Modules',
-    href: '/admin/modules',
-    icon: IconBookmark,
-    roles: [],
-  },
-  {
-    label: 'Programs',
-    href: '/admin/programs',
-    icon: IconBuildingStore,
-    roles: [...dashboardUsers],
-  },
-  {
-    label: 'Terms',
-    href: '/admin/terms',
-    icon: IconCalendarEvent,
-    roles: ['admin'],
-  },
-  {
-    label: 'Sponsors',
-    href: '/admin/sponsors',
-    icon: IconBuildingBank,
-    roles: ['admin', 'finance'],
-  },
-  {
-    label: 'Simulator',
-    href: '/admin/simulate',
-    icon: IconTestPipe,
-    roles: ['registry'],
-  },
-];
+      ],
+    },
+    {
+      label: 'Reports',
+      icon: IconChartLine,
+      roles: ['finance', 'library', 'resource'],
+      children: [
+        {
+          label: 'Clearance',
+          href: `/admin/reports/clearance/${department}`,
+          icon: IconCopyCheck,
+        },
+      ],
+    },
+    {
+      label: 'Modules',
+      href: '/admin/modules',
+      icon: IconBookmark,
+      roles: ['admin'],
+    },
+    {
+      label: 'Programs',
+      href: '/admin/programs',
+      icon: IconBuildingStore,
+      roles: [...dashboardUsers],
+    },
+    {
+      label: 'Terms',
+      href: '/admin/terms',
+      icon: IconCalendarEvent,
+      roles: ['admin'],
+    },
+    {
+      label: 'Sponsors',
+      href: '/admin/sponsors',
+      icon: IconBuildingBank,
+      roles: ['admin', 'finance'],
+    },
+    {
+      label: 'Simulator',
+      href: '/admin/simulate',
+      icon: IconTestPipe,
+      roles: ['registry'],
+    },
+  ] as NavItem[];
+}
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
+  const { data: session } = useSession();
+
+  const navigation = getNavigation(session?.user?.role as DashboardUser);
 
   if (status === 'loading') {
     return (

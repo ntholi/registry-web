@@ -1,5 +1,4 @@
-import { users } from '@/db/schema';
-import { db } from '@/db';
+import { ClearanceStats } from '@/server/reports/clearance/service';
 import {
   Table,
   TableThead,
@@ -11,30 +10,10 @@ import {
 } from '@mantine/core';
 
 interface Props {
-  data: {
-    respondedBy: string | null;
-    approved: number;
-    rejected: number;
-    total: number;
-  }[];
+  data: ClearanceStats[];
 }
 
-export async function StatsTable({ data }: Props) {
-  // Fetch user names for all respondedBy IDs
-  const userIds = data
-    .map((stat) => stat.respondedBy)
-    .filter(Boolean) as string[];
-  const userNames = await db.query.users.findMany({
-    where: (users, { inArray }) => inArray(users.id, userIds),
-    columns: {
-      id: true,
-      name: true,
-    },
-  });
-
-  // Create a map of user IDs to names
-  const userNameMap = new Map(userNames.map((user) => [user.id, user.name]));
-
+export function StatsTable({ data }: Props) {
   return (
     <Table striped highlightOnHover withTableBorder>
       <TableThead>
@@ -47,43 +26,36 @@ export async function StatsTable({ data }: Props) {
         </TableTr>
       </TableThead>
       <TableTbody>
-        {data.map((stat) => {
-          const approvalRate =
-            stat.total > 0 ? Math.round((stat.approved / stat.total) * 100) : 0;
-
-          return (
-            <TableTr key={stat.respondedBy}>
-              <TableTd>
-                {userNameMap.get(stat.respondedBy || '') || 'Unknown'}
-              </TableTd>
-              <TableTd>{stat.total}</TableTd>
-              <TableTd>
-                <Badge color='green' variant='light'>
-                  {stat.approved}
-                </Badge>
-              </TableTd>
-              <TableTd>
-                <Badge color='red' variant='light'>
-                  {stat.rejected}
-                </Badge>
-              </TableTd>
-              <TableTd>
-                <Badge
-                  color={
-                    approvalRate >= 70
-                      ? 'green'
-                      : approvalRate >= 40
-                        ? 'yellow'
-                        : 'red'
-                  }
-                  variant='light'
-                >
-                  {approvalRate}%
-                </Badge>
-              </TableTd>
-            </TableTr>
-          );
-        })}
+        {data.map((stat) => (
+          <TableTr key={stat.respondedBy}>
+            <TableTd>{stat.staffName}</TableTd>
+            <TableTd>{stat.total}</TableTd>
+            <TableTd>
+              <Badge color='green' variant='light'>
+                {stat.approved}
+              </Badge>
+            </TableTd>
+            <TableTd>
+              <Badge color='red' variant='light'>
+                {stat.rejected}
+              </Badge>
+            </TableTd>
+            <TableTd>
+              <Badge
+                color={
+                  stat.approvalRate >= 70
+                    ? 'green'
+                    : stat.approvalRate >= 40
+                      ? 'yellow'
+                      : 'red'
+                }
+                variant='light'
+              >
+                {stat.approvalRate}%
+              </Badge>
+            </TableTd>
+          </TableTr>
+        ))}
       </TableTbody>
     </Table>
   );
