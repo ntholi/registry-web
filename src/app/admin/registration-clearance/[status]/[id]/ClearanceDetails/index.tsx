@@ -24,6 +24,7 @@ import { getRegistrationClearance } from '@/server/registration-clearance/action
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import SponsorInfo from '../SponsorInfo';
+import { formatDateTime } from '@/lib/utils';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
@@ -65,6 +66,9 @@ export default function ClearanceDetails({ request, termId }: Props) {
                     </ActionIcon>
                   </Tooltip>
                 </Group>
+              </FieldView>
+              <FieldView label='Date Requested' underline={false}>
+                {formatDateTime(request.registrationRequest.createdAt)}
               </FieldView>
               <FieldView label='Program' underline={false}>
                 {student.structure?.program.name}
