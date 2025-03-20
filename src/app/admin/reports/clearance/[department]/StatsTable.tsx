@@ -27,55 +27,61 @@ export function StatsTable({ data }: Props) {
   }
 
   const sortedData = [...data].sort((a, b) => b.total - a.total);
+  const totalRequests = sortedData.reduce((sum, stat) => sum + stat.total, 0);
 
   return (
-    <Table striped highlightOnHover withTableBorder>
+    <Table withTableBorder>
       <TableThead>
         <TableTr>
           <TableTh>Staff Member</TableTh>
-          <TableTh>Total Requests</TableTh>
           <TableTh>Approved</TableTh>
           <TableTh>Rejected</TableTh>
-          <TableTh>Approval Rate</TableTh>
+          <TableTh>Total</TableTh>
+          <TableTh>Total Responses</TableTh>
         </TableTr>
       </TableThead>
       <TableTbody>
-        {sortedData.map((stat) => (
-          <TableTr key={stat.respondedBy || 'unknown'}>
-            <TableTd>
-              <Text fw={500}>{stat.staffName}</Text>
-            </TableTd>
-            <TableTd>{stat.total}</TableTd>
-            <TableTd>
-              <Badge color='green' variant='light'>
-                {stat.approved}
-              </Badge>
-            </TableTd>
-            <TableTd>
-              <Badge color='red' variant='light'>
-                {stat.rejected}
-              </Badge>
-            </TableTd>
-            <TableTd>
-              <div>
-                <Text size='xs' fw={500} c='dimmed' mb={5}>
-                  {stat.approvalRate}%
-                </Text>
-                <Progress
-                  value={stat.approvalRate}
-                  size='sm'
-                  color={
-                    stat.approvalRate >= 70
-                      ? 'green'
-                      : stat.approvalRate >= 40
-                        ? 'yellow'
-                        : 'red'
-                  }
-                />
-              </div>
-            </TableTd>
-          </TableTr>
-        ))}
+        {sortedData.map((stat) => {
+          const percentOfTotal =
+            totalRequests > 0
+              ? Math.round((stat.total / totalRequests) * 100)
+              : 0;
+
+          return (
+            <TableTr key={stat.respondedBy || 'unknown'}>
+              <TableTd>
+                <Text size='sm'>{stat.staffName}</Text>
+              </TableTd>
+              <TableTd>
+                <Text size='sm'>{stat.approved}</Text>
+              </TableTd>
+              <TableTd>
+                <Text size='sm'>{stat.rejected}</Text>
+              </TableTd>
+              <TableTd>
+                <Text size='sm'>{stat.total}</Text>
+              </TableTd>
+              <TableTd>
+                <div>
+                  <Text size='xs' fw={500} c='dimmed' mb={5}>
+                    {percentOfTotal}%
+                  </Text>
+                  <Progress
+                    value={percentOfTotal}
+                    size='sm'
+                    color={
+                      percentOfTotal >= 30
+                        ? 'blue'
+                        : percentOfTotal >= 15
+                          ? 'cyan'
+                          : 'teal'
+                    }
+                  />
+                </div>
+              </TableTd>
+            </TableTr>
+          );
+        })}
       </TableTbody>
     </Table>
   );

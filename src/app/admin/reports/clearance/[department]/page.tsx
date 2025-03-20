@@ -5,7 +5,7 @@ import { toTitleCase } from '@/lib/utils';
 import { fetchClearanceStats } from '@/server/reports/clearance/actions';
 import { DateRangeFilter } from '@/server/reports/clearance/repository';
 import { ClearanceStatsSummary } from '@/server/reports/clearance/service';
-import { Button, Card, Group, Stack, Text, Title } from '@mantine/core';
+import { Button, Card, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { DatePickerInput, DatesRangeValue } from '@mantine/dates';
 import { IconCalendar, IconSearch } from '@tabler/icons-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -103,12 +103,12 @@ export default function ClearanceReportsPage() {
         <>
           <StatsSummary data={stats.overall} />
 
-          <Card withBorder>
+          <Paper withBorder p='md' mt='md'>
             <Title order={4} mb='md'>
               Staff Member Statistics
             </Title>
             <StatsTable data={stats.byStaff} />
-          </Card>
+          </Paper>
         </>
       )}
     </Stack>
