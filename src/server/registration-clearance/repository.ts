@@ -142,19 +142,19 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         id: true,
       },
     });
-    const whereCondition = ids.length
-      ? inArray(
-          registrationClearances.registrationRequestId,
-          ids.map((id) => id.id),
-        )
-      : undefined;
+    const whereCondition = and(
+      ids.length
+        ? inArray(
+            registrationClearances.registrationRequestId,
+            ids.map((id) => id.id),
+          )
+        : undefined,
+      eq(registrationClearances.department, department),
+      status ? eq(registrationClearances.status, status) : undefined,
+    );
 
     const data = await db.query.registrationClearances.findMany({
-      where: and(
-        whereCondition,
-        eq(registrationClearances.department, department),
-        status ? eq(registrationClearances.status, status) : undefined,
-      ),
+      where: whereCondition,
       with: {
         registrationRequest: {
           with: {
