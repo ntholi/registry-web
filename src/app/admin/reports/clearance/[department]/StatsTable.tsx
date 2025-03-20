@@ -7,6 +7,10 @@ import {
   TableTd,
   TableTbody,
   Badge,
+  Text,
+  Paper,
+  Center,
+  Progress,
 } from '@mantine/core';
 
 interface Props {
@@ -14,6 +18,17 @@ interface Props {
 }
 
 export function StatsTable({ data }: Props) {
+  if (!data.length) {
+    return (
+      <Center py='xl'>
+        <Text c='dimmed'>No statistics available for the selected period</Text>
+      </Center>
+    );
+  }
+
+  // Sort by total requests (descending)
+  const sortedData = [...data].sort((a, b) => b.total - a.total);
+
   return (
     <Table striped highlightOnHover withTableBorder>
       <TableThead>
@@ -26,9 +41,11 @@ export function StatsTable({ data }: Props) {
         </TableTr>
       </TableThead>
       <TableTbody>
-        {data.map((stat) => (
-          <TableTr key={stat.respondedBy}>
-            <TableTd>{stat.staffName}</TableTd>
+        {sortedData.map((stat) => (
+          <TableTr key={stat.respondedBy || 'unknown'}>
+            <TableTd>
+              <Text fw={500}>{stat.staffName}</Text>
+            </TableTd>
             <TableTd>{stat.total}</TableTd>
             <TableTd>
               <Badge color='green' variant='light'>
@@ -41,18 +58,22 @@ export function StatsTable({ data }: Props) {
               </Badge>
             </TableTd>
             <TableTd>
-              <Badge
-                color={
-                  stat.approvalRate >= 70
-                    ? 'green'
-                    : stat.approvalRate >= 40
-                      ? 'yellow'
-                      : 'red'
-                }
-                variant='light'
-              >
-                {stat.approvalRate}%
-              </Badge>
+              <div>
+                <Text size='xs' fw={500} c='dimmed' mb={5}>
+                  {stat.approvalRate}%
+                </Text>
+                <Progress
+                  value={stat.approvalRate}
+                  size='sm'
+                  color={
+                    stat.approvalRate >= 70
+                      ? 'green'
+                      : stat.approvalRate >= 40
+                        ? 'yellow'
+                        : 'red'
+                  }
+                />
+              </div>
             </TableTd>
           </TableTr>
         ))}
