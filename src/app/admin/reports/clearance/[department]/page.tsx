@@ -22,18 +22,19 @@ import { IconCalendar, IconSearch } from '@tabler/icons-react';
 import { DatePickerInput, DatesRangeValue } from '@mantine/dates';
 
 interface Props {
-  params: {
+  params: Promise<{
     department: string;
-  };
+  }>;
 }
 
-export default function ClearanceReportsPage({ params }: Props) {
+export default async function ClearanceReportsPage({ params }: Props) {
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
     null,
     null,
   ]);
   const [stats, setStats] = useState<ClearanceStatsSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { department } = await params;
 
   useEffect(() => {
     const today = new Date();
@@ -42,7 +43,7 @@ export default function ClearanceReportsPage({ params }: Props) {
   }, []);
 
   const fetchStats = useCallback(async () => {
-    if (!params.department) return;
+    if (!department) return;
 
     try {
       setIsLoading(true);
@@ -56,7 +57,7 @@ export default function ClearanceReportsPage({ params }: Props) {
           : undefined;
 
       const data = await fetchClearanceStats(
-        params.department as DashboardUser,
+        department as DashboardUser,
         dateRangeFilter,
       );
       setStats(data);
@@ -65,9 +66,8 @@ export default function ClearanceReportsPage({ params }: Props) {
     } finally {
       setIsLoading(false);
     }
-  }, [params.department, dateRange]);
+  }, [department, dateRange]);
 
-  // Load stats initially and when date range changes
   useEffect(() => {
     if (dateRange[0] && dateRange[1]) {
       fetchStats();
@@ -76,9 +76,7 @@ export default function ClearanceReportsPage({ params }: Props) {
 
   return (
     <Stack p='lg'>
-      <Title order={2}>
-        Clearance Statistics - {toTitleCase(params.department)}
-      </Title>
+      <Title order={2}>Clearance Statistics - {toTitleCase(department)}</Title>
 
       <Text size='sm' c='dimmed'>
         Statistics showing clearance requests by department and staff members

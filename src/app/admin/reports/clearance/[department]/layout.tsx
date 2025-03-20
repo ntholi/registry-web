@@ -1,6 +1,5 @@
 import { auth } from '@/auth';
 import { notFound, redirect } from 'next/navigation';
-import { DashboardUser } from '@/db/schema';
 
 export default async function ClearanceReportsLayout({
   children,
