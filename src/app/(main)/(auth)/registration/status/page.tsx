@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
-import { formatDateTime } from '@/lib/utils';
+import { formatDateTime, formatSemester } from '@/lib/utils';
 import { getRegistrationRequestByStdNo } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { AlertCircleIcon, InfoIcon } from 'lucide-react';
@@ -59,18 +59,21 @@ export default async function page() {
               <StatusBadge status={request.status} />
             </div>
             <CardDescription>
-              Your registration request for {term.name}
+              Your registration request for{' '}
+              <span className='text-white'>
+                {formatSemester(request.semesterNumber)}
+              </span>
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {request.message && (
+          {request.message && (
+            <CardContent>
               <Alert>
                 <InfoIcon className='h-4 w-4' />
                 <AlertTitle className='capitalize'>{request.status}</AlertTitle>
                 <AlertDescription>{request.message}</AlertDescription>
               </Alert>
-            )}
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
         {pendingDepartments.length > 0 && (
           <Alert className='border-amber-500 bg-amber-50 py-4 text-amber-800 dark:bg-amber-950/30 dark:text-amber-300'>
