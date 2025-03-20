@@ -50,18 +50,14 @@ export async function getClearanceStatsByDepartment(
   const staffStats = await db
     .select({
       respondedBy: registrationClearances.respondedBy,
-      approved: count(
-        and(
-          eq(registrationClearances.status, 'approved'),
-          eq(registrationClearances.department, department),
+      approved:
+        sql`SUM(CASE WHEN ${registrationClearances.status} = 'approved' THEN 1 ELSE 0 END)`.mapWith(
+          Number,
         ),
-      ),
-      rejected: count(
-        and(
-          eq(registrationClearances.status, 'rejected'),
-          eq(registrationClearances.department, department),
+      rejected:
+        sql`SUM(CASE WHEN ${registrationClearances.status} = 'rejected' THEN 1 ELSE 0 END)`.mapWith(
+          Number,
         ),
-      ),
       total: count(registrationClearances.id),
     })
     .from(registrationClearances)
@@ -73,6 +69,8 @@ export async function getClearanceStatsByDepartment(
       ),
     )
     .groupBy(registrationClearances.respondedBy);
+
+  console.log('staffStats', staffStats);
 
   return {
     overall: overallStats[0],
