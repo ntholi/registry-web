@@ -1,13 +1,5 @@
 import { ClearanceStatsOverall } from '@/server/reports/clearance/service';
-import {
-  Grid,
-  Paper,
-  Text,
-  SimpleGrid,
-  Group,
-  Badge,
-  ThemeIcon,
-} from '@mantine/core';
+import { Paper, Text, SimpleGrid, Group, ThemeIcon } from '@mantine/core';
 import { IconCheck, IconX, IconClock, IconUsers } from '@tabler/icons-react';
 
 interface Props {

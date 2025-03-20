@@ -1,40 +1,26 @@
 'use client';
 
-import { fetchClearanceStats } from '@/server/reports/clearance/actions';
-import { useCallback, useEffect, useState } from 'react';
-import {
-  Stack,
-  Title,
-  Text,
-  Card,
-  Group,
-  Button,
-  Grid,
-  GridCol,
-} from '@mantine/core';
-import { toTitleCase } from '@/lib/utils';
-import { StatsTable } from './StatsTable';
 import { DashboardUser } from '@/db/schema';
+import { toTitleCase } from '@/lib/utils';
+import { fetchClearanceStats } from '@/server/reports/clearance/actions';
 import { DateRangeFilter } from '@/server/reports/clearance/repository';
-import { StatsSummary } from './StatsSummary';
 import { ClearanceStatsSummary } from '@/server/reports/clearance/service';
-import { IconCalendar, IconSearch } from '@tabler/icons-react';
+import { Button, Card, Group, Stack, Text, Title } from '@mantine/core';
 import { DatePickerInput, DatesRangeValue } from '@mantine/dates';
+import { IconCalendar, IconSearch } from '@tabler/icons-react';
+import { useCallback, useEffect, useState } from 'react';
+import { StatsSummary } from './StatsSummary';
+import { StatsTable } from './StatsTable';
+import { useParams } from 'next/navigation';
 
-interface Props {
-  params: Promise<{
-    department: string;
-  }>;
-}
-
-export default async function ClearanceReportsPage({ params }: Props) {
+export default function ClearanceReportsPage() {
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
     null,
     null,
   ]);
   const [stats, setStats] = useState<ClearanceStatsSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { department } = await params;
+  const { department } = useParams();
 
   useEffect(() => {
     const today = new Date();
@@ -76,7 +62,9 @@ export default async function ClearanceReportsPage({ params }: Props) {
 
   return (
     <Stack p='lg'>
-      <Title order={2}>Clearance Statistics - {toTitleCase(department)}</Title>
+      <Title order={2}>
+        Clearance Statistics - {toTitleCase(department as DashboardUser)}
+      </Title>
 
       <Text size='sm' c='dimmed'>
         Statistics showing clearance requests by department and staff members

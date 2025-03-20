@@ -26,7 +26,6 @@ export function StatsTable({ data }: Props) {
     );
   }
 
-  // Sort by total requests (descending)
   const sortedData = [...data].sort((a, b) => b.total - a.total);
 
   return (

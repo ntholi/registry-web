@@ -20,8 +20,6 @@ export async function getClearanceStatsByDepartment(
       dateRange.endDate,
     );
   }
-
-  // Get overall statistics (total requests, total approved, total rejected)
   const overallStats = await db
     .select({
       total: count(registrationClearances.id),
@@ -49,7 +47,6 @@ export async function getClearanceStatsByDepartment(
       and(eq(registrationClearances.department, department), dateCondition),
     );
 
-  // Get statistics per staff member
   const staffStats = await db
     .select({
       respondedBy: registrationClearances.respondedBy,

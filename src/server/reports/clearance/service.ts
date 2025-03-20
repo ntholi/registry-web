@@ -33,7 +33,6 @@ export async function getDepartmentClearanceStats(
 ): Promise<ClearanceStatsSummary> {
   const stats = await getClearanceStatsByDepartment(department, dateRange);
 
-  // Process staff stats
   const userIds = stats.staff
     .map((stat) => stat.respondedBy)
     .filter(Boolean) as string[];
@@ -48,7 +47,6 @@ export async function getDepartmentClearanceStats(
       stat.total > 0 ? Math.round((stat.approved / stat.total) * 100) : 0,
   }));
 
-  // Calculate overall approval rate
   const overallStats = {
     ...stats.overall,
     approvalRate:
