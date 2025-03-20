@@ -93,7 +93,6 @@ export default async function ClearanceReportsPage({ params }: Props) {
                 placeholder='Pick date range'
                 value={dateRange as [Date, Date]}
                 onChange={(value: DatesRangeValue) => {
-                  // Cast to expected type for useState
                   setDateRange(value as [Date | null, Date | null]);
                 }}
                 clearable={false}

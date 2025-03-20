@@ -1,22 +1,19 @@
 import { auth } from '@/auth';
 import { notFound, redirect } from 'next/navigation';
 
-export default async function ClearanceReportsLayout({
-  children,
-  params,
-}: {
+type Props = {
   children: React.ReactNode;
-  params: { department: string };
-}) {
+  params: Promise<{ department: string }>;
+};
+export default async function Layout({ children, params }: Props) {
   const session = await auth();
   if (!session?.user?.role) {
     redirect('/login');
   }
 
-  // Validate that the department is valid
-  if (
-    !['finance', 'library', 'registry', 'academic'].includes(params.department)
-  ) {
+  const { department } = await params;
+
+  if (!['finance', 'library'].includes(department)) {
     notFound();
   }
 
