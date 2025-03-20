@@ -351,7 +351,6 @@ function ItemDisplay({ item }: { item: NavItem }) {
 function Logo() {
   const colorScheme = useComputedColorScheme('dark');
   const environment = process.env.NEXT_PUBLIC_DEV_LOGO;
-  console.log('Test Logo', environment);
   return (
     <Link href='/admin'>
       <Image

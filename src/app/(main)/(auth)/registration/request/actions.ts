@@ -281,11 +281,6 @@ const determineNextSemester = async (
 ): Promise<number> => {
   const value =
     Math.max(...semesters.map((s) => Number(s.semesterNumber)), 0) + 1;
-  console.log(
-    semesters.map((s) => Number(s.semesterNumber)),
-    '->',
-    value,
-  );
   const term = await getCurrentTerm();
 
   const isSameParity = (term.semester % 2 === 0) === (value % 2 === 0);

@@ -64,8 +64,6 @@ export async function getClearanceStatsByDepartment(
     )
     .groupBy(registrationClearances.respondedBy);
 
-  console.log('staffStats', staffStats);
-
   return {
     overall: overallStats[0],
     staff: staffStats,
