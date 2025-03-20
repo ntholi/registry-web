@@ -1,6 +1,6 @@
 import { db } from '@/db';
-import { DashboardUser, registrationClearances, users } from '@/db/schema';
-import { and, count, eq, between, isNull, sql } from 'drizzle-orm';
+import { DashboardUser, registrationClearances } from '@/db/schema';
+import { and, between, count, eq, sql } from 'drizzle-orm';
 
 export interface DateRangeFilter {
   startDate?: Date;

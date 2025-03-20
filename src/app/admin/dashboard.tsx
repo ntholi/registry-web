@@ -63,10 +63,7 @@ export type NavItem = {
   notificationCount?: NotificationConfig;
 };
 
-function getNavigation() {
-  const { data: session } = useSession();
-  const department = session?.user?.role as DashboardUser;
-
+function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
   const navItems = [
     {
       label: 'Users',
@@ -196,7 +193,7 @@ function getNavigation() {
     },
   ] as NavItem[];
 
-  if (session?.user?.isDepartmentAdmin) {
+  if (isDepartmentAdmin) {
     navItems.push({
       label: 'Reports',
       icon: IconChartLine,
@@ -215,9 +212,12 @@ function getNavigation() {
 }
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
 
-  const navigation = getNavigation();
+  const navigation = getNavigation(
+    session?.user?.isDepartmentAdmin ?? false,
+    session?.user?.role as DashboardUser,
+  );
 
   if (status === 'loading') {
     return (

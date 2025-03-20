@@ -1,16 +1,14 @@
 import { ClearanceStats } from '@/server/reports/clearance/service';
 import {
-  Table,
-  TableThead,
-  TableTr,
-  TableTh,
-  TableTd,
-  TableTbody,
-  Badge,
-  Text,
-  Paper,
   Center,
   Progress,
+  Table,
+  TableTbody,
+  TableTd,
+  TableTh,
+  TableThead,
+  TableTr,
+  Text,
 } from '@mantine/core';
 
 interface Props {
