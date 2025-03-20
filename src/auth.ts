@@ -27,13 +27,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (user.role === 'student') {
         const student = await db.query.students.findFirst({
-          where: eq(students.userId, users.id),
+          where: eq(students.userId, user.id),
         });
-        const user = await db.query.users.findFirst({
-          where: eq(users.id, users.id),
-        });
+
         session.user.stdNo = student?.stdNo;
-        session.user.isDepartmentAdmin = user?.isDepartmentAdmin ?? false;
+        session.user.isDepartmentAdmin = user.isDepartmentAdmin ?? false;
       }
       return session;
     },
