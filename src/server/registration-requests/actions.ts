@@ -1,5 +1,6 @@
 'use server';
 
+import { db } from '@/db';
 import {
   ModuleStatus,
   registrationRequests,
@@ -7,6 +8,7 @@ import {
 } from '@/db/schema';
 import { registrationRequestsService as service } from './service';
 import { getCurrentTerm } from '../terms/actions';
+import { desc, eq } from 'drizzle-orm';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
@@ -97,4 +99,30 @@ export async function updateRegistrationWithModules(
     semesterNumber,
     semesterStatus,
   );
+}
+
+export async function getRegistrationRequestsByStudent(stdNo: number) {
+  const student = await db.query.registrationRequests.findMany({
+    where: eq(registrationRequests.stdNo, stdNo),
+    with: {
+      student: {
+        with: {
+          structure: true,
+        },
+      },
+      term: true,
+      requestedModules: {
+        with: {
+          module: true,
+        },
+      },
+      clearances: {
+        with: {
+          respondedBy: true,
+        },
+      },
+    },
+    orderBy: desc(registrationRequests.createdAt),
+  });
+  return student;
 }
