@@ -27,7 +27,11 @@ type Props = {
 };
 
 export default function AcademicsView({ student, showMarks }: Props) {
-  const [openPrograms, setOpenPrograms] = useState<string[]>([]);
+  const [openPrograms, setOpenPrograms] = useState<string[]>(
+    student.programs
+      .filter((program) => program.status === 'Active')
+      .map((program) => program.id?.toString() ?? ''),
+  );
 
   if (!student?.programs?.length) {
     return (
@@ -272,12 +276,12 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
     <Table>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th w={95}>Code</Table.Th>
+          <Table.Th w={105}>Code</Table.Th>
           <Table.Th w={270}>Name</Table.Th>
           <Table.Th w={105}>Status</Table.Th>
-          <Table.Th w={72}>Credits</Table.Th>
-          {showMarks && <Table.Th w={66}>Marks</Table.Th>}
-          <Table.Th w={65}>Grade</Table.Th>
+          <Table.Th w={50}>Cr</Table.Th>
+          {showMarks && <Table.Th w={50}>Mk</Table.Th>}
+          <Table.Th w={60}>Gd</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>

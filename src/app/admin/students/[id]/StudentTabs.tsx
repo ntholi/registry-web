@@ -17,7 +17,10 @@ export function StudentTabs({
   showRegistrationTab,
   registrationRequests,
 }: StudentTabsProps) {
-  const [activeTab, setActiveTab] = useLocalStorage('studentDetailsTab');
+  const [activeTab, setActiveTab] = useLocalStorage<string | null>(
+    'studentDetailsTab',
+    'academics',
+  );
 
   return (
     <Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
