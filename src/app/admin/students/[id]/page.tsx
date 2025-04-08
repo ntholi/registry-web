@@ -6,6 +6,7 @@ import StudentView from './StudentView';
 import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
 import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
+import { auth } from '@/auth';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -14,10 +15,14 @@ type Props = {
 export default async function StudentDetails({ params }: Props) {
   const { id } = await params;
   const student = await getStudent(Number(id));
+  const session = await auth();
 
   if (!student) {
     return notFound();
   }
+
+  const showRegistrationTab =
+    session?.user?.role === 'admin' || session?.user?.role === 'finance';
 
   const registrationRequests = await getRegistrationRequestsByStudent(
     student.stdNo,
@@ -31,7 +36,9 @@ export default async function StudentDetails({ params }: Props) {
         <TabsList>
           <TabsTab value='academics'>Academics</TabsTab>
           <TabsTab value='info'>Student</TabsTab>
-          <TabsTab value='registration'>Registration</TabsTab>
+          {showRegistrationTab && (
+            <TabsTab value='registration'>Registration</TabsTab>
+          )}
         </TabsList>
         <TabsPanel value='academics' pt={'xl'} p={'sm'}>
           <AcademicsView student={student} showMarks />

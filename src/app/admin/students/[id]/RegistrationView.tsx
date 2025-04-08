@@ -2,7 +2,15 @@
 
 import { formatDate, formatDateTime, formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { Accordion, Anchor, Badge, Group, Stack, Text } from '@mantine/core';
+import {
+  Accordion,
+  Anchor,
+  Badge,
+  Divider,
+  Group,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { format } from 'date-fns';
 import Link from 'next/link';
 
@@ -21,24 +29,30 @@ export default function RegistrationView({ registrationRequests }: Props) {
       {registrationRequests.map((request) => (
         <Accordion.Item key={request.id} value={request.id.toString()}>
           <Accordion.Control>
-            <Group justify='space-between' align='center' pr={'sm'}>
-              <Text>{request.term.name}</Text>
-              <Badge
-                size='xs'
-                variant='light'
-                color={
-                  request.status === 'approved'
-                    ? 'green'
-                    : request.status === 'rejected'
-                      ? 'red'
-                      : request.status === 'registered'
-                        ? 'blue'
-                        : 'yellow'
-                }
-              >
-                {request.status.toUpperCase()}
-              </Badge>
-            </Group>
+            <Stack gap={0} w={'95%'}>
+              <Group justify='space-between' align='center'>
+                <Text fw={500} size='sm'>
+                  {request.term.name}
+                </Text>
+                <Badge
+                  size='xs'
+                  radius={'xs'}
+                  variant='light'
+                  color={
+                    request.status === 'approved'
+                      ? 'green'
+                      : request.status === 'rejected'
+                        ? 'red'
+                        : request.status === 'registered'
+                          ? 'blue'
+                          : 'yellow'
+                  }
+                >
+                  {request.status.toUpperCase()}
+                </Badge>
+              </Group>
+              <Divider my='sm' />
+            </Stack>
           </Accordion.Control>
           <Accordion.Panel>
             <Stack gap={5}>
