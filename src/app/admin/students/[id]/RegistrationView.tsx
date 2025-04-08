@@ -1,6 +1,6 @@
 'use client';
 
-import { formatSemester } from '@/lib/utils';
+import { formatDate, formatDateTime, formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
 import { Accordion, Anchor, Badge, Group, Stack, Text } from '@mantine/core';
 import { format } from 'date-fns';
@@ -14,14 +14,18 @@ type Props = {
 
 export default function RegistrationView({ registrationRequests }: Props) {
   return (
-    <Accordion variant='separated'>
+    <Accordion
+      variant='separated'
+      defaultValue={registrationRequests[0]?.id.toString()}
+    >
       {registrationRequests.map((request) => (
         <Accordion.Item key={request.id} value={request.id.toString()}>
           <Accordion.Control>
             <Group justify='space-between' align='center' pr={'sm'}>
               <Text>{request.term.name}</Text>
               <Badge
-                size='sm'
+                size='xs'
+                variant='light'
                 color={
                   request.status === 'approved'
                     ? 'green'
@@ -39,31 +43,30 @@ export default function RegistrationView({ registrationRequests }: Props) {
           <Accordion.Panel>
             <Stack gap={5}>
               <Group>
-                <Text fw={500} w={100}>
+                <Text fw={500} w={150}>
                   Semester
                 </Text>
                 <Text size='sm'>{formatSemester(request.semesterNumber)}</Text>
               </Group>
               <Group>
-                <Text fw={500} w={100}>
-                  Status
+                <Text fw={500} w={150}>
+                  Date Requested
                 </Text>
-                <Text size='sm'>{request.semesterStatus}</Text>
+                <Text size='sm'>{formatDateTime(request.createdAt)}</Text>
               </Group>
               <Group>
-                <Text fw={500} w={100}>
+                <Text fw={500} w={150}>
                   Modules
                 </Text>
-                <Text size='sm'>{request.requestedModules.length} modules</Text>
+                <Anchor
+                  size='sm'
+                  component={Link}
+                  href={`/admin/registration-requests/${request.status}/${request.id}`}
+                  className='text-blue-500 hover:underline'
+                >
+                  {request.requestedModules.length} modules
+                </Anchor>
               </Group>
-              <Anchor
-                size='sm'
-                component={Link}
-                href={`/admin/registration-clearance/${request.status}/${request.id}`}
-                className='text-blue-500 hover:underline'
-              >
-                View Details
-              </Anchor>
             </Stack>
           </Accordion.Panel>
         </Accordion.Item>
