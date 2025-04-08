@@ -1,19 +1,15 @@
 'use client';
 
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
-import { useEffect, useState } from 'react';
 import StudentView from './StudentView';
 import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
-import { getStudent } from '@/server/students/actions';
-import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 type StudentTabsProps = {
-  student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+  student: any;
   showRegistrationTab: boolean;
-  registrationRequests: Awaited<
-    ReturnType<typeof getRegistrationRequestsByStudent>
-  >;
+  registrationRequests: any[];
 };
 
 export function StudentTabs({
@@ -21,29 +17,10 @@ export function StudentTabs({
   showRegistrationTab,
   registrationRequests,
 }: StudentTabsProps) {
-  const [activeTab, setActiveTab] = useState<string | null>('academics');
-
-  useEffect(() => {
-    const savedTab = localStorage.getItem('studentDetailsTab');
-    if (savedTab) {
-      setActiveTab(savedTab);
-    }
-  }, []);
-
-  const handleTabChange = (value: string | null) => {
-    if (value) {
-      setActiveTab(value);
-      localStorage.setItem('studentDetailsTab', value);
-    }
-  };
+  const [activeTab, setActiveTab] = useLocalStorage('studentDetailsTab');
 
   return (
-    <Tabs
-      value={activeTab}
-      onChange={handleTabChange}
-      variant='outline'
-      mt={'xl'}
-    >
+    <Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
       <TabsList>
         <TabsTab value='academics'>Academics</TabsTab>
         <TabsTab value='info'>Student</TabsTab>

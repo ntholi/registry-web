@@ -19,7 +19,7 @@ export default async function StudentDetails({ params }: Props) {
   }
 
   const showRegistrationTab =
-    session?.user?.role === 'admin' || session?.user?.role === 'finance';
+    session?.user?.role === 'admin' || session?.user?.role === 'registry';
 
   const registrationRequests = await getRegistrationRequestsByStudent(
     student.stdNo,
