@@ -38,7 +38,7 @@ export default function AssessmentForm({
     >
       {(form) => (
         <Grid>
-          <Grid.Col span={{ base: 12 }}>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
             <Select
               label='No'
               searchable
@@ -48,7 +48,7 @@ export default function AssessmentForm({
               {...form.getInputProps('assessmentNumber')}
             />
           </Grid.Col>
-          <Grid.Col span={{ base: 12 }}>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
             <Select
               label='Assessment Type'
               searchable

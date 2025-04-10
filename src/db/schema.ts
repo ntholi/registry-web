@@ -484,6 +484,17 @@ export const sponsoredStudents = sqliteTable(
   }),
 );
 
+export const lecturesModules = sqliteTable('lectures_modules', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  userId: integer()
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  moduleId: integer()
+    .references(() => modules.id, { onDelete: 'cascade' })
+    .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
 export const assessmentNumberEnum = [
   'CW1',
   'CW2',

@@ -3,6 +3,7 @@ import AssessmentRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
+import { getCurrentTerm } from '../terms/actions';
 
 type Assessment = typeof assessments.$inferInsert;
 
@@ -22,11 +23,15 @@ class AssessmentService {
   }
 
   async create(data: Assessment) {
-    return withAuth(async () => this.repository.create(data), []);
+    const term = await getCurrentTerm();
+    return withAuth(
+      async () => this.repository.create({ ...data, termId: term.id }),
+      ['academic'],
+    );
   }
 
   async update(id: number, data: Assessment) {
-    return withAuth(async () => this.repository.update(id, data), []);
+    return withAuth(async () => this.repository.update(id, data), ['academic']);
   }
 
   async delete(id: number) {

@@ -162,6 +162,13 @@
       "when": 1744289996072,
       "tag": "0022_faithful_shotgun",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1744310109177,
+      "tag": "0023_free_warbound",
+      "breakpoints": true
     }
   ]
 }
