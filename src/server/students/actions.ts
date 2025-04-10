@@ -15,7 +15,7 @@ export async function getStudentByUserId(userId: string | undefined | null) {
 }
 
 export async function findAllStudents(page: number = 1, search = '') {
-  return service.findAll({ page, search, searchProperties: ['stdNo', 'name'] });
+  return service.findAll({ page, search, searchColumns: ['stdNo', 'name'] });
 }
 
 export async function createStudent(student: Student) {

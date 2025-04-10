@@ -10,7 +10,7 @@ export async function getUser(id: string) {
 }
 
 export async function findAllUsers(page: number = 1, search = '') {
-  return service.findAll({ page, search, searchProperties: ['email', 'name'] });
+  return service.findAll({ page, search, searchColumns: ['email', 'name'] });
 }
 
 export async function createUser(user: User) {

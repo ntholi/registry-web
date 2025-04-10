@@ -20,7 +20,7 @@ export default function SponsorInput({
   const { data: sponsors } = useQuery({
     queryKey: ['sponsors'],
     queryFn: () => findAllSponsors(1),
-    select: (data) => data.data,
+    select: ({ items }) => items,
   });
 
   const isNMDS = (id: number) => {

@@ -10,7 +10,11 @@ export async function getSponsor(id: number) {
 }
 
 export async function findAllSponsors(page: number = 1, search = '') {
-  return service.findAll({ page, search });
+  return service.findAll({
+    page,
+    search,
+    searchColumns: ['name'],
+  });
 }
 
 export async function createSponsor(sponsor: Sponsor) {
@@ -38,10 +42,10 @@ export async function updateStudentSponsorship(data: {
   const sponsors = await service.findAll({
     page: 1,
     search: data.sponsorName,
-    searchProperties: ['name'],
+    searchColumns: ['name'],
   });
 
-  const sponsor = sponsors.data.find((s) => s.name === data.sponsorName);
+  const sponsor = sponsors.items.find((s) => s.name === data.sponsorName);
 
   if (!sponsor) {
     throw new Error(`Sponsor with name "${data.sponsorName}" not found`);

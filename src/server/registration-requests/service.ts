@@ -59,7 +59,7 @@ class RegistrationRequestService {
   }
 
   async findAll(params: QueryOptions<typeof registrationRequests>) {
-    return withAuth(async () => this.repository.findAll(params), ['registry']);
+    return withAuth(async () => this.repository.query(params), ['registry']);
   }
 
   async create(data: RegistrationRequest) {

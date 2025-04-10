@@ -13,7 +13,7 @@ export async function findAllModules(page: number = 1, search = '') {
   return modulesService.findAll({
     page,
     search,
-    searchProperties: ['id', 'code', 'name'],
+    searchColumns: ['id', 'code', 'name'],
   });
 }
 

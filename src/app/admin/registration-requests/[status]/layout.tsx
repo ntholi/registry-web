@@ -43,13 +43,13 @@ export default function Layout({ children }: PropsWithChildren) {
           status,
         );
         return {
-          data: response.data.map((item) => ({
+          items: response.data.map((item) => ({
             id: item.id,
             stdNo: item.stdNo,
             status: item.status as Status,
             student: item.student,
           })),
-          pages: response.pages,
+          totalPages: response.pages,
         };
       }}
       actionIcons={[

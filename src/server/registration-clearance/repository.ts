@@ -167,7 +167,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       offset,
     });
 
-    return await this.createPaginatedResult(data, {
+    return this.createPaginatedResult(data, {
       limit,
       where: whereCondition,
     });
