@@ -1,6 +1,6 @@
 'use client';
 
-import { formatDate, formatDateTime, formatSemester } from '@/lib/utils';
+import { formatDateTime, formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
 import {
   Accordion,
@@ -11,7 +11,6 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
-import { format } from 'date-fns';
 import Link from 'next/link';
 
 type Props = {

@@ -2,6 +2,7 @@ import { assessments } from '@/db/schema';
 import AssessmentRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type Assessment = typeof assessments.$inferInsert;
 
@@ -37,4 +38,7 @@ class AssessmentService {
   }
 }
 
-export const assessmentsService = new AssessmentService();
+export const assessmentsService = serviceWrapper(
+  AssessmentService,
+  'AssessmentsService',
+);

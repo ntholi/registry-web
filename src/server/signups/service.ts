@@ -1,7 +1,8 @@
 import { signups } from '@/db/schema';
 import SignupRepository from './repository';
 import withAuth from '@/server/base/withAuth';
-import { FindAllParams } from '../base/BaseRepository';
+import { QueryOptions } from '../base/BaseRepository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type Signup = typeof signups.$inferInsert;
 
@@ -16,8 +17,8 @@ class SignupService {
     return withAuth(async () => this.repository.findById(userId), ['auth']);
   }
 
-  async findAll(params: FindAllParams<typeof signups>) {
-    return withAuth(async () => this.repository.findAll(params), []);
+  async findAll(params: QueryOptions<typeof signups>) {
+    return withAuth(async () => this.repository.query(params), []);
   }
 
   async create(data: Signup) {
@@ -37,4 +38,4 @@ class SignupService {
   }
 }
 
-export const signupsService = new SignupService();
+export const signupsService = serviceWrapper(SignupService, 'SignupsService');

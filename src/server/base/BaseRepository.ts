@@ -104,11 +104,11 @@ class BaseRepository<
   }
 
   protected async createPaginatedResult<E extends ModelSelect<T>>(
+    items: E[],
     criteria: {
       where?: SQL;
       limit?: number;
     },
-    items: E[],
   ) {
     const totalItems = await this.count(criteria.where);
     return {
@@ -133,7 +133,7 @@ class BaseRepository<
       .limit(limit)
       .offset(offset);
 
-    return await this.createPaginatedResult({ where, limit }, items);
+    return await this.createPaginatedResult(items, { where, limit });
   }
 
   async exists(id: ModelSelect<T>[PK]): Promise<boolean> {

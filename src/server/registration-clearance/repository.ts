@@ -7,7 +7,7 @@ import {
   registrationRequests,
   requestedModules,
 } from '@/db/schema';
-import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
+import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { and, asc, count, desc, eq, inArray, like } from 'drizzle-orm';
 
 type Model = typeof registrationClearances.$inferInsert;
@@ -131,10 +131,10 @@ export default class RegistrationClearanceRepository extends BaseRepository<
 
   async findByDepartment(
     department: DashboardUser,
-    params: FindAllParams<typeof registrationClearances>,
+    params: QueryOptions<typeof registrationClearances>,
     status?: 'pending' | 'approved' | 'rejected',
   ) {
-    const { offset, pageSize } = await this.queryExpressions(params);
+    const { offset, limit } = this.buildQueryCriteria(params);
 
     const ids = await db.query.registrationRequests.findMany({
       where: like(registrationRequests.stdNo, `%${params.search}%`),
@@ -163,11 +163,14 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         },
       },
       orderBy: asc(registrationClearances.createdAt),
-      limit: pageSize,
+      limit,
       offset,
     });
 
-    return await this.paginatedResults(data, whereCondition, pageSize);
+    return await this.createPaginatedResult(data, {
+      limit,
+      where: whereCondition,
+    });
   }
 
   async countByStatus(

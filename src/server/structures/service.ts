@@ -1,7 +1,8 @@
 import { structures } from '@/db/schema';
 import StructureRepository from './repository';
 import withAuth from '@/server/base/withAuth';
-import { FindAllParams } from '../base/BaseRepository';
+import { QueryOptions } from '../base/BaseRepository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type Structure = typeof structures.$inferInsert;
 
@@ -16,8 +17,8 @@ class StructureService {
     return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
-  async findAll(params: FindAllParams<typeof structures>) {
-    return withAuth(async () => this.repository.findAll(params), ['dashboard']);
+  async findAll(params: QueryOptions<typeof structures>) {
+    return withAuth(async () => this.repository.query(params), ['dashboard']);
   }
 
   async create(data: Structure) {
@@ -41,4 +42,7 @@ class StructureService {
   }
 }
 
-export const structuresService = new StructureService();
+export const structuresService = serviceWrapper(
+  StructureService,
+  'StructuresService',
+);

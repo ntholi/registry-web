@@ -1,7 +1,8 @@
 import { modules } from '@/db/schema';
 import ModuleRepository from './repository';
 import withAuth from '@/server/base/withAuth';
-import { FindAllParams } from '../base/BaseRepository';
+import { QueryOptions } from '../base/BaseRepository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type Module = typeof modules.$inferInsert;
 
@@ -23,8 +24,8 @@ class ModuleService {
     );
   }
 
-  async findAll(params: FindAllParams<typeof modules>) {
-    return withAuth(async () => this.repository.findAll(params), ['dashboard']);
+  async findAll(params: QueryOptions<typeof modules>) {
+    return withAuth(async () => this.repository.query(params), ['dashboard']);
   }
 
   async findModulesByStructure(structureId: number, search = '') {
@@ -107,4 +108,4 @@ class ModuleService {
   }
 }
 
-export const modulesService = new ModuleService();
+export const modulesService = serviceWrapper(ModuleService, 'ModulesService');

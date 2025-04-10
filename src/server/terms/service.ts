@@ -1,9 +1,10 @@
 import { terms } from '@/db/schema';
 import TermRepository from './repository';
 import withAuth from '@/server/base/withAuth';
-import { FindAllParams } from '../base/BaseRepository';
+import { QueryOptions } from '../base/BaseRepository';
 import { db } from '@/db';
 import { eq } from 'drizzle-orm';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type Term = typeof terms.$inferInsert;
 
@@ -22,8 +23,8 @@ class TermService {
     return withAuth(async () => this.repository.getActive(), ['all']);
   }
 
-  async findAll(params: FindAllParams<typeof terms>) {
-    return withAuth(async () => this.repository.findAll(params), ['dashboard']);
+  async findAll(params: QueryOptions<typeof terms>) {
+    return withAuth(async () => this.repository.query(params), ['dashboard']);
   }
 
   async create(data: Term) {
@@ -59,4 +60,4 @@ class TermService {
   }
 }
 
-export const termsService = new TermService();
+export const termsService = serviceWrapper(TermService, 'TermsService');

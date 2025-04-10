@@ -1,7 +1,8 @@
 import { users } from '@/db/schema';
 import UserRepository from './repository';
 import withAuth from '@/server/base/withAuth';
-import { FindAllParams } from '../base/BaseRepository';
+import { QueryOptions } from '../base/BaseRepository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type User = typeof users.$inferInsert;
 
@@ -16,8 +17,8 @@ class UserService {
     return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
-  async findAll(params: FindAllParams<typeof users>) {
-    return withAuth(async () => this.repository.findAll(params), []);
+  async findAll(params: QueryOptions<typeof users>) {
+    return withAuth(async () => this.repository.query(params), []);
   }
 
   async create(data: User) {
@@ -37,4 +38,4 @@ class UserService {
   }
 }
 
-export const usersService = new UserService();
+export const usersService = serviceWrapper(UserService, 'UsersService');

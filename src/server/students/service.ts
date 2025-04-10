@@ -1,7 +1,8 @@
 import { students } from '@/db/schema';
 import StudentRepository from './repository';
 import withAuth from '@/server/base/withAuth';
-import { FindAllParams } from '../base/BaseRepository';
+import { QueryOptions } from '../base/BaseRepository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type Student = typeof students.$inferInsert;
 
@@ -19,12 +20,12 @@ class StudentService {
   async findStudentByUserId(userId: string) {
     return withAuth(
       async () => this.repository.findStudentByUserId(userId),
-      ['auth']
+      ['auth'],
     );
   }
 
-  async findAll(params: FindAllParams<typeof students>) {
-    return withAuth(async () => this.repository.findAll(params), ['dashboard']);
+  async findAll(params: QueryOptions<typeof students>) {
+    return withAuth(async () => this.repository.query(params), ['dashboard']);
   }
 
   async create(data: Student) {
@@ -44,4 +45,7 @@ class StudentService {
   }
 }
 
-export const studentsService = new StudentService();
+export const studentsService = serviceWrapper(
+  StudentService,
+  'StudentsService',
+);

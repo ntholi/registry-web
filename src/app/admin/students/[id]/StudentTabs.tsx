@@ -5,11 +5,15 @@ import StudentView from './StudentView';
 import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
+import { getStudent } from '@/server/students/actions';
 
 type StudentTabsProps = {
-  student: any;
+  student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
   showRegistrationTab: boolean;
-  registrationRequests: any[];
+  registrationRequests: Awaited<
+    ReturnType<typeof getRegistrationRequestsByStudent>
+  >;
 };
 
 export function StudentTabs({

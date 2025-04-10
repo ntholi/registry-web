@@ -1,8 +1,9 @@
 import { registrationClearances, DashboardUser } from '@/db/schema';
 import RegistrationClearanceRepository from './repository';
 import withAuth from '@/server/base/withAuth';
-import { FindAllParams } from '../base/BaseRepository';
+import { QueryOptions } from '../base/BaseRepository';
 import { auth } from '@/auth';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type RegistrationClearance = typeof registrationClearances.$inferInsert;
 
@@ -31,7 +32,7 @@ class RegistrationClearanceService {
 
   async findByDepartment(
     department: DashboardUser,
-    params: FindAllParams<typeof registrationClearances>,
+    params: QueryOptions<typeof registrationClearances>,
     status?: 'pending' | 'approved' | 'rejected',
   ) {
     return withAuth(
@@ -82,4 +83,7 @@ class RegistrationClearanceService {
   }
 }
 
-export const registrationClearancesService = new RegistrationClearanceService();
+export const registrationClearancesService = serviceWrapper(
+  RegistrationClearanceService,
+  'RegistrationClearancesService',
+);

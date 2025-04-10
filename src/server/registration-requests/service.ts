@@ -5,7 +5,8 @@ import {
 } from '@/db/schema';
 import RegistrationRequestRepository from './repository';
 import withAuth from '@/server/base/withAuth';
-import { FindAllParams } from '../base/BaseRepository';
+import { QueryOptions } from '../base/BaseRepository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
@@ -36,7 +37,7 @@ class RegistrationRequestService {
 
   async findByStatus(
     status: 'pending' | 'registered' | 'rejected' | 'approved',
-    params: FindAllParams<typeof registrationRequests>,
+    params: QueryOptions<typeof registrationRequests>,
   ) {
     return withAuth(
       async () => this.repository.findByStatus(status, params),
@@ -57,7 +58,7 @@ class RegistrationRequestService {
     return withAuth(async () => this.repository.findById(id), ['registry']);
   }
 
-  async findAll(params: FindAllParams<typeof registrationRequests>) {
+  async findAll(params: QueryOptions<typeof registrationRequests>) {
     return withAuth(async () => this.repository.findAll(params), ['registry']);
   }
 
@@ -128,4 +129,7 @@ class RegistrationRequestService {
   }
 }
 
-export const registrationRequestsService = new RegistrationRequestService();
+export const registrationRequestsService = serviceWrapper(
+  RegistrationRequestService,
+  'RegistrationRequestsService',
+);

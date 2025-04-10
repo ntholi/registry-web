@@ -7,7 +7,7 @@ import {
   sponsoredStudents,
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
-import BaseRepository, { FindAllParams } from '@/server/base/BaseRepository';
+import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { and, count, eq, exists, inArray, like, ne, not } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
@@ -20,9 +20,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
     super(registrationRequests, 'id');
   }
 
-  override async findAll(params: FindAllParams<typeof registrationRequests>) {
-    const { orderByExpressions, offset, pageSize } =
-      await this.queryExpressions(params);
+  override async query(params: QueryOptions<typeof registrationRequests>) {
+    const { orderBy, offset, limit } = this.buildQueryCriteria(params);
 
     const whereCondition = like(
       registrationRequests.stdNo,
@@ -34,12 +33,15 @@ export default class RegistrationRequestRepository extends BaseRepository<
       with: {
         student: true,
       },
-      orderBy: orderByExpressions,
-      limit: pageSize,
+      orderBy,
+      limit,
       offset,
     });
 
-    return await this.paginatedResults(data, whereCondition, pageSize);
+    return await this.createPaginatedResult(data, {
+      where: whereCondition,
+      limit,
+    });
   }
 
   async findById(id: number) {
@@ -84,9 +86,9 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
   async findByStatus(
     status: 'pending' | 'registered' | 'rejected' | 'approved',
-    params: FindAllParams<typeof registrationRequests>,
+    params: QueryOptions<typeof registrationRequests>,
   ) {
-    const { offset, pageSize } = await this.queryExpressions(params);
+    const { offset, limit } = this.buildQueryCriteria(params);
 
     let whereCondition;
     if (status === 'registered') {
@@ -160,7 +162,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
       with: {
         student: true,
       },
-      limit: pageSize,
+      limit,
       offset,
     });
 
@@ -175,7 +177,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
     return {
       data: items,
-      pages: Math.ceil(total / pageSize),
+      pages: Math.ceil(total / limit),
     };
   }
 

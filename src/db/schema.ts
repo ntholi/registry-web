@@ -1,15 +1,14 @@
+import { sql } from 'drizzle-orm';
 import {
   integer,
   primaryKey,
+  real,
   sqliteTable,
   text,
-  real,
   unique,
 } from 'drizzle-orm/sqlite-core';
-import type { AdapterAccountType } from 'next-auth/adapters';
 import { nanoid } from 'nanoid';
-import { sql } from 'drizzle-orm';
-import { create } from 'domain';
+import type { AdapterAccountType } from 'next-auth/adapters';
 
 export const dashboardUsers = [
   'finance',

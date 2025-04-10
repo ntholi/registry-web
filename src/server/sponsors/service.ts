@@ -1,7 +1,8 @@
 import { sponsors } from '@/db/schema';
 import SponsorRepository from './repository';
 import withAuth from '@/server/base/withAuth';
-import { FindAllParams } from '../base/BaseRepository';
+import { QueryOptions } from '../base/BaseRepository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 
 type Sponsor = typeof sponsors.$inferInsert;
 
@@ -16,8 +17,8 @@ class SponsorService {
     return withAuth(async () => this.repository.findById(id), ['all']);
   }
 
-  async findAll(params: FindAllParams<typeof sponsors>) {
-    return withAuth(async () => this.repository.findAll(params), ['all']);
+  async findAll(params: QueryOptions<typeof sponsors>) {
+    return withAuth(async () => this.repository.query(params), ['all']);
   }
 
   async create(data: Sponsor) {
@@ -65,4 +66,7 @@ class SponsorService {
   }
 }
 
-export const sponsorsService = new SponsorService();
+export const sponsorsService = serviceWrapper(
+  SponsorService,
+  'SponsorsService',
+);
