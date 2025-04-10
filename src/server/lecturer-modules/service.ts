@@ -1,9 +1,9 @@
-import { lecturesModules } from '@/db/schema';
+import { lecturerModules } from '@/db/schema';
 import LecturesModuleRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 
-type LecturesModule = typeof lecturesModules.$inferInsert;
+type LecturesModule = typeof lecturerModules.$inferInsert;
 
 class LecturesModuleService {
   constructor(private readonly repository = new LecturesModuleRepository()) {}
@@ -16,7 +16,7 @@ class LecturesModuleService {
     return withAuth(async () => this.repository.findById(id), ['academic']);
   }
 
-  async getAll(params: QueryOptions<typeof lecturesModules>) {
+  async getAll(params: QueryOptions<typeof lecturerModules>) {
     return withAuth(async () => this.repository.query(params), ['academic']);
   }
 

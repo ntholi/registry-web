@@ -1,11 +1,9 @@
 'use server';
 
+import { lecturerModules } from '@/db/schema';
+import { lecturesModulesService as service } from './service';
 
-import { lecturesModules } from '@/db/schema';
-import { lecturesModulesService as service} from './service';
-
-type LecturesModule = typeof lecturesModules.$inferInsert;
-
+type LecturesModule = typeof lecturerModules.$inferInsert;
 
 export async function getLecturesModule(id: number) {
   return service.get(id);
@@ -19,7 +17,10 @@ export async function createLecturesModule(lecturesModule: LecturesModule) {
   return service.create(lecturesModule);
 }
 
-export async function updateLecturesModule(id: number, lecturesModule: LecturesModule) {
+export async function updateLecturesModule(
+  id: number,
+  lecturesModule: LecturesModule,
+) {
   return service.update(id, lecturesModule);
 }
 

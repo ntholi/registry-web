@@ -484,7 +484,7 @@ export const sponsoredStudents = sqliteTable(
   }),
 );
 
-export const lecturesModules = sqliteTable('lectures_modules', {
+export const lecturerModules = sqliteTable('lecturer_modules', {
   id: integer().primaryKey({ autoIncrement: true }),
   userId: integer()
     .references(() => users.id, { onDelete: 'cascade' })

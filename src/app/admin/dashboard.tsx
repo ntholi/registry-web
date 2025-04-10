@@ -79,7 +79,7 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
     },
     {
       label: 'Modules',
-      href: '/admin/lectures-modules',
+      href: '/admin/lecturer-modules',
       icon: IconClipboardCheck,
       roles: ['academic'],
     },

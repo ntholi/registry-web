@@ -2,15 +2,17 @@
 
 import { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
-import { getLecturesModules } from '@/server/lectures-modules/actions';
+import { getLecturesModules } from '@/server/lecturer-modules/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <ListLayout
-      path={'/admin/lectures-modules'}
-      queryKey={['lecturesModules']}
+      path={'/admin/lecturer-modules'}
+      queryKey={['lecturerModules ']}
       getData={getLecturesModules}
-      actionIcons={[<NewLink key={'new-link'} href='/admin/lectures-modules/new' />]}
+      actionIcons={[
+        <NewLink key={'new-link'} href='/admin/lecturer-modules/new' />,
+      ]}
       renderItem={(it) => <ListItem id={it.id} label={it.id} />}
     >
       {children}

@@ -169,6 +169,13 @@
       "when": 1744310109177,
       "tag": "0023_free_warbound",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1744311943329,
+      "tag": "0024_dashing_thaddeus_ross",
+      "breakpoints": true
     }
   ]
 }
