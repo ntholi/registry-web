@@ -515,7 +515,6 @@ export const assessments = sqliteTable('assessments', {
   assessmentType: text().notNull(),
   totalMarks: real().notNull(),
   weight: real().notNull(),
-  code: text().notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
