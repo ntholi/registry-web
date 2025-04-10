@@ -15,11 +15,11 @@ class AssessmentService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), []);
+    return withAuth(async () => this.repository.findById(id), ['academic']);
   }
 
   async getAll(params: QueryOptions<typeof assessments>) {
-    return withAuth(async () => this.repository.query(params), []);
+    return withAuth(async () => this.repository.query(params), ['academic']);
   }
 
   async create(data: Assessment) {
@@ -35,11 +35,11 @@ class AssessmentService {
   }
 
   async delete(id: number) {
-    return withAuth(async () => this.repository.delete(id), []);
+    return withAuth(async () => this.repository.delete(id), ['academic']);
   }
 
   async count() {
-    return withAuth(async () => this.repository.count(), []);
+    return withAuth(async () => this.repository.count(), ['academic']);
   }
 }
 

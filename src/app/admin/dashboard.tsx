@@ -78,9 +78,10 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       roles: [...dashboardUsers],
     },
     {
-      label: 'Assessments',
-      href: '/admin/assessments',
+      label: 'Modules',
+      href: '/admin/lectures-modules',
       icon: IconClipboardCheck,
+      roles: ['academic'],
     },
     {
       label: 'Registration Requests',
