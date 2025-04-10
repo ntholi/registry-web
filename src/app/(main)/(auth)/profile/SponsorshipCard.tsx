@@ -53,7 +53,7 @@ export default function StudentSponsorshipCard({ stdNo, term }: Props) {
   const { data: sponsorsData } = useQuery({
     queryKey: ['sponsors'],
     queryFn: () => findAllSponsors(1),
-    select: (data) => data.data,
+    select: (data) => data.items,
   });
 
   const handleEditClick = () => {

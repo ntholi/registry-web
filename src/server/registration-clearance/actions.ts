@@ -62,7 +62,6 @@ export async function registrationClearanceByStatus(
     {
       page,
       search,
-      orderBy: [{ field: 'createdAt', direction: 'desc' }],
     },
     status,
   );
