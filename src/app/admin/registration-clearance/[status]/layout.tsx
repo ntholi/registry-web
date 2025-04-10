@@ -26,17 +26,23 @@ export default function Layout({ children }: PropsWithChildren) {
     <ListLayout
       path={'/admin/registration-clearance/' + status}
       queryKey={['registrationClearances', status]}
-      getData={(page, search) =>
-        registrationClearanceByStatus(status, page, search)
-      }
+      getData={async (page, search) => {
+        const response = await registrationClearanceByStatus(
+          status,
+          page,
+          search,
+        );
+        return {
+          items: response.items || [],
+          totalPages: response.totalPages || 1,
+        };
+      }}
       renderItem={(it) => (
         <ListItem
           id={it.id}
           label={it.registrationRequest.student.stdNo}
           description={it.registrationRequest.student.name}
-          rightSection={getStatusIcon(
-            it.status as 'pending' | 'approved' | 'rejected',
-          )}
+          rightSection={getStatusIcon(it.status)}
         />
       )}
     >

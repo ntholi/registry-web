@@ -57,7 +57,7 @@ export async function registrationClearanceByStatus(
     };
   }
 
-  return service.findByDepartment(
+  const res = await service.findByDepartment(
     session.user.role as DashboardUser,
     {
       page,
@@ -65,6 +65,11 @@ export async function registrationClearanceByStatus(
     },
     status,
   );
+
+  return {
+    items: res.items,
+    totalPages: res.totalPages,
+  };
 }
 
 export async function createRegistrationClearance(
