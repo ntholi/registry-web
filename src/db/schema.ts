@@ -9,6 +9,7 @@ import {
 import type { AdapterAccountType } from 'next-auth/adapters';
 import { nanoid } from 'nanoid';
 import { sql } from 'drizzle-orm';
+import { create } from 'domain';
 
 export const dashboardUsers = [
   'finance',
@@ -483,3 +484,49 @@ export const sponsoredStudents = sqliteTable(
     uniqueSponsoredTerm: unique().on(table.stdNo, table.termId),
   }),
 );
+
+export const assessmentNumberEnum = [
+  'CW1',
+  'CW2',
+  'CW3',
+  'CW4',
+  'CW5',
+  'CW6',
+  'CW7',
+  'CW8',
+  'CW9',
+  'CW10',
+  'CW11',
+  'CW12',
+  'CW13',
+  'CW14',
+  'CW15',
+] as const;
+
+export const assessments = sqliteTable('assessments', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  studentModuleId: integer()
+    .references(() => studentModules.id, { onDelete: 'cascade' })
+    .notNull(),
+  termId: integer()
+    .references(() => terms.id, { onDelete: 'cascade' })
+    .notNull(),
+  assessmentNumber: text({ enum: assessmentNumberEnum }).notNull(),
+  assessmentType: text().notNull(),
+  totalMarks: real().notNull(),
+  weight: real().notNull(),
+  code: text().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
+export const assessmentMarks = sqliteTable('assessment_marks', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  assessmentId: integer()
+    .references(() => assessments.id, { onDelete: 'cascade' })
+    .notNull(),
+  stdNo: integer()
+    .references(() => students.stdNo, { onDelete: 'cascade' })
+    .notNull(),
+  marks: real().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
