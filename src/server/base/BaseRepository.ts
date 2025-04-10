@@ -1,29 +1,38 @@
 import { db } from '@/db';
 import { count, eq, like, or, sql, SQL } from 'drizzle-orm';
-import { SQLiteTable, SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
-type ModelInsert<T extends SQLiteTable> = T['$inferInsert'];
-type ModelSelect<T extends SQLiteTable> = T['$inferSelect'];
+import {
+  SQLiteColumn as Column,
+  SQLiteTable as Table,
+} from 'drizzle-orm/sqlite-core';
 
-export interface OrderBy<T extends SQLiteTable> {
-  field: keyof ModelSelect<T>;
-  direction?: 'asc' | 'desc';
+type ModelInsert<T extends Table> = T['$inferInsert'];
+type ModelSelect<T extends Table> = T['$inferSelect'];
+
+const DEFAULT_PAGE_SIZE = 15;
+
+export interface SortOptions<T extends Table> {
+  column: keyof ModelSelect<T>;
+  order?: 'asc' | 'desc';
 }
 
-export interface FindAllParams<T extends SQLiteTable> {
+export interface QueryOptions<T extends Table> {
   page?: number;
+  size?: number;
   search?: string;
-  searchProperties?: (keyof ModelSelect<T>)[];
-  orderBy?: OrderBy<T>[];
-  pageSize?: number;
-  condition?: SQL;
+  searchColumns?: (keyof ModelSelect<T>)[];
+  sort?: SortOptions<T>[];
+  filter?: SQL;
 }
 
 class BaseRepository<
-  T extends SQLiteTable,
-  PK extends keyof T & keyof ModelSelect<T>
+  T extends Table,
+  PK extends keyof T & keyof ModelSelect<T>,
 > {
-  constructor(private table: T, private primaryKey: PK) {}
+  constructor(
+    protected table: T,
+    private primaryKey: PK,
+  ) {}
 
   async findFirst(): Promise<ModelSelect<T> | undefined> {
     return await db
@@ -37,129 +46,132 @@ class BaseRepository<
     const [result] = await db
       .select()
       .from(this.table)
-      .where(eq(this.table[this.primaryKey] as SQLiteColumn, id))
+      .where(eq(this.table[this.primaryKey] as Column, id))
       .limit(1);
     return result;
   }
 
-  async getAll(limit?: number): Promise<ModelSelect<T>[]> {
+  async findAll(limit?: number): Promise<ModelSelect<T>[]> {
     if (limit) {
       return await db.select().from(this.table).limit(limit);
     }
     return await db.select().from(this.table);
   }
 
-  protected async queryExpressions(params: FindAllParams<T>) {
+  protected buildQueryCriteria(options: QueryOptions<T>) {
     const {
       page = 1,
+      size = DEFAULT_PAGE_SIZE,
       search,
-      searchProperties = [],
-      orderBy = [],
-      pageSize = 15,
-      condition,
-    } = params;
+      searchColumns = [],
+      sort = [],
+      filter,
+    } = options;
 
-    const offset = (page - 1) * pageSize;
+    const offset = (page - 1) * size;
 
-    let orderByExpressions = orderBy.map((order) => {
-      const column = this.table[order.field] as SQLiteColumn;
+    let orderBy = sort.map((sortOption) => {
+      const column = this.table[sortOption.column] as Column;
       return sql`${column} ${
-        order.direction === 'desc' ? sql`DESC` : sql`ASC`
+        sortOption.order === 'desc' ? sql`DESC` : sql`ASC`
       }`;
     });
 
-    if (orderByExpressions.length === 0 && 'createdAt' in this.table) {
-      orderByExpressions = [sql`${this.table.createdAt} DESC`];
+    if (orderBy.length === 0 && 'createdAt' in this.table) {
+      orderBy = [sql`${this.table.createdAt} DESC`];
     }
 
-    let whereCondition: SQL | undefined;
+    let where: SQL | undefined;
 
-    if (search && searchProperties.length > 0) {
+    if (search && searchColumns.length > 0) {
       const searchCondition = or(
-        ...searchProperties.map((property) =>
-          like(this.table[property as keyof T] as SQLiteColumn, `%${search}%`)
-        )
+        ...searchColumns.map((column) =>
+          like(this.table[column as keyof T] as Column, `%${search}%`),
+        ),
       );
 
-      whereCondition = condition
-        ? sql`${searchCondition} AND ${condition}`
-        : searchCondition;
+      where = filter ? sql`${searchCondition} AND ${filter}` : searchCondition;
     } else {
-      whereCondition = condition;
+      where = filter;
     }
 
     return {
-      orderByExpressions,
-      whereCondition,
+      orderBy,
+      where,
       offset,
-      pageSize,
+      limit: size,
     };
   }
 
-  protected async paginatedResults<E extends ModelSelect<T>>(
-    data: E[],
-    whereCondition: SQL | undefined,
-    pageSize: number
+  protected async createPaginatedResult<E extends ModelSelect<T>>(
+    criteria: {
+      where?: SQL;
+      limit?: number;
+    },
+    items: E[],
   ) {
-    const totalCount = await this.count(whereCondition);
+    const totalItems = await this.count(criteria.where);
     return {
-      data,
-      pages: Math.ceil(totalCount / pageSize),
+      items,
+      totalPages: Math.ceil(totalItems / (criteria.limit || DEFAULT_PAGE_SIZE)),
+      totalItems,
     };
   }
 
-  async findAll(
-    params: FindAllParams<T>
-  ): Promise<{ data: ModelSelect<T>[]; pages: number }> {
-    const { orderByExpressions, whereCondition, offset, pageSize } =
-      await this.queryExpressions(params);
+  async query(options: QueryOptions<T>): Promise<{
+    items: ModelSelect<T>[];
+    totalPages: number;
+    totalItems: number;
+  }> {
+    const { orderBy, where, offset, limit } = this.buildQueryCriteria(options);
 
-    const data = await db
+    const items = await db
       .select()
       .from(this.table)
-      .orderBy(...orderByExpressions)
-      .where(whereCondition)
-      .limit(pageSize)
+      .orderBy(...orderBy)
+      .where(where)
+      .limit(limit)
       .offset(offset);
 
-    return await this.paginatedResults(data, whereCondition, pageSize);
+    return await this.createPaginatedResult({ where, limit }, items);
   }
 
   async exists(id: ModelSelect<T>[PK]): Promise<boolean> {
     const [result] = await db
       .select({ count: count() })
       .from(this.table)
-      .where(eq(this.table[this.primaryKey] as SQLiteColumn, id))
+      .where(eq(this.table[this.primaryKey] as Column, id))
       .limit(1);
     return result?.count > 0;
   }
 
-  async create(data: ModelInsert<T>): Promise<ModelSelect<T>> {
-    const [inserted] = await db.insert(this.table).values(data).returning();
+  async create(entity: ModelInsert<T>): Promise<ModelSelect<T>> {
+    const [inserted] = await db.insert(this.table).values(entity).returning();
     return inserted;
   }
 
   async update(
     id: ModelSelect<T>[PK],
-    data: Partial<ModelInsert<T>>
+    entity: Partial<ModelInsert<T>>,
   ): Promise<ModelSelect<T>> {
     const [updated] = (await db
       .update(this.table)
-      .set(data)
-      .where(eq(this.table[this.primaryKey] as SQLiteColumn, id))
+      .set(entity)
+      .where(eq(this.table[this.primaryKey] as Column, id))
       .returning()) as ModelSelect<T>[];
+
     return updated;
   }
 
   async delete(id: ModelSelect<T>[PK]): Promise<void> {
     await db
       .delete(this.table)
-      .where(eq(this.table[this.primaryKey] as SQLiteColumn, id));
+      .where(eq(this.table[this.primaryKey] as Column, id));
   }
 
-  async count(condition?: SQL): Promise<number> {
+  async count(filter?: SQL): Promise<number> {
     const query = db.select({ count: count() }).from(this.table);
-    const [result] = await (condition ? query.where(condition) : query);
+    const [result] = await (filter ? query.where(filter) : query);
     return result?.count ?? 0;
   }
 
