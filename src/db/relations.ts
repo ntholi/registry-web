@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 import {
   accounts,
   authenticators,
+  lecturerModules,
   modulePrerequisites,
   modules,
   programs,
@@ -242,6 +243,20 @@ export const sponsoredStudentsRelations = relations(
     term: one(terms, {
       fields: [sponsoredStudents.termId],
       references: [terms.id],
+    }),
+  }),
+);
+
+export const lecturerModulesRelations = relations(
+  lecturerModules,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [lecturerModules.userId],
+      references: [users.id],
+    }),
+    module: one(modules, {
+      fields: [lecturerModules.moduleId],
+      references: [modules.id],
     }),
   }),
 );

@@ -13,7 +13,13 @@ export default function Layout({ children }: PropsWithChildren) {
       actionIcons={[
         <NewLink key={'new-link'} href='/admin/lecturer-modules/new' />,
       ]}
-      renderItem={(it) => <ListItem id={it.id} label={it.moduleId} />}
+      renderItem={(it) => (
+        <ListItem
+          id={it.id}
+          label={it.module.code}
+          description={it.module.name}
+        />
+      )}
     >
       {children}
     </ListLayout>
