@@ -65,26 +65,6 @@ export default function LecturesModuleForm({
             required
             withAsterisk
           />
-
-          <Group grow>
-            <TextInput
-              label='Lecturer'
-              placeholder='Enter lecturer name'
-              {...form.getInputProps('lecturer')}
-              required
-            />
-
-            <Select
-              label='Semester'
-              placeholder='Select semester'
-              data={[
-                { value: '1', label: 'First' },
-                { value: '2', label: 'Second' },
-              ]}
-              {...form.getInputProps('semester')}
-              required
-            />
-          </Group>
         </Stack>
       )}
     </Form>

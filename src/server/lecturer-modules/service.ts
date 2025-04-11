@@ -2,6 +2,7 @@ import { lecturerModules } from '@/db/schema';
 import LecturesModuleRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
+import { auth } from '@/auth';
 
 type LecturesModule = typeof lecturerModules.$inferInsert;
 
@@ -21,7 +22,13 @@ class LecturesModuleService {
   }
 
   async create(data: LecturesModule) {
-    return withAuth(async () => this.repository.create(data), ['academic']);
+    const session = await auth();
+    console.log('Data:', data);
+    return withAuth(
+      async () =>
+        this.repository.create({ ...data, userId: session!.user!.id! }),
+      ['academic'],
+    );
   }
 
   async update(id: number, data: LecturesModule) {

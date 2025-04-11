@@ -97,6 +97,19 @@ export const ModuleSearchInput = forwardRef<
       limit={10}
       maxDropdownHeight={400}
       rightSection={isLoading ? <Loader size='xs' /> : null}
+      description={
+        value && modules
+          ? (() => {
+              const selectedModule = modules.find(
+                (module) => module.id === value,
+              );
+              if (selectedModule) {
+                return `${selectedModule.semester?.structure?.program?.name || 'Unknown Program'} - ${selectedModule.semester?.name || 'Unknown Semester'}`;
+              }
+              return undefined;
+            })()
+          : undefined
+      }
       renderOption={({ option }) => {
         const moduleOption = option as ModuleOption;
         return (
