@@ -1,4 +1,4 @@
-import { getModulesForStructure } from '@/server/modules/actions';
+import { getModulesForStructure } from '@/server/semester-modules/actions';
 import {
   getRegistrationRequest,
   updateRegistrationWithModules,

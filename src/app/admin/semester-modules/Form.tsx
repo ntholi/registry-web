@@ -1,8 +1,8 @@
 'use client';
 
 import { Form } from '@/components/adease';
-import { modules, moduleTypeEnum } from '@/db/schema';
-import { findAllModules } from '@/server/modules/actions';
+import { semesterModules, moduleTypeEnum } from '@/db/schema';
+import { findAllModules } from '@/server/semester-modules/actions';
 import { MultiSelect, NumberInput, Select, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
 
-type Module = typeof modules.$inferInsert;
+type Module = typeof semesterModules.$inferInsert;
 
 type Props = {
   onSubmit: (
@@ -49,7 +49,7 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
     .filter(Boolean) as { value: string; label: string }[];
 
   const schema = z.object({
-    ...createInsertSchema(modules).shape,
+    ...createInsertSchema(semesterModules).shape,
     prerequisiteCodes: z.array(z.string()).optional(),
   });
 

@@ -1,5 +1,5 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import {  modules, structures } from '@/db/schema';
+import { semesterModules, structures } from '@/db/schema';
 import { db } from '@/db';
 import { eq } from 'drizzle-orm';
 
@@ -22,10 +22,7 @@ export default class StructureRepository extends BaseRepository<
         },
         semesters: {
           with: {
-
-                modules: true
-              
-            
+            modules: true,
           },
         },
       },
@@ -33,7 +30,7 @@ export default class StructureRepository extends BaseRepository<
   }
 
   async deleteSemesterModule(id: number) {
-    await db.delete(modules).where(eq(modules.id, id));
+    await db.delete(semesterModules).where(eq(semesterModules.id, id));
   }
 }
 

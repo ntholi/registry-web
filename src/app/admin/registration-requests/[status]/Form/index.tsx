@@ -2,9 +2,9 @@
 
 import { getStudentSemesterModules } from '@/app/(main)/(auth)/registration/request/actions';
 import { Form } from '@/components/adease';
-import { modules, ModuleStatus, moduleStatusEnum } from '@/db/schema';
+import { semesterModules, ModuleStatus, moduleStatusEnum } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
-import { getModulesForStructure } from '@/server/modules/actions';
+import { getModulesForStructure } from '@/server/semester-modules/actions';
 import { getStudent } from '@/server/students/actions';
 import {
   ActionIcon,
@@ -31,7 +31,7 @@ interface SelectedModule extends Module {
   semesterName?: string;
 }
 
-type Module = typeof modules.$inferSelect & {
+type Module = typeof semesterModules.$inferSelect & {
   semesterNumber?: number;
   semesterName?: string;
 };

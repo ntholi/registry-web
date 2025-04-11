@@ -1,4 +1,4 @@
-import { modules } from '@/db/schema';
+import { semesterModules } from '@/db/schema';
 import ModuleRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
@@ -6,7 +6,7 @@ import { serviceWrapper } from '@/server/base/serviceWrapper';
 import { db } from '@/db';
 import { eq, like, or } from 'drizzle-orm';
 
-type Module = typeof modules.$inferInsert;
+type Module = typeof semesterModules.$inferInsert;
 
 class ModuleService {
   constructor(private readonly repository = new ModuleRepository()) {}
@@ -26,7 +26,7 @@ class ModuleService {
     );
   }
 
-  async findAll(params: QueryOptions<typeof modules>) {
+  async findAll(params: QueryOptions<typeof semesterModules>) {
     return withAuth(async () => this.repository.query(params), ['dashboard']);
   }
 

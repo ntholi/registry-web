@@ -1,4 +1,4 @@
-import { modules } from '@/db/schema';
+import { semesterModules } from '@/db/schema';
 import {
   Accordion,
   ActionIcon,
@@ -14,7 +14,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { ReactNode, useState } from 'react';
 
-type Module = typeof modules.$inferSelect & {
+type Module = typeof semesterModules.$inferSelect & {
   semesterNumber?: number;
   semesterName?: string;
 };

@@ -2,7 +2,7 @@
 
 import { db } from '@/db';
 import {
-  modules,
+  semesterModules,
   structureSemesters,
   studentPrograms,
   studentSemesters,
@@ -207,7 +207,7 @@ export async function getRepeatModules(
     },
   });
 
-  type Module = typeof modules.$inferSelect;
+  type Module = typeof semesterModules.$inferSelect;
   const moduleHistory = studentModules
     .flatMap((p) => p.semesters)
     .flatMap((s) => s.studentModules)
@@ -251,7 +251,7 @@ export async function getRepeatModules(
 async function getSemesterModules(
   semester: number,
   structureId: number,
-): Promise<(typeof modules.$inferSelect)[]> {
+): Promise<(typeof semesterModules.$inferSelect)[]> {
   const term = await getCurrentTerm();
   const semesterNumbers = Array.from(
     { length: semester },
@@ -270,8 +270,8 @@ async function getSemesterModules(
 
   return await db.query.modules.findMany({
     where: and(
-      inArray(modules.semesterId, semesterIds),
-      eq(modules.hidden, false),
+      inArray(semesterModules.semesterId, semesterIds),
+      eq(semesterModules.hidden, false),
     ),
   });
 }

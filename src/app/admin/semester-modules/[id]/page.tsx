@@ -8,7 +8,7 @@ import {
   deleteModule,
   getModule,
   getModulePrerequisites,
-} from '@/server/modules/actions';
+} from '@/server/semester-modules/actions';
 import {
   Anchor,
   Fieldset,

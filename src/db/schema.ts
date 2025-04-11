@@ -251,7 +251,7 @@ export type Grade = (typeof gradeEnum)[number];
 export const studentModules = sqliteTable('student_modules', {
   id: integer().primaryKey(),
   moduleId: integer()
-    .references(() => modules.id, { onDelete: 'cascade' })
+    .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
   status: text({ enum: moduleStatusEnum }).notNull(),
   marks: text().notNull(),
@@ -301,7 +301,7 @@ export const structureSemesters = sqliteTable('structure_semesters', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const modules = sqliteTable('modules', {
+export const semesterModules = sqliteTable('semester_modules', {
   id: integer().primaryKey(),
   code: text().notNull(),
   name: text().notNull(),
@@ -319,10 +319,10 @@ export const modulePrerequisites = sqliteTable(
   {
     id: integer().primaryKey(),
     moduleId: integer()
-      .references(() => modules.id, { onDelete: 'cascade' })
+      .references(() => semesterModules.id, { onDelete: 'cascade' })
       .notNull(),
     prerequisiteId: integer()
-      .references(() => modules.id, { onDelete: 'cascade' })
+      .references(() => semesterModules.id, { onDelete: 'cascade' })
       .notNull(),
     createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
@@ -393,7 +393,7 @@ export const requestedModules = sqliteTable('requested_modules', {
     .references(() => registrationRequests.id, { onDelete: 'cascade' })
     .notNull(),
   moduleId: integer('module_id')
-    .references(() => modules.id, { onDelete: 'cascade' })
+    .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
   status: text({ enum: requestedModuleStatusEnum })
     .notNull()
@@ -490,7 +490,7 @@ export const lecturerModules = sqliteTable('lecturer_modules', {
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   moduleId: integer()
-    .references(() => modules.id, { onDelete: 'cascade' })
+    .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });

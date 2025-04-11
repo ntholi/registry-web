@@ -2,7 +2,7 @@
 
 import { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
-import { findAllModules } from '@/server/modules/actions';
+import { findAllModules } from '@/server/semester-modules/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (

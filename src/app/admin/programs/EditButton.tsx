@@ -4,7 +4,7 @@ import {
   getModule,
   updateModule,
   getModulePrerequisites,
-} from '@/server/modules/actions';
+} from '@/server/semester-modules/actions';
 import { ActionIcon, Button, Group } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';

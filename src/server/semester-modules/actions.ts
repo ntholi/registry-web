@@ -1,9 +1,9 @@
 'use server';
 
-import { modules } from '@/db/schema';
+import { semesterModules } from '@/db/schema';
 import { modulesService } from './service';
 
-type Module = typeof modules.$inferInsert;
+type Module = typeof semesterModules.$inferInsert;
 
 export async function getModule(id: number) {
   return modulesService.get(id);

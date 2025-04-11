@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import {
   modulePrerequisites,
-  modules,
+  semesterModules,
   programs,
   schools,
   structureSemesters,
@@ -11,16 +11,16 @@ import BaseRepository from '@/server/base/BaseRepository';
 import { eq, like, or, desc } from 'drizzle-orm';
 
 export default class ModuleRepository extends BaseRepository<
-  typeof modules,
+  typeof semesterModules,
   'id'
 > {
   constructor() {
-    super(modules, 'id');
+    super(semesterModules, 'id');
   }
 
   async findByCode(code: string) {
     return db.query.modules.findFirst({
-      where: eq(modules.code, code),
+      where: eq(semesterModules.code, code),
     });
   }
 
@@ -30,8 +30,8 @@ export default class ModuleRepository extends BaseRepository<
       with: {
         modules: {
           where: or(
-            like(modules.code, `%${search}%`),
-            like(modules.name, `%${search}%`),
+            like(semesterModules.code, `%${search}%`),
+            like(semesterModules.name, `%${search}%`),
           ),
         },
       },
@@ -56,16 +56,19 @@ export default class ModuleRepository extends BaseRepository<
   async getPrerequisites(moduleId: number) {
     return db
       .select({
-        id: modules.id,
-        code: modules.code,
-        name: modules.name,
-        type: modules.type,
-        credits: modules.credits,
+        id: semesterModules.id,
+        code: semesterModules.code,
+        name: semesterModules.name,
+        type: semesterModules.type,
+        credits: semesterModules.credits,
       })
       .from(modulePrerequisites)
-      .innerJoin(modules, eq(modules.id, modulePrerequisites.prerequisiteId))
+      .innerJoin(
+        semesterModules,
+        eq(semesterModules.id, modulePrerequisites.prerequisiteId),
+      )
       .where(eq(modulePrerequisites.moduleId, moduleId))
-      .orderBy(modules.code);
+      .orderBy(semesterModules.code);
   }
 
   async getModulesByStructure(structureId: number) {
@@ -84,14 +87,14 @@ export default class ModuleRepository extends BaseRepository<
       semesters.map(async (semester) => {
         const modulesList = await db
           .select({
-            moduleId: modules.id,
-            moduleCode: modules.code,
-            moduleName: modules.name,
-            moduleType: modules.type,
-            moduleCredits: modules.credits,
+            moduleId: semesterModules.id,
+            moduleCode: semesterModules.code,
+            moduleName: semesterModules.name,
+            moduleType: semesterModules.type,
+            moduleCredits: semesterModules.credits,
           })
-          .from(modules)
-          .orderBy(modules.code);
+          .from(semesterModules)
+          .orderBy(semesterModules.code);
 
         return {
           ...semester,
@@ -135,8 +138,8 @@ export default class ModuleRepository extends BaseRepository<
   async searchModulesWithDetails(search = '') {
     return await db.query.modules.findMany({
       where: or(
-        like(modules.code, `%${search}%`),
-        like(modules.name, `%${search}%`),
+        like(semesterModules.code, `%${search}%`),
+        like(semesterModules.name, `%${search}%`),
       ),
       with: {
         semester: {

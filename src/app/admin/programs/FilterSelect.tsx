@@ -4,7 +4,7 @@ import {
   getProgramsBySchool,
   getSchools,
   getStructuresByProgram,
-} from '@/server/modules/actions';
+} from '@/server/semester-modules/actions';
 import {
   Box,
   ComboboxItem,

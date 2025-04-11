@@ -1,7 +1,7 @@
 'use client';
 
-import { modules } from '@/db/schema';
-import { findModulesByStructure } from '@/server/modules/actions';
+import { semesterModules } from '@/db/schema';
+import { findModulesByStructure } from '@/server/semester-modules/actions';
 import { MultiSelect, Stack, Switch } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
@@ -10,7 +10,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-type Module = typeof modules.$inferInsert & { prerequisiteCodes?: string[] };
+type Module = typeof semesterModules.$inferInsert & {
+  prerequisiteCodes?: string[];
+};
 
 type Props = {
   defaultValues?: Module;

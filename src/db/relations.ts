@@ -4,7 +4,7 @@ import {
   authenticators,
   lecturerModules,
   modulePrerequisites,
-  modules,
+  semesterModules,
   programs,
   registrationClearanceAudit,
   registrationClearances,
@@ -91,9 +91,9 @@ export const studentModulesRelations = relations(studentModules, ({ one }) => ({
     fields: [studentModules.studentSemesterId],
     references: [studentSemesters.id],
   }),
-  module: one(modules, {
+  module: one(semesterModules, {
     fields: [studentModules.moduleId],
-    references: [modules.id],
+    references: [semesterModules.id],
   }),
 }));
 
@@ -126,17 +126,17 @@ export const structureSemestersRelations = relations(
       fields: [structureSemesters.structureId],
       references: [structures.id],
     }),
-    modules: many(modules),
+    modules: many(semesterModules),
   }),
 );
 
-export const modulesRelations = relations(modules, ({ many, one }) => ({
-  semesters: many(modules),
+export const modulesRelations = relations(semesterModules, ({ many, one }) => ({
+  semesters: many(semesterModules),
   prerequisites: many(modulePrerequisites),
   prerequisiteFor: many(modulePrerequisites),
   requestedModules: many(requestedModules),
   semester: one(structureSemesters, {
-    fields: [modules.semesterId],
+    fields: [semesterModules.semesterId],
     references: [structureSemesters.id],
   }),
   studentModules: many(studentModules),
@@ -145,13 +145,13 @@ export const modulesRelations = relations(modules, ({ many, one }) => ({
 export const modulePrerequisitesRelations = relations(
   modulePrerequisites,
   ({ one }) => ({
-    module: one(modules, {
+    module: one(semesterModules, {
       fields: [modulePrerequisites.moduleId],
-      references: [modules.id],
+      references: [semesterModules.id],
     }),
-    prerequisite: one(modules, {
+    prerequisite: one(semesterModules, {
       fields: [modulePrerequisites.prerequisiteId],
-      references: [modules.id],
+      references: [semesterModules.id],
     }),
   }),
 );
@@ -188,9 +188,9 @@ export const requestedModulesRelations = relations(
       fields: [requestedModules.registrationRequestId],
       references: [registrationRequests.id],
     }),
-    module: one(modules, {
+    module: one(semesterModules, {
       fields: [requestedModules.moduleId],
-      references: [modules.id],
+      references: [semesterModules.id],
     }),
   }),
 );
@@ -254,9 +254,9 @@ export const lecturerModulesRelations = relations(
       fields: [lecturerModules.userId],
       references: [users.id],
     }),
-    module: one(modules, {
+    module: one(semesterModules, {
       fields: [lecturerModules.moduleId],
-      references: [modules.id],
+      references: [semesterModules.id],
     }),
   }),
 );

@@ -1,4 +1,4 @@
-import { getModulePrerequisites } from '@/server/modules/actions';
+import { getModulePrerequisites } from '@/server/semester-modules/actions';
 import { Anchor, Group, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';

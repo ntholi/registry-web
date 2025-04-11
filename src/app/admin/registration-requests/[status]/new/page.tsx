@@ -1,9 +1,9 @@
-import { modules, ModuleStatus } from '@/db/schema';
+import { semesterModules, ModuleStatus } from '@/db/schema';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
 import { Box } from '@mantine/core';
 import Form from '../Form';
 
-type Module = typeof modules.$inferSelect;
+type Module = typeof semesterModules.$inferSelect;
 export interface SelectedModule extends Module {
   status: ModuleStatus;
 }
