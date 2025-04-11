@@ -16,8 +16,8 @@ export default function Layout({ children }: PropsWithChildren) {
       renderItem={(it) => (
         <ListItem
           id={it.id}
-          label={it.module.code}
-          description={it.module.name}
+          label={it.semesterModule.code}
+          description={it.semesterModule.name}
         />
       )}
     >

@@ -250,7 +250,7 @@ export type Grade = (typeof gradeEnum)[number];
 
 export const studentModules = sqliteTable('student_modules', {
   id: integer().primaryKey(),
-  moduleId: integer()
+  semesterModuleId: integer()
     .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
   status: text({ enum: moduleStatusEnum }).notNull(),
@@ -318,7 +318,7 @@ export const modulePrerequisites = sqliteTable(
   'module_prerequisites',
   {
     id: integer().primaryKey(),
-    moduleId: integer()
+    semesterModuleId: integer()
       .references(() => semesterModules.id, { onDelete: 'cascade' })
       .notNull(),
     prerequisiteId: integer()
@@ -327,7 +327,10 @@ export const modulePrerequisites = sqliteTable(
     createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
-    uniquePrerequisite: unique().on(table.moduleId, table.prerequisiteId),
+    uniquePrerequisite: unique().on(
+      table.semesterModuleId,
+      table.prerequisiteId,
+    ),
   }),
 );
 
@@ -392,7 +395,7 @@ export const requestedModules = sqliteTable('requested_modules', {
   registrationRequestId: integer('registration_request_id')
     .references(() => registrationRequests.id, { onDelete: 'cascade' })
     .notNull(),
-  moduleId: integer('module_id')
+  semesterModuleId: integer()
     .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
   status: text({ enum: requestedModuleStatusEnum })
@@ -489,7 +492,7 @@ export const lecturerModules = sqliteTable('lecturer_modules', {
   userId: text()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
-  moduleId: integer()
+  semesterModuleId: integer()
     .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
