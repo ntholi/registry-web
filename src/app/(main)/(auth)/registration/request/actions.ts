@@ -268,7 +268,7 @@ async function getSemesterModules(
   const semesterIds = semesters.map((s) => s.id);
   if (semesterIds.length === 0) return [];
 
-  return await db.query.modules.findMany({
+  return await db.query.semesterModules.findMany({
     where: and(
       inArray(semesterModules.semesterId, semesterIds),
       eq(semesterModules.hidden, false),

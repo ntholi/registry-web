@@ -1,13 +1,7 @@
 'use server';
 
-import { z } from 'zod';
 import { lecturesModulesService as service } from './service';
-
-const lecturesModule = z.object({
-  id: z.number().optional(),
-  moduleId: z.number(),
-});
-type LecturesModule = z.infer<typeof lecturesModule>;
+import { LecturesModule } from './types';
 
 export async function getLecturesModule(id: number) {
   return service.get(id);
