@@ -8,6 +8,8 @@ import {
   Loader,
   Text,
   Badge,
+  ComboboxItem,
+  Stack,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
@@ -15,13 +17,13 @@ import { forwardRef, useState } from 'react';
 
 type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
 
-type ModuleOption = {
+interface ModuleOption extends ComboboxItem {
   value: string;
   label: string;
   code: string;
   semesterName: string;
   programName: string;
-};
+}
 
 export type ModuleSearchInputProps = Omit<
   AutocompleteProps,
@@ -45,7 +47,6 @@ export const ModuleSearchInput = forwardRef<
     enabled: debouncedSearch.length > 1,
   });
 
-  // Transform modules into options for the Autocomplete
   const options: ModuleOption[] =
     modules?.map((module) => ({
       value: module.id.toString(),
@@ -56,12 +57,10 @@ export const ModuleSearchInput = forwardRef<
         module.semester?.structure?.program?.name || 'Unknown Program',
     })) || [];
 
-  // Handle input change
   const handleInputChange = (value: string) => {
     setInputValue(value);
   };
 
-  // Handle option selection
   const handleOptionSubmit = (value: string) => {
     const selectedModule = modules?.find(
       (module) => module.id.toString() === value,
@@ -77,7 +76,6 @@ export const ModuleSearchInput = forwardRef<
     }
   };
 
-  // For display purposes, show the selected module code and name
   const displayValue = () => {
     if (value && modules) {
       const selectedModule = modules.find((module) => module.id === value);
@@ -99,31 +97,28 @@ export const ModuleSearchInput = forwardRef<
       limit={10}
       maxDropdownHeight={400}
       rightSection={isLoading ? <Loader size='xs' /> : null}
-      filter={(value, item) =>
-        item.label.toLowerCase().includes(value.toLowerCase()) ||
-        item.code.toLowerCase().includes(value.toLowerCase())
-      }
-      nothingFound='No modules found'
-      renderOption={(option) => (
-        <Group wrap='nowrap'>
-          <div style={{ flex: 1 }}>
-            <Group justify='space-between'>
-              <Text fw={500} size='sm'>
-                {option.label}
+      renderOption={({ option }) => {
+        const moduleOption = option as ModuleOption;
+        return (
+          <Stack gap={0}>
+            <Group gap={'xs'}>
+              <Text size='sm' fw={500}>
+                {moduleOption.code}
               </Text>
-              <Badge size='sm'>{option.code}</Badge>
+              <Text size='sm'>{moduleOption.label}</Text>
             </Group>
-            <Group>
+            <Group gap={'xs'}>
               <Text size='xs' c='dimmed'>
-                {option.semesterName}
+                {moduleOption.semesterName}
               </Text>
+              •
               <Text size='xs' c='dimmed'>
-                • {option.programName}
+                {moduleOption.programName}
               </Text>
             </Group>
-          </div>
-        </Group>
-      )}
+          </Stack>
+        );
+      }}
       {...props}
     />
   );

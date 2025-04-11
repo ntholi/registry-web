@@ -51,7 +51,7 @@ export default function LecturesModuleForm({
               if (moduleId) {
                 form.setFieldValue('moduleId', moduleId);
               } else {
-                form.setFieldValue('moduleId', null);
+                form.setFieldValue('moduleId', -1);
                 form.setFieldValue('module', '');
               }
             }}
