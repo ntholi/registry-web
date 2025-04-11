@@ -1,8 +1,7 @@
 'use server';
 
-import { lecturerModules } from '@/db/schema';
-import { lecturesModulesService as service } from './service';
 import { z } from 'zod';
+import { lecturesModulesService as service } from './service';
 
 const lecturesModule = z.object({
   id: z.number().optional(),

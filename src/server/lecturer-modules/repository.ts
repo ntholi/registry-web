@@ -2,6 +2,7 @@ import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { lecturerModules } from '@/db/schema';
 import { SQLiteTableWithColumns, SQLiteColumn } from 'drizzle-orm/sqlite-core';
 import { db } from '@/db';
+import { eq } from 'drizzle-orm';
 
 export default class LecturesModuleRepository extends BaseRepository<
   typeof lecturerModules,
@@ -11,7 +12,17 @@ export default class LecturesModuleRepository extends BaseRepository<
     super(lecturerModules, 'id');
   }
 
-  async query(options: QueryOptions<typeof lecturerModules>) {
+  override async findById(id: number) {
+    const data = await db.query.lecturerModules.findFirst({
+      where: eq(lecturerModules.id, id),
+      with: {
+        module: true,
+      },
+    });
+    return data;
+  }
+
+  override async query(options: QueryOptions<typeof lecturerModules>) {
     const criteria = this.buildQueryCriteria(options);
     const data = await db.query.lecturerModules.findMany({
       ...criteria,

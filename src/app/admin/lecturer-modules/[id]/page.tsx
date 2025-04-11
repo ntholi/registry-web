@@ -33,7 +33,7 @@ export default async function LecturesModuleDetails({ params }: Props) {
         }}
       />
       <DetailsViewBody>
-        <FieldView label='Module'>{lecturesModule.module}</FieldView>
+        <FieldView label='Module'>{lecturesModule.module.name}</FieldView>
       </DetailsViewBody>
     </DetailsView>
   );
