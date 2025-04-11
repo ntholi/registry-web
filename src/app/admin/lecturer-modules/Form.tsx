@@ -11,7 +11,6 @@ const lecturesModule = z.object({
   id: z.number().optional(),
   moduleId: z.number(),
 });
-
 type LecturesModule = z.infer<typeof lecturesModule>;
 
 type Props = {

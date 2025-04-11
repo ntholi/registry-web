@@ -2,8 +2,13 @@
 
 import { lecturerModules } from '@/db/schema';
 import { lecturesModulesService as service } from './service';
+import { z } from 'zod';
 
-type LecturesModule = typeof lecturerModules.$inferInsert;
+const lecturesModule = z.object({
+  id: z.number().optional(),
+  moduleId: z.number(),
+});
+type LecturesModule = z.infer<typeof lecturesModule>;
 
 export async function getLecturesModule(id: number) {
   return service.get(id);
@@ -14,14 +19,7 @@ export async function getLecturesModules(page: number = 1, search = '') {
 }
 
 export async function createLecturesModule(lecturesModule: LecturesModule) {
-  return service.create(lecturesModule);
-}
-
-export async function updateLecturesModule(
-  id: number,
-  lecturesModule: LecturesModule,
-) {
-  return service.update(id, lecturesModule);
+  return service.create(lecturesModule.moduleId);
 }
 
 export async function deleteLecturesModule(id: number) {

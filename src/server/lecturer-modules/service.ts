@@ -21,12 +21,11 @@ class LecturesModuleService {
     return withAuth(async () => this.repository.query(params), ['academic']);
   }
 
-  async create(data: LecturesModule) {
+  async create(moduleId: number) {
     const session = await auth();
-    console.log('Data:', data);
     return withAuth(
       async () =>
-        this.repository.create({ ...data, userId: session!.user!.id! }),
+        this.repository.create({ moduleId, userId: session!.user!.id! }),
       ['academic'],
     );
   }
