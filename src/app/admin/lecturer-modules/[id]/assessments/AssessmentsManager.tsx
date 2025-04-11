@@ -24,9 +24,12 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import Link from 'next/link';
 import { deleteAssessment, getAssessments } from '@/server/assessments/actions';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
+import { showNotification } from '@mantine/notifications';
+import AssessmentModal from './AssessmentModal';
+import { modals } from '@mantine/modals';
 
 type Props = {
   moduleId: number;
@@ -37,6 +40,8 @@ export default function AssessmentsManager({
   moduleId,
   lecturesModuleId,
 }: Props) {
+  const queryClient = useQueryClient();
+
   const { data, isLoading } = useQuery({
     queryKey: ['assessments', moduleId],
     queryFn: async () => {
@@ -44,6 +49,33 @@ export default function AssessmentsManager({
       return result.items;
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteAssessment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assessments', moduleId] });
+      showNotification({
+        title: 'Success',
+        message: 'Assessment deleted successfully',
+        color: 'green',
+      });
+    },
+  });
+
+  const openDeleteModal = (assessmentId: number, assessmentNumber: string) =>
+    modals.openConfirmModal({
+      title: 'Delete Assessment',
+      centered: true,
+      children: (
+        <Text size='sm'>
+          Are you sure you want to delete assessment {assessmentNumber}? This
+          action cannot be undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => deleteMutation.mutate(assessmentId),
+    });
 
   const assessments = data || [];
 
@@ -53,16 +85,16 @@ export default function AssessmentsManager({
         <Title order={4} fw={500}>
           Assessments
         </Title>
-        <Button
-          id='add-assessment'
-          variant='outline'
-          color='green'
-          leftSection={<IconPlus size='1rem' />}
-          component={Link}
-          href={`/admin/assessments/new?moduleId=${moduleId}`}
-        >
-          Add Assessment
-        </Button>
+        <AssessmentModal moduleId={moduleId} mode='add'>
+          <Button
+            id='add-assessment'
+            variant='outline'
+            color='green'
+            leftSection={<IconPlus size='1rem' />}
+          >
+            Add Assessment
+          </Button>
+        </AssessmentModal>
       </Flex>
       <Divider mb='md' />
 
@@ -98,28 +130,38 @@ export default function AssessmentsManager({
                 </Table.Td>
                 <Table.Td>
                   <Group gap='xs'>
-                    <Tooltip label='Edit assessment'>
+                    <AssessmentModal
+                      moduleId={moduleId}
+                      assessment={assessment}
+                      mode='edit'
+                    >
+                      <Tooltip label='Edit assessment'>
+                        <ActionIcon variant='light' color='blue'>
+                          <IconEdit size='1rem' />
+                        </ActionIcon>
+                      </Tooltip>
+                    </AssessmentModal>
+
+                    <Tooltip label='Delete assessment'>
                       <ActionIcon
+                        type='button'
                         variant='light'
-                        color='blue'
-                        component={Link}
-                        href={`/admin/assessments/${assessment.id}/edit`}
+                        color='red'
+                        onClick={() =>
+                          openDeleteModal(
+                            assessment.id,
+                            assessment.assessmentNumber,
+                          )
+                        }
+                        loading={
+                          deleteMutation.isPending &&
+                          deleteMutation.variables === assessment.id
+                        }
                       >
-                        <IconEdit size='1rem' />
+                        <IconTrash size='1rem' />
                       </ActionIcon>
                     </Tooltip>
-                    <Tooltip label='Delete assessment'>
-                      <form
-                        action={async () => {
-                          'use server';
-                          await deleteAssessment(assessment.id);
-                        }}
-                      >
-                        <ActionIcon type='submit' variant='light' color='red'>
-                          <IconTrash size='1rem' />
-                        </ActionIcon>
-                      </form>
-                    </Tooltip>
+
                     <Tooltip label='View gradebook for this assessment'>
                       <ActionIcon
                         variant='light'
