@@ -131,6 +131,27 @@ export default class ModuleRepository extends BaseRepository<
       },
     });
   }
+
+  async searchModulesWithDetails(search = '') {
+    return await db.query.modules.findMany({
+      where: or(
+        like(modules.code, `%${search}%`),
+        like(modules.name, `%${search}%`),
+      ),
+      with: {
+        semester: {
+          with: {
+            structure: {
+              with: {
+                program: true,
+              },
+            },
+          },
+        },
+      },
+      limit: 20,
+    });
+  }
 }
 
 export const modulesRepository = new ModuleRepository();

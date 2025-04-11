@@ -3,6 +3,8 @@ import ModuleRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
+import { db } from '@/db';
+import { eq, like, or } from 'drizzle-orm';
 
 type Module = typeof modules.$inferInsert;
 
@@ -103,6 +105,13 @@ class ModuleService {
   async getModulesForStructure(structureId: number) {
     return withAuth(
       async () => this.repository.getModulesForStructure(structureId),
+      ['dashboard'],
+    );
+  }
+
+  async searchModulesWithDetails(search = '') {
+    return withAuth(
+      async () => this.repository.searchModulesWithDetails(search),
       ['dashboard'],
     );
   }

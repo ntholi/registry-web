@@ -2,9 +2,11 @@
 
 import { lecturerModules } from '@/db/schema';
 import { Form } from '@/components/adease';
-import { TextInput } from '@mantine/core';
+import { Stack, Group, TextInput, Select } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { ModuleSearchInput } from '@/components/ModuleSearchInput';
 
 type LecturesModule = typeof lecturerModules.$inferInsert;
 
@@ -24,12 +26,15 @@ export default function LecturesModuleForm({
   title,
 }: Props) {
   const router = useRouter();
+  const [selectedModuleId, setSelectedModuleId] = useState<number | null>(
+    defaultValues?.moduleId || null,
+  );
 
   return (
     <Form
       title={title}
       action={onSubmit}
-      queryKey={['lecturerModules ']}
+      queryKey={['lecturerModules']}
       schema={createInsertSchema(lecturerModules)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
@@ -37,9 +42,50 @@ export default function LecturesModuleForm({
       }}
     >
       {(form) => (
-        <>
-          <TextInput label='Module' {...form.getInputProps('module')} />
-        </>
+        <Stack>
+          <ModuleSearchInput
+            label='Module'
+            value={selectedModuleId}
+            onChange={(moduleId) => {
+              setSelectedModuleId(moduleId);
+              if (moduleId) {
+                form.setFieldValue('moduleId', moduleId);
+              } else {
+                form.setFieldValue('moduleId', null);
+                form.setFieldValue('module', '');
+              }
+            }}
+            onModuleSelect={(module) => {
+              if (module) {
+                form.setFieldValue('module', module.name);
+              } else {
+                form.setFieldValue('module', '');
+              }
+            }}
+            required
+            withAsterisk
+          />
+
+          <Group grow>
+            <TextInput
+              label='Lecturer'
+              placeholder='Enter lecturer name'
+              {...form.getInputProps('lecturer')}
+              required
+            />
+
+            <Select
+              label='Semester'
+              placeholder='Select semester'
+              data={[
+                { value: '1', label: 'First' },
+                { value: '2', label: 'Second' },
+              ]}
+              {...form.getInputProps('semester')}
+              required
+            />
+          </Group>
+        </Stack>
       )}
     </Form>
   );

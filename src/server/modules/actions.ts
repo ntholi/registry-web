@@ -99,3 +99,7 @@ export async function updateModuleVisibility(id: number, hidden: boolean) {
   }
   return modulesService.update(id, { ...existingModule, hidden });
 }
+
+export async function searchModulesWithDetails(search = '') {
+  return modulesService.searchModulesWithDetails(search);
+}
