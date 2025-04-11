@@ -4,12 +4,11 @@ import { searchModulesWithDetails } from '@/server/semester-modules/actions';
 import {
   Autocomplete,
   AutocompleteProps,
+  ComboboxItem,
   Group,
   Loader,
-  Text,
-  Badge,
-  ComboboxItem,
   Stack,
+  Text,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';

@@ -1,10 +1,8 @@
 import { semesterModules } from '@/db/schema';
-import ModuleRepository from './repository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
-import { serviceWrapper } from '@/server/base/serviceWrapper';
-import { db } from '@/db';
-import { eq, like, or } from 'drizzle-orm';
+import ModuleRepository from './repository';
 
 type Module = typeof semesterModules.$inferInsert;
 

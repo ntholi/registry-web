@@ -19,7 +19,7 @@ export default class ModuleRepository extends BaseRepository<
   }
 
   async findByCode(code: string) {
-    return db.query.modules.findFirst({
+    return db.query.semesterModules.findFirst({
       where: eq(semesterModules.code, code),
     });
   }
@@ -136,7 +136,7 @@ export default class ModuleRepository extends BaseRepository<
   }
 
   async searchModulesWithDetails(search = '') {
-    return await db.query.modules.findMany({
+    return await db.query.semesterModules.findMany({
       where: or(
         like(semesterModules.code, `%${search}%`),
         like(semesterModules.name, `%${search}%`),

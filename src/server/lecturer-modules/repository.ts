@@ -1,7 +1,6 @@
-import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { lecturerModules } from '@/db/schema';
-import { SQLiteTableWithColumns, SQLiteColumn } from 'drizzle-orm/sqlite-core';
 import { db } from '@/db';
+import { lecturerModules } from '@/db/schema';
+import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { eq } from 'drizzle-orm';
 
 export default class LecturesModuleRepository extends BaseRepository<
