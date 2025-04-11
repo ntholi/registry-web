@@ -1,14 +1,18 @@
 'use client';
 
-import { lecturerModules } from '@/db/schema';
 import { Form } from '@/components/adease';
-import { Stack, Group, TextInput, Select } from '@mantine/core';
-import { createInsertSchema } from 'drizzle-zod';
+import { ModuleSearchInput } from '@/components/ModuleSearchInput';
+import { Stack } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ModuleSearchInput } from '@/components/ModuleSearchInput';
+import { z } from 'zod';
 
-type LecturesModule = typeof lecturerModules.$inferInsert;
+const lecturesModule = z.object({
+  id: z.number().optional(),
+  moduleId: z.number(),
+});
+
+type LecturesModule = z.infer<typeof lecturesModule>;
 
 type Props = {
   onSubmit: (values: LecturesModule) => Promise<LecturesModule>;
@@ -35,7 +39,7 @@ export default function LecturesModuleForm({
       title={title}
       action={onSubmit}
       queryKey={['lecturerModules']}
-      schema={createInsertSchema(lecturerModules)}
+      schema={lecturesModule}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
         router.push(`/admin/lecturer-modules/${id}`);
