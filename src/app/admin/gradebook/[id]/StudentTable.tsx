@@ -73,6 +73,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
               studentId={student.stdNo}
               existingMark={markData?.marks}
               existingMarkId={markData?.id}
+              semesterModuleId={semesterModuleId}
             />
           </Table.Td>
         );

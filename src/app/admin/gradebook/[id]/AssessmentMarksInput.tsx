@@ -14,6 +14,7 @@ interface AssessmentMarksInputProps {
   studentId: number;
   existingMark?: number;
   existingMarkId?: number;
+  semesterModuleId: number;
 }
 
 export default function AssessmentMarksInput({
@@ -21,6 +22,7 @@ export default function AssessmentMarksInput({
   studentId,
   existingMark,
   existingMarkId,
+  semesterModuleId,
 }: AssessmentMarksInputProps) {
   const [mark, setMark] = useState(existingMark?.toString() || '');
   const [isEditing, setIsEditing] = useState(!existingMark);
@@ -40,7 +42,9 @@ export default function AssessmentMarksInput({
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['assessmentMarks'] });
+      queryClient.invalidateQueries({
+        queryKey: ['assessmentMarks', semesterModuleId],
+      });
       setIsEditing(false);
     },
   });
