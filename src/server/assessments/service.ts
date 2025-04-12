@@ -1,9 +1,8 @@
 import { assessments } from '@/db/schema';
-import AssessmentRepository from './repository';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
-import { serviceWrapper } from '@/server/base/serviceWrapper';
-import { getCurrentTerm } from '../terms/actions';
+import AssessmentRepository from './repository';
 
 type Assessment = typeof assessments.$inferInsert;
 

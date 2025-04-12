@@ -1,8 +1,11 @@
 'use client';
 
 import {
+  deleteAssessment,
+  getAssessmentBySemesterModuleId,
+} from '@/server/assessments/actions';
+import {
   ActionIcon,
-  Badge,
   Button,
   Flex,
   Group,
@@ -16,22 +19,17 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core';
+import { modals } from '@mantine/modals';
+import { showNotification } from '@mantine/notifications';
 import {
   IconEdit,
   IconNotebook,
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import {
-  deleteAssessment,
-  getAssessmentBySemesterModuleId,
-  getAssessments,
-} from '@/server/assessments/actions';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { showNotification } from '@mantine/notifications';
 import AssessmentModal from './AssessmentModal';
-import { modals } from '@mantine/modals';
 
 type Props = {
   semesterModuleId: number;
@@ -177,8 +175,8 @@ export default function AssessmentsManager({
         <Paper p='xl' withBorder>
           <Stack align='center' gap='md'>
             <Text c='dimmed' ta='center' size='sm'>
-              No assessments found for this module. Click "New" to create your
-              first assessment.
+              No assessments found for this module. Click &quot;New&quot; to
+              create your first assessment.
             </Text>
           </Stack>
         </Paper>

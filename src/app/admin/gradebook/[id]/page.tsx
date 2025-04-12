@@ -1,5 +1,4 @@
 import { getLecturesModule } from '@/server/lecturer-modules/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
 import { Box, Divider, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import StudentTable from './StudentTable';
@@ -11,7 +10,6 @@ type Props = {
 export default async function GradebookModuleView({ params }: Props) {
   const { id } = await params;
   const lecturesModule = await getLecturesModule(Number(id));
-  const currentTerm = await getCurrentTerm();
 
   if (!lecturesModule) {
     return notFound();

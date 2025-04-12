@@ -40,20 +40,20 @@ export default class ModuleRepository extends BaseRepository<
     return data.flatMap((it) => it.modules);
   }
 
-  async addPrerequisite(moduleId: number, prerequisiteId: number) {
+  async addPrerequisite(semesterModuleId: number, prerequisiteId: number) {
     return db.insert(modulePrerequisites).values({
-      moduleId,
+      semesterModuleId,
       prerequisiteId,
     });
   }
 
-  async clearPrerequisites(moduleId: number) {
+  async clearPrerequisites(semesterModuleId: number) {
     return db
       .delete(modulePrerequisites)
-      .where(eq(modulePrerequisites.moduleId, moduleId));
+      .where(eq(modulePrerequisites.semesterModuleId, semesterModuleId));
   }
 
-  async getPrerequisites(moduleId: number) {
+  async getPrerequisites(semesterModuleId: number) {
     return db
       .select({
         id: semesterModules.id,
@@ -67,7 +67,7 @@ export default class ModuleRepository extends BaseRepository<
         semesterModules,
         eq(semesterModules.id, modulePrerequisites.prerequisiteId),
       )
-      .where(eq(modulePrerequisites.moduleId, moduleId))
+      .where(eq(modulePrerequisites.semesterModuleId, semesterModuleId))
       .orderBy(semesterModules.code);
   }
 

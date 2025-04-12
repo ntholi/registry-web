@@ -13,11 +13,11 @@ import { notFound } from 'next/navigation';
 import AssessmentsManager from './assessments/AssessmentsManager';
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default async function LecturesModuleDetails({ params }: Props) {
-  const { id } = params;
+  const { id } = await params;
   const lecturesModule = await getLecturesModule(Number(id));
 
   if (!lecturesModule) {

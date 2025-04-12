@@ -97,7 +97,7 @@ export default function AcademicsView({ student, showMarks }: Props) {
                         {semester.studentModules?.length ? (
                           <ModuleTable
                             modules={semester.studentModules.map((sm) => ({
-                              id: sm.moduleId,
+                              id: sm.semesterModuleId,
                               code: sm.module.code,
                               name: sm.module.name,
                               type: sm.module.type,
