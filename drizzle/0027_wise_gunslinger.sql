@@ -51,6 +51,6 @@ CREATE TABLE `__new_student_modules` (
 	FOREIGN KEY (`student_semester_id`) REFERENCES `student_semesters`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-INSERT INTO `__new_student_modules`("id", "semester_module_id", "status", "marks", "grade", "student_semester_id", "created_at") SELECT "id", "module_id", "status", "marks", "grade", "module_id", "created_at" FROM `student_modules`;--> statement-breakpoint
+INSERT INTO `__new_student_modules`("id", "semester_module_id", "status", "marks", "grade", "student_semester_id", "created_at") SELECT "id", "module_id", "status", "marks", "grade", "student_semester_id", "created_at" FROM `student_modules`;--> statement-breakpoint
 DROP TABLE `student_modules`;--> statement-breakpoint
 ALTER TABLE `__new_student_modules` RENAME TO `student_modules`;
