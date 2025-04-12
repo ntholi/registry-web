@@ -69,7 +69,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
         return (
           <Table.Td key={`${student.stdNo}-${assessment.id}`}>
             <AssessmentMarksInput
-              assessmentId={assessment.id}
+              assessment={assessment}
               studentId={student.stdNo}
               existingMark={markData?.marks}
               existingMarkId={markData?.id}

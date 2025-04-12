@@ -9,7 +9,7 @@ import {
 } from '@/server/assessment-marks/actions';
 
 interface AssessmentMarksInputProps {
-  assessmentId: number;
+  assessment: { id: number; totalMarks: number };
   studentId: number;
   existingMark?: number;
   existingMarkId?: number;
@@ -17,7 +17,7 @@ interface AssessmentMarksInputProps {
 }
 
 export default function AssessmentMarksInput({
-  assessmentId,
+  assessment,
   studentId,
   existingMark,
   existingMarkId,
@@ -80,7 +80,7 @@ export default function AssessmentMarksInput({
     }
 
     markMutation.mutate({
-      assessmentId,
+      assessmentId: assessment.id,
       stdNo: studentId,
       marks: numericMark,
     });
@@ -97,15 +97,23 @@ export default function AssessmentMarksInput({
 
   if (!isEditing) {
     return (
-      <Group
-        gap='xs'
-        onClick={() => setIsEditing(true)}
-        style={{ cursor: 'pointer' }}
-        className='mark-display'
-      >
-        <Text size='sm' fw={500}>
-          {existingMark !== undefined ? existingMark : '-'}
-        </Text>
+      <Group>
+        <Group
+          gap={2}
+          align='end'
+          onClick={() => setIsEditing(true)}
+          style={{
+            cursor: 'pointer',
+          }}
+        >
+          <Text fw={500}>
+            {existingMark !== undefined ? existingMark : '-'}
+          </Text>
+          <Text size='xs' c='dimmed'>
+            {' '}
+            /{assessment.totalMarks}
+          </Text>
+        </Group>
       </Group>
     );
   }
