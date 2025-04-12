@@ -30,7 +30,6 @@ class AssessmentService {
   }
 
   async create(data: Assessment) {
-    console.log('Payload:', data);
     return withAuth(async () => this.repository.create(data), ['academic']);
   }
 

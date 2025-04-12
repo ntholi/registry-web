@@ -1,5 +1,10 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { studentModules, students } from '@/db/schema';
+import {
+  studentModules,
+  studentPrograms,
+  students,
+  studentSemesters,
+} from '@/db/schema';
 import { db } from '@/db';
 import { eq, inArray } from 'drizzle-orm';
 
@@ -52,39 +57,28 @@ export default class StudentRepository extends BaseRepository<
   }
 
   async findStudentsBySemesterModuleId(semesterModuleId: number) {
-    const moduleEnrollments = await db.query.studentModules.findMany({
+    const modules = await db.query.studentModules.findMany({
       where: eq(studentModules.semesterModuleId, semesterModuleId),
-      with: {
-        semester: {
-          with: {
-            program: {
-              with: {
-                student: true,
-              },
-            },
-          },
-        },
+      // columns: {
+      //   studentSemesterId: true,
+      // },
+    });
+    console.log(modules);
+    const studentSemesterIds = Array.from(
+      new Set(modules.map((module) => module.studentSemesterId)),
+    );
+
+    const semesters = await db.query.studentSemesters.findMany({
+      where: inArray(studentSemesters.id, studentSemesterIds),
+      columns: {
+        studentProgramId: true,
       },
     });
 
-    const studentIds = moduleEnrollments
-      .map((enrollment) => enrollment.semester?.program?.student?.stdNo)
-      .filter((id): id is number => id !== undefined);
+    console.log('studentSemesterIds', studentSemesterIds);
+    console.log('semesters', semesters);
 
-    console.log(
-      '\n\nStudent Numbers',
-      semesterModuleId,
-      '->',
-      moduleEnrollments,
-    );
-
-    if (studentIds.length === 0) {
-      return [];
-    }
-
-    return await db.query.students.findMany({
-      where: inArray(students.stdNo, studentIds),
-    });
+    return [];
   }
 }
 
