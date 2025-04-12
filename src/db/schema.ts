@@ -301,10 +301,19 @@ export const structureSemesters = sqliteTable('structure_semesters', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const semesterModules = sqliteTable('semester_modules', {
+export const modules = sqliteTable('modules', {
   id: integer().primaryKey(),
   code: text().notNull(),
   name: text().notNull(),
+  status: text({ enum: ['Active', 'Defunct'] })
+    .notNull()
+    .default('Active'),
+  timestamp: text(),
+});
+
+export const semesterModules = sqliteTable('semester_modules', {
+  id: integer().primaryKey(),
+  moduleId: integer().references(() => modules.id),
   type: text({ enum: moduleTypeEnum }).notNull(),
   credits: real().notNull(),
   semesterId: integer().references(() => structureSemesters.id, {
