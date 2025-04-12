@@ -1,12 +1,7 @@
-import BaseRepository from '@/server/base/BaseRepository';
-import {
-  studentModules,
-  studentPrograms,
-  students,
-  studentSemesters,
-} from '@/db/schema';
 import { db } from '@/db';
-import { eq, inArray } from 'drizzle-orm';
+import { studentModules, students } from '@/db/schema';
+import BaseRepository from '@/server/base/BaseRepository';
+import { eq } from 'drizzle-orm';
 
 export default class StudentRepository extends BaseRepository<
   typeof students,
@@ -64,10 +59,21 @@ export default class StudentRepository extends BaseRepository<
       },
       with: {
         studentSemester: {
+          columns: {
+            studentProgramId: true,
+          },
           with: {
             studentProgram: {
+              columns: {
+                stdNo: true,
+              },
               with: {
-                student: true,
+                student: {
+                  columns: {
+                    stdNo: true,
+                    name: true,
+                  },
+                },
               },
             },
           },
@@ -75,12 +81,7 @@ export default class StudentRepository extends BaseRepository<
       },
     });
 
-    const students = data
-      .flatMap((it) => it.studentSemester)
-      .flatMap((it) => it.studentProgram)
-      .flatMap((it) => it.student);
-
-    return students;
+    return data.map((module) => module.studentSemester.studentProgram.student);
   }
 }
 
