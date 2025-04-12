@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAssessmentName } from '../../assessments/options';
 import { getStudentsBySemesterModuleId } from '@/server/students/actions';
 import { getAssessmentMarksByModuleId } from '@/server/assessment-marks/actions';
-import AssessmentMarksInput from './AssessmentMarksInput';
+import AssessmentMarksInput from './MarksInput';
 
 type Props = {
   semesterModuleId: number;
@@ -47,8 +47,9 @@ export default function StudentTable({ semesterModuleId }: Props) {
   if (isLoading) {
     return (
       <Group justify='center' p='xl'>
-        <Loader />
-        <Text>Loading gradebook data...</Text>
+        <Text size='sm' c={'dimmed'}>
+          Loading...
+        </Text>
       </Group>
     );
   }

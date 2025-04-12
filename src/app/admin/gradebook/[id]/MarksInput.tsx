@@ -8,21 +8,21 @@ import {
   updateAssessmentMark,
 } from '@/server/assessment-marks/actions';
 
-interface AssessmentMarksInputProps {
+type Props = {
   assessment: { id: number; totalMarks: number };
   studentId: number;
   existingMark?: number;
   existingMarkId?: number;
   semesterModuleId: number;
-}
+};
 
-export default function AssessmentMarksInput({
+export default function MarksInput({
   assessment,
   studentId,
   existingMark,
   existingMarkId,
   semesterModuleId,
-}: AssessmentMarksInputProps) {
+}: Props) {
   const [mark, setMark] = useState(existingMark?.toString() || '');
   const [isEditing, setIsEditing] = useState(!existingMark);
   const [error, setError] = useState('');
