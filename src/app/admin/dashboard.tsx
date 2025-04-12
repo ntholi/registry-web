@@ -1,7 +1,8 @@
 'use client';
 
 import { Shell } from '@/components/adease';
-import { DashboardUser, dashboardUsers, UserRole } from '@/db/schema';
+import { DashboardUser, UserRole } from '@/db/schema';
+import { getLecturerModulesForUser } from '@/server/lecturer-modules/actions';
 import {
   countApprovedRegistrationClearances,
   countPendingRegistrationClearances,
@@ -37,6 +38,7 @@ import {
   IconLogout2,
   IconMessageQuestion,
   IconNotebook,
+  IconSchool,
   IconSquareRoundedCheck,
   IconTestPipe,
   IconUserCog,
@@ -46,8 +48,7 @@ import { useQuery } from '@tanstack/react-query';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
-import { getLecturerModulesForUser } from '@/server/lecturer-modules/actions';
+import React from 'react';
 
 type NotificationConfig = {
   queryKey: string[];
@@ -59,19 +60,11 @@ type NotificationConfig = {
 export type NavItem = {
   label: string;
   href?: string;
-  icon: Icon;
+  icon?: Icon;
+  description?: string;
   roles?: UserRole[];
   children?: NavItem[];
   notificationCount?: NotificationConfig;
-};
-
-type LecturerModule = {
-  id: number;
-  semesterModule: {
-    id: number;
-    code: string;
-    name: string;
-  };
 };
 
 function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
@@ -86,12 +79,12 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       label: 'Students',
       href: '/admin/students',
       icon: IconUsersGroup,
-      roles: [...dashboardUsers],
+      roles: ['registry', 'finance'],
     },
     {
       label: 'Modules',
       href: '/admin/lecturer-modules',
-      icon: IconClipboardCheck,
+      icon: IconSchool,
       roles: ['academic'],
     },
     {
@@ -260,9 +253,9 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
   );
   if (gradebookNavItem) {
     gradebookNavItem.children = lecturerModules.map((module) => ({
-      label: `${module.semesterModule.code} - ${module.semesterModule.name}`,
+      label: module.semesterModule.code,
+      description: module.semesterModule.name,
       href: `/admin/gradebook/${module.id}`,
-      icon: IconClipboardCheck,
     }));
   }
 
@@ -373,7 +366,8 @@ function ItemDisplay({ item }: { item: NavItem }) {
       component={item.href ? Link : undefined}
       href={item.href || ''}
       active={item.href ? pathname.startsWith(item.href) : false}
-      leftSection={<Icon size='1.1rem' />}
+      leftSection={Icon ? <Icon size='1.1rem' /> : null}
+      description={item.description}
       rightSection={
         item.href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined
       }
