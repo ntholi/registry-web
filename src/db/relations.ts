@@ -1,6 +1,8 @@
 import { relations } from 'drizzle-orm';
 import {
   accounts,
+  assessments,
+  assessmentMarks,
   authenticators,
   lecturerModules,
   modulePrerequisites,
@@ -257,6 +259,32 @@ export const lecturerModulesRelations = relations(
     semesterModule: one(semesterModules, {
       fields: [lecturerModules.semesterModuleId],
       references: [semesterModules.id],
+    }),
+  }),
+);
+
+export const assessmentsRelations = relations(assessments, ({ many, one }) => ({
+  module: one(semesterModules, {
+    fields: [assessments.semesterModuleId],
+    references: [semesterModules.id],
+  }),
+  term: one(terms, {
+    fields: [assessments.termId],
+    references: [terms.id],
+  }),
+  marks: many(assessmentMarks),
+}));
+
+export const assessmentMarksRelations = relations(
+  assessmentMarks,
+  ({ one }) => ({
+    assessment: one(assessments, {
+      fields: [assessmentMarks.assessmentId],
+      references: [assessments.id],
+    }),
+    student: one(students, {
+      fields: [assessmentMarks.stdNo],
+      references: [students.stdNo],
     }),
   }),
 );
