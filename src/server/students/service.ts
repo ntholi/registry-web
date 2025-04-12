@@ -24,6 +24,14 @@ class StudentService {
     );
   }
 
+  async findStudentsBySemesterModuleId(semesterModuleId: number) {
+    return withAuth(
+      async () =>
+        this.repository.findStudentsBySemesterModuleId(semesterModuleId),
+      ['admin'],
+    );
+  }
+
   async findAll(params: QueryOptions<typeof students>) {
     return withAuth(async () => this.repository.query(params), ['dashboard']);
   }

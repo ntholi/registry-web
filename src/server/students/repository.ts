@@ -50,6 +50,23 @@ export default class StudentRepository extends BaseRepository<
       },
     });
   }
+
+  async findStudentsBySemesterModuleId(semesterModuleId: number) {
+    return await db.query.studentPrograms.findMany({
+      with: {
+        student: true,
+        semesters: {
+          with: {
+            studentModules: {
+              with: {
+                module: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }
 
 export const studentsRepository = new StudentRepository();

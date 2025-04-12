@@ -14,6 +14,10 @@ export async function getStudentByUserId(userId: string | undefined | null) {
   return service.findStudentByUserId(userId);
 }
 
+export async function getStudentsBySemesterModuleId(semesterModuleId: number) {
+  return service.findStudentsBySemesterModuleId(semesterModuleId);
+}
+
 export async function findAllStudents(page: number = 1, search = '') {
   return service.findAll({ page, search, searchColumns: ['stdNo', 'name'] });
 }

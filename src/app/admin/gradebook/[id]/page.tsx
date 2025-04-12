@@ -1,15 +1,15 @@
 import { getLecturesModule } from '@/server/lecturer-modules/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
-import { Box, Divider, Stack, Title } from '@mantine/core';
+import { Box, Divider, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import StudentTable from './StudentTable';
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default async function GradebookModuleView({ params }: Props) {
-  const { id } = params;
+  const { id } = await params;
   const lecturesModule = await getLecturesModule(Number(id));
   const currentTerm = await getCurrentTerm();
 
