@@ -86,8 +86,8 @@ export default function StudentTable({ semesterModuleId }: Props) {
   const calculateTotalScore = (studentId: number) => {
     if (!assessments || !assessmentMarks) return null;
 
-    let total = 0;
-    let maxPossible = 0;
+    let weightedTotal = 0;
+    let totalWeight = 0;
 
     assessments.forEach((assessment) => {
       const mark = assessmentMarks.find(
@@ -95,16 +95,19 @@ export default function StudentTable({ semesterModuleId }: Props) {
       );
 
       if (mark?.marks !== undefined && mark?.marks !== null) {
-        total += Number(mark.marks);
+        // Calculate weighted score: (mark/totalMarks) * weight
+        const percentageScore = Number(mark.marks) / assessment.totalMarks;
+        const weightedScore = percentageScore * assessment.weight;
+        weightedTotal += weightedScore;
+        totalWeight += assessment.weight;
       }
-
-      maxPossible += assessment.totalMarks;
     });
 
     return {
-      total,
-      maxPossible,
-      percentage: maxPossible > 0 ? (total / maxPossible) * 100 : 0,
+      weightedTotal,
+      totalWeight,
+      totalWeightedScore:
+        totalWeight > 0 ? (weightedTotal / totalWeight) * 100 : 0,
     };
   };
 
@@ -125,9 +128,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
 
   const tableHeaders = assessments?.map((it) => (
     <Table.Th key={it.id} ta='center'>
-      <Tooltip label={`Max marks: ${it.totalMarks}`} position='top' withArrow>
-        <Text fw={500}>{getAssessmentName(it.assessmentType)}</Text>
-      </Tooltip>
+      <Text fw={500}>{getAssessmentName(it.assessmentType)}</Text>
     </Table.Th>
   ));
 
@@ -163,14 +164,17 @@ export default function StudentTable({ semesterModuleId }: Props) {
         })}
         <Table.Td ta='center'>
           {totalScore && (
-            <Badge
-              variant='light'
-              color={totalScore.percentage >= 50 ? 'green' : 'red'}
-              size='lg'
-            >
-              {totalScore.total}/{totalScore.maxPossible} (
-              {totalScore.percentage.toFixed(1)}%)
-            </Badge>
+            <Group gap={2} justify='center' align='end'>
+              <Text
+                fw={600}
+                c={totalScore.totalWeightedScore >= 50 ? 'green' : 'red'}
+              >
+                {totalScore.weightedTotal.toFixed(1)}
+              </Text>
+              <Text size='sm' c='dimmed'>
+                /{totalScore.totalWeight.toFixed(1)}
+              </Text>
+            </Group>
           )}
         </Table.Td>
       </Table.Tr>
@@ -193,7 +197,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
       <Box mb='md'>
         <Flex justify='space-between' align='center' mb='md'>
           <TextInput
-            placeholder='Search students...'
+            placeholder='Search by student no. or name'
             leftSection={<IconSearch size={16} />}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.currentTarget.value)}

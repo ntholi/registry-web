@@ -135,6 +135,7 @@ export default function MarksInput({
           <Text
             fw={600}
             c={statusColor || undefined}
+            size='sm'
             style={{
               transition: 'all 0.2s ease',
             }}
@@ -160,7 +161,7 @@ export default function MarksInput({
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           error={error}
-          placeholder='Mark'
+          placeholder='Marks'
           styles={{
             input: {
               width: '90px',
