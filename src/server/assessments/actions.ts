@@ -1,11 +1,10 @@
 'use server';
 
-
 import { assessments } from '@/db/schema';
-import { assessmentsService as service} from './service';
+import { assessmentsService as service } from './service';
+import { getCurrentTerm } from '../terms/actions';
 
 type Assessment = typeof assessments.$inferInsert;
-
 
 export async function getAssessment(id: number) {
   return service.get(id);
@@ -16,7 +15,8 @@ export async function getAssessments(page: number = 1, search = '') {
 }
 
 export async function createAssessment(assessment: Assessment) {
-  return service.create(assessment);
+  const term = await getCurrentTerm();
+  return service.create({ ...assessment, termId: term.id });
 }
 
 export async function updateAssessment(id: number, assessment: Assessment) {

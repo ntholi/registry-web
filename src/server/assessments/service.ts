@@ -23,11 +23,8 @@ class AssessmentService {
   }
 
   async create(data: Assessment) {
-    const term = await getCurrentTerm();
-    return withAuth(
-      async () => this.repository.create({ ...data, termId: term.id }),
-      ['academic'],
-    );
+    console.log('Payload:', data);
+    return withAuth(async () => this.repository.create(data), ['academic']);
   }
 
   async update(id: number, data: Assessment) {
