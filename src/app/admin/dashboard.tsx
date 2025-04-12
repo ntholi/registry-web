@@ -236,24 +236,12 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   const { status, data: session } = useSession();
-  const [lecturerModules, setLecturerModules] = useState<LecturerModule[]>([]);
 
-  useEffect(() => {
-    const fetchLecturerModules = async () => {
-      if (session?.user?.role === 'academic') {
-        try {
-          const modules = await getLecturerModulesForUser();
-          setLecturerModules(modules);
-        } catch (error) {
-          console.error('Failed to fetch lecturer modules:', error);
-        }
-      }
-    };
-
-    if (status === 'authenticated') {
-      fetchLecturerModules();
-    }
-  }, [session, status]);
+  const { data: lecturerModules = [] } = useQuery({
+    queryKey: ['lecturerModules'],
+    queryFn: getLecturerModulesForUser,
+    enabled: status === 'authenticated' && session?.user?.role === 'academic',
+  });
 
   const navigation = getNavigation(
     session?.user?.isDepartmentAdmin ?? false,
@@ -267,8 +255,6 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
       </Flex>
     );
   }
-
-  // Populate lecturer modules dynamically
   const gradebookNavItem = navigation.find(
     (item) => item.label === 'Gradebook',
   );
