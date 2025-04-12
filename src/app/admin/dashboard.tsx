@@ -91,7 +91,7 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       label: 'Gradebook',
       icon: IconNotebook,
       roles: ['academic'],
-      children: [], // Will be populated dynamically
+      children: [],
     },
     {
       label: 'Registration Requests',

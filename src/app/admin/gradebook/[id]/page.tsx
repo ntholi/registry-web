@@ -1,14 +1,7 @@
-import {
-  DetailsView,
-  DetailsViewHeader,
-  DetailsViewBody,
-  FieldView,
-} from '@/components/adease';
-import { notFound } from 'next/navigation';
 import { getLecturesModule } from '@/server/lecturer-modules/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
-import { Grid, GridCol } from '@mantine/core';
-import AssessmentsManager from '../../lecturer-modules/[id]/assessments/AssessmentsManager';
+import { Box, Divider, Stack, Title } from '@mantine/core';
+import { notFound } from 'next/navigation';
 
 type Props = {
   params: { id: string };
@@ -24,24 +17,15 @@ export default async function GradebookModuleView({ params }: Props) {
   }
 
   return (
-    <DetailsView>
-      <DetailsViewHeader title={'Gradebook'} queryKey={['lecturerModules']} />
-      <DetailsViewBody>
-        <Grid gutter='xl'>
-          <GridCol span={12}>
-            <FieldView label={lecturesModule.semesterModule.code}>
-              {lecturesModule.semesterModule.name}
-            </FieldView>
-          </GridCol>
-
-          <GridCol span={12}>
-            <AssessmentsManager
-              semesterModuleId={lecturesModule.semesterModuleId}
-              lecturesModuleId={Number(id)}
-            />
-          </GridCol>
-        </Grid>
-      </DetailsViewBody>
-    </DetailsView>
+    <Box p={'lg'}>
+      <Title order={3} fw={100}>
+        {lecturesModule.semesterModule.name} (
+        {lecturesModule.semesterModule.code})
+      </Title>
+      <Title order={5} fw={100} c={'dimmed'}>
+        Gradebook
+      </Title>
+      <Divider my={'sm'} />
+    </Box>
   );
 }
