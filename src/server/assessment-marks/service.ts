@@ -13,27 +13,34 @@ class AssessmentMarkService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), []);
+    return withAuth(async () => this.repository.findById(id), ['academic']);
   }
 
   async getAll(params: QueryOptions<typeof assessmentMarks>) {
-    return withAuth(async () => this.repository.query(params), []);
+    return withAuth(async () => this.repository.query(params), ['academic']);
   }
 
   async create(data: AssessmentMark) {
-    return withAuth(async () => this.repository.create(data), []);
+    return withAuth(async () => this.repository.create(data), ['academic']);
   }
 
   async update(id: number, data: AssessmentMark) {
-    return withAuth(async () => this.repository.update(id, data), []);
+    return withAuth(async () => this.repository.update(id, data), ['academic']);
   }
 
   async delete(id: number) {
-    return withAuth(async () => this.repository.delete(id), []);
+    return withAuth(async () => this.repository.delete(id), ['academic']);
   }
 
   async count() {
     return withAuth(async () => this.repository.count(), []);
+  }
+
+  async getByModuleId(semesterModuleId: number) {
+    return withAuth(
+      async () => this.repository.findByModuleId(semesterModuleId),
+      ['academic'],
+    );
   }
 }
 
