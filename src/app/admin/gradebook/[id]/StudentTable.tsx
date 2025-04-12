@@ -23,6 +23,13 @@ export default function StudentTable({ semesterModuleId }: Props) {
     <Table.Th key={it.id}>{getAssessmentName(it.assessmentType)}</Table.Th>
   ));
 
+  const rows = students?.map((it) => (
+    <Table.Tr key={it.stdNo}>
+      <Table.Td>{it.stdNo}</Table.Td>
+      <Table.Td>{it.name}</Table.Td>
+    </Table.Tr>
+  ));
+
   return (
     <Table withTableBorder>
       <Table.Thead>
@@ -32,6 +39,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
           {tableHeaders}
         </Table.Tr>
       </Table.Thead>
+      <Table.Tbody>{rows}</Table.Tbody>
     </Table>
   );
 }

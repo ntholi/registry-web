@@ -28,7 +28,7 @@ class StudentService {
     return withAuth(
       async () =>
         this.repository.findStudentsBySemesterModuleId(semesterModuleId),
-      ['admin'],
+      ['academic'],
     );
   }
 

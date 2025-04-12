@@ -1,7 +1,7 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { students } from '@/db/schema';
+import { studentModules, students } from '@/db/schema';
 import { db } from '@/db';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 
 export default class StudentRepository extends BaseRepository<
   typeof students,
@@ -52,19 +52,38 @@ export default class StudentRepository extends BaseRepository<
   }
 
   async findStudentsBySemesterModuleId(semesterModuleId: number) {
-    return await db.query.studentPrograms.findMany({
+    const moduleEnrollments = await db.query.studentModules.findMany({
+      where: eq(studentModules.semesterModuleId, semesterModuleId),
       with: {
-        student: true,
-        semesters: {
+        semester: {
           with: {
-            studentModules: {
+            program: {
               with: {
-                module: true,
+                student: true,
               },
             },
           },
         },
       },
+    });
+
+    const studentIds = moduleEnrollments
+      .map((enrollment) => enrollment.semester?.program?.student?.stdNo)
+      .filter((id): id is number => id !== undefined);
+
+    console.log(
+      '\n\nStudent Numbers',
+      semesterModuleId,
+      '->',
+      moduleEnrollments,
+    );
+
+    if (studentIds.length === 0) {
+      return [];
+    }
+
+    return await db.query.students.findMany({
+      where: inArray(students.stdNo, studentIds),
     });
   }
 }
