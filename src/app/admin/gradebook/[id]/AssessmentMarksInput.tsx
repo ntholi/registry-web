@@ -1,9 +1,8 @@
 'use client';
 
-import { TextInput, ActionIcon, Group, Text } from '@mantine/core';
+import { TextInput, Group, Text } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { IconCheck, IconX } from '@tabler/icons-react';
+import { useState, useRef, useEffect } from 'react';
 import {
   createAssessmentMark,
   updateAssessmentMark,
@@ -27,7 +26,14 @@ export default function AssessmentMarksInput({
   const [mark, setMark] = useState(existingMark?.toString() || '');
   const [isEditing, setIsEditing] = useState(!existingMark);
   const [error, setError] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
 
   const markMutation = useMutation({
     mutationFn: (data: {
@@ -55,6 +61,12 @@ export default function AssessmentMarksInput({
   };
 
   const saveMarks = () => {
+    if (mark.trim() === '') {
+      setIsEditing(false);
+      setMark(existingMark?.toString() || '');
+      return;
+    }
+
     const numericMark = parseFloat(mark);
 
     if (isNaN(numericMark)) {
@@ -74,46 +86,53 @@ export default function AssessmentMarksInput({
     });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      saveMarks();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setMark(existingMark?.toString() || '');
+    }
+  };
+
   if (!isEditing) {
     return (
       <Group
         gap='xs'
         onClick={() => setIsEditing(true)}
         style={{ cursor: 'pointer' }}
+        className='mark-display'
       >
-        <Text size='sm'>{existingMark !== undefined ? existingMark : '-'}</Text>
+        <Text size='sm' fw={500}>
+          {existingMark !== undefined ? existingMark : '-'}
+        </Text>
       </Group>
     );
   }
 
   return (
-    <Group gap='xs'>
-      <TextInput
-        size='xs'
-        value={mark}
-        onChange={(e) => handleMarkChange(e.target.value)}
-        error={error}
-        placeholder='Enter mark'
-        styles={{ input: { width: '60px' } }}
-      />
-      <ActionIcon
-        color='green'
-        size='sm'
-        onClick={saveMarks}
-        loading={markMutation.isPending}
-      >
-        <IconCheck size='1rem' />
-      </ActionIcon>
-      <ActionIcon
-        color='red'
-        size='sm'
-        onClick={() => {
-          setIsEditing(false);
-          setMark(existingMark?.toString() || '');
-        }}
-      >
-        <IconX size='1rem' />
-      </ActionIcon>
-    </Group>
+    <TextInput
+      ref={inputRef}
+      size='xs'
+      value={mark}
+      onChange={(e) => handleMarkChange(e.target.value)}
+      onBlur={saveMarks}
+      onKeyDown={handleKeyDown}
+      error={error}
+      placeholder='Enter mark'
+      styles={{
+        input: {
+          width: '60px',
+          textAlign: 'center',
+          fontWeight: 500,
+        },
+        error: {
+          position: 'absolute',
+          top: '100%',
+          left: '0',
+          whiteSpace: 'nowrap',
+        },
+      }}
+    />
   );
 }
