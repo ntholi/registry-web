@@ -57,28 +57,30 @@ export default class StudentRepository extends BaseRepository<
   }
 
   async findStudentsBySemesterModuleId(semesterModuleId: number) {
-    const modules = await db.query.studentModules.findMany({
+    const data = await db.query.studentModules.findMany({
       where: eq(studentModules.semesterModuleId, semesterModuleId),
-      // columns: {
-      //   studentSemesterId: true,
-      // },
-    });
-    console.log(modules);
-    const studentSemesterIds = Array.from(
-      new Set(modules.map((module) => module.studentSemesterId)),
-    );
-
-    const semesters = await db.query.studentSemesters.findMany({
-      where: inArray(studentSemesters.id, studentSemesterIds),
       columns: {
-        studentProgramId: true,
+        studentSemesterId: true,
+      },
+      with: {
+        studentSemester: {
+          with: {
+            studentProgram: {
+              with: {
+                student: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    console.log('studentSemesterIds', studentSemesterIds);
-    console.log('semesters', semesters);
+    const students = data
+      .flatMap((it) => it.studentSemester)
+      .flatMap((it) => it.studentProgram)
+      .flatMap((it) => it.student);
 
-    return [];
+    return students;
   }
 }
 

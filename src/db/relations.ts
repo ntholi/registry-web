@@ -78,7 +78,7 @@ export const studentProgramsRelations = relations(
 export const studentSemestersRelations = relations(
   studentSemesters,
   ({ many, one }) => ({
-    program: one(studentPrograms, {
+    studentProgram: one(studentPrograms, {
       fields: [studentSemesters.studentProgramId],
       references: [studentPrograms.id],
     }),
@@ -87,7 +87,7 @@ export const studentSemestersRelations = relations(
 );
 
 export const studentModulesRelations = relations(studentModules, ({ one }) => ({
-  semester: one(studentSemesters, {
+  studentSemester: one(studentSemesters, {
     fields: [studentModules.studentSemesterId],
     references: [studentSemesters.id],
   }),
