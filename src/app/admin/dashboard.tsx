@@ -36,6 +36,7 @@ import {
   IconCopyCheck,
   IconLogout2,
   IconMessageQuestion,
+  IconNotebook,
   IconSquareRoundedCheck,
   IconTestPipe,
   IconUserCog,
@@ -45,7 +46,8 @@ import { useQuery } from '@tanstack/react-query';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getLecturerModulesForUser } from '@/server/lecturer-modules/actions';
 
 type NotificationConfig = {
   queryKey: string[];
@@ -61,6 +63,15 @@ export type NavItem = {
   roles?: UserRole[];
   children?: NavItem[];
   notificationCount?: NotificationConfig;
+};
+
+type LecturerModule = {
+  id: number;
+  semesterModule: {
+    id: number;
+    code: string;
+    name: string;
+  };
 };
 
 function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
@@ -82,6 +93,12 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       href: '/admin/lecturer-modules',
       icon: IconClipboardCheck,
       roles: ['academic'],
+    },
+    {
+      label: 'Gradebook',
+      icon: IconNotebook,
+      roles: ['academic'],
+      children: [], // Will be populated dynamically
     },
     {
       label: 'Registration Requests',
@@ -177,7 +194,7 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       label: 'Programs',
       href: '/admin/programs',
       icon: IconBuildingStore,
-      roles: [...dashboardUsers],
+      roles: ['registry'],
     },
     {
       label: 'Terms',
@@ -219,6 +236,24 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   const { status, data: session } = useSession();
+  const [lecturerModules, setLecturerModules] = useState<LecturerModule[]>([]);
+
+  useEffect(() => {
+    const fetchLecturerModules = async () => {
+      if (session?.user?.role === 'academic') {
+        try {
+          const modules = await getLecturerModulesForUser();
+          setLecturerModules(modules);
+        } catch (error) {
+          console.error('Failed to fetch lecturer modules:', error);
+        }
+      }
+    };
+
+    if (status === 'authenticated') {
+      fetchLecturerModules();
+    }
+  }, [session, status]);
 
   const navigation = getNavigation(
     session?.user?.isDepartmentAdmin ?? false,
@@ -231,6 +266,18 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
         <LoadingOverlay visible />
       </Flex>
     );
+  }
+
+  // Populate lecturer modules dynamically
+  const gradebookNavItem = navigation.find(
+    (item) => item.label === 'Gradebook',
+  );
+  if (gradebookNavItem) {
+    gradebookNavItem.children = lecturerModules.map((module) => ({
+      label: `${module.semesterModule.code} - ${module.semesterModule.name}`,
+      href: `/admin/gradebook/${module.id}`,
+      icon: IconClipboardCheck,
+    }));
   }
 
   return (
