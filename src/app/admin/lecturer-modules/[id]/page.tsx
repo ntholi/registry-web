@@ -1,18 +1,15 @@
 import {
   DetailsView,
-  DetailsViewHeader,
   DetailsViewBody,
+  DetailsViewHeader,
   FieldView,
 } from '@/components/adease';
-import { notFound } from 'next/navigation';
 import {
-  getLecturesModule,
   deleteLecturesModule,
+  getLecturesModule,
 } from '@/server/lecturer-modules/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
-import { Button, Card, Flex, Grid, GridCol, Stack, Title } from '@mantine/core';
-import { IconNotebook } from '@tabler/icons-react';
-import Link from 'next/link';
+import { Grid, GridCol } from '@mantine/core';
+import { notFound } from 'next/navigation';
 import AssessmentsManager from './assessments/AssessmentsManager';
 
 type Props = {
@@ -22,7 +19,6 @@ type Props = {
 export default async function LecturesModuleDetails({ params }: Props) {
   const { id } = params;
   const lecturesModule = await getLecturesModule(Number(id));
-  const currentTerm = await getCurrentTerm();
 
   if (!lecturesModule) {
     return notFound();

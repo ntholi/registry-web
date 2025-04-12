@@ -22,7 +22,11 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { deleteAssessment, getAssessments } from '@/server/assessments/actions';
+import {
+  deleteAssessment,
+  getAssessmentBySemesterModuleId,
+  getAssessments,
+} from '@/server/assessments/actions';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { showNotification } from '@mantine/notifications';
@@ -43,8 +47,7 @@ export default function AssessmentsManager({
   const { data, isLoading } = useQuery({
     queryKey: ['assessments', semesterModuleId],
     queryFn: async () => {
-      const result = await getAssessments(1, '');
-      return result.items;
+      return await getAssessmentBySemesterModuleId(semesterModuleId);
     },
   });
 
