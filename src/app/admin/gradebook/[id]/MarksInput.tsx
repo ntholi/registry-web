@@ -1,22 +1,12 @@
 'use client';
 
-import {
-  TextInput,
-  Group,
-  Text,
-  Tooltip,
-  Box,
-  ActionIcon,
-  Transition,
-  Badge,
-} from '@mantine/core';
+import { TextInput, Group, Text, Box } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useRef, useEffect } from 'react';
 import {
   createAssessmentMark,
   updateAssessmentMark,
 } from '@/server/assessment-marks/actions';
-import { IconPencil, IconCheck, IconX } from '@tabler/icons-react';
 
 type Props = {
   assessment: { id: number; maxMarks: number; totalMarks: number };
@@ -36,7 +26,6 @@ export default function MarksInput({
   const [mark, setMark] = useState(existingMark?.toString() || '');
   const [isEditing, setIsEditing] = useState(!existingMark);
   const [error, setError] = useState('');
-  const [isHovering, setIsHovering] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
@@ -47,7 +36,6 @@ export default function MarksInput({
     }
   }, [isEditing]);
 
-  // Reset displayed value if props change
   useEffect(() => {
     if (existingMark !== undefined) {
       setMark(existingMark.toString());
@@ -93,7 +81,6 @@ export default function MarksInput({
       return;
     }
 
-    // Use maxMarks instead of fixed 100
     const maxPossible = assessment.maxMarks || 100;
 
     if (numericMark < 0 || numericMark > maxPossible) {
@@ -108,10 +95,8 @@ export default function MarksInput({
     });
   };
 
-  const cancelEdit = () => {
-    setIsEditing(false);
-    setMark(existingMark?.toString() || '');
-    setError('');
+  const handleBlur = () => {
+    saveMarks();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -122,107 +107,60 @@ export default function MarksInput({
     }
   };
 
-  // Calculate grade status
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setMark(existingMark?.toString() || '');
+    setError('');
+  };
+
   const getMarkStatus = () => {
     if (existingMark === undefined) return null;
     const maxMarks = assessment.maxMarks || 100;
     const percentage = (existingMark / maxMarks) * 100;
-
-    if (percentage >= 80) return { color: 'green', label: 'Excellent' };
-    if (percentage >= 70) return { color: 'teal', label: 'Very Good' };
-    if (percentage >= 60) return { color: 'blue', label: 'Good' };
-    if (percentage >= 50) return { color: 'yellow', label: 'Pass' };
-    return { color: 'red', label: 'Fail' };
+    return percentage >= 50 ? 'green' : 'red';
   };
-
-  const markStatus = getMarkStatus();
 
   if (!isEditing) {
     const markDisplay = existingMark !== undefined ? existingMark : '-';
     const maxMark = assessment.maxMarks || assessment.totalMarks;
+    const statusColor = getMarkStatus();
 
     return (
       <Box
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
         pos='relative'
         style={{ cursor: 'pointer' }}
         onClick={() => setIsEditing(true)}
       >
-        <Tooltip
-          label={markStatus?.label || 'Not graded'}
-          position='top'
-          disabled={existingMark === undefined}
-        >
-          <Group gap={2} justify='center'>
-            <Text
-              fw={600}
-              c={markStatus?.color}
-              style={{
-                transition: 'all 0.2s ease',
-              }}
-            >
-              {markDisplay}
-            </Text>
-            <Text size='xs' c='dimmed'>
-              /{maxMark}
-            </Text>
-          </Group>
-        </Tooltip>
-
-        <Transition mounted={isHovering} transition='fade' duration={200}>
-          {(styles) => (
-            <ActionIcon
-              variant='subtle'
-              color='gray'
-              radius='xl'
-              size='xs'
-              style={{
-                ...styles,
-                position: 'absolute',
-                top: -8,
-                right: -8,
-              }}
-            >
-              <IconPencil size={12} />
-            </ActionIcon>
-          )}
-        </Transition>
+        <Group gap={2} justify='center' align='end'>
+          <Text
+            fw={600}
+            c={statusColor || undefined}
+            style={{
+              transition: 'all 0.2s ease',
+            }}
+          >
+            {markDisplay}
+          </Text>
+          <Text size='xs' c='dimmed'>
+            /{maxMark}
+          </Text>
+        </Group>
       </Box>
     );
   }
 
   return (
     <Box pos='relative'>
-      <Group align='center' gap={4}>
+      <Group align='center' gap={4} justify='center'>
         <TextInput
           ref={inputRef}
           size='xs'
           value={mark}
           onChange={(e) => handleMarkChange(e.target.value)}
+          onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           error={error}
           placeholder='Mark'
-          rightSection={
-            <Group gap={0}>
-              <ActionIcon
-                color='green'
-                variant='transparent'
-                onClick={saveMarks}
-                size='sm'
-              >
-                <IconCheck size={14} />
-              </ActionIcon>
-              <ActionIcon
-                color='red'
-                variant='transparent'
-                onClick={cancelEdit}
-                size='sm'
-              >
-                <IconX size={14} />
-              </ActionIcon>
-            </Group>
-          }
           styles={{
             input: {
               width: '90px',
