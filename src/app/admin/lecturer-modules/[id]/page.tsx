@@ -45,7 +45,6 @@ export default async function LecturesModuleDetails({ params }: Props) {
           <GridCol span={12}>
             <AssessmentsManager
               semesterModuleId={lecturesModule.semesterModuleId}
-              lecturesModuleId={Number(id)}
             />
           </GridCol>
         </Grid>

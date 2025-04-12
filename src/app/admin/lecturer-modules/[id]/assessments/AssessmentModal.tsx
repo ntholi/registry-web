@@ -47,11 +47,11 @@ export default function AssessmentModal({
 
   const initialValues: Partial<Assessment> = {
     semesterModuleId: moduleId,
-    assessmentNumber: assessment?.assessmentNumber || 'CW1',
-    assessmentType: assessment?.assessmentType || '',
-    totalMarks: assessment?.totalMarks || 100,
-    weight: assessment?.weight || 10,
-    termId: assessment?.termId || 0,
+    assessmentNumber: assessment?.assessmentNumber,
+    assessmentType: assessment?.assessmentType,
+    totalMarks: assessment?.totalMarks,
+    weight: assessment?.weight,
+    termId: assessment?.termId,
   };
 
   const form = useForm({
@@ -107,10 +107,10 @@ export default function AssessmentModal({
     <>
       <div onClick={open}>{children}</div>
 
-      <Modal opened={opened} onClose={close} title={title} size='lg' centered>
+      <Modal opened={opened} onClose={close} title={title} size={550} centered>
         <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Grid gutter={'xl'}>
-            <Grid.Col span={{ base: 12, sm: 6 }}>
+          <Grid gutter={'lg'}>
+            <Grid.Col span={{ base: 12 }}>
               <Select
                 label='Assessment Number'
                 searchable
@@ -119,7 +119,7 @@ export default function AssessmentModal({
                 required
               />
             </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6 }}>
+            <Grid.Col span={{ base: 12 }}>
               <Select
                 label='Assessment Type'
                 searchable
@@ -145,15 +145,9 @@ export default function AssessmentModal({
                 required
               />
             </Grid.Col>
-            <Grid.Col span={12}>
-              <Text size='xs' c='dimmed' mt='xs'>
-                Note: Assessment weight is the percentage contribution to the
-                final grade.
-              </Text>
-            </Grid.Col>
           </Grid>
 
-          <Group justify='flex-end' mt='md'>
+          <Group justify='flex-end' mt='xl'>
             <Button variant='outline' onClick={close} color='gray'>
               Cancel
             </Button>
@@ -162,7 +156,7 @@ export default function AssessmentModal({
               loading={isSubmitting}
               color={mode === 'add' ? 'blue' : 'green'}
             >
-              {mode === 'add' ? 'Add Assessment' : 'Save Changes'}
+              {mode === 'add' ? 'Create Assessment' : 'Save Changes'}
             </Button>
           </Group>
         </form>
