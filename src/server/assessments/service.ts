@@ -22,6 +22,13 @@ class AssessmentService {
     return withAuth(async () => this.repository.query(params), ['academic']);
   }
 
+  async getBySemesterModuleId(semesterModuleId: number) {
+    return withAuth(
+      async () => this.repository.getBySemesterModuleId(semesterModuleId),
+      ['academic'],
+    );
+  }
+
   async create(data: Assessment) {
     console.log('Payload:', data);
     return withAuth(async () => this.repository.create(data), ['academic']);

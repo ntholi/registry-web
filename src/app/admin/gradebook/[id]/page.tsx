@@ -2,6 +2,7 @@ import { getLecturesModule } from '@/server/lecturer-modules/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { Box, Divider, Stack, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import StudentTable from './StudentTable';
 
 type Props = {
   params: { id: string };
@@ -26,6 +27,7 @@ export default async function GradebookModuleView({ params }: Props) {
         Gradebook
       </Title>
       <Divider my={'sm'} />
+      <StudentTable semesterModuleId={lecturesModule.semesterModule.id} />
     </Box>
   );
 }

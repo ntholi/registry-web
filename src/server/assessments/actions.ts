@@ -14,6 +14,12 @@ export async function getAssessments(page: number = 1, search = '') {
   return service.getAll({ page, search });
 }
 
+export async function getAssessmentBySemesterModuleId(
+  semesterModuleId: number,
+) {
+  return service.getBySemesterModuleId(semesterModuleId);
+}
+
 export async function createAssessment(assessment: Assessment) {
   const term = await getCurrentTerm();
   return service.create({ ...assessment, termId: term.id });
