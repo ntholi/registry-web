@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  deleteAssessment,
-  getAssessmentBySemesterModuleId,
-} from '@/server/assessments/actions';
+import { getAssessmentBySemesterModuleId } from '@/server/assessments/actions';
 import {
   ActionIcon,
   Button,
@@ -19,18 +16,17 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core';
-import { modals } from '@mantine/modals';
-import { showNotification } from '@mantine/notifications';
 import {
   IconEdit,
   IconNotebook,
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import AssessmentModal from './AssessmentModal';
 import { getAssessmentName } from '@/app/admin/assessments/options';
+import DeleteAssessmentModal from './DeleteAssessmentModal';
 
 type Props = {
   semesterModuleId: number;
@@ -45,35 +41,6 @@ export default function AssessmentsManager({ semesterModuleId }: Props) {
       return await getAssessmentBySemesterModuleId(semesterModuleId);
     },
   });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteAssessment,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['assessments', semesterModuleId],
-      });
-      showNotification({
-        title: 'Success',
-        message: 'Assessment deleted successfully',
-        color: 'green',
-      });
-    },
-  });
-
-  const openDeleteModal = (assessmentId: number, assessmentNumber: string) =>
-    modals.openConfirmModal({
-      title: 'Delete Assessment',
-      centered: true,
-      children: (
-        <Text size='sm'>
-          Are you sure you want to delete assessment {assessmentNumber}? This
-          action cannot be undone.
-        </Text>
-      ),
-      labels: { confirm: 'Delete', cancel: 'Cancel' },
-      confirmProps: { color: 'red' },
-      onConfirm: () => deleteMutation.mutate(assessmentId),
-    });
 
   const assessments = data || [];
 
@@ -134,25 +101,16 @@ export default function AssessmentsManager({ semesterModuleId }: Props) {
                       </Tooltip>
                     </AssessmentModal>
 
-                    <Tooltip label='Delete assessment'>
-                      <ActionIcon
-                        type='button'
-                        variant='light'
-                        color='red'
-                        onClick={() =>
-                          openDeleteModal(
-                            assessment.id,
-                            assessment.assessmentNumber,
-                          )
-                        }
-                        loading={
-                          deleteMutation.isPending &&
-                          deleteMutation.variables === assessment.id
-                        }
-                      >
-                        <IconTrash size='1rem' />
-                      </ActionIcon>
-                    </Tooltip>
+                    <DeleteAssessmentModal
+                      assessment={assessment}
+                      semesterModuleId={semesterModuleId}
+                    >
+                      <Tooltip label='Delete assessment'>
+                        <ActionIcon type='button' variant='light' color='red'>
+                          <IconTrash size='1rem' />
+                        </ActionIcon>
+                      </Tooltip>
+                    </DeleteAssessmentModal>
                   </Group>
                 </Table.Td>
               </Table.Tr>
