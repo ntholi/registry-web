@@ -7,5 +7,4 @@ CREATE TABLE `modules` (
 );
 --> statement-breakpoint
 ALTER TABLE `semester_modules` ADD `module_id` integer REFERENCES modules(id);--> statement-breakpoint
-ALTER TABLE `semester_modules` DROP COLUMN `code`;--> statement-breakpoint
 ALTER TABLE `semester_modules` DROP COLUMN `name`;
