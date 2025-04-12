@@ -2,6 +2,7 @@ import {
   DetailsView,
   DetailsViewHeader,
   DetailsViewBody,
+  FieldView,
 } from '@/components/adease';
 import { notFound } from 'next/navigation';
 import {
@@ -30,7 +31,7 @@ export default async function LecturesModuleDetails({ params }: Props) {
   return (
     <DetailsView>
       <DetailsViewHeader
-        title={lecturesModule.semesterModule.name}
+        title={'Manage Assessments'}
         queryKey={['lecturerModules']}
         handleDelete={async () => {
           'use server';
@@ -40,24 +41,9 @@ export default async function LecturesModuleDetails({ params }: Props) {
       <DetailsViewBody>
         <Grid gutter='xl'>
           <GridCol span={12}>
-            <Card withBorder p='md' radius='md'>
-              <Stack>
-                <Flex justify='space-between' align='center'>
-                  <Title order={4} fw={500}>
-                    Assessment Management
-                  </Title>
-                  <Button
-                    variant='light'
-                    color='blue'
-                    component={Link}
-                    href={`/admin/lecturer-modules/${id}/gradebook`}
-                    leftSection={<IconNotebook size='1.2rem' />}
-                  >
-                    Gradebook
-                  </Button>
-                </Flex>
-              </Stack>
-            </Card>
+            <FieldView label={lecturesModule.semesterModule.code}>
+              {lecturesModule.semesterModule.name}
+            </FieldView>
           </GridCol>
 
           <GridCol span={12}>

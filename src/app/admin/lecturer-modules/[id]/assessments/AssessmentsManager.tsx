@@ -4,8 +4,6 @@ import {
   ActionIcon,
   Badge,
   Button,
-  Card,
-  Divider,
   Flex,
   Group,
   Paper,
@@ -82,23 +80,17 @@ export default function AssessmentsManager({
   const assessments = data || [];
 
   return (
-    <Card withBorder p='md' radius='md'>
+    <Paper withBorder p='md' radius='md'>
       <Flex justify='space-between' align='center' mb='md'>
         <Title order={4} fw={500}>
           Assessments
         </Title>
         <AssessmentModal moduleId={semesterModuleId} mode='add'>
-          <Button
-            id='add-assessment'
-            variant='outline'
-            color='green'
-            leftSection={<IconPlus size='1rem' />}
-          >
-            Add Assessment
+          <Button id='add-assessment' leftSection={<IconPlus size='1rem' />}>
+            New
           </Button>
         </AssessmentModal>
       </Flex>
-      <Divider mb='md' />
 
       {isLoading ? (
         <Paper p='xl' withBorder>
@@ -107,14 +99,14 @@ export default function AssessmentsManager({
           </Text>
         </Paper>
       ) : assessments.length > 0 ? (
-        <Table striped highlightOnHover withTableBorder>
+        <Table highlightOnHover withTableBorder>
           <TableThead>
             <TableTr>
               <TableTh>Assessment</TableTh>
               <TableTh>Type</TableTh>
               <TableTh>Total Marks</TableTh>
               <TableTh>Weight</TableTh>
-              <TableTh>Actions</TableTh>
+              <TableTh ta='right'>Actions</TableTh>
             </TableTr>
           </TableThead>
           <Table.Tbody>
@@ -127,11 +119,9 @@ export default function AssessmentsManager({
                 </Table.Td>
                 <Table.Td>{assessment.assessmentType}</Table.Td>
                 <Table.Td>{assessment.totalMarks}</Table.Td>
+                <Table.Td>{assessment.weight}%</Table.Td>
                 <Table.Td>
-                  <Badge color='blue'>{assessment.weight}%</Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap='xs'>
+                  <Group gap='xs' justify='right'>
                     <AssessmentModal
                       moduleId={semesterModuleId}
                       assessment={assessment}
@@ -184,12 +174,12 @@ export default function AssessmentsManager({
         <Paper p='xl' withBorder>
           <Stack align='center' gap='md'>
             <Text c='dimmed' ta='center' size='sm'>
-              No assessments found for this module. Click "Add Assessment" to
-              create your first assessment.
+              No assessments found for this module. Click "New" to create your
+              first assessment.
             </Text>
           </Stack>
         </Paper>
       )}
-    </Card>
+    </Paper>
   );
 }
