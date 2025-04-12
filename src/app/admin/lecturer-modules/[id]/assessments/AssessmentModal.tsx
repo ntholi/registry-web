@@ -46,7 +46,7 @@ export default function AssessmentModal({
   const schema = createInsertSchema(assessments);
 
   const initialValues: Partial<Assessment> = {
-    studentModuleId: moduleId,
+    semesterModuleId: moduleId,
     assessmentNumber: assessment?.assessmentNumber || 'CW1',
     assessmentType: assessment?.assessmentType || '',
     totalMarks: assessment?.totalMarks || 100,

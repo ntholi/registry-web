@@ -518,8 +518,8 @@ export const assessmentNumberEnum = [
 
 export const assessments = sqliteTable('assessments', {
   id: integer().primaryKey({ autoIncrement: true }),
-  studentModuleId: integer()
-    .references(() => studentModules.id, { onDelete: 'cascade' })
+  semesterModuleId: integer()
+    .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
   termId: integer()
     .references(() => terms.id, { onDelete: 'cascade' })

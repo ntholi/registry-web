@@ -32,18 +32,18 @@ import AssessmentModal from './AssessmentModal';
 import { modals } from '@mantine/modals';
 
 type Props = {
-  moduleId: number;
+  semesterModuleId: number;
   lecturesModuleId: number;
 };
 
 export default function AssessmentsManager({
-  moduleId,
+  semesterModuleId,
   lecturesModuleId,
 }: Props) {
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['assessments', moduleId],
+    queryKey: ['assessments', semesterModuleId],
     queryFn: async () => {
       const result = await getAssessments(1, '');
       return result.items;
@@ -53,7 +53,9 @@ export default function AssessmentsManager({
   const deleteMutation = useMutation({
     mutationFn: deleteAssessment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['assessments', moduleId] });
+      queryClient.invalidateQueries({
+        queryKey: ['assessments', semesterModuleId],
+      });
       showNotification({
         title: 'Success',
         message: 'Assessment deleted successfully',
@@ -85,7 +87,7 @@ export default function AssessmentsManager({
         <Title order={4} fw={500}>
           Assessments
         </Title>
-        <AssessmentModal moduleId={moduleId} mode='add'>
+        <AssessmentModal moduleId={semesterModuleId} mode='add'>
           <Button
             id='add-assessment'
             variant='outline'
@@ -131,7 +133,7 @@ export default function AssessmentsManager({
                 <Table.Td>
                   <Group gap='xs'>
                     <AssessmentModal
-                      moduleId={moduleId}
+                      moduleId={semesterModuleId}
                       assessment={assessment}
                       mode='edit'
                     >
