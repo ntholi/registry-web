@@ -107,9 +107,9 @@ export default function AssessmentModal({
     <>
       <div onClick={open}>{children}</div>
 
-      <Modal opened={opened} onClose={close} title={title} size='md' centered>
+      <Modal opened={opened} onClose={close} title={title} size='lg' centered>
         <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Grid>
+          <Grid gutter={'xl'}>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <Select
                 label='Assessment Number'
@@ -160,7 +160,7 @@ export default function AssessmentModal({
             <Button
               type='submit'
               loading={isSubmitting}
-              color={mode === 'add' ? 'green' : 'blue'}
+              color={mode === 'add' ? 'blue' : 'green'}
             >
               {mode === 'add' ? 'Add Assessment' : 'Save Changes'}
             </Button>

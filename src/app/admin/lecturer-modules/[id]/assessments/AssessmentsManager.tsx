@@ -30,16 +30,13 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import AssessmentModal from './AssessmentModal';
+import { getAssessmentName } from '@/app/admin/assessments/options';
 
 type Props = {
   semesterModuleId: number;
-  lecturesModuleId: number;
 };
 
-export default function AssessmentsManager({
-  semesterModuleId,
-  lecturesModuleId,
-}: Props) {
+export default function AssessmentsManager({ semesterModuleId }: Props) {
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -103,7 +100,7 @@ export default function AssessmentsManager({
         <Table highlightOnHover withTableBorder>
           <TableThead>
             <TableTr>
-              <TableTh>Assessment</TableTh>
+              <TableTh>No</TableTh>
               <TableTh>Type</TableTh>
               <TableTh>Total Marks</TableTh>
               <TableTh>Weight</TableTh>
@@ -118,7 +115,9 @@ export default function AssessmentsManager({
                     <Text fw={500}>{assessment.assessmentNumber}</Text>
                   </Group>
                 </Table.Td>
-                <Table.Td>{assessment.assessmentType}</Table.Td>
+                <Table.Td>
+                  {getAssessmentName(assessment.assessmentType)}
+                </Table.Td>
                 <Table.Td>{assessment.totalMarks}</Table.Td>
                 <Table.Td>{assessment.weight}%</Table.Td>
                 <Table.Td>
@@ -152,17 +151,6 @@ export default function AssessmentsManager({
                         }
                       >
                         <IconTrash size='1rem' />
-                      </ActionIcon>
-                    </Tooltip>
-
-                    <Tooltip label='View gradebook for this assessment'>
-                      <ActionIcon
-                        variant='light'
-                        color='green'
-                        component={Link}
-                        href={`/admin/lecturer-modules/${lecturesModuleId}/gradebook?assessmentId=${assessment.id}`}
-                      >
-                        <IconNotebook size='1rem' />
                       </ActionIcon>
                     </Tooltip>
                   </Group>
