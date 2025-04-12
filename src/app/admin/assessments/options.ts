@@ -118,3 +118,7 @@ export const assessmentTypeOptions = [
   { value: '82', label: 'TV Commercial' },
   { value: '59', label: 'Workshop' },
 ];
+
+export function getAssessmentName(type: string) {
+  return assessmentTypeOptions.find((option) => option.value === type)?.label;
+}

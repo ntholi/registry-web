@@ -1,11 +1,8 @@
 'use client';
-import {
-  getAssessmentBySemesterModuleId,
-  getAssessments,
-} from '@/server/assessments/actions';
-import { useQuery } from '@tanstack/react-query';
-import React from 'react';
+import { getAssessmentBySemesterModuleId } from '@/server/assessments/actions';
 import { Table } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
+import { getAssessmentName } from '../../assessments/options';
 
 type Props = {
   semesterModuleId: number;
@@ -17,7 +14,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
   });
 
   const tableHeaders = assessments?.map((it) => (
-    <Table.Th key={it.id}>{it.assessmentType}</Table.Th>
+    <Table.Th key={it.id}>{getAssessmentName(it.assessmentType)}</Table.Th>
   ));
 
   return (
