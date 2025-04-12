@@ -13,6 +13,7 @@ import {
   Transition,
   Badge,
   Flex,
+  Input,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { getAssessmentName } from '../../assessments/options';
@@ -82,7 +83,6 @@ export default function StudentTable({ semesterModuleId }: Props) {
 
   const isLoading = isLoadingAssessments || isLoadingStudents || isLoadingMarks;
 
-  // Calculate total scores for each student
   const calculateTotalScore = (studentId: number) => {
     if (!assessments || !assessmentMarks) return null;
 
@@ -95,7 +95,6 @@ export default function StudentTable({ semesterModuleId }: Props) {
       );
 
       if (mark?.marks !== undefined && mark?.marks !== null) {
-        // Calculate weighted score: (mark/totalMarks) * weight
         const percentageScore = Number(mark.marks) / assessment.totalMarks;
         const weightedScore = percentageScore * assessment.weight;
         weightedTotal += weightedScore;
@@ -112,9 +111,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
   };
 
   const handleExportToExcel = () => {
-    // This would be implemented with a library like xlsx or exceljs
     console.log('Exporting to Excel...');
-    // Implementation would go here
   };
 
   if (isLoading) {
@@ -137,9 +134,9 @@ export default function StudentTable({ semesterModuleId }: Props) {
 
     return (
       <Table.Tr key={student.stdNo}>
-        <Table.Td>{student.stdNo}</Table.Td>
+        <Table.Td fw={500}>{student.stdNo}</Table.Td>
         <Table.Td>
-          <Text fw={500}>{student.name}</Text>
+          <Text>{student.name}</Text>
         </Table.Td>
         {assessments?.map((assessment) => {
           const markData = getMarkForStudentAssessment(
@@ -200,9 +197,15 @@ export default function StudentTable({ semesterModuleId }: Props) {
             placeholder='Search by student no. or name'
             leftSection={<IconSearch size={16} />}
             value={searchQuery}
+            rightSection={
+              searchQuery !== '' ? (
+                <Input.ClearButton onClick={() => setSearchQuery('')} />
+              ) : undefined
+            }
             onChange={(e) => setSearchQuery(e.currentTarget.value)}
             w='100%'
-            maw={400}
+            size='md'
+            maw={500}
           />
           <Tooltip label='Export to Excel'>
             <Box style={{ cursor: 'pointer' }} onClick={handleExportToExcel}>
