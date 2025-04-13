@@ -1,5 +1,6 @@
 'use client';
 
+import { getAssessmentName } from '@/app/admin/assessments/options';
 import { getAssessmentBySemesterModuleId } from '@/server/assessments/actions';
 import {
   ActionIcon,
@@ -16,16 +17,9 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core';
-import {
-  IconEdit,
-  IconNotebook,
-  IconPlus,
-  IconTrash,
-} from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import Link from 'next/link';
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import AssessmentModal from './AssessmentModal';
-import { getAssessmentName } from '@/app/admin/assessments/options';
 import DeleteAssessmentModal from './DeleteAssessmentModal';
 
 type Props = {
@@ -33,8 +27,6 @@ type Props = {
 };
 
 export default function AssessmentsManager({ semesterModuleId }: Props) {
-  const queryClient = useQueryClient();
-
   const { data, isLoading } = useQuery({
     queryKey: ['assessments', semesterModuleId],
     queryFn: async () => {

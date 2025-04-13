@@ -1,28 +1,26 @@
 'use client';
+import { getAssessmentMarksByModuleId } from '@/server/assessment-marks/actions';
 import { getAssessmentBySemesterModuleId } from '@/server/assessments/actions';
+import { getStudentsBySemesterModuleId } from '@/server/students/actions';
 import {
-  Table,
-  Group,
-  Text,
-  Skeleton,
-  Paper,
   Box,
+  Flex,
+  Group,
+  Input,
+  Paper,
   ScrollArea,
+  Skeleton,
+  Table,
+  Text,
   TextInput,
   Tooltip,
-  Transition,
-  Badge,
-  Flex,
-  Input,
 } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
-import { getAssessmentName } from '../../assessments/options';
-import { getStudentsBySemesterModuleId } from '@/server/students/actions';
-import { getAssessmentMarksByModuleId } from '@/server/assessment-marks/actions';
-import AssessmentMarksInput from './MarksInput';
-import { useState, useEffect } from 'react';
-import { IconSearch, IconDownload } from '@tabler/icons-react';
 import { useDebouncedValue } from '@mantine/hooks';
+import { IconDownload, IconSearch } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { getAssessmentName } from '../../assessments/options';
+import AssessmentMarksInput from './MarksInput';
 
 type Props = {
   semesterModuleId: number;
@@ -181,7 +179,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
   const noDataMessage =
     searchQuery && filteredStudents.length === 0 ? (
       <Text ta='center' py='xl' c='dimmed'>
-        No students found matching "{searchQuery}"
+        No students found matching &quot;{searchQuery}&quot;
       </Text>
     ) : students?.length === 0 ? (
       <Text ta='center' py='xl' c='dimmed'>

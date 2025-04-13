@@ -1,4 +1,4 @@
-import { Card, Group, Stack, Title, Badge, Text } from '@mantine/core';
+import { Card, Group, Stack, Text, Title } from '@mantine/core';
 import { IconBook, IconCalendar, IconUserCheck } from '@tabler/icons-react';
 
 type ModuleDetailsCardProps = {
