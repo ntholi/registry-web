@@ -1,14 +1,15 @@
 import { db } from '@/db';
 import {
   modulePrerequisites,
-  semesterModules,
+  modules,
   programs,
   schools,
+  semesterModules,
   structureSemesters,
   structures,
 } from '@/db/schema';
-import BaseRepository from '@/server/base/BaseRepository';
-import { eq, like, or, desc } from 'drizzle-orm';
+import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
+import { desc, eq, like, or } from 'drizzle-orm';
 
 export default class ModuleRepository extends BaseRepository<
   typeof semesterModules,
@@ -18,26 +19,70 @@ export default class ModuleRepository extends BaseRepository<
     super(semesterModules, 'id');
   }
 
-  async findByCode(code: string) {
-    return db.query.semesterModules.findFirst({
-      where: eq(semesterModules.code, code),
+  async search(
+    options: QueryOptions<typeof semesterModules>,
+    searchKey: string,
+  ) {
+    const criteria = this.buildQueryCriteria(options);
+
+    const data = await db.query.semesterModules.findMany({
+      ...criteria,
+      where: like(modules.name, `%${searchKey}%`),
+      with: {
+        module: true,
+      },
     });
+
+    return this.createPaginatedResult(data, criteria);
+  }
+
+  override async findById(id: number) {
+    return db.query.semesterModules.findFirst({
+      where: eq(semesterModules.id, id),
+      with: {
+        module: true,
+      },
+    });
+  }
+
+  async findByCode(code: string) {
+    return db
+      .select({
+        id: semesterModules.id,
+        moduleId: semesterModules.moduleId,
+        type: semesterModules.type,
+        credits: semesterModules.credits,
+        semesterId: semesterModules.semesterId,
+        hidden: semesterModules.hidden,
+        code: modules.code,
+        name: modules.name,
+      })
+      .from(semesterModules)
+      .innerJoin(modules, eq(semesterModules.moduleId, modules.id))
+      .where(eq(modules.code, code))
+      .limit(1)
+      .then((rows) => rows[0] || null);
   }
 
   async findModulesByStructure(structureId: number, search = '') {
     const data = await db.query.structureSemesters.findMany({
       where: eq(structureSemesters.structureId, structureId),
       with: {
-        modules: {
-          where: or(
-            like(semesterModules.code, `%${search}%`),
-            like(semesterModules.name, `%${search}%`),
-          ),
+        semesterModules: {
+          with: {
+            module: true,
+          },
+          where: search
+            ? or(
+                like(modules.code, `%${search}%`),
+                like(modules.name, `%${search}%`),
+              )
+            : undefined,
         },
       },
       orderBy: structureSemesters.semesterNumber,
     });
-    return data.flatMap((it) => it.modules);
+    return data.flatMap((it) => it.semesterModules);
   }
 
   async addPrerequisite(semesterModuleId: number, prerequisiteId: number) {
@@ -57,18 +102,20 @@ export default class ModuleRepository extends BaseRepository<
     return db
       .select({
         id: semesterModules.id,
-        code: semesterModules.code,
-        name: semesterModules.name,
+        moduleId: semesterModules.moduleId,
         type: semesterModules.type,
         credits: semesterModules.credits,
+        code: modules.code,
+        name: modules.name,
       })
       .from(modulePrerequisites)
       .innerJoin(
         semesterModules,
         eq(semesterModules.id, modulePrerequisites.prerequisiteId),
       )
+      .innerJoin(modules, eq(modules.id, semesterModules.moduleId))
       .where(eq(modulePrerequisites.semesterModuleId, semesterModuleId))
-      .orderBy(semesterModules.code);
+      .orderBy(modules.code);
   }
 
   async getModulesByStructure(structureId: number) {
@@ -88,13 +135,14 @@ export default class ModuleRepository extends BaseRepository<
         const modulesList = await db
           .select({
             moduleId: semesterModules.id,
-            moduleCode: semesterModules.code,
-            moduleName: semesterModules.name,
-            moduleType: semesterModules.type,
-            moduleCredits: semesterModules.credits,
+            type: semesterModules.type,
+            credits: semesterModules.credits,
+            code: modules.code,
+            name: modules.name,
           })
           .from(semesterModules)
-          .orderBy(semesterModules.code);
+          .innerJoin(modules, eq(modules.id, semesterModules.moduleId))
+          .orderBy(modules.code);
 
         return {
           ...semester,
@@ -130,30 +178,62 @@ export default class ModuleRepository extends BaseRepository<
     return await db.query.structureSemesters.findMany({
       where: eq(structureSemesters.structureId, structureId),
       with: {
-        modules: true,
+        semesterModules: {
+          with: {
+            module: true,
+          },
+        },
       },
     });
   }
 
   async searchModulesWithDetails(search = '') {
-    return await db.query.semesterModules.findMany({
-      where: or(
-        like(semesterModules.code, `%${search}%`),
-        like(semesterModules.name, `%${search}%`),
-      ),
-      with: {
+    return await db
+      .select({
+        id: semesterModules.id,
+        moduleId: semesterModules.moduleId,
+        type: semesterModules.type,
+        credits: semesterModules.credits,
+        semesterId: semesterModules.semesterId,
+        hidden: semesterModules.hidden,
+        code: modules.code,
+        name: modules.name,
         semester: {
-          with: {
-            structure: {
-              with: {
-                program: true,
-              },
-            },
-          },
+          id: structureSemesters.id,
+          structureId: structureSemesters.structureId,
+          semesterNumber: structureSemesters.semesterNumber,
+          name: structureSemesters.name,
         },
-      },
-      limit: 20,
-    });
+        structure: {
+          id: structures.id,
+          code: structures.code,
+          programId: structures.programId,
+        },
+        program: {
+          id: programs.id,
+          code: programs.code,
+          name: programs.name,
+          level: programs.level,
+          schoolId: programs.schoolId,
+        },
+      })
+      .from(semesterModules)
+      .innerJoin(modules, eq(modules.id, semesterModules.moduleId))
+      .leftJoin(
+        structureSemesters,
+        eq(structureSemesters.id, semesterModules.semesterId),
+      )
+      .leftJoin(structures, eq(structures.id, structureSemesters.structureId))
+      .leftJoin(programs, eq(programs.id, structures.programId))
+      .where(
+        search
+          ? or(
+              like(modules.code, `%${search}%`),
+              like(modules.name, `%${search}%`),
+            )
+          : undefined,
+      )
+      .limit(20);
   }
 }
 

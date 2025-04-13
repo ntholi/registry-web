@@ -52,8 +52,7 @@ export const ModuleSearchInput = forwardRef<
       label: module.name,
       code: module.code,
       semesterName: module.semester?.name || 'Unknown Semester',
-      programName:
-        module.semester?.structure?.program?.name || 'Unknown Program',
+      programName: module.program?.name || 'Unknown Program',
     })) || [];
 
   const handleInputChange = (value: string) => {
@@ -103,7 +102,7 @@ export const ModuleSearchInput = forwardRef<
                 (module) => module.id === value,
               );
               if (selectedModule) {
-                return `${selectedModule.semester?.structure?.program?.name || 'Unknown Program'} - ${selectedModule.semester?.name || 'Unknown Semester'}`;
+                return `${selectedModule.program?.name || 'Unknown Program'} - ${selectedModule.semester?.name || 'Unknown Semester'}`;
               }
               return undefined;
             })()

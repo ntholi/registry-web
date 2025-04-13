@@ -30,7 +30,11 @@ export async function getLecturerModulesForUser() {
   const modules = await db.query.lecturerModules.findMany({
     where: eq(lecturerModules.userId, session.user.id),
     with: {
-      semesterModule: true,
+      semesterModule: {
+        with: {
+          module: true,
+        },
+      },
     },
   });
 

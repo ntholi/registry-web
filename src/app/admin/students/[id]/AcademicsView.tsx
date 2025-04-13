@@ -98,16 +98,27 @@ export default function AcademicsView({ student, showMarks }: Props) {
                           <ModuleTable
                             modules={semester.studentModules.map((sm) => ({
                               id: sm.semesterModuleId,
-                              code: sm.module.code,
-                              name: sm.module.name,
-                              type: sm.module.type,
+                              code: sm.semesterModule.module!.code,
+                              name: sm.semesterModule.module!.name,
+                              type: sm.semesterModule.type,
                               status: sm.status,
                               marks: sm.marks,
                               grade: sm.grade,
-                              credits: sm.module.credits,
+                              credits: sm.semesterModule.credits,
                             }))}
                             showMarks={showMarks}
-                            allSemesters={program.semesters}
+                            allSemesters={program.semesters.map((sem) => ({
+                              term: sem.term,
+                              semesterNumber: sem.semesterNumber,
+                              studentModules: sem.studentModules.map((m) => ({
+                                semesterModule: {
+                                  module: {
+                                    code: m.semesterModule.module?.code ?? '',
+                                  },
+                                },
+                                grade: m.grade,
+                              })),
+                            }))}
                           />
                         ) : (
                           <Text c='dimmed'>
@@ -164,8 +175,10 @@ type ModuleTableProps = {
     term: string;
     semesterNumber: number | null;
     studentModules: {
-      module: {
-        code: string;
+      semesterModule: {
+        module: {
+          code: string;
+        };
       };
       grade: string;
     }[];
@@ -180,12 +193,15 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
 
     const attempts = allSemesters
       .filter((sem) =>
-        sem.studentModules.some((m) => m.module.code === moduleCode),
+        sem.studentModules.some(
+          (m) => m.semesterModule.module.code === moduleCode,
+        ),
       )
       .map((sem) => ({
         grade:
-          sem.studentModules.find((m) => m.module.code === moduleCode)?.grade ??
-          '',
+          sem.studentModules.find(
+            (m) => m.semesterModule.module.code === moduleCode,
+          )?.grade ?? '',
       }));
 
     return attempts.some((attempt) => failed(attempt.grade));
@@ -200,14 +216,17 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
 
     return allSemesters
       .filter((sem) =>
-        sem.studentModules.some((m) => m.module.code === moduleCode),
+        sem.studentModules.some(
+          (m) => m.semesterModule.module.code === moduleCode,
+        ),
       )
       .map((sem) => ({
         term: sem.term,
         semesterNumber: sem.semesterNumber ?? 0,
         grade:
-          sem.studentModules.find((m) => m.module.code === moduleCode)?.grade ??
-          '',
+          sem.studentModules.find(
+            (m) => m.semesterModule.module.code === moduleCode,
+          )?.grade ?? '',
       }))
       .sort((a, b) => {
         const [yearA, monthA] = a.term.split('-').map(Number);

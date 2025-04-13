@@ -21,7 +21,11 @@ export async function getFailedModules(stdNo: number, semester: number) {
           studentModules: {
             where: (m) => notInArray(m.status, ['Delete', 'Drop']),
             with: {
-              module: true,
+              semesterModule: {
+                with: {
+                  module: true,
+                },
+              },
             },
           },
         },
@@ -35,13 +39,13 @@ export async function getFailedModules(stdNo: number, semester: number) {
 
   const passedModules = allModules
     .filter((mod) => parseFloat(mod.marks) >= 50)
-    .map((mod) => mod.module.name);
+    .map((mod) => mod.semesterModule.module?.name);
 
   const failedModules = allModules
-    .filter((mod) => !passedModules.includes(mod.module.name))
+    .filter((mod) => !passedModules.includes(mod.semesterModule.module?.name))
     .map((mod) => ({
-      code: mod.module.code,
-      name: mod.module.name,
+      code: mod.semesterModule.module?.code,
+      name: mod.semesterModule.module?.name,
       marks: mod.marks,
     }));
 

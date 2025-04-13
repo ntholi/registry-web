@@ -106,63 +106,63 @@ export default function ProgramsPage() {
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
-                        {semester.modules.map((module) => (
+                        {semester.semesterModules.map((semModule) => (
                           <Table.Tr
-                            key={module.id}
+                            key={semModule.id}
                             className={
-                              module.hidden ? 'bg-yellow-50/20' : undefined
+                              semModule.hidden ? 'bg-yellow-50/20' : undefined
                             }
                           >
                             <Table.Td>
                               <Anchor
                                 size='sm'
                                 component={Link}
-                                href={`/admin/modules/${module.id}`}
-                                c={module.hidden ? 'dark' : undefined}
+                                href={`/admin/modules/${semModule.id}`}
+                                c={semModule.hidden ? 'dark' : undefined}
                               >
-                                {module.code}
+                                {semModule.module!.code}
                               </Anchor>
                             </Table.Td>
                             <Table.Td>
                               <Text
                                 size='sm'
-                                c={module.hidden ? 'dark' : undefined}
+                                c={semModule.hidden ? 'dark' : undefined}
                               >
-                                {module.name}
+                                {semModule.module!.name}
                               </Text>
                             </Table.Td>
                             <Table.Td>
                               <Text
                                 size='sm'
-                                c={module.hidden ? 'dark' : undefined}
+                                c={semModule.hidden ? 'dark' : undefined}
                               >
-                                {module.type}
+                                {semModule.type}
                               </Text>
                             </Table.Td>
                             <Table.Td>
                               <Text
                                 size='sm'
-                                c={module.hidden ? 'dark' : undefined}
+                                c={semModule.hidden ? 'dark' : undefined}
                               >
-                                {module.credits}
+                                {semModule.credits}
                               </Text>
                             </Table.Td>
                             <Table.Td>
                               <PrerequisiteDisplay
-                                moduleId={module.id}
-                                hidden={module.hidden}
+                                moduleId={semModule.id}
+                                hidden={semModule.hidden}
                               />
                             </Table.Td>
                             {session?.user?.role === 'admin' && (
                               <Table.Td>
                                 <Flex>
                                   <EditButton
-                                    moduleId={module.id}
+                                    moduleId={semModule.id}
                                     structureId={selectedStructureId!}
                                   />
                                   <HideButton
-                                    moduleId={module.id}
-                                    hidden={module.hidden}
+                                    moduleId={semModule.id}
+                                    hidden={semModule.hidden}
                                     structureId={selectedStructureId!}
                                   />
                                 </Flex>

@@ -10,31 +10,33 @@ type Props = {
 export default function ModulesView({ value }: Props) {
   const { requestedModules } = value;
 
-  const rows = requestedModules.map(({ module, moduleStatus, status }) => (
-    <Table.Tr key={module.id}>
-      <Table.Td fw={500}>{module.code}</Table.Td>
-      <Table.Td>{module.name}</Table.Td>
-      <Table.Td>{module.credits}</Table.Td>
-      <Table.Td c={moduleStatus.startsWith('Repeat') ? 'red' : undefined}>
-        {moduleStatus}
-      </Table.Td>
-      <Table.Td>
-        <Badge
-          variant='light'
-          size='sm'
-          color={
-            status === 'registered'
-              ? 'green'
-              : status === 'rejected'
-                ? 'red'
-                : 'gray'
-          }
-        >
-          {status}
-        </Badge>
-      </Table.Td>
-    </Table.Tr>
-  ));
+  const rows = requestedModules.map(
+    ({ semesterModule, moduleStatus, status }) => (
+      <Table.Tr key={semesterModule.id}>
+        <Table.Td fw={500}>{semesterModule.module!.code}</Table.Td>
+        <Table.Td>{semesterModule.module!.name}</Table.Td>
+        <Table.Td>{semesterModule.credits}</Table.Td>
+        <Table.Td c={moduleStatus.startsWith('Repeat') ? 'red' : undefined}>
+          {moduleStatus}
+        </Table.Td>
+        <Table.Td>
+          <Badge
+            variant='light'
+            size='sm'
+            color={
+              status === 'registered'
+                ? 'green'
+                : status === 'rejected'
+                  ? 'red'
+                  : 'gray'
+            }
+          >
+            {status}
+          </Badge>
+        </Table.Td>
+      </Table.Tr>
+    ),
+  );
 
   return (
     <Stack>

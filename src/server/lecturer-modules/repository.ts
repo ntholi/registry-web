@@ -15,7 +15,11 @@ export default class LecturesModuleRepository extends BaseRepository<
     const data = await db.query.lecturerModules.findFirst({
       where: eq(lecturerModules.id, id),
       with: {
-        semesterModule: true,
+        semesterModule: {
+          with: {
+            module: true,
+          },
+        },
       },
     });
     return data;
@@ -26,7 +30,11 @@ export default class LecturesModuleRepository extends BaseRepository<
     const data = await db.query.lecturerModules.findMany({
       ...criteria,
       with: {
-        semesterModule: true,
+        semesterModule: {
+          with: {
+            module: true,
+          },
+        },
       },
     });
 

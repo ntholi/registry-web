@@ -50,7 +50,7 @@ export async function getStudentScore(stdNo: number, structureId: number) {
   const program = await db.query.studentPrograms.findFirst({
     where: and(
       eq(studentPrograms.stdNo, stdNo),
-      eq(studentPrograms.status, 'Active')
+      eq(studentPrograms.status, 'Active'),
     ),
     with: {
       semesters: {
@@ -63,7 +63,11 @@ export async function getStudentScore(stdNo: number, structureId: number) {
         with: {
           studentModules: {
             with: {
-              module: true,
+              semesterModule: {
+                with: {
+                  module: true,
+                },
+              },
             },
           },
         },
@@ -80,7 +84,7 @@ export async function getStudentScore(stdNo: number, structureId: number) {
   }
 
   const modules = program.semesters.flatMap(
-    (semester) => semester.studentModules
+    (semester) => semester.studentModules,
   );
   let totalPoints = 0;
   let totalCredits = 0;
@@ -90,9 +94,9 @@ export async function getStudentScore(stdNo: number, structureId: number) {
     if (isValidGrade(stdModule.grade)) {
       const points = getPoints(stdModule.grade);
       if (points > 0) {
-        totalPoints += points * stdModule.module.credits;
-        totalCredits += stdModule.module.credits;
-        creditsCompleted += stdModule.module.credits;
+        totalPoints += points * stdModule.semesterModule.credits;
+        totalCredits += stdModule.semesterModule.credits;
+        creditsCompleted += stdModule.semesterModule.credits;
       }
     }
   });
@@ -100,12 +104,12 @@ export async function getStudentScore(stdNo: number, structureId: number) {
   const semesters = await db.query.structureSemesters.findMany({
     where: eq(structureSemesters.structureId, structureId),
     with: {
-      modules: true
+      semesterModules: true,
     },
   });
 
   const creditsRequired = semesters
-    .flatMap((it) => it.modules)
+    .flatMap((it) => it.semesterModules)
     .reduce((sum, it) => sum + it.credits, 0);
 
   return {

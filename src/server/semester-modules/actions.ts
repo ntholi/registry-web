@@ -10,11 +10,12 @@ export async function getModule(id: number) {
 }
 
 export async function findAllModules(page: number = 1, search = '') {
-  return modulesService.findAll({
-    page,
+  return modulesService.findAll(
+    {
+      page,
+    },
     search,
-    searchColumns: ['id', 'code', 'name'],
-  });
+  );
 }
 
 export async function findModulesByStructure(structureId: number, search = '') {

@@ -37,8 +37,8 @@ export default async function LecturesModuleDetails({ params }: Props) {
       <DetailsViewBody>
         <Grid gutter='xl'>
           <GridCol span={12}>
-            <FieldView label={lecturesModule.semesterModule.code}>
-              {lecturesModule.semesterModule.name}
+            <FieldView label={lecturesModule.semesterModule.module!.code}>
+              {lecturesModule.semesterModule.module!.name}
             </FieldView>
           </GridCol>
 

@@ -12,7 +12,11 @@ export default function Layout({ children }: PropsWithChildren) {
       getData={findAllModules}
       actionIcons={[<NewLink key={'new-link'} href='/admin/modules/new' />]}
       renderItem={(it) => (
-        <ListItem id={it.id} label={it.code} description={it.name} />
+        <ListItem
+          id={it.id}
+          label={it.module!.code}
+          description={it.module!.name}
+        />
       )}
     >
       {children}

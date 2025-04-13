@@ -23,7 +23,11 @@ export async function getTranscript(stdNo: number) {
           studentModules: {
             where: (module) => notInArray(module.status, ['Delete', 'Drop']),
             with: {
-              module: true,
+              semesterModule: {
+                with: {
+                  module: true,
+                },
+              },
             },
           },
         },
@@ -41,13 +45,13 @@ export async function getTranscript(stdNo: number) {
       status: semester.status,
       modules: semester.studentModules.map((stdModule) => ({
         id: stdModule.id,
-        code: stdModule.module.code,
-        name: stdModule.module.name,
-        type: stdModule.module.type,
+        code: stdModule.semesterModule.module!.code,
+        name: stdModule.semesterModule.module!.name,
+        type: stdModule.semesterModule.type,
         status: stdModule.status,
         marks: stdModule.marks,
         grade: stdModule.grade,
-        credits: stdModule.module.credits,
+        credits: stdModule.semesterModule.credits,
       })),
     })),
   }));

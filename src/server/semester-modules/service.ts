@@ -24,8 +24,11 @@ class ModuleService {
     );
   }
 
-  async findAll(params: QueryOptions<typeof semesterModules>) {
-    return withAuth(async () => this.repository.query(params), ['dashboard']);
+  async findAll(params: QueryOptions<typeof semesterModules>, search: string) {
+    return withAuth(
+      async () => this.repository.search(params, search),
+      ['dashboard'],
+    );
   }
 
   async findModulesByStructure(structureId: number, search = '') {

@@ -129,7 +129,7 @@ export const structureSemestersRelations = relations(
       fields: [structureSemesters.structureId],
       references: [structures.id],
     }),
-    modules: many(semesterModules),
+    semesterModules: many(semesterModules),
   }),
 );
 
@@ -162,7 +162,7 @@ export const modulesRelations = relations(modules, ({ one }) => ({
 export const modulePrerequisitesRelations = relations(
   modulePrerequisites,
   ({ one }) => ({
-    module: one(semesterModules, {
+    semesterModule: one(semesterModules, {
       fields: [modulePrerequisites.semesterModuleId],
       references: [semesterModules.id],
     }),

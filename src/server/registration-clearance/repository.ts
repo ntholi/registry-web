@@ -36,7 +36,11 @@ export default class RegistrationClearanceRepository extends BaseRepository<
           data.registrationRequestId,
         ),
         with: {
-          module: true,
+          semesterModule: {
+            with: {
+              module: true,
+            },
+          },
         },
       });
 
@@ -46,7 +50,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         newStatus: clearance.status,
         createdBy: session.user.id,
         message: clearance.message,
-        modules: modulesList.map((rm) => rm.module.code),
+        modules: modulesList.map((rm) => rm.semesterModule.module!.code),
       });
 
       return [clearance];
@@ -82,7 +86,11 @@ export default class RegistrationClearanceRepository extends BaseRepository<
             current.registrationRequestId,
           ),
           with: {
-            module: true,
+            semesterModule: {
+              with: {
+                module: true,
+              },
+            },
           },
         });
 
@@ -92,7 +100,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
           newStatus: clearance.status,
           createdBy: session.user.id,
           message: data.message,
-          modules: modulesList.map((rm) => rm.module.code),
+          modules: modulesList.map((rm) => rm.semesterModule.module!.code),
         });
       }
 
@@ -119,7 +127,11 @@ export default class RegistrationClearanceRepository extends BaseRepository<
             },
             requestedModules: {
               with: {
-                module: true,
+                semesterModule: {
+                  with: {
+                    module: true,
+                  },
+                },
               },
             },
           },

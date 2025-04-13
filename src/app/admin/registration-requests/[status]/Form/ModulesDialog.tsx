@@ -1,4 +1,4 @@
-import { semesterModules } from '@/db/schema';
+import { modules, semesterModules } from '@/db/schema';
 import {
   Accordion,
   ActionIcon,
@@ -14,14 +14,17 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { ReactNode, useState } from 'react';
 
-type Module = typeof semesterModules.$inferSelect & {
+type Module = typeof modules.$inferSelect;
+
+type SemesterModule = typeof semesterModules.$inferSelect & {
   semesterNumber?: number;
   semesterName?: string;
+  module: Module;
 };
 
 interface ModulesDialogProps {
-  onAddModule: (module: Module) => void;
-  modules: Module[];
+  onAddModule: (module: SemesterModule) => void;
+  modules: SemesterModule[];
   isLoading: boolean;
   selectedModules: { id: number }[];
   disabled?: boolean;
@@ -42,8 +45,8 @@ export default function ModulesDialog({
   const filteredModules = availableModules
     ? availableModules.filter(
         (mod) =>
-          mod.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          mod.name.toLowerCase().includes(searchQuery.toLowerCase()),
+          mod.module.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          mod.module.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : [];
 
@@ -59,10 +62,10 @@ export default function ModulesDialog({
       acc[semesterKey].modules.push(module);
       return acc;
     },
-    {} as Record<number, { name: string; modules: Module[] }>,
+    {} as Record<number, { name: string; modules: SemesterModule[] }>,
   );
 
-  const handleAddModule = (module: Module) => {
+  const handleAddModule = (module: SemesterModule) => {
     onAddModule(module);
     close();
   };
@@ -116,23 +119,23 @@ export default function ModulesDialog({
                             </Table.Tr>
                           </Table.Thead>
                           <Table.Tbody>
-                            {modules.map((module) => (
-                              <Table.Tr key={module.id}>
-                                <Table.Td>{module.code}</Table.Td>
-                                <Table.Td>{module.name}</Table.Td>
-                                <Table.Td>{module.type}</Table.Td>
-                                <Table.Td>{module.credits}</Table.Td>
+                            {modules.map((semModule) => (
+                              <Table.Tr key={semModule.id}>
+                                <Table.Td>{semModule.module.code}</Table.Td>
+                                <Table.Td>{semModule.module.name}</Table.Td>
+                                <Table.Td>{semModule.type}</Table.Td>
+                                <Table.Td>{semModule.credits}</Table.Td>
                                 <Table.Td>
                                   <Button
                                     size='xs'
                                     variant='light'
-                                    onClick={() => handleAddModule(module)}
+                                    onClick={() => handleAddModule(semModule)}
                                     disabled={selectedModules.some(
-                                      (m) => m.id === module.id,
+                                      (m) => m.id === semModule.id,
                                     )}
                                   >
                                     {selectedModules.some(
-                                      (m) => m.id === module.id,
+                                      (m) => m.id === semModule.id,
                                     )
                                       ? 'Added'
                                       : 'Add'}

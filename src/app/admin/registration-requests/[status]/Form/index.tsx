@@ -2,7 +2,12 @@
 
 import { getStudentSemesterModules } from '@/app/(main)/(auth)/registration/request/actions';
 import { Form } from '@/components/adease';
-import { semesterModules, ModuleStatus, moduleStatusEnum } from '@/db/schema';
+import {
+  semesterModules,
+  ModuleStatus,
+  moduleStatusEnum,
+  modules,
+} from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 import { getModulesForStructure } from '@/server/semester-modules/actions';
 import { getStudent } from '@/server/students/actions';
@@ -25,15 +30,18 @@ import StdNoInput from '../../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 
-interface SelectedModule extends Module {
+interface SelectedModule extends SemesterModule {
   status: ModuleStatus;
   semesterNumber?: number;
   semesterName?: string;
 }
 
-type Module = typeof semesterModules.$inferSelect & {
+type Module = typeof modules.$inferSelect;
+
+type SemesterModule = typeof semesterModules.$inferSelect & {
   semesterNumber?: number;
   semesterName?: string;
+  module: Module;
 };
 
 type RegistrationRequest = {
@@ -95,13 +103,15 @@ export default function RegistrationRequestForm({
     : [];
 
   const filteredModules = structureModules
-    ? structureModules.flatMap((sem) =>
-        sem.modules.map((module) => ({
-          ...module,
-          semesterNumber: sem.semesterNumber,
-          semesterName: sem.name,
-        })),
-      )
+    ? (structureModules.flatMap((sem) =>
+        sem.semesterModules
+          .filter((module) => module.module !== null)
+          .map((module) => ({
+            ...module,
+            semesterNumber: sem.semesterNumber,
+            semesterName: sem.name,
+          })),
+      ) as SemesterModule[])
     : [];
 
   const handleStudentSelect = async (stdNo: number) => {
@@ -156,7 +166,7 @@ export default function RegistrationRequestForm({
       {(form) => {
         const selectedModules = form.values.selectedModules || [];
 
-        const handleAddModuleToForm = (module: Module) => {
+        const handleAddModuleToForm = (module: SemesterModule) => {
           const newModule: SelectedModule = {
             ...module,
             status: 'Compulsory',
@@ -291,18 +301,18 @@ export default function RegistrationRequestForm({
                       </Table.Td>
                     </Table.Tr>
                   ) : (
-                    selectedModules.map((module: SelectedModule) => (
-                      <Table.Tr key={module.id}>
-                        <Table.Td>{module.code}</Table.Td>
-                        <Table.Td>{module.name}</Table.Td>
-                        <Table.Td>{module.type}</Table.Td>
-                        <Table.Td>{module.credits}</Table.Td>
+                    selectedModules.map((semModule: SelectedModule) => (
+                      <Table.Tr key={semModule.id}>
+                        <Table.Td>{semModule.module.code}</Table.Td>
+                        <Table.Td>{semModule.module.name}</Table.Td>
+                        <Table.Td>{semModule.type}</Table.Td>
+                        <Table.Td>{semModule.credits}</Table.Td>
                         <Table.Td>
                           <Select
-                            value={module.status}
+                            value={semModule.status}
                             onChange={(value) =>
                               handleChangeModuleStatus(
-                                module.id,
+                                semModule.id,
                                 value as ModuleStatus,
                               )
                             }
@@ -318,7 +328,7 @@ export default function RegistrationRequestForm({
                         <Table.Td>
                           <ActionIcon
                             color='red'
-                            onClick={() => handleRemoveModule(module.id)}
+                            onClick={() => handleRemoveModule(semModule.id)}
                             disabled={!structureId}
                           >
                             <IconTrash size='1rem' />

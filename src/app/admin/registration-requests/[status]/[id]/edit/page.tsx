@@ -6,11 +6,22 @@ import {
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import EditForm from '../../Form';
-import { RegistrationRequest, SelectedModule } from '../../new/page';
+import { RegistrationRequest } from '../../new/page';
+import { ModuleStatus, modules, semesterModules } from '@/db/schema';
 
 type Props = {
   params: Promise<{ id: string }>;
 };
+
+type Module = typeof modules.$inferSelect;
+type SemesterModule = typeof semesterModules.$inferSelect & {
+  semesterNumber?: number;
+  semesterName?: string;
+  module: Module;
+};
+interface SelectedModule extends SemesterModule {
+  status: ModuleStatus;
+}
 
 export default async function RegistrationRequestEdit({ params }: Props) {
   const { id } = await params;
@@ -20,9 +31,9 @@ export default async function RegistrationRequestEdit({ params }: Props) {
   }
 
   const selectedModules = registrationRequest.requestedModules.map((rm) => ({
-    ...rm.module,
+    ...rm.semesterModule,
     status: rm.moduleStatus,
-  }));
+  })) as SelectedModule[];
 
   const structureModules = registrationRequest.student?.structureId
     ? await getModulesForStructure(registrationRequest.student.structureId)
@@ -36,7 +47,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
     }
     const res = await updateRegistrationWithModules(
       values.id,
-      selectedModules?.map((module: SelectedModule) => ({
+      selectedModules?.map((module) => ({
         id: module.id,
         status: module.status,
       })) || [],
@@ -51,7 +62,11 @@ export default async function RegistrationRequestEdit({ params }: Props) {
       <EditForm
         title={'Edit Registration Request'}
         defaultValues={{
-          ...registrationRequest,
+          id: registrationRequest.id,
+          stdNo: registrationRequest.stdNo,
+          semesterStatus: registrationRequest.semesterStatus ?? 'Active',
+          sponsorId: registrationRequest.sponsorId,
+          semesterNumber: registrationRequest.semesterNumber ?? 1,
           selectedModules,
         }}
         onSubmit={handleSubmit}

@@ -41,7 +41,9 @@ export default function EditButton({ moduleId, structureId }: Props) {
           <div>
             <ModuleEditForm
               defaultValues={{
-                ...mod,
+                credits: mod.credits,
+                module: mod.module!,
+                type: mod.type,
                 prerequisiteCodes: prerequisites.map((p) => p.code),
               }}
               structureId={structureId}
@@ -57,7 +59,7 @@ export default function EditButton({ moduleId, structureId }: Props) {
                       queryKey: ['structure', structureId],
                     }),
                   ]);
-                  return result;
+                  return { ...result, module: values.module };
                 } finally {
                   setIsSubmitting(false);
                 }

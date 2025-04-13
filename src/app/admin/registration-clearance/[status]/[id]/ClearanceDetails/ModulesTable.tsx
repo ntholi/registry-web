@@ -28,33 +28,36 @@ export function ModulesTable({
       if (!aIsRepeat && bIsRepeat) return 1;
       return 0;
     })
-    .map(({ module, moduleStatus }) => (
-    <TableTr key={module.id}>
-      <TableTd fw={500}>{module.code}</TableTd>
-      <TableTd>{module.name}</TableTd>
-      <TableTd>{module.credits}</TableTd>
-      <TableTd>
-        <Text size='sm' c={module.type === 'Delete' ? 'red' : undefined}>
-          {module.type}
-        </Text>
-      </TableTd>
-      <TableTd>
-        <Badge
-          variant='light'
-          size='sm'
-          color={
-            moduleStatus === 'Compulsory'
-              ? 'green'
-              : moduleStatus.startsWith('Repeat')
-              ? 'red'
-              : 'blue'
-          }
-        >
-          {moduleStatus}
-        </Badge>
-      </TableTd>
-    </TableTr>
-  ));
+    .map(({ semesterModule, moduleStatus }) => (
+      <TableTr key={semesterModule.id}>
+        <TableTd fw={500}>{semesterModule.module!.code}</TableTd>
+        <TableTd>{semesterModule.module!.name}</TableTd>
+        <TableTd>{semesterModule.credits}</TableTd>
+        <TableTd>
+          <Text
+            size='sm'
+            c={semesterModule.type === 'Delete' ? 'red' : undefined}
+          >
+            {semesterModule.type}
+          </Text>
+        </TableTd>
+        <TableTd>
+          <Badge
+            variant='light'
+            size='sm'
+            color={
+              moduleStatus === 'Compulsory'
+                ? 'green'
+                : moduleStatus.startsWith('Repeat')
+                  ? 'red'
+                  : 'blue'
+            }
+          >
+            {moduleStatus}
+          </Badge>
+        </TableTd>
+      </TableTr>
+    ));
 
   return (
     <Card withBorder>

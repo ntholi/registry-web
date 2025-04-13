@@ -1,6 +1,6 @@
 'use client';
 
-import { semesterModules } from '@/db/schema';
+import { modules, semesterModules } from '@/db/schema';
 import { findModulesByStructure } from '@/server/semester-modules/actions';
 import { MultiSelect, Stack, Switch } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -10,14 +10,15 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-type Module = typeof semesterModules.$inferInsert & {
+type SemesterModule = typeof semesterModules.$inferInsert & {
   prerequisiteCodes?: string[];
+  module: typeof modules.$inferSelect;
 };
 
 type Props = {
-  defaultValues?: Module;
+  defaultValues?: SemesterModule;
   structureId: number;
-  onSubmit: (values: Module) => Promise<Module>;
+  onSubmit: (values: SemesterModule) => Promise<SemesterModule>;
 };
 
 export default function ModuleEditForm({
@@ -35,31 +36,23 @@ export default function ModuleEditForm({
   });
 
   const prerequisiteOptions = Array.from(
-    new Set(modulesList?.map((mod) => mod.code) || []),
+    new Set(modulesList?.map((mod) => mod.module!.code) || []),
   )
     .map((code) => {
-      const foundModule = modulesList?.find((m) => m.code === code);
+      const foundModule = modulesList?.find((m) => m.module!.code === code);
       if (!foundModule) return null;
       return {
         value: code,
-        label: `${foundModule.code} - ${foundModule.name}`,
+        label: `${foundModule.module!.code} - ${foundModule.module!.name}`,
       };
     })
     .filter(Boolean) as { value: string; label: string }[];
 
-  const form = useForm<Module>({
-    initialValues: defaultValues || {
-      id: 0,
-      code: '',
-      name: '',
-      type: 'Core',
-      credits: 0,
-      hidden: false,
-      prerequisiteCodes: [],
-    },
+  const form = useForm<SemesterModule>({
+    initialValues: defaultValues,
   });
 
-  const handleSubmit = async (values: Module) => {
+  const handleSubmit = async (values: SemesterModule) => {
     try {
       setIsSubmitting(true);
       await onSubmit(values);

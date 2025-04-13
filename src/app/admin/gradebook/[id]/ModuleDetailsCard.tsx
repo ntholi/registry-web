@@ -1,13 +1,11 @@
+import { getLecturesModule } from '@/server/lecturer-modules/actions';
 import { Card, Group, Stack, Text, Title } from '@mantine/core';
 import { IconBook, IconCalendar, IconUserCheck } from '@tabler/icons-react';
 
 type ModuleDetailsCardProps = {
-  module: {
-    name: string;
-    code: string;
-    semesterId: number | null;
-    id: number;
-  };
+  module: NonNullable<
+    Awaited<ReturnType<typeof getLecturesModule>>
+  >['semesterModule'];
   studentsCount?: number;
 };
 
@@ -22,7 +20,7 @@ export default function ModuleDetailsCard({
           <Group gap='xs'>
             <IconBook size={20} stroke={1.5} />
             <Title order={2} fw={600}>
-              {module.name}
+              {module.module!.name}
             </Title>
           </Group>
 

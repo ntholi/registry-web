@@ -253,8 +253,8 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
   );
   if (gradebookNavItem) {
     gradebookNavItem.children = lecturerModules.map((module) => ({
-      label: module.semesterModule.code,
-      description: module.semesterModule.name,
+      label: module.semesterModule.module!.code,
+      description: module.semesterModule.module!.name,
       href: `/admin/gradebook/${module.id}`,
     }));
   }

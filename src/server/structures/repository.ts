@@ -22,7 +22,11 @@ export default class StructureRepository extends BaseRepository<
         },
         semesters: {
           with: {
-            modules: true,
+            semesterModules: {
+              with: {
+                module: true,
+              },
+            },
           },
         },
       },

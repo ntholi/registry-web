@@ -59,7 +59,7 @@ export default function ModulesForm({ stdNo, structureId, request }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       modules: request.requestedModules
-        .map((it) => it.module)
+        .map((it) => it.semesterModule)
         .map((it) => it.id),
     },
   });
