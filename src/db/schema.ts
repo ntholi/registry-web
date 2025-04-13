@@ -313,7 +313,7 @@ export const modules = sqliteTable('modules', {
 
 export const semesterModules = sqliteTable('semester_modules', {
   id: integer().primaryKey(),
-  moduleId: integer().references(() => modules.id),
+  moduleId: integer().references(() => modules.id), //TODO: AFTER DELETING CODE, MAKE THIS NOT NULL
   type: text({ enum: moduleTypeEnum }).notNull(),
   credits: real().notNull(),
   semesterId: integer().references(() => structureSemesters.id, {

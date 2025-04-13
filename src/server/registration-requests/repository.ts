@@ -56,7 +56,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
         term: true,
         requestedModules: {
           with: {
-            module: true,
+            semesterModule: {
+              with: {
+                module: true,
+              },
+            },
           },
         },
         clearances: {
@@ -77,7 +81,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
       with: {
         requestedModules: {
           with: {
-            module: true,
+            semesterModule: {
+              with: {
+                module: true,
+              },
+            },
           },
         },
       },
@@ -256,7 +264,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
     return db.query.requestedModules.findMany({
       where: eq(requestedModules.registrationRequestId, registrationRequestId),
       with: {
-        module: true,
+        semesterModule: {
+          with: {
+            module: true,
+          },
+        },
       },
     });
   }

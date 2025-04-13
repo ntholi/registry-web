@@ -104,9 +104,11 @@ export default async function RegistrationStatusPage() {
                     className='flex items-end justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5'
                   >
                     <div>
-                      <p className='font-medium'>{rm.module.name}</p>
+                      <p className='font-medium'>
+                        {rm?.semesterModule?.module?.name}
+                      </p>
                       <p className='mt-1 text-sm text-muted-foreground'>
-                        {rm.module.code}
+                        {rm?.semesterModule?.module?.code}
                       </p>
                     </div>
                     <div className='flex items-center gap-2'>

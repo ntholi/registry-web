@@ -113,7 +113,11 @@ export async function getRegistrationRequestsByStudent(stdNo: number) {
       term: true,
       requestedModules: {
         with: {
-          module: true,
+          semesterModule: {
+            with: {
+              module: true,
+            },
+          },
         },
       },
       clearances: {
