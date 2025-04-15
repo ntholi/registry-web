@@ -93,6 +93,7 @@ export const ModuleSearchInput = forwardRef<
       data={options}
       placeholder='Search for modules by code or name'
       limit={10}
+      clearable
       maxDropdownHeight={400}
       rightSection={isLoading ? <Loader size='xs' /> : null}
       description={
