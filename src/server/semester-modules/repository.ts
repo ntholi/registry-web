@@ -7,9 +7,12 @@ import {
   semesterModules,
   structureSemesters,
   structures,
+  studentModules,
+  studentSemesters,
+  terms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { desc, eq, like, or } from 'drizzle-orm';
+import { desc, eq, like, or, and, inArray } from 'drizzle-orm';
 
 export default class ModuleRepository extends BaseRepository<
   typeof semesterModules,
@@ -187,7 +190,27 @@ export default class ModuleRepository extends BaseRepository<
     });
   }
 
-  async searchModulesWithDetails(search = '') {
+  async searchModulesWithDetails(search = '', term: string) {
+    // Find all semester modules that have student modules in the active term
+    const relevantModuleIds = await db
+      .select({
+        semesterModuleId: studentModules.semesterModuleId,
+      })
+      .from(studentModules)
+      .innerJoin(
+        studentSemesters,
+        eq(studentModules.studentSemesterId, studentSemesters.id),
+      )
+      .where(eq(studentSemesters.term, term))
+      .groupBy(studentModules.semesterModuleId);
+
+    const semesterModuleIds = relevantModuleIds.map((m) => m.semesterModuleId);
+
+    // If no modules found in the active term, return empty array
+    if (semesterModuleIds.length === 0) {
+      return [];
+    }
+
     return await db
       .select({
         id: semesterModules.id,
@@ -226,12 +249,15 @@ export default class ModuleRepository extends BaseRepository<
       .leftJoin(structures, eq(structures.id, structureSemesters.structureId))
       .leftJoin(programs, eq(programs.id, structures.programId))
       .where(
-        search
-          ? or(
-              like(modules.code, `%${search}%`),
-              like(modules.name, `%${search}%`),
-            )
-          : undefined,
+        and(
+          inArray(semesterModules.id, semesterModuleIds),
+          search
+            ? or(
+                like(modules.code, `%${search}%`),
+                like(modules.name, `%${search}%`),
+              )
+            : undefined,
+        ),
       )
       .limit(20);
   }

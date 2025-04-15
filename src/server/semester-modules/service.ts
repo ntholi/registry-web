@@ -3,6 +3,7 @@ import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import ModuleRepository from './repository';
+import { getCurrentTerm } from '../terms/actions';
 
 type Module = typeof semesterModules.$inferInsert;
 
@@ -111,8 +112,9 @@ class ModuleService {
   }
 
   async searchModulesWithDetails(search = '') {
+    const term = await getCurrentTerm();
     return withAuth(
-      async () => this.repository.searchModulesWithDetails(search),
+      async () => this.repository.searchModulesWithDetails(search, term.name),
       ['dashboard'],
     );
   }
