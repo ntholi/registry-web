@@ -35,7 +35,7 @@ export default function AssessmentModal({
   const [opened, { open, close }] = useDisclosure(false);
   const queryClient = useQueryClient();
 
-  const schema = createInsertSchema(assessments);
+  const schema = createInsertSchema(assessments).omit({ termId: true });
 
   const initialValues: Partial<Assessment> = {
     semesterModuleId: moduleId,
