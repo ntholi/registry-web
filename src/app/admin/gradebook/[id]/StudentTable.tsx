@@ -3,6 +3,7 @@ import { getAssessmentMarksByModuleId } from '@/server/assessment-marks/actions'
 import { getAssessmentBySemesterModuleId } from '@/server/assessments/actions';
 import { getStudentsBySemesterModuleId } from '@/server/students/actions';
 import {
+  Anchor,
   Box,
   Flex,
   Group,
@@ -21,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { getAssessmentName } from '../../assessments/options';
 import AssessmentMarksInput from './MarksInput';
+import Link from 'next/link';
 
 type Props = {
   semesterModuleId: number;
@@ -132,9 +134,17 @@ export default function StudentTable({ semesterModuleId }: Props) {
 
     return (
       <Table.Tr key={student.stdNo}>
-        <Table.Td fw={500}>{student.stdNo}</Table.Td>
+        <Table.Td fw={500}>
+          <Anchor
+            component={Link}
+            size='0.93rem'
+            href={`/admin/students/${student.stdNo}`}
+          >
+            {student.stdNo}
+          </Anchor>
+        </Table.Td>
         <Table.Td>
-          <Text>{student.name}</Text>
+          <Text size='0.93rem'>{student.name}</Text>
         </Table.Td>
         {assessments?.map((assessment) => {
           const markData = getMarkForStudentAssessment(
@@ -202,7 +212,6 @@ export default function StudentTable({ semesterModuleId }: Props) {
             }
             onChange={(e) => setSearchQuery(e.currentTarget.value)}
             w='100%'
-            size='md'
             maw={500}
           />
           <Tooltip label='Export to Excel'>
