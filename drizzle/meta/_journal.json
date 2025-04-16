@@ -225,6 +225,13 @@
       "when": 1744832837419,
       "tag": "0031_happy_blink",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "6",
+      "when": 1744833038155,
+      "tag": "0032_lush_gamora",
+      "breakpoints": true
     }
   ]
 }

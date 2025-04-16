@@ -525,20 +525,26 @@ export const assessmentNumberEnum = [
   'CW15',
 ] as const;
 
-export const assessments = sqliteTable('assessments', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  moduleId: integer()
-    .references(() => modules.id, { onDelete: 'cascade' })
-    .notNull(),
-  termId: integer()
-    .references(() => terms.id, { onDelete: 'cascade' })
-    .notNull(),
-  assessmentNumber: text({ enum: assessmentNumberEnum }).notNull(),
-  assessmentType: text().notNull(),
-  totalMarks: real().notNull(),
-  weight: real().notNull(),
-  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
+export const assessments = sqliteTable(
+  'assessments',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    moduleId: integer()
+      .references(() => modules.id, { onDelete: 'cascade' })
+      .notNull(),
+    termId: integer()
+      .references(() => terms.id, { onDelete: 'cascade' })
+      .notNull(),
+    assessmentNumber: text({ enum: assessmentNumberEnum }).notNull(),
+    assessmentType: text().notNull(),
+    totalMarks: real().notNull(),
+    weight: real().notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  },
+  (table) => ({
+    uniqueAssessmentModule: unique().on(table.moduleId, table.termId),
+  }),
+);
 
 export const assessmentMarks = sqliteTable('assessment_marks', {
   id: integer().primaryKey({ autoIncrement: true }),
