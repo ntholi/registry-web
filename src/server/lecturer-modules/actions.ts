@@ -3,7 +3,7 @@
 import { lecturesModulesService as service } from './service';
 import { LecturesModule } from './types';
 import { db } from '@/db';
-import { lecturerModules } from '@/db/schema';
+import { assignedModules } from '@/db/schema';
 import { auth } from '@/auth';
 import { eq } from 'drizzle-orm';
 
@@ -23,12 +23,12 @@ export async function deleteLecturesModule(id: number) {
   return service.delete(id);
 }
 
-export async function getLecturerModulesForUser() {
+export async function getassignedModulesForUser() {
   const session = await auth();
   if (!session?.user?.id) return [];
 
-  const modules = await db.query.lecturerModules.findMany({
-    where: eq(lecturerModules.userId, session.user.id),
+  const modules = await db.query.assignedModules.findMany({
+    where: eq(assignedModules.userId, session.user.id),
     with: {
       semesterModule: {
         with: {

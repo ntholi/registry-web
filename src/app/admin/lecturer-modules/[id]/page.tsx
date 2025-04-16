@@ -28,7 +28,7 @@ export default async function LecturesModuleDetails({ params }: Props) {
     <DetailsView>
       <DetailsViewHeader
         title={'Manage Assessments'}
-        queryKey={['lecturerModules']}
+        queryKey={['assignedModules']}
         handleDelete={async () => {
           'use server';
           await deleteLecturesModule(Number(id));

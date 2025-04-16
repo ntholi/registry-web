@@ -8,7 +8,7 @@ export default function Layout({ children }: PropsWithChildren) {
   return (
     <ListLayout
       path={'/admin/lecturer-modules'}
-      queryKey={['lecturerModules ']}
+      queryKey={['assignedModules ']}
       getData={getLecturesModules}
       actionIcons={[
         <NewLink key={'new-link'} href='/admin/lecturer-modules/new' />,

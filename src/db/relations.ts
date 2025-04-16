@@ -4,7 +4,7 @@ import {
   assessments,
   assessmentMarks,
   authenticators,
-  lecturerModules,
+  assignedModules,
   modulePrerequisites,
   semesterModules,
   programs,
@@ -264,15 +264,15 @@ export const sponsoredStudentsRelations = relations(
   }),
 );
 
-export const lecturerModulesRelations = relations(
-  lecturerModules,
+export const assignedModulesRelations = relations(
+  assignedModules,
   ({ one }) => ({
     user: one(users, {
-      fields: [lecturerModules.userId],
+      fields: [assignedModules.userId],
       references: [users.id],
     }),
     semesterModule: one(semesterModules, {
-      fields: [lecturerModules.semesterModuleId],
+      fields: [assignedModules.semesterModuleId],
       references: [semesterModules.id],
     }),
   }),

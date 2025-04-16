@@ -37,7 +37,7 @@ export default function LecturesModuleForm({
     <Form
       title={title}
       action={onSubmit}
-      queryKey={['lecturerModules']}
+      queryKey={['assignedModules']}
       schema={lecturesModule}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {

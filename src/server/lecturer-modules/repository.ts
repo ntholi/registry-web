@@ -1,19 +1,19 @@
 import { db } from '@/db';
-import { lecturerModules } from '@/db/schema';
+import { assignedModules } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { eq } from 'drizzle-orm';
 
 export default class LecturesModuleRepository extends BaseRepository<
-  typeof lecturerModules,
+  typeof assignedModules,
   'id'
 > {
   constructor() {
-    super(lecturerModules, 'id');
+    super(assignedModules, 'id');
   }
 
   override async findById(id: number) {
-    const data = await db.query.lecturerModules.findFirst({
-      where: eq(lecturerModules.id, id),
+    const data = await db.query.assignedModules.findFirst({
+      where: eq(assignedModules.id, id),
       with: {
         semesterModule: {
           with: {
@@ -25,9 +25,9 @@ export default class LecturesModuleRepository extends BaseRepository<
     return data;
   }
 
-  override async query(options: QueryOptions<typeof lecturerModules>) {
+  override async query(options: QueryOptions<typeof assignedModules>) {
     const criteria = this.buildQueryCriteria(options);
-    const data = await db.query.lecturerModules.findMany({
+    const data = await db.query.assignedModules.findMany({
       ...criteria,
       with: {
         semesterModule: {

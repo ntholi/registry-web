@@ -2,7 +2,7 @@
 
 import { Shell } from '@/components/adease';
 import { DashboardUser, UserRole } from '@/db/schema';
-import { getLecturerModulesForUser } from '@/server/lecturer-modules/actions';
+import { getassignedModulesForUser } from '@/server/lecturer-modules/actions';
 import {
   countApprovedRegistrationClearances,
   countPendingRegistrationClearances,
@@ -230,9 +230,9 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   const { status, data: session } = useSession();
 
-  const { data: lecturerModules = [] } = useQuery({
-    queryKey: ['lecturerModules'],
-    queryFn: getLecturerModulesForUser,
+  const { data: assignedModules = [] } = useQuery({
+    queryKey: ['assignedModules'],
+    queryFn: getassignedModulesForUser,
     enabled: status === 'authenticated' && session?.user?.role === 'academic',
   });
 
@@ -252,7 +252,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
     (item) => item.label === 'Gradebook',
   );
   if (gradebookNavItem) {
-    gradebookNavItem.children = lecturerModules.map((module) => ({
+    gradebookNavItem.children = assignedModules.map((module) => ({
       label: module.semesterModule.module!.code,
       description: module.semesterModule.module!.name,
       href: `/admin/gradebook/${module.id}`,
