@@ -501,8 +501,8 @@ export const assignedModules = sqliteTable('assigned_modules', {
   userId: text()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
-  semesterModuleId: integer()
-    .references(() => semesterModules.id, { onDelete: 'cascade' })
+  moduleId: integer()
+    .references(() => modules.id, { onDelete: 'cascade' })
     .notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
@@ -527,8 +527,8 @@ export const assessmentNumberEnum = [
 
 export const assessments = sqliteTable('assessments', {
   id: integer().primaryKey({ autoIncrement: true }),
-  semesterModuleId: integer()
-    .references(() => semesterModules.id, { onDelete: 'cascade' })
+  moduleId: integer()
+    .references(() => modules.id, { onDelete: 'cascade' })
     .notNull(),
   termId: integer()
     .references(() => terms.id, { onDelete: 'cascade' })

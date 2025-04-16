@@ -13,7 +13,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 
   async findByModuleId(semesterModuleId: number) {
     const moduleAssessments = await db.query.assessments.findMany({
-      where: eq(assessments.semesterModuleId, semesterModuleId),
+      where: eq(assessments.moduleId, semesterModuleId),
       columns: {
         id: true,
       },
