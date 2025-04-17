@@ -12,7 +12,7 @@ import {
   terms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { desc, eq, like, or, and, inArray } from 'drizzle-orm';
+import { desc, eq, like, or, and, inArray, sql } from 'drizzle-orm';
 
 export default class ModuleRepository extends BaseRepository<
   typeof semesterModules,
@@ -191,75 +191,50 @@ export default class ModuleRepository extends BaseRepository<
   }
 
   async searchModulesWithDetails(search = '', term: string) {
-    // Find all semester modules that have student modules in the active term
-    const relevantModuleIds = await db
-      .select({
-        semesterModuleId: studentModules.semesterModuleId,
-      })
-      .from(studentModules)
-      .innerJoin(
-        studentSemesters,
-        eq(studentModules.studentSemesterId, studentSemesters.id),
-      )
-      .where(eq(studentSemesters.term, term))
-      .groupBy(studentModules.semesterModuleId);
-
-    const semesterModuleIds = relevantModuleIds.map((m) => m.semesterModuleId);
-
-    // If no modules found in the active term, return empty array
-    if (semesterModuleIds.length === 0) {
-      return [];
-    }
-
-    return await db
+    const result = await db
       .select({
         id: semesterModules.id,
-        moduleId: semesterModules.moduleId,
-        type: semesterModules.type,
-        credits: semesterModules.credits,
-        semesterId: semesterModules.semesterId,
-        hidden: semesterModules.hidden,
+        moduleId: modules.id,
         code: modules.code,
         name: modules.name,
+        semesterModuleId: semesterModules.id,
+        type: semesterModules.type,
+        credits: semesterModules.credits,
         semester: {
           id: structureSemesters.id,
-          structureId: structureSemesters.structureId,
-          semesterNumber: structureSemesters.semesterNumber,
           name: structureSemesters.name,
         },
-        structure: {
-          id: structures.id,
-          code: structures.code,
-          programId: structures.programId,
-        },
-        program: {
-          id: programs.id,
-          code: programs.code,
-          name: programs.name,
-          level: programs.level,
-          schoolId: programs.schoolId,
-        },
+        studentCount: sql<number>`COUNT(DISTINCT ${studentModules.id})`,
       })
-      .from(semesterModules)
-      .innerJoin(modules, eq(modules.id, semesterModules.moduleId))
+      .from(modules)
+      .innerJoin(semesterModules, eq(semesterModules.moduleId, modules.id))
       .leftJoin(
         structureSemesters,
-        eq(structureSemesters.id, semesterModules.semesterId),
+        eq(semesterModules.semesterId, structureSemesters.id),
       )
-      .leftJoin(structures, eq(structures.id, structureSemesters.structureId))
-      .leftJoin(programs, eq(programs.id, structures.programId))
-      .where(
+      .leftJoin(
+        studentModules,
+        eq(studentModules.semesterModuleId, semesterModules.id),
+      )
+      .leftJoin(
+        studentSemesters,
         and(
-          inArray(semesterModules.id, semesterModuleIds),
-          search
-            ? or(
-                like(modules.code, `%${search}%`),
-                like(modules.name, `%${search}%`),
-              )
-            : undefined,
+          eq(studentModules.studentSemesterId, studentSemesters.id),
+          eq(studentSemesters.term, term),
         ),
       )
-      .limit(20);
+      .where(
+        search
+          ? or(
+              like(modules.code, `%${search}%`),
+              like(modules.name, `%${search}%`),
+            )
+          : undefined,
+      )
+      .groupBy(modules.id, semesterModules.id, structureSemesters.id)
+      .orderBy(modules.code);
+
+    return result;
   }
 }
 

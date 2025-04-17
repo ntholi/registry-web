@@ -20,8 +20,7 @@ interface ModuleOption extends ComboboxItem {
   value: string;
   label: string;
   code: string;
-  semesterName: string;
-  programName: string;
+  studentCount: number;
 }
 
 export type ModuleSearchInputProps = Omit<
@@ -51,8 +50,7 @@ export const ModuleSearchInput = forwardRef<
       value: module.id.toString(),
       label: module.name,
       code: module.code,
-      semesterName: module.semester?.name || 'Unknown Semester',
-      programName: module.program?.name || 'Unknown Program',
+      studentCount: module.studentCount ?? 0,
     })) || [];
 
   const handleInputChange = (value: string) => {
@@ -99,11 +97,9 @@ export const ModuleSearchInput = forwardRef<
       description={
         value && modules
           ? (() => {
-              const selectedModule = modules.find(
-                (module) => module.id === value,
-              );
-              if (selectedModule) {
-                return `${selectedModule.program?.name || 'Unknown Program'} - ${selectedModule.semester?.name || 'Unknown Semester'}`;
+              const mod = modules.find((m) => m.id === value);
+              if (mod) {
+                return `${mod.studentCount} student${mod.studentCount === 1 ? '' : 's'} registered this semester`;
               }
               return undefined;
             })()
@@ -119,15 +115,10 @@ export const ModuleSearchInput = forwardRef<
               </Text>
               <Text size='sm'>{moduleOption.label}</Text>
             </Group>
-            <Group gap={'xs'}>
-              <Text size='xs' c='dimmed'>
-                {moduleOption.semesterName}
-              </Text>
-              •
-              <Text size='xs' c='dimmed'>
-                {moduleOption.programName}
-              </Text>
-            </Group>
+            <Text size='xs' c='dimmed'>
+              {moduleOption.studentCount} student
+              {moduleOption.studentCount === 1 ? '' : 's'} registered
+            </Text>
           </Stack>
         );
       }}
