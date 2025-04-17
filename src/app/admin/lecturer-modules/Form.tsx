@@ -2,6 +2,7 @@
 
 import { Form } from '@/components/adease';
 import { ModuleSearchInput } from '@/components/ModuleSearchInput';
+import UserInput from '@/components/UserInput';
 import { Stack } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -10,6 +11,7 @@ import { z } from 'zod';
 const lecturesModule = z.object({
   id: z.number().optional(),
   moduleId: z.number(),
+  lecturerId: z.string(),
 });
 type LecturesModule = z.infer<typeof lecturesModule>;
 
@@ -32,6 +34,7 @@ export default function LecturesModuleForm({
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(
     defaultValues?.moduleId || null,
   );
+  const [selectedLecturer, setSelectedLecturer] = useState<any | null>(null);
 
   return (
     <Form
@@ -46,6 +49,19 @@ export default function LecturesModuleForm({
     >
       {(form) => (
         <Stack>
+          <UserInput
+            label='Lecturer'
+            role='academic'
+            value={selectedLecturer}
+            onChange={(user) => {
+              setSelectedLecturer(user);
+              if (user) {
+                form.setFieldValue('lecturerId', user.id);
+              } else {
+                form.setFieldValue('lecturerId', '');
+              }
+            }}
+          />
           <ModuleSearchInput
             label='Module'
             value={selectedModuleId}

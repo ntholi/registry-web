@@ -18,7 +18,7 @@ class UserService {
   }
 
   async findAll(params: QueryOptions<typeof users>) {
-    return withAuth(async () => this.repository.query(params), []);
+    return withAuth(async () => this.repository.query(params), ['dashboard']);
   }
 
   async create(data: User) {
