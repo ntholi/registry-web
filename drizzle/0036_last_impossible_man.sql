@@ -1,0 +1,1 @@
+ALTER TABLE `assigned_modules` ADD `academic_user_id` integer NOT NULL REFERENCES academic_users(id);

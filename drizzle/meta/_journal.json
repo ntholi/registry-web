@@ -246,6 +246,20 @@
       "when": 1744871101241,
       "tag": "0034_slow_whistler",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "6",
+      "when": 1744947582792,
+      "tag": "0035_hot_deadpool",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1744947610960,
+      "tag": "0036_last_impossible_man",
+      "breakpoints": true
     }
   ]
 }

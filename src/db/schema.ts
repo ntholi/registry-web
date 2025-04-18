@@ -496,10 +496,39 @@ export const sponsoredStudents = sqliteTable(
   }),
 );
 
-export const assignedModules = sqliteTable('assigned_modules', {
+export const academicUserRoles = [
+  'manager',
+  'program_leader',
+  'principal_lecturer',
+  'year_leader',
+  'lecturer',
+  'admin',
+] as const;
+
+export const academicUsers = sqliteTable('academic_users', {
   id: integer().primaryKey({ autoIncrement: true }),
   userId: text()
     .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  role: text({ enum: academicUserRoles }).notNull().default('lecturer'),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
+export const academicUserSchools = sqliteTable('academic_user_schools', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  academicUserId: integer()
+    .references(() => academicUsers.id, { onDelete: 'cascade' })
+    .notNull(),
+  schoolId: integer()
+    .references(() => schools.id, { onDelete: 'cascade' })
+    .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
+export const assignedModules = sqliteTable('assigned_modules', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  academicUserId: integer()
+    .references(() => academicUsers.id, { onDelete: 'cascade' })
     .notNull(),
   moduleId: integer()
     .references(() => modules.id, { onDelete: 'cascade' })
