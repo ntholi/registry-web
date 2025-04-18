@@ -1,20 +1,8 @@
-import { DetailsView, DetailsViewHeader } from '@/components/adease';
-import { notFound } from 'next/navigation';
 import { getUser } from '@/server/users/actions';
-import {
-  Box,
-  Divider,
-  Group,
-  Stack,
-  Tabs,
-  TabsList,
-  TabsPanel,
-  TabsTab,
-  Title,
-  Text,
-  Flex,
-} from '@mantine/core';
-import ModuleAssignModal from './ModuleAsignModal';
+import { Box, Divider, Flex, Stack, Text, Title } from '@mantine/core';
+import { notFound } from 'next/navigation';
+import AssignedModules from './AssignedModules';
+import ModuleAssignModal from './ModuleAssignModal';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -44,20 +32,7 @@ export default async function UserDetails({ params }: Props) {
       </Flex>
 
       <Divider />
-      <Box px='lg' py='md'>
-        <Tabs defaultValue='gallery' orientation='vertical'>
-          <TabsList>
-            <TabsTab value='gallery'>Gallery</TabsTab>
-            <TabsTab value='messages'>Messages</TabsTab>
-            <TabsTab value='settings'>Settings</TabsTab>
-          </TabsList>
-          <Box p='lg'>
-            <TabsPanel value='gallery'>Gallery tab content</TabsPanel>
-            <TabsPanel value='messages'>Messages tab content</TabsPanel>
-            <TabsPanel value='settings'>Settings tab content</TabsPanel>
-          </Box>
-        </Tabs>
-      </Box>
+      <AssignedModules />
     </Stack>
   );
 }
