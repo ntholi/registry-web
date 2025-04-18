@@ -1,39 +1,17 @@
-import { lecturers } from '@/db/schema';
-import LecturerRepository from './repository';
+import { users } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
-
-type Lecturer = typeof lecturers.$inferInsert;
+import UserRepository from '../users/repository';
 
 class LecturerService {
-  constructor(private readonly repository = new LecturerRepository()) {}
+  constructor(private readonly repository = new UserRepository()) {}
 
-  async first() {
-    return withAuth(async () => this.repository.findFirst(), []);
+  async get(id: string) {
+    return withAuth(async () => this.repository.findById(id), ['academic']);
   }
 
-  async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), []);
-  }
-
-  async getAll(params: QueryOptions<typeof lecturers>) {
-    return withAuth(async () => this.repository.query(params), []);
-  }
-
-  async create(data: Lecturer) {
-    return withAuth(async () => this.repository.create(data), []);
-  }
-
-  async update(id: number, data: Lecturer) {
-    return withAuth(async () => this.repository.update(id, data), []);
-  }
-
-  async delete(id: number) {
-    return withAuth(async () => this.repository.delete(id), []);
-  }
-
-  async count() {
-    return withAuth(async () => this.repository.count(), []);
+  async getAll(params: QueryOptions<typeof users>) {
+    return withAuth(async () => this.repository.query(params), ['academic']);
   }
 }
 

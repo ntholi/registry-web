@@ -1,8 +1,8 @@
 'use client';
 
-import { PropsWithChildren } from 'react';
-import { ListItem, ListLayout, NewLink } from '@/components/adease';
+import { ListItem, ListLayout } from '@/components/adease';
 import { getLecturers } from '@/server/lecturers/actions';
+import { PropsWithChildren } from 'react';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
@@ -10,7 +10,6 @@ export default function Layout({ children }: PropsWithChildren) {
       path={'/admin/lecturers'}
       queryKey={['lecturers']}
       getData={getLecturers}
-      actionIcons={[<NewLink key={'new-link'} href='/admin/lecturers/new' />]}
       renderItem={(it) => <ListItem id={it.id} label={it.id} />}
     >
       {children}
