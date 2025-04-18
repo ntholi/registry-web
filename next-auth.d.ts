@@ -5,6 +5,7 @@ declare module 'next-auth' {
   interface User extends DefaultUser {
     role: UserRole;
     stdNo?: number;
+    academicRole?: AcademicUserRoles;
     isDepartmentAdmin: boolean;
   }
 }

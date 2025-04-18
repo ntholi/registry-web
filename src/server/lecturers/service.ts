@@ -3,6 +3,8 @@ import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import UserRepository from '../users/repository';
 
+const academicAdmin = ['manager', 'program_leader', 'admin'] as const;
+
 class LecturerService {
   constructor(private readonly repository = new UserRepository()) {}
 
@@ -11,7 +13,11 @@ class LecturerService {
   }
 
   async getAll(params: QueryOptions<typeof users>) {
-    return withAuth(async () => this.repository.query(params), ['academic']);
+    return withAuth(
+      async () => this.repository.query(params),
+      ['academic'],
+      async (session) => academicAdmin.includes(session.user?.academicRole),
+    );
   }
 }
 

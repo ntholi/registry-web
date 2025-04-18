@@ -10,7 +10,9 @@ export default function Layout({ children }: PropsWithChildren) {
       path={'/admin/lecturers'}
       queryKey={['lecturers']}
       getData={getLecturers}
-      renderItem={(it) => <ListItem id={it.id} label={it.id} />}
+      renderItem={(it) => (
+        <ListItem id={it.id} label={it.name} description={it.email} />
+      )}
     >
       {children}
     </ListLayout>
