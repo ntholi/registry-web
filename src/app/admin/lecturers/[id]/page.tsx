@@ -13,9 +13,8 @@ import {
   Title,
   Text,
   Flex,
-  Button,
 } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
+import ModuleAssignModal from './ModuleAsignModal';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -36,13 +35,12 @@ export default async function UserDetails({ params }: Props) {
           <Title order={2} fw={100}>
             {lecturer.name}
           </Title>
+
           <Text c='dimmed' size='sm'>
             Assigned Modules
           </Text>
         </Box>
-        <Button size='sm' variant='light' leftSection={<IconPlus size={14} />}>
-          Assign Module
-        </Button>
+        <ModuleAssignModal />
       </Flex>
 
       <Divider />
