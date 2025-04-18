@@ -18,6 +18,7 @@ import {
 import { notFound } from 'next/navigation';
 import { deleteUser, getUser } from '../../../../server/users/actions';
 import { largeProfilePic, toTitleCase } from '@/lib/utils';
+import { UserRole } from '@/db/schema';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -54,9 +55,6 @@ export default async function UserDetails({ params }: Props) {
             <Stack gap={'lg'} p={'sm'}>
               <FieldView label='Name'>{users.name}</FieldView>
               <Group align='center'>
-                <Text c='dimmed' size='0.95rem'>
-                  Role
-                </Text>
                 <Badge color={getRoleColor(users.role)}>
                   {toTitleCase(users.role)}
                 </Badge>
@@ -70,12 +68,24 @@ export default async function UserDetails({ params }: Props) {
   );
 }
 
-function getRoleColor(role: string) {
+function getRoleColor(role: UserRole) {
   switch (role) {
     case 'admin':
       return 'red';
     case 'user':
       return 'blue';
+    case 'student':
+      return 'teal';
+    case 'finance':
+      return 'orange';
+    case 'registry':
+      return 'grape';
+    case 'library':
+      return 'indigo';
+    case 'resource':
+      return 'cyan';
+    case 'academic':
+      return 'yellow';
     default:
       return 'gray';
   }
