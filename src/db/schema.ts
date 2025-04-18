@@ -22,12 +22,23 @@ export type DashboardUser = (typeof dashboardUsers)[number];
 export const userRoles = ['user', 'student', ...dashboardUsers] as const;
 export type UserRole = (typeof userRoles)[number];
 
+export const academicUserRoles = [
+  'manager',
+  'program_leader',
+  'principal_lecturer',
+  'year_leader',
+  'lecturer',
+  'admin',
+] as const;
+export type AcademicUserRoles = (typeof academicUserRoles)[number];
+
 export const users = sqliteTable('users', {
   id: text()
     .primaryKey()
     .$defaultFn(() => nanoid()),
   name: text(),
   role: text({ enum: userRoles }).notNull().default('user'),
+  academicRole: text({ enum: academicUserRoles }),
   isDepartmentAdmin: integer({ mode: 'boolean' }).notNull().default(false),
   email: text().unique(),
   emailVerified: integer({ mode: 'timestamp_ms' }),
@@ -496,28 +507,10 @@ export const sponsoredStudents = sqliteTable(
   }),
 );
 
-export const academicUserRoles = [
-  'manager',
-  'program_leader',
-  'principal_lecturer',
-  'year_leader',
-  'lecturer',
-  'admin',
-] as const;
-
-export const academicUsers = sqliteTable('academic_users', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  userId: text()
-    .references(() => users.id, { onDelete: 'cascade' })
-    .notNull(),
-  role: text({ enum: academicUserRoles }).notNull().default('lecturer'),
-  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
 export const academicUserSchools = sqliteTable('academic_user_schools', {
   id: integer().primaryKey({ autoIncrement: true }),
-  academicUserId: integer()
-    .references(() => academicUsers.id, { onDelete: 'cascade' })
+  userId: integer()
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   schoolId: integer()
     .references(() => schools.id, { onDelete: 'cascade' })
@@ -527,8 +520,8 @@ export const academicUserSchools = sqliteTable('academic_user_schools', {
 
 export const assignedModules = sqliteTable('assigned_modules', {
   id: integer().primaryKey({ autoIncrement: true }),
-  academicUserId: integer()
-    .references(() => academicUsers.id, { onDelete: 'cascade' })
+  userId: integer()
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   moduleId: integer()
     .references(() => modules.id, { onDelete: 'cascade' })
