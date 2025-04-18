@@ -18,7 +18,6 @@ import {
 import { notFound } from 'next/navigation';
 import { deleteUser, getUser } from '../../../../server/users/actions';
 import { largeProfilePic, toTitleCase } from '@/lib/utils';
-import { UserRole } from '@/db/schema';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -44,21 +43,30 @@ export default async function UserDetails({ params }: Props) {
       />
       <DetailsViewBody>
         <Grid>
-          <GridCol span={{ base: 12, md: 5 }}>
+          <GridCol span={{ base: 12, md: 6 }}>
             <Card withBorder p={'sm'}>
               <Center>
-                <Avatar src={largeProfilePic(users.image)} size={200} />
+                <Avatar src={largeProfilePic(users.image)} size={300} />
               </Center>
             </Card>
           </GridCol>
-          <GridCol span={{ base: 12, md: 7 }}>
+          <GridCol span={{ base: 12, md: 6 }}>
             <Stack gap={'lg'} p={'sm'}>
               <FieldView label='Name'>{users.name}</FieldView>
               <Group align='center'>
-                <Badge color={getRoleColor(users.role)}>
+                <Badge
+                  color={getRoleColor(users.role)}
+                  radius={'sm'}
+                  variant='light'
+                >
                   {toTitleCase(users.role)}
                 </Badge>
               </Group>
+              {users.role === 'academic' && (
+                <FieldView label='Academic Role'>
+                  {toTitleCase(users.academicRole)}
+                </FieldView>
+              )}
               <FieldView label='Email'>{users.email}</FieldView>
             </Stack>
           </GridCol>
@@ -68,7 +76,7 @@ export default async function UserDetails({ params }: Props) {
   );
 }
 
-function getRoleColor(role: UserRole) {
+function getRoleColor(role: string) {
   switch (role) {
     case 'admin':
       return 'red';

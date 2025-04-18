@@ -1,7 +1,8 @@
 'use client';
 
 import { Form } from '@/components/adease';
-import { userRoles, users } from '@/db/schema';
+import { academicUserRoles, userRoles, users } from '@/db/schema';
+import { toTitleCase } from '@/lib/utils';
 import { Select, TextInput } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
@@ -42,12 +43,25 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
           <TextInput label='Name' {...form.getInputProps('name')} />
           <Select
             label='Role'
-            data={userRoles.map((role) => ({
-              value: role,
-              label: role.charAt(0).toUpperCase() + role.slice(1),
-            }))}
+            searchable
+            data={userRoles
+              .map((role) => ({
+                value: role,
+                label: toTitleCase(role),
+              }))
+              .sort((a, b) => a.label.localeCompare(b.label))}
             {...form.getInputProps('role')}
           />
+          {form.values.role === 'academic' && (
+            <Select
+              label='Academic Role'
+              data={academicUserRoles.map((role) => ({
+                value: role,
+                label: toTitleCase(role),
+              }))}
+              {...form.getInputProps('academicRole')}
+            />
+          )}
         </>
       )}
     </Form>
