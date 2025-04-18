@@ -13,9 +13,9 @@ type Props = {
 
 export default async function UserDetails({ params }: Props) {
   const { id } = await params;
-  const users = await getUser(id);
+  const lecturer = await getUser(id);
 
-  if (!users) {
+  if (!lecturer) {
     return notFound();
   }
 
@@ -23,7 +23,7 @@ export default async function UserDetails({ params }: Props) {
     <DetailsView>
       <DetailsViewHeader title={'Lecturer'} queryKey={['lecturers']} />
       <DetailsViewBody>
-        <FieldView label='Name'>{users.name}</FieldView>
+        <FieldView label='Name'>{lecturer.name}</FieldView>
       </DetailsViewBody>
     </DetailsView>
   );
