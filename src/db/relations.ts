@@ -26,6 +26,8 @@ import {
   terms,
   users,
   modules,
+  academicUsers,
+  academicUserSchools,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -264,11 +266,32 @@ export const sponsoredStudentsRelations = relations(
   }),
 );
 
+export const academicUsersRelations = relations(academicUsers, ({ one }) => ({
+  user: one(users, {
+    fields: [academicUsers.userId],
+    references: [users.id],
+  }),
+}));
+
+export const academicUserSchoolsRelations = relations(
+  academicUserSchools,
+  ({ one }) => ({
+    academicUser: one(academicUsers, {
+      fields: [academicUserSchools.academicUserId],
+      references: [academicUsers.id],
+    }),
+    school: one(schools, {
+      fields: [academicUserSchools.schoolId],
+      references: [schools.id],
+    }),
+  }),
+);
+
 export const assignedModulesRelations = relations(
   assignedModules,
   ({ one }) => ({
     user: one(users, {
-      fields: [assignedModules.userId],
+      fields: [assignedModules.academicUserId],
       references: [users.id],
     }),
     semesterModule: one(semesterModules, {

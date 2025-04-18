@@ -2,7 +2,6 @@
 
 import { Shell } from '@/components/adease';
 import { DashboardUser, UserRole } from '@/db/schema';
-import { getassignedModulesForUser } from '@/server/lecturer-modules/actions';
 import {
   countApprovedRegistrationClearances,
   countPendingRegistrationClearances,
@@ -82,8 +81,8 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       roles: ['registry', 'finance'],
     },
     {
-      label: 'Modules',
-      href: '/admin/lecturer-modules',
+      label: 'Lecturers',
+      href: '/admin/lecturers',
       icon: IconSchool,
       roles: ['academic'],
     },
@@ -228,36 +227,12 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
 }
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
-  const { status, data: session } = useSession();
-
-  const { data: assignedModules = [] } = useQuery({
-    queryKey: ['assignedModules'],
-    queryFn: getassignedModulesForUser,
-    enabled: status === 'authenticated' && session?.user?.role === 'academic',
-  });
+  const { data: session } = useSession();
 
   const navigation = getNavigation(
     session?.user?.isDepartmentAdmin ?? false,
     session?.user?.role as DashboardUser,
   );
-
-  if (status === 'loading') {
-    return (
-      <Flex h='100vh' w='100vw' justify='center' align='center'>
-        <LoadingOverlay visible />
-      </Flex>
-    );
-  }
-  const gradebookNavItem = navigation.find(
-    (item) => item.label === 'Gradebook',
-  );
-  if (gradebookNavItem) {
-    gradebookNavItem.children = assignedModules.map((module) => ({
-      label: module.semesterModule.module!.code,
-      description: module.semesterModule.module!.name,
-      href: `/admin/gradebook/${module.id}`,
-    }));
-  }
 
   return (
     <Shell>
