@@ -98,8 +98,12 @@ export default function AcademicsView({ student, showMarks }: Props) {
                           <ModuleTable
                             modules={semester.studentModules.map((sm) => ({
                               id: sm.semesterModuleId,
-                              code: sm.semesterModule.module!.code,
-                              name: sm.semesterModule.module!.name,
+                              code:
+                                sm.semesterModule.module?.code ??
+                                `${sm.semesterModuleId}`,
+                              name:
+                                sm.semesterModule.module?.name ??
+                                `Semester Module ID: ${sm.semesterModuleId}`,
                               type: sm.semesterModule.type,
                               status: sm.status,
                               marks: sm.marks,
