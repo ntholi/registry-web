@@ -1,5 +1,5 @@
 'use client';
-import { ModuleSearchInput } from '@/components/ModuleSearchInput';
+import { ModuleSearchInput } from '@/app/admin/lecturers/[id]/ModuleSearchInput';
 import { Button, Group, Modal, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
