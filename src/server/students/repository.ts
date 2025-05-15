@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import { studentModules, students } from '@/db/schema';
-import BaseRepository from '@/server/base/BaseRepository';
-import { eq } from 'drizzle-orm';
+import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
+import { and, eq, like, or, SQL } from 'drizzle-orm';
 
 export default class StudentRepository extends BaseRepository<
   typeof students,
@@ -86,6 +86,45 @@ export default class StudentRepository extends BaseRepository<
     });
 
     return data.map((module) => module.studentSemester.studentProgram.student);
+  }
+
+  override async query(options: QueryOptions<typeof students>) {
+    if (!options.search) {
+      return super.query(options);
+    }
+
+    const searchTerms = options.search
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (searchTerms.length === 0) {
+      return super.query(options);
+    }
+
+    const { search, searchColumns, ...restOptions } = options;
+    const { orderBy, offset, limit } = this.buildQueryCriteria(restOptions);
+    let customWhere: SQL | undefined = undefined;
+    const nameConditions = searchTerms.map((term) =>
+      like(students.name, `%${term}%`),
+    );
+    customWhere = and(...nameConditions);
+    if (options.filter) {
+      customWhere = and(customWhere, options.filter);
+    }
+    const items = await db
+      .select()
+      .from(this.table)
+      .orderBy(...orderBy)
+      .where(customWhere)
+      .limit(limit)
+      .offset(offset);
+
+    return await this.createPaginatedResult(items, {
+      where: customWhere,
+      limit,
+    });
   }
 }
 

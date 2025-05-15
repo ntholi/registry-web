@@ -103,7 +103,7 @@ export default function AcademicsView({ student, showMarks }: Props) {
                                 `${sm.semesterModuleId}`,
                               name:
                                 sm.semesterModule.module?.name ??
-                                `Semester Module ID: ${sm.semesterModuleId}`,
+                                `<<Semester Module ID: ${sm.semesterModuleId}>>`,
                               type: sm.semesterModule.type,
                               status: sm.status,
                               marks: sm.marks,
