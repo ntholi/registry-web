@@ -253,10 +253,10 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 }
 
 function UserButton() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
-  if (!session?.user) {
+  if (status === 'unauthenticated') {
     router.push('/api/auth/signin');
   }
 
