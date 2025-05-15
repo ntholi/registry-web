@@ -14,15 +14,15 @@ type Props = {
 export default async function ModuleDetails({ params }: Props) {
   const { id } = await params;
   const module = await getModule(Number(id));
-  
+
   if (!module) {
     return notFound();
   }
 
   return (
     <DetailsView>
-      <DetailsViewHeader 
-        title={'Module'} 
+      <DetailsViewHeader
+        title={'Module'}
         queryKey={['modules']}
         handleDelete={async () => {
           'use server';
@@ -30,6 +30,7 @@ export default async function ModuleDetails({ params }: Props) {
         }}
       />
       <DetailsViewBody>
+        <FieldView label='ID'>{module.id}</FieldView>
         <FieldView label='Code'>{module.code}</FieldView>
         <FieldView label='Name'>{module.name}</FieldView>
         <FieldView label='Status'>{module.status}</FieldView>

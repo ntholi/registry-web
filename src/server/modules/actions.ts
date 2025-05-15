@@ -1,18 +1,20 @@
 'use server';
 
-
 import { modules } from '@/db/schema';
-import { modulesService as service} from './service';
+import { modulesService as service } from './service';
 
 type Module = typeof modules.$inferInsert;
-
 
 export async function getModule(id: number) {
   return service.get(id);
 }
 
 export async function getModules(page: number = 1, search = '') {
-  return service.getAll({ page, search });
+  return service.getAll({
+    page,
+    search,
+    searchColumns: ['id', 'code', 'name'],
+  });
 }
 
 export async function createModule(module: Module) {
