@@ -191,19 +191,20 @@ export default class ModuleRepository extends BaseRepository<
   }
 
   async searchModulesWithDetails(search = '', term: string) {
-    const result = await db
+    const rawResults = await db
       .select({
-        id: semesterModules.id,
         moduleId: modules.id,
         code: modules.code,
         name: modules.name,
         semesterModuleId: semesterModules.id,
         type: semesterModules.type,
         credits: semesterModules.credits,
-        semester: {
-          id: structureSemesters.id,
-          name: structureSemesters.name,
-        },
+        semesterId: structureSemesters.id,
+        semesterName: structureSemesters.name,
+        semesterNumber: structureSemesters.semesterNumber,
+        structureId: structureSemesters.structureId,
+        programId: structures.programId,
+        programName: programs.name,
         studentCount: sql<number>`COUNT(DISTINCT ${studentModules.id})`,
       })
       .from(modules)
@@ -211,6 +212,14 @@ export default class ModuleRepository extends BaseRepository<
       .leftJoin(
         structureSemesters,
         eq(semesterModules.semesterId, structureSemesters.id),
+      )
+      .leftJoin(
+        structures,
+        eq(structureSemesters.structureId, structures.id),
+      )
+      .leftJoin(
+        programs,
+        eq(structures.programId, programs.id),
       )
       .leftJoin(
         studentModules,
@@ -231,10 +240,47 @@ export default class ModuleRepository extends BaseRepository<
             )
           : undefined,
       )
-      .groupBy(modules.id, semesterModules.id, structureSemesters.id)
+      .groupBy(
+        modules.id,
+        semesterModules.id, 
+        structureSemesters.id,
+        structures.id,
+        programs.id,
+      )
       .orderBy(modules.code);
 
-    return result;
+    // Group by module to create the nested structure
+    const moduleMap = new Map();
+
+    rawResults.forEach((row) => {
+      if (!moduleMap.has(row.moduleId)) {
+        moduleMap.set(row.moduleId, {
+          id: row.moduleId,
+          code: row.code,
+          name: row.name,
+          structureSemesters: [],
+        });
+      }
+
+      const module = moduleMap.get(row.moduleId);
+      
+      if (row.semesterId) {
+        module.structureSemesters.push({
+          id: row.semesterId,
+          name: row.semesterName,
+          semesterNumber: row.semesterNumber,
+          semesterModuleId: row.semesterModuleId,
+          type: row.type,
+          credits: row.credits,
+          structureId: row.structureId,
+          programId: row.programId,
+          programName: row.programName,
+          studentCount: row.studentCount,
+        });
+      }
+    });
+
+    return Array.from(moduleMap.values());
   }
 }
 
