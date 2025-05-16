@@ -190,7 +190,7 @@ export default class ModuleRepository extends BaseRepository<
     });
   }
 
-  async searchModulesWithDetails(search = '', term: string) {
+  async searchModulesWithDetails(search = '', term: typeof terms.$inferSelect) {
     const rawResults = await db
       .select({
         moduleId: modules.id,
@@ -213,24 +213,11 @@ export default class ModuleRepository extends BaseRepository<
         structureSemesters,
         eq(semesterModules.semesterId, structureSemesters.id),
       )
-      .leftJoin(
-        structures,
-        eq(structureSemesters.structureId, structures.id),
-      )
-      .leftJoin(
-        programs,
-        eq(structures.programId, programs.id),
-      )
+      .leftJoin(structures, eq(structureSemesters.structureId, structures.id))
+      .leftJoin(programs, eq(structures.programId, programs.id))
       .leftJoin(
         studentModules,
         eq(studentModules.semesterModuleId, semesterModules.id),
-      )
-      .leftJoin(
-        studentSemesters,
-        and(
-          eq(studentModules.studentSemesterId, studentSemesters.id),
-          eq(studentSemesters.term, term),
-        ),
       )
       .where(
         search
@@ -242,28 +229,39 @@ export default class ModuleRepository extends BaseRepository<
       )
       .groupBy(
         modules.id,
-        semesterModules.id, 
+        semesterModules.id,
         structureSemesters.id,
         structures.id,
         programs.id,
       )
       .orderBy(modules.code);
 
-    // Group by module to create the nested structure
-    const moduleMap = new Map();
+    const moduleCounts = rawResults.reduce(
+      (acc, row) => {
+        if (!acc[row.moduleId]) {
+          acc[row.moduleId] = row.studentCount;
+        } else {
+          acc[row.moduleId] += row.studentCount;
+        }
+        return acc;
+      },
+      {} as Record<number, number>,
+    );
 
+    const moduleMap = new Map();
     rawResults.forEach((row) => {
       if (!moduleMap.has(row.moduleId)) {
         moduleMap.set(row.moduleId, {
           id: row.moduleId,
           code: row.code,
           name: row.name,
+          studentCount: moduleCounts[row.moduleId] || 0,
           structureSemesters: [],
         });
       }
 
       const module = moduleMap.get(row.moduleId);
-      
+
       if (row.semesterId) {
         module.structureSemesters.push({
           id: row.semesterId,

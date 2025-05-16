@@ -114,7 +114,7 @@ class ModuleService {
   async searchModulesWithDetails(search = '') {
     const term = await getCurrentTerm();
     return withAuth(
-      async () => this.repository.searchModulesWithDetails(search, term.name),
+      async () => this.repository.searchModulesWithDetails(search, term),
       ['dashboard'],
     );
   }
