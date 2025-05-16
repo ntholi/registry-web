@@ -327,10 +327,7 @@ export default class ModuleRepository extends BaseRepository<
 
       moduleResult.studentCount = studentCount;
     }
-
-    console.log('Modules -> ', JSON.stringify(modulesResult, null, 2));
-
-    return modulesResult;
+    return modulesResult.sort((a, b) => b.studentCount - a.studentCount);
   }
 }
 
