@@ -29,6 +29,7 @@ interface SemesterData {
   credits: number;
   semesterId: number;
   hidden: boolean;
+  studentCount: number;
   structureSemester: {
     id: number;
     semesterNumber: number;
@@ -289,6 +290,7 @@ export default class ModuleRepository extends BaseRepository<
           credits: result.credits!,
           semesterId: result.semesterId!,
           hidden: result.hidden!,
+          studentCount: 0,
           structureSemester: {
             id: result.semesterId!,
             semesterNumber: result.semesterNumber!,
@@ -305,27 +307,62 @@ export default class ModuleRepository extends BaseRepository<
 
     const modulesResult = Array.from(moduleMap.values());
 
-    for (const moduleResult of modulesResult) {
-      const studentCount = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(studentModules)
-        .innerJoin(
-          studentSemesters,
-          eq(studentModules.studentSemesterId, studentSemesters.id),
-        )
-        .innerJoin(
-          semesterModules,
-          eq(studentModules.semesterModuleId, semesterModules.id),
-        )
-        .where(
-          and(
-            eq(semesterModules.moduleId, moduleResult.moduleId),
-            eq(studentSemesters.term, term.name),
-          ),
-        )
-        .then((result) => result[0]?.count || 0);
+    const allSemesterModuleIds = modulesResult.flatMap((module) =>
+      module.semesters.map((semester) => semester.id),
+    );
 
-      moduleResult.studentCount = studentCount;
+    const allModuleIds = modulesResult.map((module) => module.moduleId);
+
+    const studentCounts = await db
+      .select({
+        semesterModuleId: studentModules.semesterModuleId,
+        moduleId: semesterModules.moduleId,
+        count: sql<number>`count(*)`,
+      })
+      .from(studentModules)
+      .innerJoin(
+        studentSemesters,
+        eq(studentModules.studentSemesterId, studentSemesters.id),
+      )
+      .innerJoin(
+        semesterModules,
+        eq(studentModules.semesterModuleId, semesterModules.id),
+      )
+      .where(
+        and(
+          inArray(studentModules.semesterModuleId, allSemesterModuleIds),
+          eq(studentSemesters.term, term.name),
+        ),
+      )
+      .groupBy(studentModules.semesterModuleId);
+
+    const semesterModuleCounts = new Map<number, number>();
+    const moduleCountsMap = new Map<number, number>();
+
+    allModuleIds.forEach((id) => moduleCountsMap.set(id, 0));
+
+    studentCounts.forEach((count) => {
+      semesterModuleCounts.set(count.semesterModuleId, count.count);
+    });
+
+    studentCounts.forEach((count) => {
+      semesterModuleCounts.set(count.semesterModuleId, count.count);
+
+      if (count.moduleId) {
+        moduleCountsMap.set(
+          count.moduleId,
+          (moduleCountsMap.get(count.moduleId) || 0) + count.count,
+        );
+      }
+    });
+
+    for (const moduleResult of modulesResult) {
+      moduleResult.studentCount =
+        moduleCountsMap.get(moduleResult.moduleId) || 0;
+
+      for (const semester of moduleResult.semesters) {
+        semester.studentCount = semesterModuleCounts.get(semester.id) || 0;
+      }
     }
     return modulesResult.sort((a, b) => b.studentCount - a.studentCount);
   }
