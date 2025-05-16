@@ -1,12 +1,17 @@
 import ModuleRepository from '@/server/semester-modules/repository';
 import { NextRequest, NextResponse } from 'next/server';
+import TermRepository from '@/server/terms/repository';
 
 export async function GET(request: NextRequest) {
   const search = request.nextUrl.searchParams.get('module');
   if (!search) return NextResponse.json([]);
+  const term = await new TermRepository().getActive();
+  if (!term) {
+    throw new Error('No active term');
+  }
   const modules = await new ModuleRepository().searchModulesWithDetails(
     search,
-    '2025-02',
+    term,
   );
   return NextResponse.json(modules);
 }

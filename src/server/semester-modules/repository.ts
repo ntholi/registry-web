@@ -304,6 +304,30 @@ export default class ModuleRepository extends BaseRepository<
     });
 
     const modulesResult = Array.from(moduleMap.values());
+
+    for (const moduleResult of modulesResult) {
+      const studentCount = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(studentModules)
+        .innerJoin(
+          studentSemesters,
+          eq(studentModules.studentSemesterId, studentSemesters.id),
+        )
+        .innerJoin(
+          semesterModules,
+          eq(studentModules.semesterModuleId, semesterModules.id),
+        )
+        .where(
+          and(
+            eq(semesterModules.moduleId, moduleResult.moduleId),
+            eq(studentSemesters.term, term.name),
+          ),
+        )
+        .then((result) => result[0]?.count || 0);
+
+      moduleResult.studentCount = studentCount;
+    }
+
     console.log('Modules -> ', JSON.stringify(modulesResult, null, 2));
 
     return modulesResult;
