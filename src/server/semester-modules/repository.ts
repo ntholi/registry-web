@@ -14,6 +14,33 @@ import {
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { desc, eq, like, or, and, inArray, sql } from 'drizzle-orm';
 
+interface ModuleWithSemesters {
+  code: string;
+  name: string;
+  moduleId: number;
+  id: number;
+  studentCount: number;
+  semesters: SemesterData[];
+}
+
+interface SemesterData {
+  id: number;
+  type: string;
+  credits: number;
+  semesterId: number;
+  hidden: boolean;
+  structureSemester: {
+    id: number;
+    semesterNumber: number;
+    name: string;
+    structureId: number;
+  };
+  program: {
+    id: number;
+    name: string;
+  };
+}
+
 export default class ModuleRepository extends BaseRepository<
   typeof semesterModules,
   'id'
@@ -190,95 +217,96 @@ export default class ModuleRepository extends BaseRepository<
     });
   }
 
-  async searchModulesWithDetails(search = '', term: typeof terms.$inferSelect) {
-    const rawResults = await db
+  async searchModulesWithDetails(
+    search = '',
+    term: typeof terms.$inferSelect,
+  ): Promise<ModuleWithSemesters[]> {
+    const termSemester = term.semester;
+    const validSemesterNumbers = [];
+
+    for (let i = termSemester; i <= 10; i += 2) {
+      validSemesterNumbers.push(i);
+    }
+
+    const results = await db
       .select({
-        moduleId: modules.id,
-        code: modules.code,
-        name: modules.name,
-        semesterModuleId: semesterModules.id,
+        id: semesterModules.id,
         type: semesterModules.type,
         credits: semesterModules.credits,
-        semesterId: structureSemesters.id,
-        semesterName: structureSemesters.name,
+        semesterId: semesterModules.semesterId,
+        hidden: semesterModules.hidden,
+        code: modules.code,
+        name: modules.name,
+        moduleId: modules.id,
         semesterNumber: structureSemesters.semesterNumber,
+        semesterName: structureSemesters.name,
         structureId: structureSemesters.structureId,
-        programId: structures.programId,
+        programId: programs.id,
         programName: programs.name,
-        studentCount: sql<number>`COUNT(DISTINCT ${studentModules.id})`,
       })
-      .from(modules)
-      .innerJoin(semesterModules, eq(semesterModules.moduleId, modules.id))
-      .leftJoin(
+      .from(semesterModules)
+      .innerJoin(modules, eq(semesterModules.moduleId, modules.id))
+      .innerJoin(
         structureSemesters,
         eq(semesterModules.semesterId, structureSemesters.id),
       )
-      .leftJoin(structures, eq(structureSemesters.structureId, structures.id))
-      .leftJoin(programs, eq(structures.programId, programs.id))
-      .leftJoin(
-        studentModules,
-        eq(studentModules.semesterModuleId, semesterModules.id),
-      )
+      .innerJoin(structures, eq(structureSemesters.structureId, structures.id))
+      .innerJoin(programs, eq(structures.programId, programs.id))
       .where(
-        search
-          ? or(
-              like(modules.code, `%${search}%`),
-              like(modules.name, `%${search}%`),
-            )
-          : undefined,
-      )
-      .groupBy(
-        modules.id,
-        semesterModules.id,
-        structureSemesters.id,
-        structures.id,
-        programs.id,
+        and(
+          search
+            ? or(
+                like(modules.code, `%${search}%`),
+                like(modules.name, `%${search}%`),
+              )
+            : undefined,
+          inArray(structureSemesters.semesterNumber, validSemesterNumbers),
+        ),
       )
       .orderBy(modules.code);
 
-    const moduleCounts = rawResults.reduce(
-      (acc, row) => {
-        if (!acc[row.moduleId]) {
-          acc[row.moduleId] = row.studentCount;
-        } else {
-          acc[row.moduleId] += row.studentCount;
-        }
-        return acc;
-      },
-      {} as Record<number, number>,
-    );
+    const moduleMap = new Map<string, ModuleWithSemesters>();
+    results.forEach((result) => {
+      const { code, name, moduleId } = result;
+      const moduleKey = moduleId.toString();
 
-    const moduleMap = new Map();
-    rawResults.forEach((row) => {
-      if (!moduleMap.has(row.moduleId)) {
-        moduleMap.set(row.moduleId, {
-          id: row.moduleId,
-          code: row.code,
-          name: row.name,
-          studentCount: moduleCounts[row.moduleId] || 0,
-          structureSemesters: [],
+      if (!moduleMap.has(moduleKey)) {
+        moduleMap.set(moduleKey, {
+          code,
+          name,
+          moduleId,
+          id: moduleId,
+          studentCount: 0,
+          semesters: [],
         });
       }
 
-      const module = moduleMap.get(row.moduleId);
-
-      if (row.semesterId) {
-        module.structureSemesters.push({
-          id: row.semesterId,
-          name: row.semesterName,
-          semesterNumber: row.semesterNumber,
-          semesterModuleId: row.semesterModuleId,
-          type: row.type,
-          credits: row.credits,
-          structureId: row.structureId,
-          programId: row.programId,
-          programName: row.programName,
-          studentCount: row.studentCount,
+      const moduleEntry = moduleMap.get(moduleKey);
+      if (moduleEntry) {
+        moduleEntry.semesters.push({
+          id: result.id,
+          type: result.type!,
+          credits: result.credits!,
+          semesterId: result.semesterId!,
+          hidden: result.hidden!,
+          structureSemester: {
+            id: result.semesterId!,
+            semesterNumber: result.semesterNumber!,
+            name: result.semesterName!,
+            structureId: result.structureId!,
+          },
+          program: {
+            id: result.programId!,
+            name: result.programName!,
+          },
         });
       }
     });
 
-    return Array.from(moduleMap.values());
+    const modulesResult = Array.from(moduleMap.values());
+    console.log('Modules -> ', JSON.stringify(modulesResult, null, 2));
+
+    return modulesResult;
   }
 }
 
