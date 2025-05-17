@@ -42,15 +42,23 @@ export const ModuleSearchInput = forwardRef<
   const { data: modules, isLoading } = useQuery({
     queryKey: ['modules', 'search', debouncedSearch],
     queryFn: () => searchModulesWithDetails(debouncedSearch),
+    select: (modules) =>
+      modules.map((module) => ({
+        ...module,
+        studentCount: module.semesters.reduce(
+          (count, semester) => count + (semester.studentCount ?? 0),
+          0,
+        ),
+      })),
     enabled: debouncedSearch.length > 1,
   });
 
   const options: ModuleOption[] =
     modules?.map((module) => ({
-      value: module.id.toString(),
+      value: module.moduleId.toString(),
       label: module.name,
       code: module.code,
-      studentCount: module.studentCount ?? 0,
+      studentCount: module.studentCount,
     })) || [];
 
   const handleInputChange = (value: string) => {
@@ -59,13 +67,13 @@ export const ModuleSearchInput = forwardRef<
 
   const handleOptionSubmit = (value: string) => {
     const selectedModule = modules?.find(
-      (module) => module.id.toString() === value,
+      (module) => module.moduleId.toString() === value,
     );
 
     console.log('Selected Module', selectedModule);
 
     if (selectedModule) {
-      onChange(selectedModule.id);
+      onChange(selectedModule.moduleId);
       if (onModuleSelect) onModuleSelect(selectedModule);
       setInputValue(`${selectedModule.code} - ${selectedModule.name}`);
     } else {
@@ -76,7 +84,9 @@ export const ModuleSearchInput = forwardRef<
 
   const displayValue = () => {
     if (value && modules) {
-      const selectedModule = modules.find((module) => module.id === value);
+      const selectedModule = modules.find(
+        (module) => module.moduleId === Number(value),
+      );
       if (selectedModule) {
         return `${selectedModule.code} - ${selectedModule.name}`;
       }
@@ -96,17 +106,6 @@ export const ModuleSearchInput = forwardRef<
       clearable
       maxDropdownHeight={400}
       rightSection={isLoading ? <Loader size='xs' /> : null}
-      description={
-        value && modules
-          ? (() => {
-              const mod = modules.find((m) => m.id === value);
-              if (mod) {
-                return `${mod.studentCount} student${mod.studentCount === 1 ? '' : 's'} registered this semester`;
-              }
-              return undefined;
-            })()
-          : undefined
-      }
       renderOption={({ option }) => {
         const moduleOption = option as ModuleOption;
         return (
