@@ -1,10 +1,19 @@
 'use client';
 import { ModuleSearchInput } from '@/app/admin/lecturers/[id]/ModuleSearchInput';
-import { Button, Group, Modal, Stack } from '@mantine/core';
+import {
+  Button,
+  Group,
+  Modal,
+  Paper,
+  Select,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
+import { searchModulesWithDetails } from '@/server/semester-modules/actions';
 
 type FormValues = {
   userId: string;
@@ -12,10 +21,12 @@ type FormValues = {
   structureSemesterId: number;
 };
 
+type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
+
 export default function ModuleAssignModal() {
   const [opened, { open, close }] = useDisclosure(false);
   const params = useParams<{ id: string }>();
-  const [selectedModule, setSelectedModule] = useState<number | null>(null);
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormValues>({
@@ -44,9 +55,9 @@ export default function ModuleAssignModal() {
     }, 1000);
   }
 
-  const handleModuleSelect = (moduleId: number | null) => {
-    setSelectedModule(moduleId);
-    form.setFieldValue('moduleId', moduleId || 0);
+  const handleModuleSelect = (module: Module | null) => {
+    setSelectedModule(module);
+    form.setFieldValue('moduleId', module?.moduleId || 0);
   };
 
   return (
@@ -58,11 +69,26 @@ export default function ModuleAssignModal() {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap='md'>
             <ModuleSearchInput
-              onChange={handleModuleSelect}
-              value={selectedModule}
+              onModuleSelect={handleModuleSelect}
+              value={selectedModule?.moduleId}
               error={form.errors.moduleId}
               required
             />
+
+            <Paper withBorder p='md'>
+              {selectedModule ? (
+                <Stack>
+                  {selectedModule.semesters.map((semester) => (
+                    <Group key={semester.semesterModuleId}>
+                      <Text>{semester.semesterName}</Text>
+                      <Text>{semester.programName}</Text>
+                    </Group>
+                  ))}
+                </Stack>
+              ) : (
+                <Text c='dimmed'>No module selected</Text>
+              )}
+            </Paper>
 
             <Group justify='flex-end' mt='md'>
               <Button variant='subtle' onClick={close}>

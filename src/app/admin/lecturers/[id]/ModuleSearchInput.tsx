@@ -27,7 +27,7 @@ export type ModuleSearchInputProps = Omit<
   AutocompleteProps,
   'data' | 'onChange' | 'value' | 'onOptionSubmit'
 > & {
-  onChange: (moduleId: number | null) => void;
+  onChange?: (moduleId: number | null) => void;
   value?: number | null;
   onModuleSelect?: (module: Module | null) => void;
 };
@@ -73,11 +73,11 @@ export const ModuleSearchInput = forwardRef<
     console.log('Selected Module', selectedModule);
 
     if (selectedModule) {
-      onChange(selectedModule.moduleId);
+      onChange?.(selectedModule.moduleId);
       if (onModuleSelect) onModuleSelect(selectedModule);
       setInputValue(`${selectedModule.code} - ${selectedModule.name}`);
     } else {
-      onChange(null);
+      onChange?.(null);
       if (onModuleSelect) onModuleSelect(null);
     }
   };
