@@ -2,6 +2,7 @@
 import { ModuleSearchInput } from '@/app/admin/lecturers/[id]/ModuleSearchInput';
 import {
   Button,
+  Checkbox,
   Group,
   Modal,
   Paper,
@@ -79,10 +80,20 @@ export default function ModuleAssignModal() {
               {selectedModule ? (
                 <Stack>
                   {selectedModule.semesters.map((semester) => (
-                    <Group key={semester.semesterModuleId}>
-                      <Text>{semester.semesterName}</Text>
-                      <Text>{semester.programName}</Text>
-                    </Group>
+                    <Checkbox.Card p='md' key={semester.semesterModuleId}>
+                      <Group wrap='nowrap' align='flex-start'>
+                        <Checkbox.Indicator />
+                        <div>
+                          <Text size='sm' fw={500}>
+                            {semester.programName}
+                          </Text>
+                          <Text size='xs' c='dimmed'>
+                            {semester.semesterName}{' '}
+                            {`(${semester.studentCount} Students)`}
+                          </Text>
+                        </div>
+                      </Group>
+                    </Checkbox.Card>
                   ))}
                 </Stack>
               ) : (
