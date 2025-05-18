@@ -43,44 +43,35 @@ export default function AssignedModules({ user }: Props) {
   }
 
   return (
-    <Stack gap='md'>
-      <Title order={4} fw={500}>
-        {assignedModules.length} Assigned Module
-        {assignedModules.length !== 1 ? 's' : ''}
-      </Title>
+    <SimpleGrid cols={2} mt='md'>
+      {assignedModules.map((assignment) => (
+        <Card key={assignment.id} withBorder p='md'>
+          <Group justify='space-between' wrap='nowrap'>
+            <Stack gap='xs'>
+              <Group gap='xs'>
+                <Text fw={500}>
+                  {assignment.semesterModule?.module?.name || 'Unknown Module'}
+                </Text>
+                <Text size='sm' c='dimmed'>
+                  ({assignment.semesterModule?.module?.code || 'N/A'})
+                </Text>
+              </Group>
 
-      <SimpleGrid cols={2}>
-        {assignedModules.map((assignment) => (
-          <Card key={assignment.id} withBorder p='md'>
-            <Group justify='space-between' wrap='nowrap'>
-              <Stack gap='xs'>
-                <Group gap='xs'>
-                  <Text fw={500}>
-                    {assignment.semesterModule?.module?.name ||
-                      'Unknown Module'}
-                  </Text>
-                  <Text size='sm' c='dimmed'>
-                    ({assignment.semesterModule?.module?.code || 'N/A'})
-                  </Text>
-                </Group>
-
-                <Group gap='xs'>
-                  {assignment.semesterModule?.semester?.name && (
-                    <Badge variant='light' color='gray'>
-                      {toClassName(
-                        assignment.semesterModule.semester.structure.program
-                          .code,
-                        assignment.semesterModule.semester.name,
-                      )}
-                    </Badge>
-                  )}
-                </Group>
-              </Stack>
-            </Group>
-          </Card>
-        ))}
-      </SimpleGrid>
-    </Stack>
+              <Group gap='xs'>
+                {assignment.semesterModule?.semester?.name && (
+                  <Badge variant='light' color='gray'>
+                    {toClassName(
+                      assignment.semesterModule.semester.structure.program.code,
+                      assignment.semesterModule.semester.name,
+                    )}
+                  </Badge>
+                )}
+              </Group>
+            </Stack>
+          </Group>
+        </Card>
+      ))}
+    </SimpleGrid>
   );
 }
 
