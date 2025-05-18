@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { searchModulesWithDetails } from '@/server/semester-modules/actions';
 import { assignModulesToLecturer } from '@/server/assigned-modules/actions';
 import { notifications } from '@mantine/notifications';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type FormValues = {
   userId: string;

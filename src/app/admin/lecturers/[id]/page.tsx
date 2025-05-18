@@ -32,7 +32,7 @@ export default async function UserDetails({ params }: Props) {
       </Flex>
 
       <Divider />
-      <AssignedModules />
+      <AssignedModules user={lecturer} />
     </Stack>
   );
 }

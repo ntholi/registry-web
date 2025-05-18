@@ -48,7 +48,23 @@ export default class AssignedModuleRepository extends BaseRepository<
 
   async findByUser(userId: string) {
     return db.query.assignedModules.findMany({
-      where: eq(assignedModules.userId, userId)
+      where: eq(assignedModules.userId, userId),
+      with: {
+        semesterModule: {
+          with: {
+            module: true,
+            semester: {
+              with: {
+                structure: {
+                  with: {
+                    program: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     });
   }
 }
