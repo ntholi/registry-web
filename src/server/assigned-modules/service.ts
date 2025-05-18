@@ -38,8 +38,7 @@ class AssignedModuleService {
 
   async assignModulesToLecturer(userId: string, semesterModuleIds: number[]) {
     return withAuth(async () => {
-      await this.repository.removeModuleAssignments(semesterModuleIds);
-
+      await this.repository.removeModuleAssignments(userId, semesterModuleIds);
       const assignments = semesterModuleIds.map((semesterModuleId) => ({
         userId,
         semesterModuleId,
@@ -47,6 +46,24 @@ class AssignedModuleService {
 
       return this.repository.createMany(assignments);
     }, []);
+  }
+
+  async getLecturersByModule(semesterModuleId: number) {
+    return withAuth(
+      async () => this.repository.findByModule(semesterModuleId),
+      [],
+    );
+  }
+
+  async getModulesByLecturer(userId: string) {
+    return withAuth(async () => this.repository.findByUser(userId), []);
+  }
+
+  async checkAssignment(userId: string, semesterModuleId: number) {
+    return withAuth(
+      async () => this.repository.findByUserAndModule(userId, semesterModuleId),
+      [],
+    );
   }
 }
 

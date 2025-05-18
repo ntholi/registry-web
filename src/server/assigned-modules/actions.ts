@@ -34,3 +34,15 @@ export async function assignModulesToLecturer(
 ) {
   return service.assignModulesToLecturer(userId, semesterModuleIds);
 }
+
+export async function getLecturersByModule(semesterModuleId: number) {
+  return service.getLecturersByModule(semesterModuleId);
+}
+
+export async function getModulesByLecturer(userId: string) {
+  return service.getModulesByLecturer(userId);
+}
+
+export async function checkModuleAssignment(userId: string, semesterModuleId: number) {
+  return service.checkAssignment(userId, semesterModuleId);
+}
