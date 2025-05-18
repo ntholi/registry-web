@@ -17,7 +17,7 @@ import { searchModulesWithDetails } from '@/server/semester-modules/actions';
 
 type FormValues = {
   userId: string;
-  semesterModuleId: number;
+  semesterModuleIds: number[];
 };
 
 type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
@@ -31,10 +31,11 @@ export default function ModuleAssignModal() {
   const form = useForm<FormValues>({
     initialValues: {
       userId: params.id,
-      semesterModuleId: 0,
+      semesterModuleIds: [],
     },
     validate: {
-      semesterModuleId: (value) => (value ? null : 'Please select a module'),
+      semesterModuleIds: (value) =>
+        value.length > 0 ? null : 'Please select a module',
     },
   });
 
@@ -53,7 +54,10 @@ export default function ModuleAssignModal() {
 
   const handleModuleSelect = (module: Module | null) => {
     setSelectedModule(module);
-    form.setFieldValue('moduleId', module?.moduleId || 0);
+    form.setFieldValue(
+      'semesterModuleIds',
+      module?.semesters.map((s) => s.semesterModuleId) || [],
+    );
   };
 
   return (
@@ -67,7 +71,7 @@ export default function ModuleAssignModal() {
             <ModuleSearchInput
               onModuleSelect={handleModuleSelect}
               value={selectedModule?.moduleId}
-              error={form.errors.moduleId}
+              error={form.errors.semesterModuleIds}
               required
             />
 
