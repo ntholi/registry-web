@@ -523,11 +523,8 @@ export const assignedModules = sqliteTable('assigned_modules', {
   userId: integer()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
-  moduleId: integer()
-    .references(() => modules.id, { onDelete: 'cascade' })
-    .notNull(),
-  structureSemesterId: integer()
-    .references(() => structureSemesters.id, { onDelete: 'cascade' })
+  semesterModuleId: integer()
+    .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });

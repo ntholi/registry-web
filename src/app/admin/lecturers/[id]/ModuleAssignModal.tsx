@@ -17,8 +17,7 @@ import { searchModulesWithDetails } from '@/server/semester-modules/actions';
 
 type FormValues = {
   userId: string;
-  moduleId: number;
-  structureSemesterId: number;
+  semesterModuleId: number;
 };
 
 type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
@@ -32,13 +31,10 @@ export default function ModuleAssignModal() {
   const form = useForm<FormValues>({
     initialValues: {
       userId: params.id,
-      moduleId: 0,
-      structureSemesterId: 0,
+      semesterModuleId: 0,
     },
     validate: {
-      moduleId: (value) => (value ? null : 'Please select a module'),
-      structureSemesterId: (value) =>
-        value ? null : 'Please select a semester',
+      semesterModuleId: (value) => (value ? null : 'Please select a module'),
     },
   });
 

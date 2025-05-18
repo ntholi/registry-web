@@ -287,12 +287,8 @@ export const assignedModulesRelations = relations(
       references: [users.id],
     }),
     semesterModule: one(semesterModules, {
-      fields: [assignedModules.moduleId],
+      fields: [assignedModules.semesterModuleId],
       references: [semesterModules.id],
-    }),
-    structureSemester: one(structureSemesters, {
-      fields: [assignedModules.structureSemesterId],
-      references: [structureSemesters.id],
     }),
   }),
 );
