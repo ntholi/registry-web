@@ -8,11 +8,10 @@ import {
   structureSemesters,
   structures,
   studentModules,
-  studentSemesters,
   terms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { desc, eq, like, or, and, inArray, sql, not } from 'drizzle-orm';
+import { and, desc, eq, inArray, like, not, or, sql } from 'drizzle-orm';
 
 type ModuleInfo = {
   code: string;

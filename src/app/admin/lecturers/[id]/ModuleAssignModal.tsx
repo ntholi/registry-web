@@ -15,6 +15,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { searchModulesWithDetails } from '@/server/semester-modules/actions';
+import { assignModulesToLecturer } from '@/server/assigned-modules/actions';
+import { notifications } from '@mantine/notifications';
 
 type FormValues = {
   userId: string;
@@ -40,17 +42,31 @@ export default function ModuleAssignModal() {
     },
   });
 
-  function handleSubmit(values: FormValues) {
+  async function handleSubmit(values: FormValues) {
     setIsSubmitting(true);
-
-    console.log('Submitting:', values);
-
-    setTimeout(() => {
+    
+    try {
+      await assignModulesToLecturer(parseInt(values.userId), values.semesterModuleIds);
+      
+      notifications.show({
+        title: 'Success',
+        message: 'Modules assigned successfully',
+        color: 'green',
+      });
+      
       form.reset();
       setSelectedModule(null);
-      setIsSubmitting(false);
       close();
-    }, 1000);
+    } catch (error) {
+      console.error('Error assigning modules:', error);
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to assign modules',
+        color: 'red',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const handleModuleSelect = (module: Module | null) => {
