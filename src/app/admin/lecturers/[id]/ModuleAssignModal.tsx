@@ -12,11 +12,11 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
 import { searchModulesWithDetails } from '@/server/semester-modules/actions';
 import { assignModulesToLecturer } from '@/server/assigned-modules/actions';
 import { notifications } from '@mantine/notifications';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
 
 type FormValues = {
   userId: string;
@@ -29,7 +29,6 @@ export default function ModuleAssignModal() {
   const [opened, { open, close }] = useDisclosure(false);
   const params = useParams<{ id: string }>();
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormValues>({
     initialValues: {
@@ -64,13 +63,9 @@ export default function ModuleAssignModal() {
         color: 'red',
       });
     },
-    onSettled: () => {
-      setIsSubmitting(false);
-    },
   });
 
   function handleSubmit(values: FormValues) {
-    setIsSubmitting(true);
     assignModulesMutation.mutate({
       userId: values.userId,
       semesterModuleIds: values.semesterModuleIds,
@@ -129,7 +124,7 @@ export default function ModuleAssignModal() {
               <Button variant='subtle' onClick={close}>
                 Cancel
               </Button>
-              <Button type='submit' loading={isSubmitting}>
+              <Button type='submit' loading={assignModulesMutation.isPending}>
                 Assign Module
               </Button>
             </Group>
