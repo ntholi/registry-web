@@ -8,6 +8,7 @@ import {
   structureSemesters,
   structures,
   studentModules,
+  studentSemesters,
   terms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
@@ -251,7 +252,16 @@ export default class ModuleRepository extends BaseRepository<
         count: sql<number>`count(*)`.as('count'),
       })
       .from(studentModules)
-      .where(inArray(studentModules.semesterModuleId, semesterModuleIds))
+      .innerJoin(
+        studentSemesters,
+        eq(studentModules.studentSemesterId, studentSemesters.id),
+      )
+      .where(
+        and(
+          inArray(studentModules.semesterModuleId, semesterModuleIds),
+          eq(studentSemesters.term, term.name),
+        ),
+      )
       .groupBy(studentModules.semesterModuleId)
       .then((rows) =>
         rows.reduce(
