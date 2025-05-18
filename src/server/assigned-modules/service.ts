@@ -36,7 +36,7 @@ class AssignedModuleService {
     return withAuth(async () => this.repository.count(), []);
   }
 
-  async assignModulesToLecturer(userId: number, semesterModuleIds: number[]) {
+  async assignModulesToLecturer(userId: string, semesterModuleIds: number[]) {
     return withAuth(async () => {
       await this.repository.removeModuleAssignments(semesterModuleIds);
 

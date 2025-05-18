@@ -520,7 +520,7 @@ export const academicUserSchools = sqliteTable('academic_user_schools', {
 
 export const assignedModules = sqliteTable('assigned_modules', {
   id: integer().primaryKey({ autoIncrement: true }),
-  userId: integer()
+  userId: text()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   semesterModuleId: integer()

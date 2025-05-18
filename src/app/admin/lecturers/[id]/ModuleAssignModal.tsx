@@ -6,7 +6,6 @@ import {
   Group,
   Modal,
   Paper,
-  Select,
   Stack,
   Text,
 } from '@mantine/core';
@@ -17,6 +16,7 @@ import { useState } from 'react';
 import { searchModulesWithDetails } from '@/server/semester-modules/actions';
 import { assignModulesToLecturer } from '@/server/assigned-modules/actions';
 import { notifications } from '@mantine/notifications';
+import { useMutation } from '@tanstack/react-query';
 
 type FormValues = {
   userId: string;
@@ -42,31 +42,39 @@ export default function ModuleAssignModal() {
     },
   });
 
-  async function handleSubmit(values: FormValues) {
-    setIsSubmitting(true);
-    
-    try {
-      await assignModulesToLecturer(parseInt(values.userId), values.semesterModuleIds);
-      
+  const assignModulesMutation = useMutation({
+    mutationFn: (data: FormValues) =>
+      assignModulesToLecturer(data.userId, data.semesterModuleIds),
+    onSuccess: () => {
       notifications.show({
         title: 'Success',
         message: 'Modules assigned successfully',
         color: 'green',
       });
-      
+
       form.reset();
       setSelectedModule(null);
       close();
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('Error assigning modules:', error);
       notifications.show({
         title: 'Error',
         message: 'Failed to assign modules',
         color: 'red',
       });
-    } finally {
+    },
+    onSettled: () => {
       setIsSubmitting(false);
-    }
+    },
+  });
+
+  function handleSubmit(values: FormValues) {
+    setIsSubmitting(true);
+    assignModulesMutation.mutate({
+      userId: values.userId,
+      semesterModuleIds: values.semesterModuleIds,
+    });
   }
 
   const handleModuleSelect = (module: Module | null) => {
