@@ -29,6 +29,7 @@ export default function ModuleAssignModal() {
   const [opened, { open, close }] = useDisclosure(false);
   const params = useParams<{ id: string }>();
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [selectedSemesterModules, setSelectedSemesterModules] = useState<number[]>([]);
 
   const form = useForm<FormValues>({
     initialValues: {
@@ -37,7 +38,7 @@ export default function ModuleAssignModal() {
     },
     validate: {
       semesterModuleIds: (value) =>
-        value.length > 0 ? null : 'Please select a module',
+        value.length > 0 ? null : 'Please select at least one semester module',
     },
   });
 
@@ -53,6 +54,7 @@ export default function ModuleAssignModal() {
 
       form.reset();
       setSelectedModule(null);
+      setSelectedSemesterModules([]);
       close();
     },
     onError: (error) => {
@@ -68,16 +70,23 @@ export default function ModuleAssignModal() {
   function handleSubmit(values: FormValues) {
     assignModulesMutation.mutate({
       userId: values.userId,
-      semesterModuleIds: values.semesterModuleIds,
+      semesterModuleIds: selectedSemesterModules,
     });
   }
 
   const handleModuleSelect = (module: Module | null) => {
     setSelectedModule(module);
-    form.setFieldValue(
-      'semesterModuleIds',
-      module?.semesters.map((s) => s.semesterModuleId) || [],
-    );
+    setSelectedSemesterModules([]);
+    form.setFieldValue('semesterModuleIds', []);
+  };
+
+  const handleSemesterModuleToggle = (semesterModuleId: number) => {
+    const updatedSelection = selectedSemesterModules.includes(semesterModuleId)
+      ? selectedSemesterModules.filter(id => id !== semesterModuleId)
+      : [...selectedSemesterModules, semesterModuleId];
+    
+    setSelectedSemesterModules(updatedSelection);
+    form.setFieldValue('semesterModuleIds', updatedSelection);
   };
 
   return (
@@ -99,7 +108,12 @@ export default function ModuleAssignModal() {
               {selectedModule ? (
                 <Stack>
                   {selectedModule.semesters.map((semester) => (
-                    <Checkbox.Card p='md' key={semester.semesterModuleId}>
+                    <Checkbox.Card 
+                      p='md' 
+                      key={semester.semesterModuleId}
+                      checked={selectedSemesterModules.includes(semester.semesterModuleId)}
+                      onChange={() => handleSemesterModuleToggle(semester.semesterModuleId)}
+                    >
                       <Group wrap='nowrap' align='flex-start'>
                         <Checkbox.Indicator />
                         <div>
@@ -119,12 +133,20 @@ export default function ModuleAssignModal() {
                 <Text c='dimmed'>No module selected</Text>
               )}
             </Paper>
+            
+            {selectedModule && form.values.semesterModuleIds.length === 0 && (
+              <Text size="sm" c="red">{form.errors.semesterModuleIds}</Text>
+            )}
 
             <Group justify='flex-end' mt='md'>
               <Button variant='subtle' onClick={close}>
                 Cancel
               </Button>
-              <Button type='submit' loading={assignModulesMutation.isPending}>
+              <Button 
+                type='submit' 
+                loading={assignModulesMutation.isPending}
+                disabled={selectedSemesterModules.length === 0}
+              >
                 Assign Module
               </Button>
             </Group>
