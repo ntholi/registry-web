@@ -3,7 +3,16 @@
 import { getModulesByLecturer } from '@/server/assigned-modules/actions';
 import { users } from '@/db/schema';
 import { useQuery } from '@tanstack/react-query';
-import { Badge, Card, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import {
+  Badge,
+  Card,
+  Group,
+  Loader,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
 
 type Props = {
   user: NonNullable<typeof users.$inferSelect>;
@@ -40,7 +49,7 @@ export default function AssignedModules({ user }: Props) {
         {assignedModules.length !== 1 ? 's' : ''}
       </Title>
 
-      <Stack gap='sm'>
+      <SimpleGrid cols={2}>
         {assignedModules.map((assignment) => (
           <Card key={assignment.id} withBorder p='md'>
             <Group justify='space-between' wrap='nowrap'>
@@ -57,16 +66,12 @@ export default function AssignedModules({ user }: Props) {
 
                 <Group gap='xs'>
                   {assignment.semesterModule?.semester?.name && (
-                    <Badge variant='light' color='blue'>
-                      {assignment.semesterModule.semester.name}
-                    </Badge>
-                  )}
-                  {assignment.semesterModule?.semester?.structure?.program && (
-                    <Badge variant='outline'>
-                      {
+                    <Badge variant='light' color='gray'>
+                      {toClassName(
                         assignment.semesterModule.semester.structure.program
-                          .name
-                      }
+                          .code,
+                        assignment.semesterModule.semester.name,
+                      )}
                     </Badge>
                   )}
                 </Group>
@@ -74,7 +79,13 @@ export default function AssignedModules({ user }: Props) {
             </Group>
           </Card>
         ))}
-      </Stack>
+      </SimpleGrid>
     </Stack>
   );
+}
+
+function toClassName(programCode: string, semesterName: string) {
+  const year = semesterName.match(/Year (\d+)/)?.[1] || '';
+  const semester = semesterName.match(/Sem (\d+)/)?.[1] || '';
+  return `${programCode}Y${year}S${semester}`;
 }
