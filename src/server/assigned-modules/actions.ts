@@ -13,6 +13,13 @@ export async function getAssignedModules(page: number = 1, search = '') {
   return service.getAll({ page, search });
 }
 
+export async function getAssignedModuleByUserAndModule(
+  userId: string,
+  semesterModuleId: number,
+) {
+  return service.getByUserAndModule(userId, semesterModuleId);
+}
+
 export async function createAssignedModule(assignedModule: AssignedModule) {
   return service.create(assignedModule);
 }
@@ -43,6 +50,9 @@ export async function getModulesByLecturer(userId: string) {
   return service.getModulesByLecturer(userId);
 }
 
-export async function checkModuleAssignment(userId: string, semesterModuleId: number) {
+export async function checkModuleAssignment(
+  userId: string,
+  semesterModuleId: number,
+) {
   return service.checkAssignment(userId, semesterModuleId);
 }
