@@ -51,7 +51,7 @@ import React from 'react';
 import {
   getAssignedModules,
   getLecturersByModule,
-  getModulesByLecturer,
+  getAssignedModulesByLecturer,
 } from '@/server/assigned-modules/actions';
 
 type NotificationConfig = {
@@ -241,7 +241,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 
   const { data: assignedModules } = useQuery({
     queryKey: ['assignedModules'],
-    queryFn: () => getModulesByLecturer(session?.user?.id as string),
+    queryFn: () => getAssignedModulesByLecturer(session?.user?.id as string),
     enabled: session?.user?.role === 'academic',
   });
 
@@ -251,7 +251,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
         nav.children?.push({
           label: it.semesterModule.module?.code || 'Unknown Module',
           description: it.semesterModule.module?.name || 'Unknown Module',
-          href: `/admin/gradebook/${it.id}`,
+          href: `/admin/gradebook/${it.semesterModule.moduleId}`,
           icon: IconNotebook,
         });
       });

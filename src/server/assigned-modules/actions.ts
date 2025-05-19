@@ -46,8 +46,8 @@ export async function getLecturersByModule(semesterModuleId: number) {
   return service.getLecturersByModule(semesterModuleId);
 }
 
-export async function getModulesByLecturer(userId: string) {
-  return service.getModulesByLecturer(userId);
+export async function getAssignedModulesByLecturer(userId: string) {
+  return service.getByLecturer(userId);
 }
 
 export async function checkModuleAssignment(

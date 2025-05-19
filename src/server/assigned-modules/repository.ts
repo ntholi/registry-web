@@ -10,7 +10,7 @@ export default class AssignedModuleRepository extends BaseRepository<
   constructor() {
     super(assignedModules, 'id');
   }
-  
+
   override async findById(id: number) {
     return db.query.assignedModules.findFirst({
       where: eq(assignedModules.id, id),
@@ -22,49 +22,54 @@ export default class AssignedModuleRepository extends BaseRepository<
               with: {
                 structure: {
                   with: {
-                    program: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    program: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 
   async removeModuleAssignments(userId: string, semesterModuleIds: number[]) {
     if (semesterModuleIds.length === 0) return;
-    
-    return db.delete(assignedModules)
+
+    return db
+      .delete(assignedModules)
       .where(
         and(
           eq(assignedModules.userId, userId),
-          inArray(assignedModules.semesterModuleId, semesterModuleIds)
-        )
+          inArray(assignedModules.semesterModuleId, semesterModuleIds),
+        ),
       );
   }
 
-  async createMany(data: typeof assignedModules.$inferInsert[]) {
+  async createMany(data: (typeof assignedModules.$inferInsert)[]) {
     if (data.length === 0) return [];
-    
-    return db.insert(assignedModules)
-      .values(data)
-      .returning();
+
+    return db.insert(assignedModules).values(data).returning();
   }
 
-  async findByUserAndModule(userId: string, semesterModuleId: number) {
-    return db.query.assignedModules.findFirst({
-      where: and(
-        eq(assignedModules.userId, userId),
-        eq(assignedModules.semesterModuleId, semesterModuleId)
-      )
+  async findByUserAndModule(userId: string, moduleId: number) {
+    const results = await db.query.assignedModules.findMany({
+      where: eq(assignedModules.userId, userId),
+      with: {
+        semesterModule: {
+          with: {
+            module: true,
+          },
+        },
+      },
     });
+    
+    return results.find(item => item.semesterModule?.moduleId === moduleId) || null;
   }
 
   async findByModule(semesterModuleId: number) {
     return db.query.assignedModules.findMany({
-      where: eq(assignedModules.semesterModuleId, semesterModuleId)
+      where: eq(assignedModules.semesterModuleId, semesterModuleId),
     });
   }
 
@@ -79,14 +84,14 @@ export default class AssignedModuleRepository extends BaseRepository<
               with: {
                 structure: {
                   with: {
-                    program: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    program: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 }

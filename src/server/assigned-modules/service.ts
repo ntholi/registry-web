@@ -62,7 +62,7 @@ class AssignedModuleService {
     );
   }
 
-  async getModulesByLecturer(userId: string) {
+  async getByLecturer(userId: string) {
     return withAuth(
       async () => this.repository.findByUser(userId),
       ['academic'],

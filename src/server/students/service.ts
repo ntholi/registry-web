@@ -32,6 +32,21 @@ class StudentService {
     );
   }
 
+  async findStudentsByMultipleSemesterModules(semesterModuleIds: number[], programId?: number) {
+    return withAuth(
+      async () =>
+        this.repository.findStudentsByMultipleSemesterModules(semesterModuleIds, programId),
+      ['academic'],
+    );
+  }
+
+  async getAllPrograms() {
+    return withAuth(
+      async () => this.repository.getAllPrograms(),
+      ['academic'],
+    );
+  }
+
   async findAll(params: QueryOptions<typeof students>) {
     return withAuth(async () => this.repository.query(params), ['dashboard']);
   }

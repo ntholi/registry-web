@@ -18,6 +18,14 @@ export async function getStudentsBySemesterModuleId(semesterModuleId: number) {
   return service.findStudentsBySemesterModuleId(semesterModuleId);
 }
 
+export async function getStudentsByMultipleSemesterModules(semesterModuleIds: number[], programId?: number) {
+  return service.findStudentsByMultipleSemesterModules(semesterModuleIds, programId);
+}
+
+export async function getAllPrograms() {
+  return service.getAllPrograms();
+}
+
 export async function findAllStudents(page: number = 1, search = '') {
   return service.findAll({ page, search, searchColumns: ['stdNo', 'name'] });
 }
