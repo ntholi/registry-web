@@ -11,6 +11,7 @@ import {
   Paper,
   ScrollArea,
   Skeleton,
+  Stack,
   Table,
   Text,
   TextInput,
@@ -110,10 +111,6 @@ export default function StudentTable({ semesterModuleId }: Props) {
     };
   };
 
-  const handleExportToExcel = () => {
-    console.log('Exporting to Excel...');
-  };
-
   if (isLoading) {
     return (
       <Paper p='md' radius='md' withBorder>
@@ -199,27 +196,20 @@ export default function StudentTable({ semesterModuleId }: Props) {
 
   return (
     <>
-      <Box mb='md'>
-        <Flex justify='space-between' align='center' mb='md'>
-          <TextInput
-            placeholder='Search by student no. or name'
-            leftSection={<IconSearch size={16} />}
-            value={searchQuery}
-            rightSection={
-              searchQuery !== '' ? (
-                <Input.ClearButton onClick={() => setSearchQuery('')} />
-              ) : undefined
-            }
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
-            w='100%'
-            maw={500}
-          />
-          <Tooltip label='Export to Excel'>
-            <Box style={{ cursor: 'pointer' }} onClick={handleExportToExcel}>
-              <IconDownload size={20} />
-            </Box>
-          </Tooltip>
-        </Flex>
+      <Stack mb='md'>
+        <TextInput
+          placeholder='Search by name or student number'
+          leftSection={<IconSearch size={16} />}
+          value={searchQuery}
+          size='md'
+          rightSection={
+            searchQuery !== '' ? (
+              <Input.ClearButton onClick={() => setSearchQuery('')} />
+            ) : undefined
+          }
+          onChange={(e) => setSearchQuery(e.currentTarget.value)}
+          style={{ flex: 1 }}
+        />
 
         <ScrollArea>
           <Box mih={300}>
@@ -258,7 +248,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
           {filteredStudents?.length || 0} student
           {filteredStudents?.length !== 1 ? 's' : ''}
         </Text>
-      </Box>
+      </Stack>
     </>
   );
 }

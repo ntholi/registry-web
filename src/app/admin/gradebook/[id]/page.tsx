@@ -30,13 +30,7 @@ export default async function GradebookModuleView({ params }: Props) {
     <Container size='xl' p='md'>
       <ModuleDetailsCard module={module} />
       <Paper withBorder radius='md' shadow='sm' p='lg'>
-        <Title order={4} fw={500} mb='md'>
-          Student Gradebook
-        </Title>
-        <Divider mb='lg' />
-        <Box>
-          <StudentTable semesterModuleId={module.semesterModuleId} />
-        </Box>
+        <StudentTable semesterModuleId={module.semesterModuleId} />
       </Paper>
     </Container>
   );
