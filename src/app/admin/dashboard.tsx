@@ -48,6 +48,11 @@ import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
+import {
+  getAssignedModules,
+  getLecturersByModule,
+  getModulesByLecturer,
+} from '@/server/assigned-modules/actions';
 
 type NotificationConfig = {
   queryKey: string[];
@@ -233,6 +238,25 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
     session?.user?.isDepartmentAdmin ?? false,
     session?.user?.role as DashboardUser,
   );
+
+  const { data: assignedModules } = useQuery({
+    queryKey: ['assignedModules'],
+    queryFn: () => getModulesByLecturer(session?.user?.id as string),
+    enabled: session?.user?.role === 'academic',
+  });
+
+  for (const nav of navigation) {
+    if (nav.label === 'Gradebook') {
+      assignedModules?.forEach((it) => {
+        nav.children?.push({
+          label: it.semesterModule.module?.code || 'Unknown Module',
+          description: it.semesterModule.module?.name || 'Unknown Module',
+          href: `/admin/gradebook/${it.id}`,
+          icon: IconNotebook,
+        });
+      });
+    }
+  }
 
   return (
     <Shell>

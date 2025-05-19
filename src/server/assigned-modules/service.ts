@@ -45,24 +45,27 @@ class AssignedModuleService {
       }));
 
       return this.repository.createMany(assignments);
-    }, []);
+    }, ['academic']);
   }
 
   async getLecturersByModule(semesterModuleId: number) {
     return withAuth(
       async () => this.repository.findByModule(semesterModuleId),
-      [],
+      ['academic'],
     );
   }
 
   async getModulesByLecturer(userId: string) {
-    return withAuth(async () => this.repository.findByUser(userId), []);
+    return withAuth(
+      async () => this.repository.findByUser(userId),
+      ['academic'],
+    );
   }
 
   async checkAssignment(userId: string, semesterModuleId: number) {
     return withAuth(
       async () => this.repository.findByUserAndModule(userId, semesterModuleId),
-      [],
+      ['academic'],
     );
   }
 }
