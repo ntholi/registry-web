@@ -10,6 +10,28 @@ export default class AssignedModuleRepository extends BaseRepository<
   constructor() {
     super(assignedModules, 'id');
   }
+  
+  override async findById(id: number) {
+    return db.query.assignedModules.findFirst({
+      where: eq(assignedModules.id, id),
+      with: {
+        semesterModule: {
+          with: {
+            module: true,
+            semester: {
+              with: {
+                structure: {
+                  with: {
+                    program: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+  }
 
   async removeModuleAssignments(userId: string, semesterModuleIds: number[]) {
     if (semesterModuleIds.length === 0) return;

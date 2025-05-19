@@ -1,8 +1,9 @@
-import { getAssignedModules } from '@/server/assigned-modules/actions';
-import { Box, Container, Paper, Title, Divider } from '@mantine/core';
-import { notFound } from 'next/navigation';
-import StudentTable from './StudentTable';
+import { auth } from '@/auth';
+import { getAssignedModuleByUserAndModule } from '@/server/assigned-modules/actions';
+import { Box, Container, Divider, Paper, Title } from '@mantine/core';
+import { notFound, unauthorized } from 'next/navigation';
 import ModuleDetailsCard from './ModuleDetailsCard';
+import StudentTable from './StudentTable';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -10,22 +11,31 @@ type Props = {
 
 export default async function GradebookModuleView({ params }: Props) {
   const { id } = await params;
-  const modules = await getAssignedModules(Number(id));
+  const session = await auth();
 
-  if (!modules) {
+  if (!session?.user?.id) {
+    return unauthorized();
+  }
+
+  const module = await getAssignedModuleByUserAndModule(
+    session.user.id,
+    Number(id),
+  );
+
+  if (!module) {
     return notFound();
   }
 
   return (
     <Container size='xl' p='md'>
-      <ModuleDetailsCard module={modules.semesterModule} />
+      <ModuleDetailsCard module={module} />
       <Paper withBorder radius='md' shadow='sm' p='lg'>
         <Title order={4} fw={500} mb='md'>
           Student Gradebook
         </Title>
         <Divider mb='lg' />
         <Box>
-          <StudentTable semesterModuleId={lecturesModule.semesterModule.id} />
+          <StudentTable semesterModuleId={module.semesterModuleId} />
         </Box>
       </Paper>
     </Container>
