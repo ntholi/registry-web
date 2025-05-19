@@ -1,7 +1,7 @@
 'use client';
 import { getAssessmentMarksByModuleId } from '@/server/assessment-marks/actions';
 import { getAssessmentBySemesterModuleId } from '@/server/assessments/actions';
-import { getAllPrograms, getStudentsByMultipleSemesterModules, getStudentsBySemesterModuleId } from '@/server/students/actions';
+import { getStudentsBySemesterModuleId } from '@/server/students/actions';
 import {
   Anchor,
   Box,
@@ -10,7 +10,6 @@ import {
   Input,
   Paper,
   ScrollArea,
-  Select,
   Skeleton,
   Table,
   Text,
@@ -29,49 +28,18 @@ type Props = {
   semesterModuleId: number;
 };
 
-type Program = {
-  id: number;
-  name: string;
-  code: string;
-};
-
-type Student = {
-  stdNo: number;
-  name: string;
-  program: {
-    id: number;
-    name: string;
-  };
-};
-
 export default function StudentTable({ semesterModuleId }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
-  const [selectedProgramId, setSelectedProgramId] = useState<string | null>('all');
 
   const { data: assessments, isLoading: isLoadingAssessments } = useQuery({
     queryKey: ['assessments', semesterModuleId],
     queryFn: () => getAssessmentBySemesterModuleId(semesterModuleId),
   });
 
-  const { data: programs, isLoading: isLoadingPrograms } = useQuery({
-    queryKey: ['programs'],
-    queryFn: () => getAllPrograms(),
-  });
-
   const { data: students, isLoading: isLoadingStudents } = useQuery({
-    queryKey: ['students', semesterModuleId, selectedProgramId],
-    queryFn: () => {
-      // If 'all' is selected, fetch students without program filter
-      if (selectedProgramId === 'all') {
-        return getStudentsByMultipleSemesterModules([semesterModuleId]);
-      }
-      // Otherwise, filter by the selected program
-      return getStudentsByMultipleSemesterModules(
-        [semesterModuleId], 
-        selectedProgramId ? Number(selectedProgramId) : undefined
-      );
-    },
+    queryKey: ['students', semesterModuleId],
+    queryFn: () => getStudentsBySemesterModuleId(semesterModuleId),
   });
 
   const { data: assessmentMarks, isLoading: isLoadingMarks } = useQuery({
@@ -84,7 +52,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
       students?.length > 0,
   });
 
-  const [filteredStudents, setFilteredStudents] = useState<Student[]>(students || []);
+  const [filteredStudents, setFilteredStudents] = useState(students || []);
 
   useEffect(() => {
     if (!students) return;
@@ -102,15 +70,6 @@ export default function StudentTable({ semesterModuleId }: Props) {
 
     setFilteredStudents(filtered);
   }, [debouncedSearch, students]);
-  
-  // Program filter options
-  const programOptions = programs ? [
-    { value: 'all', label: 'All Programs' },
-    ...programs.map(program => ({
-      value: program.id.toString(),
-      label: program.name
-    }))
-  ] : [{ value: 'all', label: 'All Programs' }];
 
   const getMarkForStudentAssessment = (
     studentId: number,
@@ -122,7 +81,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
     return { marks: mark?.marks, id: mark?.id };
   };
 
-  const isLoading = isLoadingAssessments || isLoadingStudents || isLoadingMarks || isLoadingPrograms;
+  const isLoading = isLoadingAssessments || isLoadingStudents || isLoadingMarks;
 
   const calculateTotalScore = (studentId: number) => {
     if (!assessments || !assessmentMarks) return null;
@@ -241,29 +200,20 @@ export default function StudentTable({ semesterModuleId }: Props) {
   return (
     <>
       <Box mb='md'>
-        <Flex justify='space-between' align='center' mb='md' gap='md'>
-          <Group grow>
-            <TextInput
-              placeholder='Search by student no. or name'
-              leftSection={<IconSearch size={16} />}
-              value={searchQuery}
-              rightSection={
-                searchQuery !== '' ? (
-                  <Input.ClearButton onClick={() => setSearchQuery('')} />
-                ) : undefined
-              }
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              w='100%'
-            />
-            <Select
-              placeholder="Filter by program"
-              data={programOptions}
-              value={selectedProgramId}
-              onChange={setSelectedProgramId}
-              clearable={false}
-              w='100%'
-            />
-          </Group>
+        <Flex justify='space-between' align='center' mb='md'>
+          <TextInput
+            placeholder='Search by student no. or name'
+            leftSection={<IconSearch size={16} />}
+            value={searchQuery}
+            rightSection={
+              searchQuery !== '' ? (
+                <Input.ClearButton onClick={() => setSearchQuery('')} />
+              ) : undefined
+            }
+            onChange={(e) => setSearchQuery(e.currentTarget.value)}
+            w='100%'
+            maw={500}
+          />
           <Tooltip label='Export to Excel'>
             <Box style={{ cursor: 'pointer' }} onClick={handleExportToExcel}>
               <IconDownload size={20} />

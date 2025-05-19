@@ -252,7 +252,6 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
           label: it.semesterModule.module?.code || 'Unknown Module',
           description: it.semesterModule.module?.name || 'Unknown Module',
           href: `/admin/gradebook/${it.semesterModule.moduleId}`,
-          icon: IconNotebook,
         });
       });
     }
