@@ -1,9 +1,10 @@
 'use client';
 
+import { useCurrentTerm } from '@/hooks/use-current-term';
 import { toClassName } from '@/lib/utils';
 import { getAssignedModuleByUserAndModule } from '@/server/assigned-modules/actions';
 import { Group, Paper, Select, Stack, Text, Title } from '@mantine/core';
-import { IconCalendar, IconChevronDown } from '@tabler/icons-react';
+import { IconBook, IconCalendar, IconChevronDown } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
 
@@ -16,6 +17,7 @@ type ModuleDetailsCardProps = {
 export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
   const [semesterModuleId, setSemesterModuleId] =
     useQueryState('semesterModuleId');
+  const { currentTerm } = useCurrentTerm();
 
   const moduleOptions = useMemo(() => {
     const options = [{ value: '', label: 'All Programs' }];
@@ -41,6 +43,15 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
     }
   }, [semesterModuleId, setSemesterModuleId]);
 
+  const program = useMemo(() => {
+    if (!semesterModuleId) {
+      return null;
+    }
+    return modules.find(
+      (it) => it.semesterModule?.id === Number(semesterModuleId),
+    )?.semesterModule?.semester?.structure.program;
+  }, [modules, semesterModuleId]);
+
   return (
     <Paper withBorder p='lg' mb='lg'>
       <Group justify='space-between' wrap='nowrap'>
@@ -62,13 +73,18 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
             />
           </Group>
 
-          <Group gap='md'>
+          <Group gap='md' align='end'>
             <Group gap='xs'>
-              <IconCalendar size={16} stroke={1.5} />
+              <IconCalendar size={'1rem'} />
               <Text size='sm' c='dimmed'>
-                {modules[0].semesterModule.semesterId
-                  ? 'Current Semester'
-                  : 'No Semester Assigned'}
+                {currentTerm?.name}
+              </Text>
+            </Group>
+
+            <Group gap='xs' align='end'>
+              <IconBook size={'1rem'} />
+              <Text size='sm' c='dimmed'>
+                {program ? `${program.name}` : 'All Programs'}
               </Text>
             </Group>
           </Group>
