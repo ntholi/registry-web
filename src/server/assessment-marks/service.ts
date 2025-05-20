@@ -42,13 +42,6 @@ class AssessmentMarkService {
       ['academic'],
     );
   }
-
-  async getByModuleIds(semesterModuleIds: number[]) {
-    return withAuth(
-      async () => this.repository.findByModuleIds(semesterModuleIds),
-      ['academic'],
-    );
-  }
 }
 
 export const assessmentMarksService = new AssessmentMarkService();

@@ -20,13 +20,6 @@ export async function getAssessmentBySemesterModuleId(
   return service.getBySemesterModuleId(semesterModuleId);
 }
 
-export async function getAssessmentsByMultipleSemesterModuleIds(
-  semesterModuleIds: number[],
-) {
-  if (!semesterModuleIds.length) return [];
-  return service.getBySemesterModuleIds(semesterModuleIds);
-}
-
 export async function createAssessment(assessment: Assessment) {
   const term = await getCurrentTerm();
   return service.create({ ...assessment, termId: term.id });

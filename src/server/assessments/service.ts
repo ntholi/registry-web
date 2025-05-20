@@ -28,13 +28,6 @@ class AssessmentService {
     );
   }
 
-  async getBySemesterModuleIds(semesterModuleIds: number[]) {
-    return withAuth(
-      async () => this.repository.getBySemesterModuleIds(semesterModuleIds),
-      ['academic'],
-    );
-  }
-
   async create(data: Assessment) {
     return withAuth(async () => this.repository.create(data), ['academic']);
   }

@@ -93,59 +93,6 @@ export default class StudentRepository extends BaseRepository<
     }));
   }
 
-  async findStudentsByMultipleSemesterModules(
-    semesterModuleIds: number[],
-    programId?: number,
-  ) {
-    const data = await db.query.studentModules.findMany({
-      where: inArray(studentModules.semesterModuleId, semesterModuleIds),
-      with: {
-        studentSemester: {
-          with: {
-            studentProgram: {
-              with: {
-                student: {
-                  columns: {
-                    stdNo: true,
-                    name: true,
-                  },
-                },
-                structure: {
-                  with: {
-                    program: {
-                      columns: {
-                        id: true,
-                        name: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    // Map the data and filter by program if programId is provided
-    const students = data.map((module) => ({
-      ...module.studentSemester.studentProgram.student,
-      program: module.studentSemester.studentProgram.structure.program,
-    }));
-
-    // Filter by program if programId is provided
-    if (programId) {
-      return students.filter((student) => student.program.id === programId);
-    }
-
-    // Remove duplicates by student ID
-    const uniqueStudents = Array.from(
-      new Map(students.map((student) => [student.stdNo, student])),
-    ).map(([_, student]) => student);
-
-    return uniqueStudents;
-  }
-
   async getAllPrograms() {
     return db.query.programs.findMany({
       columns: {

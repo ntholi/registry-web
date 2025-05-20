@@ -17,11 +17,6 @@ export async function getAssessmentMarksByModuleId(semesterModuleId: number) {
   return service.getByModuleId(semesterModuleId);
 }
 
-export async function getAssessmentMarksByMultipleModuleIds(semesterModuleIds: number[]) {
-  if (!semesterModuleIds.length) return [];
-  return service.getByModuleIds(semesterModuleIds);
-}
-
 export async function createAssessmentMark(assessmentMark: AssessmentMark) {
   return service.create(assessmentMark);
 }
