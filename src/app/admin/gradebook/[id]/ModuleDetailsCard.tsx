@@ -18,7 +18,7 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
     useQueryState('semesterModuleId');
 
   const moduleOptions = useMemo(() => {
-    const options = [{ value: '', label: 'All Modules' }];
+    const options = [{ value: '', label: 'All Programs' }];
 
     modules.forEach((module) => {
       if (module.semesterModule) {

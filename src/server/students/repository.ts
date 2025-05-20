@@ -55,44 +55,6 @@ export default class StudentRepository extends BaseRepository<
     });
   }
 
-  async findStudentsBySemesterModuleId(semesterModuleId: number) {
-    const data = await db.query.studentModules.findMany({
-      where: eq(studentModules.semesterModuleId, semesterModuleId),
-      with: {
-        studentSemester: {
-          with: {
-            studentProgram: {
-              with: {
-                student: {
-                  columns: {
-                    stdNo: true,
-                    name: true,
-                  },
-                },
-                structure: {
-                  with: {
-                    program: {
-                      columns: {
-                        id: true,
-                        name: true,
-                        code: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    return data.map((module) => ({
-      ...module.studentSemester.studentProgram.student,
-      program: module.studentSemester.studentProgram.structure.program,
-    }));
-  }
-
   async getAllPrograms() {
     return db.query.programs.findMany({
       columns: {

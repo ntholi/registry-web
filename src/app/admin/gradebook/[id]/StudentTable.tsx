@@ -4,14 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 
 type Props = {
-  semesterModuleIds: number[];
+  moduleId: number;
 };
 
-export default function StudentTable({ semesterModuleIds }: Props) {
+export default function StudentTable({ moduleId }: Props) {
   const [semesterModuleId] = useQueryState('semesterModuleId');
 
   const { data: students } = useQuery({
-    queryKey: ['students', semesterModuleIds],
+    queryKey: ['students', moduleId],
     queryFn: () => [],
   });
 

@@ -24,14 +24,6 @@ class StudentService {
     );
   }
 
-  async findStudentsBySemesterModuleId(semesterModuleId: number) {
-    return withAuth(
-      async () =>
-        this.repository.findStudentsBySemesterModuleId(semesterModuleId),
-      ['academic'],
-    );
-  }
-
   async getAllPrograms() {
     return withAuth(async () => this.repository.getAllPrograms(), ['academic']);
   }
