@@ -13,6 +13,7 @@ import {
   Text,
   Title,
 } from '@mantine/core';
+import { toClassName } from '@/lib/utils';
 
 type Props = {
   user: NonNullable<typeof users.$inferSelect>;
@@ -73,10 +74,4 @@ export default function AssignedModules({ user }: Props) {
       ))}
     </SimpleGrid>
   );
-}
-
-function toClassName(programCode: string, semesterName: string) {
-  const year = semesterName.match(/Year (\d+)/)?.[1] || '';
-  const semester = semesterName.match(/Sem (\d+)/)?.[1] || '';
-  return `${programCode}Y${year}S${semester}`;
 }

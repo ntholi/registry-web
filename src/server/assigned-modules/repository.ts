@@ -59,12 +59,23 @@ export default class AssignedModuleRepository extends BaseRepository<
         semesterModule: {
           with: {
             module: true,
+            semester: {
+              with: {
+                structure: {
+                  with: {
+                    program: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
-    
-    return results.find(item => item.semesterModule?.moduleId === moduleId) || null;
+
+    return (
+      results.find((item) => item.semesterModule?.moduleId === moduleId) || null
+    );
   }
 
   async findByModule(semesterModuleId: number) {

@@ -11,6 +11,7 @@ import {
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { toClassName } from '@/lib/utils';
 
 type ModuleDetailsCardProps = {
   module: NonNullable<
@@ -33,19 +34,19 @@ export default function ModuleDetailsCard({
   const programOptions = useMemo(() => {
     if (!students) return [{ value: 'all', label: 'All Programs' }];
 
-    // Start with 'All Programs' option
     const options = [{ value: 'all', label: 'All Programs' }];
-    
-    // Create a map to track unique programs
+
     const uniquePrograms = new Map();
-    
-    // Add all unique programs from students
-    students.forEach(student => {
+
+    students.forEach((student) => {
       if (student.program && !uniquePrograms.has(student.program.id)) {
         uniquePrograms.set(student.program.id, student.program.name);
         options.push({
           value: student.program.id.toString(),
-          label: student.program.name,
+          label: toClassName(
+            student.program.code,
+            module.semesterModule?.semester?.name || '?',
+          ),
         });
       }
     });
@@ -74,14 +75,6 @@ export default function ModuleDetailsCard({
               value={selectedProgram || 'all'}
               onChange={(value) => setSelectedProgram(value || 'all')}
               rightSection={<IconChevronDown size={16} />}
-              styles={(theme) => ({
-                root: {
-                  minWidth: '200px',
-                },
-                input: {
-                  fontWeight: 500,
-                },
-              })}
             />
           </Group>
 

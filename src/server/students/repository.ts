@@ -74,11 +74,12 @@ export default class StudentRepository extends BaseRepository<
                     program: {
                       columns: {
                         id: true,
-                        name: true
-                      }
-                    }
-                  }
-                }
+                        name: true,
+                        code: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -88,11 +89,14 @@ export default class StudentRepository extends BaseRepository<
 
     return data.map((module) => ({
       ...module.studentSemester.studentProgram.student,
-      program: module.studentSemester.studentProgram.structure.program
+      program: module.studentSemester.studentProgram.structure.program,
     }));
   }
 
-  async findStudentsByMultipleSemesterModules(semesterModuleIds: number[], programId?: number) {
+  async findStudentsByMultipleSemesterModules(
+    semesterModuleIds: number[],
+    programId?: number,
+  ) {
     const data = await db.query.studentModules.findMany({
       where: inArray(studentModules.semesterModuleId, semesterModuleIds),
       with: {
@@ -111,32 +115,32 @@ export default class StudentRepository extends BaseRepository<
                     program: {
                       columns: {
                         id: true,
-                        name: true
-                      }
-                    }
-                  }
-                }
+                        name: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           },
         },
       },
     });
-    
+
     // Map the data and filter by program if programId is provided
     const students = data.map((module) => ({
       ...module.studentSemester.studentProgram.student,
-      program: module.studentSemester.studentProgram.structure.program
+      program: module.studentSemester.studentProgram.structure.program,
     }));
 
     // Filter by program if programId is provided
     if (programId) {
-      return students.filter(student => student.program.id === programId);
+      return students.filter((student) => student.program.id === programId);
     }
 
     // Remove duplicates by student ID
     const uniqueStudents = Array.from(
-      new Map(students.map(student => [student.stdNo, student]))
+      new Map(students.map((student) => [student.stdNo, student])),
     ).map(([_, student]) => student);
 
     return uniqueStudents;
@@ -147,9 +151,9 @@ export default class StudentRepository extends BaseRepository<
       columns: {
         id: true,
         name: true,
-        code: true
+        code: true,
       },
-      orderBy: programs.name
+      orderBy: programs.name,
     });
   }
 

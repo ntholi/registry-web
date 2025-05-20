@@ -73,3 +73,9 @@ export function largeProfilePic(image: string | null | undefined) {
   }
   return image;
 }
+
+export function toClassName(programCode: string, semesterName: string) {
+  const year = semesterName.match(/Year (\d+)/)?.[1] || '';
+  const semester = semesterName.match(/Sem (\d+)/)?.[1] || '';
+  return `${programCode}Y${year}S${semester}`;
+}
