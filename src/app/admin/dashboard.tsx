@@ -2,6 +2,7 @@
 
 import { Shell } from '@/components/adease';
 import { DashboardUser, UserRole } from '@/db/schema';
+import { getAssignedModulesByLecturer } from '@/server/assigned-modules/actions';
 import {
   countApprovedRegistrationClearances,
   countPendingRegistrationClearances,
@@ -15,7 +16,6 @@ import {
   Group,
   Image,
   Indicator,
-  LoadingOverlay,
   MantineColor,
   NavLink,
   Stack,
@@ -25,6 +25,7 @@ import {
 import { modals } from '@mantine/modals';
 import {
   Icon,
+  IconAB2,
   IconBarrierBlock,
   IconBookmark,
   IconBuildingBank,
@@ -48,11 +49,6 @@ import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
-import {
-  getAssignedModules,
-  getLecturersByModule,
-  getAssignedModulesByLecturer,
-} from '@/server/assigned-modules/actions';
 
 type NotificationConfig = {
   queryKey: string[];
@@ -89,6 +85,12 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       label: 'Lecturers',
       href: '/admin/lecturers',
       icon: IconSchool,
+      roles: ['academic'],
+    },
+    {
+      label: 'Assessment',
+      href: '/admin/assessments',
+      icon: IconAB2,
       roles: ['academic'],
     },
     {
