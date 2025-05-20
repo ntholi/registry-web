@@ -6,10 +6,9 @@ import {
   studentPrograms,
   students,
   studentSemesters,
-  terms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, eq, inArray, like, or, SQL } from 'drizzle-orm';
+import { and, eq, like, SQL } from 'drizzle-orm';
 
 export default class StudentRepository extends BaseRepository<
   typeof students,
@@ -92,12 +91,15 @@ export default class StudentRepository extends BaseRepository<
         );
       },
       with: {
-        user: true,
         programs: {
           with: {
-            structure: {
+            semesters: {
               with: {
-                program: true,
+                studentModules: {
+                  with: {
+                    semesterModule: true,
+                  },
+                },
               },
             },
           },

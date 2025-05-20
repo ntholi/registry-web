@@ -15,6 +15,20 @@ export default function StudentTable({ moduleId }: Props) {
   const { data: students } = useQuery({
     queryKey: ['students', moduleId],
     queryFn: () => findByModuleId(moduleId),
+    select(data) {
+      if (!semesterModuleId) {
+        return data;
+      }
+      return data.filter((it) =>
+        it.programs.some((it) =>
+          it.semesters.some((it) =>
+            it.studentModules.some(
+              (it) => it.semesterModule?.id?.toString() === semesterModuleId,
+            ),
+          ),
+        ),
+      );
+    },
   });
 
   const rows =
