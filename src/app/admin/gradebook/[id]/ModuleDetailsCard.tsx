@@ -1,58 +1,40 @@
 'use client';
 
+import { toClassName } from '@/lib/utils';
 import { getAssignedModuleByUserAndModule } from '@/server/assigned-modules/actions';
-import { getStudentsBySemesterModuleId } from '@/server/students/actions';
-import { Paper, Group, Stack, Text, Title, Select, Box } from '@mantine/core';
-import {
-  IconCalendar,
-  IconUserCheck,
-  IconChevronDown,
-} from '@tabler/icons-react';
+import { Group, Paper, Select, Stack, Text, Title } from '@mantine/core';
+import { IconCalendar, IconChevronDown } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { toClassName } from '@/lib/utils';
 
 type ModuleDetailsCardProps = {
-  module: NonNullable<
+  modules: NonNullable<
     Awaited<ReturnType<typeof getAssignedModuleByUserAndModule>>
   >;
-  studentsCount?: number;
 };
 
-export default function ModuleDetailsCard({
-  module,
-  studentsCount,
-}: ModuleDetailsCardProps) {
+export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
   const [selectedProgram, setSelectedProgram] = useQueryState('program');
 
-  const { data: students } = useQuery({
-    queryKey: ['students', module.semesterModuleId],
-    queryFn: () => getStudentsBySemesterModuleId(module.semesterModuleId),
-  });
-
   const programOptions = useMemo(() => {
-    if (!students) return [{ value: 'all', label: 'All Programs' }];
+    if (modules.length <= 1) return [{ value: 'all', label: 'All Programs' }];
 
     const options = [{ value: 'all', label: 'All Programs' }];
 
-    const uniquePrograms = new Map();
-
-    students.forEach((student) => {
-      if (student.program && !uniquePrograms.has(student.program.id)) {
-        uniquePrograms.set(student.program.id, student.program.name);
+    modules.forEach((module) => {
+      if (module.semesterModule?.semester?.structure?.program) {
         options.push({
-          value: student.program.id.toString(),
+          value: module.semesterModule.semester.structure.program.id.toString(),
           label: toClassName(
-            student.program.code,
-            module.semesterModule?.semester?.name || '?',
+            module.semesterModule.semester.structure.program.code,
+            module.semesterModule.semester.name,
           ),
         });
       }
     });
 
     return options;
-  }, [students]);
+  }, [modules]);
 
   useEffect(() => {
     if (!selectedProgram) {
@@ -66,7 +48,7 @@ export default function ModuleDetailsCard({
         <Stack gap='xs' style={{ flex: 1 }}>
           <Group gap='xs' align='center' justify='space-between'>
             <Title order={2} fw={100}>
-              {module.semesterModule.module!.name}
+              {modules[0].semesterModule.module!.name}
             </Title>
 
             <Select
@@ -82,18 +64,9 @@ export default function ModuleDetailsCard({
             <Group gap='xs'>
               <IconCalendar size={16} stroke={1.5} />
               <Text size='sm' c='dimmed'>
-                {module.semesterModule.semesterId
+                {modules[0].semesterModule.semesterId
                   ? 'Current Semester'
                   : 'No Semester Assigned'}
-              </Text>
-            </Group>
-
-            <Group gap='xs'>
-              <IconUserCheck size={16} stroke={1.5} />
-              <Text size='sm' c='dimmed'>
-                {studentsCount !== undefined
-                  ? `${studentsCount} Students Enrolled`
-                  : 'Students Enrolled'}
               </Text>
             </Group>
           </Group>

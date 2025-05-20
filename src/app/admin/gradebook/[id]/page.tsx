@@ -17,20 +17,20 @@ export default async function GradebookModuleView({ params }: Props) {
     return unauthorized();
   }
 
-  const module = await getAssignedModuleByUserAndModule(
+  const modules = await getAssignedModuleByUserAndModule(
     session.user.id,
     Number(id),
   );
 
-  if (!module) {
+  if (!modules) {
     return notFound();
   }
 
   return (
     <Container size='xl' p='md'>
-      <ModuleDetailsCard module={module} />
+      <ModuleDetailsCard modules={modules} />
       <Paper withBorder radius='md' shadow='sm' p='lg'>
-        <StudentTable semesterModuleId={module.semesterModuleId} />
+        <StudentTable semesterModuleId={modules[0].semesterModuleId} />
       </Paper>
     </Container>
   );
