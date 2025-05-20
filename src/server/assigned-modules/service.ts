@@ -48,9 +48,9 @@ class AssignedModuleService {
     }, ['academic']);
   }
 
-  async getByUserAndModule(userId: string, semesterModuleId: number) {
+  async getByUserAndModule(userId: string, moduleId: number) {
     return withAuth(
-      async () => this.repository.findByUserAndModule(userId, semesterModuleId),
+      async () => this.repository.findByUserAndModule(userId, moduleId),
       ['academic'],
     );
   }

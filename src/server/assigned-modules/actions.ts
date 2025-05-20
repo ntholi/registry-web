@@ -15,9 +15,9 @@ export async function getAssignedModules(page: number = 1, search = '') {
 
 export async function getAssignedModuleByUserAndModule(
   userId: string,
-  semesterModuleId: number,
+  moduleId: number,
 ) {
-  return service.getByUserAndModule(userId, semesterModuleId);
+  return service.getByUserAndModule(userId, moduleId);
 }
 
 export async function createAssignedModule(assignedModule: AssignedModule) {
