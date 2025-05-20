@@ -24,20 +24,7 @@ export async function getAssessmentsByMultipleSemesterModuleIds(
   semesterModuleIds: number[],
 ) {
   if (!semesterModuleIds.length) return [];
-  
-  const results = await Promise.all(
-    semesterModuleIds.map(id => service.getBySemesterModuleId(id))
-  );
-  
-  // Flatten and deduplicate assessments by ID
-  const assessmentMap = new Map();
-  results.flat().forEach(assessment => {
-    if (assessment && !assessmentMap.has(assessment.id)) {
-      assessmentMap.set(assessment.id, assessment);
-    }
-  });
-  
-  return Array.from(assessmentMap.values());
+  return service.getBySemesterModuleIds(semesterModuleIds);
 }
 
 export async function createAssessment(assessment: Assessment) {

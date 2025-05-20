@@ -179,7 +179,7 @@ export default function StudentTable({ semesterModuleIds }: Props) {
                 studentId={student.stdNo}
                 existingMark={markData?.marks}
                 existingMarkId={markData?.id}
-                semesterModuleId={assessment.semesterModuleId}
+                semesterModuleId={assessment.moduleId}
               />
             </Table.Td>
           );

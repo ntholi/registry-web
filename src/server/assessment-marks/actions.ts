@@ -19,13 +19,7 @@ export async function getAssessmentMarksByModuleId(semesterModuleId: number) {
 
 export async function getAssessmentMarksByMultipleModuleIds(semesterModuleIds: number[]) {
   if (!semesterModuleIds.length) return [];
-  
-  const results = await Promise.all(
-    semesterModuleIds.map(id => service.getByModuleId(id))
-  );
-  
-  // Combine all marks from different modules
-  return results.flat();
+  return service.getByModuleIds(semesterModuleIds);
 }
 
 export async function createAssessmentMark(assessmentMark: AssessmentMark) {

@@ -32,6 +32,30 @@ export default class AssessmentMarkRepository extends BaseRepository<
       },
     });
   }
+  
+  async findByModuleIds(semesterModuleIds: number[]) {
+    if (!semesterModuleIds.length) return [];
+    
+    const moduleAssessments = await db.query.assessments.findMany({
+      where: inArray(assessments.moduleId, semesterModuleIds),
+      columns: {
+        id: true,
+      },
+    });
+
+    const assessmentIds = moduleAssessments.map((assessment) => assessment.id);
+
+    if (assessmentIds.length === 0) {
+      return [];
+    }
+
+    return db.query.assessmentMarks.findMany({
+      where: inArray(assessmentMarks.assessmentId, assessmentIds),
+      with: {
+        assessment: true,
+      },
+    });
+  }
 }
 
 export const assessmentMarksRepository = new AssessmentMarkRepository();
