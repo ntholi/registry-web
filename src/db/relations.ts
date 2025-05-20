@@ -153,11 +153,12 @@ export const semesterModulesRelations = relations(
   }),
 );
 
-export const modulesRelations = relations(modules, ({ one }) => ({
+export const modulesRelations = relations(modules, ({ one, many }) => ({
   semesterModule: one(semesterModules, {
     fields: [modules.id],
     references: [semesterModules.moduleId],
   }),
+  assessments: many(assessments),
 }));
 
 export const modulePrerequisitesRelations = relations(
@@ -294,9 +295,9 @@ export const assignedModulesRelations = relations(
 );
 
 export const assessmentsRelations = relations(assessments, ({ many, one }) => ({
-  semesterModule: one(semesterModules, {
+  module: one(modules, {
     fields: [assessments.moduleId],
-    references: [semesterModules.id],
+    references: [modules.id],
   }),
   term: one(terms, {
     fields: [assessments.termId],
