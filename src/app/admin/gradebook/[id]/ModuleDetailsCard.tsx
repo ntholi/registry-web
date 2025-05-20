@@ -14,20 +14,19 @@ type ModuleDetailsCardProps = {
 };
 
 export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
-  const [selectedProgram, setSelectedProgram] = useQueryState('program');
+  const [semesterModuleId, setSemesterModuleId] =
+    useQueryState('semesterModuleId');
 
-  const programOptions = useMemo(() => {
-    if (modules.length <= 1) return [{ value: 'all', label: 'All Programs' }];
-
-    const options = [{ value: 'all', label: 'All Programs' }];
+  const moduleOptions = useMemo(() => {
+    const options = [{ value: '', label: 'All Modules' }];
 
     modules.forEach((module) => {
-      if (module.semesterModule?.semester?.structure?.program) {
+      if (module.semesterModule) {
         options.push({
-          value: module.semesterModule.semester.structure.program.id.toString(),
+          value: module.semesterModule.id.toString(),
           label: toClassName(
-            module.semesterModule.semester.structure.program.code,
-            module.semesterModule.semester.name,
+            module.semesterModule.semester?.structure.program.code || '',
+            module.semesterModule.semester?.name || '',
           ),
         });
       }
@@ -37,10 +36,10 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
   }, [modules]);
 
   useEffect(() => {
-    if (!selectedProgram) {
-      setSelectedProgram('all');
+    if (semesterModuleId === undefined) {
+      setSemesterModuleId(null);
     }
-  }, [selectedProgram, setSelectedProgram]);
+  }, [semesterModuleId, setSemesterModuleId]);
 
   return (
     <Paper withBorder p='lg' mb='lg'>
@@ -52,11 +51,14 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
             </Title>
 
             <Select
-              placeholder='Select Program'
-              data={programOptions}
-              value={selectedProgram || 'all'}
-              onChange={(value) => setSelectedProgram(value || 'all')}
+              placeholder='Select Module'
+              data={moduleOptions}
+              value={semesterModuleId || ''}
+              onChange={(value) =>
+                setSemesterModuleId(value === '' ? null : value)
+              }
               rightSection={<IconChevronDown size={16} />}
+              clearable
             />
           </Group>
 
