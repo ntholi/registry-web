@@ -249,9 +249,9 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
     if (nav.label === 'Gradebook') {
       assignedModules?.forEach((it) => {
         nav.children?.push({
-          label: it.semesterModule.module?.code || 'Unknown Module',
-          description: it.semesterModule.module?.name || 'Unknown Module',
-          href: `/admin/gradebook/${it.semesterModule.moduleId}`,
+          label: it?.code || 'Unknown Module',
+          description: it?.name || 'Unknown Module',
+          href: `/admin/gradebook/${it?.id}`,
         });
       });
     }
