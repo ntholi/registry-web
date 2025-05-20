@@ -20,6 +20,26 @@ export async function getAssessmentBySemesterModuleId(
   return service.getBySemesterModuleId(semesterModuleId);
 }
 
+export async function getAssessmentsByMultipleSemesterModuleIds(
+  semesterModuleIds: number[],
+) {
+  if (!semesterModuleIds.length) return [];
+  
+  const results = await Promise.all(
+    semesterModuleIds.map(id => service.getBySemesterModuleId(id))
+  );
+  
+  // Flatten and deduplicate assessments by ID
+  const assessmentMap = new Map();
+  results.flat().forEach(assessment => {
+    if (assessment && !assessmentMap.has(assessment.id)) {
+      assessmentMap.set(assessment.id, assessment);
+    }
+  });
+  
+  return Array.from(assessmentMap.values());
+}
+
 export async function createAssessment(assessment: Assessment) {
   const term = await getCurrentTerm();
   return service.create({ ...assessment, termId: term.id });

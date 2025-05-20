@@ -26,12 +26,17 @@ export default async function GradebookModuleView({ params }: Props) {
     return notFound();
   }
 
+  const semesterModuleIds =
+    modules && modules.length > 0
+      ? modules.map((module) => module.semesterModule.id)
+      : [];
+
   return (
     <Container size='xl' p='md'>
       <ModuleDetailsCard modules={modules} />
-      {/* <Paper withBorder radius='md' shadow='sm' p='lg'>
-        <StudentTable />
-      </Paper> */}
+      <Paper withBorder radius='md' shadow='sm' p='lg'>
+        <StudentTable semesterModuleIds={semesterModuleIds} />
+      </Paper>
     </Container>
   );
 }

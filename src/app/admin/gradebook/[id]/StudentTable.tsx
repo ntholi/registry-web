@@ -1,7 +1,7 @@
 'use client';
-import { getAssessmentMarksByModuleId } from '@/server/assessment-marks/actions';
-import { getAssessmentBySemesterModuleId } from '@/server/assessments/actions';
-import { getStudentsBySemesterModuleId } from '@/server/students/actions';
+import { getAssessmentMarksByMultipleModuleIds } from '@/server/assessment-marks/actions';
+import { getAssessmentsByMultipleSemesterModuleIds } from '@/server/assessments/actions';
+import { getStudentsByMultipleSemesterModules } from '@/server/students/actions';
 import {
   Anchor,
   Box,
@@ -27,7 +27,7 @@ import Link from 'next/link';
 import { useQueryState } from 'nuqs';
 
 type Props = {
-  semesterModuleId: number;
+  semesterModuleIds: number[];
 };
 
 type Student = {
@@ -39,24 +39,24 @@ type Student = {
   };
 };
 
-export default function StudentTable({ semesterModuleId }: Props) {
+export default function StudentTable({ semesterModuleIds }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
   const [selectedProgram] = useQueryState('program');
 
   const { data: assessments, isLoading: isLoadingAssessments } = useQuery({
-    queryKey: ['assessments', semesterModuleId],
-    queryFn: () => getAssessmentBySemesterModuleId(semesterModuleId),
+    queryKey: ['assessments', semesterModuleIds],
+    queryFn: () => getAssessmentsByMultipleSemesterModuleIds(semesterModuleIds),
   });
 
   const { data: students, isLoading: isLoadingStudents } = useQuery({
-    queryKey: ['students', semesterModuleId],
-    queryFn: () => getStudentsBySemesterModuleId(semesterModuleId),
+    queryKey: ['students', semesterModuleIds],
+    queryFn: () => getStudentsByMultipleSemesterModules(semesterModuleIds),
   });
 
   const { data: assessmentMarks, isLoading: isLoadingMarks } = useQuery({
-    queryKey: ['assessmentMarks', semesterModuleId],
-    queryFn: () => getAssessmentMarksByModuleId(semesterModuleId),
+    queryKey: ['assessmentMarks', semesterModuleIds],
+    queryFn: () => getAssessmentMarksByMultipleModuleIds(semesterModuleIds),
     enabled:
       !!assessments &&
       !!students &&
@@ -179,7 +179,7 @@ export default function StudentTable({ semesterModuleId }: Props) {
                 studentId={student.stdNo}
                 existingMark={markData?.marks}
                 existingMarkId={markData?.id}
-                semesterModuleId={semesterModuleId}
+                semesterModuleId={assessment.semesterModuleId}
               />
             </Table.Td>
           );
