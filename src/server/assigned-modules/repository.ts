@@ -73,9 +73,7 @@ export default class AssignedModuleRepository extends BaseRepository<
       },
     });
 
-    return (
-      results.find((item) => item.semesterModule?.moduleId === moduleId) || null
-    );
+    return results.filter((item) => item.semesterModule?.moduleId === moduleId);
   }
 
   async findByModule(semesterModuleId: number) {
