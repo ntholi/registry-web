@@ -15,23 +15,34 @@ import {
   Table,
   Text,
   TextInput,
-  Tooltip,
+  Badge,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconDownload, IconSearch } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getAssessmentName } from '../../assessments/options';
 import AssessmentMarksInput from './MarksInput';
 import Link from 'next/link';
+import { useQueryState } from 'nuqs';
 
 type Props = {
   semesterModuleId: number;
 };
 
+type Student = {
+  stdNo: number;
+  name: string;
+  program: {
+    id: number;
+    name: string;
+  };
+};
+
 export default function StudentTable({ semesterModuleId }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
+  const [selectedProgram] = useQueryState('program');
 
   const { data: assessments, isLoading: isLoadingAssessments } = useQuery({
     queryKey: ['assessments', semesterModuleId],
@@ -53,24 +64,26 @@ export default function StudentTable({ semesterModuleId }: Props) {
       students?.length > 0,
   });
 
-  const [filteredStudents, setFilteredStudents] = useState(students || []);
+  const filteredByProgram = useMemo(() => {
+    if (!students || !selectedProgram) return students || [];
 
-  useEffect(() => {
-    if (!students) return;
+    if (selectedProgram === 'all') return students;
 
-    if (!debouncedSearch.trim()) {
-      setFilteredStudents(students);
-      return;
-    }
+    return students.filter(
+      (student) => student.program?.id.toString() === selectedProgram,
+    );
+  }, [students, selectedProgram]);
 
-    const filtered = students.filter(
+  const filteredStudents = useMemo(() => {
+    if (!filteredByProgram) return [];
+    if (!debouncedSearch.trim()) return filteredByProgram;
+
+    return filteredByProgram.filter(
       (student) =>
         student.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         student.stdNo.toString().includes(debouncedSearch),
     );
-
-    setFilteredStudents(filtered);
-  }, [debouncedSearch, students]);
+  }, [debouncedSearch, filteredByProgram]);
 
   const getMarkForStudentAssessment = (
     studentId: number,
@@ -120,6 +133,11 @@ export default function StudentTable({ semesterModuleId }: Props) {
     );
   }
 
+  const getProgramName = (student: Student) => {
+    if (!student.program) return 'Not Assigned';
+    return student.program.name;
+  };
+
   const tableHeaders = assessments?.map((it) => (
     <Table.Th key={it.id} ta='center'>
       <Text fw={500}>{getAssessmentName(it.assessmentType)}</Text>
@@ -141,7 +159,9 @@ export default function StudentTable({ semesterModuleId }: Props) {
           </Anchor>
         </Table.Td>
         <Table.Td>
-          <Text size='0.93rem'>{student.name}</Text>
+          <Group gap='xs'>
+            <Text size='0.93rem'>{student.name}</Text>
+          </Group>
         </Table.Td>
         {assessments?.map((assessment) => {
           const markData = getMarkForStudentAssessment(
@@ -244,10 +264,17 @@ export default function StudentTable({ semesterModuleId }: Props) {
           </Box>
         </ScrollArea>
 
-        <Text size='xs' c='dimmed' mt='md' ta='right'>
-          {filteredStudents?.length || 0} student
-          {filteredStudents?.length !== 1 ? 's' : ''}
-        </Text>
+        <Group justify='space-between' mt='md'>
+          <Text size='xs' c='dimmed'>
+            {selectedProgram === 'all'
+              ? 'Showing all programs'
+              : `Showing ${students?.find((s) => s.program?.id.toString() === selectedProgram)?.program.name || 'Program'}`}
+          </Text>
+          <Text size='xs' c='dimmed'>
+            {filteredStudents?.length || 0} student
+            {filteredStudents?.length !== 1 ? 's' : ''}
+          </Text>
+        </Group>
       </Stack>
     </>
   );

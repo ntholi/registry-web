@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { getAssignedModuleByUserAndModule } from '@/server/assigned-modules/actions';
-import { Box, Container, Divider, Paper, Title } from '@mantine/core';
+import { Container, Paper } from '@mantine/core';
 import { notFound, unauthorized } from 'next/navigation';
 import ModuleDetailsCard from './ModuleDetailsCard';
 import StudentTable from './StudentTable';
