@@ -18,6 +18,10 @@ export async function getAllPrograms() {
   return service.getAllPrograms();
 }
 
+export async function findByModuleId(moduleId: number) {
+  return service.findByModuleId(moduleId);
+}
+
 export async function findAllStudents(page: number = 1, search = '') {
   return service.findAll({ page, search, searchColumns: ['stdNo', 'name'] });
 }

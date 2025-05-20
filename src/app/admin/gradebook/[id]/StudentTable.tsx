@@ -1,6 +1,8 @@
 'use client';
-import { Text } from '@mantine/core';
+import { findByModuleId } from '@/server/students/actions';
+import { Anchor, Table, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useQueryState } from 'nuqs';
 
 type Props = {
@@ -12,12 +14,36 @@ export default function StudentTable({ moduleId }: Props) {
 
   const { data: students } = useQuery({
     queryKey: ['students', moduleId],
-    queryFn: () => [],
+    queryFn: () => findByModuleId(moduleId),
   });
+
+  const rows =
+    students?.map((it) => (
+      <Table.Tr key={it.stdNo}>
+        <Table.Td>
+          <Anchor
+            size='sm'
+            component={Link}
+            href={`/admin/students/${it.stdNo}`}
+          >
+            {it.stdNo}
+          </Anchor>
+        </Table.Td>
+        <Table.Td>{it.name}</Table.Td>
+      </Table.Tr>
+    )) || [];
 
   return (
     <>
-      <Text>Students</Text>
+      <Table highlightOnHover withTableBorder>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Student Number</Table.Th>
+            <Table.Th>Name</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>{rows}</Table.Tbody>
+      </Table>
     </>
   );
 }

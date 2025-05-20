@@ -3,6 +3,7 @@ import StudentRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
+import { getCurrentTerm } from '../terms/actions';
 
 type Student = typeof students.$inferInsert;
 
@@ -26,6 +27,14 @@ class StudentService {
 
   async getAllPrograms() {
     return withAuth(async () => this.repository.getAllPrograms(), ['academic']);
+  }
+
+  async findByModuleId(moduleId: number) {
+    const term = await getCurrentTerm();
+    return withAuth(
+      async () => this.repository.findByModuleId(moduleId, term.name),
+      ['academic'],
+    );
   }
 
   async findAll(params: QueryOptions<typeof students>) {

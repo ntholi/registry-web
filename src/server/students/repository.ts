@@ -1,5 +1,13 @@
 import { db } from '@/db';
-import { programs, studentModules, students } from '@/db/schema';
+import {
+  programs,
+  semesterModules,
+  studentModules,
+  studentPrograms,
+  students,
+  studentSemesters,
+  terms,
+} from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { and, eq, inArray, like, or, SQL } from 'drizzle-orm';
 
@@ -47,6 +55,49 @@ export default class StudentRepository extends BaseRepository<
                     },
                   },
                 },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async findByModuleId(moduleId: number, termName: string) {
+    return await db.query.students.findMany({
+      where: (students, { exists }) => {
+        return exists(
+          db
+            .select()
+            .from(studentPrograms)
+            .innerJoin(
+              studentSemesters,
+              eq(studentSemesters.studentProgramId, studentPrograms.id),
+            )
+            .innerJoin(
+              studentModules,
+              eq(studentModules.studentSemesterId, studentSemesters.id),
+            )
+            .innerJoin(
+              semesterModules,
+              eq(studentModules.semesterModuleId, semesterModules.id),
+            )
+            .where(
+              and(
+                eq(semesterModules.moduleId, moduleId),
+                eq(studentSemesters.term, termName),
+                eq(studentPrograms.stdNo, students.stdNo),
+              ),
+            ),
+        );
+      },
+      with: {
+        user: true,
+        programs: {
+          with: {
+            structure: {
+              with: {
+                program: true,
               },
             },
           },
