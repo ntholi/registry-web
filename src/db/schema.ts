@@ -564,11 +564,7 @@ export const assessments = sqliteTable(
     createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
-    uniqueAssessmentModule: unique().on(
-      table.moduleId,
-      table.termId,
-      table.assessmentNumber,
-    ),
+    uniqueAssessmentModule: unique().on(table.moduleId, table.termId),
   }),
 );
 
