@@ -8,17 +8,16 @@ import { PropsWithChildren } from 'react';
 
 export default function Layout({ children }: PropsWithChildren) {
   const { data: session } = useSession();
-  if (!session?.user?.id) {
-    return unauthorized();
-  }
-  const userId = session.user.id;
 
   return (
     <ListLayout
       path={'/admin/assessments'}
       queryKey={['assessments']}
       getData={async (_, __) => {
-        const data = await getAssignedModulesByLecturer(userId);
+        if (!session?.user?.id) {
+          return { items: [], totalPages: 0 };
+        }
+        const data = await getAssignedModulesByLecturer(session.user.id);
         return {
           items: data,
           totalPages: 1,
