@@ -121,10 +121,7 @@ export default function AssessmentModal({
           placeholder='Search or select an assessment type'
           searchable
           clearable
-          data={ASSESSMENT_TYPES.map((item) => ({
-            value: item.id,
-            label: item.label,
-          }))}
+          data={ASSESSMENT_TYPES}
           {...form.getInputProps('assessmentType')}
           required
           mb='md'
