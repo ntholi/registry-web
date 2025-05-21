@@ -16,6 +16,7 @@ import {
   Text,
   Title,
 } from '@mantine/core';
+import AssessmentsTable from './AssessmentsTable';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -40,7 +41,7 @@ export default async function ModuleDetails({ params }: Props) {
         }}
       />
 
-      <Paper p='md' radius='md' withBorder shadow='sm' mb='md'>
+      <Paper p='md' radius='md' withBorder shadow='sm' mb='md' mt='lg'>
         <Title order={4} fw={400}>
           Module Information
         </Title>
@@ -50,37 +51,7 @@ export default async function ModuleDetails({ params }: Props) {
         </Stack>
       </Paper>
 
-      <Paper p='md' radius='md' withBorder shadow='sm'>
-        <Title order={4} mb='md'>
-          Assessments
-        </Title>
-        {module.assessments && module.assessments.length > 0 ? (
-          <Table striped highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Assessment Number</Table.Th>
-                <Table.Th>Type</Table.Th>
-                <Table.Th>Total Marks</Table.Th>
-                <Table.Th>Weight</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {module.assessments.map((assessment) => (
-                <Table.Tr key={assessment.id}>
-                  <Table.Td>{assessment.assessmentNumber}</Table.Td>
-                  <Table.Td>{assessment.assessmentType}</Table.Td>
-                  <Table.Td>{assessment.totalMarks}</Table.Td>
-                  <Table.Td>{assessment.weight}%</Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        ) : (
-          <Text c='dimmed' ta='center' py='xl'>
-            No assessments found for this module
-          </Text>
-        )}
-      </Paper>
+      <AssessmentsTable module={module} />
     </DetailsView>
   );
 }
