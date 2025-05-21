@@ -17,6 +17,7 @@ import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
 import { getModule } from '@/server/modules/actions';
 import { deleteAssessment } from '@/server/assessments/actions';
 import AssessmentModal from './AssessmentModal';
+import { getAssessmentTypeLabel, getAssessmentNumberLabel } from './assessments';
 
 interface Props {
   module: NonNullable<Awaited<ReturnType<typeof getModule>>>;
@@ -76,7 +77,7 @@ export default function AssessmentsTable({ module }: Props) {
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Assessment Number</Table.Th>
+              <Table.Th>Number</Table.Th>
               <Table.Th>Type</Table.Th>
               <Table.Th>Total Marks</Table.Th>
               <Table.Th>Weight</Table.Th>
@@ -86,8 +87,8 @@ export default function AssessmentsTable({ module }: Props) {
           <Table.Tbody>
             {module.assessments.map((assessment) => (
               <Table.Tr key={assessment.id}>
-                <Table.Td>{assessment.assessmentNumber}</Table.Td>
-                <Table.Td>{assessment.assessmentType}</Table.Td>
+                <Table.Td>{getAssessmentNumberLabel(assessment.assessmentNumber)}</Table.Td>
+                <Table.Td>{getAssessmentTypeLabel(assessment.assessmentType)}</Table.Td>
                 <Table.Td>{assessment.totalMarks}</Table.Td>
                 <Table.Td>{assessment.weight}%</Table.Td>
                 <Table.Td>

@@ -123,3 +123,13 @@ export const ASSESSMENT_TYPES: Option[] = [
   { value: '82', label: 'TV Commercial' },
   { value: '59', label: 'Workshop' },
 ];
+
+export function getAssessmentTypeLabel(value: string): string {
+  const option = ASSESSMENT_TYPES.find((opt) => opt.value === value);
+  return option?.label || value;
+}
+
+export function getAssessmentNumberLabel(value: string): string {
+  const option = COURSE_WORK_OPTIONS.find((opt) => opt.value === value);
+  return option?.label || value;
+}
