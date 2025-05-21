@@ -58,27 +58,30 @@ export default function StudentTable({ moduleId }: Props) {
   };
 
   const calculateStudentTotals = (studentId: number) => {
-    if (!assessments || !assessmentMarks) return { total: 0, hasMarks: false };
+    if (!assessments || !assessmentMarks)
+      return { total: 0, hasMarks: false, hasPassed: false };
 
-    let totalWeightedPercentage = 0;
-    let totalWeight = 0;
-    let hasAtLeastOneMark = false;
+    let weight = 0;
+    let marks = 0;
+    let maxMarks = 0;
+    let hasMarks = false;
 
     assessments.forEach((assessment) => {
       const { mark } = getStudentMark(studentId, assessment.id);
       if (mark !== undefined) {
-        const assessmentPercentage = (mark / assessment.totalMarks) * 100;
-        totalWeightedPercentage +=
-          (assessmentPercentage * assessment.weight) / 100;
-        totalWeight += assessment.weight;
-        hasAtLeastOneMark = true;
+        weight += assessment.weight;
+        marks += mark;
+        maxMarks += assessment.totalMarks;
+        hasMarks = true;
       }
     });
 
+    const total = (marks / maxMarks) * weight;
+
     return {
-      total: Math.round(totalWeightedPercentage * 10) / 10,
-      hasMarks: hasAtLeastOneMark,
-      hasPassed: totalWeightedPercentage >= 50,
+      total,
+      hasMarks,
+      hasPassed: total >= weight * 0.5,
     };
   };
   const renderTableHeaders = () => {
@@ -155,7 +158,9 @@ export default function StudentTable({ moduleId }: Props) {
       );
     }
     return students.map((student) => {
-      const { total, hasMarks } = calculateStudentTotals(student.stdNo);
+      const { total, hasMarks, hasPassed } = calculateStudentTotals(
+        student.stdNo,
+      );
 
       return (
         <Table.Tr key={student.stdNo}>
@@ -197,7 +202,7 @@ export default function StudentTable({ moduleId }: Props) {
             {hasMarks ? (
               <Badge
                 variant='light'
-                color={total >= 50 ? 'green' : 'red'}
+                color={hasPassed ? 'green' : 'red'}
                 size='sm'
               >
                 {total}%
