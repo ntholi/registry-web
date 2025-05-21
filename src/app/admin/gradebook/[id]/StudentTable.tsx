@@ -1,27 +1,26 @@
 'use client';
 import {
   Anchor,
+  Badge,
+  Center,
+  Group,
+  Paper,
+  Skeleton,
   Stack,
   Table,
-  TextInput,
   Text,
-  Center,
-  Skeleton,
-  Box,
-  Group,
-  Badge,
-  Paper,
+  TextInput,
 } from '@mantine/core';
 import Link from 'next/link';
-import { useState } from 'react';
-import { useStudentsQuery } from './useStudentsQuery';
-import {
-  useAssessmentsQuery,
-  useAssessmentMarksQuery,
-} from './useAssessmentsQuery';
 import { useQueryState } from 'nuqs';
-import MarksInput from './MarksInput';
+import { useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
+import MarksInput from './MarksInput';
+import {
+  useAssessmentMarksQuery,
+  useAssessmentsQuery,
+} from './useAssessmentsQuery';
+import { useStudentsQuery } from './useStudentsQuery';
 
 type Props = {
   moduleId: number;
@@ -59,8 +58,7 @@ export default function StudentTable({ moduleId }: Props) {
   };
 
   const calculateStudentTotals = (studentId: number) => {
-    if (!assessments || !assessmentMarks)
-      return { total: 0, percentage: 0, hasMarks: false };
+    if (!assessments || !assessmentMarks) return { total: 0, hasMarks: false };
 
     let totalWeightedPercentage = 0;
     let totalWeight = 0;
@@ -80,6 +78,7 @@ export default function StudentTable({ moduleId }: Props) {
     return {
       total: Math.round(totalWeightedPercentage * 10) / 10,
       hasMarks: hasAtLeastOneMark,
+      hasPassed: totalWeightedPercentage >= 50,
     };
   };
   const renderTableHeaders = () => {
@@ -122,7 +121,7 @@ export default function StudentTable({ moduleId }: Props) {
   };
   const renderTableRows = () => {
     if (isLoading) {
-      return Array(5)
+      return Array(10)
         .fill(0)
         .map((_, index) => (
           <Table.Tr key={`skeleton-${index}`}>
