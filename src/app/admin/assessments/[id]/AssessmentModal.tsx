@@ -12,14 +12,15 @@ import {
   Modal,
   NumberInput,
   Select,
-  TextInput,
+  Autocomplete,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { zodResolver } from '@mantine/form';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { ASSESSMENT_TYPES } from './assessments';
 
 type AssessmentNumberType = (typeof assessmentNumberEnum)[number];
 type Assessment = NonNullable<
@@ -113,12 +114,18 @@ export default function AssessmentModal({
           mb='md'
           {...form.getInputProps('assessmentNumber')}
         />
-        <TextInput
+        <Select
           label='Assessment Type'
-          placeholder='e.g., Assignment, Test, Exam'
+          placeholder='Search or select an assessment type'
+          searchable
+          clearable
+          data={ASSESSMENT_TYPES.map((item) => ({
+            value: item.id,
+            label: item.label,
+          }))}
+          {...form.getInputProps('assessmentType')}
           required
           mb='md'
-          {...form.getInputProps('assessmentType')}
         />
         <NumberInput
           label='Total Marks'
