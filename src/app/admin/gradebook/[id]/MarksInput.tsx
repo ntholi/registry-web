@@ -13,7 +13,7 @@ type Props = {
   studentId: number;
   existingMark?: number;
   existingMarkId?: number;
-  semesterModuleId: number;
+  moduleId: number;
 };
 
 export default function MarksInput({
@@ -21,7 +21,7 @@ export default function MarksInput({
   studentId,
   existingMark,
   existingMarkId,
-  semesterModuleId,
+  moduleId,
 }: Props) {
   const [mark, setMark] = useState(existingMark?.toString() || '');
   const [isEditing, setIsEditing] = useState(!existingMark);
@@ -56,7 +56,7 @@ export default function MarksInput({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['assessmentMarks', semesterModuleId],
+        queryKey: ['assessmentMarks', moduleId],
       });
       setIsEditing(false);
     },

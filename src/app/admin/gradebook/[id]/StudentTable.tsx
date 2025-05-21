@@ -11,8 +11,8 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
+import { IconSearch } from '@tabler/icons-react';
 import Link from 'next/link';
-import { useQueryState } from 'nuqs';
 import { useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
 import MarksInput from './MarksInput';
@@ -21,7 +21,6 @@ import {
   useAssessmentsQuery,
 } from './useAssessmentsQuery';
 import { useStudentsQuery } from './useStudentsQuery';
-import { IconSearch } from '@tabler/icons-react';
 
 type Props = {
   moduleId: number;
@@ -29,19 +28,15 @@ type Props = {
 
 export default function StudentTable({ moduleId }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [semesterModuleId] = useQueryState('semesterModuleId');
-  const currentModuleId = semesterModuleId
-    ? parseInt(semesterModuleId)
-    : moduleId;
 
   const { data: students, isLoading: studentsLoading } = useStudentsQuery({
     moduleId,
     searchQuery,
   });
   const { data: assessments, isLoading: assessmentsLoading } =
-    useAssessmentsQuery(currentModuleId);
+    useAssessmentsQuery(moduleId);
   const { data: assessmentMarks, isLoading: marksLoading } =
-    useAssessmentMarksQuery(currentModuleId);
+    useAssessmentMarksQuery(moduleId);
 
   const isLoading = studentsLoading || assessmentsLoading || marksLoading;
 
@@ -194,7 +189,7 @@ export default function StudentTable({ moduleId }: Props) {
                   studentId={student.stdNo}
                   existingMark={mark}
                   existingMarkId={markId}
-                  semesterModuleId={currentModuleId}
+                  moduleId={moduleId}
                 />
               </Table.Td>
             );
