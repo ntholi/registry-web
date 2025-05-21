@@ -18,6 +18,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
+import { zodResolver } from '@mantine/form';
 import { useCallback } from 'react';
 
 type AssessmentNumberType = (typeof assessmentNumberEnum)[number];
@@ -51,16 +52,7 @@ export default function AssessmentModal({
       totalMarks: assessment?.totalMarks || 100,
       weight: assessment?.weight || 0,
     },
-    validate: {
-      assessmentNumber: (value) =>
-        !value ? 'Assessment number is required' : null,
-      assessmentType: (value) =>
-        !value ? 'Assessment type is required' : null,
-      totalMarks: (value) =>
-        value <= 0 ? 'Total marks must be greater than 0' : null,
-      weight: (value) =>
-        value < 0 || value > 100 ? 'Weight must be between 0 and 100' : null,
-    },
+    validate: zodResolver(schema),
   });
 
   const handleSubmit = useCallback(

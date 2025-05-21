@@ -1,6 +1,15 @@
 'use client';
 
-import { ActionIcon, Button, Group, Paper, Table, Title, Text, Tooltip } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Group,
+  Paper,
+  Table,
+  Title,
+  Text,
+  Tooltip,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,7 +25,10 @@ interface Props {
 
 export default function AssessmentsTable({ module }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [selectedAssessment, setSelectedAssessment] = useState<NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][0] | undefined>(undefined);
+  const [selectedAssessment, setSelectedAssessment] = useState<
+    | NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][0]
+    | undefined
+  >(undefined);
   const queryClient = useQueryClient();
 
   const handleAddAssessment = () => {
@@ -24,7 +36,11 @@ export default function AssessmentsTable({ module }: Props) {
     open();
   };
 
-  const handleEditAssessment = (assessment: NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][0]) => {
+  const handleEditAssessment = (
+    assessment: NonNullable<
+      Awaited<ReturnType<typeof getModule>>
+    >['assessments'][0],
+  ) => {
     setSelectedAssessment(assessment);
     open();
   };
@@ -49,16 +65,13 @@ export default function AssessmentsTable({ module }: Props) {
 
   return (
     <Paper p='md' radius='md' withBorder shadow='sm'>
-      <Group justify="space-between" mb="md">
+      <Group justify='space-between' mb='md'>
         <Title order={4} fw={400}>
           Assessments
         </Title>
-        <Button 
-          leftSection={<IconPlus size={16} />} 
-          onClick={handleAddAssessment}
-        >
-          Add Assessment
-        </Button>
+        <ActionIcon onClick={handleAddAssessment}>
+          <IconPlus size={16} />
+        </ActionIcon>
       </Group>
       {module.assessments && module.assessments.length > 0 ? (
         <Table striped highlightOnHover>
@@ -79,20 +92,20 @@ export default function AssessmentsTable({ module }: Props) {
                 <Table.Td>{assessment.totalMarks}</Table.Td>
                 <Table.Td>{assessment.weight}%</Table.Td>
                 <Table.Td>
-                  <Group gap="xs">
-                    <Tooltip label="Edit">
+                  <Group gap='xs'>
+                    <Tooltip label='Edit'>
                       <ActionIcon
-                        variant="subtle"
-                        color="blue"
+                        variant='subtle'
+                        color='blue'
                         onClick={() => handleEditAssessment(assessment)}
                       >
                         <IconEdit size={16} />
                       </ActionIcon>
                     </Tooltip>
-                    <Tooltip label="Delete">
+                    <Tooltip label='Delete'>
                       <ActionIcon
-                        variant="subtle"
-                        color="red"
+                        variant='subtle'
+                        color='red'
                         onClick={() => handleDeleteAssessment(assessment.id)}
                       >
                         <IconTrash size={16} />
