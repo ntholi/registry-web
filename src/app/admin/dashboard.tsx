@@ -218,13 +218,17 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       icon: IconTestPipe,
       roles: ['registry'],
     },
-  ] as NavItem[];
-
-  if (isDepartmentAdmin) {
-    navItems.push({
+    {
       label: 'Reports',
       icon: IconChartLine,
-      roles: ['finance', 'library', 'resource'],
+      isVisible: (session) => {
+        const userRole = session?.user?.role;
+        return (
+          isDepartmentAdmin &&
+          userRole &&
+          ['finance', 'library', 'resource'].includes(userRole)
+        );
+      },
       children: [
         {
           label: 'Clearance',
@@ -232,8 +236,8 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
           icon: IconCopyCheck,
         },
       ],
-    });
-  }
+    },
+  ] as NavItem[];
 
   return navItems;
 }
