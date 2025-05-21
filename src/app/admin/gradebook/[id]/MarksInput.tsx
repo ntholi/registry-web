@@ -170,6 +170,8 @@ export default function MarksInput({
             },
             error: {
               position: 'absolute',
+              width: '100%',
+              textAlign: 'center',
               top: '100%',
               left: '0',
               whiteSpace: 'nowrap',

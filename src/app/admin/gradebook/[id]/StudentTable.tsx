@@ -21,6 +21,7 @@ import {
   useAssessmentsQuery,
 } from './useAssessmentsQuery';
 import { useStudentsQuery } from './useStudentsQuery';
+import { IconSearch } from '@tabler/icons-react';
 
 type Props = {
   moduleId: number;
@@ -203,9 +204,10 @@ export default function StudentTable({ moduleId }: Props) {
               <Badge
                 variant='light'
                 color={hasPassed ? 'green' : 'red'}
-                size='sm'
+                radius={'sm'}
+                w={43}
               >
-                {total}%
+                {Math.ceil(total)}
               </Badge>
             ) : (
               <Text c='dimmed' size='sm'>
@@ -224,6 +226,7 @@ export default function StudentTable({ moduleId }: Props) {
         value={searchQuery}
         onChange={(event) => setSearchQuery(event.currentTarget.value)}
         mb='sm'
+        leftSection={<IconSearch size='1.2rem' />}
       />
       {!assessments?.length && !isLoading ? (
         <Paper p='xl' withBorder>
