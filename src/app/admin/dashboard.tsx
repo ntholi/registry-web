@@ -243,7 +243,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 
   const { data: assignedModules } = useQuery({
     queryKey: ['assignedModules'],
-    queryFn: () => getAssignedModulesByCurrentUser(session?.user?.id as string),
+    queryFn: getAssignedModulesByCurrentUser,
     enabled: session?.user?.role === 'academic',
   });
 

@@ -3,6 +3,7 @@ import {
   Anchor,
   Badge,
   Center,
+  CloseButton,
   Group,
   Paper,
   Skeleton,
@@ -221,6 +222,15 @@ export default function StudentTable({ moduleId }: Props) {
         value={searchQuery}
         onChange={(event) => setSearchQuery(event.currentTarget.value)}
         mb='sm'
+        rightSection={
+          searchQuery ? (
+            <CloseButton
+              onClick={() => setSearchQuery('')}
+              variant='subtle'
+              size='sm'
+            />
+          ) : null
+        }
         leftSection={<IconSearch size='1.2rem' />}
       />
       {!assessments?.length && !isLoading ? (
