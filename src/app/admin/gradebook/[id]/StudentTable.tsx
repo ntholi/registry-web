@@ -62,26 +62,23 @@ export default function StudentTable({ moduleId }: Props) {
     if (!assessments || !assessmentMarks)
       return { total: 0, percentage: 0, hasMarks: false };
 
-    let totalMarks = 0;
-    let totalPossible = 0;
+    let totalWeightedPercentage = 0;
+    let totalWeight = 0;
     let hasAtLeastOneMark = false;
 
     assessments.forEach((assessment) => {
       const { mark } = getStudentMark(studentId, assessment.id);
       if (mark !== undefined) {
-        totalMarks += mark;
-        totalPossible += assessment.totalMarks;
+        const assessmentPercentage = (mark / assessment.totalMarks) * 100;
+        totalWeightedPercentage +=
+          (assessmentPercentage * assessment.weight) / 100;
+        totalWeight += assessment.weight;
         hasAtLeastOneMark = true;
       }
     });
 
-    const percentage =
-      totalPossible > 0 ? (totalMarks / totalPossible) * 100 : 0;
-
     return {
-      total: totalMarks,
-      totalPossible,
-      percentage: Math.round(percentage * 10) / 10,
+      total: Math.round(totalWeightedPercentage * 10) / 10,
       hasMarks: hasAtLeastOneMark,
     };
   };
@@ -159,9 +156,7 @@ export default function StudentTable({ moduleId }: Props) {
       );
     }
     return students.map((student) => {
-      const { total, percentage, hasMarks } = calculateStudentTotals(
-        student.stdNo,
-      );
+      const { total, hasMarks } = calculateStudentTotals(student.stdNo);
 
       return (
         <Table.Tr key={student.stdNo}>
@@ -203,10 +198,10 @@ export default function StudentTable({ moduleId }: Props) {
             {hasMarks ? (
               <Badge
                 variant='light'
-                color={percentage >= 50 ? 'green' : 'red'}
+                color={total >= 50 ? 'green' : 'red'}
                 size='sm'
               >
-                {percentage}%
+                {total}%
               </Badge>
             ) : (
               <Text c='dimmed' size='sm'>
