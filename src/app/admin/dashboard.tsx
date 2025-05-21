@@ -2,7 +2,7 @@
 
 import { Shell } from '@/components/adease';
 import { DashboardUser, UserRole } from '@/db/schema';
-import { getAssignedModulesByLecturer } from '@/server/assigned-modules/actions';
+import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import {
   countApprovedRegistrationClearances,
   countPendingRegistrationClearances,
@@ -243,7 +243,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 
   const { data: assignedModules } = useQuery({
     queryKey: ['assignedModules'],
-    queryFn: () => getAssignedModulesByLecturer(session?.user?.id as string),
+    queryFn: () => getAssignedModulesByCurrentUser(session?.user?.id as string),
     enabled: session?.user?.role === 'academic',
   });
 

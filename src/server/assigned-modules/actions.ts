@@ -2,6 +2,7 @@
 
 import { assignedModules } from '@/db/schema';
 import { assignedModulesService as service } from './service';
+import { auth } from '@/auth';
 
 type AssignedModule = typeof assignedModules.$inferInsert;
 
@@ -46,8 +47,12 @@ export async function getLecturersByModule(semesterModuleId: number) {
   return service.getLecturersByModule(semesterModuleId);
 }
 
-export async function getAssignedModulesByLecturer(userId: string) {
-  return service.getByLecturer(userId);
+export async function getAssignedModulesByCurrentUser() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return [];
+  }
+  return service.getByLecturer(session.user.id);
 }
 
 export async function checkModuleAssignment(

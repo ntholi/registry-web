@@ -1,6 +1,6 @@
 'use client';
 
-import { getAssignedModulesByLecturer } from '@/server/assigned-modules/actions';
+import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import { users } from '@/db/schema';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -22,7 +22,7 @@ type Props = {
 export default function AssignedModules({ user }: Props) {
   const { data: assignedModules, isLoading } = useQuery({
     queryKey: ['assigned-modules', user.id],
-    queryFn: () => getAssignedModulesByLecturer(user.id),
+    queryFn: () => getAssignedModulesByCurrentUser(user.id),
   });
 
   if (isLoading) {
