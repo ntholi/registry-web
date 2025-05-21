@@ -7,12 +7,11 @@ import {
 } from '@/server/assessments/actions';
 import { getModule } from '@/server/modules/actions';
 import { Button, Group, Modal, NumberInput, Select } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { useForm, zodResolver } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
-import { zodResolver } from '@mantine/form';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from './assessments';
 
 type AssessmentNumberType = (typeof assessmentNumberEnum)[number];
@@ -55,10 +54,77 @@ export default function AssessmentModal({
       }),
     ),
   });
+  useEffect(() => {
+    if (!opened) return;
+
+    if (isEditing && assessment) {
+      form.setValues({
+        assessmentNumber: assessment.assessmentNumber,
+        assessmentType: assessment.assessmentType,
+        totalMarks: assessment.totalMarks,
+        weight: assessment.weight,
+      });
+    } else if (!isEditing) {
+      form.reset();
+
+      const moduleData = queryClient.getQueryData<{
+        assessments: Assessment[];
+      }>(['module', moduleId]);
+
+      if (moduleData?.assessments && moduleData.assessments.length > 0) {
+        const assessmentNumbers = moduleData.assessments.map((a) => {
+          const match = a.assessmentNumber.match(/CW(\d+)/);
+          return match ? parseInt(match[1], 10) : 0;
+        });
+
+        const highestNumber = Math.max(...assessmentNumbers);
+
+        const nextNumber = highestNumber + 1;
+        if (nextNumber <= 15) {
+          form.setFieldValue(
+            'assessmentNumber',
+            `CW${nextNumber}` as AssessmentNumberType,
+          );
+        }
+
+        const currentTotalWeight = moduleData.assessments.reduce(
+          (sum, a) => sum + a.weight,
+          0,
+        );
+
+        const remainingWeight = Math.max(0, 100 - currentTotalWeight);
+        form.setFieldValue('weight', remainingWeight);
+      }
+    }
+  }, [opened, isEditing, moduleId, queryClient, assessment]);
 
   const handleSubmit = useCallback(
     async (values: typeof form.values) => {
       try {
+        const moduleData = queryClient.getQueryData<{
+          assessments: Assessment[];
+        }>(['module', moduleId]);
+
+        if (moduleData?.assessments) {
+          const currentTotalWeight = moduleData.assessments.reduce((sum, a) => {
+            if (isEditing && assessment && a.id === assessment.id) {
+              return sum;
+            }
+            return sum + a.weight;
+          }, 0);
+
+          const newTotalWeight = currentTotalWeight + values.weight;
+
+          if (newTotalWeight > 100) {
+            notifications.show({
+              title: 'Validation Error',
+              message: `Total assessment weight cannot exceed 100%. Current total: ${currentTotalWeight}%, Attempting to add: ${values.weight}%`,
+              color: 'red',
+            });
+            return;
+          }
+        }
+
         if (isEditing && assessment) {
           await updateAssessment(assessment.id, {
             ...values,
