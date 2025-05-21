@@ -6,21 +6,14 @@ import {
   updateAssessment,
 } from '@/server/assessments/actions';
 import { getModule } from '@/server/modules/actions';
-import {
-  Button,
-  Group,
-  Modal,
-  NumberInput,
-  Select,
-  Autocomplete,
-} from '@mantine/core';
+import { Button, Group, Modal, NumberInput, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { zodResolver } from '@mantine/form';
-import { useCallback, useMemo } from 'react';
-import { ASSESSMENT_TYPES } from './assessments';
+import { useCallback } from 'react';
+import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from './assessments';
 
 type AssessmentNumberType = (typeof assessmentNumberEnum)[number];
 type Assessment = NonNullable<
@@ -53,7 +46,14 @@ export default function AssessmentModal({
       totalMarks: assessment?.totalMarks || 100,
       weight: assessment?.weight || 0,
     },
-    validate: zodResolver(schema),
+    validate: zodResolver(
+      schema.pick({
+        assessmentNumber: true,
+        assessmentType: true,
+        totalMarks: true,
+        weight: true,
+      }),
+    ),
   });
 
   const handleSubmit = useCallback(
@@ -76,7 +76,7 @@ export default function AssessmentModal({
             ...values,
             assessmentNumber: values.assessmentNumber as AssessmentNumberType,
             moduleId,
-            termId: 0, // This will be set by the server action
+            termId: 0,
           });
           notifications.show({
             title: 'Success',
@@ -109,7 +109,9 @@ export default function AssessmentModal({
         <Select
           label='Assessment Number'
           placeholder='Select assessment number'
-          data={assessmentNumberEnum.map((value) => ({ value, label: value }))}
+          searchable
+          clearable
+          data={COURSE_WORK_OPTIONS}
           required
           mb='md'
           {...form.getInputProps('assessmentNumber')}

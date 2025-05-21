@@ -3,6 +3,29 @@ export interface AssessmentType {
   label: string
 }
 
+export interface AssessmentNumberOption {
+  value: string
+  label: string
+}
+
+export const COURSE_WORK_OPTIONS: AssessmentNumberOption[] = [
+  { value: 'CW1', label: 'Course Work 1' },
+  { value: 'CW2', label: 'Course Work 2' },
+  { value: 'CW3', label: 'Course Work 3' },
+  { value: 'CW4', label: 'Course Work 4' },
+  { value: 'CW5', label: 'Course Work 5' },
+  { value: 'CW6', label: 'Course Work 6' },
+  { value: 'CW7', label: 'Course Work 7' },
+  { value: 'CW8', label: 'Course Work 8' },
+  { value: 'CW9', label: 'Course Work 9' },
+  { value: 'CW10', label: 'Course Work 10' },
+  { value: 'CW11', label: 'Course Work 11' },
+  { value: 'CW12', label: 'Course Work 12' },
+  { value: 'CW13', label: 'Course Work 13' },
+  { value: 'CW14', label: 'Course Work 14' },
+  { value: 'CW15', label: 'Course Work 15' },
+]
+
 export const ASSESSMENT_TYPES: AssessmentType[] = [
   { id: '1', label: 'Article' },
   { id: '2', label: 'Assignment' },
