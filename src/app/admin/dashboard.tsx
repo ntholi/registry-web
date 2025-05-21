@@ -46,6 +46,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { signOut, useSession } from 'next-auth/react';
+import { Session } from 'next-auth';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
@@ -63,6 +64,7 @@ export type NavItem = {
   icon?: Icon;
   description?: string;
   roles?: UserRole[];
+  isVisible?: (session: Session | null) => boolean;
   children?: NavItem[];
   notificationCount?: NotificationConfig;
 };
@@ -85,7 +87,10 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       label: 'Lecturers',
       href: '/admin/lecturers',
       icon: IconSchool,
-      roles: ['academic'],
+      isVisible: (session) => {
+        const academicRole = session?.user?.academicRole;
+        return academicRole && ['manager', 'admin'].includes(academicRole);
+      },
     },
     {
       label: 'Assessment',
@@ -349,6 +354,10 @@ function ItemDisplay({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const Icon = item.icon;
   const { data: session } = useSession();
+
+  if (item.isVisible && !item.isVisible(session)) {
+    return null;
+  }
 
   if (
     item.roles &&
