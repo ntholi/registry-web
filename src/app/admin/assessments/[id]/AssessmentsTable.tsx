@@ -11,25 +11,33 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
 import { getModule } from '@/server/modules/actions';
 import { deleteAssessment } from '@/server/assessments/actions';
 import AssessmentModal from './AssessmentModal';
-import { getAssessmentTypeLabel, getAssessmentNumberLabel } from './assessments';
+import {
+  getAssessmentTypeLabel,
+  getAssessmentNumberLabel,
+} from './assessments';
 
 interface Props {
-  module: NonNullable<Awaited<ReturnType<typeof getModule>>>;
+  moduleId: number;
 }
 
-export default function AssessmentsTable({ module }: Props) {
+export default function AssessmentsTable({ moduleId }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedAssessment, setSelectedAssessment] = useState<
     | NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][0]
     | undefined
   >(undefined);
   const queryClient = useQueryClient();
+
+  const { data: module, isLoading } = useQuery({
+    queryKey: ['module', moduleId],
+    queryFn: () => getModule(moduleId),
+  });
 
   const handleAddAssessment = () => {
     setSelectedAssessment(undefined);
@@ -48,7 +56,9 @@ export default function AssessmentsTable({ module }: Props) {
   const handleDeleteAssessment = async (id: number) => {
     try {
       await deleteAssessment(id);
-      queryClient.invalidateQueries({ queryKey: ['modules'] });
+      queryClient.invalidateQueries({
+        queryKey: ['module', moduleId],
+      });
       notifications.show({
         title: 'Success',
         message: 'Assessment deleted successfully',
@@ -73,7 +83,11 @@ export default function AssessmentsTable({ module }: Props) {
           <IconPlus size={16} />
         </ActionIcon>
       </Group>
-      {module.assessments && module.assessments.length > 0 ? (
+      {isLoading ? (
+        <Text c='dimmed' ta='center' py='xl'>
+          Loading assessments...
+        </Text>
+      ) : module?.assessments && module.assessments.length > 0 ? (
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
@@ -87,8 +101,12 @@ export default function AssessmentsTable({ module }: Props) {
           <Table.Tbody>
             {module.assessments.map((assessment) => (
               <Table.Tr key={assessment.id}>
-                <Table.Td>{getAssessmentNumberLabel(assessment.assessmentNumber)}</Table.Td>
-                <Table.Td>{getAssessmentTypeLabel(assessment.assessmentType)}</Table.Td>
+                <Table.Td>
+                  {getAssessmentNumberLabel(assessment.assessmentNumber)}
+                </Table.Td>
+                <Table.Td>
+                  {getAssessmentTypeLabel(assessment.assessmentType)}
+                </Table.Td>
                 <Table.Td>{assessment.totalMarks}</Table.Td>
                 <Table.Td>{assessment.weight}%</Table.Td>
                 <Table.Td>
@@ -124,7 +142,7 @@ export default function AssessmentsTable({ module }: Props) {
       )}
 
       <AssessmentModal
-        moduleId={module.id}
+        moduleId={moduleId}
         assessment={selectedAssessment}
         opened={opened}
         onClose={close}

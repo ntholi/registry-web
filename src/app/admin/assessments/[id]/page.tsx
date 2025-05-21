@@ -51,7 +51,7 @@ export default async function ModuleDetails({ params }: Props) {
         </Stack>
       </Paper>
 
-      <AssessmentsTable module={module} />
+      <AssessmentsTable moduleId={module.id} />
     </DetailsView>
   );
 }

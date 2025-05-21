@@ -84,7 +84,15 @@ export default function AssessmentModal({
             color: 'green',
           });
         }
-        queryClient.invalidateQueries({ queryKey: ['modules'] });
+
+        queryClient.invalidateQueries({
+          queryKey: ['module', moduleId],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ['modules'],
+        });
+
         form.reset();
         onClose();
       } catch (error) {
