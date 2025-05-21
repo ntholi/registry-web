@@ -281,6 +281,13 @@
       "when": 1747539629149,
       "tag": "0039_woozy_the_twelve",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "6",
+      "when": 1747813029561,
+      "tag": "0040_tiresome_snowbird",
+      "breakpoints": true
     }
   ]
 }
