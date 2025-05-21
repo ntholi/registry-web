@@ -21,6 +21,7 @@ import {
 } from './useAssessmentsQuery';
 import { useQueryState } from 'nuqs';
 import MarksInput from './MarksInput';
+import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
 
 type Props = {
   moduleId: number;
@@ -44,7 +45,6 @@ export default function StudentTable({ moduleId }: Props) {
 
   const isLoading = studentsLoading || assessmentsLoading || marksLoading;
 
-  // Get mark for a student and assessment
   const getStudentMark = (studentId: number, assessmentId: number) => {
     if (!assessmentMarks) return { mark: undefined, markId: undefined };
 
@@ -58,7 +58,6 @@ export default function StudentTable({ moduleId }: Props) {
     };
   };
 
-  // Calculate student total marks and percentage across all assessments
   const calculateStudentTotals = (studentId: number) => {
     if (!assessments || !assessmentMarks)
       return { total: 0, percentage: 0, hasMarks: false };
@@ -81,7 +80,8 @@ export default function StudentTable({ moduleId }: Props) {
 
     return {
       total: totalMarks,
-      percentage: Math.round(percentage * 10) / 10, // Round to 1 decimal place
+      totalPossible,
+      percentage: Math.round(percentage * 10) / 10,
       hasMarks: hasAtLeastOneMark,
     };
   };
@@ -95,13 +95,31 @@ export default function StudentTable({ moduleId }: Props) {
             key={assessment.id}
             style={{ minWidth: '100px', textAlign: 'center' }}
           >
-            {assessment.assessmentNumber}
-            <Text size='xs' c='dimmed' mt={2}>
-              {assessment.totalMarks} marks ({assessment.weight}%)
-            </Text>
+            <Group gap={5} justify='center'>
+              <Text size='sm' fw={'bold'}>
+                {getAssessmentTypeLabel(assessment.assessmentType)}
+              </Text>
+              <Text size='xs' c='dimmed'>
+                ({assessment.weight}%)
+              </Text>
+            </Group>
           </Table.Th>
         ))}
-        <Table.Th style={{ textAlign: 'center' }}>Total</Table.Th>
+        <Table.Th style={{ textAlign: 'center' }}>
+          <Group gap={5} justify='center'>
+            <Text size='sm' fw={'bold'}>
+              Total
+            </Text>
+            <Text size='xs' c='dimmed'>
+              (
+              {assessments?.reduce(
+                (acc, assessment) => acc + assessment.weight,
+                0,
+              )}
+              %)
+            </Text>
+          </Group>
+        </Table.Th>
       </Table.Tr>
     );
   };
@@ -183,16 +201,13 @@ export default function StudentTable({ moduleId }: Props) {
           })}
           <Table.Td align='center'>
             {hasMarks ? (
-              <Box>
-                <Group gap={6} justify='center'>
-                  <Text fw={600} size='sm'>
-                    {total}
-                  </Text>
-                  <Badge color={percentage >= 50 ? 'green' : 'red'} size='sm'>
-                    {percentage}%
-                  </Badge>
-                </Group>
-              </Box>
+              <Badge
+                variant='light'
+                color={percentage >= 50 ? 'green' : 'red'}
+                size='sm'
+              >
+                {percentage}%
+              </Badge>
             ) : (
               <Text c='dimmed' size='sm'>
                 -
