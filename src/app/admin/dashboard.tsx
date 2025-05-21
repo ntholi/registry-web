@@ -221,19 +221,25 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
     {
       label: 'Reports',
       icon: IconChartLine,
-      isVisible: (session) => {
-        const userRole = session?.user?.role;
-        return (
-          isDepartmentAdmin &&
-          userRole &&
-          ['finance', 'library', 'resource'].includes(userRole)
-        );
-      },
       children: [
         {
           label: 'Clearance',
           href: `/admin/reports/clearance/${department}`,
           icon: IconCopyCheck,
+          isVisible: (session) => {
+            const userRole = session?.user?.role;
+            return (
+              isDepartmentAdmin &&
+              userRole &&
+              ['finance', 'library', 'resource'].includes(userRole)
+            );
+          },
+        },
+        {
+          label: 'BOE',
+          href: `/admin/reports/boe`,
+          icon: IconCopyCheck,
+          roles: ['academic'],
         },
       ],
     },
