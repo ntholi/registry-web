@@ -8,6 +8,8 @@ import {
   Title,
   Text,
   Tooltip,
+  Flex,
+  Badge,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -75,14 +77,19 @@ export default function AssessmentsTable({ moduleId }: Props) {
 
   return (
     <Paper p='md' radius='md' withBorder shadow='sm'>
-      <Group justify='space-between' mb='md'>
-        <Title order={4} fw={400}>
-          Assessments
-        </Title>
+      <Flex justify='space-between' mb='md'>
+        <Group align='end'>
+          <Title order={4} fw={400}>
+            Assessments
+          </Title>
+          <Badge variant='default' size='sm' radius={'xs'}>
+            Weight: {module?.assessments.reduce((sum, a) => sum + a.weight, 0)}%
+          </Badge>
+        </Group>
         <ActionIcon onClick={handleAddAssessment}>
           <IconPlus size={16} />
         </ActionIcon>
-      </Group>
+      </Flex>
       {isLoading ? (
         <Text c='dimmed' ta='center' py='xl'>
           Loading assessments...
@@ -136,8 +143,8 @@ export default function AssessmentsTable({ moduleId }: Props) {
           </Table.Tbody>
         </Table>
       ) : (
-        <Text c='dimmed' ta='center' py='xl'>
-          No assessments found for this module
+        <Text c='dimmed' ta='center' size='sm' py='xl'>
+          No Assessments
         </Text>
       )}
 
