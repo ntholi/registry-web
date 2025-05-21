@@ -73,16 +73,16 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
             />
           </Group>
 
-          <Group gap='md' align='end'>
-            <Group gap='xs'>
+          <Group gap='md' align='center'>
+            <Group gap={5}>
               <IconCalendar size={'1rem'} />
               <Text size='sm' c='dimmed'>
                 {currentTerm?.name}
               </Text>
             </Group>
 
-            <Group gap='xs' align='end'>
-              <IconBook size={'1rem'} />
+            <Group gap={5} align='center'>
+              <IconBook size={'1.1rem'} />
               <Text size='sm' c='dimmed'>
                 {program ? `${program.name}` : 'All Programs'}
               </Text>
