@@ -15,10 +15,10 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
+import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { getModule } from '@/server/modules/actions';
-import { deleteAssessment } from '@/server/assessments/actions';
 import AssessmentModal from './AssessmentModal';
+import AssessmentDelete from './AssessmentDelete';
 import {
   getAssessmentTypeLabel,
   getAssessmentNumberLabel,
@@ -55,25 +55,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
     open();
   };
 
-  const handleDeleteAssessment = async (id: number) => {
-    try {
-      await deleteAssessment(id);
-      queryClient.invalidateQueries({
-        queryKey: ['module', moduleId],
-      });
-      notifications.show({
-        title: 'Success',
-        message: 'Assessment deleted successfully',
-        color: 'green',
-      });
-    } catch (error) {
-      notifications.show({
-        title: 'Error',
-        message: 'An error occurred while deleting the assessment',
-        color: 'red',
-      });
-    }
-  };
+
 
   return (
     <Paper p='md' radius='md' withBorder shadow='sm'>
@@ -127,15 +109,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
                         <IconEdit size={16} />
                       </ActionIcon>
                     </Tooltip>
-                    <Tooltip label='Delete'>
-                      <ActionIcon
-                        variant='subtle'
-                        color='red'
-                        onClick={() => handleDeleteAssessment(assessment.id)}
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
-                    </Tooltip>
+                    <AssessmentDelete assessment={assessment} />
                   </Group>
                 </Table.Td>
               </Table.Tr>
