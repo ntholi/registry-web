@@ -9,8 +9,11 @@ import {
   users,
   verificationTokens,
   students,
+  AcademicUserRoles,
 } from './db/schema';
 import { eq } from 'drizzle-orm';
+import fs from 'fs';
+import path from 'path';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],
@@ -36,4 +39,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
+  events: {
+    async createUser({ user }) {
+      const predefinedUser = getPredefinedUser(user?.email);
+      if (predefinedUser && user.id) {
+        await db
+          .update(users)
+          .set({ academicRole: predefinedUser.role })
+          .where(eq(users.id, user.id));
+      }
+    },
+  },
 });
+
+type PredefinedUser = {
+  name: string;
+  email: string;
+  role: AcademicUserRoles;
+};
+
+function getPredefinedUser(email?: string | null): PredefinedUser | null {
+  if (!email) return null;
+  const usersPath = path.resolve(__dirname, '../data/users.json');
+  const usersData = fs.readFileSync(usersPath, 'utf-8');
+  const usersList = JSON.parse(usersData);
+  return (
+    usersList.find((user: { email: string }) => user.email === email) || null
+  );
+}
