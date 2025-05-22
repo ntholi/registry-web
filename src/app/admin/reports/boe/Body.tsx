@@ -4,14 +4,14 @@ import { useMutation } from '@tanstack/react-query';
 import { generateBoeReportForFICT } from '@/server/reports/boe/actions';
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+  CardSection,
+  Text,
+  Title,
+  Button,
+  Group,
+  Loader,
+  Stack,
+} from '@mantine/core';
 
 export default function Body() {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -61,40 +61,40 @@ export default function Body() {
   };
 
   return (
-    <div className='container mx-auto py-8'>
-      <Card className='mx-auto w-full max-w-3xl'>
-        <CardHeader>
-          <CardTitle>BOE Report Generation</CardTitle>
-          <CardDescription>
+    <Stack align='center' justify='center' p='xl'>
+      <Card shadow='md' radius='md' withBorder w='100%' maw={600}>
+        <CardSection inheritPadding py='md'>
+          <Title order={3}>BOE Report Generation</Title>
+          <Text c='dimmed' size='sm'>
             Generate Board of Examination (BOE) reports for FICT programs
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className='mb-4'>
+          </Text>
+        </CardSection>
+        <CardSection inheritPadding>
+          <Text my='sm'>
             This will generate a BOE report for all students in the Faculty of
             Information and Communication Technology (FICT) for the current
             term.
-          </p>
-          <p className='mb-4'>
-            The report will include student performance data for each module,
-            including marks, grades, GPA, and CGPA.
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Button
-            onClick={handleGenerateReport}
-            disabled={generateReportMutation.isPending || isDownloading}
-            className='w-full'
-          >
-            {(generateReportMutation.isPending || isDownloading) && (
-              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-            )}
-            {generateReportMutation.isPending || isDownloading
-              ? 'Generating Report...'
-              : 'Generate BOE Report for FICT'}
-          </Button>
-        </CardFooter>
+          </Text>
+        </CardSection>
+        <CardSection inheritPadding py='md'>
+          <Group>
+            <Button
+              fullWidth
+              onClick={handleGenerateReport}
+              disabled={generateReportMutation.isPending || isDownloading}
+              leftSection={
+                generateReportMutation.isPending || isDownloading ? (
+                  <Loader size={16} />
+                ) : null
+              }
+            >
+              {generateReportMutation.isPending || isDownloading
+                ? 'Generating Report...'
+                : 'Generate BOE Report for FICT'}
+            </Button>
+          </Group>
+        </CardSection>
       </Card>
-    </div>
+    </Stack>
   );
 }

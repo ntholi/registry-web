@@ -1,11 +1,10 @@
+import { termsRepository } from '@/server/terms/repository';
+import ExcelJS from 'exceljs';
 import {
   boeReportRepository,
-  FacultyReport,
   ProgramSemesterReport,
   StudentSemesterReport,
 } from './repository';
-import { termsRepository } from '@/server/terms/repository';
-import * as XLSX from 'xlsx';
 
 interface StudentSemester {
   semesterNumber: number | null;
@@ -55,7 +54,7 @@ export default class BoeReportService {
       studentSemesters as StudentSemester[],
     );
 
-    const workbook = XLSX.utils.book_new();
+    const workbook = new ExcelJS.Workbook();
 
     for (const [semesterNumber, semesters] of Object.entries(semesterGroups)) {
       const programReport: ProgramSemesterReport = {
@@ -66,14 +65,14 @@ export default class BoeReportService {
         students: this.createStudentReports(semesters as StudentSemester[]),
       };
 
-      const worksheet = this.createWorksheet(programReport);
-
       const sheetName = `${programReport.programCode}Y${Math.ceil(parseInt(semesterNumber) / 2)}S${parseInt(semesterNumber) % 2 === 0 ? 2 : 1}`;
-      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+      const worksheet = workbook.addWorksheet(sheetName);
+
+      this.createWorksheet(worksheet, programReport);
     }
 
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-    return buffer;
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 
   async generateBoeReportForFaculty(facultyId: number): Promise<Buffer> {
@@ -92,7 +91,7 @@ export default class BoeReportService {
       studentSemesters as StudentSemester[],
     );
 
-    const workbook = XLSX.utils.book_new();
+    const workbook = new ExcelJS.Workbook();
 
     for (const [programId, programSemesters] of Object.entries(programGroups)) {
       const semesterGroups = this.groupBySemesterNumber(programSemesters);
@@ -110,15 +109,15 @@ export default class BoeReportService {
           students: this.createStudentReports(semesters as StudentSemester[]),
         };
 
-        const worksheet = this.createWorksheet(programReport);
-
         const sheetName = `${programReport.programCode}Y${Math.ceil(parseInt(semesterNumber) / 2)}S${parseInt(semesterNumber) % 2 === 0 ? 2 : 1}`;
-        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+        const worksheet = workbook.addWorksheet(sheetName);
+
+        this.createWorksheet(worksheet, programReport);
       }
     }
 
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-    return buffer;
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 
   private groupBySemesterNumber(studentSemesters: StudentSemester[]) {
@@ -213,102 +212,157 @@ export default class BoeReportService {
   }
 
   private createWorksheet(
+    worksheet: ExcelJS.Worksheet,
     programReport: ProgramSemesterReport,
-  ): XLSX.WorkSheet {
-    const headerRows = [
-      ['BOARD OF EXAMINATION'],
-      ['Faculty of Information and Communication Technology'],
-      [`${programReport.programName}`],
-      [
-        `Term: ${new Date().getFullYear()} - ${new Date().getMonth() < 6 ? 'January' : 'July'}`,
-      ],
-      [
-        `Printing date: ${new Date().toLocaleDateString()}, ${new Date().toLocaleTimeString()}`,
-      ],
-      ['By Country: Lesotho'],
-      [''],
-    ];
+  ): void {
+    // Configure worksheet properties
+    worksheet.properties.defaultRowHeight = 20;
+    worksheet.properties.defaultColWidth = 12;
 
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const termStart = currentMonth < 6 ? 'January' : 'July';
+    const termEnd = currentMonth < 6 ? 'June' : 'December';
+    const termRange = `${termStart} - ${termEnd} ${currentYear}`;
+
+    // Add header rows
+    worksheet.addRow([]);
+    const titleRow = worksheet.addRow(['', 'BOARD OF EXAMINATION']);
+    worksheet.addRow([
+      '',
+      `Faculty of ${programReport.programName.split(' ')[0]}`,
+    ]);
+    worksheet.addRow(['', `${programReport.programName}`]);
+    worksheet.addRow(['', `Term : ${termRange}`]);
+    worksheet.addRow([
+      '',
+      `Printing date : ${currentDate.toLocaleDateString('en-GB')}, ${currentDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`,
+    ]);
+    worksheet.addRow(['', 'By Country : Lesotho']);
+    worksheet.addRow([]);
+
+    // Get unique modules for this program/semester
     const moduleColumns = this.getUniqueModules(programReport.students);
 
-    const moduleHeaderRow = [
-      '',
-      '',
-      ...moduleColumns.map((m) => m.code),
-      '',
-      '',
-    ];
+    // Create column headers
+    const headerRow = worksheet.addRow(['No', 'Name', 'StudentID', 'Status']);
 
-    const moduleNameRow = [
-      '',
-      '',
-      ...moduleColumns.map((m) => m.name),
-      'GPA',
-      'CGPA',
-      'Faculty Remark',
-    ];
+    // Add module code headers
+    moduleColumns.forEach((module) => {
+      headerRow.getCell(headerRow.cellCount + 1).value = module.code;
+      headerRow.getCell(headerRow.cellCount + 1).value = ''; // Empty cell for merging
+    });
 
-    const moduleCreditsRow = [
-      '',
-      '',
-      ...moduleColumns.map((m) => m.credits.toString()),
-      '',
-      '',
-      '',
-    ];
+    // Add GPA, CGPA, and Faculty Remark headers
+    headerRow.getCell(headerRow.cellCount + 1).value = 'GPA';
+    headerRow.getCell(headerRow.cellCount + 1).value = 'CGPA';
+    headerRow.getCell(headerRow.cellCount + 1).value = 'Faculty Remark';
 
-    const studentRows = programReport.students.map((student, index) => {
-      const studentData = [(index + 1).toString(), student.studentName];
+    // Add Mk/Gr subheaders
+    const subHeaderRow = worksheet.addRow(['', '', '', '']);
+    moduleColumns.forEach(() => {
+      subHeaderRow.getCell(subHeaderRow.cellCount + 1).value = 'Mk';
+      subHeaderRow.getCell(subHeaderRow.cellCount + 1).value = 'Gr';
+    });
 
-      for (const moduleCol of moduleColumns) {
+    // Add module names
+    const moduleNameRow = worksheet.addRow(['', '', '', '']);
+    moduleColumns.forEach((module) => {
+      moduleNameRow.getCell(moduleNameRow.cellCount + 1).value = module.name;
+      moduleNameRow.getCell(moduleNameRow.cellCount + 1).value = ''; // Empty cell for merging
+    });
+
+    // Add student data rows
+    programReport.students.forEach((student, index) => {
+      const studentRow = worksheet.addRow([
+        index + 1,
+        student.studentName,
+        student.studentId.toString(),
+        'Active', // Assuming all students are active
+      ]);
+
+      // Add module marks and grades
+      moduleColumns.forEach((moduleCol) => {
         const studentModule = student.studentModules.find(
           (sm) => sm.moduleCode === moduleCol.code,
         );
 
         if (studentModule) {
-          studentData.push(`${studentModule.marks} ${studentModule.grade}`);
+          studentRow.getCell(studentRow.cellCount + 1).value =
+            studentModule.marks;
+          studentRow.getCell(studentRow.cellCount + 1).value =
+            studentModule.grade;
         } else {
-          studentData.push('');
+          studentRow.getCell(studentRow.cellCount + 1).value = '';
+          studentRow.getCell(studentRow.cellCount + 1).value = '';
         }
-      }
+      });
 
-      studentData.push(student.gpa);
-      studentData.push(student.cgpa);
-      studentData.push('Proceed');
-
-      return studentData;
+      // Add GPA, CGPA and Faculty Remark
+      studentRow.getCell(studentRow.cellCount + 1).value = student.gpa;
+      studentRow.getCell(studentRow.cellCount + 1).value = student.cgpa;
+      studentRow.getCell(studentRow.cellCount + 1).value = 'Proceed';
     });
 
-    const allRows = [
-      ...headerRows,
-      moduleHeaderRow,
-      moduleNameRow,
-      moduleCreditsRow,
-      [
-        'No',
-        'Name',
-        ...moduleColumns.map(() => ''),
-        'GPA',
-        'CGPA',
-        'Faculty Remark',
-      ],
-      ...studentRows,
-    ];
+    // Set column widths
+    worksheet.getColumn(1).width = 5; // No
+    worksheet.getColumn(2).width = 30; // Name
+    worksheet.getColumn(3).width = 15; // StudentID
+    worksheet.getColumn(4).width = 10; // Status
 
-    const worksheet = XLSX.utils.aoa_to_sheet(allRows);
+    // Set module column widths
+    let colIndex = 5;
+    moduleColumns.forEach(() => {
+      worksheet.getColumn(colIndex++).width = 8; // Marks
+      worksheet.getColumn(colIndex++).width = 5; // Grade
+    });
 
-    const colWidths = [
-      { wch: 5 },
-      { wch: 30 },
-      ...moduleColumns.map(() => ({ wch: 15 })),
-      { wch: 8 },
-      { wch: 8 },
-      { wch: 15 },
-    ];
+    // Set GPA, CGPA, and Faculty Remark column widths
+    worksheet.getColumn(colIndex++).width = 8; // GPA
+    worksheet.getColumn(colIndex++).width = 8; // CGPA
+    worksheet.getColumn(colIndex++).width = 15; // Faculty Remark
 
-    worksheet['!cols'] = colWidths;
+    // Style the header rows
+    titleRow.getCell(2).font = { bold: true, size: 14 };
+    titleRow.getCell(2).alignment = { horizontal: 'center' };
 
-    return worksheet;
+    // Merge header cells
+    worksheet.mergeCells(2, 2, 2, 10); // Title row
+    worksheet.mergeCells(3, 2, 3, 10); // Faculty row
+    worksheet.mergeCells(4, 2, 4, 10); // Program row
+    worksheet.mergeCells(5, 2, 5, 10); // Term row
+    worksheet.mergeCells(6, 2, 6, 10); // Printing date row
+    worksheet.mergeCells(7, 2, 7, 10); // Country row
+
+    // Merge module code cells
+    colIndex = 5;
+    moduleColumns.forEach(() => {
+      worksheet.mergeCells(9, colIndex, 9, colIndex + 1);
+      worksheet.mergeCells(11, colIndex, 11, colIndex + 1);
+      colIndex += 2;
+    });
+
+    // Add borders to all cells
+    for (let i = 9; i <= worksheet.rowCount; i++) {
+      const row = worksheet.getRow(i);
+      for (let j = 1; j <= row.cellCount; j++) {
+        const cell = row.getCell(j);
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+
+        // Center align all cells except student names
+        if (j !== 2) {
+          cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        } else {
+          cell.alignment = { horizontal: 'left', vertical: 'middle' };
+        }
+      }
+    }
   }
 
   private getUniqueModules(students: StudentSemesterReport[]) {

@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '3MB',
     },
   },
+  transpilePackages: ['rimraf'],
 };
 
 export default nextConfig;
