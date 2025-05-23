@@ -45,7 +45,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (predefinedUser && user.id) {
         await db
           .update(users)
-          .set({ academicRole: predefinedUser.role })
+          .set({
+            academicRole: predefinedUser.role,
+            role: 'academic',
+            name: predefinedUser.name,
+          })
           .where(eq(users.id, user.id));
       }
     },
@@ -60,7 +64,7 @@ type PredefinedUser = {
 
 function getPredefinedUser(email?: string | null): PredefinedUser | null {
   if (!email) return null;
-  const usersPath = path.resolve(__dirname, '../data/users.json');
+  const usersPath = path.resolve(process.cwd(), 'data/users.json');
   const usersData = fs.readFileSync(usersPath, 'utf-8');
   const usersList = JSON.parse(usersData);
   return (
