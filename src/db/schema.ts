@@ -167,11 +167,14 @@ export const studentPrograms = sqliteTable('student_programs', {
   stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
+  intakeDate: text(),
+  regDate: text(),
   startTerm: text(),
   structureId: integer()
     .references(() => structures.id, { onDelete: 'cascade' })
     .notNull(),
   stream: text(),
+  graduationDate: text(),
   status: text({ enum: programStatusEnum }).notNull(),
   assistProvider: text(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
