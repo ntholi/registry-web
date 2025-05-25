@@ -1,0 +1,1 @@
+ALTER TABLE `student_semesters` ADD `caf_date` text;

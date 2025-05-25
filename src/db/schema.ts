@@ -201,6 +201,7 @@ export const studentSemesters = sqliteTable('student_semesters', {
   studentProgramId: integer()
     .references(() => studentPrograms.id, { onDelete: 'cascade' })
     .notNull(),
+  cafDate: text(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
