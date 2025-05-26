@@ -1,11 +1,8 @@
 'use client';
 
-import {
-  getAssignedModulesByCurrentUser,
-  getAssignedModulesByUser,
-} from '@/server/assigned-modules/actions';
 import { users } from '@/db/schema';
-import { useQuery } from '@tanstack/react-query';
+import { toClassName } from '@/lib/utils';
+import { getAssignedModulesByUser } from '@/server/assigned-modules/actions';
 import {
   Badge,
   Card,
@@ -14,9 +11,8 @@ import {
   SimpleGrid,
   Stack,
   Text,
-  Title,
 } from '@mantine/core';
-import { toClassName } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
 import DeleteModuleButton from './DeleteModuleButton';
 
 type Props = {
@@ -50,37 +46,38 @@ export default function AssignedModules({ user }: Props) {
   return (
     <SimpleGrid cols={2} mt='md'>
       {assignedModules.map((assignment) => (
-        <Card key={assignment.id} withBorder p='md'>
-          <Group justify='space-between' wrap='nowrap'>
-            <Stack gap='xs'>
-              <Group gap='xs'>
-                <Text fw={500}>
-                  {assignment.semesterModule?.module?.name || 'Unknown Module'}
-                </Text>
-                <Text size='sm' c='dimmed'>
-                  ({assignment.semesterModule?.module?.code || 'N/A'})
-                </Text>
-              </Group>
+        <Card key={assignment.id} withBorder p='md' pos='relative'>
+          <DeleteModuleButton
+            assignmentId={assignment.id}
+            moduleName={
+              assignment.semesterModule?.module?.name || 'Unknown Module'
+            }
+            userId={user.id}
+            pos='absolute'
+            top={3}
+            right={3}
+          />
+          <Stack gap='xs'>
+            <Group w='100%'>
+              <Text fw={500}>
+                {assignment.semesterModule?.module?.name || 'Unknown Module'}
+              </Text>
+              <Text size='sm' c='dimmed'>
+                ({assignment.semesterModule?.module?.code || 'N/A'})
+              </Text>
+            </Group>
 
-              <Group gap='xs'>
-                {assignment.semesterModule?.semester?.name && (
-                  <Badge variant='light' color='gray'>
-                    {toClassName(
-                      assignment.semesterModule.semester.structure.program.code,
-                      assignment.semesterModule.semester.name,
-                    )}
-                  </Badge>
-                )}
-              </Group>
-            </Stack>{' '}
-            <DeleteModuleButton
-              assignmentId={assignment.id}
-              moduleName={
-                assignment.semesterModule?.module?.name || 'Unknown Module'
-              }
-              userId={user.id}
-            />
-          </Group>
+            <Group gap='xs'>
+              {assignment.semesterModule?.semester?.name && (
+                <Badge variant='light' color='gray'>
+                  {toClassName(
+                    assignment.semesterModule.semester.structure.program.code,
+                    assignment.semesterModule.semester.name,
+                  )}
+                </Badge>
+              )}
+            </Group>
+          </Stack>
         </Card>
       ))}
     </SimpleGrid>

@@ -2,7 +2,14 @@
 
 import { deleteAssignedModule } from '@/server/assigned-modules/actions';
 import { useQueryClient } from '@tanstack/react-query';
-import { ActionIcon, Text, Tooltip, Loader } from '@mantine/core';
+import {
+  ActionIcon,
+  Text,
+  Tooltip,
+  Loader,
+  TooltipProps,
+  BoxProps,
+} from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
@@ -12,12 +19,13 @@ type Props = {
   assignmentId: number;
   moduleName: string;
   userId: string;
-};
+} & BoxProps;
 
 export default function DeleteModuleButton({
   assignmentId,
   moduleName,
   userId,
+  ...props
 }: Props) {
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -63,6 +71,7 @@ export default function DeleteModuleButton({
   return (
     <Tooltip label='Remove assignment'>
       <ActionIcon
+        {...props}
         variant='subtle'
         color='red'
         onClick={handleDeleteModule}
