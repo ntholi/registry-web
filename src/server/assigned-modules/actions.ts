@@ -49,7 +49,7 @@ export async function getLecturersByModule(semesterModuleId: number) {
 }
 
 export async function getAssignedModulesByUser(userId: string) {
-  return service.getByLecturer(userId);
+  return service.getByUser(userId);
 }
 
 export async function getAssignedModulesByCurrentUser() {
@@ -57,7 +57,7 @@ export async function getAssignedModulesByCurrentUser() {
   if (!session?.user?.id) {
     return [];
   }
-  return service.getByLecturer(session.user.id);
+  return service.getByUserGroupedByModule(session.user.id);
 }
 
 export async function checkModuleAssignment(

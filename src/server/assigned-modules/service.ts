@@ -62,11 +62,25 @@ class AssignedModuleService {
     );
   }
 
-  async getByLecturer(userId: string) {
+  async getByUser(userId: string) {
     return withAuth(
       async () => this.repository.findByUser(userId),
       ['academic'],
     );
+  }
+
+  async getByUserGroupedByModule(userId: string) {
+    const data = await this.getByUser(userId);
+    type ResultType = (typeof data)[0];
+
+    const moduleMap = new Map<number, ResultType>();
+    data.forEach((item) => {
+      const module = item.semesterModule.module;
+      if (module) {
+        moduleMap.set(module.id, item);
+      }
+    });
+    return Array.from(moduleMap.values());
   }
 
   async checkAssignment(userId: string, semesterModuleId: number) {

@@ -89,7 +89,7 @@ export default class AssignedModuleRepository extends BaseRepository<
   }
 
   async findByUser(userId: string) {
-    const results = await db.query.assignedModules.findMany({
+    return await db.query.assignedModules.findMany({
       where: eq(assignedModules.userId, userId),
       with: {
         semesterModule: {
@@ -108,17 +108,6 @@ export default class AssignedModuleRepository extends BaseRepository<
         },
       },
     });
-
-    type ResultType = (typeof results)[0];
-
-    const moduleMap = new Map<number, ResultType>();
-    results.forEach((item) => {
-      const module = item.semesterModule.module;
-      if (module) {
-        moduleMap.set(module.id, item);
-      }
-    });
-    return Array.from(moduleMap.values());
   }
 }
 
