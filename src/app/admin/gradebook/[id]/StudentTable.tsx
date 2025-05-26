@@ -81,7 +81,7 @@ export default function StudentTable({ moduleId }: Props) {
       hasPassed: total >= weight * 0.5,
     };
   };
-  const renderTableHeaders = () => {
+  function renderTableHeaders() {
     return (
       <Table.Tr>
         <Table.Th>Student Number</Table.Th>
@@ -118,8 +118,8 @@ export default function StudentTable({ moduleId }: Props) {
         </Table.Th>
       </Table.Tr>
     );
-  };
-  const renderTableRows = () => {
+  }
+  function renderTableRows() {
     if (isLoading) {
       return Array(10)
         .fill(0)
@@ -214,7 +214,7 @@ export default function StudentTable({ moduleId }: Props) {
         </Table.Tr>
       );
     });
-  };
+  }
   return (
     <Stack>
       <TextInput

@@ -13,8 +13,8 @@ export async function getAssessmentMarks(page: number = 1, search = '') {
   return service.getAll({ page, search });
 }
 
-export async function getAssessmentMarksByModuleId(semesterModuleId: number) {
-  return service.getByModuleId(semesterModuleId);
+export async function getAssessmentMarksByModuleId(moduleId: number) {
+  return service.getByModuleId(moduleId);
 }
 
 export async function createAssessmentMark(assessmentMark: AssessmentMark) {

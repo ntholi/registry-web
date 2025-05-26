@@ -21,9 +21,9 @@ class AssessmentService {
     return withAuth(async () => this.repository.query(params), ['academic']);
   }
 
-  async getBySemesterModuleId(semesterModuleId: number) {
+  async getByModuleId(moduleId: number) {
     return withAuth(
-      async () => this.repository.getBySemesterModuleId(semesterModuleId),
+      async () => this.repository.getByModuleId(moduleId),
       ['academic'],
     );
   }

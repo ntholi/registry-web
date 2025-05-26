@@ -11,9 +11,9 @@ export default class AssessmentMarkRepository extends BaseRepository<
     super(assessmentMarks, 'id');
   }
 
-  async findByModuleId(semesterModuleId: number) {
+  async findByModuleId(moduleId: number) {
     const moduleAssessments = await db.query.assessments.findMany({
-      where: eq(assessments.moduleId, semesterModuleId),
+      where: eq(assessments.moduleId, moduleId),
       columns: {
         id: true,
       },

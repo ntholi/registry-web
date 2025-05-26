@@ -11,9 +11,9 @@ export default class AssessmentRepository extends BaseRepository<
     super(assessments, 'id');
   }
 
-  async getBySemesterModuleId(semesterModuleId: number) {
+  async getByModuleId(moduleId: number) {
     return db.query.assessments.findMany({
-      where: eq(assessments.moduleId, semesterModuleId),
+      where: eq(assessments.moduleId, moduleId),
     });
   }
 }

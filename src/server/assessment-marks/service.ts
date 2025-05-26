@@ -36,9 +36,9 @@ class AssessmentMarkService {
     return withAuth(async () => this.repository.count(), []);
   }
 
-  async getByModuleId(semesterModuleId: number) {
+  async getByModuleId(moduleId: number) {
     return withAuth(
-      async () => this.repository.findByModuleId(semesterModuleId),
+      async () => this.repository.findByModuleId(moduleId),
       ['academic'],
     );
   }
