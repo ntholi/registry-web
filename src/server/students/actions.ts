@@ -18,7 +18,7 @@ export async function getAllPrograms() {
   return service.getAllPrograms();
 }
 
-export async function findByModuleId(moduleId: number) {
+export async function getStudentsByModuleId(moduleId: number) {
   return service.findByModuleId(moduleId);
 }
 

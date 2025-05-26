@@ -86,21 +86,30 @@ export default function StudentTable({ moduleId }: Props) {
       <Table.Tr>
         <Table.Th>Student Number</Table.Th>
         <Table.Th>Name</Table.Th>
-        {assessments?.map((assessment) => (
-          <Table.Th
-            key={assessment.id}
-            style={{ minWidth: '100px', textAlign: 'center' }}
-          >
-            <Group gap={5} justify='center'>
-              <Text size='sm' fw={'bold'}>
-                {getAssessmentTypeLabel(assessment.assessmentType)}
-              </Text>
-              <Text size='xs' c='dimmed'>
-                ({assessment.weight}%)
-              </Text>
-            </Group>
-          </Table.Th>
-        ))}
+        {assessmentsLoading
+          ? Array(2)
+              .fill(0)
+              .map((_, idx) => (
+                <Table.Th key={`skeleton-header-${idx}`}>
+                  {' '}
+                  <Skeleton height={16} width={80} mx='auto' />{' '}
+                </Table.Th>
+              ))
+          : assessments?.map((assessment) => (
+              <Table.Th
+                key={assessment.id}
+                style={{ minWidth: '100px', textAlign: 'center' }}
+              >
+                <Group gap={5} justify='center'>
+                  <Text size='sm' fw={'bold'}>
+                    {getAssessmentTypeLabel(assessment.assessmentType)}
+                  </Text>
+                  <Text size='xs' c='dimmed'>
+                    ({assessment.weight}%)
+                  </Text>
+                </Group>
+              </Table.Th>
+            ))}
         <Table.Th style={{ textAlign: 'center' }}>
           <Group gap={5} justify='center'>
             <Text size='sm' fw={'bold'}>
@@ -120,7 +129,7 @@ export default function StudentTable({ moduleId }: Props) {
     );
   }
   function renderTableRows() {
-    if (isLoading) {
+    if (studentsLoading) {
       return Array(10)
         .fill(0)
         .map((_, index) => (
@@ -131,11 +140,13 @@ export default function StudentTable({ moduleId }: Props) {
             <Table.Td>
               <Skeleton height={24} width={200} />
             </Table.Td>
-            {assessments?.map((assessment) => (
-              <Table.Td key={`skeleton-${index}-${assessment.id}`}>
-                <Skeleton height={24} width={80} mx='auto' />
-              </Table.Td>
-            )) || []}
+            {(assessmentsLoading ? Array(3).fill(0) : assessments || []).map(
+              (_, idx) => (
+                <Table.Td key={`skeleton-${index}-${idx}`}>
+                  <Skeleton height={24} width={80} mx='auto' />
+                </Table.Td>
+              ),
+            )}
             <Table.Td>
               <Skeleton height={24} width={80} mx='auto' />
             </Table.Td>
@@ -171,30 +182,38 @@ export default function StudentTable({ moduleId }: Props) {
             </Anchor>
           </Table.Td>
           <Table.Td>{student.name}</Table.Td>
-          {assessments?.map((assessment) => {
-            const { mark, markId } = getStudentMark(
-              student.stdNo,
-              assessment.id,
-            );
-            return (
-              <Table.Td
-                key={`${student.stdNo}-${assessment.id}`}
-                align='center'
-              >
-                <MarksInput
-                  assessment={{
-                    id: assessment.id,
-                    maxMarks: assessment.totalMarks,
-                    totalMarks: assessment.totalMarks,
-                  }}
-                  studentId={student.stdNo}
-                  existingMark={mark}
-                  existingMarkId={markId}
-                  moduleId={moduleId}
-                />
-              </Table.Td>
-            );
-          })}
+          {assessmentsLoading
+            ? Array(3)
+                .fill(0)
+                .map((_, idx) => (
+                  <Table.Td key={`skeleton-student-${student.stdNo}-${idx}`}>
+                    <Skeleton height={24} width={80} mx='auto' />
+                  </Table.Td>
+                ))
+            : assessments?.map((assessment) => {
+                const { mark, markId } = getStudentMark(
+                  student.stdNo,
+                  assessment.id,
+                );
+                return (
+                  <Table.Td
+                    key={`${student.stdNo}-${assessment.id}`}
+                    align='center'
+                  >
+                    <MarksInput
+                      assessment={{
+                        id: assessment.id,
+                        maxMarks: assessment.totalMarks,
+                        totalMarks: assessment.totalMarks,
+                      }}
+                      studentId={student.stdNo}
+                      existingMark={mark}
+                      existingMarkId={markId}
+                      moduleId={moduleId}
+                    />
+                  </Table.Td>
+                );
+              })}
           <Table.Td align='center'>
             {hasMarks ? (
               <Badge

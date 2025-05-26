@@ -1,6 +1,6 @@
 'use client';
 
-import { findByModuleId } from '@/server/students/actions';
+import { getStudentsByModuleId } from '@/server/students/actions';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 
@@ -17,7 +17,7 @@ export function useStudentsQuery({
 
   return useQuery({
     queryKey: ['students', moduleId],
-    queryFn: () => findByModuleId(moduleId),
+    queryFn: () => getStudentsByModuleId(moduleId),
     select(data) {
       let filteredData = data;
 
