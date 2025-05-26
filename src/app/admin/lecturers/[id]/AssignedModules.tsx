@@ -17,6 +17,7 @@ import {
   Title,
 } from '@mantine/core';
 import { toClassName } from '@/lib/utils';
+import DeleteModuleButton from './DeleteModuleButton';
 
 type Props = {
   user: NonNullable<typeof users.$inferSelect>;
@@ -24,7 +25,7 @@ type Props = {
 
 export default function AssignedModules({ user }: Props) {
   const { data: assignedModules, isLoading } = useQuery({
-    queryKey: ['assigned-modules'],
+    queryKey: ['assigned-modules', user.id],
     queryFn: () => getAssignedModulesByUser(user.id),
   });
 
@@ -71,7 +72,14 @@ export default function AssignedModules({ user }: Props) {
                   </Badge>
                 )}
               </Group>
-            </Stack>
+            </Stack>{' '}
+            <DeleteModuleButton
+              assignmentId={assignment.id}
+              moduleName={
+                assignment.semesterModule?.module?.name || 'Unknown Module'
+              }
+              userId={user.id}
+            />
           </Group>
         </Card>
       ))}

@@ -29,7 +29,7 @@ class AssignedModuleService {
   }
 
   async delete(id: number) {
-    return withAuth(async () => this.repository.delete(id), []);
+    return withAuth(async () => this.repository.delete(id), ['academic']);
   }
 
   async count() {
