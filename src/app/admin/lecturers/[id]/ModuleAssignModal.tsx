@@ -34,6 +34,17 @@ export default function ModuleAssignModal() {
   >([]);
   const queryClient = useQueryClient();
 
+  const resetForm = () => {
+    form.reset();
+    setSelectedModule(null);
+    setSelectedSemesterModules([]);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    close();
+  };
+
   const form = useForm<FormValues>({
     initialValues: {
       userId: params.id,
@@ -53,14 +64,11 @@ export default function ModuleAssignModal() {
         message: 'Modules assigned successfully',
         color: 'green',
       });
-
       queryClient.invalidateQueries({
         queryKey: ['assigned-modules', params.id],
       });
 
-      form.reset();
-      setSelectedModule(null);
-      setSelectedSemesterModules([]);
+      resetForm();
       close();
     },
     onError: (error) => {
@@ -100,7 +108,12 @@ export default function ModuleAssignModal() {
       <Button size='sm' variant='light' onClick={open}>
         Assign Module
       </Button>
-      <Modal title='Assign Module' size={'xl'} opened={opened} onClose={close}>
+      <Modal
+        title='Assign Module'
+        size={'xl'}
+        opened={opened}
+        onClose={handleClose}
+      >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap='md'>
             <ModuleSearchInput
@@ -109,7 +122,6 @@ export default function ModuleAssignModal() {
               error={form.errors.semesterModuleIds}
               required
             />
-
             <Paper withBorder p='md'>
               {selectedModule ? (
                 <Stack>
@@ -143,15 +155,13 @@ export default function ModuleAssignModal() {
                 <Text c='dimmed'>No module selected</Text>
               )}
             </Paper>
-
             {selectedModule && form.values.semesterModuleIds.length === 0 && (
               <Text size='sm' c='red'>
                 {form.errors.semesterModuleIds}
               </Text>
-            )}
-
+            )}{' '}
             <Group justify='flex-end' mt='md'>
-              <Button variant='subtle' onClick={close}>
+              <Button variant='subtle' onClick={handleClose}>
                 Cancel
               </Button>
               <Button
