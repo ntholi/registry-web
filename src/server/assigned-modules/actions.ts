@@ -48,6 +48,10 @@ export async function getLecturersByModule(semesterModuleId: number) {
   return service.getLecturersByModule(semesterModuleId);
 }
 
+export async function getAssignedModulesByUser(userId: string) {
+  return service.getByLecturer(userId);
+}
+
 export async function getAssignedModulesByCurrentUser() {
   const session = await auth();
   if (!session?.user?.id) {
