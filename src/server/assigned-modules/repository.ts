@@ -1,14 +1,7 @@
-import BaseRepository from '@/server/base/BaseRepository';
-import {
-  assignedModules,
-  modules,
-  programs,
-  semesterModules,
-  structures,
-  structureSemesters,
-} from '@/db/schema';
-import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
+import { assignedModules } from '@/db/schema';
+import BaseRepository from '@/server/base/BaseRepository';
+import { and, eq, inArray } from 'drizzle-orm';
 
 export default class AssignedModuleRepository extends BaseRepository<
   typeof assignedModules,

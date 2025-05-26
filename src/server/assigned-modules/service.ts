@@ -75,9 +75,9 @@ class AssignedModuleService {
 
     const moduleMap = new Map<number, ResultType>();
     data.forEach((item) => {
-      const module = item.semesterModule.module;
-      if (module) {
-        moduleMap.set(module.id, item);
+      const mod = item.semesterModule.module;
+      if (mod) {
+        moduleMap.set(mod.id, item);
       }
     });
     return Array.from(moduleMap.values());

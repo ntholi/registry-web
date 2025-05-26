@@ -1,21 +1,7 @@
-import {
-  DetailsView,
-  DetailsViewBody,
-  DetailsViewHeader,
-  FieldView,
-} from '@/components/adease';
-import { deleteModule } from '@/server/modules/actions';
-import { getModule } from '@/server/modules/actions';
+import { DetailsView, DetailsViewHeader, FieldView } from '@/components/adease';
+import { deleteModule, getModule } from '@/server/modules/actions';
+import { Paper, Stack, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import {
-  Badge,
-  Paper,
-  SimpleGrid,
-  Stack,
-  Table,
-  Text,
-  Title,
-} from '@mantine/core';
 import AssessmentsTable from './AssessmentsTable';
 
 type Props = {

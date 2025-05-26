@@ -134,8 +134,7 @@ export default class StudentRepository extends BaseRepository<
       return super.query(options);
     }
 
-    const { search, searchColumns, ...restOptions } = options;
-    const { orderBy, offset, limit } = this.buildQueryCriteria(restOptions);
+    const { orderBy, offset, limit } = this.buildQueryCriteria(options);
     let customWhere: SQL | undefined = undefined;
     const nameConditions = searchTerms.map((term) =>
       like(students.name, `%${term}%`),

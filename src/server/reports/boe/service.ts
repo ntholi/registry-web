@@ -159,7 +159,7 @@ export default class BoeReportService {
       return {
         studentId: semester.studentProgram.student.stdNo,
         studentName: semester.studentProgram.student.name,
-        studentModules: semester.studentModules.map((studentModule: any) => ({
+        studentModules: semester.studentModules.map((studentModule) => ({
           studentId: semester.studentProgram.student.stdNo,
           studentName: semester.studentProgram.student.name,
           moduleCode: studentModule.semesterModule.module.code,
@@ -195,9 +195,9 @@ export default class BoeReportService {
     let totalPoints = 0;
     let totalCredits = 0;
 
-    for (const module of studentModules) {
-      const grade = module.grade;
-      const credits = module.semesterModule.credits;
+    for (const it of studentModules) {
+      const grade = it.grade;
+      const credits = it.semesterModule.credits;
 
       if (gradePoints[grade] === undefined) continue;
 
@@ -372,12 +372,12 @@ export default class BoeReportService {
     >();
 
     for (const student of students) {
-      for (const module of student.studentModules) {
-        if (!moduleMap.has(module.moduleCode)) {
-          moduleMap.set(module.moduleCode, {
-            code: module.moduleCode,
-            name: module.moduleName,
-            credits: module.credits,
+      for (const it of student.studentModules) {
+        if (!moduleMap.has(it.moduleCode)) {
+          moduleMap.set(it.moduleCode, {
+            code: it.moduleCode,
+            name: it.moduleName,
+            credits: it.credits,
           });
         }
       }

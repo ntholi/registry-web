@@ -1,5 +1,5 @@
 import { users } from '@/db/schema';
-import { findAllByRole, findAllUsers } from '@/server/users/actions';
+import { findAllByRole } from '@/server/users/actions';
 import { Autocomplete, BoxProps, Loader } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useEffect, useState } from 'react';

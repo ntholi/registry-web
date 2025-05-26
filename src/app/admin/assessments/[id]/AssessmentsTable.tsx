@@ -1,27 +1,26 @@
 'use client';
 
+import { getModule } from '@/server/modules/actions';
 import {
   ActionIcon,
+  Badge,
+  Flex,
   Group,
   Paper,
   Table,
-  Title,
   Text,
+  Title,
   Tooltip,
-  Flex,
-  Badge,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
-import { getModule } from '@/server/modules/actions';
-import AssessmentModal from './AssessmentModal';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import AssessmentDelete from './AssessmentDelete';
+import AssessmentModal from './AssessmentModal';
 import {
-  getAssessmentTypeLabel,
   getAssessmentNumberLabel,
+  getAssessmentTypeLabel,
 } from './assessments';
 
 interface Props {
@@ -34,7 +33,6 @@ export default function AssessmentsTable({ moduleId }: Props) {
     | NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][0]
     | undefined
   >(undefined);
-  const queryClient = useQueryClient();
 
   const { data: module, isLoading } = useQuery({
     queryKey: ['module', moduleId],
@@ -54,8 +52,6 @@ export default function AssessmentsTable({ moduleId }: Props) {
     setSelectedAssessment(assessment);
     open();
   };
-
-
 
   return (
     <Paper p='md' radius='md' withBorder shadow='sm'>

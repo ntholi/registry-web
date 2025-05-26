@@ -13,9 +13,9 @@ type Props = {
 
 export default async function ModuleDetails({ params }: Props) {
   const { id } = await params;
-  const module = await getModule(Number(id));
+  const mod = await getModule(Number(id));
 
-  if (!module) {
+  if (!mod) {
     return notFound();
   }
 
@@ -30,10 +30,10 @@ export default async function ModuleDetails({ params }: Props) {
         }}
       />
       <DetailsViewBody>
-        <FieldView label='ID'>{module.id}</FieldView>
-        <FieldView label='Code'>{module.code}</FieldView>
-        <FieldView label='Name'>{module.name}</FieldView>
-        <FieldView label='Status'>{module.status}</FieldView>
+        <FieldView label='ID'>{mod.id}</FieldView>
+        <FieldView label='Code'>{mod.code}</FieldView>
+        <FieldView label='Name'>{mod.name}</FieldView>
+        <FieldView label='Status'>{mod.status}</FieldView>
       </DetailsViewBody>
     </DetailsView>
   );

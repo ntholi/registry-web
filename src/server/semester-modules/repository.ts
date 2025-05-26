@@ -272,27 +272,27 @@ export default class ModuleRepository extends BaseRepository<
       );
 
     const groupedModules = new Map<string, ModuleInfo>();
-    for (const module of results) {
-      const key = `${module.code}-${module.name}`;
+    for (const it of results) {
+      const key = `${it.code}-${it.name}`;
 
       if (!groupedModules.has(key)) {
         groupedModules.set(key, {
-          code: module.code,
-          name: module.name,
-          moduleId: module.moduleId,
+          code: it.code,
+          name: it.name,
+          moduleId: it.moduleId,
           semesters: [],
         });
       }
 
       groupedModules.get(key)?.semesters.push({
-        semesterModuleId: module.semesterModuleId,
-        semesterId: module.semesterId!,
-        structureSemesterId: module.structureSemesterId,
-        semesterName: module.semesterName,
-        structureId: module.structureId,
-        programId: module.programId,
-        programName: module.programName,
-        studentCount: studentCounts.get(module.semesterModuleId) || 0,
+        semesterModuleId: it.semesterModuleId,
+        semesterId: it.semesterId!,
+        structureSemesterId: it.structureSemesterId,
+        semesterName: it.semesterName,
+        structureId: it.structureId,
+        programId: it.programId,
+        programName: it.programName,
+        studentCount: studentCounts.get(it.semesterModuleId) || 0,
       });
     }
 

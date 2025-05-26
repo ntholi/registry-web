@@ -48,7 +48,7 @@ export default function AssessmentDelete({ assessment }: Props) {
     } catch (error) {
       notifications.show({
         title: 'Error',
-        message: 'An error occurred while deleting the assessment',
+        message: `An error occurred while deleting the assessment: ${error}`,
         color: 'red',
       });
     } finally {

@@ -9,7 +9,7 @@ export default function Layout({ children }: PropsWithChildren) {
     <ListLayout
       path={'/admin/assessments'}
       queryKey={['assessments']}
-      getData={async (_, __) => {
+      getData={async () => {
         const data = await getAssignedModulesByCurrentUser();
         return {
           items: data,

@@ -1,20 +1,19 @@
 import { db } from '@/db';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import { eq } from 'drizzle-orm';
+import fs from 'fs';
 import NextAuth from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
 import Google from 'next-auth/providers/google';
+import path from 'path';
 import {
+  AcademicUserRole,
   accounts,
   sessions,
+  students,
   users,
   verificationTokens,
-  students,
-  AcademicUserRole,
-  UserRole,
 } from './db/schema';
-import { eq } from 'drizzle-orm';
-import fs from 'fs';
-import path from 'path';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],

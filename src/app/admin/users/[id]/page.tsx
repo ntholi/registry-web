@@ -4,6 +4,7 @@ import {
   DetailsViewHeader,
   FieldView,
 } from '@/components/adease';
+import { largeProfilePic, toTitleCase } from '@/lib/utils';
 import {
   Avatar,
   Badge,
@@ -13,11 +14,9 @@ import {
   GridCol,
   Group,
   Stack,
-  Text,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { deleteUser, getUser } from '../../../../server/users/actions';
-import { largeProfilePic, toTitleCase } from '@/lib/utils';
 
 type Props = {
   params: Promise<{ id: string }>;

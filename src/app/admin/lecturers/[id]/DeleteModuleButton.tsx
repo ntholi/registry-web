@@ -1,18 +1,11 @@
 'use client';
 
 import { deleteAssignedModule } from '@/server/assigned-modules/actions';
-import { useQueryClient } from '@tanstack/react-query';
-import {
-  ActionIcon,
-  Text,
-  Tooltip,
-  Loader,
-  TooltipProps,
-  BoxProps,
-} from '@mantine/core';
+import { ActionIcon, BoxProps, Text, Tooltip } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 type Props = {
@@ -59,7 +52,7 @@ export default function DeleteModuleButton({
         } catch (error) {
           notifications.show({
             title: 'Error',
-            message: 'Failed to remove module assignment',
+            message: `Failed to remove module assignment ${error}`,
             color: 'red',
           });
         } finally {

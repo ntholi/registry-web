@@ -1,14 +1,10 @@
 import { db } from '@/db';
 import {
-  modules,
   programs,
-  semesterModules,
-  studentModules,
+  structures,
   studentPrograms,
   students,
   studentSemesters,
-  structures,
-  terms,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 import { and, eq, inArray } from 'drizzle-orm';

@@ -164,7 +164,7 @@ export default function AssessmentModal({
       } catch (error) {
         notifications.show({
           title: 'Error',
-          message: 'An error occurred while saving the assessment',
+          message: `An error occurred while saving the assessment: ${error}`,
           color: 'red',
         });
       }
