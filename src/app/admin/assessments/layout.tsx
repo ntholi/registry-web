@@ -18,7 +18,11 @@ export default function Layout({ children }: PropsWithChildren) {
       }}
       actionIcons={[<NewLink key={'new-link'} href='/admin/assessments/new' />]}
       renderItem={(it) => (
-        <ListItem id={it.id} label={it.code} description={it.name} />
+        <ListItem
+          id={it.id}
+          label={it.semesterModule?.module?.code}
+          description={it.semesterModule?.module?.name}
+        />
       )}
     >
       {children}

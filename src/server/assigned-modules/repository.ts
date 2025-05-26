@@ -1,5 +1,12 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { assignedModules, modules } from '@/db/schema';
+import {
+  assignedModules,
+  modules,
+  programs,
+  semesterModules,
+  structures,
+  structureSemesters,
+} from '@/db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 
@@ -75,7 +82,6 @@ export default class AssignedModuleRepository extends BaseRepository<
 
     return results.filter((item) => item.semesterModule?.moduleId === moduleId);
   }
-
   async findByModule(semesterModuleId: number) {
     return db.query.assignedModules.findMany({
       where: eq(assignedModules.semesterModuleId, semesterModuleId),
@@ -83,36 +89,36 @@ export default class AssignedModuleRepository extends BaseRepository<
   }
 
   async findByUser(userId: string) {
-    return db.query.assignedModules
-      .findMany({
-        where: eq(assignedModules.userId, userId),
-        with: {
-          semesterModule: {
-            with: {
-              module: true,
-              semester: {
-                with: {
-                  structure: {
-                    with: {
-                      program: true,
-                    },
+    const results = await db.query.assignedModules.findMany({
+      where: eq(assignedModules.userId, userId),
+      with: {
+        semesterModule: {
+          with: {
+            module: true,
+            semester: {
+              with: {
+                structure: {
+                  with: {
+                    program: true,
                   },
                 },
               },
             },
           },
         },
-      })
-      .then((it) => {
-        const moduleMap = new Map<number, typeof modules.$inferSelect>();
-        it.forEach((item) => {
-          const module = item.semesterModule.module;
-          if (module) {
-            moduleMap.set(module.id, module);
-          }
-        });
-        return Array.from(moduleMap.values());
-      });
+      },
+    });
+
+    type ResultType = (typeof results)[0];
+
+    const moduleMap = new Map<number, ResultType>();
+    results.forEach((item) => {
+      const module = item.semesterModule.module;
+      if (module) {
+        moduleMap.set(module.id, item);
+      }
+    });
+    return Array.from(moduleMap.values());
   }
 }
 

@@ -14,11 +14,12 @@ export async function getAssignedModules(page: number = 1, search = '') {
   return service.getAll({ page, search });
 }
 
-export async function getAssignedModuleByUserAndModule(
-  userId: string,
-  moduleId: number,
-) {
-  return service.getByUserAndModule(userId, moduleId);
+export async function getAssignedModuleByUserAndModule(moduleId: number) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return [];
+  }
+  return service.getByUserAndModule(session.user.id, moduleId);
 }
 
 export async function createAssignedModule(assignedModule: AssignedModule) {

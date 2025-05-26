@@ -21,8 +21,8 @@ type Props = {
 
 export default function AssignedModules({ user }: Props) {
   const { data: assignedModules, isLoading } = useQuery({
-    queryKey: ['assigned-modules', user.id],
-    queryFn: () => getAssignedModulesByCurrentUser(user.id),
+    queryKey: ['assigned-modules'],
+    queryFn: () => getAssignedModulesByCurrentUser(),
   });
 
   if (isLoading) {

@@ -58,7 +58,7 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
         <Stack gap='xs' style={{ flex: 1 }}>
           <Group gap='xs' align='center' justify='space-between'>
             <Title order={2} fw={100}>
-              {modules[0].semesterModule.module!.name}
+              {modules.at(0)?.semesterModule?.module?.name}
             </Title>
 
             <Select
