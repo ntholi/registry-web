@@ -302,6 +302,13 @@
       "when": 1748189438303,
       "tag": "0042_tan_sentinels",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "6",
+      "when": 1748249885538,
+      "tag": "0043_dry_mauler",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,2 @@
+DROP INDEX `assessments_moduleId_termId_unique`;--> statement-breakpoint
+CREATE UNIQUE INDEX `assessments_moduleId_assessmentNumber_termId_unique` ON `assessments` (`module_id`,`assessment_number`,`term_id`);
