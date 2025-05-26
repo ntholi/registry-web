@@ -55,10 +55,6 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
     fields: [students.userId],
     references: [users.id],
   }),
-  structure: one(structures, {
-    fields: [students.structureId],
-    references: [structures.id],
-  }),
   programs: many(studentPrograms),
   registrationRequests: many(registrationRequests),
   sponsorships: many(sponsoredStudents),

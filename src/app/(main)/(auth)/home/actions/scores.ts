@@ -46,7 +46,7 @@ function getPoints(grade: keyof typeof grades): number {
   return 0;
 }
 
-export async function getStudentScore(stdNo: number, structureId: number) {
+export async function getStudentScore(stdNo: number) {
   const program = await db.query.studentPrograms.findFirst({
     where: and(
       eq(studentPrograms.stdNo, stdNo),
@@ -102,7 +102,7 @@ export async function getStudentScore(stdNo: number, structureId: number) {
   });
 
   const semesters = await db.query.structureSemesters.findMany({
-    where: eq(structureSemesters.structureId, structureId),
+    where: eq(structureSemesters.structureId, program.structureId),
     with: {
       semesterModules: true,
     },

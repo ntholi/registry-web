@@ -105,11 +105,7 @@ export async function getRegistrationRequestsByStudent(stdNo: number) {
   const student = await db.query.registrationRequests.findMany({
     where: eq(registrationRequests.stdNo, stdNo),
     with: {
-      student: {
-        with: {
-          structure: true,
-        },
-      },
+      student: true,
       term: true,
       requestedModules: {
         with: {

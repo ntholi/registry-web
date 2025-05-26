@@ -17,7 +17,15 @@ class RegistrationClearanceService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), ['dashboard']);
+    return withAuth(async () => {
+      const result = await this.repository.findById(id);
+      if (!result) return null;
+      const activeProgram = result.registrationRequest.student.programs[0];
+      return {
+        ...result,
+        programName: activeProgram?.structure.program.name,
+      };
+    }, ['dashboard']);
   }
 
   async countByStatus(status: 'pending' | 'approved' | 'rejected') {

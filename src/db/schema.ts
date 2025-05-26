@@ -147,9 +147,6 @@ export const students = sqliteTable('students', {
   gender: text({ enum: genderEnum }),
   maritalStatus: text({ enum: maritalStatusEnum }),
   religion: text(),
-  structureId: integer().references(() => structures.id, {
-    onDelete: 'set null',
-  }),
   userId: text().references(() => users.id, { onDelete: 'set null' }),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });

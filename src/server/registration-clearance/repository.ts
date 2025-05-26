@@ -6,6 +6,7 @@ import {
   registrationClearances,
   registrationRequests,
   requestedModules,
+  studentPrograms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { and, asc, count, desc, eq, inArray, like } from 'drizzle-orm';
@@ -118,9 +119,16 @@ export default class RegistrationClearanceRepository extends BaseRepository<
           with: {
             student: {
               with: {
-                structure: {
+                programs: {
+                  where: eq(studentPrograms.status, 'Active'),
+                  orderBy: (programs, { asc }) => [asc(programs.id)],
+                  limit: 1,
                   with: {
-                    program: true,
+                    structure: {
+                      with: {
+                        program: true,
+                      },
+                    },
                   },
                 },
               },

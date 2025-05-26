@@ -16,8 +16,7 @@ type Props = {
 export default function Hero({ student }: Props) {
   const { data: scores, isLoading } = useQuery({
     queryKey: ['studentScores', student.stdNo],
-    queryFn: () => getStudentScore(student.stdNo, student.structureId!),
-    enabled: !!student.structureId,
+    queryFn: () => getStudentScore(student.stdNo),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -33,7 +32,7 @@ export default function Hero({ student }: Props) {
             className='flex items-center gap-2 rounded-full'
           >
             <GraduationCap className='size-5' />
-            {student.structure?.program.name}
+            {student.programName}
           </Badge>
           <div className='flex items-center gap-2 pl-2 text-sm text-muted-foreground/80'>
             {formatSemester(student.sem)}

@@ -5,6 +5,7 @@ import {
   registrationRequests,
   requestedModules,
   sponsoredStudents,
+  studentPrograms,
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
@@ -50,7 +51,18 @@ export default class RegistrationRequestRepository extends BaseRepository<
       with: {
         student: {
           with: {
-            structure: true,
+            programs: {
+              where: eq(studentPrograms.status, 'Active'),
+              orderBy: (programs, { asc }) => [asc(programs.id)],
+              limit: 1,
+              with: {
+                structure: {
+                  with: {
+                    program: true,
+                  },
+                },
+              },
+            },
           },
         },
         term: true,

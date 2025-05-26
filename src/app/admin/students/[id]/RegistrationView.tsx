@@ -1,7 +1,7 @@
 'use client';
 
 import { formatDateTime, formatSemester } from '@/lib/utils';
-import { getRegistrationRequest } from '@/server/registration-requests/actions';
+import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
 import {
   Accordion,
   Anchor,
@@ -14,9 +14,9 @@ import {
 import Link from 'next/link';
 
 type Props = {
-  registrationRequests: NonNullable<
-    Awaited<ReturnType<typeof getRegistrationRequest>>
-  >[];
+  registrationRequests: Awaited<
+    ReturnType<typeof getRegistrationRequestsByStudent>
+  >;
 };
 
 export default function RegistrationView({ registrationRequests }: Props) {

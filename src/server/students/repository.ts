@@ -17,18 +17,37 @@ export default class StudentRepository extends BaseRepository<
   constructor() {
     super(students, 'stdNo');
   }
-
   async findStudentByUserId(userId: string) {
-    return await db.query.students.findFirst({
+    const student = await db.query.students.findFirst({
       where: eq(students.userId, userId),
       with: {
-        structure: {
+        programs: {
+          where: eq(studentPrograms.status, 'Active'),
+          orderBy: (programs, { asc }) => [asc(programs.id)],
+          limit: 1,
           with: {
-            program: true,
+            structure: {
+              with: {
+                program: true,
+              },
+            },
           },
         },
       },
     });
+    if (!student || !student.programs.length) {
+      console.warn(
+        `No active program found for userId: ${userId}. Student: ${JSON.stringify(student)}`,
+      );
+      return null;
+    }
+
+    const activeProgram = student.programs[0];
+    return {
+      ...student,
+      structureId: activeProgram.structureId,
+      programName: activeProgram.structure.program.name,
+    };
   }
 
   override async findById(stdNo: number) {

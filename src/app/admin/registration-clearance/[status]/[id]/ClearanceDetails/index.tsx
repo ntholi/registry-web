@@ -71,7 +71,7 @@ export default function ClearanceDetails({ request, termId }: Props) {
                 {formatDateTime(request.registrationRequest.createdAt)}
               </FieldView>
               <FieldView label='Program' underline={false}>
-                {student.structure?.program.name}
+                {request.programName}
               </FieldView>
               <SponsorInfo
                 stdNo={request.registrationRequest.stdNo}
