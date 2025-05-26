@@ -239,6 +239,7 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
         {
           label: 'BOE',
           href: `/admin/reports/boe`,
+          description: 'Board of Examination Report',
           icon: IconCopyCheck,
           roles: ['academic'],
           isVisible: (session) => {

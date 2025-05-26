@@ -1,7 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { generateBoeReportForFICT } from '@/server/reports/boe/actions';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { generateBoeReportForFaculty } from '@/server/reports/boe/actions';
+import { getSchools } from '@/server/semester-modules/actions';
 import {
   Card,
   CardSection,
@@ -11,16 +12,29 @@ import {
   Group,
   Loader,
   Stack,
+  Select,
 } from '@mantine/core';
+import { useCurrentTerm } from '@/hooks/use-current-term';
 
 export default function Body() {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
+  const { data: schools, isLoading: schoolsLoading } = useQuery({
+    queryKey: ['schools'],
+    queryFn: getSchools,
+  });
+  const { currentTerm } = useCurrentTerm();
 
   const generateReportMutation = useMutation({
     mutationFn: async () => {
+      if (!selectedSchoolId) {
+        throw new Error('Please select a school');
+      }
       setIsDownloading(true);
       try {
-        const result = await generateBoeReportForFICT();
+        const result = await generateBoeReportForFaculty(
+          Number(selectedSchoolId),
+        );
         if (!result.success) {
           throw new Error(result.error || 'Failed to generate report');
         }
@@ -44,7 +58,11 @@ export default function Body() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `FICT_BOE_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const selectedSchool = schools?.find(
+        (s) => s.id === Number(selectedSchoolId),
+      );
+      const schoolCode = selectedSchool?.code || 'School';
+      a.download = `${schoolCode}_BOE_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
       document.body.appendChild(a);
       a.click();
       URL.revokeObjectURL(url);
@@ -57,8 +75,18 @@ export default function Body() {
   });
 
   const handleGenerateReport = () => {
+    if (!selectedSchoolId) {
+      alert('Please select a school first');
+      return;
+    }
     generateReportMutation.mutate();
   };
+
+  const schoolOptions =
+    schools?.map((school) => ({
+      value: school.id.toString(),
+      label: school.name,
+    })) || [];
 
   return (
     <Stack align='center' justify='center' p='xl'>
@@ -66,22 +94,38 @@ export default function Body() {
         <CardSection inheritPadding py='md'>
           <Title order={3}>BOE Report Generation</Title>
           <Text c='dimmed' size='sm'>
-            Generate Board of Examination (BOE) reports for FICT programs
-          </Text>
+            Generate Board of Examination (BOE) reports
+          </Text>{' '}
         </CardSection>
         <CardSection inheritPadding>
-          <Text my='sm'>
-            This will generate a BOE report for all students in the Faculty of
-            Information and Communication Technology (FICT) for the current
-            term.
-          </Text>
-        </CardSection>
+          <Stack gap='md'>
+            <Text my='xs'>
+              Select a school to generate BOE reports for all programs and
+              students in that school for {currentTerm?.name}.
+            </Text>
+
+            <Select
+              label='Select School'
+              placeholder='Choose a school'
+              data={schoolOptions}
+              value={selectedSchoolId}
+              onChange={setSelectedSchoolId}
+              disabled={schoolsLoading}
+              searchable
+              clearable
+            />
+          </Stack>
+        </CardSection>{' '}
         <CardSection inheritPadding py='md'>
           <Group>
             <Button
               fullWidth
               onClick={handleGenerateReport}
-              disabled={generateReportMutation.isPending || isDownloading}
+              disabled={
+                !selectedSchoolId ||
+                generateReportMutation.isPending ||
+                isDownloading
+              }
               leftSection={
                 generateReportMutation.isPending || isDownloading ? (
                   <Loader size={16} />
@@ -89,8 +133,8 @@ export default function Body() {
               }
             >
               {generateReportMutation.isPending || isDownloading
-                ? 'Generating Report...'
-                : 'Generate BOE Report for FICT'}
+                ? 'Generating Reports...'
+                : 'Generate Reports'}
             </Button>
           </Group>
         </CardSection>
