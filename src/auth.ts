@@ -10,6 +10,7 @@ import {
   verificationTokens,
   students,
   AcademicUserRoles,
+  UserRole,
 } from './db/schema';
 import { eq } from 'drizzle-orm';
 import fs from 'fs';
@@ -46,7 +47,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         await db
           .update(users)
           .set({
-            academicRole: predefinedUser.role,
+            academicRole: predefinedUser.position,
             role: 'academic',
             name: predefinedUser.name,
           })
@@ -59,7 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 type PredefinedUser = {
   name: string;
   email: string;
-  role: AcademicUserRoles;
+  position: AcademicUserRoles;
 };
 
 function getPredefinedUser(email?: string | null): PredefinedUser | null {

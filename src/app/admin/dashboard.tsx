@@ -93,7 +93,7 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       },
     },
     {
-      label: 'Assessment',
+      label: 'Assessments',
       href: '/admin/assessments',
       icon: IconAB2,
       roles: ['academic'],

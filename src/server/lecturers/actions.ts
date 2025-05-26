@@ -12,6 +12,7 @@ export async function getLecturers(page: number = 1, search = '') {
   return service.getAll({
     page,
     search,
+    searchColumns: ['name', 'email'],
     filter: and(eq(users.role, 'academic'), eq(users.academicRole, 'lecturer')),
   });
 }
