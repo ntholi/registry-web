@@ -1,7 +1,7 @@
 'use client';
 
 import { Shell } from '@/components/adease';
-import { DashboardUser, UserRole } from '@/db/schema';
+import { AcademicUserRole, DashboardUser, UserRole } from '@/db/schema';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import {
   countApprovedRegistrationClearances,
@@ -86,6 +86,7 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
     {
       label: 'Lecturers',
       href: '/admin/lecturers',
+      roles: ['academic'],
       icon: IconSchool,
       isVisible: (session) => {
         const academicRole = session?.user?.academicRole;
@@ -240,6 +241,14 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
           href: `/admin/reports/boe`,
           icon: IconCopyCheck,
           roles: ['academic'],
+          isVisible: (session) => {
+            const academicRole = session?.user
+              ?.academicRole as AcademicUserRole;
+            return (
+              academicRole &&
+              ['manager', 'admin', 'program_leader'].includes(academicRole)
+            );
+          },
         },
       ],
     },

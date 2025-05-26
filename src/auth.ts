@@ -9,7 +9,7 @@ import {
   users,
   verificationTokens,
   students,
-  AcademicUserRoles,
+  AcademicUserRole,
   UserRole,
 } from './db/schema';
 import { eq } from 'drizzle-orm';
@@ -60,7 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 type PredefinedUser = {
   name: string;
   email: string;
-  position: AcademicUserRoles;
+  position: AcademicUserRole;
 };
 
 function getPredefinedUser(email?: string | null): PredefinedUser | null {

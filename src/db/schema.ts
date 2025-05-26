@@ -30,7 +30,7 @@ export const academicUserRoles = [
   'lecturer',
   'admin',
 ] as const;
-export type AcademicUserRoles = (typeof academicUserRoles)[number];
+export type AcademicUserRole = (typeof academicUserRoles)[number];
 
 export const users = sqliteTable('users', {
   id: text()
