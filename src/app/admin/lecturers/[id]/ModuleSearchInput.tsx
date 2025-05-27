@@ -70,8 +70,6 @@ export const ModuleSearchInput = forwardRef<
       (module) => module.moduleId.toString() === value,
     );
 
-    console.log('Selected Module', selectedModule);
-
     if (selectedModule) {
       onChange?.(selectedModule.moduleId);
       if (onModuleSelect) onModuleSelect(selectedModule);

@@ -296,7 +296,16 @@ export default class ModuleRepository extends BaseRepository<
       });
     }
 
-    return Array.from(groupedModules.values());
+    return Array.from(groupedModules.values())
+      .map((module) => ({
+        ...module,
+        totalStudents: module.semesters.reduce(
+          (sum, s) => sum + (s.studentCount || 0),
+          0,
+        ),
+      }))
+      .sort((a, b) => b.totalStudents - a.totalStudents)
+      .map(({ totalStudents, ...module }) => module);
   }
 }
 
