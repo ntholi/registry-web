@@ -25,6 +25,7 @@ import {
   students,
   terms,
   users,
+  userSchools,
   modules,
 } from './schema';
 
@@ -40,6 +41,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
     fields: [users.id],
     references: [students.userId],
   }),
+  userSchools: many(userSchools),
 }));
 
 export const signupsRelations = relations(signups, ({ one }) => ({
@@ -98,6 +100,7 @@ export const studentModulesRelations = relations(studentModules, ({ one }) => ({
 
 export const schoolsRelations = relations(schools, ({ many }) => ({
   programs: many(programs),
+  userSchools: many(userSchools),
 }));
 
 export const programsRelations = relations(programs, ({ many, one }) => ({
@@ -300,3 +303,14 @@ export const assessmentMarksRelations = relations(
     }),
   }),
 );
+
+export const userSchoolsRelations = relations(userSchools, ({ one }) => ({
+  user: one(users, {
+    fields: [userSchools.userId],
+    references: [users.id],
+  }),
+  school: one(schools, {
+    fields: [userSchools.schoolId],
+    references: [schools.id],
+  }),
+}));

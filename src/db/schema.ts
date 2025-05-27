@@ -518,6 +518,23 @@ export const assignedModules = sqliteTable('assigned_modules', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
+export const userSchools = sqliteTable(
+  'user_schools',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    userId: text()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    schoolId: integer()
+      .references(() => schools.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  },
+  (table) => ({
+    uniqueUserSchool: unique().on(table.userId, table.schoolId),
+  }),
+);
+
 export const assessmentNumberEnum = [
   'CW1',
   'CW2',
