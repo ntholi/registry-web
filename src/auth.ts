@@ -27,6 +27,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async session({ session, user }) {
       session.user.role = user.role;
+      session.user.position = user.position;
 
       if (user.role === 'student') {
         const student = await db.query.students.findFirst({
@@ -34,7 +35,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         session.user.stdNo = student?.stdNo;
-        session.user.isDepartmentAdmin = user.isDepartmentAdmin ?? false;
       }
       return session;
     },

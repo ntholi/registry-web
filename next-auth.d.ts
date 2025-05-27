@@ -6,6 +6,5 @@ declare module 'next-auth' {
     role: UserRole;
     stdNo?: number;
     position?: UserPosition;
-    isDepartmentAdmin: boolean;
   }
 }

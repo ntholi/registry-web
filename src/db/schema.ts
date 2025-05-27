@@ -39,7 +39,6 @@ export const users = sqliteTable('users', {
   name: text(),
   role: text({ enum: userRoles }).notNull().default('user'),
   position: text({ enum: userPositions }),
-  isDepartmentAdmin: integer({ mode: 'boolean' }).notNull().default(false),
   email: text().unique(),
   emailVerified: integer({ mode: 'timestamp_ms' }),
   image: text(),

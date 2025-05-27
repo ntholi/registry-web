@@ -69,7 +69,7 @@ export type NavItem = {
   notificationCount?: NotificationConfig;
 };
 
-function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
+function getNavigation(department: DashboardUser) {
   const navItems = [
     {
       label: 'Users',
@@ -89,8 +89,8 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
       roles: ['academic'],
       icon: IconSchool,
       isVisible: (session) => {
-        const academicRole = session?.user?.position;
-        return academicRole && ['manager', 'admin'].includes(academicRole);
+        const position = session?.user?.position;
+        return position && ['manager', 'admin'].includes(position);
       },
     },
     {
@@ -230,7 +230,7 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
           isVisible: (session) => {
             const userRole = session?.user?.role;
             return (
-              isDepartmentAdmin &&
+              session?.user?.position === 'manager' &&
               userRole &&
               ['finance', 'library', 'resource'].includes(userRole)
             );
@@ -259,11 +259,7 @@ function getNavigation(isDepartmentAdmin: boolean, department: DashboardUser) {
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
-
-  const navigation = getNavigation(
-    session?.user?.isDepartmentAdmin ?? false,
-    session?.user?.role as DashboardUser,
-  );
+  const navigation = getNavigation(session?.user?.role as DashboardUser);
 
   const { data: assignedModules } = useQuery({
     queryKey: ['assignedModules'],
