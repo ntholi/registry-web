@@ -508,17 +508,6 @@ export const sponsoredStudents = sqliteTable(
   }),
 );
 
-export const academicUserSchools = sqliteTable('academic_user_schools', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  userId: integer()
-    .references(() => users.id, { onDelete: 'cascade' })
-    .notNull(),
-  schoolId: integer()
-    .references(() => schools.id, { onDelete: 'cascade' })
-    .notNull(),
-  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
 export const assignedModules = sqliteTable('assigned_modules', {
   id: integer().primaryKey({ autoIncrement: true }),
   userId: text()

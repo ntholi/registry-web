@@ -1,0 +1,1 @@
+DROP TABLE `academic_user_schools`;
