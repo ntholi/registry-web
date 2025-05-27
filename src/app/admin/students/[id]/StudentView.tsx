@@ -1,6 +1,6 @@
 'use client';
 
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatPhoneNumber } from '@/lib/utils';
 import { getStudent } from '@/server/students/actions';
 import {
   ActionIcon,
@@ -94,12 +94,19 @@ export default function StudentView({ student }: Props) {
           Contact Information
         </Title>
         <Paper p='md' radius='md' withBorder>
+          {' '}
           <Grid gutter='xl'>
             <Grid.Col span={{ base: 12, sm: 6 }}>
-              <InfoItem label='Primary Phone' value={student.phone1} />
+              <InfoItem
+                label='Primary Phone'
+                value={formatPhoneNumber(student.phone1)}
+              />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
-              <InfoItem label='Secondary Phone' value={student.phone2} />
+              <InfoItem
+                label='Secondary Phone'
+                value={formatPhoneNumber(student.phone2)}
+              />
             </Grid.Col>
           </Grid>
         </Paper>
