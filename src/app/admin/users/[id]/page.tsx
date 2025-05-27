@@ -61,9 +61,9 @@ export default async function UserDetails({ params }: Props) {
                   {toTitleCase(users.role)}
                 </Badge>
               </Group>
-              {users.role === 'academic' && (
-                <FieldView label='Academic Role'>
-                  {toTitleCase(users.academicRole)}
+              {users.position && (
+                <FieldView label='Position'>
+                  {toTitleCase(users.position)}
                 </FieldView>
               )}
               <FieldView label='Email'>{users.email}</FieldView>

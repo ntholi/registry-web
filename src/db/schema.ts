@@ -22,7 +22,7 @@ export type DashboardUser = (typeof dashboardUsers)[number];
 export const userRoles = ['user', 'student', ...dashboardUsers] as const;
 export type UserRole = (typeof userRoles)[number];
 
-export const academicUserRoles = [
+export const userPositions = [
   'manager',
   'program_leader',
   'principal_lecturer',
@@ -30,7 +30,7 @@ export const academicUserRoles = [
   'lecturer',
   'admin',
 ] as const;
-export type AcademicUserRole = (typeof academicUserRoles)[number];
+export type UserPosition = (typeof userPositions)[number];
 
 export const users = sqliteTable('users', {
   id: text()
@@ -38,7 +38,7 @@ export const users = sqliteTable('users', {
     .$defaultFn(() => nanoid()),
   name: text(),
   role: text({ enum: userRoles }).notNull().default('user'),
-  academicRole: text({ enum: academicUserRoles }),
+  position: text({ enum: userPositions }),
   isDepartmentAdmin: integer({ mode: 'boolean' }).notNull().default(false),
   email: text().unique(),
   emailVerified: integer({ mode: 'timestamp_ms' }),

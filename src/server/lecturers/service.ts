@@ -16,7 +16,10 @@ class LecturerService {
     return withAuth(
       async () => this.repository.query(params),
       ['academic'],
-      async (session) => academicAdmin.includes(session.user?.academicRole),
+      async (session) =>
+        academicAdmin.includes(
+          session.user?.position as (typeof academicAdmin)[number],
+        ),
     );
   }
 }

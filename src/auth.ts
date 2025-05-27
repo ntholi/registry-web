@@ -7,7 +7,7 @@ import type { Adapter } from 'next-auth/adapters';
 import Google from 'next-auth/providers/google';
 import path from 'path';
 import {
-  AcademicUserRole,
+  UserPosition,
   accounts,
   sessions,
   students,
@@ -46,7 +46,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         await db
           .update(users)
           .set({
-            academicRole: predefinedUser.position,
+            position: predefinedUser.position,
             role: 'academic',
             name: predefinedUser.name,
           })
@@ -59,7 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 type PredefinedUser = {
   name: string;
   email: string;
-  position: AcademicUserRole;
+  position: UserPosition;
 };
 
 function getPredefinedUser(email?: string | null): PredefinedUser | null {

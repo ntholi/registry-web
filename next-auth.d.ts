@@ -1,11 +1,11 @@
-import { UserRole } from '@/db/schema';
+import { UserRole, UserPosition } from '@/db/schema';
 import { User as DefaultUser } from 'next-auth';
 
 declare module 'next-auth' {
   interface User extends DefaultUser {
     role: UserRole;
     stdNo?: number;
-    academicRole?: AcademicUserRoles;
+    position?: UserPosition;
     isDepartmentAdmin: boolean;
   }
 }
