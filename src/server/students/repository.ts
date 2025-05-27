@@ -80,51 +80,34 @@ export default class StudentRepository extends BaseRepository<
       },
     });
   }
-
   async findByModuleId(moduleId: number, termName: string) {
-    return await db.query.students.findMany({
-      where: (students, { exists }) => {
-        return exists(
-          db
-            .select()
-            .from(studentPrograms)
-            .innerJoin(
-              studentSemesters,
-              eq(studentSemesters.studentProgramId, studentPrograms.id),
-            )
-            .innerJoin(
-              studentModules,
-              eq(studentModules.studentSemesterId, studentSemesters.id),
-            )
-            .innerJoin(
-              semesterModules,
-              eq(studentModules.semesterModuleId, semesterModules.id),
-            )
-            .where(
-              and(
-                eq(semesterModules.moduleId, moduleId),
-                eq(studentSemesters.term, termName),
-                eq(studentPrograms.stdNo, students.stdNo),
-              ),
-            ),
-        );
-      },
-      with: {
-        programs: {
-          with: {
-            semesters: {
-              with: {
-                studentModules: {
-                  with: {
-                    semesterModule: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+    return await db
+      .select({
+        stdNo: students.stdNo,
+        name: students.name,
+        semesterModuleId: studentModules.semesterModuleId,
+      })
+      .from(students)
+      .innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
+      .innerJoin(
+        studentSemesters,
+        eq(studentSemesters.studentProgramId, studentPrograms.id),
+      )
+      .innerJoin(
+        studentModules,
+        eq(studentModules.studentSemesterId, studentSemesters.id),
+      )
+      .innerJoin(
+        semesterModules,
+        eq(studentModules.semesterModuleId, semesterModules.id),
+      )
+      .where(
+        and(
+          eq(semesterModules.moduleId, moduleId),
+          eq(studentSemesters.term, termName),
+        ),
+      )
+      .groupBy(students.stdNo, students.name, studentModules.semesterModuleId);
   }
 
   async getAllPrograms() {

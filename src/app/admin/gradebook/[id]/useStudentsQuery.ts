@@ -14,7 +14,6 @@ export function useStudentsQuery({
   searchQuery,
 }: UseStudentsQueryParams) {
   const [semesterModuleId] = useQueryState('semesterModuleId');
-
   return useQuery({
     queryKey: ['students', moduleId],
     queryFn: () => getStudentsByModuleId(moduleId),
@@ -22,14 +21,8 @@ export function useStudentsQuery({
       let filteredData = data;
 
       if (semesterModuleId) {
-        filteredData = data.filter((it) =>
-          it.programs.some((it) =>
-            it.semesters.some((it) =>
-              it.studentModules.some(
-                (it) => it.semesterModule?.id?.toString() === semesterModuleId,
-              ),
-            ),
-          ),
+        filteredData = data.filter(
+          (it) => it.semesterModuleId?.toString() === semesterModuleId,
         );
       }
 
