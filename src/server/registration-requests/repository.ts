@@ -302,9 +302,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
     await tx
       .delete(requestedModules)
       .where(eq(requestedModules.registrationRequestId, registrationRequestId));
-
     const modulesToCreate = modules.map((module) => ({
-      moduleId: module.moduleId,
+      semesterModuleId: module.moduleId,
       moduleStatus: module.moduleStatus,
       registrationRequestId,
     }));
