@@ -3,6 +3,7 @@
 import { db } from '@/db';
 import {
   modules,
+  modulePrerequisites,
   semesterModules,
   structureSemesters,
   studentPrograms,
@@ -71,7 +72,6 @@ export async function getFailedPrerequisites(stdNo: number) {
   const failedModules = prevSemesterModules.filter(
     (m) => !passedModules.has(m?.code),
   );
-
   const failedModulesByCode = failedModules.reduce(
     (acc, module) => {
       acc[module!.code] = { code: module!.code, name: module!.name };
@@ -80,7 +80,31 @@ export async function getFailedPrerequisites(stdNo: number) {
     {} as Record<string, PrerequisiteInfo>,
   );
 
+  const failedModuleCodes = Object.keys(failedModulesByCode);
+  if (failedModuleCodes.length === 0) {
+    return {};
+  }
+
+  const failedSemesterModules = await db.query.semesterModules.findMany({
+    where: inArray(
+      semesterModules.moduleId,
+      await db
+        .select({ id: modules.id })
+        .from(modules)
+        .where(inArray(modules.code, failedModuleCodes))
+        .then((rows) => rows.map((r) => r.id)),
+    ),
+    columns: { id: true },
+  });
+
+  const failedSemesterModuleIds = failedSemesterModules.map((sm) => sm.id);
+
+  if (failedSemesterModuleIds.length === 0) {
+    return {};
+  }
+
   const prerequisites = await db.query.modulePrerequisites.findMany({
+    where: inArray(modulePrerequisites.prerequisiteId, failedSemesterModuleIds),
     with: {
       semesterModule: { with: { module: true } },
       prerequisite: { with: { module: true } },
@@ -234,7 +258,7 @@ export async function getRepeatModules(
         acc[semesterModule.module!.name] = acc[semesterModule.module!.name] || {
           failCount: 0,
           passed: false,
-          module,
+          semesterModule: semesterModule,
         };
 
         if (passed) acc[semesterModule.module!.name].passed = true;
@@ -244,7 +268,7 @@ export async function getRepeatModules(
       },
       {} as Record<
         string,
-        { failCount: number; passed: boolean; module: Module }
+        { failCount: number; passed: boolean; semesterModule: Module }
       >,
     );
 
@@ -252,16 +276,18 @@ export async function getRepeatModules(
     failedPrerequisites = await getFailedPrerequisites(stdNo);
   }
 
+  console.log('moduleHistory', moduleHistory);
+
   return Object.values(moduleHistory)
     .filter(({ passed }) => !passed)
-    .map(({ failCount, module }) => ({
-      id: module.id,
-      code: module.module.code,
-      name: module.module.name,
-      type: module.type,
-      credits: module.credits,
+    .map(({ failCount, semesterModule }) => ({
+      id: semesterModule.id,
+      code: semesterModule.module.code,
+      name: semesterModule.module.name,
+      type: semesterModule.type,
+      credits: semesterModule.credits,
       status: `Repeat${failCount}`,
-      prerequisites: failedPrerequisites![module.module.code] || [],
+      prerequisites: failedPrerequisites![semesterModule.module.code] || [],
     }));
 }
 
