@@ -81,7 +81,18 @@ function getNavigation(department: DashboardUser) {
       label: 'Students',
       href: '/admin/students',
       icon: IconUsersGroup,
-      roles: ['registry', 'finance'],
+      isVisible: (session) => {
+        if (['registry', 'finance'].includes(session?.user?.role || '')) {
+          return true;
+        }
+        const position = session?.user?.position;
+        return (
+          position &&
+          ['manager', 'admin', 'program_leader', 'year_leader'].includes(
+            position,
+          )
+        );
+      },
     },
     {
       label: 'Lecturers',
