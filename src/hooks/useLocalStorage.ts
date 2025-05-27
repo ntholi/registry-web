@@ -1,21 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue?: T) {
-  const [storedValue, setStoredValue] = useState(() => {
-    if (typeof window === 'undefined') {
-      return initialValue;
-    }
+  const [storedValue, setStoredValue] = useState<T | undefined>(initialValue);
+  const [mounted, setMounted] = useState(false);
 
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
-      return initialValue;
+  useEffect(() => {
+    setMounted(true);
+    if (typeof window !== 'undefined') {
+      try {
+        const item = window.localStorage.getItem(key);
+        if (item) {
+          setStoredValue(JSON.parse(item));
+        }
+      } catch (error) {
+        console.warn(`Error reading localStorage key "${key}":`, error);
+      }
     }
-  });
+  }, [key]);
 
-  const setValue = (value: T | ((val: T) => T)) => {
+  const setValue = (value: T | ((val: T | undefined) => T)) => {
     try {
       const valueToStore =
         value instanceof Function ? value(storedValue) : value;
@@ -32,12 +35,14 @@ export function useLocalStorage<T>(key: string, initialValue?: T) {
 
   const remove = () => {
     try {
-      window.localStorage.removeItem(key);
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(key);
+      }
       setStoredValue(initialValue);
     } catch (error) {
       console.warn(`Error removing localStorage key "${key}":`, error);
     }
   };
 
-  return [storedValue, setValue, remove] as const;
+  return [mounted ? storedValue : initialValue, setValue, remove] as const;
 }
