@@ -1,6 +1,7 @@
 'use client';
 
 import SemesterStatus from '@/components/SemesterStatus';
+import { StatementOfResultsPrinter } from '@/app/admin/students/[id]/statements';
 import { formatSemester } from '@/lib/utils';
 import { getStudent } from '@/server/students/actions';
 import {
@@ -45,6 +46,9 @@ export default function AcademicsView({ student, showMarks }: Props) {
 
   return (
     <Stack gap='md'>
+      <Group justify='right' mb='xs'>
+        <StatementOfResultsPrinter student={student} />
+      </Group>
       <Accordion
         variant='separated'
         radius='md'
