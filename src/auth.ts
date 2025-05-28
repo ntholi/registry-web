@@ -17,6 +17,13 @@ import {
   verificationTokens,
 } from './db/schema';
 
+interface UserData {
+  name: string;
+  email: string;
+  position: string;
+  schools?: string[];
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],
   adapter: DrizzleAdapter(db, {
@@ -47,9 +54,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       try {
         const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-        const usersData = JSON.parse(fs.readFileSync(usersFilePath, 'utf8'));
+        const usersData = JSON.parse(
+          fs.readFileSync(usersFilePath, 'utf8'),
+        ) as UserData[];
 
-        const userData = usersData.find((u: any) => u.email === user.email);
+        const userData = usersData.find((u) => u.email === user.email);
 
         if (userData) {
           await db

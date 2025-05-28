@@ -1,10 +1,10 @@
-import { schools, userSchools, users } from '@/db/schema';
-import UserRepository from './repository';
-import withAuth from '@/server/base/withAuth';
-import { QueryOptions } from '../base/BaseRepository';
-import { serviceWrapper } from '@/server/base/serviceWrapper';
 import { db } from '@/db';
+import { userSchools, users } from '@/db/schema';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
+import withAuth from '@/server/base/withAuth';
 import { eq } from 'drizzle-orm';
+import { QueryOptions } from '../base/BaseRepository';
+import UserRepository from './repository';
 
 type User = typeof users.$inferInsert;
 
@@ -30,8 +30,8 @@ class UserService {
       return db.query.userSchools.findMany({
         where: eq(userSchools.userId, userId),
         with: {
-          school: true
-        }
+          school: true,
+        },
       });
     }, ['dashboard']);
   }
@@ -40,11 +40,11 @@ class UserService {
     return withAuth(async () => {
       const { schoolIds, ...userData } = data;
       const user = await this.repository.create(userData);
-      
+
       if (schoolIds && schoolIds.length > 0) {
         await this.updateUserSchools(user.id, schoolIds);
       }
-      
+
       return user;
     }, []);
   }
@@ -53,11 +53,11 @@ class UserService {
     return withAuth(async () => {
       const { schoolIds, ...userData } = data;
       const user = await this.repository.update(id, userData);
-      
+
       if (schoolIds) {
         await this.updateUserSchools(id, schoolIds);
       }
-      
+
       return user;
     }, []);
   }
@@ -66,14 +66,14 @@ class UserService {
     return withAuth(async () => {
       // Delete existing user schools
       await db.delete(userSchools).where(eq(userSchools.userId, userId));
-      
+
       // Add new user schools
       if (schoolIds.length > 0) {
-        const userSchoolsData = schoolIds.map(schoolId => ({
+        const userSchoolsData = schoolIds.map((schoolId) => ({
           userId,
-          schoolId
+          schoolId,
         }));
-        
+
         await db.insert(userSchools).values(userSchoolsData);
       }
     }, []);
@@ -83,7 +83,7 @@ class UserService {
     return withAuth(async () => {
       // Delete user schools first
       await db.delete(userSchools).where(eq(userSchools.userId, id));
-      
+
       // Then delete the user
       return this.repository.delete(id);
     }, []);

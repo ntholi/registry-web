@@ -4,8 +4,6 @@ import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 
-type School = typeof schools.$inferInsert;
-
 class SchoolService {
   constructor(private readonly repository = new SchoolRepository()) {}
 
