@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import fs from 'fs';
 import NextAuth from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
@@ -9,8 +9,10 @@ import path from 'path';
 import {
   UserPosition,
   accounts,
+  schools,
   sessions,
   students,
+  userSchools,
   users,
   verificationTokens,
 } from './db/schema';
@@ -41,33 +43,48 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   events: {
     async createUser({ user }) {
-      const predefinedUser = getPredefinedUser(user?.email);
-      if (predefinedUser && user.id) {
-        await db
-          .update(users)
-          .set({
-            position: predefinedUser.position,
-            role: 'academic',
-            name: predefinedUser.name,
-          })
-          .where(eq(users.id, user.id));
+      if (!user || !user.id || !user.email) return;
+
+      try {
+        const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+        const usersData = JSON.parse(fs.readFileSync(usersFilePath, 'utf8'));
+
+        const userData = usersData.find((u: any) => u.email === user.email);
+
+        if (userData) {
+          await db
+            .update(users)
+            .set({
+              position: userData.position as UserPosition,
+              role: 'academic',
+            })
+            .where(eq(users.id, user.id));
+
+          if (
+            userData.schools &&
+            Array.isArray(userData.schools) &&
+            userData.schools.length > 0
+          ) {
+            const schoolCodes = userData.schools as string[];
+            const schoolsData = await db
+              .select()
+              .from(schools)
+              .where(inArray(schools.code, schoolCodes));
+
+            for (const school of schoolsData) {
+              await db
+                .insert(userSchools)
+                .values({
+                  userId: user.id,
+                  schoolId: school.id,
+                })
+                .onConflictDoNothing();
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error in createUser event:', error);
       }
     },
   },
 });
-
-type PredefinedUser = {
-  name: string;
-  email: string;
-  position: UserPosition;
-};
-
-function getPredefinedUser(email?: string | null): PredefinedUser | null {
-  if (!email) return null;
-  const usersPath = path.resolve(process.cwd(), 'data/users.json');
-  const usersData = fs.readFileSync(usersPath, 'utf-8');
-  const usersList = JSON.parse(usersData);
-  return (
-    usersList.find((user: { email: string }) => user.email === email) || null
-  );
-}
