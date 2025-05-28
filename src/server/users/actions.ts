@@ -1,13 +1,19 @@
 'use server';
 
+import { db } from '@/db';
 import { users } from '@/db/schema';
-import { usersService as service } from './service';
 import { eq } from 'drizzle-orm';
+import { usersService as service } from './service';
 
 type User = typeof users.$inferInsert;
+type UserWithSchools = User & { schoolIds?: number[] };
 
 export async function getUser(id: string) {
   return service.get(id);
+}
+
+export async function getUserSchools(userId: string) {
+  return service.getUserSchools(userId);
 }
 
 export async function findAllUsers(page: number = 1, search = '') {
@@ -27,14 +33,25 @@ export async function findAllByRole(
   });
 }
 
-export async function createUser(user: User) {
+export async function createUser(user: UserWithSchools) {
   return service.create(user);
 }
 
-export async function updateUser(id: string, user: User) {
+export async function updateUser(id: string, user: UserWithSchools) {
   return service.update(id, user);
+}
+
+export async function updateUserSchools(userId: string, schoolIds: number[]) {
+  return service.updateUserSchools(userId, schoolIds);
 }
 
 export async function deleteUser(id: string) {
   return service.delete(id);
+}
+
+export async function findAllSchools() {
+  const result = await db.query.schools.findMany({
+    orderBy: (schools) => [schools.name],
+  });
+  return { data: result };
 }
