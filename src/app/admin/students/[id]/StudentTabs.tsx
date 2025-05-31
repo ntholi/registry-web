@@ -1,13 +1,13 @@
 'use client';
 
-import { Box, Group, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
-import StudentView from './StudentView';
-import AcademicsView from './AcademicsView';
-import RegistrationView from './RegistrationView';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
 import { getStudent } from '@/server/students/actions';
+import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import AcademicsView from './AcademicsView';
+import RegistrationView from './RegistrationView';
 import StatementOfResultsPrinter from './statements/StatementOfResultsPrinter';
+import StudentView from './StudentView';
 
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;

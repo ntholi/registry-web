@@ -237,47 +237,51 @@ const styles = StyleSheet.create({
   },
   academicRemarksColumn: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     paddingLeft: 20,
+  },
+  academicRemarksSection: {
+    marginBottom: 12,
   },
   academicRemarksLabel: {
     fontSize: 10,
-    marginBottom: 5,
+    marginBottom: 4,
     color: '#333',
-    textAlign: 'center',
+    fontWeight: 'bold',
   },
   academicRemarksValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#000',
-    textAlign: 'center',
+    marginBottom: 2,
+  },
+  academicRemarksDetails: {
+    fontSize: 9,
+    color: '#666',
+    fontStyle: 'italic',
+    marginBottom: 8,
   },
   pendingModulesSection: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: '#fff',
-    border: '1px solid #ccc',
-    borderRadius: 2,
+    marginTop: 8,
+    paddingTop: 8,
+    borderTop: '1px solid #e0e0e0',
   },
   pendingModulesTitle: {
     fontSize: 10,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 6,
     color: '#333',
-    borderBottom: '1px solid #ccc',
-    paddingBottom: 4,
   },
   pendingModuleItem: {
     fontSize: 8,
-    marginBottom: 3,
+    marginBottom: 2,
     color: '#000',
+    paddingLeft: 4,
   },
   failedModule: {
-    color: '#d32f2f',
+    color: '#000',
   },
   supplementaryModule: {
-    color: '#f57c00',
+    color: '#666',
   },
   remarksDetails: {
     fontSize: 9,
@@ -627,19 +631,22 @@ export default function StatementOfResultsPDF({
                   {cumulativeStats.gpa.toFixed(2)}
                 </Text>
               </View>
-            </View>
+            </View>{' '}
             <View style={styles.academicRemarksColumn}>
-              <Text style={styles.academicRemarksLabel}>Academic Remarks</Text>
-              <Text style={styles.academicRemarksValue}>
-                {academicRemarks.status}
-              </Text>
-              <Text style={styles.remarksDetails}>
-                {academicRemarks.details}
-              </Text>
+              <View style={styles.academicRemarksSection}>
+                <Text style={styles.academicRemarksLabel}>Academic Status</Text>
+                <Text style={styles.academicRemarksValue}>
+                  {academicRemarks.status}
+                </Text>
+                <Text style={styles.academicRemarksDetails}>
+                  {academicRemarks.details}
+                </Text>
+              </View>
               {academicRemarks.pendingModules.length > 0 && (
                 <View style={styles.pendingModulesSection}>
                   <Text style={styles.pendingModulesTitle}>
-                    Pending Modules ({academicRemarks.pendingModules.length})
+                    Outstanding Requirements (
+                    {academicRemarks.pendingModules.length})
                   </Text>
                   {academicRemarks.pendingModules.map((module, index) => (
                     <Text
@@ -651,11 +658,10 @@ export default function StatementOfResultsPDF({
                           : styles.supplementaryModule,
                       ]}
                     >
-                      {module.code} - {module.name}
+                      • {module.code} - {module.name}
                       {module.type === 'Supplementary'
-                        ? ' (Supplement Required)'
-                        : ' (Repeat Required)'}{' '}
-                      - {module.semester}
+                        ? ' (Supplementary)'
+                        : ' (Repeat)'}{' '}
                     </Text>
                   ))}
                 </View>
