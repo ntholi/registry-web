@@ -1,15 +1,15 @@
 'use client';
 
+import { formatDate } from '@/lib/utils';
 import { getStudent } from '@/server/students/actions';
 import {
   Document,
+  Font,
   Page,
+  StyleSheet,
   Text,
   View,
-  StyleSheet,
-  Font,
 } from '@react-pdf/renderer';
-import { formatDate, formatSemester } from '@/lib/utils';
 
 type StatementOfResultsPDFProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -53,8 +53,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   universityAddress: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#666',
+    width: '80%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    textAlign: 'center',
     marginBottom: 2,
   },
   title: {
@@ -143,7 +147,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   tableHeader: {
-    backgroundColor: '#f0f0f0',
     fontWeight: 'bold',
     color: '#333',
   },
@@ -355,24 +358,29 @@ function calculateCumulativeGPA(programs: any[]) {
 export default function StatementOfResultsPDF({
   student,
 }: StatementOfResultsPDFProps) {
-  const cumulativeStats = calculateCumulativeGPA(student.programs);
+  const activePrograms = student.programs.filter(
+    (program) => program.status === 'Active',
+  );
+  const cumulativeStats = calculateCumulativeGPA(activePrograms);
 
   return (
     <Document>
       <Page size='A4' style={styles.page}>
         <View style={styles.header}>
           <View style={styles.universityHeader}>
-            <Text style={styles.universityName}>LIMKOKWING UNIVERSITY</Text>
-            <Text style={styles.universityAddress}>
-              International University of Creative Technology
+            <Text style={styles.universityName}>
+              Limkokwing University of Creative Technology
             </Text>
             <Text style={styles.universityAddress}>
-              Official Academic Transcript
+              Official academic record showing student&apos;s course grades and
+              academic performance
+            </Text>
+            <Text style={styles.universityAddress}>
+              This document does not certify graduation
             </Text>
           </View>
           <Text style={styles.title}>STATEMENT OF RESULTS</Text>
         </View>
-
         <View style={styles.studentInfo}>
           <Text style={styles.studentInfoTitle}>STUDENT INFORMATION</Text>
           <View style={styles.studentDetail}>
@@ -391,9 +399,8 @@ export default function StatementOfResultsPDF({
             <Text style={styles.label}>Date of Issue:</Text>
             <Text style={styles.value}>{formatDate(new Date())}</Text>
           </View>
-        </View>
-
-        {student.programs.map((program) => (
+        </View>{' '}
+        {activePrograms.map((program) => (
           <View key={program.id} style={styles.programSection}>
             <Text style={styles.programTitle}>
               {program.structure.program.name}
@@ -518,7 +525,6 @@ export default function StatementOfResultsPDF({
             })}
           </View>
         ))}
-
         <View style={styles.cumulativeSummary}>
           <Text style={styles.cumulativeTitle}>
             CUMULATIVE ACADEMIC SUMMARY
@@ -556,12 +562,10 @@ export default function StatementOfResultsPDF({
             </View>
           </View>
         </View>
-
         <Text style={styles.gradeScale}>
           Grade Scale: A+ (4.0), A (4.0), A- (3.7), B+ (3.3), B (3.0), B- (2.7),
           C+ (2.3), C (2.0), C- (1.7), D+ (1.3), D (1.0), D- (0.7), F (0.0)
         </Text>
-
         <View style={styles.footer}>
           <Text>
             This is an official statement of results from Limkokwing University
