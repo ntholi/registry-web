@@ -229,19 +229,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
-  academicStandingColumn: {
+  academicRemarksColumn: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingLeft: 20,
   },
-  academicStandingLabel: {
+  academicRemarksLabel: {
     fontSize: 10,
     marginBottom: 5,
     color: '#333',
     textAlign: 'center',
   },
-  academicStandingValue: {
+  academicRemarksValue: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000',
@@ -387,7 +387,20 @@ export default function StatementOfResultsPDF({
   const activePrograms = student.programs.filter(
     (program) => program.status === 'Active',
   );
-  const cumulativeStats = calculateCumulativeGPA(activePrograms);
+
+  const filteredPrograms = activePrograms.map((program) => ({
+    ...program,
+    semesters: program.semesters
+      ?.filter((semester) => !['Deleted', 'Deferred'].includes(semester.status))
+      .map((semester) => ({
+        ...semester,
+        studentModules: semester.studentModules?.filter(
+          (module) => !['Delete', 'Drop'].includes(module.status),
+        ),
+      })),
+  }));
+
+  const cumulativeStats = calculateCumulativeGPA(filteredPrograms);
 
   return (
     <Document>
@@ -426,7 +439,7 @@ export default function StatementOfResultsPDF({
             <Text style={styles.value}>{formatDate(new Date())}</Text>
           </View>
         </View>{' '}
-        {activePrograms.map((program) => (
+        {filteredPrograms.map((program) => (
           <View key={program.id} style={styles.programSection}>
             <Text style={styles.programTitle}>
               {program.structure.program.name}
@@ -576,11 +589,9 @@ export default function StatementOfResultsPDF({
                 </Text>
               </View>
             </View>
-            <View style={styles.academicStandingColumn}>
-              <Text style={styles.academicStandingLabel}>
-                Academic Standing
-              </Text>
-              <Text style={styles.academicStandingValue}>
+            <View style={styles.academicRemarksColumn}>
+              <Text style={styles.academicRemarksLabel}>Academic Remarks</Text>
+              <Text style={styles.academicRemarksValue}>
                 {cumulativeStats.gpa >= 3.5
                   ? 'Excellent'
                   : cumulativeStats.gpa >= 3.0
@@ -592,10 +603,6 @@ export default function StatementOfResultsPDF({
             </View>
           </View>
         </View>
-        <Text style={styles.gradeScale}>
-          Grade Scale: A+ (4.0), A (4.0), A- (3.7), B+ (3.3), B (3.0), B- (2.7),
-          C+ (2.3), C (2.0), C- (1.7), D+ (1.3), D (1.0), D- (0.7), F (0.0)
-        </Text>
         <View style={styles.footer}>
           <Text>
             This is an official statement of results from Limkokwing University
