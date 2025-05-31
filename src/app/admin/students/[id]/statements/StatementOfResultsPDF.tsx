@@ -10,6 +10,7 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer';
+import { calculateAcademicRemarks } from './academicRemarks';
 
 type StatementOfResultsPDFProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -25,6 +26,11 @@ Font.register({
     {
       src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf',
       fontWeight: 'bold',
+    },
+    {
+      src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-italic-webfont.ttf',
+      fontWeight: 'normal',
+      fontStyle: 'italic',
     },
   ],
 });
@@ -247,6 +253,38 @@ const styles = StyleSheet.create({
     color: '#000',
     textAlign: 'center',
   },
+  pendingModulesSection: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#fff',
+    border: '1px solid #ccc',
+    borderRadius: 2,
+  },
+  pendingModulesTitle: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+    borderBottom: '1px solid #ccc',
+    paddingBottom: 4,
+  },
+  pendingModuleItem: {
+    fontSize: 8,
+    marginBottom: 3,
+    color: '#000',
+  },
+  failedModule: {
+    color: '#d32f2f',
+  },
+  supplementaryModule: {
+    color: '#f57c00',
+  },
+  remarksDetails: {
+    fontSize: 9,
+    color: '#666',
+    marginTop: 5,
+    fontStyle: 'italic',
+  },
   footer: {
     position: 'absolute',
     bottom: 30,
@@ -401,6 +439,7 @@ export default function StatementOfResultsPDF({
   }));
 
   const cumulativeStats = calculateCumulativeGPA(filteredPrograms);
+  const academicRemarks = calculateAcademicRemarks(student.programs);
 
   return (
     <Document>
@@ -592,14 +631,35 @@ export default function StatementOfResultsPDF({
             <View style={styles.academicRemarksColumn}>
               <Text style={styles.academicRemarksLabel}>Academic Remarks</Text>
               <Text style={styles.academicRemarksValue}>
-                {cumulativeStats.gpa >= 3.5
-                  ? 'Excellent'
-                  : cumulativeStats.gpa >= 3.0
-                    ? 'Good Standing'
-                    : cumulativeStats.gpa >= 2.0
-                      ? 'Satisfactory'
-                      : 'Warning'}
+                {academicRemarks.status}
               </Text>
+              <Text style={styles.remarksDetails}>
+                {academicRemarks.details}
+              </Text>
+              {academicRemarks.pendingModules.length > 0 && (
+                <View style={styles.pendingModulesSection}>
+                  <Text style={styles.pendingModulesTitle}>
+                    Pending Modules ({academicRemarks.pendingModules.length})
+                  </Text>
+                  {academicRemarks.pendingModules.map((module, index) => (
+                    <Text
+                      key={index}
+                      style={[
+                        styles.pendingModuleItem,
+                        module.type === 'Failed'
+                          ? styles.failedModule
+                          : styles.supplementaryModule,
+                      ]}
+                    >
+                      {module.code} - {module.name}
+                      {module.type === 'Supplementary'
+                        ? ' (Supplement Required)'
+                        : ' (Repeat Required)'}{' '}
+                      - {module.semester}
+                    </Text>
+                  ))}
+                </View>
+              )}
             </View>
           </View>
         </View>
