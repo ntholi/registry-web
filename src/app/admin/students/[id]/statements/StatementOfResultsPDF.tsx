@@ -195,31 +195,57 @@ const styles = StyleSheet.create({
   },
   cumulativeSummary: {
     marginTop: 20,
-    backgroundColor: '#000',
-    color: '#fff',
+    border: '2px solid #000',
     padding: 15,
     borderRadius: 2,
   },
   cumulativeTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 15,
     textAlign: 'center',
+    color: '#000',
+    borderBottom: '1px solid #000',
+    paddingBottom: 8,
   },
   cumulativeGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  cumulativeColumn: {
+    flex: 1,
   },
   cumulativeItem: {
-    textAlign: 'center',
+    marginBottom: 8,
   },
   cumulativeLabel: {
-    fontSize: 8,
+    fontSize: 10,
     marginBottom: 2,
+    color: '#333',
   },
   cumulativeValue: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
+    color: '#000',
+  },
+  academicStandingColumn: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingLeft: 20,
+  },
+  academicStandingLabel: {
+    fontSize: 10,
+    marginBottom: 5,
+    color: '#333',
+    textAlign: 'center',
+  },
+  academicStandingValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
   },
   footer: {
     position: 'absolute',
@@ -530,27 +556,31 @@ export default function StatementOfResultsPDF({
             CUMULATIVE ACADEMIC SUMMARY
           </Text>
           <View style={styles.cumulativeGrid}>
-            <View style={styles.cumulativeItem}>
-              <Text style={styles.cumulativeLabel}>Credits Earned</Text>
-              <Text style={styles.cumulativeValue}>
-                {cumulativeStats.totalCredits}
-              </Text>
+            <View style={styles.cumulativeColumn}>
+              <View style={styles.cumulativeItem}>
+                <Text style={styles.cumulativeLabel}>Credits Attempted</Text>
+                <Text style={styles.cumulativeValue}>
+                  {cumulativeStats.totalCreditsAttempted}
+                </Text>
+              </View>
+              <View style={styles.cumulativeItem}>
+                <Text style={styles.cumulativeLabel}>Credits Earned</Text>
+                <Text style={styles.cumulativeValue}>
+                  {cumulativeStats.totalCredits}
+                </Text>
+              </View>
+              <View style={styles.cumulativeItem}>
+                <Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
+                <Text style={styles.cumulativeValue}>
+                  {cumulativeStats.gpa.toFixed(2)}
+                </Text>
+              </View>
             </View>
-            <View style={styles.cumulativeItem}>
-              <Text style={styles.cumulativeLabel}>Credits Attempted</Text>
-              <Text style={styles.cumulativeValue}>
-                {cumulativeStats.totalCreditsAttempted}
+            <View style={styles.academicStandingColumn}>
+              <Text style={styles.academicStandingLabel}>
+                Academic Standing
               </Text>
-            </View>
-            <View style={styles.cumulativeItem}>
-              <Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
-              <Text style={styles.cumulativeValue}>
-                {cumulativeStats.gpa.toFixed(2)}
-              </Text>
-            </View>
-            <View style={styles.cumulativeItem}>
-              <Text style={styles.cumulativeLabel}>Academic Standing</Text>
-              <Text style={[styles.cumulativeValue, { fontSize: 10 }]}>
+              <Text style={styles.academicStandingValue}>
                 {cumulativeStats.gpa >= 3.5
                   ? 'Excellent'
                   : cumulativeStats.gpa >= 3.0
