@@ -12,6 +12,49 @@ import {
 } from '@react-pdf/renderer';
 import { calculateAcademicRemarks } from './academicRemarks';
 
+interface Module {
+  id: number;
+  code: string;
+  name: string;
+}
+
+interface SemesterModule {
+  credits: number;
+  module?: Module | null;
+}
+
+interface StudentModule {
+  id: number;
+  semesterModuleId: number;
+  semesterModule: SemesterModule;
+  grade: string;
+  status: string;
+  marks: string;
+  createdAt: Date | null;
+}
+
+interface Semester {
+  id: number;
+  term: string;
+  status: string;
+  semesterNumber?: number | null;
+  studentProgramId: number;
+  cafDate: string | null;
+  createdAt: Date | null;
+  studentModules?: StudentModule[];
+}
+
+interface Program {
+  id: number;
+  status: string;
+  structure: {
+    program: {
+      name: string;
+    };
+  };
+  semesters?: Semester[];
+}
+
 type StatementOfResultsPDFProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
 };
@@ -372,7 +415,7 @@ function getGradeStyle(grade: string) {
   return 'passedGrade';
 }
 
-function calculateSemesterGPA(studentModules: any[]) {
+function calculateSemesterGPA(studentModules: StudentModule[]) {
   if (!studentModules || studentModules.length === 0)
     return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
 
@@ -394,14 +437,14 @@ function calculateSemesterGPA(studentModules: any[]) {
   };
 }
 
-function calculateCumulativeGPA(programs: any[]) {
+function calculateCumulativeGPA(programs: Program[]) {
   let totalQualityPoints = 0;
   let totalCredits = 0;
   let totalCreditsAttempted = 0;
 
   programs.forEach((program) => {
-    program.semesters?.forEach((semester: any) => {
-      semester.studentModules?.forEach((sm: any) => {
+    program.semesters?.forEach((semester: Semester) => {
+      semester.studentModules?.forEach((sm: StudentModule) => {
         const credits = sm.semesterModule.credits || 0;
         const points = getGradePoints(sm.grade);
         totalQualityPoints += credits * points;
