@@ -15,12 +15,36 @@ export default async function withAuth<T>(
   const session = await auth();
   const method = fn.toString();
 
-  if (roles.includes('all')) {
+  const callFnWithAccessCheck = async (session?: Session | null) => {
+    if (accessCheck && session?.user) {
+      const isAuthorized = await accessCheck(session);
+      if (!isAuthorized) {
+        console.error(
+          'Custom Auth Check',
+          {
+            role: session.user.role,
+            userId: session.user.id,
+            expectedRoles: ['admin', ...roles],
+          },
+          method,
+        );
+        return forbidden();
+      }
+    }
     return fn(session);
+  };
+
+  if (roles.length === 1 && roles.includes('all')) {
+    return callFnWithAccessCheck(session);
+  }
+
+  if (!session?.user) {
+    console.error('No session', method);
+    return unauthorized();
   }
 
   if (roles.includes('auth') && session?.user) {
-    return fn(session);
+    return callFnWithAccessCheck(session);
   }
 
   if (
@@ -29,12 +53,7 @@ export default async function withAuth<T>(
       session?.user?.role as (typeof dashboardUsers)[number],
     )
   ) {
-    return fn(session);
-  }
-
-  if (!session?.user) {
-    console.error('No session', method);
-    return unauthorized();
+    return callFnWithAccessCheck(session);
   }
 
   if (!['admin', ...roles].includes(session.user.role as Role)) {
@@ -45,21 +64,5 @@ export default async function withAuth<T>(
     return forbidden();
   }
 
-  if (accessCheck && session.user.role !== 'admin') {
-    const isAuthorized = await accessCheck(session);
-    if (!isAuthorized) {
-      console.error(
-        'Custom Auth Check',
-        {
-          role: session.user.role,
-          userId: session.user.id,
-          expectedRoles: ['admin', ...roles],
-        },
-        method,
-      );
-      return forbidden();
-    }
-  }
-
-  return fn(session);
+  return callFnWithAccessCheck(session);
 }
