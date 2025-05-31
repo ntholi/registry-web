@@ -65,13 +65,14 @@ const styles = StyleSheet.create({
     color: '#000',
     backgroundColor: '#f0f0f0',
     padding: 8,
-    borderRadius: 3,
+    borderRadius: 2,
   },
   studentInfo: {
     marginBottom: 25,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 5,
+    border: '1px solid #ccc',
+    borderRadius: 2,
   },
   studentInfoTitle: {
     fontSize: 12,
@@ -95,33 +96,36 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   programSection: {
-    marginBottom: 25,
+    marginBottom: 15,
     backgroundColor: '#fff',
     border: '1px solid #ccc',
-    borderRadius: 5,
+    borderRadius: 2,
   },
   programTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 10,
     backgroundColor: '#000',
     color: '#fff',
-    padding: 10,
-    borderTopLeftRadius: 5,
-    borderTopRightRadius: 5,
+    padding: 8,
+    borderTopLeftRadius: 2,
+    borderTopRightRadius: 2,
   },
   semesterSection: {
-    marginBottom: 20,
-    padding: 15,
+    marginBottom: 10,
+    padding: 10,
   },
   semesterTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 6,
     backgroundColor: '#e0e0e0',
     color: '#333',
-    padding: 8,
-    borderRadius: 3,
+    padding: 6,
+    borderRadius: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   moduleText: {
     fontSize: 9,
@@ -132,8 +136,8 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#ccc',
-    marginBottom: 10,
-    borderRadius: 3,
+    marginBottom: 5,
+    borderRadius: 2,
   },
   tableRow: {
     flexDirection: 'row',
@@ -172,7 +176,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     backgroundColor: '#f0f0f0',
     padding: 10,
-    borderRadius: 3,
+    borderRadius: 2,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -191,7 +195,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     color: '#fff',
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 2,
   },
   cumulativeTitle: {
     fontSize: 12,
@@ -402,9 +406,10 @@ export default function StatementOfResultsPDF({
 
               return (
                 <View key={semester.id} style={styles.semesterSection}>
-                  <Text style={styles.semesterTitle}>
-                    {semester.term} - {formatSemester(semester.semesterNumber)}
-                  </Text>
+                  <View style={styles.semesterTitle}>
+                    <Text>{semester.term}</Text>
+                    <Text>GPA: {semesterStats.gpa.toFixed(2)}</Text>
+                  </View>
 
                   <View style={styles.table}>
                     <View style={[styles.tableRow, styles.tableHeader]}>
@@ -507,23 +512,6 @@ export default function StatementOfResultsPDF({
                         </Text>
                       </View>
                     ))}
-                  </View>
-
-                  <View style={styles.summarySection}>
-                    <View style={styles.summaryRow}>
-                      <Text style={styles.summaryLabel}>Semester Credits:</Text>
-                      <Text style={styles.summaryValue}>
-                        {semesterStats.totalCredits}
-                      </Text>
-                    </View>
-                    <View style={styles.summaryRow}>
-                      <Text style={styles.summaryLabel}>Semester GPA:</Text>
-                      <Text
-                        style={[styles.summaryValue, { fontWeight: 'bold' }]}
-                      >
-                        {semesterStats.gpa.toFixed(2)}
-                      </Text>
-                    </View>
                   </View>
                 </View>
               );
