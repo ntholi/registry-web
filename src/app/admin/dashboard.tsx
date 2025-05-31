@@ -82,7 +82,9 @@ function getNavigation(department: DashboardUser) {
       href: '/admin/students',
       icon: IconUsersGroup,
       isVisible: (session) => {
-        if (['registry', 'finance'].includes(session?.user?.role || '')) {
+        if (
+          ['registry', 'finance', 'admin'].includes(session?.user?.role || '')
+        ) {
           return true;
         }
         const position = session?.user?.position;

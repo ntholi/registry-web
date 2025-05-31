@@ -1,12 +1,13 @@
 'use client';
 
-import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import { Box, Group, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import StudentView from './StudentView';
 import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
 import { getStudent } from '@/server/students/actions';
+import StatementOfResultsPrinter from './statements/StatementOfResultsPrinter';
 
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -34,6 +35,9 @@ export function StudentTabs({
         {showRegistrationTab && (
           <TabsTab value='registration'>Registration</TabsTab>
         )}
+        <Box ml='auto'>
+          <StatementOfResultsPrinter student={student} />
+        </Box>
       </TabsList>
       <TabsPanel value='academics' pt={'xl'} p={'sm'}>
         <AcademicsView student={student} showMarks />

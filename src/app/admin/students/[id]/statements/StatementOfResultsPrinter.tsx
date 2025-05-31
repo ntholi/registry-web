@@ -76,12 +76,13 @@ export default function StatementOfResultsPrinter({
   return (
     <Button
       leftSection={<IconPrinter size='1rem' />}
-      variant='filled'
-      color='blue'
+      variant='subtle'
+      color='gray'
+      size='xs'
       loading={isGenerating}
       onClick={handlePrint}
     >
-      {isGenerating ? 'Preparing Statement...' : 'Print Statement of Results'}
+      {isGenerating ? 'Preparing Statement...' : 'Statement of Results'}
     </Button>
   );
 }

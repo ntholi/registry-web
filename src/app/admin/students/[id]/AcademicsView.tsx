@@ -46,9 +46,6 @@ export default function AcademicsView({ student, showMarks }: Props) {
 
   return (
     <Stack gap='md'>
-      <Group justify='right' mb='xs'>
-        <StatementOfResultsPrinter student={student} />
-      </Group>
       <Accordion
         variant='separated'
         radius='md'
