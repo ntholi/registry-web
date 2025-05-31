@@ -79,10 +79,10 @@ export default function StatementOfResultsPrinter({
       variant='subtle'
       color='gray'
       size='xs'
-      loading={isGenerating}
+      disabled={isGenerating}
       onClick={handlePrint}
     >
-      {isGenerating ? 'Preparing Statement...' : 'Statement of Results'}
+      Statement of Results
     </Button>
   );
 }
