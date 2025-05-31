@@ -9,7 +9,7 @@ import {
   StyleSheet,
   Font,
 } from '@react-pdf/renderer';
-import { formatSemester } from '@/lib/utils';
+import { formatDate, formatSemester } from '@/lib/utils';
 
 type StatementOfResultsPDFProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -125,13 +125,14 @@ const styles = StyleSheet.create({
   },
   moduleText: {
     fontSize: 9,
+    lineHeight: 1.2,
   },
   table: {
     width: 'auto',
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#ccc',
-    marginBottom: 15,
+    marginBottom: 10,
     borderRadius: 3,
   },
   tableRow: {
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   tableCell: {
-    padding: 8,
+    padding: 4,
     borderStyle: 'solid',
     borderWidth: 0.5,
     borderColor: '#ccc',
@@ -384,13 +385,7 @@ export default function StatementOfResultsPDF({
           </View>
           <View style={styles.studentDetail}>
             <Text style={styles.label}>Date of Issue:</Text>
-            <Text style={styles.value}>
-              {new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </Text>
+            <Text style={styles.value}>{formatDate(new Date())}</Text>
           </View>
         </View>
 
@@ -585,12 +580,8 @@ export default function StatementOfResultsPDF({
             of Creative Technology.
           </Text>
           <Text>
-            This document is computer generated and does not require a
-            signature.
-          </Text>
-          <Text>
             Date Generated:{' '}
-            {new Date().toLocaleDateString('en-US', {
+            {new Date().toLocaleDateString('en-LS', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
