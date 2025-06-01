@@ -295,7 +295,6 @@ export default class ModuleRepository extends BaseRepository<
         studentCount: studentCounts.get(it.semesterModuleId) || 0,
       });
     }
-
     return Array.from(groupedModules.values())
       .map((module) => ({
         ...module,
@@ -305,7 +304,7 @@ export default class ModuleRepository extends BaseRepository<
         ),
       }))
       .sort((a, b) => b.totalStudents - a.totalStudents)
-      .map(({ totalStudents, ...module }) => module);
+      .map(({ totalStudents: _, ...module }) => module);
   }
 }
 

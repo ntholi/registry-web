@@ -43,7 +43,25 @@ class StudentService {
   }
 
   async findAll(params: QueryOptions<typeof students>) {
-    return withAuth(async () => this.repository.query(params), ['dashboard']);
+    return withAuth(
+      async () => this.repository.query(params),
+      [],
+      async (session) => {
+        if (
+          session.user?.role &&
+          ['admin', 'registry', 'finance', 'library'].includes(
+            session.user.role,
+          )
+        ) {
+          return true;
+        } else if (session.user?.position) {
+          return ['admin', 'manager', 'program_leader'].includes(
+            session.user.position,
+          );
+        }
+        return false;
+      },
+    );
   }
 
   async create(data: Student) {
