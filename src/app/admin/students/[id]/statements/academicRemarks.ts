@@ -30,7 +30,7 @@ type Program = {
 };
 
 type AcademicRemarksResult = {
-  status: 'Process' | 'Remain in Semester';
+  status: 'Processed' | 'Remain in Semester';
   pendingModules: {
     code: string;
     name: string;
@@ -229,7 +229,7 @@ export function calculateAcademicRemarks(
   const isRemainInSemester =
     latestSemesterFailures.length >= 3 || matchingParityFailures.length >= 3;
 
-  const status = isRemainInSemester ? 'Remain in Semester' : 'Process';
+  const status = isRemainInSemester ? 'Remain in Semester' : 'Processed';
 
   let details = '';
   if (isRemainInSemester) {

@@ -8,7 +8,7 @@ import {
   studentSemesters,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, eq, like, SQL } from 'drizzle-orm';
+import { and, eq, like, SQL, or } from 'drizzle-orm';
 
 export default class StudentRepository extends BaseRepository<
   typeof students,
@@ -120,7 +120,6 @@ export default class StudentRepository extends BaseRepository<
       orderBy: programs.name,
     });
   }
-
   override async query(options: QueryOptions<typeof students>) {
     if (!options.search) {
       return super.query(options);
@@ -138,9 +137,15 @@ export default class StudentRepository extends BaseRepository<
 
     const { orderBy, offset, limit } = this.buildQueryCriteria(options);
     let customWhere: SQL | undefined = undefined;
-    const nameConditions = searchTerms.map((term) =>
-      like(students.name, `%${term}%`),
-    );
+
+    const nameConditions = searchTerms.map((term) => {
+      const variations = normalizeName(term);
+      const termConditions = variations.map((variation) =>
+        like(students.name, `%${variation}%`),
+      );
+      return or(...termConditions);
+    });
+
     customWhere = and(...nameConditions);
     if (options.filter) {
       customWhere = and(customWhere, options.filter);
@@ -158,6 +163,22 @@ export default class StudentRepository extends BaseRepository<
       limit,
     });
   }
+}
+
+function normalizeName(name: string): string[] {
+  const variations: string[] = [name];
+
+  const withApostrophe = name.replace(/ts([aeiou])/gi, "ts'$1");
+  const withoutApostrophe = name.replace(/ts'([aeiou])/gi, 'ts$1');
+
+  if (withApostrophe !== name) {
+    variations.push(withApostrophe);
+  }
+  if (withoutApostrophe !== name) {
+    variations.push(withoutApostrophe);
+  }
+
+  return [...new Set(variations)];
 }
 
 export const studentsRepository = new StudentRepository();
