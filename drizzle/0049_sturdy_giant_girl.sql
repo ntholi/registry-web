@@ -1,0 +1,1 @@
+ALTER TABLE `structures` ADD `desc` text;

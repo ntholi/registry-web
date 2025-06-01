@@ -295,6 +295,7 @@ export const programs = sqliteTable('programs', {
 export const structures = sqliteTable('structures', {
   id: integer().primaryKey(),
   code: text().notNull().unique(),
+  desc: text(),
   programId: integer()
     .references(() => programs.id, { onDelete: 'cascade' })
     .notNull(),
