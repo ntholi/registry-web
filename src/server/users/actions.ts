@@ -56,3 +56,8 @@ export async function findAllSchools() {
   });
   return { data: result };
 }
+
+export async function getUserSchoolIds(userId?: string) {
+  if (!userId) return [];
+  return service.getUserSchoolIds(userId);
+}

@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import { users, userSchools } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { and, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { QueryOptions } from '../base/BaseRepository';
 
 export default class UserRepository extends BaseRepository<typeof users, 'id'> {
@@ -23,6 +23,23 @@ export default class UserRepository extends BaseRepository<typeof users, 'id'> {
       options.filter = schoolFilter;
     }
     return this.query(options);
+  }
+
+  async getUserSchools(userId: string) {
+    return db.query.userSchools.findMany({
+      where: eq(userSchools.userId, userId),
+      with: {
+        school: true,
+      },
+    });
+  }
+
+  async getUserSchoolIds(userId: string) {
+    const data = await db
+      .select({ schoolId: userSchools.schoolId })
+      .from(userSchools)
+      .where(eq(userSchools.userId, userId));
+    return data.map((item) => item.schoolId);
   }
 }
 

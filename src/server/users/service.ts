@@ -25,14 +25,16 @@ class UserService {
     return withAuth(async () => this.repository.query(params), ['dashboard']);
   }
 
+  async getUserSchoolIds(userId: string) {
+    return withAuth(
+      async () => this.repository.getUserSchoolIds(userId),
+      ['dashboard'],
+    );
+  }
+
   async getUserSchools(userId: string) {
     return withAuth(async () => {
-      return db.query.userSchools.findMany({
-        where: eq(userSchools.userId, userId),
-        with: {
-          school: true,
-        },
-      });
+      return this.repository.getUserSchools(userId);
     }, ['dashboard']);
   }
 

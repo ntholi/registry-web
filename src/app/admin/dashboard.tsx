@@ -1,7 +1,7 @@
 'use client';
 
 import { Shell } from '@/components/adease';
-import { UserPosition, DashboardUser, UserRole } from '@/db/schema';
+import { DashboardUser, UserPosition, UserRole } from '@/db/schema';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import {
   countApprovedRegistrationClearances,
@@ -9,6 +9,7 @@ import {
   countRejectedRegistrationClearances,
 } from '@/server/registration-clearance/actions';
 import { countByStatus } from '@/server/registration-requests/actions';
+import { getUserSchools } from '@/server/users/actions';
 import {
   ActionIcon,
   Avatar,
@@ -45,12 +46,11 @@ import {
   IconUsersGroup,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { signOut, useSession } from 'next-auth/react';
 import { Session } from 'next-auth';
+import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
-import { getUserSchools } from '@/server/users/actions';
 
 type NotificationConfig = {
   queryKey: string[];

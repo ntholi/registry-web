@@ -8,7 +8,7 @@ import {
   studentSemesters,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, eq, like, SQL, or } from 'drizzle-orm';
+import { and, eq, like, or, SQL } from 'drizzle-orm';
 
 export default class StudentRepository extends BaseRepository<
   typeof students,

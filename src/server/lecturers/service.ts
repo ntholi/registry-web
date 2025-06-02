@@ -1,11 +1,9 @@
-import { users, userSchools } from '@/db/schema';
+import { users } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import UserRepository from '../users/repository';
-import { db } from '@/db';
-import { eq } from 'drizzle-orm';
-
-const academicAdmin = ['manager', 'program_leader', 'admin'] as const;
+import { getUserSchoolIds, getUserSchools } from '../users/actions';
+import { auth } from '@/auth';
 
 class LecturerService {
   constructor(private readonly repository = new UserRepository()) {}
@@ -15,32 +13,19 @@ class LecturerService {
   }
 
   async getAll(params: QueryOptions<typeof users>) {
+    const session = await auth();
+    const userSchools = await getUserSchoolIds(session?.user?.id);
     return withAuth(
-      async (session) => {
-        const isAdmin = academicAdmin.includes(
-          session?.user?.position as (typeof academicAdmin)[number],
-        );
-        if (isAdmin) {
-          return this.repository.query(params);
-        }
-        const userSchoolIds = await db.query.userSchools.findMany({
-          where: eq(userSchools.userId, session?.user?.id as string),
-          columns: {
-            schoolId: true,
-          },
-        });
-        const schoolIds = userSchoolIds.map((us) => us.schoolId);
-        if (schoolIds.length === 0) {
-          return {
-            items: [],
-            totalPages: 0,
-            totalItems: 0,
-          };
-        }
-
-        return this.repository.getBySchools(schoolIds, params);
-      },
+      async () => this.repository.getBySchools(userSchools, params),
       ['academic'],
+      async (session) => {
+        if (session.user?.position) {
+          return ['admin', 'manager', 'program_leader'].includes(
+            session.user.position,
+          );
+        }
+        return false;
+      },
     );
   }
 }
