@@ -236,22 +236,31 @@ export default function StudentTable({ moduleId }: Props) {
   }
   return (
     <Stack>
-      <TextInput
-        placeholder='Search by name or student number'
-        value={searchQuery}
-        onChange={(event) => setSearchQuery(event.currentTarget.value)}
-        mb='sm'
-        rightSection={
-          searchQuery ? (
-            <CloseButton
-              onClick={() => setSearchQuery('')}
-              variant='subtle'
-              size='sm'
-            />
-          ) : null
-        }
-        leftSection={<IconSearch size='1.2rem' />}
-      />
+      <Group justify='space-between' align='center' wrap='nowrap'>
+        <TextInput
+          placeholder='Search by name or student number'
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.currentTarget.value)}
+          style={{ flex: 1 }}
+          rightSection={
+            searchQuery ? (
+              <CloseButton
+                onClick={() => setSearchQuery('')}
+                variant='subtle'
+                size='sm'
+              />
+            ) : null
+          }
+          leftSection={<IconSearch size='1.2rem' />}
+        />
+        {!studentsLoading && students && (
+          <Paper withBorder p={8.5}>
+            <Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
+              {students.length} student{students.length !== 1 ? 's' : ''}
+            </Text>
+          </Paper>
+        )}
+      </Group>
       {!assessments?.length && !isLoading ? (
         <Paper p='xl' withBorder>
           <Center>
