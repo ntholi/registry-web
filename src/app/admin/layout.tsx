@@ -4,7 +4,7 @@ import '@mantine/notifications/styles.css';
 
 import Dashboard from './dashboard';
 import Providers from './providers';
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, Suspense } from 'react';
 import { Metadata } from 'next';
 import { auth } from '@/auth';
 import { toTitleCase } from '@/lib/utils';
@@ -19,7 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function AdminLayout({ children }: PropsWithChildren) {
   return (
     <Providers>
-      <Dashboard>{children}</Dashboard>
+      <Suspense>
+        <Dashboard>{children}</Dashboard>
+      </Suspense>
     </Providers>
   );
 }
