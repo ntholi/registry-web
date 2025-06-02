@@ -63,8 +63,7 @@ export default function StudentTable({ moduleId }: Props) {
               .fill(0)
               .map((_, idx) => (
                 <Table.Th key={`skeleton-header-${idx}`}>
-                  {' '}
-                  <Skeleton height={16} width={80} mx='auto' />{' '}
+                  <Skeleton height={16} width={80} mx='auto' />
                 </Table.Th>
               ))
           : assessments?.map((assessment) => (
@@ -81,8 +80,8 @@ export default function StudentTable({ moduleId }: Props) {
                   </Text>
                 </Group>
               </Table.Th>
-            ))}{' '}
-        <Table.Th style={{ textAlign: 'center' }}>
+            ))}
+        <Table.Th style={{ textAlign: 'center', paddingRight: '0px' }}>
           <Group gap={5} justify='center'>
             <Text size='sm' fw={'bold'}>
               Total
@@ -97,7 +96,7 @@ export default function StudentTable({ moduleId }: Props) {
             </Text>
           </Group>
         </Table.Th>
-        <Table.Th style={{ textAlign: 'center' }}>
+        <Table.Th style={{ textAlign: 'center', paddingLeft: '0px' }}>
           <Text size='sm' fw={'bold'}>
             Grade
           </Text>
@@ -123,7 +122,7 @@ export default function StudentTable({ moduleId }: Props) {
                   <Skeleton height={24} width={80} mx='auto' />
                 </Table.Td>
               ),
-            )}{' '}
+            )}
             <Table.Td>
               <Skeleton height={24} width={80} mx='auto' />
             </Table.Td>
