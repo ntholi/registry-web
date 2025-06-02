@@ -351,6 +351,13 @@
       "when": 1748752766454,
       "tag": "0049_sturdy_giant_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "6",
+      "when": 1748893113901,
+      "tag": "0050_green_fixer",
+      "breakpoints": true
     }
   ]
 }

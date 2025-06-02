@@ -195,6 +195,7 @@ export default function StudentTable({ moduleId }: Props) {
               assessments={assessments}
               assessmentMarks={assessmentMarks}
               displayType='total'
+              moduleId={moduleId}
             />
           </Table.Td>
           <Table.Td align='center'>
@@ -203,6 +204,7 @@ export default function StudentTable({ moduleId }: Props) {
               assessments={assessments}
               assessmentMarks={assessmentMarks}
               displayType='grade'
+              moduleId={moduleId}
             />
           </Table.Td>
         </Table.Tr>

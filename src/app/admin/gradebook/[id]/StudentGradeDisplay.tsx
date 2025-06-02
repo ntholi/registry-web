@@ -1,4 +1,6 @@
 import { Badge, Text } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
+import { getAssessmentGradesByModuleId } from '@/server/assessment-marks/actions';
 
 type Assessment = {
   id: number;
@@ -13,11 +15,19 @@ type AssessmentMark = {
   id: number;
 };
 
+type AssessmentGrade = {
+  id: number;
+  assessmentId: number;
+  stdNo: number;
+  grade: string;
+};
+
 type Props = {
   studentId: number;
   assessments: Assessment[] | undefined;
   assessmentMarks: AssessmentMark[] | undefined;
   displayType: 'total' | 'grade';
+  moduleId: number;
 };
 
 export default function StudentGradeDisplay({
@@ -25,7 +35,13 @@ export default function StudentGradeDisplay({
   assessments,
   assessmentMarks,
   displayType,
+  moduleId,
 }: Props) {
+  // Fetch assessment grades
+  const { data: assessmentGrades } = useQuery({
+    queryKey: ['assessmentGrades', moduleId],
+    queryFn: () => getAssessmentGradesByModuleId(moduleId),
+  });
   const getStudentMark = (studentId: number, assessmentId: number) => {
     if (!assessmentMarks) return { mark: undefined, markId: undefined };
 
@@ -109,7 +125,17 @@ export default function StudentGradeDisplay({
     );
   }
 
-  const letterGrade = getLetterGrade(total);
+  // Try to find a saved grade for this student
+  const savedGrade = assessmentGrades?.find((grade) => {
+    // Find a grade that matches this student and is for one of the assessments in this module
+    return (
+      grade.stdNo === studentId &&
+      assessments?.some((a) => a.id === grade.assessmentId)
+    );
+  });
+
+  // Use the saved grade if available, otherwise calculate it
+  const letterGrade = savedGrade?.grade || getLetterGrade(total);
   const gradeColor = getGradeColor(letterGrade);
 
   return (

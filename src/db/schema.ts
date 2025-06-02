@@ -590,3 +590,15 @@ export const assessmentMarks = sqliteTable('assessment_marks', {
   marks: real().notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
+
+export const assessmentGrades = sqliteTable('assessment_grades', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  assessmentId: integer()
+    .references(() => assessments.id, { onDelete: 'cascade' })
+    .notNull(),
+  stdNo: integer()
+    .references(() => students.stdNo, { onDelete: 'cascade' })
+    .notNull(),
+  grade: text({ enum: gradeEnum }).notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});

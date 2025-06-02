@@ -6,7 +6,9 @@ import { useState, useRef, useEffect } from 'react';
 import {
   createAssessmentMark,
   updateAssessmentMark,
+  saveAssessmentGrade,
 } from '@/server/assessment-marks/actions';
+import { gradeEnum } from '@/db/schema';
 
 type Props = {
   assessment: { id: number; maxMarks: number; totalMarks: number };
@@ -42,23 +44,53 @@ export default function MarksInput({
     }
   }, [existingMark]);
 
+  const getLetterGrade = (percentage: number): (typeof gradeEnum)[number] => {
+    if (percentage >= 90) return 'A+';
+    if (percentage >= 85) return 'A';
+    if (percentage >= 80) return 'A-';
+    if (percentage >= 75) return 'B+';
+    if (percentage >= 70) return 'B';
+    if (percentage >= 65) return 'B-';
+    if (percentage >= 60) return 'C+';
+    if (percentage >= 55) return 'C';
+    if (percentage >= 50) return 'C-';
+    if (percentage >= 45) return 'PP';
+    return 'F';
+  };
+
   const markMutation = useMutation({
-    mutationFn: (data: {
+    mutationFn: async (data: {
       assessmentId: number;
       stdNo: number;
       marks: number;
     }) => {
+      setIsEditing(false);
+      let result;
       if (existingMarkId !== undefined) {
-        return updateAssessmentMark(existingMarkId, data);
+        result = await updateAssessmentMark(existingMarkId, data);
       } else {
-        return createAssessmentMark(data);
+        result = await createAssessmentMark(data);
       }
+
+      // Calculate and save the grade letter
+      const maxMarks = assessment.maxMarks || 100;
+      const percentage = (data.marks / maxMarks) * 100;
+      const gradeLetter = getLetterGrade(
+        percentage,
+      ) as (typeof gradeEnum)[number];
+
+      // Save the grade letter
+      await saveAssessmentGrade(data.assessmentId, data.stdNo, gradeLetter);
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['assessmentMarks', moduleId],
       });
-      setIsEditing(false);
+      queryClient.invalidateQueries({
+        queryKey: ['assessmentGrades', moduleId],
+      });
     },
   });
 

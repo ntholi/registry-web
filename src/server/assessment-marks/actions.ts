@@ -1,6 +1,6 @@
 'use server';
 
-import { assessmentMarks } from '@/db/schema';
+import { assessmentMarks, gradeEnum } from '@/db/schema';
 import { assessmentMarksService as service } from './service';
 
 type AssessmentMark = typeof assessmentMarks.$inferInsert;
@@ -30,4 +30,23 @@ export async function updateAssessmentMark(
 
 export async function deleteAssessmentMark(id: number) {
   return service.delete(id);
+}
+
+export async function getAssessmentGradeByAssessmentAndStudent(
+  assessmentId: number,
+  stdNo: number
+) {
+  return service.getGradeByAssessmentAndStudent(assessmentId, stdNo);
+}
+
+export async function saveAssessmentGrade(
+  assessmentId: number,
+  stdNo: number,
+  grade: typeof gradeEnum[number]
+) {
+  return service.saveGrade(assessmentId, stdNo, grade);
+}
+
+export async function getAssessmentGradesByModuleId(moduleId: number) {
+  return service.getGradesByModuleId(moduleId);
 }
