@@ -1,6 +1,6 @@
 'use client';
 
-import { ListItem, ListLayout, NewLink } from '@/components/adease';
+import { ListItem, ListLayout } from '@/components/adease';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import { PropsWithChildren } from 'react';
 
@@ -16,7 +16,6 @@ export default function Layout({ children }: PropsWithChildren) {
           totalPages: 1,
         };
       }}
-      actionIcons={[<NewLink key={'new-link'} href='/admin/assessments/new' />]}
       renderItem={(it) => (
         <ListItem
           id={it.semesterModule?.moduleId ?? '#'}

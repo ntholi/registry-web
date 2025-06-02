@@ -11,7 +11,11 @@ export async function getAssessment(id: number) {
 }
 
 export async function getAssessments(page: number = 1, search = '') {
-  return service.getAll({ page, search });
+  return service.getAll({
+    page,
+    search,
+    searchColumns: ['assessmentNumber', 'assessmentType'],
+  });
 }
 
 export async function getAssessmentByModuleId(moduleId: number) {
