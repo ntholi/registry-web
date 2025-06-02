@@ -1,7 +1,6 @@
 'use client';
 
 import SemesterStatus from '@/components/SemesterStatus';
-import { StatementOfResultsPrinter } from '@/app/admin/students/[id]/statements';
 import { formatSemester } from '@/lib/utils';
 import { getStudent } from '@/server/students/actions';
 import {

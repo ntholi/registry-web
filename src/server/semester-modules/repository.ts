@@ -295,16 +295,19 @@ export default class ModuleRepository extends BaseRepository<
         studentCount: studentCounts.get(it.semesterModuleId) || 0,
       });
     }
-    return Array.from(groupedModules.values())
-      .map((module) => ({
-        ...module,
-        totalStudents: module.semesters.reduce(
-          (sum, s) => sum + (s.studentCount || 0),
-          0,
-        ),
-      }))
-      .sort((a, b) => b.totalStudents - a.totalStudents)
-      .map(({ totalStudents: _, ...module }) => module);
+    return (
+      Array.from(groupedModules.values())
+        .map((module) => ({
+          ...module,
+          totalStudents: module.semesters.reduce(
+            (sum, s) => sum + (s.studentCount || 0),
+            0,
+          ),
+        }))
+        .sort((a, b) => b.totalStudents - a.totalStudents)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .map(({ totalStudents: _, ...module }) => module)
+    );
   }
 }
 
