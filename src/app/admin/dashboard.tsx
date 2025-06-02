@@ -250,7 +250,6 @@ function getNavigation(department: DashboardUser) {
           },
         },
         {
-          label: 'BOE',
           href: `/admin/reports/boe`,
           description: 'Board of Examination Report',
           icon: IconCopyCheck,
@@ -337,6 +336,11 @@ function UserButton() {
           <Text size='0.7rem' c={'dimmed'}>
             {session?.user?.email}
           </Text>
+          {session?.user?.position && (
+            <Text size='0.65rem' c={'dimmed'} tt={'capitalize'}>
+              {session?.user?.position}
+            </Text>
+          )}
         </Stack>
       </Group>
       <ActionIcon variant='default' size={'lg'}>

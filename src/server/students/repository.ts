@@ -138,18 +138,27 @@ export default class StudentRepository extends BaseRepository<
     const { orderBy, offset, limit } = this.buildQueryCriteria(options);
     let customWhere: SQL | undefined = undefined;
 
-    const nameConditions = searchTerms.map((term) => {
+    const searchConditions = searchTerms.map((term) => {
+      const conditions = [];
+
+      if (!isNaN(Number(term))) {
+        conditions.push(eq(students.stdNo, Number(term)));
+      }
+
       const variations = normalizeName(term);
       const termConditions = variations.map((variation) =>
         like(students.name, `%${variation}%`),
       );
-      return or(...termConditions);
+      conditions.push(...termConditions);
+
+      return or(...conditions);
     });
 
-    customWhere = and(...nameConditions);
+    customWhere = and(...searchConditions);
     if (options.filter) {
       customWhere = and(customWhere, options.filter);
     }
+
     const items = await db
       .select()
       .from(this.table)
