@@ -45,7 +45,7 @@ class StudentService {
   async findAll(params: QueryOptions<typeof students>) {
     return withAuth(
       async () => this.repository.query(params),
-      [],
+      ['dashboard'],
       async (session) => {
         if (
           session.user?.role &&
@@ -54,7 +54,9 @@ class StudentService {
           )
         ) {
           return true;
-        } else if (session.user?.position) {
+        }
+
+        if (session.user?.position) {
           return ['admin', 'manager', 'program_leader'].includes(
             session.user.position,
           );
