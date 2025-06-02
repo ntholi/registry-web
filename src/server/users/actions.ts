@@ -12,7 +12,8 @@ export async function getUser(id: string) {
   return service.get(id);
 }
 
-export async function getUserSchools(userId: string) {
+export async function getUserSchools(userId?: string) {
+  if (!userId) return;
   return service.getUserSchools(userId);
 }
 

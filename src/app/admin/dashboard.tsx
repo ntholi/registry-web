@@ -50,6 +50,7 @@ import { Session } from 'next-auth';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
+import { getUserSchools } from '@/server/users/actions';
 
 type NotificationConfig = {
   queryKey: string[];
@@ -313,6 +314,12 @@ function UserButton() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const { data: userSchools } = useQuery({
+    queryKey: ['userSchools'],
+    queryFn: () => getUserSchools(session?.user?.id),
+    enabled: session?.user?.role === 'academic',
+  });
+
   if (status === 'unauthenticated') {
     router.push('/api/auth/signin');
   }
@@ -338,6 +345,8 @@ function UserButton() {
           </Text>
           {session?.user?.position && (
             <Text size='0.65rem' c={'dimmed'} tt={'capitalize'}>
+              {userSchools?.map((it) => it.school.code).join(', ')}
+              {' | '}
               {session?.user?.position}
             </Text>
           )}
