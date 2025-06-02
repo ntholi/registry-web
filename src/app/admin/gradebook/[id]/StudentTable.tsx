@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
 import MarksInput from './MarksInput';
+import StudentGradeDisplay from './StudentGradeDisplay';
 import {
   useAssessmentMarksQuery,
   useAssessmentsQuery,
@@ -40,7 +41,6 @@ export default function StudentTable({ moduleId }: Props) {
     useAssessmentMarksQuery(moduleId);
 
   const isLoading = studentsLoading || assessmentsLoading || marksLoading;
-
   const getStudentMark = (studentId: number, assessmentId: number) => {
     if (!assessmentMarks) return { mark: undefined, markId: undefined };
 
@@ -51,34 +51,6 @@ export default function StudentTable({ moduleId }: Props) {
     return {
       mark: mark ? mark.marks : undefined,
       markId: mark ? mark.id : undefined,
-    };
-  };
-
-  const calculateStudentTotals = (studentId: number) => {
-    if (!assessments || !assessmentMarks)
-      return { total: 0, hasMarks: false, hasPassed: false };
-
-    let weight = 0;
-    let marks = 0;
-    let maxMarks = 0;
-    let hasMarks = false;
-
-    assessments.forEach((assessment) => {
-      const { mark } = getStudentMark(studentId, assessment.id);
-      if (mark !== undefined) {
-        weight += assessment.weight;
-        marks += mark;
-        maxMarks += assessment.totalMarks;
-        hasMarks = true;
-      }
-    });
-
-    const total = (marks / maxMarks) * weight;
-
-    return {
-      total,
-      hasMarks,
-      hasPassed: total >= weight * 0.5,
     };
   };
   function renderTableHeaders() {
@@ -109,7 +81,7 @@ export default function StudentTable({ moduleId }: Props) {
                   </Text>
                 </Group>
               </Table.Th>
-            ))}
+            ))}{' '}
         <Table.Th style={{ textAlign: 'center' }}>
           <Group gap={5} justify='center'>
             <Text size='sm' fw={'bold'}>
@@ -124,6 +96,11 @@ export default function StudentTable({ moduleId }: Props) {
               %)
             </Text>
           </Group>
+        </Table.Th>
+        <Table.Th style={{ textAlign: 'center' }}>
+          <Text size='sm' fw={'bold'}>
+            Grade
+          </Text>
         </Table.Th>
       </Table.Tr>
     );
@@ -146,7 +123,10 @@ export default function StudentTable({ moduleId }: Props) {
                   <Skeleton height={24} width={80} mx='auto' />
                 </Table.Td>
               ),
-            )}
+            )}{' '}
+            <Table.Td>
+              <Skeleton height={24} width={80} mx='auto' />
+            </Table.Td>
             <Table.Td>
               <Skeleton height={24} width={80} mx='auto' />
             </Table.Td>
@@ -157,7 +137,7 @@ export default function StudentTable({ moduleId }: Props) {
     if (!students?.length) {
       return (
         <Table.Tr>
-          <Table.Td colSpan={assessments?.length ? assessments.length + 3 : 4}>
+          <Table.Td colSpan={assessments?.length ? assessments.length + 4 : 5}>
             <Center py='md'>
               <Text c='dimmed'>No students found</Text>
             </Center>
@@ -166,10 +146,6 @@ export default function StudentTable({ moduleId }: Props) {
       );
     }
     return students.map((student) => {
-      const { total, hasMarks, hasPassed } = calculateStudentTotals(
-        student.stdNo,
-      );
-
       return (
         <Table.Tr key={student.stdNo}>
           <Table.Td>
@@ -215,20 +191,20 @@ export default function StudentTable({ moduleId }: Props) {
                 );
               })}
           <Table.Td align='center'>
-            {hasMarks ? (
-              <Badge
-                variant='light'
-                color={hasPassed ? 'green' : 'red'}
-                radius={'sm'}
-                w={43}
-              >
-                {Math.ceil(total)}
-              </Badge>
-            ) : (
-              <Text c='dimmed' size='sm'>
-                -
-              </Text>
-            )}
+            <StudentGradeDisplay
+              studentId={student.stdNo}
+              assessments={assessments}
+              assessmentMarks={assessmentMarks}
+              displayType='total'
+            />
+          </Table.Td>
+          <Table.Td align='center'>
+            <StudentGradeDisplay
+              studentId={student.stdNo}
+              assessments={assessments}
+              assessmentMarks={assessmentMarks}
+              displayType='grade'
+            />
           </Table.Td>
         </Table.Tr>
       );
