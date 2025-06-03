@@ -1,7 +1,6 @@
 'use client';
 import {
   Anchor,
-  Badge,
   Center,
   CloseButton,
   Group,

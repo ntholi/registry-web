@@ -1,9 +1,9 @@
+import { auth } from '@/auth';
 import { users } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
+import { getUserSchoolIds } from '../users/actions';
 import UserRepository from '../users/repository';
-import { getUserSchoolIds, getUserSchools } from '../users/actions';
-import { auth } from '@/auth';
 
 class LecturerService {
   constructor(private readonly repository = new UserRepository()) {}

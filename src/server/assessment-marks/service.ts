@@ -1,10 +1,9 @@
-import { assessmentMarks, assessmentGrades, gradeEnum } from '@/db/schema';
-import AssessmentMarkRepository from './repository';
+import { assessmentMarks, gradeEnum } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
+import AssessmentMarkRepository from './repository';
 
 type AssessmentMark = typeof assessmentMarks.$inferInsert;
-type AssessmentGrade = typeof assessmentGrades.$inferInsert;
 
 class AssessmentMarkService {
   constructor(private readonly repository = new AssessmentMarkRepository()) {}
@@ -46,12 +45,17 @@ class AssessmentMarkService {
 
   async getGradeByAssessmentAndStudent(assessmentId: number, stdNo: number) {
     return withAuth(
-      async () => this.repository.findGradeByAssessmentAndStudent(assessmentId, stdNo),
+      async () =>
+        this.repository.findGradeByAssessmentAndStudent(assessmentId, stdNo),
       ['academic'],
     );
   }
 
-  async saveGrade(assessmentId: number, stdNo: number, grade: typeof gradeEnum[number]) {
+  async saveGrade(
+    assessmentId: number,
+    stdNo: number,
+    grade: (typeof gradeEnum)[number],
+  ) {
     return withAuth(
       async () => this.repository.saveGrade(assessmentId, stdNo, grade),
       ['academic'],

@@ -1,6 +1,6 @@
+import { getAssessmentGradesByModuleId } from '@/server/assessment-marks/actions';
 import { Badge, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getAssessmentGradesByModuleId } from '@/server/assessment-marks/actions';
 
 type Assessment = {
   id: number;
@@ -13,13 +13,6 @@ type AssessmentMark = {
   assessmentId: number;
   marks: number;
   id: number;
-};
-
-type AssessmentGrade = {
-  id: number;
-  assessmentId: number;
-  stdNo: number;
-  grade: string;
 };
 
 type Props = {
