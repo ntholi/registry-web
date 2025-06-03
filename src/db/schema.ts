@@ -591,14 +591,22 @@ export const assessmentMarks = sqliteTable('assessment_marks', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const assessmentGrades = sqliteTable('assessment_grades', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  assessmentId: integer()
-    .references(() => assessments.id, { onDelete: 'cascade' })
-    .notNull(),
-  stdNo: integer()
-    .references(() => students.stdNo, { onDelete: 'cascade' })
-    .notNull(),
-  grade: text({ enum: gradeEnum }).notNull(),
-  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
+export const moduleGrades = sqliteTable(
+  'module_grades',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    moduleId: integer()
+      .references(() => modules.id, { onDelete: 'cascade' })
+      .notNull(),
+    stdNo: integer()
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    grade: text({ enum: gradeEnum }).notNull(),
+    weightedTotal: real().notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  },
+  (table) => ({
+    uniqueModuleStudent: unique().on(table.moduleId, table.stdNo),
+  }),
+);
