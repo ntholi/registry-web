@@ -20,7 +20,6 @@ import StudentGradeDisplay from './StudentGradeDisplay';
 import {
   useAssessmentMarksQuery,
   useAssessmentsQuery,
-  useModuleGradesQuery,
 } from './useAssessmentsQuery';
 import { useStudentsQuery } from './useStudentsQuery';
 
@@ -39,14 +38,8 @@ export default function StudentTable({ moduleId }: Props) {
     useAssessmentsQuery(moduleId);
   const { data: assessmentMarks, isLoading: marksLoading } =
     useAssessmentMarksQuery(moduleId);
-  const { data: moduleGrades, isLoading: moduleGradesLoading } =
-    useModuleGradesQuery(moduleId);
 
-  const isLoading =
-    studentsLoading ||
-    assessmentsLoading ||
-    marksLoading ||
-    moduleGradesLoading;
+  const isLoading = studentsLoading || assessmentsLoading || marksLoading;
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -67,7 +60,7 @@ export default function StudentTable({ moduleId }: Props) {
         clearTimeout(timeoutId);
       }
     };
-  }, [isLoading, students, assessments, assessmentMarks, moduleGrades]);
+  }, [isLoading, students, assessments, assessmentMarks]);
   const getStudentMark = (studentId: number, assessmentId: number) => {
     if (!assessmentMarks) return { mark: undefined, markId: undefined };
 
@@ -212,16 +205,13 @@ export default function StudentTable({ moduleId }: Props) {
                       existingMark={mark}
                       existingMarkId={markId}
                       moduleId={moduleId}
-                    />{' '}
+                    />
                   </Table.Td>
                 );
               })}
           <Table.Td align='center'>
             <StudentGradeDisplay
               studentId={student.stdNo}
-              assessments={assessments}
-              assessmentMarks={assessmentMarks}
-              moduleGrades={moduleGrades}
               displayType='total'
               moduleId={moduleId}
             />
@@ -229,9 +219,6 @@ export default function StudentTable({ moduleId }: Props) {
           <Table.Td align='center'>
             <StudentGradeDisplay
               studentId={student.stdNo}
-              assessments={assessments}
-              assessmentMarks={assessmentMarks}
-              moduleGrades={moduleGrades}
               displayType='grade'
               moduleId={moduleId}
             />
