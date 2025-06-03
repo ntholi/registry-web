@@ -112,12 +112,18 @@ function getNavigation(department: DashboardUser) {
       href: '/admin/assessments',
       icon: IconAB2,
       roles: ['academic'],
+      isVisible: (session) => {
+        return session?.user?.position !== 'admin';
+      },
     },
     {
       label: 'Gradebook',
       icon: IconNotebook,
       roles: ['academic'],
       children: [],
+      isVisible: (session) => {
+        return session?.user?.position !== 'admin';
+      },
     },
     {
       label: 'Registration Requests',
