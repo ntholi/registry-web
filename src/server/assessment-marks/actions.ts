@@ -1,9 +1,9 @@
 'use server';
 
-import { assessmentMarks, gradeEnum } from '@/db/schema';
-import { assessmentMarksService as service } from './service';
+import { assessmentMarks } from '@/db/schema';
 import { calculateModuleGrade } from '@/utils/gradeCalculations';
 import { upsertModuleGrade } from '../module-grades/actions';
+import { assessmentMarksService as service } from './service';
 
 type AssessmentMark = typeof assessmentMarks.$inferInsert;
 

@@ -1,4 +1,4 @@
-import { assessmentMarks, gradeEnum } from '@/db/schema';
+import { assessmentMarks } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import AssessmentMarkRepository from './repository';

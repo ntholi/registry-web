@@ -1,7 +1,7 @@
-import BaseRepository from '@/server/base/BaseRepository';
-import { assessmentMarks, assessments, gradeEnum } from '@/db/schema';
 import { db } from '@/db';
-import { eq, inArray, and } from 'drizzle-orm';
+import { assessmentMarks, assessments } from '@/db/schema';
+import BaseRepository from '@/server/base/BaseRepository';
+import { and, eq, inArray } from 'drizzle-orm';
 
 export default class AssessmentMarkRepository extends BaseRepository<
   typeof assessmentMarks,
