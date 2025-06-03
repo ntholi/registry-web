@@ -4,6 +4,8 @@ import { Badge, Modal, Button, Group, Stack, Alert, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { IconAlertTriangle } from '@tabler/icons-react';
+import { upsertModuleGrade } from '@/server/module-grades/actions';
+import { getLetterGrade } from '@/utils/gradeCalculations';
 
 type Props = {
   weightedTotal: number;
@@ -35,16 +37,22 @@ export default function BorderlineMark({
       higher: floorScore + 1,
     };
   };
-
   const adjustGradeMutation = useMutation({
     mutationFn: async (newScore: number) => {
-      console.log(
-        `Adjusting grade to ${newScore} for student ${studentId} in module ${moduleId}`,
-      );
+      const grade = getLetterGrade(newScore);
+      return await upsertModuleGrade({
+        moduleId,
+        stdNo: studentId,
+        grade,
+        weightedTotal: newScore,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['moduleGrade', moduleId, studentId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['moduleGrades', moduleId],
       });
       close();
     },
@@ -89,26 +97,21 @@ export default function BorderlineMark({
         )}
       </Badge>
 
-      <Modal
-        opened={opened}
-        onClose={close}
-        title='Borderline Mark Adjustment'
-        centered
-      >
+      <Modal opened={opened} onClose={close} title='Borderline Mark' centered>
         <Stack>
           <Alert
             icon={<IconAlertTriangle size={16} />}
-            title='Borderline Mark Detected'
+            title='Adjust Borderline Mark'
             color='orange'
+            variant='transparent'
           >
-            This student's total mark of {Math.ceil(weightedTotal)} is a
-            borderline mark. You can adjust it to either of the following
+            This student's total mark of{' '}
+            <Text c='yellow' component='span' size='sm' fw={'bold'}>
+              {Math.ceil(weightedTotal)}
+            </Text>{' '}
+            is a borderline mark. You can adjust it to either of the following
             options:
           </Alert>
-
-          <Text size='sm' c='dimmed'>
-            Current mark: <strong>{Math.ceil(weightedTotal)}</strong>
-          </Text>
 
           {borderlineOptions && (
             <Group justify='center' gap='md'>
@@ -116,7 +119,7 @@ export default function BorderlineMark({
                 variant='outline'
                 color='red'
                 onClick={() => handleAdjustGrade(borderlineOptions.lower)}
-                loading={adjustGradeMutation.isPending}
+                disabled={adjustGradeMutation.isPending}
               >
                 Adjust to {borderlineOptions.lower}
               </Button>
@@ -124,7 +127,7 @@ export default function BorderlineMark({
                 variant='outline'
                 color='green'
                 onClick={() => handleAdjustGrade(borderlineOptions.higher)}
-                loading={adjustGradeMutation.isPending}
+                disabled={adjustGradeMutation.isPending}
               >
                 Adjust to {borderlineOptions.higher}
               </Button>
