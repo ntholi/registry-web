@@ -28,6 +28,7 @@ export default function MarksInput({
   const [mark, setMark] = useState(existingMark?.toString() || '');
   const [isEditing, setIsEditing] = useState(!existingMark);
   const [error, setError] = useState('');
+  const [pendingMark, setPendingMark] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
@@ -37,12 +38,16 @@ export default function MarksInput({
       inputRef.current.select();
     }
   }, [isEditing]);
-
   useEffect(() => {
     if (existingMark !== undefined) {
       setMark(existingMark.toString());
+      if (pendingMark !== null && existingMark === pendingMark) {
+        setPendingMark(null);
+      } else if (pendingMark === null) {
+        setPendingMark(null);
+      }
     }
-  }, [existingMark]);
+  }, [existingMark, pendingMark]);
 
   const getLetterGrade = (percentage: number): (typeof gradeEnum)[number] => {
     if (percentage >= 90) return 'A+';
@@ -63,14 +68,12 @@ export default function MarksInput({
       stdNo: number;
       marks: number;
     }) => {
-      setIsEditing(false);
       let result;
       if (existingMarkId !== undefined) {
         result = await updateAssessmentMark(existingMarkId, data);
       } else {
         result = await createAssessmentMark(data);
       }
-
       return result;
     },
     onSuccess: async () => {
@@ -83,6 +86,14 @@ export default function MarksInput({
       queryClient.invalidateQueries({
         queryKey: ['moduleGrades', moduleId],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ['moduleGrade', moduleId, studentId],
+      });
+    },
+    onError: () => {
+      setPendingMark(null);
+      setIsEditing(true);
     },
   });
 
@@ -111,12 +122,14 @@ export default function MarksInput({
       setError(`Mark must be between 0-${maxPossible}`);
       return;
     }
-
     markMutation.mutate({
       assessmentId: assessment.id,
       stdNo: studentId,
       marks: numericMark,
     });
+
+    setPendingMark(numericMark);
+    setIsEditing(false);
   };
 
   const handleBlur = () => {
@@ -136,16 +149,16 @@ export default function MarksInput({
     setMark(existingMark?.toString() || '');
     setError('');
   };
-
   const getMarkStatus = () => {
-    if (existingMark === undefined) return null;
+    const currentMark = pendingMark ?? existingMark;
+    if (currentMark === undefined) return null;
     const maxMarks = assessment.maxMarks || 100;
-    const percentage = (existingMark / maxMarks) * 100;
+    const percentage = (currentMark / maxMarks) * 100;
     return percentage >= 50 ? 'green' : 'red';
   };
 
   if (!isEditing) {
-    const markDisplay = existingMark !== undefined ? existingMark : '-';
+    const markDisplay = pendingMark ?? existingMark ?? '-';
     const maxMark = assessment.maxMarks || assessment.totalMarks;
     const statusColor = getMarkStatus();
 
