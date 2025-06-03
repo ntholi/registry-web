@@ -3,6 +3,7 @@
 import { Badge, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { findModuleGradeByModuleAndStudent } from '@/server/module-grades/actions';
+import BorderlineMark from './BorderlineMark';
 
 type Props = {
   studentId: number;
@@ -47,20 +48,17 @@ export default function StudentGradeDisplay({
       </Text>
     );
   }
-
   const { weightedTotal, grade } = moduleGrade;
   const hasPassed = weightedTotal >= 50;
 
   if (displayType === 'total') {
     return (
-      <Badge
-        variant='light'
-        color={hasPassed ? 'green' : 'red'}
-        radius={'sm'}
-        w={43}
-      >
-        {Math.ceil(weightedTotal)}
-      </Badge>
+      <BorderlineMark
+        weightedTotal={weightedTotal}
+        hasPassed={hasPassed}
+        studentId={studentId}
+        moduleId={moduleId}
+      />
     );
   }
 
