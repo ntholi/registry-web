@@ -18,7 +18,7 @@ export default async function withAuth<T>(
   const callFnWithAccessCheck = async (session?: Session | null) => {
     if (accessCheck && session?.user) {
       const isAuthorized = await accessCheck(session);
-      if (!isAuthorized) {
+      if (!isAuthorized && session.user.role !== 'admin') {
         console.error(
           'Custom Auth Check',
           {

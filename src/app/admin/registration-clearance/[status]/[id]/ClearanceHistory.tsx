@@ -90,6 +90,7 @@ export default function ClearanceHistory({ clearanceId }: Props) {
                       <Table.Td>
                         <Anchor
                           component={Link}
+                          size='sm'
                           href={`/admin/users/${audit.createdBy}`}
                         >
                           {audit.user.name}

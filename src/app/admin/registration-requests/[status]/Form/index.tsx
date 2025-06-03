@@ -30,12 +30,6 @@ import StdNoInput from '../../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 
-interface SelectedModule extends SemesterModule {
-  status: ModuleStatus;
-  semesterNumber?: number;
-  semesterName?: string;
-}
-
 type Module = typeof modules.$inferSelect;
 
 type SemesterModule = typeof semesterModules.$inferSelect & {
@@ -43,6 +37,12 @@ type SemesterModule = typeof semesterModules.$inferSelect & {
   semesterName?: string;
   module: Module;
 };
+
+interface SelectedModule extends SemesterModule {
+  status: ModuleStatus;
+  semesterNumber?: number;
+  semesterName?: string;
+}
 
 type RegistrationRequest = {
   id?: number;
@@ -134,9 +134,16 @@ export default function RegistrationRequestForm({
     setIsLoadingModules(true);
     try {
       const semesterData = await getStudentSemesterModules(stdNo, structureId);
-      const mappedModules = semesterData.modules.map((module) => ({
-        ...module,
-        status: module.status as ModuleStatus,
+      const mappedModules = semesterData.modules.map((moduleData) => ({
+        id: moduleData.id,
+        type: moduleData.type,
+        credits: moduleData.credits,
+        status: moduleData.status as ModuleStatus,
+        module: {
+          id: moduleData.id,
+          code: moduleData.code,
+          name: moduleData.name,
+        },
       }));
 
       form.setFieldValue('selectedModules', mappedModules);
