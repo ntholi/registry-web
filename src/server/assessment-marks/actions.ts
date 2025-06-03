@@ -20,7 +20,6 @@ export async function getAssessmentMarksByModuleId(moduleId: number) {
 }
 
 export async function createAssessmentMark(assessmentMark: AssessmentMark) {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   return service.create(assessmentMark);
 }
 
@@ -28,7 +27,6 @@ export async function updateAssessmentMark(
   id: number,
   assessmentMark: AssessmentMark,
 ) {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   return service.update(id, assessmentMark);
 }
 

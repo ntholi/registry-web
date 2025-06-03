@@ -8,7 +8,6 @@ import {
   updateAssessmentMark,
   calculateAndSaveModuleGrade,
 } from '@/server/assessment-marks/actions';
-import { gradeEnum } from '@/db/schema';
 
 type Props = {
   assessment: { id: number; maxMarks: number; totalMarks: number };
@@ -43,25 +42,9 @@ export default function MarksInput({
       setMark(existingMark.toString());
       if (pendingMark !== null && existingMark === pendingMark) {
         setPendingMark(null);
-      } else if (pendingMark === null) {
-        setPendingMark(null);
       }
     }
   }, [existingMark, pendingMark]);
-
-  const getLetterGrade = (percentage: number): (typeof gradeEnum)[number] => {
-    if (percentage >= 90) return 'A+';
-    if (percentage >= 85) return 'A';
-    if (percentage >= 80) return 'A-';
-    if (percentage >= 75) return 'B+';
-    if (percentage >= 70) return 'B';
-    if (percentage >= 65) return 'B-';
-    if (percentage >= 60) return 'C+';
-    if (percentage >= 55) return 'C';
-    if (percentage >= 50) return 'C-';
-    if (percentage >= 45) return 'PP';
-    return 'F';
-  };
   const markMutation = useMutation({
     mutationFn: async (data: {
       assessmentId: number;
