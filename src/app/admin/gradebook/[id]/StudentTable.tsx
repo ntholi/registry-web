@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
 import MarksInput from './MarksInput';
 import StudentGradeDisplay from './StudentGradeDisplay';
@@ -30,6 +30,7 @@ type Props = {
 
 export default function StudentTable({ moduleId }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
+
   const { data: students, isLoading: studentsLoading } = useStudentsQuery({
     moduleId,
     searchQuery,
@@ -46,6 +47,27 @@ export default function StudentTable({ moduleId }: Props) {
     assessmentsLoading ||
     marksLoading ||
     moduleGradesLoading;
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const preventAutoScroll = () => {
+      window.scrollTo(0, 0);
+    };
+
+    if (isLoading) {
+      timeoutId = setTimeout(preventAutoScroll, 0);
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isLoading, students, assessments, assessmentMarks, moduleGrades]);
   const getStudentMark = (studentId: number, assessmentId: number) => {
     if (!assessmentMarks) return { mark: undefined, markId: undefined };
 
@@ -111,7 +133,7 @@ export default function StudentTable({ moduleId }: Props) {
   }
   function renderTableRows() {
     if (studentsLoading) {
-      return Array(10)
+      return Array(5)
         .fill(0)
         .map((_, index) => (
           <Table.Tr key={`skeleton-${index}`}>
@@ -254,15 +276,12 @@ export default function StudentTable({ moduleId }: Props) {
           </Center>
         </Paper>
       ) : (
-        <Table
-          highlightOnHover
-          withTableBorder
-          stickyHeader
-          stickyHeaderOffset={60}
-        >
-          <Table.Thead>{renderTableHeaders()}</Table.Thead>
-          <Table.Tbody>{renderTableRows()}</Table.Tbody>
-        </Table>
+        <div>
+          <Table highlightOnHover withTableBorder>
+            <Table.Thead>{renderTableHeaders()}</Table.Thead>
+            <Table.Tbody>{renderTableRows()}</Table.Tbody>
+          </Table>
+        </div>
       )}
     </Stack>
   );
