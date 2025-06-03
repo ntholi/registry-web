@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 import {
   createAssessmentMark,
   updateAssessmentMark,
-  saveAssessmentGrade,
+  calculateAndSaveModuleGrade,
 } from '@/server/assessment-marks/actions';
 import { gradeEnum } from '@/db/schema';
 
@@ -57,7 +57,6 @@ export default function MarksInput({
     if (percentage >= 45) return 'PP';
     return 'F';
   };
-
   const markMutation = useMutation({
     mutationFn: async (data: {
       assessmentId: number;
@@ -72,24 +71,17 @@ export default function MarksInput({
         result = await createAssessmentMark(data);
       }
 
-      // Calculate and save the grade letter
-      const maxMarks = assessment.maxMarks || 100;
-      const percentage = (data.marks / maxMarks) * 100;
-      const gradeLetter = getLetterGrade(
-        percentage,
-      ) as (typeof gradeEnum)[number];
-
-      // Save the grade letter
-      await saveAssessmentGrade(data.assessmentId, data.stdNo, gradeLetter);
-
       return result;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({
         queryKey: ['assessmentMarks', moduleId],
       });
+
+      await calculateAndSaveModuleGrade(moduleId, studentId);
+
       queryClient.invalidateQueries({
-        queryKey: ['assessmentGrades', moduleId],
+        queryKey: ['moduleGrades', moduleId],
       });
     },
   });

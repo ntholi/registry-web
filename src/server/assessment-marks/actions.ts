@@ -2,6 +2,8 @@
 
 import { assessmentMarks, gradeEnum } from '@/db/schema';
 import { assessmentMarksService as service } from './service';
+import { calculateModuleGrade } from '@/utils/gradeCalculations';
+import { upsertModuleGrade } from '../module-grades/actions';
 
 type AssessmentMark = typeof assessmentMarks.$inferInsert;
 
@@ -32,21 +34,36 @@ export async function deleteAssessmentMark(id: number) {
   return service.delete(id);
 }
 
-export async function getAssessmentGradeByAssessmentAndStudent(
-  assessmentId: number,
-  stdNo: number
-) {
-  return service.getGradeByAssessmentAndStudent(assessmentId, stdNo);
-}
-
-export async function saveAssessmentGrade(
-  assessmentId: number,
+export async function calculateAndSaveModuleGrade(
+  moduleId: number,
   stdNo: number,
-  grade: typeof gradeEnum[number]
 ) {
-  return service.saveGrade(assessmentId, stdNo, grade);
-}
+  const assessments = await service.getAssessmentsByModuleId(moduleId);
+  const assessmentMarks = await service.getByModuleAndStudent(moduleId, stdNo);
 
-export async function getAssessmentGradesByModuleId(moduleId: number) {
-  return service.getGradesByModuleId(moduleId);
+  if (!assessments || assessments.length === 0) {
+    return null;
+  }
+
+  const gradeCalculation = calculateModuleGrade(
+    assessments.map((a) => ({
+      id: a.id,
+      weight: a.weight,
+      totalMarks: a.totalMarks,
+    })),
+    assessmentMarks.map((m) => ({
+      assessment_id: m.assessmentId,
+      marks: m.marks,
+    })),
+  );
+  if (gradeCalculation.hasMarks) {
+    await upsertModuleGrade({
+      moduleId,
+      stdNo,
+      grade: gradeCalculation.grade,
+      weightedTotal: gradeCalculation.weightedTotal,
+    });
+  }
+
+  return gradeCalculation;
 }

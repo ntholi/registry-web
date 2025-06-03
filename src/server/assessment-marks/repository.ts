@@ -1,5 +1,5 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { assessmentMarks, assessments, assessmentGrades, gradeEnum } from '@/db/schema';
+import { assessmentMarks, assessments, gradeEnum } from '@/db/schema';
 import { db } from '@/db';
 import { eq, inArray, and } from 'drizzle-orm';
 
@@ -33,42 +33,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
     });
   }
 
-  async findGradeByAssessmentAndStudent(assessmentId: number, stdNo: number) {
-    return db.query.assessmentGrades.findFirst({
-      where: and(
-        eq(assessmentGrades.assessmentId, assessmentId),
-        eq(assessmentGrades.stdNo, stdNo)
-      ),
-    });
-  }
-
-  async saveGrade(assessmentId: number, stdNo: number, grade: typeof gradeEnum[number]) {
-    const existingGrade = await this.findGradeByAssessmentAndStudent(assessmentId, stdNo);
-
-    if (existingGrade) {
-      return db
-        .update(assessmentGrades)
-        .set({ grade })
-        .where(
-          and(
-            eq(assessmentGrades.assessmentId, assessmentId),
-            eq(assessmentGrades.stdNo, stdNo)
-          )
-        )
-        .returning();
-    } else {
-      return db
-        .insert(assessmentGrades)
-        .values({
-          assessmentId,
-          stdNo,
-          grade,
-        })
-        .returning();
-    }
-  }
-
-  async findGradesByModuleId(moduleId: number) {
+  async findByModuleAndStudent(moduleId: number, stdNo: number) {
     const moduleAssessments = await db.query.assessments.findMany({
       where: eq(assessments.moduleId, moduleId),
       columns: {
@@ -82,8 +47,17 @@ export default class AssessmentMarkRepository extends BaseRepository<
       return [];
     }
 
-    return db.query.assessmentGrades.findMany({
-      where: inArray(assessmentGrades.assessmentId, assessmentIds),
+    return db.query.assessmentMarks.findMany({
+      where: and(
+        inArray(assessmentMarks.assessmentId, assessmentIds),
+        eq(assessmentMarks.stdNo, stdNo),
+      ),
+    });
+  }
+
+  async getAssessmentsByModuleId(moduleId: number) {
+    return db.query.assessments.findMany({
+      where: eq(assessments.moduleId, moduleId),
     });
   }
 }

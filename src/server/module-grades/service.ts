@@ -35,6 +35,27 @@ class ModuleGradeService {
   async count() {
     return withAuth(async () => this.repository.count(), []);
   }
+
+  async findByModuleAndStudent(moduleId: number, stdNo: number) {
+    return withAuth(
+      async () => this.repository.findByModuleAndStudent(moduleId, stdNo),
+      ['academic'],
+    );
+  }
+
+  async getByModuleId(moduleId: number) {
+    return withAuth(
+      async () => this.repository.findByModuleId(moduleId),
+      ['academic'],
+    );
+  }
+
+  async upsertModuleGrade(data: ModuleGrade) {
+    return withAuth(
+      async () => this.repository.upsertModuleGrade(data),
+      ['academic'],
+    );
+  }
 }
 
 export const moduleGradesService = new ModuleGradeService();

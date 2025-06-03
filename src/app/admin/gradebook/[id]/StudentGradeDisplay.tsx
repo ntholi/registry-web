@@ -1,6 +1,4 @@
-import { getAssessmentGradesByModuleId } from '@/server/assessment-marks/actions';
 import { Badge, Text } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
 
 type Assessment = {
   id: number;
@@ -15,10 +13,21 @@ type AssessmentMark = {
   id: number;
 };
 
+type ModuleGrade = {
+  id: number;
+  moduleId: number;
+  stdNo: number;
+  grade: string;
+  weightedTotal: number;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
+
 type Props = {
   studentId: number;
   assessments: Assessment[] | undefined;
   assessmentMarks: AssessmentMark[] | undefined;
+  moduleGrades: ModuleGrade[] | undefined;
   displayType: 'total' | 'grade';
   moduleId: number;
 };
@@ -27,14 +36,10 @@ export default function StudentGradeDisplay({
   studentId,
   assessments,
   assessmentMarks,
+  moduleGrades,
   displayType,
   moduleId,
 }: Props) {
-  // Fetch assessment grades
-  const { data: assessmentGrades } = useQuery({
-    queryKey: ['assessmentGrades', moduleId],
-    queryFn: () => getAssessmentGradesByModuleId(moduleId),
-  });
   const getStudentMark = (studentId: number, assessmentId: number) => {
     if (!assessmentMarks) return { mark: undefined, markId: undefined };
 
@@ -95,7 +100,28 @@ export default function StudentGradeDisplay({
     return 'red';
   };
 
-  const { total, hasMarks, hasPassed } = calculateStudentTotals(studentId);
+  const getStudentGradeData = () => {
+    const savedGrade = moduleGrades?.find((grade) => grade.stdNo === studentId);
+
+    if (savedGrade) {
+      return {
+        total: savedGrade.weightedTotal,
+        hasMarks: true,
+        hasPassed:
+          savedGrade.weightedTotal >=
+          (assessments?.reduce((acc, a) => acc + a.weight, 0) || 100) * 0.5,
+        letterGrade: savedGrade.grade,
+      };
+    }
+
+    const calculated = calculateStudentTotals(studentId);
+    return {
+      ...calculated,
+      letterGrade: getLetterGrade(calculated.total),
+    };
+  };
+
+  const { total, hasMarks, hasPassed, letterGrade } = getStudentGradeData();
 
   if (!hasMarks) {
     return (
@@ -104,7 +130,6 @@ export default function StudentGradeDisplay({
       </Text>
     );
   }
-
   if (displayType === 'total') {
     return (
       <Badge
@@ -118,17 +143,6 @@ export default function StudentGradeDisplay({
     );
   }
 
-  // Try to find a saved grade for this student
-  const savedGrade = assessmentGrades?.find((grade) => {
-    // Find a grade that matches this student and is for one of the assessments in this module
-    return (
-      grade.stdNo === studentId &&
-      assessments?.some((a) => a.id === grade.assessmentId)
-    );
-  });
-
-  // Use the saved grade if available, otherwise calculate it
-  const letterGrade = savedGrade?.grade || getLetterGrade(total);
   const gradeColor = getGradeColor(letterGrade);
 
   return (

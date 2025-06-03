@@ -43,28 +43,16 @@ class AssessmentMarkService {
     );
   }
 
-  async getGradeByAssessmentAndStudent(assessmentId: number, stdNo: number) {
+  async getByModuleAndStudent(moduleId: number, stdNo: number) {
     return withAuth(
-      async () =>
-        this.repository.findGradeByAssessmentAndStudent(assessmentId, stdNo),
+      async () => this.repository.findByModuleAndStudent(moduleId, stdNo),
       ['academic'],
     );
   }
 
-  async saveGrade(
-    assessmentId: number,
-    stdNo: number,
-    grade: (typeof gradeEnum)[number],
-  ) {
+  async getAssessmentsByModuleId(moduleId: number) {
     return withAuth(
-      async () => this.repository.saveGrade(assessmentId, stdNo, grade),
-      ['academic'],
-    );
-  }
-
-  async getGradesByModuleId(moduleId: number) {
-    return withAuth(
-      async () => this.repository.findGradesByModuleId(moduleId),
+      async () => this.repository.getAssessmentsByModuleId(moduleId),
       ['academic'],
     );
   }
