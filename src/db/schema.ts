@@ -599,9 +599,9 @@ export const assessmentMarksAuditActionEnum = [
 
 export const assessmentMarksAudit = sqliteTable('assessment_marks_audit', {
   id: integer().primaryKey({ autoIncrement: true }),
-  assessmentMarkId: integer()
-    .references(() => assessmentMarks.id, { onDelete: 'cascade' })
-    .notNull(),
+  assessmentMarkId: integer().references(() => assessmentMarks.id, {
+    onDelete: 'set null',
+  }),
   action: text({ enum: assessmentMarksAuditActionEnum }).notNull(),
   previousMarks: real(),
   newMarks: real(),
@@ -621,9 +621,9 @@ export const assessmentsAuditActionEnum = [
 
 export const assessmentsAudit = sqliteTable('assessments_audit', {
   id: integer().primaryKey({ autoIncrement: true }),
-  assessmentId: integer()
-    .references(() => assessments.id, { onDelete: 'cascade' })
-    .notNull(),
+  assessmentId: integer().references(() => assessments.id, {
+    onDelete: 'set null',
+  }),
   action: text({ enum: assessmentsAuditActionEnum }).notNull(),
   previousAssessmentNumber: text({ enum: assessmentNumberEnum }),
   newAssessmentNumber: text({ enum: assessmentNumberEnum }),
