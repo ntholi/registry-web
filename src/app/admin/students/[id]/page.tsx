@@ -18,14 +18,6 @@ export default async function StudentDetails({ params }: Props) {
     return notFound();
   }
 
-  const showRegistrationTab =
-    session?.user?.role === 'admin' ||
-    session?.user?.role === 'registry' ||
-    session?.user?.position === 'admin' ||
-    session?.user?.position === 'manager' ||
-    session?.user?.position === 'program_leader' ||
-    session?.user?.position === 'year_leader';
-
   const registrationRequests = await getRegistrationRequestsByStudent(
     student.stdNo,
   );
@@ -35,7 +27,7 @@ export default async function StudentDetails({ params }: Props) {
       <DetailsViewHeader title={student.name} queryKey={['students']} />
       <StudentTabs
         student={student}
-        showRegistrationTab={showRegistrationTab}
+        session={session}
         registrationRequests={registrationRequests}
       />
     </DetailsView>

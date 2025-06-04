@@ -8,10 +8,11 @@ import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
 import StatementOfResultsPrinter from './statements/StatementOfResultsPrinter';
 import StudentView from './StudentView';
+import { Session } from 'next-auth';
 
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
-  showRegistrationTab: boolean;
+  session: Session | null;
   registrationRequests: Awaited<
     ReturnType<typeof getRegistrationRequestsByStudent>
   >;
@@ -19,25 +20,41 @@ type StudentTabsProps = {
 
 export function StudentTabs({
   student,
-  showRegistrationTab,
+  session,
   registrationRequests,
 }: StudentTabsProps) {
   const [activeTab, setActiveTab] = useLocalStorage<string | null>(
     'studentDetailsTab',
     'academics',
   );
+  const showRegistration =
+    session?.user?.role === 'admin' ||
+    session?.user?.role === 'registry' ||
+    session?.user?.position === 'admin' ||
+    session?.user?.position === 'manager' ||
+    session?.user?.position === 'program_leader' ||
+    session?.user?.position === 'year_leader';
+
+  const showStatementOfResults =
+    session?.user?.role === 'admin' ||
+    session?.user?.role === 'registry' ||
+    session?.user?.position === 'admin' ||
+    session?.user?.position === 'manager' ||
+    session?.user?.position === 'program_leader';
 
   return (
     <Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
       <TabsList>
         <TabsTab value='academics'>Academics</TabsTab>
         <TabsTab value='info'>Student</TabsTab>
-        {showRegistrationTab && (
+        {showRegistration && (
           <TabsTab value='registration'>Registration</TabsTab>
         )}
-        <Box ml='auto'>
-          <StatementOfResultsPrinter student={student} />
-        </Box>
+        {showStatementOfResults && (
+          <Box ml='auto'>
+            <StatementOfResultsPrinter student={student} />
+          </Box>
+        )}
       </TabsList>
       <TabsPanel value='academics' pt={'xl'} p={'sm'}>
         <AcademicsView student={student} showMarks />
