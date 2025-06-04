@@ -12,7 +12,6 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
-import { User } from 'lucide-react';
 import Link from 'next/link';
 
 type Props = {

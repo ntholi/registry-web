@@ -41,7 +41,7 @@ class RegistrationRequestService {
   ) {
     return withAuth(
       async () => this.repository.findByStatus(status, params),
-      ['dashboard'],
+      ['registry', 'finance', 'library'],
     );
   }
 
@@ -55,16 +55,26 @@ class RegistrationRequestService {
   }
 
   async get(id: number) {
-    return withAuth(async () => {
-      const result = await this.repository.findById(id);
-      if (!result) return null;
-      const activeProgram = result.student.programs.at(0);
-      return {
-        ...result,
-        programName: activeProgram?.structure.program.name,
-        structureId: activeProgram?.structureId,
-      };
-    }, ['registry']);
+    return withAuth(
+      async () => {
+        const result = await this.repository.findById(id);
+        if (!result) return null;
+        const activeProgram = result.student.programs.at(0);
+        return {
+          ...result,
+          programName: activeProgram?.structure.program.name,
+          structureId: activeProgram?.structureId,
+        };
+      },
+      ['dashboard'],
+      async (session) =>
+        session?.user?.role === 'admin' ||
+        session?.user?.role === 'registry' ||
+        session?.user?.position === 'admin' ||
+        session?.user?.position === 'manager' ||
+        session?.user?.position === 'program_leader' ||
+        session?.user?.position === 'year_leader',
+    );
   }
 
   async findAll(params: QueryOptions<typeof registrationRequests>) {
