@@ -20,6 +20,7 @@ import StudentGradeDisplay from './StudentGradeDisplay';
 import {
   useAssessmentMarksQuery,
   useAssessmentsQuery,
+  useModuleGradesQuery,
 } from './useAssessmentsQuery';
 import { useStudentsQuery } from './useStudentsQuery';
 
@@ -29,7 +30,6 @@ type Props = {
 
 export default function StudentTable({ moduleId }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
-
   const { data: students, isLoading: studentsLoading } = useStudentsQuery({
     moduleId,
     searchQuery,
@@ -38,8 +38,14 @@ export default function StudentTable({ moduleId }: Props) {
     useAssessmentsQuery(moduleId);
   const { data: assessmentMarks, isLoading: marksLoading } =
     useAssessmentMarksQuery(moduleId);
+  const { data: moduleGrades, isLoading: moduleGradesLoading } =
+    useModuleGradesQuery(moduleId);
 
-  const isLoading = studentsLoading || assessmentsLoading || marksLoading;
+  const isLoading =
+    studentsLoading ||
+    assessmentsLoading ||
+    marksLoading ||
+    moduleGradesLoading;
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -72,6 +78,11 @@ export default function StudentTable({ moduleId }: Props) {
       mark: mark ? mark.marks : undefined,
       markId: mark ? mark.id : undefined,
     };
+  };
+
+  const getStudentGrade = (studentId: number) => {
+    if (!moduleGrades) return null;
+    return moduleGrades.find((grade) => grade.stdNo === studentId) || null;
   };
   function renderTableHeaders() {
     return (
@@ -208,12 +219,14 @@ export default function StudentTable({ moduleId }: Props) {
                     />
                   </Table.Td>
                 );
-              })}
+              })}{' '}
           <Table.Td align='center'>
             <StudentGradeDisplay
               studentId={student.stdNo}
               displayType='total'
               moduleId={moduleId}
+              moduleGrade={getStudentGrade(student.stdNo)}
+              isLoading={moduleGradesLoading}
             />
           </Table.Td>
           <Table.Td align='center'>
@@ -221,6 +234,8 @@ export default function StudentTable({ moduleId }: Props) {
               studentId={student.stdNo}
               displayType='grade'
               moduleId={moduleId}
+              moduleGrade={getStudentGrade(student.stdNo)}
+              isLoading={moduleGradesLoading}
             />
           </Table.Td>
         </Table.Tr>

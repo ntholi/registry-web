@@ -1,32 +1,33 @@
 'use client';
 
 import { Badge, Text } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
-import { findModuleGradeByModuleAndStudent } from '@/server/module-grades/actions';
 import BorderlineMark from './BorderlineMark';
+
+type ModuleGrade = {
+  id: number;
+  moduleId: number;
+  stdNo: number;
+  grade: string;
+  weightedTotal: number;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
 
 type Props = {
   studentId: number;
   displayType: 'total' | 'grade';
   moduleId: number;
+  moduleGrade?: ModuleGrade | null;
+  isLoading?: boolean;
 };
 
 export default function StudentGradeDisplay({
   studentId,
   displayType,
   moduleId,
+  moduleGrade,
+  isLoading = false,
 }: Props) {
-  const { data: moduleGrade, isLoading } = useQuery({
-    queryKey: ['moduleGrade', moduleId, studentId],
-    queryFn: async () => {
-      const result = await findModuleGradeByModuleAndStudent(
-        moduleId,
-        studentId,
-      );
-      return result || null;
-    },
-  });
-
   const getGradeColor = (grade: string): string => {
     if (['A', 'B', 'C'].some((letter) => grade.startsWith(letter)))
       return 'green';
