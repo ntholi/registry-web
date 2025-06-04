@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatDateTime, formatSemester } from '@/lib/utils';
 import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
 import {
@@ -11,6 +12,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
+import { User } from 'lucide-react';
 import Link from 'next/link';
 
 type Props = {
@@ -20,6 +22,20 @@ type Props = {
 };
 
 export default function RegistrationView({ registrationRequests }: Props) {
+  const { currentTerm } = useCurrentTerm();
+  if (registrationRequests.length === 0) {
+    return (
+      <Stack align='center' py='xl' gap='md'>
+        <Text size='lg' fw={500} c='dimmed'>
+          No registration for {currentTerm?.name}
+        </Text>
+        <Text size='sm' c='dimmed' ta='center'>
+          This student has not submitted any registration requests yet.
+        </Text>
+      </Stack>
+    );
+  }
+
   return (
     <Accordion
       variant='separated'
