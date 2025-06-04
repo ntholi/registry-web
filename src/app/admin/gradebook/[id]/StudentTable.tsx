@@ -10,16 +10,14 @@ import {
   Table,
   Text,
   TextInput,
-  Button,
 } from '@mantine/core';
-import { IconSearch, IconFileImport } from '@tabler/icons-react';
-import { useDisclosure } from '@mantine/hooks';
+import { IconSearch } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
+import ExcelImport from './excel/ExcelImport';
 import MarksInput from './MarksInput';
 import StudentGradeDisplay from './StudentGradeDisplay';
-import ExcelImport from './ExcelImport';
 import {
   useAssessmentMarksQuery,
   useAssessmentsQuery,
@@ -33,10 +31,6 @@ type Props = {
 
 export default function StudentTable({ moduleId }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [
-    excelImportOpened,
-    { open: openExcelImport, close: closeExcelImport },
-  ] = useDisclosure(false);
   const { data: students, isLoading: studentsLoading } = useStudentsQuery({
     moduleId,
     searchQuery,
@@ -281,15 +275,7 @@ export default function StudentTable({ moduleId }: Props) {
           leftSection={<IconSearch size='1.2rem' />}
         />
         <Group>
-          {assessments && assessments.length > 0 && (
-            <Button
-              leftSection={<IconFileImport size={16} />}
-              variant='light'
-              onClick={openExcelImport}
-            >
-              Import from Excel
-            </Button>
-          )}
+          {assessments && assessments.length > 0 && <ExcelImport />}
           {!studentsLoading && students && (
             <Paper withBorder p={8.5}>
               <Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
@@ -304,16 +290,6 @@ export default function StudentTable({ moduleId }: Props) {
         <Table.Thead>{renderTableHeaders()}</Table.Thead>
         <Table.Tbody>{renderTableRows()}</Table.Tbody>
       </Table>
-
-      {assessments && assessmentMarks && (
-        <ExcelImport
-          opened={excelImportOpened}
-          onClose={closeExcelImport}
-          moduleId={moduleId}
-          assessments={assessments}
-          existingMarks={assessmentMarks}
-        />
-      )}
     </Stack>
   );
 }
