@@ -35,13 +35,19 @@ class AssessmentService {
   async update(id: number, data: Assessment) {
     return withAuth(async () => this.repository.update(id, data), ['academic']);
   }
-
   async delete(id: number) {
     return withAuth(async () => this.repository.delete(id), ['academic']);
   }
 
   async count() {
     return withAuth(async () => this.repository.count(), ['academic']);
+  }
+
+  async getAuditHistory(assessmentId: number) {
+    return withAuth(
+      async () => this.repository.getAuditHistory(assessmentId),
+      ['academic'],
+    );
   }
 }
 

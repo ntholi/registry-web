@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 import {
   accounts,
   assessments,
+  assessmentsAudit,
   assessmentMarks,
   assessmentMarksAudit,
   authenticators,
@@ -289,6 +290,7 @@ export const assessmentsRelations = relations(assessments, ({ many, one }) => ({
     references: [terms.id],
   }),
   marks: many(assessmentMarks),
+  audits: many(assessmentsAudit),
 }));
 
 export const assessmentMarksRelations = relations(
@@ -315,6 +317,20 @@ export const assessmentMarksAuditRelations = relations(
     }),
     createdByUser: one(users, {
       fields: [assessmentMarksAudit.createdBy],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const assessmentsAuditRelations = relations(
+  assessmentsAudit,
+  ({ one }) => ({
+    assessment: one(assessments, {
+      fields: [assessmentsAudit.assessmentId],
+      references: [assessments.id],
+    }),
+    createdByUser: one(users, {
+      fields: [assessmentsAudit.createdBy],
       references: [users.id],
     }),
   }),

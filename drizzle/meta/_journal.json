@@ -379,6 +379,13 @@
       "when": 1749020620576,
       "tag": "0053_lucky_meteorite",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "6",
+      "when": 1749021653736,
+      "tag": "0054_sleepy_captain_cross",
+      "breakpoints": true
     }
   ]
 }

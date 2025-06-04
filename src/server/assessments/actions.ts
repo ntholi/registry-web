@@ -34,3 +34,7 @@ export async function updateAssessment(id: number, assessment: Assessment) {
 export async function deleteAssessment(id: number) {
   return service.delete(id);
 }
+
+export async function getAssessmentAuditHistory(assessmentId: number) {
+  return service.getAuditHistory(assessmentId);
+}
