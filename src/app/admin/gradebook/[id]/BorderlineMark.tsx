@@ -1,11 +1,15 @@
 'use client';
 
-import { Badge, Modal, Button, Group, Stack, Alert, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { IconAlertTriangle } from '@tabler/icons-react';
 import { upsertModuleGrade } from '@/server/module-grades/actions';
 import { getLetterGrade } from '@/utils/gradeCalculations';
+import { Alert, Badge, Button, Group, Modal, Stack, Text } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import {
+  IconAlertTriangle,
+  IconChevronLeft,
+  IconChevronRight,
+} from '@tabler/icons-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Props = {
   weightedTotal: number;
@@ -114,18 +118,22 @@ export default function BorderlineMark({
           </Alert>
 
           {borderlineOptions && (
-            <Group justify='center' gap='md'>
+            <Group pl={55} gap='md'>
               <Button
-                variant='outline'
+                variant='default'
                 color='red'
+                size='xs'
+                leftSection={<IconChevronLeft size={16} />}
                 onClick={() => handleAdjustGrade(borderlineOptions.lower)}
                 disabled={adjustGradeMutation.isPending}
               >
                 Adjust to {borderlineOptions.lower}
               </Button>
               <Button
-                variant='outline'
+                variant='default'
                 color='green'
+                size='xs'
+                rightSection={<IconChevronRight size={16} />}
                 onClick={() => handleAdjustGrade(borderlineOptions.higher)}
                 disabled={adjustGradeMutation.isPending}
               >
