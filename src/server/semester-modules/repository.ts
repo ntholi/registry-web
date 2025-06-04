@@ -207,9 +207,6 @@ export default class ModuleRepository extends BaseRepository<
   }
 
   async searchModulesWithDetails(search = '', term: typeof terms.$inferSelect) {
-    const validSemesters =
-      term.semester === 1 ? [1, 3, 5, 7, 9] : [2, 4, 6, 8, 10];
-
     const results = await db
       .select({
         semesterModuleId: semesterModules.id,
@@ -239,7 +236,6 @@ export default class ModuleRepository extends BaseRepository<
                 like(modules.name, `%${search}%`),
               )
             : undefined,
-          inArray(structureSemesters.semesterNumber, validSemesters),
           not(eq(semesterModules.hidden, true)),
         ),
       )

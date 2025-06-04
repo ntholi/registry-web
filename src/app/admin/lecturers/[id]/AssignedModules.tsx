@@ -58,7 +58,7 @@ export default function AssignedModules({ user }: Props) {
             right={3}
           />
           <Stack gap='xs'>
-            <Group w='100%'>
+            <Group w='100%' style={{ rowGap: '0px', columnGap: '0.5rem' }}>
               <Text fw={500}>
                 {assignment.semesterModule?.module?.name || 'Unknown Module'}
               </Text>
