@@ -112,26 +112,30 @@ export default function StudentTable({ moduleId }: Props) {
                 </Group>
               </Table.Th>
             ))}
-        <Table.Th style={{ textAlign: 'center', paddingRight: '0px' }}>
-          <Group gap={5} justify='center'>
-            <Text size='sm' fw={'bold'}>
-              Total
-            </Text>
-            <Text size='xs' c='dimmed'>
-              (
-              {assessments?.reduce(
-                (acc, assessment) => acc + assessment.weight,
-                0,
-              )}
-              %)
-            </Text>
-          </Group>
-        </Table.Th>
-        <Table.Th style={{ textAlign: 'center', paddingLeft: '0px' }}>
-          <Text size='sm' fw={'bold'}>
-            Grade
-          </Text>
-        </Table.Th>
+        {assessments && assessments.length > 0 && (
+          <>
+            <Table.Th style={{ textAlign: 'center', paddingRight: '0px' }}>
+              <Group gap={5} justify='center'>
+                <Text size='sm' fw={'bold'}>
+                  Total
+                </Text>
+                <Text size='xs' c='dimmed'>
+                  (
+                  {assessments.reduce(
+                    (acc, assessment) => acc + assessment.weight,
+                    0,
+                  )}
+                  %)
+                </Text>
+              </Group>
+            </Table.Th>
+            <Table.Th style={{ textAlign: 'center', paddingLeft: '0px' }}>
+              <Text size='sm' fw={'bold'}>
+                Grade
+              </Text>
+            </Table.Th>
+          </>
+        )}
       </Table.Tr>
     );
   }
@@ -154,12 +158,16 @@ export default function StudentTable({ moduleId }: Props) {
                 </Table.Td>
               ),
             )}
-            <Table.Td>
-              <Skeleton height={24} width={80} mx='auto' />
-            </Table.Td>
-            <Table.Td>
-              <Skeleton height={24} width={80} mx='auto' />
-            </Table.Td>
+            {assessments && assessments.length > 0 && (
+              <>
+                <Table.Td>
+                  <Skeleton height={24} width={80} mx='auto' />
+                </Table.Td>
+                <Table.Td>
+                  <Skeleton height={24} width={80} mx='auto' />
+                </Table.Td>
+              </>
+            )}
           </Table.Tr>
         ));
     }
@@ -167,7 +175,7 @@ export default function StudentTable({ moduleId }: Props) {
     if (!students?.length) {
       return (
         <Table.Tr>
-          <Table.Td colSpan={assessments?.length ? assessments.length + 4 : 5}>
+          <Table.Td colSpan={assessments?.length ? assessments.length + 4 : 4}>
             <Center py='md'>
               <Text c='dimmed'>No students found</Text>
             </Center>
@@ -220,24 +228,28 @@ export default function StudentTable({ moduleId }: Props) {
                   </Table.Td>
                 );
               })}
-          <Table.Td align='center'>
-            <StudentGradeDisplay
-              studentId={student.stdNo}
-              displayType='total'
-              moduleId={moduleId}
-              moduleGrade={getStudentGrade(student.stdNo)}
-              isLoading={moduleGradesLoading}
-            />
-          </Table.Td>
-          <Table.Td align='center'>
-            <StudentGradeDisplay
-              studentId={student.stdNo}
-              displayType='grade'
-              moduleId={moduleId}
-              moduleGrade={getStudentGrade(student.stdNo)}
-              isLoading={moduleGradesLoading}
-            />
-          </Table.Td>
+          {assessments && assessments.length > 0 && (
+            <>
+              <Table.Td align='center'>
+                <StudentGradeDisplay
+                  studentId={student.stdNo}
+                  displayType='total'
+                  moduleId={moduleId}
+                  moduleGrade={getStudentGrade(student.stdNo)}
+                  isLoading={moduleGradesLoading}
+                />
+              </Table.Td>
+              <Table.Td align='center'>
+                <StudentGradeDisplay
+                  studentId={student.stdNo}
+                  displayType='grade'
+                  moduleId={moduleId}
+                  moduleGrade={getStudentGrade(student.stdNo)}
+                  isLoading={moduleGradesLoading}
+                />
+              </Table.Td>
+            </>
+          )}
         </Table.Tr>
       );
     });
@@ -269,22 +281,11 @@ export default function StudentTable({ moduleId }: Props) {
           </Paper>
         )}
       </Group>
-      {!assessments?.length && !isLoading ? (
-        <Paper p='xl' withBorder>
-          <Center>
-            <Text c='dimmed'>
-              No assessments found for this module. Add assessments first.
-            </Text>
-          </Center>
-        </Paper>
-      ) : (
-        <div>
-          <Table highlightOnHover withTableBorder>
-            <Table.Thead>{renderTableHeaders()}</Table.Thead>
-            <Table.Tbody>{renderTableRows()}</Table.Tbody>
-          </Table>
-        </div>
-      )}
+
+      <Table highlightOnHover withTableBorder>
+        <Table.Thead>{renderTableHeaders()}</Table.Thead>
+        <Table.Tbody>{renderTableRows()}</Table.Tbody>
+      </Table>
     </Stack>
   );
 }
