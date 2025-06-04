@@ -19,6 +19,10 @@ export async function getAssessmentMarksByModuleId(moduleId: number) {
   return service.getByModuleId(moduleId);
 }
 
+export async function getAssessmentMarksAuditHistory(assessmentMarkId: number) {
+  return service.getAuditHistory(assessmentMarkId);
+}
+
 export async function createAssessmentMark(assessmentMark: AssessmentMark) {
   return service.create(assessmentMark);
 }

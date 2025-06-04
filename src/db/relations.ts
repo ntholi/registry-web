@@ -3,6 +3,7 @@ import {
   accounts,
   assessments,
   assessmentMarks,
+  assessmentMarksAudit,
   authenticators,
   assignedModules,
   modulePrerequisites,
@@ -292,7 +293,7 @@ export const assessmentsRelations = relations(assessments, ({ many, one }) => ({
 
 export const assessmentMarksRelations = relations(
   assessmentMarks,
-  ({ one }) => ({
+  ({ one, many }) => ({
     assessment: one(assessments, {
       fields: [assessmentMarks.assessmentId],
       references: [assessments.id],
@@ -300,6 +301,21 @@ export const assessmentMarksRelations = relations(
     student: one(students, {
       fields: [assessmentMarks.stdNo],
       references: [students.stdNo],
+    }),
+    audits: many(assessmentMarksAudit),
+  }),
+);
+
+export const assessmentMarksAuditRelations = relations(
+  assessmentMarksAudit,
+  ({ one }) => ({
+    assessmentMark: one(assessmentMarks, {
+      fields: [assessmentMarksAudit.assessmentMarkId],
+      references: [assessmentMarks.id],
+    }),
+    createdByUser: one(users, {
+      fields: [assessmentMarksAudit.createdBy],
+      references: [users.id],
     }),
   }),
 );

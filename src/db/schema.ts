@@ -591,6 +591,28 @@ export const assessmentMarks = sqliteTable('assessment_marks', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
+export const assessmentMarksAuditActionEnum = [
+  'create',
+  'update',
+  'delete',
+] as const;
+
+export const assessmentMarksAudit = sqliteTable('assessment_marks_audit', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  assessmentMarkId: integer()
+    .references(() => assessmentMarks.id, { onDelete: 'cascade' })
+    .notNull(),
+  action: text({ enum: assessmentMarksAuditActionEnum }).notNull(),
+  previousMarks: real(),
+  newMarks: real(),
+  createdBy: text()
+    .references(() => users.id, { onDelete: 'set null' })
+    .notNull(),
+  date: integer({ mode: 'timestamp' })
+    .default(sql`(unixepoch())`)
+    .notNull(),
+});
+
 export const moduleGrades = sqliteTable(
   'module_grades',
   {

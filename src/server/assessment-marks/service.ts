@@ -56,6 +56,13 @@ class AssessmentMarkService {
       ['academic'],
     );
   }
+
+  async getAuditHistory(assessmentMarkId: number) {
+    return withAuth(
+      async () => this.repository.getAuditHistory(assessmentMarkId),
+      ['academic'],
+    );
+  }
 }
 
 export const assessmentMarksService = new AssessmentMarkService();

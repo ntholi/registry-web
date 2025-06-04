@@ -1,0 +1,1 @@
+ALTER TABLE `assessment_marks_audit` DROP COLUMN `message`;
