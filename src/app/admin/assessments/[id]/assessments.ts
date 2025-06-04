@@ -133,3 +133,7 @@ export function getAssessmentNumberLabel(value: string): string {
   const option = COURSE_WORK_OPTIONS.find((opt) => opt.value === value);
   return option?.label || value;
 }
+
+export function getAssessmentName(type: string) {
+  return ASSESSMENT_TYPES.find((option) => option.value === type)?.label;
+}

@@ -5,7 +5,7 @@ import { assessments } from '@/db/schema';
 import { Grid, NumberInput, Select } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
-import { assessmentNumberOptions, assessmentTypeOptions } from './options';
+import { ASSESSMENT_TYPES } from './[id]/assessments';
 
 type Assessment = typeof assessments.$inferInsert;
 
@@ -45,7 +45,7 @@ export default function AssessmentForm({
               searchable
               clearable
               placeholder='Assessment (Course Work) Number'
-              data={assessmentNumberOptions}
+              data={ASSESSMENT_TYPES}
               {...form.getInputProps('assessmentNumber')}
             />
           </Grid.Col>
@@ -54,7 +54,7 @@ export default function AssessmentForm({
               label='Assessment Type'
               searchable
               clearable
-              data={assessmentTypeOptions}
+              data={ASSESSMENT_TYPES}
               {...form.getInputProps('assessmentType')}
             />
           </Grid.Col>

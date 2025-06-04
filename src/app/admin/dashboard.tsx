@@ -219,7 +219,7 @@ function getNavigation(department: DashboardUser) {
       label: 'Programs',
       href: '/admin/programs',
       icon: IconBuildingStore,
-      roles: ['registry'],
+      roles: ['registry', 'academic'],
     },
     {
       label: 'Terms',
