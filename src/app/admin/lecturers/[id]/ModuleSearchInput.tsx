@@ -20,6 +20,7 @@ interface ModuleOption extends ComboboxItem {
   value: string;
   label: string;
   code: string;
+  name: string;
   studentCount: number;
 }
 
@@ -56,8 +57,9 @@ export const ModuleSearchInput = forwardRef<
   const options: ModuleOption[] =
     modules?.map((module) => ({
       value: module.moduleId.toString(),
-      label: module.name,
+      label: `${module.code} - ${module.name}`,
       code: module.code,
+      name: module.name,
       studentCount: module.studentCount,
     })) || [];
 
@@ -112,7 +114,7 @@ export const ModuleSearchInput = forwardRef<
               <Text size='sm' fw={500}>
                 {moduleOption.code}
               </Text>
-              <Text size='sm'>{moduleOption.label}</Text>
+              <Text size='sm'>{moduleOption.name}</Text>
             </Group>
             <Text size='xs' c='dimmed'>
               {moduleOption.studentCount} student

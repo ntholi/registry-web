@@ -219,7 +219,7 @@ export default function StudentTable({ moduleId }: Props) {
                     />
                   </Table.Td>
                 );
-              })}{' '}
+              })}
           <Table.Td align='center'>
             <StudentGradeDisplay
               studentId={student.stdNo}
