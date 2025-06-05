@@ -79,7 +79,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
       setFile(selectedFile);
       const data = await ExcelParser.parseFile(selectedFile);
       setExcelData(data);
-
       const detected = ColumnDetector.detectColumns(data, assessments);
       setDetectedColumns(detected);
 
@@ -88,10 +87,8 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
           studentNumberColumn: detected.studentNumberColumn,
           assessmentColumns: detected.assessmentColumns,
         });
-        setActiveStep(2);
-      } else {
-        setActiveStep(1);
       }
+      setActiveStep(1);
     } catch (error) {
       notifications.show({
         title: 'File Parse Error',
