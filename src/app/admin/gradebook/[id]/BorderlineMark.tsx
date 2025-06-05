@@ -2,9 +2,19 @@
 
 import { upsertModuleGrade } from '@/server/module-grades/actions';
 import { getLetterGrade } from '@/utils/gradeCalculations';
-import { Alert, Badge, Button, Group, Modal, Stack, Text } from '@mantine/core';
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Group,
+  Modal,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
+  IconAlertCircle, // Added IconAlertCircle
   IconAlertTriangle,
   IconChevronLeft,
   IconChevronRight,
@@ -41,6 +51,7 @@ export default function BorderlineMark({
       higher: floorScore + 1,
     };
   };
+
   const adjustGradeMutation = useMutation({
     mutationFn: async (newScore: number) => {
       const grade = getLetterGrade(newScore);
@@ -75,78 +86,76 @@ export default function BorderlineMark({
     <>
       <Badge
         variant='light'
+        pos='relative'
         color={hasPassed ? 'green' : 'red'}
         radius={'sm'}
-        w={43}
         style={{
           cursor: isBorderline ? 'pointer' : 'default',
-          border: isBorderline ? '2px solid orange' : undefined,
-          position: 'relative',
+          border: isBorderline
+            ? `2px solid var(--mantine-color-orange-6)`
+            : undefined,
+          zIndex: 2,
         }}
         onClick={isBorderline ? open : undefined}
       >
-        {Math.ceil(weightedTotal)}
         {isBorderline && (
-          <span
-            style={{
-              position: 'absolute',
-              top: -2,
-              right: -2,
-              fontSize: '8px',
-              color: 'orange',
-            }}
-          >
-            ⚠
-          </span>
+          <Box pos='absolute' top={-5} right={-5} style={{ zIndex: 10 }}>
+            <IconAlertCircle size={16} />
+          </Box>
         )}
+        {Math.ceil(weightedTotal)}%
       </Badge>
 
-      <Modal opened={opened} onClose={close} title='Borderline Mark' centered>
-        <Stack>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title='Borderline Mark Adjustment'
+        centered
+      >
+        <Stack gap='md'>
           <Alert
-            icon={<IconAlertTriangle size={16} />}
-            title='Adjust Borderline Mark'
+            icon={<IconAlertTriangle size={20} />}
+            title='Borderline Mark Detected'
             color='orange'
-            variant='transparent'
+            variant='light'
           >
-            This student's total mark of{' '}
-            <Text c='yellow' component='span' size='sm' fw={'bold'}>
-              {Math.ceil(weightedTotal)}
+            The current mark of{' '}
+            <Text c='orange.7' span fw='bold'>
+              {Math.ceil(weightedTotal)}%
             </Text>{' '}
-            is a borderline mark. You can adjust it to either of the following
-            options:
+            is considered borderline. You may adjust it to one of the adjacent
+            values.
           </Alert>
 
           {borderlineOptions && (
-            <Group pl={55} gap='md'>
-              <Button
-                variant='default'
-                color='red'
-                size='xs'
-                leftSection={<IconChevronLeft size={16} />}
-                onClick={() => handleAdjustGrade(borderlineOptions.lower)}
-                disabled={adjustGradeMutation.isPending}
-              >
-                Adjust to {borderlineOptions.lower}
-              </Button>
-              <Button
-                variant='default'
-                color='green'
-                size='xs'
-                rightSection={<IconChevronRight size={16} />}
-                onClick={() => handleAdjustGrade(borderlineOptions.higher)}
-                disabled={adjustGradeMutation.isPending}
-              >
-                Adjust to {borderlineOptions.higher}
-              </Button>
-            </Group>
+            <Stack align='center' gap={0} mt='xs'>
+              <Text size='xs' c='dimmed'>
+                Choose an adjusted mark:
+              </Text>
+              <Group justify='center' my='md'>
+                <Button
+                  variant='outline'
+                  color='red.7'
+                  size='sm'
+                  leftSection={<IconChevronLeft size={16} />}
+                  onClick={() => handleAdjustGrade(borderlineOptions.lower)}
+                  loading={adjustGradeMutation.isPending}
+                >
+                  {borderlineOptions.lower}%
+                </Button>
+                <Button
+                  variant='outline'
+                  color='green.7'
+                  size='sm'
+                  rightSection={<IconChevronRight size={16} />}
+                  onClick={() => handleAdjustGrade(borderlineOptions.higher)}
+                  loading={adjustGradeMutation.isPending}
+                >
+                  {borderlineOptions.higher}%
+                </Button>
+              </Group>
+            </Stack>
           )}
-
-          <Group justify='flex-end'>
-            <Button variant='subtle' onClick={close}>
-              Cancel
-            </Button>
-          </Group>
         </Stack>
       </Modal>
     </>
