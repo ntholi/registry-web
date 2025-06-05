@@ -49,7 +49,6 @@ export default class BoeReportRepository extends BaseRepository<
   constructor() {
     super(students, 'stdNo');
   }
-
   async getStudentSemestersForFaculty(facultyId: number, termName: string) {
     const facultyPrograms = await db.query.programs.findMany({
       where: eq(programs.schoolId, facultyId),
@@ -64,10 +63,17 @@ export default class BoeReportRepository extends BaseRepository<
 
     const structureIds = structureRows.map((row) => row.id);
 
+    const studentProgramRows = await db
+      .select({ id: studentPrograms.id })
+      .from(studentPrograms)
+      .where(inArray(studentPrograms.structureId, structureIds));
+
+    const studentProgramIds = studentProgramRows.map((row) => row.id);
+
     return await db.query.studentSemesters.findMany({
       where: and(
         eq(studentSemesters.term, termName),
-        inArray(studentPrograms.structureId, structureIds),
+        inArray(studentSemesters.studentProgramId, studentProgramIds),
       ),
       with: {
         studentProgram: {
