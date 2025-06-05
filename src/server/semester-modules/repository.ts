@@ -12,7 +12,7 @@ import {
   terms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, desc, eq, inArray, like, not, or, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 
 type ModuleInfo = {
   code: string;
@@ -236,7 +236,6 @@ export default class ModuleRepository extends BaseRepository<
                 like(modules.name, `%${search}%`),
               )
             : undefined,
-          not(eq(semesterModules.hidden, true)),
         ),
       )
       .orderBy(modules.code);
