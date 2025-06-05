@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Button,
   Modal,
@@ -101,15 +101,13 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
       });
     }
   };
-
-  const handleColumnMappingConfirm = (mapping: ColumnMapping) => {
+  const handleColumnMappingConfirm = useCallback((mapping: ColumnMapping) => {
     setColumnMapping(mapping);
     setActiveStep(2);
-  };
-
-  const handlePreviewGenerated = (rows: ParsedRow[]) => {
+  }, []);
+  const handlePreviewGenerated = useCallback((rows: ParsedRow[]) => {
     setParsedRows(rows);
-  };
+  }, []);
 
   const importMutation = useMutation({
     mutationFn: async (rows: ParsedRow[]) => {
@@ -184,12 +182,11 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
       });
     },
   });
-
-  const handleImport = () => {
+  const handleImport = useCallback(() => {
     if (parsedRows.length > 0) {
       importMutation.mutate(parsedRows);
     }
-  };
+  }, [parsedRows, importMutation]);
 
   const resetImport = () => {
     setActiveStep(0);

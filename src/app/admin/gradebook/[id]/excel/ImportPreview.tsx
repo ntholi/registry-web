@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   Badge,
   Button,
@@ -38,13 +38,23 @@ export default function ImportPreview({
   onImport,
   isImporting,
 }: Props) {
-  const parsedData = parseExcelData(excelData, assessments, columnMapping);
-  const validRows = parsedData.filter((row) => row.isValid);
-  const invalidRows = parsedData.filter((row) => !row.isValid);
+  const parsedData = useMemo(
+    () => parseExcelData(excelData, assessments, columnMapping),
+    [excelData, assessments, columnMapping],
+  );
 
+  const validRows = useMemo(
+    () => parsedData.filter((row) => row.isValid),
+    [parsedData],
+  );
+
+  const invalidRows = useMemo(
+    () => parsedData.filter((row) => !row.isValid),
+    [parsedData],
+  );
   useEffect(() => {
     onPreviewGenerated(validRows);
-  }, [validRows, onPreviewGenerated]);
+  }, [validRows]);
 
   return (
     <Stack gap='md'>
