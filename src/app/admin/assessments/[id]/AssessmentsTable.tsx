@@ -60,7 +60,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
           <Title order={4} fw={400}>
             Assessments
           </Title>
-          <Badge variant='default' size='sm' radius={'xs'}>
+          <Badge variant='light' radius={'xs'}>
             Weight: {module?.assessments.reduce((sum, a) => sum + a.weight, 0)}%
           </Badge>
         </Group>

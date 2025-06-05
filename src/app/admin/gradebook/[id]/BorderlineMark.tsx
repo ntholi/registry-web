@@ -14,10 +14,10 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
-  IconAlertCircle, // Added IconAlertCircle
   IconAlertTriangle,
   IconChevronLeft,
   IconChevronRight,
+  IconExclamationMark,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -99,11 +99,11 @@ export default function BorderlineMark({
         onClick={isBorderline ? open : undefined}
       >
         {isBorderline && (
-          <Box pos='absolute' top={-5} right={-5} style={{ zIndex: 10 }}>
-            <IconAlertCircle size={16} />
+          <Box pos='absolute' right={-2} top={1} style={{ zIndex: 10 }}>
+            <IconExclamationMark size={14} />
           </Box>
         )}
-        {Math.ceil(weightedTotal)}%
+        {Math.ceil(weightedTotal)}
       </Badge>
 
       <Modal
@@ -115,31 +115,28 @@ export default function BorderlineMark({
         <Stack gap='md'>
           <Alert
             icon={<IconAlertTriangle size={20} />}
-            title='Borderline Mark Detected'
+            title='Borderline Mark'
             color='orange'
             variant='light'
           >
             The current mark of{' '}
             <Text c='orange.7' span fw='bold'>
-              {Math.ceil(weightedTotal)}%
+              {Math.ceil(weightedTotal)}
             </Text>{' '}
             is considered borderline. You may adjust it to one of the adjacent
             values.
           </Alert>
 
           {borderlineOptions && (
-            <Stack align='center' gap={0} mt='xs'>
-              <Text size='xs' c='dimmed'>
-                Choose an adjusted mark:
-              </Text>
-              <Group justify='center' my='md'>
+            <Stack align='center' gap={0} mt='xs' pb='lg'>
+              <Group justify='center' gap={'xl'} my='md'>
                 <Button
                   variant='outline'
                   color='red.7'
                   size='sm'
                   leftSection={<IconChevronLeft size={16} />}
                   onClick={() => handleAdjustGrade(borderlineOptions.lower)}
-                  loading={adjustGradeMutation.isPending}
+                  disabled={adjustGradeMutation.isPending}
                 >
                   {borderlineOptions.lower}%
                 </Button>
@@ -149,7 +146,7 @@ export default function BorderlineMark({
                   size='sm'
                   rightSection={<IconChevronRight size={16} />}
                   onClick={() => handleAdjustGrade(borderlineOptions.higher)}
-                  loading={adjustGradeMutation.isPending}
+                  disabled={adjustGradeMutation.isPending}
                 >
                   {borderlineOptions.higher}%
                 </Button>
