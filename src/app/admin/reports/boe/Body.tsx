@@ -15,6 +15,7 @@ import {
   Select,
 } from '@mantine/core';
 import { useCurrentTerm } from '@/hooks/use-current-term';
+import { useUserSchools } from '@/hooks/use-user-schools';
 
 export default function Body() {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -24,6 +25,16 @@ export default function Body() {
     queryFn: getSchools,
   });
   const { currentTerm } = useCurrentTerm();
+  const { userSchools, isLoading: userSchoolsLoading } = useUserSchools();
+
+  const availableSchools =
+    userSchools.length > 0 ? userSchools.map((us) => us.school) : schools || [];
+
+  React.useEffect(() => {
+    if (!selectedSchoolId && userSchools.length > 0) {
+      setSelectedSchoolId(userSchools[0].school.id.toString());
+    }
+  }, [userSchools, selectedSchoolId]);
 
   const generateReportMutation = useMutation({
     mutationFn: async () => {
@@ -58,7 +69,7 @@ export default function Body() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      const selectedSchool = schools?.find(
+      const selectedSchool = availableSchools?.find(
         (s) => s.id === Number(selectedSchoolId),
       );
       const schoolCode = selectedSchool?.code || 'School';
@@ -83,7 +94,7 @@ export default function Body() {
   };
 
   const schoolOptions =
-    schools?.map((school) => ({
+    availableSchools?.map((school) => ({
       value: school.id.toString(),
       label: school.name,
     })) || [];
@@ -100,6 +111,7 @@ export default function Body() {
         <CardSection inheritPadding>
           <Stack gap='md'>
             <Text my='xs'>
+              {' '}
               Select a school to generate BOE reports for all programs and
               students in that school for {currentTerm?.name}.
             </Text>
@@ -110,7 +122,7 @@ export default function Body() {
               data={schoolOptions}
               value={selectedSchoolId}
               onChange={setSelectedSchoolId}
-              disabled={schoolsLoading}
+              disabled={schoolsLoading || userSchoolsLoading}
               searchable
               clearable
             />
