@@ -34,7 +34,7 @@ import { ColumnDetector } from './ColumnDetector';
 import AssessmentMapping from './AssessmentMapping';
 import ImportPreview from './ImportPreview';
 import {
-  createAssessmentMark,
+  createOrUpdateMarks,
   calculateAndSaveModuleGrade,
 } from '@/server/assessment-marks/actions';
 import { ASSESSMENT_TYPES } from '@/app/admin/assessments/[id]/assessments';
@@ -119,12 +119,11 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
       for (let i = 0; i < validRows.length; i++) {
         const row = validRows[i];
         setImportProgress(((i + 1) / validRows.length) * 100);
-
         try {
           for (const [assessmentId, marks] of Object.entries(
             row.assessmentMarks,
           )) {
-            await createAssessmentMark({
+            await createOrUpdateMarks({
               assessmentId: parseInt(assessmentId),
               stdNo: parseInt(row.studentNumber),
               marks,

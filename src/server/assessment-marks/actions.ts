@@ -27,6 +27,10 @@ export async function createAssessmentMark(assessmentMark: AssessmentMark) {
   return service.create(assessmentMark);
 }
 
+export async function createOrUpdateMarks(assessmentMark: AssessmentMark) {
+  return service.createOrUpdateMarks(assessmentMark);
+}
+
 export async function updateAssessmentMark(
   id: number,
   assessmentMark: AssessmentMark,

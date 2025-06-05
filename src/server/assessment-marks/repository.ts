@@ -166,6 +166,63 @@ export default class AssessmentMarkRepository extends BaseRepository<
       orderBy: (audit, { desc }) => [desc(audit.date)],
     });
   }
+
+  async createOrUpdateMarks(data: typeof assessmentMarks.$inferInsert) {
+    const session = await auth();
+
+    const result = await db.transaction(async (tx) => {
+      if (!session?.user?.id) throw new Error('Unauthorized');
+
+      const existing = await tx
+        .select()
+        .from(assessmentMarks)
+        .where(
+          and(
+            eq(assessmentMarks.assessmentId, data.assessmentId),
+            eq(assessmentMarks.stdNo, data.stdNo),
+          ),
+        )
+        .limit(1)
+        .then(([result]) => result);
+
+      if (existing) {
+        const [updated] = await tx
+          .update(assessmentMarks)
+          .set({ marks: data.marks })
+          .where(eq(assessmentMarks.id, existing.id))
+          .returning();
+
+        if (data.marks !== existing.marks) {
+          await tx.insert(assessmentMarksAudit).values({
+            assessmentMarkId: existing.id,
+            action: 'update',
+            previousMarks: existing.marks,
+            newMarks: data.marks,
+            createdBy: session.user.id,
+          });
+        }
+
+        return { mark: updated, isNew: false };
+      } else {
+        const [created] = await tx
+          .insert(assessmentMarks)
+          .values(data)
+          .returning();
+
+        await tx.insert(assessmentMarksAudit).values({
+          assessmentMarkId: created.id,
+          action: 'create',
+          previousMarks: null,
+          newMarks: created.marks,
+          createdBy: session.user.id,
+        });
+
+        return { mark: created, isNew: true };
+      }
+    });
+
+    return result;
+  }
 }
 
 export const assessmentMarksRepository = new AssessmentMarkRepository();

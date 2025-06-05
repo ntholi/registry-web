@@ -63,6 +63,13 @@ class AssessmentMarkService {
       ['academic'],
     );
   }
+
+  async createOrUpdateMarks(data: AssessmentMark) {
+    return withAuth(
+      async () => this.repository.createOrUpdateMarks(data),
+      ['academic'],
+    );
+  }
 }
 
 export const assessmentMarksService = new AssessmentMarkService();
