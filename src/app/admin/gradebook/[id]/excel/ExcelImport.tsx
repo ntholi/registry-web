@@ -255,12 +255,14 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
               icon={<IconTable size={18} />}
               completedIcon={<IconCheck size={18} />}
             >
+              {' '}
               {excelData && detectedColumns && (
                 <AssessmentMapping
                   excelData={excelData}
                   detectedColumns={detectedColumns}
                   assessments={assessments}
                   onConfirm={handleColumnMappingConfirm}
+                  onBack={() => setActiveStep(0)}
                 />
               )}
             </Stepper.Step>
@@ -363,20 +365,23 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
               )}
             </Stepper.Step>
           </Stepper>{' '}
-          {activeStep < 3 && !isImporting && activeStep !== 2 && (
-            <Group justify='space-between'>
-              <Button
-                variant='subtle'
-                onClick={
-                  activeStep > 0
-                    ? () => setActiveStep(activeStep - 1)
-                    : handleClose
-                }
-              >
-                {activeStep > 0 ? 'Back' : 'Cancel'}
-              </Button>
-            </Group>
-          )}
+          {activeStep < 3 &&
+            !isImporting &&
+            activeStep !== 2 &&
+            activeStep !== 1 && (
+              <Group justify='space-between'>
+                <Button
+                  variant='subtle'
+                  onClick={
+                    activeStep > 0
+                      ? () => setActiveStep(activeStep - 1)
+                      : handleClose
+                  }
+                >
+                  {activeStep > 0 ? 'Back' : 'Cancel'}
+                </Button>
+              </Group>
+            )}
         </Stack>
       </Modal>
     </>
