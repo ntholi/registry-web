@@ -273,9 +273,20 @@ export default function StudentTable({ moduleId }: Props) {
             ) : null
           }
           leftSection={<IconSearch size='1.2rem' />}
-        />
+        />{' '}
         <Group>
-          {assessments && assessments.length > 0 && <ExcelImport />}
+          {assessments && assessments.length > 0 && (
+            <ExcelImport
+              moduleId={moduleId}
+              assessments={assessments.map((assessment) => ({
+                id: assessment.id,
+                assessmentType: assessment.assessmentType,
+                assessmentNumber: assessment.assessmentNumber,
+                totalMarks: assessment.totalMarks,
+                weight: assessment.weight,
+              }))}
+            />
+          )}
           {!studentsLoading && students && (
             <Paper withBorder p={8.5}>
               <Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
