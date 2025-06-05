@@ -274,6 +274,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
               icon={<IconFileCheck size={18} />}
               completedIcon={<IconCheck size={18} />}
             >
+              {' '}
               {excelData && columnMapping && (
                 <ImportPreview
                   excelData={excelData}
@@ -281,10 +282,10 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                   assessments={assessments}
                   onPreviewGenerated={handlePreviewGenerated}
                   onImport={handleImport}
+                  onBack={() => setActiveStep(1)}
                   isImporting={isImporting}
                 />
               )}
-
               {isImporting && (
                 <Paper p='md' withBorder>
                   <Stack gap='xs'>
@@ -364,9 +365,8 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                 </Stack>
               )}
             </Stepper.Step>
-          </Stepper>
-
-          {activeStep < 3 && !isImporting && (
+          </Stepper>{' '}
+          {activeStep < 3 && !isImporting && activeStep !== 2 && (
             <Group justify='space-between'>
               <Button
                 variant='subtle'
@@ -378,12 +378,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
               >
                 {activeStep > 0 ? 'Back' : 'Cancel'}
               </Button>
-
-              {activeStep === 2 && parsedRows.length > 0 && (
-                <Button onClick={handleImport}>
-                  Import {parsedRows.filter((r) => r.isValid).length} Records
-                </Button>
-              )}
             </Group>
           )}
         </Stack>

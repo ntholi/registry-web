@@ -27,6 +27,7 @@ type Props = {
   assessments: AssessmentInfo[];
   onPreviewGenerated: (rows: ParsedRow[]) => void;
   onImport: () => void;
+  onBack: () => void;
   isImporting: boolean;
 };
 
@@ -36,6 +37,7 @@ export default function ImportPreview({
   assessments,
   onPreviewGenerated,
   onImport,
+  onBack,
   isImporting,
 }: Props) {
   const parsedData = useMemo(
@@ -69,13 +71,9 @@ export default function ImportPreview({
           </Badge>
         </Group>
       </Group>
-
       {validRows.length > 0 && (
         <Paper p='md' withBorder>
           <Stack gap='sm'>
-            <Text size='sm' fw={500} c='green'>
-              Valid Records ({validRows.length})
-            </Text>
             <ScrollArea h={300}>
               <Table striped highlightOnHover>
                 <Table.Thead>
@@ -114,7 +112,6 @@ export default function ImportPreview({
           </Stack>
         </Paper>
       )}
-
       {invalidRows.length > 0 && (
         <Paper p='md' withBorder>
           <Stack gap='sm'>
@@ -150,15 +147,16 @@ export default function ImportPreview({
             </ScrollArea>
           </Stack>{' '}
         </Paper>
-      )}
-
-      <Group justify='flex-end'>
+      )}{' '}
+      <Group justify='space-between'>
+        <Button variant='subtle' onClick={onBack} disabled={isImporting}>
+          Back
+        </Button>
         <Button
           onClick={onImport}
           disabled={validRows.length === 0 || isImporting}
           loading={isImporting}
           leftSection={<IconFileImport size='1rem' />}
-          size='lg'
         >
           Import {validRows.length} Record{validRows.length !== 1 ? 's' : ''}
         </Button>
@@ -195,8 +193,6 @@ function parseExcelData(
         );
         if (normalizedStudentNumber) {
           studentNumber = normalizedStudentNumber;
-        } else {
-          errors.push('Invalid student number');
         }
       } else {
         errors.push('Student number column not mapped');
