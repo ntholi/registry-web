@@ -1,4 +1,4 @@
-import { assessmentMarks } from '@/db/schema';
+import { assessmentMarks, terms } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import AssessmentMarkRepository from './repository';
@@ -64,9 +64,12 @@ class AssessmentMarkService {
     );
   }
 
-  async createOrUpdateMarks(data: AssessmentMark) {
+  async createOrUpdateMarks(
+    data: AssessmentMark,
+    term: typeof terms.$inferSelect,
+  ) {
     return withAuth(
-      async () => this.repository.createOrUpdateMarks(data),
+      async () => this.repository.createOrUpdateMarks(data, term),
       ['academic'],
     );
   }

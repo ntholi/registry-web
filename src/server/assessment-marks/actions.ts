@@ -1,6 +1,6 @@
 'use server';
 
-import { assessmentMarks } from '@/db/schema';
+import { assessmentMarks, terms } from '@/db/schema';
 import { calculateModuleGrade } from '@/utils/gradeCalculations';
 import { upsertModuleGrade } from '../module-grades/actions';
 import { assessmentMarksService as service } from './service';
@@ -27,8 +27,14 @@ export async function createAssessmentMark(assessmentMark: AssessmentMark) {
   return service.create(assessmentMark);
 }
 
-export async function createOrUpdateMarks(assessmentMark: AssessmentMark) {
-  return service.createOrUpdateMarks(assessmentMark);
+export async function createOrUpdateMarks(
+  assessmentMark: AssessmentMark,
+  term?: typeof terms.$inferSelect,
+) {
+  if (!term) {
+    throw new Error('Term is required for creating or updating marks');
+  }
+  return service.createOrUpdateMarks(assessmentMark, term);
 }
 
 export async function updateAssessmentMark(

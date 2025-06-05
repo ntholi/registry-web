@@ -4,7 +4,8 @@ import { TextInput, Group, Text, Box } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useRef, useEffect } from 'react';
 import {
-  createOrUpdateMarks,
+  createAssessmentMark,
+  updateAssessmentMark,
   calculateAndSaveModuleGrade,
 } from '@/server/assessment-marks/actions';
 
@@ -50,7 +51,13 @@ export default function MarksInput({
       stdNo: number;
       marks: number;
     }) => {
-      return await createOrUpdateMarks(data);
+      let result;
+      if (existingMarkId !== undefined) {
+        result = await updateAssessmentMark(existingMarkId, data);
+      } else {
+        result = await createAssessmentMark(data);
+      }
+      return result;
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({

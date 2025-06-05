@@ -1,51 +1,48 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import {
-  Button,
-  Modal,
-  Stepper,
-  Group,
-  Text,
-  Stack,
-  FileInput,
   Alert,
-  Progress,
+  Button,
+  FileInput,
+  Group,
+  Modal,
   Paper,
-  ActionIcon,
-  Tooltip,
+  Progress,
+  Stack,
+  Stepper,
+  Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  IconFileImport,
-  IconX,
-  IconCheck,
   IconAlertCircle,
-  IconUpload,
-  IconTable,
-  IconFileCheck,
+  IconCheck,
   IconDatabase,
+  IconFileCheck,
+  IconFileImport,
+  IconTable,
+  IconUpload,
 } from '@tabler/icons-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
 
-import { ExcelParser } from './ExcelParser';
-import { ColumnDetector } from './ColumnDetector';
-import AssessmentMapping from './AssessmentMapping';
-import ImportPreview from './ImportPreview';
 import {
-  createOrUpdateMarks,
   calculateAndSaveModuleGrade,
+  createOrUpdateMarks,
 } from '@/server/assessment-marks/actions';
-import { ASSESSMENT_TYPES } from '@/app/admin/assessments/[id]/assessments';
+import AssessmentMapping from './AssessmentMapping';
+import { ColumnDetector } from './ColumnDetector';
+import { ExcelParser } from './ExcelParser';
+import ImportPreview from './ImportPreview';
 import type {
-  ExcelData,
+  AssessmentInfo,
   ColumnMapping,
   DetectedColumns,
-  ParsedRow,
+  ExcelData,
   ImportResult,
-  AssessmentInfo,
+  ParsedRow,
 } from './types';
+import { useCurrentTerm } from '@/hooks/use-current-term';
 
 interface Props {
   moduleId: number;
@@ -67,6 +64,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const queryClient = useQueryClient();
+  const { currentTerm } = useCurrentTerm();
 
   const handleFileSelect = async (selectedFile: File | null) => {
     if (!selectedFile) {
@@ -123,11 +121,14 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
           for (const [assessmentId, marks] of Object.entries(
             row.assessmentMarks,
           )) {
-            await createOrUpdateMarks({
-              assessmentId: parseInt(assessmentId),
-              stdNo: parseInt(row.studentNumber),
-              marks,
-            });
+            await createOrUpdateMarks(
+              {
+                assessmentId: parseInt(assessmentId),
+                stdNo: parseInt(row.studentNumber),
+                marks,
+              },
+              currentTerm,
+            );
           }
 
           await calculateAndSaveModuleGrade(

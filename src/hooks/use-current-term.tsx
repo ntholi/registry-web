@@ -5,7 +5,8 @@ export function useCurrentTerm() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['currentTerm'],
     queryFn: () => getCurrentTerm(),
-    staleTime: 1000 * 60 * 10,
+    // 20 minutes
+    staleTime: 1000 * 60 * 20,
   });
 
   return {
