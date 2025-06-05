@@ -10,10 +10,16 @@ import {
   Table,
   Text,
   TextInput,
+  UnstyledButton,
 } from '@mantine/core';
-import { IconSearch } from '@tabler/icons-react';
+import {
+  IconChevronDown,
+  IconChevronUp,
+  IconSearch,
+  IconSelector,
+} from '@tabler/icons-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
 import ExcelImport from './excel/ExcelImport';
 import MarksInput from './MarksInput';
@@ -23,18 +29,107 @@ import {
   useAssessmentsQuery,
   useModuleGradesQuery,
 } from './useAssessmentsQuery';
-import { useStudentsQuery } from './useStudentsQuery';
+import { Student, useStudentsQuery } from './useStudentsQuery';
 
 type Props = {
   moduleId: number;
 };
 
+interface ThProps {
+  children: React.ReactNode;
+  reversed: boolean;
+  sorted: boolean;
+  onSort(): void;
+  style?: React.CSSProperties;
+}
+
+function Th({ children, reversed, sorted, onSort, style }: ThProps) {
+  const Icon = sorted
+    ? reversed
+      ? IconChevronUp
+      : IconChevronDown
+    : IconSelector;
+  return (
+    <Table.Th style={style}>
+      <UnstyledButton onClick={onSort} style={{ width: '100%' }}>
+        <Group justify='space-between' gap='xs' wrap='nowrap'>
+          <Text fw={500} fz='sm'>
+            {children}
+          </Text>
+          <Center>
+            <Icon size={14} stroke={1.5} />
+          </Center>
+        </Group>
+      </UnstyledButton>
+    </Table.Th>
+  );
+}
+
+function sortData(
+  data: Student[],
+  payload: { sortBy: keyof Student | null; reversed: boolean; search: string },
+) {
+  const { sortBy, reversed, search } = payload;
+
+  if (!sortBy) {
+    return data.filter((item) => {
+      const name = String(item.name).toLowerCase();
+      const stdNo = String(item.stdNo).toLowerCase();
+      const lowerSearch = search.toLowerCase();
+      return name.includes(lowerSearch) || stdNo.includes(lowerSearch);
+    });
+  }
+
+  return [...data]
+    .filter((item) => {
+      const name = String(item.name).toLowerCase();
+      const stdNo = String(item.stdNo).toLowerCase();
+      const lowerSearch = search.toLowerCase();
+      return name.includes(lowerSearch) || stdNo.includes(lowerSearch);
+    })
+    .sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return reversed ? bValue - aValue : aValue - bValue;
+      }
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return reversed
+          ? bValue.localeCompare(aValue)
+          : aValue.localeCompare(bValue);
+      }
+      const aStr = String(aValue).toLowerCase();
+      const bStr = String(bValue).toLowerCase();
+      return reversed ? bStr.localeCompare(aStr) : aStr.localeCompare(bStr);
+    });
+}
+
 export default function StudentTable({ moduleId }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: students, isLoading: studentsLoading } = useStudentsQuery({
+  const [sortBy, setSortBy] = useState<keyof Student | null>(null);
+  const [reverseSortDirection, setReverseSortDirection] = useState(false);
+
+  const { data: studentsData, isLoading: studentsLoading } = useStudentsQuery({
     moduleId,
-    searchQuery,
+    searchQuery: '',
   });
+
+  const setSorting = (field: keyof Student) => {
+    const reversed = field === sortBy ? !reverseSortDirection : false;
+    setReverseSortDirection(reversed);
+    setSortBy(field);
+  };
+
+  const sortedStudents = studentsData
+    ? sortData(studentsData, {
+        sortBy,
+        reversed: reverseSortDirection,
+        search: searchQuery,
+      })
+    : [];
+
   const { data: assessments, isLoading: assessmentsLoading } =
     useAssessmentsQuery(moduleId);
   const { data: assessmentMarks, isLoading: marksLoading } =
@@ -47,27 +142,7 @@ export default function StudentTable({ moduleId }: Props) {
     assessmentsLoading ||
     marksLoading ||
     moduleGradesLoading;
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-
-    const preventAutoScroll = () => {
-      window.scrollTo(0, 0);
-    };
-
-    if (isLoading) {
-      timeoutId = setTimeout(preventAutoScroll, 0);
-    }
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [isLoading, students, assessments, assessmentMarks]);
   const getStudentMark = (studentId: number, assessmentId: number) => {
     if (!assessmentMarks) return { mark: undefined, markId: undefined };
 
@@ -85,11 +160,24 @@ export default function StudentTable({ moduleId }: Props) {
     if (!moduleGrades) return null;
     return moduleGrades.find((grade) => grade.stdNo === studentId) || null;
   };
+
   function renderTableHeaders() {
     return (
       <Table.Tr>
-        <Table.Th>Student Number</Table.Th>
-        <Table.Th>Name</Table.Th>
+        <Th
+          sorted={sortBy === 'stdNo'}
+          reversed={reverseSortDirection}
+          onSort={() => setSorting('stdNo')}
+        >
+          Student Number
+        </Th>
+        <Th
+          sorted={sortBy === 'name'}
+          reversed={reverseSortDirection}
+          onSort={() => setSorting('name')}
+        >
+          Name
+        </Th>
         {assessmentsLoading
           ? Array(2)
               .fill(0)
@@ -140,51 +228,66 @@ export default function StudentTable({ moduleId }: Props) {
       </Table.Tr>
     );
   }
+
   function renderTableRows() {
-    if (studentsLoading) {
+    if (studentsLoading && !sortedStudents.length) {
       return Array(5)
         .fill(0)
         .map((_, index) => (
-          <Table.Tr key={`skeleton-${index}`}>
+          <Table.Tr key={`skeleton-row-${index}`}>
             <Table.Td>
-              <Skeleton height={24} width={120} />
+              <Skeleton height={20} width={100} />
             </Table.Td>
             <Table.Td>
-              <Skeleton height={24} width={200} />
+              <Skeleton height={20} width={150} />
             </Table.Td>
-            {(assessmentsLoading ? Array(3).fill(0) : assessments || []).map(
-              (_, idx) => (
-                <Table.Td key={`skeleton-${index}-${idx}`}>
-                  <Skeleton height={24} width={80} mx='auto' />
-                </Table.Td>
-              ),
-            )}
-            {assessments && assessments.length > 0 && (
-              <>
+            {assessmentsLoading || !assessments
+              ? Array(2)
+                  .fill(0)
+                  .map((_, idx) => (
+                    <Table.Td key={`skeleton-cell-loading-${index}-${idx}`}>
+                      <Skeleton height={24} width={80} mx='auto' />
+                    </Table.Td>
+                  ))
+              : assessments.map((assessment, idx) => (
+                  <Table.Td
+                    key={`skeleton-cell-${index}-${assessment.id || idx}`}
+                  >
+                    <Skeleton height={24} width={80} mx='auto' />
+                  </Table.Td>
+                ))}
+            {(assessmentsLoading ||
+              (assessments && assessments.length > 0)) && (
+              <React.Fragment>
                 <Table.Td>
-                  <Skeleton height={24} width={80} mx='auto' />
+                  <Skeleton height={24} width={60} mx='auto' />
                 </Table.Td>
                 <Table.Td>
-                  <Skeleton height={24} width={80} mx='auto' />
+                  <Skeleton height={24} width={60} mx='auto' />
                 </Table.Td>
-              </>
+              </React.Fragment>
             )}
           </Table.Tr>
         ));
     }
 
-    if (!students?.length) {
+    if (!sortedStudents || sortedStudents.length === 0) {
       return (
         <Table.Tr>
-          <Table.Td colSpan={assessments?.length ? assessments.length + 4 : 4}>
-            <Center py='md'>
-              <Text c='dimmed'>No students found</Text>
+          <Table.Td colSpan={assessments ? assessments.length + 4 : 4}>
+            <Center p='md'>
+              <Text>
+                {searchQuery
+                  ? 'No students match your search.'
+                  : 'No students found.'}
+              </Text>
             </Center>
           </Table.Td>
         </Table.Tr>
       );
     }
-    return students.map((student) => {
+
+    return sortedStudents.map((student) => {
       return (
         <Table.Tr key={student.stdNo}>
           <Table.Td>
@@ -287,10 +390,11 @@ export default function StudentTable({ moduleId }: Props) {
               }))}
             />
           )}
-          {!studentsLoading && students && (
+          {!studentsLoading && studentsData && (
             <Paper withBorder p={8.5}>
               <Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
-                {students.length} student{students.length !== 1 ? 's' : ''}
+                {sortedStudents.length} student
+                {sortedStudents.length !== 1 ? 's' : ''} displayed
               </Text>
             </Paper>
           )}

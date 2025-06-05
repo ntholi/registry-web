@@ -1,6 +1,8 @@
 'use client';
 
 import { getStudentsByModuleId } from '@/server/students/actions';
+
+export type Student = Awaited<ReturnType<typeof getStudentsByModuleId>>[number];
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 
