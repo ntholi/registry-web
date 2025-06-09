@@ -4,6 +4,7 @@ import { users } from '@/db/schema';
 import { toClassName } from '@/lib/utils';
 import { getAssignedModulesByUser } from '@/server/assigned-modules/actions';
 import {
+  Avatar,
   Badge,
   Card,
   Group,
@@ -54,30 +55,30 @@ export default function AssignedModules({ user }: Props) {
             }
             userId={user.id}
             pos='absolute'
-            top={3}
-            right={3}
-          />
-          <Stack gap='xs'>
-            <Group w='100%' style={{ rowGap: '0px', columnGap: '0.5rem' }}>
-              <Text fw={500}>
+            top={8}
+            right={8}
+          />{' '}
+          <Group gap='md' align='flex-start'>
+            <Avatar size={70} radius='md' variant='default'>
+              <Text ff={'monospace'} size='xs' fw={700} ta='center'>
+                {assignment.semesterModule?.module?.code || 'N/A'}
+              </Text>
+            </Avatar>
+            <Stack gap='xs' style={{ flex: 1 }}>
+              <Text fw={500} size='md'>
                 {assignment.semesterModule?.module?.name || 'Unknown Module'}
               </Text>
-              <Text size='sm' c='dimmed'>
-                ({assignment.semesterModule?.module?.code || 'N/A'})
-              </Text>
-            </Group>
 
-            <Group gap='xs'>
               {assignment.semesterModule?.semester?.name && (
-                <Badge variant='light' color='gray'>
+                <Badge variant='light' color='gray' size='sm'>
                   {toClassName(
                     assignment.semesterModule.semester.structure.program.code,
                     assignment.semesterModule.semester.name,
                   )}
                 </Badge>
               )}
-            </Group>
-          </Stack>
+            </Stack>
+          </Group>
         </Card>
       ))}
     </SimpleGrid>
