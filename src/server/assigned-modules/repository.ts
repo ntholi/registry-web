@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { assignedModules, users } from '@/db/schema';
+import { assignedModules, users, semesterModules } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 import { and, eq, inArray } from 'drizzle-orm';
 
@@ -75,7 +75,7 @@ export default class AssignedModuleRepository extends BaseRepository<
 
     return results.filter((item) => item.semesterModule?.moduleId === moduleId);
   }
-  async findByModule(semesterModuleId: number) {
+  async findByModule(moduleId: number) {
     return db
       .select({
         id: users.id,
@@ -85,7 +85,11 @@ export default class AssignedModuleRepository extends BaseRepository<
       })
       .from(assignedModules)
       .innerJoin(users, eq(assignedModules.userId, users.id))
-      .where(eq(assignedModules.semesterModuleId, semesterModuleId));
+      .innerJoin(
+        semesterModules,
+        eq(assignedModules.semesterModuleId, semesterModules.id),
+      )
+      .where(eq(semesterModules.moduleId, moduleId));
   }
 
   async findByUser(userId: string) {

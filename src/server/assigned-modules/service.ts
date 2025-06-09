@@ -54,10 +54,9 @@ class AssignedModuleService {
       ['academic'],
     );
   }
-
-  async getLecturersByModule(semesterModuleId: number) {
+  async getLecturersByModule(moduleId: number) {
     return withAuth(
-      async () => this.repository.findByModule(semesterModuleId),
+      async () => this.repository.findByModule(moduleId),
       ['academic'],
     );
   }
