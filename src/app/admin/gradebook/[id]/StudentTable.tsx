@@ -21,6 +21,7 @@ import {
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
+import StudentAssessmentMarksAuditHistoryModal from '@/app/admin/gradebook/[id]/StudentAssessmentMarksAuditHistoryModal';
 import ExcelImport from './excel/ExcelImport';
 import MarksInput from './MarksInput';
 import StudentGradeDisplay from './StudentGradeDisplay';
@@ -223,6 +224,11 @@ export default function StudentTable({ moduleId }: Props) {
                 Grade
               </Text>
             </Table.Th>
+            <Table.Th style={{ textAlign: 'center', paddingLeft: '0px' }}>
+              <Text size='sm' fw={'bold'}>
+                History
+              </Text>
+            </Table.Th>
           </>
         )}
       </Table.Tr>
@@ -265,6 +271,9 @@ export default function StudentTable({ moduleId }: Props) {
                 <Table.Td>
                   <Skeleton height={24} width={60} mx='auto' />
                 </Table.Td>
+                <Table.Td>
+                  <Skeleton height={24} width={40} mx='auto' />
+                </Table.Td>
               </React.Fragment>
             )}
           </Table.Tr>
@@ -274,7 +283,7 @@ export default function StudentTable({ moduleId }: Props) {
     if (!sortedStudents || sortedStudents.length === 0) {
       return (
         <Table.Tr>
-          <Table.Td colSpan={assessments ? assessments.length + 4 : 4}>
+          <Table.Td colSpan={assessments ? assessments.length + 5 : 5}>
             <Center p='md'>
               <Text>
                 {searchQuery
@@ -350,6 +359,12 @@ export default function StudentTable({ moduleId }: Props) {
                   moduleId={moduleId}
                   moduleGrade={getStudentGrade(student.stdNo)}
                   isLoading={moduleGradesLoading}
+                />
+              </Table.Td>
+              <Table.Td align='center'>
+                <StudentAssessmentMarksAuditHistoryModal
+                  stdNo={student.stdNo}
+                  studentName={student.name}
                 />
               </Table.Td>
             </>

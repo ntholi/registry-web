@@ -10,7 +10,7 @@ import {
   semesterModules,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, exists } from 'drizzle-orm';
 import { auth } from '@/auth';
 
 export default class AssessmentMarkRepository extends BaseRepository<
@@ -278,6 +278,53 @@ export default class AssessmentMarkRepository extends BaseRepository<
       }
     });
     return result;
+  }
+  async getStudentAuditHistory(stdNo: number) {
+    // First get all assessment mark IDs for this student
+    const studentAssessmentMarks = await db
+      .select({ id: assessmentMarks.id })
+      .from(assessmentMarks)
+      .where(eq(assessmentMarks.stdNo, stdNo));
+
+    if (studentAssessmentMarks.length === 0) {
+      return [];
+    }
+
+    const assessmentMarkIds = studentAssessmentMarks.map((mark) => mark.id);
+
+    return db.query.assessmentMarksAudit.findMany({
+      where: inArray(assessmentMarksAudit.assessmentMarkId, assessmentMarkIds),
+      with: {
+        createdByUser: {
+          columns: {
+            id: true,
+            name: true,
+          },
+        },
+        assessmentMark: {
+          with: {
+            assessment: {
+              with: {
+                module: {
+                  columns: {
+                    id: true,
+                    code: true,
+                    name: true,
+                  },
+                },
+                term: {
+                  columns: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: (audit, { desc }) => [desc(audit.date)],
+    });
   }
 }
 

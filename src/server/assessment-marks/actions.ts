@@ -81,3 +81,7 @@ export async function calculateAndSaveModuleGrade(
 
   return gradeCalculation;
 }
+
+export async function getStudentAssessmentMarksAuditHistory(stdNo: number) {
+  return service.getStudentAuditHistory(stdNo);
+}

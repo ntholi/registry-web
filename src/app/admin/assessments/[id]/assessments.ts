@@ -124,7 +124,8 @@ export const ASSESSMENT_TYPES: Option[] = [
   { value: '59', label: 'Workshop' },
 ];
 
-export function getAssessmentTypeLabel(value: string): string {
+export function getAssessmentTypeLabel(value?: string): string {
+  if (!value) return 'Unknown Assessment Type';
   const option = ASSESSMENT_TYPES.find((opt) => opt.value === value);
   return option?.label || value;
 }
