@@ -21,7 +21,6 @@ import {
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
-import StudentAssessmentMarksAuditHistoryModal from '@/app/admin/gradebook/[id]/StudentAssessmentMarksAuditHistoryModal';
 import ExcelImport from './excel/ExcelImport';
 import MarksInput from './MarksInput';
 import StudentGradeDisplay from './StudentGradeDisplay';
@@ -31,6 +30,7 @@ import {
   useModuleGradesQuery,
 } from './useAssessmentsQuery';
 import { Student, useStudentsQuery } from './useStudentsQuery';
+import StudentAssessmentMarksAuditHistoryModal from './StudentAssessmentMarksAuditHistoryModal';
 
 type Props = {
   moduleId: number;
@@ -204,7 +204,7 @@ export default function StudentTable({ moduleId }: Props) {
             ))}
         {assessments && assessments.length > 0 && (
           <>
-            <Table.Th style={{ textAlign: 'center', paddingRight: '0px' }}>
+            <Table.Th style={{ textAlign: 'center' }}>
               <Group gap={5} justify='center'>
                 <Text size='sm' fw={'bold'}>
                   Total
@@ -218,16 +218,6 @@ export default function StudentTable({ moduleId }: Props) {
                   %)
                 </Text>
               </Group>
-            </Table.Th>
-            <Table.Th style={{ textAlign: 'center', paddingLeft: '0px' }}>
-              <Text size='sm' fw={'bold'}>
-                Grade
-              </Text>
-            </Table.Th>
-            <Table.Th style={{ textAlign: 'center', paddingLeft: '0px' }}>
-              <Text size='sm' fw={'bold'}>
-                History
-              </Text>
             </Table.Th>
           </>
         )}
@@ -266,13 +256,7 @@ export default function StudentTable({ moduleId }: Props) {
               (assessments && assessments.length > 0)) && (
               <React.Fragment>
                 <Table.Td>
-                  <Skeleton height={24} width={60} mx='auto' />
-                </Table.Td>
-                <Table.Td>
-                  <Skeleton height={24} width={60} mx='auto' />
-                </Table.Td>
-                <Table.Td>
-                  <Skeleton height={24} width={40} mx='auto' />
+                  <Skeleton height={24} width={80} mx='auto' />
                 </Table.Td>
               </React.Fragment>
             )}
@@ -283,7 +267,7 @@ export default function StudentTable({ moduleId }: Props) {
     if (!sortedStudents || sortedStudents.length === 0) {
       return (
         <Table.Tr>
-          <Table.Td colSpan={assessments ? assessments.length + 5 : 5}>
+          <Table.Td colSpan={assessments ? assessments.length + 3 : 3}>
             <Center p='md'>
               <Text>
                 {searchQuery
@@ -342,8 +326,8 @@ export default function StudentTable({ moduleId }: Props) {
                 );
               })}
           {assessments && assessments.length > 0 && (
-            <>
-              <Table.Td align='center'>
+            <Table.Td align='center'>
+              <Group gap='xs' justify='center' wrap='nowrap'>
                 <StudentGradeDisplay
                   studentId={student.stdNo}
                   displayType='total'
@@ -351,8 +335,6 @@ export default function StudentTable({ moduleId }: Props) {
                   moduleGrade={getStudentGrade(student.stdNo)}
                   isLoading={moduleGradesLoading}
                 />
-              </Table.Td>
-              <Table.Td align='center'>
                 <StudentGradeDisplay
                   studentId={student.stdNo}
                   displayType='grade'
@@ -360,14 +342,13 @@ export default function StudentTable({ moduleId }: Props) {
                   moduleGrade={getStudentGrade(student.stdNo)}
                   isLoading={moduleGradesLoading}
                 />
-              </Table.Td>
-              <Table.Td align='center'>
+
                 <StudentAssessmentMarksAuditHistoryModal
                   stdNo={student.stdNo}
                   studentName={student.name}
                 />
-              </Table.Td>
-            </>
+              </Group>
+            </Table.Td>
           )}
         </Table.Tr>
       );
