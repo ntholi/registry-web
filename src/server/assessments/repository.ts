@@ -144,6 +144,7 @@ export default class AssessmentRepository extends BaseRepository<
           columns: {
             id: true,
             name: true,
+            image: true,
           },
         },
       },

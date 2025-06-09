@@ -1,35 +1,38 @@
 'use client';
 
-import { formatDateTime } from '@/lib/utils';
+import { assessments } from '@/db/schema';
 import { getAssessmentAuditHistory } from '@/server/assessments/actions';
 import { generateAssessmentAuditMessage } from '@/utils/auditUtils';
 import {
   ActionIcon,
-  Modal,
-  Timeline,
-  Text,
-  Stack,
-  Center,
-  Loader,
-  Group,
+  Avatar,
   Badge,
+  Box,
+  Card,
+  Center,
+  Group,
+  Loader,
+  Modal,
+  Paper,
+  Stack,
+  Text,
+  Timeline,
   Tooltip,
-  Alert,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
-  IconHistory,
-  IconPlus,
   IconEdit,
-  IconTrash,
+  IconHistory,
   IconInfoCircle,
+  IconPlus,
+  IconTrash,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import {
-  getAssessmentTypeLabel,
   getAssessmentNumberLabel,
+  getAssessmentTypeLabel,
 } from './assessments';
-import { assessments } from '@/db/schema';
 
 interface Props {
   assessment: NonNullable<typeof assessments.$inferSelect>;
@@ -69,7 +72,6 @@ export default function AssessmentAuditHistoryModal({ assessment }: Props) {
         return 'gray';
     }
   };
-
   return (
     <>
       <Tooltip label='View Audit History'>
@@ -77,100 +79,141 @@ export default function AssessmentAuditHistoryModal({ assessment }: Props) {
           <IconHistory size={16} />
         </ActionIcon>
       </Tooltip>
-
       <Modal
         opened={opened}
         onClose={close}
         title={
-          <Group>
-            <IconHistory size={20} />
-            <Text fw={500}>
-              Audit History:{' '}
-              {getAssessmentNumberLabel(assessment.assessmentNumber)} -{' '}
-              {getAssessmentTypeLabel(assessment.assessmentType)}
-            </Text>
+          <Group gap='md' align='center'>
+            <Avatar size='md' radius='md' variant='light' color='blue'>
+              <IconHistory size={20} />
+            </Avatar>
+            <Box>
+              <Text fw={600} size='lg' mb={2}>
+                Audit History
+              </Text>
+              <Text size='sm' c='dimmed'>
+                {getAssessmentNumberLabel(assessment.assessmentNumber)} -{' '}
+                {getAssessmentTypeLabel(assessment.assessmentType)}
+              </Text>
+            </Box>
           </Group>
         }
-        size='lg'
+        size='xl'
         centered
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+        radius='lg'
+        padding='xl'
       >
         {isLoading ? (
           <Center py='xl'>
-            <Loader size='md' variant='dots' />
-          </Center>
-        ) : !auditHistory || auditHistory.length === 0 ? (
-          <Center py='xl'>
             <Stack align='center' gap='md'>
-              <IconInfoCircle size={48} color='gray' />
-              <Text c='dimmed' size='sm'>
-                No audit history found for this assessment
+              <Loader size='lg' variant='dots' color='blue' />
+              <Text size='sm' c='dimmed'>
+                Loading audit history...
               </Text>
             </Stack>
           </Center>
+        ) : !auditHistory || auditHistory.length === 0 ? (
+          <Paper p='xl' radius='lg' withBorder>
+            <Center>
+              <Stack align='center' gap='lg'>
+                <Avatar size='xl' radius='xl' variant='light' color='gray'>
+                  <IconInfoCircle size={32} />
+                </Avatar>
+                <Stack align='center' gap='xs'>
+                  <Text fw={500} size='lg'>
+                    No Audit History
+                  </Text>
+                  <Text c='dimmed' size='sm' ta='center'>
+                    No changes have been recorded for this assessment yet.
+                    <br />
+                    All future modifications will appear here.
+                  </Text>
+                </Stack>
+              </Stack>
+            </Center>
+          </Paper>
         ) : (
-          <Stack gap='md'>
-            <Alert
-              icon={<IconInfoCircle size={16} />}
-              title='Audit Trail'
-              color='blue'
-              variant='light'
-            >
-              <Text size='sm'>
-                This shows the complete history of changes made to this
-                assessment, including who made the changes and when.
-              </Text>
-            </Alert>
-
-            <Timeline
-              active={auditHistory.length}
-              bulletSize={24}
-              lineWidth={2}
-            >
-              {auditHistory.map((audit, index) => {
-                const isLast = index === auditHistory.length - 1;
-                const auditMessage = generateAssessmentAuditMessage(
-                  audit.action,
-                  {
-                    previousAssessmentNumber: audit.previousAssessmentNumber,
-                    newAssessmentNumber: audit.newAssessmentNumber,
-                    previousAssessmentType: audit.previousAssessmentType,
-                    newAssessmentType: audit.newAssessmentType,
-                    previousTotalMarks: audit.previousTotalMarks,
-                    newTotalMarks: audit.newTotalMarks,
-                    previousWeight: audit.previousWeight,
-                    newWeight: audit.newWeight,
-                  },
-                );
-                return (
-                  <Timeline.Item
-                    key={audit.id}
-                    bullet={getActionIcon(audit.action)}
-                    title={
-                      <Group gap='xs' mb={4}>
+          <Timeline
+            active={auditHistory.length}
+            bulletSize={32}
+            lineWidth={3}
+            color='blue'
+          >
+            {auditHistory.map((audit, index) => {
+              const auditMessage = generateAssessmentAuditMessage(
+                audit.action,
+                {
+                  previousAssessmentNumber: audit.previousAssessmentNumber,
+                  newAssessmentNumber: audit.newAssessmentNumber,
+                  previousAssessmentType: audit.previousAssessmentType,
+                  newAssessmentType: audit.newAssessmentType,
+                  previousTotalMarks: audit.previousTotalMarks,
+                  newTotalMarks: audit.newTotalMarks,
+                  previousWeight: audit.previousWeight,
+                  newWeight: audit.newWeight,
+                },
+              );
+              return (
+                <Timeline.Item
+                  key={audit.id}
+                  bullet={
+                    <Avatar
+                      size='sm'
+                      radius='xl'
+                      color={getActionColor(audit.action)}
+                      variant='light'
+                    >
+                      {getActionIcon(audit.action)}
+                    </Avatar>
+                  }
+                  title={
+                    <Paper p='md' radius='md' withBorder shadow='xs' mb='md'>
+                      <Stack gap={'xs'}>
                         <Badge
                           color={getActionColor(audit.action)}
                           variant='light'
-                          size='sm'
+                          size='md'
+                          radius='md'
+                          leftSection={getActionIcon(audit.action)}
                         >
                           {audit.action.toUpperCase()}
                         </Badge>
-                        <Text size='sm' c='dimmed'>
-                          {formatDateTime(audit.date)}
+                        <Text size='sm' lh={1.5}>
+                          {auditMessage}
                         </Text>
-                      </Group>
-                    }
-                  >
-                    <Stack gap='xs'>
-                      <Text size='sm'>{auditMessage}</Text>
-                      <Text size='xs' c='dimmed'>
-                        By: {audit.createdByUser?.name || 'Unknown User'}
-                      </Text>
-                    </Stack>
-                  </Timeline.Item>
-                );
-              })}
-            </Timeline>
-          </Stack>
+                        <Card p='sm' radius='md'>
+                          <Group gap='sm' align='center'>
+                            <Avatar
+                              size='sm'
+                              radius='xl'
+                              color='blue'
+                              variant='light'
+                              src={audit.createdByUser?.image || undefined}
+                            />
+                            <Box>
+                              <Text size='sm' fw={500}>
+                                {audit.createdByUser?.name || 'Unknown User'}
+                              </Text>
+                              <Text size='xs' c='dimmed'>
+                                {format(
+                                  new Date(audit.date),
+                                  "dd MMM yyyy 'at' HH:mm",
+                                )}
+                              </Text>
+                            </Box>
+                          </Group>
+                        </Card>
+                      </Stack>
+                    </Paper>
+                  }
+                ></Timeline.Item>
+              );
+            })}
+          </Timeline>
         )}
       </Modal>
     </>
