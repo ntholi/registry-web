@@ -1,7 +1,7 @@
 import { DetailsView } from '@/components/adease';
 import { getModule } from '@/server/modules/actions';
 import { Button, Group, Paper, Title } from '@mantine/core';
-import { IconChartLine } from '@tabler/icons-react';
+import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import AssessmentsTable from './AssessmentsTable';
@@ -27,7 +27,7 @@ export default async function ModuleDetails({ params }: Props) {
         <Link href={`/admin/gradebook/${mod.id}`} passHref>
           <Button
             variant='light'
-            leftSection={<IconChartLine size={16} />}
+            leftSection={<IconNotebook size={16} />}
             size='sm'
           >
             View Gradebook

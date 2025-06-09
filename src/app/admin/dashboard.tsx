@@ -108,7 +108,8 @@ function getNavigation(department: DashboardUser) {
       },
     },
     {
-      label: 'Assessments',
+      label: 'Modules',
+      description: 'Assessments',
       href: '/admin/assessments',
       icon: IconAB2,
       roles: ['academic'],
