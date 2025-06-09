@@ -31,8 +31,8 @@ export default function ModuleLecturers({ moduleId }: Props) {
 
   if (isLoading) {
     return (
-      <Card withBorder shadow='sm' radius='md' p='xl'>
-        <Group justify='center' py='xl'>
+      <Card withBorder shadow='sm' radius='md' p='lg'>
+        <Group justify='center' py='md'>
           <Stack align='center' gap='md'>
             <Loader size='lg' type='dots' />
             <Text c='dimmed' size='sm'>
