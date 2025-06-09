@@ -1,5 +1,6 @@
 'use client';
 
+import { useUserSchools } from '@/hooks/use-user-schools';
 import {
   getProgramsBySchool,
   getSchools,
@@ -32,6 +33,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
   const [school, setSchool] = useQueryState('school');
   const [program, setProgram] = useQueryState('program');
   const [structure, setStructure] = useQueryState('structure');
+  const { userSchools, isLoading: isLoadingUserSchools } = useUserSchools();
 
   const { data: schools = [], isLoading: isLoadingSchools } = useQuery({
     queryKey: ['schools'],
@@ -47,36 +49,49 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
         }));
     },
   });
-
   const { data: programs = [], isLoading: isLoadingPrograms } = useQuery({
     queryKey: ['programs', school],
     queryFn: async () => {
       if (!school) return [];
-      const programData = await getProgramsBySchool(parseInt(school));
-      return programData.map((program) => ({
-        value: program.id.toString(),
-        label: program.code,
-        code: program.code,
-        name: program.name,
-      }));
+      try {
+        const programData = await getProgramsBySchool(parseInt(school));
+        return programData
+          .sort((a, b) => b.id - a.id)
+          .map((program) => ({
+            value: program.id.toString(),
+            label: program.code,
+            code: program.code,
+            name: program.name,
+          }));
+      } catch (error) {
+        console.error('Error fetching programs:', error);
+        return [];
+      }
     },
     enabled: !!school,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const { data: structures = [], isLoading: isLoadingStructures } = useQuery({
     queryKey: ['structures', program],
     queryFn: async () => {
       if (!program) return [];
-      const structureData = await getStructuresByProgram(parseInt(program));
-      return structureData.map((structure, index) => ({
-        id: structure.id,
-        value: structure.id.toString(),
-        label: structure.code,
-        code: structure.code,
-        name: index === 0 ? 'Current' : 'Old',
-      }));
+      try {
+        const structureData = await getStructuresByProgram(parseInt(program));
+        return structureData.map((structure, index) => ({
+          id: structure.id,
+          value: structure.id.toString(),
+          label: structure.code,
+          code: structure.code,
+          name: index === 0 ? 'Current' : 'Old',
+        }));
+      } catch (error) {
+        console.error('Error fetching structures:', error);
+        return [];
+      }
     },
     enabled: !!program,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   useEffect(() => {
@@ -84,6 +99,20 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
       onStructureSelect(parseInt(structure));
     }
   }, [structure, program, onStructureSelect]);
+
+  useEffect(() => {
+    if (
+      !isLoadingSchools &&
+      !isLoadingUserSchools &&
+      !school &&
+      userSchools.length > 0
+    ) {
+      const firstUserSchool = userSchools[0]?.school;
+      if (firstUserSchool) {
+        setSchool(firstUserSchool.id.toString());
+      }
+    }
+  }, [userSchools, isLoadingUserSchools, isLoadingSchools, school, setSchool]);
 
   const handleSchoolChange = (value: string | null) => {
     setSchool(value);
@@ -126,11 +155,15 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             label='School'
             data={schools}
             value={school}
-            disabled={!schools}
+            disabled={!schools || isLoadingUserSchools}
             onChange={handleSchoolChange}
             searchable
             clearable
-            rightSection={isLoadingSchools ? <Loader size='xs' /> : null}
+            rightSection={
+              isLoadingSchools || isLoadingUserSchools ? (
+                <Loader size='xs' />
+              ) : null
+            }
             renderOption={renderOption}
           />
         </Grid.Col>
@@ -142,7 +175,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             onChange={handleProgramChange}
             searchable
             clearable
-            disabled={!school || !programs}
+            disabled={!school || isLoadingPrograms}
             rightSection={isLoadingPrograms ? <Loader size='xs' /> : null}
             renderOption={renderOption}
           />
