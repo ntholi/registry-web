@@ -1,6 +1,6 @@
 'use client';
 
-import { toTitleCase } from '@/lib/utils';
+import { toTitleCase, toClassName } from '@/lib/utils';
 import { getLecturersByModule } from '@/server/assigned-modules/actions';
 import {
   Avatar,
@@ -14,6 +14,7 @@ import {
   Title,
   Box,
   ThemeIcon,
+  Divider,
 } from '@mantine/core';
 import { IconUser, IconUsers, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -68,12 +69,12 @@ export default function ModuleLecturers({ moduleId }: Props) {
       spacing='md'
       verticalSpacing='md'
     >
+      {' '}
       {lecturers.map((lecturer) => (
         <Card key={lecturer.id} withBorder shadow='sm' p='sm'>
           <Stack gap='xs'>
-            <Group gap='md' align='flex-start'>
+            <Group gap='md' align='center'>
               <Avatar
-                size='lg'
                 radius='xl'
                 color='blue'
                 variant='filled'
@@ -86,13 +87,28 @@ export default function ModuleLecturers({ moduleId }: Props) {
                 </Text>
 
                 {lecturer.position && (
-                  <Text c='dimmed' size='sm'>
+                  <Text c='dimmed' size='xs'>
                     {toTitleCase(lecturer.position)}
                   </Text>
                 )}
               </Box>
             </Group>
           </Stack>
+          <Divider my={'xs'} />
+          <Group>
+            {lecturer.assignments && lecturer.assignments.length > 0 && (
+              <Group gap='xs'>
+                {lecturer.assignments.map((assignment, index) => (
+                  <Badge key={index} variant='default'>
+                    {toClassName(
+                      assignment.programCode,
+                      assignment.semesterName,
+                    )}
+                  </Badge>
+                ))}
+              </Group>
+            )}
+          </Group>
         </Card>
       ))}
     </SimpleGrid>
