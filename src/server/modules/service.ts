@@ -17,7 +17,7 @@ class ModuleService {
   }
 
   async getAll(params: QueryOptions<typeof modules>) {
-    return withAuth(async () => this.repository.query(params), []);
+    return withAuth(async () => this.repository.query(params), ['academic']);
   }
 
   async create(data: Module) {

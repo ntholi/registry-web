@@ -1,7 +1,10 @@
 export { DeleteButton, type DeleteButtonProps } from './DeleteButton';
 export { DetailsView, type DetailsViewProps } from './DetailsView';
 export { DetailsViewBody, type DetailsViewBodyProps } from './DetailsViewBody';
-export { DetailsViewHeader, type DetailsViewHeaderProps } from './DetailsViewHeader';
+export {
+  DetailsViewHeader,
+  type DetailsViewHeaderProps,
+} from './DetailsViewHeader';
 export { FieldView, type FieldViewProps } from './FieldView';
 export { Form, type FormProps } from './Form';
 export { default as FormHeader } from './FormHeader';
@@ -12,4 +15,7 @@ export { Pagination, type PaginationProps } from './Pagination';
 export { SearchField } from './SearchField';
 export { default as Shell } from './Shell';
 export { default as NewLink, type NewLinkProps } from './NewLink';
-
+export {
+  ModuleViewToggle,
+  type ModuleViewToggleProps,
+} from './ModuleViewToggle';
