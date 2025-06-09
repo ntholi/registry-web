@@ -1,9 +1,9 @@
-import { DetailsView, DetailsViewHeader, FieldView } from '@/components/adease';
-import { deleteModule, getModule } from '@/server/modules/actions';
-import { Paper, Stack, Title, Button, Group } from '@mantine/core';
+import { DetailsView } from '@/components/adease';
+import { getModule } from '@/server/modules/actions';
+import { Button, Group, Paper, Title } from '@mantine/core';
 import { IconChartLine } from '@tabler/icons-react';
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import AssessmentsTable from './AssessmentsTable';
 import ModuleLecturers from './ModuleLecturers';
 
@@ -20,37 +20,22 @@ export default async function ModuleDetails({ params }: Props) {
   }
   return (
     <DetailsView>
-      <DetailsViewHeader
-        title={`Module: ${mod.code}`}
-        queryKey={['modules']}
-        handleDelete={async () => {
-          'use server';
-          await deleteModule(Number(id));
-        }}
-      />
+      <Group justify='space-between' align='center' mb='md'>
+        <Title order={3} fw={400}>
+          {mod.code} - {mod.name}
+        </Title>
+        <Link href={`/admin/gradebook/${mod.id}`} passHref>
+          <Button
+            variant='light'
+            leftSection={<IconChartLine size={16} />}
+            size='sm'
+          >
+            View Gradebook
+          </Button>
+        </Link>
+      </Group>
 
       <Paper p='md' radius='md' withBorder shadow='sm' mb='md' mt='lg'>
-        <Group justify='space-between' align='flex-start' mb='md'>
-          <Title order={4} fw={400}>
-            Module Information
-          </Title>
-          <Link href={`/admin/gradebook/${mod.id}`} passHref>
-            <Button
-              variant='light'
-              leftSection={<IconChartLine size={16} />}
-              size='sm'
-            >
-              View Gradebook
-            </Button>
-          </Link>
-        </Group>
-        <Stack p={'md'}>
-          <FieldView label='Module Code'>{mod.code}</FieldView>
-          <FieldView label='Module Name'>{mod.name}</FieldView>
-        </Stack>
-      </Paper>
-
-      <Paper p='md' radius='md' withBorder shadow='sm' mb='md'>
         <Title order={4} fw={400} mb='md'>
           Assigned Lecturers
         </Title>
