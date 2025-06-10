@@ -30,21 +30,13 @@ export default function MarksInput({
   const [pendingMark, setPendingMark] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
-
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
     }
   }, [isEditing]);
-  useEffect(() => {
-    if (existingMark !== undefined) {
-      setMark(existingMark.toString());
-      if (pendingMark !== null && existingMark === pendingMark) {
-        setPendingMark(null);
-      }
-    }
-  }, [existingMark, pendingMark]);
+
   const markMutation = useMutation({
     mutationFn: async (data: {
       assessmentId: number;
@@ -80,12 +72,25 @@ export default function MarksInput({
     },
   });
 
+  useEffect(() => {
+    if (existingMark !== undefined && !markMutation.isPending) {
+      setMark(existingMark.toString());
+      if (pendingMark !== null && existingMark === pendingMark) {
+        setPendingMark(null);
+      }
+    }
+  }, [existingMark, pendingMark, markMutation.isPending]);
+
   const handleMarkChange = (value: string) => {
     setMark(value);
     setError('');
   };
-
   const saveMarks = () => {
+    // Prevent saving if already processing a mutation
+    if (markMutation.isPending) {
+      return;
+    }
+
     if (mark.trim() === '') {
       setIsEditing(false);
       setMark(existingMark?.toString() || '');
@@ -105,6 +110,7 @@ export default function MarksInput({
       setError(`Mark must be between 0-${maxPossible}`);
       return;
     }
+
     markMutation.mutate({
       assessmentId: assessment.id,
       stdNo: studentId,
