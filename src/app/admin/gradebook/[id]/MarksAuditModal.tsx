@@ -198,6 +198,7 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
                               radius='xl'
                               color='blue'
                               variant='light'
+                              src={audit.createdByUser?.image}
                             />
                             <Box>
                               <Text size='sm' fw={500}>

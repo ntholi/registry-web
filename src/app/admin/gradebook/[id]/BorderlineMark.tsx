@@ -89,6 +89,7 @@ export default function BorderlineMark({
         pos='relative'
         color={hasPassed ? 'green' : 'red'}
         radius={'sm'}
+        w={40}
         style={{
           cursor: isBorderline ? 'pointer' : 'default',
           border: isBorderline

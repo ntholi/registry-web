@@ -280,7 +280,6 @@ export default class AssessmentMarkRepository extends BaseRepository<
     return result;
   }
   async getStudentAuditHistory(stdNo: number) {
-    // First get all assessment mark IDs for this student
     const studentAssessmentMarks = await db
       .select({ id: assessmentMarks.id })
       .from(assessmentMarks)
@@ -299,6 +298,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
           columns: {
             id: true,
             name: true,
+            image: true,
           },
         },
         assessmentMark: {

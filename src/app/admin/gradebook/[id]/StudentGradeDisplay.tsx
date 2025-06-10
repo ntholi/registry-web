@@ -29,6 +29,7 @@ export default function StudentGradeDisplay({
   isLoading = false,
 }: Props) {
   const getGradeColor = (grade: string): string => {
+    if (grade === 'ANN') return 'red';
     if (['A', 'B', 'C'].some((letter) => grade.startsWith(letter)))
       return 'green';
     if (['PP', 'Def'].includes(grade)) return 'yellow';
@@ -66,7 +67,7 @@ export default function StudentGradeDisplay({
   const gradeColor = getGradeColor(grade);
 
   return (
-    <Badge variant='light' color={gradeColor} radius={'sm'} w={40}>
+    <Badge variant='light' color={gradeColor} radius={'sm'} w={50}>
       {grade}
     </Badge>
   );
