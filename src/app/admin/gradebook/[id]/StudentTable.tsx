@@ -220,11 +220,7 @@ export default function StudentTable({ moduleId }: Props) {
                 </Text>
               </Group>
             </Table.Th>
-            <Table.Th style={{ textAlign: 'center' }}>
-              <Text size='sm' fw={'bold'}>
-                Actions
-              </Text>
-            </Table.Th>
+            <Table.Th style={{ textAlign: 'center' }}></Table.Th>
           </>
         )}
       </Table.Tr>
@@ -355,7 +351,7 @@ export default function StudentTable({ moduleId }: Props) {
                 </Group>
               </Table.Td>
               <Table.Td align='center'>
-                <Group gap='xs' justify='center' wrap='nowrap'>
+                <Group gap={3} justify='center' wrap='nowrap'>
                   <MarksAuditModal
                     stdNo={student.stdNo}
                     studentName={student.name}
