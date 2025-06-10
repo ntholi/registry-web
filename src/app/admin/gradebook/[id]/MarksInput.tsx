@@ -25,7 +25,7 @@ export default function MarksInput({
   moduleId,
 }: Props) {
   const [mark, setMark] = useState(existingMark?.toString() || '');
-  const [isEditing, setIsEditing] = useState(!existingMark);
+  const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
   const [pendingMark, setPendingMark] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,6 +37,7 @@ export default function MarksInput({
       inputRef.current.select();
     }
   }, [isEditing]);
+
   useEffect(() => {
     if (existingMark !== undefined) {
       setMark(existingMark.toString());
@@ -45,6 +46,7 @@ export default function MarksInput({
       }
     }
   }, [existingMark, pendingMark]);
+
   const markMutation = useMutation({
     mutationFn: async (data: {
       assessmentId: number;
@@ -86,8 +88,8 @@ export default function MarksInput({
   };
 
   const saveMarks = () => {
+    setIsEditing(false);
     if (mark.trim() === '') {
-      setIsEditing(false);
       setMark(existingMark?.toString() || '');
       return;
     }
@@ -112,7 +114,6 @@ export default function MarksInput({
     });
 
     setPendingMark(numericMark);
-    setIsEditing(false);
   };
 
   const handleBlur = () => {
@@ -152,14 +153,7 @@ export default function MarksInput({
         onClick={() => setIsEditing(true)}
       >
         <Group gap={2} justify='center' align='end'>
-          <Text
-            fw={600}
-            c={statusColor || undefined}
-            size='sm'
-            style={{
-              transition: 'all 0.2s ease',
-            }}
-          >
+          <Text fw={600} c={statusColor || undefined} size='sm'>
             {markDisplay}
           </Text>
           <Text size='xs' c='dimmed'>
@@ -179,7 +173,7 @@ export default function MarksInput({
           value={mark}
           onChange={(e) => handleMarkChange(e.target.value)}
           onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
+          // onKeyDown={handleKeyDown}
           error={error}
           placeholder='Marks'
           styles={{
