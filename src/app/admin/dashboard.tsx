@@ -2,6 +2,7 @@
 
 import { Shell } from '@/components/adease';
 import { DashboardUser, UserPosition, UserRole } from '@/db/schema';
+import { toTitleCase } from '@/lib/utils';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import {
   countApprovedRegistrationClearances,
@@ -353,10 +354,10 @@ function UserButton() {
             {session?.user?.email}
           </Text>
           {session?.user?.position && (
-            <Text size='0.65rem' c={'dimmed'} tt={'capitalize'}>
+            <Text size='0.65rem' c={'dimmed'}>
               {userSchools?.map((it) => it.school.code).join(', ')}
               {' | '}
-              {session?.user?.position}
+              {toTitleCase(session?.user?.position)}
             </Text>
           )}
         </Stack>

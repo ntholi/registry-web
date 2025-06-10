@@ -5,7 +5,7 @@ import { IconSearch } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 
 export function SearchField(props: TextInputProps) {
-  const [value, setValue] = useQueryState('q') ;
+  const [value, setValue] = useQueryState('q');
 
   const leftSection = value ? (
     <CloseButton
@@ -16,7 +16,6 @@ export function SearchField(props: TextInputProps) {
   ) : (
     <IconSearch size={20} />
   );
-
   return (
     <TextInput
       placeholder='Search'
@@ -25,6 +24,7 @@ export function SearchField(props: TextInputProps) {
         setValue(event.target.value);
       }}
       rightSection={leftSection}
+      spellCheck={false}
       {...props}
     />
   );
