@@ -104,7 +104,9 @@ function getNavigation(department: DashboardUser) {
       icon: IconSchool,
       isVisible: (session) => {
         const position = session?.user?.position;
-        return position && ['manager', 'admin'].includes(position);
+        return (
+          position && ['manager', 'admin', 'program_leader'].includes(position)
+        );
       },
     },
     {
