@@ -63,6 +63,10 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
   const [importProgress, setImportProgress] = useState(0);
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [currentRecord, setCurrentRecord] = useState<number>(0);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
+  const [currentAction, setCurrentAction] = useState<string>('');
+  const [currentStudentNo, setCurrentStudentNo] = useState<string>('');
   const queryClient = useQueryClient();
   const { currentTerm } = useCurrentTerm();
 
@@ -103,7 +107,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
   const handlePreviewGenerated = useCallback((rows: ParsedRow[]) => {
     setParsedRows(rows);
   }, []);
-
   const importMutation = useMutation({
     mutationFn: async (rows: ParsedRow[]) => {
       const validRows = rows.filter((row) => row.isValid);
@@ -113,14 +116,25 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 
       setIsImporting(true);
       setImportProgress(0);
+      setTotalRecords(validRows.length);
+      setCurrentRecord(0);
 
       for (let i = 0; i < validRows.length; i++) {
         const row = validRows[i];
-        setImportProgress(((i + 1) / validRows.length) * 100);
+        const currentRecordNum = i + 1;
+        setCurrentRecord(currentRecordNum);
+        setCurrentStudentNo(row.studentNumber);
+        setImportProgress((currentRecordNum / validRows.length) * 100);
+
         try {
+          setCurrentAction(`Verifying student ${row.studentNumber}...`);
+
           for (const [assessmentId, marks] of Object.entries(
             row.assessmentMarks,
           )) {
+            setCurrentAction(
+              `Updating marks for student ${row.studentNumber}...`,
+            );
             await createOrUpdateMarks(
               {
                 assessmentId: parseInt(assessmentId),
@@ -131,6 +145,9 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
             );
           }
 
+          setCurrentAction(
+            `Calculating grade for student ${row.studentNumber}...`,
+          );
           await calculateAndSaveModuleGrade(
             moduleId,
             parseInt(row.studentNumber),
@@ -144,6 +161,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
         }
       }
 
+      setCurrentAction('Import completed');
       return {
         success: failed === 0,
         imported,
@@ -184,7 +202,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
       importMutation.mutate(parsedRows);
     }
   }, [parsedRows, importMutation]);
-
   const resetImport = () => {
     setActiveStep(0);
     setFile(null);
@@ -195,6 +212,10 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
     setImportProgress(0);
     setIsImporting(false);
     setImportResult(null);
+    setCurrentRecord(0);
+    setTotalRecords(0);
+    setCurrentAction('');
+    setCurrentStudentNo('');
   };
 
   const handleClose = () => {
@@ -242,7 +263,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 
                 {excelData && (
                   <Alert icon={<IconCheck size={16} />} color='green'>
-                    File loaded successfully: {excelData.rows.length} rows,{' '}
+                    File loaded successfully: {excelData.rows.length} rows,
                     {excelData.headers.length} columns
                   </Alert>
                 )}
@@ -255,7 +276,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
               icon={<IconTable size={18} />}
               completedIcon={<IconCheck size={18} />}
             >
-              {' '}
               {excelData && detectedColumns && (
                 <AssessmentMapping
                   excelData={excelData}
@@ -273,7 +293,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
               icon={<IconFileCheck size={18} />}
               completedIcon={<IconCheck size={18} />}
             >
-              {' '}
               {excelData && columnMapping && (
                 <ImportPreview
                   excelData={excelData}
@@ -286,7 +305,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                 />
               )}
               {isImporting && (
-                <Paper p='md' withBorder>
+                <Paper p='md' withBorder mt={'sm'}>
                   <Stack gap='xs'>
                     <Group justify='space-between'>
                       <Text size='sm' fw={500}>
@@ -294,7 +313,22 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                       </Text>
                       <Text size='sm'>{Math.round(importProgress)}%</Text>
                     </Group>
+                    <Group justify='space-between'>
+                      <Text size='xs' c='dimmed'>
+                        {currentRecord}/{totalRecords} records processed
+                      </Text>
+                      {currentStudentNo && (
+                        <Text size='xs' c='dimmed'>
+                          Student: {currentStudentNo}
+                        </Text>
+                      )}
+                    </Group>
                     <Progress value={importProgress} animated />
+                    {currentAction && (
+                      <Text size='xs' c='blue' style={{ fontStyle: 'italic' }}>
+                        {currentAction}
+                      </Text>
+                    )}
                   </Stack>
                 </Paper>
               )}
@@ -321,7 +355,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                     <Group justify='space-between'>
                       <div>
                         <Text fw={500}>
-                          Import{' '}
+                          Import
                           {importResult.success
                             ? 'Completed'
                             : 'Completed with Errors'}
@@ -364,7 +398,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                 </Stack>
               )}
             </Stepper.Step>
-          </Stepper>{' '}
+          </Stepper>
           {activeStep < 3 &&
             !isImporting &&
             activeStep !== 2 &&
