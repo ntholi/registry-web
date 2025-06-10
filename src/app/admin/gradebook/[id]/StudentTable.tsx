@@ -23,7 +23,7 @@ import React, { useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
 import ExcelImport from './excel/ExcelImport';
 import MarksInput from './MarksInput';
-import StudentGradeDisplay from './StudentGradeDisplay';
+import GradeDisplay from './GradeDisplay';
 import {
   useAssessmentMarksQuery,
   useAssessmentsQuery,
@@ -334,14 +334,14 @@ export default function StudentTable({ moduleId }: Props) {
             <>
               <Table.Td align='center'>
                 <Group gap='xs' justify='center' wrap='nowrap'>
-                  <StudentGradeDisplay
+                  <GradeDisplay
                     studentId={student.stdNo}
                     displayType='total'
                     moduleId={moduleId}
                     moduleGrade={getStudentGrade(student.stdNo)}
                     isLoading={moduleGradesLoading}
                   />
-                  <StudentGradeDisplay
+                  <GradeDisplay
                     studentId={student.stdNo}
                     displayType='grade'
                     moduleId={moduleId}

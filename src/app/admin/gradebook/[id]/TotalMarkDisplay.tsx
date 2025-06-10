@@ -28,7 +28,7 @@ type Props = {
   moduleId: number;
 };
 
-export default function BorderlineMark({
+export default function TotalMarkDisplay({
   weightedTotal,
   hasPassed,
   studentId,

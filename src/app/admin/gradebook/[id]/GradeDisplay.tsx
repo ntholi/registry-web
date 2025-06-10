@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, Text } from '@mantine/core';
-import BorderlineMark from './BorderlineMark';
+import TotalMarkDisplay from './TotalMarkDisplay';
 
 type ModuleGrade = {
   id: number;
@@ -21,7 +21,7 @@ type Props = {
   isLoading?: boolean;
 };
 
-export default function StudentGradeDisplay({
+export default function GradeDisplay({
   studentId,
   displayType,
   moduleId,
@@ -55,7 +55,7 @@ export default function StudentGradeDisplay({
 
   if (displayType === 'total') {
     return (
-      <BorderlineMark
+      <TotalMarkDisplay
         weightedTotal={weightedTotal}
         hasPassed={hasPassed}
         studentId={studentId}
