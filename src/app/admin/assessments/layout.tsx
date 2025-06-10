@@ -1,5 +1,4 @@
 'use client';
-
 import { ListItem, ListLayout, ModuleViewToggle } from '@/components/adease';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import { getModules } from '@/server/modules/actions';

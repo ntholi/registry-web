@@ -31,6 +31,7 @@ import {
 } from './useAssessmentsQuery';
 import { Student, useStudentsQuery } from './useStudentsQuery';
 import MarksAuditModal from './MarksAuditModal';
+import GradeSymbolModal from './GradeSymbolModal';
 
 type Props = {
   moduleId: number;
@@ -219,6 +220,11 @@ export default function StudentTable({ moduleId }: Props) {
                 </Text>
               </Group>
             </Table.Th>
+            <Table.Th style={{ textAlign: 'center' }}>
+              <Text size='sm' fw={'bold'}>
+                Actions
+              </Text>
+            </Table.Th>
           </>
         )}
       </Table.Tr>
@@ -258,6 +264,9 @@ export default function StudentTable({ moduleId }: Props) {
                 <Table.Td>
                   <Skeleton height={24} width={80} mx='auto' />
                 </Table.Td>
+                <Table.Td>
+                  <Skeleton height={24} width={80} mx='auto' />
+                </Table.Td>
               </React.Fragment>
             )}
           </Table.Tr>
@@ -267,7 +276,7 @@ export default function StudentTable({ moduleId }: Props) {
     if (!sortedStudents || sortedStudents.length === 0) {
       return (
         <Table.Tr>
-          <Table.Td colSpan={assessments ? assessments.length + 3 : 3}>
+          <Table.Td colSpan={assessments ? assessments.length + 4 : 4}>
             <Center p='md'>
               <Text>
                 {searchQuery
@@ -326,29 +335,43 @@ export default function StudentTable({ moduleId }: Props) {
                 );
               })}
           {assessments && assessments.length > 0 && (
-            <Table.Td align='center'>
-              <Group gap='xs' justify='center' wrap='nowrap'>
-                <StudentGradeDisplay
-                  studentId={student.stdNo}
-                  displayType='total'
-                  moduleId={moduleId}
-                  moduleGrade={getStudentGrade(student.stdNo)}
-                  isLoading={moduleGradesLoading}
-                />
-                <StudentGradeDisplay
-                  studentId={student.stdNo}
-                  displayType='grade'
-                  moduleId={moduleId}
-                  moduleGrade={getStudentGrade(student.stdNo)}
-                  isLoading={moduleGradesLoading}
-                />
-
-                <MarksAuditModal
-                  stdNo={student.stdNo}
-                  studentName={student.name}
-                />
-              </Group>
-            </Table.Td>
+            <>
+              <Table.Td align='center'>
+                <Group gap='xs' justify='center' wrap='nowrap'>
+                  <StudentGradeDisplay
+                    studentId={student.stdNo}
+                    displayType='total'
+                    moduleId={moduleId}
+                    moduleGrade={getStudentGrade(student.stdNo)}
+                    isLoading={moduleGradesLoading}
+                  />
+                  <StudentGradeDisplay
+                    studentId={student.stdNo}
+                    displayType='grade'
+                    moduleId={moduleId}
+                    moduleGrade={getStudentGrade(student.stdNo)}
+                    isLoading={moduleGradesLoading}
+                  />
+                </Group>
+              </Table.Td>
+              <Table.Td align='center'>
+                <Group gap='xs' justify='center' wrap='nowrap'>
+                  <MarksAuditModal
+                    stdNo={student.stdNo}
+                    studentName={student.name}
+                  />
+                  <GradeSymbolModal
+                    studentId={student.stdNo}
+                    studentName={student.name}
+                    moduleId={moduleId}
+                    currentGrade={getStudentGrade(student.stdNo)?.grade}
+                    weightedTotal={
+                      getStudentGrade(student.stdNo)?.weightedTotal
+                    }
+                  />
+                </Group>
+              </Table.Td>
+            </>
           )}
         </Table.Tr>
       );
