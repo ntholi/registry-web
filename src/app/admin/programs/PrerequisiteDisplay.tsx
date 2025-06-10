@@ -29,7 +29,7 @@ export default function PrerequisiteDisplay({ moduleId, hidden }: Props) {
           <Anchor
             component={Link}
             c={hidden ? 'dark' : undefined}
-            href={`/admin/modules/${it.id}`}
+            href={`/admin/semester-modules/${it.id}`}
             size='0.85rem'
           >
             {it.name}

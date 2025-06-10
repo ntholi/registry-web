@@ -117,7 +117,7 @@ export default function ProgramsPage() {
                               <Anchor
                                 size='sm'
                                 component={Link}
-                                href={`/admin/modules/${semModule.id}`}
+                                href={`/admin/semester-modules/${semModule.id}`}
                                 c={semModule.hidden ? 'dark' : undefined}
                               >
                                 {semModule.module!.code}
