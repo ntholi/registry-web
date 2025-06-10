@@ -38,7 +38,7 @@ interface Props {
   assessment: NonNullable<typeof assessments.$inferSelect>;
 }
 
-export default function AssessmentAuditHistoryModal({ assessment }: Props) {
+export default function AssessmentAuditModal({ assessment }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const { data: auditHistory, isLoading } = useQuery({

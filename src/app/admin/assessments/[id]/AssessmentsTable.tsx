@@ -18,7 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import AssessmentDelete from './AssessmentDelete';
 import AssessmentModal from './AssessmentModal';
-import AssessmentAuditHistoryModal from './AssessmentAuditHistoryModal';
+import AssessmentAuditModal from './AssessmentAuditModal';
 import {
   getAssessmentNumberLabel,
   getAssessmentTypeLabel,
@@ -107,7 +107,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
                         <IconEdit size={16} />
                       </ActionIcon>
                     </Tooltip>
-                    <AssessmentAuditHistoryModal assessment={assessment} />
+                    <AssessmentAuditModal assessment={assessment} />
                     <AssessmentDelete assessment={assessment} />
                   </Group>
                 </Table.Td>
