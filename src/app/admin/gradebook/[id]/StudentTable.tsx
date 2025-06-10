@@ -30,7 +30,7 @@ import {
   useModuleGradesQuery,
 } from './useAssessmentsQuery';
 import { Student, useStudentsQuery } from './useStudentsQuery';
-import StudentAssessmentMarksAuditHistoryModal from './StudentAssessmentMarksAuditHistoryModal';
+import MarksAuditModal from './MarksAuditModal';
 
 type Props = {
   moduleId: number;
@@ -343,7 +343,7 @@ export default function StudentTable({ moduleId }: Props) {
                   isLoading={moduleGradesLoading}
                 />
 
-                <StudentAssessmentMarksAuditHistoryModal
+                <MarksAuditModal
                   stdNo={student.stdNo}
                   studentName={student.name}
                 />

@@ -1,6 +1,6 @@
 'use client';
 
-import { getStudentAssessmentMarksAuditHistory } from '@/server/assessment-marks/actions';
+import { getMarksAudit } from '@/server/assessment-marks/actions';
 import { generateAssessmentMarkAuditMessage } from '@/utils/auditUtils';
 import {
   ActionIcon,
@@ -36,15 +36,12 @@ interface Props {
   studentName: string;
 }
 
-export default function StudentAssessmentMarksAuditHistoryModal({
-  stdNo,
-  studentName,
-}: Props) {
+export default function MarksAuditModal({ stdNo, studentName }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const { data: auditHistory, isLoading } = useQuery({
-    queryKey: ['studentAssessmentMarksAuditHistory', stdNo],
-    queryFn: () => getStudentAssessmentMarksAuditHistory(stdNo),
+    queryKey: ['marksAudit', stdNo],
+    queryFn: () => getMarksAudit(stdNo),
     enabled: opened,
   });
 
