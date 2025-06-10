@@ -3,8 +3,10 @@ import { ListItem, ListLayout, ModuleViewToggle } from '@/components/adease';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import { getModules } from '@/server/modules/actions';
 import { PropsWithChildren, useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function Layout({ children }: PropsWithChildren) {
+  const { data: session } = useSession();
   const [showAssignedOnly, setShowAssignedOnly] = useState(true);
   const getData = async () => {
     if (showAssignedOnly) {
@@ -42,11 +44,17 @@ export default function Layout({ children }: PropsWithChildren) {
       getData={getData}
       renderItem={renderItem}
       actionIcons={[
-        <ModuleViewToggle
-          key='module-toggle'
-          onToggle={setShowAssignedOnly}
-          defaultValue={showAssignedOnly}
-        />,
+        session?.user?.position &&
+          ['admin', 'manager', 'program_leader'].includes(
+            session.user.position,
+          ) &&
+          session.user.role !== 'academic' && (
+            <ModuleViewToggle
+              key='module-toggle'
+              onToggle={setShowAssignedOnly}
+              defaultValue={showAssignedOnly}
+            />
+          ),
       ]}
     >
       {children}
