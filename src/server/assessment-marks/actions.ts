@@ -34,6 +34,9 @@ export async function createOrUpdateMarks(
   if (!term) {
     throw new Error('Term is required for creating or updating marks');
   }
+  if (isNaN(assessmentMark.marks)) {
+    throw new Error('Mark is required');
+  }
   return service.createOrUpdateMarks(assessmentMark, term);
 }
 
@@ -41,6 +44,9 @@ export async function updateAssessmentMark(
   id: number,
   assessmentMark: AssessmentMark,
 ) {
+  if (isNaN(assessmentMark.marks)) {
+    throw new Error('Mark is required');
+  }
   return service.update(id, assessmentMark);
 }
 

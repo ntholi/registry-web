@@ -37,7 +37,6 @@ export default function MarksInput({
       inputRef.current.select();
     }
   }, [isEditing]);
-
   useEffect(() => {
     if (existingMark !== undefined) {
       setMark(existingMark.toString());
@@ -46,7 +45,6 @@ export default function MarksInput({
       }
     }
   }, [existingMark, pendingMark]);
-
   const markMutation = useMutation({
     mutationFn: async (data: {
       assessmentId: number;
@@ -88,8 +86,8 @@ export default function MarksInput({
   };
 
   const saveMarks = () => {
-    setIsEditing(false);
     if (mark.trim() === '') {
+      setIsEditing(false);
       setMark(existingMark?.toString() || '');
       return;
     }
@@ -114,6 +112,7 @@ export default function MarksInput({
     });
 
     setPendingMark(numericMark);
+    setIsEditing(false);
   };
 
   const handleBlur = () => {
@@ -141,15 +140,15 @@ export default function MarksInput({
     return percentage >= 50 ? 'green' : 'red';
   };
 
-  if (!isEditing) {
-    const markDisplay = pendingMark ?? existingMark ?? '-';
-    const maxMark = assessment.maxMarks || assessment.totalMarks;
-    const statusColor = getMarkStatus();
+  const markDisplay = pendingMark ?? existingMark ?? '-';
+  const maxMark = assessment.maxMarks || assessment.totalMarks;
+  const statusColor = getMarkStatus();
 
-    return (
+  return (
+    <Box pos='relative'>
       <Box
         pos='relative'
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: 'pointer', display: isEditing ? 'none' : undefined }}
         onClick={() => setIsEditing(true)}
       >
         <Group gap={2} justify='center' align='end'>
@@ -161,39 +160,36 @@ export default function MarksInput({
           </Text>
         </Group>
       </Box>
-    );
-  }
-
-  return (
-    <Box pos='relative'>
-      <Group align='center' gap={4} justify='center'>
-        <TextInput
-          ref={inputRef}
-          size='xs'
-          value={mark}
-          onChange={(e) => handleMarkChange(e.target.value)}
-          onBlur={handleBlur}
-          // onKeyDown={handleKeyDown}
-          error={error}
-          placeholder='Marks'
-          styles={{
-            input: {
-              width: '90px',
-              textAlign: 'center',
-              fontWeight: 500,
-            },
-            error: {
-              position: 'absolute',
-              width: '100%',
-              textAlign: 'center',
-              top: '100%',
-              left: '0',
-              whiteSpace: 'nowrap',
-              zIndex: 10,
-            },
-          }}
-        />
-      </Group>
+      <Box style={{ display: isEditing ? undefined : 'none' }}>
+        <Group align='center' gap={4} justify='center'>
+          <TextInput
+            ref={inputRef}
+            size='xs'
+            value={mark}
+            onChange={(e) => handleMarkChange(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            error={error}
+            placeholder='Marks'
+            styles={{
+              input: {
+                width: '90px',
+                textAlign: 'center',
+                fontWeight: 500,
+              },
+              error: {
+                position: 'absolute',
+                width: '100%',
+                textAlign: 'center',
+                top: '100%',
+                left: '0',
+                whiteSpace: 'nowrap',
+                zIndex: 10,
+              },
+            }}
+          />
+        </Group>
+      </Box>
     </Box>
   );
 }
