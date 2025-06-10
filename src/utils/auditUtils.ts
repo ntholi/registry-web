@@ -2,16 +2,19 @@ export function generateAssessmentMarkAuditMessage(
   action: 'create' | 'update' | 'delete',
   previousMarks?: number | null,
   newMarks?: number | null,
+  assessmentType?: string,
 ): string {
+  const typeLabel = assessmentType || 'Assessment';
+
   switch (action) {
     case 'create':
-      return `Assessment mark created with value ${newMarks}`;
+      return `${typeLabel} mark created with value ${newMarks}`;
     case 'update':
-      return `Assessment mark updated from ${previousMarks} to ${newMarks}`;
+      return `${typeLabel} mark updated from ${previousMarks} to ${newMarks}`;
     case 'delete':
-      return `Assessment mark deleted (was ${previousMarks})`;
+      return `${typeLabel} mark deleted (was ${previousMarks})`;
     default:
-      return 'Assessment mark modified';
+      return `${typeLabel} mark modified`;
   }
 }
 

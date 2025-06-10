@@ -15,7 +15,6 @@ import {
   Paper,
   Stack,
   Text,
-  Timeline,
   Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -44,19 +43,6 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
     queryFn: () => getMarksAudit(stdNo),
     enabled: opened,
   });
-
-  const getActionIcon = (action: 'create' | 'update' | 'delete') => {
-    switch (action) {
-      case 'create':
-        return <IconPlus size={16} />;
-      case 'update':
-        return <IconEdit size={16} />;
-      case 'delete':
-        return <IconTrash size={16} />;
-      default:
-        return <IconEdit size={16} />;
-    }
-  };
 
   const getActionColor = (action: 'create' | 'update' | 'delete') => {
     switch (action) {
@@ -136,90 +122,59 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
             </Center>
           </Paper>
         ) : (
-          <Timeline
-            active={auditHistory.length}
-            bulletSize={32}
-            lineWidth={3}
-            color='blue'
-          >
-            {auditHistory.map((audit) => {
-              const auditMessage = generateAssessmentMarkAuditMessage(
-                audit.action,
-                audit.previousMarks,
-                audit.newMarks,
-              );
-              const assessmentType = getAssessmentTypeLabel(
-                audit.assessmentMark?.assessment?.assessmentType,
-              );
+          <Box style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <Stack gap='sm'>
+              {' '}
+              {auditHistory.map((audit) => {
+                const assessmentType = getAssessmentTypeLabel(
+                  audit.assessmentMark?.assessment?.assessmentType,
+                );
+                const auditMessage = generateAssessmentMarkAuditMessage(
+                  audit.action,
+                  audit.previousMarks,
+                  audit.newMarks,
+                  assessmentType,
+                );
 
-              return (
-                <Timeline.Item
-                  key={audit.id}
-                  bullet={
-                    <Avatar
-                      size='sm'
-                      radius='xl'
-                      color={getActionColor(audit.action)}
-                      variant='light'
-                    >
-                      {getActionIcon(audit.action)}
-                    </Avatar>
-                  }
-                  title={
-                    <Paper p='md' radius='md' withBorder shadow='xs' mb='md'>
-                      <Stack gap='xs'>
-                        <Group justify='space-between' align='flex-start'>
-                          <Stack gap='xs' style={{ flex: 1 }}>
-                            <Badge
-                              color={getActionColor(audit.action)}
-                              variant='light'
-                              size='md'
-                              radius='md'
-                              leftSection={getActionIcon(audit.action)}
-                            >
-                              {audit.action.toUpperCase()}
-                            </Badge>
-                            <Text size='sm' lh={1.5}>
-                              {auditMessage}
-                            </Text>
-                          </Stack>
-                          {assessmentType && (
-                            <Box style={{ textAlign: 'right' }}>
-                              <Text size='xs' fw={500} c='dimmed'>
-                                {assessmentType}
-                              </Text>
-                            </Box>
+                return (
+                  <Paper
+                    key={audit.id}
+                    p='md'
+                    radius='md'
+                    withBorder
+                    shadow='xs'
+                  >
+                    <Box>
+                      <Text size='sm' lh={1.4} mb='sm'>
+                        {auditMessage}
+                      </Text>
+                      <Group gap='sm' align='center'>
+                        <Avatar
+                          size='xs'
+                          radius='xl'
+                          color='blue'
+                          variant='light'
+                          src={audit.createdByUser?.image}
+                        />
+                        <Text size='xs' fw={500}>
+                          {audit.createdByUser?.name || 'Unknown User'}
+                        </Text>
+                        <Text size='xs' c='dimmed'>
+                          •
+                        </Text>
+                        <Text size='xs' c='dimmed'>
+                          {format(
+                            new Date(audit.date),
+                            "dd MMM yyyy 'at' HH:mm",
                           )}
-                        </Group>
-                        <Card p='sm' radius='md'>
-                          <Group gap='sm' align='center'>
-                            <Avatar
-                              size='sm'
-                              radius='xl'
-                              color='blue'
-                              variant='light'
-                              src={audit.createdByUser?.image}
-                            />
-                            <Box>
-                              <Text size='sm' fw={500}>
-                                {audit.createdByUser?.name || 'Unknown User'}
-                              </Text>
-                              <Text size='xs' c='dimmed'>
-                                {format(
-                                  new Date(audit.date),
-                                  "dd MMM yyyy 'at' HH:mm",
-                                )}
-                              </Text>
-                            </Box>
-                          </Group>
-                        </Card>
-                      </Stack>
-                    </Paper>
-                  }
-                />
-              );
-            })}
-          </Timeline>
+                        </Text>{' '}
+                      </Group>
+                    </Box>
+                  </Paper>
+                );
+              })}
+            </Stack>
+          </Box>
         )}
       </Modal>
     </>
