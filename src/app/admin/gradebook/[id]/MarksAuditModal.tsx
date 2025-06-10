@@ -5,9 +5,7 @@ import { generateAssessmentMarkAuditMessage } from '@/utils/auditUtils';
 import {
   ActionIcon,
   Avatar,
-  Badge,
   Box,
-  Card,
   Center,
   Group,
   Loader,
@@ -15,7 +13,9 @@ import {
   Paper,
   Stack,
   Text,
+  Timeline,
   Tooltip,
+  useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
@@ -37,6 +37,7 @@ interface Props {
 
 export default function MarksAuditModal({ stdNo, studentName }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
+  const { colorScheme } = useMantineColorScheme();
 
   const { data: auditHistory, isLoading } = useQuery({
     queryKey: ['marksAudit', stdNo],
@@ -44,22 +45,9 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
     enabled: opened,
   });
 
-  const getActionColor = (action: 'create' | 'update' | 'delete') => {
-    switch (action) {
-      case 'create':
-        return 'green';
-      case 'update':
-        return 'blue';
-      case 'delete':
-        return 'red';
-      default:
-        return 'gray';
-    }
-  };
-
   return (
     <>
-      <Tooltip label='View Assessment Marks History'>
+      <Tooltip label='View Marks History'>
         <ActionIcon variant='subtle' color='gray' onClick={open}>
           <IconHistory size={16} />
         </ActionIcon>
@@ -93,39 +81,54 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
       >
         {isLoading ? (
           <Center py='xl'>
-            <Stack align='center' gap='md'>
-              <Loader size='lg' variant='dots' color='blue' />
-              <Text size='sm' c='dimmed'>
+            <Stack align='center' gap='lg'>
+              <Loader size='xl' variant='dots' color='blue' />
+              <Text size='md' c='dimmed' fw={500}>
                 Loading assessment marks history...
               </Text>
             </Stack>
           </Center>
         ) : !auditHistory || auditHistory.length === 0 ? (
-          <Paper p='xl' radius='lg' withBorder>
-            <Center>
+          <Paper
+            p='xl'
+            radius='lg'
+            withBorder
+            bg={colorScheme === 'dark' ? 'dark.6' : 'gray.0'}
+          >
+            <Center py='xl'>
               <Stack align='center' gap='lg'>
-                <Avatar size='xl' radius='xl' variant='light' color='gray'>
-                  <IconInfoCircle size={32} />
+                <Avatar size={80} radius='xl' variant='light' color='blue'>
+                  <IconHistory size={40} />
                 </Avatar>
                 <Stack align='center' gap='xs'>
-                  <Text fw={500} size='lg'>
+                  <Text fw={600} size='xl'>
                     No Assessment History
                   </Text>
-                  <Text c='dimmed' size='sm' ta='center'>
+                  <Text c='dimmed' size='md' ta='center' maw={400} lh={1.5}>
                     No assessment mark changes have been recorded for this
                     student yet.
                     <br />
-                    All future modifications will appear here.
+                    All future modifications will appear here as a chronological
+                    timeline.
                   </Text>
                 </Stack>
               </Stack>
             </Center>
           </Paper>
         ) : (
-          <Box style={{ maxHeight: '400px', overflowY: 'auto' }}>
-            <Stack gap='sm'>
-              {' '}
-              {auditHistory.map((audit) => {
+          <Box
+            style={{
+              maxHeight: '500px',
+              overflowY: 'auto',
+              paddingRight: '8px',
+            }}
+          >
+            <Timeline
+              active={auditHistory.length}
+              lineWidth={1}
+              bulletSize={30}
+            >
+              {auditHistory.map((audit, index) => {
                 const assessmentType = getAssessmentTypeLabel(
                   audit.assessmentMark?.assessment?.assessmentType,
                 );
@@ -136,44 +139,62 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
                   assessmentType,
                 );
 
+                const getActionIcon = (
+                  action: 'create' | 'update' | 'delete',
+                ) => {
+                  switch (action) {
+                    case 'create':
+                      return <IconPlus size={16} />;
+                    case 'update':
+                      return <IconEdit size={16} />;
+                    case 'delete':
+                      return <IconTrash size={16} />;
+                    default:
+                      return <IconInfoCircle size={16} />;
+                  }
+                };
+
                 return (
-                  <Paper
+                  <Timeline.Item
                     key={audit.id}
-                    p='md'
-                    radius='md'
-                    withBorder
-                    shadow='xs'
+                    bullet={getActionIcon(audit.action)}
+                    title={
+                      <Box mb='xs'>
+                        <Text size='sm' fw={600} lh={1.4}>
+                          {auditMessage}
+                        </Text>
+                      </Box>
+                    }
+                    lineVariant={
+                      index === auditHistory.length - 1 ? 'dashed' : 'solid'
+                    }
                   >
-                    <Box>
-                      <Text size='sm' lh={1.4} mb='sm'>
-                        {auditMessage}
-                      </Text>
+                    <Paper
+                      p='sm'
+                      radius='md'
+                      withBorder
+                      bg={colorScheme === 'dark' ? 'dark.6' : 'gray.0'}
+                      mt='xs'
+                    >
                       <Group gap='sm' align='center'>
-                        <Avatar
-                          size='xs'
-                          radius='xl'
-                          color='blue'
-                          variant='light'
-                          src={audit.createdByUser?.image}
-                        />
-                        <Text size='xs' fw={500}>
-                          {audit.createdByUser?.name || 'Unknown User'}
-                        </Text>
-                        <Text size='xs' c='dimmed'>
-                          •
-                        </Text>
-                        <Text size='xs' c='dimmed'>
-                          {format(
-                            new Date(audit.date),
-                            "dd MMM yyyy 'at' HH:mm",
-                          )}
-                        </Text>{' '}
+                        <Avatar radius='xl' src={audit.createdByUser?.image} />
+                        <Box flex={1}>
+                          <Text size='sm' fw={500}>
+                            {audit.createdByUser?.name || 'Unknown User'}
+                          </Text>
+                          <Text size='xs' c='dimmed'>
+                            {format(
+                              new Date(audit.date),
+                              "EEEE, dd MMM yyyy 'at' HH:mm",
+                            )}
+                          </Text>
+                        </Box>
                       </Group>
-                    </Box>
-                  </Paper>
+                    </Paper>
+                  </Timeline.Item>
                 );
               })}
-            </Stack>
+            </Timeline>
           </Box>
         )}
       </Modal>

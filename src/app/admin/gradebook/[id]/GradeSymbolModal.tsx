@@ -15,7 +15,6 @@ import {
   SegmentedControl,
   Stack,
   Text,
-  Title,
   Tooltip,
   rem,
   useMantineTheme,
@@ -121,11 +120,7 @@ export default function GradeSymbolModal({
       <Modal
         opened={opened}
         onClose={close}
-        title={
-          <Title order={3} size='h4' fw={600}>
-            Change Grade Symbol
-          </Title>
-        }
+        title='Change Grade Symbol'
         size='md'
         centered
         radius='md'

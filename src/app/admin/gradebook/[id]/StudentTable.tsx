@@ -171,7 +171,7 @@ export default function StudentTable({ moduleId }: Props) {
           reversed={reverseSortDirection}
           onSort={() => setSorting('stdNo')}
         >
-          Student Number
+          No.
         </Th>
         <Th
           sorted={sortBy === 'name'}
