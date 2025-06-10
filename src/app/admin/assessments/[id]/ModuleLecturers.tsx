@@ -1,22 +1,21 @@
 'use client';
 
-import { toTitleCase, toClassName } from '@/lib/utils';
+import { toClassName, toTitleCase } from '@/lib/utils';
 import { getLecturersByModule } from '@/server/assigned-modules/actions';
 import {
   Avatar,
   Badge,
+  Box,
   Card,
+  Divider,
   Group,
   Loader,
   SimpleGrid,
   Stack,
   Text,
-  Title,
-  Box,
   ThemeIcon,
-  Divider,
 } from '@mantine/core';
-import { IconUser, IconUsers, IconSchool } from '@tabler/icons-react';
+import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 
 type Props = {
@@ -55,7 +54,7 @@ export default function ModuleLecturers({ moduleId }: Props) {
               No Lecturers Assigned
             </Text>
             <Text c='dimmed' ta='center' size='sm'>
-              This module doesn't have any lecturers assigned yet
+              This module doesn&apos;t have any lecturers assigned yet
             </Text>
           </Stack>
         </Stack>

@@ -143,7 +143,7 @@ export default function AssessmentAuditModal({ assessment }: Props) {
             lineWidth={3}
             color='blue'
           >
-            {auditHistory.map((audit, index) => {
+            {auditHistory.map((audit) => {
               const auditMessage = generateAssessmentAuditMessage(
                 audit.action,
                 {

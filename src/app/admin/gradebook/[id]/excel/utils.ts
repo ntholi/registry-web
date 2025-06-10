@@ -1,4 +1,4 @@
-export function isValidStudentNumber(value: any): boolean {
+export function isValidStudentNumber(value: string | number | unknown): boolean {
   if (typeof value === 'number') {
     value = value.toString();
   }
@@ -11,7 +11,7 @@ export function isValidStudentNumber(value: any): boolean {
   return /^901\d{6}$/.test(cleaned);
 }
 
-export function normalizeStudentNumber(value: any): string | null {
+export function normalizeStudentNumber(value: string | number | unknown): string | null {
   if (typeof value === 'number') {
     value = value.toString();
   }
@@ -41,7 +41,7 @@ export function columnIndexToLetter(index: number): string {
   return result;
 }
 
-export function isNumericValue(value: any): boolean {
+export function isNumericValue(value: string | number | unknown): boolean {
   if (typeof value === 'number') {
     return !isNaN(value) && isFinite(value);
   }
@@ -54,7 +54,7 @@ export function isNumericValue(value: any): boolean {
   return false;
 }
 
-export function parseNumericValue(value: any): number | null {
+export function parseNumericValue(value: string | number | unknown): number | null {
   if (typeof value === 'number') {
     return isFinite(value) ? value : null;
   }

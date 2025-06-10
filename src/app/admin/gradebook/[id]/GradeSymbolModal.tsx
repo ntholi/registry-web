@@ -1,8 +1,8 @@
 'use client';
 
+import { gradeEnum } from '@/db/schema';
 import { upsertModuleGrade } from '@/server/module-grades/actions';
 import { getLetterGrade } from '@/utils/gradeCalculations';
-import { gradeEnum } from '@/db/schema';
 import {
   ActionIcon,
   Badge,
@@ -21,7 +21,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconEdit, IconCheck, IconX } from '@tabler/icons-react';
+import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 

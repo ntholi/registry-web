@@ -134,16 +134,9 @@ export default function StudentTable({ moduleId }: Props) {
 
   const { data: assessments, isLoading: assessmentsLoading } =
     useAssessmentsQuery(moduleId);
-  const { data: assessmentMarks, isLoading: marksLoading } =
-    useAssessmentMarksQuery(moduleId);
+  const { data: assessmentMarks } = useAssessmentMarksQuery(moduleId);
   const { data: moduleGrades, isLoading: moduleGradesLoading } =
     useModuleGradesQuery(moduleId);
-
-  const isLoading =
-    studentsLoading ||
-    assessmentsLoading ||
-    marksLoading ||
-    moduleGradesLoading;
 
   const getStudentMark = (studentId: number, assessmentId: number) => {
     if (!assessmentMarks) return { mark: undefined, markId: undefined };

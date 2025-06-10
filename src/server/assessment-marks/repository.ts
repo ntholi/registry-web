@@ -10,7 +10,7 @@ import {
   semesterModules,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { and, eq, inArray, exists } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { auth } from '@/auth';
 
 export default class AssessmentMarkRepository extends BaseRepository<
