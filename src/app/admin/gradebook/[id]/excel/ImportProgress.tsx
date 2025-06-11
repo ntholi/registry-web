@@ -14,7 +14,6 @@ import type { ImportResult, ParsedRow } from './types';
 interface Props {
   parsedRows: ParsedRow[];
   moduleId: number;
-  currentTerm: any;
   onImportComplete: (result: ImportResult) => void;
   onImportError: (error: Error) => void;
   onBack: () => void;
@@ -23,7 +22,6 @@ interface Props {
 export default function ImportProgress({
   parsedRows,
   moduleId,
-  currentTerm,
   onImportComplete,
   onImportError,
   onBack,
@@ -62,14 +60,11 @@ export default function ImportProgress({
             setCurrentAction(
               `Updating marks for student ${row.studentNumber}...`,
             );
-            await createOrUpdateMarks(
-              {
-                assessmentId: parseInt(assessmentId),
-                stdNo: parseInt(row.studentNumber),
-                marks,
-              },
-              currentTerm,
-            );
+            await createOrUpdateMarks({
+              assessmentId: parseInt(assessmentId),
+              stdNo: parseInt(row.studentNumber),
+              marks,
+            });
           }
 
           setCurrentAction(

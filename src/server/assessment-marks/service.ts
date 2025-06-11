@@ -64,12 +64,9 @@ class AssessmentMarkService {
     );
   }
 
-  async createOrUpdateMarks(
-    data: AssessmentMark,
-    term: typeof terms.$inferSelect,
-  ) {
+  async createOrUpdateMarks(data: AssessmentMark) {
     return withAuth(
-      async () => this.repository.createOrUpdateMarks(data, term),
+      async () => this.repository.createOrUpdateMarks(data),
       ['academic'],
     );
   }

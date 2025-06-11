@@ -27,17 +27,11 @@ export async function createAssessmentMark(assessmentMark: AssessmentMark) {
   return service.create(assessmentMark);
 }
 
-export async function createOrUpdateMarks(
-  assessmentMark: AssessmentMark,
-  term?: typeof terms.$inferSelect,
-) {
-  if (!term) {
-    throw new Error('Term is required for creating or updating marks');
-  }
+export async function createOrUpdateMarks(assessmentMark: AssessmentMark) {
   if (isNaN(assessmentMark.marks)) {
     throw new Error('Mark is required');
   }
-  return service.createOrUpdateMarks(assessmentMark, term);
+  return service.createOrUpdateMarks(assessmentMark);
 }
 
 export async function updateAssessmentMark(

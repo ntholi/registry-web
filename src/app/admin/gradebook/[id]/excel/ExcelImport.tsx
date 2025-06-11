@@ -21,10 +21,8 @@ import {
   IconTable,
   IconUpload,
 } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
-import { useCurrentTerm } from '@/hooks/use-current-term';
 import AssessmentMapping from './AssessmentMapping';
 import { ColumnDetector } from './ColumnDetector';
 import { ExcelParser } from './ExcelParser';
@@ -56,8 +54,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
   );
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const queryClient = useQueryClient();
-  const { currentTerm } = useCurrentTerm();
 
   const handleFileSelect = async (selectedFile: File | null) => {
     if (!selectedFile) {
@@ -195,7 +191,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                   <ImportProgress
                     parsedRows={parsedRows}
                     moduleId={moduleId}
-                    currentTerm={currentTerm}
                     onImportComplete={handleImportComplete}
                     onImportError={handleImportError}
                     onBack={() => setActiveStep(1)}

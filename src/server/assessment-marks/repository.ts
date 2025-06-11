@@ -171,65 +171,11 @@ export default class AssessmentMarkRepository extends BaseRepository<
       orderBy: (audit, { desc }) => [desc(audit.date)],
     });
   }
-  async createOrUpdateMarks(
-    data: typeof assessmentMarks.$inferInsert,
-    term: typeof terms.$inferSelect,
-  ) {
+  async createOrUpdateMarks(data: typeof assessmentMarks.$inferInsert) {
     const session = await auth();
 
     const result = await db.transaction(async (tx) => {
       if (!session?.user?.id) throw new Error('Unauthorized');
-
-      // Validate student eligibility for this assessment
-      const assessment = await tx
-        .select({
-          moduleId: assessments.moduleId,
-          termId: assessments.termId,
-        })
-        .from(assessments)
-        .where(eq(assessments.id, data.assessmentId))
-        .limit(1)
-        .then(([result]) => result);
-
-      if (!assessment) {
-        throw new Error('Assessment not found');
-      }
-
-      // Check if student has a semester module for this assessment's module and term
-      const studentEligibility = await tx
-        .select({
-          studentSemesterId: studentSemesters.id,
-          studentModuleId: studentModules.id,
-        })
-        .from(studentPrograms)
-        .innerJoin(
-          studentSemesters,
-          eq(studentSemesters.studentProgramId, studentPrograms.id),
-        )
-        .innerJoin(
-          studentModules,
-          eq(studentModules.studentSemesterId, studentSemesters.id),
-        )
-        .innerJoin(
-          semesterModules,
-          eq(studentModules.semesterModuleId, semesterModules.id),
-        )
-        .where(
-          and(
-            eq(studentPrograms.stdNo, data.stdNo),
-            eq(studentSemesters.term, term.name),
-            eq(semesterModules.moduleId, assessment.moduleId),
-          ),
-        )
-        .limit(1)
-        .then(([result]) => result);
-
-      if (!studentEligibility) {
-        throw new Error(
-          `Student ${data.stdNo} is not eligible to receive marks for this assessment. The student must be enrolled in the module for the term "${term.name}".`,
-        );
-      }
-
       const existing = await tx
         .select()
         .from(assessmentMarks)
