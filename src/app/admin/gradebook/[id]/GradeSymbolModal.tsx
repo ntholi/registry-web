@@ -170,7 +170,6 @@ export default function GradeSymbolModal({
             onChange={(value) => setMode(value as 'automatic' | 'manual')}
             fullWidth
             size='md'
-            radius='md'
             color={theme.primaryColor}
             styles={(theme) => ({
               indicator: {
@@ -180,7 +179,7 @@ export default function GradeSymbolModal({
           />
 
           {mode === 'automatic' ? (
-            <Paper p='md' radius='md' withBorder>
+            <Paper p='md' withBorder>
               <Stack gap='md'>
                 <Text size='sm' c='dimmed'>
                   The grade will be automatically generated based on the
