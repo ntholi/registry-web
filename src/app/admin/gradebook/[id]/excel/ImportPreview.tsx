@@ -82,7 +82,12 @@ export default function ImportPreview({
                     <Table.Th>Student Number</Table.Th>
                     {assessments.map((assessment) => (
                       <Table.Th key={assessment.id}>
-                        {getAssessmentTypeLabel(assessment.assessmentType)}
+                        {shorten(
+                          getAssessmentTypeLabel(assessment.assessmentType),
+                        )}
+                        <Text size='xs' c='dimmed'>
+                          {assessment.totalMarks} · {assessment.weight}%
+                        </Text>
                       </Table.Th>
                     ))}
                   </Table.Tr>
@@ -213,4 +218,9 @@ function parseExcelData(
       };
     })
     .filter((row) => row.studentNumber !== '' || row.errors.length > 0);
+}
+
+function shorten(name: string) {
+  const names = name.split(' ');
+  return names.map((n) => n.slice(0, 3)).join(' ');
 }
