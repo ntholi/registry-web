@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
 import {
   Badge,
   Button,
@@ -12,7 +11,7 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import { IconFileImport } from '@tabler/icons-react';
+import { useEffect, useMemo } from 'react';
 import { getAssessmentTypeLabel } from '../../../assessments/[id]/assessments';
 import { AssessmentInfo, ColumnMapping, ExcelData, ParsedRow } from './types';
 import {
@@ -26,9 +25,7 @@ type Props = {
   columnMapping: ColumnMapping;
   assessments: AssessmentInfo[];
   onPreviewGenerated: (rows: ParsedRow[]) => void;
-  onImport: () => void;
   onBack: () => void;
-  isImporting: boolean;
 };
 
 export default function ImportPreview({
@@ -36,9 +33,7 @@ export default function ImportPreview({
   columnMapping,
   assessments,
   onPreviewGenerated,
-  onImport,
   onBack,
-  isImporting,
 }: Props) {
   const parsedData = useMemo(
     () => parseExcelData(excelData, assessments, columnMapping),
@@ -145,19 +140,6 @@ export default function ImportPreview({
           </Stack>
         </Paper>
       )}
-      <Group justify='space-between'>
-        <Button variant='subtle' onClick={onBack} disabled={isImporting}>
-          Back
-        </Button>
-        <Button
-          onClick={onImport}
-          disabled={validRows.length === 0 || isImporting}
-          loading={isImporting}
-          leftSection={<IconFileImport size='1rem' />}
-        >
-          Import {validRows.length} Record{validRows.length !== 1 ? 's' : ''}
-        </Button>
-      </Group>
     </Stack>
   );
 }

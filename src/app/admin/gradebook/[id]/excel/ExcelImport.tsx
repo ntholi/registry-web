@@ -6,8 +6,6 @@ import {
   FileInput,
   Group,
   Modal,
-  Paper,
-  Progress,
   Stack,
   Stepper,
   Text,
@@ -23,17 +21,15 @@ import {
   IconTable,
   IconUpload,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
-import {
-  calculateAndSaveModuleGrade,
-  createOrUpdateMarks,
-} from '@/server/assessment-marks/actions';
+import { useCurrentTerm } from '@/hooks/use-current-term';
 import AssessmentMapping from './AssessmentMapping';
 import { ColumnDetector } from './ColumnDetector';
 import { ExcelParser } from './ExcelParser';
 import ImportPreview from './ImportPreview';
+import ImportProgress from './ImportProgress';
 import type {
   AssessmentInfo,
   ColumnMapping,
@@ -42,7 +38,6 @@ import type {
   ImportResult,
   ParsedRow,
 } from './types';
-import { useCurrentTerm } from '@/hooks/use-current-term';
 
 interface Props {
   moduleId: number;
@@ -60,13 +55,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
     null,
   );
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
-  const [importProgress, setImportProgress] = useState(0);
-  const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const [currentRecord, setCurrentRecord] = useState<number>(0);
-  const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [currentAction, setCurrentAction] = useState<string>('');
-  const [currentStudentNo, setCurrentStudentNo] = useState<string>('');
   const queryClient = useQueryClient();
   const { currentTerm } = useCurrentTerm();
 
@@ -107,101 +96,15 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
   const handlePreviewGenerated = useCallback((rows: ParsedRow[]) => {
     setParsedRows(rows);
   }, []);
-  const importMutation = useMutation({
-    mutationFn: async (rows: ParsedRow[]) => {
-      const validRows = rows.filter((row) => row.isValid);
-      let imported = 0;
-      let failed = 0;
-      const errors: string[] = [];
 
-      setIsImporting(true);
-      setImportProgress(0);
-      setTotalRecords(validRows.length);
-      setCurrentRecord(0);
+  const handleImportComplete = useCallback((result: ImportResult) => {
+    setImportResult(result);
+    setActiveStep(3);
+  }, []);
 
-      for (let i = 0; i < validRows.length; i++) {
-        const row = validRows[i];
-        const currentRecordNum = i + 1;
-        setCurrentRecord(currentRecordNum);
-        setCurrentStudentNo(row.studentNumber);
-        setImportProgress((currentRecordNum / validRows.length) * 100);
-
-        try {
-          setCurrentAction(`Verifying student ${row.studentNumber}...`);
-
-          for (const [assessmentId, marks] of Object.entries(
-            row.assessmentMarks,
-          )) {
-            setCurrentAction(
-              `Updating marks for student ${row.studentNumber}...`,
-            );
-            await createOrUpdateMarks(
-              {
-                assessmentId: parseInt(assessmentId),
-                stdNo: parseInt(row.studentNumber),
-                marks,
-              },
-              currentTerm,
-            );
-          }
-
-          setCurrentAction(
-            `Calculating grade for student ${row.studentNumber}...`,
-          );
-          await calculateAndSaveModuleGrade(
-            moduleId,
-            parseInt(row.studentNumber),
-          );
-          imported++;
-        } catch (error) {
-          failed++;
-          errors.push(
-            `Row ${row.rowIndex + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          );
-        }
-      }
-
-      setCurrentAction('Import completed');
-      return {
-        success: failed === 0,
-        imported,
-        failed,
-        errors,
-      };
-    },
-    onSuccess: (result) => {
-      setImportResult(result);
-      setIsImporting(false);
-      setActiveStep(3);
-
-      queryClient.invalidateQueries({
-        queryKey: ['assessmentMarks', moduleId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['moduleGrades', moduleId],
-      });
-
-      notifications.show({
-        title: 'Import Complete',
-        message: `Successfully imported ${result.imported} records${result.failed > 0 ? `, ${result.failed} failed` : ''}`,
-        color: result.success ? 'green' : 'orange',
-      });
-    },
-    onError: (error) => {
-      setIsImporting(false);
-      notifications.show({
-        title: 'Import Failed',
-        message:
-          error instanceof Error ? error.message : 'Failed to import data',
-        color: 'red',
-      });
-    },
-  });
-  const handleImport = useCallback(() => {
-    if (parsedRows.length > 0) {
-      importMutation.mutate(parsedRows);
-    }
-  }, [parsedRows, importMutation]);
+  const handleImportError = useCallback((error: Error) => {
+    console.error('Import failed:', error);
+  }, []);
   const resetImport = () => {
     setActiveStep(0);
     setFile(null);
@@ -209,20 +112,11 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
     setDetectedColumns(null);
     setColumnMapping(null);
     setParsedRows([]);
-    setImportProgress(0);
-    setIsImporting(false);
     setImportResult(null);
-    setCurrentRecord(0);
-    setTotalRecords(0);
-    setCurrentAction('');
-    setCurrentStudentNo('');
   };
-
   const handleClose = () => {
-    if (!isImporting) {
-      resetImport();
-      close();
-    }
+    resetImport();
+    close();
   };
 
   return (
@@ -240,8 +134,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
         onClose={handleClose}
         title='Import Assessment Marks from Excel'
         size='xl'
-        closeOnClickOutside={!isImporting}
-        withCloseButton={!isImporting}
       >
         <Stack gap='md'>
           <Stepper active={activeStep} size='sm' allowNextStepsSelect={false}>
@@ -269,7 +161,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                 )}
               </Stack>
             </Stepper.Step>
-
             <Stepper.Step
               label='Map Columns'
               description='Verify column mapping'
@@ -286,7 +177,6 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                 />
               )}
             </Stepper.Step>
-
             <Stepper.Step
               label='Preview & Import'
               description='Review data before import'
@@ -294,46 +184,25 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
               completedIcon={<IconCheck size={18} />}
             >
               {excelData && columnMapping && (
-                <ImportPreview
-                  excelData={excelData}
-                  columnMapping={columnMapping}
-                  assessments={assessments}
-                  onPreviewGenerated={handlePreviewGenerated}
-                  onImport={handleImport}
-                  onBack={() => setActiveStep(1)}
-                  isImporting={isImporting}
-                />
-              )}
-              {isImporting && (
-                <Paper p='md' withBorder mt={'sm'}>
-                  <Stack gap='xs'>
-                    <Group justify='space-between'>
-                      <Text size='sm' fw={500}>
-                        Importing data...
-                      </Text>
-                      <Text size='sm'>{Math.round(importProgress)}%</Text>
-                    </Group>
-                    <Group justify='space-between'>
-                      <Text size='xs' c='dimmed'>
-                        {currentRecord}/{totalRecords} records processed
-                      </Text>
-                      {currentStudentNo && (
-                        <Text size='xs' c='dimmed'>
-                          Student: {currentStudentNo}
-                        </Text>
-                      )}
-                    </Group>
-                    <Progress value={importProgress} animated />
-                    {currentAction && (
-                      <Text size='xs' c='blue' style={{ fontStyle: 'italic' }}>
-                        {currentAction}
-                      </Text>
-                    )}
-                  </Stack>
-                </Paper>
+                <>
+                  <ImportPreview
+                    excelData={excelData}
+                    columnMapping={columnMapping}
+                    assessments={assessments}
+                    onPreviewGenerated={handlePreviewGenerated}
+                    onBack={() => setActiveStep(1)}
+                  />
+                  <ImportProgress
+                    parsedRows={parsedRows}
+                    moduleId={moduleId}
+                    currentTerm={currentTerm}
+                    onImportComplete={handleImportComplete}
+                    onImportError={handleImportError}
+                    onBack={() => setActiveStep(1)}
+                  />
+                </>
               )}
             </Stepper.Step>
-
             <Stepper.Step
               label='Complete'
               description='Import results'
@@ -399,23 +268,20 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
               )}
             </Stepper.Step>
           </Stepper>
-          {activeStep < 3 &&
-            !isImporting &&
-            activeStep !== 2 &&
-            activeStep !== 1 && (
-              <Group justify='space-between'>
-                <Button
-                  variant='subtle'
-                  onClick={
-                    activeStep > 0
-                      ? () => setActiveStep(activeStep - 1)
-                      : handleClose
-                  }
-                >
-                  {activeStep > 0 ? 'Back' : 'Cancel'}
-                </Button>
-              </Group>
-            )}
+          {activeStep < 3 && activeStep !== 2 && activeStep !== 1 && (
+            <Group justify='space-between'>
+              <Button
+                variant='subtle'
+                onClick={
+                  activeStep > 0
+                    ? () => setActiveStep(activeStep - 1)
+                    : handleClose
+                }
+              >
+                {activeStep > 0 ? 'Back' : 'Cancel'}
+              </Button>
+            </Group>
+          )}
         </Stack>
       </Modal>
     </>
