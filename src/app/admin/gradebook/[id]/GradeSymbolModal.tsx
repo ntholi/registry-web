@@ -59,6 +59,57 @@ export default function GradeSymbolModal({
         weightedTotal: data.weightedTotal,
       });
     },
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({
+        queryKey: ['moduleGrade', moduleId, studentId],
+      });
+      await queryClient.cancelQueries({
+        queryKey: ['moduleGrades', moduleId],
+      });
+
+      const previousModuleGrade = queryClient.getQueryData([
+        'moduleGrade',
+        moduleId,
+        studentId,
+      ]);
+      const previousModuleGrades = queryClient.getQueryData([
+        'moduleGrades',
+        moduleId,
+      ]);
+
+      const optimisticModuleGrade = {
+        id: Date.now(),
+        moduleId,
+        stdNo: studentId,
+        grade: data.grade,
+        weightedTotal: data.weightedTotal,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      queryClient.setQueryData(
+        ['moduleGrade', moduleId, studentId],
+        optimisticModuleGrade,
+      );
+
+      queryClient.setQueryData(['moduleGrades', moduleId], (old: any[]) => {
+        if (!old) return [optimisticModuleGrade];
+
+        const existingIndex = old.findIndex(
+          (grade) => grade.stdNo === studentId,
+        );
+
+        if (existingIndex >= 0) {
+          const updated = [...old];
+          updated[existingIndex] = optimisticModuleGrade;
+          return updated;
+        } else {
+          return [...old, optimisticModuleGrade];
+        }
+      });
+
+      return { previousModuleGrade, previousModuleGrades };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['moduleGrade', moduleId, studentId],
@@ -73,7 +124,20 @@ export default function GradeSymbolModal({
       });
       close();
     },
-    onError: (error) => {
+    onError: (error, data, context) => {
+      if (context?.previousModuleGrade) {
+        queryClient.setQueryData(
+          ['moduleGrade', moduleId, studentId],
+          context.previousModuleGrade,
+        );
+      }
+      if (context?.previousModuleGrades) {
+        queryClient.setQueryData(
+          ['moduleGrades', moduleId],
+          context.previousModuleGrades,
+        );
+      }
+
       notifications.show({
         title: 'Error',
         message: 'Failed to update grade symbol',

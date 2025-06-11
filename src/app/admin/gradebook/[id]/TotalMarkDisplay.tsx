@@ -51,7 +51,6 @@ export default function TotalMarkDisplay({
       higher: floorScore + 1,
     };
   };
-
   const adjustGradeMutation = useMutation({
     mutationFn: async (newScore: number) => {
       const grade = getLetterGrade(newScore);
@@ -62,6 +61,58 @@ export default function TotalMarkDisplay({
         weightedTotal: newScore,
       });
     },
+    onMutate: async (newScore) => {
+      await queryClient.cancelQueries({
+        queryKey: ['moduleGrade', moduleId, studentId],
+      });
+      await queryClient.cancelQueries({
+        queryKey: ['moduleGrades', moduleId],
+      });
+
+      const previousModuleGrade = queryClient.getQueryData([
+        'moduleGrade',
+        moduleId,
+        studentId,
+      ]);
+      const previousModuleGrades = queryClient.getQueryData([
+        'moduleGrades',
+        moduleId,
+      ]);
+
+      const newGrade = getLetterGrade(newScore);
+      const optimisticModuleGrade = {
+        id: Date.now(),
+        moduleId,
+        stdNo: studentId,
+        grade: newGrade,
+        weightedTotal: newScore,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      queryClient.setQueryData(
+        ['moduleGrade', moduleId, studentId],
+        optimisticModuleGrade,
+      );
+
+      queryClient.setQueryData(['moduleGrades', moduleId], (old: any[]) => {
+        if (!old) return [optimisticModuleGrade];
+
+        const existingIndex = old.findIndex(
+          (grade) => grade.stdNo === studentId,
+        );
+
+        if (existingIndex >= 0) {
+          const updated = [...old];
+          updated[existingIndex] = optimisticModuleGrade;
+          return updated;
+        } else {
+          return [...old, optimisticModuleGrade];
+        }
+      });
+
+      return { previousModuleGrade, previousModuleGrades };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['moduleGrade', moduleId, studentId],
@@ -70,6 +121,20 @@ export default function TotalMarkDisplay({
         queryKey: ['moduleGrades', moduleId],
       });
       close();
+    },
+    onError: (error, newScore, context) => {
+      if (context?.previousModuleGrade) {
+        queryClient.setQueryData(
+          ['moduleGrade', moduleId, studentId],
+          context.previousModuleGrade,
+        );
+      }
+      if (context?.previousModuleGrades) {
+        queryClient.setQueryData(
+          ['moduleGrades', moduleId],
+          context.previousModuleGrades,
+        );
+      }
     },
   });
 
