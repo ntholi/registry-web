@@ -123,6 +123,7 @@ export default function ImportPreview({
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Row</Table.Th>
+                    <Table.Th>Student Number</Table.Th>
                     <Table.Th>Errors</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -130,6 +131,7 @@ export default function ImportPreview({
                   {invalidRows.map((row) => (
                     <Table.Tr key={row.rowIndex}>
                       <Table.Td>{row.rowIndex + 2}</Table.Td>
+                      <Table.Td>{row.studentNumber || '-'}</Table.Td>
                       <Table.Td>
                         <Text size='xs' c='red'>
                           {row.errors.join(', ')}
@@ -208,7 +210,6 @@ function parseExcelData(
           }
         }
       }
-
       return {
         rowIndex: index,
         studentNumber,
@@ -217,7 +218,7 @@ function parseExcelData(
         errors,
       };
     })
-    .filter((row) => row.studentNumber !== '' || row.errors.length > 0);
+    .filter((row) => row.studentNumber !== '');
 }
 
 function shorten(name: string) {
