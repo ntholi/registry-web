@@ -34,6 +34,33 @@ export async function createOrUpdateMarks(assessmentMark: AssessmentMark) {
   return service.createOrUpdateMarks(assessmentMark);
 }
 
+export async function createOrUpdateMarksInBulk(
+  assessmentMarks: AssessmentMark[],
+  moduleId: number,
+) {
+  const invalidMarks = assessmentMarks.filter((mark) => isNaN(mark.marks));
+  if (invalidMarks.length > 0) {
+    throw new Error('All marks must be valid numbers');
+  }
+
+  const result = await service.createOrUpdateMarksInBulk(
+    assessmentMarks,
+    moduleId,
+  );
+
+  for (const stdNo of result.processedStudents) {
+    try {
+      await calculateAndSaveModuleGrade(moduleId, stdNo);
+    } catch (error) {
+      result.errors.push(
+        `Failed to calculate grade for student ${stdNo}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  return result;
+}
+
 export async function updateAssessmentMark(
   id: number,
   assessmentMark: AssessmentMark,

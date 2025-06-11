@@ -225,6 +225,88 @@ export default class AssessmentMarkRepository extends BaseRepository<
     });
     return result;
   }
+  async createOrUpdateMarksInBulk(
+    dataArray: (typeof assessmentMarks.$inferInsert)[],
+    moduleId: number,
+  ) {
+    const session = await auth();
+
+    const result = await db.transaction(async (tx) => {
+      if (!session?.user?.id) throw new Error('Unauthorized');
+
+      const results: { mark: any; isNew: boolean; stdNo: number }[] = [];
+      const processedStudents = new Set<number>();
+      const errors: string[] = [];
+
+      for (let i = 0; i < dataArray.length; i++) {
+        const data = dataArray[i];
+        try {
+          const existing = await tx
+            .select()
+            .from(assessmentMarks)
+            .where(
+              and(
+                eq(assessmentMarks.assessmentId, data.assessmentId),
+                eq(assessmentMarks.stdNo, data.stdNo),
+              ),
+            )
+            .limit(1)
+            .then(([result]) => result);
+
+          if (existing) {
+            const [updated] = await tx
+              .update(assessmentMarks)
+              .set({ marks: data.marks })
+              .where(eq(assessmentMarks.id, existing.id))
+              .returning();
+
+            if (data.marks !== existing.marks) {
+              await tx.insert(assessmentMarksAudit).values({
+                assessmentMarkId: existing.id,
+                action: 'update',
+                previousMarks: existing.marks,
+                newMarks: data.marks,
+                createdBy: session.user.id,
+              });
+            }
+
+            results.push({ mark: updated, isNew: false, stdNo: data.stdNo });
+          } else {
+            const [created] = await tx
+              .insert(assessmentMarks)
+              .values(data)
+              .returning();
+
+            await tx.insert(assessmentMarksAudit).values({
+              assessmentMarkId: created.id,
+              action: 'create',
+              previousMarks: null,
+              newMarks: created.marks,
+              createdBy: session.user.id,
+            });
+
+            results.push({ mark: created, isNew: true, stdNo: data.stdNo });
+          }
+
+          processedStudents.add(data.stdNo);
+        } catch (error) {
+          errors.push(
+            `Failed to process mark for student ${data.stdNo}, assessment ${data.assessmentId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          );
+        }
+      }
+
+      return {
+        results,
+        processedStudents: Array.from(processedStudents),
+        errors,
+        successful: results.length,
+        failed: errors.length,
+      };
+    });
+
+    return result;
+  }
   async getStudentAuditHistory(stdNo: number) {
     const studentAssessmentMarks = await db
       .select({ id: assessmentMarks.id })

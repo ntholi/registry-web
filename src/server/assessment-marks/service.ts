@@ -63,10 +63,20 @@ class AssessmentMarkService {
       ['academic'],
     );
   }
-
   async createOrUpdateMarks(data: AssessmentMark) {
     return withAuth(
       async () => this.repository.createOrUpdateMarks(data),
+      ['academic'],
+    );
+  }
+
+  async createOrUpdateMarksInBulk(
+    dataArray: AssessmentMark[],
+    moduleId: number,
+  ) {
+    return withAuth(
+      async () =>
+        this.repository.createOrUpdateMarksInBulk(dataArray, moduleId),
       ['academic'],
     );
   }

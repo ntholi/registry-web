@@ -5,10 +5,7 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
-import {
-  calculateAndSaveModuleGrade,
-  createOrUpdateMarks,
-} from '@/server/assessment-marks/actions';
+import { createOrUpdateMarksInBulk } from '@/server/assessment-marks/actions';
 import type { ImportResult, ParsedRow } from './types';
 
 interface Props {
@@ -27,63 +24,65 @@ export default function ImportProgress({
   onBack,
 }: Props) {
   const [importProgress, setImportProgress] = useState(0);
-  const [currentRecord, setCurrentRecord] = useState(0);
   const [totalRecords, setTotalRecords] = useState(0);
   const [currentAction, setCurrentAction] = useState('');
-  const [currentStudentNo, setCurrentStudentNo] = useState('');
   const queryClient = useQueryClient();
-
   const importMutation = useMutation({
     mutationFn: async (rows: ParsedRow[]) => {
       const validRows = rows.filter((row) => row.isValid);
       let imported = 0;
       let failed = 0;
       const errors: string[] = [];
-
       setImportProgress(0);
       setTotalRecords(validRows.length);
-      setCurrentRecord(0);
+      try {
+        setCurrentAction('Preparing bulk import...');
+        setImportProgress(10);
 
-      for (let i = 0; i < validRows.length; i++) {
-        const row = validRows[i];
-        const currentRecordNum = i + 1;
-        setCurrentRecord(currentRecordNum);
-        setCurrentStudentNo(row.studentNumber);
-        setImportProgress((currentRecordNum / validRows.length) * 100);
+        const bulkData: Array<{
+          assessmentId: number;
+          stdNo: number;
+          marks: number;
+        }> = [];
 
-        try {
-          setCurrentAction(`Verifying student ${row.studentNumber}...`);
-
+        for (const row of validRows) {
           for (const [assessmentId, marks] of Object.entries(
             row.assessmentMarks,
           )) {
-            setCurrentAction(
-              `Updating marks for student ${row.studentNumber}...`,
-            );
-            await createOrUpdateMarks({
+            bulkData.push({
               assessmentId: parseInt(assessmentId),
               stdNo: parseInt(row.studentNumber),
               marks,
             });
           }
-
-          setCurrentAction(
-            `Calculating grade for student ${row.studentNumber}...`,
-          );
-          await calculateAndSaveModuleGrade(
-            moduleId,
-            parseInt(row.studentNumber),
-          );
-          imported++;
-        } catch (error) {
-          failed++;
-          errors.push(
-            `Row ${row.rowIndex + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          );
         }
+        setCurrentAction(
+          `Processing ${bulkData.length} marks for ${validRows.length} students...`,
+        );
+        setImportProgress(30);
+
+        const bulkResult = await createOrUpdateMarksInBulk(bulkData, moduleId);
+
+        setCurrentAction('Finalizing import...');
+        setImportProgress(90);
+
+        setCurrentAction('Import completed successfully');
+        setImportProgress(100);
+
+        if (bulkResult.errors && bulkResult.errors.length > 0) {
+          errors.push(...bulkResult.errors);
+          failed = bulkResult.failed || 0;
+          imported = bulkResult.successful || 0;
+        } else {
+          imported = validRows.length;
+        }
+      } catch (error) {
+        failed = validRows.length;
+        errors.push(
+          `Bulk import failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        );
       }
 
-      setCurrentAction('Import completed');
       return {
         success: failed === 0,
         imported,
@@ -152,16 +151,11 @@ export default function ImportProgress({
                 Importing data...
               </Text>
               <Text size='sm'>{Math.round(importProgress)}%</Text>
-            </Group>
+            </Group>{' '}
             <Group justify='space-between'>
               <Text size='xs' c='dimmed'>
-                {currentRecord}/{totalRecords} records processed
+                {totalRecords} records to process
               </Text>
-              {currentStudentNo && (
-                <Text size='xs' c='dimmed'>
-                  Student: {currentStudentNo}
-                </Text>
-              )}
             </Group>
             <Progress value={importProgress} animated />
             {currentAction && (
