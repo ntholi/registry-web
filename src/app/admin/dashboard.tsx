@@ -20,6 +20,7 @@ import {
   Indicator,
   MantineColor,
   NavLink,
+  Skeleton,
   Stack,
   Text,
   useComputedColorScheme,
@@ -69,6 +70,7 @@ export type NavItem = {
   isVisible?: (session: Session | null) => boolean;
   children?: NavItem[];
   notificationCount?: NotificationConfig;
+  isLoading?: boolean;
 };
 
 function getNavigation(department: DashboardUser) {
@@ -284,7 +286,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const navigation = getNavigation(session?.user?.role as DashboardUser);
 
-  const { data: assignedModules } = useQuery({
+  const { data: assignedModules, isLoading: isModulesLoading } = useQuery({
     queryKey: ['assignedModules'],
     queryFn: getAssignedModulesByCurrentUser,
     enabled: session?.user?.role === 'academic',
@@ -292,13 +294,16 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 
   for (const nav of navigation) {
     if (nav.label === 'Gradebook') {
-      assignedModules?.forEach((it) => {
-        nav.children?.push({
-          label: it?.semesterModule?.module?.code || 'Unknown Module',
-          description: it?.semesterModule?.module?.name || 'Unknown Module',
-          href: `/admin/gradebook/${it?.semesterModule.moduleId}`,
+      nav.isLoading = isModulesLoading && session?.user?.role === 'academic';
+      if (!isModulesLoading && assignedModules) {
+        assignedModules.forEach((it) => {
+          nav.children?.push({
+            label: it?.semesterModule?.module?.code || 'Unknown Module',
+            description: it?.semesterModule?.module?.name || 'Unknown Module',
+            href: `/admin/gradebook/${it?.semesterModule.moduleId}`,
+          });
         });
-      });
+      }
     }
   }
 
@@ -418,6 +423,29 @@ function ItemDisplay({ item }: { item: NavItem }) {
     if (session?.user?.role !== 'admin') {
       return null;
     }
+  }
+
+  if (item.isLoading) {
+    return (
+      <NavLink
+        label={item.label}
+        leftSection={Icon ? <Icon size='1.1rem' /> : null}
+        description={item.description}
+        opened={true}
+      >
+        {[1, 2, 3].map((i) => (
+          <NavLink
+            key={`skeleton-${i}`}
+            label={
+              <Stack gap={5}>
+                <Skeleton height={28} width='60%' radius='sm' animate />
+                <Skeleton height={12} width='90%' radius='sm' animate />
+              </Stack>
+            }
+          />
+        ))}
+      </NavLink>
+    );
   }
 
   const navLink = (
