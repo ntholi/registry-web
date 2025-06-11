@@ -204,7 +204,7 @@ function parseExcelData(
               assessmentMarks[assessment.id] = mark;
             } else {
               errors.push(
-                `Mark for ${getAssessmentTypeLabel(assessment.assessmentType)} is out of range (0-${assessment.totalMarks})`,
+                `Marks for ${getAssessmentTypeLabel(assessment.assessmentType)} is out of range. Expected value between 0 and ${assessment.totalMarks}, but received ${mark}`,
               );
             }
           }
