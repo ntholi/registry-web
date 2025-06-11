@@ -1,6 +1,14 @@
 'use client';
 
-import { Button, Group, Paper, Progress, Stack, Text } from '@mantine/core';
+import {
+  Button,
+  Group,
+  Loader,
+  Paper,
+  Progress,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
@@ -23,9 +31,7 @@ export default function ImportProgress({
   onImportError,
   onBack,
 }: Props) {
-  const [importProgress, setImportProgress] = useState(0);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [currentAction, setCurrentAction] = useState('');
   const queryClient = useQueryClient();
   const importMutation = useMutation({
     mutationFn: async (rows: ParsedRow[]) => {
@@ -33,12 +39,8 @@ export default function ImportProgress({
       let imported = 0;
       let failed = 0;
       const errors: string[] = [];
-      setImportProgress(0);
       setTotalRecords(validRows.length);
       try {
-        setCurrentAction('Preparing bulk import...');
-        setImportProgress(10);
-
         const bulkData: Array<{
           assessmentId: number;
           stdNo: number;
@@ -56,18 +58,8 @@ export default function ImportProgress({
             });
           }
         }
-        setCurrentAction(
-          `Processing ${bulkData.length} marks for ${validRows.length} students...`,
-        );
-        setImportProgress(30);
 
         const bulkResult = await createOrUpdateMarksInBulk(bulkData, moduleId);
-
-        setCurrentAction('Finalizing import...');
-        setImportProgress(90);
-
-        setCurrentAction('Import completed successfully');
-        setImportProgress(100);
 
         if (bulkResult.errors && bulkResult.errors.length > 0) {
           errors.push(...bulkResult.errors);
@@ -141,28 +133,18 @@ export default function ImportProgress({
             Start Import
           </Button>
         </Group>
-      )}
-
+      )}{' '}
       {isImporting && (
         <Paper p='md' withBorder>
           <Stack gap='xs'>
-            <Group justify='space-between'>
-              <Text size='sm' fw={500}>
-                Importing data...
-              </Text>
-              <Text size='sm'>{Math.round(importProgress)}%</Text>
-            </Group>{' '}
-            <Group justify='space-between'>
-              <Text size='xs' c='dimmed'>
-                {totalRecords} records to process
-              </Text>
-            </Group>
-            <Progress value={importProgress} animated />
-            {currentAction && (
-              <Text size='xs' c='blue' style={{ fontStyle: 'italic' }}>
-                {currentAction}
-              </Text>
-            )}
+            <Text size='sm' fw={500}>
+              Importing data
+            </Text>
+            <Text size='xs' c='dimmed'>
+              Processing {totalRecords} student records, this may take a
+              while...
+            </Text>
+            <Progress value={100} animated striped />
           </Stack>
         </Paper>
       )}
