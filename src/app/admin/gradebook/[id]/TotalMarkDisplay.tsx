@@ -104,7 +104,7 @@ export default function TotalMarkDisplay({
             <IconExclamationMark size={14} />
           </Box>
         )}
-        {Math.ceil(weightedTotal)}
+        {Math.round(weightedTotal)}
       </Badge>
 
       <Modal
@@ -122,7 +122,7 @@ export default function TotalMarkDisplay({
           >
             The current mark of{' '}
             <Text c='orange.7' span fw='bold'>
-              {Math.ceil(weightedTotal)}
+              {Math.round(weightedTotal)}
             </Text>{' '}
             is considered borderline. You may adjust it to one of the adjacent
             values.

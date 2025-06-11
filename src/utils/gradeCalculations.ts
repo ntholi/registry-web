@@ -35,7 +35,7 @@ export function calculateModuleGrade(
       hasMarks = true;
     }
   });
-  const weightedTotal = Math.ceil(weightedMarks);
+  const weightedTotal = Math.round(weightedMarks);
   const grade = getLetterGrade(weightedTotal);
   const hasPassed = weightedTotal >= totalWeight * 0.5;
 
