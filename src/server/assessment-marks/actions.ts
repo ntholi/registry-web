@@ -23,8 +23,13 @@ export async function getAssessmentMarksAuditHistory(assessmentMarkId: number) {
   return service.getAuditHistory(assessmentMarkId);
 }
 
-export async function createAssessmentMark(assessmentMark: AssessmentMark) {
-  return service.create(assessmentMark);
+export async function createAssessmentMark(
+  assessmentMark: AssessmentMark,
+  moduleId: number,
+) {
+  const result = await service.create(assessmentMark);
+  await calculateAndSaveModuleGrade(moduleId, assessmentMark.stdNo);
+  return result;
 }
 
 export async function createOrUpdateMarks(assessmentMark: AssessmentMark) {
@@ -64,11 +69,15 @@ export async function createOrUpdateMarksInBulk(
 export async function updateAssessmentMark(
   id: number,
   assessmentMark: AssessmentMark,
+  moduleId: number,
 ) {
   if (isNaN(assessmentMark.marks)) {
     throw new Error('Mark is required');
   }
-  return service.update(id, assessmentMark);
+
+  const result = await service.update(id, assessmentMark);
+  await calculateAndSaveModuleGrade(moduleId, assessmentMark.stdNo);
+  return result;
 }
 
 export async function deleteAssessmentMark(id: number) {

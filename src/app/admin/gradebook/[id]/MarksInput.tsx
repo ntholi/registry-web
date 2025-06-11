@@ -6,7 +6,6 @@ import { useState, useRef, useEffect } from 'react';
 import {
   createAssessmentMark,
   updateAssessmentMark,
-  calculateAndSaveModuleGrade,
 } from '@/server/assessment-marks/actions';
 
 type Props = {
@@ -45,9 +44,9 @@ export default function MarksInput({
     }) => {
       let result;
       if (existingMarkId !== undefined) {
-        result = await updateAssessmentMark(existingMarkId, data);
+        result = await updateAssessmentMark(existingMarkId, data, moduleId);
       } else {
-        result = await createAssessmentMark(data);
+        result = await createAssessmentMark(data, moduleId);
       }
       return result;
     },
@@ -55,8 +54,6 @@ export default function MarksInput({
       queryClient.invalidateQueries({
         queryKey: ['assessmentMarks', moduleId],
       });
-
-      await calculateAndSaveModuleGrade(moduleId, studentId);
 
       queryClient.invalidateQueries({
         queryKey: ['moduleGrades', moduleId],
