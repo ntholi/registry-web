@@ -1,10 +1,14 @@
 'use client';
 
 import { ListItem, ListLayout } from '@/components/adease';
-import { registrationClearanceByStatus } from '@/server/registration-clearance/actions';
+import {
+  registrationClearanceByStatus,
+  exportClearancesByStatus,
+} from '@/server/registration-clearance/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { PropsWithChildren } from 'react';
 import { useParams } from 'next/navigation';
+import DownloadCSVButton from '@/components/DownloadCSVButton';
 
 type Status = 'pending' | 'approved' | 'rejected';
 
@@ -37,6 +41,13 @@ export default function Layout({ children }: PropsWithChildren) {
           totalPages: response.totalPages || 1,
         };
       }}
+      actionIcons={[
+        <DownloadCSVButton
+          key='download-csv'
+          status={status}
+          onDownload={exportClearancesByStatus}
+        />,
+      ]}
       renderItem={(it) => (
         <ListItem
           id={it.id}

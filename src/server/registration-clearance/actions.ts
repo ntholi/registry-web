@@ -101,3 +101,46 @@ export async function getNextPendingRegistrationClearance() {
 
   return service.findNextPending(session.user.role as DashboardUser);
 }
+
+export async function exportClearancesByStatus(
+  status: 'pending' | 'approved' | 'rejected',
+) {
+  const clearances = await service.findByStatusForExport(status);
+
+  const csvData = clearances.map((clearance) => {
+    const student = clearance.registrationRequest.student;
+    const activeProgram = student.programs[0];
+
+    return {
+      'Student Number': student.stdNo,
+      'Student Name': student.name,
+      Program: activeProgram?.structure.program.name || 'N/A',
+      Department: clearance.department,
+      Status: clearance.status,
+      Term: clearance.registrationRequest.term.name,
+      'Response Date': clearance.responseDate
+        ? new Date(clearance.responseDate).toLocaleDateString()
+        : 'N/A',
+      'Responded By': clearance.respondedBy?.name || 'N/A',
+      Message: clearance.message || 'N/A',
+      'Created Date': clearance.createdAt
+        ? new Date(clearance.createdAt).toLocaleDateString()
+        : 'N/A',
+    };
+  });
+
+  const headers = Object.keys(csvData[0] || {});
+  const csvContent = [
+    headers.join(','),
+    ...csvData.map((row) =>
+      headers
+        .map((header) => {
+          const value = row[header as keyof typeof row];
+          return `"${String(value).replace(/"/g, '""')}"`;
+        })
+        .join(','),
+    ),
+  ].join('\n');
+
+  return csvContent;
+}

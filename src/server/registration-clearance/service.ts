@@ -89,6 +89,13 @@ class RegistrationClearanceService {
       ['dashboard'],
     );
   }
+
+  async findByStatusForExport(status: 'pending' | 'approved' | 'rejected') {
+    return withAuth(
+      async () => this.repository.findByStatusForExport(status),
+      ['dashboard'],
+    );
+  }
 }
 
 export const registrationClearancesService = serviceWrapper(

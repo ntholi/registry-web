@@ -227,7 +227,6 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       },
     });
   }
-
   async findNextPending(department: DashboardUser) {
     return db.query.registrationClearances.findFirst({
       where: and(
@@ -242,6 +241,37 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         },
       },
       orderBy: (clearances) => [desc(clearances.createdAt)],
+    });
+  }
+
+  async findByStatusForExport(status: 'pending' | 'approved' | 'rejected') {
+    return db.query.registrationClearances.findMany({
+      where: eq(registrationClearances.status, status),
+      with: {
+        registrationRequest: {
+          with: {
+            student: {
+              with: {
+                programs: {
+                  where: eq(studentPrograms.status, 'Active'),
+                  orderBy: (programs, { asc }) => [asc(programs.id)],
+                  limit: 1,
+                  with: {
+                    structure: {
+                      with: {
+                        program: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            term: true,
+          },
+        },
+        respondedBy: true,
+      },
+      orderBy: [asc(registrationClearances.createdAt)],
     });
   }
 }
