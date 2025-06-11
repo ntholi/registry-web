@@ -8,7 +8,7 @@ import {
   studentSemesters,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, eq, like, or, SQL } from 'drizzle-orm';
+import { and, eq, like, ne, notInArray, or, SQL } from 'drizzle-orm';
 
 export default class StudentRepository extends BaseRepository<
   typeof students,
@@ -105,6 +105,7 @@ export default class StudentRepository extends BaseRepository<
         and(
           eq(semesterModules.moduleId, moduleId),
           eq(studentSemesters.term, termName),
+          notInArray(studentModules.status, ['Delete', 'Drop']),
         ),
       )
       .groupBy(students.stdNo, students.name, studentModules.semesterModuleId);
