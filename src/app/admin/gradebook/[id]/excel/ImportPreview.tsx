@@ -88,7 +88,7 @@ export default function ImportPreview({
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {validRows.slice(0, 10).map((row) => (
+                  {validRows.map((row) => (
                     <Table.Tr key={row.rowIndex}>
                       <Table.Td>{row.rowIndex + 2}</Table.Td>
                       <Table.Td>{row.studentNumber}</Table.Td>
@@ -103,11 +103,6 @@ export default function ImportPreview({
                   ))}
                 </Table.Tbody>
               </Table>
-              {validRows.length > 10 && (
-                <Text size='xs' c='dimmed' ta='center' mt='sm'>
-                  ... and {validRows.length - 10} more valid records
-                </Text>
-              )}
             </ScrollArea>
           </Stack>
         </Paper>
@@ -127,7 +122,7 @@ export default function ImportPreview({
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {invalidRows.slice(0, 10).map((row) => (
+                  {invalidRows.map((row) => (
                     <Table.Tr key={row.rowIndex}>
                       <Table.Td>{row.rowIndex + 2}</Table.Td>
                       <Table.Td>
@@ -139,15 +134,10 @@ export default function ImportPreview({
                   ))}
                 </Table.Tbody>
               </Table>
-              {invalidRows.length > 10 && (
-                <Text size='xs' c='dimmed' ta='center' mt='sm'>
-                  ... and {invalidRows.length - 10} more invalid records
-                </Text>
-              )}
             </ScrollArea>
-          </Stack>{' '}
+          </Stack>
         </Paper>
-      )}{' '}
+      )}
       <Group justify='space-between'>
         <Button variant='subtle' onClick={onBack} disabled={isImporting}>
           Back
