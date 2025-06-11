@@ -71,9 +71,13 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
               rightSection={<IconChevronDown size={16} />}
               clearable
             />
-          </Group>
-
+          </Group>{' '}
           <Group gap='md' align='center'>
+            <Paper bg='var(--mantine-color-default)' px='sm' py={3} withBorder>
+              <Text ff='monospace' fw={600} size='sm'>
+                {modules.at(0)?.semesterModule?.module?.code}
+              </Text>
+            </Paper>
             <Group gap={5}>
               <IconCalendar size={'1rem'} />
               <Text size='sm' c='dimmed'>
