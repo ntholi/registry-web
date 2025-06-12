@@ -10,21 +10,31 @@ import {
   Badge,
   Card,
   Center,
+  Divider,
   Grid,
   GridCol,
   Group,
   Stack,
+  Text,
+  Title,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { deleteUser, getUser } from '../../../../server/users/actions';
+import { deleteUser, getUser, getUserSchools } from '../../../../server/users/actions';
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
+type School = {
+  id: number;
+  name: string;
+  code: string;
+};
+
 export default async function UserDetails({ params }: Props) {
   const { id } = await params;
   const users = await getUser(id);
+  const userSchools = await getUserSchools(id);
 
   if (!users) {
     return notFound();
@@ -52,21 +62,44 @@ export default async function UserDetails({ params }: Props) {
           <GridCol span={{ base: 12, md: 6 }}>
             <Stack gap={'lg'} p={'sm'}>
               <FieldView label='Name'>{users.name}</FieldView>
-              <Group align='center'>
+              
+              <FieldView label='Role'>
                 <Badge
                   color={getRoleColor(users.role)}
                   radius={'sm'}
                   variant='light'
+                  size="lg"
                 >
                   {toTitleCase(users.role)}
                 </Badge>
-              </Group>
+              </FieldView>
+              
               {users.position && (
                 <FieldView label='Position'>
                   {toTitleCase(users.position)}
                 </FieldView>
               )}
+              
               <FieldView label='Email'>{users.email}</FieldView>
+              
+              <Divider my="xs" />
+              
+              <FieldView label='Schools'>
+                {userSchools && userSchools.length > 0 ? (
+                  <Stack gap="xs">
+                    {userSchools.map((school: any) => (
+                      <Group key={school.schoolId}>
+                        <Badge variant="light" color="blue">
+                          {school.school.code}
+                        </Badge>
+                        <Text size="sm">{school.school.name}</Text>
+                      </Group>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Text c="dimmed" size="sm">No schools assigned</Text>
+                )}
+              </FieldView>
             </Stack>
           </GridCol>
         </Grid>
