@@ -11,7 +11,7 @@ import { useForm, zodResolver } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from './assessments';
 
 type AssessmentNumberType = (typeof assessmentNumberEnum)[number];
@@ -36,6 +36,7 @@ export default function AssessmentModal({
 }: Props) {
   const queryClient = useQueryClient();
   const isEditing = !!assessment;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -100,6 +101,7 @@ export default function AssessmentModal({
 
   const handleSubmit = useCallback(
     async (values: typeof form.values) => {
+      setIsSubmitting(true);
       try {
         const moduleData = queryClient.getQueryData<{
           assessments: Assessment[];
@@ -167,6 +169,8 @@ export default function AssessmentModal({
           message: `An error occurred while saving the assessment: ${error}`,
           color: 'red',
         });
+      } finally {
+        setIsSubmitting(false);
       }
     },
     [assessment, form, isEditing, moduleId, onClose, queryClient],
@@ -218,10 +222,12 @@ export default function AssessmentModal({
           {...form.getInputProps('weight')}
         />
         <Group justify='flex-end' mt='md'>
-          <Button variant='outline' onClick={onClose}>
+          <Button variant='outline' onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button type='submit'>{isEditing ? 'Update' : 'Create'}</Button>
+          <Button type='submit' loading={isSubmitting}>
+            {isEditing ? 'Update' : 'Create'}
+          </Button>
         </Group>
       </form>
     </Modal>
