@@ -20,6 +20,7 @@ import {
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
+import { summarizeModules, calculateGPA } from '@/utils/grades';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -77,61 +78,96 @@ export default function AcademicsView({ student, showMarks }: Props) {
             <Accordion.Panel>
               <Stack gap='xl'>
                 {program.semesters?.length ? (
-                  program.semesters.map((semester) => (
-                    <Paper key={semester.id} p='md' withBorder>
-                      <Stack gap='md'>
-                        <Group justify='space-between'>
-                          <Group gap={'xs'}>
-                            <Badge radius={'xs'} variant='default'>
-                              {semester.term}
-                            </Badge>
-                            <Text size='sm'>
-                              {formatSemester(semester.semesterNumber)}
-                            </Text>
-                          </Group>
-                          <SemesterStatus status={semester.status} />
-                        </Group>
+                  (() => {
+                    let cumulativeQualityPoints = 0;
+                    let cumulativeCreditsAttempted = 0;
 
-                        <Divider />
+                    return program.semesters.map((semester) => {
+                      const summary = summarizeModules(
+                        semester.studentModules?.map((sm) => ({
+                          grade: sm.grade,
+                          credits: sm.semesterModule.credits || 0,
+                          status: sm.status,
+                          term: semester.term,
+                        })) ?? [],
+                      );
 
-                        {semester.studentModules?.length ? (
-                          <ModuleTable
-                            modules={semester.studentModules.map((sm) => ({
-                              id: sm.semesterModuleId,
-                              code:
-                                sm.semesterModule.module?.code ??
-                                `${sm.semesterModuleId}`,
-                              name:
-                                sm.semesterModule.module?.name ??
-                                `<<Semester Module ID: ${sm.semesterModuleId}>>`,
-                              type: sm.semesterModule.type,
-                              status: sm.status,
-                              marks: sm.marks,
-                              grade: sm.grade,
-                              credits: sm.semesterModule.credits,
-                            }))}
-                            showMarks={showMarks}
-                            allSemesters={program.semesters.map((sem) => ({
-                              term: sem.term,
-                              semesterNumber: sem.semesterNumber,
-                              studentModules: sem.studentModules.map((m) => ({
-                                semesterModule: {
-                                  module: {
-                                    code: m.semesterModule.module?.code ?? '',
-                                  },
-                                },
-                                grade: m.grade,
-                              })),
-                            }))}
-                          />
-                        ) : (
-                          <Text c='dimmed'>
-                            No modules found for this semester
-                          </Text>
-                        )}
-                      </Stack>
-                    </Paper>
-                  ))
+                      cumulativeQualityPoints += summary.qualityPoints;
+                      cumulativeCreditsAttempted += summary.creditsAttempted;
+
+                      const cumulativeGPA = calculateGPA(
+                        cumulativeQualityPoints,
+                        cumulativeCreditsAttempted,
+                      );
+
+                      return (
+                        <Paper key={semester.id} p='md' withBorder>
+                          <Stack gap='md'>
+                            <Group justify='space-between'>
+                              <Group gap={'xs'}>
+                                <Badge radius={'xs'} variant='default'>
+                                  {semester.term}
+                                </Badge>
+                                <Text size='sm'>
+                                  {formatSemester(semester.semesterNumber)}
+                                </Text>
+                              </Group>
+                              <Group gap='md'>
+                                <Text size='sm' fw={500}>
+                                  GPA: {summary.gpa.toFixed(2)}
+                                </Text>
+                                <Text size='sm' fw={500}>
+                                  CGPA: {cumulativeGPA.toFixed(2)}
+                                </Text>
+                                <SemesterStatus status={semester.status} />
+                              </Group>
+                            </Group>
+
+                            <Divider />
+
+                            {semester.studentModules?.length ? (
+                              <ModuleTable
+                                modules={semester.studentModules.map((sm) => ({
+                                  id: sm.semesterModuleId,
+                                  code:
+                                    sm.semesterModule.module?.code ??
+                                    `${sm.semesterModuleId}`,
+                                  name:
+                                    sm.semesterModule.module?.name ??
+                                    `<<Semester Module ID: ${sm.semesterModuleId}>>`,
+                                  type: sm.semesterModule.type,
+                                  status: sm.status,
+                                  marks: sm.marks,
+                                  grade: sm.grade,
+                                  credits: sm.semesterModule.credits,
+                                }))}
+                                showMarks={showMarks}
+                                allSemesters={program.semesters.map((sem) => ({
+                                  term: sem.term,
+                                  semesterNumber: sem.semesterNumber ?? 0,
+                                  studentModules: sem.studentModules.map(
+                                    (m) => ({
+                                      semesterModule: {
+                                        module: {
+                                          code:
+                                            m.semesterModule.module?.code ?? '',
+                                        },
+                                      },
+                                      grade: m.grade,
+                                    }),
+                                  ),
+                                }))}
+                              />
+                            ) : (
+                              <Text c='dimmed'>
+                                No modules found for this semester
+                              </Text>
+                            )}
+                          </Stack>
+                        </Paper>
+                      );
+                    });
+                  })()
                 ) : (
                   <Text c='dimmed'>
                     No semesters available for this program

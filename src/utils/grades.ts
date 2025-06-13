@@ -1,4 +1,4 @@
-import { gradeEnum } from '@/db/schema';
+import { gradeEnum, ModuleStatus } from '@/db/schema';
 
 export type GradeRange = {
   min: number;
@@ -235,4 +235,34 @@ export function getAllGrades(): Array<{
     gpa: g.gpa,
     description: g.description,
   }));
+}
+
+export type ModuleGradeInfo = {
+  grade: string;
+  credits: number;
+  term: string;
+  status?: ModuleStatus;
+};
+
+export function summarizeModules(modules: ModuleGradeInfo[]) {
+  const relevant = modules.filter(
+    (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
+  );
+
+  let qualityPoints = 0;
+  let creditsAttempted = 0;
+
+  relevant.forEach((m) => {
+    const points = getGradePoints(m.grade);
+    qualityPoints += points * m.credits;
+    creditsAttempted += m.credits;
+  });
+
+  const gpa = creditsAttempted > 0 ? qualityPoints / creditsAttempted : 0;
+
+  return { qualityPoints, creditsAttempted, gpa };
+}
+
+export function calculateGPA(points: number, attemptedCredits: number): number {
+  return attemptedCredits > 0 ? points / attemptedCredits : 0;
 }
