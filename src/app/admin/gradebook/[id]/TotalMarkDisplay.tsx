@@ -1,7 +1,7 @@
 'use client';
 
 import { upsertModuleGrade } from '@/server/module-grades/actions';
-import { getLetterGrade } from '@/utils/gradeCalculations';
+import { getLetterGrade } from '@/utils/grades';
 import {
   Alert,
   Badge,

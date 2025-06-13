@@ -2,7 +2,7 @@
 
 import { gradeEnum } from '@/db/schema';
 import { upsertModuleGrade } from '@/server/module-grades/actions';
-import { getLetterGrade } from '@/utils/gradeCalculations';
+import { getLetterGrade } from '@/utils/grades';
 import {
   ActionIcon,
   Badge,

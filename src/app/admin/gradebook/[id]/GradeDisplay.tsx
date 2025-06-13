@@ -21,6 +21,8 @@ type Props = {
   isLoading?: boolean;
 };
 
+import { isFailingGrade } from '@/utils/grades';
+
 export default function GradeDisplay({
   studentId,
   displayType,
@@ -33,7 +35,8 @@ export default function GradeDisplay({
     if (['A', 'B', 'C'].some((letter) => grade.startsWith(letter)))
       return 'green';
     if (['PP', 'Def'].includes(grade)) return 'yellow';
-    return 'red';
+    if (isFailingGrade(grade)) return 'red';
+    return 'gray';
   };
 
   if (isLoading) {

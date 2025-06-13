@@ -8,42 +8,22 @@ import {
 } from '@/db/schema';
 import { and, eq, notInArray } from 'drizzle-orm';
 
-const grades = {
-  'A+': 4.0,
-  A: 4.0,
-  'A-': 4.0,
-  'B+': 3.67,
-  B: 3.33,
-  'B-': 3.0,
-  'C+': 2.67,
-  C: 2.33,
-  'C-': 2.0,
-  F: 0.0,
-  PC: 2.0,
-  PX: 2.0,
-  AP: 2.0,
-  X: 0.0,
-  GNS: 0.0,
-  ANN: 0.0,
-  FIN: 0.0,
-  FX: 0.0,
-  DNC: 0.0,
-  DNA: 0.0,
-  PP: 0.0,
-  DNS: 0.0,
-};
+import { getGradePoints, grades as gradeDefinitions } from '@/utils/grades';
 
-const gradeValues = Object.keys(grades) as Array<keyof typeof grades>;
+const gradePoints = gradeDefinitions.reduce(
+  (acc, g) => {
+    if (g.gpa !== null) {
+      acc[g.grade] = g.gpa;
+    }
+    return acc;
+  },
+  {} as Record<string, number>,
+);
 
-function isValidGrade(grade: string): grade is keyof typeof grades {
-  return gradeValues.includes(grade as keyof typeof grades);
-}
+const gradeValues = Object.keys(gradePoints);
 
-function getPoints(grade: keyof typeof grades): number {
-  const points = grades[grade];
-  if (points) return points;
-
-  return 0;
+function isValidGrade(grade: string): grade is keyof typeof gradePoints {
+  return gradeValues.includes(grade);
 }
 
 export async function getStudentScore(stdNo: number) {
@@ -92,7 +72,7 @@ export async function getStudentScore(stdNo: number) {
 
   modules.forEach((stdModule) => {
     if (isValidGrade(stdModule.grade)) {
-      const points = getPoints(stdModule.grade);
+      const points = getGradePoints(stdModule.grade);
       if (points > 0) {
         totalPoints += points * stdModule.semesterModule.credits;
         totalCredits += stdModule.semesterModule.credits;

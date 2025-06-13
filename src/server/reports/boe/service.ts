@@ -1,4 +1,5 @@
 import { termsRepository } from '@/server/terms/repository';
+import { getGradePoints } from '@/utils/grades';
 import ExcelJS from 'exceljs';
 import {
   boeReportRepository,
@@ -179,29 +180,17 @@ export default class BoeReportService {
   ): string {
     if (studentModules.length === 0) return '0.00';
 
-    const gradePoints: Record<string, number> = {
-      'A+': 4.0,
-      A: 4.0,
-      'A-': 3.7,
-      'B+': 3.3,
-      B: 3.0,
-      'B-': 2.7,
-      'C+': 2.3,
-      C: 2.0,
-      'C-': 1.7,
-      F: 0.0,
-    };
-
     let totalPoints = 0;
     let totalCredits = 0;
 
     for (const it of studentModules) {
       const grade = it.grade;
       const credits = it.semesterModule.credits;
+      const points = getGradePoints(grade);
 
-      if (gradePoints[grade] === undefined) continue;
+      if (points === 0) continue;
 
-      totalPoints += gradePoints[grade] * credits;
+      totalPoints += points * credits;
       totalCredits += credits;
     }
 
@@ -301,7 +290,11 @@ export default class BoeReportService {
     moduleColumns.forEach((module) => {
       const nameCell = moduleNameRow.getCell(colIndex);
       nameCell.value = module.name;
-      nameCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      nameCell.alignment = {
+        horizontal: 'center',
+        vertical: 'middle',
+        wrapText: true,
+      };
       colIndex += 2;
     });
 
@@ -402,9 +395,17 @@ export default class BoeReportService {
         };
 
         if (j !== 2) {
-          cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+          cell.alignment = {
+            horizontal: 'center',
+            vertical: 'middle',
+            wrapText: true,
+          };
         } else {
-          cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+          cell.alignment = {
+            horizontal: 'left',
+            vertical: 'middle',
+            wrapText: true,
+          };
         }
       }
     }

@@ -1,4 +1,5 @@
 import { gradeEnum } from '@/db/schema';
+import { getLetterGrade } from './grades';
 
 export type GradeCalculation = {
   weightedTotal: number;
@@ -45,18 +46,4 @@ export function calculateModuleGrade(
     hasMarks,
     hasPassed,
   };
-}
-
-export function getLetterGrade(percentage: number): (typeof gradeEnum)[number] {
-  if (percentage >= 90) return 'A+';
-  if (percentage >= 85) return 'A';
-  if (percentage >= 80) return 'A-';
-  if (percentage >= 75) return 'B+';
-  if (percentage >= 70) return 'B';
-  if (percentage >= 65) return 'B-';
-  if (percentage >= 60) return 'C+';
-  if (percentage >= 55) return 'C';
-  if (percentage >= 50) return 'C-';
-  if (percentage >= 45) return 'PP';
-  return 'F';
 }

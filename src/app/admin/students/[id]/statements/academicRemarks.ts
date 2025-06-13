@@ -40,11 +40,7 @@ type AcademicRemarksResult = {
   details: string;
 };
 
-function isFailedGrade(grade: string): boolean {
-  return ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
-    grade,
-  );
-}
+import { isFailingGrade } from '@/utils/grades';
 
 function isSupplementaryGrade(grade: string): boolean {
   return grade === 'PP';
@@ -88,7 +84,7 @@ function getFailedModulesFromMatchingSemesters(
       ) {
         semester.studentModules?.forEach((module: StudentModule) => {
           if (
-            isFailedGrade(module.grade) &&
+            isFailingGrade(module.grade) &&
             !['Delete', 'Drop'].includes(module.status)
           ) {
             const hasBeenRepeated = programs.some((p) =>
@@ -99,7 +95,7 @@ function getFailedModulesFromMatchingSemesters(
                   s.studentModules?.some(
                     (sm: StudentModule) =>
                       sm.semesterModuleId === module.semesterModuleId &&
-                      !isFailedGrade(sm.grade) &&
+                      !isFailingGrade(sm.grade) &&
                       !['Delete', 'Drop'].includes(sm.status),
                   )
                 );
@@ -139,7 +135,7 @@ function getLatestSemesterFailures(
   const failedModules: { module: StudentModule; semester: string }[] = [];
   latestSemester.studentModules.forEach((module: StudentModule) => {
     if (
-      isFailedGrade(module.grade) &&
+      isFailingGrade(module.grade) &&
       !['Delete', 'Drop'].includes(module.status)
     ) {
       failedModules.push({ module, semester: latestSemester!.term });
@@ -158,7 +154,8 @@ function getAllPendingModules(
     program.semesters?.forEach((semester) => {
       semester.studentModules?.forEach((module: StudentModule) => {
         if (
-          (isFailedGrade(module.grade) || isSupplementaryGrade(module.grade)) &&
+          (isFailingGrade(module.grade) ||
+            isSupplementaryGrade(module.grade)) &&
           !['Delete', 'Drop'].includes(module.status)
         ) {
           const hasBeenRepeated = programs.some((p) =>
@@ -170,7 +167,7 @@ function getAllPendingModules(
                 s.studentModules?.some(
                   (sm: StudentModule) =>
                     sm.semesterModuleId === module.semesterModuleId &&
-                    !isFailedGrade(sm.grade) &&
+                    !isFailingGrade(sm.grade) &&
                     sm.grade !== 'PP' &&
                     !['Delete', 'Drop'].includes(sm.status),
                 )
