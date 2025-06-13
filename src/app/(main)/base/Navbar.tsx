@@ -2,7 +2,6 @@
 import { Container } from '@/components/ui/container';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import Logo from './Logo';
 import UserButton from './UserButton';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,8 @@ export default function Navbar() {
   const { status, data: session } = useSession();
 
   if (exceptions.includes(window.location.pathname)) return null;
-  if (status === 'unauthenticated') return redirect('/login');
+  // Do not render navbar while auth status is unauthenticated or loading
+  if (status !== 'authenticated') return null;
 
   return (
     <nav className='border-b p-2'>

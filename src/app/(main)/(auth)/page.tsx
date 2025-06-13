@@ -6,28 +6,18 @@ import { Session } from 'next-auth';
 import Hero from './home/Hero';
 import HomeLinks from './home/HomeLinks';
 import Notifications from './home/Notifications';
+import { redirect } from 'next/navigation';
 
 export default async function Home() {
   const session = await auth();
   const student = await getStudentByUserId(session?.user?.id);
 
-  if (session && !student) {
-    return <StudentNotFound session={session} />;
+  if (!session?.user) {
+    return redirect('/login');
   }
 
   if (!student) {
-    return (
-      <div className='flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-4'>
-        <div className='flex w-full max-w-md flex-col items-center space-y-8 rounded-xl p-10'>
-          <div className='space-y-2 text-center'>
-            <h1 className='text-4xl font-bold'>Student Portal</h1>
-            <h2 className='text-muted-foreground'>Limkokwing Student Portal</h2>
-          </div>
-
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
+    return <StudentNotFound session={session} />;
   }
 
   return (

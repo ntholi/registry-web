@@ -7,10 +7,7 @@ import {
   createAssessmentMark,
   updateAssessmentMark,
 } from '@/server/assessment-marks/actions';
-import {
-  calculateModuleGrade,
-  getLetterGrade,
-} from '@/utils/gradeCalculations';
+import { calculateModuleGrade } from '@/utils/gradeCalculations';
 
 type Props = {
   assessment: { id: number; maxMarks: number; totalMarks: number };
