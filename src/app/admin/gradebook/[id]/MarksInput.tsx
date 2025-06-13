@@ -227,11 +227,6 @@ export default function MarksInput({
     setError('');
   };
   const saveMarks = () => {
-    // Prevent saving if already processing a mutation
-    if (markMutation.isPending) {
-      return;
-    }
-
     if (mark.trim() === '') {
       setIsEditing(false);
       setMark(existingMark?.toString() || '');
