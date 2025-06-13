@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useUserSchools } from '@/hooks/use-user-schools';
+import { notifications } from '@mantine/notifications';
 
 export default function Body() {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -26,9 +27,6 @@ export default function Body() {
   });
   const { currentTerm } = useCurrentTerm();
   const { userSchools, isLoading: userSchoolsLoading } = useUserSchools();
-
-  const availableSchools =
-    userSchools.length > 0 ? userSchools.map((us) => us.school) : schools || [];
 
   React.useEffect(() => {
     if (!selectedSchoolId && userSchools.length > 0) {
@@ -69,7 +67,7 @@ export default function Body() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      const selectedSchool = availableSchools?.find(
+      const selectedSchool = schools?.find(
         (s) => s.id === Number(selectedSchoolId),
       );
       const schoolCode = selectedSchool?.code || 'School';
@@ -81,7 +79,11 @@ export default function Body() {
     },
     onError: (error) => {
       console.error('Error generating BOE report:', error);
-      alert(`Error generating BOE report: ${error.message}`);
+      notifications.show({
+        title: 'Error',
+        message: `Error generating BOE report: ${error.message}`,
+        color: 'red',
+      });
     },
   });
 
@@ -94,7 +96,7 @@ export default function Body() {
   };
 
   const schoolOptions =
-    availableSchools?.map((school) => ({
+    schools?.map((school) => ({
       value: school.id.toString(),
       label: school.name,
     })) || [];
@@ -124,7 +126,6 @@ export default function Body() {
               onChange={setSelectedSchoolId}
               disabled={schoolsLoading || userSchoolsLoading}
               searchable
-              clearable
             />
           </Stack>
         </CardSection>{' '}
