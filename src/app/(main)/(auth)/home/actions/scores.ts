@@ -9,6 +9,7 @@ import {
 } from '@/db/schema';
 
 import { summarizeModules } from '@/utils/grades';
+import { ModuleStatus } from '@/db/schema';
 
 export async function getStudentScore(stdNo: number) {
   const program = await db.query.studentPrograms.findFirst({
@@ -47,7 +48,15 @@ export async function getStudentScore(stdNo: number) {
     };
   }
 
-  const summary = summarizeModules(program.semesters);
+  const modules = program.semesters.flatMap((sem) =>
+    sem.studentModules.map((sm) => ({
+      grade: sm.grade,
+      credits: Number(sm.semesterModule.credits),
+      status: (sm as { status?: ModuleStatus }).status,
+    }))
+  );
+
+  const summary = summarizeModules(modules);
 
   const semesters = await db.query.structureSemesters.findMany({
     where: eq(structureSemesters.structureId, program.structureId),

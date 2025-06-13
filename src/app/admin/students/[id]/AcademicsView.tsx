@@ -21,6 +21,7 @@ import {
 import { IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
 import { summarizeModules, calculateGPA } from '@/utils/grades';
+import { ModuleStatus } from '@/db/schema';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -83,7 +84,13 @@ export default function AcademicsView({ student, showMarks }: Props) {
                     let cumulativeCreditsAttempted = 0;
 
                     return program.semesters.map((semester) => {
-                      const summary = summarizeModules([semester]);
+                      const summary = summarizeModules(
+                          semester.studentModules.map((sm) => ({
+                            grade: sm.grade,
+                            credits: Number(sm.semesterModule.credits),
+                            status: (sm as { status?: ModuleStatus }).status,
+                          })),
+                        );
 
                       cumulativePoints += summary.points;
                       cumulativeCreditsAttempted += summary.creditsCompleted;

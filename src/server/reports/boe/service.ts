@@ -154,15 +154,13 @@ export default class BoeReportService {
     semesters: StudentSemester[],
   ): StudentSemesterReport[] {
     return semesters.map((semester) => {
-      const summary = summarizeModules([
-        {
-          studentModules: semester.studentModules.map((sm) => ({
-            grade: sm.grade,
-            semesterModule: { credits: Number(sm.semesterModule.credits) },
-            status: (sm as { status?: ModuleStatus }).status,
-          })),
-        },
-      ]);
+      const summary = summarizeModules(
+        semester.studentModules.map((sm) => ({
+          grade: sm.grade,
+          credits: Number(sm.semesterModule.credits),
+          status: (sm as { status?: ModuleStatus }).status,
+        })),
+      );
 
       const gpa = summary.gpa.toFixed(2);
       const cgpa = calculateGPA(

@@ -237,23 +237,13 @@ export function getAllGrades(): Array<{
   }));
 }
 
-export type Semester = {
-  studentModules: {
-    grade: string;
-    semesterModule: { credits: number };
-    status?: ModuleStatus;
-  }[];
+export type ModuleSummaryInput = {
+  grade: string;
+  credits: number;
+  status?: ModuleStatus;
 };
 
-export function summarizeModules(semesters: Semester[]) {
-  const modules = semesters.flatMap((semester) =>
-    semester.studentModules.map((sm) => ({
-      grade: sm.grade,
-      credits: sm.semesterModule.credits || 0,
-      status: sm.status,
-    })),
-  );
-
+export function summarizeModules(modules: ModuleSummaryInput[]) {
   const relevant = modules.filter(
     (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
   );
@@ -262,8 +252,8 @@ export function summarizeModules(semesters: Semester[]) {
   let creditsAttempted = 0;
 
   const creditsCompleted = modules.reduce((sum, m) => {
-    const points = getGradePoints(m.grade);
-    return points > 0 ? sum + m.credits : sum;
+    const gradePoints = getGradePoints(m.grade);
+    return gradePoints > 0 ? sum + m.credits : sum;
   }, 0);
 
   relevant.forEach((m) => {
