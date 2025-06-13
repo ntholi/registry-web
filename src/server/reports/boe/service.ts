@@ -210,6 +210,17 @@ export default class BoeReportService {
     const gpa = totalPoints / totalCredits;
     return gpa.toFixed(2);
   }
+
+  private getColumnLetter(col: number): string {
+    let letter = '';
+    while (col > 0) {
+      const mod = (col - 1) % 26;
+      letter = String.fromCharCode(65 + mod) + letter;
+      col = Math.floor((col - 1) / 26);
+    }
+    return letter;
+  }
+
   private createWorksheet(
     worksheet: ExcelJS.Worksheet,
     programReport: ProgramSemesterReport,
@@ -352,7 +363,7 @@ export default class BoeReportService {
     worksheet.getCell('A4').alignment = { horizontal: 'center' };
 
     const lastCol = 4 + moduleColumns.length * 2 + 3;
-    const endColLetter = String.fromCharCode(64 + lastCol);
+    const endColLetter = this.getColumnLetter(lastCol);
 
     worksheet.mergeCells(`A4:${endColLetter}4`);
     worksheet.mergeCells(`A5:${endColLetter}5`);
@@ -363,8 +374,8 @@ export default class BoeReportService {
 
     colIndex = 5;
     moduleColumns.forEach(() => {
-      const startCol = String.fromCharCode(64 + colIndex);
-      const endCol = String.fromCharCode(64 + colIndex + 1);
+      const startCol = this.getColumnLetter(colIndex);
+      const endCol = this.getColumnLetter(colIndex + 1);
       worksheet.mergeCells(
         `${startCol}${dataStartRow}:${endCol}${dataStartRow}`,
       );
