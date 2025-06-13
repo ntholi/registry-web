@@ -57,7 +57,7 @@ class StudentService {
         }
 
         if (session.user?.position) {
-          return ['admin', 'manager', 'program_leader'].includes(
+          return ['admin', 'manager', 'program_leader', 'year_leader'].includes(
             session.user.position,
           );
         }
