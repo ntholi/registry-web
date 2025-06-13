@@ -263,7 +263,8 @@ export default function MarksInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      saveMarks();
+      e.preventDefault();
+      inputRef.current?.blur();
     } else if (e.key === 'Escape') {
       cancelEdit();
     }
