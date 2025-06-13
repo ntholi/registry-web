@@ -15,17 +15,19 @@ type ModuleDetailsCardProps = {
 };
 
 export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
-  const [semesterModuleId, setSemesterModuleId] =
-    useQueryState('semesterModuleId');
+  const [programId, setProgramId] = useQueryState('programId');
   const { currentTerm } = useCurrentTerm();
 
   const moduleOptions = useMemo(() => {
     const options = [{ value: '', label: 'All Programs' }];
+    const seen = new Set<number>();
 
     modules.forEach((module) => {
-      if (module.semesterModule) {
+      const program = module.semesterModule?.semester?.structure.program;
+      if (program && !seen.has(program.id)) {
+        seen.add(program.id);
         options.push({
-          value: module.semesterModule.id.toString(),
+          value: program.id.toString(),
           label: toClassName(
             module.semesterModule.semester?.structure.program.code || '',
             module.semesterModule.semester?.name || '',
@@ -38,19 +40,20 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
   }, [modules]);
 
   useEffect(() => {
-    if (semesterModuleId === undefined) {
-      setSemesterModuleId(null);
+    if (programId === undefined) {
+      setProgramId(null);
     }
-  }, [semesterModuleId, setSemesterModuleId]);
+  }, [programId, setProgramId]);
 
   const program = useMemo(() => {
-    if (!semesterModuleId) {
+    if (!programId) {
       return null;
     }
     return modules.find(
-      (it) => it.semesterModule?.id === Number(semesterModuleId),
+      (it) =>
+        it.semesterModule?.semester?.structure.program.id === Number(programId),
     )?.semesterModule?.semester?.structure.program;
-  }, [modules, semesterModuleId]);
+  }, [modules, programId]);
 
   return (
     <Paper withBorder p='lg' mb='lg'>
@@ -62,12 +65,10 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
             </Title>
 
             <Select
-              placeholder='Select Module'
+              placeholder='Select Program'
               data={moduleOptions}
-              value={semesterModuleId || ''}
-              onChange={(value) =>
-                setSemesterModuleId(value === '' ? null : value)
-              }
+              value={programId || ''}
+              onChange={(value) => setProgramId(value === '' ? null : value)}
               rightSection={<IconChevronDown size={16} />}
               clearable
             />

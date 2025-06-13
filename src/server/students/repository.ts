@@ -6,6 +6,7 @@ import {
   studentPrograms,
   students,
   studentSemesters,
+  structures,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { and, eq, like, ne, notInArray, or, SQL } from 'drizzle-orm';
@@ -85,10 +86,12 @@ export default class StudentRepository extends BaseRepository<
       .select({
         stdNo: students.stdNo,
         name: students.name,
+        programId: structures.programId,
         semesterModuleId: studentModules.semesterModuleId,
       })
       .from(students)
       .innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
+      .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
       .innerJoin(
         studentSemesters,
         eq(studentSemesters.studentProgramId, studentPrograms.id),
@@ -108,7 +111,12 @@ export default class StudentRepository extends BaseRepository<
           notInArray(studentModules.status, ['Delete', 'Drop']),
         ),
       )
-      .groupBy(students.stdNo, students.name, studentModules.semesterModuleId);
+      .groupBy(
+        students.stdNo,
+        students.name,
+        structures.programId,
+        studentModules.semesterModuleId,
+      );
   }
 
   async getAllPrograms() {
