@@ -237,32 +237,48 @@ export function getAllGrades(): Array<{
   }));
 }
 
-export type ModuleGradeInfo = {
-  grade: string;
-  credits: number;
-  term: string;
-  status?: ModuleStatus;
+export type Semester = {
+  studentModules: {
+    grade: string;
+    semesterModule: { credits: number };
+    status?: ModuleStatus;
+  }[];
 };
 
-export function summarizeModules(modules: ModuleGradeInfo[]) {
+export function summarizeModules(semesters: Semester[]) {
+  const modules = semesters.flatMap((semester) =>
+    semester.studentModules.map((sm) => ({
+      grade: sm.grade,
+      credits: sm.semesterModule.credits || 0,
+      status: sm.status,
+    })),
+  );
+
   const relevant = modules.filter(
     (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
   );
 
-  let qualityPoints = 0;
+  let points = 0;
   let creditsAttempted = 0;
 
-  relevant.forEach((m) => {
+  const creditsCompleted = modules.reduce((sum, m) => {
     const points = getGradePoints(m.grade);
-    qualityPoints += points * m.credits;
+    return points > 0 ? sum + m.credits : sum;
+  }, 0);
+
+  relevant.forEach((m) => {
+    points += getGradePoints(m.grade) * m.credits;
     creditsAttempted += m.credits;
   });
 
-  const gpa = creditsAttempted > 0 ? qualityPoints / creditsAttempted : 0;
-
-  return { qualityPoints, creditsAttempted, gpa };
+  return {
+    points,
+    creditsAttempted,
+    creditsCompleted,
+    gpa: calculateGPA(points, creditsAttempted),
+  };
 }
 
-export function calculateGPA(points: number, attemptedCredits: number): number {
+export function calculateGPA(points: number, attemptedCredits: number) {
   return attemptedCredits > 0 ? points / attemptedCredits : 0;
 }

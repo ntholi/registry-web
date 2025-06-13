@@ -79,24 +79,17 @@ export default function AcademicsView({ student, showMarks }: Props) {
               <Stack gap='xl'>
                 {program.semesters?.length ? (
                   (() => {
-                    let cumulativeQualityPoints = 0;
+                    let cumulativePoints = 0;
                     let cumulativeCreditsAttempted = 0;
 
                     return program.semesters.map((semester) => {
-                      const summary = summarizeModules(
-                        semester.studentModules?.map((sm) => ({
-                          grade: sm.grade,
-                          credits: sm.semesterModule.credits || 0,
-                          status: sm.status,
-                          term: semester.term,
-                        })) ?? [],
-                      );
+                      const summary = summarizeModules([semester]);
 
-                      cumulativeQualityPoints += summary.qualityPoints;
-                      cumulativeCreditsAttempted += summary.creditsAttempted;
+                      cumulativePoints += summary.points;
+                      cumulativeCreditsAttempted += summary.creditsCompleted;
 
                       const cumulativeGPA = calculateGPA(
-                        cumulativeQualityPoints,
+                        cumulativePoints,
                         cumulativeCreditsAttempted,
                       );
 

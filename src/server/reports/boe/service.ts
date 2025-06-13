@@ -1,5 +1,6 @@
 import { termsRepository } from '@/server/terms/repository';
-import { getGradePoints } from '@/utils/grades';
+import { summarizeModules, calculateGPA } from '@/utils/grades';
+import { ModuleStatus } from '@/db/schema';
 import ExcelJS from 'exceljs';
 import {
   boeReportRepository,
@@ -153,7 +154,21 @@ export default class BoeReportService {
     semesters: StudentSemester[],
   ): StudentSemesterReport[] {
     return semesters.map((semester) => {
-      const gpa = this.calculateGPA(semester.studentModules);
+      const summary = summarizeModules([
+        {
+          studentModules: semester.studentModules.map((sm) => ({
+            grade: sm.grade,
+            semesterModule: { credits: Number(sm.semesterModule.credits) },
+            status: (sm as { status?: ModuleStatus }).status,
+          })),
+        },
+      ]);
+
+      const gpa = summary.gpa.toFixed(2);
+      const cgpa = calculateGPA(
+        summary.points,
+        summary.creditsAttempted,
+      ).toFixed(2);
 
       return {
         studentId: semester.studentProgram.student.stdNo,
@@ -168,34 +183,9 @@ export default class BoeReportService {
           grade: studentModule.grade,
         })),
         gpa,
-        cgpa: gpa,
+        cgpa,
       };
     });
-  }
-
-  private calculateGPA(
-    studentModules: StudentSemester['studentModules'],
-  ): string {
-    if (studentModules.length === 0) return '0.00';
-
-    let totalPoints = 0;
-    let totalCredits = 0;
-
-    for (const it of studentModules) {
-      const grade = it.grade;
-      const credits = it.semesterModule.credits;
-      const points = getGradePoints(grade);
-
-      if (points === 0) continue;
-
-      totalPoints += points * credits;
-      totalCredits += credits;
-    }
-
-    if (totalCredits === 0) return '0.00';
-
-    const gpa = totalPoints / totalCredits;
-    return gpa.toFixed(2);
   }
 
   private getColumnLetter(col: number): string {

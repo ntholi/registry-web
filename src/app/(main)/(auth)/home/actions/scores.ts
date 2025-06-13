@@ -8,7 +8,7 @@ import {
   studentSemesters,
 } from '@/db/schema';
 
-import { getGradePoints, getGradeBySymbol } from '@/utils/grades';
+import { summarizeModules } from '@/utils/grades';
 
 export async function getStudentScore(stdNo: number) {
   const program = await db.query.studentPrograms.findFirst({
@@ -47,23 +47,7 @@ export async function getStudentScore(stdNo: number) {
     };
   }
 
-  const modules = program.semesters.flatMap(
-    (semester) => semester.studentModules,
-  );
-  let totalPoints = 0;
-  let totalCredits = 0;
-  let creditsCompleted = 0;
-
-  modules.forEach((stdModule) => {
-    if (getGradeBySymbol(stdModule.grade)?.gpa !== null) {
-      const points = getGradePoints(stdModule.grade);
-      if (points > 0) {
-        totalPoints += points * stdModule.semesterModule.credits;
-        totalCredits += stdModule.semesterModule.credits;
-        creditsCompleted += stdModule.semesterModule.credits;
-      }
-    }
-  });
+  const summary = summarizeModules(program.semesters);
 
   const semesters = await db.query.structureSemesters.findMany({
     where: eq(structureSemesters.structureId, program.structureId),
@@ -77,8 +61,8 @@ export async function getStudentScore(stdNo: number) {
     .reduce((sum, it) => sum + it.credits, 0);
 
   return {
-    gpa: totalCredits > 0 ? Number((totalPoints / totalCredits).toFixed(2)) : 0,
-    creditsCompleted,
+    gpa: Number(summary.gpa.toFixed(2)),
+    creditsCompleted: summary.creditsCompleted,
     creditsRequired,
   };
 }
