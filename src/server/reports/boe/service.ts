@@ -155,8 +155,6 @@ export default class BoeReportService {
     return semesters.map((semester) => {
       const gpa = this.calculateGPA(semester.studentModules);
 
-      const cgpa = gpa;
-
       return {
         studentId: semester.studentProgram.student.stdNo,
         studentName: semester.studentProgram.student.name,
@@ -170,7 +168,7 @@ export default class BoeReportService {
           grade: studentModule.grade,
         })),
         gpa,
-        cgpa,
+        cgpa: gpa,
       };
     });
   }

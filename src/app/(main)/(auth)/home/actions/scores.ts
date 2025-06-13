@@ -1,30 +1,14 @@
 'use server';
 
 import { db } from '@/db';
+import { and, eq, notInArray } from 'drizzle-orm';
 import {
   structureSemesters,
   studentPrograms,
   studentSemesters,
 } from '@/db/schema';
-import { and, eq, notInArray } from 'drizzle-orm';
 
-import { getGradePoints, grades as gradeDefinitions } from '@/utils/grades';
-
-const gradePoints = gradeDefinitions.reduce(
-  (acc, g) => {
-    if (g.gpa !== null) {
-      acc[g.grade] = g.gpa;
-    }
-    return acc;
-  },
-  {} as Record<string, number>,
-);
-
-const gradeValues = Object.keys(gradePoints);
-
-function isValidGrade(grade: string): grade is keyof typeof gradePoints {
-  return gradeValues.includes(grade);
-}
+import { getGradePoints, getGradeBySymbol } from '@/utils/grades';
 
 export async function getStudentScore(stdNo: number) {
   const program = await db.query.studentPrograms.findFirst({
@@ -71,7 +55,7 @@ export async function getStudentScore(stdNo: number) {
   let creditsCompleted = 0;
 
   modules.forEach((stdModule) => {
-    if (isValidGrade(stdModule.grade)) {
+    if (getGradeBySymbol(stdModule.grade)?.gpa !== null) {
       const points = getGradePoints(stdModule.grade);
       if (points > 0) {
         totalPoints += points * stdModule.semesterModule.credits;
