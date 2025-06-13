@@ -299,9 +299,13 @@ export default class BoeReportService {
 
     colIndex = 5;
     moduleColumns.forEach((module) => {
-      moduleNameRow.getCell(colIndex).value = module.name;
+      const nameCell = moduleNameRow.getCell(colIndex);
+      nameCell.value = module.name;
+      nameCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
       colIndex += 2;
     });
+
+    moduleNameRow.height = 40;
 
     programReport.students.forEach((student, index) => {
       const rowIndex = dataStartRow + 3 + index;
@@ -398,9 +402,9 @@ export default class BoeReportService {
         };
 
         if (j !== 2) {
-          cell.alignment = { horizontal: 'center', vertical: 'middle' };
+          cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
         } else {
-          cell.alignment = { horizontal: 'left', vertical: 'middle' };
+          cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
         }
       }
     }
