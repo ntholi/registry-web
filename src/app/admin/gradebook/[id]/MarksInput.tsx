@@ -44,6 +44,7 @@ export default function MarksInput({
     }) => {
       let result;
       if (existingMarkId !== undefined) {
+        console.log('Updating existing mark:', existingMarkId, data);
         result = await updateAssessmentMark(existingMarkId, data, moduleId);
       } else {
         result = await createAssessmentMark(data, moduleId);
@@ -173,6 +174,7 @@ export default function MarksInput({
       };
     },
     onSuccess: async () => {
+      setError('');
       queryClient.invalidateQueries({
         queryKey: ['assessmentMarks', moduleId],
       });
@@ -206,7 +208,8 @@ export default function MarksInput({
       }
 
       setPendingMark(null);
-      setIsEditing(true);
+      setMark(existingMark?.toString() || '');
+      setError('Failed to save mark. Please try again.');
     },
   });
 
@@ -288,7 +291,10 @@ export default function MarksInput({
       <Box
         pos='relative'
         style={{ cursor: 'pointer', display: isEditing ? 'none' : undefined }}
-        onClick={() => setIsEditing(true)}
+        onClick={() => {
+          setIsEditing(true);
+          setError('');
+        }}
       >
         <Group gap={2} justify='center' align='end'>
           <Text fw={600} c={statusColor || undefined} size='sm'>
@@ -298,6 +304,11 @@ export default function MarksInput({
             /{maxMark}
           </Text>
         </Group>
+        {error && (
+          <Text size='xs' c='red' ta='center' mt={2}>
+            {error}
+          </Text>
+        )}
       </Box>
       <Box style={{ display: isEditing ? undefined : 'none' }}>
         <Group align='center' gap={4} justify='center'>
