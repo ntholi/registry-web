@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Group,
-  Loader,
-  Paper,
-  Progress,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { Button, Group, Paper, Progress, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';

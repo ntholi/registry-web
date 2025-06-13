@@ -230,17 +230,17 @@ export default class AssessmentMarkRepository extends BaseRepository<
     moduleId: number,
   ) {
     const session = await auth();
+    if (!session?.user?.id) throw new Error('Unauthorized');
 
-    const result = await db.transaction(async (tx) => {
-      if (!session?.user?.id) throw new Error('Unauthorized');
+    const userId = session.user.id;
+    const results: { mark: any; isNew: boolean; stdNo: number }[] = [];
+    const processedStudents = new Set<number>();
+    const errors: string[] = [];
 
-      const results: { mark: any; isNew: boolean; stdNo: number }[] = [];
-      const processedStudents = new Set<number>();
-      const errors: string[] = [];
-
-      for (let i = 0; i < dataArray.length; i++) {
-        const data = dataArray[i];
-        try {
+    for (let i = 0; i < dataArray.length; i++) {
+      const data = dataArray[i];
+      try {
+        const result = await db.transaction(async (tx) => {
           const existing = await tx
             .select()
             .from(assessmentMarks)
@@ -266,11 +266,11 @@ export default class AssessmentMarkRepository extends BaseRepository<
                 action: 'update',
                 previousMarks: existing.marks,
                 newMarks: data.marks,
-                createdBy: session.user.id,
+                createdBy: userId,
               });
             }
 
-            results.push({ mark: updated, isNew: false, stdNo: data.stdNo });
+            return { mark: updated, isNew: false, stdNo: data.stdNo };
           } else {
             const [created] = await tx
               .insert(assessmentMarks)
@@ -282,30 +282,29 @@ export default class AssessmentMarkRepository extends BaseRepository<
               action: 'create',
               previousMarks: null,
               newMarks: created.marks,
-              createdBy: session.user.id,
+              createdBy: userId,
             });
 
-            results.push({ mark: created, isNew: true, stdNo: data.stdNo });
+            return { mark: created, isNew: true, stdNo: data.stdNo };
           }
+        });
 
-          processedStudents.add(data.stdNo);
-        } catch (error) {
-          errors.push(
-            `Failed to process mark for student ${data.stdNo}, assessment ${data.assessmentId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          );
-        }
+        results.push(result);
+        processedStudents.add(data.stdNo);
+      } catch (error) {
+        errors.push(
+          `Failed to process mark for student ${data.stdNo}, assessment ${data.assessmentId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        );
       }
+    }
 
-      return {
-        results,
-        processedStudents: Array.from(processedStudents),
-        errors,
-        successful: results.length,
-        failed: errors.length,
-      };
-    });
-
-    return result;
+    return {
+      results,
+      processedStudents: Array.from(processedStudents),
+      errors,
+      successful: results.length,
+      failed: errors.length,
+    };
   }
   async getStudentAuditHistory(stdNo: number) {
     const studentAssessmentMarks = await db
