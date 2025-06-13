@@ -70,13 +70,9 @@ class AssessmentMarkService {
     );
   }
 
-  async createOrUpdateMarksInBulk(
-    dataArray: AssessmentMark[],
-    moduleId: number,
-  ) {
+  async createOrUpdateMarksInBulk(dataArray: AssessmentMark[]) {
     return withAuth(
-      async () =>
-        this.repository.createOrUpdateMarksInBulk(dataArray, moduleId),
+      async () => this.repository.createOrUpdateMarksInBulk(dataArray),
       ['academic'],
     );
   }

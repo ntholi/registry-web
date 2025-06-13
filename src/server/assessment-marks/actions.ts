@@ -48,10 +48,7 @@ export async function createOrUpdateMarksInBulk(
     throw new Error('All marks must be valid numbers');
   }
 
-  const result = await service.createOrUpdateMarksInBulk(
-    assessmentMarks,
-    moduleId,
-  );
+  const result = await service.createOrUpdateMarksInBulk(assessmentMarks);
 
   for (const stdNo of result.processedStudents) {
     try {

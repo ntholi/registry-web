@@ -225,9 +225,10 @@ export default class AssessmentMarkRepository extends BaseRepository<
     });
     return result;
   }
+
   async createOrUpdateMarksInBulk(
     dataArray: (typeof assessmentMarks.$inferInsert)[],
-    moduleId: number,
+    batchSize: number = 50,
   ) {
     const session = await auth();
     if (!session?.user?.id) throw new Error('Unauthorized');
@@ -237,63 +238,124 @@ export default class AssessmentMarkRepository extends BaseRepository<
     const processedStudents = new Set<number>();
     const errors: string[] = [];
 
-    for (let i = 0; i < dataArray.length; i++) {
-      const data = dataArray[i];
+    for (let i = 0; i < dataArray.length; i += batchSize) {
+      const batch = dataArray.slice(i, i + batchSize);
+      const batchResults: { mark: any; isNew: boolean; stdNo: number }[] = [];
+      const batchAuditEntries: (typeof assessmentMarksAudit.$inferInsert)[] =
+        [];
+
       try {
-        const result = await db.transaction(async (tx) => {
-          const existing = await tx
+        await db.transaction(async (tx) => {
+          const assessmentIds = [
+            ...new Set(batch.map((data) => data.assessmentId)),
+          ];
+          const stdNos = batch.map((data) => data.stdNo);
+
+          const existingMarks = await tx
             .select()
             .from(assessmentMarks)
             .where(
               and(
-                eq(assessmentMarks.assessmentId, data.assessmentId),
-                eq(assessmentMarks.stdNo, data.stdNo),
+                inArray(assessmentMarks.assessmentId, assessmentIds),
+                inArray(assessmentMarks.stdNo, stdNos),
               ),
-            )
-            .limit(1)
-            .then(([result]) => result);
+            );
 
-          if (existing) {
-            const [updated] = await tx
-              .update(assessmentMarks)
-              .set({ marks: data.marks })
-              .where(eq(assessmentMarks.id, existing.id))
+          const existingMarksMap = new Map(
+            existingMarks.map((mark) => [
+              `${mark.assessmentId}-${mark.stdNo}`,
+              mark,
+            ]),
+          );
+
+          const updatesData: {
+            id: number;
+            marks: number;
+            existingMarks: number;
+          }[] = [];
+          const insertsData: (typeof assessmentMarks.$inferInsert)[] = [];
+
+          for (const data of batch) {
+            const key = `${data.assessmentId}-${data.stdNo}`;
+            const existing = existingMarksMap.get(key);
+
+            if (existing) {
+              if (existing.marks !== data.marks) {
+                updatesData.push({
+                  id: existing.id,
+                  marks: data.marks,
+                  existingMarks: existing.marks,
+                });
+              }
+              batchResults.push({
+                mark: { ...existing, marks: data.marks },
+                isNew: false,
+                stdNo: data.stdNo,
+              });
+            } else {
+              insertsData.push(data);
+            }
+          }
+
+          if (updatesData.length > 0) {
+            for (const updateData of updatesData) {
+              const [updated] = await tx
+                .update(assessmentMarks)
+                .set({ marks: updateData.marks })
+                .where(eq(assessmentMarks.id, updateData.id))
+                .returning();
+
+              batchAuditEntries.push({
+                assessmentMarkId: updateData.id,
+                action: 'update',
+                previousMarks: updateData.existingMarks,
+                newMarks: updateData.marks,
+                createdBy: userId,
+              });
+
+              const resultIndex = batchResults.findIndex(
+                (r) => !r.isNew && r.mark.id === updateData.id,
+              );
+              if (resultIndex !== -1) {
+                batchResults[resultIndex].mark = updated;
+              }
+            }
+          }
+
+          if (insertsData.length > 0) {
+            const insertedMarks = await tx
+              .insert(assessmentMarks)
+              .values(insertsData)
               .returning();
 
-            if (data.marks !== existing.marks) {
-              await tx.insert(assessmentMarksAudit).values({
-                assessmentMarkId: existing.id,
-                action: 'update',
-                previousMarks: existing.marks,
-                newMarks: data.marks,
+            for (const inserted of insertedMarks) {
+              batchResults.push({
+                mark: inserted,
+                isNew: true,
+                stdNo: inserted.stdNo,
+              });
+
+              batchAuditEntries.push({
+                assessmentMarkId: inserted.id,
+                action: 'create',
+                previousMarks: null,
+                newMarks: inserted.marks,
                 createdBy: userId,
               });
             }
+          }
 
-            return { mark: updated, isNew: false, stdNo: data.stdNo };
-          } else {
-            const [created] = await tx
-              .insert(assessmentMarks)
-              .values(data)
-              .returning();
-
-            await tx.insert(assessmentMarksAudit).values({
-              assessmentMarkId: created.id,
-              action: 'create',
-              previousMarks: null,
-              newMarks: created.marks,
-              createdBy: userId,
-            });
-
-            return { mark: created, isNew: true, stdNo: data.stdNo };
+          if (batchAuditEntries.length > 0) {
+            await tx.insert(assessmentMarksAudit).values(batchAuditEntries);
           }
         });
 
-        results.push(result);
-        processedStudents.add(data.stdNo);
+        results.push(...batchResults);
+        batchResults.forEach((result) => processedStudents.add(result.stdNo));
       } catch (error) {
+        const batchStdNos = batch.map((data) => data.stdNo).join(', ');
         errors.push(
-          `Failed to process mark for student ${data.stdNo}, assessment ${data.assessmentId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Failed to process batch with students ${batchStdNos}: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
       }
     }
@@ -306,6 +368,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
       failed: errors.length,
     };
   }
+
   async getStudentAuditHistory(stdNo: number) {
     const studentAssessmentMarks = await db
       .select({ id: assessmentMarks.id })
