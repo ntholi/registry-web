@@ -149,29 +149,33 @@ export default class BoeReportRepository extends BaseRepository<
   }
 
   async getStudentSemesterHistoryForFaculty(schoolId: number) {
-    const facultyPrograms = await db.query.programs.findMany({
-      where: eq(programs.schoolId, schoolId),
-    });
+    const programIds = await db.query.programs
+      .findMany({
+        columns: {
+          id: true,
+        },
+        where: eq(programs.schoolId, schoolId),
+      })
+      .then((rows) => rows.map((row) => row.id));
 
-    const programIds = facultyPrograms.map((program) => program.id);
-
-    const structureRows = await db
+    const structureIds = await db
       .select({ id: structures.id })
       .from(structures)
-      .where(inArray(structures.programId, programIds));
+      .where(inArray(structures.programId, programIds))
+      .then((rows) => rows.map((row) => row.id));
 
-    const structureIds = structureRows.map((row) => row.id);
-
-    const studentProgramRows = await db
+    const studentProgramIds = await db
       .select({ id: studentPrograms.id })
       .from(studentPrograms)
-      .where(inArray(studentPrograms.structureId, structureIds));
-
-    const studentProgramIds = studentProgramRows.map((row) => row.id);
+      .where(inArray(studentPrograms.structureId, structureIds))
+      .then((rows) => rows.map((row) => row.id));
 
     return await db.query.studentSemesters.findMany({
       where: inArray(studentSemesters.studentProgramId, studentProgramIds),
-      orderBy: [asc(studentSemesters.term), asc(studentSemesters.semesterNumber)],
+      orderBy: [
+        asc(studentSemesters.term),
+        asc(studentSemesters.semesterNumber),
+      ],
       with: {
         studentProgram: {
           with: {
