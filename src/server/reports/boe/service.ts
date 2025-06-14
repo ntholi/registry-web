@@ -1,6 +1,10 @@
-import { termsRepository } from '@/server/terms/repository';
-import { summarizeModules, calculateGPA, getGradePoints } from '@/utils/grades';
 import { ModuleStatus, schools } from '@/db/schema';
+import { termsRepository } from '@/server/terms/repository';
+import {
+  getGradePoints,
+  isFailingGrade,
+  summarizeModules,
+} from '@/utils/grades';
 import ExcelJS from 'exceljs';
 import {
   boeReportRepository,
@@ -397,9 +401,7 @@ export default class BoeReportService {
         : cgpaVal;
 
       const hasFail = student.studentModules.some((sm) =>
-        ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
-          sm.grade,
-        ),
+        isFailingGrade(sm.grade),
       );
       studentRow.getCell(colIndex++).value = hasFail ? 'Probation' : 'Proceed';
     });
@@ -531,14 +533,6 @@ export default class BoeReportService {
           bottom: { style: 'thin' },
           right: { style: 'thin' },
         };
-        if (rowNum === 5) {
-          cell.font = { bold: true };
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFF0F0F0' },
-          };
-        }
       }
     });
 
