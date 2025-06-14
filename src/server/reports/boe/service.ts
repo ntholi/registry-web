@@ -334,24 +334,36 @@ export default class BoeReportService {
           const pts = gpaValue * studentModule.credits;
           pointsDisplay = isNaN(pts) ? '' : Number(pts.toFixed(2));
         }
+        if (marksDisplay === '-') {
+          worksheet.mergeCells(
+            studentRow.number,
+            colIndex,
+            studentRow.number,
+            colIndex + 2,
+          );
+          studentRow.getCell(colIndex).value = '-';
+          studentRow.getCell(colIndex).alignment = {
+            horizontal: 'center',
+            vertical: 'middle',
+          };
+        } else {
+          studentRow.getCell(colIndex).value = marksDisplay;
+          studentRow.getCell(colIndex + 1).value = gradeDisplay;
+          studentRow.getCell(colIndex + 2).value = pointsDisplay;
 
-        studentRow.getCell(colIndex).value = marksDisplay;
-        studentRow.getCell(colIndex + 1).value = gradeDisplay;
-        studentRow.getCell(colIndex + 2).value = pointsDisplay;
-
-        // Center align all module cells
-        studentRow.getCell(colIndex).alignment = {
-          horizontal: 'center',
-          vertical: 'middle',
-        };
-        studentRow.getCell(colIndex + 1).alignment = {
-          horizontal: 'center',
-          vertical: 'middle',
-        };
-        studentRow.getCell(colIndex + 2).alignment = {
-          horizontal: 'center',
-          vertical: 'middle',
-        };
+          studentRow.getCell(colIndex).alignment = {
+            horizontal: 'center',
+            vertical: 'middle',
+          };
+          studentRow.getCell(colIndex + 1).alignment = {
+            horizontal: 'center',
+            vertical: 'middle',
+          };
+          studentRow.getCell(colIndex + 2).alignment = {
+            horizontal: 'center',
+            vertical: 'middle',
+          };
+        }
 
         colIndex += 3;
       });
