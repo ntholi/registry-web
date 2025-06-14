@@ -390,11 +390,17 @@ export default class BoeReportService {
         ),
       );
       studentRow.getCell(colIndex++).value = hasFail ? 'Probation' : 'Proceed';
-    });
+    }); // Calculate the width for the name column based on the longest name
+    const longestName = programReport.students.reduce((longest, student) => {
+      return student.studentName.length > longest.length
+        ? student.studentName
+        : longest;
+    }, '');
+    const nameColumnWidth = Math.max(longestName.length * 1.1, 25); // 1.1 multiplier for padding, minimum 25
 
     // Set column widths
     worksheet.getColumn(1).width = 4; // No
-    worksheet.getColumn(2).width = 25; // Name
+    worksheet.getColumn(2).width = nameColumnWidth; // Name - dynamic width
     worksheet.getColumn(3).width = 12; // StudentID
     worksheet.getColumn(4).width = 8; // Status
 
