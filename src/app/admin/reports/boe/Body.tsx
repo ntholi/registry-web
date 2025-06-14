@@ -42,7 +42,7 @@ export default function Body() {
       setIsDownloading(true);
       try {
         const result = await generateBoeReportForFaculty(
-          Number(selectedSchoolId),
+          schools?.find((s) => s.id === Number(selectedSchoolId)),
         );
         if (!result.success) {
           throw new Error(result.error || 'Failed to generate report');
@@ -87,14 +87,6 @@ export default function Body() {
     },
   });
 
-  const handleGenerateReport = () => {
-    if (!selectedSchoolId) {
-      alert('Please select a school first');
-      return;
-    }
-    generateReportMutation.mutate();
-  };
-
   const schoolOptions =
     schools?.map((school) => ({
       value: school.id.toString(),
@@ -133,7 +125,7 @@ export default function Body() {
           <Group>
             <Button
               fullWidth
-              onClick={handleGenerateReport}
+              onClick={() => generateReportMutation.mutate()}
               disabled={
                 !selectedSchoolId ||
                 generateReportMutation.isPending ||

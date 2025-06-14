@@ -1,12 +1,14 @@
 import { termsRepository } from '@/server/terms/repository';
 import { summarizeModules, calculateGPA, getGradePoints } from '@/utils/grades';
-import { ModuleStatus } from '@/db/schema';
+import { ModuleStatus, schools } from '@/db/schema';
 import ExcelJS from 'exceljs';
 import {
   boeReportRepository,
   ProgramSemesterReport,
   StudentSemesterReport,
 } from './repository';
+
+type School = typeof schools.$inferSelect;
 
 interface StudentSemester {
   semesterNumber: number | null;
@@ -40,44 +42,7 @@ interface StudentSemester {
 export default class BoeReportService {
   private repository = boeReportRepository;
 
-  async generateBoeReportForProgram(programId: number): Promise<Buffer> {
-    const currentTerm = await termsRepository.getActive();
-    if (!currentTerm) {
-      throw new Error('No active term found');
-    }
-
-    const studentSemesters =
-      await this.repository.getStudentSemestersForProgram(
-        programId,
-        currentTerm.name,
-      );
-
-    const semesterGroups = this.groupBySemesterNumber(
-      studentSemesters as StudentSemester[],
-    );
-
-    const workbook = new ExcelJS.Workbook();
-
-    for (const [semesterNumber, semesters] of Object.entries(semesterGroups)) {
-      const programReport: ProgramSemesterReport = {
-        programId,
-        programCode: semesters[0]?.studentProgram.structure.program.code || '',
-        programName: semesters[0]?.studentProgram.structure.program.name || '',
-        semesterNumber: parseInt(semesterNumber),
-        students: this.createStudentReports(semesters as StudentSemester[]),
-      };
-
-      const sheetName = `${programReport.programCode}Y${Math.ceil(parseInt(semesterNumber) / 2)}S${parseInt(semesterNumber) % 2 === 0 ? 2 : 1}`;
-      const worksheet = workbook.addWorksheet(sheetName);
-
-      this.createWorksheet(worksheet, programReport, currentTerm.name);
-    }
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    return Buffer.from(buffer);
-  }
-
-  async generateBoeReportForFaculty(facultyId: number): Promise<Buffer> {
+  async generateBoeReportForFaculty(school: School): Promise<Buffer> {
     const currentTerm = await termsRepository.getActive();
     if (!currentTerm) {
       throw new Error('No active term found');
@@ -85,7 +50,7 @@ export default class BoeReportService {
 
     const studentSemesters =
       await this.repository.getStudentSemestersForFaculty(
-        facultyId,
+        school.id,
         currentTerm.name,
       );
 
@@ -116,7 +81,12 @@ export default class BoeReportService {
         const sheetName = `${programReport.programCode}Y${year}S${semester}`;
         const worksheet = workbook.addWorksheet(sheetName);
 
-        this.createWorksheet(worksheet, programReport, currentTerm.name);
+        this.createWorksheet(
+          worksheet,
+          programReport,
+          school.name,
+          currentTerm.name,
+        );
       }
     }
 
@@ -224,6 +194,7 @@ export default class BoeReportService {
   private createWorksheet(
     worksheet: ExcelJS.Worksheet,
     programReport: ProgramSemesterReport,
+    schoolName: string,
     termName: string,
   ): void {
     const currentDate = new Date();
@@ -254,12 +225,7 @@ export default class BoeReportService {
     worksheet.getCell('A4').font = { bold: true, size: 12 };
     worksheet.getCell('A4').alignment = { horizontal: 'center' };
 
-    // Row 5: Faculty info and module headers start
-    const facultyName = programReport.programName.includes('Architecture')
-      ? 'Architecture and the Built Environment'
-      : programReport.programName.split(' ')[0];
-
-    const row5 = worksheet.addRow([`Faculty of ${facultyName}`]);
+    const row5 = worksheet.addRow([schoolName]);
 
     // Add module names to row 5 starting from column 5
     let colIndex = 5;
