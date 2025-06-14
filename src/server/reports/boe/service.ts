@@ -24,6 +24,7 @@ interface StudentSemester {
     };
   };
   studentModules: Array<{
+    status: string;
     marks: string;
     grade: string;
     semesterModule: {
@@ -156,7 +157,7 @@ export default class BoeReportService {
         semester.studentModules.map((sm) => ({
           grade: sm.grade,
           credits: Number(sm.semesterModule.credits),
-          status: (sm as { status?: ModuleStatus }).status,
+          status: sm.status as ModuleStatus,
         })),
       );
 

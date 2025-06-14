@@ -143,6 +143,11 @@ export const grades: GradeDefinition[] = [
     gpa: 0.0,
     description: 'Did Not Submit',
   },
+  {
+    grade: 'NM',
+    gpa: null,
+    description: 'No Mark',
+  },
 ];
 
 export function normalizeGradeSymbol(grade: string): string {
@@ -255,14 +260,19 @@ export function summarizeModules(modules: ModuleSummaryInput[]) {
   let points = 0;
   let creditsAttempted = 0;
 
-  const creditsCompleted = modules.reduce((sum, m) => {
+  const creditsCompleted = relevant.reduce((sum, m) => {
     const gradePoints = getGradePoints(m.grade);
     return gradePoints > 0 ? sum + m.credits : sum;
   }, 0);
 
   relevant.forEach((m) => {
-    points += getGradePoints(m.grade) * m.credits;
-    creditsAttempted += m.credits;
+    const gradePoints = getGradePoints(m.grade);
+    const gradeDefinition = getGradeBySymbol(m.grade);
+
+    if (gradeDefinition && gradeDefinition.gpa !== null) {
+      points += gradePoints * m.credits;
+      creditsAttempted += m.credits;
+    }
   });
 
   return {

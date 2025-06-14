@@ -255,6 +255,7 @@ export const gradeEnum = [
   'PP',
   'DNS',
   'EXP',
+  'NM',
 ] as const;
 
 export type ModuleStatus = (typeof moduleStatusEnum)[number];

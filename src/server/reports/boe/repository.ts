@@ -49,6 +49,7 @@ export default class BoeReportRepository extends BaseRepository<
   constructor() {
     super(students, 'stdNo');
   }
+
   async getStudentSemestersForFaculty(facultyId: number, termName: string) {
     const facultyPrograms = await db.query.programs.findMany({
       where: eq(programs.schoolId, facultyId),
