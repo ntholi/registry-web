@@ -23,6 +23,10 @@ export interface StudentSemesterReport {
   studentId: number;
   studentName: string;
   studentModules: StudentModuleReport[];
+  modulesCount: number;
+  creditsAttempted: number;
+  creditsEarned: number;
+  totalPoints: number;
   gpa: string;
   cgpa: string;
 }

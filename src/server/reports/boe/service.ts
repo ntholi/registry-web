@@ -179,6 +179,10 @@ export default class BoeReportService {
           marks: studentModule.marks,
           grade: studentModule.grade,
         })),
+        modulesCount: semester.studentModules.length,
+        creditsAttempted: summary.creditsAttempted,
+        creditsEarned: summary.creditsCompleted,
+        totalPoints: summary.points,
         gpa,
         cgpa,
       };
@@ -244,9 +248,12 @@ export default class BoeReportService {
       colIndex += 2;
     });
 
-    headerRow.getCell(colIndex).value = 'GPA';
-    headerRow.getCell(colIndex + 1).value = 'CGPA';
-    headerRow.getCell(colIndex + 2).value = 'Faculty Remark';
+    headerRow.getCell(colIndex).value = 'No. of Module(s)';
+    headerRow.getCell(colIndex + 1).value = 'Credits Attempted';
+    headerRow.getCell(colIndex + 2).value = 'Credits Earned';
+    headerRow.getCell(colIndex + 3).value = 'Total Points Earned';
+    headerRow.getCell(colIndex + 4).value = 'GPA';
+    headerRow.getCell(colIndex + 5).value = 'CGPA';
 
     const subHeaderRow = worksheet.getRow(dataStartRow + 1);
     subHeaderRow.getCell(1).value = '';
@@ -264,6 +271,9 @@ export default class BoeReportService {
     subHeaderRow.getCell(colIndex).value = '';
     subHeaderRow.getCell(colIndex + 1).value = '';
     subHeaderRow.getCell(colIndex + 2).value = '';
+    subHeaderRow.getCell(colIndex + 3).value = '';
+    subHeaderRow.getCell(colIndex + 4).value = '';
+    subHeaderRow.getCell(colIndex + 5).value = '';
 
     const moduleNameRow = worksheet.getRow(dataStartRow + 2);
     moduleNameRow.getCell(1).value = '';
@@ -313,16 +323,20 @@ export default class BoeReportService {
         colIndex += 2;
       });
 
+      studentRow.getCell(colIndex).value = student.modulesCount;
+      studentRow.getCell(colIndex + 1).value = student.creditsAttempted;
+      studentRow.getCell(colIndex + 2).value = student.creditsEarned;
+      studentRow.getCell(colIndex + 3).value = student.totalPoints;
+
       const gpaValue = parseFloat(student.gpa);
       const cgpaValue = parseFloat(student.cgpa);
 
-      studentRow.getCell(colIndex).value = isNaN(gpaValue)
+      studentRow.getCell(colIndex + 4).value = isNaN(gpaValue)
         ? student.gpa
         : gpaValue;
-      studentRow.getCell(colIndex + 1).value = isNaN(cgpaValue)
+      studentRow.getCell(colIndex + 5).value = isNaN(cgpaValue)
         ? student.cgpa
         : cgpaValue;
-      studentRow.getCell(colIndex + 2).value = '';
     });
 
     worksheet.getColumn(1).width = 4;
@@ -337,14 +351,17 @@ export default class BoeReportService {
       colIndex += 2;
     });
 
-    worksheet.getColumn(colIndex).width = 6;
-    worksheet.getColumn(colIndex + 1).width = 6;
-    worksheet.getColumn(colIndex + 2).width = 6;
+    worksheet.getColumn(colIndex).width = 6; // Modules count
+    worksheet.getColumn(colIndex + 1).width = 6; // Credits attempted
+    worksheet.getColumn(colIndex + 2).width = 6; // Credits earned
+    worksheet.getColumn(colIndex + 3).width = 10; // Total points earned
+    worksheet.getColumn(colIndex + 4).width = 6; // GPA
+    worksheet.getColumn(colIndex + 5).width = 6; // CGPA
 
     worksheet.getCell('A4').font = { bold: true, size: 12 };
     worksheet.getCell('A4').alignment = { horizontal: 'center' };
 
-    const lastCol = 4 + moduleColumns.length * 2 + 3;
+    const lastCol = 4 + moduleColumns.length * 2 + 6;
     const endColLetter = this.getColumnLetter(lastCol);
 
     worksheet.mergeCells(`A4:${endColLetter}4`);
