@@ -9,6 +9,7 @@ import {
   Badge,
   Card,
   Divider,
+  Flex,
   Group,
   Paper,
   Stack,
@@ -20,6 +21,7 @@ import {
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
+import GpaDisplay from './GpaDisplay';
 import { summarizeModules, calculateGPA } from '@/utils/grades';
 import { ModuleStatus } from '@/db/schema';
 
@@ -85,12 +87,12 @@ export default function AcademicsView({ student, showMarks }: Props) {
 
                     return program.semesters.map((semester) => {
                       const summary = summarizeModules(
-                          semester.studentModules.map((sm) => ({
-                            grade: sm.grade,
-                            credits: Number(sm.semesterModule.credits),
-                            status: (sm as { status?: ModuleStatus }).status,
-                          })),
-                        );
+                        semester.studentModules.map((sm) => ({
+                          grade: sm.grade,
+                          credits: Number(sm.semesterModule.credits),
+                          status: (sm as { status?: ModuleStatus }).status,
+                        })),
+                      );
 
                       cumulativePoints += summary.points;
                       cumulativeCreditsAttempted += summary.creditsCompleted;
@@ -103,8 +105,8 @@ export default function AcademicsView({ student, showMarks }: Props) {
                       return (
                         <Paper key={semester.id} p='md' withBorder>
                           <Stack gap='md'>
-                            <Group justify='space-between'>
-                              <Group gap={'xs'}>
+                            <Flex align='flex-end' justify='space-between'>
+                              <Group gap={'xs'} align='flex-end'>
                                 <Badge radius={'xs'} variant='default'>
                                   {semester.term}
                                 </Badge>
@@ -112,66 +114,14 @@ export default function AcademicsView({ student, showMarks }: Props) {
                                   {formatSemester(semester.semesterNumber)}
                                 </Text>
                               </Group>
-                              <Group gap='sm'>
-                                <Group gap='lg'>
-                                  <div style={{ textAlign: 'center' }}>
-                                    <Text 
-                                      size='xs' 
-                                      c='dimmed' 
-                                      fw={500} 
-                                      mb={2}
-                                      tt='uppercase'
-                                      style={{ letterSpacing: '0.5px' }}
-                                    >
-                                      GPA
-                                    </Text>
-                                    <Text 
-                                      size='md' 
-                                      fw={600}
-                                      c={summary.gpa >= 3.0 ? 'green' : 
-                                        summary.gpa >= 2.0 ? 'yellow' : 
-                                        'red'}
-                                      style={{ lineHeight: 1 }}
-                                    >
-                                      {summary.gpa.toFixed(2)}
-                                    </Text>
-                                  </div>
-                                  
-                                  <div 
-                                    style={{ 
-                                      width: '1px', 
-                                      height: '32px', 
-                                      backgroundColor: 'var(--mantine-color-gray-3)',
-                                      opacity: 0.5 
-                                    }} 
-                                  />
-                                  
-                                  <div style={{ textAlign: 'center' }}>
-                                    <Text 
-                                      size='xs' 
-                                      c='dimmed' 
-                                      fw={500} 
-                                      mb={2}
-                                      tt='uppercase'
-                                      style={{ letterSpacing: '0.5px' }}
-                                    >
-                                      CGPA
-                                    </Text>
-                                    <Text 
-                                      size='md' 
-                                      fw={600}
-                                      c={cumulativeGPA >= 3.0 ? 'blue' : 
-                                        cumulativeGPA >= 2.0 ? 'orange' : 
-                                        'red'}
-                                      style={{ lineHeight: 1 }}
-                                    >
-                                      {cumulativeGPA.toFixed(2)}
-                                    </Text>
-                                  </div>
-                                </Group>
+                              <Group gap='md' align='flex-end'>
+                                <GpaDisplay
+                                  gpa={summary.gpa}
+                                  cgpa={cumulativeGPA}
+                                />
                                 <SemesterStatus status={semester.status} />
                               </Group>
-                            </Group>
+                            </Flex>
 
                             <Divider />
 
