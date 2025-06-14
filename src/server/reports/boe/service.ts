@@ -39,10 +39,9 @@ interface StudentSemester {
 
 export default class BoeReportService {
   private repository = boeReportRepository;
-  private termsRepo = termsRepository;
 
   async generateBoeReportForProgram(programId: number): Promise<Buffer> {
-    const currentTerm = await this.termsRepo.getActive();
+    const currentTerm = await termsRepository.getActive();
     if (!currentTerm) {
       throw new Error('No active term found');
     }
@@ -79,7 +78,7 @@ export default class BoeReportService {
   }
 
   async generateBoeReportForFaculty(facultyId: number): Promise<Buffer> {
-    const currentTerm = await this.termsRepo.getActive();
+    const currentTerm = await termsRepository.getActive();
     if (!currentTerm) {
       throw new Error('No active term found');
     }
@@ -261,7 +260,7 @@ export default class BoeReportService {
     const moduleColumns = this.getUniqueModules(programReport.students);
 
     const headerStartRow = worksheet.lastRow!.number + 1; // usually 11
-    const programCodeRowIndex = headerStartRow - 1;
+    const programCodeRowIndex = headerStartRow - 2;
     const nameRow = worksheet.getRow(headerStartRow);
     const creditsRow = worksheet.getRow(headerStartRow + 1);
     const codeRow = worksheet.getRow(headerStartRow + 2);
@@ -398,9 +397,11 @@ export default class BoeReportService {
     worksheet.getColumn(colIndex + 3).width = 10; // Total points earned
     worksheet.getColumn(colIndex + 4).width = 6; // GPA
     worksheet.getColumn(colIndex + 5).width = 6; // CGPA
+    worksheet.getColumn(colIndex + 6).width = 12; // Faculty remark
 
     // Merge cells for headers
     const lastCol = 4 + moduleColumns.length * 3 + 7;
+    worksheet.getColumn(lastCol).width = 12; // Faculty remark
     const endColLetter = this.getColumnLetter(lastCol);
 
     worksheet.mergeCells(`A4:${endColLetter}4`);
@@ -409,6 +410,13 @@ export default class BoeReportService {
     worksheet.mergeCells(`A7:${endColLetter}7`);
     worksheet.mergeCells(`A8:${endColLetter}8`);
     worksheet.mergeCells(`A9:${endColLetter}9`);
+    worksheet.mergeCells(
+      `A${programCodeRowIndex}:${endColLetter}${programCodeRowIndex}`,
+    );
+    worksheet.getRow(programCodeRowIndex).alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    };
 
     // Merge module blocks across header rows
     colIndex = 5;
