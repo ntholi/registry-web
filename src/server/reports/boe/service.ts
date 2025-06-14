@@ -54,7 +54,7 @@ export default class BoeReportService {
         currentTerm.name,
       );
 
-    const allStudentSemesters = 
+    const allStudentSemesters =
       await this.repository.getStudentSemesterHistoryForFaculty(school.id);
 
     const programGroups = this.groupByProgram(
@@ -77,9 +77,9 @@ export default class BoeReportService {
             semesters[0]?.studentProgram.structure.program.name || '',
           semesterNumber: parseInt(semesterNumber),
           students: this.createStudentReports(
-            semesters as StudentSemester[], 
+            semesters as StudentSemester[],
             allStudentSemesters as StudentSemester[],
-            currentTerm.name
+            currentTerm.name,
           ),
         };
 
@@ -130,14 +130,14 @@ export default class BoeReportService {
   }
 
   private createStudentReports(
-    semesters: StudentSemester[], 
+    semesters: StudentSemester[],
     allStudentSemesters: StudentSemester[],
-    currentTerm: string
+    currentTerm: string,
   ) {
     return semesters.map((semester) => {
       const studentId = semester.studentProgram.student.stdNo;
       const studentSemesters = allStudentSemesters.filter(
-        (s) => s.studentProgram.student.stdNo === studentId
+        (s) => s.studentProgram.student.stdNo === studentId,
       );
 
       const allModules = studentSemesters.flatMap((s) => s.studentModules);
@@ -279,9 +279,7 @@ export default class BoeReportService {
 
     worksheet.addRow([programReport.programName]);
     worksheet.addRow([`Term : ${termName}`]);
-
     worksheet.addRow([`Printing date : ${dateStr}, ${timeStr}`]);
-
     worksheet.addRow(['By Country : Lesotho']);
 
     const programSemesterLabel = `${programReport.programCode}Y${Math.ceil(programReport.semesterNumber / 2)}S${programReport.semesterNumber % 2 === 0 ? 2 : 1}`;
@@ -289,8 +287,8 @@ export default class BoeReportService {
 
     colIndex = 5;
     moduleColumns.forEach((module) => {
-      row10.getCell(colIndex + 1).value = module.code; // Put code in middle column
-      row10.getCell(colIndex + 1).alignment = {
+      row10.getCell(colIndex).value = module.code;
+      row10.getCell(colIndex).alignment = {
         horizontal: 'center',
         vertical: 'middle',
       };
@@ -298,10 +296,11 @@ export default class BoeReportService {
     });
 
     const row11 = worksheet.addRow([]);
+
     colIndex = 5;
     moduleColumns.forEach((module) => {
-      row11.getCell(colIndex + 1).value = module.credits; // Put credits in middle column
-      row11.getCell(colIndex + 1).alignment = {
+      row11.getCell(colIndex).value = module.credits;
+      row11.getCell(colIndex).alignment = {
         horizontal: 'center',
         vertical: 'middle',
       };
@@ -329,7 +328,7 @@ export default class BoeReportService {
         'Active',
       ]);
 
-        colIndex = 5;
+      colIndex = 5;
       moduleColumns.forEach((moduleCol) => {
         const studentModule = student.studentModules.find(
           (sm) => sm.moduleCode === moduleCol.code,
@@ -403,7 +402,7 @@ export default class BoeReportService {
         ),
       );
       studentRow.getCell(colIndex++).value = hasFail ? 'Probation' : 'Proceed';
-    }); 
+    });
 
     const longestName = programReport.students.reduce((longest, student) => {
       return student.studentName.length > longest.length
@@ -446,8 +445,12 @@ export default class BoeReportService {
       const startCol = this.getColumnLetter(colIndex);
       const endCol = this.getColumnLetter(colIndex + 2);
 
-      // Module name spans vertically from row 5 to row 11 and horizontally across all 3 columns
-      worksheet.mergeCells(`${startCol}5:${endCol}11`);
+      // Module name spans vertically from row 5 to row 9 and horizontally across all 3 columns
+      worksheet.mergeCells(`${startCol}5:${endCol}9`);
+      // Module code spans horizontally across all 3 columns (row 10)
+      worksheet.mergeCells(`${startCol}10:${endCol}10`);
+      // Module credits spans horizontally across all 3 columns (row 11)
+      worksheet.mergeCells(`${startCol}11:${endCol}11`);
 
       colIndex += 3;
     });
@@ -518,7 +521,7 @@ export default class BoeReportService {
       };
     }
 
-    [5, 10, 11].forEach((rowNum) => {
+    [5, 6, 7, 8, 9, 10, 11].forEach((rowNum) => {
       const row = worksheet.getRow(rowNum);
       for (let c = 5; c <= 4 + moduleColumns.length * 3; c++) {
         const cell = row.getCell(c);
