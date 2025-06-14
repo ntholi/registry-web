@@ -518,6 +518,81 @@ export default class BoeReportService {
         }
       }
     });
+
+    // Add medium border for module blocks
+    moduleColumns.forEach((_, idx) => {
+      const startCol = 5 + idx * 3;
+      const endCol = startCol + 2;
+
+      for (let c = startCol; c <= endCol; c++) {
+        const topCell = worksheet.getRow(5).getCell(c);
+        topCell.border = { ...topCell.border, top: { style: 'medium' } };
+
+        const bottomCell = worksheet.getRow(totalRows).getCell(c);
+        bottomCell.border = {
+          ...bottomCell.border,
+          bottom: { style: 'medium' },
+        };
+      }
+
+      // Left and right borders spanning from row 5 down to last data row
+      for (let r = 5; r <= totalRows; r++) {
+        const leftCell = worksheet.getRow(r).getCell(startCol);
+        leftCell.border = { ...leftCell.border, left: { style: 'medium' } };
+
+        const rightCell = worksheet.getRow(r).getCell(endCol);
+        rightCell.border = { ...rightCell.border, right: { style: 'medium' } };
+      }
+    });
+
+    // Thin borders around summary header merged cells
+    const summaryEndCol = summaryStartCol + summaryHeaders.length - 1;
+    for (let c = summaryStartCol; c <= summaryEndCol; c++) {
+      for (let r = 5; r <= 11; r++) {
+        const cell = worksheet.getRow(r).getCell(c);
+        cell.border = {
+          ...cell.border,
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      }
+    }
+
+    // Thin surrounding border for left info section (rows 5-10, columns 1-4)
+    for (let r = 5; r <= 10; r++) {
+      for (let c = 1; c <= 4; c++) {
+        const cell = worksheet.getRow(r).getCell(c);
+        const newBorder: Partial<ExcelJS.Borders> = { ...cell.border };
+        if (r === 5) newBorder.top = { style: 'thin' };
+        if (r === 10) newBorder.bottom = { style: 'thin' };
+        if (c === 1) newBorder.left = { style: 'thin' };
+        if (c === 4) newBorder.right = { style: 'thin' };
+        cell.border = newBorder;
+      }
+    }
+
+    // Thick outer border around whole sheet content starting from row 5 (below header)
+    const contentStartRow = 5;
+    for (let c = 1; c <= totalCols; c++) {
+      const topCell = worksheet.getRow(contentStartRow).getCell(c);
+      topCell.border = { ...topCell.border, top: { style: 'thick' } };
+
+      const bottomCell = worksheet.getRow(totalRows).getCell(c);
+      bottomCell.border = {
+        ...bottomCell.border,
+        bottom: { style: 'thick' },
+      };
+    }
+
+    for (let r = contentStartRow; r <= totalRows; r++) {
+      const leftCell = worksheet.getRow(r).getCell(1);
+      leftCell.border = { ...leftCell.border, left: { style: 'thick' } };
+
+      const rightCell = worksheet.getRow(r).getCell(totalCols);
+      rightCell.border = { ...rightCell.border, right: { style: 'thick' } };
+    }
   }
 }
 
