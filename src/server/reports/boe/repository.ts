@@ -7,7 +7,7 @@ import {
   studentSemesters,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, asc } from 'drizzle-orm';
 
 export interface StudentModuleReport {
   studentId: number;
@@ -124,6 +124,54 @@ export default class BoeReportRepository extends BaseRepository<
         eq(studentSemesters.term, termName),
         inArray(studentSemesters.studentProgramId, studentProgramIds),
       ),
+      with: {
+        studentProgram: {
+          with: {
+            student: true,
+            structure: {
+              with: {
+                program: true,
+              },
+            },
+          },
+        },
+        studentModules: {
+          with: {
+            semesterModule: {
+              with: {
+                module: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getStudentSemesterHistoryForFaculty(schoolId: number) {
+    const facultyPrograms = await db.query.programs.findMany({
+      where: eq(programs.schoolId, schoolId),
+    });
+
+    const programIds = facultyPrograms.map((program) => program.id);
+
+    const structureRows = await db
+      .select({ id: structures.id })
+      .from(structures)
+      .where(inArray(structures.programId, programIds));
+
+    const structureIds = structureRows.map((row) => row.id);
+
+    const studentProgramRows = await db
+      .select({ id: studentPrograms.id })
+      .from(studentPrograms)
+      .where(inArray(studentPrograms.structureId, structureIds));
+
+    const studentProgramIds = studentProgramRows.map((row) => row.id);
+
+    return await db.query.studentSemesters.findMany({
+      where: inArray(studentSemesters.studentProgramId, studentProgramIds),
+      orderBy: [asc(studentSemesters.term), asc(studentSemesters.semesterNumber)],
       with: {
         studentProgram: {
           with: {

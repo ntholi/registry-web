@@ -54,6 +54,9 @@ export default class BoeReportService {
         currentTerm.name,
       );
 
+    const allStudentSemesters = 
+      await this.repository.getStudentSemesterHistoryForFaculty(school.id);
+
     const programGroups = this.groupByProgram(
       studentSemesters as StudentSemester[],
     );
@@ -73,7 +76,11 @@ export default class BoeReportService {
           programName:
             semesters[0]?.studentProgram.structure.program.name || '',
           semesterNumber: parseInt(semesterNumber),
-          students: this.createStudentReports(semesters as StudentSemester[]),
+          students: this.createStudentReports(
+            semesters as StudentSemester[], 
+            allStudentSemesters as StudentSemester[],
+            currentTerm.name
+          ),
         };
 
         const year = Math.ceil(parseInt(semesterNumber) / 2);
@@ -122,21 +129,38 @@ export default class BoeReportService {
     );
   }
 
-  private createStudentReports(semesters: StudentSemester[]) {
+  private createStudentReports(
+    semesters: StudentSemester[], 
+    allStudentSemesters: StudentSemester[],
+    currentTerm: string
+  ) {
     return semesters.map((semester) => {
+      const studentId = semester.studentProgram.student.stdNo;
+      const studentSemesters = allStudentSemesters.filter(
+        (s) => s.studentProgram.student.stdNo === studentId
+      );
+
+      const allModules = studentSemesters.flatMap((s) => s.studentModules);
+      const currentModules = semester.studentModules;
+
       const summary = summarizeModules(
-        semester.studentModules.map((sm) => ({
+        allModules.map((sm) => ({
           grade: sm.grade,
           credits: Number(sm.semesterModule.credits),
           status: sm.status as ModuleStatus,
         })),
       );
 
-      const gpa = summary.gpa.toFixed(2);
-      const cgpa = calculateGPA(
-        summary.points,
-        summary.creditsAttempted,
-      ).toFixed(2);
+      const currentSemesterSummary = summarizeModules(
+        currentModules.map((sm) => ({
+          grade: sm.grade,
+          credits: Number(sm.semesterModule.credits),
+          status: sm.status as ModuleStatus,
+        })),
+      );
+
+      const gpa = currentSemesterSummary.gpa.toFixed(2);
+      const cgpa = summary.gpa.toFixed(2);
 
       return {
         studentId: semester.studentProgram.student.stdNo,
@@ -151,9 +175,9 @@ export default class BoeReportService {
           grade: studentModule.grade,
         })),
         modulesCount: semester.studentModules.length,
-        creditsAttempted: summary.creditsAttempted,
-        creditsEarned: summary.creditsCompleted,
-        totalPoints: summary.points,
+        creditsAttempted: currentSemesterSummary.creditsAttempted,
+        creditsEarned: currentSemesterSummary.creditsCompleted,
+        totalPoints: currentSemesterSummary.points,
         gpa,
         cgpa,
       };
