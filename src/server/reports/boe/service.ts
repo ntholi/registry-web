@@ -1,5 +1,5 @@
 import { termsRepository } from '@/server/terms/repository';
-import { summarizeModules, calculateGPA } from '@/utils/grades';
+import { summarizeModules, calculateGPA, getGradePoints } from '@/utils/grades';
 import { ModuleStatus } from '@/db/schema';
 import ExcelJS from 'exceljs';
 import {
@@ -199,220 +199,6 @@ export default class BoeReportService {
     return letter;
   }
 
-  private createWorksheet(
-    worksheet: ExcelJS.Worksheet,
-    programReport: ProgramSemesterReport,
-  ): void {
-    const currentDate = new Date();
-
-    const dateStr = currentDate.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-    const timeStr = currentDate.toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-
-    worksheet.addRow([]);
-    worksheet.addRow([]);
-    worksheet.addRow([]);
-    worksheet.addRow(['BOARD OF EXAMINATION']);
-
-    const facultyName = programReport.programName.includes('Architecture')
-      ? 'Architecture and the Built Environment'
-      : programReport.programName.split(' ')[0];
-    worksheet.addRow([`Faculty of ${facultyName}`]);
-
-    worksheet.addRow([`Diploma in ${programReport.programName}`]);
-    worksheet.addRow([`Term : July - December 2024`]);
-    worksheet.addRow([`Printing date : ${dateStr}, ${timeStr}`]);
-    worksheet.addRow([`By Country : Lesotho`]);
-    worksheet.addRow([]);
-
-    const moduleColumns = this.getUniqueModules(programReport.students);
-
-    const dataStartRow = 11;
-    const headerRow = worksheet.getRow(dataStartRow);
-    headerRow.getCell(1).value = 'No';
-    headerRow.getCell(2).value = 'Name';
-    headerRow.getCell(3).value = 'StudentID';
-    headerRow.getCell(4).value = 'Status';
-
-    let colIndex = 5;
-    moduleColumns.forEach((module) => {
-      headerRow.getCell(colIndex).value = module.code;
-      colIndex += 2;
-    });
-
-    headerRow.getCell(colIndex).value = 'No. of Module(s)';
-    headerRow.getCell(colIndex + 1).value = 'Credits Attempted';
-    headerRow.getCell(colIndex + 2).value = 'Credits Earned';
-    headerRow.getCell(colIndex + 3).value = 'Total Points Earned';
-    headerRow.getCell(colIndex + 4).value = 'GPA';
-    headerRow.getCell(colIndex + 5).value = 'CGPA';
-
-    const subHeaderRow = worksheet.getRow(dataStartRow + 1);
-    subHeaderRow.getCell(1).value = '';
-    subHeaderRow.getCell(2).value = '';
-    subHeaderRow.getCell(3).value = '';
-    subHeaderRow.getCell(4).value = '';
-
-    colIndex = 5;
-    moduleColumns.forEach(() => {
-      subHeaderRow.getCell(colIndex).value = 'Mk';
-      subHeaderRow.getCell(colIndex + 1).value = 'Gr';
-      colIndex += 2;
-    });
-
-    subHeaderRow.getCell(colIndex).value = '';
-    subHeaderRow.getCell(colIndex + 1).value = '';
-    subHeaderRow.getCell(colIndex + 2).value = '';
-    subHeaderRow.getCell(colIndex + 3).value = '';
-    subHeaderRow.getCell(colIndex + 4).value = '';
-    subHeaderRow.getCell(colIndex + 5).value = '';
-
-    const moduleNameRow = worksheet.getRow(dataStartRow + 2);
-    moduleNameRow.getCell(1).value = '';
-    moduleNameRow.getCell(2).value = '';
-    moduleNameRow.getCell(3).value = '';
-    moduleNameRow.getCell(4).value = '';
-
-    colIndex = 5;
-    moduleColumns.forEach((module) => {
-      const nameCell = moduleNameRow.getCell(colIndex);
-      nameCell.value = module.name;
-      nameCell.alignment = {
-        horizontal: 'center',
-        vertical: 'middle',
-        wrapText: true,
-      };
-      colIndex += 2;
-    });
-
-    moduleNameRow.height = 40;
-
-    programReport.students.forEach((student, index) => {
-      const rowIndex = dataStartRow + 3 + index;
-      const studentRow = worksheet.getRow(rowIndex);
-
-      studentRow.getCell(1).value = index + 1;
-      studentRow.getCell(2).value = student.studentName;
-      studentRow.getCell(3).value = student.studentId;
-      studentRow.getCell(4).value = 'Active';
-
-      colIndex = 5;
-      moduleColumns.forEach((moduleCol) => {
-        const studentModule = student.studentModules.find(
-          (sm) => sm.moduleCode === moduleCol.code,
-        );
-
-        if (studentModule) {
-          const marks = parseFloat(studentModule.marks);
-          studentRow.getCell(colIndex).value = isNaN(marks)
-            ? studentModule.marks
-            : marks;
-          studentRow.getCell(colIndex + 1).value = studentModule.grade;
-        } else {
-          studentRow.getCell(colIndex).value = '-';
-          studentRow.getCell(colIndex + 1).value = '';
-        }
-        colIndex += 2;
-      });
-
-      studentRow.getCell(colIndex).value = student.modulesCount;
-      studentRow.getCell(colIndex + 1).value = student.creditsAttempted;
-      studentRow.getCell(colIndex + 2).value = student.creditsEarned;
-      studentRow.getCell(colIndex + 3).value = student.totalPoints;
-
-      const gpaValue = parseFloat(student.gpa);
-      const cgpaValue = parseFloat(student.cgpa);
-
-      studentRow.getCell(colIndex + 4).value = isNaN(gpaValue)
-        ? student.gpa
-        : gpaValue;
-      studentRow.getCell(colIndex + 5).value = isNaN(cgpaValue)
-        ? student.cgpa
-        : cgpaValue;
-    });
-
-    worksheet.getColumn(1).width = 4;
-    worksheet.getColumn(2).width = 25;
-    worksheet.getColumn(3).width = 12;
-    worksheet.getColumn(4).width = 8;
-
-    colIndex = 5;
-    moduleColumns.forEach(() => {
-      worksheet.getColumn(colIndex).width = 6;
-      worksheet.getColumn(colIndex + 1).width = 4;
-      colIndex += 2;
-    });
-
-    worksheet.getColumn(colIndex).width = 6; // Modules count
-    worksheet.getColumn(colIndex + 1).width = 6; // Credits attempted
-    worksheet.getColumn(colIndex + 2).width = 6; // Credits earned
-    worksheet.getColumn(colIndex + 3).width = 10; // Total points earned
-    worksheet.getColumn(colIndex + 4).width = 6; // GPA
-    worksheet.getColumn(colIndex + 5).width = 6; // CGPA
-
-    worksheet.getCell('A4').font = { bold: true, size: 12 };
-    worksheet.getCell('A4').alignment = { horizontal: 'center' };
-
-    const lastCol = 4 + moduleColumns.length * 2 + 6;
-    const endColLetter = this.getColumnLetter(lastCol);
-
-    worksheet.mergeCells(`A4:${endColLetter}4`);
-    worksheet.mergeCells(`A5:${endColLetter}5`);
-    worksheet.mergeCells(`A6:${endColLetter}6`);
-    worksheet.mergeCells(`A7:${endColLetter}7`);
-    worksheet.mergeCells(`A8:${endColLetter}8`);
-    worksheet.mergeCells(`A9:${endColLetter}9`);
-
-    colIndex = 5;
-    moduleColumns.forEach(() => {
-      const startCol = this.getColumnLetter(colIndex);
-      const endCol = this.getColumnLetter(colIndex + 1);
-      worksheet.mergeCells(
-        `${startCol}${dataStartRow}:${endCol}${dataStartRow}`,
-      );
-      worksheet.mergeCells(
-        `${startCol}${dataStartRow + 2}:${endCol}${dataStartRow + 2}`,
-      );
-      colIndex += 2;
-    });
-
-    const totalRows = dataStartRow + 2 + programReport.students.length;
-    for (let i = dataStartRow; i <= totalRows; i++) {
-      const row = worksheet.getRow(i);
-      for (let j = 1; j <= lastCol; j++) {
-        const cell = row.getCell(j);
-        cell.border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' },
-        };
-
-        if (j !== 2) {
-          cell.alignment = {
-            horizontal: 'center',
-            vertical: 'middle',
-            wrapText: true,
-          };
-        } else {
-          cell.alignment = {
-            horizontal: 'left',
-            vertical: 'middle',
-            wrapText: true,
-          };
-        }
-      }
-    }
-  }
-
   private getUniqueModules(students: StudentSemesterReport[]) {
     const moduleMap = new Map<
       string,
@@ -432,6 +218,237 @@ export default class BoeReportService {
     }
 
     return Array.from(moduleMap.values());
+  }
+
+  private createWorksheet(
+    worksheet: ExcelJS.Worksheet,
+    programReport: ProgramSemesterReport,
+  ): void {
+    const currentDate = new Date();
+    const dateStr = currentDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    const timeStr = currentDate.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+
+    // Top header rows
+    worksheet.addRow([]);
+    worksheet.addRow([]);
+    worksheet.addRow([]);
+    worksheet.addRow(['BOARD OF EXAMINATION']);
+
+    const facultyName = programReport.programName.includes('Architecture')
+      ? 'Architecture and the Built Environment'
+      : programReport.programName.split(' ')[0];
+    worksheet.addRow([`Faculty of ${facultyName}`]);
+    worksheet.addRow([`Diploma in ${programReport.programName}`]);
+    worksheet.addRow(['Term : July - December 2024']);
+    worksheet.addRow([`Printing date : ${dateStr}, ${timeStr}`]);
+    worksheet.addRow(['By Country : Lesotho']);
+    const programSemesterLabel = `${programReport.programCode}Y${Math.ceil(programReport.semesterNumber / 2)}S${programReport.semesterNumber % 2 === 0 ? 2 : 1}`;
+    worksheet.addRow([programSemesterLabel]);
+    worksheet.addRow([]);
+
+    worksheet.getCell('A4').font = { bold: true, size: 12 };
+    worksheet.getCell('A4').alignment = { horizontal: 'center' };
+
+    const moduleColumns = this.getUniqueModules(programReport.students);
+
+    const headerStartRow = worksheet.lastRow!.number + 1; // usually 11
+    const programCodeRowIndex = headerStartRow - 1;
+    const nameRow = worksheet.getRow(headerStartRow);
+    const creditsRow = worksheet.getRow(headerStartRow + 1);
+    const codeRow = worksheet.getRow(headerStartRow + 2);
+    const subHeaderRow = worksheet.getRow(headerStartRow + 3);
+
+    // Sub header (column labels)
+    subHeaderRow.getCell(1).value = 'No';
+    subHeaderRow.getCell(2).value = 'Name';
+    subHeaderRow.getCell(3).value = 'StudentID';
+    subHeaderRow.getCell(4).value = 'Status';
+
+    // Placeholders for other header rows
+    [nameRow, creditsRow, codeRow].forEach((row) => {
+      row.getCell(1).value = '';
+      row.getCell(2).value = '';
+      row.getCell(3).value = '';
+      row.getCell(4).value = '';
+    });
+
+    let colIndex = 5;
+    moduleColumns.forEach((module) => {
+      // Module Name row
+      const nameCell = nameRow.getCell(colIndex);
+      nameCell.value = module.name;
+      nameCell.alignment = {
+        horizontal: 'center',
+        vertical: 'middle',
+        wrapText: true,
+      };
+
+      // Credits row
+      creditsRow.getCell(colIndex).value = module.credits;
+
+      // Code row
+      codeRow.getCell(colIndex).value = module.code;
+
+      // Sub header row labels
+      subHeaderRow.getCell(colIndex).value = 'Mk';
+      subHeaderRow.getCell(colIndex + 1).value = 'Gr';
+      subHeaderRow.getCell(colIndex + 2).value = 'Pt';
+
+      colIndex += 3;
+    });
+
+    // Extra summary headers after module columns
+    subHeaderRow.getCell(colIndex).value = 'No. of Module(s)';
+    subHeaderRow.getCell(colIndex + 1).value = 'Credits Attempted';
+    subHeaderRow.getCell(colIndex + 2).value = 'Credits Earned';
+    subHeaderRow.getCell(colIndex + 3).value = 'Total Points Earned';
+    subHeaderRow.getCell(colIndex + 4).value = 'GPA';
+    subHeaderRow.getCell(colIndex + 5).value = 'CGPA';
+    subHeaderRow.getCell(colIndex + 6).value = 'Faculty Remark';
+
+    // Adjust heights
+    nameRow.height = 40;
+
+    // Student data rows
+    const studentStartRow = headerStartRow + 4;
+
+    programReport.students.forEach((student, index) => {
+      const studentRow = worksheet.getRow(studentStartRow + index);
+      studentRow.getCell(1).value = index + 1;
+      studentRow.getCell(2).value = student.studentName;
+      studentRow.getCell(3).value = student.studentId;
+      studentRow.getCell(4).value = 'Active';
+
+      colIndex = 5;
+      moduleColumns.forEach((moduleCol) => {
+        const studentModule = student.studentModules.find(
+          (sm) => sm.moduleCode === moduleCol.code,
+        );
+
+        let marksDisplay: number | string = '-';
+        let gradeDisplay = '';
+        let pointsDisplay: number | string = '';
+
+        if (studentModule) {
+          const marksNum = parseFloat(studentModule.marks);
+          marksDisplay = isNaN(marksNum) ? studentModule.marks : marksNum;
+          gradeDisplay = studentModule.grade;
+          const gpaValue = getGradePoints(studentModule.grade);
+          const pts = gpaValue * studentModule.credits;
+          pointsDisplay = isNaN(pts) ? '' : Number(pts.toFixed(2));
+        }
+
+        studentRow.getCell(colIndex).value = marksDisplay;
+        studentRow.getCell(colIndex + 1).value = gradeDisplay;
+        studentRow.getCell(colIndex + 2).value = pointsDisplay;
+
+        colIndex += 3;
+      });
+
+      studentRow.getCell(colIndex).value = student.modulesCount;
+      studentRow.getCell(colIndex + 1).value = student.creditsAttempted;
+      studentRow.getCell(colIndex + 2).value = student.creditsEarned;
+      studentRow.getCell(colIndex + 3).value = student.totalPoints;
+
+      const gpaVal = parseFloat(student.gpa);
+      const cgpaVal = parseFloat(student.cgpa);
+
+      studentRow.getCell(colIndex + 4).value = isNaN(gpaVal)
+        ? student.gpa
+        : gpaVal;
+      studentRow.getCell(colIndex + 5).value = isNaN(cgpaVal)
+        ? student.cgpa
+        : cgpaVal;
+      const hasFail = student.studentModules.some((sm) =>
+        ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
+          sm.grade,
+        ),
+      );
+      studentRow.getCell(colIndex + 6).value = hasFail
+        ? 'Probation'
+        : 'Proceed';
+    });
+
+    // Column widths
+    worksheet.getColumn(1).width = 4;
+    worksheet.getColumn(2).width = 25;
+    worksheet.getColumn(3).width = 12;
+    worksheet.getColumn(4).width = 8;
+
+    colIndex = 5;
+    moduleColumns.forEach(() => {
+      worksheet.getColumn(colIndex).width = 6;
+      worksheet.getColumn(colIndex + 1).width = 4;
+      worksheet.getColumn(colIndex + 2).width = 6;
+      colIndex += 3;
+    });
+
+    worksheet.getColumn(colIndex).width = 6; // Modules count
+    worksheet.getColumn(colIndex + 1).width = 6; // Credits attempted
+    worksheet.getColumn(colIndex + 2).width = 6; // Credits earned
+    worksheet.getColumn(colIndex + 3).width = 10; // Total points earned
+    worksheet.getColumn(colIndex + 4).width = 6; // GPA
+    worksheet.getColumn(colIndex + 5).width = 6; // CGPA
+
+    // Merge cells for headers
+    const lastCol = 4 + moduleColumns.length * 3 + 7;
+    const endColLetter = this.getColumnLetter(lastCol);
+
+    worksheet.mergeCells(`A4:${endColLetter}4`);
+    worksheet.mergeCells(`A5:${endColLetter}5`);
+    worksheet.mergeCells(`A6:${endColLetter}6`);
+    worksheet.mergeCells(`A7:${endColLetter}7`);
+    worksheet.mergeCells(`A8:${endColLetter}8`);
+    worksheet.mergeCells(`A9:${endColLetter}9`);
+
+    // Merge module blocks across header rows
+    colIndex = 5;
+    moduleColumns.forEach(() => {
+      const startCol = this.getColumnLetter(colIndex);
+      const endCol = this.getColumnLetter(colIndex + 2);
+      [headerStartRow, headerStartRow + 1, headerStartRow + 2].forEach((r) => {
+        worksheet.mergeCells(`${startCol}${r}:${endCol}${r}`);
+      });
+      colIndex += 3;
+    });
+
+    // Apply borders and alignment
+    const totalRows = studentStartRow + programReport.students.length;
+    for (let r = headerStartRow; r <= totalRows; r++) {
+      const row = worksheet.getRow(r);
+      for (let c = 1; c <= lastCol; c++) {
+        const cell = row.getCell(c);
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+
+        if (c !== 2) {
+          cell.alignment = {
+            horizontal: 'center',
+            vertical: 'middle',
+            wrapText: true,
+          };
+        } else {
+          cell.alignment = {
+            horizontal: 'left',
+            vertical: 'middle',
+            wrapText: true,
+          };
+        }
+      }
+    }
   }
 }
 
