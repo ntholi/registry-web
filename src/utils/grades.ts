@@ -269,9 +269,10 @@ export function summarizeModules(modules: ModuleSummaryInput[]) {
     const gradePoints = getGradePoints(m.grade);
     const gradeDefinition = getGradeBySymbol(m.grade);
 
+    creditsAttempted += m.credits;
+
     if (gradeDefinition && gradeDefinition.gpa !== null) {
       points += gradePoints * m.credits;
-      creditsAttempted += m.credits;
     }
   });
 

@@ -147,7 +147,7 @@ export default class BoeReportService {
         allModules.map((sm) => ({
           grade: sm.grade,
           credits: Number(sm.semesterModule.credits),
-          status: sm.status as ModuleStatus,
+          status: (sm.status as ModuleStatus) || 'Active',
         })),
       );
 
@@ -155,7 +155,7 @@ export default class BoeReportService {
         currentModules.map((sm) => ({
           grade: sm.grade,
           credits: Number(sm.semesterModule.credits),
-          status: sm.status as ModuleStatus,
+          status: (sm.status as ModuleStatus) || 'Active',
         })),
       );
 
