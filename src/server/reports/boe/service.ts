@@ -214,12 +214,10 @@ export default class BoeReportService {
     const totalCols = 4 + moduleColumns.length * 3 + 7; // Base cols + modules (3 cols each) + summary cols
     const endColLetter = this.getColumnLetter(totalCols);
 
-    // Header setup - compact layout
     worksheet.addRow([]);
     worksheet.addRow([]);
     worksheet.addRow([]);
 
-    // Row 4: BOARD OF EXAMINATION (merged across all columns)
     const boardRow = worksheet.addRow(['BOARD OF EXAMINATION']);
     worksheet.mergeCells(`A4:${endColLetter}4`);
     worksheet.getCell('A4').font = { bold: true, size: 12 };
@@ -227,7 +225,6 @@ export default class BoeReportService {
 
     const row5 = worksheet.addRow([schoolName]);
 
-    // Add module names to row 5 starting from column 5
     let colIndex = 5;
     moduleColumns.forEach((module) => {
       row5.getCell(colIndex).value = module.name;
@@ -239,7 +236,6 @@ export default class BoeReportService {
       colIndex += 3; // Skip 3 columns for Mk, Gr, Pt
     });
 
-    // Add summary headers to row 5
     const summaryStartCol = colIndex;
     row5.getCell(colIndex++).value = 'No. of Module(s)';
     row5.getCell(colIndex++).value = 'Credits Attempted';
@@ -249,7 +245,6 @@ export default class BoeReportService {
     row5.getCell(colIndex++).value = 'CGPA';
     row5.getCell(colIndex++).value = 'Faculty Remark';
 
-    // Set alignment for summary headers
     for (let i = summaryStartCol; i < colIndex; i++) {
       row5.getCell(i).alignment = {
         horizontal: 'center',
@@ -265,11 +260,9 @@ export default class BoeReportService {
 
     worksheet.addRow(['By Country : Lesotho']);
 
-    // Row 10: Program/Semester code and module codes
     const programSemesterLabel = `${programReport.programCode}Y${Math.ceil(programReport.semesterNumber / 2)}S${programReport.semesterNumber % 2 === 0 ? 2 : 1}`;
     const row10 = worksheet.addRow([programSemesterLabel]);
 
-    // Add module codes to row 10
     colIndex = 5;
     moduleColumns.forEach((module) => {
       row10.getCell(colIndex + 1).value = module.code; // Put code in middle column
@@ -280,7 +273,6 @@ export default class BoeReportService {
       colIndex += 3; // Skip 3 columns for Mk, Gr, Pt
     });
 
-    // Row 11: Module credits
     const row11 = worksheet.addRow([]);
     colIndex = 5;
     moduleColumns.forEach((module) => {
@@ -292,7 +284,6 @@ export default class BoeReportService {
       colIndex += 3; // Skip 3 columns for Mk, Gr, Pt
     });
 
-    // Row 12: Column headers including Mk, Gr, Pt
     const headerRow = worksheet.addRow(['No', 'Name', 'StudentID', 'Status']);
 
     // Add Mk, Gr, Pt headers for each module
@@ -304,7 +295,6 @@ export default class BoeReportService {
       colIndex += 3;
     });
 
-    // Student data rows start from row 13
     const studentStartRow = 13;
 
     programReport.students.forEach((student, index) => {
@@ -315,8 +305,7 @@ export default class BoeReportService {
         'Active',
       ]);
 
-      // Add module grades/marks
-      colIndex = 5;
+        colIndex = 5;
       moduleColumns.forEach((moduleCol) => {
         const studentModule = student.studentModules.find(
           (sm) => sm.moduleCode === moduleCol.code,
@@ -390,7 +379,8 @@ export default class BoeReportService {
         ),
       );
       studentRow.getCell(colIndex++).value = hasFail ? 'Probation' : 'Proceed';
-    }); // Calculate the width for the name column based on the longest name
+    }); 
+
     const longestName = programReport.students.reduce((longest, student) => {
       return student.studentName.length > longest.length
         ? student.studentName
@@ -398,13 +388,11 @@ export default class BoeReportService {
     }, '');
     const nameColumnWidth = Math.max(longestName.length * 1.1, 25); // 1.1 multiplier for padding, minimum 25
 
-    // Set column widths
     worksheet.getColumn(1).width = 4; // No
     worksheet.getColumn(2).width = nameColumnWidth; // Name - dynamic width
     worksheet.getColumn(3).width = 12; // StudentID
     worksheet.getColumn(4).width = 8; // Status
 
-    // Module columns
     colIndex = 5;
     moduleColumns.forEach(() => {
       worksheet.getColumn(colIndex).width = 6; // Mk
@@ -413,7 +401,6 @@ export default class BoeReportService {
       colIndex += 3;
     });
 
-    // Summary columns
     worksheet.getColumn(colIndex++).width = 8; // No. of Module(s)
     worksheet.getColumn(colIndex++).width = 8; // Credits Attempted
     worksheet.getColumn(colIndex++).width = 8; // Credits Earned
@@ -422,7 +409,6 @@ export default class BoeReportService {
     worksheet.getColumn(colIndex++).width = 6; // CGPA
     worksheet.getColumn(colIndex++).width = 12; // Faculty Remark
 
-    // Merge cells for program info (left side)
     worksheet.mergeCells('A5:D5'); // Faculty
     worksheet.mergeCells('A6:D6'); // Program
     worksheet.mergeCells('A7:D7'); // Term
@@ -431,7 +417,6 @@ export default class BoeReportService {
     worksheet.mergeCells('A10:D10'); // Program code
     worksheet.mergeCells('A11:D11'); // Empty row
 
-    // Merge module blocks - module names span vertically from row 5 to row 11
     colIndex = 5;
     moduleColumns.forEach(() => {
       const startCol = this.getColumnLetter(colIndex);
@@ -443,7 +428,6 @@ export default class BoeReportService {
       colIndex += 3;
     });
 
-    // Merge summary columns - each summary header spans vertically from row 5 to row 11
     const summaryHeaders = [
       'No. of Module(s)',
       'Credits Attempted',
@@ -460,7 +444,6 @@ export default class BoeReportService {
       colIndex++;
     });
 
-    // Set row heights
     worksheet.getRow(5).height = 25; // Module names row
     worksheet.getRow(6).height = 20;
     worksheet.getRow(7).height = 20;
@@ -470,10 +453,8 @@ export default class BoeReportService {
     worksheet.getRow(11).height = 20;
     worksheet.getRow(12).height = 25; // Header row
 
-    // Apply borders and formatting
     const totalRows = studentStartRow + programReport.students.length - 1;
 
-    // Border the main data area (from headers down)
     for (let r = 12; r <= totalRows; r++) {
       const row = worksheet.getRow(r);
       for (let c = 1; c <= totalCols; c++) {
@@ -487,7 +468,6 @@ export default class BoeReportService {
 
         // Alignment
         if (c === 2) {
-          // Name column - left align
           cell.alignment = {
             horizontal: 'left',
             vertical: 'middle',
@@ -503,7 +483,6 @@ export default class BoeReportService {
       }
     }
 
-    // Style header row
     const headerRowObj = worksheet.getRow(12);
     for (let c = 1; c <= totalCols; c++) {
       const cell = headerRowObj.getCell(c);
@@ -515,7 +494,6 @@ export default class BoeReportService {
       };
     }
 
-    // Style module header rows (5, 10, 11)
     [5, 10, 11].forEach((rowNum) => {
       const row = worksheet.getRow(rowNum);
       for (let c = 5; c <= 4 + moduleColumns.length * 3; c++) {
@@ -537,7 +515,6 @@ export default class BoeReportService {
       }
     });
 
-    // Add medium border for module blocks
     moduleColumns.forEach((_, idx) => {
       const startCol = 5 + idx * 3;
       const endCol = startCol + 2;
@@ -563,7 +540,6 @@ export default class BoeReportService {
       }
     });
 
-    // Thin borders around summary header merged cells
     const summaryEndCol = summaryStartCol + summaryHeaders.length - 1;
     for (let c = summaryStartCol; c <= summaryEndCol; c++) {
       for (let r = 5; r <= 11; r++) {
@@ -578,7 +554,6 @@ export default class BoeReportService {
       }
     }
 
-    // Thin surrounding border for left info section (rows 5-10, columns 1-4)
     for (let r = 5; r <= 10; r++) {
       for (let c = 1; c <= 4; c++) {
         const cell = worksheet.getRow(r).getCell(c);
@@ -591,7 +566,6 @@ export default class BoeReportService {
       }
     }
 
-    // Thick outer border around whole sheet content starting from row 5 (below header)
     const contentStartRow = 5;
     for (let c = 1; c <= totalCols; c++) {
       const topCell = worksheet.getRow(contentStartRow).getCell(c);
