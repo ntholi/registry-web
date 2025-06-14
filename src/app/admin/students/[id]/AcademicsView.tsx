@@ -112,13 +112,63 @@ export default function AcademicsView({ student, showMarks }: Props) {
                                   {formatSemester(semester.semesterNumber)}
                                 </Text>
                               </Group>
-                              <Group gap='md'>
-                                <Text size='sm' fw={500}>
-                                  GPA: {summary.gpa.toFixed(2)}
-                                </Text>
-                                <Text size='sm' fw={500}>
-                                  CGPA: {cumulativeGPA.toFixed(2)}
-                                </Text>
+                              <Group gap='sm'>
+                                <Group gap='lg'>
+                                  <div style={{ textAlign: 'center' }}>
+                                    <Text 
+                                      size='xs' 
+                                      c='dimmed' 
+                                      fw={500} 
+                                      mb={2}
+                                      tt='uppercase'
+                                      style={{ letterSpacing: '0.5px' }}
+                                    >
+                                      GPA
+                                    </Text>
+                                    <Text 
+                                      size='md' 
+                                      fw={600}
+                                      c={summary.gpa >= 3.0 ? 'green' : 
+                                        summary.gpa >= 2.0 ? 'yellow' : 
+                                        'red'}
+                                      style={{ lineHeight: 1 }}
+                                    >
+                                      {summary.gpa.toFixed(2)}
+                                    </Text>
+                                  </div>
+                                  
+                                  <div 
+                                    style={{ 
+                                      width: '1px', 
+                                      height: '32px', 
+                                      backgroundColor: 'var(--mantine-color-gray-3)',
+                                      opacity: 0.5 
+                                    }} 
+                                  />
+                                  
+                                  <div style={{ textAlign: 'center' }}>
+                                    <Text 
+                                      size='xs' 
+                                      c='dimmed' 
+                                      fw={500} 
+                                      mb={2}
+                                      tt='uppercase'
+                                      style={{ letterSpacing: '0.5px' }}
+                                    >
+                                      CGPA
+                                    </Text>
+                                    <Text 
+                                      size='md' 
+                                      fw={600}
+                                      c={cumulativeGPA >= 3.0 ? 'blue' : 
+                                        cumulativeGPA >= 2.0 ? 'orange' : 
+                                        'red'}
+                                      style={{ lineHeight: 1 }}
+                                    >
+                                      {cumulativeGPA.toFixed(2)}
+                                    </Text>
+                                  </div>
+                                </Group>
                                 <SemesterStatus status={semester.status} />
                               </Group>
                             </Group>
