@@ -150,9 +150,7 @@ export default class BoeReportService {
     );
   }
 
-  private createStudentReports(
-    semesters: StudentSemester[],
-  ): StudentSemesterReport[] {
+  private createStudentReports(semesters: StudentSemester[]) {
     return semesters.map((semester) => {
       const summary = summarizeModules(
         semester.studentModules.map((sm) => ({

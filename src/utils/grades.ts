@@ -145,13 +145,17 @@ export const grades: GradeDefinition[] = [
   },
 ];
 
+export function normalizeGradeSymbol(grade: string): string {
+  return grade.trim().toUpperCase();
+}
+
 /**
  * Get a grade definition by its grade symbol
  * @param grade The grade symbol to look up
  * @returns The complete grade definition or undefined if not found
  */
 export function getGradeBySymbol(grade: string): GradeDefinition | undefined {
-  return grades.find((g) => g.grade === grade);
+  return grades.find((g) => g.grade === normalizeGradeSymbol(grade));
 }
 
 /**
@@ -202,7 +206,7 @@ export function getGradePoints(grade: string): number {
  */
 export function isFailingGrade(grade: string): boolean {
   return ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
-    grade,
+    normalizeGradeSymbol(grade),
   );
 }
 
