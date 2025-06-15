@@ -99,11 +99,11 @@ export function createWorksheet(
   worksheet.addRow([`Term : ${termName}`]);
   worksheet.addRow([`Printing date : ${dateStr}, ${timeStr}`]);
   worksheet.addRow(['By Country : Lesotho']);
-
   const programSemesterLabel = `${programReport.programCode}Y${Math.ceil(
     programReport.semesterNumber / 2,
   )}S${programReport.semesterNumber % 2 === 0 ? 2 : 1}`;
   const row10 = worksheet.addRow([programSemesterLabel]);
+  worksheet.getCell('A10').font = { bold: true };
 
   colIndex = 5;
   moduleColumns.forEach((module) => {
@@ -213,7 +213,12 @@ export function createWorksheet(
       : cgpaVal;
 
     const facultyRemark = student.facultyRemark || 'Proceed';
-    studentRow.getCell(colIndex++).value = facultyRemark;
+    const facultyRemarkCell = studentRow.getCell(colIndex++);
+    facultyRemarkCell.value = facultyRemark;
+    facultyRemarkCell.alignment = {
+      horizontal: 'left',
+      vertical: 'middle',
+    };
   });
 
   const longestName = programReport.students.reduce((longest, student) => {
@@ -221,7 +226,19 @@ export function createWorksheet(
       ? student.studentName
       : longest;
   }, '');
-  const nameColumnWidth = Math.max(longestName.length * 1.1, 25); // 1.1 multiplier for padding, minimum 25
+  const nameColumnWidth = Math.max(longestName.length * 1.1, 25);
+
+  const longestFacultyRemark = programReport.students.reduce(
+    (longest, student) => {
+      const facultyRemark = student.facultyRemark || 'Proceed';
+      return facultyRemark.length > longest.length ? facultyRemark : longest;
+    },
+    '',
+  );
+  const facultyRemarkColumnWidth = Math.max(
+    longestFacultyRemark.length * 1.1,
+    15,
+  ); // 1.1 multiplier for padding, minimum 25
 
   worksheet.getColumn(1).width = 4; // No
   worksheet.getColumn(2).width = nameColumnWidth; // Name
@@ -242,7 +259,7 @@ export function createWorksheet(
   worksheet.getColumn(colIndex++).width = 10; // Total Points Earned
   worksheet.getColumn(colIndex++).width = 6; // GPA
   worksheet.getColumn(colIndex++).width = 6; // CGPA
-  worksheet.getColumn(colIndex++).width = 20; // Faculty Remark
+  worksheet.getColumn(colIndex++).width = facultyRemarkColumnWidth; // Faculty Remark
 
   worksheet.mergeCells('A5:D5'); // Faculty
   worksheet.mergeCells('A6:D6'); // Program
@@ -302,7 +319,7 @@ export function createWorksheet(
         right: { style: 'thin' },
       };
 
-      if (c === 2) {
+      if (c === 2 || c === totalCols) {
         cell.alignment = {
           horizontal: 'left',
           vertical: 'middle',
