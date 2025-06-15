@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs';
-import { ProgramSemesterReport, StudentSemesterReport } from './repository';
 import { getGradePoints, isFailingGrade } from '@/utils/grades';
+import { ProgramSemesterReport, StudentSemesterReport } from './repository';
 
 function getColumnLetter(col: number): string {
   let letter = '';
@@ -100,7 +100,9 @@ export function createWorksheet(
   worksheet.addRow([`Printing date : ${dateStr}, ${timeStr}`]);
   worksheet.addRow(['By Country : Lesotho']);
 
-  const programSemesterLabel = `${programReport.programCode}Y${Math.ceil(programReport.semesterNumber / 2)}S${programReport.semesterNumber % 2 === 0 ? 2 : 1}`;
+  const programSemesterLabel = `${programReport.programCode}Y${Math.ceil(
+    programReport.semesterNumber / 2,
+  )}S${programReport.semesterNumber % 2 === 0 ? 2 : 1}`;
   const row10 = worksheet.addRow([programSemesterLabel]);
 
   colIndex = 5;
@@ -127,6 +129,7 @@ export function createWorksheet(
 
   const headerRow = worksheet.addRow(['No', 'Name', 'StudentID', 'Status']);
 
+  // Add Mk, Gr, Pt headers for each module
   colIndex = 5;
   moduleColumns.forEach(() => {
     headerRow.getCell(colIndex).value = 'Mk';
@@ -197,6 +200,7 @@ export function createWorksheet(
       colIndex += 3;
     });
 
+    // Add summary data
     studentRow.getCell(colIndex++).value = student.modulesCount;
     studentRow.getCell(colIndex++).value = student.creditsAttempted;
     studentRow.getCell(colIndex++).value = student.creditsEarned;
@@ -221,45 +225,45 @@ export function createWorksheet(
       ? student.studentName
       : longest;
   }, '');
-  const nameColumnWidth = Math.max(longestName.length * 1.1, 25);
+  const nameColumnWidth = Math.max(longestName.length * 1.1, 25); // 1.1 multiplier for padding, minimum 25
 
-  worksheet.getColumn(1).width = 4;
-  worksheet.getColumn(2).width = nameColumnWidth;
-  worksheet.getColumn(3).width = 12;
-  worksheet.getColumn(4).width = 8;
+  worksheet.getColumn(1).width = 4; // No
+  worksheet.getColumn(2).width = nameColumnWidth; // Name
+  worksheet.getColumn(3).width = 12; // StudentID
+  worksheet.getColumn(4).width = 8; // Status
 
   colIndex = 5;
   moduleColumns.forEach(() => {
-    worksheet.getColumn(colIndex).width = 6;
-    worksheet.getColumn(colIndex + 1).width = 4;
-    worksheet.getColumn(colIndex + 2).width = 6;
+    worksheet.getColumn(colIndex).width = 6; // Mk
+    worksheet.getColumn(colIndex + 1).width = 4; // Gr
+    worksheet.getColumn(colIndex + 2).width = 6; // Pt
     colIndex += 3;
   });
 
-  worksheet.getColumn(colIndex++).width = 8;
-  worksheet.getColumn(colIndex++).width = 8;
-  worksheet.getColumn(colIndex++).width = 8;
-  worksheet.getColumn(colIndex++).width = 10;
-  worksheet.getColumn(colIndex++).width = 6;
-  worksheet.getColumn(colIndex++).width = 6;
-  worksheet.getColumn(colIndex++).width = 12;
+  worksheet.getColumn(colIndex++).width = 8; // No. of Module(s)
+  worksheet.getColumn(colIndex++).width = 8; // Credits Attempted
+  worksheet.getColumn(colIndex++).width = 8; // Credits Earned
+  worksheet.getColumn(colIndex++).width = 10; // Total Points Earned
+  worksheet.getColumn(colIndex++).width = 6; // GPA
+  worksheet.getColumn(colIndex++).width = 6; // CGPA
+  worksheet.getColumn(colIndex++).width = 12; // Faculty Remark
 
-  worksheet.mergeCells('A5:D5');
-  worksheet.mergeCells('A6:D6');
-  worksheet.mergeCells('A7:D7');
-  worksheet.mergeCells('A8:D8');
-  worksheet.mergeCells('A9:D9');
-  worksheet.mergeCells('A10:D10');
-  worksheet.mergeCells('A11:D11');
+  worksheet.mergeCells('A5:D5'); // Faculty
+  worksheet.mergeCells('A6:D6'); // Program
+  worksheet.mergeCells('A7:D7'); // Term
+  worksheet.mergeCells('A8:D8'); // Printing date
+  worksheet.mergeCells('A9:D9'); // Country
+  worksheet.mergeCells('A10:D10'); // Program code
+  worksheet.mergeCells('A11:D11'); // Empty row
 
   colIndex = 5;
   moduleColumns.forEach(() => {
-    const startColLetter = getColumnLetter(colIndex);
-    const endColLetter = getColumnLetter(colIndex + 2);
+    const startCol = getColumnLetter(colIndex);
+    const endCol = getColumnLetter(colIndex + 2);
 
-    worksheet.mergeCells(`${startColLetter}5:${endColLetter}9`);
-    worksheet.mergeCells(`${startColLetter}10:${endColLetter}10`);
-    worksheet.mergeCells(`${startColLetter}11:${endColLetter}11`);
+    worksheet.mergeCells(`${startCol}5:${endCol}9`);
+    worksheet.mergeCells(`${startCol}10:${endCol}10`);
+    worksheet.mergeCells(`${startCol}11:${endCol}11`);
 
     colIndex += 3;
   });
@@ -350,11 +354,11 @@ export function createWorksheet(
       const topCell = worksheet.getRow(5).getCell(c);
       topCell.border = { ...topCell.border, top: { style: 'medium' } };
 
-      const bottomCell = worksheet.getRow(11).getCell(c);
+      const bottomCell = worksheet.getRow(totalRows).getCell(c);
       bottomCell.border = { ...bottomCell.border, bottom: { style: 'medium' } };
     }
 
-    for (let r = 5; r <= 11; r++) {
+    for (let r = 5; r <= totalRows; r++) {
       const leftCell = worksheet.getRow(r).getCell(startCol);
       leftCell.border = { ...leftCell.border, left: { style: 'medium' } };
 
@@ -368,15 +372,12 @@ export function createWorksheet(
     for (let r = 5; r <= 11; r++) {
       const cell = worksheet.getRow(r).getCell(c);
       cell.border = {
+        ...cell.border,
         top: { style: 'thin' },
         left: { style: 'thin' },
         bottom: { style: 'thin' },
         right: { style: 'thin' },
       };
-      if (r === 5) cell.border.top = { style: 'medium' };
-      if (r === 11) cell.border.bottom = { style: 'medium' };
-      if (c === summaryStartCol) cell.border.left = { style: 'medium' };
-      if (c === summaryEndCol) cell.border.right = { style: 'medium' };
     }
   }
 
@@ -398,10 +399,7 @@ export function createWorksheet(
     topCell.border = { ...topCell.border, top: { style: 'thick' } };
 
     const bottomCell = worksheet.getRow(totalRows).getCell(c);
-    bottomCell.border = {
-      ...bottomCell.border,
-      bottom: { style: 'thick' },
-    };
+    bottomCell.border = { ...bottomCell.border, bottom: { style: 'thick' } };
   }
 
   for (let r = contentStartRow; r <= totalRows; r++) {

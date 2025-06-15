@@ -253,9 +253,9 @@ export type ModuleSummaryInput = {
 };
 
 export function summarizeModules(modules: ModuleSummaryInput[]) {
-  const relevant = modules.filter(
-    (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
-  );
+  const relevant = modules
+    .filter((m) => !['Delete', 'Drop'].includes(m.status ?? ''))
+    .filter((m) => m.grade !== 'NM' && m.grade !== '');
 
   let points = 0;
   let creditsAttempted = 0;
