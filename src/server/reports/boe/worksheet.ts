@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import { getGradePoints, isFailingGrade } from '@/utils/grades';
+import { getGradePoints } from '@/utils/grades';
 import { ProgramSemesterReport, StudentSemesterReport } from './repository';
 
 function getColumnLetter(col: number): string {
@@ -129,7 +129,6 @@ export function createWorksheet(
 
   const headerRow = worksheet.addRow(['No', 'Name', 'StudentID', 'Status']);
 
-  // Add Mk, Gr, Pt headers for each module
   colIndex = 5;
   moduleColumns.forEach(() => {
     headerRow.getCell(colIndex).value = 'Mk';
@@ -200,7 +199,6 @@ export function createWorksheet(
       colIndex += 3;
     });
 
-    // Add summary data
     studentRow.getCell(colIndex++).value = student.modulesCount;
     studentRow.getCell(colIndex++).value = student.creditsAttempted;
     studentRow.getCell(colIndex++).value = student.creditsEarned;
@@ -214,10 +212,7 @@ export function createWorksheet(
       ? student.cgpa
       : cgpaVal;
 
-    const hasFail = student.studentModules.some((sm) =>
-      isFailingGrade(sm.grade),
-    );
-    const facultyRemark = hasFail ? 'Probation' : 'Proceed';
+    const facultyRemark = student.facultyRemark || 'Proceed';
     studentRow.getCell(colIndex++).value = facultyRemark;
   });
 
@@ -247,7 +242,7 @@ export function createWorksheet(
   worksheet.getColumn(colIndex++).width = 10; // Total Points Earned
   worksheet.getColumn(colIndex++).width = 6; // GPA
   worksheet.getColumn(colIndex++).width = 6; // CGPA
-  worksheet.getColumn(colIndex++).width = 12; // Faculty Remark
+  worksheet.getColumn(colIndex++).width = 20; // Faculty Remark
 
   worksheet.mergeCells('A5:D5'); // Faculty
   worksheet.mergeCells('A6:D6'); // Program

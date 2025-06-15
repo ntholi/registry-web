@@ -29,6 +29,7 @@ export interface StudentSemesterReport {
   totalPoints: number;
   gpa: string;
   cgpa: string;
+  facultyRemark?: string;
 }
 
 export interface ProgramSemesterReport {

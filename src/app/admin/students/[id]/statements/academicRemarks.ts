@@ -1,3 +1,12 @@
+import {
+  isFailingGrade,
+  isSupplementaryGrade,
+  ModuleForRemarks,
+  SemesterModuleData,
+  FacultyRemarksResult,
+  calculateFacultyRemarks,
+} from '@/utils/grades';
+
 type StudentModule = {
   grade: string;
   status: string;
@@ -39,12 +48,6 @@ type AcademicRemarksResult = {
   }[];
   details: string;
 };
-
-import { isFailingGrade } from '@/utils/grades';
-
-function isSupplementaryGrade(grade: string): boolean {
-  return grade === 'PP';
-}
 
 function extractSemesterNumber(term: string): number {
   const match = term.match(/(\d+)/);
@@ -186,6 +189,52 @@ function getAllPendingModules(
   return pendingModules;
 }
 
+/**
+ * Convert programs data to the new semester module data format
+ */
+function convertToSemesterModuleData(
+  programs: Program[],
+): SemesterModuleData[] {
+  const semesterDataMap = new Map<number, ModuleForRemarks[]>();
+
+  programs.forEach((program) => {
+    program.semesters?.forEach((semester) => {
+      const semesterNumber = extractSemesterNumber(semester.term);
+
+      if (!semesterDataMap.has(semesterNumber)) {
+        semesterDataMap.set(semesterNumber, []);
+      }
+
+      const modules = semesterDataMap.get(semesterNumber)!;
+
+      semester.studentModules?.forEach((module) => {
+        if (!['Delete', 'Drop'].includes(module.status)) {
+          modules.push({
+            code:
+              module.semesterModule.module?.code ??
+              `ID:${module.semesterModuleId}`,
+            name:
+              module.semesterModule.module?.name ??
+              `Semester Module ID: ${module.semesterModuleId}`,
+            grade: module.grade,
+            credits: module.semesterModule.credits,
+            status: module.status as any,
+            semesterNumber,
+            semesterModuleId: module.semesterModuleId,
+          });
+        }
+      });
+    });
+  });
+
+  return Array.from(semesterDataMap.entries()).map(
+    ([semesterNumber, modules]) => ({
+      semesterNumber,
+      modules,
+    }),
+  );
+}
+
 export function calculateAcademicRemarks(
   programs: Program[],
 ): AcademicRemarksResult {
@@ -245,4 +294,68 @@ export function calculateAcademicRemarks(
     pendingModules,
     details,
   };
+}
+
+/**
+ * Calculate faculty remarks using the new shared logic from grades.ts
+ * This provides more detailed remarks including specific module codes
+ */
+export function calculateDetailedFacultyRemarks(
+  programs: Program[],
+): FacultyRemarksResult {
+  const activePrograms = programs.filter(
+    (program) => program.status === 'Active',
+  );
+
+  const filteredPrograms = activePrograms.map((program) => ({
+    ...program,
+    semesters: program.semesters
+      ?.filter((semester) => !['Deleted', 'Deferred'].includes(semester.status))
+      .map((semester) => ({
+        ...semester,
+        studentModules: semester.studentModules?.filter(
+          (module) => !['Delete', 'Drop'].includes(module.status),
+        ),
+      })),
+  }));
+
+  // Convert to new data structure
+  const semesterData = convertToSemesterModuleData(filteredPrograms);
+  const nextSemesterNumber = getNextSemesterNumber(filteredPrograms);
+
+  // Get the latest semester modules for current semester analysis
+  let latestSemesterNumber = 0;
+  let latestSemesterModules: (ModuleForRemarks & {
+    code: string;
+    name: string;
+  })[] = [];
+
+  filteredPrograms.forEach((program) => {
+    program.semesters?.forEach((semester) => {
+      const semesterNum = extractSemesterNumber(semester.term);
+      if (semesterNum > latestSemesterNumber) {
+        latestSemesterNumber = semesterNum;
+        latestSemesterModules =
+          semester.studentModules?.map((module) => ({
+            code:
+              module.semesterModule.module?.code ??
+              `ID:${module.semesterModuleId}`,
+            name:
+              module.semesterModule.module?.name ??
+              `Semester Module ID: ${module.semesterModuleId}`,
+            grade: module.grade,
+            credits: module.semesterModule.credits,
+            status: module.status as any,
+            semesterNumber: semesterNum,
+            semesterModuleId: module.semesterModuleId,
+          })) ?? [];
+      }
+    });
+  });
+  // Use the new shared calculation logic
+  return calculateFacultyRemarks(
+    latestSemesterModules,
+    semesterData.filter((s) => s.semesterNumber < latestSemesterNumber),
+    nextSemesterNumber,
+  );
 }

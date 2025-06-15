@@ -1,7 +1,12 @@
 import { db } from '@/db';
 import { Grade, moduleGrades, ModuleStatus, schools } from '@/db/schema';
 import { termsRepository } from '@/server/terms/repository';
-import { summarizeModules } from '@/utils/grades';
+import {
+  summarizeModules,
+  calculateFacultyRemarks,
+  ModuleForRemarks,
+  SemesterModuleData,
+} from '@/utils/grades';
 import { and, inArray } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
 import { boeReportRepository, ProgramSemesterReport } from './repository';
@@ -43,7 +48,6 @@ export default class BoeReportService {
         const updatedCurrentSemesters = await this.extractAndUpdateModuleGrades(
           semesters as StudentSemester[],
         );
-
         const programReport: ProgramSemesterReport = {
           programId: parseInt(programId),
           programCode:
@@ -54,6 +58,7 @@ export default class BoeReportService {
           students: this.createStudentReports(
             updatedCurrentSemesters,
             allStudentSemesters as StudentSemester[],
+            parseInt(semesterNumber),
           ),
         };
 
@@ -165,10 +170,10 @@ export default class BoeReportService {
       {} as Record<string, StudentSemester[]>,
     );
   }
-
   private createStudentReports(
     semesters: StudentSemester[],
     allStudentSemesters: StudentSemester[],
+    currentSemesterNumber: number,
   ) {
     return semesters.map((semester) => {
       const student = semester.studentProgram.student;
@@ -185,9 +190,56 @@ export default class BoeReportService {
           credits: Number(sm.semesterModule.credits),
           status: (sm.status as ModuleStatus) || 'Active',
         }));
-
       const allSummary = summarizeModules(moduleData(allModules));
       const currentSummary = summarizeModules(moduleData(currentModules));
+
+      const currentSemesterModules = currentModules.map((sm) => ({
+        code: sm.semesterModule.module?.code || '',
+        name: sm.semesterModule.module?.name || '',
+        grade: sm.grade,
+        credits: Number(sm.semesterModule.credits),
+        status: (sm.status as ModuleStatus) || 'Active',
+      }));
+
+      const historicalSemesters: SemesterModuleData[] = [];
+      const semesterGroups = new Map<number, ModuleForRemarks[]>();
+
+      studentSemesters.forEach((ss) => {
+        const semNum = ss.semesterNumber || 0;
+        if (semNum < currentSemesterNumber) {
+          if (!semesterGroups.has(semNum)) {
+            semesterGroups.set(semNum, []);
+          }
+
+          ss.studentModules.forEach((sm) => {
+            semesterGroups.get(semNum)!.push({
+              code: sm.semesterModule.module?.code || '',
+              name: sm.semesterModule.module?.name || '',
+              grade: sm.grade,
+              credits: Number(sm.semesterModule.credits),
+              status: (sm.status as ModuleStatus) || 'Active',
+              semesterNumber: semNum,
+              semesterModuleId: sm.semesterModuleId,
+            });
+          });
+        }
+      });
+
+      historicalSemesters.push(
+        ...Array.from(semesterGroups.entries()).map(
+          ([semesterNumber, modules]) => ({
+            semesterNumber,
+            modules,
+          }),
+        ),
+      );
+
+      const nextSemesterNumber = currentSemesterNumber + 1;
+      const facultyRemarksResult = calculateFacultyRemarks(
+        currentSemesterModules,
+        historicalSemesters,
+        nextSemesterNumber,
+      );
 
       return {
         studentId: student.stdNo,
@@ -207,6 +259,7 @@ export default class BoeReportService {
         totalPoints: currentSummary.points,
         gpa: currentSummary.gpa.toFixed(2),
         cgpa: allSummary.gpa.toFixed(2),
+        facultyRemark: facultyRemarksResult.message,
       };
     });
   }
