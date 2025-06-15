@@ -253,26 +253,38 @@ export type ModuleSummaryInput = {
 };
 
 export function summarizeModules(modules: ModuleSummaryInput[]) {
-  const relevant = modules
-    .filter((m) => !['Delete', 'Drop'].includes(m.status ?? ''))
-    .filter((m) => m.grade !== 'NM' && m.grade !== '');
+  const relevant = modules.filter(
+    (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
+  );
 
   let points = 0;
   let creditsAttempted = 0;
+  let creditsForGPA = 0;
 
   const creditsCompleted = relevant.reduce((sum, m) => {
+    const normalizedGrade = normalizeGradeSymbol(m.grade);
+
+    if (normalizedGrade === 'NM' || normalizedGrade === '') {
+      return sum;
+    }
+
     const gradePoints = getGradePoints(m.grade);
     return gradePoints > 0 ? sum + m.credits : sum;
   }, 0);
 
   relevant.forEach((m) => {
+    const normalizedGrade = normalizeGradeSymbol(m.grade);
     const gradePoints = getGradePoints(m.grade);
     const gradeDefinition = getGradeBySymbol(m.grade);
 
     creditsAttempted += m.credits;
 
-    if (gradeDefinition && gradeDefinition.gpa !== null) {
-      points += gradePoints * m.credits;
+    if (normalizedGrade !== 'NM' && normalizedGrade !== '') {
+      creditsForGPA += m.credits;
+
+      if (gradeDefinition && gradeDefinition.gpa !== null) {
+        points += gradePoints * m.credits;
+      }
     }
   });
 
@@ -280,10 +292,10 @@ export function summarizeModules(modules: ModuleSummaryInput[]) {
     points,
     creditsAttempted,
     creditsCompleted,
-    gpa: calculateGPA(points, creditsAttempted),
+    gpa: calculateGPA(points, creditsForGPA),
   };
 }
 
-export function calculateGPA(points: number, attemptedCredits: number) {
-  return attemptedCredits > 0 ? points / attemptedCredits : 0;
+export function calculateGPA(points: number, creditsForGPA: number) {
+  return creditsForGPA > 0 ? points / creditsForGPA : 0;
 }
