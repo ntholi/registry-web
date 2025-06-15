@@ -217,7 +217,8 @@ export function createWorksheet(
     const hasFail = student.studentModules.some((sm) =>
       isFailingGrade(sm.grade),
     );
-    studentRow.getCell(colIndex++).value = hasFail ? 'Probation' : 'Proceed';
+    const facultyRemark = hasFail ? 'Probation' : 'Proceed';
+    studentRow.getCell(colIndex++).value = facultyRemark;
   });
 
   const longestName = programReport.students.reduce((longest, student) => {

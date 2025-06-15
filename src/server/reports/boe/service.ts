@@ -1,6 +1,8 @@
-import { ModuleStatus, schools } from '@/db/schema';
+import { db } from '@/db';
+import { Grade, moduleGrades, ModuleStatus, schools } from '@/db/schema';
 import { termsRepository } from '@/server/terms/repository';
 import { summarizeModules } from '@/utils/grades';
+import { and, inArray } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
 import { boeReportRepository, ProgramSemesterReport } from './repository';
 import { createWorksheet } from './worksheet';
@@ -12,7 +14,6 @@ type StudentSemester = Awaited<
 
 export default class BoeReportService {
   private repository = boeReportRepository;
-
   async generateBoeReportForFaculty(school: School): Promise<Buffer> {
     const currentTerm = await termsRepository.getActive();
     if (!currentTerm) {
@@ -24,7 +25,6 @@ export default class BoeReportService {
         school.id,
         currentTerm.name,
       );
-
     const allStudentSemesters =
       await this.repository.getStudentSemesterHistoryForFaculty(school.id);
 
@@ -40,6 +40,10 @@ export default class BoeReportService {
       for (const [semesterNumber, semesters] of Object.entries(
         semesterGroups,
       )) {
+        const updatedCurrentSemesters = await this.extractAndUpdateModuleGrades(
+          semesters as StudentSemester[],
+        );
+
         const programReport: ProgramSemesterReport = {
           programId: parseInt(programId),
           programCode:
@@ -48,7 +52,7 @@ export default class BoeReportService {
             semesters[0]?.studentProgram.structure.program.name || '',
           semesterNumber: parseInt(semesterNumber),
           students: this.createStudentReports(
-            semesters as StudentSemester[],
+            updatedCurrentSemesters,
             allStudentSemesters as StudentSemester[],
           ),
         };
@@ -69,6 +73,69 @@ export default class BoeReportService {
 
     const buffer = await workbook.xlsx.writeBuffer();
     return Buffer.from(buffer);
+  }
+
+  private async extractAndUpdateModuleGrades(semesters: StudentSemester[]) {
+    const moduleStudentPairs: Array<{
+      moduleId: number;
+      stdNo: number;
+      semesterModuleId: number;
+    }> = [];
+
+    semesters.forEach((semester) => {
+      const student = semester.studentProgram.student;
+      semester.studentModules.forEach((studentModule) => {
+        if (studentModule.semesterModule.moduleId) {
+          moduleStudentPairs.push({
+            moduleId: studentModule.semesterModule.moduleId,
+            stdNo: student.stdNo,
+            semesterModuleId: studentModule.semesterModuleId,
+          });
+        }
+      });
+    });
+
+    if (moduleStudentPairs.length === 0) {
+      return semesters;
+    }
+
+    const moduleIds = [...new Set(moduleStudentPairs.map((p) => p.moduleId))];
+    const stdNos = [...new Set(moduleStudentPairs.map((p) => p.stdNo))];
+
+    const moduleGradesData = await db.query.moduleGrades.findMany({
+      where: and(
+        inArray(moduleGrades.moduleId, moduleIds),
+        inArray(moduleGrades.stdNo, stdNos),
+      ),
+    });
+    const gradesMap = new Map<
+      string,
+      { grade: Grade; weightedTotal: number }
+    >();
+    moduleGradesData.forEach((gradeData) => {
+      const key = `${gradeData.moduleId}-${gradeData.stdNo}`;
+      gradesMap.set(key, {
+        grade: gradeData.grade,
+        weightedTotal: gradeData.weightedTotal,
+      });
+    });
+
+    semesters.forEach((semester) => {
+      const student = semester.studentProgram.student;
+      semester.studentModules.forEach((studentModule) => {
+        if (studentModule.semesterModule.moduleId) {
+          const key = `${studentModule.semesterModule.moduleId}-${student.stdNo}`;
+          const gradeData = gradesMap.get(key);
+
+          if (gradeData) {
+            studentModule.grade = gradeData.grade;
+            studentModule.marks = gradeData.weightedTotal.toString();
+          }
+        }
+      });
+    });
+
+    return semesters;
   }
 
   private groupBySemesterNumber(studentSemesters: StudentSemester[]) {
@@ -98,6 +165,7 @@ export default class BoeReportService {
       {} as Record<string, StudentSemester[]>,
     );
   }
+
   private createStudentReports(
     semesters: StudentSemester[],
     allStudentSemesters: StudentSemester[],
