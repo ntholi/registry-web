@@ -45,7 +45,7 @@ export default class BoeReportService {
       for (const [semesterNumber, semesters] of Object.entries(
         semesterGroups,
       )) {
-        const updatedCurrentSemesters = await this.extractAndUpdateModuleGrades(
+        const updatedCurrentSemesters = await this.mapCurrentSemesterGrades(
           semesters as StudentSemester[],
         );
         const programReport: ProgramSemesterReport = {
@@ -79,8 +79,14 @@ export default class BoeReportService {
     const buffer = await workbook.xlsx.writeBuffer();
     return Buffer.from(buffer);
   }
+  private async mapCurrentSemesterGrades(semesters: StudentSemester[]) {
+    semesters.forEach((semester) => {
+      semester.studentModules.forEach((studentModule) => {
+        studentModule.grade = 'NM' as Grade;
+        studentModule.marks = '';
+      });
+    });
 
-  private async extractAndUpdateModuleGrades(semesters: StudentSemester[]) {
     const moduleStudentPairs: Array<{
       moduleId: number;
       stdNo: number;
@@ -113,6 +119,7 @@ export default class BoeReportService {
         inArray(moduleGrades.stdNo, stdNos),
       ),
     });
+
     const gradesMap = new Map<
       string,
       { grade: Grade; weightedTotal: number }
@@ -175,7 +182,7 @@ export default class BoeReportService {
     allStudentSemesters: StudentSemester[],
     currentSemesterNumber: number,
   ) {
-    return semesters.map((semester) => {
+    const studentReports = semesters.map((semester) => {
       const student = semester.studentProgram.student;
       const studentSemesters = allStudentSemesters.filter(
         (s) => s.studentProgram.student.stdNo === student.stdNo,
@@ -262,6 +269,10 @@ export default class BoeReportService {
         facultyRemark: facultyRemarksResult.message,
       };
     });
+
+    return studentReports.sort(
+      (a, b) => parseFloat(b.cgpa) - parseFloat(a.cgpa),
+    );
   }
 }
 
