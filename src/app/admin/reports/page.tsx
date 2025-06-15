@@ -8,7 +8,11 @@ import {
   Title,
   UnstyledButton,
 } from '@mantine/core';
-import { IconFilePencil } from '@tabler/icons-react';
+import {
+  IconFilePencil,
+  IconFileText,
+  IconChartBar,
+} from '@tabler/icons-react';
 import Link from 'next/link';
 
 export default function ReportsPage() {
@@ -18,7 +22,43 @@ export default function ReportsPage() {
 
   return (
     <Stack>
-      <Title order={2}>Clearance Reports</Title>
+      <Title order={2}>Reports</Title>
+      <Text c='dimmed' size='sm'>
+        Generate various reports for the university
+      </Text>
+
+      <Title order={3} mt='lg'>
+        Academic Reports
+      </Title>
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
+        <UnstyledButton component={Link} href='/admin/reports/boe'>
+          <Card withBorder shadow='sm' padding='lg'>
+            <Stack gap='xs' align='center'>
+              <IconChartBar size={24} />
+              <Text fw={500}>BOE Reports</Text>
+              <Text size='sm' c='dimmed'>
+                Generate Board of Examination reports
+              </Text>
+            </Stack>
+          </Card>
+        </UnstyledButton>
+
+        <UnstyledButton component={Link} href='/admin/reports/course-summary'>
+          <Card withBorder shadow='sm' padding='lg'>
+            <Stack gap='xs' align='center'>
+              <IconFileText size={24} />
+              <Text fw={500}>Course Summary Reports</Text>
+              <Text size='sm' c='dimmed'>
+                Generate course summary reports
+              </Text>
+            </Stack>
+          </Card>
+        </UnstyledButton>
+      </SimpleGrid>
+
+      <Title order={3} mt='lg'>
+        Clearance Reports
+      </Title>
       <Text c='dimmed' size='sm'>
         Select a department to view clearance statistics
       </Text>
