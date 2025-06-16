@@ -16,6 +16,7 @@ import {
   Loader,
   Stack,
   Select,
+  Alert,
 } from '@mantine/core';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { notifications } from '@mantine/notifications';
@@ -161,9 +162,19 @@ export default function Body() {
     },
   });
   const canGenerate = selectedModuleId;
-
   return (
     <Stack align='center' justify='center' p='xl'>
+      <Alert
+        variant='light'
+        color='orange'
+        title='Under Development'
+        w='100%'
+        maw={600}
+        mb='md'
+      >
+        This feature is currently under development. Some functionality may be
+        limited or subject to change.
+      </Alert>
       <Card shadow='md' radius='md' withBorder w='100%' maw={600}>
         <CardSection inheritPadding py='md'>
           <Title order={3}>Course Summary Report Generation</Title>
