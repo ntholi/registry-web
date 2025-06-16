@@ -344,8 +344,10 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
-        {modules.map((module) => (
-          <Table.Tr key={`${module.id}-${module.marks}-${module.status}`}>
+        {modules.map((module, idx) => (
+          <Table.Tr
+            key={`${module.id}-${module.marks}-${module.status}-${idx}`}
+          >
             <Table.Td>
               {modulesWithFailHistory.includes(module.code) ? (
                 <Tooltip
