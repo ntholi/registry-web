@@ -30,8 +30,6 @@ export default class BoeReportService {
         school.id,
         currentTerm.name,
       );
-    const allStudentSemesters =
-      await this.repository.getStudentSemesterHistoryForFaculty(school.id);
 
     const programGroups = this.groupByProgram(
       studentSemesters as StudentSemester[],
@@ -48,6 +46,15 @@ export default class BoeReportService {
         const updatedCurrentSemesters = await this.mapCurrentSemesterGrades(
           semesters as StudentSemester[],
         );
+
+        const studentNumbers = updatedCurrentSemesters.map(
+          (s) => s.studentProgram.student.stdNo,
+        );
+        const allStudentSemesters =
+          await this.repository.getStudentSemesterHistoryForStudents(
+            studentNumbers,
+          );
+
         const programReport: ProgramSemesterReport = {
           programId: parseInt(programId),
           programCode:

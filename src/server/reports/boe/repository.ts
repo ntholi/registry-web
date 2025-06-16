@@ -159,11 +159,19 @@ export default class BoeReportRepository extends BaseRepository<
       })
       .then((rows) => rows.map((row) => row.id));
 
+    if (programIds.length === 0) {
+      return [];
+    }
+
     const structureIds = await db
       .select({ id: structures.id })
       .from(structures)
       .where(inArray(structures.programId, programIds))
       .then((rows) => rows.map((row) => row.id));
+
+    if (structureIds.length === 0) {
+      return [];
+    }
 
     const studentProgramIds = await db
       .select({ id: studentPrograms.id })
@@ -171,34 +179,101 @@ export default class BoeReportRepository extends BaseRepository<
       .where(inArray(studentPrograms.structureId, structureIds))
       .then((rows) => rows.map((row) => row.id));
 
-    return await db.query.studentSemesters.findMany({
-      where: inArray(studentSemesters.studentProgramId, studentProgramIds),
-      orderBy: [
-        asc(studentSemesters.term),
-        asc(studentSemesters.semesterNumber),
-      ],
-      with: {
-        studentProgram: {
-          with: {
-            student: true,
-            structure: {
-              with: {
-                program: true,
+    if (studentProgramIds.length === 0) {
+      return [];
+    }
+
+    const allResults = [];
+    const batchSize = 100;
+
+    for (let i = 0; i < studentProgramIds.length; i += batchSize) {
+      const batch = studentProgramIds.slice(i, i + batchSize);
+
+      const batchResults = await db.query.studentSemesters.findMany({
+        where: inArray(studentSemesters.studentProgramId, batch),
+        orderBy: [
+          asc(studentSemesters.term),
+          asc(studentSemesters.semesterNumber),
+        ],
+        with: {
+          studentProgram: {
+            with: {
+              student: true,
+              structure: {
+                with: {
+                  program: true,
+                },
+              },
+            },
+          },
+          studentModules: {
+            with: {
+              semesterModule: {
+                with: {
+                  module: true,
+                },
               },
             },
           },
         },
-        studentModules: {
-          with: {
-            semesterModule: {
-              with: {
-                module: true,
+      });
+
+      allResults.push(...batchResults);
+    }
+
+    return allResults;
+  }
+
+  async getStudentSemesterHistoryForStudents(studentNumbers: number[]) {
+    if (studentNumbers.length === 0) {
+      return [];
+    }
+
+    const allResults = [];
+    const batchSize = 50;
+
+    for (let i = 0; i < studentNumbers.length; i += batchSize) {
+      const batch = studentNumbers.slice(i, i + batchSize);
+
+      const batchResults = await db.query.studentSemesters.findMany({
+        where: inArray(
+          studentSemesters.studentProgramId,
+          db
+            .select({ id: studentPrograms.id })
+            .from(studentPrograms)
+            .where(inArray(studentPrograms.stdNo, batch)),
+        ),
+        orderBy: [
+          asc(studentSemesters.term),
+          asc(studentSemesters.semesterNumber),
+        ],
+        with: {
+          studentProgram: {
+            with: {
+              student: true,
+              structure: {
+                with: {
+                  program: true,
+                },
+              },
+            },
+          },
+          studentModules: {
+            with: {
+              semesterModule: {
+                with: {
+                  module: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
+
+      allResults.push(...batchResults);
+    }
+
+    return allResults;
   }
 }
 

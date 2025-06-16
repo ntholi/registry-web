@@ -277,6 +277,7 @@ function getNavigation(department: DashboardUser) {
           icon: IconCopyCheck,
           roles: ['academic'],
           isVisible: (session) => {
+            if (session?.user?.role === 'admin') return true;
             const academicRole = session?.user?.position as UserPosition;
             return (
               academicRole &&
