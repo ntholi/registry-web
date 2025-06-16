@@ -12,12 +12,18 @@ import {
   PageBreak,
   Header,
   Footer,
+  ImageRun,
 } from 'docx';
+import * as fs from 'fs';
+import * as path from 'path';
 import { CourseSummaryReport } from './repository';
 
 export function createCourseSummaryDocument(
   report: CourseSummaryReport,
 ): Document {
+  const logoPath = path.join(process.cwd(), 'public', 'images', 'logo.png');
+  const logoImage = fs.readFileSync(logoPath);
+
   const doc = new Document({
     creator: 'Limkokwing University Registry System',
     title: `Course Summary Report - ${report.courseCode}`,
@@ -33,34 +39,6 @@ export function createCourseSummaryDocument(
               left: 720,
             },
           },
-        },
-        headers: {
-          default: new Header({
-            children: [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: 'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY',
-                    bold: true,
-                    size: 16,
-                  }),
-                ],
-                alignment: AlignmentType.CENTER,
-                spacing: { after: 120 },
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: 'LESOTHO',
-                    bold: true,
-                    size: 14,
-                  }),
-                ],
-                alignment: AlignmentType.CENTER,
-                spacing: { after: 240 },
-              }),
-            ],
-          }),
         },
         footers: {
           default: new Footer({
@@ -87,6 +65,31 @@ export function createCourseSummaryDocument(
         children: [
           new Paragraph({
             children: [
+              new ImageRun({
+                data: logoImage,
+                transformation: {
+                  width: 300,
+                  height: 120,
+                },
+                type: 'png',
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 120 },
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'LESOTHO',
+                bold: true,
+                size: 20,
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 240 },
+          }),
+          new Paragraph({
+            children: [
               new TextRun({
                 text: 'BOARD OF EXAMINATION',
                 bold: true,
@@ -107,12 +110,7 @@ export function createCourseSummaryDocument(
             alignment: AlignmentType.CENTER,
             spacing: { after: 360 },
           }),
-          createInfoTable(report),
-          new Paragraph({
-            text: '',
-            spacing: { after: 240 },
-          }),
-          createStatisticsTable(report),
+          createCombinedInfoTable(report),
           new Paragraph({
             children: [
               new TextRun({
@@ -183,6 +181,558 @@ export function createCourseSummaryDocument(
     ],
   });
   return doc;
+}
+
+function createCombinedInfoTable(report: CourseSummaryReport): Table {
+  return new Table({
+    rows: [
+      new TableRow({
+        height: { value: 600, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'Principal Lecturer',
+                    bold: true,
+                    size: 20,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            width: { size: 30, type: WidthType.PERCENTAGE },
+            shading: { fill: '000000' },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              left: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              right: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: report.principalLecturer,
+                    size: 20,
+                  }),
+                ],
+                spacing: { before: 80, after: 80 },
+              }),
+            ],
+            width: { size: 70, type: WidthType.PERCENTAGE },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+          }),
+        ],
+      }),
+      new TableRow({
+        height: { value: 600, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'Course Name',
+                    bold: true,
+                    size: 20,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            shading: { fill: '000000' },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              left: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              right: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: report.courseName,
+                    size: 20,
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+          }),
+        ],
+      }),
+      new TableRow({
+        height: { value: 600, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'Program',
+                    bold: true,
+                    size: 20,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            shading: { fill: '000000' },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              left: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              right: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: report.programName,
+                    size: 20,
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+          }),
+        ],
+      }),
+      new TableRow({
+        height: { value: 600, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'Course Code',
+                    bold: true,
+                    size: 20,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            shading: { fill: '000000' },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              left: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              right: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: report.courseCode,
+                    size: 20,
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+          }),
+        ],
+      }),
+      new TableRow({
+        height: { value: 600, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'Date',
+                    bold: true,
+                    size: 20,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            shading: { fill: '000000' },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              left: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              right: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: report.date,
+                    size: 20,
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+          }),
+        ],
+      }),
+      new TableRow({
+        height: { value: 300, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                text: '',
+                spacing: { before: 0, after: 0 },
+              }),
+            ],
+            borders: {
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+              right: { style: BorderStyle.NONE },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                text: '',
+                spacing: { before: 0, after: 0 },
+              }),
+            ],
+            borders: {
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+            },
+          }),
+        ],
+      }),
+      new TableRow({
+        height: { value: 600, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'Number of Students',
+                    bold: true,
+                    size: 20,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            shading: { fill: '000000' },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              left: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              right: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: report.totalStudents.toString(),
+                    size: 20,
+                  }),
+                ],
+                alignment: AlignmentType.CENTER,
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+          }),
+        ],
+      }),
+      new TableRow({
+        height: { value: 600, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'Number of Passes',
+                    bold: true,
+                    size: 20,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            shading: { fill: '000000' },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              left: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              right: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: report.totalPasses.toString(),
+                    size: 20,
+                  }),
+                ],
+                alignment: AlignmentType.CENTER,
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+          }),
+        ],
+      }),
+      new TableRow({
+        height: { value: 600, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'Number of Failures',
+                    bold: true,
+                    size: 20,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 30, after: 0 },
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: '(to repeat module)',
+                    italics: true,
+                    size: 16,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 0, after: 30 },
+              }),
+            ],
+            shading: { fill: '000000' },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              left: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              right: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: report.totalFailures.toString(),
+                    size: 20,
+                  }),
+                ],
+                alignment: AlignmentType.CENTER,
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+          }),
+        ],
+      }),
+      new TableRow({
+        height: { value: 600, rule: 'exact' },
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'Number of Supplementary',
+                    bold: true,
+                    size: 20,
+                    color: 'FFFFFF',
+                  }),
+                ],
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            shading: { fill: '000000' },
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              left: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+              right: { style: BorderStyle.SINGLE, size: 2, color: 'FFFFFF' },
+            },
+          }),
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: report.totalSupplementary.toString(),
+                    size: 20,
+                  }),
+                ],
+                alignment: AlignmentType.CENTER,
+                spacing: { before: 60, after: 60 },
+              }),
+            ],
+            verticalAlign: 'center',
+            margins: {
+              top: 120,
+              bottom: 120,
+              left: 120,
+              right: 120,
+            },
+          }),
+        ],
+      }),
+    ],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: {
+      top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+    },
+  });
 }
 
 function createInfoTable(report: CourseSummaryReport): Table {
@@ -405,6 +955,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                     text: 'Number of Passes',
                     bold: true,
                     size: 20,
+                    color: 'FFFFFF',
                   }),
                 ],
               }),
@@ -436,6 +987,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                     text: 'Number of Failures',
                     bold: true,
                     size: 20,
+                    color: 'FFFFFF',
                   }),
                 ],
               }),
@@ -467,6 +1019,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                     text: '(to repeat module)',
                     italics: true,
                     size: 16,
+                    color: 'FFFFFF',
                   }),
                 ],
               }),
@@ -488,6 +1041,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                     text: 'Number of Supplementary',
                     bold: true,
                     size: 20,
+                    color: 'FFFFFF',
                   }),
                 ],
               }),
