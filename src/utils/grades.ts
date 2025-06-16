@@ -68,6 +68,12 @@ export const grades: GradeDefinition[] = [
     marksRange: { min: 50, max: 54 },
   },
   {
+    grade: 'PP',
+    gpa: 0.0,
+    description: 'Pass Provisional',
+    marksRange: { min: 45, max: 49 },
+  },
+  {
     grade: 'F',
     gpa: 0.0,
     description: 'Fail',
