@@ -308,6 +308,7 @@ export function summarizeModules(modules: ModuleSummaryInput[]) {
     creditsAttempted,
     creditsCompleted,
     gpa: calculateGPA(points, creditsForGPA),
+    isNoMarks: false,
   };
 }
 
@@ -347,14 +348,6 @@ export type FacultyRemarksResult = {
 };
 
 /**
- * Extract semester number from term string (e.g., "Semester 1" -> 1)
- */
-function extractSemesterNumber(term: string): number {
-  const match = term.match(/(\d+)/);
-  return match ? parseInt(match[1], 10) : 0;
-}
-
-/**
  * Calculate faculty remarks for a student based on current and historical semester data
  * @param currentSemesterModules Modules from the current semester
  * @param historicalSemesters All previous semester data for the student
@@ -373,6 +366,21 @@ export function calculateFacultyRemarks(
   const relevantCurrentModules = currentSemesterModules.filter(
     (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
   );
+
+  // Check if any module has "NM" grade
+  const hasNoMarks = relevantCurrentModules.some(
+    (m) => normalizeGradeSymbol(m.grade) === 'NM',
+  );
+
+  if (hasNoMarks) {
+    return {
+      status: 'Proceed',
+      failedModules: [],
+      supplementaryModules: [],
+      message: 'No Marks',
+      details: 'One or more modules have no marks submitted',
+    };
+  }
 
   // Count current semester failures
   const currentFailedModules = relevantCurrentModules.filter((m) =>
@@ -499,6 +507,15 @@ export function getSimpleFacultyRemarks(
   const relevantModules = modules.filter(
     (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
   );
+
+  // Check if any module has "NM" grade
+  const hasNoMarks = relevantModules.some(
+    (m) => normalizeGradeSymbol(m.grade) === 'NM',
+  );
+
+  if (hasNoMarks) {
+    return 'No Marks';
+  }
 
   const failedModules = relevantModules.filter((m) => isFailingGrade(m.grade));
   const supplementaryModules = relevantModules.filter((m) =>
