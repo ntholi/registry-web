@@ -27,7 +27,7 @@ export default function ImportProgress({
   const queryClient = useQueryClient();
   const importMutation = useMutation({
     mutationFn: async (rows: ParsedRow[]) => {
-      const validRows = rows.filter((row) => row.isValid);
+      const validRows = rows.filter((row) => row.isValid && row.isRegistered);
       let imported = 0;
       let failed = 0;
       const errors: string[] = [];

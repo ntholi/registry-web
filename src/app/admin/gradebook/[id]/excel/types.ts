@@ -41,5 +41,6 @@ export interface ParsedRow {
   studentName?: string;
   assessmentMarks: Record<number, number>;
   isValid: boolean;
+  isRegistered: boolean;
   errors: string[];
 }

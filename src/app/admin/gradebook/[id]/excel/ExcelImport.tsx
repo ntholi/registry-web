@@ -185,6 +185,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                     excelData={excelData}
                     columnMapping={columnMapping}
                     assessments={assessments}
+                    moduleId={moduleId}
                     onPreviewGenerated={handlePreviewGenerated}
                     onBack={() => setActiveStep(1)}
                   />

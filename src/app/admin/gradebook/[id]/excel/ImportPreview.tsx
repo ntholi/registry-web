@@ -19,11 +19,14 @@ import {
   normalizeStudentNumber,
   parseNumericValue,
 } from './utils';
+import { getStudentsByModuleId } from '@/server/students/actions';
+import { useQuery } from '@tanstack/react-query';
 
 type Props = {
   excelData: ExcelData;
   columnMapping: ColumnMapping;
   assessments: AssessmentInfo[];
+  moduleId: number;
   onPreviewGenerated: (rows: ParsedRow[]) => void;
   onBack: () => void;
 };
@@ -32,16 +35,28 @@ export default function ImportPreview({
   excelData,
   columnMapping,
   assessments,
+  moduleId,
   onPreviewGenerated,
   onBack,
 }: Props) {
+  const { data: registeredStudents } = useQuery({
+    queryKey: ['students', moduleId],
+    queryFn: () => getStudentsByModuleId(moduleId),
+  });
+
   const parsedData = useMemo(
-    () => parseExcelData(excelData, assessments, columnMapping),
-    [excelData, assessments, columnMapping],
+    () =>
+      parseExcelData(
+        excelData,
+        assessments,
+        columnMapping,
+        registeredStudents || [],
+      ),
+    [excelData, assessments, columnMapping, registeredStudents],
   );
 
   const validRows = useMemo(
-    () => parsedData.filter((row) => row.isValid),
+    () => parsedData.filter((row) => row.isValid && row.isRegistered),
     [parsedData],
   );
 
@@ -49,10 +64,14 @@ export default function ImportPreview({
     () => parsedData.filter((row) => !row.isValid),
     [parsedData],
   );
-  useEffect(() => {
-    onPreviewGenerated(validRows);
-  }, [validRows]);
 
+  const unregisteredRows = useMemo(
+    () => parsedData.filter((row) => row.isValid && !row.isRegistered),
+    [parsedData],
+  );
+  useEffect(() => {
+    onPreviewGenerated(parsedData);
+  }, [parsedData, onPreviewGenerated]);
   return (
     <Stack gap='md'>
       <Group align='center' justify='space-between'>
@@ -60,6 +79,9 @@ export default function ImportPreview({
         <Group gap='sm'>
           <Badge color='green' variant='light'>
             {validRows.length} Valid
+          </Badge>
+          <Badge color='orange' variant='light'>
+            {unregisteredRows.length} Unregistered
           </Badge>
           <Badge color='red' variant='light'>
             {invalidRows.length} Invalid
@@ -69,6 +91,9 @@ export default function ImportPreview({
       {validRows.length > 0 && (
         <Paper p='md' withBorder>
           <Stack gap='sm'>
+            <Text size='sm' fw={500} c='green'>
+              Valid Registered Students ({validRows.length})
+            </Text>
             <ScrollArea h={300}>
               <Table striped highlightOnHover>
                 <Table.Thead>
@@ -89,6 +114,54 @@ export default function ImportPreview({
                 </Table.Thead>
                 <Table.Tbody>
                   {validRows.map((row) => (
+                    <Table.Tr key={row.rowIndex}>
+                      <Table.Td>{row.rowIndex + 2}</Table.Td>
+                      <Table.Td>{row.studentNumber}</Table.Td>
+                      {assessments.map((assessment) => (
+                        <Table.Td key={assessment.id}>
+                          {row.assessmentMarks[assessment.id] !== undefined
+                            ? row.assessmentMarks[assessment.id]
+                            : '-'}
+                        </Table.Td>
+                      ))}
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </ScrollArea>
+          </Stack>
+        </Paper>
+      )}
+      {unregisteredRows.length > 0 && (
+        <Paper p='md' withBorder>
+          <Stack gap='sm'>
+            <Text size='sm' fw={500} c='orange'>
+              Unregistered Students ({unregisteredRows.length})
+            </Text>
+            <Text size='xs' c='dimmed'>
+              These students appear in the Excel file but are not registered for
+              this module
+            </Text>
+            <ScrollArea h={200}>
+              <Table striped>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Row</Table.Th>
+                    <Table.Th>Student Number</Table.Th>
+                    {assessments.map((assessment) => (
+                      <Table.Th key={assessment.id}>
+                        {shorten(
+                          getAssessmentTypeLabel(assessment.assessmentType),
+                        )}
+                        <Text size='xs' c='dimmed'>
+                          {assessment.totalMarks} · {assessment.weight}%
+                        </Text>
+                      </Table.Th>
+                    ))}
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {unregisteredRows.map((row) => (
                     <Table.Tr key={row.rowIndex}>
                       <Table.Td>{row.rowIndex + 2}</Table.Td>
                       <Table.Td>{row.studentNumber}</Table.Td>
@@ -148,6 +221,7 @@ function parseExcelData(
   excelData: ExcelData,
   assessments: AssessmentInfo[],
   mapping: ColumnMapping,
+  registeredStudents: Array<{ stdNo: number }>,
 ): ParsedRow[] {
   const studentNumberColIndex = mapping.studentNumberColumn
     ? columnLetterToIndex(mapping.studentNumberColumn)
@@ -159,6 +233,10 @@ function parseExcelData(
   )) {
     assessmentColIndices[parseInt(assessmentId)] = columnLetterToIndex(column);
   }
+
+  const registeredStudentNumbers = new Set(
+    registeredStudents.map((s) => s.stdNo.toString()),
+  );
 
   return excelData.rows
     .map((row, index) => {
@@ -192,11 +270,17 @@ function parseExcelData(
           }
         }
       }
+
+      const isRegistered = studentNumber
+        ? registeredStudentNumbers.has(studentNumber)
+        : false;
+
       return {
         rowIndex: index,
         studentNumber,
         assessmentMarks,
         isValid: errors.length === 0 && studentNumber !== '',
+        isRegistered,
         errors,
       };
     })
