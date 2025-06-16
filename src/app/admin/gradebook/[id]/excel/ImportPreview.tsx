@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Accordion,
   Badge,
   Button,
   Group,
@@ -88,131 +89,151 @@ export default function ImportPreview({
           </Badge>
         </Group>
       </Group>
-      {validRows.length > 0 && (
-        <Paper p='md' withBorder>
-          <Stack gap='sm'>
-            <Text size='sm' fw={500} c='green'>
-              Valid Registered Students ({validRows.length})
-            </Text>
-            <ScrollArea h={300}>
-              <Table striped highlightOnHover>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Row</Table.Th>
-                    <Table.Th>Student Number</Table.Th>
-                    {assessments.map((assessment) => (
-                      <Table.Th key={assessment.id}>
-                        {shorten(
-                          getAssessmentTypeLabel(assessment.assessmentType),
-                        )}
-                        <Text size='xs' c='dimmed'>
-                          {assessment.totalMarks} · {assessment.weight}%
-                        </Text>
-                      </Table.Th>
-                    ))}
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {validRows.map((row) => (
-                    <Table.Tr key={row.rowIndex}>
-                      <Table.Td>{row.rowIndex + 2}</Table.Td>
-                      <Table.Td>{row.studentNumber}</Table.Td>
+
+      <Accordion multiple variant='separated'>
+        {validRows.length > 0 && (
+          <Accordion.Item value='valid-students'>
+            <Accordion.Control>
+              <Group>
+                <Text fw={500}>Valid Students</Text>
+                <Badge color='green' variant='light' size='sm'>
+                  {validRows.length}
+                </Badge>
+              </Group>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <ScrollArea h={300}>
+                <Table striped highlightOnHover>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Row</Table.Th>
+                      <Table.Th>Student Number</Table.Th>
                       {assessments.map((assessment) => (
-                        <Table.Td key={assessment.id}>
-                          {row.assessmentMarks[assessment.id] !== undefined
-                            ? row.assessmentMarks[assessment.id]
-                            : '-'}
-                        </Table.Td>
+                        <Table.Th key={assessment.id}>
+                          {shorten(
+                            getAssessmentTypeLabel(assessment.assessmentType),
+                          )}
+                          <Text size='xs' c='dimmed'>
+                            {assessment.totalMarks} · {assessment.weight}%
+                          </Text>
+                        </Table.Th>
                       ))}
                     </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </ScrollArea>
-          </Stack>
-        </Paper>
-      )}
-      {unregisteredRows.length > 0 && (
-        <Paper p='md' withBorder>
-          <Stack gap='sm'>
-            <Text size='sm' fw={500} c='orange'>
-              Unregistered Students ({unregisteredRows.length})
-            </Text>
-            <Text size='xs' c='dimmed'>
-              These students appear in the Excel file but are not registered for
-              this module
-            </Text>
-            <ScrollArea h={200}>
-              <Table striped>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Row</Table.Th>
-                    <Table.Th>Student Number</Table.Th>
-                    {assessments.map((assessment) => (
-                      <Table.Th key={assessment.id}>
-                        {shorten(
-                          getAssessmentTypeLabel(assessment.assessmentType),
-                        )}
-                        <Text size='xs' c='dimmed'>
-                          {assessment.totalMarks} · {assessment.weight}%
-                        </Text>
-                      </Table.Th>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {validRows.map((row) => (
+                      <Table.Tr key={row.rowIndex}>
+                        <Table.Td>{row.rowIndex + 2}</Table.Td>
+                        <Table.Td>{row.studentNumber}</Table.Td>
+                        {assessments.map((assessment) => (
+                          <Table.Td key={assessment.id}>
+                            {row.assessmentMarks[assessment.id] !== undefined
+                              ? row.assessmentMarks[assessment.id]
+                              : '-'}
+                          </Table.Td>
+                        ))}
+                      </Table.Tr>
                     ))}
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {unregisteredRows.map((row) => (
-                    <Table.Tr key={row.rowIndex}>
-                      <Table.Td>{row.rowIndex + 2}</Table.Td>
-                      <Table.Td>{row.studentNumber}</Table.Td>
+                  </Table.Tbody>
+                </Table>
+              </ScrollArea>
+            </Accordion.Panel>
+          </Accordion.Item>
+        )}
+
+        {unregisteredRows.length > 0 && (
+          <Accordion.Item value='unregistered-students'>
+            <Accordion.Control>
+              <Group>
+                <Text fw={500}>Unregistered Students</Text>
+                <Badge color='orange' variant='light' size='sm'>
+                  {unregisteredRows.length}
+                </Badge>
+              </Group>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Text size='xs' c='dimmed' mb='sm'>
+                These students appear in the Excel file but are not registered
+                for this module
+              </Text>
+              <ScrollArea h={200}>
+                <Table striped>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Row</Table.Th>
+                      <Table.Th>Student Number</Table.Th>
                       {assessments.map((assessment) => (
-                        <Table.Td key={assessment.id}>
-                          {row.assessmentMarks[assessment.id] !== undefined
-                            ? row.assessmentMarks[assessment.id]
-                            : '-'}
-                        </Table.Td>
+                        <Table.Th key={assessment.id}>
+                          {shorten(
+                            getAssessmentTypeLabel(assessment.assessmentType),
+                          )}
+                          <Text size='xs' c='dimmed'>
+                            {assessment.totalMarks} · {assessment.weight}%
+                          </Text>
+                        </Table.Th>
                       ))}
                     </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </ScrollArea>
-          </Stack>
-        </Paper>
-      )}
-      {invalidRows.length > 0 && (
-        <Paper p='md' withBorder>
-          <Stack gap='sm'>
-            <Text size='sm' fw={500} c='red'>
-              Invalid Records ({invalidRows.length})
-            </Text>
-            <ScrollArea h={200}>
-              <Table striped>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Row</Table.Th>
-                    <Table.Th>Student Number</Table.Th>
-                    <Table.Th>Errors</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {invalidRows.map((row) => (
-                    <Table.Tr key={row.rowIndex}>
-                      <Table.Td>{row.rowIndex + 2}</Table.Td>
-                      <Table.Td>{row.studentNumber || '-'}</Table.Td>
-                      <Table.Td>
-                        <Text size='xs' c='red'>
-                          {row.errors.join(', ')}
-                        </Text>
-                      </Table.Td>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {unregisteredRows.map((row) => (
+                      <Table.Tr key={row.rowIndex}>
+                        <Table.Td>{row.rowIndex + 2}</Table.Td>
+                        <Table.Td>{row.studentNumber}</Table.Td>
+                        {assessments.map((assessment) => (
+                          <Table.Td key={assessment.id}>
+                            {row.assessmentMarks[assessment.id] !== undefined
+                              ? row.assessmentMarks[assessment.id]
+                              : '-'}
+                          </Table.Td>
+                        ))}
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </ScrollArea>
+            </Accordion.Panel>
+          </Accordion.Item>
+        )}
+
+        {invalidRows.length > 0 && (
+          <Accordion.Item value='invalid-records'>
+            <Accordion.Control>
+              <Group>
+                <Text fw={500}>Invalid Records</Text>
+                <Badge color='red' variant='light' size='sm'>
+                  {invalidRows.length}
+                </Badge>
+              </Group>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <ScrollArea h={200}>
+                <Table striped>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Row</Table.Th>
+                      <Table.Th>Student Number</Table.Th>
+                      <Table.Th>Errors</Table.Th>
                     </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </ScrollArea>
-          </Stack>
-        </Paper>
-      )}
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {invalidRows.map((row) => (
+                      <Table.Tr key={row.rowIndex}>
+                        <Table.Td>{row.rowIndex + 2}</Table.Td>
+                        <Table.Td>{row.studentNumber || '-'}</Table.Td>
+                        <Table.Td>
+                          <Text size='xs' c='red'>
+                            {row.errors.join(', ')}
+                          </Text>
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </ScrollArea>
+            </Accordion.Panel>
+          </Accordion.Item>
+        )}
+      </Accordion>
     </Stack>
   );
 }
