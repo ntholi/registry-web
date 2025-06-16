@@ -81,12 +81,9 @@ export default function Body() {
 
     return options;
   }, [modulePrograms]);
-
   useEffect(() => {
-    if (selectedModuleId && !selectedProgramId) {
-      setSelectedProgramId(null);
-    }
-  }, [selectedModuleId, selectedProgramId]);
+    setSelectedProgramId(null);
+  }, [selectedModuleId]);
   const generateReportMutation = useMutation({
     mutationFn: async () => {
       if (!selectedModuleId) {
