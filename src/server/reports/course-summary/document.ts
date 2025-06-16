@@ -21,7 +21,12 @@ import { CourseSummaryReport } from './repository';
 export function createCourseSummaryDocument(
   report: CourseSummaryReport,
 ): Document {
-  const logoPath = path.join(process.cwd(), 'public', 'images', 'logo.png');
+  const logoPath = path.join(
+    process.cwd(),
+    'public',
+    'images',
+    'logo-lesotho.jpg',
+  );
   const logoImage = fs.readFileSync(logoPath);
 
   const doc = new Document({
@@ -34,9 +39,9 @@ export function createCourseSummaryDocument(
           page: {
             margin: {
               top: 720,
-              right: 720,
+              right: 1440,
               bottom: 720,
-              left: 720,
+              left: 1440,
             },
           },
         },
@@ -46,7 +51,7 @@ export function createCourseSummaryDocument(
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `Date Generated: ${new Date().toLocaleDateString(
+                    text: `Date Created: ${new Date().toLocaleDateString(
                       'en-LS',
                       {
                         year: 'numeric',
@@ -54,6 +59,7 @@ export function createCourseSummaryDocument(
                         day: 'numeric',
                       },
                     )}`,
+                    font: 'Tahoma',
                     size: 16,
                   }),
                 ],
@@ -69,29 +75,19 @@ export function createCourseSummaryDocument(
                 data: logoImage,
                 transformation: {
                   width: 300,
-                  height: 120,
+                  height: 150,
                 },
-                type: 'png',
+                type: 'jpg',
               }),
             ],
             alignment: AlignmentType.CENTER,
-            spacing: { after: 120 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: 'LESOTHO',
-                bold: true,
-                size: 20,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 240 },
+            spacing: { after: 300 },
           }),
           new Paragraph({
             children: [
               new TextRun({
                 text: 'BOARD OF EXAMINATION',
+                font: 'Tahoma',
                 bold: true,
                 size: 24,
               }),
@@ -103,6 +99,7 @@ export function createCourseSummaryDocument(
             children: [
               new TextRun({
                 text: 'COURSE SUMMARY REPORT',
+                font: 'Tahoma',
                 bold: true,
                 size: 24,
               }),
@@ -115,6 +112,7 @@ export function createCourseSummaryDocument(
             children: [
               new TextRun({
                 text: 'Names of Students Failed',
+                font: 'Tahoma',
                 bold: true,
                 size: 24,
               }),
@@ -136,6 +134,7 @@ export function createCourseSummaryDocument(
                   children: [
                     new TextRun({
                       text: 'No Students Failed',
+                      font: 'Tahoma',
                       bold: true,
                       size: 24,
                     }),
@@ -152,6 +151,7 @@ export function createCourseSummaryDocument(
             children: [
               new TextRun({
                 text: 'Summary by Lecturer',
+                font: 'Tahoma',
                 bold: true,
                 size: 20,
               }),
@@ -162,6 +162,7 @@ export function createCourseSummaryDocument(
             children: [
               new TextRun({
                 text: report.principalLecturer,
+                font: 'Tahoma',
                 size: 18,
               }),
             ],
@@ -171,6 +172,7 @@ export function createCourseSummaryDocument(
             children: [
               new TextRun({
                 text: `Date: ${report.date}`,
+                font: 'Tahoma',
                 bold: true,
                 size: 18,
               }),
@@ -195,6 +197,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Principal Lecturer',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -225,6 +228,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.principalLecturer,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -251,6 +255,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Course Name',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -280,6 +285,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.courseName,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -305,6 +311,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Program',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -334,6 +341,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.programName,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -359,6 +367,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Course Code',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -388,6 +397,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.courseCode,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -413,6 +423,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Date',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -442,6 +453,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.date,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -746,6 +758,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Principal Lecturer',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -762,6 +775,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.principalLecturer,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -779,6 +793,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Course Name',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -794,6 +809,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.courseName,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -810,6 +826,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Program',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -825,6 +842,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.programName,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -841,6 +859,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Course Code',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -856,6 +875,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.courseCode,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -872,6 +892,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Date',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -887,6 +908,7 @@ function createInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.date,
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -919,6 +941,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Number of Students',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -935,6 +958,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.totalStudents.toString(),
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -953,6 +977,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Number of Passes',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -968,6 +993,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.totalPasses.toString(),
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -985,6 +1011,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Number of Failures',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -1000,6 +1027,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.totalFailures.toString(),
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -1017,6 +1045,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: '(to repeat module)',
+                    font: 'Tahoma',
                     italics: true,
                     size: 16,
                     color: 'FFFFFF',
@@ -1039,6 +1068,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Number of Supplementary',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -1054,6 +1084,7 @@ function createStatisticsTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.totalSupplementary.toString(),
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -1093,6 +1124,7 @@ function createFailedStudentsTable(
             children: [
               new TextRun({
                 text: 'No',
+                font: 'Tahoma',
                 bold: true,
                 size: 18,
               }),
@@ -1109,6 +1141,7 @@ function createFailedStudentsTable(
             children: [
               new TextRun({
                 text: 'Student Name',
+                font: 'Tahoma',
                 bold: true,
                 size: 18,
               }),
@@ -1125,6 +1158,7 @@ function createFailedStudentsTable(
             children: [
               new TextRun({
                 text: 'Class',
+                font: 'Tahoma',
                 bold: true,
                 size: 18,
               }),
@@ -1141,6 +1175,7 @@ function createFailedStudentsTable(
             children: [
               new TextRun({
                 text: 'Mark (100)',
+                font: 'Tahoma',
                 bold: true,
                 size: 18,
               }),
@@ -1157,6 +1192,7 @@ function createFailedStudentsTable(
             children: [
               new TextRun({
                 text: 'Reason',
+                font: 'Tahoma',
                 bold: true,
                 size: 18,
               }),
@@ -1173,6 +1209,7 @@ function createFailedStudentsTable(
             children: [
               new TextRun({
                 text: 'Action Taken',
+                font: 'Tahoma',
                 bold: true,
                 size: 18,
               }),
@@ -1195,6 +1232,7 @@ function createFailedStudentsTable(
               children: [
                 new TextRun({
                   text: (index + 1).toString(),
+                  font: 'Tahoma',
                   size: 16,
                 }),
               ],
@@ -1208,6 +1246,7 @@ function createFailedStudentsTable(
               children: [
                 new TextRun({
                   text: student.studentName,
+                  font: 'Tahoma',
                   size: 16,
                 }),
               ],
@@ -1220,6 +1259,7 @@ function createFailedStudentsTable(
               children: [
                 new TextRun({
                   text: student.studentNumber,
+                  font: 'Tahoma',
                   size: 16,
                 }),
               ],
@@ -1233,6 +1273,7 @@ function createFailedStudentsTable(
               children: [
                 new TextRun({
                   text: student.marks,
+                  font: 'Tahoma',
                   size: 16,
                 }),
               ],
@@ -1246,6 +1287,7 @@ function createFailedStudentsTable(
               children: [
                 new TextRun({
                   text: student.reason,
+                  font: 'Tahoma',
                   size: 16,
                 }),
               ],
@@ -1258,6 +1300,7 @@ function createFailedStudentsTable(
               children: [
                 new TextRun({
                   text: student.actionTaken,
+                  font: 'Tahoma',
                   size: 16,
                 }),
               ],
