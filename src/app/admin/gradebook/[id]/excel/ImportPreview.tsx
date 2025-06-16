@@ -1,17 +1,18 @@
 'use client';
 
+import { getStudentsByModuleId } from '@/server/students/actions';
 import {
   Accordion,
   Badge,
-  Button,
   Group,
-  Paper,
   ScrollArea,
   Stack,
   Table,
   Text,
   Title,
 } from '@mantine/core';
+import { IconEye } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { getAssessmentTypeLabel } from '../../../assessments/[id]/assessments';
 import { AssessmentInfo, ColumnMapping, ExcelData, ParsedRow } from './types';
@@ -20,8 +21,6 @@ import {
   normalizeStudentNumber,
   parseNumericValue,
 } from './utils';
-import { getStudentsByModuleId } from '@/server/students/actions';
-import { useQuery } from '@tanstack/react-query';
 
 type Props = {
   excelData: ExcelData;
@@ -89,64 +88,21 @@ export default function ImportPreview({
           </Badge>
         </Group>
       </Group>
-
-      <Accordion multiple variant='separated'>
-        {validRows.length > 0 && (
-          <Accordion.Item value='valid-students'>
-            <Accordion.Control>
-              <Group>
-                <Text fw={500}>Valid Students</Text>
-                <Badge color='green' variant='light' size='sm'>
-                  {validRows.length}
-                </Badge>
-              </Group>
-            </Accordion.Control>
-            <Accordion.Panel>
-              <ScrollArea h={300}>
-                <Table striped highlightOnHover>
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Row</Table.Th>
-                      <Table.Th>Student Number</Table.Th>
-                      {assessments.map((assessment) => (
-                        <Table.Th key={assessment.id}>
-                          {shorten(
-                            getAssessmentTypeLabel(assessment.assessmentType),
-                          )}
-                          <Text size='xs' c='dimmed'>
-                            {assessment.totalMarks} · {assessment.weight}%
-                          </Text>
-                        </Table.Th>
-                      ))}
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {validRows.map((row) => (
-                      <Table.Tr key={row.rowIndex}>
-                        <Table.Td>{row.rowIndex + 2}</Table.Td>
-                        <Table.Td>{row.studentNumber}</Table.Td>
-                        {assessments.map((assessment) => (
-                          <Table.Td key={assessment.id}>
-                            {row.assessmentMarks[assessment.id] !== undefined
-                              ? row.assessmentMarks[assessment.id]
-                              : '-'}
-                          </Table.Td>
-                        ))}
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </ScrollArea>
-            </Accordion.Panel>
-          </Accordion.Item>
-        )}
-
+      <Accordion variant='separated' defaultValue={'valid-students'}>
         {unregisteredRows.length > 0 && (
           <Accordion.Item value='unregistered-students'>
-            <Accordion.Control>
-              <Group>
-                <Text fw={500}>Unregistered Students</Text>
-                <Badge color='orange' variant='light' size='sm'>
+            <Accordion.Control
+              icon={<IconEye size={16} />}
+              style={{ cursor: 'pointer' }}
+            >
+              <Group justify='space-between' style={{ width: '100%' }}>
+                <Group>
+                  <Text fw={500}>Unregistered Students</Text>
+                  <Text size='sm' c='dimmed'>
+                    (Click to view details)
+                  </Text>
+                </Group>
+                <Badge color='orange' variant='light' size='sm' mr={'md'}>
                   {unregisteredRows.length}
                 </Badge>
               </Group>
@@ -194,13 +150,20 @@ export default function ImportPreview({
             </Accordion.Panel>
           </Accordion.Item>
         )}
-
         {invalidRows.length > 0 && (
           <Accordion.Item value='invalid-records'>
-            <Accordion.Control>
-              <Group>
-                <Text fw={500}>Invalid Records</Text>
-                <Badge color='red' variant='light' size='sm'>
+            <Accordion.Control
+              icon={<IconEye size={16} />}
+              style={{ cursor: 'pointer' }}
+            >
+              <Group justify='space-between' style={{ width: '100%' }}>
+                <Group>
+                  <Text fw={500}>Invalid Records</Text>
+                  <Text size='sm' c='dimmed'>
+                    (Click to view details)
+                  </Text>
+                </Group>
+                <Badge color='red' variant='light' size='sm' mr={'md'}>
                   {invalidRows.length}
                 </Badge>
               </Group>
@@ -225,6 +188,63 @@ export default function ImportPreview({
                             {row.errors.join(', ')}
                           </Text>
                         </Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </ScrollArea>
+            </Accordion.Panel>
+          </Accordion.Item>
+        )}
+        {validRows.length > 0 && (
+          <Accordion.Item value='valid-students'>
+            <Accordion.Control
+              icon={<IconEye size={16} />}
+              style={{ cursor: 'pointer' }}
+            >
+              <Group justify='space-between' style={{ width: '100%' }}>
+                <Group>
+                  <Text fw={500}>Students</Text>
+                  <Text size='sm' c='dimmed'>
+                    (Click to view details)
+                  </Text>
+                </Group>
+                <Badge color='green' variant='light' size='sm' mr={'md'}>
+                  {validRows.length}
+                </Badge>
+              </Group>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <ScrollArea h={300}>
+                <Table striped highlightOnHover>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Row</Table.Th>
+                      <Table.Th>Student Number</Table.Th>
+                      {assessments.map((assessment) => (
+                        <Table.Th key={assessment.id}>
+                          {shorten(
+                            getAssessmentTypeLabel(assessment.assessmentType),
+                          )}
+                          <Text size='xs' c='dimmed'>
+                            {assessment.totalMarks} · {assessment.weight}%
+                          </Text>
+                        </Table.Th>
+                      ))}
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {validRows.map((row) => (
+                      <Table.Tr key={row.rowIndex}>
+                        <Table.Td>{row.rowIndex + 2}</Table.Td>
+                        <Table.Td>{row.studentNumber}</Table.Td>
+                        {assessments.map((assessment) => (
+                          <Table.Td key={assessment.id}>
+                            {row.assessmentMarks[assessment.id] !== undefined
+                              ? row.assessmentMarks[assessment.id]
+                              : '-'}
+                          </Table.Td>
+                        ))}
                       </Table.Tr>
                     ))}
                   </Table.Tbody>
