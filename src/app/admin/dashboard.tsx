@@ -263,6 +263,15 @@ function getNavigation(department: DashboardUser) {
           },
         },
         {
+          description: 'Course Summary Report',
+          href: '/admin/reports/course-summary',
+          icon: IconCopyCheck,
+          roles: ['academic'],
+          isVisible: (session) => {
+            return session?.user?.position !== 'admin';
+          },
+        },
+        {
           href: `/admin/reports/boe`,
           description: 'Board of Examination Report',
           icon: IconCopyCheck,
