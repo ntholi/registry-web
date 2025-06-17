@@ -15,13 +15,27 @@ export default function StatementOfResultsPrinter({
   student,
 }: StatementOfResultsPrinterProps) {
   const [isGenerating, setIsGenerating] = useState(false);
-
   const handlePrint = async () => {
     setIsGenerating(true);
     try {
+      if (!student || !student.programs) {
+        console.error('Invalid student data for PDF generation');
+        setIsGenerating(false);
+        return;
+      }
+
+      console.log('Generating PDF for student:', student.stdNo);
+
       const blob = await pdf(
         <StatementOfResultsPDF student={student} />,
       ).toBlob();
+
+      console.log('PDF blob generated, size:', blob.size);
+
+      if (blob.size === 0) {
+        throw new Error('Generated PDF is empty');
+      }
+
       const url = URL.createObjectURL(blob);
 
       const iframe = document.createElement('iframe');
@@ -69,6 +83,7 @@ export default function StatementOfResultsPrinter({
       };
     } catch (error) {
       console.error('Error generating PDF for printing:', error);
+      console.error('Student data:', student);
       setIsGenerating(false);
     }
   };

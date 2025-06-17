@@ -28,7 +28,7 @@ interface StudentModule {
   semesterModuleId: number;
   semesterModule: SemesterModule;
   grade: string;
-  status: string;
+  status: ModuleStatus;
   marks: string;
   createdAt: Date | null;
 }
@@ -368,19 +368,14 @@ const styles = StyleSheet.create({
 
 import {
   isFailingGrade,
-  getGradePoints as getGradePointsFromGrade,
+  getGradePoints,
+  summarizeModules,
+  ModuleSummaryInput,
 } from '@/utils/grades';
-
-function failed(grade: string) {
-  return isFailingGrade(grade);
-}
-
-function getGradePoints(grade: string): number {
-  return getGradePointsFromGrade(grade);
-}
+import { ModuleStatus } from '@/db/schema';
 
 function getGradeStyle(grade: string) {
-  if (failed(grade)) return 'failedGrade';
+  if (isFailingGrade(grade)) return 'failedGrade';
   if (['A+', 'A', 'A-'].includes(grade)) return 'outstandingGrade';
   return 'passedGrade';
 }
@@ -389,181 +384,183 @@ function calculateSemesterGPA(studentModules: StudentModule[]) {
   if (!studentModules || studentModules.length === 0)
     return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
 
-  let totalQualityPoints = 0;
-  let totalCredits = 0;
+  try {
+    const modules: ModuleSummaryInput[] = studentModules
+      .filter((sm) => sm && sm.semesterModule && sm.grade != null)
+      .map((sm) => ({
+        grade: sm.grade || 'NM',
+        credits: Math.max(0, sm.semesterModule?.credits || 0),
+        status: sm.status,
+      }));
 
-  studentModules.forEach((sm) => {
-    const credits = sm.semesterModule.credits || 0;
-    const points = getGradePoints(sm.grade);
-    totalQualityPoints += credits * points;
-    totalCredits += credits;
-  });
+    if (modules.length === 0) {
+      return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
+    }
 
-  const gpa = totalCredits > 0 ? totalQualityPoints / totalCredits : 0;
-  return {
-    gpa: Math.round(gpa * 100) / 100,
-    totalCredits,
-    qualityPoints: totalQualityPoints,
-  };
+    const summary = summarizeModules(modules);
+
+    return {
+      gpa: Math.round((summary.gpa || 0) * 100) / 100,
+      totalCredits: summary.creditsCompleted || 0,
+      qualityPoints: summary.points || 0,
+    };
+  } catch (error) {
+    console.error('Error calculating semester GPA:', error);
+    return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
+  }
 }
 
 function calculateCumulativeGPA(programs: Program[]) {
-  let totalQualityPoints = 0;
-  let totalCredits = 0;
-  let totalCreditsAttempted = 0;
+  try {
+    const allModules: ModuleSummaryInput[] = [];
 
-  programs.forEach((program) => {
-    program.semesters?.forEach((semester: Semester) => {
-      semester.studentModules?.forEach((sm: StudentModule) => {
-        const credits = sm.semesterModule.credits || 0;
-        const points = getGradePoints(sm.grade);
-        totalQualityPoints += credits * points;
-        totalCreditsAttempted += credits;
-        if (!failed(sm.grade)) {
-          totalCredits += credits;
-        }
+    if (!programs || programs.length === 0) {
+      return {
+        gpa: 0,
+        totalCredits: 0,
+        totalCreditsAttempted: 0,
+        qualityPoints: 0,
+      };
+    }
+
+    programs.forEach((program) => {
+      if (!program || !program.semesters) return;
+
+      program.semesters.forEach((semester: Semester) => {
+        if (!semester || !semester.studentModules) return;
+
+        semester.studentModules.forEach((sm: StudentModule) => {
+          if (!sm || !sm.semesterModule || sm.grade == null) return;
+
+          allModules.push({
+            grade: sm.grade || 'NM',
+            credits: Math.max(0, sm.semesterModule?.credits || 0),
+            status: sm.status,
+          });
+        });
       });
     });
-  });
 
-  const gpa =
-    totalCreditsAttempted > 0 ? totalQualityPoints / totalCreditsAttempted : 0;
-  return {
-    gpa: Math.round(gpa * 100) / 100,
-    totalCredits,
-    totalCreditsAttempted,
-    qualityPoints: totalQualityPoints,
-  };
+    if (allModules.length === 0) {
+      return {
+        gpa: 0,
+        totalCredits: 0,
+        totalCreditsAttempted: 0,
+        qualityPoints: 0,
+      };
+    }
+
+    const summary = summarizeModules(allModules);
+
+    return {
+      gpa: Math.round((summary.gpa || 0) * 100) / 100,
+      totalCredits: summary.creditsCompleted || 0,
+      totalCreditsAttempted: summary.creditsAttempted || 0,
+      qualityPoints: summary.points || 0,
+    };
+  } catch (error) {
+    console.error('Error calculating cumulative GPA:', error);
+    return {
+      gpa: 0,
+      totalCredits: 0,
+      totalCreditsAttempted: 0,
+      qualityPoints: 0,
+    };
+  }
 }
 
 export default function StatementOfResultsPDF({
   student,
 }: StatementOfResultsPDFProps) {
-  const activePrograms = student.programs.filter(
-    (program) => program.status === 'Active',
-  );
+  try {
+    if (!student || !student.programs) {
+      return (
+        <Document>
+          <Page size='A4' style={styles.page}>
+            <Text>No student data available</Text>
+          </Page>
+        </Document>
+      );
+    }
 
-  const filteredPrograms = activePrograms.map((program) => ({
-    ...program,
-    semesters: program.semesters
-      ?.filter((semester) => !['Deleted', 'Deferred'].includes(semester.status))
-      .map((semester) => ({
-        ...semester,
-        studentModules: semester.studentModules?.filter(
-          (module) => !['Delete', 'Drop'].includes(module.status),
-        ),
-      })),
-  }));
+    const activePrograms = (student.programs || []).filter(
+      (program) => program && program.status === 'Active',
+    );
 
-  const cumulativeStats = calculateCumulativeGPA(filteredPrograms);
-  const academicRemarks = calculateAcademicRemarks(student.programs);
+    const filteredPrograms = activePrograms.map((program) => ({
+      ...program,
+      semesters: (program.semesters || [])
+        .filter(
+          (semester) =>
+            semester && !['Deleted', 'Deferred'].includes(semester.status),
+        )
+        .map((semester) => ({
+          ...semester,
+          studentModules: (semester.studentModules || []).filter(
+            (module) => module && !['Delete', 'Drop'].includes(module.status),
+          ),
+        })),
+    }));
 
-  return (
-    <Document>
-      <Page size='A4' style={styles.page}>
-        <View style={styles.header}>
-          <View style={styles.universityHeader}>
-            <Text style={styles.universityName}>
-              Limkokwing University of Creative Technology
-            </Text>
-            <Text style={styles.universityAddress}>
-              Official academic record showing student&apos;s course grades and
-              academic performance
-            </Text>
-            <Text style={styles.universityAddress}>
-              This document does not certify graduation
-            </Text>
+    const cumulativeStats = calculateCumulativeGPA(filteredPrograms);
+    const academicRemarks = calculateAcademicRemarks(student.programs);
+
+    return (
+      <Document>
+        <Page size='A4' style={styles.page}>
+          <View style={styles.header}>
+            <View style={styles.universityHeader}>
+              <Text style={styles.universityName}>
+                Limkokwing University of Creative Technology
+              </Text>
+              <Text style={styles.universityAddress}>
+                An academic record showing student&apos;s course grades and
+                academic performance
+              </Text>
+              <Text style={styles.universityAddress}>
+                This document does not certify graduation
+              </Text>
+            </View>
+            <Text style={styles.title}>STATEMENT OF RESULTS</Text>
           </View>
-          <Text style={styles.title}>STATEMENT OF RESULTS</Text>
-        </View>
-        <View style={styles.studentInfo}>
-          <Text style={styles.studentInfoTitle}>STUDENT INFORMATION</Text>
-          <View style={styles.studentDetail}>
-            <Text style={styles.label}>Student Number:</Text>
-            <Text style={styles.value}>{student.stdNo}</Text>
+          <View style={styles.studentInfo}>
+            <Text style={styles.studentInfoTitle}>STUDENT INFORMATION</Text>
+            <View style={styles.studentDetail}>
+              <Text style={styles.label}>Student Number:</Text>
+              <Text style={styles.value}>{student.stdNo}</Text>
+            </View>
+            <View style={styles.studentDetail}>
+              <Text style={styles.label}>Full Name:</Text>
+              <Text style={styles.value}>{student.name}</Text>
+            </View>
+            <View style={styles.studentDetail}>
+              <Text style={styles.label}>ID/Passport:</Text>
+              <Text style={styles.value}>{student.nationalId}</Text>
+            </View>
+            <View style={styles.studentDetail}>
+              <Text style={styles.label}>Date of Issue:</Text>
+              <Text style={styles.value}>{formatDate(new Date())}</Text>
+            </View>
           </View>
-          <View style={styles.studentDetail}>
-            <Text style={styles.label}>Full Name:</Text>
-            <Text style={styles.value}>{student.name}</Text>
-          </View>
-          <View style={styles.studentDetail}>
-            <Text style={styles.label}>ID/Passport:</Text>
-            <Text style={styles.value}>{student.nationalId}</Text>
-          </View>
-          <View style={styles.studentDetail}>
-            <Text style={styles.label}>Date of Issue:</Text>
-            <Text style={styles.value}>{formatDate(new Date())}</Text>
-          </View>
-        </View>{' '}
-        {filteredPrograms.map((program) => (
-          <View key={program.id} style={styles.programSection}>
-            <Text style={styles.programTitle}>
-              {program.structure.program.name}
-            </Text>
+          {filteredPrograms.map((program) => (
+            <View key={program.id} style={styles.programSection}>
+              <Text style={styles.programTitle}>
+                {program.structure.program.name}
+              </Text>
+              {(program.semesters || []).map((semester) => {
+                const semesterStats = calculateSemesterGPA(
+                  semester.studentModules || [],
+                );
 
-            {program.semesters?.map((semester) => {
-              const semesterStats = calculateSemesterGPA(
-                semester.studentModules || [],
-              );
-
-              return (
-                <View key={semester.id} style={styles.semesterSection}>
-                  <View style={styles.semesterTitle}>
-                    <Text>{semester.term}</Text>
-                    <Text>GPA: {semesterStats.gpa.toFixed(2)}</Text>
-                  </View>
-
-                  <View style={styles.table}>
-                    <View style={[styles.tableRow, styles.tableHeader]}>
-                      <Text
-                        style={[
-                          styles.tableCell,
-                          styles.codeCell,
-                          styles.moduleText,
-                        ]}
-                      >
-                        Code
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableCell,
-                          styles.nameCell,
-                          styles.moduleText,
-                        ]}
-                      >
-                        Module Name
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableCell,
-                          styles.creditsCell,
-                          styles.moduleText,
-                        ]}
-                      >
-                        Credits
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableCell,
-                          styles.gradeCell,
-                          styles.moduleText,
-                        ]}
-                      >
-                        Grade
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableCell,
-                          styles.pointsCell,
-                          styles.moduleText,
-                        ]}
-                      >
-                        Points
-                      </Text>
+                return (
+                  <View key={semester.id} style={styles.semesterSection}>
+                    <View style={styles.semesterTitle}>
+                      <Text>{semester.term}</Text>
+                      <Text>GPA: {(semesterStats.gpa || 0).toFixed(2)}</Text>
                     </View>
 
-                    {semester.studentModules?.map((sm) => (
-                      <View key={sm.semesterModuleId} style={styles.tableRow}>
+                    <View style={styles.table}>
+                      <View style={[styles.tableRow, styles.tableHeader]}>
                         <Text
                           style={[
                             styles.tableCell,
@@ -571,8 +568,7 @@ export default function StatementOfResultsPDF({
                             styles.moduleText,
                           ]}
                         >
-                          {sm.semesterModule.module?.code ??
-                            `${sm.semesterModuleId}`}
+                          Code
                         </Text>
                         <Text
                           style={[
@@ -581,8 +577,7 @@ export default function StatementOfResultsPDF({
                             styles.moduleText,
                           ]}
                         >
-                          {sm.semesterModule.module?.name ??
-                            `<<Semester Module ID: ${sm.semesterModuleId}>>`}
+                          Module Name
                         </Text>
                         <Text
                           style={[
@@ -591,17 +586,16 @@ export default function StatementOfResultsPDF({
                             styles.moduleText,
                           ]}
                         >
-                          {sm.semesterModule.credits}
+                          Credits
                         </Text>
                         <Text
                           style={[
                             styles.tableCell,
                             styles.gradeCell,
                             styles.moduleText,
-                            styles[getGradeStyle(sm.grade)],
                           ]}
                         >
-                          {sm.grade}
+                          Grade
                         </Text>
                         <Text
                           style={[
@@ -610,95 +604,158 @@ export default function StatementOfResultsPDF({
                             styles.moduleText,
                           ]}
                         >
-                          {getGradePoints(sm.grade).toFixed(1)}
+                          Points
                         </Text>
                       </View>
+                      {(semester.studentModules || []).map((sm) => (
+                        <View key={sm.semesterModuleId} style={styles.tableRow}>
+                          <Text
+                            style={[
+                              styles.tableCell,
+                              styles.codeCell,
+                              styles.moduleText,
+                            ]}
+                          >
+                            {sm.semesterModule?.module?.code ??
+                              `${sm.semesterModuleId}`}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.tableCell,
+                              styles.nameCell,
+                              styles.moduleText,
+                            ]}
+                          >
+                            {sm.semesterModule?.module?.name ??
+                              `<<Semester Module ID: ${sm.semesterModuleId}>>`}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.tableCell,
+                              styles.creditsCell,
+                              styles.moduleText,
+                            ]}
+                          >
+                            {sm.semesterModule?.credits || 0}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.tableCell,
+                              styles.gradeCell,
+                              styles.moduleText,
+                              styles[getGradeStyle(sm.grade || 'NM')],
+                            ]}
+                          >
+                            {sm.grade || 'NM'}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.tableCell,
+                              styles.pointsCell,
+                              styles.moduleText,
+                            ]}
+                          >
+                            {getGradePoints(sm.grade || 'NM').toFixed(1)}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ))}
+          <View style={styles.cumulativeSummary}>
+            <Text style={styles.cumulativeTitle}>
+              CUMULATIVE ACADEMIC SUMMARY
+            </Text>
+            <View style={styles.cumulativeGrid}>
+              <View style={styles.cumulativeColumn}>
+                <View style={styles.cumulativeItem}>
+                  <Text style={styles.cumulativeLabel}>Credits Attempted</Text>
+                  <Text style={styles.cumulativeValue}>
+                    {cumulativeStats.totalCreditsAttempted}
+                  </Text>
+                </View>
+                <View style={styles.cumulativeItem}>
+                  <Text style={styles.cumulativeLabel}>Credits Earned</Text>
+                  <Text style={styles.cumulativeValue}>
+                    {cumulativeStats.totalCredits}
+                  </Text>
+                </View>
+                <View style={styles.cumulativeItem}>
+                  <Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
+                  <Text style={styles.cumulativeValue}>
+                    {(cumulativeStats.gpa || 0).toFixed(2)}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.academicRemarksColumn}>
+                <View style={styles.academicRemarksSection}>
+                  <Text style={styles.academicRemarksLabel}>
+                    Academic Status
+                  </Text>
+                  <Text style={styles.academicRemarksValue}>
+                    {academicRemarks.status}
+                  </Text>
+                  <Text style={styles.academicRemarksDetails}>
+                    {academicRemarks.details}
+                  </Text>
+                </View>
+                {academicRemarks.pendingModules.length > 0 && (
+                  <View style={styles.pendingModulesSection}>
+                    <Text style={styles.pendingModulesTitle}>
+                      Outstanding Requirements (
+                      {academicRemarks.pendingModules.length})
+                    </Text>
+                    {academicRemarks.pendingModules.map((module, index) => (
+                      <Text
+                        key={index}
+                        style={[
+                          styles.pendingModuleItem,
+                          module.type === 'Failed'
+                            ? styles.failedModule
+                            : styles.supplementaryModule,
+                        ]}
+                      >
+                        • {module.code} - {module.name}
+                        {module.type === 'Supplementary'
+                          ? ' (Supplementary)'
+                          : ' (Repeat)'}
+                      </Text>
                     ))}
                   </View>
-                </View>
-              );
-            })}
-          </View>
-        ))}
-        <View style={styles.cumulativeSummary}>
-          <Text style={styles.cumulativeTitle}>
-            CUMULATIVE ACADEMIC SUMMARY
-          </Text>
-          <View style={styles.cumulativeGrid}>
-            <View style={styles.cumulativeColumn}>
-              <View style={styles.cumulativeItem}>
-                <Text style={styles.cumulativeLabel}>Credits Attempted</Text>
-                <Text style={styles.cumulativeValue}>
-                  {cumulativeStats.totalCreditsAttempted}
-                </Text>
+                )}
               </View>
-              <View style={styles.cumulativeItem}>
-                <Text style={styles.cumulativeLabel}>Credits Earned</Text>
-                <Text style={styles.cumulativeValue}>
-                  {cumulativeStats.totalCredits}
-                </Text>
-              </View>
-              <View style={styles.cumulativeItem}>
-                <Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
-                <Text style={styles.cumulativeValue}>
-                  {cumulativeStats.gpa.toFixed(2)}
-                </Text>
-              </View>
-            </View>{' '}
-            <View style={styles.academicRemarksColumn}>
-              <View style={styles.academicRemarksSection}>
-                <Text style={styles.academicRemarksLabel}>Academic Status</Text>
-                <Text style={styles.academicRemarksValue}>
-                  {academicRemarks.status}
-                </Text>
-                <Text style={styles.academicRemarksDetails}>
-                  {academicRemarks.details}
-                </Text>
-              </View>
-              {academicRemarks.pendingModules.length > 0 && (
-                <View style={styles.pendingModulesSection}>
-                  <Text style={styles.pendingModulesTitle}>
-                    Outstanding Requirements (
-                    {academicRemarks.pendingModules.length})
-                  </Text>
-                  {academicRemarks.pendingModules.map((module, index) => (
-                    <Text
-                      key={index}
-                      style={[
-                        styles.pendingModuleItem,
-                        module.type === 'Failed'
-                          ? styles.failedModule
-                          : styles.supplementaryModule,
-                      ]}
-                    >
-                      • {module.code} - {module.name}
-                      {module.type === 'Supplementary'
-                        ? ' (Supplementary)'
-                        : ' (Repeat)'}{' '}
-                    </Text>
-                  ))}
-                </View>
-              )}
             </View>
           </View>
-        </View>
-        <View style={styles.footer}>
-          <Text>
-            This is an official statement of results from Limkokwing University
-            of Creative Technology.
-          </Text>
-          <Text>
-            Date Generated:{' '}
-            {new Date().toLocaleDateString('en-LS', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </Text>
-        </View>
-      </Page>
-    </Document>
-  );
+          <View style={styles.footer}>
+            <Text>
+              This is an official statement of results from Limkokwing
+              University of Creative Technology.
+            </Text>
+            <Text>
+              Date Generated:
+              {new Date().toLocaleDateString('en-LS', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </Text>
+          </View>
+        </Page>
+      </Document>
+    );
+  } catch (error) {
+    console.error('Error generating Statement of Results PDF:', error);
+    return (
+      <Document>
+        <Page size='A4' style={styles.page}>
+          <Text>Error generating Statement of Results. Please try again.</Text>
+        </Page>
+      </Document>
+    );
+  }
 }
