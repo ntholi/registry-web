@@ -62,7 +62,7 @@ export default function Body() {
   }, [assignedModules]);
 
   const programOptions = useMemo(() => {
-    const options = [{ value: '', label: 'All Programs' }];
+    const options: { value: string; label: string }[] = [];
     const seen = new Set<number>();
 
     modulePrograms?.forEach((module) => {
@@ -81,13 +81,15 @@ export default function Body() {
 
     return options;
   }, [modulePrograms]);
+
   useEffect(() => {
     setSelectedProgramId(null);
   }, [selectedModuleId]);
+
   const generateReportMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedModuleId) {
-        throw new Error('Please select a module');
+      if (!selectedModuleId || !selectedProgramId) {
+        throw new Error('Please select a module and program');
       }
 
       const selectedModule = assignedModules?.find(
@@ -101,7 +103,7 @@ export default function Body() {
       setIsDownloading(true);
       try {
         const result = await generateCourseSummaryReport(
-          selectedProgramId ? Number(selectedProgramId) : undefined,
+          Number(selectedProgramId),
           selectedModule.semesterModuleId,
         );
         if (!result.success) {
@@ -142,7 +144,7 @@ export default function Body() {
         selectedModule?.semesterModule?.module?.code || 'Module';
       const programCode =
         selectedProgram?.semesterModule?.semester?.structure.program.code ||
-        'All';
+        'Program';
       a.download = `${moduleCode}_${programCode}_Course_Summary_${new Date().toISOString().split('T')[0]}.docx`;
       document.body.appendChild(a);
       a.click();
@@ -158,7 +160,7 @@ export default function Body() {
       });
     },
   });
-  const canGenerate = selectedModuleId;
+  const canGenerate = !!selectedModuleId && !!selectedProgramId;
   return (
     <Stack align='center' justify='center' p='xl'>
       <Alert
@@ -191,48 +193,27 @@ export default function Body() {
               placeholder='Choose a module'
               data={moduleOptions}
               value={selectedModuleId}
-              onChange={setSelectedModuleId}
+              onChange={(value) => {
+                setSelectedModuleId(value || null);
+                setSelectedProgramId(null);
+              }}
               disabled={modulesLoading}
+              leftSection={modulesLoading ? <Loader size={16} /> : null}
               searchable
             />
 
             {selectedModuleId && (
               <Select
-                label='Filter by Program (Optional)'
-                placeholder='Select program to filter students'
+                label='Select Program'
+                placeholder='Select a program'
                 data={programOptions}
                 value={selectedProgramId || ''}
-                onChange={(value) =>
-                  setSelectedProgramId(value === '' ? null : value)
-                }
+                onChange={(value) => setSelectedProgramId(value || null)}
                 disabled={programsLoading}
+                leftSection={programsLoading ? <Loader size={16} /> : null}
                 searchable
                 clearable
               />
-            )}
-
-            {modulesLoading && (
-              <Group justify='center'>
-                <Loader size='sm' />
-                <Text size='sm' c='dimmed'>
-                  Loading your assigned modules...
-                </Text>
-              </Group>
-            )}
-
-            {!modulesLoading && moduleOptions.length === 0 && (
-              <Text size='sm' c='dimmed' ta='center'>
-                No modules assigned to you for {currentTerm?.name}
-              </Text>
-            )}
-
-            {selectedModuleId && programsLoading && (
-              <Group justify='center'>
-                <Loader size='sm' />
-                <Text size='sm' c='dimmed'>
-                  Loading program options...
-                </Text>
-              </Group>
             )}
           </Stack>
         </CardSection>
