@@ -512,6 +512,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Number of Students',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -541,6 +542,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.totalStudents.toString(),
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -567,6 +569,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Number of Passes',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -596,6 +599,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.totalPasses.toString(),
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -622,6 +626,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Number of Failures',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -633,6 +638,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: '(to repeat module)',
+                    font: 'Tahoma',
                     italics: true,
                     size: 16,
                     color: 'FFFFFF',
@@ -662,6 +668,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.totalFailures.toString(),
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
@@ -688,6 +695,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: 'Number of Supplementary',
+                    font: 'Tahoma',
                     bold: true,
                     size: 20,
                     color: 'FFFFFF',
@@ -717,6 +725,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
                 children: [
                   new TextRun({
                     text: report.totalSupplementary.toString(),
+                    font: 'Tahoma',
                     size: 20,
                   }),
                 ],
