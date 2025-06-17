@@ -1,6 +1,13 @@
 export interface ExcelData {
   headers: string[];
   rows: (string | number)[][];
+  sheetNames?: string[];
+  selectedSheet?: string;
+}
+
+export interface ExcelWorkbook {
+  sheetNames: string[];
+  sheets: Record<string, ExcelData>;
 }
 
 export interface StudentRecord {

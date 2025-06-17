@@ -28,11 +28,13 @@ import { ColumnDetector } from './ColumnDetector';
 import { ExcelParser } from './ExcelParser';
 import ImportPreview from './ImportPreview';
 import ImportProgress from './ImportProgress';
+import SheetSelector from './SheetSelector';
 import type {
   AssessmentInfo,
   ColumnMapping,
   DetectedColumns,
   ExcelData,
+  ExcelWorkbook,
   ImportResult,
   ParsedRow,
 } from './types';
@@ -46,6 +48,8 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [activeStep, setActiveStep] = useState(0);
   const [file, setFile] = useState<File | null>(null);
+  const [workbook, setWorkbook] = useState<ExcelWorkbook | null>(null);
+  const [selectedSheet, setSelectedSheet] = useState<string | null>(null);
   const [excelData, setExcelData] = useState<ExcelData | null>(null);
   const [detectedColumns, setDetectedColumns] =
     useState<DetectedColumns | null>(null);
@@ -54,18 +58,55 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
   );
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-
   const handleFileSelect = async (selectedFile: File | null) => {
     if (!selectedFile) {
       setFile(null);
+      setWorkbook(null);
+      setSelectedSheet(null);
       setExcelData(null);
       setDetectedColumns(null);
       return;
     }
     try {
       setFile(selectedFile);
-      const data = await ExcelParser.parseFile(selectedFile);
+      const workbookData = await ExcelParser.parseFile(selectedFile);
+      setWorkbook(workbookData);
+
+      if (workbookData.sheetNames.length === 1) {
+        const sheetName = workbookData.sheetNames[0];
+        setSelectedSheet(sheetName);
+
+        const data = workbookData.sheets[sheetName];
+        setExcelData(data);
+
+        const detected = ColumnDetector.detectColumns(data, assessments);
+        setDetectedColumns(detected);
+
+        if (detected.confidence > 0.7) {
+          setColumnMapping({
+            studentNumberColumn: detected.studentNumberColumn,
+            assessmentColumns: detected.assessmentColumns,
+          });
+        }
+        setActiveStep(1);
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'File Parse Error',
+        message:
+          error instanceof Error ? error.message : 'Failed to parse Excel file',
+        color: 'red',
+      });
+    }
+  };
+  const handleSheetSelect = (sheetName: string) => {
+    if (!workbook) return;
+
+    try {
+      setSelectedSheet(sheetName);
+      const data = workbook.sheets[sheetName];
       setExcelData(data);
+
       const detected = ColumnDetector.detectColumns(data, assessments);
       setDetectedColumns(detected);
 
@@ -78,9 +119,11 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
       setActiveStep(1);
     } catch (error) {
       notifications.show({
-        title: 'File Parse Error',
+        title: 'Sheet Parse Error',
         message:
-          error instanceof Error ? error.message : 'Failed to parse Excel file',
+          error instanceof Error
+            ? error.message
+            : 'Failed to parse selected sheet',
         color: 'red',
       });
     }
@@ -104,6 +147,8 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
   const resetImport = () => {
     setActiveStep(0);
     setFile(null);
+    setWorkbook(null);
+    setSelectedSheet(null);
     setExcelData(null);
     setDetectedColumns(null);
     setColumnMapping(null);
@@ -149,10 +194,19 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
                   leftSection={<IconFileImport size={16} />}
                 />
 
+                {workbook && workbook.sheetNames.length > 1 && (
+                  <SheetSelector
+                    sheetNames={workbook.sheetNames}
+                    selectedSheet={selectedSheet}
+                    onSheetSelect={handleSheetSelect}
+                  />
+                )}
+
                 {excelData && (
                   <Alert icon={<IconCheck size={16} />} color='green'>
                     File loaded successfully: {excelData.rows.length} rows,
                     {excelData.headers.length} columns
+                    {selectedSheet && ` from sheet "${selectedSheet}"`}
                   </Alert>
                 )}
               </Stack>
