@@ -161,7 +161,7 @@ export function createCourseSummaryDocument(
           new Paragraph({
             children: [
               new TextRun({
-                text: report.principalLecturer,
+                text: report.lecturer,
                 font: 'Tahoma',
                 size: 18,
               }),
@@ -227,7 +227,7 @@ function createCombinedInfoTable(report: CourseSummaryReport): Table {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: report.principalLecturer,
+                    text: report.lecturer,
                     font: 'Tahoma',
                     size: 20,
                   }),
@@ -931,17 +931,18 @@ function createFailedStudentsTable(
           ],
         }),
         new TableCell({
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: student.reason,
-                  font: 'Tahoma',
-                  size: 16,
-                }),
-              ],
-            }),
-          ],
+          children: student.reason.split('\n').map(
+            (line) =>
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: line,
+                    font: 'Tahoma',
+                    size: 16,
+                  }),
+                ],
+              }),
+          ),
         }),
         new TableCell({
           children: [
