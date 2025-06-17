@@ -6,7 +6,7 @@ import { notifications } from '@mantine/notifications';
 import { Stack, StackProps } from '@mantine/core';
 import React, { JSX } from 'react';
 import FormHeader from './FormHeader';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type ZodSchema = ZodObject<Record<string, ZodTypeAny>>;

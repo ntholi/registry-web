@@ -346,7 +346,7 @@ function UserButton() {
   });
 
   if (status === 'unauthenticated') {
-    router.push('/api/auth/signin');
+    router.push('/login');
   }
 
   const openModal = () =>

@@ -5,7 +5,7 @@ import { Form } from '@/components/adease';
 import { TextInput, Select } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 
 type Student = typeof students.$inferInsert;
 
@@ -14,7 +14,7 @@ type Props = {
   defaultValues?: Student;
   onSuccess?: (value: Student) => void;
   onError?: (
-    error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+    error: Error | React.SyntheticEvent<HTMLDivElement, Event>,
   ) => void;
   title?: string;
 };

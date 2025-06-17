@@ -7,7 +7,7 @@ import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 
 type SemesterModule = typeof semesterModules.$inferInsert & {

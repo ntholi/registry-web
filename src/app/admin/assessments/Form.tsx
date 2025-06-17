@@ -4,7 +4,7 @@ import { Form } from '@/components/adease';
 import { assessments } from '@/db/schema';
 import { Grid, NumberInput, Select } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { ASSESSMENT_TYPES } from './[id]/assessments';
 
 type Assessment = typeof assessments.$inferInsert;

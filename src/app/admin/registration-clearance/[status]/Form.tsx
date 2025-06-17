@@ -4,7 +4,7 @@ import { registrationClearances } from '@/db/schema';
 import { Form } from '@/components/adease';
 import { TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 
 type RegistrationClearance = typeof registrationClearances.$inferInsert;
 
