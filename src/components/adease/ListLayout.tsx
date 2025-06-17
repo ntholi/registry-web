@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next-nprogress-bar';
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import React from 'react';
 import { ListItem } from './ListItem';

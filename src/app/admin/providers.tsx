@@ -2,7 +2,7 @@
 import { MantineProvider } from '@mantine/core';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
-import { AppProgressBar } from 'next-nprogress-bar';
+import NextTopLoader from 'nextjs-toploader';
 import React from 'react';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -11,11 +11,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <Notifications />
       <ModalsProvider>
         {children}
-        <AppProgressBar
-          height='3px'
+        <NextTopLoader
+          height={3}
           color='#2196F3'
-          options={{ showSpinner: false }}
-          shallowRouting
+          showSpinner={false}
+          shadow='0 0 10px #2196F3,0 0 5px #2196F3'
         />
       </ModalsProvider>
     </MantineProvider>
