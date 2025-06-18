@@ -36,16 +36,23 @@ export default function TotalMarkDisplay({
 }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const queryClient = useQueryClient();
-
   const isBorderlineMark = (score: number): boolean => {
-    const borderlineMarks = [44, 49, 54, 59, 64, 69, 74, 79, 84, 89];
-    return borderlineMarks.includes(Math.floor(score));
+    const borderlineMarks = [44, 48, 49, 54, 59, 64, 69, 74, 79, 84, 89];
+    return borderlineMarks.includes(Math.round(score));
   };
 
   const getBorderlineOptions = (
     score: number,
   ): { lower: number; higher: number } => {
-    const floorScore = Math.floor(score);
+    const floorScore = Math.round(score);
+
+    if (floorScore === 48 || floorScore === 49) {
+      return {
+        lower: 47,
+        higher: 50,
+      };
+    }
+
     return {
       lower: floorScore - 1,
       higher: floorScore + 1,
