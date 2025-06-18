@@ -275,9 +275,10 @@ function getNavigation(department: DashboardUser) {
           href: `/admin/reports/boe`,
           description: 'Board of Examination Report',
           icon: IconCopyCheck,
-          roles: ['academic'],
+          roles: ['academic', 'registry'],
           isVisible: (session) => {
-            if (session?.user?.role === 'admin') return true;
+            if (['admin', 'registry'].includes(session?.user?.role as UserRole))
+              return true;
             const academicRole = session?.user?.position as UserPosition;
             return (
               academicRole &&
