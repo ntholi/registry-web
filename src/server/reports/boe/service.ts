@@ -220,23 +220,21 @@ export default class BoeReportService {
 
       studentSemesters.forEach((ss) => {
         const semNum = ss.semesterNumber || 0;
-        if (semNum < currentSemesterNumber) {
-          if (!semesterGroups.has(semNum)) {
-            semesterGroups.set(semNum, []);
-          }
-
-          ss.studentModules.forEach((sm) => {
-            semesterGroups.get(semNum)!.push({
-              code: sm.semesterModule.module?.code || '',
-              name: sm.semesterModule.module?.name || '',
-              grade: sm.grade,
-              credits: Number(sm.semesterModule.credits),
-              status: (sm.status as ModuleStatus) || 'Active',
-              semesterNumber: semNum,
-              semesterModuleId: sm.semesterModuleId,
-            });
-          });
+        if (!semesterGroups.has(semNum)) {
+          semesterGroups.set(semNum, []);
         }
+
+        ss.studentModules.forEach((sm) => {
+          semesterGroups.get(semNum)!.push({
+            code: sm.semesterModule.module?.code || '',
+            name: sm.semesterModule.module?.name || '',
+            grade: sm.grade,
+            credits: Number(sm.semesterModule.credits),
+            status: (sm.status as ModuleStatus) || 'Active',
+            semesterNumber: semNum,
+            semesterModuleId: sm.semesterModuleId,
+          });
+        });
       });
 
       historicalSemesters.push(

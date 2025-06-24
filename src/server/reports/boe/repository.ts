@@ -241,7 +241,12 @@ export default class BoeReportRepository extends BaseRepository<
           db
             .select({ id: studentPrograms.id })
             .from(studentPrograms)
-            .where(inArray(studentPrograms.stdNo, batch)),
+            .where(
+              and(
+                inArray(studentPrograms.stdNo, batch),
+                eq(studentPrograms.status, 'Active'),
+              ),
+            ),
         ),
         orderBy: [
           asc(studentSemesters.term),
