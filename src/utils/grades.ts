@@ -335,15 +335,13 @@ export function calculateFacultyRemarks(
             isFailingGrade(module.grade) &&
             !['Delete', 'Drop'].includes(module.status ?? '')
           ) {
-            const hasBeenRepeated = historicalSemesters.some(
-              (laterSemester) =>
-                laterSemester.semesterNumber > semesterData.semesterNumber &&
-                laterSemester.modules.some(
-                  (laterModule) =>
-                    laterModule.name === module.name &&
-                    !isFailingGrade(laterModule.grade) &&
-                    !['Delete', 'Drop'].includes(laterModule.status ?? ''),
-                ),
+            const hasBeenRepeated = historicalSemesters.some((otherSemester) =>
+              otherSemester.modules.some(
+                (otherModule) =>
+                  otherModule.name === module.name &&
+                  !isFailingGrade(otherModule.grade) &&
+                  !['Delete', 'Drop'].includes(otherModule.status ?? ''),
+              ),
             );
             if (!hasBeenRepeated) {
               historicalFailures.push(module);
