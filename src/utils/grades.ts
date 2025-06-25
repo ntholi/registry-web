@@ -340,7 +340,7 @@ export function calculateFacultyRemarks(
                 laterSemester.semesterNumber > semesterData.semesterNumber &&
                 laterSemester.modules.some(
                   (laterModule) =>
-                    laterModule.semesterModuleId === module.semesterModuleId &&
+                    laterModule.name === module.name &&
                     !isFailingGrade(laterModule.grade) &&
                     !['Delete', 'Drop'].includes(laterModule.status ?? ''),
                 ),
