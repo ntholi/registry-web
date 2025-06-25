@@ -2,12 +2,13 @@ import { db } from '@/db';
 import {
   programs,
   structures,
+  studentModules,
   studentPrograms,
   students,
   studentSemesters,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { and, eq, inArray, asc } from 'drizzle-orm';
+import { and, eq, inArray, asc, notInArray } from 'drizzle-orm';
 
 export interface StudentModuleReport {
   studentId: number;
@@ -93,6 +94,7 @@ export default class BoeReportRepository extends BaseRepository<
           },
         },
         studentModules: {
+          where: (modules) => notInArray(modules.status, ['Drop', 'Delete']),
           with: {
             semesterModule: {
               with: {
@@ -137,6 +139,7 @@ export default class BoeReportRepository extends BaseRepository<
           },
         },
         studentModules: {
+          where: (modules) => notInArray(modules.status, ['Drop', 'Delete']),
           with: {
             semesterModule: {
               with: {
@@ -207,6 +210,7 @@ export default class BoeReportRepository extends BaseRepository<
             },
           },
           studentModules: {
+            where: (modules) => notInArray(modules.status, ['Drop', 'Delete']),
             with: {
               semesterModule: {
                 with: {
@@ -264,6 +268,7 @@ export default class BoeReportRepository extends BaseRepository<
             },
           },
           studentModules: {
+            where: (modules) => notInArray(modules.status, ['Drop', 'Delete']),
             with: {
               semesterModule: {
                 with: {
