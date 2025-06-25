@@ -24,6 +24,7 @@ import { useState } from 'react';
 import GpaDisplay from './GpaDisplay';
 import { summarizeModules, calculateGPA } from '@/utils/grades';
 import { ModuleStatus } from '@/db/schema';
+import Link from 'next/link';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -73,6 +74,15 @@ export default function AcademicsView({ student, showMarks }: Props) {
                     >
                       {program.status}
                     </Badge>
+                    <Anchor
+                      size='0.715rem'
+                      c={'gray'}
+                      component={Link}
+                      href={`/admin/programs?structure=${program.structureId}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {program.structure.code}
+                    </Anchor>
                   </Group>
                 </Stack>
               </Group>
