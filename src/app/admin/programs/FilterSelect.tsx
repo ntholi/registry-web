@@ -7,6 +7,7 @@ import {
   getStructuresByProgram,
 } from '@/server/semester-modules/actions';
 import {
+  Badge,
   Box,
   ComboboxItem,
   ComboboxLikeRenderOptionInput,
@@ -15,10 +16,12 @@ import {
   Select,
   Stack,
   Text,
+  useMantineColorScheme,
+  useMantineTheme,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface FilterSelectProps {
   onStructureSelect: (structureId: number) => void;
@@ -29,10 +32,20 @@ interface SelectOption extends ComboboxItem {
   name: string;
 }
 
+interface ProgramWithStructure extends ComboboxItem {
+  code: string;
+  name: string;
+  structureId: number;
+  structureCode: string;
+  isCurrentStructure: boolean;
+}
+
 export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
-  const [school, setSchool] = useQueryState('school');
-  const [program, setProgram] = useQueryState('program');
-  const [structure, setStructure] = useQueryState('structure');
+  const [school, setSchool] = useState<string | null>(null);
+  const [structureId, setStructureId] = useQueryState('structure');
+  const [programWithStructure, setProgramWithStructure] = useState<
+    string | null
+  >(null);
   const { userSchools, isLoading: isLoadingUserSchools } = useUserSchools();
 
   const { data: schools = [], isLoading: isLoadingSchools } = useQuery({
@@ -49,56 +62,74 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
         }));
     },
   });
-  const { data: programs = [], isLoading: isLoadingPrograms } = useQuery({
-    queryKey: ['programs', school],
-    queryFn: async () => {
-      if (!school) return [];
-      try {
-        const programData = await getProgramsBySchool(parseInt(school));
-        return programData
-          .sort((a, b) => b.id - a.id)
-          .map((program) => ({
-            value: program.id.toString(),
-            label: program.code,
-            code: program.code,
-            name: program.name,
-          }));
-      } catch (error) {
-        console.error('Error fetching programs:', error);
-        return [];
-      }
-    },
-    enabled: !!school,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
 
-  const { data: structures = [], isLoading: isLoadingStructures } = useQuery({
-    queryKey: ['structures', program],
-    queryFn: async () => {
-      if (!program) return [];
-      try {
-        const structureData = await getStructuresByProgram(parseInt(program));
-        return structureData.map((structure, index) => ({
-          id: structure.id,
-          value: structure.id.toString(),
-          label: structure.code,
-          code: structure.code,
-          name: index === 0 ? 'Current' : 'Old',
-        }));
-      } catch (error) {
-        console.error('Error fetching structures:', error);
-        return [];
-      }
-    },
-    enabled: !!program,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  const { data: programsWithStructures = [], isLoading: isLoadingPrograms } =
+    useQuery({
+      queryKey: ['programsWithStructures', school],
+      queryFn: async () => {
+        if (!school) return [];
+        try {
+          const programData = await getProgramsBySchool(parseInt(school));
+          const programsWithStructures: ProgramWithStructure[] = [];
+
+          for (const program of programData) {
+            try {
+              const structures = await getStructuresByProgram(program.id);
+              structures.forEach((structure, index) => {
+                const isCurrentStructure = index === 0;
+                programsWithStructures.push({
+                  value: `${program.id}-${structure.id}`,
+                  label: `${program.code} (${structure.code})`,
+                  code: program.code,
+                  name: program.name,
+                  structureId: structure.id,
+                  structureCode: structure.code,
+                  isCurrentStructure,
+                });
+              });
+            } catch (error) {
+              console.error(
+                `Error fetching structures for program ${program.id}:`,
+                error,
+              );
+            }
+          }
+
+          return programsWithStructures.sort((a, b) => {
+            if (a.code !== b.code) {
+              return a.code.localeCompare(b.code);
+            }
+            return b.isCurrentStructure ? 1 : -1;
+          });
+        } catch (error) {
+          console.error('Error fetching programs:', error);
+          return [];
+        }
+      },
+      enabled: !!school,
+      staleTime: 1000 * 60 * 5,
+    });
 
   useEffect(() => {
-    if (structure && program) {
-      onStructureSelect(parseInt(structure));
+    if (structureId) {
+      onStructureSelect(parseInt(structureId));
+      const matchingOption = programsWithStructures.find(
+        (item) => item.structureId.toString() === structureId,
+      );
+      if (matchingOption) {
+        setProgramWithStructure(matchingOption.value);
+      }
     }
-  }, [structure, program, onStructureSelect]);
+  }, [structureId, onStructureSelect, programsWithStructures]);
+
+  useEffect(() => {
+    if (programWithStructure && !structureId) {
+      const [, extractedStructureId] = programWithStructure.split('-');
+      if (extractedStructureId) {
+        setStructureId(extractedStructureId);
+      }
+    }
+  }, [programWithStructure, structureId, setStructureId]);
 
   useEffect(() => {
     if (
@@ -112,35 +143,78 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
         setSchool(firstUserSchool.id.toString());
       }
     }
-  }, [userSchools, isLoadingUserSchools, isLoadingSchools, school, setSchool]);
+  }, [userSchools, isLoadingUserSchools, isLoadingSchools, school]);
 
   const handleSchoolChange = (value: string | null) => {
     setSchool(value);
-    setProgram(null);
-    setStructure(null);
+    setProgramWithStructure(null);
+    setStructureId(null);
   };
 
-  const handleProgramChange = (value: string | null) => {
-    setProgram(value);
-    setStructure(null);
-  };
-
-  const handleStructureChange = (value: string | null) => {
-    setStructure(value);
+  const handleProgramWithStructureChange = (value: string | null) => {
+    setProgramWithStructure(value);
     if (value) {
-      onStructureSelect(parseInt(value));
+      const [, extractedStructureId] = value.split('-');
+      if (extractedStructureId) {
+        setStructureId(extractedStructureId);
+        onStructureSelect(parseInt(extractedStructureId));
+      }
+    } else {
+      setStructureId(null);
     }
   };
 
   function renderOption(item: ComboboxLikeRenderOptionInput<ComboboxItem>) {
-    const { code, name } = item.option as SelectOption;
+    const theme = useMantineTheme();
+    const { colorScheme } = useMantineColorScheme();
+    const option = item.option as SelectOption | ProgramWithStructure;
+
+    if ('structureId' in option) {
+      const programStructure = option as ProgramWithStructure;
+      const isDark = colorScheme === 'dark';
+
+      const currentBgColor = isDark
+        ? theme.colors.blue[9]
+        : theme.colors.blue[0];
+      const currentBorderColor = isDark
+        ? theme.colors.blue[7]
+        : theme.colors.blue[3];
+      const oldBgColor = isDark ? theme.colors.gray[8] : theme.colors.gray[0];
+      const oldBorderColor = isDark
+        ? theme.colors.gray[6]
+        : theme.colors.gray[3];
+
+      return (
+        <Box p='xs'>
+          <Text size='sm' fw={500}>
+            {programStructure.code}
+          </Text>
+          <Text size='xs' c='dimmed' mb={2}>
+            {programStructure.name}
+          </Text>
+          <Badge
+            variant='outline'
+            radius={'xs'}
+            size='xs'
+            color={programStructure.isCurrentStructure ? 'blue' : 'gray'}
+          >
+            {programStructure.structureCode} •{' '}
+            {programStructure.isCurrentStructure ? 'Current' : 'Old'}
+          </Badge>
+        </Box>
+      );
+    }
+
+    const { code, name } = option as SelectOption;
     if (code === name) {
       return <Text size='sm'>{code}</Text>;
     }
     return (
-      <Box>
-        <Text size='sm'>{code}</Text>
-        <Text size='0.85rem' c='dimmed'>
+      <Box p='xs'>
+        <Text size='sm' fw={500}>
+          {code}
+        </Text>
+        <Text size='xs' c='dimmed'>
           {name}
         </Text>
       </Box>
@@ -150,7 +224,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
   return (
     <Stack gap='md'>
       <Grid>
-        <Grid.Col span={5}>
+        <Grid.Col span={6}>
           <Select
             label='School'
             data={schools}
@@ -167,29 +241,16 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             renderOption={renderOption}
           />
         </Grid.Col>
-        <Grid.Col span={5}>
+        <Grid.Col span={6}>
           <Select
-            label='Program'
-            data={programs}
-            value={program}
-            onChange={handleProgramChange}
+            label='Program & Structure'
+            data={programsWithStructures}
+            value={programWithStructure}
+            onChange={handleProgramWithStructureChange}
             searchable
             clearable
             disabled={!school || isLoadingPrograms}
             rightSection={isLoadingPrograms ? <Loader size='xs' /> : null}
-            renderOption={renderOption}
-          />
-        </Grid.Col>
-        <Grid.Col span={2}>
-          <Select
-            label='Structure'
-            data={structures}
-            value={structure}
-            onChange={handleStructureChange}
-            searchable
-            clearable
-            disabled={!program || !structures}
-            rightSection={isLoadingStructures ? <Loader size='xs' /> : null}
             renderOption={renderOption}
           />
         </Grid.Col>
