@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Registry Portal | Limkokwing',
   description:
-    'Student Portal for Limkokwing University of Creative Technology, Lesotho',
+    'Registry Portal for Limkokwing University of Creative Technology, Lesotho',
   keywords: [
     'Limkokwing Student Portal',
     'Student Portal',

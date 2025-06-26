@@ -14,7 +14,7 @@ import GoogleIcon from './GoogleIcon';
 import { AlertCircle } from 'lucide-react';
 
 export const metadata = {
-  title: 'Student Portal | Sign in',
+  title: 'Sign in | Limkokwing University of Creative Technology',
 };
 
 export default async function LoginForm() {
