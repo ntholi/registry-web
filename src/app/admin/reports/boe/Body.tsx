@@ -100,12 +100,11 @@ export default function Body() {
           <Title order={3}>BOE Report Generation</Title>
           <Text c='dimmed' size='sm'>
             Generate Board of Examination (BOE) reports
-          </Text>{' '}
+          </Text>
         </CardSection>
         <CardSection inheritPadding>
           <Stack gap='md'>
             <Text my='xs'>
-              {' '}
               Select a school to generate BOE reports for all programs and
               students in that school for {currentTerm?.name}.
             </Text>
@@ -120,7 +119,7 @@ export default function Body() {
               searchable
             />
           </Stack>
-        </CardSection>{' '}
+        </CardSection>
         <CardSection inheritPadding py='md'>
           <Group>
             <Button

@@ -8,7 +8,7 @@ import {
   studentSemesters,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { and, eq, inArray, asc, notInArray } from 'drizzle-orm';
+import { and, eq, inArray, asc, notInArray, ne } from 'drizzle-orm';
 
 export interface StudentModuleReport {
   studentId: number;
@@ -81,6 +81,7 @@ export default class BoeReportRepository extends BaseRepository<
       where: and(
         eq(studentSemesters.term, termName),
         inArray(studentSemesters.studentProgramId, studentProgramIds),
+        ne(studentSemesters.status, 'Deleted'),
       ),
       with: {
         studentProgram: {
@@ -126,6 +127,7 @@ export default class BoeReportRepository extends BaseRepository<
       where: and(
         eq(studentSemesters.term, termName),
         inArray(studentSemesters.studentProgramId, studentProgramIds),
+        ne(studentSemesters.status, 'Deleted'),
       ),
       with: {
         studentProgram: {
@@ -193,7 +195,10 @@ export default class BoeReportRepository extends BaseRepository<
       const batch = studentProgramIds.slice(i, i + batchSize);
 
       const batchResults = await db.query.studentSemesters.findMany({
-        where: inArray(studentSemesters.studentProgramId, batch),
+        where: and(
+          inArray(studentSemesters.studentProgramId, batch),
+          ne(studentSemesters.status, 'Deleted'),
+        ),
         orderBy: [
           asc(studentSemesters.term),
           asc(studentSemesters.semesterNumber),
@@ -240,17 +245,20 @@ export default class BoeReportRepository extends BaseRepository<
       const batch = studentNumbers.slice(i, i + batchSize);
 
       const batchResults = await db.query.studentSemesters.findMany({
-        where: inArray(
-          studentSemesters.studentProgramId,
-          db
-            .select({ id: studentPrograms.id })
-            .from(studentPrograms)
-            .where(
-              and(
-                inArray(studentPrograms.stdNo, batch),
-                eq(studentPrograms.status, 'Active'),
+        where: and(
+          inArray(
+            studentSemesters.studentProgramId,
+            db
+              .select({ id: studentPrograms.id })
+              .from(studentPrograms)
+              .where(
+                and(
+                  inArray(studentPrograms.stdNo, batch),
+                  eq(studentPrograms.status, 'Active'),
+                ),
               ),
-            ),
+          ),
+          ne(studentSemesters.status, 'Deleted'),
         ),
         orderBy: [
           asc(studentSemesters.term),
