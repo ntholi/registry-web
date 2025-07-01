@@ -64,7 +64,7 @@ describe('Term Permissions', () => {
         isActive: true,
         semester: 3,
       };
-      await expect(createTerm(newTerm)).rejects.toThrow('Unauthorized');
+      await expect(createTerm(newTerm)).rejects.toThrow('Forbidden');
     });
 
     it('should not allow a non-admin to update a term', async () => {
@@ -72,7 +72,7 @@ describe('Term Permissions', () => {
       const termToUpdate = { id: createdTerm?.id, name: 'Updated Term Name' };
       // @ts-ignore
       await expect(updateTerm(termToUpdate.id, termToUpdate)).rejects.toThrow(
-        'Unauthorized',
+        'Forbidden',
       );
     });
 
@@ -80,7 +80,7 @@ describe('Term Permissions', () => {
       setMockUser({ role: 'user' } as User);
       const termIdToDelete = createdTerm?.id;
       // @ts-ignore
-      await expect(deleteTerm(termIdToDelete)).rejects.toThrow('Unauthorized');
+      await expect(deleteTerm(termIdToDelete)).rejects.toThrow('Forbidden');
     });
   });
 

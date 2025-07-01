@@ -1,7 +1,7 @@
 import { users } from '@/db/schema';
 import { vi } from 'vitest';
 
-type User = typeof users.$inferSelect;
+type User = Partial<typeof users.$inferSelect>;
 
 let mockedUser: User = {
   id: 'test-user',
