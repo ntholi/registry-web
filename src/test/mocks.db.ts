@@ -20,9 +20,7 @@ async function setupTestDatabase() {
 async function cleanupTestDatabase() {
   try {
     await testDb.delete(schema.terms);
-  } catch (error) {
-    // Ignore errors for tables that don't exist or can't be deleted
-  }
+  } catch (error) {}
 }
 
 export { testDb, setupTestDatabase, cleanupTestDatabase };

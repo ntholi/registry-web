@@ -1,13 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { termsService } from './service';
 import { terms } from '@/db/schema';
-import { setMockUser } from '@/test/mocks';
+import { setMockUser } from '@/test/mocks.auth';
 
 type Term = typeof terms.$inferInsert;
 
 describe('Terms Service', () => {
   beforeEach(() => {
-    // Test setup is handled by the global setup file
     setMockUser({ role: 'admin' });
   });
 
@@ -28,7 +27,6 @@ describe('Terms Service', () => {
   });
 
   it('should get a term by id', async () => {
-    // First create a term
     const termData: Term = {
       name: 'Test Term for Get',
       semester: 2,
@@ -36,7 +34,6 @@ describe('Terms Service', () => {
 
     const createdTerm = await termsService.create(termData);
 
-    // Then retrieve it
     const term = await termsService.get(createdTerm.id);
 
     expect(term).toBeDefined();
@@ -52,7 +49,6 @@ describe('Terms Service', () => {
   });
 
   it('should create multiple terms and retrieve them', async () => {
-    // Create multiple terms
     const term1 = await termsService.create({
       name: 'Term 1',
       semester: 1,
@@ -63,7 +59,6 @@ describe('Terms Service', () => {
       semester: 2,
     });
 
-    // Verify they exist
     const retrievedTerm1 = await termsService.get(term1.id);
     const retrievedTerm2 = await termsService.get(term2.id);
 
@@ -73,13 +68,11 @@ describe('Terms Service', () => {
   });
 
   it('should handle unique constraint on term names', async () => {
-    // Create first term
     await termsService.create({
       name: 'Unique Term',
       semester: 1,
     });
 
-    // Try to create another term with the same name
     await expect(
       termsService.create({
         name: 'Unique Term',
@@ -97,7 +90,6 @@ describe('Terms Service', () => {
 
     expect(activeTerm.isActive).toBe(true);
 
-    // Create another active term - should deactivate the first
     const newActiveTerm = await termsService.create({
       name: 'New Active Term',
       semester: 2,
@@ -106,7 +98,6 @@ describe('Terms Service', () => {
 
     expect(newActiveTerm.isActive).toBe(true);
 
-    // Verify the first term is no longer active
     const firstTerm = await termsService.get(activeTerm.id);
     expect(firstTerm?.isActive).toBe(false);
   });

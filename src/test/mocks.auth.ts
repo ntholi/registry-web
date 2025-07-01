@@ -1,12 +1,18 @@
 import { vi } from 'vitest';
 
-let mockedUser: any = {
+type User = {
+  id?: string;
+  role: string;
+  email?: string;
+};
+
+let mockedUser: User = {
   id: 'test-user',
   role: 'user',
   email: 'test@example.com',
 };
 
-export const setMockUser = (user: any) => {
+export const setMockUser = (user: User) => {
   mockedUser = user;
 };
 

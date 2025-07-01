@@ -1,14 +1,12 @@
 import { beforeAll, beforeEach, afterAll } from 'vitest';
-import { setupTestDatabase, cleanupTestDatabase } from './db';
+import { setupTestDatabase, cleanupTestDatabase } from './mocks.db';
 import { vi } from 'vitest';
-import { resetMockUser } from './mocks';
+import { resetMockUser } from './mocks.auth';
 
-// Mock auth for tests - return admin user for all requests
-vi.mock('@/auth', () => vi.importActual('./mocks'));
+vi.mock('@/auth', () => vi.importActual('./mocks.auth'));
 
-// Override the db import to use test database
 vi.mock('@/db', async () => {
-  const { testDb } = await vi.importActual('./db');
+  const { testDb } = await vi.importActual('./mocks.db');
   return { db: testDb };
 });
 
