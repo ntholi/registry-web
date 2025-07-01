@@ -5,7 +5,7 @@ import * as schema from '../db/schema';
 import * as relations from '../db/relations';
 
 const testClient = createClient({
-  url: 'file:test.db',
+  url: ':memory:',
 });
 
 const testDb = drizzle(testClient, {
