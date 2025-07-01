@@ -1,12 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { termsService } from './service';
 import { terms } from '@/db/schema';
+import { setMockUser } from '@/test/mocks';
 
 type Term = typeof terms.$inferInsert;
 
 describe('Terms Service', () => {
   beforeEach(() => {
     // Test setup is handled by the global setup file
+    setMockUser({ role: 'admin' });
   });
 
   it('should create a new term', async () => {

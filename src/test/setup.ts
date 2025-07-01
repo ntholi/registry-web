@@ -1,19 +1,10 @@
 import { beforeAll, beforeEach, afterAll } from 'vitest';
 import { setupTestDatabase, cleanupTestDatabase } from '@/db/test-db';
 import { vi } from 'vitest';
+import { resetMockUser } from './mocks';
 
 // Mock auth for tests - return admin user for all requests
-vi.mock('@/auth', () => ({
-  auth: vi.fn(() =>
-    Promise.resolve({
-      user: {
-        id: 'test-user',
-        role: 'admin',
-        email: 'test@example.com',
-      },
-    }),
-  ),
-}));
+vi.mock('@/auth', () => vi.importActual('./mocks'));
 
 // Override the db import to use test database
 vi.mock('@/db', async () => {
@@ -32,6 +23,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   try {
     await cleanupTestDatabase();
+    resetMockUser();
   } catch (error) {
     console.warn('Failed to cleanup test database:', error);
   }
