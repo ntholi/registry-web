@@ -1,7 +1,6 @@
+import { Metadata } from 'next';
 import { PropsWithChildren } from 'react';
 import Providers from './providers';
-import { Metadata } from 'next';
-import Maintenance from './Maintenance';
 
 export const metadata: Metadata = {
   title: 'Registry Portal | Limkokwing',
@@ -30,8 +29,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang='en' suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <Maintenance />
-        {/* <Providers>{children}</Providers> */}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
