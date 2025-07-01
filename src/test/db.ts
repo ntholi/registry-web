@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import { migrate } from 'drizzle-orm/libsql/migrator';
-import * as schema from './schema';
-import * as relations from './relations';
+import * as schema from '../db/schema';
+import * as relations from '../db/relations';
 
 const testClient = createClient({
   url: 'file:test.db',

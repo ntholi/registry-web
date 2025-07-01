@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, afterAll } from 'vitest';
-import { setupTestDatabase, cleanupTestDatabase } from '@/db/test-db';
+import { setupTestDatabase, cleanupTestDatabase } from './db';
 import { vi } from 'vitest';
 import { resetMockUser } from './mocks';
 
@@ -8,7 +8,7 @@ vi.mock('@/auth', () => vi.importActual('./mocks'));
 
 // Override the db import to use test database
 vi.mock('@/db', async () => {
-  const { testDb } = await vi.importActual('@/db/test-db');
+  const { testDb } = await vi.importActual('./db');
   return { db: testDb };
 });
 
