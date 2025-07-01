@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { termsService } from './service';
+import { termsService } from '../service';
 import { terms } from '@/db/schema';
 import { setMockUser } from '@/test/mocks.auth';
 
