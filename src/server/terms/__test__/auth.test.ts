@@ -1,34 +1,19 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
+import { terms, users } from '@/db/schema';
 import {
   createTerm,
-  updateTerm,
   deleteTerm,
   getCurrentTerm,
+  updateTerm,
 } from '@/server/terms/actions';
-import { setMockUser, resetMockUser, getMockUser } from '@/test/mocks.auth';
-import { users, terms } from '@/db/schema';
+import { resetMockUser, setMockUser } from '@/test/mocks.auth';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-type Term = typeof terms.$inferInsert;
-type User = typeof users.$inferInsert;
+vi.mock('@/server/base/withAuth', () => {
+  return vi.importActual('@/test/mock.withAuth');
+});
 
-vi.mock('@/server/base/withAuth', () => ({
-  default: async (fn: Function, roles: string[]) => {
-    const user = getMockUser();
-    if (roles.includes('all')) {
-      return fn();
-    }
-    if (roles.length === 0 && user?.role === 'admin') {
-      return fn();
-    }
-    if (user?.role && roles.includes(user.role)) {
-      return fn();
-    }
-    if (user?.role === 'admin') {
-      return fn();
-    }
-    throw new Error('Unauthorized');
-  },
-}));
+type Term = typeof terms.$inferSelect;
+type User = typeof users.$inferSelect;
 
 describe('Term Permissions', () => {
   let createdTerm: Term | undefined;
