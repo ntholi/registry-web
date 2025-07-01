@@ -33,11 +33,9 @@ export default class SponsorRepository extends BaseRepository<
     sponsorId: number;
     borrowerNo?: string;
   }) {
-    // Check if record exists
     const existing = await this.findSponsoredStudent(data.stdNo, data.termId);
 
     if (existing) {
-      // Update existing record
       return await db
         .update(sponsoredStudents)
         .set({
@@ -53,7 +51,6 @@ export default class SponsorRepository extends BaseRepository<
         )
         .returning();
     } else {
-      // Insert new record
       return await db
         .insert(sponsoredStudents)
         .values({

@@ -19,6 +19,7 @@ async function setupTestDatabase() {
 
 async function cleanupTestDatabase() {
   try {
+    await testDb.delete(schema.sponsors);
     await testDb.delete(schema.terms);
   } catch (error) {}
 }
