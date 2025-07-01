@@ -81,24 +81,31 @@ describe('Terms Service', () => {
     ).rejects.toThrow();
   });
 
-  it('should set active term correctly', async () => {
-    const activeTerm = await termsService.create({
-      name: 'Active Term',
+  it('should set active term correctly, ensuring only one is active at a time', async () => {
+    const term1 = await termsService.create({
+      name: 'First Term',
       semester: 1,
-      isActive: true,
     });
 
-    expect(activeTerm.isActive).toBe(true);
-
-    const newActiveTerm = await termsService.create({
-      name: 'New Active Term',
+    const term2 = await termsService.create({
+      name: 'Second Term',
       semester: 2,
-      isActive: true,
     });
 
-    expect(newActiveTerm.isActive).toBe(true);
+    await termsService.update(term1.id, { isActive: true });
 
-    const firstTerm = await termsService.get(activeTerm.id);
-    expect(firstTerm?.isActive).toBe(false);
+    let activeTerm = await termsService.getActive();
+    expect(activeTerm?.id).toBe(term1.id);
+
+    await termsService.update(term2.id, { isActive: true });
+
+    const notActiveTerm = await termsService.get(term1.id);
+    expect(notActiveTerm?.isActive).toBe(false);
+
+    activeTerm = await termsService.getActive();
+    expect(activeTerm?.id).toBe(term2.id);
+
+    const formerActiveTerm = await termsService.get(term1.id);
+    expect(formerActiveTerm?.isActive).toBe(false);
   });
 });

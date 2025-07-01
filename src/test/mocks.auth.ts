@@ -1,10 +1,7 @@
+import { UserPosition, UserRole, users } from '@/db/schema';
 import { vi } from 'vitest';
 
-type User = {
-  id?: string;
-  role: string;
-  email?: string;
-};
+type User = typeof users.$inferInsert;
 
 let mockedUser: User = {
   id: 'test-user',

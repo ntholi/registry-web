@@ -39,7 +39,7 @@ class TermService {
     }, []);
   }
 
-  async update(id: number, data: Term) {
+  async update(id: number, data: Partial<Term>) {
     return withAuth(async () => {
       if (data.isActive) {
         await db
