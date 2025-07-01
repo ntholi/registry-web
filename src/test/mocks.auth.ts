@@ -9,6 +9,8 @@ let mockedUser: User = {
   email: 'test@example.com',
 };
 
+export const getMockUser = () => mockedUser;
+
 export const setMockUser = (user: User) => {
   mockedUser = user;
 };

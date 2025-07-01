@@ -47,12 +47,17 @@ class TermService {
           .set({ isActive: false })
           .where(eq(terms.isActive, true));
       }
-      return this.repository.update(id, data);
+      await this.repository.update(id, data);
+      return this.repository.findById(id);
     }, []);
   }
 
   async delete(id: number) {
-    return withAuth(async () => this.repository.delete(id), []);
+    return withAuth(async () => {
+      const term = await this.repository.findById(id);
+      await this.repository.delete(id);
+      return term;
+    }, []);
   }
 
   async count() {
