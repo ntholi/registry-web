@@ -18,10 +18,45 @@ async function setupTestDatabase() {
 }
 
 async function cleanupTestDatabase() {
-  try {
-    await testDb.delete(schema.sponsors);
-    await testDb.delete(schema.terms);
-  } catch (error) {}
+  const tables = [
+    schema.assessmentMarksAudit,
+    schema.assessmentsAudit,
+    schema.assessmentMarks,
+    schema.assessments,
+    schema.moduleGrades,
+    schema.registrationClearanceAudit,
+    schema.registrationClearances,
+    schema.requestedModules,
+    schema.registrationRequests,
+    schema.sponsoredStudents,
+    schema.assignedModules,
+    schema.userSchools,
+    schema.studentModules,
+    schema.studentSemesters,
+    schema.studentPrograms,
+    schema.modulePrerequisites,
+    schema.semesterModules,
+    schema.structureSemesters,
+    schema.structures,
+    schema.programs,
+    schema.schools,
+    schema.modules,
+    schema.students,
+    schema.signups,
+    schema.authenticators,
+    schema.sessions,
+    schema.accounts,
+    schema.verificationTokens,
+    schema.users,
+    schema.terms,
+    schema.sponsors,
+  ];
+
+  for (const table of tables) {
+    try {
+      await testDb.delete(table);
+    } catch (error) {}
+  }
 }
 
 export { testDb, setupTestDatabase, cleanupTestDatabase };
