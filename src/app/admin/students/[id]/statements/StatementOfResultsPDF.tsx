@@ -247,6 +247,7 @@ const styles = StyleSheet.create({
     border: '2px solid #000',
     padding: 15,
     borderRadius: 2,
+    breakInside: 'avoid',
   },
   cumulativeTitle: {
     fontSize: 12,

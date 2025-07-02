@@ -93,7 +93,7 @@ export default function AcademicsView({ student, showMarks }: Props) {
                 {program.semesters?.length ? (
                   (() => {
                     let cumulativePoints = 0;
-                    let cumulativeCreditsAttempted = 0;
+                    let cumulativeCreditsForGPA = 0;
 
                     return program.semesters.map((semester) => {
                       const summary = summarizeModules(
@@ -103,13 +103,22 @@ export default function AcademicsView({ student, showMarks }: Props) {
                           status: (sm as { status?: ModuleStatus }).status,
                         })),
                       );
-
                       cumulativePoints += summary.points;
-                      cumulativeCreditsAttempted += summary.creditsCompleted;
+                      const semesterCreditsForGPA = semester.studentModules
+                        .filter(
+                          (sm) => !['Delete', 'Drop'].includes(sm.status || ''),
+                        )
+                        .filter((sm) => sm.grade && sm.grade !== 'NM')
+                        .reduce(
+                          (sum, sm) => sum + Number(sm.semesterModule.credits),
+                          0,
+                        );
+
+                      cumulativeCreditsForGPA += semesterCreditsForGPA;
 
                       const cumulativeGPA = calculateGPA(
                         cumulativePoints,
-                        cumulativeCreditsAttempted,
+                        cumulativeCreditsForGPA,
                       );
 
                       return (
