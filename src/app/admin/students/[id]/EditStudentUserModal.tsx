@@ -80,7 +80,6 @@ export default function EditStudentUserModal({
 
           <UserInput
             label='User'
-            placeholder='Search for users...'
             value={selectedUser}
             onChange={setSelectedUser}
           />

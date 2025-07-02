@@ -54,7 +54,7 @@ export default function UserInput({
 
   const options = users.map((user) => ({
     value: `${user.id}:${user.name || user.email}`,
-    label: user.name || 'Unnamed User',
+    label: `${user.name || 'Unnamed User'} (${user.email})`,
   }));
 
   return (
@@ -80,11 +80,9 @@ export default function UserInput({
         return (
           <div>
             <div>{user?.name || 'Unnamed User'}</div>
-            {user && (
-              <div style={{ fontSize: '0.8em', color: 'gray' }}>
-                {user.email}
-              </div>
-            )}
+            <div style={{ fontSize: '0.8em', color: 'gray' }}>
+              {user?.email}
+            </div>
           </div>
         );
       }}
