@@ -1,3 +1,26 @@
 {
-  "cSpell.words": ["signups"]
+  "cSpell.words": ["signups", "toploader"],
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "text": "the server code is stored in src/server and the pattern I use for all server code is actions.ts -> service.ts -> repository.ts. Never use api route handlers, always use actions.ts files to handle server code"
+    },
+    {
+      "text": "action.ts only contains calls to service.ts methods, service.ts contains business logic and calls to repository.ts methods, and repository.ts contains direct database calls using drizzle"
+    },
+    {
+      "text": "service.ts files should make use of withAuth.ts for authorization and always creates an instance of the service class using serviceWrapper.ts"
+    },
+    {
+      "text": "When writting drizzle queries, use the db.query method and try to only return the necessary columns"
+    },
+    {
+      "text": "When calling server code in the client components, use tanstack query and strictly call code in actions.ts files"
+    },
+    {
+      "text": "All actions.ts files should be tested, create the test files in the __tests__ directory in the same directory as the actions.ts file, before creating a new test file, check existing tests to see how they are structured"
+    },
+    {
+      "text": "You may also create auth.test.ts files only if instructed or if the prompt contains auth related instructions"
+    }
+  ]
 }
