@@ -17,6 +17,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import Link from 'next/link';
+import EditStudentUserModal from './EditStudentUserModal';
 
 type Props = {
   student: Awaited<ReturnType<typeof getStudent>>;
@@ -27,13 +28,13 @@ export default function StudentView({ student }: Props) {
 
   return (
     <Stack gap='xl'>
-      {student.user && (
-        <Card withBorder>
-          <Group wrap='nowrap' gap='xs'>
-            <div style={{ flex: 1 }}>
-              <Text size='sm' c='dimmed'>
-                User
-              </Text>
+      <Card withBorder>
+        <Group wrap='nowrap' gap='xs'>
+          <div style={{ flex: 1 }}>
+            <Text size='sm' c='dimmed'>
+              User
+            </Text>
+            {student.user ? (
               <Anchor
                 component={Link}
                 href={`/admin/users/${student.user?.id}`}
@@ -42,7 +43,13 @@ export default function StudentView({ student }: Props) {
               >
                 {student.user?.email}
               </Anchor>
-            </div>
+            ) : (
+              <Text size='sm' c='dimmed'>
+                No user assigned
+              </Text>
+            )}
+          </div>
+          {student.user && (
             <Tooltip label='Copy'>
               <ActionIcon
                 variant='subtle'
@@ -58,9 +65,13 @@ export default function StudentView({ student }: Props) {
                 <IconCopy size={16} />
               </ActionIcon>
             </Tooltip>
-          </Group>
-        </Card>
-      )}
+          )}
+          <EditStudentUserModal
+            studentStdNo={student.stdNo}
+            currentUser={student.user}
+          />
+        </Group>
+      </Card>
       <div>
         <Paper p='md' radius='md' withBorder>
           <Grid gutter='xl'>

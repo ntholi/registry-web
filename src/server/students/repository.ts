@@ -181,6 +181,14 @@ export default class StudentRepository extends BaseRepository<
       limit,
     });
   }
+
+  async updateUserId(stdNo: number, userId: string | null) {
+    return await db
+      .update(students)
+      .set({ userId })
+      .where(eq(students.stdNo, stdNo))
+      .returning();
+  }
 }
 
 function normalizeName(name: string): string[] {

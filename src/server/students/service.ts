@@ -78,6 +78,13 @@ class StudentService {
     return withAuth(async () => this.repository.delete(stdNo), []);
   }
 
+  async updateUserId(stdNo: number, userId: string | null) {
+    return withAuth(
+      async () => this.repository.updateUserId(stdNo, userId),
+      [],
+    );
+  }
+
   async count() {
     return withAuth(async () => this.repository.count(), []);
   }

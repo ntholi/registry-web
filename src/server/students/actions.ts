@@ -37,3 +37,10 @@ export async function updateStudent(stdNo: number, student: Student) {
 export async function deleteStudent(stdNo: number) {
   return service.delete(stdNo);
 }
+
+export async function updateStudentUserId(
+  stdNo: number,
+  userId: string | null,
+) {
+  return service.updateUserId(stdNo, userId);
+}

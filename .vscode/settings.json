@@ -27,6 +27,9 @@
     },
     {
       "text": "When creating modals if possible the button/action-icon should be extracted to the same file/component as the modal to avoid prop drilling and make it easier to manage state"
+    },
+    {
+      "text": "When breaking up components or creating additional functionality, put the new component in the same directory as the parent component, unless the component is a shared component, then put it in src/app/components"
     }
   ]
 }
