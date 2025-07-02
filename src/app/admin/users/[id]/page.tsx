@@ -16,19 +16,12 @@ import {
   Group,
   Stack,
   Text,
-  Title,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { deleteUser, getUser, getUserSchools } from '../../../../server/users/actions';
+import { deleteUser, getUser, getUserSchools } from '@/server/users/actions';
 
 type Props = {
   params: Promise<{ id: string }>;
-};
-
-type School = {
-  id: number;
-  name: string;
-  code: string;
 };
 
 export default async function UserDetails({ params }: Props) {
@@ -62,42 +55,44 @@ export default async function UserDetails({ params }: Props) {
           <GridCol span={{ base: 12, md: 6 }}>
             <Stack gap={'lg'} p={'sm'}>
               <FieldView label='Name'>{users.name}</FieldView>
-              
+
               <FieldView label='Role'>
                 <Badge
                   color={getRoleColor(users.role)}
                   radius={'sm'}
                   variant='light'
-                  size="lg"
+                  size='lg'
                 >
                   {toTitleCase(users.role)}
                 </Badge>
               </FieldView>
-              
+
               {users.position && (
                 <FieldView label='Position'>
                   {toTitleCase(users.position)}
                 </FieldView>
               )}
-              
+
               <FieldView label='Email'>{users.email}</FieldView>
-              
-              <Divider my="xs" />
-              
+
+              <Divider my='xs' />
+
               <FieldView label='Schools'>
                 {userSchools && userSchools.length > 0 ? (
-                  <Stack gap="xs">
-                    {userSchools.map((school: any) => (
+                  <Stack gap='xs'>
+                    {userSchools.map((school) => (
                       <Group key={school.schoolId}>
-                        <Badge variant="light" color="blue">
+                        <Badge variant='light' color='blue'>
                           {school.school.code}
                         </Badge>
-                        <Text size="sm">{school.school.name}</Text>
+                        <Text size='sm'>{school.school.name}</Text>
                       </Group>
                     ))}
                   </Stack>
                 ) : (
-                  <Text c="dimmed" size="sm">No schools assigned</Text>
+                  <Text c='dimmed' size='sm'>
+                    No schools assigned
+                  </Text>
                 )}
               </FieldView>
             </Stack>

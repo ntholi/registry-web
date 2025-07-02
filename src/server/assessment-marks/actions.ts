@@ -1,6 +1,6 @@
 'use server';
 
-import { assessmentMarks, terms } from '@/db/schema';
+import { assessmentMarks } from '@/db/schema';
 import { calculateModuleGrade } from '@/utils/gradeCalculations';
 import { upsertModuleGrade } from '../module-grades/actions';
 import { assessmentMarksService as service } from './service';

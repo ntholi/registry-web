@@ -21,7 +21,11 @@ export default async function TermEdit({ params }: Props) {
         defaultValues={term}
         onSubmit={async (value) => {
           'use server';
-          return await updateTerm(Number(id), value);
+          const updatedTerm = await updateTerm(Number(id), value);
+          if (!updatedTerm) {
+            throw new Error('Failed to update term');
+          }
+          return updatedTerm;
         }}
       />
     </Box>

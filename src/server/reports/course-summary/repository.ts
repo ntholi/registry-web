@@ -1,7 +1,6 @@
 import { db } from '@/db';
 import {
   assessmentMarks,
-  assessments,
   moduleGrades,
   semesterModules,
   structures,
@@ -10,7 +9,7 @@ import {
   terms,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { and, eq, inArray, notInArray, sql } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 
 export interface StudentModuleReport {
   studentId: number;
@@ -143,7 +142,7 @@ export default class CourseSummaryRepository extends BaseRepository<
       })),
     };
   }
-  async getAvailableModulesForProgram(programId: number, termName: string) {
+  async getAvailableModulesForProgram(programId: number) {
     const structureList = await db.query.structures.findMany({
       where: eq(structures.programId, programId),
       columns: {},

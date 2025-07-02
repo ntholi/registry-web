@@ -16,8 +16,6 @@ import {
   Select,
   Stack,
   Text,
-  useMantineColorScheme,
-  useMantineTheme,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
@@ -164,25 +162,15 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
     }
   };
 
-  function renderOption(item: ComboboxLikeRenderOptionInput<ComboboxItem>) {
-    const theme = useMantineTheme();
-    const { colorScheme } = useMantineColorScheme();
-    const option = item.option as SelectOption | ProgramWithStructure;
+  const RenderOption = ({
+    option,
+  }: {
+    option: ComboboxLikeRenderOptionInput<ComboboxItem>['option'];
+  }) => {
+    const item = option as SelectOption | ProgramWithStructure;
 
-    if ('structureId' in option) {
-      const programStructure = option as ProgramWithStructure;
-      const isDark = colorScheme === 'dark';
-
-      const currentBgColor = isDark
-        ? theme.colors.blue[9]
-        : theme.colors.blue[0];
-      const currentBorderColor = isDark
-        ? theme.colors.blue[7]
-        : theme.colors.blue[3];
-      const oldBgColor = isDark ? theme.colors.gray[8] : theme.colors.gray[0];
-      const oldBorderColor = isDark
-        ? theme.colors.gray[6]
-        : theme.colors.gray[3];
+    if ('structureId' in item) {
+      const programStructure = item as ProgramWithStructure;
 
       return (
         <Box p='xs'>
@@ -205,7 +193,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
       );
     }
 
-    const { code, name } = option as SelectOption;
+    const { code, name } = item as SelectOption;
     if (code === name) {
       return <Text size='sm'>{code}</Text>;
     }
@@ -219,7 +207,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
         </Text>
       </Box>
     );
-  }
+  };
 
   return (
     <Stack gap='md'>
@@ -238,7 +226,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
                 <Loader size='xs' />
               ) : null
             }
-            renderOption={renderOption}
+            renderOption={(item) => <RenderOption option={item.option} />}
           />
         </Grid.Col>
         <Grid.Col span={6}>
@@ -251,7 +239,7 @@ export default function FilterSelect({ onStructureSelect }: FilterSelectProps) {
             clearable
             disabled={!school || isLoadingPrograms}
             rightSection={isLoadingPrograms ? <Loader size='xs' /> : null}
-            renderOption={renderOption}
+            renderOption={(item) => <RenderOption option={item.option} />}
           />
         </Grid.Col>
       </Grid>

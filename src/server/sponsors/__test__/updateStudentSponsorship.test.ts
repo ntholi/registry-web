@@ -1,9 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { sponsorsService } from '../service';
-import { termsService } from '../../terms/service';
-import { studentsService } from '../../students/service';
+import { sponsors, terms, users } from '@/db/schema';
 import { resetMockUser, setMockUser } from '@/test/mocks.auth';
-import { users, sponsors, terms, students } from '@/db/schema';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { termsService } from '../../terms/service';
+import { sponsorsService } from '../service';
 
 vi.mock('@/server/base/withAuth', () => {
   return vi.importActual('@/test/mock.withAuth');
@@ -12,12 +11,11 @@ vi.mock('@/server/base/withAuth', () => {
 type User = typeof users.$inferSelect;
 type Sponsor = typeof sponsors.$inferSelect;
 type Term = typeof terms.$inferSelect;
-type Student = typeof students.$inferSelect;
 
 describe('updateStudentSponsorship Authorization', () => {
   let testSponsor: Sponsor;
   let testTerm: Term;
-  let testStudent: Student;
+
   const testStdNo = 12345;
 
   beforeEach(async () => {
@@ -28,12 +26,6 @@ describe('updateStudentSponsorship Authorization', () => {
       isActive: true,
     });
     testSponsor = await sponsorsService.create({ name: 'Test Sponsor' });
-    testStudent = await studentsService.create({
-      stdNo: testStdNo,
-      name: 'Test Student',
-      nationalId: 'Test',
-      sem: 1,
-    });
   });
 
   afterEach(() => {

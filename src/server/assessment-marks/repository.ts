@@ -3,15 +3,12 @@ import {
   assessmentMarks,
   assessmentMarksAudit,
   assessments,
-  terms,
-  studentPrograms,
-  studentSemesters,
-  studentModules,
-  semesterModules,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 import { and, eq, inArray } from 'drizzle-orm';
 import { auth } from '@/auth';
+
+type Mark = typeof assessmentMarks.$inferSelect;
 
 export default class AssessmentMarkRepository extends BaseRepository<
   typeof assessmentMarks,
@@ -234,13 +231,21 @@ export default class AssessmentMarkRepository extends BaseRepository<
     if (!session?.user?.id) throw new Error('Unauthorized');
 
     const userId = session.user.id;
-    const results: { mark: any; isNew: boolean; stdNo: number }[] = [];
+    const results: {
+      mark: Mark;
+      isNew: boolean;
+      stdNo: number;
+    }[] = [];
     const processedStudents = new Set<number>();
     const errors: string[] = [];
 
     for (let i = 0; i < dataArray.length; i += batchSize) {
       const batch = dataArray.slice(i, i + batchSize);
-      const batchResults: { mark: any; isNew: boolean; stdNo: number }[] = [];
+      const batchResults: {
+        mark: Mark;
+        isNew: boolean;
+        stdNo: number;
+      }[] = [];
       const batchAuditEntries: (typeof assessmentMarksAudit.$inferInsert)[] =
         [];
 

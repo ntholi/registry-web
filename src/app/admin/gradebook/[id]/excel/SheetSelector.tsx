@@ -22,11 +22,7 @@ interface Props {
   onSheetSelect: (sheetName: string) => void;
 }
 
-export default function SheetSelector({
-  sheetNames,
-  selectedSheet,
-  onSheetSelect,
-}: Props) {
+export default function SheetSelector({ sheetNames, onSheetSelect }: Props) {
   if (sheetNames.length <= 1) {
     return null;
   }

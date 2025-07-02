@@ -2,7 +2,6 @@ import { db } from '@/db';
 import {
   programs,
   structures,
-  studentModules,
   studentPrograms,
   students,
   studentSemesters,

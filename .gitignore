@@ -46,3 +46,4 @@ test.db
 # data
 data/*
 .vercel
+webtest.db

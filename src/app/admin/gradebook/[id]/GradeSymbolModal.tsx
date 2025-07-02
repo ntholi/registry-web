@@ -1,6 +1,6 @@
 'use client';
 
-import { gradeEnum } from '@/db/schema';
+import { gradeEnum, moduleGrades } from '@/db/schema';
 import { upsertModuleGrade } from '@/server/module-grades/actions';
 import { getLetterGrade } from '@/utils/grades';
 import {
@@ -34,6 +34,7 @@ interface Props {
 }
 
 type Grade = 'Def' | 'ANN' | 'EXP' | 'DNS';
+type ModuleGrade = typeof moduleGrades.$inferSelect;
 
 export default function GradeSymbolModal({
   studentId,
@@ -92,21 +93,24 @@ export default function GradeSymbolModal({
         optimisticModuleGrade,
       );
 
-      queryClient.setQueryData(['moduleGrades', moduleId], (old: any[]) => {
-        if (!old) return [optimisticModuleGrade];
+      queryClient.setQueryData(
+        ['moduleGrades', moduleId],
+        (old: ModuleGrade[]) => {
+          if (!old) return [optimisticModuleGrade];
 
-        const existingIndex = old.findIndex(
-          (grade) => grade.stdNo === studentId,
-        );
+          const existingIndex = old.findIndex(
+            (grade) => grade.stdNo === studentId,
+          );
 
-        if (existingIndex >= 0) {
-          const updated = [...old];
-          updated[existingIndex] = optimisticModuleGrade;
-          return updated;
-        } else {
-          return [...old, optimisticModuleGrade];
-        }
-      });
+          if (existingIndex >= 0) {
+            const updated = [...old];
+            updated[existingIndex] = optimisticModuleGrade;
+            return updated;
+          } else {
+            return [...old, optimisticModuleGrade];
+          }
+        },
+      );
 
       return { previousModuleGrade, previousModuleGrades };
     },

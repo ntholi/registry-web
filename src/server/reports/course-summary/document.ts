@@ -7,10 +7,7 @@ import {
   TableCell,
   WidthType,
   AlignmentType,
-  HeadingLevel,
   BorderStyle,
-  PageBreak,
-  Header,
   Footer,
   ImageRun,
 } from 'docx';

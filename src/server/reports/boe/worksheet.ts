@@ -60,7 +60,7 @@ export function createWorksheet(
   worksheet.addRow([]);
   worksheet.addRow([]);
 
-  const boardRow = worksheet.addRow(['BOARD OF EXAMINATION']);
+  worksheet.addRow(['BOARD OF EXAMINATION']);
   worksheet.mergeCells(`A4:${endColLetter}4`);
   worksheet.getCell('A4').font = { bold: true, size: 12 };
   worksheet.getCell('A4').alignment = { horizontal: 'center' };

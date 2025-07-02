@@ -41,7 +41,7 @@ describe('Term Permissions', () => {
     it('should allow an admin to update a term', async () => {
       setMockUser({ role: 'admin' } as User);
       const termToUpdate = { id: createdTerm?.id, name: 'Updated Term Name' };
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       const updatedTerm = await updateTerm(termToUpdate.id, termToUpdate);
       expect(updatedTerm).toBeDefined();
       expect(updatedTerm?.name).toBe(termToUpdate.name);
@@ -50,7 +50,7 @@ describe('Term Permissions', () => {
     it('should allow an admin to delete a term', async () => {
       setMockUser({ role: 'admin' } as User);
       const termIdToDelete = createdTerm?.id;
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       const deletedTerm = await deleteTerm(termIdToDelete);
       expect(deletedTerm).toBeDefined();
     });
@@ -70,7 +70,7 @@ describe('Term Permissions', () => {
     it('should not allow a non-admin to update a term', async () => {
       setMockUser({ role: 'user' } as User);
       const termToUpdate = { id: createdTerm?.id, name: 'Updated Term Name' };
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       await expect(updateTerm(termToUpdate.id, termToUpdate)).rejects.toThrow(
         'Forbidden',
       );
@@ -79,7 +79,7 @@ describe('Term Permissions', () => {
     it('should not allow a non-admin to delete a term', async () => {
       setMockUser({ role: 'user' } as User);
       const termIdToDelete = createdTerm?.id;
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       await expect(deleteTerm(termIdToDelete)).rejects.toThrow('Forbidden');
     });
   });

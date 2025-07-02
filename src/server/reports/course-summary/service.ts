@@ -7,10 +7,29 @@ import {
 } from './repository';
 import { createCourseSummaryDocument } from './document';
 import { auth } from '@/auth';
-import {
-  getAssessmentNumberLabel,
-  getAssessmentTypeLabel,
-} from '@/app/admin/assessments/[id]/assessments';
+import { getAssessmentTypeLabel } from '@/app/admin/assessments/[id]/assessments';
+
+type CourseSummaryData = {
+  assessments: Array<{
+    stdNo: number;
+    assessmentType: string;
+    marks: number;
+    totalMarks: number;
+  }>;
+  students: Array<{
+    stdNo: number;
+    name: string;
+    status: string;
+    grade: string;
+    weightedTotal: number;
+    marks: string;
+  }>;
+  courseCode: string;
+  courseName: string;
+  programName: string;
+  programCode: string;
+  termName: string;
+};
 
 export default class CourseSummaryService {
   private repository = courseSummaryRepository;
@@ -41,7 +60,7 @@ export default class CourseSummaryService {
     return Buffer.from(buffer);
   }
   private async processOptimizedCourseSummaryData(
-    data: any,
+    data: CourseSummaryData,
   ): Promise<CourseSummaryReport> {
     const user = await auth();
     const failedStudents: StudentModuleReport[] = [];
@@ -57,7 +76,7 @@ export default class CourseSummaryService {
       }>
     >();
 
-    data.assessments.forEach((assessment: any) => {
+    data.assessments.forEach((assessment) => {
       if (!assessmentsMap.has(assessment.stdNo)) {
         assessmentsMap.set(assessment.stdNo, []);
       }
@@ -180,15 +199,7 @@ export default class CourseSummaryService {
   }
 
   async getAvailableModulesForProgram(programId: number) {
-    const currentTerm = await termsRepository.getActive();
-    if (!currentTerm) {
-      throw new Error('No active term found');
-    }
-
-    return this.repository.getAvailableModulesForProgram(
-      programId,
-      currentTerm.name,
-    );
+    return this.repository.getAvailableModulesForProgram(programId);
   }
 }
 

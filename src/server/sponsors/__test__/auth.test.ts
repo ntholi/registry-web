@@ -53,18 +53,18 @@ describe('Sponsor Permissions', () => {
     it('should allow an admin to delete a sponsor', async () => {
       setMockUser({ role: 'admin' } as User);
       const sponsorIdToDelete = createdSponsor?.id;
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       await deleteSponsor(sponsorIdToDelete);
 
       // Verify sponsor is deleted
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       const deletedSponsor = await getSponsor(sponsorIdToDelete);
       expect(deletedSponsor).toBeUndefined();
     });
 
     it('should allow an admin to get a sponsor', async () => {
       setMockUser({ role: 'admin' } as User);
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       const sponsor = await getSponsor(createdSponsor?.id);
       expect(sponsor).toBeDefined();
       expect(sponsor?.name).toBe('Initial Test Sponsor');
@@ -101,18 +101,18 @@ describe('Sponsor Permissions', () => {
     it('should allow a finance user to delete a sponsor', async () => {
       setMockUser({ role: 'finance' } as User);
       const sponsorIdToDelete = createdSponsor?.id;
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       await deleteSponsor(sponsorIdToDelete);
 
       // Verify sponsor is deleted
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       const deletedSponsor = await getSponsor(sponsorIdToDelete);
       expect(deletedSponsor).toBeUndefined();
     });
 
     it('should allow a finance user to get a sponsor', async () => {
       setMockUser({ role: 'finance' } as User);
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       const sponsor = await getSponsor(createdSponsor?.id);
       expect(sponsor).toBeDefined();
       expect(sponsor?.name).toBe('Initial Test Sponsor');
@@ -144,7 +144,7 @@ describe('Sponsor Permissions', () => {
     it('should not allow a regular user to delete a sponsor', async () => {
       setMockUser({ role: 'user' } as User);
       const sponsorIdToDelete = createdSponsor?.id;
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       await expect(deleteSponsor(sponsorIdToDelete)).rejects.toThrow(
         'Forbidden',
       );
@@ -152,7 +152,7 @@ describe('Sponsor Permissions', () => {
 
     it('should allow a regular user to get a sponsor', async () => {
       setMockUser({ role: 'user' } as User);
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       const sponsor = await getSponsor(createdSponsor?.id);
       expect(sponsor).toBeDefined();
       expect(sponsor?.name).toBe('Initial Test Sponsor');
@@ -169,7 +169,7 @@ describe('Sponsor Permissions', () => {
   describe('Registry Users', () => {
     it('should allow a registry user to get a sponsor', async () => {
       setMockUser({ role: 'registry' } as User);
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       const sponsor = await getSponsor(createdSponsor?.id);
       expect(sponsor).toBeDefined();
       expect(sponsor?.name).toBe('Initial Test Sponsor');
@@ -199,7 +199,7 @@ describe('Sponsor Permissions', () => {
     it('should not allow a registry user to delete a sponsor', async () => {
       setMockUser({ role: 'registry' } as User);
       const sponsorIdToDelete = createdSponsor?.id;
-      // @ts-ignore
+      // @ts-expect-error - Testing with potentially undefined ID
       await expect(deleteSponsor(sponsorIdToDelete)).rejects.toThrow(
         'Forbidden',
       );

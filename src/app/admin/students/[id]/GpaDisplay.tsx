@@ -1,4 +1,4 @@
-import { Group, Text, Box, Divider, rem, Flex } from '@mantine/core';
+import { Group, Text, Divider, rem, Flex } from '@mantine/core';
 
 type Props = {
   gpa: number;

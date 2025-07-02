@@ -55,7 +55,9 @@ async function cleanupTestDatabase() {
   for (const table of tables) {
     try {
       await testDb.delete(table);
-    } catch (error) {}
+    } catch {
+      // Ignore errors during cleanup
+    }
   }
 }
 

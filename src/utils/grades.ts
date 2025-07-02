@@ -321,7 +321,7 @@ export function calculateFacultyRemarks(
   const currentSupplementaryModules = relevantCurrentModules.filter((m) =>
     isSupplementaryGrade(m.grade),
   );
-  let historicalFailures: ModuleForRemarks[] = [];
+  const historicalFailures: ModuleForRemarks[] = [];
   if (historicalSemesters.length > 0 && nextSemesterNumber) {
     const nextSemesterParity = nextSemesterNumber % 2;
     historicalSemesters.forEach((semesterData) => {
@@ -354,7 +354,7 @@ export function calculateFacultyRemarks(
   const shouldRemainInSemester =
     currentFailedModules.length >= 3 || historicalFailures.length >= 3;
   const status = shouldRemainInSemester ? 'Remain in Semester' : 'Proceed';
-  let messageParts: string[] = [status];
+  const messageParts: string[] = [status];
   if (currentSupplementaryModules.length > 0) {
     const supplementaryCodes = currentSupplementaryModules.map((m) => m.code);
     messageParts.push(`must supplement ${supplementaryCodes.join(', ')}`);

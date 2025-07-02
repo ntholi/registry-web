@@ -37,7 +37,6 @@ export default function ImportPreview({
   assessments,
   moduleId,
   onPreviewGenerated,
-  onBack,
 }: Props) {
   const { data: registeredStudents } = useQuery({
     queryKey: ['students', moduleId],

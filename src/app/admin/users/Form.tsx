@@ -202,8 +202,8 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
                 </Table>
               ) : (
                 <Text c='dimmed' ta='center' py='md'>
-                  No schools assigned. Click "Add School" to assign schools to
-                  this user.
+                  No schools assigned. Click &quot;Add School&quot; to assign
+                  schools to this user.
                 </Text>
               )}
               <input

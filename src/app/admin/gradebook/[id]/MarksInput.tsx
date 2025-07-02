@@ -8,6 +8,10 @@ import {
   updateAssessmentMark,
 } from '@/server/assessment-marks/actions';
 import { calculateModuleGrade } from '@/utils/gradeCalculations';
+import { assessmentMarks, moduleGrades } from '@/db/schema';
+
+type AssessmentMark = typeof assessmentMarks.$inferSelect;
+type ModuleGrade = typeof moduleGrades.$inferSelect;
 
 type Props = {
   assessment: { id: number; maxMarks: number; totalMarks: number };
@@ -76,29 +80,31 @@ export default function MarksInput({
         studentId,
       ]);
 
-      queryClient.setQueryData(['assessmentMarks', moduleId], (old: any[]) => {
-        if (!old) return old;
+      queryClient.setQueryData(
+        ['assessmentMarks', moduleId],
+        (old: AssessmentMark[]) => {
+          if (!old) return old;
 
-        if (existingMarkId !== undefined) {
-          return old.map((mark) =>
-            mark.id === existingMarkId
-              ? { ...mark, marks: newMark.marks }
-              : mark,
-          );
-        } else {
-          return [
-            ...old,
-            {
-              id: Date.now(),
-              assessmentId: newMark.assessmentId,
-              stdNo: newMark.stdNo,
-              marks: newMark.marks,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            },
-          ];
-        }
-      });
+          if (existingMarkId !== undefined) {
+            return old.map((mark) =>
+              mark.id === existingMarkId
+                ? { ...mark, marks: newMark.marks }
+                : mark,
+            );
+          } else {
+            return [
+              ...old,
+              {
+                id: Date.now(),
+                assessmentId: newMark.assessmentId,
+                stdNo: newMark.stdNo,
+                marks: newMark.marks,
+                createdAt: new Date(),
+              },
+            ];
+          }
+        },
+      );
 
       const assessments = queryClient.getQueryData([
         'assessments',
@@ -115,7 +121,7 @@ export default function MarksInput({
         const updatedAssessmentMarks = queryClient.getQueryData([
           'assessmentMarks',
           moduleId,
-        ]) as any[];
+        ]) as AssessmentMark[];
 
         const studentMarks =
           updatedAssessmentMarks?.filter((mark) => mark.stdNo === studentId) ||
@@ -149,21 +155,24 @@ export default function MarksInput({
             newModuleGrade,
           );
 
-          queryClient.setQueryData(['moduleGrades', moduleId], (old: any[]) => {
-            if (!old) return [newModuleGrade];
+          queryClient.setQueryData(
+            ['moduleGrades', moduleId],
+            (old: ModuleGrade[]) => {
+              if (!old) return [newModuleGrade];
 
-            const existingIndex = old.findIndex(
-              (grade) => grade.stdNo === studentId,
-            );
+              const existingIndex = old.findIndex(
+                (grade) => grade.stdNo === studentId,
+              );
 
-            if (existingIndex >= 0) {
-              const updated = [...old];
-              updated[existingIndex] = newModuleGrade;
-              return updated;
-            } else {
-              return [...old, newModuleGrade];
-            }
-          });
+              if (existingIndex >= 0) {
+                const updated = [...old];
+                updated[existingIndex] = newModuleGrade;
+                return updated;
+              } else {
+                return [...old, newModuleGrade];
+              }
+            },
+          );
         }
       }
 
