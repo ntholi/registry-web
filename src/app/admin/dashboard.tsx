@@ -134,7 +134,7 @@ function getNavigation(department: DashboardUser) {
     {
       label: 'Registration Requests',
       icon: IconClipboardCheck,
-      roles: ['registry'],
+      roles: ['registry', 'admin'],
       children: [
         {
           label: 'Pending',
@@ -225,7 +225,7 @@ function getNavigation(department: DashboardUser) {
       label: 'Programs',
       href: '/admin/programs',
       icon: IconBuildingStore,
-      roles: ['registry', 'academic'],
+      roles: ['registry', 'admin', 'academic'],
     },
     {
       label: 'Terms',
@@ -243,7 +243,7 @@ function getNavigation(department: DashboardUser) {
       label: 'Simulator',
       href: '/admin/simulate',
       icon: IconTestPipe,
-      roles: ['registry'],
+      roles: ['registry', 'admin'],
     },
     {
       label: 'Reports',
@@ -275,7 +275,7 @@ function getNavigation(department: DashboardUser) {
           href: `/admin/reports/boe`,
           description: 'Board of Examination Report',
           icon: IconCopyCheck,
-          roles: ['academic', 'registry'],
+          roles: ['academic', 'registry', 'admin'],
           isVisible: (session) => {
             if (['admin', 'registry'].includes(session?.user?.role as UserRole))
               return true;
@@ -431,9 +431,7 @@ function ItemDisplay({ item }: { item: NavItem }) {
     (!session?.user?.role ||
       !item.roles.includes(session.user.role as UserRole))
   ) {
-    if (session?.user?.role !== 'admin') {
-      return null;
-    }
+    return null;
   }
 
   if (item.isLoading) {
