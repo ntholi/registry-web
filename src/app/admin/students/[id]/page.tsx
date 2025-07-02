@@ -4,10 +4,20 @@ import { notFound } from 'next/navigation';
 import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
 import { auth } from '@/auth';
 import { StudentTabs } from './StudentTabs';
+import { Metadata } from 'next';
 
 type Props = {
   params: Promise<{ id: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const student = await getStudent(Number(id));
+
+  return {
+    title: `${student?.name} | Limkokwing`,
+  };
+}
 
 export default async function StudentDetails({ params }: Props) {
   const { id } = await params;
