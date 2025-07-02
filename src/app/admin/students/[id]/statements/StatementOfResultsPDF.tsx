@@ -247,7 +247,6 @@ const styles = StyleSheet.create({
     border: '2px solid #000',
     padding: 15,
     borderRadius: 2,
-    breakInside: 'avoid',
   },
   cumulativeTitle: {
     fontSize: 12,
@@ -666,7 +665,7 @@ export default function StatementOfResultsPDF({
               })}
             </View>
           ))}
-          <View style={styles.cumulativeSummary}>
+          <View style={styles.cumulativeSummary} wrap={false}>
             <Text style={styles.cumulativeTitle}>
               CUMULATIVE ACADEMIC SUMMARY
             </Text>
