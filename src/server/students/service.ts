@@ -81,7 +81,7 @@ class StudentService {
   async updateUserId(stdNo: number, userId: string | null) {
     return withAuth(
       async () => this.repository.updateUserId(stdNo, userId),
-      [],
+      ['admin', 'registry'],
     );
   }
 

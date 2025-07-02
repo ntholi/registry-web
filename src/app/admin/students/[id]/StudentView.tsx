@@ -18,12 +18,15 @@ import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import Link from 'next/link';
 import EditStudentUserModal from './EditStudentUserModal';
+import { useSession } from 'next-auth/react';
+import { UserRole } from '@/db/schema';
 
 type Props = {
   student: Awaited<ReturnType<typeof getStudent>>;
 };
 
 export default function StudentView({ student }: Props) {
+  const { data: session } = useSession();
   if (!student) return null;
 
   return (
@@ -66,10 +69,15 @@ export default function StudentView({ student }: Props) {
               </ActionIcon>
             </Tooltip>
           )}
-          <EditStudentUserModal
-            studentStdNo={student.stdNo}
-            currentUser={student.user}
-          />
+          {session?.user?.role &&
+            (['admin', 'registry'] as UserRole[]).includes(
+              session.user.role,
+            ) && (
+              <EditStudentUserModal
+                studentStdNo={student.stdNo}
+                currentUser={student.user}
+              />
+            )}
         </Group>
       </Card>
       <div>

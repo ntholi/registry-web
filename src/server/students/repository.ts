@@ -7,6 +7,7 @@ import {
   students,
   studentSemesters,
   structures,
+  users,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { and, eq, like, notInArray, or, SQL } from 'drizzle-orm';
@@ -183,11 +184,21 @@ export default class StudentRepository extends BaseRepository<
   }
 
   async updateUserId(stdNo: number, userId: string | null) {
-    return await db
-      .update(students)
-      .set({ userId })
-      .where(eq(students.stdNo, stdNo))
-      .returning();
+    return await db.transaction(async (tx) => {
+      const updatedStudent = await tx
+        .update(students)
+        .set({ userId })
+        .where(eq(students.stdNo, stdNo))
+        .returning();
+      if (userId) {
+        await tx
+          .update(users)
+          .set({ role: 'student' })
+          .where(eq(users.id, userId));
+      }
+
+      return updatedStudent;
+    });
   }
 }
 
