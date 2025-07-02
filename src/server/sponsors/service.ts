@@ -58,6 +58,21 @@ class SponsorService {
     return withAuth(
       async () => this.repository.upsertSponsoredStudent(data),
       ['auth'],
+      async (session) => {
+        if (
+          ['registry', 'finance', 'admin'].includes(
+            session.user?.role as string,
+          )
+        ) {
+          return true;
+        }
+
+        if (session.user?.role === 'student') {
+          return session.user.stdNo === data.stdNo;
+        }
+
+        return false;
+      },
     );
   }
 

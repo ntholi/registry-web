@@ -2,6 +2,9 @@
   "cSpell.words": ["signups", "toploader"],
   "github.copilot.chat.codeGeneration.instructions": [
     {
+      "text": "Only use pnpm not npm or yarn"
+    },
+    {
       "text": "the server code is stored in src/server and the pattern I use for all server code is actions.ts -> service.ts -> repository.ts. Never use api route handlers, always use actions.ts files to handle server code"
     },
     {
