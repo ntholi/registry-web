@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
 } from '@react-pdf/renderer';
 import { calculateAcademicRemarks } from './academicRemarks';
 
@@ -91,34 +92,29 @@ const styles = StyleSheet.create({
     borderBottom: '2px solid #000',
     paddingBottom: 15,
   },
+  logo: {
+    height: 140,
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
   universityHeader: {
     textAlign: 'center',
-    marginBottom: 15,
-  },
-  universityName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 5,
+    marginBottom: 20,
   },
   universityAddress: {
     fontSize: 9,
     color: '#666',
-    width: '80%',
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    marginTop: 5,
     textAlign: 'center',
-    marginBottom: 2,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 15,
+    marginTop: 10,
     color: '#000',
-    backgroundColor: '#f0f0f0',
-    padding: 8,
-    borderRadius: 2,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   studentInfo: {
     marginBottom: 25,
@@ -509,19 +505,11 @@ export default function StatementOfResultsPDF({
       <Document>
         <Page size='A4' style={styles.page}>
           <View style={styles.header}>
-            <View style={styles.universityHeader}>
-              <Text style={styles.universityName}>
-                Limkokwing University of Creative Technology
-              </Text>
-              <Text style={styles.universityAddress}>
-                An academic record showing student&apos;s course grades and
-                academic performance
-              </Text>
-              <Text style={styles.universityAddress}>
-                This document does not certify graduation
-              </Text>
-            </View>
+            <Image style={styles.logo} src='/images/logo-lesotho.jpg' />
             <Text style={styles.title}>STATEMENT OF RESULTS</Text>
+            <Text style={styles.universityAddress}>
+              This document does not certify graduation
+            </Text>
           </View>
           <View style={styles.studentInfo}>
             <Text style={styles.studentInfoTitle}>STUDENT INFORMATION</Text>
