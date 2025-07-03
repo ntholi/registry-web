@@ -10,7 +10,7 @@ import {
   users,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, eq, like, notInArray, or, SQL } from 'drizzle-orm';
+import { and, desc, eq, like, notInArray, or, SQL } from 'drizzle-orm';
 
 export default class StudentRepository extends BaseRepository<
   typeof students,
@@ -130,6 +130,17 @@ export default class StudentRepository extends BaseRepository<
       orderBy: programs.name,
     });
   }
+  protected override buildQueryCriteria(
+    options: QueryOptions<typeof students>,
+  ) {
+    const criteria = super.buildQueryCriteria(options);
+    if (!options.sort || options.sort.length === 0) {
+      criteria.orderBy = [desc(students.stdNo)];
+    }
+
+    return criteria;
+  }
+
   override async query(options: QueryOptions<typeof students>) {
     if (!options.search) {
       return super.query(options);
