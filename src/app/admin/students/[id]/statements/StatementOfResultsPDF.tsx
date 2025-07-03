@@ -346,7 +346,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 15,
     marginTop: 50,
-    paddingHorizontal: 40,
   },
   signatureContainer: {
     alignItems: 'center',
@@ -354,12 +353,10 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginTop: 20,
     marginBottom: 3,
-    marginRight: 40,
   },
   signatureImage: {
     width: 120,
     height: 60,
-    marginBottom: 5,
   },
   signatureLine: {
     borderBottom: '1px solid #333',
