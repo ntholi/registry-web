@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
   },
   logo: {
-    height: 140,
+    height: 90,
     alignSelf: 'center',
     marginBottom: 10,
   },
@@ -104,14 +104,14 @@ const styles = StyleSheet.create({
   universityAddress: {
     fontSize: 9,
     color: '#666',
-    marginTop: 5,
+    marginTop: 1,
     textAlign: 'center',
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: 1,
     color: '#000',
     letterSpacing: 1,
     textTransform: 'uppercase',
