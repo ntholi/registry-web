@@ -542,13 +542,16 @@ export default function StatementOfResultsPDF({
 
                 return (
                   <View key={semester.id} style={styles.semesterSection}>
-                    <View style={styles.semesterTitle}>
+                    <View style={styles.semesterTitle} wrap={false}>
                       <Text>{semester.term}</Text>
                       <Text>GPA: {(semesterStats.gpa || 0).toFixed(2)}</Text>
                     </View>
 
                     <View style={styles.table}>
-                      <View style={[styles.tableRow, styles.tableHeader]}>
+                      <View
+                        style={[styles.tableRow, styles.tableHeader]}
+                        wrap={false}
+                      >
                         <Text
                           style={[
                             styles.tableCell,
@@ -596,7 +599,11 @@ export default function StatementOfResultsPDF({
                         </Text>
                       </View>
                       {(semester.studentModules || []).map((sm) => (
-                        <View key={sm.semesterModuleId} style={styles.tableRow}>
+                        <View
+                          key={sm.semesterModuleId}
+                          style={styles.tableRow}
+                          wrap={false}
+                        >
                           <Text
                             style={[
                               styles.tableCell,
