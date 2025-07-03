@@ -340,6 +340,46 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     color: '#666',
   },
+  signatureSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 15,
+    marginTop: 50,
+    paddingHorizontal: 40,
+  },
+  signatureContainer: {
+    alignItems: 'center',
+    width: 200,
+    alignSelf: 'flex-start',
+    marginTop: 20,
+    marginBottom: 3,
+    marginRight: 40,
+  },
+  signatureImage: {
+    width: 120,
+    height: 60,
+    marginBottom: 5,
+  },
+  signatureLine: {
+    borderBottom: '1px solid #333',
+    width: 150,
+    marginBottom: 3,
+  },
+  signatureLabel: {
+    fontSize: 8,
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  registrarInfo: {
+    fontSize: 8,
+    color: '#666',
+    marginTop: 2,
+  },
+  officialText: {
+    flex: 1,
+    paddingRight: 20,
+  },
   failedGrade: {
     color: '#000',
     fontWeight: 'bold',
@@ -660,68 +700,80 @@ export default function StatementOfResultsPDF({
               })}
             </View>
           ))}
-          <View style={styles.cumulativeSummary} wrap={false}>
-            <Text style={styles.cumulativeTitle}>
-              CUMULATIVE ACADEMIC SUMMARY
-            </Text>
-            <View style={styles.cumulativeGrid}>
-              <View style={styles.cumulativeColumn}>
-                <View style={styles.cumulativeItem}>
-                  <Text style={styles.cumulativeLabel}>Credits Attempted</Text>
-                  <Text style={styles.cumulativeValue}>
-                    {cumulativeStats.totalCreditsAttempted}
-                  </Text>
-                </View>
-                <View style={styles.cumulativeItem}>
-                  <Text style={styles.cumulativeLabel}>Credits Earned</Text>
-                  <Text style={styles.cumulativeValue}>
-                    {cumulativeStats.totalCredits}
-                  </Text>
-                </View>
-                <View style={styles.cumulativeItem}>
-                  <Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
-                  <Text style={styles.cumulativeValue}>
-                    {(cumulativeStats.gpa || 0).toFixed(2)}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.academicRemarksColumn}>
-                <View style={styles.academicRemarksSection}>
-                  <Text style={styles.academicRemarksLabel}>
-                    Academic Status
-                  </Text>
-                  <Text style={styles.academicRemarksValue}>
-                    {academicRemarks.status}
-                  </Text>
-                  <Text style={styles.academicRemarksDetails}>
-                    {academicRemarks.details}
-                  </Text>
-                </View>
-                {academicRemarks.pendingModules.length > 0 && (
-                  <View style={styles.pendingModulesSection}>
-                    <Text style={styles.pendingModulesTitle}>
-                      Outstanding Requirements (
-                      {academicRemarks.pendingModules.length})
+          <View wrap={false}>
+            <View style={styles.cumulativeSummary}>
+              <Text style={styles.cumulativeTitle}>
+                CUMULATIVE ACADEMIC SUMMARY
+              </Text>
+              <View style={styles.cumulativeGrid}>
+                <View style={styles.cumulativeColumn}>
+                  <View style={styles.cumulativeItem}>
+                    <Text style={styles.cumulativeLabel}>
+                      Credits Attempted
                     </Text>
-                    {academicRemarks.pendingModules.map((module, index) => (
-                      <Text
-                        key={index}
-                        style={[
-                          styles.pendingModuleItem,
-                          module.type === 'Failed'
-                            ? styles.failedModule
-                            : styles.supplementaryModule,
-                        ]}
-                      >
-                        • {module.code} - {module.name}
-                        {module.type === 'Supplementary'
-                          ? ' (Supplementary)'
-                          : ' (Repeat)'}
-                      </Text>
-                    ))}
+                    <Text style={styles.cumulativeValue}>
+                      {cumulativeStats.totalCreditsAttempted}
+                    </Text>
                   </View>
-                )}
+                  <View style={styles.cumulativeItem}>
+                    <Text style={styles.cumulativeLabel}>Credits Earned</Text>
+                    <Text style={styles.cumulativeValue}>
+                      {cumulativeStats.totalCredits}
+                    </Text>
+                  </View>
+                  <View style={styles.cumulativeItem}>
+                    <Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
+                    <Text style={styles.cumulativeValue}>
+                      {(cumulativeStats.gpa || 0).toFixed(2)}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.academicRemarksColumn}>
+                  <View style={styles.academicRemarksSection}>
+                    <Text style={styles.academicRemarksLabel}>
+                      Academic Status
+                    </Text>
+                    <Text style={styles.academicRemarksValue}>
+                      {academicRemarks.status}
+                    </Text>
+                    <Text style={styles.academicRemarksDetails}>
+                      {academicRemarks.details}
+                    </Text>
+                  </View>
+                  {academicRemarks.pendingModules.length > 0 && (
+                    <View style={styles.pendingModulesSection}>
+                      <Text style={styles.pendingModulesTitle}>
+                        Outstanding Requirements (
+                        {academicRemarks.pendingModules.length})
+                      </Text>
+                      {academicRemarks.pendingModules.map((module, index) => (
+                        <Text
+                          key={index}
+                          style={[
+                            styles.pendingModuleItem,
+                            module.type === 'Failed'
+                              ? styles.failedModule
+                              : styles.supplementaryModule,
+                          ]}
+                        >
+                          • {module.code} - {module.name}
+                          {module.type === 'Supplementary'
+                            ? ' (Supplementary)'
+                            : ' (Repeat)'}
+                        </Text>
+                      ))}
+                    </View>
+                  )}
+                </View>
               </View>
+            </View>
+            <View style={styles.signatureContainer}>
+              <Image
+                style={styles.signatureImage}
+                src='/images/signature_small.png'
+              />
+              <Text style={styles.signatureLine}></Text>
+              <Text style={styles.signatureLabel}>Registrar</Text>
             </View>
           </View>
           <View style={styles.footer}>
