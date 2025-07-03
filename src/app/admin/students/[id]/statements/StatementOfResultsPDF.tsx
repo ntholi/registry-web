@@ -1,5 +1,3 @@
-'use client';
-
 import { formatDate } from '@/lib/utils';
 import { getStudent } from '@/server/students/actions';
 import {
@@ -327,18 +325,6 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 5,
     fontStyle: 'italic',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 30,
-    left: 40,
-    right: 40,
-    textAlign: 'center',
-    fontSize: 9,
-    borderTop: '1px solid #ccc',
-    paddingTop: 15,
-    backgroundColor: '#f0f0f0',
-    color: '#666',
   },
   signatureSection: {
     flexDirection: 'row',
@@ -772,22 +758,6 @@ export default function StatementOfResultsPDF({
               <Text style={styles.signatureLine}></Text>
               <Text style={styles.signatureLabel}>Registrar</Text>
             </View>
-          </View>
-          <View style={styles.footer}>
-            <Text>
-              This is an official statement of results from Limkokwing
-              University of Creative Technology.
-            </Text>
-            <Text>
-              Date Generated:
-              {new Date().toLocaleDateString('en-LS', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
           </View>
         </Page>
       </Document>

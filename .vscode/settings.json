@@ -14,6 +14,9 @@
       "text": "service.ts files should make use of withAuth.ts for authorization and always creates an instance of the service class using serviceWrapper.ts"
     },
     {
+      "text": "When creating types from the schema file, please use the syntax: `type TableName = typeof tableName.$inferSelect`."
+    },
+    {
       "text": "When writting drizzle queries, use the db.query method and try to only return the necessary columns"
     },
     {

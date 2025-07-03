@@ -13,5 +13,6 @@ When writting drizzle queries, try to only return the necessary columns
 
 When calling server code in the client components, use tanstack query and strictly call code in actions.ts files
 
+When creating types from the schema file, please use the syntax: `type TableName = typeof tableName.$inferSelect`.
 
 When breaking up components or creating additional functionality, put the new component in the same directory as the parent component, unless the component is a shared component, then put it in src/app/components
