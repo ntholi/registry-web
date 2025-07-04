@@ -139,7 +139,7 @@ export const students = sqliteTable('students', {
   stdNo: integer().primaryKey(),
   name: text().notNull(),
   nationalId: text().notNull(),
-  sem: integer().notNull(),
+  sem: integer().notNull(), //TODO: Remove this
   dateOfBirth: integer({ mode: 'timestamp_ms' }),
   phone1: text(),
   phone2: text(),

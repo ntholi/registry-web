@@ -16,7 +16,7 @@ class StudentService {
 
   async get(stdNo: number) {
     return withAuth(async () => {
-      const student = await this.repository.findById(stdNo);
+      const student = await this.repository.findByIdWithPrograms(stdNo);
       if (!student) return null;
       const program = student?.programs.find((it) => it.status === 'Active');
       return { ...student, structureId: program?.structureId };

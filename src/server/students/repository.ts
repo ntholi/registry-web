@@ -52,8 +52,20 @@ export default class StudentRepository extends BaseRepository<
     };
   }
 
-  override async findById(stdNo: number) {
+  async findByIdWithPrograms(stdNo: number) {
     return await db.query.students.findFirst({
+      columns: {
+        stdNo: true,
+        name: true,
+        nationalId: true,
+        sem: true, // TODO: remove this
+        dateOfBirth: true,
+        phone1: true,
+        phone2: true,
+        gender: true,
+        maritalStatus: true,
+        userId: true,
+      },
       where: eq(students.stdNo, stdNo),
       with: {
         user: true,
@@ -77,10 +89,26 @@ export default class StudentRepository extends BaseRepository<
               },
               with: {
                 studentModules: {
+                  columns: {
+                    id: true,
+                    semesterModuleId: true,
+                    grade: true,
+                    marks: true,
+                    status: true,
+                  },
                   with: {
                     semesterModule: {
+                      columns: {
+                        credits: true,
+                        type: true,
+                      },
                       with: {
-                        module: true,
+                        module: {
+                          columns: {
+                            code: true,
+                            name: true,
+                          },
+                        },
                       },
                     },
                   },

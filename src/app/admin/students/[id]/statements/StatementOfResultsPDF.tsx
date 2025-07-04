@@ -12,7 +12,6 @@ import {
 import { calculateDetailedFacultyRemarks } from './academicRemarks';
 
 interface Module {
-  id: number;
   code: string;
   name: string;
 }
@@ -29,7 +28,6 @@ interface StudentModule {
   grade: string;
   status: ModuleStatus;
   marks: string;
-  createdAt: Date | null;
 }
 
 interface Semester {
