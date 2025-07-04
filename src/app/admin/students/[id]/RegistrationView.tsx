@@ -11,7 +11,8 @@ import {
   Badge,
   Divider,
   Group,
-  Loader,
+  Paper,
+  Skeleton,
   Stack,
   Text,
 } from '@mantine/core';
@@ -49,14 +50,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
   });
 
   if (isLoading) {
-    return (
-      <Stack align='center' py='xl' gap='md'>
-        <Loader />
-        <Text size='sm' c='dimmed'>
-          Loading registration requests...
-        </Text>
-      </Stack>
-    );
+    return <RegistrationRequestsLoader />;
   }
 
   if (error) {
@@ -145,5 +139,37 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
         </Accordion.Item>
       ))}
     </Accordion>
+  );
+}
+
+function RegistrationRequestsLoader() {
+  return (
+    <Stack gap='md'>
+      {[1, 2, 3].map((index) => (
+        <Paper key={index} withBorder shadow='sm' p='md'>
+          <Stack gap={0} w={'95%'}>
+            <Group justify='space-between' align='center'>
+              <Skeleton height={16} width={128} />
+              <Skeleton height={20} width={64} />
+            </Group>
+            <Divider my='sm' />
+          </Stack>
+          <Stack gap={5} mt='sm'>
+            <Group>
+              <Skeleton height={12} width={80} />
+              <Skeleton height={12} width={96} />
+            </Group>
+            <Group>
+              <Skeleton height={12} width={80} />
+              <Skeleton height={12} width={128} />
+            </Group>
+            <Group>
+              <Skeleton height={12} width={80} />
+              <Skeleton height={12} width={112} />
+            </Group>
+          </Stack>
+        </Paper>
+      ))}
+    </Stack>
   );
 }

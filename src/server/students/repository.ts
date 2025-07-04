@@ -70,8 +70,17 @@ export default class StudentRepository extends BaseRepository<
       with: {
         user: true,
         programs: {
+          columns: {
+            id: true,
+            status: true,
+            structureId: true,
+          },
           with: {
             structure: {
+              columns: {
+                id: true,
+                code: true,
+              },
               with: {
                 program: {
                   columns: {
