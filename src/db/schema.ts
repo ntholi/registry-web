@@ -662,3 +662,29 @@ export const moduleGrades = sqliteTable(
     uniqueModuleStudent: unique().on(table.moduleId, table.stdNo),
   }),
 );
+
+export const statementOfResultsPrints = sqliteTable(
+  'statement_of_results_prints',
+  {
+    id: text()
+      .primaryKey()
+      .$defaultFn(() => nanoid()),
+    stdNo: integer()
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    printedBy: text()
+      .references(() => users.id, { onDelete: 'set null' })
+      .notNull(),
+    studentName: text().notNull(),
+    programName: text().notNull(),
+    totalCredits: integer().notNull(),
+    totalModules: integer().notNull(),
+    cgpa: real(),
+    classification: text(),
+    academicStatus: text(),
+    graduationDate: text(),
+    printedAt: integer({ mode: 'timestamp' })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+  },
+);

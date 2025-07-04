@@ -22,12 +22,12 @@
     {
       "text": "When calling server code in the client components, use tanstack query and strictly call code in actions.ts files"
     },
-    {
-      "text": "All actions.ts files should be tested, create the test files in the __tests__ directory in the same directory as the actions.ts file, before creating a new test file, check existing tests to see how they are structured"
-    },
-    {
-      "text": "You may also create auth.test.ts files only if instructed or if the prompt contains auth related instructions"
-    },
+    // {
+    //   "text": "All actions.ts files should be tested, create the test files in the __tests__ directory in the same directory as the actions.ts file, before creating a new test file, check existing tests to see how they are structured"
+    // },
+    // {
+    //   "text": "You may also create auth.test.ts files only if instructed or if the prompt contains auth related instructions"
+    // },
     {
       "text": "When creating modals if possible the button/action-icon should be extracted to the same file/component as the modal to avoid prop drilling and make it easier to manage state"
     },
