@@ -28,18 +28,10 @@ export default async function StudentDetails({ params }: Props) {
     return notFound();
   }
 
-  const registrationRequests = await getRegistrationRequestsByStudent(
-    student.stdNo,
-  );
-
   return (
     <DetailsView>
       <DetailsViewHeader title={student.name} queryKey={['students']} />
-      <StudentTabs
-        student={student}
-        session={session}
-        registrationRequests={registrationRequests}
-      />
+      <StudentTabs student={student} session={session} />
     </DetailsView>
   );
 }

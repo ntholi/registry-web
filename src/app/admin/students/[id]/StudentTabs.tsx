@@ -1,28 +1,20 @@
 'use client';
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
 import { getStudent } from '@/server/students/actions';
 import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import { Session } from 'next-auth';
 import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
 import StatementOfResultsPrinter from './statements/StatementOfResultsPrinter';
 import StudentView from './StudentView';
-import { Session } from 'next-auth';
 
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
   session: Session | null;
-  registrationRequests: Awaited<
-    ReturnType<typeof getRegistrationRequestsByStudent>
-  >;
 };
 
-export function StudentTabs({
-  student,
-  session,
-  registrationRequests,
-}: StudentTabsProps) {
+export function StudentTabs({ student, session }: StudentTabsProps) {
   const [activeTab, setActiveTab] = useLocalStorage<string | null>(
     'studentDetailsTab',
     'academics',
@@ -63,7 +55,7 @@ export function StudentTabs({
         <StudentView student={student} />
       </TabsPanel>
       <TabsPanel value='registration' pt={'xl'} p={'sm'}>
-        <RegistrationView registrationRequests={registrationRequests} />
+        <RegistrationView stdNo={student.stdNo} />
       </TabsPanel>
     </Tabs>
   );

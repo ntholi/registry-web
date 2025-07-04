@@ -11,18 +11,48 @@ import {
   Group,
   Stack,
   Text,
+  Loader,
+  Alert,
 } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 
 type Props = {
-  registrationRequests: Awaited<
-    ReturnType<typeof getRegistrationRequestsByStudent>
-  >;
+  stdNo: number;
 };
 
-export default function RegistrationView({ registrationRequests }: Props) {
+export default function RegistrationView({ stdNo }: Props) {
   const { currentTerm } = useCurrentTerm();
-  if (registrationRequests.length === 0) {
+
+  const {
+    data: registrationRequests,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['registrationRequests', stdNo],
+    queryFn: () => getRegistrationRequestsByStudent(stdNo),
+  });
+
+  if (isLoading) {
+    return (
+      <Stack align='center' py='xl' gap='md'>
+        <Loader />
+        <Text size='sm' c='dimmed'>
+          Loading registration requests...
+        </Text>
+      </Stack>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert color='red' title='Error'>
+        Failed to load registration requests. Please try again.
+      </Alert>
+    );
+  }
+
+  if (!registrationRequests || registrationRequests.length === 0) {
     return (
       <Stack align='center' py='xl' gap='md'>
         <Text size='lg' fw={500} c='dimmed'>
