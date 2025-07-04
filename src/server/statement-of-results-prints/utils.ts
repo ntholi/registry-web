@@ -1,5 +1,5 @@
 import { getStudent } from '@/server/students/actions';
-import { calculateAcademicRemarks } from '@/app/admin/students/[id]/statements/academicRemarks';
+import { calculateDetailedFacultyRemarks } from '@/app/admin/students/[id]/statements/academicRemarks';
 import { summarizeModules, ModuleSummaryInput } from '@/utils/grades';
 import { grades } from '@/utils/grades';
 
@@ -108,7 +108,7 @@ export function extractStatementOfResultsData(student: Student) {
   }));
 
   const cumulativeStats = calculateCumulativeStats(filteredPrograms);
-  const academicRemarks = calculateAcademicRemarks(student.programs);
+  const academicRemarks = calculateDetailedFacultyRemarks(student.programs);
 
   const primaryProgram = activePrograms[0];
   const programName =

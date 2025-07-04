@@ -9,7 +9,7 @@ import {
   View,
   Image,
 } from '@react-pdf/renderer';
-import { calculateAcademicRemarks } from './academicRemarks';
+import { calculateDetailedFacultyRemarks } from './academicRemarks';
 
 interface Module {
   id: number;
@@ -545,7 +545,14 @@ export default function StatementOfResultsPDF({
     }));
 
     const cumulativeStats = calculateCumulativeGPA(filteredPrograms);
-    const academicRemarks = calculateAcademicRemarks(student.programs);
+        const facultyRemarks = calculateDetailedFacultyRemarks(student.programs);
+    const pendingModules = [
+      ...facultyRemarks.failedModules.map((m) => ({ ...m, type: 'Failed' as const })),
+      ...facultyRemarks.supplementaryModules.map((m) => ({
+        ...m,
+        type: 'Supplementary' as const,
+      })),
+    ];
 
     return (
       <Document>
@@ -740,19 +747,18 @@ export default function StatementOfResultsPDF({
                       Academic Status
                     </Text>
                     <Text style={styles.academicRemarksValue}>
-                      {academicRemarks.status}
+                      {facultyRemarks.status}
                     </Text>
                     <Text style={styles.academicRemarksDetails}>
-                      {academicRemarks.details}
+                      {facultyRemarks.details}
                     </Text>
                   </View>
-                  {academicRemarks.pendingModules.length > 0 && (
+                  {pendingModules.length > 0 && (
                     <View style={styles.pendingModulesSection}>
                       <Text style={styles.pendingModulesTitle}>
-                        Outstanding Requirements (
-                        {academicRemarks.pendingModules.length})
+                        Outstanding Requirements ({pendingModules.length})
                       </Text>
-                      {academicRemarks.pendingModules.map((module, index) => (
+                      {pendingModules.map((module, index) => (
                         <Text
                           key={index}
                           style={[
