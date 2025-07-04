@@ -1,18 +1,10 @@
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent } from '@/components/ui/card';
 import { formatDateTime } from '@/lib/utils';
 import { getStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
 import { notFound } from 'next/navigation';
 import Logo from '@/app/(main)/base/Logo';
-import {
-  GraduationCap,
-  User,
-  Calendar,
-  FileText,
-  Award,
-  BookOpen,
-} from 'lucide-react';
+import { GraduationCap, BookOpen } from 'lucide-react';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -29,7 +21,6 @@ export default async function StatementOfResultsPage({ params }: Props) {
   return (
     <div className='min-h-screen bg-gradient-to-br from-background to-muted/20'>
       <div className='container mx-auto max-w-4xl px-6 py-8'>
-        {/* Header */}
         <div className='mb-8 text-center'>
           <div className='mb-6 flex justify-center'>
             <Logo width={120} height={120} />
@@ -39,12 +30,9 @@ export default async function StatementOfResultsPage({ params }: Props) {
           </h1>
           <p className='text-muted-foreground'>Official Academic Record</p>
         </div>
-
-        {/* Main Content */}
         <div className='space-y-6'>
-          {/* Student Card */}
           <Card className='overflow-hidden border-0 shadow-lg'>
-            <div className='bg-muted/50 px-6 py-4 border-b'>
+            <div className='border-b bg-muted/50 px-6 py-4'>
               <h2 className='text-xl font-semibold text-foreground'>
                 Student Information
               </h2>
@@ -55,7 +43,7 @@ export default async function StatementOfResultsPage({ params }: Props) {
                   <label className='text-sm font-medium text-muted-foreground'>
                     Student Number
                   </label>
-                  <p className='text-lg font-mono font-semibold text-foreground'>
+                  <p className='font-mono text-lg font-semibold text-foreground'>
                     {statementPrint.stdNo}
                   </p>
                 </div>
@@ -78,10 +66,8 @@ export default async function StatementOfResultsPage({ params }: Props) {
               </div>
             </CardContent>
           </Card>
-
-          {/* Academic Performance Card */}
           <Card className='overflow-hidden border-0 shadow-lg'>
-            <div className='bg-muted/50 px-6 py-4 border-b'>
+            <div className='border-b bg-muted/50 px-6 py-4'>
               <h2 className='text-xl font-semibold text-foreground'>
                 Academic Performance
               </h2>
@@ -115,7 +101,6 @@ export default async function StatementOfResultsPage({ params }: Props) {
                   </div>
                 </div>
               </div>
-
               <div className='mt-6 grid gap-6 md:grid-cols-2'>
                 <div>
                   <label className='text-sm font-medium text-muted-foreground'>
@@ -151,11 +136,12 @@ export default async function StatementOfResultsPage({ params }: Props) {
                       {statementPrint.classification}
                     </Badge>
                   ) : (
-                    <p className='text-lg italic text-muted-foreground'>Not assigned</p>
+                    <p className='text-lg italic text-muted-foreground'>
+                      Not assigned
+                    </p>
                   )}
                 </div>
               </div>
-
               <div className='mt-6 grid gap-6 md:grid-cols-2'>
                 <div>
                   <label className='text-sm font-medium text-muted-foreground'>
@@ -191,10 +177,8 @@ export default async function StatementOfResultsPage({ params }: Props) {
               </div>
             </CardContent>
           </Card>
-
-          {/* Print Information */}
           <Card className='overflow-hidden border-0 shadow-lg'>
-            <div className='bg-muted/50 px-6 py-4 border-b'>
+            <div className='border-b bg-muted/50 px-6 py-4'>
               <h2 className='text-xl font-semibold text-foreground'>
                 Print Information
               </h2>
@@ -220,8 +204,6 @@ export default async function StatementOfResultsPage({ params }: Props) {
               </div>
             </CardContent>
           </Card>
-
-          {/* Footer */}
           <div className='mt-8 text-center'>
             <div className='mx-auto mb-4 h-px w-32 bg-border' />
             <p className='text-sm text-muted-foreground'>
