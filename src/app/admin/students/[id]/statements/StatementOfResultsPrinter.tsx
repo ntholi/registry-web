@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { pdf } from '@react-pdf/renderer';
-import { Button } from '@mantine/core';
-import { IconPrinter } from '@tabler/icons-react';
-import StatementOfResultsPDF from './StatementOfResultsPDF';
+import { createStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
+import { extractStatementOfResultsData } from '@/server/statement-of-results-prints/utils';
 import { getStudent } from '@/server/students/actions';
+import { Button } from '@mantine/core';
+import { pdf } from '@react-pdf/renderer';
+import { IconPrinter } from '@tabler/icons-react';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import StatementOfResultsPDF from './StatementOfResultsPDF';
 
 type StatementOfResultsPrinterProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -15,6 +18,28 @@ export default function StatementOfResultsPrinter({
   student,
 }: StatementOfResultsPrinterProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const { data: session } = useSession();
+
+  const createPrintRecord = async () => {
+    try {
+      if (!session?.user?.id) {
+        console.error('No authenticated user found');
+        return;
+      }
+
+      const printData = extractStatementOfResultsData(student);
+
+      await createStatementOfResultsPrint({
+        ...printData,
+        printedBy: session.user.id,
+      });
+
+      console.log('Print record created successfully');
+    } catch (error) {
+      console.error('Failed to create print record:', error);
+    }
+  };
+
   const handlePrint = async () => {
     setIsGenerating(true);
     try {
@@ -25,7 +50,7 @@ export default function StatementOfResultsPrinter({
       }
 
       console.log('Generating PDF for student:', student.stdNo);
-
+      createPrintRecord();
       const blob = await pdf(
         <StatementOfResultsPDF student={student} />,
       ).toBlob();
