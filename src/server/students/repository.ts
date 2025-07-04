@@ -179,57 +179,65 @@ export default class StudentRepository extends BaseRepository<
     return criteria;
   }
 
-  override async query(options: QueryOptions<typeof students>) {
-    if (!options.search) {
-      return super.query(options);
-    }
-
-    const searchTerms = options.search
-      .trim()
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(Boolean);
-
-    if (searchTerms.length === 0) {
-      return super.query(options);
-    }
-
+  async queryBasic(options: QueryOptions<typeof students>): Promise<{
+    items: { stdNo: number; name: string }[];
+    totalPages: number;
+    totalItems: number;
+  }> {
     const { orderBy, offset, limit } = this.buildQueryCriteria(options);
     let customWhere: SQL | undefined = undefined;
 
-    const searchConditions = searchTerms.map((term) => {
-      const conditions = [];
+    if (options.search) {
+      const searchTerms = options.search
+        .trim()
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(Boolean);
 
-      if (!isNaN(Number(term))) {
-        conditions.push(eq(students.stdNo, Number(term)));
+      if (searchTerms.length > 0) {
+        const searchConditions = searchTerms.map((term) => {
+          const conditions = [];
+
+          if (!isNaN(Number(term))) {
+            conditions.push(eq(students.stdNo, Number(term)));
+          }
+
+          const variations = normalizeName(term);
+          const termConditions = variations.map((variation) =>
+            like(students.name, `%${variation}%`),
+          );
+          conditions.push(...termConditions);
+
+          return or(...conditions);
+        });
+
+        customWhere = and(...searchConditions);
       }
+    }
 
-      const variations = normalizeName(term);
-      const termConditions = variations.map((variation) =>
-        like(students.name, `%${variation}%`),
-      );
-      conditions.push(...termConditions);
-
-      return or(...conditions);
-    });
-
-    customWhere = and(...searchConditions);
     if (options.filter) {
-      customWhere = and(customWhere, options.filter);
+      customWhere = customWhere
+        ? and(customWhere, options.filter)
+        : options.filter;
     }
 
     const items = await db
-      .select()
+      .select({
+        stdNo: students.stdNo,
+        name: students.name,
+      })
       .from(this.table)
       .orderBy(...orderBy)
       .where(customWhere)
       .limit(limit)
       .offset(offset);
 
-    return await this.createPaginatedResult(items, {
-      where: customWhere,
-      limit,
-    });
+    const totalItems = await this.count(customWhere);
+    return {
+      items,
+      totalPages: Math.ceil(totalItems / limit),
+      totalItems,
+    };
   }
 
   async updateUserId(stdNo: number, userId: string | null) {

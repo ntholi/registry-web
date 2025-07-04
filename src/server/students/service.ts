@@ -44,7 +44,7 @@ class StudentService {
 
   async findAll(params: QueryOptions<typeof students>) {
     return withAuth(
-      async () => this.repository.query(params),
+      async () => this.repository.queryBasic(params),
       ['dashboard'],
       async (session) => {
         if (
