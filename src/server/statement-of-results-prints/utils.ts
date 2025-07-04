@@ -1,7 +1,7 @@
 import { getStudent } from '@/server/students/actions';
 import { calculateAcademicRemarks } from '@/app/admin/students/[id]/statements/academicRemarks';
 import { summarizeModules, ModuleSummaryInput } from '@/utils/grades';
-import { ModuleStatus } from '@/db/schema';
+import { grades } from '@/utils/grades';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getStudent>>>;
 type Semester = Student['programs'][0]['semesters'][0];
@@ -80,11 +80,11 @@ function calculateCumulativeStats(programs: Program[]) {
 }
 
 function getClassification(gpa: number): string {
-  if (gpa >= 3.7) return 'First Class';
-  if (gpa >= 3.0) return 'Second Class Upper';
-  if (gpa >= 2.5) return 'Second Class Lower';
-  if (gpa >= 2.0) return 'Third Class';
-  return 'Pass';
+  const gradesWithGPA = grades
+    .filter((grade) => grade.gpa !== null)
+    .sort((a, b) => (b.gpa || 0) - (a.gpa || 0));
+  const matchingGrade = gradesWithGPA.find((grade) => gpa >= (grade.gpa || 0));
+  return matchingGrade?.description || 'No Classification';
 }
 
 export function extractStatementOfResultsData(student: Student) {
