@@ -56,6 +56,8 @@ interface Program {
 
 type StatementOfResultsPDFProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+  printRecordId?: string;
+  qrCodeDataURL?: string;
 };
 
 Font.register({
@@ -326,7 +328,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontStyle: 'italic',
   },
-  signatureSection: {
+  signatureAndQrContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -334,11 +336,15 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   signatureContainer: {
-    alignItems: 'center',
-    width: 200,
-    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginTop: 20,
     marginBottom: 3,
+  },
+  signatureSection: {
+    alignItems: 'center',
+    width: 200,
   },
   signatureImage: {
     width: 120,
@@ -353,6 +359,21 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#333',
     fontWeight: 'bold',
+  },
+  qrCodeSection: {
+    alignItems: 'center',
+    width: 120,
+  },
+  qrCodeImage: {
+    width: 80,
+    height: 80,
+    marginBottom: 3,
+  },
+  qrCodeLabel: {
+    fontSize: 7,
+    color: '#333',
+    textAlign: 'center',
+    lineHeight: 1.2,
   },
   registrarInfo: {
     fontSize: 8,
@@ -490,6 +511,8 @@ function calculateCumulativeGPA(programs: Program[]) {
 
 export default function StatementOfResultsPDF({
   student,
+  printRecordId,
+  qrCodeDataURL,
 }: StatementOfResultsPDFProps) {
   try {
     if (!student || !student.programs) {
@@ -751,12 +774,22 @@ export default function StatementOfResultsPDF({
               </View>
             </View>
             <View style={styles.signatureContainer}>
-              <Image
-                style={styles.signatureImage}
-                src='/images/signature_small.png'
-              />
-              <Text style={styles.signatureLine}></Text>
-              <Text style={styles.signatureLabel}>Registrar</Text>
+              <View style={styles.signatureSection}>
+                <Image
+                  style={styles.signatureImage}
+                  src='/images/signature_small.png'
+                />
+                <Text style={styles.signatureLine}></Text>
+                <Text style={styles.signatureLabel}>Registrar</Text>
+              </View>
+              {qrCodeDataURL && (
+                <View style={styles.qrCodeSection}>
+                  <Image style={styles.qrCodeImage} src={qrCodeDataURL} />
+                  <Text style={styles.qrCodeLabel}>
+                    Scan to verify{'\n'}statement authenticity
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </Page>

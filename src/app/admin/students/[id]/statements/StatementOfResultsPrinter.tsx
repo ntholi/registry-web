@@ -8,6 +8,7 @@ import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import QRCode from 'qrcode';
 import StatementOfResultsPDF from './StatementOfResultsPDF';
 
 type StatementOfResultsPrinterProps = {
@@ -24,19 +25,39 @@ export default function StatementOfResultsPrinter({
     try {
       if (!session?.user?.id) {
         console.error('No authenticated user found');
-        return;
+        return null;
       }
 
       const printData = extractStatementOfResultsData(student);
 
-      await createStatementOfResultsPrint({
+      const record = await createStatementOfResultsPrint({
         ...printData,
         printedBy: session.user.id,
       });
 
       console.log('Print record created successfully');
+      return record;
     } catch (error) {
       console.error('Failed to create print record:', error);
+      return null;
+    }
+  };
+
+  const generateQRCode = async (printRecordId: string): Promise<string> => {
+    try {
+      const url = `https://limkokwing.fly.dev/statement-of-results/${printRecordId}`;
+      const qrCodeDataURL = await QRCode.toDataURL(url, {
+        width: 200,
+        margin: 1,
+        color: {
+          dark: '#000',
+          light: '#FFF',
+        },
+      });
+      return qrCodeDataURL;
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      return '';
     }
   };
 
@@ -50,9 +71,22 @@ export default function StatementOfResultsPrinter({
       }
 
       console.log('Generating PDF for student:', student.stdNo);
-      createPrintRecord();
+      const printRecord = await createPrintRecord();
+
+      if (!printRecord) {
+        console.error('Failed to create print record');
+        setIsGenerating(false);
+        return;
+      }
+
+      const qrCodeDataURL = await generateQRCode(printRecord.id);
+
       const blob = await pdf(
-        <StatementOfResultsPDF student={student} />,
+        <StatementOfResultsPDF
+          student={student}
+          printRecordId={printRecord.id}
+          qrCodeDataURL={qrCodeDataURL}
+        />,
       ).toBlob();
 
       console.log('PDF blob generated, size:', blob.size);
