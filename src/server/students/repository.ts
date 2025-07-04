@@ -61,10 +61,20 @@ export default class StudentRepository extends BaseRepository<
           with: {
             structure: {
               with: {
-                program: true,
+                program: {
+                  columns: {
+                    name: true,
+                  },
+                },
               },
             },
             semesters: {
+              columns: {
+                id: true,
+                term: true,
+                semesterNumber: true,
+                status: true,
+              },
               with: {
                 studentModules: {
                   with: {

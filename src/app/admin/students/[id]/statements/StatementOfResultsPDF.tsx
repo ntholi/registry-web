@@ -37,9 +37,6 @@ interface Semester {
   term: string;
   status: string;
   semesterNumber?: number | null;
-  studentProgramId: number;
-  cafDate: string | null;
-  createdAt: Date | null;
   studentModules?: StudentModule[];
 }
 
