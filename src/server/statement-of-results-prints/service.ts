@@ -23,7 +23,7 @@ class StatementOfResultsPrintsService {
   }
 
   async get(id: string) {
-    return withAuth(async () => this.repository.findById(id), ['dashboard']);
+    return withAuth(async () => this.repository.findById(id), ['all']);
   }
 
   async findByStudent(stdNo: number) {
