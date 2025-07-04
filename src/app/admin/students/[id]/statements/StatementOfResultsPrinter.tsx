@@ -84,7 +84,6 @@ export default function StatementOfResultsPrinter({
       const blob = await pdf(
         <StatementOfResultsPDF
           student={student}
-          printRecordId={printRecord.id}
           qrCodeDataURL={qrCodeDataURL}
         />,
       ).toBlob();

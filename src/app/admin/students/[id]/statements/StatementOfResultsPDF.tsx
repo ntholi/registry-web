@@ -56,7 +56,6 @@ interface Program {
 
 type StatementOfResultsPDFProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
-  printRecordId?: string;
   qrCodeDataURL?: string;
 };
 
@@ -511,7 +510,6 @@ function calculateCumulativeGPA(programs: Program[]) {
 
 export default function StatementOfResultsPDF({
   student,
-  printRecordId,
   qrCodeDataURL,
 }: StatementOfResultsPDFProps) {
   try {
@@ -545,9 +543,12 @@ export default function StatementOfResultsPDF({
     }));
 
     const cumulativeStats = calculateCumulativeGPA(filteredPrograms);
-        const facultyRemarks = calculateDetailedFacultyRemarks(student.programs);
+    const facultyRemarks = calculateDetailedFacultyRemarks(student.programs);
     const pendingModules = [
-      ...facultyRemarks.failedModules.map((m) => ({ ...m, type: 'Failed' as const })),
+      ...facultyRemarks.failedModules.map((m) => ({
+        ...m,
+        type: 'Failed' as const,
+      })),
       ...facultyRemarks.supplementaryModules.map((m) => ({
         ...m,
         type: 'Supplementary' as const,

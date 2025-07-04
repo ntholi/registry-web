@@ -14,7 +14,6 @@ class StatementOfResultsPrintsService {
   ) {}
 
   async create(data: StatementOfResultsPrint) {
-    console.log('\n\n\n\n\n\nCreating Statement of Results Print:', data);
     return withAuth(async () => this.repository.create(data), ['dashboard']);
   }
 
