@@ -365,8 +365,8 @@ const styles = StyleSheet.create({
     width: 120,
   },
   qrCodeImage: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     marginBottom: 3,
   },
   qrCodeLabel: {
