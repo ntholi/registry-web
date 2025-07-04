@@ -17,14 +17,12 @@ export default class StatementOfResultsService {
       throw new Error('No active term found and no term specified');
     }
 
-    await this.repository.validateFilters(schoolId, programId, currentTerm);
+    await this.repository.validateFilters(schoolId, programId);
 
     const studentsData = await this.repository.getStudentsForStatementOfResults(
-      schoolId,
       programId,
       currentTerm,
     );
-
     if (studentsData.length === 0) {
       throw new Error(
         'No students found for the selected school, program, and term',

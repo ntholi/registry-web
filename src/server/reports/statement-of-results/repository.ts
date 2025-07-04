@@ -17,11 +17,7 @@ export default class StatementOfResultsRepository extends BaseRepository<
     super(students, 'stdNo');
   }
 
-  async getStudentsForStatementOfResults(
-    schoolId: number,
-    programId: number,
-    termName: string,
-  ) {
+  async getStudentsForStatementOfResults(programId: number, termName: string) {
     const structureIds = await db
       .select({ id: structures.id })
       .from(structures)
@@ -109,7 +105,7 @@ export default class StatementOfResultsRepository extends BaseRepository<
     );
   }
 
-  async validateFilters(schoolId: number, programId: number, termName: string) {
+  async validateFilters(schoolId: number, programId: number) {
     const program = await db.query.programs.findFirst({
       where: and(eq(programs.id, programId), eq(programs.schoolId, schoolId)),
     });

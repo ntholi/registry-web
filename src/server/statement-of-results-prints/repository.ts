@@ -1,4 +1,3 @@
-import { db } from '@/db';
 import { statementOfResultsPrints } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
