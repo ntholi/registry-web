@@ -1,9 +1,18 @@
-import { FieldView } from '@/components/adease';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { formatDateTime } from '@/lib/utils';
 import { getStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
 import { notFound } from 'next/navigation';
+import Logo from '@/app/(main)/base/Logo';
+import {
+  GraduationCap,
+  User,
+  Calendar,
+  FileText,
+  Award,
+  BookOpen,
+} from 'lucide-react';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -18,137 +27,210 @@ export default async function StatementOfResultsPage({ params }: Props) {
   }
 
   return (
-    <div className='container mx-auto max-w-4xl px-4 py-8'>
-      <div className='space-y-6'>
-        <div className='space-y-2 text-center'>
-          <h1 className='text-3xl font-bold text-gray-900'>
-            Statement of Results Print
+    <div className='min-h-screen bg-gradient-to-br from-background to-muted/20'>
+      <div className='container mx-auto max-w-4xl px-6 py-8'>
+        {/* Header */}
+        <div className='mb-8 text-center'>
+          <div className='mb-6 flex justify-center'>
+            <Logo width={120} height={120} />
+          </div>
+          <h1 className='mb-2 text-3xl font-bold text-foreground'>
+            Statement of Results
           </h1>
-          <p className='text-sm text-gray-600'>Print ID: {statementPrint.id}</p>
+          <p className='text-muted-foreground'>Official Academic Record</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-xl'>Student Information</CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <FieldView label='Student Number'>
-                <Badge variant='outline' className='px-3 py-1 text-lg'>
-                  {statementPrint.stdNo}
-                </Badge>
-              </FieldView>
-              <FieldView label='Student Name'>
-                <span className='text-lg font-semibold'>
-                  {statementPrint.studentName}
-                </span>
-              </FieldView>
+        {/* Main Content */}
+        <div className='space-y-6'>
+          {/* Student Card */}
+          <Card className='overflow-hidden border-0 shadow-lg'>
+            <div className='bg-muted/50 px-6 py-4 border-b'>
+              <h2 className='text-xl font-semibold text-foreground'>
+                Student Information
+              </h2>
             </div>
+            <CardContent className='p-6'>
+              <div className='grid gap-6 md:grid-cols-2'>
+                <div>
+                  <label className='text-sm font-medium text-muted-foreground'>
+                    Student Number
+                  </label>
+                  <p className='text-lg font-mono font-semibold text-foreground'>
+                    {statementPrint.stdNo}
+                  </p>
+                </div>
+                <div>
+                  <label className='text-sm font-medium text-muted-foreground'>
+                    Student Name
+                  </label>
+                  <p className='text-lg font-semibold text-foreground'>
+                    {statementPrint.studentName}
+                  </p>
+                </div>
+              </div>
+              <div className='mt-6'>
+                <label className='text-sm font-medium text-muted-foreground'>
+                  Program of Study
+                </label>
+                <p className='text-lg font-medium text-foreground'>
+                  {statementPrint.programName}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
-            <FieldView label='Program'>
-              <span className='text-lg font-medium'>
-                {statementPrint.programName}
-              </span>
-            </FieldView>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-xl'>Academic Performance</CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <FieldView label='Total Credits'>
-                <Badge variant='secondary' className='px-3 py-1 text-lg'>
-                  {statementPrint.totalCredits}
-                </Badge>
-              </FieldView>
-              <FieldView label='Total Modules'>
-                <Badge variant='secondary' className='px-3 py-1 text-lg'>
-                  {statementPrint.totalModules}
-                </Badge>
-              </FieldView>
+          {/* Academic Performance Card */}
+          <Card className='overflow-hidden border-0 shadow-lg'>
+            <div className='bg-muted/50 px-6 py-4 border-b'>
+              <h2 className='text-xl font-semibold text-foreground'>
+                Academic Performance
+              </h2>
             </div>
+            <CardContent className='p-6'>
+              <div className='grid gap-6 md:grid-cols-2'>
+                <div className='rounded-lg bg-muted p-4'>
+                  <div className='flex items-center justify-between'>
+                    <div>
+                      <p className='text-sm font-medium text-muted-foreground'>
+                        Total Credits
+                      </p>
+                      <p className='text-2xl font-bold text-foreground'>
+                        {statementPrint.totalCredits}
+                      </p>
+                    </div>
+                    <BookOpen className='h-8 w-8 text-muted-foreground' />
+                  </div>
+                </div>
+                <div className='rounded-lg bg-muted p-4'>
+                  <div className='flex items-center justify-between'>
+                    <div>
+                      <p className='text-sm font-medium text-muted-foreground'>
+                        Total Modules
+                      </p>
+                      <p className='text-2xl font-bold text-foreground'>
+                        {statementPrint.totalModules}
+                      </p>
+                    </div>
+                    <BookOpen className='h-8 w-8 text-muted-foreground' />
+                  </div>
+                </div>
+              </div>
 
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <FieldView label='CGPA'>
-                {statementPrint.cgpa ? (
-                  <Badge
-                    variant={
-                      statementPrint.cgpa >= 3.5
-                        ? 'default'
-                        : statementPrint.cgpa >= 2.5
-                          ? 'secondary'
-                          : 'destructive'
-                    }
-                    className='px-3 py-1 text-lg'
-                  >
-                    {statementPrint.cgpa.toFixed(2)}
-                  </Badge>
-                ) : (
-                  <span className='text-gray-500'>Not calculated</span>
-                )}
-              </FieldView>
-              <FieldView label='Classification'>
-                {statementPrint.classification ? (
-                  <Badge variant='outline' className='px-3 py-1 text-lg'>
-                    {statementPrint.classification}
-                  </Badge>
-                ) : (
-                  <span className='text-gray-500'>Not assigned</span>
-                )}
-              </FieldView>
+              <div className='mt-6 grid gap-6 md:grid-cols-2'>
+                <div>
+                  <label className='text-sm font-medium text-muted-foreground'>
+                    Cumulative GPA
+                  </label>
+                  {statementPrint.cgpa ? (
+                    <div className='flex items-center gap-3'>
+                      <span className='text-3xl font-bold text-foreground'>
+                        {statementPrint.cgpa.toFixed(2)}
+                      </span>
+                      <div
+                        className={`h-3 w-3 rounded-full ${
+                          statementPrint.cgpa >= 3.5
+                            ? 'bg-green-500'
+                            : statementPrint.cgpa >= 2.5
+                              ? 'bg-yellow-500'
+                              : 'bg-red-500'
+                        }`}
+                      />
+                    </div>
+                  ) : (
+                    <p className='text-lg italic text-muted-foreground'>
+                      Not calculated
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className='text-sm font-medium text-muted-foreground'>
+                    Classification
+                  </label>
+                  {statementPrint.classification ? (
+                    <Badge variant='outline' className='mt-1'>
+                      {statementPrint.classification}
+                    </Badge>
+                  ) : (
+                    <p className='text-lg italic text-muted-foreground'>Not assigned</p>
+                  )}
+                </div>
+              </div>
+
+              <div className='mt-6 grid gap-6 md:grid-cols-2'>
+                <div>
+                  <label className='text-sm font-medium text-muted-foreground'>
+                    Academic Status
+                  </label>
+                  {statementPrint.academicStatus ? (
+                    <Badge variant='outline' className='mt-1'>
+                      {statementPrint.academicStatus}
+                    </Badge>
+                  ) : (
+                    <p className='text-lg italic text-muted-foreground'>
+                      Not specified
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className='text-sm font-medium text-muted-foreground'>
+                    Graduation Date
+                  </label>
+                  {statementPrint.graduationDate ? (
+                    <div className='flex items-center gap-2'>
+                      <GraduationCap className='h-4 w-4 text-muted-foreground' />
+                      <span className='text-lg font-medium text-foreground'>
+                        {statementPrint.graduationDate}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className='text-lg italic text-muted-foreground'>
+                      Not graduated
+                    </p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Print Information */}
+          <Card className='overflow-hidden border-0 shadow-lg'>
+            <div className='bg-muted/50 px-6 py-4 border-b'>
+              <h2 className='text-xl font-semibold text-foreground'>
+                Print Information
+              </h2>
             </div>
+            <CardContent className='p-6'>
+              <div className='grid gap-6 md:grid-cols-2'>
+                <div>
+                  <label className='text-sm font-medium text-muted-foreground'>
+                    Printed By
+                  </label>
+                  <p className='text-lg font-medium text-foreground'>
+                    {statementPrint.printedBy || 'System Generated'}
+                  </p>
+                </div>
+                <div>
+                  <label className='text-sm font-medium text-muted-foreground'>
+                    Print Date & Time
+                  </label>
+                  <p className='text-lg font-medium text-foreground'>
+                    {formatDateTime(statementPrint.printedAt)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <FieldView label='Academic Status'>
-                {statementPrint.academicStatus ? (
-                  <Badge variant='outline' className='px-3 py-1 text-lg'>
-                    {statementPrint.academicStatus}
-                  </Badge>
-                ) : (
-                  <span className='text-gray-500'>Not specified</span>
-                )}
-              </FieldView>
-              <FieldView label='Graduation Date'>
-                {statementPrint.graduationDate ? (
-                  <span className='font-medium'>
-                    {statementPrint.graduationDate}
-                  </span>
-                ) : (
-                  <span className='text-gray-500'>Not graduated</span>
-                )}
-              </FieldView>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-xl'>Print Information</CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <FieldView label='Printed By'>
-                <span className='font-medium'>
-                  {statementPrint.printedBy || 'Unknown'}
-                </span>
-              </FieldView>
-              <FieldView label='Printed At'>
-                <span className='font-medium'>
-                  {formatDateTime(statementPrint.printedAt)}
-                </span>
-              </FieldView>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className='pt-4 text-center text-sm text-gray-500'>
-          <p>
-            This document represents a printed statement of results for academic
-            records.
-          </p>
+          {/* Footer */}
+          <div className='mt-8 text-center'>
+            <div className='mx-auto mb-4 h-px w-32 bg-border' />
+            <p className='text-sm text-muted-foreground'>
+              This is an official statement of academic results
+            </p>
+            <p className='text-xs text-muted-foreground'>
+              Generated by Limkokwing University Registry System
+            </p>
+          </div>
         </div>
       </div>
     </div>
