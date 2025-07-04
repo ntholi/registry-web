@@ -35,6 +35,13 @@ class RegistrationRequestService {
     );
   }
 
+  async getHistory(stdNo: number) {
+    return withAuth(
+      async () => this.repository.getHistory(stdNo),
+      ['dashboard'],
+    );
+  }
+
   async findByStatus(
     status: 'pending' | 'registered' | 'rejected' | 'approved',
     params: QueryOptions<typeof registrationRequests>,

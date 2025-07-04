@@ -2,7 +2,8 @@
 
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatDateTime, formatSemester } from '@/lib/utils';
-import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
+import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
+import { registrationRequests, terms, requestedModules } from '@/db/schema';
 import {
   Accordion,
   Anchor,
@@ -16,6 +17,20 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+
+type StudentRegistrationHistory = {
+  id: number;
+  status: (typeof registrationRequests.$inferSelect)['status'];
+  semesterNumber: number;
+  createdAt: Date | null;
+  term: {
+    id: number;
+    name: string;
+  };
+  requestedModules: {
+    id: number;
+  }[];
+};
 
 type Props = {
   stdNo: number;
@@ -31,7 +46,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
     error,
   } = useQuery({
     queryKey: ['registrationRequests', stdNo],
-    queryFn: () => getRegistrationRequestsByStudent(stdNo),
+    queryFn: () => getStudentRegistrationHistory(stdNo),
     enabled: isActive,
   });
 
@@ -72,7 +87,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
       variant='separated'
       defaultValue={registrationRequests[0]?.id.toString()}
     >
-      {registrationRequests.map((request) => (
+      {registrationRequests.map((request: StudentRegistrationHistory) => (
         <Accordion.Item key={request.id} value={request.id.toString()}>
           <Accordion.Control>
             <Stack gap={0} w={'95%'}>

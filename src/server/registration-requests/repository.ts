@@ -422,6 +422,34 @@ export default class RegistrationRequestRepository extends BaseRepository<
       );
     });
   }
+
+  async getHistory(stdNo: number) {
+    return db.query.registrationRequests.findMany({
+      where: eq(registrationRequests.stdNo, stdNo),
+      columns: {
+        id: true,
+        status: true,
+        semesterNumber: true,
+        createdAt: true,
+      },
+      with: {
+        term: {
+          columns: {
+            id: true,
+            name: true,
+          },
+        },
+        requestedModules: {
+          columns: {
+            id: true,
+          },
+        },
+      },
+      orderBy: (registrationRequests, { desc }) => [
+        desc(registrationRequests.createdAt),
+      ],
+    });
+  }
 }
 
 export const registrationRequestsRepository =
