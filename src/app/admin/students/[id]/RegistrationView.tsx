@@ -1,19 +1,19 @@
 'use client';
 
+import { registrationRequests } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatDateTime, formatSemester } from '@/lib/utils';
 import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
-import { registrationRequests, terms, requestedModules } from '@/db/schema';
 import {
   Accordion,
+  Alert,
   Anchor,
   Badge,
   Divider,
   Group,
+  Loader,
   Stack,
   Text,
-  Loader,
-  Alert,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -27,9 +27,7 @@ type StudentRegistrationHistory = {
     id: number;
     name: string;
   };
-  requestedModules: {
-    id: number;
-  }[];
+  requestedModulesCount: number;
 };
 
 type Props = {
@@ -139,7 +137,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
                   href={`/admin/registration-requests/${request.status}/${request.id}`}
                   className='text-blue-500 hover:underline'
                 >
-                  {request.requestedModules.length} modules
+                  {request.requestedModulesCount} modules
                 </Anchor>
               </Group>
             </Stack>

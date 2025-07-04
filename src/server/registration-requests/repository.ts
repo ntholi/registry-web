@@ -6,10 +6,21 @@ import {
   requestedModules,
   sponsoredStudents,
   studentPrograms,
+  terms,
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, count, eq, exists, inArray, like, ne, not } from 'drizzle-orm';
+import {
+  and,
+  count,
+  desc,
+  eq,
+  exists,
+  inArray,
+  like,
+  ne,
+  not,
+} from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 
@@ -424,31 +435,34 @@ export default class RegistrationRequestRepository extends BaseRepository<
   }
 
   async getHistory(stdNo: number) {
-    return db.query.registrationRequests.findMany({
-      where: eq(registrationRequests.stdNo, stdNo),
-      columns: {
-        id: true,
-        status: true,
-        semesterNumber: true,
-        createdAt: true,
-      },
-      with: {
+    return db
+      .select({
+        id: registrationRequests.id,
+        status: registrationRequests.status,
+        semesterNumber: registrationRequests.semesterNumber,
+        createdAt: registrationRequests.createdAt,
         term: {
-          columns: {
-            id: true,
-            name: true,
-          },
+          id: terms.id,
+          name: terms.name,
         },
-        requestedModules: {
-          columns: {
-            id: true,
-          },
-        },
-      },
-      orderBy: (registrationRequests, { desc }) => [
-        desc(registrationRequests.createdAt),
-      ],
-    });
+        requestedModulesCount: count(requestedModules.id),
+      })
+      .from(registrationRequests)
+      .innerJoin(terms, eq(registrationRequests.termId, terms.id))
+      .leftJoin(
+        requestedModules,
+        eq(requestedModules.registrationRequestId, registrationRequests.id),
+      )
+      .where(eq(registrationRequests.stdNo, stdNo))
+      .groupBy(
+        registrationRequests.id,
+        registrationRequests.status,
+        registrationRequests.semesterNumber,
+        registrationRequests.createdAt,
+        terms.id,
+        terms.name,
+      )
+      .orderBy(desc(registrationRequests.createdAt));
   }
 }
 
