@@ -1,6 +1,7 @@
 'use client';
 
 import { ThemeProvider } from '@/components/theme-provider';
+import { SessionProvider } from 'next-auth/react';
 import React from 'react';
 
 type Props = {
@@ -11,8 +12,12 @@ export default function Providers({ children }: Props) {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    mounted && (
+    <SessionProvider>
       <ThemeProvider
         attribute='class'
         defaultTheme='dark'
@@ -21,6 +26,6 @@ export default function Providers({ children }: Props) {
       >
         {children}
       </ThemeProvider>
-    )
+    </SessionProvider>
   );
 }
