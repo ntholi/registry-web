@@ -55,7 +55,10 @@ export function StudentTabs({ student, session }: StudentTabsProps) {
         <StudentView student={student} />
       </TabsPanel>
       <TabsPanel value='registration' pt={'xl'} p={'sm'}>
-        <RegistrationView stdNo={student.stdNo} />
+        <RegistrationView
+          stdNo={student.stdNo}
+          isActive={activeTab === 'registration'}
+        />
       </TabsPanel>
     </Tabs>
   );

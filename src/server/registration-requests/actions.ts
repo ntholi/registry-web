@@ -102,7 +102,7 @@ export async function updateRegistrationWithModules(
 }
 
 export async function getRegistrationRequestsByStudent(stdNo: number) {
-  const student = await db.query.registrationRequests.findMany({
+  return await db.query.registrationRequests.findMany({
     where: eq(registrationRequests.stdNo, stdNo),
     with: {
       student: {
@@ -134,5 +134,4 @@ export async function getRegistrationRequestsByStudent(stdNo: number) {
     },
     orderBy: desc(registrationRequests.createdAt),
   });
-  return student;
 }

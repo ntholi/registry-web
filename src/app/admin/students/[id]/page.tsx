@@ -1,10 +1,9 @@
+import { auth } from '@/auth';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
 import { getStudent } from '@/server/students/actions';
-import { notFound } from 'next/navigation';
-import { getRegistrationRequestsByStudent } from '@/server/registration-requests/actions';
-import { auth } from '@/auth';
-import { StudentTabs } from './StudentTabs';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { StudentTabs } from './StudentTabs';
 
 type Props = {
   params: Promise<{ id: string }>;

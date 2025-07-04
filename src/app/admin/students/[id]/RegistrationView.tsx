@@ -19,9 +19,10 @@ import Link from 'next/link';
 
 type Props = {
   stdNo: number;
+  isActive?: boolean;
 };
 
-export default function RegistrationView({ stdNo }: Props) {
+export default function RegistrationView({ stdNo, isActive = true }: Props) {
   const { currentTerm } = useCurrentTerm();
 
   const {
@@ -31,6 +32,7 @@ export default function RegistrationView({ stdNo }: Props) {
   } = useQuery({
     queryKey: ['registrationRequests', stdNo],
     queryFn: () => getRegistrationRequestsByStudent(stdNo),
+    enabled: isActive,
   });
 
   if (isLoading) {
