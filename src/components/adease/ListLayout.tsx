@@ -25,7 +25,7 @@ export type ListLayoutProps<T> = {
   getData: (
     page: number,
     search: string,
-  ) => Promise<{ items: T[]; totalPages: number }>;
+  ) => Promise<{ items: T[]; totalPages: number; totalItems: number }>;
   renderItem: (item: T) => React.ReactNode;
   path: string;
   queryKey: string[];
@@ -50,7 +50,11 @@ export function ListLayout<T>({
 
   const {
     isLoading,
-    data: { items, totalPages } = { items: [], totalPages: 0 },
+    data: { items, totalPages, totalItems } = {
+      items: [],
+      totalPages: 0,
+      totalItems: 0,
+    },
   } = useQuery({
     queryKey: [...queryKey, page, search],
     queryFn: () => getData(page, search),
@@ -125,7 +129,7 @@ export function ListLayout<T>({
             </ScrollArea>
 
             <Divider />
-            <Pagination total={totalPages} />
+            <Pagination total={totalPages} totalItems={totalItems} />
           </Flex>
         </Paper>
       </GridCol>

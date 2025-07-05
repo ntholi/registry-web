@@ -86,63 +86,6 @@ export default function StudentsFilter() {
     }
   }, [filters.schoolId, schoolId]);
 
-  const appliedDescription = useMemo(() => {
-    const selectedSchool = schools.find(
-      (s) => s.id.toString() === (schoolId || ''),
-    );
-    const selectedProgram = programs.find(
-      (p) => p.id.toString() === (programId || ''),
-    );
-    const selectedTerm = terms.find((t) => t.id.toString() === (termId || ''));
-    const selectedSemester = semesterNumber
-      ? getSemesterLabel(Number(semesterNumber))
-      : null;
-
-    if (selectedProgram) {
-      let desc = `${selectedProgram.code} students`;
-
-      if (selectedSemester) {
-        desc += ` in ${selectedSemester}`;
-      }
-
-      if (selectedTerm) {
-        desc += ` registered for ${selectedTerm.name}`;
-      }
-
-      return desc;
-    }
-
-    if (selectedSchool) {
-      let desc = `All ${selectedSchool.code} students`;
-
-      if (selectedSemester) {
-        desc += ` in ${selectedSemester}`;
-      }
-
-      if (selectedTerm) {
-        desc += ` registered for ${selectedTerm.name}`;
-      }
-
-      return desc;
-    }
-
-    if (selectedTerm || selectedSemester) {
-      let desc = 'All students';
-
-      if (selectedSemester) {
-        desc += ` in ${selectedSemester}`;
-      }
-
-      if (selectedTerm) {
-        desc += ` registered for ${selectedTerm.name}`;
-      }
-
-      return desc;
-    }
-
-    return 'All students';
-  }, [schoolId, programId, termId, semesterNumber, schools, programs, terms]);
-
   const previewDescription = useMemo(() => {
     const selectedSchool = schools.find(
       (s) => s.id.toString() === (filters.schoolId || ''),
