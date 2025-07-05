@@ -7,7 +7,6 @@ import {
   Modal,
   Stack,
   Select,
-  NumberInput,
   Button,
   Group,
 } from '@mantine/core';
@@ -16,9 +15,28 @@ import { IconFilter } from '@tabler/icons-react';
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAllSchools } from '@/server/schools/actions';
-import { getAllPrograms } from '@/server/students/actions';
+import {
+  getAllPrograms,
+  getProgramsBySchoolId,
+} from '@/server/students/actions';
 import { getAllTerms } from '@/server/terms/actions';
 import { useQueryState } from 'nuqs';
+
+// Utility function to convert semester number to readable format
+const getSemesterLabel = (semesterNumber: number): string => {
+  const year = Math.ceil(semesterNumber / 2);
+  const semester = semesterNumber % 2 === 0 ? 2 : 1;
+  return `Year ${year} Semester ${semester}`;
+};
+
+// Generate semester options (1-10)
+const semesterOptions = Array.from({ length: 10 }, (_, i) => {
+  const semesterNumber = i + 1;
+  return {
+    value: semesterNumber.toString(),
+    label: getSemesterLabel(semesterNumber),
+  };
+});
 
 export default function StudentsFilter() {
   const [opened, { toggle, close }] = useDisclosure(false);
@@ -49,15 +67,27 @@ export default function StudentsFilter() {
     queryFn: getAllSchools,
   });
 
+  // Only fetch programs when a school is selected
   const { data: programs = [] } = useQuery({
-    queryKey: ['programs'],
-    queryFn: getAllPrograms,
+    queryKey: ['programs', filters.schoolId],
+    queryFn: () =>
+      filters.schoolId
+        ? getProgramsBySchoolId(Number(filters.schoolId))
+        : getAllPrograms(),
+    enabled: true, // Always enabled, but will fetch all programs if no school is selected
   });
 
   const { data: terms = [] } = useQuery({
     queryKey: ['terms'],
     queryFn: getAllTerms,
   });
+
+  // Reset program when school changes
+  useEffect(() => {
+    if (filters.schoolId !== schoolId) {
+      setFilters((prev) => ({ ...prev, programId: '' }));
+    }
+  }, [filters.schoolId, schoolId]);
 
   const handleApplyFilters = () => {
     setSchoolId(filters.schoolId || null);
@@ -109,8 +139,10 @@ export default function StudentsFilter() {
               setFilters((prev) => ({
                 ...prev,
                 schoolId: value || '',
+                programId: '', // Reset program when school changes
               }))
             }
+            searchable
             clearable
           />
 
@@ -128,7 +160,9 @@ export default function StudentsFilter() {
                 programId: value || '',
               }))
             }
+            searchable
             clearable
+            disabled={!filters.schoolId}
           />
 
           <Select
@@ -145,22 +179,23 @@ export default function StudentsFilter() {
                 termId: value || '',
               }))
             }
+            searchable
             clearable
           />
 
-          <NumberInput
-            label='Semester Number'
-            placeholder='Enter semester number'
-            value={filters.semesterNumber || ''}
+          <Select
+            label='Semester'
+            placeholder='Select semester'
+            data={semesterOptions}
+            value={filters.semesterNumber || null}
             onChange={(value) =>
               setFilters((prev) => ({
                 ...prev,
-                semesterNumber:
-                  typeof value === 'number' ? value.toString() : '',
+                semesterNumber: value || '',
               }))
             }
-            min={1}
-            max={10}
+            searchable
+            clearable
           />
 
           <Group justify='flex-end' gap='sm'>

@@ -180,6 +180,18 @@ export default class StudentRepository extends BaseRepository<
     });
   }
 
+  async getProgramsBySchoolId(schoolId: number) {
+    return db.query.programs.findMany({
+      columns: {
+        id: true,
+        name: true,
+        code: true,
+      },
+      where: eq(programs.schoolId, schoolId),
+      orderBy: programs.name,
+    });
+  }
+
   protected override buildQueryCriteria(
     options: QueryOptions<typeof students>,
   ) {
@@ -229,9 +241,8 @@ export default class StudentRepository extends BaseRepository<
       }
     }
 
+    const filterConditions: SQL[] = [];
     if (options.filter) {
-      const filterConditions: SQL[] = [];
-
       if (options.filter.schoolId) {
         filterConditions.push(eq(programs.schoolId, options.filter.schoolId));
       }
@@ -246,10 +257,16 @@ export default class StudentRepository extends BaseRepository<
         filterConditions.push(eq(terms.id, options.filter.termId));
       }
 
-      if (filterConditions.length > 0) {
-        const filterWhere = and(...filterConditions);
-        customWhere = customWhere ? and(customWhere, filterWhere) : filterWhere;
+      if (options.filter.semesterNumber) {
+        filterConditions.push(
+          eq(studentSemesters.semesterNumber, options.filter.semesterNumber),
+        );
       }
+    }
+
+    if (filterConditions.length > 0) {
+      const filterWhere = and(...filterConditions);
+      customWhere = customWhere ? and(customWhere, filterWhere) : filterWhere;
     }
 
     let query = db
@@ -257,7 +274,7 @@ export default class StudentRepository extends BaseRepository<
         stdNo: students.stdNo,
         name: students.name,
       })
-      .from(students);
+      .from(students) as any;
 
     if (
       options.filter &&
@@ -269,54 +286,23 @@ export default class StudentRepository extends BaseRepository<
       query = query
         .innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
         .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-        .innerJoin(programs, eq(structures.programId, programs.id)) as any;
+        .innerJoin(programs, eq(structures.programId, programs.id));
 
-      // Handle semester-related joins
       if (options.filter.termId || options.filter.semesterNumber) {
-        query = (query as any).innerJoin(
+        query = query.innerJoin(
           studentSemesters,
           eq(studentSemesters.studentProgramId, studentPrograms.id),
         );
-
-        if (options.filter.termId) {
-          query = (query as any).innerJoin(
-            terms,
-            eq(terms.name, studentSemesters.term),
-          );
-        }
-
-        if (options.filter.semesterNumber) {
-          // For semesterNumber filter, join with a subquery that finds the latest semester for each student
-          const latestSemesterSubquery = db
-            .select({
-              studentProgramId: studentSemesters.studentProgramId,
-              maxSemesterNumber: max(studentSemesters.semesterNumber).as(
-                'maxSemesterNumber',
-              ),
-            })
-            .from(studentSemesters)
-            .groupBy(studentSemesters.studentProgramId)
-            .as('latestSemester');
-
-          query = (query as any).innerJoin(
-            latestSemesterSubquery,
-            and(
-              eq(latestSemesterSubquery.studentProgramId, studentPrograms.id),
-              eq(
-                studentSemesters.semesterNumber,
-                latestSemesterSubquery.maxSemesterNumber,
-              ),
-              eq(
-                latestSemesterSubquery.maxSemesterNumber,
-                options.filter.semesterNumber,
-              ),
-            ),
-          );
-        }
+      }
+      if (options.filter.termId) {
+        query = query.innerJoin(
+          terms,
+          eq(terms.name, studentSemesters.term),
+        );
       }
     }
 
-    const items = await (query as any)
+    const items = await query
       .orderBy(...orderBy)
       .where(customWhere)
       .limit(limit)
@@ -337,48 +323,17 @@ export default class StudentRepository extends BaseRepository<
         .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
         .innerJoin(programs, eq(structures.programId, programs.id));
 
-      // Handle semester-related joins
       if (options.filter.termId || options.filter.semesterNumber) {
         countQuery = countQuery.innerJoin(
           studentSemesters,
           eq(studentSemesters.studentProgramId, studentPrograms.id),
         );
-
-        if (options.filter.termId) {
-          countQuery = countQuery.innerJoin(
-            terms,
-            eq(terms.name, studentSemesters.term),
-          );
-        }
-
-        if (options.filter.semesterNumber) {
-          // For semesterNumber filter, join with a subquery that finds the latest semester for each student
-          const latestSemesterSubquery = db
-            .select({
-              studentProgramId: studentSemesters.studentProgramId,
-              maxSemesterNumber: max(studentSemesters.semesterNumber).as(
-                'maxSemesterNumber',
-              ),
-            })
-            .from(studentSemesters)
-            .groupBy(studentSemesters.studentProgramId)
-            .as('latestSemester');
-
-          countQuery = countQuery.innerJoin(
-            latestSemesterSubquery,
-            and(
-              eq(latestSemesterSubquery.studentProgramId, studentPrograms.id),
-              eq(
-                studentSemesters.semesterNumber,
-                latestSemesterSubquery.maxSemesterNumber,
-              ),
-              eq(
-                latestSemesterSubquery.maxSemesterNumber,
-                options.filter.semesterNumber,
-              ),
-            ),
-          );
-        }
+      }
+      if (options.filter.termId) {
+        countQuery = countQuery.innerJoin(
+          terms,
+          eq(terms.name, studentSemesters.term),
+        );
       }
     }
 

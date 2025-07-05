@@ -35,6 +35,13 @@ class StudentService {
     return withAuth(async () => this.repository.getAllPrograms(), ['academic']);
   }
 
+  async getProgramsBySchoolId(schoolId: number) {
+    return withAuth(
+      async () => this.repository.getProgramsBySchoolId(schoolId),
+      ['academic'],
+    );
+  }
+
   async findByModuleId(moduleId: number) {
     const term = await getCurrentTerm();
     return withAuth(
