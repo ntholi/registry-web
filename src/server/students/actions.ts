@@ -2,6 +2,7 @@
 
 import { students } from '@/db/schema';
 import { studentsService as service } from './service';
+import { QueryOptions } from '../base/BaseRepository';
 
 type Student = typeof students.$inferInsert;
 
@@ -11,6 +12,10 @@ export interface StudentFilter {
   termId?: number;
   semesterNumber?: number;
 }
+
+type StudentQueryParams = Omit<QueryOptions<typeof students>, 'filter'> & {
+  filter?: StudentFilter;
+};
 
 export async function getStudent(stdNo: number) {
   return service.get(stdNo);
@@ -38,11 +43,17 @@ export async function findAllStudents(
   search = '',
   filter?: StudentFilter,
 ) {
-  const params: any = { page, search, searchColumns: ['stdNo', 'name'] };
+  const params: StudentQueryParams = {
+    page,
+    search,
+    searchColumns: ['stdNo', 'name'],
+  };
   if (filter) {
     params.filter = filter;
   }
-  return service.findAll(params);
+  return service.findAll(
+    params as QueryOptions<typeof students> & { filter?: StudentFilter },
+  );
 }
 
 export async function createStudent(student: Student) {

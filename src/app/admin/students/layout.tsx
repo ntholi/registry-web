@@ -1,10 +1,10 @@
 'use client';
 
-import { PropsWithChildren } from 'react';
-import { ListItem, ListLayout, NewLink } from '@/components/adease';
+import { ListItem, ListLayout } from '@/components/adease';
 import { findAllStudents, StudentFilter } from '@/server/students/actions';
-import StudentsFilter from './StudentsFilter';
 import { useSearchParams } from 'next/navigation';
+import { PropsWithChildren } from 'react';
+import StudentsFilter from './StudentsFilter';
 
 export default function Layout({ children }: PropsWithChildren) {
   const searchParams = useSearchParams();

@@ -1,6 +1,5 @@
 'use client';
 import {
-  Box,
   Group,
   Pagination as MPagination,
   PaginationProps as MPaginationProps,

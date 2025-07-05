@@ -22,6 +22,7 @@ import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo, useState } from 'react';
+import { terms as termsTable } from '@/db/schema';
 
 const getSemesterLabel = (semesterNumber: number): string => {
   const year = Math.ceil(semesterNumber / 2);
@@ -89,7 +90,7 @@ export default function StudentsFilter() {
   const addSemesterDescription = (
     desc: string,
     selectedSemester: string | null,
-    selectedTerm: any,
+    selectedTerm: typeof termsTable.$inferSelect | undefined,
   ) => {
     if (selectedSemester && selectedTerm) {
       return desc + ` in ${selectedSemester}`;
