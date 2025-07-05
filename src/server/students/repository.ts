@@ -11,7 +11,7 @@ import {
   terms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, desc, eq, like, notInArray, or, SQL } from 'drizzle-orm';
+import { and, desc, eq, like, notInArray, or, SQL, max } from 'drizzle-orm';
 import { StudentFilter } from './actions';
 
 export default class StudentRepository extends BaseRepository<
@@ -179,6 +179,7 @@ export default class StudentRepository extends BaseRepository<
       orderBy: programs.name,
     });
   }
+
   protected override buildQueryCriteria(
     options: QueryOptions<typeof students>,
   ) {
@@ -241,15 +242,8 @@ export default class StudentRepository extends BaseRepository<
         );
       }
 
-      if (options.filter.termId || options.filter.semesterNumber) {
-        if (options.filter.termId) {
-          filterConditions.push(eq(terms.id, options.filter.termId));
-        }
-        if (options.filter.semesterNumber) {
-          filterConditions.push(
-            eq(studentSemesters.semesterNumber, options.filter.semesterNumber),
-          );
-        }
+      if (options.filter.termId) {
+        filterConditions.push(eq(terms.id, options.filter.termId));
       }
 
       if (filterConditions.length > 0) {
@@ -277,6 +271,7 @@ export default class StudentRepository extends BaseRepository<
         .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
         .innerJoin(programs, eq(structures.programId, programs.id)) as any;
 
+      // Handle semester-related joins
       if (options.filter.termId || options.filter.semesterNumber) {
         query = (query as any).innerJoin(
           studentSemesters,
@@ -287,6 +282,35 @@ export default class StudentRepository extends BaseRepository<
           query = (query as any).innerJoin(
             terms,
             eq(terms.name, studentSemesters.term),
+          );
+        }
+
+        if (options.filter.semesterNumber) {
+          // For semesterNumber filter, join with a subquery that finds the latest semester for each student
+          const latestSemesterSubquery = db
+            .select({
+              studentProgramId: studentSemesters.studentProgramId,
+              maxSemesterNumber: max(studentSemesters.semesterNumber).as(
+                'maxSemesterNumber',
+              ),
+            })
+            .from(studentSemesters)
+            .groupBy(studentSemesters.studentProgramId)
+            .as('latestSemester');
+
+          query = (query as any).innerJoin(
+            latestSemesterSubquery,
+            and(
+              eq(latestSemesterSubquery.studentProgramId, studentPrograms.id),
+              eq(
+                studentSemesters.semesterNumber,
+                latestSemesterSubquery.maxSemesterNumber,
+              ),
+              eq(
+                latestSemesterSubquery.maxSemesterNumber,
+                options.filter.semesterNumber,
+              ),
+            ),
           );
         }
       }
@@ -313,6 +337,7 @@ export default class StudentRepository extends BaseRepository<
         .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
         .innerJoin(programs, eq(structures.programId, programs.id));
 
+      // Handle semester-related joins
       if (options.filter.termId || options.filter.semesterNumber) {
         countQuery = countQuery.innerJoin(
           studentSemesters,
@@ -323,6 +348,35 @@ export default class StudentRepository extends BaseRepository<
           countQuery = countQuery.innerJoin(
             terms,
             eq(terms.name, studentSemesters.term),
+          );
+        }
+
+        if (options.filter.semesterNumber) {
+          // For semesterNumber filter, join with a subquery that finds the latest semester for each student
+          const latestSemesterSubquery = db
+            .select({
+              studentProgramId: studentSemesters.studentProgramId,
+              maxSemesterNumber: max(studentSemesters.semesterNumber).as(
+                'maxSemesterNumber',
+              ),
+            })
+            .from(studentSemesters)
+            .groupBy(studentSemesters.studentProgramId)
+            .as('latestSemester');
+
+          countQuery = countQuery.innerJoin(
+            latestSemesterSubquery,
+            and(
+              eq(latestSemesterSubquery.studentProgramId, studentPrograms.id),
+              eq(
+                studentSemesters.semesterNumber,
+                latestSemesterSubquery.maxSemesterNumber,
+              ),
+              eq(
+                latestSemesterSubquery.maxSemesterNumber,
+                options.filter.semesterNumber,
+              ),
+            ),
           );
         }
       }
