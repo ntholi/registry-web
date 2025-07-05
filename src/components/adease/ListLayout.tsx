@@ -94,7 +94,7 @@ export function ListLayout<T>({
 
   return (
     <Grid columns={14} gutter={'xl'}>
-      <GridCol span={isMobile ? 14 : 4} pr={isMobile ? 0 : 7}>
+      <GridCol span={isMobile ? 14 : 4} pr={isMobile ? 0 : 4}>
         <Paper withBorder h={'88vh'} mr={isMobile ? 'md' : 0}>
           <Flex direction='column' h='100%'>
             <Stack p={'md'}>
