@@ -1,40 +1,39 @@
 'use client';
 
-import {
-  ActionIcon,
-  Text,
-  Tooltip,
-  Modal,
-  Stack,
-  Select,
-  Button,
-  Group,
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { IconFilter } from '@tabler/icons-react';
-import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { getAllSchools } from '@/server/schools/actions';
 import {
   getAllPrograms,
   getProgramsBySchoolId,
 } from '@/server/students/actions';
 import { getAllTerms } from '@/server/terms/actions';
+import {
+  ActionIcon,
+  Button,
+  Fieldset,
+  Group,
+  Modal,
+  Select,
+  Stack,
+  Text,
+  Tooltip,
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IconFilter } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
+import { useEffect, useMemo, useState } from 'react';
 
-// Utility function to convert semester number to readable format
 const getSemesterLabel = (semesterNumber: number): string => {
   const year = Math.ceil(semesterNumber / 2);
   const semester = semesterNumber % 2 === 0 ? 2 : 1;
-  return `Year ${year} Semester ${semester}`;
+  return `Y${year}S${semester}`;
 };
 
-// Generate semester options (1-10)
-const semesterOptions = Array.from({ length: 10 }, (_, i) => {
+const semesterOptions = Array.from({ length: 8 }, (_, i) => {
   const semesterNumber = i + 1;
   return {
     value: semesterNumber.toString(),
-    label: getSemesterLabel(semesterNumber),
+    label: `Year ${Math.ceil(semesterNumber / 2)} Semester ${semesterNumber % 2 === 0 ? 2 : 1}`,
   };
 });
 
@@ -67,14 +66,13 @@ export default function StudentsFilter() {
     queryFn: getAllSchools,
   });
 
-  // Only fetch programs when a school is selected
   const { data: programs = [] } = useQuery({
     queryKey: ['programs', filters.schoolId],
     queryFn: () =>
       filters.schoolId
         ? getProgramsBySchoolId(Number(filters.schoolId))
         : getAllPrograms(),
-    enabled: true, // Always enabled, but will fetch all programs if no school is selected
+    enabled: true,
   });
 
   const { data: terms = [] } = useQuery({
@@ -82,12 +80,135 @@ export default function StudentsFilter() {
     queryFn: getAllTerms,
   });
 
-  // Reset program when school changes
   useEffect(() => {
     if (filters.schoolId !== schoolId) {
       setFilters((prev) => ({ ...prev, programId: '' }));
     }
   }, [filters.schoolId, schoolId]);
+
+  const appliedDescription = useMemo(() => {
+    const selectedSchool = schools.find(
+      (s) => s.id.toString() === (schoolId || ''),
+    );
+    const selectedProgram = programs.find(
+      (p) => p.id.toString() === (programId || ''),
+    );
+    const selectedTerm = terms.find((t) => t.id.toString() === (termId || ''));
+    const selectedSemester = semesterNumber
+      ? getSemesterLabel(Number(semesterNumber))
+      : null;
+
+    if (selectedProgram) {
+      let desc = `${selectedProgram.code} students`;
+
+      if (selectedSemester) {
+        desc += ` in ${selectedSemester}`;
+      }
+
+      if (selectedTerm) {
+        desc += ` registered for ${selectedTerm.name}`;
+      }
+
+      return desc;
+    }
+
+    if (selectedSchool) {
+      let desc = `All ${selectedSchool.code} students`;
+
+      if (selectedSemester) {
+        desc += ` in ${selectedSemester}`;
+      }
+
+      if (selectedTerm) {
+        desc += ` registered for ${selectedTerm.name}`;
+      }
+
+      return desc;
+    }
+
+    if (selectedTerm || selectedSemester) {
+      let desc = 'All students';
+
+      if (selectedSemester) {
+        desc += ` in ${selectedSemester}`;
+      }
+
+      if (selectedTerm) {
+        desc += ` registered for ${selectedTerm.name}`;
+      }
+
+      return desc;
+    }
+
+    return 'All students';
+  }, [schoolId, programId, termId, semesterNumber, schools, programs, terms]);
+
+  const previewDescription = useMemo(() => {
+    const selectedSchool = schools.find(
+      (s) => s.id.toString() === (filters.schoolId || ''),
+    );
+    const selectedProgram = programs.find(
+      (p) => p.id.toString() === (filters.programId || ''),
+    );
+    const selectedTerm = terms.find(
+      (t) => t.id.toString() === (filters.termId || ''),
+    );
+    const selectedSemester = filters.semesterNumber
+      ? getSemesterLabel(Number(filters.semesterNumber))
+      : null;
+
+    if (selectedProgram) {
+      let desc = `${selectedProgram.code} students`;
+
+      if (selectedSemester) {
+        desc += ` in ${selectedSemester}`;
+      }
+
+      if (selectedTerm) {
+        desc += ` registered for ${selectedTerm.name}`;
+      }
+
+      return desc;
+    }
+
+    if (selectedSchool) {
+      let desc = `All ${selectedSchool.code} students`;
+
+      if (selectedSemester) {
+        desc += ` in ${selectedSemester}`;
+      }
+
+      if (selectedTerm) {
+        desc += ` registered for ${selectedTerm.name}`;
+      }
+
+      return desc;
+    }
+
+    if (selectedTerm || selectedSemester) {
+      let desc = 'All students';
+
+      if (selectedSemester) {
+        desc += ` in ${selectedSemester}`;
+      }
+
+      if (selectedTerm) {
+        desc += ` registered for ${selectedTerm.name}`;
+      }
+
+      return desc;
+    }
+
+    return 'All students';
+  }, [
+    filters.schoolId,
+    filters.programId,
+    filters.termId,
+    filters.semesterNumber,
+    schools,
+    programs,
+    terms,
+  ]);
 
   const handleApplyFilters = () => {
     setSchoolId(filters.schoolId || null);
@@ -115,16 +236,19 @@ export default function StudentsFilter() {
 
   return (
     <>
-      <Tooltip label='Filter Students' color='gray'>
-        <ActionIcon
-          variant={hasActiveFilters ? 'filled' : 'outline'}
-          size={33}
-          onClick={toggle}
-          color={hasActiveFilters ? 'blue' : undefined}
-        >
-          <IconFilter size={'1rem'} />
-        </ActionIcon>
-      </Tooltip>
+      <Group gap='sm'>
+        <Tooltip label='Filter Students' color='gray'>
+          <ActionIcon
+            variant={hasActiveFilters ? 'filled' : 'outline'}
+            size={33}
+            onClick={toggle}
+            color={hasActiveFilters ? 'blue' : undefined}
+          >
+            <IconFilter size={'1rem'} />
+          </ActionIcon>
+        </Tooltip>
+      </Group>
+
       <Modal opened={opened} onClose={close} title='Filter Students' size='md'>
         <Stack gap='md'>
           <Select
@@ -139,7 +263,7 @@ export default function StudentsFilter() {
               setFilters((prev) => ({
                 ...prev,
                 schoolId: value || '',
-                programId: '', // Reset program when school changes
+                programId: '',
               }))
             }
             searchable
@@ -197,6 +321,10 @@ export default function StudentsFilter() {
             searchable
             clearable
           />
+
+          <Fieldset legend='Description'>
+            <Text size='sm'>{previewDescription}</Text>
+          </Fieldset>
 
           <Group justify='flex-end' gap='sm'>
             <Button variant='outline' onClick={handleClearFilters}>
