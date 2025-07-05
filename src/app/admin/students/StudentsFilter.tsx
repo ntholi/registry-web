@@ -86,6 +86,19 @@ export default function StudentsFilter() {
     }
   }, [filters.schoolId, schoolId]);
 
+  const addSemesterDescription = (
+    desc: string,
+    selectedSemester: string | null,
+    selectedTerm: any,
+  ) => {
+    if (selectedSemester && selectedTerm) {
+      return desc + ` in ${selectedSemester}`;
+    } else if (selectedSemester) {
+      return desc + ` having ${selectedSemester}`;
+    }
+    return desc;
+  };
+
   const previewDescription = useMemo(() => {
     const selectedSchool = schools.find(
       (s) => s.id.toString() === (filters.schoolId || ''),
@@ -102,10 +115,7 @@ export default function StudentsFilter() {
 
     if (selectedProgram) {
       let desc = `${selectedProgram.code} students`;
-
-      if (selectedSemester) {
-        desc += ` in ${selectedSemester}`;
-      }
+      desc = addSemesterDescription(desc, selectedSemester, selectedTerm);
 
       if (selectedTerm) {
         desc += ` registered for ${selectedTerm.name}`;
@@ -116,10 +126,7 @@ export default function StudentsFilter() {
 
     if (selectedSchool) {
       let desc = `All ${selectedSchool.code} students`;
-
-      if (selectedSemester) {
-        desc += ` in ${selectedSemester}`;
-      }
+      desc = addSemesterDescription(desc, selectedSemester, selectedTerm);
 
       if (selectedTerm) {
         desc += ` registered for ${selectedTerm.name}`;
@@ -130,10 +137,7 @@ export default function StudentsFilter() {
 
     if (selectedTerm || selectedSemester) {
       let desc = 'All students';
-
-      if (selectedSemester) {
-        desc += ` in ${selectedSemester}`;
-      }
+      desc = addSemesterDescription(desc, selectedSemester, selectedTerm);
 
       if (selectedTerm) {
         desc += ` registered for ${selectedTerm.name}`;
@@ -182,7 +186,7 @@ export default function StudentsFilter() {
       <Group gap='sm'>
         <Tooltip label='Filter Students' color='gray'>
           <ActionIcon
-            variant={hasActiveFilters ? 'filled' : 'outline'}
+            variant={hasActiveFilters ? 'filled' : 'default'}
             size={33}
             onClick={toggle}
             color={hasActiveFilters ? 'blue' : undefined}
