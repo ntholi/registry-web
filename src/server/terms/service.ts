@@ -27,6 +27,10 @@ class TermService {
     return withAuth(async () => this.repository.query(params), ['dashboard']);
   }
 
+  async getAll() {
+    return withAuth(async () => this.repository.findAll(), ['dashboard']);
+  }
+
   async create(data: Term) {
     return withAuth(async () => {
       if (data.isActive) {

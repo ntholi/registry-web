@@ -8,9 +8,11 @@ import {
   studentSemesters,
   structures,
   users,
+  terms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { and, desc, eq, like, notInArray, or, SQL } from 'drizzle-orm';
+import { StudentFilter } from './actions';
 
 export default class StudentRepository extends BaseRepository<
   typeof students,
@@ -188,7 +190,9 @@ export default class StudentRepository extends BaseRepository<
     return criteria;
   }
 
-  async queryBasic(options: QueryOptions<typeof students>): Promise<{
+  async queryBasic(
+    options: QueryOptions<typeof students> & { filter?: StudentFilter },
+  ): Promise<{
     items: { stdNo: number; name: string }[];
     totalPages: number;
     totalItems: number;
@@ -224,24 +228,111 @@ export default class StudentRepository extends BaseRepository<
       }
     }
 
+    // Handle StudentFilter
     if (options.filter) {
-      customWhere = customWhere
-        ? and(customWhere, options.filter)
-        : options.filter;
+      const filterConditions: SQL[] = [];
+
+      if (options.filter.schoolId) {
+        filterConditions.push(eq(programs.schoolId, options.filter.schoolId));
+      }
+
+      if (options.filter.programId) {
+        filterConditions.push(
+          eq(structures.programId, options.filter.programId),
+        );
+      }
+
+      if (options.filter.termId || options.filter.semesterNumber) {
+        if (options.filter.termId) {
+          filterConditions.push(eq(terms.id, options.filter.termId));
+        }
+        if (options.filter.semesterNumber) {
+          filterConditions.push(
+            eq(studentSemesters.semesterNumber, options.filter.semesterNumber),
+          );
+        }
+      }
+
+      if (filterConditions.length > 0) {
+        const filterWhere = and(...filterConditions);
+        customWhere = customWhere ? and(customWhere, filterWhere) : filterWhere;
+      }
     }
 
-    const items = await db
+    // Build the query with appropriate joins based on filters
+    let query = db
       .select({
         stdNo: students.stdNo,
         name: students.name,
       })
-      .from(this.table)
+      .from(students);
+
+    // Add joins if filtering by school, program, or semester
+    if (
+      options.filter &&
+      (options.filter.schoolId ||
+        options.filter.programId ||
+        options.filter.termId ||
+        options.filter.semesterNumber)
+    ) {
+      query = (query as any)
+        .innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
+        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+        .innerJoin(programs, eq(structures.programId, programs.id));
+
+      if (options.filter.termId || options.filter.semesterNumber) {
+        query = query.innerJoin(
+          studentSemesters,
+          eq(studentSemesters.studentProgramId, studentPrograms.id),
+        );
+
+        if (options.filter.termId) {
+          query = query.innerJoin(terms, eq(terms.name, studentSemesters.term));
+        }
+      }
+    }
+
+    const items = await (query as any)
       .orderBy(...orderBy)
       .where(customWhere)
       .limit(limit)
-      .offset(offset);
+      .offset(offset)
+      .groupBy(students.stdNo, students.name);
 
-    const totalItems = await this.count(customWhere);
+    let countQuery = db.select({ count: students.stdNo }).from(students);
+
+    // Add the same joins for count query
+    if (
+      options.filter &&
+      (options.filter.schoolId ||
+        options.filter.programId ||
+        options.filter.termId ||
+        options.filter.semesterNumber)
+    ) {
+      countQuery = countQuery
+        .innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
+        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+        .innerJoin(programs, eq(structures.programId, programs.id));
+
+      if (options.filter.termId || options.filter.semesterNumber) {
+        countQuery = countQuery.innerJoin(
+          studentSemesters,
+          eq(studentSemesters.studentProgramId, studentPrograms.id),
+        );
+
+        if (options.filter.termId) {
+          countQuery = countQuery.innerJoin(
+            terms,
+            eq(terms.name, studentSemesters.term),
+          );
+        }
+      }
+    }
+
+    const totalItems = await (countQuery as any)
+      .where(customWhere)
+      .then((results) => new Set(results.map((r) => r.count)).size);
+
     return {
       items,
       totalPages: Math.ceil(totalItems / limit),

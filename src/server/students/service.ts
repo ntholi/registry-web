@@ -4,6 +4,7 @@ import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import { getCurrentTerm } from '../terms/actions';
+import { StudentFilter } from './actions';
 
 type Student = typeof students.$inferInsert;
 
@@ -42,7 +43,9 @@ class StudentService {
     );
   }
 
-  async findAll(params: QueryOptions<typeof students>) {
+  async findAll(
+    params: QueryOptions<typeof students> & { filter?: StudentFilter },
+  ) {
     return withAuth(
       async () => this.repository.queryBasic(params),
       ['dashboard'],

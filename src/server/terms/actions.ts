@@ -21,6 +21,10 @@ export async function findAllTerms(page: number = 1, search = '') {
   return service.findAll({ page, search });
 }
 
+export async function getAllTerms() {
+  return service.getAll();
+}
+
 export async function createTerm(term: Term) {
   return service.create(term);
 }
