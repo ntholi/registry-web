@@ -13,10 +13,12 @@ import {
   Loader,
   Stack,
   Select,
+  Alert,
 } from '@mantine/core';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useUserSchools } from '@/hooks/use-user-schools';
 import { notifications } from '@mantine/notifications';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 export default function Body() {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -95,6 +97,16 @@ export default function Body() {
 
   return (
     <Stack align='center' justify='center' p='xl'>
+      <Alert
+        w='100%'
+        maw={600}
+        variant='light'
+        color='yellow'
+        title='Alert title'
+        icon={<IconInfoCircle />}
+      >
+        This feature has been temporarily disabled
+      </Alert>
       <Card shadow='md' radius='md' withBorder w='100%' maw={600}>
         <CardSection inheritPadding py='md'>
           <Title order={3}>BOE Report Generation</Title>
@@ -125,11 +137,12 @@ export default function Body() {
             <Button
               fullWidth
               onClick={() => generateReportMutation.mutate()}
-              disabled={
-                !selectedSchoolId ||
-                generateReportMutation.isPending ||
-                isDownloading
-              }
+              disabled
+              // disabled={
+              //   !selectedSchoolId ||
+              //   generateReportMutation.isPending ||
+              //   isDownloading
+              // }
               leftSection={
                 generateReportMutation.isPending || isDownloading ? (
                   <Loader size={16} />
