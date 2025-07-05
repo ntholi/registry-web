@@ -2,16 +2,16 @@ import { db } from '@/db';
 import {
   programs,
   semesterModules,
+  structures,
   studentModules,
   studentPrograms,
   students,
   studentSemesters,
-  structures,
-  users,
   terms,
+  users,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, desc, eq, like, notInArray, or, SQL, max } from 'drizzle-orm';
+import { and, desc, eq, like, notInArray, or, SQL } from 'drizzle-orm';
 import { StudentFilter } from './actions';
 
 export default class StudentRepository extends BaseRepository<
@@ -269,77 +269,99 @@ export default class StudentRepository extends BaseRepository<
       customWhere = customWhere ? and(customWhere, filterWhere) : filterWhere;
     }
 
-    let query = db
-      .select({
-        stdNo: students.stdNo,
-        name: students.name,
-      })
-      .from(students) as any;
-
-    if (
+    const needsJoins =
       options.filter &&
       (options.filter.schoolId ||
         options.filter.programId ||
         options.filter.termId ||
-        options.filter.semesterNumber)
-    ) {
-      query = query
-        .innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
-        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-        .innerJoin(programs, eq(structures.programId, programs.id));
+        options.filter.semesterNumber);
 
-      if (options.filter.termId || options.filter.semesterNumber) {
-        query = query.innerJoin(
-          studentSemesters,
-          eq(studentSemesters.studentProgramId, studentPrograms.id),
-        );
-      }
-      if (options.filter.termId) {
-        query = query.innerJoin(
-          terms,
-          eq(terms.name, studentSemesters.term),
-        );
-      }
-    }
-
-    const items = await query
-      .orderBy(...orderBy)
-      .where(customWhere)
-      .limit(limit)
-      .offset(offset)
-      .groupBy(students.stdNo, students.name);
-
-    let countQuery = db.select({ count: students.stdNo }).from(students) as any;
-
-    if (
+    const needsTermJoin = options.filter && options.filter.termId;
+    const needsSemesterJoin =
       options.filter &&
-      (options.filter.schoolId ||
-        options.filter.programId ||
-        options.filter.termId ||
-        options.filter.semesterNumber)
-    ) {
-      countQuery = countQuery
+      (options.filter.termId || options.filter.semesterNumber);
+
+    let items: { stdNo: number; name: string }[];
+    let totalItems: number;
+
+    if (needsJoins) {
+      // Build query with joins
+      let joinedQuery = db
+        .select({
+          stdNo: students.stdNo,
+          name: students.name,
+        })
+        .from(students)
         .innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
         .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
         .innerJoin(programs, eq(structures.programId, programs.id));
 
-      if (options.filter.termId || options.filter.semesterNumber) {
-        countQuery = countQuery.innerJoin(
+      if (needsSemesterJoin) {
+        joinedQuery = joinedQuery.innerJoin(
           studentSemesters,
           eq(studentSemesters.studentProgramId, studentPrograms.id),
         );
       }
-      if (options.filter.termId) {
-        countQuery = countQuery.innerJoin(
+
+      if (needsTermJoin) {
+        joinedQuery = joinedQuery.innerJoin(
           terms,
           eq(terms.name, studentSemesters.term),
         );
       }
-    }
 
-    const totalItems = await countQuery
-      .where(customWhere)
-      .then((results: any[]) => new Set(results.map((r: any) => r.count)).size);
+      items = await joinedQuery
+        .orderBy(...orderBy)
+        .where(customWhere)
+        .limit(limit)
+        .offset(offset)
+        .groupBy(students.stdNo, students.name);
+
+      // Build count query with joins
+      let countJoinedQuery = db
+        .select({ count: students.stdNo })
+        .from(students)
+        .innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
+        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+        .innerJoin(programs, eq(structures.programId, programs.id));
+
+      if (needsSemesterJoin) {
+        countJoinedQuery = countJoinedQuery.innerJoin(
+          studentSemesters,
+          eq(studentSemesters.studentProgramId, studentPrograms.id),
+        );
+      }
+
+      if (needsTermJoin) {
+        countJoinedQuery = countJoinedQuery.innerJoin(
+          terms,
+          eq(terms.name, studentSemesters.term),
+        );
+      }
+
+      totalItems = await countJoinedQuery
+        .where(customWhere)
+        .then((results) => new Set(results.map((r) => r.count)).size);
+    } else {
+      // Simple query without joins
+      items = await db
+        .select({
+          stdNo: students.stdNo,
+          name: students.name,
+        })
+        .from(students)
+        .orderBy(...orderBy)
+        .where(customWhere)
+        .limit(limit)
+        .offset(offset)
+        .groupBy(students.stdNo, students.name);
+
+      totalItems = await db
+        .select({ count: students.stdNo })
+        .from(students)
+        .where(customWhere)
+        .then((results) => new Set(results.map((r) => r.count)).size);
+    }
 
     return {
       items,
