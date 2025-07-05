@@ -33,13 +33,13 @@ export default async function StatementOfResultsPage({ params }: Props) {
           <Logo height={160} className='h-24 w-auto' />
           <div className='my-5 flex items-center justify-center gap-2'>
             <h1 className='text-3xl font-light tracking-tight'>
-              Statement Verification
+              Results Verification
             </h1>
           </div>
         </header>
 
         <Alert variant='default' className='mb-6 p-4'>
-          <CheckCircle className='size-5' color='#10b981' />
+          <CheckCircle className='size-5' color='#4CAF50' />
           <AlertTitle>Authentic document</AlertTitle>
           <AlertDescription className='text-sm text-muted-foreground'>
             Please verify that the printed document matches the information
@@ -58,20 +58,18 @@ export default async function StatementOfResultsPage({ params }: Props) {
             <CardContent className='space-y-4'>
               <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
                 <div>
-                  <p className='mb-1 text-sm text-muted-foreground'>
+                  <p className='text-sm text-muted-foreground'>
                     Student Number
                   </p>
                   <p className='font-medium'>{item.stdNo}</p>
                 </div>
                 <div>
-                  <p className='mb-1 text-sm text-muted-foreground'>
-                    Student Name
-                  </p>
+                  <p className='text-sm text-muted-foreground'>Student Name</p>
                   <p className='font-medium'>{item.studentName}</p>
                 </div>
               </div>
               <div>
-                <p className='mb-1 text-sm text-muted-foreground'>
+                <p className='text-sm text-muted-foreground'>
                   Program of Study
                 </p>
                 <p className='font-medium'>{item.programName}</p>
