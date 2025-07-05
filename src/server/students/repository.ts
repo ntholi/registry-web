@@ -60,7 +60,7 @@ export default class StudentRepository extends BaseRepository<
         stdNo: true,
         name: true,
         nationalId: true,
-        sem: true, // TODO: remove this
+        sem: true,
         dateOfBirth: true,
         phone1: true,
         phone2: true,
@@ -228,7 +228,6 @@ export default class StudentRepository extends BaseRepository<
       }
     }
 
-    // Handle StudentFilter
     if (options.filter) {
       const filterConditions: SQL[] = [];
 
@@ -259,7 +258,6 @@ export default class StudentRepository extends BaseRepository<
       }
     }
 
-    // Build the query with appropriate joins based on filters
     let query = db
       .select({
         stdNo: students.stdNo,
@@ -267,7 +265,6 @@ export default class StudentRepository extends BaseRepository<
       })
       .from(students);
 
-    // Add joins if filtering by school, program, or semester
     if (
       options.filter &&
       (options.filter.schoolId ||
@@ -275,19 +272,22 @@ export default class StudentRepository extends BaseRepository<
         options.filter.termId ||
         options.filter.semesterNumber)
     ) {
-      query = (query as any)
+      query = query
         .innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
         .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-        .innerJoin(programs, eq(structures.programId, programs.id));
+        .innerJoin(programs, eq(structures.programId, programs.id)) as any;
 
       if (options.filter.termId || options.filter.semesterNumber) {
-        query = query.innerJoin(
+        query = (query as any).innerJoin(
           studentSemesters,
           eq(studentSemesters.studentProgramId, studentPrograms.id),
         );
 
         if (options.filter.termId) {
-          query = query.innerJoin(terms, eq(terms.name, studentSemesters.term));
+          query = (query as any).innerJoin(
+            terms,
+            eq(terms.name, studentSemesters.term),
+          );
         }
       }
     }
@@ -299,9 +299,8 @@ export default class StudentRepository extends BaseRepository<
       .offset(offset)
       .groupBy(students.stdNo, students.name);
 
-    let countQuery = db.select({ count: students.stdNo }).from(students);
+    let countQuery = db.select({ count: students.stdNo }).from(students) as any;
 
-    // Add the same joins for count query
     if (
       options.filter &&
       (options.filter.schoolId ||
@@ -329,9 +328,9 @@ export default class StudentRepository extends BaseRepository<
       }
     }
 
-    const totalItems = await (countQuery as any)
+    const totalItems = await countQuery
       .where(customWhere)
-      .then((results) => new Set(results.map((r) => r.count)).size);
+      .then((results: any[]) => new Set(results.map((r: any) => r.count)).size);
 
     return {
       items,

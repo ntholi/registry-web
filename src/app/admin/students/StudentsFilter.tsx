@@ -18,34 +18,31 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllSchools } from '@/server/schools/actions';
 import { getAllPrograms } from '@/server/students/actions';
 import { getAllTerms } from '@/server/terms/actions';
-import { useSearchParams, useRouter } from 'next/navigation';
-
-interface FilterState {
-  schoolId?: number;
-  programId?: number;
-  termId?: number;
-  semesterNumber?: number;
-}
+import { useQueryState } from 'nuqs';
 
 export default function StudentsFilter() {
   const [opened, { toggle, close }] = useDisclosure(false);
-  const searchParams = useSearchParams();
-  const router = useRouter();
 
-  const [filters, setFilters] = useState<FilterState>({
-    schoolId: searchParams.get('schoolId')
-      ? Number(searchParams.get('schoolId'))
-      : undefined,
-    programId: searchParams.get('programId')
-      ? Number(searchParams.get('programId'))
-      : undefined,
-    termId: searchParams.get('termId')
-      ? Number(searchParams.get('termId'))
-      : undefined,
-    semesterNumber: searchParams.get('semesterNumber')
-      ? Number(searchParams.get('semesterNumber'))
-      : undefined,
+  const [schoolId, setSchoolId] = useQueryState('schoolId');
+  const [programId, setProgramId] = useQueryState('programId');
+  const [termId, setTermId] = useQueryState('termId');
+  const [semesterNumber, setSemesterNumber] = useQueryState('semesterNumber');
+
+  const [filters, setFilters] = useState({
+    schoolId: schoolId || '',
+    programId: programId || '',
+    termId: termId || '',
+    semesterNumber: semesterNumber || '',
   });
+
+  useEffect(() => {
+    setFilters({
+      schoolId: schoolId || '',
+      programId: programId || '',
+      termId: termId || '',
+      semesterNumber: semesterNumber || '',
+    });
+  }, [schoolId, programId, termId, semesterNumber]);
 
   const { data: schools = [] } = useQuery({
     queryKey: ['schools'],
@@ -63,48 +60,28 @@ export default function StudentsFilter() {
   });
 
   const handleApplyFilters = () => {
-    const newSearchParams = new URLSearchParams(searchParams);
-
-    // Remove existing filter params
-    newSearchParams.delete('schoolId');
-    newSearchParams.delete('programId');
-    newSearchParams.delete('termId');
-    newSearchParams.delete('semesterNumber');
-
-    // Add new filter params
-    if (filters.schoolId)
-      newSearchParams.set('schoolId', filters.schoolId.toString());
-    if (filters.programId)
-      newSearchParams.set('programId', filters.programId.toString());
-    if (filters.termId)
-      newSearchParams.set('termId', filters.termId.toString());
-    if (filters.semesterNumber)
-      newSearchParams.set('semesterNumber', filters.semesterNumber.toString());
-
-    // Reset to page 1 when filters change
-    newSearchParams.set('page', '1');
-
-    router.push(`?${newSearchParams.toString()}`);
+    setSchoolId(filters.schoolId || null);
+    setProgramId(filters.programId || null);
+    setTermId(filters.termId || null);
+    setSemesterNumber(filters.semesterNumber || null);
     close();
   };
 
   const handleClearFilters = () => {
-    setFilters({});
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.delete('schoolId');
-    newSearchParams.delete('programId');
-    newSearchParams.delete('termId');
-    newSearchParams.delete('semesterNumber');
-    newSearchParams.set('page', '1');
-    router.push(`?${newSearchParams.toString()}`);
+    setFilters({
+      schoolId: '',
+      programId: '',
+      termId: '',
+      semesterNumber: '',
+    });
+    setSchoolId(null);
+    setProgramId(null);
+    setTermId(null);
+    setSemesterNumber(null);
     close();
   };
 
-  const hasActiveFilters =
-    filters.schoolId ||
-    filters.programId ||
-    filters.termId ||
-    filters.semesterNumber;
+  const hasActiveFilters = schoolId || programId || termId || semesterNumber;
 
   return (
     <>
@@ -127,11 +104,11 @@ export default function StudentsFilter() {
               value: school.id.toString(),
               label: school.name,
             }))}
-            value={filters.schoolId?.toString() || null}
+            value={filters.schoolId || null}
             onChange={(value) =>
               setFilters((prev) => ({
                 ...prev,
-                schoolId: value ? Number(value) : undefined,
+                schoolId: value || '',
               }))
             }
             clearable
@@ -144,11 +121,11 @@ export default function StudentsFilter() {
               value: program.id.toString(),
               label: program.name,
             }))}
-            value={filters.programId?.toString() || null}
+            value={filters.programId || null}
             onChange={(value) =>
               setFilters((prev) => ({
                 ...prev,
-                programId: value ? Number(value) : undefined,
+                programId: value || '',
               }))
             }
             clearable
@@ -161,11 +138,11 @@ export default function StudentsFilter() {
               value: term.id.toString(),
               label: term.name,
             }))}
-            value={filters.termId?.toString() || null}
+            value={filters.termId || null}
             onChange={(value) =>
               setFilters((prev) => ({
                 ...prev,
-                termId: value ? Number(value) : undefined,
+                termId: value || '',
               }))
             }
             clearable
@@ -178,7 +155,8 @@ export default function StudentsFilter() {
             onChange={(value) =>
               setFilters((prev) => ({
                 ...prev,
-                semesterNumber: typeof value === 'number' ? value : undefined,
+                semesterNumber:
+                  typeof value === 'number' ? value.toString() : '',
               }))
             }
             min={1}
