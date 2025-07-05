@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Metadata } from 'next';
 import { PropsWithChildren } from 'react';
 import Providers from './providers';
+import Footer from '../(main)/base/Footer';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -16,6 +17,7 @@ export default async function MainLayout({ children }: PropsWithChildren) {
   return (
     <Providers>
       <Gradient className='min-h-[calc(100vh)] pb-8'>{children}</Gradient>
+      <Footer />
       <Toaster />
     </Providers>
   );

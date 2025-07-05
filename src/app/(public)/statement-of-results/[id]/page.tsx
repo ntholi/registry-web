@@ -1,10 +1,18 @@
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDateTime } from '@/lib/utils';
 import { getStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
 import { notFound } from 'next/navigation';
 import Logo from '@/app/(main)/base/Logo';
-import { GraduationCap, BookOpen } from 'lucide-react';
+import {
+  Shield,
+  CheckCircle,
+  User,
+  GraduationCap,
+  BookOpen,
+  FileText,
+} from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -12,208 +20,188 @@ type Props = {
 
 export default async function StatementOfResultsPage({ params }: Props) {
   const { id } = await params;
-  const statementPrint = await getStatementOfResultsPrint(id);
+  const item = await getStatementOfResultsPrint(id);
 
-  if (!statementPrint) {
+  if (!item) {
     return notFound();
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-background to-muted/20'>
-      <div className='container mx-auto max-w-4xl px-6 py-8'>
-        <div className='mb-8 text-center'>
-          <div className='mb-6 flex justify-center'>
-            <Logo width={120} height={120} />
+    <div className='min-h-screen'>
+      <div className='container mx-auto max-w-3xl p-6 lg:p-8'>
+        <header className='flex flex-col items-center text-center'>
+          <Logo height={160} className='h-24 w-auto' />
+          <div className='my-5 flex items-center justify-center gap-2'>
+            <h1 className='text-3xl font-light tracking-tight'>
+              Statement Verification
+            </h1>
           </div>
-          <h1 className='mb-2 text-3xl font-bold text-foreground'>
-            Statement of Results
-          </h1>
-          <p className='text-muted-foreground'>Official Academic Record</p>
-        </div>
-        <div className='space-y-6'>
-          <Card className='overflow-hidden border-0 shadow-lg'>
-            <div className='border-b bg-muted/50 px-6 py-4'>
-              <h2 className='text-xl font-semibold text-foreground'>
+        </header>
+
+        <Alert variant='default' className='mb-6 p-4'>
+          <CheckCircle className='size-5' color='#10b981' />
+          <AlertTitle>Authentic document</AlertTitle>
+          <AlertDescription className='text-sm text-muted-foreground'>
+            Please verify that the printed document matches the information
+            below
+          </AlertDescription>
+        </Alert>
+
+        <main className='space-y-6'>
+          <Card className='border bg-card'>
+            <CardHeader className='pb-4'>
+              <CardTitle className='flex items-center gap-2 text-lg font-medium'>
+                <User className='h-4 w-4' />
                 Student Information
-              </h2>
-            </div>
-            <CardContent className='p-6'>
-              <div className='grid gap-6 md:grid-cols-2'>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
                 <div>
-                  <label className='text-sm font-medium text-muted-foreground'>
+                  <p className='mb-1 text-sm text-muted-foreground'>
                     Student Number
-                  </label>
-                  <p className='font-mono text-lg font-semibold text-foreground'>
-                    {statementPrint.stdNo}
                   </p>
+                  <p className='font-medium'>{item.stdNo}</p>
                 </div>
                 <div>
-                  <label className='text-sm font-medium text-muted-foreground'>
+                  <p className='mb-1 text-sm text-muted-foreground'>
                     Student Name
-                  </label>
-                  <p className='text-lg font-semibold text-foreground'>
-                    {statementPrint.studentName}
                   </p>
+                  <p className='font-medium'>{item.studentName}</p>
                 </div>
               </div>
-              <div className='mt-6'>
-                <label className='text-sm font-medium text-muted-foreground'>
+              <div>
+                <p className='mb-1 text-sm text-muted-foreground'>
                   Program of Study
-                </label>
-                <p className='text-lg font-medium text-foreground'>
-                  {statementPrint.programName}
                 </p>
+                <p className='font-medium'>{item.programName}</p>
               </div>
             </CardContent>
           </Card>
-          <Card className='overflow-hidden border-0 shadow-lg'>
-            <div className='border-b bg-muted/50 px-6 py-4'>
-              <h2 className='text-xl font-semibold text-foreground'>
-                Academic Performance
-              </h2>
-            </div>
-            <CardContent className='p-6'>
-              <div className='grid gap-6 md:grid-cols-2'>
-                <div className='rounded-lg bg-muted p-4'>
-                  <div className='flex items-center justify-between'>
-                    <div>
-                      <p className='text-sm font-medium text-muted-foreground'>
-                        Total Credits
-                      </p>
-                      <p className='text-2xl font-bold text-foreground'>
-                        {statementPrint.totalCredits}
-                      </p>
+
+          <Card className='border bg-card'>
+            <CardHeader className='pb-4'>
+              <CardTitle className='flex items-center gap-2 text-lg font-medium'>
+                <BookOpen className='h-4 w-4' />
+                Academic Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className='space-y-6'>
+              <div className='grid grid-cols-3 gap-4'>
+                <Card className='border bg-muted/30'>
+                  <CardContent className='p-4 text-center'>
+                    <div className='text-2xl font-light'>
+                      {item.cgpa ? item.cgpa.toFixed(2) : '—'}
                     </div>
-                    <BookOpen className='h-8 w-8 text-muted-foreground' />
-                  </div>
-                </div>
-                <div className='rounded-lg bg-muted p-4'>
-                  <div className='flex items-center justify-between'>
-                    <div>
-                      <p className='text-sm font-medium text-muted-foreground'>
-                        Total Modules
-                      </p>
-                      <p className='text-2xl font-bold text-foreground'>
-                        {statementPrint.totalModules}
-                      </p>
+                    <div className='text-sm text-muted-foreground'>CGPA</div>
+                  </CardContent>
+                </Card>
+                <Card className='border bg-muted/30'>
+                  <CardContent className='p-4 text-center'>
+                    <div className='text-2xl font-light'>
+                      {item.totalCredits}
                     </div>
-                    <BookOpen className='h-8 w-8 text-muted-foreground' />
-                  </div>
-                </div>
+                    <div className='text-sm text-muted-foreground'>Credits</div>
+                  </CardContent>
+                </Card>
+                <Card className='border bg-muted/30'>
+                  <CardContent className='p-4 text-center'>
+                    <div className='text-2xl font-light'>
+                      {item.totalModules}
+                    </div>
+                    <div className='text-sm text-muted-foreground'>Modules</div>
+                  </CardContent>
+                </Card>
               </div>
-              <div className='mt-6 grid gap-6 md:grid-cols-2'>
+
+              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                 <div>
-                  <label className='text-sm font-medium text-muted-foreground'>
-                    Cumulative GPA
-                  </label>
-                  {statementPrint.cgpa ? (
-                    <div className='flex items-center gap-3'>
-                      <span className='text-3xl font-bold text-foreground'>
-                        {statementPrint.cgpa.toFixed(2)}
-                      </span>
-                      <div
-                        className={`h-3 w-3 rounded-full ${
-                          statementPrint.cgpa >= 3.5
-                            ? 'bg-green-500'
-                            : statementPrint.cgpa >= 2.5
-                              ? 'bg-yellow-500'
-                              : 'bg-red-500'
-                        }`}
-                      />
-                    </div>
-                  ) : (
-                    <p className='text-lg italic text-muted-foreground'>
-                      Not calculated
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className='text-sm font-medium text-muted-foreground'>
+                  <p className='mb-1 text-sm text-muted-foreground'>
                     Classification
-                  </label>
-                  {statementPrint.classification ? (
-                    <Badge variant='outline' className='mt-1'>
-                      {statementPrint.classification}
+                  </p>
+                  {item.classification ? (
+                    <Badge variant='secondary' className='font-normal'>
+                      {item.classification}
                     </Badge>
                   ) : (
-                    <p className='text-lg italic text-muted-foreground'>
+                    <p className='text-sm text-muted-foreground'>
                       Not assigned
                     </p>
                   )}
                 </div>
-              </div>
-              <div className='mt-6 grid gap-6 md:grid-cols-2'>
                 <div>
-                  <label className='text-sm font-medium text-muted-foreground'>
+                  <p className='mb-1 text-sm text-muted-foreground'>
                     Academic Status
-                  </label>
-                  {statementPrint.academicStatus ? (
-                    <Badge variant='outline' className='mt-1'>
-                      {statementPrint.academicStatus}
+                  </p>
+                  {item.academicStatus ? (
+                    <Badge variant='secondary' className='font-normal'>
+                      {item.academicStatus}
                     </Badge>
                   ) : (
-                    <p className='text-lg italic text-muted-foreground'>
+                    <p className='text-sm text-muted-foreground'>
                       Not specified
                     </p>
                   )}
                 </div>
-                <div>
-                  <label className='text-sm font-medium text-muted-foreground'>
-                    Graduation Date
-                  </label>
-                  {statementPrint.graduationDate ? (
-                    <div className='flex items-center gap-2'>
+              </div>
+
+              {item.graduationDate && (
+                <Card className='border bg-muted/20'>
+                  <CardContent className='p-4'>
+                    <div className='mb-1 flex items-center gap-2'>
                       <GraduationCap className='h-4 w-4 text-muted-foreground' />
-                      <span className='text-lg font-medium text-foreground'>
-                        {statementPrint.graduationDate}
-                      </span>
+                      <p className='text-sm text-muted-foreground'>
+                        Graduation Date
+                      </p>
                     </div>
-                  ) : (
-                    <p className='text-lg italic text-muted-foreground'>
-                      Not graduated
-                    </p>
-                  )}
-                </div>
-              </div>
+                    <p className='font-medium'>{item.graduationDate}</p>
+                  </CardContent>
+                </Card>
+              )}
             </CardContent>
           </Card>
-          <Card className='overflow-hidden border-0 shadow-lg'>
-            <div className='border-b bg-muted/50 px-6 py-4'>
-              <h2 className='text-xl font-semibold text-foreground'>
-                Print Information
-              </h2>
-            </div>
-            <CardContent className='p-6'>
-              <div className='grid gap-6 md:grid-cols-2'>
+
+          <Card className='border bg-card'>
+            <CardHeader className='pb-4'>
+              <CardTitle className='flex items-center gap-2 text-lg font-medium'>
+                <FileText className='h-4 w-4' />
+                Document Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                 <div>
-                  <label className='text-sm font-medium text-muted-foreground'>
-                    Printed By
-                  </label>
-                  <p className='text-lg font-medium text-foreground'>
-                    {statementPrint.printedBy || 'System Generated'}
+                  <p className='mb-1 text-sm text-muted-foreground'>
+                    Print Date
                   </p>
-                </div>
-                <div>
-                  <label className='text-sm font-medium text-muted-foreground'>
-                    Print Date & Time
-                  </label>
-                  <p className='text-lg font-medium text-foreground'>
-                    {formatDateTime(statementPrint.printedAt)}
+                  <p className='font-medium'>
+                    {formatDateTime(item.printedAt)}
                   </p>
                 </div>
               </div>
+              <Card className='border bg-muted/20'>
+                <CardContent className='p-4'>
+                  <p className='mb-1 text-sm text-muted-foreground'>
+                    Verification ID
+                  </p>
+                  <p className='break-all font-mono text-sm text-muted-foreground'>
+                    {item.id}
+                  </p>
+                </CardContent>
+              </Card>
             </CardContent>
           </Card>
-          <div className='mt-8 text-center'>
-            <div className='mx-auto mb-4 h-px w-32 bg-border' />
-            <p className='text-sm text-muted-foreground'>
-              This is an official statement of academic results
-            </p>
-            <p className='text-xs text-muted-foreground'>
-              Generated by Limkokwing University Registry System
-            </p>
-          </div>
-        </div>
+        </main>
+
+        <footer className='mt-12 space-y-3 text-center'>
+          <div className='mx-auto h-px w-16 bg-border' />
+          <p className='text-sm text-muted-foreground'>
+            This is an official statement of academic results
+          </p>
+          <p className='text-xs text-muted-foreground'>
+            Generated by Limkokwing University Registry System
+          </p>
+        </footer>
       </div>
     </div>
   );
