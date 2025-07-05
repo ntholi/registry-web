@@ -11,7 +11,9 @@ import {
   Button,
   Fieldset,
   Group,
+  HoverCard,
   Modal,
+  Popover,
   Select,
   Stack,
   Text,
@@ -184,8 +186,8 @@ export default function StudentsFilter() {
 
   return (
     <>
-      <Group gap='sm'>
-        <Tooltip label='Filter Students' color='gray'>
+      <HoverCard withArrow position='top'>
+        <HoverCard.Target>
           <ActionIcon
             variant={hasActiveFilters ? 'filled' : 'default'}
             size={33}
@@ -194,8 +196,11 @@ export default function StudentsFilter() {
           >
             <IconFilter size={'1rem'} />
           </ActionIcon>
-        </Tooltip>
-      </Group>
+        </HoverCard.Target>
+        <HoverCard.Dropdown>
+          <Text size='xs'>Filter Students</Text>
+        </HoverCard.Dropdown>
+      </HoverCard>
 
       <Modal opened={opened} onClose={close} title='Filter Students' size='md'>
         <Stack gap='md'>
