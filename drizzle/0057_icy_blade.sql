@@ -1,0 +1,1 @@
+ALTER TABLE `assigned_modules` ADD `term_id` integer DEFAULT 1 NOT NULL REFERENCES terms(id);

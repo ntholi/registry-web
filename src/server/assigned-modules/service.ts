@@ -2,6 +2,7 @@ import { assignedModules } from '@/db/schema';
 import AssignedModuleRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
+import { getCurrentTerm } from '../terms/actions';
 
 type AssignedModule = typeof assignedModules.$inferInsert;
 
@@ -39,9 +40,11 @@ class AssignedModuleService {
   async assignModulesToLecturer(userId: string, semesterModuleIds: number[]) {
     return withAuth(async () => {
       await this.repository.removeModuleAssignments(userId, semesterModuleIds);
+      const term = await getCurrentTerm();
       const assignments = semesterModuleIds.map((semesterModuleId) => ({
         userId,
         semesterModuleId,
+        termId: term.id,
       }));
 
       return this.repository.createMany(assignments);

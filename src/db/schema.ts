@@ -512,6 +512,9 @@ export const sponsoredStudents = sqliteTable(
 
 export const assignedModules = sqliteTable('assigned_modules', {
   id: integer().primaryKey({ autoIncrement: true }),
+  termId: integer()
+    .references(() => terms.id, { onDelete: 'cascade' })
+    .notNull(),
   userId: text()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
