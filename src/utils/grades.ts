@@ -372,11 +372,13 @@ export function calculateFacultyRemarks(
       name: m.name,
       semesterNumber: 0,
     })),
-    ...historicalFailures.map((m) => ({
-      code: m.code,
-      name: m.name,
-      semesterNumber: m.semesterNumber,
-    })),
+    ...historicalFailures
+      .filter((h) => !currentFailedModules.some((c) => c.name === h.name))
+      .map((m) => ({
+        code: m.code,
+        name: m.name,
+        semesterNumber: m.semesterNumber,
+      })),
   ];
   if (allFailedModules.length > 0) {
     const failedCodes = allFailedModules.map((m) => m.code);
