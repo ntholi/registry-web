@@ -390,7 +390,7 @@ export function calculateFacultyRemarks(
     } else {
       const parityType =
         nextSemesterNumber && nextSemesterNumber % 2 === 1 ? 'odd' : 'even';
-      details = `Failed ${historicalFailures.length} unrepeated modules from ${parityType} semesters`;
+      details = `Failed ${historicalFailures.length} unrepeated modules from semester ${parityType == 'odd' ? 1 : 2}`;
     }
   } else {
     details = 'Student is eligible to proceed';
