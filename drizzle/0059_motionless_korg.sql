@@ -1,0 +1,1 @@
+ALTER TABLE `assigned_modules` ADD `active` integer DEFAULT true NOT NULL;

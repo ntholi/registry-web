@@ -61,7 +61,10 @@ export default class AssignedModuleRepository extends BaseRepository<
 
   async findByUserAndModule(userId: string, moduleId: number) {
     const results = await db.query.assignedModules.findMany({
-      where: eq(assignedModules.userId, userId),
+      where: and(
+        eq(assignedModules.userId, userId),
+        eq(assignedModules.active, true),
+      ),
       with: {
         semesterModule: {
           with: {
@@ -139,7 +142,10 @@ export default class AssignedModuleRepository extends BaseRepository<
 
   async findByUser(userId: string) {
     return await db.query.assignedModules.findMany({
-      where: eq(assignedModules.userId, userId),
+      where: and(
+        eq(assignedModules.userId, userId),
+        eq(assignedModules.active, true),
+      ),
       with: {
         semesterModule: {
           with: {

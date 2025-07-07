@@ -515,6 +515,7 @@ export const assignedModules = sqliteTable('assigned_modules', {
   termId: integer()
     .references(() => terms.id, { onDelete: 'cascade' })
     .notNull(),
+  active: integer({ mode: 'boolean' }).notNull().default(true),
   userId: text()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
