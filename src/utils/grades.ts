@@ -335,14 +335,21 @@ export function calculateFacultyRemarks(
             isFailingGrade(module.grade) &&
             !['Delete', 'Drop'].includes(module.status ?? '')
           ) {
-            const hasBeenRepeated = historicalSemesters.some((otherSemester) =>
-              otherSemester.modules.some(
-                (otherModule) =>
-                  otherModule.name === module.name &&
-                  !isFailingGrade(otherModule.grade) &&
-                  !['Delete', 'Drop'].includes(otherModule.status ?? ''),
-              ),
-            );
+            const hasBeenRepeated =
+              historicalSemesters.some((otherSemester) =>
+                otherSemester.modules.some(
+                  (otherModule) =>
+                    otherModule.name === module.name &&
+                    !isFailingGrade(otherModule.grade) &&
+                    !['Delete', 'Drop'].includes(otherModule.status ?? ''),
+                ),
+              ) ||
+              relevantCurrentModules.some(
+                (currentModule) =>
+                  currentModule.name === module.name &&
+                  !isFailingGrade(currentModule.grade) &&
+                  !['Delete', 'Drop'].includes(currentModule.status ?? ''),
+              );
             if (!hasBeenRepeated) {
               historicalFailures.push(module);
             }
