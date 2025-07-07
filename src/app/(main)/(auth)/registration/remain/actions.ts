@@ -15,7 +15,7 @@ export async function getFailedModules(stdNo: number, semester: number) {
         where: (s) =>
           and(
             eq(s.semesterNumber, semester),
-            notInArray(s.status, ['Deleted', 'Deferred']),
+            notInArray(s.status, ['Deleted', 'Deferred', 'DroppedOut']),
           ),
         with: {
           studentModules: {

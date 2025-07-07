@@ -112,7 +112,9 @@ export default class CourseSummaryRepository extends BaseRepository<
         sm.studentSemester &&
         sm.studentSemester.term === termName &&
         !['Delete', 'Drop'].includes(sm.status) &&
-        !['Deleted', 'Deferred'].includes(sm.studentSemester.status),
+        !['Deleted', 'Deferred', 'DroppedOut'].includes(
+          sm.studentSemester.status,
+        ),
     );
 
     if (programFilter) {
@@ -261,7 +263,9 @@ export default class CourseSummaryRepository extends BaseRepository<
         sm.studentSemester &&
         sm.studentSemester.term === termName &&
         !['Delete', 'Drop'].includes(sm.status) &&
-        !['Deleted', 'Deferred'].includes(sm.studentSemester.status),
+        !['Deleted', 'Deferred', 'DroppedOut'].includes(
+          sm.studentSemester.status,
+        ),
     );
 
     if (programFilter) {

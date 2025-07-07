@@ -110,7 +110,10 @@ export function calculateDetailedFacultyRemarks(
   const filteredPrograms = activePrograms.map((program) => ({
     ...program,
     semesters: program.semesters
-      ?.filter((semester) => !['Deleted', 'Deferred'].includes(semester.status))
+      ?.filter(
+        (semester) =>
+          !['Deleted', 'Deferred', 'DroppedOut'].includes(semester.status),
+      )
       .map((semester) => ({
         ...semester,
         studentModules: semester.studentModules?.filter(

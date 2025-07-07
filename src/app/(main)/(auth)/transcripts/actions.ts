@@ -21,7 +21,7 @@ export async function getTranscript(stdNo: number) {
       semesters: {
         where: (semester) =>
           and(
-            notInArray(semester.status, ['Deleted', 'Deferred']),
+            notInArray(semester.status, ['Deleted', 'Deferred', 'DroppedOut']),
             ne(semester.term, name),
           ),
         with: {

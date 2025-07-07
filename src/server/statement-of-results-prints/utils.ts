@@ -97,7 +97,8 @@ export function extractStatementOfResultsData(student: Student) {
     semesters: (program.semesters || [])
       .filter(
         (semester) =>
-          semester && !['Deleted', 'Deferred'].includes(semester.status),
+          semester &&
+          !['Deleted', 'Deferred', 'DroppedOut'].includes(semester.status),
       )
       .map((semester) => ({
         ...semester,

@@ -39,7 +39,7 @@ export async function getFailedPrerequisites(stdNo: number) {
     with: {
       semesters: {
         where: (semester) =>
-          notInArray(semester.status, ['Deleted', 'Deferred']),
+          notInArray(semester.status, ['Deleted', 'Deferred', 'DroppedOut']),
         with: {
           studentModules: {
             where: (module) => notInArray(module.status, ['Delete', 'Drop']),
@@ -145,7 +145,8 @@ export async function getStudentSemesterModules(
     with: {
       structure: { with: { program: true } },
       semesters: {
-        where: (s) => notInArray(s.status, ['Deleted', 'Deferred']),
+        where: (s) =>
+          notInArray(s.status, ['Deleted', 'Deferred', 'DroppedOut']),
         with: {
           studentModules: {
             where: (m) => notInArray(m.status, ['Delete', 'Drop']),
@@ -233,7 +234,7 @@ export async function getRepeatModules(
       semesters: {
         where: (s) =>
           and(
-            notInArray(s.status, ['Deleted', 'Deferred']),
+            notInArray(s.status, ['Deleted', 'Deferred', 'DroppedOut']),
             inArray(s.semesterNumber, semesterNumbers),
           ),
         with: {
