@@ -18,6 +18,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconPrinter, IconExclamationCircle } from '@tabler/icons-react';
 import { Session } from 'next-auth';
 import AcademicsView from './AcademicsView';
+import BlockedAcademicsView from './BlockedAcademicsView';
 import RegistrationView from './RegistrationView';
 import StatementOfResultsPrinter from './statements/StatementOfResultsPrinter';
 import StudentView from './StudentView';
@@ -126,7 +127,11 @@ export function StudentTabs({ student, session, isBlocked }: StudentTabsProps) {
           )}
         </TabsList>
         <TabsPanel value='academics' pt={'xl'} p={'sm'}>
-          <AcademicsView student={student} showMarks />
+          {isBlocked ? (
+            <BlockedAcademicsView student={student} showMarks />
+          ) : (
+            <AcademicsView student={student} showMarks />
+          )}
         </TabsPanel>
         <TabsPanel value='info' pt={'xl'} p={'sm'}>
           <StudentView student={student} />
