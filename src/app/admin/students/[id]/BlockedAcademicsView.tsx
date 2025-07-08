@@ -3,6 +3,7 @@
 import SemesterStatus from '@/components/SemesterStatus';
 import { formatSemester } from '@/lib/utils';
 import { getStudent } from '@/server/students/actions';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import {
   Accordion,
   Anchor,
@@ -29,9 +30,16 @@ import GpaDisplay from './GpaDisplay';
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
   showMarks?: boolean;
+  blockedStudent: NonNullable<
+    Awaited<ReturnType<typeof getBlockedStudentByStdNo>>
+  >;
 };
 
-export default function BlockedAcademicsView({ student, showMarks }: Props) {
+export default function BlockedAcademicsView({
+  student,
+  showMarks,
+  blockedStudent,
+}: Props) {
   const [openPrograms, setOpenPrograms] = useState<string[]>(
     student.programs
       .filter((program) => program.status === 'Active')
@@ -158,9 +166,26 @@ export default function BlockedAcademicsView({ student, showMarks }: Props) {
                       <Text size='xl' fw={700} c='red'>
                         BLOCKED
                       </Text>
-                      <Text size='sm' c='dimmed' ta='center'>
-                        Academic records are restricted
-                      </Text>
+                      <Stack align='center' gap='xs'>
+                        <Text size='sm' c='dimmed' ta='center'>
+                          Academic records are restricted
+                        </Text>
+                        <Box
+                          style={{
+                            borderTop: '1px solid var(--mantine-color-gray-4)',
+                            paddingTop: '8px',
+                          }}
+                        >
+                          <Stack align='center' gap={4}>
+                            <Text size='xs' fw={500} c='red'>
+                              Reason: {blockedStudent.reason}
+                            </Text>
+                            <Text size='xs' c='dimmed'>
+                              Blocked by: {blockedStudent.byDepartment}
+                            </Text>
+                          </Stack>
+                        </Box>
+                      </Stack>
                     </Stack>
                   </Center>
                 </Box>

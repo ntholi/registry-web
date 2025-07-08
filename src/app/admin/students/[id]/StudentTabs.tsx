@@ -2,6 +2,7 @@
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { getStudent } from '@/server/students/actions';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import {
   Box,
   Tabs,
@@ -26,15 +27,19 @@ import StudentView from './StudentView';
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
   session: Session | null;
-  isBlocked: boolean;
+  blockedStudent: Awaited<ReturnType<typeof getBlockedStudentByStdNo>>;
 };
 
 function BlockedStudentModal({
   opened,
   onClose,
+  blockedStudent,
 }: {
   opened: boolean;
   onClose: () => void;
+  blockedStudent: NonNullable<
+    Awaited<ReturnType<typeof getBlockedStudentByStdNo>>
+  >;
 }) {
   return (
     <Modal
@@ -46,24 +51,38 @@ function BlockedStudentModal({
           <Text fw={500}>Student Blocked</Text>
         </Group>
       }
-      size='sm'
+      size='md'
       centered
     >
       <Stack gap='md'>
-        <Text>
-          This student has been blocked and cannot have their statement of
-          results printed.
-        </Text>
-        <Text size='sm' c='dimmed'>
-          Please contact the registry office for more information about this
-          restriction.
-        </Text>
+        <Stack gap='xs'>
+          <Group gap='xs'>
+            <Text fw={500} size='sm'>
+              Reason:
+            </Text>
+            <Text size='sm' c='red'>
+              {blockedStudent.reason}
+            </Text>
+          </Group>
+          <Group gap='xs'>
+            <Text fw={500} size='sm'>
+              Blocked by:
+            </Text>
+            <Text size='sm' c='dimmed'>
+              {blockedStudent.byDepartment}
+            </Text>
+          </Group>
+        </Stack>
       </Stack>
     </Modal>
   );
 }
 
-export function StudentTabs({ student, session, isBlocked }: StudentTabsProps) {
+export function StudentTabs({
+  student,
+  session,
+  blockedStudent,
+}: StudentTabsProps) {
   const [activeTab, setActiveTab] = useLocalStorage<string | null>(
     'studentDetailsTab',
     'academics',
@@ -72,6 +91,8 @@ export function StudentTabs({ student, session, isBlocked }: StudentTabsProps) {
     blockedModalOpened,
     { open: openBlockedModal, close: closeBlockedModal },
   ] = useDisclosure(false);
+
+  const isBlocked = !!blockedStudent;
 
   const showRegistration =
     session?.user?.role === 'admin' ||
@@ -128,7 +149,11 @@ export function StudentTabs({ student, session, isBlocked }: StudentTabsProps) {
         </TabsList>
         <TabsPanel value='academics' pt={'xl'} p={'sm'}>
           {isBlocked ? (
-            <BlockedAcademicsView student={student} showMarks />
+            <BlockedAcademicsView
+              student={student}
+              showMarks
+              blockedStudent={blockedStudent}
+            />
           ) : (
             <AcademicsView student={student} showMarks />
           )}
@@ -144,10 +169,13 @@ export function StudentTabs({ student, session, isBlocked }: StudentTabsProps) {
         </TabsPanel>
       </Tabs>
 
-      <BlockedStudentModal
-        opened={blockedModalOpened}
-        onClose={closeBlockedModal}
-      />
+      {isBlocked && blockedStudent && (
+        <BlockedStudentModal
+          opened={blockedModalOpened}
+          onClose={closeBlockedModal}
+          blockedStudent={blockedStudent}
+        />
+      )}
     </>
   );
 }

@@ -36,7 +36,7 @@ export default async function StudentDetails({ params }: Props) {
       <StudentTabs
         student={student}
         session={session}
-        isBlocked={!!blockedStudent}
+        blockedStudent={blockedStudent}
       />
     </DetailsView>
   );

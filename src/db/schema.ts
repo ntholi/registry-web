@@ -698,6 +698,7 @@ export const blockedStudents = sqliteTable('blocked_students', {
   status: text({ enum: ['blocked', 'unblocked'] })
     .notNull()
     .default('blocked'),
+  reason: text().notNull(),
   byDepartment: text({ enum: dashboardUsers }).notNull(),
   stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
