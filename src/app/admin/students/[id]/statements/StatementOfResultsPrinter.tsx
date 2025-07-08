@@ -13,10 +13,12 @@ import StatementOfResultsPDF from './StatementOfResultsPDF';
 
 type StatementOfResultsPrinterProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+  disabled?: boolean;
 };
 
 export default function StatementOfResultsPrinter({
   student,
+  disabled,
 }: StatementOfResultsPrinterProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const { data: session } = useSession();
@@ -152,7 +154,7 @@ export default function StatementOfResultsPrinter({
       variant='subtle'
       color='gray'
       size='xs'
-      disabled={isGenerating}
+      disabled={isGenerating || disabled}
       onClick={handlePrint}
     >
       Statement of Results

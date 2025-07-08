@@ -153,41 +153,39 @@ export default function BlockedAcademicsView({
                     background: overlayBackground,
                     backdropFilter: 'blur(2px)',
                     display: 'flex',
-                    alignItems: 'center',
+                    paddingTop: '80px',
                     justifyContent: 'center',
                     zIndex: 10,
                   }}
                 >
-                  <Center>
-                    <Stack align='center' gap='md'>
-                      <ThemeIcon size={60} color='red' variant='light'>
-                        <IconLock size={30} />
-                      </ThemeIcon>
-                      <Text size='xl' fw={700} c='red'>
-                        BLOCKED
+                  <Stack align='center' gap='md'>
+                    <ThemeIcon size={60} color='red' variant='light'>
+                      <IconLock size={30} />
+                    </ThemeIcon>
+                    <Text size='xl' fw={700} c='red'>
+                      BLOCKED
+                    </Text>
+                    <Stack align='center' gap='xs'>
+                      <Text size='sm' c='dimmed' ta='center'>
+                        Academic records are restricted
                       </Text>
-                      <Stack align='center' gap='xs'>
-                        <Text size='sm' c='dimmed' ta='center'>
-                          Academic records are restricted
-                        </Text>
-                        <Box
-                          style={{
-                            borderTop: '1px solid var(--mantine-color-gray-4)',
-                            paddingTop: '8px',
-                          }}
-                        >
-                          <Stack align='center' gap={4}>
-                            <Text size='xs' fw={500} c='red'>
-                              Reason: {blockedStudent.reason}
-                            </Text>
-                            <Text size='xs' c='dimmed'>
-                              Blocked by: {blockedStudent.byDepartment}
-                            </Text>
-                          </Stack>
-                        </Box>
-                      </Stack>
+                      <Box
+                        style={{
+                          borderTop: '1px solid var(--mantine-color-gray-4)',
+                          paddingTop: '8px',
+                        }}
+                      >
+                        <Stack align='center' gap={4}>
+                          <Text size='xs' fw={500} c='red'>
+                            Reason: {blockedStudent.reason}
+                          </Text>
+                          <Text size='xs' c='dimmed'>
+                            Blocked by: {blockedStudent.byDepartment}
+                          </Text>
+                        </Stack>
+                      </Box>
                     </Stack>
-                  </Center>
+                  </Stack>
                 </Box>
               </Box>
             </Accordion.Panel>
