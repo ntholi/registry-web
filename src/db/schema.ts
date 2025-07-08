@@ -692,3 +692,15 @@ export const statementOfResultsPrints = sqliteTable(
       .notNull(),
   },
 );
+
+export const blockedStudents = sqliteTable('blocked_students', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  status: text({ enum: ['blocked', 'unblocked'] })
+    .notNull()
+    .default('blocked'),
+  byDepartment: text({ enum: dashboardUsers }).notNull(),
+  stdNo: integer()
+    .references(() => students.stdNo, { onDelete: 'cascade' })
+    .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
