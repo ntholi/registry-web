@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
 import { getStudent } from '@/server/students/actions';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { StudentTabs } from './StudentTabs';
@@ -27,10 +28,16 @@ export default async function StudentDetails({ params }: Props) {
     return notFound();
   }
 
+  const blockedStudent = await getBlockedStudentByStdNo(student.stdNo);
+
   return (
     <DetailsView>
       <DetailsViewHeader title={student.name} queryKey={['students']} />
-      <StudentTabs student={student} session={session} />
+      <StudentTabs
+        student={student}
+        session={session}
+        isBlocked={!!blockedStudent}
+      />
     </DetailsView>
   );
 }

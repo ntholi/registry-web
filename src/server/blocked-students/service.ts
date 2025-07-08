@@ -32,7 +32,7 @@ class BlockedStudentService {
     return withAuth(async () => this.repository.create(data), []);
   }
 
-  async update(id: number, data: BlockedStudent) {
+  async update(id: number, data: Partial<BlockedStudent>) {
     return withAuth(async () => this.repository.update(id, data), []);
   }
 
