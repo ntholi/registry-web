@@ -379,7 +379,10 @@ export function calculateFacultyRemarks(
         name: m.name,
         semesterNumber: m.semesterNumber,
       })),
-  ];
+  ].filter(
+    (module, index, self) =>
+      index === self.findIndex((m) => m.code === module.code),
+  );
   if (allFailedModules.length > 0) {
     const failedCodes = allFailedModules.map((m) => m.code);
     messageParts.push(`must repeat ${failedCodes.join(', ')}`);

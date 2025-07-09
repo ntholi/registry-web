@@ -412,7 +412,7 @@ function ModuleTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
                 color={
                   failed(module.grade)
                     ? 'red'
-                    : module.grade === 'NM'
+                    : module.grade === 'NM' || module.grade === 'Def'
                       ? 'orange'
                       : 'green'
                 }
