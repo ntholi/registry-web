@@ -186,9 +186,18 @@ export function getGradePoints(grade: string): number {
 }
 
 export function isFailingGrade(grade: string): boolean {
-  return ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
-    normalizeGradeSymbol(grade),
-  );
+  return [
+    'F',
+    'X',
+    'GNS',
+    'ANN',
+    'FIN',
+    'FX',
+    'DNC',
+    'DNA',
+    'DNS',
+    'PP',
+  ].includes(normalizeGradeSymbol(grade));
 }
 
 export function isSupplementaryGrade(grade: string): boolean {
@@ -364,8 +373,7 @@ export function calculateFacultyRemarks(
       });
     });
   }
-  const shouldRemainInSemester =
-    currentFailedModules.length >= 3 || historicalFailures.length >= 3;
+  const shouldRemainInSemester = currentFailedModules.length >= 3;
   const status = shouldRemainInSemester ? 'Remain in Semester' : 'Proceed';
   const messageParts: string[] = [status];
   if (currentSupplementaryModules.length > 0) {
@@ -396,11 +404,7 @@ export function calculateFacultyRemarks(
   const message = messageParts.join(', ');
   let details = '';
   if (shouldRemainInSemester) {
-    if (currentFailedModules.length >= 3) {
-      details = `Failed ${currentFailedModules.length} modules in current semester`;
-    } else {
-      details = `Failed ${historicalFailures.length} unrepeated modules from the same semester`;
-    }
+    details = `Failed ${currentFailedModules.length} modules in current semester`;
   } else {
     details = 'Student is eligible to proceed';
   }
