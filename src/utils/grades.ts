@@ -186,18 +186,9 @@ export function getGradePoints(grade: string): number {
 }
 
 export function isFailingGrade(grade: string): boolean {
-  return [
-    'F',
-    'X',
-    'GNS',
-    'ANN',
-    'FIN',
-    'FX',
-    'DNC',
-    'DNA',
-    'DNS',
-    'PP',
-  ].includes(normalizeGradeSymbol(grade));
+  return ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
+    normalizeGradeSymbol(grade),
+  );
 }
 
 export function isSupplementaryGrade(grade: string): boolean {
