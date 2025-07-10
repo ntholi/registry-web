@@ -322,40 +322,46 @@ export function calculateFacultyRemarks(
     isSupplementaryGrade(m.grade),
   );
   const historicalFailures: ModuleForRemarks[] = [];
+  const allHistoricalFailures: ModuleForRemarks[] = [];
+
   if (historicalSemesters.length > 0 && nextSemesterNumber) {
     const nextSemesterParity = nextSemesterNumber % 2;
     historicalSemesters.forEach((semesterData) => {
       const semesterParity = semesterData.semesterNumber % 2;
-      if (
-        semesterParity === nextSemesterParity &&
-        semesterData.semesterNumber < nextSemesterNumber
-      ) {
-        semesterData.modules.forEach((module) => {
-          if (
-            isFailingGrade(module.grade) &&
-            !['Delete', 'Drop'].includes(module.status ?? '')
-          ) {
-            const hasBeenRepeated =
-              historicalSemesters.some((otherSemester) =>
-                otherSemester.modules.some(
-                  (otherModule) =>
-                    otherModule.name === module.name &&
-                    !isFailingGrade(otherModule.grade) &&
-                    !['Delete', 'Drop'].includes(otherModule.status ?? ''),
-                ),
-              ) ||
-              relevantCurrentModules.some(
-                (currentModule) =>
-                  currentModule.name === module.name &&
-                  !isFailingGrade(currentModule.grade) &&
-                  !['Delete', 'Drop'].includes(currentModule.status ?? ''),
-              );
-            if (!hasBeenRepeated) {
+
+      semesterData.modules.forEach((module) => {
+        if (
+          isFailingGrade(module.grade) &&
+          !['Delete', 'Drop'].includes(module.status ?? '')
+        ) {
+          const hasBeenRepeated =
+            historicalSemesters.some((otherSemester) =>
+              otherSemester.modules.some(
+                (otherModule) =>
+                  otherModule.name === module.name &&
+                  !isFailingGrade(otherModule.grade) &&
+                  !['Delete', 'Drop'].includes(otherModule.status ?? ''),
+              ),
+            ) ||
+            relevantCurrentModules.some(
+              (currentModule) =>
+                currentModule.name === module.name &&
+                !isFailingGrade(currentModule.grade) &&
+                !['Delete', 'Drop'].includes(currentModule.status ?? ''),
+            );
+
+          if (!hasBeenRepeated) {
+            allHistoricalFailures.push(module);
+
+            if (
+              semesterParity === nextSemesterParity &&
+              semesterData.semesterNumber < nextSemesterNumber
+            ) {
               historicalFailures.push(module);
             }
           }
-        });
-      }
+        }
+      });
     });
   }
   const shouldRemainInSemester =
@@ -372,7 +378,7 @@ export function calculateFacultyRemarks(
       name: m.name,
       semesterNumber: 0,
     })),
-    ...historicalFailures
+    ...allHistoricalFailures
       .filter((h) => !currentFailedModules.some((c) => c.name === h.name))
       .map((m) => ({
         code: m.code,
@@ -393,9 +399,7 @@ export function calculateFacultyRemarks(
     if (currentFailedModules.length >= 3) {
       details = `Failed ${currentFailedModules.length} modules in current semester`;
     } else {
-      const parityType =
-        nextSemesterNumber && nextSemesterNumber % 2 === 1 ? 'odd' : 'even';
-      details = `Failed ${historicalFailures.length} unrepeated modules from semester ${parityType == 'odd' ? 1 : 2}`;
+      details = `Failed ${historicalFailures.length} unrepeated modules from the same semester`;
     }
   } else {
     details = 'Student is eligible to proceed';
