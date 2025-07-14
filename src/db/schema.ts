@@ -499,6 +499,21 @@ export const sponsoredStudents = sqliteTable(
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
     borrowerNo: text(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
+  },
+  (table) => ({
+    uniqueSponsoredStudent: unique().on(table.sponsorId, table.stdNo),
+  }),
+);
+
+export const sponsoredTerms = sqliteTable(
+  'sponsored_terms',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    sponsoredStudentId: integer()
+      .references(() => sponsoredStudents.id, { onDelete: 'cascade' })
+      .notNull(),
     termId: integer()
       .references(() => terms.id, { onDelete: 'cascade' })
       .notNull(),
@@ -506,7 +521,7 @@ export const sponsoredStudents = sqliteTable(
     updatedAt: integer({ mode: 'timestamp' }),
   },
   (table) => ({
-    uniqueSponsoredTerm: unique().on(table.stdNo, table.termId),
+    uniqueSponsoredTerm: unique().on(table.sponsoredStudentId, table.termId),
   }),
 );
 

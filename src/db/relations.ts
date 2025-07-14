@@ -18,6 +18,7 @@ import {
   sessions,
   signups,
   sponsoredStudents,
+  sponsoredTerms,
   sponsors,
   structureSemesters,
   structures,
@@ -177,7 +178,7 @@ export const modulePrerequisitesRelations = relations(
 
 export const termsRelations = relations(terms, ({ many }) => ({
   registrationRequests: many(registrationRequests),
-  sponsoredStudents: many(sponsoredStudents),
+  sponsoredTerms: many(sponsoredTerms),
 }));
 
 export const registrationRequestsRelations = relations(
@@ -250,7 +251,7 @@ export const sponsorsRelations = relations(sponsors, ({ many }) => ({
 
 export const sponsoredStudentsRelations = relations(
   sponsoredStudents,
-  ({ one }) => ({
+  ({ one, many }) => ({
     sponsor: one(sponsors, {
       fields: [sponsoredStudents.sponsorId],
       references: [sponsors.id],
@@ -259,12 +260,20 @@ export const sponsoredStudentsRelations = relations(
       fields: [sponsoredStudents.stdNo],
       references: [students.stdNo],
     }),
-    term: one(terms, {
-      fields: [sponsoredStudents.termId],
-      references: [terms.id],
-    }),
+    sponsoredTerms: many(sponsoredTerms),
   }),
 );
+
+export const sponsoredTermsRelations = relations(sponsoredTerms, ({ one }) => ({
+  sponsoredStudent: one(sponsoredStudents, {
+    fields: [sponsoredTerms.sponsoredStudentId],
+    references: [sponsoredStudents.id],
+  }),
+  term: one(terms, {
+    fields: [sponsoredTerms.termId],
+    references: [terms.id],
+  }),
+}));
 
 export const assignedModulesRelations = relations(
   assignedModules,
