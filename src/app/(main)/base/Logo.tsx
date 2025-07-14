@@ -10,6 +10,8 @@ type Props = {
 };
 
 export default function Logo({ className, width = 90, height = 90 }: Props) {
+  const testEnv = process.env.NEXT_PUBLIC_DEV_LOGO;
+
   const { theme } = useTheme();
 
   return (
@@ -17,7 +19,7 @@ export default function Logo({ className, width = 90, height = 90 }: Props) {
       width={width}
       height={height}
       className={className}
-      src={`/images/logo-${theme}.png`}
+      src={`/images/logo-${testEnv ?? theme}.png`}
       alt='Logo'
     />
   );

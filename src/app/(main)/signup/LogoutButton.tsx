@@ -1,5 +1,6 @@
 import { signOut } from '@/auth';
 import { Button } from '@/components/ui/button';
+import { IconLogout } from '@tabler/icons-react';
 
 export default function LogoutButton() {
   const handleLogout = async () => {
@@ -9,8 +10,9 @@ export default function LogoutButton() {
 
   return (
     <form action={handleLogout}>
-      <Button variant={'ghost'} type='submit'>
-        Logout
+      <Button type='submit' variant={'outline'}>
+        <IconLogout />
+        Log Out
       </Button>
     </form>
   );
