@@ -44,7 +44,7 @@ export async function getNotifications(): Promise<Notification[]> {
       id: req.id.toString(),
       title: 'Registration Status',
       message: `${
-        req.message || statusFromRequest(req.status)
+        req.message || statusFromRequest(req.status, term.name)
       }. Click to view details`,
       type: 'registration',
       status: req.status,
@@ -56,6 +56,7 @@ export async function getNotifications(): Promise<Notification[]> {
 
 function statusFromRequest(
   status: 'pending' | 'approved' | 'partial' | 'rejected' | 'registered',
+  termName: string,
 ) {
   switch (status) {
     case 'pending':
@@ -66,5 +67,7 @@ function statusFromRequest(
       return 'Your registration request has been approved';
     case 'partial':
       return 'Your registration request is partially completed';
+    case 'registered':
+      return `You are successfully registered for ${termName}`;
   }
 }
