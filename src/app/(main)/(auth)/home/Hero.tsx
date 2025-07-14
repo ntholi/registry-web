@@ -1,24 +1,16 @@
-'use client';
-
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
 import { GraduationCap } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from '@/components/ui/skeleton';
 import { getStudentScore } from './actions/scores';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
 };
 
-export default function Hero({ student }: Props) {
-  const { data: scores, isLoading } = useQuery({
-    queryKey: ['studentScores', student.stdNo],
-    queryFn: () => getStudentScore(student.stdNo),
-    staleTime: 1000 * 60 * 5,
-  });
+export default async function Hero({ student }: Props) {
+  const scores = await getStudentScore(student);
 
   return (
     <Card>
@@ -32,7 +24,10 @@ export default function Hero({ student }: Props) {
             className='flex items-center gap-2 rounded-full'
           >
             <GraduationCap className='size-5' />
-            {student.programName}
+            {
+              student.programs.find((it) => it.status === 'Active')?.structure
+                .program.name
+            }
           </Badge>
           <div className='flex items-center gap-2 pl-2 text-sm text-muted-foreground/80'>
             {formatSemester(student.sem)}
@@ -44,37 +39,20 @@ export default function Hero({ student }: Props) {
           <div className='rounded-xl border bg-muted p-5 shadow transition-all hover:shadow-lg dark:border-none dark:bg-muted/30 sm:p-6'>
             <h3 className='text-sm font-medium text-muted-foreground'>CGPA</h3>
             <div className='mt-3 flex items-baseline'>
-              {isLoading ? (
-                <Skeleton className='h-10 w-24' />
-              ) : (
-                <>
-                  <span className='text-2xl font-bold tracking-tight sm:text-4xl'>
-                    {scores?.gpa.toFixed(2)}
-                  </span>
-                  <span className='ml-2 text-sm text-muted-foreground'>
-                    / 4.0
-                  </span>
-                </>
-              )}
+              <span className='text-2xl font-bold tracking-tight sm:text-4xl'>
+                {scores?.cgpa.toFixed(2)}
+              </span>
+              <span className='ml-2 text-sm text-muted-foreground'>/ 4.0</span>
             </div>
           </div>
           <div className='rounded-xl border bg-muted p-5 shadow transition-all hover:shadow dark:border-none dark:bg-muted/30 sm:p-6'>
             <h3 className='text-sm font-medium text-muted-foreground'>
-              Total Credits
+              Credits
             </h3>
             <div className='mt-3 flex items-baseline'>
-              {isLoading ? (
-                <Skeleton className='h-10 w-24' />
-              ) : (
-                <>
-                  <span className='text-2xl font-bold tracking-tight sm:text-4xl'>
-                    {scores?.creditsCompleted.toFixed(0)}
-                  </span>
-                  <span className='ml-2 text-sm text-muted-foreground'>
-                    / {scores?.creditsRequired.toFixed(0)}
-                  </span>
-                </>
-              )}
+              <span className='text-2xl font-bold tracking-tight sm:text-4xl'>
+                {scores?.creditsCompleted.toFixed(0)}
+              </span>
             </div>
           </div>
         </div>

@@ -22,36 +22,65 @@ export default class StudentRepository extends BaseRepository<
     super(students, 'stdNo');
   }
   async findStudentByUserId(userId: string) {
-    const student = await db.query.students.findFirst({
+    return await db.query.students.findFirst({
       where: eq(students.userId, userId),
       with: {
+        user: true,
         programs: {
-          where: eq(studentPrograms.status, 'Active'),
-          orderBy: (programs, { asc }) => [asc(programs.id)],
-          limit: 1,
+          columns: {
+            id: true,
+            status: true,
+            structureId: true,
+          },
           with: {
             structure: {
               with: {
-                program: true,
+                program: {
+                  columns: {
+                    name: true,
+                  },
+                },
+              },
+            },
+            semesters: {
+              columns: {
+                id: true,
+                term: true,
+                semesterNumber: true,
+                status: true,
+              },
+              with: {
+                studentModules: {
+                  columns: {
+                    id: true,
+                    semesterModuleId: true,
+                    grade: true,
+                    marks: true,
+                    status: true,
+                  },
+                  with: {
+                    semesterModule: {
+                      columns: {
+                        credits: true,
+                        type: true,
+                      },
+                      with: {
+                        module: {
+                          columns: {
+                            code: true,
+                            name: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
           },
         },
       },
     });
-    if (!student || !student.programs.length) {
-      console.warn(
-        `No active program found for userId: ${userId}. Student: ${JSON.stringify(student)}`,
-      );
-      return null;
-    }
-
-    const activeProgram = student.programs[0];
-    return {
-      ...student,
-      structureId: activeProgram.structureId,
-      programName: activeProgram.structure.program.name,
-    };
   }
 
   async findByIdWithPrograms(stdNo: number) {

@@ -1,50 +1,16 @@
-'use server';
-
-import { db } from '@/db';
-import { and, eq, notInArray } from 'drizzle-orm';
-import {
-  structureSemesters,
-  studentPrograms,
-  studentSemesters,
-} from '@/db/schema';
-
-import { summarizeModules } from '@/utils/grades';
 import { ModuleStatus } from '@/db/schema';
+import { getStudentByUserId } from '@/server/students/actions';
+import { summarizeModules } from '@/utils/grades';
 
-export async function getStudentScore(stdNo: number) {
-  const program = await db.query.studentPrograms.findFirst({
-    where: and(
-      eq(studentPrograms.stdNo, stdNo),
-      eq(studentPrograms.status, 'Active'),
-    ),
-    with: {
-      semesters: {
-        where: notInArray(studentSemesters.status, [
-          'Deleted',
-          'DroppedOut',
-          'Deferred',
-          'Inactive',
-        ]),
-        with: {
-          studentModules: {
-            with: {
-              semesterModule: {
-                with: {
-                  module: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
+type Student = NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
 
-  if (!program?.semesters.length) {
+export async function getStudentScore(student: Student) {
+  const program = student.programs.find((it) => it.status === 'Active');
+
+  if (!program) {
     return {
-      gpa: 0,
+      cgpa: 0,
       creditsCompleted: 0,
-      creditsRequired: 0,
     };
   }
 
@@ -53,25 +19,13 @@ export async function getStudentScore(stdNo: number) {
       grade: sm.grade,
       credits: Number(sm.semesterModule.credits),
       status: (sm as { status?: ModuleStatus }).status,
-    }))
+    })),
   );
 
   const summary = summarizeModules(modules);
 
-  const semesters = await db.query.structureSemesters.findMany({
-    where: eq(structureSemesters.structureId, program.structureId),
-    with: {
-      semesterModules: true,
-    },
-  });
-
-  const creditsRequired = semesters
-    .flatMap((it) => it.semesterModules)
-    .reduce((sum, it) => sum + it.credits, 0);
-
   return {
-    gpa: Number(summary.gpa.toFixed(2)),
+    cgpa: Number(summary.gpa),
     creditsCompleted: summary.creditsCompleted,
-    creditsRequired,
   };
 }
