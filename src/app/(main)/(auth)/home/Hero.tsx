@@ -1,16 +1,30 @@
+'use client';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatSemester } from '@/lib/utils';
 import { getStudentByUserId } from '@/server/students/actions';
-import { GraduationCap } from 'lucide-react';
-import { getStudentScore } from './actions/scores';
+import { AlertCircle, Container, GraduationCap } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { ModuleStatus } from '@/db/schema';
+import { summarizeModules } from '@/utils/grades';
 
+type Student = NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
 type Props = {
-  student: NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
+  userId: string;
 };
 
-export default async function Hero({ student }: Props) {
-  const scores = await getStudentScore(student);
+export default function Hero({ userId }: Props) {
+  const { data: student, isLoading } = useQuery({
+    queryKey: ['student', userId],
+    staleTime: 1000 * 60 * 15,
+    queryFn: () => getStudentByUserId(userId),
+  });
+
+  const scores = getStudentScore(student);
+
+  if (isLoading) return <HeroSkeleton />;
+  if (!student) return <StudentNotFound userId={userId} />;
 
   return (
     <Card>
@@ -59,4 +73,73 @@ export default async function Hero({ student }: Props) {
       </CardContent>
     </Card>
   );
+}
+
+function HeroSkeleton() {
+  return (
+    <Card>
+      <CardHeader className='items-start border-b border-border/10 pb-8'>
+        <Skeleton className='h-10 w-64 sm:h-12' />
+        <div className='flex flex-col items-start space-y-1'>
+          <Skeleton className='h-7 w-40 rounded-full' />
+          <Skeleton className='ml-2 h-4 w-32' />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className='grid grid-cols-2 gap-6'>
+          <div className='rounded-xl border bg-muted p-5 shadow dark:border-none dark:bg-muted/30 sm:p-6'>
+            <Skeleton className='h-4 w-16' />
+            <div className='mt-3 flex items-baseline'>
+              <Skeleton className='h-8 w-16 sm:h-12' />
+              <Skeleton className='ml-2 h-4 w-12' />
+            </div>
+          </div>
+          <div className='rounded-xl border bg-muted p-5 shadow dark:border-none dark:bg-muted/30 sm:p-6'>
+            <Skeleton className='h-4 w-16' />
+            <div className='mt-3 flex items-baseline'>
+              <Skeleton className='h-8 w-12 sm:h-12' />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function StudentNotFound({ userId }: { userId?: string }) {
+  return (
+    <Container width='lg' className='pt-4 sm:pt-28'>
+      <div className='mx-auto max-w-md py-10 text-center'>
+        <AlertCircle className='mx-auto mb-4 size-16' />
+        <h2 className='mb-4 text-3xl font-bold'>Student Not Found</h2>
+        <p className='mb-6'>User ID: {userId}</p>
+      </div>
+    </Container>
+  );
+}
+
+export function getStudentScore(student: Student | undefined) {
+  const program = student?.programs.find((it) => it.status === 'Active');
+
+  if (!program) {
+    return {
+      cgpa: 0,
+      creditsCompleted: 0,
+    };
+  }
+
+  const modules = program.semesters.flatMap((sem) =>
+    sem.studentModules.map((sm) => ({
+      grade: sm.grade,
+      credits: Number(sm.semesterModule.credits),
+      status: (sm as { status?: ModuleStatus }).status,
+    })),
+  );
+
+  const summary = summarizeModules(modules);
+
+  return {
+    cgpa: Number(summary.gpa),
+    creditsCompleted: summary.creditsCompleted,
+  };
 }
