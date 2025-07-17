@@ -1,6 +1,7 @@
 import { StudentModuleStatus } from '@/db/schema';
 import { getStudentByUserId } from '@/server/students/actions';
 import {
+  getAcademicRemarks,
   isFailingOrSupGrade,
   isPassingGrade,
   summarizeModules,
@@ -30,60 +31,8 @@ export default function useUserStudent() {
     user: session?.user,
     student,
     scores: getScores(student),
-    failedModules: filterFailedModules(student),
+    remarks: getAcademicRemarks(student?.programs ?? []),
   };
-}
-
-function filterFailedModules(student: Student) {
-  if (!student?.programs) return [];
-
-  const failedModules = [];
-  const passedModuleNames = new Set<string>();
-
-  for (const program of student.programs) {
-    if (!program.semesters) continue;
-    for (const semester of program.semesters) {
-      if (!semester.studentModules) continue;
-      for (const studentModule of semester.studentModules) {
-        if (['Delete', 'Drop'].includes(studentModule.status || '')) continue;
-        if (studentModule.grade && isPassingGrade(studentModule.grade)) {
-          const moduleName = studentModule.semesterModule?.module?.name;
-          if (moduleName) {
-            passedModuleNames.add(moduleName);
-          }
-        }
-      }
-    }
-  }
-
-  for (const program of student.programs) {
-    if (!program.semesters) continue;
-    for (const semester of program.semesters) {
-      if (!semester.studentModules) continue;
-      for (const studentModule of semester.studentModules) {
-        if (['Delete', 'Drop'].includes(studentModule.status || '')) continue;
-        if (studentModule.grade && isFailingOrSupGrade(studentModule.grade)) {
-          const moduleName = studentModule.semesterModule?.module?.name;
-          if (moduleName && !passedModuleNames.has(moduleName)) {
-            failedModules.push({
-              id: studentModule.id,
-              semesterModuleId: studentModule.semesterModuleId,
-              grade: studentModule.grade,
-              marks: studentModule.marks,
-              status: studentModule.status,
-              module: studentModule.semesterModule?.module,
-              credits: studentModule.semesterModule?.credits,
-              type: studentModule.semesterModule?.type,
-              semesterNumber: semester.semesterNumber,
-              term: semester.term,
-            });
-          }
-        }
-      }
-    }
-  }
-
-  return failedModules;
 }
 
 function getScores(student: Student | undefined) {
