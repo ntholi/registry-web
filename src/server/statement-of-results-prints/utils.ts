@@ -3,8 +3,6 @@ import { getAcademicRemarks, grades } from '@/utils/grades';
 import type { Program as GradeProgram } from '@/utils/grades/type';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
-type Semester = Student['programs'][0]['semesters'][0];
-type StudentModule = Semester['studentModules'][0];
 
 function getClassification(gpa: number): string {
   const gradesWithGPA = grades

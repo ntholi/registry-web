@@ -22,7 +22,7 @@ export default function GpaDisplay({ gpa, cgpa }: Props) {
           GPA
         </Text>
         <Text size='sm' fw={600} c={gpaColor}>
-          {gpa}
+          {gpa.toFixed(2)}
         </Text>
       </Group>
 
@@ -39,7 +39,7 @@ export default function GpaDisplay({ gpa, cgpa }: Props) {
           CGPA
         </Text>
         <Text size='sm' fw={600} c={cgpaColor}>
-          {cgpa}
+          {cgpa.toFixed(2)}
         </Text>
       </Group>
     </Flex>

@@ -314,9 +314,7 @@ export default class BoeReportService {
       };
     });
 
-    return studentReports.sort(
-      (a, b) => parseFloat(b.cgpa) - parseFloat(a.cgpa),
-    );
+    return studentReports.sort((a, b) => b.cgpa - a.cgpa);
   }
 }
 
