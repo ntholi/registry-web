@@ -157,6 +157,7 @@ export const programStatusEnum = [
   'Deleted',
   'Inactive',
 ] as const;
+export type StudentProgramStatus = (typeof programStatusEnum)[number];
 
 export const studentPrograms = sqliteTable('student_programs', {
   id: integer().primaryKey(),

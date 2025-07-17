@@ -1,4 +1,8 @@
-import { SemesterStatus, StudentModuleStatus } from '@/db/schema';
+import {
+  SemesterStatus,
+  StudentModuleStatus,
+  StudentProgramStatus,
+} from '@/db/schema';
 
 export type StudentModule = {
   id: number;
@@ -18,7 +22,7 @@ export type StudentModule = {
 
 export type Program = {
   id: number;
-  status: string;
+  status: StudentProgramStatus;
   structureId: number;
   semesters: {
     id: number;

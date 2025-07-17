@@ -376,18 +376,22 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
   };
 }
 
-function extractData(programs: Program[]) {
-  const activePrograms = programs.filter((p) => p.status === 'Active');
-  if (activePrograms.length > 1) {
-    throw new Error('Multiple active programs found');
+function extractData(_programs: Program[]) {
+  let programs = _programs
+    .sort((a, b) => b.id - a.id)
+    .filter((p) => p.status === 'Active');
+  if (programs.length === 0) {
+    programs = _programs
+      .sort((a, b) => b.id - a.id)
+      .filter((p) => p.status === 'Completed');
   }
-  if (activePrograms.length === 0) {
+  if (programs.length === 0) {
     return {
       semesters: [],
       studentModules: [],
     };
   }
-  const semesters = activePrograms[0].semesters || [];
+  const semesters = programs[0].semesters || [];
   const filtered = [...semesters]
     .filter((s) => !['Deleted', 'Deferred', 'DroppedOut'].includes(s.status))
     .sort((a, b) => a.id - b.id);
