@@ -282,6 +282,11 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
     0,
   );
 
+  const totalCreditsCompleted = points.reduce(
+    (sum, point) => sum + point.creditsCompleted,
+    0,
+  );
+
   if (studentModules.some((m) => m.grade === 'NM')) {
     return {
       status: 'No Marks',
@@ -291,6 +296,7 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
       details: 'One or more modules have no marks captured',
       totalModules: 0,
       totalCreditsAttempted,
+      totalCreditsCompleted,
       points,
       latestPoints: points[points.length - 1] || {
         semesterId: 0,
@@ -365,6 +371,7 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
     details,
     totalModules: studentModules.length,
     totalCreditsAttempted,
+    totalCreditsCompleted,
     points,
     latestPoints: points[points.length - 1] || {
       semesterId: 0,

@@ -570,7 +570,7 @@ export default function StatementOfResultsPDF({
                   <View style={styles.cumulativeItem}>
                     <Text style={styles.cumulativeLabel}>Credits Earned</Text>
                     <Text style={styles.cumulativeValue}>
-                      {lastPoint?.creditsCompleted || 0}
+                      {academicRemarks.totalCreditsCompleted}
                     </Text>
                   </View>
                   <View style={styles.cumulativeItem}>

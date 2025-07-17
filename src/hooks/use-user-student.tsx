@@ -4,8 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
-type Student = Awaited<ReturnType<typeof getStudentByUserId>>;
-
 export default function useUserStudent() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -24,25 +22,6 @@ export default function useUserStudent() {
     isLoading: status === 'loading' || isLoading,
     user: session?.user,
     student,
-    scores: getScores(student),
     remarks: getAcademicRemarks(student?.programs ?? []),
-  };
-}
-
-function getScores(student: Student | undefined) {
-  const program = student?.programs.find((it) => it.status === 'Active');
-  if (!program) {
-    return {
-      cgpa: 0,
-      creditsCompleted: 0,
-    };
-  }
-
-  const academicRemarks = getAcademicRemarks([program]);
-  const lastPoint = academicRemarks.latestPoints;
-
-  return {
-    cgpa: Number(lastPoint?.cgpa || 0),
-    creditsCompleted: lastPoint?.creditsCompleted || 0,
   };
 }

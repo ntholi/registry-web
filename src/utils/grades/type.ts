@@ -62,6 +62,7 @@ export type FacultyRemarksResult = {
   details: string;
   totalModules: number;
   totalCreditsAttempted: number;
+  totalCreditsCompleted: number;
   points: GradePoint[];
   latestPoints: GradePoint;
 };

@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function Hero({ userId }: Props) {
-  const { isLoading, student, scores } = useUserStudent();
+  const { isLoading, student, remarks } = useUserStudent();
 
   if (isLoading) return <HeroSkeleton />;
   if (!student) return <StudentNotFound userId={userId} />;
@@ -44,7 +44,7 @@ export default function Hero({ userId }: Props) {
             <h3 className='text-sm font-medium text-muted-foreground'>CGPA</h3>
             <div className='mt-3 flex items-baseline'>
               <span className='text-2xl font-bold tracking-tight sm:text-4xl'>
-                {scores?.cgpa.toFixed(2)}
+                {remarks?.latestPoints?.cgpa.toFixed(2)}
               </span>
               <span className='ml-2 text-sm text-muted-foreground'>/ 4.0</span>
             </div>
@@ -55,7 +55,7 @@ export default function Hero({ userId }: Props) {
             </h3>
             <div className='mt-3 flex items-baseline'>
               <span className='text-2xl font-bold tracking-tight sm:text-4xl'>
-                {scores?.creditsCompleted.toFixed(0)}
+                {remarks?.totalCreditsCompleted}
               </span>
             </div>
           </div>
