@@ -272,9 +272,7 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
   let cumulativeCreditsForGPA = 0;
   let cumulativeCreditsCompleted = 0;
 
-  const sortedSemesters = [...semesters].sort((a, b) => a.id - b.id);
-
-  for (const semester of sortedSemesters) {
+  for (const semester of semesters) {
     const semesterSummary = summarizeModules(semester.studentModules);
     cumulativePoints += semesterSummary.points;
 
@@ -315,9 +313,9 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
     };
   }
 
-  const latestFailedModules = semesters[0].studentModules.filter((m) =>
-    isFailingGrade(m.grade),
-  );
+  const latestFailedModules = semesters[
+    semesters.length - 1
+  ].studentModules.filter((m) => isFailingGrade(m.grade));
   const failedModules = studentModules.filter((m) => {
     if (!isFailingOrSupGrade(m.grade)) return false;
 
@@ -386,8 +384,8 @@ function extractData(programs: Program[]) {
   }
   const semesters = activePrograms[0].semesters || [];
   const filtered = [...semesters]
-    .sort((a, b) => b.id - a.id)
-    .filter((s) => !['Deleted', 'Deferred', 'DroppedOut'].includes(s.status));
+    .filter((s) => !['Deleted', 'Deferred', 'DroppedOut'].includes(s.status))
+    .sort((a, b) => a.id - b.id);
 
   const studentModules = filtered
     .flatMap((s) => s.studentModules)
