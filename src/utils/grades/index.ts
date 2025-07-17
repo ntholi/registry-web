@@ -302,9 +302,12 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
     };
   }
 
-  const latestFailedModules = semesters[
-    semesters.length - 1
-  ].studentModules.filter((m) => isFailingGrade(m.grade));
+  const latestFailedModules =
+    semesters.length > 0
+      ? semesters[semesters.length - 1].studentModules.filter((m) =>
+          isFailingGrade(m.grade),
+        )
+      : [];
   const failedModules = studentModules.filter((m) => {
     if (!isFailingOrSupGrade(m.grade)) return false;
 
@@ -377,6 +380,12 @@ function extractData(programs: Program[]) {
   const activePrograms = programs.filter((p) => p.status === 'Active');
   if (activePrograms.length > 1) {
     throw new Error('Multiple active programs found');
+  }
+  if (activePrograms.length === 0) {
+    return {
+      semesters: [],
+      studentModules: [],
+    };
   }
   const semesters = activePrograms[0].semesters || [];
   const filtered = [...semesters]
