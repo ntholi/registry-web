@@ -191,8 +191,19 @@ export function isFailingGrade(grade: string): boolean {
   );
 }
 
+export function isPassingGrade(grade: string): boolean {
+  const passingGrades = grades
+    .filter((g) => g.gpa !== null && g.gpa > 0)
+    .map((g) => g.grade as string);
+  return passingGrades.includes(normalizeGradeSymbol(grade));
+}
+
 export function isSupplementaryGrade(grade: string): boolean {
   return normalizeGradeSymbol(grade) === 'PP';
+}
+
+export function isFailingOrSupGrade(grade: string): boolean {
+  return isFailingGrade(grade) || isSupplementaryGrade(grade);
 }
 
 export function getMarksRangeString(grade: string): string {

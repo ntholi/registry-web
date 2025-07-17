@@ -2,26 +2,16 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import useUserStudent from '@/hooks/use-user-student';
 import { formatSemester } from '@/lib/utils';
-import { getStudentByUserId } from '@/server/students/actions';
 import { AlertCircle, Container, GraduationCap } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { ModuleStatus } from '@/db/schema';
-import { summarizeModules } from '@/utils/grades';
 
-type Student = NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
 type Props = {
   userId: string;
 };
 
 export default function Hero({ userId }: Props) {
-  const { data: student, isLoading } = useQuery({
-    queryKey: ['student', userId],
-    staleTime: 1000 * 60 * 15,
-    queryFn: () => getStudentByUserId(userId),
-  });
-
-  const scores = getStudentScore(student);
+  const { isLoading, student, scores } = useUserStudent();
 
   if (isLoading) return <HeroSkeleton />;
   if (!student) return <StudentNotFound userId={userId} />;
@@ -116,30 +106,4 @@ function StudentNotFound({ userId }: { userId?: string }) {
       </div>
     </Container>
   );
-}
-
-export function getStudentScore(student: Student | undefined) {
-  const program = student?.programs.find((it) => it.status === 'Active');
-
-  if (!program) {
-    return {
-      cgpa: 0,
-      creditsCompleted: 0,
-    };
-  }
-
-  const modules = program.semesters.flatMap((sem) =>
-    sem.studentModules.map((sm) => ({
-      grade: sm.grade,
-      credits: Number(sm.semesterModule.credits),
-      status: (sm as { status?: ModuleStatus }).status,
-    })),
-  );
-
-  const summary = summarizeModules(modules);
-
-  return {
-    cgpa: Number(summary.gpa),
-    creditsCompleted: summary.creditsCompleted,
-  };
 }
