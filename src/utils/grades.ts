@@ -314,7 +314,8 @@ export function calculateFacultyRemarks(
 ): FacultyRemarksResult | null {
   const filtered = [...semesters]
     .sort((a, b) => b.id - a.id)
-    .filter((s) => !['Delete', ''].includes(s.status));
+    //TODO: Maybe I should add exception for DroppedOut as well
+    .filter((s) => !['Delete'].includes(s.status));
 
   const studentModules = filtered
     .flatMap((s) => s.studentModules)
@@ -336,13 +337,26 @@ export function calculateFacultyRemarks(
   const latestFailedModules = filtered[0].studentModules.filter((m) =>
     isFailingGrade(m.grade),
   );
-  const failedModules = studentModules.filter((m) => isFailingGrade(m.grade));
+  const failedModules = studentModules.filter((m) => {
+    if (!isFailingOrSupGrade(m.grade)) return false;
+
+    const hasPassedLater = studentModules.some(
+      (otherModule) =>
+        otherModule.semesterModule.module.name ===
+          m.semesterModule.module.name &&
+        otherModule.id !== m.id &&
+        isPassingGrade(otherModule.grade),
+    );
+
+    return !hasPassedLater;
+  });
+
   const supplementary = studentModules.filter((m) =>
     isSupplementaryGrade(m.grade),
   );
 
-  const shouldRemainInSemester = latestFailedModules.length >= 3;
-  const status = shouldRemainInSemester ? 'Remain in Semester' : 'Proceed';
+  const remainInSemester = latestFailedModules.length >= 3;
+  const status = remainInSemester ? 'Remain in Semester' : 'Proceed';
 
   const messageParts: string[] = [status];
 
@@ -360,7 +374,7 @@ export function calculateFacultyRemarks(
   const message = messageParts.join(', ');
 
   let details = '';
-  if (shouldRemainInSemester) {
+  if (remainInSemester) {
     details = `Failed ${latestFailedModules.length} modules in latest semester`;
   } else {
     details = 'Student is eligible to proceed';
@@ -379,34 +393,4 @@ export function calculateFacultyRemarks(
     message,
     details,
   };
-}
-
-export function getSimpleFacultyRemarks(
-  modules: (ModuleSummaryInput & { code: string; name: string })[],
-): string {
-  const relevantModules = modules.filter(
-    (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
-  );
-  const hasNoMarks = relevantModules.some(
-    (m) => normalizeGradeSymbol(m.grade) === 'NM',
-  );
-  if (hasNoMarks) {
-    return 'No Marks';
-  }
-  const failedModules = relevantModules.filter((m) => isFailingGrade(m.grade));
-  const supplementaryModules = relevantModules.filter((m) =>
-    isSupplementaryGrade(m.grade),
-  );
-  const shouldRemainInSemester = failedModules.length >= 3;
-  const baseStatus = shouldRemainInSemester ? 'Remain in Semester' : 'Proceed';
-  const messageParts: string[] = [baseStatus];
-  if (supplementaryModules.length > 0) {
-    const supplementaryCodes = supplementaryModules.map((m) => m.code);
-    messageParts.push(`must supplement ${supplementaryCodes.join(', ')}`);
-  }
-  if (failedModules.length > 0) {
-    const failedCodes = failedModules.map((m) => m.code);
-    messageParts.push(`must repeat ${failedCodes.join(', ')}`);
-  }
-  return messageParts.join(', ');
 }
