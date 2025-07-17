@@ -1,6 +1,5 @@
 'use client';
 
-import SemesterStatus from '@/components/SemesterStatus';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { getStudent } from '@/server/students/actions';
 import {
@@ -50,6 +49,16 @@ export default function BlockedAcademicsView({
     ? 'rgba(0, 0, 0, 0.3)'
     : 'rgba(255, 255, 255, 0.8)';
 
+  const generatePlaceholderSemesters = () => {
+    return Array.from({ length: 3 }, (_, i) => ({
+      id: i + 1,
+      term: `████████`,
+      semesterNumber: i + 1,
+      status: 'Active',
+      moduleCount: Math.floor(Math.random() * 3) + 4,
+    }));
+  };
+
   if (!student?.programs?.length) {
     return (
       <Card shadow='sm' padding='lg' radius='md' withBorder>
@@ -69,123 +78,125 @@ export default function BlockedAcademicsView({
         value={openPrograms}
         onChange={setOpenPrograms}
       >
-        {student.programs.map((program) => (
-          <Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
-            <Accordion.Control>
-              <Group>
-                <ThemeIcon variant='light' color='gray' size={'xl'}>
-                  <IconSchool size='1.1rem' />
-                </ThemeIcon>
-                <Stack gap={5}>
-                  <Text fw={500}>{program.structure.program.name}</Text>
-                  <Group gap={'xs'}>
-                    <Badge
-                      color={getProgramStatusColor(program.status)}
-                      size='xs'
-                      variant='transparent'
-                    >
-                      {program.status}
-                    </Badge>
-                    <Anchor size='0.715rem' c={'gray'} component='span'>
-                      {program.structure.code}
-                    </Anchor>
-                  </Group>
-                </Stack>
-              </Group>
-            </Accordion.Control>
+        {student.programs.map((program) => {
+          const placeholderSemesters = generatePlaceholderSemesters();
 
-            <Accordion.Panel>
-              <Box pos='relative'>
-                <Box
-                  style={{
-                    filter: 'blur(4px)',
-                    opacity: 0.3,
-                    pointerEvents: 'none',
-                  }}
-                >
-                  <Stack gap='xl'>
-                    {program.semesters?.length ? (
-                      program.semesters.map((semester) => (
+          return (
+            <Accordion.Item
+              key={program.id}
+              value={program.id?.toString() ?? ''}
+            >
+              <Accordion.Control>
+                <Group>
+                  <ThemeIcon variant='light' color='gray' size={'xl'}>
+                    <IconSchool size='1.1rem' />
+                  </ThemeIcon>
+                  <Stack gap={5}>
+                    <Text fw={500}>{program.structure.program.name}</Text>
+                    <Group gap={'xs'}>
+                      <Badge
+                        color={getProgramStatusColor(program.status)}
+                        size='xs'
+                        variant='transparent'
+                      >
+                        {program.status}
+                      </Badge>
+                      <Anchor size='0.715rem' c={'gray'} component='span'>
+                        {program.structure.code}
+                      </Anchor>
+                    </Group>
+                  </Stack>
+                </Group>
+              </Accordion.Control>
+
+              <Accordion.Panel>
+                <Box pos='relative'>
+                  <Box
+                    style={{
+                      filter: 'blur(4px)',
+                      opacity: 0.3,
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <Stack gap='xl'>
+                      {placeholderSemesters.map((semester) => (
                         <Paper key={semester.id} p='md' withBorder>
                           <Stack gap='md'>
                             <Flex align='flex-end' justify='space-between'>
                               <Group gap={'xs'} align='flex-end'>
                                 <Badge radius={'xs'} variant='default'>
-                                  ████████
+                                  {semester.term}
                                 </Badge>
-                                <Text size='sm'>████████████</Text>
+                                <Text size='sm'>
+                                  Semester {semester.semesterNumber}
+                                </Text>
                               </Group>
                               <Group gap='md' align='flex-end'>
-                                <GpaDisplay gpa={0} cgpa={0} />
-                                <SemesterStatus status='Active' />
+                                <GpaDisplay gpa={2.5} cgpa={2.8} />
                               </Group>
                             </Flex>
 
                             <Divider />
 
                             <BlockedModuleTable
-                              moduleCount={semester.studentModules?.length || 3}
+                              moduleCount={semester.moduleCount}
                               showMarks={showMarks}
                             />
                           </Stack>
                         </Paper>
-                      ))
-                    ) : (
-                      <Text c='dimmed'>
-                        No semesters available for this program
-                      </Text>
-                    )}
-                  </Stack>
-                </Box>
-
-                <Box
-                  pos='absolute'
-                  top={0}
-                  left={0}
-                  right={0}
-                  bottom={0}
-                  style={{
-                    background: overlayBackground,
-                    backdropFilter: 'blur(2px)',
-                    display: 'flex',
-                    paddingTop: '80px',
-                    justifyContent: 'center',
-                    zIndex: 10,
-                  }}
-                >
-                  <Stack align='center' gap='md'>
-                    <ThemeIcon size={60} color='red' variant='light'>
-                      <IconLock size={30} />
-                    </ThemeIcon>
-                    <Text size='xl' fw={700} c='red'>
-                      BLOCKED
-                    </Text>
-                    <Stack align='center' gap='xs'>
-                      <Text size='sm' c='dimmed' ta='center'>
-                        Academic records are restricted
-                      </Text>
-                      <Box
-                        style={{
-                          borderTop: '1px solid var(--mantine-color-gray-4)',
-                          paddingTop: '8px',
-                        }}
-                      >
-                        <Stack align='center' gap={4}>
-                          <Text size='xs' fw={500} c='red'>
-                            Reason: {blockedStudent.reason}
-                          </Text>
-                          <Text size='xs' c='dimmed'>
-                            Blocked by: {blockedStudent.byDepartment}
-                          </Text>
-                        </Stack>
-                      </Box>
+                      ))}
                     </Stack>
-                  </Stack>
+                  </Box>
+
+                  <Box
+                    pos='absolute'
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    style={{
+                      background: overlayBackground,
+                      backdropFilter: 'blur(2px)',
+                      display: 'flex',
+                      paddingTop: '80px',
+                      justifyContent: 'center',
+                      zIndex: 10,
+                    }}
+                  >
+                    <Stack align='center' gap='md'>
+                      <ThemeIcon size={60} color='red' variant='light'>
+                        <IconLock size={30} />
+                      </ThemeIcon>
+                      <Text size='xl' fw={700} c='red'>
+                        BLOCKED
+                      </Text>
+                      <Stack align='center' gap='xs'>
+                        <Text size='sm' c='dimmed' ta='center'>
+                          Academic records are restricted
+                        </Text>
+                        <Box
+                          style={{
+                            borderTop: '1px solid var(--mantine-color-gray-4)',
+                            paddingTop: '8px',
+                          }}
+                        >
+                          <Stack align='center' gap={4}>
+                            <Text size='xs' fw={500} c='red'>
+                              Reason: {blockedStudent.reason}
+                            </Text>
+                            <Text size='xs' c='dimmed'>
+                              Blocked by: {blockedStudent.byDepartment}
+                            </Text>
+                          </Stack>
+                        </Box>
+                      </Stack>
+                    </Stack>
+                  </Box>
                 </Box>
-              </Box>
-            </Accordion.Panel>
-          </Accordion.Item>
-        ))}
+              </Accordion.Panel>
+            </Accordion.Item>
+          );
+        })}
       </Accordion>
     </Stack>
   );
@@ -217,11 +228,8 @@ function BlockedModuleTable({
   moduleCount,
   showMarks,
 }: BlockedModuleTableProps) {
-  const { colorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === 'dark';
-
-  const placeholderChar = isDark ? '░░░░░░░░' : '████████';
-  const shortPlaceholderChar = isDark ? '░░' : '██';
+  const placeholderChar = '████████';
+  const shortPlaceholderChar = '██';
 
   const placeholderModules = Array.from({ length: moduleCount }, (_, i) => ({
     id: i,

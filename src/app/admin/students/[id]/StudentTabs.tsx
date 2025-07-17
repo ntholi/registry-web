@@ -24,7 +24,7 @@ export function StudentTabs({
 }: StudentTabsProps) {
   const [activeTab, setActiveTab] = useLocalStorage<string | null>(
     'studentDetailsTab',
-    'academics',
+    'info',
   );
   const showRegistration =
     session?.user?.role === 'admin' ||
