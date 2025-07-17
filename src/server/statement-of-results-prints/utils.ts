@@ -1,5 +1,5 @@
 import { getStudent } from '@/server/students/actions';
-import { calculateDetailedFacultyRemarks } from '@/app/admin/students/[id]/statements/academicRemarks';
+import { calculateDetailedFacultyRemarks } from '@/app/admin/students/[id]/AcademicsView/statements/academicRemarks';
 import { summarizeModules, ModuleSummaryInput } from '@/utils/grades';
 import { grades } from '@/utils/grades';
 

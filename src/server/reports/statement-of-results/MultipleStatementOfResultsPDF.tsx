@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document } from '@react-pdf/renderer';
-import StatementOfResultsPDF from '@/app/admin/students/[id]/statements/StatementOfResultsPDF';
+import StatementOfResultsPDF from '@/app/admin/students/[id]/AcademicsView/statements/StatementOfResultsPDF';
 import { getStudent } from '@/server/students/actions';
 
 type StudentData = NonNullable<Awaited<ReturnType<typeof getStudent>>>;

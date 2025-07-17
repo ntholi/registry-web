@@ -6,7 +6,7 @@ import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { Session } from 'next-auth';
 import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
-import StatementOfResultsPrinter from './statements/StatementOfResultsPrinter';
+import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
 import StudentView from './StudentView';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
