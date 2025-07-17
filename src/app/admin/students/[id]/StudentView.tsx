@@ -108,12 +108,55 @@ export default function StudentView({ student }: Props) {
         </Paper>
       </div>
 
+      {student.programs && student.programs.length > 0 && (
+        <div>
+          <Title order={4} mb='xs' fw={100}>
+            Active Program
+          </Title>
+          <Paper p='md' radius='md' withBorder>
+            <Grid gutter='xl'>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <InfoItem
+                  label='Program Name'
+                  value={student.programs[0].structure.program.name}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <InfoItem
+                  label='Program Code'
+                  value={student.programs[0].structure.program.code}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <InfoItem label='Status' value={student.programs[0].status} />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <InfoItem
+                  label='Intake Date'
+                  value={student.programs[0].intakeDate}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <InfoItem
+                  label='Graduation Date'
+                  value={student.programs[0].graduationDate}
+                />
+              </Grid.Col>
+              {student.programs[0].stream && (
+                <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <InfoItem label='Stream' value={student.programs[0].stream} />
+                </Grid.Col>
+              )}
+            </Grid>
+          </Paper>
+        </div>
+      )}
+
       <div>
         <Title order={4} mb='xs' fw={100}>
           Contact Information
         </Title>
         <Paper p='md' radius='md' withBorder>
-          {' '}
           <Grid gutter='xl'>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem

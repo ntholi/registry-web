@@ -392,6 +392,42 @@ export default class StudentRepository extends BaseRepository<
     };
   }
 
+  override async findById(stdNo: number) {
+    return await db.query.students.findFirst({
+      where: eq(students.stdNo, stdNo),
+      with: {
+        user: true,
+        programs: {
+          where: eq(studentPrograms.status, 'Active'),
+          columns: {
+            id: true,
+            status: true,
+            structureId: true,
+            intakeDate: true,
+            regDate: true,
+            startTerm: true,
+            stream: true,
+            graduationDate: true,
+            assistProvider: true,
+          },
+          with: {
+            structure: {
+              with: {
+                program: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    code: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async updateUserId(stdNo: number, userId: string | null) {
     return await db.transaction(async (tx) => {
       const updatedStudent = await tx
