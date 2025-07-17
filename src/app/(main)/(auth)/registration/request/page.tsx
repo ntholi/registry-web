@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+'use client';
 import {
   Card,
   CardContent,
@@ -7,26 +7,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
-import { getStudentByUserId } from '@/server/students/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
-import { redirect } from 'next/navigation';
-import { getFailedModules } from '../remain/actions';
+import { useCurrentTerm } from '@/hooks/use-current-term';
+import useUserStudent from '@/hooks/use-user-student';
 import ModulesForm from './Form';
 
 export default async function RegistrationPage() {
-  const session = await auth();
-  const student = await getStudentByUserId(session?.user?.id);
-  const term = await getCurrentTerm();
-
-  if (!student) {
-    redirect('/signup');
-  }
-
-  const failedModules = await getFailedModules(student.stdNo, student.sem);
-  const isSameParity = (term.semester % 2 === 0) === (student.sem % 2 === 0);
-  if (failedModules.length >= 3 && !isSameParity) {
-    redirect('/registration/remain');
-  }
+  const { student, studentProgram } = useUserStudent();
+  const { currentTerm } = useCurrentTerm();
 
   return (
     <Container className='pt-4 sm:pt-10'>
@@ -35,13 +22,13 @@ export default async function RegistrationPage() {
           <CardTitle className='text-2xl font-bold'>
             Module Registration
           </CardTitle>
-          <CardDescription>Register for {term.name}</CardDescription>
+          <CardDescription>Register for {currentTerm?.name}</CardDescription>
         </CardHeader>
         <CardContent>
-          {student.structureId ? (
+          {student && studentProgram ? (
             <ModulesForm
               stdNo={student.stdNo}
-              structureId={student.structureId}
+              structureId={studentProgram.structureId}
             />
           ) : (
             <p className='text-red-500'>

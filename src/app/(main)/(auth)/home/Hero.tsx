@@ -11,7 +11,8 @@ type Props = {
 };
 
 export default function Hero({ userId }: Props) {
-  const { isLoading, student, remarks } = useUserStudent();
+  const { isLoading, student, remarks, programName, semester } =
+    useUserStudent();
 
   if (isLoading) return <HeroSkeleton />;
   if (!student) return <StudentNotFound userId={userId} />;
@@ -28,13 +29,10 @@ export default function Hero({ userId }: Props) {
             className='flex items-center gap-2 rounded-full'
           >
             <GraduationCap className='size-5' />
-            {
-              student.programs.find((it) => it.status === 'Active')?.structure
-                .program.name
-            }
+            {programName}
           </Badge>
           <div className='flex items-center gap-2 pl-2 text-sm text-muted-foreground/80'>
-            {formatSemester(student.sem)}
+            {semester && formatSemester(semester.semesterNumber)}
           </div>
         </div>
       </CardHeader>
