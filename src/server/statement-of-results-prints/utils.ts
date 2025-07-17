@@ -74,9 +74,11 @@ function calculateCumulativeStats(programs: Program[]) {
 
 function getClassification(gpa: number): string {
   const gradesWithGPA = grades
-    .filter((grade) => grade.gpa !== null)
-    .sort((a, b) => (b.gpa || 0) - (a.gpa || 0));
-  const matchingGrade = gradesWithGPA.find((grade) => gpa >= (grade.gpa || 0));
+    .filter((grade) => grade.points !== null)
+    .sort((a, b) => (b.points || 0) - (a.points || 0));
+  const matchingGrade = gradesWithGPA.find(
+    (grade) => gpa >= (grade.points || 0),
+  );
   return matchingGrade?.description || 'No Classification';
 }
 

@@ -1,158 +1,156 @@
-import { gradeEnum, StudentModuleStatus } from '@/db/schema';
+import { Grade, gradeEnum, StudentModuleStatus } from '@/db/schema';
 import { Program, StudentModule } from './type';
-
-export type GradeRange = {
-  min: number;
-  max: number;
-};
 
 export type GradeDefinition = {
   grade: (typeof gradeEnum)[number];
-  gpa: number | null;
+  points: number | null;
   description: string;
-  marksRange?: GradeRange;
+  marksRange?: {
+    min: number;
+    max: number;
+  };
 };
 
 export const grades: GradeDefinition[] = [
   {
     grade: 'A+',
-    gpa: 4.0,
+    points: 4.0,
     description: 'Pass with Distinction',
     marksRange: { min: 90, max: 100 },
   },
   {
     grade: 'A',
-    gpa: 4.0,
+    points: 4.0,
     description: 'Pass with Distinction',
     marksRange: { min: 85, max: 89 },
   },
   {
     grade: 'A-',
-    gpa: 4.0,
+    points: 4.0,
     description: 'Pass with Distinction',
     marksRange: { min: 80, max: 84 },
   },
   {
     grade: 'B+',
-    gpa: 3.67,
+    points: 3.67,
     description: 'Pass with Merit',
     marksRange: { min: 75, max: 79 },
   },
   {
     grade: 'B',
-    gpa: 3.33,
+    points: 3.33,
     description: 'Pass with Merit',
     marksRange: { min: 70, max: 74 },
   },
   {
     grade: 'B-',
-    gpa: 3.0,
+    points: 3.0,
     description: 'Pass',
     marksRange: { min: 65, max: 69 },
   },
   {
     grade: 'C+',
-    gpa: 2.67,
+    points: 2.67,
     description: 'Pass',
     marksRange: { min: 60, max: 64 },
   },
   {
     grade: 'C',
-    gpa: 2.33,
+    points: 2.33,
     description: 'Pass',
     marksRange: { min: 55, max: 59 },
   },
   {
     grade: 'C-',
-    gpa: 2.0,
+    points: 2.0,
     description: 'Pass',
     marksRange: { min: 50, max: 54 },
   },
   {
     grade: 'PP',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Pass Provisional',
     marksRange: { min: 45, max: 49 },
   },
   {
     grade: 'F',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Fail',
     marksRange: { min: 0, max: 49 },
   },
   {
     grade: 'EXP',
-    gpa: null,
+    points: null,
     description: 'Exempted',
   },
   {
     grade: 'PC',
-    gpa: 2.0,
+    points: 2.0,
     description: 'Pass Conceded',
   },
   {
     grade: 'PX',
-    gpa: 2.0,
+    points: 2.0,
     description: 'Pass (supplementary work submitted)',
   },
   {
     grade: 'AP',
-    gpa: 2.0,
+    points: 2.0,
     description: 'Aegrotat Pass',
   },
   {
     grade: 'X',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Outstanding Supplementary Assessment',
   },
   {
     grade: 'Def',
-    gpa: null,
+    points: null,
     description: 'Deferred',
   },
   {
     grade: 'GNS',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Grade Not Submitted',
   },
   {
     grade: 'ANN',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Result Annulled Due To Misconduct',
   },
   {
     grade: 'FIN',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Fail Incomplete',
   },
   {
     grade: 'FX',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Fail (supplementary work submitted)',
   },
   {
     grade: 'DNC',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Did Not Complete',
   },
   {
     grade: 'DNA',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Did Not Attend',
   },
   {
     grade: 'PP',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Pending',
   },
   {
     grade: 'DNS',
-    gpa: 0.0,
+    points: 0.0,
     description: 'Did Not Submit',
   },
   {
     grade: 'NM',
-    gpa: null,
+    points: null,
     description: 'No Mark',
   },
 ];
@@ -172,18 +170,14 @@ export function getGradeByMarks(marks: number): GradeDefinition | undefined {
   );
 }
 
-export function getGradesByGPA(gpa: number): GradeDefinition[] {
-  return grades.filter((g) => g.gpa === gpa);
-}
-
-export function getLetterGrade(marks: number): (typeof gradeEnum)[number] {
+export function getLetterGrade(marks: number): Grade {
   const gradeDefinition = getGradeByMarks(marks);
   return gradeDefinition?.grade || 'F';
 }
 
 export function getGradePoints(grade: string): number {
   const gradeDefinition = getGradeBySymbol(grade);
-  return gradeDefinition?.gpa ?? 0;
+  return gradeDefinition?.points ?? 0;
 }
 
 export function isFailingGrade(grade: string): boolean {
@@ -194,7 +188,7 @@ export function isFailingGrade(grade: string): boolean {
 
 export function isPassingGrade(grade: string): boolean {
   const passingGrades = grades
-    .filter((g) => g.gpa !== null && g.gpa > 0)
+    .filter((g) => g.points !== null && g.points > 0)
     .map((g) => g.grade as string);
   return passingGrades.includes(normalizeGradeSymbol(grade));
 }
@@ -205,26 +199,6 @@ export function isSupplementaryGrade(grade: string): boolean {
 
 export function isFailingOrSupGrade(grade: string): boolean {
   return isFailingGrade(grade) || isSupplementaryGrade(grade);
-}
-
-export function getMarksRangeString(grade: string): string {
-  const gradeDefinition = getGradeBySymbol(grade);
-  if (!gradeDefinition?.marksRange) return '';
-  return `${gradeDefinition.marksRange.min}-${gradeDefinition.marksRange.max}`;
-}
-
-export function getAllGrades(): Array<{
-  grade: string;
-  marksRange: string;
-  gpa: number | null;
-  description: string;
-}> {
-  return grades.map((g) => ({
-    grade: g.grade,
-    marksRange: g.marksRange ? `${g.marksRange.min}-${g.marksRange.max}` : '',
-    gpa: g.gpa,
-    description: g.description,
-  }));
 }
 
 export function summarizeModules(modules: StudentModule[]) {
@@ -249,7 +223,7 @@ export function summarizeModules(modules: StudentModule[]) {
     creditsAttempted += m.semesterModule.credits;
     if (normalizedGrade !== 'NM' && normalizedGrade !== '') {
       creditsForGPA += m.semesterModule.credits;
-      if (gradeDefinition && gradeDefinition.gpa !== null) {
+      if (gradeDefinition && gradeDefinition.points !== null) {
         points += gradePoints * m.semesterModule.credits;
       }
     }
