@@ -1,13 +1,13 @@
 'use client';
 
 import SemesterStatus from '@/components/SemesterStatus';
-import { formatSemester } from '@/lib/utils';
-import { getStudent } from '@/server/students/actions';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
+import { getStudent } from '@/server/students/actions';
 import {
   Accordion,
   Anchor,
   Badge,
+  Box,
   Card,
   Divider,
   Flex,
@@ -17,13 +17,9 @@ import {
   Table,
   Text,
   ThemeIcon,
-  Tooltip,
-  Box,
-  Center,
   useMantineColorScheme,
-  useMantineTheme,
 } from '@mantine/core';
-import { IconSchool, IconLock } from '@tabler/icons-react';
+import { IconLock, IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
 import GpaDisplay from './GpaDisplay';
 
@@ -47,7 +43,6 @@ export default function BlockedAcademicsView({
   );
 
   const { colorScheme } = useMantineColorScheme();
-  const theme = useMantineTheme();
 
   const isDark = colorScheme === 'dark';
 

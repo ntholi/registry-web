@@ -3,11 +3,11 @@ import { getStudent } from '@/server/students/actions';
 import {
   Document,
   Font,
+  Image,
   Page,
   StyleSheet,
   Text,
   View,
-  Image,
 } from '@react-pdf/renderer';
 import { calculateDetailedFacultyRemarks } from './academicRemarks';
 
@@ -400,13 +400,13 @@ const styles = StyleSheet.create({
   },
 });
 
-import {
-  isFailingGrade,
-  getGradePoints,
-  summarizeModules,
-  ModuleSummaryInput,
-} from '@/utils/grades';
 import { ModuleStatus } from '@/db/schema';
+import {
+  getGradePoints,
+  isFailingGrade,
+  ModuleSummaryInput,
+  summarizeModules,
+} from '@/utils/grades';
 
 function getGradeStyle(grade: string) {
   if (isFailingGrade(grade)) return 'failedGrade';

@@ -1,18 +1,17 @@
+import Logo from '@/app/(main)/base/Logo';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDateTime } from '@/lib/utils';
 import { getStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
-import { notFound } from 'next/navigation';
-import Logo from '@/app/(main)/base/Logo';
 import {
-  Shield,
-  CheckCircle,
-  User,
-  GraduationCap,
   BookOpen,
+  CheckCircle,
   FileText,
+  GraduationCap,
+  User,
 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { notFound } from 'next/navigation';
 
 type Props = {
   params: Promise<{ id: string }>;

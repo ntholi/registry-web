@@ -1,5 +1,6 @@
 'use client';
 
+import { terms as termsTable } from '@/db/schema';
 import { getAllSchools } from '@/server/schools/actions';
 import {
   getAllPrograms,
@@ -13,18 +14,15 @@ import {
   Group,
   HoverCard,
   Modal,
-  Popover,
   Select,
   Stack,
   Text,
-  Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo, useState } from 'react';
-import { terms as termsTable } from '@/db/schema';
 
 const getSemesterLabel = (semesterNumber: number): string => {
   const year = Math.ceil(semesterNumber / 2);
