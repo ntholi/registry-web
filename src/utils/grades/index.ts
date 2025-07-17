@@ -1,5 +1,5 @@
 import { gradeEnum, StudentModuleStatus } from '@/db/schema';
-import { Program } from './type';
+import { Program, StudentModule } from './type';
 
 export type GradeRange = {
   min: number;
@@ -273,25 +273,6 @@ export function calculateGPA(points: number, creditsForGPA: number) {
   return creditsForGPA > 0 ? points / creditsForGPA : 0;
 }
 
-interface Module {
-  code: string;
-  name: string;
-}
-
-interface SemesterModule {
-  credits: number;
-  module?: Module | null;
-}
-
-interface StudentModule {
-  id: number;
-  semesterModuleId: number;
-  semesterModule: SemesterModule;
-  grade: string;
-  status: StudentModuleStatus;
-  marks: string;
-}
-
 export function calculateSemesterGPA(studentModules: StudentModule[]) {
   if (!studentModules || studentModules.length === 0)
     return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
@@ -407,8 +388,8 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 
     const hasPassedLater = studentModules.some(
       (otherModule) =>
-        otherModule.semesterModule.module.name ===
-          m.semesterModule.module.name &&
+        otherModule.semesterModule.module?.name ===
+          m.semesterModule.module?.name &&
         otherModule.id !== m.id &&
         isPassingGrade(otherModule.grade),
     );
@@ -427,12 +408,12 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 
   if (supplementary.length > 0) {
     messageParts.push(
-      `must supplement ${supplementary.map((m) => m.semesterModule.module.name).join(', ')}`,
+      `must supplement ${supplementary.map((m) => m.semesterModule.module?.name).join(', ')}`,
     );
   }
   if (failedModules.length > 0) {
     messageParts.push(
-      `must repeat ${failedModules.map((m) => m.semesterModule.module.name).join(', ')}`,
+      `must repeat ${failedModules.map((m) => m.semesterModule.module?.name).join(', ')}`,
     );
   }
 
@@ -448,12 +429,12 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
   return {
     status,
     failedModules: failedModules.map((m) => ({
-      code: m.semesterModule.module.code,
-      name: m.semesterModule.module.name,
+      code: m.semesterModule.module?.code || '',
+      name: m.semesterModule.module?.name || '',
     })),
     supplementaryModules: supplementary.map((m) => ({
-      code: m.semesterModule.module.code,
-      name: m.semesterModule.module.name,
+      code: m.semesterModule.module?.code || '',
+      name: m.semesterModule.module?.name || '',
     })),
     message,
     details,

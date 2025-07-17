@@ -1,5 +1,21 @@
 import { SemesterStatus, StudentModuleStatus } from '@/db/schema';
 
+export type StudentModule = {
+  id: number;
+  semesterModuleId: number;
+  grade: string;
+  marks: string;
+  status: StudentModuleStatus;
+  semesterModule: {
+    credits: number;
+    type: string;
+    module: {
+      code: string;
+      name: string;
+    } | null;
+  };
+};
+
 export type Program = {
   id: number;
   status: string;
@@ -9,21 +25,7 @@ export type Program = {
     term: string;
     semesterNumber: number | null;
     status: SemesterStatus;
-    studentModules: {
-      id: number;
-      semesterModuleId: number;
-      grade: string;
-      marks: string;
-      status: StudentModuleStatus;
-      semesterModule: {
-        credits: number;
-        type: string;
-        module: {
-          code: string;
-          name: string;
-        };
-      };
-    }[];
+    studentModules: StudentModule[];
   }[];
   structure: {
     id: number;
