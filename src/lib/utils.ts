@@ -106,7 +106,7 @@ export function formatPhoneNumber(phone: string | null | undefined) {
       cleaned.startsWith('5') ||
       cleaned.startsWith('6'))
   ) {
-    return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
+    return `+266 ${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
   }
 
   if (cleaned.length === 10 && cleaned.startsWith('0')) {

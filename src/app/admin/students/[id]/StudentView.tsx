@@ -164,15 +164,17 @@ export default function StudentView({ student }: Props) {
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem
                 label='Primary Phone'
-                href={`tel:${student.phone1}`}
-                value={formatPhoneNumber(student.phone1)}
+                href={`tel:${formatPhoneNumber(student.phone1)?.replaceAll(' ', '')}`}
+                displayValue={formatPhoneNumber(student.phone1)}
+                value={formatPhoneNumber(student.phone1)?.replaceAll(' ', '')}
               />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem
                 label='Secondary Phone'
-                href={`tel:${student.phone2}`}
-                value={formatPhoneNumber(student.phone2)}
+                href={`tel:${formatPhoneNumber(student.phone2)?.replaceAll(' ', '')}`}
+                displayValue={formatPhoneNumber(student.phone2)}
+                value={formatPhoneNumber(student.phone2)?.replaceAll(' ', '')}
               />
             </Grid.Col>
           </Grid>
@@ -190,18 +192,15 @@ function InfoItem({
   copyable = true,
 }: {
   label: string;
-  value: number | string | null;
+  value: number | string | null | undefined;
   href?: string;
-  displayValue?: string;
+  displayValue?: string | null;
   copyable?: boolean;
 }) {
   return (
     <Box
       style={{
         position: 'relative',
-        '&:hover .copy-button': {
-          opacity: 1,
-        },
       }}
       onMouseEnter={(e) => {
         const copyButton = e.currentTarget.querySelector(
