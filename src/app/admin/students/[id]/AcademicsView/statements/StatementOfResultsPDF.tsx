@@ -254,28 +254,22 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginBottom: 8,
   },
-  pendingModulesSection: {
+  outstandingModulesSection: {
     marginTop: 8,
     paddingTop: 8,
     borderTop: '1px solid #e0e0e0',
   },
-  pendingModulesTitle: {
+  outstandingModulesTitle: {
     fontSize: 10,
     fontWeight: 'bold',
     marginBottom: 6,
     color: '#333',
   },
-  pendingModuleItem: {
+  outstandingModuleItem: {
     fontSize: 8,
     marginBottom: 2,
     color: '#000',
     paddingLeft: 4,
-  },
-  failedModule: {
-    color: '#000',
-  },
-  supplementaryModule: {
-    color: '#666',
   },
   remarksDetails: {
     fontSize: 9,
@@ -396,16 +390,6 @@ export default function StatementOfResultsPDF({
 
     const cumulativeStats = getCumulativeGPA(activePrograms);
     const facultyRemarks = getAcademicRemarks(activePrograms);
-    const pendingModules = [
-      ...facultyRemarks.failedModules.map((m) => ({
-        ...m,
-        type: 'Failed' as const,
-      })),
-      ...facultyRemarks.supplementaryModules.map((m) => ({
-        ...m,
-        type: 'Supplementary' as const,
-      })),
-    ];
 
     return (
       <Document>
@@ -606,27 +590,33 @@ export default function StatementOfResultsPDF({
                       {facultyRemarks.details}
                     </Text>
                   </View>
-                  {pendingModules.length > 0 && (
-                    <View style={styles.pendingModulesSection}>
-                      <Text style={styles.pendingModulesTitle}>
-                        Outstanding Requirements ({pendingModules.length})
+                  {(facultyRemarks.failedModules.length > 0 ||
+                    facultyRemarks.supplementaryModules.length > 0) && (
+                    <View style={styles.outstandingModulesSection}>
+                      <Text style={styles.outstandingModulesTitle}>
+                        Outstanding Requirements (
+                        {facultyRemarks.failedModules.length +
+                          facultyRemarks.supplementaryModules.length}
+                        )
                       </Text>
-                      {pendingModules.map((module, index) => (
+                      {facultyRemarks.failedModules.map((module, index) => (
                         <Text
-                          key={index}
-                          style={[
-                            styles.pendingModuleItem,
-                            module.type === 'Failed'
-                              ? styles.failedModule
-                              : styles.supplementaryModule,
-                          ]}
+                          key={`failed-${index}`}
+                          style={styles.outstandingModuleItem}
                         >
-                          • {module.code} - {module.name}
-                          {module.type === 'Supplementary'
-                            ? ' (Supplementary)'
-                            : ' (Repeat)'}
+                          • {module.code} - {module.name} (Repeat)
                         </Text>
                       ))}
+                      {facultyRemarks.supplementaryModules.map(
+                        (module, index) => (
+                          <Text
+                            key={`supplementary-${index}`}
+                            style={styles.outstandingModuleItem}
+                          >
+                            • {module.code} - {module.name} (Supplementary)
+                          </Text>
+                        ),
+                      )}
                     </View>
                   )}
                 </View>
