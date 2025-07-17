@@ -1,5 +1,10 @@
 import { Grade, gradeEnum, StudentModuleStatus } from '@/db/schema';
-import { Program, StudentModule } from './type';
+import {
+  FacultyRemarksResult,
+  GradePoint,
+  Program,
+  StudentModule,
+} from './type';
 
 export type GradeDefinition = {
   grade: (typeof gradeEnum)[number];
@@ -241,33 +246,10 @@ function calculateGPA(points: number, creditsForGPA: number) {
   return creditsForGPA > 0 ? points / creditsForGPA : 0;
 }
 
-export type FacultyRemarksResult = {
-  status: 'Proceed' | 'Remain in Semester' | 'No Marks';
-  failedModules: {
-    code: string;
-    name: string;
-  }[];
-  supplementaryModules: {
-    code: string;
-    name: string;
-  }[];
-  message: string;
-  details: string;
-  totalModules: number;
-  totalCreditsAttempted: number;
-  points: {
-    semesterId: number;
-    gpa: number;
-    cgpa: number;
-    creditsAttempted: number;
-    creditsCompleted: number;
-  }[];
-};
-
 export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
   const { semesters, studentModules } = extractData(programs);
 
-  const points: FacultyRemarksResult['points'] = [];
+  const points: GradePoint[] = [];
   let cumulativePoints = 0;
   let cumulativeCreditsForGPA = 0;
   let cumulativeCreditsCompleted = 0;
@@ -310,6 +292,13 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
       totalModules: 0,
       totalCreditsAttempted,
       points,
+      latestPoints: points[points.length - 1] || {
+        semesterId: 0,
+        gpa: 0,
+        cgpa: 0,
+        creditsAttempted: 0,
+        creditsCompleted: 0,
+      },
     };
   }
 
@@ -374,6 +363,13 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
     totalModules: studentModules.length,
     totalCreditsAttempted,
     points,
+    latestPoints: points[points.length - 1] || {
+      semesterId: 0,
+      gpa: 0,
+      cgpa: 0,
+      creditsAttempted: 0,
+      creditsCompleted: 0,
+    },
   };
 }
 

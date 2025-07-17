@@ -388,7 +388,7 @@ export default function StatementOfResultsPDF({
 
     const academicRemarks = getAcademicRemarks(activePrograms);
 
-    const lastPoint = academicRemarks.points[academicRemarks.points.length - 1];
+    const lastPoint = academicRemarks.latestPoints;
 
     const facultyRemarks = academicRemarks;
 

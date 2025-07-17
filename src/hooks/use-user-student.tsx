@@ -39,7 +39,7 @@ function getScores(student: Student | undefined) {
   }
 
   const academicRemarks = getAcademicRemarks([program]);
-  const lastPoint = academicRemarks.points[academicRemarks.points.length - 1];
+  const lastPoint = academicRemarks.latestPoints;
 
   return {
     cgpa: Number(lastPoint?.cgpa || 0),

@@ -35,3 +35,29 @@ export type Program = {
     };
   };
 };
+
+export type GradePoint = {
+  semesterId: number;
+  gpa: number;
+  cgpa: number;
+  creditsAttempted: number;
+  creditsCompleted: number;
+};
+
+export type FacultyRemarksResult = {
+  status: 'Proceed' | 'Remain in Semester' | 'No Marks';
+  failedModules: {
+    code: string;
+    name: string;
+  }[];
+  supplementaryModules: {
+    code: string;
+    name: string;
+  }[];
+  message: string;
+  details: string;
+  totalModules: number;
+  totalCreditsAttempted: number;
+  points: GradePoint[];
+  latestPoints: GradePoint;
+};

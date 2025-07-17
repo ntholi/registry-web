@@ -22,7 +22,7 @@ export function extractStatementOfResultsData(student: Student) {
   );
 
   const academicRemarks = getAcademicRemarks(programs as GradeProgram[]);
-  const lastPoint = academicRemarks.points[academicRemarks.points.length - 1];
+  const lastPoint = academicRemarks.latestPoints;
 
   const primaryProgram = programs[0];
   const programName =
