@@ -273,6 +273,113 @@ export function calculateGPA(points: number, creditsForGPA: number) {
   return creditsForGPA > 0 ? points / creditsForGPA : 0;
 }
 
+interface Module {
+  code: string;
+  name: string;
+}
+
+interface Semester {
+  id: number;
+  term: string;
+  status: string;
+  semesterNumber?: number | null;
+  studentModules?: StudentModule[];
+}
+
+interface SemesterModule {
+  credits: number;
+  module?: Module | null;
+}
+
+interface StudentModule {
+  id: number;
+  semesterModuleId: number;
+  semesterModule: SemesterModule;
+  grade: string;
+  status: StudentModuleStatus;
+  marks: string;
+}
+
+export function calculateSemesterGPA(studentModules: StudentModule[]) {
+  if (!studentModules || studentModules.length === 0)
+    return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
+
+  try {
+    const modules: ModuleSummaryInput[] = studentModules
+      .filter((sm) => sm && sm.semesterModule && sm.grade != null)
+      .map((sm) => ({
+        grade: sm.grade || 'NM',
+        credits: Math.max(0, sm.semesterModule?.credits || 0),
+        status: sm.status,
+      }));
+
+    if (modules.length === 0) {
+      return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
+    }
+
+    const summary = summarizeModules(modules);
+
+    return {
+      gpa: Math.round((summary.gpa || 0) * 100) / 100,
+      totalCredits: summary.creditsCompleted || 0,
+      qualityPoints: summary.points || 0,
+    };
+  } catch (error) {
+    console.error('Error calculating semester GPA:', error);
+    return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
+  }
+}
+
+export function getCumulativeGPA(programs: Program[]) {
+  const { studentModules } = extractData(programs);
+  try {
+    const allModules: ModuleSummaryInput[] = [];
+
+    if (!programs || programs.length === 0) {
+      return {
+        gpa: 0,
+        totalCredits: 0,
+        totalCreditsAttempted: 0,
+        qualityPoints: 0,
+      };
+    }
+
+    studentModules.forEach((sm) => {
+      allModules.push({
+        grade: sm.grade || 'NM',
+        credits: Math.max(0, sm.semesterModule?.credits || 0),
+        status: sm.status,
+      });
+    });
+
+    if (allModules.length === 0) {
+      return {
+        gpa: 0,
+        totalCredits: 0,
+        totalCreditsAttempted: 0,
+        qualityPoints: 0,
+      };
+    }
+
+    const summary = summarizeModules(allModules);
+
+    return {
+      gpa: Math.round((summary.gpa || 0) * 100) / 100,
+      totalCredits: summary.creditsCompleted || 0,
+      totalCreditsAttempted: summary.creditsAttempted || 0,
+      qualityPoints: summary.points || 0,
+    };
+  } catch (error) {
+    console.error('Error calculating cumulative GPA:', error);
+    return {
+      gpa: 0,
+      totalCredits: 0,
+      totalCreditsAttempted: 0,
+      qualityPoints: 0,
+    };
+  }
+}
+
 export type FacultyRemarksResult = {
   status: 'Proceed' | 'Remain in Semester' | 'No Marks';
   failedModules: {
@@ -288,26 +395,14 @@ export type FacultyRemarksResult = {
 };
 
 export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
-  const activePrograms = programs.filter((p) => p.status === 'Active');
-  if (activePrograms.length > 1) {
-    throw new Error('Multiple active programs found');
-  }
-  const semesters = activePrograms[0].semesters || [];
-  const filtered = [...semesters]
-    .sort((a, b) => b.id - a.id)
-    .filter((s) => !['Deleted', 'Deferred', 'DroppedOut'].includes(s.status));
-
-  const studentModules = filtered
-    .flatMap((s) => s.studentModules)
-    .filter((m) => !['Delete', 'Drop'].includes(m.status));
-
-  if (filtered.length === 0) {
+  const { semesters, studentModules } = extractData(programs);
+  if (semesters.length === 0) {
     return {
       status: 'No Marks',
       failedModules: [],
       supplementaryModules: [],
       message: 'No Marks',
-      details: 'No marks submitted',
+      details: 'No marks captured',
     };
   }
   if (studentModules.some((m) => m.grade === 'NM')) {
@@ -316,11 +411,11 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
       failedModules: [],
       supplementaryModules: [],
       message: 'No Marks',
-      details: 'One or more modules have no marks submitted',
+      details: 'One or more modules have no marks captured',
     };
   }
 
-  const latestFailedModules = filtered[0].studentModules.filter((m) =>
+  const latestFailedModules = semesters[0].studentModules.filter((m) =>
     isFailingGrade(m.grade),
   );
   const failedModules = studentModules.filter((m) => {
@@ -378,5 +473,25 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
     })),
     message,
     details,
+  };
+}
+
+function extractData(programs: Program[]) {
+  const activePrograms = programs.filter((p) => p.status === 'Active');
+  if (activePrograms.length > 1) {
+    throw new Error('Multiple active programs found');
+  }
+  const semesters = activePrograms[0].semesters || [];
+  const filtered = [...semesters]
+    .sort((a, b) => b.id - a.id)
+    .filter((s) => !['Deleted', 'Deferred', 'DroppedOut'].includes(s.status));
+
+  const studentModules = filtered
+    .flatMap((s) => s.studentModules)
+    .filter((m) => !['Delete', 'Drop'].includes(m.status));
+
+  return {
+    semesters: filtered,
+    studentModules,
   };
 }

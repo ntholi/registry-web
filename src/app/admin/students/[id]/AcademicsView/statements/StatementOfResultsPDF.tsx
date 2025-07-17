@@ -10,44 +10,6 @@ import {
   View,
 } from '@react-pdf/renderer';
 
-interface Module {
-  code: string;
-  name: string;
-}
-
-interface SemesterModule {
-  credits: number;
-  module?: Module | null;
-}
-
-interface StudentModule {
-  id: number;
-  semesterModuleId: number;
-  semesterModule: SemesterModule;
-  grade: string;
-  status: StudentModuleStatus;
-  marks: string;
-}
-
-interface Semester {
-  id: number;
-  term: string;
-  status: string;
-  semesterNumber?: number | null;
-  studentModules?: StudentModule[];
-}
-
-interface Program {
-  id: number;
-  status: string;
-  structure: {
-    program: {
-      name: string;
-    };
-  };
-  semesters?: Semester[];
-}
-
 type StatementOfResultsPDFProps = {
   student: NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
   qrCodeDataURL?: string;
@@ -401,7 +363,9 @@ const styles = StyleSheet.create({
 
 import { StudentModuleStatus } from '@/db/schema';
 import {
+  calculateSemesterGPA,
   getAcademicRemarks,
+  getCumulativeGPA,
   getGradePoints,
   isFailingGrade,
   ModuleSummaryInput,
@@ -412,95 +376,6 @@ function getGradeStyle(grade: string) {
   if (isFailingGrade(grade)) return 'failedGrade';
   if (['A+', 'A', 'A-'].includes(grade)) return 'outstandingGrade';
   return 'passedGrade';
-}
-
-function calculateSemesterGPA(studentModules: StudentModule[]) {
-  if (!studentModules || studentModules.length === 0)
-    return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
-
-  try {
-    const modules: ModuleSummaryInput[] = studentModules
-      .filter((sm) => sm && sm.semesterModule && sm.grade != null)
-      .map((sm) => ({
-        grade: sm.grade || 'NM',
-        credits: Math.max(0, sm.semesterModule?.credits || 0),
-        status: sm.status,
-      }));
-
-    if (modules.length === 0) {
-      return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
-    }
-
-    const summary = summarizeModules(modules);
-
-    return {
-      gpa: Math.round((summary.gpa || 0) * 100) / 100,
-      totalCredits: summary.creditsCompleted || 0,
-      qualityPoints: summary.points || 0,
-    };
-  } catch (error) {
-    console.error('Error calculating semester GPA:', error);
-    return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
-  }
-}
-
-function calculateCumulativeGPA(programs: Program[]) {
-  try {
-    const allModules: ModuleSummaryInput[] = [];
-
-    if (!programs || programs.length === 0) {
-      return {
-        gpa: 0,
-        totalCredits: 0,
-        totalCreditsAttempted: 0,
-        qualityPoints: 0,
-      };
-    }
-
-    programs.forEach((program) => {
-      if (!program || !program.semesters) return;
-
-      program.semesters.forEach((semester: Semester) => {
-        if (!semester || !semester.studentModules) return;
-
-        semester.studentModules.forEach((sm: StudentModule) => {
-          if (!sm || !sm.semesterModule || sm.grade == null) return;
-
-          allModules.push({
-            grade: sm.grade || 'NM',
-            credits: Math.max(0, sm.semesterModule?.credits || 0),
-            status: sm.status,
-          });
-        });
-      });
-    });
-
-    if (allModules.length === 0) {
-      return {
-        gpa: 0,
-        totalCredits: 0,
-        totalCreditsAttempted: 0,
-        qualityPoints: 0,
-      };
-    }
-
-    const summary = summarizeModules(allModules);
-
-    return {
-      gpa: Math.round((summary.gpa || 0) * 100) / 100,
-      totalCredits: summary.creditsCompleted || 0,
-      totalCreditsAttempted: summary.creditsAttempted || 0,
-      qualityPoints: summary.points || 0,
-    };
-  } catch (error) {
-    console.error('Error calculating cumulative GPA:', error);
-    return {
-      gpa: 0,
-      totalCredits: 0,
-      totalCreditsAttempted: 0,
-      qualityPoints: 0,
-    };
-  }
 }
 
 export default function StatementOfResultsPDF({
@@ -522,7 +397,7 @@ export default function StatementOfResultsPDF({
       (program) => program && program.status === 'Active',
     );
 
-    const cumulativeStats = calculateCumulativeGPA(activePrograms);
+    const cumulativeStats = getCumulativeGPA(activePrograms);
     const facultyRemarks = getAcademicRemarks(activePrograms);
     const pendingModules = [
       ...facultyRemarks.failedModules.map((m) => ({
