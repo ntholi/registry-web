@@ -17,11 +17,14 @@ class StudentService {
 
   async get(stdNo: number) {
     return withAuth(async () => {
-      const student = await this.repository.findByIdWithPrograms(stdNo);
-      if (!student) return null;
-      const program = student?.programs.find((it) => it.status === 'Active');
-      return { ...student, structureId: program?.structureId };
+      return this.repository.findById(stdNo);
     }, ['dashboard']);
+  }
+
+  async getAcademicHistory(stdNo: number) {
+    return withAuth(async () => {
+      return this.repository.findAcademicHistory(stdNo);
+    }, ['academic']);
   }
 
   async findStudentByUserId(userId: string) {

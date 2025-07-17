@@ -83,19 +83,11 @@ export default class StudentRepository extends BaseRepository<
     });
   }
 
-  async findByIdWithPrograms(stdNo: number) {
+  async findAcademicHistory(stdNo: number) {
     return await db.query.students.findFirst({
       columns: {
         stdNo: true,
         name: true,
-        nationalId: true,
-        sem: true,
-        dateOfBirth: true,
-        phone1: true,
-        phone2: true,
-        gender: true,
-        maritalStatus: true,
-        userId: true,
       },
       where: eq(students.stdNo, stdNo),
       with: {
@@ -160,6 +152,7 @@ export default class StudentRepository extends BaseRepository<
       },
     });
   }
+
   async findByModuleId(moduleId: number, termName: string) {
     return await db
       .select({

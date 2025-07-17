@@ -3,7 +3,7 @@
 import SemesterStatus from '@/components/SemesterStatus';
 import { ModuleStatus } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
-import { getStudent } from '@/server/students/actions';
+import { getAcademicHistory, getStudent } from '@/server/students/actions';
 import { calculateGPA, summarizeModules } from '@/utils/grades';
 import {
   Accordion,
@@ -23,18 +23,34 @@ import Link from 'next/link';
 import { useState } from 'react';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
+import { useQuery } from '@tanstack/react-query';
 
 type Props = {
-  student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+  stdNo: number;
   showMarks?: boolean;
+  isActive?: boolean;
 };
 
-export default function AcademicsView({ student, showMarks }: Props) {
+export default function AcademicsView({
+  stdNo,
+  showMarks,
+  isActive = false,
+}: Props) {
+  const { data: student, isLoading } = useQuery({
+    queryKey: ['student', stdNo],
+    queryFn: () => getAcademicHistory(stdNo),
+    enabled: isActive,
+  });
+
   const [openPrograms, setOpenPrograms] = useState<string[]>(
-    student.programs
+    student?.programs
       .filter((program) => program.status === 'Active')
-      .map((program) => program.id?.toString() ?? ''),
+      .map((program) => program.id?.toString() ?? '') ?? [],
   );
+
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
 
   if (!student?.programs?.length) {
     return (

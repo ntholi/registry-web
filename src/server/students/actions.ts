@@ -1,8 +1,8 @@
 'use server';
 
 import { students } from '@/db/schema';
-import { studentsService as service } from './service';
 import { QueryOptions } from '../base/BaseRepository';
+import { studentsService as service } from './service';
 
 type Student = typeof students.$inferInsert;
 
@@ -19,6 +19,10 @@ type StudentQueryParams = Omit<QueryOptions<typeof students>, 'filter'> & {
 
 export async function getStudent(stdNo: number) {
   return service.get(stdNo);
+}
+
+export async function getAcademicHistory(stdNo: number) {
+  return service.getAcademicHistory(stdNo);
 }
 
 export async function getStudentByUserId(userId: string | undefined | null) {

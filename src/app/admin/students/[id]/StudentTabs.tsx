@@ -66,7 +66,11 @@ export function StudentTabs({
             blockedStudent={blockedStudent}
           />
         ) : (
-          <AcademicsView student={student} showMarks />
+          <AcademicsView
+            stdNo={student.stdNo}
+            showMarks
+            isActive={activeTab === 'academics'}
+          />
         )}
       </TabsPanel>
       <TabsPanel value='info' pt={'xl'} p={'sm'}>
