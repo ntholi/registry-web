@@ -288,7 +288,7 @@ function Loader() {
   );
 }
 
-const getProgramStatusColor = (status: string) => {
+export const getProgramStatusColor = (status: string) => {
   switch (status) {
     case 'Active':
       return 'green';

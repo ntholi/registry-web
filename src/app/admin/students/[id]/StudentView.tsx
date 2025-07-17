@@ -5,21 +5,26 @@ import { getStudent } from '@/server/students/actions';
 import {
   ActionIcon,
   Anchor,
+  Box,
   Card,
+  CopyButton,
+  Flex,
   Grid,
   Group,
   Paper,
+  Badge,
   Stack,
   Text,
   Title,
   Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconCopy } from '@tabler/icons-react';
+import { IconCheck, IconCopy } from '@tabler/icons-react';
 import Link from 'next/link';
 import EditStudentUserModal from './AcademicsView/EditStudentUserModal';
 import { useSession } from 'next-auth/react';
 import { UserRole } from '@/db/schema';
+import { getProgramStatusColor } from './AcademicsView';
 
 type Props = {
   student: Awaited<ReturnType<typeof getStudent>>;
@@ -110,25 +115,28 @@ export default function StudentView({ student }: Props) {
 
       {student.programs && student.programs.length > 0 && (
         <div>
-          <Title order={4} mb='xs' fw={100}>
-            Active Program
-          </Title>
+          <Flex justify='space-between'>
+            <Title order={4} mb='xs' fw={100}>
+              Current Program
+            </Title>
+            <Badge
+              radius={'sm'}
+              color={getProgramStatusColor(student.programs[0].status)}
+              variant='light'
+            >
+              {student.programs[0].status}
+            </Badge>
+          </Flex>
           <Paper p='md' radius='md' withBorder>
             <Grid gutter='xl'>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <InfoItem
-                  label='Program Name'
-                  value={student.programs[0].structure.program.name}
-                />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <InfoItem
-                  label='Program Code'
-                  value={student.programs[0].structure.program.code}
-                />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <InfoItem label='Status' value={student.programs[0].status} />
+              <Grid.Col span={{ base: 12 }}>
+                <Group>
+                  <InfoItem
+                    label='Name'
+                    value={student.programs[0].structure.program.name}
+                    displayValue={`${student.programs[0].structure.program.name} (${student.programs[0].structure.program.code})`}
+                  />
+                </Group>
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <InfoItem
@@ -142,11 +150,6 @@ export default function StudentView({ student }: Props) {
                   value={student.programs[0].graduationDate}
                 />
               </Grid.Col>
-              {student.programs[0].stream && (
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <InfoItem label='Stream' value={student.programs[0].stream} />
-                </Grid.Col>
-              )}
             </Grid>
           </Paper>
         </div>
@@ -161,12 +164,14 @@ export default function StudentView({ student }: Props) {
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem
                 label='Primary Phone'
+                href={`tel:${student.phone1}`}
                 value={formatPhoneNumber(student.phone1)}
               />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem
                 label='Secondary Phone'
+                href={`tel:${student.phone2}`}
                 value={formatPhoneNumber(student.phone2)}
               />
             </Grid.Col>
@@ -180,39 +185,71 @@ export default function StudentView({ student }: Props) {
 function InfoItem({
   label,
   value,
-  copyable = false,
+  href,
+  displayValue,
+  copyable = true,
 }: {
   label: string;
   value: number | string | null;
+  href?: string;
+  displayValue?: string;
   copyable?: boolean;
 }) {
   return (
-    <Group wrap='nowrap' gap='xs'>
-      <div style={{ flex: 1 }}>
-        <Text size='sm' c='dimmed'>
-          {label}
-        </Text>
-        <Text size='sm' fw={500}>
-          {value ?? 'N/A'}
-        </Text>
-      </div>
-      {copyable && value && (
-        <Tooltip label='Copy'>
-          <ActionIcon
-            variant='subtle'
-            color='gray'
-            onClick={() => {
-              navigator.clipboard.writeText(String(value));
-              notifications.show({
-                message: 'Copied to clipboard',
-                color: 'green',
-              });
-            }}
-          >
-            <IconCopy size={16} />
-          </ActionIcon>
-        </Tooltip>
-      )}
-    </Group>
+    <Box
+      style={{
+        position: 'relative',
+        '&:hover .copy-button': {
+          opacity: 1,
+        },
+      }}
+      onMouseEnter={(e) => {
+        const copyButton = e.currentTarget.querySelector(
+          '.copy-button',
+        ) as HTMLElement;
+        if (copyButton) copyButton.style.opacity = '1';
+      }}
+      onMouseLeave={(e) => {
+        const copyButton = e.currentTarget.querySelector(
+          '.copy-button',
+        ) as HTMLElement;
+        if (copyButton) copyButton.style.opacity = '0';
+      }}
+    >
+      <Text size='sm' c='dimmed'>
+        {label}
+      </Text>
+      <Group>
+        {href ? (
+          <Anchor component={Link} href={href} size='sm' fw={500}>
+            {displayValue ?? value ?? 'N/A'}
+          </Anchor>
+        ) : (
+          <Text size='sm' fw={500}>
+            {displayValue ?? value ?? 'N/A'}
+          </Text>
+        )}
+        {copyable && value && (
+          <CopyButton value={String(value)}>
+            {({ copied, copy }) => (
+              <Tooltip label={copied ? 'Copied' : 'Copy'}>
+                <ActionIcon
+                  variant='subtle'
+                  color={copied ? 'teal' : 'gray'}
+                  onClick={copy}
+                  className='copy-button'
+                  style={{
+                    opacity: 0,
+                    transition: 'opacity 0.2s ease',
+                  }}
+                >
+                  {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                </ActionIcon>
+              </Tooltip>
+            )}
+          </CopyButton>
+        )}
+      </Group>
+    </Box>
   );
 }
