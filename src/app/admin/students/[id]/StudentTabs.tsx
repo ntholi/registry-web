@@ -49,7 +49,7 @@ export function StudentTabs({
         {showRegistration && (
           <TabsTab value='registration'>Registration</TabsTab>
         )}
-        {showStatementOfResults && (
+        {showStatementOfResults && activeTab === 'academics' && (
           <Box ml='auto'>
             <StatementOfResultsPrinter
               student={student}
