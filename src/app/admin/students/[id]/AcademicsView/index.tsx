@@ -4,7 +4,7 @@ import SemesterStatus from '@/components/SemesterStatus';
 import { StudentModuleStatus } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 import { getAcademicHistory, getStudent } from '@/server/students/actions';
-import { calculateGPA, summarizeModules } from '@/utils/grades';
+import { getAcademicRemarks } from '@/utils/grades';
 import {
   Accordion,
   Anchor,
@@ -110,28 +110,14 @@ export default function AcademicsView({
               <Stack gap='xl'>
                 {program.semesters?.length ? (
                   (() => {
-                    let cumulativePoints = 0;
-                    let cumulativeCreditsForGPA = 0;
+                    const academicRemarks = getAcademicRemarks([program]);
 
                     return program.semesters.map((semester) => {
-                      const summary = summarizeModules(semester.studentModules);
-                      cumulativePoints += summary.points;
-                      const semesterCreditsForGPA = semester.studentModules
-                        .filter(
-                          (sm) => !['Delete', 'Drop'].includes(sm.status || ''),
-                        )
-                        .filter((sm) => sm.grade && sm.grade !== 'NM')
-                        .reduce(
-                          (sum, sm) => sum + Number(sm.semesterModule.credits),
-                          0,
-                        );
-
-                      cumulativeCreditsForGPA += semesterCreditsForGPA;
-
-                      const cumulativeGPA = calculateGPA(
-                        cumulativePoints,
-                        cumulativeCreditsForGPA,
+                      const semesterPoint = academicRemarks.points.find(
+                        (point) => point.semesterId === semester.id,
                       );
+
+                      const cumulativeGPA = semesterPoint?.cgpa || 0;
 
                       return (
                         <Paper key={semester.id} p='md' withBorder>
@@ -147,7 +133,7 @@ export default function AcademicsView({
                               </Group>
                               <Group gap='md' align='flex-end'>
                                 <GpaDisplay
-                                  gpa={summary.gpa}
+                                  gpa={semesterPoint?.gpa || 0}
                                   cgpa={cumulativeGPA}
                                 />
                                 <SemesterStatus status={semester.status} />

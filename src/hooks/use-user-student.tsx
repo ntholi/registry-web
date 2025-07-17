@@ -1,11 +1,5 @@
-import { StudentModuleStatus } from '@/db/schema';
 import { getStudentByUserId } from '@/server/students/actions';
-import {
-  getAcademicRemarks,
-  isFailingOrSupGrade,
-  isPassingGrade,
-  summarizeModules,
-} from '@/utils/grades';
+import { getAcademicRemarks } from '@/utils/grades';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -43,12 +37,12 @@ function getScores(student: Student | undefined) {
       creditsCompleted: 0,
     };
   }
-  const modules = program.semesters.flatMap((sem) => sem.studentModules);
 
-  const summary = summarizeModules(modules);
+  const academicRemarks = getAcademicRemarks([program]);
+  const lastPoint = academicRemarks.points[academicRemarks.points.length - 1];
 
   return {
-    cgpa: Number(summary.gpa),
-    creditsCompleted: summary.creditsCompleted,
+    cgpa: Number(lastPoint?.cgpa || 0),
+    creditsCompleted: lastPoint?.creditsCompleted || 0,
   };
 }

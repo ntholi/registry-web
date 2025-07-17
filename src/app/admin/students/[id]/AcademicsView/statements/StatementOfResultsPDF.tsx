@@ -356,9 +356,7 @@ const styles = StyleSheet.create({
 });
 
 import {
-  calculateSemesterGPA,
   getAcademicRemarks,
-  getCumulativeGPA,
   getGradePoints,
   isFailingGrade,
 } from '@/utils/grades';
@@ -388,8 +386,11 @@ export default function StatementOfResultsPDF({
       (program) => program && program.status === 'Active',
     );
 
-    const cumulativeStats = getCumulativeGPA(activePrograms);
-    const facultyRemarks = getAcademicRemarks(activePrograms);
+    const academicRemarks = getAcademicRemarks(activePrograms);
+
+    const lastPoint = academicRemarks.points[academicRemarks.points.length - 1];
+
+    const facultyRemarks = academicRemarks;
 
     return (
       <Document>
@@ -426,15 +427,16 @@ export default function StatementOfResultsPDF({
                 {program.structure.program.name}
               </Text>
               {(program.semesters || []).map((semester) => {
-                const semesterStats = calculateSemesterGPA(
-                  semester.studentModules || [],
+                const semesterPoint = academicRemarks.points.find(
+                  (point) => point.semesterId === semester.id,
                 );
+                const semesterGPA = semesterPoint?.gpa || 0;
 
                 return (
                   <View key={semester.id} style={styles.semesterSection}>
                     <View style={styles.semesterTitle} wrap={false}>
                       <Text>{semester.term}</Text>
-                      <Text>GPA: {(semesterStats.gpa || 0).toFixed(2)}</Text>
+                      <Text>GPA: {semesterGPA.toFixed(2)}</Text>
                     </View>
 
                     <View style={styles.table}>
@@ -562,19 +564,19 @@ export default function StatementOfResultsPDF({
                       Credits Attempted
                     </Text>
                     <Text style={styles.cumulativeValue}>
-                      {cumulativeStats.totalCreditsAttempted}
+                      {academicRemarks.totalCreditsAttempted}
                     </Text>
                   </View>
                   <View style={styles.cumulativeItem}>
                     <Text style={styles.cumulativeLabel}>Credits Earned</Text>
                     <Text style={styles.cumulativeValue}>
-                      {cumulativeStats.totalCredits}
+                      {lastPoint?.creditsCompleted || 0}
                     </Text>
                   </View>
                   <View style={styles.cumulativeItem}>
                     <Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
                     <Text style={styles.cumulativeValue}>
-                      {(cumulativeStats.gpa || 0).toFixed(2)}
+                      {(lastPoint?.cgpa || 0).toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -645,11 +647,11 @@ export default function StatementOfResultsPDF({
       </Document>
     );
   } catch (error) {
-    console.error('Error generating Statement of Results PDF:', error);
+    console.error('Error generating statement of results:', error);
     return (
       <Document>
         <Page size='A4' style={styles.page}>
-          <Text>Error generating Statement of Results. Please try again.</Text>
+          <Text>Error generating statement of results</Text>
         </Page>
       </Document>
     );

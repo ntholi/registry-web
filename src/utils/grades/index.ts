@@ -237,74 +237,8 @@ export function summarizeModules(modules: StudentModule[]) {
   };
 }
 
-export function calculateGPA(points: number, creditsForGPA: number) {
+function calculateGPA(points: number, creditsForGPA: number) {
   return creditsForGPA > 0 ? points / creditsForGPA : 0;
-}
-
-export function calculateSemesterGPA(studentModules: StudentModule[]) {
-  if (!studentModules || studentModules.length === 0)
-    return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
-
-  try {
-    const validModules = studentModules.filter(
-      (sm) => sm && sm.semesterModule && sm.grade != null,
-    );
-
-    if (validModules.length === 0) {
-      return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
-    }
-
-    const summary = summarizeModules(validModules);
-
-    return {
-      gpa: Math.round((summary.gpa || 0) * 100) / 100,
-      totalCredits: summary.creditsCompleted || 0,
-      qualityPoints: summary.points || 0,
-    };
-  } catch (error) {
-    console.error('Error calculating semester GPA:', error);
-    return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
-  }
-}
-
-export function getCumulativeGPA(programs: Program[]) {
-  const { studentModules } = extractData(programs);
-  try {
-    if (!programs || programs.length === 0) {
-      return {
-        gpa: 0,
-        totalCredits: 0,
-        totalCreditsAttempted: 0,
-        qualityPoints: 0,
-      };
-    }
-
-    if (studentModules.length === 0) {
-      return {
-        gpa: 0,
-        totalCredits: 0,
-        totalCreditsAttempted: 0,
-        qualityPoints: 0,
-      };
-    }
-
-    const summary = summarizeModules(studentModules);
-
-    return {
-      gpa: Math.round((summary.gpa || 0) * 100) / 100,
-      totalCredits: summary.creditsCompleted || 0,
-      totalCreditsAttempted: summary.creditsAttempted || 0,
-      qualityPoints: summary.points || 0,
-    };
-  } catch (error) {
-    console.error('Error calculating cumulative GPA:', error);
-    return {
-      gpa: 0,
-      totalCredits: 0,
-      totalCreditsAttempted: 0,
-      qualityPoints: 0,
-    };
-  }
 }
 
 export type FacultyRemarksResult = {
@@ -319,10 +253,54 @@ export type FacultyRemarksResult = {
   }[];
   message: string;
   details: string;
+  totalModules: number;
+  totalCreditsAttempted: number;
+  points: {
+    semesterId: number;
+    gpa: number;
+    cgpa: number;
+    creditsAttempted: number;
+    creditsCompleted: number;
+  }[];
 };
 
 export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
   const { semesters, studentModules } = extractData(programs);
+
+  const points: FacultyRemarksResult['points'] = [];
+  let cumulativePoints = 0;
+  let cumulativeCreditsForGPA = 0;
+  let cumulativeCreditsCompleted = 0;
+
+  const sortedSemesters = [...semesters].sort((a, b) => a.id - b.id);
+
+  for (const semester of sortedSemesters) {
+    const semesterSummary = summarizeModules(semester.studentModules);
+    cumulativePoints += semesterSummary.points;
+
+    const semesterCreditsForGPA = semester.studentModules
+      .filter((sm) => !['Delete', 'Drop'].includes(sm.status || ''))
+      .filter((sm) => sm.grade && sm.grade !== 'NM')
+      .reduce((sum, sm) => sum + Number(sm.semesterModule.credits), 0);
+
+    cumulativeCreditsForGPA += semesterCreditsForGPA;
+    cumulativeCreditsCompleted += semesterSummary.creditsCompleted;
+
+    const cgpa = calculateGPA(cumulativePoints, cumulativeCreditsForGPA);
+
+    points.push({
+      semesterId: semester.id,
+      gpa: semesterSummary.gpa,
+      cgpa: cgpa,
+      creditsAttempted: semesterSummary.creditsAttempted,
+      creditsCompleted: semesterSummary.creditsCompleted,
+    });
+  }
+
+  const totalCreditsAttempted = points.reduce(
+    (sum, point) => sum + point.creditsAttempted,
+    0,
+  );
 
   if (studentModules.some((m) => m.grade === 'NM')) {
     return {
@@ -331,6 +309,9 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
       supplementaryModules: [],
       message: 'No Marks',
       details: 'One or more modules have no marks captured',
+      totalModules: 0,
+      totalCreditsAttempted,
+      points,
     };
   }
 
@@ -392,6 +373,9 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
     })),
     message,
     details,
+    totalModules: studentModules.length,
+    totalCreditsAttempted,
+    points,
   };
 }
 
