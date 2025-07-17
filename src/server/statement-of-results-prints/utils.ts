@@ -3,7 +3,7 @@ import { calculateDetailedFacultyRemarks } from '@/app/admin/students/[id]/Acade
 import {
   summarizeModules,
   ModuleSummaryInput,
-  calculateFacultyRemarks,
+  getAcademicRemarks,
 } from '@/utils/grades';
 import { grades } from '@/utils/grades';
 
@@ -97,7 +97,7 @@ export function extractStatementOfResultsData(student: Student) {
   );
 
   const cumulativeStats = calculateCumulativeStats(programs);
-  const academicRemarks = calculateFacultyRemarks(
+  const academicRemarks = getAcademicRemarks(
     programs.flatMap((p) => p.semesters || []),
   );
 

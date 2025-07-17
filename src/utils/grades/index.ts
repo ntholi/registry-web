@@ -287,9 +287,7 @@ export type FacultyRemarksResult = {
   details: string;
 };
 
-export function calculateFacultyRemarks(
-  programs: Program[],
-): FacultyRemarksResult {
+export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
   const activePrograms = programs.filter((p) => p.status === 'Active');
   if (activePrograms.length > 1) {
     throw new Error('Multiple active programs found');

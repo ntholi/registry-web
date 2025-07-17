@@ -3,7 +3,7 @@ import { Grade, moduleGrades, StudentModuleStatus, schools } from '@/db/schema';
 import { termsRepository } from '@/server/terms/repository';
 import {
   summarizeModules,
-  calculateFacultyRemarks,
+  getAcademicRemarks,
   ModuleForRemarks,
   SemesterModuleData,
 } from '@/utils/grades';
@@ -247,7 +247,7 @@ export default class BoeReportService {
       );
 
       const nextSemesterNumber = currentSemesterNumber + 1;
-      const facultyRemarksResult = calculateFacultyRemarks(
+      const facultyRemarksResult = getAcademicRemarks(
         currentSemesterModules,
         historicalSemesters,
         nextSemesterNumber,

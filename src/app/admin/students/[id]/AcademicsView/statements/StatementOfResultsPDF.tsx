@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
 
 import { StudentModuleStatus } from '@/db/schema';
 import {
-  calculateFacultyRemarks,
+  getAcademicRemarks,
   getGradePoints,
   isFailingGrade,
   ModuleSummaryInput,
@@ -523,7 +523,7 @@ export default function StatementOfResultsPDF({
     );
 
     const cumulativeStats = calculateCumulativeGPA(activePrograms);
-    const facultyRemarks = calculateFacultyRemarks(activePrograms);
+    const facultyRemarks = getAcademicRemarks(activePrograms);
     const pendingModules = [
       ...facultyRemarks.failedModules.map((m) => ({
         ...m,
