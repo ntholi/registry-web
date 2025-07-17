@@ -3,6 +3,7 @@
 import { students } from '@/db/schema';
 import { QueryOptions } from '../base/BaseRepository';
 import { studentsService as service } from './service';
+import { revalidatePath } from 'next/cache';
 
 type Student = typeof students.$inferInsert;
 
@@ -76,5 +77,7 @@ export async function updateStudentUserId(
   stdNo: number,
   userId: string | null,
 ) {
-  return service.updateUserId(stdNo, userId);
+  const res = service.updateUserId(stdNo, userId);
+  revalidatePath(`/admin/students/${stdNo}`);
+  return res;
 }

@@ -431,6 +431,12 @@ export default class StudentRepository extends BaseRepository<
 
   async updateUserId(stdNo: number, userId: string | null) {
     return await db.transaction(async (tx) => {
+      if (userId) {
+        await tx
+          .update(students)
+          .set({ userId: null })
+          .where(eq(students.userId, userId));
+      }
       const updatedStudent = await tx
         .update(students)
         .set({ userId })
