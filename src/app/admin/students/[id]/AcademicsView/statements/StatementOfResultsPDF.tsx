@@ -360,6 +360,7 @@ import {
   getGradePoints,
   isFailingGrade,
 } from '@/utils/grades';
+import { getCleanedSemesters } from './utils';
 
 function getGradeStyle(grade: string) {
   if (isFailingGrade(grade)) return 'failedGrade';
@@ -426,7 +427,7 @@ export default function StatementOfResultsPDF({
               <Text style={styles.programTitle}>
                 {program.structure.program.name}
               </Text>
-              {(program.semesters || []).map((semester) => {
+              {getCleanedSemesters(program).map((semester) => {
                 const semesterPoint = academicRemarks.points.find(
                   (point) => point.semesterId === semester.id,
                 );
