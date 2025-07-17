@@ -114,14 +114,7 @@ export default function AcademicsView({
                     let cumulativeCreditsForGPA = 0;
 
                     return program.semesters.map((semester) => {
-                      const summary = summarizeModules(
-                        semester.studentModules.map((sm) => ({
-                          grade: sm.grade,
-                          credits: Number(sm.semesterModule.credits),
-                          status: (sm as { status?: StudentModuleStatus })
-                            .status,
-                        })),
-                      );
+                      const summary = summarizeModules(semester.studentModules);
                       cumulativePoints += summary.points;
                       const semesterCreditsForGPA = semester.studentModules
                         .filter(

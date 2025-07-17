@@ -227,13 +227,7 @@ export function getAllGrades(): Array<{
   }));
 }
 
-export type ModuleSummaryInput = {
-  grade: string;
-  credits: number;
-  status?: StudentModuleStatus;
-};
-
-export function summarizeModules(modules: ModuleSummaryInput[]) {
+export function summarizeModules(modules: StudentModule[]) {
   const relevant = modules.filter(
     (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
   );
@@ -246,17 +240,17 @@ export function summarizeModules(modules: ModuleSummaryInput[]) {
       return sum;
     }
     const gradePoints = getGradePoints(m.grade);
-    return gradePoints > 0 ? sum + m.credits : sum;
+    return gradePoints > 0 ? sum + m.semesterModule.credits : sum;
   }, 0);
   relevant.forEach((m) => {
     const normalizedGrade = normalizeGradeSymbol(m.grade);
     const gradePoints = getGradePoints(m.grade);
     const gradeDefinition = getGradeBySymbol(m.grade);
-    creditsAttempted += m.credits;
+    creditsAttempted += m.semesterModule.credits;
     if (normalizedGrade !== 'NM' && normalizedGrade !== '') {
-      creditsForGPA += m.credits;
+      creditsForGPA += m.semesterModule.credits;
       if (gradeDefinition && gradeDefinition.gpa !== null) {
-        points += gradePoints * m.credits;
+        points += gradePoints * m.semesterModule.credits;
       }
     }
   });
@@ -278,19 +272,15 @@ export function calculateSemesterGPA(studentModules: StudentModule[]) {
     return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
 
   try {
-    const modules: ModuleSummaryInput[] = studentModules
-      .filter((sm) => sm && sm.semesterModule && sm.grade != null)
-      .map((sm) => ({
-        grade: sm.grade || 'NM',
-        credits: Math.max(0, sm.semesterModule?.credits || 0),
-        status: sm.status,
-      }));
+    const validModules = studentModules.filter(
+      (sm) => sm && sm.semesterModule && sm.grade != null,
+    );
 
-    if (modules.length === 0) {
+    if (validModules.length === 0) {
       return { gpa: 0, totalCredits: 0, qualityPoints: 0 };
     }
 
-    const summary = summarizeModules(modules);
+    const summary = summarizeModules(validModules);
 
     return {
       gpa: Math.round((summary.gpa || 0) * 100) / 100,
@@ -306,8 +296,6 @@ export function calculateSemesterGPA(studentModules: StudentModule[]) {
 export function getCumulativeGPA(programs: Program[]) {
   const { studentModules } = extractData(programs);
   try {
-    const allModules: ModuleSummaryInput[] = [];
-
     if (!programs || programs.length === 0) {
       return {
         gpa: 0,
@@ -317,15 +305,7 @@ export function getCumulativeGPA(programs: Program[]) {
       };
     }
 
-    studentModules.forEach((sm) => {
-      allModules.push({
-        grade: sm.grade || 'NM',
-        credits: Math.max(0, sm.semesterModule?.credits || 0),
-        status: sm.status,
-      });
-    });
-
-    if (allModules.length === 0) {
+    if (studentModules.length === 0) {
       return {
         gpa: 0,
         totalCredits: 0,
@@ -334,7 +314,7 @@ export function getCumulativeGPA(programs: Program[]) {
       };
     }
 
-    const summary = summarizeModules(allModules);
+    const summary = summarizeModules(studentModules);
 
     return {
       gpa: Math.round((summary.gpa || 0) * 100) / 100,

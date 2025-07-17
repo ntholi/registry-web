@@ -94,13 +94,7 @@ function getScores(student: Student | undefined) {
       creditsCompleted: 0,
     };
   }
-  const modules = program.semesters.flatMap((sem) =>
-    sem.studentModules.map((sm) => ({
-      grade: sm.grade,
-      credits: Number(sm.semesterModule.credits),
-      status: (sm as { status?: StudentModuleStatus }).status,
-    })),
-  );
+  const modules = program.semesters.flatMap((sem) => sem.studentModules);
 
   const summary = summarizeModules(modules);
 

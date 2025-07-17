@@ -1,10 +1,5 @@
 import { getAcademicHistory } from '@/server/students/actions';
-import {
-  ModuleSummaryInput,
-  getAcademicRemarks,
-  grades,
-  summarizeModules,
-} from '@/utils/grades';
+import { getAcademicRemarks, grades, summarizeModules } from '@/utils/grades';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 type Semester = Student['programs'][0]['semesters'][0];
@@ -23,7 +18,7 @@ interface Program {
 
 function calculateCumulativeStats(programs: Program[]) {
   try {
-    const allModules: ModuleSummaryInput[] = [];
+    const allModules: StudentModule[] = [];
 
     if (!programs || programs.length === 0) {
       return {
@@ -42,12 +37,7 @@ function calculateCumulativeStats(programs: Program[]) {
 
         semester.studentModules.forEach((sm: StudentModule) => {
           if (!sm || !sm.semesterModule || sm.grade == null) return;
-
-          allModules.push({
-            grade: sm.grade || 'NM',
-            credits: Math.max(0, sm.semesterModule?.credits || 0),
-            status: sm.status,
-          });
+          allModules.push(sm);
         });
       });
     });

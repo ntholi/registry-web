@@ -1,12 +1,7 @@
 import { db } from '@/db';
 import { Grade, moduleGrades, StudentModuleStatus, schools } from '@/db/schema';
 import { termsRepository } from '@/server/terms/repository';
-import {
-  summarizeModules,
-  getAcademicRemarks,
-  ModuleForRemarks,
-  SemesterModuleData,
-} from '@/utils/grades';
+import { summarizeModules, getAcademicRemarks } from '@/utils/grades';
 import { and, inArray } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
 import { boeReportRepository, ProgramSemesterReport } from './repository';
@@ -16,6 +11,21 @@ type School = typeof schools.$inferSelect;
 type StudentSemester = Awaited<
   ReturnType<typeof boeReportRepository.getStudentSemestersForFaculty>
 >[number];
+
+type ModuleForRemarks = {
+  code: string;
+  name: string;
+  grade: string;
+  credits: number;
+  status: StudentModuleStatus;
+  semesterNumber: number;
+  semesterModuleId: number;
+};
+
+type SemesterModuleData = {
+  semesterNumber: number;
+  modules: ModuleForRemarks[];
+};
 
 export default class BoeReportService {
   private repository = boeReportRepository;
@@ -198,14 +208,8 @@ export default class BoeReportService {
       const allModules = studentSemesters.flatMap((s) => s.studentModules);
       const currentModules = semester.studentModules;
 
-      const moduleData = (modules: typeof allModules) =>
-        modules.map((sm) => ({
-          grade: sm.grade,
-          credits: Number(sm.semesterModule.credits),
-          status: (sm.status as StudentModuleStatus) || 'Active',
-        }));
-      const allSummary = summarizeModules(moduleData(allModules));
-      const currentSummary = summarizeModules(moduleData(currentModules));
+      const allSummary = summarizeModules(allModules);
+      const currentSummary = summarizeModules(currentModules);
 
       const currentSemesterModules = currentModules.map((sm) => ({
         code: sm.semesterModule.module?.code || '',
@@ -246,12 +250,47 @@ export default class BoeReportService {
         ),
       );
 
-      const nextSemesterNumber = currentSemesterNumber + 1;
-      const facultyRemarksResult = getAcademicRemarks(
-        currentSemesterModules,
-        historicalSemesters,
-        nextSemesterNumber,
-      );
+      // Convert student data to Program format for getAcademicRemarks
+      //TODO: EVERYTHING DOWN HERE IS RUBBISH, REDO THE WHOLE FUNCTION
+      const programData = [
+        {
+          id: semester.studentProgram.structure.program.id,
+          status: 'Active' as const,
+          structureId: semester.studentProgram.structure.id,
+          structure: {
+            id: semester.studentProgram.structure.id,
+            code: semester.studentProgram.structure.code,
+            program: {
+              name: semester.studentProgram.structure.program.name,
+            },
+          },
+          semesters: studentSemesters.map((ss) => ({
+            id: ss.id,
+            term: ss.term,
+            semesterNumber: ss.semesterNumber,
+            status: ss.status,
+            studentModules: ss.studentModules.map((sm) => ({
+              id: sm.id,
+              semesterModuleId: sm.semesterModuleId,
+              grade: sm.grade,
+              marks: sm.marks,
+              status: sm.status,
+              semesterModule: {
+                credits: sm.semesterModule.credits,
+                type: sm.semesterModule.type,
+                module: sm.semesterModule.module
+                  ? {
+                      code: sm.semesterModule.module.code,
+                      name: sm.semesterModule.module.name,
+                    }
+                  : null,
+              },
+            })),
+          })),
+        },
+      ];
+
+      const facultyRemarksResult = getAcademicRemarks(programData);
 
       return {
         studentId: student.stdNo,
