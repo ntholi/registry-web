@@ -1,9 +1,9 @@
-import { getStudent } from '@/server/students/actions';
+import { getAcademicHistory, getStudent } from '@/server/students/actions';
 import { calculateDetailedFacultyRemarks } from '@/app/admin/students/[id]/AcademicsView/statements/academicRemarks';
 import { summarizeModules, ModuleSummaryInput } from '@/utils/grades';
 import { grades } from '@/utils/grades';
 
-type Student = NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 type Semester = Student['programs'][0]['semesters'][0];
 type StudentModule = Semester['studentModules'][0];
 

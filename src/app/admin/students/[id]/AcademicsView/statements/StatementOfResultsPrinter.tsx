@@ -2,7 +2,7 @@
 
 import { createStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
 import { extractStatementOfResultsData } from '@/server/statement-of-results-prints/utils';
-import { getStudent } from '@/server/students/actions';
+import { getAcademicHistory, getStudent } from '@/server/students/actions';
 import { Button } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
@@ -10,23 +10,31 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import QRCode from 'qrcode';
 import StatementOfResultsPDF from './StatementOfResultsPDF';
+import { useQuery } from '@tanstack/react-query';
 
-type StatementOfResultsPrinterProps = {
-  student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+type Props = {
   disabled?: boolean;
+  stdNo: number;
 };
 
-export default function StatementOfResultsPrinter({
-  student,
-  disabled,
-}: StatementOfResultsPrinterProps) {
+export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const { data: session } = useSession();
+
+  const { data: student } = useQuery({
+    queryKey: ['student', stdNo],
+    queryFn: () => getAcademicHistory(stdNo),
+  });
 
   const createPrintRecord = async () => {
     try {
       if (!session?.user?.id) {
         console.error('No authenticated user found');
+        return null;
+      }
+
+      if (!student) {
+        console.error('No student data found');
         return null;
       }
 

@@ -88,6 +88,7 @@ export default class StudentRepository extends BaseRepository<
       columns: {
         stdNo: true,
         name: true,
+        nationalId: true,
       },
       where: eq(students.stdNo, stdNo),
       with: {

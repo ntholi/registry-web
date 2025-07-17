@@ -52,7 +52,7 @@ export function StudentTabs({
         {showStatementOfResults && activeTab === 'academics' && (
           <Box ml='auto'>
             <StatementOfResultsPrinter
-              student={student}
+              stdNo={student.stdNo}
               disabled={!!blockedStudent}
             />
           </Box>

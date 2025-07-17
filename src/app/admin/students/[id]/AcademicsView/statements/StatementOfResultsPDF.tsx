@@ -1,5 +1,5 @@
 import { formatDate } from '@/lib/utils';
-import { getStudent } from '@/server/students/actions';
+import { getAcademicHistory } from '@/server/students/actions';
 import {
   Document,
   Font,
@@ -50,7 +50,7 @@ interface Program {
 }
 
 type StatementOfResultsPDFProps = {
-  student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+  student: NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
   qrCodeDataURL?: string;
 };
 
@@ -502,6 +502,8 @@ function calculateCumulativeGPA(programs: Program[]) {
     };
   }
 }
+
+type Student = Awaited<ReturnType<typeof getAcademicHistory>>;
 
 export default function StatementOfResultsPDF({
   student,
