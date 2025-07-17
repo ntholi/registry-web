@@ -270,8 +270,8 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 
     points.push({
       semesterId: semester.id,
-      gpa: semesterSummary.gpa,
-      cgpa: cgpa,
+      gpa: Number(semesterSummary.gpa.toFixed(2)),
+      cgpa: Number(cgpa.toFixed(2)),
       creditsAttempted: semesterSummary.creditsAttempted,
       creditsCompleted: semesterSummary.creditsCompleted,
     });

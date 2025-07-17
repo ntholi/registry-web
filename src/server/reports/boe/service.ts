@@ -308,8 +308,8 @@ export default class BoeReportService {
         creditsAttempted: currentSummary.creditsAttempted,
         creditsEarned: currentSummary.creditsCompleted,
         totalPoints: currentSummary.points,
-        gpa: currentSummary.gpa.toFixed(2),
-        cgpa: allSummary.gpa.toFixed(2),
+        gpa: currentSummary.gpa,
+        cgpa: allSummary.gpa,
         facultyRemark: facultyRemarksResult.message,
       };
     });

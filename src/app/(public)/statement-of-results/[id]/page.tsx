@@ -88,7 +88,7 @@ export default async function StatementOfResultsPage({ params }: Props) {
                 <Card className='border bg-muted/30'>
                   <CardContent className='p-4 text-center'>
                     <div className='text-2xl font-light'>
-                      {item.cgpa ? item.cgpa.toFixed(2) : '—'}
+                      {item.cgpa ? item.cgpa : '—'}
                     </div>
                     <div className='text-sm text-muted-foreground'>CGPA</div>
                   </CardContent>

@@ -436,7 +436,7 @@ export default function StatementOfResultsPDF({
                   <View key={semester.id} style={styles.semesterSection}>
                     <View style={styles.semesterTitle} wrap={false}>
                       <Text>{semester.term}</Text>
-                      <Text>GPA: {semesterGPA.toFixed(2)}</Text>
+                      <Text>GPA: {semesterGPA}</Text>
                     </View>
 
                     <View style={styles.table}>
@@ -576,7 +576,7 @@ export default function StatementOfResultsPDF({
                   <View style={styles.cumulativeItem}>
                     <Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
                     <Text style={styles.cumulativeValue}>
-                      {(lastPoint?.cgpa || 0).toFixed(2)}
+                      {lastPoint?.cgpa || 0}
                     </Text>
                   </View>
                 </View>
