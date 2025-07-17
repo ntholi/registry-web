@@ -361,15 +361,12 @@ const styles = StyleSheet.create({
   },
 });
 
-import { StudentModuleStatus } from '@/db/schema';
 import {
   calculateSemesterGPA,
   getAcademicRemarks,
   getCumulativeGPA,
   getGradePoints,
   isFailingGrade,
-  ModuleSummaryInput,
-  summarizeModules,
 } from '@/utils/grades';
 
 function getGradeStyle(grade: string) {

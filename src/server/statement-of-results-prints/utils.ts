@@ -1,11 +1,10 @@
-import { getAcademicHistory, getStudent } from '@/server/students/actions';
-import { calculateDetailedFacultyRemarks } from '@/app/admin/students/[id]/AcademicsView/statements/academicRemarks';
+import { getAcademicHistory } from '@/server/students/actions';
 import {
-  summarizeModules,
   ModuleSummaryInput,
   getAcademicRemarks,
+  grades,
+  summarizeModules,
 } from '@/utils/grades';
-import { grades } from '@/utils/grades';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 type Semester = Student['programs'][0]['semesters'][0];
@@ -97,9 +96,7 @@ export function extractStatementOfResultsData(student: Student) {
   );
 
   const cumulativeStats = calculateCumulativeStats(programs);
-  const academicRemarks = getAcademicRemarks(
-    programs.flatMap((p) => p.semesters || []),
-  );
+  const academicRemarks = getAcademicRemarks(programs);
 
   const primaryProgram = programs[0];
   const programName =

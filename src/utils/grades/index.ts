@@ -278,14 +278,6 @@ interface Module {
   name: string;
 }
 
-interface Semester {
-  id: number;
-  term: string;
-  status: string;
-  semesterNumber?: number | null;
-  studentModules?: StudentModule[];
-}
-
 interface SemesterModule {
   credits: number;
   module?: Module | null;
@@ -396,15 +388,7 @@ export type FacultyRemarksResult = {
 
 export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
   const { semesters, studentModules } = extractData(programs);
-  if (semesters.length === 0) {
-    return {
-      status: 'No Marks',
-      failedModules: [],
-      supplementaryModules: [],
-      message: 'No Marks',
-      details: 'No marks captured',
-    };
-  }
+
   if (studentModules.some((m) => m.grade === 'NM')) {
     return {
       status: 'No Marks',
