@@ -1,6 +1,10 @@
 import { getAcademicHistory, getStudent } from '@/server/students/actions';
 import { calculateDetailedFacultyRemarks } from '@/app/admin/students/[id]/AcademicsView/statements/academicRemarks';
-import { summarizeModules, ModuleSummaryInput } from '@/utils/grades';
+import {
+  summarizeModules,
+  ModuleSummaryInput,
+  calculateFacultyRemarks,
+} from '@/utils/grades';
 import { grades } from '@/utils/grades';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
@@ -88,30 +92,16 @@ function getClassification(gpa: number): string {
 }
 
 export function extractStatementOfResultsData(student: Student) {
-  const activePrograms = (student.programs || []).filter(
+  const programs = (student.programs || []).filter(
     (program) => program && program.status === 'Active',
   );
 
-  const filteredPrograms = activePrograms.map((program) => ({
-    ...program,
-    semesters: (program.semesters || [])
-      .filter(
-        (semester) =>
-          semester &&
-          !['Deleted', 'Deferred', 'DroppedOut'].includes(semester.status),
-      )
-      .map((semester) => ({
-        ...semester,
-        studentModules: (semester.studentModules || []).filter(
-          (module) => module && !['Delete', 'Drop'].includes(module.status),
-        ),
-      })),
-  }));
+  const cumulativeStats = calculateCumulativeStats(programs);
+  const academicRemarks = calculateFacultyRemarks(
+    programs.flatMap((p) => p.semesters || []),
+  );
 
-  const cumulativeStats = calculateCumulativeStats(filteredPrograms);
-  const academicRemarks = calculateDetailedFacultyRemarks(student.programs);
-
-  const primaryProgram = activePrograms[0];
+  const primaryProgram = programs[0];
   const programName =
     primaryProgram?.structure?.program?.name || 'Unknown Program';
 

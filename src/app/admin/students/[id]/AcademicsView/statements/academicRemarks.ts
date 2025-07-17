@@ -1,27 +1,26 @@
 import { StudentModuleStatus } from '@/db/schema';
-import {
-  calculateFacultyRemarks,
-  FacultyRemarksResult,
-  ModuleForRemarks,
-  SemesterModuleData,
-} from '@/utils/grades';
+import { calculateFacultyRemarks, FacultyRemarksResult } from '@/utils/grades';
 
 type StudentModule = {
+  id: number;
+  semesterModuleId: number;
   grade: string;
+  marks: string;
   status: string;
   semesterModule: {
     credits: number;
+    type: string;
     module?: {
       code: string;
       name: string;
     } | null;
   };
-  semesterModuleId: number;
 };
 
 type Semester = {
   id: number;
   term: string;
+  semesterNumber: number | null;
   status: string;
   studentModules?: StudentModule[];
 };
@@ -29,8 +28,11 @@ type Semester = {
 type Program = {
   id: number;
   status: string;
+  structureId: number;
   semesters?: Semester[];
   structure: {
+    id: number;
+    code: string;
     program: {
       name: string;
     };
@@ -55,49 +57,6 @@ function getNextSemesterNumber(programs: Program[]): number {
   });
 
   return maxSemester + 1;
-}
-
-function convertToSemesterModuleData(
-  programs: Program[],
-): SemesterModuleData[] {
-  const semesterDataMap = new Map<number, ModuleForRemarks[]>();
-
-  programs.forEach((program) => {
-    program.semesters?.forEach((semester) => {
-      const semesterNumber = extractSemesterNumber(semester.term);
-
-      if (!semesterDataMap.has(semesterNumber)) {
-        semesterDataMap.set(semesterNumber, []);
-      }
-
-      const modules = semesterDataMap.get(semesterNumber)!;
-
-      semester.studentModules?.forEach((module) => {
-        if (!['Delete', 'Drop'].includes(module.status)) {
-          modules.push({
-            code:
-              module.semesterModule.module?.code ??
-              `ID:${module.semesterModuleId}`,
-            name:
-              module.semesterModule.module?.name ??
-              `Semester Module ID: ${module.semesterModuleId}`,
-            grade: module.grade,
-            credits: module.semesterModule.credits,
-            status: module.status as StudentModuleStatus,
-            semesterNumber,
-            semesterModuleId: module.semesterModuleId,
-          });
-        }
-      });
-    });
-  });
-
-  return Array.from(semesterDataMap.entries()).map(
-    ([semesterNumber, modules]) => ({
-      semesterNumber,
-      modules,
-    }),
-  );
 }
 
 export function calculateDetailedFacultyRemarks(
@@ -156,9 +115,5 @@ export function calculateDetailedFacultyRemarks(
     });
   });
   // Use the new shared calculation logic
-  return calculateFacultyRemarks(
-    latestSemesterModules,
-    semesterData.filter((s) => s.semesterNumber < latestSemesterNumber),
-    nextSemesterNumber,
-  );
+  return calculateFacultyRemarks(filteredPrograms);
 }

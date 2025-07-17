@@ -1,5 +1,5 @@
-import { gradeEnum, StudentModuleStatus, SemesterStatus } from '@/db/schema';
-import { ModuleStatus } from 'vm';
+import { gradeEnum, StudentModuleStatus } from '@/db/schema';
+import { Program } from './type';
 
 export type GradeRange = {
   min: number;
@@ -273,28 +273,6 @@ export function calculateGPA(points: number, creditsForGPA: number) {
   return creditsForGPA > 0 ? points / creditsForGPA : 0;
 }
 
-type Semester = {
-  id: number;
-  term: string;
-  status: SemesterStatus;
-  semesterNumber: number;
-  studentModules: {
-    id: number;
-    grade: string;
-    marks: number;
-    status: StudentModuleStatus;
-    semesterModuleId: number;
-    semesterModule: {
-      id: number;
-      status: ModuleStatus;
-      module: {
-        code: string;
-        name: string;
-      };
-    };
-  }[];
-};
-
 export type FacultyRemarksResult = {
   status: 'Proceed' | 'Remain in Semester' | 'No Marks';
   failedModules: {
@@ -310,12 +288,16 @@ export type FacultyRemarksResult = {
 };
 
 export function calculateFacultyRemarks(
-  semesters: Semester[],
+  programs: Program[],
 ): FacultyRemarksResult | null {
+  const activePrograms = programs.filter((p) => p.status === 'Active');
+  if (activePrograms.length > 1) {
+    throw new Error('Multiple active programs found');
+  }
+  const semesters = activePrograms[0].semesters || [];
   const filtered = [...semesters]
     .sort((a, b) => b.id - a.id)
-    //TODO: Maybe I should add exception for DroppedOut as well
-    .filter((s) => !['Delete'].includes(s.status));
+    .filter((s) => !['Deleted', 'Deferred', 'DroppedOut'].includes(s.status));
 
   const studentModules = filtered
     .flatMap((s) => s.studentModules)
