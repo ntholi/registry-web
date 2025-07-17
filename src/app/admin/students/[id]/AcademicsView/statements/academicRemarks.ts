@@ -1,4 +1,4 @@
-import { ModuleStatus } from '@/db/schema';
+import { StudentModuleStatus } from '@/db/schema';
 import {
   calculateFacultyRemarks,
   FacultyRemarksResult,
@@ -83,7 +83,7 @@ function convertToSemesterModuleData(
               `Semester Module ID: ${module.semesterModuleId}`,
             grade: module.grade,
             credits: module.semesterModule.credits,
-            status: module.status as ModuleStatus,
+            status: module.status as StudentModuleStatus,
             semesterNumber,
             semesterModuleId: module.semesterModuleId,
           });
@@ -148,7 +148,7 @@ export function calculateDetailedFacultyRemarks(
               `Semester Module ID: ${module.semesterModuleId}`,
             grade: module.grade,
             credits: module.semesterModule.credits,
-            status: module.status as ModuleStatus,
+            status: module.status as StudentModuleStatus,
             semesterNumber: semesterNum,
             semesterModuleId: module.semesterModuleId,
           })) ?? [];

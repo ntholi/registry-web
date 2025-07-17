@@ -7,7 +7,7 @@ import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import EditForm from '../../Form';
 import { RegistrationRequest } from '../../new/page';
-import { ModuleStatus, modules, semesterModules } from '@/db/schema';
+import { StudentModuleStatus, modules, semesterModules } from '@/db/schema';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -20,7 +20,7 @@ type SemesterModule = typeof semesterModules.$inferSelect & {
   module: Module;
 };
 interface SelectedModule extends SemesterModule {
-  status: ModuleStatus;
+  status: StudentModuleStatus;
 }
 
 export default async function RegistrationRequestEdit({ params }: Props) {

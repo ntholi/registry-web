@@ -1,4 +1,4 @@
-import { ModuleStatus } from '@/db/schema';
+import { StudentModuleStatus } from '@/db/schema';
 import { getStudentByUserId } from '@/server/students/actions';
 import {
   isFailingOrSupGrade,
@@ -98,7 +98,7 @@ function getScores(student: Student | undefined) {
     sem.studentModules.map((sm) => ({
       grade: sm.grade,
       credits: Number(sm.semesterModule.credits),
-      status: (sm as { status?: ModuleStatus }).status,
+      status: (sm as { status?: StudentModuleStatus }).status,
     })),
   );
 

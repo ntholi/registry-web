@@ -4,8 +4,8 @@ import { getStudentSemesterModules } from '@/app/(main)/(auth)/registration/requ
 import { Form } from '@/components/adease';
 import {
   semesterModules,
-  ModuleStatus,
-  moduleStatusEnum,
+  StudentModuleStatus,
+  studentModuleStatusEnum,
   modules,
 } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
@@ -39,7 +39,7 @@ type SemesterModule = typeof semesterModules.$inferSelect & {
 };
 
 interface SelectedModule extends SemesterModule {
-  status: ModuleStatus;
+  status: StudentModuleStatus;
   semesterNumber?: number;
   semesterName?: string;
 }
@@ -138,7 +138,7 @@ export default function RegistrationRequestForm({
         id: moduleData.id,
         type: moduleData.type,
         credits: moduleData.credits,
-        status: moduleData.status as ModuleStatus,
+        status: moduleData.status as StudentModuleStatus,
         module: {
           id: moduleData.id,
           code: moduleData.code,
@@ -195,7 +195,7 @@ export default function RegistrationRequestForm({
 
         const handleChangeModuleStatus = (
           moduleId: number,
-          newStatus: ModuleStatus,
+          newStatus: StudentModuleStatus,
         ) => {
           form.setFieldValue(
             'selectedModules',
@@ -320,10 +320,10 @@ export default function RegistrationRequestForm({
                             onChange={(value) =>
                               handleChangeModuleStatus(
                                 semModule.id,
-                                value as ModuleStatus,
+                                value as StudentModuleStatus,
                               )
                             }
-                            data={moduleStatusEnum.map((status) => ({
+                            data={studentModuleStatusEnum.map((status) => ({
                               value: status,
                               label: status,
                             }))}

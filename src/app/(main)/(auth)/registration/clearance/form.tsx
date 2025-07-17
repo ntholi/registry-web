@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ModuleStatus } from '@/db/schema';
+import { StudentModuleStatus } from '@/db/schema';
 import { useToast } from '@/hooks/use-toast';
 import { formatSemester } from '@/lib/utils';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
@@ -25,7 +25,7 @@ type Props = {
 type Module = {
   name: string;
   code: string;
-  status: ModuleStatus;
+  status: StudentModuleStatus;
   id: number;
 };
 
@@ -156,7 +156,7 @@ export default function ClearanceRequestForm({ stdNo }: Props) {
   );
 }
 
-function ModuleStatusBadge({ status }: { status: ModuleStatus }) {
+function ModuleStatusBadge({ status }: { status: StudentModuleStatus }) {
   return (
     <Badge
       variant={status === 'Compulsory' ? 'secondary' : 'destructive'}

@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import {
-  ModuleStatus,
+  StudentModuleStatus,
   registrationClearances,
   registrationRequests,
   requestedModules,
@@ -304,7 +304,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     tx: any,
     registrationRequestId: number,
-    modules: { moduleId: number; moduleStatus: ModuleStatus }[],
+    modules: { moduleId: number; moduleStatus: StudentModuleStatus }[],
   ) {
     if (!modules.length) throw new Error('No modules selected');
     if (modules.length > MAX_REG_MODULES)
@@ -325,7 +325,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
   async createRegistrationWithModules(data: {
     stdNo: number;
     termId: number;
-    modules: { moduleId: number; moduleStatus: ModuleStatus }[];
+    modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
     sponsorId: number;
     semesterStatus: 'Active' | 'Repeat';
     semesterNumber: number;
@@ -391,7 +391,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
   async updateRegistrationWithModules(
     registrationRequestId: number,
-    modules: { id: number; status: ModuleStatus }[],
+    modules: { id: number; status: StudentModuleStatus }[],
     semesterNumber?: number,
     semesterStatus?: 'Active' | 'Repeat',
   ) {

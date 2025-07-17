@@ -1,4 +1,5 @@
-import { gradeEnum, ModuleStatus } from '@/db/schema';
+import { gradeEnum, StudentModuleStatus, SemesterStatus } from '@/db/schema';
+import { ModuleStatus } from 'vm';
 
 export type GradeRange = {
   min: number;
@@ -229,7 +230,7 @@ export function getAllGrades(): Array<{
 export type ModuleSummaryInput = {
   grade: string;
   credits: number;
-  status?: ModuleStatus;
+  status?: StudentModuleStatus;
 };
 
 export function summarizeModules(modules: ModuleSummaryInput[]) {
@@ -272,151 +273,108 @@ export function calculateGPA(points: number, creditsForGPA: number) {
   return creditsForGPA > 0 ? points / creditsForGPA : 0;
 }
 
-export type ModuleForRemarks = {
-  code: string;
-  name: string;
-  grade: string;
-  credits: number;
-  status?: ModuleStatus;
+type Semester = {
+  id: number;
+  term: string;
+  status: SemesterStatus;
   semesterNumber: number;
-  semesterModuleId?: number;
-};
-
-export type SemesterModuleData = {
-  modules: ModuleForRemarks[];
-  semesterNumber: number;
+  studentModules: {
+    id: number;
+    grade: string;
+    marks: number;
+    status: StudentModuleStatus;
+    semesterModuleId: number;
+    semesterModule: {
+      id: number;
+      status: ModuleStatus;
+      module: {
+        code: string;
+        name: string;
+      };
+    };
+  }[];
 };
 
 export type FacultyRemarksResult = {
-  status: 'Proceed' | 'Remain in Semester';
+  status: 'Proceed' | 'Remain in Semester' | 'No Marks';
   failedModules: {
     code: string;
     name: string;
-    semesterNumber: number;
   }[];
   supplementaryModules: {
     code: string;
     name: string;
-    semesterNumber: number;
   }[];
   message: string;
   details: string;
 };
 
 export function calculateFacultyRemarks(
-  currentSemesterModules: (ModuleSummaryInput & {
-    code: string;
-    name: string;
-  })[],
-  historicalSemesters: SemesterModuleData[] = [],
-  nextSemesterNumber?: number,
-): FacultyRemarksResult {
-  const relevantCurrentModules = currentSemesterModules.filter(
-    (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
-  );
-  const hasNoMarks = relevantCurrentModules.some(
-    (m) => normalizeGradeSymbol(m.grade) === 'NM',
-  );
-  if (hasNoMarks) {
+  semesters: Semester[],
+): FacultyRemarksResult | null {
+  const filtered = [...semesters]
+    .sort((a, b) => b.id - a.id)
+    .filter((s) => !['Delete', ''].includes(s.status));
+
+  const studentModules = filtered
+    .flatMap((s) => s.studentModules)
+    .filter((m) => !['Delete', 'Drop'].includes(m.status));
+
+  if (filtered.length === 0) {
+    return null;
+  }
+  if (studentModules.some((m) => m.grade === 'NM')) {
     return {
-      status: 'Proceed',
+      status: 'No Marks',
       failedModules: [],
       supplementaryModules: [],
       message: 'No Marks',
       details: 'One or more modules have no marks submitted',
     };
   }
-  const currentFailedModules = relevantCurrentModules.filter((m) =>
+
+  const latestFailedModules = filtered[0].studentModules.filter((m) =>
     isFailingGrade(m.grade),
   );
-  const currentSupplementaryModules = relevantCurrentModules.filter((m) =>
+  const failedModules = studentModules.filter((m) => isFailingGrade(m.grade));
+  const supplementary = studentModules.filter((m) =>
     isSupplementaryGrade(m.grade),
   );
-  const historicalFailures: ModuleForRemarks[] = [];
-  const allHistoricalFailures: ModuleForRemarks[] = [];
 
-  if (historicalSemesters.length > 0 && nextSemesterNumber) {
-    const nextSemesterParity = nextSemesterNumber % 2;
-    historicalSemesters.forEach((semesterData) => {
-      const semesterParity = semesterData.semesterNumber % 2;
-
-      semesterData.modules.forEach((module) => {
-        if (
-          isFailingGrade(module.grade) &&
-          !['Delete', 'Drop'].includes(module.status ?? '')
-        ) {
-          const hasBeenRepeated =
-            historicalSemesters.some((otherSemester) =>
-              otherSemester.modules.some(
-                (otherModule) =>
-                  otherModule.name === module.name &&
-                  !isFailingGrade(otherModule.grade) &&
-                  !['Delete', 'Drop'].includes(otherModule.status ?? ''),
-              ),
-            ) ||
-            relevantCurrentModules.some(
-              (currentModule) =>
-                currentModule.name === module.name &&
-                !isFailingGrade(currentModule.grade) &&
-                !['Delete', 'Drop'].includes(currentModule.status ?? ''),
-            );
-
-          if (!hasBeenRepeated) {
-            allHistoricalFailures.push(module);
-
-            if (
-              semesterParity === nextSemesterParity &&
-              semesterData.semesterNumber < nextSemesterNumber
-            ) {
-              historicalFailures.push(module);
-            }
-          }
-        }
-      });
-    });
-  }
-  const shouldRemainInSemester = currentFailedModules.length >= 3;
+  const shouldRemainInSemester = latestFailedModules.length >= 3;
   const status = shouldRemainInSemester ? 'Remain in Semester' : 'Proceed';
+
   const messageParts: string[] = [status];
-  if (currentSupplementaryModules.length > 0) {
-    const supplementaryCodes = currentSupplementaryModules.map((m) => m.code);
-    messageParts.push(`must supplement ${supplementaryCodes.join(', ')}`);
+
+  if (supplementary.length > 0) {
+    messageParts.push(
+      `must supplement ${supplementary.map((m) => m.semesterModule.module.name).join(', ')}`,
+    );
   }
-  const allFailedModules = [
-    ...currentFailedModules.map((m) => ({
-      code: m.code,
-      name: m.name,
-      semesterNumber: 0,
-    })),
-    ...allHistoricalFailures
-      .filter((h) => !currentFailedModules.some((c) => c.name === h.name))
-      .map((m) => ({
-        code: m.code,
-        name: m.name,
-        semesterNumber: m.semesterNumber,
-      })),
-  ].filter(
-    (module, index, self) =>
-      index === self.findIndex((m) => m.code === module.code),
-  );
-  if (allFailedModules.length > 0) {
-    const failedCodes = allFailedModules.map((m) => m.code);
-    messageParts.push(`must repeat ${failedCodes.join(', ')}`);
+  if (failedModules.length > 0) {
+    messageParts.push(
+      `must repeat ${failedModules.map((m) => m.semesterModule.module.name).join(', ')}`,
+    );
   }
+
   const message = messageParts.join(', ');
+
   let details = '';
   if (shouldRemainInSemester) {
-    details = `Failed ${currentFailedModules.length} modules in current semester`;
+    details = `Failed ${latestFailedModules.length} modules in latest semester`;
   } else {
     details = 'Student is eligible to proceed';
   }
+
   return {
     status,
-    failedModules: allFailedModules,
-    supplementaryModules: currentSupplementaryModules.map((m) => ({
-      code: m.code,
-      name: m.name,
-      semesterNumber: 0,
+    failedModules: failedModules.map((m) => ({
+      code: m.semesterModule.module.code,
+      name: m.semesterModule.module.name,
+    })),
+    supplementaryModules: supplementary.map((m) => ({
+      code: m.semesterModule.module.code,
+      name: m.semesterModule.module.name,
     })),
     message,
     details,

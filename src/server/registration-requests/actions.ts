@@ -1,7 +1,7 @@
 'use server';
 
 import {
-  ModuleStatus,
+  StudentModuleStatus,
   registrationRequests,
   requestedModules,
 } from '@/db/schema';
@@ -72,7 +72,7 @@ export async function createRequestedModules(
 
 export async function createRegistrationWithModules(data: {
   stdNo: number;
-  modules: { moduleId: number; moduleStatus: ModuleStatus }[];
+  modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
   sponsorId: number;
   semesterNumber: number;
   semesterStatus: 'Active' | 'Repeat';
@@ -87,7 +87,7 @@ export async function createRegistrationWithModules(data: {
 
 export async function updateRegistrationWithModules(
   registrationRequestId: number,
-  modules: { id: number; status: ModuleStatus }[],
+  modules: { id: number; status: StudentModuleStatus }[],
   semesterNumber?: number,
   semesterStatus?: 'Active' | 'Repeat',
 ) {

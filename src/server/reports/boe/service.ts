@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { Grade, moduleGrades, ModuleStatus, schools } from '@/db/schema';
+import { Grade, moduleGrades, StudentModuleStatus, schools } from '@/db/schema';
 import { termsRepository } from '@/server/terms/repository';
 import {
   summarizeModules,
@@ -202,7 +202,7 @@ export default class BoeReportService {
         modules.map((sm) => ({
           grade: sm.grade,
           credits: Number(sm.semesterModule.credits),
-          status: (sm.status as ModuleStatus) || 'Active',
+          status: (sm.status as StudentModuleStatus) || 'Active',
         }));
       const allSummary = summarizeModules(moduleData(allModules));
       const currentSummary = summarizeModules(moduleData(currentModules));
@@ -212,7 +212,7 @@ export default class BoeReportService {
         name: sm.semesterModule.module?.name || '',
         grade: sm.grade,
         credits: Number(sm.semesterModule.credits),
-        status: (sm.status as ModuleStatus) || 'Active',
+        status: (sm.status as StudentModuleStatus) || 'Active',
       }));
 
       const historicalSemesters: SemesterModuleData[] = [];
@@ -230,7 +230,7 @@ export default class BoeReportService {
             name: sm.semesterModule.module?.name || '',
             grade: sm.grade,
             credits: Number(sm.semesterModule.credits),
-            status: (sm.status as ModuleStatus) || 'Active',
+            status: (sm.status as StudentModuleStatus) || 'Active',
             semesterNumber: semNum,
             semesterModuleId: sm.semesterModuleId,
           });

@@ -2,15 +2,15 @@
 
 import { createStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
 import { extractStatementOfResultsData } from '@/server/statement-of-results-prints/utils';
-import { getAcademicHistory, getStudent } from '@/server/students/actions';
+import { getAcademicHistory } from '@/server/students/actions';
 import { Button } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
-import { useSession } from 'next-auth/react';
-import { useState } from 'react';
-import QRCode from 'qrcode';
-import StatementOfResultsPDF from './StatementOfResultsPDF';
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import QRCode from 'qrcode';
+import { useState } from 'react';
+import StatementOfResultsPDF from './StatementOfResultsPDF';
 
 type Props = {
   disabled?: boolean;

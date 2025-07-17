@@ -26,7 +26,7 @@ interface StudentModule {
   semesterModuleId: number;
   semesterModule: SemesterModule;
   grade: string;
-  status: ModuleStatus;
+  status: StudentModuleStatus;
   marks: string;
 }
 
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   },
 });
 
-import { ModuleStatus } from '@/db/schema';
+import { StudentModuleStatus } from '@/db/schema';
 import {
   getGradePoints,
   isFailingGrade,

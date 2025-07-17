@@ -189,6 +189,7 @@ export const semesterStatusEnum = [
   'Repeat',
 ] as const;
 
+export type SemesterStatus = (typeof semesterStatusEnum)[number];
 export const studentSemesters = sqliteTable('student_semesters', {
   id: integer().primaryKey(),
   term: text().notNull(),
@@ -201,15 +202,7 @@ export const studentSemesters = sqliteTable('student_semesters', {
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const moduleTypeEnum = [
-  'Major',
-  'Minor',
-  'Core',
-  'Delete',
-  'Elective',
-] as const;
-
-export const moduleStatusEnum = [
+export const studentModuleStatusEnum = [
   'Add',
   'Compulsory',
   'Delete',
@@ -258,7 +251,7 @@ export const gradeEnum = [
   'NM',
 ] as const;
 
-export type ModuleStatus = (typeof moduleStatusEnum)[number];
+export type StudentModuleStatus = (typeof studentModuleStatusEnum)[number];
 export type Grade = (typeof gradeEnum)[number];
 
 export const studentModules = sqliteTable('student_modules', {
@@ -266,7 +259,7 @@ export const studentModules = sqliteTable('student_modules', {
   semesterModuleId: integer()
     .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
-  status: text({ enum: moduleStatusEnum }).notNull(),
+  status: text({ enum: studentModuleStatusEnum }).notNull(),
   marks: text().notNull(),
   grade: text({ enum: gradeEnum }).notNull(),
   studentSemesterId: integer()
@@ -324,6 +317,15 @@ export const modules = sqliteTable('modules', {
     .default('Active'),
   timestamp: text(),
 });
+
+export const moduleTypeEnum = [
+  'Major',
+  'Minor',
+  'Core',
+  'Delete',
+  'Elective',
+] as const;
+export type ModuleType = (typeof moduleTypeEnum)[number];
 
 export const semesterModules = sqliteTable('semester_modules', {
   id: integer().primaryKey(),
@@ -412,7 +414,7 @@ export const requestedModuleStatusEnum = [
 
 export const requestedModules = sqliteTable('requested_modules', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  moduleStatus: text({ enum: moduleStatusEnum })
+  moduleStatus: text({ enum: studentModuleStatusEnum })
     .notNull()
     .default('Compulsory'),
   registrationRequestId: integer('registration_request_id')

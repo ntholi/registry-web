@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ModuleStatus } from '@/db/schema';
+import { StudentModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -79,7 +79,7 @@ export default function ModulesForm({ stdNo, structureId, request }: Props) {
             };
           }
         })
-        .filter(Boolean) as { id: number; status: ModuleStatus }[];
+        .filter(Boolean) as { id: number; status: StudentModuleStatus }[];
 
       await updateRegistrationWithModules(request.id, selectedModules);
     },

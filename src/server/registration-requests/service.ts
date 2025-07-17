@@ -1,5 +1,5 @@
 import {
-  ModuleStatus,
+  StudentModuleStatus,
   registrationRequests,
   requestedModules,
 } from '@/db/schema';
@@ -122,7 +122,7 @@ class RegistrationRequestService {
   async createRegistrationWithModules(data: {
     stdNo: number;
     termId: number;
-    modules: { moduleId: number; moduleStatus: ModuleStatus }[];
+    modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
     sponsorId: number;
     semesterStatus: 'Active' | 'Repeat';
     semesterNumber: number;
@@ -138,7 +138,7 @@ class RegistrationRequestService {
 
   async updateRegistrationWithModules(
     registrationRequestId: number,
-    modules: { id: number; status: ModuleStatus }[],
+    modules: { id: number; status: StudentModuleStatus }[],
     semesterNumber?: number,
     semesterStatus?: 'Active' | 'Repeat',
   ) {
