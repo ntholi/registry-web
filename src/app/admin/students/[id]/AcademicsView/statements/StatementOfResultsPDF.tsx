@@ -490,9 +490,9 @@ export default function StatementOfResultsPDF({
                           Points
                         </Text>
                       </View>
-                      {(semester.studentModules || []).map((sm) => (
+                      {(semester.studentModules || []).map((sm, index) => (
                         <View
-                          key={sm.semesterModuleId}
+                          key={`${semester.id}-${sm.semesterModuleId}-${index}`}
                           style={styles.tableRow}
                           wrap={false}
                         >
@@ -603,7 +603,7 @@ export default function StatementOfResultsPDF({
                       </Text>
                       {facultyRemarks.failedModules.map((module, index) => (
                         <Text
-                          key={`failed-${index}`}
+                          key={`failed-${module.code}-${index}`}
                           style={styles.outstandingModuleItem}
                         >
                           • {module.code} - {module.name} (Repeat)
@@ -612,7 +612,7 @@ export default function StatementOfResultsPDF({
                       {facultyRemarks.supplementaryModules.map(
                         (module, index) => (
                           <Text
-                            key={`supplementary-${index}`}
+                            key={`supplementary-${module.code}-${index}`}
                             style={styles.outstandingModuleItem}
                           >
                             • {module.code} - {module.name} (Supplementary)
