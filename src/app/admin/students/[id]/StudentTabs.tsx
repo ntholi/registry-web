@@ -9,7 +9,7 @@ import RegistrationView from './RegistrationView';
 import StatementOfResultsPrinter from './statements/StatementOfResultsPrinter';
 import StudentView from './StudentView';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import BlockedAcademicsView from './BlockedAcademicsView';
+import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;

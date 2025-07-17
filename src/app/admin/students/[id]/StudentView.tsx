@@ -17,7 +17,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import Link from 'next/link';
-import EditStudentUserModal from './EditStudentUserModal';
+import EditStudentUserModal from './AcademicsView/EditStudentUserModal';
 import { useSession } from 'next-auth/react';
 import { UserRole } from '@/db/schema';
 
