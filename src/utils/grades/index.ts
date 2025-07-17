@@ -359,14 +359,8 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 
   return {
     status,
-    failedModules: failedModules.map((m) => ({
-      code: m.semesterModule.module?.code || '',
-      name: m.semesterModule.module?.name || '',
-    })),
-    supplementaryModules: supplementary.map((m) => ({
-      code: m.semesterModule.module?.code || '',
-      name: m.semesterModule.module?.name || '',
-    })),
+    failedModules: getUniqueModules(failedModules),
+    supplementaryModules: getUniqueModules(supplementary),
     message,
     details,
     totalModules: studentModules.length,
@@ -381,6 +375,20 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
       creditsCompleted: 0,
     },
   };
+}
+
+function getUniqueModules(modules: StudentModule[]) {
+  return modules
+    .map((m) => ({
+      code: m.semesterModule.module?.code || '',
+      name: m.semesterModule.module?.name || '',
+    }))
+    .filter(
+      (module, index, array) =>
+        array.findIndex(
+          (m) => m.code === module.code && m.name === module.name,
+        ) === index,
+    );
 }
 
 function extractData(_programs: Program[]) {
