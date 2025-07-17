@@ -289,7 +289,7 @@ export type FacultyRemarksResult = {
 
 export function calculateFacultyRemarks(
   programs: Program[],
-): FacultyRemarksResult | null {
+): FacultyRemarksResult {
   const activePrograms = programs.filter((p) => p.status === 'Active');
   if (activePrograms.length > 1) {
     throw new Error('Multiple active programs found');
@@ -304,7 +304,13 @@ export function calculateFacultyRemarks(
     .filter((m) => !['Delete', 'Drop'].includes(m.status));
 
   if (filtered.length === 0) {
-    return null;
+    return {
+      status: 'No Marks',
+      failedModules: [],
+      supplementaryModules: [],
+      message: 'No Marks',
+      details: 'No marks submitted',
+    };
   }
   if (studentModules.some((m) => m.grade === 'NM')) {
     return {

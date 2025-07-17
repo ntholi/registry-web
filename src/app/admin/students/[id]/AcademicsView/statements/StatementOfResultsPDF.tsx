@@ -9,7 +9,6 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer';
-import { calculateDetailedFacultyRemarks } from './academicRemarks';
 
 interface Module {
   code: string;
@@ -402,6 +401,7 @@ const styles = StyleSheet.create({
 
 import { StudentModuleStatus } from '@/db/schema';
 import {
+  calculateFacultyRemarks,
   getGradePoints,
   isFailingGrade,
   ModuleSummaryInput,
@@ -503,8 +503,6 @@ function calculateCumulativeGPA(programs: Program[]) {
   }
 }
 
-type Student = Awaited<ReturnType<typeof getAcademicHistory>>;
-
 export default function StatementOfResultsPDF({
   student,
   qrCodeDataURL,
@@ -524,24 +522,8 @@ export default function StatementOfResultsPDF({
       (program) => program && program.status === 'Active',
     );
 
-    const filteredPrograms = activePrograms.map((program) => ({
-      ...program,
-      semesters: (program.semesters || [])
-        .filter(
-          (semester) =>
-            semester &&
-            !['Deleted', 'Deferred', 'DroppedOut'].includes(semester.status),
-        )
-        .map((semester) => ({
-          ...semester,
-          studentModules: (semester.studentModules || []).filter(
-            (module) => module && !['Delete', 'Drop'].includes(module.status),
-          ),
-        })),
-    }));
-
-    const cumulativeStats = calculateCumulativeGPA(filteredPrograms);
-    const facultyRemarks = calculateDetailedFacultyRemarks(student.programs);
+    const cumulativeStats = calculateCumulativeGPA(activePrograms);
+    const facultyRemarks = calculateFacultyRemarks(activePrograms);
     const pendingModules = [
       ...facultyRemarks.failedModules.map((m) => ({
         ...m,
@@ -582,7 +564,7 @@ export default function StatementOfResultsPDF({
               <Text style={styles.value}>{formatDate(new Date())}</Text>
             </View>
           </View>
-          {filteredPrograms.map((program) => (
+          {activePrograms.map((program) => (
             <View key={program.id} style={styles.programSection}>
               <Text style={styles.programTitle}>
                 {program.structure.program.name}
