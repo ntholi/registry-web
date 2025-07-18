@@ -6,11 +6,13 @@ import { useQueryState } from 'nuqs';
 
 export function SearchField(props: TextInputProps) {
   const [value, setValue] = useQueryState('q');
+  const [, setPage] = useQueryState('page');
 
   const leftSection = value ? (
     <CloseButton
       onClick={() => {
         setValue(null);
+        setPage('1');
       }}
     />
   ) : (
@@ -22,6 +24,7 @@ export function SearchField(props: TextInputProps) {
       value={value || ''}
       onChange={(event) => {
         setValue(event.target.value);
+        setPage('1');
       }}
       rightSection={leftSection}
       spellCheck={false}
