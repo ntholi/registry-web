@@ -1,9 +1,10 @@
 'use client';
 
+import { getSchool } from '@/server/schools/actions';
+import { getProgramsBySchoolId } from '@/server/students/actions';
 import {
   Accordion,
-  Badge,
-  Box,
+  Anchor,
   Card,
   Group,
   Skeleton,
@@ -11,108 +12,18 @@ import {
   Text,
   ThemeIcon,
   Title,
-  Alert,
-  Anchor,
 } from '@mantine/core';
-import {
-  IconArrowLeft,
-  IconBook,
-  IconInfoCircle,
-  IconSchool,
-} from '@tabler/icons-react';
+import { IconArrowLeft, IconBook, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { redirect, useSearchParams } from 'next/navigation';
-import { getProgramsBySchoolId } from '@/server/students/actions';
-import { getStructuresByProgram } from '@/server/semester-modules/actions';
-import { getSchool } from '@/server/schools/actions';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import ProgramDisplay from './ProgramDisplay';
 
 type Program = {
   id: number;
   name: string;
   code: string;
 };
-
-type Structure = {
-  id: number;
-  code: string;
-  desc: string | null;
-  programId: number;
-  createdAt: Date | null;
-};
-
-function ProgramAccordion({ program }: { program: Program }) {
-  const { data: structures, isLoading } = useQuery({
-    queryKey: ['structures', program.id],
-    queryFn: () => getStructuresByProgram(program.id),
-  });
-
-  return (
-    <Accordion.Item value={program.id.toString()}>
-      <Accordion.Control>
-        <Group>
-          <ThemeIcon variant='light' color='blue' size='xl'>
-            <IconBook size='1.1rem' />
-          </ThemeIcon>
-          <Box style={{ flex: 1 }}>
-            <div>
-              <Text fw={600} size='sm'>
-                {program.code}
-              </Text>
-              <Text size='sm' c='dimmed' lineClamp={1}>
-                {program.name}
-              </Text>
-            </div>
-          </Box>
-        </Group>
-      </Accordion.Control>
-      <Accordion.Panel>
-        {isLoading ? (
-          <Stack gap='xs'>
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} height={40} radius='sm' />
-            ))}
-          </Stack>
-        ) : structures && structures.length > 0 ? (
-          <Stack gap='xs'>
-            <Text size='sm' fw={500} c='dimmed' mb='xs'>
-              Structures ({structures.length})
-            </Text>
-            {structures.map((structure: Structure) => (
-              <Card key={structure.id} withBorder padding='sm' radius='sm'>
-                <Group justify='space-between'>
-                  <div>
-                    <Text fw={500} size='sm'>
-                      {structure.code}
-                    </Text>
-                    {structure.desc && (
-                      <Text size='xs' c='dimmed'>
-                        {structure.desc}
-                      </Text>
-                    )}
-                  </div>
-                  <Badge variant='outline' size='xs'>
-                    ID: {structure.id}
-                  </Badge>
-                </Group>
-              </Card>
-            ))}
-          </Stack>
-        ) : (
-          <Alert
-            icon={<IconInfoCircle size={16} />}
-            title='No structures found'
-            color='blue'
-            variant='light'
-          >
-            This program currently has no structures defined.
-          </Alert>
-        )}
-      </Accordion.Panel>
-    </Accordion.Item>
-  );
-}
 
 export default function SchoolProgramsPage() {
   const router = useRouter();
@@ -171,7 +82,7 @@ export default function SchoolProgramsPage() {
       ) : programs && programs.length > 0 ? (
         <Accordion variant='separated' radius='md' multiple defaultValue={[]}>
           {programs.map((program: Program) => (
-            <ProgramAccordion key={program.id} program={program} />
+            <ProgramDisplay key={program.id} program={program} />
           ))}
         </Accordion>
       ) : (
