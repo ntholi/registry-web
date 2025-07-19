@@ -3,8 +3,7 @@ import { getAcademicRemarks } from '@/utils/grades';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-
-type Student = Awaited<ReturnType<typeof getStudentByUserId>>;
+import { getActiveProgram, getCurrentSemester } from '@/lib/student-helpers';
 
 export default function useUserStudent() {
   const router = useRouter();
@@ -29,23 +28,4 @@ export default function useUserStudent() {
     remarks: getAcademicRemarks(student?.programs ?? []),
     semester: getCurrentSemester(student),
   };
-}
-
-function getActiveProgram(student: Student | null) {
-  if (!student) return null;
-  const activeProgram = student.programs
-    .sort((a, b) => b.id - a.id)
-    .filter((p) => p.status === 'Active');
-  return activeProgram[0];
-}
-
-function getCurrentSemester(student: Student | null) {
-  if (!student) return null;
-  const activeProgram = getActiveProgram(student);
-  return activeProgram?.semesters.sort((a, b) => {
-    if (a.semesterNumber && b.semesterNumber) {
-      return b.semesterNumber - a.semesterNumber;
-    }
-    return 0;
-  })[0];
 }

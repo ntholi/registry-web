@@ -7,6 +7,7 @@ import {
 } from '@/db/schema';
 import { registrationRequestsService as service } from './service';
 import { getCurrentTerm } from '../terms/actions';
+import { AcademicRemarks, Student } from '@/hooks/use-user-student';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
@@ -41,6 +42,13 @@ export async function findAllRegistrationRequests(
     page,
     search,
   });
+}
+
+export async function getStudentSemesterModules(
+  student: Student,
+  remarks: AcademicRemarks,
+) {
+  return service.getStudentSemesterModules(student, remarks);
 }
 
 export async function createRegistrationRequest(value: RegistrationRequest) {

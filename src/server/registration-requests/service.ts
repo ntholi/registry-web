@@ -7,6 +7,7 @@ import RegistrationRequestRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
+import { AcademicRemarks, Student } from '@/lib/student-helpers';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
@@ -152,6 +153,15 @@ class RegistrationRequestService {
         ),
       ['student', 'registry'],
     );
+  }
+
+  async getStudentSemesterModules(student: Student, remarks: AcademicRemarks) {
+    return withAuth(async () => {
+      const { getStudentSemesterModulesLogic } = await import(
+        './getStudentSemesterModules'
+      );
+      return getStudentSemesterModulesLogic(student, remarks);
+    }, ['student', 'registry']);
   }
 }
 

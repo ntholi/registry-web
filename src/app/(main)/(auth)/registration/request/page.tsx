@@ -10,9 +10,10 @@ import { Container } from '@/components/ui/container';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import useUserStudent from '@/hooks/use-user-student';
 import ModulesForm from './Form';
+import { Loader2 } from 'lucide-react';
 
-export default async function RegistrationPage() {
-  const { student, studentProgram } = useUserStudent();
+export default function RegistrationPage() {
+  const { student, studentProgram, isLoading } = useUserStudent();
   const { currentTerm } = useCurrentTerm();
 
   return (
@@ -25,7 +26,11 @@ export default async function RegistrationPage() {
           <CardDescription>Register for {currentTerm?.name}</CardDescription>
         </CardHeader>
         <CardContent>
-          {student && studentProgram ? (
+          {isLoading ? (
+            <div className='flex items-center justify-center p-10'>
+              <Loader2 className='h-10 w-10 animate-spin' />
+            </div>
+          ) : student && studentProgram ? (
             <ModulesForm
               stdNo={student.stdNo}
               structureId={studentProgram.structureId}
