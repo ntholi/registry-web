@@ -213,7 +213,7 @@ export default class StudentRepository extends BaseRepository<
         code: true,
       },
       where: eq(programs.schoolId, schoolId),
-      orderBy: programs.name,
+      orderBy: desc(programs.id),
     });
   }
 
