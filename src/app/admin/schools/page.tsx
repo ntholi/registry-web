@@ -2,15 +2,22 @@
 
 import { getAllSchools } from '@/server/schools/actions';
 import {
+  Box,
   Card,
+  Flex,
   SimpleGrid,
   Skeleton,
   Stack,
   Text,
+  ThemeIcon,
   Title,
   UnstyledButton,
 } from '@mantine/core';
-import { IconSchool } from '@tabler/icons-react';
+import {
+  IconArrowRight,
+  IconChevronRight,
+  IconSchool,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 
@@ -35,7 +42,7 @@ export default function SchoolsPage() {
           ))}
         </SimpleGrid>
       ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
           {schools?.map((school) => (
             <UnstyledButton
               key={school.id}
@@ -43,15 +50,22 @@ export default function SchoolsPage() {
               href={`/admin/schools/programs?schoolId=${school.id}`}
             >
               <Card withBorder shadow='sm' padding='lg'>
-                <Stack gap='xs' align='center' justify='center' h='100%'>
-                  <IconSchool size={28} />
-                  <Text fw={500} ta='center' lineClamp={1}>
-                    {school.name}
-                  </Text>
-                  <Text size='sm' c='dimmed' ta='center'>
-                    {school.code}
-                  </Text>
-                </Stack>
+                <Flex gap={'md'}>
+                  <ThemeIcon variant='light' color='gray' size={'xl'}>
+                    <IconSchool size='1.1rem' />
+                  </ThemeIcon>
+                  <Box style={{ flex: 1 }}>
+                    <Text ff='monospace' fw={600}>
+                      {school.code}
+                    </Text>
+                    <Text size='sm' lineClamp={1}>
+                      {school.name}
+                    </Text>
+                  </Box>
+                  <Stack justify='center'>
+                    <IconChevronRight size={16} />
+                  </Stack>
+                </Flex>
               </Card>
             </UnstyledButton>
           ))}

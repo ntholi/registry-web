@@ -65,6 +65,7 @@ export default function StudentsFilter() {
   const { data: schools = [] } = useQuery({
     queryKey: ['schools'],
     queryFn: getAllSchools,
+    select: (data) => data.items,
   });
 
   const { data: programs = [] } = useQuery({
