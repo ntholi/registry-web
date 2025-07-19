@@ -29,6 +29,7 @@ import { getProgramsBySchoolId } from '@/server/students/actions';
 import { getStructuresByProgram } from '@/server/semester-modules/actions';
 import { getSchool } from '@/server/schools/actions';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 type Structure = {
   id: number;
@@ -81,29 +82,7 @@ export default function ProgramDisplay({ program }: Props) {
         ) : structures && structures.length > 0 ? (
           <Stack gap='xs'>
             {structures.map((structure) => (
-              <UnstyledButton
-                key={structure.id}
-                component={Link}
-                href={`/admin/schools/programs/${structure.id}`}
-              >
-                <Card key={structure.id} withBorder padding='sm' radius='sm'>
-                  <Group justify='space-between'>
-                    <div>
-                      <Text fw={500} size='sm'>
-                        {structure.code}
-                      </Text>
-                      {structure.desc && (
-                        <Text size='xs' c='dimmed'>
-                          {structure.desc}
-                        </Text>
-                      )}
-                    </div>
-                    <Stack justify='center'>
-                      <IconChevronRight size={16} />
-                    </Stack>
-                  </Group>
-                </Card>
-              </UnstyledButton>
+              <StructureCard key={structure.id} structure={structure} />
             ))}
           </Stack>
         ) : (
@@ -118,5 +97,42 @@ export default function ProgramDisplay({ program }: Props) {
         )}
       </Accordion.Panel>
     </Accordion.Item>
+  );
+}
+
+function StructureCard({ structure }: { structure: Structure }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <UnstyledButton
+      component={Link}
+      href={`/admin/schools/programs/${structure.id}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Card withBorder padding='sm' radius='sm'>
+        <Group justify='space-between'>
+          <div>
+            <Text fw={500} size='sm'>
+              {structure.code}
+            </Text>
+            {structure.desc && (
+              <Text size='xs' c='dimmed'>
+                {structure.desc}
+              </Text>
+            )}
+          </div>
+          <Stack justify='center'>
+            <IconChevronRight
+              size={16}
+              style={{
+                transition: 'transform 0.2s ease',
+                transform: isHovered ? 'translateX(4px)' : 'translateX(0px)',
+              }}
+            />
+          </Stack>
+        </Group>
+      </Card>
+    </UnstyledButton>
   );
 }

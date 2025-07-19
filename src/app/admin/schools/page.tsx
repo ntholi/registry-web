@@ -20,6 +20,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function SchoolsPage() {
   const { data: schools, isLoading } = useQuery({
@@ -44,30 +45,7 @@ export default function SchoolsPage() {
       ) : (
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
           {schools?.map((school) => (
-            <UnstyledButton
-              key={school.id}
-              component={Link}
-              href={`/admin/schools/programs?schoolId=${school.id}`}
-            >
-              <Card withBorder shadow='sm' padding='lg'>
-                <Flex gap={'md'}>
-                  <ThemeIcon variant='light' color='gray' size={'xl'}>
-                    <IconSchool size='1.1rem' />
-                  </ThemeIcon>
-                  <Box style={{ flex: 1 }}>
-                    <Text ff='monospace' fw={600}>
-                      {school.code}
-                    </Text>
-                    <Text size='sm' lineClamp={1}>
-                      {school.name}
-                    </Text>
-                  </Box>
-                  <Stack justify='center'>
-                    <IconChevronRight size={16} />
-                  </Stack>
-                </Flex>
-              </Card>
-            </UnstyledButton>
+            <SchoolCard key={school.id} school={school} />
           ))}
         </SimpleGrid>
       )}
@@ -86,5 +64,43 @@ export default function SchoolsPage() {
         </Card>
       )}
     </Stack>
+  );
+}
+
+function SchoolCard({ school }: { school: any }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <UnstyledButton
+      component={Link}
+      href={`/admin/schools/programs?schoolId=${school.id}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Card withBorder shadow='sm' padding='lg'>
+        <Flex gap={'md'}>
+          <ThemeIcon variant='light' color='gray' size={'xl'}>
+            <IconSchool size='1.1rem' />
+          </ThemeIcon>
+          <Box style={{ flex: 1 }}>
+            <Text ff='monospace' fw={600}>
+              {school.code}
+            </Text>
+            <Text size='sm' lineClamp={1}>
+              {school.name}
+            </Text>
+          </Box>
+          <Stack justify='center'>
+            <IconChevronRight
+              size={16}
+              style={{
+                transition: 'transform 0.2s ease',
+                transform: isHovered ? 'translateX(4px)' : 'translateX(0px)',
+              }}
+            />
+          </Stack>
+        </Flex>
+      </Card>
+    </UnstyledButton>
   );
 }
