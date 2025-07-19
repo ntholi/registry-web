@@ -22,7 +22,6 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import EditButton from './EditButton';
-import FilterSelect from './FilterSelect';
 import HideButton from './HideButton';
 import PrerequisiteDisplay from './PrerequisiteDisplay';
 
@@ -45,7 +44,6 @@ export default function ProgramsPage() {
     <Box p={'lg'}>
       <Stack gap='lg'>
         <Paper shadow='sm' p='md' withBorder>
-          <FilterSelect onStructureSelect={handleStructureSelect} />
           {structure && (
             <Card mt={'xl'} withBorder p='sm'>
               <Text fw={500}>{structure?.program?.name}</Text>
