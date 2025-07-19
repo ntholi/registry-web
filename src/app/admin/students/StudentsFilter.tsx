@@ -102,13 +102,13 @@ export default function StudentsFilter() {
 
   const previewDescription = useMemo(() => {
     const selectedSchool = schools.find(
-      (s) => s.id.toString() === (filters.schoolId || ''),
+      (s) => s.id?.toString() === (filters.schoolId || ''),
     );
     const selectedProgram = programs.find(
-      (p) => p.id.toString() === (filters.programId || ''),
+      (p) => p.id?.toString() === (filters.programId || ''),
     );
     const selectedTerm = terms.find(
-      (t) => t.id.toString() === (filters.termId || ''),
+      (t) => t.id?.toString() === (filters.termId || ''),
     );
     const selectedSemester = filters.semesterNumber
       ? getSemesterLabel(Number(filters.semesterNumber))
@@ -206,7 +206,7 @@ export default function StudentsFilter() {
             label='School'
             placeholder='Select school'
             data={schools.map((school) => ({
-              value: school.id.toString(),
+              value: school.id?.toString() || '',
               label: school.name,
             }))}
             value={filters.schoolId || null}
@@ -225,7 +225,7 @@ export default function StudentsFilter() {
             label='Program'
             placeholder='Select program'
             data={programs.map((program) => ({
-              value: program.id.toString(),
+              value: program.id?.toString() || '',
               label: program.name,
             }))}
             value={filters.programId || null}
@@ -244,7 +244,7 @@ export default function StudentsFilter() {
             label='Term'
             placeholder='Select term'
             data={terms.map((term) => ({
-              value: term.id.toString(),
+              value: term.id?.toString() || '',
               label: term.name,
             }))}
             value={filters.termId || null}
