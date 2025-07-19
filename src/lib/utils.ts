@@ -25,12 +25,17 @@ export function formatDateTime(timestamp: number | Date | undefined | null) {
   });
 }
 
-export function formatSemester(sem: number | undefined | null) {
+export function formatSemester(
+  sem: number | undefined | null,
+  type: 'full' | 'short' = 'full',
+) {
   if (!sem) return '';
   const year = Math.ceil(sem / 2);
   const semester = sem % 2 === 0 ? 2 : 1;
 
-  return `Year ${year} • Semester ${semester}`;
+  return type === 'full'
+    ? `Year ${year} • Semester ${semester}`
+    : `Y${year}S${semester}`;
 }
 
 export function toTitleCase(str: string | undefined | null) {

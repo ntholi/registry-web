@@ -418,9 +418,9 @@ function ModuleTable({ modules }: { modules: ModuleData }) {
                 </Badge>
               </Table.Td>
               <Table.Td>
-                <Badge color='gray' variant='outline' size='sm'>
-                  {module.semesterNo}
-                </Badge>
+                <Text size='sm' fw={500}>
+                  {formatSemester(module.semesterNo, 'short')}
+                </Text>
               </Table.Td>
               <Table.Td>
                 {module.prerequisites && module.prerequisites.length > 0 ? (
