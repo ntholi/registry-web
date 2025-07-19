@@ -20,6 +20,7 @@ type ModuleWithStatus = {
   type: string;
   credits: number;
   status: 'Compulsory' | 'Elective' | `Repeat${number}`;
+  semesterNo: number;
   prerequisites?: Module[];
 };
 
@@ -29,14 +30,9 @@ type Module = {
   name: string;
 };
 
-type SemesterModules = {
-  modules: ModuleWithStatus[];
-  semesterNo: number;
-  semesterStatus: 'Active' | 'Repeat';
-};
-
 type SemesterModuleWithModule = typeof semesterModules.$inferSelect & {
   module: typeof modules.$inferSelect;
+  semester: { semesterNumber: number };
 };
 
 export async function getStudentSemesterModulesLogic(
@@ -74,27 +70,24 @@ export async function getStudentSemesterModulesLogic(
   );
 
   const filteredModules = eligibleModules.filter(
-    (m: SemesterModuleWithModule) => !attemptedModules.has(m.module?.name),
+    (m) => !attemptedModules.has(m.module?.name),
   );
 
-  return {
-    semesterNo: nextSemester,
-    semesterStatus: 'Active',
-    modules: [
-      ...filteredModules.map(
-        (m: SemesterModuleWithModule): ModuleWithStatus => ({
-          semesterModuleId: m.id,
-          code: m.module.code,
-          name: m.module.name,
-          type: m.type,
-          credits: m.credits,
-          status: m.type === 'Elective' ? 'Elective' : 'Compulsory',
-          prerequisites: failedPrerequisites[m.module?.name] || [],
-        }),
-      ),
-      ...repeatModules,
-    ],
-  };
+  return [
+    ...filteredModules.map(
+      (m): ModuleWithStatus => ({
+        semesterModuleId: m.id,
+        code: m.module.code,
+        name: m.module.name,
+        type: m.type,
+        credits: m.credits,
+        status: m.type === 'Elective' ? 'Elective' : 'Compulsory',
+        semesterNo: m.semester.semesterNumber,
+        prerequisites: failedPrerequisites[m.module?.name] || [],
+      }),
+    ),
+    ...repeatModules,
+  ];
 }
 
 async function getFailedPrerequisites(failedModules: Module[]) {
@@ -179,33 +172,28 @@ async function getRepeatModules(
       structureId,
     );
     const repeatModulesForSemester = semesterModules.filter(
-      (sm: SemesterModuleWithModule) =>
-        sm.module && failedModuleNames.includes(sm.module.name),
+      (sm) => sm.module && failedModuleNames.includes(sm.module.name),
     );
 
-    repeatModulesForSemester.forEach(
-      (sm: SemesterModuleWithModule, index: number) => {
-        const globalIndex = allRepeatModules.length + index + 1;
-        allRepeatModules.push({
-          semesterModuleId: sm.id,
-          code: sm.module!.code,
-          name: sm.module!.name,
-          type: sm.type,
-          credits: sm.credits,
-          status: `Repeat${globalIndex}` as const,
-          prerequisites: failedPrerequisites[sm.module!.name] || [],
-        });
-      },
-    );
+    repeatModulesForSemester.forEach((sm, index: number) => {
+      const globalIndex = allRepeatModules.length + index + 1;
+      allRepeatModules.push({
+        semesterModuleId: sm.id,
+        code: sm.module!.code,
+        name: sm.module!.name,
+        type: sm.type,
+        credits: sm.credits,
+        status: `Repeat${globalIndex}` as const,
+        semesterNo: sm.semester.semesterNumber,
+        prerequisites: failedPrerequisites[sm.module!.name] || [],
+      });
+    });
   }
 
   return allRepeatModules;
 }
 
-async function getSemesterModules(
-  semesterNumber: number,
-  structureId: number,
-): Promise<SemesterModuleWithModule[]> {
+async function getSemesterModules(semesterNumber: number, structureId: number) {
   const semesters = await db.query.structureSemesters.findMany({
     where: and(
       eq(structureSemesters.structureId, structureId),
@@ -219,6 +207,9 @@ async function getSemesterModules(
   const data = await db.query.semesterModules.findMany({
     with: {
       module: true,
+      semester: {
+        columns: { semesterNumber: true },
+      },
     },
     where: and(
       inArray(semesterModules.semesterId, semesterIds),
@@ -226,5 +217,7 @@ async function getSemesterModules(
     ),
   });
 
-  return data.filter((m) => m.module !== null) as SemesterModuleWithModule[];
+  return data.filter(
+    (m) => m.module !== null && m.semester !== null,
+  ) as SemesterModuleWithModule[];
 }
