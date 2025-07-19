@@ -42,7 +42,7 @@ type SemesterModuleWithModule = typeof semesterModules.$inferSelect & {
 export async function getStudentSemesterModulesLogic(
   student: Student,
   { failedModules }: AcademicRemarks,
-): Promise<SemesterModules> {
+) {
   if (!student) {
     throw new Error('Student not found');
   }
@@ -89,7 +89,7 @@ export async function getStudentSemesterModulesLogic(
           type: m.type,
           credits: m.credits,
           status: m.type === 'Elective' ? 'Elective' : 'Compulsory',
-          prerequisites: failedPrerequisites[m.module?.code] || [],
+          prerequisites: failedPrerequisites[m.module?.name] || [],
         }),
       ),
       ...repeatModules,
@@ -102,9 +102,9 @@ async function getFailedPrerequisites(failedModules: Module[]) {
     return {};
   }
 
-  const failedModulesByCode = failedModules.reduce(
+  const failedModulesByName = failedModules.reduce(
     (acc, module) => {
-      acc[module.code] = module;
+      acc[module.name] = module;
       return acc;
     },
     {} as Record<string, Module>,
@@ -134,13 +134,13 @@ async function getFailedPrerequisites(failedModules: Module[]) {
       if (
         module &&
         prerequisite.module &&
-        failedModulesByCode[prerequisite.module.code]
+        failedModulesByName[prerequisite.module.name]
       ) {
-        acc[module.code] = acc[module.code] || [];
-        const pModule = failedModulesByCode[prerequisite.module.code];
+        acc[module.name] = acc[module.name] || [];
+        const pModule = failedModulesByName[prerequisite.module.name];
 
-        if (!acc[module.code].some((p) => p.code === pModule.code)) {
-          acc[module.code].push(pModule);
+        if (!acc[module.name].some((p) => p.name === pModule.name)) {
+          acc[module.name].push(pModule);
         }
       }
       return acc;
@@ -156,7 +156,7 @@ async function getRepeatModules(
 ) {
   if (failedModules.length === 0) return [];
 
-  const failedModuleCodes = failedModules.map((m) => m.code);
+  const failedModuleNames = failedModules.map((m) => m.name);
   const failedPrerequisites = await getFailedPrerequisites(failedModules);
 
   const targetSemesters: number[] = [];
@@ -180,7 +180,7 @@ async function getRepeatModules(
     );
     const repeatModulesForSemester = semesterModules.filter(
       (sm: SemesterModuleWithModule) =>
-        sm.module && failedModuleCodes.includes(sm.module.code),
+        sm.module && failedModuleNames.includes(sm.module.name),
     );
 
     repeatModulesForSemester.forEach(
@@ -193,7 +193,7 @@ async function getRepeatModules(
           type: sm.type,
           credits: sm.credits,
           status: `Repeat${globalIndex}` as const,
-          prerequisites: failedPrerequisites[sm.module!.code] || [],
+          prerequisites: failedPrerequisites[sm.module!.name] || [],
         });
       },
     );
