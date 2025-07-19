@@ -25,6 +25,9 @@ import {
   TextInput,
   ThemeIcon,
   Tooltip,
+  Popover,
+  Stack as MantineStack,
+  HoverCard,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
@@ -144,23 +147,6 @@ export default function RegistrationSimulator() {
   const repeatModules =
     modules?.filter((m) => m.status.startsWith('Repeat')) || [];
 
-  const totalCredits =
-    modules?.reduce((sum, module) => sum + module.credits, 0) || 0;
-
-  const getStatusColor = (status: string) => {
-    if (status === 'Compulsory') return 'blue';
-    if (status === 'Elective') return 'green';
-    if (status.startsWith('Repeat')) return 'orange';
-    return 'gray';
-  };
-
-  const getStatusIcon = (status: string) => {
-    if (status === 'Compulsory') return <IconBookmark size={14} />;
-    if (status === 'Elective') return <IconCheck size={14} />;
-    if (status.startsWith('Repeat')) return <IconRepeat size={14} />;
-    return <IconInfoCircle size={14} />;
-  };
-
   return (
     <Stack gap='lg'>
       <Paper withBorder p='md' radius='md'>
@@ -276,11 +262,8 @@ export default function RegistrationSimulator() {
                 </Text>
               </Group>
               <Group gap='md'>
-                <Badge color='gray' variant='light' size='sm'>
-                  {modules.length} Modules
-                </Badge>
                 <Badge color='blue' variant='light' size='sm'>
-                  <NumberFormatter value={totalCredits} /> Credits
+                  {modules.length} Modules
                 </Badge>
               </Group>
             </Group>
@@ -441,16 +424,20 @@ function ModuleTable({ modules }: { modules: ModuleData }) {
               </Table.Td>
               <Table.Td>
                 {module.prerequisites && module.prerequisites.length > 0 ? (
-                  <Tooltip
-                    label={module.prerequisites.map((p) => p.name).join(', ')}
-                    withArrow
-                    multiline
-                    maw={300}
-                  >
-                    <Text size='sm' c='red'>
-                      {module.prerequisites.length} Failed
-                    </Text>
-                  </Tooltip>
+                  <HoverCard width={300} position='top' withArrow shadow='md'>
+                    <HoverCard.Target>
+                      <Text size='sm' style={{ cursor: 'pointer' }}>
+                        {module.prerequisites.map((p) => p.name).join(', ')}
+                      </Text>
+                    </HoverCard.Target>
+                    <HoverCard.Dropdown>
+                      {module.prerequisites.map((p, idx) => (
+                        <Text key={idx} size='sm'>
+                          {p.name} ({p.code})
+                        </Text>
+                      ))}
+                    </HoverCard.Dropdown>
+                  </HoverCard>
                 ) : (
                   <Text size='sm'>-</Text>
                 )}
