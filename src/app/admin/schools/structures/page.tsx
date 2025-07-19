@@ -49,8 +49,8 @@ export default function SchoolProgramsPage() {
   return (
     <Stack p='lg'>
       <Group>
-        <Anchor component={Link} href='/admin/schools'>
-          <Group gap='xs' c='dimmed' style={{ cursor: 'pointer' }}>
+        <Anchor c='dimmed' component={Link} href='/admin/schools'>
+          <Group gap='xs'>
             <IconArrowLeft size={16} />
             <Text size='sm'>Back to Schools</Text>
           </Group>
