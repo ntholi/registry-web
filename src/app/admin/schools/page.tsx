@@ -13,11 +13,7 @@ import {
   Title,
   UnstyledButton,
 } from '@mantine/core';
-import {
-  IconArrowRight,
-  IconChevronRight,
-  IconSchool,
-} from '@tabler/icons-react';
+import { IconChevronRight, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -73,7 +69,7 @@ function SchoolCard({ school }: { school: any }) {
   return (
     <UnstyledButton
       component={Link}
-      href={`/admin/schools/programs?schoolId=${school.id}`}
+      href={`/admin/schools/structures?schoolId=${school.id}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

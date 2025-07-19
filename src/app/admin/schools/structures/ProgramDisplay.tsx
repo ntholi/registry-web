@@ -106,7 +106,7 @@ function StructureCard({ structure }: { structure: Structure }) {
   return (
     <UnstyledButton
       component={Link}
-      href={`/admin/schools/programs/${structure.id}`}
+      href={`/admin/schools/structures/${structure.id}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
