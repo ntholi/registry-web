@@ -1,49 +1,45 @@
 'use client';
 
+import { formatSemester } from '@/lib/utils';
 import { getStudentSemesterModules } from '@/server/registration-requests/actions';
 import { getStudent, getStudentByUserId } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
-  Stack,
-  Group,
-  TextInput,
-  Button,
-  Paper,
-  Text,
-  Title,
-  Badge,
-  Card,
-  SimpleGrid,
-  Divider,
-  Alert,
-  Loader,
-  Center,
-  ThemeIcon,
-  Table,
   Accordion,
-  ActionIcon,
-  Tooltip,
+  Alert,
+  Anchor,
+  Badge,
+  Button,
+  Card,
+  Center,
+  Divider,
+  Group,
+  Loader,
   NumberFormatter,
-  Flex,
+  Paper,
   ScrollArea,
+  SimpleGrid,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  ThemeIcon,
+  Tooltip,
 } from '@mantine/core';
-import {
-  IconSearch,
-  IconUser,
-  IconSchool,
-  IconAlertCircle,
-  IconCheck,
-  IconX,
-  IconBookmark,
-  IconRepeat,
-  IconInfoCircle,
-  IconCalendar,
-  IconFileText,
-  IconRefresh,
-  IconUsers,
-} from '@tabler/icons-react';
-import { useState, useTransition } from 'react';
 import { notifications } from '@mantine/notifications';
+import {
+  IconAlertCircle,
+  IconBookmark,
+  IconCheck,
+  IconInfoCircle,
+  IconRefresh,
+  IconRepeat,
+  IconUser,
+  IconUsers,
+  IconX,
+} from '@tabler/icons-react';
+import Link from 'next/link';
+import { useState, useTransition } from 'react';
 
 type ModuleData = Awaited<ReturnType<typeof getStudentSemesterModules>>;
 type Student = {
@@ -122,12 +118,6 @@ export default function RegistrationSimulator() {
         }
 
         setModules(moduleData);
-        notifications.show({
-          title: 'Simulation Complete',
-          message: `Found ${moduleData.length} modules for ${lookup.name}`,
-          color: 'green',
-          icon: <IconCheck size={16} />,
-        });
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Unknown error occurred';
@@ -184,7 +174,6 @@ export default function RegistrationSimulator() {
               leftSection={<IconUsers size={16} />}
               flex={1}
               maxLength={10}
-              error={error}
             />
             <Button
               onClick={handleSubmit}
@@ -255,19 +244,22 @@ export default function RegistrationSimulator() {
                 <Text size='xs' c='dimmed' mb={4}>
                   Current Semester
                 </Text>
-                <Badge color='blue' variant='light' size='sm'>
-                  Semester {student.semester}
-                </Badge>
+                <Text fw={500} size='sm'>
+                  {formatSemester(student.semester)}
+                </Text>
               </Paper>
               <Paper withBorder p='sm' radius='sm'>
                 <Text size='xs' c='dimmed' mb={4}>
-                  Program
+                  {student.program.name}
                 </Text>
-                <Tooltip label={student.program.name} withArrow>
-                  <Text fw={500} size='sm' truncate>
-                    {student.program.code}
-                  </Text>
-                </Tooltip>
+                <Anchor
+                  component={Link}
+                  size='sm'
+                  c='default'
+                  href={`/admin/schools/structures/${student.program.structureCode}`}
+                >
+                  {student.program.code}
+                </Anchor>
               </Paper>
             </SimpleGrid>
           </Stack>
@@ -279,11 +271,8 @@ export default function RegistrationSimulator() {
           <Stack gap='lg'>
             <Group justify='space-between' align='center'>
               <Group gap='xs' align='center'>
-                <ThemeIcon size='sm' radius='sm' variant='light' color='grape'>
-                  <IconFileText size={14} />
-                </ThemeIcon>
                 <Text fw={500} size='sm'>
-                  Module Simulation Results
+                  Results
                 </Text>
               </Group>
               <Group gap='md'>
@@ -298,7 +287,16 @@ export default function RegistrationSimulator() {
 
             <Divider />
 
-            <Accordion variant='separated' radius='sm'>
+            <Accordion
+              variant='separated'
+              radius='sm'
+              multiple
+              defaultValue={[
+                ...(compulsoryModules.length > 0 ? ['compulsory'] : []),
+                ...(electiveModules.length > 0 ? ['elective'] : []),
+                ...(repeatModules.length > 0 ? ['repeat'] : []),
+              ]}
+            >
               {compulsoryModules.length > 0 && (
                 <Accordion.Item value='compulsory'>
                   <Accordion.Control
@@ -420,13 +418,7 @@ function ModuleTable({ modules }: { modules: ModuleData }) {
                 <Text size='sm'>{module.name}</Text>
               </Table.Td>
               <Table.Td>
-                <Badge
-                  color={module.type === 'Elective' ? 'green' : 'blue'}
-                  variant='light'
-                  size='sm'
-                >
-                  {module.type}
-                </Badge>
+                <Text size='sm'>{module.type}</Text>
               </Table.Td>
               <Table.Td>
                 <Text size='sm' fw={500}>
@@ -438,7 +430,6 @@ function ModuleTable({ modules }: { modules: ModuleData }) {
                   color={getStatusColor(module.status)}
                   variant='light'
                   size='sm'
-                  leftSection={getStatusIcon(module.status)}
                 >
                   {module.status}
                 </Badge>
@@ -456,14 +447,12 @@ function ModuleTable({ modules }: { modules: ModuleData }) {
                     multiline
                     maw={300}
                   >
-                    <Badge color='red' variant='light' size='sm'>
+                    <Text size='sm' c='red'>
                       {module.prerequisites.length} Failed
-                    </Badge>
+                    </Text>
                   </Tooltip>
                 ) : (
-                  <Badge color='green' variant='light' size='sm'>
-                    Clear
-                  </Badge>
+                  <Text size='sm'>-</Text>
                 )}
               </Table.Td>
             </Table.Tr>
@@ -479,11 +468,4 @@ function getStatusColor(status: string) {
   if (status === 'Elective') return 'green';
   if (status.startsWith('Repeat')) return 'orange';
   return 'gray';
-}
-
-function getStatusIcon(status: string) {
-  if (status === 'Compulsory') return <IconBookmark size={14} />;
-  if (status === 'Elective') return <IconCheck size={14} />;
-  if (status.startsWith('Repeat')) return <IconRepeat size={14} />;
-  return <IconInfoCircle size={14} />;
 }
