@@ -24,6 +24,7 @@ type ModuleWithStatus = {
 };
 
 type Module = {
+  id: number;
   code: string;
   name: string;
 };
@@ -52,10 +53,19 @@ export async function getStudentSemesterModulesLogic(
   }
 
   const failedPrerequisites = await getFailedPrerequisites(
-    remarks.failedModules,
-    activeProgram.structureId,
+    remarks.failedModules.map((m) => ({
+      id: m.id,
+      code: m.code,
+      name: m.name,
+    })),
   );
-  const repeatModules = await getRepeatModules(remarks.failedModules);
+  const repeatModules = await getRepeatModules(
+    remarks.failedModules.map((m) => ({
+      id: m.id,
+      code: m.code,
+      name: m.name,
+    })),
+  );
   const nextSemester = (getCurrentSemester(student)?.semesterNumber ?? 0) + 1;
 
   // if (repeatModules.length >= 3) {
@@ -102,47 +112,32 @@ export async function getStudentSemesterModulesLogic(
   };
 }
 
-async function getFailedPrerequisites(
-  failedModules: Module[],
-  structureId: number,
-) {
+async function getFailedPrerequisites(failedModules: Module[]) {
   if (failedModules.length === 0) {
     return {};
   }
 
   const failedModulesByCode = failedModules.reduce(
     (acc, module) => {
-      acc[module.code] = { code: module.code, name: module.name };
+      acc[module.code] = module;
       return acc;
     },
     {} as Record<string, Module>,
   );
 
-  const failedModuleCodes = Object.keys(failedModulesByCode);
-
-  const failedModuleIds = await db
-    .select({ id: modules.id })
-    .from(modules)
-    .where(inArray(modules.code, failedModuleCodes))
-    .then((rows) => rows.map((r) => r.id));
-
-  if (failedModuleIds.length === 0) {
-    return {};
-  }
-
   const failedSemesterModules = await db.query.semesterModules.findMany({
-    where: inArray(semesterModules.moduleId, failedModuleIds),
+    where: inArray(
+      semesterModules.moduleId,
+      failedModules.map((m) => m.id),
+    ),
     columns: { id: true },
   });
 
-  const failedSemesterModuleIds = failedSemesterModules.map((sm) => sm.id);
-
-  if (failedSemesterModuleIds.length === 0) {
-    return {};
-  }
-
   const prerequisites = await db.query.modulePrerequisites.findMany({
-    where: inArray(modulePrerequisites.prerequisiteId, failedSemesterModuleIds),
+    where: inArray(
+      modulePrerequisites.prerequisiteId,
+      failedSemesterModules.map((sm) => sm.id),
+    ),
     with: {
       semesterModule: { with: { module: true } },
       prerequisite: { with: { module: true } },
@@ -150,21 +145,17 @@ async function getFailedPrerequisites(
   });
 
   return prerequisites.reduce(
-    (acc, { semesterModule, prerequisite }) => {
+    (acc, { semesterModule: { module }, prerequisite }) => {
       if (
-        semesterModule.module &&
+        module &&
         prerequisite.module &&
         failedModulesByCode[prerequisite.module.code]
       ) {
-        acc[semesterModule.module.code] = acc[semesterModule.module.code] || [];
-        const prereqInfo = failedModulesByCode[prerequisite.module.code];
+        acc[module.code] = acc[module.code] || [];
+        const pModule = failedModulesByCode[prerequisite.module.code];
 
-        if (
-          !acc[semesterModule.module.code].some(
-            (p) => p.code === prereqInfo.code,
-          )
-        ) {
-          acc[semesterModule.module.code].push(prereqInfo);
+        if (!acc[module.code].some((p) => p.code === pModule.code)) {
+          acc[module.code].push(pModule);
         }
       }
       return acc;
@@ -196,7 +187,7 @@ async function getRepeatModules(failedModules: Module[]) {
     },
   });
 
-  const failedPrerequisites = await getFailedPrerequisites(failedModules, 0);
+  const failedPrerequisites = await getFailedPrerequisites(failedModules);
 
   return semesterModulesData
     .filter((sm) => sm.module && failedModuleCodes.includes(sm.module.code))

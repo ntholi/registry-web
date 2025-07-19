@@ -67,6 +67,7 @@ export default class StudentRepository extends BaseRepository<
                       with: {
                         module: {
                           columns: {
+                            id: true,
                             code: true,
                             name: true,
                           },
@@ -138,6 +139,7 @@ export default class StudentRepository extends BaseRepository<
                       with: {
                         module: {
                           columns: {
+                            id: true,
                             code: true,
                             name: true,
                           },

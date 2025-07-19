@@ -14,6 +14,7 @@ export type StudentModule = {
     credits: number;
     type: string;
     module: {
+      id: number;
       code: string;
       name: string;
     } | null;
@@ -51,6 +52,7 @@ export type GradePoint = {
 export type FacultyRemarksResult = {
   status: 'Proceed' | 'Remain in Semester' | 'No Marks';
   failedModules: {
+    id: number;
     code: string;
     name: string;
   }[];

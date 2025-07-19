@@ -379,15 +379,15 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 
 function getUniqueModules(modules: StudentModule[]) {
   return modules
+    .filter((m) => m.semesterModule.module)
     .map((m) => ({
-      code: m.semesterModule.module?.code || '',
-      name: m.semesterModule.module?.name || '',
+      id: m.semesterModule.module!.id,
+      code: m.semesterModule.module!.code,
+      name: m.semesterModule.module!.name,
     }))
     .filter(
       (module, index, array) =>
-        array.findIndex(
-          (m) => m.code === module.code && m.name === module.name,
-        ) === index,
+        array.findIndex((m) => m.name === module.name) === index,
     );
 }
 
