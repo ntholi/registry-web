@@ -1,10 +1,3 @@
-import {
-  AcademicRemarks,
-  getActiveProgram,
-  getCurrentSemester,
-  Student,
-} from '@/lib/student-helpers';
-import { getCurrentTerm } from '@/server/terms/actions';
 import { db } from '@/db';
 import {
   modulePrerequisites,
@@ -12,6 +5,12 @@ import {
   semesterModules,
   structureSemesters,
 } from '@/db/schema';
+import {
+  AcademicRemarks,
+  getActiveProgram,
+  getCurrentSemester,
+  Student,
+} from '@/lib/student-helpers';
 import { and, eq, inArray } from 'drizzle-orm';
 
 type ModuleWithStatus = {
@@ -52,15 +51,7 @@ export async function getStudentSemesterModulesLogic(
     throw new Error('No active program found for student');
   }
 
-  const currentSemester = getCurrentSemester(student);
-  const nextSemesterNumber = (currentSemester?.semesterNumber ?? 0) + 1;
-
-  const term = await getCurrentTerm();
-  const isSameParity =
-    (term.semester % 2 === 0) === (nextSemesterNumber % 2 === 0);
-  const actualNextSemester = isSameParity
-    ? nextSemesterNumber
-    : nextSemesterNumber - 1;
+  const nextSemester = (getCurrentSemester(student)?.semesterNumber ?? 0) + 1;
 
   const failedPrerequisites = await getFailedPrerequisites(
     remarks.failedModules,
@@ -71,7 +62,7 @@ export async function getStudentSemesterModulesLogic(
   if (repeatModules.length >= 3) {
     return {
       modules: repeatModules,
-      semesterNo: actualNextSemester,
+      semesterNo: nextSemester,
       semesterStatus: 'Repeat',
     };
   }
@@ -84,7 +75,7 @@ export async function getStudentSemesterModulesLogic(
   );
 
   const eligibleModules = await getNextSemesterModules(
-    actualNextSemester,
+    nextSemester,
     activeProgram.structureId,
   );
 
@@ -93,7 +84,7 @@ export async function getStudentSemesterModulesLogic(
   );
 
   return {
-    semesterNo: actualNextSemester,
+    semesterNo: nextSemester,
     semesterStatus: 'Active',
     modules: [
       ...filteredModules.map(
