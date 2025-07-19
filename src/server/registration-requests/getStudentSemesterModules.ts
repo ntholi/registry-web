@@ -8,7 +8,7 @@ import {
 import {
   AcademicRemarks,
   getActiveProgram,
-  getCurrentSemester,
+  getNextSemesterNo,
   Student,
 } from '@/lib/helpers/students';
 import { and, eq, inArray } from 'drizzle-orm';
@@ -48,12 +48,10 @@ export async function getStudentSemesterModulesLogic(
     throw new Error('No active program found for student');
   }
 
-  const nextSemester = (getCurrentSemester(student)?.semesterNumber ?? 0) + 1;
-
   const failedPrerequisites = await getFailedPrerequisites(failedModules);
   const repeatModules = await getRepeatModules(
     failedModules,
-    nextSemester,
+    getNextSemesterNo(student),
     activeProgram.structureId,
   );
 
@@ -65,7 +63,7 @@ export async function getStudentSemesterModulesLogic(
   );
 
   const eligibleModules = await getSemesterModules(
-    nextSemester,
+    getNextSemesterNo(student),
     activeProgram.structureId,
   );
 

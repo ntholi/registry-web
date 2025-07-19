@@ -15,10 +15,15 @@ export function getActiveProgram(student: Student | null) {
 export function getCurrentSemester(student: Student | null) {
   if (!student) return null;
   const activeProgram = getActiveProgram(student);
-  return activeProgram?.semesters.sort((a, b) => {
-    if (a.semesterNumber && b.semesterNumber) {
-      return b.semesterNumber - a.semesterNumber;
-    }
-    return 0;
-  })[0];
+  return activeProgram?.semesters.sort((a, b) => b.id - a.id)[0];
+}
+
+export function getNextSemesterNo(student: Student | null) {
+  if (!student) return 1;
+
+  const allSemesters = student.programs.flatMap((program) => program.semesters);
+  const maxSemesterNo = Math.max(
+    ...allSemesters.map((semester) => semester.semesterNumber || 0),
+  );
+  return maxSemesterNo + 1;
 }
