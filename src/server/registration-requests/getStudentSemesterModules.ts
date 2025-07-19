@@ -61,14 +61,6 @@ export async function getStudentSemesterModulesLogic(
     activeProgram.structureId,
   );
 
-  // if (repeatModules.length >= 3) {
-  //   return {
-  //     modules: repeatModules,
-  //     semesterNo: nextSemester,
-  //     semesterStatus: 'Repeat',
-  //   };
-  // }
-
   const attemptedModules = new Set(
     student.programs
       .flatMap((p) => p.semesters)
@@ -76,13 +68,13 @@ export async function getStudentSemesterModulesLogic(
       .map((m) => m.semesterModule.module?.name),
   );
 
-  const eligibleModules = await getNextSemesterModules(
+  const eligibleModules = await getSemesterModules(
     nextSemester,
     activeProgram.structureId,
   );
 
   const filteredModules = eligibleModules.filter(
-    (m) => !attemptedModules.has(m.module?.name),
+    (m: SemesterModuleWithModule) => !attemptedModules.has(m.module?.name),
   );
 
   return {
@@ -90,7 +82,7 @@ export async function getStudentSemesterModulesLogic(
     semesterStatus: 'Active',
     modules: [
       ...filteredModules.map(
-        (m): ModuleWithStatus => ({
+        (m: SemesterModuleWithModule): ModuleWithStatus => ({
           semesterModuleId: m.id,
           code: m.module.code,
           name: m.module.name,
@@ -159,32 +151,58 @@ async function getFailedPrerequisites(failedModules: Module[]) {
 
 async function getRepeatModules(
   failedModules: Module[],
-  semNum: number,
+  nextSemester: number,
   structureId: number,
 ) {
   if (failedModules.length === 0) return [];
 
   const failedModuleCodes = failedModules.map((m) => m.code);
-
-  const nextSemesterModules = await getNextSemesterModules(semNum, structureId);
-  const repeatModulesData = nextSemesterModules.filter(
-    (sm) => sm.module && failedModuleCodes.includes(sm.module.code),
-  );
-
   const failedPrerequisites = await getFailedPrerequisites(failedModules);
 
-  return repeatModulesData.map((sm, index) => ({
-    semesterModuleId: sm.id,
-    code: sm.module!.code,
-    name: sm.module!.name,
-    type: sm.type,
-    credits: sm.credits,
-    status: `Repeat${index + 1}` as const,
-    prerequisites: failedPrerequisites[sm.module!.code] || [],
-  }));
+  const targetSemesters: number[] = [];
+  const isNextSemesterEven = nextSemester % 2 === 0;
+
+  for (let sem = 1; sem < nextSemester; sem++) {
+    const isSemesterEven = sem % 2 === 0;
+    if (isNextSemesterEven === isSemesterEven) {
+      targetSemesters.push(sem);
+    }
+  }
+
+  if (targetSemesters.length === 0) return [];
+
+  const allRepeatModules: ModuleWithStatus[] = [];
+
+  for (const semesterNumber of targetSemesters) {
+    const semesterModules = await getSemesterModules(
+      semesterNumber,
+      structureId,
+    );
+    const repeatModulesForSemester = semesterModules.filter(
+      (sm: SemesterModuleWithModule) =>
+        sm.module && failedModuleCodes.includes(sm.module.code),
+    );
+
+    repeatModulesForSemester.forEach(
+      (sm: SemesterModuleWithModule, index: number) => {
+        const globalIndex = allRepeatModules.length + index + 1;
+        allRepeatModules.push({
+          semesterModuleId: sm.id,
+          code: sm.module!.code,
+          name: sm.module!.name,
+          type: sm.type,
+          credits: sm.credits,
+          status: `Repeat${globalIndex}` as const,
+          prerequisites: failedPrerequisites[sm.module!.code] || [],
+        });
+      },
+    );
+  }
+
+  return allRepeatModules;
 }
 
-async function getNextSemesterModules(
+async function getSemesterModules(
   semesterNumber: number,
   structureId: number,
 ): Promise<SemesterModuleWithModule[]> {
