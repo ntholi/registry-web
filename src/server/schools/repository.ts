@@ -1,7 +1,10 @@
-import BaseRepository from '@/server/base/BaseRepository';
+import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { schools } from '@/db/schema';
 
-export default class SchoolRepository extends BaseRepository<typeof schools, 'id'> {
+export default class SchoolRepository extends BaseRepository<
+  typeof schools,
+  'id'
+> {
   constructor() {
     super(schools, 'id');
   }

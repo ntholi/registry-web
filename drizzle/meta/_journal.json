@@ -442,6 +442,13 @@
       "when": 1752519169031,
       "tag": "0062_solid_agent_brand",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "6",
+      "when": 1752944833164,
+      "tag": "0063_bent_black_cat",
+      "breakpoints": true
     }
   ]
 }

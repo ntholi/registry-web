@@ -273,6 +273,7 @@ export const schools = sqliteTable('schools', {
   id: integer().primaryKey(),
   code: text().notNull().unique(),
   name: text().notNull(),
+  isActive: integer({ mode: 'boolean' }).notNull().default(true),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 

@@ -222,8 +222,8 @@ function getNavigation(department: DashboardUser) {
       roles: ['admin'],
     },
     {
-      label: 'Programs',
-      href: '/admin/programs',
+      label: 'Schools',
+      href: '/admin/schools',
       icon: IconBuildingStore,
       roles: ['registry', 'admin', 'academic'],
     },
