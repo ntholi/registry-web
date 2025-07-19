@@ -33,9 +33,9 @@ export default function SchoolsPage() {
       </Text>
 
       {isLoading ? (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} height={120} radius='md' />
+            <Skeleton key={i} height={85} radius='md' />
           ))}
         </SimpleGrid>
       ) : (

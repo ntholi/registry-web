@@ -95,7 +95,6 @@ export default function StructureDetailsPage() {
       title: structure.program?.name || 'Program',
       href: `/admin/schools/structures?schoolId=${structure.program?.school?.id}`,
     },
-    { title: structure.code, href: '#' },
   ].map((item, index) => (
     <Anchor
       key={index}
@@ -118,28 +117,12 @@ export default function StructureDetailsPage() {
             </Breadcrumbs>
 
             <Group>
-              <ThemeIcon variant='light' color='blue' size='xl'>
+              <ThemeIcon variant='light' color='gray' size='xl'>
                 <IconBook size='1.1rem' />
               </ThemeIcon>
               <Box>
                 <Group gap='md' align='baseline'>
                   <Title order={2}>{structure.code}</Title>
-                  <Text c='dimmed' size='sm'>
-                    {structure.program?.name}
-                  </Text>
-                </Group>
-                {structure.desc && (
-                  <Text size='sm' c='dimmed' mt='xs'>
-                    {structure.desc}
-                  </Text>
-                )}
-                <Group gap='xs' mt='xs'>
-                  <Text size='xs' c='dimmed'>
-                    School:
-                  </Text>
-                  <Text size='xs' fw={500}>
-                    {structure.program?.school?.name}
-                  </Text>
                 </Group>
               </Box>
             </Group>

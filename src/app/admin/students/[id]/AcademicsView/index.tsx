@@ -96,7 +96,7 @@ export default function AcademicsView({
                       size='0.715rem'
                       c={'gray'}
                       component={Link}
-                      href={`/admin/programs?structure=${program.structureId}`}
+                      href={`/admin/schools/structures/${program.structureId}`}
                       onClick={(e) => e.stopPropagation()}
                     >
                       {program.structure.code}

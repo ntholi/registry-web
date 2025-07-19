@@ -1,8 +1,9 @@
 'use client';
 
+import { getStructuresByProgram } from '@/server/semester-modules/actions';
 import {
   Accordion,
-  Badge,
+  Alert,
   Box,
   Card,
   Group,
@@ -10,25 +11,15 @@ import {
   Stack,
   Text,
   ThemeIcon,
-  Title,
-  Alert,
-  Anchor,
   UnstyledButton,
 } from '@mantine/core';
 import {
-  IconArrowLeft,
   IconBook,
   IconChevronRight,
   IconInfoCircle,
-  IconSchool,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { redirect, useSearchParams } from 'next/navigation';
-import { getProgramsBySchoolId } from '@/server/students/actions';
-import { getStructuresByProgram } from '@/server/semester-modules/actions';
-import { getSchool } from '@/server/schools/actions';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 type Structure = {
