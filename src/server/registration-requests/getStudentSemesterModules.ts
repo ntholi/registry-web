@@ -14,7 +14,7 @@ import {
 import { and, eq, inArray } from 'drizzle-orm';
 
 type ModuleWithStatus = {
-  id: number;
+  semesterModuleId: number;
   code: string;
   name: string;
   type: string;
@@ -51,21 +51,20 @@ export async function getStudentSemesterModulesLogic(
     throw new Error('No active program found for student');
   }
 
-  const nextSemester = (getCurrentSemester(student)?.semesterNumber ?? 0) + 1;
-
   const failedPrerequisites = await getFailedPrerequisites(
     remarks.failedModules,
     activeProgram.structureId,
   );
   const repeatModules = await getRepeatModules(remarks.failedModules);
+  const nextSemester = (getCurrentSemester(student)?.semesterNumber ?? 0) + 1;
 
-  if (repeatModules.length >= 3) {
-    return {
-      modules: repeatModules,
-      semesterNo: nextSemester,
-      semesterStatus: 'Repeat',
-    };
-  }
+  // if (repeatModules.length >= 3) {
+  //   return {
+  //     modules: repeatModules,
+  //     semesterNo: nextSemester,
+  //     semesterStatus: 'Repeat',
+  //   };
+  // }
 
   const attemptedModules = new Set(
     student.programs
@@ -89,7 +88,7 @@ export async function getStudentSemesterModulesLogic(
     modules: [
       ...filteredModules.map(
         (m): ModuleWithStatus => ({
-          id: m.id,
+          semesterModuleId: m.id,
           code: m.module.code,
           name: m.module.name,
           type: m.type,
@@ -106,7 +105,7 @@ export async function getStudentSemesterModulesLogic(
 async function getFailedPrerequisites(
   failedModules: Module[],
   structureId: number,
-): Promise<Record<string, Module[]>> {
+) {
   if (failedModules.length === 0) {
     return {};
   }
@@ -174,13 +173,10 @@ async function getFailedPrerequisites(
   );
 }
 
-async function getRepeatModules(
-  failedModules: Module[],
-): Promise<ModuleWithStatus[]> {
+async function getRepeatModules(failedModules: Module[]) {
   if (failedModules.length === 0) {
     return [];
   }
-
   const failedModuleCodes = failedModules.map((m) => m.code);
 
   const moduleIds = await db
@@ -205,7 +201,7 @@ async function getRepeatModules(
   return semesterModulesData
     .filter((sm) => sm.module && failedModuleCodes.includes(sm.module.code))
     .map((sm, index) => ({
-      id: sm.id,
+      semesterModuleId: sm.id,
       code: sm.module!.code,
       name: sm.module!.name,
       type: sm.type,
