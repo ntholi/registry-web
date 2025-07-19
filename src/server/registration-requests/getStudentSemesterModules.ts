@@ -10,7 +10,7 @@ import {
   getActiveProgram,
   getCurrentSemester,
   Student,
-} from '@/lib/student-helpers';
+} from '@/lib/helpers/students';
 import { and, eq, inArray } from 'drizzle-orm';
 
 type ModuleWithStatus = {

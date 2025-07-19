@@ -7,7 +7,7 @@ import RegistrationRequestRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
-import { AcademicRemarks, Student } from '@/lib/student-helpers';
+import { AcademicRemarks, Student } from '@/lib/helpers/students';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;

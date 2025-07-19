@@ -3,7 +3,7 @@ import { getAcademicRemarks } from '@/utils/grades';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { getActiveProgram, getCurrentSemester } from '@/lib/student-helpers';
+import { getActiveProgram, getCurrentSemester } from '@/lib/helpers/students';
 
 export default function useUserStudent() {
   const router = useRouter();
