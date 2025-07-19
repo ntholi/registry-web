@@ -149,7 +149,7 @@ export default function ProgramsPage() {
                             </Table.Td>
                             <Table.Td>
                               <PrerequisiteDisplay
-                                moduleId={semModule.id}
+                                prerequisites={semModule.prerequisites}
                                 hidden={semModule.hidden}
                               />
                             </Table.Td>

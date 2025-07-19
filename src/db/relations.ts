@@ -139,8 +139,12 @@ export const semesterModulesRelations = relations(
   semesterModules,
   ({ many, one }) => ({
     semesters: many(semesterModules),
-    prerequisites: many(modulePrerequisites),
-    prerequisiteFor: many(modulePrerequisites),
+    prerequisites: many(modulePrerequisites, {
+      relationName: 'semesterModulePrerequisites',
+    }),
+    prerequisiteFor: many(modulePrerequisites, {
+      relationName: 'prerequisiteModules',
+    }),
     requestedModules: many(requestedModules),
     semester: one(structureSemesters, {
       fields: [semesterModules.semesterId],
@@ -168,10 +172,12 @@ export const modulePrerequisitesRelations = relations(
     semesterModule: one(semesterModules, {
       fields: [modulePrerequisites.semesterModuleId],
       references: [semesterModules.id],
+      relationName: 'semesterModulePrerequisites',
     }),
     prerequisite: one(semesterModules, {
       fields: [modulePrerequisites.prerequisiteId],
       references: [semesterModules.id],
+      relationName: 'prerequisiteModules',
     }),
   }),
 );

@@ -25,6 +25,15 @@ export default class StructureRepository extends BaseRepository<
             semesterModules: {
               with: {
                 module: true,
+                prerequisites: {
+                  with: {
+                    prerequisite: {
+                      with: {
+                        module: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           },

@@ -1,40 +1,45 @@
-import { getModulePrerequisites } from '@/server/semester-modules/actions';
 import { Anchor, Group, Text } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 
+type Prerequisite = {
+  id: number;
+  prerequisite: {
+    id: number;
+    module: {
+      id: number;
+      code: string;
+      name: string;
+    } | null;
+  };
+};
+
 type Props = {
-  moduleId: number;
+  prerequisites: Prerequisite[];
   hidden: boolean;
 };
 
-export default function PrerequisiteDisplay({ moduleId, hidden }: Props) {
-  const { data, isLoading } = useQuery({
-    queryFn: async () => await getModulePrerequisites(moduleId),
-    queryKey: ['modulePrerequisites', moduleId],
-  });
-
-  if (isLoading) {
+export default function PrerequisiteDisplay({ prerequisites, hidden }: Props) {
+  if (!prerequisites || prerequisites.length === 0) {
     return (
       <Text size='sm' c='dimmed'>
-        ...
+        None
       </Text>
     );
   }
 
   return (
     <Group gap={'xs'}>
-      {data?.map((it, i) => (
-        <Text key={it.id}>
+      {prerequisites.map((prereq, i) => (
+        <Text key={prereq.id}>
           <Anchor
             component={Link}
             c={hidden ? 'dark' : undefined}
-            href={`/admin/semester-modules/${it.id}`}
+            href={`/admin/semester-modules/${prereq.prerequisite.id}`}
             size='0.85rem'
           >
-            {it.name}
+            {prereq.prerequisite.module?.code}
           </Anchor>
-          {data.length > 1 && i < data.length - 1 && ','}
+          {prerequisites.length > 1 && i < prerequisites.length - 1 && ','}
         </Text>
       ))}
     </Group>
