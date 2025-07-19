@@ -101,7 +101,7 @@ export default function StructureDetailsPage() {
       component={Link}
       href={item.href}
       size='sm'
-      c={index === 3 ? 'dark' : 'dimmed'}
+      c={index === 2 ? 'gray' : 'dimmed'}
     >
       {item.title}
     </Anchor>
@@ -135,10 +135,7 @@ export default function StructureDetailsPage() {
               <Stack gap='md'>
                 <Group justify='space-between' align='center'>
                   <Group gap='xs'>
-                    <ThemeIcon variant='light' color='gray' size='lg'>
-                      <IconSchool size='1rem' />
-                    </ThemeIcon>
-                    <Title order={4} fw={500}>
+                    <Title order={5} fw={500}>
                       {formatSemester(semester.semesterNumber)}
                     </Title>
                   </Group>
