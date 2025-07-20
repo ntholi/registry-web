@@ -1,9 +1,11 @@
 'use client';
 
 import { formatSemester } from '@/lib/utils';
-import { getStudentSemesterModules } from '@/server/registration-requests/actions';
+import {
+  determineSemesterStatus,
+  getStudentSemesterModules,
+} from '@/server/registration-requests/actions';
 import { getStudent, getStudentByUserId } from '@/server/students/actions';
-import { determineSemesterStatus } from '@/server/registration-requests/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   Alert,
@@ -12,7 +14,9 @@ import {
   Button,
   Card,
   Center,
+  Checkbox,
   Group,
+  HoverCard,
   Loader,
   Paper,
   ScrollArea,
@@ -22,13 +26,10 @@ import {
   Text,
   TextInput,
   ThemeIcon,
-  Checkbox,
-  HoverCard,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
-  IconCheck,
   IconInfoCircle,
   IconRefresh,
   IconUser,
@@ -36,6 +37,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import Link from 'next/link';
+import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
 import SemesterStatusModal from './SemesterStatusModal';
 
@@ -46,6 +48,7 @@ type Student = {
   semester: number;
   program: {
     structureCode: string;
+    structureId: number;
     name: string;
     code: string;
   };
@@ -65,7 +68,9 @@ type ModuleWithStatus = {
 type FullStudentData = Awaited<ReturnType<typeof getStudentByUserId>>;
 
 export default function RegistrationSimulator() {
-  const [stdNo, setStdNo] = useState<string>('');
+  const [stdNo, setStdNo] = useQueryState('stdNo', {
+    defaultValue: '',
+  });
   const [student, setStudent] = useState<Student | null>(null);
   const [fullStudentData, setFullStudentData] =
     useState<FullStudentData | null>(null);
@@ -134,6 +139,7 @@ export default function RegistrationSimulator() {
             semester: lookup.sem,
             program: {
               structureCode: activeProgram.structure.code,
+              structureId: activeProgram.structure.id,
               name: activeProgram.structure.program.name,
               code: activeProgram.structure.code,
             },
@@ -283,12 +289,11 @@ export default function RegistrationSimulator() {
       </Paper>
 
       {isPending && (
-        <Card withBorder radius='md' p='xl'>
+        <Card withBorder radius='md' p={65}>
           <Center>
             <Stack gap='md' align='center'>
-              <Loader size='lg' color='blue' />
               <Text size='sm' c='dimmed'>
-                Processing student registration simulation...
+                Simulation student registration...
               </Text>
             </Stack>
           </Center>
@@ -351,7 +356,7 @@ export default function RegistrationSimulator() {
                   component={Link}
                   size='sm'
                   c='default'
-                  href={`/admin/schools/structures/${student.program.structureCode}`}
+                  href={`/admin/schools/structures/${student.program.structureId}`}
                 >
                   {student.program.code}
                 </Anchor>
@@ -376,7 +381,7 @@ export default function RegistrationSimulator() {
                   disabled={modules.length > 8}
                 />
                 <Badge color='blue' variant='light' size='sm'>
-                  {modules.length} Total
+                  {modules.length} Modules
                 </Badge>
               </Group>
               <Button
