@@ -3,19 +3,17 @@
 import { formatSemester } from '@/lib/utils';
 import { getStudentSemesterModules } from '@/server/registration-requests/actions';
 import { getStudent, getStudentByUserId } from '@/server/students/actions';
+import { determineSemesterStatus } from '@/server/registration-requests/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
-  Accordion,
   Alert,
   Anchor,
   Badge,
   Button,
   Card,
   Center,
-  Divider,
   Group,
   Loader,
-  NumberFormatter,
   Paper,
   ScrollArea,
   SimpleGrid,
@@ -24,25 +22,22 @@ import {
   Text,
   TextInput,
   ThemeIcon,
-  Tooltip,
-  Popover,
-  Stack as MantineStack,
+  Checkbox,
   HoverCard,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
-  IconBookmark,
   IconCheck,
   IconInfoCircle,
   IconRefresh,
-  IconRepeat,
   IconUser,
   IconUsers,
   IconX,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
+import SemesterStatusModal from './SemesterStatusModal';
 
 type ModuleData = Awaited<ReturnType<typeof getStudentSemesterModules>>;
 type Student = {
@@ -56,12 +51,33 @@ type Student = {
   };
 };
 
+type ModuleWithStatus = {
+  semesterModuleId: number;
+  code: string;
+  name: string;
+  type: string;
+  credits: number;
+  status: 'Compulsory' | 'Elective' | `Repeat${number}`;
+  semesterNo: number;
+  prerequisites?: Array<{ id: number; code: string; name: string }>;
+};
+
+type FullStudentData = Awaited<ReturnType<typeof getStudentByUserId>>;
+
 export default function RegistrationSimulator() {
   const [stdNo, setStdNo] = useState<string>('');
   const [student, setStudent] = useState<Student | null>(null);
+  const [fullStudentData, setFullStudentData] =
+    useState<FullStudentData | null>(null);
   const [modules, setModules] = useState<ModuleData | null>(null);
+  const [selectedModules, setSelectedModules] = useState<Set<number>>(
+    new Set(),
+  );
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isAnalyzing, startAnalyzing] = useTransition();
+  const [semesterStatusResult, setSemesterStatusResult] = useState<any>(null);
+  const [modalOpened, setModalOpened] = useState(false);
 
   const handleSubmit = () => {
     if (!stdNo.trim()) {
@@ -77,6 +93,8 @@ export default function RegistrationSimulator() {
     setError(null);
     setStudent(null);
     setModules(null);
+    setSelectedModules(new Set());
+    setSemesterStatusResult(null);
 
     startTransition(async () => {
       try {
@@ -97,6 +115,8 @@ export default function RegistrationSimulator() {
           setError('Student data not available');
           return;
         }
+
+        setFullStudentData(studentData);
 
         const remarks = getAcademicRemarks(studentData.programs);
         const moduleData = await getStudentSemesterModules(
@@ -141,11 +161,100 @@ export default function RegistrationSimulator() {
     }
   };
 
-  const compulsoryModules =
-    modules?.filter((m) => m.status === 'Compulsory') || [];
-  const electiveModules = modules?.filter((m) => m.status === 'Elective') || [];
-  const repeatModules =
-    modules?.filter((m) => m.status.startsWith('Repeat')) || [];
+  const handleModuleSelect = (moduleId: number, checked: boolean) => {
+    const newSelected = new Set(selectedModules);
+
+    if (checked) {
+      if (newSelected.size >= 8) {
+        notifications.show({
+          title: 'Module Limit Exceeded',
+          message: 'You cannot select more than 8 modules',
+          color: 'red',
+          icon: <IconX size={16} />,
+        });
+        return;
+      }
+      newSelected.add(moduleId);
+    } else {
+      newSelected.delete(moduleId);
+    }
+    setSelectedModules(newSelected);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked && modules) {
+      if (modules.length > 8) {
+        notifications.show({
+          title: 'Module Limit Exceeded',
+          message: 'Cannot select all modules. Maximum of 8 modules allowed.',
+          color: 'red',
+          icon: <IconX size={16} />,
+        });
+        return;
+      }
+      setSelectedModules(new Set(modules.map((m) => m.semesterModuleId)));
+    } else {
+      setSelectedModules(new Set());
+    }
+  };
+
+  const handleDetermineSemester = () => {
+    if (!modules || !fullStudentData || selectedModules.size === 0) {
+      notifications.show({
+        title: 'Selection Required',
+        message: 'Please select at least one module to determine semester',
+        color: 'orange',
+        icon: <IconAlertCircle size={16} />,
+      });
+      return;
+    }
+
+    if (selectedModules.size > 8) {
+      notifications.show({
+        title: 'Too Many Modules',
+        message: 'Please select a maximum of 8 modules',
+        color: 'red',
+        icon: <IconX size={16} />,
+      });
+      return;
+    }
+
+    startAnalyzing(async () => {
+      try {
+        const selectedModuleData: ModuleWithStatus[] = modules
+          .filter((m) => selectedModules.has(m.semesterModuleId))
+          .map((m) => ({
+            semesterModuleId: m.semesterModuleId,
+            code: m.code,
+            name: m.name,
+            type: m.type,
+            credits: m.credits,
+            status: m.status,
+            semesterNo: m.semesterNo,
+            prerequisites: m.prerequisites,
+          }));
+
+        const result = await determineSemesterStatus(
+          selectedModuleData,
+          fullStudentData,
+        );
+        setSemesterStatusResult(result);
+        setModalOpened(true);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Unknown error occurred';
+        notifications.show({
+          title: 'Analysis Error',
+          message: errorMessage,
+          color: 'red',
+          icon: <IconX size={16} />,
+        });
+      }
+    });
+  };
+
+  const allSelected = modules ? selectedModules.size === modules.length : false;
+  const indeterminate = selectedModules.size > 0 && !allSelected;
 
   return (
     <Stack gap='lg'>
@@ -256,96 +365,50 @@ export default function RegistrationSimulator() {
         <Card withBorder radius='md' p='lg'>
           <Stack gap='lg'>
             <Group justify='space-between' align='center'>
-              <Group gap='xs' align='center'>
+              <Group gap='md' align='center'>
+                <Checkbox
+                  label='Select All'
+                  checked={allSelected}
+                  indeterminate={indeterminate}
+                  onChange={(event) =>
+                    handleSelectAll(event.currentTarget.checked)
+                  }
+                  disabled={modules.length > 8}
+                />
                 <Text fw={500} size='sm'>
-                  Results
+                  Available Modules
                 </Text>
-              </Group>
-              <Group gap='md'>
                 <Badge color='blue' variant='light' size='sm'>
-                  {modules.length} Modules
+                  {modules.length} Total
                 </Badge>
+                {selectedModules.size > 0 && (
+                  <Badge
+                    color={selectedModules.size > 8 ? 'red' : 'green'}
+                    variant='light'
+                    size='sm'
+                  >
+                    {selectedModules.size}/8 Selected
+                  </Badge>
+                )}
               </Group>
+              <Button
+                onClick={handleDetermineSemester}
+                loading={isAnalyzing}
+                disabled={
+                  selectedModules.size === 0 || selectedModules.size > 8
+                }
+                leftSection={<IconCheck size={16} />}
+                size='sm'
+              >
+                {isAnalyzing ? 'Determining...' : 'Determine Semester'}
+              </Button>
             </Group>
 
-            <Divider />
-
-            <Accordion
-              variant='separated'
-              radius='sm'
-              multiple
-              defaultValue={[
-                ...(compulsoryModules.length > 0 ? ['compulsory'] : []),
-                ...(electiveModules.length > 0 ? ['elective'] : []),
-                ...(repeatModules.length > 0 ? ['repeat'] : []),
-              ]}
-            >
-              {compulsoryModules.length > 0 && (
-                <Accordion.Item value='compulsory'>
-                  <Accordion.Control
-                    icon={
-                      <ThemeIcon size='sm' color='blue' variant='light'>
-                        <IconBookmark size={14} />
-                      </ThemeIcon>
-                    }
-                  >
-                    <Group justify='space-between' pr='md'>
-                      <Text fw={500}>Compulsory Modules</Text>
-                      <Badge color='blue' variant='light' size='sm'>
-                        {compulsoryModules.length}
-                      </Badge>
-                    </Group>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <ModuleTable modules={compulsoryModules} />
-                  </Accordion.Panel>
-                </Accordion.Item>
-              )}
-
-              {electiveModules.length > 0 && (
-                <Accordion.Item value='elective'>
-                  <Accordion.Control
-                    icon={
-                      <ThemeIcon size='sm' color='green' variant='light'>
-                        <IconCheck size={14} />
-                      </ThemeIcon>
-                    }
-                  >
-                    <Group justify='space-between' pr='md'>
-                      <Text fw={500}>Elective Modules</Text>
-                      <Badge color='green' variant='light' size='sm'>
-                        {electiveModules.length}
-                      </Badge>
-                    </Group>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <ModuleTable modules={electiveModules} />
-                  </Accordion.Panel>
-                </Accordion.Item>
-              )}
-
-              {repeatModules.length > 0 && (
-                <Accordion.Item value='repeat'>
-                  <Accordion.Control
-                    icon={
-                      <ThemeIcon size='sm' color='orange' variant='light'>
-                        <IconRepeat size={14} />
-                      </ThemeIcon>
-                    }
-                  >
-                    <Group justify='space-between' pr='md'>
-                      <Text fw={500}>Repeat Modules</Text>
-                      <Badge color='orange' variant='light' size='sm'>
-                        {repeatModules.length}
-                      </Badge>
-                    </Group>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <ModuleTable modules={repeatModules} />
-                  </Accordion.Panel>
-                </Accordion.Item>
-              )}
-            </Accordion>
+            <ModuleTable
+              modules={modules}
+              selectedModules={selectedModules}
+              onModuleSelect={handleModuleSelect}
+            />
           </Stack>
         </Card>
       )}
@@ -362,11 +425,28 @@ export default function RegistrationSimulator() {
           available for their current semester.
         </Alert>
       )}
+
+      <SemesterStatusModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        result={semesterStatusResult}
+        selectedModules={
+          modules?.filter((m) => selectedModules.has(m.semesterModuleId)) || []
+        }
+      />
     </Stack>
   );
 }
 
-function ModuleTable({ modules }: { modules: ModuleData }) {
+function ModuleTable({
+  modules,
+  selectedModules,
+  onModuleSelect,
+}: {
+  modules: ModuleData;
+  selectedModules: Set<number>;
+  onModuleSelect: (moduleId: number, checked: boolean) => void;
+}) {
   if (modules.length === 0) {
     return (
       <Text size='sm' c='dimmed' ta='center' py='md'>
@@ -380,6 +460,7 @@ function ModuleTable({ modules }: { modules: ModuleData }) {
       <Table striped highlightOnHover>
         <Table.Thead>
           <Table.Tr>
+            <Table.Th>Select</Table.Th>
             <Table.Th>Code</Table.Th>
             <Table.Th>Module Name</Table.Th>
             <Table.Th>Type</Table.Th>
@@ -392,6 +473,21 @@ function ModuleTable({ modules }: { modules: ModuleData }) {
         <Table.Tbody>
           {modules.map((module, index) => (
             <Table.Tr key={`${module.semesterModuleId}-${index}`}>
+              <Table.Td>
+                <Checkbox
+                  checked={selectedModules.has(module.semesterModuleId)}
+                  onChange={(event) =>
+                    onModuleSelect(
+                      module.semesterModuleId,
+                      event.currentTarget.checked,
+                    )
+                  }
+                  disabled={
+                    !selectedModules.has(module.semesterModuleId) &&
+                    selectedModules.size >= 8
+                  }
+                />
+              </Table.Td>
               <Table.Td>
                 <Text fw={500} size='sm'>
                   {module.code}
