@@ -37,7 +37,7 @@ type SemesterModuleWithModule = typeof semesterModules.$inferSelect & {
 
 export async function getStudentSemesterModulesLogic(
   student: Student,
-  { failedModules }: AcademicRemarks,
+  remarks: AcademicRemarks,
 ) {
   if (!student) {
     throw new Error('Student not found');
@@ -48,9 +48,15 @@ export async function getStudentSemesterModulesLogic(
     throw new Error('No active program found for student');
   }
 
-  const failedPrerequisites = await getFailedPrerequisites(failedModules);
+  if (remarks.status === 'Remain in Semester') {
+    throw new Error(`${remarks.status}, ${remarks.details}`);
+  }
+
+  const failedPrerequisites = await getFailedPrerequisites(
+    remarks.failedModules,
+  );
   const repeatModules = await getRepeatModules(
-    failedModules,
+    remarks.failedModules,
     getNextSemesterNo(student),
     activeProgram.structureId,
   );

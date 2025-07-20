@@ -12,6 +12,17 @@ import { AcademicRemarks, Student } from '@/lib/helpers/students';
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
 
+type ModuleWithStatus = {
+  semesterModuleId: number;
+  code: string;
+  name: string;
+  type: string;
+  credits: number;
+  status: 'Compulsory' | 'Elective' | `Repeat${number}`;
+  semesterNo: number;
+  prerequisites?: Array<{ id: number; code: string; name: string }>;
+};
+
 export async function getRegistrationRequest(id: number) {
   return service.get(id);
 }
@@ -49,6 +60,13 @@ export async function getStudentSemesterModules(
   remarks: AcademicRemarks,
 ) {
   return service.getStudentSemesterModules(student, remarks);
+}
+
+export async function determineSemesterStatus(
+  modules: ModuleWithStatus[],
+  student: Student,
+) {
+  return service.determineSemesterStatus(modules, student);
 }
 
 export async function createRegistrationRequest(value: RegistrationRequest) {

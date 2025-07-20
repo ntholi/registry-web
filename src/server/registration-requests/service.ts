@@ -12,6 +12,17 @@ import { AcademicRemarks, Student } from '@/lib/helpers/students';
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
 
+type ModuleWithStatus = {
+  semesterModuleId: number;
+  code: string;
+  name: string;
+  type: string;
+  credits: number;
+  status: 'Compulsory' | 'Elective' | `Repeat${number}`;
+  semesterNo: number;
+  prerequisites?: Array<{ id: number; code: string; name: string }>;
+};
+
 class RegistrationRequestService {
   constructor(
     private readonly repository = new RegistrationRequestRepository(),
@@ -163,6 +174,49 @@ class RegistrationRequestService {
       return getStudentSemesterModulesLogic(student, remarks);
     }, ['student', 'registry']);
   }
+
+  async determineSemesterStatus(
+    modules: ModuleWithStatus[],
+    student: Student,
+  ): Promise<{ semesterNo: number; status: 'Active' | 'Repeat' }> {
+    return withAuth(async () => {
+      const semesterNo = commonSemesterNo(modules);
+      const completedSemesters =
+        student?.programs
+          .flatMap((program) => program.semesters)
+          .map((semester) => semester.semesterNumber)
+          .filter((semesterNo): semesterNo is number => semesterNo !== null) ??
+        [];
+
+      const hasCompletedSemester = completedSemesters.includes(semesterNo);
+
+      return {
+        semesterNo: semesterNo,
+        status: hasCompletedSemester ? 'Repeat' : 'Active',
+      };
+    }, ['student', 'dashboard']);
+  }
+}
+
+function commonSemesterNo(modules: ModuleWithStatus[]): number {
+  const semesterCounts = new Map<number, number>();
+
+  for (const module of modules) {
+    const count = semesterCounts.get(module.semesterNo) || 0;
+    semesterCounts.set(module.semesterNo, count + 1);
+  }
+
+  let mostCommonSemester = modules[0]?.semesterNo || 1;
+  let maxCount = 0;
+
+  for (const [semesterNo, count] of semesterCounts) {
+    if (count > maxCount) {
+      maxCount = count;
+      mostCommonSemester = semesterNo;
+    }
+  }
+
+  return mostCommonSemester;
 }
 
 export const registrationRequestsService = serviceWrapper(
