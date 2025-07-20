@@ -56,14 +56,6 @@ export default function SemesterStatusModal({
     return status === 'Active' ? 'green' : 'orange';
   };
 
-  const getStatusIcon = (status: string) => {
-    return status === 'Active' ? (
-      <IconCheck size={16} />
-    ) : (
-      <IconRepeat size={16} />
-    );
-  };
-
   const totalCredits = selectedModules.reduce(
     (sum, module) => sum + module.credits,
     0,
@@ -88,12 +80,8 @@ export default function SemesterStatusModal({
                 Enrollment Determination
               </Text>
             </Group>
-            <Badge
-              color={getStatusColor(result.status)}
-              variant='light'
-              leftSection={getStatusIcon(result.status)}
-            >
-              {result.status} Enrollment
+            <Badge color={getStatusColor(result.status)} variant='light'>
+              {result.status}
             </Badge>
           </Group>
 
@@ -182,56 +170,6 @@ export default function SemesterStatusModal({
               </Table.Tbody>
             </Table>
           </ScrollArea.Autosize>
-        </Card>
-
-        {result.status === 'Repeat' && (
-          <Card withBorder p='md' radius='md' bg='orange.0'>
-            <Group gap='xs' align='center' mb='sm'>
-              <ThemeIcon size='sm' radius='sm' variant='light' color='orange'>
-                <IconRepeat size={14} />
-              </ThemeIcon>
-              <Text fw={500} size='sm' c='orange.7'>
-                Repeat Semester Enrollment
-              </Text>
-            </Group>
-            <Text size='sm' c='orange.7'>
-              Based on the selected modules, the student will be enrolled in a{' '}
-              <strong>Repeat</strong> semester (
-              {formatSemester(result.semesterNo)}). This means the student has
-              previously attempted this semester and is retaking modules to
-              improve their academic standing.
-            </Text>
-          </Card>
-        )}
-
-        {result.status === 'Active' && (
-          <Card withBorder p='md' radius='md' bg='green.0'>
-            <Group gap='xs' align='center' mb='sm'>
-              <ThemeIcon size='sm' radius='sm' variant='light' color='green'>
-                <IconCheck size={14} />
-              </ThemeIcon>
-              <Text fw={500} size='sm' c='green.7'>
-                Active Semester Enrollment
-              </Text>
-            </Group>
-            <Text size='sm' c='green.7'>
-              Based on the selected modules, the student will be enrolled in an{' '}
-              <strong>Active</strong> semester (
-              {formatSemester(result.semesterNo)}). This represents normal
-              academic progression with new modules for the upcoming semester.
-            </Text>
-          </Card>
-        )}
-
-        <Card withBorder p='sm' radius='md' bg='blue.0'>
-          <Text size='xs' c='blue.7' fw={500} mb={2}>
-            Next Steps
-          </Text>
-          <Text size='xs' c='blue.7'>
-            The student can proceed with registration for the determined
-            semester. The enrollment status and semester number will be recorded
-            in their academic record.
-          </Text>
         </Card>
       </Stack>
     </Modal>

@@ -375,21 +375,9 @@ export default function RegistrationSimulator() {
                   }
                   disabled={modules.length > 8}
                 />
-                <Text fw={500} size='sm'>
-                  Available Modules
-                </Text>
                 <Badge color='blue' variant='light' size='sm'>
                   {modules.length} Total
                 </Badge>
-                {selectedModules.size > 0 && (
-                  <Badge
-                    color={selectedModules.size > 8 ? 'red' : 'green'}
-                    variant='light'
-                    size='sm'
-                  >
-                    {selectedModules.size}/8 Selected
-                  </Badge>
-                )}
               </Group>
               <Button
                 onClick={handleDetermineSemester}
@@ -397,7 +385,6 @@ export default function RegistrationSimulator() {
                 disabled={
                   selectedModules.size === 0 || selectedModules.size > 8
                 }
-                leftSection={<IconCheck size={16} />}
                 size='sm'
               >
                 {isAnalyzing ? 'Determining...' : 'Determine Semester'}
