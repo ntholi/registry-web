@@ -1,14 +1,12 @@
 import {
   Container,
-  Stack,
-  Title,
-  Text,
-  Paper,
   Group,
+  Paper,
+  Stack,
   ThemeIcon,
-  Badge,
+  Title,
 } from '@mantine/core';
-import { IconTestPipe, IconSchool, IconBrain } from '@tabler/icons-react';
+import { IconTestPipe } from '@tabler/icons-react';
 import RegistrationSimulator from './RegistrationSimulator';
 
 export default function SimulatePage() {

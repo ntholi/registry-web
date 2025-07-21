@@ -344,11 +344,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
         .values({
           sponsorId: data.sponsorId,
           stdNo: data.stdNo,
-          termId: data.termId,
           borrowerNo: data.borrowerNo,
         })
         .onConflictDoUpdate({
-          target: [sponsoredStudents.stdNo, sponsoredStudents.termId],
+          target: [sponsoredStudents.stdNo],
           set: {
             borrowerNo: data.borrowerNo,
             sponsorId: data.sponsorId,
