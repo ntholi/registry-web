@@ -7,6 +7,7 @@ import { Session } from 'next-auth';
 import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
+import ProofOfRegistrationPrinter from './ProofOfRegistrationPrinter';
 import StudentView from './StudentView';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
@@ -52,6 +53,14 @@ export function StudentTabs({
         {showStatementOfResults && activeTab === 'academics' && (
           <Box ml='auto'>
             <StatementOfResultsPrinter
+              stdNo={student.stdNo}
+              disabled={!!blockedStudent}
+            />
+          </Box>
+        )}
+        {showRegistration && activeTab === 'registration' && (
+          <Box ml='auto'>
+            <ProofOfRegistrationPrinter
               stdNo={student.stdNo}
               disabled={!!blockedStudent}
             />

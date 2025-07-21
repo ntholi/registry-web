@@ -21,6 +21,89 @@ export default class StudentRepository extends BaseRepository<
   constructor() {
     super(students, 'stdNo');
   }
+
+  async findRegistrationData(stdNo: number) {
+    const student = await db.query.students.findFirst({
+      columns: {
+        stdNo: true,
+        name: true,
+        nationalId: true,
+        dateOfBirth: true,
+        phone1: true,
+        phone2: true,
+        gender: true,
+        maritalStatus: true,
+        religion: true,
+      },
+      where: eq(students.stdNo, stdNo),
+      with: {
+        programs: {
+          where: eq(studentPrograms.status, 'Active'),
+          columns: {
+            id: true,
+            intakeDate: true,
+            regDate: true,
+            startTerm: true,
+            stream: true,
+            status: true,
+          },
+          with: {
+            structure: {
+              columns: {
+                id: true,
+                code: true,
+              },
+              with: {
+                program: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    code: true,
+                  },
+                },
+              },
+            },
+            semesters: {
+              columns: {
+                id: true,
+                term: true,
+                semesterNumber: true,
+                status: true,
+              },
+              orderBy: desc(studentSemesters.id),
+              with: {
+                studentModules: {
+                  columns: {
+                    id: true,
+                    status: true,
+                  },
+                  with: {
+                    semesterModule: {
+                      columns: {
+                        credits: true,
+                        type: true,
+                      },
+                      with: {
+                        module: {
+                          columns: {
+                            code: true,
+                            name: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return student;
+  }
+
   async findStudentByUserId(userId: string) {
     return await db.query.students.findFirst({
       where: eq(students.userId, userId),
@@ -457,16 +540,13 @@ export default class StudentRepository extends BaseRepository<
 }
 
 function normalizeName(name: string): string[] {
-  const variations: string[] = [name];
+  const normalized = name.toLowerCase();
+  const variations = [normalized];
 
-  const withApostrophe = name.replace(/ts([aeiou])/gi, "ts'$1");
-  const withoutApostrophe = name.replace(/ts'([aeiou])/gi, 'ts$1');
-
-  if (withApostrophe !== name) {
-    variations.push(withApostrophe);
-  }
-  if (withoutApostrophe !== name) {
-    variations.push(withoutApostrophe);
+  if (normalized.includes(' ')) {
+    const parts = normalized.split(' ');
+    variations.push(...parts);
+    variations.push(parts.join(''));
   }
 
   return [...new Set(variations)];

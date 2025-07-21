@@ -43,6 +43,10 @@ export async function getStudentsByModuleId(moduleId: number) {
   return service.findByModuleId(moduleId);
 }
 
+export async function getStudentRegistrationData(stdNo: number) {
+  return service.getRegistrationData(stdNo);
+}
+
 export async function findAllStudents(
   page: number = 1,
   search = '',

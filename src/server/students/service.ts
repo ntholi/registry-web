@@ -9,7 +9,11 @@ import { StudentFilter } from './actions';
 type Student = typeof students.$inferInsert;
 
 class StudentService {
-  constructor(private readonly repository = new StudentRepository()) {}
+  private repository: StudentRepository;
+
+  constructor() {
+    this.repository = new StudentRepository();
+  }
 
   async first() {
     return withAuth(async () => this.repository.findFirst(), []);
@@ -24,6 +28,12 @@ class StudentService {
   async getAcademicHistory(stdNo: number) {
     return withAuth(async () => {
       return this.repository.findAcademicHistory(stdNo);
+    }, ['academic']);
+  }
+
+  async getRegistrationData(stdNo: number) {
+    return withAuth(async () => {
+      return this.repository.findRegistrationData(stdNo);
     }, ['academic']);
   }
 
