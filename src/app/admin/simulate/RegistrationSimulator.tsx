@@ -39,6 +39,7 @@ import Link from 'next/link';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
 import SemesterStatusModal from './SemesterStatusModal';
+import { getCurrentSemester } from '@/lib/helpers/students';
 type ModuleData = Awaited<ReturnType<typeof getStudentSemesterModules>>;
 type Student = {
   name: string;
@@ -346,7 +347,9 @@ export default function RegistrationSimulator() {
                   Current Semester
                 </Text>
                 <Text fw={500} size='sm'>
-                  {formatSemester(student.semester)}
+                  {formatSemester(
+                    getCurrentSemester(fullStudentData)?.semesterNumber,
+                  )}
                 </Text>
               </Paper>
               <Paper withBorder p='sm' radius='sm'>
