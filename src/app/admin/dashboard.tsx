@@ -20,6 +20,7 @@ import {
   Indicator,
   MantineColor,
   NavLink,
+  Paper,
   Skeleton,
   Stack,
   Text,
@@ -328,7 +329,16 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
       <Shell.Navigation>
         <Navigation navigation={navigation} />
       </Shell.Navigation>
-      <Shell.Body>{children}</Shell.Body>
+      <Shell.Body>
+        {process.env.NEXT_PUBLIC_DEV_LOGO && (
+          <Paper withBorder p={5} bg={'red'} mb={'md'}>
+            <Text ta={'center'} size='xs' c={'white'}>
+              This is a Test Environment!
+            </Text>
+          </Paper>
+        )}
+        {children}
+      </Shell.Body>
       <Shell.User>
         <UserButton />
       </Shell.User>
