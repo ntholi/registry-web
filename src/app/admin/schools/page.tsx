@@ -1,5 +1,6 @@
 'use client';
 
+import { schools } from '@/db/schema';
 import { getAllSchools } from '@/server/schools/actions';
 import {
   Box,
@@ -17,6 +18,8 @@ import { IconChevronRight, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
+
+type School = typeof schools.$inferSelect;
 
 export default function SchoolsPage() {
   const { data: schools, isLoading } = useQuery({
@@ -63,7 +66,7 @@ export default function SchoolsPage() {
   );
 }
 
-function SchoolCard({ school }: { school: any }) {
+function SchoolCard({ school }: { school: School }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (

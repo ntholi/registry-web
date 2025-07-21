@@ -201,9 +201,9 @@ class RegistrationRequestService {
 function commonSemesterNo(modules: ModuleWithStatus[]): number {
   const semesterCounts = new Map<number, number>();
 
-  for (const module of modules) {
-    const count = semesterCounts.get(module.semesterNo) || 0;
-    semesterCounts.set(module.semesterNo, count + 1);
+  for (const m of modules) {
+    const count = semesterCounts.get(m.semesterNo) || 0;
+    semesterCounts.set(m.semesterNo, count + 1);
   }
 
   let mostCommonSemester = modules[0]?.semesterNo || 1;

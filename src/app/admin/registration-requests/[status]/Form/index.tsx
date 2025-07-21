@@ -3,14 +3,13 @@
 import { getStudentSemesterModules } from '@/app/(main)/(auth)/registration/request/actions';
 import { Form } from '@/components/adease';
 import {
+  modules,
   semesterModules,
   StudentModuleStatus,
   studentModuleStatusEnum,
-  modules,
 } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 import { getModulesForStructure } from '@/server/semester-modules/actions';
-import { getStudent } from '@/server/students/actions';
 import {
   ActionIcon,
   Button,
@@ -73,9 +72,7 @@ export default function RegistrationRequestForm({
   structureId: initialStructureId,
 }: Props) {
   const router = useRouter();
-  const [structureId, setStructureId] = useState<number | null>(
-    initialStructureId ?? null,
-  );
+  const [structureId] = useState<number | null>(initialStructureId ?? null);
   const [isLoadingModules, setIsLoadingModules] = useState(false);
 
   const { data: structureModules, isLoading } = useQuery({
@@ -116,14 +113,14 @@ export default function RegistrationRequestForm({
 
   const handleStudentSelect = async (stdNo: number) => {
     if (stdNo) {
-      const student = await getStudent(stdNo);
-      if (student && student.structureId) {
-        setStructureId(student.structureId);
-      } else {
-        setStructureId(null);
-      }
-    } else {
-      setStructureId(null);
+      //   const student = await getStudent(stdNo);
+      //   if (student && student.structureId) {
+      //     setStructureId(student.structureId);
+      //   } else {
+      //     setStructureId(null);
+      //   }
+      // } else {
+      //   setStructureId(null);
     }
   };
 

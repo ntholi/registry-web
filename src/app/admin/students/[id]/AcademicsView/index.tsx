@@ -1,9 +1,8 @@
 'use client';
 
 import SemesterStatus from '@/components/SemesterStatus';
-import { StudentModuleStatus } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
-import { getAcademicHistory, getStudent } from '@/server/students/actions';
+import { getAcademicHistory } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   Accordion,

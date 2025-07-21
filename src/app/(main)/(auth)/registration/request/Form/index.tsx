@@ -15,7 +15,6 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { getStudentSemesterModules } from '../actions';
 import ModuleInput from './ModuleInput';
-import useUserStudent from '@/hooks/use-user-student';
 
 type Props = {
   stdNo: number;
@@ -37,7 +36,6 @@ export type RegisterFormSchema = z.infer<typeof formSchema>;
 
 export default function ModulesForm({ stdNo, structureId }: Props) {
   const { toast } = useToast();
-  const { student } = useUserStudent();
   const { currentTerm } = useCurrentTerm();
   const router = useRouter();
 

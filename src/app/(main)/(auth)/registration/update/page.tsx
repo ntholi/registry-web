@@ -11,7 +11,6 @@ import { getStudentByUserId } from '@/server/students/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { redirect } from 'next/navigation';
 import BackButton from '../status/BackButton';
-import ModulesForm from './Form';
 
 export default async function UpdateRegistrationPage() {
   const session = await auth();
@@ -55,17 +54,17 @@ export default async function UpdateRegistrationPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {student.structureId ? (
+          {/* {getActiveProgram(student) ? (
             <ModulesForm
               stdNo={student.stdNo}
-              structureId={student.structureId}
+              structureId={getActiveProgram(student)?.structureId ?? 0}
               request={request}
             />
           ) : (
             <p className='text-red-500'>
               You are not registered for any program
             </p>
-          )}
+          )} */}
         </CardContent>
       </Card>
     </Container>

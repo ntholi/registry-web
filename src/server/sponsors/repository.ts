@@ -12,9 +12,10 @@ export default class SponsorRepository extends BaseRepository<
   }
 
   async findSponsoredStudent(stdNo: number, termId: number) {
+    console.log(`Delete this and do something with ${termId}`);
     const whereCondition = and(
       eq(sponsoredStudents.stdNo, stdNo),
-      eq(sponsoredStudents.termId, termId),
+      // eq(sponsoredStudents.termId, termId),
     );
 
     const data = await db.query.sponsoredStudents.findFirst({
@@ -46,7 +47,7 @@ export default class SponsorRepository extends BaseRepository<
         .where(
           and(
             eq(sponsoredStudents.stdNo, data.stdNo),
-            eq(sponsoredStudents.termId, data.termId),
+            // eq(sponsoredStudents.termId, data.termId),
           ),
         )
         .returning();
@@ -55,7 +56,7 @@ export default class SponsorRepository extends BaseRepository<
         .insert(sponsoredStudents)
         .values({
           stdNo: data.stdNo,
-          termId: data.termId,
+          // termId: data.termId,
           sponsorId: data.sponsorId,
           borrowerNo: data.borrowerNo,
         })

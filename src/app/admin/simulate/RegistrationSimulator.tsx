@@ -17,7 +17,6 @@ import {
   Checkbox,
   Group,
   HoverCard,
-  Loader,
   Paper,
   ScrollArea,
   SimpleGrid,
@@ -40,7 +39,6 @@ import Link from 'next/link';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
 import SemesterStatusModal from './SemesterStatusModal';
-
 type ModuleData = Awaited<ReturnType<typeof getStudentSemesterModules>>;
 type Student = {
   name: string;
@@ -65,6 +63,8 @@ type ModuleWithStatus = {
   prerequisites?: Array<{ id: number; code: string; name: string }>;
 };
 
+type SemesterStatusResult = Awaited<ReturnType<typeof determineSemesterStatus>>;
+
 type FullStudentData = Awaited<ReturnType<typeof getStudentByUserId>>;
 
 export default function RegistrationSimulator() {
@@ -81,7 +81,8 @@ export default function RegistrationSimulator() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isAnalyzing, startAnalyzing] = useTransition();
-  const [semesterStatusResult, setSemesterStatusResult] = useState<any>(null);
+  const [semesterStatusResult, setSemesterStatusResult] =
+    useState<SemesterStatusResult | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
 
   const handleSubmit = () => {

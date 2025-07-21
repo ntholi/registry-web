@@ -1,4 +1,4 @@
-import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
+import BaseRepository from '@/server/base/BaseRepository';
 import { schools } from '@/db/schema';
 
 export default class SchoolRepository extends BaseRepository<

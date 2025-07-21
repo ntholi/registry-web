@@ -28,7 +28,7 @@ export default function AcademicsLoader({ stdNo }: Props) {
 
   return (
     <Box p={'lg'}>
-      <AcademicsView student={student} />
+      <AcademicsView stdNo={student.stdNo} />
     </Box>
   );
 }

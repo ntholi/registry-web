@@ -11,18 +11,10 @@ import {
   Card,
   ScrollArea,
   Paper,
-  ThemeIcon,
-  Divider,
   Title,
   Center,
   useMantineColorScheme,
 } from '@mantine/core';
-import {
-  IconCalendar,
-  IconCheck,
-  IconRepeat,
-  IconSchool,
-} from '@tabler/icons-react';
 
 type SemesterStatusResult = {
   semesterNo: number;
@@ -53,9 +45,9 @@ export default function SemesterStatusModal({
   result,
   selectedModules,
 }: Props) {
-  if (!result) return null;
-
   const { colorScheme } = useMantineColorScheme();
+
+  if (!result) return null;
 
   const getStatusColor = (status: string) => {
     return status === 'Active' ? 'green' : 'orange';

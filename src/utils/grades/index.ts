@@ -1,4 +1,4 @@
-import { Grade, gradeEnum, StudentModuleStatus } from '@/db/schema';
+import { Grade, gradeEnum } from '@/db/schema';
 import {
   FacultyRemarksResult,
   GradePoint,
@@ -252,7 +252,6 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
   const points: GradePoint[] = [];
   let cumulativePoints = 0;
   let cumulativeCreditsForGPA = 0;
-  let cumulativeCreditsCompleted = 0;
 
   for (const semester of semesters) {
     const semesterSummary = summarizeModules(semester.studentModules);
@@ -264,7 +263,6 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
       .reduce((sum, sm) => sum + Number(sm.semesterModule.credits), 0);
 
     cumulativeCreditsForGPA += semesterCreditsForGPA;
-    cumulativeCreditsCompleted += semesterSummary.creditsCompleted;
 
     const cgpa = calculateGPA(cumulativePoints, cumulativeCreditsForGPA);
 
