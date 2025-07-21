@@ -724,3 +724,17 @@ export const blockedStudents = sqliteTable('blocked_students', {
     .notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
+
+export const studentCardPrints = sqliteTable('student_card_prints', {
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  reference: text().notNull().unique().default('Initial Print'),
+  stdNo: integer()
+    .references(() => students.stdNo, { onDelete: 'cascade' })
+    .notNull(),
+  printedBy: text()
+    .references(() => users.id, { onDelete: 'set null' })
+    .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});

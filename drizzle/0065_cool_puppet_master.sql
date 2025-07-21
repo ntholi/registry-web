@@ -1,0 +1,1 @@
+ALTER TABLE `student_card_prints` ADD `created_at` integer DEFAULT (unixepoch());
