@@ -404,6 +404,7 @@ export default function RegistrationSimulator() {
               <Button
                 onClick={handleDetermineSemester}
                 loading={isAnalyzing}
+                variant='light'
                 disabled={
                   selectedModules.size === 0 || selectedModules.size > 8
                 }

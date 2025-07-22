@@ -1,9 +1,11 @@
 import {
+  Box,
   Container,
   Group,
   Paper,
   Stack,
   ThemeIcon,
+  Text,
   Title,
 } from '@mantine/core';
 import { IconTestPipe } from '@tabler/icons-react';
@@ -19,9 +21,15 @@ export default function SimulatePage() {
               <ThemeIcon size='xl' radius='sm' variant='light' color='gray'>
                 <IconTestPipe size={24} />
               </ThemeIcon>
-              <Title fw={400} size='h4'>
-                Registration Simulator
-              </Title>
+              <Box>
+                <Title fw={400} size='h4'>
+                  Registration Simulator
+                </Title>
+                <Text size='sm' c='dimmed'>
+                  A tool to test student registration process, to make sure
+                  registration is working as expected.
+                </Text>
+              </Box>
             </Group>
             <RegistrationSimulator />
           </Stack>

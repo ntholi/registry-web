@@ -63,7 +63,7 @@ export default function SemesterStatusModal({
       opened={opened}
       onClose={onClose}
       title='Semester Calculator'
-      size='xl'
+      size='lg'
       padding='lg'
     >
       <Stack gap='xl'>
@@ -174,7 +174,6 @@ export default function SemesterStatusModal({
                   <Table.Tr>
                     <Table.Th>Code</Table.Th>
                     <Table.Th>Module Name</Table.Th>
-                    <Table.Th>Credits</Table.Th>
                     <Table.Th>Status</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -188,11 +187,6 @@ export default function SemesterStatusModal({
                       </Table.Td>
                       <Table.Td>
                         <Text size='sm'>{module.name}</Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size='sm' fw={500}>
-                          {module.credits}
-                        </Text>
                       </Table.Td>
                       <Table.Td>
                         <Badge

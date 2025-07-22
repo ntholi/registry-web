@@ -244,7 +244,7 @@ function getNavigation(department: DashboardUser) {
       label: 'Simulator',
       href: '/admin/simulate',
       icon: IconTestPipe,
-      roles: ['registry', 'admin'],
+      roles: ['registry', 'academic', 'admin'],
     },
     {
       label: 'Reports',
