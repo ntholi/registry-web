@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  ActionIcon,
   Box,
   Button,
   FileInput,
@@ -8,12 +9,19 @@ import {
   Image,
   Modal,
   Paper,
+  Select,
   Stack,
   Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconCamera, IconDeviceDesktop, IconPhoto } from '@tabler/icons-react';
-import { useCallback, useRef, useState } from 'react';
+import {
+  IconCamera,
+  IconDeviceDesktop,
+  IconPhoto,
+  IconTrashFilled,
+  IconVideo,
+} from '@tabler/icons-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type PhotoSelectionProps = {
   selectedPhoto: File | null;
@@ -77,24 +85,27 @@ export default function PhotoSelection({
             <Text size='sm' mb='xs'>
               Preview:
             </Text>
-            <Group>
+            <Box pos='relative'>
               <Image
                 src={photoPreview}
                 alt='Student photo preview'
-                w={150}
-                h={200}
+                w='100%'
+                h='100%'
                 fit='cover'
                 radius='md'
               />
-              <Button
-                variant='subtle'
+              <ActionIcon
+                variant='light'
                 color='red'
                 size='xs'
                 onClick={() => onPhotoChange(null, null)}
+                pos='absolute'
+                top={0}
+                right={0}
               >
-                Remove Photo
-              </Button>
-            </Group>
+                <IconTrashFilled size={16} />
+              </ActionIcon>
+            </Box>
           </Box>
         )}
       </Stack>
@@ -114,6 +125,12 @@ type CameraModalProps = {
   onCapture: (file: File, preview: string) => void;
 };
 
+type CameraDevice = {
+  deviceId: string;
+  label: string;
+  groupId: string;
+};
+
 function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -121,24 +138,61 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cameraInitialized, setCameraInitialized] = useState(false);
+  const [availableCameras, setAvailableCameras] = useState<CameraDevice[]>([]);
+  const [selectedCameraId, setSelectedCameraId] = useState<string>('');
+
+  const getAvailableCameras = useCallback(async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices
+        .filter((device) => device.kind === 'videoinput')
+        .map((device) => ({
+          deviceId: device.deviceId,
+          label: device.label || `Camera ${device.deviceId.slice(0, 8)}`,
+          groupId: device.groupId,
+        }));
+
+      setAvailableCameras(videoDevices);
+
+      if (videoDevices.length > 0 && !selectedCameraId) {
+        setSelectedCameraId(videoDevices[0].deviceId);
+      }
+    } catch (err) {
+      console.error('Error enumerating devices:', err);
+      setError('Unable to access camera devices.');
+    }
+  }, [selectedCameraId]);
 
   const startCamera = useCallback(async () => {
-    if (cameraInitialized || isLoading) return;
+    if (isLoading) return;
 
     setIsLoading(true);
     setError(null);
-    setCameraInitialized(true);
+
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
+    }
 
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          facingMode: 'user',
-        },
-      });
+      const videoConstraints: MediaTrackConstraints = {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+      };
+
+      if (selectedCameraId) {
+        videoConstraints.deviceId = { exact: selectedCameraId };
+      }
+
+      const constraints: MediaStreamConstraints = {
+        video: videoConstraints,
+      };
+
+      const mediaStream =
+        await navigator.mediaDevices.getUserMedia(constraints);
 
       setStream(mediaStream);
+      setCameraInitialized(true);
 
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
@@ -150,7 +204,7 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [cameraInitialized, isLoading]);
+  }, [selectedCameraId, isLoading, stream]);
 
   const stopCamera = useCallback(() => {
     if (stream) {
@@ -188,6 +242,22 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
       0.9,
     );
   }, [onCapture, stopCamera]);
+
+  const handleCameraChange = useCallback(
+    async (cameraId: string) => {
+      setSelectedCameraId(cameraId);
+      if (stream) {
+        await startCamera();
+      }
+    },
+    [stream, startCamera],
+  );
+
+  useEffect(() => {
+    if (opened) {
+      getAvailableCameras();
+    }
+  }, [opened, getAvailableCameras]);
 
   const handleClose = () => {
     stopCamera();
@@ -245,13 +315,27 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
           <canvas ref={canvasRef} style={{ display: 'none' }} />
         </Box>
 
+        {availableCameras.length > 1 && (
+          <Select
+            label='Select Camera'
+            placeholder='Choose a camera'
+            data={availableCameras.map((camera) => ({
+              value: camera.deviceId,
+              label: camera.label,
+            }))}
+            value={selectedCameraId}
+            onChange={(value) => value && handleCameraChange(value)}
+            leftSection={<IconVideo size={16} />}
+            mb='md'
+          />
+        )}
+
         <Group justify='space-between'>
           <Button
             variant='subtle'
             leftSection={<IconDeviceDesktop size={16} />}
             onClick={startCamera}
             loading={isLoading}
-            disabled={!!stream}
           >
             {stream ? 'Camera Active' : 'Start Camera'}
           </Button>
