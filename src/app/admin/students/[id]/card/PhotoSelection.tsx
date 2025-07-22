@@ -90,7 +90,7 @@ export default function PhotoSelection({
                 src={photoPreview}
                 alt='Student photo preview'
                 w='100%'
-                h='100%'
+                h={200}
                 fit='cover'
                 radius='md'
               />
@@ -259,6 +259,17 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
     }
   }, [opened, getAvailableCameras]);
 
+  useEffect(() => {
+    if (opened && availableCameras.length > 0 && selectedCameraId && !stream) {
+      startCamera();
+    }
+    return () => {
+      if (!opened) {
+        stopCamera();
+      }
+    };
+  }, [opened, availableCameras.length, selectedCameraId]);
+
   const handleClose = () => {
     stopCamera();
     onClose();
@@ -280,6 +291,24 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
         )}
 
         <Box style={{ position: 'relative' }}>
+          {!stream && isLoading && (
+            <Box
+              style={{
+                width: '100%',
+                height: '300px',
+                backgroundColor: '#000',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text c='white' size='sm'>
+                Starting camera...
+              </Text>
+            </Box>
+          )}
+
           {!stream && !isLoading && (
             <Box
               style={{
@@ -293,7 +322,7 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
               }}
             >
               <Text c='white' size='sm'>
-                Click "Start Camera" to begin
+                Camera not available
               </Text>
             </Box>
           )}
@@ -330,28 +359,17 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
           />
         )}
 
-        <Group justify='space-between'>
-          <Button
-            variant='subtle'
-            leftSection={<IconDeviceDesktop size={16} />}
-            onClick={startCamera}
-            loading={isLoading}
-          >
-            {stream ? 'Camera Active' : 'Start Camera'}
+        <Group justify='flex-end'>
+          <Button variant='light' onClick={handleClose}>
+            Cancel
           </Button>
-
-          <Group>
-            <Button variant='light' onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button
-              onClick={capturePhoto}
-              disabled={!stream}
-              leftSection={<IconCamera size={16} />}
-            >
-              Capture
-            </Button>
-          </Group>
+          <Button
+            onClick={capturePhoto}
+            disabled={!stream}
+            leftSection={<IconCamera size={16} />}
+          >
+            Capture
+          </Button>
         </Group>
       </Stack>
     </Modal>
