@@ -134,7 +134,6 @@ export default function StudentCardPrinter({
       leftSection={<IconPrinter size='1rem' />}
       onClick={handlePrint}
       disabled={isGenerating || disabled}
-      loading={isGenerating}
     >
       {isGenerating ? 'Generating...' : 'Print Student Card'}
     </Button>

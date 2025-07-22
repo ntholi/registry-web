@@ -110,64 +110,116 @@ type StudentCardPreviewProps = {
 
 function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
   const activeProgram = student.programs?.find((p) => p.status === 'Active');
-  const programName = activeProgram?.structure?.program?.name || 'N/A';
+  const programCode = activeProgram?.structure?.program?.code || 'N/A';
 
   return (
     <Paper
-      p='md'
       shadow='md'
-      radius='md'
+      radius={0}
       style={{
         width: '320px',
         height: '200px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
+        backgroundColor: '#ffffff',
+        border: '1px solid #000',
         position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <Stack gap='xs'>
-        <Group justify='space-between' align='flex-start'>
-          <Box>
-            <Text size='xs' fw={700}>
-              LIMKOKWING UNIVERSITY
-            </Text>
-            <Text size='xs'>Student ID Card</Text>
-          </Box>
+      <Box
+        style={{
+          width: '100%',
+          height: '70px',
+          backgroundColor: '#000000',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '8px',
+        }}
+      >
+        <Image
+          src='/images/logo-dark.png'
+          alt='Limkokwing University'
+          w={180}
+          h={50}
+          fit='contain'
+        />
+      </Box>
+
+      <Group
+        align='flex-start'
+        gap='md'
+        p='md'
+        style={{ height: 'calc(100% - 70px)' }}
+      >
+        <Box style={{ flex: 1 }}>
+          <Text size='md' fw={700} c='black'>
+            {student.name}
+          </Text>
+          <Text size='sm' fw={700} c='black'>
+            {student.stdNo}
+          </Text>
+          <Text size='xs' fw={700} c='black'>
+            {programCode}
+          </Text>
+          <Text size='xs' fw={700} c='black'>
+            STUDENT
+          </Text>
+          <Text size='sm' fw={700} c='black'>
+            {new Date().getFullYear()}
+          </Text>
+        </Box>
+
+        <Stack align='flex-end' gap={4}>
           {photoUrl ? (
             <Image
               src={photoUrl}
               alt='Student photo'
-              w={60}
-              h={80}
+              w={70}
+              h={90}
               fit='cover'
-              radius='sm'
+              radius={0}
+              style={{ border: '1px solid #000' }}
             />
           ) : (
             <Box
-              w={60}
-              h={80}
+              w={70}
+              h={90}
               style={{
-                border: '2px dashed rgba(255,255,255,0.5)',
+                border: '1px solid #000',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '4px',
+                backgroundColor: '#f0f0f0',
               }}
             >
-              <IconCamera size={24} opacity={0.5} />
+              <IconCamera size={20} color='#666' />
             </Box>
           )}
-        </Group>
-
-        <Stack gap={2} mt='xs'>
-          <Text size='sm' fw={600}>
-            {student.name}
+          <Text size='xs' fw={700} c='black' ta='right'>
+            LUCT LESOTHO
           </Text>
-          <Text size='xs'>ID: {student.stdNo}</Text>
-          <Text size='xs'>Program: {programName}</Text>
-          <Text size='xs'>Valid: {new Date().getFullYear()}</Text>
         </Stack>
-      </Stack>
+      </Group>
+
+      <Box
+        style={{
+          position: 'absolute',
+          bottom: '5px',
+          left: '12px',
+          right: '12px',
+        }}
+      >
+        <Text size='6px' c='black'>
+          If found please return to:
+        </Text>
+        <Text size='6px' c='black'>
+          Limkokwing University, Lesotho Campus
+        </Text>
+        <Text size='6px' c='black'>
+          Telephone Number: 22314551
+        </Text>
+      </Box>
     </Paper>
   );
 }
