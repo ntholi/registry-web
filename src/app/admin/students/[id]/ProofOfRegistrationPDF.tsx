@@ -28,15 +28,14 @@ const styles = StyleSheet.create({
     lineHeight: 1.1,
   },
   headerContainer: {
+    paddingBottom: 15,
+    borderBottom: '1px solid #000',
+  },
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 20,
-    paddingBottom: 15,
-    borderBottom: '2px solid #000',
-  },
-  leftHeaderContent: {
-    flex: 1,
-    paddingRight: 15,
+    justifyContent: 'space-between',
+    width: '100%',
   },
   universityName: {
     fontSize: 14,
@@ -55,7 +54,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   logo: {
-    width: 95,
+    width: 'auto',
     height: 95,
     marginLeft: 10,
   },
@@ -69,14 +68,15 @@ const styles = StyleSheet.create({
   },
   studentInfoSection: {
     marginBottom: 25,
+    borderBottom: '1px solid #666666',
   },
   infoTable: {
     width: '100%',
-    border: '1px solid #000',
+    border: '1px solid #BDBDBD',
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottom: '1px solid #000',
+    borderBottom: '1px solid #BDBDBD',
     minHeight: 22,
   },
   lastTableRow: {
@@ -84,17 +84,16 @@ const styles = StyleSheet.create({
     minHeight: 22,
   },
   labelCell: {
-    width: '20%',
-    padding: 6,
+    width: '25%',
+    padding: 8,
     fontWeight: 'bold',
-    borderRight: '1px solid #000',
+    borderRight: '1px solid #BDBDBD',
     justifyContent: 'center',
     fontSize: 9,
-    backgroundColor: '#ffffff',
   },
   valueCell: {
-    width: '80%',
-    padding: 6,
+    width: '75%',
+    padding: 8,
     justifyContent: 'center',
     fontSize: 9,
     backgroundColor: '#ffffff',
@@ -110,18 +109,21 @@ const styles = StyleSheet.create({
   },
   moduleTable: {
     width: '100%',
-    border: '1px solid #000',
+    borderTop: '1px solid #000',
+    borderLeft: '1px solid #000',
+    borderRight: '1px solid #000',
+    borderBottom: '1px solid #000',
     marginBottom: 12,
   },
   moduleHeaderRow: {
     flexDirection: 'row',
     backgroundColor: '#4a4a4a',
-    borderBottom: '1px solid #000',
+    borderBottom: '1px solid #666666',
     minHeight: 25,
   },
   moduleHeaderCell: {
     padding: 4,
-    borderRight: '1px solid #000',
+    borderRight: '1px solid #666666',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -133,7 +135,7 @@ const styles = StyleSheet.create({
   },
   moduleDataRow: {
     flexDirection: 'row',
-    borderBottom: '1px solid #000',
+    borderBottom: '1px solid #666666',
     minHeight: 35,
   },
   moduleLastDataRow: {
@@ -142,12 +144,12 @@ const styles = StyleSheet.create({
   },
   moduleDataCell: {
     padding: 4,
-    borderRight: '1px solid #000',
+    borderRight: '1px solid #666666',
     justifyContent: 'center',
   },
   moduleLastDataCell: {
     padding: 4,
-    borderRight: '1px solid #000',
+    borderRight: '1px solid #666666',
     justifyContent: 'center',
   },
   moduleNumberCol: {
@@ -262,10 +264,10 @@ export default function ProofOfRegistrationPDF({
     <Document>
       <Page size='A4' style={styles.page}>
         <View style={styles.headerContainer}>
-          <View style={styles.leftHeaderContent}>
-            <Text style={styles.universityName}>
-              Limkokwing University of Creative Technology
-            </Text>
+          <Text style={styles.universityName}>
+            Limkokwing University of Creative Technology
+          </Text>
+          <View style={styles.headerContent}>
             <View style={styles.addressContainer}>
               <Text style={styles.addressLine}>
                 Moshoshoe Road Maseru Central
@@ -276,8 +278,8 @@ export default function ProofOfRegistrationPDF({
               <Text style={styles.addressLine}>+(266) 22315767 | Ext. 116</Text>
               <Text style={styles.addressLine}>registry@limkokwing.ac.ls</Text>
             </View>
+            <Image style={styles.logo} src='/images/logo-lesotho.jpg' />
           </View>
-          <Image style={styles.logo} src='/images/logo-lesotho.jpg' />
         </View>
 
         <Text style={styles.title}>PROOF OF REGISTRATION</Text>
