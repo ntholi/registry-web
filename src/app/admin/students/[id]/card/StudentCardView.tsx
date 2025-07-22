@@ -1,19 +1,11 @@
 'use client';
 
 import { getStudent } from '@/server/students/actions';
-import {
-  Box,
-  FileInput,
-  Grid,
-  Group,
-  Image,
-  Paper,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { Box, Grid, Group, Image, Paper, Stack, Text } from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
 import { useState } from 'react';
 import StudentCardPrinter from './StudentCardPrinter';
+import PhotoSelection from './PhotoSelection';
 
 type StudentCardViewProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -27,17 +19,9 @@ export default function StudentCardView({
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-  const handlePhotoChange = (file: File | null) => {
+  const handlePhotoChange = (file: File | null, preview: string | null) => {
     setSelectedPhoto(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPhotoPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setPhotoPreview(null);
-    }
+    setPhotoPreview(preview);
   };
 
   if (!isActive) {
@@ -48,37 +32,11 @@ export default function StudentCardView({
     <Box>
       <Grid>
         <Grid.Col span={6}>
-          <Paper p='lg' shadow='sm' radius='md'>
-            <Text size='lg' fw={600} mb='md'>
-              Photo Selection
-            </Text>
-
-            <FileInput
-              label='Student Photo'
-              placeholder='Click to select photo'
-              accept='image/*'
-              leftSection={<IconCamera size={16} />}
-              value={selectedPhoto}
-              onChange={handlePhotoChange}
-              mb='md'
-            />
-
-            {photoPreview && (
-              <Box>
-                <Text size='sm' mb='xs'>
-                  Preview:
-                </Text>
-                <Image
-                  src={photoPreview}
-                  alt='Student photo preview'
-                  w={150}
-                  h={200}
-                  fit='cover'
-                  radius='md'
-                />
-              </Box>
-            )}
-          </Paper>
+          <PhotoSelection
+            selectedPhoto={selectedPhoto}
+            photoPreview={photoPreview}
+            onPhotoChange={handlePhotoChange}
+          />
         </Grid.Col>
 
         <Grid.Col span={6}>
