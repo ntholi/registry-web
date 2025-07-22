@@ -36,6 +36,7 @@ export default function StudentCardView({
             selectedPhoto={selectedPhoto}
             photoPreview={photoPreview}
             onPhotoChange={handlePhotoChange}
+            studentNumber={student.stdNo}
           />
         </Grid.Col>
 

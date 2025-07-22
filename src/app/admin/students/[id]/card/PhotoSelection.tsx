@@ -22,27 +22,46 @@ import {
   IconVideo,
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { uploadDocument } from '@/lib/storage';
 
 type PhotoSelectionProps = {
   selectedPhoto: File | null;
   photoPreview: string | null;
   onPhotoChange: (file: File | null, preview: string | null) => void;
+  studentNumber: number;
 };
 
 export default function PhotoSelection({
   selectedPhoto,
   photoPreview,
   onPhotoChange,
+  studentNumber,
 }: PhotoSelectionProps) {
   const [cameraOpened, { open: openCamera, close: closeCamera }] =
     useDisclosure(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileChange = (file: File | null) => {
+  const uploadPhoto = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const fileName = `${studentNumber}.${fileExtension}`;
+
+      await uploadDocument(file, fileName);
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileChange = async (file: File | null) => {
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const preview = e.target?.result as string;
         onPhotoChange(file, preview);
+        await uploadPhoto(file);
       };
       reader.readAsDataURL(file);
     } else {
@@ -50,8 +69,9 @@ export default function PhotoSelection({
     }
   };
 
-  const handleCameraCapture = (capturedFile: File, preview: string) => {
+  const handleCameraCapture = async (capturedFile: File, preview: string) => {
     onPhotoChange(capturedFile, preview);
+    await uploadPhoto(capturedFile);
     closeCamera();
   };
 
@@ -69,6 +89,7 @@ export default function PhotoSelection({
           leftSection={<IconPhoto size={16} />}
           value={selectedPhoto}
           onChange={handleFileChange}
+          disabled={isUploading}
         />
 
         <Button
@@ -76,9 +97,16 @@ export default function PhotoSelection({
           leftSection={<IconCamera size={16} />}
           onClick={openCamera}
           fullWidth
+          disabled={isUploading}
         >
           Capture with Camera
         </Button>
+
+        {isUploading && (
+          <Text size='sm' c='blue'>
+            Uploading photo...
+          </Text>
+        )}
 
         {photoPreview && (
           <Box>
