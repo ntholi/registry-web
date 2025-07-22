@@ -404,11 +404,11 @@ export default function RegistrationSimulator() {
               <Button
                 onClick={handleDetermineSemester}
                 loading={isAnalyzing}
-                variant='light'
+                variant='outline'
                 disabled={
                   selectedModules.size === 0 || selectedModules.size > 8
                 }
-                size='sm'
+                size='xs'
               >
                 {isAnalyzing ? 'Determining...' : 'Determine Semester'}
               </Button>
