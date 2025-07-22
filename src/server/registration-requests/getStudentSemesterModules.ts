@@ -40,16 +40,25 @@ export async function getStudentSemesterModulesLogic(
   remarks: AcademicRemarks,
 ) {
   if (!student) {
-    throw new Error('Student not found');
+    return {
+      error: 'Student not found',
+      modules: [],
+    };
   }
 
   const activeProgram = getActiveProgram(student);
   if (!activeProgram) {
-    throw new Error('No active program found for student');
+    return {
+      error: 'No active program found for student',
+      modules: [],
+    };
   }
 
   if (remarks.status === 'Remain in Semester') {
-    throw new Error(`${remarks.status}, ${remarks.details}`);
+    return {
+      error: `${remarks.status}, ${remarks.details}`,
+      modules: [],
+    };
   }
 
   const failedPrerequisites = await getFailedPrerequisites(
@@ -77,7 +86,7 @@ export async function getStudentSemesterModulesLogic(
     (m) => !attemptedModules.has(m.module?.name),
   );
 
-  return [
+  const modules = [
     ...filteredModules.map(
       (m): ModuleWithStatus => ({
         semesterModuleId: m.id,
@@ -92,6 +101,8 @@ export async function getStudentSemesterModulesLogic(
     ),
     ...repeatModules,
   ];
+
+  return { modules, error: null };
 }
 
 async function getFailedPrerequisites(failedModules: Module[]) {

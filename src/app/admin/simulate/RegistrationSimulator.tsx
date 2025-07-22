@@ -1,5 +1,6 @@
 'use client';
 
+import { getCurrentSemester } from '@/lib/helpers/students';
 import { formatSemester } from '@/lib/utils';
 import {
   determineSemesterStatus,
@@ -39,8 +40,8 @@ import Link from 'next/link';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
 import SemesterStatusModal from './SemesterStatusModal';
-import { getCurrentSemester } from '@/lib/helpers/students';
-type ModuleData = Awaited<ReturnType<typeof getStudentSemesterModules>>;
+type ModuleDataResponse = Awaited<ReturnType<typeof getStudentSemesterModules>>;
+type ModuleData = ModuleDataResponse['modules'];
 type Student = {
   name: string;
   stdNo: number;
@@ -126,10 +127,22 @@ export default function RegistrationSimulator() {
         setFullStudentData(studentData);
 
         const remarks = getAcademicRemarks(studentData.programs);
-        const moduleData = await getStudentSemesterModules(
+        const moduleDataResponse = await getStudentSemesterModules(
           studentData,
           remarks,
         );
+
+        // Check if there's an error in the response
+        if (moduleDataResponse.error) {
+          setError(moduleDataResponse.error);
+          notifications.show({
+            title: 'Simulation Error',
+            message: moduleDataResponse.error,
+            color: 'red',
+            icon: <IconX size={16} />,
+          });
+          return;
+        }
 
         const activeProgram = studentData.programs.find(
           (p) => p.status === 'Active',
@@ -148,7 +161,7 @@ export default function RegistrationSimulator() {
           });
         }
 
-        setModules(moduleData);
+        setModules(moduleDataResponse.modules);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Unknown error occurred';
