@@ -21,147 +21,194 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Arial',
-    fontSize: 11,
-    paddingTop: 25,
-    paddingBottom: 25,
-    paddingHorizontal: 25,
-    lineHeight: 1.2,
+    fontSize: 10,
+    paddingTop: 30,
+    paddingBottom: 30,
+    paddingHorizontal: 35,
+    lineHeight: 1.1,
   },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 25,
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottom: '2px solid #000',
   },
-  headerContent: {
+  leftHeaderContent: {
     flex: 1,
-    paddingRight: 20,
+    paddingRight: 15,
   },
   universityName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    lineHeight: 1.2,
-  },
-  addressLine: {
-    fontSize: 10,
-    marginBottom: 2,
-    lineHeight: 1.1,
-  },
-  logo: {
-    width: 100,
-    height: 100,
-  },
-  title: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 20,
-    textDecoration: 'underline',
+    marginBottom: 8,
+    lineHeight: 1.1,
+    color: '#000',
   },
-  studentInfoTable: {
-    width: '100%',
+  addressContainer: {
+    marginTop: 5,
+  },
+  addressLine: {
+    fontSize: 9,
+    marginBottom: 1,
+    lineHeight: 1.1,
+    color: '#000',
+  },
+  logo: {
+    width: 95,
+    height: 95,
+    marginLeft: 10,
+  },
+  title: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginTop: 25,
+    marginBottom: 20,
+    textAlign: 'left',
+    color: '#000',
+  },
+  studentInfoSection: {
     marginBottom: 25,
+  },
+  infoTable: {
+    width: '100%',
     border: '1px solid #000',
   },
   tableRow: {
     flexDirection: 'row',
     borderBottom: '1px solid #000',
-    minHeight: 25,
+    minHeight: 22,
   },
-  lastRow: {
+  lastTableRow: {
     flexDirection: 'row',
-    minHeight: 25,
+    minHeight: 22,
   },
-  labelColumn: {
-    width: '25%',
-    padding: 5,
+  labelCell: {
+    width: '20%',
+    padding: 6,
     fontWeight: 'bold',
     borderRight: '1px solid #000',
     justifyContent: 'center',
+    fontSize: 9,
+    backgroundColor: '#ffffff',
   },
-  valueColumn: {
-    width: '75%',
-    padding: 5,
+  valueCell: {
+    width: '80%',
+    padding: 6,
     justifyContent: 'center',
+    fontSize: 9,
+    backgroundColor: '#ffffff',
+  },
+  modulesSection: {
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 12,
+    color: '#000',
   },
   moduleTable: {
     width: '100%',
     border: '1px solid #000',
-    marginBottom: 15,
+    marginBottom: 12,
   },
   moduleHeaderRow: {
     flexDirection: 'row',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#4a4a4a',
     borderBottom: '1px solid #000',
-    minHeight: 30,
+    minHeight: 25,
+  },
+  moduleHeaderCell: {
+    padding: 4,
+    borderRight: '1px solid #000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  moduleHeaderText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    textAlign: 'center',
   },
   moduleDataRow: {
     flexDirection: 'row',
     borderBottom: '1px solid #000',
-    minHeight: 30,
+    minHeight: 35,
   },
-  moduleLastRow: {
+  moduleLastDataRow: {
     flexDirection: 'row',
-    minHeight: 30,
+    minHeight: 35,
+  },
+  moduleDataCell: {
+    padding: 4,
+    borderRight: '1px solid #000',
+    justifyContent: 'center',
+  },
+  moduleLastDataCell: {
+    padding: 4,
+    borderRight: '1px solid #000',
+    justifyContent: 'center',
   },
   moduleNumberCol: {
-    width: '8%',
-    padding: 5,
-    borderRight: '1px solid #000',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    justifyContent: 'center',
+    width: '6%',
   },
   moduleCodeDescCol: {
-    width: '62%',
-    padding: 5,
-    borderRight: '1px solid #000',
-    justifyContent: 'center',
+    width: '64%',
   },
   moduleTypeCol: {
     width: '15%',
-    padding: 5,
-    borderRight: '1px solid #000',
-    textAlign: 'center',
-    justifyContent: 'center',
   },
   moduleCreditsCol: {
     width: '15%',
-    padding: 5,
-    textAlign: 'center',
-    justifyContent: 'center',
   },
   moduleCode: {
+    fontSize: 9,
     fontWeight: 'bold',
     marginBottom: 2,
+    color: '#000',
   },
   moduleDescription: {
-    fontSize: 10,
+    fontSize: 8,
+    color: '#000',
+  },
+  moduleNumber: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#000',
+  },
+  moduleType: {
+    fontSize: 9,
+    textAlign: 'center',
+    color: '#000',
+  },
+  moduleCredits: {
+    fontSize: 9,
+    textAlign: 'center',
+    color: '#000',
   },
   creditsRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: 8,
+    marginBottom: 25,
   },
-  creditsText: {
+  creditsLabel: {
+    fontSize: 10,
     fontWeight: 'bold',
-    fontSize: 11,
+    color: '#000',
   },
-  dividerLine: {
-    height: 1,
-    backgroundColor: '#000',
-    marginVertical: 20,
+  footerSection: {
+    marginTop: 20,
+    paddingTop: 15,
+    borderTop: '1px solid #000',
   },
-  footer: {
-    fontSize: 8,
+  footerText: {
+    fontSize: 7,
     textAlign: 'justify',
-    marginTop: 10,
+    lineHeight: 1.2,
+    color: '#000',
   },
 });
 
@@ -215,139 +262,173 @@ export default function ProofOfRegistrationPDF({
     <Document>
       <Page size='A4' style={styles.page}>
         <View style={styles.headerContainer}>
-          <View style={styles.headerContent}>
+          <View style={styles.leftHeaderContent}>
             <Text style={styles.universityName}>
               Limkokwing University of Creative Technology
             </Text>
-            <Text style={styles.addressLine}>
-              Moshoshoe Road Maseru Central
-            </Text>
-            <Text style={styles.addressLine}>P.O. Box 8571</Text>
-            <Text style={styles.addressLine}>Maseru Maseru 0101</Text>
-            <Text style={styles.addressLine}>Lesotho</Text>
-            <Text style={styles.addressLine}>+(266) 22315767 | Ext. 116</Text>
-            <Text style={styles.addressLine}>registry@limkokwing.ac.ls</Text>
+            <View style={styles.addressContainer}>
+              <Text style={styles.addressLine}>
+                Moshoshoe Road Maseru Central
+              </Text>
+              <Text style={styles.addressLine}>P.O. Box 8571</Text>
+              <Text style={styles.addressLine}>Maseru Maseru 0101</Text>
+              <Text style={styles.addressLine}>Lesotho</Text>
+              <Text style={styles.addressLine}>+(266) 22315767 | Ext. 116</Text>
+              <Text style={styles.addressLine}>registry@limkokwing.ac.ls</Text>
+            </View>
           </View>
           <Image style={styles.logo} src='/images/logo-lesotho.jpg' />
         </View>
 
-        <View style={styles.dividerLine} />
-
         <Text style={styles.title}>PROOF OF REGISTRATION</Text>
 
-        <View style={styles.studentInfoTable}>
-          <View style={styles.tableRow}>
-            <View style={styles.labelColumn}>
-              <Text>Student Number:</Text>
+        <View style={styles.studentInfoSection}>
+          <View style={styles.infoTable}>
+            <View style={styles.tableRow}>
+              <View style={[styles.labelCell]}>
+                <Text>Student Number:</Text>
+              </View>
+              <View style={[styles.valueCell]}>
+                <Text>{student.stdNo}</Text>
+              </View>
             </View>
-            <View style={styles.valueColumn}>
-              <Text>{student.stdNo}</Text>
+            <View style={styles.tableRow}>
+              <View style={[styles.labelCell]}>
+                <Text>Student Name:</Text>
+              </View>
+              <View style={[styles.valueCell]}>
+                <Text>{student.name}</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.tableRow}>
-            <View style={styles.labelColumn}>
-              <Text>Student Name:</Text>
+            <View style={styles.tableRow}>
+              <View style={[styles.labelCell]}>
+                <Text>Program:</Text>
+              </View>
+              <View style={[styles.valueCell]}>
+                <Text>{activeProgram.structure.program.name}</Text>
+              </View>
             </View>
-            <View style={styles.valueColumn}>
-              <Text>{student.name}</Text>
+            <View style={styles.tableRow}>
+              <View style={[styles.labelCell]}>
+                <Text>Term:</Text>
+              </View>
+              <View style={[styles.valueCell]}>
+                <Text>{latestSemester.term}</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.tableRow}>
-            <View style={styles.labelColumn}>
-              <Text>Program:</Text>
-            </View>
-            <View style={styles.valueColumn}>
-              <Text>{activeProgram.structure.program.name}</Text>
-            </View>
-          </View>
-          <View style={styles.tableRow}>
-            <View style={styles.labelColumn}>
-              <Text>Term:</Text>
-            </View>
-            <View style={styles.valueColumn}>
-              <Text>{latestSemester.term}</Text>
-            </View>
-          </View>
-          <View style={styles.lastRow}>
-            <View style={styles.labelColumn}>
-              <Text>Semester:</Text>
-            </View>
-            <View style={styles.valueColumn}>
-              <Text>
-                Year {yearNumber} Semester {semesterInYear}
-              </Text>
+            <View style={styles.lastTableRow}>
+              <View style={[styles.labelCell]}>
+                <Text>Semester:</Text>
+              </View>
+              <View style={[styles.valueCell]}>
+                <Text>
+                  Year {yearNumber} Semester {semesterInYear}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>REGISTERED MODULES</Text>
+        <View style={styles.modulesSection}>
+          <Text style={styles.sectionTitle}>REGISTERED MODULES</Text>
 
-        <View style={styles.moduleTable}>
-          <View style={styles.moduleHeaderRow}>
-            <View style={styles.moduleNumberCol}>
-              <Text>#</Text>
+          <View style={styles.moduleTable}>
+            <View style={styles.moduleHeaderRow}>
+              <View style={[styles.moduleHeaderCell, styles.moduleNumberCol]}>
+                <Text style={styles.moduleHeaderText}>#</Text>
+              </View>
+              <View style={[styles.moduleHeaderCell, styles.moduleCodeDescCol]}>
+                <Text style={styles.moduleHeaderText}>
+                  Module Code & Description
+                </Text>
+              </View>
+              <View style={[styles.moduleHeaderCell, styles.moduleTypeCol]}>
+                <Text style={styles.moduleHeaderText}>Type</Text>
+              </View>
+              <View style={[styles.moduleHeaderCell, styles.moduleCreditsCol]}>
+                <Text style={styles.moduleHeaderText}>Credits</Text>
+              </View>
             </View>
-            <View style={styles.moduleCodeDescCol}>
-              <Text>Module Code & Description</Text>
-            </View>
-            <View style={styles.moduleTypeCol}>
-              <Text>Type</Text>
-            </View>
-            <View style={styles.moduleCreditsCol}>
-              <Text>Credits</Text>
-            </View>
+
+            {latestSemester.studentModules.map(
+              (studentModule: StudentModule, index: number) => {
+                const isLastRow =
+                  index === latestSemester.studentModules.length - 1;
+                return (
+                  <View
+                    key={studentModule.id}
+                    style={
+                      isLastRow
+                        ? styles.moduleLastDataRow
+                        : styles.moduleDataRow
+                    }
+                  >
+                    <View
+                      style={[
+                        isLastRow
+                          ? styles.moduleLastDataCell
+                          : styles.moduleDataCell,
+                        styles.moduleNumberCol,
+                      ]}
+                    >
+                      <Text style={styles.moduleNumber}>{index + 1}</Text>
+                    </View>
+                    <View
+                      style={[
+                        isLastRow
+                          ? styles.moduleLastDataCell
+                          : styles.moduleDataCell,
+                        styles.moduleCodeDescCol,
+                      ]}
+                    >
+                      <Text style={styles.moduleCode}>
+                        {studentModule.semesterModule.module?.code || 'N/A'}
+                      </Text>
+                      <Text style={styles.moduleDescription}>
+                        {studentModule.semesterModule.module?.name || 'N/A'}
+                      </Text>
+                    </View>
+                    <View
+                      style={[
+                        isLastRow
+                          ? styles.moduleLastDataCell
+                          : styles.moduleDataCell,
+                        styles.moduleTypeCol,
+                      ]}
+                    >
+                      <Text style={styles.moduleType}>
+                        {studentModule.semesterModule.type === 'Major'
+                          ? 'Major'
+                          : 'Minor'}
+                      </Text>
+                    </View>
+                    <View
+                      style={[
+                        isLastRow
+                          ? styles.moduleLastDataCell
+                          : styles.moduleDataCell,
+                        styles.moduleCreditsCol,
+                      ]}
+                    >
+                      <Text style={styles.moduleCredits}>
+                        {studentModule.semesterModule.credits.toFixed(1)}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              },
+            )}
           </View>
 
-          {latestSemester.studentModules.map(
-            (studentModule: StudentModule, index: number) => {
-              const isLastRow =
-                index === latestSemester.studentModules.length - 1;
-              return (
-                <View
-                  key={studentModule.id}
-                  style={
-                    isLastRow ? styles.moduleLastRow : styles.moduleDataRow
-                  }
-                >
-                  <View style={styles.moduleNumberCol}>
-                    <Text>{index + 1}</Text>
-                  </View>
-                  <View style={styles.moduleCodeDescCol}>
-                    <Text style={styles.moduleCode}>
-                      {studentModule.semesterModule.module?.code || 'N/A'}
-                    </Text>
-                    <Text style={styles.moduleDescription}>
-                      {studentModule.semesterModule.module?.name || 'N/A'}
-                    </Text>
-                  </View>
-                  <View style={styles.moduleTypeCol}>
-                    <Text>
-                      {studentModule.semesterModule.type === 'Major'
-                        ? 'Major'
-                        : 'Minor'}
-                    </Text>
-                  </View>
-                  <View style={styles.moduleCreditsCol}>
-                    <Text>
-                      {studentModule.semesterModule.credits.toFixed(1)}
-                    </Text>
-                  </View>
-                </View>
-              );
-            },
-          )}
+          <View style={styles.creditsRow}>
+            <Text style={styles.creditsLabel}>
+              Credits: {totalCredits.toFixed(1)}
+            </Text>
+          </View>
         </View>
 
-        <View style={styles.creditsRow}>
-          <Text style={styles.creditsText}>
-            Credits: {totalCredits.toFixed(1)}
-          </Text>
-        </View>
-
-        <View style={styles.dividerLine} />
-
-        <View style={styles.footer}>
-          <Text>
+        <View style={styles.footerSection}>
+          <Text style={styles.footerText}>
             Document ID: registration_{student.stdNo}_
             {latestSemester.term.replace(/\s+/g, '_')}_
             {formatDate(new Date()).replace(/\//g, '')} | This document serves
