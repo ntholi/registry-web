@@ -23,6 +23,7 @@ import {
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { uploadDocument } from '@/lib/storage';
+import { checkStudentPhotoExists } from '@/server/students/actions';
 
 type PhotoSelectionProps = {
   selectedPhoto: File | null;
@@ -40,6 +41,28 @@ export default function PhotoSelection({
   const [cameraOpened, { open: openCamera, close: closeCamera }] =
     useDisclosure(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingExisting, setIsLoadingExisting] = useState(true);
+
+  useEffect(() => {
+    const loadExistingPhoto = async () => {
+      if (!studentNumber) return;
+
+      try {
+        setIsLoadingExisting(true);
+        const existingPhotoUrl = await checkStudentPhotoExists(studentNumber);
+
+        if (existingPhotoUrl && !photoPreview) {
+          onPhotoChange(null, existingPhotoUrl);
+        }
+      } catch (error) {
+        console.error('Error loading existing photo:', error);
+      } finally {
+        setIsLoadingExisting(false);
+      }
+    };
+
+    loadExistingPhoto();
+  }, [studentNumber, onPhotoChange, photoPreview]);
 
   const uploadPhoto = async (file: File) => {
     setIsUploading(true);
@@ -89,7 +112,7 @@ export default function PhotoSelection({
           leftSection={<IconPhoto size={16} />}
           value={selectedPhoto}
           onChange={handleFileChange}
-          disabled={isUploading}
+          disabled={isUploading || isLoadingExisting}
         />
 
         <Button
@@ -97,10 +120,16 @@ export default function PhotoSelection({
           leftSection={<IconCamera size={16} />}
           onClick={openCamera}
           fullWidth
-          disabled={isUploading}
+          disabled={isUploading || isLoadingExisting}
         >
           Capture with Camera
         </Button>
+
+        {isLoadingExisting && (
+          <Text size='sm' c='gray'>
+            Loading existing photo...
+          </Text>
+        )}
 
         {isUploading && (
           <Text size='sm' c='blue'>

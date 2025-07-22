@@ -85,3 +85,30 @@ export async function updateStudentUserId(
   revalidatePath(`/admin/students/${stdNo}`);
   return res;
 }
+
+export async function checkStudentPhotoExists(
+  studentNumber: number,
+): Promise<string | null> {
+  try {
+    const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+    for (const ext of extensions) {
+      const fileName = `${studentNumber}.${ext}`;
+      const url = `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/${fileName}`;
+
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        if (response.ok) {
+          return url;
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error checking student photo:', error);
+    return null;
+  }
+}
