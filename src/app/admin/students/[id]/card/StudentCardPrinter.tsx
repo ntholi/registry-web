@@ -135,7 +135,7 @@ export default function StudentCardPrinter({
       onClick={handlePrint}
       disabled={isGenerating || disabled}
     >
-      {isGenerating ? 'Generating...' : 'Print Student Card'}
+      Print Student Card
     </Button>
   );
 }

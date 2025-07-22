@@ -20,78 +20,62 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Arial',
-    padding: 20,
-    backgroundColor: '#ffffff',
+    padding: 0,
   },
   cardContainer: {
-    width: 340,
-    height: 215,
-    border: '1px solid #000',
+    width: 242.6,
+    height: 175,
     marginBottom: 20,
     position: 'relative',
-    backgroundColor: '#ffffff',
+    border: '1px solid #000',
   },
   blackHeader: {
     width: '100%',
-    height: 80,
     backgroundColor: '#000000',
-    padding: 10,
+    padding: 2,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
   universityLogo: {
-    width: 200,
-    height: 60,
-  },
-  universityName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    textAlign: 'center',
-    marginBottom: 2,
-  },
-  universitySubtitle: {
-    fontSize: 12,
-    color: '#ffffff',
-    textAlign: 'center',
+    width: 100,
+    height: 40,
   },
   cardBody: {
     flexDirection: 'row',
-    padding: 15,
+    padding: 8,
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   leftSection: {
     flex: 1,
-    paddingRight: 15,
+    paddingRight: 8,
   },
   studentName: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#000000',
-    marginBottom: 8,
+    marginBottom: 0,
   },
   studentId: {
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#000000',
-    marginBottom: 8,
+    marginBottom: 0,
   },
   studentProgram: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#000000',
-    marginBottom: 8,
+    marginBottom: 0,
   },
   studentType: {
-    fontSize: 14,
+    fontSize: 10,
     fontWeight: 'bold',
     color: '#000000',
-    marginBottom: 8,
+    marginBottom: 0,
   },
   studentYear: {
-    fontSize: 16,
+    fontSize: 10,
     fontWeight: 'bold',
     color: '#000000',
   },
@@ -99,14 +83,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   photoContainer: {
-    width: 90,
-    height: 110,
-    border: '1px solid #000',
-    marginBottom: 10,
+    width: 80,
+    height: 100,
+    marginBottom: 5,
     overflow: 'hidden',
   },
   photo: {
     width: '100%',
+    objectFit: 'cover',
     height: '100%',
   },
   photoPlaceholder: {
@@ -118,26 +102,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   photoPlaceholderText: {
-    fontSize: 8,
+    fontSize: 6,
     color: '#666666',
   },
   campusInfo: {
-    fontSize: 12,
+    fontSize: 6,
     fontWeight: 'bold',
     color: '#000000',
     textAlign: 'right',
   },
   cardFooter: {
     position: 'absolute',
-    bottom: 5,
-    left: 15,
-    right: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    bottom: 8,
+    left: 1,
+    right: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
   },
   footerText: {
-    fontSize: 8,
+    fontSize: 5,
     color: '#000000',
   },
 });
@@ -157,7 +141,7 @@ export default function StudentCardPDF({
 
   return (
     <Document>
-      <Page size='A4' style={styles.page}>
+      <Page size={[242.6, 175]} style={styles.page}>
         <View style={styles.cardContainer}>
           <View style={styles.blackHeader}>
             <Image style={styles.universityLogo} src='/images/logo-dark.png' />
@@ -170,6 +154,15 @@ export default function StudentCardPDF({
               <Text style={styles.studentProgram}>{programCode}</Text>
               <Text style={styles.studentType}>STUDENT</Text>
               <Text style={styles.studentYear}>{currentYear}</Text>
+              <View style={styles.cardFooter}>
+                <Text style={styles.footerText}>
+                  If found please return to:
+                </Text>
+                <Text style={styles.footerText}>
+                  Limkokwing University Lesotho Campus, Maseru, Lesotho
+                </Text>
+                <Text style={styles.footerText}>Tel: 22315747</Text>
+              </View>
             </View>
 
             <View style={styles.rightSection}>
@@ -184,18 +177,6 @@ export default function StudentCardPDF({
               </View>
               <Text style={styles.campusInfo}>LUCT LESOTHO</Text>
             </View>
-          </View>
-
-          <View style={styles.cardFooter}>
-            <Text style={styles.footerText}>If found please return to:</Text>
-          </View>
-          <View style={[styles.cardFooter, { bottom: -5 }]}>
-            <Text style={styles.footerText}>
-              Limkokwing University, Lesotho Campus
-            </Text>
-          </View>
-          <View style={[styles.cardFooter, { bottom: -15 }]}>
-            <Text style={styles.footerText}>Telephone Number: 22314551</Text>
           </View>
         </View>
       </Page>
