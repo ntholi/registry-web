@@ -2,13 +2,14 @@
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { getStudent } from '@/server/students/actions';
-import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import { Box, Tabs, TabsList, TabsPanel, TabsTab, Text } from '@mantine/core';
 import { Session } from 'next-auth';
 import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
 import ProofOfRegistrationPrinter from './ProofOfRegistrationPrinter';
 import StudentView from './StudentView';
+import StudentCardView from './StudentCardView';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 
@@ -42,6 +43,12 @@ export function StudentTabs({
     session?.user?.position === 'manager' ||
     session?.user?.position === 'program_leader';
 
+  const showStudentCard =
+    session?.user?.role === 'admin' ||
+    session?.user?.role === 'registry' ||
+    session?.user?.position === 'admin' ||
+    session?.user?.position === 'manager';
+
   return (
     <Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
       <TabsList>
@@ -50,6 +57,7 @@ export function StudentTabs({
         {showRegistration && (
           <TabsTab value='registration'>Registration</TabsTab>
         )}
+        {showStudentCard && <TabsTab value='studentcard'>Student Card</TabsTab>}
         {showStatementOfResults && activeTab === 'academics' && (
           <Box ml='auto'>
             <StatementOfResultsPrinter
@@ -64,6 +72,13 @@ export function StudentTabs({
               stdNo={student.stdNo}
               disabled={!!blockedStudent}
             />
+          </Box>
+        )}
+        {showStudentCard && activeTab === 'studentcard' && (
+          <Box ml='auto'>
+            <Text size='sm' c='dimmed'>
+              Select a photo in the tab to enable printing
+            </Text>
           </Box>
         )}
       </TabsList>
@@ -89,6 +104,12 @@ export function StudentTabs({
         <RegistrationView
           stdNo={student.stdNo}
           isActive={activeTab === 'registration'}
+        />
+      </TabsPanel>
+      <TabsPanel value='studentcard' pt={'xl'} p={'sm'}>
+        <StudentCardView
+          student={student}
+          isActive={activeTab === 'studentcard'}
         />
       </TabsPanel>
     </Tabs>

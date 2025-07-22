@@ -165,8 +165,15 @@ const styles = StyleSheet.create({
   },
 });
 
+type StudentRegistrationData = NonNullable<
+  Awaited<ReturnType<typeof getStudentRegistrationData>>
+>;
+
+type StudentModule =
+  StudentRegistrationData['programs'][0]['semesters'][0]['studentModules'][0];
+
 type ProofOfRegistrationPDFProps = {
-  student: NonNullable<Awaited<ReturnType<typeof getStudentRegistrationData>>>;
+  student: StudentRegistrationData;
 };
 
 export default function ProofOfRegistrationPDF({
@@ -196,7 +203,7 @@ export default function ProofOfRegistrationPDF({
   }
 
   const totalCredits = latestSemester.studentModules.reduce(
-    (sum: number, sm: any) => sum + (sm.semesterModule.credits || 0),
+    (sum: number, sm: StudentModule) => sum + (sm.semesterModule.credits || 0),
     0,
   );
 
@@ -292,7 +299,7 @@ export default function ProofOfRegistrationPDF({
           </View>
 
           {latestSemester.studentModules.map(
-            (studentModule: any, index: number) => {
+            (studentModule: StudentModule, index: number) => {
               const isLastRow =
                 index === latestSemester.studentModules.length - 1;
               return (
