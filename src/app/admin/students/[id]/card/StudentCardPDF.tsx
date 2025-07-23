@@ -159,7 +159,7 @@ export default function StudentCardPDF({
                   If found please return to:
                 </Text>
                 <Text style={styles.footerText}>
-                  Limkokwing University Lesotho Campus, Maseru, Lesotho
+                  Limkokwing University Lesotho Campus
                 </Text>
                 <Text style={styles.footerText}>Tel: 22315747</Text>
               </View>

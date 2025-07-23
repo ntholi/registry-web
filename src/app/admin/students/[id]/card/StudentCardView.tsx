@@ -1,7 +1,16 @@
 'use client';
 
 import { getStudent } from '@/server/students/actions';
-import { Box, Grid, Group, Image, Paper, Stack, Text } from '@mantine/core';
+import {
+  Box,
+  Flex,
+  Grid,
+  Group,
+  Image,
+  Paper,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
 import { useState } from 'react';
 import StudentCardPrinter from './StudentCardPrinter';
@@ -39,16 +48,13 @@ export default function StudentCardView({
             studentNumber={student.stdNo}
           />
         </Grid.Col>
-
         <Grid.Col span={6}>
-          <Paper p='lg' shadow='sm' radius='md'>
-            <Text size='lg' fw={600} mb='md'>
+          <Paper p='md' shadow='sm' radius='md'>
+            <Text size='lg' fw={600} mb='sm'>
               Student Card Preview
             </Text>
-
             <StudentCardPreview student={student} photoUrl={photoPreview} />
-
-            <Group mt='md'>
+            <Group mt='sm'>
               <StudentCardPrinter
                 student={student}
                 photoUrl={photoPreview}
@@ -93,7 +99,7 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: '8px',
+          padding: '4px',
         }}
       >
         <Image
@@ -107,42 +113,42 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
 
       <Group
         align='flex-start'
-        gap='md'
-        p='md'
+        gap='sm'
+        p='sm'
         style={{ height: 'calc(100% - 70px)' }}
       >
         <Box style={{ flex: 1 }}>
-          <Text size='md' fw={700} c='black'>
+          <Text size='sm' fw={700} c='black' lh={1.2}>
             {student.name}
           </Text>
-          <Text size='sm' fw={700} c='black'>
+          <Text size='xs' fw={700} c='black' lh={1.2}>
             {student.stdNo}
           </Text>
-          <Text size='xs' fw={700} c='black'>
+          <Text size='xs' fw={700} c='black' lh={1.2}>
             {programCode}
           </Text>
-          <Text size='xs' fw={700} c='black'>
+          <Text size='xs' fw={700} c='black' lh={1.2}>
             STUDENT
           </Text>
-          <Text size='sm' fw={700} c='black'>
+          <Text size='xs' fw={700} c='black' lh={1.2}>
             {new Date().getFullYear()}
           </Text>
         </Box>
 
-        <Stack align='flex-end' gap={4}>
+        <Stack align='flex-end' gap={2}>
           {photoUrl ? (
             <Image
               src={photoUrl}
               alt='Student photo'
-              w={70}
-              h={90}
+              w={90}
+              h={120}
               fit='cover'
               radius={0}
               style={{ border: '1px solid #000' }}
             />
           ) : (
             <Box
-              w={70}
+              w={90}
               h={90}
               style={{
                 border: '1px solid #000',
@@ -155,9 +161,6 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
               <IconCamera size={20} color='#666' />
             </Box>
           )}
-          <Text size='xs' fw={700} c='black' ta='right'>
-            LUCT LESOTHO
-          </Text>
         </Stack>
       </Group>
 
@@ -166,18 +169,25 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
           position: 'absolute',
           bottom: '5px',
           left: '12px',
-          right: '12px',
+          right: '8px',
         }}
       >
-        <Text size='6px' c='black'>
-          If found please return to:
-        </Text>
-        <Text size='6px' c='black'>
-          Limkokwing University, Lesotho Campus
-        </Text>
-        <Text size='6px' c='black'>
-          Telephone Number: 22314551
-        </Text>
+        <Flex justify={'space-between'} align={'end'}>
+          <Box>
+            <Text size='6px' c='black' lh={1.2}>
+              If found please return to:
+            </Text>
+            <Text size='6px' c='black' lh={1.2}>
+              Limkokwing University Lesotho Campus
+            </Text>
+            <Text size='6px' c='black' lh={1.2}>
+              Tel: 22315747
+            </Text>
+          </Box>
+          <Text size='0.5rem' fw={700} c='black' ta='center' w={92} lh={1.2}>
+            LUCT LESOTHO
+          </Text>
+        </Flex>
       </Box>
     </Paper>
   );

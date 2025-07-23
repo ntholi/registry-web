@@ -74,13 +74,6 @@ export function StudentTabs({
             />
           </Box>
         )}
-        {showStudentCard && activeTab === 'studentcard' && (
-          <Box ml='auto'>
-            <Text size='sm' c='dimmed'>
-              Select a photo in the tab to enable printing
-            </Text>
-          </Box>
-        )}
       </TabsList>
       <TabsPanel value='academics' pt={'xl'} p={'sm'}>
         {blockedStudent ? (
