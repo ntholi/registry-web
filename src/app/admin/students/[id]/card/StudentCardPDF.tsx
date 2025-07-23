@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     fontSize: 6,
     fontWeight: 'bold',
     color: '#000000',
-    textAlign: 'right',
+    textAlign: 'center',
   },
   cardFooter: {
     position: 'absolute',
@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 5,
+    fontWeight: 'bold',
     color: '#000000',
   },
 });

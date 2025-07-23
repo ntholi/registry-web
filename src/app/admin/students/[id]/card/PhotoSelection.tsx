@@ -105,25 +105,25 @@ export default function PhotoSelection({
       </Text>
 
       <Stack gap='md'>
-        <FileInput
-          label='Select from Device'
-          placeholder='Click to select photo'
-          accept='image/*'
-          leftSection={<IconPhoto size={16} />}
-          value={selectedPhoto}
-          onChange={handleFileChange}
-          disabled={isUploading || isLoadingExisting}
-        />
-
-        <Button
-          variant='light'
-          leftSection={<IconCamera size={16} />}
-          onClick={openCamera}
-          fullWidth
-          disabled={isUploading || isLoadingExisting}
-        >
-          Capture with Camera
-        </Button>
+        <Group>
+          <FileInput
+            placeholder='Click to select photo'
+            accept='image/*'
+            style={{ flex: 1 }}
+            leftSection={<IconPhoto size={16} />}
+            value={selectedPhoto}
+            onChange={handleFileChange}
+            disabled={isUploading || isLoadingExisting}
+          />
+          <ActionIcon
+            variant='light'
+            size={'lg'}
+            onClick={openCamera}
+            disabled={isUploading || isLoadingExisting}
+          >
+            <IconCamera size={16} />
+          </ActionIcon>
+        </Group>
 
         {isLoadingExisting && (
           <Text size='sm' c='gray'>
@@ -152,13 +152,11 @@ export default function PhotoSelection({
                 radius='md'
               />
               <ActionIcon
-                variant='light'
                 color='red'
-                size='xs'
                 onClick={() => onPhotoChange(null, null)}
                 pos='absolute'
-                top={0}
-                right={0}
+                top={5}
+                right={5}
               >
                 <IconTrashFilled size={16} />
               </ActionIcon>
