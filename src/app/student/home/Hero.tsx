@@ -50,7 +50,7 @@ export default function Header() {
           </Group>
 
           <Grid gutter='xl'>
-            <Grid.Col span={4}>
+            <Grid.Col span={{ base: 12, xs: 4 }}>
               <Stack gap={4} ta='center'>
                 <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
                   Year
@@ -61,7 +61,7 @@ export default function Header() {
               </Stack>
             </Grid.Col>
 
-            <Grid.Col span={4}>
+            <Grid.Col span={{ base: 6, xs: 4 }}>
               <Stack gap={4} ta='center'>
                 <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
                   CGPA
@@ -72,7 +72,7 @@ export default function Header() {
               </Stack>
             </Grid.Col>
 
-            <Grid.Col span={4}>
+            <Grid.Col span={{ base: 6, xs: 4 }}>
               <Stack gap={4} ta='center'>
                 <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
                   Credits
