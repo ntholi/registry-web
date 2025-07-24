@@ -9,7 +9,13 @@ export function getActiveProgram(student: Student | null) {
   const activeProgram = student.programs
     .sort((a, b) => b.id - a.id)
     .filter((p) => p.status === 'Active');
-  return activeProgram[0];
+  const program = activeProgram[0];
+  return {
+    name: program.structure.program.name,
+    code: program.structure.program.code,
+    schoolName: program.structure.program.school.name,
+    ...program,
+  };
 }
 
 export function getCurrentSemester(student: Student | null) {
@@ -23,7 +29,7 @@ export function getNextSemesterNo(student: Student | null) {
 
   const allSemesters = student.programs.flatMap((program) => program.semesters);
   const maxSemesterNo = Math.max(
-    ...allSemesters.map((semester) => semester.semesterNumber || 0),
+    ...allSemesters.map((semester) => semester.semesterNumber || 0)
   );
   return maxSemesterNo + 1;
 }

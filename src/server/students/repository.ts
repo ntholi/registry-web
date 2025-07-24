@@ -121,6 +121,14 @@ export default class StudentRepository extends BaseRepository<
                 program: {
                   columns: {
                     name: true,
+                    code: true,
+                  },
+                  with: {
+                    school: {
+                      columns: {
+                        name: true,
+                      },
+                    },
                   },
                 },
               },
@@ -252,28 +260,28 @@ export default class StudentRepository extends BaseRepository<
       .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
       .innerJoin(
         studentSemesters,
-        eq(studentSemesters.studentProgramId, studentPrograms.id),
+        eq(studentSemesters.studentProgramId, studentPrograms.id)
       )
       .innerJoin(
         studentModules,
-        eq(studentModules.studentSemesterId, studentSemesters.id),
+        eq(studentModules.studentSemesterId, studentSemesters.id)
       )
       .innerJoin(
         semesterModules,
-        eq(studentModules.semesterModuleId, semesterModules.id),
+        eq(studentModules.semesterModuleId, semesterModules.id)
       )
       .where(
         and(
           eq(semesterModules.moduleId, moduleId),
           eq(studentSemesters.term, termName),
-          notInArray(studentModules.status, ['Delete', 'Drop']),
-        ),
+          notInArray(studentModules.status, ['Delete', 'Drop'])
+        )
       )
       .groupBy(
         students.stdNo,
         students.name,
         structures.programId,
-        studentModules.semesterModuleId,
+        studentModules.semesterModuleId
       );
   }
 
@@ -301,7 +309,7 @@ export default class StudentRepository extends BaseRepository<
   }
 
   protected override buildQueryCriteria(
-    options: QueryOptions<typeof students>,
+    options: QueryOptions<typeof students>
   ) {
     const criteria = super.buildQueryCriteria(options);
     if (!options.sort || options.sort.length === 0) {
@@ -312,7 +320,7 @@ export default class StudentRepository extends BaseRepository<
   }
 
   async queryBasic(
-    options: QueryOptions<typeof students> & { filter?: StudentFilter },
+    options: QueryOptions<typeof students> & { filter?: StudentFilter }
   ): Promise<{
     items: { stdNo: number; name: string }[];
     totalPages: number;
@@ -338,7 +346,7 @@ export default class StudentRepository extends BaseRepository<
 
           const variations = normalizeName(term);
           const termConditions = variations.map((variation) =>
-            like(students.name, `%${variation}%`),
+            like(students.name, `%${variation}%`)
           );
           conditions.push(...termConditions);
 
@@ -357,7 +365,7 @@ export default class StudentRepository extends BaseRepository<
 
       if (options.filter.programId) {
         filterConditions.push(
-          eq(structures.programId, options.filter.programId),
+          eq(structures.programId, options.filter.programId)
         );
       }
 
@@ -367,7 +375,7 @@ export default class StudentRepository extends BaseRepository<
 
       if (options.filter.semesterNumber) {
         filterConditions.push(
-          eq(studentSemesters.semesterNumber, options.filter.semesterNumber),
+          eq(studentSemesters.semesterNumber, options.filter.semesterNumber)
         );
       }
     }
@@ -407,14 +415,14 @@ export default class StudentRepository extends BaseRepository<
       if (needsSemesterJoin) {
         joinedQuery = joinedQuery.innerJoin(
           studentSemesters,
-          eq(studentSemesters.studentProgramId, studentPrograms.id),
+          eq(studentSemesters.studentProgramId, studentPrograms.id)
         );
       }
 
       if (needsTermJoin) {
         joinedQuery = joinedQuery.innerJoin(
           terms,
-          eq(terms.name, studentSemesters.term),
+          eq(terms.name, studentSemesters.term)
         );
       }
 
@@ -436,14 +444,14 @@ export default class StudentRepository extends BaseRepository<
       if (needsSemesterJoin) {
         countJoinedQuery = countJoinedQuery.innerJoin(
           studentSemesters,
-          eq(studentSemesters.studentProgramId, studentPrograms.id),
+          eq(studentSemesters.studentProgramId, studentPrograms.id)
         );
       }
 
       if (needsTermJoin) {
         countJoinedQuery = countJoinedQuery.innerJoin(
           terms,
-          eq(terms.name, studentSemesters.term),
+          eq(terms.name, studentSemesters.term)
         );
       }
 
@@ -545,8 +553,8 @@ export default class StudentRepository extends BaseRepository<
       .where(
         and(
           eq(studentPrograms.stdNo, stdNo),
-          eq(studentPrograms.status, 'Active'),
-        ),
+          eq(studentPrograms.status, 'Active')
+        )
       )
       .returning();
   }

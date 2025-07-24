@@ -1,9 +1,9 @@
+import { getActiveProgram, getCurrentSemester } from '@/lib/helpers/students';
 import { getStudentByUserId } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { getActiveProgram, getCurrentSemester } from '@/lib/helpers/students';
 
 export default function useUserStudent() {
   const router = useRouter();
@@ -23,8 +23,7 @@ export default function useUserStudent() {
     isLoading: status === 'loading' || isLoading,
     user: session?.user,
     student,
-    studentProgram: getActiveProgram(student),
-    programName: getActiveProgram(student)?.structure.program.name,
+    program: getActiveProgram(student),
     remarks: getAcademicRemarks(student?.programs ?? []),
     semester: getCurrentSemester(student),
   };
