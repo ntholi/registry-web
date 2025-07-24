@@ -1,6 +1,6 @@
 'use client';
 
-import { getStudentSemesterModules } from '@/app/(main)/(auth)/registration/request/actions';
+
 import { Form } from '@/components/adease';
 import {
   modules,
@@ -126,31 +126,32 @@ export default function RegistrationRequestForm({
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLoadModules = async (stdNo: number, form: any) => {
+    console.log('Please delete this line:', form); //TODO: DELETE THIS!!!
     if (!stdNo || !structureId) return;
 
     setIsLoadingModules(true);
-    try {
-      const semesterData = await getStudentSemesterModules(stdNo, structureId);
-      const mappedModules = semesterData.modules.map((moduleData) => ({
-        id: moduleData.id,
-        type: moduleData.type,
-        credits: moduleData.credits,
-        status: moduleData.status as StudentModuleStatus,
-        module: {
-          id: moduleData.id,
-          code: moduleData.code,
-          name: moduleData.name,
-        },
-      }));
+    // try {
+    //   const semesterData = await getStudentSemesterModules(stdNo, structureId);
+    //   const mappedModules = semesterData.modules.map((moduleData) => ({
+    //     id: moduleData.id,
+    //     type: moduleData.type,
+    //     credits: moduleData.credits,
+    //     status: moduleData.status as StudentModuleStatus,
+    //     module: {
+    //       id: moduleData.id,
+    //       code: moduleData.code,
+    //       name: moduleData.name,
+    //     },
+    //   }));
 
-      form.setFieldValue('selectedModules', mappedModules);
-      form.setFieldValue('semesterNumber', semesterData.semesterNo.toString());
-      form.setFieldValue('semesterStatus', semesterData.semesterStatus);
-    } catch (error) {
-      console.error('Error loading student modules:', error);
-    } finally {
-      setIsLoadingModules(false);
-    }
+    //   form.setFieldValue('selectedModules', mappedModules);
+    //   form.setFieldValue('semesterNumber', semesterData.semesterNo.toString());
+    //   form.setFieldValue('semesterStatus', semesterData.semesterStatus);
+    // } catch (error) {
+    //   console.error('Error loading student modules:', error);
+    // } finally {
+    //   setIsLoadingModules(false);
+    // }
   };
 
   return (

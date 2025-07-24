@@ -1,17 +1,17 @@
 'use client';
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { getStudent } from '@/server/students/actions';
-import { Box, Tabs, TabsList, TabsPanel, TabsTab, Text } from '@mantine/core';
+import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { Session } from 'next-auth';
 import AcademicsView from './AcademicsView';
-import RegistrationView from './RegistrationView';
+import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
 import ProofOfRegistrationPrinter from './ProofOfRegistrationPrinter';
-import StudentView from './info/StudentView';
+import RegistrationView from './RegistrationView';
 import StudentCardView from './card/StudentCardView';
-import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
+import StudentView from './info/StudentView';
 
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;

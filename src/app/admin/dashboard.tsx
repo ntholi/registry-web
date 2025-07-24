@@ -17,15 +17,13 @@ import {
   Avatar,
   Flex,
   Group,
-  Image,
   Indicator,
   MantineColor,
   NavLink,
   Paper,
   Skeleton,
   Stack,
-  Text,
-  useComputedColorScheme,
+  Text
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import {

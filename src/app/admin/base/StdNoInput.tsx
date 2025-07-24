@@ -1,7 +1,7 @@
 'use client';
 import { getStudent } from '@/server/students/actions';
 import { NumberInput, NumberInputProps, Stack, Text } from '@mantine/core';
-import { User2 } from 'lucide-react';
+import { IconUser } from '@tabler/icons-react';
 import { useState } from 'react';
 
 export default function StdNoInput(props: NumberInputProps) {
@@ -37,7 +37,7 @@ export default function StdNoInput(props: NumberInputProps) {
   return (
     <Stack gap={'2px'}>
       <NumberInput
-        rightSection={<User2 size='1.1rem' />}
+        rightSection={<IconUser size='1.1rem' />}
         value={value}
         onChange={handleChange}
         label='Student Number'

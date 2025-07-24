@@ -1,5 +1,7 @@
 'use client';
 
+import { uploadDocument } from '@/lib/storage';
+import { checkStudentPhotoExists } from '@/server/students/actions';
 import {
   ActionIcon,
   Box,
@@ -16,14 +18,11 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import {
   IconCamera,
-  IconDeviceDesktop,
   IconPhoto,
   IconTrashFilled,
-  IconVideo,
+  IconVideo
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { uploadDocument } from '@/lib/storage';
-import { checkStudentPhotoExists } from '@/server/students/actions';
 
 type PhotoSelectionProps = {
   selectedPhoto: File | null;
@@ -192,7 +191,6 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [cameraInitialized, setCameraInitialized] = useState(false);
   const [availableCameras, setAvailableCameras] = useState<CameraDevice[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string>('');
 
@@ -247,7 +245,6 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
         await navigator.mediaDevices.getUserMedia(constraints);
 
       setStream(mediaStream);
-      setCameraInitialized(true);
 
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
@@ -255,7 +252,6 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
     } catch (err) {
       console.error('Error accessing camera:', err);
       setError('Unable to access camera. Please check permissions.');
-      setCameraInitialized(false);
     } finally {
       setIsLoading(false);
     }
@@ -266,7 +262,6 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
       stream.getTracks().forEach((track) => track.stop());
       setStream(null);
     }
-    setCameraInitialized(false);
   }, [stream]);
 
   const capturePhoto = useCallback(() => {

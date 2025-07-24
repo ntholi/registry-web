@@ -111,6 +111,7 @@ export async function checkStudentPhotoExists(
           return url;
         }
       } catch (error) {
+        console.error('Error:', error);
         continue;
       }
     }
