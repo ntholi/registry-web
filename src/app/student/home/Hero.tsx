@@ -2,6 +2,7 @@
 import useUserStudent from '@/hooks/use-user-student';
 import { formatSemester } from '@/lib/utils';
 import {
+  ActionIcon,
   Avatar,
   Divider,
   Grid,
@@ -9,12 +10,16 @@ import {
   Paper,
   Stack,
   Text,
+  ThemeIcon,
   Title,
 } from '@mantine/core';
-import { IconUser } from '@tabler/icons-react';
+import { useMediaQuery } from '@mantine/hooks';
+import { IconBook, IconTrophy, IconUser } from '@tabler/icons-react';
 
 export default function Hero() {
   const { student, program, semester, remarks } = useUserStudent();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   return (
     <Paper shadow='sm' p='xl' radius='md' withBorder>
       <Stack gap='lg'>
@@ -37,9 +42,7 @@ export default function Hero() {
         <Stack gap='xl'>
           <Group justify='space-between'>
             <Stack gap={2}>
-              <Text size='sm' fw={500}>
-                {program?.name}
-              </Text>
+              <Text fw={500}>{program?.name}</Text>
               <Text size='xs' c='dimmed'>
                 {formatSemester(semester?.semesterNumber)}
               </Text>
@@ -48,22 +51,44 @@ export default function Hero() {
 
           <Grid gutter='xl'>
             <Grid.Col span={{ base: 6 }}>
-              <Stack gap={4} ta='center'>
-                <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
+              <Stack gap='xs' align='center'>
+                {!isMobile && (
+                  <ThemeIcon
+                    size={'xl'}
+                    variant='light'
+                    color='orange'
+                    radius='md'
+                  >
+                    <IconTrophy size='1.2rem' />
+                  </ThemeIcon>
+                )}
+
+                <Text size='xs' c='dimmed' ta='center'>
                   CGPA
                 </Text>
-                <Text size='lg' fw={600}>
+                <Text fw={700} size='1.8rem'>
                   {remarks.latestPoints.cgpa.toFixed(2)}
                 </Text>
               </Stack>
             </Grid.Col>
 
             <Grid.Col span={{ base: 6 }}>
-              <Stack gap={4} ta='center'>
-                <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
+              <Stack gap='xs' align='center'>
+                {!isMobile && (
+                  <ThemeIcon
+                    size={'xl'}
+                    variant='light'
+                    color='violet'
+                    radius='md'
+                  >
+                    <IconBook size='1.2rem' />
+                  </ThemeIcon>
+                )}
+
+                <Text size='xs' c='dimmed' ta='center'>
                   Credits
                 </Text>
-                <Text size='lg' fw={600}>
+                <Text fw={700} size='1.8rem'>
                   {remarks.latestPoints.creditsCompleted}
                 </Text>
               </Stack>

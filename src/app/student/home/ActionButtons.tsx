@@ -30,14 +30,14 @@ const actions: Action[] = [
     label: 'Registration',
     icon: IconClipboardCheck,
     href: '/student/registration',
-    color: 'blue',
+    color: 'gray',
     description: 'Submit or view your registration requests',
   },
   {
     label: 'Transcripts',
     icon: IconFileText,
     href: '/student/transcripts',
-    color: 'green',
+    color: 'gray',
     description: 'View and download your academic transcripts',
   },
 ];
