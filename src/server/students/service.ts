@@ -108,6 +108,13 @@ class StudentService {
     );
   }
 
+  async updateProgramStructure(stdNo: number, structureId: number) {
+    return withAuth(
+      async () => this.repository.updateProgramStructure(stdNo, structureId),
+      ['admin', 'registry'],
+    );
+  }
+
   async count() {
     return withAuth(async () => this.repository.count(), []);
   }

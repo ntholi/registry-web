@@ -17,6 +17,13 @@ class StructureService {
     return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
+  async getByProgramId(programId: number) {
+    return withAuth(
+      async () => this.repository.findByProgramId(programId),
+      ['dashboard'],
+    );
+  }
+
   async findAll(params: QueryOptions<typeof structures>) {
     return withAuth(async () => this.repository.query(params), ['dashboard']);
   }

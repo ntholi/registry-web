@@ -28,3 +28,7 @@ export async function updateStructure(id: number, structure: Structure) {
 export async function deleteStructure(id: number) {
   return service.delete(id);
 }
+
+export async function getStructuresByProgramId(programId: number) {
+  return service.getByProgramId(programId);
+}

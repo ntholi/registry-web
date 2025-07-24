@@ -537,6 +537,19 @@ export default class StudentRepository extends BaseRepository<
       return updatedStudent;
     });
   }
+
+  async updateProgramStructure(stdNo: number, structureId: number) {
+    return await db
+      .update(studentPrograms)
+      .set({ structureId })
+      .where(
+        and(
+          eq(studentPrograms.stdNo, stdNo),
+          eq(studentPrograms.status, 'Active'),
+        ),
+      )
+      .returning();
+  }
 }
 
 function normalizeName(name: string): string[] {

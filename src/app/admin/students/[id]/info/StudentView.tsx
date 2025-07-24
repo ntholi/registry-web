@@ -21,10 +21,11 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import Link from 'next/link';
-import EditStudentUserModal from './AcademicsView/EditStudentUserModal';
+import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
 import { useSession } from 'next-auth/react';
 import { UserRole } from '@/db/schema';
-import { getProgramStatusColor } from './AcademicsView';
+import { getProgramStatusColor } from '../AcademicsView';
+import StructureChange from './StructureChange';
 
 type Props = {
   student: Awaited<ReturnType<typeof getStudent>>;
@@ -138,17 +139,23 @@ export default function StudentView({ student }: Props) {
                   />
                 </Group>
               </Grid.Col>
+
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <InfoItem
                   label='Intake Date'
                   value={student.programs[0].intakeDate}
                 />
               </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
+              <Grid.Col span={{ base: 12, sm: 3 }}>
                 <InfoItem
                   label='Graduation Date'
                   value={student.programs[0].graduationDate}
                 />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 3 }}>
+                <Flex justify='flex-end'>
+                  <StructureChange student={student} />
+                </Flex>
               </Grid.Col>
             </Grid>
           </Paper>

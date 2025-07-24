@@ -8,7 +8,7 @@ import AcademicsView from './AcademicsView';
 import RegistrationView from './RegistrationView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
 import ProofOfRegistrationPrinter from './ProofOfRegistrationPrinter';
-import StudentView from './StudentView';
+import StudentView from './info/StudentView';
 import StudentCardView from './card/StudentCardView';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';

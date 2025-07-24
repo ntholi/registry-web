@@ -11,6 +11,18 @@ export default class StructureRepository extends BaseRepository<
     super(structures, 'id');
   }
 
+  async findByProgramId(programId: number) {
+    return db.query.structures.findMany({
+      where: () => eq(structures.programId, programId),
+      columns: {
+        id: true,
+        code: true,
+        desc: true,
+      },
+      orderBy: (structures, { asc }) => [asc(structures.code)],
+    });
+  }
+
   override findById(id: number) {
     return db.query.structures.findFirst({
       where: () => eq(structures.id, id),
