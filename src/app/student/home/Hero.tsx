@@ -17,7 +17,7 @@ export default function Header() {
   const { student, program, semester, remarks } = useUserStudent();
   return (
     <Paper shadow='sm' p='xl' radius='md' withBorder>
-      <Stack gap='xl'>
+      <Stack gap='lg'>
         <Group gap='lg'>
           <Avatar size={60} radius='sm' color='gray' variant='filled'>
             <IconUser size='1.8rem' />
@@ -34,33 +34,19 @@ export default function Header() {
 
         <Divider />
 
-        <Stack gap='lg'>
+        <Stack gap='xl'>
           <Group justify='space-between'>
             <Stack gap={2}>
-              <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
-                Course of Study
-              </Text>
               <Text size='sm' fw={500}>
                 {program?.name}
               </Text>
               <Text size='xs' c='dimmed'>
-                {program?.schoolName}
+                {formatSemester(semester?.semesterNumber)}
               </Text>
             </Stack>
           </Group>
 
           <Grid gutter='xl'>
-            <Grid.Col span={{ base: 12, xs: 4 }}>
-              <Stack gap={4} ta='center'>
-                <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
-                  Year
-                </Text>
-                <Text size='lg' fw={600}>
-                  {formatSemester(semester?.semesterNumber)}
-                </Text>
-              </Stack>
-            </Grid.Col>
-
             <Grid.Col span={{ base: 6, xs: 4 }}>
               <Stack gap={4} ta='center'>
                 <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
