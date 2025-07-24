@@ -1,6 +1,7 @@
 'use client';
 
 import { Shell } from '@/components/adease';
+import Logo from '@/components/Logo';
 import { DashboardUser, UserPosition, UserRole } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
@@ -488,17 +489,4 @@ function ItemDisplay({ item }: { item: NavItem }) {
   return navLink;
 }
 
-function Logo() {
-  const colorScheme = useComputedColorScheme('dark');
-  const testEnv = process.env.NEXT_PUBLIC_DEV_LOGO;
-  return (
-    <Link href='/admin'>
-      <Image
-        src={`/images/logo-${testEnv ?? colorScheme}.png`}
-        w={'auto'}
-        h={50}
-        alt='logo'
-      />
-    </Link>
-  );
-}
+

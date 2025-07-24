@@ -1,17 +1,26 @@
-import Logo from '@/app/(main)/base/Logo';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDateTime } from '@/lib/utils';
 import { getStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
 import {
-  BookOpen,
-  CheckCircle,
-  FileText,
-  GraduationCap,
-  User,
-} from 'lucide-react';
+  Alert,
+  Badge,
+  Card,
+  Container,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
+import {
+  IconBook,
+  IconCheck,
+  IconFileText,
+  IconSchool,
+  IconUser,
+} from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
+import Logo from '../../../../components/Logo';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -26,180 +35,186 @@ export default async function StatementOfResultsPage({ params }: Props) {
   }
 
   return (
-    <div className='min-h-screen'>
-      <div className='container mx-auto max-w-3xl p-6 lg:p-8'>
-        <header className='flex flex-col items-center text-center'>
-          <Logo height={160} className='h-24 w-auto' />
-          <div className='my-5 flex items-center justify-center gap-2'>
-            <h1 className='text-3xl font-light tracking-tight'>
+    <div style={{ minHeight: '100vh' }}>
+      <Container size="md" p="xl">
+        <Stack align="center" mb="xl">
+          <Logo height={96} />
+          <Group gap="xs" align="center">
+            <Title order={1} fw={300} ta="center">
               Results Verification
-            </h1>
-          </div>
-        </header>
+            </Title>
+          </Group>
+        </Stack>
 
-        <Alert variant='default' className='mb-6 p-4'>
-          <CheckCircle className='size-5' color='#4CAF50' />
-          <AlertTitle>Authentic document</AlertTitle>
-          <AlertDescription className='text-sm text-muted-foreground'>
+        <Alert
+          variant="light"
+          color="green"
+          title="Authentic document"
+          icon={<IconCheck size={20} />}
+          mb="xl"
+        >
+          <Text size="sm" c="dimmed">
             Please verify that the printed document matches the information
             below
-          </AlertDescription>
+          </Text>
         </Alert>
 
-        <main className='space-y-6'>
-          <Card className='border bg-card'>
-            <CardHeader className='pb-4'>
-              <CardTitle className='flex items-center gap-2 text-lg font-medium'>
-                <User className='h-4 w-4' />
-                Student Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-4'>
-              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+        <Stack gap="lg">
+          <Card withBorder shadow="sm">
+            <Card.Section withBorder inheritPadding py="md">
+              <Group gap="xs">
+                <IconUser size={16} />
+                <Text fw={500}>Student Information</Text>
+              </Group>
+            </Card.Section>
+            <Card.Section inheritPadding py="md">
+              <Stack gap="md">
+                <Group grow>
+                  <div>
+                    <Text size="sm" c="dimmed" mb={4}>
+                      Student Number
+                    </Text>
+                    <Text fw={500}>{item.stdNo}</Text>
+                  </div>
+                  <div>
+                    <Text size="sm" c="dimmed" mb={4}>
+                      Student Name
+                    </Text>
+                    <Text fw={500}>{item.studentName}</Text>
+                  </div>
+                </Group>
                 <div>
-                  <p className='text-sm text-muted-foreground'>
-                    Student Number
-                  </p>
-                  <p className='font-medium'>{item.stdNo}</p>
+                  <Text size="sm" c="dimmed" mb={4}>
+                    Program of Study
+                  </Text>
+                  <Text fw={500}>{item.programName}</Text>
                 </div>
-                <div>
-                  <p className='text-sm text-muted-foreground'>Student Name</p>
-                  <p className='font-medium'>{item.studentName}</p>
-                </div>
-              </div>
-              <div>
-                <p className='text-sm text-muted-foreground'>
-                  Program of Study
-                </p>
-                <p className='font-medium'>{item.programName}</p>
-              </div>
-            </CardContent>
+              </Stack>
+            </Card.Section>
           </Card>
 
-          <Card className='border bg-card'>
-            <CardHeader className='pb-4'>
-              <CardTitle className='flex items-center gap-2 text-lg font-medium'>
-                <BookOpen className='h-4 w-4' />
-                Academic Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-6'>
-              <div className='grid grid-cols-3 gap-4'>
-                <Card className='border bg-muted/30'>
-                  <CardContent className='p-4 text-center'>
-                    <div className='text-2xl font-light'>
+          <Card withBorder shadow="sm">
+            <Card.Section withBorder inheritPadding py="md">
+              <Group gap="xs">
+                <IconBook size={16} />
+                <Text fw={500}>Academic Summary</Text>
+              </Group>
+            </Card.Section>
+            <Card.Section inheritPadding py="md">
+              <Stack gap="lg">
+                <Group grow>
+                  <Paper withBorder p="md" ta="center">
+                    <Text size="xl" fw={300}>
                       {item.cgpa ? item.cgpa.toFixed(2) : '—'}
-                    </div>
-                    <div className='text-sm text-muted-foreground'>CGPA</div>
-                  </CardContent>
-                </Card>
-                <Card className='border bg-muted/30'>
-                  <CardContent className='p-4 text-center'>
-                    <div className='text-2xl font-light'>
+                    </Text>
+                    <Text size="sm" c="dimmed">
+                      CGPA
+                    </Text>
+                  </Paper>
+                  <Paper withBorder p="md" ta="center">
+                    <Text size="xl" fw={300}>
                       {item.totalCredits}
-                    </div>
-                    <div className='text-sm text-muted-foreground'>Credits</div>
-                  </CardContent>
-                </Card>
-                <Card className='border bg-muted/30'>
-                  <CardContent className='p-4 text-center'>
-                    <div className='text-2xl font-light'>
+                    </Text>
+                    <Text size="sm" c="dimmed">
+                      Credits
+                    </Text>
+                  </Paper>
+                  <Paper withBorder p="md" ta="center">
+                    <Text size="xl" fw={300}>
                       {item.totalModules}
-                    </div>
-                    <div className='text-sm text-muted-foreground'>Modules</div>
-                  </CardContent>
-                </Card>
-              </div>
+                    </Text>
+                    <Text size="sm" c="dimmed">
+                      Modules
+                    </Text>
+                  </Paper>
+                </Group>
 
-              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-                <div>
-                  <p className='mb-1 text-sm text-muted-foreground'>
-                    Classification
-                  </p>
-                  {item.classification ? (
-                    <Badge variant='secondary' className='font-normal'>
-                      {item.classification}
-                    </Badge>
-                  ) : (
-                    <p className='text-sm text-muted-foreground'>
-                      Not assigned
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <p className='mb-1 text-sm text-muted-foreground'>
-                    Academic Status
-                  </p>
-                  {item.academicStatus ? (
-                    <Badge variant='secondary' className='font-normal'>
-                      {item.academicStatus}
-                    </Badge>
-                  ) : (
-                    <p className='text-sm text-muted-foreground'>
-                      Not specified
-                    </p>
-                  )}
-                </div>
-              </div>
+                <Group grow>
+                  <div>
+                    <Text size="sm" c="dimmed" mb={4}>
+                      Classification
+                    </Text>
+                    {item.classification ? (
+                      <Badge variant="light" size="md">
+                        {item.classification}
+                      </Badge>
+                    ) : (
+                      <Text size="sm" c="dimmed">
+                        Not assigned
+                      </Text>
+                    )}
+                  </div>
+                  <div>
+                    <Text size="sm" c="dimmed" mb={4}>
+                      Academic Status
+                    </Text>
+                    {item.academicStatus ? (
+                      <Badge variant="light" size="md">
+                        {item.academicStatus}
+                      </Badge>
+                    ) : (
+                      <Text size="sm" c="dimmed">
+                        Not specified
+                      </Text>
+                    )}
+                  </div>
+                </Group>
 
-              {item.graduationDate && (
-                <Card className='border bg-muted/20'>
-                  <CardContent className='p-4'>
-                    <div className='mb-1 flex items-center gap-2'>
-                      <GraduationCap className='h-4 w-4 text-muted-foreground' />
-                      <p className='text-sm text-muted-foreground'>
+                {item.graduationDate && (
+                  <Paper withBorder p="md" bg="var(--mantine-color-gray-0)">
+                    <Group gap="xs" mb={4}>
+                      <IconSchool size={16} />
+                      <Text size="sm" c="dimmed">
                         Graduation Date
-                      </p>
-                    </div>
-                    <p className='font-medium'>{item.graduationDate}</p>
-                  </CardContent>
-                </Card>
-              )}
-            </CardContent>
+                      </Text>
+                    </Group>
+                    <Text fw={500}>{item.graduationDate}</Text>
+                  </Paper>
+                )}
+              </Stack>
+            </Card.Section>
           </Card>
 
-          <Card className='border bg-card'>
-            <CardHeader className='pb-4'>
-              <CardTitle className='flex items-center gap-2 text-lg font-medium'>
-                <FileText className='h-4 w-4' />
-                Document Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-4'>
-              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-                <div>
-                  <p className='mb-1 text-sm text-muted-foreground'>
-                    Print Date
-                  </p>
-                  <p className='font-medium'>
-                    {formatDateTime(item.printedAt)}
-                  </p>
-                </div>
-              </div>
-              <Card className='border bg-muted/20'>
-                <CardContent className='p-4'>
-                  <p className='mb-1 text-sm text-muted-foreground'>
+          <Card withBorder shadow="sm">
+            <Card.Section withBorder inheritPadding py="md">
+              <Group gap="xs">
+                <IconFileText size={16} />
+                <Text fw={500}>Document Details</Text>
+              </Group>
+            </Card.Section>
+            <Card.Section inheritPadding py="md">
+              <Stack gap="md">
+                <Group grow>
+                  <div>
+                    <Text size="sm" c="dimmed" mb={4}>
+                      Print Date
+                    </Text>
+                    <Text fw={500}>{formatDateTime(item.printedAt)}</Text>
+                  </div>
+                </Group>
+                <Paper withBorder p="md" bg="var(--mantine-color-gray-0)">
+                  <Text size="sm" c="dimmed" mb={4}>
                     Verification ID
-                  </p>
-                  <p className='break-all font-mono text-sm text-muted-foreground'>
+                  </Text>
+                  <Text size="sm" ff="monospace" c="dimmed" style={{ wordBreak: 'break-all' }}>
                     {item.id}
-                  </p>
-                </CardContent>
-              </Card>
-            </CardContent>
+                  </Text>
+                </Paper>
+              </Stack>
+            </Card.Section>
           </Card>
-        </main>
+        </Stack>
 
-        <footer className='mt-12 space-y-3 text-center'>
-          <div className='mx-auto h-px w-16 bg-border' />
-          <p className='text-sm text-muted-foreground'>
+        <Stack align="center" mt="xl" gap="xs">
+          <Divider w={64} />
+          <Text size="sm" c="dimmed" ta="center">
             This is an official statement of academic results
-          </p>
-          <p className='text-xs text-muted-foreground'>
+          </Text>
+          <Text size="xs" c="dimmed" ta="center">
             Generated by Limkokwing University Registry System
-          </p>
-        </footer>
-      </div>
+          </Text>
+        </Stack>
+      </Container>
     </div>
   );
 }
