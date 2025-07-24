@@ -1,7 +1,11 @@
-import React from 'react'
+import React from 'react';
+import Header from './home/Header';
+import { Container } from '@mantine/core';
 
 export default function page() {
   return (
-    <div>page</div>
-  )
+    <Container size='md'>
+      <Header />
+    </Container>
+  );
 }
