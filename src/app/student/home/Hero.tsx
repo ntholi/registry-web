@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconUser } from '@tabler/icons-react';
 
-export default function Header() {
+export default function Hero() {
   const { student, program, semester, remarks } = useUserStudent();
   return (
     <Paper shadow='sm' p='xl' radius='md' withBorder>
@@ -47,7 +47,7 @@ export default function Header() {
           </Group>
 
           <Grid gutter='xl'>
-            <Grid.Col span={{ base: 6, xs: 4 }}>
+            <Grid.Col span={{ base: 6 }}>
               <Stack gap={4} ta='center'>
                 <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
                   CGPA
@@ -58,7 +58,7 @@ export default function Header() {
               </Stack>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 6, xs: 4 }}>
+            <Grid.Col span={{ base: 6 }}>
               <Stack gap={4} ta='center'>
                 <Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
                   Credits
