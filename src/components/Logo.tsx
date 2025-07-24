@@ -10,11 +10,11 @@ interface LogoProps {
 
 export default function Logo({ height = 50, className }: LogoProps) {
   const colorScheme = useComputedColorScheme();
-  const testEnv = process.env.NEXT_PUBLIC_DEV_LOGO;
+  const testEnv = ''//process.env.NEXT_PUBLIC_DEV_LOGO;
 
   return (
     <Image
-      src={`/images/logo-${testEnv ?? colorScheme}.png`}
+      src={`/images/logo-${testEnv || colorScheme}.png`}
       alt="logo"
       w={'auto'}
       h={height}
