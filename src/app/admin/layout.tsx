@@ -1,13 +1,8 @@
-import '@mantine/core/styles.css';
-import '@mantine/dates/styles.css';
-import '@mantine/notifications/styles.css';
-
-import Dashboard from './dashboard';
-import Providers from './providers';
-import React, { PropsWithChildren, Suspense } from 'react';
-import { Metadata } from 'next';
 import { auth } from '@/auth';
 import { toTitleCase } from '@/lib/utils';
+import { Metadata } from 'next';
+import { PropsWithChildren } from 'react';
+import Dashboard from './dashboard';
 
 export async function generateMetadata(): Promise<Metadata> {
   const session = await auth();
@@ -17,11 +12,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function AdminLayout({ children }: PropsWithChildren) {
-  return (
-    <Providers>
-      <Suspense>
-        <Dashboard>{children}</Dashboard>
-      </Suspense>
-    </Providers>
-  );
+  return <Dashboard>{children}</Dashboard>;
 }
