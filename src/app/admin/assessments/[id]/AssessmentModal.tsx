@@ -7,12 +7,13 @@ import {
 } from '@/server/assessments/actions';
 import { getModule } from '@/server/modules/actions';
 import { Button, Group, Modal, NumberInput, Select } from '@mantine/core';
-import { useForm, zodResolver } from '@mantine/form';
+import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useCallback, useEffect, useState } from 'react';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from './assessments';
+import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 
 type AssessmentNumberType = (typeof assessmentNumberEnum)[number];
 type Assessment = NonNullable<
@@ -52,7 +53,7 @@ export default function AssessmentModal({
         assessmentType: true,
         totalMarks: true,
         weight: true,
-      }),
+      })
     ),
   });
   useEffect(() => {
@@ -84,13 +85,13 @@ export default function AssessmentModal({
         if (nextNumber <= 15) {
           form.setFieldValue(
             'assessmentNumber',
-            `CW${nextNumber}` as AssessmentNumberType,
+            `CW${nextNumber}` as AssessmentNumberType
           );
         }
 
         const currentTotalWeight = moduleData.assessments.reduce(
           (sum, a) => sum + a.weight,
-          0,
+          0
         );
 
         const remainingWeight = Math.max(0, 100 - currentTotalWeight);
@@ -173,7 +174,7 @@ export default function AssessmentModal({
         setIsSubmitting(false);
       }
     },
-    [assessment, form, isEditing, moduleId, onClose, queryClient],
+    [assessment, form, isEditing, moduleId, onClose, queryClient]
   );
 
   return (

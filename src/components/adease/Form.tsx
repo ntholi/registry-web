@@ -1,13 +1,14 @@
 'use client';
 
 import { ZodObject, ZodTypeAny } from 'zod';
-import { useForm, zodResolver } from '@mantine/form';
+import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { Stack, StackProps } from '@mantine/core';
 import React, { JSX } from 'react';
 import FormHeader from './FormHeader';
 import { useRouter } from 'nextjs-toploader/app';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 
 type ZodSchema = ZodObject<Record<string, ZodTypeAny>>;
 
