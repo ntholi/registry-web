@@ -1,14 +1,66 @@
-import Logo from '@/components/Logo'
-import { Box, Divider, Group } from '@mantine/core'
-import React from 'react'
+'use client';
+import Logo from '@/components/Logo';
+import useUserStudent from '@/hooks/use-user-student';
+import {
+  Avatar,
+  Container,
+  Divider,
+  Flex,
+  Menu,
+  useMantineColorScheme,
+} from '@mantine/core';
+import { IconLogout, IconMoon, IconSun } from '@tabler/icons-react';
+import { signOut } from 'next-auth/react';
 
 export default function Navbar() {
+  const { student } = useUserStudent();
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/' });
+  };
+
   return (
     <>
-      <Box p={5}>
-        <Logo />
-      </Box>
+      <Container size='xl'>
+        <Flex p={5} justify='space-between' align='center'>
+          <Logo />
+          <Menu shadow='md' width={200}>
+            <Menu.Target>
+              <Avatar
+                alt={student?.name}
+                size='md'
+                style={{ cursor: 'pointer' }}
+              />
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Menu.Label>{student?.name}</Menu.Label>
+              <Menu.Item
+                leftSection={
+                  colorScheme === 'dark' ? (
+                    <IconSun size={14} />
+                  ) : (
+                    <IconMoon size={14} />
+                  )
+                }
+                onClick={() => toggleColorScheme()}
+              >
+                {colorScheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </Menu.Item>
+              <Menu.Divider />
+              <Menu.Item
+                leftSection={<IconLogout size={14} />}
+                onClick={handleLogout}
+                color='red'
+              >
+                Logout
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Flex>
+      </Container>
       <Divider />
     </>
-  )
+  );
 }
