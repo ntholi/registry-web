@@ -351,9 +351,14 @@ export default function RegistrationSimulator() {
                 <Text size='xs' c='dimmed' mb={4}>
                   Student Number
                 </Text>
-                <Text fw={500} size='sm'>
+                <Anchor
+                  component={Link}
+                  size='sm'
+                  c='default'
+                  href={`/admin/students/${student.stdNo}`}
+                >
                   {student.stdNo}
-                </Text>
+                </Anchor>
               </Paper>
               <Paper withBorder p='sm' radius='sm'>
                 <Text size='xs' c='dimmed' mb={4}>

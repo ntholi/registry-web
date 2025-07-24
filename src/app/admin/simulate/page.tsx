@@ -26,8 +26,8 @@ export default function SimulatePage() {
                   Registration Simulator
                 </Title>
                 <Text size='sm' c='dimmed'>
-                  A tool to test student registration process, to make sure
-                  registration is working as expected.
+                  A tool for testing student registration process, to ensure
+                  registration works as expected.
                 </Text>
               </Box>
             </Group>
