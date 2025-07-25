@@ -1,91 +1,107 @@
 'use client';
 
 import useUserStudent from '@/hooks/use-user-student';
+import { formatSemester } from '@/lib/utils';
 import {
-  Container,
-  Title,
   Accordion,
-  Text,
-  Group,
-  Badge,
-  Table,
-  Stack,
-  Paper,
-  Loader,
   Alert,
+  Badge,
+  Box,
+  Card,
+  Center,
+  Container,
+  Divider,
+  Group,
+  Loader,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
 } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconBookmark, IconTrophy } from '@tabler/icons-react';
 
 export default function TranscriptsPage() {
-  const { student, isLoading } = useUserStudent();
+  const { student, program, isLoading } = useUserStudent();
 
   if (isLoading) {
     return (
       <Container>
-        <Group justify='center' mt='xl'>
+        <Center mt='xl'>
           <Loader size='lg' />
-        </Group>
+        </Center>
       </Container>
     );
   }
 
-  if (!student || !student.programs?.length) {
+  if (!student || !program) {
     return (
-      <Container>
-        <Title order={2} mb='md'>
-          Academic Transcripts
-        </Title>
-        <Alert
-          icon={<IconAlertCircle size='1rem' />}
-          title='No Academic Records Found'
-          color='yellow'
-        >
-          No academic history available for your account.
-        </Alert>
+      <Container size='md'>
+        <Stack gap='lg' mt='md'>
+          <Title order={1} ta='center'>
+            Academic Transcripts
+          </Title>
+          <Alert
+            icon={<IconAlertCircle size='1.2rem' />}
+            title='No Academic Records Found'
+            color='yellow'
+            radius='md'
+          >
+            No academic history available for your account.
+          </Alert>
+        </Stack>
       </Container>
     );
   }
 
-  const activeProgram =
-    student.programs.find((p) => p.status === 'Active') || student.programs[0];
-  const semesters =
-    activeProgram?.semesters
-      ?.filter((s) => !['Deleted', 'Deferred', 'DroppedOut'].includes(s.status))
-      .sort((a, b) => a.id - b.id) || [];
+  const getGradeColor = (grade: string) => {
+    if (['A+', 'A', 'A-'].includes(grade)) return 'green';
+    if (['B+', 'B', 'B-'].includes(grade)) return 'blue';
+    if (['C+', 'C', 'C-'].includes(grade)) return 'yellow';
+    return 'red';
+  };
 
   return (
     <Container size='lg'>
-      <Stack gap='md'>
-        <Title order={2}>Academic Transcripts</Title>
+      <Stack gap='xl' py='md'>
+        <Box ta='center'>
+          <Title order={1} mb='xs'>
+            Academic Transcripts
+          </Title>
+          <Text size='sm' c='dimmed'>
+            Your complete academic record
+          </Text>
+        </Box>
 
-        <Paper p='md' withBorder>
-          <Group justify='space-between' align='center'>
-            <div>
-              <Text fw={500}>{student.name}</Text>
-              <Text size='sm' c='dimmed'>
-                Student No: {student.stdNo}
+        <Paper radius='lg' p='xl' withBorder shadow='sm'>
+          <Group justify='space-between' align='flex-start' wrap='wrap'>
+            <Box>
+              <Text size='lg' fw={600}>
+                {student.name}
               </Text>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <Text fw={500}>{activeProgram?.structure?.program?.name}</Text>
-              <Text size='sm' c='dimmed'>
-                Program: {activeProgram?.structure?.code}
+              <Text size='xs'>{student.stdNo}</Text>
+            </Box>
+            <Box ta={{ base: 'left', sm: 'right' }}>
+              <Text size='lg' fw={500}>
+                {program?.structure?.program?.name}
               </Text>
-            </div>
+              <Text size='xs'>{program.schoolName}</Text>
+            </Box>
           </Group>
         </Paper>
 
-        {semesters.length === 0 ? (
+        {program?.semesters?.length === 0 ? (
           <Alert
-            icon={<IconAlertCircle size='1rem' />}
+            icon={<IconAlertCircle size='1.2rem' />}
             title='No Semester Records'
             color='blue'
+            radius='md'
           >
             No semester records found for this program.
           </Alert>
         ) : (
-          <Accordion variant='separated'>
-            {semesters.map((semester) => {
+          <Accordion variant='separated' radius='md'>
+            {program?.semesters?.map((semester) => {
               const modules =
                 semester.studentModules?.filter(
                   (m) => !['Delete', 'Drop'].includes(m.status)
@@ -97,75 +113,84 @@ export default function TranscriptsPage() {
                   value={semester.id.toString()}
                 >
                   <Accordion.Control>
-                    <Group justify='space-between'>
-                      <div>
-                        <Text fw={500}>
-                          Semester {semester.semesterNumber || 'N/A'} -{' '}
-                          {semester.term}
-                        </Text>
-                        <Text size='sm' c='dimmed'>
-                          {modules.length} module
-                          {modules.length !== 1 ? 's' : ''}
-                        </Text>
-                      </div>
-                    </Group>
+                    <Box>
+                      <Text fw={600}>
+                        {formatSemester(semester.semesterNumber)}
+                      </Text>
+                      <Text size='sm' c='dimmed'>
+                        {semester.term}
+                      </Text>
+                    </Box>
                   </Accordion.Control>
 
                   <Accordion.Panel>
                     {modules.length === 0 ? (
-                      <Text c='dimmed' ta='center' py='md'>
-                        No modules found for this semester
-                      </Text>
+                      <Center py='xl'>
+                        <Stack align='center' gap='sm'>
+                          <IconBookmark
+                            size='3rem'
+                            color='var(--mantine-color-dimmed)'
+                          />
+                          <Text c='dimmed' size='lg'>
+                            No modules found for this semester
+                          </Text>
+                        </Stack>
+                      </Center>
                     ) : (
-                      <Table striped highlightOnHover>
-                        <Table.Thead>
-                          <Table.Tr>
-                            <Table.Th>Module Code</Table.Th>
-                            <Table.Th>Module Name</Table.Th>
-                            <Table.Th>Grade</Table.Th>
-                            <Table.Th>Marks</Table.Th>
-                          </Table.Tr>
-                        </Table.Thead>
-                        <Table.Tbody>
-                          {modules.map((studentModule) => (
-                            <Table.Tr key={studentModule.id}>
-                              <Table.Td>
-                                <Text fw={500}>
-                                  {studentModule.semesterModule?.module?.code ||
-                                    'N/A'}
-                                </Text>
-                              </Table.Td>
-                              <Table.Td>
-                                <Text>
-                                  {studentModule.semesterModule?.module?.name ||
-                                    'N/A'}
-                                </Text>
-                              </Table.Td>
-                              <Table.Td>
+                      <SimpleGrid
+                        cols={{ base: 1, sm: 2, lg: 3 }}
+                        spacing='md'
+                        mt='md'
+                      >
+                        {modules.map((studentModule) => (
+                          <Card
+                            key={studentModule.id}
+                            shadow='sm'
+                            padding='lg'
+                            radius='md'
+                            withBorder
+                          >
+                            <Stack gap='sm'>
+                              <Group justify='space-between' align='flex-start'>
+                                <Stack gap='xs'>
+                                  <Text
+                                    size='sm'
+                                    fw={600}
+                                    style={{ lineHeight: 1.2 }}
+                                  >
+                                    {studentModule.semesterModule?.module
+                                      ?.code || 'N/A'}
+                                  </Text>
+
+                                  <Text size='xs'>
+                                    {studentModule.semesterModule?.module
+                                      ?.name || 'N/A'}
+                                  </Text>
+                                </Stack>
                                 <Badge
-                                  color={
-                                    ['A+', 'A', 'A-', 'B+', 'B'].includes(
-                                      studentModule.grade
-                                    )
-                                      ? 'green'
-                                      : ['B-', 'C+', 'C'].includes(
-                                            studentModule.grade
-                                          )
-                                        ? 'yellow'
-                                        : 'red'
-                                  }
+                                  size='lg'
+                                  color={getGradeColor(studentModule.grade)}
                                   variant='light'
+                                  radius='md'
                                 >
                                   {studentModule.grade}
                                 </Badge>
-                              </Table.Td>
-                              <Table.Td>
-                                <Text>{studentModule.marks}</Text>
-                              </Table.Td>
-                            </Table.Tr>
-                          ))}
-                        </Table.Tbody>
-                      </Table>
+                              </Group>
+
+                              <Divider />
+
+                              <Group justify='space-between' align='center'>
+                                <Text size='sm' c='dimmed' fw={500}>
+                                  Marks
+                                </Text>
+                                <Badge variant='light' color='gray' radius='md'>
+                                  {studentModule.marks}
+                                </Badge>
+                              </Group>
+                            </Stack>
+                          </Card>
+                        ))}
+                      </SimpleGrid>
                     )}
                   </Accordion.Panel>
                 </Accordion.Item>
