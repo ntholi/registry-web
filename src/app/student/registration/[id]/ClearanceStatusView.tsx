@@ -124,15 +124,6 @@ export default function ClearanceStatusView({ registration }: Props) {
               return (
                 <TimelineItem
                   key={dept}
-                  bullet={
-                    <ThemeIcon
-                      size={'lg'}
-                      color={getStatusColor(status)}
-                      variant='light'
-                    >
-                      {getDepartmentIcon(dept)}
-                    </ThemeIcon>
-                  }
                   title={
                     <Group justify='space-between' align='center' wrap='wrap'>
                       <Text fw={600} size='md'>
