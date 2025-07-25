@@ -29,7 +29,7 @@ export async function getRegistrationRequest(id: number) {
 
 export async function getRegistrationRequestByStdNo(
   stdNo: number,
-  termId: number,
+  termId: number
 ) {
   return service.getByStdNo(stdNo, termId);
 }
@@ -39,7 +39,7 @@ export async function getRequestedModules(registrationRequestId: number) {
 }
 
 export async function countByStatus(
-  status: 'pending' | 'registered' | 'rejected' | 'approved',
+  status: 'pending' | 'registered' | 'rejected' | 'approved'
 ) {
   return service.countByStatus(status);
 }
@@ -47,7 +47,7 @@ export async function countByStatus(
 export async function findAllRegistrationRequests(
   page = 1,
   search = '',
-  status?: 'pending' | 'registered' | 'rejected' | 'approved',
+  status?: 'pending' | 'registered' | 'rejected' | 'approved'
 ) {
   return service.findByStatus(status ?? 'pending', {
     page,
@@ -57,14 +57,14 @@ export async function findAllRegistrationRequests(
 
 export async function getStudentSemesterModules(
   student: Student,
-  remarks: AcademicRemarks,
+  remarks: AcademicRemarks
 ) {
   return service.getStudentSemesterModules(student, remarks);
 }
 
 export async function determineSemesterStatus(
   modules: ModuleWithStatus[],
-  student: Student,
+  student: Student
 ) {
   return service.determineSemesterStatus(modules, student);
 }
@@ -91,7 +91,7 @@ export async function deleteRegistrationRequest(id: number) {
 
 export async function createRequestedModules(
   stdNo: number,
-  modules: RequestedModule[],
+  modules: RequestedModule[]
 ) {
   return service.createRequestedModules(stdNo, modules);
 }
@@ -115,13 +115,13 @@ export async function updateRegistrationWithModules(
   registrationRequestId: number,
   modules: { id: number; status: StudentModuleStatus }[],
   semesterNumber?: number,
-  semesterStatus?: 'Active' | 'Repeat',
+  semesterStatus?: 'Active' | 'Repeat'
 ) {
   return service.updateRegistrationWithModules(
     registrationRequestId,
     modules,
     semesterNumber,
-    semesterStatus,
+    semesterStatus
   );
 }
 

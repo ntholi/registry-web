@@ -1,27 +1,29 @@
 import { auth } from '@/auth';
-import { formatDate, formatDateTime, formatSemester } from '@/lib/utils';
+import { formatDateTime, formatSemester } from '@/lib/utils';
 import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
 import {
-  Card,
-  Text,
-  Badge,
-  Stack,
-  Group,
-  Container,
-  Title,
   ActionIcon,
+  Badge,
   Box,
-  Divider,
-  SimpleGrid,
-  ThemeIcon,
-  Flex,
+  Button,
+  Card,
   CardSection,
+  Container,
+  Divider,
+  Flex,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
 } from '@mantine/core';
 import {
+  IconCalendar,
   IconChevronRight,
   IconFileText,
-  IconCalendar,
-  IconUsers,
+  IconPlus,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden } from 'next/navigation';
@@ -29,6 +31,7 @@ import { getStatusColor } from '../utils/colors';
 
 export default async function page() {
   const session = await auth();
+  const currentTerm = await getCurrentTerm();
 
   if (!session?.user?.stdNo) {
     return forbidden();
@@ -38,18 +41,47 @@ export default async function page() {
     session.user.stdNo
   );
 
+  const hasCurrentRegistration = registrationHistory.some(
+    (request) => request.term.id === currentTerm.id
+  );
+
   return (
     <Container size='md'>
       <Stack gap='xl'>
         <Box>
           <Title order={1} size='h2' fw={600} mb='xs'>
-            Registration History
+            Registration Requests
           </Title>
           <Text c='dimmed' size='sm'>
             View and track all your registration requests and their current
             status
           </Text>
         </Box>
+
+        {!hasCurrentRegistration && (
+          <Card withBorder>
+            <Stack align='center' gap='md'>
+              <ThemeIcon variant='light' color='gray' size='xl'>
+                <IconPlus size={'1.5rem'} />
+              </ThemeIcon>
+              <Stack align='center' gap='xs'>
+                <Text fw={500} size='lg'>
+                  Start New Registration
+                </Text>
+                <Text size='sm' c='dimmed' ta='center'>
+                  You don&apos;t have a registration request for{' '}
+                  <Text span fw={600}>
+                    {currentTerm.name}
+                  </Text>{' '}
+                  yet. Click below to start your registration process.
+                </Text>
+              </Stack>
+              <Button component={Link} href='/student/registration/new'>
+                New Registration
+              </Button>
+            </Stack>
+          </Card>
+        )}
 
         <Divider />
 
@@ -88,7 +120,7 @@ export default async function page() {
                 </Text>
               </Box>
 
-              <CardSection px='xs' py='xs' withBorder>
+              <CardSection px='xs' mt='xs' py='xs' withBorder>
                 <Flex gap='xs' align='center' justify='space-between'>
                   <Text size='xs' c='dimmed' mt='xs'>
                     Submitted: {formatDateTime(request.createdAt)}
