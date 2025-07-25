@@ -1,30 +1,30 @@
 'use client';
 
+import { formatDateTime, toTitleCase } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
 import {
+  Alert,
+  Badge,
+  Box,
   Card,
+  Divider,
+  Group,
+  Paper,
   Stack,
   Text,
-  Badge,
-  Title,
-  Group,
   ThemeIcon,
-  Alert,
   Timeline,
   TimelineItem,
-  Divider,
-  Paper,
-  Box,
+  Title,
 } from '@mantine/core';
 import {
+  IconBooks,
+  IconBuildingBank,
   IconCheck,
   IconClock,
-  IconX,
   IconInfoCircle,
-  IconBuildingBank,
-  IconBooks,
+  IconX,
 } from '@tabler/icons-react';
-import { formatDateTime, toTitleCase } from '@/lib/utils';
 
 type Props = {
   registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -85,31 +85,29 @@ export default function ClearanceStatusView({ registration }: Props) {
   return (
     <Card withBorder p='md' radius='md'>
       <Stack gap='md'>
-        <Group justify='space-between' align='flex-start' wrap='wrap'>
-          <div>
-            <Title order={2} size='h3' fw={600}>
-              Clearance Status
-            </Title>
-            <Text size='sm' c='dimmed'>
-              Requires approval from multiple departments
-            </Text>
-          </div>
+        <Box pos='relative'>
+          <Title order={2} size='h4' fw={600}>
+            Clearance Status
+          </Title>
           <Badge
-            size='lg'
+            size='sm'
+            pos='absolute'
+            right={0}
+            top={5}
             color={getStatusColor(overallStatus)}
             variant='light'
             leftSection={getStatusIcon(overallStatus)}
           >
             {toTitleCase(overallStatus)}
           </Badge>
-        </Group>
+        </Box>
 
         <Divider />
 
         {clearances.length === 0 ? (
           <Alert
             icon={<IconInfoCircle size='1rem' />}
-            color='blue'
+            color='gray'
             variant='light'
           >
             <Text size='sm'>
@@ -128,7 +126,7 @@ export default function ClearanceStatusView({ registration }: Props) {
                   key={dept}
                   bullet={
                     <ThemeIcon
-                      size={20}
+                      size={'lg'}
                       color={getStatusColor(status)}
                       variant='light'
                     >
@@ -154,21 +152,12 @@ export default function ClearanceStatusView({ registration }: Props) {
                   <Stack gap='xs' mt='xs'>
                     {clearance?.responseDate && (
                       <Box>
-                        <Text size='xs' c='dimmed' fw={500} tt='uppercase'>
+                        <Text size='xs' c='dimmed' fw={500}>
                           Response Date
                         </Text>
                         <Text size='sm'>
                           {formatDateTime(clearance.responseDate)}
                         </Text>
-                      </Box>
-                    )}
-
-                    {clearance?.respondedBy && (
-                      <Box>
-                        <Text size='xs' c='dimmed' fw={500} tt='uppercase'>
-                          Processed By
-                        </Text>
-                        <Text size='sm'>{clearance.respondedBy.name}</Text>
                       </Box>
                     )}
 
@@ -204,8 +193,7 @@ export default function ClearanceStatusView({ registration }: Props) {
         {overallStatus === 'approved' && (
           <Alert icon={<IconCheck size='1rem' />} color='green' variant='light'>
             <Text size='sm' fw={500}>
-              🎉 Congratulations! All clearances have been approved. Your
-              registration is now complete.
+              🎉 Congratulations! All clearances have been approved.
             </Text>
           </Alert>
         )}

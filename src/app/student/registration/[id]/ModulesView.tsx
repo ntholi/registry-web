@@ -2,18 +2,17 @@
 
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
 import {
-  Card,
-  Table,
-  Stack,
-  Text,
-  Badge,
-  Title,
-  Group,
-  ThemeIcon,
   Alert,
+  Badge,
+  Card,
+  Group,
   ScrollArea,
+  Stack,
+  Table,
+  Text,
+  Title,
 } from '@mantine/core';
-import { IconBooks, IconInfoCircle } from '@tabler/icons-react';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 type Props = {
   registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -59,26 +58,6 @@ export default function ModulesView({ registration }: Props) {
             </Text>
           </Stack>
         </Table.Td>
-        <Table.Td ta='center' w={60}>
-          <Text fw={500} size='sm'>
-            {semesterModule.credits}
-          </Text>
-        </Table.Td>
-        <Table.Td w={100}>
-          <Badge
-            variant='light'
-            size='xs'
-            color={
-              moduleStatus === 'Compulsory'
-                ? 'green'
-                : moduleStatus.startsWith('Repeat')
-                  ? 'red'
-                  : 'blue'
-            }
-          >
-            {moduleStatus}
-          </Badge>
-        </Table.Td>
         <Table.Td w={80}>
           <Badge
             variant='light'
@@ -114,17 +93,12 @@ export default function ModulesView({ registration }: Props) {
       <Stack gap='md'>
         <Group justify='space-between' align='flex-start' wrap='wrap'>
           <Group gap='sm'>
-            <ThemeIcon variant='light' size='lg'>
-              <IconBooks size='1.2rem' />
-            </ThemeIcon>
             <div>
               <Title order={2} size='h3' fw={600}>
                 Requested Modules
               </Title>
               <Text size='sm' c='dimmed'>
                 {requestedModules.length} modules • {totalCredits} total credits
-                {approvedCredits > 0 &&
-                  ` • ${approvedCredits} approved credits`}
               </Text>
             </div>
           </Group>
@@ -135,11 +109,7 @@ export default function ModulesView({ registration }: Props) {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Module</Table.Th>
-                <Table.Th ta='center' w={60}>
-                  Credits
-                </Table.Th>
-                <Table.Th w={100}>Type</Table.Th>
-                <Table.Th w={80}>Status</Table.Th>
+                <Table.Th w={90}>Status</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>

@@ -1,37 +1,26 @@
 import { auth } from '@/auth';
+import { formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
 import {
-  Container,
-  Title,
-  Text,
-  Stack,
-  Card,
-  Group,
   Badge,
-  Grid,
-  GridCol,
-  Divider,
   Box,
+  Container,
+  Divider,
+  Group,
   Paper,
+  Stack,
   Tabs,
   TabsList,
-  TabsTab,
   TabsPanel,
+  TabsTab,
+  Text,
   ThemeIcon,
+  Title,
 } from '@mantine/core';
-import {
-  IconCheck,
-  IconClock,
-  IconX,
-  IconBooks,
-  IconBuildingBank,
-  IconCalendar,
-} from '@tabler/icons-react';
-import { notFound } from 'next/navigation';
-import { forbidden } from 'next/navigation';
-import ModulesView from './ModulesView';
+import { IconBooks, IconCheck, IconClock, IconX } from '@tabler/icons-react';
+import { forbidden, notFound } from 'next/navigation';
 import ClearanceStatusView from './ClearanceStatusView';
-import { formatDateTime, formatSemester } from '@/lib/utils';
+import ModulesView from './ModulesView';
 
 type Props = {
   params: Promise<{
@@ -53,7 +42,6 @@ export default async function page({ params }: Props) {
     return notFound();
   }
 
-  // Ensure student can only access their own registration
   if (registration.stdNo !== session.user.stdNo) {
     return forbidden();
   }
@@ -104,13 +92,12 @@ export default async function page({ params }: Props) {
   return (
     <Container size='md' px='xs'>
       <Stack gap='xl'>
-        {/* Header Section */}
-        <Paper withBorder p='md' radius='md'>
+        <Paper withBorder p='md'>
           <Stack gap='md'>
             <Group justify='space-between' align='flex-start' wrap='wrap'>
               <Box>
                 <Title order={1} size='h2' fw={600} mb='xs'>
-                  Registration Request
+                  Registration
                 </Title>
                 <Text c='dimmed' size='sm'>
                   {registration.term.name} •{' '}
@@ -118,130 +105,13 @@ export default async function page({ params }: Props) {
                 </Text>
               </Box>
               <Badge
-                size='lg'
+                radius='xs'
                 color={getStatusColor(registration.status)}
                 variant='light'
               >
                 {registration.status}
               </Badge>
             </Group>
-
-            <Divider />
-
-            {/* Student Info Grid */}
-            <Grid>
-              <GridCol span={{ base: 12, xs: 6, sm: 4 }}>
-                <Stack gap={4}>
-                  <Text size='xs' c='dimmed' fw={500} tt='uppercase'>
-                    Student
-                  </Text>
-                  <Text fw={500} size='sm'>
-                    {registration.student.name}
-                  </Text>
-                  <Text size='xs' c='dimmed' ff='monospace'>
-                    {registration.stdNo}
-                  </Text>
-                </Stack>
-              </GridCol>
-
-              <GridCol span={{ base: 12, xs: 6, sm: 4 }}>
-                <Stack gap={4}>
-                  <Text size='xs' c='dimmed' fw={500} tt='uppercase'>
-                    Semester Status
-                  </Text>
-                  <Badge
-                    size='sm'
-                    color={
-                      registration.semesterStatus === 'Active' ? 'blue' : 'red'
-                    }
-                    variant='light'
-                  >
-                    {registration.semesterStatus}
-                  </Badge>
-                </Stack>
-              </GridCol>
-
-              <GridCol span={{ base: 12, xs: 12, sm: 4 }}>
-                <Stack gap={4}>
-                  <Text size='xs' c='dimmed' fw={500} tt='uppercase'>
-                    Submitted
-                  </Text>
-                  <Text size='sm' fw={500}>
-                    {formatDateTime(registration.createdAt)}
-                  </Text>
-                </Stack>
-              </GridCol>
-            </Grid>
-
-            {/* Quick Stats */}
-            <Grid mt='xs'>
-              <GridCol span={{ base: 6, sm: 4 }}>
-                <Card withBorder p='sm' bg='blue.0'>
-                  <Group gap='xs'>
-                    <IconBooks
-                      size='1rem'
-                      color='var(--mantine-color-blue-6)'
-                    />
-                    <Stack gap={2}>
-                      <Text size='lg' fw={600} c='blue'>
-                        {registration.requestedModules.length}
-                      </Text>
-                      <Text size='xs' c='dimmed'>
-                        Modules
-                      </Text>
-                    </Stack>
-                  </Group>
-                </Card>
-              </GridCol>
-
-              <GridCol span={{ base: 6, sm: 4 }}>
-                <Card
-                  withBorder
-                  p='sm'
-                  bg={`${getStatusColor(clearanceStatus)}.0`}
-                >
-                  <Group gap='xs'>
-                    <IconBuildingBank
-                      size='1rem'
-                      color={`var(--mantine-color-${getStatusColor(clearanceStatus)}-6)`}
-                    />
-                    <Stack gap={2}>
-                      <Text
-                        size='lg'
-                        fw={600}
-                        c={getStatusColor(clearanceStatus)}
-                      >
-                        {clearanceStatus}
-                      </Text>
-                      <Text size='xs' c='dimmed'>
-                        Clearance
-                      </Text>
-                    </Stack>
-                  </Group>
-                </Card>
-              </GridCol>
-
-              {registration.dateApproved && (
-                <GridCol span={{ base: 12, sm: 4 }}>
-                  <Card withBorder p='sm' bg='green.0'>
-                    <Group gap='xs'>
-                      <IconCalendar
-                        size='1rem'
-                        color='var(--mantine-color-green-6)'
-                      />
-                      <Stack gap={2}>
-                        <Text size='lg' fw={600} c='green'>
-                          Approved
-                        </Text>
-                        <Text size='xs' c='dimmed'>
-                          {formatDateTime(registration.dateApproved)}
-                        </Text>
-                      </Stack>
-                    </Group>
-                  </Card>
-                </GridCol>
-              )}
-            </Grid>
 
             {registration.message && (
               <>
@@ -259,7 +129,6 @@ export default async function page({ params }: Props) {
           </Stack>
         </Paper>
 
-        {/* Tabs Section */}
         <Tabs defaultValue='modules' variant='outline'>
           <TabsList>
             <TabsTab value='modules' leftSection={<IconBooks size='1rem' />}>
