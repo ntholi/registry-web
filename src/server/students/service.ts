@@ -28,30 +28,33 @@ class StudentService {
   async getAcademicHistory(stdNo: number) {
     return withAuth(async () => {
       return this.repository.findAcademicHistory(stdNo);
-    }, ['academic']);
+    }, ['academic', 'registry', 'finance']);
   }
 
   async getRegistrationData(stdNo: number) {
     return withAuth(async () => {
       return this.repository.findRegistrationData(stdNo);
-    }, ['academic']);
+    }, ['academic', 'registry', 'finance']);
   }
 
   async findStudentByUserId(userId: string) {
     return withAuth(
       async () => this.repository.findStudentByUserId(userId),
-      ['auth'],
+      ['auth']
     );
   }
 
   async getAllPrograms() {
-    return withAuth(async () => this.repository.getAllPrograms(), ['academic']);
+    return withAuth(
+      async () => this.repository.getAllPrograms(),
+      ['dashboard']
+    );
   }
 
   async getProgramsBySchoolId(schoolId: number) {
     return withAuth(
       async () => this.repository.getProgramsBySchoolId(schoolId),
-      ['academic'],
+      ['dashboard']
     );
   }
 
@@ -59,12 +62,12 @@ class StudentService {
     const term = await getCurrentTerm();
     return withAuth(
       async () => this.repository.findByModuleId(moduleId, term.name),
-      ['academic'],
+      ['dashboard']
     );
   }
 
   async findAll(
-    params: QueryOptions<typeof students> & { filter?: StudentFilter },
+    params: QueryOptions<typeof students> & { filter?: StudentFilter }
   ) {
     return withAuth(
       async () => this.repository.queryBasic(params),
@@ -73,7 +76,7 @@ class StudentService {
         if (
           session.user?.role &&
           ['admin', 'registry', 'finance', 'library'].includes(
-            session.user.role,
+            session.user.role
           )
         ) {
           return true;
@@ -81,11 +84,11 @@ class StudentService {
 
         if (session.user?.position) {
           return ['admin', 'manager', 'program_leader', 'year_leader'].includes(
-            session.user.position,
+            session.user.position
           );
         }
         return false;
-      },
+      }
     );
   }
 
@@ -104,14 +107,14 @@ class StudentService {
   async updateUserId(stdNo: number, userId: string | null) {
     return withAuth(
       async () => this.repository.updateUserId(stdNo, userId),
-      ['admin', 'registry'],
+      ['admin', 'registry']
     );
   }
 
   async updateProgramStructure(stdNo: number, structureId: number) {
     return withAuth(
       async () => this.repository.updateProgramStructure(stdNo, structureId),
-      ['admin', 'registry'],
+      ['admin', 'registry']
     );
   }
 
@@ -122,5 +125,5 @@ class StudentService {
 
 export const studentsService = serviceWrapper(
   StudentService,
-  'StudentsService',
+  'StudentsService'
 );

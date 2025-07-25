@@ -82,12 +82,9 @@ export default async function page() {
 
               <Box mt='xs'>
                 <Text size='sm'>{formatSemester(request.semesterNumber)}</Text>
-                <Group gap='xs' align='center'>
-                  <IconUsers size={14} />
-                  <Text size='sm' c='dimmed'>
-                    {request.requestedModulesCount} modules
-                  </Text>
-                </Group>
+                <Text size='sm' c='dimmed'>
+                  {request.requestedModulesCount} modules
+                </Text>
               </Box>
 
               <CardSection px='xs' py='xs' withBorder>
@@ -111,10 +108,7 @@ export default async function page() {
           {registrationHistory.length === 0 && (
             <Card shadow='sm' padding='xl' radius='md' withBorder>
               <Stack align='center' gap='md'>
-                <IconFileText
-                  size={48}
-                  style={{ color: 'var(--mantine-color-gray-4)' }}
-                />
+                <IconFileText size={48} />
                 <Stack align='center' gap='xs'>
                   <Text fw={500} size='lg' c='dimmed'>
                     No Registration Requests
