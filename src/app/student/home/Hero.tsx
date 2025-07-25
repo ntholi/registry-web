@@ -15,6 +15,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconBook, IconTrophy, IconUser } from '@tabler/icons-react';
+import { studentColors } from '../utils/colors';
 
 export default function Hero() {
   const { student, program, semester, remarks } = useUserStudent();
@@ -24,7 +25,7 @@ export default function Hero() {
     <Paper shadow='sm' p='xl' radius='md' withBorder>
       <Stack gap='lg'>
         <Group gap='lg'>
-          <Avatar size={60} radius='sm' color='gray' variant='filled'>
+          <Avatar size={60} radius='sm' color={studentColors.theme.primary} variant='filled'>
             <IconUser size='1.8rem' />
           </Avatar>
           <Stack gap={4} flex={1}>
@@ -56,7 +57,7 @@ export default function Hero() {
                   <ThemeIcon
                     size={'xl'}
                     variant='light'
-                    color='orange'
+                    color={studentColors.theme.secondary}
                     radius='md'
                   >
                     <IconTrophy size='1.2rem' />
@@ -78,7 +79,7 @@ export default function Hero() {
                   <ThemeIcon
                     size={'xl'}
                     variant='light'
-                    color='violet'
+                    color={studentColors.theme.accent}
                     radius='md'
                   >
                     <IconBook size='1.2rem' />

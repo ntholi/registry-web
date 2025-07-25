@@ -25,6 +25,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden } from 'next/navigation';
+import { getStatusColor } from '../utils/colors';
 
 export default async function page() {
   const session = await auth();
@@ -127,19 +128,3 @@ export default async function page() {
     </Container>
   );
 }
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'approved':
-      return 'green';
-    case 'registered':
-      return 'blue';
-    case 'rejected':
-      return 'red';
-    case 'partial':
-      return 'yellow';
-    case 'pending':
-    default:
-      return 'gray';
-  }
-};

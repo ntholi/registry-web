@@ -16,6 +16,7 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import Link from 'next/link';
+import { studentColors } from '../utils/colors';
 
 type Action = {
   label: string;
@@ -30,14 +31,14 @@ const actions: Action[] = [
     label: 'Registration',
     icon: IconClipboardCheck,
     href: '/student/registration',
-    color: 'gray',
+    color: studentColors.theme.primary,
     description: 'Submit or view your registration requests',
   },
   {
     label: 'Transcripts',
     icon: IconFileText,
     href: '/student/transcripts',
-    color: 'gray',
+    color: studentColors.theme.primary,
     description: 'View and download your academic transcripts',
   },
 ];
