@@ -85,14 +85,15 @@ class RegistrationRequestService {
           structureId: activeProgram?.structureId,
         };
       },
-      ['dashboard'],
+      ['dashboard', 'student'],
       async (session) =>
         session?.user?.role === 'admin' ||
         session?.user?.role === 'registry' ||
         session?.user?.position === 'admin' ||
         session?.user?.position === 'manager' ||
         session?.user?.position === 'program_leader' ||
-        session?.user?.position === 'year_leader'
+        session?.user?.position === 'year_leader' ||
+        session?.user?.role === 'student'
     );
   }
 
