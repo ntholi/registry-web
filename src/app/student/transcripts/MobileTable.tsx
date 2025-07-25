@@ -2,6 +2,7 @@
 
 import {
   Badge,
+  Box,
   Card,
   Center,
   Divider,
@@ -62,7 +63,7 @@ export default function MobileTable({ modules }: MobileTableProps) {
           withBorder
         >
           <Stack gap='sm'>
-            <Group justify='space-between' align='flex-start'>
+            <Box pos={'relative'}>
               <Stack gap='xs'>
                 <Text size='sm' fw={600} style={{ lineHeight: 1.2 }}>
                   {studentModule.semesterModule?.module?.code || 'N/A'}
@@ -74,13 +75,16 @@ export default function MobileTable({ modules }: MobileTableProps) {
               </Stack>
               <Badge
                 size='lg'
+                pos={'absolute'}
+                top={-5}
+                right={0}
                 color={getGradeColor(studentModule.grade)}
                 variant='light'
                 radius='md'
               >
                 {studentModule.grade}
               </Badge>
-            </Group>
+            </Box>
 
             <Divider />
 

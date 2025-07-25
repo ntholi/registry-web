@@ -39,7 +39,7 @@ export default function TranscriptsPage() {
     return (
       <Container size='md'>
         <Stack gap='lg' mt='md'>
-          <Title order={1} ta='center'>
+          <Title order={1} size={'h3'} ta='left'>
             Academic Transcripts
           </Title>
           <Alert
@@ -56,10 +56,10 @@ export default function TranscriptsPage() {
   }
 
   return (
-    <Container size='lg'>
-      <Stack gap='xl' py='md'>
+    <Container size='md'>
+      <Stack gap='lg' py='md'>
         <Box ta='center'>
-          <Title order={1} mb='xs'>
+          <Title order={1} mb='xs' size={'h3'}>
             Academic Transcripts
           </Title>
           <Text size='sm' c='dimmed'>
@@ -67,7 +67,7 @@ export default function TranscriptsPage() {
           </Text>
         </Box>
 
-        <Paper radius='lg' p='xl' withBorder shadow='sm'>
+        <Paper p='xl' withBorder shadow='sm' mt='lg'>
           <Group justify='space-between' align='flex-start' wrap='wrap'>
             <Box>
               <Text size='lg' fw={600}>
