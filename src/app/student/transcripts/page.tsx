@@ -6,11 +6,8 @@ import {
   Accordion,
   Alert,
   Box,
-  Center,
   Container,
-  Flex,
   Group,
-  Loader,
   Paper,
   Stack,
   Text,
@@ -20,19 +17,14 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconAlertCircle } from '@tabler/icons-react';
 import DesktopTable from './DesktopTable';
 import MobileTable from './MobileTable';
+import LoadingSkeleton from './LoadingSkeleton';
 
 export default function TranscriptsPage() {
   const { student, program, isLoading } = useUserStudent();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   if (isLoading) {
-    return (
-      <Container>
-        <Center mt='xl'>
-          <Loader size='lg' />
-        </Center>
-      </Container>
-    );
+    return <LoadingSkeleton />;
   }
 
   if (!student || !program) {

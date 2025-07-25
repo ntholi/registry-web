@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { IconLogout, IconMoon, IconSun } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
+import Link from 'next/link';
 
 export default function Navbar() {
   const { student } = useUserStudent();
@@ -24,7 +25,9 @@ export default function Navbar() {
     <>
       <Container size='xl'>
         <Flex p={5} justify='space-between' align='center'>
-          <Logo />
+          <Link href='/student'>
+            <Logo />
+          </Link>
           <Menu shadow='md' width={200}>
             <Menu.Target>
               <Avatar
