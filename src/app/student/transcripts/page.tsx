@@ -11,6 +11,7 @@ import {
   Center,
   Container,
   Divider,
+  Flex,
   Group,
   Loader,
   Paper,
@@ -113,14 +114,14 @@ export default function TranscriptsPage() {
                   value={semester.id.toString()}
                 >
                   <Accordion.Control>
-                    <Box>
-                      <Text fw={600}>
-                        {formatSemester(semester.semesterNumber)}
-                      </Text>
-                      <Text size='sm' c='dimmed'>
+                    <Flex justify='space-between' align='center' pe={'md'}>
+                      <Text size='sm' fw={600}>
                         {semester.term}
                       </Text>
-                    </Box>
+                      <Text size='sm' c='dimmed'>
+                        {formatSemester(semester.semesterNumber)}
+                      </Text>
+                    </Flex>
                   </Accordion.Control>
 
                   <Accordion.Panel>
@@ -137,11 +138,7 @@ export default function TranscriptsPage() {
                         </Stack>
                       </Center>
                     ) : (
-                      <SimpleGrid
-                        cols={{ base: 1, sm: 2, lg: 3 }}
-                        spacing='md'
-                        mt='md'
-                      >
+                      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
                         {modules.map((studentModule) => (
                           <Card
                             key={studentModule.id}
