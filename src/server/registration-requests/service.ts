@@ -25,7 +25,7 @@ type ModuleWithStatus = {
 
 class RegistrationRequestService {
   constructor(
-    private readonly repository = new RegistrationRequestRepository(),
+    private readonly repository = new RegistrationRequestRepository()
   ) {}
 
   async first() {
@@ -36,40 +36,40 @@ class RegistrationRequestService {
     return withAuth(
       async () => this.repository.findByStdNo(stdNo, termId),
       ['student'],
-      async (session) => session.user?.stdNo === stdNo,
+      async (session) => session.user?.stdNo === stdNo
     );
   }
 
   async getRequestedModules(registrationRequestId: number) {
     return withAuth(
       async () => this.repository.getRequestedModules(registrationRequestId),
-      ['student'],
+      ['student']
     );
   }
 
   async getHistory(stdNo: number) {
     return withAuth(
       async () => this.repository.getHistory(stdNo),
-      ['dashboard'],
+      ['dashboard', 'student']
     );
   }
 
   async findByStatus(
     status: 'pending' | 'registered' | 'rejected' | 'approved',
-    params: QueryOptions<typeof registrationRequests>,
+    params: QueryOptions<typeof registrationRequests>
   ) {
     return withAuth(
       async () => this.repository.findByStatus(status, params),
-      ['registry', 'finance', 'library'],
+      ['registry', 'finance', 'library']
     );
   }
 
   async countByStatus(
-    status: 'pending' | 'registered' | 'rejected' | 'approved',
+    status: 'pending' | 'registered' | 'rejected' | 'approved'
   ) {
     return withAuth(
       async () => this.repository.countByStatus(status),
-      ['dashboard'],
+      ['dashboard']
     );
   }
 
@@ -92,7 +92,7 @@ class RegistrationRequestService {
         session?.user?.position === 'admin' ||
         session?.user?.position === 'manager' ||
         session?.user?.position === 'program_leader' ||
-        session?.user?.position === 'year_leader',
+        session?.user?.position === 'year_leader'
     );
   }
 
@@ -104,7 +104,7 @@ class RegistrationRequestService {
     return withAuth(
       async () => this.repository.create(data),
       ['student'],
-      async (session) => session.user?.stdNo === data.stdNo,
+      async (session) => session.user?.stdNo === data.stdNo
     );
   }
 
@@ -112,14 +112,14 @@ class RegistrationRequestService {
     return withAuth(
       async () => this.repository.createRequestedModules(modules),
       ['student'],
-      async (session) => session.user?.stdNo === stdNo,
+      async (session) => session.user?.stdNo === stdNo
     );
   }
 
   async update(id: number, data: Partial<RegistrationRequest>) {
     return withAuth(
       async () => this.repository.update(id, data),
-      ['student', 'registry'],
+      ['student', 'registry']
     );
   }
 
@@ -144,7 +144,7 @@ class RegistrationRequestService {
       async () => this.repository.createRegistrationWithModules(data),
       ['student', 'registry'],
       async (session) =>
-        session.user?.stdNo === data.stdNo || session.user?.role === 'registry',
+        session.user?.stdNo === data.stdNo || session.user?.role === 'registry'
     );
   }
 
@@ -152,7 +152,7 @@ class RegistrationRequestService {
     registrationRequestId: number,
     modules: { id: number; status: StudentModuleStatus }[],
     semesterNumber?: number,
-    semesterStatus?: 'Active' | 'Repeat',
+    semesterStatus?: 'Active' | 'Repeat'
   ) {
     return withAuth(
       async () =>
@@ -160,9 +160,9 @@ class RegistrationRequestService {
           registrationRequestId,
           modules,
           semesterNumber,
-          semesterStatus,
+          semesterStatus
         ),
-      ['student', 'registry'],
+      ['student', 'registry']
     );
   }
 
@@ -177,7 +177,7 @@ class RegistrationRequestService {
 
   async determineSemesterStatus(
     modules: ModuleWithStatus[],
-    student: Student,
+    student: Student
   ): Promise<{ semesterNo: number; status: 'Active' | 'Repeat' }> {
     return withAuth(async () => {
       const semesterNo = commonSemesterNo(modules);
@@ -221,5 +221,5 @@ function commonSemesterNo(modules: ModuleWithStatus[]): number {
 
 export const registrationRequestsService = serviceWrapper(
   RegistrationRequestService,
-  'RegistrationRequestsService',
+  'RegistrationRequestsService'
 );
