@@ -147,9 +147,9 @@ export default async function page() {
                     No Registration Requests
                   </Text>
                   <Text size='sm' c='dimmed' ta='center'>
-                    You haven't submitted any registration requests yet. Your
-                    registration history will appear here once you submit your
-                    first request.
+                    You haven&apos;t submitted any registration requests yet.
+                    Your registration history will appear here once you submit
+                    your first request.
                   </Text>
                 </Stack>
               </Stack>
