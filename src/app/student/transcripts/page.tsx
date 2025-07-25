@@ -5,25 +5,25 @@ import { formatSemester } from '@/lib/utils';
 import {
   Accordion,
   Alert,
-  Badge,
   Box,
-  Card,
   Center,
   Container,
-  Divider,
   Flex,
   Group,
   Loader,
   Paper,
-  SimpleGrid,
   Stack,
   Text,
   Title,
 } from '@mantine/core';
-import { IconAlertCircle, IconBookmark, IconTrophy } from '@tabler/icons-react';
+import { useMediaQuery } from '@mantine/hooks';
+import { IconAlertCircle } from '@tabler/icons-react';
+import DesktopTable from './DesktopTable';
+import MobileTable from './MobileTable';
 
 export default function TranscriptsPage() {
   const { student, program, isLoading } = useUserStudent();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   if (isLoading) {
     return (
@@ -54,13 +54,6 @@ export default function TranscriptsPage() {
       </Container>
     );
   }
-
-  const getGradeColor = (grade: string) => {
-    if (['A+', 'A', 'A-'].includes(grade)) return 'green';
-    if (['B+', 'B', 'B-'].includes(grade)) return 'blue';
-    if (['C+', 'C', 'C-'].includes(grade)) return 'yellow';
-    return 'red';
-  };
 
   return (
     <Container size='lg'>
@@ -114,80 +107,21 @@ export default function TranscriptsPage() {
                   value={semester.id.toString()}
                 >
                   <Accordion.Control>
-                    <Flex justify='space-between' align='center' pe={'md'}>
+                    <Box>
                       <Text size='sm' fw={600}>
                         {semester.term}
                       </Text>
                       <Text size='sm' c='dimmed'>
                         {formatSemester(semester.semesterNumber)}
                       </Text>
-                    </Flex>
+                    </Box>
                   </Accordion.Control>
 
                   <Accordion.Panel>
-                    {modules.length === 0 ? (
-                      <Center py='xl'>
-                        <Stack align='center' gap='sm'>
-                          <IconBookmark
-                            size='3rem'
-                            color='var(--mantine-color-dimmed)'
-                          />
-                          <Text c='dimmed' size='lg'>
-                            No modules found for this semester
-                          </Text>
-                        </Stack>
-                      </Center>
+                    {isMobile ? (
+                      <MobileTable modules={modules} />
                     ) : (
-                      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
-                        {modules.map((studentModule) => (
-                          <Card
-                            key={studentModule.id}
-                            shadow='sm'
-                            padding='lg'
-                            radius='md'
-                            withBorder
-                          >
-                            <Stack gap='sm'>
-                              <Group justify='space-between' align='flex-start'>
-                                <Stack gap='xs'>
-                                  <Text
-                                    size='sm'
-                                    fw={600}
-                                    style={{ lineHeight: 1.2 }}
-                                  >
-                                    {studentModule.semesterModule?.module
-                                      ?.code || 'N/A'}
-                                  </Text>
-
-                                  <Text size='xs'>
-                                    {studentModule.semesterModule?.module
-                                      ?.name || 'N/A'}
-                                  </Text>
-                                </Stack>
-                                <Badge
-                                  size='lg'
-                                  color={getGradeColor(studentModule.grade)}
-                                  variant='light'
-                                  radius='md'
-                                >
-                                  {studentModule.grade}
-                                </Badge>
-                              </Group>
-
-                              <Divider />
-
-                              <Group justify='space-between' align='center'>
-                                <Text size='sm' c='dimmed' fw={500}>
-                                  Marks
-                                </Text>
-                                <Badge variant='light' color='gray' radius='md'>
-                                  {studentModule.marks}
-                                </Badge>
-                              </Group>
-                            </Stack>
-                          </Card>
-                        ))}
-                      </SimpleGrid>
+                      <DesktopTable modules={modules} />
                     )}
                   </Accordion.Panel>
                 </Accordion.Item>
