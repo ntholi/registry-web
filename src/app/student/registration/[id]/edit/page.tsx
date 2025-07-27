@@ -298,15 +298,19 @@ export default function EditRegistrationPage() {
           <Title order={2} mb='xs'>
             Update Registration
           </Title>
-          <Text c='dimmed'>Term: {currentTerm.name}</Text>
-          <Badge
-            color={registrationRequest.status === 'pending' ? 'yellow' : 'blue'}
-            variant='light'
-            size='sm'
-            mt='xs'
-          >
-            {registrationRequest.status.toUpperCase()}
-          </Badge>
+          <Group justify='space-between'>
+            <Text c='dimmed'>Term: {currentTerm.name}</Text>
+            <Badge
+              color={
+                registrationRequest.status === 'pending' ? 'yellow' : 'blue'
+              }
+              variant='light'
+              size='sm'
+              mt='xs'
+            >
+              {registrationRequest.status.toUpperCase()}
+            </Badge>
+          </Group>
         </div>
 
         <Box>
