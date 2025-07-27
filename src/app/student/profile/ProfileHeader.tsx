@@ -4,29 +4,28 @@ import {
   Avatar,
   Badge,
   Card,
+  Divider,
+  Flex,
   Group,
+  SimpleGrid,
   Stack,
   Text,
-  Title,
   ThemeIcon,
-  Flex,
-  Divider,
-  SimpleGrid,
-  Paper,
+  Title,
 } from '@mantine/core';
 import {
-  IconUser,
-  IconIdBadge2,
   IconCalendar,
-  IconPhone,
   IconGenderBigender,
   IconHeart,
+  IconIdBadge2,
+  IconPhone,
+  IconUser,
 } from '@tabler/icons-react';
 import { studentColors } from '../utils/colors';
 
 import { Student } from '@/lib/helpers/students';
-import { useMediaQuery } from '@/utils/use-media-query';
 import { getStudentPhoto } from '@/server/students/actions';
+import { useMediaQuery } from '@/utils/use-media-query';
 import { useQuery } from '@tanstack/react-query';
 
 type Props = {

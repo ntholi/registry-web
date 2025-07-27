@@ -1,9 +1,9 @@
 'use client';
-import { Container, Stack, Text, Center } from '@mantine/core';
 import useUserStudent from '@/hooks/use-user-student';
-import ProfileHeader from './ProfileHeader';
-import PersonalInformation from './PersonalInformation';
+import { Center, Container, Stack, Text } from '@mantine/core';
 import AcademicInformation from './AcademicInformation';
+import PersonalInformation from './PersonalInformation';
+import ProfileHeader from './ProfileHeader';
 import ProfileSkeleton from './ProfileSkeleton';
 
 export default function Profile() {

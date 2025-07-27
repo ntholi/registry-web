@@ -4,6 +4,7 @@ import {
   Divider,
   Flex,
   Group,
+  Paper,
   SimpleGrid,
   Skeleton,
   Stack,
@@ -59,7 +60,7 @@ export default function ProfileSkeleton() {
           </Flex>
         </Card>
 
-        <Card shadow='sm' p='xl' radius='md' withBorder>
+        <Paper shadow='sm' p='xl' radius='md' withBorder>
           <Stack gap='lg'>
             <Skeleton height={24} width={180} />
             <Divider />
@@ -90,9 +91,9 @@ export default function ProfileSkeleton() {
               </Stack>
             </SimpleGrid>
           </Stack>
-        </Card>
+        </Paper>
 
-        <Card shadow='sm' p='xl' radius='md' withBorder>
+        <Paper shadow='sm' p='xl' radius='md' withBorder>
           <Stack gap='lg'>
             <Skeleton height={24} width={200} />
             <Divider />
@@ -115,7 +116,7 @@ export default function ProfileSkeleton() {
               </Stack>
             </SimpleGrid>
           </Stack>
-        </Card>
+        </Paper>
       </Stack>
     </Container>
   );

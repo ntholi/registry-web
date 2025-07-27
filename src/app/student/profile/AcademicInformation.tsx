@@ -8,17 +8,13 @@ import {
   Flex,
   Grid,
   Group,
+  Paper,
   Stack,
   Text,
   ThemeIcon,
   Title,
 } from '@mantine/core';
-import {
-  IconBook,
-  IconCalendar,
-  IconSchool,
-  IconTrophy,
-} from '@tabler/icons-react';
+import { IconBook, IconCalendar, IconTrophy } from '@tabler/icons-react';
 import { getStatusColor } from '../utils/colors';
 
 import { AcademicRemarks } from '@/lib/helpers/students';
@@ -83,7 +79,7 @@ export default function AcademicInformation({
   }
 
   return (
-    <Card withBorder shadow='sm' p='xl' radius='md'>
+    <Paper withBorder shadow='sm' p='xl' radius='md'>
       <Flex justify='space-between' align='baseline'>
         <Title order={3} size='h4' mb='lg' fw={500}>
           Academic Information
@@ -93,7 +89,7 @@ export default function AcademicInformation({
         </Badge>
       </Flex>
 
-      <Stack gap='xl'>
+      <Stack>
         <Box>
           <Group justify='space-between'>
             <Text fw={600}>{program.structure.program.name}</Text>
@@ -166,6 +162,6 @@ export default function AcademicInformation({
           </>
         )}
       </Stack>
-    </Card>
+    </Paper>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 import { formatDate } from '@/lib/utils';
-import { Card, Grid, Text, Title, Box } from '@mantine/core';
+import { Box, Grid, Paper, Text, Title } from '@mantine/core';
 
 import { Student } from '@/lib/helpers/students';
 
@@ -36,12 +36,12 @@ function InfoItem({
 
 export default function PersonalInformation({ student }: Props) {
   return (
-    <Card withBorder shadow='sm' p='xl' radius='md'>
+    <Paper withBorder shadow='sm' p='xl' radius='md'>
       <Title order={3} size='h4' mb='lg' fw={500}>
         Personal Information
       </Title>
 
-      <Grid gutter='xl'>
+      <Grid>
         <Grid.Col span={{ base: 12, sm: 6 }}>
           <InfoItem label='Student Number' value={student.stdNo} />
         </Grid.Col>
@@ -83,6 +83,6 @@ export default function PersonalInformation({ student }: Props) {
           </Grid.Col>
         )}
       </Grid>
-    </Card>
+    </Paper>
   );
 }
