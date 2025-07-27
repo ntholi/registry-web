@@ -240,72 +240,70 @@ export default function NewRegistrationPage() {
   };
 
   return (
-    <Container size='lg' py='xl'>
-      <Paper p='xl' shadow='sm'>
-        <Stack gap='xl'>
-          <div>
-            <Title order={2} mb='xs'>
-              New Registration
-            </Title>
-            <Text c='dimmed'>Term: {currentTerm.name}</Text>
-          </div>
+    <Container size='md'>
+      <Stack gap='xl'>
+        <div>
+          <Title order={2} mb='xs'>
+            New Registration
+          </Title>
+          <Text c='dimmed'>Term: {currentTerm.name}</Text>
+        </div>
+
+        <Box>
+          <Group justify='space-between' mb='sm'>
+            <Text size='sm' fw={500}>
+              Step {activeStep + 1} of {STEPS.length}
+            </Text>
+          </Group>
+
+          <Progress value={progressValue} size='lg' mb='md' />
 
           <Box>
-            <Group justify='space-between' mb='sm'>
-              <Text size='sm' fw={500}>
-                Step {activeStep + 1} of {STEPS.length}
-              </Text>
-            </Group>
-
-            <Progress value={progressValue} size='lg' mb='md' />
-
-            <Box>
-              <Text fw={500} size='lg'>
-                {STEPS[activeStep].label}
-              </Text>
-              <Text size='sm' c='dimmed'>
-                {STEPS[activeStep].description}
-              </Text>
-            </Box>
+            <Text fw={500} size='lg'>
+              {STEPS[activeStep].label}
+            </Text>
+            <Text size='sm' c='dimmed'>
+              {STEPS[activeStep].description}
+            </Text>
           </Box>
+        </Box>
 
-          {/* Step Content */}
-          <Box>{renderStepContent()}</Box>
+        {/* Step Content */}
+        <Box>{renderStepContent()}</Box>
 
-          {/* Navigation */}
-          <Group justify='space-between' mt='xl'>
+        {/* Navigation */}
+        <Group justify='space-between' mt='xl'>
+          <Button
+            variant='default'
+            onClick={prevStep}
+            disabled={activeStep === 0}
+            leftSection={<IconArrowLeft size={16} />}
+          >
+            Back
+          </Button>
+
+          {activeStep < 2 ? (
             <Button
-              variant='default'
-              onClick={prevStep}
-              disabled={activeStep === 0}
-              leftSection={<IconArrowLeft size={16} />}
+              onClick={nextStep}
+              disabled={
+                (activeStep === 0 && !canProceedStep1) ||
+                (activeStep === 1 && !canProceedStep2)
+              }
+              rightSection={<IconArrowRight size={16} />}
             >
-              Back
+              Next
             </Button>
-
-            {activeStep < 2 ? (
-              <Button
-                onClick={nextStep}
-                disabled={
-                  (activeStep === 0 && !canProceedStep1) ||
-                  (activeStep === 1 && !canProceedStep2)
-                }
-                rightSection={<IconArrowRight size={16} />}
-              >
-                Next
-              </Button>
-            ) : (
-              <Button
-                onClick={handleSubmit}
-                disabled={!canSubmit}
-                loading={registrationMutation.isPending}
-              >
-                Submit Registration
-              </Button>
-            )}
-          </Group>
-        </Stack>
-      </Paper>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              disabled={!canSubmit}
+              loading={registrationMutation.isPending}
+            >
+              Submit Registration
+            </Button>
+          )}
+        </Group>
+      </Stack>
     </Container>
   );
 }

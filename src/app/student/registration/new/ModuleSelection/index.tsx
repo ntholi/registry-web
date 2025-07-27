@@ -105,9 +105,6 @@ export default function ModuleSelection({
             <Accordion.Control>
               <Group justify='space-between'>
                 <Text fw={500}>Compulsory Modules</Text>
-                <Badge color='blue' variant='light'>
-                  {compulsoryModules.length} modules
-                </Badge>
               </Group>
             </Accordion.Control>
             <Accordion.Panel>
@@ -132,9 +129,6 @@ export default function ModuleSelection({
             <Accordion.Control>
               <Group justify='space-between'>
                 <Text fw={500}>Elective Modules</Text>
-                <Badge color='green' variant='light'>
-                  {electiveModules.length} modules
-                </Badge>
               </Group>
             </Accordion.Control>
             <Accordion.Panel>
@@ -159,9 +153,6 @@ export default function ModuleSelection({
             <Accordion.Control>
               <Group justify='space-between'>
                 <Text fw={500}>Repeat Modules</Text>
-                <Badge color='orange' variant='light'>
-                  {repeatModules.length} modules
-                </Badge>
               </Group>
             </Accordion.Control>
             <Accordion.Panel>

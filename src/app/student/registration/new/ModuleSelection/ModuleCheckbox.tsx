@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, Checkbox, Group, Badge, Tooltip } from '@mantine/core';
+import { Text, Checkbox, Group, Badge, Flex } from '@mantine/core';
 import { IconLock } from '@tabler/icons-react';
 
 type ModuleWithStatus = {
@@ -24,7 +24,6 @@ export default function ModuleCheckbox({
   isSelected,
   onToggle,
 }: ModuleCheckboxProps) {
-  // Check if a module has prerequisites - if it does, don't allow selection
   const hasPrerequisites = (module: ModuleWithStatus): boolean => {
     return (
       module.prerequisites !== undefined && module.prerequisites.length > 0
@@ -42,36 +41,29 @@ export default function ModuleCheckbox({
   const isDisabled = hasPrereqs;
 
   if (isDisabled) {
-    // Render disabled module with lock icon
     return (
-      <Tooltip label='Cannot select: Module has prerequisites'>
-        <Checkbox.Card radius='md' p='md' style={{ opacity: 0.5 }}>
-          <Group wrap='nowrap' align='flex-start'>
-            <IconLock size={20} />
-            <div style={{ flex: 1 }}>
-              <Group gap='xs' mb='xs'>
-                <Text fw={500} c='dimmed'>
-                  {module.code}
-                </Text>
-                <Badge color='gray' size='sm' variant='light'>
-                  {module.status}
-                </Badge>
-              </Group>
-              <Text size='sm' c='dimmed' mb='xs'>
-                {module.name}
+      <Checkbox.Card radius='md' p='md' style={{ opacity: 0.5 }}>
+        <Group wrap='nowrap' align='flex-start'>
+          <IconLock size={20} />
+          <div style={{ flex: 1 }}>
+            <Flex gap='xs'>
+              <Text fw={500} c='dimmed' ff='monospace'>
+                {module.code}
               </Text>
-              <Text size='xs' c='red' mt='xs'>
-                Prerequisites:{' '}
-                {module.prerequisites?.map((p) => p.code).join(', ')}
-              </Text>
-            </div>
-          </Group>
-        </Checkbox.Card>
-      </Tooltip>
+            </Flex>
+            <Text size='sm' c='dimmed'>
+              {module.name}
+            </Text>
+            <Text size='xs' c='red' mt={2}>
+              Failed Prerequisites:{' '}
+              {module.prerequisites?.map((p) => p.code).join(', ')}
+            </Text>
+          </div>
+        </Group>
+      </Checkbox.Card>
     );
   }
 
-  // Render selectable module using Checkbox.Card
   return (
     <Checkbox.Card
       radius='md'
@@ -83,12 +75,18 @@ export default function ModuleCheckbox({
       <Group wrap='nowrap' align='flex-start'>
         <Checkbox.Indicator />
         <div style={{ flex: 1 }}>
-          <Group gap='xs' mb='xs'>
-            <Text fw={500}>{module.code}</Text>
-            <Badge color={getStatusColor(module.status)} size='sm'>
+          <Flex gap='xs' align='center' justify='space-between' mb='xs'>
+            <Text fw={500} ff='monospace'>
+              {module.code}
+            </Text>
+            <Badge
+              color={getStatusColor(module.status)}
+              size='sm'
+              variant='light'
+            >
               {module.status}
             </Badge>
-          </Group>
+          </Flex>
           <Text size='sm' mb='xs'>
             {module.name}
           </Text>

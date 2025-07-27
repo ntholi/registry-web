@@ -78,16 +78,6 @@ export default function SponsorshipDetails({
 
   return (
     <Stack gap='lg' mt='md'>
-      <div>
-        <Title order={4} mb='sm'>
-          Sponsorship Details
-        </Title>
-        <Text size='sm' c='dimmed'>
-          Please provide your sponsorship information to complete your
-          registration.
-        </Text>
-      </div>
-
       <Card padding='lg' withBorder>
         <Stack gap='md'>
           <Select
@@ -98,7 +88,6 @@ export default function SponsorshipDetails({
             onChange={handleSponsorChange}
             required
             searchable
-            loading={sponsorsLoading}
             disabled={sponsorsLoading}
           />
 
