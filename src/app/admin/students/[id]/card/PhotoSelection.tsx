@@ -1,7 +1,6 @@
 'use client';
 
 import { uploadDocument } from '@/lib/storage';
-import { checkStudentPhotoExists } from '@/server/students/actions';
 import {
   ActionIcon,
   Box,
@@ -20,7 +19,7 @@ import {
   IconCamera,
   IconPhoto,
   IconTrashFilled,
-  IconVideo
+  IconVideo,
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -29,6 +28,7 @@ type PhotoSelectionProps = {
   photoPreview: string | null;
   onPhotoChange: (file: File | null, preview: string | null) => void;
   studentNumber: number;
+  existingPhotoUrl: string | null | undefined;
 };
 
 export default function PhotoSelection({
@@ -36,32 +36,17 @@ export default function PhotoSelection({
   photoPreview,
   onPhotoChange,
   studentNumber,
+  existingPhotoUrl,
 }: PhotoSelectionProps) {
   const [cameraOpened, { open: openCamera, close: closeCamera }] =
     useDisclosure(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [isLoadingExisting, setIsLoadingExisting] = useState(true);
 
   useEffect(() => {
-    const loadExistingPhoto = async () => {
-      if (!studentNumber) return;
-
-      try {
-        setIsLoadingExisting(true);
-        const existingPhotoUrl = await checkStudentPhotoExists(studentNumber);
-
-        if (existingPhotoUrl && !photoPreview) {
-          onPhotoChange(null, existingPhotoUrl);
-        }
-      } catch (error) {
-        console.error('Error loading existing photo:', error);
-      } finally {
-        setIsLoadingExisting(false);
-      }
-    };
-
-    loadExistingPhoto();
-  }, [studentNumber, onPhotoChange, photoPreview]);
+    if (existingPhotoUrl && !photoPreview) {
+      onPhotoChange(null, existingPhotoUrl);
+    }
+  }, [existingPhotoUrl, onPhotoChange, photoPreview]);
 
   const uploadPhoto = async (file: File) => {
     setIsUploading(true);
@@ -112,23 +97,17 @@ export default function PhotoSelection({
             leftSection={<IconPhoto size={16} />}
             value={selectedPhoto}
             onChange={handleFileChange}
-            disabled={isUploading || isLoadingExisting}
+            disabled={isUploading}
           />
           <ActionIcon
             variant='light'
             size={'lg'}
             onClick={openCamera}
-            disabled={isUploading || isLoadingExisting}
+            disabled={isUploading}
           >
             <IconCamera size={16} />
           </ActionIcon>
         </Group>
-
-        {isLoadingExisting && (
-          <Text size='sm' c='gray'>
-            Loading existing photo...
-          </Text>
-        )}
 
         {isUploading && (
           <Text size='sm' c='blue'>
@@ -289,7 +268,7 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
         }
       },
       'image/jpeg',
-      0.9,
+      0.9
     );
   }, [onCapture, stopCamera]);
 
@@ -300,7 +279,7 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
         await startCamera();
       }
     },
-    [stream, startCamera],
+    [stream, startCamera]
   );
 
   useEffect(() => {

@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
 
 type StudentCardPDFProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
-  photoUrl: string;
+  photoUrl: string | null;
 };
 
 export default function StudentCardPDF({

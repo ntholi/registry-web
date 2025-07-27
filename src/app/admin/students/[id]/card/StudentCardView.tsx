@@ -1,6 +1,6 @@
 'use client';
 
-import { getStudent } from '@/server/students/actions';
+import { getStudent, getStudentPhoto } from '@/server/students/actions';
 import {
   Box,
   Flex,
@@ -11,6 +11,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import { IconCamera } from '@tabler/icons-react';
 import { useState } from 'react';
 import StudentCardPrinter from './StudentCardPrinter';
@@ -27,6 +28,15 @@ export default function StudentCardView({
 }: StudentCardViewProps) {
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  const { data: existingPhotoUrl } = useQuery({
+    queryKey: ['studentPhoto', student.stdNo],
+    queryFn: () => getStudentPhoto(student.stdNo),
+    staleTime: 1000 * 60 * 3,
+    enabled: isActive,
+  });
+
+  const finalPhotoUrl = photoPreview || existingPhotoUrl;
 
   const handlePhotoChange = (file: File | null, preview: string | null) => {
     setSelectedPhoto(file);
@@ -46,6 +56,7 @@ export default function StudentCardView({
             photoPreview={photoPreview}
             onPhotoChange={handlePhotoChange}
             studentNumber={student.stdNo}
+            existingPhotoUrl={existingPhotoUrl}
           />
         </Grid.Col>
         <Grid.Col span={6}>
@@ -53,12 +64,12 @@ export default function StudentCardView({
             <Text size='lg' fw={600} mb='sm'>
               Student Card Preview
             </Text>
-            <StudentCardPreview student={student} photoUrl={photoPreview} />
+            <StudentCardPreview student={student} photoUrl={finalPhotoUrl} />
             <Group mt='sm'>
               <StudentCardPrinter
                 student={student}
-                photoUrl={photoPreview}
-                disabled={!photoPreview}
+                photoUrl={finalPhotoUrl}
+                disabled={!finalPhotoUrl}
               />
             </Group>
           </Paper>
@@ -70,7 +81,7 @@ export default function StudentCardView({
 
 type StudentCardPreviewProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
-  photoUrl: string | null;
+  photoUrl: string | null | undefined;
 };
 
 function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
@@ -141,7 +152,7 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
               src={photoUrl}
               alt='Student photo'
               w={90}
-              h={120}
+              h={100}
               fit='cover'
               radius={0}
               style={{ border: '1px solid #000' }}

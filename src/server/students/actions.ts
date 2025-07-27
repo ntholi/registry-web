@@ -50,7 +50,7 @@ export async function getStudentRegistrationData(stdNo: number) {
 export async function findAllStudents(
   page: number = 1,
   search = '',
-  filter?: StudentFilter,
+  filter?: StudentFilter
 ) {
   const params: StudentQueryParams = {
     page,
@@ -61,7 +61,7 @@ export async function findAllStudents(
     params.filter = filter;
   }
   return service.findAll(
-    params as QueryOptions<typeof students> & { filter?: StudentFilter },
+    params as QueryOptions<typeof students> & { filter?: StudentFilter }
   );
 }
 
@@ -79,7 +79,7 @@ export async function deleteStudent(stdNo: number) {
 
 export async function updateStudentUserId(
   stdNo: number,
-  userId: string | null,
+  userId: string | null
 ) {
   const res = service.updateUserId(stdNo, userId);
   revalidatePath(`/admin/students/${stdNo}`);
@@ -88,15 +88,15 @@ export async function updateStudentUserId(
 
 export async function updateStudentProgramStructure(
   stdNo: number,
-  structureId: number,
+  structureId: number
 ) {
   const res = await service.updateProgramStructure(stdNo, structureId);
   revalidatePath(`/admin/students/${stdNo}`);
   return res;
 }
 
-export async function checkStudentPhotoExists(
-  studentNumber: number,
+export async function getStudentPhoto(
+  studentNumber: number
 ): Promise<string | null> {
   try {
     const extensions = ['jpg', 'jpeg', 'png', 'webp'];
