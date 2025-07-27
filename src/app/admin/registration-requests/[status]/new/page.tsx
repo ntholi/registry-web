@@ -1,11 +1,21 @@
-import { semesterModules, StudentModuleStatus } from '@/db/schema';
+import { modules, semesterModules, StudentModuleStatus } from '@/db/schema';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
 import { Box } from '@mantine/core';
 import Form from '../Form';
 
-type Module = typeof semesterModules.$inferSelect;
-export interface SelectedModule extends Module {
+type Module = typeof modules.$inferSelect;
+
+type SemesterModule = typeof semesterModules.$inferSelect & {
+  semesterNumber?: number;
+  semesterName?: string;
+  module: Module;
+};
+
+interface SelectedModule extends SemesterModule {
   status: StudentModuleStatus;
+  semesterNumber?: number;
+  semesterName?: string;
 }
 
 export type RegistrationRequest = {
@@ -29,12 +39,19 @@ export default async function NewPage() {
       semesterNumber,
       selectedModules,
     } = values;
+
+    const currentTerm = await getCurrentTerm();
+    if (!currentTerm) {
+      throw new Error('No active term found');
+    }
+
     const res = await createRegistrationWithModules({
       stdNo: stdNo,
       semesterNumber,
       semesterStatus,
       sponsorId,
       borrowerNo,
+      termId: currentTerm.id,
       modules:
         selectedModules?.map((module: SelectedModule) => ({
           moduleId: module.id,
@@ -42,7 +59,15 @@ export default async function NewPage() {
         })) || [],
     });
 
-    return res.request;
+    return {
+      id: res.request.id,
+      stdNo: res.request.stdNo,
+      semesterStatus: res.request.semesterStatus,
+      sponsorId: res.request.sponsorId,
+      borrowerNo: borrowerNo,
+      semesterNumber: res.request.semesterNumber,
+      selectedModules: values.selectedModules,
+    };
   }
 
   return (
