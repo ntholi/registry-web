@@ -7,9 +7,13 @@ import {
   StudentModuleStatus,
   studentModuleStatusEnum,
 } from '@/db/schema';
+import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatSemester } from '@/lib/utils';
+import { getStudentSemesterModules } from '@/server/registration-requests/actions';
 import { getModulesForStructure } from '@/server/semester-modules/actions';
-import { getCurrentTerm, getAllTerms } from '@/server/terms/actions';
+import { getStudent } from '@/server/students/actions';
+import { getAllTerms } from '@/server/terms/actions';
+import { getAcademicRemarks } from '@/utils/grades';
 import {
   ActionIcon,
   Button,
@@ -28,7 +32,6 @@ import { useState } from 'react';
 import StdNoInput from '../../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
-import { useCurrentTerm } from '@/hooks/use-current-term';
 
 type Module = typeof modules.$inferSelect;
 
@@ -74,7 +77,9 @@ export default function RegistrationRequestForm({
   structureId: initialStructureId,
 }: Props) {
   const router = useRouter();
-  const [structureId] = useState<number | null>(initialStructureId ?? null);
+  const [structureId, setStructureId] = useState<number | null>(
+    initialStructureId ?? null
+  );
   const [isLoadingModules, setIsLoadingModules] = useState(false);
 
   const { currentTerm } = useCurrentTerm();
@@ -121,45 +126,91 @@ export default function RegistrationRequestForm({
 
   const handleStudentSelect = async (stdNo: number) => {
     if (stdNo) {
-      //   const student = await getStudent(stdNo);
-      //   if (student && student.structureId) {
-      //     setStructureId(student.structureId);
-      //   } else {
-      //     setStructureId(null);
-      //   }
-      // } else {
-      //   setStructureId(null);
+      try {
+        const student = await getStudent(stdNo);
+        if (student && student.programs.length > 0) {
+          const activeProgram = student.programs.find(
+            (p) => p.status === 'Active'
+          );
+          if (activeProgram) {
+            setStructureId(activeProgram.structureId);
+          } else {
+            setStructureId(null);
+          }
+        } else {
+          setStructureId(null);
+        }
+      } catch (error) {
+        console.error('Error fetching student:', error);
+        setStructureId(null);
+      }
+    } else {
+      setStructureId(null);
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLoadModules = async (stdNo: number, form: any) => {
-    console.log('Please delete this line:', form); //TODO: DELETE THIS!!!
     if (!stdNo || !structureId) return;
 
     setIsLoadingModules(true);
-    // try {
-    //   const semesterData = await getStudentSemesterModules(stdNo, structureId);
-    //   const mappedModules = semesterData.modules.map((moduleData) => ({
-    //     id: moduleData.id,
-    //     type: moduleData.type,
-    //     credits: moduleData.credits,
-    //     status: moduleData.status as StudentModuleStatus,
-    //     module: {
-    //       id: moduleData.id,
-    //       code: moduleData.code,
-    //       name: moduleData.name,
-    //     },
-    //   }));
+    try {
+      const basicStudent = await getStudent(stdNo);
+      if (!basicStudent) {
+        console.error('Student not found');
+        return;
+      }
 
-    //   form.setFieldValue('selectedModules', mappedModules);
-    //   form.setFieldValue('semesterNumber', semesterData.semesterNo.toString());
-    //   form.setFieldValue('semesterStatus', semesterData.semesterStatus);
-    // } catch (error) {
-    //   console.error('Error loading student modules:', error);
-    // } finally {
-    //   setIsLoadingModules(false);
-    // }
+      const student = await import('@/server/students/actions').then(
+        ({ getStudentByUserId }) => getStudentByUserId(basicStudent.userId)
+      );
+
+      if (!student) {
+        console.error('Student data not found');
+        return;
+      }
+
+      const academicRemarks = await getAcademicRemarks(student.programs);
+      const semesterData = await getStudentSemesterModules(
+        student,
+        academicRemarks
+      );
+
+      if (semesterData.error) {
+        console.error('Error loading student modules:', semesterData.error);
+        return;
+      }
+
+      const mappedModules = semesterData.modules.map((moduleData) => ({
+        id: moduleData.semesterModuleId,
+        type: moduleData.type,
+        credits: moduleData.credits,
+        status: moduleData.status as StudentModuleStatus,
+        semesterModuleId: moduleData.semesterModuleId,
+        semesterNumber: moduleData.semesterNo,
+        semesterName: `Semester ${moduleData.semesterNo}`,
+        module: {
+          id: moduleData.semesterModuleId,
+          code: moduleData.code,
+          name: moduleData.name,
+        },
+      }));
+
+      const { determineSemesterStatus } = await import(
+        '@/server/registration-requests/actions'
+      );
+      const { semesterNo, status } = await determineSemesterStatus(
+        semesterData.modules,
+        student
+      );
+
+      form.setFieldValue('selectedModules', mappedModules);
+      form.setFieldValue('semesterNumber', semesterNo.toString());
+      form.setFieldValue('semesterStatus', status);
+    } catch (error) {
+      console.error('Error loading student modules:', error);
+    } finally {
+      setIsLoadingModules(false);
+    }
   };
 
   return (

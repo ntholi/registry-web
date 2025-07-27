@@ -88,7 +88,7 @@ export default async function page() {
 
         <Divider />
 
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
           {registrationHistory.map((request) => {
             return (
               <Card

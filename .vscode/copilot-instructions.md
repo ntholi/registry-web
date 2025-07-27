@@ -1,11 +1,20 @@
-- Only use pnpm not npm or yarn
-- the server code is stored in src/server and the pattern I use for all server code is actions.ts -> service.ts -> repository ts. Never use api route handlers, always use actions.ts files to handle server code
-- action.ts only contains calls to service.ts methods, service.ts contains business logic and calls to repository.ts methods, and repository.ts contains direct database calls using drizzle
-- service.ts files should make use of withAuth.ts for authorization and always creates an instance of the service class using serviceWrapper.ts
-- When creating types from the schema file, please use the syntax: `type TableName = typeof tableName.$inferSelect`.
-- When writting drizzle queries, use the db.query method and try to only return the necessary columns
-- When calling server code in the client components, use tanstack query and strictly call code in actions.ts files
-  When creating modals if possible the button/action-icon should be extracted to the same file/component as the modal to avoid prop drilling and make it easier to manage state
-- When breaking up components or creating additional functionality, put the new component in the same directory as the parent component, unless the component is a shared component, then put it in src/app/components
-- Use mantine for UI components, and use the latest version of mantine, and create responsive very beautiful but minimalistic UI, avoid adding unnecessary colors, use predefined mantine colors, mostly stick with c='colorName' Keep the ui very professional looking designs and make sure it looks good both on dark and light themes
-- Don't add comments to the code you generate
+- Use **pnpm** only; never npm or yarn.
+- Store all server code in `src/server` following the file pattern:
+  1. `actions.ts` (handles requests)
+  2. then `service.ts` (business logic, uses `withAuth.ts`, instantiated via `serviceWrapper.ts`)
+  3. then `repository.ts` (direct DB calls with Drizzle)
+
+- **Never** use API route handlers; call server code via `actions.ts` only.
+- Define types from schema as:
+
+  ```ts
+  type TableName = typeof tableName.$inferSelect;
+  ```
+
+- Write Drizzle queries with `db.query` and select only needed columns.
+- In client components, fetch via TanStack Query, invoking `actions.ts` methods exclusively.
+- For modals, co-locate trigger (button/action-icon) with the modal component to avoid prop drilling.
+- Place new components alongside their parent unless shared; shared components go in `src/app/components`.
+- Use the latest Mantine for responsive, minimal, professional UIs. Stick to predefined colors (`c="colorName"`), support light/dark themes.
+- Never add comments in generated code.
+- Avoid the `any` type completely.
