@@ -137,7 +137,6 @@ export default function NewRegistrationPage() {
 
   const nextStep = () => {
     if (activeStep === 0 && selectedModules.length > 0) {
-      // Auto-set semester data from the query result
       if (semesterStatus) {
         setSemesterData(semesterStatus);
       }
@@ -205,7 +204,6 @@ export default function NewRegistrationPage() {
             selectedModules={selectedModules}
             availableModules={availableModules}
             loading={semesterStatusLoading}
-            onSemesterDataChange={setSemesterData}
           />
         );
       case 2:

@@ -7,8 +7,6 @@ import {
   Badge,
   LoadingOverlay,
   Alert,
-  Title,
-  Button,
   SimpleGrid,
 } from '@mantine/core';
 import { IconInfoCircle, IconCheck } from '@tabler/icons-react';
@@ -38,10 +36,6 @@ interface SemesterConfirmationProps {
   selectedModules: SelectedModule[];
   availableModules: ModuleWithStatus[];
   loading: boolean;
-  onSemesterDataChange: (data: {
-    semesterNo: number;
-    status: 'Active' | 'Repeat';
-  }) => void;
 }
 
 export default function SemesterConfirmation({
@@ -49,7 +43,6 @@ export default function SemesterConfirmation({
   selectedModules,
   availableModules,
   loading,
-  onSemesterDataChange,
 }: SemesterConfirmationProps) {
   if (loading) {
     return (
@@ -91,23 +84,8 @@ export default function SemesterConfirmation({
     return status === 'Active' ? 'blue' : 'orange';
   };
 
-  const handleConfirmSemester = () => {
-    if (semesterData) {
-      onSemesterDataChange(semesterData);
-    }
-  };
-
   return (
     <Stack gap='lg' mt='md'>
-      <div>
-        <Title order={4} mb='sm'>
-          Confirm Your Semester
-        </Title>
-        <Text size='sm' c='dimmed'>
-          Review your semester status and selected modules before proceeding.
-        </Text>
-      </div>
-
       <Card padding='lg' withBorder>
         <Stack gap='md'>
           <Group justify='space-between'>
@@ -181,20 +159,10 @@ export default function SemesterConfirmation({
       </div>
 
       <Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
-        Please review the information above carefully. Once you proceed to the
-        next step, you will enter your sponsorship details to complete the
-        registration.
+        Please review the information above carefully, make sure it is correct.
+        Once you proceed to the next step, you will enter your sponsorship
+        details to complete the registration.
       </Alert>
-
-      <Group justify='center'>
-        <Button
-          onClick={handleConfirmSemester}
-          leftSection={<IconCheck size={16} />}
-          disabled={!semesterData}
-        >
-          Confirm Semester Details
-        </Button>
-      </Group>
     </Stack>
   );
 }
