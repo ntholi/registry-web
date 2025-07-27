@@ -8,9 +8,12 @@ import {
   LoadingOverlay,
   Alert,
   SimpleGrid,
+  Title,
+  Paper,
 } from '@mantine/core';
 import { IconInfoCircle, IconCheck } from '@tabler/icons-react';
 import { StudentModuleStatus } from '@/db/schema';
+import { formatSemester } from '@/lib/utils';
 
 type ModuleWithStatus = {
   semesterModuleId: number;
@@ -54,7 +57,7 @@ export default function SemesterConfirmation({
 
   if (!semesterData) {
     return (
-      <Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
+      <Alert icon={<IconInfoCircle size={16} />} color='orange'>
         Semester information is being calculated based on your selected
         modules...
       </Alert>
@@ -85,83 +88,76 @@ export default function SemesterConfirmation({
   };
 
   return (
-    <Stack gap='lg' mt='md'>
-      <Card padding='lg' withBorder>
+    <Stack gap='lg'>
+      <Paper withBorder p='lg'>
         <Stack gap='md'>
-          <Group justify='space-between'>
-            <Text fw={500} size='lg'>
-              Semester Information
-            </Text>
-            <Badge color={getStatusColor(semesterData.status)} size='lg'>
-              {semesterData.status}
-            </Badge>
+          <Group justify='space-between' align='center'>
+            <Title order={3} size={'h3'}>
+              {formatSemester(semesterData.semesterNo)}
+            </Title>
           </Group>
 
-          <Group>
-            <Text>Semester Number:</Text>
-            <Text fw={500}>{semesterData.semesterNo}</Text>
-          </Group>
-
-          <Group>
-            <Text>Total Credits:</Text>
-            <Text fw={500}>{totalCredits}</Text>
-          </Group>
-
-          <Group>
-            <Text>Total Modules:</Text>
-            <Text fw={500}>{selectedModules.length}</Text>
-          </Group>
+          <SimpleGrid cols={3} spacing='md'>
+            <div>
+              <Text size='sm' c='dimmed'>
+                Credits
+              </Text>
+              <Text fw={700}>{totalCredits}</Text>
+            </div>
+            <div>
+              <Text size='sm' c='dimmed'>
+                Modules
+              </Text>
+              <Text fw={700}>{selectedModules.length}</Text>
+            </div>
+            <div>
+              <Text size='sm' c='dimmed'>
+                Status
+              </Text>
+              <Text fw={700}>{semesterData.status}</Text>
+            </div>
+          </SimpleGrid>
 
           {semesterData.status === 'Repeat' && (
-            <Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
-              You are repeating this semester. This means you have previously
-              attempted some of these modules and are retaking them.
+            <Alert
+              icon={<IconInfoCircle size={16} />}
+              color='orange'
+              variant='light'
+            >
+              You are repeating this semester and retaking some modules.
             </Alert>
           )}
         </Stack>
-      </Card>
+      </Paper>
 
       <div>
-        <Text fw={500} mb='sm'>
-          Selected Modules Summary
-        </Text>
+        <Title order={4} mb='md'>
+          Selected Modules
+        </Title>
+
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing='sm'>
           {selectedModuleDetails.map(
             (module) =>
               module && (
-                <Card key={module.semesterModuleId} padding='md' withBorder>
-                  <Group justify='space-between' align='flex-start'>
-                    <div style={{ flex: 1 }}>
-                      <Group gap='xs' mb='xs'>
-                        <IconCheck size={16} color='green' />
-                        <Text fw={500}>{module.code}</Text>
-                        <Badge color='blue' size='sm'>
-                          {module.status}
-                        </Badge>
-                      </Group>
-                      <Text size='sm' mb='xs'>
-                        {module.name}
-                      </Text>
-                      <Group gap='xs'>
-                        <Text size='xs' c='dimmed'>
-                          Credits: {module.credits}
-                        </Text>
-                        <Text size='xs' c='dimmed'>
-                          Type: {module.type}
-                        </Text>
-                      </Group>
-                    </div>
+                <Card key={module.semesterModuleId} withBorder p='md'>
+                  <Group justify='space-between' mb='xs'>
+                    <Text fw={600}>{module.code}</Text>
+                    <Badge size='xs' color='gray'>
+                      {module.status}
+                    </Badge>
                   </Group>
+                  <Text size='sm' mb='xs'>
+                    {module.name}
+                  </Text>
                 </Card>
               )
           )}
         </SimpleGrid>
       </div>
 
-      <Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
-        Please review the information above carefully, make sure it is correct.
-        Once you proceed to the next step, you will enter your sponsorship
-        details to complete the registration.
+      <Alert icon={<IconInfoCircle size={16} />} color='blue'>
+        Please review the information above carefully. It is your responsibility
+        to ensure all details are correct before proceeding.
       </Alert>
     </Stack>
   );
