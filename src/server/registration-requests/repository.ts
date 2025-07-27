@@ -5,6 +5,7 @@ import {
   registrationRequests,
   requestedModules,
   sponsoredStudents,
+  sponsoredTerms,
   studentPrograms,
   terms,
 } from '@/db/schema';
@@ -37,7 +38,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
     const whereCondition = like(
       registrationRequests.stdNo,
-      `%${params.search}%`,
+      `%${params.search}%`
     );
 
     const data = await db.query.registrationRequests.findMany({
@@ -99,7 +100,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
     return db.query.registrationRequests.findFirst({
       where: and(
         eq(registrationRequests.stdNo, stdNo),
-        eq(registrationRequests.termId, termId),
+        eq(registrationRequests.termId, termId)
       ),
       with: {
         requestedModules: {
@@ -117,7 +118,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
   async findByStatus(
     status: 'pending' | 'registered' | 'rejected' | 'approved',
-    params: QueryOptions<typeof registrationRequests>,
+    params: QueryOptions<typeof registrationRequests>
   ) {
     const { offset, limit } = this.buildQueryCriteria(params);
 
@@ -127,7 +128,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
         eq(registrationRequests.status, status),
         params.search
           ? like(registrationRequests.stdNo, `%${params.search}%`)
-          : undefined,
+          : undefined
       );
     } else if (status === 'approved') {
       // For approved status, require ALL clearances to be approved
@@ -145,12 +146,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
                     and(
                       eq(
                         registrationClearances.registrationRequestId,
-                        registrationRequests.id,
+                        registrationRequests.id
                       ),
-                      ne(registrationClearances.status, 'approved'),
-                    ),
-                  ),
-              ),
+                      ne(registrationClearances.status, 'approved')
+                    )
+                  )
+              )
             ),
             exists(
               db
@@ -159,19 +160,19 @@ export default class RegistrationRequestRepository extends BaseRepository<
                 .where(
                   eq(
                     registrationClearances.registrationRequestId,
-                    registrationRequests.id,
-                  ),
-                ),
+                    registrationRequests.id
+                  )
+                )
             ),
-            ne(registrationRequests.status, 'registered'),
-          ),
+            ne(registrationRequests.status, 'registered')
+          )
         );
 
       whereCondition = and(
         inArray(registrationRequests.id, approvedRequestIds),
         params.search
           ? like(registrationRequests.stdNo, `%${params.search}%`)
-          : undefined,
+          : undefined
       );
     } else {
       whereCondition = and(
@@ -180,11 +181,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
           db
             .select({ id: registrationClearances.registrationRequestId })
             .from(registrationClearances)
-            .where(eq(registrationClearances.status, status)),
+            .where(eq(registrationClearances.status, status))
         ),
         params.search
           ? like(registrationRequests.stdNo, `%${params.search}%`)
-          : undefined,
+          : undefined
       );
     }
 
@@ -213,7 +214,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
   }
 
   async countByStatus(
-    status: 'pending' | 'registered' | 'rejected' | 'approved',
+    status: 'pending' | 'registered' | 'rejected' | 'approved'
   ) {
     if (status === 'registered') {
       const [result] = await db
@@ -237,12 +238,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
                     and(
                       eq(
                         registrationClearances.registrationRequestId,
-                        registrationRequests.id,
+                        registrationRequests.id
                       ),
-                      ne(registrationClearances.status, 'approved'),
-                    ),
-                  ),
-              ),
+                      ne(registrationClearances.status, 'approved')
+                    )
+                  )
+              )
             ),
             exists(
               db
@@ -251,12 +252,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
                 .where(
                   eq(
                     registrationClearances.registrationRequestId,
-                    registrationRequests.id,
-                  ),
-                ),
+                    registrationRequests.id
+                  )
+                )
             ),
-            ne(registrationRequests.status, 'registered'),
-          ),
+            ne(registrationRequests.status, 'registered')
+          )
         );
       return result.value;
     } else {
@@ -272,12 +273,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
                 and(
                   eq(
                     registrationClearances.registrationRequestId,
-                    registrationRequests.id,
+                    registrationRequests.id
                   ),
-                  eq(registrationClearances.status, status),
-                ),
-              ),
-          ),
+                  eq(registrationClearances.status, status)
+                )
+              )
+          )
         );
       return result.value;
     }
@@ -304,7 +305,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     tx: any,
     registrationRequestId: number,
-    modules: { moduleId: number; moduleStatus: StudentModuleStatus }[],
+    modules: { moduleId: number; moduleStatus: StudentModuleStatus }[]
   ) {
     if (!modules.length) throw new Error('No modules selected');
     if (modules.length > MAX_REG_MODULES)
@@ -339,7 +340,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
       if (!student) {
         throw new Error('Student not found');
       }
-      await tx
+      const [sponsoredStudent] = await tx
         .insert(sponsoredStudents)
         .values({
           sponsorId: data.sponsorId,
@@ -347,13 +348,21 @@ export default class RegistrationRequestRepository extends BaseRepository<
           borrowerNo: data.borrowerNo,
         })
         .onConflictDoUpdate({
-          target: [sponsoredStudents.stdNo],
+          target: [sponsoredStudents.sponsorId, sponsoredStudents.stdNo],
           set: {
             borrowerNo: data.borrowerNo,
-            sponsorId: data.sponsorId,
             updatedAt: new Date(),
           },
-        });
+        })
+        .returning();
+
+      await tx
+        .insert(sponsoredTerms)
+        .values({
+          sponsoredStudentId: sponsoredStudent.id,
+          termId: data.termId,
+        })
+        .onConflictDoNothing();
 
       const [request] = await tx
         .insert(registrationRequests)
@@ -381,7 +390,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
       const modules = await this.handleRegistrationModules(
         tx,
         request.id,
-        data.modules,
+        data.modules
       );
 
       return { request, modules };
@@ -392,7 +401,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
     registrationRequestId: number,
     modules: { id: number; status: StudentModuleStatus }[],
     semesterNumber?: number,
-    semesterStatus?: 'Active' | 'Repeat',
+    semesterStatus?: 'Active' | 'Repeat'
   ) {
     return db.transaction(async (tx) => {
       await tx
@@ -414,10 +423,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
           and(
             eq(
               registrationClearances.registrationRequestId,
-              registrationRequestId,
+              registrationRequestId
             ),
-            eq(registrationClearances.department, 'finance'),
-          ),
+            eq(registrationClearances.department, 'finance')
+          )
         );
 
       const convertedModules = modules.map((module) => ({
@@ -428,7 +437,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
       return this.handleRegistrationModules(
         tx,
         registrationRequestId,
-        convertedModules,
+        convertedModules
       );
     });
   }
@@ -450,7 +459,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
       .innerJoin(terms, eq(registrationRequests.termId, terms.id))
       .leftJoin(
         requestedModules,
-        eq(requestedModules.registrationRequestId, registrationRequests.id),
+        eq(requestedModules.registrationRequestId, registrationRequests.id)
       )
       .where(eq(registrationRequests.stdNo, stdNo))
       .groupBy(
@@ -459,7 +468,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
         registrationRequests.semesterNumber,
         registrationRequests.createdAt,
         terms.id,
-        terms.name,
+        terms.name
       )
       .orderBy(desc(registrationRequests.createdAt));
   }

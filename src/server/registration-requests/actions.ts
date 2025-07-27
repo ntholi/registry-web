@@ -102,13 +102,10 @@ export async function createRegistrationWithModules(data: {
   sponsorId: number;
   semesterNumber: number;
   semesterStatus: 'Active' | 'Repeat';
+  termId: number;
   borrowerNo?: string;
 }) {
-  const term = await getCurrentTerm();
-  return service.createRegistrationWithModules({
-    ...data,
-    termId: term.id,
-  });
+  return service.createRegistrationWithModules(data);
 }
 
 export async function updateRegistrationWithModules(

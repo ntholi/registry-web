@@ -62,7 +62,6 @@ export default function NewRegistrationPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { student, remarks, isLoading: studentLoading } = useUserStudent();
-
   const [activeStep, setActiveStep] = useState(0);
   const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
   const [semesterData, setSemesterData] = useState<{
@@ -71,8 +70,8 @@ export default function NewRegistrationPage() {
   } | null>(null);
   const [sponsorshipData, setSponsorshipData] =
     useState<SponsorshipData | null>(null);
-
   const { currentTerm } = useCurrentTerm();
+
   const { data: moduleResult, isLoading: modulesLoading } = useQuery({
     queryKey: ['student-semester-modules', student?.stdNo],
     queryFn: async () => {
@@ -115,6 +114,7 @@ export default function NewRegistrationPage() {
         semesterNumber: semesterData.semesterNo,
         semesterStatus: semesterData.status,
         borrowerNo: sponsorshipData.borrowerNo,
+        termId: currentTerm?.id!,
       });
     },
     onSuccess: () => {
