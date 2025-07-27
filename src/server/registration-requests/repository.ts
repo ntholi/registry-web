@@ -442,6 +442,72 @@ export default class RegistrationRequestRepository extends BaseRepository<
     });
   }
 
+  async updateRegistrationWithModulesAndSponsorship(
+    registrationRequestId: number,
+    modules: { id: number; status: StudentModuleStatus }[],
+    sponsorshipData: { sponsorId: number; borrowerNo?: string },
+    semesterNumber?: number,
+    semesterStatus?: 'Active' | 'Repeat'
+  ) {
+    return db.transaction(async (tx) => {
+      const registration = await tx.query.registrationRequests.findFirst({
+        where: eq(registrationRequests.id, registrationRequestId),
+      });
+
+      if (!registration) {
+        throw new Error('Registration request not found');
+      }
+
+      await tx
+        .update(registrationRequests)
+        .set({
+          status: 'pending',
+          updatedAt: new Date(),
+          semesterNumber,
+          semesterStatus,
+          sponsorId: sponsorshipData.sponsorId,
+        })
+        .where(eq(registrationRequests.id, registrationRequestId));
+
+      await tx
+        .update(sponsoredStudents)
+        .set({
+          sponsorId: sponsorshipData.sponsorId,
+          borrowerNo: sponsorshipData.borrowerNo,
+          updatedAt: new Date(),
+        })
+        .where(eq(sponsoredStudents.stdNo, registration.stdNo));
+
+      await tx
+        .update(registrationClearances)
+        .set({
+          status: 'pending',
+        })
+        .where(
+          and(
+            eq(
+              registrationClearances.registrationRequestId,
+              registrationRequestId
+            ),
+            eq(registrationClearances.department, 'finance')
+          )
+        );
+
+      const convertedModules = modules.map((module) => ({
+        moduleId: module.id,
+        moduleStatus: module.status,
+      }));
+
+      const moduleResults = await this.handleRegistrationModules(
+        tx,
+        registrationRequestId,
+        convertedModules
+      );
+
+      return { request: registration, modules: moduleResults };
+    });
+  }
+
   async getHistory(stdNo: number) {
     return db
       .select({

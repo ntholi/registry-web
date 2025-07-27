@@ -167,6 +167,31 @@ class RegistrationRequestService {
     );
   }
 
+  async updateRegistrationWithModulesAndSponsorship(
+    registrationRequestId: number,
+    modules: { id: number; status: StudentModuleStatus }[],
+    sponsorshipData: { sponsorId: number; borrowerNo?: string },
+    semesterNumber?: number,
+    semesterStatus?: 'Active' | 'Repeat'
+  ) {
+    return withAuth(async () => {
+      const registration = await this.repository.findById(
+        registrationRequestId
+      );
+      if (!registration) {
+        throw new Error('Registration request not found');
+      }
+
+      return this.repository.updateRegistrationWithModulesAndSponsorship(
+        registrationRequestId,
+        modules,
+        sponsorshipData,
+        semesterNumber,
+        semesterStatus
+      );
+    }, ['student', 'registry']);
+  }
+
   async getStudentSemesterModules(student: Student, remarks: AcademicRemarks) {
     return withAuth(async () => {
       const { getStudentSemesterModulesLogic } = await import(

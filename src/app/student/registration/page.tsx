@@ -22,12 +22,15 @@ import {
 import {
   IconCalendar,
   IconChevronRight,
+  IconEdit,
   IconFileText,
   IconPlus,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden } from 'next/navigation';
 import { getStatusColor } from '../utils/colors';
+import SponsorshipQuickUpdate from './components/SponsorshipUpdateModal';
+import StudentSponsorshipInfo from './components/StudentSponsorshipInfo';
 
 export default async function page() {
   const session = await auth();
@@ -48,15 +51,18 @@ export default async function page() {
   return (
     <Container size='md'>
       <Stack gap='xl'>
-        <Box>
-          <Title order={1} size='h2' fw={600} mb='xs'>
-            Registration Requests
-          </Title>
-          <Text c='dimmed' size='sm'>
-            View and track all your registration requests and their current
-            status
-          </Text>
-        </Box>
+        <Group justify='space-between' align='flex-start'>
+          <Box>
+            <Title order={1} size='h2' fw={600} mb='xs'>
+              Registration Requests
+            </Title>
+            <Text c='dimmed' size='sm'>
+              View and track all your registration requests and their current
+              status
+            </Text>
+          </Box>
+          <SponsorshipQuickUpdate />
+        </Group>
 
         {!hasCurrentRegistration && (
           <Card withBorder>
@@ -83,60 +89,94 @@ export default async function page() {
           </Card>
         )}
 
+        <StudentSponsorshipInfo />
+
         <Divider />
 
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
-          {registrationHistory.map((request) => (
-            <Card
-              withBorder
-              key={request.id}
-              component={Link}
-              href={`/student/registration/${request.id}`}
-            >
-              <CardSection p='xs'>
-                <Flex gap='xs' align='center' justify='space-between'>
-                  <Group>
-                    <ThemeIcon variant='light' color='gray'>
-                      <IconCalendar size={'1rem'} />
-                    </ThemeIcon>
-                    <Text fw={600} size='lg'>
-                      {request.term.name}
-                    </Text>
-                  </Group>
-                  <Badge
-                    color={getStatusColor(request.status)}
-                    variant='light'
-                    size='sm'
-                  >
-                    {request.status}
-                  </Badge>
-                </Flex>
-              </CardSection>
+          {registrationHistory.map((request) => {
+            const isClickable = request.status !== 'pending';
+            const cardProps = isClickable
+              ? {
+                  component: Link as any,
+                  href: `/student/registration/${request.id}`,
+                }
+              : {};
 
-              <Box mt='xs'>
-                <Text size='sm'>{formatSemester(request.semesterNumber)}</Text>
-                <Text size='sm' c='dimmed'>
-                  {request.requestedModulesCount} modules
-                </Text>
-              </Box>
+            return (
+              <Card withBorder key={request.id} {...cardProps}>
+                <CardSection p='xs'>
+                  <Flex gap='xs' align='center' justify='space-between'>
+                    <Group>
+                      <ThemeIcon variant='light' color='gray'>
+                        <IconCalendar size={'1rem'} />
+                      </ThemeIcon>
+                      <Text fw={600} size='lg'>
+                        {request.term.name}
+                      </Text>
+                    </Group>
+                    <Badge
+                      color={getStatusColor(request.status)}
+                      variant='light'
+                      size='sm'
+                    >
+                      {request.status}
+                    </Badge>
+                  </Flex>
+                </CardSection>
 
-              <CardSection px='xs' mt='xs' py='xs' withBorder>
-                <Flex gap='xs' align='center' justify='space-between'>
-                  <Text size='xs' c='dimmed' mt='xs'>
-                    Submitted: {formatDateTime(request.createdAt)}
+                <Box mt='xs'>
+                  <Text size='sm'>
+                    {formatSemester(request.semesterNumber)}
                   </Text>
-                  <Group>
-                    <Text size='xs' c='dimmed' fw={500}>
-                      View Details
+                  <Text size='sm' c='dimmed'>
+                    {request.requestedModulesCount} modules
+                  </Text>
+                </Box>
+
+                <CardSection px='xs' mt='xs' py='xs' withBorder>
+                  <Flex gap='xs' align='center' justify='space-between'>
+                    <Text size='xs' c='dimmed' mt='xs'>
+                      Submitted: {formatDateTime(request.createdAt)}
                     </Text>
-                    <ActionIcon variant='subtle' color='gray' size='sm'>
-                      <IconChevronRight size={16} />
-                    </ActionIcon>
-                  </Group>
-                </Flex>
-              </CardSection>
-            </Card>
-          ))}
+                    <Group>
+                      {request.status === 'pending' ? (
+                        <>
+                          <Button
+                            component={Link}
+                            href={`/student/registration/${request.id}/edit`}
+                            variant='outline'
+                            size='xs'
+                            leftSection={<IconEdit size={14} />}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            component={Link}
+                            href={`/student/registration/${request.id}`}
+                            variant='subtle'
+                            size='xs'
+                            rightSection={<IconChevronRight size={14} />}
+                          >
+                            View
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Text size='xs' c='dimmed' fw={500}>
+                            View Details
+                          </Text>
+                          <ActionIcon variant='subtle' color='gray' size='sm'>
+                            <IconChevronRight size={16} />
+                          </ActionIcon>
+                        </>
+                      )}
+                    </Group>
+                  </Flex>
+                </CardSection>
+              </Card>
+            );
+          })}
 
           {registrationHistory.length === 0 && (
             <Card shadow='sm' padding='xl' radius='md' withBorder>

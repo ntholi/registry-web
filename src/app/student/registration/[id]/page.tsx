@@ -5,6 +5,7 @@ import { getStatusColor } from '@/app/student/utils/colors';
 import {
   Badge,
   Box,
+  Button,
   Container,
   Divider,
   Group,
@@ -18,8 +19,15 @@ import {
   ThemeIcon,
   Title,
 } from '@mantine/core';
-import { IconBooks, IconCheck, IconClock, IconX } from '@tabler/icons-react';
+import {
+  IconBooks,
+  IconCheck,
+  IconClock,
+  IconEdit,
+  IconX,
+} from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
+import Link from 'next/link';
 import ClearanceStatusView from './ClearanceStatusView';
 import ModulesView from './ModulesView';
 
@@ -92,13 +100,26 @@ export default async function page({ params }: Props) {
                   {formatSemester(registration.semesterNumber)}
                 </Text>
               </Box>
-              <Badge
-                radius='xs'
-                color={getStatusColor(registration.status)}
-                variant='light'
-              >
-                {registration.status}
-              </Badge>
+              <Group gap='sm' align='center'>
+                {registration.status === 'pending' && (
+                  <Button
+                    component={Link}
+                    href={`/student/registration/${registration.id}/edit`}
+                    variant='outline'
+                    size='sm'
+                    leftSection={<IconEdit size={16} />}
+                  >
+                    Edit Registration
+                  </Button>
+                )}
+                <Badge
+                  radius='xs'
+                  color={getStatusColor(registration.status)}
+                  variant='light'
+                >
+                  {registration.status}
+                </Badge>
+              </Group>
             </Group>
 
             {registration.message && (

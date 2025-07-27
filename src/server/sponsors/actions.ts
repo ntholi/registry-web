@@ -58,3 +58,12 @@ export async function updateStudentSponsorship(data: {
     borrowerNo: data.borrowerNo,
   });
 }
+
+export async function updateStudentSponsorshipById(data: {
+  stdNo: number;
+  termId: number;
+  sponsorId: number;
+  borrowerNo?: string;
+}) {
+  return service.updateStudentSponsorship(data);
+}

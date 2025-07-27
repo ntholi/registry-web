@@ -122,6 +122,22 @@ export async function updateRegistrationWithModules(
   );
 }
 
+export async function updateRegistrationWithModulesAndSponsorship(
+  registrationRequestId: number,
+  modules: { id: number; status: StudentModuleStatus }[],
+  sponsorshipData: { sponsorId: number; borrowerNo?: string },
+  semesterNumber?: number,
+  semesterStatus?: 'Active' | 'Repeat'
+) {
+  return service.updateRegistrationWithModulesAndSponsorship(
+    registrationRequestId,
+    modules,
+    sponsorshipData,
+    semesterNumber,
+    semesterStatus
+  );
+}
+
 export async function getStudentRegistrationHistory(stdNo: number) {
   return service.getHistory(stdNo);
 }
