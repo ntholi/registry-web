@@ -58,10 +58,8 @@ export default function UpdateSummary({
   semesterData,
 }: UpdateSummaryProps) {
   const getModuleName = (moduleId: number) => {
-    const module = availableModules.find(
-      (m) => m.semesterModuleId === moduleId
-    );
-    return module ? `${module.code} - ${module.name}` : `Module ${moduleId}`;
+    const mod = availableModules.find((m) => m.semesterModuleId === moduleId);
+    return mod ? `${mod.code} - ${mod.name}` : `Module ${moduleId}`;
   };
 
   const getSponsorName = (sponsorId: number) => {

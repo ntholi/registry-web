@@ -160,8 +160,8 @@ export default function SponsorshipDetails({
           {sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
             <span> For NMDS sponsorship, the borrower number is required.</span>
           )}{' '}
-          If you're unsure about your sponsor or borrower number, please contact
-          the finance office.
+          If you&apos;re unsure about your sponsor or borrower number, please
+          contact the finance office.
         </Text>
       </Alert>
 

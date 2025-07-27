@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Accordion,
-  Box,
-  Container,
-  Group,
-  Paper,
-  Skeleton,
-  Stack,
-  Title,
-} from '@mantine/core';
+import { Box, Container, Group, Paper, Skeleton, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 
 function DesktopTableSkeleton() {

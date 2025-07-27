@@ -103,7 +103,13 @@ export default function NewRegistrationPage() {
 
   const registrationMutation = useMutation({
     mutationFn: async () => {
-      if (!student || !selectedModules || !semesterData || !sponsorshipData) {
+      if (
+        !student ||
+        !selectedModules ||
+        !semesterData ||
+        !sponsorshipData ||
+        !currentTerm
+      ) {
         throw new Error('Missing required data for registration');
       }
 
@@ -114,7 +120,7 @@ export default function NewRegistrationPage() {
         semesterNumber: semesterData.semesterNo,
         semesterStatus: semesterData.status,
         borrowerNo: sponsorshipData.borrowerNo,
-        termId: currentTerm?.id!,
+        termId: currentTerm.id,
       });
     },
     onSuccess: () => {
