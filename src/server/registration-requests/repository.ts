@@ -470,13 +470,19 @@ export default class RegistrationRequestRepository extends BaseRepository<
         .where(eq(registrationRequests.id, registrationRequestId));
 
       await tx
-        .update(sponsoredStudents)
-        .set({
+        .insert(sponsoredStudents)
+        .values({
           sponsorId: sponsorshipData.sponsorId,
+          stdNo: registration.stdNo,
           borrowerNo: sponsorshipData.borrowerNo,
-          updatedAt: new Date(),
         })
-        .where(eq(sponsoredStudents.stdNo, registration.stdNo));
+        .onConflictDoUpdate({
+          target: [sponsoredStudents.sponsorId, sponsoredStudents.stdNo],
+          set: {
+            borrowerNo: sponsorshipData.borrowerNo,
+            updatedAt: new Date(),
+          },
+        });
 
       await tx
         .update(registrationClearances)
