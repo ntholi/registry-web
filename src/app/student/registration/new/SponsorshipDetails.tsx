@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Stack,
   Text,
@@ -7,12 +7,15 @@ import {
   Select,
   LoadingOverlay,
   Alert,
-  Title,
-  Group,
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { findAllSponsors } from '@/server/sponsors/actions';
+import {
+  findAllSponsors,
+  getSponsoredStudent,
+} from '@/server/sponsors/actions';
+import { useCurrentTerm } from '@/hooks/use-current-term';
+import useUserStudent from '@/hooks/use-user-student';
 
 type SponsorshipData = {
   sponsorId: number;
@@ -30,25 +33,69 @@ export default function SponsorshipDetails({
   onSponsorshipChange,
   loading,
 }: SponsorshipDetailsProps) {
+  const { student } = useUserStudent();
+  const { currentTerm } = useCurrentTerm();
+
   const [borrowerNo, setBorrowerNo] = useState(
     sponsorshipData?.borrowerNo || ''
   );
 
-  // Fetch available sponsors from database
   const { data: sponsorsData, isLoading: sponsorsLoading } = useQuery({
     queryKey: ['sponsors'],
     queryFn: () => findAllSponsors(1, ''),
     select: (data) => data.items || [],
   });
 
+  const { data: previousSponsorshipData } = useQuery({
+    queryKey: ['previous-sponsorship', student?.stdNo, currentTerm?.id],
+    queryFn: () => getSponsoredStudent(student!.stdNo, currentTerm!.id),
+    enabled: !!student?.stdNo && !!currentTerm?.id,
+  });
+
   const sponsors = sponsorsData || [];
+
+  const isNMDS = (sponsorId: number) => {
+    if (!sponsors) return false;
+    return sponsors.find((s) => s.id === sponsorId)?.name === 'NMDS';
+  };
+
+  useEffect(() => {
+    if (sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId)) {
+      if (previousSponsorshipData?.borrowerNo && !borrowerNo) {
+        setBorrowerNo(previousSponsorshipData.borrowerNo);
+        onSponsorshipChange({
+          sponsorId: sponsorshipData.sponsorId,
+          borrowerNo: previousSponsorshipData.borrowerNo,
+        });
+      }
+    }
+  }, [
+    sponsorshipData?.sponsorId,
+    previousSponsorshipData?.borrowerNo,
+    sponsors,
+  ]);
 
   const handleSponsorChange = (value: string | null) => {
     if (value) {
       const sponsorId = parseInt(value);
+      const selectedSponsor = sponsors.find((s) => s.id === sponsorId);
+
+      let newBorrowerNo = borrowerNo;
+
+      if (
+        selectedSponsor?.name === 'NMDS' &&
+        previousSponsorshipData?.borrowerNo
+      ) {
+        newBorrowerNo = previousSponsorshipData.borrowerNo;
+        setBorrowerNo(newBorrowerNo);
+      } else if (selectedSponsor?.name !== 'NMDS') {
+        newBorrowerNo = '';
+        setBorrowerNo('');
+      }
+
       onSponsorshipChange({
         sponsorId,
-        borrowerNo: borrowerNo || undefined,
+        borrowerNo: newBorrowerNo || undefined,
       });
     }
   };
@@ -91,15 +138,18 @@ export default function SponsorshipDetails({
             disabled={sponsorsLoading}
           />
 
-          <TextInput
-            label='Borrower Number'
-            placeholder='Enter your borrower number (if applicable)'
-            value={borrowerNo}
-            onChange={(event) =>
-              handleBorrowerNoChange(event.currentTarget.value)
-            }
-            description='This is optional - only provide if your sponsor requires a borrower number'
-          />
+          {sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
+            <TextInput
+              label='Borrower Number'
+              placeholder='Enter your borrower number'
+              value={borrowerNo}
+              onChange={(event) =>
+                handleBorrowerNoChange(event.currentTarget.value)
+              }
+              description='Required for NMDS sponsored students'
+              required
+            />
+          )}
         </Stack>
       </Card>
 
@@ -107,36 +157,13 @@ export default function SponsorshipDetails({
         <Text size='sm'>
           <strong>Important:</strong> Make sure your sponsorship details are
           correct. These details will be used for billing and financial records.
+          {sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
+            <span> For NMDS sponsorship, the borrower number is required.</span>
+          )}{' '}
           If you're unsure about your sponsor or borrower number, please contact
           the finance office.
         </Text>
       </Alert>
-
-      {sponsorshipData && (
-        <Card
-          padding='md'
-          withBorder
-          style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}
-        >
-          <Group justify='space-between'>
-            <Text size='sm' fw={500}>
-              Selected Sponsor:
-            </Text>
-            <Text size='sm'>
-              {sponsors.find((s) => s.id === sponsorshipData.sponsorId)?.name ||
-                'Unknown'}
-            </Text>
-          </Group>
-          {sponsorshipData.borrowerNo && (
-            <Group justify='space-between'>
-              <Text size='sm' fw={500}>
-                Borrower Number:
-              </Text>
-              <Text size='sm'>{sponsorshipData.borrowerNo}</Text>
-            </Group>
-          )}
-        </Card>
-      )}
 
       {sponsors.length === 0 && !sponsorsLoading && (
         <Alert icon={<IconInfoCircle size='1rem' />} color='orange'>

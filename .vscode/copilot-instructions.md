@@ -8,3 +8,4 @@
   When creating modals if possible the button/action-icon should be extracted to the same file/component as the modal to avoid prop drilling and make it easier to manage state
 - When breaking up components or creating additional functionality, put the new component in the same directory as the parent component, unless the component is a shared component, then put it in src/app/components
 - Use mantine for UI components, and use the latest version of mantine, and create responsive very beautiful but minimalistic UI, avoid adding unnecessary colors, use predefined mantine colors, mostly stick with c='colorName' Keep the ui very professional looking designs and make sure it looks good both on dark and light themes
+- Don't add comments to the code you generate
