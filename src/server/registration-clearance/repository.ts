@@ -34,7 +34,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       const modulesList = await tx.query.requestedModules.findMany({
         where: eq(
           requestedModules.registrationRequestId,
-          data.registrationRequestId,
+          data.registrationRequestId
         ),
         with: {
           semesterModule: {
@@ -84,7 +84,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         const modulesList = await tx.query.requestedModules.findMany({
           where: eq(
             requestedModules.registrationRequestId,
-            current.registrationRequestId,
+            current.registrationRequestId
           ),
           with: {
             semesterModule: {
@@ -133,6 +133,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
                 },
               },
             },
+            term: true,
             requestedModules: {
               with: {
                 semesterModule: {
@@ -152,7 +153,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
   async findByDepartment(
     department: DashboardUser,
     params: QueryOptions<typeof registrationClearances>,
-    status?: 'pending' | 'approved' | 'rejected',
+    status?: 'pending' | 'approved' | 'rejected'
   ) {
     const { offset, limit } = this.buildQueryCriteria(params);
 
@@ -166,11 +167,11 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       ids.length
         ? inArray(
             registrationClearances.registrationRequestId,
-            ids.map((id) => id.id),
+            ids.map((id) => id.id)
           )
         : undefined,
       eq(registrationClearances.department, department),
-      status ? eq(registrationClearances.status, status) : undefined,
+      status ? eq(registrationClearances.status, status) : undefined
     );
 
     const data = await db.query.registrationClearances.findMany({
@@ -195,7 +196,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
 
   async countByStatus(
     status: 'pending' | 'approved' | 'rejected',
-    department: DashboardUser,
+    department: DashboardUser
   ) {
     const [result] = await db
       .select({ count: count() })
@@ -203,8 +204,8 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       .where(
         and(
           eq(registrationClearances.department, department),
-          eq(registrationClearances.status, status),
-        ),
+          eq(registrationClearances.status, status)
+        )
       );
     return result.count;
   }
@@ -231,7 +232,7 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     return db.query.registrationClearances.findFirst({
       where: and(
         eq(registrationClearances.status, 'pending'),
-        eq(registrationClearances.department, department),
+        eq(registrationClearances.department, department)
       ),
       with: {
         registrationRequest: {

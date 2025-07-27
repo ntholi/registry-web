@@ -1,15 +1,13 @@
-import { DetailsView, DetailsViewHeader } from '@/components/adease';
-import {
-  deleteRegistrationClearance,
-  getRegistrationClearance,
-} from '@/server/registration-clearance/actions';
+import { auth } from '@/auth';
+import { DetailsView } from '@/components/adease';
+import { getRegistrationClearance } from '@/server/registration-clearance/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import AcademicsLoader from './AcademicsLoader';
 import ClearanceDetails from './ClearanceDetails';
 import ClearanceHistory from './ClearanceHistory';
-import { auth } from '@/auth';
-import { getCurrentTerm } from '@/server/terms/actions';
+import ClearanceHeader from './ClearanceHeader';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -27,13 +25,9 @@ export default async function ClearanceRequestDetails({ params }: Props) {
 
   return (
     <DetailsView>
-      <DetailsViewHeader
-        title={request.registrationRequest.student.name}
-        queryKey={['registrationClearances']}
-        handleDelete={async () => {
-          'use server';
-          await deleteRegistrationClearance(Number(id));
-        }}
+      <ClearanceHeader
+        studentName={request.registrationRequest.student.name}
+        termName={request.registrationRequest.term.name}
       />
       <Tabs defaultValue='details' variant='outline'>
         <TabsList>
