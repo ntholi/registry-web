@@ -4,8 +4,8 @@ export const studentColors = {
     approved: 'green',
     registered: 'blue',
     rejected: 'red',
-    partial: 'yellow',
-    pending: 'gray',
+    partial: 'gray',
+    pending: 'yellow',
   },
   grade: {
     excellent: 'green',

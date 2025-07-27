@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
+import { getStatusColor } from '@/app/student/utils/colors';
 import {
   Badge,
   Box,
@@ -61,19 +62,6 @@ export default async function page({ params }: Props) {
     if (allApproved) return 'approved';
     if (anyRejected) return 'rejected';
     return 'pending';
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return 'green';
-      case 'rejected':
-        return 'red';
-      case 'registered':
-        return 'blue';
-      default:
-        return 'yellow';
-    }
   };
 
   const getStatusIcon = (status: string) => {
