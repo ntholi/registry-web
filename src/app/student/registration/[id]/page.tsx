@@ -8,6 +8,7 @@ import {
   Button,
   Container,
   Divider,
+  Flex,
   Group,
   Paper,
   Stack,
@@ -89,38 +90,38 @@ export default async function page({ params }: Props) {
     <Container size='md' px='xs'>
       <Stack gap='xl'>
         <Paper withBorder p='md'>
-          <Stack gap='md'>
+          <Box>
             <Group justify='space-between' align='flex-start' wrap='wrap'>
-              <Box>
-                <Title order={1} size='h2' fw={600} mb='xs'>
-                  Registration
-                </Title>
-                <Text c='dimmed' size='sm'>
-                  {registration.term.name} •{' '}
-                  {formatSemester(registration.semesterNumber)}
-                </Text>
-              </Box>
-              <Group gap='sm' align='center'>
-                {registration.status === 'pending' && (
-                  <Button
-                    component={Link}
-                    href={`/student/registration/${registration.id}/edit`}
-                    variant='outline'
-                    size='sm'
-                    leftSection={<IconEdit size={16} />}
-                  >
-                    Edit Registration
-                  </Button>
-                )}
-                <Badge
-                  radius='xs'
-                  color={getStatusColor(registration.status)}
-                  variant='light'
-                >
-                  {registration.status}
-                </Badge>
-              </Group>
+              <Title order={1} size='h2' fw={600} mb='xs'>
+                Registration
+              </Title>
+              <Badge
+                radius='xs'
+                color={getStatusColor(registration.status)}
+                variant='light'
+              >
+                {registration.status}
+              </Badge>
             </Group>
+
+            <Flex justify={'space-between'} align={'center'}>
+              <Text c='dimmed' size='sm'>
+                {registration.term.name} •{' '}
+                {formatSemester(registration.semesterNumber)}
+              </Text>
+              {registration.status === 'pending' && (
+                <Button
+                  component={Link}
+                  href={`/student/registration/${registration.id}/edit`}
+                  variant='subtle'
+                  mr={-10}
+                  size='xs'
+                  leftSection={<IconEdit size={16} />}
+                >
+                  Update
+                </Button>
+              )}
+            </Flex>
 
             {registration.message && (
               <>
@@ -135,7 +136,7 @@ export default async function page({ params }: Props) {
                 </Box>
               </>
             )}
-          </Stack>
+          </Box>
         </Paper>
 
         <Tabs defaultValue='modules' variant='outline'>

@@ -29,8 +29,6 @@ import {
 import Link from 'next/link';
 import { forbidden } from 'next/navigation';
 import { getStatusColor } from '../utils/colors';
-import SponsorshipQuickUpdate from './components/SponsorshipUpdateModal';
-import StudentSponsorshipInfo from './components/StudentSponsorshipInfo';
 
 export default async function page() {
   const session = await auth();
@@ -61,7 +59,6 @@ export default async function page() {
               status
             </Text>
           </Box>
-          <SponsorshipQuickUpdate />
         </Group>
 
         {!hasCurrentRegistration && (
@@ -89,22 +86,17 @@ export default async function page() {
           </Card>
         )}
 
-        <StudentSponsorshipInfo />
-
         <Divider />
 
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
           {registrationHistory.map((request) => {
-            const isClickable = request.status !== 'pending';
-            const cardProps = isClickable
-              ? {
-                  component: Link as any,
-                  href: `/student/registration/${request.id}`,
-                }
-              : {};
-
             return (
-              <Card withBorder key={request.id} {...cardProps}>
+              <Card
+                withBorder
+                key={request.id}
+                component={Link}
+                href={`/student/registration/${request.id}`}
+              >
                 <CardSection p='xs'>
                   <Flex gap='xs' align='center' justify='space-between'>
                     <Group>
@@ -125,14 +117,16 @@ export default async function page() {
                   </Flex>
                 </CardSection>
 
-                <Box mt='xs'>
-                  <Text size='sm'>
-                    {formatSemester(request.semesterNumber)}
-                  </Text>
-                  <Text size='sm' c='dimmed'>
-                    {request.requestedModulesCount} modules
-                  </Text>
-                </Box>
+                <Flex justify={'space-between'} align={'center'}>
+                  <Box mt='xs'>
+                    <Text size='sm'>
+                      {formatSemester(request.semesterNumber)}
+                    </Text>
+                    <Text size='sm' c='dimmed'>
+                      {request.requestedModulesCount} modules
+                    </Text>
+                  </Box>
+                </Flex>
 
                 <CardSection px='xs' mt='xs' py='xs' withBorder>
                   <Flex gap='xs' align='center' justify='space-between'>
@@ -140,37 +134,12 @@ export default async function page() {
                       Submitted: {formatDateTime(request.createdAt)}
                     </Text>
                     <Group>
-                      {request.status === 'pending' ? (
-                        <>
-                          <Button
-                            component={Link}
-                            href={`/student/registration/${request.id}/edit`}
-                            variant='outline'
-                            size='xs'
-                            leftSection={<IconEdit size={14} />}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            component={Link}
-                            href={`/student/registration/${request.id}`}
-                            variant='subtle'
-                            size='xs'
-                            rightSection={<IconChevronRight size={14} />}
-                          >
-                            View
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Text size='xs' c='dimmed' fw={500}>
-                            View Details
-                          </Text>
-                          <ActionIcon variant='subtle' color='gray' size='sm'>
-                            <IconChevronRight size={16} />
-                          </ActionIcon>
-                        </>
-                      )}
+                      <Text size='xs' c='dimmed' fw={500}>
+                        View Details
+                      </Text>
+                      <ActionIcon variant='subtle' color='gray' size='sm'>
+                        <IconChevronRight size={16} />
+                      </ActionIcon>
                     </Group>
                   </Flex>
                 </CardSection>

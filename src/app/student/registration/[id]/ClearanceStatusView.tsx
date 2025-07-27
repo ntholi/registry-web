@@ -12,7 +12,6 @@ import {
   Paper,
   Stack,
   Text,
-  ThemeIcon,
   Timeline,
   TimelineItem,
   Title,

@@ -123,8 +123,7 @@ export default function ModulesView({ registration }: Props) {
             variant='light'
           >
             <Text size='sm'>
-              Some modules are still pending approval. You will be notified once
-              all clearances are complete.
+              Some modules are still pending approval. Please check back later
             </Text>
           </Alert>
         )}
