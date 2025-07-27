@@ -24,7 +24,7 @@ export async function countRejectedRegistrationClearances() {
 
 export async function registrationClearanceByDepartment(
   page: number = 1,
-  search = '',
+  search = ''
 ) {
   const session = await auth();
   if (!session?.user?.role) {
@@ -40,14 +40,14 @@ export async function registrationClearanceByDepartment(
       page,
       search,
     },
-    'pending',
+    'pending'
   );
 }
 
 export async function registrationClearanceByStatus(
   status: 'pending' | 'approved' | 'rejected',
   page: number = 1,
-  search = '',
+  search = ''
 ) {
   const session = await auth();
   if (!session?.user?.role) {
@@ -63,7 +63,7 @@ export async function registrationClearanceByStatus(
       page,
       search,
     },
-    status,
+    status
   );
 
   return {
@@ -73,14 +73,14 @@ export async function registrationClearanceByStatus(
 }
 
 export async function createRegistrationClearance(
-  registrationClearance: RegistrationClearance,
+  registrationClearance: RegistrationClearance
 ) {
   return service.respond(registrationClearance);
 }
 
 export async function updateRegistrationClearance(
   id: number,
-  registrationClearance: RegistrationClearance,
+  registrationClearance: RegistrationClearance
 ) {
   return service.update(id, registrationClearance);
 }
@@ -93,6 +93,10 @@ export async function getClearanceHistory(clearanceId: number) {
   return service.getHistory(clearanceId);
 }
 
+export async function getClearanceHistoryByStudentNo(stdNo: number) {
+  return service.getHistoryByStudentNo(stdNo);
+}
+
 export async function getNextPendingRegistrationClearance() {
   const session = await auth();
   if (!session?.user?.role) {
@@ -103,7 +107,7 @@ export async function getNextPendingRegistrationClearance() {
 }
 
 export async function exportClearancesByStatus(
-  status: 'pending' | 'approved' | 'rejected',
+  status: 'pending' | 'approved' | 'rejected'
 ) {
   const clearances = await service.findByStatusForExport(status);
 
@@ -138,7 +142,7 @@ export async function exportClearancesByStatus(
           const value = row[header as keyof typeof row];
           return `"${String(value).replace(/"/g, '""')}"`;
         })
-        .join(','),
+        .join(',')
     ),
   ].join('\n');
 

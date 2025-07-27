@@ -44,7 +44,7 @@ export default async function ClearanceRequestDetails({ params }: Props) {
           <AcademicsLoader stdNo={request.registrationRequest.student.stdNo} />
         </TabsPanel>
         <TabsPanel value='history'>
-          <ClearanceHistory clearanceId={Number(id)} />
+          <ClearanceHistory stdNo={request.registrationRequest.student.stdNo} />
         </TabsPanel>
       </Tabs>
     </DetailsView>

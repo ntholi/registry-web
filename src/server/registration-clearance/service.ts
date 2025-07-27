@@ -9,7 +9,7 @@ type RegistrationClearance = typeof registrationClearances.$inferInsert;
 
 class RegistrationClearanceService {
   constructor(
-    private readonly repository = new RegistrationClearanceRepository(),
+    private readonly repository = new RegistrationClearanceRepository()
   ) {}
 
   async first() {
@@ -34,18 +34,18 @@ class RegistrationClearanceService {
 
     return this.repository.countByStatus(
       status,
-      session.user.role as DashboardUser,
+      session.user.role as DashboardUser
     );
   }
 
   async findByDepartment(
     department: DashboardUser,
     params: QueryOptions<typeof registrationClearances>,
-    status?: 'pending' | 'approved' | 'rejected',
+    status?: 'pending' | 'approved' | 'rejected'
   ) {
     return withAuth(
       async () => this.repository.findByDepartment(department, params, status),
-      ['dashboard'],
+      ['dashboard']
     );
   }
 
@@ -60,7 +60,7 @@ class RegistrationClearanceService {
           respondedBy: session?.user?.id,
         });
       },
-      ['dashboard'],
+      ['dashboard']
     );
   }
 
@@ -79,26 +79,38 @@ class RegistrationClearanceService {
   async getHistory(clearanceId: number) {
     return withAuth(
       async () => this.repository.findHistory(clearanceId),
-      ['dashboard'],
+      ['dashboard']
     );
+  }
+
+  async getHistoryByStudentNo(stdNo: number) {
+    return withAuth(async () => {
+      const session = await auth();
+      if (!session?.user?.role) throw new Error('Unauthorized');
+
+      return this.repository.findHistoryByStudentNo(
+        stdNo,
+        session.user.role as DashboardUser
+      );
+    }, ['dashboard']);
   }
 
   async findNextPending(department: DashboardUser) {
     return withAuth(
       async () => this.repository.findNextPending(department),
-      ['dashboard'],
+      ['dashboard']
     );
   }
 
   async findByStatusForExport(status: 'pending' | 'approved' | 'rejected') {
     return withAuth(
       async () => this.repository.findByStatusForExport(status),
-      ['dashboard'],
+      ['dashboard']
     );
   }
 }
 
 export const registrationClearancesService = serviceWrapper(
   RegistrationClearanceService,
-  'RegistrationClearancesService',
+  'RegistrationClearancesService'
 );

@@ -228,6 +228,48 @@ export default class RegistrationClearanceRepository extends BaseRepository<
       },
     });
   }
+
+  async findHistoryByStudentNo(stdNo: number, department: DashboardUser) {
+    return db
+      .select()
+      .from(registrationClearances)
+      .innerJoin(
+        registrationRequests,
+        eq(
+          registrationClearances.registrationRequestId,
+          registrationRequests.id
+        )
+      )
+      .where(
+        and(
+          eq(registrationRequests.stdNo, stdNo),
+          eq(registrationClearances.department, department)
+        )
+      )
+      .then(async (results) => {
+        const clearanceIds = results.map((r) => r.registration_clearances.id);
+
+        if (clearanceIds.length === 0) return [];
+
+        return db.query.registrationClearances.findMany({
+          where: inArray(registrationClearances.id, clearanceIds),
+          with: {
+            registrationRequest: {
+              with: {
+                term: true,
+              },
+            },
+            audits: {
+              orderBy: desc(registrationClearanceAudit.date),
+              with: {
+                user: true,
+              },
+            },
+          },
+          orderBy: [desc(registrationClearances.createdAt)],
+        });
+      });
+  }
   async findNextPending(department: DashboardUser) {
     return db.query.registrationClearances.findFirst({
       where: and(

@@ -1,7 +1,7 @@
 'use client';
 
 import { formatDateTime } from '@/lib/utils';
-import { getClearanceHistory } from '@/server/registration-clearance/actions';
+import { getClearanceHistoryByStudentNo } from '@/server/registration-clearance/actions';
 import {
   Accordion,
   Anchor,
@@ -17,13 +17,13 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 
 type Props = {
-  clearanceId: number;
+  stdNo: number;
 };
 
-export default function ClearanceHistory({ clearanceId }: Props) {
+export default function ClearanceHistory({ stdNo }: Props) {
   const { data: history, isLoading } = useQuery({
-    queryKey: ['clearanceHistory', clearanceId],
-    queryFn: () => getClearanceHistory(clearanceId),
+    queryKey: ['clearanceHistory', stdNo],
+    queryFn: () => getClearanceHistoryByStudentNo(stdNo),
   });
 
   if (isLoading) {
@@ -45,7 +45,7 @@ export default function ClearanceHistory({ clearanceId }: Props) {
   }
 
   return (
-    <Paper shadow='sm' radius='md' p={'lg'}>
+    <Paper radius='md' p={'lg'}>
       <Accordion variant='separated'>
         {history.map((clearance) => (
           <Accordion.Item key={clearance.id} value={clearance.id.toString()}>
