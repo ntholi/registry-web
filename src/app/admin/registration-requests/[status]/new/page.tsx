@@ -1,6 +1,5 @@
 import { modules, semesterModules, StudentModuleStatus } from '@/db/schema';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
 import { Box } from '@mantine/core';
 import Form from '../Form';
 
@@ -25,6 +24,7 @@ export type RegistrationRequest = {
   sponsorId: number;
   borrowerNo?: string;
   semesterNumber: number;
+  termId: number;
   selectedModules?: Array<SelectedModule>;
 };
 
@@ -37,13 +37,9 @@ export default async function NewPage() {
       sponsorId,
       borrowerNo,
       semesterNumber,
+      termId,
       selectedModules,
     } = values;
-
-    const currentTerm = await getCurrentTerm();
-    if (!currentTerm) {
-      throw new Error('No active term found');
-    }
 
     const res = await createRegistrationWithModules({
       stdNo: stdNo,
@@ -51,7 +47,7 @@ export default async function NewPage() {
       semesterStatus,
       sponsorId,
       borrowerNo,
-      termId: currentTerm.id,
+      termId,
       modules:
         selectedModules?.map((module: SelectedModule) => ({
           moduleId: module.id,
@@ -66,6 +62,7 @@ export default async function NewPage() {
       sponsorId: res.request.sponsorId,
       borrowerNo: borrowerNo,
       semesterNumber: res.request.semesterNumber,
+      termId: res.request.termId,
       selectedModules: values.selectedModules,
     };
   }

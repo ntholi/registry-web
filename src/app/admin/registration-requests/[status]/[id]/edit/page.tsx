@@ -52,7 +52,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
         status: module.status,
       })) || [],
       values.semesterNumber,
-      values.semesterStatus,
+      values.semesterStatus
     );
     return { id: values.id, ...res.request };
   }
@@ -67,6 +67,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
           semesterStatus: registrationRequest.semesterStatus ?? 'Active',
           sponsorId: registrationRequest.sponsorId,
           semesterNumber: registrationRequest.semesterNumber ?? 1,
+          termId: registrationRequest.termId,
           selectedModules,
         }}
         onSubmit={handleSubmit}

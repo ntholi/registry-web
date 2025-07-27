@@ -16,6 +16,11 @@ export default function RequestDetailsView({ value }: Props) {
   return (
     <Stack gap='md'>
       <StudentNameView stdNo={value.stdNo} name={value.student.name} />
+
+      <FieldView label='Term' underline={false}>
+        {value.term.name}
+      </FieldView>
+
       <Flex justify={'space-between'} w='100%'>
         <FieldView label='Semester' underline={false}>
           {formatSemester(value.semesterNumber)}

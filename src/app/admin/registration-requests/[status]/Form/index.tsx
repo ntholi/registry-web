@@ -1,6 +1,5 @@
 'use client';
 
-
 import { Form } from '@/components/adease';
 import {
   modules,
@@ -10,6 +9,7 @@ import {
 } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 import { getModulesForStructure } from '@/server/semester-modules/actions';
+import { getCurrentTerm, getAllTerms } from '@/server/terms/actions';
 import {
   ActionIcon,
   Button,
@@ -28,6 +28,7 @@ import { useState } from 'react';
 import StdNoInput from '../../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
+import { useCurrentTerm } from '@/hooks/use-current-term';
 
 type Module = typeof modules.$inferSelect;
 
@@ -50,6 +51,7 @@ type RegistrationRequest = {
   sponsorId: number;
   borrowerNo?: string;
   semesterNumber: number;
+  termId: number;
   selectedModules?: Array<SelectedModule>;
 };
 
@@ -57,7 +59,7 @@ type Props = {
   onSubmit: (values: RegistrationRequest) => Promise<RegistrationRequest>;
   defaultValues?: RegistrationRequest;
   onError?: (
-    error: Error | React.SyntheticEvent<HTMLDivElement, Event>,
+    error: Error | React.SyntheticEvent<HTMLDivElement, Event>
   ) => void;
   title?: string;
   structureModules?: Awaited<ReturnType<typeof getModulesForStructure>>;
@@ -74,6 +76,12 @@ export default function RegistrationRequestForm({
   const router = useRouter();
   const [structureId] = useState<number | null>(initialStructureId ?? null);
   const [isLoadingModules, setIsLoadingModules] = useState(false);
+
+  const { currentTerm } = useCurrentTerm();
+  const { data: allTerms = [] } = useQuery({
+    queryKey: ['allTerms'],
+    queryFn: getAllTerms,
+  });
 
   const { data: structureModules, isLoading } = useQuery({
     queryKey: ['structureModules', structureId],
@@ -95,7 +103,7 @@ export default function RegistrationRequestForm({
             value: String(semester?.semesterNumber),
             label: formatSemester(semester?.semesterNumber),
           };
-        },
+        }
       )
     : [];
 
@@ -107,7 +115,7 @@ export default function RegistrationRequestForm({
             ...module,
             semesterNumber: sem.semesterNumber,
             semesterName: sem.name,
-          })),
+          }))
       ) as SemesterModule[])
     : [];
 
@@ -162,7 +170,8 @@ export default function RegistrationRequestForm({
       defaultValues={{
         ...defaultValues,
         selectedModules: defaultValues?.selectedModules || [],
-        semesterNumber: defaultValues?.semesterNumber.toString(),
+        semesterNumber: defaultValues?.semesterNumber?.toString(),
+        termId: defaultValues?.termId || currentTerm?.id || '',
       }}
       onSuccess={({ id }) => {
         router.push(`/admin/registration-requests/pending/${id}`);
@@ -187,21 +196,19 @@ export default function RegistrationRequestForm({
         const handleRemoveModule = (moduleId: number) => {
           form.setFieldValue(
             'selectedModules',
-            selectedModules.filter((m: SelectedModule) => m.id !== moduleId),
+            selectedModules.filter((m: SelectedModule) => m.id !== moduleId)
           );
         };
 
         const handleChangeModuleStatus = (
           moduleId: number,
-          newStatus: StudentModuleStatus,
+          newStatus: StudentModuleStatus
         ) => {
           form.setFieldValue(
             'selectedModules',
             selectedModules.map((module: SelectedModule) =>
-              module.id === moduleId
-                ? { ...module, status: newStatus }
-                : module,
-            ),
+              module.id === moduleId ? { ...module, status: newStatus } : module
+            )
           );
         };
 
@@ -232,6 +239,20 @@ export default function RegistrationRequestForm({
                 Load
               </Button>
             </Group>
+
+            <Select
+              label='Term'
+              placeholder='Select term'
+              data={allTerms.map((term) => ({
+                value: term.id.toString(),
+                label: term.name,
+              }))}
+              {...form.getInputProps('termId')}
+              onChange={(value: string | null) => {
+                form.setFieldValue('termId', Number(value));
+              }}
+              required
+            />
 
             <Group grow>
               <Select
@@ -318,7 +339,7 @@ export default function RegistrationRequestForm({
                             onChange={(value) =>
                               handleChangeModuleStatus(
                                 semModule.id,
-                                value as StudentModuleStatus,
+                                value as StudentModuleStatus
                               )
                             }
                             data={studentModuleStatusEnum.map((status) => ({
