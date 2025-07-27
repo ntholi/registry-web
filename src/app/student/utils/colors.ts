@@ -1,5 +1,6 @@
 export const studentColors = {
   status: {
+    active: 'green',
     approved: 'green',
     registered: 'blue',
     rejected: 'red',

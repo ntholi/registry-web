@@ -11,6 +11,8 @@ import {
   ThemeIcon,
   Flex,
   Divider,
+  SimpleGrid,
+  Paper,
 } from '@mantine/core';
 import {
   IconUser,
@@ -23,12 +25,14 @@ import {
 import { studentColors } from '../utils/colors';
 
 import { Student } from '@/lib/helpers/students';
+import { useMediaQuery } from '@/utils/use-media-query';
 
 type Props = {
   student: NonNullable<Student>;
 };
 
 export default function ProfileHeader({ student }: Props) {
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const initials = student.name
     .split(' ')
     .map((n) => n[0])
@@ -44,7 +48,7 @@ export default function ProfileHeader({ student }: Props) {
         align={{ base: 'center', sm: 'flex-start' }}
       >
         <Avatar
-          size={120}
+          size={180}
           radius='md'
           src={student.user?.image}
           color={studentColors.theme.primary}
@@ -54,11 +58,11 @@ export default function ProfileHeader({ student }: Props) {
         </Avatar>
 
         <Stack gap='md' style={{ flex: 1 }}>
-          <div>
+          <Stack gap='xs' align={isMobile ? 'center' : 'flex-start'}>
             <Title order={1} size='h2' fw={600} mb='xs'>
               {student.name}
             </Title>
-            <Group gap='md' mb='sm'>
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
               <Badge
                 size='lg'
                 variant='light'
@@ -72,23 +76,12 @@ export default function ProfileHeader({ student }: Props) {
                   {student.user.email}
                 </Text>
               )}
-            </Group>
-          </div>
+            </SimpleGrid>
+          </Stack>
 
           <Divider />
 
-          <Group gap='xl' wrap='wrap'>
-            {student.dateOfBirth && (
-              <Group gap='xs'>
-                <ThemeIcon variant='light' size='sm' color='gray'>
-                  <IconCalendar size={14} />
-                </ThemeIcon>
-                <Text size='sm' c='dimmed'>
-                  Born {formatDate(student.dateOfBirth)}
-                </Text>
-              </Group>
-            )}
-
+          <SimpleGrid cols={{ base: 2, sm: 3 }}>
             {student.gender && (
               <Group gap='xs'>
                 <ThemeIcon variant='light' size='sm' color='gray'>
@@ -96,6 +89,17 @@ export default function ProfileHeader({ student }: Props) {
                 </ThemeIcon>
                 <Text size='sm' c='dimmed'>
                   {student.gender}
+                </Text>
+              </Group>
+            )}
+
+            {student.dateOfBirth && (
+              <Group gap='xs'>
+                <ThemeIcon variant='light' size='sm' color='gray'>
+                  <IconCalendar size={14} />
+                </ThemeIcon>
+                <Text size='sm' c='dimmed'>
+                  {formatDate(student.dateOfBirth, 'numeric')}
                 </Text>
               </Group>
             )}
@@ -121,7 +125,7 @@ export default function ProfileHeader({ student }: Props) {
                 </Text>
               </Group>
             )}
-          </Group>
+          </SimpleGrid>
         </Stack>
       </Flex>
     </Card>

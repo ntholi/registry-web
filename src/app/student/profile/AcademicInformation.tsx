@@ -1,27 +1,27 @@
 'use client';
 import { formatSemester } from '@/lib/utils';
 import {
+  Badge,
+  Box,
   Card,
+  Divider,
+  Flex,
   Grid,
   Group,
-  Text,
-  Title,
-  Badge,
   Stack,
-  Divider,
+  Text,
   ThemeIcon,
-  Box,
+  Title,
 } from '@mantine/core';
 import {
   IconBook,
-  IconSchool,
   IconCalendar,
+  IconSchool,
   IconTrophy,
-  IconUser,
 } from '@tabler/icons-react';
-import { studentColors, getStatusColor } from '../utils/colors';
+import { getStatusColor } from '../utils/colors';
 
-import { Student, AcademicRemarks } from '@/lib/helpers/students';
+import { AcademicRemarks } from '@/lib/helpers/students';
 
 type Program = ReturnType<
   typeof import('@/lib/helpers/students').getActiveProgram
@@ -84,23 +84,19 @@ export default function AcademicInformation({
 
   return (
     <Card withBorder shadow='sm' p='xl' radius='md'>
-      <Title order={3} size='h4' mb='lg' fw={500}>
-        Academic Information
-      </Title>
+      <Flex justify='space-between' align='baseline'>
+        <Title order={3} size='h4' mb='lg' fw={500}>
+          Academic Information
+        </Title>
+        <Badge color={getStatusColor(program.status)} variant='light' size='md'>
+          {program.status}
+        </Badge>
+      </Flex>
 
       <Stack gap='xl'>
-        <div>
-          <Group justify='space-between' mb='md'>
-            <Text size='lg' fw={600}>
-              {program.structure.program.name}
-            </Text>
-            <Badge
-              color={getStatusColor(program.status)}
-              variant='light'
-              size='md'
-            >
-              {program.status}
-            </Badge>
+        <Box>
+          <Group justify='space-between'>
+            <Text fw={600}>{program.structure.program.name}</Text>
           </Group>
 
           <Text size='sm' c='dimmed' mb='lg'>
@@ -109,22 +105,17 @@ export default function AcademicInformation({
 
           <Grid gutter='lg'>
             <Grid.Col span={{ base: 12, sm: 6 }}>
-              <InfoItem
-                label='School'
-                value={program.schoolName}
-                icon={<IconSchool size={14} />}
-              />
+              <InfoItem label='School' value={program.schoolName} />
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem
                 label='Structure ID'
                 value={program.structureId?.toString()}
-                icon={<IconBook size={14} />}
               />
             </Grid.Col>
           </Grid>
-        </div>
+        </Box>
 
         {semester && (
           <>
@@ -161,8 +152,9 @@ export default function AcademicInformation({
                       </Text>
                       <Badge
                         color={getStatusColor(semester.status)}
-                        variant='light'
+                        variant='dot'
                         size='sm'
+                        radius={'xs'}
                       >
                         {semester.status}
                       </Badge>
@@ -170,37 +162,6 @@ export default function AcademicInformation({
                   </Group>
                 </Grid.Col>
               </Grid>
-            </div>
-          </>
-        )}
-
-        {remarks && (
-          <>
-            <Divider />
-            <div>
-              <Text size='md' fw={600} mb='md'>
-                Academic Status
-              </Text>
-              <Badge
-                color={
-                  remarks.status === 'Proceed'
-                    ? 'green'
-                    : remarks.status === 'Remain in Semester'
-                      ? 'yellow'
-                      : 'gray'
-                }
-                variant='light'
-                size='lg'
-              >
-                {remarks.status}
-              </Badge>
-              {remarks.failedModules.length > 0 && (
-                <div style={{ marginTop: '1rem' }}>
-                  <Text size='sm' c='dimmed' mb='xs'>
-                    Failed Modules: {remarks.failedModules.length}
-                  </Text>
-                </div>
-              )}
             </div>
           </>
         )}

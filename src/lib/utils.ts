@@ -1,10 +1,11 @@
-
-
-export function formatDate(timestamp: number | Date | undefined | null) {
+export function formatDate(
+  timestamp: number | Date | undefined | null,
+  type: 'long' | 'short' | 'numeric' = 'long'
+) {
   if (!timestamp) return '';
   return new Date(timestamp).toLocaleDateString('en-GB', {
     year: 'numeric',
-    month: 'long',
+    month: type,
     day: 'numeric',
   });
 }
@@ -22,7 +23,7 @@ export function formatDateTime(timestamp: number | Date | undefined | null) {
 
 export function formatSemester(
   sem: number | undefined | null,
-  type: 'full' | 'short' = 'full',
+  type: 'full' | 'short' = 'full'
 ) {
   if (!sem) return '';
   const year = Math.ceil(sem / 2);
