@@ -2,17 +2,16 @@ import React from 'react';
 import {
   Stack,
   Text,
-  Checkbox,
   Group,
   Badge,
   LoadingOverlay,
   Alert,
   Title,
   Accordion,
-  Tooltip,
 } from '@mantine/core';
-import { IconInfoCircle, IconLock } from '@tabler/icons-react';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { StudentModuleStatus } from '@/db/schema';
+import ModuleCheckbox from './ModuleCheckbox';
 
 type ModuleWithStatus = {
   semesterModuleId: number;
@@ -43,19 +42,7 @@ export default function ModuleSelection({
   onSelectionChange,
   loading,
 }: ModuleSelectionProps) {
-  // Check if a module has prerequisites - if it does, don't allow selection
-  const hasPrerequisites = (module: ModuleWithStatus): boolean => {
-    return (
-      module.prerequisites !== undefined && module.prerequisites.length > 0
-    );
-  };
-
   const handleModuleToggle = (module: ModuleWithStatus, checked: boolean) => {
-    // Prevent selection if module has prerequisites
-    if (hasPrerequisites(module)) {
-      return;
-    }
-
     if (checked) {
       const newModule: SelectedModule = {
         moduleId: module.semesterModuleId,
@@ -80,79 +67,6 @@ export default function ModuleSelection({
 
   const isModuleSelected = (moduleId: number) => {
     return selectedModules.some((selected) => selected.moduleId === moduleId);
-  };
-
-  const getStatusColor = (status: string) => {
-    if (status === 'Compulsory') return 'blue';
-    if (status === 'Elective') return 'green';
-    if (status.startsWith('Repeat')) return 'orange';
-    return 'gray';
-  };
-
-  const renderModule = (module: ModuleWithStatus) => {
-    const hasPrereqs = hasPrerequisites(module);
-    const isDisabled = hasPrereqs;
-    const isSelected = isModuleSelected(module.semesterModuleId);
-
-    if (isDisabled) {
-      // Render disabled module with lock icon
-      return (
-        <Tooltip
-          key={module.semesterModuleId}
-          label='Cannot select: Module has prerequisites'
-        >
-          <Checkbox.Card radius='md' p='md' style={{ opacity: 0.5 }}>
-            <Group wrap='nowrap' align='flex-start'>
-              <IconLock size={20} />
-              <div style={{ flex: 1 }}>
-                <Group gap='xs' mb='xs'>
-                  <Text fw={500} c='dimmed'>
-                    {module.code}
-                  </Text>
-                  <Badge color='gray' size='sm' variant='light'>
-                    {module.status}
-                  </Badge>
-                </Group>
-                <Text size='sm' c='dimmed' mb='xs'>
-                  {module.name}
-                </Text>
-                <Text size='xs' c='red' mt='xs'>
-                  Prerequisites:{' '}
-                  {module.prerequisites?.map((p) => p.code).join(', ')}
-                </Text>
-              </div>
-            </Group>
-          </Checkbox.Card>
-        </Tooltip>
-      );
-    }
-
-    // Render selectable module using Checkbox.Card
-    return (
-      <Checkbox.Card
-        key={module.semesterModuleId}
-        radius='md'
-        checked={isSelected}
-        onClick={() => handleModuleToggle(module, !isSelected)}
-        p='md'
-        withBorder
-      >
-        <Group wrap='nowrap' align='flex-start'>
-          <Checkbox.Indicator />
-          <div style={{ flex: 1 }}>
-            <Group gap='xs' mb='xs'>
-              <Text fw={500}>{module.code}</Text>
-              <Badge color={getStatusColor(module.status)} size='sm'>
-                {module.status}
-              </Badge>
-            </Group>
-            <Text size='sm' mb='xs'>
-              {module.name}
-            </Text>
-          </div>
-        </Group>
-      </Checkbox.Card>
-    );
   };
 
   if (loading) {
@@ -181,16 +95,6 @@ export default function ModuleSelection({
 
   return (
     <Stack gap='lg' mt='md'>
-      <div>
-        <Title order={4} mb='sm'>
-          Select Your Modules
-        </Title>
-        <Text size='sm' c='dimmed'>
-          Choose the modules you want to register for this semester. Modules
-          with prerequisites cannot be selected.
-        </Text>
-      </div>
-
       <Accordion
         multiple
         defaultValue={['compulsory', 'elective', 'repeat']}
@@ -207,7 +111,18 @@ export default function ModuleSelection({
               </Group>
             </Accordion.Control>
             <Accordion.Panel>
-              <Stack gap='sm'>{compulsoryModules.map(renderModule)}</Stack>
+              <Stack gap='sm'>
+                {compulsoryModules.map((module) => (
+                  <ModuleCheckbox
+                    key={module.semesterModuleId}
+                    module={module}
+                    isSelected={isModuleSelected(module.semesterModuleId)}
+                    onToggle={(checked: boolean) =>
+                      handleModuleToggle(module, checked)
+                    }
+                  />
+                ))}
+              </Stack>
             </Accordion.Panel>
           </Accordion.Item>
         )}
@@ -223,7 +138,18 @@ export default function ModuleSelection({
               </Group>
             </Accordion.Control>
             <Accordion.Panel>
-              <Stack gap='sm'>{electiveModules.map(renderModule)}</Stack>
+              <Stack gap='sm'>
+                {electiveModules.map((module) => (
+                  <ModuleCheckbox
+                    key={module.semesterModuleId}
+                    module={module}
+                    isSelected={isModuleSelected(module.semesterModuleId)}
+                    onToggle={(checked: boolean) =>
+                      handleModuleToggle(module, checked)
+                    }
+                  />
+                ))}
+              </Stack>
             </Accordion.Panel>
           </Accordion.Item>
         )}
@@ -239,7 +165,18 @@ export default function ModuleSelection({
               </Group>
             </Accordion.Control>
             <Accordion.Panel>
-              <Stack gap='sm'>{repeatModules.map(renderModule)}</Stack>
+              <Stack gap='sm'>
+                {repeatModules.map((module) => (
+                  <ModuleCheckbox
+                    key={module.semesterModuleId}
+                    module={module}
+                    isSelected={isModuleSelected(module.semesterModuleId)}
+                    onToggle={(checked: boolean) =>
+                      handleModuleToggle(module, checked)
+                    }
+                  />
+                ))}
+              </Stack>
             </Accordion.Panel>
           </Accordion.Item>
         )}

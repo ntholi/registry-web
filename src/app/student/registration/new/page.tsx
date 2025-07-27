@@ -1,39 +1,50 @@
 'use client';
 
-import { StudentModuleStatus } from '@/db/schema';
-import useUserStudent from '@/hooks/use-user-student';
+import React, { useState } from 'react';
 import {
-  createRegistrationWithModules,
-  determineSemesterStatus,
-  getStudentSemesterModules,
-} from '@/server/registration-requests/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
-import {
-  Alert,
-  Badge,
-  Box,
-  Button,
   Container,
-  Group,
-  LoadingOverlay,
   Paper,
   Progress,
-  Stack,
+  Group,
+  Button,
   Text,
   Title,
+  Alert,
+  LoadingOverlay,
+  Stack,
+  Box,
+  Badge,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
 import {
+  IconInfoCircle,
   IconArrowLeft,
   IconArrowRight,
-  IconInfoCircle,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import useUserStudent from '@/hooks/use-user-student';
+import { StudentModuleStatus } from '@/db/schema';
+import {
+  getStudentSemesterModules,
+  determineSemesterStatus,
+  createRegistrationWithModules,
+} from '@/server/registration-requests/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
 import ModuleSelection from './ModuleSelection';
 import SemesterConfirmation from './SemesterConfirmation';
 import SponsorshipDetails from './SponsorshipDetails';
+
+type ModuleWithStatus = {
+  semesterModuleId: number;
+  code: string;
+  name: string;
+  type: string;
+  credits: number;
+  status: 'Compulsory' | 'Elective' | `Repeat${number}`;
+  semesterNo: number;
+  prerequisites?: Array<{ id: number; code: string; name: string }>;
+};
 
 type SelectedModule = {
   moduleId: number;
@@ -239,15 +250,11 @@ export default function NewRegistrationPage() {
             <Text c='dimmed'>Term: {currentTerm.name}</Text>
           </div>
 
-          {/* Progress Section */}
           <Box>
             <Group justify='space-between' mb='sm'>
               <Text size='sm' fw={500}>
                 Step {activeStep + 1} of {STEPS.length}
               </Text>
-              <Badge variant='light' color='blue'>
-                {Math.round(progressValue)}% Complete
-              </Badge>
             </Group>
 
             <Progress value={progressValue} size='lg' mb='md' />
