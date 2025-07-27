@@ -1,21 +1,16 @@
 'use client';
-import { Container, Stack, LoadingOverlay, Text, Center } from '@mantine/core';
+import { Container, Stack, Text, Center } from '@mantine/core';
 import useUserStudent from '@/hooks/use-user-student';
 import ProfileHeader from './ProfileHeader';
 import PersonalInformation from './PersonalInformation';
 import AcademicInformation from './AcademicInformation';
+import ProfileSkeleton from './ProfileSkeleton';
 
 export default function Profile() {
   const { student, program, semester, remarks, isLoading } = useUserStudent();
 
   if (isLoading) {
-    return (
-      <Container size='md'>
-        <div style={{ position: 'relative', minHeight: 400 }}>
-          <LoadingOverlay visible={true} />
-        </div>
-      </Container>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (!student) {

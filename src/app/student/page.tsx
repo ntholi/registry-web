@@ -1,7 +1,6 @@
-import React from 'react';
-import Hero from './home/Hero';
 import { Container } from '@mantine/core';
 import ActionButtons from './home/ActionButtons';
+import Hero from './home/Hero';
 
 export default function page() {
   return (

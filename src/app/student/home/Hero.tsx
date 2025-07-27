@@ -1,13 +1,11 @@
 'use client';
 import useUserStudent from '@/hooks/use-user-student';
 import { formatSemester } from '@/lib/utils';
+import { getStudentPhoto } from '@/server/students/actions';
 import {
-  ActionIcon,
   Anchor,
   Avatar,
-  Button,
   Divider,
-  Flex,
   Grid,
   Group,
   Paper,
@@ -18,18 +16,22 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconBook, IconTrophy, IconUser } from '@tabler/icons-react';
-import { studentColors } from '../utils/colors';
-import { getStudentPhoto } from '@/server/students/actions';
 import { useQuery } from '@tanstack/react-query';
+import { studentColors } from '../utils/colors';
+import HeroSkeleton from './HeroSkeleton';
 
 export default function Hero() {
-  const { student, program, semester, remarks } = useUserStudent();
+  const { student, program, semester, remarks, isLoading } = useUserStudent();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { data: photoUrl } = useQuery({
     queryKey: ['studentPhoto', student?.stdNo],
     queryFn: () => getStudentPhoto(student?.stdNo),
     staleTime: 1000 * 60 * 10,
   });
+
+  if (isLoading) {
+    return <HeroSkeleton isMobile={isMobile} />;
+  }
 
   return (
     <Paper shadow='sm' p='xl' radius='md' withBorder>
