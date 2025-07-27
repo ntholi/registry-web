@@ -18,6 +18,6 @@ When creating types from the schema file, please use the syntax: `type TableName
 
 When breaking up components or creating additional functionality, put the new component in the same directory as the parent component, unless the component is a shared component, then put it in src/app/components
 
-Use Mantine for designing all UI components, keeping in mind that the parent layout allows the user to switch between light and dark mode, keep the UI a Mantine native as possible, don't add unnecessary styles and colors, try to stick to colors and styling defined in the mantine api
+Use Mantine for designing all UI components, keeping in mind that the parent layout allows the user to switch between light and dark mode, keep the UI a Mantine native as possible, don't add unnecessary styles and colors, try to stick to colors and styling defined in the mantine api. And very impotently, the UI should be mobile friendly and very responsive.
 
 Instead of using "color='var(--mantine-color-green-6)" when defining color just simply use "color={'green'}"

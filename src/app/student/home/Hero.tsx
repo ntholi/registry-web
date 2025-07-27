@@ -3,8 +3,11 @@ import useUserStudent from '@/hooks/use-user-student';
 import { formatSemester } from '@/lib/utils';
 import {
   ActionIcon,
+  Anchor,
   Avatar,
+  Button,
   Divider,
+  Flex,
   Grid,
   Group,
   Paper,
@@ -25,16 +28,32 @@ export default function Hero() {
     <Paper shadow='sm' p='xl' radius='md' withBorder>
       <Stack gap='lg'>
         <Group gap='lg'>
-          <Avatar size={60} radius='sm' color={studentColors.theme.primary} variant='filled'>
+          <Avatar
+            size={70}
+            radius='sm'
+            color={studentColors.theme.primary}
+            variant='filled'
+          >
             <IconUser size='1.8rem' />
           </Avatar>
           <Stack gap={4} flex={1}>
             <Title order={2} size='h3' fw={600} lh={1.2}>
               {student?.name}
             </Title>
-            <Text size='sm' c='dimmed' fw={500}>
-              {student?.stdNo}
-            </Text>
+            <Group gap={'xl'} mt={'xs'} align='center'>
+              <Text size='sm' c='dimmed' fw={500}>
+                {student?.stdNo}
+              </Text>
+              <Anchor
+                variant='text'
+                c='indigo'
+                size='xs'
+                href='/student/profile'
+                fw={500}
+              >
+                View Profile
+              </Anchor>
+            </Group>
           </Stack>
         </Group>
 
