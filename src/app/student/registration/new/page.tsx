@@ -34,17 +34,7 @@ import { getCurrentTerm } from '@/server/terms/actions';
 import ModuleSelection from './ModuleSelection';
 import SemesterConfirmation from './SemesterConfirmation';
 import SponsorshipDetails from './SponsorshipDetails';
-
-type ModuleWithStatus = {
-  semesterModuleId: number;
-  code: string;
-  name: string;
-  type: string;
-  credits: number;
-  status: 'Compulsory' | 'Elective' | `Repeat${number}`;
-  semesterNo: number;
-  prerequisites?: Array<{ id: number; code: string; name: string }>;
-};
+import { useCurrentTerm } from '@/hooks/use-current-term';
 
 type SelectedModule = {
   moduleId: number;
@@ -82,7 +72,7 @@ export default function NewRegistrationPage() {
   const [sponsorshipData, setSponsorshipData] =
     useState<SponsorshipData | null>(null);
 
-  // Fetch available modules for the student
+  const { currentTerm } = useCurrentTerm();
   const { data: moduleResult, isLoading: modulesLoading } = useQuery({
     queryKey: ['student-semester-modules', student?.stdNo],
     queryFn: async () => {
@@ -96,13 +86,6 @@ export default function NewRegistrationPage() {
 
   const availableModules = moduleResult?.modules || [];
 
-  // Fetch current term
-  const { data: currentTerm } = useQuery({
-    queryKey: ['current-term'],
-    queryFn: getCurrentTerm,
-  });
-
-  // Determine semester status when modules are selected
   const { data: semesterStatus, isLoading: semesterStatusLoading } = useQuery({
     queryKey: ['semester-status', selectedModules],
     queryFn: async () => {
@@ -119,7 +102,6 @@ export default function NewRegistrationPage() {
     enabled: !!student && !!availableModules && selectedModules.length > 0,
   });
 
-  // Submit registration mutation
   const registrationMutation = useMutation({
     mutationFn: async () => {
       if (!student || !selectedModules || !semesterData || !sponsorshipData) {
