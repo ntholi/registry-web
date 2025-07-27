@@ -1,7 +1,7 @@
 'use client';
 
 import { FieldView } from '@/components/adease';
-import { Text } from '@mantine/core';
+import { Skeleton, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { getSponsoredStudent as getSponsor } from '@/server/sponsors/actions';
 
@@ -17,7 +17,11 @@ export default function SponsorInfo({ stdNo, termId }: Props) {
   });
 
   if (isLoading) {
-    return <Text size='sm'>Loading Sponsor...</Text>;
+    return (
+      <FieldView label='Sponsor' underline={false}>
+        <Skeleton height={20} width={150} />
+      </FieldView>
+    );
   }
 
   return (
