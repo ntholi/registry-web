@@ -10,7 +10,7 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <Container size='md' py='xl'>
+      <Container size='md'>
         <div style={{ position: 'relative', minHeight: 400 }}>
           <LoadingOverlay visible={true} />
         </div>
@@ -20,7 +20,7 @@ export default function Profile() {
 
   if (!student) {
     return (
-      <Container size='md' py='xl'>
+      <Container size='md'>
         <Center>
           <Text size='lg' c='dimmed'>
             Unable to load student profile
@@ -31,7 +31,7 @@ export default function Profile() {
   }
 
   return (
-    <Container size='md' py='xl'>
+    <Container size='md'>
       <Stack gap='xl'>
         <ProfileHeader student={student} />
 

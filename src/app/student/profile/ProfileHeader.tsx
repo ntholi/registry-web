@@ -26,6 +26,8 @@ import { studentColors } from '../utils/colors';
 
 import { Student } from '@/lib/helpers/students';
 import { useMediaQuery } from '@/utils/use-media-query';
+import { getStudentPhoto } from '@/server/students/actions';
+import { useQuery } from '@tanstack/react-query';
 
 type Props = {
   student: NonNullable<Student>;
@@ -40,6 +42,12 @@ export default function ProfileHeader({ student }: Props) {
     .toUpperCase()
     .slice(0, 2);
 
+  const { data: photoUrl } = useQuery({
+    queryKey: ['studentPhoto', student?.stdNo],
+    queryFn: () => getStudentPhoto(student?.stdNo),
+    staleTime: 1000 * 60 * 10,
+  });
+
   return (
     <Card withBorder shadow='sm' p='xl' radius='md'>
       <Flex
@@ -50,11 +58,11 @@ export default function ProfileHeader({ student }: Props) {
         <Avatar
           size={180}
           radius='md'
-          src={student.user?.image}
+          src={photoUrl}
           color={studentColors.theme.primary}
           style={{ minWidth: 120 }}
         >
-          {!student.user?.image && <>{initials || <IconUser size='3rem' />}</>}
+          {!photoUrl && <>{<IconUser size='3rem' />}</>}
         </Avatar>
 
         <Stack gap='md' style={{ flex: 1 }}>

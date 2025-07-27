@@ -96,8 +96,9 @@ export async function updateStudentProgramStructure(
 }
 
 export async function getStudentPhoto(
-  studentNumber: number
+  studentNumber: number | undefined | null
 ): Promise<string | null> {
+  if (!studentNumber) return null;
   try {
     const extensions = ['jpg', 'jpeg', 'png', 'webp'];
 

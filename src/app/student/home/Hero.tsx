@@ -19,10 +19,17 @@ import {
 import { useMediaQuery } from '@mantine/hooks';
 import { IconBook, IconTrophy, IconUser } from '@tabler/icons-react';
 import { studentColors } from '../utils/colors';
+import { getStudentPhoto } from '@/server/students/actions';
+import { useQuery } from '@tanstack/react-query';
 
 export default function Hero() {
   const { student, program, semester, remarks } = useUserStudent();
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const { data: photoUrl } = useQuery({
+    queryKey: ['studentPhoto', student?.stdNo],
+    queryFn: () => getStudentPhoto(student?.stdNo),
+    staleTime: 1000 * 60 * 10,
+  });
 
   return (
     <Paper shadow='sm' p='xl' radius='md' withBorder>
@@ -31,10 +38,11 @@ export default function Hero() {
           <Avatar
             size={70}
             radius='sm'
+            src={photoUrl}
             color={studentColors.theme.primary}
             variant='filled'
           >
-            <IconUser size='1.8rem' />
+            {!photoUrl && <IconUser size='1.8rem' />}
           </Avatar>
           <Stack gap={4} flex={1}>
             <Title order={2} size='h3' fw={600} lh={1.2}>

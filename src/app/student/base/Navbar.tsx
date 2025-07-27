@@ -9,7 +9,7 @@ import {
   Menu,
   useMantineColorScheme,
 } from '@mantine/core';
-import { IconLogout, IconMoon, IconSun } from '@tabler/icons-react';
+import { IconLogout, IconMoon, IconSun, IconUser } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 
@@ -34,11 +34,20 @@ export default function Navbar() {
                 alt={student?.name}
                 size='md'
                 style={{ cursor: 'pointer' }}
-              />
+              >
+                <IconUser size={14} />
+              </Avatar>
             </Menu.Target>
 
             <Menu.Dropdown>
               <Menu.Label>{student?.name}</Menu.Label>
+              <Menu.Item
+                leftSection={<IconUser size={14} />}
+                component={Link}
+                href='/student/profile'
+              >
+                Profile
+              </Menu.Item>
               <Menu.Item
                 leftSection={
                   colorScheme === 'dark' ? (
