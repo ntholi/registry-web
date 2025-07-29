@@ -1,19 +1,12 @@
 'use client';
 
 import {
-  grades,
   getGradeByMarks,
-  getGradeBySymbol,
   getGradeByPoints,
+  getGradeBySymbol,
+  grades,
 } from '@/utils/grades';
-import {
-  Button,
-  Group,
-  NumberInput,
-  Select,
-  Stack,
-  Title,
-} from '@mantine/core';
+import { Button, Group, NumberInput, Select, Stack } from '@mantine/core';
 import { useState } from 'react';
 import { GradeResultDisplay } from './GradeResultDisplay';
 
@@ -106,13 +99,11 @@ export function GradeCalculatorForm() {
     )
     .map((g) => ({
       value: g.grade,
-      label: `${g.grade} - ${g.description}`,
+      label: `${g.grade}`,
     }));
 
   return (
     <Stack gap='lg'>
-      <Title order={2}>Calculate Grade Information</Title>
-
       <Group align='flex-end'>
         <Select
           label='Input Type'

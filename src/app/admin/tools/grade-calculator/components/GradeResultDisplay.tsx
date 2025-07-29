@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, Group, Stack, Text, Title } from '@mantine/core';
+import { Badge, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { getGradeColor, getPointsColor } from './gradeColors';
 
 type GradeResult = {
@@ -15,41 +15,53 @@ interface GradeResultDisplayProps {
 }
 
 export function GradeResultDisplay({ result }: GradeResultDisplayProps) {
+  const gradeColor = getGradeColor(result.grade);
+
   return (
-    <Card withBorder shadow='sm' p='lg'>
-      <Stack gap='md'>
-        <Title order={3}>Grade Information</Title>
-
-        <Group justify='apart'>
-          <Text fw={500}>Grade:</Text>
-          <Badge size='lg' color={getGradeColor(result.grade)}>
-            {result.grade}
-          </Badge>
-        </Group>
-
-        <Group justify='apart'>
-          <Text fw={500}>Points:</Text>
-          <Badge size='lg' color={getPointsColor(result.points)}>
-            {result.points !== null ? result.points.toFixed(2) : 'N/A'}
-          </Badge>
-        </Group>
-
-        <Group justify='apart' align='flex-start'>
-          <Text fw={500}>Description:</Text>
-          <Text ta='right' style={{ maxWidth: '60%' }}>
-            {result.description}
-          </Text>
-        </Group>
-
-        {result.marksRange && (
-          <Group justify='apart'>
-            <Text fw={500}>Marks Range:</Text>
-            <Badge variant='outline' size='lg'>
-              {result.marksRange.min} - {result.marksRange.max}
+    <Paper withBorder shadow='md' p='lg'>
+      <Stack gap='lg'>
+        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing='lg'>
+          <Stack gap={2}>
+            <Text fw={600} size='sm' c='dimmed'>
+              Marks Range
+            </Text>
+            <Badge size='lg' color={gradeColor} variant='gradient'>
+              {result.grade}
             </Badge>
-          </Group>
-        )}
+          </Stack>
+          <Stack gap={2}>
+            <Text fw={600} size='sm' c='dimmed'>
+              Grade Points
+            </Text>
+            <Group gap={0} align='baseline'>
+              <Text size='lg' c={getPointsColor(result.points)} variant='light'>
+                {result.points !== null ? result.points.toFixed(2) : 'N/A'}
+              </Text>
+              <Text size='xs' c='dimmed'>
+                / 4.00
+              </Text>
+            </Group>
+          </Stack>
+
+          {result.marksRange && (
+            <Stack gap={1}>
+              <Text fw={600} size='sm' c='dimmed'>
+                Marks Range
+              </Text>
+              <Text>
+                {result.marksRange.min} - {result.marksRange.max}
+              </Text>
+            </Stack>
+          )}
+        </SimpleGrid>
+
+        <Stack gap={1}>
+          <Text fw={600} size='sm' c='dimmed'>
+            Description
+          </Text>
+          <Text>{result.description}</Text>
+        </Stack>
       </Stack>
-    </Card>
+    </Paper>
   );
 }
