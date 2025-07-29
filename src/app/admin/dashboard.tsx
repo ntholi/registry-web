@@ -248,7 +248,7 @@ function getNavigation(department: DashboardUser) {
       children: [
         {
           label: 'Simulator',
-          href: '/admin/simulate',
+          href: '/admin/tools/simulate',
           icon: IconTestPipe,
         },
         {
