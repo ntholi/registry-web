@@ -149,6 +149,7 @@ export default function RegistrationRequestForm({
     }
   };
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   const handleLoadModules = async (stdNo: number, form: any) => {
     if (!stdNo || !structureId) return;
 

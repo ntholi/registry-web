@@ -23,7 +23,7 @@ import {
   Paper,
   Skeleton,
   Stack,
-  Text
+  Text,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import {
@@ -33,6 +33,7 @@ import {
   IconBookmark,
   IconBuildingBank,
   IconBuildingStore,
+  IconCalculator,
   IconCalendarEvent,
   IconChartLine,
   IconChevronRight,
@@ -44,6 +45,7 @@ import {
   IconSchool,
   IconSquareRoundedCheck,
   IconTestPipe,
+  IconTool,
   IconUserCog,
   IconUsersGroup,
 } from '@tabler/icons-react';
@@ -95,7 +97,7 @@ function getNavigation(department: DashboardUser) {
         return (
           position &&
           ['manager', 'admin', 'program_leader', 'year_leader'].includes(
-            position,
+            position
           )
         );
       },
@@ -240,10 +242,21 @@ function getNavigation(department: DashboardUser) {
       roles: ['admin', 'finance'],
     },
     {
-      label: 'Simulator',
-      href: '/admin/simulate',
-      icon: IconTestPipe,
+      label: 'Tools',
+      icon: IconTool,
       roles: ['registry', 'academic', 'admin'],
+      children: [
+        {
+          label: 'Simulator',
+          href: '/admin/simulate',
+          icon: IconTestPipe,
+        },
+        {
+          label: 'Grade Calculator',
+          href: '/admin/tools/grade-calculator',
+          icon: IconCalculator,
+        },
+      ],
     },
     {
       label: 'Reports',
@@ -486,5 +499,3 @@ function ItemDisplay({ item }: { item: NavItem }) {
   );
   return navLink;
 }
-
-

@@ -50,7 +50,7 @@ export const grades: GradeDefinition[] = [
   {
     grade: 'B-',
     points: 3.0,
-    description: 'Pass',
+    description: 'Pass with Merit',
     marksRange: { min: 65, max: 69 },
   },
   {
@@ -168,10 +168,23 @@ export function getGradeBySymbol(grade: string): GradeDefinition | undefined {
   return grades.find((g) => g.grade === normalizeGradeSymbol(grade));
 }
 
+export function getGradeByPoints(points: number): GradeDefinition | undefined {
+  const gradesWithPoints = grades.filter((g) => g.points !== null);
+  const sortedGrades = gradesWithPoints.sort(
+    (a, b) => (b.points as number) - (a.points as number)
+  );
+  for (const grade of sortedGrades) {
+    if (points >= (grade.points as number)) {
+      return grade;
+    }
+  }
+  return sortedGrades[sortedGrades.length - 1];
+}
+
 export function getGradeByMarks(marks: number): GradeDefinition | undefined {
   return grades.find(
     (g) =>
-      g.marksRange && marks >= g.marksRange.min && marks <= g.marksRange.max,
+      g.marksRange && marks >= g.marksRange.min && marks <= g.marksRange.max
   );
 }
 
@@ -187,7 +200,7 @@ export function getGradePoints(grade: string): number {
 
 export function isFailingGrade(grade: string): boolean {
   return ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
-    normalizeGradeSymbol(grade),
+    normalizeGradeSymbol(grade)
   );
 }
 
@@ -208,7 +221,7 @@ export function isFailingOrSupGrade(grade: string): boolean {
 
 export function summarizeModules(modules: StudentModule[]) {
   const relevant = modules.filter(
-    (m) => !['Delete', 'Drop'].includes(m.status ?? ''),
+    (m) => !['Delete', 'Drop'].includes(m.status ?? '')
   );
   let points = 0;
   let creditsAttempted = 0;
@@ -277,12 +290,12 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 
   const totalCreditsAttempted = points.reduce(
     (sum, point) => sum + point.creditsAttempted,
-    0,
+    0
   );
 
   const totalCreditsCompleted = points.reduce(
     (sum, point) => sum + point.creditsCompleted,
-    0,
+    0
   );
 
   if (studentModules.some((m) => m.grade === 'NM')) {
@@ -309,7 +322,7 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
   const latestFailedModules =
     semesters.length > 0
       ? semesters[semesters.length - 1].studentModules.filter((m) =>
-          isFailingGrade(m.grade),
+          isFailingGrade(m.grade)
         )
       : [];
   const failedModules = studentModules.filter((m) => {
@@ -320,14 +333,14 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
         otherModule.semesterModule.module?.name ===
           m.semesterModule.module?.name &&
         otherModule.id !== m.id &&
-        isPassingGrade(otherModule.grade),
+        isPassingGrade(otherModule.grade)
     );
 
     return !hasPassedLater;
   });
 
   const supplementary = studentModules.filter((m) =>
-    isSupplementaryGrade(m.grade),
+    isSupplementaryGrade(m.grade)
   );
 
   const remainInSemester = latestFailedModules.length >= 3;
@@ -337,12 +350,12 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 
   if (supplementary.length > 0) {
     messageParts.push(
-      `must supplement ${supplementary.map((m) => m.semesterModule.module?.name).join(', ')}`,
+      `must supplement ${supplementary.map((m) => m.semesterModule.module?.name).join(', ')}`
     );
   }
   if (failedModules.length > 0) {
     messageParts.push(
-      `must repeat ${failedModules.map((m) => m.semesterModule.module?.name).join(', ')}`,
+      `must repeat ${failedModules.map((m) => m.semesterModule.module?.name).join(', ')}`
     );
   }
 
@@ -385,7 +398,7 @@ function getUniqueModules(modules: StudentModule[]) {
     }))
     .filter(
       (module, index, array) =>
-        array.findIndex((m) => m.name === module.name) === index,
+        array.findIndex((m) => m.name === module.name) === index
     );
 }
 
