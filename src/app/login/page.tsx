@@ -38,7 +38,7 @@ export default async function LoginPage() {
         'resource',
       ].includes(role)
     ) {
-      redirect('/admin');
+      redirect('/dashboard');
     } else {
       redirect('/');
     }

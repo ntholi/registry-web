@@ -7,7 +7,7 @@ import {
 } from './repository';
 import { createCourseSummaryDocument } from './document';
 import { auth } from '@/auth';
-import { getAssessmentTypeLabel } from '@/app/admin/assessments/[id]/assessments';
+import { getAssessmentTypeLabel } from '@/app/dashboard/assessments/[id]/assessments';
 
 type CourseSummaryData = {
   assessments: Array<{
@@ -35,7 +35,7 @@ export default class CourseSummaryService {
   private repository = courseSummaryRepository;
   async generateCourseSummaryReport(
     programId: number | undefined,
-    semesterModuleId: number,
+    semesterModuleId: number
   ): Promise<Buffer> {
     const currentTerm = await termsRepository.getActive();
     if (!currentTerm) {
@@ -45,7 +45,7 @@ export default class CourseSummaryService {
     const reportData = await this.repository.getOptimizedCourseSummaryData(
       semesterModuleId,
       currentTerm.name,
-      programId,
+      programId
     );
 
     if (!reportData) {
@@ -60,7 +60,7 @@ export default class CourseSummaryService {
     return Buffer.from(buffer);
   }
   private async processOptimizedCourseSummaryData(
-    data: CourseSummaryData,
+    data: CourseSummaryData
   ): Promise<CourseSummaryReport> {
     const user = await auth();
     const failedStudents: StudentModuleReport[] = [];
@@ -99,7 +99,7 @@ export default class CourseSummaryService {
         reason = this.generateFailureReasonFromData(
           assessmentsMap.get(student.stdNo) || [],
           grade,
-          marks,
+          marks
         );
         actionTaken = 'STUDENT TO REPEAT THE MODULE';
 
@@ -120,7 +120,7 @@ export default class CourseSummaryService {
         reason = this.generateFailureReasonFromData(
           assessmentsMap.get(student.stdNo) || [],
           grade,
-          marks,
+          marks
         );
         actionTaken = 'STUDENT TO SUPPLEMENT THE EXAM';
 
@@ -156,10 +156,10 @@ export default class CourseSummaryService {
       totalFailures: failedStudents.length,
       totalSupplementary: supplementaryStudents.length,
       failedStudents: failedStudents.sort((a, b) =>
-        a.studentName.localeCompare(b.studentName),
+        a.studentName.localeCompare(b.studentName)
       ),
       supplementaryStudents: supplementaryStudents.sort((a, b) =>
-        a.studentName.localeCompare(b.studentName),
+        a.studentName.localeCompare(b.studentName)
       ),
     };
   }
@@ -171,7 +171,7 @@ export default class CourseSummaryService {
       totalMarks: number;
     }>,
     grade: string,
-    marks: number,
+    marks: number
   ): string {
     const failedAssessments: string[] = [];
 
@@ -179,7 +179,7 @@ export default class CourseSummaryService {
       const passingGrade = assessment.totalMarks * 0.5;
       if (assessment.studentMarks < passingGrade) {
         failedAssessments.push(
-          `Failed ${getAssessmentTypeLabel(assessment.assessmentType)} (${assessment.studentMarks}/${assessment.totalMarks})`,
+          `Failed ${getAssessmentTypeLabel(assessment.assessmentType)} (${assessment.studentMarks}/${assessment.totalMarks})`
         );
       }
     }

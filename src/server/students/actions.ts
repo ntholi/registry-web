@@ -82,7 +82,7 @@ export async function updateStudentUserId(
   userId: string | null
 ) {
   const res = service.updateUserId(stdNo, userId);
-  revalidatePath(`/admin/students/${stdNo}`);
+  revalidatePath(`/dashboard/students/${stdNo}`);
   return res;
 }
 
@@ -91,7 +91,7 @@ export async function updateStudentProgramStructure(
   structureId: number
 ) {
   const res = await service.updateProgramStructure(stdNo, structureId);
-  revalidatePath(`/admin/students/${stdNo}`);
+  revalidatePath(`/dashboard/students/${stdNo}`);
   return res;
 }
 

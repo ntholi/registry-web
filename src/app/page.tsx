@@ -11,7 +11,7 @@ export default async function HomePage() {
     if (role === 'student') {
       redirect('/student');
     } else if (role !== 'user' && [...dashboardUsers].includes(role)) {
-      redirect('/admin');
+      redirect('/dashboard');
     } else {
       redirect('/account-setup');
     }
