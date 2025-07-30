@@ -8,9 +8,9 @@ import { PropsWithChildren, Suspense } from 'react';
 import Providers from './providers';
 
 export const metadata: Metadata = {
-  title: 'Registry Portal | Limkokwing',
+  title: 'Limkokwing Student Portal',
   description:
-    'Registry Portal for Limkokwing University of Creative Technology, Lesotho',
+    'Student Portal for Limkokwing University of Creative Technology, Lesotho',
   keywords: [
     'Limkokwing Student Portal',
     'Student Portal',
