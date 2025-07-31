@@ -1,5 +1,6 @@
 'use client';
 
+import { findAllTerms } from '@/server/terms/actions';
 import {
   ActionIcon,
   Button,
@@ -8,10 +9,9 @@ import {
   Stack,
   Tooltip,
 } from '@mantine/core';
-import { IconFilter } from '@tabler/icons-react';
-import { useState, useEffect } from 'react';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@/server/terms/actions';
+import { IconFilter } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
 
 interface FilterButtonProps {
   onTermChange: (termId: number | null) => void;
@@ -47,7 +47,7 @@ export default function FilterButton({
     const fetchTerms = async () => {
       try {
         setLoading(true);
-        const allTerms = await getAllTerms();
+        const allTerms = (await findAllTerms()).items;
         setTerms(allTerms);
 
         if (!selectedTermId && allTerms.length > 0) {

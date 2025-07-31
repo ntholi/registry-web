@@ -18,7 +18,11 @@ export async function getCurrentTerm() {
 }
 
 export async function findAllTerms(page: number = 1, search = '') {
-  return service.findAll({ page, search });
+  return service.findAll({
+    page,
+    search,
+    sort: [{ column: 'name', order: 'desc' }],
+  });
 }
 
 export async function getAllTerms() {
