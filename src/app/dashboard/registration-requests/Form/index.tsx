@@ -216,6 +216,18 @@ export default function RegistrationRequestForm({
     }
   };
 
+  const [formInstance, setFormInstance] = useState<any>(null);
+
+  useEffect(() => {
+    if (initialStdNo && !defaultValues && formInstance) {
+      handleStudentSelect(initialStdNo);
+      const timer = setTimeout(() => {
+        handleLoadModules(initialStdNo, formInstance);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [initialStdNo, defaultValues, formInstance]);
+
   return (
     <Form
       title={title}
@@ -235,15 +247,9 @@ export default function RegistrationRequestForm({
       {(form) => {
         const selectedModules = form.values.selectedModules || [];
 
-        useEffect(() => {
-          if (initialStdNo && !defaultValues) {
-            handleStudentSelect(initialStdNo);
-            const timer = setTimeout(() => {
-              handleLoadModules(initialStdNo, form);
-            }, 500);
-            return () => clearTimeout(timer);
-          }
-        }, [initialStdNo, defaultValues]);
+        if (!formInstance) {
+          setFormInstance(form);
+        }
 
         const handleAddModuleToForm = (module: SemesterModule) => {
           const newModule: SelectedModule = {

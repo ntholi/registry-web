@@ -1,19 +1,18 @@
-import React from 'react';
-import {
-  Stack,
-  Text,
-  Card,
-  Group,
-  Badge,
-  LoadingOverlay,
-  Alert,
-  SimpleGrid,
-  Title,
-  Paper,
-} from '@mantine/core';
-import { IconInfoCircle, IconCheck } from '@tabler/icons-react';
 import { StudentModuleStatus } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
+import {
+  Alert,
+  Badge,
+  Card,
+  Group,
+  LoadingOverlay,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 type ModuleWithStatus = {
   semesterModuleId: number;

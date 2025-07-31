@@ -28,12 +28,13 @@ export type RegistrationRequest = {
   selectedModules?: Array<SelectedModule>;
 };
 
-export default async function NewPage({
-  searchParams,
-}: {
-  searchParams: { stdNo?: string };
-}) {
-  const stdNo = searchParams.stdNo ? parseInt(searchParams.stdNo) : undefined;
+type Props = {
+  searchParams: Promise<{ stdNo?: string }>;
+};
+
+export default async function NewPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const stdNo = params.stdNo ? parseInt(params.stdNo) : undefined;
   async function handleSubmit(values: RegistrationRequest) {
     'use server';
     const {
