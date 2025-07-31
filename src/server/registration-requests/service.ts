@@ -8,6 +8,7 @@ import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import { AcademicRemarks, Student } from '@/lib/helpers/students';
+import { getCurrentTerm } from '../terms/actions';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
@@ -67,8 +68,9 @@ class RegistrationRequestService {
   async countByStatus(
     status: 'pending' | 'registered' | 'rejected' | 'approved'
   ) {
+    const term = await getCurrentTerm();
     return withAuth(
-      async () => this.repository.countByStatus(status),
+      async () => this.repository.countByStatus(status, term.id),
       ['dashboard']
     );
   }

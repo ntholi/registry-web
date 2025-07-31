@@ -214,13 +214,19 @@ export default class RegistrationRequestRepository extends BaseRepository<
   }
 
   async countByStatus(
-    status: 'pending' | 'registered' | 'rejected' | 'approved'
+    status: 'pending' | 'registered' | 'rejected' | 'approved',
+    termId?: number
   ) {
     if (status === 'registered') {
       const [result] = await db
         .select({ value: count() })
         .from(registrationRequests)
-        .where(eq(registrationRequests.status, status));
+        .where(
+          and(
+            eq(registrationRequests.status, status),
+            termId ? eq(registrationRequests.termId, termId) : undefined
+          )
+        );
       return result.value;
     } else if (status === 'approved') {
       // For approved status, require ALL clearances to be approved
@@ -256,7 +262,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
                   )
                 )
             ),
-            ne(registrationRequests.status, 'registered')
+            ne(registrationRequests.status, 'registered'),
+            termId ? eq(registrationRequests.termId, termId) : undefined
           )
         );
       return result.value;
@@ -265,19 +272,22 @@ export default class RegistrationRequestRepository extends BaseRepository<
         .select({ value: count() })
         .from(registrationRequests)
         .where(
-          exists(
-            db
-              .select()
-              .from(registrationClearances)
-              .where(
-                and(
-                  eq(
-                    registrationClearances.registrationRequestId,
-                    registrationRequests.id
-                  ),
-                  eq(registrationClearances.status, status)
+          and(
+            exists(
+              db
+                .select()
+                .from(registrationClearances)
+                .where(
+                  and(
+                    eq(
+                      registrationClearances.registrationRequestId,
+                      registrationRequests.id
+                    ),
+                    eq(registrationClearances.status, status)
+                  )
                 )
-              )
+            ),
+            termId ? eq(registrationRequests.termId, termId) : undefined
           )
         );
       return result.value;
