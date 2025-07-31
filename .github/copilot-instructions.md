@@ -15,6 +15,8 @@
 - In client components, fetch via TanStack Query, invoking `actions.ts` methods exclusively.
 - For modals, co-locate trigger (button/action-icon) with the modal component to avoid prop drilling.
 - Place new components alongside their parent unless shared; shared components go in `src/app/components`.
-- Use the latest Mantine for responsive, mobile-friendly, minimal, professional UIs. Stick to predefined colors (`c="colorName"`), support light/dark themes.
+- Use the latest Mantine for responsive, mobile-friendly, minimal, professional UIs. Stick to predefined colors (`c="colorName"`)
+- Create UI components that look good on both dark and light themes.
 - Never add comments in generated code.
+- When you want to define size using rem, don't use rem function like {rem(<value>)} values, use the Mantine 'xrem' eg {'<value>rem'}
 - Avoid the `any` type completely.

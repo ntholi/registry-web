@@ -1,20 +1,18 @@
 import { auth, signIn } from '@/auth';
-import { redirect } from 'next/navigation';
-import {
-  Container,
-  Paper,
-  Title,
-  Text,
-  Button,
-  Stack,
-  Center,
-  Box,
-  Divider,
-  ThemeIcon,
-  Group,
-} from '@mantine/core';
-import { IconBrandGoogle, IconSchool } from '@tabler/icons-react';
 import Logo from '@/components/Logo';
+import {
+  Box,
+  Button,
+  Center,
+  Container,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
+import { IconBrandGoogle, IconShield } from '@tabler/icons-react';
+import { redirect } from 'next/navigation';
 
 async function handleGoogleSignIn() {
   'use server';
@@ -45,45 +43,92 @@ export default async function LoginPage() {
   }
 
   return (
-    <Container size='xs' h='100vh'>
-      <Center h='100%'>
-        <Paper shadow='md' p='xl' radius='md' w='100%' withBorder>
-          <Stack align='center' gap='xl'>
-            <Logo height={100} />
+    <Box
+      style={{
+        minHeight: '100vh',
+        background:
+          'light-dark(linear-gradient(135deg, var(--mantine-color-blue-1) 0%, var(--mantine-color-indigo-1) 100%), linear-gradient(135deg, var(--mantine-color-dark-7) 0%, var(--mantine-color-dark-6) 100%))',
+      }}
+    >
+      <Container size='sm' pt='3.75rem' pb='2.5rem'>
+        <Center>
+          <Paper
+            shadow='xl'
+            p='2.5rem'
+            w='100%'
+            maw='26.25rem'
+            withBorder
+            bg='light-dark(var(--mantine-color-white), var(--mantine-color-dark-8))'
+            style={{
+              backdropFilter: 'blur(10px)',
+              borderColor:
+                'light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))',
+            }}
+          >
+            <Stack align='center' gap='xl'>
+              <Stack align='center' gap='md'>
+                <Logo height={130} />
+                <Stack align='center' gap='xs'>
+                  <Title order={2} size='h1' fw={100} ta='center'>
+                    Student Portal
+                  </Title>
+                </Stack>
+              </Stack>
 
-            <Divider w='100%' />
-
-            <Stack w='100%' gap='lg'>
-              <form action={handleGoogleSignIn}>
-                <Button
-                  type='submit'
-                  variant='default'
-                  leftSection={<IconBrandGoogle size='1.2rem' />}
-                  fullWidth
-                >
-                  Continue with Google
-                </Button>
-              </form>
-
-              <Stack gap='xs' mt='md'>
-                <Group justify='center' gap='xs'>
-                  <Text size='xs' c='dimmed'>
-                    Need help?
-                  </Text>
-                  <Text
-                    size='xs'
-                    c='blue'
-                    component='a'
-                    href='mailto:registry@limkokwing.ac.ls'
+              <Stack w='100%' gap='lg'>
+                <form action={handleGoogleSignIn}>
+                  <Button
+                    type='submit'
+                    variant='gradient'
+                    gradient={{ from: 'blue', to: 'indigo', deg: 45 }}
+                    leftSection={<IconBrandGoogle size='1.125rem' />}
+                    fullWidth
+                    style={{
+                      boxShadow:
+                        'light-dark(0 4px 12px rgba(59, 130, 246, 0.3), 0 4px 12px rgba(99, 179, 237, 0.4))',
+                    }}
                   >
-                    Contact Registry
+                    Sign in with Google
+                  </Button>
+                </form>
+
+                <Group justify='center' gap='xs' mt='md'>
+                  <IconShield
+                    size={'1rem'}
+                    color='light-dark(var(--mantine-color-green-6), var(--mantine-color-green-4))'
+                  />
+                  <Text size='xs' c='dimmed'>
+                    Secure authentication powered by Google
                   </Text>
                 </Group>
+
+                <Stack gap='xs' mt='lg'>
+                  <Group justify='center' gap='xs'>
+                    <Text size='xs' c='dimmed'>
+                      Need assistance?
+                    </Text>
+                    <Text
+                      size='xs'
+                      c='blue'
+                      component='a'
+                      href='mailto:registry@limkokwing.ac.ls'
+                      style={{
+                        textDecoration: 'none',
+                        fontWeight: 500,
+                      }}
+                    >
+                      Contact Registry
+                    </Text>
+                  </Group>
+                  <Text size='xs' c='dimmed' ta='center'>
+                    Limkokwing University of Creative Technology, Lesotho
+                  </Text>
+                </Stack>
               </Stack>
             </Stack>
-          </Stack>
-        </Paper>
-      </Center>
-    </Container>
+          </Paper>
+        </Center>
+      </Container>
+    </Box>
   );
 }
