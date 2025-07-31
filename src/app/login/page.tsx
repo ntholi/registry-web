@@ -11,8 +11,9 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import { IconBrandGoogle, IconShield } from '@tabler/icons-react';
+import { IconShield } from '@tabler/icons-react';
 import { redirect } from 'next/navigation';
+import Image from 'next/image';
 
 async function handleGoogleSignIn() {
   'use server';
@@ -70,7 +71,7 @@ export default async function LoginPage() {
                 <Logo height={130} />
                 <Stack align='center' gap='xs'>
                   <Title order={2} size='h1' fw={100} ta='center'>
-                    Student Portal
+                    Login
                   </Title>
                 </Stack>
               </Stack>
@@ -79,28 +80,20 @@ export default async function LoginPage() {
                 <form action={handleGoogleSignIn}>
                   <Button
                     type='submit'
-                    variant='gradient'
-                    gradient={{ from: 'blue', to: 'indigo', deg: 45 }}
-                    leftSection={<IconBrandGoogle size='1.125rem' />}
+                    variant='default'
+                    leftSection={
+                      <Image
+                        src='/images/google.svg'
+                        alt='Google'
+                        width={18}
+                        height={18}
+                      />
+                    }
                     fullWidth
-                    style={{
-                      boxShadow:
-                        'light-dark(0 4px 12px rgba(59, 130, 246, 0.3), 0 4px 12px rgba(99, 179, 237, 0.4))',
-                    }}
                   >
                     Sign in with Google
                   </Button>
                 </form>
-
-                <Group justify='center' gap='xs' mt='md'>
-                  <IconShield
-                    size={'1rem'}
-                    color='light-dark(var(--mantine-color-green-6), var(--mantine-color-green-4))'
-                  />
-                  <Text size='xs' c='dimmed'>
-                    Secure authentication powered by Google
-                  </Text>
-                </Group>
 
                 <Stack gap='xs' mt='lg'>
                   <Group justify='center' gap='xs'>

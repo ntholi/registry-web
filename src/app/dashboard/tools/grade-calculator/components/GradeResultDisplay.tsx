@@ -23,7 +23,7 @@ export function GradeResultDisplay({ result }: GradeResultDisplayProps) {
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing='lg'>
           <Stack gap={2}>
             <Text fw={600} size='sm' c='dimmed'>
-              Marks Range
+              Grade
             </Text>
             <Badge size='lg' color={gradeColor} variant='gradient'>
               {result.grade}
