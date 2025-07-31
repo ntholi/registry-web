@@ -12,10 +12,11 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconFilter } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
+import { selectedTermIdAtom } from '@/atoms/termAtoms';
 
 interface TermFilterProps {
-  onTermChange: (termId: number | null) => void;
-  selectedTermId?: number | null;
+  onTermChange?: (termId: number | null) => void;
   label?: string;
   size?: number;
   color?: string;
@@ -30,7 +31,6 @@ type Term = {
 
 export default function TermFilter({
   onTermChange,
-  selectedTermId,
   label = 'Filter by term',
   size = 16,
   color = 'blue',
@@ -39,6 +39,7 @@ export default function TermFilter({
   const [opened, { open, close }] = useDisclosure(false);
   const [terms, setTerms] = useState<Term[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedTermId, setSelectedTermId] = useAtom(selectedTermIdAtom);
   const [selectedTerm, setSelectedTerm] = useState<string | null>(
     selectedTermId?.toString() || null
   );
@@ -54,7 +55,8 @@ export default function TermFilter({
           const activeTerm = allTerms.find((term) => term.isActive);
           if (activeTerm) {
             setSelectedTerm(activeTerm.id.toString());
-            onTermChange(activeTerm.id);
+            setSelectedTermId(activeTerm.id);
+            onTermChange?.(activeTerm.id);
           }
         }
       } catch (error) {
@@ -65,11 +67,12 @@ export default function TermFilter({
     };
 
     fetchTerms();
-  }, [selectedTermId, onTermChange]);
+  }, [selectedTermId, onTermChange, setSelectedTermId]);
 
   const handleApplyFilter = () => {
     const termId = selectedTerm ? parseInt(selectedTerm) : null;
-    onTermChange(termId);
+    setSelectedTermId(termId);
+    onTermChange?.(termId);
     close();
   };
 
