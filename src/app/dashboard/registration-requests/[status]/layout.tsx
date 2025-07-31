@@ -7,7 +7,7 @@ import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { PropsWithChildren, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import FilterButton from './FilterButton';
+import TermFilter from '@/components/TermFilter';
 
 type Status = 'pending' | 'registered' | 'rejected' | 'approved';
 
@@ -72,8 +72,8 @@ export default function Layout({ children }: PropsWithChildren) {
         };
       }}
       actionIcons={[
-        <FilterButton
-          key='filter-button'
+        <TermFilter
+          key='term-filter'
           onTermChange={setSelectedTermId}
           selectedTermId={selectedTermId}
         />,

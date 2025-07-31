@@ -11,7 +11,7 @@ import { PropsWithChildren, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import DownloadCSVButton from '@/components/DownloadCSVButton';
-import FilterButton from './FilterButton';
+import TermFilter from '@/components/TermFilter';
 
 type Status = 'pending' | 'approved' | 'rejected';
 
@@ -72,8 +72,8 @@ export default function Layout({ children }: PropsWithChildren) {
         };
       }}
       actionIcons={[
-        <FilterButton
-          key='filter-button'
+        <TermFilter
+          key='term-filter'
           onTermChange={setSelectedTermId}
           selectedTermId={selectedTermId}
         />,

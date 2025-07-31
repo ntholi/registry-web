@@ -13,7 +13,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconFilter } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
-interface FilterButtonProps {
+interface TermFilterProps {
   onTermChange: (termId: number | null) => void;
   selectedTermId?: number | null;
   label?: string;
@@ -28,14 +28,14 @@ type Term = {
   isActive: boolean;
 };
 
-export default function FilterButton({
+export default function TermFilter({
   onTermChange,
   selectedTermId,
   label = 'Filter by term',
   size = 16,
   color = 'blue',
   variant = 'default',
-}: FilterButtonProps) {
+}: TermFilterProps) {
   const [opened, { open, close }] = useDisclosure(false);
   const [terms, setTerms] = useState<Term[]>([]);
   const [loading, setLoading] = useState(false);
@@ -78,11 +78,16 @@ export default function FilterButton({
     label: term.name + (term.isActive ? ' (Current)' : ''),
   }));
 
+  const currentTerm = terms.find((term) => term.isActive);
+  const isCurrentTermSelected =
+    currentTerm && selectedTerm === currentTerm.id.toString();
+  const buttonVariant = isCurrentTermSelected ? variant : 'white';
+
   return (
     <>
       <Tooltip label={label}>
         <ActionIcon
-          variant={variant}
+          variant={buttonVariant}
           color={color}
           onClick={open}
           size={'input-sm'}

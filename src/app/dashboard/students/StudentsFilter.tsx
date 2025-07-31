@@ -91,7 +91,7 @@ export default function StudentsFilter() {
   const addSemesterDescription = (
     desc: string,
     selectedSemester: string | null,
-    selectedTerm: typeof termsTable.$inferSelect | undefined,
+    selectedTerm: typeof termsTable.$inferSelect | undefined
   ) => {
     if (selectedSemester && selectedTerm) {
       return desc + ` in ${selectedSemester}`;
@@ -103,13 +103,13 @@ export default function StudentsFilter() {
 
   const previewDescription = useMemo(() => {
     const selectedSchool = schools.find(
-      (s) => s.id?.toString() === (filters.schoolId || ''),
+      (s) => s.id?.toString() === (filters.schoolId || '')
     );
     const selectedProgram = programs.find(
-      (p) => p.id?.toString() === (filters.programId || ''),
+      (p) => p.id?.toString() === (filters.programId || '')
     );
     const selectedTerm = terms.find(
-      (t) => t.id?.toString() === (filters.termId || ''),
+      (t) => t.id?.toString() === (filters.termId || '')
     );
     const selectedSemester = filters.semesterNumber
       ? getSemesterLabel(Number(filters.semesterNumber))
@@ -188,7 +188,7 @@ export default function StudentsFilter() {
       <HoverCard withArrow position='top'>
         <HoverCard.Target>
           <ActionIcon
-            variant={hasActiveFilters ? 'filled' : 'default'}
+            variant={hasActiveFilters ? 'white' : 'default'}
             size={33}
             onClick={toggle}
             color={hasActiveFilters ? 'blue' : undefined}
