@@ -2,9 +2,12 @@
 
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
 import { findAllRegistrationRequests } from '@/server/registration-requests/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import FilterButton from './FilterButton';
 
 type Status = 'pending' | 'registered' | 'rejected' | 'approved';
 
@@ -27,6 +30,17 @@ type ListItem = {
 export default function Layout({ children }: PropsWithChildren) {
   const params = useParams();
   const status = params.status as Status;
+  const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
+
+  const { data: currentTerm } = useQuery({
+    queryKey: ['currentTerm'],
+    queryFn: getCurrentTerm,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  if (currentTerm?.id && selectedTermId === null) {
+    setSelectedTermId(currentTerm.id);
+  }
 
   if (!statusTitles[status]) {
     return <div>Invalid status: {status}</div>;
@@ -35,12 +49,17 @@ export default function Layout({ children }: PropsWithChildren) {
   return (
     <ListLayout
       path={'/dashboard/registration-requests/' + status}
-      queryKey={['registrationRequests', status]}
+      queryKey={[
+        'registrationRequests',
+        status,
+        selectedTermId?.toString() || 'all',
+      ]}
       getData={async (page, search) => {
         const response = await findAllRegistrationRequests(
           page,
           search,
-          status
+          status,
+          selectedTermId || undefined
         );
         return {
           items: response.data.map((item) => ({
@@ -53,9 +72,10 @@ export default function Layout({ children }: PropsWithChildren) {
         };
       }}
       actionIcons={[
-        <NewLink
-          key={'new-link'}
-          href='/dashboard/registration-requests/pending/new'
+        <FilterButton
+          key='filter-button'
+          onTermChange={setSelectedTermId}
+          selectedTermId={selectedTermId}
         />,
       ]}
       renderItem={(it: ListItem) => (

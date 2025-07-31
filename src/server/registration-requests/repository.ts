@@ -118,7 +118,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
   async findByStatus(
     status: 'pending' | 'registered' | 'rejected' | 'approved',
-    params: QueryOptions<typeof registrationRequests>
+    params: QueryOptions<typeof registrationRequests>,
+    termId?: number
   ) {
     const { offset, limit } = this.buildQueryCriteria(params);
 
@@ -128,7 +129,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
         eq(registrationRequests.status, status),
         params.search
           ? like(registrationRequests.stdNo, `%${params.search}%`)
-          : undefined
+          : undefined,
+        termId ? eq(registrationRequests.termId, termId) : undefined
       );
     } else if (status === 'approved') {
       // For approved status, require ALL clearances to be approved
@@ -164,7 +166,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
                   )
                 )
             ),
-            ne(registrationRequests.status, 'registered')
+            ne(registrationRequests.status, 'registered'),
+            termId ? eq(registrationRequests.termId, termId) : undefined
           )
         );
 
@@ -185,7 +188,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
         ),
         params.search
           ? like(registrationRequests.stdNo, `%${params.search}%`)
-          : undefined
+          : undefined,
+        termId ? eq(registrationRequests.termId, termId) : undefined
       );
     }
 

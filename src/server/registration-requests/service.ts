@@ -57,10 +57,11 @@ class RegistrationRequestService {
 
   async findByStatus(
     status: 'pending' | 'registered' | 'rejected' | 'approved',
-    params: QueryOptions<typeof registrationRequests>
+    params: QueryOptions<typeof registrationRequests>,
+    termId?: number
   ) {
     return withAuth(
-      async () => this.repository.findByStatus(status, params),
+      async () => this.repository.findByStatus(status, params, termId),
       ['registry', 'finance', 'library']
     );
   }
