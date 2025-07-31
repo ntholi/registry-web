@@ -200,8 +200,31 @@ export default class RegistrationClearanceRepository extends BaseRepository<
 
   async countByStatus(
     status: 'pending' | 'approved' | 'rejected',
-    department: DashboardUser
+    department: DashboardUser,
+    termId?: number
   ) {
+    if (termId) {
+      const clearanceIdsWithTerm = await db
+        .select({ id: registrationClearances.id })
+        .from(registrationClearances)
+        .innerJoin(
+          registrationRequests,
+          eq(
+            registrationClearances.registrationRequestId,
+            registrationRequests.id
+          )
+        )
+        .where(
+          and(
+            eq(registrationClearances.department, department),
+            eq(registrationClearances.status, status),
+            eq(registrationRequests.termId, termId)
+          )
+        );
+
+      return clearanceIdsWithTerm.length;
+    }
+
     const [result] = await db
       .select({ count: count() })
       .from(registrationClearances)

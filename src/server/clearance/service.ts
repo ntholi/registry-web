@@ -4,6 +4,7 @@ import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { auth } from '@/auth';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
+import { getCurrentTerm } from '../terms/actions';
 
 type RegistrationClearance = typeof registrationClearances.$inferInsert;
 
@@ -29,12 +30,14 @@ class RegistrationClearanceService {
   }
 
   async countByStatus(status: 'pending' | 'approved' | 'rejected') {
+    const term = await getCurrentTerm();
     const session = await auth();
     if (!session?.user?.role) return 0;
 
     return this.repository.countByStatus(
       status,
-      session.user.role as DashboardUser
+      session.user.role as DashboardUser,
+      term.id
     );
   }
 
