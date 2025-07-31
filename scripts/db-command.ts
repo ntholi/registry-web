@@ -7,17 +7,23 @@ dotenv.config();
 const command = process.argv[2];
 const isProd = process.argv.includes('--prod');
 
-process.env.DATABASE_URL = isProd
-  ? process.env.TURSO_DATABASE_URL
-  : process.env.LOCAL_DATABASE_URL;
-
-console.log('Using', isProd ? 'Production' : 'Dev', 'Environment');
+if (isProd) {
+  process.env.DATABASE_URL = process.env.TURSO_DATABASE_URL;
+  process.env.TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN;
+  console.log('Using Production Environment');
+} else {
+  process.env.DATABASE_URL =
+    process.env.DEV_TURSO_DATABASE_URL || process.env.TURSO_DATABASE_URL;
+  process.env.TURSO_AUTH_TOKEN =
+    process.env.DEV_TURSO_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN;
+  console.log('Using Development Environment');
+}
 
 const drizzleBinPath = path.resolve(
   process.cwd(),
   'node_modules',
   '.bin',
-  process.platform === 'win32' ? 'drizzle-kit.cmd' : 'drizzle-kit',
+  process.platform === 'win32' ? 'drizzle-kit.cmd' : 'drizzle-kit'
 );
 
 const drizzleProcess = spawn(drizzleBinPath, [command], {

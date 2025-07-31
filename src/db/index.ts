@@ -3,9 +3,10 @@ import { createClient } from '@libsql/client';
 import * as schema from './schema';
 import * as relations from './relations';
 
-const client = process.env.LOCAL_DATABASE_URL
+const client = process.env.DEV_TURSO_DATABASE_URL
   ? createClient({
-      url: process.env.LOCAL_DATABASE_URL,
+      url: process.env.DEV_TURSO_DATABASE_URL,
+      authToken: process.env.DEV_TURSO_AUTH_TOKEN,
     })
   : createClient({
       url: process.env.TURSO_DATABASE_URL!,

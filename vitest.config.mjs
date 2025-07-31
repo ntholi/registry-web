@@ -7,7 +7,7 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./src/test/setup.ts'],
     env: {
-      LOCAL_DATABASE_URL: 'file:test.db',
+      DEV_TURSO_DATABASE_URL: 'file:test.db',
     },
   },
   optimizeDeps: {
