@@ -1,3 +1,9 @@
 import { atom } from 'jotai';
 
-export const selectedTermIdAtom = atom<number | null>(null);
+export type Term = {
+  id: number;
+  name: string;
+  isActive: boolean;
+};
+
+export const selectedTermAtom = atom<number | null>(null);

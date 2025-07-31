@@ -13,7 +13,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconFilter } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
-import { selectedTermIdAtom } from '@/atoms/termAtoms';
+import { selectedTermAtom, type Term } from '@/atoms/termAtoms';
 
 interface TermFilterProps {
   onTermChange?: (termId: number | null) => void;
@@ -22,12 +22,6 @@ interface TermFilterProps {
   color?: string;
   variant?: string;
 }
-
-type Term = {
-  id: number;
-  name: string;
-  isActive: boolean;
-};
 
 export default function TermFilter({
   onTermChange,
@@ -39,10 +33,7 @@ export default function TermFilter({
   const [opened, { open, close }] = useDisclosure(false);
   const [terms, setTerms] = useState<Term[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedTermId, setSelectedTermId] = useAtom(selectedTermIdAtom);
-  const [selectedTerm, setSelectedTerm] = useState<string | null>(
-    selectedTermId?.toString() || null
-  );
+  const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 
   useEffect(() => {
     const fetchTerms = async () => {
@@ -51,11 +42,10 @@ export default function TermFilter({
         const allTerms = (await findAllTerms()).items;
         setTerms(allTerms);
 
-        if (!selectedTermId && allTerms.length > 0) {
+        if (!selectedTerm && allTerms.length > 0) {
           const activeTerm = allTerms.find((term) => term.isActive);
           if (activeTerm) {
-            setSelectedTerm(activeTerm.id.toString());
-            setSelectedTermId(activeTerm.id);
+            setSelectedTerm(activeTerm.id);
             onTermChange?.(activeTerm.id);
           }
         }
@@ -67,13 +57,19 @@ export default function TermFilter({
     };
 
     fetchTerms();
-  }, [selectedTermId, onTermChange, setSelectedTermId]);
+  }, [selectedTerm, onTermChange, setSelectedTerm]);
 
   const handleApplyFilter = () => {
-    const termId = selectedTerm ? parseInt(selectedTerm) : null;
-    setSelectedTermId(termId);
-    onTermChange?.(termId);
+    onTermChange?.(selectedTerm || null);
     close();
+  };
+
+  const handleTermSelect = (termId: string | null) => {
+    if (termId) {
+      setSelectedTerm(parseInt(termId));
+    } else {
+      setSelectedTerm(null);
+    }
   };
 
   const termOptions = terms.map((term) => ({
@@ -82,15 +78,13 @@ export default function TermFilter({
   }));
 
   const currentTerm = terms.find((term) => term.isActive);
-  const isCurrentTermSelected =
-    currentTerm && selectedTerm === currentTerm.id.toString();
-  const buttonVariant = isCurrentTermSelected ? variant : 'white';
+  const isCurrentTermSelected = currentTerm && selectedTerm === currentTerm.id;
 
   return (
     <>
       <Tooltip label={label}>
         <ActionIcon
-          variant={buttonVariant}
+          variant={loading || isCurrentTermSelected ? variant : 'white'}
           color={color}
           onClick={open}
           size={'input-sm'}
@@ -106,8 +100,8 @@ export default function TermFilter({
             label='Select Term'
             placeholder='Choose a term'
             data={termOptions}
-            value={selectedTerm}
-            onChange={setSelectedTerm}
+            value={selectedTerm?.toString() || null}
+            onChange={handleTermSelect}
             searchable
             clearable
             allowDeselect

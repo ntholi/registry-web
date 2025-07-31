@@ -12,6 +12,8 @@ import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import DownloadCSVButton from '@/components/DownloadCSVButton';
 import TermFilter from '@/components/TermFilter';
+import { selectedTermAtom } from '@/atoms/termAtoms';
+import { useAtom } from 'jotai';
 
 type Status = 'pending' | 'approved' | 'rejected';
 
@@ -35,7 +37,7 @@ const statusTitles = {
 export default function Layout({ children }: PropsWithChildren) {
   const params = useParams();
   const status = params.status as Status;
-  const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
+  const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 
   const { data: currentTerm } = useQuery({
     queryKey: ['currentTerm'],
@@ -43,8 +45,8 @@ export default function Layout({ children }: PropsWithChildren) {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  if (currentTerm?.id && selectedTermId === null) {
-    setSelectedTermId(currentTerm.id);
+  if (currentTerm?.id && selectedTerm === null) {
+    setSelectedTerm(currentTerm.id);
   }
 
   if (!statusTitles[status]) {
@@ -57,14 +59,14 @@ export default function Layout({ children }: PropsWithChildren) {
       queryKey={[
         'registrationClearances',
         status,
-        selectedTermId?.toString() || 'all',
+        selectedTerm?.toString() || 'all',
       ]}
       getData={async (page, search) => {
         const response = await registrationClearanceByStatus(
           status,
           page,
           search,
-          selectedTermId || undefined
+          selectedTerm || undefined
         );
         return {
           items: response.items || [],
@@ -72,16 +74,12 @@ export default function Layout({ children }: PropsWithChildren) {
         };
       }}
       actionIcons={[
-        <TermFilter
-          key='term-filter'
-          onTermChange={setSelectedTermId}
-          selectedTermId={selectedTermId}
-        />,
+        <TermFilter key='term-filter' onTermChange={setSelectedTerm} />,
         <DownloadCSVButton
           key='download-csv'
           status={status}
           onDownload={(status) =>
-            exportClearancesByStatus(status, selectedTermId || undefined)
+            exportClearancesByStatus(status, selectedTerm || undefined)
           }
         />,
       ]}
