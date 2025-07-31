@@ -9,7 +9,7 @@ import AcademicsView from './AcademicsView';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
 import ProofOfRegistrationPrinter from './ProofOfRegistrationPrinter';
-import RegistrationView from './RegistrationView';
+import RegistrationView from './registration/RegistrationView';
 import StudentCardView from './card/StudentCardView';
 import StudentView from './info/StudentView';
 
@@ -26,7 +26,7 @@ export function StudentTabs({
 }: StudentTabsProps) {
   const [activeTab, setActiveTab] = useLocalStorage<string | null>(
     'studentDetailsTab',
-    'info',
+    'info'
   );
   const showRegistration =
     session?.user?.role === 'admin' ||

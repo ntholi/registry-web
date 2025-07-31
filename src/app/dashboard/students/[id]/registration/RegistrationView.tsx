@@ -79,7 +79,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
         </Text>
         <Button
           component={Link}
-          href='/dashboard/registration-requests/new'
+          href={`/dashboard/registration-requests/new?stdNo=${stdNo}`}
           leftSection={<IconPlus size={16} />}
           variant='filled'
           color='blue'
@@ -105,7 +105,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
             </Stack>
             <Button
               component={Link}
-              href='/dashboard/registration-requests/new'
+              href={`/dashboard/registration-requests/new?stdNo=${stdNo}`}
               leftSection={<IconPlus size={14} />}
               variant='filled'
               size='sm'

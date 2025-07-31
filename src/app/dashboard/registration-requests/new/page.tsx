@@ -28,7 +28,12 @@ export type RegistrationRequest = {
   selectedModules?: Array<SelectedModule>;
 };
 
-export default async function NewPage() {
+export default async function NewPage({
+  searchParams,
+}: {
+  searchParams: { stdNo?: string };
+}) {
+  const stdNo = searchParams.stdNo ? parseInt(searchParams.stdNo) : undefined;
   async function handleSubmit(values: RegistrationRequest) {
     'use server';
     const {
@@ -70,7 +75,11 @@ export default async function NewPage() {
   return (
     <Box p={'lg'}>
       <Paper withBorder p='md'>
-        <Form title={'Create Registration Request'} onSubmit={handleSubmit} />
+        <Form
+          title={'Create Registration Request'}
+          onSubmit={handleSubmit}
+          initialStdNo={stdNo}
+        />
       </Paper>
     </Box>
   );

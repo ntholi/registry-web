@@ -25,10 +25,10 @@ import {
   Table,
   Text,
 } from '@mantine/core';
-import { IconDownload, IconTrash } from '@tabler/icons-react';
+import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 import StdNoInput from '../../base/StdNoInput';
@@ -67,6 +67,7 @@ type Props = {
   title?: string;
   structureModules?: Awaited<ReturnType<typeof getModulesForStructure>>;
   structureId?: number;
+  initialStdNo?: number;
 };
 
 export default function RegistrationRequestForm({
@@ -75,6 +76,7 @@ export default function RegistrationRequestForm({
   title,
   structureModules: initialStructureModules,
   structureId: initialStructureId,
+  initialStdNo,
 }: Props) {
   const router = useRouter();
   const [structureId, setStructureId] = useState<number | null>(
@@ -221,6 +223,7 @@ export default function RegistrationRequestForm({
       queryKey={['registrationRequests']}
       defaultValues={{
         ...defaultValues,
+        stdNo: initialStdNo || defaultValues?.stdNo,
         selectedModules: defaultValues?.selectedModules || [],
         semesterNumber: defaultValues?.semesterNumber?.toString(),
         termId: defaultValues?.termId || currentTerm?.id || '',
@@ -231,6 +234,16 @@ export default function RegistrationRequestForm({
     >
       {(form) => {
         const selectedModules = form.values.selectedModules || [];
+
+        useEffect(() => {
+          if (initialStdNo && !defaultValues) {
+            handleStudentSelect(initialStdNo);
+            const timer = setTimeout(() => {
+              handleLoadModules(initialStdNo, form);
+            }, 500);
+            return () => clearTimeout(timer);
+          }
+        }, [initialStdNo, defaultValues]);
 
         const handleAddModuleToForm = (module: SemesterModule) => {
           const newModule: SelectedModule = {
@@ -266,31 +279,14 @@ export default function RegistrationRequestForm({
 
         return (
           <Stack gap='xs'>
-            <Group align='center'>
-              <div style={{ flexGrow: 1 }}>
-                <StdNoInput
-                  {...form.getInputProps('stdNo')}
-                  disabled={!!defaultValues}
-                  onChange={(value) => {
-                    form.getInputProps('stdNo').onChange(value);
-                    if (value) handleStudentSelect(Number(value));
-                  }}
-                />
-              </div>
-              <Button
-                onClick={() =>
-                  handleLoadModules(Number(form.values.stdNo), form)
-                }
-                disabled={
-                  !form.values.stdNo || !structureId || isLoadingModules
-                }
-                loading={isLoadingModules}
-                variant='light'
-                leftSection={<IconDownload size={16} />}
-              >
-                Load
-              </Button>
-            </Group>
+            <StdNoInput
+              {...form.getInputProps('stdNo')}
+              disabled={!!defaultValues || !!initialStdNo}
+              onChange={(value) => {
+                form.getInputProps('stdNo').onChange(value);
+                if (value) handleStudentSelect(Number(value));
+              }}
+            />
 
             <Select
               label='Term'
