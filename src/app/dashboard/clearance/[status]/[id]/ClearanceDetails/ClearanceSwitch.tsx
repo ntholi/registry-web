@@ -5,7 +5,7 @@ import { toTitleCase } from '@/lib/utils';
 import {
   createRegistrationClearance,
   getRegistrationClearance,
-} from '@/server/registration-clearance/actions';
+} from '@/server/clearance/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

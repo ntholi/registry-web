@@ -4,7 +4,7 @@ import { ListItem, ListLayout } from '@/components/adease';
 import {
   registrationClearanceByStatus,
   exportClearancesByStatus,
-} from '@/server/registration-clearance/actions';
+} from '@/server/clearance/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { PropsWithChildren } from 'react';
 import { useParams } from 'next/navigation';
@@ -28,7 +28,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
   return (
     <ListLayout
-      path={'/dashboard/registration-clearance/' + status}
+      path={'/dashboard/clearance/' + status}
       queryKey={['registrationClearances', status]}
       getData={async (page, search) => {
         const response = await registrationClearanceByStatus(

@@ -35,7 +35,7 @@ export default function RegistrationClearanceForm({
       schema={createInsertSchema(registrationClearances)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
-        router.push(`/dashboard/registration-clearance/${status}/${id}`);
+        router.push(`/dashboard/clearance/${status}/${id}`);
       }}
     >
       {(form) => (

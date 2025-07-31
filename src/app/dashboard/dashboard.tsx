@@ -9,7 +9,7 @@ import {
   countApprovedRegistrationClearances,
   countPendingRegistrationClearances,
   countRejectedRegistrationClearances,
-} from '@/server/registration-clearance/actions';
+} from '@/server/clearance/actions';
 import { countByStatus } from '@/server/registration-requests/actions';
 import { getUserSchools } from '@/server/users/actions';
 import {
@@ -187,7 +187,7 @@ function getNavigation(department: DashboardUser) {
       children: [
         {
           label: 'Requests',
-          href: '/dashboard/registration-clearance/pending',
+          href: '/dashboard/clearance/pending',
           icon: IconMessageQuestion,
           notificationCount: {
             queryKey: ['registrationClearances', 'pending'],
@@ -197,7 +197,7 @@ function getNavigation(department: DashboardUser) {
         },
         {
           label: 'Approved',
-          href: '/dashboard/registration-clearance/approved',
+          href: '/dashboard/clearance/approved',
           icon: IconSquareRoundedCheck,
           notificationCount: {
             queryKey: ['registrationClearances', 'approved'],
@@ -207,7 +207,7 @@ function getNavigation(department: DashboardUser) {
         },
         {
           label: 'Rejected',
-          href: '/dashboard/registration-clearance/rejected',
+          href: '/dashboard/clearance/rejected',
           icon: IconBarrierBlock,
           notificationCount: {
             queryKey: ['registrationClearances', 'rejected'],

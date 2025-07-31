@@ -4,7 +4,7 @@ import Form from '../../Form';
 import {
   getRegistrationClearance,
   updateRegistrationClearance,
-} from '@/server/registration-clearance/actions';
+} from '@/server/clearance/actions';
 
 type Props = {
   params: Promise<{ id: string; status: string }>;
