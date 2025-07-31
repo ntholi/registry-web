@@ -47,7 +47,8 @@ export async function registrationClearanceByDepartment(
 export async function registrationClearanceByStatus(
   status: 'pending' | 'approved' | 'rejected',
   page: number = 1,
-  search = ''
+  search = '',
+  termId?: number
 ) {
   const session = await auth();
   if (!session?.user?.role) {
@@ -63,7 +64,8 @@ export async function registrationClearanceByStatus(
       page,
       search,
     },
-    status
+    status,
+    termId
   );
 
   return {
@@ -107,9 +109,10 @@ export async function getNextPendingRegistrationClearance() {
 }
 
 export async function exportClearancesByStatus(
-  status: 'pending' | 'approved' | 'rejected'
+  status: 'pending' | 'approved' | 'rejected',
+  termId?: number
 ) {
-  const clearances = await service.findByStatusForExport(status);
+  const clearances = await service.findByStatusForExport(status, termId);
 
   const csvData = clearances.map((clearance) => {
     const student = clearance.registrationRequest.student;

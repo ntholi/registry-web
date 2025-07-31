@@ -153,12 +153,16 @@ export default class RegistrationClearanceRepository extends BaseRepository<
   async findByDepartment(
     department: DashboardUser,
     params: QueryOptions<typeof registrationClearances>,
-    status?: 'pending' | 'approved' | 'rejected'
+    status?: 'pending' | 'approved' | 'rejected',
+    termId?: number
   ) {
     const { offset, limit } = this.buildQueryCriteria(params);
 
     const ids = await db.query.registrationRequests.findMany({
-      where: like(registrationRequests.stdNo, `%${params.search}%`),
+      where: and(
+        like(registrationRequests.stdNo, `%${params.search}%`),
+        termId ? eq(registrationRequests.termId, termId) : undefined
+      ),
       columns: {
         id: true,
       },
@@ -287,7 +291,65 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     });
   }
 
-  async findByStatusForExport(status: 'pending' | 'approved' | 'rejected') {
+  async findByStatusForExport(
+    status: 'pending' | 'approved' | 'rejected',
+    termId?: number
+  ) {
+    if (termId) {
+      const clearanceIdsWithTerm = await db
+        .select({ id: registrationClearances.id })
+        .from(registrationClearances)
+        .innerJoin(
+          registrationRequests,
+          eq(
+            registrationClearances.registrationRequestId,
+            registrationRequests.id
+          )
+        )
+        .where(
+          and(
+            eq(registrationClearances.status, status),
+            eq(registrationRequests.termId, termId)
+          )
+        );
+
+      if (clearanceIdsWithTerm.length === 0) {
+        return [];
+      }
+
+      return db.query.registrationClearances.findMany({
+        where: inArray(
+          registrationClearances.id,
+          clearanceIdsWithTerm.map((c) => c.id)
+        ),
+        with: {
+          registrationRequest: {
+            with: {
+              student: {
+                with: {
+                  programs: {
+                    where: eq(studentPrograms.status, 'Active'),
+                    orderBy: (programs, { asc }) => [asc(programs.id)],
+                    limit: 1,
+                    with: {
+                      structure: {
+                        with: {
+                          program: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              term: true,
+            },
+          },
+          respondedBy: true,
+        },
+        orderBy: [asc(registrationClearances.createdAt)],
+      });
+    }
+
     return db.query.registrationClearances.findMany({
       where: eq(registrationClearances.status, status),
       with: {

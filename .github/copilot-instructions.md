@@ -12,7 +12,7 @@
   ```
 
 - Write Drizzle queries with `db.query` and select only needed columns.
-- In client components, fetch via TanStack Query, invoking `actions.ts` methods exclusively.
+- In client components, fetch via TanStack Query, invoking `actions.ts` methods exclusively, avoid using useEffect for data fetching.
 - For modals, co-locate trigger (button/action-icon) with the modal component to avoid prop drilling.
 - Place new components alongside their parent unless shared; shared components go in `src/app/components`.
 - Use the latest Mantine for responsive, mobile-friendly, minimal, professional UIs. Stick to predefined colors (`c="colorName"`)

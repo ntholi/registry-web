@@ -41,10 +41,12 @@ class RegistrationClearanceService {
   async findByDepartment(
     department: DashboardUser,
     params: QueryOptions<typeof registrationClearances>,
-    status?: 'pending' | 'approved' | 'rejected'
+    status?: 'pending' | 'approved' | 'rejected',
+    termId?: number
   ) {
     return withAuth(
-      async () => this.repository.findByDepartment(department, params, status),
+      async () =>
+        this.repository.findByDepartment(department, params, status, termId),
       ['dashboard']
     );
   }
@@ -102,9 +104,12 @@ class RegistrationClearanceService {
     );
   }
 
-  async findByStatusForExport(status: 'pending' | 'approved' | 'rejected') {
+  async findByStatusForExport(
+    status: 'pending' | 'approved' | 'rejected',
+    termId?: number
+  ) {
     return withAuth(
-      async () => this.repository.findByStatusForExport(status),
+      async () => this.repository.findByStatusForExport(status, termId),
       ['dashboard']
     );
   }
