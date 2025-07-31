@@ -1,6 +1,6 @@
 import { modules, semesterModules, StudentModuleStatus } from '@/db/schema';
 import { createRegistrationWithModules } from '@/server/registration-requests/actions';
-import { Box } from '@mantine/core';
+import { Box, Paper } from '@mantine/core';
 import Form from '../Form';
 
 type Module = typeof modules.$inferSelect;
@@ -69,7 +69,9 @@ export default async function NewPage() {
 
   return (
     <Box p={'lg'}>
-      <Form title={'Create Registration Request'} onSubmit={handleSubmit} />
+      <Paper withBorder p='md'>
+        <Form title={'Create Registration Request'} onSubmit={handleSubmit} />
+      </Paper>
     </Box>
   );
 }

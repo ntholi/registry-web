@@ -5,8 +5,8 @@ import {
 } from '@/server/registration-requests/actions';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import EditForm from '../../Form';
-import { RegistrationRequest } from '../../new/page';
+import EditForm from '../../../Form';
+import { RegistrationRequest } from '../../../new/page';
 import { StudentModuleStatus, modules, semesterModules } from '@/db/schema';
 
 type Props = {

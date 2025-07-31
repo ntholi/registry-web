@@ -29,9 +29,9 @@ import { IconDownload, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import StdNoInput from '../../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
+import StdNoInput from '../../base/StdNoInput';
 
 type Module = typeof modules.$inferSelect;
 

@@ -9,6 +9,8 @@ import {
   Alert,
   Anchor,
   Badge,
+  Button,
+  Card,
   Divider,
   Group,
   Paper,
@@ -17,6 +19,7 @@ import {
   Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 
 type StudentRegistrationHistory = {
@@ -61,84 +64,126 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
     );
   }
 
+  const hasCurrentTermRegistration = registrationRequests?.some(
+    (request) => request.term.id === currentTerm?.id
+  );
+
   if (!registrationRequests || registrationRequests.length === 0) {
     return (
       <Stack align='center' py='xl' gap='md'>
         <Text size='lg' fw={500} c='dimmed'>
-          No registration for {currentTerm?.name}
+          No registration requests found
         </Text>
         <Text size='sm' c='dimmed' ta='center'>
           This student has not submitted any registration requests yet.
         </Text>
+        <Button
+          component={Link}
+          href='/dashboard/registration-requests/new'
+          leftSection={<IconPlus size={16} />}
+          variant='filled'
+          color='blue'
+        >
+          Create New Registration Request
+        </Button>
       </Stack>
     );
   }
 
   return (
-    <Accordion
-      variant='separated'
-      defaultValue={registrationRequests[0]?.id.toString()}
-    >
-      {registrationRequests.map((request: StudentRegistrationHistory) => (
-        <Accordion.Item key={request.id} value={request.id.toString()}>
-          <Accordion.Control>
-            <Stack gap={0} w={'95%'}>
-              <Group justify='space-between' align='center'>
-                <Text fw={500} size='sm'>
-                  {request.term.name}
-                </Text>
-                <Badge
-                  size='xs'
-                  radius={'xs'}
-                  variant='light'
-                  color={
-                    request.status === 'approved'
-                      ? 'green'
-                      : request.status === 'rejected'
-                        ? 'red'
-                        : request.status === 'registered'
-                          ? 'blue'
-                          : 'yellow'
-                  }
-                >
-                  {request.status.toUpperCase()}
-                </Badge>
-              </Group>
-              <Divider my='sm' />
+    <Stack gap='md'>
+      {!hasCurrentTermRegistration && currentTerm && (
+        <Card withBorder p='md'>
+          <Group justify='space-between' align='center'>
+            <Stack gap={4}>
+              <Text size='sm' fw={500}>
+                No registration for {currentTerm.name}
+              </Text>
+              <Text size='xs' c='dimmed'>
+                Create a registration request for this student
+              </Text>
             </Stack>
-          </Accordion.Control>
-          <Accordion.Panel>
-            <Stack gap={5}>
-              <Group>
-                <Text fw={500} w={150}>
-                  Semester
-                </Text>
-                <Text size='sm'>{formatSemester(request.semesterNumber)}</Text>
-              </Group>
-              <Group>
-                <Text fw={500} w={150}>
-                  Date Requested
-                </Text>
-                <Text size='sm'>{formatDateTime(request.createdAt)}</Text>
-              </Group>
-              <Group>
-                <Text fw={500} w={150}>
-                  Modules
-                </Text>
-                <Anchor
-                  size='sm'
-                  component={Link}
-                  href={`/dashboard/registration-requests/${request.status}/${request.id}`}
-                  className='text-blue-500 hover:underline'
-                >
-                  {request.requestedModulesCount} modules
-                </Anchor>
-              </Group>
-            </Stack>
-          </Accordion.Panel>
-        </Accordion.Item>
-      ))}
-    </Accordion>
+            <Button
+              component={Link}
+              href='/dashboard/registration-requests/new'
+              leftSection={<IconPlus size={14} />}
+              variant='filled'
+              size='sm'
+              color='blue'
+            >
+              Create
+            </Button>
+          </Group>
+        </Card>
+      )}
+
+      <Accordion
+        variant='separated'
+        defaultValue={registrationRequests[0]?.id.toString()}
+      >
+        {registrationRequests.map((request: StudentRegistrationHistory) => (
+          <Accordion.Item key={request.id} value={request.id.toString()}>
+            <Accordion.Control>
+              <Stack gap={0} w={'95%'}>
+                <Group justify='space-between' align='center'>
+                  <Text fw={500} size='sm'>
+                    {request.term.name}
+                  </Text>
+                  <Badge
+                    size='xs'
+                    radius={'xs'}
+                    variant='light'
+                    color={
+                      request.status === 'approved'
+                        ? 'green'
+                        : request.status === 'rejected'
+                          ? 'red'
+                          : request.status === 'registered'
+                            ? 'blue'
+                            : 'yellow'
+                    }
+                  >
+                    {request.status.toUpperCase()}
+                  </Badge>
+                </Group>
+                <Divider my='sm' />
+              </Stack>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack gap={5}>
+                <Group>
+                  <Text fw={500} w={150}>
+                    Semester
+                  </Text>
+                  <Text size='sm'>
+                    {formatSemester(request.semesterNumber)}
+                  </Text>
+                </Group>
+                <Group>
+                  <Text fw={500} w={150}>
+                    Date Requested
+                  </Text>
+                  <Text size='sm'>{formatDateTime(request.createdAt)}</Text>
+                </Group>
+                <Group>
+                  <Text fw={500} w={150}>
+                    Modules
+                  </Text>
+                  <Anchor
+                    size='sm'
+                    component={Link}
+                    href={`/dashboard/registration-requests/${request.status}/${request.id}`}
+                    className='text-blue-500 hover:underline'
+                  >
+                    {request.requestedModulesCount} modules
+                  </Anchor>
+                </Group>
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        ))}
+      </Accordion>
+    </Stack>
   );
 }
 
