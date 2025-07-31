@@ -29,8 +29,8 @@ export default function GradeCalculatorPage() {
                   Grade Calculator
                 </Title>
                 <Text size='sm' c='dimmed'>
-                  A tool for calculating student grades and GPA based on course
-                  credits and marks.
+                  A tool for calculating student grades and their
+                  classifications
                 </Text>
               </Box>
             </Group>

@@ -342,7 +342,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
         <Navigation navigation={navigation} />
       </Shell.Navigation>
       <Shell.Body>
-        {process.env.NEXT_PUBLIC_DEV_LOGO === 'dev' && (
+        {process.env.AUTH_URL?.includes('localhost') && (
           <Paper withBorder p={5} bg={'red'} mb={'md'}>
             <Text ta={'center'} size='xs' c={'white'}>
               This is a Test Environment!

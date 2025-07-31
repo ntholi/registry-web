@@ -34,11 +34,11 @@ export function GradeResultDisplay({ result }: GradeResultDisplayProps) {
               Grade Points
             </Text>
             <Group gap={0} align='baseline'>
-              <Text size='lg' c={getPointsColor(result.points)} variant='light'>
+              <Text size='lg' c={getPointsColor(result.points)}>
                 {result.points !== null ? result.points.toFixed(2) : 'N/A'}
               </Text>
               <Text size='xs' c='dimmed'>
-                / 4.00
+                /4.00
               </Text>
             </Group>
           </Stack>
