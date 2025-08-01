@@ -171,17 +171,17 @@ export default function StudentView({ student }: Props) {
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem
                 label='Primary Phone'
-                href={`tel:${formatPhoneNumber(student.phone1)?.replaceAll(' ', '')}`}
+                href={`tel:${stripPhoneNumber(formatPhoneNumber(student.phone1))}`}
                 displayValue={formatPhoneNumber(student.phone1)}
-                value={formatPhoneNumber(student.phone1)?.replaceAll(' ', '')}
+                value={stripPhoneNumber(formatPhoneNumber(student.phone1))}
               />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <InfoItem
                 label='Secondary Phone'
-                href={`tel:${formatPhoneNumber(student.phone2)?.replaceAll(' ', '')}`}
+                href={`tel:${stripPhoneNumber(formatPhoneNumber(student.phone2))}`}
                 displayValue={formatPhoneNumber(student.phone2)}
-                value={formatPhoneNumber(student.phone2)?.replaceAll(' ', '')}
+                value={stripPhoneNumber(formatPhoneNumber(student.phone2))}
               />
             </Grid.Col>
           </Grid>
@@ -258,4 +258,13 @@ function InfoItem({
       </Group>
     </Box>
   );
+}
+
+function stripPhoneNumber(phone: string | null | undefined) {
+  if (!phone) return '';
+  return phone
+    .replaceAll(' ', '')
+    .replaceAll('-', '')
+    .replaceAll('(', '')
+    .replaceAll(')', '');
 }
