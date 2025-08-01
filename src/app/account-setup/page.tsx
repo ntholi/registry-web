@@ -1,24 +1,30 @@
 'use client';
 
+import Logo from '@/components/Logo';
 import {
-  Container,
-  Paper,
-  Title,
-  Text,
-  Stack,
   Button,
-  Center,
-  Group,
-  Divider,
   Card,
+  Center,
+  Container,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
 } from '@mantine/core';
+import { modals } from '@mantine/modals';
 import { IconLogout, IconMail } from '@tabler/icons-react';
 import { signOut, useSession } from 'next-auth/react';
-import { modals } from '@mantine/modals';
-import Logo from '@/components/Logo';
+import { useRouter } from 'next/navigation';
 
 export default function AccountSetupPage() {
   const { data: session } = useSession();
+  const router = useRouter();
+
+  if (session?.user?.role !== 'user') {
+    router.push('/');
+  }
 
   const handleLogout = () => {
     modals.openConfirmModal({
