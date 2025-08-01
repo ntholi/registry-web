@@ -1,7 +1,26 @@
-import { getStudentByUserId } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 
-export type Student = Awaited<ReturnType<typeof getStudentByUserId>>;
+export type Student = {
+  stdNo: number;
+  programs: {
+    id: number;
+    status: string;
+    structure: {
+      program: {
+        name: string;
+        code: string;
+        school: {
+          name: string;
+        };
+      };
+    };
+    semesters: {
+      id: number;
+      semesterNumber?: number | null;
+    }[];
+  }[];
+};
+
 export type AcademicRemarks = Awaited<ReturnType<typeof getAcademicRemarks>>;
 
 export function getActiveProgram(student: Student | null) {
@@ -18,7 +37,7 @@ export function getActiveProgram(student: Student | null) {
   };
 }
 
-export function getCurrentSemester(student: Student | null) {
+export function getCurrentSemester(student: Student | null | undefined) {
   if (!student) return null;
   const activeProgram = getActiveProgram(student);
   return activeProgram?.semesters.sort((a, b) => b.id - a.id)[0];

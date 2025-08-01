@@ -6,7 +6,10 @@ import {
   determineSemesterStatus,
   getStudentSemesterModules,
 } from '@/server/registration-requests/actions';
-import { getStudent, getStudentByUserId } from '@/server/students/actions';
+import {
+  getStudent,
+  getStudentRegistrationData,
+} from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   Alert,
@@ -67,7 +70,7 @@ type ModuleWithStatus = {
 
 type SemesterStatusResult = Awaited<ReturnType<typeof determineSemesterStatus>>;
 
-type FullStudentData = Awaited<ReturnType<typeof getStudentByUserId>>;
+type FullStudentData = Awaited<ReturnType<typeof getStudentRegistrationData>>;
 
 export default function RegistrationSimulator() {
   const [stdNo, setStdNo] = useQueryState('stdNo', {
@@ -118,7 +121,7 @@ export default function RegistrationSimulator() {
           return;
         }
 
-        const studentData = await getStudentByUserId(lookup.userId);
+        const studentData = await getStudentRegistrationData(lookup.stdNo);
         if (!studentData) {
           setError('Student data not available');
           return;

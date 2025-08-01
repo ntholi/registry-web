@@ -46,6 +46,7 @@ export default class StudentRepository extends BaseRepository<
             startTerm: true,
             stream: true,
             status: true,
+            structureId: true,
           },
           with: {
             structure: {
@@ -59,6 +60,13 @@ export default class StudentRepository extends BaseRepository<
                     id: true,
                     name: true,
                     code: true,
+                  },
+                  with: {
+                    school: {
+                      columns: {
+                        name: true,
+                      },
+                    },
                   },
                 },
               },
@@ -75,17 +83,22 @@ export default class StudentRepository extends BaseRepository<
                 studentModules: {
                   columns: {
                     id: true,
+                    semesterModuleId: true,
+                    grade: true,
+                    marks: true,
                     status: true,
                   },
                   with: {
                     semesterModule: {
                       columns: {
+                        id: true,
                         credits: true,
                         type: true,
                       },
                       with: {
                         module: {
                           columns: {
+                            id: true,
                             code: true,
                             name: true,
                           },
