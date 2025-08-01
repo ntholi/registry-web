@@ -6,9 +6,6 @@ export default defineConfig({
   test: {
     environment: 'node',
     setupFiles: ['./src/test/setup.ts'],
-    env: {
-      DEV_TURSO_DATABASE_URL: 'file:test.db',
-    },
   },
   optimizeDeps: {
     exclude: ['next', 'next-auth'],

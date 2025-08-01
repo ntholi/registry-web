@@ -55,7 +55,13 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
 
   const generateQRCode = async (printRecordId: string): Promise<string> => {
     try {
-      const url = `https://limkokwing.fly.dev/statement-of-results/${printRecordId}`;
+      const baseUrl =
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : process.env.VERCEL_URL
+            ? `https://${process.env.VERCEL_URL}`
+            : 'http://localhost:3000';
+      const url = `${baseUrl}/statement-of-results/${printRecordId}`;
       const qrCodeDataURL = await QRCode.toDataURL(url, {
         width: 200,
         margin: 1,
@@ -95,7 +101,7 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
         <StatementOfResultsPDF
           student={student}
           qrCodeDataURL={qrCodeDataURL}
-        />,
+        />
       ).toBlob();
 
       console.log('PDF blob generated, size:', blob.size);
@@ -125,7 +131,7 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
             if (iframe.contentWindow) {
               iframe.contentWindow.removeEventListener(
                 'afterprint',
-                handleAfterPrint,
+                handleAfterPrint
               );
             }
           };
