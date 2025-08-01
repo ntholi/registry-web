@@ -9,9 +9,8 @@ import {
 } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatSemester } from '@/lib/utils';
-import { getStudentSemesterModules } from '@/server/registration-requests/actions';
 import { getModulesForStructure } from '@/server/semester-modules/actions';
-import { getStudent } from '@/server/students/actions';
+import { getStudentRegistrationData } from '@/server/students/actions';
 import { getAllTerms } from '@/server/terms/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
@@ -27,10 +26,10 @@ import {
 import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import StdNoInput from '../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
-import StdNoInput from '../../base/StdNoInput';
 
 type Module = typeof modules.$inferSelect;
 
@@ -127,7 +126,7 @@ export default function RegistrationRequestForm({
   const handleStudentSelect = async (stdNo: number) => {
     if (stdNo) {
       try {
-        const student = await getStudent(stdNo);
+        const student = await getStudentRegistrationData(stdNo);
         if (student && student.programs.length > 0) {
           const activeProgram = student.programs.find(
             (p) => p.status === 'Active'
@@ -150,66 +149,63 @@ export default function RegistrationRequestForm({
   };
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  const handleLoadModules = useCallback(async (stdNo: number, form: any) => {
-    if (!stdNo || !structureId) return;
+  const handleLoadModules = useCallback(
+    async (stdNo: number, form: any) => {
+      if (!stdNo || !structureId) return;
 
-    try {
-      const basicStudent = await getStudent(stdNo);
-      if (!basicStudent) {
-        console.error('Student not found');
-        return;
-      }
+      try {
+        const student = await getStudentRegistrationData(stdNo);
+        if (!student) {
+          console.error('Student not found');
+          return;
+        }
 
-      const student = await import('@/server/students/actions').then(
-        ({ getStudentByUserId }) => getStudentByUserId(basicStudent.userId)
-      );
+        const academicRemarks = getAcademicRemarks(student.programs);
+        const { getStudentSemesterModulesLogic } = await import(
+          '@/server/registration-requests/getStudentSemesterModules'
+        );
+        const semesterData = await getStudentSemesterModulesLogic(
+          student,
+          academicRemarks
+        );
 
-      if (!student) {
-        console.error('Student data not found');
-        return;
-      }
+        if (semesterData.error) {
+          console.error('Error loading student modules:', semesterData.error);
+          return;
+        }
 
-      const academicRemarks = await getAcademicRemarks(student.programs);
-      const semesterData = await getStudentSemesterModules(
-        student,
-        academicRemarks
-      );
-
-      if (semesterData.error) {
-        console.error('Error loading student modules:', semesterData.error);
-        return;
-      }
-
-      const mappedModules = semesterData.modules.map((moduleData) => ({
-        id: moduleData.semesterModuleId,
-        type: moduleData.type,
-        credits: moduleData.credits,
-        status: moduleData.status as StudentModuleStatus,
-        semesterModuleId: moduleData.semesterModuleId,
-        semesterNumber: moduleData.semesterNo,
-        semesterName: `Semester ${moduleData.semesterNo}`,
-        module: {
+        const mappedModules = semesterData.modules.map((moduleData) => ({
           id: moduleData.semesterModuleId,
-          code: moduleData.code,
-          name: moduleData.name,
-        },
-      }));
+          type: moduleData.type,
+          credits: moduleData.credits,
+          status: moduleData.status as StudentModuleStatus,
+          semesterModuleId: moduleData.semesterModuleId,
+          semesterNumber: moduleData.semesterNo,
+          semesterName: `Semester ${moduleData.semesterNo}`,
+          module: {
+            id: moduleData.semesterModuleId,
+            code: moduleData.code,
+            name: moduleData.name,
+          },
+        }));
 
-      const { determineSemesterStatus } = await import(
-        '@/server/registration-requests/actions'
-      );
-      const { semesterNo, status } = await determineSemesterStatus(
-        semesterData.modules,
-        student
-      );
+        const { determineSemesterStatus } = await import(
+          '@/server/registration-requests/actions'
+        );
+        const { semesterNo, status } = await determineSemesterStatus(
+          semesterData.modules,
+          student
+        );
 
-      form.setFieldValue('selectedModules', mappedModules);
-      form.setFieldValue('semesterNumber', semesterNo.toString());
-      form.setFieldValue('semesterStatus', status);
-    } catch (error) {
-      console.error('Error loading student modules:', error);
-    }
-  }, [structureId]);
+        form.setFieldValue('selectedModules', mappedModules);
+        form.setFieldValue('semesterNumber', semesterNo.toString());
+        form.setFieldValue('semesterStatus', status);
+      } catch (error) {
+        console.error('Error loading student modules:', error);
+      }
+    },
+    [structureId]
+  );
 
   const [formInstance, setFormInstance] = useState<any>(null);
 

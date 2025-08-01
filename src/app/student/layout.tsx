@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const session = await auth();
   return {
     title: session?.user?.name
-      ? `${session.user.name[0]}'s Portal`
+      ? `${session.user.name.split(' ')[0]}'s Portal`
       : 'Student Portal',
     description:
       'Student Portal for Limkokwing University of Creative Technology, Lesotho',

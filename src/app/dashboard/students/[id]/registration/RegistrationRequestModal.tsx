@@ -436,11 +436,6 @@ export default function RegistrationRequestModal({
                             !form.values.sponsorship.sponsorId ||
                             !isNMDS(form.values.sponsorship.sponsorId)
                           }
-                          description={
-                            isNMDS(form.values.sponsorship.sponsorId)
-                              ? 'Required for NMDS'
-                              : undefined
-                          }
                           required={isNMDS(form.values.sponsorship.sponsorId)}
                           error={form.errors['sponsorship.borrowerNo']}
                         />
