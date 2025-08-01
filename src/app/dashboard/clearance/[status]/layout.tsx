@@ -7,7 +7,7 @@ import {
 } from '@/server/clearance/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
-import { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import DownloadCSVButton from '@/components/DownloadCSVButton';

@@ -34,12 +34,6 @@ type Props = {
 
 export default function ProfileHeader({ student }: Props) {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const initials = student.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
 
   const { data: photoUrl } = useQuery({
     queryKey: ['studentPhoto', student?.stdNo],

@@ -17,8 +17,6 @@ import {
   Title,
 } from '@mantine/core';
 import {
-  IconBooks,
-  IconBuildingBank,
   IconCheck,
   IconClock,
   IconInfoCircle,
@@ -33,17 +31,6 @@ type Status = 'pending' | 'approved' | 'rejected';
 
 export default function ClearanceStatusView({ registration }: Props) {
   const { clearances = [] } = registration;
-
-  const getDepartmentIcon = (department: string) => {
-    switch (department) {
-      case 'finance':
-        return <IconBuildingBank size='1rem' />;
-      case 'library':
-        return <IconBooks size='1rem' />;
-      default:
-        return <IconInfoCircle size='1rem' />;
-    }
-  };
 
   const getStatusColor = (status: Status) => {
     switch (status) {

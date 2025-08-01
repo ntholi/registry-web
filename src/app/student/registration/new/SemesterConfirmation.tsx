@@ -82,10 +82,6 @@ export default function SemesterConfirmation({
     0
   );
 
-  const getStatusColor = (status: 'Active' | 'Repeat') => {
-    return status === 'Active' ? 'blue' : 'orange';
-  };
-
   return (
     <Stack gap='lg'>
       <Paper withBorder p='lg'>

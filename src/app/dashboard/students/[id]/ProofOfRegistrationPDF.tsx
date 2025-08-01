@@ -253,7 +253,7 @@ export default function ProofOfRegistrationPDF({
 
   const totalCredits = latestSemester.studentModules.reduce(
     (sum: number, sm: StudentModule) => sum + (sm.semesterModule.credits || 0),
-    0,
+    0
   );
 
   const semesterNumber = latestSemester.semesterNumber || 1;
@@ -418,7 +418,7 @@ export default function ProofOfRegistrationPDF({
                     </View>
                   </View>
                 );
-              },
+              }
             )}
           </View>
 

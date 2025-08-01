@@ -1,10 +1,10 @@
 'use client';
 
-import { ListItem, ListLayout, NewLink } from '@/components/adease';
+import { ListItem, ListLayout } from '@/components/adease';
 import { findAllRegistrationRequests } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
-import { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import TermFilter from '@/components/TermFilter';

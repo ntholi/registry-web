@@ -23,37 +23,24 @@ export default class StudentRepository extends BaseRepository<
   }
 
   async findRegistrationData(stdNo: number) {
-    const student = await db.query.students.findFirst({
-      columns: {
-        stdNo: true,
-        name: true,
-        nationalId: true,
-        dateOfBirth: true,
-        phone1: true,
-        phone2: true,
-        gender: true,
-        maritalStatus: true,
-        religion: true,
-      },
+    return this.findStudentByStdNo(stdNo);
+  }
+
+  async findStudentByStdNo(stdNo: number) {
+    return await db.query.students.findFirst({
       where: eq(students.stdNo, stdNo),
       with: {
+        user: true,
         programs: {
-          where: eq(studentPrograms.status, 'Active'),
           columns: {
             id: true,
-            intakeDate: true,
-            regDate: true,
-            startTerm: true,
-            stream: true,
             status: true,
             structureId: true,
+            intakeDate: true,
+            graduationDate: true,
           },
           with: {
             structure: {
-              columns: {
-                id: true,
-                code: true,
-              },
               with: {
                 program: {
                   columns: {
@@ -78,7 +65,6 @@ export default class StudentRepository extends BaseRepository<
                 semesterNumber: true,
                 status: true,
               },
-              orderBy: desc(studentSemesters.id),
               with: {
                 studentModules: {
                   columns: {
@@ -91,7 +77,6 @@ export default class StudentRepository extends BaseRepository<
                   with: {
                     semesterModule: {
                       columns: {
-                        id: true,
                         credits: true,
                         type: true,
                       },
@@ -113,151 +98,25 @@ export default class StudentRepository extends BaseRepository<
         },
       },
     });
-
-    return student;
   }
 
   async findStudentByUserId(userId: string) {
-    return await db.query.students.findFirst({
+    const student = await db.query.students.findFirst({
       where: eq(students.userId, userId),
-      with: {
-        user: true,
-        programs: {
-          columns: {
-            id: true,
-            status: true,
-            structureId: true,
-          },
-          with: {
-            structure: {
-              with: {
-                program: {
-                  columns: {
-                    name: true,
-                    code: true,
-                  },
-                  with: {
-                    school: {
-                      columns: {
-                        name: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            semesters: {
-              columns: {
-                id: true,
-                term: true,
-                semesterNumber: true,
-                status: true,
-              },
-              with: {
-                studentModules: {
-                  columns: {
-                    id: true,
-                    semesterModuleId: true,
-                    grade: true,
-                    marks: true,
-                    status: true,
-                  },
-                  with: {
-                    semesterModule: {
-                      columns: {
-                        credits: true,
-                        type: true,
-                      },
-                      with: {
-                        module: {
-                          columns: {
-                            id: true,
-                            code: true,
-                            name: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+      columns: {
+        stdNo: true,
       },
     });
+
+    if (!student) {
+      return null;
+    }
+
+    return this.findStudentByStdNo(student.stdNo);
   }
 
   async findAcademicHistory(stdNo: number) {
-    return await db.query.students.findFirst({
-      columns: {
-        stdNo: true,
-        name: true,
-        nationalId: true,
-      },
-      where: eq(students.stdNo, stdNo),
-      with: {
-        user: true,
-        programs: {
-          columns: {
-            id: true,
-            status: true,
-            structureId: true,
-          },
-          with: {
-            structure: {
-              columns: {
-                id: true,
-                code: true,
-              },
-              with: {
-                program: {
-                  columns: {
-                    name: true,
-                  },
-                },
-              },
-            },
-            semesters: {
-              columns: {
-                id: true,
-                term: true,
-                semesterNumber: true,
-                status: true,
-              },
-              with: {
-                studentModules: {
-                  columns: {
-                    id: true,
-                    semesterModuleId: true,
-                    grade: true,
-                    marks: true,
-                    status: true,
-                  },
-                  with: {
-                    semesterModule: {
-                      columns: {
-                        credits: true,
-                        type: true,
-                      },
-                      with: {
-                        module: {
-                          columns: {
-                            id: true,
-                            code: true,
-                            name: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+    return this.findStudentByStdNo(stdNo);
   }
 
   async findByModuleId(moduleId: number, termName: string) {
@@ -500,39 +359,7 @@ export default class StudentRepository extends BaseRepository<
   }
 
   override async findById(stdNo: number) {
-    return await db.query.students.findFirst({
-      where: eq(students.stdNo, stdNo),
-      with: {
-        user: true,
-        programs: {
-          where: eq(studentPrograms.status, 'Active'),
-          columns: {
-            id: true,
-            status: true,
-            structureId: true,
-            intakeDate: true,
-            regDate: true,
-            startTerm: true,
-            stream: true,
-            graduationDate: true,
-            assistProvider: true,
-          },
-          with: {
-            structure: {
-              with: {
-                program: {
-                  columns: {
-                    id: true,
-                    name: true,
-                    code: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+    return this.findStudentByStdNo(stdNo);
   }
 
   async updateUserId(stdNo: number, userId: string | null) {

@@ -22,7 +22,6 @@ import {
 import {
   IconCalendar,
   IconChevronRight,
-  IconEdit,
   IconFileText,
   IconPlus,
 } from '@tabler/icons-react';

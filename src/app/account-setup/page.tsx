@@ -8,13 +8,11 @@ import {
   Stack,
   Button,
   Center,
-  ThemeIcon,
   Group,
   Divider,
-  Box,
   Card,
 } from '@mantine/core';
-import { IconAlertCircle, IconLogout, IconMail } from '@tabler/icons-react';
+import { IconLogout, IconMail } from '@tabler/icons-react';
 import { signOut, useSession } from 'next-auth/react';
 import { modals } from '@mantine/modals';
 import Logo from '@/components/Logo';

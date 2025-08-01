@@ -72,14 +72,11 @@ export default function EditRegistrationPage() {
   const { student, remarks, isLoading: studentLoading } = useUserStudent();
   const [activeStep, setActiveStep] = useState(0);
   const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
-  const [originalModules, setOriginalModules] = useState<SelectedModule[]>([]);
   const [semesterData, setSemesterData] = useState<{
     semesterNo: number;
     status: 'Active' | 'Repeat';
   } | null>(null);
   const [sponsorshipData, setSponsorshipData] =
-    useState<SponsorshipData | null>(null);
-  const [originalSponsorshipData, setOriginalSponsorshipData] =
     useState<SponsorshipData | null>(null);
   const { currentTerm } = useCurrentTerm();
 

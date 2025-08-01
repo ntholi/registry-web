@@ -46,7 +46,7 @@ export default function ModulesView({ registration }: Props) {
         b.semesterModule.module?.code || ''
       );
     })
-    .map(({ semesterModule, moduleStatus, status }) => (
+    .map(({ semesterModule, status }) => (
       <Table.Tr key={semesterModule.id}>
         <Table.Td>
           <Stack gap={2}>

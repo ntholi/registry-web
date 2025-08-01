@@ -11,7 +11,6 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import { IconShield } from '@tabler/icons-react';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 

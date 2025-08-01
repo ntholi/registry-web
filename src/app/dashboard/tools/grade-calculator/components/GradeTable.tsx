@@ -1,7 +1,7 @@
 'use client';
 
 import { grades } from '@/utils/grades';
-import { Badge, Card, Paper, Stack, Table, Title } from '@mantine/core';
+import { Badge, Paper, Stack, Table, Title } from '@mantine/core';
 import { getGradeColor } from './gradeColors';
 
 export function GradeTable() {

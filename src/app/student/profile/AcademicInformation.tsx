@@ -60,11 +60,7 @@ function InfoItem({
   );
 }
 
-export default function AcademicInformation({
-  program,
-  semester,
-  remarks,
-}: Props) {
+export default function AcademicInformation({ program, semester }: Props) {
   if (!program) {
     return (
       <Card withBorder shadow='sm' p='xl' radius='md'>

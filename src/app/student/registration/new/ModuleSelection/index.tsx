@@ -3,10 +3,8 @@ import {
   Stack,
   Text,
   Group,
-  Badge,
   LoadingOverlay,
   Alert,
-  Title,
   Accordion,
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';

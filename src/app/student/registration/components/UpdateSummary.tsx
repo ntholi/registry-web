@@ -9,7 +9,6 @@ import {
   Badge,
   Box,
   Title,
-  Divider,
   SimpleGrid,
 } from '@mantine/core';
 import { StudentModuleStatus } from '@/db/schema';

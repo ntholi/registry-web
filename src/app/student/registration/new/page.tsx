@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import {
   Container,
-  Paper,
   Progress,
   Group,
   Button,
@@ -13,7 +12,6 @@ import {
   LoadingOverlay,
   Stack,
   Box,
-  Badge,
 } from '@mantine/core';
 import {
   IconInfoCircle,
@@ -30,7 +28,6 @@ import {
   determineSemesterStatus,
   createRegistrationWithModules,
 } from '@/server/registration-requests/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
 import ModuleSelection from './ModuleSelection';
 import SemesterConfirmation from './SemesterConfirmation';
 import SponsorshipDetails from './SponsorshipDetails';

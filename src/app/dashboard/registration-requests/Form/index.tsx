@@ -16,7 +16,6 @@ import { getAllTerms } from '@/server/terms/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   ActionIcon,
-  Button,
   Divider,
   Group,
   Paper,
@@ -28,7 +27,7 @@ import {
 import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 import StdNoInput from '../../base/StdNoInput';
@@ -82,7 +81,6 @@ export default function RegistrationRequestForm({
   const [structureId, setStructureId] = useState<number | null>(
     initialStructureId ?? null
   );
-  const [isLoadingModules, setIsLoadingModules] = useState(false);
 
   const { currentTerm } = useCurrentTerm();
   const { data: allTerms = [] } = useQuery({
@@ -152,10 +150,9 @@ export default function RegistrationRequestForm({
   };
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  const handleLoadModules = async (stdNo: number, form: any) => {
+  const handleLoadModules = useCallback(async (stdNo: number, form: any) => {
     if (!stdNo || !structureId) return;
 
-    setIsLoadingModules(true);
     try {
       const basicStudent = await getStudent(stdNo);
       if (!basicStudent) {
@@ -211,10 +208,8 @@ export default function RegistrationRequestForm({
       form.setFieldValue('semesterStatus', status);
     } catch (error) {
       console.error('Error loading student modules:', error);
-    } finally {
-      setIsLoadingModules(false);
     }
-  };
+  }, [structureId]);
 
   const [formInstance, setFormInstance] = useState<any>(null);
 
@@ -226,7 +221,7 @@ export default function RegistrationRequestForm({
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [initialStdNo, defaultValues, formInstance]);
+  }, [initialStdNo, defaultValues, formInstance, handleLoadModules]);
 
   return (
     <Form

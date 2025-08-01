@@ -1,39 +1,25 @@
+import { getStudentByUserId } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 
-export type Student = {
-  stdNo: number;
-  programs: {
-    id: number;
-    status: string;
-    structure: {
-      program: {
-        name: string;
-        code: string;
-        school: {
-          name: string;
-        };
-      };
-    };
-    semesters: {
-      id: number;
-      semesterNumber?: number | null;
-    }[];
-  }[];
-};
+export type Student = NonNullable<
+  Awaited<ReturnType<typeof getStudentByUserId>>
+>;
 
 export type AcademicRemarks = Awaited<ReturnType<typeof getAcademicRemarks>>;
 
-export function getActiveProgram(student: Student | null) {
+export function getActiveProgram(student: Student | null | undefined) {
   if (!student) return null;
   const activeProgram = student.programs
     .sort((a, b) => b.id - a.id)
-    .filter((p) => p.status === 'Active');
-  const program = activeProgram[0];
+    .find((p) => p.status === 'Active');
+
+  if (!activeProgram) return null;
+
   return {
-    name: program.structure.program.name,
-    code: program.structure.program.code,
-    schoolName: program.structure.program.school.name,
-    ...program,
+    ...activeProgram,
+    name: activeProgram.structure.program.name,
+    code: activeProgram.structure.program.code,
+    schoolName: activeProgram.structure.program.school.name,
   };
 }
 
