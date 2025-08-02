@@ -9,7 +9,7 @@ import {
   getStudentSemesterModules,
 } from '@/server/registration-requests/actions';
 import { findAllSponsors } from '@/server/sponsors/actions';
-import { getStudent } from '@/server/students/actions';
+import { getAcademicHistory, getStudent } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import ModulesTable from './ModulesTable';
 import SemesterInfoCard from './SemesterInfoCard';
@@ -110,7 +110,7 @@ export default function RegistrationRequestModal({
 
   const { data: student, isLoading: studentLoading } = useQuery({
     queryKey: ['student', stdNo],
-    queryFn: () => getStudent(stdNo),
+    queryFn: () => getAcademicHistory(stdNo),
     enabled: opened && !!stdNo,
   });
 
