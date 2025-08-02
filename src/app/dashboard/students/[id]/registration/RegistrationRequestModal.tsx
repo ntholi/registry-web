@@ -12,12 +12,11 @@ import { findAllSponsors } from '@/server/sponsors/actions';
 import { getStudent, getStudentByUserId } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import ModulesTable from './ModulesTable';
+import SemesterInfoCard from './SemesterInfoCard';
 import {
   Alert,
-  Badge,
   Box,
   Button,
-  Card,
   Grid,
   GridCol,
   Group,
@@ -234,6 +233,24 @@ export default function RegistrationRequestModal({
     onClose();
   };
 
+  const handleSemesterChange = (semesterNo: number) => {
+    if (semesterData) {
+      setSemesterData({
+        ...semesterData,
+        semesterNo,
+      });
+    }
+  };
+
+  const handleStatusChange = (status: 'Active' | 'Repeat') => {
+    if (semesterData) {
+      setSemesterData({
+        ...semesterData,
+        status,
+      });
+    }
+  };
+
   const isNMDS = (sponsorId: number) => {
     return sponsors?.find((s) => s.id === sponsorId)?.name === 'NMDS';
   };
@@ -272,51 +289,14 @@ export default function RegistrationRequestModal({
                   />
                 </Box>
 
-                {selectedModules.size > 0 && (
-                  <Card withBorder p='md' pos='relative'>
-                    <LoadingOverlay visible={semesterStatusLoading} />
-                    {semesterData && (
-                      <Stack gap='xs'>
-                        <Group justify='space-between'>
-                          <Text fw={500}>Semester Information</Text>
-                          <Badge
-                            color={
-                              semesterData.status === 'Active'
-                                ? 'blue'
-                                : 'orange'
-                            }
-                          >
-                            {semesterData.status}
-                          </Badge>
-                        </Group>
-                        <Group>
-                          <Text size='sm'>
-                            Semester: {formatSemester(semesterData.semesterNo)}
-                          </Text>
-                          <Text size='sm'>Modules: {selectedModules.size}</Text>
-                          <Text size='sm'>
-                            Credits:{' '}
-                            {availableModules
-                              .filter((m) =>
-                                selectedModules.has(m.semesterModuleId)
-                              )
-                              .reduce((sum, m) => sum + m.credits, 0)}
-                          </Text>
-                        </Group>
-                        {semesterData.status === 'Repeat' && (
-                          <Alert color='orange'>
-                            Student is repeating this semester
-                          </Alert>
-                        )}
-                      </Stack>
-                    )}
-                    {!semesterData && (
-                      <Stack gap='xs'>
-                        <Text fw={500}>Determining semester status...</Text>
-                      </Stack>
-                    )}
-                  </Card>
-                )}
+                <SemesterInfoCard
+                  semesterData={semesterData}
+                  selectedModules={selectedModules}
+                  availableModules={availableModules}
+                  isLoading={semesterStatusLoading}
+                  onSemesterChange={handleSemesterChange}
+                  onStatusChange={handleStatusChange}
+                />
 
                 <Box>
                   <Title order={4} mb='md'>
