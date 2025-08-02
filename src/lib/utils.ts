@@ -23,7 +23,7 @@ export function formatDateTime(timestamp: number | Date | undefined | null) {
 
 export function formatSemester(
   sem: number | undefined | null,
-  type: 'full' | 'short' = 'full'
+  type: 'full' | 'short' | 'mini' = 'full'
 ) {
   if (!sem) return '';
   const year = Math.ceil(sem / 2);
@@ -31,7 +31,9 @@ export function formatSemester(
 
   return type === 'full'
     ? `Year ${year} • Semester ${semester}`
-    : `Y${year}S${semester}`;
+    : type === 'short'
+      ? `Year ${year} • Sem ${semester}`
+      : `Y${year}S${semester}`;
 }
 
 export function toTitleCase(str: string | undefined | null) {

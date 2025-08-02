@@ -1,10 +1,12 @@
 import { Container } from '@mantine/core';
-import Countdown from './base/Countdown';
+import Hero from './home/Hero';
+import ActionButtons from './home/ActionButtons';
 
 export default function page() {
   return (
     <Container size='md'>
-      <Countdown />
+      <Hero />
+      <ActionButtons />
     </Container>
   );
 }

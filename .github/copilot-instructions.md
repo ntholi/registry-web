@@ -20,3 +20,4 @@
 - Never add comments in generated code.
 - When you want to define size using rem, don't use rem function like {rem(<value>)} values, use the Mantine 'xrem' eg {'<value>rem'}
 - Avoid the `any` type completely.
+- Always remove duplicate code, and follow best practices for reusable, maintainable code

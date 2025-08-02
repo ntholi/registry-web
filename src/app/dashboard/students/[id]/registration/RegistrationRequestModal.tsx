@@ -3,17 +3,21 @@
 import { StudentModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatSemester } from '@/lib/utils';
-import { createRegistrationWithModules } from '@/server/registration-requests/actions';
+import {
+  createRegistrationWithModules,
+  determineSemesterStatus,
+  getStudentSemesterModules,
+} from '@/server/registration-requests/actions';
 import { findAllSponsors } from '@/server/sponsors/actions';
 import { getStudent, getStudentByUserId } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
+import ModulesTable from './ModulesTable';
 import {
   Alert,
   Badge,
   Box,
   Button,
   Card,
-  Checkbox,
   Grid,
   GridCol,
   Group,
@@ -22,7 +26,6 @@ import {
   Paper,
   Select,
   Stack,
-  Table,
   Text,
   TextInput,
   Title,
@@ -50,6 +53,11 @@ type ModuleWithStatus = {
   prerequisites?: Array<{ id: number; code: string; name: string }>;
 };
 
+type SemesterData = {
+  semesterNo: number;
+  status: 'Active' | 'Repeat';
+};
+
 type SponsorshipData = {
   sponsorId: number;
   borrowerNo?: string;
@@ -73,10 +81,7 @@ export default function RegistrationRequestModal({
   const [availableModules, setAvailableModules] = useState<ModuleWithStatus[]>(
     []
   );
-  const [semesterData, setSemesterData] = useState<{
-    semesterNo: number;
-    status: 'Active' | 'Repeat';
-  } | null>(null);
+  const [semesterData, setSemesterData] = useState<SemesterData | null>(null);
 
   const form = useForm<FormValues>({
     initialValues: {
@@ -127,10 +132,7 @@ export default function RegistrationRequestModal({
       if (!student) return null;
 
       const remarks = getAcademicRemarks(student.programs);
-      const { getStudentSemesterModules } = await import(
-        '@/server/registration-requests/actions'
-      );
-      return getStudentSemesterModules(student, remarks);
+      return await getStudentSemesterModules(student, remarks);
     },
     enabled: opened && !!student,
   });
@@ -144,11 +146,7 @@ export default function RegistrationRequestModal({
       const selectedModuleData: ModuleWithStatus[] = availableModules.filter(
         (m) => selectedModules.has(m.semesterModuleId)
       );
-
-      const { determineSemesterStatus } = await import(
-        '@/server/registration-requests/actions'
-      );
-      return determineSemesterStatus(selectedModuleData, student);
+      return await determineSemesterStatus(selectedModuleData, student);
     },
     enabled:
       selectedModules.size > 0 && !!student && availableModules.length > 0,
@@ -248,7 +246,7 @@ export default function RegistrationRequestModal({
       opened={opened}
       onClose={handleClose}
       title='Create Registration Request'
-      size='xl'
+      size='full'
       centered
       closeOnEscape
     >
@@ -266,78 +264,12 @@ export default function RegistrationRequestModal({
             {!hasError && availableModules.length > 0 && (
               <>
                 <Box>
-                  <Title order={4} mb='md'>
-                    Available Modules
-                  </Title>
-                  <Paper withBorder>
-                    <Table>
-                      <Table.Thead>
-                        <Table.Tr>
-                          <Table.Th>Select</Table.Th>
-                          <Table.Th>Code</Table.Th>
-                          <Table.Th>Module Name</Table.Th>
-                          <Table.Th>Type</Table.Th>
-                          <Table.Th>Credits</Table.Th>
-                          <Table.Th>Status</Table.Th>
-                          <Table.Th>Semester</Table.Th>
-                        </Table.Tr>
-                      </Table.Thead>
-                      <Table.Tbody>
-                        {availableModules.map((module) => (
-                          <Table.Tr key={module.semesterModuleId}>
-                            <Table.Td>
-                              <Checkbox
-                                checked={selectedModules.has(
-                                  module.semesterModuleId
-                                )}
-                                onChange={() =>
-                                  handleModuleToggle(module.semesterModuleId)
-                                }
-                              />
-                            </Table.Td>
-                            <Table.Td>
-                              <Text fw={500} size='sm'>
-                                {module.code}
-                              </Text>
-                            </Table.Td>
-                            <Table.Td>
-                              <Text size='sm'>{module.name}</Text>
-                            </Table.Td>
-                            <Table.Td>
-                              <Text size='sm'>{module.type}</Text>
-                            </Table.Td>
-                            <Table.Td>
-                              <Text size='sm'>{module.credits}</Text>
-                            </Table.Td>
-                            <Table.Td>
-                              <Badge
-                                size='sm'
-                                color={
-                                  module.status === 'Compulsory'
-                                    ? 'blue'
-                                    : module.status === 'Elective'
-                                      ? 'green'
-                                      : 'orange'
-                                }
-                              >
-                                {module.status}
-                              </Badge>
-                            </Table.Td>
-                            <Table.Td>
-                              <Text size='sm'>
-                                {formatSemester(module.semesterNo)}
-                              </Text>
-                            </Table.Td>
-                          </Table.Tr>
-                        ))}
-                      </Table.Tbody>
-                    </Table>
-                  </Paper>
-                  {form.errors.modules && (
-                    <Text size='sm' c='red' mt='xs'>
-                      {form.errors.modules}
-                    </Text>
-                  )}
+                  <ModulesTable
+                    modules={availableModules}
+                    selectedModules={selectedModules}
+                    onModuleToggle={handleModuleToggle}
+                    error={form.errors.modules as string}
+                  />
                 </Box>
 
                 {selectedModules.size > 0 && (
