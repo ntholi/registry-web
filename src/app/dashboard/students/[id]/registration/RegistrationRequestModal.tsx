@@ -233,24 +233,6 @@ export default function RegistrationRequestModal({
     onClose();
   };
 
-  const handleSemesterChange = (semesterNo: number) => {
-    if (semesterData) {
-      setSemesterData({
-        ...semesterData,
-        semesterNo,
-      });
-    }
-  };
-
-  const handleStatusChange = (status: 'Active' | 'Repeat') => {
-    if (semesterData) {
-      setSemesterData({
-        ...semesterData,
-        status,
-      });
-    }
-  };
-
   const isNMDS = (sponsorId: number) => {
     return sponsors?.find((s) => s.id === sponsorId)?.name === 'NMDS';
   };
@@ -294,8 +276,7 @@ export default function RegistrationRequestModal({
                   selectedModules={selectedModules}
                   availableModules={availableModules}
                   isLoading={semesterStatusLoading}
-                  onSemesterChange={handleSemesterChange}
-                  onStatusChange={handleStatusChange}
+                  onSemesterChange={setSemesterData}
                 />
 
                 <Box>

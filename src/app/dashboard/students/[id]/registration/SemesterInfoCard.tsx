@@ -33,8 +33,7 @@ type Props = {
   selectedModules: Set<number>;
   availableModules: ModuleWithStatus[];
   isLoading: boolean;
-  onSemesterChange: (semesterNo: number) => void;
-  onStatusChange: (status: 'Active' | 'Repeat') => void;
+  onSemesterChange: (data: SemesterData) => void;
 };
 
 export default function SemesterInfoCard({
@@ -43,7 +42,6 @@ export default function SemesterInfoCard({
   availableModules,
   isLoading,
   onSemesterChange,
-  onStatusChange,
 }: Props) {
   if (selectedModules.size === 0) {
     return null;
@@ -62,6 +60,24 @@ export default function SemesterInfoCard({
     { value: 'Active', label: 'Active' },
     { value: 'Repeat', label: 'Repeat' },
   ];
+
+  const handleSemesterChange = (semesterNo: number) => {
+    if (semesterData) {
+      onSemesterChange({
+        ...semesterData,
+        semesterNo,
+      });
+    }
+  };
+
+  const handleStatusChange = (status: 'Active' | 'Repeat') => {
+    if (semesterData) {
+      onSemesterChange({
+        ...semesterData,
+        status,
+      });
+    }
+  };
 
   return (
     <Card withBorder p='md' pos='relative'>
@@ -82,7 +98,7 @@ export default function SemesterInfoCard({
               value={semesterData.semesterNo.toString()}
               onChange={(value) => {
                 if (value) {
-                  onSemesterChange(parseInt(value));
+                  handleSemesterChange(parseInt(value));
                 }
               }}
             />
@@ -92,7 +108,7 @@ export default function SemesterInfoCard({
               value={semesterData.status}
               onChange={(value) => {
                 if (value) {
-                  onStatusChange(value as 'Active' | 'Repeat');
+                  handleStatusChange(value as 'Active' | 'Repeat');
                 }
               }}
             />
