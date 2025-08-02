@@ -9,6 +9,7 @@ import {
   Fieldset,
   Group,
   HoverCard,
+  Loader,
   Modal,
   Select,
   Stack,
@@ -58,13 +59,14 @@ export default function StudentsFilter() {
     });
   }, [schoolId, programId, termId, semesterNumber]);
 
-  const { data: schools = [] } = useQuery({
+  const { data: schools = [], isLoading: schoolLoading } = useQuery({
     queryKey: ['schools'],
     queryFn: getAllSchools,
     select: (data) => data.items,
+    enabled: opened,
   });
 
-  const { data: programs = [] } = useQuery({
+  const { data: programs = [], isLoading: programsLoading } = useQuery({
     queryKey: ['programs', filters.schoolId],
     queryFn: () =>
       filters.schoolId ? getProgramsBySchoolId(Number(filters.schoolId)) : [],
@@ -204,6 +206,7 @@ export default function StudentsFilter() {
               value: school.id?.toString() || '',
               label: school.name,
             }))}
+            rightSection={schoolLoading && <Loader size={'xs'} />}
             value={filters.schoolId || null}
             onChange={(value) =>
               setFilters((prev) => ({
@@ -223,6 +226,7 @@ export default function StudentsFilter() {
               value: program.id?.toString() || '',
               label: program.name,
             }))}
+            rightSection={programsLoading && <Loader size={'xs'} />}
             value={filters.programId || null}
             onChange={(value) =>
               setFilters((prev) => ({
