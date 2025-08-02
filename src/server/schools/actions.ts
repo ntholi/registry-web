@@ -15,3 +15,7 @@ export async function getAllSchools() {
 export async function getSchool(id: number) {
   return service.get(id);
 }
+
+export async function getProgramsBySchoolId(schoolId: number) {
+  return service.getProgramsBySchoolId(schoolId);
+}

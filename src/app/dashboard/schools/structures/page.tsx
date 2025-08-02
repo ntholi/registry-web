@@ -1,7 +1,6 @@
 'use client';
 
-import { getSchool } from '@/server/schools/actions';
-import { getProgramsBySchoolId } from '@/server/students/actions';
+import { getProgramsBySchoolId, getSchool } from '@/server/schools/actions';
 import {
   Accordion,
   Anchor,

@@ -1,11 +1,7 @@
 'use client';
 
 import { terms as termsTable } from '@/db/schema';
-import { getAllSchools } from '@/server/schools/actions';
-import {
-  getAllPrograms,
-  getProgramsBySchoolId,
-} from '@/server/students/actions';
+import { getAllSchools, getProgramsBySchoolId } from '@/server/schools/actions';
 import { getAllTerms } from '@/server/terms/actions';
 import {
   ActionIcon,
@@ -71,10 +67,8 @@ export default function StudentsFilter() {
   const { data: programs = [] } = useQuery({
     queryKey: ['programs', filters.schoolId],
     queryFn: () =>
-      filters.schoolId
-        ? getProgramsBySchoolId(Number(filters.schoolId))
-        : getAllPrograms(),
-    enabled: true,
+      filters.schoolId ? getProgramsBySchoolId(Number(filters.schoolId)) : [],
+    enabled: !!filters.schoolId,
   });
 
   const { data: terms = [] } = useQuery({

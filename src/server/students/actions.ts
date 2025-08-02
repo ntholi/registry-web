@@ -31,14 +31,6 @@ export async function getStudentByUserId(userId: string | undefined | null) {
   return service.findStudentByUserId(userId);
 }
 
-export async function getAllPrograms() {
-  return service.getAllPrograms();
-}
-
-export async function getProgramsBySchoolId(schoolId: number) {
-  return service.getProgramsBySchoolId(schoolId);
-}
-
 export async function getStudentsByModuleId(moduleId: number) {
   return service.findByModuleId(moduleId);
 }

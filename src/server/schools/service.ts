@@ -18,6 +18,13 @@ class SchoolService {
   async getAll() {
     return withAuth(async () => this.repository.findAll(), ['dashboard']);
   }
+
+  async getProgramsBySchoolId(schoolId: number) {
+    return withAuth(
+      async () => this.repository.getProgramsBySchoolId(schoolId),
+      ['dashboard']
+    );
+  }
 }
 
 export const schoolsService = serviceWrapper(SchoolService, 'SchoolsService');

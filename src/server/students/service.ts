@@ -44,20 +44,6 @@ class StudentService {
     );
   }
 
-  async getAllPrograms() {
-    return withAuth(
-      async () => this.repository.getAllPrograms(),
-      ['dashboard']
-    );
-  }
-
-  async getProgramsBySchoolId(schoolId: number) {
-    return withAuth(
-      async () => this.repository.getProgramsBySchoolId(schoolId),
-      ['dashboard']
-    );
-  }
-
   async findByModuleId(moduleId: number) {
     const term = await getCurrentTerm();
     return withAuth(

@@ -157,29 +157,6 @@ export default class StudentRepository extends BaseRepository<
       );
   }
 
-  async getAllPrograms() {
-    return db.query.programs.findMany({
-      columns: {
-        id: true,
-        name: true,
-        code: true,
-      },
-      orderBy: programs.name,
-    });
-  }
-
-  async getProgramsBySchoolId(schoolId: number) {
-    return db.query.programs.findMany({
-      columns: {
-        id: true,
-        name: true,
-        code: true,
-      },
-      where: eq(programs.schoolId, schoolId),
-      orderBy: desc(programs.id),
-    });
-  }
-
   protected override buildQueryCriteria(
     options: QueryOptions<typeof students>
   ) {
