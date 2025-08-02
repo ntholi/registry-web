@@ -145,7 +145,7 @@ export default function RegistrationRequestModal({
       const selectedModuleData: ModuleWithStatus[] = availableModules.filter(
         (m) => selectedModules.has(m.semesterModuleId)
       );
-      return await determineSemesterStatus(selectedModuleData, student);
+      return determineSemesterStatus(selectedModuleData, student);
     },
     enabled:
       selectedModules.size > 0 && !!student && availableModules.length > 0,

@@ -204,26 +204,23 @@ class RegistrationRequestService {
     }, ['student', 'registry']);
   }
 
-  async determineSemesterStatus(
-    modules: ModuleWithStatus[],
-    student: Student
-  ): Promise<{ semesterNo: number; status: 'Active' | 'Repeat' }> {
-    return withAuth(async () => {
-      const semesterNo = commonSemesterNo(modules);
-      const completedSemesters =
-        student?.programs
-          .flatMap((program) => program.semesters)
-          .map((semester) => semester.semesterNumber)
-          .filter((semesterNo): semesterNo is number => semesterNo !== null) ??
-        [];
+  determineSemesterStatus(modules: ModuleWithStatus[], student: Student) {
+    const semesterNo = commonSemesterNo(modules);
+    const completedSemesters =
+      student?.programs
+        .flatMap((program) => program.semesters)
+        .map((semester) => semester.semesterNumber)
+        .filter((semesterNo): semesterNo is number => semesterNo !== null) ??
+      [];
 
-      const hasCompletedSemester = completedSemesters.includes(semesterNo);
+    const hasCompletedSemester = completedSemesters.includes(semesterNo);
 
-      return {
-        semesterNo: semesterNo,
-        status: hasCompletedSemester ? 'Repeat' : 'Active',
-      };
-    }, ['student', 'dashboard']);
+    return {
+      semesterNo: semesterNo,
+      status: (hasCompletedSemester ? 'Repeat' : 'Active') as
+        | 'Active'
+        | 'Repeat',
+    };
   }
 }
 
