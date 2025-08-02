@@ -39,7 +39,6 @@ export default function ModulesTable({
               <Table.Th>Select</Table.Th>
               <Table.Th>Code</Table.Th>
               <Table.Th>Module Name</Table.Th>
-              <Table.Th>Type</Table.Th>
               <Table.Th>Credits</Table.Th>
               <Table.Th>Status</Table.Th>
               <Table.Th>Semester</Table.Th>
@@ -63,14 +62,12 @@ export default function ModulesTable({
                   <Text size='sm'>{module.name}</Text>
                 </Table.Td>
                 <Table.Td>
-                  <Text size='sm'>{module.type}</Text>
-                </Table.Td>
-                <Table.Td>
                   <Text size='sm'>{module.credits}</Text>
                 </Table.Td>
                 <Table.Td>
                   <Badge
                     size='sm'
+                    variant='transparent'
                     color={
                       module.status === 'Compulsory'
                         ? 'blue'

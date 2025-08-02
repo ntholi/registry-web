@@ -10,6 +10,7 @@ import {
   Select,
   Stack,
   Text,
+  Title,
 } from '@mantine/core';
 
 type ModuleWithStatus = {
@@ -47,10 +48,6 @@ export default function SemesterInfoCard({
     return null;
   }
 
-  const totalCredits = availableModules
-    .filter((m) => selectedModules.has(m.semesterModuleId))
-    .reduce((sum, m) => sum + m.credits, 0);
-
   const semesterOptions = Array.from({ length: 8 }, (_, i) => ({
     value: (i + 1).toString(),
     label: formatSemester(i + 1),
@@ -82,53 +79,42 @@ export default function SemesterInfoCard({
   return (
     <Card withBorder p='md' pos='relative'>
       <LoadingOverlay visible={isLoading} />
-      {semesterData && (
-        <Stack gap='md'>
-          <Group justify='space-between'>
-            <Text fw={500}>Semester Information</Text>
-            <Badge color={semesterData.status === 'Active' ? 'blue' : 'orange'}>
-              {semesterData.status}
-            </Badge>
-          </Group>
+      <Stack gap='md'>
+        <Group justify='space-between'>
+          <Title order={4} size='h5'>
+            Semester Information
+          </Title>
+          <Badge
+            radius={'sm'}
+            color={semesterData?.status === 'Active' ? 'blue' : 'orange'}
+          >
+            {semesterData?.status}
+          </Badge>
+        </Group>
 
-          <Group grow>
-            <Select
-              label='Semester'
-              data={semesterOptions}
-              value={semesterData.semesterNo.toString()}
-              onChange={(value) => {
-                if (value) {
-                  handleSemesterChange(parseInt(value));
-                }
-              }}
-            />
-            <Select
-              label='Status'
-              data={statusOptions}
-              value={semesterData.status}
-              onChange={(value) => {
-                if (value) {
-                  handleStatusChange(value as 'Active' | 'Repeat');
-                }
-              }}
-            />
-          </Group>
-
-          <Group>
-            <Text size='sm'>Modules: {selectedModules.size}</Text>
-            <Text size='sm'>Credits: {totalCredits}</Text>
-          </Group>
-
-          {semesterData.status === 'Repeat' && (
-            <Alert color='orange'>Student is repeating this semester</Alert>
-          )}
-        </Stack>
-      )}
-      {!semesterData && (
-        <Stack gap='xs'>
-          <Text fw={500}>Determining semester status...</Text>
-        </Stack>
-      )}
+        <Group grow>
+          <Select
+            label='Semester'
+            data={semesterOptions}
+            value={semesterData?.semesterNo.toString()}
+            onChange={(value) => {
+              if (value) {
+                handleSemesterChange(parseInt(value));
+              }
+            }}
+          />
+          <Select
+            label='Status'
+            data={statusOptions}
+            value={semesterData?.status}
+            onChange={(value) => {
+              if (value) {
+                handleStatusChange(value as 'Active' | 'Repeat');
+              }
+            }}
+          />
+        </Group>
+      </Stack>
     </Card>
   );
 }

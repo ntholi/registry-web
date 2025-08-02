@@ -275,8 +275,8 @@ export default function RegistrationRequestModal({
                   onSemesterChange={setSemesterData}
                 />
 
-                <Box>
-                  <Title order={4} mb='md'>
+                <Paper withBorder p='md'>
+                  <Title order={4} size='h5' mb='md'>
                     Sponsorship Details
                   </Title>
                   <Paper withBorder p='md'>
@@ -331,7 +331,7 @@ export default function RegistrationRequestModal({
                       </GridCol>
                     </Grid>
                   </Paper>
-                </Box>
+                </Paper>
               </>
             )}
 
