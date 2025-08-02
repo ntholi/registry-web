@@ -8,7 +8,7 @@ import { Session } from 'next-auth';
 import AcademicsView from './AcademicsView';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
-import ProofOfRegistrationPrinter from './ProofOfRegistrationPrinter';
+import ProofOfRegistrationPrinter from './registration/ProofOfRegistrationPrinter';
 import RegistrationView from './registration/RegistrationView';
 import StudentCardView from './card/StudentCardView';
 import StudentView from './info/StudentView';
@@ -68,10 +68,7 @@ export function StudentTabs({
         )}
         {showRegistration && activeTab === 'registration' && (
           <Box ml='auto'>
-            <ProofOfRegistrationPrinter
-              stdNo={student.stdNo}
-              disabled={!!blockedStudent}
-            />
+            <ProofOfRegistrationPrinter stdNo={student.stdNo} />
           </Box>
         )}
       </TabsList>

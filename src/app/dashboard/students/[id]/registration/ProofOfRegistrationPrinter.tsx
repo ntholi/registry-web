@@ -9,22 +9,29 @@ import { useState } from 'react';
 import ProofOfRegistrationPDF from './ProofOfRegistrationPDF';
 
 type Props = {
-  disabled?: boolean;
   stdNo: number;
 };
 
-export default function ProofOfRegistrationPrinter({ stdNo, disabled }: Props) {
+export default function ProofOfRegistrationPrinter({ stdNo }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const { data: student } = useQuery({
+  const { refetch: fetchRegistrationData } = useQuery({
     queryKey: ['studentRegistrationData', stdNo],
     queryFn: () => getStudentRegistrationData(stdNo),
+    enabled: false,
   });
 
   const handlePrint = async () => {
     setIsGenerating(true);
     try {
-      if (!student || !student.programs || student.programs.length === 0) {
+      const result = await fetchRegistrationData();
+      const studentData = result.data;
+
+      if (
+        !studentData ||
+        !studentData.programs ||
+        studentData.programs.length === 0
+      ) {
         console.error('Invalid student data for PDF generation');
         setIsGenerating(false);
         return;
@@ -32,11 +39,11 @@ export default function ProofOfRegistrationPrinter({ stdNo, disabled }: Props) {
 
       console.log(
         'Generating Proof of Registration PDF for student:',
-        student.stdNo,
+        studentData.stdNo
       );
 
       const blob = await pdf(
-        <ProofOfRegistrationPDF student={student} />,
+        <ProofOfRegistrationPDF student={studentData} />
       ).toBlob();
 
       console.log('PDF blob generated, size:', blob.size);
@@ -66,7 +73,7 @@ export default function ProofOfRegistrationPrinter({ stdNo, disabled }: Props) {
             if (iframe.contentWindow) {
               iframe.contentWindow.removeEventListener(
                 'afterprint',
-                handleAfterPrint,
+                handleAfterPrint
               );
             }
           };
@@ -92,7 +99,6 @@ export default function ProofOfRegistrationPrinter({ stdNo, disabled }: Props) {
       };
     } catch (error) {
       console.error('Error generating PDF for printing:', error);
-      console.error('Student data:', student);
       setIsGenerating(false);
     }
   };
@@ -103,7 +109,7 @@ export default function ProofOfRegistrationPrinter({ stdNo, disabled }: Props) {
       variant='subtle'
       color='gray'
       size='xs'
-      disabled={isGenerating || disabled}
+      disabled={isGenerating}
       onClick={handlePrint}
     >
       Proof of Registration
