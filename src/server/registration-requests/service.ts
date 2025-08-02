@@ -203,46 +203,6 @@ class RegistrationRequestService {
       return getStudentSemesterModulesLogic(student, remarks);
     }, ['student', 'registry']);
   }
-
-  determineSemesterStatus(modules: ModuleWithStatus[], student: Student) {
-    const semesterNo = commonSemesterNo(modules);
-    const completedSemesters =
-      student?.programs
-        .flatMap((program) => program.semesters)
-        .map((semester) => semester.semesterNumber)
-        .filter((semesterNo): semesterNo is number => semesterNo !== null) ??
-      [];
-
-    const hasCompletedSemester = completedSemesters.includes(semesterNo);
-
-    return {
-      semesterNo: semesterNo,
-      status: (hasCompletedSemester ? 'Repeat' : 'Active') as
-        | 'Active'
-        | 'Repeat',
-    };
-  }
-}
-
-function commonSemesterNo(modules: ModuleWithStatus[]): number {
-  const semesterCounts = new Map<number, number>();
-
-  for (const m of modules) {
-    const count = semesterCounts.get(m.semesterNo) || 0;
-    semesterCounts.set(m.semesterNo, count + 1);
-  }
-
-  let mostCommonSemester = modules[0]?.semesterNo || 1;
-  let maxCount = 0;
-
-  for (const [semesterNo, count] of semesterCounts) {
-    if (count > maxCount) {
-      maxCount = count;
-      mostCommonSemester = semesterNo;
-    }
-  }
-
-  return mostCommonSemester;
 }
 
 export const registrationRequestsService = serviceWrapper(

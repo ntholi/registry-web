@@ -70,7 +70,19 @@ export async function determineSemesterStatus(
   modules: ModuleWithStatus[],
   student: Student
 ) {
-  return service.determineSemesterStatus(modules, student);
+  const semesterNo = commonSemesterNo(modules);
+  const completedSemesters =
+    student?.programs
+      .flatMap((program) => program.semesters)
+      .map((semester) => semester.semesterNumber)
+      .filter((semesterNo): semesterNo is number => semesterNo !== null) ?? [];
+
+  const hasCompletedSemester = completedSemesters.includes(semesterNo);
+
+  return {
+    semesterNo: semesterNo,
+    status: (hasCompletedSemester ? 'Repeat' : 'Active') as 'Active' | 'Repeat',
+  };
 }
 
 export async function createRegistrationRequest(value: RegistrationRequest) {
@@ -144,4 +156,25 @@ export async function updateRegistrationWithModulesAndSponsorship(
 
 export async function getStudentRegistrationHistory(stdNo: number) {
   return service.getHistory(stdNo);
+}
+
+function commonSemesterNo(modules: ModuleWithStatus[]): number {
+  const semesterCounts = new Map<number, number>();
+
+  for (const m of modules) {
+    const count = semesterCounts.get(m.semesterNo) || 0;
+    semesterCounts.set(m.semesterNo, count + 1);
+  }
+
+  let mostCommonSemester = modules[0]?.semesterNo || 1;
+  let maxCount = 0;
+
+  for (const [semesterNo, count] of semesterCounts) {
+    if (count > maxCount) {
+      maxCount = count;
+      mostCommonSemester = semesterNo;
+    }
+  }
+
+  return mostCommonSemester;
 }

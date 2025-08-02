@@ -9,7 +9,7 @@ import {
   getStudentSemesterModules,
 } from '@/server/registration-requests/actions';
 import { findAllSponsors } from '@/server/sponsors/actions';
-import { getStudent, getStudentByUserId } from '@/server/students/actions';
+import { getStudent } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import ModulesTable from './ModulesTable';
 import SemesterInfoCard from './SemesterInfoCard';
@@ -110,11 +110,7 @@ export default function RegistrationRequestModal({
 
   const { data: student, isLoading: studentLoading } = useQuery({
     queryKey: ['student', stdNo],
-    queryFn: async () => {
-      const basicStudent = await getStudent(stdNo);
-      if (!basicStudent?.userId) return null;
-      return getStudentByUserId(basicStudent.userId);
-    },
+    queryFn: () => getStudent(stdNo),
     enabled: opened && !!stdNo,
   });
 
@@ -275,7 +271,7 @@ export default function RegistrationRequestModal({
                   semesterData={semesterData}
                   selectedModules={selectedModules}
                   availableModules={availableModules}
-                  isLoading={semesterStatusLoading}
+                  isLoading={false}
                   onSemesterChange={setSemesterData}
                 />
 
@@ -351,7 +347,7 @@ export default function RegistrationRequestModal({
               </Button>
               <Button
                 type='submit'
-                loading={createMutation.isPending || semesterStatusLoading}
+                loading={createMutation.isPending}
                 disabled={selectedModules.size === 0 || !semesterData}
               >
                 Create Registration Request
