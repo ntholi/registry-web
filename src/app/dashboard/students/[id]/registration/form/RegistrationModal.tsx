@@ -3,7 +3,7 @@
 import { Modal, Tabs } from '@mantine/core';
 import { useState } from 'react';
 import RegistrationRequestForm from './RegistrationRequestForm';
-import AcademicsView from '../AcademicsView';
+import AcademicsView from '../../AcademicsView';
 import StructureView from './StructureView';
 
 type Props = {

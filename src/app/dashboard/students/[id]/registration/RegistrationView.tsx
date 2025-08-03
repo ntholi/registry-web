@@ -22,7 +22,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
-import RegistrationModal from './RegistrationModal';
+import RegistrationModal from './form/RegistrationModal';
 
 type StudentRegistrationHistory = {
   id: number;
