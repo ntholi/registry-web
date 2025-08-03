@@ -22,7 +22,7 @@ type TimeLeft = {
   seconds: number;
 };
 
-export default function Countdown() {
+export default function Countdown({ targetDate }: { targetDate: number }) {
   const { currentTerm } = useCurrentTerm();
   const { student, program, semester, isLoading } = useUserStudent();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
@@ -33,8 +33,6 @@ export default function Countdown() {
   });
 
   useEffect(() => {
-    const targetDate = new Date('2025-08-04T12:00:00').getTime();
-
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const difference = targetDate - now;
