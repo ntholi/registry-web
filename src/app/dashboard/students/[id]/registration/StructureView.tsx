@@ -21,13 +21,14 @@ import { useQuery } from '@tanstack/react-query';
 
 type Props = {
   stdNo: number;
+  isActive?: boolean;
 };
 
-export default function StructureView({ stdNo }: Props) {
+export default function StructureView({ stdNo, isActive = false }: Props) {
   const { data: student, isLoading: studentLoading } = useQuery({
     queryKey: ['student', stdNo],
     queryFn: () => getAcademicHistory(stdNo),
-    enabled: !!stdNo,
+    enabled: isActive && !!stdNo,
   });
 
   const activeProgram = student?.programs?.find((p) => p.status === 'Active');
@@ -36,7 +37,7 @@ export default function StructureView({ stdNo }: Props) {
   const { data: structure, isLoading: structureLoading } = useQuery({
     queryKey: ['structure', structureId],
     queryFn: () => getStructure(structureId!),
-    enabled: !!structureId,
+    enabled: isActive && !!structureId,
   });
 
   const isLoading = studentLoading || structureLoading;
