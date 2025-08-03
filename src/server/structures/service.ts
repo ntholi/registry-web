@@ -20,7 +20,7 @@ class StructureService {
   async getByProgramId(programId: number) {
     return withAuth(
       async () => this.repository.findByProgramId(programId),
-      ['dashboard'],
+      ['dashboard']
     );
   }
 
@@ -47,9 +47,16 @@ class StructureService {
   async count() {
     return withAuth(async () => this.repository.count(), []);
   }
+
+  async getStructureModules(structureId: number) {
+    return withAuth(
+      async () => this.repository.getStructureModules(structureId),
+      ['dashboard']
+    );
+  }
 }
 
 export const structuresService = serviceWrapper(
   StructureService,
-  'StructuresService',
+  'StructuresService'
 );

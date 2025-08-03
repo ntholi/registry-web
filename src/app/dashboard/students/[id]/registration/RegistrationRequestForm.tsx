@@ -9,6 +9,7 @@ import {
 } from '@/server/registration-requests/actions';
 import { findAllSponsors } from '@/server/sponsors/actions';
 import { getAcademicHistory } from '@/server/students/actions';
+import { getStructureModules } from '@/server/structures/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   Alert,
@@ -32,6 +33,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import ModulesTable from './ModulesTable';
 import SemesterInfoCard from './SemesterInfoCard';
+import { ModuleSearchInput } from './ModuleSearchInput';
 
 type Props = {
   stdNo: number;
@@ -109,6 +111,9 @@ export default function RegistrationRequestForm({
     queryFn: () => getAcademicHistory(stdNo),
     enabled: !!stdNo,
   });
+
+  const activeProgram = student?.programs?.find((p) => p.status === 'Active');
+  const structureId = activeProgram?.structureId;
 
   const { data: sponsors, isLoading: sponsorsLoading } = useQuery({
     queryKey: ['sponsors'],
@@ -223,6 +228,47 @@ export default function RegistrationRequestForm({
     form.setFieldValue('modules', selectedModulesList);
   };
 
+  const handleAddModule = (
+    moduleData: Awaited<ReturnType<typeof getStructureModules>>[number] | null
+  ) => {
+    if (!moduleData) return;
+
+    const newModule: ModuleWithStatus = {
+      semesterModuleId: moduleData.semesterModuleId,
+      code: moduleData.code || '',
+      name: moduleData.name || '',
+      type: moduleData.type,
+      credits: moduleData.credits,
+      status: 'Compulsory',
+      semesterNo: moduleData.semesterNumber,
+      prerequisites: [],
+    };
+
+    const isAlreadyAvailable = availableModules.some(
+      (m) => m.semesterModuleId === newModule.semesterModuleId
+    );
+
+    if (!isAlreadyAvailable) {
+      const updatedModules = [...availableModules, newModule];
+      setAvailableModules(updatedModules);
+
+      const newSelected = new Set(selectedModules);
+      newSelected.add(newModule.semesterModuleId);
+      setSelectedModules(newSelected);
+
+      const selectedModulesList = updatedModules
+        .filter((m) => newSelected.has(m.semesterModuleId))
+        .map((m) => ({
+          moduleId: m.semesterModuleId,
+          moduleStatus: m.status.includes('Repeat')
+            ? ('Repeat' as StudentModuleStatus)
+            : ('Active' as StudentModuleStatus),
+        }));
+
+      form.setFieldValue('modules', selectedModulesList);
+    }
+  };
+
   const handleSubmit = (values: FormValues) => {
     createMutation.mutate(values);
   };
@@ -256,6 +302,17 @@ export default function RegistrationRequestForm({
 
           {!hasError && availableModules.length > 0 && (
             <>
+              <Paper withBorder p='md'>
+                <ModuleSearchInput
+                  label='Add Additional Module'
+                  placeholder='Search for modules by code or name'
+                  structureId={structureId || 0}
+                  value={null}
+                  onChange={() => {}}
+                  onModuleSelect={handleAddModule}
+                  disabled={!structureId}
+                />
+              </Paper>
               <Box>
                 <ModulesTable
                   modules={availableModules}

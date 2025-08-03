@@ -57,6 +57,42 @@ export default class StructureRepository extends BaseRepository<
   async deleteSemesterModule(id: number) {
     await db.delete(semesterModules).where(eq(semesterModules.id, id));
   }
+
+  async getStructureModules(structureId: number) {
+    const structure = await db.query.structures.findFirst({
+      where: () => eq(structures.id, structureId),
+      with: {
+        semesters: {
+          with: {
+            semesterModules: {
+              where: (semesterModules) => eq(semesterModules.hidden, false),
+              with: {
+                module: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!structure) return [];
+
+    const modules = structure.semesters
+      .flatMap((semester) =>
+        semester.semesterModules.map((semMod) => ({
+          semesterModuleId: semMod.id,
+          moduleId: semMod.module?.id,
+          code: semMod.module?.code,
+          name: semMod.module?.name,
+          type: semMod.type,
+          credits: semMod.credits,
+          semesterNumber: semester.semesterNumber,
+        }))
+      )
+      .filter((mod) => mod.moduleId && mod.code && mod.name);
+
+    return modules;
+  }
 }
 
 export const structuresRepository = new StructureRepository();

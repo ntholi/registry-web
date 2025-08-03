@@ -32,3 +32,7 @@ export async function deleteStructure(id: number) {
 export async function getStructuresByProgramId(programId: number) {
   return service.getByProgramId(programId);
 }
+
+export async function getStructureModules(structureId: number) {
+  return service.getStructureModules(structureId);
+}
