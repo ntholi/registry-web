@@ -1,7 +1,16 @@
 'use client';
 
 import { formatSemester } from '@/lib/utils';
-import { Badge, Card, Group, Select, Stack, Title } from '@mantine/core';
+import {
+  Badge,
+  Card,
+  Group,
+  Loader,
+  Select,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
 
 type ModuleWithStatus = {
   semesterModuleId: number;
@@ -23,12 +32,14 @@ type Props = {
   semesterData: SemesterData | null;
   selectedModules: Set<number>;
   onSemesterChange: (data: SemesterData) => void;
+  isLoading?: boolean;
 };
 
 export default function SemesterInfoCard({
   semesterData,
   selectedModules,
   onSemesterChange,
+  isLoading = false,
 }: Props) {
   if (selectedModules.size === 0) {
     return null;
@@ -69,12 +80,21 @@ export default function SemesterInfoCard({
           <Title order={4} size='h5'>
             Semester Information
           </Title>
-          <Badge
-            radius={'sm'}
-            color={semesterData?.status === 'Active' ? 'blue' : 'orange'}
-          >
-            {semesterData?.status}
-          </Badge>
+          {isLoading ? (
+            <Group gap='xs'>
+              <Loader size='sm' />
+              <Text size='sm' c='dimmed'>
+                Determining...
+              </Text>
+            </Group>
+          ) : (
+            <Badge
+              radius={'sm'}
+              color={semesterData?.status === 'Active' ? 'blue' : 'orange'}
+            >
+              {semesterData?.status}
+            </Badge>
+          )}
         </Group>
 
         <Group grow>
@@ -87,6 +107,7 @@ export default function SemesterInfoCard({
                 handleSemesterChange(parseInt(value));
               }
             }}
+            disabled={isLoading}
           />
           <Select
             label='Status'
@@ -97,6 +118,7 @@ export default function SemesterInfoCard({
                 handleStatusChange(value as 'Active' | 'Repeat');
               }
             }}
+            disabled={isLoading}
           />
         </Group>
       </Stack>

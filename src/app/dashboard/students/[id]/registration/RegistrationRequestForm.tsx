@@ -25,10 +25,11 @@ import {
   Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconX } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ModulesTable from './ModulesTable';
 import SemesterInfoCard from './SemesterInfoCard';
 
@@ -74,6 +75,8 @@ export default function RegistrationRequestForm({
     []
   );
   const [semesterData, setSemesterData] = useState<SemesterData | null>(null);
+
+  const [debouncedSelectedModules] = useDebouncedValue(selectedModules, 300);
 
   const form = useForm<FormValues>({
     initialValues: {
@@ -124,19 +127,30 @@ export default function RegistrationRequestForm({
     enabled: !!student,
   });
 
+  const selectedModuleData = useMemo(
+    () =>
+      availableModules.filter((m) =>
+        debouncedSelectedModules.has(m.semesterModuleId)
+      ),
+    [availableModules, debouncedSelectedModules]
+  );
+
   const { data: semesterStatus, isLoading: semesterStatusLoading } = useQuery({
-    queryKey: ['semesterStatus', Array.from(selectedModules)],
+    queryKey: ['semesterStatus', Array.from(debouncedSelectedModules)],
     queryFn: async () => {
-      if (selectedModules.size === 0 || !student || !availableModules.length)
+      if (
+        debouncedSelectedModules.size === 0 ||
+        !student ||
+        selectedModuleData.length === 0
+      )
         return null;
 
-      const selectedModuleData: ModuleWithStatus[] = availableModules.filter(
-        (m) => selectedModules.has(m.semesterModuleId)
-      );
       return determineSemesterStatus(selectedModuleData, student);
     },
     enabled:
-      selectedModules.size > 0 && !!student && availableModules.length > 0,
+      debouncedSelectedModules.size > 0 &&
+      !!student &&
+      selectedModuleData.length > 0,
   });
 
   const createMutation = useMutation({
@@ -226,6 +240,7 @@ export default function RegistrationRequestForm({
 
   const isLoading = studentLoading || modulesLoading || sponsorsLoading;
   const hasError = moduleData?.error;
+  const isProcessingSelection = selectedModules !== debouncedSelectedModules;
 
   return (
     <Box pos='relative' mih='80vh'>
@@ -254,6 +269,7 @@ export default function RegistrationRequestForm({
                 semesterData={semesterData}
                 selectedModules={selectedModules}
                 onSemesterChange={setSemesterData}
+                isLoading={semesterStatusLoading || isProcessingSelection}
               />
 
               <Paper withBorder p='md'>
