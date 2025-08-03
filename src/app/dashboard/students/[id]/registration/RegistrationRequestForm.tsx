@@ -228,7 +228,7 @@ export default function RegistrationRequestForm({
   const hasError = moduleData?.error;
 
   return (
-    <Box pos='relative'>
+    <Box pos='relative' mih='80vh'>
       <LoadingOverlay visible={isLoading} />
 
       <form onSubmit={form.onSubmit(handleSubmit)}>

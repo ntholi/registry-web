@@ -17,7 +17,7 @@ export default function RegistrationModal({ opened, onClose, stdNo }: Props) {
       opened={opened}
       onClose={onClose}
       title='Student Registration'
-      size='xl'
+      size='60vw'
       centered
       closeOnEscape
     >
@@ -33,7 +33,7 @@ export default function RegistrationModal({ opened, onClose, stdNo }: Props) {
         </Tabs.Panel>
 
         <Tabs.Panel value='academics' pt='md'>
-          <AcademicsView stdNo={stdNo} showMarks isActive />
+          <AcademicsView mih='80vh' stdNo={stdNo} showMarks isActive />
         </Tabs.Panel>
 
         <Tabs.Panel value='structure' pt='md'>

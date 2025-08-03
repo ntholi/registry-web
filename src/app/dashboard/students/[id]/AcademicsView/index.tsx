@@ -15,6 +15,7 @@ import {
   Paper,
   Skeleton,
   Stack,
+  StackProps,
   Text,
   ThemeIcon,
 } from '@mantine/core';
@@ -29,12 +30,13 @@ type Props = {
   stdNo: number;
   showMarks?: boolean;
   isActive?: boolean;
-};
+} & StackProps;
 
 export default function AcademicsView({
   stdNo,
   showMarks,
   isActive = false,
+  ...props
 }: Props) {
   const { data: student, isLoading } = useQuery({
     queryKey: ['student', stdNo],
@@ -66,7 +68,7 @@ export default function AcademicsView({
   }
 
   return (
-    <Stack gap='md'>
+    <Stack gap='md' {...props}>
       <Accordion
         variant='separated'
         radius='md'
