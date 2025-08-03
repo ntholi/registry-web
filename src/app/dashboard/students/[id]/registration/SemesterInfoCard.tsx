@@ -1,17 +1,7 @@
 'use client';
 
 import { formatSemester } from '@/lib/utils';
-import {
-  Alert,
-  Badge,
-  Card,
-  Group,
-  LoadingOverlay,
-  Select,
-  Stack,
-  Text,
-  Title,
-} from '@mantine/core';
+import { Badge, Card, Group, Select, Stack, Title } from '@mantine/core';
 
 type ModuleWithStatus = {
   semesterModuleId: number;
@@ -32,16 +22,12 @@ type SemesterData = {
 type Props = {
   semesterData: SemesterData | null;
   selectedModules: Set<number>;
-  availableModules: ModuleWithStatus[];
-  isLoading: boolean;
   onSemesterChange: (data: SemesterData) => void;
 };
 
 export default function SemesterInfoCard({
   semesterData,
   selectedModules,
-  availableModules,
-  isLoading,
   onSemesterChange,
 }: Props) {
   if (selectedModules.size === 0) {
@@ -77,8 +63,7 @@ export default function SemesterInfoCard({
   };
 
   return (
-    <Card withBorder p='md' pos='relative'>
-      <LoadingOverlay visible={isLoading} />
+    <Card withBorder p='md'>
       <Stack gap='md'>
         <Group justify='space-between'>
           <Title order={4} size='h5'>

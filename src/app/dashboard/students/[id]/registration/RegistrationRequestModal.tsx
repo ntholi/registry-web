@@ -241,7 +241,7 @@ export default function RegistrationRequestModal({
       opened={opened}
       onClose={handleClose}
       title='Create Registration Request'
-      size='full'
+      size='xl'
       centered
       closeOnEscape
     >
@@ -270,8 +270,6 @@ export default function RegistrationRequestModal({
                 <SemesterInfoCard
                   semesterData={semesterData}
                   selectedModules={selectedModules}
-                  availableModules={availableModules}
-                  isLoading={false}
                   onSemesterChange={setSemesterData}
                 />
 

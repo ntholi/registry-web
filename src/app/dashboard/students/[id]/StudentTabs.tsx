@@ -8,7 +8,7 @@ import { Session } from 'next-auth';
 import AcademicsView from './AcademicsView';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
-import ProofOfRegistrationPrinter from './registration/ProofOfRegistrationPrinter';
+import ProofOfRegistrationPrinter from './registration/proof/ProofOfRegistrationPrinter';
 import RegistrationView from './registration/RegistrationView';
 import StudentCardView from './card/StudentCardView';
 import StudentView from './info/StudentView';
