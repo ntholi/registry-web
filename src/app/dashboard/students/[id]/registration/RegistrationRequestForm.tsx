@@ -228,10 +228,35 @@ export default function RegistrationRequestForm({
     form.setFieldValue('modules', selectedModulesList);
   };
 
+  const determineModuleStatus = (
+    moduleData: Awaited<ReturnType<typeof getStructureModules>>[number],
+    existingRepeatModules: ModuleWithStatus[]
+  ): 'Compulsory' | 'Elective' | `Repeat${number}` => {
+    if (!student)
+      return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
+
+    const attemptedModules = student.programs
+      .flatMap((p) => p.semesters)
+      .flatMap((s) => s.studentModules)
+      .filter((m) => m.semesterModule.module?.name === moduleData.name);
+
+    if (attemptedModules.length > 0) {
+      const repeatCount =
+        existingRepeatModules.filter(
+          (m) => m.name === moduleData.name && m.status.includes('Repeat')
+        ).length + 1;
+      return `Repeat${repeatCount}` as const;
+    }
+
+    return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
+  };
+
   const handleAddModule = (
     moduleData: Awaited<ReturnType<typeof getStructureModules>>[number] | null
   ) => {
     if (!moduleData) return;
+
+    const moduleStatus = determineModuleStatus(moduleData, availableModules);
 
     const newModule: ModuleWithStatus = {
       semesterModuleId: moduleData.semesterModuleId,
@@ -239,7 +264,7 @@ export default function RegistrationRequestForm({
       name: moduleData.name || '',
       type: moduleData.type,
       credits: moduleData.credits,
-      status: 'Compulsory',
+      status: moduleStatus,
       semesterNo: moduleData.semesterNumber,
       prerequisites: [],
     };
