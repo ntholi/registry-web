@@ -7,7 +7,6 @@ import {
   determineSemesterStatus,
   getStudentSemesterModules,
 } from '@/server/registration-requests/actions';
-import { findAllSponsors } from '@/server/sponsors/actions';
 import { getAcademicHistory } from '@/server/students/actions';
 import { getStructureModules } from '@/server/structures/actions';
 import { getAcademicRemarks } from '@/utils/grades';
@@ -15,15 +14,9 @@ import {
   Alert,
   Box,
   Button,
-  Grid,
-  GridCol,
   Group,
   LoadingOverlay,
-  Paper,
-  Select,
   Stack,
-  TextInput,
-  Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -31,9 +24,10 @@ import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconX } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import ModulesTable from './ModulesTable';
 import SemesterInfoCard from './SemesterInfoCard';
-import { ModuleSearchInput } from './ModuleSearchInput';
+import TermSelector from './TermSelector';
+import SponsorSelector from './SponsorSelector';
+import ModuleSection from './ModuleSection';
 
 type Props = {
   stdNo: number;
@@ -63,6 +57,7 @@ type SponsorshipData = {
 type FormValues = {
   modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
   sponsorship: SponsorshipData;
+  selectedTermId: number | null;
 };
 
 export default function RegistrationRequestForm({
@@ -87,19 +82,17 @@ export default function RegistrationRequestForm({
         sponsorId: 0,
         borrowerNo: '',
       },
+      selectedTermId: currentTerm?.id || null,
     },
     validate: {
       modules: (value) =>
         value.length === 0 ? 'Please select at least one module' : null,
+      selectedTermId: (value) =>
+        value === null ? 'Please select a term' : null,
       sponsorship: {
         sponsorId: (value) => (value === 0 ? 'Please select a sponsor' : null),
         borrowerNo: (value, values) => {
-          const sponsor = sponsors?.find(
-            (s) => s.id === values.sponsorship.sponsorId
-          );
-          if (sponsor?.name === 'NMDS' && !value) {
-            return 'Borrower number is required for NMDS sponsorship';
-          }
+          // Validation will be handled by SponsorSelector component
           return null;
         },
       },
@@ -114,12 +107,6 @@ export default function RegistrationRequestForm({
 
   const activeProgram = student?.programs?.find((p) => p.status === 'Active');
   const structureId = activeProgram?.structureId;
-
-  const { data: sponsors, isLoading: sponsorsLoading } = useQuery({
-    queryKey: ['sponsors'],
-    queryFn: () => findAllSponsors(1),
-    select: ({ items }) => items,
-  });
 
   const { data: moduleData, isLoading: modulesLoading } = useQuery({
     queryKey: ['studentSemesterModules', stdNo],
@@ -160,13 +147,13 @@ export default function RegistrationRequestForm({
 
   const createMutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      if (!currentTerm || !semesterData) {
+      if (!data.selectedTermId || !semesterData) {
         throw new Error('Missing required data');
       }
 
       return createRegistrationWithModules({
         stdNo,
-        termId: currentTerm.id,
+        termId: data.selectedTermId,
         sponsorId: data.sponsorship.sponsorId,
         modules: data.modules,
         semesterNumber: semesterData.semesterNo,
@@ -228,72 +215,6 @@ export default function RegistrationRequestForm({
     form.setFieldValue('modules', selectedModulesList);
   };
 
-  const determineModuleStatus = (
-    moduleData: Awaited<ReturnType<typeof getStructureModules>>[number],
-    existingRepeatModules: ModuleWithStatus[]
-  ): 'Compulsory' | 'Elective' | `Repeat${number}` => {
-    if (!student)
-      return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
-
-    const attemptedModules = student.programs
-      .flatMap((p) => p.semesters)
-      .flatMap((s) => s.studentModules)
-      .filter((m) => m.semesterModule.module?.name === moduleData.name);
-
-    if (attemptedModules.length > 0) {
-      const repeatCount =
-        existingRepeatModules.filter(
-          (m) => m.name === moduleData.name && m.status.includes('Repeat')
-        ).length + 1;
-      return `Repeat${repeatCount}` as const;
-    }
-
-    return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
-  };
-
-  const handleAddModule = (
-    moduleData: Awaited<ReturnType<typeof getStructureModules>>[number] | null
-  ) => {
-    if (!moduleData) return;
-
-    const moduleStatus = determineModuleStatus(moduleData, availableModules);
-
-    const newModule: ModuleWithStatus = {
-      semesterModuleId: moduleData.semesterModuleId,
-      code: moduleData.code || '',
-      name: moduleData.name || '',
-      type: moduleData.type,
-      credits: moduleData.credits,
-      status: moduleStatus,
-      semesterNo: moduleData.semesterNumber,
-      prerequisites: [],
-    };
-
-    const isAlreadyAvailable = availableModules.some(
-      (m) => m.semesterModuleId === newModule.semesterModuleId
-    );
-
-    if (!isAlreadyAvailable) {
-      const updatedModules = [...availableModules, newModule];
-      setAvailableModules(updatedModules);
-
-      const newSelected = new Set(selectedModules);
-      newSelected.add(newModule.semesterModuleId);
-      setSelectedModules(newSelected);
-
-      const selectedModulesList = updatedModules
-        .filter((m) => newSelected.has(m.semesterModuleId))
-        .map((m) => ({
-          moduleId: m.semesterModuleId,
-          moduleStatus: m.status.includes('Repeat')
-            ? ('Repeat' as StudentModuleStatus)
-            : ('Active' as StudentModuleStatus),
-        }));
-
-      form.setFieldValue('modules', selectedModulesList);
-    }
-  };
-
   const handleSubmit = (values: FormValues) => {
     createMutation.mutate(values);
   };
@@ -305,11 +226,7 @@ export default function RegistrationRequestForm({
     setSemesterData(null);
   };
 
-  const isNMDS = (sponsorId: number) => {
-    return sponsors?.find((s) => s.id === sponsorId)?.name === 'NMDS';
-  };
-
-  const isLoading = studentLoading || modulesLoading || sponsorsLoading;
+  const isLoading = studentLoading || modulesLoading;
   const hasError = moduleData?.error;
   const isProcessingSelection = selectedModules !== debouncedSelectedModules;
 
@@ -325,27 +242,26 @@ export default function RegistrationRequestForm({
             </Alert>
           )}
 
+          <TermSelector
+            value={form.values.selectedTermId}
+            onChange={(value) => form.setFieldValue('selectedTermId', value)}
+            error={form.errors.selectedTermId as string}
+          />
+
           {!hasError && availableModules.length > 0 && (
             <>
-              <Paper withBorder p='md'>
-                <ModuleSearchInput
-                  label='Add Additional Module'
-                  placeholder='Search for modules by code or name'
-                  structureId={structureId || 0}
-                  value={null}
-                  onChange={() => {}}
-                  onModuleSelect={handleAddModule}
-                  disabled={!structureId}
-                />
-              </Paper>
-              <Box>
-                <ModulesTable
-                  modules={availableModules}
-                  selectedModules={selectedModules}
-                  onModuleToggle={handleModuleToggle}
-                  error={form.errors.modules as string}
-                />
-              </Box>
+              <ModuleSection
+                availableModules={availableModules}
+                setAvailableModules={setAvailableModules}
+                selectedModules={selectedModules}
+                onModuleToggle={handleModuleToggle}
+                onModulesChange={(modules) =>
+                  form.setFieldValue('modules', modules)
+                }
+                structureId={structureId}
+                student={student}
+                error={form.errors.modules as string}
+              />
 
               <SemesterInfoCard
                 semesterData={semesterData}
@@ -354,62 +270,14 @@ export default function RegistrationRequestForm({
                 isLoading={semesterStatusLoading || isProcessingSelection}
               />
 
-              <Paper withBorder p='md'>
-                <Title order={4} size='h5' mb='md'>
-                  Sponsorship Details
-                </Title>
-                <Paper withBorder p='md'>
-                  <Grid>
-                    <GridCol span={6}>
-                      <Select
-                        label='Sponsor'
-                        placeholder='Select sponsor'
-                        data={
-                          sponsors?.map((sponsor) => ({
-                            value: sponsor.id.toString(),
-                            label: sponsor.name,
-                          })) || []
-                        }
-                        value={
-                          form.values.sponsorship.sponsorId?.toString() || null
-                        }
-                        onChange={(value) => {
-                          const sponsorId = value ? parseInt(value) : 0;
-                          form.setFieldValue(
-                            'sponsorship.sponsorId',
-                            sponsorId
-                          );
-                          if (!isNMDS(sponsorId)) {
-                            form.setFieldValue('sponsorship.borrowerNo', '');
-                          }
-                        }}
-                        error={form.errors['sponsorship.sponsorId']}
-                        required
-                        disabled={sponsorsLoading}
-                      />
-                    </GridCol>
-                    <GridCol span={6}>
-                      <TextInput
-                        label='Borrower Number'
-                        placeholder='Enter borrower number'
-                        value={form.values.sponsorship.borrowerNo || ''}
-                        onChange={(event) =>
-                          form.setFieldValue(
-                            'sponsorship.borrowerNo',
-                            event.currentTarget.value
-                          )
-                        }
-                        disabled={
-                          !form.values.sponsorship.sponsorId ||
-                          !isNMDS(form.values.sponsorship.sponsorId)
-                        }
-                        required={isNMDS(form.values.sponsorship.sponsorId)}
-                        error={form.errors['sponsorship.borrowerNo']}
-                      />
-                    </GridCol>
-                  </Grid>
-                </Paper>
-              </Paper>
+              <SponsorSelector
+                value={form.values.sponsorship}
+                onChange={(value) => form.setFieldValue('sponsorship', value)}
+                errors={{
+                  sponsorId: form.errors['sponsorship.sponsorId'] as string,
+                  borrowerNo: form.errors['sponsorship.borrowerNo'] as string,
+                }}
+              />
             </>
           )}
 
@@ -426,7 +294,11 @@ export default function RegistrationRequestForm({
             <Button
               type='submit'
               loading={createMutation.isPending}
-              disabled={selectedModules.size === 0 || !semesterData}
+              disabled={
+                selectedModules.size === 0 ||
+                !semesterData ||
+                !form.values.selectedTermId
+              }
             >
               Create Registration Request
             </Button>
