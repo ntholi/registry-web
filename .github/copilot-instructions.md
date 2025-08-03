@@ -15,7 +15,7 @@
 - In client components, fetch via TanStack Query, invoking `actions.ts` methods exclusively, avoid using useEffect for data fetching.
 - For modals, co-locate trigger (button/action-icon) with the modal component to avoid prop drilling.
 - Place new components alongside their parent unless shared; shared components go in `src/app/components`.
-- When creating new components, make that component as self contained as possible, extract as much logic into that one component as possible
+- When creating new components, make that component as self contained as possible, extracting all logic into that component, avoid prop trilling as much as possible. So create self contained components
 - Use the latest Mantine for responsive, mobile-friendly, minimal, professional UIs. Stick to predefined colors (`c="colorName"`)
 - Create UI components that look very good on dark mode but optimize for both dark and light themes.
 - Never add comments in generated code.

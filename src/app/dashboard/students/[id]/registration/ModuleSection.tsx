@@ -2,7 +2,8 @@
 
 import { StudentModuleStatus } from '@/db/schema';
 import { getStructureModules } from '@/server/structures/actions';
-import { Box, Paper } from '@mantine/core';
+import { ActionIcon, Box, Group, Paper } from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
 import { useState, useEffect, useMemo } from 'react';
 import { ModuleSearchInput } from './ModuleSearchInput';
 import ModulesTable from './ModulesTable';
@@ -55,6 +56,10 @@ export default function ModuleSection({
   student,
   error,
 }: ModuleSectionProps) {
+  const [selectedModuleToAdd, setSelectedModuleToAdd] = useState<
+    Awaited<ReturnType<typeof getStructureModules>>[number] | null
+  >(null);
+  const [searchInputKey, setSearchInputKey] = useState(0);
   const determineModuleStatus = (
     moduleData: Awaited<ReturnType<typeof getStructureModules>>[number],
     existingRepeatModules: ModuleWithStatus[]
@@ -78,21 +83,28 @@ export default function ModuleSection({
     return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
   };
 
-  const handleAddModule = (
+  const handleSelectModule = (
     moduleData: Awaited<ReturnType<typeof getStructureModules>>[number] | null
   ) => {
-    if (!moduleData) return;
+    setSelectedModuleToAdd(moduleData);
+  };
 
-    const moduleStatus = determineModuleStatus(moduleData, availableModules);
+  const handleAddModule = () => {
+    if (!selectedModuleToAdd) return;
+
+    const moduleStatus = determineModuleStatus(
+      selectedModuleToAdd,
+      availableModules
+    );
 
     const newModule: ModuleWithStatus = {
-      semesterModuleId: moduleData.semesterModuleId,
-      code: moduleData.code || '',
-      name: moduleData.name || '',
-      type: moduleData.type,
-      credits: moduleData.credits,
+      semesterModuleId: selectedModuleToAdd.semesterModuleId,
+      code: selectedModuleToAdd.code || '',
+      name: selectedModuleToAdd.name || '',
+      type: selectedModuleToAdd.type,
+      credits: selectedModuleToAdd.credits,
       status: moduleStatus,
-      semesterNo: moduleData.semesterNumber,
+      semesterNo: selectedModuleToAdd.semesterNumber,
       prerequisites: [],
     };
 
@@ -124,21 +136,40 @@ export default function ModuleSection({
       setTimeout(() => {
         onModuleToggle(newModule.semesterModuleId);
       }, 0);
+
+      // Clear selection after adding
+      setSelectedModuleToAdd(null);
+      setSearchInputKey((prev) => prev + 1);
     }
   };
 
   return (
     <>
       <Paper withBorder p='md'>
-        <ModuleSearchInput
-          label='Add Additional Module'
-          placeholder='Search for modules by code or name'
-          structureId={structureId || 0}
-          value={null}
-          onChange={() => {}}
-          onModuleSelect={handleAddModule}
-          disabled={!structureId}
-        />
+        <Group gap='xs' align='flex-end'>
+          <Box style={{ flex: 1 }}>
+            <ModuleSearchInput
+              key={searchInputKey}
+              label='Add  Module'
+              placeholder='Search for modules by code or name'
+              structureId={structureId || 0}
+              value={selectedModuleToAdd?.semesterModuleId || null}
+              onChange={() => {}}
+              onModuleSelect={handleSelectModule}
+              disabled={!structureId}
+            />
+          </Box>
+          <ActionIcon
+            size='input-sm'
+            variant='filled'
+            color='blue'
+            onClick={handleAddModule}
+            disabled={!selectedModuleToAdd || !structureId}
+            title='Add selected module'
+          >
+            <IconPlus size={16} />
+          </ActionIcon>
+        </Group>
       </Paper>
 
       <Box>
