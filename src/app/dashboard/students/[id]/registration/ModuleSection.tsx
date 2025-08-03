@@ -4,7 +4,7 @@ import { StudentModuleStatus } from '@/db/schema';
 import { getStructureModules } from '@/server/structures/actions';
 import { ActionIcon, Box, Group, Paper } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { ModuleSearchInput } from './ModuleSearchInput';
 import ModulesTable from './ModulesTable';
 
@@ -60,10 +60,11 @@ export default function ModuleSection({
     Awaited<ReturnType<typeof getStructureModules>>[number] | null
   >(null);
   const [searchInputKey, setSearchInputKey] = useState(0);
-  const determineModuleStatus = (
+
+  function determineModuleStatus(
     moduleData: Awaited<ReturnType<typeof getStructureModules>>[number],
     existingRepeatModules: ModuleWithStatus[]
-  ): 'Compulsory' | 'Elective' | `Repeat${number}` => {
+  ): 'Compulsory' | 'Elective' | `Repeat${number}` {
     if (!student)
       return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
 
@@ -81,7 +82,7 @@ export default function ModuleSection({
     }
 
     return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
-  };
+  }
 
   const handleSelectModule = (
     moduleData: Awaited<ReturnType<typeof getStructureModules>>[number] | null
@@ -143,6 +144,28 @@ export default function ModuleSection({
     }
   };
 
+  const handleStatusChange = (
+    semesterModuleId: number,
+    newStatus: StudentModuleStatus
+  ) => {
+    const updatedModules = availableModules.map((module) =>
+      module.semesterModuleId === semesterModuleId
+        ? { ...module, status: newStatus as any }
+        : module
+    );
+    setAvailableModules(updatedModules);
+
+    // Update form data with new status
+    const selectedModulesList = updatedModules
+      .filter((m) => selectedModules.has(m.semesterModuleId))
+      .map((m) => ({
+        moduleId: m.semesterModuleId,
+        moduleStatus: newStatus,
+      }));
+
+    onModulesChange(selectedModulesList);
+  };
+
   return (
     <>
       <Paper withBorder p='md'>
@@ -177,6 +200,7 @@ export default function ModuleSection({
           modules={availableModules}
           selectedModules={selectedModules}
           onModuleToggle={onModuleToggle}
+          onStatusChange={handleStatusChange}
           error={error}
         />
       </Box>

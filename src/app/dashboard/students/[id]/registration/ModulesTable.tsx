@@ -1,7 +1,16 @@
 'use client';
 
 import { formatSemester } from '@/lib/utils';
-import { Badge, Checkbox, Paper, Table, Text, Title } from '@mantine/core';
+import {
+  Badge,
+  Checkbox,
+  Paper,
+  Select,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core';
+import { StudentModuleStatus, studentModuleStatusEnum } from '@/db/schema';
 
 type ModuleWithStatus = {
   semesterModuleId: number;
@@ -18,6 +27,10 @@ type Props = {
   modules: ModuleWithStatus[];
   selectedModules: Set<number>;
   onModuleToggle: (semesterModuleId: number) => void;
+  onStatusChange?: (
+    semesterModuleId: number,
+    status: StudentModuleStatus
+  ) => void;
   error?: string;
 };
 
@@ -25,8 +38,19 @@ export default function ModulesTable({
   modules,
   selectedModules,
   onModuleToggle,
+  onStatusChange,
   error,
 }: Props) {
+  const getStatusColor = (status: string) => {
+    if (status === 'Compulsory') return 'blue';
+    if (status === 'Elective') return 'green';
+    if (status.includes('Repeat')) return 'orange';
+    if (status.includes('Resit')) return 'yellow';
+    if (status === 'Drop' || status === 'Delete') return 'red';
+    if (status === 'Exempted') return 'teal';
+    return 'gray';
+  };
+
   return (
     <>
       <Title order={4} mb='md'>
@@ -65,19 +89,25 @@ export default function ModulesTable({
                   <Text size='sm'>{module.credits}</Text>
                 </Table.Td>
                 <Table.Td>
-                  <Badge
-                    size='sm'
-                    variant='transparent'
-                    color={
-                      module.status === 'Compulsory'
-                        ? 'blue'
-                        : module.status === 'Elective'
-                          ? 'green'
-                          : 'orange'
-                    }
-                  >
-                    {module.status}
-                  </Badge>
+                  <Select
+                    size='xs'
+                    variant='filled'
+                    data={studentModuleStatusEnum}
+                    value={module.status}
+                    onChange={(value) => {
+                      if (value && onStatusChange) {
+                        onStatusChange(
+                          module.semesterModuleId,
+                          value as StudentModuleStatus
+                        );
+                      }
+                    }}
+                    styles={{
+                      input: {
+                        color: `var(--mantine-color-${getStatusColor(module.status)}-5)`,
+                      },
+                    }}
+                  />
                 </Table.Td>
                 <Table.Td>
                   <Text size='sm'>
