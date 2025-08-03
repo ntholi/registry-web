@@ -2,17 +2,14 @@
 
 import { StudentModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
-import { formatSemester } from '@/lib/utils';
 import {
   createRegistrationWithModules,
   determineSemesterStatus,
   getStudentSemesterModules,
 } from '@/server/registration-requests/actions';
 import { findAllSponsors } from '@/server/sponsors/actions';
-import { getAcademicHistory, getStudent } from '@/server/students/actions';
+import { getAcademicHistory } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
-import ModulesTable from './ModulesTable';
-import SemesterInfoCard from './SemesterInfoCard';
 import {
   Alert,
   Box,
@@ -21,11 +18,9 @@ import {
   GridCol,
   Group,
   LoadingOverlay,
-  Modal,
   Paper,
   Select,
   Stack,
-  Text,
   TextInput,
   Title,
 } from '@mantine/core';
@@ -34,10 +29,10 @@ import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconX } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import ModulesTable from './ModulesTable';
+import SemesterInfoCard from './SemesterInfoCard';
 
 type Props = {
-  opened: boolean;
-  onClose: () => void;
   stdNo: number;
 };
 
@@ -67,11 +62,9 @@ type FormValues = {
   sponsorship: SponsorshipData;
 };
 
-export default function RegistrationRequestModal({
-  opened,
-  onClose,
+export default function RegistrationRequestForm({
   stdNo,
-}: Props) {
+}: Omit<Props, 'opened' | 'onClose'>) {
   const { currentTerm } = useCurrentTerm();
   const queryClient = useQueryClient();
   const [selectedModules, setSelectedModules] = useState<Set<number>>(
@@ -111,14 +104,13 @@ export default function RegistrationRequestModal({
   const { data: student, isLoading: studentLoading } = useQuery({
     queryKey: ['student', stdNo],
     queryFn: () => getAcademicHistory(stdNo),
-    enabled: opened && !!stdNo,
+    enabled: !!stdNo,
   });
 
   const { data: sponsors, isLoading: sponsorsLoading } = useQuery({
     queryKey: ['sponsors'],
     queryFn: () => findAllSponsors(1),
     select: ({ items }) => items,
-    enabled: opened,
   });
 
   const { data: moduleData, isLoading: modulesLoading } = useQuery({
@@ -129,7 +121,7 @@ export default function RegistrationRequestModal({
       const remarks = getAcademicRemarks(student.programs);
       return await getStudentSemesterModules(student, remarks);
     },
-    enabled: opened && !!student,
+    enabled: !!student,
   });
 
   const { data: semesterStatus, isLoading: semesterStatusLoading } = useQuery({
@@ -172,7 +164,7 @@ export default function RegistrationRequestModal({
       queryClient.invalidateQueries({
         queryKey: ['registrationRequests', stdNo],
       });
-      handleClose();
+      handleReset();
     },
     onError: (error) => {
       notifications.show({
@@ -221,12 +213,11 @@ export default function RegistrationRequestModal({
     createMutation.mutate(values);
   };
 
-  const handleClose = () => {
+  const handleReset = () => {
     form.reset();
     setSelectedModules(new Set());
     setAvailableModules([]);
     setSemesterData(null);
-    onClose();
   };
 
   const isNMDS = (sponsorId: number) => {
@@ -237,123 +228,113 @@ export default function RegistrationRequestModal({
   const hasError = moduleData?.error;
 
   return (
-    <Modal
-      opened={opened}
-      onClose={handleClose}
-      title='Create Registration Request'
-      size='xl'
-      centered
-      closeOnEscape
-    >
-      <Box pos='relative'>
-        <LoadingOverlay visible={isLoading} />
+    <Box pos='relative'>
+      <LoadingOverlay visible={isLoading} />
 
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack gap='lg'>
-            {hasError && (
-              <Alert color='red' icon={<IconInfoCircle size={16} />}>
-                {hasError}
-              </Alert>
-            )}
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <Stack gap='lg'>
+          {hasError && (
+            <Alert color='red' icon={<IconInfoCircle size={16} />}>
+              {hasError}
+            </Alert>
+          )}
 
-            {!hasError && availableModules.length > 0 && (
-              <>
-                <Box>
-                  <ModulesTable
-                    modules={availableModules}
-                    selectedModules={selectedModules}
-                    onModuleToggle={handleModuleToggle}
-                    error={form.errors.modules as string}
-                  />
-                </Box>
-
-                <SemesterInfoCard
-                  semesterData={semesterData}
+          {!hasError && availableModules.length > 0 && (
+            <>
+              <Box>
+                <ModulesTable
+                  modules={availableModules}
                   selectedModules={selectedModules}
-                  onSemesterChange={setSemesterData}
+                  onModuleToggle={handleModuleToggle}
+                  error={form.errors.modules as string}
                 />
+              </Box>
 
+              <SemesterInfoCard
+                semesterData={semesterData}
+                selectedModules={selectedModules}
+                onSemesterChange={setSemesterData}
+              />
+
+              <Paper withBorder p='md'>
+                <Title order={4} size='h5' mb='md'>
+                  Sponsorship Details
+                </Title>
                 <Paper withBorder p='md'>
-                  <Title order={4} size='h5' mb='md'>
-                    Sponsorship Details
-                  </Title>
-                  <Paper withBorder p='md'>
-                    <Grid>
-                      <GridCol span={6}>
-                        <Select
-                          label='Sponsor'
-                          placeholder='Select sponsor'
-                          data={
-                            sponsors?.map((sponsor) => ({
-                              value: sponsor.id.toString(),
-                              label: sponsor.name,
-                            })) || []
+                  <Grid>
+                    <GridCol span={6}>
+                      <Select
+                        label='Sponsor'
+                        placeholder='Select sponsor'
+                        data={
+                          sponsors?.map((sponsor) => ({
+                            value: sponsor.id.toString(),
+                            label: sponsor.name,
+                          })) || []
+                        }
+                        value={
+                          form.values.sponsorship.sponsorId?.toString() || null
+                        }
+                        onChange={(value) => {
+                          const sponsorId = value ? parseInt(value) : 0;
+                          form.setFieldValue(
+                            'sponsorship.sponsorId',
+                            sponsorId
+                          );
+                          if (!isNMDS(sponsorId)) {
+                            form.setFieldValue('sponsorship.borrowerNo', '');
                           }
-                          value={
-                            form.values.sponsorship.sponsorId?.toString() ||
-                            null
-                          }
-                          onChange={(value) => {
-                            const sponsorId = value ? parseInt(value) : 0;
-                            form.setFieldValue(
-                              'sponsorship.sponsorId',
-                              sponsorId
-                            );
-                            if (!isNMDS(sponsorId)) {
-                              form.setFieldValue('sponsorship.borrowerNo', '');
-                            }
-                          }}
-                          error={form.errors['sponsorship.sponsorId']}
-                          required
-                          disabled={sponsorsLoading}
-                        />
-                      </GridCol>
-                      <GridCol span={6}>
-                        <TextInput
-                          label='Borrower Number'
-                          placeholder='Enter borrower number'
-                          value={form.values.sponsorship.borrowerNo || ''}
-                          onChange={(event) =>
-                            form.setFieldValue(
-                              'sponsorship.borrowerNo',
-                              event.currentTarget.value
-                            )
-                          }
-                          disabled={
-                            !form.values.sponsorship.sponsorId ||
-                            !isNMDS(form.values.sponsorship.sponsorId)
-                          }
-                          required={isNMDS(form.values.sponsorship.sponsorId)}
-                          error={form.errors['sponsorship.borrowerNo']}
-                        />
-                      </GridCol>
-                    </Grid>
-                  </Paper>
+                        }}
+                        error={form.errors['sponsorship.sponsorId']}
+                        required
+                        disabled={sponsorsLoading}
+                      />
+                    </GridCol>
+                    <GridCol span={6}>
+                      <TextInput
+                        label='Borrower Number'
+                        placeholder='Enter borrower number'
+                        value={form.values.sponsorship.borrowerNo || ''}
+                        onChange={(event) =>
+                          form.setFieldValue(
+                            'sponsorship.borrowerNo',
+                            event.currentTarget.value
+                          )
+                        }
+                        disabled={
+                          !form.values.sponsorship.sponsorId ||
+                          !isNMDS(form.values.sponsorship.sponsorId)
+                        }
+                        required={isNMDS(form.values.sponsorship.sponsorId)}
+                        error={form.errors['sponsorship.borrowerNo']}
+                      />
+                    </GridCol>
+                  </Grid>
                 </Paper>
-              </>
-            )}
+              </Paper>
+            </>
+          )}
 
-            {!hasError && availableModules.length === 0 && !isLoading && (
-              <Alert color='blue' icon={<IconInfoCircle size={16} />}>
-                No modules available for registration
-              </Alert>
-            )}
+          {!hasError && availableModules.length === 0 && !isLoading && (
+            <Alert color='blue' icon={<IconInfoCircle size={16} />}>
+              No modules available for registration
+            </Alert>
+          )}
 
-            <Group justify='flex-end'>
-              <Button variant='outline' onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button
-                type='submit'
-                loading={createMutation.isPending}
-                disabled={selectedModules.size === 0 || !semesterData}
-              >
-                Create Registration Request
-              </Button>
-            </Group>
-          </Stack>
-        </form>
-      </Box>
-    </Modal>
+          <Group justify='flex-end'>
+            <Button variant='outline' onClick={handleReset}>
+              Reset
+            </Button>
+            <Button
+              type='submit'
+              loading={createMutation.isPending}
+              disabled={selectedModules.size === 0 || !semesterData}
+            >
+              Create Registration Request
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Box>
   );
 }

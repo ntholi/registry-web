@@ -22,7 +22,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
-import RegistrationRequestModal from './RegistrationRequestModal';
+import RegistrationModal from './RegistrationModal';
 
 type StudentRegistrationHistory = {
   id: number;
@@ -91,11 +91,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
           </Button>
         </Stack>
 
-        <RegistrationRequestModal
-          opened={opened}
-          onClose={close}
-          stdNo={stdNo}
-        />
+        <RegistrationModal opened={opened} onClose={close} stdNo={stdNo} />
       </>
     );
   }
@@ -195,7 +191,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
         </Accordion>
       </Stack>
 
-      <RegistrationRequestModal opened={opened} onClose={close} stdNo={stdNo} />
+      <RegistrationModal opened={opened} onClose={close} stdNo={stdNo} />
     </>
   );
 }
