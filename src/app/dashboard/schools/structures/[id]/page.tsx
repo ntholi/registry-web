@@ -24,6 +24,7 @@ import {
   IconSchool,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -207,23 +208,21 @@ export default function StructureDetailsPage() {
                               hidden={semModule.hidden}
                             />
                           </Table.Td>
-                          {session?.user?.role === 'admin' ||
-                            session?.user?.role === 'registry' ||
-                            (session?.user?.position == 'year_leader' && (
-                              <Table.Td>
-                                <Flex gap='xs'>
-                                  <EditButton
-                                    moduleId={semModule.id}
-                                    structureId={structureId}
-                                  />
-                                  <HideButton
-                                    moduleId={semModule.id}
-                                    hidden={semModule.hidden}
-                                    structureId={structureId}
-                                  />
-                                </Flex>
-                              </Table.Td>
-                            ))}
+                          {canEditModule(session) && (
+                            <Table.Td>
+                              <Flex gap='xs'>
+                                <EditButton
+                                  moduleId={semModule.id}
+                                  structureId={structureId}
+                                />
+                                <HideButton
+                                  moduleId={semModule.id}
+                                  hidden={semModule.hidden}
+                                  structureId={structureId}
+                                />
+                              </Flex>
+                            </Table.Td>
+                          )}
                         </Table.Tr>
                       ))}
                     </Table.Tbody>
@@ -255,5 +254,16 @@ export default function StructureDetailsPage() {
         )}
       </Stack>
     </Box>
+  );
+}
+
+function canEditModule(session: Session | null) {
+  if (!session) return false;
+  return (
+    session?.user?.role === 'admin' ||
+    session?.user?.role === 'registry' ||
+    (session?.user?.role == 'academic' &&
+      (session.user.position === 'manager' ||
+        session.user.position === 'program_leader'))
   );
 }
