@@ -150,7 +150,10 @@ export default function ModuleSection({
   ) => {
     const updatedModules = availableModules.map((module) =>
       module.semesterModuleId === semesterModuleId
-        ? { ...module, status: newStatus as any }
+        ? {
+            ...module,
+            status: newStatus as 'Compulsory' | 'Elective' | `Repeat${number}`,
+          }
         : module
     );
     setAvailableModules(updatedModules);

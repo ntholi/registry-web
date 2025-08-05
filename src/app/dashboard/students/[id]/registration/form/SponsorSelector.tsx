@@ -70,7 +70,6 @@ export default function SponsorSelector({
               error={errors?.sponsorId}
               required
               disabled={sponsorsLoading}
-              loading={sponsorsLoading}
             />
           </GridCol>
           <GridCol span={6}>

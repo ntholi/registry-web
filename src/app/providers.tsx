@@ -9,15 +9,22 @@ import NextTopLoader from 'nextjs-toploader';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import React from 'react';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <MantineProvider defaultColorScheme='dark'>
-        <Notifications />
-        <ModalsProvider>
-          <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <MantineProvider defaultColorScheme='dark'>
+          <Notifications />
+          <ModalsProvider>
             <NuqsAdapter>
               {children}
               <NextTopLoader
@@ -27,9 +34,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 shadow='0 0 10px #2196F3,0 0 5px #2196F3'
               />
             </NuqsAdapter>
-          </QueryClientProvider>
-        </ModalsProvider>
-      </MantineProvider>
+          </ModalsProvider>
+        </MantineProvider>
+      </QueryClientProvider>
     </SessionProvider>
   );
 }

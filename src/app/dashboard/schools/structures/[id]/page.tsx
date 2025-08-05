@@ -5,6 +5,7 @@ import { getStructure } from '@/server/structures/actions';
 import {
   Anchor,
   Box,
+  Breadcrumbs,
   Card,
   Flex,
   Group,
@@ -13,15 +14,14 @@ import {
   Stack,
   Table,
   Text,
-  Title,
   ThemeIcon,
-  Breadcrumbs,
+  Title,
 } from '@mantine/core';
 import {
   IconArrowLeft,
-  IconSchool,
   IconBook,
   IconChevronRight,
+  IconSchool,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
@@ -207,21 +207,23 @@ export default function StructureDetailsPage() {
                               hidden={semModule.hidden}
                             />
                           </Table.Td>
-                          {session?.user?.role === 'admin' && (
-                            <Table.Td>
-                              <Flex gap='xs'>
-                                <EditButton
-                                  moduleId={semModule.id}
-                                  structureId={structureId}
-                                />
-                                <HideButton
-                                  moduleId={semModule.id}
-                                  hidden={semModule.hidden}
-                                  structureId={structureId}
-                                />
-                              </Flex>
-                            </Table.Td>
-                          )}
+                          {session?.user?.role === 'admin' ||
+                            session?.user?.role === 'registry' ||
+                            (session?.user?.position == 'year_leader' && (
+                              <Table.Td>
+                                <Flex gap='xs'>
+                                  <EditButton
+                                    moduleId={semModule.id}
+                                    structureId={structureId}
+                                  />
+                                  <HideButton
+                                    moduleId={semModule.id}
+                                    hidden={semModule.hidden}
+                                    structureId={structureId}
+                                  />
+                                </Flex>
+                              </Table.Td>
+                            ))}
                         </Table.Tr>
                       ))}
                     </Table.Tbody>

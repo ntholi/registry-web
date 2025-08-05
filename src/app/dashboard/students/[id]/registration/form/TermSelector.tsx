@@ -1,7 +1,7 @@
 'use client';
 
-import { getAllTerms } from '@/server/terms/actions';
 import { useCurrentTerm } from '@/hooks/use-current-term';
+import { getAllTerms } from '@/server/terms/actions';
 import { Paper, Select, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -52,7 +52,6 @@ export default function TermSelector({
         error={error}
         required
         disabled={termsLoading}
-        loading={termsLoading}
       />
     </Paper>
   );

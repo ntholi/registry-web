@@ -1,16 +1,8 @@
 'use client';
 
-import { formatSemester } from '@/lib/utils';
-import {
-  Badge,
-  Checkbox,
-  Paper,
-  Select,
-  Table,
-  Text,
-  Title,
-} from '@mantine/core';
 import { StudentModuleStatus, studentModuleStatusEnum } from '@/db/schema';
+import { formatSemester } from '@/lib/utils';
+import { Checkbox, Paper, Select, Table, Text, Title } from '@mantine/core';
 
 type ModuleWithStatus = {
   semesterModuleId: number;
