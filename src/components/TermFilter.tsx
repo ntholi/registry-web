@@ -1,19 +1,13 @@
 'use client';
 
+import { selectedTermAtom } from '@/atoms/termAtoms';
 import { findAllTerms } from '@/server/terms/actions';
-import {
-  ActionIcon,
-  Button,
-  Modal,
-  Select,
-  Stack,
-  Tooltip,
-} from '@mantine/core';
+import { ActionIcon, Modal, Paper, Select, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconFilter } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { selectedTermAtom, type Term } from '@/atoms/termAtoms';
+import { useEffect } from 'react';
 
 interface TermFilterProps {
   onTermChange?: (termId: number | null) => void;
@@ -31,38 +25,23 @@ export default function TermFilter({
   variant = 'default',
 }: TermFilterProps) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [terms, setTerms] = useState<Term[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { data: terms, isLoading } = useQuery({
+    queryKey: ['allTerms'],
+    queryFn: () => findAllTerms(),
+    staleTime: 1000 * 60 * 10,
+    select: (data) => data.items,
+  });
   const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 
   useEffect(() => {
-    const fetchTerms = async () => {
-      try {
-        setLoading(true);
-        const allTerms = (await findAllTerms()).items;
-        setTerms(allTerms);
-
-        if (!selectedTerm && allTerms.length > 0) {
-          const activeTerm = allTerms.find((term) => term.isActive);
-          if (activeTerm) {
-            setSelectedTerm(activeTerm.id);
-            onTermChange?.(activeTerm.id);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching terms:', error);
-      } finally {
-        setLoading(false);
+    if (!selectedTerm && terms && terms.length > 0) {
+      const activeTerm = terms.find((term) => term.isActive);
+      if (activeTerm) {
+        setSelectedTerm(activeTerm.id);
+        onTermChange?.(activeTerm.id);
       }
-    };
-
-    fetchTerms();
-  }, [selectedTerm, onTermChange, setSelectedTerm]);
-
-  const handleApplyFilter = () => {
-    onTermChange?.(selectedTerm || null);
-    close();
-  };
+    }
+  }, [selectedTerm, terms, onTermChange, setSelectedTerm]);
 
   const handleTermSelect = (termId: string | null) => {
     if (termId) {
@@ -70,47 +49,47 @@ export default function TermFilter({
     } else {
       setSelectedTerm(null);
     }
+    close();
   };
 
-  const termOptions = terms.map((term) => ({
+  const termOptions = terms?.map((term) => ({
     value: term.id.toString(),
     label: term.name + (term.isActive ? ' (Current)' : ''),
   }));
 
-  const currentTerm = terms.find((term) => term.isActive);
+  const currentTerm = terms?.find((term) => term.isActive);
   const isCurrentTermSelected = currentTerm && selectedTerm === currentTerm.id;
 
   return (
     <>
       <Tooltip label={label}>
         <ActionIcon
-          variant={loading || isCurrentTermSelected ? variant : 'white'}
+          variant={isLoading || isCurrentTermSelected ? variant : 'white'}
           color={color}
           onClick={open}
           size={'input-sm'}
-          loading={loading}
+          loading={isLoading}
         >
           <IconFilter size={size} />
         </ActionIcon>
       </Tooltip>
 
-      <Modal opened={opened} onClose={close} title='Filter by Term' size='sm'>
-        <Stack gap='md'>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title='Filter by Term'
+        size='sm'
+        p={'lg'}
+      >
+        <Paper p={'lg'} pb={'xl'} withBorder>
           <Select
             label='Select Term'
             placeholder='Choose a term'
             data={termOptions}
             value={selectedTerm?.toString() || null}
             onChange={handleTermSelect}
-            searchable
-            clearable
-            allowDeselect
           />
-
-          <Button onClick={handleApplyFilter} fullWidth>
-            Apply Filter
-          </Button>
-        </Stack>
+        </Paper>
       </Modal>
     </>
   );
