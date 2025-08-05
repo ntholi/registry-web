@@ -1,10 +1,12 @@
 'use client';
 
+import { UserRole } from '@/db/schema';
 import { formatDate, formatPhoneNumber } from '@/lib/utils';
 import { getStudent } from '@/server/students/actions';
 import {
   ActionIcon,
   Anchor,
+  Badge,
   Box,
   Card,
   CopyButton,
@@ -12,7 +14,6 @@ import {
   Grid,
   Group,
   Paper,
-  Badge,
   Stack,
   Text,
   Title,
@@ -20,11 +21,11 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
-import Link from 'next/link';
-import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
 import { useSession } from 'next-auth/react';
-import { UserRole } from '@/db/schema';
+import Link from 'next/link';
 import { getProgramStatusColor } from '../AcademicsView';
+import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
+import PhotoView from './PhotoView';
 import StructureChange from './StructureChange';
 
 type Props = {
@@ -37,55 +38,58 @@ export default function StudentView({ student }: Props) {
 
   return (
     <Stack gap='xl'>
-      <Card withBorder>
-        <Group wrap='nowrap' gap='xs'>
-          <div style={{ flex: 1 }}>
-            <Text size='sm' c='dimmed'>
-              User
-            </Text>
-            {student.user ? (
-              <Anchor
-                component={Link}
-                href={`/dashboard/users/${student.user?.id}`}
-                size='sm'
-                fw={500}
-              >
-                {student.user?.email}
-              </Anchor>
-            ) : (
+      <Group gap='xs'>
+        <PhotoView student={student} />
+        <Card withBorder flex={1} p='md'>
+          <Group wrap='nowrap' gap='xs'>
+            <div style={{ flex: 1 }}>
               <Text size='sm' c='dimmed'>
-                No user assigned
+                User
               </Text>
+              {student.user ? (
+                <Anchor
+                  component={Link}
+                  href={`/dashboard/users/${student.user?.id}`}
+                  size='sm'
+                  fw={500}
+                >
+                  {student.user?.email}
+                </Anchor>
+              ) : (
+                <Text size='sm' c='dimmed'>
+                  No user assigned
+                </Text>
+              )}
+            </div>
+            {student.user && (
+              <Tooltip label='Copy'>
+                <ActionIcon
+                  variant='subtle'
+                  color='gray'
+                  onClick={() => {
+                    navigator.clipboard.writeText(String(student.user?.email));
+                    notifications.show({
+                      message: 'Copied to clipboard',
+                      color: 'green',
+                    });
+                  }}
+                >
+                  <IconCopy size={16} />
+                </ActionIcon>
+              </Tooltip>
             )}
-          </div>
-          {student.user && (
-            <Tooltip label='Copy'>
-              <ActionIcon
-                variant='subtle'
-                color='gray'
-                onClick={() => {
-                  navigator.clipboard.writeText(String(student.user?.email));
-                  notifications.show({
-                    message: 'Copied to clipboard',
-                    color: 'green',
-                  });
-                }}
-              >
-                <IconCopy size={16} />
-              </ActionIcon>
-            </Tooltip>
-          )}
-          {session?.user?.role &&
-            (['admin', 'registry'] as UserRole[]).includes(
-              session.user.role
-            ) && (
-              <EditStudentUserModal
-                studentStdNo={student.stdNo}
-                currentUser={student.user}
-              />
-            )}
-        </Group>
-      </Card>
+            {session?.user?.role &&
+              (['admin', 'registry'] as UserRole[]).includes(
+                session.user.role
+              ) && (
+                <EditStudentUserModal
+                  studentStdNo={student.stdNo}
+                  currentUser={student.user}
+                />
+              )}
+          </Group>
+        </Card>
+      </Group>
       <div>
         <Paper p='md' radius='md' withBorder>
           <Grid gutter='xl'>
