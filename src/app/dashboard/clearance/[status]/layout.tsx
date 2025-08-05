@@ -1,19 +1,15 @@
 'use client';
 
+import { selectedTermAtom } from '@/atoms/termAtoms';
 import { ListItem, ListLayout } from '@/components/adease';
-import {
-  registrationClearanceByStatus,
-  exportClearancesByStatus,
-} from '@/server/clearance/actions';
+import TermFilter from '@/components/TermFilter';
+import { registrationClearanceByStatus } from '@/server/clearance/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
-import { PropsWithChildren } from 'react';
-import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import DownloadCSVButton from '@/components/DownloadCSVButton';
-import TermFilter from '@/components/TermFilter';
-import { selectedTermAtom } from '@/atoms/termAtoms';
 import { useAtom } from 'jotai';
+import { useParams } from 'next/navigation';
+import { PropsWithChildren } from 'react';
 
 type Status = 'pending' | 'approved' | 'rejected';
 
@@ -75,13 +71,13 @@ export default function Layout({ children }: PropsWithChildren) {
       }}
       actionIcons={[
         <TermFilter key='term-filter' onTermChange={setSelectedTerm} />,
-        <DownloadCSVButton
-          key='download-csv'
-          status={status}
-          onDownload={(status) =>
-            exportClearancesByStatus(status, selectedTerm || undefined)
-          }
-        />,
+        // <DownloadCSVButton
+        //   key='download-csv'
+        //   status={status}
+        //   onDownload={(status) =>
+        //     exportClearancesByStatus(status, selectedTerm || undefined)
+        //   }
+        // />,
       ]}
       renderItem={(it: ClearanceItem) => (
         <ListItem

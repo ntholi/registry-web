@@ -167,6 +167,15 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         id: true,
       },
     });
+
+    if (params.search && ids.length === 0) {
+      return {
+        items: [],
+        totalPages: 0,
+        totalItems: 0,
+      };
+    }
+
     const whereCondition = and(
       ids.length
         ? inArray(
