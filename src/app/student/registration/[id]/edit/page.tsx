@@ -10,6 +10,7 @@ import {
   updateRegistrationWithModulesAndSponsorship,
 } from '@/server/registration-requests/actions';
 import { getSponsoredStudent } from '@/server/sponsors/actions';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import {
   Alert,
   Badge,
@@ -81,6 +82,15 @@ export default function EditRegistrationPage() {
   const { currentTerm } = useCurrentTerm();
 
   const registrationId = Number(params.id);
+
+  const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
+    queryKey: ['blocked-student', student?.stdNo],
+    queryFn: async () => {
+      if (!student?.stdNo) return null;
+      return await getBlockedStudentByStdNo(student.stdNo);
+    },
+    enabled: !!student?.stdNo,
+  });
 
   const { data: registrationRequest, isLoading: registrationLoading } =
     useQuery({
@@ -215,6 +225,7 @@ export default function EditRegistrationPage() {
 
   if (
     studentLoading ||
+    blockedLoading ||
     registrationLoading ||
     !student ||
     !registrationRequest
@@ -222,6 +233,23 @@ export default function EditRegistrationPage() {
     return (
       <Container size='lg' py='xl'>
         <LoadingOverlay visible />
+      </Container>
+    );
+  }
+
+  if (blockedStudent && blockedStudent.status === 'blocked') {
+    return (
+      <Container size='lg' py='xl'>
+        <Alert
+          icon={<IconInfoCircle size='1rem' />}
+          title='Registration Blocked'
+          color='red'
+        >
+          Student has been blocked. Please contact the
+          {blockedStudent.byDepartment} office for assistance.
+          <br />
+          <strong>Reason:</strong> {blockedStudent.reason}
+        </Alert>
       </Container>
     );
   }
@@ -250,6 +278,24 @@ export default function EditRegistrationPage() {
         >
           You can only edit registrations that are in pending status. This
           registration is currently {registrationRequest.status}.
+        </Alert>
+      </Container>
+    );
+  }
+
+  // Check if modules query returned a blocked error
+  if (
+    moduleResult?.error &&
+    moduleResult.error.includes('Registration blocked')
+  ) {
+    return (
+      <Container size='lg' py='xl'>
+        <Alert
+          icon={<IconInfoCircle size='1rem' />}
+          title='Registration Blocked'
+          color='red'
+        >
+          {moduleResult.error}
         </Alert>
       </Container>
     );

@@ -2,8 +2,10 @@ import { auth } from '@/auth';
 import { formatDateTime, formatSemester } from '@/lib/utils';
 import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import {
   ActionIcon,
+  Alert,
   Badge,
   Box,
   Button,
@@ -23,6 +25,7 @@ import {
   IconCalendar,
   IconChevronRight,
   IconFileText,
+  IconInfoCircle,
   IconPlus,
 } from '@tabler/icons-react';
 import Link from 'next/link';
@@ -37,13 +40,16 @@ export default async function page() {
     return forbidden();
   }
 
-  const registrationHistory = await getStudentRegistrationHistory(
-    session.user.stdNo
-  );
+  const [registrationHistory, blockedStudent] = await Promise.all([
+    getStudentRegistrationHistory(session.user.stdNo),
+    getBlockedStudentByStdNo(session.user.stdNo),
+  ]);
 
   const hasCurrentRegistration = registrationHistory.some(
     (request) => request.term.id === currentTerm.id
   );
+
+  const isBlocked = blockedStudent && blockedStudent.status === 'blocked';
 
   return (
     <Container size='md'>
@@ -61,28 +67,46 @@ export default async function page() {
         </Group>
 
         {!hasCurrentRegistration && (
-          <Card withBorder>
-            <Stack align='center' gap='md'>
-              <ThemeIcon variant='light' color='gray' size='xl'>
-                <IconPlus size={'1.5rem'} />
-              </ThemeIcon>
-              <Stack align='center' gap='xs'>
-                <Text fw={500} size='lg'>
-                  Start New Registration
+          <>
+            {isBlocked ? (
+              <Alert
+                icon={<IconInfoCircle size='1rem' />}
+                title='Registration Blocked'
+                color='red'
+                mb='xl'
+              >
+                Your account has been blocked from registering. Please contact
+                the {blockedStudent.byDepartment} office for assistance.
+                <br />
+                <Text fw={500} mt='xs'>
+                  Reason: {blockedStudent?.reason}
                 </Text>
-                <Text size='sm' c='dimmed' ta='center'>
-                  You don&apos;t have a registration request for{' '}
-                  <Text span fw={600}>
-                    {currentTerm.name}
-                  </Text>{' '}
-                  yet. Click below to start your registration process.
-                </Text>
-              </Stack>
-              <Button component={Link} href='/student/registration/new'>
-                New Registration
-              </Button>
-            </Stack>
-          </Card>
+              </Alert>
+            ) : (
+              <Card withBorder>
+                <Stack align='center' gap='md'>
+                  <ThemeIcon variant='light' color='gray' size='xl'>
+                    <IconPlus size={'1.5rem'} />
+                  </ThemeIcon>
+                  <Stack align='center' gap='xs'>
+                    <Text fw={500} size='lg'>
+                      Start New Registration
+                    </Text>
+                    <Text size='sm' c='dimmed' ta='center'>
+                      You don&apos;t have a registration request for{' '}
+                      <Text span fw={600}>
+                        {currentTerm.name}
+                      </Text>{' '}
+                      yet. Click below to start your registration process.
+                    </Text>
+                  </Stack>
+                  <Button component={Link} href='/student/registration/new'>
+                    New Registration
+                  </Button>
+                </Stack>
+              </Card>
+            )}
+          </>
         )}
 
         <Divider />
