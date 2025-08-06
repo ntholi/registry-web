@@ -2,6 +2,7 @@
 
 import { blockedStudents } from '@/db/schema';
 import { blockedStudentsService as service } from './service';
+import { eq } from 'drizzle-orm/sql/expressions/conditions';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;
 
@@ -23,11 +24,17 @@ export async function createBlockedStudent(blockedStudent: BlockedStudent) {
 
 export async function updateBlockedStudent(
   id: number,
-  blockedStudent: Partial<BlockedStudent>,
+  blockedStudent: Partial<BlockedStudent>
 ) {
   return service.update(id, blockedStudent);
 }
 
 export async function deleteBlockedStudent(id: number) {
   return service.delete(id);
+}
+
+export async function getBlockedStudentByStatus(
+  status: 'blocked' | 'unblocked' = 'blocked'
+) {
+  return service.getAll({ filter: eq(blockedStudents.status, status) });
 }

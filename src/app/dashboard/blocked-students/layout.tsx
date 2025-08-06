@@ -2,14 +2,17 @@
 
 import { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
-import { getBlockedStudents } from '@/server/blocked-students/actions';
+import {
+  getBlockedStudentByStatus,
+  getBlockedStudents,
+} from '@/server/blocked-students/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <ListLayout
       path={'/dashboard/blocked-students'}
       queryKey={['blocked-students']}
-      getData={getBlockedStudents}
+      getData={async () => await getBlockedStudentByStatus('blocked')}
       actionIcons={[
         <NewLink key={'new-link'} href='/admin/blocked-students/new' />,
       ]}

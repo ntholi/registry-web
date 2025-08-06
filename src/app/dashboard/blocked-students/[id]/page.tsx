@@ -9,6 +9,8 @@ import {
   getBlockedStudent,
   deleteBlockedStudent,
 } from '@/server/blocked-students/actions';
+import StudentStatusSwitch from './StudentStatusSwitch';
+import { Stack } from '@mantine/core';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -34,9 +36,18 @@ export default async function BlockedStudentDetails({ params }: Props) {
         }}
       />
       <DetailsViewBody>
-        <FieldView label='Std No'>{blockedStudent.stdNo}</FieldView>
-        <FieldView label='Status'>{blockedStudent.status}</FieldView>
-        <FieldView label='Reason'>{blockedStudent.reason}</FieldView>
+        <Stack gap='lg'>
+          <StudentStatusSwitch
+            id={blockedStudent.id}
+            currentStatus={blockedStudent.status}
+            stdNo={blockedStudent.stdNo}
+            studentName={blockedStudent.student.name}
+          />
+
+          <FieldView label='Std No'>{blockedStudent.stdNo}</FieldView>
+          <FieldView label='Status'>{blockedStudent.status}</FieldView>
+          <FieldView label='Reason'>{blockedStudent.reason}</FieldView>
+        </Stack>
       </DetailsViewBody>
     </DetailsView>
   );

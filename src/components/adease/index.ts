@@ -19,3 +19,4 @@ export {
   ModuleViewToggle,
   type ModuleViewToggleProps,
 } from './ModuleViewToggle';
+export { StatusToggle, type StatusToggleProps } from './StatusToggle';
