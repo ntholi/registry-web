@@ -85,6 +85,8 @@ export default function SponsoredStudentsTable() {
         <Table.Th>Program of Study</Table.Th>
         <Table.Th>Sponsor</Table.Th>
         <Table.Th>Borrower Number</Table.Th>
+        <Table.Th>Bank Name</Table.Th>
+        <Table.Th>Account Number</Table.Th>
       </Table.Tr>
     </Table.Thead>
   );
@@ -112,6 +114,12 @@ export default function SponsoredStudentsTable() {
                 <Table.Td>
                   <Skeleton height={20} width={120} />
                 </Table.Td>
+                <Table.Td>
+                  <Skeleton height={20} width={120} />
+                </Table.Td>
+                <Table.Td>
+                  <Skeleton height={20} width={120} />
+                </Table.Td>
               </Table.Tr>
             ))}
         </Table.Tbody>
@@ -122,7 +130,7 @@ export default function SponsoredStudentsTable() {
       return (
         <Table.Tbody>
           <Table.Tr>
-            <Table.Td colSpan={5}>
+            <Table.Td colSpan={7}>
               <Center p='md'>
                 <Text c='dimmed'>
                   {hasActiveFilters
@@ -186,6 +194,12 @@ export default function SponsoredStudentsTable() {
               <Table.Td>
                 <Text size='sm'>{sponsoredStudent.borrowerNo || '-'}</Text>
               </Table.Td>
+              <Table.Td>
+                <Text size='sm'>{sponsoredStudent.bankName || '-'}</Text>
+              </Table.Td>
+              <Table.Td>
+                <Text size='sm'>{sponsoredStudent.accountNumber || '-'}</Text>
+              </Table.Td>
             </Table.Tr>
           );
         })}
@@ -219,7 +233,7 @@ export default function SponsoredStudentsTable() {
         <Stack gap='md'>
           <Group align='flex-end' gap='md'>
             <TextInput
-              placeholder='Search by student name, number, sponsor, or borrower number'
+              placeholder='Search by student name, number, sponsor, borrower number, bank name, or account number'
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.currentTarget.value)}
               style={{ flex: 1 }}
@@ -238,7 +252,7 @@ export default function SponsoredStudentsTable() {
               <Paper withBorder p={8.5}>
                 <Stack gap={2}>
                   <Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
-                    {data.totalItems} student
+                    {data.items.length} of {data.totalItems} student
                     {data.totalItems !== 1 ? 's' : ''}
                   </Text>
                 </Stack>

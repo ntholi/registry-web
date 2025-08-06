@@ -48,7 +48,9 @@ export default class SponsorRepository extends BaseRepository<
       const searchCondition = or(
         like(students.name, `%${params.search}%`),
         like(sql`CAST(${students.stdNo} AS TEXT)`, `%${params.search}%`),
-        like(sponsoredStudents.borrowerNo, `%${params.search}%`)
+        like(sponsoredStudents.borrowerNo, `%${params.search}%`),
+        like(sponsoredStudents.bankName, `%${params.search}%`),
+        like(sponsoredStudents.accountNumber, `%${params.search}%`)
       );
       whereCondition = and(baseCondition, searchCondition)!;
     }
@@ -141,6 +143,8 @@ export default class SponsorRepository extends BaseRepository<
           like(students.name, `%${params.search}%`),
           like(sql`CAST(${students.stdNo} AS TEXT)`, `%${params.search}%`),
           like(sponsoredStudents.borrowerNo, `%${params.search}%`),
+          like(sponsoredStudents.bankName, `%${params.search}%`),
+          like(sponsoredStudents.accountNumber, `%${params.search}%`),
           like(sponsors.name, `%${params.search}%`)
         )
       );
@@ -240,6 +244,8 @@ export default class SponsorRepository extends BaseRepository<
     termId: number;
     sponsorId: number;
     borrowerNo?: string;
+    bankName?: string;
+    accountNumber?: string;
   }) {
     const existing = await this.findSponsoredStudent(data.stdNo, data.termId);
 
@@ -249,6 +255,8 @@ export default class SponsorRepository extends BaseRepository<
         .set({
           sponsorId: data.sponsorId,
           borrowerNo: data.borrowerNo,
+          bankName: data.bankName,
+          accountNumber: data.accountNumber,
           updatedAt: new Date(),
         })
         .where(
@@ -266,6 +274,8 @@ export default class SponsorRepository extends BaseRepository<
           // termId: data.termId,
           sponsorId: data.sponsorId,
           borrowerNo: data.borrowerNo,
+          bankName: data.bankName,
+          accountNumber: data.accountNumber,
         })
         .returning();
     }

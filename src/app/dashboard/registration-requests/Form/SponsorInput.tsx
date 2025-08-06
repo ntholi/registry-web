@@ -5,16 +5,24 @@ import { useQuery } from '@tanstack/react-query';
 interface SponsorInputProps {
   sponsorId: number;
   borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
   onSponsorChange: (sponsorId: number) => void;
   onBorrowerNoChange: (borrowerNo: string) => void;
+  onBankNameChange: (bankName: string) => void;
+  onAccountNumberChange: (accountNumber: string) => void;
   disabled?: boolean;
 }
 
 export default function SponsorInput({
   sponsorId,
   borrowerNo,
+  bankName,
+  accountNumber,
   onSponsorChange,
   onBorrowerNoChange,
+  onBankNameChange,
+  onAccountNumberChange,
   disabled,
 }: SponsorInputProps) {
   const { data: sponsors } = useQuery({
@@ -59,6 +67,22 @@ export default function SponsorInput({
             value={borrowerNo}
             onChange={(e) => onBorrowerNoChange(e.currentTarget.value)}
             disabled={!(sponsorId && isNMDS(sponsorId)) || disabled}
+          />
+        </GridCol>
+        <GridCol span={6}>
+          <TextInput
+            label='Bank Name'
+            value={bankName || ''}
+            onChange={(e) => onBankNameChange(e.currentTarget.value)}
+            disabled={disabled}
+          />
+        </GridCol>
+        <GridCol span={6}>
+          <TextInput
+            label='Account Number'
+            value={accountNumber || ''}
+            onChange={(e) => onAccountNumberChange(e.currentTarget.value)}
+            disabled={disabled}
           />
         </GridCol>
       </Grid>

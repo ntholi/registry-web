@@ -65,6 +65,8 @@ export async function updateStudentSponsorship(data: {
   termId: number;
   sponsorName: string;
   borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
 }) {
   const sponsors = await service.findAll({
     page: 1,
@@ -83,6 +85,8 @@ export async function updateStudentSponsorship(data: {
     termId: data.termId,
     sponsorId: sponsor.id,
     borrowerNo: data.borrowerNo,
+    bankName: data.bankName,
+    accountNumber: data.accountNumber,
   });
 }
 
@@ -91,6 +95,8 @@ export async function updateStudentSponsorshipById(data: {
   termId: number;
   sponsorId: number;
   borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
 }) {
   return service.updateStudentSponsorship(data);
 }

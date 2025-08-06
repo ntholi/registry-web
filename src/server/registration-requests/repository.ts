@@ -459,7 +459,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
   async updateRegistrationWithModulesAndSponsorship(
     registrationRequestId: number,
     modules: { id: number; status: StudentModuleStatus }[],
-    sponsorshipData: { sponsorId: number; borrowerNo?: string },
+    sponsorshipData: {
+      sponsorId: number;
+      borrowerNo?: string;
+      bankName?: string;
+      accountNumber?: string;
+    },
     semesterNumber?: number,
     semesterStatus?: 'Active' | 'Repeat'
   ) {
@@ -489,11 +494,15 @@ export default class RegistrationRequestRepository extends BaseRepository<
           sponsorId: sponsorshipData.sponsorId,
           stdNo: registration.stdNo,
           borrowerNo: sponsorshipData.borrowerNo,
+          bankName: sponsorshipData.bankName,
+          accountNumber: sponsorshipData.accountNumber,
         })
         .onConflictDoUpdate({
           target: [sponsoredStudents.sponsorId, sponsoredStudents.stdNo],
           set: {
             borrowerNo: sponsorshipData.borrowerNo,
+            bankName: sponsorshipData.bankName,
+            accountNumber: sponsorshipData.accountNumber,
             updatedAt: new Date(),
           },
         });

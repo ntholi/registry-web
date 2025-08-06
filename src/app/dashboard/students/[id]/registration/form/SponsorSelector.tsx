@@ -7,6 +7,8 @@ import { useQuery } from '@tanstack/react-query';
 interface SponsorshipData {
   sponsorId: number;
   borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
 }
 
 interface SponsorSelectorProps {
@@ -15,6 +17,8 @@ interface SponsorSelectorProps {
   errors?: {
     sponsorId?: string;
     borrowerNo?: string;
+    bankName?: string;
+    accountNumber?: string;
   };
 }
 
@@ -38,6 +42,8 @@ export default function SponsorSelector({
     onChange({
       sponsorId,
       borrowerNo: !isNMDS(sponsorId) ? '' : value.borrowerNo,
+      bankName: value.bankName,
+      accountNumber: value.accountNumber,
     });
   };
 
@@ -45,6 +51,20 @@ export default function SponsorSelector({
     onChange({
       ...value,
       borrowerNo,
+    });
+  };
+
+  const handleBankNameChange = (bankName: string) => {
+    onChange({
+      ...value,
+      bankName,
+    });
+  };
+
+  const handleAccountNumberChange = (accountNumber: string) => {
+    onChange({
+      ...value,
+      accountNumber,
     });
   };
 
@@ -83,6 +103,28 @@ export default function SponsorSelector({
               disabled={!value.sponsorId || !isNMDS(value.sponsorId)}
               required={isNMDS(value.sponsorId)}
               error={errors?.borrowerNo}
+            />
+          </GridCol>
+          <GridCol span={6}>
+            <TextInput
+              label='Bank Name'
+              placeholder='Enter bank name'
+              value={value.bankName || ''}
+              onChange={(event) =>
+                handleBankNameChange(event.currentTarget.value)
+              }
+              error={errors?.bankName}
+            />
+          </GridCol>
+          <GridCol span={6}>
+            <TextInput
+              label='Account Number'
+              placeholder='Enter account number'
+              value={value.accountNumber || ''}
+              onChange={(event) =>
+                handleAccountNumberChange(event.currentTarget.value)
+              }
+              error={errors?.accountNumber}
             />
           </GridCol>
         </Grid>

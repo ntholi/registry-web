@@ -65,7 +65,7 @@ export const accounts = sqliteTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  }),
+  })
 );
 
 export const sessions = sqliteTable('sessions', {
@@ -87,7 +87,7 @@ export const verificationTokens = sqliteTable(
     compositePk: primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  }),
+  })
 );
 
 export const authenticators = sqliteTable(
@@ -110,7 +110,7 @@ export const authenticators = sqliteTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  }),
+  })
 );
 
 export const signupStatusEnum = ['pending', 'approved', 'rejected'] as const;
@@ -356,9 +356,9 @@ export const modulePrerequisites = sqliteTable(
   (table) => ({
     uniquePrerequisite: unique().on(
       table.semesterModuleId,
-      table.prerequisiteId,
+      table.prerequisiteId
     ),
-  }),
+  })
 );
 
 export const terms = sqliteTable('terms', {
@@ -398,14 +398,14 @@ export const registrationRequests = sqliteTable(
     semesterNumber: integer().notNull(),
     message: text(),
     createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(unixepoch())`,
+      sql`(unixepoch())`
     ),
     updatedAt: integer('updated_at', { mode: 'timestamp' }),
     dateApproved: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueRegistrationRequests: unique().on(table.stdNo, table.termId),
-  }),
+  })
 );
 
 export const requestedModuleStatusEnum = [
@@ -457,9 +457,9 @@ export const registrationClearances = sqliteTable(
   (table) => ({
     uniqueRegistrationClearance: unique().on(
       table.registrationRequestId,
-      table.department,
+      table.department
     ),
-  }),
+  })
 );
 
 export const registrationClearanceAudit = sqliteTable(
@@ -482,7 +482,7 @@ export const registrationClearanceAudit = sqliteTable(
       .notNull()
       .$type<string[]>()
       .default(sql`(json_array())`),
-  },
+  }
 );
 
 export const sponsors = sqliteTable('sponsors', {
@@ -503,12 +503,14 @@ export const sponsoredStudents = sqliteTable(
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
     borrowerNo: text(),
+    bankName: text(),
+    accountNumber: text(),
     createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
     updatedAt: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueSponsoredStudent: unique().on(table.sponsorId, table.stdNo),
-  }),
+  })
 );
 
 export const sponsoredTerms = sqliteTable(
@@ -526,7 +528,7 @@ export const sponsoredTerms = sqliteTable(
   },
   (table) => ({
     uniqueSponsoredTerm: unique().on(table.sponsoredStudentId, table.termId),
-  }),
+  })
 );
 
 export const assignedModules = sqliteTable('assigned_modules', {
@@ -558,7 +560,7 @@ export const userSchools = sqliteTable(
   },
   (table) => ({
     uniqueUserSchool: unique().on(table.userId, table.schoolId),
-  }),
+  })
 );
 
 export const assessmentNumberEnum = [
@@ -599,9 +601,9 @@ export const assessments = sqliteTable(
     uniqueAssessmentModule: unique().on(
       table.moduleId,
       table.assessmentNumber,
-      table.termId,
+      table.termId
     ),
-  }),
+  })
 );
 
 export const assessmentMarks = sqliteTable('assessment_marks', {
@@ -683,7 +685,7 @@ export const moduleGrades = sqliteTable(
   },
   (table) => ({
     uniqueModuleStudent: unique().on(table.moduleId, table.stdNo),
-  }),
+  })
 );
 
 export const statementOfResultsPrints = sqliteTable(
@@ -709,7 +711,7 @@ export const statementOfResultsPrints = sqliteTable(
     printedAt: integer({ mode: 'timestamp' })
       .default(sql`(unixepoch())`)
       .notNull(),
-  },
+  }
 );
 
 export const blockedStudents = sqliteTable('blocked_students', {

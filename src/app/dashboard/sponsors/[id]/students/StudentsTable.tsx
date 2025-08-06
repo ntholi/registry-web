@@ -41,6 +41,8 @@ export default function StudentsTable({ sponsorId }: Props) {
         <Table.Th>Name</Table.Th>
         <Table.Th>Program of Study</Table.Th>
         <Table.Th>Borrower Number</Table.Th>
+        <Table.Th>Bank Name</Table.Th>
+        <Table.Th>Account Number</Table.Th>
       </Table.Tr>
     </Table.Thead>
   );
@@ -65,6 +67,12 @@ export default function StudentsTable({ sponsorId }: Props) {
                 <Table.Td>
                   <Skeleton height={20} width={120} />
                 </Table.Td>
+                <Table.Td>
+                  <Skeleton height={20} width={120} />
+                </Table.Td>
+                <Table.Td>
+                  <Skeleton height={20} width={120} />
+                </Table.Td>
               </Table.Tr>
             ))}
         </Table.Tbody>
@@ -75,7 +83,7 @@ export default function StudentsTable({ sponsorId }: Props) {
       return (
         <Table.Tbody>
           <Table.Tr>
-            <Table.Td colSpan={4}>
+            <Table.Td colSpan={6}>
               <Center p='md'>
                 <Text c='dimmed'>
                   {searchQuery
@@ -123,6 +131,12 @@ export default function StudentsTable({ sponsorId }: Props) {
               </Table.Td>
               <Table.Td>
                 <Text size='sm'>{sponsoredStudent.borrowerNo || '-'}</Text>
+              </Table.Td>
+              <Table.Td>
+                <Text size='sm'>{sponsoredStudent.bankName || '-'}</Text>
+              </Table.Td>
+              <Table.Td>
+                <Text size='sm'>{sponsoredStudent.accountNumber || '-'}</Text>
               </Table.Td>
             </Table.Tr>
           );

@@ -141,7 +141,12 @@ export async function updateRegistrationWithModules(
 export async function updateRegistrationWithModulesAndSponsorship(
   registrationRequestId: number,
   modules: { id: number; status: StudentModuleStatus }[],
-  sponsorshipData: { sponsorId: number; borrowerNo?: string },
+  sponsorshipData: {
+    sponsorId: number;
+    borrowerNo?: string;
+    bankName?: string;
+    accountNumber?: string;
+  },
   semesterNumber?: number,
   semesterStatus?: 'Active' | 'Repeat'
 ) {

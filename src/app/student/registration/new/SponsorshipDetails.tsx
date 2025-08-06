@@ -20,6 +20,8 @@ import useUserStudent from '@/hooks/use-user-student';
 type SponsorshipData = {
   sponsorId: number;
   borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
 };
 
 interface SponsorshipDetailsProps {
@@ -38,6 +40,10 @@ export default function SponsorshipDetails({
 
   const [borrowerNo, setBorrowerNo] = useState(
     sponsorshipData?.borrowerNo || ''
+  );
+  const [bankName, setBankName] = useState(sponsorshipData?.bankName || '');
+  const [accountNumber, setAccountNumber] = useState(
+    sponsorshipData?.accountNumber || ''
   );
 
   const { data: sponsorsData, isLoading: sponsorsLoading } = useQuery({
@@ -66,6 +72,8 @@ export default function SponsorshipDetails({
         onSponsorshipChange({
           sponsorId: sponsorshipData.sponsorId,
           borrowerNo: previousSponsorshipData.borrowerNo,
+          bankName: sponsorshipData.bankName,
+          accountNumber: sponsorshipData.accountNumber,
         });
       }
     }
@@ -96,6 +104,8 @@ export default function SponsorshipDetails({
       onSponsorshipChange({
         sponsorId,
         borrowerNo: newBorrowerNo || undefined,
+        bankName: sponsorshipData?.bankName,
+        accountNumber: sponsorshipData?.accountNumber,
       });
     }
   };
@@ -106,6 +116,26 @@ export default function SponsorshipDetails({
       onSponsorshipChange({
         ...sponsorshipData,
         borrowerNo: value || undefined,
+      });
+    }
+  };
+
+  const handleBankNameChange = (value: string) => {
+    setBankName(value);
+    if (sponsorshipData) {
+      onSponsorshipChange({
+        ...sponsorshipData,
+        bankName: value || undefined,
+      });
+    }
+  };
+
+  const handleAccountNumberChange = (value: string) => {
+    setAccountNumber(value);
+    if (sponsorshipData) {
+      onSponsorshipChange({
+        ...sponsorshipData,
+        accountNumber: value || undefined,
       });
     }
   };
@@ -150,6 +180,24 @@ export default function SponsorshipDetails({
               required
             />
           )}
+
+          <TextInput
+            label='Bank Name'
+            placeholder='Enter your bank name'
+            value={bankName}
+            onChange={(event) =>
+              handleBankNameChange(event.currentTarget.value)
+            }
+          />
+
+          <TextInput
+            label='Account Number'
+            placeholder='Enter your account number'
+            value={accountNumber}
+            onChange={(event) =>
+              handleAccountNumberChange(event.currentTarget.value)
+            }
+          />
         </Stack>
       </Card>
 

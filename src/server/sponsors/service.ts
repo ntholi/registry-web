@@ -54,6 +54,8 @@ class SponsorService {
     termId: number;
     sponsorId: number;
     borrowerNo?: string;
+    bankName?: string;
+    accountNumber?: string;
   }) {
     return withAuth(
       async () => this.repository.upsertSponsoredStudent(data),
