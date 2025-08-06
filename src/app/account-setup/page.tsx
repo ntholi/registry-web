@@ -8,6 +8,7 @@ import {
   Container,
   Divider,
   Group,
+  Loader,
   Paper,
   Stack,
   Text,
@@ -19,8 +20,16 @@ import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function AccountSetupPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
+
+  if (status === 'loading') {
+    return (
+      <Center h='100vh'>
+        <Loader />
+      </Center>
+    );
+  }
 
   if (session?.user?.role !== 'user') {
     router.push('/');
