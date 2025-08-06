@@ -12,7 +12,7 @@ import {
   deleteBlockedStudent,
 } from '@/server/blocked-students/actions';
 import StudentStatusSwitch from './StudentStatusSwitch';
-import { Stack } from '@mantine/core';
+import { Center, Loader, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 
 export default function BlockedStudentDetails() {
@@ -30,7 +30,11 @@ export default function BlockedStudentDetails() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Center h={'60vh'}>
+        <Loader />
+      </Center>
+    );
   }
 
   if (error || !blockedStudent) {

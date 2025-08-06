@@ -1,11 +1,8 @@
 'use client';
 
-import { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
-import {
-  getBlockedStudentByStatus,
-  getBlockedStudents,
-} from '@/server/blocked-students/actions';
+import { getBlockedStudentByStatus } from '@/server/blocked-students/actions';
+import { PropsWithChildren } from 'react';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
