@@ -28,6 +28,7 @@ import {
 import { getAllPrograms } from '@/server/schools/actions';
 import Link from 'next/link';
 import { useDebouncedValue } from '@mantine/hooks';
+import EditSponsorDetailsModal from './EditSponsorDetailsModal';
 
 export default function SponsoredStudentsTable() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,7 +37,6 @@ export default function SponsoredStudentsTable() {
   const [page, setPage] = useState(1);
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
-  // Reset page when filters change
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch, selectedSponsor, selectedProgram]);
@@ -80,13 +80,14 @@ export default function SponsoredStudentsTable() {
   const renderTableHeaders = () => (
     <Table.Thead>
       <Table.Tr>
-        <Table.Th>Student Number</Table.Th>
-        <Table.Th>Student Name</Table.Th>
-        <Table.Th>Program of Study</Table.Th>
+        <Table.Th> Std No.</Table.Th>
+        <Table.Th>Names</Table.Th>
+        <Table.Th>Program</Table.Th>
         <Table.Th>Sponsor</Table.Th>
         <Table.Th>Borrower Number</Table.Th>
-        <Table.Th>Bank Name</Table.Th>
-        <Table.Th>Account Number</Table.Th>
+        <Table.Th>Name</Table.Th>
+        <Table.Th>Account No.</Table.Th>
+        <Table.Th></Table.Th>
       </Table.Tr>
     </Table.Thead>
   );
@@ -120,6 +121,9 @@ export default function SponsoredStudentsTable() {
                 <Table.Td>
                   <Skeleton height={20} width={120} />
                 </Table.Td>
+                <Table.Td>
+                  <Skeleton height={20} width={80} />
+                </Table.Td>
               </Table.Tr>
             ))}
         </Table.Tbody>
@@ -130,7 +134,7 @@ export default function SponsoredStudentsTable() {
       return (
         <Table.Tbody>
           <Table.Tr>
-            <Table.Td colSpan={7}>
+            <Table.Td colSpan={8}>
               <Center p='md'>
                 <Text c='dimmed'>
                   {hasActiveFilters
@@ -199,6 +203,23 @@ export default function SponsoredStudentsTable() {
               </Table.Td>
               <Table.Td>
                 <Text size='sm'>{sponsoredStudent.accountNumber || '-'}</Text>
+              </Table.Td>
+              <Table.Td>
+                <EditSponsorDetailsModal
+                  sponsoredStudent={{
+                    id: sponsoredStudent.id,
+                    sponsorId: sponsoredStudent.sponsorId,
+                    stdNo: sponsoredStudent.stdNo,
+                    borrowerNo: sponsoredStudent.borrowerNo || undefined,
+                    bankName: sponsoredStudent.bankName || undefined,
+                    accountNumber: sponsoredStudent.accountNumber || undefined,
+                    sponsor: sponsoredStudent.sponsor,
+                    student: {
+                      stdNo: student?.stdNo || 0,
+                      name: student?.name || 'N/A',
+                    },
+                  }}
+                />
               </Table.Td>
             </Table.Tr>
           );
