@@ -41,7 +41,7 @@ export default function Layout({ children }: PropsWithChildren) {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  if (currentTerm?.id && selectedTerm === null) {
+  if (currentTerm?.id && !selectedTerm) {
     setSelectedTerm(currentTerm.id);
   }
 
@@ -55,14 +55,15 @@ export default function Layout({ children }: PropsWithChildren) {
       queryKey={[
         'registrationClearances',
         status,
-        selectedTerm?.toString() || 'all',
+        selectedTerm?.toString() || currentTerm?.id?.toString() || 'all',
       ]}
       getData={async (page, search) => {
+        const termToUse = selectedTerm || currentTerm?.id;
         const response = await registrationClearanceByStatus(
           status,
           page,
           search,
-          selectedTerm || undefined
+          termToUse || undefined
         );
         return {
           items: response.items || [],

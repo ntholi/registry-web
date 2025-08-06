@@ -158,30 +158,35 @@ export default class RegistrationClearanceRepository extends BaseRepository<
   ) {
     const { offset, limit } = this.buildQueryCriteria(params);
 
-    const ids = await db.query.registrationRequests.findMany({
-      where: and(
-        like(registrationRequests.stdNo, `%${params.search}%`),
-        termId ? eq(registrationRequests.termId, termId) : undefined
-      ),
-      columns: {
-        id: true,
-      },
-    });
+    let requestIds: number[] = [];
 
-    if (params.search && ids.length === 0) {
-      return {
-        items: [],
-        totalPages: 0,
-        totalItems: 0,
-      };
+    if (params.search || termId) {
+      const ids = await db.query.registrationRequests.findMany({
+        where: and(
+          params.search
+            ? like(registrationRequests.stdNo, `%${params.search}%`)
+            : undefined,
+          termId ? eq(registrationRequests.termId, termId) : undefined
+        ),
+        columns: {
+          id: true,
+        },
+      });
+
+      requestIds = ids.map((id) => id.id);
+
+      if ((params.search || termId) && requestIds.length === 0) {
+        return {
+          items: [],
+          totalPages: 0,
+          totalItems: 0,
+        };
+      }
     }
 
     const whereCondition = and(
-      ids.length
-        ? inArray(
-            registrationClearances.registrationRequestId,
-            ids.map((id) => id.id)
-          )
+      (params.search || termId) && requestIds.length > 0
+        ? inArray(registrationClearances.registrationRequestId, requestIds)
         : undefined,
       eq(registrationClearances.department, department),
       status ? eq(registrationClearances.status, status) : undefined
