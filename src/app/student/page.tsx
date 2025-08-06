@@ -4,7 +4,7 @@ import ActionButtons from './home/ActionButtons';
 import Countdown from './home/Countdown';
 
 export default function page() {
-  const targetDate = new Date('2025-08-06T22:00:00').getTime();
+  const targetDate = new Date('2025-08-07T10:00:00').getTime();
 
   if (
     !process.env.AUTH_URL?.includes('localhost') &&

@@ -36,6 +36,11 @@ interface ProcessedRow extends ImportRow {
   error?: string;
 }
 
+interface UpdateResult {
+  success: boolean;
+  error?: string;
+}
+
 export default function ImportAccountDetailsModal() {
   const [opened, { open, close }] = useDisclosure(false);
   const [file, setFile] = useState<File | null>(null);
@@ -220,7 +225,7 @@ export default function ImportAccountDetailsModal() {
       accountNumber: row.accountNumber,
     }));
 
-    let allResults: any[] = [];
+    const allResults: UpdateResult[] = [];
     let processedCount = 0;
     const updatedData = [...importData];
 

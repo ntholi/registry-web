@@ -169,44 +169,49 @@ export default function SponsorshipDetails({
           />
 
           {sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
-            <TextInput
-              label='Borrower Number'
-              placeholder='Enter your borrower number'
-              value={borrowerNo}
-              onChange={(event) =>
-                handleBorrowerNoChange(event.currentTarget.value)
-              }
-              description='Required for NMDS sponsored students'
-              required
-            />
+            <>
+              <TextInput
+                label='Borrower Number'
+                placeholder='Enter your borrower number'
+                value={borrowerNo}
+                onChange={(event) =>
+                  handleBorrowerNoChange(event.currentTarget.value)
+                }
+                description='Required for NMDS sponsored students'
+                required
+              />
+              <TextInput
+                label='Bank Name'
+                placeholder='Enter your bank name'
+                value={bankName}
+                onChange={(event) =>
+                  handleBankNameChange(event.currentTarget.value)
+                }
+              />
+
+              <TextInput
+                label='Account Number'
+                placeholder='Enter your account number'
+                value={accountNumber}
+                onChange={(event) =>
+                  handleAccountNumberChange(event.currentTarget.value)
+                }
+              />
+            </>
           )}
-
-          <TextInput
-            label='Bank Name'
-            placeholder='Enter your bank name'
-            value={bankName}
-            onChange={(event) =>
-              handleBankNameChange(event.currentTarget.value)
-            }
-          />
-
-          <TextInput
-            label='Account Number'
-            placeholder='Enter your account number'
-            value={accountNumber}
-            onChange={(event) =>
-              handleAccountNumberChange(event.currentTarget.value)
-            }
-          />
         </Stack>
       </Card>
 
       <Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
         <Text size='sm'>
           <strong>Important:</strong> Make sure your sponsorship details are
-          correct. These details will be used for billing and financial records.
+          correct.
           {sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
-            <span> For NMDS sponsorship, the borrower number is required.</span>
+            <span>
+              {' '}
+              For NMDS sponsorship, the borrower&apos;s number and correct bank
+              account details are required.
+            </span>
           )}{' '}
           If you&apos;re unsure about your sponsor or borrower number, please
           contact the finance office.

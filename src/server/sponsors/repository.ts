@@ -8,6 +8,8 @@ import {
 import BaseRepository from '@/server/base/BaseRepository';
 import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 
+type SponsoredStudent = typeof sponsoredStudents.$inferSelect;
+
 export default class SponsorRepository extends BaseRepository<
   typeof sponsors,
   'id'
@@ -86,7 +88,6 @@ export default class SponsorRepository extends BaseRepository<
 
     const rawItems = await itemsQuery;
 
-    // Get the sponsored student IDs to fetch relations
     const sponsoredStudentIds = rawItems.map(
       (item) => item.sponsored_students.id
     );
@@ -330,7 +331,7 @@ export default class SponsorRepository extends BaseRepository<
   ): Promise<
     Array<{
       success: boolean;
-      data?: any;
+      data?: SponsoredStudent[];
       error?: string;
       item: {
         stdNoOrName: string;
@@ -341,7 +342,7 @@ export default class SponsorRepository extends BaseRepository<
   > {
     const results: Array<{
       success: boolean;
-      data?: any;
+      data?: SponsoredStudent[];
       error?: string;
       item: {
         stdNoOrName: string;
@@ -369,7 +370,7 @@ export default class SponsorRepository extends BaseRepository<
   ): Promise<
     Array<{
       success: boolean;
-      data?: any;
+      data?: SponsoredStudent[];
       error?: string;
       item: {
         stdNoOrName: string;
@@ -380,7 +381,7 @@ export default class SponsorRepository extends BaseRepository<
   > {
     const results: Array<{
       success: boolean;
-      data?: any;
+      data?: SponsoredStudent[];
       error?: string;
       item: {
         stdNoOrName: string;

@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import {
-  Stack,
-  Text,
-  Card,
-  Alert,
-  Checkbox,
-  Button,
-  LoadingOverlay,
-  Group,
-} from '@mantine/core';
-import { IconInfoCircle, IconCheck } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
-import { confirmAccountDetails } from '@/server/sponsors/actions';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import useUserStudent from '@/hooks/use-user-student';
+import { confirmAccountDetails } from '@/server/sponsors/actions';
+import {
+  Alert,
+  Card,
+  Group,
+  Loader,
+  LoadingOverlay,
+  Stack,
+  Text,
+  TextInput,
+} from '@mantine/core';
+import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
 type SponsorshipData = {
   sponsorId: number;
@@ -37,7 +36,8 @@ export default function AccountConfirmation({
   const { student } = useUserStudent();
   const { currentTerm } = useCurrentTerm();
   const queryClient = useQueryClient();
-  const [confirmed, setConfirmed] = useState(false);
+  const [confirmedAccountNumber, setConfirmedAccountNumber] = useState('');
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const confirmationMutation = useMutation({
     mutationFn: async () => {
@@ -47,33 +47,30 @@ export default function AccountConfirmation({
       return confirmAccountDetails(student.stdNo, currentTerm.id);
     },
     onSuccess: () => {
-      notifications.show({
-        title: 'Account Details Confirmed',
-        message: 'Your account details have been successfully confirmed',
-        color: 'green',
-        icon: <IconCheck size='1rem' />,
-      });
+      setIsConfirmed(true);
       onConfirmationChange(true);
       queryClient.invalidateQueries({ queryKey: ['previous-sponsorship'] });
     },
     onError: (error) => {
-      notifications.show({
-        title: 'Confirmation Failed',
-        message: error.message || 'Failed to confirm account details',
-        color: 'red',
-      });
+      console.error(
+        'Confirmation Failed:',
+        error.message || 'Failed to confirm account details'
+      );
     },
   });
 
-  const handleCheckboxChange = (checked: boolean) => {
-    setConfirmed(checked);
+  const handleAccountNumberChange = (value: string) => {
+    setConfirmedAccountNumber(value);
   };
 
-  const handleConfirm = () => {
-    if (confirmed) {
+  const accountNumberMatches =
+    confirmedAccountNumber === sponsorshipData?.accountNumber;
+
+  useEffect(() => {
+    if (accountNumberMatches && confirmedAccountNumber && !isConfirmed) {
       confirmationMutation.mutate();
     }
-  };
+  }, [accountNumberMatches, confirmedAccountNumber, isConfirmed]);
 
   if (loading) {
     return (
@@ -93,16 +90,14 @@ export default function AccountConfirmation({
 
           <Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
             <Text size='sm'>
-              <strong>Please review your account details below:</strong>
+              <strong>
+                Please review your account details below and re-enter your
+                account number to confirm:
+              </strong>
             </Text>
           </Alert>
 
-          <Card
-            padding='md'
-            withBorder
-            bg='gray.0'
-            style={{ borderStyle: 'dashed' }}
-          >
+          <Card padding='md' withBorder style={{ borderStyle: 'dashed' }}>
             <Stack gap='sm'>
               <Group justify='space-between'>
                 <Text size='sm' fw={500}>
@@ -133,31 +128,41 @@ export default function AccountConfirmation({
             </Stack>
           </Card>
 
-          <Checkbox
-            label='I confirm that all the account details above are correct'
-            checked={confirmed}
+          <TextInput
+            label='Confirm Account Number'
+            placeholder='Re-enter your account number'
+            value={confirmedAccountNumber}
             onChange={(event) =>
-              handleCheckboxChange(event.currentTarget.checked)
+              handleAccountNumberChange(event.currentTarget.value)
             }
             size='sm'
+            error={
+              confirmedAccountNumber &&
+              !accountNumberMatches &&
+              'Account numbers do not match'
+            }
+            rightSection={
+              confirmationMutation.isPending && <Loader size='sm' />
+            }
+            disabled={isConfirmed}
           />
 
-          <Button
-            onClick={handleConfirm}
-            disabled={!confirmed}
-            loading={confirmationMutation.isPending}
-            leftSection={<IconCheck size='1rem' />}
-          >
-            Confirm Account Details
-          </Button>
+          {isConfirmed && (
+            <Alert icon={<IconCheck size='1rem' />} color='blue'>
+              <Text size='sm'>
+                <strong>Account confirmed</strong>
+              </Text>
+            </Alert>
+          )}
         </Stack>
       </Card>
 
       <Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
         <Text size='sm'>
-          <strong>Important:</strong> Once you confirm your account details, you
-          cannot change them without contacting the finance office. Please
-          ensure all information is accurate before confirming.
+          <strong>Important:</strong> Once you confirm your account details by
+          correctly re-entering your account number, you cannot change them
+          without contacting the finance office. Please ensure all information
+          is accurate before confirming.
         </Text>
       </Alert>
     </Stack>
