@@ -24,28 +24,28 @@ class SponsorService {
   async create(data: Sponsor) {
     return withAuth(
       async () => this.repository.create(data),
-      ['admin', 'finance'],
+      ['admin', 'finance']
     );
   }
 
   async update(id: number, data: Sponsor) {
     return withAuth(
       async () => this.repository.update(id, data),
-      ['admin', 'finance'],
+      ['admin', 'finance']
     );
   }
 
   async delete(id: number) {
     return withAuth(
       async () => this.repository.delete(id),
-      ['admin', 'finance'],
+      ['admin', 'finance']
     );
   }
 
   async getSponsoredStudent(stdNo: number, termId: number) {
     return withAuth(
       async () => this.repository.findSponsoredStudent(stdNo, termId),
-      ['all'],
+      ['all']
     );
   }
 
@@ -61,7 +61,7 @@ class SponsorService {
       async (session) => {
         if (
           ['registry', 'finance', 'admin'].includes(
-            session.user?.role as string,
+            session.user?.role as string
           )
         ) {
           return true;
@@ -72,7 +72,18 @@ class SponsorService {
         }
 
         return false;
-      },
+      }
+    );
+  }
+
+  async getSponsoredStudents(
+    sponsorId: string,
+    params?: { page?: number; limit?: number; search?: string }
+  ) {
+    return withAuth(
+      async () =>
+        this.repository.findSponsoredStudentsBySponsor(sponsorId, params),
+      ['all']
     );
   }
 
@@ -83,5 +94,5 @@ class SponsorService {
 
 export const sponsorsService = serviceWrapper(
   SponsorService,
-  'SponsorsService',
+  'SponsorsService'
 );

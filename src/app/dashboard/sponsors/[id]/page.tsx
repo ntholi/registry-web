@@ -6,6 +6,8 @@ import {
 } from '@/components/adease';
 import { notFound } from 'next/navigation';
 import { getSponsor, deleteSponsor } from '@/server/sponsors/actions';
+import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import StudentsTable from './students/StudentsTable';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -29,9 +31,22 @@ export default async function SponsorDetails({ params }: Props) {
           await deleteSponsor(Number(id));
         }}
       />
-      <DetailsViewBody>
-        <FieldView label='Name'>{sponsor.name}</FieldView>
-      </DetailsViewBody>
+      <Tabs defaultValue={'info'}>
+        <TabsList>
+          <TabsTab value='info'>Info</TabsTab>
+          <TabsTab value='students'>Students</TabsTab>
+        </TabsList>
+
+        <TabsPanel value='info'>
+          <DetailsViewBody>
+            <FieldView label='Name'>{sponsor.name}</FieldView>
+          </DetailsViewBody>
+        </TabsPanel>
+
+        <TabsPanel value='students'>
+          <StudentsTable sponsorId={sponsor.id.toString()} />
+        </TabsPanel>
+      </Tabs>
     </DetailsView>
   );
 }
