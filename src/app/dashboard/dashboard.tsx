@@ -47,6 +47,7 @@ import {
   IconTool,
   IconUserCog,
   IconUsersGroup,
+  IconUserX,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Session } from 'next-auth';
@@ -217,6 +218,12 @@ function getNavigation(department: DashboardUser) {
       ],
     },
     {
+      label: 'Blocked Students',
+      href: '/dashboard/blocked-students',
+      icon: IconUserX,
+      roles: ['finance'],
+    },
+    {
       label: 'Modules',
       href: '/dashboard/modules',
       icon: IconBookmark,
@@ -226,7 +233,7 @@ function getNavigation(department: DashboardUser) {
       label: 'Schools',
       href: '/dashboard/schools',
       icon: IconBuildingStore,
-      roles: ['registry', 'admin', 'academic'],
+      roles: ['registry', 'admin', 'academic', 'finance'],
     },
     {
       label: 'Terms',

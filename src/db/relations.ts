@@ -30,6 +30,7 @@ import {
   users,
   userSchools,
   modules,
+  blockedStudents,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -76,7 +77,7 @@ export const studentProgramsRelations = relations(
       references: [structures.id],
     }),
     semesters: many(studentSemesters),
-  }),
+  })
 );
 
 export const studentSemestersRelations = relations(
@@ -87,7 +88,7 @@ export const studentSemestersRelations = relations(
       references: [studentPrograms.id],
     }),
     studentModules: many(studentModules),
-  }),
+  })
 );
 
 export const studentModulesRelations = relations(studentModules, ({ one }) => ({
@@ -132,7 +133,7 @@ export const structureSemestersRelations = relations(
       references: [structures.id],
     }),
     semesterModules: many(semesterModules),
-  }),
+  })
 );
 
 export const semesterModulesRelations = relations(
@@ -155,7 +156,7 @@ export const semesterModulesRelations = relations(
       fields: [semesterModules.moduleId],
       references: [modules.id],
     }),
-  }),
+  })
 );
 
 export const modulesRelations = relations(modules, ({ one, many }) => ({
@@ -179,7 +180,7 @@ export const modulePrerequisitesRelations = relations(
       references: [semesterModules.id],
       relationName: 'prerequisiteModules',
     }),
-  }),
+  })
 );
 
 export const termsRelations = relations(terms, ({ many }) => ({
@@ -204,7 +205,7 @@ export const registrationRequestsRelations = relations(
     }),
     clearances: many(registrationClearances),
     requestedModules: many(requestedModules),
-  }),
+  })
 );
 
 export const requestedModulesRelations = relations(
@@ -218,7 +219,7 @@ export const requestedModulesRelations = relations(
       fields: [requestedModules.semesterModuleId],
       references: [semesterModules.id],
     }),
-  }),
+  })
 );
 
 export const registrationClearanceRelations = relations(
@@ -233,7 +234,7 @@ export const registrationClearanceRelations = relations(
       references: [users.id],
     }),
     audits: many(registrationClearanceAudit),
-  }),
+  })
 );
 
 export const registrationClearanceAuditRelations = relations(
@@ -247,7 +248,7 @@ export const registrationClearanceAuditRelations = relations(
       fields: [registrationClearanceAudit.createdBy],
       references: [users.id],
     }),
-  }),
+  })
 );
 
 export const sponsorsRelations = relations(sponsors, ({ many }) => ({
@@ -267,7 +268,7 @@ export const sponsoredStudentsRelations = relations(
       references: [students.stdNo],
     }),
     sponsoredTerms: many(sponsoredTerms),
-  }),
+  })
 );
 
 export const sponsoredTermsRelations = relations(sponsoredTerms, ({ one }) => ({
@@ -292,7 +293,7 @@ export const assignedModulesRelations = relations(
       fields: [assignedModules.semesterModuleId],
       references: [semesterModules.id],
     }),
-  }),
+  })
 );
 
 export const assessmentsRelations = relations(assessments, ({ many, one }) => ({
@@ -320,7 +321,7 @@ export const assessmentMarksRelations = relations(
       references: [students.stdNo],
     }),
     audits: many(assessmentMarksAudit),
-  }),
+  })
 );
 
 export const assessmentMarksAuditRelations = relations(
@@ -334,7 +335,7 @@ export const assessmentMarksAuditRelations = relations(
       fields: [assessmentMarksAudit.createdBy],
       references: [users.id],
     }),
-  }),
+  })
 );
 
 export const assessmentsAuditRelations = relations(
@@ -348,7 +349,7 @@ export const assessmentsAuditRelations = relations(
       fields: [assessmentsAudit.createdBy],
       references: [users.id],
     }),
-  }),
+  })
 );
 
 export const userSchoolsRelations = relations(userSchools, ({ one }) => ({
@@ -361,3 +362,13 @@ export const userSchoolsRelations = relations(userSchools, ({ one }) => ({
     references: [schools.id],
   }),
 }));
+
+export const blockedStudentsRelations = relations(
+  blockedStudents,
+  ({ one }) => ({
+    student: one(students, {
+      fields: [blockedStudents.stdNo],
+      references: [students.stdNo],
+    }),
+  })
+);

@@ -14,26 +14,26 @@ class BlockedStudentService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), []);
+    return withAuth(async () => this.repository.findById(id), ['finance']);
   }
 
   async getByStdNo(stdNo: number, status: 'blocked' | 'unblocked' = 'blocked') {
     return withAuth(
       async () => this.repository.findByStdNo(stdNo, status),
-      ['all'],
+      ['all']
     );
   }
 
   async getAll(params: QueryOptions<typeof blockedStudents>) {
-    return withAuth(async () => this.repository.query(params), []);
+    return withAuth(async () => this.repository.query(params), ['finance']);
   }
 
   async create(data: BlockedStudent) {
-    return withAuth(async () => this.repository.create(data), []);
+    return withAuth(async () => this.repository.create(data), ['finance']);
   }
 
   async update(id: number, data: Partial<BlockedStudent>) {
-    return withAuth(async () => this.repository.update(id, data), []);
+    return withAuth(async () => this.repository.update(id, data), ['finance']);
   }
 
   async delete(id: number) {
@@ -47,5 +47,5 @@ class BlockedStudentService {
 
 export const blockedStudentsService = serviceWrapper(
   BlockedStudentService,
-  'BlockedStudent',
+  'BlockedStudent'
 );
