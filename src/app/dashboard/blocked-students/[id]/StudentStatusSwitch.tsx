@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { updateBlockedStudent } from '@/server/blocked-students/actions';
 import { Switch, Group, Text, Paper, Stack, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -21,6 +21,11 @@ export default function StudentStatusSwitch({
   studentName,
 }: Props) {
   const queryClient = useQueryClient();
+  const [status, setStatus] = useState<'blocked' | 'unblocked'>(currentStatus);
+
+  useEffect(() => {
+    setStatus(currentStatus);
+  }, [currentStatus]);
 
   const mutation = useMutation({
     mutationFn: async (newStatus: 'blocked' | 'unblocked') => {
@@ -28,6 +33,7 @@ export default function StudentStatusSwitch({
     },
     onSuccess: (_, newStatus) => {
       queryClient.invalidateQueries({ queryKey: ['blocked-students'] });
+      queryClient.invalidateQueries({ queryKey: ['blocked-student', id] });
       notifications.show({
         title: 'Status Updated',
         message: `Student ${stdNo} has been ${newStatus}`,
@@ -36,6 +42,7 @@ export default function StudentStatusSwitch({
       });
     },
     onError: (error) => {
+      setStatus((prev) => (prev === 'blocked' ? 'unblocked' : 'blocked'));
       notifications.show({
         title: 'Error',
         message: 'Failed to update student status. Please try again.',
@@ -49,10 +56,13 @@ export default function StudentStatusSwitch({
   const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const checked = event.currentTarget.checked;
     const newStatus = checked ? 'unblocked' : 'blocked';
+
+    setStatus(newStatus);
+
     mutation.mutate(newStatus);
   };
 
-  const isBlocked = currentStatus === 'blocked';
+  const isBlocked = status === 'blocked';
 
   return (
     <Paper withBorder p='md' radius='md'>
@@ -87,13 +97,13 @@ export default function StudentStatusSwitch({
               )
             }
             onLabel={
-              <Text size='xs' fw={600} c='green'>
-                ACTIVE
+              <Text size='xs' fw={600} p={'xs'} c='green'>
+                Active
               </Text>
             }
             offLabel={
-              <Text size='xs' fw={600} c='red'>
-                BLOCKED
+              <Text size='xs' fw={600} p={'xs'} c='red'>
+                Blocked
               </Text>
             }
           />

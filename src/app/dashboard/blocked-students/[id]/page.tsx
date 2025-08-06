@@ -1,26 +1,39 @@
+'use client';
+
 import {
   DetailsView,
   DetailsViewHeader,
   FieldView,
   DetailsViewBody,
 } from '@/components/adease';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import {
   getBlockedStudent,
   deleteBlockedStudent,
 } from '@/server/blocked-students/actions';
 import StudentStatusSwitch from './StudentStatusSwitch';
 import { Stack } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
+export default function BlockedStudentDetails() {
+  const params = useParams();
+  const id = Number(params.id);
 
-export default async function BlockedStudentDetails({ params }: Props) {
-  const { id } = await params;
-  const blockedStudent = await getBlockedStudent(Number(id));
+  const {
+    data: blockedStudent,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['blocked-student', id],
+    queryFn: () => getBlockedStudent(id),
+    enabled: !!id,
+  });
 
-  if (!blockedStudent) {
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error || !blockedStudent) {
     return notFound();
   }
 
@@ -31,8 +44,7 @@ export default async function BlockedStudentDetails({ params }: Props) {
         queryKey={['blocked-students']}
         editRoles={['finance']}
         handleDelete={async () => {
-          'use server';
-          await deleteBlockedStudent(Number(id));
+          await deleteBlockedStudent(id);
         }}
       />
       <DetailsViewBody>
