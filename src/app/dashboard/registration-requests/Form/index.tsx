@@ -51,6 +51,8 @@ type RegistrationRequest = {
   semesterStatus: 'Active' | 'Repeat';
   sponsorId: number;
   borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
   semesterNumber: number;
   termId: number;
   selectedModules?: Array<SelectedModule>;
@@ -327,11 +329,19 @@ export default function RegistrationRequestForm({
               <SponsorInput
                 sponsorId={Number(form.values.sponsorId)}
                 borrowerNo={form.values.borrowerNo}
+                bankName={form.values.bankName}
+                accountNumber={form.values.accountNumber}
                 onSponsorChange={(value) =>
                   form.setFieldValue('sponsorId', value)
                 }
                 onBorrowerNoChange={(value) =>
                   form.setFieldValue('borrowerNo', value)
+                }
+                onBankNameChange={(value) =>
+                  form.setFieldValue('bankName', value)
+                }
+                onAccountNumberChange={(value) =>
+                  form.setFieldValue('accountNumber', value)
                 }
                 disabled={!structureId}
               />

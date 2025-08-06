@@ -1,12 +1,12 @@
-import BaseRepository from '@/server/base/BaseRepository';
+import { db } from '@/db';
 import {
-  sponsors,
   sponsoredStudents,
+  sponsors,
   studentPrograms,
   students,
 } from '@/db/schema';
-import { db } from '@/db';
-import { and, eq, desc, sql, or, like, inArray } from 'drizzle-orm';
+import BaseRepository from '@/server/base/BaseRepository';
+import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 
 export default class SponsorRepository extends BaseRepository<
   typeof sponsors,
@@ -135,7 +135,7 @@ export default class SponsorRepository extends BaseRepository<
     const limit = params?.limit || 10;
     const offset = (page - 1) * limit;
 
-    let whereConditions = [];
+    const whereConditions = [];
 
     if (params?.search) {
       whereConditions.push(

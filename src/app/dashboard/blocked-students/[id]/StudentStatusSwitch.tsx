@@ -109,7 +109,7 @@ export default function StudentStatusSwitch({
           />
         </Group>
         <Text size='sm' c='dimmed' ta='center'>
-          Toggle to {isBlocked ? 'unblock' : 'block'} this student's access
+          Toggle to {isBlocked ? 'unblock' : 'block'} this student&apos;s access
         </Text>
       </Stack>
     </Paper>
