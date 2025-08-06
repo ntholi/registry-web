@@ -2,6 +2,7 @@
 
 import useUserStudent from '@/hooks/use-user-student';
 import { formatSemester } from '@/lib/utils';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import {
   Accordion,
   Alert,
@@ -14,7 +15,8 @@ import {
   Title,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconLock } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import DesktopTable from './DesktopTable';
 import MobileTable from './MobileTable';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -23,8 +25,41 @@ export default function TranscriptsPage() {
   const { student, program, isLoading } = useUserStudent();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  if (isLoading) {
+  const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
+    queryKey: ['blocked-student', student?.stdNo],
+    queryFn: async () => {
+      if (!student?.stdNo) return null;
+      return await getBlockedStudentByStdNo(student.stdNo);
+    },
+    enabled: !!student?.stdNo,
+  });
+
+  if (isLoading || blockedLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (blockedStudent && blockedStudent.status === 'blocked') {
+    return (
+      <Container size='md'>
+        <Stack gap='lg' mt='md'>
+          <Title order={1} size={'h3'} ta='left'>
+            Academic Transcripts
+          </Title>
+          <Alert
+            icon={<IconLock size='1.2rem' />}
+            title='Access Blocked'
+            color='red'
+            radius='md'
+          >
+            Your access to academic transcripts has been blocked. Please contact
+            the {blockedStudent.byDepartment} office for assistance.
+            <Text fw={500} mt='xs'>
+              Reason: {blockedStudent.reason}
+            </Text>
+          </Alert>
+        </Stack>
+      </Container>
+    );
   }
 
   if (!student || !program) {
