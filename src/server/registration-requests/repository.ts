@@ -345,6 +345,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
     semesterStatus: 'Active' | 'Repeat';
     semesterNumber: number;
     borrowerNo?: string;
+    bankName?: string;
+    accountNumber?: string;
   }) {
     return db.transaction(async (tx) => {
       const student = await tx.query.students.findFirst({
@@ -360,11 +362,15 @@ export default class RegistrationRequestRepository extends BaseRepository<
           sponsorId: data.sponsorId,
           stdNo: data.stdNo,
           borrowerNo: data.borrowerNo,
+          bankName: data.bankName,
+          accountNumber: data.accountNumber,
         })
         .onConflictDoUpdate({
           target: [sponsoredStudents.sponsorId, sponsoredStudents.stdNo],
           set: {
             borrowerNo: data.borrowerNo,
+            bankName: data.bankName,
+            accountNumber: data.accountNumber,
             updatedAt: new Date(),
           },
         })

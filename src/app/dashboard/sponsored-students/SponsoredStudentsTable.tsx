@@ -86,8 +86,9 @@ export default function SponsoredStudentsTable() {
         <Table.Th>Program</Table.Th>
         <Table.Th>Sponsor</Table.Th>
         <Table.Th>Borrower Number</Table.Th>
-        <Table.Th>Name</Table.Th>
+        <Table.Th>Bank Name</Table.Th>
         <Table.Th>Account No.</Table.Th>
+        <Table.Th>Status</Table.Th>
         <Table.Th></Table.Th>
       </Table.Tr>
     </Table.Thead>
@@ -135,7 +136,7 @@ export default function SponsoredStudentsTable() {
       return (
         <Table.Tbody>
           <Table.Tr>
-            <Table.Td colSpan={8}>
+            <Table.Td colSpan={9}>
               <Center p='md'>
                 <Text c='dimmed'>
                   {hasActiveFilters
@@ -204,6 +205,21 @@ export default function SponsoredStudentsTable() {
               </Table.Td>
               <Table.Td>
                 <Text size='sm'>{sponsoredStudent.accountNumber || '-'}</Text>
+              </Table.Td>
+              <Table.Td>
+                {sponsoredStudent.sponsor?.name === 'NMDS' ? (
+                  <Text
+                    size='sm'
+                    c={sponsoredStudent.confirmed ? 'green' : 'orange'}
+                    fw={500}
+                  >
+                    {sponsoredStudent.confirmed ? 'Confirmed' : 'Pending'}
+                  </Text>
+                ) : (
+                  <Text size='sm' c='dimmed'>
+                    N/A
+                  </Text>
+                )}
               </Table.Td>
               <Table.Td>
                 <EditSponsorDetailsModal

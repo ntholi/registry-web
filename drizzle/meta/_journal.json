@@ -477,6 +477,13 @@
       "when": 1754486781770,
       "tag": "0067_noisy_oracle",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "6",
+      "when": 1754492360972,
+      "tag": "0068_wakeful_vindicator",
+      "breakpoints": true
     }
   ]
 }

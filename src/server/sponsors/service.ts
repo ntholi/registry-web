@@ -130,6 +130,28 @@ class SponsorService {
       ['admin', 'finance']
     );
   }
+
+  async confirmAccountDetails(stdNo: number, termId: number) {
+    return withAuth(
+      async () => this.repository.confirmSponsoredStudent(stdNo, termId),
+      ['auth'],
+      async (session) => {
+        if (
+          ['registry', 'finance', 'admin'].includes(
+            session.user?.role as string
+          )
+        ) {
+          return true;
+        }
+
+        if (session.user?.role === 'student') {
+          return session.user.stdNo === stdNo;
+        }
+
+        return false;
+      }
+    );
+  }
 }
 
 export const sponsorsService = serviceWrapper(

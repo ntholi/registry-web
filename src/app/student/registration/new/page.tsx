@@ -28,10 +28,12 @@ import {
   determineSemesterStatus,
   createRegistrationWithModules,
 } from '@/server/registration-requests/actions';
+import { findAllSponsors } from '@/server/sponsors/actions';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import ModuleSelection from './ModuleSelection';
 import SemesterConfirmation from './SemesterConfirmation';
 import SponsorshipDetails from './SponsorshipDetails';
+import AccountConfirmation from './AccountConfirmation';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 
 type SelectedModule = {
@@ -42,6 +44,8 @@ type SelectedModule = {
 type SponsorshipData = {
   sponsorId: number;
   borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
 };
 
 const STEPS = [
@@ -53,6 +57,10 @@ const STEPS = [
   {
     label: 'Sponsorship Details',
     description: 'Enter your sponsorship information',
+  },
+  {
+    label: 'Confirm Account',
+    description: 'Confirm your account details (NMDS only)',
   },
 ];
 
@@ -68,7 +76,19 @@ export default function NewRegistrationPage() {
   } | null>(null);
   const [sponsorshipData, setSponsorshipData] =
     useState<SponsorshipData | null>(null);
+  const [accountConfirmed, setAccountConfirmed] = useState(false);
   const { currentTerm } = useCurrentTerm();
+
+  const { data: sponsors } = useQuery({
+    queryKey: ['sponsors'],
+    queryFn: () => findAllSponsors(1, ''),
+    select: (data) => data.items || [],
+  });
+
+  const isNMDS = (sponsorId: number) => {
+    if (!sponsors) return false;
+    return sponsors.find((s) => s.id === sponsorId)?.name === 'NMDS';
+  };
 
   const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
     queryKey: ['blocked-student', student?.stdNo],
@@ -127,6 +147,8 @@ export default function NewRegistrationPage() {
         semesterNumber: semesterData.semesterNo,
         semesterStatus: semesterData.status,
         borrowerNo: sponsorshipData.borrowerNo,
+        bankName: sponsorshipData.bankName,
+        accountNumber: sponsorshipData.accountNumber,
         termId: currentTerm.id,
       });
     },
@@ -156,6 +178,12 @@ export default function NewRegistrationPage() {
       setActiveStep(1);
     } else if (activeStep === 1 && semesterData) {
       setActiveStep(2);
+    } else if (activeStep === 2 && sponsorshipData) {
+      if (sponsorshipData.sponsorId && isNMDS(sponsorshipData.sponsorId)) {
+        setActiveStep(3);
+      } else {
+        handleSubmit();
+      }
     }
   };
 
@@ -167,15 +195,30 @@ export default function NewRegistrationPage() {
 
   const handleSubmit = () => {
     if (selectedModules.length > 0 && semesterData && sponsorshipData) {
+      const needsConfirmation =
+        sponsorshipData.sponsorId && isNMDS(sponsorshipData.sponsorId);
+
+      if (needsConfirmation && !accountConfirmed) {
+        return;
+      }
+
       registrationMutation.mutate();
     }
   };
 
   const canProceedStep1 = selectedModules.length > 0;
   const canProceedStep2 = semesterData !== null;
-  const canSubmit = sponsorshipData !== null;
+  const canProceedStep3 = sponsorshipData !== null;
+  const canSubmit =
+    sponsorshipData !== null &&
+    (!isNMDS(sponsorshipData?.sponsorId || 0) || accountConfirmed);
 
-  const progressValue = ((activeStep + 1) / STEPS.length) * 100;
+  const totalSteps =
+    sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId)
+      ? STEPS.length
+      : STEPS.length - 1;
+
+  const progressValue = ((activeStep + 1) / totalSteps) * 100;
 
   if (studentLoading || blockedLoading || !student) {
     return (
@@ -262,6 +305,14 @@ export default function NewRegistrationPage() {
             loading={registrationMutation.isPending}
           />
         );
+      case 3:
+        return (
+          <AccountConfirmation
+            sponsorshipData={sponsorshipData}
+            onConfirmationChange={setAccountConfirmed}
+            loading={registrationMutation.isPending}
+          />
+        );
       default:
         return null;
     }
@@ -280,7 +331,7 @@ export default function NewRegistrationPage() {
         <Box>
           <Group justify='space-between' mb='sm'>
             <Text size='sm' fw={500}>
-              Step {activeStep + 1} of {STEPS.length}
+              Step {activeStep + 1} of {totalSteps}
             </Text>
           </Group>
 
@@ -310,12 +361,13 @@ export default function NewRegistrationPage() {
             Back
           </Button>
 
-          {activeStep < 2 ? (
+          {activeStep < totalSteps - 1 ? (
             <Button
               onClick={nextStep}
               disabled={
                 (activeStep === 0 && !canProceedStep1) ||
-                (activeStep === 1 && !canProceedStep2)
+                (activeStep === 1 && !canProceedStep2) ||
+                (activeStep === 2 && !canProceedStep3)
               }
               rightSection={<IconArrowRight size={16} />}
             >

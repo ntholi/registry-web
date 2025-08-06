@@ -462,6 +462,20 @@ export default class SponsorRepository extends BaseRepository<
 
     return results;
   }
+
+  async confirmSponsoredStudent(stdNo: number, termId: number) {
+    console.log(`Delete this and do something with ${termId}`);
+    const result = await db
+      .update(sponsoredStudents)
+      .set({
+        confirmed: true,
+        updatedAt: sql`(unixepoch())`,
+      })
+      .where(eq(sponsoredStudents.stdNo, stdNo))
+      .returning();
+
+    return result[0];
+  }
 }
 
 export const sponsorsRepository = new SponsorRepository();

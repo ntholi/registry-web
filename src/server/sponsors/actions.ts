@@ -119,3 +119,7 @@ export async function bulkUpdateAccountDetails(
 ) {
   return service.bulkUpdateAccountDetails(items, batchSize);
 }
+
+export async function confirmAccountDetails(stdNo: number, termId: number) {
+  return service.confirmAccountDetails(stdNo, termId);
+}

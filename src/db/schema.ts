@@ -505,6 +505,7 @@ export const sponsoredStudents = sqliteTable(
     borrowerNo: text(),
     bankName: text(),
     accountNumber: text(),
+    confirmed: integer({ mode: 'boolean' }).default(false),
     createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
     updatedAt: integer({ mode: 'timestamp' }),
   },

@@ -120,6 +120,8 @@ export async function createRegistrationWithModules(data: {
   semesterStatus: 'Active' | 'Repeat';
   termId: number;
   borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
 }) {
   return service.createRegistrationWithModules(data);
 }

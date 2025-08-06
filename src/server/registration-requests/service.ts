@@ -156,6 +156,8 @@ class RegistrationRequestService {
     semesterStatus: 'Active' | 'Repeat';
     semesterNumber: number;
     borrowerNo?: string;
+    bankName?: string;
+    accountNumber?: string;
   }) {
     return withAuth(
       async () => {
