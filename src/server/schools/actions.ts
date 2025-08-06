@@ -19,3 +19,7 @@ export async function getSchool(id: number) {
 export async function getProgramsBySchoolId(schoolId: number) {
   return service.getProgramsBySchoolId(schoolId);
 }
+
+export async function getAllPrograms() {
+  return service.getAllPrograms();
+}

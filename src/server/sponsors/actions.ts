@@ -45,6 +45,21 @@ export async function getSponsoredStudents(
   });
 }
 
+export async function getAllSponsoredStudents(
+  page: number = 1,
+  search = '',
+  sponsorId?: string,
+  programId?: string
+) {
+  return service.getAllSponsoredStudents({
+    page,
+    search,
+    sponsorId,
+    programId,
+    limit: 10,
+  });
+}
+
 export async function updateStudentSponsorship(data: {
   stdNo: number;
   termId: number;

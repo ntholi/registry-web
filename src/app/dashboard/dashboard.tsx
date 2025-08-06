@@ -248,6 +248,12 @@ function getNavigation(department: DashboardUser) {
       roles: ['admin', 'finance'],
     },
     {
+      label: 'Sponsored Students',
+      href: '/dashboard/sponsored-students',
+      icon: IconUsersGroup,
+      roles: ['admin', 'finance'],
+    },
+    {
       label: 'Tools',
       icon: IconTool,
       roles: ['registry', 'academic', 'admin'],

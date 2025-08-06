@@ -87,6 +87,19 @@ class SponsorService {
     );
   }
 
+  async getAllSponsoredStudents(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sponsorId?: string;
+    programId?: string;
+  }) {
+    return withAuth(
+      async () => this.repository.findAllSponsoredStudents(params),
+      ['all']
+    );
+  }
+
   async count() {
     return withAuth(async () => this.repository.count(), ['all']);
   }
