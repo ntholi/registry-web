@@ -4,13 +4,14 @@ import StudentsTable from './StudentsTable';
 import { Paper } from '@mantine/core';
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export default function SponsorStudentsPage({ params }: Props) {
+export default async function SponsorStudentsPage({ params }: Props) {
+  const { id } = await params;
   return (
     <Paper withBorder p='md'>
-      <StudentsTable sponsorId={params.id} />
+      <StudentsTable sponsorId={id} />
     </Paper>
   );
 }
