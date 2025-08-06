@@ -9,29 +9,20 @@ import {
   FileInput,
   Alert,
   Progress,
-  Table,
   Group,
   Badge,
-  ActionIcon,
-  Paper,
-  ScrollArea,
-  Title,
 } from '@mantine/core';
 import {
   IconUpload,
   IconAlertCircle,
   IconCheck,
   IconX,
-  IconFileSpreadsheet,
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import * as XLSX from 'xlsx';
-import {
-  updateAccountDetails,
-  bulkUpdateAccountDetails,
-} from '@/server/sponsors/actions';
+import { bulkUpdateAccountDetails } from '@/server/sponsors/actions';
 
 interface ImportRow {
   stdNo: string;
@@ -51,11 +42,9 @@ export default function ImportAccountDetailsModal() {
   const [importData, setImportData] = useState<ProcessedRow[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [currentBatch, setCurrentBatch] = useState(0);
-  const [totalBatches, setTotalBatches] = useState(0);
   const queryClient = useQueryClient();
 
-  const BATCH_SIZE = 50; // Process 50 records at a time
+  const BATCH_SIZE = 50;
 
   const updateMutation = useMutation({
     mutationFn: ({
@@ -231,20 +220,14 @@ export default function ImportAccountDetailsModal() {
       accountNumber: row.accountNumber,
     }));
 
-    const totalBatches = Math.ceil(requestData.length / BATCH_SIZE);
-    setTotalBatches(totalBatches);
-    setCurrentBatch(0);
-
     let allResults: any[] = [];
     let processedCount = 0;
     const updatedData = [...importData];
 
     try {
-      // Process in batches for better performance and progress tracking
+      // Process in batches for better performance
       for (let i = 0; i < requestData.length; i += BATCH_SIZE) {
         const batch = requestData.slice(i, i + BATCH_SIZE);
-        const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
-        setCurrentBatch(batchNumber);
 
         try {
           const batchResults = await updateMutation.mutateAsync({
@@ -272,14 +255,14 @@ export default function ImportAccountDetailsModal() {
           allResults.push(...batchResults);
           processedCount += batch.length;
 
-          // Update progress and UI
+          // Update progress
           const progressPercentage =
             (processedCount / requestData.length) * 100;
           setProgress(progressPercentage);
           setImportData([...updatedData]);
 
           // Small delay to allow UI updates
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 50));
         } catch (batchError) {
           // Mark all items in this batch as errors
           for (let j = 0; j < batch.length; j++) {
@@ -318,8 +301,6 @@ export default function ImportAccountDetailsModal() {
       });
     } finally {
       setIsProcessing(false);
-      setCurrentBatch(0);
-      setTotalBatches(0);
       setProgress(100);
     }
   };
@@ -328,8 +309,6 @@ export default function ImportAccountDetailsModal() {
     setFile(null);
     setImportData([]);
     setProgress(0);
-    setCurrentBatch(0);
-    setTotalBatches(0);
     setIsProcessing(false);
     close();
   };
@@ -338,9 +317,6 @@ export default function ImportAccountDetailsModal() {
     (row) => row.status === 'success'
   ).length;
   const errorCount = importData.filter((row) => row.status === 'error').length;
-  const pendingCount = importData.filter(
-    (row) => row.status === 'pending'
-  ).length;
 
   return (
     <>
@@ -355,34 +331,19 @@ export default function ImportAccountDetailsModal() {
       <Modal
         opened={opened}
         onClose={handleClose}
-        title={
-          <Group gap='sm'>
-            <IconFileSpreadsheet size='1.2rem' />
-            <Title order={4}>Import Account Details</Title>
-          </Group>
-        }
-        size='xl'
+        title='Import Account Details'
+        size='md'
         centered
       >
         <Stack gap='md'>
           <Alert icon={<IconAlertCircle size='1rem' />} color='blue'>
-            Upload an Excel file with columns for:{' '}
-            <strong>Student Number</strong>, <strong>Names</strong>,{' '}
-            <strong>Account Number</strong>, and <strong>Bank Name</strong>. The
-            system will search by student number first, then by name if not
-            found.
-            <br />
-            <br />
-            <strong>Supported column headers:</strong> "Student No", "Names in
-            Full", "Account No.", "Bank", etc.
-            <br />
-            <strong>Example format:</strong> STUDENT NO | NAMES IN FULL |
-            ACCOUNT NO. | BANK
+            Upload Excel file with: Student Number, Names, Account Number, Bank
+            Name
           </Alert>
 
           <FileInput
             label='Excel File'
-            placeholder='Select an Excel file'
+            placeholder='Select Excel file (.xlsx, .xls)'
             accept='.xlsx,.xls'
             value={file}
             onChange={handleFileUpload}
@@ -392,125 +353,33 @@ export default function ImportAccountDetailsModal() {
           {isProcessing && (
             <Stack gap='xs'>
               <Group justify='space-between'>
-                <Text size='sm'>Processing import...</Text>
+                <Text size='sm'>Processing...</Text>
                 <Text size='xs' c='dimmed'>
-                  {totalBatches > 0 && (
-                    <>
-                      Batch {currentBatch} of {totalBatches} ({BATCH_SIZE}{' '}
-                      records per batch)
-                    </>
-                  )}
+                  {Math.round(progress)}%
                 </Text>
               </Group>
               <Progress value={progress} size='sm' />
-              <Text size='xs' c='dimmed' ta='center'>
-                {Math.round(progress)}% complete
-                {importData.length > 0 && (
-                  <>
-                    {' '}
-                    • {
-                      importData.filter((r) => r.status === 'success').length
-                    }{' '}
-                    success,{' '}
-                    {importData.filter((r) => r.status === 'error').length}{' '}
-                    errors
-                  </>
-                )}
-              </Text>
             </Stack>
           )}
 
-          {importData.length > 0 && (
-            <Paper withBorder p='md'>
-              <Group justify='space-between' mb='sm'>
-                <Text fw={600}>Import Preview</Text>
-                <Group gap='xs'>
-                  {pendingCount > 0 && (
-                    <Badge color='gray' size='sm'>
-                      {pendingCount} Pending
-                    </Badge>
-                  )}
-                  {successCount > 0 && (
-                    <Badge color='green' size='sm'>
-                      {successCount} Success
-                    </Badge>
-                  )}
-                  {errorCount > 0 && (
-                    <Badge color='red' size='sm'>
-                      {errorCount} Errors
-                    </Badge>
-                  )}
-                </Group>
+          {importData.length > 0 && !isProcessing && (
+            <Group justify='space-between'>
+              <Text size='sm' c='dimmed'>
+                {importData.length} records ready
+              </Text>
+              <Group gap='xs'>
+                {successCount > 0 && (
+                  <Badge color='green' size='sm'>
+                    {successCount} success
+                  </Badge>
+                )}
+                {errorCount > 0 && (
+                  <Badge color='red' size='sm'>
+                    {errorCount} errors
+                  </Badge>
+                )}
               </Group>
-
-              {importData.length > 1000 && (
-                <Alert
-                  icon={<IconAlertCircle size='1rem' />}
-                  color='yellow'
-                  mb='md'
-                >
-                  <Text size='sm'>
-                    <strong>Large dataset detected:</strong> {importData.length}{' '}
-                    records will be processed in batches of {BATCH_SIZE}. This
-                    may take several minutes to complete.
-                  </Text>
-                </Alert>
-              )}
-
-              <ScrollArea h={300}>
-                <Table highlightOnHover>
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Status</Table.Th>
-                      <Table.Th>Student No.</Table.Th>
-                      <Table.Th>Name</Table.Th>
-                      <Table.Th>Bank Name</Table.Th>
-                      <Table.Th>Account Number</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {importData.map((row, index) => (
-                      <Table.Tr key={index}>
-                        <Table.Td>
-                          {row.status === 'success' && (
-                            <ActionIcon color='green' size='sm' variant='light'>
-                              <IconCheck size='0.8rem' />
-                            </ActionIcon>
-                          )}
-                          {row.status === 'error' && (
-                            <ActionIcon color='red' size='sm' variant='light'>
-                              <IconX size='0.8rem' />
-                            </ActionIcon>
-                          )}
-                          {row.status === 'pending' && (
-                            <Badge color='gray' size='xs'>
-                              Pending
-                            </Badge>
-                          )}
-                        </Table.Td>
-                        <Table.Td>
-                          <Text size='sm'>{row.stdNo}</Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text size='sm'>{row.name}</Text>
-                          {row.error && (
-                            <Text size='xs' c='red'>
-                              {row.error}
-                            </Text>
-                          )}
-                        </Table.Td>
-                        <Table.Td>
-                          <Text size='sm'>{row.bankName}</Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text size='sm'>{row.accountNumber}</Text>
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </ScrollArea>
-            </Paper>
+            </Group>
           )}
 
           <Group justify='flex-end' gap='sm'>
@@ -526,12 +395,7 @@ export default function ImportAccountDetailsModal() {
               disabled={importData.length === 0 || isProcessing}
               loading={isProcessing}
             >
-              Import {importData.length} Records
-              {importData.length > BATCH_SIZE && (
-                <Text size='xs' ml='xs' c='dimmed'>
-                  (in batches of {BATCH_SIZE})
-                </Text>
-              )}
+              Import {importData.length > 0 ? importData.length : ''} Records
             </Button>
           </Group>
         </Stack>
