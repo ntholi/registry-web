@@ -12,6 +12,15 @@ export default class BlockedStudentRepository extends BaseRepository<
     super(blockedStudents, 'id');
   }
 
+  async findById(id: number) {
+    return db.query.blockedStudents.findFirst({
+      where: eq(blockedStudents.id, id),
+      with: {
+        student: true,
+      },
+    });
+  }
+
   async findByStdNo(
     stdNo: number,
     status: 'blocked' | 'unblocked' = 'blocked'

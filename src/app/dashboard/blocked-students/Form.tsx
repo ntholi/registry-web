@@ -2,12 +2,13 @@
 
 import { blockedStudents } from '@/db/schema';
 import { Form } from '@/components/adease';
-import { TextInput } from '@mantine/core';
+import { Select, Textarea, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
+import StdNoInput from '../base/StdNoInput';
+import { useState } from 'react';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;
-
 
 type Props = {
   onSubmit: (values: BlockedStudent) => Promise<BlockedStudent>;
@@ -19,27 +20,59 @@ type Props = {
   title?: string;
 };
 
-export default function BlockedStudentForm({ onSubmit, defaultValues, title }: Props) {
+export default function BlockedStudentForm({
+  onSubmit,
+  defaultValues,
+  title,
+}: Props) {
   const router = useRouter();
-  
+  const [validStudentNo, setValidStudentNo] = useState<boolean>(
+    !!defaultValues?.stdNo && String(defaultValues.stdNo).length === 9
+  );
+
   return (
-    <Form 
+    <Form
       title={title}
-      action={onSubmit} 
+      action={onSubmit}
       queryKey={['blocked-students']}
-      schema={createInsertSchema(blockedStudents)} 
+      schema={createInsertSchema(blockedStudents)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
-        router.push(`/admin/blocked-students/${id}`);
+        router.push(`/dashboard/blocked-students/${id}`);
       }}
     >
-      {(form) => (
-        <>
-          <TextInput label='Std No' {...form.getInputProps('stdNo')} />
-          <TextInput label='Status' {...form.getInputProps('status')} />
-          <TextInput label='Reason' {...form.getInputProps('reason')} />
-        </>
-      )}
+      {(form) => {
+        const handleStdNoChange = (value: number | string) => {
+          form.setFieldValue('stdNo', value as number);
+          const strValue = String(value);
+          setValidStudentNo(
+            strValue.length === 9 && strValue.startsWith('9010')
+          );
+        };
+
+        return (
+          <>
+            <StdNoInput
+              {...form.getInputProps('stdNo')}
+              onChange={handleStdNoChange}
+            />
+
+            {validStudentNo && (
+              <>
+                <Select
+                  label='Status'
+                  data={[
+                    { value: 'blocked', label: 'Blocked' },
+                    { value: 'unblocked', label: 'Unblocked' },
+                  ]}
+                  {...form.getInputProps('status')}
+                />
+                <Textarea label='Reason' {...form.getInputProps('reason')} />
+              </>
+            )}
+          </>
+        );
+      }}
     </Form>
   );
 }

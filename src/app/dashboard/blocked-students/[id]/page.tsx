@@ -5,7 +5,10 @@ import {
   DetailsViewBody,
 } from '@/components/adease';
 import { notFound } from 'next/navigation';
-import { getBlockedStudent, deleteBlockedStudent } from '@/server/blocked-students/actions';
+import {
+  getBlockedStudent,
+  deleteBlockedStudent,
+} from '@/server/blocked-students/actions';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -14,16 +17,17 @@ type Props = {
 export default async function BlockedStudentDetails({ params }: Props) {
   const { id } = await params;
   const blockedStudent = await getBlockedStudent(Number(id));
-  
+
   if (!blockedStudent) {
     return notFound();
   }
 
   return (
     <DetailsView>
-      <DetailsViewHeader 
-        title={'Blocked Student'} 
+      <DetailsViewHeader
+        title={blockedStudent.student.name}
         queryKey={['blocked-students']}
+        editRoles={['finance']}
         handleDelete={async () => {
           'use server';
           await deleteBlockedStudent(Number(id));
