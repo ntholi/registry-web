@@ -29,6 +29,7 @@ import { getAllPrograms } from '@/server/schools/actions';
 import Link from 'next/link';
 import { useDebouncedValue } from '@mantine/hooks';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';
+import ImportAccountDetailsModal from './ImportAccountDetailsModal';
 
 export default function SponsoredStudentsTable() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -237,16 +238,19 @@ export default function SponsoredStudentsTable() {
           </Title>
           {isLoading && <Skeleton height={16} width={200} mt={4} />}
         </div>
-        {hasActiveFilters && (
-          <Button
-            variant='light'
-            size='xs'
-            leftSection={<IconFilterX size='1rem' />}
-            onClick={clearFilters}
-          >
-            Clear Filters
-          </Button>
-        )}
+        <Group gap='sm'>
+          <ImportAccountDetailsModal />
+          {hasActiveFilters && (
+            <Button
+              variant='light'
+              size='xs'
+              leftSection={<IconFilterX size='1rem' />}
+              onClick={clearFilters}
+            >
+              Clear Filters
+            </Button>
+          )}
+        </Group>
       </Group>
 
       {/* Search and Filters */}

@@ -105,6 +105,31 @@ class SponsorService {
   async count() {
     return withAuth(async () => this.repository.count(), ['all']);
   }
+
+  async updateAccountDetails(data: {
+    stdNoOrName: string;
+    bankName: string;
+    accountNumber: string;
+  }) {
+    return withAuth(
+      async () => this.repository.updateAccountDetails(data),
+      ['admin', 'finance']
+    );
+  }
+
+  async bulkUpdateAccountDetails(
+    items: Array<{
+      stdNoOrName: string;
+      bankName: string;
+      accountNumber: string;
+    }>,
+    batchSize: number = 100
+  ) {
+    return withAuth(
+      async () => this.repository.bulkUpdateAccountDetails(items, batchSize),
+      ['admin', 'finance']
+    );
+  }
 }
 
 export const sponsorsService = serviceWrapper(

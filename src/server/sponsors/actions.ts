@@ -100,3 +100,22 @@ export async function updateStudentSponsorshipById(data: {
 }) {
   return service.updateStudentSponsorship(data);
 }
+
+export async function updateAccountDetails(data: {
+  stdNoOrName: string;
+  bankName: string;
+  accountNumber: string;
+}) {
+  return service.updateAccountDetails(data);
+}
+
+export async function bulkUpdateAccountDetails(
+  items: Array<{
+    stdNoOrName: string;
+    bankName: string;
+    accountNumber: string;
+  }>,
+  batchSize: number = 100
+) {
+  return service.bulkUpdateAccountDetails(items, batchSize);
+}

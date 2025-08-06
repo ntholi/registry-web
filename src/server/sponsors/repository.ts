@@ -280,6 +280,188 @@ export default class SponsorRepository extends BaseRepository<
         .returning();
     }
   }
+
+  async updateAccountDetails(data: {
+    stdNoOrName: string;
+    bankName: string;
+    accountNumber: string;
+  }) {
+    const isNumeric = !isNaN(Number(data.stdNoOrName));
+
+    if (isNumeric) {
+      const stdNo = Number(data.stdNoOrName);
+      return await db
+        .update(sponsoredStudents)
+        .set({
+          bankName: data.bankName,
+          accountNumber: data.accountNumber,
+          updatedAt: sql`(unixepoch())`,
+        })
+        .where(eq(sponsoredStudents.stdNo, stdNo))
+        .returning();
+    } else {
+      const student = await db.query.students.findFirst({
+        where: like(students.name, `%${data.stdNoOrName}%`),
+      });
+
+      if (!student) {
+        throw new Error(`Student with name "${data.stdNoOrName}" not found`);
+      }
+
+      return await db
+        .update(sponsoredStudents)
+        .set({
+          bankName: data.bankName,
+          accountNumber: data.accountNumber,
+          updatedAt: sql`(unixepoch())`,
+        })
+        .where(eq(sponsoredStudents.stdNo, student.stdNo))
+        .returning();
+    }
+  }
+
+  async bulkUpdateAccountDetails(
+    items: Array<{
+      stdNoOrName: string;
+      bankName: string;
+      accountNumber: string;
+    }>,
+    batchSize: number = 100
+  ): Promise<
+    Array<{
+      success: boolean;
+      data?: any;
+      error?: string;
+      item: {
+        stdNoOrName: string;
+        bankName: string;
+        accountNumber: string;
+      };
+    }>
+  > {
+    const results: Array<{
+      success: boolean;
+      data?: any;
+      error?: string;
+      item: {
+        stdNoOrName: string;
+        bankName: string;
+        accountNumber: string;
+      };
+    }> = [];
+
+    // Process in batches
+    for (let i = 0; i < items.length; i += batchSize) {
+      const batch = items.slice(i, i + batchSize);
+      const batchResults = await this.processBatch(batch);
+      results.push(...batchResults);
+    }
+
+    return results;
+  }
+
+  private async processBatch(
+    batch: Array<{
+      stdNoOrName: string;
+      bankName: string;
+      accountNumber: string;
+    }>
+  ): Promise<
+    Array<{
+      success: boolean;
+      data?: any;
+      error?: string;
+      item: {
+        stdNoOrName: string;
+        bankName: string;
+        accountNumber: string;
+      };
+    }>
+  > {
+    const results: Array<{
+      success: boolean;
+      data?: any;
+      error?: string;
+      item: {
+        stdNoOrName: string;
+        bankName: string;
+        accountNumber: string;
+      };
+    }> = [];
+
+    // Use a transaction for better performance with batch processing
+    await db.transaction(async (tx) => {
+      for (const item of batch) {
+        try {
+          const isNumeric = !isNaN(Number(item.stdNoOrName));
+
+          if (isNumeric) {
+            const stdNo = Number(item.stdNoOrName);
+            const result = await tx
+              .update(sponsoredStudents)
+              .set({
+                bankName: item.bankName,
+                accountNumber: item.accountNumber,
+                updatedAt: sql`(unixepoch())`,
+              })
+              .where(eq(sponsoredStudents.stdNo, stdNo))
+              .returning();
+
+            if (result.length > 0) {
+              results.push({ success: true, data: result, item });
+            } else {
+              results.push({
+                success: false,
+                error: `No sponsored student found with student number: ${item.stdNoOrName}`,
+                item,
+              });
+            }
+          } else {
+            const student = await tx.query.students.findFirst({
+              where: like(students.name, `%${item.stdNoOrName}%`),
+            });
+
+            if (!student) {
+              results.push({
+                success: false,
+                error: `Student with name "${item.stdNoOrName}" not found`,
+                item,
+              });
+              continue;
+            }
+
+            const result = await tx
+              .update(sponsoredStudents)
+              .set({
+                bankName: item.bankName,
+                accountNumber: item.accountNumber,
+                updatedAt: sql`(unixepoch())`,
+              })
+              .where(eq(sponsoredStudents.stdNo, student.stdNo))
+              .returning();
+
+            if (result.length > 0) {
+              results.push({ success: true, data: result, item });
+            } else {
+              results.push({
+                success: false,
+                error: `No sponsored student found for: ${item.stdNoOrName}`,
+                item,
+              });
+            }
+          }
+        } catch (error) {
+          results.push({
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            item,
+          });
+        }
+      }
+    });
+
+    return results;
+  }
 }
 
 export const sponsorsRepository = new SponsorRepository();
