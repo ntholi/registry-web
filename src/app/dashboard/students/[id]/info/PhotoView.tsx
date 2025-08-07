@@ -1,6 +1,6 @@
 'use client';
 import { getStudent, getStudentPhoto } from '@/server/students/actions';
-import { uploadDocument } from '@/lib/storage';
+import { uploadDocument, deleteDocument } from '@/lib/storage';
 import {
   Card,
   Image,
@@ -32,6 +32,10 @@ export default function PhotoView({ student }: Props) {
   });
 
   const handlePhotoSubmit = async (croppedImageBlob: Blob) => {
+    if (photoUrl) {
+      await deleteDocument(photoUrl);
+    }
+
     const fileName = `${student.stdNo}.jpg`;
     const photoFile = new File([croppedImageBlob], fileName, {
       type: 'image/jpeg',

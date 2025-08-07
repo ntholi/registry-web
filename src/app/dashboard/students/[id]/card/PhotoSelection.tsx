@@ -1,11 +1,11 @@
 'use client';
 
-import { uploadDocument } from '@/lib/storage';
+import { uploadDocument, deleteDocument } from '@/lib/storage';
 import {
   ActionIcon,
   Box,
   Button,
-  FileInput,
+  FileButton,
   Group,
   Image,
   Modal,
@@ -20,7 +20,9 @@ import {
   IconPhoto,
   IconTrashFilled,
   IconVideo,
+  IconUpload,
 } from '@tabler/icons-react';
+import PhotoInputModal from '../info/PhotoInputModal';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type PhotoSelectionProps = {
@@ -40,6 +42,8 @@ export default function PhotoSelection({
 }: PhotoSelectionProps) {
   const [cameraOpened, { open: openCamera, close: closeCamera }] =
     useDisclosure(false);
+  const [photoModalOpened, { open: openPhotoModal, close: closePhotoModal }] =
+    useDisclosure(false);
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -48,13 +52,22 @@ export default function PhotoSelection({
     }
   }, [existingPhotoUrl, onPhotoChange, photoPreview]);
 
-  const uploadPhoto = async (file: File) => {
+  const handlePhotoSubmit = async (croppedImageBlob: Blob) => {
     setIsUploading(true);
     try {
-      const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-      const fileName = `${studentNumber}.${fileExtension}`;
+      if (existingPhotoUrl) {
+        await deleteDocument(existingPhotoUrl);
+      }
 
-      await uploadDocument(file, fileName);
+      const fileName = `${studentNumber}.jpg`;
+      const photoFile = new File([croppedImageBlob], fileName, {
+        type: 'image/jpeg',
+      });
+
+      await uploadDocument(photoFile, fileName);
+
+      const preview = URL.createObjectURL(croppedImageBlob);
+      onPhotoChange(photoFile, preview);
     } catch (error) {
       console.error('Error uploading photo:', error);
     } finally {
@@ -62,23 +75,24 @@ export default function PhotoSelection({
     }
   };
 
-  const handleFileChange = async (file: File | null) => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const preview = e.target?.result as string;
-        onPhotoChange(file, preview);
-        await uploadPhoto(file);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      onPhotoChange(null, null);
-    }
-  };
-
   const handleCameraCapture = async (capturedFile: File, preview: string) => {
-    onPhotoChange(capturedFile, preview);
-    await uploadPhoto(capturedFile);
+    setIsUploading(true);
+    try {
+      if (existingPhotoUrl) {
+        await deleteDocument(existingPhotoUrl);
+      }
+
+      const fileExtension =
+        capturedFile.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const fileName = `${studentNumber}.${fileExtension}`;
+
+      await uploadDocument(capturedFile, fileName);
+      onPhotoChange(capturedFile, preview);
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+    } finally {
+      setIsUploading(false);
+    }
     closeCamera();
   };
 
@@ -90,15 +104,15 @@ export default function PhotoSelection({
 
       <Stack gap='md'>
         <Group>
-          <FileInput
-            placeholder='Click to select photo'
-            accept='image/*'
+          <Button
+            onClick={openPhotoModal}
             style={{ flex: 1 }}
             leftSection={<IconPhoto size={16} />}
-            value={selectedPhoto}
-            onChange={handleFileChange}
             disabled={isUploading}
-          />
+            variant='light'
+          >
+            Select Photo
+          </Button>
           <ActionIcon
             variant='light'
             size={'lg'}
@@ -142,6 +156,13 @@ export default function PhotoSelection({
           </Box>
         )}
       </Stack>
+
+      <PhotoInputModal
+        opened={photoModalOpened}
+        onClose={closePhotoModal}
+        onPhotoSubmit={handlePhotoSubmit}
+        title={`Upload Photo for Student ${studentNumber}`}
+      />
 
       <CameraModal
         opened={cameraOpened}
