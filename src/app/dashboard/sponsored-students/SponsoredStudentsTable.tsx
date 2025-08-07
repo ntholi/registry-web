@@ -5,31 +5,22 @@ import {
   Table,
   Stack,
   Group,
-  TextInput,
-  Paper,
   Text,
   Skeleton,
   Center,
   Anchor,
   Pagination as MPagination,
-  CloseButton,
   Title,
-  Select,
   Button,
-  Grid,
-  GridCol,
 } from '@mantine/core';
-import { IconSearch, IconFilter, IconFilterX } from '@tabler/icons-react';
+import { IconFilterX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  getAllSponsoredStudents,
-  findAllSponsors,
-} from '@/server/sponsors/actions';
-import { getAllPrograms } from '@/server/schools/actions';
+import { getAllSponsoredStudents } from '@/server/sponsors/actions';
 import Link from 'next/link';
 import { useDebouncedValue } from '@mantine/hooks';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';
 import ImportAccountDetailsModal from './ImportAccountDetailsModal';
+import SponsoredStudentsHeader from './SponsoredStudentsHeader';
 
 export default function SponsoredStudentsTable() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,16 +50,6 @@ export default function SponsoredStudentsTable() {
       ),
   });
 
-  const { data: sponsors, isLoading: isLoadingSponsors } = useQuery({
-    queryKey: ['sponsors-for-filter'],
-    queryFn: () => findAllSponsors(1, '').then((response) => response.items),
-  });
-
-  const { data: programs, isLoading: isLoadingPrograms } = useQuery({
-    queryKey: ['programs-for-filter'],
-    queryFn: () => getAllPrograms(),
-  });
-
   const clearFilters = () => {
     setSelectedSponsor(null);
     setSelectedProgram(null);
@@ -76,7 +57,9 @@ export default function SponsoredStudentsTable() {
     setPage(1);
   };
 
-  const hasActiveFilters = selectedSponsor || selectedProgram || searchQuery;
+  const hasActiveFilters = Boolean(
+    selectedSponsor || selectedProgram || searchQuery
+  );
 
   const renderTableHeaders = () => (
     <Table.Thead>
@@ -246,20 +229,17 @@ export default function SponsoredStudentsTable() {
   };
 
   return (
-    <Stack gap='md'>
+    <Stack gap='lg'>
       <Group justify='space-between' align='center'>
-        <div>
-          <Title order={2} fw={'lighter'}>
-            Sponsored Students
-          </Title>
-          {isLoading && <Skeleton height={16} width={200} mt={4} />}
-        </div>
+        <Title order={2} fw={500}>
+          Sponsored Students
+        </Title>
         <Group gap='sm'>
           <ImportAccountDetailsModal />
           {hasActiveFilters && (
             <Button
               variant='light'
-              size='xs'
+              size='sm'
               leftSection={<IconFilterX size='1rem' />}
               onClick={clearFilters}
             >
@@ -269,78 +249,16 @@ export default function SponsoredStudentsTable() {
         </Group>
       </Group>
 
-      {/* Search and Filters */}
-      <Paper withBorder p='md'>
-        <Stack gap='md'>
-          <Group align='flex-end' gap='md'>
-            <TextInput
-              placeholder='Search by student name, number, sponsor, borrower number, bank name, or account number'
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.currentTarget.value)}
-              style={{ flex: 1 }}
-              rightSection={
-                searchQuery ? (
-                  <CloseButton
-                    onClick={() => setSearchQuery('')}
-                    variant='subtle'
-                    size='sm'
-                  />
-                ) : null
-              }
-              leftSection={<IconSearch size='1.2rem' />}
-            />
-            {!isLoading && data && (
-              <Paper withBorder p={8.5}>
-                <Stack gap={2}>
-                  <Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
-                    {data.items.length} of {data.totalItems} student
-                    {data.totalItems !== 1 ? 's' : ''}
-                  </Text>
-                </Stack>
-              </Paper>
-            )}
-          </Group>
-
-          <Grid>
-            <GridCol span={{ base: 12, sm: 6 }}>
-              <Select
-                label='Filter by Sponsor'
-                placeholder='All Sponsors'
-                data={
-                  sponsors?.map((sponsor) => ({
-                    value: sponsor.id.toString(),
-                    label: sponsor.name,
-                  })) || []
-                }
-                value={selectedSponsor}
-                onChange={setSelectedSponsor}
-                clearable
-                searchable
-                disabled={isLoadingSponsors}
-                leftSection={<IconFilter size='1rem' />}
-              />
-            </GridCol>
-            <GridCol span={{ base: 12, sm: 6 }}>
-              <Select
-                label='Filter by Program'
-                placeholder='All Programs'
-                data={
-                  programs?.map((program) => ({
-                    value: program.id.toString(),
-                    label: `${program.code} - ${program.name}`,
-                  })) || []
-                }
-                value={selectedProgram}
-                onChange={setSelectedProgram}
-                clearable
-                searchable
-                disabled={isLoadingPrograms}
-                leftSection={<IconFilter size='1rem' />}
-              />
-            </GridCol>
-          </Grid>
-        </Stack>
-      </Paper>
+      <SponsoredStudentsHeader
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedSponsor={selectedSponsor}
+        onSponsorChange={setSelectedSponsor}
+        selectedProgram={selectedProgram}
+        onProgramChange={setSelectedProgram}
+        onClearFilters={clearFilters}
+        hasActiveFilters={hasActiveFilters}
+      />
 
       <Table highlightOnHover withTableBorder>
         {renderTableHeaders()}
