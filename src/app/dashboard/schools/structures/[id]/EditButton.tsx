@@ -44,6 +44,7 @@ export default function EditButton({ moduleId, structureId }: Props) {
                 credits: mod.credits,
                 module: mod.module!,
                 type: mod.type,
+                hidden: mod.hidden,
                 prerequisiteCodes: prerequisites.map((p) => p.code),
               }}
               structureId={structureId}

@@ -2,7 +2,7 @@
 
 import { modules, semesterModules } from '@/db/schema';
 import { findModulesByStructure } from '@/server/semester-modules/actions';
-import { MultiSelect, Stack, Switch } from '@mantine/core';
+import { MultiSelect, Stack, Radio, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
@@ -28,15 +28,14 @@ export default function ModuleEditForm({
 }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: modulesList } = useQuery({
-    queryKey: ['modules', searchQuery],
-    queryFn: () => findModulesByStructure(structureId, searchQuery),
+    queryKey: ['modules', structureId],
+    queryFn: () => findModulesByStructure(structureId),
   });
 
   const prerequisiteOptions = Array.from(
-    new Set(modulesList?.map((mod) => mod.module!.code) || []),
+    new Set(modulesList?.map((mod) => mod.module!.code) || [])
   )
     .map((code) => {
       const foundModule = modulesList?.find((m) => m.module!.code === code);
@@ -78,20 +77,36 @@ export default function ModuleEditForm({
   return (
     <form id='module-edit-form' onSubmit={form.onSubmit(handleSubmit)}>
       <Stack gap='md'>
-        <Switch
-          label='Module Visibility'
-          description='Toggle module visibility in the program structure'
-          checked={!form.values.hidden}
-          onChange={(event) =>
-            form.setFieldValue('hidden', !event.currentTarget.checked)
-          }
-          disabled={isSubmitting}
-        />
+        <div>
+          <Text size='sm' fw={500} mb='xs'>
+            Module Visibility
+          </Text>
+          <Radio.Group
+            value={form.values.hidden ? 'not-visible' : 'visible'}
+            onChange={(value) =>
+              form.setFieldValue('hidden', value === 'not-visible')
+            }
+          >
+            <Stack gap='xs'>
+              <Radio value='visible' label='Visible' disabled={isSubmitting} />
+              <Radio
+                value='not-visible'
+                label='Not Visible'
+                disabled={isSubmitting}
+              />
+            </Stack>
+          </Radio.Group>
+          <Text size='xs' c='dimmed' mt='xs'>
+            If not visible, students will not be able to register for this
+            module
+          </Text>
+        </div>
         <MultiSelect
           label='Prerequisites'
           data={prerequisiteOptions}
           searchable
-          onSearchChange={setSearchQuery}
+          clearSearchOnChange={false}
+          hidePickedOptions
           disabled={isSubmitting}
           {...form.getInputProps('prerequisiteCodes')}
         />
