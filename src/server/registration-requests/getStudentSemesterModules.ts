@@ -74,6 +74,7 @@ export async function getStudentSemesterModulesLogic(
     student.programs
       .flatMap((p) => p.semesters)
       .flatMap((s) => s.studentModules)
+      .filter((s) => s.status !== 'Drop' && s.status !== 'Delete')
       .map((m) => m.semesterModule.module?.name)
   );
 
@@ -201,7 +202,10 @@ async function getRepeatModules(
 }
 
 async function getSemesterModules(semesterNumber: number, structureId: number) {
-  const semesterNos = semesterNumber % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7];
+  const semesterNos = (
+    semesterNumber % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7]
+  ).filter((s) => s <= semesterNumber);
+
   const semesters = await db.query.structureSemesters.findMany({
     where: and(
       eq(structureSemesters.structureId, structureId),
