@@ -35,6 +35,7 @@ import SemesterConfirmation from './SemesterConfirmation';
 import SponsorshipDetails from './SponsorshipDetails';
 import AccountConfirmation from './AccountConfirmation';
 import { useCurrentTerm } from '@/hooks/use-current-term';
+import { MAX_REG_MODULES } from '@/lib/constants';
 
 type SelectedModule = {
   moduleId: number;
@@ -206,7 +207,8 @@ export default function NewRegistrationPage() {
     }
   };
 
-  const canProceedStep1 = selectedModules.length > 0;
+  const canProceedStep1 =
+    selectedModules.length > 0 && selectedModules.length <= MAX_REG_MODULES;
   const canProceedStep2 = semesterData !== null;
   const canProceedStep3 = sponsorshipData !== null;
   const canSubmit =

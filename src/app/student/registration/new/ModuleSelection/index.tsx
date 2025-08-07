@@ -9,6 +9,7 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { StudentModuleStatus } from '@/db/schema';
+import { MAX_REG_MODULES } from '@/lib/constants';
 import ModuleCheckbox from './ModuleCheckbox';
 
 type ModuleWithStatus = {
@@ -172,10 +173,21 @@ export default function ModuleSelection({
       </Accordion>
 
       {selectedModules.length > 0 && (
-        <Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+        <Alert
+          icon={<IconInfoCircle size='1rem' />}
+          color={selectedModules.length > MAX_REG_MODULES ? 'red' : 'blue'}
+        >
           You have selected {selectedModules.length} module
           {selectedModules.length !== 1 ? 's' : ''}
           for registration.
+          {selectedModules.length > MAX_REG_MODULES && (
+            <Text size='sm' mt='xs'>
+              Maximum allowed modules: {MAX_REG_MODULES}. Please deselect{' '}
+              {selectedModules.length - MAX_REG_MODULES} module
+              {selectedModules.length - MAX_REG_MODULES !== 1 ? 's' : ''} to
+              continue.
+            </Text>
+          )}
         </Alert>
       )}
     </Stack>

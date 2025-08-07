@@ -3,6 +3,7 @@
 import { StudentModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import useUserStudent from '@/hooks/use-user-student';
+import { MAX_REG_MODULES } from '@/lib/constants';
 import {
   determineSemesterStatus,
   getRegistrationRequest,
@@ -217,7 +218,8 @@ export default function EditRegistrationPage() {
     }
   };
 
-  const canProceedStep1 = selectedModules.length > 0;
+  const canProceedStep1 =
+    selectedModules.length > 0 && selectedModules.length <= MAX_REG_MODULES;
   const canProceedStep2 = semesterData !== null;
   const canSubmit = sponsorshipData !== null;
 
