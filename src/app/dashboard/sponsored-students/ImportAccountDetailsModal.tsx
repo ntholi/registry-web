@@ -330,7 +330,7 @@ export default function ImportAccountDetailsModal() {
         onClick={open}
         variant='light'
       >
-        Import Account Details
+        Import
       </Button>
 
       <Modal

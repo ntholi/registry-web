@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { useDebouncedValue } from '@mantine/hooks';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';
 import ImportAccountDetailsModal from './ImportAccountDetailsModal';
+import NewSponsoredStudentModal from './NewSponsoredStudentModal';
 import SponsoredStudentsHeader from './SponsoredStudentsHeader';
 
 export default function SponsoredStudentsTable() {
@@ -239,17 +240,8 @@ export default function SponsoredStudentsTable() {
           Sponsored Students
         </Title>
         <Group gap='sm'>
+          <NewSponsoredStudentModal />
           <ImportAccountDetailsModal />
-          {hasActiveFilters && (
-            <Button
-              variant='light'
-              size='sm'
-              leftSection={<IconFilterX size='1rem' />}
-              onClick={clearFilters}
-            >
-              Clear Filters
-            </Button>
-          )}
         </Group>
       </Group>
 
