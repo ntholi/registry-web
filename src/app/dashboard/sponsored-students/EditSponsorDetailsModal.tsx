@@ -11,6 +11,7 @@ import {
   Modal,
   Select,
   Stack,
+  Switch,
   Text,
   TextInput,
 } from '@mantine/core';
@@ -26,6 +27,7 @@ interface SponsoredStudentData {
   borrowerNo?: string;
   bankName?: string;
   accountNumber?: string;
+  confirmed?: boolean;
   sponsor: {
     id: number;
     name: string;
@@ -51,6 +53,9 @@ export default function EditSponsorDetailsModal({
   const [bankName, setBankName] = useState(sponsoredStudent.bankName || '');
   const [accountNumber, setAccountNumber] = useState(
     sponsoredStudent.accountNumber || ''
+  );
+  const [confirmed, setConfirmed] = useState(
+    sponsoredStudent.confirmed || false
   );
 
   const { currentTerm } = useCurrentTerm();
@@ -120,6 +125,7 @@ export default function EditSponsorDetailsModal({
       borrowerNo: borrowerNo || undefined,
       bankName: bankName || undefined,
       accountNumber: accountNumber || undefined,
+      confirmed,
     });
   };
 
@@ -128,6 +134,7 @@ export default function EditSponsorDetailsModal({
     setBorrowerNo(sponsoredStudent.borrowerNo || '');
     setBankName(sponsoredStudent.bankName || '');
     setAccountNumber(sponsoredStudent.accountNumber || '');
+    setConfirmed(sponsoredStudent.confirmed || false);
   };
 
   const handleClose = () => {
@@ -139,7 +146,8 @@ export default function EditSponsorDetailsModal({
     sponsorId !== sponsoredStudent.sponsorId ||
     borrowerNo !== (sponsoredStudent.borrowerNo || '') ||
     bankName !== (sponsoredStudent.bankName || '') ||
-    accountNumber !== (sponsoredStudent.accountNumber || '');
+    accountNumber !== (sponsoredStudent.accountNumber || '') ||
+    confirmed !== (sponsoredStudent.confirmed || false);
 
   return (
     <>
@@ -200,6 +208,15 @@ export default function EditSponsorDetailsModal({
             value={accountNumber}
             onChange={(event) => setAccountNumber(event.currentTarget.value)}
           />
+
+          {isNMDS(sponsorId) && (
+            <Switch
+              label='Account Confirmed'
+              description='Mark account details as confirmed'
+              checked={confirmed}
+              onChange={(event) => setConfirmed(event.currentTarget.checked)}
+            />
+          )}
 
           <Group justify='flex-end' gap='sm'>
             <Button variant='default' onClick={handleClose}>

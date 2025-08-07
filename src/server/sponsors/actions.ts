@@ -97,6 +97,7 @@ export async function updateStudentSponsorshipById(data: {
   borrowerNo?: string;
   bankName?: string;
   accountNumber?: string;
+  confirmed?: boolean;
 }) {
   return service.updateStudentSponsorship(data);
 }

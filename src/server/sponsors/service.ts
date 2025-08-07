@@ -56,6 +56,7 @@ class SponsorService {
     borrowerNo?: string;
     bankName?: string;
     accountNumber?: string;
+    confirmed?: boolean;
   }) {
     return withAuth(
       async () => this.repository.upsertSponsoredStudent(data),

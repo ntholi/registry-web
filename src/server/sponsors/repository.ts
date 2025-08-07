@@ -247,19 +247,33 @@ export default class SponsorRepository extends BaseRepository<
     borrowerNo?: string;
     bankName?: string;
     accountNumber?: string;
+    confirmed?: boolean;
   }) {
     const existing = await this.findSponsoredStudent(data.stdNo, data.termId);
 
     if (existing) {
+      const updateData: {
+        sponsorId: number;
+        borrowerNo?: string;
+        bankName?: string;
+        accountNumber?: string;
+        confirmed?: boolean;
+        updatedAt: Date;
+      } = {
+        sponsorId: data.sponsorId,
+        borrowerNo: data.borrowerNo,
+        bankName: data.bankName,
+        accountNumber: data.accountNumber,
+        updatedAt: new Date(),
+      };
+
+      if (data.confirmed !== undefined) {
+        updateData.confirmed = data.confirmed;
+      }
+
       return await db
         .update(sponsoredStudents)
-        .set({
-          sponsorId: data.sponsorId,
-          borrowerNo: data.borrowerNo,
-          bankName: data.bankName,
-          accountNumber: data.accountNumber,
-          updatedAt: new Date(),
-        })
+        .set(updateData)
         .where(
           and(
             eq(sponsoredStudents.stdNo, data.stdNo)
@@ -277,6 +291,7 @@ export default class SponsorRepository extends BaseRepository<
           borrowerNo: data.borrowerNo,
           bankName: data.bankName,
           accountNumber: data.accountNumber,
+          confirmed: data.confirmed,
         })
         .returning();
     }

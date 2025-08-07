@@ -69,9 +69,9 @@ export default function SponsoredStudentsTable() {
         <Table.Th>Program</Table.Th>
         <Table.Th>Sponsor</Table.Th>
         <Table.Th>Borrower Number</Table.Th>
-        <Table.Th>Bank Name</Table.Th>
+        <Table.Th>Bank</Table.Th>
         <Table.Th>Account No.</Table.Th>
-        <Table.Th>Status</Table.Th>
+        <Table.Th>Confirmation</Table.Th>
         <Table.Th></Table.Th>
       </Table.Tr>
     </Table.Thead>
@@ -86,28 +86,31 @@ export default function SponsoredStudentsTable() {
             .map((_, index) => (
               <Table.Tr key={`skeleton-row-${index}`}>
                 <Table.Td>
-                  <Skeleton height={20} width={100} />
+                  <Skeleton height={20} width='80%' />
                 </Table.Td>
                 <Table.Td>
-                  <Skeleton height={20} width={150} />
+                  <Skeleton height={20} width='90%' />
                 </Table.Td>
                 <Table.Td>
-                  <Skeleton height={20} width={200} />
+                  <Skeleton height={20} width='85%' />
                 </Table.Td>
                 <Table.Td>
-                  <Skeleton height={20} width={120} />
+                  <Skeleton height={20} width='80%' />
                 </Table.Td>
                 <Table.Td>
-                  <Skeleton height={20} width={120} />
+                  <Skeleton height={20} width='75%' />
                 </Table.Td>
                 <Table.Td>
-                  <Skeleton height={20} width={120} />
+                  <Skeleton height={20} width='75%' />
                 </Table.Td>
                 <Table.Td>
-                  <Skeleton height={20} width={120} />
+                  <Skeleton height={20} width='85%' />
                 </Table.Td>
                 <Table.Td>
-                  <Skeleton height={20} width={80} />
+                  <Skeleton height={20} width='70%' />
+                </Table.Td>
+                <Table.Td>
+                  <Skeleton height={20} width='60%' />
                 </Table.Td>
               </Table.Tr>
             ))}
@@ -213,6 +216,7 @@ export default function SponsoredStudentsTable() {
                     borrowerNo: sponsoredStudent.borrowerNo || undefined,
                     bankName: sponsoredStudent.bankName || undefined,
                     accountNumber: sponsoredStudent.accountNumber || undefined,
+                    confirmed: sponsoredStudent.confirmed ?? false,
                     sponsor: sponsoredStudent.sponsor,
                     student: {
                       stdNo: student?.stdNo || 0,
