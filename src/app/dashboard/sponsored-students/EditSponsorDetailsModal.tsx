@@ -58,6 +58,13 @@ export default function EditSponsorDetailsModal({
     sponsoredStudent.confirmed || false
   );
 
+  const bankOptions = [
+    { value: 'SLB', label: 'Standard Lesotho Bank' },
+    { value: 'NED', label: 'NetBank' },
+    { value: 'FNB', label: 'First National Bank' },
+    { value: 'LPB', label: 'Lesotho Post Bank' },
+  ];
+
   const { currentTerm } = useCurrentTerm();
   const queryClient = useQueryClient();
 
@@ -74,6 +81,7 @@ export default function EditSponsorDetailsModal({
       borrowerNo?: string;
       bankName?: string;
       accountNumber?: string;
+      confirmed?: boolean;
     }) => updateStudentSponsorshipById(data),
     onSuccess: () => {
       notifications.show({
@@ -195,11 +203,14 @@ export default function EditSponsorDetailsModal({
             required={isNMDS(sponsorId)}
           />
 
-          <TextInput
+          <Select
             label='Bank Name'
-            placeholder='Enter bank name'
-            value={bankName}
-            onChange={(event) => setBankName(event.currentTarget.value)}
+            placeholder='Select bank'
+            data={bankOptions}
+            value={bankName || null}
+            onChange={(value: string | null) => setBankName(value || '')}
+            searchable
+            clearable
           />
 
           <TextInput

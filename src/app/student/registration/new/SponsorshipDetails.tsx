@@ -46,6 +46,13 @@ export default function SponsorshipDetails({
     sponsorshipData?.accountNumber || ''
   );
 
+  const bankOptions = [
+    { value: 'SLB', label: 'Standard Lesotho Bank' },
+    { value: 'NED', label: 'NetBank' },
+    { value: 'FNB', label: 'First National Bank' },
+    { value: 'LPB', label: 'Lesotho Post Bank' },
+  ];
+
   const { data: sponsorsData, isLoading: sponsorsLoading } = useQuery({
     queryKey: ['sponsors'],
     queryFn: () => findAllSponsors(1, ''),
@@ -120,12 +127,13 @@ export default function SponsorshipDetails({
     }
   };
 
-  const handleBankNameChange = (value: string) => {
-    setBankName(value);
+  const handleBankNameChange = (value: string | null) => {
+    const newBankName = value || '';
+    setBankName(newBankName);
     if (sponsorshipData) {
       onSponsorshipChange({
         ...sponsorshipData,
-        bankName: value || undefined,
+        bankName: newBankName || undefined,
       });
     }
   };
@@ -180,13 +188,14 @@ export default function SponsorshipDetails({
                 description='Required for NMDS sponsored students'
                 required
               />
-              <TextInput
+              <Select
                 label='Bank Name'
-                placeholder='Enter your bank name'
-                value={bankName}
-                onChange={(event) =>
-                  handleBankNameChange(event.currentTarget.value)
-                }
+                placeholder='Select your bank'
+                data={bankOptions}
+                value={bankName || null}
+                onChange={handleBankNameChange}
+                searchable
+                clearable
               />
 
               <TextInput

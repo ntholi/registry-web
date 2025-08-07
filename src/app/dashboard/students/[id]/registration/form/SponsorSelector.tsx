@@ -33,6 +33,13 @@ export default function SponsorSelector({
     select: ({ items }) => items,
   });
 
+  const bankOptions = [
+    { value: 'SLB', label: 'Standard Lesotho Bank' },
+    { value: 'NED', label: 'NetBank' },
+    { value: 'FNB', label: 'First National Bank' },
+    { value: 'LPB', label: 'Lesotho Post Bank' },
+  ];
+
   const isNMDS = (sponsorId: number) => {
     return sponsors?.find((s) => s.id === sponsorId)?.name === 'NMDS';
   };
@@ -54,10 +61,10 @@ export default function SponsorSelector({
     });
   };
 
-  const handleBankNameChange = (bankName: string) => {
+  const handleBankNameChange = (bankName: string | null) => {
     onChange({
       ...value,
-      bankName,
+      bankName: bankName || undefined,
     });
   };
 
@@ -106,14 +113,15 @@ export default function SponsorSelector({
             />
           </GridCol>
           <GridCol span={6}>
-            <TextInput
+            <Select
               label='Bank Name'
-              placeholder='Enter bank name'
-              value={value.bankName || ''}
-              onChange={(event) =>
-                handleBankNameChange(event.currentTarget.value)
-              }
+              placeholder='Select bank'
+              data={bankOptions}
+              value={value.bankName || null}
+              onChange={handleBankNameChange}
               error={errors?.bankName}
+              searchable
+              clearable
             />
           </GridCol>
           <GridCol span={6}>

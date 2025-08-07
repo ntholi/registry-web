@@ -31,6 +31,13 @@ export default function SponsorInput({
     select: ({ items }) => items,
   });
 
+  const bankOptions = [
+    { value: 'SLB', label: 'Standard Lesotho Bank' },
+    { value: 'NED', label: 'NetBank' },
+    { value: 'FNB', label: 'First National Bank' },
+    { value: 'LPB', label: 'Lesotho Post Bank' },
+  ];
+
   const isNMDS = (id: number) => {
     if (!sponsors) return false;
     return id === sponsors.find((s) => s.name === 'NMDS')?.id;
@@ -70,11 +77,15 @@ export default function SponsorInput({
           />
         </GridCol>
         <GridCol span={6}>
-          <TextInput
+          <Select
             label='Bank Name'
-            value={bankName || ''}
-            onChange={(e) => onBankNameChange(e.currentTarget.value)}
+            placeholder='Select bank'
+            data={bankOptions}
+            value={bankName || null}
+            onChange={(value: string | null) => onBankNameChange(value || '')}
             disabled={disabled}
+            searchable
+            clearable
           />
         </GridCol>
         <GridCol span={6}>
