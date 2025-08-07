@@ -1,11 +1,10 @@
 'use client';
 
-import { uploadDocument, deleteDocument } from '@/lib/storage';
+import { deleteDocument, uploadDocument } from '@/lib/storage';
 import {
   ActionIcon,
   Box,
   Button,
-  FileButton,
   Group,
   Image,
   Modal,
@@ -20,10 +19,9 @@ import {
   IconPhoto,
   IconTrashFilled,
   IconVideo,
-  IconUpload,
 } from '@tabler/icons-react';
-import PhotoInputModal from '../info/PhotoInputModal';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import PhotoInputModal from '../info/PhotoInputModal';
 
 type PhotoSelectionProps = {
   selectedPhoto: File | null;

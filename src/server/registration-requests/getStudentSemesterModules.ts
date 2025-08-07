@@ -213,10 +213,11 @@ async function getRepeatModules(
 }
 
 async function getSemesterModules(semesterNumber: number, structureId: number) {
+  const semesterNos = semesterNumber % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7];
   const semesters = await db.query.structureSemesters.findMany({
     where: and(
       eq(structureSemesters.structureId, structureId),
-      eq(structureSemesters.semesterNumber, semesterNumber)
+      inArray(structureSemesters.semesterNumber, semesterNos)
     ),
   });
 
