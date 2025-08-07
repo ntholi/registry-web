@@ -95,7 +95,7 @@ export default function NewRegistrationPage() {
     queryKey: ['blocked-student', student?.stdNo],
     queryFn: async () => {
       if (!student?.stdNo) return null;
-      return await getBlockedStudentByStdNo(student.stdNo);
+      return (await getBlockedStudentByStdNo(student.stdNo)) || null;
     },
     enabled: !!student?.stdNo,
   });
