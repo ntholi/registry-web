@@ -38,6 +38,7 @@ export default function PhotoInputModal({
     height: 50,
   });
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
+  const [initialCropSet, setInitialCropSet] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -69,18 +70,21 @@ export default function PhotoInputModal({
     (e: React.SyntheticEvent<HTMLImageElement>) => {
       const { width, height } = e.currentTarget;
 
-      // Set initial crop to be square and centered
       const size = Math.min(width, height);
       const x = (width - size) / 2;
       const y = (height - size) / 2;
 
-      setCrop({
-        unit: 'px',
+      const newCrop = {
+        unit: 'px' as const,
         x,
         y,
         width: size,
         height: size,
-      });
+      };
+
+      setCrop(newCrop);
+      setCompletedCrop(newCrop);
+      setInitialCropSet(true);
     },
     []
   );
@@ -129,6 +133,21 @@ export default function PhotoInputModal({
     []
   );
 
+  const handleClose = useCallback(() => {
+    setSelectedFile(null);
+    setImageSrc('');
+    setCrop({
+      unit: '%',
+      x: 25,
+      y: 25,
+      width: 50,
+      height: 50,
+    });
+    setCompletedCrop(null);
+    setInitialCropSet(false);
+    onClose();
+  }, [onClose]);
+
   const handleSubmit = useCallback(async () => {
     if (!imgRef.current || !completedCrop) {
       alert('Please select and crop an image');
@@ -142,8 +161,7 @@ export default function PhotoInputModal({
         imgRef.current,
         completedCrop
       );
-      onPhotoSubmit(croppedImageBlob);
-      handleClose();
+      await onPhotoSubmit(croppedImageBlob);
     } catch (error) {
       console.error('Error processing image:', error);
       alert('Error processing image. Please try again.');
@@ -151,20 +169,6 @@ export default function PhotoInputModal({
       setIsProcessing(false);
     }
   }, [completedCrop, getCroppedImg, onPhotoSubmit]);
-
-  const handleClose = useCallback(() => {
-    setSelectedFile(null);
-    setImageSrc('');
-    setCrop({
-      unit: '%',
-      x: 25,
-      y: 25,
-      width: 50,
-      height: 50,
-    });
-    setCompletedCrop(null);
-    onClose();
-  }, [onClose]);
 
   return (
     <Modal
@@ -194,16 +198,12 @@ export default function PhotoInputModal({
           </Center>
         ) : (
           <>
-            <Box>
-              <Text size='sm' mb='xs' c='dimmed'>
-                Crop your image to a square. The final image will be resized to
-                1000x1000 pixels.
-              </Text>
+            <Center>
               <ReactCrop
                 crop={crop}
                 onChange={(_, percentCrop) => setCrop(percentCrop)}
                 onComplete={(c) => setCompletedCrop(c)}
-                aspect={1} // Force square aspect ratio
+                aspect={1}
                 minWidth={50}
                 minHeight={50}
               >
@@ -211,37 +211,27 @@ export default function PhotoInputModal({
                   ref={imgRef}
                   alt='Crop preview'
                   src={imageSrc}
-                  style={{ maxWidth: '100%', maxHeight: '400px' }}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '60vh',
+                    display: 'block',
+                  }}
                   onLoad={onImageLoad}
                 />
               </ReactCrop>
-            </Box>
+            </Center>
 
-            <Group justify='space-between'>
-              <FileButton onChange={handleFileSelect} accept='image/*'>
-                {(props) => (
-                  <Button
-                    {...props}
-                    variant='outline'
-                    leftSection={<IconUpload size='1rem' />}
-                  >
-                    Choose Different Image
-                  </Button>
-                )}
-              </FileButton>
-
-              <Group>
-                <Button
-                  variant='outline'
-                  onClick={handleClose}
-                  disabled={isProcessing}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmit} loading={isProcessing}>
-                  Upload Photo
-                </Button>
-              </Group>
+            <Group justify='center' mt='lg'>
+              <Button
+                variant='outline'
+                onClick={handleClose}
+                disabled={isProcessing}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit} loading={isProcessing}>
+                Upload Photo
+              </Button>
             </Group>
           </>
         )}

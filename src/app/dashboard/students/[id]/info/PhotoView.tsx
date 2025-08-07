@@ -32,17 +32,14 @@ export default function PhotoView({ student }: Props) {
   });
 
   const handlePhotoSubmit = async (croppedImageBlob: Blob) => {
-    try {
-      const fileName = `${student.stdNo}.jpg`;
-      const photoFile = new File([croppedImageBlob], fileName, {
-        type: 'image/jpeg',
-      });
+    const fileName = `${student.stdNo}.jpg`;
+    const photoFile = new File([croppedImageBlob], fileName, {
+      type: 'image/jpeg',
+    });
 
-      await uploadDocument(photoFile, fileName);
-      await refetch();
-    } catch (error) {
-      console.error('Error uploading photo:', error);
-    }
+    await uploadDocument(photoFile, fileName);
+    await refetch();
+    closeUploadModal();
   };
 
   const cardContent = photoUrl ? (
@@ -118,10 +115,11 @@ export default function PhotoView({ student }: Props) {
         )}
 
         <ActionIcon
-          variant='filled'
+          variant='default'
           size='sm'
           style={{
             position: 'absolute',
+            opacity: 0.7,
             top: 2,
             right: 2,
             zIndex: 1,
