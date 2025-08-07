@@ -11,7 +11,9 @@ export async function getBlockedStudent(id: number) {
 }
 
 export async function getBlockedStudentByStdNo(stdNo: number) {
-  return service.getByStdNo(stdNo);
+  const blockedStudent = await service.getByStdNo(stdNo);
+  if (!blockedStudent) return null;
+  return blockedStudent;
 }
 
 export async function getBlockedStudents(page: number = 1, search = '') {

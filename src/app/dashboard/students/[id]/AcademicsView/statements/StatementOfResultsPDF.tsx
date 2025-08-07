@@ -13,6 +13,7 @@ import {
 type StatementOfResultsPDFProps = {
   student: NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
   qrCodeDataURL?: string;
+  includeSignature?: boolean;
 };
 
 Font.register({
@@ -371,6 +372,7 @@ function getGradeStyle(grade: string) {
 export default function StatementOfResultsPDF({
   student,
   qrCodeDataURL,
+  includeSignature = true,
 }: StatementOfResultsPDFProps) {
   try {
     if (!student || !student.programs) {
@@ -384,7 +386,7 @@ export default function StatementOfResultsPDF({
     }
 
     const activePrograms = (student.programs || []).filter(
-      (program) => program && program.status === 'Active',
+      (program) => program && program.status === 'Active'
     );
 
     const academicRemarks = getAcademicRemarks(activePrograms);
@@ -429,7 +431,7 @@ export default function StatementOfResultsPDF({
               </Text>
               {getCleanedSemesters(program).map((semester) => {
                 const semesterPoint = academicRemarks.points.find(
-                  (point) => point.semesterId === semester.id,
+                  (point) => point.semesterId === semester.id
                 );
                 const semesterGPA = semesterPoint?.gpa || 0;
 
@@ -618,31 +620,33 @@ export default function StatementOfResultsPDF({
                           >
                             • {module.code} - {module.name} (Supplementary)
                           </Text>
-                        ),
+                        )
                       )}
                     </View>
                   )}
                 </View>
               </View>
             </View>
-            <View style={styles.signatureContainer}>
-              <View style={styles.signatureSection}>
-                <Image
-                  style={styles.signatureImage}
-                  src='/images/signature_small.png'
-                />
-                <Text style={styles.signatureLine}></Text>
-                <Text style={styles.signatureLabel}>Registrar</Text>
-              </View>
-              {qrCodeDataURL && (
-                <View style={styles.qrCodeSection}>
-                  <Image style={styles.qrCodeImage} src={qrCodeDataURL} />
-                  <Text style={styles.qrCodeLabel}>
-                    Scan to verify{'\n'}statement authenticity
-                  </Text>
+            {includeSignature && (
+              <View style={styles.signatureContainer}>
+                <View style={styles.signatureSection}>
+                  <Image
+                    style={styles.signatureImage}
+                    src='/images/signature_small.png'
+                  />
+                  <Text style={styles.signatureLine}></Text>
+                  <Text style={styles.signatureLabel}>Registrar</Text>
                 </View>
-              )}
-            </View>
+                {qrCodeDataURL && (
+                  <View style={styles.qrCodeSection}>
+                    <Image style={styles.qrCodeImage} src={qrCodeDataURL} />
+                    <Text style={styles.qrCodeLabel}>
+                      Scan to verify{'\n'}statement authenticity
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
           </View>
         </Page>
       </Document>

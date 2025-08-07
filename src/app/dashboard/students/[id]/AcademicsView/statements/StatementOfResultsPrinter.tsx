@@ -95,6 +95,7 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
         <StatementOfResultsPDF
           student={student}
           qrCodeDataURL={qrCodeDataURL}
+          includeSignature={true}
         />
       ).toBlob();
 

@@ -28,7 +28,7 @@ class StudentService {
   async getAcademicHistory(stdNo: number) {
     return withAuth(async () => {
       return this.repository.findAcademicHistory(stdNo);
-    }, ['academic', 'registry', 'finance']);
+    }, ['academic', 'registry', 'finance', 'student']);
   }
 
   async getRegistrationData(stdNo: number) {

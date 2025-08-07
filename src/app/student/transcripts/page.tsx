@@ -20,6 +20,7 @@ import { useQuery } from '@tanstack/react-query';
 import DesktopTable from './DesktopTable';
 import MobileTable from './MobileTable';
 import LoadingSkeleton from './LoadingSkeleton';
+import TranscriptDownloadButton from './TranscriptDownloadButton';
 
 export default function TranscriptsPage() {
   const { student, program, isLoading } = useUserStudent();
@@ -85,14 +86,21 @@ export default function TranscriptsPage() {
   return (
     <Container size='md'>
       <Stack gap='lg' py='md'>
-        <Box ta='center'>
-          <Title order={1} mb='xs' size={'h3'}>
-            Academic Transcripts
-          </Title>
-          <Text size='sm' c='dimmed'>
-            Your complete academic record
-          </Text>
-        </Box>
+        <Group justify='space-between' align='flex-end'>
+          <Box>
+            <Title order={1} mb='xs' size={'h3'}>
+              Academic Transcripts
+            </Title>
+            <Text size='sm' c='dimmed'>
+              Your complete academic record
+            </Text>
+          </Box>
+          <TranscriptDownloadButton
+            stdNo={student.stdNo}
+            studentName={student.name}
+            disabled={!program?.semesters?.length}
+          />
+        </Group>
 
         <Paper p='xl' withBorder shadow='sm' mt='lg'>
           <Group justify='space-between' align='flex-start' wrap='wrap'>
