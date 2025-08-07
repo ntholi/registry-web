@@ -1,12 +1,13 @@
 'use client';
 
-import { blockedStudents } from '@/db/schema';
+import { blockedStudents, dashboardUsers } from '@/db/schema';
 import { Form } from '@/components/adease';
 import { Select, Textarea, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import StdNoInput from '../base/StdNoInput';
 import { useState } from 'react';
+import { z } from 'zod';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;
 
@@ -19,6 +20,11 @@ type Props = {
   ) => void;
   title?: string;
 };
+
+const blockedStudentSchema = createInsertSchema(blockedStudents).omit({
+  byDepartment: true,
+  status: true,
+});
 
 export default function BlockedStudentForm({
   onSubmit,
@@ -35,7 +41,7 @@ export default function BlockedStudentForm({
       title={title}
       action={onSubmit}
       queryKey={['blocked-students']}
-      schema={createInsertSchema(blockedStudents)}
+      schema={blockedStudentSchema}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
         router.push(`/dashboard/blocked-students/${id}`);
@@ -59,14 +65,6 @@ export default function BlockedStudentForm({
 
             {validStudentNo && (
               <>
-                <Select
-                  label='Status'
-                  data={[
-                    { value: 'blocked', label: 'Blocked' },
-                    { value: 'unblocked', label: 'Unblocked' },
-                  ]}
-                  {...form.getInputProps('status')}
-                />
                 <Textarea label='Reason' {...form.getInputProps('reason')} />
               </>
             )}

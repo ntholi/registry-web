@@ -34,7 +34,14 @@ export async function deleteBlockedStudent(id: number) {
 }
 
 export async function getBlockedStudentByStatus(
-  status: 'blocked' | 'unblocked' = 'blocked'
+  status: 'blocked' | 'unblocked' = 'blocked',
+  page: number = 1,
+  search = ''
 ) {
-  return service.getAll({ filter: eq(blockedStudents.status, status) });
+  return service.getAll({
+    filter: eq(blockedStudents.status, status),
+    searchColumns: ['stdNo'],
+    page,
+    search,
+  });
 }

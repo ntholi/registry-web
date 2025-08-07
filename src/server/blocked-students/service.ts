@@ -1,4 +1,4 @@
-import { blockedStudents } from '@/db/schema';
+import { blockedStudents, DashboardUser } from '@/db/schema';
 import BlockedStudentRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
@@ -29,11 +29,28 @@ class BlockedStudentService {
   }
 
   async create(data: BlockedStudent) {
-    return withAuth(async () => this.repository.create(data), ['finance']);
+    return withAuth(
+      async (session) => {
+        return this.repository.create({
+          ...data,
+          byDepartment: session?.user?.role as DashboardUser,
+          status: 'blocked',
+        });
+      },
+      ['finance', 'registry', 'library']
+    );
   }
 
   async update(id: number, data: Partial<BlockedStudent>) {
-    return withAuth(async () => this.repository.update(id, data), ['finance']);
+    return withAuth(
+      async (session) => {
+        return this.repository.update(id, {
+          byDepartment: session?.user?.role as DashboardUser,
+          ...data,
+        });
+      },
+      ['finance', 'registry', 'library']
+    );
   }
 
   async delete(id: number) {

@@ -9,9 +9,11 @@ export default function Layout({ children }: PropsWithChildren) {
     <ListLayout
       path={'/dashboard/blocked-students'}
       queryKey={['blocked-students']}
-      getData={async () => await getBlockedStudentByStatus('blocked')}
+      getData={async (page, search) =>
+        await getBlockedStudentByStatus('blocked', page, search)
+      }
       actionIcons={[
-        <NewLink key={'new-link'} href='/admin/blocked-students/new' />,
+        <NewLink key={'new-link'} href='/dashboard/blocked-students/new' />,
       ]}
       renderItem={(it) => (
         <ListItem id={it.id} label={it.stdNo} description={it.student.name} />
