@@ -166,21 +166,9 @@ async function getRepeatModules(
 
   const failedModuleNames = failedModules.map((m) => m.name);
   const failedPrerequisites = await getFailedPrerequisites(failedModules);
-
-  const targetSemesters: number[] = [];
-  const isNextSemesterEven = nextSemester % 2 === 0;
-
-  for (let sem = 1; sem < nextSemester; sem++) {
-    const isSemesterEven = sem % 2 === 0;
-    if (isNextSemesterEven === isSemesterEven) {
-      targetSemesters.push(sem);
-    }
-  }
-
-  if (targetSemesters.length === 0) return [];
+  const targetSemesters = nextSemester % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7];
 
   const allRepeatModules: ModuleWithStatus[] = [];
-
   const allSemesterModules = await getSemesterModulesMultiple(
     targetSemesters,
     structureId
