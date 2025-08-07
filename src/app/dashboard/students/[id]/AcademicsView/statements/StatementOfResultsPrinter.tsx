@@ -55,13 +55,7 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
 
   const generateQRCode = async (printRecordId: string): Promise<string> => {
     try {
-      const baseUrl =
-        typeof window !== 'undefined'
-          ? window.location.origin
-          : process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : 'http://localhost:3000';
-      const url = `${baseUrl}/statement-of-results/${printRecordId}`;
+      const url = `https://www.portal.co.ls/verifications/results/${printRecordId}`;
       const qrCodeDataURL = await QRCode.toDataURL(url, {
         width: 200,
         margin: 1,
