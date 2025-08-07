@@ -8,7 +8,7 @@ import Hero from './home/Hero';
 
 export default function Page() {
   const { program, isLoading } = useUserStudent();
-  const targetDate = new Date('2025-08-07T15:00:00').getTime();
+  const targetDate = new Date('2025-08-08T15:00:00').getTime();
 
   if (isLoading) {
     return (

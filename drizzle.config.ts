@@ -17,7 +17,7 @@ export default defineConfig({
   dialect: 'turso',
   casing: 'snake_case',
   dbCredentials: {
-    url: process.env.databaseUrl!,
+    url: databaseUrl!,
     authToken: authToken,
   },
 });
