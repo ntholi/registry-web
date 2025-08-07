@@ -3,13 +3,12 @@ import {
   registrationRequests,
   requestedModules,
 } from '@/db/schema';
-import RegistrationRequestRepository from './repository';
+import { AcademicRemarks, Student } from '@/lib/helpers/students';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
-import { serviceWrapper } from '@/server/base/serviceWrapper';
-import { AcademicRemarks, Student } from '@/lib/helpers/students';
 import { getCurrentTerm } from '../terms/actions';
-import { blockedStudentsRepository } from '@/server/blocked-students/repository';
+import RegistrationRequestRepository from './repository';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
@@ -108,16 +107,6 @@ class RegistrationRequestService {
   async create(data: RegistrationRequest) {
     return withAuth(
       async () => {
-        // Check if student is blocked
-        const blockedStudent = await blockedStudentsRepository.findByStdNo(
-          data.stdNo,
-          'blocked'
-        );
-
-        if (blockedStudent) {
-          throw new Error(`Registration blocked: ${blockedStudent.reason}`);
-        }
-
         return this.repository.create(data);
       },
       ['student'],
@@ -161,16 +150,6 @@ class RegistrationRequestService {
   }) {
     return withAuth(
       async () => {
-        // Check if student is blocked
-        const blockedStudent = await blockedStudentsRepository.findByStdNo(
-          data.stdNo,
-          'blocked'
-        );
-
-        if (blockedStudent) {
-          throw new Error(`Registration blocked: ${blockedStudent.reason}`);
-        }
-
         return this.repository.createRegistrationWithModules(data);
       },
       ['student', 'registry'],
@@ -186,25 +165,6 @@ class RegistrationRequestService {
     semesterStatus?: 'Active' | 'Repeat'
   ) {
     return withAuth(async () => {
-      // First get the registration request to get the student number
-      const registrationRequest = await this.repository.findById(
-        registrationRequestId
-      );
-
-      if (!registrationRequest) {
-        throw new Error('Registration request not found');
-      }
-
-      // Check if student is blocked
-      const blockedStudent = await blockedStudentsRepository.findByStdNo(
-        registrationRequest.stdNo,
-        'blocked'
-      );
-
-      if (blockedStudent) {
-        throw new Error(`Registration blocked: ${blockedStudent.reason}`);
-      }
-
       return this.repository.updateRegistrationWithModules(
         registrationRequestId,
         modules,
@@ -227,23 +187,6 @@ class RegistrationRequestService {
     semesterStatus?: 'Active' | 'Repeat'
   ) {
     return withAuth(async () => {
-      const registration = await this.repository.findById(
-        registrationRequestId
-      );
-      if (!registration) {
-        throw new Error('Registration request not found');
-      }
-
-      // Check if student is blocked
-      const blockedStudent = await blockedStudentsRepository.findByStdNo(
-        registration.stdNo,
-        'blocked'
-      );
-
-      if (blockedStudent) {
-        throw new Error(`Registration blocked: ${blockedStudent.reason}`);
-      }
-
       return this.repository.updateRegistrationWithModulesAndSponsorship(
         registrationRequestId,
         modules,
@@ -256,19 +199,6 @@ class RegistrationRequestService {
 
   async getStudentSemesterModules(student: Student, remarks: AcademicRemarks) {
     return withAuth(async () => {
-      // Check if student is blocked
-      const blockedStudent = await blockedStudentsRepository.findByStdNo(
-        student.stdNo,
-        'blocked'
-      );
-
-      if (blockedStudent) {
-        return {
-          error: `Registration blocked: ${blockedStudent.reason}`,
-          modules: [],
-        };
-      }
-
       const { getStudentSemesterModulesLogic } = await import(
         './getStudentSemesterModules'
       );

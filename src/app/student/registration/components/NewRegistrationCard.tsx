@@ -1,6 +1,6 @@
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
 import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
+import { getCurrentTerm } from '@/server/terms/actions';
 import { Alert, Button, Card, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';

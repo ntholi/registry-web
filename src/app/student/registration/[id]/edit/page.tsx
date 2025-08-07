@@ -4,6 +4,7 @@ import { StudentModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import useUserStudent from '@/hooks/use-user-student';
 import { MAX_REG_MODULES } from '@/lib/constants';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import {
   determineSemesterStatus,
   getRegistrationRequest,
@@ -11,7 +12,6 @@ import {
   updateRegistrationWithModulesAndSponsorship,
 } from '@/server/registration-requests/actions';
 import { getSponsoredStudent } from '@/server/sponsors/actions';
-import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import {
   Alert,
   Badge,
@@ -247,7 +247,7 @@ export default function EditRegistrationPage() {
           title='Registration Blocked'
           color='red'
         >
-          Student has been blocked. Please contact the
+          Your account has been blocked from registering. Please contact the{' '}
           {blockedStudent.byDepartment} office for assistance.
           <br />
           <strong>Reason:</strong> {blockedStudent.reason}
@@ -280,24 +280,6 @@ export default function EditRegistrationPage() {
         >
           You can only edit registrations that are in pending status. This
           registration is currently {registrationRequest.status}.
-        </Alert>
-      </Container>
-    );
-  }
-
-  // Check if modules query returned a blocked error
-  if (
-    moduleResult?.error &&
-    moduleResult.error.includes('Registration blocked')
-  ) {
-    return (
-      <Container size='lg' py='xl'>
-        <Alert
-          icon={<IconInfoCircle size='1rem' />}
-          title='Registration Blocked'
-          color='red'
-        >
-          {moduleResult.error}
         </Alert>
       </Container>
     );

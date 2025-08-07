@@ -1,41 +1,41 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  Container,
-  Progress,
-  Group,
-  Button,
-  Text,
-  Title,
-  Alert,
-  LoadingOverlay,
-  Stack,
-  Box,
-} from '@mantine/core';
-import {
-  IconInfoCircle,
-  IconArrowLeft,
-  IconArrowRight,
-} from '@tabler/icons-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
-import { useRouter } from 'next/navigation';
-import useUserStudent from '@/hooks/use-user-student';
 import { StudentModuleStatus } from '@/db/schema';
+import { useCurrentTerm } from '@/hooks/use-current-term';
+import useUserStudent from '@/hooks/use-user-student';
+import { MAX_REG_MODULES } from '@/lib/constants';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import {
-  getStudentSemesterModules,
-  determineSemesterStatus,
   createRegistrationWithModules,
+  determineSemesterStatus,
+  getStudentSemesterModules,
 } from '@/server/registration-requests/actions';
 import { findAllSponsors } from '@/server/sponsors/actions';
-import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  Group,
+  LoadingOverlay,
+  Progress,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconInfoCircle,
+} from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import AccountConfirmation from './AccountConfirmation';
 import ModuleSelection from './ModuleSelection';
 import SemesterConfirmation from './SemesterConfirmation';
 import SponsorshipDetails from './SponsorshipDetails';
-import AccountConfirmation from './AccountConfirmation';
-import { useCurrentTerm } from '@/hooks/use-current-term';
-import { MAX_REG_MODULES } from '@/lib/constants';
 
 type SelectedModule = {
   moduleId: number;
@@ -68,7 +68,7 @@ const STEPS = [
 export default function NewRegistrationPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { student, remarks, isLoading: studentLoading } = useUserStudent();
+  const { student, remarks } = useUserStudent();
   const [activeStep, setActiveStep] = useState(0);
   const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
   const [semesterData, setSemesterData] = useState<{
@@ -222,7 +222,7 @@ export default function NewRegistrationPage() {
 
   const progressValue = ((activeStep + 1) / totalSteps) * 100;
 
-  if (studentLoading || blockedLoading || !student) {
+  if (blockedLoading) {
     return (
       <Container size='lg' py='xl'>
         <LoadingOverlay visible />
@@ -256,24 +256,6 @@ export default function NewRegistrationPage() {
           color='orange'
         >
           There is currently no active registration term.
-        </Alert>
-      </Container>
-    );
-  }
-
-  // Check if modules query returned a blocked error
-  if (
-    moduleResult?.error &&
-    moduleResult.error.includes('Registration blocked')
-  ) {
-    return (
-      <Container size='lg' py='xl'>
-        <Alert
-          icon={<IconInfoCircle size='1rem' />}
-          title='Registration Blocked'
-          color='red'
-        >
-          {moduleResult.error}
         </Alert>
       </Container>
     );

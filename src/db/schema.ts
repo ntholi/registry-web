@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  index,
   integer,
   primaryKey,
   real,
@@ -715,18 +716,24 @@ export const statementOfResultsPrints = sqliteTable(
   }
 );
 
-export const blockedStudents = sqliteTable('blocked_students', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  status: text({ enum: ['blocked', 'unblocked'] })
-    .notNull()
-    .default('blocked'),
-  reason: text().notNull(),
-  byDepartment: text({ enum: dashboardUsers }).notNull(),
-  stdNo: integer()
-    .references(() => students.stdNo, { onDelete: 'cascade' })
-    .notNull(),
-  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
+export const blockedStudents = sqliteTable(
+  'blocked_students',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    status: text({ enum: ['blocked', 'unblocked'] })
+      .notNull()
+      .default('blocked'),
+    reason: text().notNull(),
+    byDepartment: text({ enum: dashboardUsers }).notNull(),
+    stdNo: integer()
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  },
+  (table) => ({
+    stdNoIdx: index('blocked_students_std_no_idx').on(table.stdNo),
+  })
+);
 
 export const studentCardPrints = sqliteTable('student_card_prints', {
   id: text()
