@@ -1,15 +1,28 @@
+'use client';
+
+import useUserStudent from '@/hooks/use-user-student';
 import { Container } from '@mantine/core';
-import Hero from './home/Hero';
 import ActionButtons from './home/ActionButtons';
 import Countdown from './home/Countdown';
+import Hero from './home/Hero';
 
-export default function page() {
-  const targetDate = new Date('2025-08-07T10:00:00').getTime();
+export default function Page() {
+  const { program, isLoading } = useUserStudent();
+  const targetDate = new Date('2025-08-07T14:00:00').getTime();
 
-  if (
-    !process.env.AUTH_URL?.includes('localhost') &&
-    targetDate > new Date().getTime()
-  ) {
+  if (isLoading) {
+    return (
+      <Container size='md'>
+        <div>Loading...</div>
+      </Container>
+    );
+  }
+
+  const shouldShowCountdown =
+    targetDate > new Date().getTime() &&
+    ![3, 4, 10].includes(program?.schoolId ?? 0);
+
+  if (shouldShowCountdown) {
     return (
       <Container size='md'>
         <Countdown targetDate={targetDate} />

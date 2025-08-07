@@ -51,6 +51,7 @@ export default class StudentRepository extends BaseRepository<
                   with: {
                     school: {
                       columns: {
+                        id: true,
                         name: true,
                       },
                     },
