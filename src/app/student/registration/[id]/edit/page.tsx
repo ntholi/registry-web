@@ -35,7 +35,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ModuleSelection from '../../new/ModuleSelection';
 import SemesterConfirmation from '../../new/SemesterConfirmation';
-import SponsorshipDetails from '../../new/SponsorshipDetails';
+import SponsorshipDetailsEdit from './SponsorshipDetailsEdit';
 
 type SelectedModule = {
   moduleId: number;
@@ -323,7 +323,7 @@ export default function EditRegistrationPage() {
         );
       case 2:
         return (
-          <SponsorshipDetails
+          <SponsorshipDetailsEdit
             sponsorshipData={sponsorshipData}
             onSponsorshipChange={setSponsorshipData}
             loading={updateMutation.isPending}
