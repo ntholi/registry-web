@@ -5,6 +5,7 @@ import AcademicInformation from './AcademicInformation';
 import PersonalInformation from './PersonalInformation';
 import ProfileHeader from './ProfileHeader';
 import ProfileSkeleton from './ProfileSkeleton';
+import SponsorshipInformation from './SponsorshipInformation';
 
 export default function Profile() {
   const { student, program, semester, remarks, isLoading } = useUserStudent();
@@ -37,6 +38,8 @@ export default function Profile() {
           semester={semester}
           remarks={remarks}
         />
+
+        <SponsorshipInformation studentNo={student.stdNo} />
       </Stack>
     </Container>
   );

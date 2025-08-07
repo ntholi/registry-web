@@ -35,6 +35,18 @@ export default class SponsorRepository extends BaseRepository<
     return data;
   }
 
+  async findCurrentSponsoredStudent(stdNo: number) {
+    const data = await db.query.sponsoredStudents.findFirst({
+      where: eq(sponsoredStudents.stdNo, stdNo),
+      with: {
+        sponsor: true,
+      },
+      orderBy: desc(sponsoredStudents.createdAt),
+    });
+
+    return data;
+  }
+
   async findSponsoredStudentsBySponsor(
     sponsorId: string,
     params?: { page?: number; limit?: number; search?: string }

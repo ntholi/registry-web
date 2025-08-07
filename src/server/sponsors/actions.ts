@@ -102,6 +102,10 @@ export async function updateStudentSponsorshipById(data: {
   return service.updateStudentSponsorship(data);
 }
 
+export async function getStudentCurrentSponsorship(stdNo: number) {
+  return service.getStudentCurrentSponsorship(stdNo);
+}
+
 export async function updateAccountDetails(data: {
   stdNoOrName: string;
   bankName: string;

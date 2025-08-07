@@ -49,6 +49,13 @@ class SponsorService {
     );
   }
 
+  async getStudentCurrentSponsorship(stdNo: number) {
+    return withAuth(
+      async () => this.repository.findCurrentSponsoredStudent(stdNo),
+      ['student', 'registry', 'finance', 'admin']
+    );
+  }
+
   async updateStudentSponsorship(data: {
     stdNo: number;
     termId: number;
