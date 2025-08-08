@@ -1,7 +1,7 @@
 'use client';
 
 import useUserStudent from '@/hooks/use-user-student';
-import { Container } from '@mantine/core';
+import { Center, Container, Loader } from '@mantine/core';
 import ActionButtons from './home/ActionButtons';
 import Countdown from './home/Countdown';
 import Hero from './home/Hero';
@@ -12,15 +12,13 @@ export default function Page() {
 
   if (isLoading) {
     return (
-      <Container size='md'>
-        <div>Loading...</div>
-      </Container>
+      <Center h='100vh' w='100vw'>
+        <Loader />
+      </Center>
     );
   }
 
-  const shouldShowCountdown =
-    targetDate > new Date().getTime() &&
-    ![3, 4, 10].includes(program?.schoolId ?? 0);
+  const shouldShowCountdown = ![3, 4, 10].includes(program?.schoolId ?? 0);
 
   if (shouldShowCountdown) {
     return (
