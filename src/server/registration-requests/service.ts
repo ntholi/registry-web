@@ -8,6 +8,7 @@ import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { getCurrentTerm } from '../terms/actions';
+import { dashboardUsers } from '@/db/schema';
 import RegistrationRequestRepository from './repository';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
@@ -89,14 +90,25 @@ class RegistrationRequestService {
         };
       },
       ['dashboard', 'student'],
-      async (session) =>
-        session?.user?.role === 'admin' ||
-        session?.user?.role === 'registry' ||
-        session?.user?.position === 'admin' ||
-        session?.user?.position === 'manager' ||
-        session?.user?.position === 'program_leader' ||
-        session?.user?.position === 'year_leader' ||
-        session?.user?.role === 'student'
+      async (session) => {
+        if (
+          session.user?.role &&
+          dashboardUsers.includes(
+            session.user.role as (typeof dashboardUsers)[number]
+          )
+        ) {
+          return true;
+        }
+        return (
+          session.user?.role === 'admin' ||
+          session.user?.role === 'registry' ||
+          session.user?.position === 'admin' ||
+          session.user?.position === 'manager' ||
+          session.user?.position === 'program_leader' ||
+          session.user?.position === 'year_leader' ||
+          session.user?.role === 'student'
+        );
+      }
     );
   }
 

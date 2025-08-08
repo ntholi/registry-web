@@ -10,7 +10,7 @@ type Role = UserRole | 'all' | 'auth' | 'dashboard';
 export default async function withAuth<T>(
   fn: (session?: Session | null) => Promise<T>,
   roles: Role[] = [],
-  accessCheck?: (session: Session) => Promise<boolean>,
+  accessCheck?: (session: Session) => Promise<boolean>
 ) {
   const session = await auth();
   const method = fn.toString();
@@ -19,14 +19,14 @@ export default async function withAuth<T>(
     if (accessCheck && session?.user) {
       const isAuthorized = await accessCheck(session);
       if (!isAuthorized && session.user.role !== 'admin') {
-        console.error(
+        console.warn(
           'Custom Auth Check',
           {
             role: session.user.role,
             userId: session.user.id,
             expectedRoles: ['admin', ...roles],
           },
-          method,
+          method
         );
         return forbidden();
       }
@@ -39,7 +39,7 @@ export default async function withAuth<T>(
   }
 
   if (!session?.user) {
-    console.error('No session', method);
+    console.warn('No session', method);
     return unauthorized();
   }
 
@@ -50,14 +50,14 @@ export default async function withAuth<T>(
   if (
     roles.includes('dashboard') &&
     dashboardUsers.includes(
-      session?.user?.role as (typeof dashboardUsers)[number],
+      session?.user?.role as (typeof dashboardUsers)[number]
     )
   ) {
     return callFnWithAccessCheck(session);
   }
 
   if (!['admin', ...roles].includes(session.user.role as Role)) {
-    console.error('Permission Error', method, {
+    console.warn('Permission Error', method, {
       currentRole: session.user.role,
       expectedRoles: ['admin', ...roles],
     });
