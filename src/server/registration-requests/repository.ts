@@ -554,23 +554,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
           id: terms.id,
           name: terms.name,
         },
-        requestedModulesCount: count(requestedModules.id),
       })
       .from(registrationRequests)
       .innerJoin(terms, eq(registrationRequests.termId, terms.id))
-      .leftJoin(
-        requestedModules,
-        eq(requestedModules.registrationRequestId, registrationRequests.id)
-      )
       .where(eq(registrationRequests.stdNo, stdNo))
-      .groupBy(
-        registrationRequests.id,
-        registrationRequests.status,
-        registrationRequests.semesterNumber,
-        registrationRequests.createdAt,
-        terms.id,
-        terms.name
-      )
       .orderBy(desc(registrationRequests.createdAt));
   }
 }

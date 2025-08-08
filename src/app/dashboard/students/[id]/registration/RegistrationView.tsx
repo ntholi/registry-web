@@ -7,7 +7,6 @@ import { getStudentRegistrationHistory } from '@/server/registration-requests/ac
 import {
   Accordion,
   Alert,
-  Anchor,
   Badge,
   Button,
   Card,
@@ -34,7 +33,6 @@ type StudentRegistrationHistory = {
     id: number;
     name: string;
   };
-  requestedModulesCount: number;
 };
 
 type Props = {
@@ -138,27 +136,43 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
           {registrationRequests.map((request: StudentRegistrationHistory) => (
             <Accordion.Item key={request.id} value={request.id.toString()}>
               <Accordion.Control>
-                <Stack gap={0} w={'95%'}>
+                <Stack gap={0} w={'100%'}>
                   <Group justify='space-between' align='center'>
-                    <Text fw={500} size='sm'>
-                      {request.term.name}
-                    </Text>
-                    <Badge
-                      size='xs'
-                      radius={'xs'}
-                      variant='light'
-                      color={
-                        request.status === 'approved'
-                          ? 'green'
-                          : request.status === 'rejected'
-                            ? 'red'
-                            : request.status === 'registered'
-                              ? 'blue'
-                              : 'yellow'
+                    <Group gap='xs' align='center'>
+                      <Text fw={500} size='sm'>
+                        {request.term.name}
+                      </Text>
+                      <Badge
+                        size='xs'
+                        radius={'xs'}
+                        variant='light'
+                        color={
+                          request.status === 'approved'
+                            ? 'green'
+                            : request.status === 'rejected'
+                              ? 'red'
+                              : request.status === 'registered'
+                                ? 'blue'
+                                : 'yellow'
+                        }
+                      >
+                        {request.status.toUpperCase()}
+                      </Badge>
+                    </Group>
+                    <Button
+                      component={Link}
+                      href={
+                        session?.user?.role === 'finance' ||
+                        session?.user?.role === 'library'
+                          ? `/dashboard/registration-requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`
+                          : `/dashboard/registration-requests/${request.status}/${request.id}`
                       }
+                      size='xs'
+                      variant='light'
+                      color='blue'
                     >
-                      {request.status.toUpperCase()}
-                    </Badge>
+                      View Details
+                    </Button>
                   </Group>
                   <Divider my='sm' />
                 </Stack>
@@ -179,33 +193,6 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
                     </Text>
                     <Text size='sm'>{formatDateTime(request.createdAt)}</Text>
                   </Group>
-                  <Group>
-                    <Text fw={500} w={150}>
-                      Modules
-                    </Text>
-                    <Anchor
-                      size='sm'
-                      component={Link}
-                      href={`/dashboard/registration-requests/${request.status}/${request.id}`}
-                      className='text-blue-500 hover:underline'
-                    >
-                      {request.requestedModulesCount} modules
-                    </Anchor>
-                  </Group>
-                  {(session?.user?.role === 'finance' ||
-                    session?.user?.role === 'library') && (
-                    <Group>
-                      <Button
-                        component={Link}
-                        href={`/dashboard/registration-requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`}
-                        size='xs'
-                        variant='light'
-                        color='blue'
-                      >
-                        View Details
-                      </Button>
-                    </Group>
-                  )}
                 </Stack>
               </Accordion.Panel>
             </Accordion.Item>

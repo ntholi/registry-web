@@ -63,9 +63,6 @@ export default async function RegistrationHistory({
             <Flex justify={'space-between'} align={'center'}>
               <Box mt='xs'>
                 <Text size='sm'>{formatSemester(request.semesterNumber)}</Text>
-                <Text size='sm' c='dimmed'>
-                  {request.requestedModulesCount} modules
-                </Text>
               </Box>
             </Flex>
 
