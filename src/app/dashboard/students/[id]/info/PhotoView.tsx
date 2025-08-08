@@ -48,8 +48,8 @@ export default function PhotoView({ student }: Props) {
             photoUrl={photoUrl}
             title={`${student.name} (${student.stdNo})`}
             alt='Student photo'
-            width={77}
-            height={77}
+            width={76}
+            height={76}
           />
         ) : (
           <>

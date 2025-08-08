@@ -38,9 +38,9 @@ export default function StudentView({ student }: Props) {
 
   return (
     <Stack gap='xl'>
-      <Group gap='xs'>
+      <Group gap='xs' align='stretch'>
         <PhotoView student={student} />
-        <Card withBorder flex={1} p='md'>
+        <Card withBorder flex={1} p='md' h={76}>
           <Group wrap='nowrap' gap='xs'>
             <div style={{ flex: 1 }}>
               <Text size='sm' c='dimmed'>
