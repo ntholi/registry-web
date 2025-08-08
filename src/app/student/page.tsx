@@ -1,14 +1,12 @@
 'use client';
 
 import useUserStudent from '@/hooks/use-user-student';
-import { Center, Container, Loader } from '@mantine/core';
+import { Center, Container, Loader, Text, Title } from '@mantine/core';
 import ActionButtons from './home/ActionButtons';
-import Countdown from './home/Countdown';
 import Hero from './home/Hero';
 
 export default function Page() {
   const { program, isLoading } = useUserStudent();
-  const targetDate = new Date('2025-08-08T15:00:00').getTime();
 
   if (isLoading) {
     return (
@@ -18,12 +16,20 @@ export default function Page() {
     );
   }
 
-  const shouldShowCountdown = ![3, 4, 10].includes(program?.schoolId ?? 0);
+  const shouldShowMessage = ![3, 4, 8, 10].includes(program?.schoolId ?? 0);
 
-  if (shouldShowCountdown) {
+  if (shouldShowMessage) {
     return (
       <Container size='md'>
-        <Countdown targetDate={targetDate} />
+        <Title order={2} ta='center'>
+          Registration Temporarily Unavailable
+        </Title>
+        <Text ta='center' mt='sm'>
+          The system is currently open for selected faculties. You will be
+          notified through SRC as soon as registration is ready for your
+          faculty. We apologize for the inconvenience caused due to technical
+          difficulties.
+        </Text>
       </Container>
     );
   }
