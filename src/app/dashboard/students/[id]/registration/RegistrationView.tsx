@@ -19,8 +19,9 @@ import {
   Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useQuery } from '@tanstack/react-query';
 import { IconPlus } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import RegistrationModal from './form/RegistrationModal';
 
@@ -44,6 +45,7 @@ type Props = {
 export default function RegistrationView({ stdNo, isActive = true }: Props) {
   const { currentTerm } = useCurrentTerm();
   const [opened, { open, close }] = useDisclosure(false);
+  const { data: session } = useSession();
 
   const {
     data: registrationRequests,
@@ -81,14 +83,17 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
           <Text size='sm' c='dimmed' ta='center'>
             This student has not submitted any registration requests yet.
           </Text>
-          <Button
-            leftSection={<IconPlus size={16} />}
-            variant='filled'
-            color='blue'
-            onClick={open}
-          >
-            Create New Registration Request
-          </Button>
+          {(session?.user?.role === 'registry' ||
+            session?.user?.role === 'admin') && (
+            <Button
+              leftSection={<IconPlus size={16} />}
+              variant='filled'
+              color='blue'
+              onClick={open}
+            >
+              Create New Registration Request
+            </Button>
+          )}
         </Stack>
 
         <RegistrationModal opened={opened} onClose={close} stdNo={stdNo} />
@@ -99,29 +104,32 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
   return (
     <>
       <Stack gap='md'>
-        {!hasCurrentTermRegistration && currentTerm && (
-          <Card withBorder p='md'>
-            <Group justify='space-between' align='center'>
-              <Stack gap={4}>
-                <Text size='sm' fw={500}>
-                  No registration for {currentTerm.name}
-                </Text>
-                <Text size='xs' c='dimmed'>
-                  Create a registration request for this student
-                </Text>
-              </Stack>
-              <Button
-                leftSection={<IconPlus size={14} />}
-                variant='filled'
-                size='sm'
-                color='blue'
-                onClick={open}
-              >
-                Create
-              </Button>
-            </Group>
-          </Card>
-        )}
+        {!hasCurrentTermRegistration &&
+          currentTerm &&
+          (session?.user?.role === 'registry' ||
+            session?.user?.role === 'admin') && (
+            <Card withBorder p='md'>
+              <Group justify='space-between' align='center'>
+                <Stack gap={4}>
+                  <Text size='sm' fw={500}>
+                    No registration for {currentTerm.name}
+                  </Text>
+                  <Text size='xs' c='dimmed'>
+                    Create a registration request for this student
+                  </Text>
+                </Stack>
+                <Button
+                  leftSection={<IconPlus size={14} />}
+                  variant='filled'
+                  size='sm'
+                  color='blue'
+                  onClick={open}
+                >
+                  Create
+                </Button>
+              </Group>
+            </Card>
+          )}
 
         <Accordion
           variant='separated'
@@ -184,6 +192,20 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
                       {request.requestedModulesCount} modules
                     </Anchor>
                   </Group>
+                  {(session?.user?.role === 'finance' ||
+                    session?.user?.role === 'library') && (
+                    <Group>
+                      <Button
+                        component={Link}
+                        href={`/dashboard/registration-requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`}
+                        size='xs'
+                        variant='light'
+                        color='blue'
+                      >
+                        View Details
+                      </Button>
+                    </Group>
+                  )}
                 </Stack>
               </Accordion.Panel>
             </Accordion.Item>

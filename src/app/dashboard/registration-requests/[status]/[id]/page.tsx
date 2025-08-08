@@ -22,17 +22,18 @@ import RequestDetailsView from './RequestDetailsView';
 
 interface Props {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 function getOverallClearanceStatus(
   registrationRequest: NonNullable<
     Awaited<ReturnType<typeof getRegistrationRequest>>
-  >,
+  >
 ) {
   const departments: DashboardUser[] = ['finance', 'library'];
   const statuses = departments.map((dept) => {
     const clearance = registrationRequest.clearances?.find(
-      (c) => c.department === dept,
+      (c) => c.department === dept
     );
     return clearance?.status || 'pending';
   });
@@ -43,7 +44,7 @@ function getOverallClearanceStatus(
 }
 
 function getStatusColor(
-  status: (typeof registrationRequestStatusEnum)[number],
+  status: (typeof registrationRequestStatusEnum)[number]
 ) {
   switch (status) {
     case 'approved':
@@ -66,8 +67,20 @@ function getStatusIcon(status: (typeof registrationRequestStatusEnum)[number]) {
   }
 }
 
-export default async function RegistrationRequestDetails({ params }: Props) {
+export default async function RegistrationRequestDetails({
+  params,
+  searchParams,
+}: Props) {
   const { id } = await params;
+  const sp = (await searchParams) || {};
+  const defaultTab = typeof sp.tab === 'string' ? sp.tab : undefined;
+  type ClearanceDept = 'finance' | 'library';
+  const rawDept = sp.dept;
+  const deptParam = Array.isArray(rawDept) ? rawDept[0] : rawDept;
+  const defaultDept: ClearanceDept | undefined =
+    deptParam === 'finance' || deptParam === 'library'
+      ? (deptParam as ClearanceDept)
+      : undefined;
   const registrationRequest = await getRegistrationRequest(Number(id));
 
   if (!registrationRequest) {
@@ -85,14 +98,14 @@ export default async function RegistrationRequestDetails({ params }: Props) {
           await deleteRegistrationRequest(Number(id));
         }}
       />
-      <Tabs defaultValue='details' variant='outline'>
+      <Tabs defaultValue={defaultTab || 'details'} variant='outline'>
         <TabsList>
           <TabsTab value='details'>Details</TabsTab>
           <TabsTab value='clearance'>
             <Group gap='xs'>
               <ThemeIcon
                 color={getStatusColor(
-                  getOverallClearanceStatus(registrationRequest),
+                  getOverallClearanceStatus(registrationRequest)
                 )}
                 variant='light'
                 size={20}
@@ -112,7 +125,10 @@ export default async function RegistrationRequestDetails({ params }: Props) {
         </TabsPanel>
         <TabsPanel value='clearance'>
           <Stack gap='xl' mt='md' p='sm'>
-            <ClearanceAccordion value={registrationRequest} />
+            <ClearanceAccordion
+              value={registrationRequest}
+              defaultDept={defaultDept}
+            />
           </Stack>
         </TabsPanel>
       </Tabs>

@@ -17,15 +17,16 @@ import Link from 'next/link';
 
 interface Props {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
+  defaultDept?: DashboardUser;
 }
 
 type Status = (typeof registrationRequestStatusEnum)[number];
 
 const departments: DashboardUser[] = ['finance', 'library'];
 
-export default function ClearanceAccordion({ value }: Props) {
+export default function ClearanceAccordion({ value, defaultDept }: Props) {
   return (
-    <Accordion variant='separated'>
+    <Accordion variant='separated' defaultValue={defaultDept}>
       {departments.map((dept) => {
         const clearance = value.clearances?.find((c) => c.department === dept);
         const status = clearance?.status || 'pending';
