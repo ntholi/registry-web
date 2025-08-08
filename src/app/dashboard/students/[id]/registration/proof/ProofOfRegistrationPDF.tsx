@@ -238,7 +238,9 @@ export default function ProofOfRegistrationPDF({
     );
   }
 
-  const activeProgram = student.programs[0];
+  const activeProgram = student.programs.find(
+    (p) => p.status === 'Active'
+  ) as NonNullable<(typeof student.programs)[number]>;
   const latestSemester = activeProgram.semesters[0];
 
   if (!latestSemester) {
