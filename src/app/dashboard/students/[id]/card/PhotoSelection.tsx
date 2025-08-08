@@ -40,8 +40,7 @@ export default function PhotoSelection({
 }: PhotoSelectionProps) {
   const [cameraOpened, { open: openCamera, close: closeCamera }] =
     useDisclosure(false);
-  const [photoModalOpened, { open: openPhotoModal, close: closePhotoModal }] =
-    useDisclosure(false);
+
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -102,15 +101,21 @@ export default function PhotoSelection({
 
       <Stack gap='md'>
         <Group>
-          <Button
-            onClick={openPhotoModal}
-            style={{ flex: 1 }}
-            leftSection={<IconPhoto size={16} />}
-            disabled={isUploading}
-            variant='light'
-          >
-            Select Photo
-          </Button>
+          <PhotoInputModal
+            onPhotoSubmit={handlePhotoSubmit}
+            title={`Upload Photo for Student ${studentNumber}`}
+            renderTrigger={({ open }) => (
+              <Button
+                onClick={open}
+                style={{ flex: 1 }}
+                leftSection={<IconPhoto size={16} />}
+                disabled={isUploading}
+                variant='light'
+              >
+                Select Photo
+              </Button>
+            )}
+          />
           <ActionIcon
             variant='light'
             size={'lg'}
@@ -154,13 +159,6 @@ export default function PhotoSelection({
           </Box>
         )}
       </Stack>
-
-      <PhotoInputModal
-        opened={photoModalOpened}
-        onClose={closePhotoModal}
-        onPhotoSubmit={handlePhotoSubmit}
-        title={`Upload Photo for Student ${studentNumber}`}
-      />
 
       <CameraModal
         opened={cameraOpened}

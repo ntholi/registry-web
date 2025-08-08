@@ -11,23 +11,33 @@ import {
   Box,
 } from '@mantine/core';
 import { useCallback, useRef, useState } from 'react';
+import { useDisclosure } from '@mantine/hooks';
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { IconUpload, IconPhoto } from '@tabler/icons-react';
 
-type Props = {
-  opened: boolean;
-  onClose: () => void;
+type PhotoInputModalProps = {
   onPhotoSubmit: (croppedImageBlob: Blob) => void;
   title?: string;
+  renderTrigger?: (args: {
+    open: () => void;
+    close: () => void;
+    opened: boolean;
+  }) => React.ReactNode;
+  onOpen?: () => void;
+  onClose?: () => void;
+  onConfirm?: () => void;
 };
 
 export default function PhotoInputModal({
-  opened,
-  onClose,
   onPhotoSubmit,
   title = 'Upload Photo',
-}: Props) {
+  renderTrigger,
+  onOpen,
+  onClose,
+  onConfirm,
+}: PhotoInputModalProps) {
+  const [opened, { open, close }] = useDisclosure(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imageSrc, setImageSrc] = useState<string>('');
   const [crop, setCrop] = useState<Crop>({
@@ -145,8 +155,9 @@ export default function PhotoInputModal({
     });
     setCompletedCrop(null);
     setInitialCropSet(false);
-    onClose();
-  }, [onClose]);
+    if (onClose) onClose();
+    close();
+  }, [onClose, close]);
 
   const handleSubmit = useCallback(async () => {
     if (!imgRef.current || !completedCrop) {
@@ -162,80 +173,106 @@ export default function PhotoInputModal({
         completedCrop
       );
       await onPhotoSubmit(croppedImageBlob);
+      if (onConfirm) onConfirm();
+      close();
     } catch (error) {
       console.error('Error processing image:', error);
       alert('Error processing image. Please try again.');
     } finally {
       setIsProcessing(false);
     }
-  }, [completedCrop, getCroppedImg, onPhotoSubmit]);
+  }, [completedCrop, getCroppedImg, onPhotoSubmit, onConfirm, close]);
 
   return (
-    <Modal
-      opened={opened}
-      onClose={handleClose}
-      title={title}
-      size='xl'
-      centered
-      closeOnEscape
-    >
-      <Stack gap='md'>
-        {!imageSrc ? (
-          <Center>
-            <Stack align='center' gap='md'>
-              <IconPhoto size='3rem' color='gray' />
-              <Text c='dimmed' ta='center'>
-                Select an image to crop and resize
-              </Text>
-              <FileButton onChange={handleFileSelect} accept='image/*'>
-                {(props) => (
-                  <Button {...props} leftSection={<IconUpload size='1rem' />}>
-                    Choose Image
-                  </Button>
-                )}
-              </FileButton>
-            </Stack>
-          </Center>
-        ) : (
-          <>
-            <Center>
-              <ReactCrop
-                crop={crop}
-                onChange={(_, percentCrop) => setCrop(percentCrop)}
-                onComplete={(c) => setCompletedCrop(c)}
-                aspect={1}
-                minWidth={50}
-                minHeight={50}
-              >
-                <img
-                  ref={imgRef}
-                  alt='Crop preview'
-                  src={imageSrc}
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '60vh',
-                    display: 'block',
-                  }}
-                  onLoad={onImageLoad}
-                />
-              </ReactCrop>
-            </Center>
+    <>
+      {renderTrigger ? (
+        renderTrigger({
+          open: () => {
+            if (onOpen) onOpen();
+            open();
+          },
+          close,
+          opened,
+        })
+      ) : (
+        <Button
+          variant='light'
+          onClick={() => {
+            if (onOpen) onOpen();
+            open();
+          }}
+          leftSection={<IconPhoto size='1rem' />}
+        >
+          Select Photo
+        </Button>
+      )}
 
-            <Group justify='center' mt='lg'>
-              <Button
-                variant='outline'
-                onClick={handleClose}
-                disabled={isProcessing}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleSubmit} loading={isProcessing}>
-                Upload Photo
-              </Button>
-            </Group>
-          </>
-        )}
-      </Stack>
-    </Modal>
+      <Modal
+        opened={opened}
+        onClose={handleClose}
+        title={title}
+        size='xl'
+        centered
+        closeOnEscape
+      >
+        <Stack gap='md'>
+          {!imageSrc ? (
+            <Center>
+              <Stack align='center' gap='md'>
+                <IconPhoto size='3rem' color='gray' />
+                <Text c='dimmed' ta='center'>
+                  Select an image to crop and resize
+                </Text>
+                <FileButton onChange={handleFileSelect} accept='image/*'>
+                  {(props) => (
+                    <Button {...props} leftSection={<IconUpload size='1rem' />}>
+                      Choose Image
+                    </Button>
+                  )}
+                </FileButton>
+              </Stack>
+            </Center>
+          ) : (
+            <>
+              <Center>
+                <ReactCrop
+                  crop={crop}
+                  onChange={(_, percentCrop) => setCrop(percentCrop)}
+                  onComplete={(c) => setCompletedCrop(c)}
+                  aspect={1}
+                  minWidth={50}
+                  minHeight={50}
+                >
+                  <img
+                    ref={imgRef}
+                    alt='Crop preview'
+                    src={imageSrc}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '60vh',
+                      display: 'block',
+                    }}
+                    onLoad={onImageLoad}
+                  />
+                </ReactCrop>
+              </Center>
+
+              <Group justify='center' mt='lg'>
+                <Button
+                  variant='outline'
+                  onClick={handleClose}
+                  disabled={isProcessing}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmit} loading={isProcessing}>
+                  Upload Photo
+                </Button>
+              </Group>
+            </>
+          )}
+        </Stack>
+      </Modal>
+    </>
   );
 }

@@ -1,23 +1,18 @@
 'use client';
+import { deleteDocument, uploadDocument } from '@/lib/storage';
 import { getStudent, getStudentPhoto } from '@/server/students/actions';
-import { uploadDocument, deleteDocument } from '@/lib/storage';
-import { Card, Image, Center, ActionIcon } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { ActionIcon, Card, Center } from '@mantine/core';
+import { IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { IconUser, IconEdit, IconUpload } from '@tabler/icons-react';
+import { useSession } from 'next-auth/react';
 import PhotoInputModal from './PhotoInputModal';
 import PhotoPreviewModal from './PhotoPreviewModal';
-import { useSession } from 'next-auth/react';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
 };
 
 export default function PhotoView({ student }: Props) {
-  const [
-    uploadModalOpened,
-    { open: openUploadModal, close: closeUploadModal },
-  ] = useDisclosure(false);
   const { data: photoUrl, refetch } = useQuery({
     queryKey: ['studentPhoto', student.stdNo],
     queryFn: () => getStudentPhoto(student.stdNo),
@@ -37,7 +32,6 @@ export default function PhotoView({ student }: Props) {
 
     await uploadDocument(photoFile, fileName);
     await refetch();
-    closeUploadModal();
   };
 
   const cardContent = (
@@ -48,13 +42,6 @@ export default function PhotoView({ student }: Props) {
 
   return (
     <>
-      <PhotoInputModal
-        opened={uploadModalOpened}
-        onClose={closeUploadModal}
-        onPhotoSubmit={handlePhotoSubmit}
-        title={`Upload Photo for ${student.name}`}
-      />
-
       <div style={{ position: 'relative' }}>
         {photoUrl ? (
           <PhotoPreviewModal
@@ -70,20 +57,26 @@ export default function PhotoView({ student }: Props) {
               {cardContent}
             </Card>
             {['admin', 'registry'].includes(session?.user?.role ?? '') && (
-              <ActionIcon
-                size='sm'
-                style={{
-                  position: 'absolute',
-                  opacity: 0.7,
-                  top: 4,
-                  right: 4,
-                  zIndex: 1,
-                }}
-                onClick={openUploadModal}
-                title={photoUrl ? 'Change photo' : 'Upload photo'}
-              >
-                <IconUpload size='0.8rem' />
-              </ActionIcon>
+              <PhotoInputModal
+                onPhotoSubmit={handlePhotoSubmit}
+                title={`Upload Photo for ${student.name}`}
+                renderTrigger={({ open }) => (
+                  <ActionIcon
+                    size='sm'
+                    style={{
+                      position: 'absolute',
+                      opacity: 0.7,
+                      top: 4,
+                      right: 4,
+                      zIndex: 1,
+                    }}
+                    onClick={open}
+                    title={photoUrl ? 'Change photo' : 'Upload photo'}
+                  >
+                    <IconUpload size='0.8rem' />
+                  </ActionIcon>
+                )}
+              />
             )}
           </>
         )}
