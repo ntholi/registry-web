@@ -1,19 +1,12 @@
 'use client';
 import { getStudent, getStudentPhoto } from '@/server/students/actions';
 import { uploadDocument, deleteDocument } from '@/lib/storage';
-import {
-  Card,
-  Image,
-  Modal,
-  UnstyledButton,
-  Center,
-  ActionIcon,
-  Group,
-} from '@mantine/core';
+import { Card, Image, Center, ActionIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { IconUser, IconEdit, IconUpload } from '@tabler/icons-react';
 import PhotoInputModal from './PhotoInputModal';
+import PhotoPreviewModal from './PhotoPreviewModal';
 import { useSession } from 'next-auth/react';
 
 type Props = {
@@ -21,7 +14,6 @@ type Props = {
 };
 
 export default function PhotoView({ student }: Props) {
-  const [opened, { open, close }] = useDisclosure(false);
   const [
     uploadModalOpened,
     { open: openUploadModal, close: closeUploadModal },
@@ -48,19 +40,7 @@ export default function PhotoView({ student }: Props) {
     closeUploadModal();
   };
 
-  const cardContent = photoUrl ? (
-    <Card.Section>
-      <Image
-        src={photoUrl}
-        alt='Student photo'
-        w='100%'
-        h='100%'
-        fit='cover'
-        radius={0}
-        style={{ border: '1px solid #000' }}
-      />
-    </Card.Section>
-  ) : (
+  const cardContent = (
     <Center h='100%'>
       <IconUser size='2rem' />
     </Center>
@@ -68,43 +48,6 @@ export default function PhotoView({ student }: Props) {
 
   return (
     <>
-      {photoUrl && (
-        <Modal
-          title={`${student.name} (${student.stdNo})`}
-          opened={opened}
-          onClose={close}
-          size='lg'
-          radius='md'
-          centered
-        >
-          <Center>
-            <Image
-              src={photoUrl}
-              alt='Student photo'
-              fit='contain'
-              h={'100%'}
-              radius={'md'}
-              w={'98%'}
-            />
-          </Center>
-          {['admin', 'registry'].includes(session?.user?.role ?? '') && (
-            <Group justify='center' mt='md'>
-              <ActionIcon
-                variant='filled'
-                size='lg'
-                onClick={() => {
-                  openUploadModal();
-                  close();
-                }}
-                title='Upload new photo'
-              >
-                <IconEdit size='1.2rem' />
-              </ActionIcon>
-            </Group>
-          )}
-        </Modal>
-      )}
-
       <PhotoInputModal
         opened={uploadModalOpened}
         onClose={closeUploadModal}
@@ -114,31 +57,34 @@ export default function PhotoView({ student }: Props) {
 
       <div style={{ position: 'relative' }}>
         {photoUrl ? (
-          <UnstyledButton onClick={open}>
-            <Card withBorder radius={'md'} w={77} h={77} p={'xs'}>
-              {cardContent}
-            </Card>
-          </UnstyledButton>
+          <PhotoPreviewModal
+            photoUrl={photoUrl}
+            title={`${student.name} (${student.stdNo})`}
+            alt='Student photo'
+            width={77}
+            height={77}
+          />
         ) : (
           <>
-            <Card withBorder radius={'md'} w={77} h={77} p={'xs'}>
+            <Card withBorder radius={'md'} w={76} h={76} p={'xs'}>
               {cardContent}
             </Card>
-            <ActionIcon
-              variant='default'
-              size='sm'
-              style={{
-                position: 'absolute',
-                opacity: 0.7,
-                top: 2,
-                right: 2,
-                zIndex: 1,
-              }}
-              onClick={openUploadModal}
-              title={photoUrl ? 'Change photo' : 'Upload photo'}
-            >
-              <IconUpload size='0.8rem' />
-            </ActionIcon>
+            {['admin', 'registry'].includes(session?.user?.role ?? '') && (
+              <ActionIcon
+                size='sm'
+                style={{
+                  position: 'absolute',
+                  opacity: 0.7,
+                  top: 4,
+                  right: 4,
+                  zIndex: 1,
+                }}
+                onClick={openUploadModal}
+                title={photoUrl ? 'Change photo' : 'Upload photo'}
+              >
+                <IconUpload size='0.8rem' />
+              </ActionIcon>
+            )}
           </>
         )}
       </div>
