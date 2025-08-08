@@ -111,7 +111,7 @@ export default function ProofOfRegistrationPrinter({ stdNo }: Props) {
       variant='subtle'
       color='gray'
       size='xs'
-      w={160}
+      w={165}
       disabled={isGenerating}
       onClick={handlePrint}
     >

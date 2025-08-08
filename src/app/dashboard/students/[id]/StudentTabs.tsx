@@ -31,6 +31,7 @@ export function StudentTabs({
   const showRegistration =
     session?.user?.role === 'admin' ||
     session?.user?.role === 'registry' ||
+    session?.user?.role === 'finance' ||
     session?.user?.position === 'admin' ||
     session?.user?.position === 'manager' ||
     session?.user?.position === 'program_leader' ||
@@ -66,11 +67,14 @@ export function StudentTabs({
             />
           </Box>
         )}
-        {showRegistration && activeTab === 'registration' && (
-          <Box ml='auto'>
-            <ProofOfRegistrationPrinter stdNo={student.stdNo} />
-          </Box>
-        )}
+        {showRegistration &&
+          activeTab === 'registration' &&
+          (session?.user?.role === 'registry' ||
+            session?.user?.role === 'admin') && (
+            <Box ml='auto'>
+              <ProofOfRegistrationPrinter stdNo={student.stdNo} />
+            </Box>
+          )}
       </TabsList>
       <TabsPanel value='academics' pt={'xl'} p={'sm'}>
         {blockedStudent ? (
