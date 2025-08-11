@@ -2,6 +2,7 @@ import { db } from '@/db';
 import {
   sponsoredStudents,
   sponsors,
+  sponsoredTerms,
   studentPrograms,
   students,
 } from '@/db/schema';
@@ -144,6 +145,7 @@ export default class SponsorRepository extends BaseRepository<
     sponsorId?: string;
     programId?: string;
     confirmed?: boolean;
+    termId?: string;
   }) {
     const page = params?.page || 1;
     const limit = params?.limit || 10;
@@ -184,6 +186,16 @@ export default class SponsorRepository extends BaseRepository<
 
     if (params?.confirmed !== undefined) {
       whereConditions.push(eq(sponsoredStudents.confirmed, params.confirmed));
+    }
+
+    if (params?.termId) {
+      whereConditions.push(
+        sql`EXISTS (
+          SELECT 1 FROM sponsored_terms st 
+          WHERE st.sponsored_student_id = ${sponsoredStudents.id} 
+          AND st.term_id = ${Number(params.termId)}
+        )`
+      );
     }
 
     const whereCondition =

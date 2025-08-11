@@ -50,7 +50,8 @@ export async function getAllSponsoredStudents(
   search = '',
   sponsorId?: string,
   programId?: string,
-  confirmed?: boolean
+  confirmed?: boolean,
+  termId?: string
 ) {
   return service.getAllSponsoredStudents({
     page,
@@ -58,6 +59,7 @@ export async function getAllSponsoredStudents(
     sponsorId,
     programId,
     confirmed,
+    termId,
     limit: 10,
   });
 }

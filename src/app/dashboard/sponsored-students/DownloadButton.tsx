@@ -11,6 +11,7 @@ interface Props {
   sponsorId: string | null;
   programId: string | null;
   confirmation: string | null;
+  termId: string | null;
 }
 
 type ExportRow = {
@@ -53,6 +54,7 @@ export default function DownloadButton({
   sponsorId,
   programId,
   confirmation,
+  termId,
 }: Props) {
   const [downloading, setDownloading] = useState(false);
 
@@ -73,7 +75,8 @@ export default function DownloadButton({
         searchQuery,
         sponsorId || undefined,
         programId || undefined,
-        confirmedParam
+        confirmedParam,
+        termId || undefined
       );
       allItems.push(...(first.items || []));
       const totalPages = first.totalPages || 1;
@@ -84,7 +87,8 @@ export default function DownloadButton({
             searchQuery,
             sponsorId || undefined,
             programId || undefined,
-            confirmedParam
+            confirmedParam,
+            termId || undefined
           );
         allItems.push(...(next.items || []));
       }

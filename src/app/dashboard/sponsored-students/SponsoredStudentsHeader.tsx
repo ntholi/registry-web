@@ -23,6 +23,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { findAllSponsors } from '@/server/sponsors/actions';
 import { getAllPrograms } from '@/server/schools/actions';
+import { getAllTerms } from '@/server/terms/actions';
 
 interface SponsoredStudentsHeaderProps {
   searchQuery: string;
@@ -33,6 +34,8 @@ interface SponsoredStudentsHeaderProps {
   onProgramChange: (value: string | null) => void;
   selectedConfirmation: string | null;
   onConfirmationChange: (value: string | null) => void;
+  selectedTerm: string | null;
+  onTermChange: (value: string | null) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -46,17 +49,24 @@ export default function SponsoredStudentsHeader({
   onProgramChange,
   selectedConfirmation,
   onConfirmationChange,
+  selectedTerm,
+  onTermChange,
   onClearFilters,
   hasActiveFilters,
 }: SponsoredStudentsHeaderProps) {
   const { data: sponsors, isLoading: isLoadingSponsors } = useQuery({
-    queryKey: ['sponsors-for-filter'],
+    queryKey: ['sponsors'],
     queryFn: () => findAllSponsors(1, '').then((response) => response.items),
   });
 
   const { data: programs, isLoading: isLoadingPrograms } = useQuery({
-    queryKey: ['programs-for-filter'],
+    queryKey: ['all-programs'],
     queryFn: () => getAllPrograms(),
+  });
+
+  const { data: terms, isLoading: isLoadingTerms } = useQuery({
+    queryKey: ['terms'],
+    queryFn: () => getAllTerms(),
   });
 
   const sponsorOptions =
@@ -69,6 +79,12 @@ export default function SponsoredStudentsHeader({
     programs?.map((program) => ({
       value: program.id.toString(),
       label: `${program.code} - ${program.name}`,
+    })) || [];
+
+  const termOptions =
+    terms?.map((term) => ({
+      value: term.id.toString(),
+      label: term.name + (term.isActive ? ' (Current)' : ''),
     })) || [];
 
   return (
@@ -172,6 +188,27 @@ export default function SponsoredStudentsHeader({
                 value={selectedConfirmation}
                 onChange={onConfirmationChange}
                 clearable
+                leftSection={<IconFilter size='0.9rem' stroke={1.5} />}
+                comboboxProps={{
+                  withinPortal: true,
+                }}
+                styles={{
+                  input: {
+                    fontSize: '14px',
+                  },
+                }}
+              />
+            </Box>
+
+            <Box flex={1} miw={200}>
+              <Select
+                placeholder='All Terms'
+                data={termOptions}
+                value={selectedTerm}
+                onChange={onTermChange}
+                clearable
+                searchable
+                disabled={isLoadingTerms}
                 leftSection={<IconFilter size='0.9rem' stroke={1.5} />}
                 comboboxProps={{
                   withinPortal: true,

@@ -29,12 +29,19 @@ export default function SponsoredStudentsTable() {
   const [selectedConfirmation, setSelectedConfirmation] = useState<
     string | null
   >(null);
+  const [selectedTerm, setSelectedTerm] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, selectedSponsor, selectedProgram, selectedConfirmation]);
+  }, [
+    debouncedSearch,
+    selectedSponsor,
+    selectedProgram,
+    selectedConfirmation,
+    selectedTerm,
+  ]);
 
   const { data, isLoading } = useQuery({
     queryKey: [
@@ -44,6 +51,7 @@ export default function SponsoredStudentsTable() {
       selectedSponsor,
       selectedProgram,
       selectedConfirmation,
+      selectedTerm,
     ],
     queryFn: () =>
       getAllSponsoredStudents(
@@ -55,7 +63,8 @@ export default function SponsoredStudentsTable() {
           ? true
           : selectedConfirmation === 'pending'
             ? false
-            : undefined
+            : undefined,
+        selectedTerm || undefined
       ),
   });
 
@@ -63,18 +72,23 @@ export default function SponsoredStudentsTable() {
     setSelectedSponsor(null);
     setSelectedProgram(null);
     setSelectedConfirmation(null);
+    setSelectedTerm(null);
     setSearchQuery('');
     setPage(1);
   };
 
   const hasActiveFilters = Boolean(
-    selectedSponsor || selectedProgram || selectedConfirmation || searchQuery
+    selectedSponsor ||
+      selectedProgram ||
+      selectedConfirmation ||
+      selectedTerm ||
+      searchQuery
   );
 
   const renderTableHeaders = () => (
     <Table.Thead>
       <Table.Tr>
-        <Table.Th> Std No.</Table.Th>
+        <Table.Th>Std No.</Table.Th>
         <Table.Th>Names</Table.Th>
         <Table.Th>Program</Table.Th>
         <Table.Th>Sponsor</Table.Th>
@@ -256,6 +270,7 @@ export default function SponsoredStudentsTable() {
             sponsorId={selectedSponsor}
             programId={selectedProgram}
             confirmation={selectedConfirmation}
+            termId={selectedTerm}
           />
         </Group>
       </Group>
@@ -269,6 +284,8 @@ export default function SponsoredStudentsTable() {
         onProgramChange={setSelectedProgram}
         selectedConfirmation={selectedConfirmation}
         onConfirmationChange={setSelectedConfirmation}
+        selectedTerm={selectedTerm}
+        onTermChange={setSelectedTerm}
         onClearFilters={clearFilters}
         hasActiveFilters={hasActiveFilters}
       />
