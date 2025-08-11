@@ -49,13 +49,15 @@ export async function getAllSponsoredStudents(
   page: number = 1,
   search = '',
   sponsorId?: string,
-  programId?: string
+  programId?: string,
+  confirmed?: boolean
 ) {
   return service.getAllSponsoredStudents({
     page,
     search,
     sponsorId,
     programId,
+    confirmed,
     limit: 10,
   });
 }

@@ -103,6 +103,7 @@ class SponsorService {
     search?: string;
     sponsorId?: string;
     programId?: string;
+    confirmed?: boolean;
   }) {
     return withAuth(
       async () => this.repository.findAllSponsoredStudents(params),

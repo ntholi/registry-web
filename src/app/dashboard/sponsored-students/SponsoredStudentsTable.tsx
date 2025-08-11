@@ -1,23 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  Stack,
-  Group,
-  Text,
-  Skeleton,
-  Center,
-  Anchor,
-  Pagination as MPagination,
-  Title,
-  Button,
-} from '@mantine/core';
-import { IconFilterX } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { getAllSponsoredStudents } from '@/server/sponsors/actions';
-import Link from 'next/link';
+import {
+  Anchor,
+  Center,
+  Group,
+  Pagination as MPagination,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
+import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';
 import ImportAccountDetailsModal from './ImportAccountDetailsModal';
 import NewSponsoredStudentModal from './NewSponsoredStudentModal';
@@ -27,12 +25,15 @@ export default function SponsoredStudentsTable() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSponsor, setSelectedSponsor] = useState<string | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
+  const [selectedConfirmation, setSelectedConfirmation] = useState<
+    string | null
+  >(null);
   const [page, setPage] = useState(1);
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, selectedSponsor, selectedProgram]);
+  }, [debouncedSearch, selectedSponsor, selectedProgram, selectedConfirmation]);
 
   const { data, isLoading } = useQuery({
     queryKey: [
@@ -41,25 +42,32 @@ export default function SponsoredStudentsTable() {
       debouncedSearch,
       selectedSponsor,
       selectedProgram,
+      selectedConfirmation,
     ],
     queryFn: () =>
       getAllSponsoredStudents(
         page,
         debouncedSearch,
         selectedSponsor || undefined,
-        selectedProgram || undefined
+        selectedProgram || undefined,
+        selectedConfirmation === 'confirmed'
+          ? true
+          : selectedConfirmation === 'pending'
+            ? false
+            : undefined
       ),
   });
 
   const clearFilters = () => {
     setSelectedSponsor(null);
     setSelectedProgram(null);
+    setSelectedConfirmation(null);
     setSearchQuery('');
     setPage(1);
   };
 
   const hasActiveFilters = Boolean(
-    selectedSponsor || selectedProgram || searchQuery
+    selectedSponsor || selectedProgram || selectedConfirmation || searchQuery
   );
 
   const renderTableHeaders = () => (
@@ -252,6 +260,8 @@ export default function SponsoredStudentsTable() {
         onSponsorChange={setSelectedSponsor}
         selectedProgram={selectedProgram}
         onProgramChange={setSelectedProgram}
+        selectedConfirmation={selectedConfirmation}
+        onConfirmationChange={setSelectedConfirmation}
         onClearFilters={clearFilters}
         hasActiveFilters={hasActiveFilters}
       />

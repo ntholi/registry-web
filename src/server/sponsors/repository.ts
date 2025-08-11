@@ -143,6 +143,7 @@ export default class SponsorRepository extends BaseRepository<
     search?: string;
     sponsorId?: string;
     programId?: string;
+    confirmed?: boolean;
   }) {
     const page = params?.page || 1;
     const limit = params?.limit || 10;
@@ -173,12 +174,16 @@ export default class SponsorRepository extends BaseRepository<
       whereConditions.push(
         sql`EXISTS (
           SELECT 1 FROM student_programs sp 
-          JOIN program_structures ps ON sp.structure_id = ps.id 
+          JOIN structures s ON sp.structure_id = s.id 
           WHERE sp.std_no = ${students.stdNo} 
           AND sp.status = 'Active' 
-          AND ps.program_id = ${Number(params.programId)}
+          AND s.program_id = ${Number(params.programId)}
         )`
       );
+    }
+
+    if (params?.confirmed !== undefined) {
+      whereConditions.push(eq(sponsoredStudents.confirmed, params.confirmed));
     }
 
     const whereCondition =

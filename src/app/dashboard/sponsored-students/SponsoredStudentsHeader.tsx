@@ -31,6 +31,8 @@ interface SponsoredStudentsHeaderProps {
   onSponsorChange: (value: string | null) => void;
   selectedProgram: string | null;
   onProgramChange: (value: string | null) => void;
+  selectedConfirmation: string | null;
+  onConfirmationChange: (value: string | null) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -42,6 +44,8 @@ export default function SponsoredStudentsHeader({
   onSponsorChange,
   selectedProgram,
   onProgramChange,
+  selectedConfirmation,
+  onConfirmationChange,
   onClearFilters,
   hasActiveFilters,
 }: SponsoredStudentsHeaderProps) {
@@ -146,6 +150,28 @@ export default function SponsoredStudentsHeader({
                 clearable
                 searchable
                 disabled={isLoadingPrograms}
+                leftSection={<IconFilter size='0.9rem' stroke={1.5} />}
+                comboboxProps={{
+                  withinPortal: true,
+                }}
+                styles={{
+                  input: {
+                    fontSize: '14px',
+                  },
+                }}
+              />
+            </Box>
+
+            <Box flex={1} miw={200}>
+              <Select
+                placeholder='All Confirmations'
+                data={[
+                  { value: 'confirmed', label: 'Confirmed' },
+                  { value: 'pending', label: 'Pending' },
+                ]}
+                value={selectedConfirmation}
+                onChange={onConfirmationChange}
+                clearable
                 leftSection={<IconFilter size='0.9rem' stroke={1.5} />}
                 comboboxProps={{
                   withinPortal: true,
