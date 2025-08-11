@@ -86,9 +86,9 @@ export default function TranscriptsPage() {
   return (
     <Container size='md'>
       <Stack gap='lg' py='md'>
-        <Group justify='space-between' align='flex-end'>
+        <Group justify='space-between'>
           <Box>
-            <Title order={1} mb='xs' size={'h3'}>
+            <Title order={1} size={'h3'}>
               Academic Transcripts
             </Title>
             <Text size='sm' c='dimmed'>

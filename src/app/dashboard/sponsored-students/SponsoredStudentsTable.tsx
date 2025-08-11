@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';
 import ImportAccountDetailsModal from './ImportAccountDetailsModal';
+import DownloadSponsoredStudentsButton from './DownloadButton';
 import NewSponsoredStudentModal from './NewSponsoredStudentModal';
 import SponsoredStudentsHeader from './SponsoredStudentsHeader';
 
@@ -250,6 +251,12 @@ export default function SponsoredStudentsTable() {
         <Group gap='sm'>
           <NewSponsoredStudentModal />
           <ImportAccountDetailsModal />
+          <DownloadSponsoredStudentsButton
+            searchQuery={searchQuery}
+            sponsorId={selectedSponsor}
+            programId={selectedProgram}
+            confirmation={selectedConfirmation}
+          />
         </Group>
       </Group>
 
