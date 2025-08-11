@@ -83,6 +83,11 @@ export default class ModuleRepository extends BaseRepository<
       where: eq(semesterModules.id, id),
       with: {
         module: true,
+        semester: {
+          with: {
+            structure: true,
+          },
+        },
       },
     });
   }

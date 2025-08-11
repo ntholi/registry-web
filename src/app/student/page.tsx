@@ -16,7 +16,9 @@ export default function Page() {
     );
   }
 
-  const shouldShowMessage = ![3, 4, 8, 10].includes(program?.schoolId ?? 0);
+  const shouldShowMessage = ![3, 4, 8, 10, 7, 15].includes(
+    program?.schoolId ?? 0
+  );
 
   if (shouldShowMessage) {
     return (

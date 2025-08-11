@@ -16,6 +16,7 @@ import {
   ListItem,
   ThemeIcon,
   Text,
+  SimpleGrid,
 } from '@mantine/core';
 import { IconCircleCheck } from '@tabler/icons-react';
 import Link from 'next/link';
@@ -37,7 +38,7 @@ export default async function ModuleDetails({ params }: Props) {
   return (
     <DetailsView>
       <DetailsViewHeader
-        title={'Module'}
+        title={'Semester Module'}
         queryKey={['modules']}
         handleDelete={async () => {
           'use server';
@@ -46,10 +47,34 @@ export default async function ModuleDetails({ params }: Props) {
       />
       <DetailsViewBody>
         <FieldView label='ID'>{item.id}</FieldView>
-        <FieldView label='Code'>{item.module!.code}</FieldView>
-        <FieldView label='Name'>{item.module!.name}</FieldView>
-        <FieldView label='Type'>{item.type}</FieldView>
-        <FieldView label='Credits'>{item.credits}</FieldView>
+        <FieldView label='Module'>
+          <Anchor
+            size='sm'
+            component={Link}
+            href={`/dashboard/modules/${item.module!.id}`}
+          >
+            {item.module!.name} ({item.module!.code})
+          </Anchor>
+        </FieldView>
+        <SimpleGrid cols={2}>
+          <FieldView label='Type'>{item.type}</FieldView>
+          <FieldView label='Credits'>{item.credits}</FieldView>
+        </SimpleGrid>
+        <FieldView label='Structure'>
+          {item.semester?.structure ? (
+            <Anchor
+              size='sm'
+              component={Link}
+              href={`/dashboard/schools/structures/${item.semester.structure.id}`}
+            >
+              {item.semester.structure.code}
+            </Anchor>
+          ) : (
+            <Text size='sm' c='dimmed'>
+              Not linked
+            </Text>
+          )}
+        </FieldView>
 
         <Fieldset legend='Prerequisites'>
           {prerequisites.length === 0 ? (
@@ -70,7 +95,7 @@ export default async function ModuleDetails({ params }: Props) {
                   <Anchor
                     size='sm'
                     component={Link}
-                    href={`/dashboard/modules/${it.id}`}
+                    href={`/dashboard/semester-modules/${it.id}`}
                   >
                     {it.code} - {it.name}
                   </Anchor>
