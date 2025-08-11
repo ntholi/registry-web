@@ -119,7 +119,7 @@ export default function Hero() {
                   Credits
                 </Text>
                 <Text fw={700} size='1.8rem'>
-                  {remarks.latestPoints.creditsCompleted}
+                  {remarks.totalCreditsCompleted}
                 </Text>
               </Stack>
             </Grid.Col>

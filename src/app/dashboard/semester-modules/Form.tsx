@@ -59,16 +59,16 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
     <Form
       title={title}
       action={onSubmit}
-      queryKey={['modules']}
+      queryKey={['semester-modules']}
       schema={schema}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
-        router.push(`/dashboard/modules/${id}`);
+        router.push(`/dashboard/semester-modules/${id}`);
       }}
     >
       {(form) => (
         <>
-          <NumberInput label='ID' {...form.getInputProps('id')} />
+          <NumberInput label='Module Id' {...form.getInputProps('moduleId')} />
           <Select
             label='Type'
             data={moduleTypeEnum.map((type) => ({ value: type, label: type }))}
