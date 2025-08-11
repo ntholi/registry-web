@@ -12,7 +12,7 @@ import {
   terms,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
+import { SQL, and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 
 type ModuleInfo = {
   code: string;
@@ -38,15 +38,38 @@ export default class ModuleRepository extends BaseRepository<
     super(semesterModules, 'id');
   }
 
+  private buildModuleSearchWhere(
+    search: string,
+    baseWhere?: SQL
+  ): SQL | undefined {
+    const trimmed = search.trim();
+    if (!trimmed) return baseWhere;
+    const moduleFilter = inArray(
+      semesterModules.moduleId,
+      db
+        .select({ value: modules.id })
+        .from(modules)
+        .where(
+          or(
+            like(modules.code, `%${trimmed}%`),
+            like(modules.name, `%${trimmed}%`)
+          )
+        )
+    );
+    return baseWhere ? and(baseWhere, moduleFilter) : moduleFilter;
+  }
+
   async search(
     options: QueryOptions<typeof semesterModules>,
-    searchKey: string,
+    searchKey: string
   ) {
     const criteria = this.buildQueryCriteria(options);
 
+    const where = this.buildModuleSearchWhere(searchKey, criteria.where);
+
     const data = await db.query.semesterModules.findMany({
       ...criteria,
-      where: like(modules.name, `%${searchKey}%`),
+      where,
       with: {
         module: true,
       },
@@ -91,12 +114,7 @@ export default class ModuleRepository extends BaseRepository<
           with: {
             module: true,
           },
-          where: search
-            ? or(
-                like(modules.code, `%${search}%`),
-                like(modules.name, `%${search}%`),
-              )
-            : undefined,
+          where: this.buildModuleSearchWhere(search),
         },
       },
       orderBy: structureSemesters.semesterNumber,
@@ -130,7 +148,7 @@ export default class ModuleRepository extends BaseRepository<
       .from(modulePrerequisites)
       .innerJoin(
         semesterModules,
-        eq(semesterModules.id, modulePrerequisites.prerequisiteId),
+        eq(semesterModules.id, modulePrerequisites.prerequisiteId)
       )
       .innerJoin(modules, eq(modules.id, semesterModules.moduleId))
       .where(eq(modulePrerequisites.semesterModuleId, semesterModuleId))
@@ -167,7 +185,7 @@ export default class ModuleRepository extends BaseRepository<
           ...semester,
           modules: modulesList,
         };
-      }),
+      })
     );
 
     return semestersWithModules;
@@ -224,7 +242,7 @@ export default class ModuleRepository extends BaseRepository<
       .innerJoin(modules, eq(semesterModules.moduleId, modules.id))
       .innerJoin(
         structureSemesters,
-        eq(semesterModules.semesterId, structureSemesters.id),
+        eq(semesterModules.semesterId, structureSemesters.id)
       )
       .innerJoin(structures, eq(structureSemesters.structureId, structures.id))
       .innerJoin(programs, eq(structures.programId, programs.id))
@@ -233,10 +251,10 @@ export default class ModuleRepository extends BaseRepository<
           search
             ? or(
                 like(modules.code, `%${search}%`),
-                like(modules.name, `%${search}%`),
+                like(modules.name, `%${search}%`)
               )
-            : undefined,
-        ),
+            : undefined
+        )
       )
       .orderBy(modules.code);
 
@@ -249,21 +267,21 @@ export default class ModuleRepository extends BaseRepository<
       .from(studentModules)
       .innerJoin(
         studentSemesters,
-        eq(studentModules.studentSemesterId, studentSemesters.id),
+        eq(studentModules.studentSemesterId, studentSemesters.id)
       )
       .where(
         and(
           inArray(studentModules.semesterModuleId, semesterModuleIds),
-          eq(studentSemesters.term, term.name),
-        ),
+          eq(studentSemesters.term, term.name)
+        )
       )
       .groupBy(studentModules.semesterModuleId)
       .then((rows) =>
         rows.reduce(
           (map, { semesterModuleId, count }) =>
             map.set(semesterModuleId, count),
-          new Map<number, number>(),
-        ),
+          new Map<number, number>()
+        )
       );
 
     const groupedModules = new Map<string, ModuleInfo>();
@@ -296,7 +314,7 @@ export default class ModuleRepository extends BaseRepository<
           ...module,
           totalStudents: module.semesters.reduce(
             (sum, s) => sum + (s.studentCount || 0),
-            0,
+            0
           ),
         }))
         .sort((a, b) => b.totalStudents - a.totalStudents)
