@@ -2,43 +2,51 @@ import { db } from '@/db';
 import { DashboardUser, registrationClearances } from '@/db/schema';
 import { and, between, count, eq, sql } from 'drizzle-orm';
 
+type DateInput = Date | string | number;
+
 export interface DateRangeFilter {
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: DateInput;
+  endDate?: DateInput;
+}
+
+function normalizeDate(input?: DateInput): Date | undefined {
+  if (!input) return undefined;
+  if (input instanceof Date) return input;
+  const parsed = new Date(input);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
 }
 
 export async function getClearanceStatsByDepartment(
   department: DashboardUser,
-  dateRange?: DateRangeFilter,
+  dateRange?: DateRangeFilter
 ) {
   let dateCondition = undefined;
 
-  if (dateRange?.startDate && dateRange?.endDate) {
-    dateCondition = between(
-      registrationClearances.responseDate,
-      dateRange.startDate,
-      dateRange.endDate,
-    );
+  const start = normalizeDate(dateRange?.startDate);
+  const end = normalizeDate(dateRange?.endDate);
+
+  if (start && end) {
+    dateCondition = between(registrationClearances.responseDate, start, end);
   }
   const overallStats = await db
     .select({
       total: count(registrationClearances.id),
       approved:
         sql`SUM(CASE WHEN ${registrationClearances.status} = 'approved' AND ${registrationClearances.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
-          Number,
+          Number
         ),
       rejected:
         sql`SUM(CASE WHEN ${registrationClearances.status} = 'rejected' AND ${registrationClearances.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
-          Number,
+          Number
         ),
       pending:
         sql`SUM(CASE WHEN ${registrationClearances.status} = 'pending' AND ${registrationClearances.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
-          Number,
+          Number
         ),
     })
     .from(registrationClearances)
     .where(
-      and(eq(registrationClearances.department, department), dateCondition),
+      and(eq(registrationClearances.department, department), dateCondition)
     );
 
   const staffStats = await db
@@ -46,11 +54,11 @@ export async function getClearanceStatsByDepartment(
       respondedBy: registrationClearances.respondedBy,
       approved:
         sql`SUM(CASE WHEN ${registrationClearances.status} = 'approved' THEN 1 ELSE 0 END)`.mapWith(
-          Number,
+          Number
         ),
       rejected:
         sql`SUM(CASE WHEN ${registrationClearances.status} = 'rejected' THEN 1 ELSE 0 END)`.mapWith(
-          Number,
+          Number
         ),
       total: count(registrationClearances.id),
     })
@@ -59,8 +67,8 @@ export async function getClearanceStatsByDepartment(
       and(
         eq(registrationClearances.department, department),
         dateCondition,
-        sql`${registrationClearances.respondedBy} IS NOT NULL`,
-      ),
+        sql`${registrationClearances.respondedBy} IS NOT NULL`
+      )
     )
     .groupBy(registrationClearances.respondedBy);
 
