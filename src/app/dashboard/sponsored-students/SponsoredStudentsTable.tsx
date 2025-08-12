@@ -3,6 +3,7 @@
 import { getAllSponsoredStudents } from '@/server/sponsors/actions';
 import {
   Anchor,
+  Badge,
   Center,
   Group,
   Pagination as MPagination,
@@ -13,12 +14,13 @@ import {
   Title,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
+import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import DownloadSponsoredStudentsButton from './DownloadButton';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';
 import ImportAccountDetailsModal from './ImportAccountDetailsModal';
-import DownloadSponsoredStudentsButton from './DownloadButton';
 import NewSponsoredStudentModal from './NewSponsoredStudentModal';
 import SponsoredStudentsHeader from './SponsoredStudentsHeader';
 
@@ -271,10 +273,19 @@ export default function SponsoredStudentsTable() {
   return (
     <Stack gap='lg'>
       <Group justify='space-between' align='center'>
-        <Title order={2} fw={500}>
-          Sponsored Students
-        </Title>
-        <Group gap='sm'>
+        <Group align='baseline'>
+          <Title order={3} fw={500}>
+            Sponsored Students
+          </Title>
+          <Badge
+            variant='light'
+            color='gray'
+            leftSection={<IconUsers size={14} />}
+          >
+            {(data?.totalItems ?? 0).toLocaleString()} total
+          </Badge>
+        </Group>
+        <Group gap='sm' align='center'>
           <NewSponsoredStudentModal />
           <ImportAccountDetailsModal />
           <DownloadSponsoredStudentsButton
