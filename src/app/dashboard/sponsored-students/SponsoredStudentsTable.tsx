@@ -30,6 +30,7 @@ export default function SponsoredStudentsTable() {
     string | null
   >(null);
   const [selectedTerm, setSelectedTerm] = useState<string | null>(null);
+  const [onlyCleared, setOnlyCleared] = useState(false);
   const [page, setPage] = useState(1);
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
@@ -41,7 +42,14 @@ export default function SponsoredStudentsTable() {
     selectedProgram,
     selectedConfirmation,
     selectedTerm,
+    onlyCleared,
   ]);
+
+  useEffect(() => {
+    if (!selectedTerm && onlyCleared) {
+      setOnlyCleared(false);
+    }
+  }, [selectedTerm, onlyCleared]);
 
   const { data, isLoading } = useQuery({
     queryKey: [
@@ -52,6 +60,7 @@ export default function SponsoredStudentsTable() {
       selectedProgram,
       selectedConfirmation,
       selectedTerm,
+      onlyCleared,
     ],
     queryFn: () =>
       getAllSponsoredStudents(
@@ -64,7 +73,8 @@ export default function SponsoredStudentsTable() {
           : selectedConfirmation === 'pending'
             ? false
             : undefined,
-        selectedTerm || undefined
+        selectedTerm || undefined,
+        onlyCleared || undefined
       ),
   });
 
@@ -73,6 +83,7 @@ export default function SponsoredStudentsTable() {
     setSelectedProgram(null);
     setSelectedConfirmation(null);
     setSelectedTerm(null);
+    setOnlyCleared(false);
     setSearchQuery('');
     setPage(1);
   };
@@ -82,6 +93,7 @@ export default function SponsoredStudentsTable() {
       selectedProgram ||
       selectedConfirmation ||
       selectedTerm ||
+      onlyCleared ||
       searchQuery
   );
 
@@ -271,6 +283,7 @@ export default function SponsoredStudentsTable() {
             programId={selectedProgram}
             confirmation={selectedConfirmation}
             termId={selectedTerm}
+            clearedOnly={onlyCleared}
           />
         </Group>
       </Group>
@@ -286,6 +299,8 @@ export default function SponsoredStudentsTable() {
         onConfirmationChange={setSelectedConfirmation}
         selectedTerm={selectedTerm}
         onTermChange={setSelectedTerm}
+        onlyCleared={onlyCleared}
+        onOnlyClearedChange={setOnlyCleared}
         onClearFilters={clearFilters}
         hasActiveFilters={hasActiveFilters}
       />

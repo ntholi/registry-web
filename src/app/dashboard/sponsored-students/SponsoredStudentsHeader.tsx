@@ -1,29 +1,20 @@
 'use client';
 
-import React from 'react';
-import {
-  Group,
-  TextInput,
-  Select,
-  Button,
-  Stack,
-  Card,
-  Flex,
-  Box,
-  CloseButton,
-  ActionIcon,
-  Tooltip,
-} from '@mantine/core';
-import {
-  IconSearch,
-  IconFilter,
-  IconFilterX,
-  IconAdjustments,
-} from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { findAllSponsors } from '@/server/sponsors/actions';
 import { getAllPrograms } from '@/server/schools/actions';
+import { findAllSponsors } from '@/server/sponsors/actions';
 import { getAllTerms } from '@/server/terms/actions';
+import {
+  Box,
+  Checkbox,
+  CloseButton,
+  Flex,
+  Paper,
+  Select,
+  Stack,
+  TextInput,
+} from '@mantine/core';
+import { IconFilter, IconSearch } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 
 interface SponsoredStudentsHeaderProps {
   searchQuery: string;
@@ -36,6 +27,8 @@ interface SponsoredStudentsHeaderProps {
   onConfirmationChange: (value: string | null) => void;
   selectedTerm: string | null;
   onTermChange: (value: string | null) => void;
+  onlyCleared: boolean;
+  onOnlyClearedChange: (value: boolean) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -51,6 +44,8 @@ export default function SponsoredStudentsHeader({
   onConfirmationChange,
   selectedTerm,
   onTermChange,
+  onlyCleared,
+  onOnlyClearedChange,
   onClearFilters,
   hasActiveFilters,
 }: SponsoredStudentsHeaderProps) {
@@ -88,7 +83,7 @@ export default function SponsoredStudentsHeader({
     })) || [];
 
   return (
-    <Card withBorder shadow='sm' p='lg'>
+    <Paper withBorder shadow='sm' p='lg'>
       <Stack gap='lg'>
         <Flex
           direction={{ base: 'column', sm: 'row' }}
@@ -128,14 +123,12 @@ export default function SponsoredStudentsHeader({
           gap='md'
           align={{ base: 'stretch', md: 'flex-start' }}
         >
-          <Group gap='xs' align='center' style={{ flexShrink: 0 }}>
-            <IconAdjustments size='1rem' stroke={1.5} />
-            <Box component='span' fw={500} fz='sm' c='dimmed'>
-              Filters
-            </Box>
-          </Group>
-
-          <Flex flex={1} direction={{ base: 'column', sm: 'row' }} gap='md'>
+          <Flex
+            flex={1}
+            direction={{ base: 'column', sm: 'row' }}
+            gap='md'
+            align='center'
+          >
             <Box flex={1} miw={200}>
               <Select
                 placeholder='All Sponsors'
@@ -180,7 +173,7 @@ export default function SponsoredStudentsHeader({
 
             <Box flex={1} miw={200}>
               <Select
-                placeholder='All Confirmations'
+                placeholder='Confirmation'
                 data={[
                   { value: 'confirmed', label: 'Confirmed' },
                   { value: 'pending', label: 'Pending' },
@@ -220,9 +213,17 @@ export default function SponsoredStudentsHeader({
                 }}
               />
             </Box>
+            <Box miw={200}>
+              <Checkbox
+                label='Only Cleared Students'
+                disabled={!selectedTerm}
+                checked={onlyCleared}
+                onChange={(e) => onOnlyClearedChange(e.currentTarget.checked)}
+              />
+            </Box>
           </Flex>
         </Flex>
       </Stack>
-    </Card>
+    </Paper>
   );
 }

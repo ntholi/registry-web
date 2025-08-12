@@ -51,7 +51,8 @@ export async function getAllSponsoredStudents(
   sponsorId?: string,
   programId?: string,
   confirmed?: boolean,
-  termId?: string
+  termId?: string,
+  clearedOnly?: boolean
 ) {
   return service.getAllSponsoredStudents({
     page,
@@ -60,6 +61,7 @@ export async function getAllSponsoredStudents(
     programId,
     confirmed,
     termId,
+    clearedOnly,
     limit: 10,
   });
 }

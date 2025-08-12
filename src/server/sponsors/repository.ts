@@ -146,6 +146,7 @@ export default class SponsorRepository extends BaseRepository<
     programId?: string;
     confirmed?: boolean;
     termId?: string;
+    clearedOnly?: boolean;
   }) {
     const page = params?.page || 1;
     const limit = params?.limit || 10;
@@ -194,6 +195,26 @@ export default class SponsorRepository extends BaseRepository<
           SELECT 1 FROM sponsored_terms st 
           WHERE st.sponsored_student_id = ${sponsoredStudents.id} 
           AND st.term_id = ${Number(params.termId)}
+        )`
+      );
+    }
+
+    if (params?.clearedOnly && params.termId) {
+      whereConditions.push(
+        sql`EXISTS (
+          SELECT 1
+          FROM registration_requests rr
+          WHERE rr.std_no = ${students.stdNo}
+            AND rr.term_id = ${Number(params.termId)}
+            AND NOT EXISTS (
+              SELECT 1 FROM registration_clearances rc
+              WHERE rc.registration_request_id = rr.id
+                AND rc.status != 'approved'
+            )
+            AND EXISTS (
+              SELECT 1 FROM registration_clearances rc2
+              WHERE rc2.registration_request_id = rr.id
+            )
         )`
       );
     }
