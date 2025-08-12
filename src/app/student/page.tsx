@@ -16,11 +16,11 @@ export default function Page() {
     );
   }
 
-  const shouldShowMessage = ![3, 4, 8, 10, 7, 15].includes(
-    program?.schoolId ?? 0
-  );
+  const canRegister =
+    [3, 4, 8, 10, 7, 15].includes(program?.schoolId ?? 0) ||
+    [513, 500, 505, 498, 499].includes(program?.structureId ?? 0);
 
-  if (shouldShowMessage) {
+  if (!canRegister) {
     return (
       <Container size='md'>
         <Title order={2} ta='center'>
