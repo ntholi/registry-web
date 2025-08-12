@@ -57,6 +57,7 @@ export default async function UserDetails({ params }: Props) {
             <Stack gap={'lg'} p={'sm'}>
               <FieldView label='Name'>{users.name}</FieldView>
 
+              <FieldView label='Email'>{users.email}</FieldView>
               <FieldView label='Role'>
                 <Badge
                   color={getRoleColor(users.role)}
@@ -69,8 +70,6 @@ export default async function UserDetails({ params }: Props) {
               <FieldView label='Position'>
                 {toTitleCase(users.position)}
               </FieldView>
-
-              <FieldView label='Email'>{users.email}</FieldView>
             </Stack>
           </GridCol>
         </Grid>

@@ -18,7 +18,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
 type User = typeof users.$inferInsert;
@@ -68,16 +68,16 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
       )
     : [];
 
-  useState(() => {
+  useEffect(() => {
     if (defaultSchoolIds.length > 0 && selectedSchools.length === 0) {
       setSelectedSchools(defaultSchoolIds);
     }
-  });
+  }, [defaultSchoolIds.join(',')]);
 
   const userFormSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     role: z.enum(userRoles),
-    position: z.enum(userPositions).optional(),
+    position: z.enum(userPositions).nullable().optional(),
     schoolIds: z.array(z.string()).optional(),
   });
 
@@ -119,19 +119,26 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
         </Group>
       </Modal>
 
-      <Form
+      <Form<UserWithSchools, Partial<UserWithSchools>>
         title={title}
         action={(values) => {
-          const formattedValues = {
+          const formattedValues: UserWithSchools = {
             ...values,
-            schoolIds: selectedSchools.map((id: string) => parseInt(id)),
+            schoolIds:
+              values.role === 'academic'
+                ? selectedSchools.map((id: string) => parseInt(id))
+                : undefined,
           };
-          return onSubmit(formattedValues);
+          return onSubmit(formattedValues).then((user) => ({
+            ...formattedValues,
+            id: user.id,
+          }));
         }}
         queryKey={['users']}
         schema={userFormSchema}
         defaultValues={{
           ...defaultValues,
+          role: (defaultValues?.role ?? 'user') as (typeof userRoles)[number],
         }}
         onSuccess={({ id }) => {
           router.push(`/dashboard/users/${id}`);
@@ -139,79 +146,94 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
       >
         {(form) => (
           <>
-            <TextInput label='Name' {...form.getInputProps('name')} />
-            <Select
-              label='Role'
-              searchable
-              data={userRoles
-                .map((role) => ({
-                  value: role,
-                  label: toTitleCase(role),
-                }))
-                .sort((a, b) => a.label.localeCompare(b.label))}
-              {...form.getInputProps('role')}
+            <TextInput
+              label='Name'
+              {...form.getInputProps('name')}
+              description={form.values.email}
             />
-            {form.values.role === 'academic' && (
+            <Group>
+              <Select
+                label='Role'
+                flex={1}
+                searchable
+                data={userRoles
+                  .map((role) => ({
+                    value: role,
+                    label: toTitleCase(role),
+                  }))
+                  .sort((a, b) => a.label.localeCompare(b.label))}
+                {...form.getInputProps('role')}
+                onChange={(value) => {
+                  form.setFieldValue(
+                    'role',
+                    (value || 'user') as (typeof userRoles)[number]
+                  );
+                  if (value !== 'academic' && selectedSchools.length > 0) {
+                    setSelectedSchools([]);
+                  }
+                }}
+              />
+
               <Select
                 label='Position'
+                flex={1}
                 searchable
+                clearable
                 data={userPositions.map((position) => ({
                   value: position,
                   label: toTitleCase(position),
                 }))}
                 {...form.getInputProps('position')}
               />
-            )}
-            <div>
-              <Group justify='space-between' align='center' mb='xs'>
-                <Text fw={500}>Schools</Text>
-                <Button
-                  leftSection={<IconPlus size={16} />}
-                  size='xs'
-                  onClick={open}
-                  variant='light'
-                >
-                  Add School
-                </Button>
-              </Group>
+            </Group>
+            {form.values.role === 'academic' && (
+              <div>
+                <Group justify='space-between' align='center' mb='xs'>
+                  <Text fw={500}>Schools</Text>
+                  <Button
+                    leftSection={<IconPlus size={16} />}
+                    size='xs'
+                    onClick={open}
+                    variant='light'
+                  >
+                    Add School
+                  </Button>
+                </Group>
 
-              {selectedSchools.length > 0 ? (
-                <Table striped highlightOnHover withTableBorder>
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>School Name</Table.Th>
-                      <Table.Th style={{ width: 80 }}>Actions</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {selectedSchools.map((schoolId) => (
-                      <Table.Tr key={schoolId}>
-                        <Table.Td>{getSchoolNameById(schoolId)}</Table.Td>
-                        <Table.Td>
-                          <ActionIcon
-                            color='red'
-                            variant='subtle'
-                            onClick={() => handleRemoveSchool(schoolId)}
-                          >
-                            <IconTrash size={16} />
-                          </ActionIcon>
-                        </Table.Td>
+                {selectedSchools.length > 0 ? (
+                  <Table striped highlightOnHover withTableBorder>
+                    <Table.Thead>
+                      <Table.Tr>
+                        <Table.Th>School Name</Table.Th>
+                        <Table.Th style={{ width: 80 }}>Actions</Table.Th>
                       </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              ) : (
-                <Text c='dimmed' ta='center' py='md'>
-                  No schools assigned. Click &quot;Add School&quot; to assign
-                  schools to this user.
-                </Text>
-              )}
-              <input
-                type='hidden'
-                {...form.getInputProps('schoolIds')}
-                value={selectedSchools}
-              />
-            </div>
+                    </Table.Thead>
+                    <Table.Tbody>
+                      {selectedSchools.map((schoolId) => (
+                        <Table.Tr key={schoolId}>
+                          <Table.Td>{getSchoolNameById(schoolId)}</Table.Td>
+                          <Table.Td>
+                            <ActionIcon
+                              color='red'
+                              variant='subtle'
+                              onClick={() => handleRemoveSchool(schoolId)}
+                            >
+                              <IconTrash size={16} />
+                            </ActionIcon>
+                          </Table.Td>
+                        </Table.Tr>
+                      ))}
+                    </Table.Tbody>
+                  </Table>
+                ) : (
+                  <Text c='dimmed' ta='center' py='md'>
+                    No schools assigned. Click &quot;Add School&quot; to assign
+                    schools to this user.
+                  </Text>
+                )}
+                <input type='hidden' {...form.getInputProps('schoolIds')} />
+              </div>
+            )}
           </>
         )}
       </Form>
