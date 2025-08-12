@@ -19,6 +19,7 @@ import {
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { deleteUser, getUser, getUserSchools } from '@/server/users/actions';
+import { SchoolsList } from './SchoolsList';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -45,14 +46,14 @@ export default async function UserDetails({ params }: Props) {
       />
       <DetailsViewBody>
         <Grid>
-          <GridCol span={{ base: 12, md: 6 }}>
+          <GridCol span={{ base: 12, md: 5 }}>
             <Card withBorder p={'sm'}>
               <Center>
-                <Avatar src={largeProfilePic(users.image)} size={300} />
+                <Avatar src={largeProfilePic(users.image)} size={220} />
               </Center>
             </Card>
           </GridCol>
-          <GridCol span={{ base: 12, md: 6 }}>
+          <GridCol span={{ base: 12, md: 7 }}>
             <Stack gap={'lg'} p={'sm'}>
               <FieldView label='Name'>{users.name}</FieldView>
 
@@ -61,43 +62,19 @@ export default async function UserDetails({ params }: Props) {
                   color={getRoleColor(users.role)}
                   radius={'sm'}
                   variant='light'
-                  size='lg'
                 >
                   {toTitleCase(users.role)}
                 </Badge>
               </FieldView>
-
-              {users.position && (
-                <FieldView label='Position'>
-                  {toTitleCase(users.position)}
-                </FieldView>
-              )}
+              <FieldView label='Position'>
+                {toTitleCase(users.position)}
+              </FieldView>
 
               <FieldView label='Email'>{users.email}</FieldView>
-
-              <Divider my='xs' />
-
-              <FieldView label='Schools'>
-                {userSchools && userSchools.length > 0 ? (
-                  <Stack gap='xs'>
-                    {userSchools.map((school) => (
-                      <Group key={school.schoolId}>
-                        <Badge variant='light' color='blue'>
-                          {school.school.code}
-                        </Badge>
-                        <Text size='sm'>{school.school.name}</Text>
-                      </Group>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Text c='dimmed' size='sm'>
-                    No schools assigned
-                  </Text>
-                )}
-              </FieldView>
             </Stack>
           </GridCol>
         </Grid>
+        {users.role === 'academic' && <SchoolsList userId={id} />}
       </DetailsViewBody>
     </DetailsView>
   );
