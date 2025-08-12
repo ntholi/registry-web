@@ -40,14 +40,11 @@ class ModuleService {
   }
 
   async create(data: Module) {
-    return withAuth(async () => this.repository.create(data), ['dashboard']);
+    return withAuth(async () => this.repository.create(data), ['registry']);
   }
 
   async update(id: number, data: Module) {
-    return withAuth(
-      async () => this.repository.update(id, data),
-      ['dashboard']
-    );
+    return withAuth(async () => this.repository.update(id, data), ['registry']);
   }
 
   async delete(id: number) {

@@ -13,11 +13,11 @@ class ModuleService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), ['academic']);
+    return withAuth(async () => this.repository.findById(id), ['dashboard']);
   }
 
   async getAll(params: QueryOptions<typeof modules>) {
-    return withAuth(async () => this.repository.query(params), ['academic']);
+    return withAuth(async () => this.repository.query(params), ['dashboard']);
   }
 
   async create(data: Module) {

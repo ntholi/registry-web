@@ -1,23 +1,25 @@
 import {
   DetailsView,
+  DetailsViewBody,
   DetailsViewHeader,
   FieldView,
-  DetailsViewBody,
 } from '@/components/adease';
-import { notFound } from 'next/navigation';
-import { getModule, deleteModule } from '@/server/modules/actions';
+import { deleteModule, getModule } from '@/server/modules/actions';
 import { getStructuresByModule } from '@/server/semester-modules/actions';
 import {
   Anchor,
-  Fieldset,
-  List,
-  ListItem,
-  Text,
-  ThemeIcon,
+  Box,
   Skeleton,
+  Table,
+  TableTbody,
+  TableTd,
+  TableTh,
+  TableThead,
+  TableTr,
+  Text,
 } from '@mantine/core';
 import Link from 'next/link';
-import { IconCircleCheck } from '@tabler/icons-react';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 type Props = {
@@ -60,60 +62,68 @@ type StructuresSectionProps = { moduleId: number };
 async function StructuresSection({ moduleId }: StructuresSectionProps) {
   const structures = await getStructuresByModule(moduleId);
   return (
-    <Fieldset legend='Structures'>
+    <Box mt='md'>
       {structures.length === 0 ? (
         <Text size='sm'>Not referenced in any structure</Text>
       ) : (
-        <List
-          spacing='xs'
-          size='sm'
-          center
-          icon={
-            <ThemeIcon color='gray' variant='light' size={'sm'} radius='xl'>
-              <IconCircleCheck />
-            </ThemeIcon>
-          }
-        >
-          {structures.map((s) => (
-            <ListItem key={s.id}>
-              <Anchor
-                size='sm'
-                component={Link}
-                href={`/dashboard/schools/structures/${s.id}`}
-              >
-                {s.code}
-              </Anchor>
-            </ListItem>
-          ))}
-        </List>
+        <Table striped highlightOnHover withTableBorder withColumnBorders>
+          <TableThead>
+            <TableTr>
+              <TableTh>Program</TableTh>
+              <TableTh>Structure</TableTh>
+            </TableTr>
+          </TableThead>
+          <TableTbody>
+            {structures.map((s) => (
+              <TableTr key={s.id}>
+                <TableTd>{s.programName}</TableTd>
+                <TableTd>
+                  <Anchor
+                    size='sm'
+                    component={Link}
+                    href={`/dashboard/schools/structures/${s.id}`}
+                  >
+                    {s.code}
+                  </Anchor>
+                </TableTd>
+              </TableTr>
+            ))}
+          </TableTbody>
+        </Table>
       )}
-    </Fieldset>
+    </Box>
   );
 }
 
 function StructuresLoading() {
   return (
-    <Fieldset legend='Structures'>
-      <List
-        spacing='xs'
-        size='sm'
-        center
-        icon={
-          <ThemeIcon color='gray' variant='light' size={'sm'} radius='xl'>
-            <IconCircleCheck />
-          </ThemeIcon>
-        }
-      >
-        <ListItem>
-          <Skeleton h={8} w={160} radius='xl' />
-        </ListItem>
-        <ListItem>
-          <Skeleton h={8} w={140} radius='xl' />
-        </ListItem>
-        <ListItem>
-          <Skeleton h={8} w={120} radius='xl' />
-        </ListItem>
-      </List>
-    </Fieldset>
+    <Box mt='md'>
+      <Table striped withTableBorder withColumnBorders>
+        <TableThead>
+          <TableTr>
+            <TableTh>Program</TableTh>
+            <TableTh>Structure</TableTh>
+          </TableTr>
+        </TableThead>
+        <TableTbody>
+          <TableTr>
+            <TableTd>
+              <Skeleton h={10} w={220} radius='xl' />
+            </TableTd>
+            <TableTd>
+              <Skeleton h={10} w={120} radius='xl' />
+            </TableTd>
+          </TableTr>
+          <TableTr>
+            <TableTd>
+              <Skeleton h={10} w={200} radius='xl' />
+            </TableTd>
+            <TableTd>
+              <Skeleton h={10} w={100} radius='xl' />
+            </TableTd>
+          </TableTr>
+        </TableTbody>
+      </Table>
+    </Box>
   );
 }
