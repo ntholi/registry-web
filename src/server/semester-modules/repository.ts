@@ -208,6 +208,20 @@ export default class ModuleRepository extends BaseRepository<
       .orderBy(programs.code);
   }
 
+  async getStructuresByModule(moduleId: number) {
+    return db
+      .select({ id: structures.id, code: structures.code })
+      .from(semesterModules)
+      .innerJoin(
+        structureSemesters,
+        eq(semesterModules.semesterId, structureSemesters.id)
+      )
+      .innerJoin(structures, eq(structureSemesters.structureId, structures.id))
+      .where(eq(semesterModules.moduleId, moduleId))
+      .groupBy(structures.id, structures.code)
+      .orderBy(structures.code);
+  }
+
   async getStructuresByProgram(programId: number) {
     return db
       .select()
