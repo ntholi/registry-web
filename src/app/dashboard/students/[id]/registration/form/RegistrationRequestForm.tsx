@@ -8,7 +8,6 @@ import {
   getStudentSemesterModules,
 } from '@/server/registration-requests/actions';
 import { getAcademicHistory } from '@/server/students/actions';
-import { getStructureModules } from '@/server/structures/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   Alert,
@@ -24,10 +23,10 @@ import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconX } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import SemesterInfoCard from './SemesterInfoCard';
-import TermSelector from './TermSelector';
-import SponsorSelector from './SponsorSelector';
 import ModuleSection from './ModuleSection';
+import SemesterInfoCard from './SemesterInfoCard';
+import SponsorSelector from './SponsorSelector';
+import TermSelector from './TermSelector';
 
 type Props = {
   stdNo: number;
@@ -114,7 +113,26 @@ export default function RegistrationRequestForm({
       if (!student) return null;
 
       const remarks = getAcademicRemarks(student.programs);
-      return await getStudentSemesterModules(student, remarks);
+      const result = await getStudentSemesterModules(student, remarks);
+
+      if (result.error?.includes('Remain in Semester')) {
+        const modifiedRemarks = {
+          ...remarks,
+          status: 'Proceed' as const,
+        };
+
+        const overrideResult = await getStudentSemesterModules(
+          student,
+          modifiedRemarks
+        );
+
+        return {
+          ...overrideResult,
+          warning: result.error,
+        } as typeof overrideResult & { warning: string };
+      }
+
+      return result;
     },
     enabled: !!student,
   });
@@ -228,6 +246,7 @@ export default function RegistrationRequestForm({
 
   const isLoading = studentLoading || modulesLoading;
   const hasError = moduleData?.error;
+  const hasWarning = (moduleData as any)?.warning;
   const isProcessingSelection = selectedModules !== debouncedSelectedModules;
 
   return (
@@ -239,6 +258,12 @@ export default function RegistrationRequestForm({
           {hasError && (
             <Alert color='red' icon={<IconInfoCircle size={16} />}>
               {hasError}
+            </Alert>
+          )}
+
+          {hasWarning && (
+            <Alert color='yellow' icon={<IconInfoCircle size={16} />}>
+              {hasWarning}
             </Alert>
           )}
 
@@ -281,11 +306,14 @@ export default function RegistrationRequestForm({
             </>
           )}
 
-          {!hasError && availableModules.length === 0 && !isLoading && (
-            <Alert color='blue' icon={<IconInfoCircle size={16} />}>
-              No modules available for registration
-            </Alert>
-          )}
+          {!hasError &&
+            availableModules.length === 0 &&
+            !isLoading &&
+            !hasWarning && (
+              <Alert color='blue' icon={<IconInfoCircle size={16} />}>
+                No modules available for registration
+              </Alert>
+            )}
 
           <Group justify='flex-end'>
             <Button variant='outline' onClick={handleReset}>
