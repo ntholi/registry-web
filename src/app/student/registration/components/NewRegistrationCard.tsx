@@ -21,16 +21,12 @@ export default function NewRegistrationCard() {
   const { student, isLoading: studentLoading } = useUserStudent();
   const { currentTerm } = useCurrentTerm();
 
-  if (!currentTerm) {
-    return null;
-  }
-
   const hasExistingSemester =
     student?.programs
       .flatMap((program) => program.semesters)
       .some(
         (semester) =>
-          semester.term === currentTerm.name && semester.status !== 'Deleted'
+          semester.term === currentTerm?.name && semester.status !== 'Deleted'
       ) || false;
 
   const shouldFetchData = !!student?.stdNo && !hasExistingSemester;
@@ -72,7 +68,7 @@ export default function NewRegistrationCard() {
 
   const hasCurrentRegistration =
     registrationHistory?.some(
-      (request) => request.term.id === currentTerm.id
+      (request) => request.term.id === currentTerm?.id
     ) || false;
 
   const isBlocked = blockedStudent && blockedStudent.status === 'blocked';
@@ -110,10 +106,10 @@ export default function NewRegistrationCard() {
             Start New Registration
           </Text>
           <Text size='sm' c='dimmed' ta='center'>
-            You don&apos;t have a registration request for{' '}
+            You don&apos;t have a registration request for
             <Text span fw={600}>
-              {currentTerm.name}
-            </Text>{' '}
+              {currentTerm?.name}
+            </Text>
             yet. Click below to start your registration process.
           </Text>
         </Stack>

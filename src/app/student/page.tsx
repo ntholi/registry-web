@@ -6,7 +6,7 @@ import ActionButtons from './home/ActionButtons';
 import Hero from './home/Hero';
 
 export default function Page() {
-  const { program, isLoading } = useUserStudent();
+  const { program, semester, isLoading } = useUserStudent();
 
   if (isLoading) {
     return (
@@ -20,7 +20,7 @@ export default function Page() {
     [3, 4, 8, 10, 7, 15].includes(program?.schoolId ?? 0) ||
     [513, 500, 505, 498, 499].includes(program?.structureId ?? 0);
 
-  if (!canRegister) {
+  if (!canRegister && semester?.semesterNumber && semester.semesterNumber > 1) {
     return (
       <Container size='md'>
         <Title order={2} ta='center'>
