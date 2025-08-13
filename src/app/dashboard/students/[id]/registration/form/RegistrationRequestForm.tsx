@@ -7,6 +7,7 @@ import {
   determineSemesterStatus,
   getStudentSemesterModules,
 } from '@/server/registration-requests/actions';
+import { getStudentCurrentSponsorship } from '@/server/sponsors/actions';
 import { getAcademicHistory } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
@@ -22,7 +23,7 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconX } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ModuleSection from './ModuleSection';
 import SemesterInfoCard from './SemesterInfoCard';
 import SponsorSelector from './SponsorSelector';
@@ -51,6 +52,8 @@ type SemesterData = {
 type SponsorshipData = {
   sponsorId: number;
   borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
 };
 
 type FormValues = {
@@ -71,6 +74,7 @@ export default function RegistrationRequestForm({
     []
   );
   const [semesterData, setSemesterData] = useState<SemesterData | null>(null);
+  const sponsorshipAutoFilled = useRef(false);
 
   const [debouncedSelectedModules] = useDebouncedValue(selectedModules, 300);
 
@@ -80,6 +84,8 @@ export default function RegistrationRequestForm({
       sponsorship: {
         sponsorId: 0,
         borrowerNo: '',
+        bankName: undefined,
+        accountNumber: '',
       },
       selectedTermId: currentTerm?.id || null,
     },
@@ -101,6 +107,12 @@ export default function RegistrationRequestForm({
   const { data: student, isLoading: studentLoading } = useQuery({
     queryKey: ['student', stdNo],
     queryFn: () => getAcademicHistory(stdNo),
+    enabled: !!stdNo,
+  });
+
+  const { data: sponsorshipData, isLoading: sponsorshipLoading } = useQuery({
+    queryKey: ['studentSponsorship', stdNo],
+    queryFn: () => getStudentCurrentSponsorship(stdNo),
     enabled: !!stdNo,
   });
 
@@ -177,6 +189,8 @@ export default function RegistrationRequestForm({
         semesterNumber: semesterData.semesterNo,
         semesterStatus: semesterData.status,
         borrowerNo: data.sponsorship.borrowerNo,
+        bankName: data.sponsorship.bankName,
+        accountNumber: data.sponsorship.accountNumber,
       });
     },
     onSuccess: () => {
@@ -212,6 +226,18 @@ export default function RegistrationRequestForm({
     }
   }, [semesterStatus]);
 
+  useEffect(() => {
+    if (sponsorshipData && !sponsorshipAutoFilled.current) {
+      form.setFieldValue('sponsorship', {
+        sponsorId: sponsorshipData.sponsorId,
+        borrowerNo: sponsorshipData.borrowerNo || '',
+        bankName: sponsorshipData.bankName || undefined,
+        accountNumber: sponsorshipData.accountNumber || '',
+      });
+      sponsorshipAutoFilled.current = true;
+    }
+  }, [sponsorshipData, form]);
+
   const handleModuleToggle = (semesterModuleId: number) => {
     const newSelected = new Set(selectedModules);
     if (newSelected.has(semesterModuleId)) {
@@ -242,11 +268,12 @@ export default function RegistrationRequestForm({
     setSelectedModules(new Set());
     setAvailableModules([]);
     setSemesterData(null);
+    sponsorshipAutoFilled.current = false;
   };
 
-  const isLoading = studentLoading || modulesLoading;
+  const isLoading = studentLoading || modulesLoading || sponsorshipLoading;
   const hasError = moduleData?.error;
-  const hasWarning = (moduleData as any)?.warning;
+  const hasWarning = (moduleData as { warning?: string })?.warning;
   const isProcessingSelection = selectedModules !== debouncedSelectedModules;
 
   return (
