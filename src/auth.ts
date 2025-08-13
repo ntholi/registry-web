@@ -56,12 +56,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const userData = usersData.find((u) => u.email === user.email);
 
         if (userData && userData.std_no) {
-          await db
-            .update(users)
-            .set({
-              role: 'student',
-            })
-            .where(eq(users.id, user.id));
+          const student = await db.query.students.findFirst({
+            where: eq(students.stdNo, userData.std_no),
+          });
+          if (student) {
+            await db.transaction(async (tx) => {
+              await tx
+                .update(students)
+                .set({ userId: user.id })
+                .where(eq(students.stdNo, userData.std_no!));
+
+              await tx
+                .update(users)
+                .set({ role: 'student' })
+                .where(eq(users.id, user.id!));
+            });
+          }
         }
       } catch (error) {
         console.error('Error in createUser event:', error);
