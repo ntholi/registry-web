@@ -4,16 +4,16 @@ import { getStructureModules } from '@/server/structures/actions';
 import {
   Autocomplete,
   AutocompleteProps,
+  Badge,
   ComboboxItem,
   Group,
   Loader,
   Stack,
   Text,
-  Badge,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
-import { forwardRef, useState, useEffect } from 'react';
+import { forwardRef, useState } from 'react';
 
 type Module = Awaited<ReturnType<typeof getStructureModules>>[number];
 

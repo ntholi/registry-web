@@ -2,7 +2,16 @@
 
 import { StudentModuleStatus, studentModuleStatusEnum } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
-import { Checkbox, Paper, Select, Table, Text, Title } from '@mantine/core';
+import {
+  Alert,
+  Checkbox,
+  Paper,
+  Select,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 type ModuleWithStatus = {
   semesterModuleId: number;
@@ -48,69 +57,76 @@ export default function ModulesTable({
       <Title order={4} mb='md'>
         Available Modules
       </Title>
-      <Paper withBorder>
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Select</Table.Th>
-              <Table.Th>Code</Table.Th>
-              <Table.Th>Module Name</Table.Th>
-              <Table.Th>Credits</Table.Th>
-              <Table.Th>Status</Table.Th>
-              <Table.Th>Semester</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {modules.map((module) => (
-              <Table.Tr key={module.semesterModuleId}>
-                <Table.Td>
-                  <Checkbox
-                    checked={selectedModules.has(module.semesterModuleId)}
-                    onChange={() => onModuleToggle(module.semesterModuleId)}
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Text fw={500} size='sm'>
-                    {module.code}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size='sm'>{module.name}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size='sm'>{module.credits}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Select
-                    size='xs'
-                    variant='filled'
-                    data={studentModuleStatusEnum}
-                    value={module.status}
-                    onChange={(value) => {
-                      if (value && onStatusChange) {
-                        onStatusChange(
-                          module.semesterModuleId,
-                          value as StudentModuleStatus
-                        );
-                      }
-                    }}
-                    styles={{
-                      input: {
-                        color: `var(--mantine-color-${getStatusColor(module.status)}-5)`,
-                      },
-                    }}
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Text size='sm'>
-                    {formatSemester(module.semesterNo, 'mini')}
-                  </Text>
-                </Table.Td>
+      {modules.length === 0 ? (
+        <Alert color='blue' icon={<IconInfoCircle size={16} />}>
+          No modules available for automatic registration. Use the search above
+          to manually add modules.
+        </Alert>
+      ) : (
+        <Paper withBorder>
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Select</Table.Th>
+                <Table.Th>Code</Table.Th>
+                <Table.Th>Module Name</Table.Th>
+                <Table.Th>Credits</Table.Th>
+                <Table.Th>Status</Table.Th>
+                <Table.Th>Semester</Table.Th>
               </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Paper>
+            </Table.Thead>
+            <Table.Tbody>
+              {modules.map((module) => (
+                <Table.Tr key={module.semesterModuleId}>
+                  <Table.Td>
+                    <Checkbox
+                      checked={selectedModules.has(module.semesterModuleId)}
+                      onChange={() => onModuleToggle(module.semesterModuleId)}
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <Text fw={500} size='sm'>
+                      {module.code}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size='sm'>{module.name}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size='sm'>{module.credits}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Select
+                      size='xs'
+                      variant='filled'
+                      data={studentModuleStatusEnum}
+                      value={module.status}
+                      onChange={(value) => {
+                        if (value && onStatusChange) {
+                          onStatusChange(
+                            module.semesterModuleId,
+                            value as StudentModuleStatus
+                          );
+                        }
+                      }}
+                      styles={{
+                        input: {
+                          color: `var(--mantine-color-${getStatusColor(module.status)}-5)`,
+                        },
+                      }}
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size='sm'>
+                      {formatSemester(module.semesterNo, 'mini')}
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </Paper>
+      )}
       {error && (
         <Text size='sm' c='red' mt='xs'>
           {error}

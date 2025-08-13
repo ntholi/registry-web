@@ -300,7 +300,7 @@ export default function RegistrationRequestForm({
             error={form.errors.selectedTermId as string}
           />
 
-          {!hasError && availableModules.length > 0 && (
+          {!hasError && (
             <>
               <ModuleSection
                 availableModules={availableModules}
@@ -332,15 +332,6 @@ export default function RegistrationRequestForm({
               />
             </>
           )}
-
-          {!hasError &&
-            availableModules.length === 0 &&
-            !isLoading &&
-            !hasWarning && (
-              <Alert color='blue' icon={<IconInfoCircle size={16} />}>
-                No modules available for registration
-              </Alert>
-            )}
 
           <Group justify='flex-end'>
             <Button variant='outline' onClick={handleReset}>
