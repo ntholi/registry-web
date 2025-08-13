@@ -73,8 +73,9 @@ export async function getStudentSemesterModulesLogic(
   const attemptedModules = new Set(
     student.programs
       .flatMap((p) => p.semesters)
+      .filter((s) => s.status !== 'Deleted')
       .flatMap((s) => s.studentModules)
-      .filter((s) => s.status !== 'Drop' && s.status !== 'Delete')
+      .filter((m) => m.status !== 'Drop' && m.status !== 'Delete')
       .map((m) => m.semesterModule.module?.name)
   );
 
