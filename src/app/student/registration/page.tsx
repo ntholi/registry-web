@@ -38,7 +38,7 @@ export default async function page() {
         </Group>
 
         <Suspense fallback={<NewRegistrationCardSkeleton />}>
-          <NewRegistrationCard stdNo={session.user.stdNo!} />
+          <NewRegistrationCard />
         </Suspense>
 
         <Divider />

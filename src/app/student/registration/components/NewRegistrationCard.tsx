@@ -1,26 +1,79 @@
+'use client';
+
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
-import { Alert, Button, Card, Stack, Text, ThemeIcon } from '@mantine/core';
+import useUserStudent from '@/hooks/use-user-student';
+import { useCurrentTerm } from '@/hooks/use-current-term';
+import {
+  Alert,
+  Button,
+  Card,
+  Stack,
+  Text,
+  ThemeIcon,
+  Skeleton,
+} from '@mantine/core';
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 
-interface NewRegistrationCardProps {
-  stdNo: number;
-}
+export default function NewRegistrationCard() {
+  const { student, isLoading: studentLoading } = useUserStudent();
+  const { currentTerm } = useCurrentTerm();
 
-export default async function NewRegistrationCard({
-  stdNo,
-}: NewRegistrationCardProps) {
-  const [currentTerm, registrationHistory, blockedStudent] = await Promise.all([
-    getCurrentTerm(),
-    getStudentRegistrationHistory(stdNo),
-    getBlockedStudentByStdNo(stdNo),
-  ]);
+  if (!currentTerm) {
+    return null;
+  }
 
-  const hasCurrentRegistration = registrationHistory.some(
-    (request) => request.term.id === currentTerm.id
-  );
+  const hasExistingSemester =
+    student?.programs
+      .flatMap((program) => program.semesters)
+      .some(
+        (semester) =>
+          semester.term === currentTerm.name && semester.status !== 'Deleted'
+      ) || false;
+
+  const shouldFetchData = !!student?.stdNo && !hasExistingSemester;
+
+  const { data: registrationHistory, isLoading: registrationLoading } =
+    useQuery({
+      queryKey: ['registration-history', student?.stdNo],
+      queryFn: () => getStudentRegistrationHistory(student!.stdNo),
+      enabled: shouldFetchData,
+    });
+
+  const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
+    queryKey: ['blocked-student', student?.stdNo],
+    queryFn: () => getBlockedStudentByStdNo(student!.stdNo),
+    enabled: shouldFetchData,
+  });
+
+  const isLoading = studentLoading || registrationLoading || blockedLoading;
+
+  if (isLoading) {
+    return (
+      <Card withBorder>
+        <Stack align='center' gap='md'>
+          <Skeleton height={60} width={60} radius='md' />
+          <Stack align='center' gap='xs' w='100%'>
+            <Skeleton height={24} width={200} />
+            <Skeleton height={16} width={300} />
+            <Skeleton height={16} width={250} />
+          </Stack>
+          <Skeleton height={36} width={150} radius='md' />
+        </Stack>
+      </Card>
+    );
+  }
+
+  if (hasExistingSemester) {
+    return null;
+  }
+
+  const hasCurrentRegistration =
+    registrationHistory?.some(
+      (request) => request.term.id === currentTerm.id
+    ) || false;
 
   const isBlocked = blockedStudent && blockedStudent.status === 'blocked';
 
