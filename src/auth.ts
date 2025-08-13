@@ -1,27 +1,22 @@
 import { db } from '@/db';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import { eq, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import fs from 'fs';
 import NextAuth from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
 import Google from 'next-auth/providers/google';
 import path from 'path';
 import {
-  UserPosition,
   accounts,
-  schools,
   sessions,
   students,
-  userSchools,
   users,
   verificationTokens,
 } from './db/schema';
 
 interface UserData {
-  name: string;
   email: string;
-  position: string;
-  schools?: string[];
+  std_no: number | null;
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -55,41 +50,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       try {
         const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
         const usersData = JSON.parse(
-          fs.readFileSync(usersFilePath, 'utf8'),
+          fs.readFileSync(usersFilePath, 'utf8')
         ) as UserData[];
 
         const userData = usersData.find((u) => u.email === user.email);
 
-        if (userData) {
+        if (userData && userData.std_no) {
           await db
             .update(users)
             .set({
-              position: userData.position as UserPosition,
-              role: 'academic',
+              role: 'student',
             })
             .where(eq(users.id, user.id));
-
-          if (
-            userData.schools &&
-            Array.isArray(userData.schools) &&
-            userData.schools.length > 0
-          ) {
-            const schoolCodes = userData.schools as string[];
-            const schoolsData = await db
-              .select()
-              .from(schools)
-              .where(inArray(schools.code, schoolCodes));
-
-            for (const school of schoolsData) {
-              await db
-                .insert(userSchools)
-                .values({
-                  userId: user.id,
-                  schoolId: school.id,
-                })
-                .onConflictDoNothing();
-            }
-          }
         }
       } catch (error) {
         console.error('Error in createUser event:', error);
