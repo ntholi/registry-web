@@ -18,7 +18,7 @@ export default function Page() {
 
   const canRegister =
     [3, 4, 8, 10, 7, 15].includes(program?.schoolId ?? 0) ||
-    [513, 500, 505, 498, 499].includes(program?.structureId ?? 0);
+    [513, 500, 505, 498, 499, 484].includes(program?.structureId ?? 0);
 
   if (!canRegister && semester?.semesterNumber && semester.semesterNumber > 1) {
     return (

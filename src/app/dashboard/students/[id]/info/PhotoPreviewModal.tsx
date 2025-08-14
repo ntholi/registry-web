@@ -1,7 +1,17 @@
 'use client';
 
-import { Card, Center, Image, Modal, UnstyledButton } from '@mantine/core';
+import {
+  Card,
+  Center,
+  Image,
+  Modal,
+  UnstyledButton,
+  Group,
+  ActionIcon,
+  Tooltip,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 type PhotoPreviewModalProps = {
   photoUrl: string;
@@ -9,6 +19,9 @@ type PhotoPreviewModalProps = {
   alt?: string;
   width?: number;
   height?: number;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  canEdit?: boolean;
 };
 
 export default function PhotoPreviewModal({
@@ -17,6 +30,9 @@ export default function PhotoPreviewModal({
   alt = 'Photo',
   width = 76,
   height = 76,
+  onEdit,
+  onDelete,
+  canEdit = false,
 }: PhotoPreviewModalProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -40,6 +56,41 @@ export default function PhotoPreviewModal({
             w={'98%'}
           />
         </Center>
+
+        {canEdit && (onEdit || onDelete) && (
+          <Group justify='center' mt='md' gap='sm'>
+            {onEdit && (
+              <Tooltip label='Change photo'>
+                <ActionIcon
+                  variant='filled'
+                  color='blue'
+                  size='lg'
+                  onClick={() => {
+                    onEdit();
+                    close();
+                  }}
+                >
+                  <IconEdit size='1.2rem' />
+                </ActionIcon>
+              </Tooltip>
+            )}
+            {onDelete && (
+              <Tooltip label='Delete photo'>
+                <ActionIcon
+                  variant='filled'
+                  color='red'
+                  size='lg'
+                  onClick={() => {
+                    onDelete();
+                    close();
+                  }}
+                >
+                  <IconTrash size='1.2rem' />
+                </ActionIcon>
+              </Tooltip>
+            )}
+          </Group>
+        )}
       </Modal>
 
       <UnstyledButton onClick={open}>
