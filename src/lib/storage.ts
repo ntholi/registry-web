@@ -42,7 +42,7 @@ export async function uploadDocument(file: File | Blob, fileName: string) {
         Body: buffer,
         ContentType: file.type,
         ACL: 'public-read',
-      }),
+      })
     );
 
     return fName;
@@ -62,11 +62,11 @@ export async function deleteDocument(url: string | undefined | null) {
     const fileName = url ? formatUrl(url) : null;
     if (!fileName) throw new Error('Invalid URL format');
 
-    await s3Client.send(
+    const res = await s3Client.send(
       new DeleteObjectCommand({
         Bucket: BUCKET_NAME,
         Key: fileName,
-      }),
+      })
     );
   } catch (error) {
     console.error('Error deleting document:', error);

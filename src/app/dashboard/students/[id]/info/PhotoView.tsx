@@ -104,22 +104,6 @@ export default function PhotoView({ student }: Props) {
                   zIndex: 2,
                 }}
               >
-                <PhotoInputModal
-                  onPhotoSubmit={handlePhotoSubmit}
-                  title={`Change Photo for ${student.name}`}
-                  renderTrigger={({ open }) => (
-                    <ActionIcon
-                      size='sm'
-                      variant='filled'
-                      color='blue'
-                      style={{ opacity: 0.9 }}
-                      onClick={open}
-                      title='Change photo'
-                    >
-                      <IconEdit size='0.7rem' />
-                    </ActionIcon>
-                  )}
-                />
                 <DeletePhotoModal
                   onConfirm={handlePhotoDelete}
                   studentName={student.name}
