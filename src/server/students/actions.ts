@@ -99,9 +99,16 @@ export async function getStudentPhoto(
       const url = `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/${fileName}`;
 
       try {
-        const response = await fetch(url, { method: 'HEAD' });
+        const response = await fetch(url, {
+          method: 'HEAD',
+          cache: 'no-store',
+          next: { revalidate: 0 },
+        });
         if (response.ok) {
-          return url;
+          const etag = response.headers.get('etag')?.replace(/"/g, '') || '';
+          const lastModified = response.headers.get('last-modified') || '';
+          const versionSource = etag || lastModified || Date.now().toString();
+          return `${url}?v=${encodeURIComponent(versionSource)}`;
         }
       } catch (error) {
         console.error('Error:', error);
