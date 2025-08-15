@@ -1,5 +1,6 @@
 'use client';
 
+import { formatSemester } from '@/lib/utils';
 import { getStructureModules } from '@/server/structures/actions';
 import {
   Autocomplete,
@@ -114,17 +115,10 @@ export const ModuleSearchInput = forwardRef<
               </Text>
               <Text size='sm'>{moduleOption.name}</Text>
             </Group>
-            <Group gap={'xs'}>
-              <Badge size='xs' variant='light'>
-                {moduleOption.type}
-              </Badge>
-              <Text size='xs' c='dimmed'>
-                {moduleOption.credits} credits
-              </Text>
-              <Text size='xs' c='dimmed'>
-                Semester {moduleOption.semesterNumber}
-              </Text>
-            </Group>
+
+            <Text size='xs' c='dimmed'>
+              {formatSemester(moduleOption.semesterNumber)}
+            </Text>
           </Stack>
         );
       }}
