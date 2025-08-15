@@ -116,29 +116,6 @@ export default function ModuleSection({
     if (!isAlreadyAvailable) {
       const updatedModules = [...availableModules, newModule];
       setAvailableModules(updatedModules);
-
-      // Auto-select the added module and update form
-      const newSelected = new Set([
-        ...selectedModules,
-        newModule.semesterModuleId,
-      ]);
-
-      const selectedModulesList = updatedModules
-        .filter((m) => newSelected.has(m.semesterModuleId))
-        .map((m) => ({
-          moduleId: m.semesterModuleId,
-          moduleStatus: m.status.includes('Repeat')
-            ? ('Repeat' as StudentModuleStatus)
-            : ('Active' as StudentModuleStatus),
-        }));
-
-      onModulesChange(selectedModulesList);
-
-      setTimeout(() => {
-        onModuleToggle(newModule.semesterModuleId);
-      }, 0);
-
-      // Clear selection after adding
       setSelectedModuleToAdd(null);
       setSearchInputKey((prev) => prev + 1);
     }

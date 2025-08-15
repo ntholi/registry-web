@@ -90,8 +90,6 @@ export default function ModuleAssignModal() {
 
   const handleModuleSelect = (module: Module | null) => {
     setSelectedModule(module);
-    setSelectedSemesterModules([]);
-    form.setFieldValue('semesterModuleIds', []);
   };
 
   const handleSemesterModuleToggle = (semesterModuleId: number) => {
@@ -118,7 +116,6 @@ export default function ModuleAssignModal() {
           <Stack gap='md'>
             <ModuleSearchInput
               onModuleSelect={handleModuleSelect}
-              value={selectedModule?.moduleId}
               error={form.errors.semesterModuleIds}
               required
             />
