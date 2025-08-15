@@ -21,6 +21,7 @@ import DesktopTable from './DesktopTable';
 import MobileTable from './MobileTable';
 import LoadingSkeleton from './LoadingSkeleton';
 import TranscriptDownloadButton from './TranscriptDownloadButton';
+import { getCleanedSemesters } from '@/app/dashboard/students/[id]/AcademicsView/statements/utils';
 
 export default function TranscriptsPage() {
   const { student, program, isLoading } = useUserStudent();
@@ -83,6 +84,8 @@ export default function TranscriptsPage() {
     );
   }
 
+  const semesters = getCleanedSemesters(program);
+
   return (
     <Container size='md'>
       <Stack gap='lg' py='md'>
@@ -98,7 +101,7 @@ export default function TranscriptsPage() {
           <TranscriptDownloadButton
             stdNo={student.stdNo}
             studentName={student.name}
-            disabled={!program?.semesters?.length}
+            disabled={!semesters.length}
           />
         </Group>
 
@@ -119,7 +122,7 @@ export default function TranscriptsPage() {
           </Group>
         </Paper>
 
-        {program?.semesters?.length === 0 ? (
+        {semesters.length === 0 ? (
           <Alert
             icon={<IconAlertCircle size='1.2rem' />}
             title='No Semester Records'
@@ -130,7 +133,7 @@ export default function TranscriptsPage() {
           </Alert>
         ) : (
           <Accordion variant='separated' radius='md'>
-            {program?.semesters?.map((semester) => {
+            {semesters.map((semester) => {
               const modules =
                 semester.studentModules?.filter(
                   (m) => !['Delete', 'Drop'].includes(m.status)
