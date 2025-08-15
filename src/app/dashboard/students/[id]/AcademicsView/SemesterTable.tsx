@@ -5,17 +5,14 @@ import { isFailingOrSupGrade as failed } from '@/utils/grades';
 import {
   Anchor,
   Badge,
-  Box,
   Card,
   Group,
-  SimpleGrid,
   Stack,
   Table,
   Text,
   Tooltip,
   useComputedColorScheme,
 } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
 
 type ModuleTableProps = {
   modules: {
@@ -49,7 +46,6 @@ export default function SemesterTable({
   allSemesters,
 }: ModuleTableProps) {
   const colorScheme = useComputedColorScheme('dark');
-  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const getModulesWithFailHistory = (moduleCode: string) => {
     if (!allSemesters) return false;
@@ -153,104 +149,6 @@ export default function SemesterTable({
       </Stack>
     );
   };
-
-  if (isMobile) {
-    return (
-      <SimpleGrid cols={1} spacing='sm'>
-        {modules.map((module, idx) => (
-          <Card
-            key={`${module.id}-${module.marks}-${module.status}-${idx}`}
-            shadow='sm'
-            padding='md'
-            radius='md'
-            withBorder
-          >
-            <Stack gap={3}>
-              <Box pos='relative'>
-                <Stack gap={2}>
-                  {modulesWithFailHistory.includes(module.code) ? (
-                    <Tooltip
-                      label={renderAttemptHistory(module)}
-                      color={colorScheme}
-                      withArrow
-                      multiline
-                      transitionProps={{ transition: 'fade', duration: 200 }}
-                    >
-                      <Anchor
-                        size='sm'
-                        c={failed(module.grade) ? 'red' : 'blue'}
-                      >
-                        {module.code}
-                      </Anchor>
-                    </Tooltip>
-                  ) : (
-                    <Text size='sm' fw={600}>
-                      {module.code}
-                    </Text>
-                  )}
-                  <Text size='xs' c='dimmed' style={{ lineHeight: 1.2 }}>
-                    {module.name}
-                  </Text>
-                </Stack>
-                <Badge
-                  pos='absolute'
-                  top={0}
-                  right={0}
-                  variant='light'
-                  color={
-                    failed(module.grade)
-                      ? 'red'
-                      : module.grade === 'NM' || module.grade === 'Def'
-                        ? 'orange'
-                        : 'green'
-                  }
-                  radius='md'
-                >
-                  {module.grade}
-                </Badge>
-              </Box>
-
-              <Group justify='space-between' align='center' mt={'sm'}>
-                <Text size='sm' c='dimmed' fw={500}>
-                  Status
-                </Text>
-                <Text
-                  size='sm'
-                  c={
-                    ['Drop', 'Delete'].includes(module.status)
-                      ? 'red'
-                      : undefined
-                  }
-                >
-                  {module.status}
-                </Text>
-              </Group>
-
-              <Group justify='space-between' align='center'>
-                <Text size='sm' c='dimmed' fw={500}>
-                  Credits
-                </Text>
-                <Text size='sm' c='gray'>
-                  {module.credits}
-                </Text>
-              </Group>
-
-              {showMarks && (
-                <Group justify='space-between' align='center'>
-                  <Text size='sm' c='dimmed' fw={500}>
-                    Marks
-                  </Text>
-                  <Badge variant='light' color='gray' radius='sm'>
-                    {module.marks}
-                  </Badge>
-                </Group>
-              )}
-            </Stack>
-          </Card>
-        ))}
-      </SimpleGrid>
-    );
-  }
 
   return (
     <Table>
