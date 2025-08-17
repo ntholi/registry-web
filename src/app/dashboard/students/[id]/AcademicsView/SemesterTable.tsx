@@ -151,78 +151,82 @@ export default function SemesterTable({
   };
 
   return (
-    <Table>
-      <Table.Thead>
-        <Table.Tr>
-          <Table.Th w={105}>Code</Table.Th>
-          <Table.Th w={270}>Name</Table.Th>
-          <Table.Th w={105}>Status</Table.Th>
-          <Table.Th w={50}>Cr</Table.Th>
-          {showMarks && <Table.Th w={50}>Mk</Table.Th>}
-          <Table.Th w={60}>Gd</Table.Th>
-        </Table.Tr>
-      </Table.Thead>
-      <Table.Tbody>
-        {modules.map((module, idx) => (
-          <Table.Tr
-            key={`${module.id}-${module.marks}-${module.status}-${idx}`}
-          >
-            <Table.Td>
-              {modulesWithFailHistory.includes(module.code) ? (
-                <Tooltip
-                  label={renderAttemptHistory(module)}
-                  color={colorScheme}
-                  withArrow
-                  multiline
-                  transitionProps={{ transition: 'fade', duration: 200 }}
-                >
-                  <Anchor size='sm' c={failed(module.grade) ? 'red' : 'blue'}>
-                    {module.code}
-                  </Anchor>
-                </Tooltip>
-              ) : (
-                <Text size='sm'>{module.code}</Text>
-              )}
-            </Table.Td>
-            <Table.Td>
-              <Text size='sm'>{module.name}</Text>
-            </Table.Td>
-            <Table.Td>
-              <Text
-                size='sm'
-                c={
-                  ['Drop', 'Delete'].includes(module.status) ? 'red' : undefined
-                }
-              >
-                {module.status}
-              </Text>
-            </Table.Td>
-            <Table.Td>
-              <Text size='sm'>{module.credits}</Text>
-            </Table.Td>
-            {showMarks && (
-              <Table.Td>
-                <Text size='sm'>{module.marks}</Text>
-              </Table.Td>
-            )}
-            <Table.Td>
-              <Badge
-                size='sm'
-                variant='light'
-                color={
-                  failed(module.grade)
-                    ? 'red'
-                    : module.grade === 'NM' || module.grade === 'Def'
-                      ? 'orange'
-                      : 'green'
-                }
-              >
-                {module.grade}
-              </Badge>
-            </Table.Td>
+    <Table.ScrollContainer minWidth={640} type='native'>
+      <Table>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th w={105}>Code</Table.Th>
+            <Table.Th w={270}>Name</Table.Th>
+            <Table.Th w={105}>Status</Table.Th>
+            <Table.Th w={50}>Cr</Table.Th>
+            {showMarks && <Table.Th w={50}>Mk</Table.Th>}
+            <Table.Th w={60}>Gd</Table.Th>
           </Table.Tr>
-        ))}
-      </Table.Tbody>
-    </Table>
+        </Table.Thead>
+        <Table.Tbody>
+          {modules.map((module, idx) => (
+            <Table.Tr
+              key={`${module.id}-${module.marks}-${module.status}-${idx}`}
+            >
+              <Table.Td>
+                {modulesWithFailHistory.includes(module.code) ? (
+                  <Tooltip
+                    label={renderAttemptHistory(module)}
+                    color={colorScheme}
+                    withArrow
+                    multiline
+                    transitionProps={{ transition: 'fade', duration: 200 }}
+                  >
+                    <Anchor size='sm' c={failed(module.grade) ? 'red' : 'blue'}>
+                      {module.code}
+                    </Anchor>
+                  </Tooltip>
+                ) : (
+                  <Text size='sm'>{module.code}</Text>
+                )}
+              </Table.Td>
+              <Table.Td>
+                <Text size='sm'>{module.name}</Text>
+              </Table.Td>
+              <Table.Td>
+                <Text
+                  size='sm'
+                  c={
+                    ['Drop', 'Delete'].includes(module.status)
+                      ? 'red'
+                      : undefined
+                  }
+                >
+                  {module.status}
+                </Text>
+              </Table.Td>
+              <Table.Td>
+                <Text size='sm'>{module.credits}</Text>
+              </Table.Td>
+              {showMarks && (
+                <Table.Td>
+                  <Text size='sm'>{module.marks}</Text>
+                </Table.Td>
+              )}
+              <Table.Td>
+                <Badge
+                  size='sm'
+                  variant='light'
+                  color={
+                    failed(module.grade)
+                      ? 'red'
+                      : module.grade === 'NM' || module.grade === 'Def'
+                        ? 'orange'
+                        : 'green'
+                  }
+                >
+                  {module.grade}
+                </Badge>
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+    </Table.ScrollContainer>
   );
 }
