@@ -60,6 +60,23 @@ export default function ReportsPage() {
       </SimpleGrid>
 
       <Title order={3} mt='lg'>
+        Registry Reports
+      </Title>
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
+        <UnstyledButton component={Link} href='/dashboard/reports/registration'>
+          <Card withBorder shadow='sm' padding='lg'>
+            <Stack gap='xs' align='center'>
+              <IconFileText size={24} />
+              <Text fw={500}>Registration Reports</Text>
+              <Text size='sm' c='dimmed'>
+                Generate student registration reports
+              </Text>
+            </Stack>
+          </Card>
+        </UnstyledButton>
+      </SimpleGrid>
+
+      <Title order={3} mt='lg'>
         Clearance Reports
       </Title>
       <Text c='dimmed' size='sm'>

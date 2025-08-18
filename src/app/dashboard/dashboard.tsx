@@ -311,6 +311,12 @@ function getNavigation(department: DashboardUser) {
             );
           },
         },
+        {
+          href: `/dashboard/reports/registration`,
+          description: 'Registration Report',
+          icon: IconCopyCheck,
+          roles: ['registry', 'admin'],
+        },
       ],
     },
   ] as NavItem[];
