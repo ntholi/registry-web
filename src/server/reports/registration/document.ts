@@ -296,7 +296,7 @@ export function createSummaryRegistrationDocument(
               ],
               spacing: { after: 240 },
             }),
-            createSummaryTable(school.programs),
+            createSummaryTable(school.programs, school.totalStudents),
           ]),
         ],
       },
@@ -397,7 +397,7 @@ function createFullReportInfoTable(report: FullRegistrationReport): Table {
         ],
       }),
     ],
-    width: { size: 80, type: WidthType.PERCENTAGE },
+    width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
       top: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
       bottom: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
@@ -545,7 +545,7 @@ function createSummaryReportInfoTable(
         ],
       }),
     ],
-    width: { size: 80, type: WidthType.PERCENTAGE },
+    width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
       top: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
       bottom: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
@@ -824,7 +824,8 @@ function createSummaryTable(
     programName: string;
     yearBreakdown: { [year: number]: number };
     totalStudents: number;
-  }>
+  }>,
+  schoolTotalStudents: number
 ): Table {
   if (programs.length === 0) {
     return new Table({
@@ -998,8 +999,79 @@ function createSummaryTable(
     });
   });
 
+  // Calculate totals by semester for the totals row
+  const semesterTotals: { [key: number]: number } = {};
+  programs.forEach((program) => {
+    Object.entries(program.yearBreakdown).forEach(([semester, count]) => {
+      const semesterNum = parseInt(semester);
+      semesterTotals[semesterNum] = (semesterTotals[semesterNum] || 0) + count;
+    });
+  });
+
+  // Create totals row
+  const totalsRow = new TableRow({
+    children: [
+      new TableCell({
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'Total Students',
+                font: 'Arial',
+                bold: true,
+                size: 14,
+                color: '000000',
+              }),
+            ],
+          }),
+        ],
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
+      }),
+      ...sortedSemesters.map(
+        (semester) =>
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: (semesterTotals[semester] || 0).toString(),
+                    font: 'Arial',
+                    bold: true,
+                    size: 14,
+                    color: '000000',
+                  }),
+                ],
+                alignment: AlignmentType.CENTER,
+              }),
+            ],
+            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            verticalAlign: 'center',
+          })
+      ),
+      new TableCell({
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: schoolTotalStudents.toString(),
+                font: 'Arial',
+                bold: true,
+                size: 16,
+                color: '000000',
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+          }),
+        ],
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
+      }),
+    ],
+  });
+
   return new Table({
-    rows: [headerRow, ...dataRows],
+    rows: [headerRow, ...dataRows, totalsRow],
     width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
       top: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
