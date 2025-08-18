@@ -58,3 +58,25 @@ export async function getRegistrationDataPreview(termId: number) {
     };
   }
 }
+
+export async function getPaginatedRegistrationStudents(
+  termId: number,
+  page: number = 1,
+  pageSize: number = 20
+) {
+  try {
+    const data =
+      await registrationReportService.getPaginatedRegistrationStudents(
+        termId,
+        page,
+        pageSize
+      );
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error fetching paginated registration students:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}

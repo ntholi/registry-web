@@ -81,6 +81,25 @@ export class RegistrationReportService {
       };
     }, ['registry', 'admin']);
   }
+
+  async getPaginatedRegistrationStudents(
+    termId: number,
+    page: number = 1,
+    pageSize: number = 20
+  ) {
+    return withAuth(async () => {
+      const term = await this.repository.getTermById(termId);
+      if (!term) {
+        throw new Error('Term not found');
+      }
+
+      return await this.repository.getPaginatedRegistrationData(
+        term.name,
+        page,
+        pageSize
+      );
+    }, ['registry', 'admin']);
+  }
 }
 
 export const registrationReportService = new RegistrationReportService();

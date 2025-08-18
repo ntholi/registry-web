@@ -81,6 +81,70 @@ export class RegistrationReportRepository {
     }));
   }
 
+  async getPaginatedRegistrationData(
+    termName: string,
+    page: number = 1,
+    pageSize: number = 20
+  ): Promise<{
+    students: FullRegistrationStudent[];
+    totalCount: number;
+    totalPages: number;
+    currentPage: number;
+  }> {
+    const offset = (page - 1) * pageSize;
+
+    const [studentsResult, totalResult] = await Promise.all([
+      db
+        .select({
+          stdNo: students.stdNo,
+          name: students.name,
+          programName: programs.name,
+          semesterNumber: studentSemesters.semesterNumber,
+          schoolName: schools.name,
+          status: studentSemesters.status,
+        })
+        .from(studentSemesters)
+        .innerJoin(
+          studentPrograms,
+          eq(studentSemesters.studentProgramId, studentPrograms.id)
+        )
+        .innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+        .innerJoin(programs, eq(structures.programId, programs.id))
+        .innerJoin(schools, eq(programs.schoolId, schools.id))
+        .where(eq(studentSemesters.term, termName))
+        .limit(pageSize)
+        .offset(offset),
+
+      db
+        .select({ count: students.stdNo })
+        .from(studentSemesters)
+        .innerJoin(
+          studentPrograms,
+          eq(studentSemesters.studentProgramId, studentPrograms.id)
+        )
+        .innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+        .where(eq(studentSemesters.term, termName)),
+    ]);
+
+    const totalCount = totalResult.length;
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    return {
+      students: studentsResult.map((row) => ({
+        stdNo: row.stdNo,
+        name: row.name,
+        programName: row.programName,
+        semesterNumber: row.semesterNumber || 0,
+        schoolName: row.schoolName,
+        status: row.status,
+      })),
+      totalCount,
+      totalPages,
+      currentPage: page,
+    };
+  }
+
   async getSummaryRegistrationData(
     termName: string
   ): Promise<SummaryRegistrationReport> {

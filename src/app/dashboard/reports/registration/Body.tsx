@@ -7,6 +7,7 @@ import {
   generateSummaryRegistrationReport,
   getAvailableTermsForReport,
   getRegistrationDataPreview,
+  getPaginatedRegistrationStudents,
 } from '@/server/reports/registration/actions';
 import {
   Card,
@@ -19,10 +20,10 @@ import {
   Stack,
   Select,
   Badge,
-  SimpleGrid,
   Table,
   ScrollArea,
   Tabs,
+  Pagination as MPagination,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useDownload } from '@/hooks/use-download';
@@ -32,13 +33,14 @@ import {
   IconDownload,
   IconEye,
   IconUsers,
-  IconBuilding,
 } from '@tabler/icons-react';
 import RegistrationStats from './RegistrationStats';
 import ProgramBreakdownTable from './ProgramBreakdownTable';
 
 export default function Body() {
   const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string | null>('summary');
+  const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const { downloadFromBase64 } = useDownload({
@@ -76,6 +78,20 @@ export default function Body() {
     enabled: !!selectedTermId,
   });
 
+  const { data: paginatedStudents, isLoading: studentsLoading } = useQuery({
+    queryKey: ['paginated-registration-students', selectedTermId, currentPage],
+    queryFn: async () => {
+      if (!selectedTermId) return null;
+      const result = await getPaginatedRegistrationStudents(
+        parseInt(selectedTermId),
+        currentPage,
+        20
+      );
+      return result.success ? result.data : null;
+    },
+    enabled: !!selectedTermId && activeTab === 'detailed',
+  });
+
   const termOptions = useMemo(() => {
     return (
       terms?.map((term) => ({
@@ -107,7 +123,6 @@ export default function Body() {
         (t) => t.id.toString() === selectedTermId
       );
       const filename = `Full_Registration_Report_${selectedTerm?.name || 'Term'}_${new Date().toISOString().split('T')[0]}.xlsx`;
-      // Use Excel MIME type for full registration report
       downloadFromBase64(
         base64Data,
         filename,
@@ -156,8 +171,18 @@ export default function Body() {
     },
   });
 
-  const canGenerate = !!selectedTermId;
+  const handleDownload = () => {
+    if (activeTab === 'summary') {
+      generateSummaryReportMutation.mutate();
+    } else {
+      generateFullReportMutation.mutate();
+    }
+  };
+
   const selectedTerm = terms?.find((t) => t.id.toString() === selectedTermId);
+  const isDownloading =
+    generateFullReportMutation.isPending ||
+    generateSummaryReportMutation.isPending;
 
   return (
     <Stack>
@@ -187,79 +212,6 @@ export default function Body() {
             clearable
             mb='md'
           />
-
-          {selectedTermId && (
-            <SimpleGrid cols={{ base: 1, md: 2 }} mt='md'>
-              <Card withBorder p='md'>
-                <Stack gap='xs'>
-                  <Group>
-                    <IconTable
-                      size={24}
-                      style={{ color: 'var(--mantine-color-blue-6)' }}
-                    />
-                    <Text fw={500}>Full Registration Report</Text>
-                  </Group>
-                  <Text size='sm' c='dimmed'>
-                    Complete list of all registered students with detailed
-                    information including student numbers, names, programs, and
-                    semester details exported as an Excel spreadsheet.
-                  </Text>
-                  <Button
-                    variant='filled'
-                    leftSection={
-                      generateFullReportMutation.isPending ? (
-                        <Loader size={16} />
-                      ) : (
-                        <IconDownload size={16} />
-                      )
-                    }
-                    onClick={() => generateFullReportMutation.mutate()}
-                    disabled={!canGenerate}
-                    loading={generateFullReportMutation.isPending}
-                    mt='xs'
-                    fullWidth={isMobile}
-                  >
-                    Generate Full Report
-                  </Button>
-                </Stack>
-              </Card>
-
-              <Card withBorder p='md'>
-                <Stack gap='xs'>
-                  <Group>
-                    <IconChartBar
-                      size={24}
-                      style={{ color: 'var(--mantine-color-green-6)' }}
-                    />
-                    <Text fw={500}>Summary Registration Report</Text>
-                  </Group>
-                  <Text size='sm' c='dimmed'>
-                    Statistical overview organized by schools and programs,
-                    showing student counts by year level and totals per program
-                    and school.
-                  </Text>
-                  <Button
-                    variant='filled'
-                    color='green'
-                    leftSection={
-                      generateSummaryReportMutation.isPending ? (
-                        <Loader size={16} />
-                      ) : (
-                        <IconDownload size={16} />
-                      )
-                    }
-                    onClick={() => generateSummaryReportMutation.mutate()}
-                    disabled={!canGenerate}
-                    loading={generateSummaryReportMutation.isPending}
-                    mt='xs'
-                    fullWidth={isMobile}
-                  >
-                    Generate Summary Report
-                  </Button>
-                </Stack>
-              </Card>
-            </SimpleGrid>
-          )}
         </CardSection>
       </Card>
 
@@ -288,21 +240,40 @@ export default function Body() {
               termName={registrationData.term.name}
             />
 
-            <Tabs defaultValue='summary' mt='md'>
-              <Tabs.List>
-                <Tabs.Tab
-                  value='summary'
-                  leftSection={<IconChartBar size={14} />}
+            <Tabs value={activeTab} onChange={setActiveTab} mt='md'>
+              <Group justify='space-between' align='flex-end' mb='sm'>
+                <Tabs.List>
+                  <Tabs.Tab
+                    value='summary'
+                    leftSection={<IconChartBar size={14} />}
+                  >
+                    Summary View
+                  </Tabs.Tab>
+                  <Tabs.Tab
+                    value='detailed'
+                    leftSection={<IconTable size={14} />}
+                  >
+                    Student List
+                  </Tabs.Tab>
+                </Tabs.List>
+
+                <Button
+                  leftSection={
+                    isDownloading ? (
+                      <Loader size={16} />
+                    ) : (
+                      <IconDownload size={16} />
+                    )
+                  }
+                  onClick={handleDownload}
+                  disabled={!selectedTermId}
+                  loading={isDownloading}
+                  variant='filled'
+                  color='blue'
                 >
-                  Summary View
-                </Tabs.Tab>
-                <Tabs.Tab
-                  value='detailed'
-                  leftSection={<IconTable size={14} />}
-                >
-                  Student List (First 50)
-                </Tabs.Tab>
-              </Tabs.List>
+                  Download
+                </Button>
+              </Group>
 
               <Tabs.Panel value='summary' pt='md'>
                 <Stack gap='md'>
@@ -327,10 +298,44 @@ export default function Body() {
                       </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
-                      {registrationData.fullData.students
-                        .slice(0, 50)
-                        .map((student, index) => (
-                          <Table.Tr key={index}>
+                      {studentsLoading ? (
+                        Array(20)
+                          .fill(0)
+                          .map((_, index) => (
+                            <Table.Tr key={`skeleton-${index}`}>
+                              <Table.Td>
+                                <Text size={isMobile ? 'xs' : 'sm'}>
+                                  Loading...
+                                </Text>
+                              </Table.Td>
+                              <Table.Td>
+                                <Text size={isMobile ? 'xs' : 'sm'}>
+                                  Loading...
+                                </Text>
+                              </Table.Td>
+                              <Table.Td>
+                                <Text size={isMobile ? 'xs' : 'sm'}>
+                                  Loading...
+                                </Text>
+                              </Table.Td>
+                              <Table.Td ta='center'>
+                                <Badge
+                                  variant='light'
+                                  size={isMobile ? 'xs' : 'sm'}
+                                >
+                                  -
+                                </Badge>
+                              </Table.Td>
+                              <Table.Td>
+                                <Text size={isMobile ? 'xs' : 'sm'}>
+                                  Loading...
+                                </Text>
+                              </Table.Td>
+                            </Table.Tr>
+                          ))
+                      ) : paginatedStudents?.students.length ? (
+                        paginatedStudents.students.map((student, index) => (
+                          <Table.Tr key={`${student.stdNo}-${index}`}>
                             <Table.Td fw={500}>
                               <Text size={isMobile ? 'xs' : 'sm'}>
                                 {student.stdNo}
@@ -360,14 +365,37 @@ export default function Body() {
                               </Text>
                             </Table.Td>
                           </Table.Tr>
-                        ))}
+                        ))
+                      ) : (
+                        <Table.Tr>
+                          <Table.Td colSpan={5}>
+                            <Text ta='center' size='sm' c='dimmed'>
+                              No students found
+                            </Text>
+                          </Table.Td>
+                        </Table.Tr>
+                      )}
                     </Table.Tbody>
                   </Table>
-                  {registrationData.fullData.students.length > 50 && (
+
+                  {paginatedStudents && paginatedStudents.totalPages > 1 && (
+                    <Group justify='center' mt='md'>
+                      <MPagination
+                        total={paginatedStudents.totalPages}
+                        value={currentPage}
+                        onChange={(page) => {
+                          setCurrentPage(page);
+                        }}
+                        size='sm'
+                      />
+                    </Group>
+                  )}
+
+                  {paginatedStudents && (
                     <Text ta='center' size='sm' c='dimmed' mt='md'>
-                      Showing first 50 of{' '}
-                      {registrationData.fullData.students.length} students.
-                      Generate full report to see all students.
+                      Showing {(currentPage - 1) * 20 + 1} to{' '}
+                      {Math.min(currentPage * 20, paginatedStudents.totalCount)}{' '}
+                      of {paginatedStudents.totalCount} students
                     </Text>
                   )}
                 </ScrollArea>
