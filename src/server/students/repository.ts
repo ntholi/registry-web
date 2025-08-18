@@ -66,6 +66,7 @@ export default class StudentRepository extends BaseRepository<
                 semesterNumber: true,
                 status: true,
               },
+              orderBy: [desc(studentSemesters.semesterNumber)],
               with: {
                 studentModules: {
                   columns: {
