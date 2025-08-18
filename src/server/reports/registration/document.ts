@@ -40,7 +40,7 @@ export function createFullRegistrationDocument(
         properties: {
           page: {
             size: {
-              orientation: PageOrientation.PORTRAIT,
+              orientation: PageOrientation.LANDSCAPE,
             },
             margin: {
               top: 720,
@@ -174,7 +174,7 @@ export function createSummaryRegistrationDocument(
         properties: {
           page: {
             size: {
-              orientation: PageOrientation.PORTRAIT,
+              orientation: PageOrientation.LANDSCAPE,
             },
             margin: {
               top: 720,
@@ -250,19 +250,6 @@ export function createSummaryRegistrationDocument(
             ],
             alignment: AlignmentType.CENTER,
             spacing: { after: 300 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: 'REGISTRATION SUMMARY REPORT',
-                font: 'Arial',
-                bold: true,
-                size: 24,
-                color: '000000',
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 480 },
           }),
           createSummaryReportInfoTable(report),
           new Paragraph({
@@ -343,6 +330,7 @@ function createFullReportInfoTable(report: FullRegistrationReport): Table {
                     color: '000000',
                   }),
                 ],
+                alignment: AlignmentType.CENTER,
                 spacing: { before: 80, after: 80 },
               }),
             ],
@@ -444,10 +432,11 @@ function createSummaryReportInfoTable(
                     text: report.termName,
                     font: 'Arial',
                     bold: true,
-                    size: 18,
+                    size: 20,
                     color: '000000',
                   }),
                 ],
+                alignment: AlignmentType.CENTER,
                 spacing: { before: 80, after: 80 },
               }),
             ],
@@ -501,49 +490,6 @@ function createSummaryReportInfoTable(
           }),
         ],
       }),
-      new TableRow({
-        children: [
-          new TableCell({
-            children: [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: 'Total Schools',
-                    font: 'Arial',
-                    bold: true,
-                    size: 18,
-                    color: 'FFFFFF',
-                  }),
-                ],
-                spacing: { before: 80, after: 80 },
-              }),
-            ],
-            shading: { fill: '000000' },
-            verticalAlign: 'center',
-            margins: { top: 150, bottom: 150, left: 150, right: 150 },
-          }),
-          new TableCell({
-            children: [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: report.schools.length.toString(),
-                    font: 'Arial',
-                    bold: true,
-                    size: 20,
-                    color: '000000',
-                  }),
-                ],
-                alignment: AlignmentType.CENTER,
-                spacing: { before: 80, after: 80 },
-              }),
-            ],
-            verticalAlign: 'center',
-            margins: { top: 150, bottom: 150, left: 150, right: 150 },
-            shading: { fill: 'F8F8F8' },
-          }),
-        ],
-      }),
     ],
     width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
@@ -577,7 +523,7 @@ function createFullStudentsTable(
                 text: 'No',
                 font: 'Arial',
                 bold: true,
-                size: 16,
+                size: 18,
                 color: 'FFFFFF',
               }),
             ],
@@ -597,7 +543,7 @@ function createFullStudentsTable(
                 text: 'Student No.',
                 font: 'Arial',
                 bold: true,
-                size: 16,
+                size: 18,
                 color: 'FFFFFF',
               }),
             ],
@@ -617,7 +563,7 @@ function createFullStudentsTable(
                 text: 'Student Name',
                 font: 'Arial',
                 bold: true,
-                size: 16,
+                size: 18,
                 color: 'FFFFFF',
               }),
             ],
@@ -637,7 +583,7 @@ function createFullStudentsTable(
                 text: 'Program',
                 font: 'Arial',
                 bold: true,
-                size: 16,
+                size: 18,
                 color: 'FFFFFF',
               }),
             ],
@@ -657,7 +603,7 @@ function createFullStudentsTable(
                 text: 'Semester',
                 font: 'Arial',
                 bold: true,
-                size: 16,
+                size: 18,
                 color: 'FFFFFF',
               }),
             ],
@@ -677,7 +623,7 @@ function createFullStudentsTable(
                 text: 'School',
                 font: 'Arial',
                 bold: true,
-                size: 16,
+                size: 18,
                 color: 'FFFFFF',
               }),
             ],
@@ -703,7 +649,7 @@ function createFullStudentsTable(
                 new TextRun({
                   text: (index + 1).toString(),
                   font: 'Arial',
-                  size: 14,
+                  size: 16,
                   color: '000000',
                 }),
               ],
@@ -721,7 +667,7 @@ function createFullStudentsTable(
                 new TextRun({
                   text: student.stdNo.toString(),
                   font: 'Arial',
-                  size: 14,
+                  size: 16,
                   color: '000000',
                 }),
               ],
@@ -739,7 +685,7 @@ function createFullStudentsTable(
                 new TextRun({
                   text: student.name,
                   font: 'Arial',
-                  size: 14,
+                  size: 16,
                   color: '000000',
                 }),
               ],
@@ -756,7 +702,7 @@ function createFullStudentsTable(
                 new TextRun({
                   text: student.programName,
                   font: 'Arial',
-                  size: 14,
+                  size: 16,
                   color: '000000',
                 }),
               ],
@@ -773,7 +719,7 @@ function createFullStudentsTable(
                 new TextRun({
                   text: formatSemester(student.semesterNumber, 'short'),
                   font: 'Arial',
-                  size: 14,
+                  size: 16,
                   color: '000000',
                 }),
               ],
@@ -791,7 +737,7 @@ function createFullStudentsTable(
                 new TextRun({
                   text: student.schoolName,
                   font: 'Arial',
-                  size: 14,
+                  size: 16,
                   color: '000000',
                 }),
               ],
@@ -839,7 +785,7 @@ function createSummaryTable(
                     new TextRun({
                       text: 'No programs found',
                       font: 'Arial',
-                      size: 14,
+                      size: 16,
                       color: '666666',
                     }),
                   ],
@@ -873,7 +819,7 @@ function createSummaryTable(
                 text: 'Program',
                 font: 'Arial',
                 bold: true,
-                size: 14,
+                size: 16,
                 color: 'FFFFFF',
               }),
             ],
@@ -895,7 +841,7 @@ function createSummaryTable(
                     text: formatSemester(semester, 'short'),
                     font: 'Arial',
                     bold: true,
-                    size: 12,
+                    size: 14,
                     color: 'FFFFFF',
                   }),
                 ],
@@ -919,7 +865,7 @@ function createSummaryTable(
                 text: 'Total',
                 font: 'Arial',
                 bold: true,
-                size: 14,
+                size: 16,
                 color: 'FFFFFF',
               }),
             ],
@@ -945,7 +891,7 @@ function createSummaryTable(
                 new TextRun({
                   text: program.programName,
                   font: 'Arial',
-                  size: 12,
+                  size: 14,
                   color: '000000',
                 }),
               ],
@@ -964,7 +910,7 @@ function createSummaryTable(
                     new TextRun({
                       text: (program.yearBreakdown[semester] || 0).toString(),
                       font: 'Arial',
-                      size: 12,
+                      size: 14,
                       color: '000000',
                     }),
                   ],
@@ -984,7 +930,7 @@ function createSummaryTable(
                   text: program.totalStudents.toString(),
                   font: 'Arial',
                   bold: true,
-                  size: 12,
+                  size: 14,
                   color: '000000',
                 }),
               ],
@@ -1019,7 +965,7 @@ function createSummaryTable(
                 text: 'Total Students',
                 font: 'Arial',
                 bold: true,
-                size: 14,
+                size: 16,
                 color: '000000',
               }),
             ],
@@ -1038,7 +984,7 @@ function createSummaryTable(
                     text: (semesterTotals[semester] || 0).toString(),
                     font: 'Arial',
                     bold: true,
-                    size: 14,
+                    size: 16,
                     color: '000000',
                   }),
                 ],
