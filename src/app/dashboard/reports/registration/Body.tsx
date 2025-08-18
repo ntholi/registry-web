@@ -31,10 +31,8 @@ import {
   IconTable,
   IconChartBar,
   IconDownload,
-  IconEye,
   IconUsers,
 } from '@tabler/icons-react';
-import RegistrationStats from './RegistrationStats';
 import ProgramBreakdownTable from './ProgramBreakdownTable';
 
 export default function Body() {
@@ -200,47 +198,41 @@ export default function Body() {
         </CardSection>
 
         <CardSection inheritPadding pb='md'>
-          <Select
-            label='Select Term'
-            placeholder='Choose a term to generate reports'
-            data={termOptions}
-            value={selectedTermId}
-            onChange={setSelectedTermId}
-            disabled={termsLoading}
-            leftSection={termsLoading ? <Loader size={16} /> : null}
-            searchable
-            clearable
-            mb='md'
-          />
+          <Group align='flex-end' gap='lg'>
+            <Select
+              label='Select Term'
+              placeholder='Choose a term to generate reports'
+              data={termOptions}
+              value={selectedTermId}
+              onChange={setSelectedTermId}
+              disabled={termsLoading}
+              leftSection={termsLoading ? <Loader size={16} /> : null}
+              searchable
+              clearable
+              style={{ flex: 1 }}
+            />
+
+            {registrationData && (
+              <div>
+                <Text size='sm' c='dimmed' mb={4}>
+                  Total Students
+                </Text>
+                <Group gap='xs'>
+                  <IconUsers size={20} />
+                  <Text fw={600} size='lg'>
+                    {registrationData.fullData.totalStudents.toLocaleString()}
+                  </Text>
+                </Group>
+              </div>
+            )}
+          </Group>
         </CardSection>
       </Card>
 
       {selectedTermId && registrationData && (
         <Card shadow='md' radius='md' withBorder mt='md'>
           <CardSection inheritPadding py='md'>
-            <Group>
-              <IconEye size={24} />
-              <div>
-                <Title order={3}>Registration Data Preview</Title>
-                <Text c='dimmed' size='sm'>
-                  Overview of registration data for {selectedTerm?.name}
-                </Text>
-              </div>
-            </Group>
-          </CardSection>
-
-          <CardSection inheritPadding pb='md'>
-            <RegistrationStats
-              totalStudents={registrationData.fullData.totalStudents}
-              totalSchools={registrationData.summaryData.schools.length}
-              totalPrograms={registrationData.summaryData.schools.reduce(
-                (acc, school) => acc + school.programs.length,
-                0
-              )}
-              termName={registrationData.term.name}
-            />
-
-            <Tabs value={activeTab} onChange={setActiveTab} mt='md'>
+            <Tabs value={activeTab} onChange={setActiveTab}>
               <Group justify='space-between' align='flex-end' mb='sm'>
                 <Tabs.List>
                   <Tabs.Tab
