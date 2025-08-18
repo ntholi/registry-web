@@ -4,6 +4,7 @@ import {
   createFullRegistrationDocument,
   createSummaryRegistrationDocument,
 } from './document';
+import { createFullRegistrationExcel } from './excel';
 import withAuth from '@/server/base/withAuth';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 
@@ -27,9 +28,9 @@ export class RegistrationReportService {
         generatedAt: new Date(),
       };
 
-      const document = createFullRegistrationDocument(fullReport);
-      const buffer = await Packer.toBuffer(document);
-      return Buffer.from(buffer);
+      // Use Excel for full report instead of Word
+      const buffer = await createFullRegistrationExcel(fullReport);
+      return buffer;
     }, ['registry', 'admin']);
   }
 

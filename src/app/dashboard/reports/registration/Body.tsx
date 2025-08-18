@@ -27,7 +27,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useDownload } from '@/hooks/use-download';
 import {
-  IconFileText,
+  IconTable,
   IconChartBar,
   IconDownload,
   IconEye,
@@ -106,8 +106,13 @@ export default function Body() {
       const selectedTerm = terms?.find(
         (t) => t.id.toString() === selectedTermId
       );
-      const filename = `Full_Registration_Report_${selectedTerm?.name || 'Term'}_${new Date().toISOString().split('T')[0]}.docx`;
-      downloadFromBase64(base64Data, filename);
+      const filename = `Full_Registration_Report_${selectedTerm?.name || 'Term'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      // Use Excel MIME type for full registration report
+      downloadFromBase64(
+        base64Data,
+        filename,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
     },
     onError: (error) => {
       notifications.show({
@@ -188,7 +193,7 @@ export default function Body() {
               <Card withBorder p='md'>
                 <Stack gap='xs'>
                   <Group>
-                    <IconFileText
+                    <IconTable
                       size={24}
                       style={{ color: 'var(--mantine-color-blue-6)' }}
                     />
@@ -197,7 +202,7 @@ export default function Body() {
                   <Text size='sm' c='dimmed'>
                     Complete list of all registered students with detailed
                     information including student numbers, names, programs, and
-                    semester details.
+                    semester details exported as an Excel spreadsheet.
                   </Text>
                   <Button
                     variant='filled'
@@ -293,7 +298,7 @@ export default function Body() {
                 </Tabs.Tab>
                 <Tabs.Tab
                   value='detailed'
-                  leftSection={<IconFileText size={14} />}
+                  leftSection={<IconTable size={14} />}
                 >
                   Student List (First 50)
                 </Tabs.Tab>
