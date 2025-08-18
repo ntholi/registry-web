@@ -1,6 +1,7 @@
 import { Card, Text, Badge, Table, ScrollArea, Group } from '@mantine/core';
 import { IconBuilding } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
+import { formatSemester } from '@/lib/utils';
 
 interface ProgramBreakdownTableProps {
   school: {
@@ -19,13 +20,13 @@ export default function ProgramBreakdownTable({
 }: ProgramBreakdownTableProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const allYears = Array.from(
+  const allSemesters = Array.from(
     new Set(
       school.programs.flatMap((program) =>
-        Object.keys(program.yearBreakdown).map((year) => parseInt(year))
+        Object.keys(program.yearBreakdown).map((semester) => parseInt(semester))
       )
     )
-  ).sort();
+  ).sort((a, b) => a - b);
 
   return (
     <Card withBorder>
@@ -44,9 +45,9 @@ export default function ProgramBreakdownTable({
           <Table.Thead>
             <Table.Tr>
               <Table.Th miw={isMobile ? 120 : 200}>Program</Table.Th>
-              {allYears.map((year) => (
-                <Table.Th key={year} ta='center' miw={60}>
-                  Year {year}
+              {allSemesters.map((semester) => (
+                <Table.Th key={semester} ta='center' miw={80}>
+                  {formatSemester(semester, 'mini')}
                 </Table.Th>
               ))}
               <Table.Th ta='center' miw={60}>
@@ -62,10 +63,10 @@ export default function ProgramBreakdownTable({
                     {program.programName}
                   </Text>
                 </Table.Td>
-                {allYears.map((year) => (
-                  <Table.Td key={year} ta='center'>
+                {allSemesters.map((semester) => (
+                  <Table.Td key={semester} ta='center'>
                     <Text size={isMobile ? 'xs' : 'sm'}>
-                      {program.yearBreakdown[year] || 0}
+                      {program.yearBreakdown[semester] || 0}
                     </Text>
                   </Table.Td>
                 ))}

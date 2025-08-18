@@ -34,6 +34,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import ProgramBreakdownTable from './ProgramBreakdownTable';
+import { formatSemester } from '@/lib/utils';
 
 export default function Body() {
   const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
@@ -348,7 +349,7 @@ export default function Body() {
                                 variant='light'
                                 size={isMobile ? 'xs' : 'sm'}
                               >
-                                {student.semesterNumber}
+                                {formatSemester(student.semesterNumber, 'mini')}
                               </Badge>
                             </Table.Td>
                             <Table.Td>

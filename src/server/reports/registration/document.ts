@@ -10,6 +10,7 @@ import {
   BorderStyle,
   Footer,
   ImageRun,
+  PageOrientation,
 } from 'docx';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -17,6 +18,7 @@ import {
   FullRegistrationReport,
   SummaryRegistrationReport,
 } from './repository';
+import { formatSemester } from '@/lib/utils';
 
 export function createFullRegistrationDocument(
   report: FullRegistrationReport
@@ -37,6 +39,9 @@ export function createFullRegistrationDocument(
       {
         properties: {
           page: {
+            size: {
+              orientation: PageOrientation.PORTRAIT,
+            },
             margin: {
               top: 720,
               right: 1440,
@@ -61,8 +66,9 @@ export function createFullRegistrationDocument(
                         minute: '2-digit',
                       }
                     )}`,
-                    font: 'Tahoma',
+                    font: 'Arial',
                     size: 16,
+                    color: '333333',
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
@@ -76,10 +82,36 @@ export function createFullRegistrationDocument(
               new ImageRun({
                 data: logoImage,
                 transformation: {
-                  width: 300,
-                  height: 150,
+                  width: 360,
+                  height: 180,
                 },
                 type: 'jpg',
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 400 },
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY',
+                font: 'Arial',
+                bold: true,
+                size: 28,
+                color: '000000',
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 200 },
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'REGISTRY DEPARTMENT',
+                font: 'Arial',
+                bold: true,
+                size: 22,
+                color: '333333',
               }),
             ],
             alignment: AlignmentType.CENTER,
@@ -88,35 +120,25 @@ export function createFullRegistrationDocument(
           new Paragraph({
             children: [
               new TextRun({
-                text: 'REGISTRY DEPARTMENT',
-                font: 'Tahoma',
-                bold: true,
-                size: 24,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 120 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
                 text: 'FULL REGISTRATION REPORT',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 24,
+                color: '000000',
               }),
             ],
             alignment: AlignmentType.CENTER,
-            spacing: { after: 360 },
+            spacing: { after: 480 },
           }),
           createFullReportInfoTable(report),
           new Paragraph({
             children: [
               new TextRun({
                 text: 'Registered Students',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 24,
+                color: '000000',
               }),
             ],
             alignment: AlignmentType.CENTER,
@@ -151,6 +173,9 @@ export function createSummaryRegistrationDocument(
       {
         properties: {
           page: {
+            size: {
+              orientation: PageOrientation.PORTRAIT,
+            },
             margin: {
               top: 720,
               right: 1440,
@@ -175,8 +200,9 @@ export function createSummaryRegistrationDocument(
                         minute: '2-digit',
                       }
                     )}`,
-                    font: 'Tahoma',
+                    font: 'Arial',
                     size: 16,
+                    color: '333333',
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
@@ -190,10 +216,36 @@ export function createSummaryRegistrationDocument(
               new ImageRun({
                 data: logoImage,
                 transformation: {
-                  width: 300,
-                  height: 150,
+                  width: 360,
+                  height: 180,
                 },
                 type: 'jpg',
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 400 },
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY',
+                font: 'Arial',
+                bold: true,
+                size: 28,
+                color: '000000',
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 200 },
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'REGISTRY DEPARTMENT',
+                font: 'Arial',
+                bold: true,
+                size: 22,
+                color: '333333',
               }),
             ],
             alignment: AlignmentType.CENTER,
@@ -202,52 +254,47 @@ export function createSummaryRegistrationDocument(
           new Paragraph({
             children: [
               new TextRun({
-                text: 'REGISTRY DEPARTMENT',
-                font: 'Tahoma',
+                text: 'REGISTRATION SUMMARY REPORT',
+                font: 'Arial',
                 bold: true,
                 size: 24,
+                color: '000000',
               }),
             ],
             alignment: AlignmentType.CENTER,
-            spacing: { after: 120 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: 'SUMMARY REGISTRATION REPORT',
-                font: 'Tahoma',
-                bold: true,
-                size: 24,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 360 },
+            spacing: { after: 480 },
           }),
           createSummaryReportInfoTable(report),
           new Paragraph({
-            children: [
-              new TextRun({
-                text: 'Registration Summary by School and Program',
-                font: 'Tahoma',
-                bold: true,
-                size: 20,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 240, before: 360 },
-            pageBreakBefore: true,
+            text: '',
+            spacing: { after: 360 },
           }),
-          ...report.schools.flatMap((school) => [
+          ...report.schools.flatMap((school, schoolIndex) => [
             new Paragraph({
               children: [
                 new TextRun({
-                  text: `${school.schoolName} (Total: ${school.totalStudents} students)`,
-                  font: 'Tahoma',
+                  text: `${school.schoolName}`,
+                  font: 'Arial',
                   bold: true,
-                  size: 18,
+                  size: 20,
+                  color: '000000',
                 }),
               ],
-              spacing: { after: 180, before: 240 },
+              spacing: {
+                after: 120,
+                before: schoolIndex === 0 ? 240 : 360,
+              },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `Total Students: ${school.totalStudents}`,
+                  font: 'Arial',
+                  size: 16,
+                  color: '333333',
+                }),
+              ],
+              spacing: { after: 240 },
             }),
             createSummaryTable(school.programs),
           ]),
@@ -270,19 +317,19 @@ function createFullReportInfoTable(report: FullRegistrationReport): Table {
                 children: [
                   new TextRun({
                     text: 'Term',
-                    font: 'Tahoma',
+                    font: 'Arial',
                     bold: true,
-                    size: 20,
+                    size: 18,
                     color: 'FFFFFF',
                   }),
                 ],
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
-            width: { size: 30, type: WidthType.PERCENTAGE },
+            width: { size: 35, type: WidthType.PERCENTAGE },
             shading: { fill: '000000' },
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
           }),
           new TableCell({
             children: [
@@ -290,16 +337,19 @@ function createFullReportInfoTable(report: FullRegistrationReport): Table {
                 children: [
                   new TextRun({
                     text: report.termName,
-                    font: 'Tahoma',
-                    size: 20,
+                    font: 'Arial',
+                    bold: true,
+                    size: 18,
+                    color: '000000',
                   }),
                 ],
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
-            width: { size: 70, type: WidthType.PERCENTAGE },
+            width: { size: 65, type: WidthType.PERCENTAGE },
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
+            shading: { fill: 'F8F8F8' },
           }),
         ],
       }),
@@ -311,47 +361,50 @@ function createFullReportInfoTable(report: FullRegistrationReport): Table {
                 children: [
                   new TextRun({
                     text: 'Total Registered Students',
-                    font: 'Tahoma',
+                    font: 'Arial',
                     bold: true,
-                    size: 20,
+                    size: 18,
                     color: 'FFFFFF',
                   }),
                 ],
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
             shading: { fill: '000000' },
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
           }),
           new TableCell({
             children: [
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: report.totalStudents.toString(),
-                    font: 'Tahoma',
+                    text: report.totalStudents.toLocaleString(),
+                    font: 'Arial',
+                    bold: true,
                     size: 20,
+                    color: '000000',
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
+            shading: { fill: 'F8F8F8' },
           }),
         ],
       }),
     ],
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: 80, type: WidthType.PERCENTAGE },
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      top: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
+      bottom: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
+      left: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
+      right: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: '666666' },
+      insideVertical: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
     },
   });
 }
@@ -369,19 +422,19 @@ function createSummaryReportInfoTable(
                 children: [
                   new TextRun({
                     text: 'Term',
-                    font: 'Tahoma',
+                    font: 'Arial',
                     bold: true,
-                    size: 20,
+                    size: 18,
                     color: 'FFFFFF',
                   }),
                 ],
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
-            width: { size: 30, type: WidthType.PERCENTAGE },
+            width: { size: 35, type: WidthType.PERCENTAGE },
             shading: { fill: '000000' },
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
           }),
           new TableCell({
             children: [
@@ -389,16 +442,19 @@ function createSummaryReportInfoTable(
                 children: [
                   new TextRun({
                     text: report.termName,
-                    font: 'Tahoma',
-                    size: 20,
+                    font: 'Arial',
+                    bold: true,
+                    size: 18,
+                    color: '000000',
                   }),
                 ],
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
-            width: { size: 70, type: WidthType.PERCENTAGE },
+            width: { size: 65, type: WidthType.PERCENTAGE },
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
+            shading: { fill: 'F8F8F8' },
           }),
         ],
       }),
@@ -410,35 +466,38 @@ function createSummaryReportInfoTable(
                 children: [
                   new TextRun({
                     text: 'Total Registered Students',
-                    font: 'Tahoma',
+                    font: 'Arial',
                     bold: true,
-                    size: 20,
+                    size: 18,
                     color: 'FFFFFF',
                   }),
                 ],
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
             shading: { fill: '000000' },
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
           }),
           new TableCell({
             children: [
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: report.totalStudents.toString(),
-                    font: 'Tahoma',
+                    text: report.totalStudents.toLocaleString(),
+                    font: 'Arial',
+                    bold: true,
                     size: 20,
+                    color: '000000',
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
+            shading: { fill: 'F8F8F8' },
           }),
         ],
       }),
@@ -450,18 +509,18 @@ function createSummaryReportInfoTable(
                 children: [
                   new TextRun({
                     text: 'Total Schools',
-                    font: 'Tahoma',
+                    font: 'Arial',
                     bold: true,
-                    size: 20,
+                    size: 18,
                     color: 'FFFFFF',
                   }),
                 ],
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
             shading: { fill: '000000' },
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
           }),
           new TableCell({
             children: [
@@ -469,28 +528,31 @@ function createSummaryReportInfoTable(
                 children: [
                   new TextRun({
                     text: report.schools.length.toString(),
-                    font: 'Tahoma',
+                    font: 'Arial',
+                    bold: true,
                     size: 20,
+                    color: '000000',
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
-                spacing: { before: 60, after: 60 },
+                spacing: { before: 80, after: 80 },
               }),
             ],
             verticalAlign: 'center',
-            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            margins: { top: 150, bottom: 150, left: 150, right: 150 },
+            shading: { fill: 'F8F8F8' },
           }),
         ],
       }),
     ],
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: 80, type: WidthType.PERCENTAGE },
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      top: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
+      bottom: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
+      left: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
+      right: { style: BorderStyle.SINGLE, size: 3, color: '000000' },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: '666666' },
+      insideVertical: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
     },
   });
 }
@@ -513,16 +575,19 @@ function createFullStudentsTable(
             children: [
               new TextRun({
                 text: 'No',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 16,
+                color: 'FFFFFF',
               }),
             ],
             alignment: AlignmentType.CENTER,
           }),
         ],
         width: { size: 8, type: WidthType.PERCENTAGE },
-        shading: { fill: 'E0E0E0' },
+        shading: { fill: '000000' },
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
       }),
       new TableCell({
         children: [
@@ -530,16 +595,19 @@ function createFullStudentsTable(
             children: [
               new TextRun({
                 text: 'Student No.',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 16,
+                color: 'FFFFFF',
               }),
             ],
             alignment: AlignmentType.CENTER,
           }),
         ],
         width: { size: 12, type: WidthType.PERCENTAGE },
-        shading: { fill: 'E0E0E0' },
+        shading: { fill: '000000' },
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
       }),
       new TableCell({
         children: [
@@ -547,16 +615,19 @@ function createFullStudentsTable(
             children: [
               new TextRun({
                 text: 'Student Name',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 16,
+                color: 'FFFFFF',
               }),
             ],
             alignment: AlignmentType.CENTER,
           }),
         ],
         width: { size: 25, type: WidthType.PERCENTAGE },
-        shading: { fill: 'E0E0E0' },
+        shading: { fill: '000000' },
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
       }),
       new TableCell({
         children: [
@@ -564,16 +635,19 @@ function createFullStudentsTable(
             children: [
               new TextRun({
                 text: 'Program',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 16,
+                color: 'FFFFFF',
               }),
             ],
             alignment: AlignmentType.CENTER,
           }),
         ],
         width: { size: 30, type: WidthType.PERCENTAGE },
-        shading: { fill: 'E0E0E0' },
+        shading: { fill: '000000' },
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
       }),
       new TableCell({
         children: [
@@ -581,16 +655,19 @@ function createFullStudentsTable(
             children: [
               new TextRun({
                 text: 'Semester',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 16,
+                color: 'FFFFFF',
               }),
             ],
             alignment: AlignmentType.CENTER,
           }),
         ],
         width: { size: 10, type: WidthType.PERCENTAGE },
-        shading: { fill: 'E0E0E0' },
+        shading: { fill: '000000' },
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
       }),
       new TableCell({
         children: [
@@ -598,21 +675,25 @@ function createFullStudentsTable(
             children: [
               new TextRun({
                 text: 'School',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 16,
+                color: 'FFFFFF',
               }),
             ],
             alignment: AlignmentType.CENTER,
           }),
         ],
         width: { size: 15, type: WidthType.PERCENTAGE },
-        shading: { fill: 'E0E0E0' },
+        shading: { fill: '000000' },
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
       }),
     ],
   });
 
   const dataRows = students.map((student, index) => {
+    const isEvenRow = index % 2 === 0;
     return new TableRow({
       children: [
         new TableCell({
@@ -621,13 +702,17 @@ function createFullStudentsTable(
               children: [
                 new TextRun({
                   text: (index + 1).toString(),
-                  font: 'Tahoma',
+                  font: 'Arial',
                   size: 14,
+                  color: '000000',
                 }),
               ],
               alignment: AlignmentType.CENTER,
             }),
           ],
+          shading: { fill: isEvenRow ? 'F8F8F8' : 'FFFFFF' },
+          margins: { top: 100, bottom: 100, left: 120, right: 120 },
+          verticalAlign: 'center',
         }),
         new TableCell({
           children: [
@@ -635,13 +720,17 @@ function createFullStudentsTable(
               children: [
                 new TextRun({
                   text: student.stdNo.toString(),
-                  font: 'Tahoma',
+                  font: 'Arial',
                   size: 14,
+                  color: '000000',
                 }),
               ],
               alignment: AlignmentType.CENTER,
             }),
           ],
+          shading: { fill: isEvenRow ? 'F8F8F8' : 'FFFFFF' },
+          margins: { top: 100, bottom: 100, left: 120, right: 120 },
+          verticalAlign: 'center',
         }),
         new TableCell({
           children: [
@@ -649,12 +738,16 @@ function createFullStudentsTable(
               children: [
                 new TextRun({
                   text: student.name,
-                  font: 'Tahoma',
+                  font: 'Arial',
                   size: 14,
+                  color: '000000',
                 }),
               ],
             }),
           ],
+          shading: { fill: isEvenRow ? 'F8F8F8' : 'FFFFFF' },
+          margins: { top: 100, bottom: 100, left: 120, right: 120 },
+          verticalAlign: 'center',
         }),
         new TableCell({
           children: [
@@ -662,26 +755,34 @@ function createFullStudentsTable(
               children: [
                 new TextRun({
                   text: student.programName,
-                  font: 'Tahoma',
+                  font: 'Arial',
                   size: 14,
+                  color: '000000',
                 }),
               ],
             }),
           ],
+          shading: { fill: isEvenRow ? 'F8F8F8' : 'FFFFFF' },
+          margins: { top: 100, bottom: 100, left: 120, right: 120 },
+          verticalAlign: 'center',
         }),
         new TableCell({
           children: [
             new Paragraph({
               children: [
                 new TextRun({
-                  text: student.semesterNumber.toString(),
-                  font: 'Tahoma',
+                  text: formatSemester(student.semesterNumber, 'short'),
+                  font: 'Arial',
                   size: 14,
+                  color: '000000',
                 }),
               ],
               alignment: AlignmentType.CENTER,
             }),
           ],
+          shading: { fill: isEvenRow ? 'F8F8F8' : 'FFFFFF' },
+          margins: { top: 100, bottom: 100, left: 120, right: 120 },
+          verticalAlign: 'center',
         }),
         new TableCell({
           children: [
@@ -689,12 +790,16 @@ function createFullStudentsTable(
               children: [
                 new TextRun({
                   text: student.schoolName,
-                  font: 'Tahoma',
+                  font: 'Arial',
                   size: 14,
+                  color: '000000',
                 }),
               ],
             }),
           ],
+          shading: { fill: isEvenRow ? 'F8F8F8' : 'FFFFFF' },
+          margins: { top: 100, bottom: 100, left: 120, right: 120 },
+          verticalAlign: 'center',
         }),
       ],
     });
@@ -704,12 +809,12 @@ function createFullStudentsTable(
     rows: [headerRow, ...dataRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 1 },
-      bottom: { style: BorderStyle.SINGLE, size: 1 },
-      left: { style: BorderStyle.SINGLE, size: 1 },
-      right: { style: BorderStyle.SINGLE, size: 1 },
-      insideHorizontal: { style: BorderStyle.SINGLE, size: 1 },
-      insideVertical: { style: BorderStyle.SINGLE, size: 1 },
+      top: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+      bottom: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+      left: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+      right: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
+      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
     },
   });
 }
@@ -732,13 +837,15 @@ function createSummaryTable(
                   children: [
                     new TextRun({
                       text: 'No programs found',
-                      font: 'Tahoma',
+                      font: 'Arial',
                       size: 14,
+                      color: '666666',
                     }),
                   ],
                   alignment: AlignmentType.CENTER,
                 }),
               ],
+              margins: { top: 120, bottom: 120, left: 120, right: 120 },
             }),
           ],
         }),
@@ -747,13 +854,13 @@ function createSummaryTable(
     });
   }
 
-  const allYears = new Set<number>();
+  const allSemesters = new Set<number>();
   programs.forEach((program) => {
-    Object.keys(program.yearBreakdown).forEach((year) => {
-      allYears.add(parseInt(year));
+    Object.keys(program.yearBreakdown).forEach((semester) => {
+      allSemesters.add(parseInt(semester));
     });
   });
-  const sortedYears = Array.from(allYears).sort();
+  const sortedSemesters = Array.from(allSemesters).sort((a, b) => a - b);
 
   const headerRow = new TableRow({
     children: [
@@ -763,38 +870,44 @@ function createSummaryTable(
             children: [
               new TextRun({
                 text: 'Program',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 14,
+                color: 'FFFFFF',
               }),
             ],
             alignment: AlignmentType.CENTER,
           }),
         ],
         width: { size: 40, type: WidthType.PERCENTAGE },
-        shading: { fill: 'E0E0E0' },
+        shading: { fill: '000000' },
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
       }),
-      ...sortedYears.map(
-        (year) =>
+      ...sortedSemesters.map(
+        (semester) =>
           new TableCell({
             children: [
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `Year ${year}`,
-                    font: 'Tahoma',
+                    text: formatSemester(semester, 'short'),
+                    font: 'Arial',
                     bold: true,
-                    size: 14,
+                    size: 12,
+                    color: 'FFFFFF',
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
               }),
             ],
             width: {
-              size: 60 / sortedYears.length,
+              size: 45 / sortedSemesters.length,
               type: WidthType.PERCENTAGE,
             },
-            shading: { fill: 'E0E0E0' },
+            shading: { fill: '000000' },
+            margins: { top: 120, bottom: 120, left: 120, right: 120 },
+            verticalAlign: 'center',
           })
       ),
       new TableCell({
@@ -803,21 +916,25 @@ function createSummaryTable(
             children: [
               new TextRun({
                 text: 'Total',
-                font: 'Tahoma',
+                font: 'Arial',
                 bold: true,
                 size: 14,
+                color: 'FFFFFF',
               }),
             ],
             alignment: AlignmentType.CENTER,
           }),
         ],
         width: { size: 15, type: WidthType.PERCENTAGE },
-        shading: { fill: 'E0E0E0' },
+        shading: { fill: '000000' },
+        margins: { top: 120, bottom: 120, left: 120, right: 120 },
+        verticalAlign: 'center',
       }),
     ],
   });
 
-  const dataRows = programs.map((program) => {
+  const dataRows = programs.map((program, index) => {
+    const isEvenRow = index % 2 === 0;
     return new TableRow({
       children: [
         new TableCell({
@@ -826,28 +943,36 @@ function createSummaryTable(
               children: [
                 new TextRun({
                   text: program.programName,
-                  font: 'Tahoma',
+                  font: 'Arial',
                   size: 12,
+                  color: '000000',
                 }),
               ],
             }),
           ],
+          shading: { fill: isEvenRow ? 'F8F8F8' : 'FFFFFF' },
+          margins: { top: 120, bottom: 120, left: 120, right: 120 },
+          verticalAlign: 'center',
         }),
-        ...sortedYears.map(
-          (year) =>
+        ...sortedSemesters.map(
+          (semester) =>
             new TableCell({
               children: [
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: (program.yearBreakdown[year] || 0).toString(),
-                      font: 'Tahoma',
+                      text: (program.yearBreakdown[semester] || 0).toString(),
+                      font: 'Arial',
                       size: 12,
+                      color: '000000',
                     }),
                   ],
                   alignment: AlignmentType.CENTER,
                 }),
               ],
+              shading: { fill: isEvenRow ? 'F8F8F8' : 'FFFFFF' },
+              margins: { top: 120, bottom: 120, left: 120, right: 120 },
+              verticalAlign: 'center',
             })
         ),
         new TableCell({
@@ -856,14 +981,18 @@ function createSummaryTable(
               children: [
                 new TextRun({
                   text: program.totalStudents.toString(),
-                  font: 'Tahoma',
+                  font: 'Arial',
                   bold: true,
                   size: 12,
+                  color: '000000',
                 }),
               ],
               alignment: AlignmentType.CENTER,
             }),
           ],
+          shading: { fill: isEvenRow ? 'F0F0F0' : 'E8E8E8' },
+          margins: { top: 120, bottom: 120, left: 120, right: 120 },
+          verticalAlign: 'center',
         }),
       ],
     });
@@ -873,12 +1002,12 @@ function createSummaryTable(
     rows: [headerRow, ...dataRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 1 },
-      bottom: { style: BorderStyle.SINGLE, size: 1 },
-      left: { style: BorderStyle.SINGLE, size: 1 },
-      right: { style: BorderStyle.SINGLE, size: 1 },
-      insideHorizontal: { style: BorderStyle.SINGLE, size: 1 },
-      insideVertical: { style: BorderStyle.SINGLE, size: 1 },
+      top: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+      bottom: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+      left: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+      right: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
+      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
     },
   });
 }
