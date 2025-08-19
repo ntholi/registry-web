@@ -1,28 +1,40 @@
 'use client';
 
 import { createStudentCardPrint } from '@/server/student-card-prints/actions';
-import { getStudent } from '@/server/students/actions';
+import { getStudent, getStudentPhoto } from '@/server/students/actions';
 import { convertUrlToBase64 } from '@/lib/utils';
-import { Button } from '@mantine/core';
+import { Button, Loader } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import StudentCardPDF from './StudentCardPDF';
 
 type StudentCardPrinterProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
-  photoUrl: string | null | undefined;
+  photoUrl?: string | null | undefined;
   disabled?: boolean;
+  isActive?: boolean;
 };
 
 export default function StudentCardPrinter({
   student,
   photoUrl,
   disabled,
+  isActive = true,
 }: StudentCardPrinterProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const { data: session } = useSession();
+
+  const { data: fetchedPhotoUrl, isLoading: photoLoading } = useQuery({
+    queryKey: ['studentPhoto', student.stdNo],
+    queryFn: () => getStudentPhoto(student.stdNo),
+    staleTime: 1000 * 60 * 3,
+    enabled: isActive && !photoUrl,
+  });
+
+  const finalPhotoUrl = photoUrl || fetchedPhotoUrl;
 
   const createPrintRecord = async () => {
     if (!session?.user?.id) {
@@ -49,7 +61,7 @@ export default function StudentCardPrinter({
   };
 
   const handlePrint = async () => {
-    if (!student || !photoUrl) {
+    if (!student || !finalPhotoUrl) {
       console.error('Missing student data or photo');
       return;
     }
@@ -59,7 +71,7 @@ export default function StudentCardPrinter({
     try {
       await createPrintRecord();
 
-      const processedPhotoUrl = await processPhotoUrl(photoUrl);
+      const processedPhotoUrl = await processPhotoUrl(finalPhotoUrl);
 
       const blob = await pdf(
         <StudentCardPDF student={student} photoUrl={processedPhotoUrl} />
@@ -103,14 +115,21 @@ export default function StudentCardPrinter({
 
   return (
     <Button
-      leftSection={<IconPrinter size='1rem' />}
+      leftSection={
+        photoLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />
+      }
       onClick={handlePrint}
-      variant='default'
-      mt={'md'}
-      disabled={isGenerating || disabled}
-      fullWidth
+      variant='subtle'
+      color='gray'
+      size='xs'
+      w={165}
+      disabled={isGenerating || disabled || !finalPhotoUrl}
     >
-      Print Student Card
+      {photoLoading
+        ? 'Loading...'
+        : isGenerating
+          ? 'Generating...'
+          : 'Print Student Card'}
     </Button>
   );
 }

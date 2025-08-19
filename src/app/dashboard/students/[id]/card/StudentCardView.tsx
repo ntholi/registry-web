@@ -14,7 +14,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { IconCamera } from '@tabler/icons-react';
 import { useState } from 'react';
-import StudentCardPrinter from './StudentCardPrinter';
+
 import PhotoSelection from './PhotoSelection';
 
 type StudentCardViewProps = {
@@ -62,13 +62,6 @@ export default function StudentCardView({
         <Grid.Col span={6}>
           <Paper>
             <StudentCardPreview student={student} photoUrl={finalPhotoUrl} />
-            <Group mt='sm'>
-              <StudentCardPrinter
-                student={student}
-                photoUrl={finalPhotoUrl}
-                disabled={!finalPhotoUrl}
-              />
-            </Group>
           </Paper>
         </Grid.Col>
       </Grid>

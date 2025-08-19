@@ -11,6 +11,7 @@ import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfRes
 import ProofOfRegistrationPrinter from './registration/proof/ProofOfRegistrationPrinter';
 import RegistrationView from './registration/RegistrationView';
 import StudentCardView from './card/StudentCardView';
+import StudentCardPrinter from './card/StudentCardPrinter';
 import StudentView from './info/StudentView';
 
 type StudentTabsProps = {
@@ -75,6 +76,15 @@ export function StudentTabs({
               <ProofOfRegistrationPrinter stdNo={student.stdNo} />
             </Box>
           )}
+        {showStudentCard && activeTab === 'studentcard' && (
+          <Box ml='auto'>
+            <StudentCardPrinter
+              student={student}
+              isActive={activeTab === 'studentcard'}
+              disabled={!!blockedStudent}
+            />
+          </Box>
+        )}
       </TabsList>
       <TabsPanel value='academics' pt={'xl'} p={'sm'}>
         {blockedStudent ? (
