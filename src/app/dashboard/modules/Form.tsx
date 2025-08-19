@@ -1,8 +1,8 @@
 'use client';
 
-import { modules } from '@/db/schema';
 import { Form } from '@/components/adease';
-import { TextInput } from '@mantine/core';
+import { modules } from '@/db/schema';
+import { Grid, NumberInput, Select, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 
@@ -34,9 +34,22 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
     >
       {(form) => (
         <>
-          <TextInput label='Code' {...form.getInputProps('code')} />
-          <TextInput label='Name' {...form.getInputProps('name')} />
-          <TextInput label='Status' {...form.getInputProps('status')} />
+          <NumberInput label='ID' {...form.getInputProps('id')} />
+          <Grid>
+            <Grid.Col span={3}>
+              <TextInput label='Code' {...form.getInputProps('code')} />
+            </Grid.Col>
+            <Grid.Col span={9}>
+              <TextInput label='Name' {...form.getInputProps('name')} />
+            </Grid.Col>
+          </Grid>
+          <Select
+            label='Status'
+            searchable
+            defaultValue='Active'
+            {...form.getInputProps('status')}
+            data={['Active', 'Defunct']}
+          />
         </>
       )}
     </Form>
