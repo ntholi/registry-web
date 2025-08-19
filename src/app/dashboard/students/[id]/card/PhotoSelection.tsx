@@ -5,6 +5,7 @@ import {
   ActionIcon,
   Box,
   Button,
+  Divider,
   Group,
   Image,
   Modal,
@@ -95,7 +96,7 @@ export default function PhotoSelection({
 
   return (
     <Paper p='lg' withBorder>
-      <Text size='lg' fw={600} mb='md'>
+      <Text fw={600} mb='md'>
         Photo Selection
       </Text>
 
@@ -133,16 +134,13 @@ export default function PhotoSelection({
         )}
 
         {photoPreview && (
-          <Box>
-            <Text size='sm' mb='xs'>
-              Preview:
-            </Text>
+          <Box mt={'md'}>
             <Box pos='relative'>
               <Image
                 src={photoPreview}
                 alt='Student photo preview'
                 w='100%'
-                h={200}
+                h={250}
                 fit='cover'
                 radius='md'
               />
