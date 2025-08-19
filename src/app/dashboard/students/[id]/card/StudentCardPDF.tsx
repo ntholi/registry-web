@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   cardFooter: {
     position: 'absolute',
-    bottom: 8,
+    bottom: 1,
     left: 1,
     right: 1,
     flexDirection: 'column',
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   footerText: {
-    fontSize: 5,
+    fontSize: 4,
     fontWeight: 'bold',
     color: '#000000',
   },

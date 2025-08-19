@@ -49,7 +49,7 @@ export default function StudentCardView({
 
   return (
     <Box>
-      <Grid>
+      <Grid gutter='xl'>
         <Grid.Col span={6}>
           <PhotoSelection
             selectedPhoto={selectedPhoto}
@@ -60,10 +60,7 @@ export default function StudentCardView({
           />
         </Grid.Col>
         <Grid.Col span={6}>
-          <Paper p='md' shadow='sm' radius='md'>
-            <Text size='lg' fw={600} mb='sm'>
-              Student Card Preview
-            </Text>
+          <Paper>
             <StudentCardPreview student={student} photoUrl={finalPhotoUrl} />
             <Group mt='sm'>
               <StudentCardPrinter

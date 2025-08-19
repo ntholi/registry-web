@@ -94,7 +94,7 @@ export default function PhotoSelection({
   };
 
   return (
-    <Paper p='lg' shadow='sm' radius='md'>
+    <Paper p='lg' withBorder>
       <Text size='lg' fw={600} mb='md'>
         Photo Selection
       </Text>

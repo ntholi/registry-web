@@ -105,7 +105,10 @@ export default function StudentCardPrinter({
     <Button
       leftSection={<IconPrinter size='1rem' />}
       onClick={handlePrint}
+      variant='default'
+      mt={'md'}
       disabled={isGenerating || disabled}
+      fullWidth
     >
       Print Student Card
     </Button>
