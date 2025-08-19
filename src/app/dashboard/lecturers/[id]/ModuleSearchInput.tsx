@@ -48,7 +48,7 @@ export const ModuleSearchInput = forwardRef<
         ...module,
         studentCount: module.semesters.reduce(
           (count, semester) => count + (semester.studentCount ?? 0),
-          0,
+          0
         ),
       })),
     enabled: debouncedSearch.length > 1,
@@ -69,7 +69,7 @@ export const ModuleSearchInput = forwardRef<
 
   const handleOptionSubmit = (value: string) => {
     const selectedModule = modules?.find(
-      (module) => module.moduleId.toString() === value,
+      (module) => module.moduleId.toString() === value
     );
 
     if (selectedModule) {
@@ -85,7 +85,7 @@ export const ModuleSearchInput = forwardRef<
   const displayValue = () => {
     if (value && modules) {
       const selectedModule = modules.find(
-        (module) => module.moduleId === Number(value),
+        (module) => module.moduleId === Number(value)
       );
       if (selectedModule) {
         return `${selectedModule.code} - ${selectedModule.name}`;
