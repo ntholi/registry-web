@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  getModule,
+  getSemesterModule,
   updateModule,
   getModulePrerequisites,
 } from '@/server/semester-modules/actions';
@@ -25,7 +25,7 @@ export default function EditButton({ moduleId, structureId }: Props) {
   const openEditModal = async () => {
     try {
       const [mod, prerequisites] = await Promise.all([
-        getModule(moduleId),
+        getSemesterModule(moduleId),
         getModulePrerequisites(moduleId),
       ]);
 

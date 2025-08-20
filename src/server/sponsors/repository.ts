@@ -20,18 +20,22 @@ export default class SponsorRepository extends BaseRepository<
   }
 
   async findSponsoredStudent(stdNo: number, termId: number) {
-    console.log(`Delete this and do something with ${termId}`);
-    const whereCondition = and(
-      eq(sponsoredStudents.stdNo, stdNo)
-      // eq(sponsoredStudents.termId, termId),
-    );
-
     const data = await db.query.sponsoredStudents.findFirst({
-      where: whereCondition,
+      where: eq(sponsoredStudents.stdNo, stdNo),
       with: {
         sponsor: true,
+        sponsoredTerms: {
+          where: eq(sponsoredTerms.termId, termId),
+          with: {
+            term: true,
+          },
+        },
       },
     });
+
+    if (data && data.sponsoredTerms.length === 0) {
+      return null;
+    }
 
     return data;
   }
@@ -321,22 +325,32 @@ export default class SponsorRepository extends BaseRepository<
         updateData.confirmed = data.confirmed;
       }
 
-      return await db
+      const updatedSponsoredStudent = await db
         .update(sponsoredStudents)
         .set(updateData)
-        .where(
-          and(
-            eq(sponsoredStudents.stdNo, data.stdNo)
-            // eq(sponsoredStudents.termId, data.termId),
-          )
-        )
+        .where(eq(sponsoredStudents.stdNo, data.stdNo))
         .returning();
+
+      const existingSponsoredTerm = await db.query.sponsoredTerms.findFirst({
+        where: and(
+          eq(sponsoredTerms.sponsoredStudentId, existing.id),
+          eq(sponsoredTerms.termId, data.termId)
+        ),
+      });
+
+      if (!existingSponsoredTerm) {
+        await db.insert(sponsoredTerms).values({
+          sponsoredStudentId: existing.id,
+          termId: data.termId,
+        });
+      }
+
+      return updatedSponsoredStudent;
     } else {
-      return await db
+      const newSponsoredStudent = await db
         .insert(sponsoredStudents)
         .values({
           stdNo: data.stdNo,
-          // termId: data.termId,
           sponsorId: data.sponsorId,
           borrowerNo: data.borrowerNo,
           bankName: data.bankName,
@@ -344,6 +358,15 @@ export default class SponsorRepository extends BaseRepository<
           confirmed: data.confirmed,
         })
         .returning();
+
+      if (newSponsoredStudent[0]) {
+        await db.insert(sponsoredTerms).values({
+          sponsoredStudentId: newSponsoredStudent[0].id,
+          termId: data.termId,
+        });
+      }
+
+      return newSponsoredStudent;
     }
   }
 
@@ -529,8 +552,7 @@ export default class SponsorRepository extends BaseRepository<
     return results;
   }
 
-  async confirmSponsoredStudent(stdNo: number, termId: number) {
-    console.log(`Delete this and do something with ${termId}`);
+  async confirmSponsoredStudent(stdNo: number, termId?: number) {
     const result = await db
       .update(sponsoredStudents)
       .set({
