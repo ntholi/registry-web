@@ -6,8 +6,8 @@ import {
 } from '@/components/adease';
 import {
   deleteModule,
-  getModule,
   getModulePrerequisites,
+  getSemesterModule,
 } from '@/server/semester-modules/actions';
 import {
   Anchor,
@@ -28,7 +28,7 @@ type Props = {
 
 export default async function ModuleDetails({ params }: Props) {
   const { id } = await params;
-  const item = await getModule(Number(id));
+  const item = await getSemesterModule(Number(id));
   const prerequisites = await getModulePrerequisites(Number(id));
 
   if (!item) {

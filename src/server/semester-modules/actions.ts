@@ -5,7 +5,7 @@ import { modulesService } from './service';
 
 type Module = typeof semesterModules.$inferInsert;
 
-export async function getModule(id: number) {
+export async function getSemesterModule(id: number) {
   return modulesService.get(id);
 }
 
