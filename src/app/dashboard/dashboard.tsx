@@ -30,6 +30,7 @@ import {
   IconAB2,
   IconBarrierBlock,
   IconBookmark,
+  IconBookmarks,
   IconBuildingBank,
   IconBuildingStore,
   IconCalculator,
@@ -227,6 +228,12 @@ function getNavigation(department: DashboardUser) {
       label: 'Modules',
       href: '/dashboard/modules',
       icon: IconBookmark,
+      roles: ['admin'],
+    },
+    {
+      label: 'Semester Modules',
+      href: '/dashboard/semester-modules',
+      icon: IconBookmarks,
       roles: ['admin'],
     },
     {

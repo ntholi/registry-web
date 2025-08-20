@@ -51,9 +51,9 @@ export default async function ModuleDetails({ params }: Props) {
           <Anchor
             size='sm'
             component={Link}
-            href={`/dashboard/modules/${item.module!.id}`}
+            href={`/dashboard/modules/${item.module?.id}`}
           >
-            {item.module!.name} ({item.module!.code})
+            {item.module?.name} ({item.module?.code})
           </Anchor>
         </FieldView>
         <SimpleGrid cols={2}>
