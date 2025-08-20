@@ -18,7 +18,7 @@ export default function Page() {
 
   const canRegister =
     [3, 4, 8, 10, 7, 15].includes(program?.schoolId ?? 0) ||
-    [513, 500, 505, 498, 499, 484, 482, 528, 507, 531, 503, 534].includes(
+    [513, 500, 505, 498, 499, 484, 482, 528, 507, 531, 503, 534, 533].includes(
       program?.structureId ?? 0
     );
 

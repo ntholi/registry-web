@@ -325,32 +325,22 @@ export default class SponsorRepository extends BaseRepository<
         updateData.confirmed = data.confirmed;
       }
 
-      const updatedSponsoredStudent = await db
+      return await db
         .update(sponsoredStudents)
         .set(updateData)
-        .where(eq(sponsoredStudents.stdNo, data.stdNo))
+        .where(
+          and(
+            eq(sponsoredStudents.stdNo, data.stdNo)
+            // eq(sponsoredStudents.termId, data.termId),
+          )
+        )
         .returning();
-
-      const existingSponsoredTerm = await db.query.sponsoredTerms.findFirst({
-        where: and(
-          eq(sponsoredTerms.sponsoredStudentId, existing.id),
-          eq(sponsoredTerms.termId, data.termId)
-        ),
-      });
-
-      if (!existingSponsoredTerm) {
-        await db.insert(sponsoredTerms).values({
-          sponsoredStudentId: existing.id,
-          termId: data.termId,
-        });
-      }
-
-      return updatedSponsoredStudent;
     } else {
-      const newSponsoredStudent = await db
+      return await db
         .insert(sponsoredStudents)
         .values({
           stdNo: data.stdNo,
+          // termId: data.termId,
           sponsorId: data.sponsorId,
           borrowerNo: data.borrowerNo,
           bankName: data.bankName,
@@ -358,15 +348,6 @@ export default class SponsorRepository extends BaseRepository<
           confirmed: data.confirmed,
         })
         .returning();
-
-      if (newSponsoredStudent[0]) {
-        await db.insert(sponsoredTerms).values({
-          sponsoredStudentId: newSponsoredStudent[0].id,
-          termId: data.termId,
-        });
-      }
-
-      return newSponsoredStudent;
     }
   }
 
@@ -552,7 +533,8 @@ export default class SponsorRepository extends BaseRepository<
     return results;
   }
 
-  async confirmSponsoredStudent(stdNo: number, termId?: number) {
+  async confirmSponsoredStudent(stdNo: number, termId: number) {
+    console.log(`Delete this and do something with ${termId}`);
     const result = await db
       .update(sponsoredStudents)
       .set({
