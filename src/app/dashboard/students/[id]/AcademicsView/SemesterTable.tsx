@@ -151,7 +151,7 @@ export default function SemesterTable({
   };
 
   return (
-    <Table.ScrollContainer minWidth={640} type='native'>
+    <Table.ScrollContainer minWidth={600} type='native'>
       <Table>
         <Table.Thead>
           <Table.Tr>

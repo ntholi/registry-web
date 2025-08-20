@@ -1,7 +1,8 @@
 'use client';
 
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
+import { Anchor, Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
+import Link from 'next/link';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -13,7 +14,15 @@ export default function ModulesView({ value }: Props) {
   const rows = requestedModules.map(
     ({ semesterModule, moduleStatus, status }) => (
       <Table.Tr key={semesterModule.id}>
-        <Table.Td fw={500}>{semesterModule.module!.code}</Table.Td>
+        <Table.Td fw={500}>
+          <Anchor
+            component={Link}
+            size='sm'
+            href={`/dashboard/semester-modules/${semesterModule.id}`}
+          >
+            {semesterModule.module!.code}
+          </Anchor>
+        </Table.Td>
         <Table.Td>{semesterModule.module!.name}</Table.Td>
         <Table.Td>{semesterModule.credits}</Table.Td>
         <Table.Td c={moduleStatus.startsWith('Repeat') ? 'red' : undefined}>
@@ -35,7 +44,7 @@ export default function ModulesView({ value }: Props) {
           </Badge>
         </Table.Td>
       </Table.Tr>
-    ),
+    )
   );
 
   return (
