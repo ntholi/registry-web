@@ -30,7 +30,7 @@ export async function deleteSponsor(id: number) {
 }
 
 export async function getSponsoredStudent(stdNo: number, termId: number) {
-  return service.getSponsoredStudent(stdNo, termId);
+  return await service.getSponsoredStudent(stdNo, termId);
 }
 
 export async function getSponsoredStudents(

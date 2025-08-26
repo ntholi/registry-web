@@ -3,7 +3,7 @@
 import { FieldView } from '@/components/adease';
 import { Skeleton, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getSponsoredStudent as getSponsor } from '@/server/sponsors/actions';
+import { getSponsoredStudent } from '@/server/sponsors/actions';
 
 type Props = {
   stdNo: number;
@@ -13,7 +13,7 @@ type Props = {
 export default function SponsorInfo({ stdNo, termId }: Props) {
   const { data: sponsorInfo, isLoading } = useQuery({
     queryKey: ['sponsoredStudents', stdNo, termId],
-    queryFn: () => getSponsor(stdNo, termId),
+    queryFn: () => getSponsoredStudent(stdNo, termId),
   });
 
   if (isLoading) {

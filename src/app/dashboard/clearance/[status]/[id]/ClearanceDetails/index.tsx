@@ -75,7 +75,7 @@ export default function ClearanceDetails({ request, termId }: Props) {
               </FieldView>
               <SponsorInfo
                 stdNo={request.registrationRequest.stdNo}
-                termId={termId}
+                termId={request.registrationRequest.termId}
               />
             </Stack>
           </Paper>

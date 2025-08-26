@@ -19,25 +19,68 @@ export default class SponsorRepository extends BaseRepository<
     super(sponsors, 'id');
   }
 
+  async findSponsor(stdNo: number, termId: number) {
+    const result = await db
+      .select({
+        id: sponsors.id,
+        name: sponsors.name,
+        createdAt: sponsors.createdAt,
+        updatedAt: sponsors.updatedAt,
+      })
+      .from(sponsors)
+      .innerJoin(
+        sponsoredStudents,
+        eq(sponsors.id, sponsoredStudents.sponsorId)
+      )
+      .innerJoin(
+        sponsoredTerms,
+        eq(sponsoredStudents.id, sponsoredTerms.sponsoredStudentId)
+      )
+      .where(
+        and(
+          eq(sponsoredStudents.stdNo, stdNo),
+          eq(sponsoredTerms.termId, termId)
+        )
+      )
+      .limit(1);
+
+    return result[0] || null;
+  }
+
   async findSponsoredStudent(stdNo: number, termId: number) {
-    const data = await db.query.sponsoredStudents.findFirst({
-      where: eq(sponsoredStudents.stdNo, stdNo),
-      with: {
-        sponsor: true,
-        sponsoredTerms: {
-          where: eq(sponsoredTerms.termId, termId),
-          with: {
-            term: true,
-          },
+    const result = await db
+      .select({
+        id: sponsoredStudents.id,
+        sponsorId: sponsoredStudents.sponsorId,
+        stdNo: sponsoredStudents.stdNo,
+        borrowerNo: sponsoredStudents.borrowerNo,
+        bankName: sponsoredStudents.bankName,
+        accountNumber: sponsoredStudents.accountNumber,
+        confirmed: sponsoredStudents.confirmed,
+        createdAt: sponsoredStudents.createdAt,
+        updatedAt: sponsoredStudents.updatedAt,
+        sponsor: {
+          id: sponsors.id,
+          name: sponsors.name,
+          createdAt: sponsors.createdAt,
+          updatedAt: sponsors.updatedAt,
         },
-      },
-    });
+      })
+      .from(sponsoredStudents)
+      .innerJoin(sponsors, eq(sponsoredStudents.sponsorId, sponsors.id))
+      .innerJoin(
+        sponsoredTerms,
+        eq(sponsoredStudents.id, sponsoredTerms.sponsoredStudentId)
+      )
+      .where(
+        and(
+          eq(sponsoredStudents.stdNo, stdNo),
+          eq(sponsoredTerms.termId, termId)
+        )
+      )
+      .limit(1);
 
-    if (data && data.sponsoredTerms.length === 0) {
-      return null;
-    }
-
-    return data;
+    return result[0] || null;
   }
 
   async findCurrentSponsoredStudent(stdNo: number) {
@@ -325,29 +368,40 @@ export default class SponsorRepository extends BaseRepository<
         updateData.confirmed = data.confirmed;
       }
 
-      return await db
+      await db
         .update(sponsoredStudents)
         .set(updateData)
-        .where(
-          and(
-            eq(sponsoredStudents.stdNo, data.stdNo)
-            // eq(sponsoredStudents.termId, data.termId),
-          )
-        )
-        .returning();
+        .where(eq(sponsoredStudents.id, existing.id));
+
+      return await this.findSponsoredStudent(data.stdNo, data.termId);
     } else {
-      return await db
-        .insert(sponsoredStudents)
-        .values({
-          stdNo: data.stdNo,
-          // termId: data.termId,
-          sponsorId: data.sponsorId,
-          borrowerNo: data.borrowerNo,
-          bankName: data.bankName,
-          accountNumber: data.accountNumber,
-          confirmed: data.confirmed,
-        })
-        .returning();
+      return await db.transaction(async (tx) => {
+        let sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+          where: eq(sponsoredStudents.stdNo, data.stdNo),
+        });
+
+        if (!sponsoredStudent) {
+          const [newSponsoredStudent] = await tx
+            .insert(sponsoredStudents)
+            .values({
+              stdNo: data.stdNo,
+              sponsorId: data.sponsorId,
+              borrowerNo: data.borrowerNo,
+              bankName: data.bankName,
+              accountNumber: data.accountNumber,
+              confirmed: data.confirmed,
+            })
+            .returning();
+          sponsoredStudent = newSponsoredStudent;
+        }
+
+        await tx.insert(sponsoredTerms).values({
+          sponsoredStudentId: sponsoredStudent.id,
+          termId: data.termId,
+        });
+
+        return await this.findSponsoredStudent(data.stdNo, data.termId);
+      });
     }
   }
 
@@ -534,14 +588,21 @@ export default class SponsorRepository extends BaseRepository<
   }
 
   async confirmSponsoredStudent(stdNo: number, termId: number) {
-    console.log(`Delete this and do something with ${termId}`);
+    const sponsoredStudent = await this.findSponsoredStudent(stdNo, termId);
+
+    if (!sponsoredStudent) {
+      throw new Error(
+        `No sponsored student found for stdNo ${stdNo} in term ${termId}`
+      );
+    }
+
     const result = await db
       .update(sponsoredStudents)
       .set({
         confirmed: true,
         updatedAt: sql`(unixepoch())`,
       })
-      .where(eq(sponsoredStudents.stdNo, stdNo))
+      .where(eq(sponsoredStudents.id, sponsoredStudent.id))
       .returning();
 
     return result[0];
