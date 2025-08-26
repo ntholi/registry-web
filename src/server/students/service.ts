@@ -32,9 +32,19 @@ class StudentService {
   }
 
   async getRegistrationData(stdNo: number) {
-    return withAuth(async () => {
-      return this.repository.findRegistrationData(stdNo);
-    }, ['academic', 'registry', 'finance']);
+    return withAuth(
+      async () => this.repository.findRegistrationData(stdNo),
+      ['academic', 'registry', 'finance', 'student'],
+      async (session) => session.user?.stdNo === stdNo
+    );
+  }
+
+  async getRegistrationDataByTerm(stdNo: number, termName: string) {
+    return withAuth(
+      async () => this.repository.findRegistrationDataByTerm(stdNo, termName),
+      ['academic', 'registry', 'finance', 'student'],
+      async (session) => session.user?.stdNo === stdNo
+    );
   }
 
   async findStudentByUserId(userId: string) {

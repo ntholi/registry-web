@@ -1,6 +1,5 @@
-import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
 import { formatDateTime, formatSemester } from '@/lib/utils';
-import { getStatusColor } from '../../utils/colors';
+import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
 import {
   ActionIcon,
   Badge,
@@ -20,6 +19,8 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import Link from 'next/link';
+import { getStatusColor } from '../../utils/colors';
+import ProofOfRegistrationDownload from './ProofOfRegistrationDownload';
 
 interface RegistrationHistoryProps {
   stdNo: number;
@@ -64,6 +65,13 @@ export default async function RegistrationHistory({
               <Box mt='xs'>
                 <Text size='sm'>{formatSemester(request.semesterNumber)}</Text>
               </Box>
+              {request.status === 'registered' && (
+                <ProofOfRegistrationDownload
+                  stdNo={stdNo}
+                  termName={request.term.name}
+                  semesterNumber={request.semesterNumber}
+                />
+              )}
             </Flex>
 
             <CardSection px='xs' mt='xs' py='xs' withBorder>
@@ -72,12 +80,14 @@ export default async function RegistrationHistory({
                   Submitted: {formatDateTime(request.createdAt)}
                 </Text>
                 <Group>
-                  <Text size='xs' c='dimmed' fw={500}>
-                    View Details
-                  </Text>
-                  <ActionIcon variant='subtle' color='gray' size='sm'>
-                    <IconChevronRight size={16} />
-                  </ActionIcon>
+                  <Group gap='xs'>
+                    <Text size='xs' c='dimmed' fw={500}>
+                      View Details
+                    </Text>
+                    <ActionIcon variant='subtle' color='gray' size='sm'>
+                      <IconChevronRight size={16} />
+                    </ActionIcon>
+                  </Group>
                 </Group>
               </Flex>
             </CardSection>

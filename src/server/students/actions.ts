@@ -39,6 +39,13 @@ export async function getStudentRegistrationData(stdNo: number) {
   return service.getRegistrationData(stdNo);
 }
 
+export async function getStudentRegistrationDataByTerm(
+  stdNo: number,
+  termName: string
+) {
+  return service.getRegistrationDataByTerm(stdNo, termName);
+}
+
 export async function findAllStudents(
   page: number = 1,
   search = '',

@@ -1,7 +1,7 @@
+import { getStatusColor } from '@/app/student/utils/colors';
 import { auth } from '@/auth';
 import { formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { getStatusColor } from '@/app/student/utils/colors';
 import {
   Badge,
   Box,
@@ -27,8 +27,9 @@ import {
   IconEdit,
   IconX,
 } from '@tabler/icons-react';
-import { forbidden, notFound } from 'next/navigation';
 import Link from 'next/link';
+import { forbidden, notFound } from 'next/navigation';
+import ProofOfRegistrationDownload from '../components/ProofOfRegistrationDownload';
 import ClearanceStatusView from './ClearanceStatusView';
 import ModulesView from './ModulesView';
 
@@ -120,6 +121,13 @@ export default async function page({ params }: Props) {
                 >
                   Update
                 </Button>
+              )}
+              {registration.status === 'registered' && (
+                <ProofOfRegistrationDownload
+                  stdNo={registration.stdNo}
+                  termName={registration.term.name}
+                  semesterNumber={registration.semesterNumber}
+                />
               )}
             </Flex>
 
