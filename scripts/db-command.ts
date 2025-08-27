@@ -12,11 +12,8 @@ if (isProd) {
   process.env.TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN;
   console.log('Using Production Environment');
 } else {
-  process.env.DATABASE_URL =
-    process.env.DEV_TURSO_DATABASE_URL || process.env.TURSO_DATABASE_URL;
-  process.env.TURSO_AUTH_TOKEN =
-    process.env.DEV_TURSO_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN;
-  console.log('Using Development Environment');
+  process.env.DATABASE_URL = 'file:./local.db';
+  console.log('Using Development Environment (Local DB)');
 }
 
 const drizzleBinPath = path.resolve(
