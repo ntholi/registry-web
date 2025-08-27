@@ -1,25 +1,25 @@
 'use client';
 
-import { registrationClearances } from '@/db/schema';
+import { clearance } from '@/db/schema';
 import { Form } from '@/components/adease';
 import { TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 
-type RegistrationClearance = typeof registrationClearances.$inferInsert;
+type Clearance = typeof clearance.$inferInsert;
 
 type Props = {
-  onSubmit: (values: RegistrationClearance) => Promise<RegistrationClearance>;
+  onSubmit: (values: Clearance) => Promise<Clearance>;
   status: 'pending' | 'approved' | 'rejected';
-  defaultValues?: RegistrationClearance;
-  onSuccess?: (value: RegistrationClearance) => void;
+  defaultValues?: Clearance;
+  onSuccess?: (value: Clearance) => void;
   onError?: (
     error: Error | React.SyntheticEvent<HTMLDivElement, Event>
   ) => void;
   title?: string;
 };
 
-export default function RegistrationClearanceForm({
+export default function ClearanceForm({
   onSubmit,
   status,
   defaultValues,
@@ -31,8 +31,8 @@ export default function RegistrationClearanceForm({
     <Form
       title={title}
       action={onSubmit}
-      queryKey={['registrationClearances']}
-      schema={createInsertSchema(registrationClearances)}
+      queryKey={['clearances']}
+      schema={createInsertSchema(clearance)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
         router.push(`/dashboard/clearance/${status}/${id}`);

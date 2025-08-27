@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { DetailsView } from '@/components/adease';
-import { getRegistrationClearance } from '@/server/clearance/actions';
+import { getClearance } from '@/server/clearance/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
@@ -15,7 +15,7 @@ type Props = {
 
 export default async function ClearanceRequestDetails({ params }: Props) {
   const { id } = await params;
-  const request = await getRegistrationClearance(Number(id));
+  const request = await getClearance(Number(id));
   const session = await auth();
   const term = await getCurrentTerm();
 

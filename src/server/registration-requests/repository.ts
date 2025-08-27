@@ -1,7 +1,8 @@
 import { db } from '@/db';
 import {
   StudentModuleStatus,
-  registrationClearances,
+  clearance,
+  registrationClearance,
   registrationRequests,
   requestedModules,
   sponsoredStudents,
@@ -89,7 +90,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
         },
         clearances: {
           with: {
-            respondedBy: true,
+            clearance: {
+              with: {
+                respondedBy: true,
+              },
+            },
           },
         },
       },
@@ -143,14 +148,18 @@ export default class RegistrationRequestRepository extends BaseRepository<
               exists(
                 db
                   .select()
-                  .from(registrationClearances)
+                  .from(clearance)
+                  .innerJoin(
+                    registrationClearance,
+                    eq(clearance.id, registrationClearance.clearanceId)
+                  )
                   .where(
                     and(
                       eq(
-                        registrationClearances.registrationRequestId,
+                        registrationClearance.registrationRequestId,
                         registrationRequests.id
                       ),
-                      ne(registrationClearances.status, 'approved')
+                      ne(clearance.status, 'approved')
                     )
                   )
               )
@@ -158,10 +167,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
             exists(
               db
                 .select()
-                .from(registrationClearances)
+                .from(registrationClearance)
                 .where(
                   eq(
-                    registrationClearances.registrationRequestId,
+                    registrationClearance.registrationRequestId,
                     registrationRequests.id
                   )
                 )
@@ -182,9 +191,13 @@ export default class RegistrationRequestRepository extends BaseRepository<
         inArray(
           registrationRequests.id,
           db
-            .select({ id: registrationClearances.registrationRequestId })
-            .from(registrationClearances)
-            .where(eq(registrationClearances.status, status))
+            .select({ id: registrationClearance.registrationRequestId })
+            .from(registrationClearance)
+            .innerJoin(
+              clearance,
+              eq(registrationClearance.clearanceId, clearance.id)
+            )
+            .where(eq(clearance.status, status))
         ),
         params.search
           ? like(registrationRequests.stdNo, `%${params.search}%`)
@@ -243,14 +256,18 @@ export default class RegistrationRequestRepository extends BaseRepository<
               exists(
                 db
                   .select()
-                  .from(registrationClearances)
+                  .from(clearance)
+                  .innerJoin(
+                    registrationClearance,
+                    eq(clearance.id, registrationClearance.clearanceId)
+                  )
                   .where(
                     and(
                       eq(
-                        registrationClearances.registrationRequestId,
+                        registrationClearance.registrationRequestId,
                         registrationRequests.id
                       ),
-                      ne(registrationClearances.status, 'approved')
+                      ne(clearance.status, 'approved')
                     )
                   )
               )
@@ -258,10 +275,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
             exists(
               db
                 .select()
-                .from(registrationClearances)
+                .from(registrationClearance)
                 .where(
                   eq(
-                    registrationClearances.registrationRequestId,
+                    registrationClearance.registrationRequestId,
                     registrationRequests.id
                   )
                 )
@@ -280,14 +297,18 @@ export default class RegistrationRequestRepository extends BaseRepository<
             exists(
               db
                 .select()
-                .from(registrationClearances)
+                .from(clearance)
+                .innerJoin(
+                  registrationClearance,
+                  eq(clearance.id, registrationClearance.clearanceId)
+                )
                 .where(
                   and(
                     eq(
-                      registrationClearances.registrationRequestId,
+                      registrationClearance.registrationRequestId,
                       registrationRequests.id
                     ),
-                    eq(registrationClearances.status, status)
+                    eq(clearance.status, status)
                   )
                 )
             ),
@@ -397,15 +418,19 @@ export default class RegistrationRequestRepository extends BaseRepository<
         .returning();
 
       // Create clearance requests
-      ['finance', 'library'].forEach(async (department) => {
-        await tx
-          .insert(registrationClearances)
+      for (const department of ['finance', 'library']) {
+        const [clearanceRecord] = await tx
+          .insert(clearance)
           .values({
-            registrationRequestId: request.id,
             department: department as 'finance' | 'library',
           })
           .returning();
-      });
+
+        await tx.insert(registrationClearance).values({
+          registrationRequestId: request.id,
+          clearanceId: clearanceRecord.id,
+        });
+      }
 
       const modules = await this.handleRegistrationModules(
         tx,
@@ -434,20 +459,32 @@ export default class RegistrationRequestRepository extends BaseRepository<
         })
         .where(eq(registrationRequests.id, registrationRequestId));
 
-      await tx
-        .update(registrationClearances)
-        .set({
-          status: 'pending',
-        })
+      // Update finance clearance status to pending
+      const financeClearances = await tx
+        .select({ clearanceId: registrationClearance.clearanceId })
+        .from(registrationClearance)
+        .innerJoin(
+          clearance,
+          eq(registrationClearance.clearanceId, clearance.id)
+        )
         .where(
           and(
             eq(
-              registrationClearances.registrationRequestId,
+              registrationClearance.registrationRequestId,
               registrationRequestId
             ),
-            eq(registrationClearances.department, 'finance')
+            eq(clearance.department, 'finance')
           )
         );
+
+      if (financeClearances.length > 0) {
+        await tx
+          .update(clearance)
+          .set({
+            status: 'pending',
+          })
+          .where(eq(clearance.id, financeClearances[0].clearanceId));
+      }
 
       const convertedModules = modules.map((module) => ({
         moduleId: module.id,
@@ -513,54 +550,97 @@ export default class RegistrationRequestRepository extends BaseRepository<
           },
         });
 
-      await tx
-        .update(registrationClearances)
-        .set({
-          status: 'pending',
-        })
-        .where(
-          and(
-            eq(
-              registrationClearances.registrationRequestId,
-              registrationRequestId
-            ),
-            eq(registrationClearances.department, 'finance')
-          )
-        );
+      const sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+        where: and(
+          eq(sponsoredStudents.sponsorId, sponsorshipData.sponsorId),
+          eq(sponsoredStudents.stdNo, registration.stdNo)
+        ),
+      });
+
+      if (sponsoredStudent) {
+        const term = await tx.query.terms.findFirst({
+          where: eq(terms.id, registration.termId),
+        });
+
+        if (term) {
+          await tx
+            .insert(sponsoredTerms)
+            .values({
+              sponsoredStudentId: sponsoredStudent.id,
+              termId: term.id,
+            })
+            .onConflictDoNothing();
+        }
+      }
 
       const convertedModules = modules.map((module) => ({
         moduleId: module.id,
         moduleStatus: module.status,
       }));
 
-      const moduleResults = await this.handleRegistrationModules(
+      return this.handleRegistrationModules(
         tx,
         registrationRequestId,
         convertedModules
       );
-
-      return { request: registration, modules: moduleResults };
     });
   }
 
-  async getHistory(stdNo: number) {
-    return db
-      .select({
-        id: registrationRequests.id,
-        status: registrationRequests.status,
-        semesterNumber: registrationRequests.semesterNumber,
-        createdAt: registrationRequests.createdAt,
-        term: {
-          id: terms.id,
-          name: terms.name,
+  async findByStatusForExport(
+    status: 'pending' | 'registered' | 'rejected' | 'approved',
+    termId?: number
+  ) {
+    if (status === 'registered') {
+      return db.query.registrationRequests.findMany({
+        where: and(
+          eq(registrationRequests.status, status),
+          termId ? eq(registrationRequests.termId, termId) : undefined
+        ),
+        with: {
+          student: {
+            with: {
+              programs: {
+                where: eq(studentPrograms.status, 'Active'),
+                orderBy: (programs, { asc }) => [asc(programs.id)],
+                limit: 1,
+                with: {
+                  structure: {
+                    with: {
+                      program: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          term: true,
         },
-      })
-      .from(registrationRequests)
-      .innerJoin(terms, eq(registrationRequests.termId, terms.id))
-      .where(eq(registrationRequests.stdNo, stdNo))
-      .orderBy(desc(registrationRequests.createdAt));
+        orderBy: [desc(registrationRequests.createdAt)],
+      });
+    }
+
+    return [];
+  }
+
+  async getHistory(stdNo: number) {
+    return db.query.registrationRequests.findMany({
+      where: eq(registrationRequests.stdNo, stdNo),
+      with: {
+        term: true,
+        requestedModules: {
+          with: {
+            semesterModule: {
+              with: {
+                module: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [desc(registrationRequests.createdAt)],
+    });
   }
 }
 
-export const registrationRequestsRepository =
+export const registrationRequestRepository =
   new RegistrationRequestRepository();

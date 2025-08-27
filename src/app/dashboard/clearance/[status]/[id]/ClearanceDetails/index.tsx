@@ -20,14 +20,14 @@ import Link from 'next/link';
 import { useState } from 'react';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
-import { getRegistrationClearance } from '@/server/clearance/actions';
+import { getClearance } from '@/server/clearance/actions';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import SponsorInfo from '../SponsorInfo';
 import { formatDateTime } from '@/lib/utils';
 
 type Props = {
-  request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
+  request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;
   termId: number;
 };
 

@@ -2,10 +2,7 @@
 
 import { clearanceRequestStatusEnum, dashboardUsers } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
-import {
-  createRegistrationClearance,
-  getRegistrationClearance,
-} from '@/server/clearance/actions';
+import { updateClearance, getClearance } from '@/server/clearance/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,7 +10,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 type Props = {
-  request: NonNullable<Awaited<ReturnType<typeof getRegistrationClearance>>>;
+  request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;
   setAccordion: (value: 'comments' | 'modules') => void;
   comment?: string;
 };
@@ -43,9 +40,7 @@ export default function ClearanceSwitch({
         throw new Error('User not authenticated');
       }
 
-      const result = await createRegistrationClearance({
-        id: request.id,
-        registrationRequestId: request.registrationRequestId,
+      const result = await updateClearance(request.id, {
         message: comment,
         department: session.user.role as (typeof dashboardUsers)[number],
         status,
@@ -54,13 +49,13 @@ export default function ClearanceSwitch({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['registrationClearances', 'pending'],
+        queryKey: ['clearances', 'pending'],
       });
       queryClient.invalidateQueries({
-        queryKey: ['registrationClearances', 'approved'],
+        queryKey: ['clearances', 'approved'],
       });
       queryClient.invalidateQueries({
-        queryKey: ['registrationClearances', 'rejected'],
+        queryKey: ['clearances', 'rejected'],
       });
       notifications.show({
         title: 'Success',

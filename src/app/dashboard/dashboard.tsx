@@ -6,9 +6,9 @@ import { DashboardUser, UserPosition, UserRole } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import {
-  countApprovedRegistrationClearances,
-  countPendingRegistrationClearances,
-  countRejectedRegistrationClearances,
+  countApprovedClearances,
+  countPendingClearances,
+  countRejectedClearances,
 } from '@/server/clearance/actions';
 import { countByStatus } from '@/server/registration-requests/actions';
 import { getUserSchools } from '@/server/users/actions';
@@ -191,8 +191,8 @@ function getNavigation(department: DashboardUser) {
           href: '/dashboard/clearance/pending',
           icon: IconMessageQuestion,
           notificationCount: {
-            queryKey: ['registrationClearances', 'pending'],
-            queryFn: () => countPendingRegistrationClearances(),
+            queryKey: ['clearances', 'pending'],
+            queryFn: () => countPendingClearances(),
             color: 'red',
           },
         },
@@ -201,8 +201,8 @@ function getNavigation(department: DashboardUser) {
           href: '/dashboard/clearance/approved',
           icon: IconSquareRoundedCheck,
           notificationCount: {
-            queryKey: ['registrationClearances', 'approved'],
-            queryFn: () => countApprovedRegistrationClearances(),
+            queryKey: ['clearances', 'approved'],
+            queryFn: () => countApprovedClearances(),
             color: 'gray',
           },
         },
@@ -211,8 +211,8 @@ function getNavigation(department: DashboardUser) {
           href: '/dashboard/clearance/rejected',
           icon: IconBarrierBlock,
           notificationCount: {
-            queryKey: ['registrationClearances', 'rejected'],
-            queryFn: () => countRejectedRegistrationClearances(),
+            queryKey: ['clearances', 'rejected'],
+            queryFn: () => countRejectedClearances(),
             color: 'gray',
           },
         },

@@ -1,19 +1,16 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import Form from '../../Form';
-import {
-  getRegistrationClearance,
-  updateRegistrationClearance,
-} from '@/server/clearance/actions';
+import { getClearance, updateClearance } from '@/server/clearance/actions';
 
 type Props = {
   params: Promise<{ id: string; status: string }>;
 };
 
-export default async function RegistrationClearanceEdit({ params }: Props) {
+export default async function ClearanceEdit({ params }: Props) {
   const { id, status } = await params;
-  const registrationClearance = await getRegistrationClearance(Number(id));
-  if (!registrationClearance) {
+  const clearance = await getClearance(Number(id));
+  if (!clearance) {
     return notFound();
   }
 
@@ -22,10 +19,10 @@ export default async function RegistrationClearanceEdit({ params }: Props) {
       <Form
         title={'Edit Clearance Task'}
         status={status as 'pending' | 'approved' | 'rejected'}
-        defaultValues={registrationClearance}
+        defaultValues={clearance}
         onSubmit={async (value) => {
           'use server';
-          return await updateRegistrationClearance(Number(id), value);
+          return await updateClearance(Number(id), value);
         }}
       />
     </Box>

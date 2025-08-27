@@ -438,53 +438,58 @@ export const clearanceRequestStatusEnum = [
   'rejected',
 ] as const;
 
-export const registrationClearances = sqliteTable(
-  'registration_clearances',
+export const clearance = sqliteTable('clearance', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  department: text({ enum: dashboardUsers }).notNull(),
+  status: text({ enum: clearanceRequestStatusEnum })
+    .notNull()
+    .default('pending'),
+  message: text(),
+  emailSent: integer({ mode: 'boolean' }).notNull().default(false),
+  respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
+  responseDate: integer({ mode: 'timestamp' }),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
+export const registrationClearance = sqliteTable(
+  'registration_clearance',
   {
     id: integer().primaryKey({ autoIncrement: true }),
     registrationRequestId: integer()
       .references(() => registrationRequests.id, { onDelete: 'cascade' })
       .notNull(),
-    department: text({ enum: dashboardUsers }).notNull(),
-    status: text({ enum: clearanceRequestStatusEnum })
-      .notNull()
-      .default('pending'),
-    message: text(),
-    emailSent: integer({ mode: 'boolean' }).notNull().default(false),
-    respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
-    responseDate: integer({ mode: 'timestamp' }),
+    clearanceId: integer()
+      .references(() => clearance.id, { onDelete: 'cascade' })
+      .notNull(),
     createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     uniqueRegistrationClearance: unique().on(
       table.registrationRequestId,
-      table.department
+      table.clearanceId
     ),
   })
 );
 
-export const registrationClearanceAudit = sqliteTable(
-  'registration_clearance_audit',
-  {
-    id: integer().primaryKey({ autoIncrement: true }),
-    registrationClearanceId: integer()
-      .references(() => registrationClearances.id, { onDelete: 'cascade' })
-      .notNull(),
-    previousStatus: text({ enum: registrationRequestStatusEnum }),
-    newStatus: text({ enum: registrationRequestStatusEnum }).notNull(),
-    createdBy: text()
-      .references(() => users.id, { onDelete: 'set null' })
-      .notNull(),
-    date: integer({ mode: 'timestamp' })
-      .default(sql`(unixepoch())`)
-      .notNull(),
-    message: text(),
-    modules: text({ mode: 'json' })
-      .notNull()
-      .$type<string[]>()
-      .default(sql`(json_array())`),
-  }
-);
+export const clearanceAudit = sqliteTable('clearance_audit', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  clearanceId: integer()
+    .references(() => clearance.id, { onDelete: 'cascade' })
+    .notNull(),
+  previousStatus: text({ enum: registrationRequestStatusEnum }),
+  newStatus: text({ enum: registrationRequestStatusEnum }).notNull(),
+  createdBy: text()
+    .references(() => users.id, { onDelete: 'set null' })
+    .notNull(),
+  date: integer({ mode: 'timestamp' })
+    .default(sql`(unixepoch())`)
+    .notNull(),
+  message: text(),
+  modules: text({ mode: 'json' })
+    .notNull()
+    .$type<string[]>()
+    .default(sql`(json_array())`),
+});
 
 export const sponsors = sqliteTable('sponsors', {
   id: integer().primaryKey({ autoIncrement: true }),

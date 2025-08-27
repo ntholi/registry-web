@@ -57,8 +57,12 @@ export default function ClearanceStatusView({ registration }: Props) {
   const getOverallStatus = () => {
     if (clearances.length === 0) return 'pending';
 
-    const allApproved = clearances.every((c) => c.status === 'approved');
-    const anyRejected = clearances.some((c) => c.status === 'rejected');
+    const allApproved = clearances.every(
+      (c) => c.clearance.status === 'approved'
+    );
+    const anyRejected = clearances.some(
+      (c) => c.clearance.status === 'rejected'
+    );
 
     if (allApproved) return 'approved';
     if (anyRejected) return 'rejected';
@@ -104,7 +108,10 @@ export default function ClearanceStatusView({ registration }: Props) {
         ) : (
           <Timeline active={clearances.length} bulletSize={20} lineWidth={2}>
             {departments.map((dept) => {
-              const clearance = clearances.find((c) => c.department === dept);
+              const clearanceMapping = clearances.find(
+                (c) => c.clearance.department === dept
+              );
+              const clearance = clearanceMapping?.clearance;
               const status = clearance?.status || 'pending';
 
               return (
@@ -150,7 +157,7 @@ export default function ClearanceStatusView({ registration }: Props) {
                           Message
                         </Text>
                         <Paper withBorder bg='gray.0' p='xs'>
-                          <Text size='sm'>{clearance.message}</Text>
+                          <Text size='sm'>{clearance?.message}</Text>
                         </Paper>
                       </Box>
                     )}

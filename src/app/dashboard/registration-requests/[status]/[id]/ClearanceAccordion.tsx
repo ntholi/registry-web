@@ -28,7 +28,10 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
   return (
     <Accordion variant='separated' defaultValue={defaultDept}>
       {departments.map((dept) => {
-        const clearance = value.clearances?.find((c) => c.department === dept);
+        const clearanceMapping = value.clearances?.find(
+          (c) => c.clearance.department === dept
+        );
+        const clearance = clearanceMapping?.clearance;
         const status = clearance?.status || 'pending';
         return (
           <Accordion.Item key={dept} value={dept}>
@@ -77,10 +80,10 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
                   {clearance?.respondedBy ? (
                     <Anchor
                       size='sm'
-                      href={`/dashboard/users/${clearance?.respondedBy?.id}`}
+                      href={`/dashboard/users/${clearance.respondedBy}`}
                       component={Link}
                     >
-                      {clearance?.respondedBy?.name}{' '}
+                      User: {clearance.respondedBy}
                     </Anchor>
                   ) : (
                     <Text size='sm'>{'-'}</Text>

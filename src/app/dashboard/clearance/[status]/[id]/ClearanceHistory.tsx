@@ -52,7 +52,7 @@ export default function ClearanceHistory({ stdNo }: Props) {
             <Accordion.Control>
               <Group justify='space-between' pe={'md'}>
                 <Text fw={500}>
-                  Term: {clearance.registrationRequest.term.name}
+                  Term: {clearance.registrationRequest?.term.name || 'N/A'}
                 </Text>
                 <Badge
                   color={clearance.status === 'approved' ? 'green' : 'red'}

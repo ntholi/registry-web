@@ -3,7 +3,7 @@
 import { selectedTermAtom } from '@/atoms/termAtoms';
 import { ListItem, ListLayout } from '@/components/adease';
 import TermFilter from '@/components/TermFilter';
-import { registrationClearanceByStatus } from '@/server/clearance/actions';
+import { clearanceByStatus } from '@/server/clearance/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -21,7 +21,7 @@ type ClearanceItem = {
       stdNo: number;
       name: string;
     };
-  };
+  } | null;
 };
 
 const statusTitles = {
@@ -53,13 +53,13 @@ export default function Layout({ children }: PropsWithChildren) {
     <ListLayout
       path={'/dashboard/clearance/' + status}
       queryKey={[
-        'registrationClearances',
+        'clearances',
         status,
         selectedTerm?.toString() || currentTerm?.id?.toString() || 'all',
       ]}
       getData={async (page, search) => {
         const termToUse = selectedTerm || currentTerm?.id;
-        const response = await registrationClearanceByStatus(
+        const response = await clearanceByStatus(
           status,
           page,
           search,
@@ -83,8 +83,8 @@ export default function Layout({ children }: PropsWithChildren) {
       renderItem={(it: ClearanceItem) => (
         <ListItem
           id={it.id}
-          label={it.registrationRequest.student.stdNo}
-          description={it.registrationRequest.student.name}
+          label={it.registrationRequest?.student.stdNo || 'N/A'}
+          description={it.registrationRequest?.student.name || 'Unknown'}
           rightSection={getStatusIcon(it.status)}
         />
       )}

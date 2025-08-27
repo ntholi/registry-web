@@ -10,8 +10,9 @@ import {
   modulePrerequisites,
   semesterModules,
   programs,
-  registrationClearanceAudit,
-  registrationClearances,
+  clearanceAudit,
+  clearance,
+  registrationClearance,
   registrationRequests,
   requestedModules,
   schools,
@@ -203,7 +204,7 @@ export const registrationRequestsRelations = relations(
       fields: [registrationRequests.sponsorId],
       references: [sponsors.id],
     }),
-    clearances: many(registrationClearances),
+    clearances: many(registrationClearance),
     requestedModules: many(requestedModules),
   })
 );
@@ -222,34 +223,39 @@ export const requestedModulesRelations = relations(
   })
 );
 
+export const clearanceRelations = relations(clearance, ({ one, many }) => ({
+  respondedBy: one(users, {
+    fields: [clearance.respondedBy],
+    references: [users.id],
+  }),
+  audits: many(clearanceAudit),
+  registrationClearances: many(registrationClearance),
+}));
+
 export const registrationClearanceRelations = relations(
-  registrationClearances,
-  ({ one, many }) => ({
+  registrationClearance,
+  ({ one }) => ({
     registrationRequest: one(registrationRequests, {
-      fields: [registrationClearances.registrationRequestId],
+      fields: [registrationClearance.registrationRequestId],
       references: [registrationRequests.id],
     }),
-    respondedBy: one(users, {
-      fields: [registrationClearances.respondedBy],
-      references: [users.id],
+    clearance: one(clearance, {
+      fields: [registrationClearance.clearanceId],
+      references: [clearance.id],
     }),
-    audits: many(registrationClearanceAudit),
   })
 );
 
-export const registrationClearanceAuditRelations = relations(
-  registrationClearanceAudit,
-  ({ one }) => ({
-    registrationClearance: one(registrationClearances, {
-      fields: [registrationClearanceAudit.registrationClearanceId],
-      references: [registrationClearances.id],
-    }),
-    user: one(users, {
-      fields: [registrationClearanceAudit.createdBy],
-      references: [users.id],
-    }),
-  })
-);
+export const clearanceAuditRelations = relations(clearanceAudit, ({ one }) => ({
+  clearance: one(clearance, {
+    fields: [clearanceAudit.clearanceId],
+    references: [clearance.id],
+  }),
+  user: one(users, {
+    fields: [clearanceAudit.createdBy],
+    references: [users.id],
+  }),
+}));
 
 export const sponsorsRelations = relations(sponsors, ({ many }) => ({
   registrationRequests: many(registrationRequests),

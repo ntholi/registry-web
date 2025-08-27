@@ -1,17 +1,15 @@
-import { registrationClearances, DashboardUser } from '@/db/schema';
-import RegistrationClearanceRepository from './repository';
+import { clearance, DashboardUser } from '@/db/schema';
+import ClearanceRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { auth } from '@/auth';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import { getCurrentTerm } from '../terms/actions';
 
-type RegistrationClearance = typeof registrationClearances.$inferInsert;
+type Clearance = typeof clearance.$inferInsert;
 
-class RegistrationClearanceService {
-  constructor(
-    private readonly repository = new RegistrationClearanceRepository()
-  ) {}
+class ClearanceService {
+  constructor(private readonly repository = new ClearanceRepository()) {}
 
   async first() {
     return withAuth(async () => this.repository.findFirst(), []);
@@ -19,9 +17,9 @@ class RegistrationClearanceService {
 
   async get(id: number) {
     return withAuth(async () => {
-      const result = await this.repository.findById(id);
+      const result = await this.repository.findByIdWithRelations(id);
       if (!result) return null;
-      const activeProgram = result.registrationRequest.student.programs[0];
+      const activeProgram = result.registrationRequest?.student.programs[0];
       return {
         ...result,
         programName: activeProgram?.structure.program.name,
@@ -43,7 +41,7 @@ class RegistrationClearanceService {
 
   async findByDepartment(
     department: DashboardUser,
-    params: QueryOptions<typeof registrationClearances>,
+    params: QueryOptions<typeof clearance>,
     status?: 'pending' | 'approved' | 'rejected',
     termId?: number
   ) {
@@ -54,11 +52,10 @@ class RegistrationClearanceService {
     );
   }
 
-  async respond(data: RegistrationClearance) {
+  async respond(data: Clearance) {
     return withAuth(
       async (session) => {
-        if (!data.id)
-          throw Error('RegistrationClearance id cannot be null/undefined');
+        if (!data.id) throw Error('Clearance id cannot be null/undefined');
         return this.repository.update(data.id, {
           ...data,
           responseDate: new Date(),
@@ -69,7 +66,7 @@ class RegistrationClearanceService {
     );
   }
 
-  async update(id: number, data: RegistrationClearance) {
+  async update(id: number, data: Clearance) {
     return withAuth(async () => this.repository.update(id, data), []);
   }
 
@@ -118,7 +115,7 @@ class RegistrationClearanceService {
   }
 }
 
-export const registrationClearancesService = serviceWrapper(
-  RegistrationClearanceService,
-  'RegistrationClearancesService'
+export const clearanceService = serviceWrapper(
+  ClearanceService,
+  'ClearanceService'
 );

@@ -2,8 +2,9 @@ import { auth } from '@/auth';
 import { db } from '@/db';
 import {
   DashboardUser,
-  registrationClearanceAudit,
-  registrationClearances,
+  clearanceAudit,
+  clearance,
+  registrationClearance,
   registrationRequests,
   requestedModules,
   studentPrograms,
@@ -11,25 +12,37 @@ import {
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { and, asc, count, desc, eq, inArray, like } from 'drizzle-orm';
 
-type Model = typeof registrationClearances.$inferInsert;
+type Model = typeof clearance.$inferInsert;
 
-export default class RegistrationClearanceRepository extends BaseRepository<
-  typeof registrationClearances,
+export default class ClearanceRepository extends BaseRepository<
+  typeof clearance,
   'id'
 > {
   constructor() {
-    super(registrationClearances, 'id');
+    super(clearance, 'id');
   }
 
-  override async create(data: Model) {
+  override async create(data: Model & { registrationRequestId: number }) {
     const session = await auth();
 
     const [inserted] = await db.transaction(async (tx) => {
       if (!session?.user?.id) throw new Error('Unauthorized');
-      const [clearance] = await tx
-        .insert(registrationClearances)
-        .values(data)
+      const [clearanceRecord] = await tx
+        .insert(clearance)
+        .values({
+          department: data.department,
+          status: data.status,
+          message: data.message,
+          emailSent: data.emailSent,
+          respondedBy: data.respondedBy,
+          responseDate: data.responseDate,
+        })
         .returning();
+
+      await tx.insert(registrationClearance).values({
+        registrationRequestId: data.registrationRequestId,
+        clearanceId: clearanceRecord.id,
+      });
 
       const modulesList = await tx.query.requestedModules.findMany({
         where: eq(
@@ -45,137 +58,164 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         },
       });
 
-      await tx.insert(registrationClearanceAudit).values({
-        registrationClearanceId: clearance.id,
+      await tx.insert(clearanceAudit).values({
+        clearanceId: clearanceRecord.id,
         previousStatus: null,
-        newStatus: clearance.status,
+        newStatus: clearanceRecord.status,
         createdBy: session.user.id,
-        message: clearance.message,
+        message: clearanceRecord.message,
         modules: modulesList.map((rm) => rm.semesterModule.module!.code),
       });
 
-      return [clearance];
+      return [clearanceRecord];
     });
 
     return inserted;
   }
 
-  override async update(id: number, data: Model) {
+  override async update(id: number, data: Partial<Model>) {
     const session = await auth();
 
     const [updated] = await db.transaction(async (tx) => {
       if (!session?.user?.id) throw new Error('Unauthorized');
       const current = await tx
         .select()
-        .from(registrationClearances)
-        .where(eq(registrationClearances.id, id))
+        .from(clearance)
+        .where(eq(clearance.id, id))
         .limit(1)
         .then(([result]) => result);
 
-      if (!current) throw new Error('Registration clearance not found');
+      if (!current) throw new Error('Clearance not found');
 
-      const [clearance] = await tx
-        .update(registrationClearances)
+      const [clearanceRecord] = await tx
+        .update(clearance)
         .set(data)
-        .where(eq(registrationClearances.id, id))
+        .where(eq(clearance.id, id))
         .returning();
 
       if (data.status && data.status !== current.status) {
-        const modulesList = await tx.query.requestedModules.findMany({
-          where: eq(
-            requestedModules.registrationRequestId,
-            current.registrationRequestId
-          ),
-          with: {
-            semesterModule: {
-              with: {
-                module: true,
+        const regClearance = await tx.query.registrationClearance.findFirst({
+          where: eq(registrationClearance.clearanceId, id),
+        });
+
+        if (regClearance) {
+          const modulesList = await tx.query.requestedModules.findMany({
+            where: eq(
+              requestedModules.registrationRequestId,
+              regClearance.registrationRequestId
+            ),
+            with: {
+              semesterModule: {
+                with: {
+                  module: true,
+                },
               },
             },
-          },
-        });
+          });
 
-        await tx.insert(registrationClearanceAudit).values({
-          registrationClearanceId: id,
-          previousStatus: current.status,
-          newStatus: clearance.status,
-          createdBy: session.user.id,
-          message: data.message,
-          modules: modulesList.map((rm) => rm.semesterModule.module!.code),
-        });
+          await tx.insert(clearanceAudit).values({
+            clearanceId: id,
+            previousStatus: current.status,
+            newStatus: clearanceRecord.status,
+            createdBy: session.user.id,
+            message: data.message,
+            modules: modulesList.map((rm) => rm.semesterModule.module!.code),
+          });
+        }
       }
 
-      return [clearance];
+      return [clearanceRecord];
     });
 
     return updated;
   }
 
-  async findById(id: number) {
-    return await db.query.registrationClearances.findFirst({
-      where: eq(registrationClearances.id, id),
+  async findByIdWithRelations(id: number) {
+    const clearanceData = await db.query.clearance.findFirst({
+      where: eq(clearance.id, id),
       with: {
-        registrationRequest: {
+        respondedBy: true,
+        registrationClearances: {
           with: {
-            student: {
+            registrationRequest: {
               with: {
-                programs: {
-                  where: eq(studentPrograms.status, 'Active'),
-                  orderBy: (programs, { asc }) => [asc(programs.id)],
-                  limit: 1,
+                student: {
                   with: {
-                    structure: {
+                    programs: {
+                      where: eq(studentPrograms.status, 'Active'),
+                      orderBy: (programs, { asc }) => [asc(programs.id)],
+                      limit: 1,
                       with: {
-                        program: true,
+                        structure: {
+                          with: {
+                            program: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+                term: true,
+                requestedModules: {
+                  with: {
+                    semesterModule: {
+                      with: {
+                        module: true,
                       },
                     },
                   },
                 },
               },
             },
-            term: true,
-            requestedModules: {
-              with: {
-                semesterModule: {
-                  with: {
-                    module: true,
-                  },
-                },
-              },
-            },
           },
         },
-        respondedBy: true,
       },
     });
+
+    if (!clearanceData || clearanceData.registrationClearances.length === 0) {
+      return null;
+    }
+
+    const { registrationClearances, ...rest } = clearanceData;
+    return {
+      ...rest,
+      registrationRequest: registrationClearances[0].registrationRequest,
+    };
   }
 
   async findByDepartment(
     department: DashboardUser,
-    params: QueryOptions<typeof registrationClearances>,
+    params: QueryOptions<typeof clearance>,
     status?: 'pending' | 'approved' | 'rejected',
     termId?: number
   ) {
     const { offset, limit } = this.buildQueryCriteria(params);
 
-    let requestIds: number[] = [];
+    let clearanceIds: number[] = [];
 
     if (params.search || termId) {
-      const ids = await db.query.registrationRequests.findMany({
-        where: and(
-          params.search
-            ? like(registrationRequests.stdNo, `%${params.search}%`)
-            : undefined,
-          termId ? eq(registrationRequests.termId, termId) : undefined
-        ),
-        columns: {
-          id: true,
-        },
-      });
+      const results = await db
+        .select({ clearanceId: registrationClearance.clearanceId })
+        .from(registrationClearance)
+        .innerJoin(
+          registrationRequests,
+          eq(
+            registrationClearance.registrationRequestId,
+            registrationRequests.id
+          )
+        )
+        .where(
+          and(
+            params.search
+              ? like(registrationRequests.stdNo, `%${params.search}%`)
+              : undefined,
+            termId ? eq(registrationRequests.termId, termId) : undefined
+          )
+        );
 
-      requestIds = ids.map((id) => id.id);
+      clearanceIds = results.map((r) => r.clearanceId);
 
-      if ((params.search || termId) && requestIds.length === 0) {
+      if ((params.search || termId) && clearanceIds.length === 0) {
         return {
           items: [],
           totalPages: 0,
@@ -185,28 +225,43 @@ export default class RegistrationClearanceRepository extends BaseRepository<
     }
 
     const whereCondition = and(
-      (params.search || termId) && requestIds.length > 0
-        ? inArray(registrationClearances.registrationRequestId, requestIds)
+      (params.search || termId) && clearanceIds.length > 0
+        ? inArray(clearance.id, clearanceIds)
         : undefined,
-      eq(registrationClearances.department, department),
-      status ? eq(registrationClearances.status, status) : undefined
+      eq(clearance.department, department),
+      status ? eq(clearance.status, status) : undefined
     );
 
-    const data = await db.query.registrationClearances.findMany({
+    const data = await db.query.clearance.findMany({
       where: whereCondition,
       with: {
-        registrationRequest: {
+        registrationClearances: {
           with: {
-            student: true,
+            registrationRequest: {
+              with: {
+                student: true,
+              },
+            },
           },
         },
       },
-      orderBy: asc(registrationClearances.createdAt),
+      orderBy: asc(clearance.createdAt),
       limit,
       offset,
     });
 
-    return this.createPaginatedResult(data, {
+    const formattedData = data.map((item) => {
+      const { registrationClearances, ...rest } = item;
+      return {
+        ...rest,
+        registrationRequest:
+          registrationClearances.length > 0
+            ? registrationClearances[0].registrationRequest
+            : null,
+      };
+    });
+
+    return this.createPaginatedResult(formattedData, {
       limit,
       where: whereCondition,
     });
@@ -219,19 +274,23 @@ export default class RegistrationClearanceRepository extends BaseRepository<
   ) {
     if (termId) {
       const clearanceIdsWithTerm = await db
-        .select({ id: registrationClearances.id })
-        .from(registrationClearances)
+        .select({ id: clearance.id })
+        .from(clearance)
+        .innerJoin(
+          registrationClearance,
+          eq(clearance.id, registrationClearance.clearanceId)
+        )
         .innerJoin(
           registrationRequests,
           eq(
-            registrationClearances.registrationRequestId,
+            registrationClearance.registrationRequestId,
             registrationRequests.id
           )
         )
         .where(
           and(
-            eq(registrationClearances.department, department),
-            eq(registrationClearances.status, status),
+            eq(clearance.department, department),
+            eq(clearance.status, status),
             eq(registrationRequests.termId, termId)
           )
         );
@@ -241,91 +300,136 @@ export default class RegistrationClearanceRepository extends BaseRepository<
 
     const [result] = await db
       .select({ count: count() })
-      .from(registrationClearances)
+      .from(clearance)
       .where(
-        and(
-          eq(registrationClearances.department, department),
-          eq(registrationClearances.status, status)
-        )
+        and(eq(clearance.department, department), eq(clearance.status, status))
       );
     return result.count;
   }
 
   async findHistory(clearanceId: number) {
-    return db.query.registrationClearances.findMany({
-      where: eq(registrationClearances.id, clearanceId),
+    const clearanceData = await db.query.clearance.findFirst({
+      where: eq(clearance.id, clearanceId),
       with: {
-        registrationRequest: {
-          with: {
-            term: true,
-          },
-        },
-        audits: {
-          orderBy: desc(registrationClearanceAudit.date),
-          with: {
-            user: true,
-          },
-        },
-      },
-    });
-  }
-
-  async findHistoryByStudentNo(stdNo: number, department: DashboardUser) {
-    return db
-      .select()
-      .from(registrationClearances)
-      .innerJoin(
-        registrationRequests,
-        eq(
-          registrationClearances.registrationRequestId,
-          registrationRequests.id
-        )
-      )
-      .where(
-        and(
-          eq(registrationRequests.stdNo, stdNo),
-          eq(registrationClearances.department, department)
-        )
-      )
-      .then(async (results) => {
-        const clearanceIds = results.map((r) => r.registration_clearances.id);
-
-        if (clearanceIds.length === 0) return [];
-
-        return db.query.registrationClearances.findMany({
-          where: inArray(registrationClearances.id, clearanceIds),
+        registrationClearances: {
           with: {
             registrationRequest: {
               with: {
                 term: true,
               },
             },
-            audits: {
-              orderBy: desc(registrationClearanceAudit.date),
+          },
+        },
+        audits: {
+          orderBy: desc(clearanceAudit.date),
+          with: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!clearanceData) return [];
+
+    const { registrationClearances, ...rest } = clearanceData;
+    return [
+      {
+        ...rest,
+        registrationRequest:
+          registrationClearances.length > 0
+            ? registrationClearances[0].registrationRequest
+            : null,
+      },
+    ];
+  }
+
+  async findHistoryByStudentNo(stdNo: number, department: DashboardUser) {
+    const results = await db
+      .select({ clearanceId: clearance.id })
+      .from(clearance)
+      .innerJoin(
+        registrationClearance,
+        eq(clearance.id, registrationClearance.clearanceId)
+      )
+      .innerJoin(
+        registrationRequests,
+        eq(registrationClearance.registrationRequestId, registrationRequests.id)
+      )
+      .where(
+        and(
+          eq(registrationRequests.stdNo, stdNo),
+          eq(clearance.department, department)
+        )
+      );
+
+    const clearanceIds = results.map((r) => r.clearanceId);
+
+    if (clearanceIds.length === 0) return [];
+
+    const clearances = await db.query.clearance.findMany({
+      where: inArray(clearance.id, clearanceIds),
+      with: {
+        registrationClearances: {
+          with: {
+            registrationRequest: {
               with: {
-                user: true,
+                term: true,
               },
             },
           },
-          orderBy: [desc(registrationClearances.createdAt)],
-        });
-      });
+        },
+        audits: {
+          orderBy: desc(clearanceAudit.date),
+          with: {
+            user: true,
+          },
+        },
+      },
+      orderBy: [desc(clearance.createdAt)],
+    });
+
+    return clearances.map((item) => {
+      const { registrationClearances, ...rest } = item;
+      return {
+        ...rest,
+        registrationRequest:
+          registrationClearances.length > 0
+            ? registrationClearances[0].registrationRequest
+            : null,
+      };
+    });
   }
+
   async findNextPending(department: DashboardUser) {
-    return db.query.registrationClearances.findFirst({
+    const clearanceData = await db.query.clearance.findFirst({
       where: and(
-        eq(registrationClearances.status, 'pending'),
-        eq(registrationClearances.department, department)
+        eq(clearance.status, 'pending'),
+        eq(clearance.department, department)
       ),
       with: {
-        registrationRequest: {
+        registrationClearances: {
           with: {
-            student: true,
+            registrationRequest: {
+              with: {
+                student: true,
+              },
+            },
           },
         },
       },
       orderBy: (clearances) => [desc(clearances.createdAt)],
     });
+
+    if (!clearanceData) return null;
+
+    const { registrationClearances, ...rest } = clearanceData;
+    return {
+      ...rest,
+      registrationRequest:
+        registrationClearances.length > 0
+          ? registrationClearances[0].registrationRequest
+          : null,
+    };
   }
 
   async findByStatusForExport(
@@ -334,18 +438,22 @@ export default class RegistrationClearanceRepository extends BaseRepository<
   ) {
     if (termId) {
       const clearanceIdsWithTerm = await db
-        .select({ id: registrationClearances.id })
-        .from(registrationClearances)
+        .select({ id: clearance.id })
+        .from(clearance)
+        .innerJoin(
+          registrationClearance,
+          eq(clearance.id, registrationClearance.clearanceId)
+        )
         .innerJoin(
           registrationRequests,
           eq(
-            registrationClearances.registrationRequestId,
+            registrationClearance.registrationRequestId,
             registrationRequests.id
           )
         )
         .where(
           and(
-            eq(registrationClearances.status, status),
+            eq(clearance.status, status),
             eq(registrationRequests.termId, termId)
           )
         );
@@ -354,69 +462,98 @@ export default class RegistrationClearanceRepository extends BaseRepository<
         return [];
       }
 
-      return db.query.registrationClearances.findMany({
+      const clearances = await db.query.clearance.findMany({
         where: inArray(
-          registrationClearances.id,
+          clearance.id,
           clearanceIdsWithTerm.map((c) => c.id)
         ),
         with: {
-          registrationRequest: {
+          registrationClearances: {
             with: {
-              student: {
+              registrationRequest: {
                 with: {
-                  programs: {
-                    where: eq(studentPrograms.status, 'Active'),
-                    orderBy: (programs, { asc }) => [asc(programs.id)],
-                    limit: 1,
+                  student: {
                     with: {
-                      structure: {
+                      programs: {
+                        where: eq(studentPrograms.status, 'Active'),
+                        orderBy: (programs, { asc }) => [asc(programs.id)],
+                        limit: 1,
                         with: {
-                          program: true,
+                          structure: {
+                            with: {
+                              program: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                  term: true,
+                },
+              },
+            },
+          },
+          respondedBy: true,
+        },
+        orderBy: [asc(clearance.createdAt)],
+      });
+
+      return clearances.map((item) => {
+        const { registrationClearances, ...rest } = item;
+        return {
+          ...rest,
+          registrationRequest:
+            registrationClearances.length > 0
+              ? registrationClearances[0].registrationRequest
+              : null,
+        };
+      });
+    }
+
+    const clearances = await db.query.clearance.findMany({
+      where: eq(clearance.status, status),
+      with: {
+        registrationClearances: {
+          with: {
+            registrationRequest: {
+              with: {
+                student: {
+                  with: {
+                    programs: {
+                      where: eq(studentPrograms.status, 'Active'),
+                      orderBy: (programs, { asc }) => [asc(programs.id)],
+                      limit: 1,
+                      with: {
+                        structure: {
+                          with: {
+                            program: true,
+                          },
                         },
                       },
                     },
                   },
                 },
-              },
-              term: true,
-            },
-          },
-          respondedBy: true,
-        },
-        orderBy: [asc(registrationClearances.createdAt)],
-      });
-    }
-
-    return db.query.registrationClearances.findMany({
-      where: eq(registrationClearances.status, status),
-      with: {
-        registrationRequest: {
-          with: {
-            student: {
-              with: {
-                programs: {
-                  where: eq(studentPrograms.status, 'Active'),
-                  orderBy: (programs, { asc }) => [asc(programs.id)],
-                  limit: 1,
-                  with: {
-                    structure: {
-                      with: {
-                        program: true,
-                      },
-                    },
-                  },
-                },
+                term: true,
               },
             },
-            term: true,
           },
         },
         respondedBy: true,
       },
-      orderBy: [asc(registrationClearances.createdAt)],
+      orderBy: [asc(clearance.createdAt)],
+    });
+
+    return clearances.map((item) => {
+      const { registrationClearances, ...rest } = item;
+      return {
+        ...rest,
+        registrationRequest:
+          registrationClearances.length > 0
+            ? registrationClearances[0].registrationRequest
+            : null,
+      };
     });
   }
 }
 
-export const registrationClearancesRepository =
-  new RegistrationClearanceRepository();
+export const clearanceRepository = new ClearanceRepository();

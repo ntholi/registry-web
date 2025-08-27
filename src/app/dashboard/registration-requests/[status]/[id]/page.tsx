@@ -32,10 +32,10 @@ function getOverallClearanceStatus(
 ) {
   const departments: DashboardUser[] = ['finance', 'library'];
   const statuses = departments.map((dept) => {
-    const clearance = registrationRequest.clearances?.find(
-      (c) => c.department === dept
+    const clearanceMapping = registrationRequest.clearances?.find(
+      (c) => c.clearance.department === dept
     );
-    return clearance?.status || 'pending';
+    return clearanceMapping?.clearance.status || 'pending';
   });
 
   if (statuses.some((status) => status === 'rejected')) return 'rejected';

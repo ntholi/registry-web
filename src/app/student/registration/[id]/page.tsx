@@ -63,10 +63,10 @@ export default async function page({ params }: Props) {
     }
 
     const allApproved = registration.clearances.every(
-      (c) => c.status === 'approved'
+      (c) => c.clearance.status === 'approved'
     );
     const anyRejected = registration.clearances.some(
-      (c) => c.status === 'rejected'
+      (c) => c.clearance.status === 'rejected'
     );
 
     if (allApproved) return 'approved';

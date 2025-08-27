@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { DashboardUser, registrationClearances } from '@/db/schema';
+import { DashboardUser, clearance } from '@/db/schema';
 import { and, between, count, eq, sql } from 'drizzle-orm';
 
 type DateInput = Date | string | number;
@@ -26,51 +26,49 @@ export async function getClearanceStatsByDepartment(
   const end = normalizeDate(dateRange?.endDate);
 
   if (start && end) {
-    dateCondition = between(registrationClearances.responseDate, start, end);
+    dateCondition = between(clearance.responseDate, start, end);
   }
   const overallStats = await db
     .select({
-      total: count(registrationClearances.id),
+      total: count(clearance.id),
       approved:
-        sql`SUM(CASE WHEN ${registrationClearances.status} = 'approved' AND ${registrationClearances.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
+        sql`SUM(CASE WHEN ${clearance.status} = 'approved' AND ${clearance.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
           Number
         ),
       rejected:
-        sql`SUM(CASE WHEN ${registrationClearances.status} = 'rejected' AND ${registrationClearances.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
+        sql`SUM(CASE WHEN ${clearance.status} = 'rejected' AND ${clearance.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
           Number
         ),
       pending:
-        sql`SUM(CASE WHEN ${registrationClearances.status} = 'pending' AND ${registrationClearances.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
+        sql`SUM(CASE WHEN ${clearance.status} = 'pending' AND ${clearance.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
           Number
         ),
     })
-    .from(registrationClearances)
-    .where(
-      and(eq(registrationClearances.department, department), dateCondition)
-    );
+    .from(clearance)
+    .where(and(eq(clearance.department, department), dateCondition));
 
   const staffStats = await db
     .select({
-      respondedBy: registrationClearances.respondedBy,
+      respondedBy: clearance.respondedBy,
       approved:
-        sql`SUM(CASE WHEN ${registrationClearances.status} = 'approved' THEN 1 ELSE 0 END)`.mapWith(
+        sql`SUM(CASE WHEN ${clearance.status} = 'approved' THEN 1 ELSE 0 END)`.mapWith(
           Number
         ),
       rejected:
-        sql`SUM(CASE WHEN ${registrationClearances.status} = 'rejected' THEN 1 ELSE 0 END)`.mapWith(
+        sql`SUM(CASE WHEN ${clearance.status} = 'rejected' THEN 1 ELSE 0 END)`.mapWith(
           Number
         ),
-      total: count(registrationClearances.id),
+      total: count(clearance.id),
     })
-    .from(registrationClearances)
+    .from(clearance)
     .where(
       and(
-        eq(registrationClearances.department, department),
+        eq(clearance.department, department),
         dateCondition,
-        sql`${registrationClearances.respondedBy} IS NOT NULL`
+        sql`${clearance.respondedBy} IS NOT NULL`
       )
     )
-    .groupBy(registrationClearances.respondedBy);
+    .groupBy(clearance.respondedBy);
 
   return {
     overall: overallStats[0],

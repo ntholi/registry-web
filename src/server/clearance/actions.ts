@@ -1,31 +1,28 @@
 'use server';
 
-import { registrationClearances, DashboardUser } from '@/db/schema';
-import { registrationClearancesService as service } from './service';
+import { clearance, DashboardUser } from '@/db/schema';
+import { clearanceService as service } from './service';
 import { auth } from '@/auth';
 
-type RegistrationClearance = typeof registrationClearances.$inferInsert;
+type Clearance = typeof clearance.$inferInsert;
 
-export async function getRegistrationClearance(id: number) {
+export async function getClearance(id: number) {
   return service.get(id);
 }
 
-export async function countPendingRegistrationClearances() {
+export async function countPendingClearances() {
   return service.countByStatus('pending');
 }
 
-export async function countApprovedRegistrationClearances() {
+export async function countApprovedClearances() {
   return service.countByStatus('approved');
 }
 
-export async function countRejectedRegistrationClearances() {
+export async function countRejectedClearances() {
   return service.countByStatus('rejected');
 }
 
-export async function registrationClearanceByDepartment(
-  page: number = 1,
-  search = ''
-) {
+export async function clearanceByDepartment(page: number = 1, search = '') {
   const session = await auth();
   if (!session?.user?.role) {
     return {
@@ -44,7 +41,7 @@ export async function registrationClearanceByDepartment(
   );
 }
 
-export async function registrationClearanceByStatus(
+export async function clearanceByStatus(
   status: 'pending' | 'approved' | 'rejected',
   page: number = 1,
   search = '',
@@ -74,20 +71,15 @@ export async function registrationClearanceByStatus(
   };
 }
 
-export async function createRegistrationClearance(
-  registrationClearance: RegistrationClearance
-) {
-  return service.respond(registrationClearance);
+export async function createClearance(clearanceData: Clearance) {
+  return service.respond(clearanceData);
 }
 
-export async function updateRegistrationClearance(
-  id: number,
-  registrationClearance: RegistrationClearance
-) {
-  return service.update(id, registrationClearance);
+export async function updateClearance(id: number, clearanceData: Clearance) {
+  return service.update(id, clearanceData);
 }
 
-export async function deleteRegistrationClearance(id: number) {
+export async function deleteClearance(id: number) {
   return service.delete(id);
 }
 
@@ -99,7 +91,7 @@ export async function getClearanceHistoryByStudentNo(stdNo: number) {
   return service.getHistoryByStudentNo(stdNo);
 }
 
-export async function getNextPendingRegistrationClearance() {
+export async function getNextPendingClearance() {
   const session = await auth();
   if (!session?.user?.role) {
     return null;
@@ -115,20 +107,20 @@ export async function exportClearancesByStatus(
   const clearances = await service.findByStatusForExport(status, termId);
 
   const csvData = clearances.map((clearance) => {
-    const student = clearance.registrationRequest.student;
-    const activeProgram = student.programs[0];
+    const student = clearance.registrationRequest?.student;
+    const activeProgram = student?.programs[0];
 
     return {
-      'Student Number': student.stdNo,
-      'Student Name': student.name,
+      'Student Number': student?.stdNo || 'N/A',
+      'Student Name': student?.name || 'N/A',
       Program: activeProgram?.structure.program.name || 'N/A',
       Department: clearance.department,
       Status: clearance.status,
-      Term: clearance.registrationRequest.term.name,
+      Term: clearance.registrationRequest?.term.name || 'N/A',
       'Response Date': clearance.responseDate
         ? new Date(clearance.responseDate).toLocaleDateString()
         : 'N/A',
-      'Responded By': clearance.respondedBy?.name || 'N/A',
+      'Responded By': clearance.respondedBy || 'N/A',
       Message: clearance.message || 'N/A',
       'Created Date': clearance.createdAt
         ? new Date(clearance.createdAt).toLocaleDateString()
