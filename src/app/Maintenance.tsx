@@ -1,35 +1,67 @@
-import './(main)/globals.css';
 import Image from 'next/image';
+import { Container, Center, Stack, Title, Text, Divider } from '@mantine/core';
 
 export default function Maintenance() {
   return (
-    <div className='min-h-screen bg-neutral-900 text-white'>
-      <div className='flex min-h-screen items-center justify-center px-4 sm:px-6 lg:px-8'>
-        <div className='w-full max-w-md text-center'>
-          <div className='mx-auto mb-8 h-32 overflow-hidden sm:h-40'>
+    <Container
+      size='sm'
+      style={{
+        minHeight: '100vh',
+      }}
+    >
+      <Center style={{ minHeight: '100vh' }}>
+        <Stack align='center' gap='lg'>
+          <div style={{ height: 160, overflow: 'hidden' }}>
             <Image
               src='/images/logo-dark.png'
               alt='Limkokwing Logo'
               width={160}
               height={160}
-              className='h-full w-full object-contain p-4'
+              style={{
+                height: '100%',
+                width: '100%',
+                objectFit: 'contain',
+                padding: 'var(--mantine-spacing-md)',
+              }}
               priority
             />
           </div>
 
-          <div className='space-y-4'>
-            <h1 className='text-2xl font-light tracking-wide text-white/90 sm:text-3xl'>
-              Under Maintenance
-            </h1>
+          <Stack align='center' gap='md'>
+            <Title
+              order={2}
+              style={{
+                fontWeight: 300,
+                letterSpacing: '0.025em',
+                color: 'var(--mantine-color-white)',
+                opacity: 0.9,
+              }}
+            >
+              Back in 30 minutes
+            </Title>
 
-            <div className='mx-auto h-px w-16 bg-white/30'></div>
+            <Divider
+              size='xs'
+              style={{
+                width: 64,
+                backgroundColor: 'var(--mantine-color-white)',
+                opacity: 0.3,
+              }}
+            />
 
-            <p className='text-sm text-white/60 sm:text-base'>
+            <Text
+              size='sm'
+              style={{
+                color: 'var(--mantine-color-white)',
+                opacity: 0.6,
+                textAlign: 'center',
+              }}
+            >
               We are currently performing maintenance on the system.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Text>
+          </Stack>
+        </Stack>
+      </Center>
+    </Container>
   );
 }

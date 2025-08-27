@@ -1,7 +1,7 @@
-import './global.css';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
+import './global.css';
 
 import { Metadata } from 'next';
 import { PropsWithChildren, Suspense } from 'react';
