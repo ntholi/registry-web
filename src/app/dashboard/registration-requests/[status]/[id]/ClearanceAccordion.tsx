@@ -80,10 +80,12 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
                   {clearance?.respondedBy ? (
                     <Anchor
                       size='sm'
-                      href={`/dashboard/users/${clearance.respondedBy}`}
+                      href={`/dashboard/users/${clearance.respondedBy.id}`}
                       component={Link}
                     >
-                      User: {clearance.respondedBy}
+                      {clearance.respondedBy.name ||
+                        clearance.respondedBy.email ||
+                        `User: ${clearance.respondedBy.id}`}
                     </Anchor>
                   ) : (
                     <Text size='sm'>{'-'}</Text>
