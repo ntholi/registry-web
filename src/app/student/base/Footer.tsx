@@ -6,11 +6,17 @@ import {
   Text,
   useMantineColorScheme,
 } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { IconBrandGithub } from '@tabler/icons-react';
 
 export default function Footer() {
   const { colorScheme } = useMantineColorScheme();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const isDark = colorScheme === 'dark';
+
+  if (isMobile) {
+    return null;
+  }
 
   return (
     <Paper
