@@ -32,7 +32,7 @@ type PaymentReceiptData = {
 
 interface Props {
   paymentReceipts: PaymentReceiptData[];
-  onPaymentReceiptsChange: (receipts: PaymentReceiptData[]) => void;
+  onPaymentReceiptsChange: (receipts: PaymentReceiptData[] | null) => void;
 }
 
 export default function PaymentReceiptsInput({

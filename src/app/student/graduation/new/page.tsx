@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { paymentTypeEnum } from '@/db/schema';
 import useUserStudent from '@/hooks/use-user-student';
-import { 
+import {
   createGraduationRequestWithPaymentReceipts,
-  getGraduationRequestByStudentNo
+  getGraduationRequestByStudentNo,
 } from '@/server/graduation-requests/actions';
 import {
   Alert,
@@ -32,7 +32,7 @@ import PaymentReceiptsInput from './PaymentReceiptsInput';
 import ReviewAndSubmit from './ReviewAndSubmit';
 
 type PaymentReceiptData = {
-  paymentType: typeof paymentTypeEnum[number];
+  paymentType: (typeof paymentTypeEnum)[number] | null;
   receiptNo: string;
 };
 
@@ -41,9 +41,9 @@ const STEPS = [
     label: 'Confirm Information',
     description: 'Verify your personal information is correct',
   },
-  { 
-    label: 'Payment Receipts', 
-    description: 'Enter your payment receipt numbers' 
+  {
+    label: 'Payment Receipts',
+    description: 'Enter your payment receipt numbers',
   },
   {
     label: 'Review & Submit',
@@ -57,11 +57,10 @@ export default function GraduationPage() {
   const { student } = useUserStudent();
   const [activeStep, setActiveStep] = useState(0);
   const [informationConfirmed, setInformationConfirmed] = useState(false);
-  const [paymentReceipts, setPaymentReceipts] = useState<PaymentReceiptData[]>([
-    { paymentType: 'graduation_fee', receiptNo: '' }
-  ]);
+  const [paymentReceipts, setPaymentReceipts] = useState<
+    PaymentReceiptData[] | null
+  >(null);
 
-  // Check if student already has a graduation request
   const { data: existingRequest, isLoading: checkingExisting } = useQuery({
     queryKey: ['graduation-request', student?.stdNo],
     queryFn: async () => {
@@ -73,15 +72,26 @@ export default function GraduationPage() {
 
   const graduationMutation = useMutation({
     mutationFn: async () => {
-      if (!student || !informationConfirmed || paymentReceipts.length === 0 || !paymentReceipts.every(r => r.receiptNo.trim() !== '')) {
+      if (
+        !student ||
+        !informationConfirmed ||
+        !paymentReceipts ||
+        paymentReceipts.length === 0 ||
+        !paymentReceipts.every((r) => r.receiptNo.trim() !== '')
+      ) {
         throw new Error('Missing required data for graduation request');
       }
+
+      const payloadReceipts = paymentReceipts.map((r) => ({
+        paymentType: r.paymentType!,
+        receiptNo: r.receiptNo,
+      }));
 
       return createGraduationRequestWithPaymentReceipts({
         stdNo: student.stdNo,
         informationConfirmed: true,
         message: 'Graduation request submitted by student',
-        paymentReceipts,
+        paymentReceipts: payloadReceipts,
       });
     },
     onSuccess: () => {
@@ -105,7 +115,11 @@ export default function GraduationPage() {
   const nextStep = () => {
     if (activeStep === 0 && informationConfirmed) {
       setActiveStep(1);
-    } else if (activeStep === 1 && paymentReceipts.length > 0) {
+    } else if (
+      activeStep === 1 &&
+      paymentReceipts &&
+      paymentReceipts.length > 0
+    ) {
       setActiveStep(2);
     }
   };
@@ -117,14 +131,26 @@ export default function GraduationPage() {
   };
 
   const handleSubmit = () => {
-    if (informationConfirmed && paymentReceipts.length > 0 && paymentReceipts.every(r => r.receiptNo.trim() !== '')) {
+    if (
+      informationConfirmed &&
+      paymentReceipts &&
+      paymentReceipts.length > 0 &&
+      paymentReceipts.every((r) => r.receiptNo.trim() !== '')
+    ) {
       graduationMutation.mutate();
     }
   };
 
   const canProceedStep1 = informationConfirmed;
-  const canProceedStep2 = paymentReceipts.length > 0 && paymentReceipts.every(r => r.receiptNo.trim() !== '');
-  const canSubmit = informationConfirmed && paymentReceipts.length > 0 && paymentReceipts.every(r => r.receiptNo.trim() !== '');
+  const canProceedStep2 =
+    !!paymentReceipts &&
+    paymentReceipts.length > 0 &&
+    paymentReceipts.every((r) => r.receiptNo.trim() !== '');
+  const canSubmit =
+    informationConfirmed &&
+    !!paymentReceipts &&
+    paymentReceipts.length > 0 &&
+    paymentReceipts.every((r) => r.receiptNo.trim() !== '');
 
   const progressValue = ((activeStep + 1) / STEPS.length) * 100;
 
@@ -144,9 +170,11 @@ export default function GraduationPage() {
           title='Graduation Request Already Submitted'
           color='blue'
         >
-          You have already submitted a graduation request. Please check with the registry office for the status of your request.
+          You have already submitted a graduation request. Please check with the
+          registry office for the status of your request.
           <br />
-          <strong>Submitted on:</strong> {new Date(existingRequest.createdAt || '').toLocaleDateString()}
+          <strong>Submitted on:</strong>{' '}
+          {new Date(existingRequest.createdAt || '').toLocaleDateString()}
         </Alert>
       </Container>
     );
@@ -160,7 +188,8 @@ export default function GraduationPage() {
           title='Student Information Not Found'
           color='red'
         >
-          Unable to load your student information. Please contact the registry office.
+          Unable to load your student information. Please contact the registry
+          office.
         </Alert>
       </Container>
     );
@@ -179,8 +208,12 @@ export default function GraduationPage() {
       case 1:
         return (
           <PaymentReceiptsInput
-            paymentReceipts={paymentReceipts}
-            onPaymentReceiptsChange={setPaymentReceipts}
+            paymentReceipts={
+              paymentReceipts ?? [
+                { paymentType: 'graduation_fee', receiptNo: '' },
+              ]
+            }
+            onPaymentReceiptsChange={(r) => setPaymentReceipts(r)}
           />
         );
       case 2:
@@ -225,10 +258,8 @@ export default function GraduationPage() {
           </Box>
         </Box>
 
-        {/* Step Content */}
         <Box>{renderStepContent()}</Box>
 
-        {/* Navigation */}
         <Group justify='space-between' mt='xl'>
           <Button
             variant='default'
