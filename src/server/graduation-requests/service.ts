@@ -1,10 +1,24 @@
-import { graduationRequests } from '@/db/schema';
+import {
+  graduationRequests,
+  paymentReceipts,
+  paymentTypeEnum,
+} from '@/db/schema';
 import GraduationRequestRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '../base/serviceWrapper';
+import { db } from '@/db';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
+
+type PaymentReceiptData = {
+  paymentType: (typeof paymentTypeEnum)[number];
+  receiptNo: string;
+};
+
+type CreateGraduationRequestData = GraduationRequest & {
+  paymentReceipts: PaymentReceiptData[];
+};
 
 class GraduationRequestService {
   constructor(
@@ -19,12 +33,45 @@ class GraduationRequestService {
     return withAuth(async () => this.repository.findById(id), []);
   }
 
+  async getByStudentNo(stdNo: number) {
+    return withAuth(
+      async () => this.repository.findByStudentNo(stdNo),
+      ['student']
+    );
+  }
+
   async getAll(params: QueryOptions<typeof graduationRequests>) {
     return withAuth(async () => this.repository.query(params), []);
   }
 
   async create(data: GraduationRequest) {
     return withAuth(async () => this.repository.create(data), []);
+  }
+
+  async createWithPaymentReceipts(data: CreateGraduationRequestData) {
+    return withAuth(async () => {
+      return db.transaction(async (tx) => {
+        const { paymentReceipts: receipts, ...graduationRequestData } = data;
+
+        // Create graduation request
+        const [graduationRequest] = await tx
+          .insert(graduationRequests)
+          .values(graduationRequestData)
+          .returning();
+
+        // Create payment receipts
+        if (receipts.length > 0) {
+          const receiptValues = receipts.map((receipt) => ({
+            ...receipt,
+            graduationRequestId: graduationRequest.id,
+          }));
+
+          await tx.insert(paymentReceipts).values(receiptValues);
+        }
+
+        return graduationRequest;
+      });
+    }, ['student']);
   }
 
   async update(id: number, data: Partial<GraduationRequest>) {

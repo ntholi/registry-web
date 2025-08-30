@@ -14,6 +14,7 @@ import {
   IconChevronRight,
   IconClipboardCheck,
   IconFileCertificate,
+  IconSchool,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { studentColors } from '../utils/colors';
@@ -40,6 +41,13 @@ const actions: Action[] = [
     href: '/student/transcripts',
     color: studentColors.theme.primary,
     description: 'View and download your academic transcripts',
+  },
+  {
+    label: 'Graduation',
+    icon: IconSchool,
+    href: '/student/graduation/new',
+    color: studentColors.theme.primary,
+    description: 'Submit your graduation request',
   },
 ];
 

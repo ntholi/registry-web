@@ -16,6 +16,7 @@ import {
   graduationClearance,
   registrationRequests,
   graduationRequests,
+  paymentReceipts,
   requestedModules,
   schools,
   sessions,
@@ -65,6 +66,7 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
   }),
   programs: many(studentPrograms),
   registrationRequests: many(registrationRequests),
+  graduationRequests: many(graduationRequests),
   sponsorships: many(sponsoredStudents),
 }));
 
@@ -259,6 +261,28 @@ export const graduationClearanceRelations = relations(
     clearance: one(clearance, {
       fields: [graduationClearance.clearanceId],
       references: [clearance.id],
+    }),
+  })
+);
+
+export const graduationRequestsRelations = relations(
+  graduationRequests,
+  ({ one, many }) => ({
+    student: one(students, {
+      fields: [graduationRequests.stdNo],
+      references: [students.stdNo],
+    }),
+    paymentReceipts: many(paymentReceipts),
+    graduationClearances: many(graduationClearance),
+  })
+);
+
+export const paymentReceiptsRelations = relations(
+  paymentReceipts,
+  ({ one }) => ({
+    graduationRequest: one(graduationRequests, {
+      fields: [paymentReceipts.graduationRequestId],
+      references: [graduationRequests.id],
     }),
   })
 );

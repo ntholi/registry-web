@@ -505,6 +505,13 @@
       "when": 1756543009206,
       "tag": "0071_windy_kid_colt",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "6",
+      "when": 1756560269717,
+      "tag": "0072_freezing_green_goblin",
+      "breakpoints": true
     }
   ]
 }

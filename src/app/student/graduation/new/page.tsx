@@ -1,0 +1,266 @@
+'use client';
+
+import React, { useState } from 'react';
+import { paymentTypeEnum } from '@/db/schema';
+import useUserStudent from '@/hooks/use-user-student';
+import { 
+  createGraduationRequestWithPaymentReceipts,
+  getGraduationRequestByStudentNo
+} from '@/server/graduation-requests/actions';
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  Group,
+  LoadingOverlay,
+  Progress,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconInfoCircle,
+} from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import InformationConfirmation from './InformationConfirmation';
+import PaymentReceiptsInput from './PaymentReceiptsInput';
+import ReviewAndSubmit from './ReviewAndSubmit';
+
+type PaymentReceiptData = {
+  paymentType: typeof paymentTypeEnum[number];
+  receiptNo: string;
+};
+
+const STEPS = [
+  {
+    label: 'Confirm Information',
+    description: 'Verify your personal information is correct',
+  },
+  { 
+    label: 'Payment Receipts', 
+    description: 'Enter your payment receipt numbers' 
+  },
+  {
+    label: 'Review & Submit',
+    description: 'Review your information and submit your graduation request',
+  },
+];
+
+export default function GraduationPage() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { student } = useUserStudent();
+  const [activeStep, setActiveStep] = useState(0);
+  const [informationConfirmed, setInformationConfirmed] = useState(false);
+  const [paymentReceipts, setPaymentReceipts] = useState<PaymentReceiptData[]>([
+    { paymentType: 'graduation_fee', receiptNo: '' }
+  ]);
+
+  // Check if student already has a graduation request
+  const { data: existingRequest, isLoading: checkingExisting } = useQuery({
+    queryKey: ['graduation-request', student?.stdNo],
+    queryFn: async () => {
+      if (!student?.stdNo) return null;
+      return await getGraduationRequestByStudentNo(student.stdNo);
+    },
+    enabled: !!student?.stdNo,
+  });
+
+  const graduationMutation = useMutation({
+    mutationFn: async () => {
+      if (!student || !informationConfirmed || paymentReceipts.length === 0 || !paymentReceipts.every(r => r.receiptNo.trim() !== '')) {
+        throw new Error('Missing required data for graduation request');
+      }
+
+      return createGraduationRequestWithPaymentReceipts({
+        stdNo: student.stdNo,
+        informationConfirmed: true,
+        message: 'Graduation request submitted by student',
+        paymentReceipts,
+      });
+    },
+    onSuccess: () => {
+      notifications.show({
+        title: 'Graduation Request Submitted',
+        message: 'Your graduation request has been submitted successfully',
+        color: 'green',
+      });
+      queryClient.invalidateQueries({ queryKey: ['graduation-request'] });
+      router.push('/student/graduation');
+    },
+    onError: (error) => {
+      notifications.show({
+        title: 'Submission Failed',
+        message: error.message || 'Failed to submit graduation request',
+        color: 'red',
+      });
+    },
+  });
+
+  const nextStep = () => {
+    if (activeStep === 0 && informationConfirmed) {
+      setActiveStep(1);
+    } else if (activeStep === 1 && paymentReceipts.length > 0) {
+      setActiveStep(2);
+    }
+  };
+
+  const prevStep = () => {
+    if (activeStep > 0) {
+      setActiveStep(activeStep - 1);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (informationConfirmed && paymentReceipts.length > 0 && paymentReceipts.every(r => r.receiptNo.trim() !== '')) {
+      graduationMutation.mutate();
+    }
+  };
+
+  const canProceedStep1 = informationConfirmed;
+  const canProceedStep2 = paymentReceipts.length > 0 && paymentReceipts.every(r => r.receiptNo.trim() !== '');
+  const canSubmit = informationConfirmed && paymentReceipts.length > 0 && paymentReceipts.every(r => r.receiptNo.trim() !== '');
+
+  const progressValue = ((activeStep + 1) / STEPS.length) * 100;
+
+  if (checkingExisting) {
+    return (
+      <Container size='lg' py='xl'>
+        <LoadingOverlay visible />
+      </Container>
+    );
+  }
+
+  if (existingRequest) {
+    return (
+      <Container size='lg' py='xl'>
+        <Alert
+          icon={<IconInfoCircle size='1rem' />}
+          title='Graduation Request Already Submitted'
+          color='blue'
+        >
+          You have already submitted a graduation request. Please check with the registry office for the status of your request.
+          <br />
+          <strong>Submitted on:</strong> {new Date(existingRequest.createdAt || '').toLocaleDateString()}
+        </Alert>
+      </Container>
+    );
+  }
+
+  if (!student) {
+    return (
+      <Container size='lg' py='xl'>
+        <Alert
+          icon={<IconInfoCircle size='1rem' />}
+          title='Student Information Not Found'
+          color='red'
+        >
+          Unable to load your student information. Please contact the registry office.
+        </Alert>
+      </Container>
+    );
+  }
+
+  const renderStepContent = () => {
+    switch (activeStep) {
+      case 0:
+        return (
+          <InformationConfirmation
+            student={student}
+            confirmed={informationConfirmed}
+            onConfirm={setInformationConfirmed}
+          />
+        );
+      case 1:
+        return (
+          <PaymentReceiptsInput
+            paymentReceipts={paymentReceipts}
+            onPaymentReceiptsChange={setPaymentReceipts}
+          />
+        );
+      case 2:
+        return (
+          <ReviewAndSubmit
+            student={student}
+            paymentReceipts={paymentReceipts}
+            loading={graduationMutation.isPending}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Container size='md'>
+      <Stack gap='xl'>
+        <div>
+          <Title order={2} mb='xs'>
+            Graduation Request
+          </Title>
+          <Text c='dimmed'>Submit your graduation clearance request</Text>
+        </div>
+
+        <Box>
+          <Group justify='space-between' mb='sm'>
+            <Text size='sm' fw={500}>
+              Step {activeStep + 1} of {STEPS.length}
+            </Text>
+          </Group>
+
+          <Progress value={progressValue} size='lg' mb='md' />
+
+          <Box>
+            <Text fw={500} size='lg'>
+              {STEPS[activeStep].label}
+            </Text>
+            <Text size='sm' c='dimmed'>
+              {STEPS[activeStep].description}
+            </Text>
+          </Box>
+        </Box>
+
+        {/* Step Content */}
+        <Box>{renderStepContent()}</Box>
+
+        {/* Navigation */}
+        <Group justify='space-between' mt='xl'>
+          <Button
+            variant='default'
+            onClick={prevStep}
+            disabled={activeStep === 0}
+            leftSection={<IconArrowLeft size={16} />}
+          >
+            Back
+          </Button>
+
+          {activeStep < STEPS.length - 1 ? (
+            <Button
+              onClick={nextStep}
+              disabled={
+                (activeStep === 0 && !canProceedStep1) ||
+                (activeStep === 1 && !canProceedStep2)
+              }
+              rightSection={<IconArrowRight size={16} />}
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              disabled={!canSubmit}
+              loading={graduationMutation.isPending}
+            >
+              Submit Graduation Request
+            </Button>
+          )}
+        </Group>
+      </Stack>
+    </Container>
+  );
+}

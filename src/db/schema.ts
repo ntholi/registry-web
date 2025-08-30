@@ -477,6 +477,7 @@ export const graduationRequests = sqliteTable('graduation_requests', {
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .unique()
     .notNull(),
+  informationConfirmed: integer({ mode: 'boolean' }).notNull().default(false),
   message: text(),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`
