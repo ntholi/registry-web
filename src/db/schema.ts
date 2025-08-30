@@ -471,6 +471,35 @@ export const registrationClearance = sqliteTable(
   })
 );
 
+export const graduationClearance = sqliteTable(
+  'graduation_clearance',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    stdNo: integer()
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    clearanceId: integer()
+      .references(() => clearance.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  },
+  (table) => ({
+    uniqueRegistrationClearance: unique().on(table.clearanceId),
+  })
+);
+
+export const paymentTypeEnum = ['graduation_gown', 'graduation_fee'] as const;
+
+export const paymentReceipts = sqliteTable('payment_receipts', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  graduationClearanceId: integer()
+    .references(() => graduationClearance.id, { onDelete: 'cascade' })
+    .notNull(),
+  paymentType: text({ enum: paymentTypeEnum }).notNull(),
+  receiptNo: text().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
 export const clearanceAudit = sqliteTable('clearance_audit', {
   id: integer().primaryKey({ autoIncrement: true }),
   clearanceId: integer()

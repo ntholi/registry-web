@@ -498,6 +498,20 @@
       "when": 1756393271363,
       "tag": "0070_omniscient_joystick",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "6",
+      "when": 1756539741701,
+      "tag": "0071_exotic_ultimates",
+      "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "6",
+      "when": 1756540053306,
+      "tag": "0072_shallow_scarlet_spider",
+      "breakpoints": true
     }
   ]
 }
