@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "eab7f18d-1116-4b73-b327-2e5237e8d2a2",
+  "id": "3786c36a-9abb-4696-8c26-6975f97ab362",
   "prevId": "e80e2adf-689a-4fc5-920e-b1fe44f50dac",
   "tables": {
     "accounts": {
@@ -960,8 +960,8 @@
           "notNull": true,
           "autoincrement": true
         },
-        "std_no": {
-          "name": "std_no",
+        "graduation_request_id": {
+          "name": "graduation_request_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -993,15 +993,15 @@
         }
       },
       "foreignKeys": {
-        "graduation_clearance_std_no_students_std_no_fk": {
-          "name": "graduation_clearance_std_no_students_std_no_fk",
+        "graduation_clearance_graduation_request_id_graduation_requests_id_fk": {
+          "name": "graduation_clearance_graduation_request_id_graduation_requests_id_fk",
           "tableFrom": "graduation_clearance",
-          "tableTo": "students",
+          "tableTo": "graduation_requests",
           "columnsFrom": [
-            "std_no"
+            "graduation_request_id"
           ],
           "columnsTo": [
-            "std_no"
+            "id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -1015,6 +1015,74 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "graduation_requests": {
+      "name": "graduation_requests",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "std_no": {
+          "name": "std_no",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "graduation_requests_std_no_unique": {
+          "name": "graduation_requests_std_no_unique",
+          "columns": [
+            "std_no"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "graduation_requests_std_no_students_std_no_fk": {
+          "name": "graduation_requests_std_no_students_std_no_fk",
+          "tableFrom": "graduation_requests",
+          "tableTo": "students",
+          "columnsFrom": [
+            "std_no"
+          ],
+          "columnsTo": [
+            "std_no"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -1252,8 +1320,8 @@
           "notNull": true,
           "autoincrement": true
         },
-        "std_no": {
-          "name": "std_no",
+        "graduation_request_id": {
+          "name": "graduation_request_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -1284,15 +1352,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "payment_receipts_std_no_students_std_no_fk": {
-          "name": "payment_receipts_std_no_students_std_no_fk",
+        "payment_receipts_graduation_request_id_graduation_requests_id_fk": {
+          "name": "payment_receipts_graduation_request_id_graduation_requests_id_fk",
           "tableFrom": "payment_receipts",
-          "tableTo": "students",
+          "tableTo": "graduation_requests",
           "columnsFrom": [
-            "std_no"
+            "graduation_request_id"
           ],
           "columnsTo": [
-            "std_no"
+            "id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"

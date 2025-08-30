@@ -471,12 +471,25 @@ export const registrationClearance = sqliteTable(
   })
 );
 
+export const graduationRequests = sqliteTable('graduation_requests', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  stdNo: integer('std_no')
+    .references(() => students.stdNo, { onDelete: 'cascade' })
+    .unique()
+    .notNull(),
+  message: text(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`
+  ),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }),
+});
+
 export const graduationClearance = sqliteTable(
   'graduation_clearance',
   {
     id: integer().primaryKey({ autoIncrement: true }),
-    stdNo: integer()
-      .references(() => students.stdNo, { onDelete: 'cascade' })
+    graduationRequestId: integer()
+      .references(() => graduationRequests.id, { onDelete: 'cascade' })
       .notNull(),
     clearanceId: integer()
       .references(() => clearance.id, { onDelete: 'cascade' })
@@ -492,8 +505,8 @@ export const paymentTypeEnum = ['graduation_gown', 'graduation_fee'] as const;
 
 export const paymentReceipts = sqliteTable('payment_receipts', {
   id: integer().primaryKey({ autoIncrement: true }),
-  graduationClearanceId: integer()
-    .references(() => graduationClearance.id, { onDelete: 'cascade' })
+  graduationRequestId: integer()
+    .references(() => graduationRequests.id, { onDelete: 'cascade' })
     .notNull(),
   paymentType: text({ enum: paymentTypeEnum }).notNull(),
   receiptNo: text().notNull(),
