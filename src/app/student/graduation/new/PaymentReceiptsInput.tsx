@@ -19,8 +19,6 @@ import {
 import { useMediaQuery } from '@mantine/hooks';
 import {
   IconCurrencyDollar,
-  IconEye,
-  IconEyeOff,
   IconPlus,
   IconReceipt,
   IconTrash,
@@ -28,11 +26,11 @@ import {
 import { useState } from 'react';
 
 type PaymentReceiptData = {
-  paymentType: (typeof paymentTypeEnum)[number];
+  paymentType: (typeof paymentTypeEnum)[number] | null;
   receiptNo: string;
 };
 
-interface PaymentReceiptsInputProps {
+interface Props {
   paymentReceipts: PaymentReceiptData[];
   onPaymentReceiptsChange: (receipts: PaymentReceiptData[]) => void;
 }
@@ -40,11 +38,8 @@ interface PaymentReceiptsInputProps {
 export default function PaymentReceiptsInput({
   paymentReceipts,
   onPaymentReceiptsChange,
-}: PaymentReceiptsInputProps) {
-  const [newPayment, setNewPayment] = useState<PaymentReceiptData>({
-    paymentType: 'graduation_fee',
-    receiptNo: '',
-  });
+}: Props) {
+  const [newPayment, setNewPayment] = useState<PaymentReceiptData>();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const paymentTypeOptions = paymentTypeEnum.map((type) => ({
@@ -56,9 +51,12 @@ export default function PaymentReceiptsInput({
   }));
 
   const addPaymentReceipt = () => {
-    if (newPayment.receiptNo.trim()) {
-      onPaymentReceiptsChange([...paymentReceipts, { ...newPayment }]);
-      setNewPayment({ paymentType: 'graduation_fee', receiptNo: '' });
+    if (newPayment?.receiptNo?.trim() && newPayment?.paymentType) {
+      onPaymentReceiptsChange([
+        ...paymentReceipts,
+        newPayment as PaymentReceiptData,
+      ]);
+      setNewPayment(undefined);
     }
   };
 
@@ -67,15 +65,23 @@ export default function PaymentReceiptsInput({
     onPaymentReceiptsChange(updated);
   };
 
-  const updateNewPayment = (field: keyof PaymentReceiptData, value: string) => {
-    setNewPayment((prev) => ({ ...prev, [field]: value }));
+  const updateNewPayment = (
+    field: keyof PaymentReceiptData,
+    value: string | null
+  ) => {
+    setNewPayment((prev) => ({
+      paymentType: null,
+      receiptNo: '',
+      ...prev,
+      [field]: value,
+    }));
   };
 
-  const isAddDisabled = !newPayment.receiptNo.trim();
+  const isAddDisabled =
+    !newPayment?.receiptNo?.trim() || !newPayment?.paymentType;
 
   return (
     <Stack gap='lg'>
-      {/* Add New Receipt Section */}
       <Card withBorder shadow='sm' radius='md' padding='lg'>
         <Group mb='md'>
           <IconPlus size='1.5rem' />
@@ -90,13 +96,8 @@ export default function PaymentReceiptsInput({
           <Select
             label='Payment Type'
             placeholder='Select payment type'
-            value={newPayment.paymentType}
-            onChange={(value) =>
-              updateNewPayment(
-                'paymentType',
-                value as (typeof paymentTypeEnum)[number]
-              )
-            }
+            value={newPayment?.paymentType || null}
+            onChange={(value) => updateNewPayment('paymentType', value)}
             data={paymentTypeOptions}
             required
             leftSection={<IconCurrencyDollar size='1rem' />}
@@ -105,7 +106,7 @@ export default function PaymentReceiptsInput({
           <TextInput
             label='Receipt Number'
             placeholder='Enter receipt number'
-            value={newPayment.receiptNo}
+            value={newPayment?.receiptNo || ''}
             onChange={(event) =>
               updateNewPayment('receiptNo', event.currentTarget.value)
             }
@@ -124,7 +125,6 @@ export default function PaymentReceiptsInput({
         </Group>
       </Card>
 
-      {/* Existing Receipts Section */}
       {paymentReceipts.length > 0 && (
         <Card withBorder shadow='sm' radius='md' padding='lg'>
           <Group mb='md' justify='space-between'>
