@@ -57,9 +57,9 @@ export default function GraduationPage() {
   const { student } = useUserStudent();
   const [activeStep, setActiveStep] = useState(0);
   const [informationConfirmed, setInformationConfirmed] = useState(false);
-  const [paymentReceipts, setPaymentReceipts] = useState<
-    PaymentReceiptData[] | null
-  >(null);
+  const [paymentReceipts, setPaymentReceipts] = useState<PaymentReceiptData[]>(
+    []
+  );
 
   const { data: existingRequest, isLoading: checkingExisting } = useQuery({
     queryKey: ['graduation-request', student?.stdNo],
@@ -75,7 +75,6 @@ export default function GraduationPage() {
       if (
         !student ||
         !informationConfirmed ||
-        !paymentReceipts ||
         paymentReceipts.length === 0 ||
         !paymentReceipts.every((r) => r.receiptNo.trim() !== '')
       ) {
@@ -115,11 +114,7 @@ export default function GraduationPage() {
   const nextStep = () => {
     if (activeStep === 0 && informationConfirmed) {
       setActiveStep(1);
-    } else if (
-      activeStep === 1 &&
-      paymentReceipts &&
-      paymentReceipts.length > 0
-    ) {
+    } else if (activeStep === 1 && paymentReceipts.length > 0) {
       setActiveStep(2);
     }
   };
@@ -133,7 +128,6 @@ export default function GraduationPage() {
   const handleSubmit = () => {
     if (
       informationConfirmed &&
-      paymentReceipts &&
       paymentReceipts.length > 0 &&
       paymentReceipts.every((r) => r.receiptNo.trim() !== '')
     ) {
@@ -143,12 +137,10 @@ export default function GraduationPage() {
 
   const canProceedStep1 = informationConfirmed;
   const canProceedStep2 =
-    !!paymentReceipts &&
     paymentReceipts.length > 0 &&
     paymentReceipts.every((r) => r.receiptNo.trim() !== '');
   const canSubmit =
     informationConfirmed &&
-    !!paymentReceipts &&
     paymentReceipts.length > 0 &&
     paymentReceipts.every((r) => r.receiptNo.trim() !== '');
 
@@ -208,11 +200,7 @@ export default function GraduationPage() {
       case 1:
         return (
           <PaymentReceiptsInput
-            paymentReceipts={
-              paymentReceipts ?? [
-                { paymentType: 'graduation_fee', receiptNo: '' },
-              ]
-            }
+            paymentReceipts={paymentReceipts}
             onPaymentReceiptsChange={(r) => setPaymentReceipts(r)}
           />
         );

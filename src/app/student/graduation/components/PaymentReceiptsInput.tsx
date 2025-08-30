@@ -26,7 +26,7 @@ type PaymentReceiptData = {
   receiptNo: string;
 };
 
-interface PaymentReceiptsInputProps {
+interface Props {
   paymentReceipts: PaymentReceiptData[];
   onPaymentReceiptsChange: (receipts: PaymentReceiptData[]) => void;
 }
@@ -34,7 +34,7 @@ interface PaymentReceiptsInputProps {
 export default function PaymentReceiptsInput({
   paymentReceipts,
   onPaymentReceiptsChange,
-}: PaymentReceiptsInputProps) {
+}: Props) {
   const paymentTypeOptions = paymentTypeEnum.map((type) => ({
     value: type,
     label: type
@@ -44,10 +44,7 @@ export default function PaymentReceiptsInput({
   }));
 
   const addPaymentReceipt = () => {
-    onPaymentReceiptsChange([
-      ...paymentReceipts,
-      { paymentType: 'graduation_fee', receiptNo: '' },
-    ]);
+    onPaymentReceiptsChange([...paymentReceipts]);
   };
 
   const removePaymentReceipt = (index: number) => {
@@ -156,7 +153,6 @@ export default function PaymentReceiptsInput({
         )}
       </Card>
 
-      {/* Validation Summary */}
       {paymentReceipts.length > 0 && (
         <Card withBorder shadow='sm' radius='md' padding='md' bg='blue.0'>
           <Group gap='sm'>

@@ -12,6 +12,7 @@ import {
   Badge,
   Divider,
   LoadingOverlay,
+  Paper,
 } from '@mantine/core';
 import {
   IconUser,
@@ -54,19 +55,10 @@ export default function ReviewAndSubmit({
       <LoadingOverlay visible={loading} />
 
       <Stack gap='lg'>
-        <Text size='lg' c='dimmed' ta='center'>
-          Please review your information before submitting your graduation
-          request.
-        </Text>
-
-        {/* Personal Information Review */}
         <Card withBorder shadow='sm' radius='md' padding='lg'>
           <Group mb='md'>
             <IconCheck size='1.2rem' color='green' />
             <Title order={3}>Personal Information</Title>
-            <Badge color='green' variant='light'>
-              Confirmed
-            </Badge>
           </Group>
 
           <Stack gap='sm'>
@@ -88,9 +80,9 @@ export default function ReviewAndSubmit({
 
             <Group>
               {student.gender === 'Male' ? (
-                <IconGenderMale size='1rem' color='blue' />
+                <IconGenderMale size='1rem' color='gray' />
               ) : (
-                <IconGenderFemale size='1rem' color='pink' />
+                <IconGenderFemale size='1rem' color='gray' />
               )}
               <Text size='sm' c='dimmed' w={120}>
                 Gender:
@@ -108,7 +100,6 @@ export default function ReviewAndSubmit({
           </Stack>
         </Card>
 
-        {/* Payment Receipts Review */}
         <Card withBorder shadow='sm' radius='md' padding='lg'>
           <Group mb='md'>
             <IconReceipt size='1.2rem' />
@@ -121,7 +112,7 @@ export default function ReviewAndSubmit({
 
           <Stack gap='md'>
             {paymentReceipts.map((receipt, index) => (
-              <Card key={index} padding='sm' bg='gray.0' withBorder>
+              <Paper key={index} p='sm' withBorder>
                 <Group justify='space-between' align='center'>
                   <Box>
                     <Text fw={500} size='sm'>
@@ -136,52 +127,42 @@ export default function ReviewAndSubmit({
                     {receipt.receiptNo}
                   </Badge>
                 </Group>
-              </Card>
+              </Paper>
             ))}
           </Stack>
         </Card>
 
-        {/* Submission Summary */}
-        <Card withBorder shadow='sm' radius='md' padding='lg' bg='blue.0'>
-          <Title order={4} mb='md' c='blue.7'>
+        <Card withBorder shadow='sm' radius='md' padding='lg'>
+          <Title order={4} mb='md'>
             What happens next?
           </Title>
 
           <Stack gap='sm'>
             <Group>
-              <Text size='sm' fw={500} c='blue.7'>
+              <Text size='sm' fw={500}>
                 1.
               </Text>
-              <Text size='sm' c='blue.7'>
-                Your graduation request will be submitted to the Registry
-                Department
+              <Text size='sm'>
+                Your graduation request will be submitted to different
+                departments for clearance
               </Text>
             </Group>
 
             <Group>
-              <Text size='sm' fw={500} c='blue.7'>
+              <Text size='sm' fw={500}>
                 2.
               </Text>
-              <Text size='sm' c='blue.7'>
+              <Text size='sm'>
                 Various departments will review and approve your clearance
               </Text>
             </Group>
 
             <Group>
-              <Text size='sm' fw={500} c='blue.7'>
+              <Text size='sm' fw={500}>
                 3.
               </Text>
-              <Text size='sm' c='blue.7'>
-                You will be notified once all clearances are completed
-              </Text>
-            </Group>
-
-            <Group>
-              <Text size='sm' fw={500} c='blue.7'>
-                4.
-              </Text>
-              <Text size='sm' c='blue.7'>
-                You can track the status of your clearance request online
+              <Text size='sm'>
+                You can track the status of your clearance request from this app
               </Text>
             </Group>
           </Stack>
