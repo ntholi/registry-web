@@ -1,26 +1,31 @@
 'use client';
 
-import React from 'react';
 import { paymentTypeEnum } from '@/db/schema';
 import {
   ActionIcon,
+  Badge,
   Box,
   Button,
   Card,
   Group,
   Paper,
   Select,
+  SimpleGrid,
   Stack,
   Text,
   TextInput,
   Title,
 } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import {
-  IconPlus,
-  IconTrash,
-  IconReceipt,
   IconCurrencyDollar,
+  IconEye,
+  IconEyeOff,
+  IconPlus,
+  IconReceipt,
+  IconTrash,
 } from '@tabler/icons-react';
+import { useState } from 'react';
 
 type PaymentReceiptData = {
   paymentType: (typeof paymentTypeEnum)[number];
@@ -36,6 +41,12 @@ export default function PaymentReceiptsInput({
   paymentReceipts,
   onPaymentReceiptsChange,
 }: PaymentReceiptsInputProps) {
+  const [newPayment, setNewPayment] = useState<PaymentReceiptData>({
+    paymentType: 'graduation_fee',
+    receiptNo: '',
+  });
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   const paymentTypeOptions = paymentTypeEnum.map((type) => ({
     value: type,
     label: type
@@ -45,10 +56,10 @@ export default function PaymentReceiptsInput({
   }));
 
   const addPaymentReceipt = () => {
-    onPaymentReceiptsChange([
-      ...paymentReceipts,
-      { paymentType: 'graduation_fee', receiptNo: '' },
-    ]);
+    if (newPayment.receiptNo.trim()) {
+      onPaymentReceiptsChange([...paymentReceipts, { ...newPayment }]);
+      setNewPayment({ paymentType: 'graduation_fee', receiptNo: '' });
+    }
   };
 
   const removePaymentReceipt = (index: number) => {
@@ -56,119 +67,145 @@ export default function PaymentReceiptsInput({
     onPaymentReceiptsChange(updated);
   };
 
-  const updatePaymentReceipt = (
-    index: number,
-    field: keyof PaymentReceiptData,
-    value: string
-  ) => {
-    const updated = paymentReceipts.map((receipt, i) =>
-      i === index ? { ...receipt, [field]: value } : receipt
-    );
-    onPaymentReceiptsChange(updated);
+  const updateNewPayment = (field: keyof PaymentReceiptData, value: string) => {
+    setNewPayment((prev) => ({ ...prev, [field]: value }));
   };
+
+  const isAddDisabled = !newPayment.receiptNo.trim();
 
   return (
     <Stack gap='lg'>
+      {/* Add New Receipt Section */}
       <Card withBorder shadow='sm' radius='md' padding='lg'>
         <Group mb='md'>
-          <IconReceipt size='1.5rem' />
-          <Title order={3}>Payment Receipts</Title>
+          <IconPlus size='1.5rem' />
+          <Title order={3}>Add Payment Receipt</Title>
         </Group>
 
         <Text mb='lg' c='dimmed'>
-          Enter the receipt numbers for your graduation-related payments. You
-          can add multiple receipts if you made separate payments.
+          Enter the receipt details for your graduation-related payments.
         </Text>
 
-        <Stack gap='md'>
-          {paymentReceipts.map((receipt, index) => (
-            <Paper key={index} withBorder p='md'>
-              <Group align='flex-start' gap='md'>
-                <Box flex={1}>
-                  <Group align='flex-end' gap='md' grow>
-                    <Select
-                      label='Payment Type'
-                      placeholder='Select payment type'
-                      value={receipt.paymentType}
-                      onChange={(value) =>
-                        updatePaymentReceipt(
-                          index,
-                          'paymentType',
-                          value as (typeof paymentTypeEnum)[number]
-                        )
-                      }
-                      data={paymentTypeOptions}
-                      required
-                      leftSection={<IconCurrencyDollar size='1rem' />}
-                    />
+        <SimpleGrid cols={isMobile ? 1 : 2} spacing='md'>
+          <Select
+            label='Payment Type'
+            placeholder='Select payment type'
+            value={newPayment.paymentType}
+            onChange={(value) =>
+              updateNewPayment(
+                'paymentType',
+                value as (typeof paymentTypeEnum)[number]
+              )
+            }
+            data={paymentTypeOptions}
+            required
+            leftSection={<IconCurrencyDollar size='1rem' />}
+          />
 
-                    <TextInput
-                      label='Receipt Number'
-                      placeholder='Enter receipt number'
-                      value={receipt.receiptNo}
-                      onChange={(event) =>
-                        updatePaymentReceipt(
-                          index,
-                          'receiptNo',
-                          event.currentTarget.value
-                        )
-                      }
-                      required
-                    />
+          <TextInput
+            label='Receipt Number'
+            placeholder='Enter receipt number'
+            value={newPayment.receiptNo}
+            onChange={(event) =>
+              updateNewPayment('receiptNo', event.currentTarget.value)
+            }
+            required
+          />
+        </SimpleGrid>
 
+        <Group justify='flex-end' mt='lg'>
+          <Button
+            leftSection={<IconPlus size='1rem' />}
+            onClick={addPaymentReceipt}
+            disabled={isAddDisabled}
+          >
+            Add Receipt
+          </Button>
+        </Group>
+      </Card>
+
+      {/* Existing Receipts Section */}
+      {paymentReceipts.length > 0 && (
+        <Card withBorder shadow='sm' radius='md' padding='lg'>
+          <Group mb='md' justify='space-between'>
+            <Group>
+              <IconReceipt size='1.5rem' />
+              <Title order={3}>Payment Receipts</Title>
+              <Badge color='blue' size='sm'>
+                {paymentReceipts.length}
+              </Badge>
+            </Group>
+          </Group>
+
+          <Text mb='lg' c='dimmed'>
+            Your added payment receipts. Click the trash icon to remove any
+            receipt.
+          </Text>
+
+          <Stack gap='md'>
+            {paymentReceipts.map((receipt, index) => (
+              <Paper key={index} withBorder p='md'>
+                {isMobile ? (
+                  <Stack gap='sm'>
+                    <Group justify='space-between' align='center'>
+                      <Text size='sm' fw={500}>
+                        {
+                          paymentTypeOptions.find(
+                            (option) => option.value === receipt.paymentType
+                          )?.label
+                        }
+                      </Text>
+                      <ActionIcon
+                        color='red'
+                        variant='subtle'
+                        onClick={() => removePaymentReceipt(index)}
+                        title='Remove receipt'
+                      >
+                        <IconTrash size='1rem' />
+                      </ActionIcon>
+                    </Group>
+                    <Box>
+                      <Text size='xs' c='dimmed' mb={2}>
+                        Receipt Number
+                      </Text>
+                      <Text size='sm'>{receipt.receiptNo}</Text>
+                    </Box>
+                  </Stack>
+                ) : (
+                  <Group justify='space-between' align='center'>
+                    <Group gap='lg' style={{ flex: 1 }}>
+                      <Box>
+                        <Text size='xs' c='dimmed' mb={2}>
+                          Payment Type
+                        </Text>
+                        <Text size='sm' fw={500}>
+                          {
+                            paymentTypeOptions.find(
+                              (option) => option.value === receipt.paymentType
+                            )?.label
+                          }
+                        </Text>
+                      </Box>
+                      <Box>
+                        <Text size='xs' c='dimmed' mb={2}>
+                          Receipt Number
+                        </Text>
+                        <Text size='sm'>{receipt.receiptNo}</Text>
+                      </Box>
+                    </Group>
                     <ActionIcon
                       color='red'
+                      variant='subtle'
                       onClick={() => removePaymentReceipt(index)}
-                      disabled={paymentReceipts.length === 1}
                       title='Remove receipt'
                     >
                       <IconTrash size='1rem' />
                     </ActionIcon>
                   </Group>
-                </Box>
-              </Group>
-            </Paper>
-          ))}
-
-          <Button
-            variant='light'
-            leftSection={<IconPlus size='1rem' />}
-            onClick={addPaymentReceipt}
-            mt='md'
-          >
-            Add Another Receipt
-          </Button>
-        </Stack>
-
-        {paymentReceipts.length === 0 && (
-          <Box mt='lg'>
-            <Text ta='center' c='dimmed' mb='md'>
-              No payment receipts added yet
-            </Text>
-            <Group justify='center'>
-              <Button
-                leftSection={<IconPlus size='1rem' />}
-                onClick={addPaymentReceipt}
-              >
-                Add First Receipt
-              </Button>
-            </Group>
-          </Box>
-        )}
-      </Card>
-
-      {/* Validation Summary */}
-      {paymentReceipts.length > 0 && (
-        <Card withBorder shadow='sm' radius='md' padding='md'>
-          <Group gap='sm'>
-            <IconReceipt size='1rem' color='blue' />
-            <Text size='sm'>
-              {paymentReceipts.length} receipt
-              {paymentReceipts.length !== 1 ? 's' : ''} added
-              {paymentReceipts.some((r) => !r.receiptNo.trim()) &&
-                ' (some incomplete)'}
-            </Text>
-          </Group>
+                )}
+              </Paper>
+            ))}
+          </Stack>
         </Card>
       )}
     </Stack>
