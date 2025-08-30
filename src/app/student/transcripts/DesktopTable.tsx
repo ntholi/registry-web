@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, Center, Stack, Table, Text } from '@mantine/core';
-import { IconBookmark } from '@tabler/icons-react';
+import { IconFileCertificate } from '@tabler/icons-react';
 
 interface StudentModule {
   id: number;
@@ -33,7 +33,10 @@ export default function DesktopTable({ modules }: DesktopTableProps) {
     return (
       <Center py='xl'>
         <Stack align='center' gap='sm'>
-          <IconBookmark size='3rem' color='var(--mantine-color-dimmed)' />
+          <IconFileCertificate
+            size='3rem'
+            color='var(--mantine-color-dimmed)'
+          />
           <Text c='dimmed' size='lg'>
             No modules found for this semester
           </Text>

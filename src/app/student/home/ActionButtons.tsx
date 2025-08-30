@@ -13,7 +13,7 @@ import {
   Icon,
   IconChevronRight,
   IconClipboardCheck,
-  IconFileText,
+  IconFileCertificate,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { studentColors } from '../utils/colors';
@@ -36,7 +36,7 @@ const actions: Action[] = [
   },
   {
     label: 'Transcripts',
-    icon: IconFileText,
+    icon: IconFileCertificate,
     href: '/student/transcripts',
     color: studentColors.theme.primary,
     description: 'View and download your academic transcripts',

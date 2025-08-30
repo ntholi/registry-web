@@ -1,20 +1,21 @@
 'use client';
 import {
   ActionIcon,
-  Paper,
   Group,
-  Text,
+  Paper,
   Stack,
+  Text,
   useMantineColorScheme,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import {
+  IconClipboardCheck,
+  IconFileCertificate,
   IconHome,
-  IconFileText,
-  IconCertificate,
   IconUser,
 } from '@tabler/icons-react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { useMemo } from 'react';
 
 interface NavItem {
@@ -40,13 +41,13 @@ export default function BottomNavigation() {
         path: '/student',
       },
       {
-        icon: <IconFileText size={20} />,
+        icon: <IconClipboardCheck size={20} />,
         label: 'Registration',
         href: '/student/registration',
         path: '/student/registration',
       },
       {
-        icon: <IconCertificate size={20} />,
+        icon: <IconFileCertificate size={20} />,
         label: 'Transcript',
         href: '/student/transcripts',
         path: '/student/transcripts',
@@ -121,10 +122,6 @@ export default function BottomNavigation() {
                 c={active ? 'blue' : 'dimmed'}
                 fw={active ? 600 : 400}
                 ta='center'
-                style={{
-                  transition: 'all 0.2s ease',
-                  lineHeight: 1,
-                }}
               >
                 {item.label}
               </Text>
