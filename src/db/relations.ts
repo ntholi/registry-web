@@ -13,7 +13,9 @@ import {
   clearanceAudit,
   clearance,
   registrationClearance,
+  graduationClearance,
   registrationRequests,
+  graduationRequests,
   requestedModules,
   schools,
   sessions,
@@ -230,6 +232,7 @@ export const clearanceRelations = relations(clearance, ({ one, many }) => ({
   }),
   audits: many(clearanceAudit),
   registrationClearances: many(registrationClearance),
+  graduationClearances: many(graduationClearance),
 }));
 
 export const registrationClearanceRelations = relations(
@@ -241,6 +244,20 @@ export const registrationClearanceRelations = relations(
     }),
     clearance: one(clearance, {
       fields: [registrationClearance.clearanceId],
+      references: [clearance.id],
+    }),
+  })
+);
+
+export const graduationClearanceRelations = relations(
+  graduationClearance,
+  ({ one }) => ({
+    graduationRequest: one(graduationRequests, {
+      fields: [graduationClearance.graduationRequestId],
+      references: [graduationRequests.id],
+    }),
+    clearance: one(clearance, {
+      fields: [graduationClearance.clearanceId],
       references: [clearance.id],
     }),
   })

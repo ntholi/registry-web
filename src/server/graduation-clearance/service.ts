@@ -1,0 +1,54 @@
+import { clearance, DashboardUser } from '@/db/schema';
+import GraduationClearanceRepository from './repository';
+import withAuth from '@/server/base/withAuth';
+import { QueryOptions } from '../base/BaseRepository';
+import { auth } from '@/auth';
+import { serviceWrapper } from '@/server/base/serviceWrapper';
+
+type Clearance = typeof clearance.$inferInsert;
+
+class GraduationClearanceService {
+  constructor(
+    private readonly repository = new GraduationClearanceRepository()
+  ) {}
+
+  async get(id: number) {
+    return withAuth(
+      async () => this.repository.findByIdWithRelations(id),
+      ['dashboard']
+    );
+  }
+
+  async countByStatus(status: 'pending' | 'approved' | 'rejected') {
+    const session = await auth();
+    if (!session?.user?.role) return 0;
+    return this.repository.countByStatus(
+      status,
+      session.user.role as DashboardUser
+    );
+  }
+
+  async findByDepartment(
+    department: DashboardUser,
+    params: QueryOptions<typeof clearance>,
+    status?: 'pending' | 'approved' | 'rejected'
+  ) {
+    return withAuth(
+      async () => this.repository.findByDepartment(department, params, status),
+      ['dashboard']
+    );
+  }
+
+  async update(id: number, data: Clearance) {
+    return withAuth(async () => this.repository.update(id, data), []);
+  }
+
+  async delete(id: number) {
+    return withAuth(async () => this.repository.delete(id), []);
+  }
+}
+
+export const graduationClearanceService = serviceWrapper(
+  GraduationClearanceService,
+  'GraduationClearanceService'
+);

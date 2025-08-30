@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
 
-
 type Props = {
   onSubmit: (values: GraduationRequest) => Promise<GraduationRequest>;
   defaultValues?: GraduationRequest;
@@ -19,18 +18,22 @@ type Props = {
   title?: string;
 };
 
-export default function GraduationRequestForm({ onSubmit, defaultValues, title }: Props) {
+export default function GraduationRequestForm({
+  onSubmit,
+  defaultValues,
+  title,
+}: Props) {
   const router = useRouter();
-  
+
   return (
-    <Form 
+    <Form
       title={title}
-      action={onSubmit} 
-      queryKey={['graduation-requests']}
-      schema={createInsertSchema(graduationRequests)} 
+      action={onSubmit}
+      queryKey={['graduation-clearances']}
+      schema={createInsertSchema(graduationRequests)}
       defaultValues={defaultValues}
-      onSuccess={({ id }) => {
-        router.push(`/admin/graduation-requests/${id}`);
+      onSuccess={() => {
+        router.push(`/dashboard/graduation-requests/pending`);
       }}
     >
       {(form) => (
