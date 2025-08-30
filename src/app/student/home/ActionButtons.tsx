@@ -45,7 +45,7 @@ const actions: Action[] = [
   {
     label: 'Graduation',
     icon: IconSchool,
-    href: '/student/graduation/new',
+    href: '/student/graduation',
     color: studentColors.theme.primary,
     description: 'Submit your graduation request',
   },

@@ -30,7 +30,14 @@ class GraduationRequestService {
   }
 
   async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), []);
+    return withAuth(
+      async () => this.repository.findById(id),
+      ['admin', 'registry', 'student'],
+      async (session) => {
+        const graduationRequest = await this.repository.findById(id);
+        return graduationRequest?.stdNo === session.user?.stdNo;
+      }
+    );
   }
 
   async getByStudentNo(stdNo: number) {
@@ -53,13 +60,11 @@ class GraduationRequestService {
       return db.transaction(async (tx) => {
         const { paymentReceipts: receipts, ...graduationRequestData } = data;
 
-        // Create graduation request
         const [graduationRequest] = await tx
           .insert(graduationRequests)
           .values(graduationRequestData)
           .returning();
 
-        // Create payment receipts
         if (receipts.length > 0) {
           const receiptValues = receipts.map((receipt) => ({
             ...receipt,

@@ -52,7 +52,7 @@ Example: `src/server/students/` demonstrates this pattern perfectly.
 
 ### Code Quality
 
-- TypeScript strict mode - avoid `any` completely
+- Never use `any` type, never do that! Always apply TypeScript strict mode
 - Never add comments to code you generate
 - Self-contained components in parent directories
 - Shared components in `src/app/components`
