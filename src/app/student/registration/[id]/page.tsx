@@ -58,27 +58,6 @@ export default async function page({ params }: Props) {
     return forbidden();
   }
 
-  const getOverallClearanceStatus = () => {
-    if (!registration.clearances || registration.clearances.length === 0) {
-      return 'pending';
-    }
-
-    // If any department has rejected, overall status is rejected
-    const anyRejected = registration.clearances.some(
-      (c) => c.clearance.status === 'rejected'
-    );
-    if (anyRejected) return 'rejected';
-
-    // If all departments have approved, overall status is approved
-    const allApproved = registration.clearances.every(
-      (c) => c.clearance.status === 'approved'
-    );
-    if (allApproved) return 'approved';
-
-    // Otherwise, still pending
-    return 'pending';
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
@@ -90,7 +69,7 @@ export default async function page({ params }: Props) {
     }
   };
 
-  const clearanceStatus = getOverallClearanceStatus();
+  const clearanceStatus = getOverallClearanceStatus(registration);
 
   return (
     <Container size='md' px='xs'>
@@ -103,10 +82,10 @@ export default async function page({ params }: Props) {
               </Title>
               <Badge
                 radius='xs'
-                color={getStatusColor(registration.status)}
+                color={getStatusColor(clearanceStatus)}
                 variant='light'
               >
-                {registration.status}
+                {clearanceStatus}
               </Badge>
             </Group>
 
@@ -177,4 +156,24 @@ export default async function page({ params }: Props) {
       </Stack>
     </Container>
   );
+}
+
+export function getOverallClearanceStatus(
+  registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>
+) {
+  if (!registration.clearances || registration.clearances.length === 0) {
+    return 'pending';
+  }
+
+  const anyRejected = registration.clearances.some(
+    (c) => c.clearance.status === 'rejected'
+  );
+  if (anyRejected) return 'rejected';
+
+  const allApproved = registration.clearances.every(
+    (c) => c.clearance.status === 'approved'
+  );
+  if (allApproved) return 'approved';
+
+  return registration.status;
 }
