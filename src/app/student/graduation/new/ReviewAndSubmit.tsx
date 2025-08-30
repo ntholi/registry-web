@@ -12,6 +12,8 @@ import {
   Badge,
   Divider,
   LoadingOverlay,
+  Paper,
+  Timeline,
 } from '@mantine/core';
 import {
   IconUser,
@@ -27,13 +29,13 @@ type Student = typeof students.$inferSelect & {
 };
 
 type PaymentReceiptData = {
-  paymentType: (typeof paymentTypeEnum)[number] | null;
+  paymentType: (typeof paymentTypeEnum)[number];
   receiptNo: string;
 };
 
 interface ReviewAndSubmitProps {
   student: Student;
-  paymentReceipts: PaymentReceiptData[] | null;
+  paymentReceipts: PaymentReceiptData[];
   loading?: boolean;
 }
 
@@ -54,19 +56,10 @@ export default function ReviewAndSubmit({
       <LoadingOverlay visible={loading} />
 
       <Stack gap='lg'>
-        <Text size='lg' c='dimmed' ta='center'>
-          Please review your information before submitting your graduation
-          request.
-        </Text>
-
-        {/* Personal Information Review */}
         <Card withBorder shadow='sm' radius='md' padding='lg'>
           <Group mb='md'>
             <IconCheck size='1.2rem' color='green' />
             <Title order={3}>Personal Information</Title>
-            <Badge color='green' variant='light'>
-              Confirmed
-            </Badge>
           </Group>
 
           <Stack gap='sm'>
@@ -88,9 +81,9 @@ export default function ReviewAndSubmit({
 
             <Group>
               {student.gender === 'Male' ? (
-                <IconGenderMale size='1rem' color='blue' />
+                <IconGenderMale size='1rem' color='gray' />
               ) : (
-                <IconGenderFemale size='1rem' color='pink' />
+                <IconGenderFemale size='1rem' color='gray' />
               )}
               <Text size='sm' c='dimmed' w={120}>
                 Gender:
@@ -108,24 +101,23 @@ export default function ReviewAndSubmit({
           </Stack>
         </Card>
 
-        {/* Payment Receipts Review */}
         <Card withBorder shadow='sm' radius='md' padding='lg'>
           <Group mb='md'>
             <IconReceipt size='1.2rem' />
             <Title order={3}>Payment Receipts</Title>
             <Badge color='blue' variant='light'>
-              {paymentReceipts ? paymentReceipts.length : 0} Receipt
-              {paymentReceipts && paymentReceipts.length !== 1 ? 's' : ''}
+              {paymentReceipts.length} Receipt
+              {paymentReceipts.length !== 1 ? 's' : ''}
             </Badge>
           </Group>
 
           <Stack gap='md'>
-            {(paymentReceipts || []).map((receipt, index) => (
-              <Card key={index} padding='sm' bg='gray.0' withBorder>
+            {paymentReceipts.map((receipt, index) => (
+              <Paper key={index} p='sm' withBorder>
                 <Group justify='space-between' align='center'>
                   <Box>
                     <Text fw={500} size='sm'>
-                      {formatPaymentType(receipt.paymentType || '')}
+                      {formatPaymentType(receipt.paymentType)}
                     </Text>
                     <Text size='xs' c='dimmed'>
                       Receipt Number
@@ -136,55 +128,57 @@ export default function ReviewAndSubmit({
                     {receipt.receiptNo}
                   </Badge>
                 </Group>
-              </Card>
+              </Paper>
             ))}
           </Stack>
         </Card>
 
-        {/* Submission Summary */}
-        <Card withBorder shadow='sm' radius='md' padding='lg' bg='blue.0'>
-          <Title order={4} mb='md' c='blue.7'>
+        <Card withBorder shadow='sm' radius='md' padding='lg'>
+          <Title order={4} mb='md'>
             What happens next?
           </Title>
 
-          <Stack gap='sm'>
-            <Group>
-              <Text size='sm' fw={500} c='blue.7'>
-                1.
+          <Timeline bulletSize={28} lineWidth={2} active={-1}>
+            <Timeline.Item
+              bullet={
+                <Text size='xs' fw={700}>
+                  1
+                </Text>
+              }
+              title='Submit request'
+            >
+              <Text size='sm'>
+                Your graduation request will be submitted to different
+                departments for clearance
               </Text>
-              <Text size='sm' c='blue.7'>
-                Your graduation request will be submitted to the Registry
-                Department
-              </Text>
-            </Group>
+            </Timeline.Item>
 
-            <Group>
-              <Text size='sm' fw={500} c='blue.7'>
-                2.
-              </Text>
-              <Text size='sm' c='blue.7'>
+            <Timeline.Item
+              bullet={
+                <Text size='xs' fw={700}>
+                  2
+                </Text>
+              }
+              title='Department reviews'
+            >
+              <Text size='sm'>
                 Various departments will review and approve your clearance
               </Text>
-            </Group>
+            </Timeline.Item>
 
-            <Group>
-              <Text size='sm' fw={500} c='blue.7'>
-                3.
+            <Timeline.Item
+              bullet={
+                <Text size='xs' fw={700}>
+                  3
+                </Text>
+              }
+              title='Track progress'
+            >
+              <Text size='sm'>
+                You can track the status of your clearance request from this app
               </Text>
-              <Text size='sm' c='blue.7'>
-                You will be notified once all clearances are completed
-              </Text>
-            </Group>
-
-            <Group>
-              <Text size='sm' fw={500} c='blue.7'>
-                4.
-              </Text>
-              <Text size='sm' c='blue.7'>
-                You can track the status of your clearance request online
-              </Text>
-            </Group>
-          </Stack>
+            </Timeline.Item>
+          </Timeline>
         </Card>
 
         <Divider />
