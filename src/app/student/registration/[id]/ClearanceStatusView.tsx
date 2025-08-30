@@ -57,15 +57,19 @@ export default function ClearanceStatusView({ registration }: Props) {
   const getOverallStatus = () => {
     if (clearances.length === 0) return 'pending';
 
-    const allApproved = clearances.every(
-      (c) => c.clearance.status === 'approved'
-    );
+    // If any department has rejected, overall status is rejected
     const anyRejected = clearances.some(
       (c) => c.clearance.status === 'rejected'
     );
-
-    if (allApproved) return 'approved';
     if (anyRejected) return 'rejected';
+
+    // If all departments have approved, overall status is approved
+    const allApproved = clearances.every(
+      (c) => c.clearance.status === 'approved'
+    );
+    if (allApproved) return 'approved';
+
+    // Otherwise, still pending
     return 'pending';
   };
 
@@ -156,7 +160,11 @@ export default function ClearanceStatusView({ registration }: Props) {
                         >
                           Message
                         </Text>
-                        <Paper withBorder bg='gray.0' p='xs'>
+                        <Paper
+                          withBorder
+                          bg='var(--mantine-color-gray-light)'
+                          p='xs'
+                        >
                           <Text size='sm'>{clearance?.message}</Text>
                         </Paper>
                       </Box>

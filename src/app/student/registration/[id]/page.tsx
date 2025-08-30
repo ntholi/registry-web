@@ -31,6 +31,7 @@ import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import ProofOfRegistrationDownload from '../components/ProofOfRegistrationDownload';
 import ClearanceStatusView from './ClearanceStatusView';
+import DepartmentMessagesView from './DepartmentMessagesView';
 import ModulesView from './ModulesView';
 
 type Props = {
@@ -62,15 +63,19 @@ export default async function page({ params }: Props) {
       return 'pending';
     }
 
-    const allApproved = registration.clearances.every(
-      (c) => c.clearance.status === 'approved'
-    );
+    // If any department has rejected, overall status is rejected
     const anyRejected = registration.clearances.some(
       (c) => c.clearance.status === 'rejected'
     );
-
-    if (allApproved) return 'approved';
     if (anyRejected) return 'rejected';
+
+    // If all departments have approved, overall status is approved
+    const allApproved = registration.clearances.every(
+      (c) => c.clearance.status === 'approved'
+    );
+    if (allApproved) return 'approved';
+
+    // Otherwise, still pending
     return 'pending';
   };
 
@@ -131,19 +136,8 @@ export default async function page({ params }: Props) {
               )}
             </Flex>
 
-            {registration.message && (
-              <>
-                <Divider />
-                <Box>
-                  <Text size='xs' c='dimmed' fw={500} tt='uppercase' mb='xs'>
-                    Message
-                  </Text>
-                  <Paper withBorder bg='gray.0' p='sm'>
-                    <Text size='sm'>{registration.message}</Text>
-                  </Paper>
-                </Box>
-              </>
-            )}
+            {/* Use DepartmentMessagesView to display either department messages or registration message */}
+            <DepartmentMessagesView registration={registration} />
           </Box>
         </Paper>
 

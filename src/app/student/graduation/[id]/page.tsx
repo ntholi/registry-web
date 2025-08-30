@@ -131,7 +131,7 @@ export default async function GraduationDetailsPage({ params }: Props) {
                   <Text size='xs' c='dimmed' fw={500} tt='uppercase' mb='xs'>
                     Message
                   </Text>
-                  <Paper withBorder bg='gray.0' p='sm'>
+                  <Paper withBorder bg='var(--mantine-color-gray-light)' p='sm'>
                     <Text size='sm'>{graduationRequest.message}</Text>
                   </Paper>
                 </Box>
