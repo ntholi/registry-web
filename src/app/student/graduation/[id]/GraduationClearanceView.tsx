@@ -9,7 +9,7 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconFileText } from '@tabler/icons-react';
-import { getStatusColor, getStatusIcon } from '../utils';
+import { getStatusColor, getStatusIcon } from '../../utils/status';
 import { getGraduationRequest } from '@/server/graduation-requests/actions';
 
 interface Props {

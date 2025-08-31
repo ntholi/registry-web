@@ -48,4 +48,4 @@ All server code should follows this exact structure in `src/server/[resource]/`:
 - Never comment the code you generate
 - Self-contained components in parent directories
 - Shared components in `src/app/components`
-- Remove duplicate code, follow DRY principles
+- Remove duplicate code, follow DRY principles. avoid code duplication by all means possible. Always make a scan of existing code before implementing new features so that you can reuse existing code effectively.

@@ -1,14 +1,18 @@
 import { Badge, Skeleton } from '@mantine/core';
 import { Suspense } from 'react';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { getOverallClearanceStatus, getStatusColor } from '../utils';
+import {
+  getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
+  getStatusColor,
+  type RegistrationStatus,
+} from '../../utils/status';
 
 interface Props {
   requestId: number;
-  status: Status;
+  status: RegistrationStatus;
 }
 
-type Status = 'pending' | 'approved' | 'rejected' | 'partial' | 'registered';
+type Status = RegistrationStatus;
 
 async function StatusValue({ requestId, status }: Props) {
   let value = status;

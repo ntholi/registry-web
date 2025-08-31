@@ -30,7 +30,10 @@ import {
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import ProofOfRegistrationDownload from '../components/ProofOfRegistrationDownload';
-import { getOverallClearanceStatus, getStatusIcon } from '../utils';
+import {
+  getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
+  getStatusIcon,
+} from '../../utils/status';
 import DepartmentMessagesView from './DepartmentMessagesView';
 import ModulesView from './ModulesView';
 import ClearanceStatusView from './ClearanceStatusView';

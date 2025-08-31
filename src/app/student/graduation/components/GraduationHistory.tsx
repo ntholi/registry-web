@@ -18,7 +18,7 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { getStatusColor, getGraduationStatus } from '../utils';
+import { getStatusColor, getGraduationStatus } from '../../utils/status';
 
 interface GraduationHistoryProps {
   stdNo: number;

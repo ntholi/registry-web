@@ -29,9 +29,9 @@ import PaymentReceiptsView from './PaymentReceiptsView';
 import {
   getStatusColor,
   getStatusIcon,
-  getOverallClearanceStatus,
+  getClearanceStatus,
   getGraduationStatus,
-} from '../utils';
+} from '../../utils/status';
 
 type Props = {
   params: Promise<{
@@ -58,7 +58,9 @@ export default async function GraduationDetailsPage({ params }: Props) {
   }
 
   const status = getGraduationStatus(graduationRequest);
-  const clearanceStatus = getOverallClearanceStatus(graduationRequest);
+  const clearanceStatus = getClearanceStatus(
+    graduationRequest.graduationClearances
+  );
 
   return (
     <Container size='md' px='xs'>

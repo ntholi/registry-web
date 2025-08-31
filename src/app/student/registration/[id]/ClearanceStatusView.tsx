@@ -24,10 +24,10 @@ import {
   IconExclamationCircle,
 } from '@tabler/icons-react';
 import {
-  getOverallClearanceStatus,
+  getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
   getStatusColor,
   getStatusIcon,
-} from '../utils';
+} from '../../utils/status';
 
 type Props = {
   registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
