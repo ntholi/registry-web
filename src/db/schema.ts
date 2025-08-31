@@ -444,6 +444,7 @@ export const clearance = sqliteTable('clearance', {
   status: text({ enum: clearanceRequestStatusEnum })
     .notNull()
     .default('pending'),
+  autoApproved: integer({ mode: 'boolean' }).notNull().default(false),
   message: text(),
   emailSent: integer({ mode: 'boolean' }).notNull().default(false),
   respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
