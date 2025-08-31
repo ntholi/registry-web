@@ -2,7 +2,6 @@ import { formatDateTime, formatSemester } from '@/lib/utils';
 import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
 import {
   ActionIcon,
-  Badge,
   Box,
   Card,
   CardSection,
@@ -19,8 +18,8 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { getStatusColor } from '../../utils/colors';
 import ProofOfRegistrationDownload from './ProofOfRegistrationDownload';
+import StatusBadge from './StatusBadge';
 
 interface RegistrationHistoryProps {
   stdNo: number;
@@ -51,13 +50,7 @@ export default async function RegistrationHistory({
                     {request.term.name}
                   </Text>
                 </Group>
-                <Badge
-                  color={getStatusColor(request.status)}
-                  variant='light'
-                  size='sm'
-                >
-                  {request.status}
-                </Badge>
+                <StatusBadge status={request.status} requestId={request.id} />
               </Flex>
             </CardSection>
 
