@@ -57,18 +57,19 @@ export default function InformationConfirmation({
       <Alert
         icon={<IconAlertTriangle size='1.5rem' />}
         title='Verify Your Information'
-        color='red'
+        color='orange'
         variant='light'
       >
         <Stack gap='sm'>
-          <Text>
+          <Text size='sm'>
             Please carefully verify that your personal information below is
             correct.
           </Text>
-          <Text>
-            If this information is NOT correct, you must report to the Registry
-            Department before the clearance deadline. This information CANNOT be
-            corrected after the clearance deadline has passed.
+          <Text size='sm'>
+            If this information is <strong>not</strong> correct, you must report
+            to the Registry Department before the clearance deadline. This
+            information <strong>cannot</strong> be corrected after the clearance
+            deadline has passed.
           </Text>
         </Stack>
       </Alert>
@@ -82,24 +83,20 @@ export default function InformationConfirmation({
           <Group>
             <IconUser size='1.2rem' color='gray' />
             <Box>
-              <Text size='sm' c='dimmed'>
+              <Text size='xs' c='dimmed'>
                 Full Name
               </Text>
-              <Text fw={500} size='lg'>
-                {student.user?.name || student.name}
-              </Text>
+              <Text fw={500}>{student.user?.name || student.name}</Text>
             </Box>
           </Group>
 
           <Group>
             <IconId size='1.2rem' color='gray' />
             <Box>
-              <Text size='sm' c='dimmed'>
+              <Text size='xs' c='dimmed'>
                 National ID Number
               </Text>
-              <Text fw={500} size='lg'>
-                {student.nationalId || 'Not provided'}
-              </Text>
+              <Text fw={500}>{student.nationalId || 'Not provided'}</Text>
             </Box>
           </Group>
 
@@ -110,24 +107,20 @@ export default function InformationConfirmation({
               <IconGenderFemale size='1.2rem' color='gray' />
             )}
             <Box>
-              <Text size='sm' c='dimmed'>
+              <Text size='xs' c='dimmed'>
                 Gender
               </Text>
-              <Text fw={500} size='lg'>
-                {student.gender || 'Not specified'}
-              </Text>
+              <Text fw={500}>{student.gender || 'Not specified'}</Text>
             </Box>
           </Group>
 
           <Group>
             <IconId size='1.2rem' color='gray' />
             <Box>
-              <Text size='sm' c='dimmed'>
+              <Text size='xs' c='dimmed'>
                 Student Number
               </Text>
-              <Text fw={500} size='lg'>
-                {student.stdNo}
-              </Text>
+              <Text fw={500}>{student.stdNo}</Text>
             </Box>
           </Group>
         </Stack>
@@ -144,7 +137,7 @@ export default function InformationConfirmation({
             the information above is correct.
           </Text>
 
-          <Text fw={500} c='red'>
+          <Text fw={500} c='red' size='sm'>
             Type exactly "information correct" (without quotes) to confirm:
           </Text>
 
@@ -175,15 +168,6 @@ export default function InformationConfirmation({
           />
         </Stack>
       </Card>
-
-      {/* Additional Warning */}
-      <Alert color='orange' variant='light'>
-        <Text size='sm'>
-          <strong>Remember:</strong> If any of this information is incorrect,
-          contact the Registry Department immediately. Once the clearance
-          deadline passes, no corrections can be made.
-        </Text>
-      </Alert>
     </Stack>
   );
 }
