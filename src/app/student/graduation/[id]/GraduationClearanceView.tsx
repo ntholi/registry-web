@@ -43,7 +43,7 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 
   return (
     <SimpleGrid cols={{ base: 1, sm: 2 }}>
-      {graduationRequest.graduationClearances.map((item: any) => {
+      {graduationRequest.graduationClearances.map((item) => {
         const clearance = item.clearance;
         return (
           <Card withBorder key={clearance.id}>

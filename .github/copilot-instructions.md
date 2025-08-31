@@ -44,7 +44,7 @@ All server code should follows this exact structure in `src/server/[resource]/`:
 
 ### Code Quality
 
-- Never use `any` type, never do that! Always apply TypeScript strict mode
+- NEVER USE AND NEVER DEFINE `any` TYPES, NEVER EVER DO THAT! Always apply TypeScript strict mode
 - Never comment the code you generate
 - Self-contained components in parent directories
 - Shared components in `src/app/components`

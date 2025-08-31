@@ -9,14 +9,22 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconFileText, IconReceipt } from '@tabler/icons-react';
+import {
+  graduationRequests,
+  paymentReceipts,
+  paymentTypeEnum,
+} from '@/db/schema';
 
-interface PaymentReceiptsViewProps {
-  graduationRequest: any; // You might want to type this properly based on your graduation request type
+type PaymentReceipt = typeof paymentReceipts.$inferSelect;
+type GraduationRequest = typeof graduationRequests.$inferSelect & {
+  paymentReceipts: PaymentReceipt[];
+};
+
+interface Props {
+  graduationRequest: GraduationRequest;
 }
 
-export default function PaymentReceiptsView({
-  graduationRequest,
-}: PaymentReceiptsViewProps) {
+export default function PaymentReceiptsView({ graduationRequest }: Props) {
   const getPaymentTypeColor = (type: string) => {
     switch (type) {
       case 'graduation_gown':
@@ -63,7 +71,7 @@ export default function PaymentReceiptsView({
 
   return (
     <SimpleGrid cols={{ base: 1, sm: 2 }}>
-      {graduationRequest.paymentReceipts.map((receipt: any) => (
+      {graduationRequest.paymentReceipts.map((receipt: PaymentReceipt) => (
         <Card withBorder key={receipt.id}>
           <Group justify='space-between' mb='xs'>
             <Group>

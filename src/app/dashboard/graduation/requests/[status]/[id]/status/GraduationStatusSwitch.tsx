@@ -41,7 +41,7 @@ export default function GraduationStatusSwitch({ request, comment }: Props) {
         department: session.user.role as (typeof dashboardUsers)[number],
         status,
         message: comment,
-      } as any);
+      });
       return { result };
     },
     onSuccess: () => {
@@ -60,7 +60,7 @@ export default function GraduationStatusSwitch({ request, comment }: Props) {
         color: 'green',
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       notifications.show({
         title: 'Error',
         message: error.message || 'Failed to submit response',
