@@ -105,7 +105,6 @@ export default async function page({ params }: Props) {
               )}
             </Flex>
 
-            {/* Use DepartmentMessagesView to display either department messages or registration message */}
             <DepartmentMessagesView registration={registration} />
           </Box>
         </Paper>

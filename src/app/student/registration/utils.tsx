@@ -34,9 +34,10 @@ export function getStatusColor(status: Status) {
   }
 }
 
-export function getOverallClearanceStatus(
-  registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>
-) {
+export function getOverallClearanceStatus(registration: {
+  clearances: { clearance: { status: Status } }[];
+  status: Status;
+}) {
   if (!registration.clearances || registration.clearances.length === 0) {
     return 'pending';
   }
