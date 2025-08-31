@@ -1,9 +1,14 @@
 'use server';
 
-import { paymentReceipts } from '@/db/schema';
+import { paymentReceipts, paymentTypeEnum } from '@/db/schema';
 import { paymentReceiptService as service } from './service';
 
 type PaymentReceipt = typeof paymentReceipts.$inferInsert;
+
+type PaymentReceiptData = {
+  paymentType: (typeof paymentTypeEnum)[number];
+  receiptNo: string;
+};
 
 export async function getPaymentReceipt(id: number) {
   return service.get(id);
@@ -36,4 +41,22 @@ export async function updatePaymentReceipt(
 
 export async function deletePaymentReceipt(id: number) {
   return service.delete(id);
+}
+
+export async function updateGraduationPaymentReceipts(
+  graduationRequestId: number,
+  receipts: PaymentReceiptData[]
+) {
+  return service.updateGraduationPaymentReceipts(graduationRequestId, receipts);
+}
+
+export async function addPaymentReceipt(
+  graduationRequestId: number,
+  receipt: PaymentReceiptData
+) {
+  return service.addPaymentReceipt(graduationRequestId, receipt);
+}
+
+export async function removePaymentReceipt(receiptId: number) {
+  return service.removePaymentReceipt(receiptId);
 }

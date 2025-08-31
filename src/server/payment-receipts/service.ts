@@ -1,12 +1,18 @@
-import { paymentReceipts } from '@/db/schema';
+import { paymentReceipts, paymentTypeEnum } from '@/db/schema';
 import PaymentReceiptRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '../base/serviceWrapper';
 import { db } from '@/db';
 import { eq } from 'drizzle-orm';
+import { auth } from '@/auth';
 
 type PaymentReceipt = typeof paymentReceipts.$inferInsert;
+
+type PaymentReceiptData = {
+  paymentType: (typeof paymentTypeEnum)[number];
+  receiptNo: string;
+};
 
 class PaymentReceiptService {
   constructor(private readonly repository = new PaymentReceiptRepository()) {}
@@ -47,6 +53,117 @@ class PaymentReceiptService {
 
   async delete(id: number) {
     return withAuth(async () => this.repository.delete(id), ['student']);
+  }
+
+  async updateGraduationPaymentReceipts(
+    graduationRequestId: number,
+    receipts: PaymentReceiptData[]
+  ) {
+    return withAuth(async () => {
+      const session = await auth();
+      if (!session?.user?.stdNo) {
+        throw new Error('User not authenticated');
+      }
+
+      return db.transaction(async (tx) => {
+        // First, verify that the graduation request belongs to the authenticated user
+        const graduationRequest = await tx.query.graduationRequests.findFirst({
+          where: (table, { eq }) => eq(table.id, graduationRequestId),
+        });
+
+        if (
+          !graduationRequest ||
+          graduationRequest.stdNo !== session.user!.stdNo
+        ) {
+          throw new Error('Graduation request not found or access denied');
+        }
+
+        // Delete existing payment receipts
+        await tx
+          .delete(paymentReceipts)
+          .where(eq(paymentReceipts.graduationRequestId, graduationRequestId));
+
+        // Insert new payment receipts
+        if (receipts.length > 0) {
+          const receiptValues = receipts.map((receipt) => ({
+            ...receipt,
+            graduationRequestId: graduationRequestId,
+          }));
+
+          await tx.insert(paymentReceipts).values(receiptValues);
+        }
+
+        return { success: true };
+      });
+    }, ['student']);
+  }
+
+  async addPaymentReceipt(
+    graduationRequestId: number,
+    receipt: PaymentReceiptData
+  ) {
+    return withAuth(async () => {
+      const session = await auth();
+      if (!session?.user?.stdNo) {
+        throw new Error('User not authenticated');
+      }
+
+      return db.transaction(async (tx) => {
+        // Verify that the graduation request belongs to the authenticated user
+        const graduationRequest = await tx.query.graduationRequests.findFirst({
+          where: (table, { eq }) => eq(table.id, graduationRequestId),
+        });
+
+        if (
+          !graduationRequest ||
+          graduationRequest.stdNo !== session.user!.stdNo
+        ) {
+          throw new Error('Graduation request not found or access denied');
+        }
+
+        const [newReceipt] = await tx
+          .insert(paymentReceipts)
+          .values({
+            ...receipt,
+            graduationRequestId: graduationRequestId,
+          })
+          .returning();
+
+        return newReceipt;
+      });
+    }, ['student']);
+  }
+
+  async removePaymentReceipt(receiptId: number) {
+    return withAuth(async () => {
+      const session = await auth();
+      if (!session?.user?.stdNo) {
+        throw new Error('User not authenticated');
+      }
+
+      return db.transaction(async (tx) => {
+        // First, verify that the receipt belongs to a graduation request of the authenticated user
+        const receipt = await tx.query.paymentReceipts.findFirst({
+          where: eq(paymentReceipts.id, receiptId),
+          with: {
+            graduationRequest: true,
+          },
+        });
+
+        if (
+          !receipt ||
+          receipt.graduationRequest.stdNo !== session.user!.stdNo
+        ) {
+          throw new Error('Payment receipt not found or access denied');
+        }
+
+        await tx
+          .delete(paymentReceipts)
+          .where(eq(paymentReceipts.id, receiptId));
+
+        return { success: true };
+      });
+    }, ['student']);
   }
 }
 

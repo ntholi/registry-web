@@ -4,6 +4,7 @@ import { getGraduationRequest } from '@/server/graduation/requests/actions';
 import {
   Badge,
   Box,
+  Button,
   Container,
   Divider,
   Group,
@@ -17,8 +18,13 @@ import {
   ThemeIcon,
   Title,
 } from '@mantine/core';
-import { IconReceipt, IconExclamationCircle } from '@tabler/icons-react';
+import {
+  IconReceipt,
+  IconExclamationCircle,
+  IconEdit,
+} from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
+import Link from 'next/link';
 import GraduationClearanceView from './GraduationClearanceView';
 import PaymentReceiptsView from './PaymentReceiptsView';
 import {
@@ -63,12 +69,26 @@ export default async function GraduationDetailsPage({ params }: Props) {
         <Paper withBorder p='md'>
           <Box>
             <Group justify='space-between' align='flex-start' wrap='wrap'>
-              <Title order={1} size='h2' fw={600} mb='xs'>
-                Graduation Request
-              </Title>
-              <Badge radius='xs' color={getStatusColor(status)} variant='light'>
-                {status}
-              </Badge>
+              <div>
+                <Title order={1} size='h2' fw={600} mb='xs'>
+                  Graduation Request
+                </Title>
+                <Badge
+                  radius='xs'
+                  color={getStatusColor(status)}
+                  variant='light'
+                >
+                  {status}
+                </Badge>
+              </div>
+              <Button
+                component={Link}
+                href={`/student/graduation/${graduationRequest.id}/edit`}
+                leftSection={<IconEdit size='1rem' />}
+                variant='light'
+              >
+                Edit Request
+              </Button>
             </Group>
 
             <Text c='dimmed' size='sm' mb='md'>
