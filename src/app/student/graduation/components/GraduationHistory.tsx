@@ -48,8 +48,6 @@ export default async function GraduationHistory({
     );
   }
 
-  // Note: Since graduation requests table doesn't have a status field based on the schema,
-  // we'll determine status based on clearance and other factors
   const status = getGraduationStatus(graduationRequest);
 
   return (
@@ -73,13 +71,6 @@ export default async function GraduationHistory({
           </Badge>
         </Flex>
       </CardSection>
-
-      <Box mt='xs'>
-        <Text size='sm' c='dimmed'>
-          Information Confirmed:{' '}
-          {graduationRequest.informationConfirmed ? 'Yes' : 'No'}
-        </Text>
-      </Box>
 
       <CardSection px='xs' mt='xs' py='xs' withBorder>
         <Flex gap='xs' align='center' justify='space-between'>

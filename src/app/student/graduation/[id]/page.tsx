@@ -17,12 +17,7 @@ import {
   ThemeIcon,
   Title,
 } from '@mantine/core';
-import {
-  IconCheck,
-  IconClock,
-  IconReceipt,
-  IconExclamationCircle,
-} from '@tabler/icons-react';
+import { IconReceipt, IconExclamationCircle } from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
 import GraduationClearanceView from './GraduationClearanceView';
 import PaymentReceiptsView from './PaymentReceiptsView';
@@ -79,23 +74,6 @@ export default async function GraduationDetailsPage({ params }: Props) {
             <Text c='dimmed' size='sm' mb='md'>
               Submitted: {formatDateTime(graduationRequest.createdAt!)}
             </Text>
-
-            <Stack gap='sm'>
-              <Group>
-                <Text size='sm' fw={500}>
-                  Information Confirmed:
-                </Text>
-                <Badge
-                  size='sm'
-                  color={
-                    graduationRequest.informationConfirmed ? 'green' : 'yellow'
-                  }
-                  variant='light'
-                >
-                  {graduationRequest.informationConfirmed ? 'Yes' : 'No'}
-                </Badge>
-              </Group>
-            </Stack>
 
             {graduationRequest.message && (
               <>

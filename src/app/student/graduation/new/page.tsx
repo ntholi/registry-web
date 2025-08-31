@@ -87,7 +87,6 @@ export default function GraduationPage() {
       return createGraduationRequestWithPaymentReceipts({
         stdNo: student.stdNo,
         informationConfirmed: true,
-        message: 'Graduation request submitted by student',
         paymentReceipts: payloadReceipts,
       });
     },
