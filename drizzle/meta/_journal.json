@@ -526,6 +526,13 @@
       "when": 1756661944170,
       "tag": "0074_steady_sharon_carter",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "6",
+      "when": 1756662166747,
+      "tag": "0075_curved_dexter_bennett",
+      "breakpoints": true
     }
   ]
 }
