@@ -474,7 +474,6 @@ export default class SponsorRepository extends BaseRepository<
       };
     }> = [];
 
-    // Process in batches
     for (let i = 0; i < items.length; i += batchSize) {
       const batch = items.slice(i, i + batchSize);
       const batchResults = await this.processBatch(batch);
@@ -513,7 +512,6 @@ export default class SponsorRepository extends BaseRepository<
       };
     }> = [];
 
-    // Use a transaction for better performance with batch processing
     await db.transaction(async (tx) => {
       for (const item of batch) {
         try {

@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate URL format
     try {
       new URL(url);
     } catch {
@@ -21,7 +20,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch the image with timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
@@ -38,7 +36,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check content type
     const contentType = response.headers.get('content-type');
     if (!contentType?.startsWith('image/')) {
       return NextResponse.json(
@@ -47,7 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert to base64
     const buffer = await response.arrayBuffer();
     const base64 = Buffer.from(buffer).toString('base64');
     const dataUrl = `data:${contentType};base64,${base64}`;

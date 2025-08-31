@@ -8,7 +8,6 @@ export function createFullRegistrationExcel(
     try {
       const workbook = new ExcelJS.Workbook();
 
-      // Set workbook properties
       workbook.creator = 'Limkokwing University Registry System';
       workbook.lastModifiedBy = 'Registry System';
       workbook.created = report.generatedAt;
@@ -18,7 +17,6 @@ export function createFullRegistrationExcel(
         properties: { tabColor: { argb: 'FF0066CC' } },
       });
 
-      // Add header information
       worksheet.mergeCells('A1:F1');
       worksheet.getCell('A1').value =
         'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY';
@@ -53,10 +51,8 @@ export function createFullRegistrationExcel(
       worksheet.getCell('A5').font = { name: 'Arial', size: 10, italic: true };
       worksheet.getCell('A5').alignment = { horizontal: 'center' };
 
-      // Add some spacing
       worksheet.addRow([]);
 
-      // Create table headers
       const headerRow = worksheet.addRow([
         'No.',
         'Student Number',
@@ -66,7 +62,6 @@ export function createFullRegistrationExcel(
         'School',
       ]);
 
-      // Style the header row
       headerRow.font = { name: 'Arial', size: 12, bold: true };
       headerRow.fill = {
         type: 'pattern',
@@ -75,7 +70,6 @@ export function createFullRegistrationExcel(
       };
       headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
 
-      // Set header text color to white
       headerRow.eachCell((cell) => {
         cell.font = {
           name: 'Arial',
@@ -91,7 +85,6 @@ export function createFullRegistrationExcel(
         };
       });
 
-      // Add student data
       report.students.forEach((student, index) => {
         const row = worksheet.addRow([
           index + 1,
@@ -102,11 +95,9 @@ export function createFullRegistrationExcel(
           student.schoolName,
         ]);
 
-        // Style data rows
         row.font = { name: 'Arial', size: 11 };
         row.alignment = { horizontal: 'left', vertical: 'middle' };
 
-        // Alternate row colors
         if (index % 2 === 1) {
           row.fill = {
             type: 'pattern',
@@ -115,7 +106,6 @@ export function createFullRegistrationExcel(
           };
         }
 
-        // Add borders
         row.eachCell((cell, colNumber) => {
           cell.border = {
             top: { style: 'thin' },
@@ -124,14 +114,12 @@ export function createFullRegistrationExcel(
             right: { style: 'thin' },
           };
 
-          // Center align student number and semester
           if (colNumber === 2 || colNumber === 5) {
             cell.alignment = { horizontal: 'center', vertical: 'middle' };
           }
         });
       });
 
-      // Auto-fit columns
       worksheet.columns = [
         { header: 'No.', key: 'no', width: 6 },
         { header: 'Student Number', key: 'stdNo', width: 15 },
@@ -141,7 +129,6 @@ export function createFullRegistrationExcel(
         { header: 'School', key: 'school', width: 20 },
       ];
 
-      // Add a summary at the bottom
       const summaryStartRow = worksheet.rowCount + 2;
 
       worksheet.mergeCells(`A${summaryStartRow}:B${summaryStartRow}`);
@@ -179,7 +166,6 @@ export function createFullRegistrationExcel(
         }
       });
 
-      // Generate buffer
       const buffer = await workbook.xlsx.writeBuffer();
       resolve(Buffer.from(buffer));
     } catch (error) {

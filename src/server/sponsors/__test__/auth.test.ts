@@ -44,7 +44,7 @@ describe('Sponsor Permissions', () => {
       const sponsorToUpdate = { name: 'Updated Sponsor Name' };
       const updatedSponsor = await updateSponsor(
         createdSponsor!.id,
-        sponsorToUpdate,
+        sponsorToUpdate
       );
       expect(updatedSponsor).toBeDefined();
       expect(updatedSponsor?.name).toBe(sponsorToUpdate.name);
@@ -56,7 +56,6 @@ describe('Sponsor Permissions', () => {
       // @ts-expect-error - Testing with potentially undefined ID
       await deleteSponsor(sponsorIdToDelete);
 
-      // Verify sponsor is deleted
       // @ts-expect-error - Testing with potentially undefined ID
       const deletedSponsor = await getSponsor(sponsorIdToDelete);
       expect(deletedSponsor).toBeUndefined();
@@ -92,7 +91,7 @@ describe('Sponsor Permissions', () => {
       const sponsorToUpdate = { name: 'Finance Updated Sponsor Name' };
       const updatedSponsor = await updateSponsor(
         createdSponsor!.id,
-        sponsorToUpdate,
+        sponsorToUpdate
       );
       expect(updatedSponsor).toBeDefined();
       expect(updatedSponsor?.name).toBe(sponsorToUpdate.name);
@@ -104,7 +103,6 @@ describe('Sponsor Permissions', () => {
       // @ts-expect-error - Testing with potentially undefined ID
       await deleteSponsor(sponsorIdToDelete);
 
-      // Verify sponsor is deleted
       // @ts-expect-error - Testing with potentially undefined ID
       const deletedSponsor = await getSponsor(sponsorIdToDelete);
       expect(deletedSponsor).toBeUndefined();
@@ -137,7 +135,7 @@ describe('Sponsor Permissions', () => {
       setMockUser({ role: 'user' } as User);
       const sponsorToUpdate = { name: 'User Updated Sponsor Name' };
       await expect(
-        updateSponsor(createdSponsor!.id, sponsorToUpdate),
+        updateSponsor(createdSponsor!.id, sponsorToUpdate)
       ).rejects.toThrow('Forbidden');
     });
 
@@ -146,7 +144,7 @@ describe('Sponsor Permissions', () => {
       const sponsorIdToDelete = createdSponsor?.id;
       // @ts-expect-error - Testing with potentially undefined ID
       await expect(deleteSponsor(sponsorIdToDelete)).rejects.toThrow(
-        'Forbidden',
+        'Forbidden'
       );
     });
 
@@ -192,7 +190,7 @@ describe('Sponsor Permissions', () => {
       setMockUser({ role: 'registry' } as User);
       const sponsorToUpdate = { name: 'Registry Updated Sponsor Name' };
       await expect(
-        updateSponsor(createdSponsor!.id, sponsorToUpdate),
+        updateSponsor(createdSponsor!.id, sponsorToUpdate)
       ).rejects.toThrow('Forbidden');
     });
 
@@ -201,7 +199,7 @@ describe('Sponsor Permissions', () => {
       const sponsorIdToDelete = createdSponsor?.id;
       // @ts-expect-error - Testing with potentially undefined ID
       await expect(deleteSponsor(sponsorIdToDelete)).rejects.toThrow(
-        'Forbidden',
+        'Forbidden'
       );
     });
   });

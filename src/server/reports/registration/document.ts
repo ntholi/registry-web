@@ -945,7 +945,6 @@ function createSummaryTable(
     });
   });
 
-  // Calculate totals by semester for the totals row
   const semesterTotals: { [key: number]: number } = {};
   programs.forEach((program) => {
     Object.entries(program.yearBreakdown).forEach(([semester, count]) => {
@@ -954,7 +953,6 @@ function createSummaryTable(
     });
   });
 
-  // Create totals row
   const totalsRow = new TableRow({
     children: [
       new TableCell({

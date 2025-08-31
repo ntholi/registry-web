@@ -327,7 +327,6 @@ export default class StudentRepository extends BaseRepository<
     let totalItems: number;
 
     if (needsJoins) {
-      // Build query with joins
       let joinedQuery = db
         .select({
           stdNo: students.stdNo,
@@ -359,7 +358,6 @@ export default class StudentRepository extends BaseRepository<
         .offset(offset)
         .groupBy(students.stdNo, students.name);
 
-      // Build count query with joins
       let countJoinedQuery = db
         .select({ count: students.stdNo })
         .from(students)
@@ -385,7 +383,6 @@ export default class StudentRepository extends BaseRepository<
         .where(customWhere)
         .then((results) => new Set(results.map((r) => r.count)).size);
     } else {
-      // Simple query without joins
       items = await db
         .select({
           stdNo: students.stdNo,
