@@ -70,7 +70,10 @@ export default function PaymentReceiptsInput({
         receiptNo: values.receiptNo,
       },
     ]);
-    form.reset();
+    form.setValues({
+      paymentType: '',
+      receiptNo: '',
+    });
   };
 
   const removePaymentReceipt = (index: number) => {
