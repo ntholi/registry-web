@@ -1,27 +1,25 @@
 'use client';
 
-import React from 'react';
-import { students, paymentTypeEnum } from '@/db/schema';
+import { paymentTypeEnum, students } from '@/db/schema';
 import {
+  Badge,
   Box,
   Card,
+  Divider,
   Group,
+  LoadingOverlay,
+  Paper,
   Stack,
   Text,
   Title,
-  Badge,
-  Divider,
-  LoadingOverlay,
-  Paper,
-  Timeline,
 } from '@mantine/core';
 import {
-  IconUser,
-  IconId,
-  IconGenderMale,
-  IconGenderFemale,
-  IconReceipt,
   IconCheck,
+  IconGenderFemale,
+  IconGenderMale,
+  IconId,
+  IconReceipt,
+  IconUser,
 } from '@tabler/icons-react';
 
 type Student = typeof students.$inferSelect & {
@@ -131,54 +129,6 @@ export default function ReviewAndSubmit({
               </Paper>
             ))}
           </Stack>
-        </Card>
-
-        <Card withBorder shadow='sm' radius='md' padding='lg'>
-          <Title order={4} mb='md'>
-            What happens next?
-          </Title>
-
-          <Timeline bulletSize={28} lineWidth={2} active={-1}>
-            <Timeline.Item
-              bullet={
-                <Text size='xs' fw={700}>
-                  1
-                </Text>
-              }
-              title='Submit request'
-            >
-              <Text size='sm'>
-                Your graduation request will be submitted to different
-                departments for clearance
-              </Text>
-            </Timeline.Item>
-
-            <Timeline.Item
-              bullet={
-                <Text size='xs' fw={700}>
-                  2
-                </Text>
-              }
-              title='Department reviews'
-            >
-              <Text size='sm'>
-                Various departments will review and approve your clearance
-              </Text>
-            </Timeline.Item>
-
-            <Timeline.Item
-              bullet={
-                <Text size='xs' fw={700}>
-                  3
-                </Text>
-              }
-              title='Track progress'
-            >
-              <Text size='sm'>
-                You can track the status of your clearance request from this app
-              </Text>
-            </Timeline.Item>
-          </Timeline>
         </Card>
 
         <Divider />
