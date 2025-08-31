@@ -46,17 +46,6 @@ export default function ClearanceStatusView({ registration }: Props) {
           <Title order={2} size='h4' fw={600}>
             Clearance Status
           </Title>
-          <Badge
-            size='sm'
-            pos='absolute'
-            right={0}
-            top={5}
-            color={getStatusColor(overallStatus)}
-            variant='light'
-            leftSection={getStatusIcon(overallStatus)}
-          >
-            {toTitleCase(overallStatus)}
-          </Badge>
         </Box>
 
         <Divider />

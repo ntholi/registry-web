@@ -120,6 +120,7 @@ export default async function page({ params }: Props) {
                 <ThemeIcon
                   color={getStatusColor(clearanceStatus)}
                   variant='light'
+                  radius={'xl'}
                   size={20}
                 >
                   {getStatusIcon(clearanceStatus)}
