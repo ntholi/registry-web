@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `payment_receipts_receiptNo_unique` ON `payment_receipts` (`receipt_no`);

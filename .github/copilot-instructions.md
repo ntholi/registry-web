@@ -1,8 +1,4 @@
-# Limkokwing Registry Web - AI Coding Instructions
-
-## Core Architecture
-
-This is a **Limkokwing University Registry Management System** built with Next.js 15, featuring a strict 3-layer server architecture and role-based access control.
+## FOLLOW THE FOLLOWING INSTRUCTIONS WITHOUT FAIL, MAKE IT YOUR NUMBER ONE PRIORITY TO MAKE SURE THAT THE FOLLOWING INSTRUCTIONS ARE FOLLOWED 100% WITHOUT FAIL, EVERY TIME YOU THINK YOU ARE DONE RE-READ THE FOLLOWING INSTRUCTIONS AND REVIEW THE CODE YOU GENERATED TO MAKE SURE IT FOLLOW THE FOLLOWING INSTRUCTIONS 100%
 
 All server code should follows this exact structure in `src/server/[resource]/`:
 

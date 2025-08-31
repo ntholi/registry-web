@@ -510,7 +510,7 @@ export const paymentReceipts = sqliteTable('payment_receipts', {
     .references(() => graduationRequests.id, { onDelete: 'cascade' })
     .notNull(),
   paymentType: text({ enum: paymentTypeEnum }).notNull(),
-  receiptNo: text().notNull(),
+  receiptNo: text().notNull().unique(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 

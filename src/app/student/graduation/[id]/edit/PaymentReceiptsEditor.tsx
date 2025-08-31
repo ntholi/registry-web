@@ -30,7 +30,7 @@ import { notifications } from '@mantine/notifications';
 import {
   addPaymentReceipt,
   removePaymentReceipt,
-} from '@/server/payment-receipts/updateActions';
+} from '@/server/payment-receipts/actions';
 
 type PaymentReceipt = {
   id: number;
@@ -92,7 +92,7 @@ export default function PaymentReceiptsEditor({
       });
       form.reset();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       notifications.show({
         title: 'Error',
         message: error.message || 'Failed to add payment receipt',
@@ -173,8 +173,6 @@ export default function PaymentReceiptsEditor({
   return (
     <Stack gap='lg'>
       <Card withBorder shadow='sm' radius='md' padding='lg'>
-        <Title order={4}>Add Payment Receipt</Title>
-
         <Text mb='lg' c='dimmed'>
           Enter the receipt details for your graduation-related payments.
         </Text>
@@ -198,7 +196,7 @@ export default function PaymentReceiptsEditor({
             />
           </SimpleGrid>
 
-          <Group justify={isMobile ? 'flex-end' : 'flex-end'} mt='lg'>
+          <Group justify='flex-end' mt='lg'>
             <Button
               leftSection={
                 isAdding ? <Loader size='xs' /> : <IconPlus size='1rem' />
