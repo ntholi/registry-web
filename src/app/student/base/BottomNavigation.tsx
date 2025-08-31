@@ -25,42 +25,39 @@ interface NavItem {
   path: string;
 }
 
+const navItems: NavItem[] = [
+  {
+    icon: <IconHome size={20} />,
+    label: 'Home',
+    href: '/student',
+    path: '/student',
+  },
+  {
+    icon: <IconClipboardCheck size={20} />,
+    label: 'Registration',
+    href: '/student/registration',
+    path: '/student/registration',
+  },
+  {
+    icon: <IconFileCertificate size={20} />,
+    label: 'Transcript',
+    href: '/student/transcripts',
+    path: '/student/transcripts',
+  },
+  {
+    icon: <IconUser size={20} />,
+    label: 'Profile',
+    href: '/student/profile',
+    path: '/student/profile',
+  },
+];
+
 export default function BottomNavigation() {
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
-
-  const navItems: NavItem[] = useMemo(
-    () => [
-      {
-        icon: <IconHome size={20} />,
-        label: 'Home',
-        href: '/student',
-        path: '/student',
-      },
-      {
-        icon: <IconClipboardCheck size={20} />,
-        label: 'Registration',
-        href: '/student/registration',
-        path: '/student/registration',
-      },
-      {
-        icon: <IconFileCertificate size={20} />,
-        label: 'Transcript',
-        href: '/student/transcripts',
-        path: '/student/transcripts',
-      },
-      {
-        icon: <IconUser size={20} />,
-        label: 'Profile',
-        href: '/student/profile',
-        path: '/student/profile',
-      },
-    ],
-    []
-  );
 
   const handleNavigation = (href: string) => {
     router.push(href);
@@ -113,16 +110,10 @@ export default function BottomNavigation() {
                 variant={active ? 'filled' : 'transparent'}
                 color={active ? 'blue' : 'dimmed'}
                 size='lg'
-                radius='md'
               >
                 {item.icon}
               </ActionIcon>
-              <Text
-                size='xs'
-                c={active ? 'blue' : 'dimmed'}
-                fw={active ? 600 : 400}
-                ta='center'
-              >
+              <Text size='xs' c={active ? 'blue' : 'dimmed'} ta='center'>
                 {item.label}
               </Text>
             </Stack>

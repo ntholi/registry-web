@@ -43,7 +43,7 @@ export default function TranscriptsPage() {
   if (blockedStudent && blockedStudent.status === 'blocked') {
     return (
       <Container size='md'>
-        <Stack gap='lg' mt='md'>
+        <Stack gap='lg'>
           <Title order={1} size={'h3'} ta='left'>
             Academic Transcripts
           </Title>

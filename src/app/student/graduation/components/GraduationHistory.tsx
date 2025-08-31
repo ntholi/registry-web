@@ -90,7 +90,7 @@ export default async function GraduationHistory({
 
       <CardSection px='xs' mt='xs' py='xs' withBorder>
         <Flex gap='xs' align='center' justify='space-between'>
-          <Text size='xs' c='dimmed' mt='xs'>
+          <Text size='xs' c='dimmed'>
             Submitted: {formatDateTime(graduationRequest.createdAt!)}
           </Text>
           <Group>
