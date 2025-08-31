@@ -43,6 +43,20 @@ class GraduationClearanceService {
     return withAuth(async () => this.repository.update(id, data), []);
   }
 
+  async respond(data: Clearance) {
+    return withAuth(
+      async (session) => {
+        if (!data.id) throw Error('Clearance id cannot be null/undefined');
+        return this.repository.update(data.id, {
+          ...data,
+          responseDate: new Date(),
+          respondedBy: session?.user?.id,
+        });
+      },
+      ['dashboard']
+    );
+  }
+
   async delete(id: number) {
     return withAuth(async () => this.repository.delete(id), []);
   }

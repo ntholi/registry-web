@@ -18,7 +18,7 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { getStatusColor } from '../../utils/colors';
+import { getStatusColor, getGraduationStatus } from '../utils';
 
 interface GraduationHistoryProps {
   stdNo: number;
@@ -50,14 +50,7 @@ export default async function GraduationHistory({
 
   // Note: Since graduation requests table doesn't have a status field based on the schema,
   // we'll determine status based on clearance and other factors
-  const getGraduationStatus = () => {
-    if (!graduationRequest.informationConfirmed) {
-      return 'pending';
-    }
-    return 'confirmed';
-  };
-
-  const status = getGraduationStatus();
+  const status = getGraduationStatus(graduationRequest);
 
   return (
     <Card

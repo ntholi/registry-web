@@ -1,4 +1,3 @@
-import { getStatusColor } from '@/app/student/utils/colors';
 import { formatDateTime } from '@/lib/utils';
 import {
   Badge,
@@ -9,31 +8,17 @@ import {
   Text,
   ThemeIcon,
 } from '@mantine/core';
-import {
-  IconCheck,
-  IconClock,
-  IconFileText,
-  IconExclamationCircle,
-} from '@tabler/icons-react';
+import { IconFileText } from '@tabler/icons-react';
+import { getStatusColor, getStatusIcon } from '../utils';
+import { getGraduationRequest } from '@/server/graduation-requests/actions';
 
-interface GraduationClearanceViewProps {
-  graduationRequest: any; // You might want to type this properly based on your graduation request type
+interface Props {
+  graduationRequest: NonNullable<
+    Awaited<ReturnType<typeof getGraduationRequest>>
+  >;
 }
 
-export default function GraduationClearanceView({
-  graduationRequest,
-}: GraduationClearanceViewProps) {
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return <IconCheck size='1rem' />;
-      case 'rejected':
-        return <IconExclamationCircle size='1rem' />;
-      default:
-        return <IconClock size='1rem' />;
-    }
-  };
-
+export default function GraduationClearanceView({ graduationRequest }: Props) {
   if (
     !graduationRequest.graduationClearances ||
     graduationRequest.graduationClearances.length === 0
@@ -71,32 +56,34 @@ export default function GraduationClearanceView({
                 >
                   {getStatusIcon(clearance.status)}
                 </ThemeIcon>
-                <Text fw={500} size='sm'>
-                  {clearance.department}
+                <Text fw={500} size='sm' tt='capitalize'>
+                  {clearance.department} Department
                 </Text>
               </Group>
               <Badge
                 color={getStatusColor(clearance.status)}
                 variant='light'
                 size='sm'
+                tt='capitalize'
               >
                 {clearance.status}
               </Badge>
             </Group>
 
-            <Text size='xs' c='dimmed'>
-              {clearance.description}
-            </Text>
-
-            {clearance.comment && (
+            {clearance.message && (
               <Text size='xs' c='dimmed' mt='xs' fs='italic'>
-                &quot;{clearance.comment}&quot;
+                &quot;{clearance.message}&quot;
               </Text>
             )}
 
             <Text size='xs' c='dimmed' mt='sm'>
-              Last updated: {formatDateTime(clearance.updatedAt)}
+              Created: {formatDateTime(clearance.createdAt)}
             </Text>
+            {clearance.responseDate && (
+              <Text size='xs' c='dimmed'>
+                Responded: {formatDateTime(clearance.responseDate)}
+              </Text>
+            )}
           </Card>
         );
       })}

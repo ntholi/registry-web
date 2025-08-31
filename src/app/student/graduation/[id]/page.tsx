@@ -1,4 +1,3 @@
-import { getStatusColor } from '@/app/student/utils/colors';
 import { auth } from '@/auth';
 import { formatDateTime } from '@/lib/utils';
 import { getGraduationRequest } from '@/server/graduation-requests/actions';
@@ -27,6 +26,12 @@ import {
 import { forbidden, notFound } from 'next/navigation';
 import GraduationClearanceView from './GraduationClearanceView';
 import PaymentReceiptsView from './PaymentReceiptsView';
+import {
+  getStatusColor,
+  getStatusIcon,
+  getOverallClearanceStatus,
+  getGraduationStatus,
+} from '../utils';
 
 type Props = {
   params: Promise<{
@@ -52,47 +57,8 @@ export default async function GraduationDetailsPage({ params }: Props) {
     return forbidden();
   }
 
-  const getGraduationStatus = () => {
-    if (!graduationRequest.informationConfirmed) {
-      return 'pending';
-    }
-    return 'confirmed';
-  };
-
-  const getOverallClearanceStatus = () => {
-    if (
-      !graduationRequest.graduationClearances ||
-      graduationRequest.graduationClearances.length === 0
-    ) {
-      return 'pending';
-    }
-
-    const allApproved = graduationRequest.graduationClearances.every(
-      (c: any) => c.clearance.status === 'approved'
-    );
-    const anyRejected = graduationRequest.graduationClearances.some(
-      (c: any) => c.clearance.status === 'rejected'
-    );
-
-    if (allApproved) return 'approved';
-    if (anyRejected) return 'rejected';
-    return 'pending';
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'approved':
-      case 'confirmed':
-        return <IconCheck size='1rem' />;
-      case 'rejected':
-        return <IconExclamationCircle size='1rem' />;
-      default:
-        return <IconClock size='1rem' />;
-    }
-  };
-
-  const status = getGraduationStatus();
-  const clearanceStatus = getOverallClearanceStatus();
+  const status = getGraduationStatus(graduationRequest);
+  const clearanceStatus = getOverallClearanceStatus(graduationRequest);
 
   return (
     <Container size='md' px='xs'>

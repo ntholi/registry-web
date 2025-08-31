@@ -1,13 +1,8 @@
-import {
-  graduationRequests,
-  paymentReceipts,
-  paymentTypeEnum,
-} from '@/db/schema';
+import { graduationRequests, paymentTypeEnum } from '@/db/schema';
 import GraduationRequestRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '../base/serviceWrapper';
-import { db } from '@/db';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
 
@@ -57,24 +52,11 @@ class GraduationRequestService {
 
   async createWithPaymentReceipts(data: CreateGraduationRequestData) {
     return withAuth(async () => {
-      return db.transaction(async (tx) => {
-        const { paymentReceipts: receipts, ...graduationRequestData } = data;
+      const { paymentReceipts, ...graduationRequestData } = data;
 
-        const [graduationRequest] = await tx
-          .insert(graduationRequests)
-          .values(graduationRequestData)
-          .returning();
-
-        if (receipts.length > 0) {
-          const receiptValues = receipts.map((receipt) => ({
-            ...receipt,
-            graduationRequestId: graduationRequest.id,
-          }));
-
-          await tx.insert(paymentReceipts).values(receiptValues);
-        }
-
-        return graduationRequest;
+      return this.repository.createWithPaymentReceipts({
+        graduationRequestData,
+        paymentReceipts,
       });
     }, ['student']);
   }
