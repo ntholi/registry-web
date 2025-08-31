@@ -2,7 +2,7 @@
 
 import { toTitleCase } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { Alert, Badge, Box, Divider, Stack, Text } from '@mantine/core';
+import { Alert, Badge, Box, Divider, Group, Stack, Text } from '@mantine/core';
 import { IconInfoCircle, IconExclamationCircle } from '@tabler/icons-react';
 
 type Props = {
@@ -34,24 +34,29 @@ export default function DepartmentMessagesView({ registration }: Props) {
 
   if (rejectedClearances.length === 0) return null;
 
+  const rejectingDepartments = rejectedClearances
+    .map((r) => r.clearance.department)
+    .filter(Boolean) as string[];
+
+  const title =
+    rejectingDepartments.length === 0
+      ? 'Rejected'
+      : `Rejected by ${rejectingDepartments.map(toTitleCase).join(' and ')}`;
+
   return (
     <>
       <Divider my='sm' />
       <Alert
         icon={<IconExclamationCircle size='1rem' />}
         color='red'
-        variant='light'
-        title='Registration Rejected'
+        variant='outline'
+        title={title}
       >
         <Stack gap='xs'>
           {rejectedClearances.map((clearanceMapping) => {
             const { clearance } = clearanceMapping;
-
             return (
               <Box key={clearance.id}>
-                <Badge color='red' variant='filled' size='sm'>
-                  {toTitleCase(clearance.department)} Department
-                </Badge>
                 {clearance.message ? (
                   <Text size='sm'>{clearance.message}</Text>
                 ) : (

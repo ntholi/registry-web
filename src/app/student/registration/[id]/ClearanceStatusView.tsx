@@ -100,26 +100,11 @@ export default function ClearanceStatusView({ registration }: Props) {
                         </Text>
                       </Box>
                     )}
-
                     {clearance?.message && (
-                      <Box>
-                        <Text
-                          size='xs'
-                          c='dimmed'
-                          fw={500}
-                          tt='uppercase'
-                          mb={4}
-                        >
-                          Message
-                        </Text>
-                        <Paper
-                          withBorder
-                          bg='var(--mantine-color-gray-light)'
-                          p='xs'
-                        >
-                          <Text size='sm'>{clearance?.message}</Text>
-                        </Paper>
-                      </Box>
+                      <ClearanceMessage
+                        message={clearance.message}
+                        status={clearance.status}
+                      />
                     )}
 
                     {!clearance && (
@@ -133,38 +118,35 @@ export default function ClearanceStatusView({ registration }: Props) {
             })}
           </Timeline>
         )}
-
-        {overallStatus === 'approved' && (
-          <Alert icon={<IconCheck size='1rem' />} color='green' variant='light'>
-            <Text size='sm' fw={500}>
-              Congratulations! All clearances have been approved.
-            </Text>
-          </Alert>
-        )}
-
-        {overallStatus === 'rejected' && (
-          <Alert
-            icon={<IconExclamationCircle size='1rem' />}
-            color='red'
-            variant='light'
-          >
-            <Text size='sm' fw={500}>
-              Your registration has been rejected by one or more departments.
-              Please review the messages above and contact the relevant
-              departments for assistance.
-            </Text>
-          </Alert>
-        )}
-
-        {overallStatus === 'pending' && clearances.length > 0 && (
-          <Alert icon={<IconClock size='1rem' />} color='blue' variant='light'>
-            <Text size='sm'>
-              Your registration is currently being processed. You will receive
-              an email notification once all clearances are complete.
-            </Text>
-          </Alert>
-        )}
       </Stack>
     </Card>
+  );
+}
+
+function ClearanceMessage({
+  message,
+  status,
+}: {
+  message: string;
+  status: 'pending' | 'approved' | 'rejected' | 'partial' | 'registered';
+}) {
+  const color = getStatusColor(status);
+
+  const title =
+    status === 'approved'
+      ? 'Note'
+      : status === 'rejected'
+        ? 'Action required'
+        : 'Message';
+
+  return (
+    <Box>
+      <Text size='xs' c='dimmed' fw={500} mb={4}>
+        {title}
+      </Text>
+      <Alert color={color} variant={'light'} radius='sm'>
+        <Text size='sm'>{message}</Text>
+      </Alert>
+    </Box>
   );
 }
