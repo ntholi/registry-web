@@ -40,7 +40,10 @@ class GraduationClearanceService {
   }
 
   async update(id: number, data: Clearance) {
-    return withAuth(async () => this.repository.update(id, data), []);
+    return withAuth(
+      async () => this.repository.update(id, data),
+      ['dashboard']
+    );
   }
 
   async respond(data: Clearance) {
