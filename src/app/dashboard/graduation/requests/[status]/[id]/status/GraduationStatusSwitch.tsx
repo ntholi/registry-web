@@ -1,36 +1,30 @@
 'use client';
 
 import { clearanceRequestStatusEnum, dashboardUsers } from '@/db/schema';
-import { toTitleCase } from '@/lib/utils';
-import {
-  updateClearance,
-  getClearance,
-} from '@/server/registration/clearance/actions';
+import { updateGraduationClearance } from '@/server/graduation/clearance/actions';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
-type Props = {
-  request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;
-  setAccordion: (value: 'comments' | 'modules') => void;
-  comment?: string;
-};
-
 type Status = Exclude<
   (typeof clearanceRequestStatusEnum)[number],
   'registered'
 >;
 
-export default function ClearanceSwitch({
-  request,
-  comment,
-  setAccordion,
-}: Props) {
+type Props = {
+  request: {
+    id: number;
+    status: Status;
+  };
+  comment?: string;
+};
+
+export default function GraduationStatusSwitch({ request, comment }: Props) {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
-  const [status, setStatus] = useState<Status>(request.status as Status);
+  const [status, setStatus] = useState<Status>(request.status);
   const [isStatusChanged, setIsStatusChanged] = useState(false);
 
   useEffect(() => {
@@ -43,36 +37,36 @@ export default function ClearanceSwitch({
         throw new Error('User not authenticated');
       }
 
-      const result = await updateClearance(request.id, {
-        message: comment,
+      const result = await updateGraduationClearance(request.id, {
         department: session.user.role as (typeof dashboardUsers)[number],
         status,
-      });
+        message: comment,
+      } as any);
       return { result };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['clearances', 'pending'],
+        queryKey: ['graduation-clearances', 'pending'],
       });
       queryClient.invalidateQueries({
-        queryKey: ['clearances', 'approved'],
+        queryKey: ['graduation-clearances', 'approved'],
       });
       queryClient.invalidateQueries({
-        queryKey: ['clearances', 'rejected'],
+        queryKey: ['graduation-clearances', 'rejected'],
       });
       notifications.show({
         title: 'Success',
-        message: 'Registration clearance updated successfully',
+        message: 'Graduation clearance updated successfully',
         color: 'green',
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       notifications.show({
         title: 'Error',
         message: error.message || 'Failed to submit response',
         color: 'red',
       });
-      setStatus(request.registrationRequest.status as Status);
+      setStatus(request.status);
     },
   });
 
@@ -85,16 +79,8 @@ export default function ClearanceSwitch({
       <Stack>
         <SegmentedControl
           value={status}
-          onChange={(it) => {
-            setStatus(it as Status);
-            if ((it as Status) === 'rejected') {
-              setAccordion('comments');
-            } else setAccordion('modules');
-          }}
-          data={clearanceRequestStatusEnum.map((status) => ({
-            label: toTitleCase(status),
-            value: status,
-          }))}
+          onChange={(it) => setStatus(it as Status)}
+          data={clearanceRequestStatusEnum.map((s) => ({ label: s, value: s }))}
           fullWidth
           disabled={isPending}
         />

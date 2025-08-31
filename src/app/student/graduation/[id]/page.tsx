@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { formatDateTime } from '@/lib/utils';
-import { getGraduationRequest } from '@/server/graduation-requests/actions';
+import { getGraduationRequest } from '@/server/graduation/requests/actions';
 import {
   Badge,
   Box,

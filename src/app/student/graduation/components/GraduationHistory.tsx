@@ -1,5 +1,5 @@
 import { formatDateTime } from '@/lib/utils';
-import { getGraduationRequestByStudentNo } from '@/server/graduation-requests/actions';
+import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
 import {
   ActionIcon,
   Badge,

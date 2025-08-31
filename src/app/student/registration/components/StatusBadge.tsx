@@ -1,6 +1,6 @@
 import { Badge, Skeleton } from '@mantine/core';
 import { Suspense } from 'react';
-import { getRegistrationRequest } from '@/server/registration-requests/actions';
+import { getRegistrationRequest } from '@/server/registration/requests/actions';
 import {
   getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
   getStatusColor,

@@ -3,7 +3,7 @@
 import { registrationRequests } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatDateTime, formatSemester } from '@/lib/utils';
-import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
+import { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
 import {
   Accordion,
   Alert,
@@ -164,8 +164,8 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
                       href={
                         session?.user?.role === 'finance' ||
                         session?.user?.role === 'library'
-                          ? `/dashboard/registration-requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`
-                          : `/dashboard/registration-requests/${request.status}/${request.id}`
+                          ? `/dashboard/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`
+                          : `/dashboard/registration/requests/${request.status}/${request.id}`
                       }
                       size='xs'
                       variant='light'

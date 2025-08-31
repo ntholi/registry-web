@@ -3,7 +3,7 @@
 import { selectedTermAtom } from '@/atoms/termAtoms';
 import { ListItem, ListLayout } from '@/components/adease';
 import TermFilter from '@/components/TermFilter';
-import { clearanceByStatus } from '@/server/clearance/actions';
+import { clearanceByStatus } from '@/server/registration/clearance/actions';
 import { getCurrentTerm } from '@/server/terms/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';

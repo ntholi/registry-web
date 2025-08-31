@@ -1,7 +1,7 @@
 'use client';
 
 import { formatDateTime, toTitleCase } from '@/lib/utils';
-import { getRegistrationRequest } from '@/server/registration-requests/actions';
+import { getRegistrationRequest } from '@/server/registration/requests/actions';
 import {
   Alert,
   Badge,

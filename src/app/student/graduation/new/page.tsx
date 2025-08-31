@@ -6,7 +6,7 @@ import useUserStudent from '@/hooks/use-user-student';
 import {
   createGraduationRequestWithPaymentReceipts,
   getGraduationRequestByStudentNo,
-} from '@/server/graduation-requests/actions';
+} from '@/server/graduation/requests/actions';
 import {
   Alert,
   Box,

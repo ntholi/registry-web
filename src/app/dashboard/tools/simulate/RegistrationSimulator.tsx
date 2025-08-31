@@ -5,7 +5,7 @@ import { formatSemester } from '@/lib/utils';
 import {
   determineSemesterStatus,
   getStudentSemesterModules,
-} from '@/server/registration-requests/actions';
+} from '@/server/registration/requests/actions';
 import {
   getStudent,
   getStudentRegistrationData,

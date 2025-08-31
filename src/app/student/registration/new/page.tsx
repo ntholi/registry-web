@@ -9,7 +9,7 @@ import {
   createRegistrationWithModules,
   determineSemesterStatus,
   getStudentSemesterModules,
-} from '@/server/registration-requests/actions';
+} from '@/server/registration/requests/actions';
 import { findAllSponsors } from '@/server/sponsors/actions';
 import {
   Alert,

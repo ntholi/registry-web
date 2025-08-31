@@ -1,6 +1,6 @@
 'use client';
 
-import { getRegistrationRequest } from '@/server/registration-requests/actions';
+import { getRegistrationRequest } from '@/server/registration/requests/actions';
 import {
   Alert,
   Badge,

@@ -1,7 +1,7 @@
 'use client';
 
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import { getGraduationRequestByStudentNo } from '@/server/graduation-requests/actions';
+import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
 import useUserStudent from '@/hooks/use-user-student';
 import {
   Alert,

@@ -1,7 +1,7 @@
 'use client';
 
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
+import { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
 import useUserStudent from '@/hooks/use-user-student';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import {

@@ -10,7 +10,7 @@ import {
   getRegistrationRequest,
   getStudentSemesterModules,
   updateRegistrationWithModulesAndSponsorship,
-} from '@/server/registration-requests/actions';
+} from '@/server/registration/requests/actions';
 import { getSponsoredStudent } from '@/server/sponsors/actions';
 import {
   Alert,

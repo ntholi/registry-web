@@ -1,7 +1,7 @@
 'use client';
 
 import { formatDateTime } from '@/lib/utils';
-import { getClearanceHistoryByStudentNo } from '@/server/clearance/actions';
+import { getClearanceHistoryByStudentNo } from '@/server/registration/clearance/actions';
 import {
   Accordion,
   Anchor,

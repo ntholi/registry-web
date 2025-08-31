@@ -1,7 +1,7 @@
 import { getStatusColor } from '@/app/student/utils/colors';
 import { auth } from '@/auth';
 import { formatSemester } from '@/lib/utils';
-import { getRegistrationRequest } from '@/server/registration-requests/actions';
+import { getRegistrationRequest } from '@/server/registration/requests/actions';
 import {
   Badge,
   Box,

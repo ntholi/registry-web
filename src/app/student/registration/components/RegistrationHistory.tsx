@@ -1,5 +1,5 @@
 import { formatDateTime, formatSemester } from '@/lib/utils';
-import { getStudentRegistrationHistory } from '@/server/registration-requests/actions';
+import { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
 import {
   ActionIcon,
   Box,

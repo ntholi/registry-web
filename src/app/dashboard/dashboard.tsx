@@ -9,8 +9,8 @@ import {
   countApprovedClearances,
   countPendingClearances,
   countRejectedClearances,
-} from '@/server/clearance/actions';
-import { countByStatus } from '@/server/registration-requests/actions';
+} from '@/server/registration/clearance/actions';
+import { countByStatus } from '@/server/registration/requests/actions';
 import { getUserSchools } from '@/server/users/actions';
 import {
   ActionIcon,
@@ -141,7 +141,7 @@ function getNavigation(department: DashboardUser) {
       children: [
         {
           label: 'Pending',
-          href: '/dashboard/registration-requests/pending',
+          href: '/dashboard/registration/requests/pending',
           icon: IconMessageQuestion,
           notificationCount: {
             queryKey: ['registrationRequests', 'pending'],
@@ -151,7 +151,7 @@ function getNavigation(department: DashboardUser) {
         },
         {
           label: 'Registered',
-          href: '/dashboard/registration-requests/registered',
+          href: '/dashboard/registration/requests/registered',
           icon: IconSquareRoundedCheck,
           notificationCount: {
             queryKey: ['registrationRequests', 'registered'],
@@ -161,7 +161,7 @@ function getNavigation(department: DashboardUser) {
         },
         {
           label: 'Rejected',
-          href: '/dashboard/registration-requests/rejected',
+          href: '/dashboard/registration/requests/rejected',
           icon: IconBarrierBlock,
           notificationCount: {
             queryKey: ['registrationRequests', 'rejected'],
@@ -171,7 +171,7 @@ function getNavigation(department: DashboardUser) {
         },
         {
           label: 'Approved',
-          href: '/dashboard/registration-requests/approved',
+          href: '/dashboard/registration/requests/approved',
           icon: IconSquareRoundedCheck,
           notificationCount: {
             queryKey: ['registrationRequests', 'approved'],

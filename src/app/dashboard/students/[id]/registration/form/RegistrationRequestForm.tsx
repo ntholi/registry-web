@@ -6,7 +6,7 @@ import {
   createRegistrationWithModules,
   determineSemesterStatus,
   getStudentSemesterModules,
-} from '@/server/registration-requests/actions';
+} from '@/server/registration/requests/actions';
 import { getStudentCurrentSponsorship } from '@/server/sponsors/actions';
 import { getAcademicHistory } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';

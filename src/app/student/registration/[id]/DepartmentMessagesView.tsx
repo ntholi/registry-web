@@ -1,7 +1,7 @@
 'use client';
 
 import { toTitleCase } from '@/lib/utils';
-import { getRegistrationRequest } from '@/server/registration-requests/actions';
+import { getRegistrationRequest } from '@/server/registration/requests/actions';
 import { Alert, Badge, Box, Divider, Group, Stack, Text } from '@mantine/core';
 import { IconInfoCircle, IconExclamationCircle } from '@tabler/icons-react';
 
