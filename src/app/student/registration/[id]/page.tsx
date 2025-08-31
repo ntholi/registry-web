@@ -30,12 +30,10 @@ import {
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import ProofOfRegistrationDownload from '../components/ProofOfRegistrationDownload';
-import ClearanceStatusView, {
-  getOverallClearanceStatus,
-  getStatusIcon,
-} from './ClearanceStatusView';
+import { getOverallClearanceStatus, getStatusIcon } from '../utils';
 import DepartmentMessagesView from './DepartmentMessagesView';
 import ModulesView from './ModulesView';
+import ClearanceStatusView from './ClearanceStatusView';
 
 type Props = {
   params: Promise<{

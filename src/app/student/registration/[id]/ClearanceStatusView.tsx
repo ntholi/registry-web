@@ -23,12 +23,15 @@ import {
   IconInfoCircle,
   IconX,
 } from '@tabler/icons-react';
+import {
+  getOverallClearanceStatus,
+  getStatusColor,
+  getStatusIcon,
+} from '../utils';
 
 type Props = {
   registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
 };
-
-type Status = 'pending' | 'approved' | 'rejected' | 'partial' | 'registered';
 
 export default function ClearanceStatusView({ registration }: Props) {
   const { clearances = [] } = registration;
@@ -171,55 +174,4 @@ export default function ClearanceStatusView({ registration }: Props) {
       </Stack>
     </Card>
   );
-}
-
-export function getStatusIcon(status: Status) {
-  switch (status) {
-    case 'approved':
-      return <IconCheck size='1rem' />;
-    case 'rejected':
-      return <IconX size='1rem' />;
-    case 'registered':
-      return <IconCheck size='1rem' />;
-    case 'partial':
-      return <IconClock size='1rem' />;
-    case 'pending':
-    default:
-      return <IconClock size='1rem' />;
-  }
-}
-
-export function getStatusColor(status: Status) {
-  switch (status) {
-    case 'approved':
-      return 'green';
-    case 'rejected':
-      return 'red';
-    case 'registered':
-      return 'green';
-    case 'partial':
-      return 'orange';
-    default:
-      return 'yellow';
-  }
-}
-
-export function getOverallClearanceStatus(
-  registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>
-) {
-  if (!registration.clearances || registration.clearances.length === 0) {
-    return 'pending';
-  }
-
-  const anyRejected = registration.clearances.some(
-    (c) => c.clearance.status === 'rejected'
-  );
-  if (anyRejected) return 'rejected';
-
-  const allApproved = registration.clearances.every(
-    (c) => c.clearance.status === 'approved'
-  );
-  if (allApproved) return 'approved';
-
-  return registration.status;
 }
