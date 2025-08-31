@@ -4,7 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { updateBlockedStudent } from '@/server/blocked-students/actions';
 import { Switch, Group, Text, Paper, Stack, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconLock, IconLockOpen, IconCheck, IconX } from '@tabler/icons-react';
+import {
+  IconLock,
+  IconLockOpen,
+  IconCheck,
+  IconExclamationCircle,
+} from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Props = {
@@ -47,7 +52,7 @@ export default function StudentStatusSwitch({
         title: 'Error',
         message: 'Failed to update student status. Please try again.',
         color: 'red',
-        icon: <IconX size='1rem' />,
+        icon: <IconExclamationCircle size='1rem' />,
       });
       console.error('Failed to update student status:', error);
     },

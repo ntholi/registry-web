@@ -3,7 +3,7 @@
 import { toTitleCase } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
 import { Alert, Badge, Box, Divider, Stack, Text } from '@mantine/core';
-import { IconInfoCircle, IconX } from '@tabler/icons-react';
+import { IconInfoCircle, IconExclamationCircle } from '@tabler/icons-react';
 
 type Props = {
   registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -38,7 +38,7 @@ export default function DepartmentMessagesView({ registration }: Props) {
     <>
       <Divider my='sm' />
       <Alert
-        icon={<IconX size='1rem' />}
+        icon={<IconExclamationCircle size='1rem' />}
         color='red'
         variant='light'
         title='Registration Rejected'

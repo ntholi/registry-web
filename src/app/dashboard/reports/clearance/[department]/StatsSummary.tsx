@@ -1,6 +1,11 @@
 import { ClearanceStatsOverall } from '@/server/reports/clearance/service';
 import { Paper, Text, SimpleGrid, Group, ThemeIcon } from '@mantine/core';
-import { IconCheck, IconX, IconClock, IconUsers } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconExclamationCircle,
+  IconClock,
+  IconUsers,
+} from '@tabler/icons-react';
 
 interface Props {
   data: ClearanceStatsOverall;
@@ -44,7 +49,7 @@ export function StatsSummary({ data }: Props) {
       <Paper withBorder p='md' radius='md'>
         <Group>
           <ThemeIcon size='lg' radius='md' variant='light' color='red'>
-            <IconX size='1.5rem' />
+            <IconExclamationCircle size='1.5rem' />
           </ThemeIcon>
           <div>
             <Text size='xs' c='dimmed'>

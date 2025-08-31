@@ -9,7 +9,12 @@ import {
   Text,
   ThemeIcon,
 } from '@mantine/core';
-import { IconCheck, IconClock, IconFileText, IconX } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconClock,
+  IconFileText,
+  IconExclamationCircle,
+} from '@tabler/icons-react';
 
 interface GraduationClearanceViewProps {
   graduationRequest: any; // You might want to type this properly based on your graduation request type
@@ -23,7 +28,7 @@ export default function GraduationClearanceView({
       case 'approved':
         return <IconCheck size='1rem' />;
       case 'rejected':
-        return <IconX size='1rem' />;
+        return <IconExclamationCircle size='1rem' />;
       default:
         return <IconClock size='1rem' />;
     }

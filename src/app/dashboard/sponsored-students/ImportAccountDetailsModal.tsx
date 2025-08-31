@@ -16,7 +16,7 @@ import {
   IconUpload,
   IconAlertCircle,
   IconCheck,
-  IconX,
+  IconExclamationCircle,
 } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -208,7 +208,7 @@ export default function ImportAccountDetailsModal() {
         title: 'Error',
         message: 'Failed to parse Excel file. Please check the format.',
         color: 'red',
-        icon: <IconX size='1rem' />,
+        icon: <IconExclamationCircle size='1rem' />,
       });
     }
   };
@@ -302,7 +302,7 @@ export default function ImportAccountDetailsModal() {
         title: 'Import Failed',
         message: 'An error occurred during the import process.',
         color: 'red',
-        icon: <IconX size='1rem' />,
+        icon: <IconExclamationCircle size='1rem' />,
       });
     } finally {
       setIsProcessing(false);

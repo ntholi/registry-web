@@ -37,7 +37,7 @@ import {
   IconRefresh,
   IconUser,
   IconUsers,
-  IconX,
+  IconExclamationCircle,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useQueryState } from 'nuqs';
@@ -96,7 +96,7 @@ export default function RegistrationSimulator() {
         title: 'Validation Error',
         message: 'Please enter a student number',
         color: 'red',
-        icon: <IconX size={16} />,
+        icon: <IconExclamationCircle size={16} />,
       });
       return;
     }
@@ -116,7 +116,7 @@ export default function RegistrationSimulator() {
             title: 'Student Not Found',
             message: `No student found with number ${stdNo}`,
             color: 'red',
-            icon: <IconX size={16} />,
+            icon: <IconExclamationCircle size={16} />,
           });
           return;
         }
@@ -142,7 +142,7 @@ export default function RegistrationSimulator() {
             title: 'Simulation Error',
             message: moduleDataResponse.error,
             color: 'red',
-            icon: <IconX size={16} />,
+            icon: <IconExclamationCircle size={16} />,
           });
           return;
         }
@@ -173,7 +173,7 @@ export default function RegistrationSimulator() {
           title: 'Simulation Error',
           message: errorMessage,
           color: 'red',
-          icon: <IconX size={16} />,
+          icon: <IconExclamationCircle size={16} />,
         });
       }
     });
@@ -194,7 +194,7 @@ export default function RegistrationSimulator() {
           title: 'Module Limit Exceeded',
           message: 'You cannot select more than 8 modules',
           color: 'red',
-          icon: <IconX size={16} />,
+          icon: <IconExclamationCircle size={16} />,
         });
         return;
       }
@@ -212,7 +212,7 @@ export default function RegistrationSimulator() {
           title: 'Module Limit Exceeded',
           message: 'Cannot select all modules. Maximum of 8 modules allowed.',
           color: 'red',
-          icon: <IconX size={16} />,
+          icon: <IconExclamationCircle size={16} />,
         });
         return;
       }
@@ -238,7 +238,7 @@ export default function RegistrationSimulator() {
         title: 'Too Many Modules',
         message: 'Please select a maximum of 8 modules',
         color: 'red',
-        icon: <IconX size={16} />,
+        icon: <IconExclamationCircle size={16} />,
       });
       return;
     }
@@ -271,7 +271,7 @@ export default function RegistrationSimulator() {
           title: 'Analysis Error',
           message: errorMessage,
           color: 'red',
-          icon: <IconX size={16} />,
+          icon: <IconExclamationCircle size={16} />,
         });
       }
     });

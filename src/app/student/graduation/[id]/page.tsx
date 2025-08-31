@@ -18,7 +18,12 @@ import {
   ThemeIcon,
   Title,
 } from '@mantine/core';
-import { IconCheck, IconClock, IconReceipt, IconX } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconClock,
+  IconReceipt,
+  IconExclamationCircle,
+} from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
 import GraduationClearanceView from './GraduationClearanceView';
 import PaymentReceiptsView from './PaymentReceiptsView';
@@ -80,7 +85,7 @@ export default async function GraduationDetailsPage({ params }: Props) {
       case 'confirmed':
         return <IconCheck size='1rem' />;
       case 'rejected':
-        return <IconX size='1rem' />;
+        return <IconExclamationCircle size='1rem' />;
       default:
         return <IconClock size='1rem' />;
     }

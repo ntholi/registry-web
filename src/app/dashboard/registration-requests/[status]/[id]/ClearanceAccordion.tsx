@@ -12,7 +12,11 @@ import {
   Text,
   ThemeIcon,
 } from '@mantine/core';
-import { IconCheck, IconClock, IconX } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconClock,
+  IconExclamationCircle,
+} from '@tabler/icons-react';
 import Link from 'next/link';
 
 interface Props {
@@ -122,7 +126,7 @@ const getStatusIcon = (status: Status) => {
     case 'approved':
       return <IconCheck size='1rem' />;
     case 'rejected':
-      return <IconX size='1rem' />;
+      return <IconExclamationCircle size='1rem' />;
     default:
       return <IconClock size='1rem' />;
   }

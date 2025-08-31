@@ -25,7 +25,7 @@ import {
   IconCheck,
   IconClock,
   IconEdit,
-  IconX,
+  IconExclamationCircle,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';

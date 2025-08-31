@@ -14,7 +14,11 @@ import {
   TabsTab,
   ThemeIcon,
 } from '@mantine/core';
-import { IconCheck, IconClock, IconX } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconClock,
+  IconExclamationCircle,
+} from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import ClearanceAccordion from './ClearanceAccordion';
 import ModulesView from './ModulesView';
@@ -61,7 +65,7 @@ function getStatusIcon(status: (typeof registrationRequestStatusEnum)[number]) {
     case 'approved':
       return <IconCheck size={16} />;
     case 'rejected':
-      return <IconX size={16} />;
+      return <IconExclamationCircle size={16} />;
     default:
       return <IconClock size={16} />;
   }

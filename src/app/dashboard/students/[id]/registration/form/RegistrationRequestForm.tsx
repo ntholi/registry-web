@@ -21,7 +21,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconInfoCircle, IconX } from '@tabler/icons-react';
+import { IconInfoCircle, IconExclamationCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import ModuleSection from './ModuleSection';
@@ -209,7 +209,7 @@ export default function RegistrationRequestForm({
         title: 'Error',
         message: error.message || 'Failed to create registration request',
         color: 'red',
-        icon: <IconX size={16} />,
+        icon: <IconExclamationCircle size={16} />,
       });
     },
   });

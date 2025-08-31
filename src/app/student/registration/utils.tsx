@@ -1,5 +1,9 @@
 import { getRegistrationRequest } from '@/server/registration-requests/actions';
-import { IconCheck, IconClock, IconX } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconClock,
+  IconExclamationCircle,
+} from '@tabler/icons-react';
 
 type Status = 'pending' | 'approved' | 'rejected' | 'partial' | 'registered';
 
@@ -8,7 +12,7 @@ export function getStatusIcon(status: Status) {
     case 'approved':
       return <IconCheck size='1rem' />;
     case 'rejected':
-      return <IconX size='1rem' />;
+      return <IconExclamationCircle size='1rem' />;
     case 'registered':
       return <IconCheck size='1rem' />;
     case 'partial':

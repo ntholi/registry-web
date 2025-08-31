@@ -21,7 +21,7 @@ import {
   IconCheck,
   IconClock,
   IconInfoCircle,
-  IconX,
+  IconExclamationCircle,
 } from '@tabler/icons-react';
 import {
   getOverallClearanceStatus,
@@ -154,7 +154,11 @@ export default function ClearanceStatusView({ registration }: Props) {
         )}
 
         {overallStatus === 'rejected' && (
-          <Alert icon={<IconX size='1rem' />} color='red' variant='light'>
+          <Alert
+            icon={<IconExclamationCircle size='1rem' />}
+            color='red'
+            variant='light'
+          >
             <Text size='sm' fw={500}>
               Your registration has been rejected by one or more departments.
               Please review the messages above and contact the relevant
