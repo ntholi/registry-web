@@ -10,6 +10,11 @@ import {
   countPendingClearances,
   countRejectedClearances,
 } from '@/server/registration/clearance/actions';
+import {
+  countApprovedGraduationClearances,
+  countPendingGraduationClearances,
+  countRejectedGraduationClearances,
+} from '@/server/graduation/clearance/actions';
 import { countByStatus } from '@/server/registration/requests/actions';
 import { getUserSchools } from '@/server/users/actions';
 import {
@@ -35,10 +40,12 @@ import {
   IconBuildingStore,
   IconCalculator,
   IconCalendarEvent,
+  IconCertificate,
   IconChartLine,
   IconChevronRight,
   IconClipboardCheck,
   IconCopyCheck,
+  IconFileCheck,
   IconLogout2,
   IconMessageQuestion,
   IconNotebook,
@@ -182,8 +189,8 @@ function getNavigation(department: DashboardUser) {
       ],
     },
     {
-      label: 'Clearance',
-      icon: IconCopyCheck,
+      label: 'Registration Clearance',
+      icon: IconFileCheck,
       roles: ['finance', 'library', 'resource'],
       children: [
         {
@@ -213,6 +220,43 @@ function getNavigation(department: DashboardUser) {
           notificationCount: {
             queryKey: ['clearances', 'rejected'],
             queryFn: () => countRejectedClearances(),
+            color: 'gray',
+          },
+        },
+      ],
+    },
+    {
+      label: 'Graduation Clearance',
+      icon: IconCertificate,
+      roles: ['finance', 'library', 'resource'],
+      children: [
+        {
+          label: 'Requests',
+          href: '/dashboard/graduation/clearance/pending',
+          icon: IconMessageQuestion,
+          notificationCount: {
+            queryKey: ['graduationClearances', 'pending'],
+            queryFn: () => countPendingGraduationClearances(),
+            color: 'red',
+          },
+        },
+        {
+          label: 'Approved',
+          href: '/dashboard/graduation/clearance/approved',
+          icon: IconSquareRoundedCheck,
+          notificationCount: {
+            queryKey: ['graduationClearances', 'approved'],
+            queryFn: () => countApprovedGraduationClearances(),
+            color: 'gray',
+          },
+        },
+        {
+          label: 'Rejected',
+          href: '/dashboard/graduation/clearance/rejected',
+          icon: IconBarrierBlock,
+          notificationCount: {
+            queryKey: ['graduationClearances', 'rejected'],
+            queryFn: () => countRejectedGraduationClearances(),
             color: 'gray',
           },
         },

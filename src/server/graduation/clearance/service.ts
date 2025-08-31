@@ -60,6 +60,24 @@ class GraduationClearanceService {
   async delete(id: number) {
     return withAuth(async () => this.repository.delete(id), []);
   }
+
+  async getHistory(clearanceId: number) {
+    return withAuth(
+      async () => this.repository.findHistory(clearanceId),
+      ['dashboard']
+    );
+  }
+
+  async getHistoryByStudentNo(stdNo: number) {
+    return withAuth(async () => {
+      const session = await auth();
+      if (!session?.user?.role) throw new Error('Unauthorized');
+      return this.repository.findHistoryByStudentNo(
+        stdNo,
+        session.user.role as DashboardUser
+      );
+    }, ['dashboard']);
+  }
 }
 
 export const graduationClearanceService = serviceWrapper(

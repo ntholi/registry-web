@@ -197,13 +197,99 @@ export default class GraduationClearanceRepository extends BaseRepository<
     });
   }
 
+  async findHistory(clearanceId: number) {
+    const result = await db.query.clearance.findFirst({
+      where: eq(clearance.id, clearanceId),
+      with: {
+        graduationClearances: {
+          with: {
+            graduationRequest: {
+              with: {},
+            },
+          },
+        },
+        audits: {
+          orderBy: desc(clearanceAudit.date),
+          with: { user: true },
+        },
+      },
+    });
+
+    if (!result) return [];
+
+    const { graduationClearances, ...rest } = result;
+    return [
+      {
+        ...rest,
+        graduationRequest:
+          graduationClearances.length > 0
+            ? graduationClearances[0].graduationRequest
+            : null,
+      },
+    ];
+  }
+
+  async findHistoryByStudentNo(stdNo: number, department: DashboardUser) {
+    const results = await db
+      .select({ clearanceId: clearance.id })
+      .from(clearance)
+      .innerJoin(
+        graduationClearance,
+        eq(clearance.id, graduationClearance.clearanceId)
+      )
+      .innerJoin(
+        graduationRequests,
+        eq(graduationClearance.graduationRequestId, graduationRequests.id)
+      )
+      .where(
+        and(
+          eq(graduationRequests.stdNo, stdNo),
+          eq(clearance.department, department)
+        )
+      );
+
+    const clearanceIds = results.map((r) => r.clearanceId);
+    if (clearanceIds.length === 0) return [];
+
+    const clearances = await db.query.clearance.findMany({
+      where: inArray(clearance.id, clearanceIds),
+      with: {
+        graduationClearances: {
+          with: {
+            graduationRequest: true,
+          },
+        },
+        audits: {
+          orderBy: desc(clearanceAudit.date),
+          with: { user: true },
+        },
+      },
+      orderBy: [desc(clearance.createdAt)],
+    });
+
+    return clearances.map((item) => {
+      const { graduationClearances, ...rest } = item;
+      return {
+        ...rest,
+        graduationRequest:
+          graduationClearances.length > 0
+            ? graduationClearances[0].graduationRequest
+            : null,
+      };
+    });
+  }
+
   async countByStatus(
     status: 'pending' | 'approved' | 'rejected',
     department: DashboardUser
   ) {
     const [result] = await db
       .select({ count: count() })
-      .from(clearance)
+      .from(graduationClearance)
+      .innerJoin(
+        clearance,
+        eq(graduationClearance.clearanceId, clearance.id)
+      )
       .where(
         and(eq(clearance.department, department), eq(clearance.status, status))
       );

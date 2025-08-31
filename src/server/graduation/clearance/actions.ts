@@ -54,3 +54,11 @@ export async function respondToGraduationClearance(data: Clearance) {
 export async function deleteGraduationClearance(id: number) {
   return service.delete(id);
 }
+
+export async function getGraduationClearanceHistory(clearanceId: number) {
+  return service.getHistory(clearanceId);
+}
+
+export async function getGraduationClearanceHistoryByStudentNo(stdNo: number) {
+  return service.getHistoryByStudentNo(stdNo);
+}
