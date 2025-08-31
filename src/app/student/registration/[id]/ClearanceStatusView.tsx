@@ -7,6 +7,7 @@ import {
   Badge,
   Box,
   Card,
+  Container,
   Divider,
   Group,
   Paper,
@@ -27,53 +28,12 @@ type Props = {
   registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
 };
 
-type Status = 'pending' | 'approved' | 'rejected';
+type Status = 'pending' | 'approved' | 'rejected' | 'partial' | 'registered';
 
 export default function ClearanceStatusView({ registration }: Props) {
   const { clearances = [] } = registration;
 
-  const getStatusColor = (status: Status) => {
-    switch (status) {
-      case 'approved':
-        return 'green';
-      case 'rejected':
-        return 'red';
-      default:
-        return 'yellow';
-    }
-  };
-
-  const getStatusIcon = (status: Status) => {
-    switch (status) {
-      case 'approved':
-        return <IconCheck size='1rem' />;
-      case 'rejected':
-        return <IconX size='1rem' />;
-      default:
-        return <IconClock size='1rem' />;
-    }
-  };
-
-  const getOverallStatus = () => {
-    if (clearances.length === 0) return 'pending';
-
-    // If any department has rejected, overall status is rejected
-    const anyRejected = clearances.some(
-      (c) => c.clearance.status === 'rejected'
-    );
-    if (anyRejected) return 'rejected';
-
-    // If all departments have approved, overall status is approved
-    const allApproved = clearances.every(
-      (c) => c.clearance.status === 'approved'
-    );
-    if (allApproved) return 'approved';
-
-    // Otherwise, still pending
-    return 'pending';
-  };
-
-  const overallStatus = getOverallStatus();
+  const overallStatus = getOverallClearanceStatus(registration);
   const departments = ['finance', 'library'];
 
   return (
@@ -185,7 +145,7 @@ export default function ClearanceStatusView({ registration }: Props) {
         {overallStatus === 'approved' && (
           <Alert icon={<IconCheck size='1rem' />} color='green' variant='light'>
             <Text size='sm' fw={500}>
-              🎉 Congratulations! All clearances have been approved.
+              Congratulations! All clearances have been approved.
             </Text>
           </Alert>
         )}
@@ -211,4 +171,55 @@ export default function ClearanceStatusView({ registration }: Props) {
       </Stack>
     </Card>
   );
+}
+
+export function getStatusIcon(status: Status) {
+  switch (status) {
+    case 'approved':
+      return <IconCheck size='1rem' />;
+    case 'rejected':
+      return <IconX size='1rem' />;
+    case 'registered':
+      return <IconCheck size='1rem' />;
+    case 'partial':
+      return <IconClock size='1rem' />;
+    case 'pending':
+    default:
+      return <IconClock size='1rem' />;
+  }
+}
+
+export function getStatusColor(status: Status) {
+  switch (status) {
+    case 'approved':
+      return 'green';
+    case 'rejected':
+      return 'red';
+    case 'registered':
+      return 'green';
+    case 'partial':
+      return 'orange';
+    default:
+      return 'yellow';
+  }
+}
+
+export function getOverallClearanceStatus(
+  registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>
+) {
+  if (!registration.clearances || registration.clearances.length === 0) {
+    return 'pending';
+  }
+
+  const anyRejected = registration.clearances.some(
+    (c) => c.clearance.status === 'rejected'
+  );
+  if (anyRejected) return 'rejected';
+
+  const allApproved = registration.clearances.every(
+    (c) => c.clearance.status === 'approved'
+  );
+  if (allApproved) return 'approved';
+
+  return registration.status;
 }

@@ -28,7 +28,7 @@ class UserService {
   async getUserSchoolIds(userId: string) {
     return withAuth(
       async () => this.repository.getUserSchoolIds(userId),
-      ['dashboard'],
+      ['dashboard']
     );
   }
 
@@ -66,10 +66,8 @@ class UserService {
 
   async updateUserSchools(userId: string, schoolIds: number[]) {
     return withAuth(async () => {
-      // Delete existing user schools
       await db.delete(userSchools).where(eq(userSchools.userId, userId));
 
-      // Add new user schools
       if (schoolIds.length > 0) {
         const userSchoolsData = schoolIds.map((schoolId) => ({
           userId,
@@ -83,10 +81,7 @@ class UserService {
 
   async delete(id: string) {
     return withAuth(async () => {
-      // Delete user schools first
       await db.delete(userSchools).where(eq(userSchools.userId, id));
-
-      // Then delete the user
       return this.repository.delete(id);
     }, []);
   }

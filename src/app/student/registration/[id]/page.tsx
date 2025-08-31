@@ -30,7 +30,10 @@ import {
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import ProofOfRegistrationDownload from '../components/ProofOfRegistrationDownload';
-import ClearanceStatusView from './ClearanceStatusView';
+import ClearanceStatusView, {
+  getOverallClearanceStatus,
+  getStatusIcon,
+} from './ClearanceStatusView';
 import DepartmentMessagesView from './DepartmentMessagesView';
 import ModulesView from './ModulesView';
 
@@ -57,17 +60,6 @@ export default async function page({ params }: Props) {
   if (registration.stdNo !== session.user.stdNo) {
     return forbidden();
   }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return <IconCheck size='1rem' />;
-      case 'rejected':
-        return <IconX size='1rem' />;
-      default:
-        return <IconClock size='1rem' />;
-    }
-  };
 
   const clearanceStatus = getOverallClearanceStatus(registration);
 
@@ -156,24 +148,4 @@ export default async function page({ params }: Props) {
       </Stack>
     </Container>
   );
-}
-
-export function getOverallClearanceStatus(
-  registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>
-) {
-  if (!registration.clearances || registration.clearances.length === 0) {
-    return 'pending';
-  }
-
-  const anyRejected = registration.clearances.some(
-    (c) => c.clearance.status === 'rejected'
-  );
-  if (anyRejected) return 'rejected';
-
-  const allApproved = registration.clearances.every(
-    (c) => c.clearance.status === 'approved'
-  );
-  if (allApproved) return 'approved';
-
-  return registration.status;
 }
