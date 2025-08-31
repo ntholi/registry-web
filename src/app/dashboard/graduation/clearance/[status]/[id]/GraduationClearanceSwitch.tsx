@@ -82,7 +82,7 @@ export default function GraduationClearanceSwitch({
 
   return (
     <Paper withBorder p='md' py={21}>
-      <Stack>
+      <Stack gap={23}>
         <SegmentedControl
           value={status}
           onChange={(it) => {

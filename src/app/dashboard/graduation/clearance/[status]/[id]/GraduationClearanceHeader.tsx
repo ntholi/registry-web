@@ -8,13 +8,9 @@ import React from 'react';
 
 interface Props {
   studentName: string;
-  stdNo: number;
 }
 
-export default function GraduationClearanceHeader({
-  studentName,
-  stdNo,
-}: Props) {
+export default function GraduationClearanceHeader({ studentName }: Props) {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [, setView] = useViewSelect();
 
@@ -35,9 +31,6 @@ export default function GraduationClearanceHeader({
             {studentName}
           </Title>
         )}
-        <Badge color='blue' variant='light'>
-          {stdNo}
-        </Badge>
       </Flex>
       <Divider my={15} />
     </>

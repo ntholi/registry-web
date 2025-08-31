@@ -23,6 +23,8 @@ import { IconCopy } from '@tabler/icons-react';
 import { formatDateTime } from '@/lib/utils';
 import { getGraduationClearance } from '@/server/graduation/clearance/actions';
 import GraduationClearanceSwitch from './GraduationClearanceSwitch';
+import PaymentReceiptsView from '@/app/student/graduation/[id]/PaymentReceiptsView';
+import PaymentReceipts from './PaymentReceipts';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getGraduationClearance>>>;
@@ -37,50 +39,40 @@ export default function GraduationClearanceDetails({ request }: Props) {
     <Stack p='lg'>
       <Grid>
         <GridCol span={{ base: 12, md: 7 }}>
-          <Paper withBorder p='md'>
-            <Stack>
-              <FieldView label='Student Number' underline={false}>
-                <Group justify='space-between'>
-                  <Anchor
-                    component={Link}
-                    href={`/dashboard/students/${student.stdNo}`}
-                  >
-                    {student.stdNo}
-                  </Anchor>
-                  <Tooltip label='Copy'>
-                    <ActionIcon
-                      variant='subtle'
-                      color='gray'
-                      onClick={() => {
-                        navigator.clipboard.writeText(String(student.stdNo));
-                        notifications.show({
-                          message: 'Copied to clipboard',
-                          color: 'green',
-                        });
-                      }}
+          <Stack>
+            <Paper withBorder p='md'>
+              <Stack>
+                <FieldView label='Student Number' underline={false}>
+                  <Group justify='space-between'>
+                    <Anchor
+                      component={Link}
+                      href={`/dashboard/students/${student.stdNo}`}
                     >
-                      <IconCopy size={'1rem'} />
-                    </ActionIcon>
-                  </Tooltip>
-                </Group>
-              </FieldView>
-              <FieldView label='Date Requested' underline={false}>
-                {formatDateTime(request.graduationRequest.createdAt)}
-              </FieldView>
-              <FieldView label='Department' underline={false}>
-                {request.department}
-              </FieldView>
-              <FieldView label='Current Status' underline={false}>
-                {request.status.charAt(0).toUpperCase() +
-                  request.status.slice(1)}
-              </FieldView>
-              {request.responseDate && (
-                <FieldView label='Response Date' underline={false}>
-                  {formatDateTime(request.responseDate)}
+                      {student.stdNo}
+                    </Anchor>
+                    <Tooltip label='Copy'>
+                      <ActionIcon
+                        variant='subtle'
+                        color='gray'
+                        onClick={() => {
+                          navigator.clipboard.writeText(String(student.stdNo));
+                          notifications.show({
+                            message: 'Copied to clipboard',
+                            color: 'green',
+                          });
+                        }}
+                      >
+                        <IconCopy size={'1rem'} />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Group>
                 </FieldView>
-              )}
-            </Stack>
-          </Paper>
+                <FieldView label='Date Requested' underline={false}>
+                  {formatDateTime(request.graduationRequest.createdAt)}
+                </FieldView>
+              </Stack>
+            </Paper>
+          </Stack>
         </GridCol>
         <GridCol span={{ base: 12, md: 5 }}>
           <GraduationClearanceSwitch
@@ -90,6 +82,9 @@ export default function GraduationClearanceDetails({ request }: Props) {
           />
         </GridCol>
       </Grid>
+      <Paper withBorder p='md'>
+        <PaymentReceipts graduationRequest={request.graduationRequest} />
+      </Paper>
       <Accordion
         value={accordion}
         onChange={(it) => setAccordion(it as 'comments')}
