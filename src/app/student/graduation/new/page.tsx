@@ -32,7 +32,7 @@ import PaymentReceiptsInput from './PaymentReceiptsInput';
 import ReviewAndSubmit from './ReviewAndSubmit';
 
 type PaymentReceiptData = {
-  paymentType: (typeof paymentTypeEnum)[number] | null;
+  paymentType: (typeof paymentTypeEnum)[number];
   receiptNo: string;
 };
 
@@ -57,9 +57,7 @@ export default function GraduationPage() {
   const { student } = useUserStudent();
   const [activeStep, setActiveStep] = useState(0);
   const [informationConfirmed, setInformationConfirmed] = useState(false);
-  const [paymentReceipts, setPaymentReceipts] = useState<PaymentReceiptData[]>(
-    []
-  );
+  const [receipts, setReceipts] = useState<PaymentReceiptData[]>([]);
 
   const { data: existingRequest, isLoading: checkingExisting } = useQuery({
     queryKey: ['graduation-request', student?.stdNo],
@@ -75,13 +73,13 @@ export default function GraduationPage() {
       if (
         !student ||
         !informationConfirmed ||
-        paymentReceipts.length === 0 ||
-        !paymentReceipts.every((r) => r.receiptNo.trim() !== '')
+        receipts.length === 0 ||
+        !receipts.every((r) => r.receiptNo.trim() !== '')
       ) {
         throw new Error('Missing required data for graduation request');
       }
 
-      const payloadReceipts = paymentReceipts.map((r) => ({
+      const payloadReceipts = receipts.map((r) => ({
         paymentType: r.paymentType!,
         receiptNo: r.receiptNo,
       }));
@@ -114,7 +112,7 @@ export default function GraduationPage() {
   const nextStep = () => {
     if (activeStep === 0 && informationConfirmed) {
       setActiveStep(1);
-    } else if (activeStep === 1 && paymentReceipts.length > 0) {
+    } else if (activeStep === 1 && receipts.length > 0) {
       setActiveStep(2);
     }
   };
@@ -128,8 +126,8 @@ export default function GraduationPage() {
   const handleSubmit = () => {
     if (
       informationConfirmed &&
-      paymentReceipts.length > 0 &&
-      paymentReceipts.every((r) => r.receiptNo.trim() !== '')
+      receipts.length > 0 &&
+      receipts.every((r) => r.receiptNo.trim() !== '')
     ) {
       graduationMutation.mutate();
     }
@@ -137,12 +135,11 @@ export default function GraduationPage() {
 
   const canProceedStep1 = informationConfirmed;
   const canProceedStep2 =
-    paymentReceipts.length > 0 &&
-    paymentReceipts.every((r) => r.receiptNo.trim() !== '');
+    receipts.length > 0 && receipts.every((r) => r.receiptNo.trim() !== '');
   const canSubmit =
     informationConfirmed &&
-    paymentReceipts.length > 0 &&
-    paymentReceipts.every((r) => r.receiptNo.trim() !== '');
+    receipts.length > 0 &&
+    receipts.every((r) => r.receiptNo.trim() !== '');
 
   const progressValue = ((activeStep + 1) / STEPS.length) * 100;
 
@@ -200,15 +197,15 @@ export default function GraduationPage() {
       case 1:
         return (
           <PaymentReceiptsInput
-            paymentReceipts={paymentReceipts}
-            onPaymentReceiptsChange={(r) => setPaymentReceipts(r)}
+            paymentReceipts={receipts}
+            onPaymentReceiptsChange={(r) => setReceipts(r)}
           />
         );
       case 2:
         return (
           <ReviewAndSubmit
             student={student}
-            paymentReceipts={paymentReceipts}
+            paymentReceipts={receipts}
             loading={graduationMutation.isPending}
           />
         );

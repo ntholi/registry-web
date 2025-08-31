@@ -16,6 +16,7 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
+import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import {
   IconCurrencyDollar,
@@ -23,10 +24,9 @@ import {
   IconReceipt,
   IconTrash,
 } from '@tabler/icons-react';
-import { useState } from 'react';
 
 type PaymentReceiptData = {
-  paymentType: (typeof paymentTypeEnum)[number] | null;
+  paymentType: (typeof paymentTypeEnum)[number];
   receiptNo: string;
 };
 
@@ -39,8 +39,20 @@ export default function PaymentReceiptsInput({
   paymentReceipts,
   onPaymentReceiptsChange,
 }: Props) {
-  const [newPayment, setNewPayment] = useState<PaymentReceiptData>();
   const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const form = useForm({
+    mode: 'uncontrolled',
+    initialValues: {
+      paymentType: '',
+      receiptNo: '',
+    },
+    validate: {
+      paymentType: (value) => (value ? null : 'Payment type is required'),
+      receiptNo: (value) =>
+        value?.trim() ? null : 'Receipt number is required',
+    },
+  });
 
   const paymentTypeOptions = paymentTypeEnum.map((type) => ({
     value: type,
@@ -50,35 +62,21 @@ export default function PaymentReceiptsInput({
       .join(' '),
   }));
 
-  const addPaymentReceipt = () => {
-    if (newPayment?.receiptNo?.trim() && newPayment?.paymentType) {
-      onPaymentReceiptsChange([
-        ...paymentReceipts,
-        newPayment as PaymentReceiptData,
-      ]);
-      setNewPayment(undefined);
-    }
+  const addPaymentReceipt = (values: typeof form.values) => {
+    onPaymentReceiptsChange([
+      ...paymentReceipts,
+      {
+        paymentType: values.paymentType as (typeof paymentTypeEnum)[number],
+        receiptNo: values.receiptNo,
+      },
+    ]);
+    form.reset();
   };
 
   const removePaymentReceipt = (index: number) => {
     const updated = paymentReceipts.filter((_, i) => i !== index);
     onPaymentReceiptsChange(updated);
   };
-
-  const updateNewPayment = (
-    field: keyof PaymentReceiptData,
-    value: string | null
-  ) => {
-    setNewPayment((prev) => ({
-      paymentType: null,
-      receiptNo: '',
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const isAddDisabled =
-    !newPayment?.receiptNo?.trim() || !newPayment?.paymentType;
 
   return (
     <Stack gap='lg'>
@@ -92,37 +90,31 @@ export default function PaymentReceiptsInput({
           Enter the receipt details for your graduation-related payments.
         </Text>
 
-        <SimpleGrid cols={isMobile ? 1 : 2} spacing='md'>
-          <Select
-            label='Payment Type'
-            placeholder='Select payment type'
-            value={newPayment?.paymentType || null}
-            onChange={(value) => updateNewPayment('paymentType', value)}
-            data={paymentTypeOptions}
-            required
-            leftSection={<IconCurrencyDollar size='1rem' />}
-          />
+        <form onSubmit={form.onSubmit(addPaymentReceipt)}>
+          <SimpleGrid cols={isMobile ? 1 : 2} spacing='md'>
+            <Select
+              label='Payment Type'
+              placeholder='Select payment type'
+              data={paymentTypeOptions}
+              required
+              leftSection={<IconCurrencyDollar size='1rem' />}
+              {...form.getInputProps('paymentType')}
+            />
 
-          <TextInput
-            label='Receipt Number'
-            placeholder='Enter receipt number'
-            value={newPayment?.receiptNo || ''}
-            onChange={(event) =>
-              updateNewPayment('receiptNo', event.currentTarget.value)
-            }
-            required
-          />
-        </SimpleGrid>
+            <TextInput
+              label='Receipt Number'
+              placeholder='Enter receipt number'
+              required
+              {...form.getInputProps('receiptNo')}
+            />
+          </SimpleGrid>
 
-        <Group justify='flex-end' mt='lg'>
-          <Button
-            leftSection={<IconPlus size='1rem' />}
-            onClick={addPaymentReceipt}
-            disabled={isAddDisabled}
-          >
-            Add Receipt
-          </Button>
-        </Group>
+          <Group justify='flex-end' mt='lg'>
+            <Button leftSection={<IconPlus size='1rem' />} type='submit'>
+              Add Receipt
+            </Button>
+          </Group>
+        </form>
       </Card>
 
       {paymentReceipts.length > 0 && (
