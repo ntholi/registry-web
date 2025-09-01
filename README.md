@@ -14,35 +14,42 @@ A modern web portal for Limkokwing University's Registry Department that manages
 
 ### Backend
 
-- Next.js API routes
+- Next.js Server Actions
 - Drizzle ORM
-- PostgreSQL database
+- Turso (SQLite-compatible) database
 - NextAuth.js for authentication
 
 ## Getting Started
 
-1. Install dependencies:
+1. **Environment Variables**: Copy `.env.example` to `.env.local` and configure your environment variables:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Required variables:
+   - `TURSO_DATABASE_URL`: Your Turso database URL
+   - `TURSO_AUTH_TOKEN`: Your Turso authentication token
+   - `AUTH_SECRET`: Secret for NextAuth.js
+   - `AUTH_GOOGLE_ID` & `AUTH_GOOGLE_SECRET`: Google OAuth credentials
+
+2. **Install dependencies**:
 
 ```bash
-npm install
-# or
-yarn install
-# or
 pnpm install
-# or
-bun install
 ```
 
-2. Run the development server:
+3. **Database Setup**:
+   - Create a Turso database: `turso db create your-db-name`
+   - Get database URL: `turso db show your-db-name`
+   - Create auth token: `turso db tokens create your-db-name`
+   - Update your `.env.local` with the credentials
+   - Push database schema: `pnpm db:push`
+
+4. **Run the development server**:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

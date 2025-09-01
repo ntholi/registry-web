@@ -4,7 +4,8 @@ import * as schema from './schema';
 import * as relations from './relations';
 
 const client = createClient({
-  url: 'file:./local.db',
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN!,
 });
 
 const db = drizzle(client, {
