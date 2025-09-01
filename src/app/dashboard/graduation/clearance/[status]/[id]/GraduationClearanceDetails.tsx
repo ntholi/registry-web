@@ -25,6 +25,7 @@ import { getGraduationClearance } from '@/server/graduation/clearance/actions';
 import GraduationClearanceSwitch from './GraduationClearanceSwitch';
 import PaymentReceiptsView from '@/app/student/graduation/[id]/PaymentReceiptsView';
 import PaymentReceipts from './PaymentReceipts';
+import { useSession } from 'next-auth/react';
 
 type Props = {
   request: NonNullable<Awaited<ReturnType<typeof getGraduationClearance>>>;
@@ -34,6 +35,7 @@ export default function GraduationClearanceDetails({ request }: Props) {
   const [comment, setComment] = useState(request.message || undefined);
   const [accordion, setAccordion] = useState<'comments'>('comments');
   const { student } = request.graduationRequest;
+  const { data: session } = useSession();
 
   return (
     <Stack p='lg'>
@@ -82,9 +84,11 @@ export default function GraduationClearanceDetails({ request }: Props) {
           />
         </GridCol>
       </Grid>
-      <Paper withBorder p='md'>
-        <PaymentReceipts graduationRequest={request.graduationRequest} />
-      </Paper>
+      {session?.user?.role === 'finance' && (
+        <Paper withBorder p='md'>
+          <PaymentReceipts graduationRequest={request.graduationRequest} />
+        </Paper>
+      )}
       <Accordion
         value={accordion}
         onChange={(it) => setAccordion(it as 'comments')}

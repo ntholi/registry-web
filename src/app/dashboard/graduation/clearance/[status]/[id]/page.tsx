@@ -31,7 +31,7 @@ export default async function GraduationClearanceRequestDetails({
       <Tabs defaultValue='details' variant='outline'>
         <TabsList>
           <TabsTab value='details'>Details</TabsTab>
-          {session?.user?.role === 'finance' && (
+          {['academic', 'finance'].includes(session?.user?.role || '') && (
             <TabsTab value='academics'>Academics</TabsTab>
           )}
           <TabsTab value='history'>History</TabsTab>
