@@ -133,15 +133,6 @@ function getNavigation(department: DashboardUser) {
       },
     },
     {
-      label: 'Gradebook',
-      icon: IconNotebook,
-      roles: ['academic'],
-      children: [],
-      isVisible: (session) => {
-        return session?.user?.position !== 'admin';
-      },
-    },
-    {
       label: 'Registration Requests',
       icon: IconClipboardCheck,
       roles: ['registry', 'admin'],
@@ -269,6 +260,15 @@ function getNavigation(department: DashboardUser) {
           },
         },
       ],
+    },
+    {
+      label: 'Gradebook',
+      icon: IconNotebook,
+      roles: ['academic'],
+      children: [],
+      isVisible: (session) => {
+        return session?.user?.position !== 'admin';
+      },
     },
     {
       label: 'Blocked Students',
