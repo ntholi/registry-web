@@ -7,8 +7,13 @@ import {
   graduationRequests,
   clearanceAudit,
   students,
+  studentPrograms,
+  structures,
+  programs,
+  schools,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
+import { usersRepository } from '@/server/users/repository';
 import { and, asc, count, desc, eq, inArray, like } from 'drizzle-orm';
 
 type Model = typeof clearance.$inferInsert;
@@ -117,15 +122,35 @@ export default class GraduationClearanceRepository extends BaseRepository<
     params: QueryOptions<typeof clearance>,
     status?: 'pending' | 'approved' | 'rejected'
   ) {
+    const session = await auth();
     const { offset, limit } = this.buildQueryCriteria(params);
 
-    const whereJoin = and(
+    // Get user's school IDs if they are academic
+    let userSchoolIds: number[] = [];
+    if (session?.user?.role === 'academic' && session.user.id) {
+      userSchoolIds = await usersRepository.getUserSchoolIds(session.user.id);
+    }
+
+    const baseWhereConditions = [
       params.search ? like(students.stdNo, `%${params.search}%`) : undefined,
       eq(clearance.department, department),
-      status ? eq(clearance.status, status) : undefined
-    );
+      status ? eq(clearance.status, status) : undefined,
+    ].filter(Boolean);
 
-    const [{ total }] = await db
+    // Add school filter for academic users
+    const schoolFilter =
+      session?.user?.role === 'academic' && userSchoolIds.length > 0
+        ? inArray(schools.id, userSchoolIds)
+        : undefined;
+
+    if (schoolFilter) {
+      baseWhereConditions.push(schoolFilter);
+    }
+
+    const whereJoin = and(...baseWhereConditions);
+
+    // Count query
+    let countQuery = db
       .select({ total: count() })
       .from(graduationClearance)
       .innerJoin(
@@ -133,14 +158,10 @@ export default class GraduationClearanceRepository extends BaseRepository<
         eq(graduationClearance.graduationRequestId, graduationRequests.id)
       )
       .innerJoin(students, eq(graduationRequests.stdNo, students.stdNo))
-      .innerJoin(clearance, eq(graduationClearance.clearanceId, clearance.id))
-      .where(whereJoin);
+      .innerJoin(clearance, eq(graduationClearance.clearanceId, clearance.id));
 
-    if (total === 0) {
-      return { items: [], totalPages: 0, totalItems: 0 };
-    }
-
-    const idRows = await db
+    // ID query
+    let idQuery = db
       .select({ id: graduationClearance.id })
       .from(graduationClearance)
       .innerJoin(
@@ -148,13 +169,36 @@ export default class GraduationClearanceRepository extends BaseRepository<
         eq(graduationClearance.graduationRequestId, graduationRequests.id)
       )
       .innerJoin(students, eq(graduationRequests.stdNo, students.stdNo))
-      .innerJoin(clearance, eq(graduationClearance.clearanceId, clearance.id))
+      .innerJoin(clearance, eq(graduationClearance.clearanceId, clearance.id));
+
+    // Add school joins only if academic user
+    if (session?.user?.role === 'academic') {
+      countQuery = countQuery
+        .innerJoin(studentPrograms, eq(students.stdNo, studentPrograms.stdNo))
+        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+        .innerJoin(programs, eq(structures.programId, programs.id))
+        .innerJoin(schools, eq(programs.schoolId, schools.id));
+
+      idQuery = idQuery
+        .innerJoin(studentPrograms, eq(students.stdNo, studentPrograms.stdNo))
+        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+        .innerJoin(programs, eq(structures.programId, programs.id))
+        .innerJoin(schools, eq(programs.schoolId, schools.id));
+    }
+
+    const [{ total }] = await countQuery.where(whereJoin);
+
+    if (total === 0) {
+      return { items: [], totalPages: 0, totalItems: 0 };
+    }
+
+    const idRows = await idQuery
       .where(whereJoin)
       .orderBy(asc(clearance.createdAt))
       .limit(limit)
       .offset(offset);
 
-    const ids = idRows.map((r) => r.id);
+    const ids = idRows.map((r: { id: number }) => r.id);
     if (ids.length === 0) {
       return { items: [], totalPages: 0, totalItems: 0 };
     }
@@ -252,13 +296,51 @@ export default class GraduationClearanceRepository extends BaseRepository<
     status: 'pending' | 'approved' | 'rejected',
     department: DashboardUser
   ) {
-    const [result] = await db
+    const session = await auth();
+
+    // Get user's school IDs if they are academic
+    let userSchoolIds: number[] = [];
+    if (session?.user?.role === 'academic' && session.user.id) {
+      userSchoolIds = await usersRepository.getUserSchoolIds(session.user.id);
+    }
+
+    const baseWhereConditions = [
+      eq(clearance.department, department),
+      eq(clearance.status, status),
+    ];
+
+    // Add school filter for academic users
+    const schoolFilter =
+      session?.user?.role === 'academic' && userSchoolIds.length > 0
+        ? inArray(schools.id, userSchoolIds)
+        : undefined;
+
+    if (schoolFilter) {
+      baseWhereConditions.push(schoolFilter);
+    }
+
+    const whereCondition = and(...baseWhereConditions);
+
+    let query = db
       .select({ count: count() })
       .from(graduationClearance)
-      .innerJoin(clearance, eq(graduationClearance.clearanceId, clearance.id))
-      .where(
-        and(eq(clearance.department, department), eq(clearance.status, status))
-      );
+      .innerJoin(clearance, eq(graduationClearance.clearanceId, clearance.id));
+
+    // Add school joins only if academic user
+    if (session?.user?.role === 'academic') {
+      query = query
+        .innerJoin(
+          graduationRequests,
+          eq(graduationClearance.graduationRequestId, graduationRequests.id)
+        )
+        .innerJoin(students, eq(graduationRequests.stdNo, students.stdNo))
+        .innerJoin(studentPrograms, eq(students.stdNo, studentPrograms.stdNo))
+        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+        .innerJoin(programs, eq(structures.programId, programs.id))
+        .innerJoin(schools, eq(programs.schoolId, schools.id));
+    }
+
+    const [result] = await query.where(whereCondition);
     return result.count;
   }
 }
