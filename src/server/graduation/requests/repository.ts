@@ -8,7 +8,8 @@ import {
 } from '@/db/schema';
 import { db } from '@/db';
 import { eq } from 'drizzle-orm';
-import { graduationClearanceService } from '../clearance/service';
+import { studentsService } from '@/server/students/service';
+import { getOutstandingFromStructure } from '@/utils/grades';
 
 export default class GraduationRequestRepository extends BaseRepository<
   typeof graduationRequests,
@@ -41,10 +42,7 @@ export default class GraduationRequestRepository extends BaseRepository<
       }
 
       try {
-        await graduationClearanceService.processAcademicClearance(
-          request.id,
-          data.stdNo
-        );
+        await this.processAcademicClearance(tx, request.id, data.stdNo);
       } catch (error) {
         console.error('Error processing academic clearance:', error);
         const [academicClearanceRecord] = await tx
@@ -136,7 +134,8 @@ export default class GraduationRequestRepository extends BaseRepository<
       }
 
       try {
-        await graduationClearanceService.processAcademicClearance(
+        await this.processAcademicClearance(
+          tx,
           graduationRequest.id,
           graduationRequestData.stdNo
         );
@@ -168,6 +167,62 @@ export default class GraduationRequestRepository extends BaseRepository<
       }
 
       return graduationRequest;
+    });
+  }
+
+  private async processAcademicClearance(
+    tx: any,
+    graduationRequestId: number,
+    stdNo: number
+  ) {
+    const programs = await studentsService.getStudentPrograms(stdNo);
+    if (!programs || programs.length === 0) {
+      throw new Error('Student not found');
+    }
+
+    const outstanding = await getOutstandingFromStructure(programs);
+
+    let status: 'approved' | 'rejected';
+    let message: string | undefined;
+
+    if (
+      outstanding.failedNeverRepeated.length === 0 &&
+      outstanding.neverAttempted.length === 0
+    ) {
+      status = 'approved';
+    } else {
+      status = 'rejected';
+      const reasons = [];
+
+      if (outstanding.failedNeverRepeated.length > 0) {
+        const failedList = outstanding.failedNeverRepeated
+          .map((m) => `${m.code} - ${m.name}`)
+          .join(', ');
+        reasons.push(`Failed modules never repeated: ${failedList}`);
+      }
+
+      if (outstanding.neverAttempted.length > 0) {
+        const neverAttemptedList = outstanding.neverAttempted
+          .map((m) => `${m.code} - ${m.name}`)
+          .join(', ');
+        reasons.push(`Required modules never attempted: ${neverAttemptedList}`);
+      }
+
+      message = `Academic requirements not met. ${reasons.join('; ')}. Please ensure all program modules are completed successfully before applying for graduation.`;
+    }
+
+    const [academicClearanceRecord] = await tx
+      .insert(clearance)
+      .values({
+        department: 'academic',
+        status,
+        message,
+      })
+      .returning();
+
+    await tx.insert(graduationClearance).values({
+      graduationRequestId,
+      clearanceId: academicClearanceRecord.id,
     });
   }
 }

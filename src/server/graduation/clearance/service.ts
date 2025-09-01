@@ -4,8 +4,6 @@ import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../../base/BaseRepository';
 import { auth } from '@/auth';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
-import { studentsService } from '@/server/students/service';
-import { getOutstandingFromStructure } from '@/utils/grades';
 
 type Clearance = typeof clearance.$inferInsert;
 
@@ -82,54 +80,6 @@ class GraduationClearanceService {
         session.user.role as DashboardUser
       );
     }, ['dashboard']);
-  }
-
-  async processAcademicClearance(graduationRequestId: number, stdNo: number) {
-    const programs = await studentsService.getStudentPrograms(stdNo);
-    if (!programs || programs.length === 0) {
-      throw new Error('Student not found');
-    }
-
-    const outstanding = await getOutstandingFromStructure(programs);
-
-    let status: 'approved' | 'rejected';
-    let message: string | undefined;
-
-    if (
-      outstanding.failedNeverRepeated.length === 0 &&
-      outstanding.neverAttempted.length === 0
-    ) {
-      status = 'approved';
-    } else {
-      status = 'rejected';
-
-      const reasons = [];
-
-      if (outstanding.failedNeverRepeated.length > 0) {
-        const failedNeverRepeatedList = outstanding.failedNeverRepeated
-          .map((m) => `${m.code} - ${m.name}`)
-          .join(', ');
-        reasons.push(
-          `Failed modules never repeated: ${failedNeverRepeatedList}`
-        );
-      }
-
-      if (outstanding.neverAttempted.length > 0) {
-        const neverAttemptedList = outstanding.neverAttempted
-          .map((m) => `${m.code} - ${m.name}`)
-          .join(', ');
-        reasons.push(`Required modules never attempted: ${neverAttemptedList}`);
-      }
-
-      message = `Academic requirements not met. ${reasons.join('; ')}. Please ensure all program modules are completed successfully before applying for graduation.`;
-    }
-
-    return this.repository.create({
-      department: 'academic',
-      status,
-      message,
-      graduationRequestId,
-    });
   }
 }
 
