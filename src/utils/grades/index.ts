@@ -472,6 +472,7 @@ export async function getOutstandingFromStructure(programs: Program[]) {
         id: sm.module!.id,
         code: sm.module!.code,
         name: normalizeModuleName(sm.module!.name),
+        originalName: sm.module!.name,
         type: sm.type,
         credits: sm.credits,
         semesterNumber: semester.semesterNumber,
@@ -499,7 +500,10 @@ export async function getOutstandingFromStructure(programs: Program[]) {
     const attempts = attemptedModules.get(md.name);
 
     if (!attempts || attempts.length === 0) {
-      neverAttempted.push(md);
+      neverAttempted.push({
+        ...md,
+        name: md.originalName,
+      });
     } else {
       const passedAttempts = attempts.filter((attempt) =>
         isPassingGrade(attempt.grade || '')
@@ -507,7 +511,10 @@ export async function getOutstandingFromStructure(programs: Program[]) {
 
       if (passedAttempts.length === 0) {
         if (attempts.length === 1) {
-          failedNeverRepeated.push(md);
+          failedNeverRepeated.push({
+            ...md,
+            name: md.originalName,
+          });
         }
       }
     }
