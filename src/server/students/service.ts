@@ -35,8 +35,10 @@ class StudentService {
   async getRegistrationData(stdNo: number) {
     return withAuth(
       async () => this.repository.findRegistrationData(stdNo),
-      ['academic', 'registry', 'finance', 'student'],
-      async (session) => session.user?.stdNo === stdNo
+      ['academic', 'registry', 'finance'],
+      async (session) =>
+        session.user?.stdNo === stdNo ||
+        ['academic', 'registry', 'finance'].includes(session.user?.role || '')
     );
   }
 
