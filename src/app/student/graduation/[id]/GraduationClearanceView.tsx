@@ -1,4 +1,5 @@
 import { formatDateTime, toTitleCase } from '@/lib/utils';
+import { getGraduationRequest } from '@/server/graduation/requests/actions';
 import {
   Alert,
   Badge,
@@ -8,14 +9,12 @@ import {
   Group,
   Stack,
   Text,
-  ThemeIcon,
   Timeline,
   TimelineItem,
   Title,
 } from '@mantine/core';
-import { IconFileText, IconInfoCircle } from '@tabler/icons-react';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { getStatusColor, getStatusIcon } from '../../utils/status';
-import { getGraduationRequest } from '@/server/graduation/requests/actions';
 
 interface Props {
   graduationRequest: NonNullable<
@@ -25,7 +24,7 @@ interface Props {
 
 export default function GraduationClearanceView({ graduationRequest }: Props) {
   const { graduationClearances = [] } = graduationRequest;
-  const departments = ['finance', 'library'];
+  const departments = ['academic', 'finance', 'library'];
 
   return (
     <Card withBorder p='md' radius='md'>
@@ -121,10 +120,10 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
                       </Box>
                     )}
 
-                    {!clearance && (
+                    {clearance?.status === 'pending' && (
                       <Text size='sm' c='dimmed' fs='italic'>
-                        Waiting for department to process your graduation
-                        request...
+                        Waiting for {toTitleCase(dept)} Department to process
+                        your graduation request...
                       </Text>
                     )}
                   </Stack>

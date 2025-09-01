@@ -5,6 +5,7 @@ import {
   Program,
   StudentModule,
 } from './type';
+import { getModulesForStructure } from '@/server/semester-modules/actions';
 
 export type GradeDefinition = {
   grade: (typeof gradeEnum)[number];
@@ -162,6 +163,31 @@ export const grades: GradeDefinition[] = [
 
 export function normalizeGradeSymbol(grade: string): string {
   return grade.trim().toUpperCase();
+}
+
+export function normalizeModuleName(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/\b(i{1,3}|iv|v|vi{0,3}|ix|x)\b/g, (match) => {
+      // Convert roman numerals to arabic numbers
+      const romanToArabic: { [key: string]: string } = {
+        i: '1',
+        ii: '2',
+        iii: '3',
+        iv: '4',
+        v: '5',
+        vi: '6',
+        vii: '7',
+        viii: '8',
+        ix: '9',
+        x: '10',
+      };
+      return romanToArabic[match.toLowerCase()] || match;
+    })
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 export function getGradeBySymbol(grade: string): GradeDefinition | undefined {
@@ -429,5 +455,66 @@ function extractData(_programs: Program[]) {
   return {
     semesters: filtered,
     studentModules,
+  };
+}
+
+export async function getOutstandingFromStructure(programs: Program[]) {
+  let program = programs.find((it) => it.status === 'Active');
+  if (!program) {
+    throw new Error('No active program found for student');
+  }
+
+  const structureModules = await getModulesForStructure(program.structureId);
+  const requiredModules = structureModules.flatMap((semester) =>
+    semester.semesterModules
+      .filter((sm) => sm.module && !sm.hidden)
+      .map((sm) => ({
+        id: sm.module!.id,
+        code: sm.module!.code,
+        name: normalizeModuleName(sm.module!.name),
+        type: sm.type,
+        credits: sm.credits,
+        semesterNumber: semester.semesterNumber,
+      }))
+  );
+
+  const { studentModules } = extractData(programs);
+
+  const attemptedModules = new Map<string, StudentModule[]>();
+
+  studentModules.forEach((sm) => {
+    if (sm.semesterModule.module) {
+      const name = normalizeModuleName(sm.semesterModule.module.name);
+      if (!attemptedModules.has(name)) {
+        attemptedModules.set(name, []);
+      }
+      attemptedModules.get(name)!.push(sm);
+    }
+  });
+
+  const failedNeverRepeated: typeof requiredModules = [];
+  const neverAttempted: typeof requiredModules = [];
+
+  for (const md of requiredModules) {
+    const attempts = attemptedModules.get(md.name);
+
+    if (!attempts || attempts.length === 0) {
+      neverAttempted.push(md);
+    } else {
+      const passedAttempts = attempts.filter((attempt) =>
+        isPassingGrade(attempt.grade || '')
+      );
+
+      if (passedAttempts.length === 0) {
+        if (attempts.length === 1) {
+          failedNeverRepeated.push(md);
+        }
+      }
+    }
+  }
+
+  return {
+    failedNeverRepeated,
+    neverAttempted,
   };
 }

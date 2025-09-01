@@ -5,6 +5,7 @@ import { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import { getCurrentTerm } from '../terms/actions';
 import { StudentFilter } from './actions';
+import { Program } from '@/utils/grades/type';
 
 type Student = typeof students.$inferInsert;
 
@@ -116,6 +117,13 @@ class StudentService {
 
   async count() {
     return withAuth(async () => this.repository.count(), []);
+  }
+
+  async getStudentPrograms(stdNo: number): Promise<Program[]> {
+    return withAuth(async () => {
+      const student = await this.repository.findStudentByStdNo(stdNo);
+      return student?.programs || [];
+    }, ['dashboard', 'student']);
   }
 }
 

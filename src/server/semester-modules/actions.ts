@@ -1,16 +1,16 @@
 'use server';
 
 import { semesterModules } from '@/db/schema';
-import { modulesService } from './service';
+import { semesterModulesService } from './service';
 
 type Module = typeof semesterModules.$inferInsert;
 
 export async function getSemesterModule(id: number) {
-  return modulesService.get(id);
+  return semesterModulesService.get(id);
 }
 
 export async function findAllModules(page: number = 1, search = '') {
-  return modulesService.findAll(
+  return semesterModulesService.findAll(
     {
       page,
     },
@@ -19,21 +19,21 @@ export async function findAllModules(page: number = 1, search = '') {
 }
 
 export async function findModulesByStructure(structureId: number, search = '') {
-  return modulesService.findModulesByStructure(structureId, search);
+  return semesterModulesService.findModulesByStructure(structureId, search);
 }
 
 export async function createModule(
   module: Module & { prerequisiteCodes?: string[] }
 ) {
   const { prerequisiteCodes, ...moduleData } = module;
-  const newModule = await modulesService.create(moduleData);
+  const newModule = await semesterModulesService.create(moduleData);
 
   if (prerequisiteCodes && prerequisiteCodes.length > 0) {
     await Promise.all(
       prerequisiteCodes.map(async (code) => {
-        const mod = await modulesService.getByCode(code);
+        const mod = await semesterModulesService.getByCode(code);
         if (mod) {
-          await modulesService.addPrerequisite(newModule.id, mod.id);
+          await semesterModulesService.addPrerequisite(newModule.id, mod.id);
         }
       })
     );
@@ -47,16 +47,16 @@ export async function updateModule(
   module: Module & { prerequisiteCodes?: string[] }
 ) {
   const { prerequisiteCodes, ...moduleData } = module;
-  const updatedModule = await modulesService.update(id, moduleData);
+  const updatedModule = await semesterModulesService.update(id, moduleData);
 
-  await modulesService.clearPrerequisites(id);
+  await semesterModulesService.clearPrerequisites(id);
 
   if (prerequisiteCodes && prerequisiteCodes.length > 0) {
     await Promise.all(
       prerequisiteCodes.map(async (code) => {
-        const mod = await modulesService.getByCode(code);
+        const mod = await semesterModulesService.getByCode(code);
         if (mod) {
-          await modulesService.addPrerequisite(id, mod.id);
+          await semesterModulesService.addPrerequisite(id, mod.id);
         }
       })
     );
@@ -66,45 +66,45 @@ export async function updateModule(
 }
 
 export async function deleteModule(id: number) {
-  return modulesService.delete(id);
+  return semesterModulesService.delete(id);
 }
 
 export async function getModulesByStructure(structureId: number) {
-  return await modulesService.getModulesByStructure(structureId);
+  return await semesterModulesService.getModulesByStructure(structureId);
 }
 
 export async function getSchools() {
-  return await modulesService.getSchools();
+  return await semesterModulesService.getSchools();
 }
 
 export async function getProgramsBySchool(schoolId: number) {
-  return await modulesService.getProgramsBySchool(schoolId);
+  return await semesterModulesService.getProgramsBySchool(schoolId);
 }
 
 export async function getStructuresByProgram(programId: number) {
-  return await modulesService.getStructuresByProgram(programId);
+  return await semesterModulesService.getStructuresByProgram(programId);
 }
 
 export async function getStructuresByModule(moduleId: number) {
-  return await modulesService.getStructuresByModule(moduleId);
+  return await semesterModulesService.getStructuresByModule(moduleId);
 }
 
 export async function getModulePrerequisites(moduleId: number) {
-  return modulesService.getPrerequisites(moduleId);
+  return semesterModulesService.getPrerequisites(moduleId);
 }
 
 export async function getModulesForStructure(structureId: number) {
-  return modulesService.getModulesForStructure(structureId);
+  return semesterModulesService.getModulesForStructure(structureId);
 }
 
 export async function updateModuleVisibility(id: number, hidden: boolean) {
-  const existingModule = await modulesService.get(id);
+  const existingModule = await semesterModulesService.get(id);
   if (!existingModule) {
     throw new Error('Module not found');
   }
-  return modulesService.update(id, { ...existingModule, hidden });
+  return semesterModulesService.update(id, { ...existingModule, hidden });
 }
 
 export async function searchModulesWithDetails(search = '') {
-  return modulesService.searchModulesWithDetails(search);
+  return semesterModulesService.searchModulesWithDetails(search);
 }

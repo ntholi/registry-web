@@ -107,9 +107,10 @@ export default function ClearanceStatusView({ registration }: Props) {
                       />
                     )}
 
-                    {!clearance && (
+                    {clearance?.status === 'pending' && (
                       <Text size='sm' c='dimmed' fs='italic'>
-                        Waiting for department to process your request...
+                        Waiting for {toTitleCase(dept)} Department to process
+                        your graduation request...
                       </Text>
                     )}
                   </Stack>

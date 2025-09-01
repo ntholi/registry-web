@@ -228,7 +228,7 @@ function getNavigation(department: DashboardUser) {
     {
       label: 'Graduation Clearance',
       icon: IconCertificate,
-      roles: ['finance', 'library', 'resource'],
+      roles: ['finance', 'library', 'academic'],
       children: [
         {
           label: 'Requests',

@@ -8,6 +8,7 @@ import {
 } from '@/db/schema';
 import { db } from '@/db';
 import { eq } from 'drizzle-orm';
+import { graduationClearanceService } from '../clearance/service';
 
 export default class GraduationRequestRepository extends BaseRepository<
   typeof graduationRequests,
@@ -24,7 +25,6 @@ export default class GraduationRequestRepository extends BaseRepository<
         .values(data)
         .returning();
 
-      // Create clearance requests for finance and library departments
       for (const department of ['finance', 'library']) {
         const [clearanceRecord] = await tx
           .insert(clearance)
@@ -37,6 +37,29 @@ export default class GraduationRequestRepository extends BaseRepository<
         await tx.insert(graduationClearance).values({
           graduationRequestId: request.id,
           clearanceId: clearanceRecord.id,
+        });
+      }
+
+      try {
+        await graduationClearanceService.processAcademicClearance(
+          request.id,
+          data.stdNo
+        );
+      } catch (error) {
+        console.error('Error processing academic clearance:', error);
+        const [academicClearanceRecord] = await tx
+          .insert(clearance)
+          .values({
+            department: 'academic',
+            status: 'pending',
+            message:
+              'Error processing academic clearance automatically. Manual review required.',
+          })
+          .returning();
+
+        await tx.insert(graduationClearance).values({
+          graduationRequestId: request.id,
+          clearanceId: academicClearanceRecord.id,
         });
       }
 
@@ -97,7 +120,6 @@ export default class GraduationRequestRepository extends BaseRepository<
         .values(graduationRequestData)
         .returning();
 
-      // Create clearance requests for finance and library departments
       for (const department of ['finance', 'library']) {
         const [clearanceRecord] = await tx
           .insert(clearance)
@@ -110,6 +132,29 @@ export default class GraduationRequestRepository extends BaseRepository<
         await tx.insert(graduationClearance).values({
           graduationRequestId: graduationRequest.id,
           clearanceId: clearanceRecord.id,
+        });
+      }
+
+      try {
+        await graduationClearanceService.processAcademicClearance(
+          graduationRequest.id,
+          graduationRequestData.stdNo
+        );
+      } catch (error) {
+        console.error('Error processing academic clearance:', error);
+        const [academicClearanceRecord] = await tx
+          .insert(clearance)
+          .values({
+            department: 'academic',
+            status: 'pending',
+            message:
+              'Error processing academic clearance automatically. Manual review required.',
+          })
+          .returning();
+
+        await tx.insert(graduationClearance).values({
+          graduationRequestId: graduationRequest.id,
+          clearanceId: academicClearanceRecord.id,
         });
       }
 

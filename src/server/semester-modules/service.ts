@@ -7,7 +7,7 @@ import { getCurrentTerm } from '../terms/actions';
 
 type Module = typeof semesterModules.$inferInsert;
 
-class ModuleService {
+class SemesterModuleService {
   constructor(private readonly repository = new ModuleRepository()) {}
 
   async first() {
@@ -111,7 +111,7 @@ class ModuleService {
   async getModulesForStructure(structureId: number) {
     return withAuth(
       async () => this.repository.getModulesForStructure(structureId),
-      ['dashboard']
+      ['dashboard', 'student']
     );
   }
 
@@ -124,4 +124,7 @@ class ModuleService {
   }
 }
 
-export const modulesService = serviceWrapper(ModuleService, 'ModulesService');
+export const semesterModulesService = serviceWrapper(
+  SemesterModuleService,
+  'SemesterModuleService'
+);
