@@ -65,7 +65,7 @@ export default class CourseSummaryRepository extends BaseRepository<
   async getCourseSummaryData(
     semesterModuleId: number,
     termName: string,
-    programFilter?: number,
+    programFilter?: number
   ): Promise<CourseSummaryData | null> {
     const semesterModule = await db.query.semesterModules.findFirst({
       where: eq(semesterModules.id, semesterModuleId),
@@ -112,16 +112,16 @@ export default class CourseSummaryRepository extends BaseRepository<
         sm.studentSemester &&
         sm.studentSemester.term === termName &&
         !['Delete', 'Drop'].includes(sm.status) &&
-        !['Deleted', 'Deferred', 'DroppedOut'].includes(
-          sm.studentSemester.status,
-        ),
+        !['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
+          sm.studentSemester.status
+        )
     );
 
     if (programFilter) {
       validStudentModules = validStudentModules.filter(
         (sm) =>
           sm.studentSemester?.studentProgram.structure.program.id ===
-          programFilter,
+          programFilter
       );
     }
 
@@ -192,7 +192,7 @@ export default class CourseSummaryRepository extends BaseRepository<
   async getOptimizedCourseSummaryData(
     semesterModuleId: number,
     termName: string,
-    programFilter?: number,
+    programFilter?: number
   ) {
     const term = await db.query.terms.findFirst({
       where: eq(terms.name, termName),
@@ -263,16 +263,16 @@ export default class CourseSummaryRepository extends BaseRepository<
         sm.studentSemester &&
         sm.studentSemester.term === termName &&
         !['Delete', 'Drop'].includes(sm.status) &&
-        !['Deleted', 'Deferred', 'DroppedOut'].includes(
-          sm.studentSemester.status,
-        ),
+        !['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
+          sm.studentSemester.status
+        )
     );
 
     if (programFilter) {
       validStudentModules = validStudentModules.filter(
         (sm) =>
           sm.studentSemester?.studentProgram.structure.program.id ===
-          programFilter,
+          programFilter
       );
     }
 
@@ -281,13 +281,13 @@ export default class CourseSummaryRepository extends BaseRepository<
     }
 
     const studentNumbers = validStudentModules.map(
-      (sm) => sm.studentSemester!.studentProgram.student.stdNo,
+      (sm) => sm.studentSemester!.studentProgram.student.stdNo
     );
     const [moduleGradesData, allAssessmentMarks] = await Promise.all([
       db.query.moduleGrades.findMany({
         where: and(
           eq(moduleGrades.moduleId, semesterModule.module.id),
-          inArray(moduleGrades.stdNo, studentNumbers),
+          inArray(moduleGrades.stdNo, studentNumbers)
         ),
         columns: { stdNo: true, grade: true, weightedTotal: true },
       }),
@@ -311,14 +311,14 @@ export default class CourseSummaryRepository extends BaseRepository<
     const relevantAssessmentMarks = allAssessmentMarks.filter(
       (am) =>
         am.assessment?.moduleId === semesterModule.module!.id &&
-        am.assessment?.termId === term.id,
+        am.assessment?.termId === term.id
     );
 
     const gradesMap = new Map(
       moduleGradesData.map((mg) => [
         mg.stdNo,
         { grade: mg.grade, weightedTotal: mg.weightedTotal },
-      ]),
+      ])
     );
 
     const assessmentsByStudent = new Map<
@@ -366,7 +366,7 @@ export default class CourseSummaryRepository extends BaseRepository<
       students,
       assessments: Array.from(assessmentsByStudent.entries()).flatMap(
         ([stdNo, assessments]) =>
-          assessments.map((assessment) => ({ stdNo, ...assessment })),
+          assessments.map((assessment) => ({ stdNo, ...assessment }))
       ),
     };
   }

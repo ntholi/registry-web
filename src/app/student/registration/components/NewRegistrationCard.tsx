@@ -26,7 +26,10 @@ export default function NewRegistrationCard() {
       .flatMap((program) => program.semesters)
       .some(
         (semester) =>
-          semester.term === currentTerm?.name && semester.status !== 'Deleted'
+          semester.term === currentTerm?.name &&
+          !['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
+            semester.status
+          )
       ) || false;
 
   const shouldFetchData = !!student?.stdNo && !hasExistingSemester;

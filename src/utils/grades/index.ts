@@ -91,12 +91,12 @@ export const grades: GradeDefinition[] = [
   },
   {
     grade: 'PC',
-    points: 2.0,
+    points: 1.67,
     description: 'Pass Conceded',
   },
   {
     grade: 'PX',
-    points: 2.0,
+    points: 1.67,
     description: 'Pass (supplementary work submitted)',
   },
   {
@@ -445,7 +445,10 @@ function extractData(_programs: Program[]) {
   }
   const semesters = programs[0].semesters || [];
   const filtered = [...semesters]
-    .filter((s) => !['Deleted', 'Deferred', 'DroppedOut'].includes(s.status))
+    .filter(
+      (s) =>
+        !['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(s.status)
+    )
     .sort((a, b) => a.id - b.id);
 
   const studentModules = filtered

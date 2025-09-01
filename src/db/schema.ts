@@ -185,6 +185,7 @@ export const semesterStatusEnum = [
   'Deleted',
   'DNR',
   'DroppedOut',
+  'Withdrawn',
   'Enrolled',
   'Exempted',
   'Inactive',
