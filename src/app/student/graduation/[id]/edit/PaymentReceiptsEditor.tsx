@@ -92,7 +92,7 @@ export default function PaymentReceiptsEditor({
       });
       form.reset();
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       notifications.show({
         title: 'Error',
         message: error.message || 'Failed to add payment receipt',
@@ -115,7 +115,7 @@ export default function PaymentReceiptsEditor({
         queryKey: ['graduation-request', graduationRequestId],
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       notifications.show({
         title: 'Error',
         message: error.message || 'Failed to remove payment receipt',

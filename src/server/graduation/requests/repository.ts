@@ -171,7 +171,7 @@ export default class GraduationRequestRepository extends BaseRepository<
   }
 
   private async processAcademicClearance(
-    tx: any,
+    tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
     graduationRequestId: number,
     stdNo: number
   ) {

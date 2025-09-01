@@ -135,8 +135,8 @@ export default function ReviewAndSubmit({
 
         <Text size='sm' c='dimmed' ta='center'>
           By submitting this request, you confirm that all information provided
-          is accurate and complete. Click "Submit Graduation Request" to
-          proceed.
+          is accurate and complete. Click &quot;Submit Graduation Request&quot;
+          to proceed.
         </Text>
       </Stack>
     </Box>

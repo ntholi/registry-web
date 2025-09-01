@@ -138,7 +138,8 @@ export default function InformationConfirmation({
           </Text>
 
           <Text fw={500} c='red' size='sm'>
-            Type exactly "information correct" (without quotes) to confirm:
+            Type exactly &quot;information correct&quot; (without quotes) to
+            confirm:
           </Text>
 
           <TextInput

@@ -459,7 +459,7 @@ function extractData(_programs: Program[]) {
 }
 
 export async function getOutstandingFromStructure(programs: Program[]) {
-  let program = programs.find((it) => it.status === 'Active');
+  const program = programs.find((it) => it.status === 'Active');
   if (!program) {
     throw new Error('No active program found for student');
   }
