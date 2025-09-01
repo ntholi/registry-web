@@ -49,8 +49,16 @@ export default function PaymentReceiptsInput({
     },
     validate: {
       paymentType: (value) => (value ? null : 'Payment type is required'),
-      receiptNo: (value) =>
-        value?.trim() ? null : 'Receipt number is required',
+      receiptNo: (value) => {
+        if (!value?.trim()) {
+          return 'Receipt number is required';
+        }
+        const receiptPattern = /^SR-\d{5}$/;
+        if (!receiptPattern.test(value.trim())) {
+          return 'Receipt number must be in format SR-##### (e.g., SR-12345)';
+        }
+        return null;
+      },
     },
   });
 
