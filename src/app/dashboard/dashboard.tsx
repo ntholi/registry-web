@@ -228,7 +228,15 @@ function getNavigation(department: DashboardUser) {
     {
       label: 'Graduation Clearance',
       icon: IconCertificate,
-      roles: ['finance', 'library', 'academic'],
+      isVisible: (session) => {
+        if (['finance', 'library'].includes(session?.user?.role as UserRole))
+          return true;
+        const academicRole = session?.user?.position as UserPosition;
+        return (
+          academicRole &&
+          ['manager', 'admin', 'program_leader'].includes(academicRole)
+        );
+      },
       children: [
         {
           label: 'Requests',
@@ -302,7 +310,7 @@ function getNavigation(department: DashboardUser) {
       label: 'Sponsored Students',
       href: '/dashboard/sponsored-students',
       icon: IconUsersGroup,
-      roles: ['admin', 'finance'],
+      roles: ['admin', 'finance', 'registry'],
     },
     {
       label: 'Tools',

@@ -124,7 +124,7 @@ class SponsorService {
   }) {
     return withAuth(
       async () => this.repository.updateAccountDetails(data),
-      ['admin', 'finance']
+      ['admin', 'finance', 'registry']
     );
   }
 
@@ -138,7 +138,7 @@ class SponsorService {
   ) {
     return withAuth(
       async () => this.repository.bulkUpdateAccountDetails(items, batchSize),
-      ['admin', 'finance']
+      ['admin', 'finance', 'registry']
     );
   }
 
