@@ -10,9 +10,14 @@ import React from 'react';
 interface Props {
   studentName: string;
   termName: string;
+  versionCount?: number;
 }
 
-export default function ClearanceHeader({ studentName, termName }: Props) {
+export default function ClearanceHeader({
+  studentName,
+  termName,
+  versionCount,
+}: Props) {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [, setView] = useViewSelect();
   const { currentTerm } = useCurrentTerm();
@@ -36,12 +41,29 @@ export default function ClearanceHeader({ studentName, termName }: Props) {
             {studentName}
           </Title>
         )}
-        <Badge
-          color={isCurrentTerm ? 'green' : 'red'}
-          variant={isCurrentTerm ? 'light' : 'filled'}
-        >
-          {termName}
-        </Badge>
+        <Group>
+          {!isCurrentTerm && (
+            <Badge color={'red'} variant={'filled'}>
+              {termName}
+            </Badge>
+          )}
+
+          {versionCount && (
+            <Badge
+              color={
+                versionCount === 1
+                  ? 'green'
+                  : versionCount <= 3
+                    ? 'yellow'
+                    : 'red'
+              }
+              variant='light'
+              size='sm'
+            >
+              Version {versionCount}
+            </Badge>
+          )}
+        </Group>
       </Flex>
       <Divider my={15} />
     </>

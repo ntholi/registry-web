@@ -8,6 +8,7 @@ import {
   AccordionPanel,
   ActionIcon,
   Anchor,
+  Badge,
   Grid,
   GridCol,
   Group,

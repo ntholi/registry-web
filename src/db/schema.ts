@@ -396,6 +396,7 @@ export const registrationRequests = sqliteTable(
       .notNull()
       .default('pending'),
     mailSent: integer({ mode: 'boolean' }).notNull().default(false),
+    count: integer().notNull().default(1),
     semesterStatus: text({ enum: ['Active', 'Repeat'] }).notNull(),
     semesterNumber: integer().notNull(),
     message: text(),

@@ -22,6 +22,7 @@ import {
   like,
   ne,
   not,
+  sql,
 } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
@@ -460,6 +461,13 @@ export default class RegistrationRequestRepository extends BaseRepository<
       if (typeof termId === 'number') {
         updatePayload.termId = termId;
       }
+
+      // Increment count for each update
+      await tx
+        .update(registrationRequests)
+        .set({ count: sql`${registrationRequests.count} + 1` })
+        .where(eq(registrationRequests.id, registrationRequestId));
+
       const [updated] = await tx
         .update(registrationRequests)
         .set(updatePayload)
@@ -561,6 +569,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
               existing.moduleStatus === newModule.status
           )
         );
+
+      // Increment count for each update
+      await tx
+        .update(registrationRequests)
+        .set({ count: sql`${registrationRequests.count} + 1` })
+        .where(eq(registrationRequests.id, registrationRequestId));
 
       const [updated] = await tx
         .update(registrationRequests)

@@ -533,6 +533,13 @@
       "when": 1756662166747,
       "tag": "0075_curved_dexter_bennett",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "6",
+      "when": 1756808948381,
+      "tag": "0076_lame_quasimodo",
+      "breakpoints": true
     }
   ]
 }
