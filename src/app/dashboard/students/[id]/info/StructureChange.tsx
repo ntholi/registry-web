@@ -78,8 +78,6 @@ export default function StructureChange({ student }: Props) {
     setSelectedStructureId(null);
   };
 
-  if (!['admin', 'registrar'].includes(session?.user?.role ?? '')) return null;
-
   const structureOptions =
     structures?.map((structure) => ({
       value: structure.id.toString(),
@@ -163,13 +161,15 @@ export default function StructureChange({ student }: Props) {
           >
             {student?.programs[0].structure.code}
           </Anchor>
-          <ActionIcon
-            variant='subtle'
-            color='gray'
-            onClick={() => setOpened(true)}
-          >
-            <IconEdit size={16} />
-          </ActionIcon>
+          {!['admin', 'registry'].includes(session?.user?.role ?? '') && (
+            <ActionIcon
+              variant='subtle'
+              color='gray'
+              onClick={() => setOpened(true)}
+            >
+              <IconEdit size={16} />
+            </ActionIcon>
+          )}
         </Group>
       </Box>
     </>
