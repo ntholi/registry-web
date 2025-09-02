@@ -1,13 +1,13 @@
-import { getModulesForStructure } from '@/server/semester-modules/actions';
+import { StudentModuleStatus, modules, semesterModules } from '@/db/schema';
 import {
   getRegistrationRequest,
-  updateRegistrationWithModules,
+  updateRegistrationWithModulesAndSponsorship,
 } from '@/server/registration/requests/actions';
+import { getModulesForStructure } from '@/server/semester-modules/actions';
+import { getSponsoredStudent } from '@/server/sponsors/actions';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import EditForm from '../../../Form';
-import { RegistrationRequest } from '../../../new/page';
-import { StudentModuleStatus, modules, semesterModules } from '@/db/schema';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -23,12 +23,30 @@ interface SelectedModule extends SemesterModule {
   status: StudentModuleStatus;
 }
 
+type RegistrationRequest = {
+  id?: number;
+  stdNo: number;
+  semesterStatus: 'Active' | 'Repeat';
+  sponsorId: number;
+  borrowerNo?: string;
+  bankName?: string;
+  accountNumber?: string;
+  semesterNumber: number;
+  termId: number;
+  selectedModules?: Array<SelectedModule>;
+};
+
 export default async function RegistrationRequestEdit({ params }: Props) {
   const { id } = await params;
   const registrationRequest = await getRegistrationRequest(Number(id));
   if (!registrationRequest) {
     return notFound();
   }
+
+  const sponsored = await getSponsoredStudent(
+    registrationRequest.stdNo,
+    registrationRequest.termId
+  );
 
   const selectedModules = registrationRequest.requestedModules.map((rm) => ({
     ...rm.semesterModule,
@@ -45,12 +63,18 @@ export default async function RegistrationRequestEdit({ params }: Props) {
     if (!values.id) {
       throw new Error('Registration request ID is required');
     }
-    const res = await updateRegistrationWithModules(
+    const res = await updateRegistrationWithModulesAndSponsorship(
       values.id,
       selectedModules?.map((module) => ({
         id: module.id,
         status: module.status,
       })) || [],
+      {
+        sponsorId: values.sponsorId,
+        borrowerNo: values.borrowerNo,
+        bankName: values.bankName,
+        accountNumber: values.accountNumber,
+      },
       values.semesterNumber,
       values.semesterStatus,
       values.termId
@@ -66,7 +90,10 @@ export default async function RegistrationRequestEdit({ params }: Props) {
           id: registrationRequest.id,
           stdNo: registrationRequest.stdNo,
           semesterStatus: registrationRequest.semesterStatus ?? 'Active',
-          sponsorId: registrationRequest.sponsorId,
+          sponsorId: sponsored?.sponsor?.id || registrationRequest.sponsorId,
+          borrowerNo: sponsored?.borrowerNo || '',
+          bankName: sponsored?.bankName || '',
+          accountNumber: sponsored?.accountNumber || '',
           semesterNumber: registrationRequest.semesterNumber ?? 1,
           termId: registrationRequest.termId,
           selectedModules,

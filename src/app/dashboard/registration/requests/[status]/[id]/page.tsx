@@ -4,6 +4,7 @@ import {
   deleteRegistrationRequest,
   getRegistrationRequest,
 } from '@/server/registration/requests/actions';
+import { getSponsoredStudent } from '@/server/sponsors/actions';
 import {
   Divider,
   Group,
@@ -91,6 +92,11 @@ export default async function RegistrationRequestDetails({
     return notFound();
   }
 
+  const sponsorship = await getSponsoredStudent(
+    registrationRequest.stdNo,
+    registrationRequest.termId
+  );
+
   return (
     <DetailsView>
       <DetailsViewHeader
@@ -122,7 +128,10 @@ export default async function RegistrationRequestDetails({
         </TabsList>
         <TabsPanel value='details'>
           <Stack mt='md' p='sm'>
-            <RequestDetailsView value={registrationRequest} />
+            <RequestDetailsView
+              value={registrationRequest}
+              sponsorship={sponsorship}
+            />
             <Divider />
             <ModulesView value={registrationRequest} />
           </Stack>

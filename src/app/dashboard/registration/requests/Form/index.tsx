@@ -11,7 +11,7 @@ import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatSemester } from '@/lib/utils';
 import { getModulesForStructure } from '@/server/semester-modules/actions';
 import { getStudentRegistrationData } from '@/server/students/actions';
-import { findAllTerms, getAllTerms } from '@/server/terms/actions';
+import { findAllTerms } from '@/server/terms/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   ActionIcon,
@@ -350,27 +350,25 @@ export default function RegistrationRequestForm({
               />
             </Group>
 
-            {!defaultValues && (
-              <SponsorInput
-                sponsorId={Number(form.values.sponsorId)}
-                borrowerNo={form.values.borrowerNo}
-                bankName={form.values.bankName}
-                accountNumber={form.values.accountNumber}
-                onSponsorChange={(value) =>
-                  form.setFieldValue('sponsorId', value)
-                }
-                onBorrowerNoChange={(value) =>
-                  form.setFieldValue('borrowerNo', value)
-                }
-                onBankNameChange={(value) =>
-                  form.setFieldValue('bankName', value)
-                }
-                onAccountNumberChange={(value) =>
-                  form.setFieldValue('accountNumber', value)
-                }
-                disabled={!structureId}
-              />
-            )}
+            <SponsorInput
+              sponsorId={Number(form.values.sponsorId)}
+              borrowerNo={form.values.borrowerNo}
+              bankName={form.values.bankName}
+              accountNumber={form.values.accountNumber}
+              onSponsorChange={(value) =>
+                form.setFieldValue('sponsorId', value)
+              }
+              onBorrowerNoChange={(value) =>
+                form.setFieldValue('borrowerNo', value)
+              }
+              onBankNameChange={(value) =>
+                form.setFieldValue('bankName', value)
+              }
+              onAccountNumberChange={(value) =>
+                form.setFieldValue('accountNumber', value)
+              }
+              disabled={!structureId}
+            />
 
             <Paper withBorder p='md' mt='md'>
               <Group justify='space-between' mb='md'>

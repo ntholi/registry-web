@@ -3,16 +3,27 @@
 import { FieldView } from '@/components/adease';
 import { formatSemester } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration/requests/actions';
-import { ActionIcon, Anchor, Badge, Flex, Stack, Tooltip } from '@mantine/core';
+import { getSponsoredStudent } from '@/server/sponsors/actions';
+import {
+  ActionIcon,
+  Anchor,
+  Badge,
+  Flex,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Tooltip,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import Link from 'next/link';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
+  sponsorship?: Awaited<ReturnType<typeof getSponsoredStudent>> | null;
 };
 
-export default function RequestDetailsView({ value }: Props) {
+export default function RequestDetailsView({ value, sponsorship }: Props) {
   return (
     <Stack gap='md'>
       <StudentNameView stdNo={value.stdNo} name={value.student.name} />
@@ -32,6 +43,25 @@ export default function RequestDetailsView({ value }: Props) {
           {value.semesterStatus}
         </Badge>
       </Flex>
+
+      {sponsorship && (
+        <Paper withBorder p={'md'}>
+          <SimpleGrid cols={{ base: 1, sm: 2 }}>
+            <FieldView label='Sponsor' underline={false}>
+              {sponsorship.sponsor?.name || '—'}
+            </FieldView>
+            <FieldView label='Borrower No.' underline={false}>
+              {sponsorship.borrowerNo || '—'}
+            </FieldView>
+            <FieldView label='Bank Name' underline={false}>
+              {sponsorship.bankName || '—'}
+            </FieldView>
+            <FieldView label='Account Number' underline={false}>
+              {sponsorship.accountNumber || '—'}
+            </FieldView>
+          </SimpleGrid>
+        </Paper>
+      )}
     </Stack>
   );
 }
