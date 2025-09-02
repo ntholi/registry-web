@@ -545,6 +545,33 @@ export default class RegistrationRequestRepository extends BaseRepository<
         .where(eq(registrationRequests.id, registrationRequestId))
         .returning();
 
+      // Update finance clearance status to pending
+      const financeClearances = await tx
+        .select({ clearanceId: registrationClearance.clearanceId })
+        .from(registrationClearance)
+        .innerJoin(
+          clearance,
+          eq(registrationClearance.clearanceId, clearance.id)
+        )
+        .where(
+          and(
+            eq(
+              registrationClearance.registrationRequestId,
+              registrationRequestId
+            ),
+            eq(clearance.department, 'finance')
+          )
+        );
+
+      if (financeClearances.length > 0) {
+        await tx
+          .update(clearance)
+          .set({
+            status: 'pending',
+          })
+          .where(eq(clearance.id, financeClearances[0].clearanceId));
+      }
+
       await tx
         .insert(sponsoredStudents)
         .values({
