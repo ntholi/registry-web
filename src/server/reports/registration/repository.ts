@@ -69,7 +69,8 @@ export class RegistrationReportRepository {
       .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
       .innerJoin(programs, eq(structures.programId, programs.id))
       .innerJoin(schools, eq(programs.schoolId, schools.id))
-      .where(eq(studentSemesters.term, termName));
+      .where(eq(studentSemesters.term, termName))
+      .orderBy(schools.name, programs.name, studentSemesters.semesterNumber);
 
     return result.map((row) => ({
       stdNo: row.stdNo,
