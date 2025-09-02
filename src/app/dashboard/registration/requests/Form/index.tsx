@@ -11,7 +11,7 @@ import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatSemester } from '@/lib/utils';
 import { getModulesForStructure } from '@/server/semester-modules/actions';
 import { getStudentRegistrationData } from '@/server/students/actions';
-import { getAllTerms } from '@/server/terms/actions';
+import { findAllTerms, getAllTerms } from '@/server/terms/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   ActionIcon,
@@ -70,6 +70,26 @@ type Props = {
   initialStdNo?: number;
 };
 
+type MinimalForm = {
+  setFieldValue: (field: string, value: unknown) => void;
+  values: Record<string, unknown>;
+  getInputProps?: (field: string) => unknown;
+};
+
+function FormBinder({
+  form,
+  onReady,
+}: {
+  form: unknown;
+  onReady: (form: MinimalForm) => void;
+}) {
+  useEffect(() => {
+    onReady(form as MinimalForm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
+  return null;
+}
+
 export default function RegistrationRequestForm({
   onSubmit,
   defaultValues,
@@ -86,7 +106,11 @@ export default function RegistrationRequestForm({
   const { currentTerm } = useCurrentTerm();
   const { data: allTerms = [] } = useQuery({
     queryKey: ['allTerms'],
-    queryFn: getAllTerms,
+    queryFn: async () => await findAllTerms(),
+    select: (terms) => {
+      console.log('Terms fetched:', terms);
+      return terms.items;
+    },
   });
 
   const { data: structureModules, isLoading } = useQuery({
@@ -209,7 +233,7 @@ export default function RegistrationRequestForm({
     [structureId]
   );
 
-  const [formInstance, setFormInstance] = useState<any>(null);
+  const [formInstance, setFormInstance] = useState<MinimalForm | null>(null);
 
   useEffect(() => {
     if (initialStdNo && !defaultValues && formInstance) {
@@ -240,9 +264,9 @@ export default function RegistrationRequestForm({
       {(form) => {
         const selectedModules = form.values.selectedModules || [];
 
-        if (!formInstance) {
-          setFormInstance(form);
-        }
+        const handleFormReady = (f: MinimalForm) => {
+          if (!formInstance) setFormInstance(f);
+        };
 
         const handleAddModuleToForm = (module: SemesterModule) => {
           const newModule: SelectedModule = {
@@ -278,6 +302,7 @@ export default function RegistrationRequestForm({
 
         return (
           <Stack gap='xs'>
+            <FormBinder form={form} onReady={handleFormReady} />
             <StdNoInput
               {...form.getInputProps('stdNo')}
               disabled={!!defaultValues || !!initialStdNo}

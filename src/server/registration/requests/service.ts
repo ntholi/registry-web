@@ -174,14 +174,16 @@ class RegistrationRequestService {
     registrationRequestId: number,
     modules: { id: number; status: StudentModuleStatus }[],
     semesterNumber?: number,
-    semesterStatus?: 'Active' | 'Repeat'
+    semesterStatus?: 'Active' | 'Repeat',
+    termId?: number
   ) {
     return withAuth(async () => {
       return this.repository.updateRegistrationWithModules(
         registrationRequestId,
         modules,
         semesterNumber,
-        semesterStatus
+        semesterStatus,
+        termId
       );
     }, ['student', 'registry']);
   }
@@ -196,7 +198,8 @@ class RegistrationRequestService {
       accountNumber?: string;
     },
     semesterNumber?: number,
-    semesterStatus?: 'Active' | 'Repeat'
+    semesterStatus?: 'Active' | 'Repeat',
+    termId?: number
   ) {
     return withAuth(async () => {
       return this.repository.updateRegistrationWithModulesAndSponsorship(
@@ -204,7 +207,8 @@ class RegistrationRequestService {
         modules,
         sponsorshipData,
         semesterNumber,
-        semesterStatus
+        semesterStatus,
+        termId
       );
     }, ['student', 'registry']);
   }

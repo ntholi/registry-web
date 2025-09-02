@@ -25,6 +25,7 @@ import {
 } from 'drizzle-orm';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
+type RegistrationRequestInsert = typeof registrationRequests.$inferInsert;
 
 export default class RegistrationRequestRepository extends BaseRepository<
   typeof registrationRequests,
@@ -446,18 +447,24 @@ export default class RegistrationRequestRepository extends BaseRepository<
     registrationRequestId: number,
     modules: { id: number; status: StudentModuleStatus }[],
     semesterNumber?: number,
-    semesterStatus?: 'Active' | 'Repeat'
+    semesterStatus?: 'Active' | 'Repeat',
+    termId?: number
   ) {
     return db.transaction(async (tx) => {
-      await tx
+      const updatePayload: Partial<RegistrationRequestInsert> = {
+        status: 'pending',
+        updatedAt: new Date(),
+        semesterNumber,
+        semesterStatus,
+      };
+      if (typeof termId === 'number') {
+        updatePayload.termId = termId;
+      }
+      const [updated] = await tx
         .update(registrationRequests)
-        .set({
-          status: 'pending',
-          updatedAt: new Date(),
-          semesterNumber,
-          semesterStatus,
-        })
-        .where(eq(registrationRequests.id, registrationRequestId));
+        .set(updatePayload)
+        .where(eq(registrationRequests.id, registrationRequestId))
+        .returning();
 
       // Update finance clearance status to pending
       const financeClearances = await tx
@@ -491,11 +498,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
         moduleStatus: module.status,
       }));
 
-      return this.handleRegistrationModules(
+      const updatedModules = await this.handleRegistrationModules(
         tx,
         registrationRequestId,
         convertedModules
       );
+      return { request: updated, modules: updatedModules };
     });
   }
 
@@ -509,7 +517,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
       accountNumber?: string;
     },
     semesterNumber?: number,
-    semesterStatus?: 'Active' | 'Repeat'
+    semesterStatus?: 'Active' | 'Repeat',
+    termId?: number
   ) {
     return db.transaction(async (tx) => {
       const registration = await tx.query.registrationRequests.findFirst({
@@ -520,16 +529,21 @@ export default class RegistrationRequestRepository extends BaseRepository<
         throw new Error('Registration request not found');
       }
 
-      await tx
+      const updatePayload: Partial<RegistrationRequestInsert> = {
+        status: 'pending',
+        updatedAt: new Date(),
+        semesterNumber,
+        semesterStatus,
+        sponsorId: sponsorshipData.sponsorId,
+      };
+      if (typeof termId === 'number') {
+        updatePayload.termId = termId;
+      }
+      const [updated] = await tx
         .update(registrationRequests)
-        .set({
-          status: 'pending',
-          updatedAt: new Date(),
-          semesterNumber,
-          semesterStatus,
-          sponsorId: sponsorshipData.sponsorId,
-        })
-        .where(eq(registrationRequests.id, registrationRequestId));
+        .set(updatePayload)
+        .where(eq(registrationRequests.id, registrationRequestId))
+        .returning();
 
       await tx
         .insert(sponsoredStudents)
@@ -578,11 +592,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
         moduleStatus: module.status,
       }));
 
-      return this.handleRegistrationModules(
+      const updatedModules = await this.handleRegistrationModules(
         tx,
         registrationRequestId,
         convertedModules
       );
+      return { request: updated, modules: updatedModules };
     });
   }
 

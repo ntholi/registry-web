@@ -52,9 +52,10 @@ export default async function RegistrationRequestEdit({ params }: Props) {
         status: module.status,
       })) || [],
       values.semesterNumber,
-      values.semesterStatus
+      values.semesterStatus,
+      values.termId
     );
-    return { id: values.id, ...res.request };
+    return { ...res.request, id: values.id };
   }
 
   return (

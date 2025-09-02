@@ -130,13 +130,15 @@ export async function updateRegistrationWithModules(
   registrationRequestId: number,
   modules: { id: number; status: StudentModuleStatus }[],
   semesterNumber?: number,
-  semesterStatus?: 'Active' | 'Repeat'
+  semesterStatus?: 'Active' | 'Repeat',
+  termId?: number
 ) {
   return service.updateRegistrationWithModules(
     registrationRequestId,
     modules,
     semesterNumber,
-    semesterStatus
+    semesterStatus,
+    termId
   );
 }
 
@@ -150,14 +152,16 @@ export async function updateRegistrationWithModulesAndSponsorship(
     accountNumber?: string;
   },
   semesterNumber?: number,
-  semesterStatus?: 'Active' | 'Repeat'
+  semesterStatus?: 'Active' | 'Repeat',
+  termId?: number
 ) {
   return service.updateRegistrationWithModulesAndSponsorship(
     registrationRequestId,
     modules,
     sponsorshipData,
     semesterNumber,
-    semesterStatus
+    semesterStatus,
+    termId
   );
 }
 
