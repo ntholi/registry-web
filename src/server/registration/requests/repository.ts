@@ -539,37 +539,62 @@ export default class RegistrationRequestRepository extends BaseRepository<
       if (typeof termId === 'number') {
         updatePayload.termId = termId;
       }
+
+      // Check if modules have changed
+      const existingModules = await tx.query.requestedModules.findMany({
+        where: eq(
+          requestedModules.registrationRequestId,
+          registrationRequestId
+        ),
+        columns: {
+          semesterModuleId: true,
+          moduleStatus: true,
+        },
+      });
+
+      const hasModulesChanged =
+        existingModules.length !== modules.length ||
+        !modules.every((newModule) =>
+          existingModules.some(
+            (existing) =>
+              existing.semesterModuleId === newModule.id &&
+              existing.moduleStatus === newModule.status
+          )
+        );
+
       const [updated] = await tx
         .update(registrationRequests)
         .set(updatePayload)
         .where(eq(registrationRequests.id, registrationRequestId))
         .returning();
 
-      // Update finance clearance status to pending
-      const financeClearances = await tx
-        .select({ clearanceId: registrationClearance.clearanceId })
-        .from(registrationClearance)
-        .innerJoin(
-          clearance,
-          eq(registrationClearance.clearanceId, clearance.id)
-        )
-        .where(
-          and(
-            eq(
-              registrationClearance.registrationRequestId,
-              registrationRequestId
-            ),
-            eq(clearance.department, 'finance')
+      // Update finance clearance status to pending only if modules have changed
+      if (hasModulesChanged) {
+        const financeClearances = await tx
+          .select({ clearanceId: registrationClearance.clearanceId })
+          .from(registrationClearance)
+          .innerJoin(
+            clearance,
+            eq(registrationClearance.clearanceId, clearance.id)
           )
-        );
+          .where(
+            and(
+              eq(
+                registrationClearance.registrationRequestId,
+                registrationRequestId
+              ),
+              eq(clearance.department, 'finance')
+            )
+          );
 
-      if (financeClearances.length > 0) {
-        await tx
-          .update(clearance)
-          .set({
-            status: 'pending',
-          })
-          .where(eq(clearance.id, financeClearances[0].clearanceId));
+        if (financeClearances.length > 0) {
+          await tx
+            .update(clearance)
+            .set({
+              status: 'pending',
+            })
+            .where(eq(clearance.id, financeClearances[0].clearanceId));
+        }
       }
 
       await tx
