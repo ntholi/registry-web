@@ -22,8 +22,11 @@ export async function getStudent(stdNo: number) {
   return service.get(stdNo);
 }
 
-export async function getAcademicHistory(stdNo: number) {
-  return service.getAcademicHistory(stdNo);
+export async function getAcademicHistory(
+  stdNo: number,
+  excludeCurrentTerm: boolean = false
+) {
+  return service.getAcademicHistory(stdNo, excludeCurrentTerm);
 }
 
 export async function getStudentByUserId(userId: string | undefined | null) {

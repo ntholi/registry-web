@@ -22,8 +22,8 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
   const { data: session } = useSession();
 
   const { data: student } = useQuery({
-    queryKey: ['student', stdNo],
-    queryFn: () => getAcademicHistory(stdNo),
+    queryKey: ['student', stdNo, 'no-current-term'],
+    queryFn: () => getAcademicHistory(stdNo, true),
   });
 
   const createPrintRecord = async () => {

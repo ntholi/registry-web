@@ -26,9 +26,18 @@ class StudentService {
     }, ['dashboard']);
   }
 
-  async getAcademicHistory(stdNo: number) {
+  async getAcademicHistory(stdNo: number, excludeCurrentTerm: boolean = false) {
     return withAuth(async () => {
-      return this.repository.findAcademicHistory(stdNo);
+      const data = await this.repository.findAcademicHistory(stdNo);
+      if (!excludeCurrentTerm) return data;
+
+      const currentTerm = await getCurrentTerm();
+      if (!data) return data;
+
+      return {
+        ...data,
+        programs: removeTermFromPrograms(data.programs, currentTerm.name),
+      };
     }, ['academic', 'registry', 'finance', 'student']);
   }
 
@@ -51,10 +60,15 @@ class StudentService {
   }
 
   async findStudentByUserId(userId: string) {
-    return withAuth(
-      async () => this.repository.findStudentByUserId(userId),
-      ['auth']
-    );
+    return withAuth(async () => {
+      const data = await this.repository.findStudentByUserId(userId);
+      if (!data) return null;
+      const currentTerm = await getCurrentTerm();
+      return {
+        ...data,
+        programs: removeTermFromPrograms(data.programs, currentTerm.name),
+      };
+    }, ['auth']);
   }
 
   async findByModuleId(moduleId: number) {
@@ -127,6 +141,14 @@ class StudentService {
       return student?.programs || [];
     }, ['dashboard', 'student']);
   }
+}
+
+function removeTermFromPrograms(programs: Program[], termName: string) {
+  return programs.map((program) => ({
+    ...program,
+    semesters:
+      program.semesters?.filter((semester) => semester.term !== termName) || [],
+  }));
 }
 
 export const studentsService = serviceWrapper(
