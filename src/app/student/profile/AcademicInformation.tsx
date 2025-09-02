@@ -88,11 +88,11 @@ export default function AcademicInformation({ program, semester }: Props) {
       <Stack>
         <Box>
           <Group justify='space-between'>
-            <Text fw={600}>{program.structure.program.name}</Text>
+            <Text fw={600}>{program.name}</Text>
           </Group>
 
           <Text size='sm' c='dimmed' mb='lg'>
-            Program Code: {program.structure.program.code}
+            Program Code: {program.code}
           </Text>
 
           <Grid gutter='lg'>

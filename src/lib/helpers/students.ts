@@ -19,8 +19,8 @@ export function getActiveProgram(student: Student | null | undefined) {
     ...activeProgram,
     name: activeProgram.structure.program.name,
     code: activeProgram.structure.program.code,
-    schoolName: activeProgram.structure.program.school.name,
-    schoolId: activeProgram.structure.program.school.id,
+    schoolName: activeProgram.structure.program.school?.name || '',
+    schoolId: activeProgram.structure.program.school?.id || 0,
   };
 }
 

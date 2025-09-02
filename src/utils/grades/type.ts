@@ -37,6 +37,11 @@ export type Program = {
     code: string;
     program: {
       name: string;
+      code: string;
+      school?: {
+        id: number;
+        name: string;
+      };
     };
   };
 };

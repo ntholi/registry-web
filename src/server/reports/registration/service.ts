@@ -1,12 +1,8 @@
-import { Packer } from 'docx';
-import { RegistrationReportRepository } from './repository';
-import {
-  createFullRegistrationDocument,
-  createSummaryRegistrationDocument,
-} from './document';
-import { createFullRegistrationExcel } from './excel';
 import withAuth from '@/server/base/withAuth';
-import { serviceWrapper } from '@/server/base/serviceWrapper';
+import { Packer } from 'docx';
+import { createSummaryRegistrationDocument } from './document';
+import { createFullRegistrationExcel } from './excel';
+import { RegistrationReportRepository } from './repository';
 
 export class RegistrationReportService {
   private repository = new RegistrationReportRepository();
