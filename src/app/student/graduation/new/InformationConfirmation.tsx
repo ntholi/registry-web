@@ -86,7 +86,7 @@ export default function InformationConfirmation({
               <Text size='xs' c='dimmed'>
                 Full Name
               </Text>
-              <Text fw={500}>{student.user?.name || student.name}</Text>
+              <Text fw={500}>{student.name}</Text>
             </Box>
           </Group>
 

@@ -66,7 +66,7 @@ export default function ReviewAndSubmit({
               <Text size='sm' c='dimmed' w={120}>
                 Name:
               </Text>
-              <Text fw={500}>{student.user?.name || student.name}</Text>
+              <Text fw={500}>{student.name}</Text>
             </Group>
 
             <Group>
