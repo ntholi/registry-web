@@ -30,6 +30,10 @@ import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '../../../base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
+import {
+  determineSemesterStatus,
+  getStudentSemesterModules,
+} from '@/server/registration/requests/actions';
 
 type Module = typeof modules.$inferSelect;
 
@@ -187,10 +191,7 @@ export default function RegistrationRequestForm({
         }
 
         const academicRemarks = getAcademicRemarks(student.programs);
-        const { getStudentSemesterModulesLogic } = await import(
-          '@/server/registration/requests/getStudentSemesterModules'
-        );
-        const semesterData = await getStudentSemesterModulesLogic(
+        const semesterData = await getStudentSemesterModules(
           student,
           academicRemarks
         );
@@ -215,9 +216,6 @@ export default function RegistrationRequestForm({
           },
         }));
 
-        const { determineSemesterStatus } = await import(
-          '@/server/registration/requests/actions'
-        );
         const { semesterNo, status } = await determineSemesterStatus(
           semesterData.modules,
           student
@@ -268,10 +266,52 @@ export default function RegistrationRequestForm({
           if (!formInstance) setFormInstance(f);
         };
 
-        const handleAddModuleToForm = (module: SemesterModule) => {
+        const handleAddModuleToForm = async (module: SemesterModule) => {
+          // Determine the correct status based on student's history
+          let moduleStatus: StudentModuleStatus = 'Compulsory';
+
+          // Get current form value for student number
+          const stdNo = form.values.stdNo;
+
+          if (stdNo && module.module) {
+            try {
+              // Get student data to check attempt history
+              const student = await getStudentRegistrationData(stdNo);
+              if (student) {
+                // Count how many times this module has been attempted
+                const allStudentModules = student.programs
+                  .flatMap((p) => p.semesters)
+                  .filter((s) => s.status !== 'Deleted')
+                  .flatMap((s) => s.studentModules)
+                  .filter((m) => m.status !== 'Drop' && m.status !== 'Delete');
+
+                const attempts = allStudentModules.filter(
+                  (sm) => sm.semesterModule.module?.name === module.module?.name
+                );
+
+                if (attempts.length > 0) {
+                  // This is a repeat module - determine the next attempt number
+                  const nextAttemptNumber = attempts.length + 1;
+                  moduleStatus =
+                    `Repeat${nextAttemptNumber}` as StudentModuleStatus;
+                } else {
+                  // First time attempting this module
+                  moduleStatus = 'Compulsory';
+                }
+              }
+            } catch (error) {
+              console.error(
+                'Error fetching student data for module status:',
+                error
+              );
+              // Fallback to compulsory status
+              moduleStatus = 'Compulsory';
+            }
+          }
+
           const newModule: SelectedModule = {
             ...module,
-            status: 'Compulsory',
+            status: moduleStatus,
           };
           if (!selectedModules.some((m) => m.id === newModule.id)) {
             form.setFieldValue('selectedModules', [
