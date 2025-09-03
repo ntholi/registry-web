@@ -37,6 +37,7 @@ import {
 import DepartmentMessagesView from './DepartmentMessagesView';
 import ModulesView from './ModulesView';
 import ClearanceStatusView from './ClearanceStatusView';
+import { MAX_REGISTRATION_ATTEMPTS } from '@/lib/constants';
 
 type Props = {
   params: Promise<{
@@ -87,18 +88,19 @@ export default async function page({ params }: Props) {
                 {registration.term.name} •{' '}
                 {formatSemester(registration.semesterNumber)}
               </Text>
-              {registration.status === 'pending' && (
-                <Button
-                  component={Link}
-                  href={`/student/registration/${registration.id}/edit`}
-                  variant='subtle'
-                  mr={-10}
-                  size='xs'
-                  leftSection={<IconEdit size={16} />}
-                >
-                  Update
-                </Button>
-              )}
+              {registration.status === 'pending' &&
+                registration.count <= MAX_REGISTRATION_ATTEMPTS && (
+                  <Button
+                    component={Link}
+                    href={`/student/registration/${registration.id}/edit`}
+                    variant='subtle'
+                    mr={-10}
+                    size='xs'
+                    leftSection={<IconEdit size={16} />}
+                  >
+                    Update
+                  </Button>
+                )}
               {registration.status === 'registered' && (
                 <ProofOfRegistrationDownload
                   stdNo={registration.stdNo}
