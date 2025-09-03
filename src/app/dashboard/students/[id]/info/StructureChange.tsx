@@ -161,7 +161,7 @@ export default function StructureChange({ student }: Props) {
           >
             {student?.programs[0].structure.code}
           </Anchor>
-          {!['admin', 'registry'].includes(session?.user?.role ?? '') && (
+          {['admin', 'registry'].includes(session?.user?.role ?? '') && (
             <ActionIcon
               variant='subtle'
               color='gray'
