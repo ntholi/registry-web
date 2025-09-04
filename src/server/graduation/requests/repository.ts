@@ -182,7 +182,7 @@ export default class GraduationRequestRepository extends BaseRepository<
 
     const outstanding = await getOutstandingFromStructure(programs);
 
-    let status: 'approved' | 'rejected';
+    let status: 'approved' | 'rejected' | 'pending';
     let message: string | undefined;
 
     if (
@@ -191,7 +191,7 @@ export default class GraduationRequestRepository extends BaseRepository<
     ) {
       status = 'approved';
     } else {
-      status = 'rejected';
+      status = 'pending';
       const reasons = [];
 
       if (outstanding.failedNeverRepeated.length > 0) {

@@ -99,6 +99,7 @@ export default function GraduationClearanceDetails({ request }: Props) {
           <AccordionPanel>
             <Textarea
               value={comment}
+              rows={4}
               description='Optional comments or notes'
               onChange={(e) => setComment(e.currentTarget.value)}
               placeholder='Add any relevant comments about the clearance...'

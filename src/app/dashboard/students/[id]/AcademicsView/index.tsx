@@ -35,7 +35,7 @@ type Props = {
 export default function AcademicsView({
   stdNo,
   showMarks,
-  isActive = false,
+  isActive = true,
   ...props
 }: Props) {
   const { data: student, isLoading } = useQuery({
