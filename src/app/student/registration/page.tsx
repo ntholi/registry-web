@@ -37,9 +37,9 @@ export default async function RegistrationPage() {
           </Box>
         </Group>
 
-        <Suspense fallback={<NewRegistrationCardSkeleton />}>
+        {/* <Suspense fallback={<NewRegistrationCardSkeleton />}>
           <NewRegistrationCard />
-        </Suspense>
+        </Suspense> */}
 
         <Divider />
 
