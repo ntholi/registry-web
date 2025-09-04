@@ -5,6 +5,8 @@ import {
   sponsoredTerms,
   studentPrograms,
   students,
+  registrationClearance,
+  clearance,
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
@@ -254,12 +256,13 @@ export default class SponsorRepository extends BaseRepository<
           WHERE rr.std_no = ${students.stdNo}
             AND rr.term_id = ${Number(params.termId)}
             AND NOT EXISTS (
-              SELECT 1 FROM registration_clearances rc
+              SELECT 1 FROM registration_clearance rc
+              INNER JOIN clearance c ON rc.clearance_id = c.id
               WHERE rc.registration_request_id = rr.id
-                AND rc.status != 'approved'
+                AND c.status != 'approved'
             )
             AND EXISTS (
-              SELECT 1 FROM registration_clearances rc2
+              SELECT 1 FROM registration_clearance rc2
               WHERE rc2.registration_request_id = rr.id
             )
         )`
