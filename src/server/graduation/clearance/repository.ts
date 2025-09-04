@@ -105,7 +105,24 @@ export default class GraduationClearanceRepository extends BaseRepository<
       where: eq(graduationClearance.clearanceId, id),
       with: {
         clearance: { with: { respondedBy: true } },
-        graduationRequest: { with: { student: true, paymentReceipts: true } },
+        graduationRequest: {
+          with: {
+            student: {
+              with: {
+                programs: {
+                  with: {
+                    structure: {
+                      with: {
+                        program: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            paymentReceipts: true,
+          },
+        },
       },
     });
 

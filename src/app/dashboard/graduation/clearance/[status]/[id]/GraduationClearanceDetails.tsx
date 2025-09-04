@@ -72,6 +72,11 @@ export default function GraduationClearanceDetails({ request }: Props) {
                 <FieldView label='Date Requested' underline={false}>
                   {formatDateTime(request.graduationRequest.createdAt)}
                 </FieldView>
+                <FieldView label='Program' underline={false}>
+                  {student.programs && student.programs.length > 0
+                    ? student.programs[0].structure.program.name
+                    : 'N/A'}
+                </FieldView>
               </Stack>
             </Paper>
           </Stack>
