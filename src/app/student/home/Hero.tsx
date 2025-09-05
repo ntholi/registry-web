@@ -3,7 +3,6 @@ import useUserStudent from '@/hooks/use-user-student';
 import { formatSemester } from '@/lib/utils';
 import { getStudentPhoto } from '@/server/students/actions';
 import {
-  Anchor,
   Avatar,
   Divider,
   Grid,
@@ -50,20 +49,9 @@ export default function Hero() {
             <Title order={2} size='h3' fw={600} lh={1.2}>
               {student?.name}
             </Title>
-            <Group gap={'xl'} mt={'xs'} align='center'>
-              <Text size='sm' c='dimmed' fw={500}>
-                {student?.stdNo}
-              </Text>
-              <Anchor
-                variant='text'
-                c='indigo'
-                size='xs'
-                href='/student/profile'
-                fw={500}
-              >
-                View Profile
-              </Anchor>
-            </Group>
+            <Text size='sm' c='dimmed' mt={'xs'} fw={500}>
+              {student?.stdNo}
+            </Text>
           </Stack>
         </Group>
 

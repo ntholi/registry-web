@@ -61,13 +61,7 @@ class StudentService {
 
   async findStudentByUserId(userId: string) {
     return withAuth(async () => {
-      const data = await this.repository.findStudentByUserId(userId);
-      if (!data) return null;
-      const currentTerm = await getCurrentTerm();
-      return {
-        ...data,
-        programs: removeTermFromPrograms(data.programs, currentTerm.name),
-      };
+      return await this.repository.findStudentByUserId(userId);
     }, ['auth']);
   }
 

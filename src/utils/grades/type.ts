@@ -2,17 +2,19 @@ import {
   SemesterStatus,
   StudentModuleStatus,
   StudentProgramStatus,
+  Grade,
+  ModuleType,
 } from '@/db/schema';
 
 export type StudentModule = {
   id: number;
   semesterModuleId: number;
-  grade: string;
+  grade: Grade;
   marks: string;
   status: StudentModuleStatus;
   semesterModule: {
     credits: number;
-    type: string;
+    type: ModuleType;
     module: {
       id: number;
       code: string;
@@ -25,20 +27,26 @@ export type Program = {
   id: number;
   status: StudentProgramStatus;
   structureId: number;
+  intakeDate: string | null;
+  graduationDate: string | null;
   semesters: {
     id: number;
+    status: SemesterStatus;
     term: string;
     semesterNumber: number | null;
-    status: SemesterStatus;
     studentModules: StudentModule[];
   }[];
   structure: {
     id: number;
     code: string;
+    desc: string | null;
+    programId: number;
+    createdAt: Date | null;
     program: {
+      id: number;
       name: string;
       code: string;
-      school?: {
+      school: {
         id: number;
         name: string;
       };

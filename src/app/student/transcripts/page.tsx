@@ -1,5 +1,7 @@
 'use client';
 
+import { getCleanedSemesters } from '@/app/dashboard/students/[id]/AcademicsView/statements/utils';
+import { useCurrentTerm } from '@/hooks/use-current-term';
 import useUserStudent from '@/hooks/use-user-student';
 import { formatSemester } from '@/lib/utils';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
@@ -18,13 +20,13 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import DesktopTable from './DesktopTable';
-import MobileTable from './MobileTable';
 import LoadingSkeleton from './LoadingSkeleton';
+import MobileTable from './MobileTable';
 import TranscriptDownloadButton from './TranscriptDownloadButton';
-import { getCleanedSemesters } from '@/app/dashboard/students/[id]/AcademicsView/statements/utils';
 
 export default function TranscriptsPage() {
   const { student, program, isLoading } = useUserStudent();
+  const { currentTerm } = useCurrentTerm();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
@@ -84,7 +86,9 @@ export default function TranscriptsPage() {
     );
   }
 
-  const semesters = getCleanedSemesters(program);
+  const semesters = getCleanedSemesters(program).filter(
+    (it) => it.term !== currentTerm?.name
+  );
 
   return (
     <Container size='md'>
