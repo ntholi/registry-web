@@ -97,6 +97,14 @@ export async function getModulesForStructure(structureId: number) {
   return semesterModulesService.getModulesForStructure(structureId);
 }
 
+export async function getVisibleModulesForStructure(structureId: number) {
+  const data = await getModulesForStructure(structureId);
+  return data.map((semester) => ({
+    ...semester,
+    semesterModules: semester.semesterModules.filter((sm) => !sm.hidden),
+  }));
+}
+
 export async function updateModuleVisibility(id: number, hidden: boolean) {
   const existingModule = await semesterModulesService.get(id);
   if (!existingModule) {

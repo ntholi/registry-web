@@ -1,11 +1,11 @@
 import { Grade, gradeEnum } from '@/db/schema';
+import { getVisibleModulesForStructure } from '@/server/semester-modules/actions';
 import {
   FacultyRemarksResult,
   GradePoint,
   Program,
   StudentModule,
 } from './type';
-import { getModulesForStructure } from '@/server/semester-modules/actions';
 
 export type GradeDefinition = {
   grade: (typeof gradeEnum)[number];
@@ -467,7 +467,9 @@ export async function getOutstandingFromStructure(programs: Program[]) {
     throw new Error('No active program found for student');
   }
 
-  const structureModules = await getModulesForStructure(program.structureId);
+  const structureModules = await getVisibleModulesForStructure(
+    program.structureId
+  );
   const requiredModules = structureModules.flatMap((semester) =>
     semester.semesterModules
       .filter((sm) => sm.module && !sm.hidden)
