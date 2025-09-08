@@ -123,6 +123,15 @@ export default function InformationConfirmation({
               <Text fw={500}>{student.stdNo}</Text>
             </Box>
           </Group>
+          <Group>
+            <IconId size='1.2rem' color='gray' />
+            <Box>
+              <Text size='xs' c='dimmed'>
+                Phone Number
+              </Text>
+              <Text fw={500}>{getPhoneNumbers(student)}</Text>
+            </Box>
+          </Group>
         </Stack>
       </Card>
 
@@ -171,4 +180,15 @@ export default function InformationConfirmation({
       </Card>
     </Stack>
   );
+}
+
+function getPhoneNumbers(student: Student): string {
+  const phoneNumbers = [];
+  if (student.phone1) {
+    phoneNumbers.push(student.phone1);
+  }
+  if (student.phone2) {
+    phoneNumbers.push(student.phone2);
+  }
+  return phoneNumbers.length > 0 ? phoneNumbers.join(', ') : 'Not provided';
 }
