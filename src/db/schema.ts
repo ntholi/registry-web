@@ -382,14 +382,14 @@ export const registrationRequestStatusEnum = [
 export const registrationRequests = sqliteTable(
   'registration_requests',
   {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    sponsorId: integer('sponsor_id')
+    id: integer().primaryKey({ autoIncrement: true }),
+    sponsorId: integer()
       .references(() => sponsors.id, { onDelete: 'cascade' })
       .notNull(),
-    stdNo: integer('std_no')
+    stdNo: integer()
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
-    termId: integer('term_id')
+    termId: integer()
       .references(() => terms.id, { onDelete: 'cascade' })
       .notNull(),
     status: text({ enum: registrationRequestStatusEnum })
@@ -400,10 +400,8 @@ export const registrationRequests = sqliteTable(
     semesterStatus: text({ enum: ['Active', 'Repeat'] }).notNull(),
     semesterNumber: integer().notNull(),
     message: text(),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(unixepoch())`
-    ),
-    updatedAt: integer('updated_at', { mode: 'timestamp' }),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
     dateApproved: integer({ mode: 'timestamp' }),
   },
   (table) => ({
@@ -418,11 +416,11 @@ export const requestedModuleStatusEnum = [
 ] as const;
 
 export const requestedModules = sqliteTable('requested_modules', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+  id: integer().primaryKey({ autoIncrement: true }),
   moduleStatus: text({ enum: studentModuleStatusEnum })
     .notNull()
     .default('Compulsory'),
-  registrationRequestId: integer('registration_request_id')
+  registrationRequestId: integer()
     .references(() => registrationRequests.id, { onDelete: 'cascade' })
     .notNull(),
   semesterModuleId: integer()
@@ -474,17 +472,15 @@ export const registrationClearance = sqliteTable(
 );
 
 export const graduationRequests = sqliteTable('graduation_requests', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  stdNo: integer('std_no')
+  id: integer().primaryKey({ autoIncrement: true }),
+  stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .unique()
     .notNull(),
   informationConfirmed: integer({ mode: 'boolean' }).notNull().default(false),
   message: text(),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }),
 });
 
 export const graduationClearance = sqliteTable(

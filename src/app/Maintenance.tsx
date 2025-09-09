@@ -37,7 +37,7 @@ export default function Maintenance() {
                 opacity: 0.9,
               }}
             >
-              Back in 30 minutes
+              Back in 57 minutes
             </Title>
 
             <Divider
