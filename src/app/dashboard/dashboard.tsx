@@ -25,6 +25,7 @@ import {
   Indicator,
   MantineColor,
   NavLink,
+  NavLinkProps,
   Skeleton,
   Stack,
   Text,
@@ -81,7 +82,8 @@ export type NavItem = {
   children?: NavItem[];
   notificationCount?: NotificationConfig;
   isLoading?: boolean;
-};
+  collapsed?: boolean;
+} & NavLinkProps;
 
 function getNavigation(department: DashboardUser) {
   const navItems = [
@@ -136,6 +138,7 @@ function getNavigation(department: DashboardUser) {
       label: 'Registration Requests',
       icon: IconClipboardCheck,
       roles: ['registry', 'admin'],
+      collapsed: true,
       children: [
         {
           label: 'Pending',
@@ -511,6 +514,7 @@ function ItemDisplay({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const Icon = item.icon;
   const { data: session } = useSession();
+  const [opened, setOpen] = React.useState(!item.collapsed);
 
   if (item.isVisible && !item.isVisible(session)) {
     return null;
@@ -551,14 +555,15 @@ function ItemDisplay({ item }: { item: NavItem }) {
     <NavLink
       label={item.label}
       component={item.href ? Link : undefined}
-      href={item.href || ''}
+      href={item.href || '#something'}
       active={item.href ? pathname.startsWith(item.href) : false}
       leftSection={Icon ? <Icon size='1.1rem' /> : null}
       description={item.description}
       rightSection={
         item.href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined
       }
-      opened={!!item.children}
+      opened={opened}
+      onClick={() => setOpen((o) => !o)}
     >
       {item.children?.map((child, index) => (
         <DisplayWithNotification key={index} item={child} />
