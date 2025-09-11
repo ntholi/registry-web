@@ -360,7 +360,7 @@ function getNavigation(department: DashboardUser) {
         },
         {
           href: `/dashboard/reports/boe`,
-          description: 'Board of Examination Report',
+          description: 'Board of Examination',
           icon: IconCopyCheck,
           roles: ['academic', 'registry', 'admin'],
           isVisible: (session) => {
@@ -375,7 +375,7 @@ function getNavigation(department: DashboardUser) {
         },
         {
           href: `/dashboard/reports/registration`,
-          description: 'Registration Report',
+          description: 'Student Registration',
           icon: IconCopyCheck,
           roles: ['registry', 'admin'],
         },
