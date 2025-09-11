@@ -6,9 +6,11 @@ import { formatSemester } from '@/lib/utils';
 interface ProgramBreakdownTableProps {
   school: {
     schoolName: string;
+    schoolCode: string;
     totalStudents: number;
     programs: Array<{
       programName: string;
+      schoolCode: string;
       yearBreakdown: { [year: number]: number };
       totalStudents: number;
     }>;
@@ -33,7 +35,12 @@ export default function ProgramBreakdownTable({
       <Group justify='space-between' mb='sm'>
         <Group>
           <IconBuilding size={20} />
-          <Text fw={600}>{school.schoolName}</Text>
+          <div>
+            <Text fw={600}>{school.schoolName}</Text>
+            <Text size='sm' c='dimmed'>
+              {school.schoolCode}
+            </Text>
+          </div>
         </Group>
         <Badge variant='light' size='sm'>
           {school.totalStudents} students

@@ -8,7 +8,14 @@ import {
   structures,
   terms,
 } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
+
+export interface RegistrationReportFilter {
+  termId?: number;
+  schoolId?: number;
+  programId?: number;
+  semesterNumber?: number;
+}
 
 export interface FullRegistrationStudent {
   stdNo: number;
@@ -16,12 +23,15 @@ export interface FullRegistrationStudent {
   programName: string;
   semesterNumber: number;
   schoolName: string;
+  schoolCode: string;
+  phone: string;
   status: string;
 }
 
 export interface SummaryProgramData {
   programName: string;
   schoolName: string;
+  schoolCode: string;
   schoolId: number;
   yearBreakdown: { [year: number]: number };
   totalStudents: number;
@@ -29,6 +39,7 @@ export interface SummaryProgramData {
 
 export interface SummarySchoolData {
   schoolName: string;
+  schoolCode: string;
   totalStudents: number;
   programs: SummaryProgramData[];
 }
@@ -49,15 +60,18 @@ export interface SummaryRegistrationReport {
 
 export class RegistrationReportRepository {
   async getFullRegistrationData(
-    termName: string
+    termName: string,
+    filter?: RegistrationReportFilter
   ): Promise<FullRegistrationStudent[]> {
-    const result = await db
+    let query = db
       .select({
         stdNo: students.stdNo,
         name: students.name,
         programName: programs.name,
         semesterNumber: studentSemesters.semesterNumber,
         schoolName: schools.name,
+        schoolCode: schools.code,
+        phone: students.phone1,
         status: studentSemesters.status,
       })
       .from(studentSemesters)
@@ -68,8 +82,26 @@ export class RegistrationReportRepository {
       .innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
       .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
       .innerJoin(programs, eq(structures.programId, programs.id))
-      .innerJoin(schools, eq(programs.schoolId, schools.id))
-      .where(eq(studentSemesters.term, termName))
+      .innerJoin(schools, eq(programs.schoolId, schools.id));
+
+    const conditions = [eq(studentSemesters.term, termName)];
+
+    if (filter?.schoolId) {
+      conditions.push(eq(schools.id, filter.schoolId));
+    }
+
+    if (filter?.programId) {
+      conditions.push(eq(programs.id, filter.programId));
+    }
+
+    if (filter?.semesterNumber) {
+      conditions.push(
+        eq(studentSemesters.semesterNumber, filter.semesterNumber)
+      );
+    }
+
+    const result = await query
+      .where(and(...conditions))
       .orderBy(schools.name, programs.name, studentSemesters.semesterNumber);
 
     return result.map((row) => ({
@@ -78,6 +110,8 @@ export class RegistrationReportRepository {
       programName: row.programName,
       semesterNumber: row.semesterNumber || 0,
       schoolName: row.schoolName,
+      schoolCode: row.schoolCode,
+      phone: row.phone || '',
       status: row.status,
     }));
   }
@@ -85,7 +119,8 @@ export class RegistrationReportRepository {
   async getPaginatedRegistrationData(
     termName: string,
     page: number = 1,
-    pageSize: number = 20
+    pageSize: number = 20,
+    filter?: RegistrationReportFilter
   ): Promise<{
     students: FullRegistrationStudent[];
     totalCount: number;
@@ -94,38 +129,60 @@ export class RegistrationReportRepository {
   }> {
     const offset = (page - 1) * pageSize;
 
-    const [studentsResult, totalResult] = await Promise.all([
-      db
-        .select({
-          stdNo: students.stdNo,
-          name: students.name,
-          programName: programs.name,
-          semesterNumber: studentSemesters.semesterNumber,
-          schoolName: schools.name,
-          status: studentSemesters.status,
-        })
-        .from(studentSemesters)
-        .innerJoin(
-          studentPrograms,
-          eq(studentSemesters.studentProgramId, studentPrograms.id)
-        )
-        .innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-        .innerJoin(programs, eq(structures.programId, programs.id))
-        .innerJoin(schools, eq(programs.schoolId, schools.id))
-        .where(eq(studentSemesters.term, termName))
-        .limit(pageSize)
-        .offset(offset),
+    let studentsQuery = db
+      .select({
+        stdNo: students.stdNo,
+        name: students.name,
+        programName: programs.name,
+        semesterNumber: studentSemesters.semesterNumber,
+        schoolName: schools.name,
+        schoolCode: schools.code,
+        phone: students.phone1,
+        status: studentSemesters.status,
+      })
+      .from(studentSemesters)
+      .innerJoin(
+        studentPrograms,
+        eq(studentSemesters.studentProgramId, studentPrograms.id)
+      )
+      .innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+      .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+      .innerJoin(programs, eq(structures.programId, programs.id))
+      .innerJoin(schools, eq(programs.schoolId, schools.id));
 
-      db
-        .select({ count: students.stdNo })
-        .from(studentSemesters)
-        .innerJoin(
-          studentPrograms,
-          eq(studentSemesters.studentProgramId, studentPrograms.id)
-        )
-        .innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-        .where(eq(studentSemesters.term, termName)),
+    let countQuery = db
+      .select({ count: students.stdNo })
+      .from(studentSemesters)
+      .innerJoin(
+        studentPrograms,
+        eq(studentSemesters.studentProgramId, studentPrograms.id)
+      )
+      .innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+      .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+      .innerJoin(programs, eq(structures.programId, programs.id))
+      .innerJoin(schools, eq(programs.schoolId, schools.id));
+
+    const conditions = [eq(studentSemesters.term, termName)];
+
+    if (filter?.schoolId) {
+      conditions.push(eq(schools.id, filter.schoolId));
+    }
+
+    if (filter?.programId) {
+      conditions.push(eq(programs.id, filter.programId));
+    }
+
+    if (filter?.semesterNumber) {
+      conditions.push(
+        eq(studentSemesters.semesterNumber, filter.semesterNumber)
+      );
+    }
+
+    const whereClause = and(...conditions);
+
+    const [studentsResult, totalResult] = await Promise.all([
+      studentsQuery.where(whereClause).limit(pageSize).offset(offset),
+      countQuery.where(whereClause),
     ]);
 
     const totalCount = totalResult.length;
@@ -138,6 +195,8 @@ export class RegistrationReportRepository {
         programName: row.programName,
         semesterNumber: row.semesterNumber || 0,
         schoolName: row.schoolName,
+        schoolCode: row.schoolCode,
+        phone: row.phone || '',
         status: row.status,
       })),
       totalCount,
@@ -147,9 +206,10 @@ export class RegistrationReportRepository {
   }
 
   async getSummaryRegistrationData(
-    termName: string
+    termName: string,
+    filter?: RegistrationReportFilter
   ): Promise<SummaryRegistrationReport> {
-    const fullData = await this.getFullRegistrationData(termName);
+    const fullData = await this.getFullRegistrationData(termName, filter);
 
     const schoolsMap = new Map<string, SummarySchoolData>();
     const programsMap = new Map<string, SummaryProgramData>();
@@ -161,6 +221,7 @@ export class RegistrationReportRepository {
       if (!schoolsMap.has(schoolKey)) {
         schoolsMap.set(schoolKey, {
           schoolName: student.schoolName,
+          schoolCode: student.schoolCode,
           totalStudents: 0,
           programs: [],
         });
@@ -170,6 +231,7 @@ export class RegistrationReportRepository {
         programsMap.set(programKey, {
           programName: student.programName,
           schoolName: student.schoolName,
+          schoolCode: student.schoolCode,
           schoolId: 0,
           yearBreakdown: {},
           totalStudents: 0,
@@ -219,5 +281,36 @@ export class RegistrationReportRepository {
 
   async getAllActiveTerms() {
     return await db.select().from(terms).orderBy(terms.createdAt);
+  }
+
+  async getAvailableSchools() {
+    return await db
+      .select({
+        id: schools.id,
+        code: schools.code,
+        name: schools.name,
+      })
+      .from(schools)
+      .where(eq(schools.isActive, true))
+      .orderBy(schools.name);
+  }
+
+  async getAvailablePrograms(schoolId?: number) {
+    const baseQuery = db
+      .select({
+        id: programs.id,
+        code: programs.code,
+        name: programs.name,
+        schoolId: programs.schoolId,
+      })
+      .from(programs);
+
+    if (schoolId) {
+      return await baseQuery
+        .where(eq(programs.schoolId, schoolId))
+        .orderBy(programs.name);
+    }
+
+    return await baseQuery.orderBy(programs.name);
   }
 }
