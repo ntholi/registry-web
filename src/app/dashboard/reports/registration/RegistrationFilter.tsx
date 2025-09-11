@@ -12,13 +12,9 @@ import {
   Stack,
   Text,
   Badge,
-  Divider,
-  Box,
-  Grid,
-  Paper,
-  ThemeIcon,
-  Collapse,
   ActionIcon,
+  ThemeIcon,
+  Divider,
 } from '@mantine/core';
 import {
   IconFilter,
@@ -26,8 +22,6 @@ import {
   IconBuilding,
   IconBook,
   IconSchool,
-  IconChevronDown,
-  IconChevronUp,
   IconX,
   IconSearch,
 } from '@tabler/icons-react';
@@ -57,24 +51,20 @@ const semesterOptions = Array.from({ length: 8 }, (_, i) => {
   };
 });
 
-export interface RegistrationReportFilter {
+export interface ReportFilter {
   termId?: number;
   schoolId?: number;
   programId?: number;
   semesterNumber?: number;
 }
 
-interface RegistrationFilterProps {
-  filter: RegistrationReportFilter;
-  onFilterChange: (filter: RegistrationReportFilter) => void;
+interface Props {
+  filter: ReportFilter;
+  onFilterChange: (filter: ReportFilter) => void;
 }
 
-export default function RegistrationFilter({
-  filter,
-  onFilterChange,
-}: RegistrationFilterProps) {
+export default function RegistrationFilter({ filter, onFilterChange }: Props) {
   const [opened, { toggle, close }] = useDisclosure(false);
-  const [showAdvanced, { toggle: toggleAdvanced }] = useDisclosure(false);
 
   const [localFilter, setLocalFilter] = useState<{
     termId: string;
@@ -154,30 +144,20 @@ export default function RegistrationFilter({
     };
   }, [localFilter, terms, schools, programs]);
 
-  const previewDescription = useMemo(() => {
+  const summaryText = useMemo(() => {
     const { term, school, program, semester } = selectedInfo;
-
-    if (!term) {
-      return 'Please select a term to generate reports';
-    }
-
-    let desc = `${term.name} registration report`;
-
-    if (program) {
-      desc = `${program.code} students for ${term.name}`;
-    } else if (school) {
-      desc = `${school.code} students for ${term.name}`;
-    }
-
-    if (semester) {
-      desc += ` (${getSemesterShortLabel(semester)})`;
-    }
-
-    return desc;
+    if (!term) return 'Select a term to start';
+    const detail = program
+      ? program.code
+      : school
+        ? school.code
+        : 'All Schools';
+    const sem = semester ? ` · ${getSemesterShortLabel(semester)}` : '';
+    return `${term.name} · ${detail}${sem}`;
   }, [selectedInfo]);
 
   const handleApplyFilters = () => {
-    const newFilter: RegistrationReportFilter = {
+    const newFilter: ReportFilter = {
       termId: localFilter.termId ? Number(localFilter.termId) : undefined,
       schoolId: localFilter.schoolId ? Number(localFilter.schoolId) : undefined,
       programId: localFilter.programId
@@ -218,13 +198,13 @@ export default function RegistrationFilter({
   return (
     <>
       <Card withBorder radius='md' style={{ minWidth: '300px' }}>
-        <Group justify='space-between' mb='sm'>
-          <Group>
+        <Group justify='space-between' mb='xs'>
+          <Group gap='xs'>
             <ThemeIcon variant='light' size='sm'>
               <IconFilter size={14} />
             </ThemeIcon>
             <Text fw={500} size='sm'>
-              Report Filters
+              Filters
             </Text>
           </Group>
           <Button
@@ -233,268 +213,196 @@ export default function RegistrationFilter({
             onClick={toggle}
             leftSection={<IconSearch size={14} />}
           >
-            Configure
+            {hasActiveFilters ? 'Edit' : 'Set'}
           </Button>
         </Group>
-
-        {hasActiveFilters && (
-          <Stack gap='xs'>
-            {filter.termId && selectedInfo.term && (
-              <Badge
-                variant='light'
-                color='blue'
-                leftSection={<IconCalendar size={12} />}
-                rightSection={
-                  <ActionIcon
-                    size='xs'
-                    variant='transparent'
-                    onClick={() => {
-                      const newFilter = { ...filter };
-                      delete newFilter.termId;
-                      onFilterChange(newFilter);
-                    }}
-                  >
-                    <IconX size={10} />
-                  </ActionIcon>
-                }
-              >
-                {selectedInfo.term.name}
-              </Badge>
-            )}
-
-            {filter.schoolId && selectedInfo.school && (
-              <Badge
-                variant='light'
-                color='green'
-                leftSection={<IconBuilding size={12} />}
-                rightSection={
-                  <ActionIcon
-                    size='xs'
-                    variant='transparent'
-                    onClick={() => {
-                      const newFilter = { ...filter };
-                      delete newFilter.schoolId;
-                      delete newFilter.programId; // Clear program too
-                      onFilterChange(newFilter);
-                    }}
-                  >
-                    <IconX size={10} />
-                  </ActionIcon>
-                }
-              >
-                {selectedInfo.school.code}
-              </Badge>
-            )}
-
-            {filter.programId && selectedInfo.program && (
-              <Badge
-                variant='light'
-                color='orange'
-                leftSection={<IconBook size={12} />}
-                rightSection={
-                  <ActionIcon
-                    size='xs'
-                    variant='transparent'
-                    onClick={() => {
-                      const newFilter = { ...filter };
-                      delete newFilter.programId;
-                      onFilterChange(newFilter);
-                    }}
-                  >
-                    <IconX size={10} />
-                  </ActionIcon>
-                }
-              >
-                {selectedInfo.program.code}
-              </Badge>
-            )}
-
-            {filter.semesterNumber && (
-              <Badge
-                variant='light'
-                color='purple'
-                leftSection={<IconSchool size={12} />}
-                rightSection={
-                  <ActionIcon
-                    size='xs'
-                    variant='transparent'
-                    onClick={() => {
-                      const newFilter = { ...filter };
-                      delete newFilter.semesterNumber;
-                      onFilterChange(newFilter);
-                    }}
-                  >
-                    <IconX size={10} />
-                  </ActionIcon>
-                }
-              >
-                {getSemesterShortLabel(filter.semesterNumber)}
-              </Badge>
-            )}
-
-            <Text size='xs' c='dimmed' mt='xs'>
-              {previewDescription}
+        <Stack gap='xs'>
+          {hasActiveFilters ? (
+            <Group gap={4} wrap='wrap'>
+              {filter.termId && selectedInfo.term && (
+                <Badge
+                  variant='light'
+                  color='blue'
+                  leftSection={<IconCalendar size={12} />}
+                  rightSection={
+                    <ActionIcon
+                      size='xs'
+                      variant='transparent'
+                      onClick={() => {
+                        const newFilter = { ...filter };
+                        delete newFilter.termId;
+                        onFilterChange(newFilter);
+                      }}
+                    >
+                      <IconX size={10} />
+                    </ActionIcon>
+                  }
+                >
+                  {selectedInfo.term.name}
+                </Badge>
+              )}
+              {filter.schoolId && selectedInfo.school && (
+                <Badge
+                  variant='light'
+                  color='green'
+                  leftSection={<IconBuilding size={12} />}
+                  rightSection={
+                    <ActionIcon
+                      size='xs'
+                      variant='transparent'
+                      onClick={() => {
+                        const newFilter = { ...filter };
+                        delete newFilter.schoolId;
+                        delete newFilter.programId;
+                        onFilterChange(newFilter);
+                      }}
+                    >
+                      <IconX size={10} />
+                    </ActionIcon>
+                  }
+                >
+                  {selectedInfo.school.code}
+                </Badge>
+              )}
+              {filter.programId && selectedInfo.program && (
+                <Badge
+                  variant='light'
+                  color='orange'
+                  leftSection={<IconBook size={12} />}
+                  rightSection={
+                    <ActionIcon
+                      size='xs'
+                      variant='transparent'
+                      onClick={() => {
+                        const newFilter = { ...filter };
+                        delete newFilter.programId;
+                        onFilterChange(newFilter);
+                      }}
+                    >
+                      <IconX size={10} />
+                    </ActionIcon>
+                  }
+                >
+                  {selectedInfo.program.code}
+                </Badge>
+              )}
+              {filter.semesterNumber && (
+                <Badge
+                  variant='light'
+                  color='violet'
+                  leftSection={<IconSchool size={12} />}
+                  rightSection={
+                    <ActionIcon
+                      size='xs'
+                      variant='transparent'
+                      onClick={() => {
+                        const newFilter = { ...filter };
+                        delete newFilter.semesterNumber;
+                        onFilterChange(newFilter);
+                      }}
+                    >
+                      <IconX size={10} />
+                    </ActionIcon>
+                  }
+                >
+                  {getSemesterShortLabel(filter.semesterNumber)}
+                </Badge>
+              )}
+            </Group>
+          ) : (
+            <Text size='xs' c='dimmed'>
+              No filters set
             </Text>
-          </Stack>
-        )}
-
-        {!hasActiveFilters && (
-          <Text size='sm' c='dimmed'>
-            No filters applied - showing all data
+          )}
+          <Text size='xs' c='dimmed'>
+            {summaryText}
           </Text>
-        )}
+        </Stack>
       </Card>
 
       <Modal
         opened={opened}
         onClose={close}
-        title='Configure Report Filters'
-        size='lg'
+        title='Report Filters'
+        size='md'
         centered
       >
         <Stack gap='md'>
-          <Paper p='md' withBorder>
-            <Group justify='space-between' mb='md'>
-              <Group>
-                <ThemeIcon variant='light' color='blue'>
-                  <IconCalendar size={16} />
-                </ThemeIcon>
-                <Text fw={500}>Required Selection</Text>
-              </Group>
-            </Group>
-
-            <Select
-              label='Academic Term'
-              placeholder='Select the academic term for the report'
-              data={terms.map((term) => ({
-                value: term.id?.toString() || '',
-                label: term.name,
-              }))}
-              rightSection={termsLoading && <Loader size='xs' />}
-              value={localFilter.termId || null}
-              onChange={(value) =>
-                setLocalFilter((prev) => ({
-                  ...prev,
-                  termId: value || '',
-                }))
-              }
-              searchable
-              clearable
-              required
-              description='Select the academic term to generate reports for'
-            />
-          </Paper>
-
-          <Paper p='md' withBorder>
-            <Group
-              justify='space-between'
-              mb='md'
-              onClick={toggleAdvanced}
-              style={{ cursor: 'pointer' }}
-            >
-              <Group>
-                <ThemeIcon variant='light' color='green'>
-                  <IconFilter size={16} />
-                </ThemeIcon>
-                <Text fw={500}>Advanced Filters</Text>
-                <Text size='xs' c='dimmed'>
-                  (Optional)
-                </Text>
-              </Group>
-              <ActionIcon variant='subtle'>
-                {showAdvanced ? (
-                  <IconChevronUp size={16} />
-                ) : (
-                  <IconChevronDown size={16} />
-                )}
-              </ActionIcon>
-            </Group>
-
-            <Collapse in={showAdvanced}>
-              <Grid>
-                <Grid.Col span={6}>
-                  <Select
-                    label='School/Faculty'
-                    placeholder='Filter by school'
-                    data={schools.map((school) => ({
-                      value: school.id?.toString() || '',
-                      label: `${school.code} - ${school.name}`,
-                    }))}
-                    rightSection={schoolsLoading && <Loader size='xs' />}
-                    value={localFilter.schoolId || null}
-                    onChange={(value) =>
-                      setLocalFilter((prev) => ({
-                        ...prev,
-                        schoolId: value || '',
-                        programId: '',
-                      }))
-                    }
-                    searchable
-                    clearable
-                    description='Narrow results to a specific school'
-                  />
-                </Grid.Col>
-
-                <Grid.Col span={6}>
-                  <Select
-                    label='Program'
-                    placeholder='Filter by program'
-                    data={programs.map((program) => ({
-                      value: program.id?.toString() || '',
-                      label: `${program.code} - ${program.name}`,
-                    }))}
-                    rightSection={programsLoading && <Loader size='xs' />}
-                    value={localFilter.programId || null}
-                    onChange={(value) =>
-                      setLocalFilter((prev) => ({
-                        ...prev,
-                        programId: value || '',
-                      }))
-                    }
-                    searchable
-                    clearable
-                    disabled={!localFilter.schoolId}
-                    description='Select a program within the chosen school'
-                  />
-                </Grid.Col>
-
-                <Grid.Col span={12}>
-                  <Select
-                    label='Semester Level'
-                    placeholder='Filter by semester'
-                    data={semesterOptions}
-                    value={localFilter.semesterNumber || null}
-                    onChange={(value) =>
-                      setLocalFilter((prev) => ({
-                        ...prev,
-                        semesterNumber: value || '',
-                      }))
-                    }
-                    searchable
-                    clearable
-                    description='Filter students by their current semester level'
-                  />
-                </Grid.Col>
-              </Grid>
-            </Collapse>
-          </Paper>
-
+          <Select
+            label='Academic Term'
+            placeholder='Select term'
+            data={terms.map((term) => ({
+              value: term.id?.toString() || '',
+              label: term.name,
+            }))}
+            rightSection={termsLoading && <Loader size='xs' />}
+            value={localFilter.termId || null}
+            onChange={(value) =>
+              setLocalFilter((prev) => ({
+                ...prev,
+                termId: value || '',
+              }))
+            }
+            searchable
+            clearable
+            required
+          />
+          <Select
+            label='School'
+            placeholder='All schools'
+            data={schools.map((school) => ({
+              value: school.id?.toString() || '',
+              label: `${school.code} - ${school.name}`,
+            }))}
+            rightSection={schoolsLoading && <Loader size='xs' />}
+            value={localFilter.schoolId || null}
+            onChange={(value) =>
+              setLocalFilter((prev) => ({
+                ...prev,
+                schoolId: value || '',
+                programId: '',
+              }))
+            }
+            searchable
+            clearable
+          />
+          <Select
+            label='Program'
+            placeholder='All programs'
+            data={programs.map((program) => ({
+              value: program.id?.toString() || '',
+              label: `${program.code} - ${program.name}`,
+            }))}
+            rightSection={programsLoading && <Loader size='xs' />}
+            value={localFilter.programId || null}
+            onChange={(value) =>
+              setLocalFilter((prev) => ({
+                ...prev,
+                programId: value || '',
+              }))
+            }
+            searchable
+            clearable
+            disabled={!localFilter.schoolId}
+          />
+          <Select
+            label='Semester'
+            placeholder='Any'
+            data={semesterOptions}
+            value={localFilter.semesterNumber || null}
+            onChange={(value) =>
+              setLocalFilter((prev) => ({
+                ...prev,
+                semesterNumber: value || '',
+              }))
+            }
+            searchable
+            clearable
+          />
           <Divider />
-
-          <Box>
-            <Text size='sm' fw={500} mb='xs'>
-              Preview:
-            </Text>
-            <Paper p='sm' bg='gray.0' style={{ borderRadius: '8px' }}>
-              <Text size='sm' c={hasValidSelection ? 'dark' : 'dimmed'}>
-                {previewDescription}
-              </Text>
-            </Paper>
-          </Box>
-
           <Group justify='space-between'>
-            <Button variant='subtle' onClick={handleClearAll} color='red'>
-              Clear All
+            <Button variant='light' color='red' onClick={handleClearAll}>
+              Reset
             </Button>
             <Group>
               <Button variant='outline' onClick={close}>
@@ -505,7 +413,7 @@ export default function RegistrationFilter({
                 disabled={!hasValidSelection}
                 leftSection={<IconSearch size={16} />}
               >
-                Apply Filters
+                Apply
               </Button>
             </Group>
           </Group>

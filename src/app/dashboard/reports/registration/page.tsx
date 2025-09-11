@@ -24,12 +24,10 @@ import {
 import { getRegistrationDataPreview } from '@/server/reports/registration/actions';
 import ProgramBreakdownTable from './ProgramBreakdownTable';
 import StudentTable from './StudentTable';
-import RegistrationFilter, {
-  type RegistrationReportFilter,
-} from './RegistrationFilter';
+import RegistrationFilter, { type ReportFilter } from './RegistrationFilter';
 
 export default function RegistrationReportPage() {
-  const [filter, setFilter] = useState<RegistrationReportFilter>({});
+  const [filter, setFilter] = useState<ReportFilter>({});
 
   const {
     data: reportData,
@@ -82,32 +80,17 @@ export default function RegistrationReportPage() {
               </Group>
             </Box>
 
-            <Group gap='md'>
-              <RegistrationFilter filter={filter} onFilterChange={setFilter} />
-              {hasData && (
-                <Button
-                  leftSection={<IconDownload size={16} />}
-                  onClick={handleExportReport}
-                  variant='light'
-                >
-                  Export Report
-                </Button>
-              )}
-            </Group>
+            {hasData && (
+              <Button
+                leftSection={<IconDownload size={16} />}
+                onClick={handleExportReport}
+                variant='light'
+              >
+                Export Report
+              </Button>
+            )}
           </Group>
-
-          {!canGenerateReport && (
-            <Alert
-              icon={<IconInfoCircle size={16} />}
-              title='Get Started'
-              color='blue'
-              variant='light'
-            >
-              Select an academic term using the filter above to generate
-              registration reports. You can also apply additional filters to
-              narrow down the data by school, program, or semester level.
-            </Alert>
-          )}
+          <RegistrationFilter filter={filter} onFilterChange={setFilter} />
 
           {canGenerateReport && !hasData && !isLoading && (
             <Alert
