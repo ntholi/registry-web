@@ -310,7 +310,7 @@ export default function GraduationPage() {
               disabled={!canSubmit}
               loading={graduationMutation.isPending}
             >
-              Submit Graduation Request
+              Submit
             </Button>
           )}
         </Group>

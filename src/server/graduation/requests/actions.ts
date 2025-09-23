@@ -62,3 +62,7 @@ export async function updateGraduationRequest(
 export async function deleteGraduationRequest(id: number) {
   return service.delete(id);
 }
+
+export async function getGraduationClearanceData(graduationRequestId: number) {
+  return service.getClearanceData(graduationRequestId);
+}

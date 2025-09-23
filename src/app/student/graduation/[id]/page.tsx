@@ -7,6 +7,7 @@ import {
   Button,
   Container,
   Divider,
+  Flex,
   Group,
   Paper,
   Stack,
@@ -33,6 +34,7 @@ import {
   getClearanceStatus,
   getGraduationStatus,
 } from '../../utils/status';
+import ProofOfClearanceDownload from '../components/ProofOfClearanceDownload';
 
 type Props = {
   params: Promise<{
@@ -77,15 +79,23 @@ export default async function GraduationDetailsPage({ params }: Props) {
               </Badge>
             </Group>
 
-            <Box mb='md'>
-              <Text size='sm'>
-                {graduationRequest.studentProgram.structure.program.name}
-              </Text>
+            <Flex justify={'space-between'} wrap='wrap'>
+              <Box mb='md'>
+                <Text size='sm'>
+                  {graduationRequest.studentProgram.structure.program.name}
+                </Text>
 
-              <Text c='dimmed' size='sm'>
-                Submitted: {formatDateTime(graduationRequest.createdAt!)}
-              </Text>
-            </Box>
+                <Text c='dimmed' size='sm'>
+                  Submitted: {formatDateTime(graduationRequest.createdAt!)}
+                </Text>
+              </Box>
+              {clearanceStatus === 'approved' && (
+                <ProofOfClearanceDownload
+                  graduationRequestId={graduationRequest.id}
+                  studentNumber={graduationRequest.studentProgram.stdNo}
+                />
+              )}
+            </Flex>
 
             {graduationRequest.message && (
               <>

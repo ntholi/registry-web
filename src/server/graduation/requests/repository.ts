@@ -353,6 +353,33 @@ export default class GraduationRequestRepository extends BaseRepository<
       clearanceId: academicClearanceRecord.id,
     });
   }
+
+  async getClearanceData(graduationRequestId: number) {
+    return db.query.graduationRequests.findFirst({
+      where: eq(graduationRequests.id, graduationRequestId),
+      with: {
+        studentProgram: {
+          with: {
+            student: true,
+            structure: {
+              with: {
+                program: {
+                  with: {
+                    school: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        graduationClearances: {
+          with: {
+            clearance: true,
+          },
+        },
+      },
+    });
+  }
 }
 
 export const graduationRequestsRepository = new GraduationRequestRepository();

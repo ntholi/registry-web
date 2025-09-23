@@ -93,6 +93,18 @@ class GraduationRequestService {
   async count() {
     return withAuth(async () => this.repository.count(), []);
   }
+
+  async getClearanceData(graduationRequestId: number) {
+    return withAuth(
+      async () => this.repository.getClearanceData(graduationRequestId),
+      ['student', 'admin', 'registry'],
+      async (session) => {
+        const graduationRequest =
+          await this.repository.findById(graduationRequestId);
+        return graduationRequest?.studentProgram?.stdNo === session.user?.stdNo;
+      }
+    );
+  }
 }
 
 export const graduationRequestsService = serviceWrapper(

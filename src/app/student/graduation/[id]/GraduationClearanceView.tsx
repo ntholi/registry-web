@@ -1,9 +1,11 @@
+'use client';
 import { formatDateTime, toTitleCase } from '@/lib/utils';
 import { getGraduationRequest } from '@/server/graduation/requests/actions';
 import {
   Alert,
   Badge,
   Box,
+  Button,
   Card,
   Divider,
   Group,
@@ -13,8 +15,13 @@ import {
   TimelineItem,
   Title,
 } from '@mantine/core';
-import { IconInfoCircle } from '@tabler/icons-react';
-import { getStatusColor, getStatusIcon } from '../../utils/status';
+import { IconInfoCircle, IconDownload } from '@tabler/icons-react';
+import {
+  getClearanceStatus,
+  getStatusColor,
+  getStatusIcon,
+} from '../../utils/status';
+import ProofOfClearanceDownload from '../components/ProofOfClearanceDownload';
 
 interface Props {
   graduationRequest: NonNullable<
@@ -25,14 +32,17 @@ interface Props {
 export default function GraduationClearanceView({ graduationRequest }: Props) {
   const { graduationClearances = [] } = graduationRequest;
   const departments = ['academic', 'finance', 'library'];
+  const clearanceStatus = getClearanceStatus(graduationClearances);
 
   return (
     <Card withBorder p='md' radius='md'>
       <Stack gap='md'>
         <Box pos='relative'>
-          <Title order={2} size='h4' fw={600}>
-            Graduation Clearance Status
-          </Title>
+          <Group justify='space-between' align='center'>
+            <Title order={2} size='h4' fw={600}>
+              Clearance Status
+            </Title>
+          </Group>
         </Box>
 
         <Divider />
