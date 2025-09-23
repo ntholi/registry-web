@@ -547,6 +547,13 @@
       "when": 1757417680504,
       "tag": "0077_bright_boomer",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "6",
+      "when": 1758623678775,
+      "tag": "0078_glorious_slayback",
+      "breakpoints": true
     }
   ]
 }

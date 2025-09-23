@@ -473,8 +473,8 @@ export const registrationClearance = sqliteTable(
 
 export const graduationRequests = sqliteTable('graduation_requests', {
   id: integer().primaryKey({ autoIncrement: true }),
-  stdNo: integer()
-    .references(() => students.stdNo, { onDelete: 'cascade' })
+  studentProgramId: integer()
+    .references(() => studentPrograms.id, { onDelete: 'cascade' })
     .unique()
     .notNull(),
   informationConfirmed: integer({ mode: 'boolean' }).notNull().default(false),
