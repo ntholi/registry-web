@@ -9,7 +9,6 @@ import {
   Radio,
   Stack,
   Text,
-  Title,
   Badge,
   Alert,
 } from '@mantine/core';
@@ -45,59 +44,58 @@ export default function ProgramSelection({
   if (!programs || programs.length === 0) {
     return (
       <Alert
-        icon={<IconInfoCircle size='1rem' />}
-        title='No Eligible Programs Found'
-        color='red'
+        icon={<IconInfoCircle size='0.9rem' />}
+        color='yellow'
+        variant='light'
       >
-        You don&apos;t have any programs with &quot;Active&quot; or
-        &quot;Completed&quot; status that are eligible for graduation. Please
-        contact the registry office for assistance.
+        No eligible programs found. Contact the registry office if you believe
+        this is a mistake.
       </Alert>
     );
   }
 
   if (programs.length === 1) {
     return (
-      <Card withBorder shadow='sm' radius='md' padding='lg'>
-        <Title order={4} mb='md'>
-          Your Program
-        </Title>
+      <Card withBorder radius='md' padding='md'>
+        <Text fw={600} mb='sm'>
+          Your program
+        </Text>
         <ProgramCard program={programs[0]} />
-        <Text size='sm' c='dimmed' mt='sm'>
-          This is your only eligible program for graduation.
+        <Text size='sm' c='dimmed' mt='xs'>
+          Only eligible program detected.
         </Text>
       </Card>
     );
   }
 
   return (
-    <Card withBorder shadow='sm' radius='md' padding='lg'>
-      <Title order={4} mb='md'>
-        Select Program to Graduate From
-      </Title>
-
-      <Alert
-        icon={<IconInfoCircle size='1rem' />}
-        title='Multiple Programs Found'
-        color='blue'
-        mb='md'
-      >
-        You have multiple programs. Please select the program you want to
-        graduate from. Programs with &quot;Completed&quot; status and recent
-        graduation terms are prioritized.
-      </Alert>
+    <Card withBorder radius='md' padding='md'>
+      <Group justify='space-between' mb='xs'>
+        <Text fw={600}>Choose a program</Text>
+      </Group>
+      <Text size='sm' c='dimmed' mb='sm'>
+        Select the program you want to graduate from.
+      </Text>
 
       <Radio.Group
         value={selectedProgramId?.toString() || ''}
         onChange={(value) => onProgramSelect(parseInt(value))}
       >
-        <Stack gap='md'>
+        <Stack gap='xs' pt='xs'>
           {programs.map((program) => (
-            <Radio
+            <Radio.Card
               key={program.id}
               value={program.id.toString()}
-              label={<ProgramCard program={program} />}
-            />
+              radius='md'
+              p={'sm'}
+            >
+              <Group wrap='nowrap' align='flex-start'>
+                <Radio.Indicator />
+                <Box>
+                  <ProgramCard program={program} />
+                </Box>
+              </Group>
+            </Radio.Card>
           ))}
         </Stack>
       </Radio.Group>
@@ -106,10 +104,6 @@ export default function ProgramSelection({
 }
 
 function ProgramCard({ program }: { program: StudentProgram }) {
-  const hasGraduationTerms = program.semesters.some((semester) =>
-    ['2025-02', '2024-07', '2024-02'].includes(semester.term)
-  );
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Completed':
@@ -121,23 +115,11 @@ function ProgramCard({ program }: { program: StudentProgram }) {
     }
   };
 
-  const getPriorityBadge = () => {
-    if (program.status === 'Completed' && hasGraduationTerms) {
-      return (
-        <Badge color='green' variant='light' size='xs'>
-          Recommended
-        </Badge>
-      );
-    }
-    return null;
-  };
-
   return (
     <Box>
-      <Group justify='space-between' mb='xs'>
+      <Group justify='space-between' mb={3}>
         <Text fw={500}>{program.structure.program.name}</Text>
         <Group gap='xs'>
-          {getPriorityBadge()}
           <Badge
             color={getStatusColor(program.status)}
             variant='light'
@@ -148,34 +130,9 @@ function ProgramCard({ program }: { program: StudentProgram }) {
         </Group>
       </Group>
 
-      <Group gap='md'>
-        <Box>
-          <Text size='xs' c='dimmed'>
-            Program Code
-          </Text>
-          <Text size='sm'>{program.structure.program.code}</Text>
-        </Box>
-        <Box>
-          <Text size='xs' c='dimmed'>
-            Level
-          </Text>
-          <Text size='sm' tt='capitalize'>
-            {program.structure.program.level}
-          </Text>
-        </Box>
-        <Box>
-          <Text size='xs' c='dimmed'>
-            Structure
-          </Text>
-          <Text size='sm'>{program.structure.code}</Text>
-        </Box>
-      </Group>
-
-      {program.status === 'Completed' && hasGraduationTerms && (
-        <Text size='xs' c='green' mt='xs'>
-          ✓ Has recent graduation terms (2024-02, 2024-07, 2025-02)
-        </Text>
-      )}
+      <Text size='xs' c='dimmed'>
+        Intake: {program.intakeDate}
+      </Text>
     </Box>
   );
 }
