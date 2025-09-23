@@ -372,6 +372,7 @@ export default class GraduationRequestRepository extends BaseRepository<
             },
           },
         },
+        paymentReceipts: true,
         graduationClearances: {
           with: {
             clearance: true,

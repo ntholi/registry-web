@@ -1,4 +1,4 @@
-import { formatDate, formatDateTime } from '@/lib/utils';
+import { formatDate, toTitleCase } from '@/lib/utils';
 import { getGraduationClearanceData } from '@/server/graduation/requests/actions';
 import {
   Document,
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   clearanceSection: {
-    marginBottom: 20,
+    marginBottom: 25,
   },
   sectionTitle: {
     fontSize: 11,
@@ -107,7 +107,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     color: '#000',
   },
-  clearanceTable: {
+  statementText: {
+    fontSize: 10,
+    lineHeight: 1.4,
+    marginBottom: 20,
+    textAlign: 'justify',
+    color: '#000',
+  },
+  paymentSection: {
+    marginBottom: 20,
+  },
+  paymentTable: {
     width: '100%',
     borderTop: '1px solid #000',
     borderLeft: '1px solid #000',
@@ -115,75 +125,78 @@ const styles = StyleSheet.create({
     borderBottom: '1px solid #000',
     marginBottom: 12,
   },
-  clearanceHeaderRow: {
+  paymentHeaderRow: {
     flexDirection: 'row',
     backgroundColor: '#4a4a4a',
     borderBottom: '1px solid #666666',
     minHeight: 25,
   },
-  clearanceHeaderCell: {
-    padding: 4,
+  paymentHeaderCell: {
+    padding: 6,
     borderRight: '1px solid #666666',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  clearanceHeaderText: {
+  paymentHeaderText: {
     fontSize: 9,
     fontWeight: 'bold',
     color: '#ffffff',
     textAlign: 'center',
   },
-  clearanceDataRow: {
+  paymentDataRow: {
     flexDirection: 'row',
     borderBottom: '1px solid #666666',
-    minHeight: 35,
+    minHeight: 30,
   },
-  clearanceLastDataRow: {
+  paymentLastDataRow: {
     flexDirection: 'row',
-    minHeight: 35,
+    minHeight: 30,
   },
-  clearanceDataCell: {
-    padding: 4,
+  paymentDataCell: {
+    padding: 6,
     borderRight: '1px solid #666666',
     justifyContent: 'center',
   },
-  clearanceLastDataCell: {
-    padding: 4,
+  paymentLastDataCell: {
+    padding: 6,
     borderRight: '1px solid #666666',
     justifyContent: 'center',
   },
-  departmentCol: {
-    width: '30%',
+  paymentTypeCol: {
+    width: '50%',
   },
-  statusCol: {
-    width: '20%',
+  receiptNoCol: {
+    width: '50%',
   },
-  dateCol: {
-    width: '25%',
-  },
-  messageCol: {
-    width: '25%',
-  },
-  departmentName: {
+  paymentTypeText: {
     fontSize: 9,
+    color: '#000',
+    textAlign: 'center',
+  },
+  receiptNoText: {
+    fontSize: 9,
+    color: '#000',
+    textAlign: 'center',
+  },
+  warningSection: {
+    marginTop: 15,
+    marginBottom: 15,
+    padding: 15,
+    border: '2px solid #ff6b35',
+    backgroundColor: '#fff5f3',
+  },
+  warningTitle: {
+    fontSize: 11,
     fontWeight: 'bold',
-    color: '#000',
-    textTransform: 'capitalize',
+    color: '#d63031',
+    marginBottom: 8,
+    textAlign: 'center',
   },
-  statusText: {
+  warningText: {
     fontSize: 9,
-    textAlign: 'center',
-    color: '#000',
-    textTransform: 'capitalize',
-  },
-  dateText: {
-    fontSize: 8,
-    textAlign: 'center',
-    color: '#000',
-  },
-  messageText: {
-    fontSize: 8,
-    color: '#000',
+    lineHeight: 1.4,
+    color: '#d63031',
+    textAlign: 'justify',
   },
   footerSection: {
     marginTop: 20,
@@ -195,15 +208,6 @@ const styles = StyleSheet.create({
     textAlign: 'justify',
     lineHeight: 1.2,
     color: '#000',
-  },
-  approvalStamp: {
-    marginTop: 30,
-    textAlign: 'center',
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: 'green',
-    border: '2px solid green',
-    padding: 10,
   },
 });
 
@@ -228,18 +232,14 @@ export default function ProofOfClearancePDF({
     );
   }
 
-  const { studentProgram, graduationClearances } = graduationData;
+  const {
+    studentProgram,
+    graduationClearances,
+    paymentReceipts = [],
+  } = graduationData;
   const student = studentProgram.student;
   const program = studentProgram.structure.program;
   const school = program.school;
-
-  // Sort clearances by department order
-  const departmentOrder = ['academic', 'finance', 'library'];
-  const sortedClearances = [...graduationClearances].sort((a, b) => {
-    const orderA = departmentOrder.indexOf(a.clearance.department);
-    const orderB = departmentOrder.indexOf(b.clearance.department);
-    return orderA - orderB;
-  });
 
   return (
     <Document>
@@ -285,6 +285,14 @@ export default function ProofOfClearancePDF({
             </View>
             <View style={styles.tableRow}>
               <View style={[styles.labelCell]}>
+                <Text>National ID:</Text>
+              </View>
+              <View style={[styles.valueCell]}>
+                <Text>{student.nationalId}</Text>
+              </View>
+            </View>
+            <View style={styles.tableRow}>
+              <View style={[styles.labelCell]}>
                 <Text>Program:</Text>
               </View>
               <View style={[styles.valueCell]}>
@@ -301,7 +309,7 @@ export default function ProofOfClearancePDF({
             </View>
             <View style={styles.lastTableRow}>
               <View style={[styles.labelCell]}>
-                <Text>Graduation Date:</Text>
+                <Text>Clearance Date:</Text>
               </View>
               <View style={[styles.valueCell]}>
                 <Text>{formatDate(new Date())}</Text>
@@ -311,93 +319,79 @@ export default function ProofOfClearancePDF({
         </View>
 
         <View style={styles.clearanceSection}>
-          <Text style={styles.sectionTitle}>DEPARTMENTAL CLEARANCES</Text>
-
-          <View style={styles.clearanceTable}>
-            <View style={styles.clearanceHeaderRow}>
-              <View style={[styles.clearanceHeaderCell, styles.departmentCol]}>
-                <Text style={styles.clearanceHeaderText}>Department</Text>
-              </View>
-              <View style={[styles.clearanceHeaderCell, styles.statusCol]}>
-                <Text style={styles.clearanceHeaderText}>Status</Text>
-              </View>
-              <View style={[styles.clearanceHeaderCell, styles.dateCol]}>
-                <Text style={styles.clearanceHeaderText}>Approval Date</Text>
-              </View>
-              <View style={[styles.clearanceHeaderCell, styles.messageCol]}>
-                <Text style={styles.clearanceHeaderText}>Notes</Text>
-              </View>
-            </View>
-
-            {sortedClearances.map((clearanceMapping, index) => {
-              const clearance = clearanceMapping.clearance;
-              const isLastRow = index === sortedClearances.length - 1;
-
-              return (
-                <View
-                  key={clearance.id}
-                  style={
-                    isLastRow
-                      ? styles.clearanceLastDataRow
-                      : styles.clearanceDataRow
-                  }
-                >
-                  <View
-                    style={[
-                      isLastRow
-                        ? styles.clearanceLastDataCell
-                        : styles.clearanceDataCell,
-                      styles.departmentCol,
-                    ]}
-                  >
-                    <Text style={styles.departmentName}>
-                      {clearance.department}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      isLastRow
-                        ? styles.clearanceLastDataCell
-                        : styles.clearanceDataCell,
-                      styles.statusCol,
-                    ]}
-                  >
-                    <Text style={styles.statusText}>{clearance.status}</Text>
-                  </View>
-                  <View
-                    style={[
-                      isLastRow
-                        ? styles.clearanceLastDataCell
-                        : styles.clearanceDataCell,
-                      styles.dateCol,
-                    ]}
-                  >
-                    <Text style={styles.dateText}>
-                      {clearance.responseDate
-                        ? formatDate(clearance.responseDate)
-                        : 'Pending'}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      isLastRow
-                        ? styles.clearanceLastDataCell
-                        : styles.clearanceDataCell,
-                      styles.messageCol,
-                    ]}
-                  >
-                    <Text style={styles.messageText}>
-                      {clearance.message || 'No notes'}
-                    </Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
+          <Text style={styles.statementText}>
+            The student has successfully completed all program requirements and
+            has met all university obligations. This clearance is issued to
+            confirm that there are no outstanding issues that would prevent the
+            not prevented from graduating.
+          </Text>
         </View>
 
-        <View style={styles.approvalStamp}>
-          <Text>✓ ALL DEPARTMENTS CLEARED FOR GRADUATION</Text>
+        {paymentReceipts && paymentReceipts.length > 0 && (
+          <View style={styles.paymentSection}>
+            <Text style={styles.sectionTitle}>PAYMENT RECEIPTS</Text>
+
+            <View style={styles.paymentTable}>
+              <View style={styles.paymentHeaderRow}>
+                <View style={[styles.paymentHeaderCell, styles.paymentTypeCol]}>
+                  <Text style={styles.paymentHeaderText}>Payment Type</Text>
+                </View>
+                <View style={[styles.paymentHeaderCell, styles.receiptNoCol]}>
+                  <Text style={styles.paymentHeaderText}>Receipt Number</Text>
+                </View>
+              </View>
+
+              {paymentReceipts.map((receipt, index) => {
+                const isLastRow = index === paymentReceipts.length - 1;
+
+                return (
+                  <View
+                    key={receipt.id}
+                    style={
+                      isLastRow
+                        ? styles.paymentLastDataRow
+                        : styles.paymentDataRow
+                    }
+                  >
+                    <View
+                      style={[
+                        isLastRow
+                          ? styles.paymentLastDataCell
+                          : styles.paymentDataCell,
+                        styles.paymentTypeCol,
+                      ]}
+                    >
+                      <Text style={styles.paymentTypeText}>
+                        {toTitleCase(receipt.paymentType.replace(/_/g, ' '))}
+                      </Text>
+                    </View>
+                    <View
+                      style={[
+                        isLastRow
+                          ? styles.paymentLastDataCell
+                          : styles.paymentDataCell,
+                        styles.receiptNoCol,
+                      ]}
+                    >
+                      <Text style={styles.receiptNoText}>
+                        {receipt.receiptNo}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        <View style={styles.warningSection}>
+          <Text style={styles.warningTitle}>IMPORTANT NOTICE</Text>
+          <Text style={styles.warningText}>
+            Please verify that all information on this document, especially the
+            student name and national ID number, are correct. If you find any
+            discrepancies, please contact the Registry Office immediately! This
+            document is only valid if all information is accurate and complete.
+          </Text>
         </View>
 
         <View style={styles.footerSection}>
@@ -407,7 +401,8 @@ export default function ProofOfClearancePDF({
             as official proof that all departmental clearances have been
             approved for graduation. All academic, financial, and library
             obligations have been satisfied. Clearance processed through the
-            official university system on {formatDate(new Date())}.
+            official university system on {formatDate(new Date())}. This
+            certificate is invalid if any information is found to be incorrect.
           </Text>
         </View>
       </Page>
