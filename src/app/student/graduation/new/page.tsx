@@ -221,6 +221,9 @@ export default function GraduationPage() {
         return (
           <InformationConfirmation
             student={student}
+            selectedProgram={
+              eligiblePrograms?.find((p) => p.id === selectedProgramId) || null
+            }
             confirmed={informationConfirmed}
             onConfirm={setInformationConfirmed}
           />

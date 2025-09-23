@@ -95,11 +95,21 @@ export default function ReviewAndSubmit({
       <Stack gap='lg'>
         <Card withBorder shadow='sm' radius='md' padding='lg'>
           <Group mb='md'>
-            <IconCheck size='1.2rem' color='green' />
-            <Title order={3}>Personal Information</Title>
+            <Title order={3}>Your Information</Title>
           </Group>
 
           <Stack gap='sm'>
+            <Group>
+              <IconSchool size='1rem' color='gray' />
+              <Text size='sm' c='dimmed' w={120}>
+                Program:
+              </Text>
+              <Text fw={500}>
+                {selectedProgram?.structure.program.name} (
+                {selectedProgram?.structure.program.code})
+              </Text>
+            </Group>
+
             <Group>
               <IconUser size='1rem' color='gray' />
               <Text size='sm' c='dimmed' w={120}>
@@ -137,59 +147,6 @@ export default function ReviewAndSubmit({
             </Group>
           </Stack>
         </Card>
-
-        {selectedProgram && (
-          <Card withBorder shadow='sm' radius='md' padding='lg'>
-            <Group mb='md'>
-              <IconSchool size='1.2rem' color='blue' />
-              <Title order={3}>Selected Program</Title>
-              <Badge
-                color={
-                  selectedProgram.status === 'Completed' ? 'green' : 'blue'
-                }
-                variant='light'
-              >
-                {selectedProgram.status}
-              </Badge>
-            </Group>
-
-            <Stack gap='sm'>
-              <Group>
-                <Text size='sm' c='dimmed' w={120}>
-                  Program:
-                </Text>
-                <Text fw={500}>
-                  {selectedProgram.structure.program.name} (
-                  {selectedProgram.structure.program.code})
-                </Text>
-              </Group>
-
-              <Group>
-                <Text size='sm' c='dimmed' w={120}>
-                  Level:
-                </Text>
-                <Text fw={500}>{selectedProgram.structure.program.level}</Text>
-              </Group>
-
-              <Group>
-                <Text size='sm' c='dimmed' w={120}>
-                  School:
-                </Text>
-                <Text fw={500}>
-                  {selectedProgram.structure.program.school.name} (
-                  {selectedProgram.structure.program.school.code})
-                </Text>
-              </Group>
-
-              <Group>
-                <Text size='sm' c='dimmed' w={120}>
-                  Student No:
-                </Text>
-                <Text fw={500}>{selectedProgram.stdNo}</Text>
-              </Group>
-            </Stack>
-          </Card>
-        )}
 
         <Card withBorder shadow='sm' radius='md' padding='lg'>
           <Group mb='md'>

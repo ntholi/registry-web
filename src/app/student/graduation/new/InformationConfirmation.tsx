@@ -1,39 +1,55 @@
 'use client';
 
-import React, { useState } from 'react';
 import { students } from '@/db/schema';
 import {
   Alert,
   Box,
-  Button,
   Card,
+  Checkbox,
   Group,
   Stack,
   Text,
   TextInput,
   Title,
-  Checkbox,
 } from '@mantine/core';
 import {
   IconAlertTriangle,
-  IconUser,
-  IconId,
-  IconGenderMale,
   IconGenderFemale,
+  IconGenderMale,
+  IconId,
+  IconSchool,
+  IconUser,
 } from '@tabler/icons-react';
+import { useState } from 'react';
 
 type Student = typeof students.$inferSelect & {
   user?: { name?: string | null } | null;
 };
 
+type SelectedProgram = {
+  structure: {
+    program: {
+      id: number;
+      name: string;
+      code: string;
+      level: 'certificate' | 'diploma' | 'degree';
+      school: {
+        name: string;
+      };
+    };
+  };
+};
+
 interface InformationConfirmationProps {
   student: Student;
+  selectedProgram: SelectedProgram | null;
   confirmed: boolean;
   onConfirm: (confirmed: boolean) => void;
 }
 
 export default function InformationConfirmation({
   student,
+  selectedProgram,
   confirmed,
   onConfirm,
 }: InformationConfirmationProps) {
@@ -134,6 +150,41 @@ export default function InformationConfirmation({
           </Group>
         </Stack>
       </Card>
+
+      {selectedProgram && (
+        <Card withBorder shadow='sm' radius='md' padding='lg'>
+          <Group mb='md'>
+            <Title order={3}>Program</Title>
+          </Group>
+
+          <Stack gap='md'>
+            <Group>
+              <IconSchool size='1.2rem' color='gray' />
+              <Box>
+                <Text size='xs' c='dimmed'>
+                  Program Name
+                </Text>
+                <Text fw={500}>
+                  {selectedProgram.structure.program.name} (
+                  {selectedProgram.structure.program.code})
+                </Text>
+              </Box>
+            </Group>
+
+            <Group>
+              <IconId size='1.2rem' color='gray' />
+              <Box>
+                <Text size='xs' c='dimmed'>
+                  Level
+                </Text>
+                <Text fw={500} style={{ textTransform: 'capitalize' }}>
+                  {selectedProgram.structure.program.level}
+                </Text>
+              </Box>
+            </Group>
+          </Stack>
+        </Card>
+      )}
 
       <Card withBorder shadow='sm' radius='md' padding='lg'>
         <Title order={4} mb='md'>
