@@ -69,31 +69,23 @@ export default async function GraduationDetailsPage({ params }: Props) {
         <Paper withBorder p='md'>
           <Box>
             <Group justify='space-between' align='flex-start' wrap='wrap'>
-              <div>
-                <Title order={1} size='h2' fw={600} mb='xs'>
-                  Graduation Request
-                </Title>
-                <Badge
-                  radius='xs'
-                  color={getStatusColor(status)}
-                  variant='light'
-                >
-                  {status}
-                </Badge>
-              </div>
-              <Button
-                component={Link}
-                href={`/student/graduation/${graduationRequest.id}/edit`}
-                leftSection={<IconEdit size='1rem' />}
-                variant='light'
-              >
-                Edit Request
-              </Button>
+              <Title order={1} size='h2' fw={600} mb='xs'>
+                Graduation
+              </Title>
+              <Badge radius='xs' color={getStatusColor(status)} variant='light'>
+                {status}
+              </Badge>
             </Group>
 
-            <Text c='dimmed' size='sm' mb='md'>
-              Submitted: {formatDateTime(graduationRequest.createdAt!)}
-            </Text>
+            <Box mb='md'>
+              <Text size='sm'>
+                {graduationRequest.studentProgram.structure.program.name}
+              </Text>
+
+              <Text c='dimmed' size='sm'>
+                Submitted: {formatDateTime(graduationRequest.createdAt!)}
+              </Text>
+            </Box>
 
             {graduationRequest.message && (
               <>
