@@ -82,6 +82,10 @@ export const studentProgramsRelations = relations(
       references: [structures.id],
     }),
     semesters: many(studentSemesters),
+    graduationRequest: one(graduationRequests, {
+      fields: [studentPrograms.id],
+      references: [graduationRequests.studentProgramId],
+    }),
   })
 );
 
@@ -268,9 +272,9 @@ export const graduationClearanceRelations = relations(
 export const graduationRequestsRelations = relations(
   graduationRequests,
   ({ one, many }) => ({
-    student: one(students, {
-      fields: [graduationRequests.stdNo],
-      references: [students.stdNo],
+    studentProgram: one(studentPrograms, {
+      fields: [graduationRequests.studentProgramId],
+      references: [studentPrograms.id],
     }),
     paymentReceipts: many(paymentReceipts),
     graduationClearances: many(graduationClearance),

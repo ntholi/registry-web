@@ -30,7 +30,7 @@ class GraduationRequestService {
       ['admin', 'registry', 'student'],
       async (session) => {
         const graduationRequest = await this.repository.findById(id);
-        return graduationRequest?.stdNo === session.user?.stdNo;
+        return graduationRequest?.studentProgram?.stdNo === session.user?.stdNo;
       }
     );
   }
@@ -38,6 +38,27 @@ class GraduationRequestService {
   async getByStudentNo(stdNo: number) {
     return withAuth(
       async () => this.repository.findByStudentNo(stdNo),
+      ['student']
+    );
+  }
+
+  async getByStudentProgramId(studentProgramId: number) {
+    return withAuth(
+      async () => this.repository.findByStudentProgramId(studentProgramId),
+      ['student', 'admin', 'registry']
+    );
+  }
+
+  async getEligiblePrograms(stdNo: number) {
+    return withAuth(
+      async () => this.repository.getEligiblePrograms(stdNo),
+      ['student']
+    );
+  }
+
+  async selectStudentProgramForGraduation(stdNo: number) {
+    return withAuth(
+      async () => this.repository.selectStudentProgramForGraduation(stdNo),
       ['student']
     );
   }

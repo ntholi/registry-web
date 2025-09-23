@@ -33,7 +33,7 @@ export default async function EditGraduationPage({ params }: Props) {
     return notFound();
   }
 
-  if (graduationRequest.stdNo !== session.user.stdNo) {
+  if (graduationRequest.studentProgram.stdNo !== session.user.stdNo) {
     return forbidden();
   }
 

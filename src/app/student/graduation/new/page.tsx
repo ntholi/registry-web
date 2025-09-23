@@ -6,6 +6,7 @@ import useUserStudent from '@/hooks/use-user-student';
 import {
   createGraduationRequestWithPaymentReceipts,
   getGraduationRequestByStudentNo,
+  getEligiblePrograms,
 } from '@/server/graduation/requests/actions';
 import {
   Alert,
@@ -30,6 +31,7 @@ import { useRouter } from 'next/navigation';
 import InformationConfirmation from './InformationConfirmation';
 import PaymentReceiptsInput from './PaymentReceiptsInput';
 import ReviewAndSubmit from './ReviewAndSubmit';
+import ProgramSelection from './ProgramSelection';
 
 type PaymentReceiptData = {
   paymentType: (typeof paymentTypeEnum)[number];
@@ -37,6 +39,10 @@ type PaymentReceiptData = {
 };
 
 const STEPS = [
+  {
+    label: 'Select Program',
+    description: 'Choose the program you want to graduate from',
+  },
   {
     label: 'Confirm Information',
     description: 'Verify your personal information is correct',
@@ -56,6 +62,9 @@ export default function GraduationPage() {
   const queryClient = useQueryClient();
   const { student } = useUserStudent();
   const [activeStep, setActiveStep] = useState(0);
+  const [selectedProgramId, setSelectedProgramId] = useState<number | null>(
+    null
+  );
   const [informationConfirmed, setInformationConfirmed] = useState(false);
   const [receipts, setReceipts] = useState<PaymentReceiptData[]>([]);
 
@@ -68,10 +77,20 @@ export default function GraduationPage() {
     enabled: !!student?.stdNo,
   });
 
+  const { data: eligiblePrograms, isLoading: loadingPrograms } = useQuery({
+    queryKey: ['eligible-programs', student?.stdNo],
+    queryFn: async () => {
+      if (!student?.stdNo) return [];
+      return await getEligiblePrograms(student.stdNo);
+    },
+    enabled: !!student?.stdNo && !existingRequest,
+  });
+
   const graduationMutation = useMutation({
     mutationFn: async () => {
       if (
         !student ||
+        !selectedProgramId ||
         !informationConfirmed ||
         receipts.length === 0 ||
         !receipts.every((r) => r.receiptNo.trim() !== '')
@@ -85,7 +104,7 @@ export default function GraduationPage() {
       }));
 
       return createGraduationRequestWithPaymentReceipts({
-        stdNo: student.stdNo,
+        studentProgramId: selectedProgramId,
         informationConfirmed: true,
         paymentReceipts: payloadReceipts,
       });
@@ -109,10 +128,12 @@ export default function GraduationPage() {
   });
 
   const nextStep = () => {
-    if (activeStep === 0 && informationConfirmed) {
+    if (activeStep === 0 && selectedProgramId) {
       setActiveStep(1);
-    } else if (activeStep === 1 && receipts.length > 0) {
+    } else if (activeStep === 1 && informationConfirmed) {
       setActiveStep(2);
+    } else if (activeStep === 2 && receipts.length > 0) {
+      setActiveStep(3);
     }
   };
 
@@ -124,6 +145,7 @@ export default function GraduationPage() {
 
   const handleSubmit = () => {
     if (
+      selectedProgramId &&
       informationConfirmed &&
       receipts.length > 0 &&
       receipts.every((r) => r.receiptNo.trim() !== '')
@@ -132,17 +154,19 @@ export default function GraduationPage() {
     }
   };
 
+  const canProceedStep0 = selectedProgramId !== null;
   const canProceedStep1 = informationConfirmed;
   const canProceedStep2 =
     receipts.length > 0 && receipts.every((r) => r.receiptNo.trim() !== '');
   const canSubmit =
+    selectedProgramId &&
     informationConfirmed &&
     receipts.length > 0 &&
     receipts.every((r) => r.receiptNo.trim() !== '');
 
   const progressValue = ((activeStep + 1) / STEPS.length) * 100;
 
-  if (checkingExisting) {
+  if (checkingExisting || loadingPrograms) {
     return (
       <Container size='lg' py='xl'>
         <LoadingOverlay visible />
@@ -187,23 +211,34 @@ export default function GraduationPage() {
     switch (activeStep) {
       case 0:
         return (
+          <ProgramSelection
+            programs={eligiblePrograms || []}
+            selectedProgramId={selectedProgramId}
+            onProgramSelect={setSelectedProgramId}
+          />
+        );
+      case 1:
+        return (
           <InformationConfirmation
             student={student}
             confirmed={informationConfirmed}
             onConfirm={setInformationConfirmed}
           />
         );
-      case 1:
+      case 2:
         return (
           <PaymentReceiptsInput
             paymentReceipts={receipts}
             onPaymentReceiptsChange={(r) => setReceipts(r)}
           />
         );
-      case 2:
+      case 3:
         return (
           <ReviewAndSubmit
             student={student}
+            selectedProgram={eligiblePrograms?.find(
+              (p) => p.id === selectedProgramId
+            )}
             paymentReceipts={receipts}
             loading={graduationMutation.isPending}
           />
@@ -258,8 +293,9 @@ export default function GraduationPage() {
             <Button
               onClick={nextStep}
               disabled={
-                (activeStep === 0 && !canProceedStep1) ||
-                (activeStep === 1 && !canProceedStep2)
+                (activeStep === 0 && !canProceedStep0) ||
+                (activeStep === 1 && !canProceedStep1) ||
+                (activeStep === 2 && !canProceedStep2)
               }
               rightSection={<IconArrowRight size={16} />}
             >

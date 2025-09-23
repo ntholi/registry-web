@@ -69,11 +69,14 @@ class PaymentReceiptService {
         // First, verify that the graduation request belongs to the authenticated user
         const graduationRequest = await tx.query.graduationRequests.findFirst({
           where: (table, { eq }) => eq(table.id, graduationRequestId),
+          with: {
+            studentProgram: true,
+          },
         });
 
         if (
           !graduationRequest ||
-          graduationRequest.stdNo !== session.user!.stdNo
+          graduationRequest.studentProgram.stdNo !== session.user!.stdNo
         ) {
           throw new Error('Graduation request not found or access denied');
         }
@@ -112,11 +115,14 @@ class PaymentReceiptService {
         // Verify that the graduation request belongs to the authenticated user
         const graduationRequest = await tx.query.graduationRequests.findFirst({
           where: (table, { eq }) => eq(table.id, graduationRequestId),
+          with: {
+            studentProgram: true,
+          },
         });
 
         if (
           !graduationRequest ||
-          graduationRequest.stdNo !== session.user!.stdNo
+          graduationRequest.studentProgram.stdNo !== session.user!.stdNo
         ) {
           throw new Error('Graduation request not found or access denied');
         }
@@ -146,13 +152,17 @@ class PaymentReceiptService {
         const receipt = await tx.query.paymentReceipts.findFirst({
           where: eq(paymentReceipts.id, receiptId),
           with: {
-            graduationRequest: true,
+            graduationRequest: {
+              with: {
+                studentProgram: true,
+              },
+            },
           },
         });
 
         if (
           !receipt ||
-          receipt.graduationRequest.stdNo !== session.user!.stdNo
+          receipt.graduationRequest.studentProgram.stdNo !== session.user!.stdNo
         ) {
           throw new Error('Payment receipt not found or access denied');
         }

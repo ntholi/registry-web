@@ -80,7 +80,7 @@ export default function GraduationClearanceHistory({ stdNo }: Props) {
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {clearance.audits.map((audit) => (
+                  {clearance.audits.map((audit: any) => (
                     <Table.Tr key={audit.id}>
                       <Table.Td>{formatDateTime(audit.date)}</Table.Td>
                       <Table.Td>{audit.newStatus}</Table.Td>

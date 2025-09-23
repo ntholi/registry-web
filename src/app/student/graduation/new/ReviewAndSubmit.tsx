@@ -20,6 +20,7 @@ import {
   IconId,
   IconReceipt,
   IconUser,
+  IconSchool,
 } from '@tabler/icons-react';
 
 type Student = typeof students.$inferSelect & {
@@ -31,14 +32,52 @@ type PaymentReceiptData = {
   receiptNo: string;
 };
 
+type SelectedProgram = {
+  id: number;
+  stdNo: number;
+  createdAt: Date | null;
+  intakeDate: string | null;
+  regDate: string | null;
+  startTerm: string | null;
+  structureId: number;
+  stream: string | null;
+  graduationDate: string | null;
+  status: 'Active' | 'Changed' | 'Completed' | 'Deleted' | 'Inactive';
+  assistProvider: string | null;
+  structure: {
+    id: number;
+    createdAt: Date | null;
+    code: string;
+    desc: string | null;
+    programId: number;
+    program: {
+      id: number;
+      name: string;
+      createdAt: Date | null;
+      code: string;
+      level: 'certificate' | 'diploma' | 'degree';
+      schoolId: number;
+      school: {
+        id: number;
+        name: string;
+        code: string;
+        createdAt: Date | null;
+      };
+    };
+  };
+  semesters: Array<Record<string, unknown>>;
+};
+
 interface ReviewAndSubmitProps {
   student: Student;
+  selectedProgram?: SelectedProgram;
   paymentReceipts: PaymentReceiptData[];
   loading?: boolean;
 }
 
 export default function ReviewAndSubmit({
   student,
+  selectedProgram,
   paymentReceipts,
   loading = false,
 }: ReviewAndSubmitProps) {
@@ -98,6 +137,59 @@ export default function ReviewAndSubmit({
             </Group>
           </Stack>
         </Card>
+
+        {selectedProgram && (
+          <Card withBorder shadow='sm' radius='md' padding='lg'>
+            <Group mb='md'>
+              <IconSchool size='1.2rem' color='blue' />
+              <Title order={3}>Selected Program</Title>
+              <Badge
+                color={
+                  selectedProgram.status === 'Completed' ? 'green' : 'blue'
+                }
+                variant='light'
+              >
+                {selectedProgram.status}
+              </Badge>
+            </Group>
+
+            <Stack gap='sm'>
+              <Group>
+                <Text size='sm' c='dimmed' w={120}>
+                  Program:
+                </Text>
+                <Text fw={500}>
+                  {selectedProgram.structure.program.name} (
+                  {selectedProgram.structure.program.code})
+                </Text>
+              </Group>
+
+              <Group>
+                <Text size='sm' c='dimmed' w={120}>
+                  Level:
+                </Text>
+                <Text fw={500}>{selectedProgram.structure.program.level}</Text>
+              </Group>
+
+              <Group>
+                <Text size='sm' c='dimmed' w={120}>
+                  School:
+                </Text>
+                <Text fw={500}>
+                  {selectedProgram.structure.program.school.name} (
+                  {selectedProgram.structure.program.school.code})
+                </Text>
+              </Group>
+
+              <Group>
+                <Text size='sm' c='dimmed' w={120}>
+                  Student No:
+                </Text>
+                <Text fw={500}>{selectedProgram.stdNo}</Text>
+              </Group>
+            </Stack>
+          </Card>
+        )}
 
         <Card withBorder shadow='sm' radius='md' padding='lg'>
           <Group mb='md'>

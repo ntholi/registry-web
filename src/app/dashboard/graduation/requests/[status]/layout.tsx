@@ -24,9 +24,26 @@ export default function Layout({ children }: PropsWithChildren) {
     <ListLayout
       path={'/dashboard/graduation/requests/' + status}
       queryKey={['graduation-clearances', status]}
-      getData={(page, search) =>
-        graduationClearanceByStatus(status, page, search)
-      }
+      getData={async (page, search) => {
+        const response = await graduationClearanceByStatus(
+          status,
+          page,
+          search
+        );
+        return {
+          items: (response.items || []).map((item: any) => ({
+            ...item,
+            graduationRequest: {
+              ...item.graduationRequest,
+              student: {
+                stdNo: item.graduationRequest.studentProgram.stdNo,
+                name: `Student #${item.graduationRequest.studentProgram.stdNo}`,
+              },
+            },
+          })),
+          totalPages: response.totalPages || 1,
+        };
+      }}
       renderItem={(it: Item) => (
         <ListItem
           id={it.id}

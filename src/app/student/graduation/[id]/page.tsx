@@ -54,7 +54,7 @@ export default async function GraduationDetailsPage({ params }: Props) {
     return notFound();
   }
 
-  if (graduationRequest.stdNo !== session.user.stdNo) {
+  if (graduationRequest.studentProgram.stdNo !== session.user.stdNo) {
     return forbidden();
   }
 
