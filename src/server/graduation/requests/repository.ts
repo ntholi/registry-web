@@ -303,7 +303,12 @@ export default class GraduationRequestRepository extends BaseRepository<
       throw new Error('Student not found');
     }
 
-    const outstanding = await getOutstandingFromStructure(programs);
+    const selectedProgram = programs.find((p) => p.id === studentProgramId);
+    if (!selectedProgram) {
+      throw new Error('Selected program not found');
+    }
+
+    const outstanding = await getOutstandingFromStructure([selectedProgram]);
 
     let status: 'approved' | 'rejected' | 'pending';
     let message: string | undefined;
