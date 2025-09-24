@@ -105,6 +105,23 @@ class GraduationRequestService {
       }
     );
   }
+
+  async countByStatus(status: 'pending' | 'approved' | 'rejected') {
+    return withAuth(
+      async () => this.repository.countByStatus(status),
+      ['dashboard']
+    );
+  }
+
+  async findByStatus(
+    status: 'pending' | 'approved' | 'rejected',
+    params: QueryOptions<typeof graduationRequests>
+  ) {
+    return withAuth(
+      async () => this.repository.findByStatus(status, params),
+      ['registry', 'admin']
+    );
+  }
 }
 
 export const graduationRequestsService = serviceWrapper(

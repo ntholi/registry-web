@@ -66,3 +66,20 @@ export async function deleteGraduationRequest(id: number) {
 export async function getGraduationClearanceData(graduationRequestId: number) {
   return service.getClearanceData(graduationRequestId);
 }
+
+export async function countByStatus(
+  status: 'pending' | 'approved' | 'rejected'
+) {
+  return service.countByStatus(status);
+}
+
+export async function findAllGraduationRequests(
+  page = 1,
+  search = '',
+  status?: 'pending' | 'approved' | 'rejected'
+) {
+  return service.findByStatus(status ?? 'pending', {
+    page,
+    search,
+  });
+}

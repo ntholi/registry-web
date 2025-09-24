@@ -16,6 +16,7 @@ import {
   countRejectedGraduationClearances,
 } from '@/server/graduation/clearance/actions';
 import { countByStatus } from '@/server/registration/requests/actions';
+import { countByStatus as countGraduationByStatus } from '@/server/graduation/requests/actions';
 import { getUserSchools } from '@/server/users/actions';
 import {
   ActionIcon,
@@ -177,6 +178,44 @@ function getNavigation(department: DashboardUser) {
           notificationCount: {
             queryKey: ['registrationRequests', 'approved'],
             queryFn: () => countByStatus('approved'),
+            color: 'gray',
+          },
+        },
+      ],
+    },
+    {
+      label: 'Graduation Requests',
+      icon: IconCertificate,
+      roles: ['registry', 'admin'],
+      collapsed: true,
+      children: [
+        {
+          label: 'Pending',
+          href: '/dashboard/graduation/requests/pending',
+          icon: IconMessageQuestion,
+          notificationCount: {
+            queryKey: ['graduationRequests', 'pending'],
+            queryFn: () => countGraduationByStatus('pending'),
+            color: 'red',
+          },
+        },
+        {
+          label: 'Approved',
+          href: '/dashboard/graduation/requests/approved',
+          icon: IconSquareRoundedCheck,
+          notificationCount: {
+            queryKey: ['graduationRequests', 'approved'],
+            queryFn: () => countGraduationByStatus('approved'),
+            color: 'gray',
+          },
+        },
+        {
+          label: 'Rejected',
+          href: '/dashboard/graduation/requests/rejected',
+          icon: IconBarrierBlock,
+          notificationCount: {
+            queryKey: ['graduationRequests', 'rejected'],
+            queryFn: () => countGraduationByStatus('rejected'),
             color: 'gray',
           },
         },

@@ -1,63 +1,64 @@
 'use client';
 
-import { PropsWithChildren } from 'react';
 import { ListItem, ListLayout } from '@/components/adease';
-import { graduationClearanceByStatus } from '@/server/graduation/clearance/actions';
+import { findAllGraduationRequests } from '@/server/graduation/requests/actions';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
+import { PropsWithChildren } from 'react';
 import { useParams } from 'next/navigation';
 
-type Status = 'pending' | 'approved' | 'rejected';
+type Status = 'pending' | 'rejected' | 'approved';
 
-type Item = {
+const statusTitles = {
+  pending: 'Pending Graduation Requests',
+  rejected: 'Rejected Requests',
+  approved: 'Approved Requests',
+};
+
+type ListItem = {
   id: number;
-  status: Status;
-  graduationRequest: {
-    student: { stdNo: number; name: string };
-  } | null;
+  studentProgram: {
+    stdNo: number;
+    student: {
+      name: string;
+    };
+    structure: {
+      program: {
+        name: string;
+      };
+    };
+  };
+  informationConfirmed: boolean;
 };
 
 export default function Layout({ children }: PropsWithChildren) {
   const params = useParams();
   const status = params.status as Status;
 
+  if (!statusTitles[status]) {
+    return <div>Invalid status: {status}</div>;
+  }
+
   return (
     <ListLayout
       path={'/dashboard/graduation/requests/' + status}
-      queryKey={['graduation-clearances', status]}
+      queryKey={['graduationRequests', status]}
       getData={async (page, search) => {
-        const response = await graduationClearanceByStatus(
-          status,
-          page,
-          search
-        );
+        const response = await findAllGraduationRequests(page, search, status);
         return {
-          items: (response.items || []).map(
-            (item: {
-              id: number;
-              status: Status;
-              graduationRequest: {
-                studentProgram: { stdNo: number };
-              };
-            }) => ({
-              ...item,
-              graduationRequest: {
-                ...item.graduationRequest,
-                student: {
-                  stdNo: item.graduationRequest.studentProgram.stdNo,
-                  name: `Student #${item.graduationRequest.studentProgram.stdNo}`,
-                },
-              },
-            })
-          ),
-          totalPages: response.totalPages || 1,
+          items: response.data.map((item) => ({
+            id: item.id,
+            studentProgram: item.studentProgram,
+            informationConfirmed: item.informationConfirmed,
+          })),
+          totalPages: response.pages,
         };
       }}
-      renderItem={(it: Item) => (
+      renderItem={(it: ListItem) => (
         <ListItem
           id={it.id}
-          label={it.graduationRequest?.student.stdNo || 'N/A'}
-          description={it.graduationRequest?.student.name || 'Unknown'}
-          rightSection={getStatusIcon(it.status)}
+          label={it.studentProgram.stdNo.toString()}
+          description={`${it.studentProgram.student.name} - ${it.studentProgram.structure.program.name}`}
+          rightSection={getStatusIcon(status, it.informationConfirmed)}
         />
       )}
     >
@@ -66,7 +67,7 @@ export default function Layout({ children }: PropsWithChildren) {
   );
 }
 
-function getStatusIcon(status: Status) {
+function getStatusIcon(status: Status, informationConfirmed: boolean) {
   switch (status) {
     case 'pending':
       return <IconClock size={'1rem'} color='orange' />;
@@ -74,5 +75,7 @@ function getStatusIcon(status: Status) {
       return <IconCheck size={'1rem'} color='green' />;
     case 'rejected':
       return <IconAlertCircle size={'1rem'} color='red' />;
+    default:
+      return <IconClock size={'1rem'} color='orange' />;
   }
 }

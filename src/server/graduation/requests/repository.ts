@@ -1,4 +1,4 @@
-import BaseRepository from '@/server/base/BaseRepository';
+import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import {
   graduationRequests,
   clearance,
@@ -10,7 +10,7 @@ import {
   students,
 } from '@/db/schema';
 import { db } from '@/db';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, count, like } from 'drizzle-orm';
 import { studentsService } from '@/server/students/service';
 import { getOutstandingFromStructure } from '@/utils/grades';
 
@@ -380,6 +380,182 @@ export default class GraduationRequestRepository extends BaseRepository<
         },
       },
     });
+  }
+
+  async countByStatus(status: 'pending' | 'approved' | 'rejected') {
+    if (status === 'rejected') {
+      // Count requests where ANY department has rejected clearance
+      const [result] = await db
+        .select({ value: sql`count(*)`.as<number>() })
+        .from(graduationRequests)
+        .where(
+          sql`EXISTS (
+            SELECT 1 FROM clearance c 
+            INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+            WHERE gc.graduation_request_id = ${graduationRequests.id} 
+            AND c.status = 'rejected'
+          )`
+        );
+      return result.value;
+    } else if (status === 'approved') {
+      // Count requests where ALL departments have approved clearance
+      const [result] = await db
+        .select({ value: sql`count(*)`.as<number>() })
+        .from(graduationRequests)
+        .where(
+          and(
+            // No rejected clearances
+            sql`NOT EXISTS (
+              SELECT 1 FROM clearance c 
+              INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+              WHERE gc.graduation_request_id = ${graduationRequests.id} 
+              AND c.status = 'rejected'
+            )`,
+            // No pending clearances
+            sql`NOT EXISTS (
+              SELECT 1 FROM clearance c 
+              INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+              WHERE gc.graduation_request_id = ${graduationRequests.id} 
+              AND c.status = 'pending'
+            )`,
+            // Has clearances (all should be approved)
+            sql`EXISTS (
+              SELECT 1 FROM graduation_clearance gc 
+              WHERE gc.graduation_request_id = ${graduationRequests.id}
+            )`
+          )
+        );
+      return result.value;
+    } else {
+      // Count requests where ANY department has pending clearance (and none rejected)
+      const [result] = await db
+        .select({ value: sql`count(*)`.as<number>() })
+        .from(graduationRequests)
+        .where(
+          and(
+            // No rejected clearances
+            sql`NOT EXISTS (
+              SELECT 1 FROM clearance c 
+              INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+              WHERE gc.graduation_request_id = ${graduationRequests.id} 
+              AND c.status = 'rejected'
+            )`,
+            // Has at least one pending clearance
+            sql`EXISTS (
+              SELECT 1 FROM clearance c 
+              INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+              WHERE gc.graduation_request_id = ${graduationRequests.id} 
+              AND c.status = 'pending'
+            )`
+          )
+        );
+      return result.value;
+    }
+  }
+
+  async findByStatus(
+    status: 'pending' | 'approved' | 'rejected',
+    params: QueryOptions<typeof graduationRequests>
+  ) {
+    const { offset, limit } = this.buildQueryCriteria(params);
+
+    let whereCondition;
+    const searchCondition = params.search
+      ? sql`EXISTS (
+          SELECT 1 FROM student_programs sp 
+          INNER JOIN students s ON sp.std_no = s.std_no 
+          WHERE sp.id = ${graduationRequests.studentProgramId} 
+          AND (s.std_no LIKE ${'%' + params.search + '%'} OR s.name LIKE ${'%' + params.search + '%'})
+        )`
+      : undefined;
+
+    if (status === 'rejected') {
+      // Find requests where ANY department has rejected clearance
+      whereCondition = and(
+        sql`EXISTS (
+          SELECT 1 FROM clearance c 
+          INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+          WHERE gc.graduation_request_id = ${graduationRequests.id} 
+          AND c.status = 'rejected'
+        )`,
+        searchCondition
+      );
+    } else if (status === 'approved') {
+      // Find requests where ALL departments have approved clearance
+      whereCondition = and(
+        // No rejected clearances
+        sql`NOT EXISTS (
+          SELECT 1 FROM clearance c 
+          INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+          WHERE gc.graduation_request_id = ${graduationRequests.id} 
+          AND c.status = 'rejected'
+        )`,
+        // No pending clearances
+        sql`NOT EXISTS (
+          SELECT 1 FROM clearance c 
+          INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+          WHERE gc.graduation_request_id = ${graduationRequests.id} 
+          AND c.status = 'pending'
+        )`,
+        // Has clearances (all should be approved)
+        sql`EXISTS (
+          SELECT 1 FROM graduation_clearance gc 
+          WHERE gc.graduation_request_id = ${graduationRequests.id}
+        )`,
+        searchCondition
+      );
+    } else {
+      // Find requests where ANY department has pending clearance (and none rejected)
+      whereCondition = and(
+        // No rejected clearances
+        sql`NOT EXISTS (
+          SELECT 1 FROM clearance c 
+          INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+          WHERE gc.graduation_request_id = ${graduationRequests.id} 
+          AND c.status = 'rejected'
+        )`,
+        // Has at least one pending clearance
+        sql`EXISTS (
+          SELECT 1 FROM clearance c 
+          INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+          WHERE gc.graduation_request_id = ${graduationRequests.id} 
+          AND c.status = 'pending'
+        )`,
+        searchCondition
+      );
+    }
+
+    const query = db.query.graduationRequests.findMany({
+      where: whereCondition,
+      with: {
+        studentProgram: {
+          with: {
+            student: true,
+            structure: {
+              with: {
+                program: true,
+              },
+            },
+          },
+        },
+      },
+      limit,
+      offset,
+    });
+
+    const [total, items] = await Promise.all([
+      db
+        .select({ value: sql`count(*)`.as<number>() })
+        .from(graduationRequests)
+        .where(whereCondition)
+        .then((res) => res[0].value),
+      query,
+    ]);
+
+    return {
+      data: items,
+      pages: Math.ceil(total / limit),
+    };
   }
 }
 
