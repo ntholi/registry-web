@@ -1,12 +1,18 @@
 import { db } from '@/db';
 import { DashboardUser, clearance } from '@/db/schema';
-import { and, between, count, eq, sql } from 'drizzle-orm';
+import { and, between, count, eq, sql, isNotNull } from 'drizzle-orm';
 
 type DateInput = Date | string | number;
+
+export type ClearanceType = 'registration' | 'graduation' | 'all';
 
 export interface DateRangeFilter {
   startDate?: DateInput;
   endDate?: DateInput;
+}
+
+export interface ClearanceFilter extends DateRangeFilter {
+  type?: ClearanceType;
 }
 
 function normalizeDate(input?: DateInput): Date | undefined {
@@ -18,34 +24,57 @@ function normalizeDate(input?: DateInput): Date | undefined {
 
 export async function getClearanceStatsByDepartment(
   department: DashboardUser,
-  dateRange?: DateRangeFilter
+  filter?: ClearanceFilter
 ) {
   let dateCondition = undefined;
+  const type = filter?.type || 'all';
 
-  const start = normalizeDate(dateRange?.startDate);
-  const end = normalizeDate(dateRange?.endDate);
+  const start = normalizeDate(filter?.startDate);
+  const end = normalizeDate(filter?.endDate);
 
   if (start && end) {
     dateCondition = between(clearance.responseDate, start, end);
   }
+
+  // Build the base query conditions
+  const baseConditions = [eq(clearance.department, department)];
+  if (dateCondition) {
+    baseConditions.push(dateCondition);
+  }
+
+  // Add clearance type filter
+  let typeCondition = undefined;
+  if (type === 'registration') {
+    typeCondition = sql`EXISTS (SELECT 1 FROM registration_clearance rc WHERE rc.clearance_id = clearance.id)`;
+  } else if (type === 'graduation') {
+    typeCondition = sql`EXISTS (SELECT 1 FROM graduation_clearance gc WHERE gc.clearance_id = clearance.id)`;
+  }
+
+  if (typeCondition) {
+    baseConditions.push(typeCondition);
+  }
+
   const overallStats = await db
     .select({
       total: count(clearance.id),
       approved:
-        sql`SUM(CASE WHEN ${clearance.status} = 'approved' AND ${clearance.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
+        sql`SUM(CASE WHEN ${clearance.status} = 'approved' THEN 1 ELSE 0 END)`.mapWith(
           Number
         ),
       rejected:
-        sql`SUM(CASE WHEN ${clearance.status} = 'rejected' AND ${clearance.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
+        sql`SUM(CASE WHEN ${clearance.status} = 'rejected' THEN 1 ELSE 0 END)`.mapWith(
           Number
         ),
       pending:
-        sql`SUM(CASE WHEN ${clearance.status} = 'pending' AND ${clearance.department} = ${department} THEN 1 ELSE 0 END)`.mapWith(
+        sql`SUM(CASE WHEN ${clearance.status} = 'pending' THEN 1 ELSE 0 END)`.mapWith(
           Number
         ),
     })
     .from(clearance)
-    .where(and(eq(clearance.department, department), dateCondition));
+    .where(and(...baseConditions));
+
+  // For staff stats, add additional condition for responded by
+  const staffConditions = [...baseConditions, isNotNull(clearance.respondedBy)];
 
   const staffStats = await db
     .select({
@@ -61,13 +90,7 @@ export async function getClearanceStatsByDepartment(
       total: count(clearance.id),
     })
     .from(clearance)
-    .where(
-      and(
-        eq(clearance.department, department),
-        dateCondition,
-        sql`${clearance.respondedBy} IS NOT NULL`
-      )
-    )
+    .where(and(...staffConditions))
     .groupBy(clearance.respondedBy);
 
   return {

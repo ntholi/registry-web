@@ -3,11 +3,23 @@
 import { DashboardUser } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import { fetchClearanceStats } from '@/server/reports/clearance/actions';
-import { DateRangeFilter } from '@/server/reports/clearance/repository';
+import {
+  ClearanceFilter,
+  ClearanceType,
+} from '@/server/reports/clearance/repository';
 import { ClearanceStatsSummary } from '@/server/reports/clearance/service';
-import { Button, Card, Group, Paper, Stack, Text, Title } from '@mantine/core';
+import {
+  Button,
+  Card,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+  Select,
+} from '@mantine/core';
 import { DatePickerInput, DatesRangeValue } from '@mantine/dates';
-import { IconCalendar, IconSearch } from '@tabler/icons-react';
+import { IconCalendar, IconSearch, IconFilter } from '@tabler/icons-react';
 import { useCallback, useEffect, useState } from 'react';
 import { StatsSummary } from './StatsSummary';
 import { StatsTable } from './StatsTable';
@@ -18,6 +30,7 @@ export default function ClearanceReportsPage() {
     null,
     null,
   ]);
+  const [clearanceType, setClearanceType] = useState<ClearanceType>('all');
   const [stats, setStats] = useState<ClearanceStatsSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { department } = useParams();
@@ -34,17 +47,18 @@ export default function ClearanceReportsPage() {
     try {
       setIsLoading(true);
 
-      const dateRangeFilter: DateRangeFilter | undefined =
-        dateRange[0] && dateRange[1]
-          ? {
-              startDate: dateRange[0],
-              endDate: dateRange[1],
-            }
-          : undefined;
+      const filter: ClearanceFilter = {
+        type: clearanceType,
+        ...(dateRange[0] &&
+          dateRange[1] && {
+            startDate: dateRange[0],
+            endDate: dateRange[1],
+          }),
+      };
 
       const data = await fetchClearanceStats(
         department as DashboardUser,
-        dateRangeFilter,
+        filter
       );
       setStats(data);
     } catch (error) {
@@ -52,13 +66,13 @@ export default function ClearanceReportsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [department, dateRange]);
+  }, [department, dateRange, clearanceType]);
 
   useEffect(() => {
     if (dateRange[0] && dateRange[1]) {
       fetchStats();
     }
-  }, [fetchStats, dateRange]);
+  }, [fetchStats, dateRange, clearanceType]);
 
   return (
     <Stack p='lg'>
@@ -67,15 +81,31 @@ export default function ClearanceReportsPage() {
       </Title>
 
       <Text size='sm' c='dimmed'>
-        Statistics showing clearance requests by department and staff members
+        Statistics showing clearance requests by department and staff members.
+        Filter by registration or graduation clearances to get specific reports.
       </Text>
 
       <Card withBorder p='md'>
         <Stack>
           <Group justify='space-between'>
-            <Text fw={500}>Filter by date range</Text>
+            <Text fw={500}>Filter Options</Text>
 
             <Group>
+              <Select
+                placeholder='Select clearance type'
+                value={clearanceType}
+                onChange={(value) =>
+                  setClearanceType((value as ClearanceType) || 'all')
+                }
+                data={[
+                  { value: 'all', label: 'All Clearances' },
+                  { value: 'registration', label: 'Registration Only' },
+                  { value: 'graduation', label: 'Graduation Only' },
+                ]}
+                leftSection={<IconFilter size='1rem' />}
+                w={200}
+              />
+
               <DatePickerInput
                 type='range'
                 placeholder='Pick date range'
@@ -85,6 +115,7 @@ export default function ClearanceReportsPage() {
                 }}
                 clearable={false}
                 leftSection={<IconCalendar size='1rem' />}
+                w={350}
               />
 
               <Button
@@ -101,13 +132,13 @@ export default function ClearanceReportsPage() {
 
       {stats && (
         <>
-          <StatsSummary data={stats.overall} />
+          <StatsSummary data={stats.overall} clearanceType={clearanceType} />
 
           <Paper withBorder p='md' mt='md'>
             <Title order={4} mb='md'>
               Staff Member Statistics
             </Title>
-            <StatsTable data={stats.byStaff} />
+            <StatsTable data={stats.byStaff} clearanceType={clearanceType} />
           </Paper>
         </>
       )}

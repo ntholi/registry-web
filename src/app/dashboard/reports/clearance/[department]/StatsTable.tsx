@@ -1,4 +1,5 @@
 import { ClearanceStats } from '@/server/reports/clearance/service';
+import { ClearanceType } from '@/server/reports/clearance/repository';
 import {
   Center,
   Progress,
@@ -13,13 +14,18 @@ import {
 
 interface Props {
   data: ClearanceStats[];
+  clearanceType?: ClearanceType;
 }
 
-export function StatsTable({ data }: Props) {
+export function StatsTable({ data, clearanceType = 'all' }: Props) {
   if (!data.length) {
+    const typeLabel =
+      clearanceType === 'all'
+        ? 'selected period'
+        : `${clearanceType} clearances in the selected period`;
     return (
       <Center py='xl'>
-        <Text c='dimmed'>No statistics available for the selected period</Text>
+        <Text c='dimmed'>No statistics available for {typeLabel}</Text>
       </Center>
     );
   }

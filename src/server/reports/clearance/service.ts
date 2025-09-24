@@ -2,7 +2,7 @@ import { DashboardUser } from '@/db/schema';
 import {
   getClearanceStatsByDepartment,
   getUserNamesByIds,
-  DateRangeFilter,
+  ClearanceFilter,
 } from './repository';
 
 export interface ClearanceStats {
@@ -29,9 +29,9 @@ export interface ClearanceStatsSummary {
 
 export async function getDepartmentClearanceStats(
   department: DashboardUser,
-  dateRange?: DateRangeFilter,
+  filter?: ClearanceFilter
 ): Promise<ClearanceStatsSummary> {
-  const stats = await getClearanceStatsByDepartment(department, dateRange);
+  const stats = await getClearanceStatsByDepartment(department, filter);
 
   const userIds = stats.staff
     .map((stat) => stat.respondedBy)

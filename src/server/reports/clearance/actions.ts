@@ -3,11 +3,11 @@
 import { auth } from '@/auth';
 import { DashboardUser } from '@/db/schema';
 import { getDepartmentClearanceStats } from './service';
-import { DateRangeFilter } from './repository';
+import { ClearanceFilter } from './repository';
 
 export async function fetchClearanceStats(
   department: DashboardUser,
-  dateRange?: DateRangeFilter,
+  filter?: ClearanceFilter
 ) {
   const session = await auth();
   if (!session?.user?.role) {
@@ -18,5 +18,5 @@ export async function fetchClearanceStats(
     throw new Error('Invalid department');
   }
 
-  return getDepartmentClearanceStats(department, dateRange);
+  return getDepartmentClearanceStats(department, filter);
 }
