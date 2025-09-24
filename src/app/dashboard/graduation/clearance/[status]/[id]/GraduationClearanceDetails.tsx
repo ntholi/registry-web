@@ -34,7 +34,7 @@ type Props = {
 export default function GraduationClearanceDetails({ request }: Props) {
   const [comment, setComment] = useState(request.message || undefined);
   const [accordion, setAccordion] = useState<'comments'>('comments');
-  const { student } = request.graduationRequest;
+  const { studentProgram } = request.graduationRequest;
   const { data: session } = useSession();
 
   return (
@@ -48,16 +48,18 @@ export default function GraduationClearanceDetails({ request }: Props) {
                   <Group justify='space-between'>
                     <Anchor
                       component={Link}
-                      href={`/dashboard/students/${student.stdNo}`}
+                      href={`/dashboard/students/${studentProgram.stdNo}`}
                     >
-                      {student.stdNo}
+                      {studentProgram.stdNo}
                     </Anchor>
                     <Tooltip label='Copy'>
                       <ActionIcon
                         variant='subtle'
                         color='gray'
                         onClick={() => {
-                          navigator.clipboard.writeText(String(student.stdNo));
+                          navigator.clipboard.writeText(
+                            String(studentProgram.stdNo)
+                          );
                           notifications.show({
                             message: 'Copied to clipboard',
                             color: 'green',
@@ -73,9 +75,7 @@ export default function GraduationClearanceDetails({ request }: Props) {
                   {formatDateTime(request.graduationRequest.createdAt)}
                 </FieldView>
                 <FieldView label='Program' underline={false}>
-                  {student.programs && student.programs.length > 0
-                    ? student.programs[0].structure.program.name
-                    : 'N/A'}
+                  {studentProgram.structure?.program?.name || 'N/A'}
                 </FieldView>
               </Stack>
             </Paper>

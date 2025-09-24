@@ -63,7 +63,7 @@ export class RegistrationReportRepository {
     termName: string,
     filter?: RegistrationReportFilter
   ): Promise<FullRegistrationStudent[]> {
-    let query = db
+    const query = db
       .select({
         stdNo: students.stdNo,
         name: students.name,
@@ -129,7 +129,7 @@ export class RegistrationReportRepository {
   }> {
     const offset = (page - 1) * pageSize;
 
-    let studentsQuery = db
+    const studentsQuery = db
       .select({
         stdNo: students.stdNo,
         name: students.name,
@@ -150,7 +150,7 @@ export class RegistrationReportRepository {
       .innerJoin(programs, eq(structures.programId, programs.id))
       .innerJoin(schools, eq(programs.schoolId, schools.id));
 
-    let countQuery = db
+    const countQuery = db
       .select({ count: students.stdNo })
       .from(studentSemesters)
       .innerJoin(

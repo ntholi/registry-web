@@ -26,7 +26,7 @@ export default async function GraduationClearanceRequestDetails({
   return (
     <DetailsView>
       <GraduationClearanceHeader
-        studentName={request.graduationRequest.student.name}
+        studentName={`Student #${request.graduationRequest.studentProgram.stdNo}`}
       />
       <Tabs defaultValue='details' variant='outline'>
         <TabsList>
@@ -40,11 +40,13 @@ export default async function GraduationClearanceRequestDetails({
           <GraduationClearanceDetails request={request} />
         </TabsPanel>
         <TabsPanel value='academics'>
-          <AcademicsLoader stdNo={request.graduationRequest.student.stdNo} />
+          <AcademicsLoader
+            stdNo={request.graduationRequest.studentProgram.stdNo}
+          />
         </TabsPanel>
         <TabsPanel value='history'>
           <GraduationClearanceHistory
-            stdNo={request.graduationRequest.student.stdNo}
+            stdNo={request.graduationRequest.studentProgram.stdNo}
           />
         </TabsPanel>
       </Tabs>

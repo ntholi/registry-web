@@ -101,7 +101,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
   }
 
   async findByIdWithRelations(id: number) {
-    const gc = (await db.query.graduationClearance.findFirst({
+    const gc = await db.query.graduationClearance.findFirst({
       where: eq(graduationClearance.clearanceId, id),
       with: {
         clearance: { with: { respondedBy: true } },
@@ -120,7 +120,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
           },
         },
       },
-    })) as any;
+    });
 
     if (!gc) return null;
 
@@ -224,13 +224,13 @@ export default class GraduationClearanceRepository extends BaseRepository<
       return { items: [], totalPages: 0, totalItems: 0 };
     }
 
-    const rows = (await db.query.graduationClearance.findMany({
+    const rows = await db.query.graduationClearance.findMany({
       where: inArray(graduationClearance.id, ids),
       with: {
         clearance: true,
         graduationRequest: { with: { studentProgram: true } },
       },
-    })) as any[];
+    });
 
     const formatted = rows
       .sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
@@ -295,7 +295,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
     const ids = idRows.map((r) => r.id);
     if (ids.length === 0) return [];
 
-    const rows = (await db.query.graduationClearance.findMany({
+    const rows = await db.query.graduationClearance.findMany({
       where: inArray(graduationClearance.id, ids),
       with: {
         graduationRequest: true,
@@ -309,7 +309,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
         },
       },
       orderBy: (gcs, { desc: d }) => [d(gcs.createdAt)],
-    })) as any[];
+    });
 
     return rows.map((gc) => ({
       ...gc.clearance,

@@ -44,16 +44,24 @@ export default function Layout({ children }: PropsWithChildren) {
           search
         );
         return {
-          items: (response.items || []).map((item: any) => ({
-            ...item,
-            graduationRequest: {
-              ...item.graduationRequest,
-              student: {
-                stdNo: item.graduationRequest.studentProgram.stdNo,
-                name: `Student #${item.graduationRequest.studentProgram.stdNo}`, // You might want to get actual name from student table
+          items: (response.items || []).map(
+            (item: {
+              id: number;
+              status: Status;
+              graduationRequest: {
+                studentProgram: { stdNo: number };
+              };
+            }) => ({
+              ...item,
+              graduationRequest: {
+                ...item.graduationRequest,
+                student: {
+                  stdNo: item.graduationRequest.studentProgram.stdNo,
+                  name: `Student #${item.graduationRequest.studentProgram.stdNo}`, // You might want to get actual name from student table
+                },
               },
-            },
-          })),
+            })
+          ),
           totalPages: response.totalPages || 1,
         };
       }}
