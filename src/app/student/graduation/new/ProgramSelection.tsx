@@ -57,13 +57,8 @@ export default function ProgramSelection({
   if (programs.length === 1) {
     return (
       <Card withBorder radius='md' padding='md'>
-        <Text fw={600} mb='sm'>
-          Your program
-        </Text>
+        <Text mb='sm'>Program</Text>
         <ProgramCard program={programs[0]} />
-        <Text size='sm' c='dimmed' mt='xs'>
-          Only eligible program detected.
-        </Text>
       </Card>
     );
   }

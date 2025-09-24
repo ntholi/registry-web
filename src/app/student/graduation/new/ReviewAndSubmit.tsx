@@ -14,13 +14,12 @@ import {
   Title,
 } from '@mantine/core';
 import {
-  IconCheck,
   IconGenderFemale,
   IconGenderMale,
   IconId,
   IconReceipt,
-  IconUser,
   IconSchool,
+  IconUser,
 } from '@tabler/icons-react';
 
 type Student = typeof students.$inferSelect & {
@@ -184,8 +183,7 @@ export default function ReviewAndSubmit({
 
         <Text size='sm' c='dimmed' ta='center'>
           By submitting this request, you confirm that all information provided
-          is accurate and complete. Click &quot;Submit Graduation Request&quot;
-          to proceed.
+          is accurate and complete.
         </Text>
       </Stack>
     </Box>
