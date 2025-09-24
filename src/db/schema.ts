@@ -794,3 +794,44 @@ export const studentCardPrints = sqliteTable('student_card_prints', {
     .notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
+
+export const fortinetLevelEnum = [
+  'nse1',
+  'nse2',
+  'nse3',
+  'nse4',
+  'nse5',
+  'nse6',
+  'nse7',
+  'nse8',
+] as const;
+
+export const fortinetRegistrationStatusEnum = [
+  'pending',
+  'approved',
+  'rejected',
+  'completed',
+] as const;
+
+export const fortinetRegistrations = sqliteTable(
+  'fortinet_registrations',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    stdNo: integer()
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    schoolId: integer()
+      .references(() => schools.id, { onDelete: 'cascade' })
+      .notNull(),
+    level: text({ enum: fortinetLevelEnum }).notNull(),
+    status: text({ enum: fortinetRegistrationStatusEnum })
+      .notNull()
+      .default('pending'),
+    message: text(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
+  },
+  (table) => ({
+    uniqueStudentLevel: unique().on(table.stdNo, table.level),
+  })
+);

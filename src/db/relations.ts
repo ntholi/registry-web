@@ -35,6 +35,7 @@ import {
   userSchools,
   modules,
   blockedStudents,
+  fortinetRegistrations,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -68,6 +69,7 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
   registrationRequests: many(registrationRequests),
   graduationRequests: many(graduationRequests),
   sponsorships: many(sponsoredStudents),
+  fortinetRegistrations: many(fortinetRegistrations),
 }));
 
 export const studentProgramsRelations = relations(
@@ -114,6 +116,7 @@ export const studentModulesRelations = relations(studentModules, ({ one }) => ({
 export const schoolsRelations = relations(schools, ({ many }) => ({
   programs: many(programs),
   userSchools: many(userSchools),
+  fortinetRegistrations: many(fortinetRegistrations),
 }));
 
 export const programsRelations = relations(programs, ({ many, one }) => ({
@@ -420,6 +423,20 @@ export const blockedStudentsRelations = relations(
     student: one(students, {
       fields: [blockedStudents.stdNo],
       references: [students.stdNo],
+    }),
+  })
+);
+
+export const fortinetRegistrationsRelations = relations(
+  fortinetRegistrations,
+  ({ one }) => ({
+    student: one(students, {
+      fields: [fortinetRegistrations.stdNo],
+      references: [students.stdNo],
+    }),
+    school: one(schools, {
+      fields: [fortinetRegistrations.schoolId],
+      references: [schools.id],
     }),
   })
 );

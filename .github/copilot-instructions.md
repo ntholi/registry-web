@@ -11,7 +11,7 @@ All server code should follows this exact structure in `src/server/[resource]/`:
 - Use **Turso SQLite** via Drizzle ORM with schema in `src/db/schema.ts`
 - Use `db.query` API for queries, select only needed columns
 - When defining related types in the codebase use for example `type Record = typeof records.$inferSelect;` put this in the file that needs to use the type
-- Database commands: `pnpm db:push`, `pnpm db:generate`, `pnpm db:migrate`
+- Database commands: `pnpm db:generate`, `pnpm db:migrate` avoid using `pnpm db:push`,
 - For authentication use Auth.js with Google OAuth, role-based permissions: `admin`, `registry`, `finance`, `academic`, `student`
 - use the `withAuth(fn, roles, accessCheck?)` to enforce wrapper function permissions in services
 - User-school relationships via `userSchools` junction table

@@ -15,9 +15,11 @@ import {
   IconClipboardCheck,
   IconFileCertificate,
   IconSchool,
+  IconShield,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { studentColors } from '../utils/colors';
+import useUserStudent from '@/hooks/use-user-student';
 
 type Action = {
   label: string;
@@ -27,7 +29,7 @@ type Action = {
   description: string;
 };
 
-const actions: Action[] = [
+const baseActions: Action[] = [
   {
     label: 'Registration',
     icon: IconClipboardCheck,
@@ -52,6 +54,31 @@ const actions: Action[] = [
 ];
 
 export default function ActionButtons() {
+  const { student, isLoading } = useUserStudent();
+
+  // Don't render until we have student data
+  if (isLoading || !student) {
+    return null;
+  }
+
+  // Check if student belongs to school 8 (Faculty of Information & Communication Technology)
+  const isICTStudent = student.programs?.some(
+    (program) => program.structure.program.school.id === 8
+  );
+
+  const actions = [...baseActions];
+
+  // Add Fortinet registration option for ICT students only
+  if (isICTStudent) {
+    actions.push({
+      label: 'Fortinet Training',
+      icon: IconShield,
+      href: '/student/fortinet-registration',
+      color: studentColors.theme.primary,
+      description: 'Register for Fortinet network security certification',
+    });
+  }
+
   return (
     <Box mt='xl'>
       <Grid gutter='lg'>
