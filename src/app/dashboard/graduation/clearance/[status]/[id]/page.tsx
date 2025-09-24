@@ -26,7 +26,7 @@ export default async function GraduationClearanceRequestDetails({
   return (
     <DetailsView>
       <GraduationClearanceHeader
-        studentName={`Student #${request.graduationRequest.studentProgram.stdNo}`}
+        studentName={request.graduationRequest.studentProgram.student.name}
       />
       <Tabs defaultValue='details' variant='outline'>
         <TabsList>

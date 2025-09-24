@@ -12,9 +12,12 @@ type GraduationClearanceItem = {
   id: number;
   status: Status;
   graduationRequest: {
-    student: {
+    studentProgram: {
       stdNo: number;
-      name: string;
+      student: {
+        stdNo: number;
+        name: string;
+      };
     };
   } | null;
 };
@@ -44,24 +47,7 @@ export default function Layout({ children }: PropsWithChildren) {
           search
         );
         return {
-          items: (response.items || []).map(
-            (item: {
-              id: number;
-              status: Status;
-              graduationRequest: {
-                studentProgram: { stdNo: number };
-              };
-            }) => ({
-              ...item,
-              graduationRequest: {
-                ...item.graduationRequest,
-                student: {
-                  stdNo: item.graduationRequest.studentProgram.stdNo,
-                  name: `Student #${item.graduationRequest.studentProgram.stdNo}`, // You might want to get actual name from student table
-                },
-              },
-            })
-          ),
+          items: response.items || [],
           totalPages: response.totalPages || 1,
         };
       }}
@@ -69,8 +55,10 @@ export default function Layout({ children }: PropsWithChildren) {
       renderItem={(it: GraduationClearanceItem) => (
         <ListItem
           id={it.id}
-          label={it.graduationRequest?.student.stdNo || 'N/A'}
-          description={it.graduationRequest?.student.name || 'Unknown'}
+          label={
+            it.graduationRequest?.studentProgram.stdNo || 'Unknown Student'
+          }
+          description={it.graduationRequest?.studentProgram.student.name}
           rightSection={getStatusIcon(it.status)}
         />
       )}

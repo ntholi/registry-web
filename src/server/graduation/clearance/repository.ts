@@ -109,6 +109,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
           with: {
             studentProgram: {
               with: {
+                student: true,
                 structure: {
                   with: {
                     program: true,
@@ -228,7 +229,15 @@ export default class GraduationClearanceRepository extends BaseRepository<
       where: inArray(graduationClearance.id, ids),
       with: {
         clearance: true,
-        graduationRequest: { with: { studentProgram: true } },
+        graduationRequest: {
+          with: {
+            studentProgram: {
+              with: {
+                student: true,
+              },
+            },
+          },
+        },
       },
     });
 
