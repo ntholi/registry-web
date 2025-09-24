@@ -68,7 +68,27 @@ class ClearanceService {
 
   async update(id: number, data: Clearance) {
     return withAuth(
-      async () => this.repository.update(id, data),
+      async (session) => {
+        // Get the current clearance to check if status has changed
+        const current = await this.repository.findById(id);
+        if (!current) throw new Error('Clearance not found');
+
+        // If status is changing and responseDate is not already set, set response tracking
+        const shouldSetResponseTracking =
+          data.status &&
+          data.status !== current.status &&
+          !current.responseDate;
+
+        if (shouldSetResponseTracking) {
+          return this.repository.update(id, {
+            ...data,
+            responseDate: new Date(),
+            respondedBy: session?.user?.id,
+          });
+        }
+
+        return this.repository.update(id, data);
+      },
       ['dashboard']
     );
   }
