@@ -13,6 +13,7 @@ import RegistrationView from './registration/RegistrationView';
 import StudentCardView from './card/StudentCardView';
 import StudentCardPrinter from './card/StudentCardPrinter';
 import StudentView from './info/StudentView';
+import GraduationView from './graduation/GraduationView';
 
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -51,6 +52,12 @@ export function StudentTabs({
     session?.user?.position === 'admin' ||
     session?.user?.position === 'manager';
 
+  const showGraduation =
+    session?.user?.role === 'admin' ||
+    session?.user?.role === 'registry' ||
+    session?.user?.position === 'admin' ||
+    session?.user?.position === 'manager';
+
   return (
     <Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
       <TabsList>
@@ -60,6 +67,7 @@ export function StudentTabs({
           <TabsTab value='registration'>Registration</TabsTab>
         )}
         {showStudentCard && <TabsTab value='studentcard'>Student Card</TabsTab>}
+        {showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
         {showStatementOfResults && activeTab === 'academics' && (
           <Box ml='auto'>
             <StatementOfResultsPrinter
@@ -114,6 +122,12 @@ export function StudentTabs({
         <StudentCardView
           student={student}
           isActive={activeTab === 'studentcard'}
+        />
+      </TabsPanel>
+      <TabsPanel value='graduation' pt={'xl'} p={'sm'}>
+        <GraduationView
+          stdNo={student.stdNo.toString()}
+          isActive={activeTab === 'graduation'}
         />
       </TabsPanel>
     </Tabs>
