@@ -8,7 +8,6 @@ import {
   AccordionPanel,
   ActionIcon,
   Anchor,
-  Badge,
   Grid,
   GridCol,
   Group,
@@ -32,7 +31,7 @@ type Props = {
   termId: number;
 };
 
-export default function ClearanceDetails({ request, termId }: Props) {
+export default function ClearanceDetails({ request }: Props) {
   const [comment, setComment] = useState(request.message || undefined);
   const [accordion, setAccordion] = useState<'comments' | 'modules'>('modules');
   const { student } = request.registrationRequest;

@@ -4,6 +4,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { getStudent } from '@/server/students/actions';
 import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
+import { clearanceRequestStatusEnum } from '@/db/schema';
 import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { Session } from 'next-auth';
 import { useQuery } from '@tanstack/react-query';
@@ -46,7 +47,9 @@ export function StudentTabs({
     graduationRequest.graduationClearances &&
     graduationRequest.graduationClearances.length > 0 &&
     graduationRequest.graduationClearances.every(
-      (gc: any) => gc.clearance.status === 'approved'
+      (gc: {
+        clearance: { status: (typeof clearanceRequestStatusEnum)[number] };
+      }) => gc.clearance.status === 'approved'
     );
   const showRegistration =
     session?.user?.role === 'admin' ||

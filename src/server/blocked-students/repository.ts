@@ -1,8 +1,7 @@
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { blockedStudents, modules } from '@/db/schema';
+import { blockedStudents } from '@/db/schema';
 import { db } from '@/db';
-import { and, eq, like } from 'drizzle-orm';
-import { SQLiteTableWithColumns, SQLiteColumn } from 'drizzle-orm/sqlite-core';
+import { and, eq } from 'drizzle-orm';
 
 export default class BlockedStudentRepository extends BaseRepository<
   typeof blockedStudents,

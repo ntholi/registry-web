@@ -58,7 +58,7 @@ export default function Layout({ children }: PropsWithChildren) {
           id={it.id}
           label={it.studentProgram.stdNo.toString()}
           description={`${it.studentProgram.student.name} - ${it.studentProgram.structure.program.name}`}
-          rightSection={getStatusIcon(status, it.informationConfirmed)}
+          rightSection={getStatusIcon(status)}
         />
       )}
     >
@@ -67,7 +67,7 @@ export default function Layout({ children }: PropsWithChildren) {
   );
 }
 
-function getStatusIcon(status: Status, informationConfirmed: boolean) {
+function getStatusIcon(status: Status) {
   switch (status) {
     case 'pending':
       return <IconClock size={'1rem'} color='orange' />;

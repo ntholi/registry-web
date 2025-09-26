@@ -23,7 +23,6 @@ import { IconCopy } from '@tabler/icons-react';
 import { formatDateTime } from '@/lib/utils';
 import { getGraduationClearance } from '@/server/graduation/clearance/actions';
 import GraduationClearanceSwitch from './GraduationClearanceSwitch';
-import PaymentReceiptsView from '@/app/student/graduation/[id]/PaymentReceiptsView';
 import PaymentReceipts from './PaymentReceipts';
 import { useSession } from 'next-auth/react';
 

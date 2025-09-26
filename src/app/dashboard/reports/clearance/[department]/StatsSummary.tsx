@@ -1,13 +1,6 @@
 import { ClearanceStatsOverall } from '@/server/reports/clearance/service';
 import { ClearanceType } from '@/server/reports/clearance/repository';
-import {
-  Paper,
-  Text,
-  SimpleGrid,
-  Group,
-  ThemeIcon,
-  Badge,
-} from '@mantine/core';
+import { Paper, Text, SimpleGrid, Group, ThemeIcon } from '@mantine/core';
 import {
   IconCheck,
   IconExclamationCircle,
@@ -20,7 +13,7 @@ interface Props {
   clearanceType?: ClearanceType;
 }
 
-export function StatsSummary({ data, clearanceType = 'all' }: Props) {
+export function StatsSummary({ data }: Props) {
   return (
     <>
       <SimpleGrid cols={{ base: 1, md: 4 }} spacing='md'>

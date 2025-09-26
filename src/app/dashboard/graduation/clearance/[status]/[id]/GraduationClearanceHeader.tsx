@@ -1,7 +1,7 @@
 'use client';
 
 import { useViewSelect } from '@/hooks/useViewSelect';
-import { ActionIcon, Divider, Flex, Group, Title, Badge } from '@mantine/core';
+import { ActionIcon, Divider, Flex, Group, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
 import React from 'react';

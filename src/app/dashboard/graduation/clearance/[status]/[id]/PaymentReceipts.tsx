@@ -1,14 +1,6 @@
 import { graduationRequests, paymentReceipts } from '@/db/schema';
 import { formatDateTime } from '@/lib/utils';
-import {
-  Badge,
-  Card,
-  Group,
-  SimpleGrid,
-  Stack,
-  Text,
-  ThemeIcon,
-} from '@mantine/core';
+import { Card, Group, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconFileText, IconReceipt } from '@tabler/icons-react';
 
 type PaymentReceipt = typeof paymentReceipts.$inferSelect;

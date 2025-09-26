@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   Alert,
-  Badge,
   Box,
   Card,
   Divider,
@@ -13,12 +12,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
-import {
-  IconAlertCircle,
-  IconCheck,
-  IconClock,
-  IconX,
-} from '@tabler/icons-react';
+import { IconCheck, IconClock, IconX } from '@tabler/icons-react';
 import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
 import { formatDateTime } from '@/lib/utils';
 
@@ -113,8 +107,6 @@ export default function GraduationView({
         return <IconClock size='1rem' />;
     }
   }
-
-  const isFullyCleared = status === 'approved';
 
   return (
     <Stack gap='lg'>

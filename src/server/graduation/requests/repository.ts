@@ -6,11 +6,9 @@ import {
   paymentReceipts,
   paymentTypeEnum,
   studentPrograms,
-  studentSemesters,
-  students,
 } from '@/db/schema';
 import { db } from '@/db';
-import { eq, and, sql, count, like } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { studentsService } from '@/server/students/service';
 import { getOutstandingFromStructure } from '@/utils/grades';
 
@@ -178,7 +176,7 @@ export default class GraduationRequestRepository extends BaseRepository<
     // Final fallback: Any program (prioritize Completed, then Active)
     const fallbackProgram = await db.query.studentPrograms.findFirst({
       where: eq(studentPrograms.stdNo, stdNo),
-      orderBy: (studentPrograms, { desc, sql }) => [
+      orderBy: (studentPrograms, { sql }) => [
         sql`CASE ${studentPrograms.status} WHEN 'Completed' THEN 1 WHEN 'Active' THEN 2 ELSE 3 END`,
         studentPrograms.id,
       ],
@@ -205,7 +203,7 @@ export default class GraduationRequestRepository extends BaseRepository<
         },
         semesters: true,
       },
-      orderBy: (studentPrograms, { desc, sql }) => [
+      orderBy: (studentPrograms, { sql }) => [
         sql`CASE ${studentPrograms.status} WHEN 'Completed' THEN 1 WHEN 'Active' THEN 2 ELSE 3 END`,
         studentPrograms.id,
       ],
