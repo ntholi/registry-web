@@ -196,13 +196,11 @@ export default class GraduationClearanceRepository extends BaseRepository<
     // Add school joins only if academic user
     if (session?.user?.role === 'academic') {
       countQuery = countQuery
-        .innerJoin(studentPrograms, eq(students.stdNo, studentPrograms.stdNo))
         .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
         .innerJoin(programs, eq(structures.programId, programs.id))
         .innerJoin(schools, eq(programs.schoolId, schools.id));
 
       idQuery = idQuery
-        .innerJoin(studentPrograms, eq(students.stdNo, studentPrograms.stdNo))
         .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
         .innerJoin(programs, eq(structures.programId, programs.id))
         .innerJoin(schools, eq(programs.schoolId, schools.id));
