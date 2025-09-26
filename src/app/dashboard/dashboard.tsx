@@ -48,6 +48,7 @@ import {
   IconClipboardCheck,
   IconCopyCheck,
   IconFileCheck,
+  IconListDetails,
   IconLogout2,
   IconMessageQuestion,
   IconNotebook,
@@ -373,20 +374,13 @@ function getNavigation(department: DashboardUser) {
     },
     {
       label: 'Lists',
-      icon: IconChartLine,
+      icon: IconListDetails,
       children: [
         {
           label: 'Graduation',
           href: `/dashboard/lists/graduation`,
-          icon: IconCopyCheck,
-          isVisible: (session) => {
-            const userRole = session?.user?.role;
-            return (
-              session?.user?.position === 'manager' &&
-              userRole &&
-              ['finance', 'library', 'resource'].includes(userRole)
-            );
-          },
+          icon: IconSchool,
+          roles: ['admin', 'registry'],
         },
       ],
     },
