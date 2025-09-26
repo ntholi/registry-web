@@ -372,6 +372,25 @@ function getNavigation(department: DashboardUser) {
       ],
     },
     {
+      label: 'Lists',
+      icon: IconChartLine,
+      children: [
+        {
+          label: 'Graduation',
+          href: `/dashboard/lists/graduation`,
+          icon: IconCopyCheck,
+          isVisible: (session) => {
+            const userRole = session?.user?.role;
+            return (
+              session?.user?.position === 'manager' &&
+              userRole &&
+              ['finance', 'library', 'resource'].includes(userRole)
+            );
+          },
+        },
+      ],
+    },
+    {
       label: 'Reports',
       icon: IconChartLine,
       children: [
