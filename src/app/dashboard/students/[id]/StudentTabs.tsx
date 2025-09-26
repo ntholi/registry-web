@@ -3,8 +3,10 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { getStudent } from '@/server/students/actions';
+import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
 import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { Session } from 'next-auth';
+import { useQuery } from '@tanstack/react-query';
 import AcademicsView from './AcademicsView';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
@@ -14,6 +16,7 @@ import StudentCardView from './card/StudentCardView';
 import StudentCardPrinter from './card/StudentCardPrinter';
 import StudentView from './info/StudentView';
 import GraduationView from './graduation/GraduationView';
+import ProofOfClearancePrinter from './graduation/ProofOfClearancePrinter';
 
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -30,6 +33,21 @@ export function StudentTabs({
     'studentDetailsTab',
     'info'
   );
+
+  const { data: graduationRequest } = useQuery({
+    queryKey: ['graduationRequest', student.stdNo],
+    queryFn: () => getGraduationRequestByStudentNo(student.stdNo),
+    enabled: activeTab === 'graduation',
+  });
+
+  // Check if student is fully cleared for graduation
+  const isFullyCleared =
+    graduationRequest &&
+    graduationRequest.graduationClearances &&
+    graduationRequest.graduationClearances.length > 0 &&
+    graduationRequest.graduationClearances.every(
+      (gc: any) => gc.clearance.status === 'approved'
+    );
   const showRegistration =
     session?.user?.role === 'admin' ||
     session?.user?.role === 'registry' ||
@@ -91,6 +109,11 @@ export function StudentTabs({
               isActive={activeTab === 'studentcard'}
               disabled={!!blockedStudent}
             />
+          </Box>
+        )}
+        {showGraduation && activeTab === 'graduation' && isFullyCleared && (
+          <Box ml='auto'>
+            <ProofOfClearancePrinter stdNo={student.stdNo.toString()} />
           </Box>
         )}
       </TabsList>
