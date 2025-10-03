@@ -3,6 +3,9 @@ import GraduationListRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../../base/BaseRepository';
 import { serviceWrapper } from '../../base/serviceWrapper';
+import { googleSheetsService } from '@/server/google-sheets/service';
+import { graduationRequestsRepository } from '@/server/graduation/requests/repository';
+import { auth } from '@/auth';
 
 type GraduationList = typeof graduationLists.$inferInsert;
 
@@ -35,6 +38,71 @@ class GraduationListService {
 
   async count() {
     return withAuth(async () => this.repository.count(), []);
+  }
+
+  async populate(id: string) {
+    return withAuth(async () => {
+      const session = await auth();
+      if (!session?.user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const graduationList = await this.repository.findById(id);
+      if (!graduationList) {
+        throw new Error('Graduation list not found');
+      }
+
+      const hasScope = await googleSheetsService.hasGoogleSheetsScope(
+        session.user.id
+      );
+      if (!hasScope) {
+        throw new Error('Google Sheets access not granted');
+      }
+
+      const clearedStudents =
+        await graduationRequestsRepository.findAllClearedStudents();
+
+      let spreadsheetId = graduationList.spreadsheetId;
+      let spreadsheetUrl = graduationList.spreadsheetUrl;
+
+      if (!spreadsheetId) {
+        const result = await googleSheetsService.createSpreadsheet(
+          session.user.id,
+          graduationList.name
+        );
+        spreadsheetId = result.spreadsheetId;
+        spreadsheetUrl = result.spreadsheetUrl;
+      }
+
+      await googleSheetsService.populateSpreadsheet(
+        session.user.id,
+        spreadsheetId,
+        clearedStudents
+      );
+
+      await this.repository.update(id, {
+        spreadsheetId,
+        spreadsheetUrl,
+        status: 'populated',
+        populatedAt: new Date(),
+      });
+
+      return {
+        spreadsheetId,
+        spreadsheetUrl,
+        studentCount: clearedStudents.length,
+      };
+    }, ['registry', 'admin']);
+  }
+
+  async checkGoogleSheetsAccess() {
+    return withAuth(async () => {
+      const session = await auth();
+      if (!session?.user?.id) {
+        return false;
+      }
+      return googleSheetsService.hasGoogleSheetsScope(session.user.id);
+    }, []);
   }
 }
 

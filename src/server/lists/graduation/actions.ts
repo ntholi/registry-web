@@ -27,3 +27,11 @@ export async function updateGraduationList(
 export async function deleteGraduationList(id: string) {
   return service.delete(id);
 }
+
+export async function populateGraduationList(id: string) {
+  return service.populate(id);
+}
+
+export async function checkGoogleSheetsAccess() {
+  return service.checkGoogleSheetsAccess();
+}

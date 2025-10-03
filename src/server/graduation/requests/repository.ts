@@ -555,6 +555,49 @@ export default class GraduationRequestRepository extends BaseRepository<
       pages: Math.ceil(total / limit),
     };
   }
+
+  async findAllClearedStudents() {
+    const clearedRequests = await db.query.graduationRequests.findMany({
+      where: and(
+        sql`NOT EXISTS (
+          SELECT 1 FROM clearance c 
+          INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
+          WHERE gc.graduation_request_id = ${graduationRequests.id} 
+          AND c.status != 'approved'
+        )`,
+        sql`EXISTS (
+          SELECT 1 FROM graduation_clearance gc 
+          WHERE gc.graduation_request_id = ${graduationRequests.id}
+        )`
+      ),
+      with: {
+        studentProgram: {
+          with: {
+            student: true,
+            structure: {
+              with: {
+                program: {
+                  with: {
+                    school: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return clearedRequests.map((request) => ({
+      stdNo: request.studentProgram.student.stdNo,
+      name: request.studentProgram.student.name,
+      nationalId: request.studentProgram.student.nationalId,
+      programCode: request.studentProgram.structure.program.code,
+      programName: request.studentProgram.structure.program.name,
+      level: request.studentProgram.structure.program.level,
+      schoolName: request.studentProgram.structure.program.school.name,
+    }));
+  }
 }
 
 export const graduationRequestsRepository = new GraduationRequestRepository();
