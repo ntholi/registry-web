@@ -3,7 +3,11 @@ import GraduationListRepository from './repository';
 import withAuth from '@/server/base/withAuth';
 import { QueryOptions } from '../../base/BaseRepository';
 import { serviceWrapper } from '../../base/serviceWrapper';
-import { googleSheetsService } from '@/server/google-sheets/service';
+import {
+  checkGoogleSheetsAccess,
+  createGraduationSpreadsheet,
+  populateGraduationSpreadsheet,
+} from './sheet';
 import { graduationRequestsRepository } from '@/server/graduation/requests/repository';
 import { auth } from '@/auth';
 
@@ -52,9 +56,7 @@ class GraduationListService {
         throw new Error('Graduation list not found');
       }
 
-      const hasScope = await googleSheetsService.hasGoogleSheetsScope(
-        session.user.id
-      );
+      const hasScope = await checkGoogleSheetsAccess(session.user.id);
       if (!hasScope) {
         throw new Error('Google Sheets access not granted');
       }
@@ -66,7 +68,7 @@ class GraduationListService {
       let spreadsheetUrl = graduationList.spreadsheetUrl;
 
       if (!spreadsheetId) {
-        const result = await googleSheetsService.createSpreadsheet(
+        const result = await createGraduationSpreadsheet(
           session.user.id,
           graduationList.name
         );
@@ -74,7 +76,7 @@ class GraduationListService {
         spreadsheetUrl = result.spreadsheetUrl;
       }
 
-      await googleSheetsService.populateSpreadsheet(
+      await populateGraduationSpreadsheet(
         session.user.id,
         spreadsheetId,
         clearedStudents
@@ -101,7 +103,7 @@ class GraduationListService {
       if (!session?.user?.id) {
         return false;
       }
-      return googleSheetsService.hasGoogleSheetsScope(session.user.id);
+      return checkGoogleSheetsAccess(session.user.id);
     }, []);
   }
 }

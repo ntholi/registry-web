@@ -33,7 +33,7 @@ export default function GraduationListForm({
       schema={createInsertSchema(graduationLists)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
-        router.push(`/admin/lists/graduation/${id}`);
+        router.push(`/dashboard/lists/graduation/${id}`);
       }}
     >
       {(form) => (
