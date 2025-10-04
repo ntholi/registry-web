@@ -44,7 +44,6 @@ export default function StudentCardPrinter({
     return await createStudentCardPrint({
       stdNo: student.stdNo,
       printedBy: session.user.id,
-      reference: `${student.name} - ${new Date().toISOString()}`,
     });
   };
 

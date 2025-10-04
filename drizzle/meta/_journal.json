@@ -568,6 +568,13 @@
       "when": 1758889006975,
       "tag": "0080_mixed_aaron_stack",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "6",
+      "when": 1759555751672,
+      "tag": "0081_aspiring_tattoo",
+      "breakpoints": true
     }
   ]
 }
