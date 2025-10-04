@@ -1,7 +1,6 @@
-import { getCleanedSemesters } from '@/app/dashboard/students/[id]/AcademicsView/statements/utils';
 import { getAcademicHistory } from '@/server/students/actions';
-import { getGradePoints } from '@/utils/grades';
-import { Document, Page, Text, View, Font } from '@react-pdf/renderer';
+import { summarizeModules } from '@/utils/grades';
+import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
 
 Font.register({
@@ -20,13 +19,8 @@ Font.register({
 });
 
 Font.register({
-  family: 'system-ui',
-  src: '/fonts/ARIAL.TTF',
-});
-
-Font.register({
-  family: 'sans-serif',
-  src: '/fonts/ARIAL.TTF',
+  family: 'ui-sans-serif-bold',
+  src: '/fonts/ARIALBD.TTF',
 });
 
 const tw = createTw({
@@ -46,129 +40,167 @@ const tw = createTw({
   },
 });
 
-type Props = {
-  student: NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
-};
+type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 
-type StudentRecord = {
-  name: string;
-  stdNo: string;
-  nationalId: string;
-  gender: string;
-  nationality: string;
-  admissionDate: string;
-  program: string;
-  faculty: string;
-};
-
-type GradeRecord = {
+type Grade = {
   courseCode: string;
   courseName: string;
   credits: number;
   grade: string;
 };
 
-type TermRecord = {
+type Term = {
   term: string;
-  grades: GradeRecord[];
+  grades: Grade[];
   gpa: number;
   credits: number;
   cgpa: number;
   cumulativeCredits: number;
 };
 
-function HeaderRow({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={tw('flex flex-row')}>
-      <Text style={tw('w-[90pt] font-bold')}>{label}</Text>
-      <Text style={tw('w-[10pt] text-center')}>:</Text>
-      <Text style={tw('flex-1')}>{value || '-'}</Text>
-    </View>
-  );
-}
+const HeaderRow = ({ label, value }: { label: string; value: string }) => (
+  <View style={tw('flex flex-row')}>
+    <Text style={tw('w-[90pt] font-bold')}>{label}</Text>
+    <Text style={tw('w-[10pt] text-center')}>:</Text>
+    <Text style={tw('flex-1')}>{value}</Text>
+  </View>
+);
 
-function TableHeader() {
-  return (
-    <View style={tw('flex flex-row font-bold py-1.5')}>
-      <Text style={tw('w-[60pt]')}>Code</Text>
-      <Text style={tw('flex-1')}>Module Name</Text>
-      <Text style={tw('w-[40pt] text-right')}>Credit</Text>
-      <Text style={tw('w-[35pt] pl-2.5')}>Grade</Text>
-    </View>
-  );
-}
+const TableHeader = () => (
+  <View style={tw('flex flex-row font-bold py-1.5')}>
+    <Text style={tw('w-[60pt]')}>Code</Text>
+    <Text style={tw('flex-1')}>Module Name</Text>
+    <Text style={tw('w-[40pt] text-right')}>Credit</Text>
+    <Text style={tw('w-[35pt] pl-2.5')}>Grade</Text>
+  </View>
+);
 
-function GradeRow({ grade }: { grade: GradeRecord }) {
-  return (
-    <View style={tw('flex flex-row min-h-[7pt]')}>
-      <Text style={tw('w-[60pt]')}>{grade.courseCode}</Text>
-      <Text style={tw('flex-1')}>{grade.courseName}</Text>
-      <Text style={tw('w-[40pt] text-right')}>{grade.credits.toString()}</Text>
-      <Text style={tw('w-[35pt] pl-2.5')}>{grade.grade}</Text>
-    </View>
-  );
-}
+const GradeRow = ({ grade }: { grade: Grade }) => (
+  <View style={tw('flex flex-row min-h-[7pt]')}>
+    <Text style={tw('w-[60pt]')}>{grade.courseCode}</Text>
+    <Text style={tw('flex-1')}>{grade.courseName}</Text>
+    <Text style={tw('w-[40pt] text-right')}>{grade.credits}</Text>
+    <Text style={tw('w-[35pt] pl-2.5')}>{grade.grade}</Text>
+  </View>
+);
 
-function TermSummary({ term }: { term: TermRecord }) {
-  return (
-    <View style={tw('ml-[60pt] mt-0.5 mt-1')}>
-      <View style={tw('flex flex-row justify-between w-[84%]')}>
-        <View style={tw('w-[60pt] flex-row justify-between')}>
-          <Text>GPA</Text>
-          <Text>{`:  ${formatDecimal(term.gpa)}`}</Text>
-        </View>
-        <View style={tw('w-[100pt] flex-row justify-between')}>
-          <Text>Credits Earned</Text>
-          <View style={tw('flex-row justify-between w-[16pt]')}>
-            <Text>:</Text>
-            <Text>{term.credits}</Text>
-          </View>
-        </View>
+const TermSummary = ({ term }: { term: Term }) => (
+  <View style={tw('ml-[60pt] mt-0.5 mt-1')}>
+    <View style={tw('flex flex-row justify-between w-[84%]')}>
+      <View style={tw('w-[60pt] flex-row justify-between')}>
+        <Text>GPA</Text>
+        <Text>{`:  ${term.gpa}`}</Text>
       </View>
-      <View style={tw('flex flex-row justify-between w-[84%]')}>
-        <View style={tw('w-[60pt] flex-row justify-between')}>
-          <Text>CGPA</Text>
-          <Text>{`:  ${formatDecimal(term.cgpa)}`}</Text>
-        </View>
-        <View style={tw('w-[100pt] flex-row justify-between')}>
-          <Text>Cumulative Credits</Text>
-          <View style={tw('flex-row justify-between w-[16pt]')}>
-            <Text>:</Text>
-            <Text>{term.cumulativeCredits}</Text>
-          </View>
+      <View style={tw('w-[100pt] flex-row justify-between')}>
+        <Text>Credits Earned</Text>
+        <View style={tw('flex-row justify-between w-[16pt]')}>
+          <Text>:</Text>
+          <Text>{term.credits}</Text>
         </View>
       </View>
     </View>
-  );
-}
-
-function TermSection({ term }: { term: TermRecord }) {
-  return (
-    <View style={tw('mb-2.5')}>
-      <Text style={tw('mb-0.5 font-bold')}>{term.term}</Text>
-      {term.grades.map(function renderGrade(grade, index) {
-        return (
-          <GradeRow
-            key={`${term.term}-${grade.courseCode}-${index}`}
-            grade={grade}
-          />
-        );
-      })}
-      <TermSummary term={term} />
+    <View style={tw('flex flex-row justify-between w-[84%]')}>
+      <View style={tw('w-[60pt] flex-row justify-between')}>
+        <Text>CGPA</Text>
+        <Text>{`:  ${term.cgpa}`}</Text>
+      </View>
+      <View style={tw('w-[100pt] flex-row justify-between')}>
+        <Text>Cumulative Credits</Text>
+        <View style={tw('flex-row justify-between w-[16pt]')}>
+          <Text>:</Text>
+          <Text>{term.cumulativeCredits}</Text>
+        </View>
+      </View>
     </View>
+  </View>
+);
+
+const TermSection = ({ term }: { term: Term }) => (
+  <View style={tw('mb-2.5')}>
+    <Text style={tw('mb-0.5 font-bold')}>{term.term}</Text>
+    {term.grades.map((grade, j) => (
+      <GradeRow key={j} grade={grade} />
+    ))}
+    <TermSummary term={term} />
+  </View>
+);
+
+function extractTermsFromStudent(student: Student): Term[] {
+  const completedPrograms =
+    student.programs?.filter((p) => p.status === 'Completed') || [];
+
+  if (completedPrograms.length === 0) return [];
+
+  const allSemesters = completedPrograms.flatMap(
+    (program) => program.semesters || []
   );
+
+  const semestersByTerm = new Map<string, typeof allSemesters>();
+
+  allSemesters.forEach((semester) => {
+    const term = semester.term;
+    if (!semestersByTerm.has(term)) {
+      semestersByTerm.set(term, []);
+    }
+    semestersByTerm.get(term)!.push(semester);
+  });
+
+  const terms: Term[] = [];
+  let cumulativePoints = 0;
+  let cumulativeCredits = 0;
+
+  Array.from(semestersByTerm.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .forEach(([termName, semesters]) => {
+      const allModules = semesters.flatMap((sem) => sem.studentModules || []);
+
+      const grades: Grade[] = allModules
+        .filter((sm) => !['Delete', 'Drop'].includes(sm.status || ''))
+        .map((sm) => ({
+          courseCode: sm.semesterModule?.module?.code || '',
+          courseName: sm.semesterModule?.module?.name || '',
+          credits: sm.semesterModule?.credits || 0,
+          grade: sm.grade || '',
+        }));
+
+      const summary = summarizeModules(allModules);
+      cumulativePoints += summary.points;
+      cumulativeCredits += summary.creditsCompleted;
+
+      terms.push({
+        term: termName,
+        grades,
+        gpa: Number(summary.gpa.toFixed(2)),
+        credits: summary.creditsCompleted,
+        cgpa: Number((cumulativePoints / (cumulativeCredits || 1)).toFixed(2)),
+        cumulativeCredits,
+      });
+    });
+
+  return terms;
 }
 
-export default function TranscriptPDF({ student }: Props) {
-  const {
-    studentRecord,
-    terms,
-    totalCreditsEarned,
-    totalCumulativeCredits,
-    completionDate,
-  } = extractTranscriptData(student);
+const TranscriptPDF = ({ student }: { student: Student }) => {
+  const terms = extractTermsFromStudent(student);
   const leftTerms = terms.slice(0, 6);
   const rightTerms = terms.slice(6);
+
+  const completedPrograms = student.programs?.filter(
+    (p) => p.status === 'Completed'
+  );
+  const primaryProgram = completedPrograms?.[0];
+  const programName =
+    primaryProgram?.structure?.program?.name || 'Unknown Program';
+
+  const completionDate = primaryProgram?.graduationDate
+    ? new Date(primaryProgram.graduationDate).toLocaleDateString('en-GB', {
+        month: 'long',
+        year: 'numeric',
+      })
+    : 'November 2024';
+
+  const admissionDate = terms[0]?.term || 'Unknown';
+
   const issueDate = new Date().toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -181,37 +213,30 @@ export default function TranscriptPDF({ student }: Props) {
         size='A4'
         style={tw('pt-5 px-4 pb-10 font-sans text-[7.12pt] pt-[155pt]')}
       >
+        {/* Header Section */}
         <View style={tw('border-t border-b')}>
           <View style={tw('flex flex-row')}>
             <View style={tw('w-1/2')}>
-              <HeaderRow label='Student Name' value={studentRecord.name} />
-              <HeaderRow label='Student ID' value={studentRecord.stdNo} />
-              <HeaderRow
-                label='IC / Passport No.'
-                value={studentRecord.nationalId}
-              />
-              <HeaderRow label='Gender' value={studentRecord.gender} />
-              <HeaderRow
-                label='Nationality'
-                value={studentRecord.nationality}
-              />
+              <HeaderRow label='Student Name' value={student.name} />
+              <HeaderRow label='Student ID' value={String(student.stdNo)} />
+              <HeaderRow label='IC / Passport No.' value={student.nationalId} />
+              <HeaderRow label='Gender' value={student.gender || 'N/A'} />
+              <HeaderRow label='Nationality' value='Mosotho' />
             </View>
             <View style={tw('w-1/2')}>
-              <HeaderRow
-                label='Date of Admission'
-                value={studentRecord.admissionDate || terms[0]?.term || '-'}
-              />
+              <HeaderRow label='Date of Admission' value={admissionDate} />
               <HeaderRow label='Date of Completion' value={completionDate} />
               <HeaderRow
                 label='Programme'
-                value={correctSpelling(studentRecord.program)}
+                value={correctSpelling(programName)}
               />
-              <HeaderRow label='Faculty' value={studentRecord.faculty} />
+              <HeaderRow label='Faculty' value={findFaculty(programName)} />
               <HeaderRow label='Issued Date' value={issueDate} />
             </View>
           </View>
         </View>
 
+        {/* Content Header */}
         <View style={tw('mt-2 flex flex-row gap-5 border-t border-b')}>
           <View style={tw('flex-1')}>
             <TableHeader />
@@ -221,47 +246,42 @@ export default function TranscriptPDF({ student }: Props) {
           </View>
         </View>
 
+        {/* Content */}
         <View style={tw('mt-2.5 flex flex-row gap-5')}>
           <View style={tw('flex-1')}>
-            {leftTerms.map(function renderLeftTerm(term, index) {
-              return <TermSection key={`${term.term}-${index}`} term={term} />;
-            })}
+            {leftTerms.map((term, i) => (
+              <TermSection key={i} term={term} />
+            ))}
           </View>
           <View style={tw('flex-1')}>
-            {rightTerms.map(function renderRightTerm(term, index) {
-              return <TermSection key={`${term.term}-${index}`} term={term} />;
-            })}
+            {rightTerms.map((term, i) => (
+              <TermSection key={i} term={term} />
+            ))}
           </View>
         </View>
 
+        {/* Footer */}
         <View style={tw('absolute bottom-[50pt] left-[85pt]')}>
-          {['Total MPU Credits', 'Total Credit Transferred'].map(
-            function renderFooterPlaceholder(label) {
-              return (
-                <View key={label} style={tw('flex flex-row')}>
-                  <Text style={tw('w-[160pt]')}>{label}</Text>
-                  <Text>{':  '}-</Text>
-                </View>
-              );
-            }
-          )}
-          {['Total Credits Earned', 'Total Cumulative Credits'].map(
-            function renderFooterTotal(label, index) {
-              const value =
-                index === 0 ? totalCreditsEarned : totalCumulativeCredits;
-              return (
-                <View key={label} style={tw('flex flex-row')}>
-                  <Text style={tw('w-[160pt]')}>{label}</Text>
-                  <Text>
-                    {':  '}
-                    {value}
-                  </Text>
-                </View>
-              );
-            }
-          )}
+          {['Total MPU Credits', 'Total Credit Transferred'].map((label) => (
+            <View key={label} style={tw('flex flex-row')}>
+              <Text style={tw('w-[160pt]')}>{label}</Text>
+              <Text>{':  '}-</Text>
+            </View>
+          ))}
+          {['Total Credits Earned', 'Total Cumulative Credits'].map((label) => (
+            <View key={label} style={tw('flex flex-row')}>
+              <Text style={tw('w-[160pt]')}>{label}</Text>
+              <Text>
+                {':  '}
+                {terms.length > 0
+                  ? terms[terms.length - 1].cumulativeCredits
+                  : 0}
+              </Text>
+            </View>
+          ))}
         </View>
 
+        {/* Registrar Signature */}
         <View style={tw('absolute bottom-[50pt] right-14 w-[190pt] border-t')}>
           <Text style={tw('pt-1.5 text-center font-bold')}>REGISTRAR</Text>
           <Text>
@@ -272,145 +292,16 @@ export default function TranscriptPDF({ student }: Props) {
       </Page>
     </Document>
   );
-}
+};
 
-function extractTranscriptData(student: Props['student']) {
-  const programList = student.programs || [];
-  const completedPrograms = programList.filter(
-    function filterCompleted(program) {
-      return program?.status === 'Completed';
-    }
-  );
-  const activePrograms = programList.filter(function filterActive(program) {
-    return program?.status === 'Active';
-  });
-  const primaryProgram =
-    completedPrograms[0] || activePrograms[0] || programList[0];
-  const programNameRaw = primaryProgram?.structure?.program?.name || '-';
-  const correctedProgramName = correctSpelling(programNameRaw);
-  const studentDetails = student as Partial<{ nationality: string }>;
-  const nationality = studentDetails.nationality || 'Mosotho';
-  const admissionDate = formatDisplayDate(primaryProgram?.intakeDate);
-  const completionDate = formatDisplayDate(primaryProgram?.graduationDate);
-  const facultyFromProgram = primaryProgram?.structure?.program?.school?.name;
-  const faculty = facultyFromProgram || safeFindFaculty(correctedProgramName);
-
-  const semesters = getCleanedSemesters(primaryProgram);
-  const terms: TermRecord[] = [];
-  let cumulativeCredits = 0;
-  let totalCreditsEarned = 0;
-  let cumulativeGradePoints = 0;
-  let cumulativeCreditsForGrade = 0;
-
-  semesters.forEach(function buildTerm(semester) {
-    const termName =
-      semester.term || `Semester ${semester.semesterNumber ?? ''}`;
-    const grades: GradeRecord[] = [];
-    let termCredits = 0;
-    let termGradePoints = 0;
-    let termCreditsForGrade = 0;
-
-    semester.studentModules?.forEach(function accumulateModule(studentModule) {
-      const semesterModule = studentModule.semesterModule;
-      const courseModule = semesterModule?.module;
-      if (!semesterModule || !courseModule) {
-        return;
-      }
-
-      const credits = Number(semesterModule.credits) || 0;
-      const grade = studentModule.grade || '';
-
-      grades.push({
-        courseCode: courseModule.code || '',
-        courseName: courseModule.name || '',
-        credits,
-        grade,
-      });
-
-      termCredits += credits;
-      totalCreditsEarned += credits;
-
-      const gradePoint = getGradePoints(grade);
-      if (gradePoint > 0) {
-        termGradePoints += gradePoint * credits;
-        termCreditsForGrade += credits;
-        cumulativeGradePoints += gradePoint * credits;
-        cumulativeCreditsForGrade += credits;
-      }
-    });
-
-    cumulativeCredits += termCredits;
-
-    const gpa =
-      termCreditsForGrade > 0 ? termGradePoints / termCreditsForGrade : 0;
-    const cgpa =
-      cumulativeCreditsForGrade > 0
-        ? cumulativeGradePoints / cumulativeCreditsForGrade
-        : 0;
-
-    terms.push({
-      term: termName,
-      grades,
-      gpa,
-      credits: termCredits,
-      cgpa,
-      cumulativeCredits,
-    });
-  });
-
-  const studentRecord: StudentRecord = {
-    name: student.name || '-',
-    stdNo: student.stdNo ? student.stdNo.toString() : '-',
-    nationalId: student.nationalId || '-',
-    gender: student.gender || '-',
-    nationality,
-    admissionDate,
-    program: correctedProgramName,
-    faculty,
-  };
-
-  return {
-    studentRecord,
-    terms,
-    totalCreditsEarned,
-    totalCumulativeCredits: cumulativeCredits,
-    completionDate,
-  };
-}
-
-function formatDecimal(value: number) {
-  return value > 0 ? value.toFixed(2) : '0.00';
-}
-
-function formatDisplayDate(value: string | null | undefined) {
-  if (!value) {
-    return '-';
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return date.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-function safeFindFaculty(programName: string) {
-  try {
-    return findFaculty(programName);
-  } catch {
-    return '-';
-  }
-}
+export default TranscriptPDF;
 
 function findFaculty(programName: string) {
-  const program = programs.find(function matchProgram(p) {
-    return programName.toLowerCase().includes(p.name.toLowerCase());
-  });
+  const program = programs.find((p) =>
+    programName.toLowerCase().includes(p.name.toLowerCase())
+  );
   if (!program) {
-    throw new Error(`Faculty for ${programName} not found`);
+    return 'Unknown Faculty';
   }
   return program.faculty;
 }
@@ -418,7 +309,6 @@ function findFaculty(programName: string) {
 function correctSpelling(name: string) {
   return name.replace('Entreprenuership', 'Entrepreneurship');
 }
-
 const programs = [
   {
     name: 'Architectur',
@@ -542,6 +432,14 @@ const programs = [
   },
   {
     name: 'Software Engineering with Multimedia',
+    faculty: 'Faculty of Information & Communication Technology',
+  },
+  {
+    name: 'Business Information Technology',
+    faculty: 'Faculty of Information & Communication Technology',
+  },
+  {
+    name: 'Information Technology',
     faculty: 'Faculty of Information & Communication Technology',
   },
   {

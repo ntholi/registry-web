@@ -37,8 +37,6 @@ export default function TranscriptPrinter({ stdNo, disabled }: Props) {
         return null;
       }
 
-      console.log('student', student);
-
       const printData = extractTranscriptData(student);
 
       const record = await createTranscriptPrint({
@@ -46,7 +44,6 @@ export default function TranscriptPrinter({ stdNo, disabled }: Props) {
         printedBy: session.user.id,
       });
 
-      console.log('Print record created successfully');
       return record;
     } catch (error) {
       console.error('Failed to create print record:', error);
@@ -63,7 +60,6 @@ export default function TranscriptPrinter({ stdNo, disabled }: Props) {
         return;
       }
 
-      console.log('Generating PDF for student:', student.stdNo);
       const printRecord = await createPrintRecord();
 
       if (!printRecord) {
@@ -73,8 +69,6 @@ export default function TranscriptPrinter({ stdNo, disabled }: Props) {
       }
 
       const blob = await pdf(<TranscriptPDF student={student} />).toBlob();
-
-      console.log('PDF blob generated, size:', blob.size);
 
       if (blob.size === 0) {
         throw new Error('Generated PDF is empty');
@@ -127,7 +121,6 @@ export default function TranscriptPrinter({ stdNo, disabled }: Props) {
       };
     } catch (error) {
       console.error('Error generating PDF for printing:', error);
-      console.error('Student data:', student);
       setIsGenerating(false);
     }
   };
