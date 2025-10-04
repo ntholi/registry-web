@@ -5,6 +5,8 @@ import {
   Anchor,
   Badge,
   Box,
+  Button,
+  Card,
   Group,
   Skeleton,
   Tabs,
@@ -90,18 +92,27 @@ export default function GraduationView({
 
   return (
     <Box>
-      <Group gap='md' mb='xl'>
-        <Badge color={getStatusColor(status)} tt='capitalize'>
-          {status}
-        </Badge>
-        <Anchor
-          component={Link}
-          href={`/dashboard/graduation/requests/${status}/${graduationRequest.id}`}
-          size='sm'
-        >
-          View Details
-        </Anchor>
-      </Group>
+      <Card withBorder p='md' mb='lg'>
+        <Group justify='space-between' align='center'>
+          <Group>
+            <Text size='sm' fw={500}>
+              Graduation status
+            </Text>
+            <Badge color={getStatusColor(status)} size='xs'>
+              {status}
+            </Badge>
+          </Group>
+          <Button
+            component={Link}
+            href={`/dashboard/graduation/requests/${status}/${graduationRequest.id}`}
+            size='xs'
+            variant='light'
+            color='blue'
+          >
+            View Details
+          </Button>
+        </Group>
+      </Card>
 
       <Tabs value={activeTab} onChange={setActiveTab} variant='outline'>
         <TabsList>
