@@ -1,19 +1,38 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Anchor, Badge, Group, Skeleton, Text } from '@mantine/core';
+import {
+  Anchor,
+  Badge,
+  Box,
+  Group,
+  Skeleton,
+  Tabs,
+  TabsList,
+  TabsPanel,
+  TabsTab,
+  Text,
+} from '@mantine/core';
 import Link from 'next/link';
+import { useState } from 'react';
 import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
+import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
+import TranscriptPreview from './transcript/TranscriptPreview';
+import TranscriptPrinter from './transcript/TranscriptPrinter';
 
 type GraduationViewProps = {
   stdNo: string;
   isActive: boolean;
+  blockedStudent?: Awaited<ReturnType<typeof getBlockedStudentByStdNo>>;
 };
 
 export default function GraduationView({
   stdNo,
   isActive,
+  blockedStudent,
 }: GraduationViewProps) {
+  const [activeTab, setActiveTab] = useState<string | null>('transcript');
+
   const { data: graduationRequest, isLoading } = useQuery({
     queryKey: ['graduationRequest', stdNo],
     queryFn: () => getGraduationRequestByStudentNo(Number(stdNo)),
@@ -70,17 +89,43 @@ export default function GraduationView({
   }
 
   return (
-    <Group gap='md'>
-      <Badge color={getStatusColor(status)} tt='capitalize'>
-        {status}
-      </Badge>
-      <Anchor
-        component={Link}
-        href={`/dashboard/graduation/requests/${status}/${graduationRequest.id}`}
-        size='sm'
-      >
-        View Details
-      </Anchor>
-    </Group>
+    <Box>
+      <Group gap='md' mb='xl'>
+        <Badge color={getStatusColor(status)} tt='capitalize'>
+          {status}
+        </Badge>
+        <Anchor
+          component={Link}
+          href={`/dashboard/graduation/requests/${status}/${graduationRequest.id}`}
+          size='sm'
+        >
+          View Details
+        </Anchor>
+      </Group>
+
+      <Tabs value={activeTab} onChange={setActiveTab} variant='outline'>
+        <TabsList>
+          <TabsTab value='transcript'>Transcript</TabsTab>
+          <TabsTab value='certificate'>Certificate</TabsTab>
+          {activeTab === 'transcript' && (
+            <Box ml='auto'>
+              <TranscriptPrinter
+                stdNo={Number(stdNo)}
+                disabled={!!blockedStudent}
+              />
+            </Box>
+          )}
+        </TabsList>
+        <TabsPanel value='transcript' pt='xl'>
+          <TranscriptPreview
+            stdNo={Number(stdNo)}
+            isActive={isActive && activeTab === 'transcript'}
+          />
+        </TabsPanel>
+        <TabsPanel value='certificate' pt='xl'>
+          <Text c='dimmed'>Certificate view coming soon</Text>
+        </TabsPanel>
+      </Tabs>
+    </Box>
   );
 }
