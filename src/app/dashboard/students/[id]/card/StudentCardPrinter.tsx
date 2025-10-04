@@ -3,7 +3,7 @@
 import { createStudentCardPrint } from '@/server/student-card-prints/actions';
 import { getStudent, getStudentPhoto } from '@/server/students/actions';
 import { convertUrlToBase64 } from '@/lib/utils';
-import { Button, Loader } from '@mantine/core';
+import { Button, Loader, TextInput, Modal, Stack, Group } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -25,6 +25,8 @@ export default function StudentCardPrinter({
   isActive = true,
 }: StudentCardPrinterProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [modalOpened, setModalOpened] = useState(false);
+  const [receiptNo, setReceiptNo] = useState('');
   const { data: session } = useSession();
 
   const { data: fetchedPhotoUrl, isLoading: photoLoading } = useQuery({
@@ -36,15 +38,30 @@ export default function StudentCardPrinter({
 
   const finalPhotoUrl = photoUrl || fetchedPhotoUrl;
 
+  const openReceiptModal = () => {
+    setReceiptNo('');
+    setModalOpened(true);
+  };
+
   const createPrintRecord = async () => {
     if (!session?.user?.id) {
       throw new Error('No authenticated user found');
     }
 
-    return await createStudentCardPrint({
+    const printData: {
+      stdNo: number;
+      printedBy: string;
+      receiptNo?: string;
+    } = {
       stdNo: student.stdNo,
       printedBy: session.user.id,
-    });
+    };
+
+    if (receiptNo.trim()) {
+      printData.receiptNo = receiptNo.trim();
+    }
+
+    return await createStudentCardPrint(printData);
   };
 
   const processPhotoUrl = async (url: string): Promise<string> => {
@@ -66,6 +83,7 @@ export default function StudentCardPrinter({
     }
 
     setIsGenerating(true);
+    setModalOpened(false);
 
     try {
       await createPrintRecord();
@@ -113,22 +131,43 @@ export default function StudentCardPrinter({
   };
 
   return (
-    <Button
-      leftSection={
-        photoLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />
-      }
-      onClick={handlePrint}
-      variant='subtle'
-      color='gray'
-      size='xs'
-      w={165}
-      disabled={isGenerating || disabled || !finalPhotoUrl}
-    >
-      {photoLoading
-        ? 'Loading...'
-        : isGenerating
-          ? 'Generating...'
-          : 'Print Student Card'}
-    </Button>
+    <>
+      <Modal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        title='Student Card Print'
+        size='sm'
+      >
+        <Stack gap='md'>
+          <TextInput
+            label='Receipt Number'
+            placeholder='Leave blank for initial print'
+            value={receiptNo}
+            onChange={(e) => setReceiptNo(e.currentTarget.value)}
+            description='Enter receipt number or leave blank if this is the first print'
+          />
+          <Group justify='flex-end'>
+            <Button variant='subtle' onClick={() => setModalOpened(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handlePrint}>Print</Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      <Button
+        leftSection={
+          photoLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />
+        }
+        onClick={openReceiptModal}
+        variant='subtle'
+        color='gray'
+        size='xs'
+        w={165}
+        disabled={isGenerating || disabled || !finalPhotoUrl}
+      >
+        {photoLoading ? 'Loading...' : 'Print Student Card'}
+      </Button>
+    </>
   );
 }
