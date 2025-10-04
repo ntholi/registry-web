@@ -35,7 +35,7 @@ const tw = createTw({
         border: '#000000',
       },
       borderWidth: {
-        DEFAULT: '0.5pt',
+        DEFAULT: '0.1pt',
       },
     },
   },
@@ -44,19 +44,19 @@ const tw = createTw({
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 
 const HeaderRow = ({ label, value }: { label: string; value: string }) => (
-  <View style={tw('flex flex-row')}>
+  <View style={tw('flex flex-row items-start')}>
     <Text style={tw('w-[90pt] font-bold')}>{label}</Text>
-    <Text style={tw('w-[10pt] text-center')}>:</Text>
+    <Text style={tw('w-[10pt]')}>:</Text>
     <Text style={tw('flex-1')}>{value}</Text>
   </View>
 );
 
 const TableHeader = () => (
-  <View style={tw('flex flex-row font-bold py-1.5')}>
+  <View style={tw('flex flex-row font-bold py-1')}>
     <Text style={tw('w-[60pt]')}>Code</Text>
     <Text style={tw('flex-1')}>Module Name</Text>
     <Text style={tw('w-[40pt] text-right')}>Credit</Text>
-    <Text style={tw('w-[35pt] pl-2.5')}>Grade</Text>
+    <Text style={tw('w-[35pt] text-center')}>Grade</Text>
   </View>
 );
 
@@ -71,11 +71,11 @@ const GradeRow = ({
   credits: number;
   grade: string;
 }) => (
-  <View style={tw('flex flex-row min-h-[7pt]')}>
+  <View style={tw('flex flex-row min-h-[7pt] items-start')}>
     <Text style={tw('w-[60pt]')}>{courseCode}</Text>
     <Text style={tw('flex-1')}>{courseName}</Text>
     <Text style={tw('w-[40pt] text-right')}>{credits}</Text>
-    <Text style={tw('w-[35pt] pl-2.5')}>{grade}</Text>
+    <Text style={tw('w-[35pt] text-center')}>{grade}</Text>
   </View>
 );
 
@@ -90,11 +90,11 @@ const TermSummary = ({
   cgpa: number;
   cumulativeCredits: number;
 }) => (
-  <View style={tw('ml-[60pt] mt-0.5 mt-1')}>
+  <View style={tw('ml-[60pt] mt-1')}>
     <View style={tw('flex flex-row justify-between w-[84%]')}>
       <View style={tw('w-[60pt] flex-row justify-between')}>
         <Text>GPA</Text>
-        <Text>{`:  ${gpa}`}</Text>
+        <Text>{`: ${gpa}`}</Text>
       </View>
       <View style={tw('w-[100pt] flex-row justify-between')}>
         <Text>Credits Earned</Text>
@@ -107,7 +107,7 @@ const TermSummary = ({
     <View style={tw('flex flex-row justify-between w-[84%]')}>
       <View style={tw('w-[60pt] flex-row justify-between')}>
         <Text>CGPA</Text>
-        <Text>{`:  ${cgpa}`}</Text>
+        <Text>{`: ${cgpa}`}</Text>
       </View>
       <View style={tw('w-[100pt] flex-row justify-between')}>
         <Text>Cumulative Credits</Text>
@@ -140,7 +140,7 @@ const TermSection = ({
     .reduce((sum, point) => sum + (point.creditsCompleted || 0), 0);
 
   return (
-    <View style={tw('mb-2.5')}>
+    <View style={tw('mb-2')}>
       <Text style={tw('mb-0.5 font-bold')}>{semester.term}</Text>
       {(semester.studentModules || []).map((sm, j) => (
         <GradeRow
@@ -214,16 +214,16 @@ export default function TranscriptPDF({ student }: { student: Student }) {
         style={tw('pt-5 px-4 pb-10 font-sans text-[7.12pt] pt-[155pt]')}
       >
         {/* Header Section */}
-        <View style={tw('border-t border-b')}>
+        <View style={tw('border-t border-b py-1')}>
           <View style={tw('flex flex-row')}>
-            <View style={tw('w-1/2')}>
+            <View style={tw('w-1/2 pr-3')}>
               <HeaderRow label='Student Name' value={student.name} />
               <HeaderRow label='Student ID' value={String(student.stdNo)} />
               <HeaderRow label='IC / Passport No.' value={student.nationalId} />
               <HeaderRow label='Gender' value={student.gender || 'N/A'} />
               <HeaderRow label='Nationality' value='Mosotho' />
             </View>
-            <View style={tw('w-1/2')}>
+            <View style={tw('w-1/2 pl-3')}>
               <HeaderRow label='Date of Admission' value={admissionDate} />
               <HeaderRow label='Date of Completion' value={completionDate} />
               <HeaderRow
@@ -237,7 +237,7 @@ export default function TranscriptPDF({ student }: { student: Student }) {
         </View>
 
         {/* Content Header */}
-        <View style={tw('mt-2 flex flex-row gap-5 border-t border-b')}>
+        <View style={tw('mt-1.5 flex flex-row gap-5 border-t border-b')}>
           <View style={tw('flex-1')}>
             <TableHeader />
           </View>
@@ -247,7 +247,7 @@ export default function TranscriptPDF({ student }: { student: Student }) {
         </View>
 
         {/* Content */}
-        <View style={tw('mt-2.5 flex flex-row gap-5')}>
+        <View style={tw('mt-2 flex flex-row gap-5')}>
           <View style={tw('flex-1')}>
             {leftTerms.map((semester, i) => (
               <TermSection
@@ -271,16 +271,16 @@ export default function TranscriptPDF({ student }: { student: Student }) {
         {/* Footer */}
         <View style={tw('absolute bottom-[50pt] left-[85pt]')}>
           {['Total MPU Credits', 'Total Credit Transferred'].map((label) => (
-            <View key={label} style={tw('flex flex-row')}>
+            <View key={label} style={tw('flex flex-row items-start')}>
               <Text style={tw('w-[160pt]')}>{label}</Text>
-              <Text>{':  '}-</Text>
+              <Text>{': '}-</Text>
             </View>
           ))}
           {['Total Credits Earned', 'Total Cumulative Credits'].map((label) => (
-            <View key={label} style={tw('flex flex-row')}>
+            <View key={label} style={tw('flex flex-row items-start')}>
               <Text style={tw('w-[160pt]')}>{label}</Text>
               <Text>
-                {':  '}
+                {': '}
                 {academicRemarks.totalCreditsCompleted}
               </Text>
             </View>
@@ -288,9 +288,11 @@ export default function TranscriptPDF({ student }: { student: Student }) {
         </View>
 
         {/* Registrar Signature */}
-        <View style={tw('absolute bottom-[50pt] right-14 w-[190pt] border-t')}>
-          <Text style={tw('pt-1.5 text-center font-bold')}>REGISTRAR</Text>
-          <Text>
+        <View
+          style={tw('absolute bottom-[50pt] right-14 w-[190pt] border-t pt-1')}
+        >
+          <Text style={tw('pt-0.5 text-center font-bold')}>REGISTRAR</Text>
+          <Text style={tw('text-justify')}>
             This is not a valid record unless it bears both the stamp and
             signatory on behalf of the university
           </Text>
