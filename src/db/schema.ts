@@ -804,7 +804,7 @@ export const studentCardPrints = sqliteTable('student_card_prints', {
   id: text()
     .primaryKey()
     .$defaultFn(() => nanoid()),
-  receiptNo: text().notNull().unique().default('initial'),
+  receiptNo: text().notNull().unique(),
   stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
