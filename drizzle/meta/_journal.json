@@ -575,6 +575,13 @@
       "when": 1759555751672,
       "tag": "0081_aspiring_tattoo",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "6",
+      "when": 1759561204591,
+      "tag": "0082_melted_gideon",
+      "breakpoints": true
     }
   ]
 }
