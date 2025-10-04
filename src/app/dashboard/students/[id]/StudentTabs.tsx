@@ -18,6 +18,7 @@ import StudentCardPrinter from './card/StudentCardPrinter';
 import StudentView from './info/StudentView';
 import GraduationView from './graduation/GraduationView';
 import ProofOfClearancePrinter from './graduation/ProofOfClearancePrinter';
+import TranscriptPrinter from './graduation/transcript/TranscriptPrinter';
 
 type StudentTabsProps = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -114,11 +115,15 @@ export function StudentTabs({
             />
           </Box>
         )}
-        {showGraduation && activeTab === 'graduation' && isFullyCleared && (
-          <Box ml='auto'>
+        <Box ml='auto'>
+          {showGraduation && activeTab === 'graduation' && isFullyCleared && (
             <ProofOfClearancePrinter stdNo={student.stdNo.toString()} />
-          </Box>
-        )}
+          )}
+          <TranscriptPrinter
+            stdNo={student.stdNo}
+            disabled={!!blockedStudent}
+          />
+        </Box>
       </TabsList>
       <TabsPanel value='academics' pt={'xl'} p={'sm'}>
         {blockedStudent ? (

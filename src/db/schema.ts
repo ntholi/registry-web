@@ -781,6 +781,25 @@ export const statementOfResultsPrints = sqliteTable(
   }
 );
 
+export const transcriptPrints = sqliteTable('transcript_prints', {
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  stdNo: integer()
+    .references(() => students.stdNo, { onDelete: 'cascade' })
+    .notNull(),
+  printedBy: text()
+    .references(() => users.id, { onDelete: 'set null' })
+    .notNull(),
+  studentName: text().notNull(),
+  programName: text().notNull(),
+  totalCredits: integer().notNull(),
+  cgpa: real(),
+  printedAt: integer({ mode: 'timestamp' })
+    .default(sql`(unixepoch())`)
+    .notNull(),
+});
+
 export const blockedStudents = sqliteTable(
   'blocked_students',
   {
