@@ -51,15 +51,12 @@ export default function StudentCardPrinter({
     const printData: {
       stdNo: number;
       printedBy: string;
-      receiptNo?: string;
+      receiptNo: string;
     } = {
       stdNo: student.stdNo,
       printedBy: session.user.id,
+      receiptNo: receiptNo.trim() || `initial_${student.stdNo}`,
     };
-
-    if (receiptNo.trim()) {
-      printData.receiptNo = receiptNo.trim();
-    }
 
     return await createStudentCardPrint(printData);
   };
