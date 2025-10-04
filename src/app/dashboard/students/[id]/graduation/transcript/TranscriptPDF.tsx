@@ -1,454 +1,551 @@
-import { formatDate } from '@/lib/utils';
+import { getCleanedSemesters } from '@/app/dashboard/students/[id]/AcademicsView/statements/utils';
 import { getAcademicHistory } from '@/server/students/actions';
 import { getGradePoints } from '@/utils/grades';
-import {
-  Document,
-  Font,
-  Page,
-  StyleSheet,
-  Text,
-  View,
-} from '@react-pdf/renderer';
+import { Document, Page, Text, View, Font } from '@react-pdf/renderer';
+import { createTw } from 'react-pdf-tailwind';
+
+Font.register({
+  family: 'Arial',
+  src: '/fonts/ARIAL.TTF',
+});
+
+Font.register({
+  family: 'Arial-Bold',
+  src: '/fonts/ARIALBD.TTF',
+});
+
+Font.register({
+  family: 'ui-sans-serif',
+  src: '/fonts/ARIAL.TTF',
+});
+
+Font.register({
+  family: 'system-ui',
+  src: '/fonts/ARIAL.TTF',
+});
+
+Font.register({
+  family: 'sans-serif',
+  src: '/fonts/ARIAL.TTF',
+});
+
+const tw = createTw({
+  theme: {
+    fontFamily: {
+      sans: ['Arial'],
+      bold: ['Arial-Bold'],
+    },
+    extend: {
+      colors: {
+        border: '#000000',
+      },
+      borderWidth: {
+        DEFAULT: '0.5pt',
+      },
+    },
+  },
+});
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 };
 
-Font.register({
-  family: 'Arial',
-  fonts: [
-    {
-      src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf',
-      fontWeight: 'normal',
-    },
-    {
-      src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf',
-      fontWeight: 'bold',
-    },
-  ],
-});
-const styles = StyleSheet.create({
-  page: {
-    flexDirection: 'column',
-    backgroundColor: '#fff',
-    padding: 30,
-    fontFamily: 'Arial',
-    fontSize: 8,
-  },
-  spacer: {
-    height: 6,
-  },
-  headerTable: {
-    borderTop: '1px solid black',
-    borderBottom: '1px solid black',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    paddingVertical: 2,
-  },
-  headerLabel: {
-    fontWeight: 'bold',
-    width: 100,
-  },
-  headerColon: {
-    width: 5,
-  },
-  headerValue: {
-    width: 230,
-  },
-  headerLabelRight: {
-    fontWeight: 'bold',
-    width: 120,
-  },
-  headerValueRight: {
-    width: 250,
-  },
-  moduleTableHeader: {
-    flexDirection: 'row',
-    borderTop: '1px solid black',
-    borderBottom: '1px solid black',
-    paddingVertical: 4,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  moduleTableContainer: {
-    flexDirection: 'row',
-    marginTop: 10,
-    gap: 10,
-  },
-  leftColumn: {
-    width: '50%',
-    paddingRight: 5,
-  },
-  rightColumn: {
-    width: '50%',
-    paddingLeft: 5,
-  },
-  moduleCode: {
-    width: 80,
-    textAlign: 'left',
-    paddingLeft: 2,
-  },
-  moduleName: {
-    flex: 1,
-    textAlign: 'left',
-  },
-  moduleCredit: {
-    width: 35,
-    textAlign: 'center',
-  },
-  moduleGrade: {
-    width: 35,
-    textAlign: 'center',
-  },
-  termContainer: {
-    marginTop: 8,
-  },
-  firstTermContainer: {
-    marginTop: 4,
-  },
-  termTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  moduleRow: {
-    flexDirection: 'row',
-    paddingVertical: 2,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    paddingVertical: 2,
-    alignItems: 'center',
-  },
-  summaryLabel: {
-    width: 90,
-  },
-  summaryColon: {
-    width: 10,
-    textAlign: 'center',
-  },
-  summaryValue: {
-    width: 50,
-  },
-  summarySpacer: {
-    flexGrow: 1,
-  },
-  footer: {
-    marginTop: 20,
-    paddingTop: 10,
-  },
-  footerRow: {
-    flexDirection: 'row',
-    paddingVertical: 2,
-    alignItems: 'flex-start',
-  },
-  footerLabel: {
-    width: 150,
-  },
-  footerColon: {
-    width: 10,
-    textAlign: 'center',
-  },
-  footerValue: {
-    width: 100,
-  },
-  registrarSection: {
-    marginTop: 10,
-    borderTop: '1px solid black',
-    paddingTop: 5,
-    width: 150,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  registrarNote: {
-    marginTop: 5,
-    fontSize: 7,
-    width: 200,
-  },
-});
-
-type ModuleRow = {
-  code: string;
+type StudentRecord = {
   name: string;
-  credit: number;
+  stdNo: string;
+  nationalId: string;
+  gender: string;
+  nationality: string;
+  admissionDate: string;
+  program: string;
+  faculty: string;
+};
+
+type GradeRecord = {
+  courseCode: string;
+  courseName: string;
+  credits: number;
   grade: string;
 };
 
-type TermSummary = {
+type TermRecord = {
+  term: string;
+  grades: GradeRecord[];
   gpa: number;
-  cgpa: number;
   credits: number;
+  cgpa: number;
   cumulativeCredits: number;
 };
 
-export default function TranscriptPDF({ student }: Props) {
-  // For transcripts, prioritize Completed programs, fallback to Active
-  const programs = student.programs || [];
-  const completedPrograms = programs.filter(
-    (program) => program && program.status === 'Completed'
+function HeaderRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={tw('flex flex-row')}>
+      <Text style={tw('w-[90pt] font-bold')}>{label}</Text>
+      <Text style={tw('w-[10pt] text-center')}>:</Text>
+      <Text style={tw('flex-1')}>{value || '-'}</Text>
+    </View>
   );
-  const activePrograms = programs.filter(
-    (program) => program && program.status === 'Active'
+}
+
+function TableHeader() {
+  return (
+    <View style={tw('flex flex-row font-bold py-1.5')}>
+      <Text style={tw('w-[60pt]')}>Code</Text>
+      <Text style={tw('flex-1')}>Module Name</Text>
+      <Text style={tw('w-[40pt] text-right')}>Credit</Text>
+      <Text style={tw('w-[35pt] pl-2.5')}>Grade</Text>
+    </View>
   );
+}
 
-  const primaryProgram =
-    completedPrograms[0] || activePrograms[0] || programs[0];
-  const programName =
-    primaryProgram?.structure?.program?.name || 'Unknown Program';
-  const facultyName =
-    primaryProgram?.structure?.program?.school?.name || 'Unknown Faculty';
+function GradeRow({ grade }: { grade: GradeRecord }) {
+  return (
+    <View style={tw('flex flex-row min-h-[7pt]')}>
+      <Text style={tw('w-[60pt]')}>{grade.courseCode}</Text>
+      <Text style={tw('flex-1')}>{grade.courseName}</Text>
+      <Text style={tw('w-[40pt] text-right')}>{grade.credits.toString()}</Text>
+      <Text style={tw('w-[35pt] pl-2.5')}>{grade.grade}</Text>
+    </View>
+  );
+}
 
-  const admissionDate = primaryProgram?.intakeDate || ' - ';
-  const completionDate = primaryProgram?.graduationDate || ' - ';
-  const nationality = ' - ';
-
-  const groupedModules: Record<string, ModuleRow[]> = {};
-  const termSummaries: Record<string, TermSummary> = {};
-
-  primaryProgram?.semesters?.forEach((semester) => {
-    const termName = semester.term || '';
-    if (!termName) {
-      return;
-    }
-
-    if (!groupedModules[termName]) {
-      groupedModules[termName] = [];
-    }
-
-    semester.studentModules?.forEach((module) => {
-      const semesterModule = module.semesterModule;
-      const courseModule = semesterModule?.module;
-
-      if (!courseModule) {
-        return;
-      }
-
-      groupedModules[termName].push({
-        code: courseModule.code || '',
-        name: courseModule.name || '',
-        credit: semesterModule?.credits || 0,
-        grade: module.grade || '',
-      });
-    });
-  });
-
-  const sortedTerms = Object.keys(groupedModules).sort((a, b) => {
-    const dateA = new Date(a);
-    const dateB = new Date(b);
-    return dateA.getTime() - dateB.getTime();
-  });
-
-  sortedTerms.forEach((termName, index) => {
-    const modules = groupedModules[termName];
-    const totalCredits = modules.reduce((sum, m) => sum + m.credit, 0);
-
-    let gpaSum = 0;
-    let totalPoints = 0;
-    modules.forEach((m) => {
-      const gradePoint = getGradePoints(m.grade);
-      if (gradePoint > 0) {
-        gpaSum += gradePoint * m.credit;
-        totalPoints += m.credit;
-      }
-    });
-    const gpa = totalPoints > 0 ? gpaSum / totalPoints : 0;
-
-    const previousTerms = sortedTerms.slice(0, index + 1);
-    let cumulativeCredits = 0;
-    let cumulativeGPASum = 0;
-    let cumulativeTotalPoints = 0;
-
-    previousTerms.forEach((t) => {
-      groupedModules[t].forEach((m) => {
-        cumulativeCredits += m.credit;
-        const gradePoint = getGradePoints(m.grade);
-        if (gradePoint > 0) {
-          cumulativeGPASum += gradePoint * m.credit;
-          cumulativeTotalPoints += m.credit;
-        }
-      });
-    });
-
-    const cgpa =
-      cumulativeTotalPoints > 0 ? cumulativeGPASum / cumulativeTotalPoints : 0;
-
-    termSummaries[termName] = {
-      gpa,
-      cgpa,
-      credits: totalCredits,
-      cumulativeCredits,
-    };
-  });
-  const leftTerms = sortedTerms.filter((_, index) => index % 2 === 0);
-  const rightTerms = sortedTerms.filter((_, index) => index % 2 === 1);
-  const totalCreditsEarned = sortedTerms.reduce((sum, termName) => {
-    return sum + groupedModules[termName].reduce((s, m) => s + m.credit, 0);
-  }, 0);
-  const totalCumulativeCredits =
-    sortedTerms.length > 0
-      ? termSummaries[sortedTerms[sortedTerms.length - 1]].cumulativeCredits
-      : 0;
-
-  function renderColumn(terms: string[], isLeft: boolean) {
-    return (
-      <View style={isLeft ? styles.leftColumn : styles.rightColumn}>
-        {terms.map((termName, termIndex) => {
-          const modules = groupedModules[termName] || [];
-          const summary = termSummaries[termName];
-          const containerStyles = [styles.termContainer];
-          if (termIndex === 0) {
-            containerStyles.push(styles.firstTermContainer);
-          }
-
-          return (
-            <View key={termName} style={containerStyles}>
-              <Text style={styles.termTitle}>{termName}</Text>
-
-              {modules.map((module, index) => (
-                <View
-                  key={`${termName}-${module.code}-${index}`}
-                  style={styles.moduleRow}
-                >
-                  <Text style={styles.moduleCode}>{module.code}</Text>
-                  <Text style={styles.moduleName}>{module.name}</Text>
-                  <Text style={styles.moduleCredit}>{module.credit}</Text>
-                  <Text style={styles.moduleGrade}>{module.grade}</Text>
-                </View>
-              ))}
-
-              {summary ? (
-                <>
-                  <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>GPA</Text>
-                    <Text style={styles.summaryColon}>:</Text>
-                    <Text style={styles.summaryValue}>
-                      {summary.gpa.toFixed(2)}
-                    </Text>
-                    <View style={styles.summarySpacer} />
-                    <Text style={styles.summaryLabel}>Credits Earned</Text>
-                    <Text style={styles.summaryColon}>:</Text>
-                    <Text style={styles.summaryValue}>{summary.credits}</Text>
-                  </View>
-                  <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>CGPA</Text>
-                    <Text style={styles.summaryColon}>:</Text>
-                    <Text style={styles.summaryValue}>
-                      {summary.cgpa.toFixed(2)}
-                    </Text>
-                    <View style={styles.summarySpacer} />
-                    <Text style={styles.summaryLabel}>Cumulative Credits</Text>
-                    <Text style={styles.summaryColon}>:</Text>
-                    <Text style={styles.summaryValue}>
-                      {summary.cumulativeCredits}
-                    </Text>
-                  </View>
-                </>
-              ) : null}
-            </View>
-          );
-        })}
+function TermSummary({ term }: { term: TermRecord }) {
+  return (
+    <View style={tw('ml-[60pt] mt-0.5 mt-1')}>
+      <View style={tw('flex flex-row justify-between w-[84%]')}>
+        <View style={tw('w-[60pt] flex-row justify-between')}>
+          <Text>GPA</Text>
+          <Text>{`:  ${formatDecimal(term.gpa)}`}</Text>
+        </View>
+        <View style={tw('w-[100pt] flex-row justify-between')}>
+          <Text>Credits Earned</Text>
+          <View style={tw('flex-row justify-between w-[16pt]')}>
+            <Text>:</Text>
+            <Text>{term.credits}</Text>
+          </View>
+        </View>
       </View>
-    );
-  }
+      <View style={tw('flex flex-row justify-between w-[84%]')}>
+        <View style={tw('w-[60pt] flex-row justify-between')}>
+          <Text>CGPA</Text>
+          <Text>{`:  ${formatDecimal(term.cgpa)}`}</Text>
+        </View>
+        <View style={tw('w-[100pt] flex-row justify-between')}>
+          <Text>Cumulative Credits</Text>
+          <View style={tw('flex-row justify-between w-[16pt]')}>
+            <Text>:</Text>
+            <Text>{term.cumulativeCredits}</Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function TermSection({ term }: { term: TermRecord }) {
+  return (
+    <View style={tw('mb-2.5')}>
+      <Text style={tw('mb-0.5 font-bold')}>{term.term}</Text>
+      {term.grades.map(function renderGrade(grade, index) {
+        return (
+          <GradeRow
+            key={`${term.term}-${grade.courseCode}-${index}`}
+            grade={grade}
+          />
+        );
+      })}
+      <TermSummary term={term} />
+    </View>
+  );
+}
+
+export default function TranscriptPDF({ student }: Props) {
+  const {
+    studentRecord,
+    terms,
+    totalCreditsEarned,
+    totalCumulativeCredits,
+    completionDate,
+  } = extractTranscriptData(student);
+  const leftTerms = terms.slice(0, 6);
+  const rightTerms = terms.slice(6);
+  const issueDate = new Date().toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 
   return (
     <Document>
-      <Page size='A4' orientation='portrait' style={styles.page}>
-        <View style={styles.spacer} />
-
-        <View style={styles.headerTable}>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerLabel}>Student Name</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValue}>{student.name}</Text>
-            <Text style={styles.headerLabelRight}>Date of Admission</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValueRight}>{admissionDate}</Text>
-          </View>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerLabel}>Student ID</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValue}>{student.stdNo}</Text>
-            <Text style={styles.headerLabelRight}>Date of Completion</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValueRight}>{completionDate}</Text>
-          </View>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerLabel}>IC / Passport No.</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValue}>{student.nationalId || ''}</Text>
-            <Text style={styles.headerLabelRight}>Programme</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValueRight}>{programName}</Text>
-          </View>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerLabel}>Gender</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValue}>{student.gender}</Text>
-            <Text style={styles.headerLabelRight}>Faculty</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValueRight}>{facultyName}</Text>
-          </View>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerLabel}>Nationality</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValue}>{nationality}</Text>
-            <Text style={styles.headerLabelRight}>Issued Date</Text>
-            <Text style={styles.headerColon}>:</Text>
-            <Text style={styles.headerValueRight}>
-              {formatDate(new Date())}
-            </Text>
+      <Page
+        size='A4'
+        style={tw('pt-5 px-4 pb-10 font-sans text-[7.12pt] pt-[155pt]')}
+      >
+        <View style={tw('border-t border-b')}>
+          <View style={tw('flex flex-row')}>
+            <View style={tw('w-1/2')}>
+              <HeaderRow label='Student Name' value={studentRecord.name} />
+              <HeaderRow label='Student ID' value={studentRecord.stdNo} />
+              <HeaderRow
+                label='IC / Passport No.'
+                value={studentRecord.nationalId}
+              />
+              <HeaderRow label='Gender' value={studentRecord.gender} />
+              <HeaderRow
+                label='Nationality'
+                value={studentRecord.nationality}
+              />
+            </View>
+            <View style={tw('w-1/2')}>
+              <HeaderRow
+                label='Date of Admission'
+                value={studentRecord.admissionDate || terms[0]?.term || '-'}
+              />
+              <HeaderRow label='Date of Completion' value={completionDate} />
+              <HeaderRow
+                label='Programme'
+                value={correctSpelling(studentRecord.program)}
+              />
+              <HeaderRow label='Faculty' value={studentRecord.faculty} />
+              <HeaderRow label='Issued Date' value={issueDate} />
+            </View>
           </View>
         </View>
 
-        <View style={styles.spacer} />
-
-        <View>
-          <View style={styles.moduleTableHeader}>
-            <Text style={styles.moduleCode}>Code</Text>
-            <Text style={styles.moduleName}>Module Name</Text>
-            <Text style={styles.moduleCredit}>Credit</Text>
-            <Text style={styles.moduleGrade}>Grade</Text>
+        <View style={tw('mt-2 flex flex-row gap-5 border-t border-b')}>
+          <View style={tw('flex-1')}>
+            <TableHeader />
           </View>
-
-          <View style={styles.moduleTableContainer}>
-            {renderColumn(leftTerms, true)}
-            {renderColumn(rightTerms, false)}
+          <View style={tw('flex-1')}>
+            <TableHeader />
           </View>
         </View>
 
-        <View style={styles.footer}>
-          <View style={styles.footerRow}>
-            <Text style={styles.footerLabel}>Total MPU Credits</Text>
-            <Text style={styles.footerColon}>:</Text>
-            <Text style={styles.footerValue}>-</Text>
+        <View style={tw('mt-2.5 flex flex-row gap-5')}>
+          <View style={tw('flex-1')}>
+            {leftTerms.map(function renderLeftTerm(term, index) {
+              return <TermSection key={`${term.term}-${index}`} term={term} />;
+            })}
           </View>
-          <View style={styles.footerRow}>
-            <Text style={styles.footerLabel}>Total Credit Transferred</Text>
-            <Text style={styles.footerColon}>:</Text>
-            <Text style={styles.footerValue}>-</Text>
-            <View style={styles.registrarSection}>
-              <Text>REGISTRAR</Text>
-            </View>
+          <View style={tw('flex-1')}>
+            {rightTerms.map(function renderRightTerm(term, index) {
+              return <TermSection key={`${term.term}-${index}`} term={term} />;
+            })}
           </View>
-          <View style={styles.footerRow}>
-            <Text style={styles.footerLabel}>Total Credits Earned</Text>
-            <Text style={styles.footerColon}>:</Text>
-            <Text style={styles.footerValue}>{totalCreditsEarned}</Text>
-            <View style={styles.registrarNote}>
-              <Text>
-                This is not a valid record unless it bears both the stamp and
-                signatory on behalf of the university
-              </Text>
-            </View>
-          </View>
-          <View style={styles.footerRow}>
-            <Text style={styles.footerLabel}>Total Cummulative Credits</Text>
-            <Text style={styles.footerColon}>:</Text>
-            <Text style={styles.footerValue}>{totalCumulativeCredits}</Text>
-          </View>
+        </View>
+
+        <View style={tw('absolute bottom-[50pt] left-[85pt]')}>
+          {['Total MPU Credits', 'Total Credit Transferred'].map(
+            function renderFooterPlaceholder(label) {
+              return (
+                <View key={label} style={tw('flex flex-row')}>
+                  <Text style={tw('w-[160pt]')}>{label}</Text>
+                  <Text>{':  '}-</Text>
+                </View>
+              );
+            }
+          )}
+          {['Total Credits Earned', 'Total Cumulative Credits'].map(
+            function renderFooterTotal(label, index) {
+              const value =
+                index === 0 ? totalCreditsEarned : totalCumulativeCredits;
+              return (
+                <View key={label} style={tw('flex flex-row')}>
+                  <Text style={tw('w-[160pt]')}>{label}</Text>
+                  <Text>
+                    {':  '}
+                    {value}
+                  </Text>
+                </View>
+              );
+            }
+          )}
+        </View>
+
+        <View style={tw('absolute bottom-[50pt] right-14 w-[190pt] border-t')}>
+          <Text style={tw('pt-1.5 text-center font-bold')}>REGISTRAR</Text>
+          <Text>
+            This is not a valid record unless it bears both the stamp and
+            signatory on behalf of the university
+          </Text>
         </View>
       </Page>
     </Document>
   );
 }
+
+function extractTranscriptData(student: Props['student']) {
+  const programList = student.programs || [];
+  const completedPrograms = programList.filter(
+    function filterCompleted(program) {
+      return program?.status === 'Completed';
+    }
+  );
+  const activePrograms = programList.filter(function filterActive(program) {
+    return program?.status === 'Active';
+  });
+  const primaryProgram =
+    completedPrograms[0] || activePrograms[0] || programList[0];
+  const programNameRaw = primaryProgram?.structure?.program?.name || '-';
+  const correctedProgramName = correctSpelling(programNameRaw);
+  const studentDetails = student as Partial<{ nationality: string }>;
+  const nationality = studentDetails.nationality || 'Mosotho';
+  const admissionDate = formatDisplayDate(primaryProgram?.intakeDate);
+  const completionDate = formatDisplayDate(primaryProgram?.graduationDate);
+  const facultyFromProgram = primaryProgram?.structure?.program?.school?.name;
+  const faculty = facultyFromProgram || safeFindFaculty(correctedProgramName);
+
+  const semesters = getCleanedSemesters(primaryProgram);
+  const terms: TermRecord[] = [];
+  let cumulativeCredits = 0;
+  let totalCreditsEarned = 0;
+  let cumulativeGradePoints = 0;
+  let cumulativeCreditsForGrade = 0;
+
+  semesters.forEach(function buildTerm(semester) {
+    const termName =
+      semester.term || `Semester ${semester.semesterNumber ?? ''}`;
+    const grades: GradeRecord[] = [];
+    let termCredits = 0;
+    let termGradePoints = 0;
+    let termCreditsForGrade = 0;
+
+    semester.studentModules?.forEach(function accumulateModule(studentModule) {
+      const semesterModule = studentModule.semesterModule;
+      const courseModule = semesterModule?.module;
+      if (!semesterModule || !courseModule) {
+        return;
+      }
+
+      const credits = Number(semesterModule.credits) || 0;
+      const grade = studentModule.grade || '';
+
+      grades.push({
+        courseCode: courseModule.code || '',
+        courseName: courseModule.name || '',
+        credits,
+        grade,
+      });
+
+      termCredits += credits;
+      totalCreditsEarned += credits;
+
+      const gradePoint = getGradePoints(grade);
+      if (gradePoint > 0) {
+        termGradePoints += gradePoint * credits;
+        termCreditsForGrade += credits;
+        cumulativeGradePoints += gradePoint * credits;
+        cumulativeCreditsForGrade += credits;
+      }
+    });
+
+    cumulativeCredits += termCredits;
+
+    const gpa =
+      termCreditsForGrade > 0 ? termGradePoints / termCreditsForGrade : 0;
+    const cgpa =
+      cumulativeCreditsForGrade > 0
+        ? cumulativeGradePoints / cumulativeCreditsForGrade
+        : 0;
+
+    terms.push({
+      term: termName,
+      grades,
+      gpa,
+      credits: termCredits,
+      cgpa,
+      cumulativeCredits,
+    });
+  });
+
+  const studentRecord: StudentRecord = {
+    name: student.name || '-',
+    stdNo: student.stdNo ? student.stdNo.toString() : '-',
+    nationalId: student.nationalId || '-',
+    gender: student.gender || '-',
+    nationality,
+    admissionDate,
+    program: correctedProgramName,
+    faculty,
+  };
+
+  return {
+    studentRecord,
+    terms,
+    totalCreditsEarned,
+    totalCumulativeCredits: cumulativeCredits,
+    completionDate,
+  };
+}
+
+function formatDecimal(value: number) {
+  return value > 0 ? value.toFixed(2) : '0.00';
+}
+
+function formatDisplayDate(value: string | null | undefined) {
+  if (!value) {
+    return '-';
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function safeFindFaculty(programName: string) {
+  try {
+    return findFaculty(programName);
+  } catch {
+    return '-';
+  }
+}
+
+function findFaculty(programName: string) {
+  const program = programs.find(function matchProgram(p) {
+    return programName.toLowerCase().includes(p.name.toLowerCase());
+  });
+  if (!program) {
+    throw new Error(`Faculty for ${programName} not found`);
+  }
+  return program.faculty;
+}
+
+function correctSpelling(name: string) {
+  return name.replace('Entreprenuership', 'Entrepreneurship');
+}
+
+const programs = [
+  {
+    name: 'Architectur',
+    faculty: 'Faculty of Architecture and the Built Environment',
+  },
+  {
+    name: 'Entreprenuership',
+    faculty: 'Faculty of Business and Globalisation',
+  },
+  {
+    name: 'Entrepreneurship',
+    faculty: 'Faculty of Business and Globalisation',
+  },
+  {
+    name: 'Human Resource Management',
+    faculty: 'Faculty of Business and Globalisation',
+  },
+  {
+    name: 'International Business',
+    faculty: 'Faculty of Business and Globalisation',
+  },
+  {
+    name: 'Business Management',
+    faculty: 'Faculty of Business and Globalisation',
+  },
+  {
+    name: 'Marketing',
+    faculty: 'Faculty of Business and Globalisation',
+  },
+  {
+    name: 'Retail Management',
+    faculty: 'Faculty of Business and Globalisation',
+  },
+  {
+    name: 'Performing Arts',
+    faculty: 'Faculty of Communication, Media and Broadcasting',
+  },
+  {
+    name: 'Broadcasting',
+    faculty: 'Faculty of Communication, Media and Broadcasting',
+  },
+  {
+    name: 'Professional Communication',
+    faculty: 'Faculty of Communication, Media and Broadcasting',
+  },
+  {
+    name: 'Journalism & Media',
+    faculty: 'Faculty of Communication, Media and Broadcasting',
+  },
+  {
+    name: 'Public Relations',
+    faculty: 'Faculty of Communication, Media and Broadcasting',
+  },
+  {
+    name: 'Broadcasting & Journalism',
+    faculty: 'Faculty of Communication, Media and Broadcasting',
+  },
+  {
+    name: 'Digital Film Production',
+    faculty: 'Faculty of Communication, Media and Broadcasting',
+  },
+  {
+    name: 'Broadcasting Radio & TV',
+    faculty: 'Faculty of Communication, Media and Broadcasting',
+  },
+  {
+    name: 'Film Production',
+    faculty: 'Faculty of Communication, Media and Broadcasting',
+  },
+  {
+    name: 'Tourism',
+    faculty: 'Faculty of Creativity in Tourism & Hospitality',
+  },
+  {
+    name: 'Events Management',
+    faculty: 'Faculty of Creativity in Tourism & Hospitality',
+  },
+  {
+    name: 'Event Management',
+    faculty: 'Faculty of Creativity in Tourism & Hospitality',
+  },
+  {
+    name: 'Hotel Management',
+    faculty: 'Faculty of Creativity in Tourism & Hospitality',
+  },
+  {
+    name: 'International Tourism',
+    faculty: 'Faculty of Creativity in Tourism & Hospitality',
+  },
+  {
+    name: 'Tourism Management',
+    faculty: 'Faculty of Creativity in Tourism & Hospitality',
+  },
+  {
+    name: 'Professional Design',
+    faculty: 'Faculty of Design and Innovation',
+  },
+  {
+    name: 'Creative Advertising',
+    faculty: 'Faculty of Design and Innovation',
+  },
+  {
+    name: 'Graphic Design',
+    faculty: 'Faculty of Design and Innovation',
+  },
+  {
+    name: 'Fashion & Retailing',
+    faculty: 'Faculty of Fashion and Lifestyle Design',
+  },
+  {
+    name: 'Fashion & Apparel Design',
+    faculty: 'Faculty of Fashion and Lifestyle Design',
+  },
+  {
+    name: 'Business Information Technology',
+    faculty: 'Faculty of Information & Communication Technology',
+  },
+  {
+    name: 'Information Technology',
+    faculty: 'Faculty of Information & Communication Technology',
+  },
+  {
+    name: 'Software Engineering with Multimedia',
+    faculty: 'Faculty of Information & Communication Technology',
+  },
+  {
+    name: 'Multimedia & Software Engineering',
+    faculty: 'Faculty of Information & Communication Technology',
+  },
+];
