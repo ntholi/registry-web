@@ -3,11 +3,8 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { getStudent } from '@/server/students/actions';
-import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
-import { clearanceRequestStatusEnum } from '@/db/schema';
 import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { Session } from 'next-auth';
-import { useQuery } from '@tanstack/react-query';
 import AcademicsView from './AcademicsView';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
@@ -34,23 +31,6 @@ export function StudentTabs({
     'studentDetailsTab',
     'info'
   );
-
-  const { data: graduationRequest } = useQuery({
-    queryKey: ['graduationRequest', student.stdNo],
-    queryFn: () => getGraduationRequestByStudentNo(student.stdNo),
-    enabled: activeTab === 'graduation',
-  });
-
-  // Check if student is fully cleared for graduation
-  const isFullyCleared =
-    graduationRequest &&
-    graduationRequest.graduationClearances &&
-    graduationRequest.graduationClearances.length > 0 &&
-    graduationRequest.graduationClearances.every(
-      (gc: {
-        clearance: { status: (typeof clearanceRequestStatusEnum)[number] };
-      }) => gc.clearance.status === 'approved'
-    );
   const showRegistration =
     session?.user?.role === 'admin' ||
     session?.user?.role === 'registry' ||
@@ -68,16 +48,10 @@ export function StudentTabs({
     session?.user?.position === 'program_leader';
 
   const showStudentCard =
-    session?.user?.role === 'admin' ||
-    session?.user?.role === 'registry' ||
-    session?.user?.position === 'admin' ||
-    session?.user?.position === 'manager';
+    session?.user?.role === 'admin' || session?.user?.role === 'registry';
 
   const showGraduation =
-    session?.user?.role === 'admin' ||
-    session?.user?.role === 'registry' ||
-    session?.user?.position === 'admin' ||
-    session?.user?.position === 'manager';
+    session?.user?.role === 'admin' || session?.user?.role === 'registry';
 
   return (
     <Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
@@ -114,11 +88,11 @@ export function StudentTabs({
             />
           </Box>
         )}
-        <Box ml='auto'>
-          {showGraduation && activeTab === 'graduation' && isFullyCleared && (
+        {showGraduation && activeTab === 'graduation' && (
+          <Box ml='auto'>
             <ProofOfClearancePrinter stdNo={student.stdNo.toString()} />
-          )}
-        </Box>
+          </Box>
+        )}
       </TabsList>
       <TabsPanel value='academics' pt={'xl'} p={'sm'}>
         {blockedStudent ? (
