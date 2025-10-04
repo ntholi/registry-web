@@ -121,41 +121,49 @@ const TermSummary = ({
 );
 
 const TermSection = ({
-  term,
-  modules,
-  semesterPoint,
-  cumulativeCredits,
+  semester,
+  academicRemarks,
 }: {
-  term: string;
-  modules: Student['programs'][number]['semesters'][number]['studentModules'];
-  semesterPoint:
-    | { gpa: number; cgpa: number; creditsCompleted: number }
-    | undefined;
-  cumulativeCredits: number;
-}) => (
-  <View style={tw('mb-2.5')}>
-    <Text style={tw('mb-0.5 font-bold')}>{term}</Text>
-    {modules.map((sm, j) => (
-      <GradeRow
-        key={j}
-        courseCode={sm.semesterModule?.module?.code || ''}
-        courseName={sm.semesterModule?.module?.name || ''}
-        credits={sm.semesterModule?.credits || 0}
-        grade={sm.grade || ''}
-      />
-    ))}
-    <TermSummary
-      gpa={Number((semesterPoint?.gpa || 0).toFixed(2))}
-      credits={semesterPoint?.creditsCompleted || 0}
-      cgpa={Number((semesterPoint?.cgpa || 0).toFixed(2))}
-      cumulativeCredits={cumulativeCredits}
-    />
-  </View>
-);
+  semester: ReturnType<typeof getCleanedSemesters>[number];
+  academicRemarks: ReturnType<typeof getAcademicRemarks>;
+}) => {
+  const semesterPoint = academicRemarks.points.find(
+    (point) => point.semesterId === semester.id
+  );
 
-const TranscriptPDF = ({ student }: { student: Student }) => {
-  const completedPrograms = student.programs?.filter(
-    (p) => p.status === 'Completed'
+  const semesterIndex = academicRemarks.points.findIndex(
+    (point) => point.semesterId === semester.id
+  );
+
+  const cumulativeCredits = academicRemarks.points
+    .slice(0, semesterIndex + 1)
+    .reduce((sum, point) => sum + (point.creditsCompleted || 0), 0);
+
+  return (
+    <View style={tw('mb-2.5')}>
+      <Text style={tw('mb-0.5 font-bold')}>{semester.term}</Text>
+      {(semester.studentModules || []).map((sm, j) => (
+        <GradeRow
+          key={j}
+          courseCode={sm.semesterModule?.module?.code || ''}
+          courseName={sm.semesterModule?.module?.name || ''}
+          credits={sm.semesterModule?.credits || 0}
+          grade={sm.grade || ''}
+        />
+      ))}
+      <TermSummary
+        gpa={Number((semesterPoint?.gpa || 0).toFixed(2))}
+        credits={semesterPoint?.creditsCompleted || 0}
+        cgpa={Number((semesterPoint?.cgpa || 0).toFixed(2))}
+        cumulativeCredits={cumulativeCredits}
+      />
+    </View>
+  );
+};
+
+export default function TranscriptPDF({ student }: { student: Student }) {
+  const completedPrograms = (student.programs || []).filter(
+    (program) => program && program.status === 'Completed'
   );
 
   if (!completedPrograms || completedPrograms.length === 0) {
@@ -170,44 +178,7 @@ const TranscriptPDF = ({ student }: { student: Student }) => {
 
   const academicRemarks = getAcademicRemarks(completedPrograms);
 
-  const allSemesters = completedPrograms.flatMap((program) =>
-    getCleanedSemesters(program)
-  );
-
-  const semestersByTerm = new Map<string, typeof allSemesters>();
-  allSemesters.forEach((semester) => {
-    const term = semester.term;
-    if (!semestersByTerm.has(term)) {
-      semestersByTerm.set(term, []);
-    }
-    semestersByTerm.get(term)!.push(semester);
-  });
-
-  const sortedTerms = Array.from(semestersByTerm.entries()).sort(([a], [b]) =>
-    a.localeCompare(b)
-  );
-
-  let cumulativeCredits = 0;
-  const termsData = sortedTerms.map(([termName, semesters]) => {
-    const allModules = semesters.flatMap((sem) => sem.studentModules || []);
-    const semesterId = semesters[0]?.id;
-    const semesterPoint = academicRemarks.points.find(
-      (point) => point.semesterId === semesterId
-    );
-    cumulativeCredits += semesterPoint?.creditsCompleted || 0;
-
-    return {
-      term: termName,
-      modules: allModules,
-      semesterPoint,
-      cumulativeCredits,
-    };
-  });
-
-  const leftTerms = termsData.slice(0, 6);
-  const rightTerms = termsData.slice(6);
-
-  const primaryProgram = completedPrograms?.[0];
+  const primaryProgram = completedPrograms[0];
   const programName =
     primaryProgram?.structure?.program?.name || 'Unknown Program';
 
@@ -218,13 +189,23 @@ const TranscriptPDF = ({ student }: { student: Student }) => {
       })
     : 'November 2024';
 
-  const admissionDate = termsData[0]?.term || 'Unknown';
+  const firstSemester = completedPrograms[0]
+    ? getCleanedSemesters(completedPrograms[0])[0]
+    : null;
+  const admissionDate = firstSemester?.term || 'Unknown';
 
   const issueDate = new Date().toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
+
+  const allSemesters = completedPrograms.flatMap((program) =>
+    getCleanedSemesters(program)
+  );
+
+  const leftTerms = allSemesters.slice(0, 6);
+  const rightTerms = allSemesters.slice(6);
 
   return (
     <Document>
@@ -268,24 +249,20 @@ const TranscriptPDF = ({ student }: { student: Student }) => {
         {/* Content */}
         <View style={tw('mt-2.5 flex flex-row gap-5')}>
           <View style={tw('flex-1')}>
-            {leftTerms.map((termData, i) => (
+            {leftTerms.map((semester, i) => (
               <TermSection
                 key={i}
-                term={termData.term}
-                modules={termData.modules}
-                semesterPoint={termData.semesterPoint}
-                cumulativeCredits={termData.cumulativeCredits}
+                semester={semester}
+                academicRemarks={academicRemarks}
               />
             ))}
           </View>
           <View style={tw('flex-1')}>
-            {rightTerms.map((termData, i) => (
+            {rightTerms.map((semester, i) => (
               <TermSection
                 key={i}
-                term={termData.term}
-                modules={termData.modules}
-                semesterPoint={termData.semesterPoint}
-                cumulativeCredits={termData.cumulativeCredits}
+                semester={semester}
+                academicRemarks={academicRemarks}
               />
             ))}
           </View>
@@ -304,9 +281,7 @@ const TranscriptPDF = ({ student }: { student: Student }) => {
               <Text style={tw('w-[160pt]')}>{label}</Text>
               <Text>
                 {':  '}
-                {termsData.length > 0
-                  ? termsData[termsData.length - 1].cumulativeCredits
-                  : 0}
+                {academicRemarks.totalCreditsCompleted}
               </Text>
             </View>
           ))}
@@ -323,9 +298,7 @@ const TranscriptPDF = ({ student }: { student: Student }) => {
       </Page>
     </Document>
   );
-};
-
-export default TranscriptPDF;
+}
 
 function findFaculty(programName: string) {
   const program = programs.find((p) =>

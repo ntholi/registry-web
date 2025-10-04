@@ -391,10 +391,6 @@ export default function StatementOfResultsPDF({
 
     const academicRemarks = getAcademicRemarks(activePrograms);
 
-    const lastPoint = academicRemarks.latestPoints;
-
-    const facultyRemarks = academicRemarks;
-
     return (
       <Document>
         <Page size='A4' style={styles.page}>
@@ -579,7 +575,7 @@ export default function StatementOfResultsPDF({
                   <View style={styles.cumulativeItem}>
                     <Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
                     <Text style={styles.cumulativeValue}>
-                      {lastPoint?.cgpa.toFixed(2)}
+                      {academicRemarks.latestPoints?.cgpa.toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -589,22 +585,22 @@ export default function StatementOfResultsPDF({
                       Academic Status
                     </Text>
                     <Text style={styles.academicRemarksValue}>
-                      {facultyRemarks.status}
+                      {academicRemarks.status}
                     </Text>
                     <Text style={styles.academicRemarksDetails}>
-                      {facultyRemarks.details}
+                      {academicRemarks.details}
                     </Text>
                   </View>
-                  {(facultyRemarks.failedModules.length > 0 ||
-                    facultyRemarks.supplementaryModules.length > 0) && (
+                  {(academicRemarks.failedModules.length > 0 ||
+                    academicRemarks.supplementaryModules.length > 0) && (
                     <View style={styles.outstandingModulesSection}>
                       <Text style={styles.outstandingModulesTitle}>
                         Outstanding Requirements (
-                        {facultyRemarks.failedModules.length +
-                          facultyRemarks.supplementaryModules.length}
+                        {academicRemarks.failedModules.length +
+                          academicRemarks.supplementaryModules.length}
                         )
                       </Text>
-                      {facultyRemarks.failedModules.map((module, index) => (
+                      {academicRemarks.failedModules.map((module, index) => (
                         <Text
                           key={`failed-${module.code}-${index}`}
                           style={styles.outstandingModuleItem}
@@ -612,7 +608,7 @@ export default function StatementOfResultsPDF({
                           • {module.code} - {module.name} (Repeat)
                         </Text>
                       ))}
-                      {facultyRemarks.supplementaryModules.map(
+                      {academicRemarks.supplementaryModules.map(
                         (module, index) => (
                           <Text
                             key={`supplementary-${module.code}-${index}`}
