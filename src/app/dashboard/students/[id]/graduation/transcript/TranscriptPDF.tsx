@@ -1,7 +1,8 @@
 import { getAcademicHistory } from '@/server/students/actions';
-import { summarizeModules } from '@/utils/grades';
+import { getAcademicRemarks } from '@/utils/grades';
 import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
+import { getCleanedSemesters } from '../../AcademicsView/statements/utils';
 
 Font.register({
   family: 'Arial',
@@ -42,22 +43,6 @@ const tw = createTw({
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 
-type Grade = {
-  courseCode: string;
-  courseName: string;
-  credits: number;
-  grade: string;
-};
-
-type Term = {
-  term: string;
-  grades: Grade[];
-  gpa: number;
-  credits: number;
-  cgpa: number;
-  cumulativeCredits: number;
-};
-
 const HeaderRow = ({ label, value }: { label: string; value: string }) => (
   <View style={tw('flex flex-row')}>
     <Text style={tw('w-[90pt] font-bold')}>{label}</Text>
@@ -75,68 +60,121 @@ const TableHeader = () => (
   </View>
 );
 
-const GradeRow = ({ grade }: { grade: Grade }) => (
+const GradeRow = ({
+  courseCode,
+  courseName,
+  credits,
+  grade,
+}: {
+  courseCode: string;
+  courseName: string;
+  credits: number;
+  grade: string;
+}) => (
   <View style={tw('flex flex-row min-h-[7pt]')}>
-    <Text style={tw('w-[60pt]')}>{grade.courseCode}</Text>
-    <Text style={tw('flex-1')}>{grade.courseName}</Text>
-    <Text style={tw('w-[40pt] text-right')}>{grade.credits}</Text>
-    <Text style={tw('w-[35pt] pl-2.5')}>{grade.grade}</Text>
+    <Text style={tw('w-[60pt]')}>{courseCode}</Text>
+    <Text style={tw('flex-1')}>{courseName}</Text>
+    <Text style={tw('w-[40pt] text-right')}>{credits}</Text>
+    <Text style={tw('w-[35pt] pl-2.5')}>{grade}</Text>
   </View>
 );
 
-const TermSummary = ({ term }: { term: Term }) => (
+const TermSummary = ({
+  gpa,
+  credits,
+  cgpa,
+  cumulativeCredits,
+}: {
+  gpa: number;
+  credits: number;
+  cgpa: number;
+  cumulativeCredits: number;
+}) => (
   <View style={tw('ml-[60pt] mt-0.5 mt-1')}>
     <View style={tw('flex flex-row justify-between w-[84%]')}>
       <View style={tw('w-[60pt] flex-row justify-between')}>
         <Text>GPA</Text>
-        <Text>{`:  ${term.gpa}`}</Text>
+        <Text>{`:  ${gpa}`}</Text>
       </View>
       <View style={tw('w-[100pt] flex-row justify-between')}>
         <Text>Credits Earned</Text>
         <View style={tw('flex-row justify-between w-[16pt]')}>
           <Text>:</Text>
-          <Text>{term.credits}</Text>
+          <Text>{credits}</Text>
         </View>
       </View>
     </View>
     <View style={tw('flex flex-row justify-between w-[84%]')}>
       <View style={tw('w-[60pt] flex-row justify-between')}>
         <Text>CGPA</Text>
-        <Text>{`:  ${term.cgpa}`}</Text>
+        <Text>{`:  ${cgpa}`}</Text>
       </View>
       <View style={tw('w-[100pt] flex-row justify-between')}>
         <Text>Cumulative Credits</Text>
         <View style={tw('flex-row justify-between w-[16pt]')}>
           <Text>:</Text>
-          <Text>{term.cumulativeCredits}</Text>
+          <Text>{cumulativeCredits}</Text>
         </View>
       </View>
     </View>
   </View>
 );
 
-const TermSection = ({ term }: { term: Term }) => (
+const TermSection = ({
+  term,
+  modules,
+  semesterPoint,
+  cumulativeCredits,
+}: {
+  term: string;
+  modules: Student['programs'][number]['semesters'][number]['studentModules'];
+  semesterPoint:
+    | { gpa: number; cgpa: number; creditsCompleted: number }
+    | undefined;
+  cumulativeCredits: number;
+}) => (
   <View style={tw('mb-2.5')}>
-    <Text style={tw('mb-0.5 font-bold')}>{term.term}</Text>
-    {term.grades.map((grade, j) => (
-      <GradeRow key={j} grade={grade} />
+    <Text style={tw('mb-0.5 font-bold')}>{term}</Text>
+    {modules.map((sm, j) => (
+      <GradeRow
+        key={j}
+        courseCode={sm.semesterModule?.module?.code || ''}
+        courseName={sm.semesterModule?.module?.name || ''}
+        credits={sm.semesterModule?.credits || 0}
+        grade={sm.grade || ''}
+      />
     ))}
-    <TermSummary term={term} />
+    <TermSummary
+      gpa={Number((semesterPoint?.gpa || 0).toFixed(2))}
+      credits={semesterPoint?.creditsCompleted || 0}
+      cgpa={Number((semesterPoint?.cgpa || 0).toFixed(2))}
+      cumulativeCredits={cumulativeCredits}
+    />
   </View>
 );
 
-function extractTermsFromStudent(student: Student): Term[] {
-  const completedPrograms =
-    student.programs?.filter((p) => p.status === 'Completed') || [];
+const TranscriptPDF = ({ student }: { student: Student }) => {
+  const completedPrograms = student.programs?.filter(
+    (p) => p.status === 'Completed'
+  );
 
-  if (completedPrograms.length === 0) return [];
+  if (!completedPrograms || completedPrograms.length === 0) {
+    return (
+      <Document>
+        <Page size='A4' style={tw('pt-5 px-4 pb-10 font-sans text-[7.12pt]')}>
+          <Text>No completed programs found</Text>
+        </Page>
+      </Document>
+    );
+  }
 
-  const allSemesters = completedPrograms.flatMap(
-    (program) => program.semesters || []
+  const academicRemarks = getAcademicRemarks(completedPrograms);
+
+  const allSemesters = completedPrograms.flatMap((program) =>
+    getCleanedSemesters(program)
   );
 
   const semestersByTerm = new Map<string, typeof allSemesters>();
-
   allSemesters.forEach((semester) => {
     const term = semester.term;
     if (!semestersByTerm.has(term)) {
@@ -145,49 +183,30 @@ function extractTermsFromStudent(student: Student): Term[] {
     semestersByTerm.get(term)!.push(semester);
   });
 
-  const terms: Term[] = [];
-  let cumulativePoints = 0;
-  let cumulativeCredits = 0;
-
-  Array.from(semestersByTerm.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .forEach(([termName, semesters]) => {
-      const allModules = semesters.flatMap((sem) => sem.studentModules || []);
-
-      const grades: Grade[] = allModules
-        .filter((sm) => !['Delete', 'Drop'].includes(sm.status || ''))
-        .map((sm) => ({
-          courseCode: sm.semesterModule?.module?.code || '',
-          courseName: sm.semesterModule?.module?.name || '',
-          credits: sm.semesterModule?.credits || 0,
-          grade: sm.grade || '',
-        }));
-
-      const summary = summarizeModules(allModules);
-      cumulativePoints += summary.points;
-      cumulativeCredits += summary.creditsCompleted;
-
-      terms.push({
-        term: termName,
-        grades,
-        gpa: Number(summary.gpa.toFixed(2)),
-        credits: summary.creditsCompleted,
-        cgpa: Number((cumulativePoints / (cumulativeCredits || 1)).toFixed(2)),
-        cumulativeCredits,
-      });
-    });
-
-  return terms;
-}
-
-const TranscriptPDF = ({ student }: { student: Student }) => {
-  const terms = extractTermsFromStudent(student);
-  const leftTerms = terms.slice(0, 6);
-  const rightTerms = terms.slice(6);
-
-  const completedPrograms = student.programs?.filter(
-    (p) => p.status === 'Completed'
+  const sortedTerms = Array.from(semestersByTerm.entries()).sort(([a], [b]) =>
+    a.localeCompare(b)
   );
+
+  let cumulativeCredits = 0;
+  const termsData = sortedTerms.map(([termName, semesters]) => {
+    const allModules = semesters.flatMap((sem) => sem.studentModules || []);
+    const semesterId = semesters[0]?.id;
+    const semesterPoint = academicRemarks.points.find(
+      (point) => point.semesterId === semesterId
+    );
+    cumulativeCredits += semesterPoint?.creditsCompleted || 0;
+
+    return {
+      term: termName,
+      modules: allModules,
+      semesterPoint,
+      cumulativeCredits,
+    };
+  });
+
+  const leftTerms = termsData.slice(0, 6);
+  const rightTerms = termsData.slice(6);
+
   const primaryProgram = completedPrograms?.[0];
   const programName =
     primaryProgram?.structure?.program?.name || 'Unknown Program';
@@ -199,7 +218,7 @@ const TranscriptPDF = ({ student }: { student: Student }) => {
       })
     : 'November 2024';
 
-  const admissionDate = terms[0]?.term || 'Unknown';
+  const admissionDate = termsData[0]?.term || 'Unknown';
 
   const issueDate = new Date().toLocaleDateString('en-GB', {
     day: 'numeric',
@@ -249,13 +268,25 @@ const TranscriptPDF = ({ student }: { student: Student }) => {
         {/* Content */}
         <View style={tw('mt-2.5 flex flex-row gap-5')}>
           <View style={tw('flex-1')}>
-            {leftTerms.map((term, i) => (
-              <TermSection key={i} term={term} />
+            {leftTerms.map((termData, i) => (
+              <TermSection
+                key={i}
+                term={termData.term}
+                modules={termData.modules}
+                semesterPoint={termData.semesterPoint}
+                cumulativeCredits={termData.cumulativeCredits}
+              />
             ))}
           </View>
           <View style={tw('flex-1')}>
-            {rightTerms.map((term, i) => (
-              <TermSection key={i} term={term} />
+            {rightTerms.map((termData, i) => (
+              <TermSection
+                key={i}
+                term={termData.term}
+                modules={termData.modules}
+                semesterPoint={termData.semesterPoint}
+                cumulativeCredits={termData.cumulativeCredits}
+              />
             ))}
           </View>
         </View>
@@ -273,8 +304,8 @@ const TranscriptPDF = ({ student }: { student: Student }) => {
               <Text style={tw('w-[160pt]')}>{label}</Text>
               <Text>
                 {':  '}
-                {terms.length > 0
-                  ? terms[terms.length - 1].cumulativeCredits
+                {termsData.length > 0
+                  ? termsData[termsData.length - 1].cumulativeCredits
                   : 0}
               </Text>
             </View>
