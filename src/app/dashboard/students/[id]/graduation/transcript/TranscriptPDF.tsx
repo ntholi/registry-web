@@ -179,15 +179,13 @@ export default function TranscriptPDF({ student }: { student: Student }) {
   const academicRemarks = getAcademicRemarks(completedPrograms);
 
   const primaryProgram = completedPrograms[0];
-  const programName =
-    primaryProgram?.structure?.program?.name || 'Unknown Program';
 
-  const completionDate = primaryProgram?.graduationDate
-    ? new Date(primaryProgram.graduationDate).toLocaleDateString('en-GB', {
-        month: 'long',
-        year: 'numeric',
-      })
-    : 'November 2024';
+  const completionDate = new Date(
+    primaryProgram.graduationDate
+  ).toLocaleDateString('en-GB', {
+    month: 'long',
+    year: 'numeric',
+  });
 
   const firstSemester = completedPrograms[0]
     ? getCleanedSemesters(completedPrograms[0])[0]
@@ -228,9 +226,12 @@ export default function TranscriptPDF({ student }: { student: Student }) {
               <HeaderRow label='Date of Completion' value={completionDate} />
               <HeaderRow
                 label='Programme'
-                value={correctSpelling(programName)}
+                value={primaryProgram?.structure?.program?.name}
               />
-              <HeaderRow label='Faculty' value={findFaculty(programName)} />
+              <HeaderRow
+                label='Faculty'
+                value={primaryProgram?.structure?.program?.school.name}
+              />
               <HeaderRow label='Issued Date' value={issueDate} />
             </View>
           </View>
@@ -301,155 +302,3 @@ export default function TranscriptPDF({ student }: { student: Student }) {
     </Document>
   );
 }
-
-function findFaculty(programName: string) {
-  const program = programs.find((p) =>
-    programName.toLowerCase().includes(p.name.toLowerCase())
-  );
-  if (!program) {
-    return 'Unknown Faculty';
-  }
-  return program.faculty;
-}
-
-function correctSpelling(name: string) {
-  return name.replace('Entreprenuership', 'Entrepreneurship');
-}
-const programs = [
-  {
-    name: 'Architectur',
-    faculty: 'Faculty of Architecture and the Built Environment',
-  },
-  {
-    name: 'Entreprenuership',
-    faculty: 'Faculty of Business and Globalisation',
-  },
-  {
-    name: 'Entrepreneurship',
-    faculty: 'Faculty of Business and Globalisation',
-  },
-  {
-    name: 'Human Resource Management',
-    faculty: 'Faculty of Business and Globalisation',
-  },
-  {
-    name: 'International Business',
-    faculty: 'Faculty of Business and Globalisation',
-  },
-  {
-    name: 'Business Management',
-    faculty: 'Faculty of Business and Globalisation',
-  },
-  {
-    name: 'Marketing',
-    faculty: 'Faculty of Business and Globalisation',
-  },
-  {
-    name: 'Retail Management',
-    faculty: 'Faculty of Business and Globalisation',
-  },
-  {
-    name: 'Performing Arts',
-    faculty: 'Faculty of Communication, Media and Broadcasting',
-  },
-  {
-    name: 'Broadcasting',
-    faculty: 'Faculty of Communication, Media and Broadcasting',
-  },
-  {
-    name: 'Professional Communication',
-    faculty: 'Faculty of Communication, Media and Broadcasting',
-  },
-  {
-    name: 'Journalism & Media',
-    faculty: 'Faculty of Communication, Media and Broadcasting',
-  },
-  {
-    name: 'Public Relations',
-    faculty: 'Faculty of Communication, Media and Broadcasting',
-  },
-  {
-    name: 'Broadcasting & Journalism',
-    faculty: 'Faculty of Communication, Media and Broadcasting',
-  },
-  {
-    name: 'Digital Film Production',
-    faculty: 'Faculty of Communication, Media and Broadcasting',
-  },
-  {
-    name: 'Broadcasting Radio & TV',
-    faculty: 'Faculty of Communication, Media and Broadcasting',
-  },
-  {
-    name: 'Film Production',
-    faculty: 'Faculty of Communication, Media and Broadcasting',
-  },
-  {
-    name: 'Tourism',
-    faculty: 'Faculty of Creativity in Tourism & Hospitality',
-  },
-  {
-    name: 'Events Management',
-    faculty: 'Faculty of Creativity in Tourism & Hospitality',
-  },
-  {
-    name: 'Event Management',
-    faculty: 'Faculty of Creativity in Tourism & Hospitality',
-  },
-  {
-    name: 'Hotel Management',
-    faculty: 'Faculty of Creativity in Tourism & Hospitality',
-  },
-  {
-    name: 'International Tourism',
-    faculty: 'Faculty of Creativity in Tourism & Hospitality',
-  },
-  {
-    name: 'Tourism Management',
-    faculty: 'Faculty of Creativity in Tourism & Hospitality',
-  },
-  {
-    name: 'Professional Design',
-    faculty: 'Faculty of Design and Innovation',
-  },
-  {
-    name: 'Creative Advertising',
-    faculty: 'Faculty of Design and Innovation',
-  },
-  {
-    name: 'Graphic Design',
-    faculty: 'Faculty of Design and Innovation',
-  },
-  {
-    name: 'Fashion & Retailing',
-    faculty: 'Faculty of Fashion and Lifestyle Design',
-  },
-  {
-    name: 'Fashion & Apparel Design',
-    faculty: 'Faculty of Fashion and Lifestyle Design',
-  },
-  {
-    name: 'Business Information Technology',
-    faculty: 'Faculty of Information & Communication Technology',
-  },
-  {
-    name: 'Information Technology',
-    faculty: 'Faculty of Information & Communication Technology',
-  },
-  {
-    name: 'Software Engineering with Multimedia',
-    faculty: 'Faculty of Information & Communication Technology',
-  },
-  {
-    name: 'Business Information Technology',
-    faculty: 'Faculty of Information & Communication Technology',
-  },
-  {
-    name: 'Information Technology',
-    faculty: 'Faculty of Information & Communication Technology',
-  },
-  {
-    name: 'Multimedia & Software Engineering',
-    faculty: 'Faculty of Information & Communication Technology',
-  },
-];
