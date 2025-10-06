@@ -2,13 +2,15 @@
 
 import { useQuery } from '@tanstack/react-query';
 import {
-  Anchor,
   Badge,
   Box,
   Button,
   Card,
+  Center,
   Group,
+  Loader,
   Skeleton,
+  Stack,
   Tabs,
   TabsList,
   TabsPanel,
@@ -51,19 +53,18 @@ export default function GraduationView({
     enabled: isActive,
   });
 
-  const { data: student, isLoading: isStudentLoading } = useQuery({
+  const {
+    data: student,
+    isLoading: isStudentLoading,
+    refetch: refetchStudent,
+  } = useQuery({
     queryKey: ['student', stdNoNum],
     queryFn: () => getAcademicHistory(stdNoNum, true),
     enabled: isActive,
   });
 
-  if (isLoading) {
-    return (
-      <Group gap='md'>
-        <Skeleton height={24} width={80} />
-        <Skeleton height={20} width={100} />
-      </Group>
-    );
+  if (isLoading || isStudentLoading) {
+    return <GraduationLoading />;
   }
 
   const completedPrograms = (
@@ -99,6 +100,24 @@ export default function GraduationView({
           </TabsPanel>
         </Tabs>
       )}
+    </Box>
+  );
+}
+
+function GraduationLoading() {
+  return (
+    <Box my='md'>
+      <Card withBorder p='md'>
+        <Group justify='space-between' align='center'>
+          <Group>
+            <Skeleton height={18} width={140} />
+            <Skeleton height={12} width={80} />
+          </Group>
+          <Group>
+            <Skeleton height={28} width={96} />
+          </Group>
+        </Group>
+      </Card>
     </Box>
   );
 }
