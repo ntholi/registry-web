@@ -127,7 +127,6 @@ export default class GraduationRequestRepository extends BaseRepository<
   }
 
   async findByStudentNo(stdNo: number) {
-    // Find the graduation request by looking up the student program
     const studentProgramId =
       await this.selectStudentProgramForGraduation(stdNo);
     if (!studentProgramId) {
