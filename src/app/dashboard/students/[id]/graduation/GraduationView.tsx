@@ -25,6 +25,7 @@ import { getAcademicHistory } from '@/server/students/actions';
 import TranscriptPreview from './transcript/TranscriptPreview';
 import TranscriptPrinter from './transcript/TranscriptPrinter';
 import CertificatePreview from './certificate/CertificatePreview';
+import CertificateDownloader from './certificate/CertificateDownloader';
 
 type GraduationViewProps = {
   stdNo: number | string;
@@ -46,6 +47,9 @@ export default function GraduationView({
   blockedStudent,
 }: GraduationViewProps) {
   const [activeTab, setActiveTab] = useState<string | null>('transcript');
+  const [selectedProgramId, setSelectedProgramId] = useState<
+    number | undefined
+  >(undefined);
   const stdNoNum = Number(stdNo);
 
   const { data: graduationRequest, isLoading } = useQuery({
@@ -54,11 +58,7 @@ export default function GraduationView({
     enabled: isActive,
   });
 
-  const {
-    data: student,
-    isLoading: isStudentLoading,
-    refetch: refetchStudent,
-  } = useQuery({
+  const { data: student, isLoading: isStudentLoading } = useQuery({
     queryKey: ['student', stdNoNum],
     queryFn: () => getAcademicHistory(stdNoNum, true),
     enabled: isActive,
@@ -89,6 +89,15 @@ export default function GraduationView({
                 />
               </Box>
             )}
+            {activeTab === 'certificate' && (
+              <Box ml='auto'>
+                <CertificateDownloader
+                  stdNo={stdNoNum}
+                  disabled={!!blockedStudent}
+                  programId={selectedProgramId}
+                />
+              </Box>
+            )}
           </TabsList>
           <TabsPanel value='transcript' pt='xl'>
             <TranscriptPreview
@@ -100,6 +109,7 @@ export default function GraduationView({
             <CertificatePreview
               stdNo={stdNoNum}
               isActive={isActive && activeTab === 'certificate'}
+              onProgramSelect={setSelectedProgramId}
             />
           </TabsPanel>
         </Tabs>

@@ -19,6 +19,7 @@ import { useState } from 'react';
 type CertificatePreviewProps = {
   stdNo: number;
   isActive: boolean;
+  onProgramSelect?: (programId: number) => void;
 };
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
@@ -27,6 +28,7 @@ type StudentProgram = Student['programs'][number];
 export default function CertificatePreview({
   stdNo,
   isActive,
+  onProgramSelect,
 }: CertificatePreviewProps) {
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
     null
@@ -76,6 +78,13 @@ export default function CertificatePreview({
     (p) => String(p.id) === currentProgramId
   );
 
+  const handleProgramChange = (value: string | null) => {
+    setSelectedProgramId(value);
+    if (value && onProgramSelect) {
+      onProgramSelect(Number(value));
+    }
+  };
+
   return (
     <Stack gap='md'>
       {completedPrograms.length > 1 && (
@@ -86,7 +95,7 @@ export default function CertificatePreview({
               placeholder='Choose a program'
               data={programOptions}
               value={currentProgramId}
-              onChange={setSelectedProgramId}
+              onChange={handleProgramChange}
               w={350}
             />
           </Flex>
