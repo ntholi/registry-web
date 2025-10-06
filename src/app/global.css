@@ -2,3 +2,20 @@ a {
   color: inherit;
   text-decoration: none !important;
 }
+
+/* Font registrations for certificate preview */
+@font-face {
+  font-family: 'Palatino';
+  src: url('/fonts/Palatino.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RoundhandBold';
+  src: url('/fonts/RoundhandBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
