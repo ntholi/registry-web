@@ -129,7 +129,7 @@ function Certificate({
     >
       <Box style={{ position: 'relative', width: '100%', height: '100%' }}>
         <Image
-          src='/images/certificate.png'
+          src='/images/certificate.webp'
           alt='Certificate'
           style={{ objectFit: 'contain' }}
         />
