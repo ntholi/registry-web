@@ -26,7 +26,13 @@ interface CertificateData {
 export async function generateCertificatePDF(
   data: CertificateData
 ): Promise<Uint8Array> {
-  const templatePath = join(process.cwd(), 'public', 'sample.pdf');
+  const templatePath = join(
+    process.cwd(),
+    'src',
+    'private',
+    'files',
+    'certificate.pdf'
+  );
   const templateBytes = await readFile(templatePath);
 
   const pdfDoc = await PDFDocument.load(templateBytes);
