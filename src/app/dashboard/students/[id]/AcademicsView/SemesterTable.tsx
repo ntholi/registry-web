@@ -164,67 +164,104 @@ export default function SemesterTable({
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {modules.map((module, idx) => (
-            <Table.Tr
-              key={`${module.id}-${module.marks}-${module.status}-${idx}`}
-            >
-              <Table.Td>
-                {modulesWithFailHistory.includes(module.code) ? (
-                  <Tooltip
-                    label={renderAttemptHistory(module)}
-                    color={colorScheme}
-                    withArrow
-                    multiline
-                    transitionProps={{ transition: 'fade', duration: 200 }}
-                  >
-                    <Anchor size='sm' c={failed(module.grade) ? 'red' : 'blue'}>
-                      {module.code}
-                    </Anchor>
-                  </Tooltip>
-                ) : (
-                  <Text size='sm'>{module.code}</Text>
-                )}
-              </Table.Td>
-              <Table.Td>
-                <Text size='sm'>{module.name}</Text>
-              </Table.Td>
-              <Table.Td>
-                <Text
-                  size='sm'
-                  c={
-                    ['Drop', 'Delete'].includes(module.status)
-                      ? 'red'
-                      : undefined
-                  }
-                >
-                  {module.status}
-                </Text>
-              </Table.Td>
-              <Table.Td>
-                <Text size='sm'>{module.credits}</Text>
-              </Table.Td>
-              {showMarks && (
+          {modules.map((module, idx) => {
+            const isDroppedOrDeleted =
+              module.status === 'Drop' || module.status === 'Delete';
+
+            return (
+              <Table.Tr
+                key={`${module.id}-${module.marks}-${module.status}-${idx}`}
+                style={
+                  isDroppedOrDeleted
+                    ? {
+                        textDecoration: 'line-through',
+                        color: 'var(--mantine-color-dimmed)',
+                      }
+                    : undefined
+                }
+              >
                 <Table.Td>
-                  <Text size='sm'>{module.marks}</Text>
+                  {modulesWithFailHistory.includes(module.code) ? (
+                    <Tooltip
+                      label={renderAttemptHistory(module)}
+                      color={colorScheme}
+                      withArrow
+                      multiline
+                      transitionProps={{ transition: 'fade', duration: 200 }}
+                    >
+                      <Anchor
+                        size='sm'
+                        c={
+                          isDroppedOrDeleted
+                            ? 'dimmed'
+                            : failed(module.grade)
+                              ? 'red'
+                              : 'blue'
+                        }
+                      >
+                        {module.code}
+                      </Anchor>
+                    </Tooltip>
+                  ) : (
+                    <Text
+                      size='sm'
+                      c={isDroppedOrDeleted ? 'dimmed' : undefined}
+                    >
+                      {module.code}
+                    </Text>
+                  )}
                 </Table.Td>
-              )}
-              <Table.Td>
-                <Badge
-                  size='sm'
-                  variant='light'
-                  color={
-                    failed(module.grade)
-                      ? 'red'
-                      : module.grade === 'NM' || module.grade === 'Def'
-                        ? 'orange'
-                        : 'green'
-                  }
-                >
-                  {module.grade}
-                </Badge>
-              </Table.Td>
-            </Table.Tr>
-          ))}
+                <Table.Td>
+                  <Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+                    {module.name}
+                  </Text>
+                </Table.Td>
+                <Table.Td>
+                  <Text
+                    size='sm'
+                    c={
+                      ['Drop', 'Delete'].includes(module.status)
+                        ? 'red'
+                        : undefined
+                    }
+                  >
+                    {module.status}
+                  </Text>
+                </Table.Td>
+                <Table.Td>
+                  <Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+                    {module.credits}
+                  </Text>
+                </Table.Td>
+                {showMarks && (
+                  <Table.Td>
+                    <Text
+                      size='sm'
+                      c={isDroppedOrDeleted ? 'dimmed' : undefined}
+                    >
+                      {module.marks}
+                    </Text>
+                  </Table.Td>
+                )}
+                <Table.Td>
+                  <Badge
+                    size='sm'
+                    variant='light'
+                    color={
+                      failed(module.grade)
+                        ? 'red'
+                        : module.grade === 'NM' || module.grade === 'Def'
+                          ? 'orange'
+                          : 'green'
+                    }
+                    style={isDroppedOrDeleted ? { opacity: 0.7 } : undefined}
+                  >
+                    {module.grade}
+                  </Badge>
+                </Table.Td>
+              </Table.Tr>
+            );
+          })}
         </Table.Tbody>
       </Table>
     </Table.ScrollContainer>
