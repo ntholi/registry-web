@@ -10,6 +10,8 @@ import {
   Select,
   Paper,
   Image,
+  Flex,
+  Divider,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -77,14 +79,19 @@ export default function CertificatePreview({
   return (
     <Stack gap='md'>
       {completedPrograms.length > 1 && (
-        <Select
-          label='Select Program'
-          placeholder='Choose a program'
-          data={programOptions}
-          value={currentProgramId}
-          onChange={setSelectedProgramId}
-          style={{ maxWidth: 400 }}
-        />
+        <Box>
+          <Flex align='center' gap='sm' justify={'space-between'}>
+            <Text size='sm'>Select Program</Text>
+            <Select
+              placeholder='Choose a program'
+              data={programOptions}
+              value={currentProgramId}
+              onChange={setSelectedProgramId}
+              w={350}
+            />
+          </Flex>
+          <Divider my='sm' />
+        </Box>
       )}
 
       {currentProgram && (
