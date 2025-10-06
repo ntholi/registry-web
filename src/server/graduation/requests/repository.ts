@@ -127,12 +127,36 @@ export default class GraduationRequestRepository extends BaseRepository<
   }
 
   async findByStudentNo(stdNo: number) {
-    const studentProgramId =
-      await this.selectStudentProgramForGraduation(stdNo);
-    if (!studentProgramId) {
-      return null;
-    }
-    return this.findByStudentProgramId(studentProgramId);
+    return db.query.graduationRequests.findMany({
+      where: sql`EXISTS (
+        SELECT 1 FROM student_programs sp
+        WHERE sp.id = ${graduationRequests.studentProgramId}
+        AND sp.std_no = ${stdNo}
+      )`,
+      with: {
+        studentProgram: {
+          with: {
+            student: true,
+            structure: {
+              with: {
+                program: true,
+              },
+            },
+          },
+        },
+        paymentReceipts: true,
+        graduationClearances: {
+          with: {
+            clearance: {
+              with: {
+                respondedBy: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: (g, { desc }) => [desc(g.id)],
+    });
   }
 
   async selectStudentProgramForGraduation(

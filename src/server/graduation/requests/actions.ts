@@ -20,7 +20,7 @@ export async function getGraduationRequest(id: number) {
 
 export async function getGraduationRequestByStudentNo(stdNo: number) {
   const result = await service.getByStudentNo(stdNo);
-  return result === undefined ? null : result;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function getGraduationRequestByStudentProgramId(
