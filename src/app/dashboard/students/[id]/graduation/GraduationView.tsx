@@ -19,13 +19,22 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
+import { getAcademicHistory } from '@/server/students/actions';
 import TranscriptPreview from './transcript/TranscriptPreview';
 import TranscriptPrinter from './transcript/TranscriptPrinter';
 
 type GraduationViewProps = {
-  stdNo: string;
+  stdNo: number | string;
   isActive: boolean;
   blockedStudent?: Awaited<ReturnType<typeof getBlockedStudentByStdNo>>;
+};
+
+type GraduationRequest = Awaited<
+  ReturnType<typeof getGraduationRequestByStudentNo>
+>;
+
+type StudentProgram = {
+  status?: string;
 };
 
 export default function GraduationView({
@@ -34,10 +43,17 @@ export default function GraduationView({
   blockedStudent,
 }: GraduationViewProps) {
   const [activeTab, setActiveTab] = useState<string | null>('transcript');
+  const stdNoNum = Number(stdNo);
 
   const { data: graduationRequest, isLoading } = useQuery({
-    queryKey: ['graduationRequest', stdNo],
-    queryFn: () => getGraduationRequestByStudentNo(Number(stdNo)),
+    queryKey: ['graduationRequest', stdNoNum],
+    queryFn: () => getGraduationRequestByStudentNo(stdNoNum),
+    enabled: isActive,
+  });
+
+  const { data: student, isLoading: isStudentLoading } = useQuery({
+    queryKey: ['student', stdNoNum],
+    queryFn: () => getAcademicHistory(stdNoNum, true),
     enabled: isActive,
   });
 
@@ -50,16 +66,46 @@ export default function GraduationView({
     );
   }
 
-  if (!graduationRequest) {
-    return (
-      <Text size='sm' c='dimmed'>
-        No graduation request
-      </Text>
-    );
-  }
+  const completedPrograms = (
+    (student?.programs as StudentProgram[]) || []
+  ).filter((p) => p && p.status === 'Completed');
 
-  function getGraduationStatus() {
-    const clearances = graduationRequest?.graduationClearances || [];
+  return (
+    <Box>
+      <RequestCard request={graduationRequest} />
+
+      {completedPrograms && completedPrograms.length > 0 && (
+        <Tabs value={activeTab} onChange={setActiveTab} variant='default'>
+          <TabsList>
+            <TabsTab value='transcript'>Transcript</TabsTab>
+            <TabsTab value='certificate'>Certificate</TabsTab>
+            {activeTab === 'transcript' && (
+              <Box ml='auto'>
+                <TranscriptPrinter
+                  stdNo={stdNoNum}
+                  disabled={!!blockedStudent}
+                />
+              </Box>
+            )}
+          </TabsList>
+          <TabsPanel value='transcript' pt='xl'>
+            <TranscriptPreview
+              stdNo={stdNoNum}
+              isActive={isActive && activeTab === 'transcript'}
+            />
+          </TabsPanel>
+          <TabsPanel value='certificate' pt='xl'>
+            <Text c='dimmed'>Certificate view coming soon</Text>
+          </TabsPanel>
+        </Tabs>
+      )}
+    </Box>
+  );
+}
+
+function RequestCard({ request }: { request?: GraduationRequest | null }) {
+  function getGraduationStatus(req?: GraduationRequest | null) {
+    const clearances = req?.graduationClearances || [];
     if (clearances.length === 0) return 'pending';
 
     const hasRejected = clearances.some(
@@ -75,8 +121,6 @@ export default function GraduationView({
     return 'pending';
   }
 
-  const status = getGraduationStatus();
-
   function getStatusColor(status: string) {
     switch (status) {
       case 'approved':
@@ -90,53 +134,41 @@ export default function GraduationView({
     }
   }
 
-  return (
-    <Box>
+  const status = getGraduationStatus(request);
+
+  if (!request) {
+    return (
       <Card withBorder p='md' mb='lg'>
-        <Group justify='space-between' align='center'>
-          <Group>
-            <Text size='sm' fw={500}>
-              Graduation status
-            </Text>
-            <Badge color={getStatusColor(status)} size='xs'>
-              {status}
-            </Badge>
-          </Group>
+        <Text size='sm' fw={500}>
+          No graduation request
+        </Text>
+      </Card>
+    );
+  }
+
+  return (
+    <Card withBorder p='md' mb='lg'>
+      <Group justify='space-between' align='center'>
+        <Group>
+          <Text size='sm' fw={500}>
+            Graduation status
+          </Text>
+          <Badge color={getStatusColor(status)} size='xs'>
+            {status}
+          </Badge>
+        </Group>
+        {request && (
           <Button
             component={Link}
-            href={`/dashboard/graduation/requests/${status}/${graduationRequest.id}`}
+            href={`/dashboard/graduation/requests/${status}/${request.id}`}
             size='xs'
             variant='light'
             color='blue'
           >
             View Details
           </Button>
-        </Group>
-      </Card>
-
-      <Tabs value={activeTab} onChange={setActiveTab} variant='outline'>
-        <TabsList>
-          <TabsTab value='transcript'>Transcript</TabsTab>
-          <TabsTab value='certificate'>Certificate</TabsTab>
-          {activeTab === 'transcript' && (
-            <Box ml='auto'>
-              <TranscriptPrinter
-                stdNo={Number(stdNo)}
-                disabled={!!blockedStudent}
-              />
-            </Box>
-          )}
-        </TabsList>
-        <TabsPanel value='transcript' pt='xl'>
-          <TranscriptPreview
-            stdNo={Number(stdNo)}
-            isActive={isActive && activeTab === 'transcript'}
-          />
-        </TabsPanel>
-        <TabsPanel value='certificate' pt='xl'>
-          <Text c='dimmed'>Certificate view coming soon</Text>
-        </TabsPanel>
-      </Tabs>
-    </Box>
+        )}
+      </Group>
+    </Card>
   );
 }
