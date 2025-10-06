@@ -24,6 +24,7 @@ import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { getAcademicHistory } from '@/server/students/actions';
 import TranscriptPreview from './transcript/TranscriptPreview';
 import TranscriptPrinter from './transcript/TranscriptPrinter';
+import CertificatePreview from './certificate/CertificatePreview';
 
 type GraduationViewProps = {
   stdNo: number | string;
@@ -96,7 +97,10 @@ export default function GraduationView({
             />
           </TabsPanel>
           <TabsPanel value='certificate' pt='xl'>
-            <Text c='dimmed'>Certificate view coming soon</Text>
+            <CertificatePreview
+              stdNo={stdNoNum}
+              isActive={isActive && activeTab === 'certificate'}
+            />
           </TabsPanel>
         </Tabs>
       )}
