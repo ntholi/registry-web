@@ -140,7 +140,7 @@ function Certificate({
             top: '25%',
             left: '50%',
             transform: 'translateX(-50%)',
-            fontSize: 'clamp(18px, 3.2vw, 42px)',
+            fontSize: 'clamp(17px, 2.6vw, 34px)',
             fontWeight: 400,
             fontFamily: 'Palatino, Georgia, serif',
             color: '#000',
@@ -155,16 +155,16 @@ function Certificate({
         <Box
           style={{
             position: 'absolute',
-            top: '35%',
+            top: '34%',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '70%',
+            width: '80%',
             textAlign: 'center',
           }}
         >
           <Text
             style={{
-              fontSize: 'clamp(16px, 2.8vw, 36px)',
+              fontSize: 'clamp(18px, 3.2vw, 42px)',
               fontWeight: 400,
               fontFamily: 'RoundhandBold, Georgia, serif',
               fontStyle: 'italic',
@@ -183,7 +183,7 @@ function Certificate({
             bottom: '14%',
             left: '50%',
             transform: 'translateX(-50%)',
-            fontSize: 'clamp(10px, 1.6vw, 20px)',
+            fontSize: 'clamp(8px, 1vw, 16px)',
             fontWeight: 400,
             fontFamily: 'Georgia, serif',
             color: '#000',
