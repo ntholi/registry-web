@@ -172,6 +172,7 @@ export default function AcademicsView({
                                         },
                                       },
                                       grade: m.grade,
+                                      status: m.status,
                                     })
                                   ),
                                 }))}

@@ -36,6 +36,7 @@ type ModuleTableProps = {
         };
       };
       grade: string;
+      status: string;
     }[];
   }[];
 };
@@ -53,15 +54,23 @@ export default function SemesterTable({
     const attempts = allSemesters
       .filter((sem) =>
         sem.studentModules.some(
-          (m) => m.semesterModule.module.code === moduleCode
+          (m) =>
+            m.semesterModule.module.code === moduleCode &&
+            m.status !== 'Drop' &&
+            m.status !== 'Delete'
         )
       )
-      .map((sem) => ({
-        grade:
-          sem.studentModules.find(
-            (m) => m.semesterModule.module.code === moduleCode
-          )?.grade ?? '',
-      }));
+      .map((sem) => {
+        const studentModule = sem.studentModules.find(
+          (m) =>
+            m.semesterModule.module.code === moduleCode &&
+            m.status !== 'Drop' &&
+            m.status !== 'Delete'
+        );
+        return {
+          grade: studentModule?.grade ?? '',
+        };
+      });
 
     return attempts.some((attempt) => failed(attempt.grade));
   };
@@ -76,17 +85,25 @@ export default function SemesterTable({
     return allSemesters
       .filter((sem) =>
         sem.studentModules.some(
-          (m) => m.semesterModule.module.code === moduleCode
+          (m) =>
+            m.semesterModule.module.code === moduleCode &&
+            m.status !== 'Drop' &&
+            m.status !== 'Delete'
         )
       )
-      .map((sem) => ({
-        term: sem.term,
-        semesterNumber: sem.semesterNumber ?? 0,
-        grade:
-          sem.studentModules.find(
-            (m) => m.semesterModule.module.code === moduleCode
-          )?.grade ?? '',
-      }))
+      .map((sem) => {
+        const studentModule = sem.studentModules.find(
+          (m) =>
+            m.semesterModule.module.code === moduleCode &&
+            m.status !== 'Drop' &&
+            m.status !== 'Delete'
+        );
+        return {
+          term: sem.term,
+          semesterNumber: sem.semesterNumber ?? 0,
+          grade: studentModule?.grade ?? '',
+        };
+      })
       .sort((a, b) => {
         const [yearA, monthA] = a.term.split('-').map(Number);
         const [yearB, monthB] = b.term.split('-').map(Number);
