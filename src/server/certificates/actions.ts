@@ -10,6 +10,7 @@ import {
   generateQRCodeDataURL,
   formatIssueDate,
 } from '@/app/dashboard/students/[id]/graduation/certificate/utils';
+import type { PDFPage, PDFFont } from 'pdf-lib';
 
 const PRIMARY_COLOR = rgb(0, 0, 0);
 const REFERENCE_RIGHT_MARGIN = 36;
@@ -137,9 +138,9 @@ export async function generateCertificatePDF(
 }
 
 interface DrawCenteredTextOptions {
-  page: any;
+  page: PDFPage;
   text: string;
-  font: any;
+  font: PDFFont;
   y: number;
   fontSize: number;
   centerX: number;
