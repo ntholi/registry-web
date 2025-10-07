@@ -21,13 +21,22 @@ import {
   IconDownload,
   IconInfoCircle,
 } from '@tabler/icons-react';
-import { getRegistrationDataPreview } from '@/server/reports/registration/actions';
+import {
+  getRegistrationDataPreview,
+  getPaginatedRegistrationStudents,
+  generateFullRegistrationReport,
+} from '@/server/reports/registration/actions';
 import ProgramBreakdownTable from './ProgramBreakdownTable';
 import StudentTable from './StudentTable';
 import RegistrationFilter, { type ReportFilter } from './RegistrationFilter';
+import { notifications } from '@mantine/notifications';
+
+const PAGE_SIZE = 20;
 
 export default function RegistrationReportPage() {
   const [filter, setFilter] = useState<ReportFilter>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isExporting, setIsExporting] = useState(false);
 
   const {
     data: reportData,
@@ -43,18 +52,89 @@ export default function RegistrationReportPage() {
     enabled: Boolean(filter.termId),
   });
 
+  const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
+    queryKey: ['registration-students-paginated', filter, currentPage],
+    queryFn: async () => {
+      if (!filter.termId) return null;
+      const result = await getPaginatedRegistrationStudents(
+        filter.termId,
+        currentPage,
+        PAGE_SIZE,
+        filter
+      );
+      return result.success ? result.data : null;
+    },
+    enabled: Boolean(filter.termId),
+  });
+
   const canGenerateReport = Boolean(filter.termId);
   const hasData = Boolean(
     reportData &&
       ((reportData.summaryData?.schools &&
         reportData.summaryData.schools.length > 0) ||
-        (reportData.fullData?.students &&
-          reportData.fullData.students.length > 0))
+        (studentsData?.students && studentsData.students.length > 0))
   );
 
-  const handleExportReport = () => {
-    // TODO: Implement report export functionality
-    console.log('Exporting report...', { filter, reportData });
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleFilterChange = (newFilter: ReportFilter) => {
+    setFilter(newFilter);
+    setCurrentPage(1);
+  };
+
+  const handleExportReport = async () => {
+    if (!filter.termId) return;
+
+    setIsExporting(true);
+    try {
+      const result = await generateFullRegistrationReport(
+        filter.termId,
+        filter
+      );
+
+      if (result.success && result.data) {
+        const byteCharacters = atob(result.data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `registration-report-${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        notifications.show({
+          title: 'Success',
+          message: 'Report exported successfully',
+          color: 'green',
+        });
+      } else {
+        notifications.show({
+          title: 'Error',
+          message: result.error || 'Failed to export report',
+          color: 'red',
+        });
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: 'An unexpected error occurred while exporting',
+        color: 'red',
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -85,12 +165,17 @@ export default function RegistrationReportPage() {
                 leftSection={<IconDownload size={16} />}
                 onClick={handleExportReport}
                 variant='light'
+                loading={isExporting}
+                disabled={isExporting}
               >
                 Export Report
               </Button>
             )}
           </Group>
-          <RegistrationFilter filter={filter} onFilterChange={setFilter} />
+          <RegistrationFilter
+            filter={filter}
+            onFilterChange={handleFilterChange}
+          />
 
           {canGenerateReport && !hasData && !isLoading && (
             <Alert
@@ -175,8 +260,12 @@ export default function RegistrationReportPage() {
                   </Group>
                 </Box>
                 <StudentTable
-                  data={reportData?.fullData?.students || []}
-                  isLoading={isLoading}
+                  data={studentsData?.students || []}
+                  isLoading={isLoadingStudents}
+                  totalCount={studentsData?.totalCount || 0}
+                  currentPage={studentsData?.currentPage || 1}
+                  totalPages={studentsData?.totalPages || 0}
+                  onPageChange={handlePageChange}
                 />
               </Paper>
             </Tabs.Panel>
