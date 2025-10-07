@@ -76,8 +76,9 @@ class FortinetRegistrationService {
         }
 
         // Check if student already registered for this level
-        const existing = await this.repository.findByStudentNumber(
-          student.stdNo
+        const existing = await this.repository.findByStudentAndLevel(
+          student.stdNo,
+          data.level
         );
 
         if (existing) {
