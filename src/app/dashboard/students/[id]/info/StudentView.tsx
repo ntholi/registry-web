@@ -122,7 +122,7 @@ export default function StudentView({ student }: Props) {
         <div>
           <Flex justify='space-between'>
             <Title order={4} mb='xs' fw={100}>
-              Current Program
+              Program
             </Title>
             <Badge
               radius={'sm'}
