@@ -385,11 +385,11 @@ export default function StatementOfResultsPDF({
       );
     }
 
-    const activePrograms = (student.programs || []).filter(
-      (program) => program && program.status === 'Active'
+    let programs = (student.programs || []).filter(
+      (program) => program && ['Active', 'Completed'].includes(program.status)
     );
 
-    const academicRemarks = getAcademicRemarks(activePrograms);
+    const academicRemarks = getAcademicRemarks(programs);
 
     return (
       <Document>
@@ -420,7 +420,7 @@ export default function StatementOfResultsPDF({
               <Text style={styles.value}>{formatDate(new Date())}</Text>
             </View>
           </View>
-          {activePrograms.map((program) => (
+          {programs.map((program) => (
             <View key={program.id} style={styles.programSection}>
               <Text style={styles.programTitle}>
                 {program.structure.program.name}
