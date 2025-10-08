@@ -385,7 +385,7 @@ export default function StatementOfResultsPDF({
       );
     }
 
-    let programs = (student.programs || []).filter(
+    const programs = (student.programs || []).filter(
       (program) => program && ['Active', 'Completed'].includes(program.status)
     );
 
