@@ -62,8 +62,8 @@ export async function exportToExcel(data: ExportData) {
     });
 
     worksheet.addImage(imageId, {
-      tl: { col: 0, row: 0 } as any,
-      br: { col: 2, row: 6 } as any,
+      tl: { col: 0, row: 0 } as unknown as ExcelJS.Anchor,
+      br: { col: 2, row: 6 } as unknown as ExcelJS.Anchor,
       editAs: 'oneCell',
     });
   } catch (error) {
@@ -184,7 +184,7 @@ export async function exportToExcel(data: ExportData) {
   const assessmentWeights: string[] = [];
 
   data.assessments.forEach((assessment) => {
-    const label = `${getAssessmentTypeLabel(assessment.assessmentType)} ${assessment.assessmentNumber}`;
+    const label = `${getAssessmentTypeLabel(assessment.assessmentType)}`;
     assessmentHeaders.push(label, '');
     assessmentWeights.push(
       `Score (${assessment.totalMarks})`,
@@ -263,7 +263,7 @@ export async function exportToExcel(data: ExportData) {
     };
   });
 
-  let dataStartRow = subHeaderRow + 1;
+  const dataStartRow = subHeaderRow + 1;
   data.students.forEach((student, index) => {
     const row = worksheet.getRow(dataStartRow + index);
 
