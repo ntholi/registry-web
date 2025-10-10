@@ -49,3 +49,6 @@ All server code should follows this exact structure in `src/server/[resource]/`:
 ### Other Things to Note
 
 - When creating native sql queries use snake_case for table and column names without uppercase letters
+
+- **NEVER generate documentation files** - Do not create or update `.md`, `.txt`, or any documentation files
+- **PowerShell v7 only** - All shell commands must be PowerShell v7 compatible (Windows environment)

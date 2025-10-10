@@ -33,7 +33,7 @@ export class RegistrationReportService {
       };
       const buffer = await createFullRegistrationExcel(fullReport);
       return buffer;
-    }, ['registry', 'admin', 'finance']);
+    }, ['registry', 'admin', 'finance', 'academic']);
   }
 
   async generateSummaryRegistrationReport(
@@ -54,7 +54,7 @@ export class RegistrationReportService {
       const document = createSummaryRegistrationDocument(reportData);
       const buffer = await Packer.toBuffer(document);
       return Buffer.from(buffer);
-    }, ['registry', 'admin', 'finance']);
+    }, ['registry', 'admin', 'finance', 'academic']);
   }
 
   async generateStudentsListReport(
@@ -80,13 +80,13 @@ export class RegistrationReportService {
 
       const buffer = await createFullRegistrationExcel(fullReport);
       return buffer;
-    }, ['registry', 'admin', 'finance']);
+    }, ['registry', 'admin', 'finance', 'academic']);
   }
 
   async getAvailableTerms() {
     return withAuth(async () => {
       return await this.repository.getAllActiveTerms();
-    }, ['registry', 'admin', 'finance']);
+    }, ['registry', 'admin', 'finance', 'academic']);
   }
 
   async getRegistrationDataForTerm(
@@ -118,7 +118,7 @@ export class RegistrationReportService {
         },
         summaryData,
       };
-    }, ['registry', 'admin', 'finance']);
+    }, ['registry', 'admin', 'finance', 'academic']);
   }
 
   async getPaginatedRegistrationStudents(
@@ -139,19 +139,19 @@ export class RegistrationReportService {
         pageSize,
         filter
       );
-    }, ['registry', 'admin', 'finance']);
+    }, ['registry', 'admin', 'finance', 'academic']);
   }
 
   async getAvailableSchools() {
     return withAuth(async () => {
       return await this.repository.getAvailableSchools();
-    }, ['registry', 'admin', 'finance']);
+    }, ['registry', 'admin', 'finance', 'academic']);
   }
 
   async getAvailablePrograms(schoolId?: number) {
     return withAuth(async () => {
       return await this.repository.getAvailablePrograms(schoolId);
-    }, ['registry', 'admin', 'finance']);
+    }, ['registry', 'admin', 'finance', 'academic']);
   }
 }
 

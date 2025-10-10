@@ -429,7 +429,20 @@ function getNavigation(department: DashboardUser) {
           href: `/dashboard/reports/registration`,
           description: 'Student Registration',
           icon: IconCopyCheck,
-          roles: ['registry', 'admin'],
+          roles: ['academic', 'registry', 'admin', 'finance'],
+          isVisible: (session) => {
+            if (
+              ['admin', 'registry', 'finance'].includes(
+                session?.user?.role as UserRole
+              )
+            )
+              return true;
+            const academicRole = session?.user?.position as UserPosition;
+            return (
+              academicRole &&
+              ['manager', 'admin', 'program_leader'].includes(academicRole)
+            );
+          },
         },
       ],
     },
