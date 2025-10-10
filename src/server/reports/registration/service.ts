@@ -31,11 +31,9 @@ export class RegistrationReportService {
         students: reportData,
         generatedAt: new Date(),
       };
-
-      // Use Excel for full report instead of Word
       const buffer = await createFullRegistrationExcel(fullReport);
       return buffer;
-    }, ['registry', 'admin']);
+    }, ['registry', 'admin', 'finance']);
   }
 
   async generateSummaryRegistrationReport(
@@ -56,7 +54,7 @@ export class RegistrationReportService {
       const document = createSummaryRegistrationDocument(reportData);
       const buffer = await Packer.toBuffer(document);
       return Buffer.from(buffer);
-    }, ['registry', 'admin']);
+    }, ['registry', 'admin', 'finance']);
   }
 
   async generateStudentsListReport(
@@ -82,13 +80,13 @@ export class RegistrationReportService {
 
       const buffer = await createFullRegistrationExcel(fullReport);
       return buffer;
-    }, ['registry', 'admin']);
+    }, ['registry', 'admin', 'finance']);
   }
 
   async getAvailableTerms() {
     return withAuth(async () => {
       return await this.repository.getAllActiveTerms();
-    }, ['registry', 'admin']);
+    }, ['registry', 'admin', 'finance']);
   }
 
   async getRegistrationDataForTerm(
@@ -120,7 +118,7 @@ export class RegistrationReportService {
         },
         summaryData,
       };
-    }, ['registry', 'admin']);
+    }, ['registry', 'admin', 'finance']);
   }
 
   async getPaginatedRegistrationStudents(
@@ -141,19 +139,19 @@ export class RegistrationReportService {
         pageSize,
         filter
       );
-    }, ['registry', 'admin']);
+    }, ['registry', 'admin', 'finance']);
   }
 
   async getAvailableSchools() {
     return withAuth(async () => {
       return await this.repository.getAvailableSchools();
-    }, ['registry', 'admin']);
+    }, ['registry', 'admin', 'finance']);
   }
 
   async getAvailablePrograms(schoolId?: number) {
     return withAuth(async () => {
       return await this.repository.getAvailablePrograms(schoolId);
-    }, ['registry', 'admin']);
+    }, ['registry', 'admin', 'finance']);
   }
 }
 
