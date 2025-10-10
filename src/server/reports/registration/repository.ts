@@ -8,13 +8,14 @@ import {
   structures,
   terms,
 } from '@/db/schema';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, or, like, sql } from 'drizzle-orm';
 
 export interface RegistrationReportFilter {
   termId?: number;
   schoolId?: number;
   programId?: number;
   semesterNumber?: number;
+  searchQuery?: string;
 }
 
 export interface FullRegistrationStudent {
@@ -175,6 +176,20 @@ export class RegistrationReportRepository {
     if (filter?.semesterNumber) {
       conditions.push(
         eq(studentSemesters.semesterNumber, filter.semesterNumber)
+      );
+    }
+
+    if (filter?.searchQuery && filter.searchQuery.trim()) {
+      const searchTerm = `%${filter.searchQuery.trim()}%`;
+      conditions.push(
+        or(
+          like(sql`CAST(${students.stdNo} AS TEXT)`, searchTerm),
+          like(students.name, searchTerm),
+          like(programs.name, searchTerm),
+          like(schools.name, searchTerm),
+          like(schools.code, searchTerm),
+          like(students.phone1, searchTerm)
+        )!
       );
     }
 

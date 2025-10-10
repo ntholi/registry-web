@@ -11,7 +11,9 @@ import {
   Pagination,
   Box,
   Anchor,
+  TextInput,
 } from '@mantine/core';
+import { IconSearch } from '@tabler/icons-react';
 import { formatPhoneNumber, formatSemester } from '@/lib/utils';
 import Link from 'next/link';
 
@@ -32,6 +34,8 @@ interface StudentTableProps {
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 export default function StudentTable({
@@ -41,6 +45,8 @@ export default function StudentTable({
   currentPage = 1,
   totalPages = 0,
   onPageChange,
+  searchQuery = '',
+  onSearchChange,
 }: StudentTableProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -54,6 +60,15 @@ export default function StudentTable({
   }
 
   if (!data || data.length === 0) {
+    if (searchQuery) {
+      return (
+        <Group justify='center' p='xl'>
+          <Text c='dimmed'>
+            No students match your search criteria. Try a different search term.
+          </Text>
+        </Group>
+      );
+    }
     return (
       <Group justify='center' p='xl'>
         <Text c='dimmed'>No students found for the selected criteria.</Text>
@@ -63,6 +78,16 @@ export default function StudentTable({
 
   return (
     <Box>
+      <Box p='md'>
+        <TextInput
+          placeholder='Search by student number, name, program, school, or phone...'
+          leftSection={<IconSearch size={16} />}
+          value={searchQuery}
+          onChange={(event) => onSearchChange?.(event.currentTarget.value)}
+          size='sm'
+        />
+      </Box>
+
       <ScrollArea>
         <Table striped highlightOnHover>
           <Table.Thead>
@@ -120,8 +145,17 @@ export default function StudentTable({
 
       <Group justify='space-between' mt='md' p='sm' wrap='wrap'>
         <Text size='sm' c='dimmed'>
-          Showing {data.length} of {totalCount} student
-          {totalCount !== 1 ? 's' : ''}
+          {searchQuery ? (
+            <>
+              Found {data.length} of {totalCount} student
+              {totalCount !== 1 ? 's' : ''}
+            </>
+          ) : (
+            <>
+              Showing {data.length} of {totalCount} student
+              {totalCount !== 1 ? 's' : ''}
+            </>
+          )}
         </Text>
 
         {totalPages > 1 && (

@@ -1,6 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useDebouncedValue } from '@mantine/hooks';
 import {
   Container,
   Title,
@@ -39,6 +40,8 @@ const PAGE_SIZE = 20;
 export default function RegistrationReportPage() {
   const [filter, setFilter] = useState<ReportFilter>({});
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch] = useDebouncedValue(searchQuery, 500);
   const [isExportingSummary, setIsExportingSummary] = useState(false);
   const [isExportingStudents, setIsExportingStudents] = useState(false);
 
@@ -57,14 +60,19 @@ export default function RegistrationReportPage() {
   });
 
   const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
-    queryKey: ['registration-students-paginated', filter, currentPage],
+    queryKey: [
+      'registration-students-paginated',
+      filter,
+      currentPage,
+      debouncedSearch,
+    ],
     queryFn: async () => {
       if (!filter.termId) return null;
       const result = await getPaginatedRegistrationStudents(
         filter.termId,
         currentPage,
         PAGE_SIZE,
-        filter
+        { ...filter, searchQuery: debouncedSearch }
       );
       return result.success ? result.data : null;
     },
@@ -86,7 +94,13 @@ export default function RegistrationReportPage() {
   const handleFilterChange = (newFilter: ReportFilter) => {
     setFilter(newFilter);
     setCurrentPage(1);
+    setSearchQuery('');
   };
+
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  }, []);
 
   const handleExportSummary = async () => {
     if (!filter.termId) return;
@@ -326,6 +340,8 @@ export default function RegistrationReportPage() {
                   currentPage={studentsData?.currentPage || 1}
                   totalPages={studentsData?.totalPages || 0}
                   onPageChange={handlePageChange}
+                  searchQuery={searchQuery}
+                  onSearchChange={handleSearchChange}
                 />
               </Paper>
             </Tabs.Panel>
