@@ -13,6 +13,7 @@ import {
   Box,
   Anchor,
   TextInput,
+  Stack,
 } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import { formatPhoneNumber, formatSemester } from '@/lib/utils';
@@ -51,27 +52,19 @@ export default function StudentTable({
 }: StudentTableProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const searchInput = (
-    <Box p='md'>
-      <TextInput
-        placeholder='Search by student number, name, program, school, or phone...'
-        leftSection={<IconSearch size={16} />}
-        rightSection={isLoading ? <Loader size='xs' /> : null}
-        value={searchQuery}
-        onChange={(event) => onSearchChange?.(event.currentTarget.value)}
-        size='sm'
-      />
-    </Box>
-  );
-
   if (isLoading) {
-    const rowCount = isMobile ? 4 : 6;
+    const rowCount = isMobile ? 5 : 10;
     return (
-      <Box>
-        {searchInput}
+      <Stack gap='md'>
+        <TextInput
+          placeholder='Search students...'
+          leftSection={<IconSearch size={16} />}
+          size='sm'
+          disabled
+        />
 
         <ScrollArea>
-          <Table striped highlightOnHover>
+          <Table horizontalSpacing='md' verticalSpacing='sm'>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Student No.</Table.Th>
@@ -86,105 +79,113 @@ export default function StudentTable({
               {Array.from({ length: rowCount }).map((_, i) => (
                 <Table.Tr key={i}>
                   <Table.Td>
-                    <Skeleton height={16} width={80} />
+                    <Skeleton height={14} width={70} />
                   </Table.Td>
                   <Table.Td>
-                    <Skeleton height={16} width='60%' />
+                    <Skeleton height={14} width='60%' />
                   </Table.Td>
                   <Table.Td>
-                    <Skeleton height={14} width='50%' />
+                    <Skeleton height={14} width='70%' />
                   </Table.Td>
                   <Table.Td ta='center'>
-                    <Skeleton height={20} width={60} radius='xl' />
+                    <Skeleton height={18} width={50} radius='sm' />
                   </Table.Td>
                   <Table.Td>
-                    <Skeleton height={16} width='40%' />
+                    <Skeleton height={14} width={60} />
                   </Table.Td>
                   <Table.Td>
-                    <Skeleton height={16} width='50%' />
+                    <Skeleton height={14} width={90} />
                   </Table.Td>
                 </Table.Tr>
               ))}
             </Table.Tbody>
           </Table>
         </ScrollArea>
-
-        <Group justify='center' mt='md' p='sm'>
-          <Text c='dimmed'>Loading students...</Text>
-        </Group>
-      </Box>
+      </Stack>
     );
   }
 
   if (!data || data.length === 0) {
-    if (searchQuery) {
-      return (
-        <Group justify='center' p='xl'>
-          <Text c='dimmed'>
-            No students match your search criteria. Try a different search term.
-          </Text>
-        </Group>
-      );
-    }
     return (
-      <Group justify='center' p='xl'>
-        <Text c='dimmed'>No students found for the selected criteria.</Text>
-      </Group>
+      <Stack gap='md'>
+        <TextInput
+          placeholder='Search students...'
+          leftSection={<IconSearch size={16} />}
+          rightSection={isLoading && <Loader size='xs' />}
+          value={searchQuery}
+          onChange={(event) => onSearchChange?.(event.currentTarget.value)}
+          size='sm'
+        />
+
+        <Box py='xl' ta='center'>
+          <Text c='dimmed'>
+            {searchQuery
+              ? 'No students match your search'
+              : 'No students found'}
+          </Text>
+        </Box>
+      </Stack>
     );
   }
 
   return (
-    <Box>
-      {searchInput}
+    <Stack gap='md'>
+      <TextInput
+        placeholder='Search by student number, name, program, or school...'
+        leftSection={<IconSearch size={16} />}
+        rightSection={isLoading && <Loader size='xs' />}
+        value={searchQuery}
+        onChange={(event) => onSearchChange?.(event.currentTarget.value)}
+        size='sm'
+      />
 
       <ScrollArea>
-        <Table striped highlightOnHover>
+        <Table horizontalSpacing='md' verticalSpacing='sm' striped>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th miw={80}>Student No.</Table.Th>
-              <Table.Th miw={isMobile ? 120 : 200}>Name</Table.Th>
-              <Table.Th miw={isMobile ? 150 : 250}>Program</Table.Th>
-              <Table.Th ta='center' miw={60}>
+              <Table.Th miw={90}>Student No.</Table.Th>
+              <Table.Th miw={isMobile ? 140 : 200}>Name</Table.Th>
+              <Table.Th miw={isMobile ? 160 : 250}>Program</Table.Th>
+              <Table.Th ta='center' miw={90}>
                 Semester
               </Table.Th>
-              <Table.Th miw={isMobile ? 100 : 150}>School</Table.Th>
-              <Table.Th miw={isMobile ? 120 : 150}>Phone</Table.Th>
+              <Table.Th miw={100}>School</Table.Th>
+              <Table.Th miw={120}>Phone</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {data.map((student, index) => (
               <Table.Tr key={`${student.stdNo}-${index}`}>
-                <Table.Td fw={500}>
+                <Table.Td>
                   <Anchor
                     component={Link}
                     href={`/dashboard/students/${student.stdNo}`}
-                    size={isMobile ? 'xs' : 'sm'}
+                    size='sm'
+                    fw={500}
                   >
                     {student.stdNo}
                   </Anchor>
                 </Table.Td>
                 <Table.Td>
-                  <Text size={isMobile ? 'xs' : 'sm'}>{student.name}</Text>
+                  <Text size='sm'>{student.name}</Text>
                 </Table.Td>
                 <Table.Td>
-                  <Text size={isMobile ? 'xs' : 'sm'} c='dimmed'>
+                  <Text size='sm' c='dimmed'>
                     {student.programName}
                   </Text>
                 </Table.Td>
                 <Table.Td ta='center'>
-                  <Badge variant='light' size={isMobile ? 'xs' : 'sm'}>
+                  <Badge variant='light' size='sm'>
                     {formatSemester(student.semesterNumber, 'mini')}
                   </Badge>
                 </Table.Td>
                 <Table.Td>
-                  <Text size={isMobile ? 'xs' : 'sm'} fw={500}>
+                  <Text size='sm' fw={500}>
                     {student.schoolCode}
                   </Text>
                 </Table.Td>
                 <Table.Td>
-                  <Text size={isMobile ? 'xs' : 'sm'}>
-                    {formatPhoneNumber(student.phone)}
-                  </Text>
+                  <Text size='sm'>{formatPhoneNumber(student.phone)}</Text>
                 </Table.Td>
               </Table.Tr>
             ))}
@@ -192,19 +193,10 @@ export default function StudentTable({
         </Table>
       </ScrollArea>
 
-      <Group justify='space-between' mt='md' p='sm' wrap='wrap'>
+      <Group justify='space-between' wrap='wrap'>
         <Text size='sm' c='dimmed'>
-          {searchQuery ? (
-            <>
-              Found {data.length} of {totalCount} student
-              {totalCount !== 1 ? 's' : ''}
-            </>
-          ) : (
-            <>
-              Showing {data.length} of {totalCount} student
-              {totalCount !== 1 ? 's' : ''}
-            </>
-          )}
+          Showing {data.length} of {totalCount} student
+          {totalCount !== 1 ? 's' : ''}
         </Text>
 
         {totalPages > 1 && (
@@ -212,10 +204,10 @@ export default function StudentTable({
             total={totalPages}
             value={currentPage}
             onChange={onPageChange}
-            size={'sm'}
+            size='sm'
           />
         )}
       </Group>
-    </Box>
+    </Stack>
   );
 }

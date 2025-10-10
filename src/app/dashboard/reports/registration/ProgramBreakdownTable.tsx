@@ -1,5 +1,13 @@
-import { Card, Text, Badge, Table, ScrollArea, Group } from '@mantine/core';
-import { IconBuilding } from '@tabler/icons-react';
+import {
+  Text,
+  Badge,
+  Table,
+  ScrollArea,
+  Group,
+  Box,
+  Stack,
+  Paper,
+} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { formatSemester } from '@/lib/utils';
 
@@ -31,33 +39,28 @@ export default function ProgramBreakdownTable({
   ).sort((a, b) => a - b);
 
   return (
-    <Card withBorder>
-      <Group justify='space-between' mb='sm'>
-        <Group>
-          <IconBuilding size={20} />
-          <div>
-            <Text fw={600}>{school.schoolName}</Text>
-            <Text size='sm' c='dimmed'>
-              {school.schoolCode}
-            </Text>
-          </div>
-        </Group>
-        <Badge variant='light' size='sm'>
-          {school.totalStudents} students
-        </Badge>
+    <Paper withBorder p='md'>
+      <Group justify='space-between' mb='md'>
+        <Stack gap={4}>
+          <Text fw={600}>{school.schoolName}</Text>
+          <Text size='sm' c='dimmed'>
+            {school.schoolCode}
+          </Text>
+        </Stack>
+        <Badge variant='light'>{school.totalStudents}</Badge>
       </Group>
 
-      <ScrollArea type={isMobile ? 'scroll' : 'hover'}>
-        <Table striped highlightOnHover>
+      <ScrollArea type={isMobile ? 'scroll' : 'auto'}>
+        <Table horizontalSpacing='md' verticalSpacing='sm' striped>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th miw={isMobile ? 120 : 200}>Program</Table.Th>
+              <Table.Th miw={isMobile ? 140 : 250}>Program</Table.Th>
               {allSemesters.map((semester) => (
-                <Table.Th key={semester} ta='center' miw={80}>
+                <Table.Th key={semester} ta='center' miw={70}>
                   {formatSemester(semester, 'mini')}
                 </Table.Th>
               ))}
-              <Table.Th ta='center' miw={60}>
+              <Table.Th ta='center' miw={70}>
                 Total
               </Table.Th>
             </Table.Tr>
@@ -66,19 +69,20 @@ export default function ProgramBreakdownTable({
             {school.programs.map((program, pIndex) => (
               <Table.Tr key={pIndex}>
                 <Table.Td>
-                  <Text size={isMobile ? 'xs' : 'sm'} fw={500}>
-                    {program.programName}
-                  </Text>
+                  <Text size='sm'>{program.programName}</Text>
                 </Table.Td>
                 {allSemesters.map((semester) => (
                   <Table.Td key={semester} ta='center'>
-                    <Text size={isMobile ? 'xs' : 'sm'}>
-                      {program.yearBreakdown[semester] || 0}
+                    <Text
+                      size='sm'
+                      c={program.yearBreakdown[semester] ? undefined : 'dimmed'}
+                    >
+                      {program.yearBreakdown[semester] || '-'}
                     </Text>
                   </Table.Td>
                 ))}
                 <Table.Td ta='center'>
-                  <Badge variant='filled' size={isMobile ? 'xs' : 'sm'}>
+                  <Badge variant='default' size='sm'>
                     {program.totalStudents}
                   </Badge>
                 </Table.Td>
@@ -87,6 +91,6 @@ export default function ProgramBreakdownTable({
           </Table.Tbody>
         </Table>
       </ScrollArea>
-    </Card>
+    </Paper>
   );
 }

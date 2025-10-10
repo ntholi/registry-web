@@ -7,17 +7,13 @@ import {
   Title,
   Stack,
   Box,
-  Paper,
   Group,
   Button,
   Text,
-  ThemeIcon,
   Alert,
   Tabs,
-  Divider,
 } from '@mantine/core';
 import {
-  IconFileText,
   IconUsers,
   IconChartBar,
   IconDownload,
@@ -26,7 +22,6 @@ import {
 import {
   getRegistrationDataPreview,
   getPaginatedRegistrationStudents,
-  generateFullRegistrationReport,
   generateSummaryRegistrationReport,
   generateStudentsListReport,
 } from '@/server/reports/registration/actions';
@@ -206,127 +201,109 @@ export default function RegistrationReportPage() {
   };
 
   return (
-    <Container size='xl' p='lg'>
-      <Stack gap='lg'>
-        <Paper p='lg' withBorder>
-          <Box>
-            <Group mb='sm'>
-              <ThemeIcon variant='light' size='lg'>
-                <IconFileText size={20} />
-              </ThemeIcon>
-              <Box>
-                <Title order={2} size='h3'>
-                  Registration Reports
-                </Title>
-              </Box>
-            </Group>
-          </Box>
-          <RegistrationFilter
-            filter={filter}
-            onFilterChange={handleFilterChange}
-          />
+    <Container size='xl' p={{ base: 'sm', sm: 'xl' }}>
+      <Stack gap='xl'>
+        <Box>
+          <Title order={1} size='h2'>
+            Registration Reports
+          </Title>
+          <Text c='dimmed' size='sm'>
+            View and export registration data by academic term
+          </Text>
+        </Box>
 
-          {canGenerateReport && !hasData && !isLoading && (
-            <Alert
-              icon={<IconInfoCircle size={16} />}
-              title='No Data Available'
-              color='yellow'
-              variant='light'
-            >
-              No registration data found for the selected criteria. Try
-              adjusting your filters or selecting a different academic term.
-            </Alert>
-          )}
-        </Paper>
+        <RegistrationFilter
+          filter={filter}
+          onFilterChange={handleFilterChange}
+        />
+
+        {canGenerateReport && !hasData && !isLoading && (
+          <Alert
+            icon={<IconInfoCircle size={16} />}
+            color='yellow'
+            variant='light'
+          >
+            No registration data found for the selected criteria. Try adjusting
+            your filters or selecting a different academic term.
+          </Alert>
+        )}
 
         {canGenerateReport && (
-          <Tabs defaultValue='summary' variant='default'>
-            <Tabs.List grow>
+          <Tabs defaultValue='summary'>
+            <Tabs.List>
               <Tabs.Tab
                 value='summary'
                 leftSection={<IconChartBar size={16} />}
               >
-                Summary View
+                Summary
               </Tabs.Tab>
               <Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
-                Student List
+                Students
               </Tabs.Tab>
             </Tabs.List>
 
-            <Tabs.Panel value='summary' pt='lg'>
-              <Paper withBorder p={0} style={{ overflow: 'hidden' }}>
-                <Box p='md'>
-                  <Group justify='space-between'>
-                    <Group>
-                      <ThemeIcon variant='light' color='blue'>
-                        <IconChartBar size={16} />
-                      </ThemeIcon>
-                      <Box>
-                        <Text fw={500}>Program Enrollment Summary</Text>
-                        <Text size='sm' c='dimmed'>
-                          Registration statistics grouped by academic programs
-                        </Text>
-                      </Box>
-                    </Group>
-                    {hasData && (
-                      <Button
-                        leftSection={<IconDownload size={16} />}
-                        onClick={handleExportSummary}
-                        variant='light'
-                        loading={isExportingSummary}
-                        disabled={isExportingSummary}
-                        size='sm'
-                      >
-                        Export
-                      </Button>
-                    )}
-                  </Group>
-                </Box>
-                <Stack gap='md'>
-                  {reportData?.summaryData?.schools?.map((school, index) => (
-                    <ProgramBreakdownTable key={index} school={school} />
-                  ))}
-                  {(!reportData?.summaryData?.schools ||
-                    reportData.summaryData.schools.length === 0) && (
-                    <Alert color='blue' variant='light'>
-                      No program data available for the selected criteria.
-                    </Alert>
+            <Tabs.Panel value='summary' pt='xl'>
+              <Stack gap='lg'>
+                <Group justify='space-between' align='center'>
+                  <Box>
+                    <Text fw={600} size='lg'>
+                      Program Enrollment
+                    </Text>
+                    <Text size='sm' c='dimmed'>
+                      Registration statistics by program
+                    </Text>
+                  </Box>
+                  {hasData && (
+                    <Button
+                      leftSection={<IconDownload size={16} />}
+                      onClick={handleExportSummary}
+                      variant='light'
+                      loading={isExportingSummary}
+                      disabled={isExportingSummary}
+                    >
+                      Export Summary
+                    </Button>
                   )}
-                </Stack>
-              </Paper>
+                </Group>
+
+                {reportData?.summaryData?.schools?.map((school, index) => (
+                  <ProgramBreakdownTable key={index} school={school} />
+                ))}
+
+                {(!reportData?.summaryData?.schools ||
+                  reportData.summaryData.schools.length === 0) && (
+                  <Alert color='blue' variant='light'>
+                    No program data available for the selected criteria.
+                  </Alert>
+                )}
+              </Stack>
             </Tabs.Panel>
 
-            <Tabs.Panel value='students' pt='lg'>
-              <Paper withBorder p={0} style={{ overflow: 'hidden' }}>
-                <Box p='md'>
-                  <Group justify='space-between'>
-                    <Group>
-                      <ThemeIcon variant='light' color='green'>
-                        <IconUsers size={16} />
-                      </ThemeIcon>
-                      <Box>
-                        <Text fw={500}>Registered Students</Text>
-                        <Text size='sm' c='dimmed'>
-                          Complete list of students matching the selected
-                          criteria
-                        </Text>
-                      </Box>
-                    </Group>
-                    {hasData && (
-                      <Button
-                        leftSection={<IconDownload size={16} />}
-                        onClick={handleExportStudents}
-                        variant='light'
-                        loading={isExportingStudents}
-                        disabled={isExportingStudents}
-                        size='sm'
-                      >
-                        Export
-                      </Button>
-                    )}
-                  </Group>
-                </Box>
-                <Divider />
+            <Tabs.Panel value='students' pt='xl'>
+              <Stack gap='lg'>
+                <Group justify='space-between' align='center'>
+                  <Box>
+                    <Text fw={600} size='lg'>
+                      Registered Students
+                    </Text>
+                    <Text size='sm' c='dimmed'>
+                      {studentsData?.totalCount || 0} student
+                      {studentsData?.totalCount !== 1 ? 's' : ''} found
+                    </Text>
+                  </Box>
+                  {hasData && (
+                    <Button
+                      leftSection={<IconDownload size={16} />}
+                      onClick={handleExportStudents}
+                      variant='light'
+                      loading={isExportingStudents}
+                      disabled={isExportingStudents}
+                    >
+                      Export List
+                    </Button>
+                  )}
+                </Group>
+
                 <StudentTable
                   data={studentsData?.students || []}
                   isLoading={isLoadingStudents}
@@ -337,7 +314,7 @@ export default function RegistrationReportPage() {
                   searchQuery={searchQuery}
                   onSearchChange={handleSearchChange}
                 />
-              </Paper>
+              </Stack>
             </Tabs.Panel>
           </Tabs>
         )}
