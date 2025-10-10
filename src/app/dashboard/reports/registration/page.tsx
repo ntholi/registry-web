@@ -12,6 +12,7 @@ import {
   Text,
   Alert,
   Tabs,
+  Card,
 } from '@mantine/core';
 import {
   IconUsers,
@@ -202,7 +203,7 @@ export default function RegistrationReportPage() {
 
   return (
     <Container size='xl' p={{ base: 'sm', sm: 'xl' }}>
-      <Stack gap='xl'>
+      <Stack>
         <Box>
           <Title order={1} size='h2'>
             Registration Reports
@@ -244,27 +245,29 @@ export default function RegistrationReportPage() {
 
             <Tabs.Panel value='summary' pt='xl'>
               <Stack gap='lg'>
-                <Group justify='space-between' align='center'>
-                  <Box>
-                    <Text fw={600} size='lg'>
-                      Program Enrollment
-                    </Text>
-                    <Text size='sm' c='dimmed'>
-                      Registration statistics by program
-                    </Text>
-                  </Box>
-                  {hasData && (
-                    <Button
-                      leftSection={<IconDownload size={16} />}
-                      onClick={handleExportSummary}
-                      variant='light'
-                      loading={isExportingSummary}
-                      disabled={isExportingSummary}
-                    >
-                      Export Summary
-                    </Button>
-                  )}
-                </Group>
+                <Card>
+                  <Group justify='space-between' align='center'>
+                    <Box>
+                      <Text fw={600} size='lg'>
+                        Program Enrollment
+                      </Text>
+                      <Text size='sm' c='dimmed'>
+                        Registration statistics by program
+                      </Text>
+                    </Box>
+                    {hasData && (
+                      <Button
+                        leftSection={<IconDownload size={16} />}
+                        onClick={handleExportSummary}
+                        variant='light'
+                        loading={isExportingSummary}
+                        disabled={isExportingSummary}
+                      >
+                        Export Summary
+                      </Button>
+                    )}
+                  </Group>
+                </Card>
 
                 {reportData?.summaryData?.schools?.map((school, index) => (
                   <ProgramBreakdownTable key={index} school={school} />
@@ -281,28 +284,30 @@ export default function RegistrationReportPage() {
 
             <Tabs.Panel value='students' pt='xl'>
               <Stack gap='lg'>
-                <Group justify='space-between' align='center'>
-                  <Box>
-                    <Text fw={600} size='lg'>
-                      Registered Students
-                    </Text>
-                    <Text size='sm' c='dimmed'>
-                      {studentsData?.totalCount || 0} student
-                      {studentsData?.totalCount !== 1 ? 's' : ''} found
-                    </Text>
-                  </Box>
-                  {hasData && (
-                    <Button
-                      leftSection={<IconDownload size={16} />}
-                      onClick={handleExportStudents}
-                      variant='light'
-                      loading={isExportingStudents}
-                      disabled={isExportingStudents}
-                    >
-                      Export List
-                    </Button>
-                  )}
-                </Group>
+                <Card>
+                  <Group justify='space-between' align='center'>
+                    <Box>
+                      <Text fw={600} size='lg'>
+                        Registered Students
+                      </Text>
+                      <Text size='sm' c='dimmed'>
+                        {studentsData?.totalCount || 0} student
+                        {studentsData?.totalCount !== 1 ? 's' : ''} found
+                      </Text>
+                    </Box>
+                    {hasData && (
+                      <Button
+                        leftSection={<IconDownload size={16} />}
+                        onClick={handleExportStudents}
+                        variant='light'
+                        loading={isExportingStudents}
+                        disabled={isExportingStudents}
+                      >
+                        Export List
+                      </Button>
+                    )}
+                  </Group>
+                </Card>
 
                 <StudentTable
                   data={studentsData?.students || []}

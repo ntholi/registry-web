@@ -51,7 +51,7 @@ export default function ProgramBreakdownTable({
       </Group>
 
       <ScrollArea type={isMobile ? 'scroll' : 'auto'}>
-        <Table horizontalSpacing='md' verticalSpacing='sm' striped>
+        <Table withTableBorder>
           <Table.Thead>
             <Table.Tr>
               <Table.Th miw={isMobile ? 140 : 250}>Program</Table.Th>
@@ -82,7 +82,7 @@ export default function ProgramBreakdownTable({
                   </Table.Td>
                 ))}
                 <Table.Td ta='center'>
-                  <Badge variant='default' size='sm'>
+                  <Badge radius={'xs'} variant='default' w={50} size='sm'>
                     {program.totalStudents}
                   </Badge>
                 </Table.Td>
