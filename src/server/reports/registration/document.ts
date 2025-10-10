@@ -1,35 +1,110 @@
+import { formatSemester } from '@/lib/utils';
+import fs from 'fs';
+import path from 'path';
 import {
-  Document,
-  Paragraph,
-  TextRun,
-  Table,
-  TableRow,
-  TableCell,
-  WidthType,
   AlignmentType,
   BorderStyle,
+  Document,
   Footer,
   ImageRun,
   PageOrientation,
+  Paragraph,
+  Table,
+  TableCell,
+  TableRow,
+  TextRun,
+  WidthType,
 } from 'docx';
-import * as fs from 'fs';
-import * as path from 'path';
 import {
   FullRegistrationReport,
   SummaryRegistrationReport,
 } from './repository';
-import { formatSemester } from '@/lib/utils';
+
+function getLogoImage(): Buffer {
+  if (typeof window === 'undefined') {
+    const logoPath = path.join(
+      process.cwd(),
+      'public',
+      'images',
+      'logo-lesotho.jpg'
+    );
+    try {
+      return fs.readFileSync(logoPath);
+    } catch (error) {
+      console.error('Error reading logo file:', error);
+      return Buffer.from('');
+    }
+  }
+  return Buffer.from('');
+}
 
 export function createFullRegistrationDocument(
   report: FullRegistrationReport
 ): Document {
-  const logoPath = path.join(
-    process.cwd(),
-    'public',
-    'images',
-    'logo-lesotho.jpg'
+  const logoImage = getLogoImage();
+
+  const headerParagraphs: Paragraph[] = [];
+
+  if (logoImage.length > 0) {
+    headerParagraphs.push(
+      new Paragraph({
+        children: [
+          new ImageRun({
+            data: logoImage,
+            transformation: {
+              width: 360,
+              height: 180,
+            },
+            type: 'jpg',
+          }),
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 400 },
+      })
+    );
+  }
+
+  headerParagraphs.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: 'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY',
+          font: 'Arial',
+          bold: true,
+          size: 28,
+          color: '000000',
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 200 },
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: 'REGISTRY DEPARTMENT',
+          font: 'Arial',
+          bold: true,
+          size: 22,
+          color: '333333',
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: 'FULL REGISTRATION REPORT',
+          font: 'Arial',
+          bold: true,
+          size: 24,
+          color: '000000',
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 480 },
+    })
   );
-  const logoImage = fs.readFileSync(logoPath);
 
   const doc = new Document({
     creator: 'Limkokwing University Registry System',
@@ -77,59 +152,7 @@ export function createFullRegistrationDocument(
           }),
         },
         children: [
-          new Paragraph({
-            children: [
-              new ImageRun({
-                data: logoImage,
-                transformation: {
-                  width: 360,
-                  height: 180,
-                },
-                type: 'jpg',
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 400 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: 'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY',
-                font: 'Arial',
-                bold: true,
-                size: 28,
-                color: '000000',
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 200 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: 'REGISTRY DEPARTMENT',
-                font: 'Arial',
-                bold: true,
-                size: 22,
-                color: '333333',
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 300 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: 'FULL REGISTRATION REPORT',
-                font: 'Arial',
-                bold: true,
-                size: 24,
-                color: '000000',
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 480 },
-          }),
+          ...headerParagraphs,
           createFullReportInfoTable(report),
           new Paragraph({
             children: [
@@ -157,13 +180,57 @@ export function createFullRegistrationDocument(
 export function createSummaryRegistrationDocument(
   report: SummaryRegistrationReport
 ): Document {
-  const logoPath = path.join(
-    process.cwd(),
-    'public',
-    'images',
-    'logo-lesotho.jpg'
+  const logoImage = getLogoImage();
+
+  const headerParagraphs: Paragraph[] = [];
+
+  if (logoImage.length > 0) {
+    headerParagraphs.push(
+      new Paragraph({
+        children: [
+          new ImageRun({
+            data: logoImage,
+            transformation: {
+              width: 360,
+              height: 180,
+            },
+            type: 'jpg',
+          }),
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 400 },
+      })
+    );
+  }
+
+  headerParagraphs.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: 'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY',
+          font: 'Arial',
+          bold: true,
+          size: 28,
+          color: '000000',
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 200 },
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: 'REGISTRY DEPARTMENT',
+          font: 'Arial',
+          bold: true,
+          size: 22,
+          color: '333333',
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
+    })
   );
-  const logoImage = fs.readFileSync(logoPath);
 
   const doc = new Document({
     creator: 'Limkokwing University Registry System',
@@ -211,46 +278,7 @@ export function createSummaryRegistrationDocument(
           }),
         },
         children: [
-          new Paragraph({
-            children: [
-              new ImageRun({
-                data: logoImage,
-                transformation: {
-                  width: 360,
-                  height: 180,
-                },
-                type: 'jpg',
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 400 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: 'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY',
-                font: 'Arial',
-                bold: true,
-                size: 28,
-                color: '000000',
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 200 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: 'REGISTRY DEPARTMENT',
-                font: 'Arial',
-                bold: true,
-                size: 22,
-                color: '333333',
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 300 },
-          }),
+          ...headerParagraphs,
           createSummaryReportInfoTable(report),
           new Paragraph({
             text: '',
