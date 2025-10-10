@@ -185,16 +185,15 @@ export async function exportToExcel(data: ExportData) {
 
   data.assessments.forEach((assessment) => {
     const label = `${getAssessmentTypeLabel(assessment.assessmentType)} ${assessment.assessmentNumber}`;
-    assessmentHeaders.push(label, '', '');
+    assessmentHeaders.push(label, '');
     assessmentWeights.push(
       `Score (${assessment.totalMarks})`,
-      `${assessment.weight}%`,
-      ''
+      `${assessment.weight}%`
     );
   });
 
   const baseHeaders = ['No', 'Names', 'Student No.'];
-  const fullHeaders = [...baseHeaders, ...assessmentHeaders, 'TOTAL', '', ''];
+  const fullHeaders = [...baseHeaders, ...assessmentHeaders, 'TOTAL', ''];
 
   const headerRowCells = worksheet.getRow(headerRow);
   fullHeaders.forEach((header, index) => {
@@ -226,10 +225,10 @@ export async function exportToExcel(data: ExportData) {
 
   let headerCol = 4;
   data.assessments.forEach(() => {
-    worksheet.mergeCells(headerRow, headerCol, headerRow, headerCol + 2);
-    headerCol += 3;
+    worksheet.mergeCells(headerRow, headerCol, headerRow, headerCol + 1);
+    headerCol += 2;
   });
-  worksheet.mergeCells(headerRow, headerCol, headerRow, headerCol + 2);
+  worksheet.mergeCells(headerRow, headerCol, headerRow, headerCol + 1);
 
   const subHeaderRow = headerRow + 1;
   const baseSubHeaders = ['', '', ''];
@@ -238,7 +237,6 @@ export async function exportToExcel(data: ExportData) {
     ...assessmentWeights,
     '40.00%',
     'Grade',
-    '',
   ];
 
   const subHeaderRowCells = worksheet.getRow(subHeaderRow);
@@ -288,7 +286,7 @@ export async function exportToExcel(data: ExportData) {
       const weightedCell = row.getCell(currentCol + 1);
       weightedCell.value = weightedValue;
 
-      currentCol += 3;
+      currentCol += 2;
     });
 
     const moduleGrade = data.moduleGrades.find(
@@ -311,7 +309,7 @@ export async function exportToExcel(data: ExportData) {
       fgColor: { argb: 'FFFFFF00' },
     };
 
-    for (let i = 1; i <= currentCol + 2; i++) {
+    for (let i = 1; i <= currentCol + 1; i++) {
       const cell = row.getCell(i);
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
       cell.border = {
@@ -335,8 +333,7 @@ export async function exportToExcel(data: ExportData) {
   data.assessments.forEach(() => {
     worksheet.getColumn(colWidthIndex).width = 10;
     worksheet.getColumn(colWidthIndex + 1).width = 8;
-    worksheet.getColumn(colWidthIndex + 2).width = 10;
-    colWidthIndex += 3;
+    colWidthIndex += 2;
   });
   worksheet.getColumn(colWidthIndex).width = 10;
   worksheet.getColumn(colWidthIndex + 1).width = 8;
