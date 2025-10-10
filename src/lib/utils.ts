@@ -89,18 +89,19 @@ export function formatPhoneNumber(phone: string | null | undefined) {
   const cleaned = phone.replace(/\D/g, '');
 
   if (cleaned.length === 0) return null;
+
   if (cleaned.startsWith('266')) {
     if (cleaned.length === 11) {
       return `(+266) ${cleaned.slice(3, 7)} ${cleaned.slice(7)}`;
     }
-    return `+${cleaned}`;
+    return `(+266) ${cleaned.slice(3)}`;
   }
 
   if (cleaned.startsWith('27')) {
     if (cleaned.length === 11) {
-      return `+27 ${cleaned.slice(2, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
+      return `(+27) ${cleaned.slice(2, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
     }
-    return `+${cleaned}`;
+    return `(+27) ${cleaned.slice(2)}`;
   }
 
   if (
@@ -109,22 +110,19 @@ export function formatPhoneNumber(phone: string | null | undefined) {
       cleaned.startsWith('5') ||
       cleaned.startsWith('6'))
   ) {
-    return `+266 ${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
-  }
-
-  if (cleaned.length === 10 && cleaned.startsWith('0')) {
-    return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6)}`;
+    return `(+266) ${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
   }
 
   if (cleaned.length >= 10) {
     const countryCode = cleaned.slice(0, -10);
     const number = cleaned.slice(-10);
     if (countryCode) {
-      return `+${countryCode} ${number.slice(0, 3)} ${number.slice(3, 6)} ${number.slice(6)}`;
+      return `(+${countryCode}) ${number.slice(0, 3)} ${number.slice(3, 6)} ${number.slice(6)}`;
     }
     return `${number.slice(0, 3)} ${number.slice(3, 6)} ${number.slice(6)}`;
   }
-  return cleaned;
+
+  return `(+266) ${cleaned}`;
 }
 
 export const convertUrlToBase64 = async (url: string): Promise<string> => {
