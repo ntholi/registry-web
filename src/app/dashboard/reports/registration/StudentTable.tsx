@@ -10,8 +10,10 @@ import {
   Loader,
   Pagination,
   Box,
+  Anchor,
 } from '@mantine/core';
-import { formatSemester } from '@/lib/utils';
+import { formatPhoneNumber, formatSemester } from '@/lib/utils';
+import Link from 'next/link';
 
 interface Student {
   stdNo: number;
@@ -72,7 +74,6 @@ export default function StudentTable({
                 Semester
               </Table.Th>
               <Table.Th miw={isMobile ? 100 : 150}>School</Table.Th>
-              <Table.Th miw={isMobile ? 100 : 150}>School Code</Table.Th>
               <Table.Th miw={isMobile ? 120 : 150}>Phone</Table.Th>
             </Table.Tr>
           </Table.Thead>
@@ -80,7 +81,13 @@ export default function StudentTable({
             {data.map((student, index) => (
               <Table.Tr key={`${student.stdNo}-${index}`}>
                 <Table.Td fw={500}>
-                  <Text size={isMobile ? 'xs' : 'sm'}>{student.stdNo}</Text>
+                  <Anchor
+                    component={Link}
+                    href={`/dashboard/students/${student.stdNo}`}
+                    size={isMobile ? 'xs' : 'sm'}
+                  >
+                    {student.stdNo}
+                  </Anchor>
                 </Table.Td>
                 <Table.Td>
                   <Text size={isMobile ? 'xs' : 'sm'}>{student.name}</Text>
@@ -96,18 +103,13 @@ export default function StudentTable({
                   </Badge>
                 </Table.Td>
                 <Table.Td>
-                  <Text size={isMobile ? 'xs' : 'sm'}>
-                    {student.schoolName}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
                   <Text size={isMobile ? 'xs' : 'sm'} fw={500}>
                     {student.schoolCode}
                   </Text>
                 </Table.Td>
                 <Table.Td>
                   <Text size={isMobile ? 'xs' : 'sm'}>
-                    {student.phone || 'N/A'}
+                    {formatPhoneNumber(student.phone)}
                   </Text>
                 </Table.Td>
               </Table.Tr>
