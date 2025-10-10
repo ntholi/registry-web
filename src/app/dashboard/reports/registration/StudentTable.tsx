@@ -129,7 +129,7 @@ export default function StudentTable({
             total={totalPages}
             value={currentPage}
             onChange={onPageChange}
-            size={isMobile ? 'sm' : 'md'}
+            size={'sm'}
           />
         )}
       </Group>

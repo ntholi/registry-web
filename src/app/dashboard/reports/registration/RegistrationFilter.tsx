@@ -220,12 +220,25 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
             }))}
             rightSection={termsLoading && <Loader size='xs' />}
             value={localFilter.termId || null}
-            onChange={(value) =>
-              setLocalFilter((prev) => ({
-                ...prev,
-                termId: value || '',
-              }))
-            }
+            onChange={(value) => {
+              const updated = { ...localFilter, termId: value || '' };
+              setLocalFilter(updated);
+              if (value === null) {
+                const newFilter: ReportFilter = {
+                  termId: undefined,
+                  schoolId: updated.schoolId
+                    ? Number(updated.schoolId)
+                    : undefined,
+                  programId: updated.programId
+                    ? Number(updated.programId)
+                    : undefined,
+                  semesterNumber: updated.semesterNumber
+                    ? Number(updated.semesterNumber)
+                    : undefined,
+                };
+                onFilterChange(newFilter);
+              }
+            }}
             searchable
             clearable
             required
@@ -239,13 +252,25 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
             }))}
             rightSection={schoolsLoading && <Loader size='xs' />}
             value={localFilter.schoolId || null}
-            onChange={(value) =>
-              setLocalFilter((prev) => ({
-                ...prev,
+            onChange={(value) => {
+              const updated = {
+                ...localFilter,
                 schoolId: value || '',
                 programId: '',
-              }))
-            }
+              };
+              setLocalFilter(updated);
+              if (value === null) {
+                const newFilter: ReportFilter = {
+                  termId: updated.termId ? Number(updated.termId) : undefined,
+                  schoolId: undefined,
+                  programId: undefined,
+                  semesterNumber: updated.semesterNumber
+                    ? Number(updated.semesterNumber)
+                    : undefined,
+                };
+                onFilterChange(newFilter);
+              }
+            }}
             searchable
             clearable
           />
@@ -258,12 +283,23 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
             }))}
             rightSection={programsLoading && <Loader size='xs' />}
             value={localFilter.programId || null}
-            onChange={(value) =>
-              setLocalFilter((prev) => ({
-                ...prev,
-                programId: value || '',
-              }))
-            }
+            onChange={(value) => {
+              const updated = { ...localFilter, programId: value || '' };
+              setLocalFilter(updated);
+              if (value === null) {
+                const newFilter: ReportFilter = {
+                  termId: updated.termId ? Number(updated.termId) : undefined,
+                  schoolId: updated.schoolId
+                    ? Number(updated.schoolId)
+                    : undefined,
+                  programId: undefined,
+                  semesterNumber: updated.semesterNumber
+                    ? Number(updated.semesterNumber)
+                    : undefined,
+                };
+                onFilterChange(newFilter);
+              }
+            }}
             searchable
             clearable
             disabled={!localFilter.schoolId}
@@ -273,12 +309,23 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
             placeholder='Any'
             data={semesterOptions}
             value={localFilter.semesterNumber || null}
-            onChange={(value) =>
-              setLocalFilter((prev) => ({
-                ...prev,
-                semesterNumber: value || '',
-              }))
-            }
+            onChange={(value) => {
+              const updated = { ...localFilter, semesterNumber: value || '' };
+              setLocalFilter(updated);
+              if (value === null) {
+                const newFilter: ReportFilter = {
+                  termId: updated.termId ? Number(updated.termId) : undefined,
+                  schoolId: updated.schoolId
+                    ? Number(updated.schoolId)
+                    : undefined,
+                  programId: updated.programId
+                    ? Number(updated.programId)
+                    : undefined,
+                  semesterNumber: undefined,
+                };
+                onFilterChange(newFilter);
+              }
+            }}
             searchable
             clearable
           />

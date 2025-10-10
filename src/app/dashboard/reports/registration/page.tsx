@@ -194,7 +194,6 @@ export default function RegistrationReportPage() {
   return (
     <Container size='xl' p='lg'>
       <Stack gap='lg'>
-        {/* Header Section */}
         <Paper p='lg' withBorder>
           <Group justify='space-between' align='flex-start' mb='md'>
             <Box>
