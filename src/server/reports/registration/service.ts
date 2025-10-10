@@ -59,6 +59,32 @@ export class RegistrationReportService {
     }, ['registry', 'admin']);
   }
 
+  async generateStudentsListReport(
+    termId: number,
+    filter?: RegistrationReportFilter
+  ): Promise<Buffer> {
+    return withAuth(async () => {
+      const term = await this.repository.getTermById(termId);
+      if (!term) {
+        throw new Error('Term not found');
+      }
+
+      const reportData = await this.repository.getFullRegistrationData(
+        term.name,
+        filter
+      );
+      const fullReport = {
+        termName: term.name,
+        totalStudents: reportData.length,
+        students: reportData,
+        generatedAt: new Date(),
+      };
+
+      const buffer = await createFullRegistrationExcel(fullReport);
+      return buffer;
+    }, ['registry', 'admin']);
+  }
+
   async getAvailableTerms() {
     return withAuth(async () => {
       return await this.repository.getAllActiveTerms();

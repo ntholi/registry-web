@@ -26,6 +26,8 @@ import {
   getRegistrationDataPreview,
   getPaginatedRegistrationStudents,
   generateFullRegistrationReport,
+  generateSummaryRegistrationReport,
+  generateStudentsListReport,
 } from '@/server/reports/registration/actions';
 import ProgramBreakdownTable from './ProgramBreakdownTable';
 import StudentTable from './StudentTable';
@@ -37,7 +39,8 @@ const PAGE_SIZE = 20;
 export default function RegistrationReportPage() {
   const [filter, setFilter] = useState<ReportFilter>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [isExporting, setIsExporting] = useState(false);
+  const [isExportingSummary, setIsExportingSummary] = useState(false);
+  const [isExportingStudents, setIsExportingStudents] = useState(false);
 
   const {
     data: reportData,
@@ -85,15 +88,65 @@ export default function RegistrationReportPage() {
     setCurrentPage(1);
   };
 
-  const handleExportReport = async () => {
+  const handleExportSummary = async () => {
     if (!filter.termId) return;
 
-    setIsExporting(true);
+    setIsExportingSummary(true);
     try {
-      const result = await generateFullRegistrationReport(
+      const result = await generateSummaryRegistrationReport(
         filter.termId,
         filter
       );
+
+      if (result.success && result.data) {
+        const byteCharacters = atob(result.data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {
+          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `program-enrollment-summary-${new Date().toISOString().split('T')[0]}.docx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        notifications.show({
+          title: 'Success',
+          message: 'Summary report exported successfully',
+          color: 'green',
+        });
+      } else {
+        notifications.show({
+          title: 'Error',
+          message: result.error || 'Failed to export summary report',
+          color: 'red',
+        });
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: 'An unexpected error occurred while exporting',
+        color: 'red',
+      });
+    } finally {
+      setIsExportingSummary(false);
+    }
+  };
+
+  const handleExportStudents = async () => {
+    if (!filter.termId) return;
+
+    setIsExportingStudents(true);
+    try {
+      const result = await generateStudentsListReport(filter.termId, filter);
 
       if (result.success && result.data) {
         const byteCharacters = atob(result.data);
@@ -109,7 +162,7 @@ export default function RegistrationReportPage() {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `registration-report-${new Date().toISOString().split('T')[0]}.xlsx`;
+        link.download = `registered-students-${new Date().toISOString().split('T')[0]}.xlsx`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -117,13 +170,13 @@ export default function RegistrationReportPage() {
 
         notifications.show({
           title: 'Success',
-          message: 'Report exported successfully',
+          message: 'Students list exported successfully',
           color: 'green',
         });
       } else {
         notifications.show({
           title: 'Error',
-          message: result.error || 'Failed to export report',
+          message: result.error || 'Failed to export students list',
           color: 'red',
         });
       }
@@ -134,7 +187,7 @@ export default function RegistrationReportPage() {
         color: 'red',
       });
     } finally {
-      setIsExporting(false);
+      setIsExportingStudents(false);
     }
   };
 
@@ -160,18 +213,6 @@ export default function RegistrationReportPage() {
                 </Box>
               </Group>
             </Box>
-
-            {hasData && (
-              <Button
-                leftSection={<IconDownload size={16} />}
-                onClick={handleExportReport}
-                variant='light'
-                loading={isExporting}
-                disabled={isExporting}
-              >
-                Export Report
-              </Button>
-            )}
           </Group>
           <RegistrationFilter
             filter={filter}
@@ -208,16 +249,30 @@ export default function RegistrationReportPage() {
             <Tabs.Panel value='summary' pt='lg'>
               <Paper withBorder p={0} style={{ overflow: 'hidden' }}>
                 <Box p='md'>
-                  <Group>
-                    <ThemeIcon variant='light' color='blue'>
-                      <IconChartBar size={16} />
-                    </ThemeIcon>
-                    <Box>
-                      <Text fw={500}>Program Enrollment Summary</Text>
-                      <Text size='sm' c='dimmed'>
-                        Registration statistics grouped by academic programs
-                      </Text>
-                    </Box>
+                  <Group justify='space-between'>
+                    <Group>
+                      <ThemeIcon variant='light' color='blue'>
+                        <IconChartBar size={16} />
+                      </ThemeIcon>
+                      <Box>
+                        <Text fw={500}>Program Enrollment Summary</Text>
+                        <Text size='sm' c='dimmed'>
+                          Registration statistics grouped by academic programs
+                        </Text>
+                      </Box>
+                    </Group>
+                    {hasData && (
+                      <Button
+                        leftSection={<IconDownload size={16} />}
+                        onClick={handleExportSummary}
+                        variant='light'
+                        loading={isExportingSummary}
+                        disabled={isExportingSummary}
+                        size='sm'
+                      >
+                        Export
+                      </Button>
+                    )}
                   </Group>
                 </Box>
                 <Stack gap='md'>
@@ -237,16 +292,31 @@ export default function RegistrationReportPage() {
             <Tabs.Panel value='students' pt='lg'>
               <Paper withBorder p={0} style={{ overflow: 'hidden' }}>
                 <Box p='md'>
-                  <Group>
-                    <ThemeIcon variant='light' color='green'>
-                      <IconUsers size={16} />
-                    </ThemeIcon>
-                    <Box>
-                      <Text fw={500}>Registered Students</Text>
-                      <Text size='sm' c='dimmed'>
-                        Complete list of students matching the selected criteria
-                      </Text>
-                    </Box>
+                  <Group justify='space-between'>
+                    <Group>
+                      <ThemeIcon variant='light' color='green'>
+                        <IconUsers size={16} />
+                      </ThemeIcon>
+                      <Box>
+                        <Text fw={500}>Registered Students</Text>
+                        <Text size='sm' c='dimmed'>
+                          Complete list of students matching the selected
+                          criteria
+                        </Text>
+                      </Box>
+                    </Group>
+                    {hasData && (
+                      <Button
+                        leftSection={<IconDownload size={16} />}
+                        onClick={handleExportStudents}
+                        variant='light'
+                        loading={isExportingStudents}
+                        disabled={isExportingStudents}
+                        size='sm'
+                      >
+                        Export
+                      </Button>
+                    )}
                   </Group>
                 </Box>
                 <Divider />

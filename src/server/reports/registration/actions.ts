@@ -45,6 +45,26 @@ export async function generateSummaryRegistrationReport(
   }
 }
 
+export async function generateStudentsListReport(
+  termId: number,
+  filter?: RegistrationReportFilter
+) {
+  try {
+    const buffer = await registrationReportService.generateStudentsListReport(
+      termId,
+      filter
+    );
+    const base64Data = Buffer.from(buffer).toString('base64');
+    return { success: true, data: base64Data };
+  } catch (error) {
+    console.error('Error generating students list report:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
 export async function getAvailableTermsForReport() {
   try {
     const terms = await registrationReportService.getAvailableTerms();
