@@ -269,12 +269,18 @@ export default function RegistrationReportPage() {
                   </Group>
                 </Card>
 
-                {reportData?.summaryData?.schools?.map((school, index) => (
-                  <ProgramBreakdownTable key={index} school={school} />
-                ))}
-
-                {(!reportData?.summaryData?.schools ||
-                  reportData.summaryData.schools.length === 0) && (
+                {isLoading ? (
+                  <>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <ProgramBreakdownTable key={`skeleton-${i}`} loading />
+                    ))}
+                  </>
+                ) : reportData?.summaryData?.schools &&
+                  reportData.summaryData.schools.length > 0 ? (
+                  reportData.summaryData.schools.map((school, index) => (
+                    <ProgramBreakdownTable key={index} school={school} />
+                  ))
+                ) : (
                   <Alert color='blue' variant='light'>
                     No program data available for the selected criteria.
                   </Alert>
