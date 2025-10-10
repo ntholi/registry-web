@@ -16,17 +16,23 @@ import {
 import { IconBook, IconCalendar, IconChevronDown } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
 import ExportButton from './export/ExportButton';
 
 type ModuleDetailsCardProps = {
   modules: NonNullable<
     Awaited<ReturnType<typeof getAssignedModuleByUserAndModule>>
   >;
+  moduleId: number;
 };
 
-export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
+export default function ModuleDetailsCard({
+  modules,
+  moduleId,
+}: ModuleDetailsCardProps) {
   const [programId, setProgramId] = useQueryState('programId');
   const { currentTerm } = useCurrentTerm();
+  const { data: session } = useSession();
 
   const moduleOptions = useMemo(() => {
     const options = [{ value: '', label: 'All Programs' }];
@@ -65,6 +71,23 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
     )?.semesterModule?.semester?.structure.program;
   }, [modules, programId]);
 
+  const className = useMemo(() => {
+    if (!program) return 'All Programs';
+
+    const firstModule = modules.find(
+      (it) => it.semesterModule?.semester?.structure.program.id === program.id
+    );
+
+    if (firstModule?.semesterModule?.semester) {
+      return toClassName(
+        program.code || '',
+        firstModule.semesterModule.semester.name || ''
+      );
+    }
+
+    return program.name || 'All Programs';
+  }, [program, modules]);
+
   return (
     <Paper withBorder p='lg' mb='lg'>
       <Flex justify='space-between' wrap='nowrap'>
@@ -93,7 +116,7 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
             </Group>
           </Group>
         </Stack>
-        <Stack gap={'xs'}>
+        <Stack gap={'xs'} align='flex-end'>
           <Select
             placeholder='Select Program'
             data={moduleOptions}
@@ -102,7 +125,14 @@ export default function ModuleDetailsCard({ modules }: ModuleDetailsCardProps) {
             rightSection={<IconChevronDown size={16} />}
             clearable
           />
-          <ExportButton />
+          <ExportButton
+            moduleId={moduleId}
+            moduleName={modules.at(0)?.semesterModule?.module?.name}
+            moduleCode={modules.at(0)?.semesterModule?.module?.code}
+            lecturerName={session?.user?.name || 'Unknown Lecturer'}
+            termName={currentTerm?.name}
+            className={className}
+          />
         </Stack>
       </Flex>
     </Paper>
