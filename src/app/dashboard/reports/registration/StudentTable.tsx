@@ -7,6 +7,7 @@ import {
   Text,
   Badge,
   Group,
+  Skeleton,
   Loader,
   Pagination,
   Box,
@@ -50,12 +51,68 @@ export default function StudentTable({
 }: StudentTableProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
+  const searchInput = (
+    <Box p='md'>
+      <TextInput
+        placeholder='Search by student number, name, program, school, or phone...'
+        leftSection={<IconSearch size={16} />}
+        rightSection={isLoading ? <Loader size='xs' /> : null}
+        value={searchQuery}
+        onChange={(event) => onSearchChange?.(event.currentTarget.value)}
+        size='sm'
+      />
+    </Box>
+  );
+
   if (isLoading) {
+    const rowCount = isMobile ? 4 : 6;
     return (
-      <Group justify='center' p='xl'>
-        <Loader size='lg' />
-        <Text>Loading students...</Text>
-      </Group>
+      <Box>
+        {searchInput}
+
+        <ScrollArea>
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Student No.</Table.Th>
+                <Table.Th>Name</Table.Th>
+                <Table.Th>Program</Table.Th>
+                <Table.Th ta='center'>Semester</Table.Th>
+                <Table.Th>School</Table.Th>
+                <Table.Th>Phone</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {Array.from({ length: rowCount }).map((_, i) => (
+                <Table.Tr key={i}>
+                  <Table.Td>
+                    <Skeleton height={16} width={80} />
+                  </Table.Td>
+                  <Table.Td>
+                    <Skeleton height={16} width='60%' />
+                  </Table.Td>
+                  <Table.Td>
+                    <Skeleton height={14} width='50%' />
+                  </Table.Td>
+                  <Table.Td ta='center'>
+                    <Skeleton height={20} width={60} radius='xl' />
+                  </Table.Td>
+                  <Table.Td>
+                    <Skeleton height={16} width='40%' />
+                  </Table.Td>
+                  <Table.Td>
+                    <Skeleton height={16} width='50%' />
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </ScrollArea>
+
+        <Group justify='center' mt='md' p='sm'>
+          <Text c='dimmed'>Loading students...</Text>
+        </Group>
+      </Box>
     );
   }
 
@@ -78,15 +135,7 @@ export default function StudentTable({
 
   return (
     <Box>
-      <Box p='md'>
-        <TextInput
-          placeholder='Search by student number, name, program, school, or phone...'
-          leftSection={<IconSearch size={16} />}
-          value={searchQuery}
-          onChange={(event) => onSearchChange?.(event.currentTarget.value)}
-          size='sm'
-        />
-      </Box>
+      {searchInput}
 
       <ScrollArea>
         <Table striped highlightOnHover>

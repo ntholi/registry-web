@@ -209,24 +209,18 @@ export default function RegistrationReportPage() {
     <Container size='xl' p='lg'>
       <Stack gap='lg'>
         <Paper p='lg' withBorder>
-          <Group justify='space-between' align='flex-start' mb='md'>
-            <Box>
-              <Group mb='sm'>
-                <ThemeIcon variant='light' size='lg'>
-                  <IconFileText size={20} />
-                </ThemeIcon>
-                <Box>
-                  <Title order={2} size='h3'>
-                    Registration Reports
-                  </Title>
-                  <Text size='sm' c='dimmed'>
-                    Comprehensive student registration data and program
-                    enrollment statistics
-                  </Text>
-                </Box>
-              </Group>
-            </Box>
-          </Group>
+          <Box>
+            <Group mb='sm'>
+              <ThemeIcon variant='light' size='lg'>
+                <IconFileText size={20} />
+              </ThemeIcon>
+              <Box>
+                <Title order={2} size='h3'>
+                  Registration Reports
+                </Title>
+              </Box>
+            </Group>
+          </Box>
           <RegistrationFilter
             filter={filter}
             onFilterChange={handleFilterChange}
