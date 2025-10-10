@@ -11,20 +11,10 @@ import {
   Select,
   Stack,
   Text,
-  Badge,
-  ActionIcon,
   ThemeIcon,
   Divider,
 } from '@mantine/core';
-import {
-  IconFilter,
-  IconCalendar,
-  IconBuilding,
-  IconBook,
-  IconSchool,
-  IconX,
-  IconSearch,
-} from '@tabler/icons-react';
+import { IconFilter, IconSearch } from '@tabler/icons-react';
 import {
   getAvailableTermsForReport,
   getAvailableSchoolsForReports,
@@ -197,127 +187,20 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 
   return (
     <>
-      <Card withBorder radius='md' style={{ minWidth: '300px' }}>
+      <Card withBorder style={{ minWidth: '300px' }}>
         <Group justify='space-between' mb='xs'>
-          <Group gap='xs'>
-            <ThemeIcon variant='light' size='sm'>
-              <IconFilter size={14} />
-            </ThemeIcon>
-            <Text fw={500} size='sm'>
-              Filters
-            </Text>
-          </Group>
-          <Button
-            variant={hasActiveFilters ? 'filled' : 'light'}
-            size='xs'
-            onClick={toggle}
-            leftSection={<IconSearch size={14} />}
-          >
-            {hasActiveFilters ? 'Edit' : 'Set'}
-          </Button>
-        </Group>
-        <Stack gap='xs'>
-          {hasActiveFilters ? (
-            <Group gap={4} wrap='wrap'>
-              {filter.termId && selectedInfo.term && (
-                <Badge
-                  variant='light'
-                  color='blue'
-                  leftSection={<IconCalendar size={12} />}
-                  rightSection={
-                    <ActionIcon
-                      size='xs'
-                      variant='transparent'
-                      onClick={() => {
-                        const newFilter = { ...filter };
-                        delete newFilter.termId;
-                        onFilterChange(newFilter);
-                      }}
-                    >
-                      <IconX size={10} />
-                    </ActionIcon>
-                  }
-                >
-                  {selectedInfo.term.name}
-                </Badge>
-              )}
-              {filter.schoolId && selectedInfo.school && (
-                <Badge
-                  variant='light'
-                  color='green'
-                  leftSection={<IconBuilding size={12} />}
-                  rightSection={
-                    <ActionIcon
-                      size='xs'
-                      variant='transparent'
-                      onClick={() => {
-                        const newFilter = { ...filter };
-                        delete newFilter.schoolId;
-                        delete newFilter.programId;
-                        onFilterChange(newFilter);
-                      }}
-                    >
-                      <IconX size={10} />
-                    </ActionIcon>
-                  }
-                >
-                  {selectedInfo.school.code}
-                </Badge>
-              )}
-              {filter.programId && selectedInfo.program && (
-                <Badge
-                  variant='light'
-                  color='orange'
-                  leftSection={<IconBook size={12} />}
-                  rightSection={
-                    <ActionIcon
-                      size='xs'
-                      variant='transparent'
-                      onClick={() => {
-                        const newFilter = { ...filter };
-                        delete newFilter.programId;
-                        onFilterChange(newFilter);
-                      }}
-                    >
-                      <IconX size={10} />
-                    </ActionIcon>
-                  }
-                >
-                  {selectedInfo.program.code}
-                </Badge>
-              )}
-              {filter.semesterNumber && (
-                <Badge
-                  variant='light'
-                  color='violet'
-                  leftSection={<IconSchool size={12} />}
-                  rightSection={
-                    <ActionIcon
-                      size='xs'
-                      variant='transparent'
-                      onClick={() => {
-                        const newFilter = { ...filter };
-                        delete newFilter.semesterNumber;
-                        onFilterChange(newFilter);
-                      }}
-                    >
-                      <IconX size={10} />
-                    </ActionIcon>
-                  }
-                >
-                  {getSemesterShortLabel(filter.semesterNumber)}
-                </Badge>
-              )}
-            </Group>
-          ) : (
-            <Text size='xs' c='dimmed'>
-              No filters set
-            </Text>
-          )}
-          <Text size='xs' c='dimmed'>
+          <Text size='sm' c='dimmed'>
             {summaryText}
           </Text>
-        </Stack>
+          <Button
+            variant={hasActiveFilters ? 'white' : 'light'}
+            size='sm'
+            onClick={toggle}
+            leftSection={<IconFilter size={14} />}
+          >
+            {hasActiveFilters ? 'Edit' : 'Filter'}
+          </Button>
+        </Group>
       </Card>
 
       <Modal

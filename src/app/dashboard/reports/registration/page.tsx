@@ -13,6 +13,7 @@ import {
   ThemeIcon,
   Alert,
   Tabs,
+  Divider,
 } from '@mantine/core';
 import {
   IconFileText,
@@ -141,7 +142,7 @@ export default function RegistrationReportPage() {
     <Container size='xl' p='lg'>
       <Stack gap='lg'>
         {/* Header Section */}
-        <Paper p='lg' withBorder radius='md'>
+        <Paper p='lg' withBorder>
           <Group justify='space-between' align='flex-start' mb='md'>
             <Box>
               <Group mb='sm'>
@@ -190,9 +191,8 @@ export default function RegistrationReportPage() {
           )}
         </Paper>
 
-        {/* Report Content */}
         {canGenerateReport && (
-          <Tabs defaultValue='summary' variant='outline'>
+          <Tabs defaultValue='summary' variant='default'>
             <Tabs.List grow>
               <Tabs.Tab
                 value='summary'
@@ -206,13 +206,8 @@ export default function RegistrationReportPage() {
             </Tabs.List>
 
             <Tabs.Panel value='summary' pt='lg'>
-              <Paper
-                withBorder
-                radius='md'
-                p={0}
-                style={{ overflow: 'hidden' }}
-              >
-                <Box p='md' bg='gray.0'>
+              <Paper withBorder p={0} style={{ overflow: 'hidden' }}>
+                <Box p='md'>
                   <Group>
                     <ThemeIcon variant='light' color='blue'>
                       <IconChartBar size={16} />
@@ -240,13 +235,8 @@ export default function RegistrationReportPage() {
             </Tabs.Panel>
 
             <Tabs.Panel value='students' pt='lg'>
-              <Paper
-                withBorder
-                radius='md'
-                p={0}
-                style={{ overflow: 'hidden' }}
-              >
-                <Box p='md' bg='gray.0'>
+              <Paper withBorder p={0} style={{ overflow: 'hidden' }}>
+                <Box p='md'>
                   <Group>
                     <ThemeIcon variant='light' color='green'>
                       <IconUsers size={16} />
@@ -259,6 +249,7 @@ export default function RegistrationReportPage() {
                     </Box>
                   </Group>
                 </Box>
+                <Divider />
                 <StudentTable
                   data={studentsData?.students || []}
                   isLoading={isLoadingStudents}
