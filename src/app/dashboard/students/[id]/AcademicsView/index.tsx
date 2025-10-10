@@ -20,11 +20,11 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
-import { useQuery } from '@tanstack/react-query';
 
 type Props = {
   stdNo: number;
@@ -40,7 +40,7 @@ export default function AcademicsView({
 }: Props) {
   const { data: student, isLoading } = useQuery({
     queryKey: ['student', stdNo],
-    queryFn: () => getAcademicHistory(stdNo),
+    queryFn: () => getAcademicHistory(stdNo, false),
     enabled: isActive,
   });
   const [openPrograms, setOpenPrograms] = useState<string[]>();

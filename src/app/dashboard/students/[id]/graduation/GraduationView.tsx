@@ -59,7 +59,7 @@ export default function GraduationView({
   });
 
   const { data: student, isLoading: isStudentLoading } = useQuery({
-    queryKey: ['student', stdNoNum],
+    queryKey: ['student', stdNoNum, 'no-current-term'],
     queryFn: () => getAcademicHistory(stdNoNum, true),
     enabled: isActive,
   });
