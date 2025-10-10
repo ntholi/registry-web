@@ -62,8 +62,9 @@ export async function exportToExcel(data: ExportData) {
     });
 
     worksheet.addImage(imageId, {
-      tl: { col: 0, row: 0 },
-      ext: { width: 150, height: 150 },
+      tl: { col: 0, row: 0 } as any,
+      br: { col: 2, row: 6 } as any,
+      editAs: 'oneCell',
     });
   } catch (error) {
     console.error('Failed to load logo:', error);
@@ -113,20 +114,18 @@ export async function exportToExcel(data: ExportData) {
   ];
 
   infoCells.forEach(({ label, value, row }) => {
+    worksheet.mergeCells(`D${row}:E${row}`);
     const labelCell = worksheet.getCell(`D${row}`);
-    const valueCell = worksheet.getCell(`E${row}`);
-
     labelCell.value = label;
-    labelCell.font = { bold: true, size: 10 };
-    labelCell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FF000000' },
-    };
     labelCell.font = {
       bold: true,
       size: 10,
       color: { argb: 'FFFFFFFF' },
+    };
+    labelCell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF000000' },
     };
     labelCell.alignment = { vertical: 'middle', horizontal: 'left' };
     labelCell.border = {
@@ -136,6 +135,8 @@ export async function exportToExcel(data: ExportData) {
       right: { style: 'thin' },
     };
 
+    worksheet.mergeCells(`F${row}:J${row}`);
+    const valueCell = worksheet.getCell(`F${row}`);
     valueCell.value = value;
     valueCell.font = { size: 10 };
     valueCell.alignment = { vertical: 'middle', horizontal: 'left' };
@@ -148,8 +149,8 @@ export async function exportToExcel(data: ExportData) {
   });
 
   const lecturerRow = 8;
-  worksheet.mergeCells(`B${lecturerRow}:E${lecturerRow}`);
-  const lecturerLabelCell = worksheet.getCell(`B${lecturerRow}`);
+  worksheet.mergeCells(`A${lecturerRow}:C${lecturerRow}`);
+  const lecturerLabelCell = worksheet.getCell(`A${lecturerRow}`);
   lecturerLabelCell.value = "Lecturer's Name";
   lecturerLabelCell.font = { bold: true, size: 10 };
   lecturerLabelCell.fill = {
@@ -166,8 +167,8 @@ export async function exportToExcel(data: ExportData) {
   };
 
   const lecturerNameRow = 9;
-  worksheet.mergeCells(`B${lecturerNameRow}:E${lecturerNameRow}`);
-  const lecturerNameCell = worksheet.getCell(`B${lecturerNameRow}`);
+  worksheet.mergeCells(`A${lecturerNameRow}:C${lecturerNameRow}`);
+  const lecturerNameCell = worksheet.getCell(`A${lecturerNameRow}`);
   lecturerNameCell.value = data.lecturerName;
   lecturerNameCell.font = { size: 10, color: { argb: 'FFFF0000' } };
   lecturerNameCell.alignment = { vertical: 'middle', horizontal: 'center' };
