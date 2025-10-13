@@ -8,7 +8,7 @@ import {
   structures,
   terms,
 } from '@/db/schema';
-import { eq, and, inArray, or, like, sql } from 'drizzle-orm';
+import { eq, and, inArray, or, like, sql, notInArray } from 'drizzle-orm';
 
 export interface RegistrationReportFilter {
   termId?: number;
@@ -85,7 +85,10 @@ export class RegistrationReportRepository {
       .innerJoin(programs, eq(structures.programId, programs.id))
       .innerJoin(schools, eq(programs.schoolId, schools.id));
 
-    const conditions = [eq(studentSemesters.term, termName)];
+    const conditions = [
+      eq(studentSemesters.term, termName),
+      notInArray(studentSemesters.status, ['Deleted', 'DroppedOut']),
+    ];
 
     if (filter?.schoolId) {
       conditions.push(eq(schools.id, filter.schoolId));
@@ -163,7 +166,10 @@ export class RegistrationReportRepository {
       .innerJoin(programs, eq(structures.programId, programs.id))
       .innerJoin(schools, eq(programs.schoolId, schools.id));
 
-    const conditions = [eq(studentSemesters.term, termName)];
+    const conditions = [
+      eq(studentSemesters.term, termName),
+      notInArray(studentSemesters.status, ['Deleted', 'DroppedOut']),
+    ];
 
     if (filter?.schoolId) {
       conditions.push(eq(schools.id, filter.schoolId));
