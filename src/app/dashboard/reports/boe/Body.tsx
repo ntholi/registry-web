@@ -2,22 +2,26 @@
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { useUserSchools } from '@/hooks/use-user-schools';
 import { getSchools } from '@/server/semester-modules/actions';
+import { generateBoeReportForFaculty } from '@/server/reports/boe/actions';
 import {
   Alert,
+  Button,
   Card,
   CardSection,
   Group,
+  Loader,
   Select,
   Stack,
   Text,
   Title,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 
 export default function Body() {
-  // const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
   const { data: schools, isLoading: schoolsLoading } = useQuery({
     queryKey: ['schools'],
@@ -32,58 +36,58 @@ export default function Body() {
     }
   }, [userSchools, selectedSchoolId]);
 
-  // const generateReportMutation = useMutation({
-  //   mutationFn: async () => {
-  //     if (!selectedSchoolId) {
-  //       throw new Error('Please select a school');
-  //     }
-  //     setIsDownloading(true);
-  //     try {
-  //       const result = await generateBoeReportForFaculty(
-  //         schools?.find((s) => s.id === Number(selectedSchoolId)),
-  //       );
-  //       if (!result.success) {
-  //         throw new Error(result.error || 'Failed to generate report');
-  //       }
-  //       return result.data;
-  //     } finally {
-  //       setIsDownloading(false);
-  //     }
-  //   },
-  //   onSuccess: (base64Data) => {
-  //     if (!base64Data) {
-  //       throw new Error('No data received from server');
-  //     }
-  //     const binaryString = window.atob(base64Data);
-  //     const bytes = new Uint8Array(binaryString.length);
-  //     for (let i = 0; i < binaryString.length; i++) {
-  //       bytes[i] = binaryString.charCodeAt(i);
-  //     }
-  //     const blob = new Blob([bytes], {
-  //       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  //     });
-  //     const url = URL.createObjectURL(blob);
-  //     const a = document.createElement('a');
-  //     a.href = url;
-  //     const selectedSchool = schools?.find(
-  //       (s) => s.id === Number(selectedSchoolId),
-  //     );
-  //     const schoolCode = selectedSchool?.code || 'School';
-  //     a.download = `${schoolCode}_BOE_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
-  //     document.body.appendChild(a);
-  //     a.click();
-  //     URL.revokeObjectURL(url);
-  //     document.body.removeChild(a);
-  //   },
-  //   onError: (error) => {
-  //     console.error('Error generating BOE report:', error);
-  //     notifications.show({
-  //       title: 'Error',
-  //       message: `Error generating BOE report: ${error.message}`,
-  //       color: 'red',
-  //     });
-  //   },
-  // });
+  const generateReportMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedSchoolId) {
+        throw new Error('Please select a school');
+      }
+      setIsDownloading(true);
+      try {
+        const result = await generateBoeReportForFaculty(
+          schools?.find((s) => s.id === Number(selectedSchoolId))
+        );
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to generate report');
+        }
+        return result.data;
+      } finally {
+        setIsDownloading(false);
+      }
+    },
+    onSuccess: (base64Data) => {
+      if (!base64Data) {
+        throw new Error('No data received from server');
+      }
+      const binaryString = window.atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const selectedSchool = schools?.find(
+        (s) => s.id === Number(selectedSchoolId)
+      );
+      const schoolCode = selectedSchool?.code || 'School';
+      a.download = `${schoolCode}_BOE_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    },
+    onError: (error) => {
+      console.error('Error generating BOE report:', error);
+      notifications.show({
+        title: 'Error',
+        message: `Error generating BOE report: ${error.message}`,
+        color: 'red',
+      });
+    },
+  });
 
   const schoolOptions =
     schools?.map((school) => ({
@@ -93,16 +97,6 @@ export default function Body() {
 
   return (
     <Stack align='center' justify='center' p='xl'>
-      <Alert
-        w='100%'
-        maw={600}
-        variant='light'
-        color='yellow'
-        title='Alert title'
-        icon={<IconInfoCircle />}
-      >
-        This feature has been temporarily disabled
-      </Alert>
       <Card shadow='md' radius='md' withBorder w='100%' maw={600}>
         <CardSection inheritPadding py='md'>
           <Title order={3}>BOE Report Generation</Title>
@@ -130,7 +124,7 @@ export default function Body() {
         </CardSection>
         <CardSection inheritPadding py='md'>
           <Group>
-            {/* <Button
+            <Button
               fullWidth
               onClick={() => generateReportMutation.mutate()}
               disabled={
@@ -147,7 +141,7 @@ export default function Body() {
               {generateReportMutation.isPending || isDownloading
                 ? 'Generating Reports...'
                 : 'Generate Reports'}
-            </Button> */}
+            </Button>
           </Group>
         </CardSection>
       </Card>
