@@ -87,7 +87,8 @@ export class RegistrationReportRepository {
 
     const conditions = [
       eq(studentSemesters.term, termName),
-      notInArray(studentSemesters.status, ['Deleted', 'DroppedOut']),
+      inArray(studentSemesters.status, ['Active', 'Repeat']),
+      eq(studentPrograms.status, 'Active'),
     ];
 
     if (filter?.schoolId) {
@@ -168,7 +169,8 @@ export class RegistrationReportRepository {
 
     const conditions = [
       eq(studentSemesters.term, termName),
-      notInArray(studentSemesters.status, ['Deleted', 'DroppedOut']),
+      inArray(studentSemesters.status, ['Active', 'Repeat']),
+      eq(studentPrograms.status, 'Active'),
     ];
 
     if (filter?.schoolId) {

@@ -201,7 +201,7 @@ function createSummarySheet(
   headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
   headerRow.height = 25;
 
-  headerRow.eachCell((cell) => {
+  headerRow.eachCell((cell, colNumber) => {
     cell.fill = {
       type: 'pattern',
       pattern: 'solid',
@@ -212,6 +212,17 @@ function createSummarySheet(
       left: { style: 'thin' },
       bottom: { style: 'thin' },
       right: { style: 'thin' },
+    };
+
+    const semStart = 3;
+    const semEnd = 2 + sortedSemesters.length;
+    const isSemesterCol = colNumber >= semStart && colNumber <= semEnd;
+
+    cell.font = {
+      name: 'Arial',
+      size: isSemesterCol ? 11 : 12,
+      bold: true,
+      color: { argb: 'FFFFFFFF' },
     };
   });
 
