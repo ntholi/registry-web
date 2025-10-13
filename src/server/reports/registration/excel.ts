@@ -162,17 +162,35 @@ function createSummarySheet(
 ) {
   const worksheet = workbook.addWorksheet('Summary');
 
-  worksheet.columns = [
+  const allSemesters = new Set<number>();
+  summaryReport.schools.forEach((school) => {
+    school.programs.forEach((program) => {
+      Object.keys(program.yearBreakdown).forEach((sem) => {
+        allSemesters.add(Number(sem));
+      });
+    });
+  });
+
+  const sortedSemesters = Array.from(allSemesters).sort((a, b) => a - b);
+
+  const columns: Partial<ExcelJS.Column>[] = [
     { key: 'schoolFaculty', width: 50 },
     { key: 'program', width: 50 },
-    { key: 'studentCount', width: 15 },
   ];
 
-  const headerRow = worksheet.addRow([
-    'School/Faculty',
-    'Program',
-    'Student Count',
-  ]);
+  const headerLabels = ['School/Faculty', 'Program'];
+
+  sortedSemesters.forEach((sem) => {
+    columns.push({ key: `sem${sem}`, width: 10 });
+    headerLabels.push(formatSemester(sem, 'mini'));
+  });
+
+  columns.push({ key: 'total', width: 12 });
+  headerLabels.push('Total');
+
+  worksheet.columns = columns;
+
+  const headerRow = worksheet.addRow(headerLabels);
 
   headerRow.font = {
     name: 'Arial',
@@ -198,7 +216,12 @@ function createSummarySheet(
   });
 
   summaryReport.schools.forEach((school) => {
-    const schoolRow = worksheet.addRow([school.schoolName, '', '']);
+    const schoolRowData: (string | number)[] = [school.schoolName];
+    for (let i = 1; i < headerLabels.length; i++) {
+      schoolRowData.push('');
+    }
+
+    const schoolRow = worksheet.addRow(schoolRowData);
 
     schoolRow.font = {
       name: 'Arial',
@@ -224,18 +247,31 @@ function createSummarySheet(
     });
 
     school.programs.forEach((program) => {
-      const programRow = worksheet.addRow([
-        '',
-        program.programName,
-        program.totalStudents,
-      ]);
+      const programRowData: (string | number)[] = ['', program.programName];
+
+      sortedSemesters.forEach((sem) => {
+        const count = program.yearBreakdown[sem] || 0;
+        programRowData.push(count > 0 ? count : '');
+      });
+
+      programRowData.push(program.totalStudents);
+
+      const programRow = worksheet.addRow(programRowData);
 
       programRow.font = { name: 'Arial', size: 11 };
       programRow.alignment = { horizontal: 'left', vertical: 'middle' };
 
-      programRow.getCell(3).alignment = {
-        horizontal: 'right',
-        vertical: 'middle',
+      for (let i = 3; i <= programRowData.length; i++) {
+        programRow.getCell(i).alignment = {
+          horizontal: 'center',
+          vertical: 'middle',
+        };
+      }
+
+      programRow.getCell(programRowData.length).font = {
+        name: 'Arial',
+        size: 11,
+        bold: true,
       };
 
       programRow.eachCell((cell) => {
@@ -248,11 +284,34 @@ function createSummarySheet(
       });
     });
 
-    const totalRow = worksheet.addRow(['', 'Total', school.totalStudents]);
+    const totalRowData: (string | number)[] = ['', 'Total'];
+    const schoolSemesterTotals: { [key: number]: number } = {};
+
+    school.programs.forEach((program) => {
+      Object.entries(program.yearBreakdown).forEach(([sem, count]) => {
+        const semNum = Number(sem);
+        schoolSemesterTotals[semNum] =
+          (schoolSemesterTotals[semNum] || 0) + count;
+      });
+    });
+
+    sortedSemesters.forEach((sem) => {
+      totalRowData.push(schoolSemesterTotals[sem] || '');
+    });
+
+    totalRowData.push(school.totalStudents);
+
+    const totalRow = worksheet.addRow(totalRowData);
 
     totalRow.font = { name: 'Arial', size: 11, bold: true };
     totalRow.alignment = { horizontal: 'left', vertical: 'middle' };
-    totalRow.getCell(3).alignment = { horizontal: 'right', vertical: 'middle' };
+
+    for (let i = 3; i <= totalRowData.length; i++) {
+      totalRow.getCell(i).alignment = {
+        horizontal: 'center',
+        vertical: 'middle',
+      };
+    }
 
     totalRow.eachCell((cell) => {
       cell.border = {
@@ -263,4 +322,57 @@ function createSummarySheet(
       };
     });
   });
+
+  const grandTotalRowData: (string | number)[] = ['', 'GRAND TOTAL'];
+  const grandTotalSemesters: { [key: number]: number } = {};
+  let grandTotal = 0;
+
+  summaryReport.schools.forEach((school) => {
+    grandTotal += school.totalStudents;
+    school.programs.forEach((program) => {
+      Object.entries(program.yearBreakdown).forEach(([sem, count]) => {
+        const semNum = Number(sem);
+        grandTotalSemesters[semNum] =
+          (grandTotalSemesters[semNum] || 0) + count;
+      });
+    });
+  });
+
+  sortedSemesters.forEach((sem) => {
+    grandTotalRowData.push(grandTotalSemesters[sem] || '');
+  });
+
+  grandTotalRowData.push(grandTotal);
+
+  const grandTotalRow = worksheet.addRow(grandTotalRowData);
+
+  grandTotalRow.font = {
+    name: 'Arial',
+    size: 12,
+    bold: true,
+    color: { argb: 'FFFFFFFF' },
+  };
+  grandTotalRow.alignment = { horizontal: 'left', vertical: 'middle' };
+  grandTotalRow.height = 25;
+
+  grandTotalRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF000000' },
+    };
+    cell.border = {
+      top: { style: 'thin' },
+      left: { style: 'thin' },
+      bottom: { style: 'thin' },
+      right: { style: 'thin' },
+    };
+  });
+
+  for (let i = 3; i <= grandTotalRowData.length; i++) {
+    grandTotalRow.getCell(i).alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    };
+  }
 }
