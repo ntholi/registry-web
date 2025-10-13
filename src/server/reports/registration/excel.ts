@@ -18,13 +18,7 @@ export function createFullRegistrationExcel(
       workbook.created = report.generatedAt;
       workbook.modified = report.generatedAt;
 
-      if (summaryReport) {
-        createSummarySheet(workbook, summaryReport);
-      }
-
-      const worksheet = workbook.addWorksheet('Full Registration Report', {
-        properties: { tabColor: { argb: 'FF0066CC' } },
-      });
+      const worksheet = workbook.addWorksheet('Full Registration Report');
 
       worksheet.mergeCells('A1:F1');
       worksheet.getCell('A1').value =
@@ -150,6 +144,10 @@ export function createFullRegistrationExcel(
         { header: 'School', key: 'school', width: 20 },
       ];
 
+      if (summaryReport) {
+        createSummarySheet(workbook, summaryReport);
+      }
+
       const buffer = await workbook.xlsx.writeBuffer();
       resolve(Buffer.from(buffer));
     } catch (error) {
@@ -162,9 +160,7 @@ function createSummarySheet(
   workbook: ExcelJS.Workbook,
   summaryReport: SummaryRegistrationReport
 ) {
-  const worksheet = workbook.addWorksheet('Summary', {
-    properties: { tabColor: { argb: 'FF00AA00' } },
-  });
+  const worksheet = workbook.addWorksheet('Summary');
 
   worksheet.columns = [
     { key: 'schoolFaculty', width: 50 },
