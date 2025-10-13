@@ -52,8 +52,9 @@ export default function StudentTable({
   onSearchChange,
 }: StudentTableProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const showInitialLoader = isLoading && !data;
 
-  if (isLoading) {
+  if (showInitialLoader) {
     const rowCount = isMobile ? 5 : 10;
     return (
       <Paper withBorder p='md'>
