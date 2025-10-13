@@ -25,13 +25,17 @@ export class RegistrationReportService {
         term.name,
         filter
       );
+      const summaryData = await this.repository.getSummaryRegistrationData(
+        term.name,
+        filter
+      );
       const fullReport = {
         termName: term.name,
         totalStudents: reportData.length,
         students: reportData,
         generatedAt: new Date(),
       };
-      const buffer = await createFullRegistrationExcel(fullReport);
+      const buffer = await createFullRegistrationExcel(fullReport, summaryData);
       return buffer;
     }, ['registry', 'admin', 'finance', 'academic']);
   }
@@ -71,6 +75,10 @@ export class RegistrationReportService {
         term.name,
         filter
       );
+      const summaryData = await this.repository.getSummaryRegistrationData(
+        term.name,
+        filter
+      );
       const fullReport = {
         termName: term.name,
         totalStudents: reportData.length,
@@ -78,7 +86,7 @@ export class RegistrationReportService {
         generatedAt: new Date(),
       };
 
-      const buffer = await createFullRegistrationExcel(fullReport);
+      const buffer = await createFullRegistrationExcel(fullReport, summaryData);
       return buffer;
     }, ['registry', 'admin', 'finance', 'academic']);
   }

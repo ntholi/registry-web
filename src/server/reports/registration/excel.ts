@@ -1,9 +1,13 @@
 import ExcelJS from 'exceljs';
-import { FullRegistrationReport } from './repository';
+import {
+  FullRegistrationReport,
+  SummaryRegistrationReport,
+} from './repository';
 import { formatSemester } from '@/lib/utils';
 
 export function createFullRegistrationExcel(
-  report: FullRegistrationReport
+  report: FullRegistrationReport,
+  summaryReport?: SummaryRegistrationReport
 ): Promise<Buffer> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -13,6 +17,10 @@ export function createFullRegistrationExcel(
       workbook.lastModifiedBy = 'Registry System';
       workbook.created = report.generatedAt;
       workbook.modified = report.generatedAt;
+
+      if (summaryReport) {
+        createSummarySheet(workbook, summaryReport);
+      }
 
       const worksheet = workbook.addWorksheet('Full Registration Report', {
         properties: { tabColor: { argb: 'FF0066CC' } },
@@ -147,5 +155,116 @@ export function createFullRegistrationExcel(
     } catch (error) {
       reject(error);
     }
+  });
+}
+
+function createSummarySheet(
+  workbook: ExcelJS.Workbook,
+  summaryReport: SummaryRegistrationReport
+) {
+  const worksheet = workbook.addWorksheet('Summary', {
+    properties: { tabColor: { argb: 'FF00AA00' } },
+  });
+
+  worksheet.columns = [
+    { key: 'schoolFaculty', width: 50 },
+    { key: 'program', width: 50 },
+    { key: 'studentCount', width: 15 },
+  ];
+
+  const headerRow = worksheet.addRow([
+    'School/Faculty',
+    'Program',
+    'Student Count',
+  ]);
+
+  headerRow.font = {
+    name: 'Arial',
+    size: 12,
+    bold: true,
+    color: { argb: 'FFFFFFFF' },
+  };
+  headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+  headerRow.height = 25;
+
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF000000' },
+    };
+    cell.border = {
+      top: { style: 'thin' },
+      left: { style: 'thin' },
+      bottom: { style: 'thin' },
+      right: { style: 'thin' },
+    };
+  });
+
+  summaryReport.schools.forEach((school) => {
+    const schoolRow = worksheet.addRow([school.schoolName, '', '']);
+
+    schoolRow.font = {
+      name: 'Arial',
+      size: 11,
+      bold: true,
+      color: { argb: 'FFFFFFFF' },
+    };
+    schoolRow.alignment = { horizontal: 'left', vertical: 'middle' };
+    schoolRow.height = 22;
+
+    schoolRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF4A4A4A' },
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
+
+    school.programs.forEach((program) => {
+      const programRow = worksheet.addRow([
+        '',
+        program.programName,
+        program.totalStudents,
+      ]);
+
+      programRow.font = { name: 'Arial', size: 11 };
+      programRow.alignment = { horizontal: 'left', vertical: 'middle' };
+
+      programRow.getCell(3).alignment = {
+        horizontal: 'right',
+        vertical: 'middle',
+      };
+
+      programRow.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    const totalRow = worksheet.addRow(['', 'Total', school.totalStudents]);
+
+    totalRow.font = { name: 'Arial', size: 11, bold: true };
+    totalRow.alignment = { horizontal: 'left', vertical: 'middle' };
+    totalRow.getCell(3).alignment = { horizontal: 'right', vertical: 'middle' };
+
+    totalRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
   });
 }
