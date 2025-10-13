@@ -204,7 +204,11 @@ export class RegistrationReportRepository {
     const whereClause = and(...conditions);
 
     const [studentsResult, totalResult] = await Promise.all([
-      studentsQuery.where(whereClause).limit(pageSize).offset(offset),
+      studentsQuery
+        .where(whereClause)
+        .orderBy(schools.name, programs.name, studentSemesters.semesterNumber)
+        .limit(pageSize)
+        .offset(offset),
       countQuery.where(whereClause),
     ]);
 
