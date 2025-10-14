@@ -219,9 +219,9 @@ export default function AddDocumentModal({
                   <IconFileUpload size='6rem' />
                 </Dropzone.Idle>
 
-                <div>
+                <Stack gap={4} align='center'>
                   <Text size='xl' inline>
-                    Drag file here or click to select
+                    Upload file
                   </Text>
                   <Text size='sm' c='dimmed' inline mt={7}>
                     Attach one file at a time (PDF, Images, Word documents)
@@ -229,41 +229,43 @@ export default function AddDocumentModal({
                   <Text size='xs' c='dimmed' mt={4}>
                     Maximum file size: 10 MB
                   </Text>
-                </div>
+                </Stack>
               </Group>
             </Dropzone>
           </Paper>
         ) : (
-          <Paper withBorder radius='md' p='lg'>
-            <Group
-              justify='space-between'
+          <Paper withBorder radius='md' p='xl'>
+            <Stack
+              gap='md'
               align='center'
-              mih={220}
               style={{ minHeight: rem(220) }}
+              justify='center'
             >
-              <Group gap='md'>
-                <ThemeIcon variant='light' color='blue' size='xl' radius='md'>
-                  <IconFile size={24} />
-                </ThemeIcon>
-                <div>
-                  <Text size='lg' fw={600}>
-                    {files[0].name}
-                  </Text>
-                  <Text size='sm' c='dimmed'>
-                    {formatFileSize(files[0].size)}
-                  </Text>
-                </div>
-              </Group>
-              <ActionIcon
-                variant='subtle'
+              <ThemeIcon variant='default' size={80} radius='md'>
+                <IconFile size={40} stroke={1.5} />
+              </ThemeIcon>
+
+              <Stack gap={4} align='center'>
+                <Text size='sm' fw={600} ta='center' maw={300} truncate='end'>
+                  {files[0].name}
+                </Text>
+                <Text size='sm' c='dimmed'>
+                  {formatFileSize(files[0].size)}
+                </Text>
+              </Stack>
+
+              <Button
+                variant='light'
                 color='red'
-                size='lg'
+                size='sm'
+                leftSection={<IconTrash size={16} />}
                 onClick={handleRemoveFile}
                 disabled={loading}
+                mt='xs'
               >
-                <IconTrash size={20} />
-              </ActionIcon>
-            </Group>
+                Remove File
+              </Button>
+            </Stack>
           </Paper>
         )}
 
