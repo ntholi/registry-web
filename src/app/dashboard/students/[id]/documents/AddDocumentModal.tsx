@@ -9,11 +9,24 @@ import {
   Select,
   Text,
   rem,
-  Card,
+  ActionIcon,
+  Paper,
+  ThemeIcon,
 } from '@mantine/core';
-import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
+import {
+  Dropzone,
+  MIME_TYPES,
+  type FileWithPath,
+  type FileRejection,
+} from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
-import { IconUpload, IconX, IconFile } from '@tabler/icons-react';
+import {
+  IconUpload,
+  IconX,
+  IconFile,
+  IconFileUpload,
+  IconTrash,
+} from '@tabler/icons-react';
 import { createDocument } from '@/server/documents/actions';
 import { uploadDocument } from '@/lib/storage';
 import { nanoid } from 'nanoid';
@@ -33,17 +46,55 @@ const documentTypes = [
   { value: 'other', label: 'Other' },
 ];
 
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) {
+    return '0 B';
+  }
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const exponent = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
+  const value = bytes / Math.pow(1024, exponent);
+  return `${value.toFixed(value < 10 && exponent > 0 ? 1 : 0)} ${units[exponent]}`;
+}
+
 export default function AddDocumentModal({
   opened,
   onClose,
   stdNo,
   onSuccess,
 }: AddDocumentModalProps) {
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<FileWithPath[]>([]);
   const [type, setType] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const maxFileSize = 10 * 1024 * 1024;
 
-  async function handleSubmit() {
+  function handleDrop(dropped: FileWithPath[]): void {
+    if (dropped.length > 0) {
+      setFiles([dropped[0]]);
+    }
+  }
+
+  function handleReject(fileRejections: FileRejection[]): void {
+    if (fileRejections.length > 0) {
+      notifications.show({
+        title: 'File not accepted',
+        message: 'Please upload a supported file under 10 MB.',
+        color: 'red',
+      });
+    }
+  }
+
+  function handleRemoveFile(): void {
+    setFiles([]);
+  }
+
+  function handleTypeChange(selected: string | null): void {
+    setType(selected);
+  }
+
+  async function handleSubmit(): Promise<void> {
     if (files.length === 0) {
       notifications.show({
         title: 'Error',
@@ -93,7 +144,7 @@ export default function AddDocumentModal({
     }
   }
 
-  function handleClose() {
+  function handleClose(): void {
     if (!loading) {
       setFiles([]);
       setType(null);
@@ -109,80 +160,111 @@ export default function AddDocumentModal({
       closeOnClickOutside={!loading}
       closeOnEscape={!loading}
     >
-      <Stack gap='md'>
+      <Stack gap='lg'>
+        <Text size='sm' c='dimmed'>
+          Upload supporting documents to keep the student profile current.
+        </Text>
+
         <Select
           label='Document Type'
           placeholder='Select document type'
           value={type}
-          onChange={setType}
+          onChange={handleTypeChange}
           data={documentTypes}
           clearable
           disabled={loading}
         />
 
-        <Card withBorder>
-          <Dropzone
-            onDrop={setFiles}
-            maxFiles={1}
-            accept={[
-              MIME_TYPES.pdf,
-              MIME_TYPES.png,
-              MIME_TYPES.jpeg,
-              MIME_TYPES.svg,
-              MIME_TYPES.gif,
-              MIME_TYPES.webp,
-              'application/msword',
-              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            ]}
-            style={{ cursor: 'pointer' }}
-            disabled={loading}
-          >
-            <Group
-              justify='center'
-              gap='xl'
-              mih={220}
-              style={{ pointerEvents: 'none' }}
+        {files.length === 0 ? (
+          <Paper withBorder radius='md' p='lg'>
+            <Dropzone
+              onDrop={handleDrop}
+              onReject={handleReject}
+              maxFiles={1}
+              maxSize={maxFileSize}
+              accept={[
+                MIME_TYPES.pdf,
+                MIME_TYPES.png,
+                MIME_TYPES.jpeg,
+                MIME_TYPES.svg,
+                MIME_TYPES.gif,
+                MIME_TYPES.webp,
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+              ]}
+              style={{ cursor: 'pointer' }}
+              disabled={loading}
+              loading={loading}
             >
-              <Dropzone.Accept>
-                <IconUpload stroke={1.5} size={20} />
-              </Dropzone.Accept>
-              <Dropzone.Reject>
-                <IconX
-                  style={{
-                    width: rem(52),
-                    height: rem(52),
-                    color: 'var(--mantine-color-red-6)',
-                  }}
-                  stroke={1.5}
-                />
-              </Dropzone.Reject>
-              <Dropzone.Idle>
-                <IconFile
-                  style={{
-                    width: rem(52),
-                    height: rem(52),
-                    color: 'var(--mantine-color-dimmed)',
-                  }}
-                  stroke={1.5}
-                />
-              </Dropzone.Idle>
+              <Group
+                justify='center'
+                gap='xl'
+                mih={220}
+                style={{ pointerEvents: 'none' }}
+              >
+                <Dropzone.Accept>
+                  <IconUpload stroke={1.5} size={20} />
+                </Dropzone.Accept>
+                <Dropzone.Reject>
+                  <IconX
+                    style={{
+                      width: rem(52),
+                      height: rem(52),
+                      color: 'var(--mantine-color-red-6)',
+                    }}
+                    stroke={1.5}
+                  />
+                </Dropzone.Reject>
+                <Dropzone.Idle>
+                  <IconFileUpload size='6rem' />
+                </Dropzone.Idle>
 
-              <div>
-                <Text size='xl' inline>
-                  Drag file here or click to select
-                </Text>
-                <Text size='sm' c='dimmed' inline mt={7}>
-                  Attach one file at a time (PDF, Images, Word documents)
-                </Text>
-              </div>
+                <div>
+                  <Text size='xl' inline>
+                    Drag file here or click to select
+                  </Text>
+                  <Text size='sm' c='dimmed' inline mt={7}>
+                    Attach one file at a time (PDF, Images, Word documents)
+                  </Text>
+                  <Text size='xs' c='dimmed' mt={4}>
+                    Maximum file size: 10 MB
+                  </Text>
+                </div>
+              </Group>
+            </Dropzone>
+          </Paper>
+        ) : (
+          <Paper withBorder radius='md' p='lg'>
+            <Group
+              justify='space-between'
+              align='center'
+              mih={220}
+              style={{ minHeight: rem(220) }}
+            >
+              <Group gap='md'>
+                <ThemeIcon variant='light' color='blue' size='xl' radius='md'>
+                  <IconFile size={24} />
+                </ThemeIcon>
+                <div>
+                  <Text size='lg' fw={600}>
+                    {files[0].name}
+                  </Text>
+                  <Text size='sm' c='dimmed'>
+                    {formatFileSize(files[0].size)}
+                  </Text>
+                </div>
+              </Group>
+              <ActionIcon
+                variant='subtle'
+                color='red'
+                size='lg'
+                onClick={handleRemoveFile}
+                disabled={loading}
+              >
+                <IconTrash size={20} />
+              </ActionIcon>
             </Group>
-          </Dropzone>
-        </Card>
-
-        {files.length > 0 && (
-          <Text size='sm' c='dimmed'>
-            Selected: {files[0].name}
-          </Text>
+          </Paper>
         )}
 
         <Group justify='flex-end' mt='md'>

@@ -126,11 +126,10 @@ export default function ProofOfClearancePrinter({
       variant='subtle'
       color='gray'
       size='xs'
-      w={165}
       disabled={isGenerating}
       onClick={handlePrint}
     >
-      {isLoading ? 'Generating...' : 'Proof of Clearance'}
+      Print
     </Button>
   );
 }

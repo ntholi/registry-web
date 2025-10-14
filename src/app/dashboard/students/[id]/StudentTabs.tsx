@@ -68,7 +68,7 @@ export function StudentTabs({
         {showRegistration && (
           <TabsTab value='registration'>Registration</TabsTab>
         )}
-        {showStudentCard && <TabsTab value='studentcard'>Student Card</TabsTab>}
+        {showStudentCard && <TabsTab value='studentcard'>Card</TabsTab>}
         {showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
         {showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
         {showStatementOfResults && activeTab === 'academics' && (

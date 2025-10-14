@@ -166,7 +166,7 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
       disabled={isGenerating || disabled}
       onClick={handlePrint}
     >
-      Statement of Results
+      Print
     </Button>
   );
 }

@@ -160,10 +160,9 @@ export default function StudentCardPrinter({
         variant='subtle'
         color='gray'
         size='xs'
-        w={165}
         disabled={isGenerating || disabled || !finalPhotoUrl}
       >
-        {photoLoading ? 'Loading...' : 'Print Student Card'}
+        Print
       </Button>
     </>
   );
