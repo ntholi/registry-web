@@ -3,27 +3,12 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getStudentDocuments } from '@/server/documents/actions';
-import {
-  Stack,
-  Button,
-  Table,
-  TableTbody,
-  TableTd,
-  TableTh,
-  TableThead,
-  TableTr,
-  Text,
-  Group,
-  ActionIcon,
-  Tooltip,
-  Paper,
-  Box,
-} from '@mantine/core';
-import { IconPlus, IconDownload, IconTrash } from '@tabler/icons-react';
+import { Stack, Button, Text, Paper, Box, SimpleGrid } from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
-import { formatDate } from '@/lib/utils';
 import AddDocumentModal from './AddDocumentModal';
 import DeleteDocumentModal from './DeleteDocumentModal';
+import DocumentCard from './DocumentCard';
 
 type DocumentsViewProps = {
   stdNo: number;
@@ -66,11 +51,6 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
     );
   }
 
-  function handleDownload(fileName: string) {
-    const url = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${fileName}`;
-    window.open(url, '_blank');
-  }
-
   function handleDelete(id: string, fileName: string) {
     setSelectedDocument({ id, fileName });
     setDeleteModalOpened(true);
@@ -98,55 +78,19 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
           </Text>
         </Paper>
       ) : (
-        <Paper withBorder>
-          <Table highlightOnHover>
-            <TableThead>
-              <TableTr>
-                <TableTh>Document Name</TableTh>
-                <TableTh>Type</TableTh>
-                <TableTh>Upload Date</TableTh>
-                <TableTh>Actions</TableTh>
-              </TableTr>
-            </TableThead>
-            <TableTbody>
-              {documents.map((doc) => {
-                const displayName =
-                  doc.fileName.split('/').pop() || doc.fileName;
-                return (
-                  <TableTr key={doc.id}>
-                    <TableTd>{displayName}</TableTd>
-                    <TableTd>{doc.type || 'N/A'}</TableTd>
-                    <TableTd>{formatDate(doc.createdAt)}</TableTd>
-                    <TableTd>
-                      <Group gap='xs'>
-                        <Tooltip label='Download'>
-                          <ActionIcon
-                            variant='subtle'
-                            color='blue'
-                            onClick={() => handleDownload(doc.fileName)}
-                          >
-                            <IconDownload size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                        {canEdit && (
-                          <Tooltip label='Delete'>
-                            <ActionIcon
-                              variant='subtle'
-                              color='red'
-                              onClick={() => handleDelete(doc.id, doc.fileName)}
-                            >
-                              <IconTrash size={16} />
-                            </ActionIcon>
-                          </Tooltip>
-                        )}
-                      </Group>
-                    </TableTd>
-                  </TableTr>
-                );
-              })}
-            </TableTbody>
-          </Table>
-        </Paper>
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
+          {documents.map((doc) => (
+            <DocumentCard
+              key={doc.id}
+              id={doc.id}
+              fileName={doc.fileName}
+              type={doc.type}
+              createdAt={doc.createdAt}
+              canEdit={canEdit}
+              onDelete={handleDelete}
+            />
+          ))}
+        </SimpleGrid>
       )}
 
       <AddDocumentModal

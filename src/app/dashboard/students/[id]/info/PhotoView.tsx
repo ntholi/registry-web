@@ -2,13 +2,12 @@
 import { deleteDocument, uploadDocument } from '@/lib/storage';
 import { getStudent, getStudentPhoto } from '@/server/students/actions';
 import { ActionIcon, Card, Center } from '@mantine/core';
-import { IconUpload, IconUser, IconEdit, IconTrash } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import { IconEdit, IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { notifications } from '@mantine/notifications';
 import PhotoInputModal from './PhotoInputModal';
 import PhotoPreviewModal from './PhotoPreviewModal';
-import DeletePhotoModal from './DeletePhotoModal';
 
 type Props = {
   student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
