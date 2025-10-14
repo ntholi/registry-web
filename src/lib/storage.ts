@@ -50,7 +50,7 @@ export async function uploadDocument(
       })
     );
 
-    return key;
+    return fName;
   } catch (error) {
     console.error('Error uploading document:', error);
     throw error;

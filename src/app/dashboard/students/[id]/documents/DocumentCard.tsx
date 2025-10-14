@@ -17,6 +17,7 @@ import {
 } from '@mantine/core';
 import { IconDownload, IconTrash, IconFile } from '@tabler/icons-react';
 import { formatDate } from '@/lib/utils';
+import documentTypes from './documentTypes';
 
 type DocumentCardProps = {
   id: string;
@@ -136,23 +137,28 @@ export default function DocumentCard({
     );
   }
 
-  const displayName = fileName.split('/').pop() || fileName;
   const ext = getFileExtension(fileName);
 
   return (
-    <Card shadow='sm' padding='lg' withBorder>
+    <Card shadow='sm' padding='xs' withBorder>
       {renderPreview()}
 
       <Stack gap='xs' mt='md'>
-        <Group justify='space-between' align='flex-start'>
-          <Text fw={500} size='sm' lineClamp={2} style={{ flex: 1 }}>
-            {type}
-          </Text>
-        </Group>
+        <Box>
+          <Group justify='space-between' align='flex-start'>
+            <Text fw={500} size='sm' lineClamp={2} style={{ flex: 1 }}>
+              {documentTypes.find((it) => it.value === type)?.label ||
+                'Unknown'}
+            </Text>
+            <Badge color='gray' variant='light' size='sm'>
+              {ext}
+            </Badge>
+          </Group>
 
-        <Text size='xs' c='dimmed'>
-          {formatDate(createdAt)}
-        </Text>
+          <Text size='xs' c='dimmed'>
+            {formatDate(createdAt)}
+          </Text>
+        </Box>
 
         <Flex gap='xs' mt='xs' justify={'space-between'}>
           <Tooltip label='Download'>

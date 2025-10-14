@@ -1,35 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { uploadDocument } from '@/lib/storage';
+import { createDocument } from '@/server/documents/actions';
 import {
-  Modal,
   Button,
-  Stack,
   Group,
-  Select,
-  Text,
-  rem,
-  ActionIcon,
+  Modal,
   Paper,
+  Select,
+  Stack,
+  Text,
   ThemeIcon,
+  rem,
 } from '@mantine/core';
 import {
   Dropzone,
   MIME_TYPES,
-  type FileWithPath,
   type FileRejection,
+  type FileWithPath,
 } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import {
-  IconUpload,
-  IconX,
   IconFile,
   IconFileUpload,
   IconTrash,
+  IconUpload,
+  IconX,
 } from '@tabler/icons-react';
-import { createDocument } from '@/server/documents/actions';
-import { uploadDocument } from '@/lib/storage';
 import { nanoid } from 'nanoid';
+import { useState } from 'react';
+import documentTypes from './documentTypes';
 
 type AddDocumentModalProps = {
   opened: boolean;
@@ -37,14 +37,6 @@ type AddDocumentModalProps = {
   stdNo: number;
   onSuccess: () => void;
 };
-
-const documentTypes = [
-  { value: 'transcript', label: 'Transcript' },
-  { value: 'certificate', label: 'Certificate' },
-  { value: 'id', label: 'ID Document' },
-  { value: 'medical', label: 'Medical Certificate' },
-  { value: 'other', label: 'Other' },
-];
 
 function formatFileSize(bytes: number): string {
   if (bytes === 0) {
@@ -161,13 +153,10 @@ export default function AddDocumentModal({
       closeOnEscape={!loading}
     >
       <Stack gap='lg'>
-        <Text size='sm' c='dimmed'>
-          Upload supporting documents to keep the student profile current.
-        </Text>
-
         <Select
           label='Document Type'
           placeholder='Select document type'
+          searchable
           value={type}
           onChange={handleTypeChange}
           data={documentTypes}
