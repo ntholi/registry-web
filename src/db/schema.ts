@@ -10,6 +10,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { nanoid } from 'nanoid';
 import type { AdapterAccountType } from 'next-auth/adapters';
+import { file } from 'zod';
 
 export const dashboardUsers = [
   'finance',
@@ -829,6 +830,18 @@ export const studentCardPrints = sqliteTable('student_card_prints', {
     .notNull(),
   printedBy: text()
     .references(() => users.id, { onDelete: 'set null' })
+    .notNull(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
+export const documents = sqliteTable('documents', {
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  fileName: text().notNull(),
+  type: text(),
+  stdNo: integer()
+    .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
   createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });

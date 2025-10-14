@@ -35,6 +35,12 @@ import {
   userSchools,
   modules,
   blockedStudents,
+  graduationLists,
+  moduleGrades,
+  statementOfResultsPrints,
+  transcriptPrints,
+  studentCardPrints,
+  documents,
   fortinetRegistrations,
 } from './schema';
 
@@ -151,7 +157,6 @@ export const structureSemestersRelations = relations(
 export const semesterModulesRelations = relations(
   semesterModules,
   ({ many, one }) => ({
-    semesters: many(semesterModules),
     prerequisites: many(modulePrerequisites, {
       relationName: 'semesterModulePrerequisites',
     }),
@@ -167,6 +172,76 @@ export const semesterModulesRelations = relations(
     module: one(modules, {
       fields: [semesterModules.moduleId],
       references: [modules.id],
+    }),
+  })
+);
+
+export const moduleGradesRelations = relations(moduleGrades, ({ one }) => ({
+  module: one(modules, {
+    fields: [moduleGrades.moduleId],
+    references: [modules.id],
+  }),
+  student: one(students, {
+    fields: [moduleGrades.stdNo],
+    references: [students.stdNo],
+  }),
+}));
+
+export const statementOfResultsPrintsRelations = relations(
+  statementOfResultsPrints,
+  ({ one }) => ({
+    student: one(students, {
+      fields: [statementOfResultsPrints.stdNo],
+      references: [students.stdNo],
+    }),
+    printedByUser: one(users, {
+      fields: [statementOfResultsPrints.printedBy],
+      references: [users.id],
+    }),
+  })
+);
+
+export const transcriptPrintsRelations = relations(
+  transcriptPrints,
+  ({ one }) => ({
+    student: one(students, {
+      fields: [transcriptPrints.stdNo],
+      references: [students.stdNo],
+    }),
+    printedByUser: one(users, {
+      fields: [transcriptPrints.printedBy],
+      references: [users.id],
+    }),
+  })
+);
+
+export const studentCardPrintsRelations = relations(
+  studentCardPrints,
+  ({ one }) => ({
+    student: one(students, {
+      fields: [studentCardPrints.stdNo],
+      references: [students.stdNo],
+    }),
+    printedByUser: one(users, {
+      fields: [studentCardPrints.printedBy],
+      references: [users.id],
+    }),
+  })
+);
+
+export const documentsRelations = relations(documents, ({ one }) => ({
+  student: one(students, {
+    fields: [documents.stdNo],
+    references: [students.stdNo],
+  }),
+}));
+
+export const graduationListsRelations = relations(
+  graduationLists,
+  ({ one }) => ({
+    createdByUser: one(users, {
+      fields: [graduationLists.createdBy],
+      references: [users.id],
     }),
   })
 );
