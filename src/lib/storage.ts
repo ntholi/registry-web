@@ -64,13 +64,12 @@ export async function deleteDocument(url: string | undefined | null) {
   }
 
   try {
-    const fileName = url ? formatUrl(url) : null;
-    if (!fileName) throw new Error('Invalid URL format');
+    if (!url) throw new Error('Invalid URL format');
 
     const res = await s3Client.send(
       new DeleteObjectCommand({
         Bucket: BUCKET_NAME,
-        Key: fileName,
+        Key: url,
       })
     );
   } catch (error) {

@@ -13,6 +13,10 @@ export async function getDocuments(page: number = 1, search = '') {
   return service.getAll({ page, search });
 }
 
+export async function getStudentDocuments(stdNo: number) {
+  return service.getByStudent(stdNo);
+}
+
 export async function createDocument(document: Document) {
   return service.create(document);
 }
