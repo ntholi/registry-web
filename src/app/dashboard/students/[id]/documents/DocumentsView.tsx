@@ -3,7 +3,16 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getStudentDocuments } from '@/server/documents/actions';
-import { Stack, Button, Text, Paper, Box, SimpleGrid } from '@mantine/core';
+import {
+  Stack,
+  Button,
+  Text,
+  Paper,
+  Box,
+  SimpleGrid,
+  Card,
+  Group,
+} from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import AddDocumentModal from './AddDocumentModal';
@@ -59,14 +68,28 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
   return (
     <Stack gap='md'>
       {canEdit && (
-        <Box>
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={() => setAddModalOpened(true)}
-          >
-            Add Document
-          </Button>
-        </Box>
+        <Card withBorder p='md'>
+          <Group justify='space-between' align='center'>
+            <Stack gap={4}>
+              <Text size='sm' fw={500}>
+                Student Documents
+              </Text>
+              <Text size='xs' c='dimmed'>
+                Upload student documents such as internal documents,
+                certificates, or ID copies
+              </Text>
+            </Stack>
+            <Button
+              leftSection={<IconPlus size={14} />}
+              variant='filled'
+              size='sm'
+              color='blue'
+              onClick={() => setAddModalOpened(true)}
+            >
+              Upload
+            </Button>
+          </Group>
+        </Card>
       )}
 
       {isLoading ? (
