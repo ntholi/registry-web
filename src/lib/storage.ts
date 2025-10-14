@@ -20,7 +20,11 @@ const s3Client = new S3Client({
 
 const BUCKET_NAME = process.env.R2_BUCKET_NAME || '';
 
-export async function uploadDocument(file: File | Blob, fileName: string) {
+export async function uploadDocument(
+  file: File | Blob,
+  fileName: string,
+  folder: string
+) {
   const session = await auth();
   if (!session || !session.user) {
     return unauthorized();
@@ -34,18 +38,19 @@ export async function uploadDocument(file: File | Blob, fileName: string) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const ext = file.name.split('.').pop()?.toLowerCase() || 'unknown';
     const fName = fileName || `${nanoid()}.${ext}`;
+    const key = `${folder}/${fName}`;
 
     await s3Client.send(
       new PutObjectCommand({
         Bucket: BUCKET_NAME,
-        Key: fName,
+        Key: key,
         Body: buffer,
         ContentType: file.type,
         ACL: 'public-read',
       })
     );
 
-    return fName;
+    return key;
   } catch (error) {
     console.error('Error uploading document:', error);
     throw error;

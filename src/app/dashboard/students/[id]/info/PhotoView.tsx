@@ -33,7 +33,7 @@ export default function PhotoView({ student }: Props) {
         type: 'image/jpeg',
       });
 
-      await uploadDocument(photoFile, fileName);
+      await uploadDocument(photoFile, fileName, 'photos');
       await refetch();
 
       notifications.show({
@@ -45,27 +45,6 @@ export default function PhotoView({ student }: Props) {
       notifications.show({
         title: 'Error',
         message: 'Failed to update photo',
-        color: 'red',
-      });
-    }
-  };
-
-  const handlePhotoDelete = async () => {
-    try {
-      if (photoUrl) {
-        await deleteDocument(photoUrl);
-        await refetch();
-
-        notifications.show({
-          title: 'Success',
-          message: 'Photo deleted successfully',
-          color: 'green',
-        });
-      }
-    } catch (error) {
-      notifications.show({
-        title: 'Error',
-        message: 'Failed to delete photo',
         color: 'red',
       });
     }

@@ -62,7 +62,7 @@ export default function PhotoSelection({
         type: 'image/jpeg',
       });
 
-      await uploadDocument(photoFile, fileName);
+      await uploadDocument(photoFile, fileName, 'photos');
 
       const preview = URL.createObjectURL(croppedImageBlob);
       onPhotoChange(photoFile, preview);
@@ -84,7 +84,7 @@ export default function PhotoSelection({
         capturedFile.name.split('.').pop()?.toLowerCase() || 'jpg';
       const fileName = `${studentNumber}.${fileExtension}`;
 
-      await uploadDocument(capturedFile, fileName);
+      await uploadDocument(capturedFile, fileName, 'photos');
       onPhotoChange(capturedFile, preview);
     } catch (error) {
       console.error('Error uploading photo:', error);

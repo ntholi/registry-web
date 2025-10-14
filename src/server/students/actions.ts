@@ -106,7 +106,7 @@ export async function getStudentPhoto(
 
     for (const ext of extensions) {
       const fileName = `${studentNumber}.${ext}`;
-      const url = `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/${fileName}`;
+      const url = `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/photos/${fileName}`;
 
       try {
         const response = await fetch(url, {
