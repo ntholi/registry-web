@@ -6,6 +6,7 @@ import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { generateCertificate } from './CertificatePDF';
+import { useSession } from 'next-auth/react';
 
 type Props = {
   disabled?: boolean;
@@ -19,6 +20,7 @@ export default function CertificateDownloader({
   programId,
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const { data: session } = useSession();
 
   const { data: student } = useQuery({
     queryKey: ['student', stdNo, 'no-current-term'],
@@ -97,7 +99,7 @@ export default function CertificateDownloader({
       variant='subtle'
       color='gray'
       size='xs'
-      disabled={isGenerating || disabled}
+      disabled={isGenerating || session?.user?.role !== 'admin' || disabled}
       onClick={handleDownload}
       loading={isGenerating}
     >
