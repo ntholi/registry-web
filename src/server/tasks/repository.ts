@@ -93,6 +93,57 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 
     await db.insert(taskAssignments).values(assignments);
   }
+
+  async createWithAssignments(
+    taskData: typeof tasks.$inferInsert,
+    assignedUserIds: string[] = []
+  ) {
+    return await db.transaction(async (tx) => {
+      const [task] = await tx.insert(tasks).values(taskData).returning();
+
+      if (assignedUserIds.length > 0) {
+        const assignments = assignedUserIds.map((userId) => ({
+          taskId: task.id,
+          userId,
+        }));
+
+        await tx.insert(taskAssignments).values(assignments);
+      }
+
+      return task;
+    });
+  }
+
+  async updateWithAssignments(
+    taskId: string,
+    taskData: Partial<typeof tasks.$inferInsert>,
+    assignedUserIds?: string[]
+  ) {
+    return await db.transaction(async (tx) => {
+      const [task] = await tx
+        .update(tasks)
+        .set(taskData)
+        .where(eq(tasks.id, taskId))
+        .returning();
+
+      if (assignedUserIds !== undefined) {
+        await tx
+          .delete(taskAssignments)
+          .where(eq(taskAssignments.taskId, taskId));
+
+        if (assignedUserIds.length > 0) {
+          const assignments = assignedUserIds.map((userId) => ({
+            taskId,
+            userId,
+          }));
+
+          await tx.insert(taskAssignments).values(assignments);
+        }
+      }
+
+      return task;
+    });
+  }
 }
 
 export const tasksRepository = new TaskRepository();

@@ -58,20 +58,17 @@ class TaskService {
         throw new Error('Unauthorized');
       }
 
-      const { assignedUserIds, ...taskData } = data;
+      const { assignedUserIds = [], ...taskData } = data;
 
-      const task = await this.repository.create({
-        ...taskData,
-        createdBy: session.user.id,
-        department: session.user.role as DashboardUser,
-        updatedAt: new Date(Date.now()),
-      });
-
-      if (assignedUserIds && assignedUserIds.length > 0) {
-        await this.repository.assignTaskToUsers(task.id, assignedUserIds);
-      }
-
-      return task;
+      return this.repository.createWithAssignments(
+        {
+          ...taskData,
+          createdBy: session.user.id,
+          department: session.user.role as DashboardUser,
+          updatedAt: new Date(Date.now()),
+        },
+        assignedUserIds
+      );
     }, ['dashboard']);
   }
 
@@ -79,16 +76,14 @@ class TaskService {
     return withAuth(async () => {
       const { assignedUserIds, ...taskData } = data;
 
-      const task = await this.repository.update(id, {
-        ...taskData,
-        updatedAt: new Date(Date.now()),
-      });
-
-      if (assignedUserIds !== undefined) {
-        await this.repository.assignTaskToUsers(id, assignedUserIds);
-      }
-
-      return task;
+      return this.repository.updateWithAssignments(
+        id,
+        {
+          ...taskData,
+          updatedAt: new Date(Date.now()),
+        },
+        assignedUserIds
+      );
     }, ['dashboard']);
   }
 
