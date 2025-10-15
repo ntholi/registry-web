@@ -3,9 +3,20 @@
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
-import { getTasks } from '@/server/tasks/actions';
-import { IconAlertCircle, IconClock } from '@tabler/icons-react';
+import { getTasks, TaskFilter } from '@/server/tasks/actions';
+import {
+  IconAlertCircle,
+  IconCalendarClock,
+  IconCheck,
+  IconCircleDashed,
+  IconClock,
+  IconHourglass,
+  IconPlayerPlay,
+  IconX,
+} from '@tabler/icons-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useSearchParams } from 'next/navigation';
+import TasksFilter from './TasksFilter';
 
 function getPriorityColor(priority: string) {
   switch (priority) {
@@ -39,13 +50,60 @@ function getStatusColor(status: string) {
   }
 }
 
+function getStatusIcon(status: string) {
+  switch (status) {
+    case 'completed':
+      return <IconCheck size={'1rem'} color='var(--mantine-color-green-6)' />;
+    case 'in_progress':
+      return (
+        <IconPlayerPlay size={'1rem'} color='var(--mantine-color-blue-6)' />
+      );
+    case 'active':
+      return (
+        <IconHourglass size={'1rem'} color='var(--mantine-color-yellow-6)' />
+      );
+    case 'scheduled':
+      return (
+        <IconCalendarClock size={'1rem'} color='var(--mantine-color-grape-6)' />
+      );
+    case 'cancelled':
+      return <IconX size={'1rem'} color='var(--mantine-color-gray-6)' />;
+    default:
+      return <IconClock size={'1rem'} color='var(--mantine-color-gray-6)' />;
+  }
+}
+
 export default function Layout({ children }: PropsWithChildren) {
+  const searchParams = useSearchParams();
+
+  const getTasksData = async (page: number, search: string) => {
+    const filter: TaskFilter = {};
+
+    const statusParam = searchParams.get('status');
+    const priorityParam = searchParams.get('priority');
+
+    if (statusParam) {
+      filter.status = statusParam.split(',').filter(Boolean);
+    } else {
+      filter.status = ['active', 'in_progress'];
+    }
+
+    if (priorityParam) {
+      filter.priority = priorityParam.split(',').filter(Boolean);
+    }
+
+    return getTasks(page, search, filter);
+  };
+
   return (
     <ListLayout
       path={'/dashboard/tasks'}
-      queryKey={['tasks']}
-      getData={getTasks}
-      actionIcons={[<NewLink key={'new-link'} href='/dashboard/tasks/new' />]}
+      queryKey={['tasks', searchParams.toString()]}
+      getData={getTasksData}
+      actionIcons={[
+        <TasksFilter key={'filter-link'} />,
+        <NewLink key={'new-link'} href='/dashboard/tasks/new' />,
+      ]}
       renderItem={(task) => {
         const isOverdue =
           task.dueDate &&
@@ -65,10 +123,11 @@ export default function Layout({ children }: PropsWithChildren) {
                   {isOverdue && <IconAlertCircle size={16} color='red' />}
                 </Group>
                 <Group gap='xs'>
-                  <Badge size='xs' color={getStatusColor(task.status)}>
-                    {task.status.replace('_', ' ')}
-                  </Badge>
-                  <Badge size='xs' color={getPriorityColor(task.priority)}>
+                  <Badge
+                    size='xs'
+                    variant='light'
+                    color={getPriorityColor(task.priority)}
+                  >
                     {task.priority}
                   </Badge>
                   {task.dueDate && (
@@ -84,6 +143,7 @@ export default function Layout({ children }: PropsWithChildren) {
                 </Group>
               </Stack>
             }
+            rightSection={getStatusIcon(task.status)}
           />
         );
       }}
