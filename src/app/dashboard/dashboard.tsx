@@ -6,17 +6,17 @@ import { DashboardUser, UserPosition, UserRole } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import {
-  countApprovedClearances,
-  countPendingClearances,
-  countRejectedClearances,
-} from '@/server/registration/clearance/actions';
-import {
   countApprovedGraduationClearances,
   countPendingGraduationClearances,
   countRejectedGraduationClearances,
 } from '@/server/graduation/clearance/actions';
-import { countByStatus } from '@/server/registration/requests/actions';
 import { countByStatus as countGraduationByStatus } from '@/server/graduation/requests/actions';
+import {
+  countApprovedClearances,
+  countPendingClearances,
+  countRejectedClearances,
+} from '@/server/registration/clearance/actions';
+import { countByStatus } from '@/server/registration/requests/actions';
 import { getUserSchools } from '@/server/users/actions';
 import {
   ActionIcon,
@@ -42,6 +42,7 @@ import {
   IconBuildingStore,
   IconCalculator,
   IconCalendarEvent,
+  IconCalendarStats,
   IconCertificate,
   IconChartLine,
   IconChevronRight,
@@ -113,6 +114,12 @@ function getNavigation(department: DashboardUser) {
           )
         );
       },
+    },
+    {
+      label: 'Tasks',
+      href: '/dashboard/tasks',
+      icon: IconCalendarStats,
+      roles: ['admin'],
     },
     {
       label: 'Lecturers',

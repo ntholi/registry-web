@@ -33,6 +33,7 @@ All server code should follows this exact structure in `src/server/[resource]/`:
 
 - Dark mode optimized with light mode support
 - Use predefined colors: `c="colorName"`
+- Never use `var(--mantine-color-[blue]-[1/2/3])` such colors are not theme-aware they will break dark mode, before setting any color consider first, like really think about it if that color will look good in both dark and light mode, if not then use the closest mantine color
 - Avoid by all means changing the default background of mantine components
 - Size values: `'4rem'` not `{rem(4)}`
 - Always create responsive design using eg. `Box p={{ base: 'md', sm: 'lg' }}>` please note that this is not available for all components so you can use `useMediaQuery('(max-width: 768px)')`
@@ -51,4 +52,4 @@ All server code should follows this exact structure in `src/server/[resource]/`:
 - When creating native sql queries use snake_case for table and column names without uppercase letters
 
 - **NEVER generate documentation files** - Do not create or update `.md`, `.txt`, or any documentation files
-- **PowerShell v7 only** - All shell commands must be PowerShell v7 compatible (Windows environment)
+- **PowerShell v7 only** - All cmd or terminal commands must be PowerShell v7 compatible (Windows environment)
