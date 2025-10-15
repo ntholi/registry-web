@@ -886,3 +886,61 @@ export const fortinetRegistrations = sqliteTable(
     uniqueStudentLevel: unique().on(table.stdNo, table.level),
   })
 );
+
+export const taskStatusEnum = [
+  'scheduled',
+  'active',
+  'in_progress',
+  'completed',
+  'cancelled',
+] as const;
+
+export const taskPriorityEnum = ['low', 'medium', 'high', 'urgent'] as const;
+
+export type TaskStatus = (typeof taskStatusEnum)[number];
+export type TaskPriority = (typeof taskPriorityEnum)[number];
+
+export const tasks = sqliteTable(
+  'tasks',
+  {
+    id: text()
+      .primaryKey()
+      .$defaultFn(() => nanoid()),
+    title: text().notNull(),
+    description: text(),
+    status: text({ enum: taskStatusEnum }).notNull().default('active'),
+    priority: text({ enum: taskPriorityEnum }).notNull().default('medium'),
+    department: text({ enum: dashboardUsers }).notNull(),
+    createdBy: text()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    scheduledFor: integer({ mode: 'timestamp' }),
+    dueDate: integer({ mode: 'timestamp' }),
+    completedAt: integer({ mode: 'timestamp' }),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
+  },
+  (table) => ({
+    departmentIdx: index('tasks_department_idx').on(table.department),
+    statusIdx: index('tasks_status_idx').on(table.status),
+    dueDateIdx: index('tasks_due_date_idx').on(table.dueDate),
+  })
+);
+
+export const taskAssignments = sqliteTable(
+  'task_assignments',
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    taskId: text()
+      .references(() => tasks.id, { onDelete: 'cascade' })
+      .notNull(),
+    userId: text()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  },
+  (table) => ({
+    uniqueTaskAssignment: unique().on(table.taskId, table.userId),
+    userIdIdx: index('task_assignments_user_id_idx').on(table.userId),
+  })
+);
