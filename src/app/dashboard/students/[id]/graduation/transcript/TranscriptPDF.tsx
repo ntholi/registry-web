@@ -3,6 +3,7 @@ import { getAcademicRemarks } from '@/utils/grades';
 import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
 import { getCleanedSemesters } from '../../AcademicsView/statements/utils';
+import GradeClassificationPage from './GradeClassificationPage';
 
 Font.register({
   family: 'Arial',
@@ -203,111 +204,123 @@ export default function TranscriptPDF({ student }: { student: Student }) {
         const rightTerms = allSemesters.slice(6);
 
         return (
-          <Page
-            key={pIdx}
-            size='A4'
-            style={tw('pt-5 px-4 pb-10 font-sans text-[7.12pt] pt-[155pt]')}
-          >
-            {/* Header Section */}
-            <View style={tw('border-t border-b py-1')}>
-              <View style={tw('flex flex-row')}>
-                <View style={tw('w-1/2 pr-3')}>
-                  <HeaderRow label='Student Name' value={student.name} />
-                  <HeaderRow label='Student ID' value={String(student.stdNo)} />
-                  <HeaderRow
-                    label='IC / Passport No.'
-                    value={student.nationalId}
-                  />
-                  <HeaderRow label='Gender' value={student.gender || 'N/A'} />
-                  <HeaderRow label='Nationality' value='Mosotho' />
-                </View>
-                <View style={tw('w-1/2 pl-3')}>
-                  <HeaderRow label='Date of Admission' value={admissionDate} />
-                  <HeaderRow
-                    label='Date of Completion'
-                    value={completionDate}
-                  />
-                  <HeaderRow
-                    label='Programme'
-                    value={program?.structure?.program?.name}
-                  />
-                  <HeaderRow
-                    label='Faculty'
-                    value={program?.structure?.program?.school.name}
-                  />
-                  <HeaderRow label='Issued Date' value={issueDate} />
-                </View>
-              </View>
-            </View>
-
-            {/* Content Header */}
-            <View style={tw('mt-1.5 flex flex-row gap-5 border-t border-b')}>
-              <View style={tw('flex-1')}>
-                <TableHeader />
-              </View>
-              <View style={tw('flex-1')}>
-                <TableHeader />
-              </View>
-            </View>
-
-            {/* Content */}
-            <View style={tw('mt-2 flex flex-row gap-5')}>
-              <View style={tw('flex-1')}>
-                {leftTerms.map((semester, i) => (
-                  <TermSection
-                    key={`l-${i}`}
-                    semester={semester}
-                    academicRemarks={programRemarks}
-                  />
-                ))}
-              </View>
-              <View style={tw('flex-1')}>
-                {rightTerms.map((semester, i) => (
-                  <TermSection
-                    key={`r-${i}`}
-                    semester={semester}
-                    academicRemarks={programRemarks}
-                  />
-                ))}
-              </View>
-            </View>
-
-            {/* Footer */}
-            <View style={tw('absolute bottom-[50pt] left-[85pt]')}>
-              {['Total MPU Credits', 'Total Credit Transferred'].map(
-                (label) => (
-                  <View key={label} style={tw('flex flex-row items-start')}>
-                    <Text style={tw('w-[160pt]')}>{label}</Text>
-                    <Text>{': '}-</Text>
-                  </View>
-                )
-              )}
-              {['Total Credits Earned', 'Total Cumulative Credits'].map(
-                (label) => (
-                  <View key={label} style={tw('flex flex-row items-start')}>
-                    <Text style={tw('w-[160pt]')}>{label}</Text>
-                    <Text>
-                      {': '}
-                      {programRemarks.totalCreditsCompleted}
-                    </Text>
-                  </View>
-                )
-              )}
-            </View>
-
-            {/* Registrar Signature */}
-            <View
-              style={tw(
-                'absolute bottom-[50pt] right-14 w-[190pt] border-t pt-1'
-              )}
+          <>
+            <Page
+              key={`transcript-${pIdx}`}
+              size='A4'
+              style={tw('pt-5 px-4 pb-10 font-sans text-[7.12pt] pt-[155pt]')}
             >
-              <Text style={tw('pt-0.5 text-center font-bold')}>REGISTRAR</Text>
-              <Text style={tw('text-justify')}>
-                This is not a valid record unless it bears both the stamp and
-                signatory on behalf of the university
-              </Text>
-            </View>
-          </Page>
+              {/* Header Section */}
+              <View style={tw('border-t border-b py-1')}>
+                <View style={tw('flex flex-row')}>
+                  <View style={tw('w-1/2 pr-3')}>
+                    <HeaderRow label='Student Name' value={student.name} />
+                    <HeaderRow
+                      label='Student ID'
+                      value={String(student.stdNo)}
+                    />
+                    <HeaderRow
+                      label='IC / Passport No.'
+                      value={student.nationalId}
+                    />
+                    <HeaderRow label='Gender' value={student.gender || 'N/A'} />
+                    <HeaderRow label='Nationality' value='Mosotho' />
+                  </View>
+                  <View style={tw('w-1/2 pl-3')}>
+                    <HeaderRow
+                      label='Date of Admission'
+                      value={admissionDate}
+                    />
+                    <HeaderRow
+                      label='Date of Completion'
+                      value={completionDate}
+                    />
+                    <HeaderRow
+                      label='Programme'
+                      value={program?.structure?.program?.name}
+                    />
+                    <HeaderRow
+                      label='Faculty'
+                      value={program?.structure?.program?.school.name}
+                    />
+                    <HeaderRow label='Issued Date' value={issueDate} />
+                  </View>
+                </View>
+              </View>
+
+              {/* Content Header */}
+              <View style={tw('mt-1.5 flex flex-row gap-5 border-t border-b')}>
+                <View style={tw('flex-1')}>
+                  <TableHeader />
+                </View>
+                <View style={tw('flex-1')}>
+                  <TableHeader />
+                </View>
+              </View>
+
+              {/* Content */}
+              <View style={tw('mt-2 flex flex-row gap-5')}>
+                <View style={tw('flex-1')}>
+                  {leftTerms.map((semester, i) => (
+                    <TermSection
+                      key={`l-${i}`}
+                      semester={semester}
+                      academicRemarks={programRemarks}
+                    />
+                  ))}
+                </View>
+                <View style={tw('flex-1')}>
+                  {rightTerms.map((semester, i) => (
+                    <TermSection
+                      key={`r-${i}`}
+                      semester={semester}
+                      academicRemarks={programRemarks}
+                    />
+                  ))}
+                </View>
+              </View>
+
+              {/* Footer */}
+              <View style={tw('absolute bottom-[50pt] left-[85pt]')}>
+                {['Total MPU Credits', 'Total Credit Transferred'].map(
+                  (label) => (
+                    <View key={label} style={tw('flex flex-row items-start')}>
+                      <Text style={tw('w-[160pt]')}>{label}</Text>
+                      <Text>{': '}-</Text>
+                    </View>
+                  )
+                )}
+                {['Total Credits Earned', 'Total Cumulative Credits'].map(
+                  (label) => (
+                    <View key={label} style={tw('flex flex-row items-start')}>
+                      <Text style={tw('w-[160pt]')}>{label}</Text>
+                      <Text>
+                        {': '}
+                        {programRemarks.totalCreditsCompleted}
+                      </Text>
+                    </View>
+                  )
+                )}
+              </View>
+
+              {/* Registrar Signature */}
+              <View
+                style={tw(
+                  'absolute bottom-[50pt] right-14 w-[190pt] border-t pt-1'
+                )}
+              >
+                <Text style={tw('pt-0.5 text-center font-bold')}>
+                  REGISTRAR
+                </Text>
+                <Text style={tw('text-justify')}>
+                  This is not a valid record unless it bears both the stamp and
+                  signatory on behalf of the university
+                </Text>
+              </View>
+            </Page>
+
+            <GradeClassificationPage key={`classification-${pIdx}`} />
+          </>
         );
       })}
     </Document>
