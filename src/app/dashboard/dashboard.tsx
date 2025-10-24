@@ -278,6 +278,7 @@ function getNavigation(department: DashboardUser) {
           ['manager', 'admin', 'program_leader'].includes(academicRole)
         );
       },
+      collapsed: true,
       children: [
         {
           label: 'Requests',

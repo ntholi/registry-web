@@ -1,23 +1,18 @@
+'use client';
+
 import { dashboardUsers } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
+import { Card, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import {
-  Card,
-  SimpleGrid,
-  Stack,
-  Text,
-  Title,
-  UnstyledButton,
-} from '@mantine/core';
-import {
+  IconChartBar,
   IconFilePencil,
   IconFileText,
-  IconChartBar,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 
 export default function ReportsPage() {
-  const departments = dashboardUsers.filter(
-    (dept) => dept !== 'admin' && dept !== 'resource'
+  const departments = (dashboardUsers as readonly string[]).filter(
+    (dept: string) => dept !== 'admin' && dept !== 'resource'
   );
 
   return (
@@ -31,8 +26,13 @@ export default function ReportsPage() {
         Academic Reports
       </Title>
       <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
-        <UnstyledButton component={Link} href='/dashboard/reports/boe'>
-          <Card withBorder shadow='sm' padding='lg'>
+        <Link href='/dashboard/reports/boe' style={{ textDecoration: 'none' }}>
+          <Card
+            withBorder
+            shadow='sm'
+            padding='lg'
+            style={{ cursor: 'pointer' }}
+          >
             <Stack gap='xs' align='center'>
               <IconChartBar size={24} />
               <Text fw={500}>BOE Reports</Text>
@@ -41,13 +41,18 @@ export default function ReportsPage() {
               </Text>
             </Stack>
           </Card>
-        </UnstyledButton>
+        </Link>
 
-        <UnstyledButton
-          component={Link}
+        <Link
           href='/dashboard/reports/course-summary'
+          style={{ textDecoration: 'none' }}
         >
-          <Card withBorder shadow='sm' padding='lg'>
+          <Card
+            withBorder
+            shadow='sm'
+            padding='lg'
+            style={{ cursor: 'pointer' }}
+          >
             <Stack gap='xs' align='center'>
               <IconFileText size={24} />
               <Text fw={500}>Course Summary Reports</Text>
@@ -56,15 +61,23 @@ export default function ReportsPage() {
               </Text>
             </Stack>
           </Card>
-        </UnstyledButton>
+        </Link>
       </SimpleGrid>
 
       <Title order={3} mt='lg'>
         Registry Reports
       </Title>
       <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
-        <UnstyledButton component={Link} href='/dashboard/reports/registration'>
-          <Card withBorder shadow='sm' padding='lg'>
+        <Link
+          href='/dashboard/reports/registration'
+          style={{ textDecoration: 'none' }}
+        >
+          <Card
+            withBorder
+            shadow='sm'
+            padding='lg'
+            style={{ cursor: 'pointer' }}
+          >
             <Stack gap='xs' align='center'>
               <IconFileText size={24} />
               <Text fw={500}>Registration Reports</Text>
@@ -73,7 +86,7 @@ export default function ReportsPage() {
               </Text>
             </Stack>
           </Card>
-        </UnstyledButton>
+        </Link>
       </SimpleGrid>
 
       <Title order={3} mt='lg'>
@@ -85,12 +98,17 @@ export default function ReportsPage() {
 
       <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
         {departments.map((dept) => (
-          <UnstyledButton
+          <Link
             key={dept}
-            component={Link}
             href={`/dashboard/reports/clearance/${dept}`}
+            style={{ textDecoration: 'none' }}
           >
-            <Card withBorder shadow='sm' padding='lg'>
+            <Card
+              withBorder
+              shadow='sm'
+              padding='lg'
+              style={{ cursor: 'pointer' }}
+            >
               <Stack gap='xs' align='center'>
                 <IconFilePencil size={24} />
                 <Text fw={500}>{toTitleCase(dept)} Department</Text>
@@ -99,7 +117,7 @@ export default function ReportsPage() {
                 </Text>
               </Stack>
             </Card>
-          </UnstyledButton>
+          </Link>
         ))}
       </SimpleGrid>
     </Stack>
