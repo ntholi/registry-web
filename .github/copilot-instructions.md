@@ -8,7 +8,7 @@ All server code should follows this exact structure in `src/server/[resource]/`:
    Example: `src/server/terms/` demonstrates this pattern perfectly.
 
 - Avoid by all means multiple calls to the database
-- Use **Turso SQLite** via Drizzle ORM with schema in `src/db/schema.ts`
+- Use **Neon Postgresql** via Drizzle ORM with schema in `src/db/schema.ts`
 - Use `db.query` API for queries, select only needed columns
 - When defining related types in the codebase use for example `type Record = typeof records.$inferSelect;` put this in the file that needs to use the type
 - Database commands: `pnpm db:generate`, `pnpm db:migrate` avoid using `pnpm db:push`,
