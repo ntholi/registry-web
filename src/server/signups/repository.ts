@@ -9,7 +9,7 @@ export default class SignupRepository extends BaseRepository<
   'userId'
 > {
   constructor() {
-    super(signups, 'userId');
+    super(signups, signups.userId);
   }
 
   override async create(data: SignUp) {

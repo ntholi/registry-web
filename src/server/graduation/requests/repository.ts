@@ -17,7 +17,7 @@ export default class GraduationRequestRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(graduationRequests, 'id');
+    super(graduationRequests, graduationRequests.id);
   }
 
   override async create(data: typeof graduationRequests.$inferInsert) {

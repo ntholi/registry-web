@@ -52,7 +52,7 @@ export default class BoeReportRepository extends BaseRepository<
   'stdNo'
 > {
   constructor() {
-    super(students, 'stdNo');
+    super(students, students.stdNo);
   }
 
   async getStudentSemestersForFaculty(schoolId: number, termName: string) {
@@ -80,7 +80,7 @@ export default class BoeReportRepository extends BaseRepository<
       where: and(
         eq(studentSemesters.term, termName),
         inArray(studentSemesters.studentProgramId, studentProgramIds),
-        ne(studentSemesters.status, 'Deleted'),
+        ne(studentSemesters.status, 'Deleted')
       ),
       with: {
         studentProgram: {
@@ -126,7 +126,7 @@ export default class BoeReportRepository extends BaseRepository<
       where: and(
         eq(studentSemesters.term, termName),
         inArray(studentSemesters.studentProgramId, studentProgramIds),
-        ne(studentSemesters.status, 'Deleted'),
+        ne(studentSemesters.status, 'Deleted')
       ),
       with: {
         studentProgram: {
@@ -196,7 +196,7 @@ export default class BoeReportRepository extends BaseRepository<
       const batchResults = await db.query.studentSemesters.findMany({
         where: and(
           inArray(studentSemesters.studentProgramId, batch),
-          ne(studentSemesters.status, 'Deleted'),
+          ne(studentSemesters.status, 'Deleted')
         ),
         orderBy: [
           asc(studentSemesters.term),
@@ -253,11 +253,11 @@ export default class BoeReportRepository extends BaseRepository<
               .where(
                 and(
                   inArray(studentPrograms.stdNo, batch),
-                  eq(studentPrograms.status, 'Active'),
-                ),
-              ),
+                  eq(studentPrograms.status, 'Active')
+                )
+              )
           ),
-          ne(studentSemesters.status, 'Deleted'),
+          ne(studentSemesters.status, 'Deleted')
         ),
         orderBy: [
           asc(studentSemesters.term),

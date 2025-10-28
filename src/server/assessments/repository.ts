@@ -9,7 +9,7 @@ export default class AssessmentRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(assessments, 'id');
+    super(assessments, assessments.id);
   }
 
   async getByModuleId(moduleId: number) {
@@ -50,7 +50,7 @@ export default class AssessmentRepository extends BaseRepository<
 
   override async update(
     id: number,
-    data: Partial<typeof assessments.$inferInsert>,
+    data: Partial<typeof assessments.$inferInsert>
   ) {
     const session = await auth();
 

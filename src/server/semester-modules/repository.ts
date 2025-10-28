@@ -30,12 +30,12 @@ type ModuleInfo = {
   }>;
 };
 
-export default class ModuleRepository extends BaseRepository<
+export default class SemesterModuleRepository extends BaseRepository<
   typeof semesterModules,
   'id'
 > {
   constructor() {
-    super(semesterModules, 'id');
+    super(semesterModules, semesterModules.id);
   }
 
   private buildModuleSearchWhere(
@@ -350,4 +350,4 @@ export default class ModuleRepository extends BaseRepository<
   }
 }
 
-export const modulesRepository = new ModuleRepository();
+export const modulesRepository = new SemesterModuleRepository();

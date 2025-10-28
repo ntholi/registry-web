@@ -8,7 +8,7 @@ export default class BlockedStudentRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(blockedStudents, 'id');
+    super(blockedStudents, blockedStudents.id);
   }
 
   async findById(id: number) {

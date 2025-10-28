@@ -19,7 +19,7 @@ export default class StudentRepository extends BaseRepository<
   'stdNo'
 > {
   constructor() {
-    super(students, 'stdNo');
+    super(students, students.stdNo);
   }
 
   async findRegistrationData(stdNo: number) {

@@ -8,7 +8,7 @@ export default class DocumentRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(documents, 'id');
+    super(documents, documents.id);
   }
 
   async findByStudent(stdNo: number) {

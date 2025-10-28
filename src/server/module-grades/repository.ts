@@ -8,14 +8,14 @@ export default class ModuleGradeRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(moduleGrades, 'id');
+    super(moduleGrades, moduleGrades.id);
   }
 
   async findByModuleAndStudent(moduleId: number, stdNo: number) {
     return db.query.moduleGrades.findFirst({
       where: and(
         eq(moduleGrades.moduleId, moduleId),
-        eq(moduleGrades.stdNo, stdNo),
+        eq(moduleGrades.stdNo, stdNo)
       ),
     });
   }
@@ -29,7 +29,7 @@ export default class ModuleGradeRepository extends BaseRepository<
   async upsertModuleGrade(data: typeof moduleGrades.$inferInsert) {
     const existing = await this.findByModuleAndStudent(
       data.moduleId,
-      data.stdNo,
+      data.stdNo
     );
     if (existing) {
       return db

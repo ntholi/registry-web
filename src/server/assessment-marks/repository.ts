@@ -15,7 +15,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(assessmentMarks, 'id');
+    super(assessmentMarks, assessmentMarks.id);
   }
 
   async findByModuleId(moduleId: number) {
@@ -57,7 +57,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
     return db.query.assessmentMarks.findMany({
       where: and(
         inArray(assessmentMarks.assessmentId, assessmentIds),
-        eq(assessmentMarks.stdNo, stdNo),
+        eq(assessmentMarks.stdNo, stdNo)
       ),
     });
   }
@@ -90,7 +90,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
   }
   override async update(
     id: number,
-    data: Partial<typeof assessmentMarks.$inferInsert>,
+    data: Partial<typeof assessmentMarks.$inferInsert>
   ) {
     const session = await auth();
 
@@ -179,8 +179,8 @@ export default class AssessmentMarkRepository extends BaseRepository<
         .where(
           and(
             eq(assessmentMarks.assessmentId, data.assessmentId),
-            eq(assessmentMarks.stdNo, data.stdNo),
-          ),
+            eq(assessmentMarks.stdNo, data.stdNo)
+          )
         )
         .limit(1)
         .then(([result]) => result);
@@ -225,7 +225,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 
   async createOrUpdateMarksInBulk(
     dataArray: (typeof assessmentMarks.$inferInsert)[],
-    batchSize: number = 50,
+    batchSize: number = 50
   ) {
     const session = await auth();
     if (!session?.user?.id) throw new Error('Unauthorized');
@@ -262,15 +262,15 @@ export default class AssessmentMarkRepository extends BaseRepository<
             .where(
               and(
                 inArray(assessmentMarks.assessmentId, assessmentIds),
-                inArray(assessmentMarks.stdNo, stdNos),
-              ),
+                inArray(assessmentMarks.stdNo, stdNos)
+              )
             );
 
           const existingMarksMap = new Map(
             existingMarks.map((mark) => [
               `${mark.assessmentId}-${mark.stdNo}`,
               mark,
-            ]),
+            ])
           );
 
           const updatesData: {
@@ -319,7 +319,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
               });
 
               const resultIndex = batchResults.findIndex(
-                (r) => !r.isNew && r.mark.id === updateData.id,
+                (r) => !r.isNew && r.mark.id === updateData.id
               );
               if (resultIndex !== -1) {
                 batchResults[resultIndex].mark = updated;
@@ -360,7 +360,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
       } catch (error) {
         const batchStdNos = batch.map((data) => data.stdNo).join(', ');
         errors.push(
-          `Failed to process batch with students ${batchStdNos}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Failed to process batch with students ${batchStdNos}: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
       }
     }

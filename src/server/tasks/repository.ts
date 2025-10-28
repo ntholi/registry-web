@@ -5,7 +5,7 @@ import { and, desc, eq, gte, inArray, lte, or, SQL } from 'drizzle-orm';
 
 export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
   constructor() {
-    super(tasks, 'id');
+    super(tasks, tasks.id);
   }
 
   async getTasksForUser(

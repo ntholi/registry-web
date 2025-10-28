@@ -1,21 +1,16 @@
 import { sql } from 'drizzle-orm';
 import {
-  bigint,
-  boolean,
   index,
   integer,
-  jsonb,
-  pgTable,
   primaryKey,
   real,
-  serial,
+  sqliteTable,
   text,
-  timestamp,
   unique,
-  varchar,
-} from 'drizzle-orm/pg-core';
+} from 'drizzle-orm/sqlite-core';
 import { nanoid } from 'nanoid';
 import type { AdapterAccountType } from 'next-auth/adapters';
+import { file } from 'zod';
 
 export const dashboardUsers = [
   'finance',
@@ -39,7 +34,7 @@ export const userPositions = [
 ] as const;
 export type UserPosition = (typeof userPositions)[number];
 
-export const users = pgTable('users', {
+export const users = sqliteTable('users', {
   id: text()
     .primaryKey()
     .$defaultFn(() => nanoid()),
@@ -47,11 +42,11 @@ export const users = pgTable('users', {
   role: text({ enum: userRoles }).notNull().default('user'),
   position: text({ enum: userPositions }),
   email: text().unique(),
-  emailVerified: timestamp({ mode: 'date' }),
+  emailVerified: integer({ mode: 'timestamp_ms' }),
   image: text(),
 });
 
-export const accounts = pgTable(
+export const accounts = sqliteTable(
   'accounts',
   {
     userId: text()
@@ -75,20 +70,20 @@ export const accounts = pgTable(
   })
 );
 
-export const sessions = pgTable('sessions', {
+export const sessions = sqliteTable('sessions', {
   sessionToken: text().primaryKey(),
   userId: text()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  expires: timestamp({ mode: 'date' }).notNull(),
+  expires: integer({ mode: 'timestamp_ms' }).notNull(),
 });
 
-export const verificationTokens = pgTable(
+export const verificationTokens = sqliteTable(
   'verification_tokens',
   {
     identifier: text().notNull(),
     token: text().notNull(),
-    expires: timestamp({ mode: 'date' }).notNull(),
+    expires: integer({ mode: 'timestamp_ms' }).notNull(),
   },
   (verificationToken) => ({
     compositePk: primaryKey({
@@ -97,7 +92,7 @@ export const verificationTokens = pgTable(
   })
 );
 
-export const authenticators = pgTable(
+export const authenticators = sqliteTable(
   'authenticators',
   {
     credentialID: text().notNull().unique(),
@@ -108,7 +103,9 @@ export const authenticators = pgTable(
     credentialPublicKey: text().notNull(),
     counter: integer().notNull(),
     credentialDeviceType: text().notNull(),
-    credentialBackedUp: boolean().notNull(),
+    credentialBackedUp: integer({
+      mode: 'boolean',
+    }).notNull(),
     transports: text(),
   },
   (authenticator) => ({
@@ -119,7 +116,7 @@ export const authenticators = pgTable(
 );
 
 export const signupStatusEnum = ['pending', 'approved', 'rejected'] as const;
-export const signups = pgTable('signups', {
+export const signups = sqliteTable('signups', {
   userId: text()
     .primaryKey()
     .notNull()
@@ -128,8 +125,8 @@ export const signups = pgTable('signups', {
   stdNo: text().notNull(),
   status: text({ enum: signupStatusEnum }).notNull().default('pending'),
   message: text().default('Pending approval'),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }),
 });
 
 export const genderEnum = ['Male', 'Female', 'Other'] as const;
@@ -140,19 +137,19 @@ export const maritalStatusEnum = [
   'Windowed',
 ] as const;
 
-export const students = pgTable('students', {
-  stdNo: bigint({ mode: 'number' }).primaryKey(),
+export const students = sqliteTable('students', {
+  stdNo: integer().primaryKey(),
   name: text().notNull(),
   nationalId: text().notNull(),
   sem: integer().notNull(), //TODO: Remove this
-  dateOfBirth: timestamp({ mode: 'date' }),
+  dateOfBirth: integer({ mode: 'timestamp_ms' }),
   phone1: text(),
   phone2: text(),
   gender: text({ enum: genderEnum }),
   maritalStatus: text({ enum: maritalStatusEnum }),
   religion: text(),
   userId: text().references(() => users.id, { onDelete: 'set null' }),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const programStatusEnum = [
@@ -164,9 +161,9 @@ export const programStatusEnum = [
 ] as const;
 export type StudentProgramStatus = (typeof programStatusEnum)[number];
 
-export const studentPrograms = pgTable('student_programs', {
-  id: serial().primaryKey(),
-  stdNo: bigint({ mode: 'number' })
+export const studentPrograms = sqliteTable('student_programs', {
+  id: integer().primaryKey(),
+  stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
   intakeDate: text(),
@@ -179,7 +176,7 @@ export const studentPrograms = pgTable('student_programs', {
   graduationDate: text(),
   status: text({ enum: programStatusEnum }).notNull(),
   assistProvider: text(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const semesterStatusEnum = [
@@ -197,8 +194,8 @@ export const semesterStatusEnum = [
 ] as const;
 
 export type SemesterStatus = (typeof semesterStatusEnum)[number];
-export const studentSemesters = pgTable('student_semesters', {
-  id: serial().primaryKey(),
+export const studentSemesters = sqliteTable('student_semesters', {
+  id: integer().primaryKey(),
   term: text().notNull(),
   semesterNumber: integer(),
   status: text({ enum: semesterStatusEnum }).notNull(),
@@ -206,7 +203,7 @@ export const studentSemesters = pgTable('student_semesters', {
     .references(() => studentPrograms.id, { onDelete: 'cascade' })
     .notNull(),
   cafDate: text(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const studentModuleStatusEnum = [
@@ -261,8 +258,8 @@ export const gradeEnum = [
 export type StudentModuleStatus = (typeof studentModuleStatusEnum)[number];
 export type Grade = (typeof gradeEnum)[number];
 
-export const studentModules = pgTable('student_modules', {
-  id: serial().primaryKey(),
+export const studentModules = sqliteTable('student_modules', {
+  id: integer().primaryKey(),
   semesterModuleId: integer()
     .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
@@ -272,52 +269,52 @@ export const studentModules = pgTable('student_modules', {
   studentSemesterId: integer()
     .references(() => studentSemesters.id, { onDelete: 'cascade' })
     .notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const schools = pgTable('schools', {
-  id: serial().primaryKey(),
+export const schools = sqliteTable('schools', {
+  id: integer().primaryKey(),
   code: text().notNull().unique(),
   name: text().notNull(),
-  isActive: boolean().notNull().default(true),
-  createdAt: timestamp().defaultNow(),
+  isActive: integer({ mode: 'boolean' }).notNull().default(true),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const programLevelEnum = ['certificate', 'diploma', 'degree'] as const;
-export const programs = pgTable('programs', {
-  id: serial().primaryKey(),
+export const programs = sqliteTable('programs', {
+  id: integer().primaryKey(),
   code: text().notNull().unique(),
   name: text().notNull(),
   level: text({ enum: programLevelEnum }).notNull(),
   schoolId: integer()
     .references(() => schools.id, { onDelete: 'cascade' })
     .notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const structures = pgTable('structures', {
-  id: serial().primaryKey(),
+export const structures = sqliteTable('structures', {
+  id: integer().primaryKey(),
   code: text().notNull().unique(),
   desc: text(),
   programId: integer()
     .references(() => programs.id, { onDelete: 'cascade' })
     .notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const structureSemesters = pgTable('structure_semesters', {
-  id: serial().primaryKey(),
+export const structureSemesters = sqliteTable('structure_semesters', {
+  id: integer().primaryKey(),
   structureId: integer()
     .references(() => structures.id, { onDelete: 'cascade' })
     .notNull(),
   semesterNumber: integer().notNull(),
   name: text().notNull(),
   totalCredits: real().notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const modules = pgTable('modules', {
-  id: serial().primaryKey(),
+export const modules = sqliteTable('modules', {
+  id: integer().primaryKey(),
   code: text().notNull(),
   name: text().notNull(),
   status: text({ enum: ['Active', 'Defunct'] })
@@ -335,29 +332,29 @@ export const moduleTypeEnum = [
 ] as const;
 export type ModuleType = (typeof moduleTypeEnum)[number];
 
-export const semesterModules = pgTable('semester_modules', {
-  id: serial().primaryKey(),
+export const semesterModules = sqliteTable('semester_modules', {
+  id: integer().primaryKey(),
   moduleId: integer().references(() => modules.id), //TODO: AFTER DELETING CODE, MAKE THIS NOT NULL
   type: text({ enum: moduleTypeEnum }).notNull(),
   credits: real().notNull(),
   semesterId: integer().references(() => structureSemesters.id, {
     onDelete: 'set null',
   }),
-  hidden: boolean().notNull().default(false),
-  createdAt: timestamp().defaultNow(),
+  hidden: integer({ mode: 'boolean' }).notNull().default(false),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const modulePrerequisites = pgTable(
+export const modulePrerequisites = sqliteTable(
   'module_prerequisites',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey(),
     semesterModuleId: integer()
       .references(() => semesterModules.id, { onDelete: 'cascade' })
       .notNull(),
     prerequisiteId: integer()
       .references(() => semesterModules.id, { onDelete: 'cascade' })
       .notNull(),
-    createdAt: timestamp().defaultNow(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     uniquePrerequisite: unique().on(
@@ -367,12 +364,12 @@ export const modulePrerequisites = pgTable(
   })
 );
 
-export const terms = pgTable('terms', {
-  id: serial().primaryKey(),
+export const terms = sqliteTable('terms', {
+  id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull().unique(),
-  isActive: boolean().notNull().default(false),
+  isActive: integer({ mode: 'boolean' }).notNull().default(false),
   semester: integer().notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const registrationRequestStatusEnum = [
@@ -383,14 +380,14 @@ export const registrationRequestStatusEnum = [
   'registered',
 ] as const;
 
-export const registrationRequests = pgTable(
+export const registrationRequests = sqliteTable(
   'registration_requests',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     sponsorId: integer()
       .references(() => sponsors.id, { onDelete: 'cascade' })
       .notNull(),
-    stdNo: bigint({ mode: 'number' })
+    stdNo: integer()
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
     termId: integer()
@@ -399,14 +396,14 @@ export const registrationRequests = pgTable(
     status: text({ enum: registrationRequestStatusEnum })
       .notNull()
       .default('pending'),
-    mailSent: boolean().notNull().default(false),
+    mailSent: integer({ mode: 'boolean' }).notNull().default(false),
     count: integer().notNull().default(1),
     semesterStatus: text({ enum: ['Active', 'Repeat'] }).notNull(),
     semesterNumber: integer().notNull(),
     message: text(),
-    createdAt: timestamp().defaultNow(),
-    updatedAt: timestamp(),
-    dateApproved: timestamp(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
+    dateApproved: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueRegistrationRequests: unique().on(table.stdNo, table.termId),
@@ -419,8 +416,8 @@ export const requestedModuleStatusEnum = [
   'rejected',
 ] as const;
 
-export const requestedModules = pgTable('requested_modules', {
-  id: serial().primaryKey(),
+export const requestedModules = sqliteTable('requested_modules', {
+  id: integer().primaryKey({ autoIncrement: true }),
   moduleStatus: text({ enum: studentModuleStatusEnum })
     .notNull()
     .default('Compulsory'),
@@ -433,7 +430,7 @@ export const requestedModules = pgTable('requested_modules', {
   status: text({ enum: requestedModuleStatusEnum })
     .notNull()
     .default('pending'),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const clearanceRequestStatusEnum = [
@@ -442,30 +439,30 @@ export const clearanceRequestStatusEnum = [
   'rejected',
 ] as const;
 
-export const clearance = pgTable('clearance', {
-  id: serial().primaryKey(),
+export const clearance = sqliteTable('clearance', {
+  id: integer().primaryKey({ autoIncrement: true }),
   department: text({ enum: dashboardUsers }).notNull(),
   status: text({ enum: clearanceRequestStatusEnum })
     .notNull()
     .default('pending'),
   message: text(),
-  emailSent: boolean().notNull().default(false),
+  emailSent: integer({ mode: 'boolean' }).notNull().default(false),
   respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
-  responseDate: timestamp(),
-  createdAt: timestamp().defaultNow(),
+  responseDate: integer({ mode: 'timestamp' }),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const registrationClearance = pgTable(
+export const registrationClearance = sqliteTable(
   'registration_clearance',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     registrationRequestId: integer()
       .references(() => registrationRequests.id, { onDelete: 'cascade' })
       .notNull(),
     clearanceId: integer()
       .references(() => clearance.id, { onDelete: 'cascade' })
       .notNull(),
-    createdAt: timestamp().defaultNow(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     uniqueRegistrationClearance: unique().on(
@@ -475,29 +472,29 @@ export const registrationClearance = pgTable(
   })
 );
 
-export const graduationRequests = pgTable('graduation_requests', {
-  id: serial().primaryKey(),
+export const graduationRequests = sqliteTable('graduation_requests', {
+  id: integer().primaryKey({ autoIncrement: true }),
   studentProgramId: integer()
     .references(() => studentPrograms.id, { onDelete: 'cascade' })
     .unique()
     .notNull(),
-  informationConfirmed: boolean().notNull().default(false),
+  informationConfirmed: integer({ mode: 'boolean' }).notNull().default(false),
   message: text(),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }),
 });
 
-export const graduationClearance = pgTable(
+export const graduationClearance = sqliteTable(
   'graduation_clearance',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     graduationRequestId: integer()
       .references(() => graduationRequests.id, { onDelete: 'cascade' })
       .notNull(),
     clearanceId: integer()
       .references(() => clearance.id, { onDelete: 'cascade' })
       .notNull(),
-    createdAt: timestamp().defaultNow(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     uniqueRegistrationClearance: unique().on(table.clearanceId),
@@ -510,7 +507,7 @@ export const graduationListStatusEnum = [
   'archived',
 ] as const;
 
-export const graduationLists = pgTable('graduation_lists', {
+export const graduationLists = sqliteTable('graduation_lists', {
   id: text()
     .primaryKey()
     .$defaultFn(() => nanoid()),
@@ -519,24 +516,24 @@ export const graduationLists = pgTable('graduation_lists', {
   spreadsheetUrl: text(),
   status: text({ enum: graduationListStatusEnum }).notNull().default('created'),
   createdBy: text().references(() => users.id, { onDelete: 'set null' }),
-  populatedAt: timestamp(),
-  createdAt: timestamp().defaultNow(),
+  populatedAt: integer({ mode: 'timestamp' }),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const paymentTypeEnum = ['graduation_gown', 'graduation_fee'] as const;
 
-export const paymentReceipts = pgTable('payment_receipts', {
-  id: serial().primaryKey(),
+export const paymentReceipts = sqliteTable('payment_receipts', {
+  id: integer().primaryKey({ autoIncrement: true }),
   graduationRequestId: integer()
     .references(() => graduationRequests.id, { onDelete: 'cascade' })
     .notNull(),
   paymentType: text({ enum: paymentTypeEnum }).notNull(),
   receiptNo: text().notNull().unique(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const clearanceAudit = pgTable('clearance_audit', {
-  id: serial().primaryKey(),
+export const clearanceAudit = sqliteTable('clearance_audit', {
+  id: integer().primaryKey({ autoIncrement: true }),
   clearanceId: integer()
     .references(() => clearance.id, { onDelete: 'cascade' })
     .notNull(),
@@ -545,84 +542,89 @@ export const clearanceAudit = pgTable('clearance_audit', {
   createdBy: text()
     .references(() => users.id, { onDelete: 'set null' })
     .notNull(),
-  date: timestamp().defaultNow().notNull(),
+  date: integer({ mode: 'timestamp' })
+    .default(sql`(unixepoch())`)
+    .notNull(),
   message: text(),
-  modules: jsonb().notNull().$type<string[]>().default([]),
+  modules: text({ mode: 'json' })
+    .notNull()
+    .$type<string[]>()
+    .default(sql`(json_array())`),
 });
 
-export const sponsors = pgTable('sponsors', {
-  id: serial().primaryKey(),
+export const sponsors = sqliteTable('sponsors', {
+  id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull().unique(),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }),
 });
 
-export const sponsoredStudents = pgTable(
+export const sponsoredStudents = sqliteTable(
   'sponsored_students',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     sponsorId: integer()
       .references(() => sponsors.id, { onDelete: 'cascade' })
       .notNull(),
-    stdNo: bigint({ mode: 'number' })
+    stdNo: integer()
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
     borrowerNo: text(),
     bankName: text(),
     accountNumber: text(),
-    confirmed: boolean().default(false),
-    createdAt: timestamp().defaultNow(),
-    updatedAt: timestamp(),
+    confirmed: integer({ mode: 'boolean' }).default(false),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueSponsoredStudent: unique().on(table.sponsorId, table.stdNo),
   })
 );
 
-export const sponsoredTerms = pgTable(
+export const sponsoredTerms = sqliteTable(
   'sponsored_terms',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     sponsoredStudentId: integer()
       .references(() => sponsoredStudents.id, { onDelete: 'cascade' })
       .notNull(),
     termId: integer()
       .references(() => terms.id, { onDelete: 'cascade' })
       .notNull(),
-    createdAt: timestamp().defaultNow(),
-    updatedAt: timestamp(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueSponsoredTerm: unique().on(table.sponsoredStudentId, table.termId),
   })
 );
 
-export const assignedModules = pgTable('assigned_modules', {
-  id: serial().primaryKey(),
+export const assignedModules = sqliteTable('assigned_modules', {
+  id: integer().primaryKey({ autoIncrement: true }),
   termId: integer()
     .references(() => terms.id, { onDelete: 'cascade' })
     .notNull(),
-  active: boolean().notNull().default(true),
+  active: integer({ mode: 'boolean' }).notNull().default(true),
   userId: text()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   semesterModuleId: integer()
     .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const userSchools = pgTable(
+export const userSchools = sqliteTable(
   'user_schools',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     userId: text()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
     schoolId: integer()
       .references(() => schools.id, { onDelete: 'cascade' })
       .notNull(),
-    createdAt: timestamp().defaultNow(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     uniqueUserSchool: unique().on(table.userId, table.schoolId),
@@ -647,10 +649,10 @@ export const assessmentNumberEnum = [
   'CW15',
 ] as const;
 
-export const assessments = pgTable(
+export const assessments = sqliteTable(
   'assessments',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     moduleId: integer()
       .references(() => modules.id, { onDelete: 'cascade' })
       .notNull(),
@@ -661,7 +663,7 @@ export const assessments = pgTable(
     assessmentType: text().notNull(),
     totalMarks: real().notNull(),
     weight: real().notNull(),
-    createdAt: timestamp().defaultNow(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     uniqueAssessmentModule: unique().on(
@@ -672,16 +674,16 @@ export const assessments = pgTable(
   })
 );
 
-export const assessmentMarks = pgTable('assessment_marks', {
-  id: serial().primaryKey(),
+export const assessmentMarks = sqliteTable('assessment_marks', {
+  id: integer().primaryKey({ autoIncrement: true }),
   assessmentId: integer()
     .references(() => assessments.id, { onDelete: 'cascade' })
     .notNull(),
-  stdNo: bigint({ mode: 'number' })
+  stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
   marks: real().notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const assessmentMarksAuditActionEnum = [
@@ -690,8 +692,8 @@ export const assessmentMarksAuditActionEnum = [
   'delete',
 ] as const;
 
-export const assessmentMarksAudit = pgTable('assessment_marks_audit', {
-  id: serial().primaryKey(),
+export const assessmentMarksAudit = sqliteTable('assessment_marks_audit', {
+  id: integer().primaryKey({ autoIncrement: true }),
   assessmentMarkId: integer().references(() => assessmentMarks.id, {
     onDelete: 'set null',
   }),
@@ -701,7 +703,9 @@ export const assessmentMarksAudit = pgTable('assessment_marks_audit', {
   createdBy: text()
     .references(() => users.id, { onDelete: 'set null' })
     .notNull(),
-  date: timestamp().defaultNow().notNull(),
+  date: integer({ mode: 'timestamp' })
+    .default(sql`(unixepoch())`)
+    .notNull(),
 });
 
 export const assessmentsAuditActionEnum = [
@@ -710,8 +714,8 @@ export const assessmentsAuditActionEnum = [
   'delete',
 ] as const;
 
-export const assessmentsAudit = pgTable('assessments_audit', {
-  id: serial().primaryKey(),
+export const assessmentsAudit = sqliteTable('assessments_audit', {
+  id: integer().primaryKey({ autoIncrement: true }),
   assessmentId: integer().references(() => assessments.id, {
     onDelete: 'set null',
   }),
@@ -727,34 +731,62 @@ export const assessmentsAudit = pgTable('assessments_audit', {
   createdBy: text()
     .references(() => users.id, { onDelete: 'set null' })
     .notNull(),
-  date: timestamp().defaultNow().notNull(),
+  date: integer({ mode: 'timestamp' })
+    .default(sql`(unixepoch())`)
+    .notNull(),
 });
 
-export const moduleGrades = pgTable(
+export const moduleGrades = sqliteTable(
   'module_grades',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     moduleId: integer()
       .references(() => modules.id, { onDelete: 'cascade' })
       .notNull(),
-    stdNo: bigint({ mode: 'number' })
+    stdNo: integer()
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
     grade: text({ enum: gradeEnum }).notNull(),
     weightedTotal: real().notNull(),
-    createdAt: timestamp().defaultNow(),
-    updatedAt: timestamp().defaultNow(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     uniqueModuleStudent: unique().on(table.moduleId, table.stdNo),
   })
 );
 
-export const statementOfResultsPrints = pgTable('statement_of_results_prints', {
+export const statementOfResultsPrints = sqliteTable(
+  'statement_of_results_prints',
+  {
+    id: text()
+      .primaryKey()
+      .$defaultFn(() => nanoid()),
+    stdNo: integer()
+      .references(() => students.stdNo, { onDelete: 'cascade' })
+      .notNull(),
+    printedBy: text()
+      .references(() => users.id, { onDelete: 'set null' })
+      .notNull(),
+    studentName: text().notNull(),
+    programName: text().notNull(),
+    totalCredits: integer().notNull(),
+    totalModules: integer().notNull(),
+    cgpa: real(),
+    classification: text(),
+    academicStatus: text(),
+    graduationDate: text(),
+    printedAt: integer({ mode: 'timestamp' })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+  }
+);
+
+export const transcriptPrints = sqliteTable('transcript_prints', {
   id: text()
     .primaryKey()
     .$defaultFn(() => nanoid()),
-  stdNo: bigint({ mode: 'number' })
+  stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
   printedBy: text()
@@ -763,74 +795,55 @@ export const statementOfResultsPrints = pgTable('statement_of_results_prints', {
   studentName: text().notNull(),
   programName: text().notNull(),
   totalCredits: integer().notNull(),
-  totalModules: integer().notNull(),
   cgpa: real(),
-  classification: text(),
-  academicStatus: text(),
-  graduationDate: text(),
-  printedAt: timestamp().defaultNow().notNull(),
+  printedAt: integer({ mode: 'timestamp' })
+    .default(sql`(unixepoch())`)
+    .notNull(),
 });
 
-export const transcriptPrints = pgTable('transcript_prints', {
-  id: text()
-    .primaryKey()
-    .$defaultFn(() => nanoid()),
-  stdNo: bigint({ mode: 'number' })
-    .references(() => students.stdNo, { onDelete: 'cascade' })
-    .notNull(),
-  printedBy: text()
-    .references(() => users.id, { onDelete: 'set null' })
-    .notNull(),
-  studentName: text().notNull(),
-  programName: text().notNull(),
-  totalCredits: integer().notNull(),
-  cgpa: real(),
-  printedAt: timestamp().defaultNow().notNull(),
-});
-
-export const blockedStudents = pgTable(
+export const blockedStudents = sqliteTable(
   'blocked_students',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     status: text({ enum: ['blocked', 'unblocked'] })
       .notNull()
       .default('blocked'),
     reason: text().notNull(),
     byDepartment: text({ enum: dashboardUsers }).notNull(),
-    stdNo: bigint({ mode: 'number' })
+    stdNo: integer()
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
-    createdAt: timestamp().defaultNow(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     stdNoIdx: index('blocked_students_std_no_idx').on(table.stdNo),
   })
 );
 
-export const studentCardPrints = pgTable('student_card_prints', {
+export const studentCardPrints = sqliteTable('student_card_prints', {
   id: text()
     .primaryKey()
     .$defaultFn(() => nanoid()),
   receiptNo: text().notNull().unique(),
-  stdNo: bigint({ mode: 'number' })
+  stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
   printedBy: text()
     .references(() => users.id, { onDelete: 'set null' })
     .notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const documents = pgTable('documents', {
+export const documents = sqliteTable('documents', {
   id: text()
     .primaryKey()
     .$defaultFn(() => nanoid()),
   fileName: text().notNull(),
   type: text(),
-  stdNo: bigint({ mode: 'number' })
+  stdNo: integer()
     .references(() => students.stdNo, { onDelete: 'cascade' })
     .notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const fortinetLevelEnum = [
@@ -851,11 +864,11 @@ export const fortinetRegistrationStatusEnum = [
   'completed',
 ] as const;
 
-export const fortinetRegistrations = pgTable(
+export const fortinetRegistrations = sqliteTable(
   'fortinet_registrations',
   {
-    id: serial().primaryKey(),
-    stdNo: bigint({ mode: 'number' })
+    id: integer().primaryKey({ autoIncrement: true }),
+    stdNo: integer()
       .references(() => students.stdNo, { onDelete: 'cascade' })
       .notNull(),
     schoolId: integer()
@@ -866,8 +879,8 @@ export const fortinetRegistrations = pgTable(
       .notNull()
       .default('pending'),
     message: text(),
-    createdAt: timestamp().defaultNow(),
-    updatedAt: timestamp(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     uniqueStudentLevel: unique().on(table.stdNo, table.level),
@@ -887,7 +900,7 @@ export const taskPriorityEnum = ['low', 'medium', 'high', 'urgent'] as const;
 export type TaskStatus = (typeof taskStatusEnum)[number];
 export type TaskPriority = (typeof taskPriorityEnum)[number];
 
-export const tasks = pgTable(
+export const tasks = sqliteTable(
   'tasks',
   {
     id: text()
@@ -901,11 +914,11 @@ export const tasks = pgTable(
     createdBy: text()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
-    scheduledFor: timestamp(),
-    dueDate: timestamp(),
-    completedAt: timestamp(),
-    createdAt: timestamp().defaultNow(),
-    updatedAt: timestamp(),
+    scheduledFor: integer({ mode: 'timestamp' }),
+    dueDate: integer({ mode: 'timestamp' }),
+    completedAt: integer({ mode: 'timestamp' }),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: integer({ mode: 'timestamp' }),
   },
   (table) => ({
     departmentIdx: index('tasks_department_idx').on(table.department),
@@ -914,17 +927,17 @@ export const tasks = pgTable(
   })
 );
 
-export const taskAssignments = pgTable(
+export const taskAssignments = sqliteTable(
   'task_assignments',
   {
-    id: serial().primaryKey(),
+    id: integer().primaryKey({ autoIncrement: true }),
     taskId: text()
       .references(() => tasks.id, { onDelete: 'cascade' })
       .notNull(),
     userId: text()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
-    createdAt: timestamp().defaultNow(),
+    createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
   },
   (table) => ({
     uniqueTaskAssignment: unique().on(table.taskId, table.userId),

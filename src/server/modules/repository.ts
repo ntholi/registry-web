@@ -8,7 +8,7 @@ export default class ModuleRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(modules, 'id');
+    super(modules, modules.id);
   }
 
   override async findById(id: number) {

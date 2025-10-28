@@ -6,7 +6,7 @@ import { QueryOptions } from '../base/BaseRepository';
 
 export default class UserRepository extends BaseRepository<typeof users, 'id'> {
   constructor() {
-    super(users, 'id');
+    super(users, users.id);
   }
 
   async getBySchools(schoolIds: number[], options: QueryOptions<typeof users>) {

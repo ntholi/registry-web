@@ -15,11 +15,11 @@ export default class AssignedModuleRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(assignedModules, 'id');
+    super(assignedModules, assignedModules.id);
   }
 
   override async findById(id: number) {
-    return db.query.assignedModules.findFirst({
+    const result = await db.query.assignedModules.findFirst({
       where: eq(assignedModules.id, id),
       with: {
         semesterModule: {
@@ -38,6 +38,7 @@ export default class AssignedModuleRepository extends BaseRepository<
         },
       },
     });
+    return result ?? null;
   }
 
   async removeModuleAssignments(userId: string, semesterModuleIds: number[]) {
@@ -48,8 +49,8 @@ export default class AssignedModuleRepository extends BaseRepository<
       .where(
         and(
           eq(assignedModules.userId, userId),
-          inArray(assignedModules.semesterModuleId, semesterModuleIds),
-        ),
+          inArray(assignedModules.semesterModuleId, semesterModuleIds)
+        )
       );
   }
 
@@ -63,7 +64,7 @@ export default class AssignedModuleRepository extends BaseRepository<
     const results = await db.query.assignedModules.findMany({
       where: and(
         eq(assignedModules.userId, userId),
-        eq(assignedModules.active, true),
+        eq(assignedModules.active, true)
       ),
       with: {
         semesterModule: {
@@ -99,11 +100,11 @@ export default class AssignedModuleRepository extends BaseRepository<
       .innerJoin(users, eq(assignedModules.userId, users.id))
       .innerJoin(
         semesterModules,
-        eq(assignedModules.semesterModuleId, semesterModules.id),
+        eq(assignedModules.semesterModuleId, semesterModules.id)
       )
       .innerJoin(
         structureSemesters,
-        eq(semesterModules.semesterId, structureSemesters.id),
+        eq(semesterModules.semesterId, structureSemesters.id)
       )
       .innerJoin(structures, eq(structureSemesters.structureId, structures.id))
       .innerJoin(programs, eq(structures.programId, programs.id))
@@ -144,7 +145,7 @@ export default class AssignedModuleRepository extends BaseRepository<
     return await db.query.assignedModules.findMany({
       where: and(
         eq(assignedModules.userId, userId),
-        eq(assignedModules.active, true),
+        eq(assignedModules.active, true)
       ),
       with: {
         semesterModule: {

@@ -6,7 +6,7 @@ export default class PaymentReceiptRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(paymentReceipts, 'id');
+    super(paymentReceipts, paymentReceipts.id);
   }
 }
 

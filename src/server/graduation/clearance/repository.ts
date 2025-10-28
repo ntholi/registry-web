@@ -23,7 +23,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(clearance, 'id');
+    super(clearance, clearance.id);
   }
 
   override async create(data: Model & { graduationRequestId: number }) {

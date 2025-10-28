@@ -8,7 +8,7 @@ export default class StructureRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(structures, 'id');
+    super(structures, structures.id);
   }
 
   async findByProgramId(programId: number) {

@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 
 export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
   constructor() {
-    super(terms, 'id');
+    super(terms, terms.id);
   }
 
   async getActive() {

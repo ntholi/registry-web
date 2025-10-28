@@ -18,7 +18,7 @@ export default class SponsorRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(sponsors, 'id');
+    super(sponsors, sponsors.id);
   }
 
   async findSponsor(stdNo: number, termId: number) {

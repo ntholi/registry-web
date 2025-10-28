@@ -8,7 +8,7 @@ export default class SchoolRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(schools, 'id');
+    super(schools, schools.id);
   }
 
   async getProgramsBySchoolId(schoolId: number) {

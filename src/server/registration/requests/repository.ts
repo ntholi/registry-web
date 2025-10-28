@@ -33,7 +33,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(registrationRequests, 'id');
+    super(registrationRequests, registrationRequests.id);
   }
 
   override async query(params: QueryOptions<typeof registrationRequests>) {

@@ -60,7 +60,7 @@ export default class CourseSummaryRepository extends BaseRepository<
   'stdNo'
 > {
   constructor() {
-    super(students, 'stdNo');
+    super(students, students.stdNo);
   }
   async getCourseSummaryData(
     semesterModuleId: number,

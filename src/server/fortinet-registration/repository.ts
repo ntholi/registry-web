@@ -15,7 +15,7 @@ export default class FortinetRegistrationRepository extends BaseRepository<
   'id'
 > {
   constructor() {
-    super(fortinetRegistrations, 'id');
+    super(fortinetRegistrations, fortinetRegistrations.id);
   }
 
   async findByStudentNumber(stdNo: number) {
