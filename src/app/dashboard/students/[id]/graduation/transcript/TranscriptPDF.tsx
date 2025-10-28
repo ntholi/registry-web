@@ -170,7 +170,7 @@ export default function TranscriptPDF({ student }: { student: Student }) {
   if (!completedPrograms || completedPrograms.length === 0) {
     return (
       <Document>
-        <Page size='A4' style={tw('pt-5 px-4 pb-10 font-sans text-[7.12pt]')}>
+        <Page size='A4' style={tw('pt-5 px-10 pb-10 font-sans text-[7pt]')}>
           <Text>No completed programs found</Text>
         </Page>
       </Document>
@@ -208,7 +208,7 @@ export default function TranscriptPDF({ student }: { student: Student }) {
             <Page
               key={`transcript-${pIdx}`}
               size='A4'
-              style={tw('pt-5 px-4 pb-10 font-sans text-[7.12pt] pt-[155pt]')}
+              style={tw('pt-5 px-10 pb-10 font-sans text-[7pt] pt-[155pt]')}
             >
               {/* Header Section */}
               <View style={tw('border-t border-b py-1')}>
