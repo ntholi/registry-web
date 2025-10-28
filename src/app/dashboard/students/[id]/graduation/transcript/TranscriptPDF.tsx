@@ -62,6 +62,13 @@ const TableHeader = () => (
   </View>
 );
 
+function formatMonthYear(date?: string | null) {
+  if (!date) return 'N/A';
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return 'N/A';
+  return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+}
+
 const GradeRow = ({
   courseCode,
   courseName,
@@ -191,7 +198,9 @@ export default function TranscriptPDF({ student }: { student: Student }) {
         const programRemarks = getAcademicRemarks([program]);
 
         const programPrimarySemester = programSemesters[0] || null;
-        const admissionDate = programPrimarySemester?.term || 'Unknown';
+        const admissionDate = program.intakeDate
+          ? formatMonthYear(program.intakeDate)
+          : programPrimarySemester?.term || 'Unknown';
 
         const completionDate = program.graduationDate
           ? new Date(program.graduationDate).toLocaleDateString('en-GB', {

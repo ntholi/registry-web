@@ -51,25 +51,23 @@ for (const item of gradeClassifications) {
 
 export default function GradeClassificationPage() {
   return (
-    <Page size='A4' style={tw('pt-20 px-40 font-sans text-[7.5pt]')}>
+    <Page size='A4' style={tw('pt-40 px-40 font-sans text-[7.5pt]')}>
       <View style={tw('flex items-center mb-6')}>
-        <Text style={tw('text-[14pt] font-bold')}>
-          UNIVERSITY GRADING SYSTEM
-        </Text>
+        <Text style={tw('text-[14pt] font-bold')}>GRADING SYSTEM</Text>
       </View>
 
       <View style={tw('border border-black')}>
         <View style={tw('flex flex-row border-b border-black bg-gray-100')}>
-          <View style={tw('w-[25%] border-r border-black p-1')}>
+          <View style={tw('w-[25%] border-r border-black p-0.5')}>
             <Text style={tw('font-bold text-center')}>Marks</Text>
           </View>
-          <View style={tw('w-[15%] border-r border-black p-1')}>
+          <View style={tw('w-[15%] border-r border-black p-0.5')}>
             <Text style={tw('font-bold text-center')}>Grade</Text>
           </View>
-          <View style={tw('w-[20%] border-r border-black p-1')}>
+          <View style={tw('w-[20%] border-r border-black p-0.5')}>
             <Text style={tw('font-bold text-center')}>GPA & CGPA</Text>
           </View>
-          <View style={tw('w-[40%] p-1')}>
+          <View style={tw('w-[40%] p-0.5')}>
             <Text style={tw('font-bold text-center')}>Description</Text>
           </View>
         </View>
@@ -91,14 +89,14 @@ export default function GradeClassificationPage() {
                 >
                   <View
                     style={tw(
-                      'w-[41.6667%] border-r border-black p-1 flex justify-center'
+                      'w-[41.6667%] border-r border-black p-0.5 flex justify-center'
                     )}
                   >
                     <Text style={tw('text-center')}>{item.marks}</Text>
                   </View>
                   <View
                     style={tw(
-                      'w-[25%] border-r border-black p-1 flex justify-center'
+                      'w-[25%] border-r border-black p-0.5 flex justify-center'
                     )}
                   >
                     <Text style={tw('text-center font-bold')}>
@@ -107,7 +105,7 @@ export default function GradeClassificationPage() {
                   </View>
                   <View
                     style={tw(
-                      'w-[33.3333%] border-r border-black p-1 flex justify-center'
+                      'w-[33.3333%] border-r border-black p-0.5 flex justify-center'
                     )}
                   >
                     <Text style={tw('text-center')}>{item.gpa}</Text>
@@ -117,7 +115,7 @@ export default function GradeClassificationPage() {
             </View>
 
             {/* Single description cell for the whole group */}
-            <View style={tw('w-[40%] p-1 flex justify-center')}>
+            <View style={tw('w-[40%] p-0.5 flex justify-center')}>
               <Text style={tw('text-center')}>{group.description}</Text>
             </View>
           </View>
