@@ -1,6 +1,7 @@
 import { getAcademicHistory } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
+import { Fragment } from 'react';
 import { createTw } from 'react-pdf-tailwind';
 import { getCleanedSemesters } from '../../AcademicsView/statements/utils';
 import GradeClassificationPage from './GradeClassificationPage';
@@ -204,7 +205,7 @@ export default function TranscriptPDF({ student }: { student: Student }) {
         const rightTerms = allSemesters.slice(6);
 
         return (
-          <>
+          <Fragment key={`program-${pIdx}`}>
             <Page
               key={`transcript-${pIdx}`}
               size='A4'
@@ -320,7 +321,7 @@ export default function TranscriptPDF({ student }: { student: Student }) {
             </Page>
 
             <GradeClassificationPage key={`classification-${pIdx}`} />
-          </>
+          </Fragment>
         );
       })}
     </Document>

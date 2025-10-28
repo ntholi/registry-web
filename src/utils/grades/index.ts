@@ -85,19 +85,20 @@ export const grades: GradeDefinition[] = [
     marksRange: { min: 0, max: 49 },
   },
   {
-    grade: 'EXP',
-    points: null,
-    description: 'Exempted',
-  },
-  {
     grade: 'PC',
     points: 1.67,
     description: 'Pass Conceded',
+    marksRange: { min: 48, max: 49 },
   },
   {
     grade: 'PX',
     points: 1.67,
     description: 'Pass (supplementary work submitted)',
+  },
+  {
+    grade: 'EXP',
+    points: null,
+    description: 'Exempted',
   },
   {
     grade: 'AP',

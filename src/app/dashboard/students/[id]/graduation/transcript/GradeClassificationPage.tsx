@@ -20,7 +20,12 @@ const tw = createTw({
 });
 
 const gradeClassifications = grades
-  .filter((g) => g.marksRange || g.grade === 'EXP' || g.grade === 'Def')
+  .filter(
+    (g) =>
+      g.marksRange ||
+      ['PX', 'PC', 'EXP', 'Def', 'ANN', 'DNC', 'DNA', 'DNS'].includes(g.grade)
+  )
+  .filter((g) => g.grade !== 'PP')
   .map((g) => ({
     marks: g.marksRange ? `${g.marksRange.min}-${g.marksRange.max}` : '',
     grade: g.grade,
@@ -28,9 +33,25 @@ const gradeClassifications = grades
     description: g.description,
   }));
 
+const descriptionGroups: Array<{
+  description: string;
+  items: typeof gradeClassifications;
+}> = [];
+for (const item of gradeClassifications) {
+  const last = descriptionGroups[descriptionGroups.length - 1];
+  if (!last || last.description !== item.description) {
+    descriptionGroups.push({
+      description: item.description,
+      items: [item] as any,
+    });
+  } else {
+    last.items.push(item);
+  }
+}
+
 export default function GradeClassificationPage() {
   return (
-    <Page size='A4' style={tw('pt-20 px-32 font-sans text-[9pt]')}>
+    <Page size='A4' style={tw('pt-20 px-40 font-sans text-[7.5pt]')}>
       <View style={tw('flex items-center mb-6')}>
         <Text style={tw('text-[14pt] font-bold')}>
           UNIVERSITY GRADING SYSTEM
@@ -39,50 +60,65 @@ export default function GradeClassificationPage() {
 
       <View style={tw('border border-black')}>
         <View style={tw('flex flex-row border-b border-black bg-gray-100')}>
-          <View style={tw('w-[25%] border-r border-black p-2')}>
+          <View style={tw('w-[25%] border-r border-black p-1')}>
             <Text style={tw('font-bold text-center')}>Marks</Text>
           </View>
-          <View style={tw('w-[15%] border-r border-black p-2')}>
+          <View style={tw('w-[15%] border-r border-black p-1')}>
             <Text style={tw('font-bold text-center')}>Grade</Text>
           </View>
-          <View style={tw('w-[20%] border-r border-black p-2')}>
+          <View style={tw('w-[20%] border-r border-black p-1')}>
             <Text style={tw('font-bold text-center')}>GPA & CGPA</Text>
           </View>
-          <View style={tw('w-[40%] p-2')}>
+          <View style={tw('w-[40%] p-1')}>
             <Text style={tw('font-bold text-center')}>Description</Text>
           </View>
         </View>
 
-        {gradeClassifications.map((item, index) => (
+        {descriptionGroups.map((group, gIndex) => (
           <View
-            key={index}
+            key={gIndex}
             style={tw(
-              `flex flex-row ${index < gradeClassifications.length - 1 ? 'border-b border-black' : ''}`
+              `flex flex-row ${gIndex < descriptionGroups.length - 1 ? 'border-b border-black' : ''}`
             )}
           >
-            <View
-              style={tw(
-                'w-[25%] border-r border-black p-2 flex justify-center'
-              )}
-            >
-              <Text style={tw('text-center')}>{item.marks}</Text>
+            <View style={tw('w-[60%]')}>
+              {group.items.map((item, idx) => (
+                <View
+                  key={idx}
+                  style={tw(
+                    `${idx < group.items.length - 1 ? 'border-b border-black' : ''} flex flex-row`
+                  )}
+                >
+                  <View
+                    style={tw(
+                      'w-[41.6667%] border-r border-black p-1 flex justify-center'
+                    )}
+                  >
+                    <Text style={tw('text-center')}>{item.marks}</Text>
+                  </View>
+                  <View
+                    style={tw(
+                      'w-[25%] border-r border-black p-1 flex justify-center'
+                    )}
+                  >
+                    <Text style={tw('text-center font-bold')}>
+                      {item.grade}
+                    </Text>
+                  </View>
+                  <View
+                    style={tw(
+                      'w-[33.3333%] border-r border-black p-1 flex justify-center'
+                    )}
+                  >
+                    <Text style={tw('text-center')}>{item.gpa}</Text>
+                  </View>
+                </View>
+              ))}
             </View>
-            <View
-              style={tw(
-                'w-[15%] border-r border-black p-2 flex justify-center'
-              )}
-            >
-              <Text style={tw('text-center font-bold')}>{item.grade}</Text>
-            </View>
-            <View
-              style={tw(
-                'w-[20%] border-r border-black p-2 flex justify-center'
-              )}
-            >
-              <Text style={tw('text-center')}>{item.gpa}</Text>
-            </View>
-            <View style={tw('w-[40%] p-2 flex justify-center')}>
-              <Text style={tw('text-center')}>{item.description}</Text>
+
+            {/* Single description cell for the whole group */}
+            <View style={tw('w-[40%] p-1 flex justify-center')}>
+              <Text style={tw('text-center')}>{group.description}</Text>
             </View>
           </View>
         ))}
