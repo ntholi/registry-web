@@ -28,48 +28,9 @@ const gradeClassifications = grades
     description: g.description,
   }));
 
-function getAwardClassifications() {
-  const uniqueDescriptions = Array.from(
-    new Set(
-      grades
-        .filter((g) => g.points !== null && g.points > 0)
-        .map((g) => g.description)
-    )
-  );
-
-  const awards = [];
-
-  for (const description of uniqueDescriptions) {
-    const gradesWithDescription = grades.filter(
-      (g) => g.description === description && g.points !== null
-    );
-
-    if (gradesWithDescription.length > 0) {
-      const minPoints = Math.min(
-        ...gradesWithDescription.map((g) => g.points as number)
-      );
-      const maxPoints = Math.max(
-        ...gradesWithDescription.map((g) => g.points as number)
-      );
-      awards.push({
-        cgpa: `${minPoints.toFixed(2)} - ${maxPoints.toFixed(2)}`,
-        award: description,
-      });
-    }
-  }
-
-  return awards.sort((a, b) => {
-    const aMin = parseFloat(a.cgpa.split(' ')[1]);
-    const bMin = parseFloat(b.cgpa.split(' ')[1]);
-    return bMin - aMin;
-  });
-}
-
-const awardClassifications = getAwardClassifications();
-
 export default function GradeClassificationPage() {
   return (
-    <Page size='A4' style={tw('pt-12 px-12 pb-10 font-sans text-[9pt]')}>
+    <Page size='A4' style={tw('pt-20 px-32 font-sans text-[9pt]')}>
       <View style={tw('flex items-center mb-6')}>
         <Text style={tw('text-[14pt] font-bold')}>
           UNIVERSITY GRADING SYSTEM
@@ -77,7 +38,6 @@ export default function GradeClassificationPage() {
       </View>
 
       <View style={tw('border border-black')}>
-        {/* Table Header */}
         <View style={tw('flex flex-row border-b border-black bg-gray-100')}>
           <View style={tw('w-[25%] border-r border-black p-2')}>
             <Text style={tw('font-bold text-center')}>Marks</Text>
@@ -93,7 +53,6 @@ export default function GradeClassificationPage() {
           </View>
         </View>
 
-        {/* Table Rows */}
         {gradeClassifications.map((item, index) => (
           <View
             key={index}
@@ -127,46 +86,6 @@ export default function GradeClassificationPage() {
             </View>
           </View>
         ))}
-      </View>
-
-      {/* Award Classifications Section */}
-      <View style={tw('mt-8')}>
-        <Text style={tw('text-[12pt] font-bold mb-3')}>
-          Award Classifications
-        </Text>
-
-        <View style={tw('border border-black')}>
-          {/* Table Header */}
-          <View style={tw('flex flex-row border-b border-black bg-gray-100')}>
-            <View style={tw('w-[40%] border-r border-black p-2')}>
-              <Text style={tw('font-bold text-center')}>CGPA Range</Text>
-            </View>
-            <View style={tw('w-[60%] p-2')}>
-              <Text style={tw('font-bold text-center')}>Award</Text>
-            </View>
-          </View>
-
-          {/* Table Rows */}
-          {awardClassifications.map((item, index) => (
-            <View
-              key={index}
-              style={tw(
-                `flex flex-row ${index < awardClassifications.length - 1 ? 'border-b border-black' : ''}`
-              )}
-            >
-              <View
-                style={tw(
-                  'w-[40%] border-r border-black p-2 flex justify-center'
-                )}
-              >
-                <Text style={tw('text-center')}>{item.cgpa}</Text>
-              </View>
-              <View style={tw('w-[60%] p-2 flex justify-center')}>
-                <Text style={tw('text-center')}>{item.award}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
       </View>
     </Page>
   );
