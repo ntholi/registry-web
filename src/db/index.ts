@@ -1,13 +1,11 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from './schema';
 import * as relations from './relations';
 
-const client = createClient({
-  url: 'file:local.db',
-});
+const sql = neon(process.env.DATABASE_URL!);
 
-const db = drizzle(client, {
+const db = drizzle(sql, {
   schema: { ...schema, ...relations },
   casing: 'snake_case',
 });
