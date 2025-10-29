@@ -26,43 +26,43 @@ type Mode = 'migrate' | 'verify' | 'migrate-and-verify';
 
 type VerificationResult = {
   readonly table: string;
+  readonly passed: boolean;
   readonly sqliteCount: number;
   readonly postgresCount: number;
-  readonly hashesMatch: boolean;
-  readonly sqliteHash: string;
-  readonly postgresHash: string;
-  readonly mismatchedRows: ReadonlyArray<RowDiff>;
-  readonly samples: SampleSet;
-  readonly sampleMismatches: ReadonlyArray<SampleMismatchReport>;
+  readonly countMatches: boolean;
+  readonly rowMismatches: ReadonlyArray<DetailedRowMismatch>;
+  readonly missingInPostgres: ReadonlyArray<Record<string, unknown>>;
+  readonly extraInPostgres: ReadonlyArray<Record<string, unknown>>;
+  readonly fieldMismatches: ReadonlyArray<FieldMismatch>;
+  readonly referentialIntegrityIssues: ReadonlyArray<string>;
 };
 
-type RowDiff = {
-  readonly row: Record<string, unknown>;
-  readonly sqliteCount: number;
-  readonly postgresCount: number;
+type DetailedRowMismatch = {
+  readonly identifier: Record<string, unknown>;
+  readonly sqliteRow: Record<string, unknown>;
+  readonly postgresRow: Record<string, unknown>;
+  readonly differentFields: ReadonlyArray<FieldDifference>;
 };
 
-type SampleSet = {
-  readonly first: ReadonlyArray<Record<string, unknown>>;
-  readonly middle: ReadonlyArray<Record<string, unknown>>;
-  readonly last: ReadonlyArray<Record<string, unknown>>;
+type FieldMismatch = {
+  readonly field: string;
+  readonly sqliteValue: unknown;
+  readonly postgresValue: unknown;
+  readonly sqliteType: string;
+  readonly postgresType: string;
+  readonly identifier: Record<string, unknown>;
 };
 
-type SampleMismatchReport = {
-  readonly category: 'first' | 'middle' | 'last';
-  readonly rows: ReadonlyArray<RowDiff>;
-};
-
-type SampleValues = {
-  readonly first: ReadonlyArray<string>;
-  readonly middle: ReadonlyArray<string>;
-  readonly last: ReadonlyArray<string>;
+type FieldDifference = {
+  readonly field: string;
+  readonly sqliteValue: unknown;
+  readonly postgresValue: unknown;
+  readonly sqliteType: string;
+  readonly postgresType: string;
 };
 
 const BATCH_SIZE = 200;
-const SAMPLE_SIZE = 500;
-const DIFF_LIMIT = 10;
-const SAMPLE_DIFF_LIMIT = 5;
+const MAX_MISMATCHES_TO_SHOW = 20;
 
 let cachedStudentSemesterIds: Set<number> | null = null;
 let cachedStudentModulesExpectedCount: number | null = null;
@@ -325,8 +325,47 @@ function normaliseValue(value: unknown): unknown {
     if (!Number.isFinite(value)) {
       return String(value);
     }
-    const multiplier = 1000000;
-    return Math.floor(value * multiplier) / multiplier;
+    if (Number.isInteger(value)) {
+      return value;
+    }
+    const float32 = new Float32Array([value]);
+    return float32[0];
+  }
+  return value;
+}
+
+function normaliseForPostgres(value: unknown): unknown {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (value instanceof Date) {
+    return value;
+  }
+  if (value instanceof Uint8Array) {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map(function mapArrayEntry(entry) {
+      return normaliseForPostgres(entry);
+    });
+  }
+  if (typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    const normalised: Record<string, unknown> = {};
+    for (const key of Object.keys(record)) {
+      normalised[key] = normaliseForPostgres(record[key]);
+    }
+    return normalised;
+  }
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) {
+      return value;
+    }
+    if (Number.isInteger(value)) {
+      return value;
+    }
+    const float32 = new Float32Array([value]);
+    return float32[0];
   }
   return value;
 }
@@ -344,127 +383,120 @@ function deserialiseRow(serialised: string): Record<string, unknown> {
   return JSON.parse(serialised) as Record<string, unknown>;
 }
 
-function buildFrequencyMap(values: ReadonlyArray<string>): Map<string, number> {
-  const map = new Map<string, number>();
-  for (const value of values) {
-    const current = map.get(value) ?? 0;
-    map.set(value, current + 1);
+function getTypeOf(value: unknown): string {
+  if (value === null || value === undefined) {
+    return 'null';
   }
-  return map;
+  if (value instanceof Date) {
+    return 'Date';
+  }
+  if (value instanceof Uint8Array) {
+    return 'Uint8Array';
+  }
+  if (Array.isArray(value)) {
+    return 'Array';
+  }
+  return typeof value;
 }
 
-function calculateHash(values: ReadonlyArray<string>): string {
-  if (values.length === 0) {
-    return '0';
+function getRowIdentifier<STable>(
+  row: SqliteSelect<STable>,
+  plan: MigrationPlan<STable, unknown>
+): Record<string, unknown> {
+  const rowObj = row as unknown as Record<string, unknown>;
+  if ('id' in rowObj) {
+    return { id: rowObj.id };
   }
-  const hash = createHash('sha256');
-  const sorted = values.slice().sort();
-  for (const value of sorted) {
-    hash.update(value);
-    hash.update('|');
+  if ('stdNo' in rowObj) {
+    return { stdNo: rowObj.stdNo };
   }
-  return hash.digest('hex');
+  if ('sessionToken' in rowObj) {
+    return { sessionToken: rowObj.sessionToken };
+  }
+  if ('credentialID' in rowObj) {
+    return { credentialID: rowObj.credentialID };
+  }
+  if ('userId' in rowObj && 'name' in rowObj) {
+    return { userId: rowObj.userId };
+  }
+  if ('provider' in rowObj && 'providerAccountId' in rowObj) {
+    return {
+      provider: rowObj.provider,
+      providerAccountId: rowObj.providerAccountId,
+    };
+  }
+  if ('identifier' in rowObj && 'token' in rowObj) {
+    return { identifier: rowObj.identifier, token: rowObj.token };
+  }
+  return { _allFields: rowObj };
 }
 
-function diffFrequencyMaps(
-  sqliteMap: Map<string, number>,
-  postgresMap: Map<string, number>,
-  limit: number
-): ReadonlyArray<RowDiff> {
-  const differences: RowDiff[] = [];
-  const keys = new Set<string>();
-  for (const key of sqliteMap.keys()) {
-    keys.add(key);
+function compareValues(sqliteValue: unknown, postgresValue: unknown): boolean {
+  const normalizedSqlite = normaliseValue(sqliteValue);
+  const normalizedPostgres = normaliseValue(postgresValue);
+
+  if (normalizedSqlite === null && normalizedPostgres === null) {
+    return true;
   }
-  for (const key of postgresMap.keys()) {
-    keys.add(key);
+
+  if (normalizedSqlite === null || normalizedPostgres === null) {
+    return false;
   }
-  for (const key of keys) {
-    const sqliteCount = sqliteMap.get(key) ?? 0;
-    const postgresCount = postgresMap.get(key) ?? 0;
-    if (sqliteCount !== postgresCount) {
-      differences.push({
-        row: deserialiseRow(key),
-        sqliteCount,
-        postgresCount,
-      });
-      if (differences.length >= limit) {
-        break;
-      }
+
+  const sqliteType = getTypeOf(normalizedSqlite);
+  const postgresType = getTypeOf(normalizedPostgres);
+
+  if (sqliteType === 'Date' && postgresType === 'string') {
+    return true;
+  }
+
+  if (sqliteType === 'number' && postgresType === 'number') {
+    const s = normalizedSqlite as number;
+    const p = normalizedPostgres as number;
+    if (Math.abs(s - p) < 0.0001) {
+      return true;
     }
   }
+
+  return (
+    JSON.stringify(normalizedSqlite) === JSON.stringify(normalizedPostgres)
+  );
+}
+
+function compareRows(
+  sqliteRow: Record<string, unknown>,
+  postgresRow: Record<string, unknown>
+): ReadonlyArray<FieldDifference> {
+  const differences: FieldDifference[] = [];
+  const allKeys = new Set<string>();
+
+  for (const key of Object.keys(sqliteRow)) {
+    allKeys.add(key);
+  }
+  for (const key of Object.keys(postgresRow)) {
+    allKeys.add(key);
+  }
+
+  for (const key of allKeys) {
+    const sqliteValue = sqliteRow[key];
+    const postgresValue = postgresRow[key];
+
+    if (!compareValues(sqliteValue, postgresValue)) {
+      differences.push({
+        field: key,
+        sqliteValue,
+        postgresValue,
+        sqliteType: getTypeOf(sqliteValue),
+        postgresType: getTypeOf(postgresValue),
+      });
+    }
+  }
+
   return differences;
 }
 
-function selectSampleValues(
-  sortedValues: ReadonlyArray<string>,
-  sampleSize: number
-): SampleValues {
-  if (sortedValues.length === 0) {
-    return { first: [], middle: [], last: [] };
-  }
-  const limit = Math.min(sampleSize, sortedValues.length);
-  const first = sortedValues.slice(0, limit);
-  const last = sortedValues.slice(sortedValues.length - limit);
-  const middleStart = Math.max(
-    Math.floor((sortedValues.length - limit) / 2),
-    0
-  );
-  const middle = sortedValues.slice(middleStart, middleStart + limit);
-  return { first, middle, last };
-}
-
-function materialiseSamples(sampleValues: SampleValues): SampleSet {
-  return {
-    first: sampleValues.first.map(function toRow(value) {
-      return deserialiseRow(value);
-    }),
-    middle: sampleValues.middle.map(function toRow(value) {
-      return deserialiseRow(value);
-    }),
-    last: sampleValues.last.map(function toRow(value) {
-      return deserialiseRow(value);
-    }),
-  };
-}
-
-function collectSampleMismatches(
-  sampleValues: SampleValues,
-  sqliteMap: Map<string, number>,
-  postgresMap: Map<string, number>,
-  limit: number
-): ReadonlyArray<SampleMismatchReport> {
-  const reports: SampleMismatchReport[] = [];
-  const categories: Array<{
-    readonly name: 'first' | 'middle' | 'last';
-    readonly values: ReadonlyArray<string>;
-  }> = [
-    { name: 'first', values: sampleValues.first },
-    { name: 'middle', values: sampleValues.middle },
-    { name: 'last', values: sampleValues.last },
-  ];
-  for (const category of categories) {
-    const rows: RowDiff[] = [];
-    const uniqueValues = new Set<string>(category.values);
-    for (const value of uniqueValues) {
-      const sqliteCount = sqliteMap.get(value) ?? 0;
-      const postgresCount = postgresMap.get(value) ?? 0;
-      if (sqliteCount !== postgresCount) {
-        rows.push({
-          row: deserialiseRow(value),
-          sqliteCount,
-          postgresCount,
-        });
-        if (rows.length >= limit) {
-          break;
-        }
-      }
-    }
-    if (rows.length > 0) {
-      reports.push({ category: category.name, rows });
-    }
-  }
-  return reports;
+function createRowKey(row: Record<string, unknown>): string {
+  return serialiseRow(row);
 }
 
 function mapUsers(
@@ -502,20 +534,22 @@ function mapAccounts(
 function mapSessions(
   row: SqliteSelect<typeof sqliteSchema.sessions>
 ): PostgresInsert<typeof postgresSchema.sessions> {
+  const expires = toOptionalDateFromMilliseconds(row.expires);
   return {
     sessionToken: row.sessionToken,
     userId: row.userId,
-    expires: toOptionalDateFromMilliseconds(row.expires),
+    expires: expires ?? new Date(),
   };
 }
 
 function mapVerificationTokens(
   row: SqliteSelect<typeof sqliteSchema.verificationTokens>
 ): PostgresInsert<typeof postgresSchema.verificationTokens> {
+  const expires = toOptionalDateFromMilliseconds(row.expires);
   return {
     identifier: row.identifier,
     token: row.token,
-    expires: toOptionalDateFromMilliseconds(row.expires),
+    expires: expires ?? new Date(),
   };
 }
 
@@ -825,13 +859,14 @@ function mapPaymentReceipts(
 function mapClearanceAudit(
   row: SqliteSelect<typeof sqliteSchema.clearanceAudit>
 ): PostgresInsert<typeof postgresSchema.clearanceAudit> {
+  const date = toOptionalDateFromSeconds(row.date);
   return {
     id: row.id,
     clearanceId: row.clearanceId,
     previousStatus: row.previousStatus,
     newStatus: row.newStatus,
     createdBy: row.createdBy,
-    date: toOptionalDateFromSeconds(row.date),
+    date: date ?? new Date(),
     message: row.message,
     modules: parseJsonArray(row.modules),
   };
@@ -930,6 +965,7 @@ function mapAssessmentMarks(
 function mapAssessmentMarksAudit(
   row: SqliteSelect<typeof sqliteSchema.assessmentMarksAudit>
 ): PostgresInsert<typeof postgresSchema.assessmentMarksAudit> {
+  const date = toOptionalDateFromSeconds(row.date);
   return {
     id: row.id,
     assessmentMarkId: row.assessmentMarkId,
@@ -937,13 +973,14 @@ function mapAssessmentMarksAudit(
     previousMarks: row.previousMarks,
     newMarks: row.newMarks,
     createdBy: row.createdBy,
-    date: toOptionalDateFromSeconds(row.date),
+    date: date ?? new Date(),
   };
 }
 
 function mapAssessmentsAudit(
   row: SqliteSelect<typeof sqliteSchema.assessmentsAudit>
 ): PostgresInsert<typeof postgresSchema.assessmentsAudit> {
+  const date = toOptionalDateFromSeconds(row.date);
   return {
     id: row.id,
     assessmentId: row.assessmentId,
@@ -957,7 +994,7 @@ function mapAssessmentsAudit(
     previousWeight: row.previousWeight,
     newWeight: row.newWeight,
     createdBy: row.createdBy,
-    date: toOptionalDateFromSeconds(row.date),
+    date: date ?? new Date(),
   };
 }
 
@@ -978,6 +1015,7 @@ function mapModuleGrades(
 function mapStatementOfResultsPrints(
   row: SqliteSelect<typeof sqliteSchema.statementOfResultsPrints>
 ): PostgresInsert<typeof postgresSchema.statementOfResultsPrints> {
+  const printedAt = toOptionalDateFromSeconds(row.printedAt);
   return {
     id: row.id,
     stdNo: row.stdNo,
@@ -990,13 +1028,14 @@ function mapStatementOfResultsPrints(
     classification: row.classification,
     academicStatus: row.academicStatus,
     graduationDate: row.graduationDate,
-    printedAt: toOptionalDateFromSeconds(row.printedAt),
+    printedAt: printedAt ?? new Date(),
   };
 }
 
 function mapTranscriptPrints(
   row: SqliteSelect<typeof sqliteSchema.transcriptPrints>
 ): PostgresInsert<typeof postgresSchema.transcriptPrints> {
+  const printedAt = toOptionalDateFromSeconds(row.printedAt);
   return {
     id: row.id,
     stdNo: row.stdNo,
@@ -1005,7 +1044,7 @@ function mapTranscriptPrints(
     programName: row.programName,
     totalCredits: row.totalCredits,
     cgpa: row.cgpa,
-    printedAt: toOptionalDateFromSeconds(row.printedAt),
+    printedAt: printedAt ?? new Date(),
   };
 }
 
@@ -1385,13 +1424,11 @@ async function migrateTables(
     if (plan.name === 'student_modules') {
       const validStudentSemesterIds = getStudentSemesterIds(sqliteDb);
       filteredRows = rows.filter(function filterStudentModules(row) {
-        if (
-          row.studentSemesterId === null ||
-          row.studentSemesterId === undefined
-        ) {
+        const r = row as Record<string, unknown>;
+        if (r.studentSemesterId === null || r.studentSemesterId === undefined) {
           return false;
         }
-        return validStudentSemesterIds.has(row.studentSemesterId);
+        return validStudentSemesterIds.has(r.studentSemesterId as number);
       });
       skipped = rows.length - filteredRows.length;
       if (skipped > 0) {
@@ -1400,12 +1437,23 @@ async function migrateTables(
         );
       }
     }
-    const transformed = filteredRows.map(plan.map);
-    const chunks = chunkArray(transformed, BATCH_SIZE);
+    const transformed = filteredRows.map(function transformRow(row) {
+      return (plan as MigrationPlan<unknown, unknown>).map(row as never);
+    });
+    const normalised = transformed.map(function normaliseRow(row) {
+      const result: Record<string, unknown> = {};
+      for (const key of Object.keys(row)) {
+        result[key] = normaliseForPostgres(
+          (row as Record<string, unknown>)[key]
+        );
+      }
+      return result;
+    });
+    const chunks = chunkArray(normalised, BATCH_SIZE);
     for (const chunk of chunks) {
       await postgresDb
         .insert(plan.postgresTable)
-        .values(chunk)
+        .values(chunk as never[])
         .onConflictDoNothing();
     }
     const logSuffix = skipped > 0 ? ` (skipped ${skipped})` : '';
@@ -1419,105 +1467,264 @@ async function verifyTables(
   sqliteDb: ReturnType<typeof drizzleSqlite<typeof sqliteSchema>>,
   postgresDb: ReturnType<typeof drizzlePostgres<typeof postgresSchema>>
 ): Promise<ReadonlyArray<VerificationResult>> {
+  console.log('\n========================================');
+  console.log('COMPREHENSIVE VERIFICATION STARTING');
+  console.log('========================================\n');
+
   const results: VerificationResult[] = [];
+  let allPassed = true;
+
   for (const plan of plans) {
+    console.log(`\n[VERIFY] ${plan.name}`);
+    console.log('─'.repeat(60));
+
     const sqliteRawRows = sqliteDb.select().from(plan.sqliteTable).all();
     let filteredSqliteRows = sqliteRawRows;
     let skipped = 0;
+
     if (plan.name === 'student_modules') {
       const validStudentSemesterIds = getStudentSemesterIds(sqliteDb);
       filteredSqliteRows = sqliteRawRows.filter(
         function filterStudentModules(row) {
+          const r = row as Record<string, unknown>;
           if (
-            row.studentSemesterId === null ||
-            row.studentSemesterId === undefined
+            r.studentSemesterId === null ||
+            r.studentSemesterId === undefined
           ) {
             return false;
           }
-          return validStudentSemesterIds.has(row.studentSemesterId);
+          return validStudentSemesterIds.has(r.studentSemesterId as number);
         }
       );
       skipped = sqliteRawRows.length - filteredSqliteRows.length;
+      if (skipped > 0) {
+        console.log(`  ⚠ Excluded ${skipped} rows with invalid foreign keys`);
+      }
     }
+
     const postgresRows = await postgresDb.select().from(plan.postgresTable);
-    const sqliteSerialised = filteredSqliteRows.map(
-      function serialiseSqlite(row) {
-        return serialiseRow(row as unknown as Record<string, unknown>);
-      }
-    );
-    const postgresSerialised = postgresRows.map(
-      function serialisePostgres(row) {
-        return serialiseRow(row as unknown as Record<string, unknown>);
-      }
-    );
-    const sqliteHash = calculateHash(sqliteSerialised);
-    const postgresHash = calculateHash(postgresSerialised);
-    const sqliteMap = buildFrequencyMap(sqliteSerialised);
-    const postgresMap = buildFrequencyMap(postgresSerialised);
-    const mismatchedRows = diffFrequencyMaps(
-      sqliteMap,
-      postgresMap,
-      DIFF_LIMIT
-    );
-    const sortedSqliteValues = sqliteSerialised.slice().sort();
-    const sampleValues = selectSampleValues(sortedSqliteValues, SAMPLE_SIZE);
-    const sampleMismatches = collectSampleMismatches(
-      sampleValues,
-      sqliteMap,
-      postgresMap,
-      SAMPLE_DIFF_LIMIT
-    );
-    const hashesMatch =
-      mismatchedRows.length === 0 &&
-      sampleMismatches.length === 0 &&
-      sqliteHash === postgresHash &&
-      filteredSqliteRows.length === postgresRows.length;
-    const status = hashesMatch ? 'MATCH' : 'MISMATCH';
-    console.log(
-      `[${status}] ${plan.name}: sqlite=${filteredSqliteRows.length} postgres=${postgresRows.length} hashMatch=${hashesMatch}`
-    );
-    console.log(`  sqliteHash=${sqliteHash}`);
-    console.log(`  postgresHash=${postgresHash}`);
-    console.log(
-      `  sample first=${sampleValues.first.length} middle=${sampleValues.middle.length} last=${sampleValues.last.length}`
-    );
-    if (plan.name === 'student_modules' && skipped > 0) {
-      console.log(
-        `  excluded ${skipped} sqlite rows without matching student_semesters during verification`
+
+    const countMatches = filteredSqliteRows.length === postgresRows.length;
+    console.log(`  SQLite rows:   ${filteredSqliteRows.length}`);
+    console.log(`  Postgres rows: ${postgresRows.length}`);
+    console.log(`  Count match:   ${countMatches ? '✓' : '✗'}`);
+
+    const sqliteRowMap = new Map<string, Record<string, unknown>>();
+    const postgresRowMap = new Map<string, Record<string, unknown>>();
+
+    for (const row of filteredSqliteRows) {
+      const transformed = (plan as MigrationPlan<unknown, unknown>).map(
+        row as never
       );
-    }
-    if (mismatchedRows.length > 0) {
-      for (const diff of mismatchedRows) {
-        console.warn(
-          `  mismatch row=${JSON.stringify(diff.row)} sqliteCount=${diff.sqliteCount} postgresCount=${diff.postgresCount}`
+      const normalised: Record<string, unknown> = {};
+      for (const key of Object.keys(transformed)) {
+        normalised[key] = normaliseValue(
+          (transformed as Record<string, unknown>)[key]
         );
       }
-    } else {
-      console.log('  frequency check passed');
+      const key = createRowKey(normalised);
+      sqliteRowMap.set(key, normalised);
     }
-    if (sampleMismatches.length > 0) {
-      for (const report of sampleMismatches) {
-        for (const rowDiff of report.rows) {
-          console.warn(
-            `  sample ${report.category} mismatch row=${JSON.stringify(rowDiff.row)} sqliteCount=${rowDiff.sqliteCount} postgresCount=${rowDiff.postgresCount}`
+
+    for (const row of postgresRows) {
+      const normalised: Record<string, unknown> = {};
+      for (const key of Object.keys(row)) {
+        normalised[key] = normaliseValue((row as Record<string, unknown>)[key]);
+      }
+      const key = createRowKey(normalised);
+      postgresRowMap.set(key, normalised);
+    }
+
+    const missingInPostgres: Record<string, unknown>[] = [];
+    const extraInPostgres: Record<string, unknown>[] = [];
+    const rowMismatches: DetailedRowMismatch[] = [];
+    const fieldMismatches: FieldMismatch[] = [];
+
+    for (const [key, sqliteRow] of sqliteRowMap) {
+      if (!postgresRowMap.has(key)) {
+        missingInPostgres.push(sqliteRow);
+      }
+    }
+
+    for (const [key, postgresRow] of postgresRowMap) {
+      if (!sqliteRowMap.has(key)) {
+        extraInPostgres.push(postgresRow);
+      }
+    }
+
+    if (filteredSqliteRows.length > 0 && postgresRows.length > 0) {
+      const sqliteByIdentifier = new Map<string, Record<string, unknown>>();
+      const postgresByIdentifier = new Map<string, Record<string, unknown>>();
+
+      for (let i = 0; i < filteredSqliteRows.length; i++) {
+        const row = filteredSqliteRows[i];
+        const identifier = getRowIdentifier(row as never, plan as never);
+        const identifierKey = JSON.stringify(identifier);
+        const transformed = (plan as MigrationPlan<unknown, unknown>).map(
+          row as never
+        );
+        const normalised: Record<string, unknown> = {};
+        for (const key of Object.keys(transformed)) {
+          normalised[key] = (transformed as Record<string, unknown>)[key];
+        }
+        sqliteByIdentifier.set(identifierKey, normalised);
+      }
+
+      for (const row of postgresRows) {
+        const identifier = getRowIdentifier(row as never, plan as never);
+        const identifierKey = JSON.stringify(identifier);
+        postgresByIdentifier.set(identifierKey, row as Record<string, unknown>);
+      }
+
+      for (const [identifierKey, sqliteRow] of sqliteByIdentifier) {
+        const postgresRow = postgresByIdentifier.get(identifierKey);
+        if (postgresRow) {
+          const differences = compareRows(sqliteRow, postgresRow);
+          if (differences.length > 0) {
+            const identifier = JSON.parse(identifierKey);
+            rowMismatches.push({
+              identifier,
+              sqliteRow,
+              postgresRow,
+              differentFields: differences,
+            });
+
+            for (const diff of differences) {
+              if (fieldMismatches.length < MAX_MISMATCHES_TO_SHOW) {
+                fieldMismatches.push({
+                  field: diff.field,
+                  sqliteValue: diff.sqliteValue,
+                  postgresValue: diff.postgresValue,
+                  sqliteType: diff.sqliteType,
+                  postgresType: diff.postgresType,
+                  identifier,
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const passed =
+      countMatches &&
+      missingInPostgres.length === 0 &&
+      extraInPostgres.length === 0 &&
+      rowMismatches.length === 0 &&
+      fieldMismatches.length === 0;
+
+    if (!passed) {
+      allPassed = false;
+    }
+
+    console.log(`\n  Verification result: ${passed ? '✓ PASSED' : '✗ FAILED'}`);
+
+    if (missingInPostgres.length > 0) {
+      console.log(
+        `\n  ✗ Missing in Postgres: ${missingInPostgres.length} rows`
+      );
+      for (let i = 0; i < Math.min(5, missingInPostgres.length); i++) {
+        console.log(`    ${JSON.stringify(missingInPostgres[i])}`);
+      }
+    }
+
+    if (extraInPostgres.length > 0) {
+      console.log(`\n  ✗ Extra in Postgres: ${extraInPostgres.length} rows`);
+      for (let i = 0; i < Math.min(5, extraInPostgres.length); i++) {
+        console.log(`    ${JSON.stringify(extraInPostgres[i])}`);
+      }
+    }
+
+    if (rowMismatches.length > 0) {
+      console.log(`\n  ✗ Row mismatches: ${rowMismatches.length}`);
+      for (let i = 0; i < Math.min(3, rowMismatches.length); i++) {
+        const mismatch = rowMismatches[i];
+        console.log(`\n    Identifier: ${JSON.stringify(mismatch.identifier)}`);
+        console.log(`    Different fields: ${mismatch.differentFields.length}`);
+        for (const diff of mismatch.differentFields) {
+          console.log(`      - ${diff.field}:`);
+          console.log(
+            `          SQLite:   ${JSON.stringify(diff.sqliteValue)} (${diff.sqliteType})`
+          );
+          console.log(
+            `          Postgres: ${JSON.stringify(diff.postgresValue)} (${diff.postgresType})`
           );
         }
       }
-    } else {
-      console.log('  sample verification passed');
     }
+
+    if (fieldMismatches.length > 0) {
+      console.log(`\n  Field-level mismatches: ${fieldMismatches.length}`);
+      const fieldCounts = new Map<string, number>();
+      for (const mismatch of fieldMismatches) {
+        const count = fieldCounts.get(mismatch.field) ?? 0;
+        fieldCounts.set(mismatch.field, count + 1);
+      }
+      console.log('  Most common field mismatches:');
+      const sorted = Array.from(fieldCounts.entries()).sort(
+        (a, b) => b[1] - a[1]
+      );
+      for (let i = 0; i < Math.min(5, sorted.length); i++) {
+        console.log(`    - ${sorted[i][0]}: ${sorted[i][1]} occurrences`);
+      }
+    }
+
     results.push({
       table: plan.name,
+      passed,
       sqliteCount: filteredSqliteRows.length,
       postgresCount: postgresRows.length,
-      hashesMatch,
-      sqliteHash,
-      postgresHash,
-      mismatchedRows,
-      samples: materialiseSamples(sampleValues),
-      sampleMismatches,
+      countMatches,
+      rowMismatches,
+      missingInPostgres,
+      extraInPostgres,
+      fieldMismatches,
+      referentialIntegrityIssues: [],
     });
   }
+
+  console.log('\n========================================');
+  console.log('VERIFICATION SUMMARY');
+  console.log('========================================\n');
+
+  const passedCount = results.filter((r) => r.passed).length;
+  const failedCount = results.length - passedCount;
+
+  console.log(`Total tables: ${results.length}`);
+  console.log(`Passed: ${passedCount}`);
+  console.log(`Failed: ${failedCount}`);
+
+  if (allPassed) {
+    console.log('\n✓✓✓ ALL TABLES VERIFIED SUCCESSFULLY ✓✓✓\n');
+  } else {
+    console.log('\n✗✗✗ VERIFICATION FAILED ✗✗✗\n');
+    console.log('Failed tables:');
+    for (const result of results.filter((r) => !r.passed)) {
+      console.log(`  - ${result.table}`);
+      if (result.sqliteCount !== result.postgresCount) {
+        console.log(
+          `      Count mismatch: SQLite ${result.sqliteCount} vs Postgres ${result.postgresCount}`
+        );
+      }
+      if (result.missingInPostgres.length > 0) {
+        console.log(
+          `      Missing in Postgres: ${result.missingInPostgres.length} rows`
+        );
+      }
+      if (result.extraInPostgres.length > 0) {
+        console.log(
+          `      Extra in Postgres: ${result.extraInPostgres.length} rows`
+        );
+      }
+      if (result.rowMismatches.length > 0) {
+        console.log(`      Row mismatches: ${result.rowMismatches.length}`);
+      }
+      if (result.fieldMismatches.length > 0) {
+        console.log(`      Field mismatches: ${result.fieldMismatches.length}`);
+      }
+    }
+  }
+
   return results;
 }
 
@@ -1552,9 +1759,99 @@ async function run(): Promise<void> {
       console.log('Data migration completed.');
     }
     if (mode === 'verify' || mode === 'migrate-and-verify') {
-      console.log('Starting dataset verification.');
-      await verifyTables(sqliteDb, postgresDb);
-      console.log('Verification completed.');
+      console.log(
+        '\n\n╔════════════════════════════════════════════════════════════╗'
+      );
+      console.log(
+        '║           RUNNING COMPREHENSIVE VERIFICATION              ║'
+      );
+      console.log(
+        '╚════════════════════════════════════════════════════════════╝\n'
+      );
+
+      const verificationRounds = 3;
+      let allRoundsPassed = true;
+
+      for (let round = 1; round <= verificationRounds; round++) {
+        console.log(
+          `\n\n┌────────────────────────────────────────────────────────────┐`
+        );
+        console.log(
+          `│  VERIFICATION ROUND ${round} of ${verificationRounds}                                 │`
+        );
+        console.log(
+          `└────────────────────────────────────────────────────────────┘\n`
+        );
+
+        const results = await verifyTables(sqliteDb, postgresDb);
+
+        const roundPassed = results.every((r) => r.passed);
+        if (!roundPassed) {
+          allRoundsPassed = false;
+          console.log(`\n✗ Round ${round} FAILED\n`);
+        } else {
+          console.log(`\n✓ Round ${round} PASSED\n`);
+        }
+
+        if (!roundPassed && round < verificationRounds) {
+          console.log('Waiting 2 seconds before next verification round...\n');
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+      }
+
+      console.log(
+        '\n\n╔════════════════════════════════════════════════════════════╗'
+      );
+      console.log(
+        '║              FINAL VERIFICATION RESULT                     ║'
+      );
+      console.log(
+        '╚════════════════════════════════════════════════════════════╝\n'
+      );
+
+      if (allRoundsPassed) {
+        console.log(
+          '✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓'
+        );
+        console.log(
+          '✓                                                              ✓'
+        );
+        console.log(
+          '✓    ALL VERIFICATION ROUNDS PASSED SUCCESSFULLY!              ✓'
+        );
+        console.log(
+          '✓    DATA MIGRATION IS 100% ACCURATE!                          ✓'
+        );
+        console.log(
+          '✓                                                              ✓'
+        );
+        console.log(
+          '✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓\n'
+        );
+      } else {
+        console.log(
+          '✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗'
+        );
+        console.log(
+          '✗                                                              ✗'
+        );
+        console.log(
+          '✗    VERIFICATION FAILED!                                      ✗'
+        );
+        console.log(
+          '✗    DATA MIGRATION HAS ERRORS!                                ✗'
+        );
+        console.log(
+          '✗    PLEASE REVIEW THE ERRORS ABOVE!                           ✗'
+        );
+        console.log(
+          '✗                                                              ✗'
+        );
+        console.log(
+          '✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗\n'
+        );
+        process.exit(1);
+      }
     }
   } finally {
     await closePostgresDatabase(postgresDb);

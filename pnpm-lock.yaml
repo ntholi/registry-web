@@ -186,6 +186,9 @@ importers:
       '@types/node':
         specifier: ^24.9.1
         version: 24.9.1
+      '@types/pg':
+        specifier: ^8.15.6
+        version: 8.15.6
       '@types/qrcode':
         specifier: ^1.5.6
         version: 1.5.6
