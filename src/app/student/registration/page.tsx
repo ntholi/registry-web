@@ -14,6 +14,7 @@ import RegistrationHistory from './components/RegistrationHistory';
 import RegistrationHistorySkeleton from './components/RegistrationHistorySkeleton';
 import NewRegistrationCard from './components/NewRegistrationCard';
 import NewRegistrationCardSkeleton from './components/NewRegistrationCardSkeleton';
+import { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
 
 export default async function RegistrationPage() {
   const session = await auth();
@@ -21,6 +22,9 @@ export default async function RegistrationPage() {
   if (!session?.user?.stdNo) {
     return forbidden();
   }
+  const registrationHistory = await getStudentRegistrationHistory(
+    session.user.stdNo
+  );
 
   return (
     <Container size='md'>
@@ -44,7 +48,10 @@ export default async function RegistrationPage() {
         <Divider />
 
         <Suspense fallback={<RegistrationHistorySkeleton />}>
-          <RegistrationHistory stdNo={session.user.stdNo!} />
+          <RegistrationHistory
+            data={registrationHistory}
+            stdNo={session.user.stdNo!}
+          />
         </Suspense>
       </Stack>
     </Container>

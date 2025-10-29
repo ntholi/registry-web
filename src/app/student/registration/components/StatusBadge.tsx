@@ -1,5 +1,7 @@
+'use client';
+
 import { Badge, Skeleton } from '@mantine/core';
-import { Suspense } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getRegistrationRequest } from '@/server/registration/requests/actions';
 import {
   getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
@@ -12,27 +14,26 @@ interface Props {
   status: RegistrationStatus;
 }
 
-type Status = RegistrationStatus;
-
-async function StatusValue({ requestId, status }: Props) {
-  let value = status;
-  if (value === 'pending') {
-    const registration = await getRegistrationRequest(requestId);
-    if (registration && 'clearances' in registration) {
-      value = getOverallClearanceStatus(registration);
-    }
-  }
-  return (
-    <Badge color={getStatusColor(value)} variant='light' size='sm'>
-      {value}
-    </Badge>
-  );
-}
-
 export default function StatusBadge({ requestId, status }: Props) {
+  const { data: registration, isLoading } = useQuery({
+    queryKey: ['registration-request', requestId],
+    queryFn: () => getRegistrationRequest(requestId),
+    enabled: status === 'pending',
+    staleTime: Infinity,
+  });
+
+  let displayValue = status;
+  if (status === 'pending' && registration && 'clearances' in registration) {
+    displayValue = getOverallClearanceStatus(registration);
+  }
+
+  if (isLoading) {
+    return <Skeleton height={22} width={80} radius='sm' />;
+  }
+
   return (
-    <Suspense fallback={<Skeleton height={22} width={80} radius='sm' />}>
-      <StatusValue requestId={requestId} status={status} />
-    </Suspense>
+    <Badge color={getStatusColor(displayValue)} variant='light' size='sm'>
+      {displayValue}
+    </Badge>
   );
 }

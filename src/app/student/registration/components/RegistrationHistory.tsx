@@ -1,3 +1,5 @@
+'use client';
+
 import { formatDateTime, formatSemester } from '@/lib/utils';
 import { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
 import {
@@ -21,18 +23,15 @@ import Link from 'next/link';
 import ProofOfRegistrationDownload from './ProofOfRegistrationDownload';
 import StatusBadge from './StatusBadge';
 
-interface RegistrationHistoryProps {
+type Props = {
   stdNo: number;
-}
+  data: Awaited<ReturnType<typeof getStudentRegistrationHistory>>;
+};
 
-export default async function RegistrationHistory({
-  stdNo,
-}: RegistrationHistoryProps) {
-  const registrationHistory = await getStudentRegistrationHistory(stdNo);
-
+export default function RegistrationHistory({ data, stdNo }: Props) {
   return (
     <SimpleGrid cols={{ base: 1, sm: 2 }}>
-      {registrationHistory.map((request) => {
+      {data.map((request) => {
         return (
           <Card
             withBorder
@@ -88,7 +87,7 @@ export default async function RegistrationHistory({
         );
       })}
 
-      {registrationHistory.length === 0 && (
+      {data.length === 0 && (
         <Card shadow='sm' padding='xl' radius='md' withBorder>
           <Stack align='center' gap='md'>
             <IconFileText size={48} />
