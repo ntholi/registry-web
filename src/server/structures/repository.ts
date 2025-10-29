@@ -1,7 +1,7 @@
 import BaseRepository from '@/server/base/BaseRepository';
-import { semesterModules, structures } from '@/db/schema';
+import { modules, semesterModules, structures } from '@/db/schema';
 import { db } from '@/db';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 
 export default class StructureRepository extends BaseRepository<
   typeof structures,
@@ -23,8 +23,8 @@ export default class StructureRepository extends BaseRepository<
     });
   }
 
-  override findById(id: number) {
-    return db.query.structures.findFirst({
+  override async findById(id: number) {
+    const structure = await db.query.structures.findFirst({
       where: () => eq(structures.id, id),
       with: {
         program: {
@@ -39,11 +39,7 @@ export default class StructureRepository extends BaseRepository<
                 module: true,
                 prerequisites: {
                   with: {
-                    prerequisite: {
-                      with: {
-                        module: true,
-                      },
-                    },
+                    prerequisite: true,
                   },
                 },
               },
@@ -52,6 +48,47 @@ export default class StructureRepository extends BaseRepository<
         },
       },
     });
+
+    if (!structure) return null;
+
+    const allPrerequisiteIds = structure.semesters.flatMap((semester) =>
+      semester.semesterModules.flatMap((sm) =>
+        sm.prerequisites.map((p) => p.prerequisite.moduleId)
+      )
+    );
+
+    const uniqueModuleIds = [...new Set(allPrerequisiteIds)].filter(
+      (id): id is number => id !== null
+    );
+
+    if (uniqueModuleIds.length === 0) {
+      return structure;
+    }
+
+    const prerequisiteModules = await db.query.modules.findMany({
+      where: (modules, { inArray }) => inArray(modules.id, uniqueModuleIds),
+    });
+
+    const moduleMap = new Map(prerequisiteModules.map((m) => [m.id, m]));
+
+    return {
+      ...structure,
+      semesters: structure.semesters.map((semester) => ({
+        ...semester,
+        semesterModules: semester.semesterModules.map((sm) => ({
+          ...sm,
+          prerequisites: sm.prerequisites.map((p) => ({
+            ...p,
+            prerequisite: {
+              ...p.prerequisite,
+              module: p.prerequisite.moduleId
+                ? moduleMap.get(p.prerequisite.moduleId) || null
+                : null,
+            },
+          })),
+        })),
+      })),
+    };
   }
 
   async deleteSemesterModule(id: number) {
