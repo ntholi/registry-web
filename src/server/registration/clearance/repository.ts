@@ -141,32 +141,8 @@ export default class ClearanceRepository extends BaseRepository<
         },
         registrationRequest: {
           with: {
-            student: {
-              with: {
-                programs: {
-                  where: eq(studentPrograms.status, 'Active'),
-                  orderBy: (programs, { asc }) => [asc(programs.id)],
-                  limit: 1,
-                  with: {
-                    structure: {
-                      with: {
-                        program: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            student: true,
             term: true,
-            requestedModules: {
-              with: {
-                semesterModule: {
-                  with: {
-                    module: true,
-                  },
-                },
-              },
-            },
           },
         },
       },
@@ -174,9 +150,46 @@ export default class ClearanceRepository extends BaseRepository<
 
     if (!rc) return null;
 
+    const [studentProgram, modules] = await Promise.all([
+      db.query.studentPrograms.findFirst({
+        where: and(
+          eq(studentPrograms.stdNo, rc.registrationRequest.stdNo),
+          eq(studentPrograms.status, 'Active')
+        ),
+        orderBy: [asc(studentPrograms.id)],
+        with: {
+          structure: {
+            with: {
+              program: true,
+            },
+          },
+        },
+      }),
+      db.query.requestedModules.findMany({
+        where: eq(
+          requestedModules.registrationRequestId,
+          rc.registrationRequest.id
+        ),
+        with: {
+          semesterModule: {
+            with: {
+              module: true,
+            },
+          },
+        },
+      }),
+    ]);
+
     return {
       ...rc.clearance,
-      registrationRequest: rc.registrationRequest,
+      registrationRequest: {
+        ...rc.registrationRequest,
+        student: {
+          ...rc.registrationRequest.student,
+          programs: studentProgram ? [studentProgram] : [],
+        },
+        requestedModules: modules,
+      },
     };
   }
 
@@ -410,35 +423,51 @@ export default class ClearanceRepository extends BaseRepository<
         clearance: { with: { respondedBy: true } },
         registrationRequest: {
           with: {
-            student: {
-              with: {
-                programs: {
-                  where: eq(studentPrograms.status, 'Active'),
-                  orderBy: (programs, { asc }) => [asc(programs.id)],
-                  limit: 1,
-                  with: {
-                    structure: {
-                      with: {
-                        program: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            student: true,
             term: true,
           },
         },
       },
     });
 
+    const studentNos = rows.map((rc) => rc.registrationRequest.stdNo);
+    const activePrograms = await db.query.studentPrograms.findMany({
+      where: and(
+        inArray(studentPrograms.stdNo, studentNos),
+        eq(studentPrograms.status, 'Active')
+      ),
+      orderBy: [asc(studentPrograms.id)],
+      with: {
+        structure: {
+          with: {
+            program: true,
+          },
+        },
+      },
+    });
+
+    const programsByStudentNo = new Map(
+      activePrograms.map((sp) => [sp.stdNo, sp])
+    );
+
     const byIdOrder = new Map(ids.map((id, idx) => [id, idx] as const));
     return rows
       .sort((a, b) => byIdOrder.get(a.id)! - byIdOrder.get(b.id)!)
-      .map((rc) => ({
-        ...rc.clearance,
-        registrationRequest: rc.registrationRequest,
-      }));
+      .map((rc) => {
+        const studentProgram = programsByStudentNo.get(
+          rc.registrationRequest.stdNo
+        );
+        return {
+          ...rc.clearance,
+          registrationRequest: {
+            ...rc.registrationRequest,
+            student: {
+              ...rc.registrationRequest.student,
+              programs: studentProgram ? [studentProgram] : [],
+            },
+          },
+        };
+      });
   }
 }
 
