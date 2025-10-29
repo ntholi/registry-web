@@ -47,9 +47,11 @@ All server code should follows this exact structure in `src/server/[resource]/`:
 - Shared components in `src/app/components`
 - Remove duplicate code, follow DRY principles. avoid code duplication by all means possible. Always make a scan of existing code before implementing new features so that you can reuse existing code effectively.
 
-### Other Things to Note
+### Other Important Guidelines
 
 - When creating native sql queries use snake_case for table and column names without uppercase letters
 
 - **NEVER generate documentation files** - Do not create or update `.md`, `.txt`, or any documentation files
 - **PowerShell v7 only** - All cmd or terminal commands must be PowerShell v7 compatible (Windows environment)
+
+- Every time you finish generating code, always find lint errors and fix them when they are all fixed, run pnpm run build to make sure there are no build errors, do not stop until there are no lint or build errors.

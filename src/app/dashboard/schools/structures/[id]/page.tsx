@@ -3,7 +3,6 @@
 import { formatSemester } from '@/lib/utils';
 import { getStructure } from '@/server/structures/actions';
 import {
-  
   Box,
   Breadcrumbs,
   Card,
@@ -97,7 +96,12 @@ export default function StructureDetailsPage() {
       href: `/dashboard/schools/structures?schoolId=${structure.program?.school?.id}`,
     },
   ].map((item, index) => (
-    <Link key={index} href={item.href} size='sm' c={index === 2 ? 'gray' : 'dimmed'}>
+    <Link
+      key={index}
+      href={item.href}
+      size='sm'
+      c={index === 2 ? 'gray' : 'dimmed'}
+    >
       {item.title}
     </Link>
   ));

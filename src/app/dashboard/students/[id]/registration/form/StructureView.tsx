@@ -192,7 +192,14 @@ function PrerequisiteDisplay({
 }: {
   prerequisites: Array<{
     prerequisite: {
-      module: {
+      id: number;
+      type: 'Delete' | 'Major' | 'Minor' | 'Core' | 'Elective';
+      createdAt: Date | null;
+      moduleId: number | null;
+      credits: number;
+      semesterId: number | null;
+      hidden: boolean;
+      module?: {
         code: string;
         name: string;
       } | null;

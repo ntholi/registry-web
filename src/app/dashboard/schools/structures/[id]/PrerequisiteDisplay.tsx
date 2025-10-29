@@ -6,7 +6,13 @@ type Prerequisite = {
   id: number;
   prerequisite: {
     id: number;
-    module: {
+    createdAt?: Date | null;
+    moduleId?: number | null;
+    type?: string;
+    credits?: number;
+    semesterId?: number | null;
+    hidden?: boolean;
+    module?: {
       id: number;
       code: string;
       name: string;
