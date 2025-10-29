@@ -12,7 +12,6 @@ import {
   text,
   timestamp,
   unique,
-  varchar,
 } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 import type { AdapterAccountType } from 'next-auth/adapters';
@@ -547,7 +546,7 @@ export const clearanceAudit = pgTable('clearance_audit', {
     .notNull(),
   date: timestamp().defaultNow().notNull(),
   message: text(),
-  modules: jsonb().notNull().$type<string[]>().default([]),
+  modules: jsonb().$type<string[]>().notNull().default([]),
 });
 
 export const sponsors = pgTable('sponsors', {
