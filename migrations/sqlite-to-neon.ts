@@ -325,7 +325,8 @@ function normaliseValue(value: unknown): unknown {
     if (!Number.isFinite(value)) {
       return String(value);
     }
-    return Number(value.toFixed(6));
+    const multiplier = 1000000;
+    return Math.floor(value * multiplier) / multiplier;
   }
   return value;
 }
