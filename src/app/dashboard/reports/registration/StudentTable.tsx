@@ -11,14 +11,13 @@ import {
   Loader,
   Pagination,
   Box,
-  Anchor,
   TextInput,
   Stack,
   Paper,
 } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import { formatPhoneNumber, formatSemester } from '@/lib/utils';
-import Link from 'next/link';
+import Link from '@/components/Link';
 
 interface Student {
   stdNo: number;
@@ -164,14 +163,13 @@ export default function StudentTable({
               {data.map((student, index) => (
                 <Table.Tr key={`${student.stdNo}-${index}`}>
                   <Table.Td>
-                    <Anchor
-                      component={Link}
+                    <Link
                       href={`/dashboard/students/${student.stdNo}`}
                       size='sm'
                       fw={500}
                     >
                       {student.stdNo}
-                    </Anchor>
+                    </Link>
                   </Table.Td>
                   <Table.Td>
                     <Text size='sm'>{student.name}</Text>

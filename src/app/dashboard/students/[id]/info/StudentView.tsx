@@ -5,7 +5,6 @@ import { formatDate, formatPhoneNumber } from '@/lib/utils';
 import { getStudent } from '@/server/students/actions';
 import {
   ActionIcon,
-  Anchor,
   Badge,
   Box,
   Card,
@@ -22,7 +21,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { getProgramStatusColor } from '../AcademicsView';
 import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
 import PhotoView from './PhotoView';
@@ -47,14 +46,13 @@ export default function StudentView({ student }: Props) {
                 User
               </Text>
               {student.user ? (
-                <Anchor
-                  component={Link}
+                <Link
                   href={`/dashboard/users/${student.user?.id}`}
                   size='sm'
                   fw={500}
                 >
                   {student.user?.email}
-                </Anchor>
+                </Link>
               ) : (
                 <Text size='sm' c='dimmed'>
                   No user assigned
@@ -231,9 +229,9 @@ function InfoItem({
       </Text>
       <Group>
         {href ? (
-          <Anchor component={Link} href={href} size='sm' fw={500}>
+          <Link href={href} size='sm' fw={500}>
             {displayValue ?? value ?? 'N/A'}
-          </Anchor>
+          </Link>
         ) : (
           <Text size='sm' fw={500}>
             {displayValue ?? value ?? 'N/A'}

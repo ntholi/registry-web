@@ -3,7 +3,7 @@
 import { formatSemester } from '@/lib/utils';
 import { getStructure } from '@/server/structures/actions';
 import {
-  Anchor,
+  
   Box,
   Breadcrumbs,
   Card,
@@ -26,7 +26,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { useParams } from 'next/navigation';
 import EditButton from './EditButton';
 import HideButton from './HideButton';
@@ -74,12 +74,12 @@ export default function StructureDetailsPage() {
             <Text size='sm' c='dimmed' ta='center'>
               The requested program structure could not be found.
             </Text>
-            <Anchor component={Link} href='/dashboard/schools'>
+            <Link href='/dashboard/schools'>
               <Group gap='xs'>
                 <IconArrowLeft size={16} />
                 <Text size='sm'>Back to Schools</Text>
               </Group>
-            </Anchor>
+            </Link>
           </Stack>
         </Paper>
       </Box>
@@ -97,15 +97,9 @@ export default function StructureDetailsPage() {
       href: `/dashboard/schools/structures?schoolId=${structure.program?.school?.id}`,
     },
   ].map((item, index) => (
-    <Anchor
-      key={index}
-      component={Link}
-      href={item.href}
-      size='sm'
-      c={index === 2 ? 'gray' : 'dimmed'}
-    >
+    <Link key={index} href={item.href} size='sm' c={index === 2 ? 'gray' : 'dimmed'}>
       {item.title}
-    </Anchor>
+    </Link>
   ));
 
   return (
@@ -169,14 +163,13 @@ export default function StructureDetailsPage() {
                           }
                         >
                           <Table.Td>
-                            <Anchor
+                            <Link
                               size='sm'
-                              component={Link}
                               href={`/dashboard/semester-modules/${semModule.id}`}
                               c={semModule.hidden ? 'dark' : undefined}
                             >
                               {semModule.module?.code}
-                            </Anchor>
+                            </Link>
                           </Table.Td>
                           <Table.Td>
                             <Text

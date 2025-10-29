@@ -13,7 +13,6 @@ import {
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   Alert,
-  Anchor,
   Badge,
   Button,
   Card,
@@ -39,7 +38,7 @@ import {
   IconUsers,
   IconExclamationCircle,
 } from '@tabler/icons-react';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
 import SemesterStatusModal from './SemesterStatusModal';
@@ -354,14 +353,13 @@ export default function RegistrationSimulator() {
                 <Text size='xs' c='dimmed' mb={4}>
                   Student Number
                 </Text>
-                <Anchor
-                  component={Link}
+                <Link
                   size='sm'
                   c='default'
                   href={`/dashboard/students/${student.stdNo}`}
                 >
                   {student.stdNo}
-                </Anchor>
+                </Link>
               </Paper>
               <Paper withBorder p='sm' radius='sm'>
                 <Text size='xs' c='dimmed' mb={4}>
@@ -377,14 +375,13 @@ export default function RegistrationSimulator() {
                 <Text size='xs' c='dimmed' mb={4}>
                   {student.program.name}
                 </Text>
-                <Anchor
-                  component={Link}
+                <Link
                   size='sm'
                   c='default'
                   href={`/dashboard/schools/structures/${student.program.structureId}`}
                 >
                   {student.program.code}
-                </Anchor>
+                </Link>
               </Paper>
             </SimpleGrid>
           </Stack>

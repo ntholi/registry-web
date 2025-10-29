@@ -3,21 +3,13 @@
 import { DashboardUser, registrationRequestStatusEnum } from '@/db/schema';
 import { formatDateTime, toTitleCase } from '@/lib/utils';
 import { getRegistrationRequest } from '@/server/registration/requests/actions';
-import {
-  Accordion,
-  Anchor,
-  Badge,
-  Group,
-  Stack,
-  Text,
-  ThemeIcon,
-} from '@mantine/core';
+import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
   IconCheck,
   IconClock,
   IconExclamationCircle,
 } from '@tabler/icons-react';
-import Link from 'next/link';
+import Link from '@/components/Link';
 
 interface Props {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -82,15 +74,14 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
                     Responded By:
                   </Text>
                   {clearance?.respondedBy ? (
-                    <Anchor
+                    <Link
                       size='sm'
                       href={`/dashboard/users/${clearance.respondedBy.id}`}
-                      component={Link}
                     >
                       {clearance.respondedBy.name ||
                         clearance.respondedBy.email ||
                         `User: ${clearance.respondedBy.id}`}
-                    </Anchor>
+                    </Link>
                   ) : (
                     <Text size='sm'>{'-'}</Text>
                   )}

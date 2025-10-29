@@ -4,7 +4,6 @@ import { formatDateTime } from '@/lib/utils';
 import { getClearanceHistoryByStudentNo } from '@/server/registration/clearance/actions';
 import {
   Accordion,
-  Anchor,
   Badge,
   Center,
   Group,
@@ -14,7 +13,7 @@ import {
   Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
+import Link from '@/components/Link';
 
 type Props = {
   stdNo: number;
@@ -88,13 +87,12 @@ export default function ClearanceHistory({ stdNo }: Props) {
                       <Table.Td>{audit.newStatus}</Table.Td>
                       <Table.Td>{audit.message || '-'}</Table.Td>
                       <Table.Td>
-                        <Anchor
-                          component={Link}
+                        <Link
                           size='sm'
                           href={`/dashboard/users/${audit.createdBy}`}
                         >
                           {audit.user.name}
-                        </Anchor>
+                        </Link>
                       </Table.Td>
                     </Table.Tr>
                   ))}

@@ -1,8 +1,8 @@
 'use client';
 
 import { getRegistrationRequest } from '@/server/registration/requests/actions';
-import { Anchor, Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
-import Link from 'next/link';
+import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
+import Link from '@/components/Link';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -15,13 +15,12 @@ export default function ModulesView({ value }: Props) {
     ({ semesterModule, moduleStatus, status }) => (
       <Table.Tr key={semesterModule.id}>
         <Table.Td fw={500}>
-          <Anchor
-            component={Link}
+          <Link
             size='sm'
             href={`/dashboard/semester-modules/${semesterModule.id}`}
           >
             {semesterModule.module!.code}
-          </Anchor>
+          </Link>
         </Table.Td>
         <Table.Td>{semesterModule.module!.name}</Table.Td>
         <Table.Td>{semesterModule.credits}</Table.Td>

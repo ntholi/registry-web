@@ -7,7 +7,6 @@ import {
   AccordionItem,
   AccordionPanel,
   ActionIcon,
-  Anchor,
   Grid,
   GridCol,
   Group,
@@ -16,7 +15,7 @@ import {
   Textarea,
   Tooltip,
 } from '@mantine/core';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { useState } from 'react';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
@@ -44,12 +43,9 @@ export default function ClearanceDetails({ request }: Props) {
             <Stack>
               <FieldView label='Student Number' underline={false}>
                 <Group justify='space-between'>
-                  <Anchor
-                    component={Link}
-                    href={`/dashboard/students/${student.stdNo}`}
-                  >
+                  <Link href={`/dashboard/students/${student.stdNo}`}>
                     {student.stdNo}
-                  </Anchor>
+                  </Link>
                   <Tooltip label='Copy'>
                     <ActionIcon
                       variant='subtle'

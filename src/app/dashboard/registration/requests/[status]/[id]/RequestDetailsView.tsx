@@ -6,7 +6,6 @@ import { getRegistrationRequest } from '@/server/registration/requests/actions';
 import { getSponsoredStudent } from '@/server/sponsors/actions';
 import {
   ActionIcon,
-  Anchor,
   Badge,
   Flex,
   Paper,
@@ -16,7 +15,7 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
-import Link from 'next/link';
+import Link from '@/components/Link';
 
 type Props = {
   value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -70,14 +69,9 @@ function StudentNameView({ stdNo, name }: { stdNo: number; name: string }) {
   return (
     <FieldView label='Student' underline={false}>
       <Flex align='center' gap='xs'>
-        <Anchor
-          component={Link}
-          href={`/dashboard/students/${stdNo}`}
-          size='sm'
-          fw={500}
-        >
+        <Link href={`/dashboard/students/${stdNo}`} size='sm' fw={500}>
           {name} ({stdNo})
-        </Anchor>
+        </Link>
         <Tooltip label='Copy student number'>
           <ActionIcon
             variant='subtle'

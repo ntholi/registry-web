@@ -1,6 +1,5 @@
 'use client';
 import {
-  Anchor,
   Center,
   CloseButton,
   Group,
@@ -18,7 +17,7 @@ import {
   IconSearch,
   IconSelector,
 } from '@tabler/icons-react';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import React, { useState } from 'react';
 import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
 import ExcelImport from './excel/ExcelImport';
@@ -282,13 +281,9 @@ export default function StudentTable({ moduleId }: Props) {
       return (
         <Table.Tr key={student.stdNo}>
           <Table.Td>
-            <Anchor
-              size='sm'
-              component={Link}
-              href={`/dashboard/students/${student.stdNo}`}
-            >
+            <Link size='sm' href={`/dashboard/students/${student.stdNo}`}>
               {student.stdNo}
-            </Anchor>
+            </Link>
           </Table.Td>
           <Table.Td>{student.name}</Table.Td>
           {assessmentsLoading

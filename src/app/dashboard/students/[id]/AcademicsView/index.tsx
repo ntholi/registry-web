@@ -6,7 +6,6 @@ import { getAcademicHistory } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import {
   Accordion,
-  Anchor,
   Badge,
   Card,
   Divider,
@@ -21,7 +20,7 @@ import {
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { useEffect, useState } from 'react';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
@@ -93,15 +92,14 @@ export default function AcademicsView({
                     >
                       {program.status}
                     </Badge>
-                    <Anchor
+                    <Link
                       size='0.715rem'
                       c={'gray'}
-                      component={Link}
                       href={`/dashboard/schools/structures/${program.structureId}`}
                       onClick={(e) => e.stopPropagation()}
                     >
                       {program.structure.code}
-                    </Anchor>
+                    </Link>
                   </Group>
                 </Stack>
               </Group>

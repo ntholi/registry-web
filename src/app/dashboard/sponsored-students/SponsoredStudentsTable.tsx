@@ -2,7 +2,6 @@
 
 import { getAllSponsoredStudents } from '@/server/sponsors/actions';
 import {
-  Anchor,
   Badge,
   Center,
   Group,
@@ -16,7 +15,7 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { useEffect, useState } from 'react';
 import DownloadSponsoredStudentsButton from './DownloadButton';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';
@@ -187,13 +186,9 @@ export default function SponsoredStudentsTable() {
             <Table.Tr key={sponsoredStudent.id}>
               <Table.Td>
                 {student?.stdNo ? (
-                  <Anchor
-                    size='sm'
-                    component={Link}
-                    href={`/dashboard/students/${student.stdNo}`}
-                  >
+                  <Link size='sm' href={`/dashboard/students/${student.stdNo}`}>
                     {student.stdNo}
-                  </Anchor>
+                  </Link>
                 ) : (
                   <Text size='sm' c='dimmed'>
                     N/A
@@ -208,13 +203,12 @@ export default function SponsoredStudentsTable() {
               </Table.Td>
               <Table.Td>
                 {sponsoredStudent.sponsor ? (
-                  <Anchor
+                  <Link
                     size='sm'
-                    component={Link}
                     href={`/dashboard/sponsors/${sponsoredStudent.sponsor.id}`}
                   >
                     {sponsoredStudent.sponsor.name}
-                  </Anchor>
+                  </Link>
                 ) : (
                   <Text size='sm' c='dimmed'>
                     N/A

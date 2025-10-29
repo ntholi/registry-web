@@ -7,7 +7,6 @@ import {
   AccordionItem,
   AccordionPanel,
   ActionIcon,
-  Anchor,
   Grid,
   GridCol,
   Group,
@@ -16,7 +15,7 @@ import {
   Textarea,
   Tooltip,
 } from '@mantine/core';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
@@ -45,12 +44,9 @@ export default function GraduationClearanceDetails({ request }: Props) {
               <Stack>
                 <FieldView label='Student Number' underline={false}>
                   <Group justify='space-between'>
-                    <Anchor
-                      component={Link}
-                      href={`/dashboard/students/${studentProgram.stdNo}`}
-                    >
+                    <Link href={`/dashboard/students/${studentProgram.stdNo}`}>
                       {studentProgram.stdNo}
-                    </Anchor>
+                    </Link>
                     <Tooltip label='Copy'>
                       <ActionIcon
                         variant='subtle'

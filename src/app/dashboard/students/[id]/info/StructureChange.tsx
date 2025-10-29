@@ -6,7 +6,6 @@ import {
 import { getStructuresByProgramId } from '@/server/structures/actions';
 import {
   ActionIcon,
-  Anchor,
   Box,
   Button,
   Group,
@@ -17,7 +16,7 @@ import {
 } from '@mantine/core';
 import { IconEdit, IconInfoCircle } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
@@ -153,14 +152,13 @@ export default function StructureChange({ student }: Props) {
           Structure
         </Text>
         <Group>
-          <Anchor
-            component={Link}
+          <Link
             href={`/dashboard/schools/structures/${student?.programs[0].structureId}`}
             size='sm'
             fw={500}
           >
             {student?.programs[0].structure.code}
-          </Anchor>
+          </Link>
           {['admin', 'registry'].includes(session?.user?.role ?? '') && (
             <ActionIcon
               variant='subtle'

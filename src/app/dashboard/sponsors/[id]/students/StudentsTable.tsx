@@ -10,14 +10,14 @@ import {
   Text,
   Skeleton,
   Center,
-  Anchor,
+  
   Pagination as MPagination,
   CloseButton,
 } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getSponsoredStudents } from '@/server/sponsors/actions';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { useDebouncedValue } from '@mantine/hooks';
 
 type Props = {
@@ -110,13 +110,9 @@ export default function StudentsTable({ sponsorId }: Props) {
             <Table.Tr key={sponsoredStudent.id}>
               <Table.Td>
                 {student?.stdNo ? (
-                  <Anchor
-                    size='sm'
-                    component={Link}
-                    href={`/dashboard/students/${student.stdNo}`}
-                  >
+                  <Link size='sm' href={`/dashboard/students/${student.stdNo}`}>
                     {student.stdNo}
-                  </Anchor>
+                  </Link>
                 ) : (
                   <Text size='sm' c='dimmed'>
                     N/A

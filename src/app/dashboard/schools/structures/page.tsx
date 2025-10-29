@@ -3,7 +3,6 @@
 import { getProgramsBySchoolId, getSchool } from '@/server/schools/actions';
 import {
   Accordion,
-  Anchor,
   Card,
   Group,
   Skeleton,
@@ -14,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconArrowLeft, IconBook, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
+import Link from '@/components/Link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ProgramDisplay from './ProgramDisplay';
 
@@ -48,12 +47,12 @@ export default function SchoolProgramsPage() {
   return (
     <Stack p='lg'>
       <Group>
-        <Anchor c='dimmed' component={Link} href='/dashboard/schools'>
+        <Link c='dimmed' href='/dashboard/schools'>
           <Group gap='xs'>
             <IconArrowLeft size={16} />
             <Text size='sm'>Back to Schools</Text>
           </Group>
-        </Anchor>
+        </Link>
       </Group>
 
       {schoolLoading ? (

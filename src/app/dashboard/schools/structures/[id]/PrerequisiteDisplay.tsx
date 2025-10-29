@@ -1,5 +1,5 @@
-import { Anchor, Group, Text } from '@mantine/core';
-import Link from 'next/link';
+import { Group, Text } from '@mantine/core';
+import Link from '@/components/Link';
 import { Fragment } from 'react';
 
 type Prerequisite = {
@@ -33,14 +33,13 @@ export default function PrerequisiteDisplay({ prerequisites, hidden }: Props) {
       {prerequisites.map((it, i) => (
         <Fragment key={it.id}>
           <Group gap={'xs'}>
-            <Anchor
-              component={Link}
+            <Link
               c={hidden ? 'dark' : undefined}
               href={`/dashboard/semester-modules/${it.prerequisite.id}`}
               size='0.8rem'
             >
               {it.prerequisite.module?.code}
-            </Anchor>
+            </Link>
             <Text size='0.8rem'>{it.prerequisite.module?.name}</Text>
           </Group>
           {prerequisites.length > 1 && i < prerequisites.length - 1 && ','}
