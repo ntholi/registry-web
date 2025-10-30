@@ -48,3 +48,5 @@ test.db
 data/*
 .vercel
 webtest.db
+/.claude
+/CLAUDE.md
