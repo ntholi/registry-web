@@ -141,48 +141,112 @@ export default function ExportTranscriptPage() {
         return;
       }
 
-      setProgress(30);
-      setProgressText(`Generating ${allStudents.length} transcripts...`);
+      const studentsByProgram = allStudents.reduce(
+        (acc, student) => {
+          const graduatedProgram = student.programs?.find(
+            (program) =>
+              program.graduationDate && dates.includes(program.graduationDate)
+          );
 
-      const pdfDocument = (
-        <Document>
-          {allStudents.map((student, index) => (
-            <TranscriptPages
-              key={index}
-              student={student}
-              studentIndex={index}
-            />
-          ))}
-        </Document>
+          if (graduatedProgram) {
+            const programId = graduatedProgram.structure.program.id;
+            const programName = graduatedProgram.structure.program.name;
+            const programCode = graduatedProgram.structure.program.code;
+
+            if (!acc[programId]) {
+              acc[programId] = {
+                programId,
+                programName,
+                programCode,
+                students: [],
+              };
+            }
+            acc[programId].students.push(student);
+          }
+
+          return acc;
+        },
+        {} as Record<
+          number,
+          {
+            programId: number;
+            programName: string;
+            programCode: string;
+            students: any[];
+          }
+        >
       );
 
+      const programGroups = Object.values(studentsByProgram);
+
+      if (programGroups.length === 0) {
+        alert('No students found with matching graduation programs');
+        setProgress(0);
+        setProgressText('');
+        setIsGenerating(false);
+        return;
+      }
+
+      setProgress(20);
+      setProgressText(`Generating ${programGroups.length} program PDFs...`);
+
+      const pdfPromises = programGroups.map(async (program, index) => {
+        const progressOffset = (index / programGroups.length) * 60;
+        setProgress(20 + progressOffset);
+        setProgressText(`Generating ${program.programName} transcripts...`);
+
+        const pdfDocument = (
+          <Document>
+            {program.students.map((student, studentIndex) => (
+              <TranscriptPages
+                key={studentIndex}
+                student={student}
+                studentIndex={studentIndex}
+              />
+            ))}
+          </Document>
+        );
+
+        const pdfInstance = pdf(pdfDocument);
+        const blob = await pdfInstance.toBlob();
+
+        return {
+          programName: program.programName,
+          programCode: program.programCode,
+          blob,
+          studentCount: program.students.length,
+        };
+      });
+
       setProgress(50);
-      setProgressText('Rendering PDF document...');
+      setProgressText('Rendering PDF documents...');
 
-      const pdfInstance = pdf(pdfDocument);
+      const pdfResults = await Promise.all(pdfPromises);
 
-      setProgress(70);
-      setProgressText('Creating PDF file...');
+      setProgress(85);
+      setProgressText('Preparing downloads...');
 
-      const blob = await pdfInstance.toBlob();
-
-      setProgress(90);
-      setProgressText('Preparing download...');
-
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `transcripts-${selectOptions?.find((opt) => opt.value === selectedDate)?.label.replace(/\s+/g, '-')}.pdf`;
-      link.click();
-      URL.revokeObjectURL(url);
+      const dateLabel = selectOptions
+        ?.find((opt) => opt.value === selectedDate)
+        ?.label.replace(/\s+/g, '-');
+      pdfResults.forEach((pdfResult) => {
+        const url = URL.createObjectURL(pdfResult.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `transcripts-${pdfResult.programCode}-${dateLabel}.pdf`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
 
       setProgress(100);
-      setProgressText('Download complete!');
+      setProgressText(
+        `Download complete! Generated ${pdfResults.length} PDF files with ${allStudents.length} transcripts.`
+      );
 
       setTimeout(() => {
         setProgress(0);
         setProgressText('');
-      }, 2000);
+      }, 3000);
     } catch (error) {
       console.error('Error generating transcripts:', error);
       const errorMessage =
