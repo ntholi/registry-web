@@ -11,7 +11,7 @@ import {
   users,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, desc, eq, like, notInArray, or, SQL } from 'drizzle-orm';
+import { and, desc, eq, ilike, notInArray, or, SQL } from 'drizzle-orm';
 import { StudentFilter } from './actions';
 
 export default class StudentRepository extends BaseRepository<
@@ -258,7 +258,6 @@ export default class StudentRepository extends BaseRepository<
     if (options.search) {
       const searchTerms = options.search
         .trim()
-        .toLowerCase()
         .split(/\s+/)
         .filter(Boolean);
 
@@ -270,11 +269,7 @@ export default class StudentRepository extends BaseRepository<
             conditions.push(eq(students.stdNo, Number(term)));
           }
 
-          const variations = normalizeName(term);
-          const termConditions = variations.map((variation) =>
-            like(students.name, `%${variation}%`)
-          );
-          conditions.push(...termConditions);
+          conditions.push(ilike(students.name, `%${term}%`));
 
           return or(...conditions);
         });
@@ -485,19 +480,6 @@ export default class StudentRepository extends BaseRepository<
       )
       .returning();
   }
-}
-
-function normalizeName(name: string): string[] {
-  const normalized = name.toLowerCase();
-  const variations = [normalized];
-
-  if (normalized.includes(' ')) {
-    const parts = normalized.split(' ');
-    variations.push(...parts);
-    variations.push(parts.join(''));
-  }
-
-  return [...new Set(variations)];
 }
 
 export const studentsRepository = new StudentRepository();
