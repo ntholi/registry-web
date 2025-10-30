@@ -100,27 +100,27 @@ const TermSummary = ({
   cumulativeCredits: number;
 }) => (
   <View style={tw('ml-[60pt] mt-1')}>
-    <View style={tw('flex flex-row justify-between w-[84%]')}>
+    <View style={tw('flex flex-row justify-between w-[85%]')}>
       <View style={tw('w-[60pt] flex-row justify-between')}>
         <Text>GPA</Text>
         <Text>{`: ${gpa}`}</Text>
       </View>
       <View style={tw('w-[100pt] flex-row justify-between')}>
         <Text>Credits Earned</Text>
-        <View style={tw('flex-row justify-between w-[16pt]')}>
+        <View style={tw('flex-row justify-between w-[13pt]')}>
           <Text>:</Text>
           <Text>{credits}</Text>
         </View>
       </View>
     </View>
-    <View style={tw('flex flex-row justify-between w-[84%]')}>
+    <View style={tw('flex flex-row justify-between w-[85%]')}>
       <View style={tw('w-[60pt] flex-row justify-between')}>
         <Text>CGPA</Text>
         <Text>{`: ${cgpa}`}</Text>
       </View>
       <View style={tw('w-[100pt] flex-row justify-between')}>
         <Text>Cumulative Credits</Text>
-        <View style={tw('flex-row justify-between w-[16pt]')}>
+        <View style={tw('flex-row justify-between w-[13pt]')}>
           <Text>:</Text>
           <Text>{cumulativeCredits}</Text>
         </View>
@@ -222,11 +222,11 @@ export function TranscriptPages({
           <Fragment key={key}>
             <Page
               size='A4'
-              style={tw('pt-5 px-10 pb-10 font-sans text-[6.8pt] pt-[155pt]')}
+              style={tw('pt-5 px-10 pb-10 font-sans text-[6.5pt] pt-[155pt]')}
             >
               <View style={tw('border-t border-b py-1')}>
                 <View style={tw('flex flex-row')}>
-                  <View style={tw('w-1/2 pr-3')}>
+                  <View style={tw('w-1/2 pr-1')}>
                     <HeaderRow label='Student Name' value={student.name} />
                     <HeaderRow
                       label='Student ID'
@@ -239,7 +239,7 @@ export function TranscriptPages({
                     <HeaderRow label='Gender' value={student.gender || 'N/A'} />
                     <HeaderRow label='Nationality' value='Mosotho' />
                   </View>
-                  <View style={tw('w-1/2 pl-3')}>
+                  <View style={tw('w-1/2 pl-1')}>
                     <HeaderRow
                       label='Date of Admission'
                       value={admissionDate}
@@ -261,7 +261,7 @@ export function TranscriptPages({
                 </View>
               </View>
 
-              <View style={tw('mt-1.5 flex flex-row gap-5 border-t border-b')}>
+              <View style={tw('mt-1.5 flex flex-row gap-2 border-t border-b')}>
                 <View style={tw('flex-1')}>
                   <TableHeader />
                 </View>
@@ -270,7 +270,7 @@ export function TranscriptPages({
                 </View>
               </View>
 
-              <View style={tw('mt-2 flex flex-row gap-5')}>
+              <View style={tw('mt-2 flex flex-row gap-2')}>
                 <View style={tw('flex-1')}>
                   {leftTerms.map((semester, i) => (
                     <TermSection
