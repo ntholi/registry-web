@@ -57,8 +57,8 @@ const TableHeader = () => (
   <View style={tw('flex flex-row font-bold py-1')}>
     <Text style={tw('w-[60pt]')}>Code</Text>
     <Text style={tw('flex-1')}>Module Name</Text>
-    <Text style={tw('w-[40pt] text-right')}>Credit</Text>
-    <Text style={tw('w-[35pt] text-center')}>Grade</Text>
+    <Text style={tw('w-[38pt] text-right mr-2')}>Credit</Text>
+    <Text style={tw('w-[35pt] text-left')}>Grade</Text>
   </View>
 );
 
@@ -83,8 +83,8 @@ const GradeRow = ({
   <View style={tw('flex flex-row min-h-[7pt] items-start')}>
     <Text style={tw('w-[60pt]')}>{courseCode}</Text>
     <Text style={tw('flex-1')}>{courseName}</Text>
-    <Text style={tw('w-[40pt] text-right')}>{credits}</Text>
-    <Text style={tw('w-[35pt] text-center')}>{grade}</Text>
+    <Text style={tw('w-[38pt] text-right mr-2')}>{credits}</Text>
+    <Text style={tw('w-[35pt] text-left')}>{grade}</Text>
   </View>
 );
 
@@ -170,19 +170,19 @@ const TermSection = ({
   );
 };
 
-export default function TranscriptPDF({ student }: { student: Student }) {
+export function TranscriptPages({
+  student,
+  studentIndex,
+}: {
+  student: Student;
+  studentIndex?: number;
+}) {
   const completedPrograms = (student.programs || []).filter(
     (program) => program && program.status === 'Completed'
   );
 
   if (!completedPrograms || completedPrograms.length === 0) {
-    return (
-      <Document>
-        <Page size='A4' style={tw('pt-5 px-10 pb-10 font-sans text-[7pt]')}>
-          <Text>No completed programs found</Text>
-        </Page>
-      </Document>
-    );
+    return null;
   }
 
   const issueDate = new Date().toLocaleDateString('en-GB', {
@@ -192,7 +192,7 @@ export default function TranscriptPDF({ student }: { student: Student }) {
   });
 
   return (
-    <Document>
+    <>
       {completedPrograms.map((program, pIdx) => {
         const programSemesters = getCleanedSemesters(program);
         const programRemarks = getAcademicRemarks([program]);
@@ -213,14 +213,17 @@ export default function TranscriptPDF({ student }: { student: Student }) {
         const leftTerms = allSemesters.slice(0, 6);
         const rightTerms = allSemesters.slice(6);
 
+        const key =
+          studentIndex !== undefined
+            ? `student-${studentIndex}-program-${pIdx}`
+            : `program-${pIdx}`;
+
         return (
-          <Fragment key={`program-${pIdx}`}>
+          <Fragment key={key}>
             <Page
-              key={`transcript-${pIdx}`}
               size='A4'
               style={tw('pt-5 px-10 pb-10 font-sans text-[6.8pt] pt-[155pt]')}
             >
-              {/* Header Section */}
               <View style={tw('border-t border-b py-1')}>
                 <View style={tw('flex flex-row')}>
                   <View style={tw('w-1/2 pr-3')}>
@@ -258,7 +261,6 @@ export default function TranscriptPDF({ student }: { student: Student }) {
                 </View>
               </View>
 
-              {/* Content Header */}
               <View style={tw('mt-1.5 flex flex-row gap-5 border-t border-b')}>
                 <View style={tw('flex-1')}>
                   <TableHeader />
@@ -268,7 +270,6 @@ export default function TranscriptPDF({ student }: { student: Student }) {
                 </View>
               </View>
 
-              {/* Content */}
               <View style={tw('mt-2 flex flex-row gap-5')}>
                 <View style={tw('flex-1')}>
                   {leftTerms.map((semester, i) => (
@@ -290,7 +291,6 @@ export default function TranscriptPDF({ student }: { student: Student }) {
                 </View>
               </View>
 
-              {/* Footer */}
               <View style={tw('absolute bottom-[50pt] left-[85pt]')}>
                 {['Total MPU Credits', 'Total Credit Transferred'].map(
                   (label) => (
@@ -313,7 +313,6 @@ export default function TranscriptPDF({ student }: { student: Student }) {
                 )}
               </View>
 
-              {/* Registrar Signature */}
               <View
                 style={tw(
                   'absolute bottom-[50pt] right-14 w-[190pt] border-t pt-1'
@@ -329,10 +328,32 @@ export default function TranscriptPDF({ student }: { student: Student }) {
               </View>
             </Page>
 
-            <GradeClassificationPage key={`classification-${pIdx}`} />
+            <GradeClassificationPage />
           </Fragment>
         );
       })}
+    </>
+  );
+}
+
+export default function TranscriptPDF({ student }: { student: Student }) {
+  const completedPrograms = (student.programs || []).filter(
+    (program) => program && program.status === 'Completed'
+  );
+
+  if (!completedPrograms || completedPrograms.length === 0) {
+    return (
+      <Document>
+        <Page size='A4' style={tw('pt-5 px-10 pb-10 font-sans text-[7pt]')}>
+          <Text>No completed programs found</Text>
+        </Page>
+      </Document>
+    );
+  }
+
+  return (
+    <Document>
+      <TranscriptPages student={student} />
     </Document>
   );
 }

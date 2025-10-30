@@ -24,7 +24,7 @@ import { pdf, Document } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import TranscriptPages from '../../students/[id]/graduation/transcript/TranscriptPages';
+import { TranscriptPages } from '../../students/[id]/graduation/transcript/TranscriptPDF';
 
 function formatGraduationDate(date: string) {
   const d = new Date(date);
