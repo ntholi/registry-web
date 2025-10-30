@@ -42,6 +42,8 @@ import {
   studentCardPrints,
   documents,
   fortinetRegistrations,
+  tasks,
+  taskAssignments,
 } from './schema';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -57,6 +59,38 @@ export const usersRelations = relations(users, ({ many, one }) => ({
     references: [students.userId],
   }),
   userSchools: many(userSchools),
+  assignedModules: many(assignedModules),
+  createdTasks: many(tasks),
+  taskAssignments: many(taskAssignments),
+  graduationListsCreated: many(graduationLists),
+  statementOfResultsPrinted: many(statementOfResultsPrints),
+  transcriptsPrinted: many(transcriptPrints),
+  studentCardsPrinted: many(studentCardPrints),
+  clearanceResponses: many(clearance),
+  clearanceAudits: many(clearanceAudit),
+  assessmentMarksAudits: many(assessmentMarksAudit),
+  assessmentsAudits: many(assessmentsAudit),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const authenticatorsRelations = relations(authenticators, ({ one }) => ({
+  user: one(users, {
+    fields: [authenticators.userId],
+    references: [users.id],
+  }),
 }));
 
 export const signupsRelations = relations(signups, ({ one }) => ({
@@ -76,6 +110,13 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
   graduationRequests: many(graduationRequests),
   sponsorships: many(sponsoredStudents),
   fortinetRegistrations: many(fortinetRegistrations),
+  moduleGrades: many(moduleGrades),
+  assessmentMarks: many(assessmentMarks),
+  blockedStudents: many(blockedStudents),
+  statementOfResultsPrints: many(statementOfResultsPrints),
+  transcriptPrints: many(transcriptPrints),
+  studentCardPrints: many(studentCardPrints),
+  documents: many(documents),
 }));
 
 export const studentProgramsRelations = relations(
@@ -173,6 +214,7 @@ export const semesterModulesRelations = relations(
       fields: [semesterModules.moduleId],
       references: [modules.id],
     }),
+    assignedModules: many(assignedModules),
   })
 );
 
@@ -246,12 +288,10 @@ export const graduationListsRelations = relations(
   })
 );
 
-export const modulesRelations = relations(modules, ({ one, many }) => ({
-  semesterModule: one(semesterModules, {
-    fields: [modules.id],
-    references: [semesterModules.moduleId],
-  }),
+export const modulesRelations = relations(modules, ({ many }) => ({
+  semesterModules: many(semesterModules),
   assessments: many(assessments),
+  moduleGrades: many(moduleGrades),
 }));
 
 export const modulePrerequisitesRelations = relations(
@@ -273,6 +313,8 @@ export const modulePrerequisitesRelations = relations(
 export const termsRelations = relations(terms, ({ many }) => ({
   registrationRequests: many(registrationRequests),
   sponsoredTerms: many(sponsoredTerms),
+  assignedModules: many(assignedModules),
+  assessments: many(assessments),
 }));
 
 export const registrationRequestsRelations = relations(
@@ -422,6 +464,10 @@ export const assignedModulesRelations = relations(
       fields: [assignedModules.semesterModuleId],
       references: [semesterModules.id],
     }),
+    term: one(terms, {
+      fields: [assignedModules.termId],
+      references: [terms.id],
+    }),
   })
 );
 
@@ -515,3 +561,22 @@ export const fortinetRegistrationsRelations = relations(
     }),
   })
 );
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [tasks.createdBy],
+    references: [users.id],
+  }),
+  taskAssignments: many(taskAssignments),
+}));
+
+export const taskAssignmentsRelations = relations(taskAssignments, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskAssignments.taskId],
+    references: [tasks.id],
+  }),
+  user: one(users, {
+    fields: [taskAssignments.userId],
+    references: [users.id],
+  }),
+}));
