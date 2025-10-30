@@ -15,7 +15,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from './assessments';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 
-type AssessmentNumberType = (typeof assessmentNumberEnum)[number];
+type AssessmentNumberType = typeof assessmentNumberEnum.enumValues[number];
 type Assessment = NonNullable<
   Awaited<ReturnType<typeof getModule>>
 >['assessments'][number];

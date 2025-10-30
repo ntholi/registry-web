@@ -93,8 +93,8 @@ class RegistrationRequestService {
       async (session) => {
         if (
           session.user?.role &&
-          dashboardUsers.includes(
-            session.user.role as (typeof dashboardUsers)[number]
+          dashboardUsers.enumValues.includes(
+            session.user.role as typeof dashboardUsers.enumValues[number]
           )
         ) {
           return true;

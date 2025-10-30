@@ -49,8 +49,8 @@ export default async function withAuth<T>(
 
   if (
     roles.includes('dashboard') &&
-    dashboardUsers.includes(
-      session?.user?.role as (typeof dashboardUsers)[number]
+    dashboardUsers.enumValues.includes(
+      session?.user?.role as typeof dashboardUsers.enumValues[number]
     )
   ) {
     return callFnWithAccessCheck(session);

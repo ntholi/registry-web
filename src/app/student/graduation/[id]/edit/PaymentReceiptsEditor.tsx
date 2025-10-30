@@ -34,13 +34,13 @@ import {
 
 type PaymentReceipt = {
   id: number;
-  paymentType: (typeof paymentTypeEnum)[number];
+  paymentType: typeof paymentTypeEnum.enumValues[number];
   receiptNo: string;
   createdAt: Date | null;
 };
 
 type PaymentReceiptData = {
-  paymentType: (typeof paymentTypeEnum)[number];
+  paymentType: typeof paymentTypeEnum.enumValues[number];
   receiptNo: string;
 };
 
@@ -77,7 +77,7 @@ export default function PaymentReceiptsEditor({
     },
   });
 
-  const paymentTypeOptions = paymentTypeEnum.map((type) => ({
+  const paymentTypeOptions = paymentTypeEnum.enumValues.map((type) => ({
     value: type,
     label: type
       .split('_')
@@ -147,7 +147,7 @@ export default function PaymentReceiptsEditor({
     }
 
     addReceipt({
-      paymentType: values.paymentType as (typeof paymentTypeEnum)[number],
+      paymentType: values.paymentType as typeof paymentTypeEnum.enumValues[number],
       receiptNo: values.receiptNo,
     });
   };

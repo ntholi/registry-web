@@ -27,7 +27,7 @@ type Student = typeof students.$inferSelect & {
 };
 
 type PaymentReceiptData = {
-  paymentType: (typeof paymentTypeEnum)[number];
+  paymentType: typeof paymentTypeEnum.enumValues[number];
   receiptNo: string;
 };
 

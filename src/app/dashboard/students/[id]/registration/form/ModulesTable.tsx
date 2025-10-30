@@ -99,7 +99,7 @@ export default function ModulesTable({
                     <Select
                       size='xs'
                       variant='filled'
-                      data={studentModuleStatusEnum}
+                      data={studentModuleStatusEnum.enumValues}
                       value={module.status}
                       onChange={(value) => {
                         if (value && onStatusChange) {

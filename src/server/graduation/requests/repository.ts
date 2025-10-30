@@ -236,7 +236,7 @@ export default class GraduationRequestRepository extends BaseRepository<
   async createWithPaymentReceipts(data: {
     graduationRequestData: typeof graduationRequests.$inferInsert;
     paymentReceipts: Array<{
-      paymentType: (typeof paymentTypeEnum)[number];
+      paymentType: typeof paymentTypeEnum.enumValues[number];
       receiptNo: string;
     }>;
   }) {

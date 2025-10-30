@@ -8,7 +8,7 @@ import {
 } from './type';
 
 export type GradeDefinition = {
-  grade: (typeof gradeEnum)[number];
+  grade: typeof gradeEnum.enumValues[number];
   points: number | null;
   description: string;
   marksRange?: {
@@ -93,7 +93,7 @@ export const grades: GradeDefinition[] = [
   {
     grade: 'PX',
     points: 1.67,
-    description: 'Pass (supplementary work submitted)',
+    description: 'Pass (Supplementary Work Submitted)',
   },
   {
     grade: 'EXP',

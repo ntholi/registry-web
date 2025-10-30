@@ -26,7 +26,7 @@ import {
 } from '@tabler/icons-react';
 
 type PaymentReceiptData = {
-  paymentType: (typeof paymentTypeEnum)[number];
+  paymentType: typeof paymentTypeEnum.enumValues[number];
   receiptNo: string;
 };
 
@@ -62,7 +62,7 @@ export default function PaymentReceiptsInput({
     },
   });
 
-  const paymentTypeOptions = paymentTypeEnum.map((type) => ({
+  const paymentTypeOptions = paymentTypeEnum.enumValues.map((type) => ({
     value: type,
     label: type
       .split('_')
@@ -74,7 +74,7 @@ export default function PaymentReceiptsInput({
     onPaymentReceiptsChange([
       ...paymentReceipts,
       {
-        paymentType: values.paymentType as (typeof paymentTypeEnum)[number],
+        paymentType: values.paymentType as typeof paymentTypeEnum.enumValues[number],
         receiptNo: values.receiptNo,
       },
     ]);

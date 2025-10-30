@@ -76,8 +76,8 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 
   const userFormSchema = z.object({
     name: z.string().min(1, 'Name is required'),
-    role: z.enum(userRoles),
-    position: z.enum(userPositions).nullable().optional(),
+    role: z.enum(userRoles.enumValues),
+    position: z.enum(userPositions.enumValues).nullable().optional(),
     schoolIds: z.array(z.string()).optional(),
   });
 
@@ -138,7 +138,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
         schema={userFormSchema}
         defaultValues={{
           ...defaultValues,
-          role: (defaultValues?.role ?? 'user') as (typeof userRoles)[number],
+          role: (defaultValues?.role ?? 'user') as typeof userRoles.enumValues[number],
         }}
         onSuccess={({ id }) => {
           router.push(`/dashboard/users/${id}`);
@@ -156,7 +156,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
                 label='Role'
                 flex={1}
                 searchable
-                data={userRoles
+                data={userRoles.enumValues
                   .map((role) => ({
                     value: role,
                     label: toTitleCase(role),
@@ -166,7 +166,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
                 onChange={(value) => {
                   form.setFieldValue(
                     'role',
-                    (value || 'user') as (typeof userRoles)[number]
+                    (value || 'user') as typeof userRoles.enumValues[number]
                   );
                   if (value !== 'academic' && selectedSchools.length > 0) {
                     setSelectedSchools([]);
@@ -179,7 +179,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
                 flex={1}
                 searchable
                 clearable
-                data={userPositions.map((position) => ({
+                data={userPositions.enumValues.map((position) => ({
                   value: position,
                   label: toTitleCase(position),
                 }))}

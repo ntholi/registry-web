@@ -460,7 +460,7 @@ export default function RegistrationRequestForm({
                                 value as StudentModuleStatus
                               )
                             }
-                            data={studentModuleStatusEnum.map((status) => ({
+                            data={studentModuleStatusEnum.enumValues.map((status) => ({
                               value: status,
                               label: status,
                             }))}

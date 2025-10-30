@@ -6,7 +6,7 @@ import { paymentReceiptService as service } from './service';
 type PaymentReceipt = typeof paymentReceipts.$inferInsert;
 
 type PaymentReceiptData = {
-  paymentType: (typeof paymentTypeEnum)[number];
+  paymentType: typeof paymentTypeEnum.enumValues[number];
   receiptNo: string;
 };
 

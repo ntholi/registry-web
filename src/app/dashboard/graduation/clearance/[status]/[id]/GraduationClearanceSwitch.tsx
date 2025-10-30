@@ -19,7 +19,7 @@ type Props = {
 };
 
 type Status = Exclude<
-  (typeof clearanceRequestStatusEnum)[number],
+  typeof clearanceRequestStatusEnum.enumValues[number],
   'registered'
 >;
 
@@ -45,7 +45,7 @@ export default function GraduationClearanceSwitch({
 
       const result = await updateGraduationClearance(request.id, {
         message: comment,
-        department: session.user.role as (typeof dashboardUsers)[number],
+        department: session.user.role as typeof dashboardUsers.enumValues[number],
         status,
       });
       return { result };
@@ -91,7 +91,7 @@ export default function GraduationClearanceSwitch({
               setAccordion('comments');
             }
           }}
-          data={clearanceRequestStatusEnum.map((status) => ({
+          data={clearanceRequestStatusEnum.enumValues.map((status) => ({
             label: toTitleCase(status),
             value: status,
           }))}

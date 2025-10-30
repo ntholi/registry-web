@@ -6,7 +6,7 @@ import { serviceWrapper } from '@/server/base/serviceWrapper';
 import { getStudentByUserId } from '@/server/students/actions';
 
 type FortinetRegistration = typeof fortinetRegistrations.$inferInsert;
-type FortinetLevel = (typeof fortinetLevelEnum)[number];
+type FortinetLevel = typeof fortinetLevelEnum.enumValues[number];
 
 class FortinetRegistrationService {
   constructor(

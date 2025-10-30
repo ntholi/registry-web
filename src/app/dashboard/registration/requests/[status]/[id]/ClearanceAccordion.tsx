@@ -16,7 +16,7 @@ interface Props {
   defaultDept?: DashboardUser;
 }
 
-type Status = (typeof registrationRequestStatusEnum)[number];
+type Status = typeof registrationRequestStatusEnum.enumValues[number];
 
 const departments: DashboardUser[] = ['finance', 'library'];
 

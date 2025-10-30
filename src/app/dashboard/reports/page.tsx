@@ -11,7 +11,7 @@ import {
 import Link from 'next/link';
 
 export default function ReportsPage() {
-  const departments = (dashboardUsers as readonly string[]).filter(
+  const departments = dashboardUsers.enumValues.filter(
     (dept: string) => dept !== 'admin' && dept !== 'resource'
   );
 

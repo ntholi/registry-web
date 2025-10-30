@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 type Status = Exclude<
-  (typeof clearanceRequestStatusEnum)[number],
+  typeof clearanceRequestStatusEnum.enumValues[number],
   'registered'
 >;
 
@@ -38,7 +38,7 @@ export default function GraduationStatusSwitch({ request, comment }: Props) {
       }
 
       const result = await updateGraduationClearance(request.id, {
-        department: session.user.role as (typeof dashboardUsers)[number],
+        department: session.user.role as typeof dashboardUsers.enumValues[number],
         status,
         message: comment,
       });
@@ -80,7 +80,7 @@ export default function GraduationStatusSwitch({ request, comment }: Props) {
         <SegmentedControl
           value={status}
           onChange={(it) => setStatus(it as Status)}
-          data={clearanceRequestStatusEnum.map((s) => ({ label: s, value: s }))}
+          data={clearanceRequestStatusEnum.enumValues.map((s) => ({ label: s, value: s }))}
           fullWidth
           disabled={isPending}
         />

@@ -71,7 +71,7 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
           <NumberInput label='Module Id' {...form.getInputProps('moduleId')} />
           <Select
             label='Type'
-            data={moduleTypeEnum.map((type) => ({ value: type, label: type }))}
+            data={moduleTypeEnum.enumValues.map((type) => ({ value: type, label: type }))}
             {...form.getInputProps('type')}
           />
           <NumberInput label='Credits' {...form.getInputProps('credits')} />

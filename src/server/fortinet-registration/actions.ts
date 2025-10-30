@@ -3,7 +3,7 @@
 import { fortinetRegistrationService } from './service';
 import { fortinetLevelEnum } from '@/db/schema';
 
-type FortinetLevel = (typeof fortinetLevelEnum)[number];
+type FortinetLevel = typeof fortinetLevelEnum.enumValues[number];
 
 export async function getFortinetRegistrationById(id: number) {
   return fortinetRegistrationService.getById(id);

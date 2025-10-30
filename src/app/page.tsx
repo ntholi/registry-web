@@ -25,7 +25,7 @@ async function AuthHandler() {
 
     if (role === 'student') {
       redirect('/student');
-    } else if (role !== 'user' && [...dashboardUsers].includes(role)) {
+    } else if (role !== 'user' && dashboardUsers.enumValues.includes(role)) {
       redirect('/dashboard');
     } else {
       redirect('/account-setup');

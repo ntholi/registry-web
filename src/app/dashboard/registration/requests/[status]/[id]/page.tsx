@@ -49,7 +49,7 @@ function getOverallClearanceStatus(
 }
 
 function getStatusColor(
-  status: (typeof registrationRequestStatusEnum)[number]
+  status: typeof registrationRequestStatusEnum.enumValues[number]
 ) {
   switch (status) {
     case 'approved':
@@ -61,7 +61,7 @@ function getStatusColor(
   }
 }
 
-function getStatusIcon(status: (typeof registrationRequestStatusEnum)[number]) {
+function getStatusIcon(status: typeof registrationRequestStatusEnum.enumValues[number]) {
   switch (status) {
     case 'approved':
       return <IconCheck size={16} />;

@@ -3,7 +3,7 @@ import { getLetterGrade } from './grades';
 
 export type GradeCalculation = {
   weightedTotal: number;
-  grade: (typeof gradeEnum)[number];
+  grade: typeof gradeEnum.enumValues[number];
   hasMarks: boolean;
   hasPassed: boolean;
 };

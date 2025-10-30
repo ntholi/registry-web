@@ -25,7 +25,7 @@ import {
 import { fortinetLevelEnum } from '@/db/schema';
 import useUserStudent from '@/hooks/use-user-student';
 
-type FortinetLevel = (typeof fortinetLevelEnum)[number];
+type FortinetLevel = typeof fortinetLevelEnum.enumValues[number];
 
 const levelDescriptions: Record<FortinetLevel, string> = {
   nse1: 'Information Security Awareness - Basic security concepts',
@@ -163,7 +163,7 @@ export default function FortinetRegistrationPage() {
               onChange={(value) => setSelectedLevel(value as FortinetLevel)}
             >
               <Stack gap='xs'>
-                {fortinetLevelEnum.map((level) => (
+                {fortinetLevelEnum.enumValues.map((level) => (
                   <Radio.Card
                     key={level}
                     radius='md'

@@ -50,7 +50,7 @@ export default function GradeSymbolModal({
   const queryClient = useQueryClient();
   const gradeUpdateMutation = useMutation({
     mutationFn: async (data: {
-      grade: (typeof gradeEnum)[number];
+      grade: typeof gradeEnum.enumValues[number];
       weightedTotal: number;
     }) => {
       return await upsertModuleGrade({
@@ -159,7 +159,7 @@ export default function GradeSymbolModal({
       });
     } else {
       gradeUpdateMutation.mutate({
-        grade: selectedGrade as (typeof gradeEnum)[number],
+        grade: selectedGrade as typeof gradeEnum.enumValues[number],
         weightedTotal,
       });
     }

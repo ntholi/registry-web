@@ -8,7 +8,7 @@ import {
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
 import { and, desc, eq, like, or, SQL } from 'drizzle-orm';
 
-type FortinetLevel = (typeof fortinetLevelEnum)[number];
+type FortinetLevel = typeof fortinetLevelEnum.enumValues[number];
 
 export default class FortinetRegistrationRepository extends BaseRepository<
   typeof fortinetRegistrations,
