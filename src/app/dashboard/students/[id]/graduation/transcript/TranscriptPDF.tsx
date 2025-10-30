@@ -69,6 +69,19 @@ function formatMonthYear(date?: string | null) {
   return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 }
 
+function formatTerm(term: string) {
+  if (!term) return 'N/A';
+  const parts = term.split('-');
+  if (parts.length !== 2) return term;
+  const year = parseInt(parts[0]);
+  const month = parseInt(parts[1]) - 1;
+  if (Number.isNaN(year) || Number.isNaN(month) || month < 0 || month > 11) {
+    return term;
+  }
+  const date = new Date(year, month);
+  return date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+}
+
 const GradeRow = ({
   courseCode,
   courseName,
@@ -150,7 +163,7 @@ const TermSection = ({
 
   return (
     <View style={tw('mb-2')}>
-      <Text style={tw('mb-0.5 font-bold')}>{semester.term}</Text>
+      <Text style={tw('mb-0.5 font-bold')}>{formatTerm(semester.term)}</Text>
       {(semester.studentModules || []).map((sm, j) => (
         <GradeRow
           key={j}
