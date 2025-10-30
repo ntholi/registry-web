@@ -11,7 +11,7 @@ import {
   users,
 } from '@/db/schema';
 import BaseRepository, { QueryOptions } from '@/server/base/BaseRepository';
-import { and, desc, eq, ilike, notInArray, or, SQL } from 'drizzle-orm';
+import { and, desc, eq, ilike, notInArray, or, sql, SQL } from 'drizzle-orm';
 import { StudentFilter } from './actions';
 
 export default class StudentRepository extends BaseRepository<
@@ -269,7 +269,15 @@ export default class StudentRepository extends BaseRepository<
             conditions.push(eq(students.stdNo, Number(term)));
           }
 
-          conditions.push(ilike(students.name, `%${term}%`));
+          const normalizedTerm = normalizeSearchTerm(term);
+
+          conditions.push(
+            ilike(students.name, `%${normalizedTerm}%`)
+          );
+
+          conditions.push(
+            sql`similarity(${students.name}, ${normalizedTerm}::text) > 0.3`
+          );
 
           return or(...conditions);
         });
@@ -480,6 +488,13 @@ export default class StudentRepository extends BaseRepository<
       )
       .returning();
   }
+}
+
+function normalizeSearchTerm(term: string): string {
+  return term
+    .replace(/[''`´]/g, "'")
+    .replace(/[""]/g, '"')
+    .trim();
 }
 
 export const studentsRepository = new StudentRepository();
