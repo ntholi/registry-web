@@ -1,6 +1,9 @@
 'use client';
 
 import { getModule } from '@/server/modules/actions';
+import { assessments } from '@/db/schema';
+
+type Assessment = typeof assessments.$inferSelect;
 import {
   ActionIcon,
   Badge,
@@ -62,7 +65,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
             Assessments
           </Title>
           <Badge variant='light' radius={'xs'}>
-            Weight: {module?.assessments.reduce((sum, a) => sum + a.weight, 0)}%
+            Weight: {module?.assessments.reduce((sum: number, a: Assessment) => sum + a.weight, 0)}%
           </Badge>
         </Group>
         <ActionIcon onClick={handleAddAssessment}>
@@ -85,7 +88,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {module.assessments.map((assessment) => (
+            {module.assessments.map((assessment: Assessment) => (
               <Table.Tr key={assessment.id}>
                 <Table.Td>
                   {getAssessmentNumberLabel(assessment.assessmentNumber)}

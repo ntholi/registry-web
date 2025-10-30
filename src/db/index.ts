@@ -11,20 +11,16 @@ const connectionString =
     ? process.env.DATABASE_REMOTE_URL!
     : process.env.DATABASE_LOCAL_URL!;
 
-let db: ReturnType<typeof drizzleNeon> | ReturnType<typeof drizzleNode>;
+const neonDb = drizzleNeon(new NeonPool({ connectionString }), {
+  schema: { ...schema, ...relations },
+  casing: 'snake_case',
+});
 
-if (databaseEnv === 'remote') {
-  const pool = new NeonPool({ connectionString });
-  db = drizzleNeon(pool, {
-    schema: { ...schema, ...relations },
-    casing: 'snake_case',
-  });
-} else {
-  const pool = new NodePool({ connectionString });
-  db = drizzleNode(pool, {
-    schema: { ...schema, ...relations },
-    casing: 'snake_case',
-  });
-}
+const nodeDb = drizzleNode(new NodePool({ connectionString }), {
+  schema: { ...schema, ...relations },
+  casing: 'snake_case',
+});
+
+const db = databaseEnv === 'remote' ? neonDb : nodeDb;
 
 export { db };

@@ -1,9 +1,11 @@
 import { auth } from '@/auth';
 import { db } from '@/db';
-import { accounts } from '@/db/schema';
+import * as schema from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { google } from 'googleapis';
 import { NextRequest, NextResponse } from 'next/server';
+
+const { accounts } = schema;
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -42,12 +44,13 @@ export async function GET(request: NextRequest) {
   try {
     const { tokens } = await oauth2Client.getToken(code);
 
-    const account = await db.query.accounts.findFirst({
-      where: and(
-        eq(accounts.userId, session.user.id),
-        eq(accounts.provider, 'google')
-      ),
-    });
+    const [account] = await db
+      .select()
+      .from(accounts)
+      .where(
+        and(eq(accounts.userId, session.user.id), eq(accounts.provider, 'google'))
+      )
+      .limit(1);
 
     if (account) {
       const existingScopes = account.scope ? account.scope.split(' ') : [];
