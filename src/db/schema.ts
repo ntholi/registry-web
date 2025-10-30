@@ -139,20 +139,29 @@ export const maritalStatusEnum = [
   'Windowed',
 ] as const;
 
-export const students = pgTable('students', {
-  stdNo: bigint({ mode: 'number' }).primaryKey(),
-  name: text().notNull(),
-  nationalId: text().notNull(),
-  sem: integer().notNull(), //TODO: Remove this
-  dateOfBirth: timestamp({ mode: 'date' }),
-  phone1: text(),
-  phone2: text(),
-  gender: text({ enum: genderEnum }),
-  maritalStatus: text({ enum: maritalStatusEnum }),
-  religion: text(),
-  userId: text().references(() => users.id, { onDelete: 'set null' }),
-  createdAt: timestamp().defaultNow(),
-});
+export const students = pgTable(
+  'students',
+  {
+    stdNo: bigint({ mode: 'number' }).primaryKey(),
+    name: text().notNull(),
+    nationalId: text().notNull(),
+    sem: integer().notNull(), //TODO: Remove this
+    dateOfBirth: timestamp({ mode: 'date' }),
+    phone1: text(),
+    phone2: text(),
+    gender: text({ enum: genderEnum }),
+    maritalStatus: text({ enum: maritalStatusEnum }),
+    religion: text(),
+    userId: text().references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp().defaultNow(),
+  },
+  (table) => ({
+    nameTrigramIdx: index('idx_students_name_trgm').using(
+      'gin',
+      sql`${table.name} gin_trgm_ops`
+    ),
+  })
+);
 
 export const programStatusEnum = [
   'Active',
