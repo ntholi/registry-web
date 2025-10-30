@@ -16,10 +16,16 @@ class BulkService {
     }, ['admin', 'registry']);
   }
 
-  async getStudentsByGraduationDate(graduationDate: string) {
+  async getProgramsByGraduationDate(graduationDate: string) {
+    return withAuth(async () => {
+      return await this.repository.findProgramsByGraduationDate(graduationDate);
+    }, ['admin', 'registry']);
+  }
+
+  async getStudentsByGraduationDate(graduationDate: string, programIds?: number[]) {
     return withAuth(async () => {
       const stdNos =
-        await this.repository.findStudentsByGraduationDate(graduationDate);
+        await this.repository.findStudentsByGraduationDate(graduationDate, programIds);
 
       const students = await Promise.all(
         stdNos.map(async (stdNo) => {

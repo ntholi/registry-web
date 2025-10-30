@@ -2,6 +2,7 @@
 
 import {
   getDistinctGraduationDates,
+  getProgramsByGraduationDate,
   getStudentsByGraduationDate,
 } from '@/server/bulk/transcripts/actions';
 import {
@@ -12,12 +13,18 @@ import {
   Select,
   Stack,
   Text,
+  Checkbox,
+  Group,
+  Paper,
+  Progress,
+  Flex,
+  SimpleGrid,
 } from '@mantine/core';
 import { pdf, Document } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import TranscriptPDF from '../../students/[id]/graduation/transcript/TranscriptPDF';
+import TranscriptPages from '../../students/[id]/graduation/transcript/TranscriptPages';
 
 function formatGraduationDate(date: string) {
   const d = new Date(date);
@@ -35,11 +42,20 @@ function parseMonthYear(formattedDate: string) {
 
 export default function ExportTranscriptPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedProgramIds, setSelectedProgramIds] = useState<number[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [progressText, setProgressText] = useState('');
 
   const { data: graduationDates, isLoading: isDatesLoading } = useQuery({
     queryKey: ['distinctGraduationDates'],
     queryFn: getDistinctGraduationDates,
+  });
+
+  const { data: programs, isLoading: isProgramsLoading } = useQuery({
+    queryKey: ['programsByGraduationDate', selectedDate],
+    queryFn: () => getProgramsByGraduationDate(selectedDate!),
+    enabled: !!selectedDate,
   });
 
   const groupedDates = graduationDates?.reduce(
@@ -68,42 +84,114 @@ export default function ExportTranscriptPage() {
       label: group.label,
     }));
 
+  function handleDateChange(value: string | null) {
+    setSelectedDate(value);
+    setSelectedProgramIds([]);
+    setProgress(0);
+    setProgressText('');
+  }
+
+  function handleProgramToggle(programId: number) {
+    setSelectedProgramIds((prev) =>
+      prev.includes(programId)
+        ? prev.filter((id) => id !== programId)
+        : [...prev, programId]
+    );
+  }
+
+  function handleSelectAllPrograms() {
+    if (!programs) return;
+    if (selectedProgramIds.length === programs.length) {
+      setSelectedProgramIds([]);
+    } else {
+      setSelectedProgramIds(programs.map((p) => p.programId));
+    }
+  }
+
   async function handleExport() {
     if (!selectedDate) return;
+    if (selectedProgramIds.length === 0) {
+      alert('Please select at least one program');
+      return;
+    }
 
     setIsGenerating(true);
+    setProgress(0);
+    setProgressText('Fetching students...');
+
     try {
       const dates = selectedDate.split(',');
       const allStudents = [];
 
       for (const date of dates) {
-        const students = await getStudentsByGraduationDate(date.trim());
+        const students = await getStudentsByGraduationDate(
+          date.trim(),
+          selectedProgramIds
+        );
         allStudents.push(...students);
       }
 
       if (allStudents.length === 0) {
-        alert('No students found for the selected graduation date');
+        alert(
+          'No students found for the selected graduation date and programs'
+        );
+        setProgress(0);
+        setProgressText('');
+        setIsGenerating(false);
         return;
       }
 
-      const pdfDoc = pdf(
+      setProgress(30);
+      setProgressText(`Generating ${allStudents.length} transcripts...`);
+
+      const pdfDocument = (
         <Document>
           {allStudents.map((student, index) => (
-            <TranscriptPDF key={index} student={student} />
+            <TranscriptPages
+              key={index}
+              student={student}
+              studentIndex={index}
+            />
           ))}
         </Document>
       );
 
-      const blob = await pdfDoc.toBlob();
+      setProgress(50);
+      setProgressText('Rendering PDF document...');
+
+      const pdfInstance = pdf(pdfDocument);
+
+      setProgress(70);
+      setProgressText('Creating PDF file...');
+
+      const blob = await pdfInstance.toBlob();
+
+      setProgress(90);
+      setProgressText('Preparing download...');
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `transcripts-${selectOptions?.find((opt) => opt.value === selectedDate)?.label.replace(/\s+/g, '-')}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
+
+      setProgress(100);
+      setProgressText('Download complete!');
+
+      setTimeout(() => {
+        setProgress(0);
+        setProgressText('');
+      }, 2000);
     } catch (error) {
       console.error('Error generating transcripts:', error);
-      alert('An error occurred while generating the transcripts');
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'An error occurred while generating the transcripts';
+      alert(`Failed to generate transcripts: ${errorMessage}`);
+      setProgress(0);
+      setProgressText('');
     } finally {
       setIsGenerating(false);
     }
@@ -125,33 +213,93 @@ export default function ExportTranscriptPage() {
         </Text>
 
         <Text size='sm' c='dimmed'>
-          Select a graduation date to export all transcripts for students who
-          graduated in that month and year.
+          Select a graduation date and programs to export transcripts for
+          students who graduated in that month and year.
         </Text>
 
-        <Select
-          label='Graduation Date'
-          placeholder='Select a graduation date'
-          data={selectOptions || []}
-          value={selectedDate}
-          onChange={setSelectedDate}
-          searchable
-          disabled={isGenerating}
-        />
+        <Flex align={'end'} gap='md'>
+          <Select
+            flex={10}
+            label='Graduation Date'
+            placeholder='Select a graduation date'
+            data={selectOptions || []}
+            value={selectedDate}
+            onChange={handleDateChange}
+            searchable
+            disabled={isGenerating}
+          />
+          <Button
+            flex={2}
+            leftSection={<IconDownload size='1rem' />}
+            onClick={handleExport}
+            disabled={
+              !selectedDate || selectedProgramIds.length === 0 || isGenerating
+            }
+            loading={isGenerating}
+          >
+            {isGenerating ? 'Generating...' : 'Export Transcripts'}
+          </Button>
+        </Flex>
+        {selectedDate && isProgramsLoading && (
+          <Center>
+            <Loader size='sm' />
+          </Center>
+        )}
 
-        <Button
-          leftSection={<IconDownload size='1rem' />}
-          onClick={handleExport}
-          disabled={!selectedDate || isGenerating}
-          loading={isGenerating}
-        >
-          {isGenerating ? 'Generating...' : 'Export Transcripts'}
-        </Button>
+        {selectedDate && programs && programs.length > 0 && (
+          <Paper p='md' withBorder>
+            <Stack gap='sm'>
+              <Group justify='space-between'>
+                <Text size='sm' fw={500}>
+                  Select Programs
+                </Text>
+                <Button
+                  size='xs'
+                  variant='subtle'
+                  onClick={handleSelectAllPrograms}
+                  disabled={isGenerating}
+                >
+                  {selectedProgramIds.length === programs.length
+                    ? 'Deselect All'
+                    : 'Select All'}
+                </Button>
+              </Group>
 
-        {isGenerating && (
+              <SimpleGrid cols={2}>
+                {programs.map((program) => (
+                  <Checkbox
+                    key={program.programId}
+                    label={`${program.programName} (${program.programCode})`}
+                    checked={selectedProgramIds.includes(program.programId)}
+                    onChange={() => handleProgramToggle(program.programId)}
+                    disabled={isGenerating}
+                  />
+                ))}
+              </SimpleGrid>
+
+              <Text size='xs' c='dimmed'>
+                {selectedProgramIds.length} of {programs.length} programs
+                selected
+              </Text>
+            </Stack>
+          </Paper>
+        )}
+
+        {selectedDate && programs && programs.length === 0 && (
           <Text size='sm' c='dimmed'>
-            This may take a few moments depending on the number of students...
+            No programs found for the selected graduation date.
           </Text>
+        )}
+
+        {isGenerating && progress > 0 && (
+          <Paper p='md' withBorder>
+            <Stack gap='sm'>
+              <Text size='sm' fw={500}>
+                {progressText}
+              </Text>
+              <Progress value={progress} animated />
+            </Stack>
+          </Paper>
         )}
       </Stack>
     </Box>

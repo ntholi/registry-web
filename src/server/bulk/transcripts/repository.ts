@@ -1,6 +1,6 @@
 import { db } from '@/db';
-import { studentPrograms } from '@/db/schema';
-import { eq, and, sql, isNotNull } from 'drizzle-orm';
+import { studentPrograms, structures, programs } from '@/db/schema';
+import { eq, and, sql, isNotNull, inArray } from 'drizzle-orm';
 
 export default class BulkRepository {
   async findDistinctGraduationDates() {
@@ -23,12 +23,56 @@ export default class BulkRepository {
       .filter((date): date is string => date !== null);
   }
 
-  async findStudentsByGraduationDate(graduationDate: string) {
+  async findProgramsByGraduationDate(graduationDate: string) {
+    const result = await db
+      .select({
+        programId: programs.id,
+        programCode: programs.code,
+        programName: programs.name,
+        programLevel: programs.level,
+      })
+      .from(studentPrograms)
+      .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+      .innerJoin(programs, eq(structures.programId, programs.id))
+      .where(
+        and(
+          eq(studentPrograms.status, 'Completed'),
+          eq(studentPrograms.graduationDate, graduationDate)
+        )
+      )
+      .groupBy(programs.id, programs.code, programs.name, programs.level)
+      .orderBy(programs.name);
+
+    return result;
+  }
+
+  async findStudentsByGraduationDate(graduationDate: string, programIds?: number[]) {
+    const conditions = [
+      eq(studentPrograms.status, 'Completed'),
+      eq(studentPrograms.graduationDate, graduationDate)
+    ];
+
+    if (programIds && programIds.length > 0) {
+      const result = await db
+        .select({
+          stdNo: studentPrograms.stdNo,
+        })
+        .from(studentPrograms)
+        .innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+        .where(
+          and(
+            ...conditions,
+            inArray(structures.programId, programIds)
+          )
+        );
+
+      return result
+        .map((row) => row.stdNo)
+        .filter((stdNo): stdNo is number => stdNo !== null);
+    }
+
     const result = await db.query.studentPrograms.findMany({
-      where: and(
-        eq(studentPrograms.status, 'Completed'),
-        eq(studentPrograms.graduationDate, graduationDate)
-      ),
+      where: and(...conditions),
       with: {
         student: {
           columns: {

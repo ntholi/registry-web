@@ -6,6 +6,10 @@ export async function getDistinctGraduationDates() {
   return service.getDistinctGraduationDates();
 }
 
-export async function getStudentsByGraduationDate(graduationDate: string) {
-  return service.getStudentsByGraduationDate(graduationDate);
+export async function getProgramsByGraduationDate(graduationDate: string) {
+  return service.getProgramsByGraduationDate(graduationDate);
+}
+
+export async function getStudentsByGraduationDate(graduationDate: string, programIds?: number[]) {
+  return service.getStudentsByGraduationDate(graduationDate, programIds);
 }
