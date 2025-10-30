@@ -1,12 +1,13 @@
-import 'dotenv/config';
 import Database from 'better-sqlite3';
+import { config } from 'dotenv';
 import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
 import { drizzle as drizzlePostgres } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
 import { Buffer } from 'node:buffer';
-import { createHash } from 'node:crypto';
+import { Pool } from 'pg';
 import * as sqliteSchema from '../src/db/old.schema';
 import * as postgresSchema from '../src/db/schema';
+
+config({ path: '.env.local' });
 
 type SqliteSelect<TTable> = TTable extends { $inferSelect: infer TRow }
   ? TRow
@@ -1413,10 +1414,12 @@ async function migrateTables(
   sqliteDb: ReturnType<typeof drizzleSqlite<typeof sqliteSchema>>,
   postgresDb: ReturnType<typeof drizzlePostgres<typeof postgresSchema>>
 ): Promise<void> {
+  let totalMigrated = 0;
+  let totalSkipped = 0;
+
   for (const plan of plans) {
     const rows = sqliteDb.select().from(plan.sqliteTable).all();
     if (rows.length === 0) {
-      console.log(`[SKIP] ${plan.name}: no rows found in source.`);
       continue;
     }
     let filteredRows = rows;
@@ -1431,11 +1434,7 @@ async function migrateTables(
         return validStudentSemesterIds.has(r.studentSemesterId as number);
       });
       skipped = rows.length - filteredRows.length;
-      if (skipped > 0) {
-        console.warn(
-          `[WARN] ${plan.name}: skipped ${skipped} rows missing related student_semesters.`
-        );
-      }
+      totalSkipped += skipped;
     }
     const transformed = filteredRows.map(function transformRow(row) {
       return (plan as MigrationPlan<unknown, unknown>).map(row as never);
@@ -1456,10 +1455,14 @@ async function migrateTables(
         .values(chunk as never[])
         .onConflictDoNothing();
     }
-    const logSuffix = skipped > 0 ? ` (skipped ${skipped})` : '';
-    console.log(
-      `[OK] ${plan.name}: migrated ${transformed.length} rows.${logSuffix}`
-    );
+    totalMigrated += transformed.length;
+  }
+
+  console.log(
+    `✓ Migrated ${totalMigrated} rows across ${plans.length} tables.`
+  );
+  if (totalSkipped > 0) {
+    console.log(`  (Skipped ${totalSkipped} orphaned rows)`);
   }
 }
 
@@ -1467,20 +1470,12 @@ async function verifyTables(
   sqliteDb: ReturnType<typeof drizzleSqlite<typeof sqliteSchema>>,
   postgresDb: ReturnType<typeof drizzlePostgres<typeof postgresSchema>>
 ): Promise<ReadonlyArray<VerificationResult>> {
-  console.log('\n========================================');
-  console.log('COMPREHENSIVE VERIFICATION STARTING');
-  console.log('========================================\n');
-
   const results: VerificationResult[] = [];
-  let allPassed = true;
+  const failedTables: string[] = [];
 
   for (const plan of plans) {
-    console.log(`\n[VERIFY] ${plan.name}`);
-    console.log('─'.repeat(60));
-
     const sqliteRawRows = sqliteDb.select().from(plan.sqliteTable).all();
     let filteredSqliteRows = sqliteRawRows;
-    let skipped = 0;
 
     if (plan.name === 'student_modules') {
       const validStudentSemesterIds = getStudentSemesterIds(sqliteDb);
@@ -1496,18 +1491,10 @@ async function verifyTables(
           return validStudentSemesterIds.has(r.studentSemesterId as number);
         }
       );
-      skipped = sqliteRawRows.length - filteredSqliteRows.length;
-      if (skipped > 0) {
-        console.log(`  ⚠ Excluded ${skipped} rows with invalid foreign keys`);
-      }
     }
 
     const postgresRows = await postgresDb.select().from(plan.postgresTable);
-
     const countMatches = filteredSqliteRows.length === postgresRows.length;
-    console.log(`  SQLite rows:   ${filteredSqliteRows.length}`);
-    console.log(`  Postgres rows: ${postgresRows.length}`);
-    console.log(`  Count match:   ${countMatches ? '✓' : '✗'}`);
 
     const sqliteRowMap = new Map<string, Record<string, unknown>>();
     const postgresRowMap = new Map<string, Record<string, unknown>>();
@@ -1614,59 +1601,7 @@ async function verifyTables(
       fieldMismatches.length === 0;
 
     if (!passed) {
-      allPassed = false;
-    }
-
-    console.log(`\n  Verification result: ${passed ? '✓ PASSED' : '✗ FAILED'}`);
-
-    if (missingInPostgres.length > 0) {
-      console.log(
-        `\n  ✗ Missing in Postgres: ${missingInPostgres.length} rows`
-      );
-      for (let i = 0; i < Math.min(5, missingInPostgres.length); i++) {
-        console.log(`    ${JSON.stringify(missingInPostgres[i])}`);
-      }
-    }
-
-    if (extraInPostgres.length > 0) {
-      console.log(`\n  ✗ Extra in Postgres: ${extraInPostgres.length} rows`);
-      for (let i = 0; i < Math.min(5, extraInPostgres.length); i++) {
-        console.log(`    ${JSON.stringify(extraInPostgres[i])}`);
-      }
-    }
-
-    if (rowMismatches.length > 0) {
-      console.log(`\n  ✗ Row mismatches: ${rowMismatches.length}`);
-      for (let i = 0; i < Math.min(3, rowMismatches.length); i++) {
-        const mismatch = rowMismatches[i];
-        console.log(`\n    Identifier: ${JSON.stringify(mismatch.identifier)}`);
-        console.log(`    Different fields: ${mismatch.differentFields.length}`);
-        for (const diff of mismatch.differentFields) {
-          console.log(`      - ${diff.field}:`);
-          console.log(
-            `          SQLite:   ${JSON.stringify(diff.sqliteValue)} (${diff.sqliteType})`
-          );
-          console.log(
-            `          Postgres: ${JSON.stringify(diff.postgresValue)} (${diff.postgresType})`
-          );
-        }
-      }
-    }
-
-    if (fieldMismatches.length > 0) {
-      console.log(`\n  Field-level mismatches: ${fieldMismatches.length}`);
-      const fieldCounts = new Map<string, number>();
-      for (const mismatch of fieldMismatches) {
-        const count = fieldCounts.get(mismatch.field) ?? 0;
-        fieldCounts.set(mismatch.field, count + 1);
-      }
-      console.log('  Most common field mismatches:');
-      const sorted = Array.from(fieldCounts.entries()).sort(
-        (a, b) => b[1] - a[1]
-      );
-      for (let i = 0; i < Math.min(5, sorted.length); i++) {
-        console.log(`    - ${sorted[i][0]}: ${sorted[i][1]} occurrences`);
-      }
+      failedTables.push(plan.name);
     }
 
     results.push({
@@ -1683,22 +1618,10 @@ async function verifyTables(
     });
   }
 
-  console.log('\n========================================');
-  console.log('VERIFICATION SUMMARY');
-  console.log('========================================\n');
-
-  const passedCount = results.filter((r) => r.passed).length;
-  const failedCount = results.length - passedCount;
-
-  console.log(`Total tables: ${results.length}`);
-  console.log(`Passed: ${passedCount}`);
-  console.log(`Failed: ${failedCount}`);
-
-  if (allPassed) {
-    console.log('\n✓✓✓ ALL TABLES VERIFIED SUCCESSFULLY ✓✓✓\n');
+  if (failedTables.length === 0) {
+    console.log(`✓ Verified ${results.length} tables successfully.`);
   } else {
-    console.log('\n✗✗✗ VERIFICATION FAILED ✗✗✗\n');
-    console.log('Failed tables:');
+    console.log(`\n✗ Verification failed for ${failedTables.length} table(s):`);
     for (const result of results.filter((r) => !r.passed)) {
       console.log(`  - ${result.table}`);
       if (result.sqliteCount !== result.postgresCount) {
@@ -1752,104 +1675,35 @@ async function run(): Promise<void> {
   const mode = parseMode();
   const sqliteDb = openSqliteDatabase();
   const postgresDb = await openPostgresDatabase();
+
   try {
     if (mode === 'migrate' || mode === 'migrate-and-verify') {
-      console.log('Starting data migration from SQLite to Neon/PostgreSQL.');
+      console.log('\n📦 Migrating data from SQLite to PostgreSQL...\n');
       await migrateTables(sqliteDb, postgresDb);
-      console.log('Data migration completed.');
     }
+
     if (mode === 'verify' || mode === 'migrate-and-verify') {
-      console.log(
-        '\n\n╔════════════════════════════════════════════════════════════╗'
-      );
-      console.log(
-        '║           RUNNING COMPREHENSIVE VERIFICATION              ║'
-      );
-      console.log(
-        '╚════════════════════════════════════════════════════════════╝\n'
-      );
+      console.log('\n🔍 Verifying migration...\n');
 
-      const verificationRounds = 3;
-      let allRoundsPassed = true;
-
-      for (let round = 1; round <= verificationRounds; round++) {
-        console.log(
-          `\n\n┌────────────────────────────────────────────────────────────┐`
-        );
-        console.log(
-          `│  VERIFICATION ROUND ${round} of ${verificationRounds}                                 │`
-        );
-        console.log(
-          `└────────────────────────────────────────────────────────────┘\n`
-        );
-
+      let allPassed = true;
+      for (let round = 1; round <= 3; round++) {
         const results = await verifyTables(sqliteDb, postgresDb);
-
         const roundPassed = results.every((r) => r.passed);
-        if (!roundPassed) {
-          allRoundsPassed = false;
-          console.log(`\n✗ Round ${round} FAILED\n`);
-        } else {
-          console.log(`\n✓ Round ${round} PASSED\n`);
-        }
 
-        if (!roundPassed && round < verificationRounds) {
-          console.log('Waiting 2 seconds before next verification round...\n');
-          await new Promise((resolve) => setTimeout(resolve, 2000));
+        if (!roundPassed) {
+          allPassed = false;
+          if (round < 3) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          }
+        } else {
+          break;
         }
       }
 
-      console.log(
-        '\n\n╔════════════════════════════════════════════════════════════╗'
-      );
-      console.log(
-        '║              FINAL VERIFICATION RESULT                     ║'
-      );
-      console.log(
-        '╚════════════════════════════════════════════════════════════╝\n'
-      );
-
-      if (allRoundsPassed) {
-        console.log(
-          '✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓'
-        );
-        console.log(
-          '✓                                                              ✓'
-        );
-        console.log(
-          '✓    ALL VERIFICATION ROUNDS PASSED SUCCESSFULLY!              ✓'
-        );
-        console.log(
-          '✓    DATA MIGRATION IS 100% ACCURATE!                          ✓'
-        );
-        console.log(
-          '✓                                                              ✓'
-        );
-        console.log(
-          '✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓\n'
-        );
+      if (allPassed) {
+        console.log('\n✓ Migration completed successfully!\n');
       } else {
-        console.log(
-          '✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗'
-        );
-        console.log(
-          '✗                                                              ✗'
-        );
-        console.log(
-          '✗    VERIFICATION FAILED!                                      ✗'
-        );
-        console.log(
-          '✗    DATA MIGRATION HAS ERRORS!                                ✗'
-        );
-        console.log(
-          '✗    PLEASE REVIEW THE ERRORS ABOVE!                           ✗'
-        );
-        console.log(
-          '✗                                                              ✗'
-        );
-        console.log(
-          '✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗\n'
-        );
+        console.log('\n✗ Migration verification failed!\n');
         process.exit(1);
       }
     }
