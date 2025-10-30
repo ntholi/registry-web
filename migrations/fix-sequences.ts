@@ -5,18 +5,11 @@ import * as schema from '../src/db/schema';
 
 config({ path: '.env.local' });
 
-/**
- * This script fixes PostgreSQL sequence values after data migration.
- *
- * When migrating data from SQLite to PostgreSQL with explicit IDs,
- * PostgreSQL sequences don't automatically advance. This causes the next
- * INSERT to fail with a duplicate key error.
- *
- * This script updates all sequences to the maximum ID + 1 for each table.
- *
- * Usage:
- *   tsx migrations/fix-sequences.ts
- */
+const databaseEnv = process.env.DATABASE_ENV || 'local';
+process.env.DATABASE_URL =
+  databaseEnv === 'remote'
+    ? process.env.DATABASE_REMOTE_URL!
+    : process.env.DATABASE_LOCAL_URL!;
 
 type SequenceConfig = {
   readonly tableName: string;
@@ -25,38 +18,146 @@ type SequenceConfig = {
 };
 
 const sequences: ReadonlyArray<SequenceConfig> = [
-  { tableName: 'student_programs', sequenceName: 'student_programs_id_seq', columnName: 'id' },
-  { tableName: 'student_semesters', sequenceName: 'student_semesters_id_seq', columnName: 'id' },
-  { tableName: 'student_modules', sequenceName: 'student_modules_id_seq', columnName: 'id' },
+  {
+    tableName: 'student_programs',
+    sequenceName: 'student_programs_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'student_semesters',
+    sequenceName: 'student_semesters_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'student_modules',
+    sequenceName: 'student_modules_id_seq',
+    columnName: 'id',
+  },
   { tableName: 'schools', sequenceName: 'schools_id_seq', columnName: 'id' },
   { tableName: 'programs', sequenceName: 'programs_id_seq', columnName: 'id' },
-  { tableName: 'structures', sequenceName: 'structures_id_seq', columnName: 'id' },
-  { tableName: 'structure_semesters', sequenceName: 'structure_semesters_id_seq', columnName: 'id' },
+  {
+    tableName: 'structures',
+    sequenceName: 'structures_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'structure_semesters',
+    sequenceName: 'structure_semesters_id_seq',
+    columnName: 'id',
+  },
   { tableName: 'modules', sequenceName: 'modules_id_seq', columnName: 'id' },
-  { tableName: 'semester_modules', sequenceName: 'semester_modules_id_seq', columnName: 'id' },
-  { tableName: 'module_prerequisites', sequenceName: 'module_prerequisites_id_seq', columnName: 'id' },
+  {
+    tableName: 'semester_modules',
+    sequenceName: 'semester_modules_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'module_prerequisites',
+    sequenceName: 'module_prerequisites_id_seq',
+    columnName: 'id',
+  },
   { tableName: 'terms', sequenceName: 'terms_id_seq', columnName: 'id' },
-  { tableName: 'registration_requests', sequenceName: 'registration_requests_id_seq', columnName: 'id' },
-  { tableName: 'requested_modules', sequenceName: 'requested_modules_id_seq', columnName: 'id' },
-  { tableName: 'clearance', sequenceName: 'clearance_id_seq', columnName: 'id' },
-  { tableName: 'registration_clearance', sequenceName: 'registration_clearance_id_seq', columnName: 'id' },
-  { tableName: 'graduation_requests', sequenceName: 'graduation_requests_id_seq', columnName: 'id' },
-  { tableName: 'graduation_clearance', sequenceName: 'graduation_clearance_id_seq', columnName: 'id' },
-  { tableName: 'payment_receipts', sequenceName: 'payment_receipts_id_seq', columnName: 'id' },
-  { tableName: 'clearance_audit', sequenceName: 'clearance_audit_id_seq', columnName: 'id' },
+  {
+    tableName: 'registration_requests',
+    sequenceName: 'registration_requests_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'requested_modules',
+    sequenceName: 'requested_modules_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'clearance',
+    sequenceName: 'clearance_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'registration_clearance',
+    sequenceName: 'registration_clearance_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'graduation_requests',
+    sequenceName: 'graduation_requests_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'graduation_clearance',
+    sequenceName: 'graduation_clearance_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'payment_receipts',
+    sequenceName: 'payment_receipts_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'clearance_audit',
+    sequenceName: 'clearance_audit_id_seq',
+    columnName: 'id',
+  },
   { tableName: 'sponsors', sequenceName: 'sponsors_id_seq', columnName: 'id' },
-  { tableName: 'sponsored_students', sequenceName: 'sponsored_students_id_seq', columnName: 'id' },
-  { tableName: 'sponsored_terms', sequenceName: 'sponsored_terms_id_seq', columnName: 'id' },
-  { tableName: 'assigned_modules', sequenceName: 'assigned_modules_id_seq', columnName: 'id' },
-  { tableName: 'user_schools', sequenceName: 'user_schools_id_seq', columnName: 'id' },
-  { tableName: 'assessments', sequenceName: 'assessments_id_seq', columnName: 'id' },
-  { tableName: 'assessment_marks', sequenceName: 'assessment_marks_id_seq', columnName: 'id' },
-  { tableName: 'assessment_marks_audit', sequenceName: 'assessment_marks_audit_id_seq', columnName: 'id' },
-  { tableName: 'assessments_audit', sequenceName: 'assessments_audit_id_seq', columnName: 'id' },
-  { tableName: 'module_grades', sequenceName: 'module_grades_id_seq', columnName: 'id' },
-  { tableName: 'blocked_students', sequenceName: 'blocked_students_id_seq', columnName: 'id' },
-  { tableName: 'fortinet_registrations', sequenceName: 'fortinet_registrations_id_seq', columnName: 'id' },
-  { tableName: 'task_assignments', sequenceName: 'task_assignments_id_seq', columnName: 'id' },
+  {
+    tableName: 'sponsored_students',
+    sequenceName: 'sponsored_students_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'sponsored_terms',
+    sequenceName: 'sponsored_terms_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'assigned_modules',
+    sequenceName: 'assigned_modules_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'user_schools',
+    sequenceName: 'user_schools_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'assessments',
+    sequenceName: 'assessments_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'assessment_marks',
+    sequenceName: 'assessment_marks_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'assessment_marks_audit',
+    sequenceName: 'assessment_marks_audit_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'assessments_audit',
+    sequenceName: 'assessments_audit_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'module_grades',
+    sequenceName: 'module_grades_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'blocked_students',
+    sequenceName: 'blocked_students_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'fortinet_registrations',
+    sequenceName: 'fortinet_registrations_id_seq',
+    columnName: 'id',
+  },
+  {
+    tableName: 'task_assignments',
+    sequenceName: 'task_assignments_id_seq',
+    columnName: 'id',
+  },
 ] as const;
 
 function assertEnvironment(): void {
@@ -65,12 +166,16 @@ function assertEnvironment(): void {
   }
 }
 
-async function openDatabase(): Promise<ReturnType<typeof drizzle<typeof schema>>> {
+async function openDatabase(): Promise<
+  ReturnType<typeof drizzle<typeof schema>>
+> {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   return drizzle(pool, { schema, casing: 'snake_case' });
 }
 
-async function closeDatabase(db: ReturnType<typeof drizzle<typeof schema>>): Promise<void> {
+async function closeDatabase(
+  db: ReturnType<typeof drizzle<typeof schema>>
+): Promise<void> {
   await db.$client.end();
 }
 
@@ -89,10 +194,9 @@ async function fixSequence(
   }
 
   const nextVal = maxId + 1;
-  await db.$client.query(
-    `SELECT setval('${config.sequenceName}', $1, false)`,
-    [nextVal]
-  );
+  await db.$client.query(`SELECT setval('${config.sequenceName}', $1, false)`, [
+    nextVal,
+  ]);
 }
 
 async function verifySequence(
@@ -156,7 +260,9 @@ async function run(): Promise<void> {
     }
 
     if (allValid) {
-      console.log(`✓ Fixed ${invalidSequences.length} sequence(s) successfully.\n`);
+      console.log(
+        `✓ Fixed ${invalidSequences.length} sequence(s) successfully.\n`
+      );
     } else {
       console.log('\n✗ Some sequences could not be fixed!\n');
       process.exit(1);

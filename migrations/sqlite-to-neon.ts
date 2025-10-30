@@ -9,6 +9,12 @@ import * as postgresSchema from '../src/db/schema';
 
 config({ path: '.env.local' });
 
+const databaseEnv = process.env.DATABASE_ENV || 'local';
+process.env.DATABASE_URL =
+  databaseEnv === 'remote'
+    ? process.env.DATABASE_REMOTE_URL!
+    : process.env.DATABASE_LOCAL_URL!;
+
 type SqliteSelect<TTable> = TTable extends { $inferSelect: infer TRow }
   ? TRow
   : never;
