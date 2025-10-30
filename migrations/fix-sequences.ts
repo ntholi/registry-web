@@ -231,6 +231,7 @@ async function run(): Promise<void> {
   const db = await openDatabase();
 
   try {
+    console.log('Checking sequence integrity...');
     const invalidSequences: string[] = [];
 
     for (const config of sequences) {
@@ -247,10 +248,12 @@ async function run(): Promise<void> {
 
     console.log(`Found ${invalidSequences.length} sequence(s) to fix.`);
 
+    console.log('Updating sequences to match current data...');
     for (const config of sequences) {
       await fixSequence(db, config);
     }
 
+    console.log('Verifying fixes...');
     let allValid = true;
     for (const config of sequences) {
       const { valid } = await verifySequence(db, config);

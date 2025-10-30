@@ -1423,7 +1423,10 @@ async function migrateTables(
   let totalMigrated = 0;
   let totalSkipped = 0;
 
-  for (const plan of plans) {
+  for (let i = 0; i < plans.length; i++) {
+    const plan = plans[i];
+    console.log(`${i + 1}/${plans.length}) Migrating ${plan.name}...`);
+
     const rows = sqliteDb.select().from(plan.sqliteTable).all();
     if (rows.length === 0) {
       continue;
