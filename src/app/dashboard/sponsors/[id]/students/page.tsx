@@ -10,7 +10,7 @@ type Props = {
 export default async function SponsorStudentsPage({ params }: Props) {
 	const { id } = await params;
 	return (
-		<Paper withBorder p="md">
+		<Paper withBorder p='md'>
 			<StudentsTable sponsorId={id} />
 		</Paper>
 	);

@@ -20,14 +20,14 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 	if (isLoading) {
 		return (
 			<Card withBorder>
-				<Stack gap="md">
-					<Group align="center" gap="sm">
+				<Stack gap='md'>
+					<Group align='center' gap='sm'>
 						<IconWallet size={20} />
-						<Text fw={600} size="lg">
+						<Text fw={600} size='lg'>
 							Sponsorship Information
 						</Text>
 					</Group>
-					<Stack gap="sm">
+					<Stack gap='sm'>
 						<Skeleton height={24} />
 						<Skeleton height={24} />
 						<Skeleton height={24} />
@@ -40,15 +40,15 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 	if (!sponsorship) {
 		return (
 			<Card withBorder>
-				<Stack gap="md">
-					<Group align="center" gap="sm">
+				<Stack gap='md'>
+					<Group align='center' gap='sm'>
 						<IconWallet size={20} />
-						<Text fw={600} size="lg">
+						<Text fw={600} size='lg'>
 							Sponsorship Information
 						</Text>
 					</Group>
-					<Alert icon={<IconInfoCircle size="1rem" />} color="blue">
-						<Text size="sm">
+					<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+						<Text size='sm'>
 							No sponsorship information found. If you believe this is an error, please contact the
 							finance office.
 						</Text>
@@ -62,25 +62,25 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 
 	return (
 		<Card withBorder>
-			<Stack gap="md">
-				<Group align="center" gap="sm">
+			<Stack gap='md'>
+				<Group align='center' gap='sm'>
 					<IconWallet size={20} />
-					<Text fw={600} size="lg">
+					<Text fw={600} size='lg'>
 						Sponsorship Information
 					</Text>
 				</Group>
 
-				<Stack gap="sm">
-					<Group justify="space-between">
-						<Text size="sm" c="dimmed">
+				<Stack gap='sm'>
+					<Group justify='space-between'>
+						<Text size='sm' c='dimmed'>
 							Sponsor
 						</Text>
 						<Text fw={500}>{sponsorship.sponsor?.name}</Text>
 					</Group>
 
 					{isNMDS && sponsorship.borrowerNo && (
-						<Group justify="space-between">
-							<Text size="sm" c="dimmed">
+						<Group justify='space-between'>
+							<Text size='sm' c='dimmed'>
 								Borrower Number
 							</Text>
 							<Text fw={500}>{sponsorship.borrowerNo}</Text>
@@ -88,8 +88,8 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 					)}
 
 					{sponsorship.bankName && (
-						<Group justify="space-between">
-							<Text size="sm" c="dimmed">
+						<Group justify='space-between'>
+							<Text size='sm' c='dimmed'>
 								Bank
 							</Text>
 							<Text fw={500}>{sponsorship.bankName}</Text>
@@ -97,8 +97,8 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 					)}
 
 					{sponsorship.accountNumber && (
-						<Group justify="space-between">
-							<Text size="sm" c="dimmed">
+						<Group justify='space-between'>
+							<Text size='sm' c='dimmed'>
 								Account Number
 							</Text>
 							<Text fw={500}>{sponsorship.accountNumber}</Text>
@@ -106,11 +106,11 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 					)}
 
 					{isNMDS && (
-						<Group justify="space-between">
-							<Text size="sm" c="dimmed">
+						<Group justify='space-between'>
+							<Text size='sm' c='dimmed'>
 								Status
 							</Text>
-							<Badge color={sponsorship.confirmed ? 'green' : 'orange'} variant="light">
+							<Badge color={sponsorship.confirmed ? 'green' : 'orange'} variant='light'>
 								{sponsorship.confirmed ? 'Confirmed' : 'Pending Confirmation'}
 							</Badge>
 						</Group>
@@ -118,8 +118,8 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 				</Stack>
 
 				{isNMDS && !sponsorship.confirmed && (
-					<Alert icon={<IconInfoCircle size="1rem" />} color="orange">
-						<Text size="sm">
+					<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
+						<Text size='sm'>
 							Your NMDS sponsorship is pending confirmation. Please ensure your borrower number and
 							bank details are correct.
 						</Text>

@@ -18,15 +18,15 @@ export default function SponsorInfo({ stdNo, termId }: Props) {
 
 	if (isLoading) {
 		return (
-			<FieldView label="Sponsor" underline={false}>
+			<FieldView label='Sponsor' underline={false}>
 				<Skeleton height={20} width={150} />
 			</FieldView>
 		);
 	}
 
 	return (
-		<FieldView label="Sponsor" underline={false}>
-			<Text fw={500} size="sm">
+		<FieldView label='Sponsor' underline={false}>
+			<Text fw={500} size='sm'>
 				{sponsorInfo
 					? `${sponsorInfo.sponsor?.name}${sponsorInfo.borrowerNo ? ` | ${sponsorInfo.borrowerNo}` : ''}`
 					: 'Not Found'}

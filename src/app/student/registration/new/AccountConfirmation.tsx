@@ -68,15 +68,15 @@ export default function AccountConfirmation({
 	}
 
 	return (
-		<Stack gap="lg" mt="md">
-			<Card padding="lg" withBorder>
-				<Stack gap="md">
-					<Text size="lg" fw={600}>
+		<Stack gap='lg' mt='md'>
+			<Card padding='lg' withBorder>
+				<Stack gap='md'>
+					<Text size='lg' fw={600}>
 						Confirm Account Details
 					</Text>
 
-					<Alert icon={<IconInfoCircle size="1rem" />} color="blue">
-						<Text size="sm">
+					<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+						<Text size='sm'>
 							<strong>
 								Please review your account details below and re-enter your account number to
 								confirm:
@@ -84,49 +84,49 @@ export default function AccountConfirmation({
 						</Text>
 					</Alert>
 
-					<Card padding="md" withBorder style={{ borderStyle: 'dashed' }}>
-						<Stack gap="sm">
-							<Group justify="space-between">
-								<Text size="sm" fw={500}>
+					<Card padding='md' withBorder style={{ borderStyle: 'dashed' }}>
+						<Stack gap='sm'>
+							<Group justify='space-between'>
+								<Text size='sm' fw={500}>
 									Bank Name:
 								</Text>
-								<Text size="sm">{sponsorshipData?.bankName || 'Not provided'}</Text>
+								<Text size='sm'>{sponsorshipData?.bankName || 'Not provided'}</Text>
 							</Group>
 
-							<Group justify="space-between">
-								<Text size="sm" fw={500}>
+							<Group justify='space-between'>
+								<Text size='sm' fw={500}>
 									Account Number:
 								</Text>
-								<Text size="sm">{sponsorshipData?.accountNumber || 'Not provided'}</Text>
+								<Text size='sm'>{sponsorshipData?.accountNumber || 'Not provided'}</Text>
 							</Group>
 
 							{sponsorshipData?.borrowerNo && (
-								<Group justify="space-between">
-									<Text size="sm" fw={500}>
+								<Group justify='space-between'>
+									<Text size='sm' fw={500}>
 										Borrower Number:
 									</Text>
-									<Text size="sm">{sponsorshipData.borrowerNo}</Text>
+									<Text size='sm'>{sponsorshipData.borrowerNo}</Text>
 								</Group>
 							)}
 						</Stack>
 					</Card>
 
 					<TextInput
-						label="Confirm Account Number"
-						placeholder="Re-enter your account number"
+						label='Confirm Account Number'
+						placeholder='Re-enter your account number'
 						value={confirmedAccountNumber}
 						onChange={(event) => handleAccountNumberChange(event.currentTarget.value)}
-						size="sm"
+						size='sm'
 						error={
 							confirmedAccountNumber && !accountNumberMatches && 'Account numbers do not match'
 						}
-						rightSection={confirmationMutation.isPending && <Loader size="sm" />}
+						rightSection={confirmationMutation.isPending && <Loader size='sm' />}
 						disabled={isConfirmed}
 					/>
 
 					{isConfirmed && (
-						<Alert icon={<IconCheck size="1rem" />} color="blue">
-							<Text size="sm">
+						<Alert icon={<IconCheck size='1rem' />} color='blue'>
+							<Text size='sm'>
 								<strong>Account confirmed</strong>
 							</Text>
 						</Alert>
@@ -134,8 +134,8 @@ export default function AccountConfirmation({
 				</Stack>
 			</Card>
 
-			<Alert icon={<IconInfoCircle size="1rem" />} color="orange">
-				<Text size="sm">
+			<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
+				<Text size='sm'>
 					<strong>Important:</strong> Once you confirm your account details by correctly re-entering
 					your account number, you cannot change them without contacting the finance office. Please
 					ensure all information is accurate before confirming.

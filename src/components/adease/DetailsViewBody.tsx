@@ -6,7 +6,7 @@ export interface DetailsViewBodyProps extends StackProps {
 }
 export function DetailsViewBody({ children, ...props }: DetailsViewBodyProps) {
 	return (
-		<Stack p="xl" {...props}>
+		<Stack p='xl' {...props}>
 			{children}
 		</Stack>
 	);

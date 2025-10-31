@@ -95,14 +95,14 @@ export default async function RegistrationRequestDetails({ params, searchParams 
 					await deleteRegistrationRequest(Number(id));
 				}}
 			/>
-			<Tabs defaultValue={defaultTab || 'details'} variant="outline">
+			<Tabs defaultValue={defaultTab || 'details'} variant='outline'>
 				<TabsList>
-					<TabsTab value="details">Details</TabsTab>
-					<TabsTab value="clearance">
-						<Group gap="xs">
+					<TabsTab value='details'>Details</TabsTab>
+					<TabsTab value='clearance'>
+						<Group gap='xs'>
 							<ThemeIcon
 								color={getStatusColor(getOverallClearanceStatus(registrationRequest))}
-								variant="light"
+								variant='light'
 								size={20}
 							>
 								{getStatusIcon(getOverallClearanceStatus(registrationRequest))}
@@ -111,15 +111,15 @@ export default async function RegistrationRequestDetails({ params, searchParams 
 						</Group>
 					</TabsTab>
 				</TabsList>
-				<TabsPanel value="details">
-					<Stack mt="md" p="sm">
+				<TabsPanel value='details'>
+					<Stack mt='md' p='sm'>
 						<RequestDetailsView value={registrationRequest} sponsorship={sponsorship} />
 						<Divider />
 						<ModulesView value={registrationRequest} />
 					</Stack>
 				</TabsPanel>
-				<TabsPanel value="clearance">
-					<Stack gap="xl" mt="md" p="sm">
+				<TabsPanel value='clearance'>
+					<Stack gap='xl' mt='md' p='sm'>
 						<ClearanceAccordion value={registrationRequest} defaultDept={defaultDept} />
 					</Stack>
 				</TabsPanel>

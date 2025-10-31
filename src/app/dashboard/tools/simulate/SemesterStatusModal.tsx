@@ -51,11 +51,11 @@ export default function SemesterStatusModal({ opened, onClose, result, selectedM
 	const totalCredits = selectedModules.reduce((sum, module) => sum + module.credits, 0);
 
 	return (
-		<Modal opened={opened} onClose={onClose} title="Semester Calculator" size="lg" padding="lg">
-			<Stack gap="xl">
+		<Modal opened={opened} onClose={onClose} title='Semester Calculator' size='lg' padding='lg'>
+			<Stack gap='xl'>
 				<Paper
 					withBorder
-					p="xl"
+					p='xl'
 					style={(theme) => ({
 						borderWidth: 1,
 						backgroundColor: colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[0],
@@ -63,12 +63,12 @@ export default function SemesterStatusModal({ opened, onClose, result, selectedM
 					})}
 				>
 					<Center>
-						<Stack align="center" gap="md">
-							<Stack align="center" gap="xs">
-								<Title order={2} size="h2" fw={600} c={getStatusColor(result.status)}>
+						<Stack align='center' gap='md'>
+							<Stack align='center' gap='xs'>
+								<Title order={2} size='h2' fw={600} c={getStatusColor(result.status)}>
 									{formatSemester(result.semesterNo)}
 								</Title>
-								<Badge color={getStatusColor(result.status)} variant="filled" radius="sm">
+								<Badge color={getStatusColor(result.status)} variant='filled' radius='sm'>
 									{result.status}
 								</Badge>
 							</Stack>
@@ -79,35 +79,35 @@ export default function SemesterStatusModal({ opened, onClose, result, selectedM
 				<Group grow>
 					<Paper
 						withBorder
-						p="md"
-						radius="md"
-						ta="center"
+						p='md'
+						radius='md'
+						ta='center'
 						style={(theme) => ({
 							backgroundColor: colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
 							borderColor: colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3],
 						})}
 					>
-						<Text size="xs" c="dimmed" mb={4} tt="uppercase" fw={500}>
+						<Text size='xs' c='dimmed' mb={4} tt='uppercase' fw={500}>
 							Selected Modules
 						</Text>
-						<Text fw={600} size="xl">
+						<Text fw={600} size='xl'>
 							{selectedModules.length}
 						</Text>
 					</Paper>
 					<Paper
 						withBorder
-						p="md"
-						radius="md"
-						ta="center"
+						p='md'
+						radius='md'
+						ta='center'
 						style={(theme) => ({
 							backgroundColor: colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
 							borderColor: colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3],
 						})}
 					>
-						<Text size="xs" c="dimmed" mb={4} tt="uppercase" fw={500}>
+						<Text size='xs' c='dimmed' mb={4} tt='uppercase' fw={500}>
 							Total Credits
 						</Text>
-						<Text fw={600} size="xl">
+						<Text fw={600} size='xl'>
 							{totalCredits}
 						</Text>
 					</Paper>
@@ -116,14 +116,14 @@ export default function SemesterStatusModal({ opened, onClose, result, selectedM
 				{selectedModules.length > 0 && (
 					<Card
 						withBorder
-						p="md"
-						radius="md"
+						p='md'
+						radius='md'
 						style={(theme) => ({
 							backgroundColor: colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
 							borderColor: colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3],
 						})}
 					>
-						<Text fw={500} size="md" mb="md" c="dimmed">
+						<Text fw={500} size='md' mb='md' c='dimmed'>
 							Enrolled Modules
 						</Text>
 
@@ -140,18 +140,18 @@ export default function SemesterStatusModal({ opened, onClose, result, selectedM
 									{selectedModules.map((module, index) => (
 										<Table.Tr key={`${module.semesterModuleId}-${index}`}>
 											<Table.Td>
-												<Text fw={500} size="sm">
+												<Text fw={500} size='sm'>
 													{module.code}
 												</Text>
 											</Table.Td>
 											<Table.Td>
-												<Text size="sm">{module.name}</Text>
+												<Text size='sm'>{module.name}</Text>
 											</Table.Td>
 											<Table.Td>
 												<Badge
 													color={getModuleStatusColor(module.status)}
-													variant="light"
-													size="sm"
+													variant='light'
+													size='sm'
 												>
 													{module.status}
 												</Badge>

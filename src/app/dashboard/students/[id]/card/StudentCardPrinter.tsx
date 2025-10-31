@@ -132,19 +132,19 @@ export default function StudentCardPrinter({
 			<Modal
 				opened={modalOpened}
 				onClose={() => setModalOpened(false)}
-				title="Student Card Print"
-				size="sm"
+				title='Student Card Print'
+				size='sm'
 			>
-				<Stack gap="md">
+				<Stack gap='md'>
 					<TextInput
-						label="Receipt Number"
-						placeholder="Leave blank for initial print"
+						label='Receipt Number'
+						placeholder='Leave blank for initial print'
 						value={receiptNo}
 						onChange={(e) => setReceiptNo(e.currentTarget.value)}
-						description="Enter receipt number or leave blank if this is the first print"
+						description='Enter receipt number or leave blank if this is the first print'
 					/>
-					<Group justify="flex-end">
-						<Button variant="subtle" onClick={() => setModalOpened(false)}>
+					<Group justify='flex-end'>
+						<Button variant='subtle' onClick={() => setModalOpened(false)}>
 							Cancel
 						</Button>
 						<Button onClick={handlePrint}>Print</Button>
@@ -153,11 +153,11 @@ export default function StudentCardPrinter({
 			</Modal>
 
 			<Button
-				leftSection={photoLoading ? <Loader size={'xs'} /> : <IconPrinter size="1rem" />}
+				leftSection={photoLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />}
 				onClick={openReceiptModal}
-				variant="subtle"
-				color="gray"
-				size="xs"
+				variant='subtle'
+				color='gray'
+				size='xs'
 				disabled={isGenerating || disabled || !finalPhotoUrl}
 			>
 				Print

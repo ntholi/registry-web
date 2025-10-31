@@ -218,7 +218,7 @@ export default function EditRegistrationPage() {
 
 	if (studentLoading || blockedLoading || registrationLoading || !student || !registrationRequest) {
 		return (
-			<Container size="lg" py="xl">
+			<Container size='lg' py='xl'>
 				<LoadingOverlay visible />
 			</Container>
 		);
@@ -226,8 +226,8 @@ export default function EditRegistrationPage() {
 
 	if (blockedStudent && blockedStudent.status === 'blocked') {
 		return (
-			<Container size="lg" py="xl">
-				<Alert icon={<IconInfoCircle size="1rem" />} title="Registration Blocked" color="red">
+			<Container size='lg' py='xl'>
+				<Alert icon={<IconInfoCircle size='1rem' />} title='Registration Blocked' color='red'>
 					Your account has been blocked from registering. Please contact the{' '}
 					{blockedStudent.byDepartment} office for assistance.
 					<br />
@@ -239,8 +239,8 @@ export default function EditRegistrationPage() {
 
 	if (!currentTerm) {
 		return (
-			<Container size="lg" py="xl">
-				<Alert icon={<IconInfoCircle size="1rem" />} title="No Active Term" color="orange">
+			<Container size='lg' py='xl'>
+				<Alert icon={<IconInfoCircle size='1rem' />} title='No Active Term' color='orange'>
 					There is currently no active registration term.
 				</Alert>
 			</Container>
@@ -249,11 +249,11 @@ export default function EditRegistrationPage() {
 
 	if (registrationRequest.status !== 'pending') {
 		return (
-			<Container size="lg" py="xl">
+			<Container size='lg' py='xl'>
 				<Alert
-					icon={<IconInfoCircle size="1rem" />}
-					title="Cannot Edit Registration"
-					color="orange"
+					icon={<IconInfoCircle size='1rem' />}
+					title='Cannot Edit Registration'
+					color='orange'
 				>
 					You can only edit registrations that are in pending status. This registration is currently{' '}
 					{registrationRequest.status}.
@@ -296,19 +296,19 @@ export default function EditRegistrationPage() {
 	};
 
 	return (
-		<Container size="md">
-			<Stack gap="xl">
+		<Container size='md'>
+			<Stack gap='xl'>
 				<div>
-					<Title order={2} mb="xs">
+					<Title order={2} mb='xs'>
 						Update Registration
 					</Title>
-					<Group justify="space-between">
-						<Text c="dimmed">Term: {currentTerm.name}</Text>
+					<Group justify='space-between'>
+						<Text c='dimmed'>Term: {currentTerm.name}</Text>
 						<Badge
 							color={registrationRequest.status === 'pending' ? 'yellow' : 'blue'}
-							variant="light"
-							size="sm"
-							mt="xs"
+							variant='light'
+							size='sm'
+							mt='xs'
 						>
 							{registrationRequest.status.toUpperCase()}
 						</Badge>
@@ -316,19 +316,19 @@ export default function EditRegistrationPage() {
 				</div>
 
 				<Box>
-					<Group justify="space-between" mb="sm">
-						<Text size="sm" fw={500}>
+					<Group justify='space-between' mb='sm'>
+						<Text size='sm' fw={500}>
 							Step {activeStep + 1} of {STEPS.length}
 						</Text>
 					</Group>
 
-					<Progress value={progressValue} size="lg" mb="md" />
+					<Progress value={progressValue} size='lg' mb='md' />
 
 					<Box>
-						<Text fw={500} size="lg">
+						<Text fw={500} size='lg'>
 							{STEPS[activeStep].label}
 						</Text>
-						<Text size="sm" c="dimmed">
+						<Text size='sm' c='dimmed'>
 							{STEPS[activeStep].description}
 						</Text>
 					</Box>
@@ -336,9 +336,9 @@ export default function EditRegistrationPage() {
 
 				<Box>{renderStepContent()}</Box>
 
-				<Group justify="space-between" mt="xl">
+				<Group justify='space-between' mt='xl'>
 					<Button
-						variant="default"
+						variant='default'
 						onClick={prevStep}
 						disabled={activeStep === 0}
 						leftSection={<IconArrowLeft size={16} />}

@@ -47,8 +47,8 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 
 	return (
 		<>
-			<Tooltip label="View Marks History">
-				<ActionIcon variant="subtle" color="gray" onClick={open}>
+			<Tooltip label='View Marks History'>
+				<ActionIcon variant='subtle' color='gray' onClick={open}>
 					<IconHistory size={16} />
 				</ActionIcon>
 			</Tooltip>
@@ -56,50 +56,50 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 				opened={opened}
 				onClose={close}
 				title={
-					<Group gap="md" align="center">
-						<Avatar size="md" radius="md" variant="light" color="blue">
+					<Group gap='md' align='center'>
+						<Avatar size='md' radius='md' variant='light' color='blue'>
 							<IconUser size={20} />
 						</Avatar>
 						<Box>
-							<Text fw={600} size="lg" mb={2}>
+							<Text fw={600} size='lg' mb={2}>
 								Assessment Marks History
 							</Text>
-							<Text size="sm" c="dimmed">
+							<Text size='sm' c='dimmed'>
 								{studentName} ({stdNo})
 							</Text>
 						</Box>
 					</Group>
 				}
-				size="xl"
+				size='xl'
 				centered
 				overlayProps={{
 					backgroundOpacity: 0.55,
 					blur: 3,
 				}}
-				radius="lg"
-				padding="xl"
+				radius='lg'
+				padding='xl'
 			>
 				{isLoading ? (
-					<Center py="xl">
-						<Stack align="center" gap="lg">
-							<Loader size="xl" variant="dots" color="blue" />
-							<Text size="md" c="dimmed" fw={500}>
+					<Center py='xl'>
+						<Stack align='center' gap='lg'>
+							<Loader size='xl' variant='dots' color='blue' />
+							<Text size='md' c='dimmed' fw={500}>
 								Loading assessment marks history...
 							</Text>
 						</Stack>
 					</Center>
 				) : !auditHistory || auditHistory.length === 0 ? (
-					<Paper p="xl" radius="lg" withBorder bg={colorScheme === 'dark' ? 'dark.6' : 'gray.0'}>
-						<Center py="xl">
-							<Stack align="center" gap="lg">
-								<Avatar size={80} radius="xl" variant="light" color="blue">
+					<Paper p='xl' radius='lg' withBorder bg={colorScheme === 'dark' ? 'dark.6' : 'gray.0'}>
+						<Center py='xl'>
+							<Stack align='center' gap='lg'>
+								<Avatar size={80} radius='xl' variant='light' color='blue'>
 									<IconHistory size={40} />
 								</Avatar>
-								<Stack align="center" gap="xs">
-									<Text fw={600} size="xl">
+								<Stack align='center' gap='xs'>
+									<Text fw={600} size='xl'>
 										No Assessment History
 									</Text>
-									<Text c="dimmed" size="md" ta="center" maw={400} lh={1.5}>
+									<Text c='dimmed' size='md' ta='center' maw={400} lh={1.5}>
 										No assessment mark changes have been recorded for this student yet.
 										<br />
 										All future modifications will appear here as a chronological timeline.
@@ -146,8 +146,8 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 										key={audit.id}
 										bullet={getActionIcon(audit.action)}
 										title={
-											<Box mb="xs">
-												<Text size="sm" fw={600} lh={1.4}>
+											<Box mb='xs'>
+												<Text size='sm' fw={600} lh={1.4}>
 													{auditMessage}
 												</Text>
 											</Box>
@@ -155,19 +155,19 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 										lineVariant={index === auditHistory.length - 1 ? 'dashed' : 'solid'}
 									>
 										<Paper
-											p="sm"
-											radius="md"
+											p='sm'
+											radius='md'
 											withBorder
 											bg={colorScheme === 'dark' ? 'dark.6' : 'gray.0'}
-											mt="xs"
+											mt='xs'
 										>
-											<Group gap="sm" align="center">
-												<Avatar radius="xl" src={audit.createdByUser?.image} />
+											<Group gap='sm' align='center'>
+												<Avatar radius='xl' src={audit.createdByUser?.image} />
 												<Box flex={1}>
-													<Text size="sm" fw={500}>
+													<Text size='sm' fw={500}>
 														{audit.createdByUser?.name || 'Unknown User'}
 													</Text>
-													<Text size="xs" c="dimmed">
+													<Text size='xs' c='dimmed'>
 														{format(new Date(audit.date), "EEEE, dd MMM yyyy 'at' HH:mm")}
 													</Text>
 												</Box>

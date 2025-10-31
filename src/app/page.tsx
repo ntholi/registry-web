@@ -6,10 +6,10 @@ import { dashboardUsers } from '@/db/schema';
 
 function LoadingComponent() {
 	return (
-		<Center h="100vh">
-			<Stack align="center" gap="1rem">
-				<Loader size="2rem" c="blue" />
-				<Text size="0.875rem" c="dimmed">
+		<Center h='100vh'>
+			<Stack align='center' gap='1rem'>
+				<Loader size='2rem' c='blue' />
+				<Text size='0.875rem' c='dimmed'>
 					Verifying authentication...
 				</Text>
 			</Stack>

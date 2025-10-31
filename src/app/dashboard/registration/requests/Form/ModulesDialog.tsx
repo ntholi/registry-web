@@ -74,7 +74,7 @@ export default function ModulesDialog({
 		<>
 			{children ? (
 				<button
-					type="button"
+					type='button'
 					disabled={disabled}
 					onClick={open}
 					style={{
@@ -88,30 +88,30 @@ export default function ModulesDialog({
 				</button>
 			) : (
 				<ActionIcon onClick={open} disabled={disabled}>
-					<IconPlus size="1rem" />
+					<IconPlus size='1rem' />
 				</ActionIcon>
 			)}
 
-			<Modal opened={opened} onClose={close} title="Select Module" size="xl">
+			<Modal opened={opened} onClose={close} title='Select Module' size='xl'>
 				<Stack>
 					<TextInput
-						placeholder="Search modules..."
+						placeholder='Search modules...'
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						leftSection={<IconSearch size="1rem" />}
+						leftSection={<IconSearch size='1rem' />}
 					/>
 
 					<Box style={{ maxHeight: '600px', overflow: 'auto' }}>
 						{isLoading ? (
-							<Text ta="center" p="md">
+							<Text ta='center' p='md'>
 								Loading modules...
 							</Text>
 						) : filteredModules.length === 0 ? (
-							<Text c="dimmed" ta="center" p="md">
+							<Text c='dimmed' ta='center' p='md'>
 								No modules found
 							</Text>
 						) : (
-							<Accordion variant="separated">
+							<Accordion variant='separated'>
 								{Object.entries(modulesBySemester)
 									.sort(([a], [b]) => Number(a) - Number(b))
 									.map(([semester, { name, modules }]) => (
@@ -139,8 +139,8 @@ export default function ModulesDialog({
 																<Table.Td>{semModule.credits}</Table.Td>
 																<Table.Td>
 																	<Button
-																		size="xs"
-																		variant="light"
+																		size='xs'
+																		variant='light'
 																		onClick={() => handleAddModule(semModule)}
 																		disabled={selectedModules.some((m) => m.id === semModule.id)}
 																	>

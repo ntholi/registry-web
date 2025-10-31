@@ -106,25 +106,25 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 			{(form) => {
 				console.log('form', form);
 				return (
-					<Stack gap="md">
+					<Stack gap='md'>
 						<TextInput
-							label="Title"
-							placeholder="Enter task title"
+							label='Title'
+							placeholder='Enter task title'
 							required
 							{...form.getInputProps('title')}
 						/>
 
 						<Textarea
-							label="Description"
-							placeholder="Enter task description"
+							label='Description'
+							placeholder='Enter task description'
 							minRows={4}
 							{...form.getInputProps('description')}
 						/>
 
 						<Group grow>
 							<Select
-								label="Status"
-								placeholder="Select status"
+								label='Status'
+								placeholder='Select status'
 								required
 								data={[
 									{ value: 'scheduled', label: 'Scheduled' },
@@ -137,8 +137,8 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 							/>
 
 							<Select
-								label="Priority"
-								placeholder="Select priority"
+								label='Priority'
+								placeholder='Select priority'
 								required
 								data={[
 									{ value: 'low', label: 'Low' },
@@ -152,26 +152,26 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 
 						<Group grow>
 							<DateTimePicker
-								label="Scheduled For"
-								placeholder="Pick date and time"
+								label='Scheduled For'
+								placeholder='Pick date and time'
 								clearable
 								{...form.getInputProps('scheduledFor')}
 							/>
 
 							<DateTimePicker
-								label="Due Date"
-								placeholder="Pick date and time"
+								label='Due Date'
+								placeholder='Pick date and time'
 								clearable
 								{...form.getInputProps('dueDate')}
 							/>
 						</Group>
 
-						<Stack gap="xs">
-							<Text size="sm" fw={500}>
+						<Stack gap='xs'>
+							<Text size='sm' fw={500}>
 								Task Assignment
 							</Text>
 							<Checkbox
-								label="Assign to all department members"
+								label='Assign to all department members'
 								checked={assignToAll}
 								onChange={(event) => {
 									setAssignToAll(event.currentTarget.checked);
@@ -183,8 +183,8 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 
 							{!assignToAll && (
 								<MultiSelect
-									label="Assign to specific users"
-									placeholder="Select users"
+									label='Assign to specific users'
+									placeholder='Select users'
 									data={users.map((u) => ({
 										value: u.id,
 										label: `${u.name} (${u.email})`,

@@ -40,7 +40,7 @@ export function DetailsViewHeader({
 			<Flex justify={'space-between'} align={'center'}>
 				{isMobile ? (
 					<Group>
-						<ActionIcon variant="default" onClick={() => setView('nav')}>
+						<ActionIcon variant='default' onClick={() => setView('nav')}>
 							<IconArrowNarrowLeft size={'1rem'} />
 						</ActionIcon>
 						<Title order={3} fw={100} size={'1rem'}>
@@ -67,7 +67,7 @@ export function DetailsViewHeader({
 						<ActionIcon
 							component={Link}
 							href={`${pathname}/edit?${newSearchParams.toString()}`}
-							variant="outline"
+							variant='outline'
 						>
 							<IconEdit size={'1rem'} />
 						</ActionIcon>

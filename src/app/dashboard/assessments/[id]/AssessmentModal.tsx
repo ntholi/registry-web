@@ -174,51 +174,51 @@ export default function AssessmentModal({ moduleId, assessment, opened, onClose 
 			opened={opened}
 			onClose={onClose}
 			title={isEditing ? 'Edit Assessment' : 'Add Assessment'}
-			size="md"
+			size='md'
 		>
 			<form onSubmit={form.onSubmit(handleSubmit)}>
 				<Select
-					label="Assessment Number"
-					placeholder="Select assessment number"
+					label='Assessment Number'
+					placeholder='Select assessment number'
 					searchable
 					clearable
 					data={COURSE_WORK_OPTIONS}
 					required
-					mb="md"
+					mb='md'
 					{...form.getInputProps('assessmentNumber')}
 				/>
 				<Select
-					label="Assessment Type"
-					placeholder="Search or select an assessment type"
+					label='Assessment Type'
+					placeholder='Search or select an assessment type'
 					searchable
 					clearable
 					data={ASSESSMENT_TYPES}
 					{...form.getInputProps('assessmentType')}
 					required
-					mb="md"
+					mb='md'
 				/>
 				<NumberInput
-					label="Total Marks"
-					placeholder="Total marks for this assessment"
+					label='Total Marks'
+					placeholder='Total marks for this assessment'
 					required
-					mb="md"
+					mb='md'
 					min={1}
 					{...form.getInputProps('totalMarks')}
 				/>
 				<NumberInput
-					label="Weight (%)"
-					placeholder="Weight of this assessment"
+					label='Weight (%)'
+					placeholder='Weight of this assessment'
 					required
-					mb="md"
+					mb='md'
 					min={0}
 					max={100}
 					{...form.getInputProps('weight')}
 				/>
-				<Group justify="flex-end" mt="md">
-					<Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+				<Group justify='flex-end' mt='md'>
+					<Button variant='outline' onClick={onClose} disabled={isSubmitting}>
 						Cancel
 					</Button>
-					<Button type="submit" loading={isSubmitting}>
+					<Button type='submit' loading={isSubmitting}>
 						{isEditing ? 'Update' : 'Create'}
 					</Button>
 				</Group>

@@ -68,7 +68,7 @@ export default function ModuleSelection({
 
 	if (modules.length === 0) {
 		return (
-			<Alert icon={<IconInfoCircle size="1rem" />} title="No Modules Available" color="orange">
+			<Alert icon={<IconInfoCircle size='1rem' />} title='No Modules Available' color='orange'>
 				No modules are available for registration at this time.
 			</Alert>
 		);
@@ -79,17 +79,17 @@ export default function ModuleSelection({
 	const repeatModules = modules.filter((m) => m.status.startsWith('Repeat'));
 
 	return (
-		<Stack gap="lg" mt="md">
-			<Accordion multiple defaultValue={['compulsory', 'elective', 'repeat']} variant="separated">
+		<Stack gap='lg' mt='md'>
+			<Accordion multiple defaultValue={['compulsory', 'elective', 'repeat']} variant='separated'>
 				{compulsoryModules.length > 0 && (
-					<Accordion.Item value="compulsory">
+					<Accordion.Item value='compulsory'>
 						<Accordion.Control>
-							<Group justify="space-between">
+							<Group justify='space-between'>
 								<Text fw={500}>Compulsory Modules</Text>
 							</Group>
 						</Accordion.Control>
 						<Accordion.Panel>
-							<Stack gap="sm">
+							<Stack gap='sm'>
 								{compulsoryModules.map((module) => (
 									<ModuleCheckbox
 										key={module.semesterModuleId}
@@ -104,14 +104,14 @@ export default function ModuleSelection({
 				)}
 
 				{electiveModules.length > 0 && (
-					<Accordion.Item value="elective">
+					<Accordion.Item value='elective'>
 						<Accordion.Control>
-							<Group justify="space-between">
+							<Group justify='space-between'>
 								<Text fw={500}>Elective Modules</Text>
 							</Group>
 						</Accordion.Control>
 						<Accordion.Panel>
-							<Stack gap="sm">
+							<Stack gap='sm'>
 								{electiveModules.map((module) => (
 									<ModuleCheckbox
 										key={module.semesterModuleId}
@@ -126,14 +126,14 @@ export default function ModuleSelection({
 				)}
 
 				{repeatModules.length > 0 && (
-					<Accordion.Item value="repeat">
+					<Accordion.Item value='repeat'>
 						<Accordion.Control>
-							<Group justify="space-between">
+							<Group justify='space-between'>
 								<Text fw={500}>Repeat Modules</Text>
 							</Group>
 						</Accordion.Control>
 						<Accordion.Panel>
-							<Stack gap="sm">
+							<Stack gap='sm'>
 								{repeatModules.map((module) => (
 									<ModuleCheckbox
 										key={module.semesterModuleId}
@@ -150,14 +150,14 @@ export default function ModuleSelection({
 
 			{selectedModules.length > 0 && (
 				<Alert
-					icon={<IconInfoCircle size="1rem" />}
+					icon={<IconInfoCircle size='1rem' />}
 					color={selectedModules.length > MAX_REG_MODULES ? 'red' : 'blue'}
 				>
 					You have selected {selectedModules.length} module
 					{selectedModules.length !== 1 ? 's' : ''}
 					for registration.
 					{selectedModules.length > MAX_REG_MODULES && (
-						<Text size="sm" mt="xs">
+						<Text size='sm' mt='xs'>
 							Maximum allowed modules: {MAX_REG_MODULES}. Please deselect{' '}
 							{selectedModules.length - MAX_REG_MODULES} module
 							{selectedModules.length - MAX_REG_MODULES !== 1 ? 's' : ''} to continue.

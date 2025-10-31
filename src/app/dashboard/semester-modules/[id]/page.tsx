@@ -33,45 +33,45 @@ export default async function ModuleDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label="ID">{item.id}</FieldView>
-				<FieldView label="Module">
-					<Link size="sm" href={`/dashboard/modules/${item.module?.id}`}>
+				<FieldView label='ID'>{item.id}</FieldView>
+				<FieldView label='Module'>
+					<Link size='sm' href={`/dashboard/modules/${item.module?.id}`}>
 						{item.module?.name} ({item.module?.code})
 					</Link>
 				</FieldView>
 				<SimpleGrid cols={2}>
-					<FieldView label="Type">{item.type}</FieldView>
-					<FieldView label="Credits">{item.credits}</FieldView>
+					<FieldView label='Type'>{item.type}</FieldView>
+					<FieldView label='Credits'>{item.credits}</FieldView>
 				</SimpleGrid>
-				<FieldView label="Structure">
+				<FieldView label='Structure'>
 					{item.semester?.structure ? (
-						<Link size="sm" href={`/dashboard/schools/structures/${item.semester.structure.id}`}>
+						<Link size='sm' href={`/dashboard/schools/structures/${item.semester.structure.id}`}>
 							{item.semester.structure.code}
 						</Link>
 					) : (
-						<Text size="sm" c="dimmed">
+						<Text size='sm' c='dimmed'>
 							Not linked
 						</Text>
 					)}
 				</FieldView>
 
-				<Fieldset legend="Prerequisites">
+				<Fieldset legend='Prerequisites'>
 					{prerequisites.length === 0 ? (
-						<Text size="sm">No Prerequisites</Text>
+						<Text size='sm'>No Prerequisites</Text>
 					) : (
 						<List
-							spacing="xs"
-							size="sm"
+							spacing='xs'
+							size='sm'
 							center
 							icon={
-								<ThemeIcon color="gray" variant="light" size={'sm'} radius="xl">
+								<ThemeIcon color='gray' variant='light' size={'sm'} radius='xl'>
 									<IconCircleCheck />
 								</ThemeIcon>
 							}
 						>
 							{prerequisites.map((it) => (
 								<ListItem key={it.id}>
-									<Link size="sm" href={`/dashboard/semester-modules/${it.id}`}>
+									<Link size='sm' href={`/dashboard/semester-modules/${it.id}`}>
 										{it.code} - {it.name}
 									</Link>
 								</ListItem>

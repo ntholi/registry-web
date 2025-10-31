@@ -477,7 +477,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 	return (
 		<Shell>
 			<Shell.Header>
-				<Link href="/dashboard" style={{ textDecoration: 'none' }}>
+				<Link href='/dashboard' style={{ textDecoration: 'none' }}>
 					<Logo />
 				</Link>
 			</Shell.Header>
@@ -517,16 +517,16 @@ function UserButton() {
 		});
 
 	return (
-		<Flex mt={'md'} mb={'sm'} justify="space-between" align={'center'}>
+		<Flex mt={'md'} mb={'sm'} justify='space-between' align={'center'}>
 			<Group>
 				<Avatar src={session?.user?.image} />
 				<Stack gap={5}>
-					<Text size="0.9rem">{session?.user?.name}</Text>
-					<Text size="0.7rem" c={'dimmed'}>
+					<Text size='0.9rem'>{session?.user?.name}</Text>
+					<Text size='0.7rem' c={'dimmed'}>
 						{session?.user?.email}
 					</Text>
 					{session?.user?.position && (
-						<Text size="0.65rem" c={'dimmed'}>
+						<Text size='0.65rem' c={'dimmed'}>
 							{userSchools?.map((it) => it.school.code).join(', ')}
 							{' | '}
 							{toTitleCase(session?.user?.position)}
@@ -534,8 +534,8 @@ function UserButton() {
 					)}
 				</Stack>
 			</Group>
-			<ActionIcon variant="default" size={'lg'}>
-				<IconLogout2 size="1rem" onClick={openModal} />
+			<ActionIcon variant='default' size={'lg'}>
+				<IconLogout2 size='1rem' onClick={openModal} />
 			</ActionIcon>
 		</Flex>
 	);
@@ -561,7 +561,7 @@ function DisplayWithNotification({ item }: { item: NavItem }) {
 
 	return (
 		<Indicator
-			position="middle-end"
+			position='middle-end'
 			color={item.notificationCount?.color ?? 'red'}
 			offset={20}
 			size={23}
@@ -591,7 +591,7 @@ function ItemDisplay({ item }: { item: NavItem }) {
 		return (
 			<NavLink
 				label={item.label}
-				leftSection={Icon ? <Icon size="1.1rem" /> : null}
+				leftSection={Icon ? <Icon size='1.1rem' /> : null}
 				description={item.description}
 				opened={true}
 			>
@@ -600,8 +600,8 @@ function ItemDisplay({ item }: { item: NavItem }) {
 						key={`skeleton-${i}`}
 						label={
 							<Stack gap={5}>
-								<Skeleton height={28} width="60%" radius="sm" animate />
-								<Skeleton height={12} width="90%" radius="sm" animate />
+								<Skeleton height={28} width='60%' radius='sm' animate />
+								<Skeleton height={12} width='90%' radius='sm' animate />
 							</Stack>
 						}
 					/>
@@ -616,9 +616,9 @@ function ItemDisplay({ item }: { item: NavItem }) {
 			component={item.href ? Link : undefined}
 			href={item.href || '#something'}
 			active={item.href ? pathname.startsWith(item.href) : false}
-			leftSection={Icon ? <Icon size="1.1rem" /> : null}
+			leftSection={Icon ? <Icon size='1.1rem' /> : null}
 			description={item.description}
-			rightSection={item.href ? <IconChevronRight size="0.8rem" stroke={1.5} /> : undefined}
+			rightSection={item.href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined}
 			opened={opened}
 			onClick={() => setOpen((o) => !o)}
 		>

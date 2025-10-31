@@ -28,17 +28,17 @@ export default async function SponsorDetails({ params }: Props) {
 			/>
 			<Tabs defaultValue={'info'}>
 				<TabsList>
-					<TabsTab value="info">Info</TabsTab>
-					<TabsTab value="students">Students</TabsTab>
+					<TabsTab value='info'>Info</TabsTab>
+					<TabsTab value='students'>Students</TabsTab>
 				</TabsList>
 
-				<TabsPanel value="info">
+				<TabsPanel value='info'>
 					<DetailsViewBody>
-						<FieldView label="Name">{sponsor.name}</FieldView>
+						<FieldView label='Name'>{sponsor.name}</FieldView>
 					</DetailsViewBody>
 				</TabsPanel>
 
-				<TabsPanel value="students">
+				<TabsPanel value='students'>
 					<StudentsTable sponsorId={sponsor.id.toString()} />
 				</TabsPanel>
 			</Tabs>

@@ -215,7 +215,7 @@ export default function ProofOfRegistrationPDF({ student }: ProofOfRegistrationP
 	if (!student || !student.programs || student.programs.length === 0) {
 		return (
 			<Document>
-				<Page size="A4" style={styles.page}>
+				<Page size='A4' style={styles.page}>
 					<Text>No student data available</Text>
 				</Page>
 			</Document>
@@ -230,7 +230,7 @@ export default function ProofOfRegistrationPDF({ student }: ProofOfRegistrationP
 	if (!latestSemester) {
 		return (
 			<Document>
-				<Page size="A4" style={styles.page}>
+				<Page size='A4' style={styles.page}>
 					<Text>No semester data available</Text>
 				</Page>
 			</Document>
@@ -248,7 +248,7 @@ export default function ProofOfRegistrationPDF({ student }: ProofOfRegistrationP
 
 	return (
 		<Document>
-			<Page size="A4" style={styles.page}>
+			<Page size='A4' style={styles.page}>
 				<View style={styles.headerContainer}>
 					<Text style={styles.universityName}>Limkokwing University of Creative Technology</Text>
 					<View style={styles.headerContent}>
@@ -260,7 +260,7 @@ export default function ProofOfRegistrationPDF({ student }: ProofOfRegistrationP
 							<Text style={styles.addressLine}>+(266) 22315767 | Ext. 116</Text>
 							<Text style={styles.addressLine}>registry@limkokwing.ac.ls</Text>
 						</View>
-						<Image style={styles.logo} src="/images/logo-lesotho.jpg" />
+						<Image style={styles.logo} src='/images/logo-lesotho.jpg' />
 					</View>
 				</View>
 

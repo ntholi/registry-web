@@ -17,7 +17,7 @@ export default function FormHeader({ title, isLoading, onClose }: Props) {
 			<Flex justify={title ? 'space-between' : 'end'} align={'center'}>
 				{isMobile ? (
 					<Group>
-						<ActionIcon variant="default" onClick={onClose}>
+						<ActionIcon variant='default' onClick={onClose}>
 							<IconArrowNarrowLeft size={'1rem'} />
 						</ActionIcon>
 						<Title order={3} fw={100} size={'1rem'}>
@@ -31,7 +31,7 @@ export default function FormHeader({ title, isLoading, onClose }: Props) {
 				)}
 				<Group>
 					<Button
-						type="submit"
+						type='submit'
 						loading={isLoading}
 						leftSection={<IconDeviceFloppy size={'1rem'} />}
 					>
@@ -39,7 +39,7 @@ export default function FormHeader({ title, isLoading, onClose }: Props) {
 					</Button>
 					{!isMobile && (
 						<>
-							<Divider orientation="vertical" />
+							<Divider orientation='vertical' />
 							<CloseButton size={'lg'} onClick={onClose} />
 						</>
 					)}

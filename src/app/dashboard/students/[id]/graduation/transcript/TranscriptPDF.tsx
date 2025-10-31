@@ -231,22 +231,22 @@ export function TranscriptPages({
 
 				return (
 					<Fragment key={key}>
-						<Page size="A4" style={tw('pt-5 px-10 pb-10 font-sans text-[6.5pt] pt-[155pt]')}>
+						<Page size='A4' style={tw('pt-5 px-10 pb-10 font-sans text-[6.5pt] pt-[155pt]')}>
 							<View style={tw('border-t border-b py-1')}>
 								<View style={tw('flex flex-row')}>
 									<View style={tw('w-1/2 pr-1')}>
-										<HeaderRow label="Student Name" value={student.name} />
-										<HeaderRow label="Student ID" value={String(student.stdNo)} />
-										<HeaderRow label="IC / Passport No." value={student.nationalId} />
-										<HeaderRow label="Gender" value={student.gender || 'N/A'} />
-										<HeaderRow label="Nationality" value="Mosotho" />
+										<HeaderRow label='Student Name' value={student.name} />
+										<HeaderRow label='Student ID' value={String(student.stdNo)} />
+										<HeaderRow label='IC / Passport No.' value={student.nationalId} />
+										<HeaderRow label='Gender' value={student.gender || 'N/A'} />
+										<HeaderRow label='Nationality' value='Mosotho' />
 									</View>
 									<View style={tw('w-1/2 pl-1')}>
-										<HeaderRow label="Date of Admission" value={admissionDate} />
-										<HeaderRow label="Date of Completion" value={completionDate} />
-										<HeaderRow label="Programme" value={program?.structure?.program?.name} />
-										<HeaderRow label="Faculty" value={program?.structure?.program?.school.name} />
-										<HeaderRow label="Issued Date" value={issueDate} />
+										<HeaderRow label='Date of Admission' value={admissionDate} />
+										<HeaderRow label='Date of Completion' value={completionDate} />
+										<HeaderRow label='Programme' value={program?.structure?.program?.name} />
+										<HeaderRow label='Faculty' value={program?.structure?.program?.school.name} />
+										<HeaderRow label='Issued Date' value={issueDate} />
 									</View>
 								</View>
 							</View>
@@ -324,7 +324,7 @@ export default function TranscriptPDF({ student }: { student: Student }) {
 	if (!completedPrograms || completedPrograms.length === 0) {
 		return (
 			<Document>
-				<Page size="A4" style={tw('pt-5 px-10 pb-10 font-sans text-[7pt]')}>
+				<Page size='A4' style={tw('pt-5 px-10 pb-10 font-sans text-[7pt]')}>
 					<Text>No completed programs found</Text>
 				</Page>
 			</Document>

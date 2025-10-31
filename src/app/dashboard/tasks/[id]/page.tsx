@@ -65,42 +65,42 @@ export default async function TaskDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<Stack gap="lg">
-					<Group gap="md">
-						<Badge size="lg" color={getStatusColor(task.status)}>
+				<Stack gap='lg'>
+					<Group gap='md'>
+						<Badge size='lg' color={getStatusColor(task.status)}>
 							{task.status.replace('_', ' ').toUpperCase()}
 						</Badge>
-						<Badge size="lg" color={getPriorityColor(task.priority)}>
+						<Badge size='lg' color={getPriorityColor(task.priority)}>
 							{task.priority.toUpperCase()} PRIORITY
 						</Badge>
 						{isOverdue && (
-							<Badge size="lg" color="red">
+							<Badge size='lg' color='red'>
 								OVERDUE
 							</Badge>
 						)}
 					</Group>
 
-					<FieldView label="Title">
-						<Text size="lg" fw={600}>
+					<FieldView label='Title'>
+						<Text size='lg' fw={600}>
 							{task.title}
 						</Text>
 					</FieldView>
 
 					{task.description && (
-						<FieldView label="Description">
+						<FieldView label='Description'>
 							<Text style={{ whiteSpace: 'pre-wrap' }}>{task.description}</Text>
 						</FieldView>
 					)}
 
 					<Group grow>
 						{task.scheduledFor && (
-							<FieldView label="Scheduled For">
+							<FieldView label='Scheduled For'>
 								{format(new Date(task.scheduledFor), 'PPpp')}
 							</FieldView>
 						)}
 
 						{task.dueDate && (
-							<FieldView label="Due Date">
+							<FieldView label='Due Date'>
 								<Text c={isOverdue ? 'red' : undefined}>
 									{format(new Date(task.dueDate), 'PPpp')}
 								</Text>
@@ -109,20 +109,20 @@ export default async function TaskDetails({ params }: Props) {
 					</Group>
 
 					{task.completedAt && (
-						<FieldView label="Completed At">{format(new Date(task.completedAt), 'PPpp')}</FieldView>
+						<FieldView label='Completed At'>{format(new Date(task.completedAt), 'PPpp')}</FieldView>
 					)}
 
-					<FieldView label="Created At">
+					<FieldView label='Created At'>
 						{task.createdAt && typeof task.createdAt === 'number'
 							? format(new Date(task.createdAt * 1000), 'PPpp')
 							: 'N/A'}
 					</FieldView>
 
 					{task.assignedUsers && task.assignedUsers.length > 0 && (
-						<FieldView label="Assigned To">
-							<Stack gap="xs">
+						<FieldView label='Assigned To'>
+							<Stack gap='xs'>
 								{task.assignedUsers.map((user) => (
-									<Text key={user.userId} size="sm">
+									<Text key={user.userId} size='sm'>
 										{user.userName} ({user.userEmail})
 									</Text>
 								))}
@@ -131,13 +131,13 @@ export default async function TaskDetails({ params }: Props) {
 					)}
 
 					{task.assignedUsers && task.assignedUsers.length === 0 && (
-						<FieldView label="Assigned To">
-							<Badge color="blue">All Department Members</Badge>
+						<FieldView label='Assigned To'>
+							<Badge color='blue'>All Department Members</Badge>
 						</FieldView>
 					)}
 
 					{task.status !== 'completed' && task.status !== 'cancelled' && (
-						<Group mt="md">
+						<Group mt='md'>
 							{task.status === 'active' && (
 								<form
 									action={async () => {
@@ -145,7 +145,7 @@ export default async function TaskDetails({ params }: Props) {
 										await updateTaskStatus(id, 'in_progress');
 									}}
 								>
-									<Button type="submit" color="blue">
+									<Button type='submit' color='blue'>
 										Start Task
 									</Button>
 								</form>
@@ -158,7 +158,7 @@ export default async function TaskDetails({ params }: Props) {
 										await updateTaskStatus(id, 'completed');
 									}}
 								>
-									<Button type="submit" color="green">
+									<Button type='submit' color='green'>
 										Complete Task
 									</Button>
 								</form>
@@ -170,7 +170,7 @@ export default async function TaskDetails({ params }: Props) {
 									await updateTaskStatus(id, 'cancelled');
 								}}
 							>
-								<Button type="submit" color="red" variant="outline">
+								<Button type='submit' color='red' variant='outline'>
 									Cancel Task
 								</Button>
 							</form>

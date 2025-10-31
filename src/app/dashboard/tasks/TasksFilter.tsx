@@ -99,7 +99,7 @@ export default function TasksFilter() {
 
 	return (
 		<>
-			<HoverCard withArrow position="top">
+			<HoverCard withArrow position='top'>
 				<HoverCard.Target>
 					<ActionIcon
 						variant={hasActiveFilters ? 'white' : 'default'}
@@ -111,15 +111,15 @@ export default function TasksFilter() {
 					</ActionIcon>
 				</HoverCard.Target>
 				<HoverCard.Dropdown>
-					<Text size="xs">Filter Tasks</Text>
+					<Text size='xs'>Filter Tasks</Text>
 				</HoverCard.Dropdown>
 			</HoverCard>
 
-			<Modal opened={opened} onClose={close} title="Filter Tasks" size="md">
-				<Stack gap="md">
+			<Modal opened={opened} onClose={close} title='Filter Tasks' size='md'>
+				<Stack gap='md'>
 					<MultiSelect
-						label="Status"
-						placeholder="Select status"
+						label='Status'
+						placeholder='Select status'
 						data={statusOptions}
 						value={filters.status.split(',').filter(Boolean)}
 						onChange={(value) =>
@@ -132,8 +132,8 @@ export default function TasksFilter() {
 					/>
 
 					<MultiSelect
-						label="Priority"
-						placeholder="Select priority"
+						label='Priority'
+						placeholder='Select priority'
 						data={priorityOptions}
 						value={filters.priority.split(',').filter(Boolean)}
 						onChange={(value) =>
@@ -145,12 +145,12 @@ export default function TasksFilter() {
 						clearable
 					/>
 
-					<Fieldset legend="Description">
-						<Text size="sm">{previewDescription}</Text>
+					<Fieldset legend='Description'>
+						<Text size='sm'>{previewDescription}</Text>
 					</Fieldset>
 
-					<Group justify="flex-end" gap="sm">
-						<Button variant="outline" onClick={handleClearFilters}>
+					<Group justify='flex-end' gap='sm'>
+						<Button variant='outline' onClick={handleClearFilters}>
 							Clear All
 						</Button>
 						<Button onClick={handleApplyFilters}>Apply Filters</Button>

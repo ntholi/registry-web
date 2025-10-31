@@ -69,9 +69,9 @@ export default function ExportButton({
 		<Button
 			onClick={handleExport}
 			loading={isExporting}
-			size="xs"
+			size='xs'
 			leftSection={<IconDownload size={16} />}
-			variant="light"
+			variant='light'
 			disabled={!students || !assessments}
 		>
 			Export

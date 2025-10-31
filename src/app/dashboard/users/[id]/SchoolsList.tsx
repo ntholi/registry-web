@@ -10,17 +10,17 @@ function SchoolsListSkeleton() {
 	return (
 		<Paper withBorder p={'md'}>
 			<Box>
-				<Title order={5} fw="normal">
+				<Title order={5} fw='normal'>
 					Schools
 				</Title>
-				<Divider mb={'md'} mt="xs" />
-				<Title order={5} fw="normal">
+				<Divider mb={'md'} mt='xs' />
+				<Title order={5} fw='normal'>
 					Schools
 				</Title>
-				<Stack gap="xs">
+				<Stack gap='xs'>
 					{Array.from({ length: 3 }).map((_, index) => (
 						<Group key={index}>
-							<Skeleton height={24} width={60} radius="sm" />
+							<Skeleton height={24} width={60} radius='sm' />
 							<Skeleton height={20} width={200} />
 						</Group>
 					))}
@@ -36,25 +36,25 @@ async function SchoolsContent({ userId }: { userId: string }) {
 	return (
 		<Paper withBorder p={'md'}>
 			<Box>
-				<Title order={5} fw="normal">
+				<Title order={5} fw='normal'>
 					Schools
 				</Title>
-				<Divider mb={'md'} mt="xs" />
+				<Divider mb={'md'} mt='xs' />
 				{userSchools && userSchools.length > 0 ? (
-					<Stack gap="xs">
+					<Stack gap='xs'>
 						{userSchools.map((school) => (
-							<Group key={school.schoolId} justify="space-between">
+							<Group key={school.schoolId} justify='space-between'>
 								<Group>
-									<Badge variant="light" color="blue">
+									<Badge variant='light' color='blue'>
 										{school.school.code}
 									</Badge>
-									<Text size="sm">{school.school.name}</Text>
+									<Text size='sm'>{school.school.name}</Text>
 								</Group>
 							</Group>
 						))}
 					</Stack>
 				) : (
-					<Text c="dimmed" size="sm" ta="center" py="xl">
+					<Text c='dimmed' size='sm' ta='center' py='xl'>
 						No schools assigned
 					</Text>
 				)}

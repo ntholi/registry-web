@@ -115,8 +115,8 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 
 		if (attempts.length <= 1) {
 			return (
-				<Stack p="md">
-					<Text size="sm" c="red">
+				<Stack p='md'>
+					<Text size='sm' c='red'>
 						Did not Repeat
 					</Text>
 				</Stack>
@@ -124,25 +124,25 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 		}
 
 		return (
-			<Stack p="xs" gap="md">
-				<Text fw={500} size="sm">
+			<Stack p='xs' gap='md'>
+				<Text fw={500} size='sm'>
 					{module.name}
 				</Text>
-				<Stack gap="xs">
+				<Stack gap='xs'>
 					{attempts.map((attempt, index) => (
-						<Card key={index} p="xs" withBorder>
-							<Group justify="space-between" gap="xl">
+						<Card key={index} p='xs' withBorder>
+							<Group justify='space-between' gap='xl'>
 								<Stack gap={2}>
-									<Text size="sm" fw={500}>
+									<Text size='sm' fw={500}>
 										{attempt.term}
 									</Text>
-									<Text size="xs" c="dimmed">
+									<Text size='xs' c='dimmed'>
 										{attempt.semesterNumber ? formatSemester(attempt.semesterNumber) : ''}
 									</Text>
 								</Stack>
 								<Badge
-									size="md"
-									variant="light"
+									size='md'
+									variant='light'
 									color={
 										failed(attempt.grade) ? 'red' : attempt.grade === 'NM' ? 'orange' : 'green'
 									}
@@ -158,7 +158,7 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 	};
 
 	return (
-		<Table.ScrollContainer minWidth={600} type="native">
+		<Table.ScrollContainer minWidth={600} type='native'>
 			<Table>
 				<Table.Thead>
 					<Table.Tr>
@@ -196,47 +196,47 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 											transitionProps={{ transition: 'fade', duration: 200 }}
 										>
 											<Anchor
-												size="sm"
+												size='sm'
 												c={isDroppedOrDeleted ? 'dimmed' : failed(module.grade) ? 'red' : 'blue'}
 											>
 												{module.code}
 											</Anchor>
 										</Tooltip>
 									) : (
-										<Text size="sm" c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+										<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
 											{module.code}
 										</Text>
 									)}
 								</Table.Td>
 								<Table.Td>
-									<Text size="sm" c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+									<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
 										{module.name}
 									</Text>
 								</Table.Td>
 								<Table.Td>
 									<Text
-										size="sm"
+										size='sm'
 										c={['Drop', 'Delete'].includes(module.status) ? 'red' : undefined}
 									>
 										{module.status}
 									</Text>
 								</Table.Td>
 								<Table.Td>
-									<Text size="sm" c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+									<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
 										{module.credits}
 									</Text>
 								</Table.Td>
 								{showMarks && (
 									<Table.Td>
-										<Text size="sm" c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+										<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
 											{module.marks}
 										</Text>
 									</Table.Td>
 								)}
 								<Table.Td>
 									<Badge
-										size="sm"
-										variant="light"
+										size='sm'
+										variant='light'
 										color={
 											failed(module.grade)
 												? 'red'

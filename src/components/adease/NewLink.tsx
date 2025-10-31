@@ -16,7 +16,7 @@ export default function NewLink({ href, ...props }: NewLinkProps) {
 	const finalHref = `${href}?${newSearchParams.toString()}`;
 
 	return (
-		<ActionIcon size={'lg'} variant="default" href={finalHref} component={Link} {...props}>
+		<ActionIcon size={'lg'} variant='default' href={finalHref} component={Link} {...props}>
 			<IconPlus />
 		</ActionIcon>
 	);

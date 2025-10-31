@@ -28,11 +28,11 @@ export default function StatusBadge({ requestId, status }: Props) {
 	}
 
 	if (isLoading) {
-		return <Skeleton height={22} width={80} radius="sm" />;
+		return <Skeleton height={22} width={80} radius='sm' />;
 	}
 
 	return (
-		<Badge color={getStatusColor(displayValue)} variant="light" size="sm">
+		<Badge color={getStatusColor(displayValue)} variant='light' size='sm'>
 			{displayValue}
 		</Badge>
 	);

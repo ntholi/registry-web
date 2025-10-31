@@ -18,16 +18,16 @@ export default function GraduationClearanceHistory({ stdNo }: Props) {
 
 	if (isLoading) {
 		return (
-			<Center pt="xl">
-				<Loader size="md" variant="dots" />
+			<Center pt='xl'>
+				<Loader size='md' variant='dots' />
 			</Center>
 		);
 	}
 
 	if (!history?.length) {
 		return (
-			<Center pt="xl">
-				<Text c="dimmed" size="sm">
+			<Center pt='xl'>
+				<Text c='dimmed' size='sm'>
 					No history found
 				</Text>
 			</Center>
@@ -35,17 +35,17 @@ export default function GraduationClearanceHistory({ stdNo }: Props) {
 	}
 
 	return (
-		<Paper radius="md" p={'lg'}>
-			<Accordion variant="separated">
+		<Paper radius='md' p={'lg'}>
+			<Accordion variant='separated'>
 				{history.map((clearance) => (
 					<Accordion.Item key={clearance.id} value={clearance.id.toString()}>
 						<Accordion.Control>
-							<Group justify="space-between" pe={'md'}>
+							<Group justify='space-between' pe={'md'}>
 								<Text fw={500}>Graduation Request</Text>
 								<Badge
 									color={clearance.status === 'approved' ? 'green' : 'red'}
-									variant="outline"
-									size="sm"
+									variant='outline'
+									size='sm'
 								>
 									{clearance.status}
 								</Badge>
@@ -56,16 +56,16 @@ export default function GraduationClearanceHistory({ stdNo }: Props) {
 								<Table.Thead>
 									<Table.Tr>
 										<Table.Th>
-											<Group gap="xs">Date</Group>
+											<Group gap='xs'>Date</Group>
 										</Table.Th>
 										<Table.Th>
-											<Group gap="xs">Status</Group>
+											<Group gap='xs'>Status</Group>
 										</Table.Th>
 										<Table.Th>
-											<Group gap="xs">Message</Group>
+											<Group gap='xs'>Message</Group>
 										</Table.Th>
 										<Table.Th>
-											<Group gap="xs">Updated By</Group>
+											<Group gap='xs'>Updated By</Group>
 										</Table.Th>
 									</Table.Tr>
 								</Table.Thead>
@@ -84,7 +84,7 @@ export default function GraduationClearanceHistory({ stdNo }: Props) {
 												<Table.Td>{audit.newStatus}</Table.Td>
 												<Table.Td>{audit.message || '-'}</Table.Td>
 												<Table.Td>
-													<Link size="sm" href={`/dashboard/users/${audit.createdBy}`}>
+													<Link size='sm' href={`/dashboard/users/${audit.createdBy}`}>
 														{audit.user.name || 'Unknown User'}
 													</Link>
 												</Table.Td>

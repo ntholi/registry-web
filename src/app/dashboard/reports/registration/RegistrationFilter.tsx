@@ -110,21 +110,21 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 	}
 
 	return (
-		<Paper withBorder p="lg">
-			<Group mb="md">
+		<Paper withBorder p='lg'>
+			<Group mb='md'>
 				<IconFilter size={18} />
 				<Text fw={600}>Filters</Text>
 			</Group>
 
-			<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
+			<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing='md'>
 				<Select
-					label="Academic Term"
-					placeholder="Select term"
+					label='Academic Term'
+					placeholder='Select term'
 					data={terms.map((term) => ({
 						value: term.id?.toString() || '',
 						label: term.name,
 					}))}
-					rightSection={termsLoading && <Loader size="xs" />}
+					rightSection={termsLoading && <Loader size='xs' />}
 					value={localFilter.termId || null}
 					onChange={(value) => handleChange('termId', value)}
 					searchable
@@ -133,13 +133,13 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 				/>
 
 				<Select
-					label="School"
-					placeholder="All schools"
+					label='School'
+					placeholder='All schools'
 					data={schools.map((school) => ({
 						value: school.id?.toString() || '',
 						label: school.name,
 					}))}
-					rightSection={schoolsLoading && <Loader size="xs" />}
+					rightSection={schoolsLoading && <Loader size='xs' />}
 					value={localFilter.schoolId || null}
 					onChange={(value) => handleChange('schoolId', value)}
 					searchable
@@ -147,13 +147,13 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 				/>
 
 				<Select
-					label="Program"
-					placeholder="All programs"
+					label='Program'
+					placeholder='All programs'
 					data={programs.map((program) => ({
 						value: program.id?.toString() || '',
 						label: program.name,
 					}))}
-					rightSection={programsLoading && <Loader size="xs" />}
+					rightSection={programsLoading && <Loader size='xs' />}
 					value={localFilter.programId || null}
 					onChange={(value) => handleChange('programId', value)}
 					searchable
@@ -162,8 +162,8 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 				/>
 
 				<Select
-					label="Semester"
-					placeholder="All semesters"
+					label='Semester'
+					placeholder='All semesters'
 					data={semesterOptions}
 					value={localFilter.semesterNumber || null}
 					onChange={(value) => handleChange('semesterNumber', value)}

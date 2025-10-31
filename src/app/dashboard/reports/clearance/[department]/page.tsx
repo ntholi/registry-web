@@ -57,22 +57,22 @@ export default function ClearanceReportsPage() {
 	}, [fetchStats, dateRange]);
 
 	return (
-		<Stack p="lg">
+		<Stack p='lg'>
 			<Title order={2}>Clearance Statistics - {toTitleCase(department as DashboardUser)}</Title>
 
-			<Text size="sm" c="dimmed">
+			<Text size='sm' c='dimmed'>
 				Statistics showing clearance requests by department and staff members. Filter by
 				registration or graduation clearances to get specific reports.
 			</Text>
 
-			<Card withBorder p="md">
+			<Card withBorder p='md'>
 				<Stack>
-					<Group justify="space-between">
+					<Group justify='space-between'>
 						<Text fw={500}>Filter Options</Text>
 
 						<Group>
 							<Select
-								placeholder="Select clearance type"
+								placeholder='Select clearance type'
 								value={clearanceType}
 								onChange={(value) => setClearanceType((value as ClearanceType) || 'all')}
 								data={[
@@ -80,24 +80,24 @@ export default function ClearanceReportsPage() {
 									{ value: 'registration', label: 'Registration Only' },
 									{ value: 'graduation', label: 'Graduation Only' },
 								]}
-								leftSection={<IconFilter size="1rem" />}
+								leftSection={<IconFilter size='1rem' />}
 								w={200}
 							/>
 
 							<DatePickerInput
-								type="range"
-								placeholder="Pick date range"
+								type='range'
+								placeholder='Pick date range'
 								value={dateRange as [Date, Date]}
 								onChange={(value: DatesRangeValue) => {
 									setDateRange(value as [Date | null, Date | null]);
 								}}
 								clearable={false}
-								leftSection={<IconCalendar size="1rem" />}
+								leftSection={<IconCalendar size='1rem' />}
 								w={350}
 							/>
 
 							<Button
-								leftSection={<IconSearch size="1rem" />}
+								leftSection={<IconSearch size='1rem' />}
 								onClick={fetchStats}
 								loading={isLoading}
 							>
@@ -112,8 +112,8 @@ export default function ClearanceReportsPage() {
 				<>
 					<StatsSummary data={stats.overall} clearanceType={clearanceType} />
 
-					<Paper withBorder p="md" mt="md">
-						<Title order={4} mb="md">
+					<Paper withBorder p='md' mt='md'>
+						<Title order={4} mb='md'>
 							Staff Member Statistics
 						</Title>
 						<StatsTable data={stats.byStaff} clearanceType={clearanceType} />

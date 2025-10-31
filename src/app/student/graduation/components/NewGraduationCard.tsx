@@ -30,14 +30,14 @@ export default function NewGraduationCard() {
 	if (isLoading) {
 		return (
 			<Card withBorder>
-				<Stack align="center" gap="md">
-					<Skeleton height={60} width={60} radius="md" />
-					<Stack align="center" gap="xs" w="100%">
+				<Stack align='center' gap='md'>
+					<Skeleton height={60} width={60} radius='md' />
+					<Stack align='center' gap='xs' w='100%'>
 						<Skeleton height={24} width={200} />
 						<Skeleton height={16} width={300} />
 						<Skeleton height={16} width={250} />
 					</Stack>
-					<Skeleton height={36} width={150} radius="md" />
+					<Skeleton height={36} width={150} radius='md' />
 				</Stack>
 			</Card>
 		);
@@ -53,15 +53,15 @@ export default function NewGraduationCard() {
 	if (isBlocked) {
 		return (
 			<Alert
-				icon={<IconInfoCircle size="1rem" />}
-				title="Graduation Request Blocked"
-				color="red"
-				mb="xl"
+				icon={<IconInfoCircle size='1rem' />}
+				title='Graduation Request Blocked'
+				color='red'
+				mb='xl'
 			>
 				Your account has been blocked from submitting graduation requests. Please contact the{' '}
 				{blockedStudent.byDepartment} office for assistance.
 				<br />
-				<Text fw={500} mt="xs">
+				<Text fw={500} mt='xs'>
 					Reason: {blockedStudent?.reason}
 				</Text>
 			</Alert>
@@ -70,24 +70,24 @@ export default function NewGraduationCard() {
 
 	return (
 		<Card withBorder>
-			<Stack align="center" gap="md">
-				<ThemeIcon variant="light" color="violet" size="xl">
+			<Stack align='center' gap='md'>
+				<ThemeIcon variant='light' color='violet' size='xl'>
 					<IconSchool size={'1.5rem'} />
 				</ThemeIcon>
-				<Stack align="center" gap="xs">
-					<Text fw={500} size="lg">
+				<Stack align='center' gap='xs'>
+					<Text fw={500} size='lg'>
 						Request Graduation
 					</Text>
-					<Text size="sm" c="dimmed" ta="center">
+					<Text size='sm' c='dimmed' ta='center'>
 						You haven&apos;t submitted a graduation request yet. Click below to start your
 						graduation application process.
 					</Text>
 				</Stack>
 				<Button
 					component={Link}
-					href="/student/graduation/new"
-					color="violet"
-					leftSection={<IconPlus size="1rem" />}
+					href='/student/graduation/new'
+					color='violet'
+					leftSection={<IconPlus size='1rem' />}
 				>
 					New Graduation Request
 				</Button>

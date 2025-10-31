@@ -32,7 +32,7 @@ export default function SemesterStatusView({ status }: Props) {
 	};
 
 	return (
-		<Badge color={getColor(status)} size="sm">
+		<Badge color={getColor(status)} size='sm'>
 			{status}
 		</Badge>
 	);

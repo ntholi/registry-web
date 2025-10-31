@@ -56,7 +56,7 @@ export default function SemesterConfirmation({
 
 	if (!semesterData) {
 		return (
-			<Alert icon={<IconInfoCircle size={16} />} color="orange">
+			<Alert icon={<IconInfoCircle size={16} />} color='orange'>
 				Semester information is being calculated based on your selected modules...
 			</Alert>
 		);
@@ -80,30 +80,30 @@ export default function SemesterConfirmation({
 	);
 
 	return (
-		<Stack gap="lg">
-			<Paper withBorder p="lg">
-				<Stack gap="md">
-					<Group justify="space-between" align="center">
+		<Stack gap='lg'>
+			<Paper withBorder p='lg'>
+				<Stack gap='md'>
+					<Group justify='space-between' align='center'>
 						<Title order={3} size={'h3'}>
 							{formatSemester(semesterData.semesterNo)}
 						</Title>
 					</Group>
 
-					<SimpleGrid cols={3} spacing="md">
+					<SimpleGrid cols={3} spacing='md'>
 						<div>
-							<Text size="sm" c="dimmed">
+							<Text size='sm' c='dimmed'>
 								Credits
 							</Text>
 							<Text fw={700}>{totalCredits}</Text>
 						</div>
 						<div>
-							<Text size="sm" c="dimmed">
+							<Text size='sm' c='dimmed'>
 								Modules
 							</Text>
 							<Text fw={700}>{selectedModules.length}</Text>
 						</div>
 						<div>
-							<Text size="sm" c="dimmed">
+							<Text size='sm' c='dimmed'>
 								Status
 							</Text>
 							<Text fw={700}>{semesterData.status}</Text>
@@ -111,7 +111,7 @@ export default function SemesterConfirmation({
 					</SimpleGrid>
 
 					{semesterData.status === 'Repeat' && (
-						<Alert icon={<IconInfoCircle size={16} />} color="orange" variant="light">
+						<Alert icon={<IconInfoCircle size={16} />} color='orange' variant='light'>
 							You are repeating this semester and retaking some modules.
 						</Alert>
 					)}
@@ -119,22 +119,22 @@ export default function SemesterConfirmation({
 			</Paper>
 
 			<div>
-				<Title order={4} mb="md">
+				<Title order={4} mb='md'>
 					Selected Modules
 				</Title>
 
-				<SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+				<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='sm'>
 					{selectedModuleDetails.map(
 						(module) =>
 							module && (
-								<Card key={module.semesterModuleId} withBorder p="md">
-									<Group justify="space-between" mb="xs">
+								<Card key={module.semesterModuleId} withBorder p='md'>
+									<Group justify='space-between' mb='xs'>
 										<Text fw={600}>{module.code}</Text>
-										<Badge size="xs" color="gray">
+										<Badge size='xs' color='gray'>
 											{module.status}
 										</Badge>
 									</Group>
-									<Text size="sm" mb="xs">
+									<Text size='sm' mb='xs'>
 										{module.name}
 									</Text>
 								</Card>
@@ -143,7 +143,7 @@ export default function SemesterConfirmation({
 				</SimpleGrid>
 			</div>
 
-			<Alert icon={<IconInfoCircle size={16} />} color="blue">
+			<Alert icon={<IconInfoCircle size={16} />} color='blue'>
 				Please review the information above carefully. It is your responsibility to ensure all
 				details are correct before proceeding.
 			</Alert>

@@ -33,19 +33,19 @@ export default function StudentForm({ onSubmit, defaultValues, title }: Props) {
 		>
 			{(form) => (
 				<>
-					<TextInput label="National Id" {...form.getInputProps('nationalId')} />
-					<TextInput label="Name" {...form.getInputProps('name')} />
-					<TextInput label="Phone 1" {...form.getInputProps('phone1')} />
-					<TextInput label="Phone 2" {...form.getInputProps('phone2')} />
-					<TextInput label="Religion" {...form.getInputProps('religion')} />
-					<DateInput label="Date of Birth" {...form.getInputProps('dateOfBirth')} />
-					<Select label="Gender" data={['male', 'female']} {...form.getInputProps('gender')} />
+					<TextInput label='National Id' {...form.getInputProps('nationalId')} />
+					<TextInput label='Name' {...form.getInputProps('name')} />
+					<TextInput label='Phone 1' {...form.getInputProps('phone1')} />
+					<TextInput label='Phone 2' {...form.getInputProps('phone2')} />
+					<TextInput label='Religion' {...form.getInputProps('religion')} />
+					<DateInput label='Date of Birth' {...form.getInputProps('dateOfBirth')} />
+					<Select label='Gender' data={['male', 'female']} {...form.getInputProps('gender')} />
 					<Select
-						label="Marital Status"
+						label='Marital Status'
 						data={['single', 'married', 'divorced', 'widowed']}
 						{...form.getInputProps('maritalStatus')}
 					/>
-					<TextInput label="Structure ID" type="number" {...form.getInputProps('structureId')} />
+					<TextInput label='Structure ID' type='number' {...form.getInputProps('structureId')} />
 				</>
 			)}
 		</Form>

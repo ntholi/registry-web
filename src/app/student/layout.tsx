@@ -17,7 +17,7 @@ export default function layout({ children }: { children: React.ReactNode }) {
 	return (
 		<>
 			<Navbar />
-			<Space h="xl" />
+			<Space h='xl' />
 			<div
 				style={{
 					minHeight: '80vh',

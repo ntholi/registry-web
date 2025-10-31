@@ -78,9 +78,9 @@ export default function ProofOfRegistrationDownload({
 
 	return (
 		<ActionIcon
-			variant="light"
-			color="blue"
-			size="sm"
+			variant='light'
+			color='blue'
+			size='sm'
 			onClick={handleDownload}
 			loading={loading}
 			loaderProps={{ size: 'xs' }}

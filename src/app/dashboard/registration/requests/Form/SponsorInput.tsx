@@ -44,14 +44,14 @@ export default function SponsorInput({
 	};
 
 	return (
-		<Paper withBorder p="md">
-			<Text fw={500} mb="sm">
+		<Paper withBorder p='md'>
+			<Text fw={500} mb='sm'>
 				Sponsorship Information
 			</Text>
 			<Grid>
 				<GridCol span={6}>
 					<Select
-						label="Sponsor"
+						label='Sponsor'
 						data={
 							sponsors?.map((sponsor) => ({
 								value: sponsor.id.toString(),
@@ -62,7 +62,7 @@ export default function SponsorInput({
 						onChange={(value: string | null) => {
 							onSponsorChange(Number(value));
 						}}
-						placeholder="Select sponsor"
+						placeholder='Select sponsor'
 						clearable
 						disabled={disabled}
 						required
@@ -70,7 +70,7 @@ export default function SponsorInput({
 				</GridCol>
 				<GridCol span={6}>
 					<TextInput
-						label="Borrower Number"
+						label='Borrower Number'
 						value={borrowerNo}
 						onChange={(e) => onBorrowerNoChange(e.currentTarget.value)}
 						disabled={!(sponsorId && isNMDS(sponsorId)) || disabled}
@@ -78,8 +78,8 @@ export default function SponsorInput({
 				</GridCol>
 				<GridCol span={6}>
 					<Select
-						label="Bank Name"
-						placeholder="Select bank"
+						label='Bank Name'
+						placeholder='Select bank'
 						data={bankOptions}
 						value={bankName || null}
 						onChange={(value: string | null) => onBankNameChange(value || '')}
@@ -90,7 +90,7 @@ export default function SponsorInput({
 				</GridCol>
 				<GridCol span={6}>
 					<TextInput
-						label="Account Number"
+						label='Account Number'
 						value={accountNumber || ''}
 						onChange={(e) => onAccountNumberChange(e.currentTarget.value)}
 						disabled={disabled}

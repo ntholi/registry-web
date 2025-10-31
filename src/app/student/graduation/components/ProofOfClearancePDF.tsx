@@ -210,7 +210,7 @@ export default function ProofOfClearancePDF({ graduationData }: ProofOfClearance
 	if (!graduationData) {
 		return (
 			<Document>
-				<Page size="A4" style={styles.page}>
+				<Page size='A4' style={styles.page}>
 					<Text>No graduation data available</Text>
 				</Page>
 			</Document>
@@ -224,7 +224,7 @@ export default function ProofOfClearancePDF({ graduationData }: ProofOfClearance
 
 	return (
 		<Document>
-			<Page size="A4" style={styles.page}>
+			<Page size='A4' style={styles.page}>
 				<View style={styles.headerContainer}>
 					<Text style={styles.universityName}>Limkokwing University of Creative Technology</Text>
 					<View style={styles.headerContent}>
@@ -236,7 +236,7 @@ export default function ProofOfClearancePDF({ graduationData }: ProofOfClearance
 							<Text style={styles.addressLine}>+(266) 22315767 | Ext. 116</Text>
 							<Text style={styles.addressLine}>registry@limkokwing.ac.ls</Text>
 						</View>
-						<Image style={styles.logo} src="/images/logo-lesotho.jpg" />
+						<Image style={styles.logo} src='/images/logo-lesotho.jpg' />
 					</View>
 				</View>
 

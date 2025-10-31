@@ -24,8 +24,8 @@ export function StatsTable({ data, clearanceType = 'all' }: Props) {
 				? 'selected period'
 				: `${clearanceType} clearances in the selected period`;
 		return (
-			<Center py="xl">
-				<Text c="dimmed">No statistics available for {typeLabel}</Text>
+			<Center py='xl'>
+				<Text c='dimmed'>No statistics available for {typeLabel}</Text>
 			</Center>
 		);
 	}
@@ -52,25 +52,25 @@ export function StatsTable({ data, clearanceType = 'all' }: Props) {
 					return (
 						<TableTr key={stat.respondedBy || 'unknown'}>
 							<TableTd>
-								<Text size="sm">{stat.staffName}</Text>
+								<Text size='sm'>{stat.staffName}</Text>
 							</TableTd>
 							<TableTd>
-								<Text size="sm">{stat.approved}</Text>
+								<Text size='sm'>{stat.approved}</Text>
 							</TableTd>
 							<TableTd>
-								<Text size="sm">{stat.rejected}</Text>
+								<Text size='sm'>{stat.rejected}</Text>
 							</TableTd>
 							<TableTd>
-								<Text size="sm">{stat.total}</Text>
+								<Text size='sm'>{stat.total}</Text>
 							</TableTd>
 							<TableTd>
 								<div>
-									<Text size="xs" fw={500} c="dimmed" mb={5}>
+									<Text size='xs' fw={500} c='dimmed' mb={5}>
 										{percentOfTotal}%
 									</Text>
 									<Progress
 										value={percentOfTotal}
-										size="sm"
+										size='sm'
 										color={percentOfTotal >= 30 ? 'blue' : percentOfTotal >= 20 ? 'blue' : 'red'}
 									/>
 								</div>

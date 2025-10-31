@@ -255,28 +255,28 @@ export default function ExportTranscriptPage() {
 	if (isDatesLoading) {
 		return (
 			<Center h={400}>
-				<Loader size="lg" />
+				<Loader size='lg' />
 			</Center>
 		);
 	}
 
 	return (
-		<Box p="md">
-			<Stack gap="md">
-				<Text size="xl" fw={700}>
+		<Box p='md'>
+			<Stack gap='md'>
+				<Text size='xl' fw={700}>
 					Bulk Export Transcripts
 				</Text>
 
-				<Text size="sm" c="dimmed">
+				<Text size='sm' c='dimmed'>
 					Select a graduation date and programs to export transcripts for students who graduated in
 					that month and year.
 				</Text>
 
-				<Flex align={'end'} gap="md">
+				<Flex align={'end'} gap='md'>
 					<Select
 						flex={10}
-						label="Graduation Date"
-						placeholder="Select a graduation date"
+						label='Graduation Date'
+						placeholder='Select a graduation date'
 						data={selectOptions || []}
 						value={selectedDate}
 						onChange={handleDateChange}
@@ -285,7 +285,7 @@ export default function ExportTranscriptPage() {
 					/>
 					<Button
 						flex={2}
-						leftSection={<IconDownload size="1rem" />}
+						leftSection={<IconDownload size='1rem' />}
 						onClick={handleExport}
 						disabled={!selectedDate || selectedProgramIds.length === 0 || isGenerating}
 						loading={isGenerating}
@@ -295,20 +295,20 @@ export default function ExportTranscriptPage() {
 				</Flex>
 				{selectedDate && isProgramsLoading && (
 					<Center>
-						<Loader size="sm" />
+						<Loader size='sm' />
 					</Center>
 				)}
 
 				{selectedDate && programs && programs.length > 0 && (
-					<Paper p="md" withBorder>
-						<Stack gap="sm">
-							<Group justify="space-between">
-								<Text size="sm" fw={500}>
+					<Paper p='md' withBorder>
+						<Stack gap='sm'>
+							<Group justify='space-between'>
+								<Text size='sm' fw={500}>
 									Select Programs
 								</Text>
 								<Button
-									size="xs"
-									variant="subtle"
+									size='xs'
+									variant='subtle'
 									onClick={handleSelectAllPrograms}
 									disabled={isGenerating}
 								>
@@ -328,7 +328,7 @@ export default function ExportTranscriptPage() {
 								))}
 							</SimpleGrid>
 
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								{selectedProgramIds.length} of {programs.length} programs selected
 							</Text>
 						</Stack>
@@ -336,15 +336,15 @@ export default function ExportTranscriptPage() {
 				)}
 
 				{selectedDate && programs && programs.length === 0 && (
-					<Text size="sm" c="dimmed">
+					<Text size='sm' c='dimmed'>
 						No programs found for the selected graduation date.
 					</Text>
 				)}
 
 				{isGenerating && progress > 0 && (
-					<Paper p="md" withBorder>
-						<Stack gap="sm">
-							<Text size="sm" fw={500}>
+					<Paper p='md' withBorder>
+						<Stack gap='sm'>
+							<Text size='sm' fw={500}>
 								{progressText}
 							</Text>
 							<Progress value={progress} animated />

@@ -36,21 +36,21 @@ export default function GraduationClearanceDetails({ request }: Props) {
 	const { data: session } = useSession();
 
 	return (
-		<Stack p="lg">
+		<Stack p='lg'>
 			<Grid>
 				<GridCol span={{ base: 12, md: 7 }}>
 					<Stack>
-						<Paper withBorder p="md">
+						<Paper withBorder p='md'>
 							<Stack>
-								<FieldView label="Student Number" underline={false}>
-									<Group justify="space-between">
+								<FieldView label='Student Number' underline={false}>
+									<Group justify='space-between'>
 										<Link href={`/dashboard/students/${studentProgram.stdNo}`}>
 											{studentProgram.stdNo}
 										</Link>
-										<Tooltip label="Copy">
+										<Tooltip label='Copy'>
 											<ActionIcon
-												variant="subtle"
-												color="gray"
+												variant='subtle'
+												color='gray'
 												onClick={() => {
 													navigator.clipboard.writeText(String(studentProgram.stdNo));
 													notifications.show({
@@ -64,10 +64,10 @@ export default function GraduationClearanceDetails({ request }: Props) {
 										</Tooltip>
 									</Group>
 								</FieldView>
-								<FieldView label="Date Requested" underline={false}>
+								<FieldView label='Date Requested' underline={false}>
 									{formatDateTime(request.graduationRequest.createdAt)}
 								</FieldView>
-								<FieldView label="Program" underline={false}>
+								<FieldView label='Program' underline={false}>
 									{studentProgram.structure?.program?.name || 'N/A'}
 								</FieldView>
 							</Stack>
@@ -83,24 +83,24 @@ export default function GraduationClearanceDetails({ request }: Props) {
 				</GridCol>
 			</Grid>
 			{session?.user?.role === 'finance' && (
-				<Paper withBorder p="md">
+				<Paper withBorder p='md'>
 					<PaymentReceipts graduationRequest={request.graduationRequest} />
 				</Paper>
 			)}
 			<Accordion
 				value={accordion}
 				onChange={(it) => setAccordion(it as 'comments')}
-				variant="separated"
+				variant='separated'
 			>
-				<AccordionItem value="comments">
+				<AccordionItem value='comments'>
 					<AccordionControl>Comments</AccordionControl>
 					<AccordionPanel>
 						<Textarea
 							value={comment}
 							rows={4}
-							description="Optional comments or notes"
+							description='Optional comments or notes'
 							onChange={(e) => setComment(e.currentTarget.value)}
-							placeholder="Add any relevant comments about the clearance..."
+							placeholder='Add any relevant comments about the clearance...'
 						/>
 					</AccordionPanel>
 				</AccordionItem>

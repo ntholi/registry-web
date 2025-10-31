@@ -249,19 +249,19 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 	const isProcessingSelection = selectedModules !== debouncedSelectedModules;
 
 	return (
-		<Box pos="relative" mih="80vh">
+		<Box pos='relative' mih='80vh'>
 			<LoadingOverlay visible={isLoading} />
 
 			<form onSubmit={form.onSubmit(handleSubmit)}>
-				<Stack gap="lg">
+				<Stack gap='lg'>
 					{hasError && (
-						<Alert color="red" icon={<IconInfoCircle size={16} />}>
+						<Alert color='red' icon={<IconInfoCircle size={16} />}>
 							{hasError}
 						</Alert>
 					)}
 
 					{hasWarning && (
-						<Alert color="yellow" icon={<IconInfoCircle size={16} />}>
+						<Alert color='yellow' icon={<IconInfoCircle size={16} />}>
 							{hasWarning}
 						</Alert>
 					)}
@@ -303,12 +303,12 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 						</>
 					)}
 
-					<Group justify="flex-end">
-						<Button variant="outline" onClick={handleReset}>
+					<Group justify='flex-end'>
+						<Button variant='outline' onClick={handleReset}>
 							Reset
 						</Button>
 						<Button
-							type="submit"
+							type='submit'
 							loading={createMutation.isPending}
 							disabled={selectedModules.size === 0 || !semesterData || !form.values.selectedTermId}
 						>

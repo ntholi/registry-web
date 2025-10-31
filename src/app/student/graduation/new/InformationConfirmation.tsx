@@ -59,18 +59,18 @@ export default function InformationConfirmation({
 	};
 
 	return (
-		<Stack gap="lg">
+		<Stack gap='lg'>
 			<Alert
-				icon={<IconAlertTriangle size="1.5rem" />}
-				title="Verify Your Information"
-				color="orange"
-				variant="light"
+				icon={<IconAlertTriangle size='1.5rem' />}
+				title='Verify Your Information'
+				color='orange'
+				variant='light'
 			>
-				<Stack gap="sm">
-					<Text size="sm">
+				<Stack gap='sm'>
+					<Text size='sm'>
 						Please carefully verify that your personal information below is correct.
 					</Text>
-					<Text size="sm">
+					<Text size='sm'>
 						If this information is <strong>not</strong> correct, you must report to the Registry
 						Department before the clearance deadline. This information <strong>cannot</strong> be
 						corrected after the clearance deadline has passed.
@@ -78,16 +78,16 @@ export default function InformationConfirmation({
 				</Stack>
 			</Alert>
 
-			<Card withBorder shadow="sm" radius="md" padding="lg">
-				<Title order={3} mb="md">
+			<Card withBorder shadow='sm' radius='md' padding='lg'>
+				<Title order={3} mb='md'>
 					Your Information
 				</Title>
 
-				<Stack gap="md">
+				<Stack gap='md'>
 					<Group>
-						<IconUser size="1.2rem" color="gray" />
+						<IconUser size='1.2rem' color='gray' />
 						<Box>
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								Full Name
 							</Text>
 							<Text fw={500}>{student.name}</Text>
@@ -95,9 +95,9 @@ export default function InformationConfirmation({
 					</Group>
 
 					<Group>
-						<IconId size="1.2rem" color="gray" />
+						<IconId size='1.2rem' color='gray' />
 						<Box>
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								National ID Number
 							</Text>
 							<Text fw={500}>{student.nationalId || 'Not provided'}</Text>
@@ -106,12 +106,12 @@ export default function InformationConfirmation({
 
 					<Group>
 						{student.gender === 'Male' ? (
-							<IconGenderMale size="1.2rem" color="gray" />
+							<IconGenderMale size='1.2rem' color='gray' />
 						) : (
-							<IconGenderFemale size="1.2rem" color="gray" />
+							<IconGenderFemale size='1.2rem' color='gray' />
 						)}
 						<Box>
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								Gender
 							</Text>
 							<Text fw={500}>{student.gender || 'Not specified'}</Text>
@@ -119,18 +119,18 @@ export default function InformationConfirmation({
 					</Group>
 
 					<Group>
-						<IconId size="1.2rem" color="gray" />
+						<IconId size='1.2rem' color='gray' />
 						<Box>
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								Student Number
 							</Text>
 							<Text fw={500}>{student.stdNo}</Text>
 						</Box>
 					</Group>
 					<Group>
-						<IconId size="1.2rem" color="gray" />
+						<IconId size='1.2rem' color='gray' />
 						<Box>
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								Phone Number
 							</Text>
 							<Text fw={500}>{getPhoneNumbers(student)}</Text>
@@ -140,16 +140,16 @@ export default function InformationConfirmation({
 			</Card>
 
 			{selectedProgram && (
-				<Card withBorder shadow="sm" radius="md" padding="lg">
-					<Group mb="md">
+				<Card withBorder shadow='sm' radius='md' padding='lg'>
+					<Group mb='md'>
 						<Title order={3}>Program</Title>
 					</Group>
 
-					<Stack gap="md">
+					<Stack gap='md'>
 						<Group>
-							<IconSchool size="1.2rem" color="gray" />
+							<IconSchool size='1.2rem' color='gray' />
 							<Box>
-								<Text size="xs" c="dimmed">
+								<Text size='xs' c='dimmed'>
 									Program Name
 								</Text>
 								<Text fw={500}>
@@ -160,9 +160,9 @@ export default function InformationConfirmation({
 						</Group>
 
 						<Group>
-							<IconId size="1.2rem" color="gray" />
+							<IconId size='1.2rem' color='gray' />
 							<Box>
-								<Text size="xs" c="dimmed">
+								<Text size='xs' c='dimmed'>
 									Level
 								</Text>
 								<Text fw={500} style={{ textTransform: 'capitalize' }}>
@@ -174,18 +174,18 @@ export default function InformationConfirmation({
 				</Card>
 			)}
 
-			<Card withBorder shadow="sm" radius="md" padding="lg">
-				<Title order={4} mb="md">
+			<Card withBorder shadow='sm' radius='md' padding='lg'>
+				<Title order={4} mb='md'>
 					Confirmation Required
 				</Title>
 
-				<Stack gap="md">
+				<Stack gap='md'>
 					<Text>
 						To proceed with your graduation clearance, please verify that ALL the information above
 						is correct.
 					</Text>
 
-					<Text fw={500} c="red" size="sm">
+					<Text fw={500} c='red' size='sm'>
 						Type exactly &quot;information correct&quot; (without quotes) to confirm:
 					</Text>
 
@@ -198,7 +198,7 @@ export default function InformationConfirmation({
 								? 'Please type exactly "information correct"'
 								: null
 						}
-						data-testid="confirmation-input"
+						data-testid='confirmation-input'
 					/>
 
 					<Checkbox
@@ -206,7 +206,7 @@ export default function InformationConfirmation({
 						disabled={!hasTypedCorrectly}
 						onChange={() => {}}
 						label={
-							<Text size="sm">
+							<Text size='sm'>
 								I confirm that all my personal information displayed above is correct and accurate
 							</Text>
 						}

@@ -165,35 +165,35 @@ export default function PaymentReceiptsEditor({ graduationRequestId, paymentRece
 	};
 
 	return (
-		<Stack gap="lg">
-			<Card withBorder shadow="sm" radius="md" padding="lg">
-				<Text mb="lg" c="dimmed">
+		<Stack gap='lg'>
+			<Card withBorder shadow='sm' radius='md' padding='lg'>
+				<Text mb='lg' c='dimmed'>
 					Enter the receipt details for your graduation-related payments.
 				</Text>
 
 				<form onSubmit={form.onSubmit(handleAddReceipt)}>
-					<SimpleGrid cols={isMobile ? 1 : 2} spacing="md">
+					<SimpleGrid cols={isMobile ? 1 : 2} spacing='md'>
 						<Select
-							label="Payment Type"
-							placeholder="Select payment type"
+							label='Payment Type'
+							placeholder='Select payment type'
 							data={paymentTypeOptions}
 							required
-							leftSection={<IconCurrencyDollar size="1rem" />}
+							leftSection={<IconCurrencyDollar size='1rem' />}
 							{...form.getInputProps('paymentType')}
 						/>
 
 						<TextInput
-							label="Receipt Number"
-							placeholder="Enter receipt number"
+							label='Receipt Number'
+							placeholder='Enter receipt number'
 							required
 							{...form.getInputProps('receiptNo')}
 						/>
 					</SimpleGrid>
 
-					<Group justify="flex-end" mt="lg">
+					<Group justify='flex-end' mt='lg'>
 						<Button
-							leftSection={isAdding ? <Loader size="xs" /> : <IconPlus size="1rem" />}
-							type="submit"
+							leftSection={isAdding ? <Loader size='xs' /> : <IconPlus size='1rem' />}
+							type='submit'
 							loading={isAdding}
 							disabled={isAdding || isDeleting}
 						>
@@ -203,26 +203,26 @@ export default function PaymentReceiptsEditor({ graduationRequestId, paymentRece
 				</form>
 			</Card>
 
-			<Card withBorder shadow="sm" radius="md" padding="lg">
-				<Group mb="md" justify="space-between">
+			<Card withBorder shadow='sm' radius='md' padding='lg'>
+				<Group mb='md' justify='space-between'>
 					<Group>
-						<IconReceipt size="1.5rem" />
+						<IconReceipt size='1.5rem' />
 						<Title order={3}>Payment Receipts</Title>
-						<Badge color="blue" size="sm">
+						<Badge color='blue' size='sm'>
 							{paymentReceipts.length}
 						</Badge>
 					</Group>
 				</Group>
 
 				{paymentReceipts.length === 0 ? (
-					<Paper withBorder bg="var(--mantine-color-gray-light)" p="xl">
-						<Stack align="center" gap="md">
+					<Paper withBorder bg='var(--mantine-color-gray-light)' p='xl'>
+						<Stack align='center' gap='md'>
 							<IconReceipt size={48} />
-							<Stack align="center" gap="xs">
-								<Text fw={500} size="lg" c="dimmed">
+							<Stack align='center' gap='xs'>
+								<Text fw={500} size='lg' c='dimmed'>
 									No Payment Receipts
 								</Text>
-								<Text size="sm" c="dimmed" ta="center">
+								<Text size='sm' c='dimmed' ta='center'>
 									Add your payment receipts using the form above.
 								</Text>
 							</Stack>
@@ -231,27 +231,27 @@ export default function PaymentReceiptsEditor({ graduationRequestId, paymentRece
 				) : (
 					<SimpleGrid cols={{ base: 1, sm: 2 }}>
 						{paymentReceipts.map((receipt) => (
-							<Paper key={receipt.id} withBorder p="md">
-								<Group justify="space-between" align="flex-start">
+							<Paper key={receipt.id} withBorder p='md'>
+								<Group justify='space-between' align='flex-start'>
 									<Box style={{ flex: 1 }}>
-										<Group mb="xs">
+										<Group mb='xs'>
 											<Badge
 												color={getPaymentTypeColor(receipt.paymentType)}
-												variant="light"
-												leftSection={<IconReceipt size="0.8rem" />}
+												variant='light'
+												leftSection={<IconReceipt size='0.8rem' />}
 											>
 												{getPaymentTypeLabel(receipt.paymentType)}
 											</Badge>
 										</Group>
 
-										<Text size="sm" c="dimmed" mb="xs">
+										<Text size='sm' c='dimmed' mb='xs'>
 											Receipt No:{' '}
-											<Text span fw={500} c="dark">
+											<Text span fw={500} c='dark'>
 												{receipt.receiptNo}
 											</Text>
 										</Text>
 
-										<Text size="xs" c="dimmed">
+										<Text size='xs' c='dimmed'>
 											Added:{' '}
 											{receipt.createdAt
 												? new Date(receipt.createdAt).toLocaleDateString()
@@ -260,14 +260,14 @@ export default function PaymentReceiptsEditor({ graduationRequestId, paymentRece
 									</Box>
 
 									<ActionIcon
-										color="red"
-										variant="subtle"
+										color='red'
+										variant='subtle'
 										onClick={() => handleDeleteReceipt(receipt.id)}
-										title="Remove receipt"
+										title='Remove receipt'
 										loading={isDeleting}
 										disabled={isDeleting || isAdding}
 									>
-										<IconTrash size="1rem" />
+										<IconTrash size='1rem' />
 									</ActionIcon>
 								</Group>
 							</Paper>

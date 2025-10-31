@@ -41,38 +41,38 @@ export default function ProfileHeader({ student }: Props) {
 	});
 
 	return (
-		<Card withBorder shadow="sm" p="xl" radius="md">
+		<Card withBorder shadow='sm' p='xl' radius='md'>
 			<Flex
 				direction={{ base: 'column', sm: 'row' }}
-				gap="xl"
+				gap='xl'
 				align={{ base: 'center', sm: 'flex-start' }}
 			>
 				<Avatar
 					size={180}
-					radius="md"
+					radius='md'
 					src={photoUrl}
 					color={studentColors.theme.primary}
 					style={{ minWidth: 120 }}
 				>
-					{!photoUrl && <>{<IconUser size="3rem" />}</>}
+					{!photoUrl && <>{<IconUser size='3rem' />}</>}
 				</Avatar>
 
-				<Stack gap="md" style={{ flex: 1 }}>
-					<Stack gap="xs" align={isMobile ? 'center' : 'flex-start'}>
-						<Title order={1} size="h2" fw={600} mb="xs">
+				<Stack gap='md' style={{ flex: 1 }}>
+					<Stack gap='xs' align={isMobile ? 'center' : 'flex-start'}>
+						<Title order={1} size='h2' fw={600} mb='xs'>
 							{student.name}
 						</Title>
-						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
 							<Badge
-								size="lg"
-								variant="light"
+								size='lg'
+								variant='light'
 								color={studentColors.theme.primary}
 								leftSection={<IconIdBadge2 size={16} />}
 							>
 								{student.stdNo}
 							</Badge>
 							{student.user?.email && (
-								<Text size="sm" c="dimmed" fw={500}>
+								<Text size='sm' c='dimmed' fw={500}>
 									{student.user.email}
 								</Text>
 							)}
@@ -83,44 +83,44 @@ export default function ProfileHeader({ student }: Props) {
 
 					<SimpleGrid cols={{ base: 2, sm: 3 }}>
 						{student.gender && (
-							<Group gap="xs">
-								<ThemeIcon variant="light" size="sm" color="gray">
+							<Group gap='xs'>
+								<ThemeIcon variant='light' size='sm' color='gray'>
 									<IconGenderBigender size={14} />
 								</ThemeIcon>
-								<Text size="sm" c="dimmed">
+								<Text size='sm' c='dimmed'>
 									{student.gender}
 								</Text>
 							</Group>
 						)}
 
 						{student.dateOfBirth && (
-							<Group gap="xs">
-								<ThemeIcon variant="light" size="sm" color="gray">
+							<Group gap='xs'>
+								<ThemeIcon variant='light' size='sm' color='gray'>
 									<IconCalendar size={14} />
 								</ThemeIcon>
-								<Text size="sm" c="dimmed">
+								<Text size='sm' c='dimmed'>
 									{formatDate(student.dateOfBirth, 'numeric')}
 								</Text>
 							</Group>
 						)}
 
 						{student.maritalStatus && (
-							<Group gap="xs">
-								<ThemeIcon variant="light" size="sm" color="gray">
+							<Group gap='xs'>
+								<ThemeIcon variant='light' size='sm' color='gray'>
 									<IconHeart size={14} />
 								</ThemeIcon>
-								<Text size="sm" c="dimmed">
+								<Text size='sm' c='dimmed'>
 									{student.maritalStatus}
 								</Text>
 							</Group>
 						)}
 
 						{student.phone1 && (
-							<Group gap="xs">
-								<ThemeIcon variant="light" size="sm" color="gray">
+							<Group gap='xs'>
+								<ThemeIcon variant='light' size='sm' color='gray'>
 									<IconPhone size={14} />
 								</ThemeIcon>
-								<Text size="sm" c="dimmed">
+								<Text size='sm' c='dimmed'>
 									{student.phone1}
 								</Text>
 							</Group>

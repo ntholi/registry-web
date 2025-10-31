@@ -148,12 +148,12 @@ export default function SponsorshipDetails({
 	}
 
 	return (
-		<Stack gap="lg" mt="md">
-			<Card padding="lg" withBorder>
-				<Stack gap="md">
+		<Stack gap='lg' mt='md'>
+			<Card padding='lg' withBorder>
+				<Stack gap='md'>
 					<Select
-						label="Sponsor"
-						placeholder="Select your sponsor"
+						label='Sponsor'
+						placeholder='Select your sponsor'
 						data={sponsorOptions}
 						value={sponsorshipData?.sponsorId?.toString() || null}
 						onChange={handleSponsorChange}
@@ -165,16 +165,16 @@ export default function SponsorshipDetails({
 					{sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
 						<>
 							<TextInput
-								label="Borrower Number"
-								placeholder="Enter your borrower number"
+								label='Borrower Number'
+								placeholder='Enter your borrower number'
 								value={borrowerNo}
 								onChange={(event) => handleBorrowerNoChange(event.currentTarget.value)}
-								description="Required for NMDS sponsored students"
+								description='Required for NMDS sponsored students'
 								required
 							/>
 							<Select
-								label="Bank Name"
-								placeholder="Select your bank"
+								label='Bank Name'
+								placeholder='Select your bank'
 								data={bankOptions}
 								value={bankName || null}
 								onChange={handleBankNameChange}
@@ -183,8 +183,8 @@ export default function SponsorshipDetails({
 							/>
 
 							<TextInput
-								label="Account Number"
-								placeholder="Enter your account number"
+								label='Account Number'
+								placeholder='Enter your account number'
 								value={accountNumber}
 								onChange={(event) => handleAccountNumberChange(event.currentTarget.value)}
 							/>
@@ -193,8 +193,8 @@ export default function SponsorshipDetails({
 				</Stack>
 			</Card>
 
-			<Alert icon={<IconInfoCircle size="1rem" />} color="blue">
-				<Text size="sm">
+			<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+				<Text size='sm'>
 					<strong>Important:</strong> Make sure your sponsorship details are correct.
 					{sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
 						<span>
@@ -209,7 +209,7 @@ export default function SponsorshipDetails({
 			</Alert>
 
 			{sponsors.length === 0 && !sponsorsLoading && (
-				<Alert icon={<IconInfoCircle size="1rem" />} color="orange">
+				<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
 					No sponsors found. Please contact the administration to set up sponsors.
 				</Alert>
 			)}

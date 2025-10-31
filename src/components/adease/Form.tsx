@@ -87,7 +87,7 @@ export function Form<T extends Record<string, unknown>, V>({
 					router.back();
 				}}
 			/>
-			<Stack p="xl" {...props}>
+			<Stack p='xl' {...props}>
 				{children(form)}
 			</Stack>
 		</form>

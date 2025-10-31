@@ -39,14 +39,14 @@ export default function StructureDetailsPage() {
 
 	if (isLoading) {
 		return (
-			<Box p="lg">
-				<Stack gap="lg">
-					<Skeleton height={40} width="60%" />
+			<Box p='lg'>
+				<Stack gap='lg'>
+					<Skeleton height={40} width='60%' />
 					<Skeleton height={100} />
 					{[1, 2, 3].map((i) => (
-						<Paper key={i} shadow="sm" p="md" radius="md" withBorder>
-							<Stack gap="md">
-								<Skeleton height={30} width="40%" />
+						<Paper key={i} shadow='sm' p='md' radius='md' withBorder>
+							<Stack gap='md'>
+								<Skeleton height={30} width='40%' />
 								<Skeleton height={200} />
 							</Stack>
 						</Paper>
@@ -58,20 +58,20 @@ export default function StructureDetailsPage() {
 
 	if (!structure) {
 		return (
-			<Box p="lg">
-				<Paper shadow="sm" p="xl" withBorder>
-					<Stack align="center" gap="xs">
+			<Box p='lg'>
+				<Paper shadow='sm' p='xl' withBorder>
+					<Stack align='center' gap='xs'>
 						<IconSchool size={48} />
-						<Text size="lg" fw={500}>
+						<Text size='lg' fw={500}>
 							Structure Not Found
 						</Text>
-						<Text size="sm" c="dimmed" ta="center">
+						<Text size='sm' c='dimmed' ta='center'>
 							The requested program structure could not be found.
 						</Text>
-						<Link href="/dashboard/schools">
-							<Group gap="xs">
+						<Link href='/dashboard/schools'>
+							<Group gap='xs'>
 								<IconArrowLeft size={16} />
-								<Text size="sm">Back to Schools</Text>
+								<Text size='sm'>Back to Schools</Text>
 							</Group>
 						</Link>
 					</Stack>
@@ -91,24 +91,24 @@ export default function StructureDetailsPage() {
 			href: `/dashboard/schools/structures?schoolId=${structure.program?.school?.id}`,
 		},
 	].map((item, index) => (
-		<Link key={index} href={item.href} size="sm" c={index === 2 ? 'gray' : 'dimmed'}>
+		<Link key={index} href={item.href} size='sm' c={index === 2 ? 'gray' : 'dimmed'}>
 			{item.title}
 		</Link>
 	));
 
 	return (
-		<Box p="lg">
-			<Stack gap="lg">
-				<Paper shadow="sm" p="md" withBorder>
-					<Stack gap="md">
+		<Box p='lg'>
+			<Stack gap='lg'>
+				<Paper shadow='sm' p='md' withBorder>
+					<Stack gap='md'>
 						<Breadcrumbs separator={<IconChevronRight size={14} />}>{breadcrumbItems}</Breadcrumbs>
 
 						<Group>
-							<ThemeIcon variant="light" color="gray" size="xl">
-								<IconBook size="1.1rem" />
+							<ThemeIcon variant='light' color='gray' size='xl'>
+								<IconBook size='1.1rem' />
 							</ThemeIcon>
 							<Box>
-								<Group gap="md" align="baseline">
+								<Group gap='md' align='baseline'>
 									<Title order={2}>{structure.code}</Title>
 								</Group>
 							</Box>
@@ -116,17 +116,17 @@ export default function StructureDetailsPage() {
 					</Stack>
 				</Paper>
 
-				<Stack gap="lg">
+				<Stack gap='lg'>
 					{structure.semesters?.map((semester) => (
-						<Paper key={semester.id} shadow="sm" p="md" radius="md" withBorder>
-							<Stack gap="md">
-								<Group justify="space-between" align="center">
-									<Group gap="xs">
+						<Paper key={semester.id} shadow='sm' p='md' radius='md' withBorder>
+							<Stack gap='md'>
+								<Group justify='space-between' align='center'>
+									<Group gap='xs'>
 										<Title order={5} fw={500}>
 											{formatSemester(semester.semesterNumber)}
 										</Title>
 									</Group>
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										{semester.semesterModules?.length || 0} modules
 									</Text>
 								</Group>
@@ -151,7 +151,7 @@ export default function StructureDetailsPage() {
 												>
 													<Table.Td>
 														<Link
-															size="sm"
+															size='sm'
 															href={`/dashboard/semester-modules/${semModule.id}`}
 															c={semModule.hidden ? 'dark' : undefined}
 														>
@@ -159,17 +159,17 @@ export default function StructureDetailsPage() {
 														</Link>
 													</Table.Td>
 													<Table.Td>
-														<Text size="sm" c={semModule.hidden ? 'dark' : undefined}>
+														<Text size='sm' c={semModule.hidden ? 'dark' : undefined}>
 															{semModule.module?.name}
 														</Text>
 													</Table.Td>
 													<Table.Td>
-														<Text size="sm" c={semModule.hidden ? 'dark' : undefined}>
+														<Text size='sm' c={semModule.hidden ? 'dark' : undefined}>
 															{semModule.type}
 														</Text>
 													</Table.Td>
 													<Table.Td>
-														<Text size="sm" c={semModule.hidden ? 'dark' : undefined}>
+														<Text size='sm' c={semModule.hidden ? 'dark' : undefined}>
 															{semModule.credits}
 														</Text>
 													</Table.Td>
@@ -181,7 +181,7 @@ export default function StructureDetailsPage() {
 													</Table.Td>
 													{canEditModule(session) && (
 														<Table.Td>
-															<Flex gap="xs">
+															<Flex gap='xs'>
 																<EditButton moduleId={semModule.id} structureId={structureId} />
 																<HideButton
 																	moduleId={semModule.id}
@@ -196,8 +196,8 @@ export default function StructureDetailsPage() {
 										</Table.Tbody>
 									</Table>
 								) : (
-									<Card withBorder variant="light" p="md">
-										<Text size="sm" c="dimmed" ta="center">
+									<Card withBorder variant='light' p='md'>
+										<Text size='sm' c='dimmed' ta='center'>
 											No modules found for this semester
 										</Text>
 									</Card>
@@ -208,13 +208,13 @@ export default function StructureDetailsPage() {
 				</Stack>
 
 				{(!structure.semesters || structure.semesters.length === 0) && (
-					<Paper shadow="sm" p="xl" withBorder>
-						<Stack align="center" gap="xs">
+					<Paper shadow='sm' p='xl' withBorder>
+						<Stack align='center' gap='xs'>
 							<IconSchool size={48} />
-							<Text size="lg" fw={500}>
+							<Text size='lg' fw={500}>
 								No Semesters Found
 							</Text>
-							<Text size="sm" c="dimmed" ta="center">
+							<Text size='sm' c='dimmed' ta='center'>
 								This program structure currently has no semesters defined.
 							</Text>
 						</Stack>

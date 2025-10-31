@@ -92,34 +92,34 @@ export default function ModuleAssignModal() {
 
 	return (
 		<>
-			<Button size="sm" variant="light" onClick={open}>
+			<Button size='sm' variant='light' onClick={open}>
 				Assign Module
 			</Button>
-			<Modal title="Assign Module" size={'xl'} opened={opened} onClose={handleClose}>
+			<Modal title='Assign Module' size={'xl'} opened={opened} onClose={handleClose}>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<Stack gap="md">
+					<Stack gap='md'>
 						<ModuleSearchInput
 							onModuleSelect={handleModuleSelect}
 							error={form.errors.semesterModuleIds}
 							required
 						/>
-						<Paper withBorder p="md">
+						<Paper withBorder p='md'>
 							{selectedModule ? (
 								<Stack>
 									{selectedModule.semesters.map((semester) => (
 										<Checkbox.Card
-											p="md"
+											p='md'
 											key={semester.semesterModuleId}
 											checked={selectedSemesterModules.includes(semester.semesterModuleId)}
 											onChange={() => handleSemesterModuleToggle(semester.semesterModuleId)}
 										>
-											<Group wrap="nowrap" align="flex-start">
+											<Group wrap='nowrap' align='flex-start'>
 												<Checkbox.Indicator />
 												<div>
-													<Text size="sm" fw={500}>
+													<Text size='sm' fw={500}>
 														{semester.programName}
 													</Text>
-													<Text size="xs" c="dimmed">
+													<Text size='xs' c='dimmed'>
 														{semester.semesterName} {`(${semester.studentCount} Students)`}
 													</Text>
 												</div>
@@ -128,20 +128,20 @@ export default function ModuleAssignModal() {
 									))}
 								</Stack>
 							) : (
-								<Text c="dimmed">No module selected</Text>
+								<Text c='dimmed'>No module selected</Text>
 							)}
 						</Paper>
 						{selectedModule && form.values.semesterModuleIds.length === 0 && (
-							<Text size="sm" c="red">
+							<Text size='sm' c='red'>
 								{form.errors.semesterModuleIds}
 							</Text>
 						)}{' '}
-						<Group justify="flex-end" mt="md">
-							<Button variant="subtle" onClick={handleClose}>
+						<Group justify='flex-end' mt='md'>
+							<Button variant='subtle' onClick={handleClose}>
 								Cancel
 							</Button>
 							<Button
-								type="submit"
+								type='submit'
 								loading={assignModulesMutation.isPending}
 								disabled={selectedSemesterModules.length === 0}
 							>

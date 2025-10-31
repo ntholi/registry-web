@@ -31,10 +31,10 @@ export default function DesktopTable({ modules }: DesktopTableProps) {
 
 	if (modules.length === 0) {
 		return (
-			<Center py="xl">
-				<Stack align="center" gap="sm">
-					<IconFileCertificate size="3rem" color="var(--mantine-color-dimmed)" />
-					<Text c="dimmed" size="lg">
+			<Center py='xl'>
+				<Stack align='center' gap='sm'>
+					<IconFileCertificate size='3rem' color='var(--mantine-color-dimmed)' />
+					<Text c='dimmed' size='lg'>
 						No modules found for this semester
 					</Text>
 				</Stack>
@@ -45,20 +45,20 @@ export default function DesktopTable({ modules }: DesktopTableProps) {
 	const rows = modules.map((studentModule) => (
 		<Table.Tr key={studentModule.id}>
 			<Table.Td>
-				<Text size="sm" fw={600}>
+				<Text size='sm' fw={600}>
 					{studentModule.semesterModule?.module?.code || 'N/A'}
 				</Text>
 			</Table.Td>
 			<Table.Td>
-				<Text size="sm">{studentModule.semesterModule?.module?.name || 'N/A'}</Text>
+				<Text size='sm'>{studentModule.semesterModule?.module?.name || 'N/A'}</Text>
 			</Table.Td>
 			<Table.Td>
-				<Text size="sm" ta="center">
+				<Text size='sm' ta='center'>
 					{studentModule.marks}
 				</Text>
 			</Table.Td>
 			<Table.Td>
-				<Badge color={getGradeColor(studentModule.grade)} variant="light" radius="md">
+				<Badge color={getGradeColor(studentModule.grade)} variant='light' radius='md'>
 					{studentModule.grade}
 				</Badge>
 			</Table.Td>
@@ -70,22 +70,22 @@ export default function DesktopTable({ modules }: DesktopTableProps) {
 			<Table.Thead>
 				<Table.Tr>
 					<Table.Th>
-						<Text size="sm" fw={600}>
+						<Text size='sm' fw={600}>
 							Module Code
 						</Text>
 					</Table.Th>
 					<Table.Th>
-						<Text size="sm" fw={600}>
+						<Text size='sm' fw={600}>
 							Module Name
 						</Text>
 					</Table.Th>
 					<Table.Th>
-						<Text size="sm" fw={600} ta="center">
+						<Text size='sm' fw={600} ta='center'>
 							Marks
 						</Text>
 					</Table.Th>
 					<Table.Th>
-						<Text size="sm" fw={600}>
+						<Text size='sm' fw={600}>
 							Grade
 						</Text>
 					</Table.Th>

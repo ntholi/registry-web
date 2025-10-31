@@ -156,10 +156,10 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
 
 	return (
 		<Button
-			leftSection={<IconPrinter size="1rem" />}
-			variant="subtle"
-			color="gray"
-			size="xs"
+			leftSection={<IconPrinter size='1rem' />}
+			variant='subtle'
+			color='gray'
+			size='xs'
 			disabled={isGenerating || disabled}
 			onClick={handlePrint}
 		>

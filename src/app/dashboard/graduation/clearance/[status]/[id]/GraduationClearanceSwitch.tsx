@@ -74,7 +74,7 @@ export default function GraduationClearanceSwitch({ request, comment, setAccordi
 	}
 
 	return (
-		<Paper withBorder p="md" py={21}>
+		<Paper withBorder p='md' py={21}>
 			<Stack gap={23}>
 				<SegmentedControl
 					value={status}

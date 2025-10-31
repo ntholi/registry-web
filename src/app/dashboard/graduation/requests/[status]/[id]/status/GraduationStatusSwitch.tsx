@@ -72,7 +72,7 @@ export default function GraduationStatusSwitch({ request, comment }: Props) {
 	}
 
 	return (
-		<Paper withBorder p="md" py={21}>
+		<Paper withBorder p='md' py={21}>
 			<Stack>
 				<SegmentedControl
 					value={status}

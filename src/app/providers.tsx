@@ -22,16 +22,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 	return (
 		<SessionProvider>
 			<QueryClientProvider client={queryClient}>
-				<MantineProvider defaultColorScheme="dark">
+				<MantineProvider defaultColorScheme='dark'>
 					<Notifications />
 					<ModalsProvider>
 						<NuqsAdapter>
 							{children}
 							<NextTopLoader
 								height={3}
-								color="#2196F3"
+								color='#2196F3'
 								showSpinner={false}
-								shadow="0 0 10px #2196F3,0 0 5px #2196F3"
+								shadow='0 0 10px #2196F3,0 0 5px #2196F3'
 							/>
 						</NuqsAdapter>
 					</ModalsProvider>

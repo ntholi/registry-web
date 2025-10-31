@@ -52,17 +52,17 @@ function _getStatusColor(status: string) {
 function getStatusIcon(status: string) {
 	switch (status) {
 		case 'completed':
-			return <IconCheck size={'1rem'} color="var(--mantine-color-green-6)" />;
+			return <IconCheck size={'1rem'} color='var(--mantine-color-green-6)' />;
 		case 'in_progress':
-			return <IconPlayerPlay size={'1rem'} color="var(--mantine-color-blue-6)" />;
+			return <IconPlayerPlay size={'1rem'} color='var(--mantine-color-blue-6)' />;
 		case 'active':
-			return <IconHourglass size={'1rem'} color="var(--mantine-color-yellow-6)" />;
+			return <IconHourglass size={'1rem'} color='var(--mantine-color-yellow-6)' />;
 		case 'scheduled':
-			return <IconCalendarClock size={'1rem'} color="var(--mantine-color-grape-6)" />;
+			return <IconCalendarClock size={'1rem'} color='var(--mantine-color-grape-6)' />;
 		case 'cancelled':
-			return <IconX size={'1rem'} color="var(--mantine-color-gray-6)" />;
+			return <IconX size={'1rem'} color='var(--mantine-color-gray-6)' />;
 		default:
-			return <IconClock size={'1rem'} color="var(--mantine-color-gray-6)" />;
+			return <IconClock size={'1rem'} color='var(--mantine-color-gray-6)' />;
 	}
 }
 
@@ -95,7 +95,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			getData={getTasksData}
 			actionIcons={[
 				<TasksFilter key={'filter-link'} />,
-				<NewLink key={'new-link'} href="/dashboard/tasks/new" />,
+				<NewLink key={'new-link'} href='/dashboard/tasks/new' />,
 			]}
 			renderItem={(task) => {
 				const isOverdue =
@@ -109,20 +109,20 @@ export default function Layout({ children }: PropsWithChildren) {
 						id={task.id}
 						label={
 							<Stack gap={4}>
-								<Group gap="xs">
-									<Text size="sm" fw={500} lineClamp={1}>
+								<Group gap='xs'>
+									<Text size='sm' fw={500} lineClamp={1}>
 										{task.title}
 									</Text>
-									{isOverdue && <IconAlertCircle size={16} color="red" />}
+									{isOverdue && <IconAlertCircle size={16} color='red' />}
 								</Group>
-								<Group gap="xs">
-									<Badge size="xs" variant="light" color={getPriorityColor(task.priority)}>
+								<Group gap='xs'>
+									<Badge size='xs' variant='light' color={getPriorityColor(task.priority)}>
 										{task.priority}
 									</Badge>
 									{task.dueDate && (
 										<Group gap={4}>
 											<IconClock size={12} />
-											<Text size="xs" c="dimmed">
+											<Text size='xs' c='dimmed'>
 												{formatDistanceToNow(new Date(task.dueDate), {
 													addSuffix: true,
 												})}

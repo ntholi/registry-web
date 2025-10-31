@@ -25,10 +25,10 @@ export default async function SignupDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label="User Id">{signup.userId}</FieldView>
-				<FieldView label="Name">{signup.name}</FieldView>
-				<FieldView label="Std No">{signup.stdNo}</FieldView>
-				<FieldView label="Message">{signup.message}</FieldView>
+				<FieldView label='User Id'>{signup.userId}</FieldView>
+				<FieldView label='Name'>{signup.name}</FieldView>
+				<FieldView label='Std No'>{signup.stdNo}</FieldView>
+				<FieldView label='Message'>{signup.message}</FieldView>
 			</DetailsViewBody>
 		</DetailsView>
 	);

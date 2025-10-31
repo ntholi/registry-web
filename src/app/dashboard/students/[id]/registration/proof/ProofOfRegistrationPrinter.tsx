@@ -93,10 +93,10 @@ export default function ProofOfRegistrationPrinter({ stdNo }: Props) {
 
 	return (
 		<Button
-			leftSection={isLoading ? <Loader size={'xs'} /> : <IconPrinter size="1rem" />}
-			variant="subtle"
-			color="gray"
-			size="xs"
+			leftSection={isLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />}
+			variant='subtle'
+			color='gray'
+			size='xs'
 			disabled={isGenerating}
 			onClick={handlePrint}
 		>

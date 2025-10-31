@@ -89,10 +89,10 @@ export default function CertificateDownloader({ stdNo, disabled, programId }: Pr
 
 	return (
 		<Button
-			leftSection={<IconDownload size="1rem" />}
-			variant="subtle"
-			color="gray"
-			size="xs"
+			leftSection={<IconDownload size='1rem' />}
+			variant='subtle'
+			color='gray'
+			size='xs'
 			disabled={isGenerating || session?.user?.role !== 'admin' || disabled}
 			onClick={handleDownload}
 			loading={isGenerating}

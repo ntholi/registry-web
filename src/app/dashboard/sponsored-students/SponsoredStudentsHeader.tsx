@@ -74,23 +74,23 @@ export default function SponsoredStudentsHeader({
 		})) || [];
 
 	return (
-		<Paper withBorder shadow="sm" p="lg">
-			<Stack gap="lg">
+		<Paper withBorder shadow='sm' p='lg'>
+			<Stack gap='lg'>
 				<Flex
 					direction={{ base: 'column', sm: 'row' }}
-					gap="md"
+					gap='md'
 					align={{ base: 'stretch', sm: 'flex-end' }}
 				>
 					<Box flex={1}>
 						<TextInput
-							size="md"
-							placeholder="Search students, sponsors, accounts..."
+							size='md'
+							placeholder='Search students, sponsors, accounts...'
 							value={searchQuery}
 							onChange={(event) => onSearchChange(event.currentTarget.value)}
-							leftSection={<IconSearch size="1.1rem" stroke={1.5} />}
+							leftSection={<IconSearch size='1.1rem' stroke={1.5} />}
 							rightSection={
 								searchQuery ? (
-									<CloseButton onClick={() => onSearchChange('')} variant="subtle" size="sm" />
+									<CloseButton onClick={() => onSearchChange('')} variant='subtle' size='sm' />
 								) : null
 							}
 							styles={{
@@ -107,20 +107,20 @@ export default function SponsoredStudentsHeader({
 
 				<Flex
 					direction={{ base: 'column', md: 'row' }}
-					gap="md"
+					gap='md'
 					align={{ base: 'stretch', md: 'flex-start' }}
 				>
-					<Flex flex={1} direction={{ base: 'column', sm: 'row' }} gap="md" align="center">
+					<Flex flex={1} direction={{ base: 'column', sm: 'row' }} gap='md' align='center'>
 						<Box flex={1} miw={200}>
 							<Select
-								placeholder="All Sponsors"
+								placeholder='All Sponsors'
 								data={sponsorOptions}
 								value={selectedSponsor}
 								onChange={onSponsorChange}
 								clearable
 								searchable
 								disabled={isLoadingSponsors}
-								leftSection={<IconFilter size="0.9rem" stroke={1.5} />}
+								leftSection={<IconFilter size='0.9rem' stroke={1.5} />}
 								comboboxProps={{
 									withinPortal: true,
 								}}
@@ -134,14 +134,14 @@ export default function SponsoredStudentsHeader({
 
 						<Box flex={1} miw={200}>
 							<Select
-								placeholder="All Programs"
+								placeholder='All Programs'
 								data={programOptions}
 								value={selectedProgram}
 								onChange={onProgramChange}
 								clearable
 								searchable
 								disabled={isLoadingPrograms}
-								leftSection={<IconFilter size="0.9rem" stroke={1.5} />}
+								leftSection={<IconFilter size='0.9rem' stroke={1.5} />}
 								comboboxProps={{
 									withinPortal: true,
 								}}
@@ -155,7 +155,7 @@ export default function SponsoredStudentsHeader({
 
 						<Box flex={1} miw={200}>
 							<Select
-								placeholder="Confirmation"
+								placeholder='Confirmation'
 								data={[
 									{ value: 'confirmed', label: 'Confirmed' },
 									{ value: 'pending', label: 'Pending' },
@@ -163,7 +163,7 @@ export default function SponsoredStudentsHeader({
 								value={selectedConfirmation}
 								onChange={onConfirmationChange}
 								clearable
-								leftSection={<IconFilter size="0.9rem" stroke={1.5} />}
+								leftSection={<IconFilter size='0.9rem' stroke={1.5} />}
 								comboboxProps={{
 									withinPortal: true,
 								}}
@@ -177,14 +177,14 @@ export default function SponsoredStudentsHeader({
 
 						<Box flex={1} miw={200}>
 							<Select
-								placeholder="All Terms"
+								placeholder='All Terms'
 								data={termOptions}
 								value={selectedTerm}
 								onChange={onTermChange}
 								clearable
 								searchable
 								disabled={isLoadingTerms}
-								leftSection={<IconFilter size="0.9rem" stroke={1.5} />}
+								leftSection={<IconFilter size='0.9rem' stroke={1.5} />}
 								comboboxProps={{
 									withinPortal: true,
 								}}
@@ -197,7 +197,7 @@ export default function SponsoredStudentsHeader({
 						</Box>
 						<Box miw={200}>
 							<Checkbox
-								label="Only Cleared Students"
+								label='Only Cleared Students'
 								disabled={!selectedTerm}
 								checked={onlyCleared}
 								onChange={(e) => onOnlyClearedChange(e.currentTarget.checked)}

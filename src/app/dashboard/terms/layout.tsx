@@ -11,12 +11,12 @@ export default function Layout({ children }: PropsWithChildren) {
 			path={'/dashboard/terms'}
 			queryKey={['terms']}
 			getData={findAllTerms}
-			actionIcons={[<NewLink key={'new-link'} href="/dashboard/terms/new" />]}
+			actionIcons={[<NewLink key={'new-link'} href='/dashboard/terms/new' />]}
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}
 					label={it.name}
-					rightSection={it.isActive ? <IconCheck size={'1rem'} color="green" /> : null}
+					rightSection={it.isActive ? <IconCheck size={'1rem'} color='green' /> : null}
 				/>
 			)}
 		>

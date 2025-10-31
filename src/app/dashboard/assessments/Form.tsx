@@ -35,17 +35,17 @@ export default function AssessmentForm({ onSubmit, defaultValues, title }: Props
 				<Grid>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
 						<Select
-							label="No"
+							label='No'
 							searchable
 							clearable
-							placeholder="Assessment (Course Work) Number"
+							placeholder='Assessment (Course Work) Number'
 							data={ASSESSMENT_TYPES}
 							{...form.getInputProps('assessmentNumber')}
 						/>
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
 						<Select
-							label="Assessment Type"
+							label='Assessment Type'
 							searchable
 							clearable
 							data={ASSESSMENT_TYPES}
@@ -53,10 +53,10 @@ export default function AssessmentForm({ onSubmit, defaultValues, title }: Props
 						/>
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<NumberInput label="Total Marks" {...form.getInputProps('totalMarks')} min={1} />
+						<NumberInput label='Total Marks' {...form.getInputProps('totalMarks')} min={1} />
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<NumberInput label="Weight" {...form.getInputProps('weight')} min={1} max={100} />
+						<NumberInput label='Weight' {...form.getInputProps('weight')} min={1} max={100} />
 					</Grid.Col>
 				</Grid>
 			)}

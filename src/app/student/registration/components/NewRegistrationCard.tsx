@@ -41,14 +41,14 @@ export default function NewRegistrationCard() {
 	if (isLoading) {
 		return (
 			<Card withBorder>
-				<Stack align="center" gap="md">
-					<Skeleton height={60} width={60} radius="md" />
-					<Stack align="center" gap="xs" w="100%">
+				<Stack align='center' gap='md'>
+					<Skeleton height={60} width={60} radius='md' />
+					<Stack align='center' gap='xs' w='100%'>
 						<Skeleton height={24} width={200} />
 						<Skeleton height={16} width={300} />
 						<Skeleton height={16} width={250} />
 					</Stack>
-					<Skeleton height={36} width={150} radius="md" />
+					<Skeleton height={36} width={150} radius='md' />
 				</Stack>
 			</Card>
 		);
@@ -69,11 +69,11 @@ export default function NewRegistrationCard() {
 
 	if (isBlocked) {
 		return (
-			<Alert icon={<IconInfoCircle size="1rem" />} title="Registration Blocked" color="red" mb="xl">
+			<Alert icon={<IconInfoCircle size='1rem' />} title='Registration Blocked' color='red' mb='xl'>
 				Your account has been blocked from registering. Please contact the{' '}
 				{blockedStudent.byDepartment} office for assistance.
 				<br />
-				<Text fw={500} mt="xs">
+				<Text fw={500} mt='xs'>
 					Reason: {blockedStudent?.reason}
 				</Text>
 			</Alert>
@@ -82,15 +82,15 @@ export default function NewRegistrationCard() {
 
 	return (
 		<Card withBorder>
-			<Stack align="center" gap="md">
-				<ThemeIcon variant="light" color="gray" size="xl">
+			<Stack align='center' gap='md'>
+				<ThemeIcon variant='light' color='gray' size='xl'>
 					<IconPlus size={'1.5rem'} />
 				</ThemeIcon>
-				<Stack align="center" gap="xs">
-					<Text fw={500} size="lg">
+				<Stack align='center' gap='xs'>
+					<Text fw={500} size='lg'>
 						Start New Registration
 					</Text>
-					<Text size="sm" c="dimmed" ta="center">
+					<Text size='sm' c='dimmed' ta='center'>
 						You don&apos;t have a registration request for
 						<Text span fw={600}>
 							{currentTerm?.name}
@@ -98,7 +98,7 @@ export default function NewRegistrationCard() {
 						yet. Click below to start your registration process.
 					</Text>
 				</Stack>
-				<Button component={Link} href="/student/registration/new">
+				<Button component={Link} href='/student/registration/new'>
 					New Registration
 				</Button>
 			</Stack>

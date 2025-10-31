@@ -27,11 +27,11 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 	const _clearanceStatus = getClearanceStatus(graduationClearances);
 
 	return (
-		<Card withBorder p="md" radius="md">
-			<Stack gap="md">
-				<Box pos="relative">
-					<Group justify="space-between" align="center">
-						<Title order={2} size="h4" fw={600}>
+		<Card withBorder p='md' radius='md'>
+			<Stack gap='md'>
+				<Box pos='relative'>
+					<Group justify='space-between' align='center'>
+						<Title order={2} size='h4' fw={600}>
 							Clearance Status
 						</Title>
 					</Group>
@@ -40,8 +40,8 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 				<Divider />
 
 				{graduationClearances.length === 0 ? (
-					<Alert icon={<IconInfoCircle size="1rem" />} color="gray" variant="light">
-						<Text size="sm">
+					<Alert icon={<IconInfoCircle size='1rem' />} color='gray' variant='light'>
+						<Text size='sm'>
 							Your graduation request doesn&apos;t have any clearance requirements assigned yet.
 							Clearance requests will be created automatically once your graduation request is
 							processed.
@@ -60,14 +60,14 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 								<TimelineItem
 									key={dept}
 									title={
-										<Group justify="space-between" align="center" wrap="wrap">
-											<Text fw={600} size="md">
+										<Group justify='space-between' align='center' wrap='wrap'>
+											<Text fw={600} size='md'>
 												{toTitleCase(dept)} Department
 											</Text>
 											<Badge
 												color={getStatusColor(status)}
-												variant="light"
-												size="sm"
+												variant='light'
+												size='sm'
 												leftSection={getStatusIcon(status)}
 											>
 												{toTitleCase(status)}
@@ -75,22 +75,22 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 										</Group>
 									}
 								>
-									<Stack gap="xs" mt="xs">
+									<Stack gap='xs' mt='xs'>
 										<Box>
-											<Text size="xs" c="dimmed" fw={500}>
+											<Text size='xs' c='dimmed' fw={500}>
 												Created Date
 											</Text>
-											<Text size="sm">
+											<Text size='sm'>
 												{clearance ? formatDateTime(clearance.createdAt) : 'Not created yet'}
 											</Text>
 										</Box>
 
 										{clearance?.responseDate && (
 											<Box>
-												<Text size="xs" c="dimmed" fw={500}>
+												<Text size='xs' c='dimmed' fw={500}>
 													Response Date
 												</Text>
-												<Text size="sm">{formatDateTime(clearance.responseDate)}</Text>
+												<Text size='sm'>{formatDateTime(clearance.responseDate)}</Text>
 											</Box>
 										)}
 
@@ -100,15 +100,15 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 
 										{clearance?.respondedBy && (
 											<Box>
-												<Text size="xs" c="dimmed" fw={500}>
+												<Text size='xs' c='dimmed' fw={500}>
 													Processed By
 												</Text>
-												<Text size="sm">{clearance.respondedBy.name}</Text>
+												<Text size='sm'>{clearance.respondedBy.name}</Text>
 											</Box>
 										)}
 
 										{clearance?.status === 'pending' && (
-											<Text size="sm" c="dimmed" fs="italic">
+											<Text size='sm' c='dimmed' fs='italic'>
 												Waiting for {toTitleCase(dept)} Department to process your graduation
 												request...
 											</Text>
@@ -138,11 +138,11 @@ function ClearanceMessage({
 
 	return (
 		<Box>
-			<Text size="xs" c="dimmed" fw={500} mb={4}>
+			<Text size='xs' c='dimmed' fw={500} mb={4}>
 				{title}
 			</Text>
-			<Alert color={color} variant="light" radius="sm">
-				<Text size="sm">{message}</Text>
+			<Alert color={color} variant='light' radius='sm'>
+				<Text size='sm'>{message}</Text>
 			</Alert>
 		</Box>
 	);

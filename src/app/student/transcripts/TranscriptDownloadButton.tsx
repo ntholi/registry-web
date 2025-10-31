@@ -63,10 +63,10 @@ export default function TranscriptDownloadButton({
 	return isMobile ? (
 		<ActionIcon
 			onClick={handleDownload}
-			size="xl"
+			size='xl'
 			loading={isGenerating}
 			disabled={disabled || !student}
-			variant="default"
+			variant='default'
 		>
 			<IconDownload size={16} />
 		</ActionIcon>
@@ -76,7 +76,7 @@ export default function TranscriptDownloadButton({
 			onClick={handleDownload}
 			loading={isGenerating}
 			disabled={disabled || !student}
-			variant="filled"
+			variant='filled'
 		>
 			{isGenerating ? 'Generating...' : 'Download'}
 		</Button>

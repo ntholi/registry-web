@@ -110,12 +110,12 @@ export default function SponsorshipDetailsEdit({
 	}
 
 	return (
-		<Stack gap="lg" mt="md">
-			<Card padding="lg" withBorder>
-				<Stack gap="md">
+		<Stack gap='lg' mt='md'>
+			<Card padding='lg' withBorder>
+				<Stack gap='md'>
 					<Select
-						label="Sponsor"
-						placeholder="Select your sponsor"
+						label='Sponsor'
+						placeholder='Select your sponsor'
 						data={sponsorOptions}
 						value={sponsorshipData?.sponsorId?.toString() || null}
 						onChange={handleSponsorChange}
@@ -126,19 +126,19 @@ export default function SponsorshipDetailsEdit({
 
 					{sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
 						<TextInput
-							label="Borrower Number"
-							placeholder="Enter your borrower number"
+							label='Borrower Number'
+							placeholder='Enter your borrower number'
 							value={borrowerNo}
 							onChange={(event) => handleBorrowerNoChange(event.currentTarget.value)}
-							description="Required for NMDS sponsored students"
+							description='Required for NMDS sponsored students'
 							required
 						/>
 					)}
 				</Stack>
 			</Card>
 
-			<Alert icon={<IconInfoCircle size="1rem" />} color="blue">
-				<Text size="sm">
+			<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+				<Text size='sm'>
 					<strong>Note:</strong> When editing your registration, only sponsor and borrower number
 					can be updated. Banking details cannot be changed during registration updates.
 					{sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
@@ -149,7 +149,7 @@ export default function SponsorshipDetailsEdit({
 			</Alert>
 
 			{sponsors.length === 0 && !sponsorsLoading && (
-				<Alert icon={<IconInfoCircle size="1rem" />} color="orange">
+				<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
 					No sponsors found. Please contact the administration to set up sponsors.
 				</Alert>
 			)}

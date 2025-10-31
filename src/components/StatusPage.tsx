@@ -28,28 +28,28 @@ export default function StatusPage({
 	const router = useRouter();
 
 	return (
-		<Center h="100dvh">
-			<Container size="xs">
-				<Stack align="center" gap="md">
+		<Center h='100dvh'>
+			<Container size='xs'>
+				<Stack align='center' gap='md'>
 					{icon ? (
-						<ThemeIcon size={64} radius="xl" variant="light" color={color}>
+						<ThemeIcon size={64} radius='xl' variant='light' color={color}>
 							{icon}
 						</ThemeIcon>
 					) : null}
-					<Title order={1} ta="center" size="h2">
+					<Title order={1} ta='center' size='h2'>
 						{title}
 					</Title>
 					{description ? (
-						<Text c="dimmed" ta="center">
+						<Text c='dimmed' ta='center'>
 							{description}
 						</Text>
 					) : null}
-					<Group mt="sm">
+					<Group mt='sm'>
 						{showBack ? (
 							<Button
-								variant="light"
+								variant='light'
 								color={color}
-								leftSection={<IconArrowLeft size="1.2rem" />}
+								leftSection={<IconArrowLeft size='1.2rem' />}
 								onClick={() => router.back()}
 							>
 								Go back

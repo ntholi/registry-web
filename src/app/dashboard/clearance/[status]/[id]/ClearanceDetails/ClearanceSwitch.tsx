@@ -71,7 +71,7 @@ export default function ClearanceSwitch({ request, comment, setAccordion }: Prop
 	}
 
 	return (
-		<Paper withBorder p="md" py={21}>
+		<Paper withBorder p='md' py={21}>
 			<Stack>
 				<SegmentedControl
 					value={status}

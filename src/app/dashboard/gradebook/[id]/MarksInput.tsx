@@ -254,40 +254,40 @@ export default function MarksInput({
 	const statusColor = getMarkStatus();
 
 	return (
-		<Box pos="relative">
+		<Box pos='relative'>
 			<Box
-				pos="relative"
+				pos='relative'
 				style={{ cursor: 'pointer', display: isEditing ? 'none' : undefined }}
 				onClick={() => {
 					setIsEditing(true);
 					setError('');
 				}}
 			>
-				<Group gap={2} justify="center" align="end">
-					<Text fw={600} c={statusColor || undefined} size="sm">
+				<Group gap={2} justify='center' align='end'>
+					<Text fw={600} c={statusColor || undefined} size='sm'>
 						{markDisplay}
 					</Text>
-					<Text size="xs" c="dimmed">
+					<Text size='xs' c='dimmed'>
 						/{maxMark}
 					</Text>
 				</Group>
 				{error && (
-					<Text size="xs" c="red" ta="center" mt={2}>
+					<Text size='xs' c='red' ta='center' mt={2}>
 						{error}
 					</Text>
 				)}
 			</Box>
 			<Box style={{ display: isEditing ? undefined : 'none' }}>
-				<Group align="center" gap={4} justify="center">
+				<Group align='center' gap={4} justify='center'>
 					<TextInput
 						ref={inputRef}
-						size="xs"
+						size='xs'
 						value={mark}
 						onChange={(e) => handleMarkChange(e.target.value)}
 						onBlur={handleBlur}
 						onKeyDown={handleKeyDown}
 						error={error}
-						placeholder="Marks"
+						placeholder='Marks'
 						styles={{
 							input: {
 								width: '90px',

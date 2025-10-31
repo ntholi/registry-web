@@ -179,29 +179,29 @@ export default function PhotoInputModal({
 				})
 			) : (
 				<Button
-					variant="light"
+					variant='light'
 					onClick={() => {
 						if (onOpen) onOpen();
 						open();
 					}}
-					leftSection={<IconPhoto size="1rem" />}
+					leftSection={<IconPhoto size='1rem' />}
 				>
 					Select Photo
 				</Button>
 			)}
 
-			<Modal opened={opened} onClose={handleClose} title={title} size="xl" centered closeOnEscape>
-				<Stack gap="md">
+			<Modal opened={opened} onClose={handleClose} title={title} size='xl' centered closeOnEscape>
+				<Stack gap='md'>
 					{!imageSrc ? (
 						<Center>
-							<Stack align="center" gap="md">
-								<IconPhoto size="3rem" color="gray" />
-								<Text c="dimmed" ta="center">
+							<Stack align='center' gap='md'>
+								<IconPhoto size='3rem' color='gray' />
+								<Text c='dimmed' ta='center'>
 									Select an image to crop and resize
 								</Text>
-								<FileButton onChange={handleFileSelect} accept="image/*">
+								<FileButton onChange={handleFileSelect} accept='image/*'>
 									{(props) => (
-										<Button {...props} leftSection={<IconUpload size="1rem" />}>
+										<Button {...props} leftSection={<IconUpload size='1rem' />}>
 											Choose Image
 										</Button>
 									)}
@@ -221,7 +221,7 @@ export default function PhotoInputModal({
 								>
 									<img
 										ref={imgRef}
-										alt="Crop preview"
+										alt='Crop preview'
 										src={imageSrc}
 										style={{
 											maxWidth: '100%',
@@ -233,8 +233,8 @@ export default function PhotoInputModal({
 								</ReactCrop>
 							</Center>
 
-							<Group justify="center" mt="lg">
-								<Button variant="outline" onClick={handleClose} disabled={isProcessing}>
+							<Group justify='center' mt='lg'>
+								<Button variant='outline' onClick={handleClose} disabled={isProcessing}>
 									Cancel
 								</Button>
 								<Button onClick={handleSubmit} loading={isProcessing}>

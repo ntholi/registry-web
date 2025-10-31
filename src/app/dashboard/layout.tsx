@@ -17,7 +17,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
 		<Dashboard>
 			{!process.env.AUTH_URL?.includes('portal.co.ls') && (
 				<Paper withBorder p={5} bg={'red'} mb={'md'}>
-					<Text ta={'center'} size="xs" c={'white'}>
+					<Text ta={'center'} size='xs' c={'white'}>
 						This is a Test Environment!
 					</Text>
 				</Paper>

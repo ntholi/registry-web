@@ -53,33 +53,33 @@ export default function EditStudentUserModal({
 
 	return (
 		<>
-			<Tooltip label="Edit User">
-				<ActionIcon variant="subtle" color="blue" onClick={open}>
+			<Tooltip label='Edit User'>
+				<ActionIcon variant='subtle' color='blue' onClick={open}>
 					<IconEdit size={16} />
 				</ActionIcon>
 			</Tooltip>
 
-			<Modal opened={opened} onClose={close} title="Edit Student User" size="md">
-				<Stack gap="md">
-					<Text size="sm" c="dimmed">
+			<Modal opened={opened} onClose={close} title='Edit Student User' size='md'>
+				<Stack gap='md'>
+					<Text size='sm' c='dimmed'>
 						Select a user to associate with this student.
 					</Text>
 
-					<UserInput label="User" value={selectedUser} onChange={setSelectedUser} />
+					<UserInput label='User' value={selectedUser} onChange={setSelectedUser} />
 
 					{currentUser && (
-						<Group gap="xs">
-							<Text size="sm" c="dimmed">
+						<Group gap='xs'>
+							<Text size='sm' c='dimmed'>
 								Current user:
 							</Text>
-							<Text size="sm" fw={500}>
+							<Text size='sm' fw={500}>
 								{currentUser.name || currentUser.email}
 							</Text>
 						</Group>
 					)}
 
-					<Group justify="flex-end" gap="sm">
-						<Button variant="default" onClick={close}>
+					<Group justify='flex-end' gap='sm'>
+						<Button variant='default' onClick={close}>
 							Cancel
 						</Button>
 						<Button

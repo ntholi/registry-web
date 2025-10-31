@@ -112,10 +112,10 @@ export default function ProofOfClearancePrinter({ stdNo }: ProofOfClearancePrint
 
 	return (
 		<Button
-			leftSection={isLoading ? <Loader size={'xs'} /> : <IconPrinter size="1rem" />}
-			variant="subtle"
-			color="gray"
-			size="xs"
+			leftSection={isLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />}
+			variant='subtle'
+			color='gray'
+			size='xs'
 			disabled={isGenerating}
 			onClick={handlePrint}
 		>

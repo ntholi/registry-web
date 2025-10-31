@@ -13,7 +13,7 @@ export default function ModulesView({ registration }: Props) {
 
 	if (requestedModules.length === 0) {
 		return (
-			<Alert icon={<IconInfoCircle size="1rem" />} color="blue">
+			<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
 				No modules have been requested for this registration.
 			</Alert>
 		);
@@ -40,18 +40,18 @@ export default function ModulesView({ registration }: Props) {
 			<Table.Tr key={semesterModule.id}>
 				<Table.Td>
 					<Stack gap={2}>
-						<Text fw={500} ff="monospace" size="sm">
+						<Text fw={500} ff='monospace' size='sm'>
 							{semesterModule.module!.code}
 						</Text>
-						<Text size="xs" c="dimmed" lineClamp={2}>
+						<Text size='xs' c='dimmed' lineClamp={2}>
 							{semesterModule.module!.name}
 						</Text>
 					</Stack>
 				</Table.Td>
 				<Table.Td w={80}>
 					<Badge
-						variant="light"
-						size="xs"
+						variant='light'
+						size='xs'
 						color={status === 'registered' ? 'green' : status === 'rejected' ? 'red' : 'gray'}
 					>
 						{status}
@@ -70,15 +70,15 @@ export default function ModulesView({ registration }: Props) {
 		.reduce((sum, { semesterModule }) => sum + (semesterModule.credits || 0), 0);
 
 	return (
-		<Card withBorder p="md" radius="md">
-			<Stack gap="md">
-				<Group justify="space-between" align="flex-start" wrap="wrap">
-					<Group gap="sm">
+		<Card withBorder p='md' radius='md'>
+			<Stack gap='md'>
+				<Group justify='space-between' align='flex-start' wrap='wrap'>
+					<Group gap='sm'>
 						<div>
-							<Title order={2} size="h3" fw={600}>
+							<Title order={2} size='h3' fw={600}>
 								Requested Modules
 							</Title>
-							<Text size="sm" c="dimmed">
+							<Text size='sm' c='dimmed'>
 								{requestedModules.length} modules • {totalCredits} total credits
 							</Text>
 						</div>
@@ -98,8 +98,8 @@ export default function ModulesView({ registration }: Props) {
 				</ScrollArea>
 
 				{totalCredits !== approvedCredits && (
-					<Alert icon={<IconInfoCircle size="1rem" />} color="blue" variant="light">
-						<Text size="sm">Some modules are still pending approval. Please check back later</Text>
+					<Alert icon={<IconInfoCircle size='1rem' />} color='blue' variant='light'>
+						<Text size='sm'>Some modules are still pending approval. Please check back later</Text>
 					</Alert>
 				)}
 			</Stack>

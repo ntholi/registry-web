@@ -88,7 +88,7 @@ export default function FortinetRegistrationPage() {
 
 	if (studentLoading || registrationsLoading) {
 		return (
-			<Center h="50vh">
+			<Center h='50vh'>
 				<Loader />
 			</Center>
 		);
@@ -96,8 +96,8 @@ export default function FortinetRegistrationPage() {
 
 	if (!student) {
 		return (
-			<Container size="md" py="xl">
-				<Alert color="red" icon={<IconInfoCircle />}>
+			<Container size='md' py='xl'>
+				<Alert color='red' icon={<IconInfoCircle />}>
 					Student information not found. Please contact support.
 				</Alert>
 			</Container>
@@ -111,8 +111,8 @@ export default function FortinetRegistrationPage() {
 
 	if (!isICTStudent) {
 		return (
-			<Container size="md" py="xl">
-				<Alert color="orange" icon={<IconInfoCircle />}>
+			<Container size='md' py='xl'>
+				<Alert color='orange' icon={<IconInfoCircle />}>
 					Fortinet training registration is only available for students in the Faculty of
 					Information & Communication Technology.
 				</Alert>
@@ -123,56 +123,56 @@ export default function FortinetRegistrationPage() {
 	const registeredLevels = new Set(existingRegistrations?.map((reg) => reg.level) || []);
 
 	return (
-		<Container size="md" py="xl">
-			<Paper shadow="sm" p="xl" radius="md">
-				<Group gap="md" mb="xl">
+		<Container size='md' py='xl'>
+			<Paper shadow='sm' p='xl' radius='md'>
+				<Group gap='md' mb='xl'>
 					<IconShield size={32} />
 					<div>
 						<Title order={2}>Fortinet Training Registration</Title>
-						<Text c="dimmed">
+						<Text c='dimmed'>
 							Register for Fortinet Network Security Expert certification levels
 						</Text>
 					</div>
 				</Group>
 
 				{existingRegistrations && existingRegistrations.length > 0 && (
-					<Alert color="blue" icon={<IconInfoCircle />} mb="xl">
-						<Text fw={500} mb="xs">
+					<Alert color='blue' icon={<IconInfoCircle />} mb='xl'>
+						<Text fw={500} mb='xs'>
 							Your Current Registrations:
 						</Text>
 						{existingRegistrations.map((reg) => (
-							<Text key={reg.id} size="sm">
+							<Text key={reg.id} size='sm'>
 								• {reg.level.toUpperCase()} - Status: {reg.status}
 							</Text>
 						))}
 					</Alert>
 				)}
 
-				<Stack gap="lg">
+				<Stack gap='lg'>
 					<div>
-						<Text fw={500} mb="md">
+						<Text fw={500} mb='md'>
 							Select Certification Level:
 						</Text>
 						<Radio.Group
 							value={selectedLevel}
 							onChange={(value) => setSelectedLevel(value as FortinetLevel)}
 						>
-							<Stack gap="xs">
+							<Stack gap='xs'>
 								{fortinetLevelEnum.enumValues.map((level) => (
 									<Radio.Card
 										key={level}
-										radius="md"
-										p="md"
+										radius='md'
+										p='md'
 										value={level}
 										disabled={registeredLevels.has(level)}
 									>
-										<Group wrap="nowrap" align="flex-start">
+										<Group wrap='nowrap' align='flex-start'>
 											<Radio.Indicator />
 											<div>
-												<Text className="label" fw={500}>
+												<Text className='label' fw={500}>
 													{level.toUpperCase()}
 												</Text>
-												<Text size="sm" c="dimmed">
+												<Text size='sm' c='dimmed'>
 													{levelDescriptions[level]}
 												</Text>
 											</div>
@@ -183,9 +183,9 @@ export default function FortinetRegistrationPage() {
 						</Radio.Group>
 					</div>
 
-					<Group justify="flex-end" mt="md">
+					<Group justify='flex-end' mt='md'>
 						<Button
-							size="md"
+							size='md'
 							onClick={handleSubmit}
 							loading={createMutation.isPending}
 							disabled={!selectedLevel}

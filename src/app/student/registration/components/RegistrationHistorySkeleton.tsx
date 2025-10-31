@@ -5,29 +5,29 @@ export default function RegistrationHistorySkeleton() {
 		<SimpleGrid cols={{ base: 1, sm: 2 }}>
 			{Array.from({ length: 4 }).map((_, index) => (
 				<Card withBorder key={index}>
-					<CardSection p="xs">
-						<Flex gap="xs" align="center" justify="space-between">
+					<CardSection p='xs'>
+						<Flex gap='xs' align='center' justify='space-between'>
 							<Group>
-								<Skeleton height={32} width={32} radius="sm" />
+								<Skeleton height={32} width={32} radius='sm' />
 								<Skeleton height={24} width={120} />
 							</Group>
-							<Skeleton height={20} width={60} radius="xl" />
+							<Skeleton height={20} width={60} radius='xl' />
 						</Flex>
 					</CardSection>
 
 					<Flex justify={'space-between'} align={'center'}>
-						<Stack gap="xs" mt="xs">
+						<Stack gap='xs' mt='xs'>
 							<Skeleton height={16} width={80} />
 							<Skeleton height={16} width={100} />
 						</Stack>
 					</Flex>
 
-					<CardSection px="xs" mt="xs" py="xs" withBorder>
-						<Flex gap="xs" align="center" justify="space-between">
+					<CardSection px='xs' mt='xs' py='xs' withBorder>
+						<Flex gap='xs' align='center' justify='space-between'>
 							<Skeleton height={12} width={150} />
 							<Group>
 								<Skeleton height={12} width={80} />
-								<Skeleton height={16} width={16} radius="sm" />
+								<Skeleton height={16} width={16} radius='sm' />
 							</Group>
 						</Flex>
 					</CardSection>

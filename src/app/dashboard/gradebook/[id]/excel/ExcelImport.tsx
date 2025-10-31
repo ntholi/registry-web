@@ -146,29 +146,29 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 
 	return (
 		<>
-			<Button leftSection={<IconFileImport size={'1rem'} />} variant="light" onClick={open}>
+			<Button leftSection={<IconFileImport size={'1rem'} />} variant='light' onClick={open}>
 				Import from Excel
 			</Button>
 
 			<Modal
 				opened={opened}
 				onClose={handleClose}
-				title="Import Assessment Marks from Excel"
-				size="xl"
+				title='Import Assessment Marks from Excel'
+				size='xl'
 			>
-				<Stack gap="md">
-					<Stepper active={activeStep} size="sm" allowNextStepsSelect={false}>
+				<Stack gap='md'>
+					<Stepper active={activeStep} size='sm' allowNextStepsSelect={false}>
 						<Stepper.Step
-							label="Upload File"
-							description="Select Excel file"
+							label='Upload File'
+							description='Select Excel file'
 							icon={<IconUpload size={18} />}
 							completedIcon={<IconCheck size={18} />}
 						>
-							<Stack gap="md" py="md">
+							<Stack gap='md' py='md'>
 								<FileInput
-									label="Select Excel File"
-									placeholder="Choose .xlsx or .xls file"
-									accept=".xlsx,.xls"
+									label='Select Excel File'
+									placeholder='Choose .xlsx or .xls file'
+									accept='.xlsx,.xls'
 									value={file}
 									onChange={handleFileSelect}
 									leftSection={<IconFileImport size={16} />}
@@ -183,7 +183,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 								)}
 
 								{excelData && (
-									<Alert icon={<IconCheck size={16} />} color="green">
+									<Alert icon={<IconCheck size={16} />} color='green'>
 										File loaded successfully: {excelData.rows.length} rows,
 										{excelData.headers.length} columns
 										{selectedSheet && ` from sheet "${selectedSheet}"`}
@@ -192,8 +192,8 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 							</Stack>
 						</Stepper.Step>
 						<Stepper.Step
-							label="Map Columns"
-							description="Verify column mapping"
+							label='Map Columns'
+							description='Verify column mapping'
 							icon={<IconTable size={18} />}
 							completedIcon={<IconCheck size={18} />}
 						>
@@ -208,8 +208,8 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 							)}
 						</Stepper.Step>
 						<Stepper.Step
-							label="Preview & Import"
-							description="Review data before import"
+							label='Preview & Import'
+							description='Review data before import'
 							icon={<IconFileCheck size={18} />}
 							completedIcon={<IconCheck size={18} />}
 						>
@@ -234,26 +234,26 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 							)}
 						</Stepper.Step>
 						<Stepper.Step
-							label="Complete"
-							description="Import results"
+							label='Complete'
+							description='Import results'
 							icon={<IconDatabase size={18} />}
 							completedIcon={<IconCheck size={18} />}
 						>
 							{importResult && (
-								<Stack gap="md" py="md">
+								<Stack gap='md' py='md'>
 									<Alert
 										icon={
 											importResult.success ? <IconCheck size={16} /> : <IconAlertCircle size={16} />
 										}
 										color={importResult.success ? 'green' : 'orange'}
 									>
-										<Group justify="space-between">
+										<Group justify='space-between'>
 											<div>
 												<Text fw={500}>
 													Import
 													{importResult.success ? 'Completed' : 'Completed with Errors'}
 												</Text>
-												<Text size="sm">
+												<Text size='sm'>
 													{importResult.imported} records imported successfully
 													{importResult.failed > 0 && `, ${importResult.failed} failed`}
 												</Text>
@@ -262,18 +262,18 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 									</Alert>
 
 									{importResult.errors.length > 0 && (
-										<Alert icon={<IconAlertCircle size={16} />} color="red">
-											<Text fw={500} mb="xs">
+										<Alert icon={<IconAlertCircle size={16} />} color='red'>
+											<Text fw={500} mb='xs'>
 												Import Errors:
 											</Text>
 											<Stack gap={4}>
 												{importResult.errors.slice(0, 5).map((error, index) => (
-													<Text key={index} size="sm">
+													<Text key={index} size='sm'>
 														• {error}
 													</Text>
 												))}
 												{importResult.errors.length > 5 && (
-													<Text size="sm" c="dimmed">
+													<Text size='sm' c='dimmed'>
 														... and {importResult.errors.length - 5} more errors
 													</Text>
 												)}
@@ -281,9 +281,9 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 										</Alert>
 									)}
 
-									<Group justify="center">
+									<Group justify='center'>
 										<Button onClick={handleClose}>Close</Button>
-										<Button variant="light" onClick={resetImport}>
+										<Button variant='light' onClick={resetImport}>
 											Import Another File
 										</Button>
 									</Group>
@@ -292,9 +292,9 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 						</Stepper.Step>
 					</Stepper>
 					{activeStep < 3 && activeStep !== 2 && activeStep !== 1 && (
-						<Group justify="space-between">
+						<Group justify='space-between'>
 							<Button
-								variant="subtle"
+								variant='subtle'
 								onClick={activeStep > 0 ? () => setActiveStep(activeStep - 1) : handleClose}
 							>
 								{activeStep > 0 ? 'Back' : 'Cancel'}

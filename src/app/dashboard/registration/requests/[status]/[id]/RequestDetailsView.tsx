@@ -16,15 +16,15 @@ type Props = {
 
 export default function RequestDetailsView({ value, sponsorship }: Props) {
 	return (
-		<Stack gap="md">
+		<Stack gap='md'>
 			<StudentNameView stdNo={value.stdNo} name={value.student.name} />
 
-			<FieldView label="Term" underline={false}>
+			<FieldView label='Term' underline={false}>
 				{value.term.name}
 			</FieldView>
 
-			<Flex justify={'space-between'} w="100%">
-				<FieldView label="Semester" underline={false}>
+			<Flex justify={'space-between'} w='100%'>
+				<FieldView label='Semester' underline={false}>
 					{formatSemester(value.semesterNumber)}
 				</FieldView>
 				<Badge radius={'sm'} color={value.semesterStatus === 'Active' ? 'blue' : 'red'}>
@@ -35,16 +35,16 @@ export default function RequestDetailsView({ value, sponsorship }: Props) {
 			{sponsorship && (
 				<Paper withBorder p={'md'}>
 					<SimpleGrid cols={{ base: 1, sm: 2 }}>
-						<FieldView label="Sponsor" underline={false}>
+						<FieldView label='Sponsor' underline={false}>
 							{sponsorship.sponsor?.name || '—'}
 						</FieldView>
-						<FieldView label="Borrower No." underline={false}>
+						<FieldView label='Borrower No.' underline={false}>
 							{sponsorship.borrowerNo || '—'}
 						</FieldView>
-						<FieldView label="Bank Name" underline={false}>
+						<FieldView label='Bank Name' underline={false}>
 							{sponsorship.bankName || '—'}
 						</FieldView>
-						<FieldView label="Account Number" underline={false}>
+						<FieldView label='Account Number' underline={false}>
 							{sponsorship.accountNumber || '—'}
 						</FieldView>
 					</SimpleGrid>
@@ -56,16 +56,16 @@ export default function RequestDetailsView({ value, sponsorship }: Props) {
 
 function StudentNameView({ stdNo, name }: { stdNo: number; name: string }) {
 	return (
-		<FieldView label="Student" underline={false}>
-			<Flex align="center" gap="xs">
-				<Link href={`/dashboard/students/${stdNo}`} size="sm" fw={500}>
+		<FieldView label='Student' underline={false}>
+			<Flex align='center' gap='xs'>
+				<Link href={`/dashboard/students/${stdNo}`} size='sm' fw={500}>
 					{name} ({stdNo})
 				</Link>
-				<Tooltip label="Copy student number">
+				<Tooltip label='Copy student number'>
 					<ActionIcon
-						variant="subtle"
-						color="gray"
-						size="sm"
+						variant='subtle'
+						color='gray'
+						size='sm'
 						onClick={() => {
 							navigator.clipboard.writeText(String(stdNo));
 							notifications.show({

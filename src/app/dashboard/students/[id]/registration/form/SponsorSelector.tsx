@@ -72,16 +72,16 @@ export default function SponsorSelector({ value, onChange, errors }: SponsorSele
 	};
 
 	return (
-		<Paper withBorder p="md">
-			<Title order={4} size="h5" mb="md">
+		<Paper withBorder p='md'>
+			<Title order={4} size='h5' mb='md'>
 				Sponsorship Details
 			</Title>
-			<Paper withBorder p="md">
+			<Paper withBorder p='md'>
 				<Grid>
 					<GridCol span={6}>
 						<Select
-							label="Sponsor"
-							placeholder="Select sponsor"
+							label='Sponsor'
+							placeholder='Select sponsor'
 							data={
 								sponsors?.map((sponsor) => ({
 									value: sponsor.id.toString(),
@@ -97,8 +97,8 @@ export default function SponsorSelector({ value, onChange, errors }: SponsorSele
 					</GridCol>
 					<GridCol span={6}>
 						<TextInput
-							label="Borrower Number"
-							placeholder="Enter borrower number"
+							label='Borrower Number'
+							placeholder='Enter borrower number'
 							value={value.borrowerNo || ''}
 							onChange={(event) => handleBorrowerNoChange(event.currentTarget.value)}
 							disabled={!value.sponsorId || !isNMDS(value.sponsorId)}
@@ -108,8 +108,8 @@ export default function SponsorSelector({ value, onChange, errors }: SponsorSele
 					</GridCol>
 					<GridCol span={6}>
 						<Select
-							label="Bank Name"
-							placeholder="Select bank"
+							label='Bank Name'
+							placeholder='Select bank'
 							data={bankOptions}
 							value={value.bankName || null}
 							onChange={handleBankNameChange}
@@ -120,8 +120,8 @@ export default function SponsorSelector({ value, onChange, errors }: SponsorSele
 					</GridCol>
 					<GridCol span={6}>
 						<TextInput
-							label="Account Number"
-							placeholder="Enter account number"
+							label='Account Number'
+							placeholder='Enter account number'
 							value={value.accountNumber || ''}
 							onChange={(event) => handleAccountNumberChange(event.currentTarget.value)}
 							error={errors?.accountNumber}

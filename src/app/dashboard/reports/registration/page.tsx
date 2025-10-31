@@ -186,13 +186,13 @@ export default function RegistrationReportPage() {
 	};
 
 	return (
-		<Container size="xl" p={{ base: 'sm', sm: 'xl' }}>
+		<Container size='xl' p={{ base: 'sm', sm: 'xl' }}>
 			<Stack>
 				<Box>
-					<Title order={1} size="h2">
+					<Title order={1} size='h2'>
 						Registration Reports
 					</Title>
-					<Text c="dimmed" size="sm">
+					<Text c='dimmed' size='sm'>
 						View and export registration data by academic term
 					</Text>
 				</Box>
@@ -200,32 +200,32 @@ export default function RegistrationReportPage() {
 				<RegistrationFilter filter={filter} onFilterChange={handleFilterChange} />
 
 				{canGenerateReport && !hasData && !isLoading && (
-					<Alert icon={<IconInfoCircle size={16} />} color="yellow" variant="light">
+					<Alert icon={<IconInfoCircle size={16} />} color='yellow' variant='light'>
 						No registration data found for the selected criteria. Try adjusting your filters or
 						selecting a different academic term.
 					</Alert>
 				)}
 
 				{canGenerateReport && (
-					<Tabs defaultValue="summary">
+					<Tabs defaultValue='summary'>
 						<Tabs.List>
-							<Tabs.Tab value="summary" leftSection={<IconChartBar size={16} />}>
+							<Tabs.Tab value='summary' leftSection={<IconChartBar size={16} />}>
 								Summary
 							</Tabs.Tab>
-							<Tabs.Tab value="students" leftSection={<IconUsers size={16} />}>
+							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
 								Students
 							</Tabs.Tab>
 						</Tabs.List>
 
-						<Tabs.Panel value="summary" pt="xl">
-							<Stack gap="lg">
+						<Tabs.Panel value='summary' pt='xl'>
+							<Stack gap='lg'>
 								<Card>
-									<Group justify="space-between" align="center">
+									<Group justify='space-between' align='center'>
 										<Box>
-											<Text fw={600} size="lg">
+											<Text fw={600} size='lg'>
 												Program Enrollment
 											</Text>
-											<Text size="sm" c="dimmed">
+											<Text size='sm' c='dimmed'>
 												Registration statistics by program
 											</Text>
 										</Box>
@@ -233,7 +233,7 @@ export default function RegistrationReportPage() {
 											<Button
 												leftSection={<IconDownload size={16} />}
 												onClick={handleExportSummary}
-												variant="light"
+												variant='light'
 												loading={isExportingSummary}
 												disabled={isExportingSummary}
 											>
@@ -253,22 +253,22 @@ export default function RegistrationReportPage() {
 										<ProgramBreakdownTable key={index} school={school} />
 									))
 								) : (
-									<Alert color="blue" variant="light">
+									<Alert color='blue' variant='light'>
 										No program data available for the selected criteria.
 									</Alert>
 								)}
 							</Stack>
 						</Tabs.Panel>
 
-						<Tabs.Panel value="students" pt="xl">
-							<Stack gap="lg">
+						<Tabs.Panel value='students' pt='xl'>
+							<Stack gap='lg'>
 								<Card>
-									<Group justify="space-between" align="center">
+									<Group justify='space-between' align='center'>
 										<Box>
-											<Text fw={600} size="lg">
+											<Text fw={600} size='lg'>
 												Registered Students
 											</Text>
-											<Text size="sm" c="dimmed">
+											<Text size='sm' c='dimmed'>
 												{studentsData?.totalCount || 0} student
 												{studentsData?.totalCount !== 1 ? 's' : ''} found
 											</Text>
@@ -277,7 +277,7 @@ export default function RegistrationReportPage() {
 											<Button
 												leftSection={<IconDownload size={16} />}
 												onClick={handleExportStudents}
-												variant="light"
+												variant='light'
 												loading={isExportingStudents}
 												disabled={isExportingStudents}
 											>
@@ -305,9 +305,9 @@ export default function RegistrationReportPage() {
 				{error && (
 					<Alert
 						icon={<IconInfoCircle size={16} />}
-						title="Error Loading Report"
-						color="red"
-						variant="light"
+						title='Error Loading Report'
+						color='red'
+						variant='light'
 					>
 						{error instanceof Error ? error.message : 'An unexpected error occurred'}
 					</Alert>

@@ -10,7 +10,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			path={'/dashboard/lists/graduation'}
 			queryKey={['graduation-lists']}
 			getData={getGraduationLists}
-			actionIcons={[<NewLink key={'new-link'} href="/dashboard/lists/graduation/new" />]}
+			actionIcons={[<NewLink key={'new-link'} href='/dashboard/lists/graduation/new' />]}
 			renderItem={(it) => <ListItem id={it.id} label={it.id} />}
 		>
 			{children}

@@ -75,19 +75,19 @@ export default function NewSponsoredStudentModal() {
 
 	return (
 		<>
-			<Button leftSection={<IconPlus size="1rem" />} onClick={open} variant="filled">
+			<Button leftSection={<IconPlus size='1rem' />} onClick={open} variant='filled'>
 				New
 			</Button>
 
 			<Modal
 				opened={opened}
 				onClose={handleClose}
-				title="Add New Sponsored Student"
-				size="md"
+				title='Add New Sponsored Student'
+				size='md'
 				centered
 			>
-				<Stack gap="md">
-					<Alert icon={<IconAlertCircle size="1rem" />} color="blue">
+				<Stack gap='md'>
+					<Alert icon={<IconAlertCircle size='1rem' />} color='blue'>
 						Add a student to a sponsorship program by entering their student number and selecting a
 						sponsor.
 					</Alert>
@@ -95,12 +95,12 @@ export default function NewSponsoredStudentModal() {
 					<StdNoInput
 						value={studentNumber}
 						onChange={setStudentNumber}
-						placeholder="Enter 9-digit student number"
+						placeholder='Enter 9-digit student number'
 					/>
 
 					<Select
-						label="Sponsor"
-						placeholder="Select a sponsor"
+						label='Sponsor'
+						placeholder='Select a sponsor'
 						data={sponsorOptions}
 						value={selectedSponsor}
 						onChange={setSelectedSponsor}
@@ -113,15 +113,15 @@ export default function NewSponsoredStudentModal() {
 					/>
 
 					{!currentTerm && (
-						<Alert color="red">
-							<Text size="sm">
+						<Alert color='red'>
+							<Text size='sm'>
 								No active term found. Please ensure there is an active term to create sponsorships.
 							</Text>
 						</Alert>
 					)}
 
-					<Group justify="flex-end" gap="sm">
-						<Button variant="light" onClick={handleClose} disabled={createMutation.isPending}>
+					<Group justify='flex-end' gap='sm'>
+						<Button variant='light' onClick={handleClose} disabled={createMutation.isPending}>
 							Cancel
 						</Button>
 						<Button onClick={handleSubmit} disabled={!canSubmit} loading={createMutation.isPending}>

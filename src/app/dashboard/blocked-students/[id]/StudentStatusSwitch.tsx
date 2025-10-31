@@ -34,7 +34,7 @@ export default function StudentStatusSwitch({ id, currentStatus, stdNo, studentN
 				title: 'Status Updated',
 				message: `Student ${stdNo} has been ${newStatus}`,
 				color: newStatus === 'blocked' ? 'red' : 'green',
-				icon: <IconCheck size="1rem" />,
+				icon: <IconCheck size='1rem' />,
 			});
 		},
 		onError: (error) => {
@@ -43,7 +43,7 @@ export default function StudentStatusSwitch({ id, currentStatus, stdNo, studentN
 				title: 'Error',
 				message: 'Failed to update student status. Please try again.',
 				color: 'red',
-				icon: <IconExclamationCircle size="1rem" />,
+				icon: <IconExclamationCircle size='1rem' />,
 			});
 			console.error('Failed to update student status:', error);
 		},
@@ -61,20 +61,20 @@ export default function StudentStatusSwitch({ id, currentStatus, stdNo, studentN
 	const isBlocked = status === 'blocked';
 
 	return (
-		<Paper withBorder p="md" radius="md">
-			<Stack gap="md">
-				<Group justify="space-between" align="center">
-					<Group gap="sm">
+		<Paper withBorder p='md' radius='md'>
+			<Stack gap='md'>
+				<Group justify='space-between' align='center'>
+					<Group gap='sm'>
 						{isBlocked ? (
-							<IconLock size="1.2rem" color="red" />
+							<IconLock size='1.2rem' color='red' />
 						) : (
-							<IconLockOpen size="1.2rem" color="green" />
+							<IconLockOpen size='1.2rem' color='green' />
 						)}
 						<Stack gap={2}>
 							<Title order={6} c={isBlocked ? 'red' : 'green'}>
 								Student Status
 							</Title>
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								{studentName} ({stdNo})
 							</Text>
 						</Stack>
@@ -83,28 +83,28 @@ export default function StudentStatusSwitch({ id, currentStatus, stdNo, studentN
 						checked={!isBlocked}
 						onChange={handleStatusChange}
 						disabled={mutation.isPending}
-						size="lg"
-						color="green"
+						size='lg'
+						color='green'
 						thumbIcon={
 							!isBlocked ? (
-								<IconLockOpen size="0.8rem" color="green" stroke={3} />
+								<IconLockOpen size='0.8rem' color='green' stroke={3} />
 							) : (
-								<IconLock size="0.8rem" color="red" stroke={3} />
+								<IconLock size='0.8rem' color='red' stroke={3} />
 							)
 						}
 						onLabel={
-							<Text size="xs" fw={600} p={'xs'} c="green">
+							<Text size='xs' fw={600} p={'xs'} c='green'>
 								Active
 							</Text>
 						}
 						offLabel={
-							<Text size="xs" fw={600} p={'xs'} c="red">
+							<Text size='xs' fw={600} p={'xs'} c='red'>
 								Blocked
 							</Text>
 						}
 					/>
 				</Group>
-				<Text size="sm" c="dimmed" ta="center">
+				<Text size='sm' c='dimmed' ta='center'>
 					Toggle to {isBlocked ? 'unblock' : 'block'} this student&apos;s access
 				</Text>
 			</Stack>

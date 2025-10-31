@@ -66,16 +66,16 @@ export default function EditButton({ moduleId, structureId }: Props) {
 								}
 							}}
 						/>
-						<Group justify="flex-end" mt="lg">
+						<Group justify='flex-end' mt='lg'>
 							<Button
-								variant="light"
-								color="gray"
+								variant='light'
+								color='gray'
 								onClick={() => modals.closeAll()}
 								disabled={isSubmitting}
 							>
 								Cancel
 							</Button>
-							<Button type="submit" form="module-edit-form" loading={isSubmitting}>
+							<Button type='submit' form='module-edit-form' loading={isSubmitting}>
 								Save Changes
 							</Button>
 						</Group>
@@ -93,7 +93,7 @@ export default function EditButton({ moduleId, structureId }: Props) {
 	};
 
 	return (
-		<ActionIcon variant="subtle" onClick={openEditModal}>
+		<ActionIcon variant='subtle' onClick={openEditModal}>
 			<IconEdit size={'1rem'} />
 		</ActionIcon>
 	);

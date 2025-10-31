@@ -71,17 +71,17 @@ export default function GraduationRequestForm({ onSubmit, defaultValues, title }
 			}}
 		>
 			{() => (
-				<Stack gap="md">
+				<Stack gap='md'>
 					<TextInput
-						label="Student Number"
+						label='Student Number'
 						value={studentNo}
 						onChange={(e) => setStudentNo(e.target.value)}
-						placeholder="Enter student number"
+						placeholder='Enter student number'
 					/>
 
 					<Select
-						label="Select Program"
-						placeholder="Choose program to graduate from"
+						label='Select Program'
+						placeholder='Choose program to graduate from'
 						value={selectedProgramId}
 						onChange={(value) => setSelectedProgramId(value || '')}
 						data={programOptions}

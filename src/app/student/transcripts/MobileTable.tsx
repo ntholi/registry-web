@@ -31,10 +31,10 @@ export default function MobileTable({ modules }: MobileTableProps) {
 
 	if (modules.length === 0) {
 		return (
-			<Center py="xl">
-				<Stack align="center" gap="sm">
-					<IconFileCertificate size="3rem" color="var(--mantine-color-dimmed)" />
-					<Text c="dimmed" size="lg">
+			<Center py='xl'>
+				<Stack align='center' gap='sm'>
+					<IconFileCertificate size='3rem' color='var(--mantine-color-dimmed)' />
+					<Text c='dimmed' size='lg'>
 						No modules found for this semester
 					</Text>
 				</Stack>
@@ -45,24 +45,24 @@ export default function MobileTable({ modules }: MobileTableProps) {
 	return (
 		<SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
 			{modules.map((studentModule) => (
-				<Card key={studentModule.id} shadow="sm" padding="lg" radius="md" withBorder>
-					<Stack gap="sm">
+				<Card key={studentModule.id} shadow='sm' padding='lg' radius='md' withBorder>
+					<Stack gap='sm'>
 						<Box pos={'relative'}>
-							<Stack gap="xs">
-								<Text size="sm" fw={600} style={{ lineHeight: 1.2 }}>
+							<Stack gap='xs'>
+								<Text size='sm' fw={600} style={{ lineHeight: 1.2 }}>
 									{studentModule.semesterModule?.module?.code || 'N/A'}
 								</Text>
 
-								<Text size="xs">{studentModule.semesterModule?.module?.name || 'N/A'}</Text>
+								<Text size='xs'>{studentModule.semesterModule?.module?.name || 'N/A'}</Text>
 							</Stack>
 							<Badge
-								size="lg"
+								size='lg'
 								pos={'absolute'}
 								top={-5}
 								right={0}
 								color={getGradeColor(studentModule.grade)}
-								variant="light"
-								radius="md"
+								variant='light'
+								radius='md'
 							>
 								{studentModule.grade}
 							</Badge>
@@ -70,11 +70,11 @@ export default function MobileTable({ modules }: MobileTableProps) {
 
 						<Divider />
 
-						<Group justify="space-between" align="center">
-							<Text size="sm" c="dimmed" fw={500}>
+						<Group justify='space-between' align='center'>
+							<Text size='sm' c='dimmed' fw={500}>
 								Marks
 							</Text>
-							<Badge variant="light" color="gray" radius="md">
+							<Badge variant='light' color='gray' radius='md'>
 								{studentModule.marks}
 							</Badge>
 						</Group>

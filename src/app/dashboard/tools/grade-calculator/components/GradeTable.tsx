@@ -16,7 +16,7 @@ export function GradeTable() {
 			</Table.Td>
 			<Table.Td>{grade.points !== null ? grade.points.toFixed(2) : 'N/A'}</Table.Td>
 			<Table.Td>
-				<Badge color={getGradeColor(grade.grade)} variant="light" w={50} radius={'md'}>
+				<Badge color={getGradeColor(grade.grade)} variant='light' w={50} radius={'md'}>
 					{grade.grade}
 				</Badge>
 			</Table.Td>
@@ -25,8 +25,8 @@ export function GradeTable() {
 	));
 
 	return (
-		<Paper withBorder shadow="sm" p="lg">
-			<Stack gap="md">
+		<Paper withBorder shadow='sm' p='lg'>
+			<Stack gap='md'>
 				<Title order={3} size={'h4'}>
 					Tabulation of Grades
 				</Title>

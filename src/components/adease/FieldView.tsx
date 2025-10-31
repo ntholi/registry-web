@@ -15,18 +15,18 @@ export function FieldView({ label, underline = true, children, ...props }: Field
 				React.isValidElement(children) ? (
 					children
 				) : isText ? (
-					<Text size="sm" fw={500}>
+					<Text size='sm' fw={500}>
 						{children}
 					</Text>
 				) : (
 					children
 				)
 			) : (
-				<Text size="sm" fs={'italic'}>
+				<Text size='sm' fs={'italic'}>
 					Empty
 				</Text>
 			)}
-			<Text size="sm" c="dimmed">
+			<Text size='sm' c='dimmed'>
 				{label}
 			</Text>
 			{underline && <Divider />}

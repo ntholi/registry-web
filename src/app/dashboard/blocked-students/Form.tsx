@@ -51,7 +51,7 @@ export default function BlockedStudentForm({ onSubmit, defaultValues, title }: P
 					<>
 						<StdNoInput {...form.getInputProps('stdNo')} onChange={handleStdNoChange} />
 
-						{validStudentNo && <Textarea label="Reason" {...form.getInputProps('reason')} />}
+						{validStudentNo && <Textarea label='Reason' {...form.getInputProps('reason')} />}
 					</>
 				);
 			}}

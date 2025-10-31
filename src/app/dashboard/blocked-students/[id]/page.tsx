@@ -44,7 +44,7 @@ export default function BlockedStudentDetails() {
 				}}
 			/>
 			<DetailsViewBody>
-				<Stack gap="lg">
+				<Stack gap='lg'>
 					<StudentStatusSwitch
 						id={blockedStudent.id}
 						currentStatus={blockedStudent.status}
@@ -52,9 +52,9 @@ export default function BlockedStudentDetails() {
 						studentName={blockedStudent.student.name}
 					/>
 
-					<FieldView label="Std No">{blockedStudent.stdNo}</FieldView>
-					<FieldView label="Status">{blockedStudent.status}</FieldView>
-					<FieldView label="Reason">{blockedStudent.reason}</FieldView>
+					<FieldView label='Std No'>{blockedStudent.stdNo}</FieldView>
+					<FieldView label='Status'>{blockedStudent.status}</FieldView>
+					<FieldView label='Reason'>{blockedStudent.reason}</FieldView>
 				</Stack>
 			</DetailsViewBody>
 		</DetailsView>

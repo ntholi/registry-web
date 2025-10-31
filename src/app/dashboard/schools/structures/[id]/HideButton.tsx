@@ -35,7 +35,7 @@ export default function HideButton({ moduleId, hidden, structureId }: Props) {
 
 	return (
 		<ActionIcon
-			variant="subtle"
+			variant='subtle'
 			onClick={() => mutate()}
 			loading={isPending}
 			color={hidden ? 'red' : 'blue'}

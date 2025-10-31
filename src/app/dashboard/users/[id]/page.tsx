@@ -39,15 +39,15 @@ export default async function UserDetails({ params }: Props) {
 					</GridCol>
 					<GridCol span={{ base: 12, md: 7 }}>
 						<Stack gap={'lg'} p={'sm'}>
-							<FieldView label="Name">{users.name}</FieldView>
+							<FieldView label='Name'>{users.name}</FieldView>
 
-							<FieldView label="Email">{users.email}</FieldView>
-							<FieldView label="Role">
-								<Badge color={getRoleColor(users.role)} radius={'sm'} variant="light">
+							<FieldView label='Email'>{users.email}</FieldView>
+							<FieldView label='Role'>
+								<Badge color={getRoleColor(users.role)} radius={'sm'} variant='light'>
 									{toTitleCase(users.role)}
 								</Badge>
 							</FieldView>
-							<FieldView label="Position">{toTitleCase(users.position)}</FieldView>
+							<FieldView label='Position'>{toTitleCase(users.position)}</FieldView>
 						</Stack>
 					</GridCol>
 				</Grid>

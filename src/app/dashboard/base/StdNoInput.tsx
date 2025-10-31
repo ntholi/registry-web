@@ -37,15 +37,15 @@ export default function StdNoInput(props: NumberInputProps) {
 	return (
 		<Stack gap={'2px'}>
 			<NumberInput
-				rightSection={<IconUser size="1.1rem" />}
+				rightSection={<IconUser size='1.1rem' />}
 				value={value}
 				onChange={handleChange}
-				label="Student Number"
+				label='Student Number'
 				required
 				{...rest}
 				error={error}
 			/>
-			<Text size="xs" c="dimmed" h={error ? 'auto' : 20}>
+			<Text size='xs' c='dimmed' h={error ? 'auto' : 20}>
 				{description}
 			</Text>
 		</Stack>

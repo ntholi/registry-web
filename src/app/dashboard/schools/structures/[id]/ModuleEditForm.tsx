@@ -68,27 +68,27 @@ export default function ModuleEditForm({ defaultValues, structureId, onSubmit }:
 	};
 
 	return (
-		<form id="module-edit-form" onSubmit={form.onSubmit(handleSubmit)}>
-			<Stack gap="md">
+		<form id='module-edit-form' onSubmit={form.onSubmit(handleSubmit)}>
+			<Stack gap='md'>
 				<div>
-					<Text size="sm" fw={500} mb="xs">
+					<Text size='sm' fw={500} mb='xs'>
 						Module Visibility
 					</Text>
 					<Radio.Group
 						value={form.values.hidden ? 'not-visible' : 'visible'}
 						onChange={(value) => form.setFieldValue('hidden', value === 'not-visible')}
 					>
-						<Stack gap="xs">
-							<Radio value="visible" label="Visible" disabled={isSubmitting} />
-							<Radio value="not-visible" label="Not Visible" disabled={isSubmitting} />
+						<Stack gap='xs'>
+							<Radio value='visible' label='Visible' disabled={isSubmitting} />
+							<Radio value='not-visible' label='Not Visible' disabled={isSubmitting} />
 						</Stack>
 					</Radio.Group>
-					<Text size="xs" c="dimmed" mt="xs">
+					<Text size='xs' c='dimmed' mt='xs'>
 						If not visible, students will not be able to register for this module
 					</Text>
 				</div>
 				<MultiSelect
-					label="Prerequisites"
+					label='Prerequisites'
 					data={prerequisiteOptions}
 					searchable
 					clearSearchOnChange={false}

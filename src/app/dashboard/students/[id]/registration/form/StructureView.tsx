@@ -48,7 +48,7 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 
 	if (!student?.programs?.length) {
 		return (
-			<Alert icon={<IconInfoCircle size={16} />} title="No Programs Found" color="blue">
+			<Alert icon={<IconInfoCircle size={16} />} title='No Programs Found' color='blue'>
 				This student has no programs enrolled.
 			</Alert>
 		);
@@ -56,7 +56,7 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 
 	if (!activeProgram) {
 		return (
-			<Alert icon={<IconInfoCircle size={16} />} title="No Active Program" color="blue">
+			<Alert icon={<IconInfoCircle size={16} />} title='No Active Program' color='blue'>
 				This student has no active program.
 			</Alert>
 		);
@@ -64,26 +64,26 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 
 	if (!structure) {
 		return (
-			<Alert icon={<IconInfoCircle size={16} />} title="Structure Not Found" color="red">
+			<Alert icon={<IconInfoCircle size={16} />} title='Structure Not Found' color='red'>
 				Program structure details could not be loaded.
 			</Alert>
 		);
 	}
 
 	return (
-		<Stack gap="lg">
-			<Paper shadow="sm" p="md" withBorder>
+		<Stack gap='lg'>
+			<Paper shadow='sm' p='md' withBorder>
 				<Group>
-					<ThemeIcon variant="light" color="blue" size="xl">
-						<IconBook size="1.1rem" />
+					<ThemeIcon variant='light' color='blue' size='xl'>
+						<IconBook size='1.1rem' />
 					</ThemeIcon>
 					<Stack gap={4}>
 						<Title order={4}>{structure.code}</Title>
-						<Group gap="xs">
-							<Text size="sm" c="dimmed">
+						<Group gap='xs'>
+							<Text size='sm' c='dimmed'>
 								{structure.program?.name}
 							</Text>
-							<Badge size="xs" variant="light" color="gray">
+							<Badge size='xs' variant='light' color='gray'>
 								{structure.program?.school?.name}
 							</Badge>
 						</Group>
@@ -91,18 +91,18 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 				</Group>
 			</Paper>
 
-			<Stack gap="lg">
+			<Stack gap='lg'>
 				{structure.semesters && structure.semesters.length > 0 ? (
 					structure.semesters.map((semester) => (
-						<Paper key={semester.id} shadow="sm" p="md" withBorder>
-							<Stack gap="md">
-								<Group justify="space-between" align="center">
-									<Group gap="xs">
+						<Paper key={semester.id} shadow='sm' p='md' withBorder>
+							<Stack gap='md'>
+								<Group justify='space-between' align='center'>
+									<Group gap='xs'>
 										<Title order={5} fw={500}>
 											{formatSemester(semester.semesterNumber)}
 										</Title>
 									</Group>
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										{semester.semesterModules?.length || 0} modules
 									</Text>
 								</Group>
@@ -122,20 +122,20 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 											{semester.semesterModules.map((semModule) => (
 												<Table.Tr key={semModule.id}>
 													<Table.Td>
-														<Text size="sm" fw={500}>
+														<Text size='sm' fw={500}>
 															{semModule.module?.code}
 														</Text>
 													</Table.Td>
 													<Table.Td>
-														<Text size="sm">{semModule.module?.name}</Text>
+														<Text size='sm'>{semModule.module?.name}</Text>
 													</Table.Td>
 													<Table.Td>
-														<Badge size="sm" variant="light">
+														<Badge size='sm' variant='light'>
 															{semModule.type}
 														</Badge>
 													</Table.Td>
 													<Table.Td>
-														<Text size="sm">{semModule.credits}</Text>
+														<Text size='sm'>{semModule.credits}</Text>
 													</Table.Td>
 													<Table.Td>
 														<PrerequisiteDisplay prerequisites={semModule.prerequisites || []} />
@@ -145,8 +145,8 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 										</Table.Tbody>
 									</Table>
 								) : (
-									<Card withBorder variant="light" p="md">
-										<Text size="sm" c="dimmed" ta="center">
+									<Card withBorder variant='light' p='md'>
+										<Text size='sm' c='dimmed' ta='center'>
 											No modules found for this semester
 										</Text>
 									</Card>
@@ -155,13 +155,13 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 						</Paper>
 					))
 				) : (
-					<Paper shadow="sm" p="xl" withBorder>
-						<Stack align="center" gap="xs">
+					<Paper shadow='sm' p='xl' withBorder>
+						<Stack align='center' gap='xs'>
 							<IconSchool size={48} />
-							<Text size="lg" fw={500}>
+							<Text size='lg' fw={500}>
 								No Semesters Found
 							</Text>
-							<Text size="sm" c="dimmed" ta="center">
+							<Text size='sm' c='dimmed' ta='center'>
 								This program structure currently has no semesters defined.
 							</Text>
 						</Stack>
@@ -193,7 +193,7 @@ function PrerequisiteDisplay({
 }) {
 	if (!prerequisites || prerequisites.length === 0) {
 		return (
-			<Text size="xs" c="dimmed">
+			<Text size='xs' c='dimmed'>
 				None
 			</Text>
 		);
@@ -202,7 +202,7 @@ function PrerequisiteDisplay({
 	return (
 		<Stack gap={2}>
 			{prerequisites.map((prereq, index) => (
-				<Text key={index} size="xs" c="dimmed">
+				<Text key={index} size='xs' c='dimmed'>
 					{prereq.prerequisite.module?.code} - {prereq.prerequisite.module?.name}
 				</Text>
 			))}
@@ -212,39 +212,39 @@ function PrerequisiteDisplay({
 
 function Loader() {
 	return (
-		<Stack gap="lg">
-			<Paper shadow="sm" p="md" withBorder>
+		<Stack gap='lg'>
+			<Paper shadow='sm' p='md' withBorder>
 				<Group>
-					<Skeleton height={40} width={40} radius="md" />
+					<Skeleton height={40} width={40} radius='md' />
 					<Stack gap={4}>
-						<Skeleton height={20} width={200} radius="sm" />
-						<Group gap="xs">
-							<Skeleton height={16} width={150} radius="sm" />
-							<Skeleton height={16} width={80} radius="sm" />
+						<Skeleton height={20} width={200} radius='sm' />
+						<Group gap='xs'>
+							<Skeleton height={16} width={150} radius='sm' />
+							<Skeleton height={16} width={80} radius='sm' />
 						</Group>
 					</Stack>
 				</Group>
 			</Paper>
 
-			<Stack gap="lg">
+			<Stack gap='lg'>
 				{Array.from({ length: 3 }).map((_, semIndex) => (
-					<Paper key={semIndex} shadow="sm" p="md" withBorder>
-						<Stack gap="md">
-							<Group justify="space-between" align="center">
-								<Skeleton height={20} width={120} radius="sm" />
-								<Skeleton height={16} width={80} radius="sm" />
+					<Paper key={semIndex} shadow='sm' p='md' withBorder>
+						<Stack gap='md'>
+							<Group justify='space-between' align='center'>
+								<Skeleton height={20} width={120} radius='sm' />
+								<Skeleton height={16} width={80} radius='sm' />
 							</Group>
-							<Stack gap="xs">
+							<Stack gap='xs'>
 								{Array.from({ length: 4 }).map((_, moduleIndex) => (
-									<Group key={moduleIndex} justify="space-between" p="xs">
-										<Group gap="md" style={{ flex: 1 }}>
-											<Skeleton height={16} width={80} radius="sm" />
-											<Skeleton height={16} width={200} radius="sm" />
-											<Skeleton height={16} width={60} radius="sm" />
+									<Group key={moduleIndex} justify='space-between' p='xs'>
+										<Group gap='md' style={{ flex: 1 }}>
+											<Skeleton height={16} width={80} radius='sm' />
+											<Skeleton height={16} width={200} radius='sm' />
+											<Skeleton height={16} width={60} radius='sm' />
 										</Group>
-										<Group gap="md">
-											<Skeleton height={16} width={40} radius="sm" />
-											<Skeleton height={16} width={100} radius="sm" />
+										<Group gap='md'>
+											<Skeleton height={16} width={40} radius='sm' />
+											<Skeleton height={16} width={100} radius='sm' />
 										</Group>
 									</Group>
 								))}

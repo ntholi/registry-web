@@ -18,9 +18,9 @@ export default async function GradebookModuleView({ params }: Props) {
 	}
 
 	return (
-		<Container size="xl" p="md">
+		<Container size='xl' p='md'>
 			<ModuleDetailsCard modules={modules} moduleId={Number(id)} />
-			<Paper withBorder radius="md" shadow="sm" p="lg">
+			<Paper withBorder radius='md' shadow='sm' p='lg'>
 				<StudentTable moduleId={Number(id)} />
 			</Paper>
 		</Container>

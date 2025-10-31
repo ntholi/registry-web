@@ -30,19 +30,19 @@ export default async function ClearanceRequestDetails({ params }: Props) {
 				termName={request.registrationRequest.term.name}
 				versionCount={request.registrationRequest.count}
 			/>
-			<Tabs defaultValue="details" variant="outline">
+			<Tabs defaultValue='details' variant='outline'>
 				<TabsList>
-					<TabsTab value="details">Details</TabsTab>
-					{session?.user?.role === 'finance' && <TabsTab value="academics">Academics</TabsTab>}
-					<TabsTab value="history">History</TabsTab>
+					<TabsTab value='details'>Details</TabsTab>
+					{session?.user?.role === 'finance' && <TabsTab value='academics'>Academics</TabsTab>}
+					<TabsTab value='history'>History</TabsTab>
 				</TabsList>
-				<TabsPanel value="details">
+				<TabsPanel value='details'>
 					<ClearanceDetails request={request} termId={term.id} />
 				</TabsPanel>
-				<TabsPanel value="academics">
+				<TabsPanel value='academics'>
 					<AcademicsLoader stdNo={request.registrationRequest.student.stdNo} />
 				</TabsPanel>
-				<TabsPanel value="history">
+				<TabsPanel value='history'>
 					<ClearanceHistory stdNo={request.registrationRequest.student.stdNo} />
 				</TabsPanel>
 			</Tabs>

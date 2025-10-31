@@ -84,17 +84,17 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 
 	return (
 		<>
-			<Modal opened={opened} onClose={close} title="Add School" centered>
+			<Modal opened={opened} onClose={close} title='Add School' centered>
 				<Select
-					label="Select School"
-					placeholder="Choose a school"
+					label='Select School'
+					placeholder='Choose a school'
 					data={schoolsOptions.filter((school) => !selectedSchools.includes(school.value))}
 					value={selectedSchoolId}
 					onChange={setSelectedSchoolId}
 					searchable
 					clearable
 				/>
-				<Group justify="flex-end" mt="md">
+				<Group justify='flex-end' mt='md'>
 					<Button onClick={handleAddSchool} disabled={!selectedSchoolId}>
 						Add
 					</Button>
@@ -129,13 +129,13 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 				{(form) => (
 					<>
 						<TextInput
-							label="Name"
+							label='Name'
 							{...form.getInputProps('name')}
 							description={form.values.email}
 						/>
 						<Group>
 							<Select
-								label="Role"
+								label='Role'
 								flex={1}
 								searchable
 								data={userRoles.enumValues
@@ -157,7 +157,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 							/>
 
 							<Select
-								label="Position"
+								label='Position'
 								flex={1}
 								searchable
 								clearable
@@ -170,13 +170,13 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 						</Group>
 						{form.values.role === 'academic' && (
 							<div>
-								<Group justify="space-between" align="center" mb="xs">
+								<Group justify='space-between' align='center' mb='xs'>
 									<Text fw={500}>Schools</Text>
 									<Button
 										leftSection={<IconPlus size={16} />}
-										size="xs"
+										size='xs'
 										onClick={open}
-										variant="light"
+										variant='light'
 									>
 										Add School
 									</Button>
@@ -196,8 +196,8 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 													<Table.Td>{getSchoolNameById(schoolId)}</Table.Td>
 													<Table.Td>
 														<ActionIcon
-															color="red"
-															variant="subtle"
+															color='red'
+															variant='subtle'
 															onClick={() => handleRemoveSchool(schoolId)}
 														>
 															<IconTrash size={16} />
@@ -208,12 +208,12 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 										</Table.Tbody>
 									</Table>
 								) : (
-									<Text c="dimmed" ta="center" py="md">
+									<Text c='dimmed' ta='center' py='md'>
 										No schools assigned. Click &quot;Add School&quot; to assign schools to this
 										user.
 									</Text>
 								)}
-								<input type="hidden" {...form.getInputProps('schoolIds')} />
+								<input type='hidden' {...form.getInputProps('schoolIds')} />
 							</div>
 						)}
 					</>

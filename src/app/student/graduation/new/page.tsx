@@ -161,7 +161,7 @@ export default function GraduationPage() {
 
 	if (checkingExisting || loadingPrograms) {
 		return (
-			<Container size="lg" py="xl">
+			<Container size='lg' py='xl'>
 				<LoadingOverlay visible />
 			</Container>
 		);
@@ -169,11 +169,11 @@ export default function GraduationPage() {
 
 	if (existingRequest) {
 		return (
-			<Container size="lg" py="xl">
+			<Container size='lg' py='xl'>
 				<Alert
-					icon={<IconInfoCircle size="1rem" />}
-					title="Graduation Request Already Submitted"
-					color="blue"
+					icon={<IconInfoCircle size='1rem' />}
+					title='Graduation Request Already Submitted'
+					color='blue'
 				>
 					You have already submitted a graduation request. Please check with the registry office for
 					the status of your request.
@@ -187,11 +187,11 @@ export default function GraduationPage() {
 
 	if (!student) {
 		return (
-			<Container size="lg" py="xl">
+			<Container size='lg' py='xl'>
 				<Alert
-					icon={<IconInfoCircle size="1rem" />}
-					title="Student Information Not Found"
-					color="red"
+					icon={<IconInfoCircle size='1rem' />}
+					title='Student Information Not Found'
+					color='red'
 				>
 					Unable to load your student information. Please contact the registry office.
 				</Alert>
@@ -240,29 +240,29 @@ export default function GraduationPage() {
 	};
 
 	return (
-		<Container size="md">
-			<Stack gap="xl">
+		<Container size='md'>
+			<Stack gap='xl'>
 				<div>
-					<Title order={2} mb="xs">
+					<Title order={2} mb='xs'>
 						Graduation Request
 					</Title>
-					<Text c="dimmed">Submit your graduation clearance request</Text>
+					<Text c='dimmed'>Submit your graduation clearance request</Text>
 				</div>
 
 				<Box>
-					<Group justify="space-between" mb="sm">
-						<Text size="sm" fw={500}>
+					<Group justify='space-between' mb='sm'>
+						<Text size='sm' fw={500}>
 							Step {activeStep + 1} of {STEPS.length}
 						</Text>
 					</Group>
 
-					<Progress value={progressValue} size="lg" mb="md" />
+					<Progress value={progressValue} size='lg' mb='md' />
 
 					<Box>
-						<Text fw={500} size="lg">
+						<Text fw={500} size='lg'>
 							{STEPS[activeStep].label}
 						</Text>
-						<Text size="sm" c="dimmed">
+						<Text size='sm' c='dimmed'>
 							{STEPS[activeStep].description}
 						</Text>
 					</Box>
@@ -270,9 +270,9 @@ export default function GraduationPage() {
 
 				<Box>{renderStepContent()}</Box>
 
-				<Group justify="space-between" mt="xl">
+				<Group justify='space-between' mt='xl'>
 					<Button
-						variant="default"
+						variant='default'
 						onClick={prevStep}
 						disabled={activeStep === 0}
 						leftSection={<IconArrowLeft size={16} />}

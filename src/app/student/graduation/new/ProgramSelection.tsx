@@ -34,7 +34,7 @@ export default function ProgramSelection({
 
 	if (!programs || programs.length === 0) {
 		return (
-			<Alert icon={<IconInfoCircle size="0.9rem" />} color="yellow" variant="light">
+			<Alert icon={<IconInfoCircle size='0.9rem' />} color='yellow' variant='light'>
 				No eligible programs found. Contact the registry office if you believe this is a mistake.
 			</Alert>
 		);
@@ -42,19 +42,19 @@ export default function ProgramSelection({
 
 	if (programs.length === 1) {
 		return (
-			<Card withBorder radius="md" padding="md">
-				<Text mb="sm">Program</Text>
+			<Card withBorder radius='md' padding='md'>
+				<Text mb='sm'>Program</Text>
 				<ProgramCard program={programs[0]} />
 			</Card>
 		);
 	}
 
 	return (
-		<Card withBorder radius="md" padding="md">
-			<Group justify="space-between" mb="xs">
+		<Card withBorder radius='md' padding='md'>
+			<Group justify='space-between' mb='xs'>
 				<Text fw={600}>Choose a program</Text>
 			</Group>
-			<Text size="sm" c="dimmed" mb="sm">
+			<Text size='sm' c='dimmed' mb='sm'>
 				Select the program you want to graduate from.
 			</Text>
 
@@ -62,10 +62,10 @@ export default function ProgramSelection({
 				value={selectedProgramId?.toString() || ''}
 				onChange={(value) => onProgramSelect(parseInt(value, 10))}
 			>
-				<Stack gap="xs" pt="xs">
+				<Stack gap='xs' pt='xs'>
 					{programs.map((program) => (
-						<Radio.Card key={program.id} value={program.id.toString()} radius="md" p={'sm'}>
-							<Group wrap="nowrap" align="flex-start">
+						<Radio.Card key={program.id} value={program.id.toString()} radius='md' p={'sm'}>
+							<Group wrap='nowrap' align='flex-start'>
 								<Radio.Indicator />
 								<Box>
 									<ProgramCard program={program} />
@@ -93,16 +93,16 @@ function ProgramCard({ program }: { program: StudentProgram }) {
 
 	return (
 		<Box>
-			<Group justify="space-between" mb={3}>
+			<Group justify='space-between' mb={3}>
 				<Text fw={500}>{program.structure.program.name}</Text>
-				<Group gap="xs">
-					<Badge color={getStatusColor(program.status)} variant="light" size="xs">
+				<Group gap='xs'>
+					<Badge color={getStatusColor(program.status)} variant='light' size='xs'>
 						{program.status}
 					</Badge>
 				</Group>
 			</Group>
 
-			<Text size="xs" c="dimmed">
+			<Text size='xs' c='dimmed'>
 				Intake: {program.intakeDate}
 			</Text>
 		</Box>

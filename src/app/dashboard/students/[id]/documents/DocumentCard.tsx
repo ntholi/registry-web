@@ -73,7 +73,7 @@ export default function DocumentCard({
 							backgroundColor: 'var(--mantine-color-gray-1)',
 						}}
 					>
-						<IconFile size={48} color="var(--mantine-color-gray-6)" />
+						<IconFile size={48} color='var(--mantine-color-gray-6)' />
 					</Box>
 				</AspectRatio>
 			);
@@ -85,7 +85,7 @@ export default function DocumentCard({
 					<Image
 						src={documentUrl}
 						alt={fileName}
-						fit="cover"
+						fit='cover'
 						style={{ cursor: 'pointer' }}
 						onClick={handleDownload}
 					/>
@@ -131,7 +131,7 @@ export default function DocumentCard({
 					}}
 					onClick={handleDownload}
 				>
-					<IconFile size={48} color="var(--mantine-color-gray-6)" />
+					<IconFile size={48} color='var(--mantine-color-gray-6)' />
 				</Box>
 			</AspectRatio>
 		);
@@ -140,34 +140,34 @@ export default function DocumentCard({
 	const ext = getFileExtension(fileName);
 
 	return (
-		<Card shadow="sm" padding="xs" withBorder>
+		<Card shadow='sm' padding='xs' withBorder>
 			{renderPreview()}
 
-			<Stack gap="xs" mt="md">
+			<Stack gap='xs' mt='md'>
 				<Box>
-					<Group justify="space-between" align="flex-start">
-						<Text fw={500} size="sm" lineClamp={2} style={{ flex: 1 }}>
+					<Group justify='space-between' align='flex-start'>
+						<Text fw={500} size='sm' lineClamp={2} style={{ flex: 1 }}>
 							{documentTypes.find((it) => it.value === type)?.label || 'Unknown'}
 						</Text>
-						<Badge color="gray" variant="light" size="sm">
+						<Badge color='gray' variant='light' size='sm'>
 							{ext}
 						</Badge>
 					</Group>
 
-					<Text size="xs" c="dimmed">
+					<Text size='xs' c='dimmed'>
 						{formatDate(createdAt)}
 					</Text>
 				</Box>
 
-				<Flex gap="xs" mt="xs" justify={'space-between'}>
-					<Tooltip label="Download">
-						<ActionIcon variant="light" color="blue" onClick={handleDownload}>
+				<Flex gap='xs' mt='xs' justify={'space-between'}>
+					<Tooltip label='Download'>
+						<ActionIcon variant='light' color='blue' onClick={handleDownload}>
 							<IconDownload size={16} />
 						</ActionIcon>
 					</Tooltip>
 					{canEdit && (
-						<Tooltip label="Delete">
-							<ActionIcon variant="light" color="red" onClick={() => onDelete(id, fileName)}>
+						<Tooltip label='Delete'>
+							<ActionIcon variant='light' color='red' onClick={() => onDelete(id, fileName)}>
 								<IconTrash size={16} />
 							</ActionIcon>
 						</Tooltip>

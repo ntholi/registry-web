@@ -80,7 +80,7 @@ export default function UserInput({
 					</div>
 				);
 			}}
-			rightSection={isSearching ? <Loader size="xs" /> : null}
+			rightSection={isSearching ? <Loader size='xs' /> : null}
 			error={error}
 			{...props}
 		/>

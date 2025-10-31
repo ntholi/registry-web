@@ -50,39 +50,39 @@ export default function ImportPreview({
 		onPreviewGenerated(parsedData);
 	}, [parsedData, onPreviewGenerated]);
 	return (
-		<Stack gap="md">
-			<Group align="center" justify="space-between">
+		<Stack gap='md'>
+			<Group align='center' justify='space-between'>
 				<Title order={4}>Import Preview</Title>
-				<Group gap="sm">
-					<Badge color="green" variant="light">
+				<Group gap='sm'>
+					<Badge color='green' variant='light'>
 						{validRows.length} Valid
 					</Badge>
-					<Badge color="orange" variant="light">
+					<Badge color='orange' variant='light'>
 						{unregisteredRows.length} Unregistered
 					</Badge>
-					<Badge color="red" variant="light">
+					<Badge color='red' variant='light'>
 						{invalidRows.length} Invalid
 					</Badge>
 				</Group>
 			</Group>
-			<Accordion variant="separated" defaultValue={'valid-students'}>
+			<Accordion variant='separated' defaultValue={'valid-students'}>
 				{unregisteredRows.length > 0 && (
-					<Accordion.Item value="unregistered-students">
+					<Accordion.Item value='unregistered-students'>
 						<Accordion.Control icon={<IconEye size={16} />} style={{ cursor: 'pointer' }}>
-							<Group justify="space-between" style={{ width: '100%' }}>
+							<Group justify='space-between' style={{ width: '100%' }}>
 								<Group>
 									<Text fw={500}>Unregistered Students</Text>
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										(Click to view details)
 									</Text>
 								</Group>
-								<Badge color="orange" variant="light" size="sm" mr={'md'}>
+								<Badge color='orange' variant='light' size='sm' mr={'md'}>
 									{unregisteredRows.length}
 								</Badge>
 							</Group>
 						</Accordion.Control>
 						<Accordion.Panel>
-							<Text size="xs" c="dimmed" mb="sm">
+							<Text size='xs' c='dimmed' mb='sm'>
 								These students appear in the Excel file but are not registered for this module
 							</Text>
 							<ScrollArea h={200}>
@@ -94,7 +94,7 @@ export default function ImportPreview({
 											{assessments.map((assessment) => (
 												<Table.Th key={assessment.id}>
 													{shorten(getAssessmentTypeLabel(assessment.assessmentType))}
-													<Text size="xs" c="dimmed">
+													<Text size='xs' c='dimmed'>
 														{assessment.totalMarks} · {assessment.weight}%
 													</Text>
 												</Table.Th>
@@ -122,16 +122,16 @@ export default function ImportPreview({
 					</Accordion.Item>
 				)}
 				{invalidRows.length > 0 && (
-					<Accordion.Item value="invalid-records">
+					<Accordion.Item value='invalid-records'>
 						<Accordion.Control icon={<IconEye size={16} />} style={{ cursor: 'pointer' }}>
-							<Group justify="space-between" style={{ width: '100%' }}>
+							<Group justify='space-between' style={{ width: '100%' }}>
 								<Group>
 									<Text fw={500}>Invalid Records</Text>
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										(Click to view details)
 									</Text>
 								</Group>
-								<Badge color="red" variant="light" size="sm" mr={'md'}>
+								<Badge color='red' variant='light' size='sm' mr={'md'}>
 									{invalidRows.length}
 								</Badge>
 							</Group>
@@ -152,7 +152,7 @@ export default function ImportPreview({
 												<Table.Td>{row.rowIndex + 2}</Table.Td>
 												<Table.Td>{row.studentNumber || '-'}</Table.Td>
 												<Table.Td>
-													<Text size="xs" c="red">
+													<Text size='xs' c='red'>
 														{row.errors.join(', ')}
 													</Text>
 												</Table.Td>
@@ -165,16 +165,16 @@ export default function ImportPreview({
 					</Accordion.Item>
 				)}
 				{validRows.length > 0 && (
-					<Accordion.Item value="valid-students">
+					<Accordion.Item value='valid-students'>
 						<Accordion.Control icon={<IconEye size={16} />} style={{ cursor: 'pointer' }}>
-							<Group justify="space-between" style={{ width: '100%' }}>
+							<Group justify='space-between' style={{ width: '100%' }}>
 								<Group>
 									<Text fw={500}>Students</Text>
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										(Click to view details)
 									</Text>
 								</Group>
-								<Badge color="green" variant="light" size="sm" mr={'md'}>
+								<Badge color='green' variant='light' size='sm' mr={'md'}>
 									{validRows.length}
 								</Badge>
 							</Group>
@@ -189,7 +189,7 @@ export default function ImportPreview({
 											{assessments.map((assessment) => (
 												<Table.Th key={assessment.id}>
 													{shorten(getAssessmentTypeLabel(assessment.assessmentType))}
-													<Text size="xs" c="dimmed">
+													<Text size='xs' c='dimmed'>
 														{assessment.totalMarks} · {assessment.weight}%
 													</Text>
 												</Table.Th>

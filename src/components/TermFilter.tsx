@@ -74,11 +74,11 @@ export default function TermFilter({
 				</ActionIcon>
 			</Tooltip>
 
-			<Modal opened={opened} onClose={close} title="Filter by Term" size="sm" p={'lg'}>
+			<Modal opened={opened} onClose={close} title='Filter by Term' size='sm' p={'lg'}>
 				<Paper p={'lg'} pb={'xl'} withBorder>
 					<Select
-						label="Select Term"
-						placeholder="Choose a term"
+						label='Select Term'
+						placeholder='Choose a term'
 						data={termOptions}
 						value={selectedTerm?.toString() || null}
 						onChange={handleTermSelect}

@@ -52,28 +52,28 @@ export function StudentTabs({ student, session, blockedStudent }: StudentTabsPro
 		session?.user?.position === 'manager';
 
 	return (
-		<Tabs value={activeTab} onChange={setActiveTab} variant="outline" mt={'xl'}>
+		<Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
 			<TabsList>
-				<TabsTab value="academics">Academics</TabsTab>
-				<TabsTab value="info">Student</TabsTab>
-				{showRegistration && <TabsTab value="registration">Registration</TabsTab>}
-				{showStudentCard && <TabsTab value="studentcard">Card</TabsTab>}
-				{showGraduation && <TabsTab value="graduation">Graduation</TabsTab>}
-				{showDocuments && <TabsTab value="documents">Documents</TabsTab>}
+				<TabsTab value='academics'>Academics</TabsTab>
+				<TabsTab value='info'>Student</TabsTab>
+				{showRegistration && <TabsTab value='registration'>Registration</TabsTab>}
+				{showStudentCard && <TabsTab value='studentcard'>Card</TabsTab>}
+				{showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
+				{showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
 				{showStatementOfResults && activeTab === 'academics' && (
-					<Box ml="auto">
+					<Box ml='auto'>
 						<StatementOfResultsPrinter stdNo={student.stdNo} disabled={!!blockedStudent} />
 					</Box>
 				)}
 				{showRegistration &&
 					activeTab === 'registration' &&
 					(session?.user?.role === 'registry' || session?.user?.role === 'admin') && (
-						<Box ml="auto">
+						<Box ml='auto'>
 							<ProofOfRegistrationPrinter stdNo={student.stdNo} />
 						</Box>
 					)}
 				{showStudentCard && activeTab === 'studentcard' && (
-					<Box ml="auto">
+					<Box ml='auto'>
 						<StudentCardPrinter
 							student={student}
 							isActive={activeTab === 'studentcard'}
@@ -82,35 +82,35 @@ export function StudentTabs({ student, session, blockedStudent }: StudentTabsPro
 					</Box>
 				)}
 				{showGraduation && activeTab === 'graduation' && (
-					<Box ml="auto">
+					<Box ml='auto'>
 						<ProofOfClearancePrinter stdNo={student.stdNo.toString()} />
 					</Box>
 				)}
 			</TabsList>
-			<TabsPanel value="academics" pt={'xl'} p={'sm'}>
+			<TabsPanel value='academics' pt={'xl'} p={'sm'}>
 				{blockedStudent ? (
 					<BlockedAcademicsView student={student} showMarks blockedStudent={blockedStudent} />
 				) : (
 					<AcademicsView stdNo={student.stdNo} showMarks isActive={activeTab === 'academics'} />
 				)}
 			</TabsPanel>
-			<TabsPanel value="info" pt={'xl'} p={'sm'}>
+			<TabsPanel value='info' pt={'xl'} p={'sm'}>
 				<StudentView student={student} />
 			</TabsPanel>
-			<TabsPanel value="registration" pt={'xl'} p={'sm'}>
+			<TabsPanel value='registration' pt={'xl'} p={'sm'}>
 				<RegistrationView stdNo={student.stdNo} isActive={activeTab === 'registration'} />
 			</TabsPanel>
-			<TabsPanel value="studentcard" pt={'xl'} p={'sm'}>
+			<TabsPanel value='studentcard' pt={'xl'} p={'sm'}>
 				<StudentCardView student={student} isActive={activeTab === 'studentcard'} />
 			</TabsPanel>
-			<TabsPanel value="graduation" pt={'xl'} p={'sm'}>
+			<TabsPanel value='graduation' pt={'xl'} p={'sm'}>
 				<GraduationView
 					stdNo={student.stdNo.toString()}
 					isActive={activeTab === 'graduation'}
 					blockedStudent={blockedStudent}
 				/>
 			</TabsPanel>
-			<TabsPanel value="documents" pt={'xl'} p={'sm'}>
+			<TabsPanel value='documents' pt={'xl'} p={'sm'}>
 				<DocumentsView stdNo={student.stdNo} isActive={activeTab === 'documents'} />
 			</TabsPanel>
 		</Tabs>

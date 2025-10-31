@@ -14,40 +14,40 @@ export default function SheetSelector({ sheetNames, onSheetSelect }: Props) {
 		return null;
 	}
 	return (
-		<Card withBorder shadow="sm" radius="md" p="lg">
-			<Stack gap="md">
+		<Card withBorder shadow='sm' radius='md' p='lg'>
+			<Stack gap='md'>
 				{' '}
-				<Group gap="sm" align="center">
-					<ThemeIcon size="lg" color="blue" variant="light">
+				<Group gap='sm' align='center'>
+					<ThemeIcon size='lg' color='blue' variant='light'>
 						<IconFileSpreadsheet size={20} />
 					</ThemeIcon>
 					<div>
 						<Title order={4} mb={2}>
 							Multiple Sheets Detected
 						</Title>
-						<Text size="sm" c="dimmed">
+						<Text size='sm' c='dimmed'>
 							Select the sheet containing assessment data
 						</Text>
 					</div>
-					<Badge variant="light" color="blue" ml="auto">
+					<Badge variant='light' color='blue' ml='auto'>
 						{sheetNames.length} sheets
 					</Badge>
 				</Group>
-				<Stack gap="xs">
+				<Stack gap='xs'>
 					{sheetNames.map((sheetName) => (
 						<Paper
 							key={sheetName}
 							withBorder
-							p="md"
-							radius="sm"
+							p='md'
+							radius='sm'
 							style={{
 								cursor: 'pointer',
 								transition: 'all 0.2s ease',
 							}}
 							onClick={() => onSheetSelect(sheetName)}
 						>
-							<Group justify="space-between" align="center">
-								<Group gap="sm" align="center">
+							<Group justify='space-between' align='center'>
+								<Group gap='sm' align='center'>
 									<IconTable size={18} />
 									<Text>{sheetName}</Text>
 								</Group>

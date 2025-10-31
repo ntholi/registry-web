@@ -92,24 +92,24 @@ export default function Body() {
 		})) || [];
 
 	return (
-		<Stack align="center" justify="center" p="xl">
-			<Card shadow="md" radius="md" withBorder w="100%" maw={600}>
-				<CardSection inheritPadding py="md">
+		<Stack align='center' justify='center' p='xl'>
+			<Card shadow='md' radius='md' withBorder w='100%' maw={600}>
+				<CardSection inheritPadding py='md'>
 					<Title order={3}>BOE Report Generation</Title>
-					<Text c="dimmed" size="sm">
+					<Text c='dimmed' size='sm'>
 						Generate Board of Examination (BOE) reports
 					</Text>
 				</CardSection>
 				<CardSection inheritPadding>
-					<Stack gap="md">
-						<Text my="xs">
+					<Stack gap='md'>
+						<Text my='xs'>
 							Select a school to generate BOE reports for all programs and students in that school
 							for {currentTerm?.name}.
 						</Text>
 
 						<Select
-							label="Select School"
-							placeholder="Choose a school"
+							label='Select School'
+							placeholder='Choose a school'
 							data={schoolOptions}
 							value={selectedSchoolId}
 							onChange={setSelectedSchoolId}
@@ -118,7 +118,7 @@ export default function Body() {
 						/>
 					</Stack>
 				</CardSection>
-				<CardSection inheritPadding py="md">
+				<CardSection inheritPadding py='md'>
 					<Group>
 						<Button
 							fullWidth

@@ -71,24 +71,24 @@ export default function ActionButtons() {
 	}
 
 	return (
-		<Box mt="xl">
-			<Grid gutter="lg">
+		<Box mt='xl'>
+			<Grid gutter='lg'>
 				{actions.map((action) => (
 					<Grid.Col key={action.label} span={{ base: 12, sm: 6 }}>
-						<Paper component={Link} href={action.href} shadow="sm" p="lg" radius="md" withBorder>
-							<Group gap="md" wrap="nowrap">
-								<ThemeIcon size="xl" radius="md" variant="light" color={action.color}>
-									<action.icon size="1.5rem" />
+						<Paper component={Link} href={action.href} shadow='sm' p='lg' radius='md' withBorder>
+							<Group gap='md' wrap='nowrap'>
+								<ThemeIcon size='xl' radius='md' variant='light' color={action.color}>
+									<action.icon size='1.5rem' />
 								</ThemeIcon>
 								<Stack gap={4} flex={1}>
-									<Text size="lg" fw={600}>
+									<Text size='lg' fw={600}>
 										{action.label}
 									</Text>
-									<Text size="sm" c="dimmed" lh={1.4}>
+									<Text size='sm' c='dimmed' lh={1.4}>
 										{action.description}
 									</Text>
 								</Stack>
-								<IconChevronRight size="1rem" />
+								<IconChevronRight size='1rem' />
 							</Group>
 						</Paper>
 					</Grid.Col>

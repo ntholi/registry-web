@@ -24,7 +24,7 @@ export default async function UserDetails({ params }: Props) {
 						{lecturer.name}
 					</Title>
 
-					<Text c="dimmed" size="sm">
+					<Text c='dimmed' size='sm'>
 						Assigned Modules
 					</Text>
 				</Box>

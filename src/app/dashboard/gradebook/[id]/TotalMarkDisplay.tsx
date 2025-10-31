@@ -124,8 +124,8 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 	return (
 		<>
 			<Badge
-				variant="light"
-				pos="relative"
+				variant='light'
+				pos='relative'
 				color={hasPassed ? 'green' : 'red'}
 				radius={'sm'}
 				w={40}
@@ -137,35 +137,35 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 				onClick={isBorderline ? open : undefined}
 			>
 				{isBorderline && (
-					<Box pos="absolute" right={-2} top={1} style={{ zIndex: 10 }}>
+					<Box pos='absolute' right={-2} top={1} style={{ zIndex: 10 }}>
 						<IconExclamationMark size={14} />
 					</Box>
 				)}
 				{Math.round(weightedTotal)}
 			</Badge>
 
-			<Modal opened={opened} onClose={close} title="Borderline Mark Adjustment" centered>
-				<Stack gap="md">
+			<Modal opened={opened} onClose={close} title='Borderline Mark Adjustment' centered>
+				<Stack gap='md'>
 					<Alert
 						icon={<IconAlertTriangle size={20} />}
-						title="Borderline Mark"
-						color="orange"
-						variant="light"
+						title='Borderline Mark'
+						color='orange'
+						variant='light'
 					>
 						The current mark of{' '}
-						<Text c="orange.7" span fw="bold">
+						<Text c='orange.7' span fw='bold'>
 							{Math.round(weightedTotal)}
 						</Text>{' '}
 						is considered borderline. You may adjust it to one of the adjacent values.
 					</Alert>
 
 					{borderlineOptions && (
-						<Stack align="center" gap={0} mt="xs" pb="lg">
-							<Group justify="center" gap={'xl'} my="md">
+						<Stack align='center' gap={0} mt='xs' pb='lg'>
+							<Group justify='center' gap={'xl'} my='md'>
 								<Button
-									variant="outline"
-									color="red.7"
-									size="sm"
+									variant='outline'
+									color='red.7'
+									size='sm'
 									leftSection={<IconChevronLeft size={16} />}
 									onClick={() => handleAdjustGrade(borderlineOptions.lower)}
 									disabled={adjustGradeMutation.isPending}
@@ -173,9 +173,9 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 									{borderlineOptions.lower}%
 								</Button>
 								<Button
-									variant="outline"
-									color="green.7"
-									size="sm"
+									variant='outline'
+									color='green.7'
+									size='sm'
 									rightSection={<IconChevronRight size={16} />}
 									onClick={() => handleAdjustGrade(borderlineOptions.higher)}
 									disabled={adjustGradeMutation.isPending}

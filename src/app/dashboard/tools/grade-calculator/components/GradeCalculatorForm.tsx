@@ -95,10 +95,10 @@ export function GradeCalculatorForm() {
 		}));
 
 	return (
-		<Stack gap="lg">
-			<Group align="flex-end">
+		<Stack gap='lg'>
+			<Group align='flex-end'>
 				<Select
-					label="Input Type"
+					label='Input Type'
 					value={inputType}
 					onChange={(value) => {
 						setInputType(value as InputType);
@@ -114,8 +114,8 @@ export function GradeCalculatorForm() {
 
 				{inputType === 'marks' && (
 					<NumberInput
-						label="Enter Marks"
-						placeholder="0-100"
+						label='Enter Marks'
+						placeholder='0-100'
 						value={marksInput}
 						onChange={handleMarksChange}
 						min={0}
@@ -127,8 +127,8 @@ export function GradeCalculatorForm() {
 
 				{inputType === 'points' && (
 					<NumberInput
-						label="Enter Grade Points"
-						placeholder="0.0-4.0"
+						label='Enter Grade Points'
+						placeholder='0.0-4.0'
 						value={pointsInput}
 						onChange={handlePointsChange}
 						min={0}
@@ -141,8 +141,8 @@ export function GradeCalculatorForm() {
 
 				{inputType === 'grade' && (
 					<Select
-						label="Select Grade"
-						placeholder="Choose grade"
+						label='Select Grade'
+						placeholder='Choose grade'
 						value={gradeInput}
 						onChange={handleGradeChange}
 						data={gradeOptions}
@@ -151,7 +151,7 @@ export function GradeCalculatorForm() {
 					/>
 				)}
 
-				<Button variant="outline" onClick={clearForm}>
+				<Button variant='outline' onClick={clearForm}>
 					Clear
 				</Button>
 			</Group>

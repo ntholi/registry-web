@@ -60,7 +60,7 @@ export default function Layout({ children }: PropsWithChildren) {
 					totalPages: response.pages,
 				};
 			}}
-			actionIcons={[<TermFilter key="term-filter" onTermChange={setSelectedTerm} />]}
+			actionIcons={[<TermFilter key='term-filter' onTermChange={setSelectedTerm} />]}
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}
@@ -78,10 +78,10 @@ export default function Layout({ children }: PropsWithChildren) {
 function getStatusIcon(status: Status) {
 	switch (status) {
 		case 'pending':
-			return <IconClock size={'1rem'} color="orange" />;
+			return <IconClock size={'1rem'} color='orange' />;
 		case 'registered':
-			return <IconCheck size={'1rem'} color="green" />;
+			return <IconCheck size={'1rem'} color='green' />;
 		case 'rejected':
-			return <IconAlertCircle size={'1rem'} color="red" />;
+			return <IconAlertCircle size={'1rem'} color='red' />;
 	}
 }

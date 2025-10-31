@@ -131,7 +131,7 @@ export default function StudentCardPDF({ student, photoUrl }: StudentCardPDFProp
 			<Page size={[242.6, 175]} style={styles.page}>
 				<View style={styles.cardContainer}>
 					<View style={styles.blackHeader}>
-						<Image style={styles.universityLogo} src="/images/logo-dark.png" />
+						<Image style={styles.universityLogo} src='/images/logo-dark.png' />
 					</View>
 
 					<View style={styles.cardBody}>

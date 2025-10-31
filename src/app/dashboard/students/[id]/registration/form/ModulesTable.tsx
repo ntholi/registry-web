@@ -43,11 +43,11 @@ export default function ModulesTable({
 
 	return (
 		<>
-			<Title order={4} mb="md">
+			<Title order={4} mb='md'>
 				Available Modules
 			</Title>
 			{modules.length === 0 ? (
-				<Alert color="blue" icon={<IconInfoCircle size={16} />}>
+				<Alert color='blue' icon={<IconInfoCircle size={16} />}>
 					No modules available for automatic registration. Use the search above to manually add
 					modules.
 				</Alert>
@@ -74,20 +74,20 @@ export default function ModulesTable({
 										/>
 									</Table.Td>
 									<Table.Td>
-										<Text fw={500} size="sm">
+										<Text fw={500} size='sm'>
 											{module.code}
 										</Text>
 									</Table.Td>
 									<Table.Td>
-										<Text size="sm">{module.name}</Text>
+										<Text size='sm'>{module.name}</Text>
 									</Table.Td>
 									<Table.Td>
-										<Text size="sm">{module.credits}</Text>
+										<Text size='sm'>{module.credits}</Text>
 									</Table.Td>
 									<Table.Td>
 										<Select
-											size="xs"
-											variant="filled"
+											size='xs'
+											variant='filled'
 											data={studentModuleStatusEnum.enumValues}
 											value={module.status}
 											onChange={(value) => {
@@ -103,7 +103,7 @@ export default function ModulesTable({
 										/>
 									</Table.Td>
 									<Table.Td>
-										<Text size="sm">{formatSemester(module.semesterNo, 'mini')}</Text>
+										<Text size='sm'>{formatSemester(module.semesterNo, 'mini')}</Text>
 									</Table.Td>
 								</Table.Tr>
 							))}
@@ -112,7 +112,7 @@ export default function ModulesTable({
 				</Paper>
 			)}
 			{error && (
-				<Text size="sm" c="red" mt="xs">
+				<Text size='sm' c='red' mt='xs'>
 					{error}
 				</Text>
 			)}

@@ -87,7 +87,7 @@ export function ListLayout<T>({
 	if (isMobile && view === 'details') {
 		return (
 			<Paper withBorder>
-				<ScrollArea h="88vh" type="always">
+				<ScrollArea h='88vh' type='always'>
 					{children}
 				</ScrollArea>
 			</Paper>
@@ -95,12 +95,12 @@ export function ListLayout<T>({
 	}
 
 	return (
-		<Grid columns={14} gutter="md">
+		<Grid columns={14} gutter='md'>
 			<GridCol span={isMobile ? 14 : 4} pb={0}>
-				<Paper withBorder h="88vh">
-					<Flex direction="column" h="100%">
-						<Stack p="md" gap="sm">
-							<Flex justify="space-between" align="center" gap="md">
+				<Paper withBorder h='88vh'>
+					<Flex direction='column' h='100%'>
+						<Stack p='md' gap='sm'>
+							<Flex justify='space-between' align='center' gap='md'>
 								<Group style={{ width: '100%', flex: 1 }}>
 									<SearchField style={{ width: '100%' }} />
 								</Group>
@@ -112,9 +112,9 @@ export function ListLayout<T>({
 
 						<Divider />
 
-						<ScrollArea type="always" style={{ flex: 1 }} p="md">
+						<ScrollArea type='always' style={{ flex: 1 }} p='md'>
 							{isLoading ? (
-								<Stack gap="sm">
+								<Stack gap='sm'>
 									{Array.from({ length: 5 }).map((_, index) => (
 										<Skeleton height={35} key={index} />
 									))}
@@ -138,7 +138,7 @@ export function ListLayout<T>({
 			{!isMobile && (
 				<GridCol span={10} pb={0} pr={5}>
 					<Paper withBorder>
-						<ScrollArea h="88vh" type="always">
+						<ScrollArea h='88vh' type='always'>
 							{children}
 						</ScrollArea>
 					</Paper>

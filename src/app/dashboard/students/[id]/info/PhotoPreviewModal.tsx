@@ -38,40 +38,40 @@ export default function PhotoPreviewModal({
 
 	return (
 		<>
-			<Modal title={title} opened={opened} onClose={close} size="lg" radius="md" centered>
+			<Modal title={title} opened={opened} onClose={close} size='lg' radius='md' centered>
 				<Center>
-					<Image src={photoUrl} alt={alt} fit="contain" h={'100%'} radius={'md'} w={'98%'} />
+					<Image src={photoUrl} alt={alt} fit='contain' h={'100%'} radius={'md'} w={'98%'} />
 				</Center>
 
 				{canEdit && (onEdit || onDelete) && (
-					<Group justify="center" mt="md" gap="sm">
+					<Group justify='center' mt='md' gap='sm'>
 						{onEdit && (
-							<Tooltip label="Change photo">
+							<Tooltip label='Change photo'>
 								<ActionIcon
-									variant="filled"
-									color="blue"
-									size="lg"
+									variant='filled'
+									color='blue'
+									size='lg'
 									onClick={() => {
 										onEdit();
 										close();
 									}}
 								>
-									<IconEdit size="1.2rem" />
+									<IconEdit size='1.2rem' />
 								</ActionIcon>
 							</Tooltip>
 						)}
 						{onDelete && (
-							<Tooltip label="Delete photo">
+							<Tooltip label='Delete photo'>
 								<ActionIcon
-									variant="filled"
-									color="red"
-									size="lg"
+									variant='filled'
+									color='red'
+									size='lg'
 									onClick={() => {
 										onDelete();
 										close();
 									}}
 								>
-									<IconTrash size="1.2rem" />
+									<IconTrash size='1.2rem' />
 								</ActionIcon>
 							</Tooltip>
 						)}
@@ -85,9 +85,9 @@ export default function PhotoPreviewModal({
 						<Image
 							src={photoUrl}
 							alt={alt}
-							w="100%"
-							h="100%"
-							fit="cover"
+							w='100%'
+							h='100%'
+							fit='cover'
 							radius={0}
 							style={{ border: '1px solid #000' }}
 						/>

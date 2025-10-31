@@ -61,7 +61,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 
 	if (error) {
 		return (
-			<Alert color="red" title="Error">
+			<Alert color='red' title='Error'>
 				Failed to load registration requests. Please try again.
 			</Alert>
 		);
@@ -74,18 +74,18 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 	if (!registrationRequests || registrationRequests.length === 0) {
 		return (
 			<>
-				<Stack align="center" py="xl" gap="md">
-					<Text size="lg" fw={500} c="dimmed">
+				<Stack align='center' py='xl' gap='md'>
+					<Text size='lg' fw={500} c='dimmed'>
 						No registration requests found
 					</Text>
-					<Text size="sm" c="dimmed" ta="center">
+					<Text size='sm' c='dimmed' ta='center'>
 						This student has not submitted any registration requests yet.
 					</Text>
 					{(session?.user?.role === 'registry' || session?.user?.role === 'admin') && (
 						<Button
 							leftSection={<IconPlus size={16} />}
-							variant="filled"
-							color="blue"
+							variant='filled'
+							color='blue'
 							onClick={open}
 						>
 							Create New Registration Request
@@ -100,25 +100,25 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 
 	return (
 		<>
-			<Stack gap="md">
+			<Stack gap='md'>
 				{!hasCurrentTermRegistration &&
 					currentTerm &&
 					(session?.user?.role === 'registry' || session?.user?.role === 'admin') && (
-						<Card withBorder p="md">
-							<Group justify="space-between" align="center">
+						<Card withBorder p='md'>
+							<Group justify='space-between' align='center'>
 								<Stack gap={4}>
-									<Text size="sm" fw={500}>
+									<Text size='sm' fw={500}>
 										No registration for {currentTerm.name}
 									</Text>
-									<Text size="xs" c="dimmed">
+									<Text size='xs' c='dimmed'>
 										Create a registration request for this student
 									</Text>
 								</Stack>
 								<Button
 									leftSection={<IconPlus size={14} />}
-									variant="filled"
-									size="sm"
-									color="blue"
+									variant='filled'
+									size='sm'
+									color='blue'
 									onClick={open}
 								>
 									Create
@@ -127,20 +127,20 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 						</Card>
 					)}
 
-				<Accordion variant="separated" defaultValue={registrationRequests[0]?.id.toString()}>
+				<Accordion variant='separated' defaultValue={registrationRequests[0]?.id.toString()}>
 					{registrationRequests.map((request: StudentRegistrationHistory) => (
 						<Accordion.Item key={request.id} value={request.id.toString()}>
 							<Accordion.Control>
 								<Stack gap={0} w={'100%'}>
-									<Group justify="space-between" align="center">
-										<Group gap="xs" align="center">
-											<Text fw={500} size="sm">
+									<Group justify='space-between' align='center'>
+										<Group gap='xs' align='center'>
+											<Text fw={500} size='sm'>
 												{request.term.name}
 											</Text>
 											<Badge
-												size="xs"
+												size='xs'
 												radius={'xs'}
-												variant="light"
+												variant='light'
 												color={
 													request.status === 'approved'
 														? 'green'
@@ -161,14 +161,14 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 													? `/dashboard/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`
 													: `/dashboard/registration/requests/${request.status}/${request.id}`
 											}
-											size="xs"
-											variant="light"
-											color="blue"
+											size='xs'
+											variant='light'
+											color='blue'
 										>
 											View Details
 										</Button>
 									</Group>
-									<Divider my="sm" />
+									<Divider my='sm' />
 								</Stack>
 							</Accordion.Control>
 							<Accordion.Panel>
@@ -177,13 +177,13 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 										<Text fw={500} w={150}>
 											Semester
 										</Text>
-										<Text size="sm">{formatSemester(request.semesterNumber)}</Text>
+										<Text size='sm'>{formatSemester(request.semesterNumber)}</Text>
 									</Group>
 									<Group>
 										<Text fw={500} w={150}>
 											Date Requested
 										</Text>
-										<Text size="sm">{formatDateTime(request.createdAt)}</Text>
+										<Text size='sm'>{formatDateTime(request.createdAt)}</Text>
 									</Group>
 								</Stack>
 							</Accordion.Panel>
@@ -199,17 +199,17 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 
 function RegistrationRequestsLoader() {
 	return (
-		<Stack gap="md">
+		<Stack gap='md'>
 			{[1, 2, 3].map((index) => (
-				<Paper key={index} withBorder shadow="sm" p="md">
+				<Paper key={index} withBorder shadow='sm' p='md'>
 					<Stack gap={0} w={'95%'}>
-						<Group justify="space-between" align="center">
+						<Group justify='space-between' align='center'>
 							<Skeleton height={16} width={128} />
 							<Skeleton height={20} width={64} />
 						</Group>
-						<Divider my="sm" />
+						<Divider my='sm' />
 					</Stack>
-					<Stack gap={5} mt="sm">
+					<Stack gap={5} mt='sm'>
 						<Group>
 							<Skeleton height={12} width={80} />
 							<Skeleton height={12} width={96} />

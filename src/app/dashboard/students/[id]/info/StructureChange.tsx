@@ -78,41 +78,41 @@ export default function StructureChange({ student }: Props) {
 				opened={opened}
 				onClose={handleClose}
 				title={currentProgram?.structure.program.name}
-				size="md"
+				size='md'
 			>
 				<Box>
-					<Text size="sm" mb="md">
+					<Text size='sm' mb='md'>
 						<strong></strong>
 					</Text>
 
-					<Text size="sm" mb="xs" fw={500}>
+					<Text size='sm' mb='xs' fw={500}>
 						Current Structure: <strong>{currentStructure?.code}</strong>
 					</Text>
 
-					<Text size="sm" c="dimmed" mb="lg">
+					<Text size='sm' c='dimmed' mb='lg'>
 						Select a new structure from the same program:
 					</Text>
 
 					<Select
-						label="New Structure"
-						placeholder="Select a structure"
+						label='New Structure'
+						placeholder='Select a structure'
 						data={structureOptions}
 						value={selectedStructureId}
 						onChange={setSelectedStructureId}
 						disabled={isLoadingStructures || updateStructureMutation.isPending}
 						searchable
-						mb="md"
+						mb='md'
 					/>
 
 					{isCurrentStructure && selectedStructureId && (
-						<Alert icon={<IconInfoCircle size={16} />} color="blue" mb="md">
+						<Alert icon={<IconInfoCircle size={16} />} color='blue' mb='md'>
 							This is the current structure for this student.
 						</Alert>
 					)}
 
-					<Group justify="flex-end" mt="xl">
+					<Group justify='flex-end' mt='xl'>
 						<Button
-							variant="light"
+							variant='light'
 							onClick={handleClose}
 							disabled={updateStructureMutation.isPending}
 						>
@@ -130,19 +130,19 @@ export default function StructureChange({ student }: Props) {
 			</Modal>
 
 			<Box>
-				<Text size="sm" c="dimmed">
+				<Text size='sm' c='dimmed'>
 					Structure
 				</Text>
 				<Group>
 					<Link
 						href={`/dashboard/schools/structures/${student?.programs[0].structureId}`}
-						size="sm"
+						size='sm'
 						fw={500}
 					>
 						{student?.programs[0].structure.code}
 					</Link>
 					{['admin', 'registry'].includes(session?.user?.role ?? '') && (
-						<ActionIcon variant="subtle" color="gray" onClick={() => setOpened(true)}>
+						<ActionIcon variant='subtle' color='gray' onClick={() => setOpened(true)}>
 							<IconEdit size={16} />
 						</ActionIcon>
 					)}

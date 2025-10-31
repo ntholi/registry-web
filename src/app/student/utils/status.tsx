@@ -9,11 +9,11 @@ export function getStatusIcon(status: RegistrationStatus | GraduationStatus) {
 		case 'approved':
 		case 'confirmed':
 		case 'registered':
-			return <IconCircleCheck size="1rem" />;
+			return <IconCircleCheck size='1rem' />;
 		case 'rejected':
-			return <IconExclamationCircle size="1rem" />;
+			return <IconExclamationCircle size='1rem' />;
 		default:
-			return <IconClock size="1rem" />;
+			return <IconClock size='1rem' />;
 	}
 }
 

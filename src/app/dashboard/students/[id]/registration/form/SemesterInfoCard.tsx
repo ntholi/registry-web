@@ -65,16 +65,16 @@ export default function SemesterInfoCard({
 	};
 
 	return (
-		<Card withBorder p="md">
-			<Stack gap="md">
-				<Group justify="space-between">
-					<Title order={4} size="h5">
+		<Card withBorder p='md'>
+			<Stack gap='md'>
+				<Group justify='space-between'>
+					<Title order={4} size='h5'>
 						Semester Information
 					</Title>
 					{isLoading ? (
-						<Group gap="xs">
-							<Loader size="sm" />
-							<Text size="sm" c="dimmed">
+						<Group gap='xs'>
+							<Loader size='sm' />
+							<Text size='sm' c='dimmed'>
 								Determining...
 							</Text>
 						</Group>
@@ -87,7 +87,7 @@ export default function SemesterInfoCard({
 
 				<Group grow>
 					<Select
-						label="Semester"
+						label='Semester'
 						data={semesterOptions}
 						value={semesterData?.semesterNo.toString()}
 						onChange={(value) => {
@@ -98,7 +98,7 @@ export default function SemesterInfoCard({
 						disabled={isLoading}
 					/>
 					<Select
-						label="Status"
+						label='Status'
 						data={statusOptions}
 						value={semesterData?.status}
 						onChange={(value) => {

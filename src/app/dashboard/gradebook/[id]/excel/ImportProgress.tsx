@@ -106,10 +106,10 @@ export default function ImportProgress({
 
 	const isImporting = importMutation.isPending;
 	return (
-		<Stack gap="md" py="md">
+		<Stack gap='md' py='md'>
 			{!isImporting && parsedRows.length > 0 && (
-				<Group justify="space-between">
-					<Button variant="subtle" onClick={onBack}>
+				<Group justify='space-between'>
+					<Button variant='subtle' onClick={onBack}>
 						Back
 					</Button>
 					<Button onClick={handleImport} disabled={parsedRows.length === 0} loading={isImporting}>
@@ -118,12 +118,12 @@ export default function ImportProgress({
 				</Group>
 			)}{' '}
 			{isImporting && (
-				<Paper p="md" withBorder>
-					<Stack gap="xs">
-						<Text size="sm" fw={500}>
+				<Paper p='md' withBorder>
+					<Stack gap='xs'>
+						<Text size='sm' fw={500}>
 							Importing data
 						</Text>
-						<Text size="xs" c="dimmed">
+						<Text size='xs' c='dimmed'>
 							Processing {totalRecords} student records, this may take a while...
 						</Text>
 						<Progress value={100} animated striped />

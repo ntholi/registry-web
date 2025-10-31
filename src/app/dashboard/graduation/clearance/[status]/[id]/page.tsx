@@ -26,21 +26,21 @@ export default async function GraduationClearanceRequestDetails({ params }: Prop
 			<GraduationClearanceHeader
 				studentName={request.graduationRequest.studentProgram.student.name}
 			/>
-			<Tabs defaultValue="details" variant="outline">
+			<Tabs defaultValue='details' variant='outline'>
 				<TabsList>
-					<TabsTab value="details">Details</TabsTab>
+					<TabsTab value='details'>Details</TabsTab>
 					{['academic', 'finance'].includes(session?.user?.role || '') && (
-						<TabsTab value="academics">Academics</TabsTab>
+						<TabsTab value='academics'>Academics</TabsTab>
 					)}
-					<TabsTab value="history">History</TabsTab>
+					<TabsTab value='history'>History</TabsTab>
 				</TabsList>
-				<TabsPanel value="details">
+				<TabsPanel value='details'>
 					<GraduationClearanceDetails request={request} />
 				</TabsPanel>
-				<TabsPanel value="academics">
+				<TabsPanel value='academics'>
 					<AcademicsLoader stdNo={request.graduationRequest.studentProgram.stdNo} />
 				</TabsPanel>
-				<TabsPanel value="history">
+				<TabsPanel value='history'>
 					<GraduationClearanceHistory stdNo={request.graduationRequest.studentProgram.stdNo} />
 				</TabsPanel>
 			</Tabs>

@@ -19,7 +19,7 @@ export default function AssignedModules({ user }: Props) {
 
 	if (isLoading) {
 		return (
-			<Group justify="center" py="xl">
+			<Group justify='center' py='xl'>
 				<Loader />
 			</Group>
 		);
@@ -27,8 +27,8 @@ export default function AssignedModules({ user }: Props) {
 
 	if (!assignedModules || assignedModules.length === 0) {
 		return (
-			<Card withBorder p="md">
-				<Text c="dimmed" ta="center">
+			<Card withBorder p='md'>
+				<Text c='dimmed' ta='center'>
 					No modules assigned yet
 				</Text>
 			</Card>
@@ -36,30 +36,30 @@ export default function AssignedModules({ user }: Props) {
 	}
 
 	return (
-		<SimpleGrid cols={2} mt="md">
+		<SimpleGrid cols={2} mt='md'>
 			{assignedModules.map((assignment) => (
-				<Card key={assignment.id} withBorder p="md" pos="relative">
+				<Card key={assignment.id} withBorder p='md' pos='relative'>
 					<DeleteModuleButton
 						assignmentId={assignment.id}
 						moduleName={assignment.semesterModule?.module?.name || 'Unknown Module'}
 						userId={user.id}
-						pos="absolute"
+						pos='absolute'
 						top={8}
 						right={8}
 					/>{' '}
-					<Group gap="md" align="flex-start">
-						<Avatar size={70} radius="md" variant="default">
-							<Text ff={'monospace'} size="xs" fw={700} ta="center">
+					<Group gap='md' align='flex-start'>
+						<Avatar size={70} radius='md' variant='default'>
+							<Text ff={'monospace'} size='xs' fw={700} ta='center'>
 								{assignment.semesterModule?.module?.code || 'N/A'}
 							</Text>
 						</Avatar>
-						<Stack gap="xs" style={{ flex: 1 }}>
-							<Text fw={500} size="md">
+						<Stack gap='xs' style={{ flex: 1 }}>
+							<Text fw={500} size='md'>
 								{assignment.semesterModule?.module?.name || 'Unknown Module'}
 							</Text>
 
 							{assignment.semesterModule?.semester?.name && (
-								<Badge variant="light" color="gray" size="sm">
+								<Badge variant='light' color='gray' size='sm'>
 									{toClassName(
 										assignment.semesterModule.semester.structure.program.code,
 										assignment.semesterModule.semester.name

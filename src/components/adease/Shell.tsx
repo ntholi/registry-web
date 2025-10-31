@@ -53,16 +53,16 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({ children }) => 
 				breakpoint: 'md',
 				collapsed: { mobile: !opened },
 			}}
-			padding="md"
+			padding='md'
 			footer={{ height: footer ? 40 : 0 }}
 		>
 			<AppShell.Header>
-				<Group h="100%" px="md" justify="space-between">
+				<Group h='100%' px='md' justify='space-between'>
 					<Group>
-						<Burger opened={opened} onClick={toggle} hiddenFrom="md" size="sm" />
+						<Burger opened={opened} onClick={toggle} hiddenFrom='md' size='sm' />
 						{Header}
 					</Group>
-					<ActionIcon variant="default" size="lg">
+					<ActionIcon variant='default' size='lg'>
 						{colorScheme === 'dark' ? (
 							<IconSun onClick={() => setColorScheme('light')} />
 						) : (

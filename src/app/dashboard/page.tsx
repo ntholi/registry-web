@@ -4,7 +4,7 @@ import RoleDisplay from './base/RoleDisplay';
 
 export default function DashboardPage() {
 	return (
-		<Stack h={'70vh'} w={'100%'} justify="center" align="center">
+		<Stack h={'70vh'} w={'100%'} justify='center' align='center'>
 			<div>
 				<RoleDisplay />
 				<ActiveTermDisplay />

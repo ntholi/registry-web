@@ -70,12 +70,12 @@ export default function Layout({ children }: PropsWithChildren) {
 function getStatusIcon(status: Status) {
 	switch (status) {
 		case 'pending':
-			return <IconClock size={'1rem'} color="orange" />;
+			return <IconClock size={'1rem'} color='orange' />;
 		case 'approved':
-			return <IconCheck size={'1rem'} color="green" />;
+			return <IconCheck size={'1rem'} color='green' />;
 		case 'rejected':
-			return <IconAlertCircle size={'1rem'} color="red" />;
+			return <IconAlertCircle size={'1rem'} color='red' />;
 		default:
-			return <IconClock size={'1rem'} color="orange" />;
+			return <IconClock size={'1rem'} color='orange' />;
 	}
 }

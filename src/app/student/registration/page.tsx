@@ -15,14 +15,14 @@ export default async function RegistrationPage() {
 	const registrationHistory = await getStudentRegistrationHistory(session.user.stdNo);
 
 	return (
-		<Container size="md">
-			<Stack gap="xl">
-				<Group justify="space-between" align="flex-start">
+		<Container size='md'>
+			<Stack gap='xl'>
+				<Group justify='space-between' align='flex-start'>
 					<Box>
-						<Title order={1} size="h2" fw={600} mb="xs">
+						<Title order={1} size='h2' fw={600} mb='xs'>
 							Registration Requests
 						</Title>
-						<Text c="dimmed" size="sm">
+						<Text c='dimmed' size='sm'>
 							View and track all your registration requests and their current status
 						</Text>
 					</Box>

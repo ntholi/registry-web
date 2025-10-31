@@ -175,7 +175,7 @@ export default function StudentsFilter() {
 
 	return (
 		<>
-			<HoverCard withArrow position="top">
+			<HoverCard withArrow position='top'>
 				<HoverCard.Target>
 					<ActionIcon
 						variant={hasActiveFilters ? 'white' : 'default'}
@@ -187,15 +187,15 @@ export default function StudentsFilter() {
 					</ActionIcon>
 				</HoverCard.Target>
 				<HoverCard.Dropdown>
-					<Text size="xs">Filter Students</Text>
+					<Text size='xs'>Filter Students</Text>
 				</HoverCard.Dropdown>
 			</HoverCard>
 
-			<Modal opened={opened} onClose={close} title="Filter Students" size="md">
-				<Stack gap="md">
+			<Modal opened={opened} onClose={close} title='Filter Students' size='md'>
+				<Stack gap='md'>
 					<Select
-						label="School"
-						placeholder="Select school"
+						label='School'
+						placeholder='Select school'
 						data={schools.map((school) => ({
 							value: school.id?.toString() || '',
 							label: school.name,
@@ -214,8 +214,8 @@ export default function StudentsFilter() {
 					/>
 
 					<Select
-						label="Program"
-						placeholder="Select program"
+						label='Program'
+						placeholder='Select program'
 						data={programs.map((program) => ({
 							value: program.id?.toString() || '',
 							label: program.name,
@@ -234,8 +234,8 @@ export default function StudentsFilter() {
 					/>
 
 					<Select
-						label="Term"
-						placeholder="Select term"
+						label='Term'
+						placeholder='Select term'
 						data={terms.map((term) => ({
 							value: term.id?.toString() || '',
 							label: term.name,
@@ -252,8 +252,8 @@ export default function StudentsFilter() {
 					/>
 
 					<Select
-						label="Semester"
-						placeholder="Select semester"
+						label='Semester'
+						placeholder='Select semester'
 						data={semesterOptions}
 						value={filters.semesterNumber || null}
 						onChange={(value) =>
@@ -266,12 +266,12 @@ export default function StudentsFilter() {
 						clearable
 					/>
 
-					<Fieldset legend="Description">
-						<Text size="sm">{previewDescription}</Text>
+					<Fieldset legend='Description'>
+						<Text size='sm'>{previewDescription}</Text>
 					</Fieldset>
 
-					<Group justify="flex-end" gap="sm">
-						<Button variant="outline" onClick={handleClearFilters}>
+					<Group justify='flex-end' gap='sm'>
+						<Button variant='outline' onClick={handleClearFilters}>
 							Clear All
 						</Button>
 						<Button onClick={handleApplyFilters}>Apply Filters</Button>

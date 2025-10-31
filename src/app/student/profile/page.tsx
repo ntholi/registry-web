@@ -16,9 +16,9 @@ export default function Profile() {
 
 	if (!student) {
 		return (
-			<Container size="md">
+			<Container size='md'>
 				<Center>
-					<Text size="lg" c="dimmed">
+					<Text size='lg' c='dimmed'>
 						Unable to load student profile
 					</Text>
 				</Center>
@@ -27,8 +27,8 @@ export default function Profile() {
 	}
 
 	return (
-		<Container size="md">
-			<Stack gap="xl">
+		<Container size='md'>
+			<Stack gap='xl'>
 				<ProfileHeader student={student} />
 
 				<PersonalInformation student={student} />

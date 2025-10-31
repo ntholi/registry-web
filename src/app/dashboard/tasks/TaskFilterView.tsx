@@ -77,8 +77,8 @@ export default function TaskFilterView({ filter, value }: TaskFilterViewProps) {
 
 	if (tasks.length === 0) {
 		return (
-			<Paper p="xl" withBorder>
-				<Text c="dimmed" ta="center">
+			<Paper p='xl' withBorder>
+				<Text c='dimmed' ta='center'>
 					No {value} tasks found
 				</Text>
 			</Paper>
@@ -86,7 +86,7 @@ export default function TaskFilterView({ filter, value }: TaskFilterViewProps) {
 	}
 
 	return (
-		<Stack gap="md">
+		<Stack gap='md'>
 			{tasks.map((task) => {
 				const isOverdue =
 					task.dueDate &&
@@ -98,36 +98,36 @@ export default function TaskFilterView({ filter, value }: TaskFilterViewProps) {
 					<Paper
 						key={task.id}
 						withBorder
-						p="md"
+						p='md'
 						component={Link}
 						href={`/dashboard/tasks/${task.id}`}
 						style={{ textDecoration: 'none', cursor: 'pointer' }}
 					>
-						<Stack gap="xs">
-							<Group justify="space-between">
-								<Text size="sm" fw={500} lineClamp={1} style={{ flex: 1 }}>
+						<Stack gap='xs'>
+							<Group justify='space-between'>
+								<Text size='sm' fw={500} lineClamp={1} style={{ flex: 1 }}>
 									{task.title}
 								</Text>
-								{isOverdue && <IconAlertCircle size={16} color="red" />}
+								{isOverdue && <IconAlertCircle size={16} color='red' />}
 							</Group>
 
 							{task.description && (
-								<Text size="sm" c="dimmed" lineClamp={2}>
+								<Text size='sm' c='dimmed' lineClamp={2}>
 									{task.description}
 								</Text>
 							)}
 
-							<Group gap="xs">
-								<Badge size="xs" color={getStatusColor(task.status)}>
+							<Group gap='xs'>
+								<Badge size='xs' color={getStatusColor(task.status)}>
 									{task.status.replace('_', ' ')}
 								</Badge>
-								<Badge size="xs" color={getPriorityColor(task.priority)}>
+								<Badge size='xs' color={getPriorityColor(task.priority)}>
 									{task.priority}
 								</Badge>
 								{task.dueDate && (
 									<Group gap={4}>
 										<IconClock size={12} />
-										<Text size="xs" c={isOverdue ? 'red' : 'dimmed'}>
+										<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
 											{formatDistanceToNow(new Date(task.dueDate), {
 												addSuffix: true,
 											})}

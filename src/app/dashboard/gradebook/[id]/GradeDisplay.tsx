@@ -40,14 +40,14 @@ export default function GradeDisplay({
 
 	if (isLoading) {
 		return (
-			<Text c="dimmed" size="sm">
+			<Text c='dimmed' size='sm'>
 				...
 			</Text>
 		);
 	}
 	if (!moduleGrade) {
 		return (
-			<Text c="dimmed" size="sm">
+			<Text c='dimmed' size='sm'>
 				-
 			</Text>
 		);
@@ -69,7 +69,7 @@ export default function GradeDisplay({
 	const gradeColor = getGradeColor(grade);
 
 	return (
-		<Badge variant="light" color={gradeColor} radius={'sm'} w={50}>
+		<Badge variant='light' color={gradeColor} radius={'sm'} w={50}>
 			{grade}
 		</Badge>
 	);

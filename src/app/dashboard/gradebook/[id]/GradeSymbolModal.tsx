@@ -147,18 +147,18 @@ export default function GradeSymbolModal({
 	return (
 		<>
 			<Tooltip
-				label="Change Grade Symbol"
-				position="top"
+				label='Change Grade Symbol'
+				position='top'
 				withArrow
 				transitionProps={{ transition: 'pop' }}
 			>
 				<ActionIcon
-					variant="transparent"
-					color="gray"
+					variant='transparent'
+					color='gray'
 					onClick={open}
-					radius="md"
-					size="md"
-					aria-label="Edit grade symbol"
+					radius='md'
+					size='md'
+					aria-label='Edit grade symbol'
 				>
 					<IconEdit size={18} stroke={1.5} />
 				</ActionIcon>
@@ -167,38 +167,38 @@ export default function GradeSymbolModal({
 			<Modal
 				opened={opened}
 				onClose={close}
-				title="Change Grade Symbol"
-				size="md"
+				title='Change Grade Symbol'
+				size='md'
 				centered
-				radius="md"
+				radius='md'
 				overlayProps={{ blur: 3 }}
-				shadow="md"
+				shadow='md'
 			>
-				<Stack gap="lg">
-					<Paper withBorder p="md" radius="md">
-						<Stack gap="md">
-							<Group gap="md" align="center">
-								<Text size="sm" fw={500} w={100} c="dimmed">
+				<Stack gap='lg'>
+					<Paper withBorder p='md' radius='md'>
+						<Stack gap='md'>
+							<Group gap='md' align='center'>
+								<Text size='sm' fw={500} w={100} c='dimmed'>
 									Student:
 								</Text>
-								<Text size="sm" fw={600}>
+								<Text size='sm' fw={600}>
 									{studentName}{' '}
-									<Text component="span" size="xs" c="dimmed">
+									<Text component='span' size='xs' c='dimmed'>
 										({studentId})
 									</Text>
 								</Text>
 							</Group>
 
-							<Group gap="md" align="center">
-								<Text size="sm" fw={500} w={100} c="dimmed">
+							<Group gap='md' align='center'>
+								<Text size='sm' fw={500} w={100} c='dimmed'>
 									Current Grade:
 								</Text>
 								{currentGrade ? (
-									<Badge size="lg" variant="default">
+									<Badge size='lg' variant='default'>
 										{currentGrade}
 									</Badge>
 								) : (
-									<Text size="sm" fs="italic" c="dimmed">
+									<Text size='sm' fs='italic' c='dimmed'>
 										Not set
 									</Text>
 								)}
@@ -206,7 +206,7 @@ export default function GradeSymbolModal({
 						</Stack>
 					</Paper>
 
-					<Divider label="Grade Assignment Method" labelPosition="center" />
+					<Divider label='Grade Assignment Method' labelPosition='center' />
 
 					<SegmentedControl
 						data={[
@@ -216,7 +216,7 @@ export default function GradeSymbolModal({
 						value={mode}
 						onChange={(value) => setMode(value as 'automatic' | 'manual')}
 						fullWidth
-						size="md"
+						size='md'
 						color={theme.primaryColor}
 						styles={(theme) => ({
 							indicator: {
@@ -226,45 +226,45 @@ export default function GradeSymbolModal({
 					/>
 
 					{mode === 'automatic' ? (
-						<Paper p="md" withBorder>
-							<Stack gap="md">
-								<Text size="sm" c="dimmed">
+						<Paper p='md' withBorder>
+							<Stack gap='md'>
+								<Text size='sm' c='dimmed'>
 									The grade will be automatically generated based on the weighted total.
 								</Text>
 								<Group>
-									<Text size="sm" fw={500}>
+									<Text size='sm' fw={500}>
 										Calculated Grade:
 									</Text>
-									<Badge size="lg" variant="light" color="green">
+									<Badge size='lg' variant='light' color='green'>
 										{getLetterGrade(weightedTotal)}
 									</Badge>
 								</Group>
 							</Stack>
 						</Paper>
 					) : (
-						<Paper p="md" radius="md" withBorder>
-							<Stack gap="md">
-								<Text size="sm" fw={500}>
+						<Paper p='md' radius='md' withBorder>
+							<Stack gap='md'>
+								<Text size='sm' fw={500}>
 									Choose a manual grade symbol:
 								</Text>
 								<Radio.Group
 									value={selectedGrade}
 									onChange={(value) => setSelectedGrade(value as Grade)}
-									size="md"
+									size='md'
 								>
 									<Group gap={rem(24)}>
-										<Radio value="Def" label="Def" />
-										<Radio value="ANN" label="ANN" />
-										<Radio value="DNS" label="DNS" />
-										<Radio value="EXP" label="EXP" />
+										<Radio value='Def' label='Def' />
+										<Radio value='ANN' label='ANN' />
+										<Radio value='DNS' label='DNS' />
+										<Radio value='EXP' label='EXP' />
 									</Group>
 								</Radio.Group>
 							</Stack>
 						</Paper>
 					)}
 
-					<Group justify="flex-end" mt={rem(16)}>
-						<Button variant="light" onClick={close}>
+					<Group justify='flex-end' mt={rem(16)}>
+						<Button variant='light' onClick={close}>
 							Cancel
 						</Button>
 						<Button

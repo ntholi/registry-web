@@ -20,19 +20,19 @@ export default async function ModuleDetails({ params }: Props) {
 	}
 	return (
 		<DetailsView>
-			<Group justify="space-between" align="center" mb="md">
+			<Group justify='space-between' align='center' mb='md'>
 				<Title order={3} fw={400}>
 					{mod.code} - {mod.name}
 				</Title>
 				<Link href={`/dashboard/gradebook/${mod.id}`} passHref>
-					<Button variant="light" leftSection={<IconNotebook size={16} />} size="sm">
+					<Button variant='light' leftSection={<IconNotebook size={16} />} size='sm'>
 						View Gradebook
 					</Button>
 				</Link>
 			</Group>
 
-			<Paper p="md" radius="md" withBorder shadow="sm" mb="md" mt="lg">
-				<Title order={4} fw={400} mb="md">
+			<Paper p='md' radius='md' withBorder shadow='sm' mb='md' mt='lg'>
+				<Title order={4} fw={400} mb='md'>
 					Assigned Lecturers
 				</Title>
 				<ModuleLecturers moduleId={mod.id} />

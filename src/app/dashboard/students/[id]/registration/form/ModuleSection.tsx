@@ -139,13 +139,13 @@ export default function ModuleSection({
 
 	return (
 		<>
-			<Paper withBorder p="md">
-				<Group gap="xs" align="flex-end">
+			<Paper withBorder p='md'>
+				<Group gap='xs' align='flex-end'>
 					<Box style={{ flex: 1 }}>
 						<ModuleSearchInput
 							key={searchInputKey}
-							label="Add  Module"
-							placeholder="Search for modules by code or name"
+							label='Add  Module'
+							placeholder='Search for modules by code or name'
 							structureId={structureId || 0}
 							value={selectedModuleToAdd?.semesterModuleId || null}
 							onChange={() => {}}
@@ -154,12 +154,12 @@ export default function ModuleSection({
 						/>
 					</Box>
 					<ActionIcon
-						size="input-sm"
-						variant="filled"
-						color="blue"
+						size='input-sm'
+						variant='filled'
+						color='blue'
 						onClick={handleAddModule}
 						disabled={!selectedModuleToAdd || !structureId}
-						title="Add selected module"
+						title='Add selected module'
 					>
 						<IconPlus size={16} />
 					</ActionIcon>

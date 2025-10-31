@@ -208,7 +208,7 @@ export default function NewRegistrationPage() {
 
 	if (blockedLoading) {
 		return (
-			<Container size="lg" py="xl">
+			<Container size='lg' py='xl'>
 				<LoadingOverlay visible />
 			</Container>
 		);
@@ -216,8 +216,8 @@ export default function NewRegistrationPage() {
 
 	if (blockedStudent && blockedStudent.status === 'blocked') {
 		return (
-			<Container size="lg" py="xl">
-				<Alert icon={<IconInfoCircle size="1rem" />} title="Registration Blocked" color="red">
+			<Container size='lg' py='xl'>
+				<Alert icon={<IconInfoCircle size='1rem' />} title='Registration Blocked' color='red'>
 					Your account has been blocked from registering. Please contact the registry office for
 					assistance.
 					<br />
@@ -229,8 +229,8 @@ export default function NewRegistrationPage() {
 
 	if (!currentTerm) {
 		return (
-			<Container size="lg" py="xl">
-				<Alert icon={<IconInfoCircle size="1rem" />} title="No Active Term" color="orange">
+			<Container size='lg' py='xl'>
+				<Alert icon={<IconInfoCircle size='1rem' />} title='No Active Term' color='orange'>
 					There is currently no active registration term.
 				</Alert>
 			</Container>
@@ -279,29 +279,29 @@ export default function NewRegistrationPage() {
 	};
 
 	return (
-		<Container size="md">
-			<Stack gap="xl">
+		<Container size='md'>
+			<Stack gap='xl'>
 				<div>
-					<Title order={2} mb="xs">
+					<Title order={2} mb='xs'>
 						New Registration
 					</Title>
-					<Text c="dimmed">Term: {currentTerm.name}</Text>
+					<Text c='dimmed'>Term: {currentTerm.name}</Text>
 				</div>
 
 				<Box>
-					<Group justify="space-between" mb="sm">
-						<Text size="sm" fw={500}>
+					<Group justify='space-between' mb='sm'>
+						<Text size='sm' fw={500}>
 							Step {activeStep + 1} of {totalSteps}
 						</Text>
 					</Group>
 
-					<Progress value={progressValue} size="lg" mb="md" />
+					<Progress value={progressValue} size='lg' mb='md' />
 
 					<Box>
-						<Text fw={500} size="lg">
+						<Text fw={500} size='lg'>
 							{STEPS[activeStep].label}
 						</Text>
-						<Text size="sm" c="dimmed">
+						<Text size='sm' c='dimmed'>
 							{STEPS[activeStep].description}
 						</Text>
 					</Box>
@@ -311,9 +311,9 @@ export default function NewRegistrationPage() {
 				<Box>{renderStepContent()}</Box>
 
 				{/* Navigation */}
-				<Group justify="space-between" mt="xl">
+				<Group justify='space-between' mt='xl'>
 					<Button
-						variant="default"
+						variant='default'
 						onClick={prevStep}
 						disabled={activeStep === 0}
 						leftSection={<IconArrowLeft size={16} />}

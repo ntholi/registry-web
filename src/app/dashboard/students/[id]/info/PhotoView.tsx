@@ -52,8 +52,8 @@ export default function PhotoView({ student }: Props) {
 	const canEditPhoto = ['admin', 'registry'].includes(session?.user?.role ?? '');
 
 	const cardContent = (
-		<Center h="100%">
-			<IconUser size="2rem" />
+		<Center h='100%'>
+			<IconUser size='2rem' />
 		</Center>
 	);
 
@@ -64,7 +64,7 @@ export default function PhotoView({ student }: Props) {
 					<PhotoPreviewModal
 						photoUrl={photoUrl}
 						title={`${student.name} (${student.stdNo})`}
-						alt="Student photo"
+						alt='Student photo'
 						width={76}
 						height={76}
 					/>
@@ -84,14 +84,14 @@ export default function PhotoView({ student }: Props) {
 								title={`Change Photo for ${student.name}`}
 								renderTrigger={({ open }) => (
 									<ActionIcon
-										size="sm"
-										variant="default"
-										color="blue"
+										size='sm'
+										variant='default'
+										color='blue'
 										style={{ opacity: 0.8 }}
 										onClick={open}
-										title="Change photo"
+										title='Change photo'
 									>
-										<IconEdit size="0.7rem" />
+										<IconEdit size='0.7rem' />
 									</ActionIcon>
 								)}
 							/>
@@ -109,7 +109,7 @@ export default function PhotoView({ student }: Props) {
 							title={`Upload Photo for ${student.name}`}
 							renderTrigger={({ open }) => (
 								<ActionIcon
-									size="sm"
+									size='sm'
 									style={{
 										position: 'absolute',
 										opacity: 0.7,
@@ -118,9 +118,9 @@ export default function PhotoView({ student }: Props) {
 										zIndex: 1,
 									}}
 									onClick={open}
-									title="Upload photo"
+									title='Upload photo'
 								>
-									<IconUpload size="0.8rem" />
+									<IconUpload size='0.8rem' />
 								</ActionIcon>
 							)}
 						/>

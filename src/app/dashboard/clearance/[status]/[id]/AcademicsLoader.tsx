@@ -18,7 +18,7 @@ export default function AcademicsLoader({ stdNo }: Props) {
 	if (isLoading) {
 		return (
 			<Center mt={'4rem'}>
-				<Loader size="sm" />
+				<Loader size='sm' />
 			</Center>
 		);
 	}

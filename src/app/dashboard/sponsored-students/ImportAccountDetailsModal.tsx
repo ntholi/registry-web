@@ -196,7 +196,7 @@ export default function ImportAccountDetailsModal() {
 				title: 'Error',
 				message: 'Failed to parse Excel file. Please check the format.',
 				color: 'red',
-				icon: <IconExclamationCircle size="1rem" />,
+				icon: <IconExclamationCircle size='1rem' />,
 			});
 		}
 	};
@@ -278,7 +278,7 @@ export default function ImportAccountDetailsModal() {
 				title: 'Import Complete',
 				message: `${successCount} records updated successfully, ${errorCount} failed out of ${requestData.length} total records.`,
 				color: errorCount > 0 ? 'orange' : 'green',
-				icon: <IconCheck size="1rem" />,
+				icon: <IconCheck size='1rem' />,
 			});
 
 			if (successCount > 0) {
@@ -289,7 +289,7 @@ export default function ImportAccountDetailsModal() {
 				title: 'Import Failed',
 				message: 'An error occurred during the import process.',
 				color: 'red',
-				icon: <IconExclamationCircle size="1rem" />,
+				icon: <IconExclamationCircle size='1rem' />,
 			});
 		} finally {
 			setIsProcessing(false);
@@ -310,56 +310,56 @@ export default function ImportAccountDetailsModal() {
 
 	return (
 		<>
-			<Button leftSection={<IconUpload size="1rem" />} onClick={open} variant="light">
+			<Button leftSection={<IconUpload size='1rem' />} onClick={open} variant='light'>
 				Import
 			</Button>
 
 			<Modal
 				opened={opened}
 				onClose={handleClose}
-				title="Import Account Details"
-				size="md"
+				title='Import Account Details'
+				size='md'
 				centered
 			>
-				<Stack gap="md">
-					<Alert icon={<IconAlertCircle size="1rem" />} color="blue">
+				<Stack gap='md'>
+					<Alert icon={<IconAlertCircle size='1rem' />} color='blue'>
 						Upload Excel file with: Student Number, Names, Account Number, Bank Name
 					</Alert>
 
 					<FileInput
-						label="Excel File"
-						placeholder="Select Excel file (.xlsx, .xls)"
-						accept=".xlsx,.xls"
+						label='Excel File'
+						placeholder='Select Excel file (.xlsx, .xls)'
+						accept='.xlsx,.xls'
 						value={file}
 						onChange={handleFileUpload}
 						disabled={isProcessing}
 					/>
 
 					{isProcessing && (
-						<Stack gap="xs">
-							<Group justify="space-between">
-								<Text size="sm">Processing...</Text>
-								<Text size="xs" c="dimmed">
+						<Stack gap='xs'>
+							<Group justify='space-between'>
+								<Text size='sm'>Processing...</Text>
+								<Text size='xs' c='dimmed'>
 									{Math.round(progress)}%
 								</Text>
 							</Group>
-							<Progress value={progress} size="sm" />
+							<Progress value={progress} size='sm' />
 						</Stack>
 					)}
 
 					{importData.length > 0 && !isProcessing && (
-						<Group justify="space-between">
-							<Text size="sm" c="dimmed">
+						<Group justify='space-between'>
+							<Text size='sm' c='dimmed'>
 								{importData.length} records ready
 							</Text>
-							<Group gap="xs">
+							<Group gap='xs'>
 								{successCount > 0 && (
-									<Badge color="green" size="sm">
+									<Badge color='green' size='sm'>
 										{successCount} success
 									</Badge>
 								)}
 								{errorCount > 0 && (
-									<Badge color="red" size="sm">
+									<Badge color='red' size='sm'>
 										{errorCount} errors
 									</Badge>
 								)}
@@ -367,8 +367,8 @@ export default function ImportAccountDetailsModal() {
 						</Group>
 					)}
 
-					<Group justify="flex-end" gap="sm">
-						<Button variant="light" onClick={handleClose} disabled={isProcessing}>
+					<Group justify='flex-end' gap='sm'>
+						<Button variant='light' onClick={handleClose} disabled={isProcessing}>
 							Cancel
 						</Button>
 						<Button

@@ -32,7 +32,7 @@ export default function GraduationListForm({ onSubmit, defaultValues, title }: P
 		>
 			{(form) => (
 				<>
-					<TextInput label="Name" {...form.getInputProps('name')} />
+					<TextInput label='Name' {...form.getInputProps('name')} />
 				</>
 			)}
 		</Form>

@@ -60,7 +60,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
 				return <ListItem id={moduleId} label={moduleCode} description={moduleName} />;
 			}
-			return <ListItem id="#" label="Unknown" description="Unknown module" />;
+			return <ListItem id='#' label='Unknown' description='Unknown module' />;
 		} else {
 			const isModule = (item: ModuleItem): item is Module =>
 				'id' in item && 'code' in item && 'name' in item;
@@ -68,7 +68,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			if (isModule(it)) {
 				return <ListItem id={String(it.id ?? '#')} label={it.code} description={it.name} />;
 			}
-			return <ListItem id="#" label="Unknown" description="Unknown module" />;
+			return <ListItem id='#' label='Unknown' description='Unknown module' />;
 		}
 	};
 
@@ -83,7 +83,7 @@ export default function Layout({ children }: PropsWithChildren) {
 					['admin', 'manager', 'program_leader'].includes(session.user.position) &&
 					session.user.role !== 'academic' && (
 						<ModuleViewToggle
-							key="module-toggle"
+							key='module-toggle'
 							onToggle={setShowAssignedOnly}
 							defaultValue={showAssignedOnly}
 						/>

@@ -43,13 +43,13 @@ export default function AssessmentsTable({ moduleId }: Props) {
 	};
 
 	return (
-		<Paper p="md" radius="md" withBorder shadow="sm">
-			<Flex justify="space-between" mb="md">
-				<Group align="end">
+		<Paper p='md' radius='md' withBorder shadow='sm'>
+			<Flex justify='space-between' mb='md'>
+				<Group align='end'>
 					<Title order={4} fw={400}>
 						Assessments
 					</Title>
-					<Badge variant="light" radius={'xs'}>
+					<Badge variant='light' radius={'xs'}>
 						Weight: {module?.assessments.reduce((sum: number, a: Assessment) => sum + a.weight, 0)}%
 					</Badge>
 				</Group>
@@ -58,7 +58,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
 				</ActionIcon>
 			</Flex>
 			{isLoading ? (
-				<Text c="dimmed" ta="center" py="xl">
+				<Text c='dimmed' ta='center' py='xl'>
 					Loading assessments...
 				</Text>
 			) : module?.assessments && module.assessments.length > 0 ? (
@@ -81,11 +81,11 @@ export default function AssessmentsTable({ moduleId }: Props) {
 								<Table.Td>{assessment.weight}%</Table.Td>
 								<Table.Td>
 									{' '}
-									<Group gap="xs">
-										<Tooltip label="Edit">
+									<Group gap='xs'>
+										<Tooltip label='Edit'>
 											<ActionIcon
-												variant="subtle"
-												color="blue"
+												variant='subtle'
+												color='blue'
 												onClick={() => handleEditAssessment(assessment)}
 											>
 												<IconEdit size={16} />
@@ -100,7 +100,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
 					</Table.Tbody>
 				</Table>
 			) : (
-				<Text c="dimmed" ta="center" size="sm" py="xl">
+				<Text c='dimmed' ta='center' size='sm' py='xl'>
 					No Assessments
 				</Text>
 			)}

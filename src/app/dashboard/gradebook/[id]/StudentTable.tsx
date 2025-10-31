@@ -44,8 +44,8 @@ function Th({ children, reversed, sorted, onSort, style }: ThProps) {
 	return (
 		<Table.Th style={style}>
 			<UnstyledButton onClick={onSort} style={{ width: '100%' }}>
-				<Group justify="space-between" gap="xs" wrap="nowrap">
-					<Text fw={500} fz="sm">
+				<Group justify='space-between' gap='xs' wrap='nowrap'>
+					<Text fw={500} fz='sm'>
 						{children}
 					</Text>
 					<Center>
@@ -164,16 +164,16 @@ export default function StudentTable({ moduleId }: Props) {
 							.fill(0)
 							.map((_, idx) => (
 								<Table.Th key={`skeleton-header-${idx}`}>
-									<Skeleton height={16} width={80} mx="auto" />
+									<Skeleton height={16} width={80} mx='auto' />
 								</Table.Th>
 							))
 					: assessments?.map((assessment) => (
 							<Table.Th key={assessment.id} style={{ minWidth: '100px', textAlign: 'center' }}>
-								<Group gap={5} justify="center">
-									<Text size="sm" fw={'bold'}>
+								<Group gap={5} justify='center'>
+									<Text size='sm' fw={'bold'}>
 										{getAssessmentTypeLabel(assessment.assessmentType)}
 									</Text>
-									<Text size="xs" c="dimmed">
+									<Text size='xs' c='dimmed'>
 										({assessment.weight}%)
 									</Text>
 								</Group>
@@ -182,11 +182,11 @@ export default function StudentTable({ moduleId }: Props) {
 				{assessments && assessments.length > 0 && (
 					<>
 						<Table.Th style={{ textAlign: 'center' }}>
-							<Group gap={5} justify="center">
-								<Text size="sm" fw={'bold'}>
+							<Group gap={5} justify='center'>
+								<Text size='sm' fw={'bold'}>
 									Total
 								</Text>
-								<Text size="xs" c="dimmed">
+								<Text size='xs' c='dimmed'>
 									({assessments.reduce((acc, assessment) => acc + assessment.weight, 0)}
 									%)
 								</Text>
@@ -216,21 +216,21 @@ export default function StudentTable({ moduleId }: Props) {
 									.fill(0)
 									.map((_, idx) => (
 										<Table.Td key={`skeleton-cell-loading-${index}-${idx}`}>
-											<Skeleton height={24} width={80} mx="auto" />
+											<Skeleton height={24} width={80} mx='auto' />
 										</Table.Td>
 									))
 							: assessments.map((assessment, idx) => (
 									<Table.Td key={`skeleton-cell-${index}-${assessment.id || idx}`}>
-										<Skeleton height={24} width={80} mx="auto" />
+										<Skeleton height={24} width={80} mx='auto' />
 									</Table.Td>
 								))}
 						{(assessmentsLoading || (assessments && assessments.length > 0)) && (
 							<React.Fragment>
 								<Table.Td>
-									<Skeleton height={24} width={80} mx="auto" />
+									<Skeleton height={24} width={80} mx='auto' />
 								</Table.Td>
 								<Table.Td>
-									<Skeleton height={24} width={80} mx="auto" />
+									<Skeleton height={24} width={80} mx='auto' />
 								</Table.Td>
 							</React.Fragment>
 						)}
@@ -242,7 +242,7 @@ export default function StudentTable({ moduleId }: Props) {
 			return (
 				<Table.Tr>
 					<Table.Td colSpan={assessments ? assessments.length + 4 : 4}>
-						<Center p="md">
+						<Center p='md'>
 							<Text>{searchQuery ? 'No students match your search.' : 'No students found.'}</Text>
 						</Center>
 					</Table.Td>
@@ -254,7 +254,7 @@ export default function StudentTable({ moduleId }: Props) {
 			return (
 				<Table.Tr key={student.stdNo}>
 					<Table.Td>
-						<Link size="sm" href={`/dashboard/students/${student.stdNo}`}>
+						<Link size='sm' href={`/dashboard/students/${student.stdNo}`}>
 							{student.stdNo}
 						</Link>
 					</Table.Td>
@@ -264,13 +264,13 @@ export default function StudentTable({ moduleId }: Props) {
 								.fill(0)
 								.map((_, idx) => (
 									<Table.Td key={`skeleton-student-${student.stdNo}-${idx}`}>
-										<Skeleton height={24} width={80} mx="auto" />
+										<Skeleton height={24} width={80} mx='auto' />
 									</Table.Td>
 								))
 						: assessments?.map((assessment) => {
 								const { mark, markId } = getStudentMark(student.stdNo, assessment.id);
 								return (
-									<Table.Td key={`${student.stdNo}-${assessment.id}`} align="center">
+									<Table.Td key={`${student.stdNo}-${assessment.id}`} align='center'>
 										<MarksInput
 											assessment={{
 												id: assessment.id,
@@ -287,26 +287,26 @@ export default function StudentTable({ moduleId }: Props) {
 							})}
 					{assessments && assessments.length > 0 && (
 						<>
-							<Table.Td align="center">
-								<Group gap="xs" justify="center" wrap="nowrap">
+							<Table.Td align='center'>
+								<Group gap='xs' justify='center' wrap='nowrap'>
 									<GradeDisplay
 										studentId={student.stdNo}
-										displayType="total"
+										displayType='total'
 										moduleId={moduleId}
 										moduleGrade={getStudentGrade(student.stdNo)}
 										isLoading={moduleGradesLoading}
 									/>
 									<GradeDisplay
 										studentId={student.stdNo}
-										displayType="grade"
+										displayType='grade'
 										moduleId={moduleId}
 										moduleGrade={getStudentGrade(student.stdNo)}
 										isLoading={moduleGradesLoading}
 									/>
 								</Group>
 							</Table.Td>
-							<Table.Td align="center">
-								<Group gap={3} justify="center" wrap="nowrap">
+							<Table.Td align='center'>
+								<Group gap={3} justify='center' wrap='nowrap'>
 									<MarksAuditModal stdNo={student.stdNo} studentName={student.name} />
 									<GradeSymbolModal
 										studentId={student.stdNo}
@@ -325,18 +325,18 @@ export default function StudentTable({ moduleId }: Props) {
 	}
 	return (
 		<Stack>
-			<Group justify="space-between" align="center" wrap="nowrap">
+			<Group justify='space-between' align='center' wrap='nowrap'>
 				<TextInput
-					placeholder="Search by name or student number"
+					placeholder='Search by name or student number'
 					value={searchQuery}
 					onChange={(event) => setSearchQuery(event.currentTarget.value)}
 					style={{ flex: 1 }}
 					rightSection={
 						searchQuery ? (
-							<CloseButton onClick={() => setSearchQuery('')} variant="subtle" size="sm" />
+							<CloseButton onClick={() => setSearchQuery('')} variant='subtle' size='sm' />
 						) : null
 					}
-					leftSection={<IconSearch size="1.2rem" />}
+					leftSection={<IconSearch size='1.2rem' />}
 				/>{' '}
 				<Group>
 					{assessments && assessments.length > 0 && (
@@ -353,7 +353,7 @@ export default function StudentTable({ moduleId }: Props) {
 					)}
 					{!studentsLoading && studentsData && (
 						<Paper withBorder p={8.5}>
-							<Text size="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+							<Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
 								{sortedStudents.length} student
 								{sortedStudents.length !== 1 ? 's' : ''} displayed
 							</Text>

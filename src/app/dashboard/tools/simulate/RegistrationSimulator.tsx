@@ -266,12 +266,12 @@ export default function RegistrationSimulator() {
 	const indeterminate = selectedModules.size > 0 && !allSelected;
 
 	return (
-		<Stack gap="lg">
-			<Paper withBorder p="md" radius="md">
-				<Stack gap="md">
-					<Group gap="md" align="flex-end">
+		<Stack gap='lg'>
+			<Paper withBorder p='md' radius='md'>
+				<Stack gap='md'>
+					<Group gap='md' align='flex-end'>
 						<TextInput
-							placeholder="Enter student number"
+							placeholder='Enter student number'
 							value={stdNo}
 							onChange={(e) => setStdNo(e.target.value)}
 							onKeyPress={handleKeyPress}
@@ -292,10 +292,10 @@ export default function RegistrationSimulator() {
 			</Paper>
 
 			{isPending && (
-				<Card withBorder radius="md" p={65}>
+				<Card withBorder radius='md' p={65}>
 					<Center>
-						<Stack gap="md" align="center">
-							<Text size="sm" c="dimmed">
+						<Stack gap='md' align='center'>
+							<Text size='sm' c='dimmed'>
 								Simulation student registration...
 							</Text>
 						</Stack>
@@ -306,58 +306,58 @@ export default function RegistrationSimulator() {
 			{error && !isPending && (
 				<Alert
 					icon={<IconAlertCircle size={16} />}
-					title="Simulation Error"
-					color="red"
-					variant="light"
+					title='Simulation Error'
+					color='red'
+					variant='light'
 				>
 					{error}
 				</Alert>
 			)}
 
 			{student && !isPending && (
-				<Card withBorder radius="md" p="lg">
-					<Stack gap="md">
-						<Group gap="xs" align="center">
-							<ThemeIcon size="sm" radius="sm" variant="light" color="teal">
+				<Card withBorder radius='md' p='lg'>
+					<Stack gap='md'>
+						<Group gap='xs' align='center'>
+							<ThemeIcon size='sm' radius='sm' variant='light' color='teal'>
 								<IconUser size={14} />
 							</ThemeIcon>
-							<Text fw={500} size="sm">
+							<Text fw={500} size='sm'>
 								Student Information
 							</Text>
 						</Group>
 
-						<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
-							<Paper withBorder p="sm" radius="sm">
-								<Text size="xs" c="dimmed" mb={4}>
+						<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing='md'>
+							<Paper withBorder p='sm' radius='sm'>
+								<Text size='xs' c='dimmed' mb={4}>
 									Name
 								</Text>
-								<Text fw={500} size="sm">
+								<Text fw={500} size='sm'>
 									{student.name}
 								</Text>
 							</Paper>
-							<Paper withBorder p="sm" radius="sm">
-								<Text size="xs" c="dimmed" mb={4}>
+							<Paper withBorder p='sm' radius='sm'>
+								<Text size='xs' c='dimmed' mb={4}>
 									Student Number
 								</Text>
-								<Link size="sm" c="default" href={`/dashboard/students/${student.stdNo}`}>
+								<Link size='sm' c='default' href={`/dashboard/students/${student.stdNo}`}>
 									{student.stdNo}
 								</Link>
 							</Paper>
-							<Paper withBorder p="sm" radius="sm">
-								<Text size="xs" c="dimmed" mb={4}>
+							<Paper withBorder p='sm' radius='sm'>
+								<Text size='xs' c='dimmed' mb={4}>
 									Current Semester
 								</Text>
-								<Text fw={500} size="sm">
+								<Text fw={500} size='sm'>
 									{formatSemester(getCurrentSemester(fullStudentData)?.semesterNumber)}
 								</Text>
 							</Paper>
-							<Paper withBorder p="sm" radius="sm">
-								<Text size="xs" c="dimmed" mb={4}>
+							<Paper withBorder p='sm' radius='sm'>
+								<Text size='xs' c='dimmed' mb={4}>
 									{student.program.name}
 								</Text>
 								<Link
-									size="sm"
-									c="default"
+									size='sm'
+									c='default'
 									href={`/dashboard/schools/structures/${student.program.structureId}`}
 								>
 									{student.program.code}
@@ -369,27 +369,27 @@ export default function RegistrationSimulator() {
 			)}
 
 			{modules && modules.length > 0 && !isPending && (
-				<Card withBorder radius="md" p="lg">
-					<Stack gap="lg">
-						<Group justify="space-between" align="center">
-							<Group gap="md" align="center">
+				<Card withBorder radius='md' p='lg'>
+					<Stack gap='lg'>
+						<Group justify='space-between' align='center'>
+							<Group gap='md' align='center'>
 								<Checkbox
-									label="Select All"
+									label='Select All'
 									checked={allSelected}
 									indeterminate={indeterminate}
 									onChange={(event) => handleSelectAll(event.currentTarget.checked)}
 									disabled={modules.length > 8}
 								/>
-								<Badge color="blue" variant="light" size="sm">
+								<Badge color='blue' variant='light' size='sm'>
 									{modules.length} Modules
 								</Badge>
 							</Group>
 							<Button
 								onClick={handleDetermineSemester}
 								loading={isAnalyzing}
-								variant="outline"
+								variant='outline'
 								disabled={selectedModules.size === 0 || selectedModules.size > 8}
-								size="xs"
+								size='xs'
 							>
 								{isAnalyzing ? 'Determining...' : 'Determine Semester'}
 							</Button>
@@ -407,9 +407,9 @@ export default function RegistrationSimulator() {
 			{modules && modules.length === 0 && !isPending && !error && (
 				<Alert
 					icon={<IconInfoCircle size={16} />}
-					title="No Modules Found"
-					color="blue"
-					variant="light"
+					title='No Modules Found'
+					color='blue'
+					variant='light'
 				>
 					No eligible modules found for this student. This could mean the student has completed all
 					required modules or there are no modules available for their current semester.
@@ -437,7 +437,7 @@ function ModuleTable({
 }) {
 	if (modules.length === 0) {
 		return (
-			<Text size="sm" c="dimmed" ta="center" py="md">
+			<Text size='sm' c='dimmed' ta='center' py='md'>
 				No modules found
 			</Text>
 		);
@@ -473,49 +473,49 @@ function ModuleTable({
 								/>
 							</Table.Td>
 							<Table.Td>
-								<Text fw={500} size="sm">
+								<Text fw={500} size='sm'>
 									{module.code}
 								</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{module.name}</Text>
+								<Text size='sm'>{module.name}</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{module.type}</Text>
+								<Text size='sm'>{module.type}</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm" fw={500}>
+								<Text size='sm' fw={500}>
 									{module.credits}
 								</Text>
 							</Table.Td>
 							<Table.Td>
-								<Badge color={getStatusColor(module.status)} variant="light" size="sm">
+								<Badge color={getStatusColor(module.status)} variant='light' size='sm'>
 									{module.status}
 								</Badge>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm" fw={500}>
+								<Text size='sm' fw={500}>
 									{formatSemester(module.semesterNo, 'short')}
 								</Text>
 							</Table.Td>
 							<Table.Td>
 								{module.prerequisites && module.prerequisites.length > 0 ? (
-									<HoverCard width={300} position="top" withArrow shadow="md">
+									<HoverCard width={300} position='top' withArrow shadow='md'>
 										<HoverCard.Target>
-											<Text size="sm" style={{ cursor: 'pointer' }}>
+											<Text size='sm' style={{ cursor: 'pointer' }}>
 												{module.prerequisites.map((p) => p.name).join(', ')}
 											</Text>
 										</HoverCard.Target>
 										<HoverCard.Dropdown>
 											{module.prerequisites.map((p, idx) => (
-												<Text key={idx} size="sm">
+												<Text key={idx} size='sm'>
 													{p.name} ({p.code})
 												</Text>
 											))}
 										</HoverCard.Dropdown>
 									</HoverCard>
 								) : (
-									<Text size="sm">-</Text>
+									<Text size='sm'>-</Text>
 								)}
 							</Table.Td>
 						</Table.Tr>

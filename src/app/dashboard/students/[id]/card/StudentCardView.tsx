@@ -37,7 +37,7 @@ export default function StudentCardView({ student, isActive }: StudentCardViewPr
 
 	return (
 		<Box>
-			<Grid gutter="xl">
+			<Grid gutter='xl'>
 				<Grid.Col span={6}>
 					<PhotoSelection
 						selectedPhoto={selectedPhoto}
@@ -68,7 +68,7 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
 
 	return (
 		<Paper
-			shadow="md"
+			shadow='md'
 			radius={0}
 			style={{
 				width: '320px',
@@ -92,41 +92,41 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
 				}}
 			>
 				<Image
-					src="/images/logo-dark.png"
-					alt="Limkokwing University"
+					src='/images/logo-dark.png'
+					alt='Limkokwing University'
 					w={180}
 					h={50}
-					fit="contain"
+					fit='contain'
 				/>
 			</Box>
 
-			<Group align="flex-start" gap="sm" p="sm" style={{ height: 'calc(100% - 70px)' }}>
+			<Group align='flex-start' gap='sm' p='sm' style={{ height: 'calc(100% - 70px)' }}>
 				<Box style={{ flex: 1 }}>
-					<Text size="sm" fw={700} c="black" lh={1.2}>
+					<Text size='sm' fw={700} c='black' lh={1.2}>
 						{student.name}
 					</Text>
-					<Text size="xs" fw={700} c="black" lh={1.2}>
+					<Text size='xs' fw={700} c='black' lh={1.2}>
 						{student.stdNo}
 					</Text>
-					<Text size="xs" fw={700} c="black" lh={1.2}>
+					<Text size='xs' fw={700} c='black' lh={1.2}>
 						{programCode}
 					</Text>
-					<Text size="xs" fw={700} c="black" lh={1.2}>
+					<Text size='xs' fw={700} c='black' lh={1.2}>
 						STUDENT
 					</Text>
-					<Text size="xs" fw={700} c="black" lh={1.2}>
+					<Text size='xs' fw={700} c='black' lh={1.2}>
 						{new Date().getFullYear()}
 					</Text>
 				</Box>
 
-				<Stack align="flex-end" gap={2}>
+				<Stack align='flex-end' gap={2}>
 					{photoUrl ? (
 						<Image
 							src={photoUrl}
-							alt="Student photo"
+							alt='Student photo'
 							w={90}
 							h={100}
-							fit="cover"
+							fit='cover'
 							radius={0}
 							style={{ border: '1px solid #000' }}
 						/>
@@ -142,7 +142,7 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
 								backgroundColor: '#f0f0f0',
 							}}
 						>
-							<IconCamera size={20} color="#666" />
+							<IconCamera size={20} color='#666' />
 						</Box>
 					)}
 				</Stack>
@@ -158,17 +158,17 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
 			>
 				<Flex justify={'space-between'} align={'end'}>
 					<Box>
-						<Text size="6px" c="black" lh={1.2}>
+						<Text size='6px' c='black' lh={1.2}>
 							If found please return to:
 						</Text>
-						<Text size="6px" c="black" lh={1.2}>
+						<Text size='6px' c='black' lh={1.2}>
 							Limkokwing University Lesotho Campus
 						</Text>
-						<Text size="6px" c="black" lh={1.2}>
+						<Text size='6px' c='black' lh={1.2}>
 							Tel: 22315747
 						</Text>
 					</Box>
-					<Text size="0.5rem" fw={700} c="black" ta="center" w={92} lh={1.2}>
+					<Text size='0.5rem' fw={700} c='black' ta='center' w={92} lh={1.2}>
 						LUCT LESOTHO
 					</Text>
 				</Flex>

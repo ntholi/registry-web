@@ -36,12 +36,12 @@ export default function SchoolProgramsPage() {
 	}
 
 	return (
-		<Stack p="lg">
+		<Stack p='lg'>
 			<Group>
-				<Link c="dimmed" href="/dashboard/schools">
-					<Group gap="xs">
+				<Link c='dimmed' href='/dashboard/schools'>
+					<Group gap='xs'>
 						<IconArrowLeft size={16} />
-						<Text size="sm">Back to Schools</Text>
+						<Text size='sm'>Back to Schools</Text>
 					</Group>
 				</Link>
 			</Group>
@@ -50,12 +50,12 @@ export default function SchoolProgramsPage() {
 				<Skeleton height={40} />
 			) : (
 				<Group>
-					<ThemeIcon variant="light" color="gray" size="xl">
-						<IconSchool size="1.1rem" />
+					<ThemeIcon variant='light' color='gray' size='xl'>
+						<IconSchool size='1.1rem' />
 					</ThemeIcon>
 					<div>
 						<Title order={2}>{school?.name || 'School'}</Title>
-						<Text c="dimmed" size="sm">
+						<Text c='dimmed' size='sm'>
 							Programs and their structures
 						</Text>
 					</div>
@@ -63,25 +63,25 @@ export default function SchoolProgramsPage() {
 			)}
 
 			{programsLoading ? (
-				<Stack gap="md">
+				<Stack gap='md'>
 					{[1, 2, 3, 4].map((i) => (
-						<Skeleton key={i} height={80} radius="md" />
+						<Skeleton key={i} height={80} radius='md' />
 					))}
 				</Stack>
 			) : programs && programs.length > 0 ? (
-				<Accordion variant="separated" radius="md" multiple defaultValue={[]}>
+				<Accordion variant='separated' radius='md' multiple defaultValue={[]}>
 					{programs.map((program: Program) => (
 						<ProgramDisplay key={program.id} program={program} />
 					))}
 				</Accordion>
 			) : (
-				<Card withBorder shadow="sm" padding="xl">
-					<Stack align="center" gap="xs">
+				<Card withBorder shadow='sm' padding='xl'>
+					<Stack align='center' gap='xs'>
 						<IconBook size={48} />
-						<Text size="lg" fw={500}>
+						<Text size='lg' fw={500}>
 							No Programs Found
 						</Text>
-						<Text size="sm" c="dimmed" ta="center">
+						<Text size='sm' c='dimmed' ta='center'>
 							This school currently has no programs defined.
 						</Text>
 					</Stack>

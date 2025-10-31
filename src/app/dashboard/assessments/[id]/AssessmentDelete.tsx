@@ -70,25 +70,25 @@ export default function AssessmentDelete({ assessment }: Props) {
 
 	return (
 		<>
-			<Tooltip label="Delete">
-				<ActionIcon variant="subtle" color="red" onClick={open}>
+			<Tooltip label='Delete'>
+				<ActionIcon variant='subtle' color='red' onClick={open}>
 					<IconTrash size={16} />
 				</ActionIcon>
 			</Tooltip>
 
-			<Modal opened={opened} onClose={handleClose} title="Delete Assessment" size="md" centered>
-				<Box mb="md">
-					<Alert icon={<IconAlertTriangle size={16} />} title="Warning" color="red" mb="md">
-						<Text fw={500} mb="xs">
+			<Modal opened={opened} onClose={handleClose} title='Delete Assessment' size='md' centered>
+				<Box mb='md'>
+					<Alert icon={<IconAlertTriangle size={16} />} title='Warning' color='red' mb='md'>
+						<Text fw={500} mb='xs'>
 							You are about to delete {getAssessmentTypeLabel(assessment.assessmentType)}.
 						</Text>
-						<Text size="sm">
+						<Text size='sm'>
 							This will permanently remove all student marks for this assessment. This action cannot
 							be undone.
 						</Text>
 					</Alert>
 
-					<Text size="sm" mb="md">
+					<Text size='sm' mb='md'>
 						To confirm deletion, please type{' '}
 						<Text span fw={700}>
 							delete permanently
@@ -97,19 +97,19 @@ export default function AssessmentDelete({ assessment }: Props) {
 					</Text>
 
 					<TextInput
-						placeholder="delete permanently"
+						placeholder='delete permanently'
 						value={confirmText}
 						onChange={(e) => setConfirmText(e.currentTarget.value)}
-						mb="md"
+						mb='md'
 						data-autofocus
 					/>
 				</Box>
 
-				<Group justify="right" mt="xl">
-					<Button variant="outline" onClick={handleClose}>
+				<Group justify='right' mt='xl'>
+					<Button variant='outline' onClick={handleClose}>
 						Cancel
 					</Button>
-					<Button color="red" onClick={handleDelete} disabled={!isConfirmed} loading={isDeleting}>
+					<Button color='red' onClick={handleDelete} disabled={!isConfirmed} loading={isDeleting}>
 						Delete Assessment
 					</Button>
 				</Group>

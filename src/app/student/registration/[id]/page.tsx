@@ -59,21 +59,21 @@ export default async function page({ params }: Props) {
 	const clearanceStatus = getOverallClearanceStatus(registration);
 
 	return (
-		<Container size="md" px="xs">
-			<Stack gap="xl">
-				<Paper withBorder p="md">
+		<Container size='md' px='xs'>
+			<Stack gap='xl'>
+				<Paper withBorder p='md'>
 					<Box>
-						<Group justify="space-between" align="flex-start" wrap="wrap">
-							<Title order={1} size="h2" fw={600} mb="xs">
+						<Group justify='space-between' align='flex-start' wrap='wrap'>
+							<Title order={1} size='h2' fw={600} mb='xs'>
 								Registration
 							</Title>
-							<Badge radius="xs" color={getStatusColor(clearanceStatus)} variant="light">
+							<Badge radius='xs' color={getStatusColor(clearanceStatus)} variant='light'>
 								{clearanceStatus}
 							</Badge>
 						</Group>
 
 						<Flex justify={'space-between'} align={'center'}>
-							<Text c="dimmed" size="sm">
+							<Text c='dimmed' size='sm'>
 								{registration.term.name} • {formatSemester(registration.semesterNumber)}
 							</Text>
 							{registration.status === 'pending' &&
@@ -81,9 +81,9 @@ export default async function page({ params }: Props) {
 									<Button
 										component={Link}
 										href={`/student/registration/${registration.id}/edit`}
-										variant="subtle"
+										variant='subtle'
 										mr={-10}
-										size="xs"
+										size='xs'
 										leftSection={<IconEdit size={16} />}
 									>
 										Update
@@ -102,17 +102,17 @@ export default async function page({ params }: Props) {
 					</Box>
 				</Paper>
 
-				<Tabs defaultValue="modules" variant="outline">
+				<Tabs defaultValue='modules' variant='outline'>
 					<TabsList>
-						<TabsTab value="modules" leftSection={<IconBooks size="1rem" />}>
+						<TabsTab value='modules' leftSection={<IconBooks size='1rem' />}>
 							Modules ({registration.requestedModules.length})
 						</TabsTab>
 						<TabsTab
-							value="clearance"
+							value='clearance'
 							leftSection={
 								<ThemeIcon
 									color={getStatusColor(clearanceStatus)}
-									variant="light"
+									variant='light'
 									radius={'xl'}
 									size={20}
 								>
@@ -124,14 +124,14 @@ export default async function page({ params }: Props) {
 						</TabsTab>
 					</TabsList>
 
-					<TabsPanel value="modules">
-						<Box mt="md">
+					<TabsPanel value='modules'>
+						<Box mt='md'>
 							<ModulesView registration={registration} />
 						</Box>
 					</TabsPanel>
 
-					<TabsPanel value="clearance">
-						<Box mt="md">
+					<TabsPanel value='clearance'>
+						<Box mt='md'>
 							<ClearanceStatusView registration={registration} />
 						</Box>
 					</TabsPanel>

@@ -4,12 +4,12 @@ import StatusPage from '@/components/StatusPage';
 export default function Unauthorized() {
 	return (
 		<StatusPage
-			title="Unauthorized"
-			description="You need to sign in to access this page."
-			color="yellow"
+			title='Unauthorized'
+			description='You need to sign in to access this page.'
+			color='yellow'
 			icon={<IconLock size={32} />}
-			primaryActionHref="/login"
-			primaryActionLabel="Sign in"
+			primaryActionHref='/login'
+			primaryActionLabel='Sign in'
 		/>
 	);
 }

@@ -58,24 +58,24 @@ export default async function GraduationDetailsPage({ params }: Props) {
 	const clearanceStatus = getClearanceStatus(graduationRequest.graduationClearances);
 
 	return (
-		<Container size="md" px="xs">
-			<Stack gap="xl">
-				<Paper withBorder p="md">
+		<Container size='md' px='xs'>
+			<Stack gap='xl'>
+				<Paper withBorder p='md'>
 					<Box>
-						<Group justify="space-between" align="flex-start" wrap="wrap">
-							<Title order={1} size="h2" fw={600} mb="xs">
+						<Group justify='space-between' align='flex-start' wrap='wrap'>
+							<Title order={1} size='h2' fw={600} mb='xs'>
 								Graduation
 							</Title>
-							<Badge radius="xs" color={getStatusColor(status)} variant="light">
+							<Badge radius='xs' color={getStatusColor(status)} variant='light'>
 								{status}
 							</Badge>
 						</Group>
 
-						<Flex justify={'space-between'} wrap="wrap">
-							<Box mb="md">
-								<Text size="sm">{graduationRequest.studentProgram.structure.program.name}</Text>
+						<Flex justify={'space-between'} wrap='wrap'>
+							<Box mb='md'>
+								<Text size='sm'>{graduationRequest.studentProgram.structure.program.name}</Text>
 
-								<Text c="dimmed" size="sm">
+								<Text c='dimmed' size='sm'>
 									Submitted: {formatDateTime(graduationRequest.createdAt!)}
 								</Text>
 							</Box>
@@ -89,13 +89,13 @@ export default async function GraduationDetailsPage({ params }: Props) {
 
 						{graduationRequest.message && (
 							<>
-								<Divider my="md" />
+								<Divider my='md' />
 								<Box>
-									<Text size="xs" c="dimmed" fw={500} tt="uppercase" mb="xs">
+									<Text size='xs' c='dimmed' fw={500} tt='uppercase' mb='xs'>
 										Message
 									</Text>
-									<Paper withBorder bg="var(--mantine-color-gray-light)" p="sm">
-										<Text size="sm">{graduationRequest.message}</Text>
+									<Paper withBorder bg='var(--mantine-color-gray-light)' p='sm'>
+										<Text size='sm'>{graduationRequest.message}</Text>
 									</Paper>
 								</Box>
 							</>
@@ -103,31 +103,31 @@ export default async function GraduationDetailsPage({ params }: Props) {
 					</Box>
 				</Paper>
 
-				<Tabs defaultValue="clearance" variant="outline">
+				<Tabs defaultValue='clearance' variant='outline'>
 					<TabsList>
 						<TabsTab
-							value="clearance"
+							value='clearance'
 							leftSection={
-								<ThemeIcon color={getStatusColor(clearanceStatus)} variant="light" size={20}>
+								<ThemeIcon color={getStatusColor(clearanceStatus)} variant='light' size={20}>
 									{getStatusIcon(clearanceStatus)}
 								</ThemeIcon>
 							}
 						>
 							Clearance Status
 						</TabsTab>
-						<TabsTab value="payments" leftSection={<IconReceipt size="1rem" />}>
+						<TabsTab value='payments' leftSection={<IconReceipt size='1rem' />}>
 							Payment Receipts ({graduationRequest.paymentReceipts?.length || 0})
 						</TabsTab>
 					</TabsList>
 
-					<TabsPanel value="clearance">
-						<Box mt="md">
+					<TabsPanel value='clearance'>
+						<Box mt='md'>
 							<GraduationClearanceView graduationRequest={graduationRequest} />
 						</Box>
 					</TabsPanel>
 
-					<TabsPanel value="payments">
-						<Box mt="md">
+					<TabsPanel value='payments'>
+						<Box mt='md'>
 							<PaymentReceiptsView graduationRequest={graduationRequest} />
 						</Box>
 					</TabsPanel>

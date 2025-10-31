@@ -92,14 +92,14 @@ export default async function GraduationRequestDetails({ params, searchParams }:
 					await deleteGraduationRequest(Number(id));
 				}}
 			/>
-			<Tabs defaultValue={defaultTab || 'details'} variant="outline">
+			<Tabs defaultValue={defaultTab || 'details'} variant='outline'>
 				<TabsList>
-					<TabsTab value="details">Details</TabsTab>
-					<TabsTab value="clearance">
-						<Group gap="xs">
+					<TabsTab value='details'>Details</TabsTab>
+					<TabsTab value='clearance'>
+						<Group gap='xs'>
 							<ThemeIcon
 								color={getStatusColor(getOverallClearanceStatus(graduationRequest))}
-								variant="light"
+								variant='light'
 								size={20}
 							>
 								{getStatusIcon(getOverallClearanceStatus(graduationRequest))}
@@ -108,15 +108,15 @@ export default async function GraduationRequestDetails({ params, searchParams }:
 						</Group>
 					</TabsTab>
 				</TabsList>
-				<TabsPanel value="details">
-					<Stack mt="md" p="sm">
+				<TabsPanel value='details'>
+					<Stack mt='md' p='sm'>
 						<GraduationRequestDetailsView value={graduationRequest} />
 						<Divider />
 						<PaymentReceiptsView value={graduationRequest} />
 					</Stack>
 				</TabsPanel>
-				<TabsPanel value="clearance">
-					<Stack gap="xl" mt="md" p="sm">
+				<TabsPanel value='clearance'>
+					<Stack gap='xl' mt='md' p='sm'>
 						<GraduationClearanceAccordion value={graduationRequest} defaultDept={defaultDept} />
 					</Stack>
 				</TabsPanel>

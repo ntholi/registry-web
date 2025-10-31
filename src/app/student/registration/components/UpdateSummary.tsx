@@ -81,8 +81,8 @@ export default function UpdateSummary({
 
 	if (!hasChanges) {
 		return (
-			<Card withBorder p="md">
-				<Text c="dimmed" ta="center">
+			<Card withBorder p='md'>
+				<Text c='dimmed' ta='center'>
 					No changes detected
 				</Text>
 			</Card>
@@ -90,38 +90,38 @@ export default function UpdateSummary({
 	}
 
 	return (
-		<Card withBorder p="md">
-			<Stack gap="md">
+		<Card withBorder p='md'>
+			<Stack gap='md'>
 				<Title order={4}>Summary of Changes</Title>
 
 				{semesterData && (
 					<Box>
-						<Text size="sm" c="dimmed" mb="xs">
+						<Text size='sm' c='dimmed' mb='xs'>
 							Semester Status
 						</Text>
 						<Group>
 							<Badge color={semesterData.status === 'Active' ? 'blue' : 'orange'}>
 								{semesterData.status}
 							</Badge>
-							<Text size="sm">Semester {semesterData.semesterNo}</Text>
+							<Text size='sm'>Semester {semesterData.semesterNo}</Text>
 						</Group>
 					</Box>
 				)}
 
-				<SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+				<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
 					{/* Module Changes */}
 					<Box>
-						<Text fw={500} mb="sm">
+						<Text fw={500} mb='sm'>
 							Module Changes
 						</Text>
-						<Stack gap="xs">
+						<Stack gap='xs'>
 							{addedModules.length > 0 && (
 								<Box>
-									<Text size="sm" c="green" fw={500}>
+									<Text size='sm' c='green' fw={500}>
 										Added Modules ({addedModules.length})
 									</Text>
 									{addedModules.map((module) => (
-										<Text key={module.moduleId} size="xs" c="dimmed" pl="sm">
+										<Text key={module.moduleId} size='xs' c='dimmed' pl='sm'>
 											+ {getModuleName(module.moduleId)}
 										</Text>
 									))}
@@ -130,11 +130,11 @@ export default function UpdateSummary({
 
 							{removedModules.length > 0 && (
 								<Box>
-									<Text size="sm" c="red" fw={500}>
+									<Text size='sm' c='red' fw={500}>
 										Removed Modules ({removedModules.length})
 									</Text>
 									{removedModules.map((module) => (
-										<Text key={module.moduleId} size="xs" c="dimmed" pl="sm">
+										<Text key={module.moduleId} size='xs' c='dimmed' pl='sm'>
 											- {getModuleName(module.moduleId)}
 										</Text>
 									))}
@@ -143,13 +143,13 @@ export default function UpdateSummary({
 
 							{changedModules.length > 0 && (
 								<Box>
-									<Text size="sm" c="blue" fw={500}>
+									<Text size='sm' c='blue' fw={500}>
 										Status Changes ({changedModules.length})
 									</Text>
 									{changedModules.map((module) => {
 										const original = originalModules.find((o) => o.moduleId === module.moduleId);
 										return (
-											<Text key={module.moduleId} size="xs" c="dimmed" pl="sm">
+											<Text key={module.moduleId} size='xs' c='dimmed' pl='sm'>
 												{getModuleName(module.moduleId)}: {original?.moduleStatus} →{' '}
 												{module.moduleStatus}
 											</Text>
@@ -161,7 +161,7 @@ export default function UpdateSummary({
 							{addedModules.length === 0 &&
 								removedModules.length === 0 &&
 								changedModules.length === 0 && (
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										No module changes
 									</Text>
 								)}
@@ -170,18 +170,18 @@ export default function UpdateSummary({
 
 					{/* Sponsorship Changes */}
 					<Box>
-						<Text fw={500} mb="sm">
+						<Text fw={500} mb='sm'>
 							Sponsorship Changes
 						</Text>
-						<Stack gap="xs">
+						<Stack gap='xs'>
 							{sponsorshipChanged ? (
 								<>
 									{originalSponsorship?.sponsorId !== updatedSponsorship?.sponsorId && (
 										<Box>
-											<Text size="sm" c="blue" fw={500}>
+											<Text size='sm' c='blue' fw={500}>
 												Sponsor
 											</Text>
-											<Text size="xs" c="dimmed" pl="sm">
+											<Text size='xs' c='dimmed' pl='sm'>
 												{originalSponsorship
 													? getSponsorName(originalSponsorship.sponsorId)
 													: 'None'}{' '}
@@ -193,10 +193,10 @@ export default function UpdateSummary({
 
 									{originalSponsorship?.borrowerNo !== updatedSponsorship?.borrowerNo && (
 										<Box>
-											<Text size="sm" c="blue" fw={500}>
+											<Text size='sm' c='blue' fw={500}>
 												Borrower Number
 											</Text>
-											<Text size="xs" c="dimmed" pl="sm">
+											<Text size='xs' c='dimmed' pl='sm'>
 												{originalSponsorship?.borrowerNo || 'None'} →{' '}
 												{updatedSponsorship?.borrowerNo || 'None'}
 											</Text>
@@ -204,7 +204,7 @@ export default function UpdateSummary({
 									)}
 								</>
 							) : (
-								<Text size="sm" c="dimmed">
+								<Text size='sm' c='dimmed'>
 									No sponsorship changes
 								</Text>
 							)}

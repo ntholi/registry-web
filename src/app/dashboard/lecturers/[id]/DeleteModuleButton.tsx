@@ -22,7 +22,7 @@ export default function DeleteModuleButton({ assignmentId, moduleName, userId, .
 		modals.openConfirmModal({
 			title: 'Delete Module Assignment',
 			children: (
-				<Text size="sm">
+				<Text size='sm'>
 					Are you sure you want to remove the assignment for{' '}
 					<Text span fw={500}>
 						{moduleName}
@@ -57,11 +57,11 @@ export default function DeleteModuleButton({ assignmentId, moduleName, userId, .
 		});
 	};
 	return (
-		<Tooltip label="Remove assignment">
+		<Tooltip label='Remove assignment'>
 			<ActionIcon
 				{...props}
-				variant="subtle"
-				color="red"
+				variant='subtle'
+				color='red'
 				onClick={handleDeleteModule}
 				loading={isDeleting}
 				disabled={isDeleting}

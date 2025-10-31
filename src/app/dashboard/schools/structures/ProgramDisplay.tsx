@@ -44,15 +44,15 @@ export default function ProgramDisplay({ program }: Props) {
 		<Accordion.Item value={program.id.toString()}>
 			<Accordion.Control>
 				<Group>
-					<ThemeIcon variant="light" color="blue" size="xl">
-						<IconBook size="1.1rem" />
+					<ThemeIcon variant='light' color='blue' size='xl'>
+						<IconBook size='1.1rem' />
 					</ThemeIcon>
 					<Box style={{ flex: 1 }}>
 						<div>
-							<Text fw={600} size="sm">
+							<Text fw={600} size='sm'>
 								{program.code}
 							</Text>
-							<Text size="sm" c="dimmed" lineClamp={1}>
+							<Text size='sm' c='dimmed' lineClamp={1}>
 								{program.name}
 							</Text>
 						</div>
@@ -61,13 +61,13 @@ export default function ProgramDisplay({ program }: Props) {
 			</Accordion.Control>
 			<Accordion.Panel>
 				{isLoading ? (
-					<Stack gap="xs">
+					<Stack gap='xs'>
 						{[1, 2, 3].map((i) => (
-							<Skeleton key={i} height={40} radius="sm" />
+							<Skeleton key={i} height={40} radius='sm' />
 						))}
 					</Stack>
 				) : structures && structures.length > 0 ? (
-					<Stack gap="xs">
+					<Stack gap='xs'>
 						{structures.map((structure) => (
 							<StructureCard key={structure.id} structure={structure} />
 						))}
@@ -75,9 +75,9 @@ export default function ProgramDisplay({ program }: Props) {
 				) : (
 					<Alert
 						icon={<IconInfoCircle size={16} />}
-						title="No structures found"
-						color="blue"
-						variant="light"
+						title='No structures found'
+						color='blue'
+						variant='light'
 					>
 						This program currently has no structures defined.
 					</Alert>
@@ -97,19 +97,19 @@ function StructureCard({ structure }: { structure: Structure }) {
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 		>
-			<Card withBorder padding="sm" radius="sm">
-				<Group justify="space-between">
+			<Card withBorder padding='sm' radius='sm'>
+				<Group justify='space-between'>
 					<div>
-						<Text fw={500} size="sm">
+						<Text fw={500} size='sm'>
 							{structure.code}
 						</Text>
 						{structure.desc && (
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								{structure.desc}
 							</Text>
 						)}
 					</div>
-					<Stack justify="center">
+					<Stack justify='center'>
 						<IconChevronRight
 							size={16}
 							style={{

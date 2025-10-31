@@ -32,10 +32,10 @@ export default function SignupForm({ onSubmit, defaultValues, title }: Props) {
 		>
 			{(form) => (
 				<>
-					<TextInput label="User Id" {...form.getInputProps('userId')} />
-					<TextInput label="Name" {...form.getInputProps('name')} />
-					<TextInput label="Std No" {...form.getInputProps('stdNo')} />
-					<TextInput label="Message" {...form.getInputProps('message')} />
+					<TextInput label='User Id' {...form.getInputProps('userId')} />
+					<TextInput label='Name' {...form.getInputProps('name')} />
+					<TextInput label='Std No' {...form.getInputProps('stdNo')} />
+					<TextInput label='Message' {...form.getInputProps('message')} />
 				</>
 			)}
 		</Form>

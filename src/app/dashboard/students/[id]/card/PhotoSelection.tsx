@@ -87,12 +87,12 @@ export default function PhotoSelection({
 	};
 
 	return (
-		<Paper p="lg" withBorder>
-			<Text fw={600} mb="md">
+		<Paper p='lg' withBorder>
+			<Text fw={600} mb='md'>
 				Photo Selection
 			</Text>
 
-			<Stack gap="md">
+			<Stack gap='md'>
 				<Group>
 					<PhotoInputModal
 						onPhotoSubmit={handlePhotoSubmit}
@@ -103,38 +103,38 @@ export default function PhotoSelection({
 								style={{ flex: 1 }}
 								leftSection={<IconPhoto size={16} />}
 								disabled={isUploading}
-								variant="light"
+								variant='light'
 							>
 								Select Photo
 							</Button>
 						)}
 					/>
-					<ActionIcon variant="light" size={'lg'} onClick={openCamera} disabled={isUploading}>
+					<ActionIcon variant='light' size={'lg'} onClick={openCamera} disabled={isUploading}>
 						<IconCamera size={16} />
 					</ActionIcon>
 				</Group>
 
 				{isUploading && (
-					<Text size="sm" c="blue">
+					<Text size='sm' c='blue'>
 						Uploading photo...
 					</Text>
 				)}
 
 				{photoPreview && (
 					<Box mt={'md'}>
-						<Box pos="relative">
+						<Box pos='relative'>
 							<Image
 								src={photoPreview}
-								alt="Student photo preview"
-								w="100%"
+								alt='Student photo preview'
+								w='100%'
 								h={250}
-								fit="cover"
-								radius="md"
+								fit='cover'
+								radius='md'
 							/>
 							<ActionIcon
-								color="red"
+								color='red'
 								onClick={() => onPhotoChange(null, null)}
-								pos="absolute"
+								pos='absolute'
 								top={5}
 								right={5}
 							>
@@ -302,10 +302,10 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 	};
 
 	return (
-		<Modal opened={opened} onClose={handleClose} title="Capture Photo" size="lg" centered>
+		<Modal opened={opened} onClose={handleClose} title='Capture Photo' size='lg' centered>
 			<Stack>
 				{error && (
-					<Text c="red" size="sm">
+					<Text c='red' size='sm'>
 						{error}
 					</Text>
 				)}
@@ -323,7 +323,7 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 								justifyContent: 'center',
 							}}
 						>
-							<Text c="white" size="sm">
+							<Text c='white' size='sm'>
 								Starting camera...
 							</Text>
 						</Box>
@@ -341,7 +341,7 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 								justifyContent: 'center',
 							}}
 						>
-							<Text c="white" size="sm">
+							<Text c='white' size='sm'>
 								Camera not available
 							</Text>
 						</Box>
@@ -366,8 +366,8 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 
 				{availableCameras.length > 1 && (
 					<Select
-						label="Select Camera"
-						placeholder="Choose a camera"
+						label='Select Camera'
+						placeholder='Choose a camera'
 						data={availableCameras.map((camera) => ({
 							value: camera.deviceId,
 							label: camera.label,
@@ -375,12 +375,12 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 						value={selectedCameraId}
 						onChange={(value) => value && handleCameraChange(value)}
 						leftSection={<IconVideo size={16} />}
-						mb="md"
+						mb='md'
 					/>
 				)}
 
-				<Group justify="flex-end">
-					<Button variant="light" onClick={handleClose}>
+				<Group justify='flex-end'>
+					<Button variant='light' onClick={handleClose}>
 						Cancel
 					</Button>
 					<Button onClick={capturePhoto} disabled={!stream} leftSection={<IconCamera size={16} />}>

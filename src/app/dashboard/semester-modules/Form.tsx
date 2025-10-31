@@ -60,16 +60,16 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
 		>
 			{(form) => (
 				<>
-					<NumberInput label="Module Id" {...form.getInputProps('moduleId')} />
+					<NumberInput label='Module Id' {...form.getInputProps('moduleId')} />
 					<Select
-						label="Type"
+						label='Type'
 						data={moduleTypeEnum.enumValues.map((type) => ({ value: type, label: type }))}
 						{...form.getInputProps('type')}
 					/>
-					<NumberInput label="Credits" {...form.getInputProps('credits')} />
+					<NumberInput label='Credits' {...form.getInputProps('credits')} />
 					<MultiSelect
-						label="Prerequisites"
-						placeholder="Select module prerequisites"
+						label='Prerequisites'
+						placeholder='Select module prerequisites'
 						data={prerequisiteOptions}
 						searchable
 						onSearchChange={setSearchQuery}

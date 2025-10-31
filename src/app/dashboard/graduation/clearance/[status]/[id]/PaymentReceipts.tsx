@@ -37,14 +37,14 @@ export default function PaymentReceipts({ graduationRequest }: Props) {
 
 	if (!graduationRequest.paymentReceipts || graduationRequest.paymentReceipts.length === 0) {
 		return (
-			<Card shadow="sm" padding="xl" radius="md" withBorder>
-				<Stack align="center" gap="md">
+			<Card shadow='sm' padding='xl' radius='md' withBorder>
+				<Stack align='center' gap='md'>
 					<IconFileText size={48} />
-					<Stack align="center" gap="xs">
-						<Text fw={500} size="lg" c="dimmed">
+					<Stack align='center' gap='xs'>
+						<Text fw={500} size='lg' c='dimmed'>
 							No Payment Receipts
 						</Text>
-						<Text size="sm" c="dimmed" ta="center">
+						<Text size='sm' c='dimmed' ta='center'>
 							No payment receipts have been submitted for this graduation request yet.
 						</Text>
 					</Stack>
@@ -57,25 +57,25 @@ export default function PaymentReceipts({ graduationRequest }: Props) {
 		<SimpleGrid cols={{ base: 1, sm: 2 }}>
 			{graduationRequest.paymentReceipts.map((receipt: PaymentReceipt) => (
 				<Card withBorder key={receipt.id}>
-					<Group justify="space-between" mb="xs">
+					<Group justify='space-between' mb='xs'>
 						<Group>
-							<ThemeIcon color={getPaymentTypeColor(receipt.paymentType)} variant="light" size="sm">
-								<IconReceipt size="1rem" />
+							<ThemeIcon color={getPaymentTypeColor(receipt.paymentType)} variant='light' size='sm'>
+								<IconReceipt size='1rem' />
 							</ThemeIcon>
-							<Text fw={500} size="sm">
+							<Text fw={500} size='sm'>
 								{getPaymentTypeLabel(receipt.paymentType)}
 							</Text>
 						</Group>
 					</Group>
 
-					<Text size="sm" c="dimmed" mb="xs">
+					<Text size='sm' c='dimmed' mb='xs'>
 						Receipt No:{' '}
 						<Text span fw={500}>
 							{receipt.receiptNo}
 						</Text>
 					</Text>
 
-					<Text size="xs" c="dimmed">
+					<Text size='xs' c='dimmed'>
 						Submitted: {formatDateTime(receipt.createdAt)}
 					</Text>
 				</Card>

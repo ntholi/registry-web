@@ -14,7 +14,7 @@ export default function Logo({ height = 50, className }: LogoProps) {
 	return (
 		<Image
 			src={`/images/logo-${testEnv || colorScheme}.png`}
-			alt="logo"
+			alt='logo'
 			w={'auto'}
 			h={height}
 			className={className}

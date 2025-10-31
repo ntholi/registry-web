@@ -14,7 +14,7 @@ export default function ModulesView({ value }: Props) {
 	const rows = requestedModules.map(({ semesterModule, moduleStatus, status }) => (
 		<Table.Tr key={semesterModule.id}>
 			<Table.Td fw={500}>
-				<Link size="sm" href={`/dashboard/semester-modules/${semesterModule.id}`}>
+				<Link size='sm' href={`/dashboard/semester-modules/${semesterModule.id}`}>
 					{semesterModule.module!.code}
 				</Link>
 			</Table.Td>
@@ -23,8 +23,8 @@ export default function ModulesView({ value }: Props) {
 			<Table.Td c={moduleStatus.startsWith('Repeat') ? 'red' : undefined}>{moduleStatus}</Table.Td>
 			<Table.Td>
 				<Badge
-					variant="light"
-					size="sm"
+					variant='light'
+					size='sm'
 					color={status === 'registered' ? 'green' : status === 'rejected' ? 'red' : 'gray'}
 				>
 					{status}
@@ -35,9 +35,9 @@ export default function ModulesView({ value }: Props) {
 
 	return (
 		<Stack>
-			<Flex justify="space-between" align="center">
+			<Flex justify='space-between' align='center'>
 				<Title order={4}>Modules</Title>
-				<Text c="dimmed" size="sm">
+				<Text c='dimmed' size='sm'>
 					{requestedModules.length} {requestedModules.length === 1 ? 'Module' : 'Modules'}
 				</Text>
 			</Flex>

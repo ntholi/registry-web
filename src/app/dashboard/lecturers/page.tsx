@@ -1,5 +1,5 @@
 import { NothingSelected } from '@/components/adease';
 
 export default function Page() {
-	return <NothingSelected title="Lecturers" />;
+	return <NothingSelected title='Lecturers' />;
 }

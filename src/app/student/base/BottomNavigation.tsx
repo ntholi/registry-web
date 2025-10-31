@@ -63,7 +63,7 @@ export default function BottomNavigation() {
 
 	return (
 		<Paper
-			shadow="lg"
+			shadow='lg'
 			style={{
 				position: 'fixed',
 				bottom: 0,
@@ -74,17 +74,17 @@ export default function BottomNavigation() {
 				borderRadius: 0,
 				paddingBottom: 'env(safe-area-inset-bottom, 0px)',
 			}}
-			p="xs"
-			pb="calc(var(--mantine-spacing-xs) + env(safe-area-inset-bottom, 0px))"
+			p='xs'
+			pb='calc(var(--mantine-spacing-xs) + env(safe-area-inset-bottom, 0px))'
 		>
-			<Group justify="space-around" gap={0}>
+			<Group justify='space-around' gap={0}>
 				{navItems.map((item) => {
 					const active = isActive(item.path);
 					return (
 						<Stack
 							key={item.path}
-							align="center"
-							gap="4px"
+							align='center'
+							gap='4px'
 							style={{
 								cursor: 'pointer',
 								flex: 1,
@@ -96,11 +96,11 @@ export default function BottomNavigation() {
 							<ActionIcon
 								variant={active ? 'filled' : 'transparent'}
 								color={active ? 'blue' : 'dimmed'}
-								size="lg"
+								size='lg'
 							>
 								{item.icon}
 							</ActionIcon>
-							<Text size="xs" c={active ? 'blue' : 'dimmed'} ta="center">
+							<Text size='xs' c={active ? 'blue' : 'dimmed'} ta='center'>
 								{item.label}
 							</Text>
 						</Stack>

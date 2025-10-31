@@ -125,7 +125,7 @@ export default function DownloadButton({
 			leftSection={<IconDownload size={16} />}
 			onClick={handleDownload}
 			loading={downloading}
-			variant="light"
+			variant='light'
 		>
 			Download
 		</Button>

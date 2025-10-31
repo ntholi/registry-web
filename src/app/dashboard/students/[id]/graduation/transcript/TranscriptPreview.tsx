@@ -21,7 +21,7 @@ export default function TranscriptPreview({ stdNo, isActive }: TranscriptPreview
 	if (isLoading) {
 		return (
 			<Center h={600}>
-				<Loader size="lg" />
+				<Loader size='lg' />
 			</Center>
 		);
 	}
@@ -29,14 +29,14 @@ export default function TranscriptPreview({ stdNo, isActive }: TranscriptPreview
 	if (!student) {
 		return (
 			<Center h={600}>
-				<Text c="dimmed">No student data available</Text>
+				<Text c='dimmed'>No student data available</Text>
 			</Center>
 		);
 	}
 
 	return (
 		<Box h={600}>
-			<PDFViewer width="100%" height="100%" showToolbar={false}>
+			<PDFViewer width='100%' height='100%' showToolbar={false}>
 				<TranscriptPDF student={student} />
 			</PDFViewer>
 		</Box>

@@ -49,7 +49,7 @@ for (const item of gradeClassifications) {
 
 export default function GradeClassificationPage() {
 	return (
-		<Page size="A4" style={tw('pt-40 px-40 font-sans text-[7.5pt]')}>
+		<Page size='A4' style={tw('pt-40 px-40 font-sans text-[7.5pt]')}>
 			<View style={tw('flex items-center mb-6')}>
 				<Text style={tw('text-[14pt] font-bold')}>GRADING SYSTEM</Text>
 			</View>

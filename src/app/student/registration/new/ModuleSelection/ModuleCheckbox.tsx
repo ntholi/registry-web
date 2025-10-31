@@ -35,19 +35,19 @@ export default function ModuleCheckbox({ module, isSelected, onToggle }: ModuleC
 
 	if (isDisabled) {
 		return (
-			<Checkbox.Card radius="md" p="md" style={{ opacity: 0.5 }}>
-				<Group wrap="nowrap" align="flex-start">
+			<Checkbox.Card radius='md' p='md' style={{ opacity: 0.5 }}>
+				<Group wrap='nowrap' align='flex-start'>
 					<IconLock size={20} />
 					<div style={{ flex: 1 }}>
-						<Flex gap="xs">
-							<Text fw={500} c="dimmed" ff="monospace">
+						<Flex gap='xs'>
+							<Text fw={500} c='dimmed' ff='monospace'>
 								{module.code}
 							</Text>
 						</Flex>
-						<Text size="sm" c="dimmed">
+						<Text size='sm' c='dimmed'>
 							{module.name}
 						</Text>
-						<Text size="xs" c="red" mt={2}>
+						<Text size='xs' c='red' mt={2}>
 							Failed Prerequisites: {module.prerequisites?.map((p) => p.code).join(', ')}
 						</Text>
 					</div>
@@ -58,24 +58,24 @@ export default function ModuleCheckbox({ module, isSelected, onToggle }: ModuleC
 
 	return (
 		<Checkbox.Card
-			radius="md"
+			radius='md'
 			checked={isSelected}
 			onClick={() => onToggle(!isSelected)}
-			p="md"
+			p='md'
 			withBorder
 		>
-			<Group wrap="nowrap" align="flex-start">
+			<Group wrap='nowrap' align='flex-start'>
 				<Checkbox.Indicator />
 				<div style={{ flex: 1 }}>
-					<Flex gap="xs" align="center" justify="space-between" mb="xs">
-						<Text fw={500} ff="monospace">
+					<Flex gap='xs' align='center' justify='space-between' mb='xs'>
+						<Text fw={500} ff='monospace'>
 							{module.code}
 						</Text>
-						<Badge color={getStatusColor(module.status)} size="sm" variant="light">
+						<Badge color={getStatusColor(module.status)} size='sm' variant='light'>
 							{module.status}
 						</Badge>
 					</Flex>
-					<Text size="sm" mb="xs">
+					<Text size='sm' mb='xs'>
 						{module.name}
 					</Text>
 				</div>

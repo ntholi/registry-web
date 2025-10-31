@@ -31,9 +31,9 @@ export function StatusToggle({
 				variant={status === 'blocked' ? 'filled' : 'outline'}
 				color={status === 'blocked' ? 'red' : 'green'}
 				onClick={handleToggle}
-				size="lg"
+				size='lg'
 			>
-				{status === 'blocked' ? <IconLock size="1rem" /> : <IconLockOpen size="1rem" />}
+				{status === 'blocked' ? <IconLock size='1rem' /> : <IconLockOpen size='1rem' />}
 			</ActionIcon>
 		</Tooltip>
 	);

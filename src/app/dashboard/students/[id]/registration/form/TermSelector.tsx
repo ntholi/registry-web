@@ -27,13 +27,13 @@ export default function TermSelector({ value, onChange, error }: TermSelectorPro
 	}, [currentTerm, value, onChange]);
 
 	return (
-		<Paper withBorder p="md">
-			<Title order={4} size="h5" mb="md">
+		<Paper withBorder p='md'>
+			<Title order={4} size='h5' mb='md'>
 				Term Selection
 			</Title>
 			<Select
-				label="Select Term"
-				placeholder="Choose a term for registration"
+				label='Select Term'
+				placeholder='Choose a term for registration'
 				data={
 					terms?.map((term) => ({
 						value: term.id.toString(),

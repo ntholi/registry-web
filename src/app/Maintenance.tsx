@@ -42,17 +42,17 @@ export default function Maintenance() {
 
 	return (
 		<Container
-			size="sm"
+			size='sm'
 			style={{
 				minHeight: '100vh',
 			}}
 		>
 			<Center style={{ minHeight: '100vh' }}>
-				<Stack align="center" gap="lg">
+				<Stack align='center' gap='lg'>
 					<div style={{ height: 160, overflow: 'hidden' }}>
 						<Image
-							src="/images/logo-dark.png"
-							alt="Limkokwing Logo"
+							src='/images/logo-dark.png'
+							alt='Limkokwing Logo'
 							width={160}
 							height={160}
 							style={{
@@ -65,7 +65,7 @@ export default function Maintenance() {
 						/>
 					</div>
 
-					<Stack align="center" gap="md">
+					<Stack align='center' gap='md'>
 						<Title
 							order={2}
 							style={{
@@ -80,7 +80,7 @@ export default function Maintenance() {
 						</Title>
 
 						<Divider
-							size="xs"
+							size='xs'
 							style={{
 								width: 64,
 								backgroundColor: 'var(--mantine-color-white)',
@@ -89,7 +89,7 @@ export default function Maintenance() {
 						/>
 
 						<Text
-							size="sm"
+							size='sm'
 							style={{
 								color: 'var(--mantine-color-white)',
 								opacity: 0.6,

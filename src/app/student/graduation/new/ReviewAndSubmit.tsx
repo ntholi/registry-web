@@ -88,19 +88,19 @@ export default function ReviewAndSubmit({
 	};
 
 	return (
-		<Box pos="relative">
+		<Box pos='relative'>
 			<LoadingOverlay visible={loading} />
 
-			<Stack gap="lg">
-				<Card withBorder shadow="sm" radius="md" padding="lg">
-					<Group mb="md">
+			<Stack gap='lg'>
+				<Card withBorder shadow='sm' radius='md' padding='lg'>
+					<Group mb='md'>
 						<Title order={3}>Your Information</Title>
 					</Group>
 
-					<Stack gap="sm">
+					<Stack gap='sm'>
 						<Group>
-							<IconSchool size="1rem" color="gray" />
-							<Text size="sm" c="dimmed" w={120}>
+							<IconSchool size='1rem' color='gray' />
+							<Text size='sm' c='dimmed' w={120}>
 								Program:
 							</Text>
 							<Text fw={500}>
@@ -110,16 +110,16 @@ export default function ReviewAndSubmit({
 						</Group>
 
 						<Group>
-							<IconUser size="1rem" color="gray" />
-							<Text size="sm" c="dimmed" w={120}>
+							<IconUser size='1rem' color='gray' />
+							<Text size='sm' c='dimmed' w={120}>
 								Name:
 							</Text>
 							<Text fw={500}>{student.name}</Text>
 						</Group>
 
 						<Group>
-							<IconId size="1rem" color="gray" />
-							<Text size="sm" c="dimmed" w={120}>
+							<IconId size='1rem' color='gray' />
+							<Text size='sm' c='dimmed' w={120}>
 								National ID:
 							</Text>
 							<Text fw={500}>{student.nationalId || 'Not provided'}</Text>
@@ -127,19 +127,19 @@ export default function ReviewAndSubmit({
 
 						<Group>
 							{student.gender === 'Male' ? (
-								<IconGenderMale size="1rem" color="gray" />
+								<IconGenderMale size='1rem' color='gray' />
 							) : (
-								<IconGenderFemale size="1rem" color="gray" />
+								<IconGenderFemale size='1rem' color='gray' />
 							)}
-							<Text size="sm" c="dimmed" w={120}>
+							<Text size='sm' c='dimmed' w={120}>
 								Gender:
 							</Text>
 							<Text fw={500}>{student.gender || 'Not specified'}</Text>
 						</Group>
 
 						<Group>
-							<IconId size="1rem" color="gray" />
-							<Text size="sm" c="dimmed" w={120}>
+							<IconId size='1rem' color='gray' />
+							<Text size='sm' c='dimmed' w={120}>
 								Student No:
 							</Text>
 							<Text fw={500}>{student.stdNo}</Text>
@@ -147,30 +147,30 @@ export default function ReviewAndSubmit({
 					</Stack>
 				</Card>
 
-				<Card withBorder shadow="sm" radius="md" padding="lg">
-					<Group mb="md">
-						<IconReceipt size="1.2rem" />
+				<Card withBorder shadow='sm' radius='md' padding='lg'>
+					<Group mb='md'>
+						<IconReceipt size='1.2rem' />
 						<Title order={3}>Payment Receipts</Title>
-						<Badge color="blue" variant="light">
+						<Badge color='blue' variant='light'>
 							{paymentReceipts.length} Receipt
 							{paymentReceipts.length !== 1 ? 's' : ''}
 						</Badge>
 					</Group>
 
-					<Stack gap="md">
+					<Stack gap='md'>
 						{paymentReceipts.map((receipt, index) => (
-							<Paper key={index} p="sm" withBorder>
-								<Group justify="space-between" align="center">
+							<Paper key={index} p='sm' withBorder>
+								<Group justify='space-between' align='center'>
 									<Box>
-										<Text fw={500} size="sm">
+										<Text fw={500} size='sm'>
 											{formatPaymentType(receipt.paymentType)}
 										</Text>
-										<Text size="xs" c="dimmed">
+										<Text size='xs' c='dimmed'>
 											Receipt Number
 										</Text>
 									</Box>
 
-									<Badge variant="outline" size="lg">
+									<Badge variant='outline' size='lg'>
 										{receipt.receiptNo}
 									</Badge>
 								</Group>
@@ -181,7 +181,7 @@ export default function ReviewAndSubmit({
 
 				<Divider />
 
-				<Text size="sm" c="dimmed" ta="center">
+				<Text size='sm' c='dimmed' ta='center'>
 					By submitting this request, you confirm that all information provided is accurate and
 					complete.
 				</Text>

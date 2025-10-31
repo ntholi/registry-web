@@ -8,13 +8,13 @@ type Props = {
 
 export default function HeroSkeleton({ isMobile }: Props) {
 	return (
-		<Paper shadow="sm" p="xl" radius="md" withBorder>
-			<Stack gap="lg">
-				<Group gap="lg">
-					<Skeleton height={70} width={70} radius="sm" />
+		<Paper shadow='sm' p='xl' radius='md' withBorder>
+			<Stack gap='lg'>
+				<Group gap='lg'>
+					<Skeleton height={70} width={70} radius='sm' />
 					<Stack gap={4} flex={1}>
 						<Skeleton height={24} width={200} />
-						<Group gap="xl" mt="xs" align="center">
+						<Group gap='xl' mt='xs' align='center'>
 							<Skeleton height={16} width={80} />
 							<Skeleton height={14} width={100} />
 						</Group>
@@ -23,25 +23,25 @@ export default function HeroSkeleton({ isMobile }: Props) {
 
 				<Divider />
 
-				<Stack gap="xl">
-					<Group justify="space-between">
+				<Stack gap='xl'>
+					<Group justify='space-between'>
 						<Stack gap={2}>
 							<Skeleton height={20} width={250} />
 							<Skeleton height={14} width={120} />
 						</Stack>
 					</Group>
 
-					<Grid gutter="xl">
+					<Grid gutter='xl'>
 						<Grid.Col span={{ base: 6 }}>
-							<Stack gap="xs" align="center">
+							<Stack gap='xs' align='center'>
 								{!isMobile && (
 									<ThemeIcon
-										size="xl"
-										variant="light"
+										size='xl'
+										variant='light'
 										color={studentColors.theme.secondary}
-										radius="md"
+										radius='md'
 									>
-										<IconTrophy size="1.2rem" />
+										<IconTrophy size='1.2rem' />
 									</ThemeIcon>
 								)}
 
@@ -51,15 +51,15 @@ export default function HeroSkeleton({ isMobile }: Props) {
 						</Grid.Col>
 
 						<Grid.Col span={{ base: 6 }}>
-							<Stack gap="xs" align="center">
+							<Stack gap='xs' align='center'>
 								{!isMobile && (
 									<ThemeIcon
-										size="xl"
-										variant="light"
+										size='xl'
+										variant='light'
 										color={studentColors.theme.accent}
-										radius="md"
+										radius='md'
 									>
-										<IconBook size="1.2rem" />
+										<IconBook size='1.2rem' />
 									</ThemeIcon>
 								)}
 

@@ -32,19 +32,19 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
 		>
 			{(form) => (
 				<>
-					<NumberInput label="ID" {...form.getInputProps('id')} />
+					<NumberInput label='ID' {...form.getInputProps('id')} />
 					<Grid>
 						<Grid.Col span={3}>
-							<TextInput label="Code" {...form.getInputProps('code')} />
+							<TextInput label='Code' {...form.getInputProps('code')} />
 						</Grid.Col>
 						<Grid.Col span={9}>
-							<TextInput label="Name" {...form.getInputProps('name')} />
+							<TextInput label='Name' {...form.getInputProps('name')} />
 						</Grid.Col>
 					</Grid>
 					<Select
-						label="Status"
+						label='Status'
 						searchable
-						defaultValue="Active"
+						defaultValue='Active'
 						{...form.getInputProps('status')}
 						data={['Active', 'Defunct']}
 					/>

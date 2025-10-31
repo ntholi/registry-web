@@ -149,28 +149,28 @@ export default function Body() {
 	});
 	const canGenerate = !!selectedModuleId && !!selectedProgramId;
 	return (
-		<Stack align="center" justify="center" p="xl">
-			<Alert variant="light" color="orange" title="Under Development" w="100%" maw={600} mb="md">
+		<Stack align='center' justify='center' p='xl'>
+			<Alert variant='light' color='orange' title='Under Development' w='100%' maw={600} mb='md'>
 				This feature is currently under development. Some functionality may be limited or subject to
 				change.
 			</Alert>
-			<Card shadow="md" radius="md" withBorder w="100%" maw={600}>
-				<CardSection inheritPadding py="md">
+			<Card shadow='md' radius='md' withBorder w='100%' maw={600}>
+				<CardSection inheritPadding py='md'>
 					<Title order={3}>Course Summary Report Generation</Title>
-					<Text c="dimmed" size="sm">
+					<Text c='dimmed' size='sm'>
 						Generate Course Summary reports for your assigned modules
 					</Text>
 				</CardSection>
 				<CardSection inheritPadding>
-					<Stack gap="md">
-						<Text my="xs">
+					<Stack gap='md'>
+						<Text my='xs'>
 							Select a module from your assigned modules to generate a course summary report for{' '}
 							{currentTerm?.name}.
 						</Text>
 
 						<Select
-							label="Select Module"
-							placeholder="Choose a module"
+							label='Select Module'
+							placeholder='Choose a module'
 							data={moduleOptions}
 							value={selectedModuleId}
 							onChange={(value) => {
@@ -184,8 +184,8 @@ export default function Body() {
 
 						{selectedModuleId && (
 							<Select
-								label="Select Program"
-								placeholder="Select a program"
+								label='Select Program'
+								placeholder='Select a program'
 								data={programOptions}
 								value={selectedProgramId || ''}
 								onChange={(value) => setSelectedProgramId(value || null)}
@@ -197,7 +197,7 @@ export default function Body() {
 						)}
 					</Stack>
 				</CardSection>
-				<CardSection inheritPadding py="md">
+				<CardSection inheritPadding py='md'>
 					<Group>
 						<Button
 							fullWidth

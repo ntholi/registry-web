@@ -30,14 +30,14 @@ export function ModulesTable({ requestedModules }: { requestedModules: Module })
 				<TableTd>{semesterModule.module!.name}</TableTd>
 				<TableTd>{semesterModule.credits}</TableTd>
 				<TableTd>
-					<Text size="sm" c={semesterModule.type === 'Delete' ? 'red' : undefined}>
+					<Text size='sm' c={semesterModule.type === 'Delete' ? 'red' : undefined}>
 						{semesterModule.type}
 					</Text>
 				</TableTd>
 				<TableTd>
 					<Badge
-						variant="light"
-						size="sm"
+						variant='light'
+						size='sm'
 						color={
 							moduleStatus === 'Compulsory'
 								? 'green'

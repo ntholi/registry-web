@@ -19,13 +19,13 @@ export default function Footer() {
 			}}
 			mt={'xl'}
 			bg={isDark ? 'dark.8' : 'gray.0'}
-			p="xs"
+			p='xs'
 		>
 			<Flex justify={'flex-end'}>
-				<Anchor href="https://github.com/ntholi/registry-web" target="_blank" c="dimmed">
-					<Flex align={'center'} gap="xs">
+				<Anchor href='https://github.com/ntholi/registry-web' target='_blank' c='dimmed'>
+					<Flex align={'center'} gap='xs'>
 						<IconBrandGithub size={14} />
-						<Text size="xs">Source Code</Text>
+						<Text size='xs'>Source Code</Text>
 					</Flex>
 				</Anchor>
 			</Flex>

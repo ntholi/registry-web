@@ -66,17 +66,17 @@ export default function GraduationView({ stdNo, isActive, blockedStudent }: Grad
 			<RequestCard request={graduationRequest} />
 
 			{completedPrograms && completedPrograms.length > 0 && (
-				<Tabs value={activeTab} onChange={setActiveTab} variant="default">
+				<Tabs value={activeTab} onChange={setActiveTab} variant='default'>
 					<TabsList>
-						<TabsTab value="transcript">Transcript</TabsTab>
-						<TabsTab value="certificate">Certificate</TabsTab>
+						<TabsTab value='transcript'>Transcript</TabsTab>
+						<TabsTab value='certificate'>Certificate</TabsTab>
 						{activeTab === 'transcript' && (
-							<Box ml="auto">
+							<Box ml='auto'>
 								<TranscriptPrinter stdNo={stdNoNum} disabled={!!blockedStudent} />
 							</Box>
 						)}
 						{activeTab === 'certificate' && (
-							<Box ml="auto">
+							<Box ml='auto'>
 								<CertificateDownloader
 									stdNo={stdNoNum}
 									disabled={!!blockedStudent}
@@ -85,10 +85,10 @@ export default function GraduationView({ stdNo, isActive, blockedStudent }: Grad
 							</Box>
 						)}
 					</TabsList>
-					<TabsPanel value="transcript" pt="xl">
+					<TabsPanel value='transcript' pt='xl'>
 						<TranscriptPreview stdNo={stdNoNum} isActive={isActive && activeTab === 'transcript'} />
 					</TabsPanel>
-					<TabsPanel value="certificate" pt="xl">
+					<TabsPanel value='certificate' pt='xl'>
 						<CertificatePreview
 							stdNo={stdNoNum}
 							isActive={isActive && activeTab === 'certificate'}
@@ -103,9 +103,9 @@ export default function GraduationView({ stdNo, isActive, blockedStudent }: Grad
 
 function GraduationLoading() {
 	return (
-		<Box my="md">
-			<Card withBorder p="md">
-				<Group justify="space-between" align="center">
+		<Box my='md'>
+			<Card withBorder p='md'>
+				<Group justify='space-between' align='center'>
 					<Group>
 						<Skeleton height={18} width={140} />
 						<Skeleton height={12} width={80} />
@@ -150,8 +150,8 @@ function RequestCard({ request }: { request?: GraduationRequest | null }) {
 
 	if (!request) {
 		return (
-			<Card withBorder p="md" mb="lg">
-				<Text size="sm" fw={500}>
+			<Card withBorder p='md' mb='lg'>
+				<Text size='sm' fw={500}>
 					No graduation request
 				</Text>
 			</Card>
@@ -159,13 +159,13 @@ function RequestCard({ request }: { request?: GraduationRequest | null }) {
 	}
 
 	return (
-		<Card withBorder p="md" mb="lg">
-			<Group justify="space-between" align="center">
+		<Card withBorder p='md' mb='lg'>
+			<Group justify='space-between' align='center'>
 				<Group>
-					<Text size="sm" fw={500}>
+					<Text size='sm' fw={500}>
 						Graduation status
 					</Text>
-					<Badge color={getStatusColor(status)} size="xs">
+					<Badge color={getStatusColor(status)} size='xs'>
 						{status}
 					</Badge>
 				</Group>
@@ -173,9 +173,9 @@ function RequestCard({ request }: { request?: GraduationRequest | null }) {
 					<Button
 						component={Link}
 						href={`/dashboard/graduation/requests/${status}/${request.id}`}
-						size="xs"
-						variant="light"
-						color="blue"
+						size='xs'
+						variant='light'
+						color='blue'
 					>
 						View Details
 					</Button>

@@ -15,13 +15,13 @@ export default function GraduationClearanceHeader({ studentName }: Props) {
 
 	return (
 		<>
-			<Flex justify="space-between" align="center">
+			<Flex justify='space-between' align='center'>
 				{isMobile ? (
 					<Group>
-						<ActionIcon variant="default" onClick={() => setView('nav')}>
-							<IconArrowNarrowLeft size="1rem" />
+						<ActionIcon variant='default' onClick={() => setView('nav')}>
+							<IconArrowNarrowLeft size='1rem' />
 						</ActionIcon>
-						<Title order={3} fw={100} size="1rem">
+						<Title order={3} fw={100} size='1rem'>
 							{studentName}
 						</Title>
 					</Group>

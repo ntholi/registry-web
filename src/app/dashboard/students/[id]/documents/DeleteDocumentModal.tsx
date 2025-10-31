@@ -56,19 +56,19 @@ export default function DeleteDocumentModal({
 		<Modal
 			opened={opened}
 			onClose={onClose}
-			title="Delete Document"
+			title='Delete Document'
 			closeOnClickOutside={!loading}
 			closeOnEscape={!loading}
 		>
-			<Stack gap="md">
+			<Stack gap='md'>
 				<Text>Are you sure you want to delete this document? This action cannot be undone.</Text>
 				<Text fw={500}>{displayName}</Text>
 
-				<Group justify="flex-end" mt="md">
-					<Button variant="subtle" onClick={onClose} disabled={loading}>
+				<Group justify='flex-end' mt='md'>
+					<Button variant='subtle' onClick={onClose} disabled={loading}>
 						Cancel
 					</Button>
-					<Button color="red" onClick={handleDelete} loading={loading}>
+					<Button color='red' onClick={handleDelete} loading={loading}>
 						Delete
 					</Button>
 				</Group>

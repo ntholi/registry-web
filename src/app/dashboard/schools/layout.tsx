@@ -6,5 +6,5 @@ type Props = {
 };
 
 export default function layout({ children }: Props) {
-	return <Box px="xl">{children}</Box>;
+	return <Box px='xl'>{children}</Box>;
 }

@@ -75,7 +75,7 @@ export default async function NewPage({ searchParams }: Props) {
 
 	return (
 		<Box p={'lg'}>
-			<Paper withBorder p="md">
+			<Paper withBorder p='md'>
 				<Form title={'Create Registration Request'} onSubmit={handleSubmit} initialStdNo={stdNo} />
 			</Paper>
 		</Box>

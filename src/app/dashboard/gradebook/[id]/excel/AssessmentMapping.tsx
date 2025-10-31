@@ -59,16 +59,16 @@ export default function AssessmentMapping({
 	};
 
 	return (
-		<Stack gap="md">
-			<Group align="center" gap="sm">
+		<Stack gap='md'>
+			<Group align='center' gap='sm'>
 				<Title order={4}>Column Mapping</Title>
 			</Group>
-			<Stack gap="sm">
-				<Text size="sm" fw={500}>
+			<Stack gap='sm'>
+				<Text size='sm' fw={500}>
 					Student Number Column
 				</Text>
 				<Select
-					placeholder="Select student number column"
+					placeholder='Select student number column'
 					data={columnOptions}
 					value={mapping.studentNumberColumn}
 					onChange={handleStudentNumberColumnChange}
@@ -76,22 +76,22 @@ export default function AssessmentMapping({
 					clearable
 				/>
 			</Stack>
-			<Paper withBorder p="md">
-				<Stack gap="sm">
-					<Text size="sm" fw={500}>
+			<Paper withBorder p='md'>
+				<Stack gap='sm'>
+					<Text size='sm' fw={500}>
 						Assessment Columns
 					</Text>{' '}
-					<Text size="xs" c="dimmed">
+					<Text size='xs' c='dimmed'>
 						Map each assessment to its corresponding column. You can choose to import only specific
 						assessments by leaving others unmapped.
 					</Text>
 					{assessments.map((assessment) => (
-						<Group key={assessment.id} align="center" gap="md">
-							<Text size="sm" style={{ minWidth: 200 }}>
+						<Group key={assessment.id} align='center' gap='md'>
+							<Text size='sm' style={{ minWidth: 200 }}>
 								{getAssessmentTypeLabel(assessment.assessmentType)}
 							</Text>
 							<Select
-								placeholder="Select column"
+								placeholder='Select column'
 								data={columnOptions}
 								value={mapping.assessmentColumns[assessment.id] || null}
 								onChange={(value) => handleAssessmentColumnChange(assessment.id, value)}
@@ -100,22 +100,22 @@ export default function AssessmentMapping({
 								style={{ flex: 1 }}
 							/>
 							{mapping.assessmentColumns[assessment.id] ? (
-								<IconCheck size="1rem" color="green" />
+								<IconCheck size='1rem' color='green' />
 							) : (
-								<IconQuestionMark size="1rem" color="gray" />
+								<IconQuestionMark size='1rem' color='gray' />
 							)}
 						</Group>
 					))}
 				</Stack>
 			</Paper>
-			<Group justify="space-between" mt={'md'}>
-				<Button variant="subtle" onClick={onBack}>
+			<Group justify='space-between' mt={'md'}>
+				<Button variant='subtle' onClick={onBack}>
 					Back
 				</Button>
 				<Button
 					onClick={handleConfirm}
 					disabled={!isComplete}
-					leftSection={<IconCheck size="1rem" />}
+					leftSection={<IconCheck size='1rem' />}
 				>
 					Continue
 				</Button>

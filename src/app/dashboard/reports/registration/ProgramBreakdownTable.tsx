@@ -37,13 +37,13 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 		const rows = 4;
 
 		return (
-			<Paper withBorder p="md">
-				<Group justify="space-between" mb="md">
+			<Paper withBorder p='md'>
+				<Group justify='space-between' mb='md'>
 					<Stack gap={4}>
 						<Skeleton height={18} width={180} />
 						<Skeleton height={14} width={120} />
 					</Stack>
-					<Skeleton height={28} width={48} radius="sm" />
+					<Skeleton height={28} width={48} radius='sm' />
 				</Group>
 
 				<ScrollArea type={isMobile ? 'scroll' : 'auto'}>
@@ -54,11 +54,11 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 									<Skeleton height={18} width={isMobile ? 100 : 160} />
 								</Table.Th>
 								{Array.from({ length: cols }).map((_, i) => (
-									<Table.Th key={i} ta="center" miw={70}>
+									<Table.Th key={i} ta='center' miw={70}>
 										<Skeleton height={16} width={40} />
 									</Table.Th>
 								))}
-								<Table.Th ta="center" miw={70}>
+								<Table.Th ta='center' miw={70}>
 									<Skeleton height={16} width={40} />
 								</Table.Th>
 							</Table.Tr>
@@ -71,11 +71,11 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 										<Skeleton height={16} width={isMobile ? 120 : 220} />
 									</Table.Td>
 									{Array.from({ length: cols }).map((__, c) => (
-										<Table.Td key={c} ta="center">
+										<Table.Td key={c} ta='center'>
 											<Skeleton height={14} width={32} />
 										</Table.Td>
 									))}
-									<Table.Td ta="center">
+									<Table.Td ta='center'>
 										<Skeleton height={20} width={48} />
 									</Table.Td>
 								</Table.Tr>
@@ -90,15 +90,15 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 	if (!school) return null;
 
 	return (
-		<Paper withBorder p="md">
-			<Group justify="space-between" mb="md">
+		<Paper withBorder p='md'>
+			<Group justify='space-between' mb='md'>
 				<Stack gap={4}>
 					<Text fw={600}>{school.schoolName}</Text>
-					<Text size="sm" c="dimmed">
+					<Text size='sm' c='dimmed'>
 						{school.schoolCode}
 					</Text>
 				</Stack>
-				<Badge variant="light">{school.totalStudents}</Badge>
+				<Badge variant='light'>{school.totalStudents}</Badge>
 			</Group>
 
 			<ScrollArea type={isMobile ? 'scroll' : 'auto'}>
@@ -107,11 +107,11 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 						<Table.Tr>
 							<Table.Th miw={isMobile ? 140 : 250}>Program</Table.Th>
 							{allSemesters.map((semester) => (
-								<Table.Th key={semester} ta="center" miw={70}>
+								<Table.Th key={semester} ta='center' miw={70}>
 									{formatSemester(semester, 'mini')}
 								</Table.Th>
 							))}
-							<Table.Th ta="center" miw={70}>
+							<Table.Th ta='center' miw={70}>
 								Total
 							</Table.Th>
 						</Table.Tr>
@@ -120,17 +120,17 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 						{school.programs.map((program, pIndex) => (
 							<Table.Tr key={pIndex}>
 								<Table.Td>
-									<Text size="sm">{program.programName}</Text>
+									<Text size='sm'>{program.programName}</Text>
 								</Table.Td>
 								{allSemesters.map((semester) => (
-									<Table.Td key={semester} ta="center">
-										<Text size="sm" c={program.yearBreakdown[semester] ? undefined : 'dimmed'}>
+									<Table.Td key={semester} ta='center'>
+										<Text size='sm' c={program.yearBreakdown[semester] ? undefined : 'dimmed'}>
 											{program.yearBreakdown[semester] || '-'}
 										</Text>
 									</Table.Td>
 								))}
-								<Table.Td ta="center">
-									<Badge radius={'xs'} variant="default" w={50} size="sm">
+								<Table.Td ta='center'>
+									<Badge radius={'xs'} variant='default' w={50} size='sm'>
 										{program.totalStudents}
 									</Badge>
 								</Table.Td>

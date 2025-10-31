@@ -71,36 +71,36 @@ export default function ModuleDetailsCard({ modules, moduleId }: ModuleDetailsCa
 	}, [program, modules]);
 
 	return (
-		<Paper withBorder p="lg" mb="lg">
-			<Flex justify="space-between" wrap="nowrap">
+		<Paper withBorder p='lg' mb='lg'>
+			<Flex justify='space-between' wrap='nowrap'>
 				<Stack gap={'xs'}>
 					<Title order={2} fw={100}>
 						{modules.at(0)?.semesterModule?.module?.name}
 					</Title>
-					<Group gap="md" align="center">
-						<Paper bg="var(--mantine-color-default)" px="sm" py={3} withBorder>
-							<Text ff="monospace" fw={600} size="sm">
+					<Group gap='md' align='center'>
+						<Paper bg='var(--mantine-color-default)' px='sm' py={3} withBorder>
+							<Text ff='monospace' fw={600} size='sm'>
 								{modules.at(0)?.semesterModule?.module?.code}
 							</Text>
 						</Paper>
 						<Group gap={5}>
 							<IconCalendar size={'1rem'} />
-							<Text size="sm" c="dimmed">
+							<Text size='sm' c='dimmed'>
 								{currentTerm?.name}
 							</Text>
 						</Group>
 
-						<Group gap={5} align="center">
+						<Group gap={5} align='center'>
 							<IconBook size={'1.1rem'} />
-							<Text size="sm" c="dimmed">
+							<Text size='sm' c='dimmed'>
 								{program ? `${program.name}` : 'All Programs'}
 							</Text>
 						</Group>
 					</Group>
 				</Stack>
-				<Stack gap={'xs'} align="flex-end">
+				<Stack gap={'xs'} align='flex-end'>
 					<Select
-						placeholder="Select Program"
+						placeholder='Select Program'
 						data={moduleOptions}
 						value={programId || ''}
 						onChange={(value) => setProgramId(value === '' ? null : value)}

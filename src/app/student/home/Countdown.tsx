@@ -44,22 +44,22 @@ export default function Countdown({ targetDate }: { targetDate: number }) {
 
 	if (isLoading) {
 		return (
-			<Stack gap="xl">
-				<Paper shadow="sm" p="xl" radius="lg" withBorder>
-					<Stack gap="lg" align="center">
-						<Skeleton height={40} width={300} radius="md" />
-						<Skeleton height={20} width={150} radius="md" />
-						<Skeleton height={20} width={250} radius="md" />
-						<Skeleton height={20} width={100} radius="md" />
+			<Stack gap='xl'>
+				<Paper shadow='sm' p='xl' radius='lg' withBorder>
+					<Stack gap='lg' align='center'>
+						<Skeleton height={40} width={300} radius='md' />
+						<Skeleton height={20} width={150} radius='md' />
+						<Skeleton height={20} width={250} radius='md' />
+						<Skeleton height={20} width={100} radius='md' />
 					</Stack>
 				</Paper>
-				<Paper shadow="sm" p="xl" radius="lg" withBorder>
-					<Stack gap="lg" align="center">
-						<Skeleton height={30} width={200} radius="md" />
-						<Grid gutter="lg" justify="center">
+				<Paper shadow='sm' p='xl' radius='lg' withBorder>
+					<Stack gap='lg' align='center'>
+						<Skeleton height={30} width={200} radius='md' />
+						<Grid gutter='lg' justify='center'>
 							{[1, 2, 3, 4].map((i) => (
 								<Grid.Col key={i} span={{ base: 6, sm: 3 }}>
-									<Skeleton height={100} radius="md" />
+									<Skeleton height={100} radius='md' />
 								</Grid.Col>
 							))}
 						</Grid>
@@ -70,26 +70,26 @@ export default function Countdown({ targetDate }: { targetDate: number }) {
 	}
 
 	return (
-		<Stack gap="xl">
-			<Paper shadow="md" p="xl" withBorder>
-				<Stack gap="lg" align="center">
-					<Stack gap="sm" align="center">
-						<Title order={1} size="h1" ta="center">
+		<Stack gap='xl'>
+			<Paper shadow='md' p='xl' withBorder>
+				<Stack gap='lg' align='center'>
+					<Stack gap='sm' align='center'>
+						<Title order={1} size='h1' ta='center'>
 							{student?.name}
 						</Title>
-						<Badge size="lg" variant="light" color="blue" radius="md">
+						<Badge size='lg' variant='light' color='blue' radius='md'>
 							{student?.stdNo}
 						</Badge>
 					</Stack>
 
-					<Divider w="100%" />
+					<Divider w='100%' />
 
-					<Stack gap="xs" align="center">
-						<Box ta="center">
-							<Text size="lg" fw={600} c="dimmed">
+					<Stack gap='xs' align='center'>
+						<Box ta='center'>
+							<Text size='lg' fw={600} c='dimmed'>
 								{program?.name}
 							</Text>
-							<Text size="md" c="dimmed" mt={4}>
+							<Text size='md' c='dimmed' mt={4}>
 								{formatSemester(semester?.semesterNumber)}
 							</Text>
 						</Box>
@@ -97,26 +97,26 @@ export default function Countdown({ targetDate }: { targetDate: number }) {
 				</Stack>
 			</Paper>
 
-			<Paper shadow="md" p="xl" withBorder>
-				<Stack gap="xl" align="center">
-					<Box ta="center">
-						<Text size="md" c="dimmed" mt="xs">
+			<Paper shadow='md' p='xl' withBorder>
+				<Stack gap='xl' align='center'>
+					<Box ta='center'>
+						<Text size='md' c='dimmed' mt='xs'>
 							Time remaining until registration opens for{' '}
-							<Text span c="white">
+							<Text span c='white'>
 								{currentTerm?.name}
 							</Text>{' '}
 							semester
 						</Text>
 					</Box>
 
-					<Grid gutter="xl" justify="center" w="100%">
+					<Grid gutter='xl' justify='center' w='100%'>
 						<Grid.Col span={{ base: 6, sm: 3 }}>
-							<Paper shadow="sm" p="lg" withBorder>
-								<Stack gap="xs" align="center">
-									<Text size="3rem" fw={900} c="blue" lh={1}>
+							<Paper shadow='sm' p='lg' withBorder>
+								<Stack gap='xs' align='center'>
+									<Text size='3rem' fw={900} c='blue' lh={1}>
 										{timeLeft.days.toString().padStart(2, '0')}
 									</Text>
-									<Text size="sm" fw={600} c="dimmed" tt="uppercase">
+									<Text size='sm' fw={600} c='dimmed' tt='uppercase'>
 										Days
 									</Text>
 								</Stack>
@@ -124,12 +124,12 @@ export default function Countdown({ targetDate }: { targetDate: number }) {
 						</Grid.Col>
 
 						<Grid.Col span={{ base: 6, sm: 3 }}>
-							<Paper shadow="sm" p="lg" withBorder>
-								<Stack gap="xs" align="center">
-									<Text size="3rem" fw={900} c="green" lh={1}>
+							<Paper shadow='sm' p='lg' withBorder>
+								<Stack gap='xs' align='center'>
+									<Text size='3rem' fw={900} c='green' lh={1}>
 										{timeLeft.hours.toString().padStart(2, '0')}
 									</Text>
-									<Text size="sm" fw={600} c="dimmed" tt="uppercase">
+									<Text size='sm' fw={600} c='dimmed' tt='uppercase'>
 										Hours
 									</Text>
 								</Stack>
@@ -137,12 +137,12 @@ export default function Countdown({ targetDate }: { targetDate: number }) {
 						</Grid.Col>
 
 						<Grid.Col span={{ base: 6, sm: 3 }}>
-							<Paper shadow="sm" p="lg" withBorder>
-								<Stack gap="xs" align="center">
-									<Text size="3rem" fw={900} c="orange" lh={1}>
+							<Paper shadow='sm' p='lg' withBorder>
+								<Stack gap='xs' align='center'>
+									<Text size='3rem' fw={900} c='orange' lh={1}>
 										{timeLeft.minutes.toString().padStart(2, '0')}
 									</Text>
-									<Text size="sm" fw={600} c="dimmed" tt="uppercase">
+									<Text size='sm' fw={600} c='dimmed' tt='uppercase'>
 										Minutes
 									</Text>
 								</Stack>
@@ -150,12 +150,12 @@ export default function Countdown({ targetDate }: { targetDate: number }) {
 						</Grid.Col>
 
 						<Grid.Col span={{ base: 6, sm: 3 }}>
-							<Paper shadow="sm" p="lg" withBorder>
-								<Stack gap="xs" align="center">
-									<Text size="3rem" fw={900} c="red" lh={1}>
+							<Paper shadow='sm' p='lg' withBorder>
+								<Stack gap='xs' align='center'>
+									<Text size='3rem' fw={900} c='red' lh={1}>
 										{timeLeft.seconds.toString().padStart(2, '0')}
 									</Text>
-									<Text size="sm" fw={600} c="dimmed" tt="uppercase">
+									<Text size='sm' fw={600} c='dimmed' tt='uppercase'>
 										Seconds
 									</Text>
 								</Stack>

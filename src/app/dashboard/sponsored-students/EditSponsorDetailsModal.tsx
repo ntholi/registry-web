@@ -142,9 +142,9 @@ export default function EditSponsorDetailsModal({
 	return (
 		<>
 			<Button
-				variant="light"
-				size="xs"
-				leftSection={<IconEdit size="0.875rem" />}
+				variant='light'
+				size='xs'
+				leftSection={<IconEdit size='0.875rem' />}
 				onClick={() => setOpened(true)}
 			>
 				Edit
@@ -154,16 +154,16 @@ export default function EditSponsorDetailsModal({
 				opened={opened}
 				onClose={handleClose}
 				title={`Edit Sponsor Details - ${sponsoredStudent.student.name}`}
-				size="md"
+				size='md'
 			>
-				<Stack gap="md">
-					<Text size="sm" c="dimmed">
+				<Stack gap='md'>
+					<Text size='sm' c='dimmed'>
 						Student Number: {sponsoredStudent.stdNo}
 					</Text>
 
 					<Select
-						label="Sponsor"
-						placeholder="Select sponsor"
+						label='Sponsor'
+						placeholder='Select sponsor'
 						data={
 							sponsors?.map((sponsor) => ({
 								value: sponsor.id.toString(),
@@ -177,8 +177,8 @@ export default function EditSponsorDetailsModal({
 					/>
 
 					<TextInput
-						label="Borrower Number"
-						placeholder="Enter borrower number"
+						label='Borrower Number'
+						placeholder='Enter borrower number'
 						value={borrowerNo}
 						onChange={(event) => setBorrowerNo(event.currentTarget.value)}
 						disabled={!isNMDS(sponsorId)}
@@ -186,8 +186,8 @@ export default function EditSponsorDetailsModal({
 					/>
 
 					<Select
-						label="Bank Name"
-						placeholder="Select bank"
+						label='Bank Name'
+						placeholder='Select bank'
 						data={bankOptions}
 						value={bankName || null}
 						onChange={(value: string | null) => setBankName(value || '')}
@@ -196,23 +196,23 @@ export default function EditSponsorDetailsModal({
 					/>
 
 					<TextInput
-						label="Account Number"
-						placeholder="Enter account number"
+						label='Account Number'
+						placeholder='Enter account number'
 						value={accountNumber}
 						onChange={(event) => setAccountNumber(event.currentTarget.value)}
 					/>
 
 					{isNMDS(sponsorId) && (
 						<Switch
-							label="Account Confirmed"
-							description="Mark account details as confirmed"
+							label='Account Confirmed'
+							description='Mark account details as confirmed'
 							checked={confirmed}
 							onChange={(event) => setConfirmed(event.currentTarget.checked)}
 						/>
 					)}
 
-					<Group justify="flex-end" gap="sm">
-						<Button variant="default" onClick={handleClose}>
+					<Group justify='flex-end' gap='sm'>
+						<Button variant='default' onClick={handleClose}>
 							Cancel
 						</Button>
 						<Button

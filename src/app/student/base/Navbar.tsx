@@ -16,14 +16,14 @@ export default function Navbar() {
 
 	return (
 		<>
-			<Container size="xl">
-				<Flex p={5} justify="space-between" align="center">
-					<Link href="/student">
+			<Container size='xl'>
+				<Flex p={5} justify='space-between' align='center'>
+					<Link href='/student'>
 						<Logo />
 					</Link>
-					<Menu shadow="md" width={200}>
+					<Menu shadow='md' width={200}>
 						<Menu.Target>
-							<Avatar alt={student?.name} size="md" style={{ cursor: 'pointer' }}>
+							<Avatar alt={student?.name} size='md' style={{ cursor: 'pointer' }}>
 								<IconUser size={14} />
 							</Avatar>
 						</Menu.Target>
@@ -33,7 +33,7 @@ export default function Navbar() {
 							<Menu.Item
 								leftSection={<IconUser size={14} />}
 								component={Link}
-								href="/student/profile"
+								href='/student/profile'
 							>
 								Profile
 							</Menu.Item>
@@ -46,7 +46,7 @@ export default function Navbar() {
 								{colorScheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
 							</Menu.Item>
 							<Menu.Divider />
-							<Menu.Item leftSection={<IconLogout size={14} />} onClick={handleLogout} color="red">
+							<Menu.Item leftSection={<IconLogout size={14} />} onClick={handleLogout} color='red'>
 								Logout
 							</Menu.Item>
 						</Menu.Dropdown>

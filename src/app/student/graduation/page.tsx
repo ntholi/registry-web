@@ -15,14 +15,14 @@ export default async function GraduationPage() {
 	}
 
 	return (
-		<Container size="md">
-			<Stack gap="xl">
-				<Group justify="space-between" align="flex-start">
+		<Container size='md'>
+			<Stack gap='xl'>
+				<Group justify='space-between' align='flex-start'>
 					<Box>
-						<Title order={1} size="h2" fw={600} mb="xs">
+						<Title order={1} size='h2' fw={600} mb='xs'>
 							Graduation Requests
 						</Title>
-						<Text c="dimmed" size="sm">
+						<Text c='dimmed' size='sm'>
 							View and track your graduation request and its current status
 						</Text>
 					</Box>

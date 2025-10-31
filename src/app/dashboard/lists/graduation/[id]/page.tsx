@@ -30,31 +30,31 @@ export default async function GraduationListDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label="Name">{graduationList.name}</FieldView>
+				<FieldView label='Name'>{graduationList.name}</FieldView>
 
-				<FieldView label="Status">
+				<FieldView label='Status'>
 					{graduationList.status === 'created' && 'Not Populated'}
 					{graduationList.status === 'populated' && 'Populated'}
 					{graduationList.status === 'archived' && 'Archived'}
 				</FieldView>
 
 				{graduationList.populatedAt && (
-					<FieldView label="Last Populated">
+					<FieldView label='Last Populated'>
 						{new Date(graduationList.populatedAt).toLocaleString()}
 					</FieldView>
 				)}
 
-				<Group mt="md">
+				<Group mt='md'>
 					<PopulateButton listId={id} isPopulated={isPopulated} />
 
 					{graduationList.spreadsheetUrl && (
 						<Button
-							component="a"
+							component='a'
 							href={graduationList.spreadsheetUrl}
-							target="_blank"
-							rel="noopener noreferrer"
+							target='_blank'
+							rel='noopener noreferrer'
 							leftSection={<IconExternalLink size={16} />}
-							variant="light"
+							variant='light'
 						>
 							Open Google Sheet
 						</Button>

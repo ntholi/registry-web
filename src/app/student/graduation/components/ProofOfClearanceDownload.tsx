@@ -60,9 +60,9 @@ export default function ProofOfClearanceDownload({
 
 	return (
 		<ActionIcon
-			variant="light"
-			color="green"
-			size="sm"
+			variant='light'
+			color='green'
+			size='sm'
 			onClick={handleDownload}
 			loading={loading}
 			loaderProps={{ size: 'xs' }}

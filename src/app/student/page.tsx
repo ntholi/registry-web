@@ -10,14 +10,14 @@ export default function Page() {
 
 	if (isLoading) {
 		return (
-			<Center h="100vh" w="100vw">
+			<Center h='100vh' w='100vw'>
 				<Loader />
 			</Center>
 		);
 	}
 
 	return (
-		<Container size="md">
+		<Container size='md'>
 			<Hero />
 			<ActionButtons />
 		</Container>

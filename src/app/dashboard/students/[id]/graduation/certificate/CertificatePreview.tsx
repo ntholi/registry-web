@@ -41,7 +41,7 @@ export default function CertificatePreview({
 	if (isLoading) {
 		return (
 			<Center h={600}>
-				<Loader size="lg" />
+				<Loader size='lg' />
 			</Center>
 		);
 	}
@@ -49,7 +49,7 @@ export default function CertificatePreview({
 	if (!student) {
 		return (
 			<Center h={600}>
-				<Text c="dimmed">No student data available</Text>
+				<Text c='dimmed'>No student data available</Text>
 			</Center>
 		);
 	}
@@ -61,7 +61,7 @@ export default function CertificatePreview({
 	if (completedPrograms.length === 0) {
 		return (
 			<Center h={600}>
-				<Text c="dimmed">No completed programs found</Text>
+				<Text c='dimmed'>No completed programs found</Text>
 			</Center>
 		);
 	}
@@ -82,20 +82,20 @@ export default function CertificatePreview({
 	};
 
 	return (
-		<Stack gap="md">
+		<Stack gap='md'>
 			{completedPrograms.length > 1 && (
 				<Box>
-					<Flex align="center" gap="sm" justify={'space-between'}>
-						<Text size="sm">Select Program</Text>
+					<Flex align='center' gap='sm' justify={'space-between'}>
+						<Text size='sm'>Select Program</Text>
 						<Select
-							placeholder="Choose a program"
+							placeholder='Choose a program'
 							data={programOptions}
 							value={currentProgramId}
 							onChange={handleProgramChange}
 							w={350}
 						/>
 					</Flex>
-					<Divider my="sm" />
+					<Divider my='sm' />
 				</Box>
 			)}
 
@@ -121,7 +121,7 @@ function Certificate({ student, program }: { student: Student; program: StudentP
 
 	return (
 		<Paper
-			shadow="sm"
+			shadow='sm'
 			style={{
 				position: 'relative',
 				width: '100%',
@@ -132,7 +132,7 @@ function Certificate({ student, program }: { student: Student; program: StudentP
 			}}
 		>
 			<Box style={{ position: 'relative', width: '100%', height: '100%' }}>
-				<Image src="/images/certificate.webp" alt="Certificate" style={{ objectFit: 'contain' }} />
+				<Image src='/images/certificate.webp' alt='Certificate' style={{ objectFit: 'contain' }} />
 
 				<Text
 					style={{

@@ -17,8 +17,8 @@ export default function DepartmentMessagesView({ registration }: Props) {
 	if (rejectedClearances.length === 0 && registration.message) {
 		return (
 			<>
-				<Divider my="sm" />
-				<Alert icon={<IconInfoCircle size="1rem" />} color="blue" variant="light" title="Message">
+				<Divider my='sm' />
+				<Alert icon={<IconInfoCircle size='1rem' />} color='blue' variant='light' title='Message'>
 					{registration.message}
 				</Alert>
 			</>
@@ -38,28 +38,28 @@ export default function DepartmentMessagesView({ registration }: Props) {
 
 	return (
 		<>
-			<Divider my="sm" />
+			<Divider my='sm' />
 			<Alert
-				icon={<IconExclamationCircle size="1rem" />}
-				color="red"
-				variant="outline"
+				icon={<IconExclamationCircle size='1rem' />}
+				color='red'
+				variant='outline'
 				title={title}
 			>
-				<Stack gap="xs">
+				<Stack gap='xs'>
 					{rejectedClearances.map((clearanceMapping) => {
 						const { clearance } = clearanceMapping;
 						return (
 							<Box key={clearance.id}>
 								{clearance.message ? (
-									<Text size="sm">{clearance.message}</Text>
+									<Text size='sm'>{clearance.message}</Text>
 								) : (
-									<Text size="sm" c="dimmed" fs="italic">
+									<Text size='sm' c='dimmed' fs='italic'>
 										Rejected without specific message.
 									</Text>
 								)}
 								{rejectedClearances.length > 1 &&
 									clearanceMapping !== rejectedClearances[rejectedClearances.length - 1] && (
-										<Divider mt="sm" />
+										<Divider mt='sm' />
 									)}
 							</Box>
 						);

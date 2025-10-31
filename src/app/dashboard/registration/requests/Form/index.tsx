@@ -301,7 +301,7 @@ export default function RegistrationRequestForm({
 				};
 
 				return (
-					<Stack gap="xs">
+					<Stack gap='xs'>
 						<FormBinder form={form} onReady={handleFormReady} />
 						<StdNoInput
 							{...form.getInputProps('stdNo')}
@@ -313,8 +313,8 @@ export default function RegistrationRequestForm({
 						/>
 
 						<Select
-							label="Term"
-							placeholder="Select term"
+							label='Term'
+							placeholder='Select term'
 							data={allTerms.map((term) => ({
 								value: term.id.toString(),
 								label: term.name,
@@ -328,8 +328,8 @@ export default function RegistrationRequestForm({
 
 						<Group grow>
 							<Select
-								label="Semester"
-								placeholder="Select semester"
+								label='Semester'
+								placeholder='Select semester'
 								data={semesterOptions}
 								{...form.getInputProps('semesterNumber')}
 								onChange={(value: string | null) => {
@@ -340,7 +340,7 @@ export default function RegistrationRequestForm({
 							/>
 
 							<Select
-								label="Semester Status"
+								label='Semester Status'
 								data={[
 									{ value: 'Active', label: 'Active' },
 									{ value: 'Repeat', label: 'Repeat' },
@@ -362,8 +362,8 @@ export default function RegistrationRequestForm({
 							disabled={!structureId}
 						/>
 
-						<Paper withBorder p="md" mt="md">
-							<Group justify="space-between" mb="md">
+						<Paper withBorder p='md' mt='md'>
+							<Group justify='space-between' mb='md'>
 								<Text fw={500}>Modules</Text>
 								<ModulesDialog
 									onAddModule={handleAddModuleToForm}
@@ -373,7 +373,7 @@ export default function RegistrationRequestForm({
 									disabled={!structureId || !structureId || !form.values.semesterNumber}
 								/>
 							</Group>
-							<Divider my="xs" />
+							<Divider my='xs' />
 							<Table striped highlightOnHover>
 								<Table.Thead>
 									<Table.Tr>
@@ -388,8 +388,8 @@ export default function RegistrationRequestForm({
 								<Table.Tbody>
 									{selectedModules.length === 0 ? (
 										<Table.Tr>
-											<Table.Td colSpan={6} align="center">
-												<Text c="dimmed" size="sm">
+											<Table.Td colSpan={6} align='center'>
+												<Text c='dimmed' size='sm'>
 													No modules selected
 												</Text>
 											</Table.Td>
@@ -411,18 +411,18 @@ export default function RegistrationRequestForm({
 															value: status,
 															label: status,
 														}))}
-														size="xs"
+														size='xs'
 														style={{ width: '120px' }}
 														disabled={!structureId}
 													/>
 												</Table.Td>
 												<Table.Td>
 													<ActionIcon
-														color="red"
+														color='red'
 														onClick={() => handleRemoveModule(semModule.id)}
 														disabled={!structureId}
 													>
-														<IconTrash size="1rem" />
+														<IconTrash size='1rem' />
 													</ActionIcon>
 												</Table.Td>
 											</Table.Tr>

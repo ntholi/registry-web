@@ -36,18 +36,18 @@ export default function ClearanceDetails({ request }: Props) {
 	const { student } = request.registrationRequest;
 
 	return (
-		<Stack p="lg">
+		<Stack p='lg'>
 			<Grid>
 				<GridCol span={{ base: 12, md: 7 }}>
-					<Paper withBorder p="md">
+					<Paper withBorder p='md'>
 						<Stack>
-							<FieldView label="Student Number" underline={false}>
-								<Group justify="space-between">
+							<FieldView label='Student Number' underline={false}>
+								<Group justify='space-between'>
 									<Link href={`/dashboard/students/${student.stdNo}`}>{student.stdNo}</Link>
-									<Tooltip label="Copy">
+									<Tooltip label='Copy'>
 										<ActionIcon
-											variant="subtle"
-											color="gray"
+											variant='subtle'
+											color='gray'
 											onClick={() => {
 												navigator.clipboard.writeText(String(student.stdNo));
 												notifications.show({
@@ -61,10 +61,10 @@ export default function ClearanceDetails({ request }: Props) {
 									</Tooltip>
 								</Group>
 							</FieldView>
-							<FieldView label="Date Requested" underline={false}>
+							<FieldView label='Date Requested' underline={false}>
 								{formatDateTime(request.registrationRequest.createdAt)}
 							</FieldView>
-							<FieldView label="Program" underline={false}>
+							<FieldView label='Program' underline={false}>
 								{request.programName}
 							</FieldView>
 							<SponsorInfo
@@ -81,20 +81,20 @@ export default function ClearanceDetails({ request }: Props) {
 			<Accordion
 				value={accordion}
 				onChange={(it) => setAccordion(it as 'comments' | 'modules')}
-				variant="separated"
+				variant='separated'
 			>
-				<AccordionItem value="comments">
+				<AccordionItem value='comments'>
 					<AccordionControl>Comments</AccordionControl>
 					<AccordionPanel>
 						<Textarea
 							value={comment}
-							description="Optional "
+							description='Optional '
 							onChange={(e) => setComment(e.currentTarget.value)}
-							placeholder="Why is the student not cleared?"
+							placeholder='Why is the student not cleared?'
 						/>
 					</AccordionPanel>
 				</AccordionItem>
-				<AccordionItem value="modules">
+				<AccordionItem value='modules'>
 					<AccordionControl>Modules</AccordionControl>
 					<AccordionPanel>
 						<ModulesTable requestedModules={request.registrationRequest.requestedModules} />

@@ -83,8 +83,8 @@ export default function StudentsTable({ sponsorId }: Props) {
 				<Table.Tbody>
 					<Table.Tr>
 						<Table.Td colSpan={6}>
-							<Center p="md">
-								<Text c="dimmed">
+							<Center p='md'>
+								<Text c='dimmed'>
 									{searchQuery ? 'No students match your search.' : 'No sponsored students found.'}
 								</Text>
 							</Center>
@@ -105,29 +105,29 @@ export default function StudentsTable({ sponsorId }: Props) {
 						<Table.Tr key={sponsoredStudent.id}>
 							<Table.Td>
 								{student?.stdNo ? (
-									<Link size="sm" href={`/dashboard/students/${student.stdNo}`}>
+									<Link size='sm' href={`/dashboard/students/${student.stdNo}`}>
 										{student.stdNo}
 									</Link>
 								) : (
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										N/A
 									</Text>
 								)}
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{student?.name || 'N/A'}</Text>
+								<Text size='sm'>{student?.name || 'N/A'}</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{programName}</Text>
+								<Text size='sm'>{programName}</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{sponsoredStudent.borrowerNo || '-'}</Text>
+								<Text size='sm'>{sponsoredStudent.borrowerNo || '-'}</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{sponsoredStudent.bankName || '-'}</Text>
+								<Text size='sm'>{sponsoredStudent.bankName || '-'}</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{sponsoredStudent.accountNumber || '-'}</Text>
+								<Text size='sm'>{sponsoredStudent.accountNumber || '-'}</Text>
 							</Table.Td>
 						</Table.Tr>
 					);
@@ -137,23 +137,23 @@ export default function StudentsTable({ sponsorId }: Props) {
 	};
 
 	return (
-		<Stack gap="md" p="md">
-			<Group justify="space-between" align="center">
+		<Stack gap='md' p='md'>
+			<Group justify='space-between' align='center'>
 				<TextInput
-					placeholder="Search by name or student number"
+					placeholder='Search by name or student number'
 					value={searchQuery}
 					onChange={(event) => setSearchQuery(event.currentTarget.value)}
 					style={{ flex: 1, maxWidth: 400 }}
 					rightSection={
 						searchQuery ? (
-							<CloseButton onClick={() => setSearchQuery('')} variant="subtle" size="sm" />
+							<CloseButton onClick={() => setSearchQuery('')} variant='subtle' size='sm' />
 						) : null
 					}
-					leftSection={<IconSearch size="1.2rem" />}
+					leftSection={<IconSearch size='1.2rem' />}
 				/>
 				{!isLoading && data && (
 					<Paper withBorder p={8.5}>
-						<Text size="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+						<Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
 							{data.items.length} student{data.items.length !== 1 ? 's' : ''} displayed
 						</Text>
 					</Paper>
@@ -166,8 +166,8 @@ export default function StudentsTable({ sponsorId }: Props) {
 			</Table>
 
 			{data && data.totalPages > 1 && (
-				<Group justify="center">
-					<MPagination total={data.totalPages} value={page} onChange={setPage} size="sm" />
+				<Group justify='center'>
+					<MPagination total={data.totalPages} value={page} onChange={setPage} size='sm' />
 				</Group>
 			)}
 		</Stack>

@@ -39,10 +39,10 @@ export default async function ModuleDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label="ID">{mod.id}</FieldView>
-				<FieldView label="Code">{mod.code}</FieldView>
-				<FieldView label="Name">{mod.name}</FieldView>
-				<FieldView label="Status">{mod.status}</FieldView>
+				<FieldView label='ID'>{mod.id}</FieldView>
+				<FieldView label='Code'>{mod.code}</FieldView>
+				<FieldView label='Name'>{mod.name}</FieldView>
+				<FieldView label='Status'>{mod.status}</FieldView>
 				<Suspense fallback={<StructuresLoading />}>
 					<StructuresSection moduleId={Number(id)} />
 				</Suspense>
@@ -56,9 +56,9 @@ type StructuresSectionProps = { moduleId: number };
 async function StructuresSection({ moduleId }: StructuresSectionProps) {
 	const structures = await getStructuresByModule(moduleId);
 	return (
-		<Box mt="md">
+		<Box mt='md'>
 			{structures.length === 0 ? (
-				<Text size="sm">Not referenced in any structure</Text>
+				<Text size='sm'>Not referenced in any structure</Text>
 			) : (
 				<Table striped highlightOnHover withTableBorder withColumnBorders>
 					<TableThead>
@@ -72,7 +72,7 @@ async function StructuresSection({ moduleId }: StructuresSectionProps) {
 							<TableTr key={s.id}>
 								<TableTd>{s.programName}</TableTd>
 								<TableTd>
-									<Link size="sm" href={`/dashboard/schools/structures/${s.id}`}>
+									<Link size='sm' href={`/dashboard/schools/structures/${s.id}`}>
 										{s.code}
 									</Link>
 								</TableTd>
@@ -87,7 +87,7 @@ async function StructuresSection({ moduleId }: StructuresSectionProps) {
 
 function StructuresLoading() {
 	return (
-		<Box mt="md">
+		<Box mt='md'>
 			<Table striped withTableBorder withColumnBorders>
 				<TableThead>
 					<TableTr>
@@ -98,18 +98,18 @@ function StructuresLoading() {
 				<TableTbody>
 					<TableTr>
 						<TableTd>
-							<Skeleton h={10} w={220} radius="xl" />
+							<Skeleton h={10} w={220} radius='xl' />
 						</TableTd>
 						<TableTd>
-							<Skeleton h={10} w={120} radius="xl" />
+							<Skeleton h={10} w={120} radius='xl' />
 						</TableTd>
 					</TableTr>
 					<TableTr>
 						<TableTd>
-							<Skeleton h={10} w={200} radius="xl" />
+							<Skeleton h={10} w={200} radius='xl' />
 						</TableTd>
 						<TableTd>
-							<Skeleton h={10} w={100} radius="xl" />
+							<Skeleton h={10} w={100} radius='xl' />
 						</TableTd>
 					</TableTr>
 				</TableTbody>

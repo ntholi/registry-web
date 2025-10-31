@@ -32,7 +32,7 @@ export default function SponsorForm({ onSubmit, defaultValues, title }: Props) {
 		>
 			{(form) => (
 				<>
-					<TextInput label="Name" {...form.getInputProps('name')} />
+					<TextInput label='Name' {...form.getInputProps('name')} />
 				</>
 			)}
 		</Form>

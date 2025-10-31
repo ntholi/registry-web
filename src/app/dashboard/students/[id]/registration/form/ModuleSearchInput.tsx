@@ -94,23 +94,23 @@ export const ModuleSearchInput = forwardRef<HTMLInputElement, ModuleSearchInputP
 				onChange={handleInputChange}
 				onOptionSubmit={handleOptionSubmit}
 				data={options}
-				placeholder="Search for modules by code or name"
+				placeholder='Search for modules by code or name'
 				limit={10}
 				clearable
 				maxDropdownHeight={400}
-				rightSection={isLoading ? <Loader size="xs" /> : null}
+				rightSection={isLoading ? <Loader size='xs' /> : null}
 				renderOption={({ option }) => {
 					const moduleOption = option as ModuleOption;
 					return (
 						<Stack gap={0}>
 							<Group gap={'xs'}>
-								<Text size="sm" fw={500}>
+								<Text size='sm' fw={500}>
 									{moduleOption.code}
 								</Text>
-								<Text size="sm">{moduleOption.name}</Text>
+								<Text size='sm'>{moduleOption.name}</Text>
 							</Group>
 
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								{formatSemester(moduleOption.semesterNumber)}
 							</Text>
 						</Stack>

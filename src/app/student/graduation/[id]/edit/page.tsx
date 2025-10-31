@@ -31,23 +31,23 @@ export default async function EditGraduationPage({ params }: Props) {
 	}
 
 	return (
-		<Container size="md" px="xs">
-			<Stack gap="lg">
+		<Container size='md' px='xs'>
+			<Stack gap='lg'>
 				<Group>
 					<ActionIcon
 						component={Link}
 						href={`/student/graduation/${id}`}
-						variant="subtle"
-						size="lg"
-						title="Back to graduation request"
+						variant='subtle'
+						size='lg'
+						title='Back to graduation request'
 					>
-						<IconArrowLeft size="1.2rem" />
+						<IconArrowLeft size='1.2rem' />
 					</ActionIcon>
 					<div>
-						<Title order={1} size="h2" fw={600}>
+						<Title order={1} size='h2' fw={600}>
 							Edit Payment Receipts
 						</Title>
-						<Text c="dimmed" size="sm">
+						<Text c='dimmed' size='sm'>
 							Add or remove payment receipts for your graduation request
 						</Text>
 					</div>

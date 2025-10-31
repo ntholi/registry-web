@@ -34,15 +34,15 @@ export default function TranscriptsPage() {
 
 	if (blockedStudent && blockedStudent.status === 'blocked') {
 		return (
-			<Container size="md">
-				<Stack gap="lg">
-					<Title order={1} size={'h3'} ta="left">
+			<Container size='md'>
+				<Stack gap='lg'>
+					<Title order={1} size={'h3'} ta='left'>
 						Academic Transcripts
 					</Title>
-					<Alert icon={<IconLock size="1.2rem" />} title="Access Blocked" color="red" radius="md">
+					<Alert icon={<IconLock size='1.2rem' />} title='Access Blocked' color='red' radius='md'>
 						Your access to academic transcripts has been blocked. Please contact the{' '}
 						{blockedStudent.byDepartment} office for assistance.
-						<Text fw={500} mt="xs">
+						<Text fw={500} mt='xs'>
 							Reason: {blockedStudent.reason}
 						</Text>
 					</Alert>
@@ -53,16 +53,16 @@ export default function TranscriptsPage() {
 
 	if (!student || !program) {
 		return (
-			<Container size="md">
-				<Stack gap="lg" mt="md">
-					<Title order={1} size={'h3'} ta="left">
+			<Container size='md'>
+				<Stack gap='lg' mt='md'>
+					<Title order={1} size={'h3'} ta='left'>
 						Academic Transcripts
 					</Title>
 					<Alert
-						icon={<IconAlertCircle size="1.2rem" />}
-						title="No Academic Records Found"
-						color="yellow"
-						radius="md"
+						icon={<IconAlertCircle size='1.2rem' />}
+						title='No Academic Records Found'
+						color='yellow'
+						radius='md'
 					>
 						No academic history available for your account.
 					</Alert>
@@ -74,14 +74,14 @@ export default function TranscriptsPage() {
 	const semesters = getCleanedSemesters(program).filter((it) => it.term !== currentTerm?.name);
 
 	return (
-		<Container size="md">
-			<Stack gap="lg" py="md">
-				<Group justify="space-between">
+		<Container size='md'>
+			<Stack gap='lg' py='md'>
+				<Group justify='space-between'>
 					<Box>
 						<Title order={1} size={'h3'}>
 							Academic Transcripts
 						</Title>
-						<Text size="sm" c="dimmed">
+						<Text size='sm' c='dimmed'>
 							Your complete academic record
 						</Text>
 					</Box>
@@ -92,34 +92,34 @@ export default function TranscriptsPage() {
 					/>
 				</Group>
 
-				<Paper p="xl" withBorder shadow="sm" mt="lg">
-					<Group justify="space-between" align="flex-start" wrap="wrap">
+				<Paper p='xl' withBorder shadow='sm' mt='lg'>
+					<Group justify='space-between' align='flex-start' wrap='wrap'>
 						<Box>
-							<Text size="lg" fw={600}>
+							<Text size='lg' fw={600}>
 								{student.name}
 							</Text>
-							<Text size="xs">{student.stdNo}</Text>
+							<Text size='xs'>{student.stdNo}</Text>
 						</Box>
 						<Box ta={{ base: 'left', sm: 'right' }}>
-							<Text size="lg" fw={500}>
+							<Text size='lg' fw={500}>
 								{program?.structure?.program?.name}
 							</Text>
-							<Text size="xs">{program.schoolName}</Text>
+							<Text size='xs'>{program.schoolName}</Text>
 						</Box>
 					</Group>
 				</Paper>
 
 				{semesters.length === 0 ? (
 					<Alert
-						icon={<IconAlertCircle size="1.2rem" />}
-						title="No Semester Records"
-						color="blue"
-						radius="md"
+						icon={<IconAlertCircle size='1.2rem' />}
+						title='No Semester Records'
+						color='blue'
+						radius='md'
 					>
 						No semester records found for this program.
 					</Alert>
 				) : (
-					<Accordion variant="separated" radius="md">
+					<Accordion variant='separated' radius='md'>
 						{semesters.map((semester) => {
 							const modules =
 								semester.studentModules?.filter((m) => !['Delete', 'Drop'].includes(m.status)) ||
@@ -129,10 +129,10 @@ export default function TranscriptsPage() {
 								<Accordion.Item key={semester.id} value={semester.id.toString()}>
 									<Accordion.Control>
 										<Box>
-											<Text size="sm" fw={600}>
+											<Text size='sm' fw={600}>
 												{semester.term}
 											</Text>
-											<Text size="sm" c="dimmed">
+											<Text size='sm' c='dimmed'>
 												{formatSemester(semester.semesterNumber)}
 											</Text>
 										</Box>

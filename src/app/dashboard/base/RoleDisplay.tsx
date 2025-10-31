@@ -10,7 +10,7 @@ export default function RoleDisplay() {
 	}
 
 	return (
-		<Title fw={'lighter'} tt="capitalize">
+		<Title fw={'lighter'} tt='capitalize'>
 			{session?.user?.role} Portal
 		</Title>
 	);

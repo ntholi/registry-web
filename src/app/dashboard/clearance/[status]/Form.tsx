@@ -33,10 +33,10 @@ export default function ClearanceForm({ onSubmit, status, defaultValues, title }
 		>
 			{(form) => (
 				<>
-					<TextInput label="Department" {...form.getInputProps('department')} />
-					<TextInput label="Status" {...form.getInputProps('status')} />
-					<TextInput label="Message" {...form.getInputProps('message')} />
-					<TextInput label="Responded By" {...form.getInputProps('respondedBy')} />
+					<TextInput label='Department' {...form.getInputProps('department')} />
+					<TextInput label='Status' {...form.getInputProps('status')} />
+					<TextInput label='Message' {...form.getInputProps('message')} />
+					<TextInput label='Responded By' {...form.getInputProps('respondedBy')} />
 				</>
 			)}
 		</Form>

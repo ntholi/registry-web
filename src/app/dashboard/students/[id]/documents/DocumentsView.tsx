@@ -44,8 +44,8 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 
 	if (!canView) {
 		return (
-			<Paper p="xl" withBorder>
-				<Text c="dimmed">You do not have permission to view documents.</Text>
+			<Paper p='xl' withBorder>
+				<Text c='dimmed'>You do not have permission to view documents.</Text>
 			</Paper>
 		);
 	}
@@ -56,23 +56,23 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 	}
 
 	return (
-		<Stack gap="md">
+		<Stack gap='md'>
 			{canEdit && (
-				<Card withBorder p="md">
-					<Group justify="space-between" align="center">
+				<Card withBorder p='md'>
+					<Group justify='space-between' align='center'>
 						<Stack gap={4}>
-							<Text size="sm" fw={500}>
+							<Text size='sm' fw={500}>
 								Student Documents
 							</Text>
-							<Text size="xs" c="dimmed">
+							<Text size='xs' c='dimmed'>
 								Upload student documents such as internal documents, certificates, or ID copies
 							</Text>
 						</Stack>
 						<Button
 							leftSection={<IconPlus size={14} />}
-							variant="filled"
-							size="sm"
-							color="blue"
+							variant='filled'
+							size='sm'
+							color='blue'
 							onClick={() => setAddModalOpened(true)}
 						>
 							Upload
@@ -82,15 +82,15 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 			)}
 
 			{isLoading ? (
-				<Text c="dimmed">Loading documents...</Text>
+				<Text c='dimmed'>Loading documents...</Text>
 			) : !documents || documents.length === 0 ? (
-				<Paper p="xl" withBorder>
-					<Text c="dimmed" ta="center">
+				<Paper p='xl' withBorder>
+					<Text c='dimmed' ta='center'>
 						No documents found for this student.
 					</Text>
 				</Paper>
 			) : (
-				<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+				<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
 					{documents.map((doc) => (
 						<DocumentCard
 							key={doc.id}

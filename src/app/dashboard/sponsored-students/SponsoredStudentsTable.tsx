@@ -114,31 +114,31 @@ export default function SponsoredStudentsTable() {
 						.map((_, index) => (
 							<Table.Tr key={`skeleton-row-${index}`}>
 								<Table.Td>
-									<Skeleton height={20} width="80%" />
+									<Skeleton height={20} width='80%' />
 								</Table.Td>
 								<Table.Td>
-									<Skeleton height={20} width="90%" />
+									<Skeleton height={20} width='90%' />
 								</Table.Td>
 								<Table.Td>
-									<Skeleton height={20} width="85%" />
+									<Skeleton height={20} width='85%' />
 								</Table.Td>
 								<Table.Td>
-									<Skeleton height={20} width="80%" />
+									<Skeleton height={20} width='80%' />
 								</Table.Td>
 								<Table.Td>
-									<Skeleton height={20} width="75%" />
+									<Skeleton height={20} width='75%' />
 								</Table.Td>
 								<Table.Td>
-									<Skeleton height={20} width="75%" />
+									<Skeleton height={20} width='75%' />
 								</Table.Td>
 								<Table.Td>
-									<Skeleton height={20} width="85%" />
+									<Skeleton height={20} width='85%' />
 								</Table.Td>
 								<Table.Td>
-									<Skeleton height={20} width="70%" />
+									<Skeleton height={20} width='70%' />
 								</Table.Td>
 								<Table.Td>
-									<Skeleton height={20} width="60%" />
+									<Skeleton height={20} width='60%' />
 								</Table.Td>
 							</Table.Tr>
 						))}
@@ -151,8 +151,8 @@ export default function SponsoredStudentsTable() {
 				<Table.Tbody>
 					<Table.Tr>
 						<Table.Td colSpan={9}>
-							<Center p="md">
-								<Text c="dimmed">
+							<Center p='md'>
+								<Text c='dimmed'>
 									{hasActiveFilters
 										? 'No sponsored students match your search criteria.'
 										: 'No sponsored students found.'}
@@ -175,48 +175,48 @@ export default function SponsoredStudentsTable() {
 						<Table.Tr key={sponsoredStudent.id}>
 							<Table.Td>
 								{student?.stdNo ? (
-									<Link size="sm" href={`/dashboard/students/${student.stdNo}`}>
+									<Link size='sm' href={`/dashboard/students/${student.stdNo}`}>
 										{student.stdNo}
 									</Link>
 								) : (
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										N/A
 									</Text>
 								)}
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{student?.name || 'N/A'}</Text>
+								<Text size='sm'>{student?.name || 'N/A'}</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{programName}</Text>
+								<Text size='sm'>{programName}</Text>
 							</Table.Td>
 							<Table.Td>
 								{sponsoredStudent.sponsor ? (
-									<Link size="sm" href={`/dashboard/sponsors/${sponsoredStudent.sponsor.id}`}>
+									<Link size='sm' href={`/dashboard/sponsors/${sponsoredStudent.sponsor.id}`}>
 										{sponsoredStudent.sponsor.name}
 									</Link>
 								) : (
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										N/A
 									</Text>
 								)}
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{sponsoredStudent.borrowerNo || '-'}</Text>
+								<Text size='sm'>{sponsoredStudent.borrowerNo || '-'}</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{sponsoredStudent.bankName || '-'}</Text>
+								<Text size='sm'>{sponsoredStudent.bankName || '-'}</Text>
 							</Table.Td>
 							<Table.Td>
-								<Text size="sm">{sponsoredStudent.accountNumber || '-'}</Text>
+								<Text size='sm'>{sponsoredStudent.accountNumber || '-'}</Text>
 							</Table.Td>
 							<Table.Td>
 								{sponsoredStudent.sponsor?.name === 'NMDS' ? (
-									<Text size="sm" c={sponsoredStudent.confirmed ? 'green' : 'orange'} fw={500}>
+									<Text size='sm' c={sponsoredStudent.confirmed ? 'green' : 'orange'} fw={500}>
 										{sponsoredStudent.confirmed ? 'Confirmed' : 'Pending'}
 									</Text>
 								) : (
-									<Text size="sm" c="dimmed">
+									<Text size='sm' c='dimmed'>
 										N/A
 									</Text>
 								)}
@@ -247,17 +247,17 @@ export default function SponsoredStudentsTable() {
 	};
 
 	return (
-		<Stack gap="lg">
-			<Group justify="space-between" align="center">
-				<Group align="baseline">
+		<Stack gap='lg'>
+			<Group justify='space-between' align='center'>
+				<Group align='baseline'>
 					<Title order={3} fw={500}>
 						Sponsored Students
 					</Title>
-					<Badge variant="light" color="gray" leftSection={<IconUsers size={14} />}>
+					<Badge variant='light' color='gray' leftSection={<IconUsers size={14} />}>
 						{(data?.totalItems ?? 0).toLocaleString()} total
 					</Badge>
 				</Group>
-				<Group gap="sm" align="center">
+				<Group gap='sm' align='center'>
 					<NewSponsoredStudentModal />
 					<ImportAccountDetailsModal />
 					<DownloadSponsoredStudentsButton
@@ -294,8 +294,8 @@ export default function SponsoredStudentsTable() {
 			</Table>
 
 			{data && data.totalPages > 1 && (
-				<Group justify="center">
-					<MPagination total={data.totalPages} value={page} onChange={setPage} size="sm" />
+				<Group justify='center'>
+					<MPagination total={data.totalPages} value={page} onChange={setPage} size='sm' />
 				</Group>
 			)}
 		</Stack>

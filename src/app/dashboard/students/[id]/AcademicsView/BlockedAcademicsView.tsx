@@ -53,8 +53,8 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 
 	if (!student?.programs?.length) {
 		return (
-			<Card shadow="sm" padding="lg" radius="md" withBorder>
-				<Text fw={500} c="dimmed">
+			<Card shadow='sm' padding='lg' radius='md' withBorder>
+				<Text fw={500} c='dimmed'>
 					No academic programs found
 				</Text>
 			</Card>
@@ -62,10 +62,10 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 	}
 
 	return (
-		<Stack gap="md">
+		<Stack gap='md'>
 			<Accordion
-				variant="separated"
-				radius="md"
+				variant='separated'
+				radius='md'
 				multiple
 				value={openPrograms}
 				onChange={setOpenPrograms}
@@ -77,20 +77,20 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 						<Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
 							<Accordion.Control>
 								<Group>
-									<ThemeIcon variant="light" color="gray" size={'xl'}>
-										<IconSchool size="1.1rem" />
+									<ThemeIcon variant='light' color='gray' size={'xl'}>
+										<IconSchool size='1.1rem' />
 									</ThemeIcon>
 									<Stack gap={5}>
 										<Text fw={500}>{program.structure.program.name}</Text>
 										<Group gap={'xs'}>
 											<Badge
 												color={getProgramStatusColor(program.status)}
-												size="xs"
-												variant="transparent"
+												size='xs'
+												variant='transparent'
 											>
 												{program.status}
 											</Badge>
-											<Anchor size="0.715rem" c={'gray'} component="span">
+											<Anchor size='0.715rem' c={'gray'} component='span'>
 												{program.structure.code}
 											</Anchor>
 										</Group>
@@ -99,7 +99,7 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 							</Accordion.Control>
 
 							<Accordion.Panel>
-								<Box pos="relative">
+								<Box pos='relative'>
 									<Box
 										style={{
 											filter: 'blur(4px)',
@@ -107,18 +107,18 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 											pointerEvents: 'none',
 										}}
 									>
-										<Stack gap="xl">
+										<Stack gap='xl'>
 											{placeholderSemesters.map((semester) => (
-												<Paper key={semester.id} p="md" withBorder>
-													<Stack gap="md">
-														<Flex align="flex-end" justify="space-between">
-															<Group gap={'xs'} align="flex-end">
-																<Badge radius={'xs'} variant="default">
+												<Paper key={semester.id} p='md' withBorder>
+													<Stack gap='md'>
+														<Flex align='flex-end' justify='space-between'>
+															<Group gap={'xs'} align='flex-end'>
+																<Badge radius={'xs'} variant='default'>
 																	{semester.term}
 																</Badge>
-																<Text size="sm">Semester {semester.semesterNumber}</Text>
+																<Text size='sm'>Semester {semester.semesterNumber}</Text>
 															</Group>
-															<Group gap="md" align="flex-end">
+															<Group gap='md' align='flex-end'>
 																<GpaDisplay gpa={2.5} cgpa={2.8} />
 															</Group>
 														</Flex>
@@ -136,7 +136,7 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 									</Box>
 
 									<Box
-										pos="absolute"
+										pos='absolute'
 										top={0}
 										left={0}
 										right={0}
@@ -150,15 +150,15 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 											zIndex: 10,
 										}}
 									>
-										<Stack align="center" gap="md">
-											<ThemeIcon size={60} color="red" variant="light">
+										<Stack align='center' gap='md'>
+											<ThemeIcon size={60} color='red' variant='light'>
 												<IconLock size={30} />
 											</ThemeIcon>
-											<Text size="xl" fw={700} c="red">
+											<Text size='xl' fw={700} c='red'>
 												BLOCKED
 											</Text>
-											<Stack align="center" gap="xs">
-												<Text size="sm" c="dimmed" ta="center">
+											<Stack align='center' gap='xs'>
+												<Text size='sm' c='dimmed' ta='center'>
 													Academic records are restricted
 												</Text>
 												<Box
@@ -167,11 +167,11 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 														paddingTop: '8px',
 													}}
 												>
-													<Stack align="center" gap={4}>
-														<Text size="xs" fw={500} c="red">
+													<Stack align='center' gap={4}>
+														<Text size='xs' fw={500} c='red'>
 															Reason: {blockedStudent.reason}
 														</Text>
-														<Text size="xs" c="dimmed">
+														<Text size='xs' c='dimmed'>
 															Blocked by: {blockedStudent.byDepartment}
 														</Text>
 													</Stack>
@@ -242,24 +242,24 @@ function BlockedModuleTable({ moduleCount, showMarks }: BlockedModuleTableProps)
 				{placeholderModules.map((module, idx) => (
 					<Table.Tr key={idx}>
 						<Table.Td>
-							<Text size="sm">{module.code}</Text>
+							<Text size='sm'>{module.code}</Text>
 						</Table.Td>
 						<Table.Td>
-							<Text size="sm">{module.name}</Text>
+							<Text size='sm'>{module.name}</Text>
 						</Table.Td>
 						<Table.Td>
-							<Text size="sm">{module.status}</Text>
+							<Text size='sm'>{module.status}</Text>
 						</Table.Td>
 						<Table.Td>
-							<Text size="sm">{module.credits}</Text>
+							<Text size='sm'>{module.credits}</Text>
 						</Table.Td>
 						{showMarks && (
 							<Table.Td>
-								<Text size="sm">{module.marks}</Text>
+								<Text size='sm'>{module.marks}</Text>
 							</Table.Td>
 						)}
 						<Table.Td>
-							<Badge size="sm" variant="light" color="gray">
+							<Badge size='sm' variant='light' color='gray'>
 								{module.grade}
 							</Badge>
 						</Table.Td>

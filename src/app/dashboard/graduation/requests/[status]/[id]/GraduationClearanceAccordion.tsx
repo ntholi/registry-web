@@ -18,7 +18,7 @@ const departments: DashboardUser[] = ['finance', 'library', 'academic'];
 
 export default function GraduationClearanceAccordion({ value, defaultDept }: Props) {
 	return (
-		<Accordion variant="separated" defaultValue={defaultDept}>
+		<Accordion variant='separated' defaultValue={defaultDept}>
 			{departments.map((dept) => {
 				const clearanceMapping = value.graduationClearances?.find(
 					(c) => c.clearance.department === dept
@@ -28,9 +28,9 @@ export default function GraduationClearanceAccordion({ value, defaultDept }: Pro
 				return (
 					<Accordion.Item key={dept} value={dept}>
 						<Accordion.Control>
-							<Group justify="space-between">
+							<Group justify='space-between'>
 								<Group>
-									<ThemeIcon color={getStatusColor(status)} variant="light" size="lg">
+									<ThemeIcon color={getStatusColor(status)} variant='light' size='lg'>
 										{getStatusIcon(status)}
 									</ThemeIcon>
 									<Text fw={500}>{toTitleCase(dept)}</Text>
@@ -38,42 +38,42 @@ export default function GraduationClearanceAccordion({ value, defaultDept }: Pro
 							</Group>
 						</Accordion.Control>
 						<Accordion.Panel>
-							<Stack gap="sm">
+							<Stack gap='sm'>
 								<Group>
-									<Text c="dimmed" size="sm" w={120}>
+									<Text c='dimmed' size='sm' w={120}>
 										Status:
 									</Text>
-									<Badge size="sm" color={getStatusColor(status)} variant="light">
+									<Badge size='sm' color={getStatusColor(status)} variant='light'>
 										{toTitleCase(status)}
 									</Badge>
 								</Group>
 								<Group>
-									<Text c="dimmed" size="sm" w={120}>
+									<Text c='dimmed' size='sm' w={120}>
 										Response Date:
 									</Text>
-									<Text size="sm">
+									<Text size='sm'>
 										{clearance?.responseDate ? formatDateTime(clearance.responseDate) : '-'}
 									</Text>
 								</Group>
 								<Group>
-									<Text c="dimmed" size="sm" w={120}>
+									<Text c='dimmed' size='sm' w={120}>
 										Responded By:
 									</Text>
 									{clearance?.respondedBy ? (
-										<Link size="sm" href={`/dashboard/users/${clearance.respondedBy.id}`}>
+										<Link size='sm' href={`/dashboard/users/${clearance.respondedBy.id}`}>
 											{clearance.respondedBy.name ||
 												clearance.respondedBy.email ||
 												`User: ${clearance.respondedBy.id}`}
 										</Link>
 									) : (
-										<Text size="sm">{'-'}</Text>
+										<Text size='sm'>{'-'}</Text>
 									)}
 								</Group>
-								<Group align="flex-start">
-									<Text c="dimmed" size="sm" w={120}>
+								<Group align='flex-start'>
+									<Text c='dimmed' size='sm' w={120}>
 										Message:
 									</Text>
-									<Text size="sm">{clearance?.message || '-'}</Text>
+									<Text size='sm'>{clearance?.message || '-'}</Text>
 								</Group>
 							</Stack>
 						</Accordion.Panel>
@@ -98,10 +98,10 @@ const getStatusColor = (status: Status) => {
 const getStatusIcon = (status: Status) => {
 	switch (status) {
 		case 'approved':
-			return <IconCheck size="1rem" />;
+			return <IconCheck size='1rem' />;
 		case 'rejected':
-			return <IconExclamationCircle size="1rem" />;
+			return <IconExclamationCircle size='1rem' />;
 		default:
-			return <IconClock size="1rem" />;
+			return <IconClock size='1rem' />;
 	}
 };

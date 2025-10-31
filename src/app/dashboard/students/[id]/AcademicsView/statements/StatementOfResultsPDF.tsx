@@ -366,7 +366,7 @@ export default function StatementOfResultsPDF({
 		if (!student || !student.programs) {
 			return (
 				<Document>
-					<Page size="A4" style={styles.page}>
+					<Page size='A4' style={styles.page}>
 						<Text>No student data available</Text>
 					</Page>
 				</Document>
@@ -381,9 +381,9 @@ export default function StatementOfResultsPDF({
 
 		return (
 			<Document>
-				<Page size="A4" style={styles.page}>
+				<Page size='A4' style={styles.page}>
 					<View style={styles.header}>
-						<Image style={styles.logo} src="/images/logo-lesotho.jpg" />
+						<Image style={styles.logo} src='/images/logo-lesotho.jpg' />
 						<Text style={styles.title}>STATEMENT OF RESULTS</Text>
 						<Text style={styles.universityAddress}>This document does not certify graduation</Text>
 					</View>
@@ -540,7 +540,7 @@ export default function StatementOfResultsPDF({
 						{includeSignature && (
 							<View style={styles.signatureContainer}>
 								<View style={styles.signatureSection}>
-									<Image style={styles.signatureImage} src="/images/signature_small.png" />
+									<Image style={styles.signatureImage} src='/images/signature_small.png' />
 									<Text style={styles.signatureLine}></Text>
 									<Text style={styles.signatureLabel}>Registrar</Text>
 								</View>
@@ -562,7 +562,7 @@ export default function StatementOfResultsPDF({
 		console.error('Error generating statement of results:', error);
 		return (
 			<Document>
-				<Page size="A4" style={styles.page}>
+				<Page size='A4' style={styles.page}>
 					<Text>Error generating statement of results</Text>
 				</Page>
 			</Document>

@@ -20,7 +20,7 @@ export function SearchField(props: TextInputProps) {
 	);
 	return (
 		<TextInput
-			placeholder="Search"
+			placeholder='Search'
 			value={value || ''}
 			onChange={(event) => {
 				setValue(event.target.value);

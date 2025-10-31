@@ -65,8 +65,8 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 	};
 	return (
 		<>
-			<Tooltip label="View Audit History">
-				<ActionIcon variant="subtle" color="gray" onClick={open}>
+			<Tooltip label='View Audit History'>
+				<ActionIcon variant='subtle' color='gray' onClick={open}>
 					<IconHistory size={16} />
 				</ActionIcon>
 			</Tooltip>
@@ -74,51 +74,51 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 				opened={opened}
 				onClose={close}
 				title={
-					<Group gap="md" align="center">
-						<Avatar size="md" radius="md" variant="light" color="blue">
+					<Group gap='md' align='center'>
+						<Avatar size='md' radius='md' variant='light' color='blue'>
 							<IconHistory size={20} />
 						</Avatar>
 						<Box>
-							<Text fw={600} size="lg" mb={2}>
+							<Text fw={600} size='lg' mb={2}>
 								Audit History
 							</Text>
-							<Text size="sm" c="dimmed">
+							<Text size='sm' c='dimmed'>
 								{getAssessmentNumberLabel(assessment.assessmentNumber)} -{' '}
 								{getAssessmentTypeLabel(assessment.assessmentType)}
 							</Text>
 						</Box>
 					</Group>
 				}
-				size="xl"
+				size='xl'
 				centered
 				overlayProps={{
 					backgroundOpacity: 0.55,
 					blur: 3,
 				}}
-				radius="lg"
-				padding="xl"
+				radius='lg'
+				padding='xl'
 			>
 				{isLoading ? (
-					<Center py="xl">
-						<Stack align="center" gap="md">
-							<Loader size="lg" variant="dots" color="blue" />
-							<Text size="sm" c="dimmed">
+					<Center py='xl'>
+						<Stack align='center' gap='md'>
+							<Loader size='lg' variant='dots' color='blue' />
+							<Text size='sm' c='dimmed'>
 								Loading audit history...
 							</Text>
 						</Stack>
 					</Center>
 				) : !auditHistory || auditHistory.length === 0 ? (
-					<Paper p="xl" radius="lg" withBorder>
+					<Paper p='xl' radius='lg' withBorder>
 						<Center>
-							<Stack align="center" gap="lg">
-								<Avatar size="xl" radius="xl" variant="light" color="gray">
+							<Stack align='center' gap='lg'>
+								<Avatar size='xl' radius='xl' variant='light' color='gray'>
 									<IconInfoCircle size={32} />
 								</Avatar>
-								<Stack align="center" gap="xs">
-									<Text fw={500} size="lg">
+								<Stack align='center' gap='xs'>
+									<Text fw={500} size='lg'>
 										No Audit History
 									</Text>
-									<Text c="dimmed" size="sm" ta="center">
+									<Text c='dimmed' size='sm' ta='center'>
 										No changes have been recorded for this assessment yet.
 										<br />
 										All future modifications will appear here.
@@ -128,7 +128,7 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 						</Center>
 					</Paper>
 				) : (
-					<Timeline active={auditHistory.length} bulletSize={32} lineWidth={3} color="blue">
+					<Timeline active={auditHistory.length} bulletSize={32} lineWidth={3} color='blue'>
 						{auditHistory.map((audit: NonNullable<typeof auditHistory>[number]) => {
 							const auditMessage = generateAssessmentAuditMessage(audit.action, {
 								previousAssessmentNumber: audit.previousAssessmentNumber,
@@ -145,43 +145,43 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 									key={audit.id}
 									bullet={
 										<Avatar
-											size="sm"
-											radius="xl"
+											size='sm'
+											radius='xl'
 											color={getActionColor(audit.action)}
-											variant="light"
+											variant='light'
 										>
 											{getActionIcon(audit.action)}
 										</Avatar>
 									}
 									title={
-										<Paper p="md" radius="md" withBorder shadow="xs" mb="md">
+										<Paper p='md' radius='md' withBorder shadow='xs' mb='md'>
 											<Stack gap={'xs'}>
 												<Badge
 													color={getActionColor(audit.action)}
-													variant="light"
-													size="md"
-													radius="md"
+													variant='light'
+													size='md'
+													radius='md'
 													leftSection={getActionIcon(audit.action)}
 												>
 													{audit.action.toUpperCase()}
 												</Badge>
-												<Text size="sm" lh={1.5}>
+												<Text size='sm' lh={1.5}>
 													{auditMessage}
 												</Text>
-												<Card p="sm" radius="md">
-													<Group gap="sm" align="center">
+												<Card p='sm' radius='md'>
+													<Group gap='sm' align='center'>
 														<Avatar
-															size="sm"
-															radius="xl"
-															color="blue"
-															variant="light"
+															size='sm'
+															radius='xl'
+															color='blue'
+															variant='light'
 															src={audit.createdByUser?.image || undefined}
 														/>
 														<Box>
-															<Text size="sm" fw={500}>
+															<Text size='sm' fw={500}>
 																{audit.createdByUser?.name || 'Unknown User'}
 															</Text>
-															<Text size="xs" c="dimmed">
+															<Text size='xs' c='dimmed'>
 																{format(new Date(audit.date), "dd MMM yyyy 'at' HH:mm")}
 															</Text>
 														</Box>
