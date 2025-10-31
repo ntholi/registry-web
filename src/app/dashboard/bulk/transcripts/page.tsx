@@ -193,7 +193,11 @@ export default function ExportTranscriptPage() {
 				const pdfDocument = (
 					<Document key={program.programId}>
 						{program.students.map((student, studentIndex) => (
-							<TranscriptPages key={student.stdNo} student={student} studentIndex={studentIndex} />
+							<TranscriptPages
+								key={`${student.stdNo}-${studentIndex}`}
+								student={student}
+								studentIndex={studentIndex}
+							/>
 						))}
 					</Document>
 				);
