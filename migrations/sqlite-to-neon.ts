@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
-import * as readline from 'node:readline/promises';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import * as readline from 'node:readline/promises';
 import Database from 'better-sqlite3';
 import { config } from 'dotenv';
 import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
@@ -119,6 +119,7 @@ function loadEnumMappingsFromFile(): void {
 			Record<string, Record<string, string>>
 		>;
 
+		let totalMappings = 0;
 		for (const [tableName, fields] of Object.entries(mappingsData)) {
 			for (const [fieldName, mappings] of Object.entries(fields)) {
 				const tableKey = `${tableName}.${fieldName}`;
@@ -130,13 +131,16 @@ function loadEnumMappingsFromFile(): void {
 						validValue,
 						applyToAll: true,
 					});
+					totalMappings++;
 				}
 
 				enumMappings.set(tableKey, fieldMappings);
 			}
 		}
-	} catch (error) {
-		console.log('ℹ No existing enum-mappings.json found, starting fresh');
+
+		console.log(`✓ Loaded ${totalMappings} enum mappings from enum-mappings.json\n`);
+	} catch (_error) {
+		console.log('ℹ No existing enum-mappings.json found, starting fresh\n');
 	}
 }
 
@@ -196,6 +200,60 @@ const _FIELD_TO_ENUM_MAP: Record<string, string> = {
 function assertEnvironment(): void {
 	if (!process.env.DATABASE_URL) {
 		throw new Error('DATABASE_URL is not set in the environment.');
+	}
+}
+
+function cleanupSqliteDatabase(): void {
+	console.log('🧹 Cleaning up SQLite database...\n');
+	const database = new Database('local.db');
+
+	try {
+		const updates = [
+			// student_modules.grade updates
+			{ table: 'student_modules', column: 'grade', from: 'Def', to: 'DEF' },
+			{ table: 'student_modules', column: 'grade', from: 'DFR', to: 'F' },
+			{ table: 'student_modules', column: 'grade', from: ' B', to: 'B' },
+			{ table: 'student_modules', column: 'grade', from: 'W', to: 'F' },
+			{ table: 'student_modules', column: 'grade', from: 'P', to: 'C-' },
+			{ table: 'student_modules', column: 'grade', from: 'b', to: 'B' },
+			{ table: 'student_modules', column: 'grade', from: 'PX ', to: 'PX' },
+			{ table: 'student_modules', column: 'grade', from: 'f', to: 'F' },
+			{ table: 'student_modules', column: 'grade', from: 'b-', to: 'B-' },
+			{ table: 'student_modules', column: 'grade', from: 'C+.', to: 'C+' },
+			{ table: 'student_modules', column: 'grade', from: 'c+', to: 'C+' },
+			{ table: 'student_modules', column: 'grade', from: '50', to: 'C-' },
+			{ table: 'student_modules', column: 'grade', from: 'A-   ', to: 'A-' },
+			// module_grades.grade updates
+			{ table: 'module_grades', column: 'grade', from: 'Def', to: 'DEF' },
+			{ table: 'module_grades', column: 'grade', from: 'DFR', to: 'F' },
+			{ table: 'module_grades', column: 'grade', from: ' B', to: 'B' },
+			{ table: 'module_grades', column: 'grade', from: 'W', to: 'F' },
+			{ table: 'module_grades', column: 'grade', from: 'P', to: 'C-' },
+			{ table: 'module_grades', column: 'grade', from: 'b', to: 'B' },
+			{ table: 'module_grades', column: 'grade', from: 'PX ', to: 'PX' },
+			{ table: 'module_grades', column: 'grade', from: 'f', to: 'F' },
+			{ table: 'module_grades', column: 'grade', from: 'b-', to: 'B-' },
+			{ table: 'module_grades', column: 'grade', from: 'C+.', to: 'C+' },
+			{ table: 'module_grades', column: 'grade', from: 'c+', to: 'C+' },
+			{ table: 'module_grades', column: 'grade', from: '50', to: 'C-' },
+			{ table: 'module_grades', column: 'grade', from: 'A-   ', to: 'A-' },
+		];
+
+		for (const update of updates) {
+			const stmt = database.prepare(
+				`UPDATE ${update.table} SET ${update.column} = ? WHERE ${update.column} = ?`
+			);
+			const result = stmt.run(update.to, update.from);
+			if (result.changes > 0) {
+				console.log(
+					`  ✓ Updated ${result.changes} rows: ${update.table}.${update.column} '${update.from}' → '${update.to}'`
+				);
+			}
+		}
+
+		console.log('\n✓ SQLite database cleanup complete\n');
+	} finally {
+		database.close();
 	}
 }
 
@@ -1048,7 +1106,7 @@ function mapStudentModules(
 		semesterModuleId: row.semesterModuleId,
 		status: row.status,
 		marks: row.marks,
-		grade: row.grade.replace('Def', 'DEF'),
+		grade: row.grade,
 		studentSemesterId: row.studentSemesterId,
 		createdAt: toOptionalDateFromSeconds(row.createdAt),
 	};
@@ -1847,7 +1905,9 @@ async function migrateTables(
 			totalSkipped += skipped;
 		}
 		const transformed = filteredRows.map(function transformRow(row) {
-			return (plan as MigrationPlan<unknown, unknown>).map(row as never);
+			const rowObj = row as Record<string, unknown>;
+			const mappedRow = applyEnumMapping(rowObj, plan.name);
+			return (plan as MigrationPlan<unknown, unknown>).map(mappedRow as never);
 		});
 		const normalised = transformed.map(function normaliseRow(row) {
 			const result: Record<string, unknown> = {};
@@ -2113,6 +2173,7 @@ async function run(): Promise<void> {
 	assertEnvironment();
 	const mode = parseMode();
 	loadEnumMappingsFromFile();
+	cleanupSqliteDatabase();
 	const sqliteDb = openSqliteDatabase();
 	const postgresDb = await openPostgresDatabase();
 

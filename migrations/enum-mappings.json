@@ -1,54 +1,54 @@
 {
-  "semester_modules": {
-    "type": {
-      "Standard": "Core"
-    }
-  },
-  "students": {
-    "gender": {
-      "": "Unknown"
-    }
-  },
-  "student_programs": {
-    "status": {
-      "Delete": "Deleted",
-      "Deferred": "Inactive"
-    }
-  },
-  "student_semesters": {
-    "status": {
-      "Changed": "Active"
-    }
-  },
-  "student_modules": {
-    "grade": {
-      "": "F",
-      "DFR": "F",
-      "Def": "DEF",
-      " B": "B",
-      "W": "F",
-      "P": "C-",
-      "b": "B",
-      "PX ": "PX",
-      "f": "F",
-      "b-": "B-",
-      "C+.": "C+",
-      "c+": "C+",
-      "50": "C-",
-      "A-   ": "A-"
-    },
-    "status": {
-      "571862": "Compulsory",
-      "Elective": "Compulsory",
-      "Active": "Compulsory",
-      "Repeat": "Repeat1"
-    }
-  },
-  "requested_modules": {
-    "moduleStatus": {
-      "Elective": "Compulsory",
-      "Repeat": "Repeat1",
-      "Active": "Compulsory"
-    }
-  }
+	"semester_modules": {
+		"type": {
+			"Standard": "Core"
+		}
+	},
+	"students": {
+		"gender": {
+			"": "Unknown"
+		}
+	},
+	"student_programs": {
+		"status": {
+			"Delete": "Deleted",
+			"Deferred": "Inactive"
+		}
+	},
+	"student_semesters": {
+		"status": {
+			"Changed": "Active"
+		}
+	},
+	"student_modules": {
+		"grade": {
+			"": "F",
+			"DFR": "F",
+			"Def": "DEF",
+			" B": "B",
+			"W": "F",
+			"P": "C-",
+			"b": "B",
+			"PX ": "PX",
+			"f": "F",
+			"b-": "B-",
+			"C+.": "C+",
+			"c+": "C+",
+			"50": "C-",
+			"A-   ": "A-"
+		},
+		"status": {
+			"571862": "Compulsory",
+			"Elective": "Compulsory",
+			"Active": "Compulsory",
+			"Repeat": "Repeat1"
+		}
+	},
+	"requested_modules": {
+		"moduleStatus": {
+			"Elective": "Compulsory",
+			"Repeat": "Repeat1",
+			"Active": "Compulsory"
+		}
+	}
 }
