@@ -25,9 +25,18 @@ export const dashboardUsers = pgEnum('dashboard_users', [
   'academic',
   'admin',
 ]);
-export type DashboardUser = typeof dashboardUsers.enumValues[number];
-export const userRoles = pgEnum('user_roles', ['user', 'student', 'finance', 'registry', 'library', 'resource', 'academic', 'admin']);
-export type UserRole = typeof userRoles.enumValues[number];
+export type DashboardUser = (typeof dashboardUsers.enumValues)[number];
+export const userRoles = pgEnum('user_roles', [
+  'user',
+  'student',
+  'finance',
+  'registry',
+  'library',
+  'resource',
+  'academic',
+  'admin',
+]);
+export type UserRole = (typeof userRoles.enumValues)[number];
 
 export const userPositions = pgEnum('user_positions', [
   'manager',
@@ -37,7 +46,7 @@ export const userPositions = pgEnum('user_positions', [
   'lecturer',
   'admin',
 ]);
-export type UserPosition = typeof userPositions.enumValues[number];
+export type UserPosition = (typeof userPositions.enumValues)[number];
 
 export const users = pgTable('users', {
   id: text()
@@ -118,7 +127,11 @@ export const authenticators = pgTable(
   })
 );
 
-export const signupStatusEnum = pgEnum('signup_status', ['pending', 'approved', 'rejected']);
+export const signupStatusEnum = pgEnum('signup_status', [
+  'pending',
+  'approved',
+  'rejected',
+]);
 export const signups = pgTable('signups', {
   userId: text()
     .primaryKey()
@@ -132,12 +145,13 @@ export const signups = pgTable('signups', {
   updatedAt: timestamp(),
 });
 
-export const genderEnum = pgEnum('gender', ['Male', 'Female', 'Other']);
+export const genderEnum = pgEnum('gender', ['Male', 'Female', 'Unknown']);
 export const maritalStatusEnum = pgEnum('marital_status', [
   'Single',
   'Married',
   'Divorced',
   'Windowed',
+  'Other',
 ]);
 
 export const students = pgTable(
@@ -171,7 +185,8 @@ export const programStatusEnum = pgEnum('program_status', [
   'Deleted',
   'Inactive',
 ]);
-export type StudentProgramStatus = typeof programStatusEnum.enumValues[number];
+export type StudentProgramStatus =
+  (typeof programStatusEnum.enumValues)[number];
 
 export const studentPrograms = pgTable('student_programs', {
   id: serial().primaryKey(),
@@ -205,7 +220,7 @@ export const semesterStatusEnum = pgEnum('semester_status', [
   'Repeat',
 ]);
 
-export type SemesterStatus = typeof semesterStatusEnum.enumValues[number];
+export type SemesterStatus = (typeof semesterStatusEnum.enumValues)[number];
 export const studentSemesters = pgTable('student_semesters', {
   id: serial().primaryKey(),
   term: text().notNull(),
@@ -267,8 +282,9 @@ export const gradeEnum = pgEnum('grade', [
   'NM',
 ]);
 
-export type StudentModuleStatus = typeof studentModuleStatusEnum.enumValues[number];
-export type Grade = typeof gradeEnum.enumValues[number];
+export type StudentModuleStatus =
+  (typeof studentModuleStatusEnum.enumValues)[number];
+export type Grade = (typeof gradeEnum.enumValues)[number];
 
 export const studentModules = pgTable('student_modules', {
   id: serial().primaryKey(),
@@ -292,7 +308,11 @@ export const schools = pgTable('schools', {
   createdAt: timestamp().defaultNow(),
 });
 
-export const programLevelEnum = pgEnum('program_level', ['certificate', 'diploma', 'degree']);
+export const programLevelEnum = pgEnum('program_level', [
+  'certificate',
+  'diploma',
+  'degree',
+]);
 export const programs = pgTable('programs', {
   id: serial().primaryKey(),
   code: text().notNull().unique(),
@@ -331,9 +351,7 @@ export const modules = pgTable('modules', {
   id: serial().primaryKey(),
   code: text().notNull(),
   name: text().notNull(),
-  status: moduleStatusEnum()
-    .notNull()
-    .default('Active'),
+  status: moduleStatusEnum().notNull().default('Active'),
   timestamp: text(),
 });
 
@@ -344,7 +362,7 @@ export const moduleTypeEnum = pgEnum('module_type', [
   'Delete',
   'Elective',
 ]);
-export type ModuleType = typeof moduleTypeEnum.enumValues[number];
+export type ModuleType = (typeof moduleTypeEnum.enumValues)[number];
 
 export const semesterModules = pgTable('semester_modules', {
   id: serial().primaryKey(),
@@ -386,15 +404,15 @@ export const terms = pgTable('terms', {
   createdAt: timestamp().defaultNow(),
 });
 
-export const registrationRequestStatusEnum = pgEnum('registration_request_status', [
-  'pending',
-  'approved',
-  'rejected',
-  'partial',
-  'registered',
-]);
+export const registrationRequestStatusEnum = pgEnum(
+  'registration_request_status',
+  ['pending', 'approved', 'rejected', 'partial', 'registered']
+);
 
-export const semesterStatusForRegistrationEnum = pgEnum('semester_status_for_registration', ['Active', 'Repeat']);
+export const semesterStatusForRegistrationEnum = pgEnum(
+  'semester_status_for_registration',
+  ['Active', 'Repeat']
+);
 
 export const registrationRequests = pgTable(
   'registration_requests',
@@ -409,9 +427,7 @@ export const registrationRequests = pgTable(
     termId: integer()
       .references(() => terms.id, { onDelete: 'cascade' })
       .notNull(),
-    status: registrationRequestStatusEnum()
-      .notNull()
-      .default('pending'),
+    status: registrationRequestStatusEnum().notNull().default('pending'),
     mailSent: boolean().notNull().default(false),
     count: integer().notNull().default(1),
     semesterStatus: semesterStatusForRegistrationEnum().notNull(),
@@ -434,18 +450,14 @@ export const requestedModuleStatusEnum = pgEnum('requested_module_status', [
 
 export const requestedModules = pgTable('requested_modules', {
   id: serial().primaryKey(),
-  moduleStatus: studentModuleStatusEnum()
-    .notNull()
-    .default('Compulsory'),
+  moduleStatus: studentModuleStatusEnum().notNull().default('Compulsory'),
   registrationRequestId: integer()
     .references(() => registrationRequests.id, { onDelete: 'cascade' })
     .notNull(),
   semesterModuleId: integer()
     .references(() => semesterModules.id, { onDelete: 'cascade' })
     .notNull(),
-  status: requestedModuleStatusEnum()
-    .notNull()
-    .default('pending'),
+  status: requestedModuleStatusEnum().notNull().default('pending'),
   createdAt: timestamp().defaultNow(),
 });
 
@@ -458,9 +470,7 @@ export const clearanceRequestStatusEnum = pgEnum('clearance_request_status', [
 export const clearance = pgTable('clearance', {
   id: serial().primaryKey(),
   department: dashboardUsers().notNull(),
-  status: clearanceRequestStatusEnum()
-    .notNull()
-    .default('pending'),
+  status: clearanceRequestStatusEnum().notNull().default('pending'),
   message: text(),
   emailSent: boolean().notNull().default(false),
   respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
@@ -536,7 +546,10 @@ export const graduationLists = pgTable('graduation_lists', {
   createdAt: timestamp().defaultNow(),
 });
 
-export const paymentTypeEnum = pgEnum('payment_type', ['graduation_gown', 'graduation_fee']);
+export const paymentTypeEnum = pgEnum('payment_type', [
+  'graduation_gown',
+  'graduation_fee',
+]);
 
 export const paymentReceipts = pgTable('payment_receipts', {
   id: serial().primaryKey(),
@@ -697,11 +710,10 @@ export const assessmentMarks = pgTable('assessment_marks', {
   createdAt: timestamp().defaultNow(),
 });
 
-export const assessmentMarksAuditActionEnum = pgEnum('assessment_marks_audit_action', [
-  'create',
-  'update',
-  'delete',
-]);
+export const assessmentMarksAuditActionEnum = pgEnum(
+  'assessment_marks_audit_action',
+  ['create', 'update', 'delete']
+);
 
 export const assessmentMarksAudit = pgTable('assessment_marks_audit', {
   id: serial().primaryKey(),
@@ -801,15 +813,16 @@ export const transcriptPrints = pgTable('transcript_prints', {
   printedAt: timestamp().defaultNow().notNull(),
 });
 
-export const blockedStudentStatusEnum = pgEnum('blocked_student_status', ['blocked', 'unblocked']);
+export const blockedStudentStatusEnum = pgEnum('blocked_student_status', [
+  'blocked',
+  'unblocked',
+]);
 
 export const blockedStudents = pgTable(
   'blocked_students',
   {
     id: serial().primaryKey(),
-    status: blockedStudentStatusEnum()
-      .notNull()
-      .default('blocked'),
+    status: blockedStudentStatusEnum().notNull().default('blocked'),
     reason: text().notNull(),
     byDepartment: dashboardUsers().notNull(),
     stdNo: bigint({ mode: 'number' })
@@ -859,12 +872,10 @@ export const fortinetLevelEnum = pgEnum('fortinet_level', [
   'nse8',
 ]);
 
-export const fortinetRegistrationStatusEnum = pgEnum('fortinet_registration_status', [
-  'pending',
-  'approved',
-  'rejected',
-  'completed',
-]);
+export const fortinetRegistrationStatusEnum = pgEnum(
+  'fortinet_registration_status',
+  ['pending', 'approved', 'rejected', 'completed']
+);
 
 export const fortinetRegistrations = pgTable(
   'fortinet_registrations',
@@ -877,9 +888,7 @@ export const fortinetRegistrations = pgTable(
       .references(() => schools.id, { onDelete: 'cascade' })
       .notNull(),
     level: fortinetLevelEnum().notNull(),
-    status: fortinetRegistrationStatusEnum()
-      .notNull()
-      .default('pending'),
+    status: fortinetRegistrationStatusEnum().notNull().default('pending'),
     message: text(),
     createdAt: timestamp().defaultNow(),
     updatedAt: timestamp(),
@@ -897,10 +906,15 @@ export const taskStatusEnum = pgEnum('task_status', [
   'cancelled',
 ]);
 
-export const taskPriorityEnum = pgEnum('task_priority', ['low', 'medium', 'high', 'urgent']);
+export const taskPriorityEnum = pgEnum('task_priority', [
+  'low',
+  'medium',
+  'high',
+  'urgent',
+]);
 
-export type TaskStatus = typeof taskStatusEnum.enumValues[number];
-export type TaskPriority = typeof taskPriorityEnum.enumValues[number];
+export type TaskStatus = (typeof taskStatusEnum.enumValues)[number];
+export type TaskPriority = (typeof taskPriorityEnum.enumValues)[number];
 
 export const tasks = pgTable(
   'tasks',

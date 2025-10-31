@@ -4,8 +4,38 @@ import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
 import { drizzle as drizzlePostgres } from 'drizzle-orm/node-postgres';
 import { Buffer } from 'node:buffer';
 import { Pool } from 'pg';
+import * as readline from 'node:readline/promises';
 import * as sqliteSchema from '../src/db/old.schema';
 import * as postgresSchema from '../src/db/schema';
+import {
+  moduleTypeEnum,
+  userRoles,
+  userPositions,
+  signupStatusEnum,
+  genderEnum,
+  maritalStatusEnum,
+  programStatusEnum,
+  semesterStatusEnum,
+  studentModuleStatusEnum,
+  gradeEnum,
+  programLevelEnum,
+  moduleStatusEnum,
+  registrationRequestStatusEnum,
+  semesterStatusForRegistrationEnum,
+  requestedModuleStatusEnum,
+  clearanceRequestStatusEnum,
+  graduationListStatusEnum,
+  paymentTypeEnum,
+  assessmentNumberEnum,
+  assessmentMarksAuditActionEnum,
+  assessmentsAuditActionEnum,
+  blockedStudentStatusEnum,
+  fortinetLevelEnum,
+  fortinetRegistrationStatusEnum,
+  taskStatusEnum,
+  taskPriorityEnum,
+  dashboardUsers,
+} from '../src/db/schema';
 
 config({ path: '.env.local' });
 
@@ -73,6 +103,71 @@ const MAX_MISMATCHES_TO_SHOW = 20;
 
 let cachedStudentSemesterIds: Set<number> | null = null;
 let cachedStudentModulesExpectedCount: number | null = null;
+
+type EnumMapping = {
+  invalidValue: string;
+  validValue: string;
+  applyToAll: boolean;
+};
+
+type EnumMappings = Map<string, Map<string, EnumMapping>>;
+
+const enumMappings: EnumMappings = new Map();
+
+const POSTGRES_ENUMS: Record<string, readonly string[]> = {
+  module_type: [...moduleTypeEnum.enumValues],
+  user_roles: [...userRoles.enumValues],
+  user_positions: [...userPositions.enumValues],
+  signup_status: [...signupStatusEnum.enumValues],
+  gender: [...genderEnum.enumValues],
+  marital_status: [...maritalStatusEnum.enumValues],
+  program_status: [...programStatusEnum.enumValues],
+  semester_status: [...semesterStatusEnum.enumValues],
+  student_module_status: [...studentModuleStatusEnum.enumValues],
+  grade: [...gradeEnum.enumValues],
+  program_level: [...programLevelEnum.enumValues],
+  module_status: [...moduleStatusEnum.enumValues],
+  registration_request_status: [...registrationRequestStatusEnum.enumValues],
+  semester_status_for_registration: [
+    ...semesterStatusForRegistrationEnum.enumValues,
+  ],
+  requested_module_status: [...requestedModuleStatusEnum.enumValues],
+  clearance_request_status: [...clearanceRequestStatusEnum.enumValues],
+  graduation_list_status: [...graduationListStatusEnum.enumValues],
+  payment_type: [...paymentTypeEnum.enumValues],
+  assessment_number: [...assessmentNumberEnum.enumValues],
+  assessment_marks_audit_action: [...assessmentMarksAuditActionEnum.enumValues],
+  assessments_audit_action: [...assessmentsAuditActionEnum.enumValues],
+  blocked_student_status: [...blockedStudentStatusEnum.enumValues],
+  fortinet_level: [...fortinetLevelEnum.enumValues],
+  fortinet_registration_status: [...fortinetRegistrationStatusEnum.enumValues],
+  task_status: [...taskStatusEnum.enumValues],
+  task_priority: [...taskPriorityEnum.enumValues],
+  dashboard_users: [...dashboardUsers.enumValues],
+};
+
+const FIELD_TO_ENUM_MAP: Record<string, string> = {
+  type: 'module_type',
+  role: 'user_roles',
+  position: 'user_positions',
+  status: 'signup_status',
+  gender: 'gender',
+  maritalStatus: 'marital_status',
+  programStatus: 'program_status',
+  semesterStatus: 'semester_status',
+  moduleStatus: 'student_module_status',
+  grade: 'grade',
+  level: 'program_level',
+  moduleStatusField: 'module_status',
+  registrationStatus: 'registration_request_status',
+  semesterStatusForRegistration: 'semester_status_for_registration',
+  requestedModuleStatus: 'requested_module_status',
+  clearanceStatus: 'clearance_request_status',
+  graduationListStatus: 'graduation_list_status',
+  paymentType: 'payment_type',
+  assessmentNumber: 'assessment_number',
+  action: 'assessment_marks_audit_action',
+};
 
 function assertEnvironment(): void {
   if (!process.env.DATABASE_URL) {
@@ -438,6 +533,306 @@ function getRowIdentifier<STable>(
   return { _allFields: rowObj };
 }
 
+function getEnumNameFromField(
+  fieldName: string,
+  tableName: string
+): string | null {
+  if (tableName === 'semester_modules' && fieldName === 'type') {
+    return 'module_type';
+  }
+  if (tableName === 'users' && fieldName === 'role') {
+    return 'user_roles';
+  }
+  if (tableName === 'users' && fieldName === 'position') {
+    return 'user_positions';
+  }
+  if (tableName === 'signups' && fieldName === 'status') {
+    return 'signup_status';
+  }
+  if (tableName === 'students' && fieldName === 'gender') {
+    return 'gender';
+  }
+  if (tableName === 'students' && fieldName === 'maritalStatus') {
+    return 'marital_status';
+  }
+  if (tableName === 'student_programs' && fieldName === 'status') {
+    return 'program_status';
+  }
+  if (tableName === 'student_semesters' && fieldName === 'status') {
+    return 'semester_status';
+  }
+  if (tableName === 'student_modules' && fieldName === 'status') {
+    return 'student_module_status';
+  }
+  if (tableName === 'student_modules' && fieldName === 'grade') {
+    return 'grade';
+  }
+  if (tableName === 'programs' && fieldName === 'level') {
+    return 'program_level';
+  }
+  if (tableName === 'modules' && fieldName === 'status') {
+    return 'module_status';
+  }
+  if (tableName === 'registration_requests' && fieldName === 'status') {
+    return 'registration_request_status';
+  }
+  if (tableName === 'registration_requests' && fieldName === 'semesterStatus') {
+    return 'semester_status_for_registration';
+  }
+  if (tableName === 'requested_modules' && fieldName === 'status') {
+    return 'requested_module_status';
+  }
+  if (tableName === 'requested_modules' && fieldName === 'moduleStatus') {
+    return 'student_module_status';
+  }
+  if (tableName === 'clearance' && fieldName === 'status') {
+    return 'clearance_request_status';
+  }
+  if (tableName === 'graduation_lists' && fieldName === 'status') {
+    return 'graduation_list_status';
+  }
+  if (tableName === 'payment_receipts' && fieldName === 'paymentType') {
+    return 'payment_type';
+  }
+  if (tableName === 'assessments' && fieldName === 'assessmentNumber') {
+    return 'assessment_number';
+  }
+  if (tableName === 'assessment_marks_audit' && fieldName === 'action') {
+    return 'assessment_marks_audit_action';
+  }
+  if (tableName === 'assessments_audit' && fieldName === 'action') {
+    return 'assessments_audit_action';
+  }
+  if (
+    tableName === 'assessments_audit' &&
+    (fieldName === 'previousAssessmentNumber' ||
+      fieldName === 'newAssessmentNumber')
+  ) {
+    return 'assessment_number';
+  }
+  if (tableName === 'blocked_students' && fieldName === 'status') {
+    return 'blocked_student_status';
+  }
+  if (tableName === 'blocked_students' && fieldName === 'byDepartment') {
+    return 'dashboard_users';
+  }
+  if (tableName === 'clearance' && fieldName === 'department') {
+    return 'dashboard_users';
+  }
+  if (tableName === 'fortinet_registrations' && fieldName === 'level') {
+    return 'fortinet_level';
+  }
+  if (tableName === 'fortinet_registrations' && fieldName === 'status') {
+    return 'fortinet_registration_status';
+  }
+  if (tableName === 'tasks' && fieldName === 'status') {
+    return 'task_status';
+  }
+  if (tableName === 'tasks' && fieldName === 'priority') {
+    return 'task_priority';
+  }
+  if (tableName === 'tasks' && fieldName === 'department') {
+    return 'dashboard_users';
+  }
+  if (
+    tableName === 'clearance_audit' &&
+    (fieldName === 'previousStatus' || fieldName === 'newStatus')
+  ) {
+    return 'registration_request_status';
+  }
+  return null;
+}
+
+function isValidEnumValue(enumName: string, value: unknown): boolean {
+  if (value === null || value === undefined) {
+    return true;
+  }
+  const validValues = POSTGRES_ENUMS[enumName];
+  if (!validValues) {
+    return true;
+  }
+  return validValues.includes(String(value));
+}
+
+async function promptForEnumValue(
+  tableName: string,
+  fieldName: string,
+  enumName: string,
+  invalidValue: string,
+  rowIdentifier: Record<string, unknown>
+): Promise<EnumMapping | null> {
+  const tableKey = `${tableName}.${fieldName}`;
+  const existingMapping = enumMappings.get(tableKey)?.get(invalidValue);
+  if (existingMapping) {
+    return existingMapping;
+  }
+
+  const validValues = POSTGRES_ENUMS[enumName];
+  if (!validValues) {
+    console.error(`Unknown enum: ${enumName}`);
+    return null;
+  }
+
+  console.log(`\n${'='.repeat(80)}`);
+  console.log(`❌ Invalid enum value detected:`);
+  console.log(`   Table: ${tableName}`);
+  console.log(`   Field: ${fieldName}`);
+  console.log(`   Invalid value: "${invalidValue}"`);
+  console.log(`   Row identifier:`, JSON.stringify(rowIdentifier));
+  console.log(`\nValid options for ${enumName}:`);
+  validValues.forEach((v, i) => {
+    console.log(`   ${i + 1}. ${v}`);
+  });
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  let rl2: readline.Interface | null = null;
+
+  try {
+    const answer = await rl.question(
+      '\nSelect a valid option (number) or press Enter to skip: '
+    );
+
+    rl.close();
+
+    if (!answer.trim()) {
+      console.log('⚠️  Skipping this row...\n');
+      return null;
+    }
+
+    const selectedIndex = parseInt(answer.trim()) - 1;
+    if (selectedIndex < 0 || selectedIndex >= validValues.length) {
+      console.log('❌ Invalid selection. Skipping this row...\n');
+      return null;
+    }
+
+    const validValue = validValues[selectedIndex];
+
+    rl2 = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    const applyToAllAnswer = await rl2.question(
+      `\nApply "${validValue}" to ALL occurrences of "${invalidValue}" in ${tableName}.${fieldName}? (y/n): `
+    );
+
+    rl2.close();
+
+    const applyToAll = applyToAllAnswer.trim().toLowerCase() === 'y';
+
+    const mapping: EnumMapping = {
+      invalidValue,
+      validValue,
+      applyToAll,
+    };
+
+    if (applyToAll) {
+      if (!enumMappings.has(tableKey)) {
+        enumMappings.set(tableKey, new Map());
+      }
+      enumMappings.get(tableKey)!.set(invalidValue, mapping);
+      console.log(
+        `✓ Will apply "${validValue}" to all future occurrences of "${invalidValue}"\n`
+      );
+    } else {
+      console.log(`✓ Applied "${validValue}" to this row only\n`);
+    }
+
+    return mapping;
+  } catch (error) {
+    try {
+      rl.close();
+    } catch {
+      /* ignore */
+    }
+    try {
+      if (rl2) {
+        rl2.close();
+      }
+    } catch {
+      /* ignore */
+    }
+    throw error;
+  }
+}
+
+function applyEnumMapping(
+  row: Record<string, unknown>,
+  tableName: string
+): Record<string, unknown> {
+  const result = { ...row };
+
+  for (const [fieldName, value] of Object.entries(result)) {
+    if (value === null || value === undefined) {
+      continue;
+    }
+
+    const enumName = getEnumNameFromField(fieldName, tableName);
+    if (!enumName) {
+      continue;
+    }
+
+    const tableKey = `${tableName}.${fieldName}`;
+    const mapping = enumMappings.get(tableKey)?.get(String(value));
+
+    if (mapping) {
+      result[fieldName] = mapping.validValue;
+    }
+  }
+
+  return result;
+}
+
+async function validateAndFixEnumValues(
+  row: Record<string, unknown>,
+  tableName: string,
+  rowIdentifier: Record<string, unknown>
+): Promise<Record<string, unknown> | null> {
+  const result = { ...row };
+
+  for (const [fieldName, value] of Object.entries(result)) {
+    if (value === null || value === undefined) {
+      continue;
+    }
+
+    const enumName = getEnumNameFromField(fieldName, tableName);
+    if (!enumName) {
+      continue;
+    }
+
+    if (!isValidEnumValue(enumName, value)) {
+      const tableKey = `${tableName}.${fieldName}`;
+      const existingMapping = enumMappings.get(tableKey)?.get(String(value));
+
+      if (existingMapping) {
+        result[fieldName] = existingMapping.validValue;
+        continue;
+      }
+
+      const mapping = await promptForEnumValue(
+        tableName,
+        fieldName,
+        enumName,
+        String(value),
+        rowIdentifier
+      );
+
+      if (!mapping) {
+        console.log(`⚠️  Skipping row due to invalid enum value`);
+        return null;
+      }
+
+      result[fieldName] = mapping.validValue;
+    }
+  }
+
+  return result;
+}
+
 function compareValues(sqliteValue: unknown, postgresValue: unknown): boolean {
   const normalizedSqlite = normaliseValue(sqliteValue);
   const normalizedPostgres = normaliseValue(postgresValue);
@@ -600,7 +995,7 @@ function mapStudents(
     dateOfBirth: toOptionalDateFromMilliseconds(row.dateOfBirth),
     phone1: row.phone1,
     phone2: row.phone2,
-    gender: row.gender,
+    gender: row.gender === 'Other' ? 'Unknown' : row.gender,
     maritalStatus: row.maritalStatus,
     religion: row.religion,
     userId: row.userId,
@@ -1422,6 +1817,7 @@ async function migrateTables(
 ): Promise<void> {
   let totalMigrated = 0;
   let totalSkipped = 0;
+  let totalEnumFixed = 0;
 
   for (let i = 0; i < plans.length; i++) {
     const plan = plans[i];
@@ -1457,21 +1853,79 @@ async function migrateTables(
       }
       return result;
     });
-    const chunks = chunkArray(normalised, BATCH_SIZE);
-    for (const chunk of chunks) {
-      await postgresDb
-        .insert(plan.postgresTable)
-        .values(chunk as never[])
-        .onConflictDoNothing();
+
+    const validatedRows: Record<string, unknown>[] = [];
+    let enumSkipped = 0;
+
+    for (let rowIndex = 0; rowIndex < normalised.length; rowIndex++) {
+      const row = normalised[rowIndex];
+      const originalRow = filteredRows[rowIndex];
+      const rowIdentifier = getRowIdentifier(
+        originalRow as never,
+        plan as MigrationPlan<unknown, unknown>
+      );
+
+      const mappedRow = applyEnumMapping(row, plan.name);
+
+      const validatedRow = await validateAndFixEnumValues(
+        mappedRow,
+        plan.name,
+        rowIdentifier
+      );
+
+      if (validatedRow === null) {
+        enumSkipped++;
+        totalSkipped++;
+        continue;
+      }
+
+      if (JSON.stringify(validatedRow) !== JSON.stringify(row)) {
+        totalEnumFixed++;
+      }
+
+      validatedRows.push(validatedRow);
     }
-    totalMigrated += transformed.length;
+
+    if (enumSkipped > 0) {
+      console.log(
+        `  ⚠️  Skipped ${enumSkipped} rows due to invalid enum values`
+      );
+    }
+
+    const chunks = chunkArray(validatedRows, BATCH_SIZE);
+    for (const chunk of chunks) {
+      try {
+        await postgresDb
+          .insert(plan.postgresTable)
+          .values(chunk as never[])
+          .onConflictDoNothing();
+      } catch (error) {
+        console.error(`\n❌ Error inserting batch for ${plan.name}:`);
+        if (error instanceof Error) {
+          console.error(`   ${error.message}`);
+
+          if (error.message.includes('enum')) {
+            console.error('\n   This appears to be an enum validation error.');
+            console.error('   The interactive prompt should have caught this.');
+            console.error(
+              '   Please report this issue with the error details above.'
+            );
+          }
+        }
+        throw error;
+      }
+    }
+    totalMigrated += validatedRows.length;
   }
 
   console.log(
     `✓ Migrated ${totalMigrated} rows across ${plans.length} tables.`
   );
   if (totalSkipped > 0) {
-    console.log(`  (Skipped ${totalSkipped} orphaned rows)`);
+    console.log(`  (Skipped ${totalSkipped} rows total)`);
+  }
+  if (totalEnumFixed > 0) {
+    console.log(`  ✓ Fixed ${totalEnumFixed} enum values interactively`);
   }
 }
 
