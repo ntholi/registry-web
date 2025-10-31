@@ -1,37 +1,31 @@
-import { schools } from '@/db/schema';
-import SchoolRepository from './repository';
-import withAuth from '@/server/base/withAuth';
-import { QueryOptions } from '../base/BaseRepository';
+import type { schools } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
+import withAuth from '@/server/base/withAuth';
+import type { QueryOptions } from '../base/BaseRepository';
+import SchoolRepository from './repository';
 
 class SchoolService {
-  constructor(private readonly repository = new SchoolRepository()) {}
+	constructor(private readonly repository = new SchoolRepository()) {}
 
-  async findAll(params: QueryOptions<typeof schools> = {}) {
-    return withAuth(async () => this.repository.query(params), ['dashboard']);
-  }
+	async findAll(params: QueryOptions<typeof schools> = {}) {
+		return withAuth(async () => this.repository.query(params), ['dashboard']);
+	}
 
-  async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), ['dashboard']);
-  }
+	async get(id: number) {
+		return withAuth(async () => this.repository.findById(id), ['dashboard']);
+	}
 
-  async getAll() {
-    return withAuth(async () => this.repository.findAll(), ['dashboard']);
-  }
+	async getAll() {
+		return withAuth(async () => this.repository.findAll(), ['dashboard']);
+	}
 
-  async getProgramsBySchoolId(schoolId: number) {
-    return withAuth(
-      async () => this.repository.getProgramsBySchoolId(schoolId),
-      ['dashboard']
-    );
-  }
+	async getProgramsBySchoolId(schoolId: number) {
+		return withAuth(async () => this.repository.getProgramsBySchoolId(schoolId), ['dashboard']);
+	}
 
-  async getAllPrograms() {
-    return withAuth(
-      async () => this.repository.getAllPrograms(),
-      ['dashboard']
-    );
-  }
+	async getAllPrograms() {
+		return withAuth(async () => this.repository.getAllPrograms(), ['dashboard']);
+	}
 }
 
 export const schoolsService = serviceWrapper(SchoolService, 'SchoolsService');

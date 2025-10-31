@@ -1,18 +1,17 @@
 'use client';
 import { Skeleton, Title } from '@mantine/core';
 import { useSession } from 'next-auth/react';
-import React from 'react';
 
 export default function RoleDisplay() {
-  const { data: session, status } = useSession();
+	const { data: session, status } = useSession();
 
-  if (status === 'loading') {
-    return <Skeleton height={40} width={170} mb={5} />;
-  }
+	if (status === 'loading') {
+		return <Skeleton height={40} width={170} mb={5} />;
+	}
 
-  return (
-    <Title fw={'lighter'} tt='capitalize'>
-      {session?.user?.role} Portal
-    </Title>
-  );
+	return (
+		<Title fw={'lighter'} tt="capitalize">
+			{session?.user?.role} Portal
+		</Title>
+	);
 }

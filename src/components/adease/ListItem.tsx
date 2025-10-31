@@ -1,21 +1,15 @@
 'use client';
 
-import { NavLink, NavLinkProps } from '@mantine/core';
+import { NavLink, type NavLinkProps } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 
 export interface ListItemProps extends Omit<NavLinkProps, 'component'> {
-  id: string | number;
-  path?: string;
-  onClick?: () => void;
+	id: string | number;
+	path?: string;
+	onClick?: () => void;
 }
 
 export function ListItem({ id, path, onClick, ...props }: ListItemProps) {
-  const pathname = usePathname();
-  return (
-    <NavLink
-      active={pathname.includes(`${path}/${id}`)}
-      onClick={onClick}
-      {...props}
-    />
-  );
+	const pathname = usePathname();
+	return <NavLink active={pathname.includes(`${path}/${id}`)} onClick={onClick} {...props} />;
 }

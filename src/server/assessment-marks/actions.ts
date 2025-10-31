@@ -1,6 +1,6 @@
 'use server';
 
-import { assessmentMarks } from '@/db/schema';
+import type { assessmentMarks } from '@/db/schema';
 import { calculateModuleGrade } from '@/utils/gradeCalculations';
 import { upsertModuleGrade } from '../module-grades/actions';
 import { assessmentMarksService as service } from './service';
@@ -8,113 +8,107 @@ import { assessmentMarksService as service } from './service';
 type AssessmentMark = typeof assessmentMarks.$inferInsert;
 
 export async function getAssessmentMark(id: number) {
-  return service.get(id);
+	return service.get(id);
 }
 
 export async function getAssessmentMarks(page: number = 1, search = '') {
-  return service.getAll({ page, search });
+	return service.getAll({ page, search });
 }
 
 export async function getAssessmentMarksByModuleId(moduleId: number) {
-  return service.getByModuleId(moduleId);
+	return service.getByModuleId(moduleId);
 }
 
 export async function getAssessmentMarksAuditHistory(assessmentMarkId: number) {
-  return service.getAuditHistory(assessmentMarkId);
+	return service.getAuditHistory(assessmentMarkId);
 }
 
-export async function createAssessmentMark(
-  assessmentMark: AssessmentMark,
-  moduleId: number,
-) {
-  const result = await service.create(assessmentMark);
-  await calculateAndSaveModuleGrade(moduleId, assessmentMark.stdNo);
-  return result;
+export async function createAssessmentMark(assessmentMark: AssessmentMark, moduleId: number) {
+	const result = await service.create(assessmentMark);
+	await calculateAndSaveModuleGrade(moduleId, assessmentMark.stdNo);
+	return result;
 }
 
 export async function createOrUpdateMarks(assessmentMark: AssessmentMark) {
-  if (isNaN(assessmentMark.marks)) {
-    throw new Error('Mark is required');
-  }
-  return service.createOrUpdateMarks(assessmentMark);
+	if (Number.isNaN(assessmentMark.marks)) {
+		throw new Error('Mark is required');
+	}
+	return service.createOrUpdateMarks(assessmentMark);
 }
 
 export async function createOrUpdateMarksInBulk(
-  assessmentMarks: AssessmentMark[],
-  moduleId: number,
+	assessmentMarks: AssessmentMark[],
+	moduleId: number
 ) {
-  const invalidMarks = assessmentMarks.filter((mark) => isNaN(mark.marks));
-  if (invalidMarks.length > 0) {
-    throw new Error('All marks must be valid numbers');
-  }
+	const invalidMarks = assessmentMarks.filter((mark) => Number.isNaN(mark.marks));
+	if (invalidMarks.length > 0) {
+		throw new Error('All marks must be valid numbers');
+	}
 
-  const result = await service.createOrUpdateMarksInBulk(assessmentMarks);
+	const result = await service.createOrUpdateMarksInBulk(assessmentMarks);
 
-  for (const stdNo of result.processedStudents) {
-    try {
-      await calculateAndSaveModuleGrade(moduleId, stdNo);
-    } catch (error) {
-      result.errors.push(
-        `Failed to calculate grade for student ${stdNo}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-    }
-  }
+	for (const stdNo of result.processedStudents) {
+		try {
+			await calculateAndSaveModuleGrade(moduleId, stdNo);
+		} catch (error) {
+			result.errors.push(
+				`Failed to calculate grade for student ${stdNo}: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		}
+	}
 
-  return result;
+	return result;
 }
 
 export async function updateAssessmentMark(
-  id: number,
-  assessmentMark: AssessmentMark,
-  moduleId: number,
+	id: number,
+	assessmentMark: AssessmentMark,
+	moduleId: number
 ) {
-  if (isNaN(assessmentMark.marks)) {
-    throw new Error('Mark is required');
-  }
+	if (Number.isNaN(assessmentMark.marks)) {
+		throw new Error('Mark is required');
+	}
 
-  const result = await service.update(id, assessmentMark);
-  await calculateAndSaveModuleGrade(moduleId, assessmentMark.stdNo);
-  return result;
+	const result = await service.update(id, assessmentMark);
+	await calculateAndSaveModuleGrade(moduleId, assessmentMark.stdNo);
+	return result;
 }
 
 export async function deleteAssessmentMark(id: number) {
-  return service.delete(id);
+	return service.delete(id);
 }
 
-export async function calculateAndSaveModuleGrade(
-  moduleId: number,
-  stdNo: number,
-) {
-  const assessments = await service.getAssessmentsByModuleId(moduleId);
-  const assessmentMarks = await service.getByModuleAndStudent(moduleId, stdNo);
+export async function calculateAndSaveModuleGrade(moduleId: number, stdNo: number) {
+	const assessments = await service.getAssessmentsByModuleId(moduleId);
+	const assessmentMarks = await service.getByModuleAndStudent(moduleId, stdNo);
 
-  if (!assessments || assessments.length === 0) {
-    return null;
-  }
+	if (!assessments || assessments.length === 0) {
+		return null;
+	}
 
-  const gradeCalculation = calculateModuleGrade(
-    assessments.map((a) => ({
-      id: a.id,
-      weight: a.weight,
-      totalMarks: a.totalMarks,
-    })),
-    assessmentMarks.map((m) => ({
-      assessment_id: m.assessmentId,
-      marks: m.marks,
-    })),
-  );
-  if (gradeCalculation.hasMarks) {
-    await upsertModuleGrade({
-      moduleId,
-      stdNo,
-      grade: gradeCalculation.grade,
-      weightedTotal: gradeCalculation.weightedTotal,
-    });
-  }
+	const gradeCalculation = calculateModuleGrade(
+		assessments.map((a) => ({
+			id: a.id,
+			weight: a.weight,
+			totalMarks: a.totalMarks,
+		})),
+		assessmentMarks.map((m) => ({
+			assessment_id: m.assessmentId,
+			marks: m.marks,
+		}))
+	);
+	if (gradeCalculation.hasMarks) {
+		await upsertModuleGrade({
+			moduleId,
+			stdNo,
+			grade: gradeCalculation.grade,
+			weightedTotal: gradeCalculation.weightedTotal,
+		});
+	}
 
-  return gradeCalculation;
+	return gradeCalculation;
 }
 
 export async function getMarksAudit(stdNo: number) {
-  return service.getStudentAuditHistory(stdNo);
+	return service.getStudentAuditHistory(stdNo);
 }

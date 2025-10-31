@@ -1,10 +1,10 @@
 import { Box } from '@mantine/core';
-import React from 'react';
+import type React from 'react';
 
 type Props = {
-  children: React.ReactNode;
+	children: React.ReactNode;
 };
 
 export default function layout({ children }: Props) {
-  return <Box px='xl'>{children}</Box>;
+	return <Box px="xl">{children}</Box>;
 }

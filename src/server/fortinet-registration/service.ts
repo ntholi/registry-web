@@ -1,144 +1,123 @@
-import { fortinetRegistrations, fortinetLevelEnum } from '@/db/schema';
-import FortinetRegistrationRepository from './repository';
-import withAuth from '@/server/base/withAuth';
-import { QueryOptions } from '../base/BaseRepository';
+import type { fortinetLevelEnum, fortinetRegistrations } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
+import withAuth from '@/server/base/withAuth';
 import { getStudentByUserId } from '@/server/students/actions';
+import type { QueryOptions } from '../base/BaseRepository';
+import FortinetRegistrationRepository from './repository';
 
 type FortinetRegistration = typeof fortinetRegistrations.$inferInsert;
-type FortinetLevel = typeof fortinetLevelEnum.enumValues[number];
+type FortinetLevel = (typeof fortinetLevelEnum.enumValues)[number];
 
 class FortinetRegistrationService {
-  constructor(
-    private readonly repository = new FortinetRegistrationRepository()
-  ) {}
+	constructor(private readonly repository = new FortinetRegistrationRepository()) {}
 
-  async getById(id: number) {
-    return withAuth(
-      async () => this.repository.findById(id),
-      ['student', 'dashboard']
-    );
-  }
+	async getById(id: number) {
+		return withAuth(async () => this.repository.findById(id), ['student', 'dashboard']);
+	}
 
-  async getByStudentNumber(stdNo: number) {
-    return withAuth(
-      async () => this.repository.findByStudentNumber(stdNo),
-      ['student', 'dashboard']
-    );
-  }
+	async getByStudentNumber(stdNo: number) {
+		return withAuth(
+			async () => this.repository.findByStudentNumber(stdNo),
+			['student', 'dashboard']
+		);
+	}
 
-  async getForCurrentStudent() {
-    return withAuth(
-      async (session) => {
-        if (!session?.user?.id) {
-          throw new Error('User session not found');
-        }
-        const student = await getStudentByUserId(session.user.id);
-        if (!student) {
-          throw new Error('Student not found');
-        }
-        return this.repository.findByStudentNumber(student.stdNo);
-      },
-      ['student']
-    );
-  }
+	async getForCurrentStudent() {
+		return withAuth(
+			async (session) => {
+				if (!session?.user?.id) {
+					throw new Error('User session not found');
+				}
+				const student = await getStudentByUserId(session.user.id);
+				if (!student) {
+					throw new Error('Student not found');
+				}
+				return this.repository.findByStudentNumber(student.stdNo);
+			},
+			['student']
+		);
+	}
 
-  async getForSchool(
-    schoolId: number,
-    options?: QueryOptions<typeof fortinetRegistrations>
-  ) {
-    return withAuth(
-      async () => this.repository.findForSchool(schoolId, options),
-      ['dashboard']
-    );
-  }
+	async getForSchool(schoolId: number, options?: QueryOptions<typeof fortinetRegistrations>) {
+		return withAuth(async () => this.repository.findForSchool(schoolId, options), ['dashboard']);
+	}
 
-  async create(data: { level: FortinetLevel; message?: string }) {
-    return withAuth(
-      async (session) => {
-        if (!session?.user?.id) {
-          throw new Error('User session not found');
-        }
-        const student = await getStudentByUserId(session.user.id);
-        if (!student) {
-          throw new Error('Student not found');
-        }
+	async create(data: { level: FortinetLevel; message?: string }) {
+		return withAuth(
+			async (session) => {
+				if (!session?.user?.id) {
+					throw new Error('User session not found');
+				}
+				const student = await getStudentByUserId(session.user.id);
+				if (!student) {
+					throw new Error('Student not found');
+				}
 
-        // Check if student belongs to school 8 (Faculty of Information & Communication Technology)
-        const hasICTSchool = student.programs?.some(
-          (program) => program.structure.program.school.id === 8
-        );
+				// Check if student belongs to school 8 (Faculty of Information & Communication Technology)
+				const hasICTSchool = student.programs?.some(
+					(program) => program.structure.program.school.id === 8
+				);
 
-        if (!hasICTSchool) {
-          throw new Error(
-            'Fortinet registration is only available for ICT students'
-          );
-        }
+				if (!hasICTSchool) {
+					throw new Error('Fortinet registration is only available for ICT students');
+				}
 
-        // Check if student already registered for this level
-        const existing = await this.repository.findByStudentAndLevel(
-          student.stdNo,
-          data.level
-        );
+				// Check if student already registered for this level
+				const existing = await this.repository.findByStudentAndLevel(student.stdNo, data.level);
 
-        if (existing) {
-          throw new Error(
-            `You have already registered for ${data.level.toUpperCase()}`
-          );
-        }
+				if (existing) {
+					throw new Error(`You have already registered for ${data.level.toUpperCase()}`);
+				}
 
-        const registrationData: FortinetRegistration = {
-          stdNo: student.stdNo,
-          schoolId: 8, // Faculty of Information & Communication Technology
-          level: data.level,
-          message: data.message,
-          status: 'pending',
-        };
+				const registrationData: FortinetRegistration = {
+					stdNo: student.stdNo,
+					schoolId: 8, // Faculty of Information & Communication Technology
+					level: data.level,
+					message: data.message,
+					status: 'pending',
+				};
 
-        return this.repository.create(registrationData);
-      },
-      ['student']
-    );
-  }
+				return this.repository.create(registrationData);
+			},
+			['student']
+		);
+	}
 
-  async updateStatus(
-    id: number,
-    status: 'pending' | 'approved' | 'rejected' | 'completed',
-    message?: string
-  ) {
-    return withAuth(async () => {
-      const updateData = {
-        status,
-        message,
-        updatedAt: new Date(),
-      };
+	async updateStatus(
+		id: number,
+		status: 'pending' | 'approved' | 'rejected' | 'completed',
+		message?: string
+	) {
+		return withAuth(async () => {
+			const updateData = {
+				status,
+				message,
+				updatedAt: new Date(),
+			};
 
-      await this.repository.update(id, updateData);
-      return this.repository.findById(id);
-    }, ['dashboard']);
-  }
+			await this.repository.update(id, updateData);
+			return this.repository.findById(id);
+		}, ['dashboard']);
+	}
 
-  async delete(id: number) {
-    return withAuth(async () => {
-      const registration = await this.repository.findById(id);
-      await this.repository.delete(id);
-      return registration;
-    }, ['dashboard']);
-  }
+	async delete(id: number) {
+		return withAuth(async () => {
+			const registration = await this.repository.findById(id);
+			await this.repository.delete(id);
+			return registration;
+		}, ['dashboard']);
+	}
 
-  async count() {
-    return withAuth(async () => this.repository.count(), ['dashboard']);
-  }
+	async count() {
+		return withAuth(async () => this.repository.count(), ['dashboard']);
+	}
 
-  async getAll(options?: QueryOptions<typeof fortinetRegistrations>) {
-    return withAuth(
-      async () => this.repository.query(options || {}),
-      ['dashboard']
-    );
-  }
+	async getAll(options?: QueryOptions<typeof fortinetRegistrations>) {
+		return withAuth(async () => this.repository.query(options || {}), ['dashboard']);
+	}
 }
 
 export const fortinetRegistrationService = serviceWrapper(
-  FortinetRegistrationService,
-  'FortinetRegistrationService'
+	FortinetRegistrationService,
+	'FortinetRegistrationService'
 );

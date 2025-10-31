@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+build
+next-env.d.ts
+migrations
+drizzle
+*.db
+*.db-shm
+*.db-wal
+.env
+.env.local
+pnpm-lock.yaml

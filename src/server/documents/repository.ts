@@ -1,22 +1,19 @@
-import BaseRepository from '@/server/base/BaseRepository';
-import { documents } from '@/db/schema';
+import { desc, eq } from 'drizzle-orm';
 import { db } from '@/db';
-import { eq, desc } from 'drizzle-orm';
+import { documents } from '@/db/schema';
+import BaseRepository from '@/server/base/BaseRepository';
 
-export default class DocumentRepository extends BaseRepository<
-  typeof documents,
-  'id'
-> {
-  constructor() {
-    super(documents, documents.id);
-  }
+export default class DocumentRepository extends BaseRepository<typeof documents, 'id'> {
+	constructor() {
+		super(documents, documents.id);
+	}
 
-  async findByStudent(stdNo: number) {
-    return db.query.documents.findMany({
-      where: eq(documents.stdNo, stdNo),
-      orderBy: [desc(documents.createdAt)],
-    });
-  }
+	async findByStudent(stdNo: number) {
+		return db.query.documents.findMany({
+			where: eq(documents.stdNo, stdNo),
+			orderBy: [desc(documents.createdAt)],
+		});
+	}
 }
 
 export const documentsRepository = new DocumentRepository();

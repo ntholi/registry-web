@@ -1,8 +1,8 @@
 {
-  "baseDir": "src",
-  "adminDir": "dashboard",
-  "database": {
-    "type": "drizzle",
-    "engine": "sqlite"
-  }
+	"baseDir": "src",
+	"adminDir": "dashboard",
+	"database": {
+		"type": "drizzle",
+		"engine": "sqlite"
+	}
 }

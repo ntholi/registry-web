@@ -1,49 +1,47 @@
-import { gradeEnum } from '@/db/schema';
+import type { gradeEnum } from '@/db/schema';
 import { getLetterGrade } from './grades';
 
 export type GradeCalculation = {
-  weightedTotal: number;
-  grade: typeof gradeEnum.enumValues[number];
-  hasMarks: boolean;
-  hasPassed: boolean;
+	weightedTotal: number;
+	grade: (typeof gradeEnum.enumValues)[number];
+	hasMarks: boolean;
+	hasPassed: boolean;
 };
 
 export function calculateModuleGrade(
-  assessments: Array<{
-    id: number;
-    weight: number;
-    totalMarks: number;
-  }>,
-  assessmentMarks: Array<{
-    assessment_id: number;
-    marks: number;
-  }>,
+	assessments: Array<{
+		id: number;
+		weight: number;
+		totalMarks: number;
+	}>,
+	assessmentMarks: Array<{
+		assessment_id: number;
+		marks: number;
+	}>
 ): GradeCalculation {
-  let totalWeight = 0;
-  let weightedMarks = 0;
-  let hasMarks = false;
+	let totalWeight = 0;
+	let weightedMarks = 0;
+	let hasMarks = false;
 
-  assessments.forEach((assessment) => {
-    totalWeight += assessment.weight;
+	assessments.forEach((assessment) => {
+		totalWeight += assessment.weight;
 
-    const markRecord = assessmentMarks.find(
-      (mark) => mark.assessment_id === assessment.id,
-    );
+		const markRecord = assessmentMarks.find((mark) => mark.assessment_id === assessment.id);
 
-    if (markRecord && markRecord.marks !== undefined) {
-      const percentage = markRecord.marks / assessment.totalMarks;
-      weightedMarks += percentage * assessment.weight;
-      hasMarks = true;
-    }
-  });
-  const weightedTotal = Math.round(weightedMarks);
-  const grade = getLetterGrade(weightedTotal);
-  const hasPassed = weightedTotal >= totalWeight * 0.5;
+		if (markRecord && markRecord.marks !== undefined) {
+			const percentage = markRecord.marks / assessment.totalMarks;
+			weightedMarks += percentage * assessment.weight;
+			hasMarks = true;
+		}
+	});
+	const weightedTotal = Math.round(weightedMarks);
+	const grade = getLetterGrade(weightedTotal);
+	const hasPassed = weightedTotal >= totalWeight * 0.5;
 
-  return {
-    weightedTotal,
-    grade,
-    hasMarks,
-    hasPassed,
-  };
+	return {
+		weightedTotal,
+		grade,
+		hasMarks,
+		hasPassed,
+	};
 }

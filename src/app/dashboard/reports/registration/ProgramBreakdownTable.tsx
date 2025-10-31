@@ -1,162 +1,144 @@
-import {
-  Text,
-  Badge,
-  Table,
-  ScrollArea,
-  Group,
-  Box,
-  Stack,
-  Paper,
-  Skeleton,
-} from '@mantine/core';
+import { Badge, Group, Paper, ScrollArea, Skeleton, Stack, Table, Text } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { formatSemester } from '@/lib/utils';
 
 interface ProgramBreakdownTableProps {
-  loading?: boolean;
-  school?: {
-    schoolName: string;
-    schoolCode: string;
-    totalStudents: number;
-    programs: Array<{
-      programName: string;
-      schoolCode: string;
-      yearBreakdown: { [year: number]: number };
-      totalStudents: number;
-    }>;
-  };
+	loading?: boolean;
+	school?: {
+		schoolName: string;
+		schoolCode: string;
+		totalStudents: number;
+		programs: Array<{
+			programName: string;
+			schoolCode: string;
+			yearBreakdown: { [year: number]: number };
+			totalStudents: number;
+		}>;
+	};
 }
 
-export default function ProgramBreakdownTable({
-  school,
-  loading,
-}: ProgramBreakdownTableProps) {
-  const isMobile = useMediaQuery('(max-width: 768px)');
+export default function ProgramBreakdownTable({ school, loading }: ProgramBreakdownTableProps) {
+	const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const allSemesters = school
-    ? Array.from(
-        new Set(
-          school.programs.flatMap((program) =>
-            Object.keys(program.yearBreakdown).map((semester) =>
-              parseInt(semester)
-            )
-          )
-        )
-      ).sort((a, b) => a - b)
-    : [];
+	const allSemesters = school
+		? Array.from(
+				new Set(
+					school.programs.flatMap((program) =>
+						Object.keys(program.yearBreakdown).map((semester) => parseInt(semester, 10))
+					)
+				)
+			).sort((a, b) => a - b)
+		: [];
 
-  const placeholderColumnCount = 6;
+	const placeholderColumnCount = 6;
 
-  if (loading) {
-    const cols = allSemesters.length || placeholderColumnCount;
-    const rows = 4;
+	if (loading) {
+		const cols = allSemesters.length || placeholderColumnCount;
+		const rows = 4;
 
-    return (
-      <Paper withBorder p='md'>
-        <Group justify='space-between' mb='md'>
-          <Stack gap={4}>
-            <Skeleton height={18} width={180} />
-            <Skeleton height={14} width={120} />
-          </Stack>
-          <Skeleton height={28} width={48} radius='sm' />
-        </Group>
+		return (
+			<Paper withBorder p="md">
+				<Group justify="space-between" mb="md">
+					<Stack gap={4}>
+						<Skeleton height={18} width={180} />
+						<Skeleton height={14} width={120} />
+					</Stack>
+					<Skeleton height={28} width={48} radius="sm" />
+				</Group>
 
-        <ScrollArea type={isMobile ? 'scroll' : 'auto'}>
-          <Table withTableBorder>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th miw={isMobile ? 140 : 250}>
-                  <Skeleton height={18} width={isMobile ? 100 : 160} />
-                </Table.Th>
-                {Array.from({ length: cols }).map((_, i) => (
-                  <Table.Th key={i} ta='center' miw={70}>
-                    <Skeleton height={16} width={40} />
-                  </Table.Th>
-                ))}
-                <Table.Th ta='center' miw={70}>
-                  <Skeleton height={16} width={40} />
-                </Table.Th>
-              </Table.Tr>
-            </Table.Thead>
+				<ScrollArea type={isMobile ? 'scroll' : 'auto'}>
+					<Table withTableBorder>
+						<Table.Thead>
+							<Table.Tr>
+								<Table.Th miw={isMobile ? 140 : 250}>
+									<Skeleton height={18} width={isMobile ? 100 : 160} />
+								</Table.Th>
+								{Array.from({ length: cols }).map((_, i) => (
+									<Table.Th key={i} ta="center" miw={70}>
+										<Skeleton height={16} width={40} />
+									</Table.Th>
+								))}
+								<Table.Th ta="center" miw={70}>
+									<Skeleton height={16} width={40} />
+								</Table.Th>
+							</Table.Tr>
+						</Table.Thead>
 
-            <Table.Tbody>
-              {Array.from({ length: rows }).map((_, r) => (
-                <Table.Tr key={r}>
-                  <Table.Td>
-                    <Skeleton height={16} width={isMobile ? 120 : 220} />
-                  </Table.Td>
-                  {Array.from({ length: cols }).map((__, c) => (
-                    <Table.Td key={c} ta='center'>
-                      <Skeleton height={14} width={32} />
-                    </Table.Td>
-                  ))}
-                  <Table.Td ta='center'>
-                    <Skeleton height={20} width={48} />
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </ScrollArea>
-      </Paper>
-    );
-  }
+						<Table.Tbody>
+							{Array.from({ length: rows }).map((_, r) => (
+								<Table.Tr key={r}>
+									<Table.Td>
+										<Skeleton height={16} width={isMobile ? 120 : 220} />
+									</Table.Td>
+									{Array.from({ length: cols }).map((__, c) => (
+										<Table.Td key={c} ta="center">
+											<Skeleton height={14} width={32} />
+										</Table.Td>
+									))}
+									<Table.Td ta="center">
+										<Skeleton height={20} width={48} />
+									</Table.Td>
+								</Table.Tr>
+							))}
+						</Table.Tbody>
+					</Table>
+				</ScrollArea>
+			</Paper>
+		);
+	}
 
-  if (!school) return null;
+	if (!school) return null;
 
-  return (
-    <Paper withBorder p='md'>
-      <Group justify='space-between' mb='md'>
-        <Stack gap={4}>
-          <Text fw={600}>{school.schoolName}</Text>
-          <Text size='sm' c='dimmed'>
-            {school.schoolCode}
-          </Text>
-        </Stack>
-        <Badge variant='light'>{school.totalStudents}</Badge>
-      </Group>
+	return (
+		<Paper withBorder p="md">
+			<Group justify="space-between" mb="md">
+				<Stack gap={4}>
+					<Text fw={600}>{school.schoolName}</Text>
+					<Text size="sm" c="dimmed">
+						{school.schoolCode}
+					</Text>
+				</Stack>
+				<Badge variant="light">{school.totalStudents}</Badge>
+			</Group>
 
-      <ScrollArea type={isMobile ? 'scroll' : 'auto'}>
-        <Table withTableBorder>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th miw={isMobile ? 140 : 250}>Program</Table.Th>
-              {allSemesters.map((semester) => (
-                <Table.Th key={semester} ta='center' miw={70}>
-                  {formatSemester(semester, 'mini')}
-                </Table.Th>
-              ))}
-              <Table.Th ta='center' miw={70}>
-                Total
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {school.programs.map((program, pIndex) => (
-              <Table.Tr key={pIndex}>
-                <Table.Td>
-                  <Text size='sm'>{program.programName}</Text>
-                </Table.Td>
-                {allSemesters.map((semester) => (
-                  <Table.Td key={semester} ta='center'>
-                    <Text
-                      size='sm'
-                      c={program.yearBreakdown[semester] ? undefined : 'dimmed'}
-                    >
-                      {program.yearBreakdown[semester] || '-'}
-                    </Text>
-                  </Table.Td>
-                ))}
-                <Table.Td ta='center'>
-                  <Badge radius={'xs'} variant='default' w={50} size='sm'>
-                    {program.totalStudents}
-                  </Badge>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </ScrollArea>
-    </Paper>
-  );
+			<ScrollArea type={isMobile ? 'scroll' : 'auto'}>
+				<Table withTableBorder>
+					<Table.Thead>
+						<Table.Tr>
+							<Table.Th miw={isMobile ? 140 : 250}>Program</Table.Th>
+							{allSemesters.map((semester) => (
+								<Table.Th key={semester} ta="center" miw={70}>
+									{formatSemester(semester, 'mini')}
+								</Table.Th>
+							))}
+							<Table.Th ta="center" miw={70}>
+								Total
+							</Table.Th>
+						</Table.Tr>
+					</Table.Thead>
+					<Table.Tbody>
+						{school.programs.map((program, pIndex) => (
+							<Table.Tr key={pIndex}>
+								<Table.Td>
+									<Text size="sm">{program.programName}</Text>
+								</Table.Td>
+								{allSemesters.map((semester) => (
+									<Table.Td key={semester} ta="center">
+										<Text size="sm" c={program.yearBreakdown[semester] ? undefined : 'dimmed'}>
+											{program.yearBreakdown[semester] || '-'}
+										</Text>
+									</Table.Td>
+								))}
+								<Table.Td ta="center">
+									<Badge radius={'xs'} variant="default" w={50} size="sm">
+										{program.totalStudents}
+									</Badge>
+								</Table.Td>
+							</Table.Tr>
+						))}
+					</Table.Tbody>
+				</Table>
+			</ScrollArea>
+		</Paper>
+	);
 }

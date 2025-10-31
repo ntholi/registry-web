@@ -1,22 +1,19 @@
 'use server';
 
 import { auth } from '@/auth';
-import { DashboardUser } from '@/db/schema';
+import type { DashboardUser } from '@/db/schema';
+import type { ClearanceFilter } from './repository';
 import { getDepartmentClearanceStats } from './service';
-import { ClearanceFilter } from './repository';
 
-export async function fetchClearanceStats(
-  department: DashboardUser,
-  filter?: ClearanceFilter
-) {
-  const session = await auth();
-  if (!session?.user?.role) {
-    throw new Error('Unauthorized');
-  }
+export async function fetchClearanceStats(department: DashboardUser, filter?: ClearanceFilter) {
+	const session = await auth();
+	if (!session?.user?.role) {
+		throw new Error('Unauthorized');
+	}
 
-  if (!['finance', 'library', 'registry', 'academic'].includes(department)) {
-    throw new Error('Invalid department');
-  }
+	if (!['finance', 'library', 'registry', 'academic'].includes(department)) {
+		throw new Error('Invalid department');
+	}
 
-  return getDepartmentClearanceStats(department, filter);
+	return getDepartmentClearanceStats(department, filter);
 }
