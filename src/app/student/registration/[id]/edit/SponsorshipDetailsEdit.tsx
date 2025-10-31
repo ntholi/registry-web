@@ -1,7 +1,7 @@
 import { Alert, Card, LoadingOverlay, Select, Stack, Text, TextInput } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import useUserStudent from '@/hooks/use-user-student';
 import { findAllSponsors, getSponsoredStudent } from '@/server/sponsors/actions';
@@ -41,10 +41,13 @@ export default function SponsorshipDetailsEdit({
 
 	const sponsors = sponsorsData || [];
 
-	const isNMDS = (sponsorId: number) => {
-		if (!sponsors) return false;
-		return sponsors.find((s) => s.id === sponsorId)?.name === 'NMDS';
-	};
+	const isNMDS = useCallback(
+		(sponsorId: number) => {
+			if (!sponsors) return false;
+			return sponsors.find((s) => s.id === sponsorId)?.name === 'NMDS';
+		},
+		[sponsors]
+	);
 
 	useEffect(() => {
 		if (sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId)) {

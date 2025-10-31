@@ -3,8 +3,8 @@ import { Card, CardSection, Flex, Group, SimpleGrid, Skeleton, Stack } from '@ma
 export default function RegistrationHistorySkeleton() {
 	return (
 		<SimpleGrid cols={{ base: 1, sm: 2 }}>
-			{Array.from({ length: 4 }).map((_, index) => (
-				<Card withBorder key={index}>
+			{Array.from({ length: 4 }).map((_, _index) => (
+				<Card withBorder key={`registration-skeleton-${crypto.randomUUID()}`}>
 					<CardSection p='xs'>
 						<Flex gap='xs' align='center' justify='space-between'>
 							<Group>

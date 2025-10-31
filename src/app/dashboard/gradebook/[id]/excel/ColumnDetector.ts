@@ -2,8 +2,8 @@ import { ASSESSMENT_TYPES } from '../../../assessments/[id]/assessments';
 import type { AssessmentInfo, DetectedColumns, ExcelData } from './types';
 import { columnIndexToLetter, findColumnByHeader, fuzzyMatch, isValidStudentNumber } from './utils';
 
-export class ColumnDetector {
-	static detectColumns(excelData: ExcelData, assessments: AssessmentInfo[]): DetectedColumns {
+export const ColumnDetector = {
+	detectColumns(excelData: ExcelData, assessments: AssessmentInfo[]): DetectedColumns {
 		const studentNumberColumn = ColumnDetector.detectStudentNumberColumn(excelData);
 		const assessmentColumns = ColumnDetector.detectAssessmentColumns(excelData, assessments);
 
@@ -18,9 +18,9 @@ export class ColumnDetector {
 			assessmentColumns,
 			confidence,
 		};
-	}
+	},
 
-	private static detectStudentNumberColumn(excelData: ExcelData): string | null {
+	detectStudentNumberColumn(excelData: ExcelData): string | null {
 		const { headers, rows } = excelData;
 
 		const studentNumberKeywords = [
@@ -38,25 +38,22 @@ export class ColumnDetector {
 		for (const keyword of studentNumberKeywords) {
 			const colIndex = findColumnByHeader(headers, keyword);
 			if (colIndex !== null) {
-				if (ColumnDetector.validateStudentNumberColumn(rows, colIndex)) {
+				if (this.validateStudentNumberColumn(rows, colIndex)) {
 					return columnIndexToLetter(colIndex);
 				}
 			}
 		}
 
 		for (let colIndex = 0; colIndex < headers.length; colIndex++) {
-			if (ColumnDetector.validateStudentNumberColumn(rows, colIndex)) {
+			if (this.validateStudentNumberColumn(rows, colIndex)) {
 				return columnIndexToLetter(colIndex);
 			}
 		}
 
 		return null;
-	}
+	},
 
-	private static validateStudentNumberColumn(
-		rows: (string | number)[][],
-		columnIndex: number
-	): boolean {
+	validateStudentNumberColumn(rows: (string | number)[][], columnIndex: number): boolean {
 		let validCount = 0;
 		let totalCount = 0;
 
@@ -71,8 +68,8 @@ export class ColumnDetector {
 		}
 
 		return totalCount > 0 && validCount / totalCount > 0.7;
-	}
-	private static detectAssessmentColumns(
+	},
+	detectAssessmentColumns(
 		excelData: ExcelData,
 		assessments: AssessmentInfo[]
 	): Record<number, string> {
@@ -86,15 +83,15 @@ export class ColumnDetector {
 
 			if (!assessmentTypeLabel) continue;
 
-			const columnIndex = ColumnDetector.findAssessmentColumn(headers, rows, assessmentTypeLabel);
+			const columnIndex = this.findAssessmentColumn(headers, rows, assessmentTypeLabel);
 			if (columnIndex !== null) {
 				detectedColumns[assessment.id] = columnIndexToLetter(columnIndex);
 			}
 		}
 
 		return detectedColumns;
-	}
-	private static findAssessmentColumn(
+	},
+	findAssessmentColumn(
 		headers: string[],
 		rows: (string | number)[][],
 		assessmentTypeLabel: string
@@ -102,7 +99,7 @@ export class ColumnDetector {
 		let bestMatch: { index: number; score: number; rowIndex: number } | null = null;
 
 		const searchRows = Math.min(15, rows.length);
-		const searchVariations = ColumnDetector.createAssessmentVariations(assessmentTypeLabel);
+		const searchVariations = this.createAssessmentVariations(assessmentTypeLabel);
 
 		for (let rowIndex = 0; rowIndex < searchRows; rowIndex++) {
 			const row = rows[rowIndex];
@@ -125,17 +122,14 @@ export class ColumnDetector {
 			}
 		}
 
-		if (
-			bestMatch &&
-			ColumnDetector.isMarksColumn(headers, rows, bestMatch.index, bestMatch.rowIndex)
-		) {
+		if (bestMatch && this.isMarksColumn(headers, rows, bestMatch.index, bestMatch.rowIndex)) {
 			return bestMatch.index;
 		}
 
 		return null;
-	}
+	},
 
-	private static createAssessmentVariations(assessmentTypeLabel: string): string[] {
+	createAssessmentVariations(assessmentTypeLabel: string): string[] {
 		const variations = [assessmentTypeLabel];
 
 		const baseLabel = assessmentTypeLabel.toLowerCase();
@@ -190,8 +184,8 @@ export class ColumnDetector {
 		}
 
 		return variations;
-	}
-	private static isMarksColumn(
+	},
+	isMarksColumn(
 		headers: string[],
 		rows: (string | number)[][],
 		columnIndex: number,
@@ -239,9 +233,9 @@ export class ColumnDetector {
 		}
 
 		return true;
-	}
+	},
 
-	private static calculateConfidence(
+	calculateConfidence(
 		studentNumberColumn: string | null,
 		assessmentColumns: Record<number, string>,
 		assessments: AssessmentInfo[]
@@ -260,5 +254,5 @@ export class ColumnDetector {
 		}
 
 		return Math.min(score, 1);
-	}
-}
+	},
+};

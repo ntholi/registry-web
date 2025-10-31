@@ -1,8 +1,8 @@
 import * as XLSX from 'xlsx';
 import type { ExcelData, ExcelWorkbook } from './types';
 
-export class ExcelParser {
-	static parseFile(file: File): Promise<ExcelWorkbook> {
+export const ExcelParser = {
+	parseFile(file: File): Promise<ExcelWorkbook> {
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
 
@@ -15,7 +15,7 @@ export class ExcelParser {
 
 					for (const sheetName of workbook.SheetNames) {
 						const worksheet = workbook.Sheets[sheetName];
-						sheets[sheetName] = ExcelParser.parseWorksheet(worksheet);
+						sheets[sheetName] = this.parseWorksheet(worksheet);
 					}
 
 					resolve({
@@ -33,9 +33,9 @@ export class ExcelParser {
 
 			reader.readAsArrayBuffer(file);
 		});
-	}
+	},
 
-	static parseWorksheet(worksheet: XLSX.WorkSheet): ExcelData {
+	parseWorksheet(worksheet: XLSX.WorkSheet): ExcelData {
 		const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
 
 		const headers: string[] = [];
@@ -63,9 +63,9 @@ export class ExcelParser {
 		}
 
 		return { headers, rows };
-	}
+	},
 
-	static parseFileForSheet(file: File, sheetName: string): Promise<ExcelData> {
+	parseFileForSheet(file: File, sheetName: string): Promise<ExcelData> {
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
 
@@ -79,7 +79,7 @@ export class ExcelParser {
 						return;
 					}
 					const worksheet = workbook.Sheets[sheetName];
-					const excelData = ExcelParser.parseWorksheet(worksheet);
+					const excelData = this.parseWorksheet(worksheet);
 
 					resolve({
 						...excelData,
@@ -97,9 +97,9 @@ export class ExcelParser {
 
 			reader.readAsArrayBuffer(file);
 		});
-	}
+	},
 
-	static validateFile(file: File): string | null {
+	validateFile(file: File): string | null {
 		const validExtensions = ['.xlsx', '.xls'];
 		const fileName = file.name.toLowerCase();
 
@@ -107,10 +107,10 @@ export class ExcelParser {
 			return 'Please select a valid Excel file (.xlsx or .xls)';
 		}
 
-		if (file.size > 10 * 1024 * 1024) {
-			return 'File size must be less than 10MB';
+		if (file.size > 5 * 1024 * 1024) {
+			return 'File size must be less than 5MB';
 		}
 
 		return null;
-	}
-}
+	},
+};

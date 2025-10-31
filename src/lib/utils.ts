@@ -54,14 +54,12 @@ export function toTitleCase(str: string | undefined | null) {
  * @param values - The object to sanitize
  * @returns The sanitized object
  */
-export function sanitize<T extends {}>(values: T | undefined) {
+export function sanitize<T extends Record<string, unknown>>(values: T | undefined) {
 	if (!values) return undefined;
 
 	return Object.entries(values).reduce((acc, [key, value]) => {
-		return {
-			...acc,
-			[key]: value === null ? undefined : value,
-		};
+		(acc as Record<string, unknown>)[key] = value === null ? undefined : value;
+		return acc;
 	}, {} as T);
 }
 

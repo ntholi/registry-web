@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Center, FileButton, Group, Modal, Stack, Text } from '@mantine/core';
+import { Button, Center, FileButton, Group, Image, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useCallback, useRef, useState } from 'react';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
@@ -219,7 +219,7 @@ export default function PhotoInputModal({
 									minWidth={50}
 									minHeight={50}
 								>
-									<img
+									<Image
 										ref={imgRef}
 										alt='Crop preview'
 										src={imageSrc}
