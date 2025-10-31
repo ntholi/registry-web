@@ -2,7 +2,7 @@
 
 import { Alert, Checkbox, Paper, Select, Table, Text, Title } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { type StudentModuleStatus, studentModuleStatusEnum } from '@/db/schema';
+import { type StudentModuleStatus, studentModuleStatus } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
 
 type ModuleWithStatus = {
@@ -88,7 +88,7 @@ export default function ModulesTable({
 										<Select
 											size='xs'
 											variant='filled'
-											data={studentModuleStatusEnum.enumValues}
+											data={studentModuleStatus.enumValues}
 											value={module.status}
 											onChange={(value) => {
 												if (value && onStatusChange) {

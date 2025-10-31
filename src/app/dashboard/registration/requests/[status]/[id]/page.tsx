@@ -11,7 +11,7 @@ import {
 import { IconCheck, IconClock, IconExclamationCircle } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
-import type { DashboardUser, registrationRequestStatusEnum } from '@/db/schema';
+import type { DashboardUser, registrationRequestStatus } from '@/db/schema';
 import {
 	deleteRegistrationRequest,
 	getRegistrationRequest,
@@ -42,7 +42,7 @@ function getOverallClearanceStatus(
 	return 'approved';
 }
 
-function getStatusColor(status: (typeof registrationRequestStatusEnum.enumValues)[number]) {
+function getStatusColor(status: (typeof registrationRequestStatus.enumValues)[number]) {
 	switch (status) {
 		case 'approved':
 			return 'green';
@@ -53,7 +53,7 @@ function getStatusColor(status: (typeof registrationRequestStatusEnum.enumValues
 	}
 }
 
-function getStatusIcon(status: (typeof registrationRequestStatusEnum.enumValues)[number]) {
+function getStatusIcon(status: (typeof registrationRequestStatus.enumValues)[number]) {
 	switch (status) {
 		case 'approved':
 			return <IconCheck size={16} />;

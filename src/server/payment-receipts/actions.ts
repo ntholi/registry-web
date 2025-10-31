@@ -1,12 +1,12 @@
 'use server';
 
-import type { paymentReceipts, paymentTypeEnum } from '@/db/schema';
+import type { paymentReceipts, paymentType } from '@/db/schema';
 import { paymentReceiptService as service } from './service';
 
 type PaymentReceipt = typeof paymentReceipts.$inferInsert;
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentTypeEnum.enumValues)[number];
+	paymentType: (typeof paymentType.enumValues)[number];
 	receiptNo: string;
 };
 

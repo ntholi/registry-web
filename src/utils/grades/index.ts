@@ -1,9 +1,9 @@
-import type { Grade, gradeEnum } from '@/db/schema';
+import type { Grade, grade } from '@/db/schema';
 import { getVisibleModulesForStructure } from '@/server/semester-modules/actions';
 import type { FacultyRemarksResult, GradePoint, Program, StudentModule } from './type';
 
 export type GradeDefinition = {
-	grade: (typeof gradeEnum.enumValues)[number];
+	grade: (typeof grade.enumValues)[number];
 	points: number | null;
 	description: string;
 	marksRange?: {

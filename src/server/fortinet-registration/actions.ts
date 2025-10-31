@@ -1,9 +1,9 @@
 'use server';
 
-import type { fortinetLevelEnum } from '@/db/schema';
+import type { fortinetLevel } from '@/db/schema';
 import { fortinetRegistrationService } from './service';
 
-type FortinetLevel = (typeof fortinetLevelEnum.enumValues)[number];
+type FortinetLevel = (typeof fortinetLevel.enumValues)[number];
 
 export async function getFortinetRegistrationById(id: number) {
 	return fortinetRegistrationService.getById(id);

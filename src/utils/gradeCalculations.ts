@@ -1,9 +1,9 @@
-import type { gradeEnum } from '@/db/schema';
+import type { grade } from '@/db/schema';
 import { getLetterGrade } from './grades';
 
 export type GradeCalculation = {
 	weightedTotal: number;
-	grade: (typeof gradeEnum.enumValues)[number];
+	grade: (typeof grade.enumValues)[number];
 	hasMarks: boolean;
 	hasPassed: boolean;
 };

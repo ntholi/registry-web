@@ -5,7 +5,7 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { clearanceRequestStatusEnum, type dashboardUsers } from '@/db/schema';
+import { clearanceRequestStatus, type dashboardUsers } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import { type getClearance, updateClearance } from '@/server/registration/clearance/actions';
 
@@ -15,7 +15,7 @@ type Props = {
 	comment?: string;
 };
 
-type Status = Exclude<(typeof clearanceRequestStatusEnum.enumValues)[number], 'registered'>;
+type Status = Exclude<(typeof clearanceRequestStatus.enumValues)[number], 'registered'>;
 
 export default function ClearanceSwitch({ request, comment, setAccordion }: Props) {
 	const { data: session } = useSession();
@@ -81,7 +81,7 @@ export default function ClearanceSwitch({ request, comment, setAccordion }: Prop
 							setAccordion('comments');
 						} else setAccordion('modules');
 					}}
-					data={clearanceRequestStatusEnum.enumValues.map((status) => ({
+					data={clearanceRequestStatus.enumValues.map((status) => ({
 						label: toTitleCase(status),
 						value: status,
 					}))}

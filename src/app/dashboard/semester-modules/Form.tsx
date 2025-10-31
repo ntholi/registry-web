@@ -8,7 +8,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
 import { Form } from '@/components/adease';
-import { moduleTypeEnum, semesterModules } from '@/db/schema';
+import { moduleType, semesterModules } from '@/db/schema';
 import { findAllModules } from '@/server/semester-modules/actions';
 
 type Module = typeof semesterModules.$inferInsert;
@@ -63,7 +63,7 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
 					<NumberInput label='Module Id' {...form.getInputProps('moduleId')} />
 					<Select
 						label='Type'
-						data={moduleTypeEnum.enumValues.map((type) => ({ value: type, label: type }))}
+						data={moduleType.enumValues.map((type) => ({ value: type, label: type }))}
 						{...form.getInputProps('type')}
 					/>
 					<NumberInput label='Credits' {...form.getInputProps('credits')} />

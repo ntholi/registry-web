@@ -3,7 +3,7 @@
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconCheck, IconClock, IconExclamationCircle } from '@tabler/icons-react';
 import Link from '@/components/Link';
-import type { DashboardUser, registrationRequestStatusEnum } from '@/db/schema';
+import type { DashboardUser, registrationRequestStatus } from '@/db/schema';
 import { formatDateTime, toTitleCase } from '@/lib/utils';
 import type { getRegistrationRequest } from '@/server/registration/requests/actions';
 
@@ -12,7 +12,7 @@ interface Props {
 	defaultDept?: DashboardUser;
 }
 
-type Status = (typeof registrationRequestStatusEnum.enumValues)[number];
+type Status = (typeof registrationRequestStatus.enumValues)[number];
 
 const departments: DashboardUser[] = ['finance', 'library'];
 

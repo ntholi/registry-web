@@ -1,4 +1,4 @@
-import type { graduationRequests, paymentTypeEnum } from '@/db/schema';
+import type { graduationRequests, paymentType } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
 import type { QueryOptions } from '../../base/BaseRepository';
 import { serviceWrapper } from '../../base/serviceWrapper';
@@ -7,7 +7,7 @@ import GraduationRequestRepository from './repository';
 type GraduationRequest = typeof graduationRequests.$inferInsert;
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentTypeEnum.enumValues)[number];
+	paymentType: (typeof paymentType.enumValues)[number];
 	receiptNo: string;
 };
 

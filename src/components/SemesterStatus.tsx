@@ -1,7 +1,7 @@
 import { Badge } from '@mantine/core';
-import type { semesterStatusEnum } from '@/db/schema';
+import type { semesterStatus } from '@/db/schema';
 
-type SemesterStatus = (typeof semesterStatusEnum.enumValues)[number];
+type SemesterStatus = (typeof semesterStatus.enumValues)[number];
 
 type Props = {
 	status: SemesterStatus;

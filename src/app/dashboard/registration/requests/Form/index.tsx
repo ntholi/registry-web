@@ -10,7 +10,7 @@ import {
 	type modules,
 	type StudentModuleStatus,
 	type semesterModules,
-	studentModuleStatusEnum,
+	studentModuleStatus,
 } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import { formatSemester } from '@/lib/utils';
@@ -407,7 +407,7 @@ export default function RegistrationRequestForm({
 														onChange={(value) =>
 															handleChangeModuleStatus(semModule.id, value as StudentModuleStatus)
 														}
-														data={studentModuleStatusEnum.enumValues.map((status) => ({
+														data={studentModuleStatus.enumValues.map((status) => ({
 															value: status,
 															label: status,
 														}))}

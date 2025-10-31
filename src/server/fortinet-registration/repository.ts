@@ -1,9 +1,9 @@
 import { and, desc, eq, like, or, type SQL } from 'drizzle-orm';
 import { db } from '@/db';
-import { type fortinetLevelEnum, fortinetRegistrations, schools, students } from '@/db/schema';
+import { type fortinetLevel, fortinetRegistrations, schools, students } from '@/db/schema';
 import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
 
-type FortinetLevel = (typeof fortinetLevelEnum.enumValues)[number];
+type FortinetLevel = (typeof fortinetLevel.enumValues)[number];
 
 export default class FortinetRegistrationRepository extends BaseRepository<
 	typeof fortinetRegistrations,

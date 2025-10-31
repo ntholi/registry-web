@@ -18,10 +18,10 @@ import {
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconCurrencyDollar, IconPlus, IconReceipt, IconTrash } from '@tabler/icons-react';
-import { paymentTypeEnum } from '@/db/schema';
+import { paymentType } from '@/db/schema';
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentTypeEnum.enumValues)[number];
+	paymentType: (typeof paymentType.enumValues)[number];
 	receiptNo: string;
 };
 
@@ -54,7 +54,7 @@ export default function PaymentReceiptsInput({ paymentReceipts, onPaymentReceipt
 		},
 	});
 
-	const paymentTypeOptions = paymentTypeEnum.enumValues.map((type) => ({
+	const paymentTypeOptions = paymentType.enumValues.map((type) => ({
 		value: type,
 		label: type
 			.split('_')
@@ -66,7 +66,7 @@ export default function PaymentReceiptsInput({ paymentReceipts, onPaymentReceipt
 		onPaymentReceiptsChange([
 			...paymentReceipts,
 			{
-				paymentType: values.paymentType as (typeof paymentTypeEnum.enumValues)[number],
+				paymentType: values.paymentType as (typeof paymentType.enumValues)[number],
 				receiptNo: values.receiptNo,
 			},
 		]);

@@ -7,12 +7,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useEffect, useState } from 'react';
-import { type assessmentNumberEnum, assessments } from '@/db/schema';
+import { type assessmentNumber, assessments } from '@/db/schema';
 import { createAssessment, updateAssessment } from '@/server/assessments/actions';
 import type { getModule } from '@/server/modules/actions';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from './assessments';
 
-type AssessmentNumberType = (typeof assessmentNumberEnum.enumValues)[number];
+type AssessmentNumberType = (typeof assessmentNumber.enumValues)[number];
 type Assessment = NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][number];
 
 const schema = createInsertSchema(assessments);

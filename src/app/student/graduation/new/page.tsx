@@ -17,7 +17,7 @@ import { IconArrowLeft, IconArrowRight, IconInfoCircle } from '@tabler/icons-rea
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import type { paymentTypeEnum } from '@/db/schema';
+import type { paymentType } from '@/db/schema';
 import useUserStudent from '@/hooks/use-user-student';
 import {
 	createGraduationRequestWithPaymentReceipts,
@@ -30,7 +30,7 @@ import ProgramSelection from './ProgramSelection';
 import ReviewAndSubmit from './ReviewAndSubmit';
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentTypeEnum.enumValues)[number];
+	paymentType: (typeof paymentType.enumValues)[number];
 	receiptNo: string;
 };
 

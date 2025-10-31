@@ -5,10 +5,10 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { clearanceRequestStatusEnum, type dashboardUsers } from '@/db/schema';
+import { clearanceRequestStatus, type dashboardUsers } from '@/db/schema';
 import { updateGraduationClearance } from '@/server/graduation/clearance/actions';
 
-type Status = Exclude<(typeof clearanceRequestStatusEnum.enumValues)[number], 'registered'>;
+type Status = Exclude<(typeof clearanceRequestStatus.enumValues)[number], 'registered'>;
 
 type Props = {
 	request: {
@@ -77,7 +77,7 @@ export default function GraduationStatusSwitch({ request, comment }: Props) {
 				<SegmentedControl
 					value={status}
 					onChange={(it) => setStatus(it as Status)}
-					data={clearanceRequestStatusEnum.enumValues.map((s) => ({ label: s, value: s }))}
+					data={clearanceRequestStatus.enumValues.map((s) => ({ label: s, value: s }))}
 					fullWidth
 					disabled={isPending}
 				/>

@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/db';
-import { paymentReceipts, type paymentTypeEnum } from '@/db/schema';
+import { paymentReceipts, type paymentType } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
 import type { QueryOptions } from '../base/BaseRepository';
 import { serviceWrapper } from '../base/serviceWrapper';
@@ -10,7 +10,7 @@ import PaymentReceiptRepository from './repository';
 type PaymentReceipt = typeof paymentReceipts.$inferInsert;
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentTypeEnum.enumValues)[number];
+	paymentType: (typeof paymentType.enumValues)[number];
 	receiptNo: string;
 };
 

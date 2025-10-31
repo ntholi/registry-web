@@ -21,18 +21,18 @@ import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconCurrencyDollar, IconPlus, IconReceipt, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { paymentTypeEnum } from '@/db/schema';
+import { paymentType } from '@/db/schema';
 import { addPaymentReceipt, removePaymentReceipt } from '@/server/payment-receipts/actions';
 
 type PaymentReceipt = {
 	id: number;
-	paymentType: (typeof paymentTypeEnum.enumValues)[number];
+	paymentType: (typeof paymentType.enumValues)[number];
 	receiptNo: string;
 	createdAt: Date | null;
 };
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentTypeEnum.enumValues)[number];
+	paymentType: (typeof paymentType.enumValues)[number];
 	receiptNo: string;
 };
 
@@ -66,7 +66,7 @@ export default function PaymentReceiptsEditor({ graduationRequestId, paymentRece
 		},
 	});
 
-	const paymentTypeOptions = paymentTypeEnum.enumValues.map((type) => ({
+	const paymentTypeOptions = paymentType.enumValues.map((type) => ({
 		value: type,
 		label: type
 			.split('_')
@@ -133,7 +133,7 @@ export default function PaymentReceiptsEditor({ graduationRequestId, paymentRece
 		}
 
 		addReceipt({
-			paymentType: values.paymentType as (typeof paymentTypeEnum.enumValues)[number],
+			paymentType: values.paymentType as (typeof paymentType.enumValues)[number],
 			receiptNo: values.receiptNo,
 		});
 	};

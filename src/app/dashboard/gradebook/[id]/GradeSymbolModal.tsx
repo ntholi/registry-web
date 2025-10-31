@@ -21,7 +21,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { gradeEnum, moduleGrades } from '@/db/schema';
+import type { grade, moduleGrades } from '@/db/schema';
 import { upsertModuleGrade } from '@/server/module-grades/actions';
 import { getLetterGrade } from '@/utils/grades';
 
@@ -50,7 +50,7 @@ export default function GradeSymbolModal({
 	const queryClient = useQueryClient();
 	const gradeUpdateMutation = useMutation({
 		mutationFn: async (data: {
-			grade: (typeof gradeEnum.enumValues)[number];
+			grade: (typeof grade.enumValues)[number];
 			weightedTotal: number;
 		}) => {
 			return await upsertModuleGrade({
@@ -138,7 +138,7 @@ export default function GradeSymbolModal({
 			});
 		} else {
 			gradeUpdateMutation.mutate({
-				grade: selectedGrade as (typeof gradeEnum.enumValues)[number],
+				grade: selectedGrade as (typeof grade.enumValues)[number],
 				weightedTotal,
 			});
 		}

@@ -17,14 +17,14 @@ import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconShield } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { fortinetLevelEnum } from '@/db/schema';
+import { fortinetLevel } from '@/db/schema';
 import useUserStudent from '@/hooks/use-user-student';
 import {
 	createFortinetRegistration,
 	getCurrentStudentFortinetRegistrations,
 } from '@/server/fortinet-registration/actions';
 
-type FortinetLevel = (typeof fortinetLevelEnum.enumValues)[number];
+type FortinetLevel = (typeof fortinetLevel.enumValues)[number];
 
 const levelDescriptions: Record<FortinetLevel, string> = {
 	nse1: 'Information Security Awareness - Basic security concepts',
@@ -158,7 +158,7 @@ export default function FortinetRegistrationPage() {
 							onChange={(value) => setSelectedLevel(value as FortinetLevel)}
 						>
 							<Stack gap='xs'>
-								{fortinetLevelEnum.enumValues.map((level) => (
+								{fortinetLevel.enumValues.map((level) => (
 									<Radio.Card
 										key={level}
 										radius='md'

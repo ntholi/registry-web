@@ -1,4 +1,4 @@
-import type { fortinetLevelEnum, fortinetRegistrations } from '@/db/schema';
+import type { fortinetLevel, fortinetRegistrations } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import { getStudentByUserId } from '@/server/students/actions';
@@ -6,7 +6,7 @@ import type { QueryOptions } from '../base/BaseRepository';
 import FortinetRegistrationRepository from './repository';
 
 type FortinetRegistration = typeof fortinetRegistrations.$inferInsert;
-type FortinetLevel = (typeof fortinetLevelEnum.enumValues)[number];
+type FortinetLevel = (typeof fortinetLevel.enumValues)[number];
 
 class FortinetRegistrationService {
 	constructor(private readonly repository = new FortinetRegistrationRepository()) {}
