@@ -507,8 +507,8 @@ function ModuleTable({
 											</Text>
 										</HoverCard.Target>
 										<HoverCard.Dropdown>
-											{module.prerequisites.map((p, idx) => (
-												<Text key={idx} size='sm'>
+											{module.prerequisites.map((p) => (
+												<Text key={p.code} size='sm'>
 													{p.name} ({p.code})
 												</Text>
 											))}

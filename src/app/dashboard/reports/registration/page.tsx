@@ -244,13 +244,13 @@ export default function RegistrationReportPage() {
 								</Card>
 
 								{isLoading ? (
-									Array.from({ length: 3 }).map((_, i) => (
-										<ProgramBreakdownTable key={`skeleton-${i}`} loading />
+									Array.from({ length: 3 }, (_, i) => `skeleton-${i}`).map((key) => (
+										<ProgramBreakdownTable key={key} loading />
 									))
 								) : reportData?.summaryData?.schools &&
 									reportData.summaryData.schools.length > 0 ? (
-									reportData.summaryData.schools.map((school, index) => (
-										<ProgramBreakdownTable key={index} school={school} />
+									reportData.summaryData.schools.map((school) => (
+										<ProgramBreakdownTable key={school.schoolName} school={school} />
 									))
 								) : (
 									<Alert color='blue' variant='light'>

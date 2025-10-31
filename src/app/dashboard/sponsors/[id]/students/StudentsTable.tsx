@@ -50,30 +50,28 @@ export default function StudentsTable({ sponsorId }: Props) {
 		if (isLoading) {
 			return (
 				<Table.Tbody>
-					{Array(5)
-						.fill(0)
-						.map((_, index) => (
-							<Table.Tr key={`skeleton-row-${index}`}>
-								<Table.Td>
-									<Skeleton height={20} width={100} />
-								</Table.Td>
-								<Table.Td>
-									<Skeleton height={20} width={150} />
-								</Table.Td>
-								<Table.Td>
-									<Skeleton height={20} width={200} />
-								</Table.Td>
-								<Table.Td>
-									<Skeleton height={20} width={120} />
-								</Table.Td>
-								<Table.Td>
-									<Skeleton height={20} width={120} />
-								</Table.Td>
-								<Table.Td>
-									<Skeleton height={20} width={120} />
-								</Table.Td>
-							</Table.Tr>
-						))}
+					{Array.from({ length: 5 }, (_, index) => `skeleton-row-${index}`).map((key) => (
+						<Table.Tr key={key}>
+							<Table.Td>
+								<Skeleton height={20} width={100} />
+							</Table.Td>
+							<Table.Td>
+								<Skeleton height={20} width={150} />
+							</Table.Td>
+							<Table.Td>
+								<Skeleton height={20} width={200} />
+							</Table.Td>
+							<Table.Td>
+								<Skeleton height={20} width={120} />
+							</Table.Td>
+							<Table.Td>
+								<Skeleton height={20} width={120} />
+							</Table.Td>
+							<Table.Td>
+								<Skeleton height={20} width={120} />
+							</Table.Td>
+						</Table.Tr>
+					))}
 				</Table.Tbody>
 			);
 		}

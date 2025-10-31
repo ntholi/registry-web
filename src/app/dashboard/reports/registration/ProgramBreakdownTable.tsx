@@ -53,8 +53,8 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 								<Table.Th miw={isMobile ? 140 : 250}>
 									<Skeleton height={18} width={isMobile ? 100 : 160} />
 								</Table.Th>
-								{Array.from({ length: cols }).map((_, i) => (
-									<Table.Th key={i} ta='center' miw={70}>
+								{Array.from({ length: cols }, (_, i) => `skeleton-header-col-${i}`).map((key) => (
+									<Table.Th key={key} ta='center' miw={70}>
 										<Skeleton height={16} width={40} />
 									</Table.Th>
 								))}
@@ -65,13 +65,13 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 						</Table.Thead>
 
 						<Table.Tbody>
-							{Array.from({ length: rows }).map((_, r) => (
-								<Table.Tr key={r}>
+							{Array.from({ length: rows }, (_, r) => `skeleton-row-${r}`).map((rowKey) => (
+								<Table.Tr key={rowKey}>
 									<Table.Td>
 										<Skeleton height={16} width={isMobile ? 120 : 220} />
 									</Table.Td>
-									{Array.from({ length: cols }).map((__, c) => (
-										<Table.Td key={c} ta='center'>
+									{Array.from({ length: cols }, (_, c) => `${rowKey}-col-${c}`).map((cellKey) => (
+										<Table.Td key={cellKey} ta='center'>
 											<Skeleton height={14} width={32} />
 										</Table.Td>
 									))}
@@ -117,8 +117,8 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 						</Table.Tr>
 					</Table.Thead>
 					<Table.Tbody>
-						{school.programs.map((program, pIndex) => (
-							<Table.Tr key={pIndex}>
+						{school.programs.map((program) => (
+							<Table.Tr key={program.programName}>
 								<Table.Td>
 									<Text size='sm'>{program.programName}</Text>
 								</Table.Td>

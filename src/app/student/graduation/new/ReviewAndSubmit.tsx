@@ -158,8 +158,8 @@ export default function ReviewAndSubmit({
 					</Group>
 
 					<Stack gap='md'>
-						{paymentReceipts.map((receipt, index) => (
-							<Paper key={index} p='sm' withBorder>
+						{paymentReceipts.map((receipt) => (
+							<Paper key={`${receipt.paymentType}-${receipt.receiptNo}`} p='sm' withBorder>
 								<Group justify='space-between' align='center'>
 									<Box>
 										<Text fw={500} size='sm'>

@@ -40,7 +40,7 @@ for (const item of gradeClassifications) {
 	if (!last || last.description !== item.description) {
 		descriptionGroups.push({
 			description: item.description,
-			items: [item] as any,
+			items: [item],
 		});
 	} else {
 		last.items.push(item);
@@ -72,7 +72,7 @@ export default function GradeClassificationPage() {
 
 				{descriptionGroups.map((group, gIndex) => (
 					<View
-						key={gIndex}
+						key={group.description}
 						style={tw(
 							`flex flex-row ${gIndex < descriptionGroups.length - 1 ? 'border-b border-black' : ''}`
 						)}
@@ -80,7 +80,7 @@ export default function GradeClassificationPage() {
 						<View style={tw('w-[60%]')}>
 							{group.items.map((item, idx) => (
 								<View
-									key={idx}
+									key={`${item.marks}-${item.grade}`}
 									style={tw(
 										`${idx < group.items.length - 1 ? 'border-b border-black' : ''} flex flex-row`
 									)}

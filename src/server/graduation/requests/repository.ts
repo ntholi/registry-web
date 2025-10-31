@@ -1,4 +1,5 @@
 import { and, eq, sql } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm/sql';
 import { db } from '@/db';
 import {
 	clearance,
@@ -458,7 +459,7 @@ export default class GraduationRequestRepository extends BaseRepository<
 	) {
 		const { offset, limit } = this.buildQueryCriteria(params);
 
-		let whereCondition;
+		let whereCondition: SQL | undefined;
 		const searchCondition = params.search
 			? sql`EXISTS (
           SELECT 1 FROM student_programs sp 

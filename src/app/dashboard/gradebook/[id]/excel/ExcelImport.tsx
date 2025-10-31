@@ -267,8 +267,8 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 												Import Errors:
 											</Text>
 											<Stack gap={4}>
-												{importResult.errors.slice(0, 5).map((error, index) => (
-													<Text key={index} size='sm'>
+												{importResult.errors.slice(0, 5).map((error) => (
+													<Text key={error} size='sm'>
 														• {error}
 													</Text>
 												))}

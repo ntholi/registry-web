@@ -160,13 +160,11 @@ export default function StudentTable({ moduleId }: Props) {
 					Name
 				</Th>
 				{assessmentsLoading
-					? Array(2)
-							.fill(0)
-							.map((_, idx) => (
-								<Table.Th key={`skeleton-header-${idx}`}>
-									<Skeleton height={16} width={80} mx='auto' />
-								</Table.Th>
-							))
+					? Array.from({ length: 2 }, (_, idx) => `skeleton-header-${idx}`).map((key) => (
+							<Table.Th key={key}>
+								<Skeleton height={16} width={80} mx='auto' />
+							</Table.Th>
+						))
 					: assessments?.map((assessment) => (
 							<Table.Th key={assessment.id} style={{ minWidth: '100px', textAlign: 'center' }}>
 								<Group gap={5} justify='center'>
@@ -201,41 +199,37 @@ export default function StudentTable({ moduleId }: Props) {
 
 	function renderTableRows() {
 		if (studentsLoading && !sortedStudents.length) {
-			return Array(5)
-				.fill(0)
-				.map((_, index) => (
-					<Table.Tr key={`skeleton-row-${index}`}>
-						<Table.Td>
-							<Skeleton height={20} width={100} />
-						</Table.Td>
-						<Table.Td>
-							<Skeleton height={20} width={150} />
-						</Table.Td>
-						{assessmentsLoading || !assessments
-							? Array(2)
-									.fill(0)
-									.map((_, idx) => (
-										<Table.Td key={`skeleton-cell-loading-${index}-${idx}`}>
-											<Skeleton height={24} width={80} mx='auto' />
-										</Table.Td>
-									))
-							: assessments.map((assessment, idx) => (
-									<Table.Td key={`skeleton-cell-${index}-${assessment.id || idx}`}>
-										<Skeleton height={24} width={80} mx='auto' />
-									</Table.Td>
-								))}
-						{(assessmentsLoading || (assessments && assessments.length > 0)) && (
-							<React.Fragment>
-								<Table.Td>
+			return Array.from({ length: 5 }, (_, index) => `skeleton-row-${index}`).map((rowKey) => (
+				<Table.Tr key={rowKey}>
+					<Table.Td>
+						<Skeleton height={20} width={100} />
+					</Table.Td>
+					<Table.Td>
+						<Skeleton height={20} width={150} />
+					</Table.Td>
+					{assessmentsLoading || !assessments
+						? Array.from({ length: 2 }, (_, idx) => `${rowKey}-cell-${idx}`).map((cellKey) => (
+								<Table.Td key={cellKey}>
 									<Skeleton height={24} width={80} mx='auto' />
 								</Table.Td>
-								<Table.Td>
+							))
+						: assessments.map((assessment) => (
+								<Table.Td key={`${rowKey}-assessment-${assessment.id}`}>
 									<Skeleton height={24} width={80} mx='auto' />
 								</Table.Td>
-							</React.Fragment>
-						)}
-					</Table.Tr>
-				));
+							))}
+					{(assessmentsLoading || (assessments && assessments.length > 0)) && (
+						<React.Fragment>
+							<Table.Td>
+								<Skeleton height={24} width={80} mx='auto' />
+							</Table.Td>
+							<Table.Td>
+								<Skeleton height={24} width={80} mx='auto' />
+							</Table.Td>
+						</React.Fragment>
+					)}
+				</Table.Tr>
+			));
 		}
 
 		if (!sortedStudents || sortedStudents.length === 0) {

@@ -3,17 +3,6 @@
 import { Badge, Card, Group, Loader, Select, Stack, Text, Title } from '@mantine/core';
 import { formatSemester } from '@/lib/utils';
 
-type ModuleWithStatus = {
-	semesterModuleId: number;
-	code: string;
-	name: string;
-	type: string;
-	credits: number;
-	status: 'Compulsory' | 'Elective' | `Repeat${number}`;
-	semesterNo: number;
-	prerequisites?: Array<{ id: number; code: string; name: string }>;
-};
-
 type SemesterData = {
 	semesterNo: number;
 	status: 'Active' | 'Repeat';

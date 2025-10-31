@@ -137,8 +137,8 @@ export default function PaymentReceiptsInput({ paymentReceipts, onPaymentReceipt
 					</Text>
 
 					<Stack gap='md'>
-						{paymentReceipts.map((receipt, index) => (
-							<Paper key={index} withBorder p='md'>
+						{paymentReceipts.map((receipt) => (
+							<Paper key={`${receipt.paymentType}-${receipt.receiptNo}`} withBorder p='md'>
 								{isMobile ? (
 									<Stack gap='sm'>
 										<Group justify='space-between' align='center'>

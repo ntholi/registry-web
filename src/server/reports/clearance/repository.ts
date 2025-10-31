@@ -1,4 +1,5 @@
 import { and, between, count, eq, isNotNull, sql } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm/sql';
 import { db } from '@/db';
 import { clearance, type DashboardUser } from '@/db/schema';
 
@@ -26,7 +27,7 @@ export async function getClearanceStatsByDepartment(
 	department: DashboardUser,
 	filter?: ClearanceFilter
 ) {
-	let dateCondition;
+	let dateCondition: SQL | undefined;
 	const type = filter?.type || 'all';
 
 	const start = normalizeDate(filter?.startDate);
@@ -43,7 +44,7 @@ export async function getClearanceStatsByDepartment(
 	}
 
 	// Add clearance type filter
-	let typeCondition;
+	let typeCondition: SQL | undefined;
 	if (type === 'registration') {
 		typeCondition = sql`EXISTS (SELECT 1 FROM registration_clearance rc WHERE rc.clearance_id = clearance.id)`;
 	} else if (type === 'graduation') {

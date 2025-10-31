@@ -19,13 +19,13 @@ import { Document, pdf } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { getAcademicHistory } from '@/server/students/actions';
-import { TranscriptPages } from '../../students/[id]/graduation/transcript/TranscriptPDF';
 import {
 	getDistinctGraduationDates,
 	getProgramsByGraduationDate,
 	getStudentsByGraduationDate,
 } from '@/server/bulk/transcripts/actions';
+import type { getAcademicHistory } from '@/server/students/actions';
+import { TranscriptPages } from '../../students/[id]/graduation/transcript/TranscriptPDF';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 

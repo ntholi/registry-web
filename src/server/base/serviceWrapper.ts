@@ -1,6 +1,6 @@
-// biome-ignore lint/suspicious/noExplicitAny: service wrapper needs flexible typing
 import { createServiceLogger } from './logger';
 
+// biome-ignore lint/suspicious/noExplicitAny: transaction type from drizzle
 type Constructor<T> = new (...args: any[]) => T;
 
 export function serviceWrapper<T extends object>(Service: Constructor<T>, resourceName: string): T {
@@ -11,6 +11,7 @@ export function serviceWrapper<T extends object>(Service: Constructor<T>, resour
 			const originalMethod = Reflect.get(target, prop, receiver);
 
 			if (typeof originalMethod === 'function') {
+				// biome-ignore lint/suspicious/noExplicitAny: transaction type from drizzle
 				return async function (...args: any[]) {
 					const startTime = Date.now();
 					const methodName = String(prop);

@@ -201,8 +201,8 @@ function PrerequisiteDisplay({
 
 	return (
 		<Stack gap={2}>
-			{prerequisites.map((prereq, index) => (
-				<Text key={index} size='xs' c='dimmed'>
+			{prerequisites.map((prereq) => (
+				<Text key={prereq.prerequisite.module?.code || prereq.prerequisite.id} size='xs' c='dimmed'>
 					{prereq.prerequisite.module?.code} - {prereq.prerequisite.module?.name}
 				</Text>
 			))}
@@ -227,16 +227,19 @@ function Loader() {
 			</Paper>
 
 			<Stack gap='lg'>
-				{Array.from({ length: 3 }).map((_, semIndex) => (
-					<Paper key={semIndex} shadow='sm' p='md' withBorder>
+				{Array.from({ length: 3 }, (_, semIndex) => `skeleton-sem-${semIndex}`).map((semKey) => (
+					<Paper key={semKey} shadow='sm' p='md' withBorder>
 						<Stack gap='md'>
 							<Group justify='space-between' align='center'>
 								<Skeleton height={20} width={120} radius='sm' />
 								<Skeleton height={16} width={80} radius='sm' />
 							</Group>
 							<Stack gap='xs'>
-								{Array.from({ length: 4 }).map((_, moduleIndex) => (
-									<Group key={moduleIndex} justify='space-between' p='xs'>
+								{Array.from(
+									{ length: 4 },
+									(_, moduleIndex) => `${semKey}-module-${moduleIndex}`
+								).map((moduleKey) => (
+									<Group key={moduleKey} justify='space-between' p='xs'>
 										<Group gap='md' style={{ flex: 1 }}>
 											<Skeleton height={16} width={80} radius='sm' />
 											<Skeleton height={16} width={200} radius='sm' />

@@ -88,8 +88,11 @@ export default function ModuleLecturers({ moduleId }: Props) {
 					<Group>
 						{lecturer.assignments && lecturer.assignments.length > 0 && (
 							<Group gap='xs'>
-								{lecturer.assignments.map((assignment, index) => (
-									<Badge key={index} variant='default'>
+								{lecturer.assignments.map((assignment) => (
+									<Badge
+										key={`${assignment.programCode}-${assignment.semesterName}`}
+										variant='default'
+									>
 										{toClassName(assignment.programCode, assignment.semesterName)}
 									</Badge>
 								))}

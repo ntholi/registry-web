@@ -16,7 +16,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { terms as termsTable } from '@/db/schema';
 import { getAllSchools, getProgramsBySchoolId } from '@/server/schools/actions';
 import { getAllTerms } from '@/server/terms/actions';
@@ -83,18 +83,21 @@ export default function StudentsFilter() {
 		}
 	}, [filters.schoolId, schoolId]);
 
-	const addSemesterDescription = (
-		desc: string,
-		selectedSemester: string | null,
-		selectedTerm: typeof termsTable.$inferSelect | undefined
-	) => {
-		if (selectedSemester && selectedTerm) {
-			return `${desc} in ${selectedSemester}`;
-		} else if (selectedSemester) {
-			return `${desc} having ${selectedSemester}`;
-		}
-		return desc;
-	};
+	const addSemesterDescription = useCallback(
+		(
+			desc: string,
+			selectedSemester: string | null,
+			selectedTerm: typeof termsTable.$inferSelect | undefined
+		) => {
+			if (selectedSemester && selectedTerm) {
+				return `${desc} in ${selectedSemester}`;
+			} else if (selectedSemester) {
+				return `${desc} having ${selectedSemester}`;
+			}
+			return desc;
+		},
+		[]
+	);
 
 	const previewDescription = useMemo(() => {
 		const selectedSchool = schools.find((s) => s.id?.toString() === (filters.schoolId || ''));

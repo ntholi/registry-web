@@ -217,7 +217,11 @@ export default function ProofOfClearancePDF({ graduationData }: ProofOfClearance
 		);
 	}
 
-	const { studentProgram, graduationClearances, paymentReceipts = [] } = graduationData;
+	const {
+		studentProgram,
+		graduationClearances: _graduationClearances,
+		paymentReceipts = [],
+	} = graduationData;
 	const student = studentProgram.student;
 	const program = studentProgram.structure.program;
 	const school = program.school;

@@ -90,8 +90,13 @@ export default function StructureDetailsPage() {
 			title: structure.program?.name || 'Program',
 			href: `/dashboard/schools/structures?schoolId=${structure.program?.school?.id}`,
 		},
-	].map((item, index) => (
-		<Link key={index} href={item.href} size='sm' c={index === 2 ? 'gray' : 'dimmed'}>
+	].map((item) => (
+		<Link
+			key={item.href}
+			href={item.href}
+			size='sm'
+			c={item.title === structure.program?.name ? 'gray' : 'dimmed'}
+		>
 			{item.title}
 		</Link>
 	));

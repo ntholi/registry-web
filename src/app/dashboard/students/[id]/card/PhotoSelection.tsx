@@ -27,7 +27,7 @@ type PhotoSelectionProps = {
 };
 
 export default function PhotoSelection({
-	selectedPhoto,
+	selectedPhoto: _selectedPhoto,
 	photoPreview,
 	onPhotoChange,
 	studentNumber,
@@ -200,7 +200,9 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 		setError(null);
 
 		if (stream) {
-			stream.getTracks().forEach((track) => track.stop());
+			for (const track of stream.getTracks()) {
+				track.stop();
+			}
 			setStream(null);
 		}
 
@@ -235,7 +237,9 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 
 	const stopCamera = useCallback(() => {
 		if (stream) {
-			stream.getTracks().forEach((track) => track.stop());
+			for (const track of stream.getTracks()) {
+				track.stop();
+			}
 			setStream(null);
 		}
 	}, [stream]);

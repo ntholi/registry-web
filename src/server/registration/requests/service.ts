@@ -14,17 +14,6 @@ import RegistrationRequestRepository from './repository';
 type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
 
-type ModuleWithStatus = {
-	semesterModuleId: number;
-	code: string;
-	name: string;
-	type: string;
-	credits: number;
-	status: 'Compulsory' | 'Elective' | `Repeat${number}`;
-	semesterNo: number;
-	prerequisites?: Array<{ id: number; code: string; name: string }>;
-};
-
 class RegistrationRequestService {
 	constructor(private readonly repository = new RegistrationRequestRepository()) {}
 

@@ -239,8 +239,8 @@ function BlockedModuleTable({ moduleCount, showMarks }: BlockedModuleTableProps)
 				</Table.Tr>
 			</Table.Thead>
 			<Table.Tbody>
-				{placeholderModules.map((module, idx) => (
-					<Table.Tr key={idx}>
+				{placeholderModules.map((module) => (
+					<Table.Tr key={module.code}>
 						<Table.Td>
 							<Text size='sm'>{module.code}</Text>
 						</Table.Td>

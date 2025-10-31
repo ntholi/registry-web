@@ -18,8 +18,8 @@ function SchoolsListSkeleton() {
 					Schools
 				</Title>
 				<Stack gap='xs'>
-					{Array.from({ length: 3 }).map((_, index) => (
-						<Group key={index}>
+					{Array.from({ length: 3 }, (_, index) => `skeleton-school-${index}`).map((key) => (
+						<Group key={key}>
 							<Skeleton height={24} width={60} radius='sm' />
 							<Skeleton height={20} width={200} />
 						</Group>

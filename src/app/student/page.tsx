@@ -6,7 +6,7 @@ import ActionButtons from './home/ActionButtons';
 import Hero from './home/Hero';
 
 export default function Page() {
-	const { program, semester, isLoading } = useUserStudent();
+	const { program: _program, semester: _semester, isLoading } = useUserStudent();
 
 	if (isLoading) {
 		return (

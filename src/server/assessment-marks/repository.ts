@@ -334,7 +334,9 @@ export default class AssessmentMarkRepository extends BaseRepository<typeof asse
 				});
 
 				results.push(...batchResults);
-				batchResults.forEach((result) => processedStudents.add(result.stdNo));
+				batchResults.forEach((result) => {
+					processedStudents.add(result.stdNo);
+				});
 			} catch (error) {
 				const batchStdNos = batch.map((data) => data.stdNo).join(', ');
 				errors.push(

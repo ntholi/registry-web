@@ -162,9 +162,9 @@ const TermSection = ({
 	return (
 		<View style={tw('mb-2')}>
 			<Text style={tw('mb-0.5 font-bold')}>{formatTerm(semester.term)}</Text>
-			{(semester.studentModules || []).map((sm, j) => (
+			{(semester.studentModules || []).map((sm) => (
 				<GradeRow
-					key={j}
+					key={sm.semesterModule?.module?.code || `module-${sm.id}`}
 					courseCode={sm.semesterModule?.module?.code || ''}
 					courseName={sm.semesterModule?.module?.name || ''}
 					credits={sm.semesterModule?.credits || 0}
@@ -262,18 +262,18 @@ export function TranscriptPages({
 
 							<View style={tw('mt-2 flex flex-row gap-2')}>
 								<View style={tw('flex-1')}>
-									{leftTerms.map((semester, i) => (
+									{leftTerms.map((semester) => (
 										<TermSection
-											key={`l-${i}`}
+											key={`l-${semester.term}`}
 											semester={semester}
 											academicRemarks={programRemarks}
 										/>
 									))}
 								</View>
 								<View style={tw('flex-1')}>
-									{rightTerms.map((semester, i) => (
+									{rightTerms.map((semester) => (
 										<TermSection
-											key={`r-${i}`}
+											key={`r-${semester.term}`}
 											semester={semester}
 											academicRemarks={programRemarks}
 										/>

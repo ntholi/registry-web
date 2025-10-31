@@ -77,8 +77,8 @@ export default function StudentTable({
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
-								{Array.from({ length: rowCount }).map((_, i) => (
-									<Table.Tr key={i}>
+								{Array.from({ length: rowCount }, (_, i) => `skeleton-row-${i}`).map((key) => (
+									<Table.Tr key={key}>
 										<Table.Td>
 											<Skeleton height={14} width={70} />
 										</Table.Td>

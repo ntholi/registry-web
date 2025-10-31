@@ -544,8 +544,8 @@ function UserButton() {
 export function Navigation({ navigation }: { navigation: NavItem[] }) {
 	return (
 		<>
-			{navigation.map((item, index) => (
-				<DisplayWithNotification key={index} item={item} />
+			{navigation.map((item) => (
+				<DisplayWithNotification key={item.href || item.label} item={item} />
 			))}
 		</>
 	);
@@ -622,8 +622,8 @@ function ItemDisplay({ item }: { item: NavItem }) {
 			opened={opened}
 			onClick={() => setOpen((o) => !o)}
 		>
-			{item.children?.map((child, index) => (
-				<DisplayWithNotification key={index} item={child} />
+			{item.children?.map((child) => (
+				<DisplayWithNotification key={child.href || child.label} item={child} />
 			))}
 		</NavLink>
 	);

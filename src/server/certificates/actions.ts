@@ -34,7 +34,7 @@ export async function generateCertificatePDF(data: CertificateData): Promise<Uin
 	const pages = pdfDoc.getPages();
 	const firstPage = pages[0];
 
-	const { width: pageWidth, height: pageHeight } = firstPage.getSize();
+	const { width: pageWidth } = firstPage.getSize();
 	const perfectCenterX = pageWidth / 2;
 
 	const expandedProgramName = expandProgramName(data.programName);

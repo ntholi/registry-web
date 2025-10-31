@@ -129,8 +129,8 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 					{module.name}
 				</Text>
 				<Stack gap='xs'>
-					{attempts.map((attempt, index) => (
-						<Card key={index} p='xs' withBorder>
+					{attempts.map((attempt) => (
+						<Card key={`${attempt.term}-${attempt.grade}`} p='xs' withBorder>
 							<Group justify='space-between' gap='xl'>
 								<Stack gap={2}>
 									<Text size='sm' fw={500}>
