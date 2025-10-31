@@ -511,12 +511,14 @@ export const graduationClearance = pgTable(
 	})
 );
 
+//TODO: Delete/Remove lists
 export const graduationListStatusEnum = pgEnum('graduation_list_status', [
 	'created',
 	'populated',
 	'archived',
 ]);
 
+//TODO: Delete/Remove lists
 export const graduationLists = pgTable('graduation_lists', {
 	id: text()
 		.primaryKey()
