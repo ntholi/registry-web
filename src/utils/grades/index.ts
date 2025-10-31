@@ -86,12 +86,12 @@ export const grades: GradeDefinition[] = [
   },
   {
     grade: 'PC',
-    points: 1.67,
+    points: 2.0,
     description: 'Pass Conceded',
   },
   {
     grade: 'PX',
-    points: 1.67,
+    points: 2.0,
     description: 'Pass (Supplementary Work Submitted)',
   },
   {
