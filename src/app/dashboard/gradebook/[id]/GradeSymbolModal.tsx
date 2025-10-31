@@ -33,7 +33,7 @@ interface Props {
 	weightedTotal?: number;
 }
 
-type Grade = 'Def' | 'ANN' | 'EXP' | 'DNS';
+type Grade = 'DEF' | 'ANN' | 'EXP' | 'DNS';
 type ModuleGrade = typeof moduleGrades.$inferSelect;
 
 export default function GradeSymbolModal({
@@ -46,7 +46,7 @@ export default function GradeSymbolModal({
 	const theme = useMantineTheme();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [mode, setMode] = useState<'automatic' | 'manual'>('automatic');
-	const [selectedGrade, setSelectedGrade] = useState<Grade>('Def');
+	const [selectedGrade, setSelectedGrade] = useState<Grade>('DEF');
 	const queryClient = useQueryClient();
 	const gradeUpdateMutation = useMutation({
 		mutationFn: async (data: {
@@ -253,7 +253,7 @@ export default function GradeSymbolModal({
 									size='md'
 								>
 									<Group gap={rem(24)}>
-										<Radio value='Def' label='Def' />
+										<Radio value='DEF' label='DEF' />
 										<Radio value='ANN' label='ANN' />
 										<Radio value='DNS' label='DNS' />
 										<Radio value='EXP' label='EXP' />

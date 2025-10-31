@@ -7,7 +7,7 @@ CREATE TYPE "public"."dashboard_users" AS ENUM('finance', 'registry', 'library',
 CREATE TYPE "public"."fortinet_level" AS ENUM('nse1', 'nse2', 'nse3', 'nse4', 'nse5', 'nse6', 'nse7', 'nse8');--> statement-breakpoint
 CREATE TYPE "public"."fortinet_registration_status" AS ENUM('pending', 'approved', 'rejected', 'completed');--> statement-breakpoint
 CREATE TYPE "public"."gender" AS ENUM('Male', 'Female', 'Unknown');--> statement-breakpoint
-CREATE TYPE "public"."grade" AS ENUM('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'F', 'PC', 'PX', 'AP', 'X', 'Def', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'PP', 'DNS', 'EXP', 'NM');--> statement-breakpoint
+CREATE TYPE "public"."grade" AS ENUM('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'F', 'PC', 'PX', 'AP', 'X', 'DEF', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'PP', 'DNS', 'EXP', 'NM');--> statement-breakpoint
 CREATE TYPE "public"."graduation_list_status" AS ENUM('created', 'populated', 'archived');--> statement-breakpoint
 CREATE TYPE "public"."marital_status" AS ENUM('Single', 'Married', 'Divorced', 'Windowed', 'Other');--> statement-breakpoint
 CREATE TYPE "public"."module_status" AS ENUM('Active', 'Defunct');--> statement-breakpoint

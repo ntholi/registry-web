@@ -240,7 +240,7 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 										color={
 											failed(module.grade)
 												? 'red'
-												: module.grade === 'NM' || module.grade === 'Def'
+												: module.grade === 'NM' || module.grade === 'DEF'
 													? 'orange'
 													: 'green'
 										}

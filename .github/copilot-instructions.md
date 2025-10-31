@@ -54,5 +54,5 @@ All server code should follows this exact structure in `src/server/[resource]/`:
 - **NEVER generate documentation files** - Do not create or update `.md`, `.txt`, or any documentation files
 - **PowerShell v7 only** - All cmd or terminal commands must be PowerShell v7 compatible (Windows environment)
 
-- Every time you finish generating code, always find lint errors and fix them when they are all fixed, run pnpm run lint to make sure there are no errors, do not stop until there are no lint errors. Very important! Focus on errors not warnings. Run 'pnpm lint' iteratively untill there are no more errors. Always find a way to test the code and make sure it works as expected.
+- Every time you finish generating code, always find lint errors and fix them when they are all fixed, run 'pnpm lint --fix' to make sure there are no errors, do not stop until there are no lint errors. Very important! Focus on errors not warnings. Run 'pnpm lint --fix' iteratively until there are no more errors. Always find a way to test the code and make sure it works as expected.
 

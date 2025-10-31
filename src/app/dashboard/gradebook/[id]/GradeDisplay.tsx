@@ -33,7 +33,7 @@ export default function GradeDisplay({
 	const getGradeColor = (grade: string): string => {
 		if (grade === 'ANN') return 'red';
 		if (['A', 'B', 'C'].some((letter) => grade.startsWith(letter))) return 'green';
-		if (['PP', 'Def'].includes(grade)) return 'yellow';
+		if (['PP', 'DEF'].includes(grade)) return 'yellow';
 		if (isFailingGrade(grade)) return 'red';
 		return 'gray';
 	};

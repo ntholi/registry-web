@@ -20,9 +20,7 @@ const tw = createTw({
 });
 
 const gradeClassifications = grades
-	.filter(
-		(g) => g.marksRange || ['PX', 'PC', 'EXP', 'Def', 'ANN', 'DNC', 'DNA', 'DNS'].includes(g.grade)
-	)
+	.filter((g) => g.marksRange || ['PX', 'PC', 'EXP', 'DEF', 'ANN'].includes(g.grade))
 	.filter((g) => g.grade !== 'PP')
 	.map((g) => ({
 		marks: g.marksRange ? `${g.marksRange.min}-${g.marksRange.max}` : '',

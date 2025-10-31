@@ -261,7 +261,7 @@ export const gradeEnum = pgEnum('grade', [
 	'PX',
 	'AP',
 	'X',
-	'Def',
+	'DEF',
 	'GNS',
 	'ANN',
 	'FIN',
