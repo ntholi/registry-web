@@ -131,7 +131,7 @@ export default function RegistrationRequestForm({
 			) as SemesterModule[])
 		: [];
 
-	const handleStudentSelect = async (stdNo: number) => {
+	const handleStudentSelect = useCallback(async (stdNo: number) => {
 		if (stdNo) {
 			try {
 				const student = await getStudentRegistrationData(stdNo);
@@ -152,7 +152,7 @@ export default function RegistrationRequestForm({
 		} else {
 			setStructureId(null);
 		}
-	};
+	}, []);
 
 	const handleLoadModules = useCallback(
 		// biome-ignore lint/suspicious/noExplicitAny: form type from Mantine is complex

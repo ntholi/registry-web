@@ -12,11 +12,7 @@ import {
 import { IconCertificate, IconInfoCircle } from '@tabler/icons-react';
 import Logo from '../../../../../components/Logo';
 
-type Props = {
-	params: Promise<{ reference: string }>;
-};
-
-export default async function CertificateVerificationPage({ params }: Props) {
+export default async function CertificateVerificationPage() {
 	return (
 		<div style={{ minHeight: '100vh' }}>
 			<Container size="sm" p="xl">

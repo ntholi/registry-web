@@ -39,7 +39,7 @@ export default function MarksInput({
 	}, [isEditing]);
 	const markMutation = useMutation({
 		mutationFn: async (data: { assessmentId: number; stdNo: number; marks: number }) => {
-			let result;
+			let result: AssessmentMark;
 			if (existingMarkId !== undefined) {
 				console.log('Updating existing mark:', existingMarkId, data);
 				result = await updateAssessmentMark(existingMarkId, data, moduleId);

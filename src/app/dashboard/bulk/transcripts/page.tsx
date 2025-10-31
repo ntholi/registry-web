@@ -19,12 +19,15 @@ import { Document, pdf } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import type { getAcademicHistory } from '@/server/students/actions';
+import { TranscriptPages } from '../../students/[id]/graduation/transcript/TranscriptPDF';
 import {
 	getDistinctGraduationDates,
 	getProgramsByGraduationDate,
 	getStudentsByGraduationDate,
 } from '@/server/bulk/transcripts/actions';
-import { TranscriptPages } from '../../students/[id]/graduation/transcript/TranscriptPDF';
+
+type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 
 function formatGraduationDate(date: string) {
 	const d = new Date(date);
@@ -164,7 +167,7 @@ export default function ExportTranscriptPage() {
 						programId: number;
 						programName: string;
 						programCode: string;
-						students: any[];
+						students: Student[];
 					}
 				>
 			);
@@ -188,9 +191,9 @@ export default function ExportTranscriptPage() {
 				setProgressText(`Generating ${program.programName} transcripts...`);
 
 				const pdfDocument = (
-					<Document>
+					<Document key={program.programId}>
 						{program.students.map((student, studentIndex) => (
-							<TranscriptPages key={studentIndex} student={student} studentIndex={studentIndex} />
+							<TranscriptPages key={student.stdNo} student={student} studentIndex={studentIndex} />
 						))}
 					</Document>
 				);

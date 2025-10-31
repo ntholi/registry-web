@@ -14,7 +14,7 @@ const statusTitles = {
 	approved: 'Approved Requests',
 };
 
-type ListItem = {
+type GraduationRequestItem = {
 	id: number;
 	studentProgram: {
 		stdNo: number;
@@ -53,7 +53,7 @@ export default function Layout({ children }: PropsWithChildren) {
 					totalPages: response.pages,
 				};
 			}}
-			renderItem={(it: ListItem) => (
+			renderItem={(it: GraduationRequestItem) => (
 				<ListItem
 					id={it.id}
 					label={it.studentProgram.stdNo.toString()}

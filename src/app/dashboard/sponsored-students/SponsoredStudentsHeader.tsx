@@ -37,8 +37,8 @@ export default function SponsoredStudentsHeader({
 	onTermChange,
 	onlyCleared,
 	onOnlyClearedChange,
-	onClearFilters,
-	hasActiveFilters,
+	onClearFilters: _onClearFilters,
+	hasActiveFilters: _hasActiveFilters,
 }: SponsoredStudentsHeaderProps) {
 	const { data: sponsors, isLoading: isLoadingSponsors } = useQuery({
 		queryKey: ['sponsors'],

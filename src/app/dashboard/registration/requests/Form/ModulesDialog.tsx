@@ -73,7 +73,19 @@ export default function ModulesDialog({
 	return (
 		<>
 			{children ? (
-				<div onClick={disabled ? undefined : open}>{children}</div>
+				<button
+					type="button"
+					disabled={disabled}
+					onClick={open}
+					style={{
+						border: 'none',
+						background: 'none',
+						padding: 0,
+						cursor: disabled ? 'not-allowed' : 'pointer',
+					}}
+				>
+					{children}
+				</button>
 			) : (
 				<ActionIcon onClick={open} disabled={disabled}>
 					<IconPlus size="1rem" />
