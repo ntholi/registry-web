@@ -47,7 +47,7 @@ export default async function CertificateVerificationPage() {
 
 							<Stack gap='md' align='center'>
 								<Title order={2} fw={400} ta='center'>
-									Launching October 27, 2025
+									Launching Soon!
 								</Title>
 
 								<Divider w={64} />
