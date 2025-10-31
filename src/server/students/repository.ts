@@ -251,10 +251,15 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 					}
 
 					const normalizedTerm = normalizeSearchTerm(term);
-
 					conditions.push(ilike(students.name, `%${normalizedTerm}%`));
+					conditions.push(sql`similarity(${students.name}, ${normalizedTerm}::text) > 0.25`);
 
-					conditions.push(sql`similarity(${students.name}, ${normalizedTerm}::text) > 0.3`);
+					const digitCount = (normalizedTerm.match(/\d/g) || []).length;
+					if (digitCount > 5) {
+						conditions.push(ilike(students.nationalId, `%${normalizedTerm}%`));
+						conditions.push(ilike(students.phone1, `%${normalizedTerm}%`));
+						conditions.push(ilike(students.phone2, `%${normalizedTerm}%`));
+					}
 
 					return or(...conditions);
 				});
