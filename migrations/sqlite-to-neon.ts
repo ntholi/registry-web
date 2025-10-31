@@ -1,5 +1,7 @@
 import { Buffer } from 'node:buffer';
 import * as readline from 'node:readline/promises';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import Database from 'better-sqlite3';
 import { config } from 'dotenv';
 import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
@@ -107,6 +109,36 @@ type EnumMapping = {
 type EnumMappings = Map<string, Map<string, EnumMapping>>;
 
 const enumMappings: EnumMappings = new Map();
+
+function loadEnumMappingsFromFile(): void {
+	try {
+		const mappingsPath = join(__dirname, 'enum-mappings.json');
+		const fileContent = readFileSync(mappingsPath, 'utf-8');
+		const mappingsData = JSON.parse(fileContent) as Record<
+			string,
+			Record<string, Record<string, string>>
+		>;
+
+		for (const [tableName, fields] of Object.entries(mappingsData)) {
+			for (const [fieldName, mappings] of Object.entries(fields)) {
+				const tableKey = `${tableName}.${fieldName}`;
+				const fieldMappings = new Map<string, EnumMapping>();
+
+				for (const [invalidValue, validValue] of Object.entries(mappings)) {
+					fieldMappings.set(invalidValue, {
+						invalidValue,
+						validValue,
+						applyToAll: true,
+					});
+				}
+
+				enumMappings.set(tableKey, fieldMappings);
+			}
+		}
+	} catch (error) {
+		console.log('ℹ No existing enum-mappings.json found, starting fresh');
+	}
+}
 
 const POSTGRES_ENUMS: Record<string, readonly string[]> = {
 	module_type: [...moduleTypeEnum.enumValues],
@@ -1016,7 +1048,7 @@ function mapStudentModules(
 		semesterModuleId: row.semesterModuleId,
 		status: row.status,
 		marks: row.marks,
-		grade: row.grade,
+		grade: row.grade.replace('Def', 'DEF'),
 		studentSemesterId: row.studentSemesterId,
 		createdAt: toOptionalDateFromSeconds(row.createdAt),
 	};
@@ -2080,6 +2112,7 @@ function parseMode(): Mode {
 async function run(): Promise<void> {
 	assertEnvironment();
 	const mode = parseMode();
+	loadEnumMappingsFromFile();
 	const sqliteDb = openSqliteDatabase();
 	const postgresDb = await openPostgresDatabase();
 
