@@ -23,7 +23,9 @@ export async function getGraduationRequestByStudentNo(stdNo: number) {
 	return result.length > 0 ? result[0] : null;
 }
 
-export async function getGraduationRequestByStudentProgramId(studentProgramId: number) {
+export async function getGraduationRequestByStudentProgramId(
+	studentProgramId: number
+) {
 	return service.getByStudentProgramId(studentProgramId);
 }
 
@@ -39,7 +41,9 @@ export async function getGraduationRequests(page: number = 1, search = '') {
 	return service.getAll({ page, search });
 }
 
-export async function createGraduationRequest(graduationRequest: GraduationRequest) {
+export async function createGraduationRequest(
+	graduationRequest: GraduationRequest
+) {
 	return service.create(graduationRequest);
 }
 
@@ -64,7 +68,9 @@ export async function getGraduationClearanceData(graduationRequestId: number) {
 	return service.getClearanceData(graduationRequestId);
 }
 
-export async function countByStatus(status: 'pending' | 'approved' | 'rejected') {
+export async function countByStatus(
+	status: 'pending' | 'approved' | 'rejected'
+) {
 	return service.countByStatus(status);
 }
 

@@ -1,6 +1,12 @@
 import { and, asc, eq, inArray, ne, notInArray } from 'drizzle-orm';
 import { db } from '@/db';
-import { programs, structures, studentPrograms, studentSemesters, students } from '@/db/schema';
+import {
+	programs,
+	structures,
+	studentPrograms,
+	studentSemesters,
+	students,
+} from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
 export interface StudentModuleReport {
@@ -41,7 +47,10 @@ export interface FacultyReport {
 	programs: ProgramSemesterReport[];
 }
 
-export default class BoeReportRepository extends BaseRepository<typeof students, 'stdNo'> {
+export default class BoeReportRepository extends BaseRepository<
+	typeof students,
+	'stdNo'
+> {
 	constructor() {
 		super(students, students.stdNo);
 	}
@@ -189,7 +198,10 @@ export default class BoeReportRepository extends BaseRepository<typeof students,
 					inArray(studentSemesters.studentProgramId, batch),
 					ne(studentSemesters.status, 'Deleted')
 				),
-				orderBy: [asc(studentSemesters.term), asc(studentSemesters.semesterNumber)],
+				orderBy: [
+					asc(studentSemesters.term),
+					asc(studentSemesters.semesterNumber),
+				],
 				with: {
 					studentProgram: {
 						with: {
@@ -239,12 +251,18 @@ export default class BoeReportRepository extends BaseRepository<typeof students,
 							.select({ id: studentPrograms.id })
 							.from(studentPrograms)
 							.where(
-								and(inArray(studentPrograms.stdNo, batch), eq(studentPrograms.status, 'Active'))
+								and(
+									inArray(studentPrograms.stdNo, batch),
+									eq(studentPrograms.status, 'Active')
+								)
 							)
 					),
 					ne(studentSemesters.status, 'Deleted')
 				),
-				orderBy: [asc(studentSemesters.term), asc(studentSemesters.semesterNumber)],
+				orderBy: [
+					asc(studentSemesters.term),
+					asc(studentSemesters.semesterNumber),
+				],
 				with: {
 					studentProgram: {
 						with: {

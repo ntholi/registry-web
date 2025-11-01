@@ -13,12 +13,17 @@ import {
 	studentPrograms,
 	students,
 } from '@/db/schema';
-import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 import { usersRepository } from '@/server/users/repository';
 
 type Model = typeof clearance.$inferInsert;
 
-export default class GraduationClearanceRepository extends BaseRepository<typeof clearance, 'id'> {
+export default class GraduationClearanceRepository extends BaseRepository<
+	typeof clearance,
+	'id'
+> {
 	constructor() {
 		super(clearance, clearance.id);
 	}
@@ -168,7 +173,10 @@ export default class GraduationClearanceRepository extends BaseRepository<typeof
 				graduationRequests,
 				eq(graduationClearance.graduationRequestId, graduationRequests.id)
 			)
-			.innerJoin(studentPrograms, eq(graduationRequests.studentProgramId, studentPrograms.id))
+			.innerJoin(
+				studentPrograms,
+				eq(graduationRequests.studentProgramId, studentPrograms.id)
+			)
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(clearance, eq(graduationClearance.clearanceId, clearance.id));
 
@@ -180,7 +188,10 @@ export default class GraduationClearanceRepository extends BaseRepository<typeof
 				graduationRequests,
 				eq(graduationClearance.graduationRequestId, graduationRequests.id)
 			)
-			.innerJoin(studentPrograms, eq(graduationRequests.studentProgramId, studentPrograms.id))
+			.innerJoin(
+				studentPrograms,
+				eq(graduationRequests.studentProgramId, studentPrograms.id)
+			)
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(clearance, eq(graduationClearance.clearanceId, clearance.id));
 
@@ -278,9 +289,17 @@ export default class GraduationClearanceRepository extends BaseRepository<typeof
 				graduationRequests,
 				eq(graduationClearance.graduationRequestId, graduationRequests.id)
 			)
-			.innerJoin(studentPrograms, eq(graduationRequests.studentProgramId, studentPrograms.id))
+			.innerJoin(
+				studentPrograms,
+				eq(graduationRequests.studentProgramId, studentPrograms.id)
+			)
 			.innerJoin(clearance, eq(graduationClearance.clearanceId, clearance.id))
-			.where(and(eq(studentPrograms.stdNo, stdNo), eq(clearance.department, department)));
+			.where(
+				and(
+					eq(studentPrograms.stdNo, stdNo),
+					eq(clearance.department, department)
+				)
+			);
 
 		const ids = idRows.map((r) => r.id);
 		if (ids.length === 0) return [];
@@ -307,7 +326,10 @@ export default class GraduationClearanceRepository extends BaseRepository<typeof
 		}));
 	}
 
-	async countByStatus(status: 'pending' | 'approved' | 'rejected', department: DashboardUser) {
+	async countByStatus(
+		status: 'pending' | 'approved' | 'rejected',
+		department: DashboardUser
+	) {
 		const session = await auth();
 
 		// Get user's school IDs if they are academic
@@ -345,7 +367,10 @@ export default class GraduationClearanceRepository extends BaseRepository<typeof
 					graduationRequests,
 					eq(graduationClearance.graduationRequestId, graduationRequests.id)
 				)
-				.innerJoin(studentPrograms, eq(graduationRequests.studentProgramId, studentPrograms.id))
+				.innerJoin(
+					studentPrograms,
+					eq(graduationRequests.studentProgramId, studentPrograms.id)
+				)
 				.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
 				.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 				.innerJoin(programs, eq(structures.programId, programs.id))

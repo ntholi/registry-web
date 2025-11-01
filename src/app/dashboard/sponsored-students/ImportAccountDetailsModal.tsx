@@ -13,7 +13,12 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle, IconCheck, IconExclamationCircle, IconUpload } from '@tabler/icons-react';
+import {
+	IconAlertCircle,
+	IconCheck,
+	IconExclamationCircle,
+	IconUpload,
+} from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
@@ -114,11 +119,18 @@ export default function ImportAccountDetailsModal() {
 								if (typeof cell !== 'string') return false;
 								const cellLower = cell.toLowerCase().trim();
 								return (
-									cellLower.includes('bank') || cellLower === 'bank' || cellLower === 'bank name'
+									cellLower.includes('bank') ||
+									cellLower === 'bank' ||
+									cellLower === 'bank name'
 								);
 							});
 
-							if (stdNoCol >= 0 && nameCol >= 0 && accountCol >= 0 && bankCol >= 0) {
+							if (
+								stdNoCol >= 0 &&
+								nameCol >= 0 &&
+								accountCol >= 0 &&
+								bankCol >= 0
+							) {
 								stdNoIndex = stdNoCol;
 								nameIndex = nameCol;
 								accountNumberIndex = accountCol;
@@ -249,7 +261,8 @@ export default function ImportAccountDetailsModal() {
 					processedCount += batch.length;
 
 					// Update progress
-					const progressPercentage = (processedCount / requestData.length) * 100;
+					const progressPercentage =
+						(processedCount / requestData.length) * 100;
 					setProgress(progressPercentage);
 					setImportData([...updatedData]);
 
@@ -305,12 +318,18 @@ export default function ImportAccountDetailsModal() {
 		close();
 	};
 
-	const successCount = importData.filter((row) => row.status === 'success').length;
+	const successCount = importData.filter(
+		(row) => row.status === 'success'
+	).length;
 	const errorCount = importData.filter((row) => row.status === 'error').length;
 
 	return (
 		<>
-			<Button leftSection={<IconUpload size='1rem' />} onClick={open} variant='light'>
+			<Button
+				leftSection={<IconUpload size='1rem' />}
+				onClick={open}
+				variant='light'
+			>
 				Import
 			</Button>
 
@@ -323,7 +342,8 @@ export default function ImportAccountDetailsModal() {
 			>
 				<Stack gap='md'>
 					<Alert icon={<IconAlertCircle size='1rem' />} color='blue'>
-						Upload Excel file with: Student Number, Names, Account Number, Bank Name
+						Upload Excel file with: Student Number, Names, Account Number, Bank
+						Name
 					</Alert>
 
 					<FileInput
@@ -368,7 +388,11 @@ export default function ImportAccountDetailsModal() {
 					)}
 
 					<Group justify='flex-end' gap='sm'>
-						<Button variant='light' onClick={handleClose} disabled={isProcessing}>
+						<Button
+							variant='light'
+							onClick={handleClose}
+							disabled={isProcessing}
+						>
 							Cancel
 						</Button>
 						<Button

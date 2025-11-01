@@ -1,13 +1,24 @@
 'use client';
 
-import { Alert, Button, Group, Modal, Select, Stack, Text } from '@mantine/core';
+import {
+	Alert,
+	Button,
+	Group,
+	Modal,
+	Select,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useCurrentTerm } from '@/hooks/use-current-term';
-import { findAllSponsors, updateStudentSponsorshipById } from '@/server/sponsors/actions';
+import {
+	findAllSponsors,
+	updateStudentSponsorshipById,
+} from '@/server/sponsors/actions';
 import StdNoInput from '../base/StdNoInput';
 
 export default function NewSponsoredStudentModal() {
@@ -23,7 +34,11 @@ export default function NewSponsoredStudentModal() {
 	});
 
 	const createMutation = useMutation({
-		mutationFn: async (data: { stdNo: number; termId: number; sponsorId: number }) => {
+		mutationFn: async (data: {
+			stdNo: number;
+			termId: number;
+			sponsorId: number;
+		}) => {
 			return updateStudentSponsorshipById(data);
 		},
 		onSuccess: () => {
@@ -38,7 +53,10 @@ export default function NewSponsoredStudentModal() {
 		onError: (error) => {
 			notifications.show({
 				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to create sponsored student',
+				message:
+					error instanceof Error
+						? error.message
+						: 'Failed to create sponsored student',
 				color: 'red',
 			});
 		},
@@ -75,7 +93,11 @@ export default function NewSponsoredStudentModal() {
 
 	return (
 		<>
-			<Button leftSection={<IconPlus size='1rem' />} onClick={open} variant='filled'>
+			<Button
+				leftSection={<IconPlus size='1rem' />}
+				onClick={open}
+				variant='filled'
+			>
 				New
 			</Button>
 
@@ -88,8 +110,8 @@ export default function NewSponsoredStudentModal() {
 			>
 				<Stack gap='md'>
 					<Alert icon={<IconAlertCircle size='1rem' />} color='blue'>
-						Add a student to a sponsorship program by entering their student number and selecting a
-						sponsor.
+						Add a student to a sponsorship program by entering their student
+						number and selecting a sponsor.
 					</Alert>
 
 					<StdNoInput
@@ -115,16 +137,25 @@ export default function NewSponsoredStudentModal() {
 					{!currentTerm && (
 						<Alert color='red'>
 							<Text size='sm'>
-								No active term found. Please ensure there is an active term to create sponsorships.
+								No active term found. Please ensure there is an active term to
+								create sponsorships.
 							</Text>
 						</Alert>
 					)}
 
 					<Group justify='flex-end' gap='sm'>
-						<Button variant='light' onClick={handleClose} disabled={createMutation.isPending}>
+						<Button
+							variant='light'
+							onClick={handleClose}
+							disabled={createMutation.isPending}
+						>
 							Cancel
 						</Button>
-						<Button onClick={handleSubmit} disabled={!canSubmit} loading={createMutation.isPending}>
+						<Button
+							onClick={handleSubmit}
+							disabled={!canSubmit}
+							loading={createMutation.isPending}
+						>
 							Create Sponsored Student
 						</Button>
 					</Group>

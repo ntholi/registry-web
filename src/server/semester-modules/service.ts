@@ -19,11 +19,17 @@ class SemesterModuleService {
 	}
 
 	async getByCode(code: string) {
-		return withAuth(async () => this.repository.findByCode(code), ['dashboard']);
+		return withAuth(
+			async () => this.repository.findByCode(code),
+			['dashboard']
+		);
 	}
 
 	async findAll(params: QueryOptions<typeof semesterModules>, search: string) {
-		return withAuth(async () => this.repository.search(params, search), ['dashboard']);
+		return withAuth(
+			async () => this.repository.search(params, search),
+			['dashboard']
+		);
 	}
 
 	async findModulesByStructure(structureId: number, search = '') {
@@ -50,7 +56,10 @@ class SemesterModuleService {
 	}
 
 	async getModulesByStructure(structureId: number) {
-		return withAuth(async () => this.repository.getModulesByStructure(structureId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.getModulesByStructure(structureId),
+			['dashboard']
+		);
 	}
 
 	async getSchools() {
@@ -58,15 +67,24 @@ class SemesterModuleService {
 	}
 
 	async getProgramsBySchool(schoolId: number) {
-		return withAuth(async () => this.repository.getProgramsBySchool(schoolId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.getProgramsBySchool(schoolId),
+			['dashboard']
+		);
 	}
 
 	async getStructuresByProgram(programId: number) {
-		return withAuth(async () => this.repository.getStructuresByProgram(programId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.getStructuresByProgram(programId),
+			['dashboard']
+		);
 	}
 
 	async getStructuresByModule(moduleId: number) {
-		return withAuth(async () => this.repository.getStructuresByModule(moduleId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.getStructuresByModule(moduleId),
+			['dashboard']
+		);
 	}
 
 	async addPrerequisite(moduleId: number, prerequisiteId: number) {
@@ -77,11 +95,17 @@ class SemesterModuleService {
 	}
 
 	async clearPrerequisites(moduleId: number) {
-		return withAuth(async () => this.repository.clearPrerequisites(moduleId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.clearPrerequisites(moduleId),
+			['dashboard']
+		);
 	}
 
 	async getPrerequisites(moduleId: number) {
-		return withAuth(async () => this.repository.getPrerequisites(moduleId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.getPrerequisites(moduleId),
+			['dashboard']
+		);
 	}
 
 	async getModulesForStructure(structureId: number) {

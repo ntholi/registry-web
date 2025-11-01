@@ -5,13 +5,19 @@ export async function POST(request: NextRequest) {
 		const { url } = await request.json();
 
 		if (!url || typeof url !== 'string') {
-			return NextResponse.json({ error: 'URL is required and must be a string' }, { status: 400 });
+			return NextResponse.json(
+				{ error: 'URL is required and must be a string' },
+				{ status: 400 }
+			);
 		}
 
 		try {
 			new URL(url);
 		} catch {
-			return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 });
+			return NextResponse.json(
+				{ error: 'Invalid URL format' },
+				{ status: 400 }
+			);
 		}
 
 		const controller = new AbortController();
@@ -32,7 +38,10 @@ export async function POST(request: NextRequest) {
 
 		const contentType = response.headers.get('content-type');
 		if (!contentType?.startsWith('image/')) {
-			return NextResponse.json({ error: 'URL does not point to an image' }, { status: 400 });
+			return NextResponse.json(
+				{ error: 'URL does not point to an image' },
+				{ status: 400 }
+			);
 		}
 
 		const buffer = await response.arrayBuffer();
@@ -46,6 +55,9 @@ export async function POST(request: NextRequest) {
 		}
 
 		console.error('Error converting image to base64:', error);
-		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+		return NextResponse.json(
+			{ error: 'Internal server error' },
+			{ status: 500 }
+		);
 	}
 }

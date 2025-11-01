@@ -13,11 +13,18 @@ type Props = {
 	status: 'pending' | 'approved' | 'rejected';
 	defaultValues?: Clearance;
 	onSuccess?: (value: Clearance) => void;
-	onError?: (error: Error | React.SyntheticEvent<HTMLDivElement, Event>) => void;
+	onError?: (
+		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+	) => void;
 	title?: string;
 };
 
-export default function ClearanceForm({ onSubmit, status, defaultValues, title }: Props) {
+export default function ClearanceForm({
+	onSubmit,
+	status,
+	defaultValues,
+	title,
+}: Props) {
 	const router = useRouter();
 
 	return (
@@ -36,7 +43,10 @@ export default function ClearanceForm({ onSubmit, status, defaultValues, title }
 					<TextInput label='Department' {...form.getInputProps('department')} />
 					<TextInput label='Status' {...form.getInputProps('status')} />
 					<TextInput label='Message' {...form.getInputProps('message')} />
-					<TextInput label='Responded By' {...form.getInputProps('respondedBy')} />
+					<TextInput
+						label='Responded By'
+						{...form.getInputProps('respondedBy')}
+					/>
 				</>
 			)}
 		</Form>

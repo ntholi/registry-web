@@ -5,7 +5,10 @@ import type { DashboardUser } from '@/db/schema';
 import type { ClearanceFilter } from './repository';
 import { getDepartmentClearanceStats } from './service';
 
-export async function fetchClearanceStats(department: DashboardUser, filter?: ClearanceFilter) {
+export async function fetchClearanceStats(
+	department: DashboardUser,
+	filter?: ClearanceFilter
+) {
 	const session = await auth();
 	if (!session?.user?.role) {
 		throw new Error('Unauthorized');

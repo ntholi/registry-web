@@ -8,12 +8,17 @@ import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useEffect, useState } from 'react';
 import { type assessmentNumber, assessments } from '@/db/schema';
-import { createAssessment, updateAssessment } from '@/server/assessments/actions';
+import {
+	createAssessment,
+	updateAssessment,
+} from '@/server/assessments/actions';
 import type { getModule } from '@/server/modules/actions';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from './assessments';
 
 type AssessmentNumberType = (typeof assessmentNumber.enumValues)[number];
-type Assessment = NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][number];
+type Assessment = NonNullable<
+	Awaited<ReturnType<typeof getModule>>
+>['assessments'][number];
 
 const schema = createInsertSchema(assessments);
 
@@ -24,14 +29,20 @@ interface Props {
 	onClose: () => void;
 }
 
-export default function AssessmentModal({ moduleId, assessment, opened, onClose }: Props) {
+export default function AssessmentModal({
+	moduleId,
+	assessment,
+	opened,
+	onClose,
+}: Props) {
 	const queryClient = useQueryClient();
 	const isEditing = !!assessment;
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const form = useForm({
 		initialValues: {
-			assessmentNumber: assessment?.assessmentNumber || ('' as AssessmentNumberType),
+			assessmentNumber:
+				assessment?.assessmentNumber || ('' as AssessmentNumberType),
 			assessmentType: assessment?.assessmentType || '',
 			totalMarks: assessment?.totalMarks || 100,
 			weight: assessment?.weight || 0,
@@ -72,10 +83,16 @@ export default function AssessmentModal({ moduleId, assessment, opened, onClose 
 
 				const nextNumber = highestNumber + 1;
 				if (nextNumber <= 15) {
-					form.setFieldValue('assessmentNumber', `CW${nextNumber}` as AssessmentNumberType);
+					form.setFieldValue(
+						'assessmentNumber',
+						`CW${nextNumber}` as AssessmentNumberType
+					);
 				}
 
-				const currentTotalWeight = moduleData.assessments.reduce((sum, a) => sum + a.weight, 0);
+				const currentTotalWeight = moduleData.assessments.reduce(
+					(sum, a) => sum + a.weight,
+					0
+				);
 
 				const remainingWeight = Math.max(0, 100 - currentTotalWeight);
 				form.setFieldValue('weight', remainingWeight);

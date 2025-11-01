@@ -1,6 +1,14 @@
 'use client';
 
-import { Alert, Button, Card, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
+import {
+	Alert,
+	Button,
+	Card,
+	Skeleton,
+	Stack,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -19,16 +27,19 @@ export default function NewRegistrationCard() {
 			.some(
 				(semester) =>
 					semester.term === currentTerm?.name &&
-					!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(semester.status)
+					!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
+						semester.status
+					)
 			) || false;
 
 	const shouldFetchData = !!student?.stdNo && !hasExistingSemester;
 
-	const { data: registrationHistory, isLoading: registrationLoading } = useQuery({
-		queryKey: ['registration-history', student?.stdNo],
-		queryFn: () => getStudentRegistrationHistory(student!.stdNo),
-		enabled: shouldFetchData,
-	});
+	const { data: registrationHistory, isLoading: registrationLoading } =
+		useQuery({
+			queryKey: ['registration-history', student?.stdNo],
+			queryFn: () => getStudentRegistrationHistory(student!.stdNo),
+			enabled: shouldFetchData,
+		});
 
 	const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
 		queryKey: ['blocked-student', student?.stdNo],
@@ -59,7 +70,9 @@ export default function NewRegistrationCard() {
 	}
 
 	const hasCurrentRegistration =
-		registrationHistory?.some((request) => request.term.id === currentTerm?.id) || false;
+		registrationHistory?.some(
+			(request) => request.term.id === currentTerm?.id
+		) || false;
 
 	const isBlocked = blockedStudent && blockedStudent.status === 'blocked';
 
@@ -69,7 +82,12 @@ export default function NewRegistrationCard() {
 
 	if (isBlocked) {
 		return (
-			<Alert icon={<IconInfoCircle size='1rem' />} title='Registration Blocked' color='red' mb='xl'>
+			<Alert
+				icon={<IconInfoCircle size='1rem' />}
+				title='Registration Blocked'
+				color='red'
+				mb='xl'
+			>
 				Your account has been blocked from registering. Please contact the{' '}
 				{blockedStudent.byDepartment} office for assistance.
 				<br />

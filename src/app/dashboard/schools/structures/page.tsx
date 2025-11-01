@@ -1,6 +1,15 @@
 'use client';
 
-import { Accordion, Card, Group, Skeleton, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import {
+	Accordion,
+	Card,
+	Group,
+	Skeleton,
+	Stack,
+	Text,
+	ThemeIcon,
+	Title,
+} from '@mantine/core';
 import { IconArrowLeft, IconBook, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';

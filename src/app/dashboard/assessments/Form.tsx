@@ -13,11 +13,17 @@ type Props = {
 	onSubmit: (values: Assessment) => Promise<Assessment>;
 	defaultValues?: Assessment;
 	onSuccess?: (value: Assessment) => void;
-	onError?: (error: Error | React.SyntheticEvent<HTMLDivElement, Event>) => void;
+	onError?: (
+		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+	) => void;
 	title?: string;
 };
 
-export default function AssessmentForm({ onSubmit, defaultValues, title }: Props) {
+export default function AssessmentForm({
+	onSubmit,
+	defaultValues,
+	title,
+}: Props) {
 	const router = useRouter();
 
 	return (
@@ -53,10 +59,19 @@ export default function AssessmentForm({ onSubmit, defaultValues, title }: Props
 						/>
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<NumberInput label='Total Marks' {...form.getInputProps('totalMarks')} min={1} />
+						<NumberInput
+							label='Total Marks'
+							{...form.getInputProps('totalMarks')}
+							min={1}
+						/>
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<NumberInput label='Weight' {...form.getInputProps('weight')} min={1} max={100} />
+						<NumberInput
+							label='Weight'
+							{...form.getInputProps('weight')}
+							min={1}
+							max={100}
+						/>
 					</Grid.Col>
 				</Grid>
 			)}

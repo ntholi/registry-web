@@ -13,7 +13,12 @@ import {
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconChartBar, IconDownload, IconInfoCircle, IconUsers } from '@tabler/icons-react';
+import {
+	IconChartBar,
+	IconDownload,
+	IconInfoCircle,
+	IconUsers,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import {
@@ -51,13 +56,23 @@ export default function RegistrationReportPage() {
 	});
 
 	const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
-		queryKey: ['registration-students-paginated', filter, currentPage, debouncedSearch],
+		queryKey: [
+			'registration-students-paginated',
+			filter,
+			currentPage,
+			debouncedSearch,
+		],
 		queryFn: async () => {
 			if (!filter.termId) return null;
-			const result = await getPaginatedRegistrationStudents(filter.termId, currentPage, PAGE_SIZE, {
-				...filter,
-				searchQuery: debouncedSearch,
-			});
+			const result = await getPaginatedRegistrationStudents(
+				filter.termId,
+				currentPage,
+				PAGE_SIZE,
+				{
+					...filter,
+					searchQuery: debouncedSearch,
+				}
+			);
 			return result.success ? result.data : null;
 		},
 		enabled: Boolean(filter.termId),
@@ -66,7 +81,8 @@ export default function RegistrationReportPage() {
 	const canGenerateReport = Boolean(filter.termId);
 	const hasData = Boolean(
 		reportData &&
-			((reportData.summaryData?.schools && reportData.summaryData.schools.length > 0) ||
+			((reportData.summaryData?.schools &&
+				reportData.summaryData.schools.length > 0) ||
 				(studentsData?.students && studentsData.students.length > 0))
 	);
 
@@ -90,7 +106,10 @@ export default function RegistrationReportPage() {
 
 		setIsExportingSummary(true);
 		try {
-			const result = await generateSummaryRegistrationReport(filter.termId, filter);
+			const result = await generateSummaryRegistrationReport(
+				filter.termId,
+				filter
+			);
 
 			if (result.success && result.data) {
 				const byteCharacters = atob(result.data);
@@ -197,19 +216,29 @@ export default function RegistrationReportPage() {
 					</Text>
 				</Box>
 
-				<RegistrationFilter filter={filter} onFilterChange={handleFilterChange} />
+				<RegistrationFilter
+					filter={filter}
+					onFilterChange={handleFilterChange}
+				/>
 
 				{canGenerateReport && !hasData && !isLoading && (
-					<Alert icon={<IconInfoCircle size={16} />} color='yellow' variant='light'>
-						No registration data found for the selected criteria. Try adjusting your filters or
-						selecting a different academic term.
+					<Alert
+						icon={<IconInfoCircle size={16} />}
+						color='yellow'
+						variant='light'
+					>
+						No registration data found for the selected criteria. Try adjusting
+						your filters or selecting a different academic term.
 					</Alert>
 				)}
 
 				{canGenerateReport && (
 					<Tabs defaultValue='summary'>
 						<Tabs.List>
-							<Tabs.Tab value='summary' leftSection={<IconChartBar size={16} />}>
+							<Tabs.Tab
+								value='summary'
+								leftSection={<IconChartBar size={16} />}
+							>
 								Summary
 							</Tabs.Tab>
 							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
@@ -244,13 +273,16 @@ export default function RegistrationReportPage() {
 								</Card>
 
 								{isLoading ? (
-									Array.from({ length: 3 }, (_, i) => `skeleton-${i}`).map((key) => (
-										<ProgramBreakdownTable key={key} loading />
-									))
+									Array.from({ length: 3 }, (_, i) => `skeleton-${i}`).map(
+										(key) => <ProgramBreakdownTable key={key} loading />
+									)
 								) : reportData?.summaryData?.schools &&
 									reportData.summaryData.schools.length > 0 ? (
 									reportData.summaryData.schools.map((school) => (
-										<ProgramBreakdownTable key={school.schoolName} school={school} />
+										<ProgramBreakdownTable
+											key={school.schoolName}
+											school={school}
+										/>
 									))
 								) : (
 									<Alert color='blue' variant='light'>
@@ -309,7 +341,9 @@ export default function RegistrationReportPage() {
 						color='red'
 						variant='light'
 					>
-						{error instanceof Error ? error.message : 'An unexpected error occurred'}
+						{error instanceof Error
+							? error.message
+							: 'An unexpected error occurred'}
 					</Alert>
 				)}
 			</Stack>

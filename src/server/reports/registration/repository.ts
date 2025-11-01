@@ -76,7 +76,10 @@ export class RegistrationReportRepository {
 				status: studentSemesters.status,
 			})
 			.from(studentSemesters)
-			.innerJoin(studentPrograms, eq(studentSemesters.studentProgramId, studentPrograms.id))
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
@@ -97,7 +100,9 @@ export class RegistrationReportRepository {
 		}
 
 		if (filter?.semesterNumber) {
-			conditions.push(eq(studentSemesters.semesterNumber, filter.semesterNumber));
+			conditions.push(
+				eq(studentSemesters.semesterNumber, filter.semesterNumber)
+			);
 		}
 
 		const result = await query
@@ -141,7 +146,10 @@ export class RegistrationReportRepository {
 				status: studentSemesters.status,
 			})
 			.from(studentSemesters)
-			.innerJoin(studentPrograms, eq(studentSemesters.studentProgramId, studentPrograms.id))
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
@@ -150,7 +158,10 @@ export class RegistrationReportRepository {
 		const countQuery = db
 			.select({ count: students.stdNo })
 			.from(studentSemesters)
-			.innerJoin(studentPrograms, eq(studentSemesters.studentProgramId, studentPrograms.id))
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
@@ -171,7 +182,9 @@ export class RegistrationReportRepository {
 		}
 
 		if (filter?.semesterNumber) {
-			conditions.push(eq(studentSemesters.semesterNumber, filter.semesterNumber));
+			conditions.push(
+				eq(studentSemesters.semesterNumber, filter.semesterNumber)
+			);
 		}
 
 		if (filter?.searchQuery?.trim()) {
@@ -284,7 +297,11 @@ export class RegistrationReportRepository {
 	}
 
 	async getTermById(termId: number) {
-		const [term] = await db.select().from(terms).where(eq(terms.id, termId)).limit(1);
+		const [term] = await db
+			.select()
+			.from(terms)
+			.where(eq(terms.id, termId))
+			.limit(1);
 
 		return term;
 	}
@@ -316,7 +333,9 @@ export class RegistrationReportRepository {
 			.from(programs);
 
 		if (schoolId) {
-			return await baseQuery.where(eq(programs.schoolId, schoolId)).orderBy(programs.name);
+			return await baseQuery
+				.where(eq(programs.schoolId, schoolId))
+				.orderBy(programs.name);
 		}
 
 		return await baseQuery.orderBy(programs.name);

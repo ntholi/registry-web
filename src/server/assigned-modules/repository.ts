@@ -10,7 +10,10 @@ import {
 } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
-export default class AssignedModuleRepository extends BaseRepository<typeof assignedModules, 'id'> {
+export default class AssignedModuleRepository extends BaseRepository<
+	typeof assignedModules,
+	'id'
+> {
 	constructor() {
 		super(assignedModules, assignedModules.id);
 	}
@@ -59,7 +62,10 @@ export default class AssignedModuleRepository extends BaseRepository<typeof assi
 
 	async findByUserAndModule(userId: string, moduleId: number) {
 		const results = await db.query.assignedModules.findMany({
-			where: and(eq(assignedModules.userId, userId), eq(assignedModules.active, true)),
+			where: and(
+				eq(assignedModules.userId, userId),
+				eq(assignedModules.active, true)
+			),
 			with: {
 				semesterModule: {
 					with: {
@@ -92,8 +98,14 @@ export default class AssignedModuleRepository extends BaseRepository<typeof assi
 			})
 			.from(assignedModules)
 			.innerJoin(users, eq(assignedModules.userId, users.id))
-			.innerJoin(semesterModules, eq(assignedModules.semesterModuleId, semesterModules.id))
-			.innerJoin(structureSemesters, eq(semesterModules.semesterId, structureSemesters.id))
+			.innerJoin(
+				semesterModules,
+				eq(assignedModules.semesterModuleId, semesterModules.id)
+			)
+			.innerJoin(
+				structureSemesters,
+				eq(semesterModules.semesterId, structureSemesters.id)
+			)
 			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.where(eq(semesterModules.moduleId, moduleId));
@@ -131,7 +143,10 @@ export default class AssignedModuleRepository extends BaseRepository<typeof assi
 
 	async findByUser(userId: string) {
 		return await db.query.assignedModules.findMany({
-			where: and(eq(assignedModules.userId, userId), eq(assignedModules.active, true)),
+			where: and(
+				eq(assignedModules.userId, userId),
+				eq(assignedModules.active, true)
+			),
 			with: {
 				semesterModule: {
 					with: {

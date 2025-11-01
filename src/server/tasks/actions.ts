@@ -16,16 +16,28 @@ export async function getTask(id: string) {
 	return service.get(id);
 }
 
-export async function getTasks(page: number = 1, search = '', filter?: TaskFilter) {
+export async function getTasks(
+	page: number = 1,
+	search = '',
+	filter?: TaskFilter
+) {
 	const filters: SQL[] = [];
 
 	if (filter?.status && filter.status.length > 0) {
-		filters.push(inArray(tasks.status, filter.status as (typeof tasks.$inferSelect.status)[]));
+		filters.push(
+			inArray(
+				tasks.status,
+				filter.status as (typeof tasks.$inferSelect.status)[]
+			)
+		);
 	}
 
 	if (filter?.priority && filter.priority.length > 0) {
 		filters.push(
-			inArray(tasks.priority, filter.priority as (typeof tasks.$inferSelect.priority)[])
+			inArray(
+				tasks.priority,
+				filter.priority as (typeof tasks.$inferSelect.priority)[]
+			)
 		);
 	}
 
@@ -74,11 +86,17 @@ export async function createTask(task: TaskWithAssignments) {
 	return service.create(task);
 }
 
-export async function updateTask(id: string, task: Partial<TaskWithAssignments>) {
+export async function updateTask(
+	id: string,
+	task: Partial<TaskWithAssignments>
+) {
 	return service.update(id, task);
 }
 
-export async function updateTaskStatus(id: string, status: typeof tasks.$inferSelect.status) {
+export async function updateTaskStatus(
+	id: string,
+	status: typeof tasks.$inferSelect.status
+) {
 	return service.updateStatus(id, status);
 }
 

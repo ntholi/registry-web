@@ -18,7 +18,10 @@ class StructureService {
 	}
 
 	async getByProgramId(programId: number) {
-		return withAuth(async () => this.repository.findByProgramId(programId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.findByProgramId(programId),
+			['dashboard']
+		);
 	}
 
 	async findAll(params: QueryOptions<typeof structures>) {
@@ -46,8 +49,14 @@ class StructureService {
 	}
 
 	async getStructureModules(structureId: number) {
-		return withAuth(async () => this.repository.getStructureModules(structureId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.getStructureModules(structureId),
+			['dashboard']
+		);
 	}
 }
 
-export const structuresService = serviceWrapper(StructureService, 'StructuresService');
+export const structuresService = serviceWrapper(
+	StructureService,
+	'StructuresService'
+);

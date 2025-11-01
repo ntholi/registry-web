@@ -38,4 +38,7 @@ class StudentCardPrintService {
 	}
 }
 
-export const studentCardPrintsService = serviceWrapper(StudentCardPrintService, 'StudentCardPrint');
+export const studentCardPrintsService = serviceWrapper(
+	StudentCardPrintService,
+	'StudentCardPrint'
+);

@@ -13,7 +13,11 @@ export interface PaginationProps extends MPaginationProps {
 	totalItems?: number;
 }
 
-export function Pagination({ total: totalPages, totalItems, ...props }: PaginationProps) {
+export function Pagination({
+	total: totalPages,
+	totalItems,
+	...props
+}: PaginationProps) {
 	const [page, setPage] = useQueryState('page', parseAsInteger);
 
 	return (

@@ -13,7 +13,11 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconArrowLeft, IconArrowRight, IconInfoCircle } from '@tabler/icons-react';
+import {
+	IconArrowLeft,
+	IconArrowRight,
+	IconInfoCircle,
+} from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -71,7 +75,8 @@ export default function NewRegistrationPage() {
 		semesterNo: number;
 		status: 'Active' | 'Repeat';
 	} | null>(null);
-	const [sponsorshipData, setSponsorshipData] = useState<SponsorshipData | null>(null);
+	const [sponsorshipData, setSponsorshipData] =
+		useState<SponsorshipData | null>(null);
 	const [accountConfirmed, setAccountConfirmed] = useState(false);
 	const { currentTerm } = useCurrentTerm();
 
@@ -115,7 +120,9 @@ export default function NewRegistrationPage() {
 				return null;
 			}
 			const modulesWithStatus = availableModules.filter((module) =>
-				selectedModules.some((selected) => selected.moduleId === module.semesterModuleId)
+				selectedModules.some(
+					(selected) => selected.moduleId === module.semesterModuleId
+				)
 			);
 			return await determineSemesterStatus(modulesWithStatus, student);
 		},
@@ -124,7 +131,13 @@ export default function NewRegistrationPage() {
 
 	const registrationMutation = useMutation({
 		mutationFn: async () => {
-			if (!student || !selectedModules || !semesterData || !sponsorshipData || !currentTerm) {
+			if (
+				!student ||
+				!selectedModules ||
+				!semesterData ||
+				!sponsorshipData ||
+				!currentTerm
+			) {
 				throw new Error('Missing required data for registration');
 			}
 
@@ -183,7 +196,8 @@ export default function NewRegistrationPage() {
 
 	const handleSubmit = () => {
 		if (selectedModules.length > 0 && semesterData && sponsorshipData) {
-			const needsConfirmation = sponsorshipData.sponsorId && isNMDS(sponsorshipData.sponsorId);
+			const needsConfirmation =
+				sponsorshipData.sponsorId && isNMDS(sponsorshipData.sponsorId);
 
 			if (needsConfirmation && !accountConfirmed) {
 				return;
@@ -193,11 +207,13 @@ export default function NewRegistrationPage() {
 		}
 	};
 
-	const canProceedStep1 = selectedModules.length > 0 && selectedModules.length <= MAX_REG_MODULES;
+	const canProceedStep1 =
+		selectedModules.length > 0 && selectedModules.length <= MAX_REG_MODULES;
 	const canProceedStep2 = semesterData !== null;
 	const canProceedStep3 = sponsorshipData !== null;
 	const canSubmit =
-		sponsorshipData !== null && (!isNMDS(sponsorshipData?.sponsorId || 0) || accountConfirmed);
+		sponsorshipData !== null &&
+		(!isNMDS(sponsorshipData?.sponsorId || 0) || accountConfirmed);
 
 	const totalSteps =
 		sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId)
@@ -217,9 +233,13 @@ export default function NewRegistrationPage() {
 	if (blockedStudent && blockedStudent.status === 'blocked') {
 		return (
 			<Container size='lg' py='xl'>
-				<Alert icon={<IconInfoCircle size='1rem' />} title='Registration Blocked' color='red'>
-					Your account has been blocked from registering. Please contact the registry office for
-					assistance.
+				<Alert
+					icon={<IconInfoCircle size='1rem' />}
+					title='Registration Blocked'
+					color='red'
+				>
+					Your account has been blocked from registering. Please contact the
+					registry office for assistance.
 					<br />
 					<strong>Reason:</strong> {blockedStudent.reason}
 				</Alert>
@@ -230,7 +250,11 @@ export default function NewRegistrationPage() {
 	if (!currentTerm) {
 		return (
 			<Container size='lg' py='xl'>
-				<Alert icon={<IconInfoCircle size='1rem' />} title='No Active Term' color='orange'>
+				<Alert
+					icon={<IconInfoCircle size='1rem' />}
+					title='No Active Term'
+					color='orange'
+				>
 					There is currently no active registration term.
 				</Alert>
 			</Container>

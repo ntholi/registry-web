@@ -142,9 +142,13 @@ export default function ModulesDialog({
 																		size='xs'
 																		variant='light'
 																		onClick={() => handleAddModule(semModule)}
-																		disabled={selectedModules.some((m) => m.id === semModule.id)}
+																		disabled={selectedModules.some(
+																			(m) => m.id === semModule.id
+																		)}
 																	>
-																		{selectedModules.some((m) => m.id === semModule.id)
+																		{selectedModules.some(
+																			(m) => m.id === semModule.id
+																		)
 																			? 'Added'
 																			: 'Add'}
 																	</Button>

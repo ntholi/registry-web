@@ -55,7 +55,9 @@ export default async function GraduationDetailsPage({ params }: Props) {
 	}
 
 	const status = getGraduationStatus(graduationRequest);
-	const clearanceStatus = getClearanceStatus(graduationRequest.graduationClearances);
+	const clearanceStatus = getClearanceStatus(
+		graduationRequest.graduationClearances
+	);
 
 	return (
 		<Container size='md' px='xs'>
@@ -73,7 +75,9 @@ export default async function GraduationDetailsPage({ params }: Props) {
 
 						<Flex justify={'space-between'} wrap='wrap'>
 							<Box mb='md'>
-								<Text size='sm'>{graduationRequest.studentProgram.structure.program.name}</Text>
+								<Text size='sm'>
+									{graduationRequest.studentProgram.structure.program.name}
+								</Text>
 
 								<Text c='dimmed' size='sm'>
 									Submitted: {formatDateTime(graduationRequest.createdAt!)}
@@ -108,7 +112,11 @@ export default async function GraduationDetailsPage({ params }: Props) {
 						<TabsTab
 							value='clearance'
 							leftSection={
-								<ThemeIcon color={getStatusColor(clearanceStatus)} variant='light' size={20}>
+								<ThemeIcon
+									color={getStatusColor(clearanceStatus)}
+									variant='light'
+									size={20}
+								>
 									{getStatusIcon(clearanceStatus)}
 								</ThemeIcon>
 							}
@@ -116,7 +124,8 @@ export default async function GraduationDetailsPage({ params }: Props) {
 							Clearance Status
 						</TabsTab>
 						<TabsTab value='payments' leftSection={<IconReceipt size='1rem' />}>
-							Payment Receipts ({graduationRequest.paymentReceipts?.length || 0})
+							Payment Receipts ({graduationRequest.paymentReceipts?.length || 0}
+							)
 						</TabsTab>
 					</TabsList>
 

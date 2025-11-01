@@ -9,7 +9,11 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { IconChevronRight, IconFileText, IconSchool } from '@tabler/icons-react';
+import {
+	IconChevronRight,
+	IconFileText,
+	IconSchool,
+} from '@tabler/icons-react';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/utils';
 import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
@@ -19,7 +23,9 @@ interface GraduationHistoryProps {
 	stdNo: number;
 }
 
-export default async function GraduationHistory({ stdNo }: GraduationHistoryProps) {
+export default async function GraduationHistory({
+	stdNo,
+}: GraduationHistoryProps) {
 	const graduationRequest = await getGraduationRequestByStudentNo(stdNo);
 
 	if (!graduationRequest) {
@@ -32,8 +38,8 @@ export default async function GraduationHistory({ stdNo }: GraduationHistoryProp
 							No Graduation Request
 						</Text>
 						<Text size='sm' c='dimmed' ta='center'>
-							You haven&apos;t submitted a graduation request yet. Your graduation request will
-							appear here once you submit it.
+							You haven&apos;t submitted a graduation request yet. Your
+							graduation request will appear here once you submit it.
 						</Text>
 					</Stack>
 				</Stack>
@@ -44,7 +50,11 @@ export default async function GraduationHistory({ stdNo }: GraduationHistoryProp
 	const status = getGraduationStatus(graduationRequest);
 
 	return (
-		<Card withBorder component={Link} href={`/student/graduation/${graduationRequest.id}`}>
+		<Card
+			withBorder
+			component={Link}
+			href={`/student/graduation/${graduationRequest.id}`}
+		>
 			<CardSection p='xs'>
 				<Flex gap='xs' align='center' justify='space-between'>
 					<Group>

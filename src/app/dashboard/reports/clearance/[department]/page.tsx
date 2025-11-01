@@ -1,6 +1,15 @@
 'use client';
 
-import { Button, Card, Group, Paper, Select, Stack, Text, Title } from '@mantine/core';
+import {
+	Button,
+	Card,
+	Group,
+	Paper,
+	Select,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { DatePickerInput, type DatesRangeValue } from '@mantine/dates';
 import { IconCalendar, IconFilter, IconSearch } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
@@ -8,13 +17,19 @@ import { useCallback, useEffect, useState } from 'react';
 import type { DashboardUser } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import { fetchClearanceStats } from '@/server/reports/clearance/actions';
-import type { ClearanceFilter, ClearanceType } from '@/server/reports/clearance/repository';
+import type {
+	ClearanceFilter,
+	ClearanceType,
+} from '@/server/reports/clearance/repository';
 import type { ClearanceStatsSummary } from '@/server/reports/clearance/service';
 import { StatsSummary } from './StatsSummary';
 import { StatsTable } from './StatsTable';
 
 export default function ClearanceReportsPage() {
-	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+		null,
+		null,
+	]);
 	const [clearanceType, setClearanceType] = useState<ClearanceType>('all');
 	const [stats, setStats] = useState<ClearanceStatsSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +56,10 @@ export default function ClearanceReportsPage() {
 					}),
 			};
 
-			const data = await fetchClearanceStats(department as DashboardUser, filter);
+			const data = await fetchClearanceStats(
+				department as DashboardUser,
+				filter
+			);
 			setStats(data);
 		} catch (error) {
 			console.error('Failed to fetch clearance stats:', error);
@@ -58,11 +76,13 @@ export default function ClearanceReportsPage() {
 
 	return (
 		<Stack p='lg'>
-			<Title order={2}>Clearance Statistics - {toTitleCase(department as DashboardUser)}</Title>
+			<Title order={2}>
+				Clearance Statistics - {toTitleCase(department as DashboardUser)}
+			</Title>
 
 			<Text size='sm' c='dimmed'>
-				Statistics showing clearance requests by department and staff members. Filter by
-				registration or graduation clearances to get specific reports.
+				Statistics showing clearance requests by department and staff members.
+				Filter by registration or graduation clearances to get specific reports.
 			</Text>
 
 			<Card withBorder p='md'>
@@ -74,7 +94,9 @@ export default function ClearanceReportsPage() {
 							<Select
 								placeholder='Select clearance type'
 								value={clearanceType}
-								onChange={(value) => setClearanceType((value as ClearanceType) || 'all')}
+								onChange={(value) =>
+									setClearanceType((value as ClearanceType) || 'all')
+								}
 								data={[
 									{ value: 'all', label: 'All Clearances' },
 									{ value: 'registration', label: 'Registration Only' },

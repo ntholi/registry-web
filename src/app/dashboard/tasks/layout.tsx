@@ -54,11 +54,17 @@ function getStatusIcon(status: string) {
 		case 'completed':
 			return <IconCheck size={'1rem'} color='var(--mantine-color-green-6)' />;
 		case 'in_progress':
-			return <IconPlayerPlay size={'1rem'} color='var(--mantine-color-blue-6)' />;
+			return (
+				<IconPlayerPlay size={'1rem'} color='var(--mantine-color-blue-6)' />
+			);
 		case 'active':
-			return <IconHourglass size={'1rem'} color='var(--mantine-color-yellow-6)' />;
+			return (
+				<IconHourglass size={'1rem'} color='var(--mantine-color-yellow-6)' />
+			);
 		case 'scheduled':
-			return <IconCalendarClock size={'1rem'} color='var(--mantine-color-grape-6)' />;
+			return (
+				<IconCalendarClock size={'1rem'} color='var(--mantine-color-grape-6)' />
+			);
 		case 'cancelled':
 			return <IconX size={'1rem'} color='var(--mantine-color-gray-6)' />;
 		default:
@@ -116,7 +122,11 @@ export default function Layout({ children }: PropsWithChildren) {
 									{isOverdue && <IconAlertCircle size={16} color='red' />}
 								</Group>
 								<Group gap='xs'>
-									<Badge size='xs' variant='light' color={getPriorityColor(task.priority)}>
+									<Badge
+										size='xs'
+										variant='light'
+										color={getPriorityColor(task.priority)}
+									>
 										{task.priority}
 									</Badge>
 									{task.dueDate && (

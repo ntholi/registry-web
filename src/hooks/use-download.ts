@@ -35,7 +35,8 @@ export function useDownload(options: UseDownloadOptions = {}) {
 
 			options.onSuccess?.(filename);
 		} catch (error) {
-			const downloadError = error instanceof Error ? error : new Error('Download failed');
+			const downloadError =
+				error instanceof Error ? error : new Error('Download failed');
 			options.onError?.(downloadError);
 		}
 	};
@@ -51,7 +52,8 @@ export function useDownload(options: UseDownloadOptions = {}) {
 			downloadFromBase64(data, filename);
 			return data;
 		} catch (error) {
-			const downloadError = error instanceof Error ? error : new Error('Download failed');
+			const downloadError =
+				error instanceof Error ? error : new Error('Download failed');
 			options.onError?.(downloadError);
 			throw downloadError;
 		} finally {

@@ -55,7 +55,10 @@ export interface CourseSummaryReport {
 	supplementaryStudents: StudentModuleReport[];
 }
 
-export default class CourseSummaryRepository extends BaseRepository<typeof students, 'stdNo'> {
+export default class CourseSummaryRepository extends BaseRepository<
+	typeof students,
+	'stdNo'
+> {
 	constructor() {
 		super(students, students.stdNo);
 	}
@@ -109,26 +112,32 @@ export default class CourseSummaryRepository extends BaseRepository<typeof stude
 				sm.studentSemester &&
 				sm.studentSemester.term === termName &&
 				!['Delete', 'Drop'].includes(sm.status) &&
-				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(sm.studentSemester.status)
+				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
+					sm.studentSemester.status
+				)
 		);
 
 		if (programFilter) {
 			validStudentModules = validStudentModules.filter(
-				(sm) => sm.studentSemester?.studentProgram.structure.program.id === programFilter
+				(sm) =>
+					sm.studentSemester?.studentProgram.structure.program.id ===
+					programFilter
 			);
 		}
 
 		return {
 			courseCode: semesterModule.module.code,
 			courseName: semesterModule.module.name,
-			programName: semesterModule.semester?.structure.program.name || 'Unknown Program',
+			programName:
+				semesterModule.semester?.structure.program.name || 'Unknown Program',
 			programCode: semesterModule.semester?.structure.program.code || 'Unknown',
 			termName,
 			moduleId: semesterModule.module.id,
 			studentModules: validStudentModules.map((sm) => ({
 				studentId: sm.studentSemester!.studentProgram.student.stdNo,
 				studentName: sm.studentSemester!.studentProgram.student.name,
-				studentNumber: sm.studentSemester!.studentProgram.student.stdNo.toString(),
+				studentNumber:
+					sm.studentSemester!.studentProgram.student.stdNo.toString(),
 				marks: sm.marks,
 				grade: sm.grade,
 				status: sm.status,
@@ -254,12 +263,16 @@ export default class CourseSummaryRepository extends BaseRepository<typeof stude
 				sm.studentSemester &&
 				sm.studentSemester.term === termName &&
 				!['Delete', 'Drop'].includes(sm.status) &&
-				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(sm.studentSemester.status)
+				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
+					sm.studentSemester.status
+				)
 		);
 
 		if (programFilter) {
 			validStudentModules = validStudentModules.filter(
-				(sm) => sm.studentSemester?.studentProgram.structure.program.id === programFilter
+				(sm) =>
+					sm.studentSemester?.studentProgram.structure.program.id ===
+					programFilter
 			);
 		}
 
@@ -297,11 +310,15 @@ export default class CourseSummaryRepository extends BaseRepository<typeof stude
 
 		const relevantAssessmentMarks = allAssessmentMarks.filter(
 			(am) =>
-				am.assessment?.moduleId === semesterModule.module!.id && am.assessment?.termId === term.id
+				am.assessment?.moduleId === semesterModule.module!.id &&
+				am.assessment?.termId === term.id
 		);
 
 		const gradesMap = new Map(
-			moduleGradesData.map((mg) => [mg.stdNo, { grade: mg.grade, weightedTotal: mg.weightedTotal }])
+			moduleGradesData.map((mg) => [
+				mg.stdNo,
+				{ grade: mg.grade, weightedTotal: mg.weightedTotal },
+			])
 		);
 
 		const assessmentsByStudent = new Map<
@@ -341,13 +358,15 @@ export default class CourseSummaryRepository extends BaseRepository<typeof stude
 		return {
 			courseCode: semesterModule.module.code,
 			courseName: semesterModule.module.name,
-			programName: semesterModule.semester?.structure.program.name || 'Unknown Program',
+			programName:
+				semesterModule.semester?.structure.program.name || 'Unknown Program',
 			programCode: semesterModule.semester?.structure.program.code || 'Unknown',
 			termName,
 			moduleId: semesterModule.module.id,
 			students,
-			assessments: Array.from(assessmentsByStudent.entries()).flatMap(([stdNo, assessments]) =>
-				assessments.map((assessment) => ({ stdNo, ...assessment }))
+			assessments: Array.from(assessmentsByStudent.entries()).flatMap(
+				([stdNo, assessments]) =>
+					assessments.map((assessment) => ({ stdNo, ...assessment }))
 			),
 		};
 	}

@@ -14,7 +14,11 @@ type Props = {
 	programId?: number;
 };
 
-export default function CertificateDownloader({ stdNo, disabled, programId }: Props) {
+export default function CertificateDownloader({
+	stdNo,
+	disabled,
+	programId,
+}: Props) {
 	const [isGenerating, setIsGenerating] = useState(false);
 	const { data: session } = useSession();
 
@@ -32,7 +36,9 @@ export default function CertificateDownloader({ stdNo, disabled, programId }: Pr
 				return;
 			}
 
-			const completedPrograms = student.programs.filter((p) => p && p.status === 'Completed');
+			const completedPrograms = student.programs.filter(
+				(p) => p && p.status === 'Completed'
+			);
 
 			if (completedPrograms.length === 0) {
 				console.error('No completed programs found');

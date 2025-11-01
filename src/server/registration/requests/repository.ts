@@ -1,4 +1,15 @@
-import { and, count, desc, eq, exists, inArray, like, ne, not, sql } from 'drizzle-orm';
+import {
+	and,
+	count,
+	desc,
+	eq,
+	exists,
+	inArray,
+	like,
+	ne,
+	not,
+	sql,
+} from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm/sql';
 import { db } from '@/db';
 import {
@@ -13,7 +24,9 @@ import {
 	terms,
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
-import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 type RegistrationRequestInsert = typeof registrationRequests.$inferInsert;
@@ -29,7 +42,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 	override async query(params: QueryOptions<typeof registrationRequests>) {
 		const { orderBy, offset, limit } = this.buildQueryCriteria(params);
 
-		const whereCondition = like(registrationRequests.stdNo, `%${params.search}%`);
+		const whereCondition = like(
+			registrationRequests.stdNo,
+			`%${params.search}%`
+		);
 
 		const data = await db.query.registrationRequests.findMany({
 			where: whereCondition,
@@ -92,7 +108,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 	async findByStdNo(stdNo: number, termId: number) {
 		return db.query.registrationRequests.findFirst({
-			where: and(eq(registrationRequests.stdNo, stdNo), eq(registrationRequests.termId, termId)),
+			where: and(
+				eq(registrationRequests.stdNo, stdNo),
+				eq(registrationRequests.termId, termId)
+			),
 			with: {
 				requestedModules: {
 					with: {
@@ -118,7 +137,9 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		if (status === 'registered') {
 			whereCondition = and(
 				eq(registrationRequests.status, status),
-				params.search ? like(registrationRequests.stdNo, `%${params.search}%`) : undefined,
+				params.search
+					? like(registrationRequests.stdNo, `%${params.search}%`)
+					: undefined,
 				termId ? eq(registrationRequests.termId, termId) : undefined
 			);
 		} else if (status === 'approved') {
@@ -139,7 +160,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 									)
 									.where(
 										and(
-											eq(registrationClearance.registrationRequestId, registrationRequests.id),
+											eq(
+												registrationClearance.registrationRequestId,
+												registrationRequests.id
+											),
 											ne(clearance.status, 'approved')
 										)
 									)
@@ -149,7 +173,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
 							db
 								.select()
 								.from(registrationClearance)
-								.where(eq(registrationClearance.registrationRequestId, registrationRequests.id))
+								.where(
+									eq(
+										registrationClearance.registrationRequestId,
+										registrationRequests.id
+									)
+								)
 						),
 						ne(registrationRequests.status, 'registered'),
 						termId ? eq(registrationRequests.termId, termId) : undefined
@@ -158,7 +187,9 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 			whereCondition = and(
 				inArray(registrationRequests.id, approvedRequestIds),
-				params.search ? like(registrationRequests.stdNo, `%${params.search}%`) : undefined
+				params.search
+					? like(registrationRequests.stdNo, `%${params.search}%`)
+					: undefined
 			);
 		} else {
 			whereCondition = and(
@@ -167,10 +198,15 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					db
 						.select({ id: registrationClearance.registrationRequestId })
 						.from(registrationClearance)
-						.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
+						.innerJoin(
+							clearance,
+							eq(registrationClearance.clearanceId, clearance.id)
+						)
 						.where(eq(clearance.status, status))
 				),
-				params.search ? like(registrationRequests.stdNo, `%${params.search}%`) : undefined,
+				params.search
+					? like(registrationRequests.stdNo, `%${params.search}%`)
+					: undefined,
 				termId ? eq(registrationRequests.termId, termId) : undefined
 			);
 		}
@@ -199,7 +235,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		};
 	}
 
-	async countByStatus(status: 'pending' | 'registered' | 'rejected' | 'approved', termId?: number) {
+	async countByStatus(
+		status: 'pending' | 'registered' | 'rejected' | 'approved',
+		termId?: number
+	) {
 		if (status === 'registered') {
 			const [result] = await db
 				.select({ value: count() })
@@ -229,7 +268,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 									)
 									.where(
 										and(
-											eq(registrationClearance.registrationRequestId, registrationRequests.id),
+											eq(
+												registrationClearance.registrationRequestId,
+												registrationRequests.id
+											),
 											ne(clearance.status, 'approved')
 										)
 									)
@@ -239,7 +281,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
 							db
 								.select()
 								.from(registrationClearance)
-								.where(eq(registrationClearance.registrationRequestId, registrationRequests.id))
+								.where(
+									eq(
+										registrationClearance.registrationRequestId,
+										registrationRequests.id
+									)
+								)
 						),
 						ne(registrationRequests.status, 'registered'),
 						termId ? eq(registrationRequests.termId, termId) : undefined
@@ -262,7 +309,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 								)
 								.where(
 									and(
-										eq(registrationClearance.registrationRequestId, registrationRequests.id),
+										eq(
+											registrationClearance.registrationRequestId,
+											registrationRequests.id
+										),
 										eq(clearance.status, status)
 									)
 								)
@@ -387,7 +437,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				});
 			}
 
-			const modules = await this.handleRegistrationModules(tx, request.id, data.modules);
+			const modules = await this.handleRegistrationModules(
+				tx,
+				request.id,
+				data.modules
+			);
 
 			return { request, modules };
 		});
@@ -427,10 +481,16 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			const financeClearances = await tx
 				.select({ clearanceId: registrationClearance.clearanceId })
 				.from(registrationClearance)
-				.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
+				.innerJoin(
+					clearance,
+					eq(registrationClearance.clearanceId, clearance.id)
+				)
 				.where(
 					and(
-						eq(registrationClearance.registrationRequestId, registrationRequestId),
+						eq(
+							registrationClearance.registrationRequestId,
+							registrationRequestId
+						),
 						eq(clearance.department, 'finance')
 					)
 				);
@@ -493,7 +553,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 			// Check if modules have changed
 			const existingModules = await tx.query.requestedModules.findMany({
-				where: eq(requestedModules.registrationRequestId, registrationRequestId),
+				where: eq(
+					requestedModules.registrationRequestId,
+					registrationRequestId
+				),
 				columns: {
 					semesterModuleId: true,
 					moduleStatus: true,
@@ -527,10 +590,16 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				const financeClearances = await tx
 					.select({ clearanceId: registrationClearance.clearanceId })
 					.from(registrationClearance)
-					.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
+					.innerJoin(
+						clearance,
+						eq(registrationClearance.clearanceId, clearance.id)
+					)
 					.where(
 						and(
-							eq(registrationClearance.registrationRequestId, registrationRequestId),
+							eq(
+								registrationClearance.registrationRequestId,
+								registrationRequestId
+							),
 							eq(clearance.department, 'finance')
 						)
 					);
@@ -657,4 +726,5 @@ export default class RegistrationRequestRepository extends BaseRepository<
 	}
 }
 
-export const registrationRequestRepository = new RegistrationRequestRepository();
+export const registrationRequestRepository =
+	new RegistrationRequestRepository();

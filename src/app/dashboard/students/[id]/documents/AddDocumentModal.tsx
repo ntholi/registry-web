@@ -1,9 +1,30 @@
 'use client';
 
-import { Button, Group, Modal, Paper, rem, Select, Stack, Text, ThemeIcon } from '@mantine/core';
-import { Dropzone, type FileRejection, type FileWithPath, MIME_TYPES } from '@mantine/dropzone';
+import {
+	Button,
+	Group,
+	Modal,
+	Paper,
+	rem,
+	Select,
+	Stack,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
+import {
+	Dropzone,
+	type FileRejection,
+	type FileWithPath,
+	MIME_TYPES,
+} from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
-import { IconFile, IconFileUpload, IconTrash, IconUpload, IconX } from '@tabler/icons-react';
+import {
+	IconFile,
+	IconFileUpload,
+	IconTrash,
+	IconUpload,
+	IconX,
+} from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
 import { useState } from 'react';
 import { uploadDocument } from '@/lib/storage';
@@ -22,7 +43,10 @@ function formatFileSize(bytes: number): string {
 		return '0 B';
 	}
 	const units = ['B', 'KB', 'MB', 'GB'];
-	const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+	const exponent = Math.min(
+		Math.floor(Math.log(bytes) / Math.log(1024)),
+		units.length - 1
+	);
 	const value = bytes / 1024 ** exponent;
 	return `${value.toFixed(value < 10 && exponent > 0 ? 1 : 0)} ${units[exponent]}`;
 }
@@ -79,7 +103,11 @@ export default function AddDocumentModal({
 			const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
 			const generatedFileName = `${nanoid()}.${ext}`;
 
-			const uploadedPath = await uploadDocument(file, generatedFileName, 'documents');
+			const uploadedPath = await uploadDocument(
+				file,
+				generatedFileName,
+				'documents'
+			);
 
 			await createDocument({
 				fileName: uploadedPath,
@@ -157,7 +185,12 @@ export default function AddDocumentModal({
 							disabled={loading}
 							loading={loading}
 						>
-							<Group justify='center' gap='xl' mih={220} style={{ pointerEvents: 'none' }}>
+							<Group
+								justify='center'
+								gap='xl'
+								mih={220}
+								style={{ pointerEvents: 'none' }}
+							>
 								<Dropzone.Accept>
 									<IconUpload stroke={1.5} size={20} />
 								</Dropzone.Accept>
@@ -191,7 +224,12 @@ export default function AddDocumentModal({
 					</Paper>
 				) : (
 					<Paper withBorder radius='md' p='xl'>
-						<Stack gap='md' align='center' style={{ minHeight: rem(220) }} justify='center'>
+						<Stack
+							gap='md'
+							align='center'
+							style={{ minHeight: rem(220) }}
+							justify='center'
+						>
 							<ThemeIcon variant='default' size={80} radius='md'>
 								<IconFile size={40} stroke={1.5} />
 							</ThemeIcon>

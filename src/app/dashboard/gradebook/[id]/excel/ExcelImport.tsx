@@ -1,6 +1,15 @@
 'use client';
 
-import { Alert, Button, FileInput, Group, Modal, Stack, Stepper, Text } from '@mantine/core';
+import {
+	Alert,
+	Button,
+	FileInput,
+	Group,
+	Modal,
+	Stack,
+	Stepper,
+	Text,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
@@ -42,8 +51,11 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 	const [workbook, setWorkbook] = useState<ExcelWorkbook | null>(null);
 	const [selectedSheet, setSelectedSheet] = useState<string | null>(null);
 	const [excelData, setExcelData] = useState<ExcelData | null>(null);
-	const [detectedColumns, setDetectedColumns] = useState<DetectedColumns | null>(null);
-	const [columnMapping, setColumnMapping] = useState<ColumnMapping | null>(null);
+	const [detectedColumns, setDetectedColumns] =
+		useState<DetectedColumns | null>(null);
+	const [columnMapping, setColumnMapping] = useState<ColumnMapping | null>(
+		null
+	);
 	const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
 	const [importResult, setImportResult] = useState<ImportResult | null>(null);
 	const handleFileSelect = async (selectedFile: File | null) => {
@@ -81,7 +93,8 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 		} catch (error) {
 			notifications.show({
 				title: 'File Parse Error',
-				message: error instanceof Error ? error.message : 'Failed to parse Excel file',
+				message:
+					error instanceof Error ? error.message : 'Failed to parse Excel file',
 				color: 'red',
 			});
 		}
@@ -107,7 +120,10 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 		} catch (error) {
 			notifications.show({
 				title: 'Sheet Parse Error',
-				message: error instanceof Error ? error.message : 'Failed to parse selected sheet',
+				message:
+					error instanceof Error
+						? error.message
+						: 'Failed to parse selected sheet',
 				color: 'red',
 			});
 		}
@@ -146,7 +162,11 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 
 	return (
 		<>
-			<Button leftSection={<IconFileImport size={'1rem'} />} variant='light' onClick={open}>
+			<Button
+				leftSection={<IconFileImport size={'1rem'} />}
+				variant='light'
+				onClick={open}
+			>
 				Import from Excel
 			</Button>
 
@@ -243,7 +263,11 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 								<Stack gap='md' py='md'>
 									<Alert
 										icon={
-											importResult.success ? <IconCheck size={16} /> : <IconAlertCircle size={16} />
+											importResult.success ? (
+												<IconCheck size={16} />
+											) : (
+												<IconAlertCircle size={16} />
+											)
 										}
 										color={importResult.success ? 'green' : 'orange'}
 									>
@@ -251,11 +275,14 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 											<div>
 												<Text fw={500}>
 													Import
-													{importResult.success ? 'Completed' : 'Completed with Errors'}
+													{importResult.success
+														? 'Completed'
+														: 'Completed with Errors'}
 												</Text>
 												<Text size='sm'>
 													{importResult.imported} records imported successfully
-													{importResult.failed > 0 && `, ${importResult.failed} failed`}
+													{importResult.failed > 0 &&
+														`, ${importResult.failed} failed`}
 												</Text>
 											</div>
 										</Group>
@@ -295,7 +322,11 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 						<Group justify='space-between'>
 							<Button
 								variant='subtle'
-								onClick={activeStep > 0 ? () => setActiveStep(activeStep - 1) : handleClose}
+								onClick={
+									activeStep > 0
+										? () => setActiveStep(activeStep - 1)
+										: handleClose
+								}
 							>
 								{activeStep > 0 ? 'Back' : 'Cancel'}
 							</Button>

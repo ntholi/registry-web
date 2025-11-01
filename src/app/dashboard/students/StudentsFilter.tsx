@@ -68,7 +68,8 @@ export default function StudentsFilter() {
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs', filters.schoolId],
-		queryFn: () => (filters.schoolId ? getProgramsBySchoolId(Number(filters.schoolId)) : []),
+		queryFn: () =>
+			filters.schoolId ? getProgramsBySchoolId(Number(filters.schoolId)) : [],
 		enabled: !!filters.schoolId,
 	});
 
@@ -100,9 +101,15 @@ export default function StudentsFilter() {
 	);
 
 	const previewDescription = useMemo(() => {
-		const selectedSchool = schools.find((s) => s.id?.toString() === (filters.schoolId || ''));
-		const selectedProgram = programs.find((p) => p.id?.toString() === (filters.programId || ''));
-		const selectedTerm = terms.find((t) => t.id?.toString() === (filters.termId || ''));
+		const selectedSchool = schools.find(
+			(s) => s.id?.toString() === (filters.schoolId || '')
+		);
+		const selectedProgram = programs.find(
+			(p) => p.id?.toString() === (filters.programId || '')
+		);
+		const selectedTerm = terms.find(
+			(t) => t.id?.toString() === (filters.termId || '')
+		);
 		const selectedSemester = filters.semesterNumber
 			? getSemesterLabel(Number(filters.semesterNumber))
 			: null;

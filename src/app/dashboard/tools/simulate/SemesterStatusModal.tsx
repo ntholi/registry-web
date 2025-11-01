@@ -39,7 +39,12 @@ type Props = {
 	selectedModules: SelectedModule[];
 };
 
-export default function SemesterStatusModal({ opened, onClose, result, selectedModules }: Props) {
+export default function SemesterStatusModal({
+	opened,
+	onClose,
+	result,
+	selectedModules,
+}: Props) {
 	const { colorScheme } = useMantineColorScheme();
 
 	if (!result) return null;
@@ -48,27 +53,51 @@ export default function SemesterStatusModal({ opened, onClose, result, selectedM
 		return status === 'Active' ? 'green' : 'orange';
 	};
 
-	const totalCredits = selectedModules.reduce((sum, module) => sum + module.credits, 0);
+	const totalCredits = selectedModules.reduce(
+		(sum, module) => sum + module.credits,
+		0
+	);
 
 	return (
-		<Modal opened={opened} onClose={onClose} title='Semester Calculator' size='lg' padding='lg'>
+		<Modal
+			opened={opened}
+			onClose={onClose}
+			title='Semester Calculator'
+			size='lg'
+			padding='lg'
+		>
 			<Stack gap='xl'>
 				<Paper
 					withBorder
 					p='xl'
 					style={(theme) => ({
 						borderWidth: 1,
-						backgroundColor: colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[0],
-						borderColor: colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3],
+						backgroundColor:
+							colorScheme === 'dark'
+								? theme.colors.dark[7]
+								: theme.colors.gray[0],
+						borderColor:
+							colorScheme === 'dark'
+								? theme.colors.dark[4]
+								: theme.colors.gray[3],
 					})}
 				>
 					<Center>
 						<Stack align='center' gap='md'>
 							<Stack align='center' gap='xs'>
-								<Title order={2} size='h2' fw={600} c={getStatusColor(result.status)}>
+								<Title
+									order={2}
+									size='h2'
+									fw={600}
+									c={getStatusColor(result.status)}
+								>
 									{formatSemester(result.semesterNo)}
 								</Title>
-								<Badge color={getStatusColor(result.status)} variant='filled' radius='sm'>
+								<Badge
+									color={getStatusColor(result.status)}
+									variant='filled'
+									radius='sm'
+								>
 									{result.status}
 								</Badge>
 							</Stack>
@@ -83,8 +112,12 @@ export default function SemesterStatusModal({ opened, onClose, result, selectedM
 						radius='md'
 						ta='center'
 						style={(theme) => ({
-							backgroundColor: colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
-							borderColor: colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3],
+							backgroundColor:
+								colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
+							borderColor:
+								colorScheme === 'dark'
+									? theme.colors.dark[4]
+									: theme.colors.gray[3],
 						})}
 					>
 						<Text size='xs' c='dimmed' mb={4} tt='uppercase' fw={500}>
@@ -100,8 +133,12 @@ export default function SemesterStatusModal({ opened, onClose, result, selectedM
 						radius='md'
 						ta='center'
 						style={(theme) => ({
-							backgroundColor: colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
-							borderColor: colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3],
+							backgroundColor:
+								colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
+							borderColor:
+								colorScheme === 'dark'
+									? theme.colors.dark[4]
+									: theme.colors.gray[3],
 						})}
 					>
 						<Text size='xs' c='dimmed' mb={4} tt='uppercase' fw={500}>
@@ -119,8 +156,12 @@ export default function SemesterStatusModal({ opened, onClose, result, selectedM
 						p='md'
 						radius='md'
 						style={(theme) => ({
-							backgroundColor: colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
-							borderColor: colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3],
+							backgroundColor:
+								colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
+							borderColor:
+								colorScheme === 'dark'
+									? theme.colors.dark[4]
+									: theme.colors.gray[3],
 						})}
 					>
 						<Text fw={500} size='md' mb='md' c='dimmed'>

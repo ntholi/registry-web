@@ -58,15 +58,18 @@ export async function getClearanceStatsByDepartment(
 	const overallStats = await db
 		.select({
 			total: count(clearance.id),
-			approved: sql`SUM(CASE WHEN ${clearance.status} = 'approved' THEN 1 ELSE 0 END)`.mapWith(
-				Number
-			),
-			rejected: sql`SUM(CASE WHEN ${clearance.status} = 'rejected' THEN 1 ELSE 0 END)`.mapWith(
-				Number
-			),
-			pending: sql`SUM(CASE WHEN ${clearance.status} = 'pending' THEN 1 ELSE 0 END)`.mapWith(
-				Number
-			),
+			approved:
+				sql`SUM(CASE WHEN ${clearance.status} = 'approved' THEN 1 ELSE 0 END)`.mapWith(
+					Number
+				),
+			rejected:
+				sql`SUM(CASE WHEN ${clearance.status} = 'rejected' THEN 1 ELSE 0 END)`.mapWith(
+					Number
+				),
+			pending:
+				sql`SUM(CASE WHEN ${clearance.status} = 'pending' THEN 1 ELSE 0 END)`.mapWith(
+					Number
+				),
 		})
 		.from(clearance)
 		.where(and(...baseConditions));
@@ -77,12 +80,14 @@ export async function getClearanceStatsByDepartment(
 	const staffStats = await db
 		.select({
 			respondedBy: clearance.respondedBy,
-			approved: sql`SUM(CASE WHEN ${clearance.status} = 'approved' THEN 1 ELSE 0 END)`.mapWith(
-				Number
-			),
-			rejected: sql`SUM(CASE WHEN ${clearance.status} = 'rejected' THEN 1 ELSE 0 END)`.mapWith(
-				Number
-			),
+			approved:
+				sql`SUM(CASE WHEN ${clearance.status} = 'approved' THEN 1 ELSE 0 END)`.mapWith(
+					Number
+				),
+			rejected:
+				sql`SUM(CASE WHEN ${clearance.status} = 'rejected' THEN 1 ELSE 0 END)`.mapWith(
+					Number
+				),
 			total: count(clearance.id),
 		})
 		.from(clearance)

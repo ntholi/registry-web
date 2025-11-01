@@ -43,7 +43,9 @@ export default function ClearanceDetails({ request }: Props) {
 						<Stack>
 							<FieldView label='Student Number' underline={false}>
 								<Group justify='space-between'>
-									<Link href={`/dashboard/students/${student.stdNo}`}>{student.stdNo}</Link>
+									<Link href={`/dashboard/students/${student.stdNo}`}>
+										{student.stdNo}
+									</Link>
 									<Tooltip label='Copy'>
 										<ActionIcon
 											variant='subtle'
@@ -75,7 +77,11 @@ export default function ClearanceDetails({ request }: Props) {
 					</Paper>
 				</GridCol>
 				<GridCol span={{ base: 12, md: 5 }}>
-					<ClearanceSwitch request={request} setAccordion={setAccordion} comment={comment} />
+					<ClearanceSwitch
+						request={request}
+						setAccordion={setAccordion}
+						comment={comment}
+					/>
 				</GridCol>
 			</Grid>
 			<Accordion
@@ -97,7 +103,9 @@ export default function ClearanceDetails({ request }: Props) {
 				<AccordionItem value='modules'>
 					<AccordionControl>Modules</AccordionControl>
 					<AccordionPanel>
-						<ModulesTable requestedModules={request.registrationRequest.requestedModules} />
+						<ModulesTable
+							requestedModules={request.registrationRequest.requestedModules}
+						/>
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>

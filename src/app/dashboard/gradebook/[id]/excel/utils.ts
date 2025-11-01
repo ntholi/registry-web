@@ -1,4 +1,6 @@
-export function isValidStudentNumber(value: string | number | unknown): boolean {
+export function isValidStudentNumber(
+	value: string | number | unknown
+): boolean {
 	if (typeof value === 'number') {
 		value = value.toString();
 	}
@@ -11,7 +13,9 @@ export function isValidStudentNumber(value: string | number | unknown): boolean 
 	return /^901\d{6}$/.test(cleaned);
 }
 
-export function normalizeStudentNumber(value: string | number | unknown): string | null {
+export function normalizeStudentNumber(
+	value: string | number | unknown
+): string | null {
 	if (typeof value === 'number') {
 		value = value.toString();
 	}
@@ -54,7 +58,9 @@ export function isNumericValue(value: string | number | unknown): boolean {
 	return false;
 }
 
-export function parseNumericValue(value: string | number | unknown): number | null {
+export function parseNumericValue(
+	value: string | number | unknown
+): number | null {
 	if (typeof value === 'number') {
 		return Number.isFinite(value) ? value : null;
 	}
@@ -67,7 +73,10 @@ export function parseNumericValue(value: string | number | unknown): number | nu
 	return null;
 }
 
-export function findColumnByHeader(headers: string[], searchText: string): number | null {
+export function findColumnByHeader(
+	headers: string[],
+	searchText: string
+): number | null {
 	const normalizedSearch = searchText.toLowerCase().trim();
 
 	for (let i = 0; i < headers.length; i++) {

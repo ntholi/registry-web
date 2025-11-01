@@ -1,7 +1,11 @@
 'use client';
 
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconCheck, IconClock, IconExclamationCircle } from '@tabler/icons-react';
+import {
+	IconCheck,
+	IconClock,
+	IconExclamationCircle,
+} from '@tabler/icons-react';
 import Link from '@/components/Link';
 import type { DashboardUser, registrationRequestStatus } from '@/db/schema';
 import { formatDateTime, toTitleCase } from '@/lib/utils';
@@ -20,7 +24,9 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
 	return (
 		<Accordion variant='separated' defaultValue={defaultDept}>
 			{departments.map((dept) => {
-				const clearanceMapping = value.clearances?.find((c) => c.clearance.department === dept);
+				const clearanceMapping = value.clearances?.find(
+					(c) => c.clearance.department === dept
+				);
 				const clearance = clearanceMapping?.clearance;
 				const status = clearance?.status || 'pending';
 				return (
@@ -28,7 +34,11 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
 						<Accordion.Control>
 							<Group justify='space-between'>
 								<Group>
-									<ThemeIcon color={getStatusColor(status)} variant='light' size='lg'>
+									<ThemeIcon
+										color={getStatusColor(status)}
+										variant='light'
+										size='lg'
+									>
 										{getStatusIcon(status)}
 									</ThemeIcon>
 									<Text fw={500}>{toTitleCase(dept)}</Text>
@@ -41,7 +51,11 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
 									<Text c='dimmed' size='sm' w={120}>
 										Status:
 									</Text>
-									<Badge size='sm' color={getStatusColor(status)} variant='light'>
+									<Badge
+										size='sm'
+										color={getStatusColor(status)}
+										variant='light'
+									>
 										{toTitleCase(status)}
 									</Badge>
 								</Group>
@@ -50,7 +64,9 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
 										Response Date:
 									</Text>
 									<Text size='sm'>
-										{clearance?.responseDate ? formatDateTime(clearance.responseDate) : '-'}
+										{clearance?.responseDate
+											? formatDateTime(clearance.responseDate)
+											: '-'}
 									</Text>
 								</Group>
 								<Group>
@@ -58,7 +74,10 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
 										Responded By:
 									</Text>
 									{clearance?.respondedBy ? (
-										<Link size='sm' href={`/dashboard/users/${clearance.respondedBy.id}`}>
+										<Link
+											size='sm'
+											href={`/dashboard/users/${clearance.respondedBy.id}`}
+										>
 											{clearance.respondedBy.name ||
 												clearance.respondedBy.email ||
 												`User: ${clearance.respondedBy.id}`}

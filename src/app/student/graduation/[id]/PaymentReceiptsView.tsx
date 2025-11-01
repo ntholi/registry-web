@@ -1,4 +1,13 @@
-import { Badge, Button, Card, Group, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
+import {
+	Badge,
+	Button,
+	Card,
+	Group,
+	SimpleGrid,
+	Stack,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
 import { IconEdit, IconFileText, IconReceipt } from '@tabler/icons-react';
 import Link from 'next/link';
 import type { graduationRequests, paymentReceipts } from '@/db/schema';
@@ -36,7 +45,10 @@ export default function PaymentReceiptsView({ graduationRequest }: Props) {
 		}
 	};
 
-	if (!graduationRequest.paymentReceipts || graduationRequest.paymentReceipts.length === 0) {
+	if (
+		!graduationRequest.paymentReceipts ||
+		graduationRequest.paymentReceipts.length === 0
+	) {
 		return (
 			<Stack gap='md'>
 				<Group justify='flex-end'>
@@ -58,7 +70,8 @@ export default function PaymentReceiptsView({ graduationRequest }: Props) {
 								No Payment Receipts
 							</Text>
 							<Text size='sm' c='dimmed' ta='center'>
-								No payment receipts have been submitted for this graduation request yet.
+								No payment receipts have been submitted for this graduation
+								request yet.
 							</Text>
 						</Stack>
 					</Stack>
@@ -96,7 +109,11 @@ export default function PaymentReceiptsView({ graduationRequest }: Props) {
 									{getPaymentTypeLabel(receipt.paymentType)}
 								</Text>
 							</Group>
-							<Badge color={getPaymentTypeColor(receipt.paymentType)} variant='light' size='sm'>
+							<Badge
+								color={getPaymentTypeColor(receipt.paymentType)}
+								variant='light'
+								size='sm'
+							>
 								Paid
 							</Badge>
 						</Group>

@@ -8,7 +8,10 @@ import { useEffect, useState } from 'react';
 import { clearanceRequestStatus, type dashboardUsers } from '@/db/schema';
 import { updateGraduationClearance } from '@/server/graduation/clearance/actions';
 
-type Status = Exclude<(typeof clearanceRequestStatus.enumValues)[number], 'registered'>;
+type Status = Exclude<
+	(typeof clearanceRequestStatus.enumValues)[number],
+	'registered'
+>;
 
 type Props = {
 	request: {
@@ -35,7 +38,8 @@ export default function GraduationStatusSwitch({ request, comment }: Props) {
 			}
 
 			const result = await updateGraduationClearance(request.id, {
-				department: session.user.role as (typeof dashboardUsers.enumValues)[number],
+				department: session.user
+					.role as (typeof dashboardUsers.enumValues)[number],
 				status,
 				message: comment,
 			});
@@ -77,7 +81,10 @@ export default function GraduationStatusSwitch({ request, comment }: Props) {
 				<SegmentedControl
 					value={status}
 					onChange={(it) => setStatus(it as Status)}
-					data={clearanceRequestStatus.enumValues.map((s) => ({ label: s, value: s }))}
+					data={clearanceRequestStatus.enumValues.map((s) => ({
+						label: s,
+						value: s,
+					}))}
 					fullWidth
 					disabled={isPending}
 				/>

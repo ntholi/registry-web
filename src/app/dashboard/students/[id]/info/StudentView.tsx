@@ -46,7 +46,11 @@ export default function StudentView({ student }: Props) {
 								User
 							</Text>
 							{student.user ? (
-								<Link href={`/dashboard/users/${student.user?.id}`} size='sm' fw={500}>
+								<Link
+									href={`/dashboard/users/${student.user?.id}`}
+									size='sm'
+									fw={500}
+								>
 									{student.user?.email}
 								</Link>
 							) : (
@@ -73,8 +77,13 @@ export default function StudentView({ student }: Props) {
 							</Tooltip>
 						)}
 						{session?.user?.role &&
-							(['admin', 'registry'] as UserRole[]).includes(session.user.role) && (
-								<EditStudentUserModal studentStdNo={student.stdNo} currentUser={student.user} />
+							(['admin', 'registry'] as UserRole[]).includes(
+								session.user.role
+							) && (
+								<EditStudentUserModal
+									studentStdNo={student.stdNo}
+									currentUser={student.user}
+								/>
 							)}
 					</Group>
 				</Card>
@@ -92,7 +101,10 @@ export default function StudentView({ student }: Props) {
 							<InfoItem label='National ID' value={student.nationalId} />
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Date of Birth' value={formatDate(student.dateOfBirth)} />
+							<InfoItem
+								label='Date of Birth'
+								value={formatDate(student.dateOfBirth)}
+							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem label='Gender' value={student.gender} />
@@ -131,10 +143,16 @@ export default function StudentView({ student }: Props) {
 							</Grid.Col>
 
 							<Grid.Col span={{ base: 12, sm: 6 }}>
-								<InfoItem label='Intake Date' value={student.programs[0].intakeDate} />
+								<InfoItem
+									label='Intake Date'
+									value={student.programs[0].intakeDate}
+								/>
 							</Grid.Col>
 							<Grid.Col span={{ base: 12, sm: 3 }}>
-								<InfoItem label='Graduation Date' value={student.programs[0].graduationDate} />
+								<InfoItem
+									label='Graduation Date'
+									value={student.programs[0].graduationDate}
+								/>
 							</Grid.Col>
 							<Grid.Col span={{ base: 12, sm: 3 }}>
 								<Flex justify='flex-end'>
@@ -194,11 +212,15 @@ function InfoItem({
 				position: 'relative',
 			}}
 			onMouseEnter={(e) => {
-				const copyButton = e.currentTarget.querySelector('.copy-button') as HTMLElement;
+				const copyButton = e.currentTarget.querySelector(
+					'.copy-button'
+				) as HTMLElement;
 				if (copyButton) copyButton.style.opacity = '1';
 			}}
 			onMouseLeave={(e) => {
-				const copyButton = e.currentTarget.querySelector('.copy-button') as HTMLElement;
+				const copyButton = e.currentTarget.querySelector(
+					'.copy-button'
+				) as HTMLElement;
 				if (copyButton) copyButton.style.opacity = '0';
 			}}
 		>
@@ -242,5 +264,9 @@ function InfoItem({
 
 function stripPhoneNumber(phone: string | null | undefined) {
 	if (!phone) return '';
-	return phone.replaceAll(' ', '').replaceAll('-', '').replaceAll('(', '').replaceAll(')', '');
+	return phone
+		.replaceAll(' ', '')
+		.replaceAll('-', '')
+		.replaceAll('(', '')
+		.replaceAll(')', '');
 }

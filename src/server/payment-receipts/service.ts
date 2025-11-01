@@ -74,7 +74,10 @@ class PaymentReceiptService {
 					},
 				});
 
-				if (!graduationRequest || graduationRequest.studentProgram.stdNo !== session.user!.stdNo) {
+				if (
+					!graduationRequest ||
+					graduationRequest.studentProgram.stdNo !== session.user!.stdNo
+				) {
 					throw new Error('Graduation request not found or access denied');
 				}
 
@@ -98,7 +101,10 @@ class PaymentReceiptService {
 		}, ['student']);
 	}
 
-	async addPaymentReceipt(graduationRequestId: number, receipt: PaymentReceiptData) {
+	async addPaymentReceipt(
+		graduationRequestId: number,
+		receipt: PaymentReceiptData
+	) {
 		return withAuth(async () => {
 			const session = await auth();
 			if (!session?.user?.stdNo) {
@@ -114,7 +120,10 @@ class PaymentReceiptService {
 					},
 				});
 
-				if (!graduationRequest || graduationRequest.studentProgram.stdNo !== session.user!.stdNo) {
+				if (
+					!graduationRequest ||
+					graduationRequest.studentProgram.stdNo !== session.user!.stdNo
+				) {
 					throw new Error('Graduation request not found or access denied');
 				}
 
@@ -151,11 +160,16 @@ class PaymentReceiptService {
 					},
 				});
 
-				if (!receipt || receipt.graduationRequest.studentProgram.stdNo !== session.user!.stdNo) {
+				if (
+					!receipt ||
+					receipt.graduationRequest.studentProgram.stdNo !== session.user!.stdNo
+				) {
 					throw new Error('Payment receipt not found or access denied');
 				}
 
-				await tx.delete(paymentReceipts).where(eq(paymentReceipts.id, receiptId));
+				await tx
+					.delete(paymentReceipts)
+					.where(eq(paymentReceipts.id, receiptId));
 
 				return { success: true };
 			});
@@ -163,4 +177,7 @@ class PaymentReceiptService {
 	}
 }
 
-export const paymentReceiptService = serviceWrapper(PaymentReceiptService, 'PaymentReceipt');
+export const paymentReceiptService = serviceWrapper(
+	PaymentReceiptService,
+	'PaymentReceipt'
+);

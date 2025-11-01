@@ -1,9 +1,20 @@
-import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import {
+	Document,
+	Font,
+	Image,
+	Page,
+	StyleSheet,
+	Text,
+	View,
+} from '@react-pdf/renderer';
 import type { getStudent } from '@/server/students/actions';
 
 Font.register({
 	family: 'Arial',
-	fonts: [{ src: '/fonts/ARIAL.TTF' }, { src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' }],
+	fonts: [
+		{ src: '/fonts/ARIAL.TTF' },
+		{ src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' },
+	],
 });
 
 const styles = StyleSheet.create({
@@ -121,7 +132,10 @@ type StudentCardPDFProps = {
 	photoUrl: string | null;
 };
 
-export default function StudentCardPDF({ student, photoUrl }: StudentCardPDFProps) {
+export default function StudentCardPDF({
+	student,
+	photoUrl,
+}: StudentCardPDFProps) {
 	const activeProgram = student.programs?.find((p) => p.status === 'Active');
 	const programCode = activeProgram?.structure?.program?.code || 'N/A';
 	const currentYear = new Date().getFullYear();
@@ -142,8 +156,12 @@ export default function StudentCardPDF({ student, photoUrl }: StudentCardPDFProp
 							<Text style={styles.studentType}>STUDENT</Text>
 							<Text style={styles.studentYear}>{currentYear}</Text>
 							<View style={styles.cardFooter}>
-								<Text style={styles.footerText}>If found please return to:</Text>
-								<Text style={styles.footerText}>Limkokwing University Lesotho Campus</Text>
+								<Text style={styles.footerText}>
+									If found please return to:
+								</Text>
+								<Text style={styles.footerText}>
+									Limkokwing University Lesotho Campus
+								</Text>
 								<Text style={styles.footerText}>Tel: 22315747</Text>
 							</View>
 						</View>

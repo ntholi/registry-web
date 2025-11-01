@@ -10,4 +10,5 @@ export default class StatementOfResultsPrintRepository extends BaseRepository<
 	}
 }
 
-export const statementOfResultsPrintsRepository = new StatementOfResultsPrintRepository();
+export const statementOfResultsPrintsRepository =
+	new StatementOfResultsPrintRepository();

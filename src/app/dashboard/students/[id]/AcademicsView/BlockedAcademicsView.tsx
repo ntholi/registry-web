@@ -25,10 +25,16 @@ import GpaDisplay from './GpaDisplay';
 type Props = {
 	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
 	showMarks?: boolean;
-	blockedStudent: NonNullable<Awaited<ReturnType<typeof getBlockedStudentByStdNo>>>;
+	blockedStudent: NonNullable<
+		Awaited<ReturnType<typeof getBlockedStudentByStdNo>>
+	>;
 };
 
-export default function BlockedAcademicsView({ student, showMarks, blockedStudent }: Props) {
+export default function BlockedAcademicsView({
+	student,
+	showMarks,
+	blockedStudent,
+}: Props) {
 	const [openPrograms, setOpenPrograms] = useState<string[]>(
 		student.programs
 			.filter((program) => program.status === 'Active')
@@ -39,7 +45,9 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 
 	const isDark = colorScheme === 'dark';
 
-	const overlayBackground = isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.8)';
+	const overlayBackground = isDark
+		? 'rgba(0, 0, 0, 0.3)'
+		: 'rgba(255, 255, 255, 0.8)';
 
 	const generatePlaceholderSemesters = () => {
 		return Array.from({ length: 3 }, (_, i) => ({
@@ -74,7 +82,10 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 					const placeholderSemesters = generatePlaceholderSemesters();
 
 					return (
-						<Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
+						<Accordion.Item
+							key={program.id}
+							value={program.id?.toString() ?? ''}
+						>
 							<Accordion.Control>
 								<Group>
 									<ThemeIcon variant='light' color='gray' size={'xl'}>
@@ -116,7 +127,9 @@ export default function BlockedAcademicsView({ student, showMarks, blockedStuden
 																<Badge radius={'xs'} variant='default'>
 																	{semester.term}
 																</Badge>
-																<Text size='sm'>Semester {semester.semesterNumber}</Text>
+																<Text size='sm'>
+																	Semester {semester.semesterNumber}
+																</Text>
 															</Group>
 															<Group gap='md' align='flex-end'>
 																<GpaDisplay gpa={2.5} cgpa={2.8} />
@@ -211,7 +224,10 @@ type BlockedModuleTableProps = {
 	showMarks?: boolean;
 };
 
-function BlockedModuleTable({ moduleCount, showMarks }: BlockedModuleTableProps) {
+function BlockedModuleTable({
+	moduleCount,
+	showMarks,
+}: BlockedModuleTableProps) {
 	const placeholderChar = '████████';
 	const shortPlaceholderChar = '██';
 

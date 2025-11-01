@@ -54,11 +54,15 @@ export default function Layout({ children }: PropsWithChildren) {
 				'semesterModule' in item;
 
 			if (isAssignedModule(it)) {
-				const moduleId = it.semesterModule?.moduleId ? String(it.semesterModule.moduleId) : '#';
+				const moduleId = it.semesterModule?.moduleId
+					? String(it.semesterModule.moduleId)
+					: '#';
 				const moduleCode = it.semesterModule?.module?.code || 'Unknown';
 				const moduleName = it.semesterModule?.module?.name || 'Unknown module';
 
-				return <ListItem id={moduleId} label={moduleCode} description={moduleName} />;
+				return (
+					<ListItem id={moduleId} label={moduleCode} description={moduleName} />
+				);
 			}
 			return <ListItem id='#' label='Unknown' description='Unknown module' />;
 		} else {
@@ -66,7 +70,13 @@ export default function Layout({ children }: PropsWithChildren) {
 				'id' in item && 'code' in item && 'name' in item;
 
 			if (isModule(it)) {
-				return <ListItem id={String(it.id ?? '#')} label={it.code} description={it.name} />;
+				return (
+					<ListItem
+						id={String(it.id ?? '#')}
+						label={it.code}
+						description={it.name}
+					/>
+				);
 			}
 			return <ListItem id='#' label='Unknown' description='Unknown module' />;
 		}
@@ -75,12 +85,16 @@ export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
 			path={'/dashboard/assessments'}
-			queryKey={showAssignedOnly ? ['assessments-assigned'] : ['assessments-all']}
+			queryKey={
+				showAssignedOnly ? ['assessments-assigned'] : ['assessments-all']
+			}
 			getData={getData}
 			renderItem={renderItem}
 			actionIcons={[
 				session?.user?.position &&
-					['admin', 'manager', 'program_leader'].includes(session.user.position) &&
+					['admin', 'manager', 'program_leader'].includes(
+						session.user.position
+					) &&
 					session.user.role !== 'academic' && (
 						<ModuleViewToggle
 							key='module-toggle'

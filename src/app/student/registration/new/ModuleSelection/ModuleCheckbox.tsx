@@ -18,9 +18,15 @@ interface ModuleCheckboxProps {
 	onToggle: (checked: boolean) => void;
 }
 
-export default function ModuleCheckbox({ module, isSelected, onToggle }: ModuleCheckboxProps) {
+export default function ModuleCheckbox({
+	module,
+	isSelected,
+	onToggle,
+}: ModuleCheckboxProps) {
 	const hasPrerequisites = (module: ModuleWithStatus): boolean => {
-		return module.prerequisites !== undefined && module.prerequisites.length > 0;
+		return (
+			module.prerequisites !== undefined && module.prerequisites.length > 0
+		);
 	};
 
 	const getStatusColor = (status: string) => {
@@ -48,7 +54,8 @@ export default function ModuleCheckbox({ module, isSelected, onToggle }: ModuleC
 							{module.name}
 						</Text>
 						<Text size='xs' c='red' mt={2}>
-							Failed Prerequisites: {module.prerequisites?.map((p) => p.code).join(', ')}
+							Failed Prerequisites:{' '}
+							{module.prerequisites?.map((p) => p.code).join(', ')}
 						</Text>
 					</div>
 				</Group>
@@ -71,7 +78,11 @@ export default function ModuleCheckbox({ module, isSelected, onToggle }: ModuleC
 						<Text fw={500} ff='monospace'>
 							{module.code}
 						</Text>
-						<Badge color={getStatusColor(module.status)} size='sm' variant='light'>
+						<Badge
+							color={getStatusColor(module.status)}
+							size='sm'
+							variant='light'
+						>
 							{module.status}
 						</Badge>
 					</Flex>

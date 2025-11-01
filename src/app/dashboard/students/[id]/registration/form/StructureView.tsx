@@ -48,7 +48,11 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 
 	if (!student?.programs?.length) {
 		return (
-			<Alert icon={<IconInfoCircle size={16} />} title='No Programs Found' color='blue'>
+			<Alert
+				icon={<IconInfoCircle size={16} />}
+				title='No Programs Found'
+				color='blue'
+			>
 				This student has no programs enrolled.
 			</Alert>
 		);
@@ -56,7 +60,11 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 
 	if (!activeProgram) {
 		return (
-			<Alert icon={<IconInfoCircle size={16} />} title='No Active Program' color='blue'>
+			<Alert
+				icon={<IconInfoCircle size={16} />}
+				title='No Active Program'
+				color='blue'
+			>
 				This student has no active program.
 			</Alert>
 		);
@@ -64,7 +72,11 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 
 	if (!structure) {
 		return (
-			<Alert icon={<IconInfoCircle size={16} />} title='Structure Not Found' color='red'>
+			<Alert
+				icon={<IconInfoCircle size={16} />}
+				title='Structure Not Found'
+				color='red'
+			>
 				Program structure details could not be loaded.
 			</Alert>
 		);
@@ -107,7 +119,8 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 									</Text>
 								</Group>
 
-								{semester.semesterModules && semester.semesterModules.length > 0 ? (
+								{semester.semesterModules &&
+								semester.semesterModules.length > 0 ? (
 									<Table withTableBorder withColumnBorders>
 										<Table.Thead>
 											<Table.Tr>
@@ -138,7 +151,9 @@ export default function StructureView({ stdNo, isActive = false }: Props) {
 														<Text size='sm'>{semModule.credits}</Text>
 													</Table.Td>
 													<Table.Td>
-														<PrerequisiteDisplay prerequisites={semModule.prerequisites || []} />
+														<PrerequisiteDisplay
+															prerequisites={semModule.prerequisites || []}
+														/>
 													</Table.Td>
 												</Table.Tr>
 											))}
@@ -202,8 +217,13 @@ function PrerequisiteDisplay({
 	return (
 		<Stack gap={2}>
 			{prerequisites.map((prereq) => (
-				<Text key={prereq.prerequisite.module?.code || prereq.prerequisite.id} size='xs' c='dimmed'>
-					{prereq.prerequisite.module?.code} - {prereq.prerequisite.module?.name}
+				<Text
+					key={prereq.prerequisite.module?.code || prereq.prerequisite.id}
+					size='xs'
+					c='dimmed'
+				>
+					{prereq.prerequisite.module?.code} -{' '}
+					{prereq.prerequisite.module?.name}
 				</Text>
 			))}
 		</Stack>
@@ -227,7 +247,10 @@ function Loader() {
 			</Paper>
 
 			<Stack gap='lg'>
-				{Array.from({ length: 3 }, (_, semIndex) => `skeleton-sem-${semIndex}`).map((semKey) => (
+				{Array.from(
+					{ length: 3 },
+					(_, semIndex) => `skeleton-sem-${semIndex}`
+				).map((semKey) => (
 					<Paper key={semKey} shadow='sm' p='md' withBorder>
 						<Stack gap='md'>
 							<Group justify='space-between' align='center'>

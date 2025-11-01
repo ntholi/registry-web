@@ -1,5 +1,13 @@
 'use client';
-import { ActionIcon, Button, CloseButton, Divider, Flex, Group, Title } from '@mantine/core';
+import {
+	ActionIcon,
+	Button,
+	CloseButton,
+	Divider,
+	Flex,
+	Group,
+	Title,
+} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
 

@@ -18,7 +18,10 @@ class BlockedStudentService {
 	}
 
 	async getByStdNo(stdNo: number, status: 'blocked' | 'unblocked' = 'blocked') {
-		return withAuth(async () => this.repository.findByStdNo(stdNo, status), ['all']);
+		return withAuth(
+			async () => this.repository.findByStdNo(stdNo, status),
+			['all']
+		);
 	}
 
 	async getAll(params: QueryOptions<typeof blockedStudents>) {
@@ -59,4 +62,7 @@ class BlockedStudentService {
 	}
 }
 
-export const blockedStudentsService = serviceWrapper(BlockedStudentService, 'BlockedStudent');
+export const blockedStudentsService = serviceWrapper(
+	BlockedStudentService,
+	'BlockedStudent'
+);

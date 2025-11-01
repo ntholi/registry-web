@@ -7,7 +7,12 @@ export interface FieldViewProps extends BoxProps {
 	children?: React.ReactNode;
 }
 
-export function FieldView({ label, underline = true, children, ...props }: FieldViewProps) {
+export function FieldView({
+	label,
+	underline = true,
+	children,
+	...props
+}: FieldViewProps) {
 	const isText = typeof children === 'string' || typeof children === 'number';
 	return (
 		<Box {...props}>

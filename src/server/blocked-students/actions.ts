@@ -24,7 +24,10 @@ export async function createBlockedStudent(blockedStudent: BlockedStudent) {
 	return service.create(blockedStudent);
 }
 
-export async function updateBlockedStudent(id: number, blockedStudent: Partial<BlockedStudent>) {
+export async function updateBlockedStudent(
+	id: number,
+	blockedStudent: Partial<BlockedStudent>
+) {
 	return service.update(id, blockedStudent);
 }
 

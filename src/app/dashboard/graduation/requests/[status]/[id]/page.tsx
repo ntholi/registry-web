@@ -8,7 +8,11 @@ import {
 	TabsTab,
 	ThemeIcon,
 } from '@mantine/core';
-import { IconCheck, IconClock, IconExclamationCircle } from '@tabler/icons-react';
+import {
+	IconCheck,
+	IconClock,
+	IconExclamationCircle,
+} from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
 import type { DashboardUser } from '@/db/schema';
@@ -26,7 +30,9 @@ interface Props {
 }
 
 function getOverallClearanceStatus(
-	graduationRequest: NonNullable<Awaited<ReturnType<typeof getGraduationRequest>>>
+	graduationRequest: NonNullable<
+		Awaited<ReturnType<typeof getGraduationRequest>>
+	>
 ) {
 	const departments: DashboardUser[] = ['finance', 'library', 'academic'];
 	const statuses = departments.map((dept) => {
@@ -63,7 +69,10 @@ function getStatusIcon(status: 'approved' | 'rejected' | 'pending') {
 	}
 }
 
-export default async function GraduationRequestDetails({ params, searchParams }: Props) {
+export default async function GraduationRequestDetails({
+	params,
+	searchParams,
+}: Props) {
 	const { id } = await params;
 	const sp = (await searchParams) || {};
 	const defaultTab = typeof sp.tab === 'string' ? sp.tab : undefined;
@@ -71,7 +80,9 @@ export default async function GraduationRequestDetails({ params, searchParams }:
 	const rawDept = sp.dept;
 	const deptParam = Array.isArray(rawDept) ? rawDept[0] : rawDept;
 	const defaultDept: ClearanceDept | undefined =
-		deptParam === 'finance' || deptParam === 'library' || deptParam === 'academic'
+		deptParam === 'finance' ||
+		deptParam === 'library' ||
+		deptParam === 'academic'
 			? (deptParam as ClearanceDept)
 			: undefined;
 
@@ -98,7 +109,9 @@ export default async function GraduationRequestDetails({ params, searchParams }:
 					<TabsTab value='clearance'>
 						<Group gap='xs'>
 							<ThemeIcon
-								color={getStatusColor(getOverallClearanceStatus(graduationRequest))}
+								color={getStatusColor(
+									getOverallClearanceStatus(graduationRequest)
+								)}
 								variant='light'
 								size={20}
 							>
@@ -117,7 +130,10 @@ export default async function GraduationRequestDetails({ params, searchParams }:
 				</TabsPanel>
 				<TabsPanel value='clearance'>
 					<Stack gap='xl' mt='md' p='sm'>
-						<GraduationClearanceAccordion value={graduationRequest} defaultDept={defaultDept} />
+						<GraduationClearanceAccordion
+							value={graduationRequest}
+							defaultDept={defaultDept}
+						/>
 					</Stack>
 				</TabsPanel>
 			</Tabs>

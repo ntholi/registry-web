@@ -25,7 +25,10 @@ export async function deleteModuleGrade(id: number) {
 	return service.delete(id);
 }
 
-export async function findModuleGradeByModuleAndStudent(moduleId: number, stdNo: number) {
+export async function findModuleGradeByModuleAndStudent(
+	moduleId: number,
+	stdNo: number
+) {
 	return service.findByModuleAndStudent(moduleId, stdNo);
 }
 

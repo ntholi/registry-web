@@ -25,7 +25,9 @@ import { generateCourseSummaryReport } from '@/server/reports/course-summary/act
 export default function Body() {
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
-	const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
+	const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
+		null
+	);
 
 	const { data: assignedModules, isLoading: modulesLoading } = useQuery({
 		queryKey: ['assigned-modules-current-user'],
@@ -40,8 +42,11 @@ export default function Body() {
 			const selectedModule = assignedModules?.find(
 				(m) => m.semesterModule?.module?.id === moduleIdNum
 			);
-			if (!selectedModule?.semesterModule?.module?.id) return Promise.resolve([]);
-			return getAssignedModuleByUserAndModule(selectedModule.semesterModule.module.id);
+			if (!selectedModule?.semesterModule?.module?.id)
+				return Promise.resolve([]);
+			return getAssignedModuleByUserAndModule(
+				selectedModule.semesterModule.module.id
+			);
 		},
 		enabled: !!selectedModuleId && !!assignedModules,
 	});
@@ -66,7 +71,10 @@ export default function Body() {
 				seen.add(program.id);
 				options.push({
 					value: program.id.toString(),
-					label: toClassName(program.code || '', module.semesterModule?.semester?.name || ''),
+					label: toClassName(
+						program.code || '',
+						module.semesterModule?.semester?.name || ''
+					),
 				});
 			}
 		});
@@ -123,15 +131,20 @@ export default function Body() {
 			a.href = url;
 
 			const selectedModule = assignedModules?.find(
-				(m) => m.semesterModule?.module?.id === parseInt(selectedModuleId || '', 10)
+				(m) =>
+					m.semesterModule?.module?.id === parseInt(selectedModuleId || '', 10)
 			);
 			const selectedProgram = modulePrograms?.find(
-				(m) => m.semesterModule?.semester?.structure.program.id === Number(selectedProgramId)
+				(m) =>
+					m.semesterModule?.semester?.structure.program.id ===
+					Number(selectedProgramId)
 			);
 
-			const moduleCode = selectedModule?.semesterModule?.module?.code || 'Module';
+			const moduleCode =
+				selectedModule?.semesterModule?.module?.code || 'Module';
 			const programCode =
-				selectedProgram?.semesterModule?.semester?.structure.program.code || 'Program';
+				selectedProgram?.semesterModule?.semester?.structure.program.code ||
+				'Program';
 			a.download = `${moduleCode}_${programCode}_Course_Summary_${new Date().toISOString().split('T')[0]}.docx`;
 			document.body.appendChild(a);
 			a.click();
@@ -150,9 +163,16 @@ export default function Body() {
 	const canGenerate = !!selectedModuleId && !!selectedProgramId;
 	return (
 		<Stack align='center' justify='center' p='xl'>
-			<Alert variant='light' color='orange' title='Under Development' w='100%' maw={600} mb='md'>
-				This feature is currently under development. Some functionality may be limited or subject to
-				change.
+			<Alert
+				variant='light'
+				color='orange'
+				title='Under Development'
+				w='100%'
+				maw={600}
+				mb='md'
+			>
+				This feature is currently under development. Some functionality may be
+				limited or subject to change.
 			</Alert>
 			<Card shadow='md' radius='md' withBorder w='100%' maw={600}>
 				<CardSection inheritPadding py='md'>
@@ -164,8 +184,8 @@ export default function Body() {
 				<CardSection inheritPadding>
 					<Stack gap='md'>
 						<Text my='xs'>
-							Select a module from your assigned modules to generate a course summary report for{' '}
-							{currentTerm?.name}.
+							Select a module from your assigned modules to generate a course
+							summary report for {currentTerm?.name}.
 						</Text>
 
 						<Select
@@ -202,9 +222,15 @@ export default function Body() {
 						<Button
 							fullWidth
 							onClick={() => generateReportMutation.mutate()}
-							disabled={!canGenerate || generateReportMutation.isPending || isDownloading}
+							disabled={
+								!canGenerate ||
+								generateReportMutation.isPending ||
+								isDownloading
+							}
 							leftSection={
-								generateReportMutation.isPending || isDownloading ? <Loader size={16} /> : null
+								generateReportMutation.isPending || isDownloading ? (
+									<Loader size={16} />
+								) : null
 							}
 						>
 							{generateReportMutation.isPending || isDownloading

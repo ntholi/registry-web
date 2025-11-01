@@ -1,6 +1,15 @@
 'use client';
 
-import { ActionIcon, Button, Group, Modal, Select, Table, Text, TextInput } from '@mantine/core';
+import {
+	ActionIcon,
+	Button,
+	Group,
+	Modal,
+	Select,
+	Table,
+	Text,
+	TextInput,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -8,7 +17,12 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { Form } from '@/components/adease';
-import { type schools, userPositions, userRoles, type users } from '@/db/schema';
+import {
+	type schools,
+	userPositions,
+	userRoles,
+	type users,
+} from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
 import { findAllSchools, getUserSchools } from '@/server/users/actions';
 
@@ -20,7 +34,9 @@ type Props = {
 	onSubmit: (values: UserWithSchools) => Promise<User>;
 	defaultValues?: Partial<UserWithSchools>;
 	onSuccess?: (value: User) => void;
-	onError?: (error: Error | React.SyntheticEvent<HTMLDivElement, Event>) => void;
+	onError?: (
+		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+	) => void;
 	title?: string;
 };
 
@@ -37,7 +53,10 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 
 	const { data: userSchoolsData } = useQuery({
 		queryKey: ['userSchools', defaultValues?.id],
-		queryFn: () => (defaultValues?.id ? getUserSchools(defaultValues.id) : Promise.resolve([])),
+		queryFn: () =>
+			defaultValues?.id
+				? getUserSchools(defaultValues.id)
+				: Promise.resolve([]),
 		enabled: !!defaultValues?.id,
 	});
 
@@ -49,7 +68,9 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 		: [];
 
 	const defaultSchoolIds = userSchoolsData
-		? userSchoolsData.map((userSchool: { schoolId: number }) => userSchool.schoolId.toString())
+		? userSchoolsData.map((userSchool: { schoolId: number }) =>
+				userSchool.schoolId.toString()
+			)
 		: [];
 
 	useEffect(() => {
@@ -88,7 +109,9 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 				<Select
 					label='Select School'
 					placeholder='Choose a school'
-					data={schoolsOptions.filter((school) => !selectedSchools.includes(school.value))}
+					data={schoolsOptions.filter(
+						(school) => !selectedSchools.includes(school.value)
+					)}
 					value={selectedSchoolId}
 					onChange={setSelectedSchoolId}
 					searchable
@@ -120,7 +143,8 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 				schema={userFormSchema}
 				defaultValues={{
 					...defaultValues,
-					role: (defaultValues?.role ?? 'user') as (typeof userRoles.enumValues)[number],
+					role: (defaultValues?.role ??
+						'user') as (typeof userRoles.enumValues)[number],
 				}}
 				onSuccess={({ id }) => {
 					router.push(`/dashboard/users/${id}`);
@@ -209,8 +233,8 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 									</Table>
 								) : (
 									<Text c='dimmed' ta='center' py='md'>
-										No schools assigned. Click &quot;Add School&quot; to assign schools to this
-										user.
+										No schools assigned. Click &quot;Add School&quot; to assign
+										schools to this user.
 									</Text>
 								)}
 								<input type='hidden' {...form.getInputProps('schoolIds')} />

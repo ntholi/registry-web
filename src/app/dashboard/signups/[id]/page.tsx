@@ -1,5 +1,10 @@
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewBody, DetailsViewHeader, FieldView } from '@/components/adease';
+import {
+	DetailsView,
+	DetailsViewBody,
+	DetailsViewHeader,
+	FieldView,
+} from '@/components/adease';
 import { deleteSignup, getSignup } from '@/server/signups/actions';
 
 type Props = {

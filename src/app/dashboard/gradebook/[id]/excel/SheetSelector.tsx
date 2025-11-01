@@ -1,7 +1,20 @@
 'use client';
 
-import { Badge, Card, Group, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
-import { IconChevronRight, IconFileSpreadsheet, IconTable } from '@tabler/icons-react';
+import {
+	Badge,
+	Card,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	ThemeIcon,
+	Title,
+} from '@mantine/core';
+import {
+	IconChevronRight,
+	IconFileSpreadsheet,
+	IconTable,
+} from '@tabler/icons-react';
 
 interface Props {
 	sheetNames: string[];

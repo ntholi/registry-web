@@ -1,5 +1,14 @@
 'use client';
-import { ActionIcon, Alert, Box, Button, Group, Modal, Select, Text } from '@mantine/core';
+import {
+	ActionIcon,
+	Alert,
+	Box,
+	Button,
+	Group,
+	Modal,
+	Select,
+	Text,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -7,7 +16,10 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import Link from '@/components/Link';
 import { getStructuresByProgramId } from '@/server/structures/actions';
-import { type getStudent, updateStudentProgramStructure } from '@/server/students/actions';
+import {
+	type getStudent,
+	updateStudentProgramStructure,
+} from '@/server/students/actions';
 
 type Props = {
 	student: Awaited<ReturnType<typeof getStudent>>;
@@ -16,7 +28,9 @@ type Props = {
 export default function StructureChange({ student }: Props) {
 	const { data: session } = useSession();
 	const [opened, setOpened] = useState(false);
-	const [selectedStructureId, setSelectedStructureId] = useState<string | null>(null);
+	const [selectedStructureId, setSelectedStructureId] = useState<string | null>(
+		null
+	);
 	const queryClient = useQueryClient();
 
 	const currentProgram = student?.programs[0];
@@ -24,7 +38,8 @@ export default function StructureChange({ student }: Props) {
 
 	const { data: structures, isLoading: isLoadingStructures } = useQuery({
 		queryKey: ['structures', 'program', currentProgram?.structure.program.id],
-		queryFn: () => getStructuresByProgramId(currentProgram!.structure.program.id),
+		queryFn: () =>
+			getStructuresByProgramId(currentProgram!.structure.program.id),
 		enabled: opened && !!currentProgram?.structure.program.id,
 	});
 
@@ -68,9 +83,12 @@ export default function StructureChange({ student }: Props) {
 			label: `${structure.code}${structure.desc ? ` - ${structure.desc}` : ''}`,
 		})) || [];
 
-	const isCurrentStructure = selectedStructureId === currentStructure?.id.toString();
+	const isCurrentStructure =
+		selectedStructureId === currentStructure?.id.toString();
 	const canSubmit =
-		selectedStructureId && !isCurrentStructure && !updateStructureMutation.isPending;
+		selectedStructureId &&
+		!isCurrentStructure &&
+		!updateStructureMutation.isPending;
 
 	return (
 		<>
@@ -142,7 +160,11 @@ export default function StructureChange({ student }: Props) {
 						{student?.programs[0].structure.code}
 					</Link>
 					{['admin', 'registry'].includes(session?.user?.role ?? '') && (
-						<ActionIcon variant='subtle' color='gray' onClick={() => setOpened(true)}>
+						<ActionIcon
+							variant='subtle'
+							color='gray'
+							onClick={() => setOpened(true)}
+						>
 							<IconEdit size={16} />
 						</ActionIcon>
 					)}

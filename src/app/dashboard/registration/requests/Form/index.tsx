@@ -1,6 +1,15 @@
 'use client';
 
-import { ActionIcon, Divider, Group, Paper, Select, Stack, Table, Text } from '@mantine/core';
+import {
+	ActionIcon,
+	Divider,
+	Group,
+	Paper,
+	Select,
+	Stack,
+	Table,
+	Text,
+} from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
@@ -56,7 +65,9 @@ type RegistrationRequest = {
 type Props = {
 	onSubmit: (values: RegistrationRequest) => Promise<RegistrationRequest>;
 	defaultValues?: RegistrationRequest;
-	onError?: (error: Error | React.SyntheticEvent<HTMLDivElement, Event>) => void;
+	onError?: (
+		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+	) => void;
 	title?: string;
 	structureModules?: Awaited<ReturnType<typeof getModulesForStructure>>;
 	structureId?: number;
@@ -69,7 +80,13 @@ type MinimalForm = {
 	getInputProps?: (field: string) => unknown;
 };
 
-function FormBinder({ form, onReady }: { form: unknown; onReady: (form: MinimalForm) => void }) {
+function FormBinder({
+	form,
+	onReady,
+}: {
+	form: unknown;
+	onReady: (form: MinimalForm) => void;
+}) {
 	useEffect(() => {
 		onReady(form as MinimalForm);
 	}, [form, onReady]);
@@ -85,7 +102,9 @@ export default function RegistrationRequestForm({
 	initialStdNo,
 }: Props) {
 	const router = useRouter();
-	const [structureId, setStructureId] = useState<number | null>(initialStructureId ?? null);
+	const [structureId, setStructureId] = useState<number | null>(
+		initialStructureId ?? null
+	);
 
 	const { currentTerm } = useCurrentTerm();
 	const { data: allTerms = [] } = useQuery({
@@ -110,13 +129,15 @@ export default function RegistrationRequestForm({
 	});
 
 	const semesterOptions = structureModules
-		? [...new Set(structureModules.map((sem) => sem.id.toString()))].map((id) => {
-				const semester = structureModules.find((s) => s.id.toString() === id);
-				return {
-					value: String(semester?.semesterNumber),
-					label: formatSemester(semester?.semesterNumber),
-				};
-			})
+		? [...new Set(structureModules.map((sem) => sem.id.toString()))].map(
+				(id) => {
+					const semester = structureModules.find((s) => s.id.toString() === id);
+					return {
+						value: String(semester?.semesterNumber),
+						label: formatSemester(semester?.semesterNumber),
+					};
+				}
+			)
 		: [];
 
 	const filteredModules = structureModules
@@ -136,7 +157,9 @@ export default function RegistrationRequestForm({
 			try {
 				const student = await getStudentRegistrationData(stdNo);
 				if (student && student.programs.length > 0) {
-					const activeProgram = student.programs.find((p) => p.status === 'Active');
+					const activeProgram = student.programs.find(
+						(p) => p.status === 'Active'
+					);
 					if (activeProgram) {
 						setStructureId(activeProgram.structureId);
 					} else {
@@ -167,7 +190,10 @@ export default function RegistrationRequestForm({
 				}
 
 				const academicRemarks = getAcademicRemarks(student.programs);
-				const semesterData = await getStudentSemesterModules(student, academicRemarks);
+				const semesterData = await getStudentSemesterModules(
+					student,
+					academicRemarks
+				);
 
 				if (semesterData.error) {
 					console.error('Error loading student modules:', semesterData.error);
@@ -189,7 +215,10 @@ export default function RegistrationRequestForm({
 					},
 				}));
 
-				const { semesterNo, status } = await determineSemesterStatus(semesterData.modules, student);
+				const { semesterNo, status } = await determineSemesterStatus(
+					semesterData.modules,
+					student
+				);
 
 				form.setFieldValue('selectedModules', mappedModules);
 				form.setFieldValue('semesterNumber', semesterNo.toString());
@@ -211,7 +240,13 @@ export default function RegistrationRequestForm({
 			}, 500);
 			return () => clearTimeout(timer);
 		}
-	}, [initialStdNo, defaultValues, formInstance, handleLoadModules, handleStudentSelect]);
+	}, [
+		initialStdNo,
+		defaultValues,
+		formInstance,
+		handleLoadModules,
+		handleStudentSelect,
+	]);
 
 	return (
 		<Form
@@ -262,14 +297,18 @@ export default function RegistrationRequestForm({
 								if (attempts.length > 0) {
 									// This is a repeat module - determine the next attempt number
 									const nextAttemptNumber = attempts.length + 1;
-									moduleStatus = `Repeat${nextAttemptNumber}` as StudentModuleStatus;
+									moduleStatus =
+										`Repeat${nextAttemptNumber}` as StudentModuleStatus;
 								} else {
 									// First time attempting this module
 									moduleStatus = 'Compulsory';
 								}
 							}
 						} catch (error) {
-							console.error('Error fetching student data for module status:', error);
+							console.error(
+								'Error fetching student data for module status:',
+								error
+							);
 							// Fallback to compulsory status
 							moduleStatus = 'Compulsory';
 						}
@@ -280,7 +319,10 @@ export default function RegistrationRequestForm({
 						status: moduleStatus,
 					};
 					if (!selectedModules.some((m) => m.id === newModule.id)) {
-						form.setFieldValue('selectedModules', [...selectedModules, newModule]);
+						form.setFieldValue('selectedModules', [
+							...selectedModules,
+							newModule,
+						]);
 					}
 				};
 
@@ -291,7 +333,10 @@ export default function RegistrationRequestForm({
 					);
 				};
 
-				const handleChangeModuleStatus = (moduleId: number, newStatus: StudentModuleStatus) => {
+				const handleChangeModuleStatus = (
+					moduleId: number,
+					newStatus: StudentModuleStatus
+				) => {
 					form.setFieldValue(
 						'selectedModules',
 						selectedModules.map((module: SelectedModule) =>
@@ -355,10 +400,18 @@ export default function RegistrationRequestForm({
 							borrowerNo={form.values.borrowerNo}
 							bankName={form.values.bankName}
 							accountNumber={form.values.accountNumber}
-							onSponsorChange={(value) => form.setFieldValue('sponsorId', value)}
-							onBorrowerNoChange={(value) => form.setFieldValue('borrowerNo', value)}
-							onBankNameChange={(value) => form.setFieldValue('bankName', value)}
-							onAccountNumberChange={(value) => form.setFieldValue('accountNumber', value)}
+							onSponsorChange={(value) =>
+								form.setFieldValue('sponsorId', value)
+							}
+							onBorrowerNoChange={(value) =>
+								form.setFieldValue('borrowerNo', value)
+							}
+							onBankNameChange={(value) =>
+								form.setFieldValue('bankName', value)
+							}
+							onAccountNumberChange={(value) =>
+								form.setFieldValue('accountNumber', value)
+							}
 							disabled={!structureId}
 						/>
 
@@ -370,7 +423,9 @@ export default function RegistrationRequestForm({
 									modules={filteredModules}
 									isLoading={isLoading}
 									selectedModules={selectedModules}
-									disabled={!structureId || !structureId || !form.values.semesterNumber}
+									disabled={
+										!structureId || !structureId || !form.values.semesterNumber
+									}
 								/>
 							</Group>
 							<Divider my='xs' />
@@ -405,12 +460,17 @@ export default function RegistrationRequestForm({
 													<Select
 														value={semModule.status}
 														onChange={(value) =>
-															handleChangeModuleStatus(semModule.id, value as StudentModuleStatus)
+															handleChangeModuleStatus(
+																semModule.id,
+																value as StudentModuleStatus
+															)
 														}
-														data={studentModuleStatus.enumValues.map((status) => ({
-															value: status,
-															label: status,
-														}))}
+														data={studentModuleStatus.enumValues.map(
+															(status) => ({
+																value: status,
+																label: status,
+															})
+														)}
 														size='xs'
 														style={{ width: '120px' }}
 														disabled={!structureId}

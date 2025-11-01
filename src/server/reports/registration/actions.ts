@@ -8,7 +8,11 @@ export async function generateFullRegistrationReport(
 	filter?: RegistrationReportFilter
 ) {
 	try {
-		const buffer = await registrationReportService.generateFullRegistrationReport(termId, filter);
+		const buffer =
+			await registrationReportService.generateFullRegistrationReport(
+				termId,
+				filter
+			);
 		const base64Data = Buffer.from(buffer).toString('base64');
 		return { success: true, data: base64Data };
 	} catch (error) {
@@ -25,10 +29,11 @@ export async function generateSummaryRegistrationReport(
 	filter?: RegistrationReportFilter
 ) {
 	try {
-		const buffer = await registrationReportService.generateSummaryRegistrationReport(
-			termId,
-			filter
-		);
+		const buffer =
+			await registrationReportService.generateSummaryRegistrationReport(
+				termId,
+				filter
+			);
 		const base64Data = Buffer.from(buffer).toString('base64');
 		return { success: true, data: base64Data };
 	} catch (error) {
@@ -45,7 +50,10 @@ export async function generateStudentsListReport(
 	filter?: RegistrationReportFilter
 ) {
 	try {
-		const buffer = await registrationReportService.generateStudentsListReport(termId, filter);
+		const buffer = await registrationReportService.generateStudentsListReport(
+			termId,
+			filter
+		);
 		const base64Data = Buffer.from(buffer).toString('base64');
 		return { success: true, data: base64Data };
 	} catch (error) {
@@ -75,7 +83,10 @@ export async function getRegistrationDataPreview(
 	filter?: RegistrationReportFilter
 ) {
 	try {
-		const data = await registrationReportService.getRegistrationDataForTerm(termId, filter);
+		const data = await registrationReportService.getRegistrationDataForTerm(
+			termId,
+			filter
+		);
 		return { success: true, data };
 	} catch (error) {
 		console.error('Error fetching registration data preview:', error);
@@ -93,12 +104,13 @@ export async function getPaginatedRegistrationStudents(
 	filter?: RegistrationReportFilter
 ) {
 	try {
-		const data = await registrationReportService.getPaginatedRegistrationStudents(
-			termId,
-			page,
-			pageSize,
-			filter
-		);
+		const data =
+			await registrationReportService.getPaginatedRegistrationStudents(
+				termId,
+				page,
+				pageSize,
+				filter
+			);
 		return { success: true, data };
 	} catch (error) {
 		console.error('Error fetching paginated registration students:', error);
@@ -124,7 +136,8 @@ export async function getAvailableSchoolsForReports() {
 
 export async function getAvailableProgramsForReports(schoolId?: number) {
 	try {
-		const programs = await registrationReportService.getAvailablePrograms(schoolId);
+		const programs =
+			await registrationReportService.getAvailablePrograms(schoolId);
 		return { success: true, data: programs };
 	} catch (error) {
 		console.error('Error fetching available programs:', error);

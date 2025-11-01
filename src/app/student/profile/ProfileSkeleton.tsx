@@ -20,7 +20,12 @@ export default function ProfileSkeleton() {
 						gap='xl'
 						align={{ base: 'center', sm: 'flex-start' }}
 					>
-						<Skeleton height={180} width={180} radius='md' style={{ minWidth: 120 }} />
+						<Skeleton
+							height={180}
+							width={180}
+							radius='md'
+							style={{ minWidth: 120 }}
+						/>
 
 						<Stack gap='md' style={{ flex: 1 }}>
 							<Stack gap='xs'>

@@ -12,7 +12,10 @@ import FormHeader from './FormHeader';
 
 type ZodSchema = ZodObject<Record<string, ZodTypeAny>>;
 
-export type FormProps<T extends Record<string, unknown>, V> = Omit<StackProps, 'children'> & {
+export type FormProps<T extends Record<string, unknown>, V> = Omit<
+	StackProps,
+	'children'
+> & {
 	children: (form: ReturnType<typeof useForm<T>>) => JSX.Element;
 	beforeSubmit?: (form: ReturnType<typeof useForm<T>>) => void;
 	action: (values: T) => Promise<T>;

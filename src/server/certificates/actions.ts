@@ -24,8 +24,16 @@ interface CertificateData {
 	graduationDate?: Date;
 }
 
-export async function generateCertificatePDF(data: CertificateData): Promise<Uint8Array> {
-	const templatePath = join(process.cwd(), 'src', 'private', 'files', 'certificate.pdf');
+export async function generateCertificatePDF(
+	data: CertificateData
+): Promise<Uint8Array> {
+	const templatePath = join(
+		process.cwd(),
+		'src',
+		'private',
+		'files',
+		'certificate.pdf'
+	);
 	const templateBytes = await readFile(templatePath);
 
 	const pdfDoc = await PDFDocument.load(templateBytes);
@@ -38,19 +46,36 @@ export async function generateCertificatePDF(data: CertificateData): Promise<Uin
 	const perfectCenterX = pageWidth / 2;
 
 	const expandedProgramName = expandProgramName(data.programName);
-	const reference = buildCertificateReference(data.programName, data.programCode, data.stdNo);
+	const reference = buildCertificateReference(
+		data.programName,
+		data.programCode,
+		data.stdNo
+	);
 	const issueDate = formatIssueDate(data.graduationDate || new Date());
 
-	const palatinoFontPath = join(process.cwd(), 'public', 'fonts', 'palatino.ttf');
+	const palatinoFontPath = join(
+		process.cwd(),
+		'public',
+		'fonts',
+		'palatino.ttf'
+	);
 	const palatinoFontBytes = await readFile(palatinoFontPath);
 	const palatinoFont = await pdfDoc.embedFont(palatinoFontBytes);
 
-	const snellFontPath = join(process.cwd(), 'public', 'fonts', 'RoundhandBold.ttf');
+	const snellFontPath = join(
+		process.cwd(),
+		'public',
+		'fonts',
+		'RoundhandBold.ttf'
+	);
 	const snellFontBytes = await readFile(snellFontPath);
 	const snellFont = await pdfDoc.embedFont(snellFontBytes);
 
 	firstPage.drawText(reference, {
-		x: pageWidth - REFERENCE_RIGHT_MARGIN - palatinoFont.widthOfTextAtSize(reference, 8),
+		x:
+			pageWidth -
+			REFERENCE_RIGHT_MARGIN -
+			palatinoFont.widthOfTextAtSize(reference, 8),
 		y: 772,
 		size: 8,
 		font: palatinoFont,
@@ -92,7 +117,9 @@ export async function generateCertificatePDF(data: CertificateData): Promise<Uin
 	});
 
 	const qrCodeDataUrl = await generateQRCodeDataURL(reference);
-	const qrCodeImageBytes = await fetch(qrCodeDataUrl).then((res) => res.arrayBuffer());
+	const qrCodeImageBytes = await fetch(qrCodeDataUrl).then((res) =>
+		res.arrayBuffer()
+	);
 	const qrCodeImage = await pdfDoc.embedPng(qrCodeImageBytes);
 
 	const qrSize = 50;

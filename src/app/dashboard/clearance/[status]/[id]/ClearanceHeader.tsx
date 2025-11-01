@@ -12,7 +12,11 @@ interface Props {
 	versionCount?: number;
 }
 
-export default function ClearanceHeader({ studentName, termName, versionCount }: Props) {
+export default function ClearanceHeader({
+	studentName,
+	termName,
+	versionCount,
+}: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [, setView] = useViewSelect();
 	const { currentTerm } = useCurrentTerm();
@@ -45,7 +49,13 @@ export default function ClearanceHeader({ studentName, termName, versionCount }:
 
 					{versionCount && (
 						<Badge
-							color={versionCount === 1 ? 'green' : versionCount <= 3 ? 'yellow' : 'red'}
+							color={
+								versionCount === 1
+									? 'green'
+									: versionCount <= 3
+										? 'yellow'
+										: 'red'
+							}
 							variant='light'
 							size='sm'
 						>

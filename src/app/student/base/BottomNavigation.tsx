@@ -1,7 +1,19 @@
 'use client';
-import { ActionIcon, Group, Paper, Stack, Text, useMantineColorScheme } from '@mantine/core';
+import {
+	ActionIcon,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	useMantineColorScheme,
+} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconClipboardCheck, IconFileCertificate, IconHome, IconUser } from '@tabler/icons-react';
+import {
+	IconClipboardCheck,
+	IconFileCertificate,
+	IconHome,
+	IconUser,
+} from '@tabler/icons-react';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 

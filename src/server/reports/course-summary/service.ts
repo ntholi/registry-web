@@ -52,7 +52,8 @@ export default class CourseSummaryService {
 			throw new Error('Course data not found');
 		}
 
-		const finalReportData = await this.processOptimizedCourseSummaryData(reportData);
+		const finalReportData =
+			await this.processOptimizedCourseSummaryData(reportData);
 
 		const document = createCourseSummaryDocument(finalReportData);
 		const buffer = await Packer.toBuffer(document);
@@ -112,7 +113,10 @@ export default class CourseSummaryService {
 					reason,
 					actionTaken,
 				});
-			} else if (this.isSupplementaryGrade(grade) || (isNumericMark && marks >= 40 && marks < 50)) {
+			} else if (
+				this.isSupplementaryGrade(grade) ||
+				(isNumericMark && marks >= 40 && marks < 50)
+			) {
 				reason = this.generateFailureReasonFromData(
 					assessmentsMap.get(student.stdNo) || [],
 					grade,
@@ -151,7 +155,9 @@ export default class CourseSummaryService {
 			totalPasses,
 			totalFailures: failedStudents.length,
 			totalSupplementary: supplementaryStudents.length,
-			failedStudents: failedStudents.sort((a, b) => a.studentName.localeCompare(b.studentName)),
+			failedStudents: failedStudents.sort((a, b) =>
+				a.studentName.localeCompare(b.studentName)
+			),
 			supplementaryStudents: supplementaryStudents.sort((a, b) =>
 				a.studentName.localeCompare(b.studentName)
 			),

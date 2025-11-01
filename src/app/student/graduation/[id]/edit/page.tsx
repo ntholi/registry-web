@@ -1,4 +1,11 @@
-import { ActionIcon, Container, Group, Stack, Text, Title } from '@mantine/core';
+import {
+	ActionIcon,
+	Container,
+	Group,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';

@@ -20,7 +20,9 @@ export default async function TaskEdit({ params }: Props) {
 		status: task.status,
 		priority: task.priority,
 		assignedUserIds: task.assignedUsers?.map((u) => u.userId) || [],
-		scheduledFor: task.scheduledFor ? new Date(task.scheduledFor).toISOString() : undefined,
+		scheduledFor: task.scheduledFor
+			? new Date(task.scheduledFor).toISOString()
+			: undefined,
 		dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : undefined,
 	};
 

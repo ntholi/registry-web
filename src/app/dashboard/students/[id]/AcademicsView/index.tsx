@@ -31,7 +31,12 @@ type Props = {
 	isActive?: boolean;
 } & StackProps;
 
-export default function AcademicsView({ stdNo, showMarks, isActive = false, ...props }: Props) {
+export default function AcademicsView({
+	stdNo,
+	showMarks,
+	isActive = false,
+	...props
+}: Props) {
 	const { data: student, isLoading } = useQuery({
 		queryKey: ['student', stdNo],
 		queryFn: () => getAcademicHistory(stdNo, false),
@@ -121,10 +126,15 @@ export default function AcademicsView({ stdNo, showMarks, isActive = false, ...p
 																<Badge radius={'xs'} variant='default'>
 																	{semester.term}
 																</Badge>
-																<Text size='sm'>{formatSemester(semester.semesterNumber)}</Text>
+																<Text size='sm'>
+																	{formatSemester(semester.semesterNumber)}
+																</Text>
 															</Group>
 															<Group gap='md' align='flex-end'>
-																<GpaDisplay gpa={semesterPoint?.gpa || 0} cgpa={cumulativeGPA} />
+																<GpaDisplay
+																	gpa={semesterPoint?.gpa || 0}
+																	cgpa={cumulativeGPA}
+																/>
 																<SemesterStatus status={semester.status} />
 															</Group>
 														</Flex>
@@ -135,7 +145,9 @@ export default function AcademicsView({ stdNo, showMarks, isActive = false, ...p
 															<SemesterTable
 																modules={semester.studentModules.map((sm) => ({
 																	id: sm.semesterModuleId,
-																	code: sm.semesterModule.module?.code ?? `${sm.semesterModuleId}`,
+																	code:
+																		sm.semesterModule.module?.code ??
+																		`${sm.semesterModuleId}`,
 																	name:
 																		sm.semesterModule.module?.name ??
 																		`<<Semester Module ID: ${sm.semesterModuleId}>>`,
@@ -149,19 +161,24 @@ export default function AcademicsView({ stdNo, showMarks, isActive = false, ...p
 																allSemesters={program.semesters.map((sem) => ({
 																	term: sem.term,
 																	semesterNumber: sem.semesterNumber ?? 0,
-																	studentModules: sem.studentModules.map((m) => ({
-																		semesterModule: {
-																			module: {
-																				code: m.semesterModule.module?.code ?? '',
+																	studentModules: sem.studentModules.map(
+																		(m) => ({
+																			semesterModule: {
+																				module: {
+																					code:
+																						m.semesterModule.module?.code ?? '',
+																				},
 																			},
-																		},
-																		grade: m.grade,
-																		status: m.status,
-																	})),
+																			grade: m.grade,
+																			status: m.status,
+																		})
+																	),
 																}))}
 															/>
 														) : (
-															<Text c='dimmed'>No modules found for this semester</Text>
+															<Text c='dimmed'>
+																No modules found for this semester
+															</Text>
 														)}
 													</Stack>
 												</Paper>
@@ -169,7 +186,9 @@ export default function AcademicsView({ stdNo, showMarks, isActive = false, ...p
 										});
 									})()
 								) : (
-									<Text c='dimmed'>No semesters available for this program</Text>
+									<Text c='dimmed'>
+										No semesters available for this program
+									</Text>
 								)}
 							</Stack>
 						</Accordion.Panel>
@@ -184,7 +203,10 @@ function Loader() {
 	return (
 		<Stack gap='md'>
 			<Accordion variant='separated' value={['0']} radius='md' multiple>
-				{Array.from({ length: 1 }, (_, index) => `skeleton-program-${index}`).map((key, index) => (
+				{Array.from(
+					{ length: 1 },
+					(_, index) => `skeleton-program-${index}`
+				).map((key, index) => (
 					<Accordion.Item key={key} value={index.toString()}>
 						<Accordion.Control>
 							<Group>
@@ -200,47 +222,48 @@ function Loader() {
 						</Accordion.Control>
 						<Accordion.Panel>
 							<Stack gap='xl'>
-								{Array.from({ length: 3 }, (_, semIndex) => `skeleton-semester-${semIndex}`).map(
-									(key) => (
-										<Paper key={key} p='md' withBorder>
-											<Stack gap='md'>
-												<Flex align='flex-end' justify='space-between'>
-													<Group gap='xs' align='flex-end'>
-														<Skeleton height={20} width={80} radius='xs' />
-														<Skeleton height={16} width={100} radius='sm' />
-													</Group>
-													<Group gap='md' align='flex-end'>
-														<Stack gap={4} align='flex-end'>
-															<Skeleton height={14} width={60} radius='sm' />
-															<Skeleton height={14} width={70} radius='sm' />
-														</Stack>
-														<Skeleton height={20} width={80} radius='sm' />
-													</Group>
-												</Flex>
-												<Divider />
-												<Stack gap='xs'>
-													{Array.from(
-														{ length: 4 },
-														(_, moduleIndex) => `skeleton-module-${moduleIndex}`
-													).map((key) => (
-														<Group key={key} justify='space-between' p='xs'>
-															<Group gap='md' style={{ flex: 1 }}>
-																<Skeleton height={16} width={80} radius='sm' />
-																<Skeleton height={16} width={200} radius='sm' />
-																<Skeleton height={16} width={60} radius='sm' />
-															</Group>
-															<Group gap='md'>
-																<Skeleton height={16} width={40} radius='sm' />
-																<Skeleton height={16} width={30} radius='sm' />
-																<Skeleton height={16} width={50} radius='sm' />
-															</Group>
+								{Array.from(
+									{ length: 3 },
+									(_, semIndex) => `skeleton-semester-${semIndex}`
+								).map((key) => (
+									<Paper key={key} p='md' withBorder>
+										<Stack gap='md'>
+											<Flex align='flex-end' justify='space-between'>
+												<Group gap='xs' align='flex-end'>
+													<Skeleton height={20} width={80} radius='xs' />
+													<Skeleton height={16} width={100} radius='sm' />
+												</Group>
+												<Group gap='md' align='flex-end'>
+													<Stack gap={4} align='flex-end'>
+														<Skeleton height={14} width={60} radius='sm' />
+														<Skeleton height={14} width={70} radius='sm' />
+													</Stack>
+													<Skeleton height={20} width={80} radius='sm' />
+												</Group>
+											</Flex>
+											<Divider />
+											<Stack gap='xs'>
+												{Array.from(
+													{ length: 4 },
+													(_, moduleIndex) => `skeleton-module-${moduleIndex}`
+												).map((key) => (
+													<Group key={key} justify='space-between' p='xs'>
+														<Group gap='md' style={{ flex: 1 }}>
+															<Skeleton height={16} width={80} radius='sm' />
+															<Skeleton height={16} width={200} radius='sm' />
+															<Skeleton height={16} width={60} radius='sm' />
 														</Group>
-													))}
-												</Stack>
+														<Group gap='md'>
+															<Skeleton height={16} width={40} radius='sm' />
+															<Skeleton height={16} width={30} radius='sm' />
+															<Skeleton height={16} width={50} radius='sm' />
+														</Group>
+													</Group>
+												))}
 											</Stack>
-										</Paper>
-									)
-								)}
+										</Stack>
+									</Paper>
+								))}
 							</Stack>
 						</Accordion.Panel>
 					</Accordion.Item>

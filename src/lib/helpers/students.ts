@@ -1,7 +1,9 @@
 import type { getStudentByUserId } from '@/server/students/actions';
 import type { getAcademicRemarks } from '@/utils/grades';
 
-export type Student = NonNullable<Awaited<ReturnType<typeof getStudentByUserId>>>;
+export type Student = NonNullable<
+	Awaited<ReturnType<typeof getStudentByUserId>>
+>;
 
 export type AcademicRemarks = Awaited<ReturnType<typeof getAcademicRemarks>>;
 
@@ -37,6 +39,8 @@ export function getNextSemesterNo(student: Student | null) {
 	const allSemesters = student.programs
 		.flatMap((program) => program.semesters)
 		.filter((semester) => semesterNos.includes(semester.semesterNumber ?? 0));
-	const maxSemesterNo = Math.max(...allSemesters.map((semester) => semester.semesterNumber || 0));
+	const maxSemesterNo = Math.max(
+		...allSemesters.map((semester) => semester.semesterNumber || 0)
+	);
 	return maxSemesterNo + 1;
 }

@@ -103,7 +103,9 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 			termId: updated.termId ? Number(updated.termId) : undefined,
 			schoolId: updated.schoolId ? Number(updated.schoolId) : undefined,
 			programId: updated.programId ? Number(updated.programId) : undefined,
-			semesterNumber: updated.semesterNumber ? Number(updated.semesterNumber) : undefined,
+			semesterNumber: updated.semesterNumber
+				? Number(updated.semesterNumber)
+				: undefined,
 		};
 
 		onFilterChange(newFilter);

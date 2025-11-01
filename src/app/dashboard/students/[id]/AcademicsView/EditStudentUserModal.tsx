@@ -1,6 +1,14 @@
 'use client';
 
-import { ActionIcon, Button, Group, Modal, Stack, Text, Tooltip } from '@mantine/core';
+import {
+	ActionIcon,
+	Button,
+	Group,
+	Modal,
+	Stack,
+	Text,
+	Tooltip,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
@@ -59,13 +67,22 @@ export default function EditStudentUserModal({
 				</ActionIcon>
 			</Tooltip>
 
-			<Modal opened={opened} onClose={close} title='Edit Student User' size='md'>
+			<Modal
+				opened={opened}
+				onClose={close}
+				title='Edit Student User'
+				size='md'
+			>
 				<Stack gap='md'>
 					<Text size='sm' c='dimmed'>
 						Select a user to associate with this student.
 					</Text>
 
-					<UserInput label='User' value={selectedUser} onChange={setSelectedUser} />
+					<UserInput
+						label='User'
+						value={selectedUser}
+						onChange={setSelectedUser}
+					/>
 
 					{currentUser && (
 						<Group gap='xs'>

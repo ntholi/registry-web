@@ -15,8 +15,15 @@ import {
 } from 'docx';
 import type { CourseSummaryReport } from './repository';
 
-export function createCourseSummaryDocument(report: CourseSummaryReport): Document {
-	const logoPath = path.join(process.cwd(), 'public', 'images', 'logo-lesotho.jpg');
+export function createCourseSummaryDocument(
+	report: CourseSummaryReport
+): Document {
+	const logoPath = path.join(
+		process.cwd(),
+		'public',
+		'images',
+		'logo-lesotho.jpg'
+	);
 	const logoImage = fs.readFileSync(logoPath);
 
 	const doc = new Document({
@@ -41,11 +48,14 @@ export function createCourseSummaryDocument(report: CourseSummaryReport): Docume
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: `Date Created: ${new Date().toLocaleDateString('en-LS', {
-											year: 'numeric',
-											month: 'long',
-											day: 'numeric',
-										})}`,
+										text: `Date Created: ${new Date().toLocaleDateString(
+											'en-LS',
+											{
+												year: 'numeric',
+												month: 'long',
+												day: 'numeric',
+											}
+										)}`,
 										font: 'Tahoma',
 										size: 16,
 									}),
@@ -108,7 +118,8 @@ export function createCourseSummaryDocument(report: CourseSummaryReport): Docume
 						spacing: { after: 240 },
 						pageBreakBefore: true,
 					}),
-					...(report.failedStudents.length > 0 || report.supplementaryStudents.length > 0
+					...(report.failedStudents.length > 0 ||
+					report.supplementaryStudents.length > 0
 						? [
 								createFailedStudentsTable([
 									...report.failedStudents,

@@ -1,10 +1,21 @@
-import { Alert, Card, LoadingOverlay, Select, Stack, Text, TextInput } from '@mantine/core';
+import {
+	Alert,
+	Card,
+	LoadingOverlay,
+	Select,
+	Stack,
+	Text,
+	TextInput,
+} from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import useUserStudent from '@/hooks/use-user-student';
-import { findAllSponsors, getSponsoredStudent } from '@/server/sponsors/actions';
+import {
+	findAllSponsors,
+	getSponsoredStudent,
+} from '@/server/sponsors/actions';
 
 type SponsorshipData = {
 	sponsorId: number;
@@ -27,9 +38,13 @@ export default function SponsorshipDetails({
 	const { student } = useUserStudent();
 	const { currentTerm } = useCurrentTerm();
 
-	const [borrowerNo, setBorrowerNo] = useState(sponsorshipData?.borrowerNo || '');
+	const [borrowerNo, setBorrowerNo] = useState(
+		sponsorshipData?.borrowerNo || ''
+	);
 	const [bankName, setBankName] = useState(sponsorshipData?.bankName || '');
-	const [accountNumber, setAccountNumber] = useState(sponsorshipData?.accountNumber || '');
+	const [accountNumber, setAccountNumber] = useState(
+		sponsorshipData?.accountNumber || ''
+	);
 
 	const bankOptions = [
 		{ value: 'SLB', label: 'Standard Lesotho Bank' },
@@ -89,7 +104,10 @@ export default function SponsorshipDetails({
 
 			let newBorrowerNo = borrowerNo;
 
-			if (selectedSponsor?.name === 'NMDS' && previousSponsorshipData?.borrowerNo) {
+			if (
+				selectedSponsor?.name === 'NMDS' &&
+				previousSponsorshipData?.borrowerNo
+			) {
 				newBorrowerNo = previousSponsorshipData.borrowerNo;
 				setBorrowerNo(newBorrowerNo);
 			} else if (selectedSponsor?.name !== 'NMDS') {
@@ -171,7 +189,9 @@ export default function SponsorshipDetails({
 								label='Borrower Number'
 								placeholder='Enter your borrower number'
 								value={borrowerNo}
-								onChange={(event) => handleBorrowerNoChange(event.currentTarget.value)}
+								onChange={(event) =>
+									handleBorrowerNoChange(event.currentTarget.value)
+								}
 								description='Required for NMDS sponsored students'
 								required
 							/>
@@ -189,7 +209,9 @@ export default function SponsorshipDetails({
 								label='Account Number'
 								placeholder='Enter your account number'
 								value={accountNumber}
-								onChange={(event) => handleAccountNumberChange(event.currentTarget.value)}
+								onChange={(event) =>
+									handleAccountNumberChange(event.currentTarget.value)
+								}
 							/>
 						</>
 					)}
@@ -198,22 +220,24 @@ export default function SponsorshipDetails({
 
 			<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
 				<Text size='sm'>
-					<strong>Important:</strong> Make sure your sponsorship details are correct.
+					<strong>Important:</strong> Make sure your sponsorship details are
+					correct.
 					{sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
 						<span>
 							{' '}
-							For NMDS sponsorship, the borrower&apos;s number and correct bank account details are
-							required.
+							For NMDS sponsorship, the borrower&apos;s number and correct bank
+							account details are required.
 						</span>
 					)}{' '}
-					If you&apos;re unsure about your sponsor or borrower number, please contact the finance
-					office.
+					If you&apos;re unsure about your sponsor or borrower number, please
+					contact the finance office.
 				</Text>
 			</Alert>
 
 			{sponsors.length === 0 && !sponsorsLoading && (
 				<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
-					No sponsors found. Please contact the administration to set up sponsors.
+					No sponsors found. Please contact the administration to set up
+					sponsors.
 				</Alert>
 			)}
 		</Stack>

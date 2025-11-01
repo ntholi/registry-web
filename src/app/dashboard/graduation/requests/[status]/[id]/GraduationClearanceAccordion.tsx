@@ -1,7 +1,11 @@
 'use client';
 
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconCheck, IconClock, IconExclamationCircle } from '@tabler/icons-react';
+import {
+	IconCheck,
+	IconClock,
+	IconExclamationCircle,
+} from '@tabler/icons-react';
 import Link from '@/components/Link';
 import type { DashboardUser } from '@/db/schema';
 import { formatDateTime, toTitleCase } from '@/lib/utils';
@@ -16,7 +20,10 @@ type Status = 'pending' | 'approved' | 'rejected';
 
 const departments: DashboardUser[] = ['finance', 'library', 'academic'];
 
-export default function GraduationClearanceAccordion({ value, defaultDept }: Props) {
+export default function GraduationClearanceAccordion({
+	value,
+	defaultDept,
+}: Props) {
 	return (
 		<Accordion variant='separated' defaultValue={defaultDept}>
 			{departments.map((dept) => {
@@ -30,7 +37,11 @@ export default function GraduationClearanceAccordion({ value, defaultDept }: Pro
 						<Accordion.Control>
 							<Group justify='space-between'>
 								<Group>
-									<ThemeIcon color={getStatusColor(status)} variant='light' size='lg'>
+									<ThemeIcon
+										color={getStatusColor(status)}
+										variant='light'
+										size='lg'
+									>
 										{getStatusIcon(status)}
 									</ThemeIcon>
 									<Text fw={500}>{toTitleCase(dept)}</Text>
@@ -43,7 +54,11 @@ export default function GraduationClearanceAccordion({ value, defaultDept }: Pro
 									<Text c='dimmed' size='sm' w={120}>
 										Status:
 									</Text>
-									<Badge size='sm' color={getStatusColor(status)} variant='light'>
+									<Badge
+										size='sm'
+										color={getStatusColor(status)}
+										variant='light'
+									>
 										{toTitleCase(status)}
 									</Badge>
 								</Group>
@@ -52,7 +67,9 @@ export default function GraduationClearanceAccordion({ value, defaultDept }: Pro
 										Response Date:
 									</Text>
 									<Text size='sm'>
-										{clearance?.responseDate ? formatDateTime(clearance.responseDate) : '-'}
+										{clearance?.responseDate
+											? formatDateTime(clearance.responseDate)
+											: '-'}
 									</Text>
 								</Group>
 								<Group>
@@ -60,7 +77,10 @@ export default function GraduationClearanceAccordion({ value, defaultDept }: Pro
 										Responded By:
 									</Text>
 									{clearance?.respondedBy ? (
-										<Link size='sm' href={`/dashboard/users/${clearance.respondedBy.id}`}>
+										<Link
+											size='sm'
+											href={`/dashboard/users/${clearance.respondedBy.id}`}
+										>
 											{clearance.respondedBy.name ||
 												clearance.respondedBy.email ||
 												`User: ${clearance.respondedBy.id}`}

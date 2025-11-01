@@ -1,6 +1,16 @@
 'use client';
 
-import { Badge, Box, Card, Center, Divider, Group, SimpleGrid, Stack, Text } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	Card,
+	Center,
+	Divider,
+	Group,
+	SimpleGrid,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { IconFileCertificate } from '@tabler/icons-react';
 
 interface StudentModule {
@@ -33,7 +43,10 @@ export default function MobileTable({ modules }: MobileTableProps) {
 		return (
 			<Center py='xl'>
 				<Stack align='center' gap='sm'>
-					<IconFileCertificate size='3rem' color='var(--mantine-color-dimmed)' />
+					<IconFileCertificate
+						size='3rem'
+						color='var(--mantine-color-dimmed)'
+					/>
 					<Text c='dimmed' size='lg'>
 						No modules found for this semester
 					</Text>
@@ -45,7 +58,13 @@ export default function MobileTable({ modules }: MobileTableProps) {
 	return (
 		<SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
 			{modules.map((studentModule) => (
-				<Card key={studentModule.id} shadow='sm' padding='lg' radius='md' withBorder>
+				<Card
+					key={studentModule.id}
+					shadow='sm'
+					padding='lg'
+					radius='md'
+					withBorder
+				>
 					<Stack gap='sm'>
 						<Box pos={'relative'}>
 							<Stack gap='xs'>
@@ -53,7 +72,9 @@ export default function MobileTable({ modules }: MobileTableProps) {
 									{studentModule.semesterModule?.module?.code || 'N/A'}
 								</Text>
 
-								<Text size='xs'>{studentModule.semesterModule?.module?.name || 'N/A'}</Text>
+								<Text size='xs'>
+									{studentModule.semesterModule?.module?.name || 'N/A'}
+								</Text>
 							</Stack>
 							<Badge
 								size='lg'

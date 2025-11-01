@@ -1,6 +1,15 @@
 'use client';
 
-import { Box, Flex, Grid, Group, Image, Paper, Stack, Text } from '@mantine/core';
+import {
+	Box,
+	Flex,
+	Grid,
+	Group,
+	Image,
+	Paper,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -13,7 +22,10 @@ type StudentCardViewProps = {
 	isActive: boolean;
 };
 
-export default function StudentCardView({ student, isActive }: StudentCardViewProps) {
+export default function StudentCardView({
+	student,
+	isActive,
+}: StudentCardViewProps) {
 	const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
 	const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
@@ -100,7 +112,12 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
 				/>
 			</Box>
 
-			<Group align='flex-start' gap='sm' p='sm' style={{ height: 'calc(100% - 70px)' }}>
+			<Group
+				align='flex-start'
+				gap='sm'
+				p='sm'
+				style={{ height: 'calc(100% - 70px)' }}
+			>
 				<Box style={{ flex: 1 }}>
 					<Text size='sm' fw={700} c='black' lh={1.2}>
 						{student.name}

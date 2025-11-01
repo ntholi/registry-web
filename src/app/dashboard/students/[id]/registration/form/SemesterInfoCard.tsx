@@ -1,6 +1,15 @@
 'use client';
 
-import { Badge, Card, Group, Loader, Select, Stack, Text, Title } from '@mantine/core';
+import {
+	Badge,
+	Card,
+	Group,
+	Loader,
+	Select,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { formatSemester } from '@/lib/utils';
 
 type SemesterData = {
@@ -68,7 +77,10 @@ export default function SemesterInfoCard({
 							</Text>
 						</Group>
 					) : (
-						<Badge radius={'sm'} color={semesterData?.status === 'Active' ? 'blue' : 'orange'}>
+						<Badge
+							radius={'sm'}
+							color={semesterData?.status === 'Active' ? 'blue' : 'orange'}
+						>
 							{semesterData?.status}
 						</Badge>
 					)}

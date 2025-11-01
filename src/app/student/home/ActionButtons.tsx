@@ -1,5 +1,14 @@
 'use client';
-import { Box, Grid, Group, type MantineColor, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
+import {
+	Box,
+	Grid,
+	Group,
+	type MantineColor,
+	Paper,
+	Stack,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
 import {
 	type Icon,
 	IconChevronRight,
@@ -75,9 +84,21 @@ export default function ActionButtons() {
 			<Grid gutter='lg'>
 				{actions.map((action) => (
 					<Grid.Col key={action.label} span={{ base: 12, sm: 6 }}>
-						<Paper component={Link} href={action.href} shadow='sm' p='lg' radius='md' withBorder>
+						<Paper
+							component={Link}
+							href={action.href}
+							shadow='sm'
+							p='lg'
+							radius='md'
+							withBorder
+						>
 							<Group gap='md' wrap='nowrap'>
-								<ThemeIcon size='xl' radius='md' variant='light' color={action.color}>
+								<ThemeIcon
+									size='xl'
+									radius='md'
+									variant='light'
+									color={action.color}
+								>
 									<action.icon size='1.5rem' />
 								</ThemeIcon>
 								<Stack gap={4} flex={1}>

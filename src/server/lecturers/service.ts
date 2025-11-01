@@ -20,7 +20,9 @@ class LecturerService {
 			['academic'],
 			async (session) => {
 				if (session.user?.position) {
-					return ['admin', 'manager', 'program_leader'].includes(session.user.position);
+					return ['admin', 'manager', 'program_leader'].includes(
+						session.user.position
+					);
 				}
 				return false;
 			}

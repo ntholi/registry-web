@@ -20,7 +20,9 @@ const tw = createTw({
 });
 
 const gradeClassifications = grades
-	.filter((g) => g.marksRange || ['PX', 'PC', 'EXP', 'DEF', 'ANN'].includes(g.grade))
+	.filter(
+		(g) => g.marksRange || ['PX', 'PC', 'EXP', 'DEF', 'ANN'].includes(g.grade)
+	)
 	.filter((g) => g.grade !== 'PP')
 	.map((g) => ({
 		marks: g.marksRange ? `${g.marksRange.min}-${g.marksRange.max}` : '',
@@ -83,13 +85,27 @@ export default function GradeClassificationPage() {
 										`${idx < group.items.length - 1 ? 'border-b border-black' : ''} flex flex-row`
 									)}
 								>
-									<View style={tw('w-[41.6667%] border-r border-black p-0.5 flex justify-center')}>
+									<View
+										style={tw(
+											'w-[41.6667%] border-r border-black p-0.5 flex justify-center'
+										)}
+									>
 										<Text style={tw('text-center')}>{item.marks}</Text>
 									</View>
-									<View style={tw('w-[25%] border-r border-black p-0.5 flex justify-center')}>
-										<Text style={tw('text-center font-bold')}>{item.grade}</Text>
+									<View
+										style={tw(
+											'w-[25%] border-r border-black p-0.5 flex justify-center'
+										)}
+									>
+										<Text style={tw('text-center font-bold')}>
+											{item.grade}
+										</Text>
 									</View>
-									<View style={tw('w-[33.3333%] border-r border-black p-0.5 flex justify-center')}>
+									<View
+										style={tw(
+											'w-[33.3333%] border-r border-black p-0.5 flex justify-center'
+										)}
+									>
 										<Text style={tw('text-center')}>{item.gpa}</Text>
 									</View>
 								</View>

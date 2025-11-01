@@ -22,7 +22,9 @@ type ShellComposition = {
 	Footer: React.FC<PropsWithChildren>;
 };
 
-const Shell: React.FC<PropsWithChildren> & ShellComposition = ({ children }) => {
+const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
+	children,
+}) => {
 	const [opened, { toggle, close }] = useDisclosure();
 	const colorScheme = useComputedColorScheme('dark');
 	const { setColorScheme } = useMantineColorScheme();
@@ -59,7 +61,12 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({ children }) => 
 			<AppShell.Header>
 				<Group h='100%' px='md' justify='space-between'>
 					<Group>
-						<Burger opened={opened} onClick={toggle} hiddenFrom='md' size='sm' />
+						<Burger
+							opened={opened}
+							onClick={toggle}
+							hiddenFrom='md'
+							size='sm'
+						/>
 						{Header}
 					</Group>
 					<ActionIcon variant='default' size='lg'>
@@ -80,7 +87,9 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({ children }) => 
 					{user}
 				</AppShell.Section>
 			</AppShell.Navbar>
-			<AppShell.Main bg={colorScheme === 'dark' ? 'dark.8' : 'gray.0'}>{body}</AppShell.Main>
+			<AppShell.Main bg={colorScheme === 'dark' ? 'dark.8' : 'gray.0'}>
+				{body}
+			</AppShell.Main>
 			{footer && <AppShell.Footer>{footer}</AppShell.Footer>}
 		</AppShell>
 	);

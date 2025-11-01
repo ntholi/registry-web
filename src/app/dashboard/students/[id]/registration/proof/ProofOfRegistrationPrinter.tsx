@@ -27,15 +27,24 @@ export default function ProofOfRegistrationPrinter({ stdNo }: Props) {
 			const result = await fetchRegistrationData();
 			const studentData = result.data;
 
-			if (!studentData || !studentData.programs || studentData.programs.length === 0) {
+			if (
+				!studentData ||
+				!studentData.programs ||
+				studentData.programs.length === 0
+			) {
 				console.error('Invalid student data for PDF generation');
 				setIsGenerating(false);
 				return;
 			}
 
-			console.log('Generating Proof of Registration PDF for student:', studentData.stdNo);
+			console.log(
+				'Generating Proof of Registration PDF for student:',
+				studentData.stdNo
+			);
 
-			const blob = await pdf(<ProofOfRegistrationPDF student={studentData} />).toBlob();
+			const blob = await pdf(
+				<ProofOfRegistrationPDF student={studentData} />
+			).toBlob();
 
 			console.log('PDF blob generated, size:', blob.size);
 
@@ -62,7 +71,10 @@ export default function ProofOfRegistrationPrinter({ stdNo }: Props) {
 						}
 						setIsGenerating(false);
 						if (iframe.contentWindow) {
-							iframe.contentWindow.removeEventListener('afterprint', handleAfterPrint);
+							iframe.contentWindow.removeEventListener(
+								'afterprint',
+								handleAfterPrint
+							);
 						}
 					};
 
@@ -93,7 +105,9 @@ export default function ProofOfRegistrationPrinter({ stdNo }: Props) {
 
 	return (
 		<Button
-			leftSection={isLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />}
+			leftSection={
+				isLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />
+			}
 			variant='subtle'
 			color='gray'
 			size='xs'

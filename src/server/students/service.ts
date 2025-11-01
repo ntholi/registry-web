@@ -67,17 +67,24 @@ class StudentService {
 
 	async findByModuleId(moduleId: number) {
 		const term = await getCurrentTerm();
-		return withAuth(async () => this.repository.findByModuleId(moduleId, term.name), ['dashboard']);
+		return withAuth(
+			async () => this.repository.findByModuleId(moduleId, term.name),
+			['dashboard']
+		);
 	}
 
-	async findAll(params: QueryOptions<typeof students> & { filter?: StudentFilter }) {
+	async findAll(
+		params: QueryOptions<typeof students> & { filter?: StudentFilter }
+	) {
 		return withAuth(
 			async () => this.repository.queryBasic(params),
 			['dashboard'],
 			async (session) => {
 				if (
 					session.user?.role &&
-					['admin', 'registry', 'finance', 'library'].includes(session.user.role)
+					['admin', 'registry', 'finance', 'library'].includes(
+						session.user.role
+					)
 				) {
 					return true;
 				}
@@ -105,7 +112,10 @@ class StudentService {
 	}
 
 	async updateUserId(stdNo: number, userId: string | null) {
-		return withAuth(async () => this.repository.updateUserId(stdNo, userId), ['admin', 'registry']);
+		return withAuth(
+			async () => this.repository.updateUserId(stdNo, userId),
+			['admin', 'registry']
+		);
 	}
 
 	async updateProgramStructure(stdNo: number, structureId: number) {
@@ -130,8 +140,12 @@ class StudentService {
 function removeTermFromPrograms(programs: Program[], termName: string) {
 	return programs.map((program) => ({
 		...program,
-		semesters: program.semesters?.filter((semester) => semester.term !== termName) || [],
+		semesters:
+			program.semesters?.filter((semester) => semester.term !== termName) || [],
 	}));
 }
 
-export const studentsService = serviceWrapper(StudentService, 'StudentsService');
+export const studentsService = serviceWrapper(
+	StudentService,
+	'StudentsService'
+);

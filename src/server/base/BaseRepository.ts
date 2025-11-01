@@ -21,7 +21,10 @@ export interface QueryOptions<T extends Table> {
 	filter?: SQL;
 }
 
-class BaseRepository<T extends Table, PK extends keyof T & keyof ModelSelect<T>> {
+class BaseRepository<
+	T extends Table,
+	PK extends keyof T & keyof ModelSelect<T>,
+> {
 	protected table: T;
 	protected primaryKey: Column;
 
@@ -42,7 +45,9 @@ class BaseRepository<T extends Table, PK extends keyof T & keyof ModelSelect<T>>
 			.then(([result]) => result);
 	}
 
-	async findById(id: ModelSelect<T>[PK]): Promise<ModelSelect<T> | null | undefined> {
+	async findById(
+		id: ModelSelect<T>[PK]
+	): Promise<ModelSelect<T> | null | undefined> {
 		const result = await db
 			.select()
 			.from(this.table as unknown as Table)
@@ -73,7 +78,8 @@ class BaseRepository<T extends Table, PK extends keyof T & keyof ModelSelect<T>>
 		});
 
 		if (orderBy.length === 0 && 'created_at' in this.table) {
-			const createdAt = (this.table as unknown as Record<string, Column>).created_at;
+			const createdAt = (this.table as unknown as Record<string, Column>)
+				.created_at;
 			if (createdAt) {
 				orderBy = [sql`${createdAt} DESC`];
 			}
@@ -156,7 +162,10 @@ class BaseRepository<T extends Table, PK extends keyof T & keyof ModelSelect<T>>
 		return result as ModelSelect<T>[];
 	}
 
-	async update(id: ModelSelect<T>[PK], entity: Partial<ModelInsert<T>>): Promise<ModelSelect<T>> {
+	async update(
+		id: ModelSelect<T>[PK],
+		entity: Partial<ModelInsert<T>>
+	): Promise<ModelSelect<T>> {
 		const [updated] = (await db
 			.update(this.table)
 			.set(entity)
@@ -171,7 +180,10 @@ class BaseRepository<T extends Table, PK extends keyof T & keyof ModelSelect<T>>
 	}
 
 	async deleteById(id: ModelSelect<T>[PK]): Promise<boolean> {
-		const result = await db.delete(this.table).where(eq(this.primaryKey, id)).returning();
+		const result = await db
+			.delete(this.table)
+			.where(eq(this.primaryKey, id))
+			.returning();
 		return (result as ModelSelect<T>[]).length > 0;
 	}
 
@@ -186,7 +198,9 @@ class BaseRepository<T extends Table, PK extends keyof T & keyof ModelSelect<T>>
 	}
 
 	async count(filter?: SQL): Promise<number> {
-		const query = db.select({ count: count() }).from(this.table as unknown as Table);
+		const query = db
+			.select({ count: count() })
+			.from(this.table as unknown as Table);
 		const [result] = await (filter ? query.where(filter) : query);
 		return result?.count ?? 0;
 	}

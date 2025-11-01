@@ -1,7 +1,12 @@
 import { and, inArray } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
 import { db } from '@/db';
-import { type Grade, moduleGrades, type StudentModuleStatus, type schools } from '@/db/schema';
+import {
+	type Grade,
+	moduleGrades,
+	type StudentModuleStatus,
+	type schools,
+} from '@/db/schema';
 import { termsRepository } from '@/server/terms/repository';
 import { getAcademicRemarks, summarizeModules } from '@/utils/grades';
 import { boeReportRepository, type ProgramSemesterReport } from './repository';
@@ -35,31 +40,42 @@ export default class BoeReportService {
 			throw new Error('No active term found');
 		}
 
-		const studentSemesters = await this.repository.getStudentSemestersForFaculty(
-			school.id,
-			currentTerm.name
-		);
+		const studentSemesters =
+			await this.repository.getStudentSemestersForFaculty(
+				school.id,
+				currentTerm.name
+			);
 
-		const programGroups = this.groupByProgram(studentSemesters as StudentSemester[]);
+		const programGroups = this.groupByProgram(
+			studentSemesters as StudentSemester[]
+		);
 
 		const workbook = new ExcelJS.Workbook();
 
 		for (const [programId, programSemesters] of Object.entries(programGroups)) {
 			const semesterGroups = this.groupBySemesterNumber(programSemesters);
 
-			for (const [semesterNumber, semesters] of Object.entries(semesterGroups)) {
+			for (const [semesterNumber, semesters] of Object.entries(
+				semesterGroups
+			)) {
 				const updatedCurrentSemesters = await this.mapCurrentSemesterGrades(
 					semesters as StudentSemester[]
 				);
 
-				const studentNumbers = updatedCurrentSemesters.map((s) => s.studentProgram.student.stdNo);
+				const studentNumbers = updatedCurrentSemesters.map(
+					(s) => s.studentProgram.student.stdNo
+				);
 				const allStudentSemesters =
-					await this.repository.getStudentSemesterHistoryForStudents(studentNumbers);
+					await this.repository.getStudentSemesterHistoryForStudents(
+						studentNumbers
+					);
 
 				const programReport: ProgramSemesterReport = {
 					programId: parseInt(programId, 10),
-					programCode: semesters[0]?.studentProgram.structure.program.code || '',
-					programName: semesters[0]?.studentProgram.structure.program.name || '',
+					programCode:
+						semesters[0]?.studentProgram.structure.program.code || '',
+					programName:
+						semesters[0]?.studentProgram.structure.program.name || '',
 					semesterNumber: parseInt(semesterNumber, 10),
 					students: this.createStudentReports(
 						updatedCurrentSemesters,
@@ -73,7 +89,12 @@ export default class BoeReportService {
 				const sheetName = `${programReport.programCode}Y${year}S${semester}`;
 				const worksheet = workbook.addWorksheet(sheetName);
 
-				createWorksheet(worksheet, programReport, school.name, currentTerm.name);
+				createWorksheet(
+					worksheet,
+					programReport,
+					school.name,
+					currentTerm.name
+				);
 			}
 		}
 
@@ -115,10 +136,16 @@ export default class BoeReportService {
 		const stdNos = [...new Set(moduleStudentPairs.map((p) => p.stdNo))];
 
 		const moduleGradesData = await db.query.moduleGrades.findMany({
-			where: and(inArray(moduleGrades.moduleId, moduleIds), inArray(moduleGrades.stdNo, stdNos)),
+			where: and(
+				inArray(moduleGrades.moduleId, moduleIds),
+				inArray(moduleGrades.stdNo, stdNos)
+			),
 		});
 
-		const gradesMap = new Map<string, { grade: Grade; weightedTotal: number }>();
+		const gradesMap = new Map<
+			string,
+			{ grade: Grade; weightedTotal: number }
+		>();
 		moduleGradesData.forEach((gradeData) => {
 			const key = `${gradeData.moduleId}-${gradeData.stdNo}`;
 			gradesMap.set(key, {
@@ -220,10 +247,12 @@ export default class BoeReportService {
 			});
 
 			historicalSemesters.push(
-				...Array.from(semesterGroups.entries()).map(([semesterNumber, modules]) => ({
-					semesterNumber,
-					modules,
-				}))
+				...Array.from(semesterGroups.entries()).map(
+					([semesterNumber, modules]) => ({
+						semesterNumber,
+						modules,
+					})
+				)
 			);
 
 			const programData = [
@@ -300,7 +329,9 @@ export default class BoeReportService {
 			};
 		});
 
-		return studentReports.sort((a, b) => parseFloat(b.cgpa) - parseFloat(a.cgpa));
+		return studentReports.sort(
+			(a, b) => parseFloat(b.cgpa) - parseFloat(a.cgpa)
+		);
 	}
 }
 

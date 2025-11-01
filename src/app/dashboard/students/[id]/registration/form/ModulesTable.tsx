@@ -1,6 +1,14 @@
 'use client';
 
-import { Alert, Checkbox, Paper, Select, Table, Text, Title } from '@mantine/core';
+import {
+	Alert,
+	Checkbox,
+	Paper,
+	Select,
+	Table,
+	Text,
+	Title,
+} from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { type StudentModuleStatus, studentModuleStatus } from '@/db/schema';
 import { formatSemester } from '@/lib/utils';
@@ -20,7 +28,10 @@ type Props = {
 	modules: ModuleWithStatus[];
 	selectedModules: Set<number>;
 	onModuleToggle: (semesterModuleId: number) => void;
-	onStatusChange?: (semesterModuleId: number, status: StudentModuleStatus) => void;
+	onStatusChange?: (
+		semesterModuleId: number,
+		status: StudentModuleStatus
+	) => void;
 	error?: string;
 };
 
@@ -48,8 +59,8 @@ export default function ModulesTable({
 			</Title>
 			{modules.length === 0 ? (
 				<Alert color='blue' icon={<IconInfoCircle size={16} />}>
-					No modules available for automatic registration. Use the search above to manually add
-					modules.
+					No modules available for automatic registration. Use the search above
+					to manually add modules.
 				</Alert>
 			) : (
 				<Paper withBorder>
@@ -92,7 +103,10 @@ export default function ModulesTable({
 											value={module.status}
 											onChange={(value) => {
 												if (value && onStatusChange) {
-													onStatusChange(module.semesterModuleId, value as StudentModuleStatus);
+													onStatusChange(
+														module.semesterModuleId,
+														value as StudentModuleStatus
+													);
 												}
 											}}
 											styles={{
@@ -103,7 +117,9 @@ export default function ModulesTable({
 										/>
 									</Table.Td>
 									<Table.Td>
-										<Text size='sm'>{formatSemester(module.semesterNo, 'mini')}</Text>
+										<Text size='sm'>
+											{formatSemester(module.semesterNo, 'mini')}
+										</Text>
 									</Table.Td>
 								</Table.Tr>
 							))}

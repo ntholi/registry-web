@@ -1,5 +1,11 @@
 'use client';
-import { Anchor, Flex, Paper, Text, useMantineColorScheme } from '@mantine/core';
+import {
+	Anchor,
+	Flex,
+	Paper,
+	Text,
+	useMantineColorScheme,
+} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconBrandGithub } from '@tabler/icons-react';
 
@@ -22,7 +28,11 @@ export default function Footer() {
 			p='xs'
 		>
 			<Flex justify={'flex-end'}>
-				<Anchor href='https://github.com/ntholi/registry-web' target='_blank' c='dimmed'>
+				<Anchor
+					href='https://github.com/ntholi/registry-web'
+					target='_blank'
+					c='dimmed'
+				>
 					<Flex align={'center'} gap='xs'>
 						<IconBrandGithub size={14} />
 						<Text size='xs'>Source Code</Text>

@@ -1,4 +1,14 @@
-import { Box, Button, Center, Container, Group, Paper, Stack, Text, Title } from '@mantine/core';
+import {
+	Box,
+	Button,
+	Center,
+	Container,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { auth, signIn } from '@/auth';
@@ -16,7 +26,16 @@ export default async function LoginPage() {
 		const role = session.user.role;
 		if (role === 'student') {
 			redirect('/student');
-		} else if (['admin', 'academic', 'finance', 'registry', 'library', 'resource'].includes(role)) {
+		} else if (
+			[
+				'admin',
+				'academic',
+				'finance',
+				'registry',
+				'library',
+				'resource',
+			].includes(role)
+		) {
 			redirect('/dashboard');
 		} else {
 			redirect('/');
@@ -42,7 +61,8 @@ export default async function LoginPage() {
 						bg='light-dark(var(--mantine-color-white), var(--mantine-color-dark-8))'
 						style={{
 							backdropFilter: 'blur(10px)',
-							borderColor: 'light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))',
+							borderColor:
+								'light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))',
 						}}
 					>
 						<Stack align='center' gap='xl'>
@@ -61,7 +81,12 @@ export default async function LoginPage() {
 										type='submit'
 										variant='default'
 										leftSection={
-											<Image src='/images/google.svg' alt='Google' width={18} height={18} />
+											<Image
+												src='/images/google.svg'
+												alt='Google'
+												width={18}
+												height={18}
+											/>
 										}
 										fullWidth
 									>

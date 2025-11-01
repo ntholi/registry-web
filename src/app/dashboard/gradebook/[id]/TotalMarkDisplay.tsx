@@ -1,6 +1,15 @@
 'use client';
 
-import { Alert, Badge, Box, Button, Group, Modal, Stack, Text } from '@mantine/core';
+import {
+	Alert,
+	Badge,
+	Box,
+	Button,
+	Group,
+	Modal,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
 	IconAlertTriangle,
@@ -22,7 +31,12 @@ type Props = {
 	moduleId: number;
 };
 
-export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, moduleId }: Props) {
+export default function TotalMarkDisplay({
+	weightedTotal,
+	hasPassed,
+	studentId,
+	moduleId,
+}: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 	const isBorderlineMark = (score: number): boolean => {
@@ -30,7 +44,9 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 		return borderlineMarks.includes(Math.round(score));
 	};
 
-	const getBorderlineOptions = (score: number): { lower: number; higher: number } => {
+	const getBorderlineOptions = (
+		score: number
+	): { lower: number; higher: number } => {
 		const floorScore = Math.round(score);
 
 		if (floorScore === 48 || floorScore === 49) {
@@ -63,8 +79,15 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 				queryKey: ['moduleGrades', moduleId],
 			});
 
-			const previousModuleGrade = queryClient.getQueryData(['moduleGrade', moduleId, studentId]);
-			const previousModuleGrades = queryClient.getQueryData(['moduleGrades', moduleId]);
+			const previousModuleGrade = queryClient.getQueryData([
+				'moduleGrade',
+				moduleId,
+				studentId,
+			]);
+			const previousModuleGrades = queryClient.getQueryData([
+				'moduleGrades',
+				moduleId,
+			]);
 
 			const newGrade = getLetterGrade(newScore);
 			const optimisticModuleGrade = {
@@ -77,21 +100,29 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 				updatedAt: new Date(),
 			};
 
-			queryClient.setQueryData(['moduleGrade', moduleId, studentId], optimisticModuleGrade);
+			queryClient.setQueryData(
+				['moduleGrade', moduleId, studentId],
+				optimisticModuleGrade
+			);
 
-			queryClient.setQueryData(['moduleGrades', moduleId], (old: ModuleGrade[]) => {
-				if (!old) return [optimisticModuleGrade];
+			queryClient.setQueryData(
+				['moduleGrades', moduleId],
+				(old: ModuleGrade[]) => {
+					if (!old) return [optimisticModuleGrade];
 
-				const existingIndex = old.findIndex((grade) => grade.stdNo === studentId);
+					const existingIndex = old.findIndex(
+						(grade) => grade.stdNo === studentId
+					);
 
-				if (existingIndex >= 0) {
-					const updated = [...old];
-					updated[existingIndex] = optimisticModuleGrade;
-					return updated;
-				} else {
-					return [...old, optimisticModuleGrade];
+					if (existingIndex >= 0) {
+						const updated = [...old];
+						updated[existingIndex] = optimisticModuleGrade;
+						return updated;
+					} else {
+						return [...old, optimisticModuleGrade];
+					}
 				}
-			});
+			);
 
 			return { previousModuleGrade, previousModuleGrades };
 		},
@@ -106,10 +137,16 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 		},
 		onError: (_error, _newScore, context) => {
 			if (context?.previousModuleGrade) {
-				queryClient.setQueryData(['moduleGrade', moduleId, studentId], context.previousModuleGrade);
+				queryClient.setQueryData(
+					['moduleGrade', moduleId, studentId],
+					context.previousModuleGrade
+				);
 			}
 			if (context?.previousModuleGrades) {
-				queryClient.setQueryData(['moduleGrades', moduleId], context.previousModuleGrades);
+				queryClient.setQueryData(
+					['moduleGrades', moduleId],
+					context.previousModuleGrades
+				);
 			}
 		},
 	});
@@ -119,7 +156,9 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 	};
 
 	const isBorderline = isBorderlineMark(weightedTotal);
-	const borderlineOptions = isBorderline ? getBorderlineOptions(weightedTotal) : null;
+	const borderlineOptions = isBorderline
+		? getBorderlineOptions(weightedTotal)
+		: null;
 
 	return (
 		<>
@@ -131,7 +170,9 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 				w={40}
 				style={{
 					cursor: isBorderline ? 'pointer' : 'default',
-					border: isBorderline ? `2px solid var(--mantine-color-orange-6)` : undefined,
+					border: isBorderline
+						? `2px solid var(--mantine-color-orange-6)`
+						: undefined,
 					zIndex: 2,
 				}}
 				onClick={isBorderline ? open : undefined}
@@ -144,7 +185,12 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 				{Math.round(weightedTotal)}
 			</Badge>
 
-			<Modal opened={opened} onClose={close} title='Borderline Mark Adjustment' centered>
+			<Modal
+				opened={opened}
+				onClose={close}
+				title='Borderline Mark Adjustment'
+				centered
+			>
 				<Stack gap='md'>
 					<Alert
 						icon={<IconAlertTriangle size={20} />}
@@ -156,7 +202,8 @@ export default function TotalMarkDisplay({ weightedTotal, hasPassed, studentId, 
 						<Text c='orange.7' span fw='bold'>
 							{Math.round(weightedTotal)}
 						</Text>{' '}
-						is considered borderline. You may adjust it to one of the adjacent values.
+						is considered borderline. You may adjust it to one of the adjacent
+						values.
 					</Alert>
 
 					{borderlineOptions && (

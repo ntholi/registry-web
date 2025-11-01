@@ -9,10 +9,15 @@ type FortinetRegistration = typeof fortinetRegistrations.$inferInsert;
 type FortinetLevel = (typeof fortinetLevel.enumValues)[number];
 
 class FortinetRegistrationService {
-	constructor(private readonly repository = new FortinetRegistrationRepository()) {}
+	constructor(
+		private readonly repository = new FortinetRegistrationRepository()
+	) {}
 
 	async getById(id: number) {
-		return withAuth(async () => this.repository.findById(id), ['student', 'dashboard']);
+		return withAuth(
+			async () => this.repository.findById(id),
+			['student', 'dashboard']
+		);
 	}
 
 	async getByStudentNumber(stdNo: number) {
@@ -38,8 +43,14 @@ class FortinetRegistrationService {
 		);
 	}
 
-	async getForSchool(schoolId: number, options?: QueryOptions<typeof fortinetRegistrations>) {
-		return withAuth(async () => this.repository.findForSchool(schoolId, options), ['dashboard']);
+	async getForSchool(
+		schoolId: number,
+		options?: QueryOptions<typeof fortinetRegistrations>
+	) {
+		return withAuth(
+			async () => this.repository.findForSchool(schoolId, options),
+			['dashboard']
+		);
 	}
 
 	async create(data: { level: FortinetLevel; message?: string }) {
@@ -59,14 +70,21 @@ class FortinetRegistrationService {
 				);
 
 				if (!hasICTSchool) {
-					throw new Error('Fortinet registration is only available for ICT students');
+					throw new Error(
+						'Fortinet registration is only available for ICT students'
+					);
 				}
 
 				// Check if student already registered for this level
-				const existing = await this.repository.findByStudentAndLevel(student.stdNo, data.level);
+				const existing = await this.repository.findByStudentAndLevel(
+					student.stdNo,
+					data.level
+				);
 
 				if (existing) {
-					throw new Error(`You have already registered for ${data.level.toUpperCase()}`);
+					throw new Error(
+						`You have already registered for ${data.level.toUpperCase()}`
+					);
 				}
 
 				const registrationData: FortinetRegistration = {
@@ -113,7 +131,10 @@ class FortinetRegistrationService {
 	}
 
 	async getAll(options?: QueryOptions<typeof fortinetRegistrations>) {
-		return withAuth(async () => this.repository.query(options || {}), ['dashboard']);
+		return withAuth(
+			async () => this.repository.query(options || {}),
+			['dashboard']
+		);
 	}
 }
 

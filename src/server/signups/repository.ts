@@ -4,7 +4,10 @@ import BaseRepository from '@/server/base/BaseRepository';
 
 type SignUp = typeof signups.$inferInsert;
 
-export default class SignupRepository extends BaseRepository<typeof signups, 'userId'> {
+export default class SignupRepository extends BaseRepository<
+	typeof signups,
+	'userId'
+> {
 	constructor() {
 		super(signups, signups.userId);
 	}

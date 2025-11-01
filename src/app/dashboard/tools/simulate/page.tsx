@@ -1,4 +1,13 @@
-import { Box, Container, Group, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import {
+	Box,
+	Container,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	ThemeIcon,
+	Title,
+} from '@mantine/core';
 import { IconTestPipe } from '@tabler/icons-react';
 import RegistrationSimulator from './RegistrationSimulator';
 

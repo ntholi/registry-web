@@ -3,7 +3,10 @@ import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import { createSummaryRegistrationDocument } from './document';
 import { createFullRegistrationExcel } from './excel';
-import { type RegistrationReportFilter, RegistrationReportRepository } from './repository';
+import {
+	type RegistrationReportFilter,
+	RegistrationReportRepository,
+} from './repository';
 
 export class RegistrationReportService {
 	private repository = new RegistrationReportRepository();
@@ -18,8 +21,14 @@ export class RegistrationReportService {
 				throw new Error('Term not found');
 			}
 
-			const reportData = await this.repository.getFullRegistrationData(term.name, filter);
-			const summaryData = await this.repository.getSummaryRegistrationData(term.name, filter);
+			const reportData = await this.repository.getFullRegistrationData(
+				term.name,
+				filter
+			);
+			const summaryData = await this.repository.getSummaryRegistrationData(
+				term.name,
+				filter
+			);
 			const fullReport = {
 				termName: term.name,
 				totalStudents: reportData.length,
@@ -41,7 +50,10 @@ export class RegistrationReportService {
 				throw new Error('Term not found');
 			}
 
-			const reportData = await this.repository.getSummaryRegistrationData(term.name, filter);
+			const reportData = await this.repository.getSummaryRegistrationData(
+				term.name,
+				filter
+			);
 
 			const document = createSummaryRegistrationDocument(reportData);
 			const buffer = await Packer.toBuffer(document);
@@ -59,8 +71,14 @@ export class RegistrationReportService {
 				throw new Error('Term not found');
 			}
 
-			const reportData = await this.repository.getFullRegistrationData(term.name, filter);
-			const summaryData = await this.repository.getSummaryRegistrationData(term.name, filter);
+			const reportData = await this.repository.getFullRegistrationData(
+				term.name,
+				filter
+			);
+			const summaryData = await this.repository.getSummaryRegistrationData(
+				term.name,
+				filter
+			);
 			const fullReport = {
 				termName: term.name,
 				totalStudents: reportData.length,
@@ -79,15 +97,24 @@ export class RegistrationReportService {
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
-	async getRegistrationDataForTerm(termId: number, filter?: RegistrationReportFilter) {
+	async getRegistrationDataForTerm(
+		termId: number,
+		filter?: RegistrationReportFilter
+	) {
 		return withAuth(async () => {
 			const term = await this.repository.getTermById(termId);
 			if (!term) {
 				throw new Error('Term not found');
 			}
 
-			const fullData = await this.repository.getFullRegistrationData(term.name, filter);
-			const summaryData = await this.repository.getSummaryRegistrationData(term.name, filter);
+			const fullData = await this.repository.getFullRegistrationData(
+				term.name,
+				filter
+			);
+			const summaryData = await this.repository.getSummaryRegistrationData(
+				term.name,
+				filter
+			);
 
 			return {
 				term,
@@ -114,7 +141,12 @@ export class RegistrationReportService {
 				throw new Error('Term not found');
 			}
 
-			return await this.repository.getPaginatedRegistrationData(term.name, page, pageSize, filter);
+			return await this.repository.getPaginatedRegistrationData(
+				term.name,
+				page,
+				pageSize,
+				filter
+			);
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 

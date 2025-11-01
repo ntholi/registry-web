@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 
-type ErrorCode = 'NOT_FOUND' | 'UNAUTHORIZED' | 'FORBIDDEN' | 'VALIDATION_ERROR';
+type ErrorCode =
+	| 'NOT_FOUND'
+	| 'UNAUTHORIZED'
+	| 'FORBIDDEN'
+	| 'VALIDATION_ERROR';
 
 class AppError extends Error {
 	constructor(
@@ -21,7 +25,10 @@ export async function routeHandler<T>(handler: () => Promise<T>) {
 		if (error instanceof AppError) {
 			switch (error.code) {
 				case 'NOT_FOUND':
-					return NextResponse.json({ error: 'Resource not found' }, { status: 404 });
+					return NextResponse.json(
+						{ error: 'Resource not found' },
+						{ status: 404 }
+					);
 				case 'UNAUTHORIZED':
 					return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 				case 'FORBIDDEN':
@@ -31,6 +38,9 @@ export async function routeHandler<T>(handler: () => Promise<T>) {
 			}
 		}
 
-		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+		return NextResponse.json(
+			{ error: 'Internal server error' },
+			{ status: 500 }
+		);
 	}
 }

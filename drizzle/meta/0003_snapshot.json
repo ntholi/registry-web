@@ -4393,7 +4393,14 @@
 		"public.dashboard_users": {
 			"name": "dashboard_users",
 			"schema": "public",
-			"values": ["finance", "registry", "library", "resource", "academic", "admin"]
+			"values": [
+				"finance",
+				"registry",
+				"library",
+				"resource",
+				"academic",
+				"admin"
+			]
 		},
 		"public.fortinet_level": {
 			"name": "fortinet_level",

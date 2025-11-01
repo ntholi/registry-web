@@ -3,7 +3,10 @@ import { db } from '@/db';
 import { semesterModules, structures } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
-export default class StructureRepository extends BaseRepository<typeof structures, 'id'> {
+export default class StructureRepository extends BaseRepository<
+	typeof structures,
+	'id'
+> {
 	constructor() {
 		super(structures, structures.id);
 	}
@@ -49,7 +52,9 @@ export default class StructureRepository extends BaseRepository<typeof structure
 		if (!structure) return null;
 
 		const allPrerequisiteIds = structure.semesters.flatMap((semester) =>
-			semester.semesterModules.flatMap((sm) => sm.prerequisites.map((p) => p.prerequisite.moduleId))
+			semester.semesterModules.flatMap((sm) =>
+				sm.prerequisites.map((p) => p.prerequisite.moduleId)
+			)
 		);
 
 		const uniqueModuleIds = [...new Set(allPrerequisiteIds)].filter(

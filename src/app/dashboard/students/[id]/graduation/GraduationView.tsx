@@ -30,15 +30,23 @@ type GraduationViewProps = {
 	blockedStudent?: Awaited<ReturnType<typeof getBlockedStudentByStdNo>>;
 };
 
-type GraduationRequest = Awaited<ReturnType<typeof getGraduationRequestByStudentNo>>;
+type GraduationRequest = Awaited<
+	ReturnType<typeof getGraduationRequestByStudentNo>
+>;
 
 type StudentProgram = {
 	status?: string;
 };
 
-export default function GraduationView({ stdNo, isActive, blockedStudent }: GraduationViewProps) {
+export default function GraduationView({
+	stdNo,
+	isActive,
+	blockedStudent,
+}: GraduationViewProps) {
 	const [activeTab, setActiveTab] = useState<string | null>('transcript');
-	const [selectedProgramId, setSelectedProgramId] = useState<number | undefined>(undefined);
+	const [selectedProgramId, setSelectedProgramId] = useState<
+		number | undefined
+	>(undefined);
 	const stdNoNum = Number(stdNo);
 
 	const { data: graduationRequest, isLoading } = useQuery({
@@ -57,9 +65,9 @@ export default function GraduationView({ stdNo, isActive, blockedStudent }: Grad
 		return <GraduationLoading />;
 	}
 
-	const completedPrograms = ((student?.programs as StudentProgram[]) || []).filter(
-		(p) => p && p.status === 'Completed'
-	);
+	const completedPrograms = (
+		(student?.programs as StudentProgram[]) || []
+	).filter((p) => p && p.status === 'Completed');
 
 	return (
 		<Box>
@@ -72,7 +80,10 @@ export default function GraduationView({ stdNo, isActive, blockedStudent }: Grad
 						<TabsTab value='certificate'>Certificate</TabsTab>
 						{activeTab === 'transcript' && (
 							<Box ml='auto'>
-								<TranscriptPrinter stdNo={stdNoNum} disabled={!!blockedStudent} />
+								<TranscriptPrinter
+									stdNo={stdNoNum}
+									disabled={!!blockedStudent}
+								/>
 							</Box>
 						)}
 						{activeTab === 'certificate' && (
@@ -86,7 +97,10 @@ export default function GraduationView({ stdNo, isActive, blockedStudent }: Grad
 						)}
 					</TabsList>
 					<TabsPanel value='transcript' pt='xl'>
-						<TranscriptPreview stdNo={stdNoNum} isActive={isActive && activeTab === 'transcript'} />
+						<TranscriptPreview
+							stdNo={stdNoNum}
+							isActive={isActive && activeTab === 'transcript'}
+						/>
 					</TabsPanel>
 					<TabsPanel value='certificate' pt='xl'>
 						<CertificatePreview
@@ -124,10 +138,14 @@ function RequestCard({ request }: { request?: GraduationRequest | null }) {
 		const clearances = req?.graduationClearances || [];
 		if (clearances.length === 0) return 'pending';
 
-		const hasRejected = clearances.some((gc) => gc.clearance.status === 'rejected');
+		const hasRejected = clearances.some(
+			(gc) => gc.clearance.status === 'rejected'
+		);
 		if (hasRejected) return 'rejected';
 
-		const allApproved = clearances.every((gc) => gc.clearance.status === 'approved');
+		const allApproved = clearances.every(
+			(gc) => gc.clearance.status === 'approved'
+		);
 		if (allApproved) return 'approved';
 
 		return 'pending';

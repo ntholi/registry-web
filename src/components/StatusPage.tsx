@@ -1,6 +1,15 @@
 'use client';
 
-import { Button, Center, Container, Group, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import {
+	Button,
+	Center,
+	Container,
+	Group,
+	Stack,
+	Text,
+	ThemeIcon,
+	Title,
+} from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

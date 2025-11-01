@@ -10,6 +10,9 @@ export async function getProgramsByGraduationDate(graduationDate: string) {
 	return service.getProgramsByGraduationDate(graduationDate);
 }
 
-export async function getStudentsByGraduationDate(graduationDate: string, programIds?: number[]) {
+export async function getStudentsByGraduationDate(
+	graduationDate: string,
+	programIds?: number[]
+) {
 	return service.getStudentsByGraduationDate(graduationDate, programIds);
 }

@@ -17,13 +17,22 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconEdit, IconHistory, IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+	IconEdit,
+	IconHistory,
+	IconInfoCircle,
+	IconPlus,
+	IconTrash,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import type { assessments } from '@/db/schema';
 import { getAssessmentAuditHistory } from '@/server/assessments/actions';
 import { generateAssessmentAuditMessage } from '@/utils/auditUtils';
-import { getAssessmentNumberLabel, getAssessmentTypeLabel } from './assessments';
+import {
+	getAssessmentNumberLabel,
+	getAssessmentTypeLabel,
+} from './assessments';
 
 interface Props {
 	assessment: NonNullable<typeof assessments.$inferSelect>;
@@ -128,71 +137,84 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 						</Center>
 					</Paper>
 				) : (
-					<Timeline active={auditHistory.length} bulletSize={32} lineWidth={3} color='blue'>
-						{auditHistory.map((audit: NonNullable<typeof auditHistory>[number]) => {
-							const auditMessage = generateAssessmentAuditMessage(audit.action, {
-								previousAssessmentNumber: audit.previousAssessmentNumber,
-								newAssessmentNumber: audit.newAssessmentNumber,
-								previousAssessmentType: audit.previousAssessmentType,
-								newAssessmentType: audit.newAssessmentType,
-								previousTotalMarks: audit.previousTotalMarks,
-								newTotalMarks: audit.newTotalMarks,
-								previousWeight: audit.previousWeight,
-								newWeight: audit.newWeight,
-							});
-							return (
-								<Timeline.Item
-									key={audit.id}
-									bullet={
-										<Avatar
-											size='sm'
-											radius='xl'
-											color={getActionColor(audit.action)}
-											variant='light'
-										>
-											{getActionIcon(audit.action)}
-										</Avatar>
+					<Timeline
+						active={auditHistory.length}
+						bulletSize={32}
+						lineWidth={3}
+						color='blue'
+					>
+						{auditHistory.map(
+							(audit: NonNullable<typeof auditHistory>[number]) => {
+								const auditMessage = generateAssessmentAuditMessage(
+									audit.action,
+									{
+										previousAssessmentNumber: audit.previousAssessmentNumber,
+										newAssessmentNumber: audit.newAssessmentNumber,
+										previousAssessmentType: audit.previousAssessmentType,
+										newAssessmentType: audit.newAssessmentType,
+										previousTotalMarks: audit.previousTotalMarks,
+										newTotalMarks: audit.newTotalMarks,
+										previousWeight: audit.previousWeight,
+										newWeight: audit.newWeight,
 									}
-									title={
-										<Paper p='md' radius='md' withBorder shadow='xs' mb='md'>
-											<Stack gap={'xs'}>
-												<Badge
-													color={getActionColor(audit.action)}
-													variant='light'
-													size='md'
-													radius='md'
-													leftSection={getActionIcon(audit.action)}
-												>
-													{audit.action.toUpperCase()}
-												</Badge>
-												<Text size='sm' lh={1.5}>
-													{auditMessage}
-												</Text>
-												<Card p='sm' radius='md'>
-													<Group gap='sm' align='center'>
-														<Avatar
-															size='sm'
-															radius='xl'
-															color='blue'
-															variant='light'
-															src={audit.createdByUser?.image || undefined}
-														/>
-														<Box>
-															<Text size='sm' fw={500}>
-																{audit.createdByUser?.name || 'Unknown User'}
-															</Text>
-															<Text size='xs' c='dimmed'>
-																{format(new Date(audit.date), "dd MMM yyyy 'at' HH:mm")}
-															</Text>
-														</Box>
-													</Group>
-												</Card>
-											</Stack>
-										</Paper>
-									}
-								></Timeline.Item>
-							);
-						})}
+								);
+								return (
+									<Timeline.Item
+										key={audit.id}
+										bullet={
+											<Avatar
+												size='sm'
+												radius='xl'
+												color={getActionColor(audit.action)}
+												variant='light'
+											>
+												{getActionIcon(audit.action)}
+											</Avatar>
+										}
+										title={
+											<Paper p='md' radius='md' withBorder shadow='xs' mb='md'>
+												<Stack gap={'xs'}>
+													<Badge
+														color={getActionColor(audit.action)}
+														variant='light'
+														size='md'
+														radius='md'
+														leftSection={getActionIcon(audit.action)}
+													>
+														{audit.action.toUpperCase()}
+													</Badge>
+													<Text size='sm' lh={1.5}>
+														{auditMessage}
+													</Text>
+													<Card p='sm' radius='md'>
+														<Group gap='sm' align='center'>
+															<Avatar
+																size='sm'
+																radius='xl'
+																color='blue'
+																variant='light'
+																src={audit.createdByUser?.image || undefined}
+															/>
+															<Box>
+																<Text size='sm' fw={500}>
+																	{audit.createdByUser?.name || 'Unknown User'}
+																</Text>
+																<Text size='xs' c='dimmed'>
+																	{format(
+																		new Date(audit.date),
+																		"dd MMM yyyy 'at' HH:mm"
+																	)}
+																</Text>
+															</Box>
+														</Group>
+													</Card>
+												</Stack>
+											</Paper>
+										}
+									></Timeline.Item>
+								);
+							}
+						)}
 					</Timeline>
 				)}
 			</Modal>

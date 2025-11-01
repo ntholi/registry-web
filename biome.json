@@ -8,9 +8,6 @@
 	"files": {
 		"ignoreUnknown": false
 	},
-	"formatter": {
-		"lineWidth": 100
-	},
 	"linter": {
 		"domains": {
 			"next": "recommended"

@@ -13,7 +13,12 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconCamera, IconPhoto, IconTrashFilled, IconVideo } from '@tabler/icons-react';
+import {
+	IconCamera,
+	IconPhoto,
+	IconTrashFilled,
+	IconVideo,
+} from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { deleteDocument, uploadDocument } from '@/lib/storage';
 import PhotoInputModal from '../info/PhotoInputModal';
@@ -33,7 +38,8 @@ export default function PhotoSelection({
 	studentNumber,
 	existingPhotoUrl,
 }: PhotoSelectionProps) {
-	const [cameraOpened, { open: openCamera, close: closeCamera }] = useDisclosure(false);
+	const [cameraOpened, { open: openCamera, close: closeCamera }] =
+		useDisclosure(false);
 
 	const [isUploading, setIsUploading] = useState(false);
 
@@ -73,7 +79,8 @@ export default function PhotoSelection({
 				await deleteDocument(existingPhotoUrl);
 			}
 
-			const fileExtension = capturedFile.name.split('.').pop()?.toLowerCase() || 'jpg';
+			const fileExtension =
+				capturedFile.name.split('.').pop()?.toLowerCase() || 'jpg';
 			const fileName = `${studentNumber}.${fileExtension}`;
 
 			await uploadDocument(capturedFile, fileName, 'photos');
@@ -109,7 +116,12 @@ export default function PhotoSelection({
 							</Button>
 						)}
 					/>
-					<ActionIcon variant='light' size={'lg'} onClick={openCamera} disabled={isUploading}>
+					<ActionIcon
+						variant='light'
+						size={'lg'}
+						onClick={openCamera}
+						disabled={isUploading}
+					>
 						<IconCamera size={16} />
 					</ActionIcon>
 				</Group>
@@ -145,7 +157,11 @@ export default function PhotoSelection({
 				)}
 			</Stack>
 
-			<CameraModal opened={cameraOpened} onClose={closeCamera} onCapture={handleCameraCapture} />
+			<CameraModal
+				opened={cameraOpened}
+				onClose={closeCamera}
+				onCapture={handleCameraCapture}
+			/>
 		</Paper>
 	);
 }
@@ -220,7 +236,8 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 				video: videoConstraints,
 			};
 
-			const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+			const mediaStream =
+				await navigator.mediaDevices.getUserMedia(constraints);
 
 			setStream(mediaStream);
 
@@ -298,7 +315,14 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 				stopCamera();
 			}
 		};
-	}, [opened, availableCameras.length, selectedCameraId, startCamera, stopCamera, stream]);
+	}, [
+		opened,
+		availableCameras.length,
+		selectedCameraId,
+		startCamera,
+		stopCamera,
+		stream,
+	]);
 
 	const handleClose = () => {
 		stopCamera();
@@ -306,7 +330,13 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 	};
 
 	return (
-		<Modal opened={opened} onClose={handleClose} title='Capture Photo' size='lg' centered>
+		<Modal
+			opened={opened}
+			onClose={handleClose}
+			title='Capture Photo'
+			size='lg'
+			centered
+		>
 			<Stack>
 				{error && (
 					<Text c='red' size='sm'>
@@ -387,7 +417,11 @@ function CameraModal({ opened, onClose, onCapture }: CameraModalProps) {
 					<Button variant='light' onClick={handleClose}>
 						Cancel
 					</Button>
-					<Button onClick={capturePhoto} disabled={!stream} leftSection={<IconCamera size={16} />}>
+					<Button
+						onClick={capturePhoto}
+						disabled={!stream}
+						leftSection={<IconCamera size={16} />}
+					>
 						Capture
 					</Button>
 				</Group>

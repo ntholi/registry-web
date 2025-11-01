@@ -27,7 +27,9 @@ export default function PaymentReceiptsView({ value }: Props) {
 							</Badge>
 						</Stack>
 						<Text c='dimmed' size='sm'>
-							{receipt.createdAt ? new Date(receipt.createdAt).toLocaleDateString() : 'N/A'}
+							{receipt.createdAt
+								? new Date(receipt.createdAt).toLocaleDateString()
+								: 'N/A'}
 						</Text>
 					</Group>
 				</Card>

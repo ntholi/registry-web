@@ -38,7 +38,9 @@ interface ModuleSectionProps {
 	setAvailableModules: (modules: ModuleWithStatus[]) => void;
 	selectedModules: Set<number>;
 	onModuleToggle: (moduleId: number) => void;
-	onModulesChange: (modules: { moduleId: number; moduleStatus: StudentModuleStatus }[]) => void;
+	onModulesChange: (
+		modules: { moduleId: number; moduleStatus: StudentModuleStatus }[]
+	) => void;
 	structureId?: number;
 	student?: Student;
 	error?: string;
@@ -63,7 +65,8 @@ export default function ModuleSection({
 		moduleData: Awaited<ReturnType<typeof getStructureModules>>[number],
 		existingRepeatModules: ModuleWithStatus[]
 	): 'Compulsory' | 'Elective' | `Repeat${number}` {
-		if (!student) return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
+		if (!student)
+			return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
 
 		const attemptedModules = student.programs
 			.flatMap((p) => p.semesters)
@@ -90,7 +93,10 @@ export default function ModuleSection({
 	const handleAddModule = () => {
 		if (!selectedModuleToAdd) return;
 
-		const moduleStatus = determineModuleStatus(selectedModuleToAdd, availableModules);
+		const moduleStatus = determineModuleStatus(
+			selectedModuleToAdd,
+			availableModules
+		);
 
 		const newModule: ModuleWithStatus = {
 			semesterModuleId: selectedModuleToAdd.semesterModuleId,
@@ -115,7 +121,10 @@ export default function ModuleSection({
 		}
 	};
 
-	const handleStatusChange = (semesterModuleId: number, newStatus: StudentModuleStatus) => {
+	const handleStatusChange = (
+		semesterModuleId: number,
+		newStatus: StudentModuleStatus
+	) => {
 		const updatedModules = availableModules.map((module) =>
 			module.semesterModuleId === semesterModuleId
 				? {

@@ -22,7 +22,11 @@ interface SponsorSelectorProps {
 	};
 }
 
-export default function SponsorSelector({ value, onChange, errors }: SponsorSelectorProps) {
+export default function SponsorSelector({
+	value,
+	onChange,
+	errors,
+}: SponsorSelectorProps) {
 	const { data: sponsors, isLoading: sponsorsLoading } = useQuery({
 		queryKey: ['sponsors'],
 		queryFn: () => findAllSponsors(1),
@@ -100,7 +104,9 @@ export default function SponsorSelector({ value, onChange, errors }: SponsorSele
 							label='Borrower Number'
 							placeholder='Enter borrower number'
 							value={value.borrowerNo || ''}
-							onChange={(event) => handleBorrowerNoChange(event.currentTarget.value)}
+							onChange={(event) =>
+								handleBorrowerNoChange(event.currentTarget.value)
+							}
 							disabled={!value.sponsorId || !isNMDS(value.sponsorId)}
 							required={isNMDS(value.sponsorId)}
 							error={errors?.borrowerNo}
@@ -123,7 +129,9 @@ export default function SponsorSelector({ value, onChange, errors }: SponsorSele
 							label='Account Number'
 							placeholder='Enter account number'
 							value={value.accountNumber || ''}
-							onChange={(event) => handleAccountNumberChange(event.currentTarget.value)}
+							onChange={(event) =>
+								handleAccountNumberChange(event.currentTarget.value)
+							}
 							error={errors?.accountNumber}
 						/>
 					</GridCol>

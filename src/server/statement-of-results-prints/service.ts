@@ -9,7 +9,9 @@ import StatementOfResultsPrintsRepository from './repository';
 type StatementOfResultsPrint = typeof statementOfResultsPrints.$inferInsert;
 
 class StatementOfResultsPrintsService {
-	constructor(private readonly repository = new StatementOfResultsPrintsRepository()) {}
+	constructor(
+		private readonly repository = new StatementOfResultsPrintsRepository()
+	) {}
 
 	async create(data: StatementOfResultsPrint) {
 		return withAuth(async () => this.repository.create(data), ['dashboard']);

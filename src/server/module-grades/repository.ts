@@ -3,14 +3,20 @@ import { db } from '@/db';
 import { moduleGrades } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
-export default class ModuleGradeRepository extends BaseRepository<typeof moduleGrades, 'id'> {
+export default class ModuleGradeRepository extends BaseRepository<
+	typeof moduleGrades,
+	'id'
+> {
 	constructor() {
 		super(moduleGrades, moduleGrades.id);
 	}
 
 	async findByModuleAndStudent(moduleId: number, stdNo: number) {
 		return db.query.moduleGrades.findFirst({
-			where: and(eq(moduleGrades.moduleId, moduleId), eq(moduleGrades.stdNo, stdNo)),
+			where: and(
+				eq(moduleGrades.moduleId, moduleId),
+				eq(moduleGrades.stdNo, stdNo)
+			),
 		});
 	}
 
@@ -21,7 +27,10 @@ export default class ModuleGradeRepository extends BaseRepository<typeof moduleG
 	}
 
 	async upsertModuleGrade(data: typeof moduleGrades.$inferInsert) {
-		const existing = await this.findByModuleAndStudent(data.moduleId, data.stdNo);
+		const existing = await this.findByModuleAndStudent(
+			data.moduleId,
+			data.stdNo
+		);
 		if (existing) {
 			return db
 				.update(moduleGrades)

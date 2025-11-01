@@ -1,6 +1,13 @@
 'use client';
 
-import { Alert, Box, Button, Group, LoadingOverlay, Stack } from '@mantine/core';
+import {
+	Alert,
+	Box,
+	Button,
+	Group,
+	LoadingOverlay,
+	Stack,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -56,11 +63,17 @@ type FormValues = {
 	selectedTermId: number | null;
 };
 
-export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' | 'onClose'>) {
+export default function RegistrationRequestForm({
+	stdNo,
+}: Omit<Props, 'opened' | 'onClose'>) {
 	const { currentTerm } = useCurrentTerm();
 	const queryClient = useQueryClient();
-	const [selectedModules, setSelectedModules] = useState<Set<number>>(new Set());
-	const [availableModules, setAvailableModules] = useState<ModuleWithStatus[]>([]);
+	const [selectedModules, setSelectedModules] = useState<Set<number>>(
+		new Set()
+	);
+	const [availableModules, setAvailableModules] = useState<ModuleWithStatus[]>(
+		[]
+	);
 	const [semesterData, setSemesterData] = useState<SemesterData | null>(null);
 	const sponsorshipAutoFilled = useRef(false);
 
@@ -78,8 +91,10 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 			selectedTermId: currentTerm?.id || null,
 		},
 		validate: {
-			modules: (value) => (value.length === 0 ? 'Please select at least one module' : null),
-			selectedTermId: (value) => (value === null ? 'Please select a term' : null),
+			modules: (value) =>
+				value.length === 0 ? 'Please select at least one module' : null,
+			selectedTermId: (value) =>
+				value === null ? 'Please select a term' : null,
 			sponsorship: {
 				sponsorId: (value) => (value === 0 ? 'Please select a sponsor' : null),
 				borrowerNo: (_value, _values) => {
@@ -111,7 +126,10 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 			if (!student) return null;
 
 			const remarks = getAcademicRemarks(student.programs);
-			const result = await getStudentSemesterModules(student as unknown as Student, remarks);
+			const result = await getStudentSemesterModules(
+				student as unknown as Student,
+				remarks
+			);
 
 			if (result.error?.includes('Remain in Semester')) {
 				const modifiedRemarks = {
@@ -136,19 +154,29 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 	});
 
 	const selectedModuleData = useMemo(
-		() => availableModules.filter((m) => debouncedSelectedModules.has(m.semesterModuleId)),
+		() =>
+			availableModules.filter((m) =>
+				debouncedSelectedModules.has(m.semesterModuleId)
+			),
 		[availableModules, debouncedSelectedModules]
 	);
 
 	const { data: semesterStatus, isLoading: semesterStatusLoading } = useQuery({
 		queryKey: ['semesterStatus', Array.from(debouncedSelectedModules)],
 		queryFn: async () => {
-			if (debouncedSelectedModules.size === 0 || !student || selectedModuleData.length === 0)
+			if (
+				debouncedSelectedModules.size === 0 ||
+				!student ||
+				selectedModuleData.length === 0
+			)
 				return null;
 
 			return determineSemesterStatus(selectedModuleData, student as never);
 		},
-		enabled: debouncedSelectedModules.size > 0 && !!student && selectedModuleData.length > 0,
+		enabled:
+			debouncedSelectedModules.size > 0 &&
+			!!student &&
+			selectedModuleData.length > 0,
 	});
 
 	const createMutation = useMutation({
@@ -283,7 +311,9 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 								setAvailableModules={setAvailableModules}
 								selectedModules={selectedModules}
 								onModuleToggle={handleModuleToggle}
-								onModulesChange={(modules) => form.setFieldValue('modules', modules)}
+								onModulesChange={(modules) =>
+									form.setFieldValue('modules', modules)
+								}
 								structureId={structureId}
 								student={student}
 								error={form.errors.modules as string}
@@ -314,7 +344,11 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 						<Button
 							type='submit'
 							loading={createMutation.isPending}
-							disabled={selectedModules.size === 0 || !semesterData || !form.values.selectedTermId}
+							disabled={
+								selectedModules.size === 0 ||
+								!semesterData ||
+								!form.values.selectedTermId
+							}
 						>
 							Create Registration Request
 						</Button>

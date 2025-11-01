@@ -59,7 +59,12 @@ export default function Layout({ children }: PropsWithChildren) {
 			]}
 			getData={async (page, search) => {
 				const termToUse = selectedTerm || currentTerm?.id;
-				const response = await clearanceByStatus(status, page, search, termToUse || undefined);
+				const response = await clearanceByStatus(
+					status,
+					page,
+					search,
+					termToUse || undefined
+				);
 				return {
 					items: response.items || [],
 					totalPages: response.totalPages || 1,

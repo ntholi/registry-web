@@ -1,5 +1,12 @@
 'use client';
-import { Avatar, Container, Divider, Flex, Menu, useMantineColorScheme } from '@mantine/core';
+import {
+	Avatar,
+	Container,
+	Divider,
+	Flex,
+	Menu,
+	useMantineColorScheme,
+} from '@mantine/core';
 import { IconLogout, IconMoon, IconSun, IconUser } from '@tabler/icons-react';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
@@ -23,7 +30,11 @@ export default function Navbar() {
 					</Link>
 					<Menu shadow='md' width={200}>
 						<Menu.Target>
-							<Avatar alt={student?.name} size='md' style={{ cursor: 'pointer' }}>
+							<Avatar
+								alt={student?.name}
+								size='md'
+								style={{ cursor: 'pointer' }}
+							>
 								<IconUser size={14} />
 							</Avatar>
 						</Menu.Target>
@@ -39,14 +50,22 @@ export default function Navbar() {
 							</Menu.Item>
 							<Menu.Item
 								leftSection={
-									colorScheme === 'dark' ? <IconSun size={14} /> : <IconMoon size={14} />
+									colorScheme === 'dark' ? (
+										<IconSun size={14} />
+									) : (
+										<IconMoon size={14} />
+									)
 								}
 								onClick={() => toggleColorScheme()}
 							>
 								{colorScheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
 							</Menu.Item>
 							<Menu.Divider />
-							<Menu.Item leftSection={<IconLogout size={14} />} onClick={handleLogout} color='red'>
+							<Menu.Item
+								leftSection={<IconLogout size={14} />}
+								onClick={handleLogout}
+								color='red'
+							>
 								Logout
 							</Menu.Item>
 						</Menu.Dropdown>

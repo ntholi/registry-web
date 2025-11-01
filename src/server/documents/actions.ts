@@ -29,7 +29,9 @@ export async function deleteDocument(id: string) {
 	return service.delete(id);
 }
 
-export async function getDocumentUrl(fileName: string | undefined | null): Promise<string | null> {
+export async function getDocumentUrl(
+	fileName: string | undefined | null
+): Promise<string | null> {
 	if (!fileName) return null;
 	try {
 		const url = `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/${fileName}`;

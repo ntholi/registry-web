@@ -22,7 +22,11 @@ export default function Layout({ children }: PropsWithChildren) {
 		if (termId) filter.termId = Number(termId);
 		if (semesterNumber) filter.semesterNumber = Number(semesterNumber);
 
-		return findAllStudents(page, search, Object.keys(filter).length > 0 ? filter : undefined);
+		return findAllStudents(
+			page,
+			search,
+			Object.keys(filter).length > 0 ? filter : undefined
+		);
 	};
 
 	return (
@@ -31,7 +35,9 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['students', searchParams.toString()]}
 			getData={getStudentsData}
 			actionIcons={[<StudentsFilter key={'filter-link'} />]}
-			renderItem={(it) => <ListItem id={it.stdNo} label={it.name} description={it.stdNo} />}
+			renderItem={(it) => (
+				<ListItem id={it.stdNo} label={it.name} description={it.stdNo} />
+			)}
 		>
 			{children}
 		</ListLayout>

@@ -15,11 +15,17 @@ type Props = {
 	onSubmit: (values: GraduationRequest) => Promise<GraduationRequest>;
 	defaultValues?: GraduationRequest;
 	onSuccess?: (value: GraduationRequest) => void;
-	onError?: (error: Error | React.SyntheticEvent<HTMLDivElement, Event>) => void;
+	onError?: (
+		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+	) => void;
 	title?: string;
 };
 
-export default function GraduationRequestForm({ onSubmit, defaultValues, title }: Props) {
+export default function GraduationRequestForm({
+	onSubmit,
+	defaultValues,
+	title,
+}: Props) {
 	const router = useRouter();
 	const [studentNo, setStudentNo] = useState<string>('');
 	const [selectedProgramId, setSelectedProgramId] = useState<string>('');
@@ -85,7 +91,9 @@ export default function GraduationRequestForm({ onSubmit, defaultValues, title }
 						value={selectedProgramId}
 						onChange={(value) => setSelectedProgramId(value || '')}
 						data={programOptions}
-						disabled={!studentNo || loadingPrograms || programOptions.length === 0}
+						disabled={
+							!studentNo || loadingPrograms || programOptions.length === 0
+						}
 						searchable
 						nothingFoundMessage={
 							!studentNo

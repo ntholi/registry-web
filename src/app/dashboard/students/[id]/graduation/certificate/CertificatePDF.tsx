@@ -8,7 +8,9 @@ interface CertificatePDFProps {
 	graduationDate?: Date;
 }
 
-export async function generateCertificate(props: CertificatePDFProps): Promise<Blob> {
+export async function generateCertificate(
+	props: CertificatePDFProps
+): Promise<Blob> {
 	const pdfBytes = await generateCertificatePDF({
 		studentName: props.studentName,
 		programName: props.programName,

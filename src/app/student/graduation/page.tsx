@@ -1,4 +1,12 @@
-import { Box, Container, Divider, Group, Stack, Text, Title } from '@mantine/core';
+import {
+	Box,
+	Container,
+	Divider,
+	Group,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/auth';

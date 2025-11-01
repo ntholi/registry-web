@@ -65,7 +65,9 @@ export function ListLayout<T>({
 		const itemElement = renderItem(item);
 		if (React.isValidElement(itemElement) && itemElement.type === ListItem) {
 			return React.cloneElement(
-				itemElement as React.ReactElement<React.ComponentProps<typeof ListItem>>,
+				itemElement as React.ReactElement<
+					React.ComponentProps<typeof ListItem>
+				>,
 				{
 					path,
 					onClick: async () => {
@@ -105,7 +107,9 @@ export function ListLayout<T>({
 									<SearchField style={{ width: '100%' }} />
 								</Group>
 								{actionIcons?.map((component, _index) => (
-									<React.Fragment key={`action-${crypto.randomUUID()}`}>{component}</React.Fragment>
+									<React.Fragment key={`action-${crypto.randomUUID()}`}>
+										{component}
+									</React.Fragment>
 								))}
 							</Flex>
 						</Stack>
@@ -116,7 +120,10 @@ export function ListLayout<T>({
 							{isLoading ? (
 								<Stack gap='sm'>
 									{Array.from({ length: 5 }).map((_, _index) => (
-										<Skeleton height={35} key={`skeleton-${crypto.randomUUID()}`} />
+										<Skeleton
+											height={35}
+											key={`skeleton-${crypto.randomUUID()}`}
+										/>
 									))}
 								</Stack>
 							) : (

@@ -15,11 +15,19 @@ import {
 	WidthType,
 } from 'docx';
 import { formatSemester } from '@/lib/utils';
-import type { FullRegistrationReport, SummaryRegistrationReport } from './repository';
+import type {
+	FullRegistrationReport,
+	SummaryRegistrationReport,
+} from './repository';
 
 function getLogoImage(): Buffer {
 	if (typeof window === 'undefined') {
-		const logoPath = path.join(process.cwd(), 'public', 'images', 'logo-lesotho.jpg');
+		const logoPath = path.join(
+			process.cwd(),
+			'public',
+			'images',
+			'logo-lesotho.jpg'
+		);
 		try {
 			return fs.readFileSync(logoPath);
 		} catch (error) {
@@ -30,7 +38,9 @@ function getLogoImage(): Buffer {
 	return Buffer.from('');
 }
 
-export function createFullRegistrationDocument(report: FullRegistrationReport): Document {
+export function createFullRegistrationDocument(
+	report: FullRegistrationReport
+): Document {
 	const logoImage = getLogoImage();
 
 	const headerParagraphs: Paragraph[] = [];
@@ -121,13 +131,16 @@ export function createFullRegistrationDocument(report: FullRegistrationReport): 
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: `Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
-											year: 'numeric',
-											month: 'long',
-											day: 'numeric',
-											hour: '2-digit',
-											minute: '2-digit',
-										})}`,
+										text: `Generated: ${report.generatedAt.toLocaleDateString(
+											'en-LS',
+											{
+												year: 'numeric',
+												month: 'long',
+												day: 'numeric',
+												hour: '2-digit',
+												minute: '2-digit',
+											}
+										)}`,
 										font: 'Arial',
 										size: 16,
 										color: '333333',
@@ -164,7 +177,9 @@ export function createFullRegistrationDocument(report: FullRegistrationReport): 
 	return doc;
 }
 
-export function createSummaryRegistrationDocument(report: SummaryRegistrationReport): Document {
+export function createSummaryRegistrationDocument(
+	report: SummaryRegistrationReport
+): Document {
 	const logoImage = getLogoImage();
 
 	const headerParagraphs: Paragraph[] = [];
@@ -242,13 +257,16 @@ export function createSummaryRegistrationDocument(report: SummaryRegistrationRep
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: `Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
-											year: 'numeric',
-											month: 'long',
-											day: 'numeric',
-											hour: '2-digit',
-											minute: '2-digit',
-										})}`,
+										text: `Generated: ${report.generatedAt.toLocaleDateString(
+											'en-LS',
+											{
+												year: 'numeric',
+												month: 'long',
+												day: 'numeric',
+												hour: '2-digit',
+												minute: '2-digit',
+											}
+										)}`,
 										font: 'Arial',
 										size: 16,
 										color: '333333',
@@ -407,7 +425,9 @@ function createFullReportInfoTable(report: FullRegistrationReport): Table {
 	});
 }
 
-function createSummaryReportInfoTable(report: SummaryRegistrationReport): Table {
+function createSummaryReportInfoTable(
+	report: SummaryRegistrationReport
+): Table {
 	return new Table({
 		rows: [
 			new TableRow({

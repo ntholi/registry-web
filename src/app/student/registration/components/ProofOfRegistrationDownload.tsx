@@ -24,16 +24,23 @@ export default function ProofOfRegistrationDownload({
 		try {
 			setLoading(true);
 
-			const studentData = await getStudentRegistrationDataByTerm(stdNo, termName);
+			const studentData = await getStudentRegistrationDataByTerm(
+				stdNo,
+				termName
+			);
 
-			if (!studentData || !studentData.programs || studentData.programs.length === 0) {
+			if (
+				!studentData ||
+				!studentData.programs ||
+				studentData.programs.length === 0
+			) {
 				console.error('No student data found for the specified term');
 				return;
 			}
 
-			const activeProgram = studentData.programs.find((p) => p.status === 'Active') as NonNullable<
-				(typeof studentData.programs)[number]
-			>;
+			const activeProgram = studentData.programs.find(
+				(p) => p.status === 'Active'
+			) as NonNullable<(typeof studentData.programs)[number]>;
 
 			if (!activeProgram) {
 				console.error('No active program found');
@@ -45,7 +52,9 @@ export default function ProofOfRegistrationDownload({
 			);
 
 			if (!targetSemester) {
-				console.error('No semester found for the specified term and semester number');
+				console.error(
+					'No semester found for the specified term and semester number'
+				);
 				return;
 			}
 
@@ -59,7 +68,9 @@ export default function ProofOfRegistrationDownload({
 				],
 			};
 
-			const pdfBlob = await pdf(<ProofOfRegistrationPDF student={modifiedStudentData} />).toBlob();
+			const pdfBlob = await pdf(
+				<ProofOfRegistrationPDF student={modifiedStudentData} />
+			).toBlob();
 
 			const url = URL.createObjectURL(pdfBlob);
 			const link = document.createElement('a');

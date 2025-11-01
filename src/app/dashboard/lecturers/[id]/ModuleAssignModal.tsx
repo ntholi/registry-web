@@ -1,5 +1,13 @@
 'use client';
-import { Button, Checkbox, Group, Modal, Paper, Stack, Text } from '@mantine/core';
+import {
+	Button,
+	Checkbox,
+	Group,
+	Modal,
+	Paper,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -21,7 +29,9 @@ export default function ModuleAssignModal() {
 	const [opened, { open, close }] = useDisclosure(false);
 	const params = useParams<{ id: string }>();
 	const [selectedModule, setSelectedModule] = useState<Module | null>(null);
-	const [selectedSemesterModules, setSelectedSemesterModules] = useState<number[]>([]);
+	const [selectedSemesterModules, setSelectedSemesterModules] = useState<
+		number[]
+	>([]);
 	const queryClient = useQueryClient();
 
 	const resetForm = () => {
@@ -46,7 +56,8 @@ export default function ModuleAssignModal() {
 		},
 	});
 	const assignModulesMutation = useMutation({
-		mutationFn: (data: FormValues) => assignModulesToLecturer(data.userId, data.semesterModuleIds),
+		mutationFn: (data: FormValues) =>
+			assignModulesToLecturer(data.userId, data.semesterModuleIds),
 		onSuccess: () => {
 			notifications.show({
 				title: 'Success',
@@ -95,7 +106,12 @@ export default function ModuleAssignModal() {
 			<Button size='sm' variant='light' onClick={open}>
 				Assign Module
 			</Button>
-			<Modal title='Assign Module' size={'xl'} opened={opened} onClose={handleClose}>
+			<Modal
+				title='Assign Module'
+				size={'xl'}
+				opened={opened}
+				onClose={handleClose}
+			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Stack gap='md'>
 						<ModuleSearchInput
@@ -110,8 +126,12 @@ export default function ModuleAssignModal() {
 										<Checkbox.Card
 											p='md'
 											key={semester.semesterModuleId}
-											checked={selectedSemesterModules.includes(semester.semesterModuleId)}
-											onChange={() => handleSemesterModuleToggle(semester.semesterModuleId)}
+											checked={selectedSemesterModules.includes(
+												semester.semesterModuleId
+											)}
+											onChange={() =>
+												handleSemesterModuleToggle(semester.semesterModuleId)
+											}
 										>
 											<Group wrap='nowrap' align='flex-start'>
 												<Checkbox.Indicator />
@@ -120,7 +140,8 @@ export default function ModuleAssignModal() {
 														{semester.programName}
 													</Text>
 													<Text size='xs' c='dimmed'>
-														{semester.semesterName} {`(${semester.studentCount} Students)`}
+														{semester.semesterName}{' '}
+														{`(${semester.studentCount} Students)`}
 													</Text>
 												</div>
 											</Group>

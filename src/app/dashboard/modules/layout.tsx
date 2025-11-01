@@ -11,7 +11,9 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['modules']}
 			getData={getModules}
 			actionIcons={[<NewLink key={'new-link'} href='/dashboard/modules/new' />]}
-			renderItem={(it) => <ListItem id={it.id} label={it.code} description={it.name} />}
+			renderItem={(it) => (
+				<ListItem id={it.id} label={it.code} description={it.name} />
+			)}
 		>
 			{children}
 		</ListLayout>

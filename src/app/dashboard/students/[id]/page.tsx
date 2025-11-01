@@ -33,7 +33,11 @@ export default async function StudentDetails({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader title={student.name} queryKey={['students']} />
-			<StudentTabs student={student} session={session} blockedStudent={blockedStudent} />
+			<StudentTabs
+				student={student}
+				session={session}
+				blockedStudent={blockedStudent}
+			/>
 		</DetailsView>
 	);
 }

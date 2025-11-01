@@ -1,7 +1,19 @@
-import { Fieldset, List, ListItem, SimpleGrid, Text, ThemeIcon } from '@mantine/core';
+import {
+	Fieldset,
+	List,
+	ListItem,
+	SimpleGrid,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
 import { IconCircleCheck } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewBody, DetailsViewHeader, FieldView } from '@/components/adease';
+import {
+	DetailsView,
+	DetailsViewBody,
+	DetailsViewHeader,
+	FieldView,
+} from '@/components/adease';
 import Link from '@/components/Link';
 import {
 	deleteModule,
@@ -45,7 +57,10 @@ export default async function ModuleDetails({ params }: Props) {
 				</SimpleGrid>
 				<FieldView label='Structure'>
 					{item.semester?.structure ? (
-						<Link size='sm' href={`/dashboard/schools/structures/${item.semester.structure.id}`}>
+						<Link
+							size='sm'
+							href={`/dashboard/schools/structures/${item.semester.structure.id}`}
+						>
 							{item.semester.structure.code}
 						</Link>
 					) : (

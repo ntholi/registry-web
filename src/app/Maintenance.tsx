@@ -4,7 +4,7 @@ import { Center, Container, Divider, Stack, Text, Title } from '@mantine/core';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-const TARGET_DATE = '2025-10-15T04:30:00';
+const TARGET_DATE = '2025-10-15T04:30:30';
 
 function useCountdown(targetDate: string) {
 	const [timeLeft, setTimeLeft] = useState({

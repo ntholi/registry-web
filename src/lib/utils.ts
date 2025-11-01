@@ -54,7 +54,9 @@ export function toTitleCase(str: string | undefined | null) {
  * @param values - The object to sanitize
  * @returns The sanitized object
  */
-export function sanitize<T extends Record<string, unknown>>(values: T | undefined) {
+export function sanitize<T extends Record<string, unknown>>(
+	values: T | undefined
+) {
 	if (!values) return undefined;
 
 	return Object.entries(values).reduce((acc, [key, value]) => {
@@ -103,7 +105,9 @@ export function formatPhoneNumber(phone: string | null | undefined) {
 
 	if (
 		cleaned.length === 8 &&
-		(cleaned.startsWith('2') || cleaned.startsWith('5') || cleaned.startsWith('6'))
+		(cleaned.startsWith('2') ||
+			cleaned.startsWith('5') ||
+			cleaned.startsWith('6'))
 	) {
 		return `(+266) ${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
 	}

@@ -9,6 +9,9 @@ export async function GET(request: NextRequest) {
 	if (!term) {
 		throw new Error('No active term');
 	}
-	const modules = await new ModuleRepository().searchModulesWithDetails(search, term);
+	const modules = await new ModuleRepository().searchModulesWithDetails(
+		search,
+		term
+	);
 	return NextResponse.json(modules);
 }

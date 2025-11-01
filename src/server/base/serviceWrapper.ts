@@ -3,7 +3,10 @@ import { createServiceLogger } from './logger';
 // biome-ignore lint/suspicious/noExplicitAny: transaction type from drizzle
 type Constructor<T> = new (...args: any[]) => T;
 
-export function serviceWrapper<T extends object>(Service: Constructor<T>, resourceName: string): T {
+export function serviceWrapper<T extends object>(
+	Service: Constructor<T>,
+	resourceName: string
+): T {
 	const logger = createServiceLogger(resourceName);
 
 	return new Proxy(new Service(), {

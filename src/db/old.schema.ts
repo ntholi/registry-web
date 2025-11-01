@@ -129,7 +129,12 @@ export const signups = sqliteTable('signups', {
 });
 
 export const genderEnum = ['Male', 'Female', 'Other'] as const;
-export const maritalStatusEnum = ['Single', 'Married', 'Divorced', 'Windowed'] as const;
+export const maritalStatusEnum = [
+	'Single',
+	'Married',
+	'Divorced',
+	'Windowed',
+] as const;
 
 export const students = sqliteTable('students', {
 	stdNo: integer().primaryKey(),
@@ -146,7 +151,13 @@ export const students = sqliteTable('students', {
 	createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const programStatusEnum = ['Active', 'Changed', 'Completed', 'Deleted', 'Inactive'] as const;
+export const programStatusEnum = [
+	'Active',
+	'Changed',
+	'Completed',
+	'Deleted',
+	'Inactive',
+] as const;
 export type StudentProgramStatus = (typeof programStatusEnum)[number];
 
 export const studentPrograms = sqliteTable('student_programs', {
@@ -311,7 +322,13 @@ export const modules = sqliteTable('modules', {
 	timestamp: text(),
 });
 
-export const moduleTypeEnum = ['Major', 'Minor', 'Core', 'Delete', 'Elective'] as const;
+export const moduleTypeEnum = [
+	'Major',
+	'Minor',
+	'Core',
+	'Delete',
+	'Elective',
+] as const;
 export type ModuleType = (typeof moduleTypeEnum)[number];
 
 export const semesterModules = sqliteTable('semester_modules', {
@@ -341,7 +358,10 @@ export const modulePrerequisites = sqliteTable(
 		createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 	},
 	(table) => ({
-		uniquePrerequisite: unique().on(table.semesterModuleId, table.prerequisiteId),
+		uniquePrerequisite: unique().on(
+			table.semesterModuleId,
+			table.prerequisiteId
+		),
 	})
 );
 
@@ -374,7 +394,9 @@ export const registrationRequests = sqliteTable(
 		termId: integer()
 			.references(() => terms.id, { onDelete: 'cascade' })
 			.notNull(),
-		status: text({ enum: registrationRequestStatusEnum }).notNull().default('pending'),
+		status: text({ enum: registrationRequestStatusEnum })
+			.notNull()
+			.default('pending'),
 		mailSent: integer({ mode: 'boolean' }).notNull().default(false),
 		count: integer().notNull().default(1),
 		semesterStatus: text({ enum: ['Active', 'Repeat'] }).notNull(),
@@ -389,27 +411,41 @@ export const registrationRequests = sqliteTable(
 	})
 );
 
-export const requestedModuleStatusEnum = ['pending', 'registered', 'rejected'] as const;
+export const requestedModuleStatusEnum = [
+	'pending',
+	'registered',
+	'rejected',
+] as const;
 
 export const requestedModules = sqliteTable('requested_modules', {
 	id: integer().primaryKey({ autoIncrement: true }),
-	moduleStatus: text({ enum: studentModuleStatusEnum }).notNull().default('Compulsory'),
+	moduleStatus: text({ enum: studentModuleStatusEnum })
+		.notNull()
+		.default('Compulsory'),
 	registrationRequestId: integer()
 		.references(() => registrationRequests.id, { onDelete: 'cascade' })
 		.notNull(),
 	semesterModuleId: integer()
 		.references(() => semesterModules.id, { onDelete: 'cascade' })
 		.notNull(),
-	status: text({ enum: requestedModuleStatusEnum }).notNull().default('pending'),
+	status: text({ enum: requestedModuleStatusEnum })
+		.notNull()
+		.default('pending'),
 	createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const clearanceRequestStatusEnum = ['pending', 'approved', 'rejected'] as const;
+export const clearanceRequestStatusEnum = [
+	'pending',
+	'approved',
+	'rejected',
+] as const;
 
 export const clearance = sqliteTable('clearance', {
 	id: integer().primaryKey({ autoIncrement: true }),
 	department: text({ enum: dashboardUsers }).notNull(),
-	status: text({ enum: clearanceRequestStatusEnum }).notNull().default('pending'),
+	status: text({ enum: clearanceRequestStatusEnum })
+		.notNull()
+		.default('pending'),
 	message: text(),
 	emailSent: integer({ mode: 'boolean' }).notNull().default(false),
 	respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
@@ -430,7 +466,10 @@ export const registrationClearance = sqliteTable(
 		createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 	},
 	(table) => ({
-		uniqueRegistrationClearance: unique().on(table.registrationRequestId, table.clearanceId),
+		uniqueRegistrationClearance: unique().on(
+			table.registrationRequestId,
+			table.clearanceId
+		),
 	})
 );
 
@@ -463,7 +502,11 @@ export const graduationClearance = sqliteTable(
 	})
 );
 
-export const graduationListStatusEnum = ['created', 'populated', 'archived'] as const;
+export const graduationListStatusEnum = [
+	'created',
+	'populated',
+	'archived',
+] as const;
 
 export const graduationLists = sqliteTable('graduation_lists', {
 	id: text()
@@ -502,7 +545,10 @@ export const clearanceAudit = sqliteTable('clearance_audit', {
 		.notNull(),
 	date: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`).notNull(),
 	message: text(),
-	modules: text({ mode: 'json' }).notNull().$type<string[]>().default(sql`(json_array())`),
+	modules: text({ mode: 'json' })
+		.notNull()
+		.$type<string[]>()
+		.default(sql`(json_array())`),
 });
 
 export const sponsors = sqliteTable('sponsors', {
@@ -619,7 +665,11 @@ export const assessments = sqliteTable(
 		createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 	},
 	(table) => ({
-		uniqueAssessmentModule: unique().on(table.moduleId, table.assessmentNumber, table.termId),
+		uniqueAssessmentModule: unique().on(
+			table.moduleId,
+			table.assessmentNumber,
+			table.termId
+		),
 	})
 );
 
@@ -635,7 +685,11 @@ export const assessmentMarks = sqliteTable('assessment_marks', {
 	createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const assessmentMarksAuditActionEnum = ['create', 'update', 'delete'] as const;
+export const assessmentMarksAuditActionEnum = [
+	'create',
+	'update',
+	'delete',
+] as const;
 
 export const assessmentMarksAudit = sqliteTable('assessment_marks_audit', {
 	id: integer().primaryKey({ autoIncrement: true }),
@@ -651,7 +705,11 @@ export const assessmentMarksAudit = sqliteTable('assessment_marks_audit', {
 	date: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`).notNull(),
 });
 
-export const assessmentsAuditActionEnum = ['create', 'update', 'delete'] as const;
+export const assessmentsAuditActionEnum = [
+	'create',
+	'update',
+	'delete',
+] as const;
 
 export const assessmentsAudit = sqliteTable('assessments_audit', {
 	id: integer().primaryKey({ autoIncrement: true }),
@@ -693,26 +751,31 @@ export const moduleGrades = sqliteTable(
 	})
 );
 
-export const statementOfResultsPrints = sqliteTable('statement_of_results_prints', {
-	id: text()
-		.primaryKey()
-		.$defaultFn(() => nanoid()),
-	stdNo: integer()
-		.references(() => students.stdNo, { onDelete: 'cascade' })
-		.notNull(),
-	printedBy: text()
-		.references(() => users.id, { onDelete: 'set null' })
-		.notNull(),
-	studentName: text().notNull(),
-	programName: text().notNull(),
-	totalCredits: integer().notNull(),
-	totalModules: integer().notNull(),
-	cgpa: real(),
-	classification: text(),
-	academicStatus: text(),
-	graduationDate: text(),
-	printedAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`).notNull(),
-});
+export const statementOfResultsPrints = sqliteTable(
+	'statement_of_results_prints',
+	{
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		stdNo: integer()
+			.references(() => students.stdNo, { onDelete: 'cascade' })
+			.notNull(),
+		printedBy: text()
+			.references(() => users.id, { onDelete: 'set null' })
+			.notNull(),
+		studentName: text().notNull(),
+		programName: text().notNull(),
+		totalCredits: integer().notNull(),
+		totalModules: integer().notNull(),
+		cgpa: real(),
+		classification: text(),
+		academicStatus: text(),
+		graduationDate: text(),
+		printedAt: integer({ mode: 'timestamp' })
+			.default(sql`(unixepoch())`)
+			.notNull(),
+	}
+);
 
 export const transcriptPrints = sqliteTable('transcript_prints', {
 	id: text()
@@ -728,7 +791,9 @@ export const transcriptPrints = sqliteTable('transcript_prints', {
 	programName: text().notNull(),
 	totalCredits: integer().notNull(),
 	cgpa: real(),
-	printedAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`).notNull(),
+	printedAt: integer({ mode: 'timestamp' })
+		.default(sql`(unixepoch())`)
+		.notNull(),
 });
 
 export const blockedStudents = sqliteTable(
@@ -805,7 +870,9 @@ export const fortinetRegistrations = sqliteTable(
 			.references(() => schools.id, { onDelete: 'cascade' })
 			.notNull(),
 		level: text({ enum: fortinetLevelEnum }).notNull(),
-		status: text({ enum: fortinetRegistrationStatusEnum }).notNull().default('pending'),
+		status: text({ enum: fortinetRegistrationStatusEnum })
+			.notNull()
+			.default('pending'),
 		message: text(),
 		createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 		updatedAt: integer({ mode: 'timestamp' }),

@@ -22,7 +22,10 @@ class AssessmentService {
 	}
 
 	async getByModuleId(moduleId: number) {
-		return withAuth(async () => this.repository.getByModuleId(moduleId), ['academic']);
+		return withAuth(
+			async () => this.repository.getByModuleId(moduleId),
+			['academic']
+		);
 	}
 
 	async create(data: Assessment) {
@@ -41,8 +44,14 @@ class AssessmentService {
 	}
 
 	async getAuditHistory(assessmentId: number) {
-		return withAuth(async () => this.repository.getAuditHistory(assessmentId), ['academic']);
+		return withAuth(
+			async () => this.repository.getAuditHistory(assessmentId),
+			['academic']
+		);
 	}
 }
 
-export const assessmentsService = serviceWrapper(AssessmentService, 'AssessmentsService');
+export const assessmentsService = serviceWrapper(
+	AssessmentService,
+	'AssessmentsService'
+);

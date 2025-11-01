@@ -4,7 +4,10 @@ import { db } from '@/db';
 import { assessments, assessmentsAudit } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
-export default class AssessmentRepository extends BaseRepository<typeof assessments, 'id'> {
+export default class AssessmentRepository extends BaseRepository<
+	typeof assessments,
+	'id'
+> {
 	constructor() {
 		super(assessments, assessments.id);
 	}
@@ -21,7 +24,10 @@ export default class AssessmentRepository extends BaseRepository<typeof assessme
 		const inserted = await db.transaction(async (tx) => {
 			if (!session?.user?.id) throw new Error('Unauthorized');
 
-			const [assessment] = await tx.insert(assessments).values(data).returning();
+			const [assessment] = await tx
+				.insert(assessments)
+				.values(data)
+				.returning();
 			await tx.insert(assessmentsAudit).values({
 				assessmentId: assessment.id,
 				action: 'create',
@@ -42,7 +48,10 @@ export default class AssessmentRepository extends BaseRepository<typeof assessme
 		return inserted;
 	}
 
-	override async update(id: number, data: Partial<typeof assessments.$inferInsert>) {
+	override async update(
+		id: number,
+		data: Partial<typeof assessments.$inferInsert>
+	) {
 		const session = await auth();
 
 		const updated = await db.transaction(async (tx) => {
@@ -66,8 +75,10 @@ export default class AssessmentRepository extends BaseRepository<typeof assessme
 			const hasChanges =
 				(data.assessmentNumber !== undefined &&
 					data.assessmentNumber !== current.assessmentNumber) ||
-				(data.assessmentType !== undefined && data.assessmentType !== current.assessmentType) ||
-				(data.totalMarks !== undefined && data.totalMarks !== current.totalMarks) ||
+				(data.assessmentType !== undefined &&
+					data.assessmentType !== current.assessmentType) ||
+				(data.totalMarks !== undefined &&
+					data.totalMarks !== current.totalMarks) ||
 				(data.weight !== undefined && data.weight !== current.weight);
 
 			if (hasChanges) {

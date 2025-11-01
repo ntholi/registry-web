@@ -10,12 +10,17 @@ export default class BulkRepository {
 			})
 			.from(studentPrograms)
 			.where(
-				and(eq(studentPrograms.status, 'Completed'), isNotNull(studentPrograms.graduationDate))
+				and(
+					eq(studentPrograms.status, 'Completed'),
+					isNotNull(studentPrograms.graduationDate)
+				)
 			)
 			.groupBy(studentPrograms.graduationDate)
 			.orderBy(sql`${studentPrograms.graduationDate} DESC`);
 
-		return result.map((row) => row.graduationDate).filter((date): date is string => date !== null);
+		return result
+			.map((row) => row.graduationDate)
+			.filter((date): date is string => date !== null);
 	}
 
 	async findProgramsByGraduationDate(graduationDate: string) {
@@ -41,7 +46,10 @@ export default class BulkRepository {
 		return result;
 	}
 
-	async findStudentsByGraduationDate(graduationDate: string, programIds?: number[]) {
+	async findStudentsByGraduationDate(
+		graduationDate: string,
+		programIds?: number[]
+	) {
 		const conditions = [
 			eq(studentPrograms.status, 'Completed'),
 			eq(studentPrograms.graduationDate, graduationDate),
@@ -56,7 +64,9 @@ export default class BulkRepository {
 				.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 				.where(and(...conditions, inArray(structures.programId, programIds)));
 
-			return result.map((row) => row.stdNo).filter((stdNo): stdNo is number => stdNo !== null);
+			return result
+				.map((row) => row.stdNo)
+				.filter((stdNo): stdNo is number => stdNo !== null);
 		}
 
 		const result = await db.query.studentPrograms.findMany({

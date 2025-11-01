@@ -6,7 +6,13 @@ import NextAuth from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
 import Google from 'next-auth/providers/google';
 import { db } from '@/db';
-import { accounts, sessions, students, users, verificationTokens } from './db/schema';
+import {
+	accounts,
+	sessions,
+	students,
+	users,
+	verificationTokens,
+} from './db/schema';
 
 interface UserData {
 	email: string;
@@ -43,7 +49,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
 			try {
 				const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-				const usersData = JSON.parse(fs.readFileSync(usersFilePath, 'utf8')) as UserData[];
+				const usersData = JSON.parse(
+					fs.readFileSync(usersFilePath, 'utf8')
+				) as UserData[];
 
 				const userData = usersData.find((u) => u.email === user.email);
 
@@ -58,7 +66,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 								.set({ userId: user.id })
 								.where(eq(students.stdNo, userData.std_no!));
 
-							await tx.update(users).set({ role: 'student' }).where(eq(users.id, user.id!));
+							await tx
+								.update(users)
+								.set({ role: 'student' })
+								.where(eq(users.id, user.id!));
 						});
 					}
 				}

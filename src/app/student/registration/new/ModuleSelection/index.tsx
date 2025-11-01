@@ -1,4 +1,11 @@
-import { Accordion, Alert, Group, LoadingOverlay, Stack, Text } from '@mantine/core';
+import {
+	Accordion,
+	Alert,
+	Group,
+	LoadingOverlay,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import type { StudentModuleStatus } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
@@ -49,7 +56,9 @@ export default function ModuleSelection({
 			onSelectionChange([...selectedModules, newModule]);
 		} else {
 			onSelectionChange(
-				selectedModules.filter((selected) => selected.moduleId !== module.semesterModuleId)
+				selectedModules.filter(
+					(selected) => selected.moduleId !== module.semesterModuleId
+				)
 			);
 		}
 	};
@@ -68,7 +77,11 @@ export default function ModuleSelection({
 
 	if (modules.length === 0) {
 		return (
-			<Alert icon={<IconInfoCircle size='1rem' />} title='No Modules Available' color='orange'>
+			<Alert
+				icon={<IconInfoCircle size='1rem' />}
+				title='No Modules Available'
+				color='orange'
+			>
 				No modules are available for registration at this time.
 			</Alert>
 		);
@@ -80,7 +93,11 @@ export default function ModuleSelection({
 
 	return (
 		<Stack gap='lg' mt='md'>
-			<Accordion multiple defaultValue={['compulsory', 'elective', 'repeat']} variant='separated'>
+			<Accordion
+				multiple
+				defaultValue={['compulsory', 'elective', 'repeat']}
+				variant='separated'
+			>
 				{compulsoryModules.length > 0 && (
 					<Accordion.Item value='compulsory'>
 						<Accordion.Control>
@@ -95,7 +112,9 @@ export default function ModuleSelection({
 										key={module.semesterModuleId}
 										module={module}
 										isSelected={isModuleSelected(module.semesterModuleId)}
-										onToggle={(checked: boolean) => handleModuleToggle(module, checked)}
+										onToggle={(checked: boolean) =>
+											handleModuleToggle(module, checked)
+										}
 									/>
 								))}
 							</Stack>
@@ -117,7 +136,9 @@ export default function ModuleSelection({
 										key={module.semesterModuleId}
 										module={module}
 										isSelected={isModuleSelected(module.semesterModuleId)}
-										onToggle={(checked: boolean) => handleModuleToggle(module, checked)}
+										onToggle={(checked: boolean) =>
+											handleModuleToggle(module, checked)
+										}
 									/>
 								))}
 							</Stack>
@@ -139,7 +160,9 @@ export default function ModuleSelection({
 										key={module.semesterModuleId}
 										module={module}
 										isSelected={isModuleSelected(module.semesterModuleId)}
-										onToggle={(checked: boolean) => handleModuleToggle(module, checked)}
+										onToggle={(checked: boolean) =>
+											handleModuleToggle(module, checked)
+										}
 									/>
 								))}
 							</Stack>
@@ -160,7 +183,8 @@ export default function ModuleSelection({
 						<Text size='sm' mt='xs'>
 							Maximum allowed modules: {MAX_REG_MODULES}. Please deselect{' '}
 							{selectedModules.length - MAX_REG_MODULES} module
-							{selectedModules.length - MAX_REG_MODULES !== 1 ? 's' : ''} to continue.
+							{selectedModules.length - MAX_REG_MODULES !== 1 ? 's' : ''} to
+							continue.
 						</Text>
 					)}
 				</Alert>

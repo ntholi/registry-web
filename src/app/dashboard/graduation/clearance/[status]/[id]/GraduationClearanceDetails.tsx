@@ -52,7 +52,9 @@ export default function GraduationClearanceDetails({ request }: Props) {
 												variant='subtle'
 												color='gray'
 												onClick={() => {
-													navigator.clipboard.writeText(String(studentProgram.stdNo));
+													navigator.clipboard.writeText(
+														String(studentProgram.stdNo)
+													);
 													notifications.show({
 														message: 'Copied to clipboard',
 														color: 'green',

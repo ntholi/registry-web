@@ -1,6 +1,15 @@
 'use client';
 
-import { Avatar, Badge, Card, Group, Loader, SimpleGrid, Stack, Text } from '@mantine/core';
+import {
+	Avatar,
+	Badge,
+	Card,
+	Group,
+	Loader,
+	SimpleGrid,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import type { users } from '@/db/schema';
 import { toClassName } from '@/lib/utils';
@@ -41,7 +50,9 @@ export default function AssignedModules({ user }: Props) {
 				<Card key={assignment.id} withBorder p='md' pos='relative'>
 					<DeleteModuleButton
 						assignmentId={assignment.id}
-						moduleName={assignment.semesterModule?.module?.name || 'Unknown Module'}
+						moduleName={
+							assignment.semesterModule?.module?.name || 'Unknown Module'
+						}
 						userId={user.id}
 						pos='absolute'
 						top={8}

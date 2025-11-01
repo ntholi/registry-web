@@ -67,7 +67,11 @@ export default function DownloadButton({
 			let page = 1;
 			// Prime first page to know total pages
 			const confirmedParam =
-				confirmation === 'confirmed' ? true : confirmation === 'pending' ? false : undefined;
+				confirmation === 'confirmed'
+					? true
+					: confirmation === 'pending'
+						? false
+						: undefined;
 			const first: AllSponsoredStudentsResponse = await getAllSponsoredStudents(
 				page,
 				searchQuery,
@@ -80,15 +84,16 @@ export default function DownloadButton({
 			allItems.push(...(first.items || []));
 			const totalPages = first.totalPages || 1;
 			for (page = 2; page <= totalPages; page += 1) {
-				const next: AllSponsoredStudentsResponse = await getAllSponsoredStudents(
-					page,
-					searchQuery,
-					sponsorId || undefined,
-					programId || undefined,
-					confirmedParam,
-					termId || undefined,
-					clearedOnly || undefined
-				);
+				const next: AllSponsoredStudentsResponse =
+					await getAllSponsoredStudents(
+						page,
+						searchQuery,
+						sponsorId || undefined,
+						programId || undefined,
+						confirmedParam,
+						termId || undefined,
+						clearedOnly || undefined
+					);
 				allItems.push(...(next.items || []));
 			}
 

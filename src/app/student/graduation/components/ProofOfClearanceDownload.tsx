@@ -23,7 +23,8 @@ export default function ProofOfClearanceDownload({
 		try {
 			setLoading(true);
 
-			const graduationData = await getGraduationClearanceData(graduationRequestId);
+			const graduationData =
+				await getGraduationClearanceData(graduationRequestId);
 
 			if (!graduationData) {
 				console.error('No graduation data found for the specified request');
@@ -31,17 +32,23 @@ export default function ProofOfClearanceDownload({
 			}
 
 			// Check if all departments have approved
-			const clearanceStatus = getClearanceStatus(graduationData.graduationClearances);
+			const clearanceStatus = getClearanceStatus(
+				graduationData.graduationClearances
+			);
 
 			if (clearanceStatus !== 'approved') {
-				console.error('Cannot download proof of clearance - not all departments have approved');
+				console.error(
+					'Cannot download proof of clearance - not all departments have approved'
+				);
 				alert(
 					'Cannot download proof of clearance. All departments must approve your graduation request first.'
 				);
 				return;
 			}
 
-			const pdfBlob = await pdf(<ProofOfClearancePDF graduationData={graduationData} />).toBlob();
+			const pdfBlob = await pdf(
+				<ProofOfClearancePDF graduationData={graduationData} />
+			).toBlob();
 
 			const url = URL.createObjectURL(pdfBlob);
 			const link = document.createElement('a');

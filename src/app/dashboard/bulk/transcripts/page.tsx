@@ -96,7 +96,9 @@ export default function ExportTranscriptPage() {
 
 	function handleProgramToggle(programId: number) {
 		setSelectedProgramIds((prev) =>
-			prev.includes(programId) ? prev.filter((id) => id !== programId) : [...prev, programId]
+			prev.includes(programId)
+				? prev.filter((id) => id !== programId)
+				: [...prev, programId]
 		);
 	}
 
@@ -125,12 +127,17 @@ export default function ExportTranscriptPage() {
 			const allStudents = [];
 
 			for (const date of dates) {
-				const students = await getStudentsByGraduationDate(date.trim(), selectedProgramIds);
+				const students = await getStudentsByGraduationDate(
+					date.trim(),
+					selectedProgramIds
+				);
 				allStudents.push(...students);
 			}
 
 			if (allStudents.length === 0) {
-				alert('No students found for the selected graduation date and programs');
+				alert(
+					'No students found for the selected graduation date and programs'
+				);
 				setProgress(0);
 				setProgressText('');
 				setIsGenerating(false);
@@ -140,7 +147,8 @@ export default function ExportTranscriptPage() {
 			const studentsByProgram = allStudents.reduce(
 				(acc, student) => {
 					const graduatedProgram = student.programs?.find(
-						(program) => program.graduationDate && dates.includes(program.graduationDate)
+						(program) =>
+							program.graduationDate && dates.includes(program.graduationDate)
 					);
 
 					if (graduatedProgram) {
@@ -272,8 +280,8 @@ export default function ExportTranscriptPage() {
 				</Text>
 
 				<Text size='sm' c='dimmed'>
-					Select a graduation date and programs to export transcripts for students who graduated in
-					that month and year.
+					Select a graduation date and programs to export transcripts for
+					students who graduated in that month and year.
 				</Text>
 
 				<Flex align={'end'} gap='md'>
@@ -291,7 +299,9 @@ export default function ExportTranscriptPage() {
 						flex={2}
 						leftSection={<IconDownload size='1rem' />}
 						onClick={handleExport}
-						disabled={!selectedDate || selectedProgramIds.length === 0 || isGenerating}
+						disabled={
+							!selectedDate || selectedProgramIds.length === 0 || isGenerating
+						}
 						loading={isGenerating}
 					>
 						{isGenerating ? 'Generating...' : 'Export Transcripts'}
@@ -316,7 +326,9 @@ export default function ExportTranscriptPage() {
 									onClick={handleSelectAllPrograms}
 									disabled={isGenerating}
 								>
-									{selectedProgramIds.length === programs.length ? 'Deselect All' : 'Select All'}
+									{selectedProgramIds.length === programs.length
+										? 'Deselect All'
+										: 'Select All'}
 								</Button>
 							</Group>
 
@@ -333,7 +345,8 @@ export default function ExportTranscriptPage() {
 							</SimpleGrid>
 
 							<Text size='xs' c='dimmed'>
-								{selectedProgramIds.length} of {programs.length} programs selected
+								{selectedProgramIds.length} of {programs.length} programs
+								selected
 							</Text>
 						</Stack>
 					</Paper>

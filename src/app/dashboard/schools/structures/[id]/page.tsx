@@ -14,7 +14,12 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { IconArrowLeft, IconBook, IconChevronRight, IconSchool } from '@tabler/icons-react';
+import {
+	IconArrowLeft,
+	IconBook,
+	IconChevronRight,
+	IconSchool,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import type { Session } from 'next-auth';
@@ -106,7 +111,9 @@ export default function StructureDetailsPage() {
 			<Stack gap='lg'>
 				<Paper shadow='sm' p='md' withBorder>
 					<Stack gap='md'>
-						<Breadcrumbs separator={<IconChevronRight size={14} />}>{breadcrumbItems}</Breadcrumbs>
+						<Breadcrumbs separator={<IconChevronRight size={14} />}>
+							{breadcrumbItems}
+						</Breadcrumbs>
 
 						<Group>
 							<ThemeIcon variant='light' color='gray' size='xl'>
@@ -136,7 +143,8 @@ export default function StructureDetailsPage() {
 									</Text>
 								</Group>
 
-								{semester.semesterModules && semester.semesterModules.length > 0 ? (
+								{semester.semesterModules &&
+								semester.semesterModules.length > 0 ? (
 									<Table withTableBorder withColumnBorders>
 										<Table.Thead>
 											<Table.Tr>
@@ -145,14 +153,18 @@ export default function StructureDetailsPage() {
 												<Table.Th w={120}>Type</Table.Th>
 												<Table.Th w={100}>Credits</Table.Th>
 												<Table.Th w={400}>Prerequisites</Table.Th>
-												{session?.user?.role === 'admin' && <Table.Th w={100}>Actions</Table.Th>}
+												{session?.user?.role === 'admin' && (
+													<Table.Th w={100}>Actions</Table.Th>
+												)}
 											</Table.Tr>
 										</Table.Thead>
 										<Table.Tbody>
 											{semester.semesterModules.map((semModule) => (
 												<Table.Tr
 													key={semModule.id}
-													className={semModule.hidden ? 'bg-yellow-50/20' : undefined}
+													className={
+														semModule.hidden ? 'bg-yellow-50/20' : undefined
+													}
 												>
 													<Table.Td>
 														<Link
@@ -164,17 +176,26 @@ export default function StructureDetailsPage() {
 														</Link>
 													</Table.Td>
 													<Table.Td>
-														<Text size='sm' c={semModule.hidden ? 'dark' : undefined}>
+														<Text
+															size='sm'
+															c={semModule.hidden ? 'dark' : undefined}
+														>
 															{semModule.module?.name}
 														</Text>
 													</Table.Td>
 													<Table.Td>
-														<Text size='sm' c={semModule.hidden ? 'dark' : undefined}>
+														<Text
+															size='sm'
+															c={semModule.hidden ? 'dark' : undefined}
+														>
 															{semModule.type}
 														</Text>
 													</Table.Td>
 													<Table.Td>
-														<Text size='sm' c={semModule.hidden ? 'dark' : undefined}>
+														<Text
+															size='sm'
+															c={semModule.hidden ? 'dark' : undefined}
+														>
 															{semModule.credits}
 														</Text>
 													</Table.Td>
@@ -187,7 +208,10 @@ export default function StructureDetailsPage() {
 													{canEditModule(session) && (
 														<Table.Td>
 															<Flex gap='xs'>
-																<EditButton moduleId={semModule.id} structureId={structureId} />
+																<EditButton
+																	moduleId={semModule.id}
+																	structureId={structureId}
+																/>
 																<HideButton
 																	moduleId={semModule.id}
 																	hidden={semModule.hidden}
@@ -236,6 +260,7 @@ function canEditModule(session: Session | null) {
 		session?.user?.role === 'admin' ||
 		session?.user?.role === 'registry' ||
 		(session?.user?.role === 'academic' &&
-			(session.user.position === 'manager' || session.user.position === 'program_leader'))
+			(session.user.position === 'manager' ||
+				session.user.position === 'program_leader'))
 	);
 }

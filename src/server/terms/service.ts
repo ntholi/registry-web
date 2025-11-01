@@ -34,7 +34,10 @@ class TermService {
 	async create(data: Term) {
 		return withAuth(async () => {
 			if (data.isActive) {
-				await db.update(terms).set({ isActive: false }).where(eq(terms.isActive, true));
+				await db
+					.update(terms)
+					.set({ isActive: false })
+					.where(eq(terms.isActive, true));
 			}
 			return this.repository.create(data);
 		}, []);
@@ -43,7 +46,10 @@ class TermService {
 	async update(id: number, data: Partial<Term>) {
 		return withAuth(async () => {
 			if (data.isActive) {
-				await db.update(terms).set({ isActive: false }).where(eq(terms.isActive, true));
+				await db
+					.update(terms)
+					.set({ isActive: false })
+					.where(eq(terms.isActive, true));
 			}
 			await this.repository.update(id, data);
 			return this.repository.findById(id);

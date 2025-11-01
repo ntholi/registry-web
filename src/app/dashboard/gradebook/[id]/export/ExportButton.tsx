@@ -46,7 +46,9 @@ export default function ExportButton({
 		try {
 			let filteredStudents = students;
 			if (programId) {
-				filteredStudents = students.filter((it) => it.programId?.toString() === programId);
+				filteredStudents = students.filter(
+					(it) => it.programId?.toString() === programId
+				);
 			}
 
 			await exportToExcel({

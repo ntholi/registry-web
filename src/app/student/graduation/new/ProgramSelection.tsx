@@ -1,6 +1,15 @@
 'use client';
 
-import { Alert, Badge, Box, Card, Group, Radio, Stack, Text } from '@mantine/core';
+import {
+	Alert,
+	Badge,
+	Box,
+	Card,
+	Group,
+	Radio,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
 import type { programs, structures, studentPrograms } from '@/db/schema';
@@ -34,8 +43,13 @@ export default function ProgramSelection({
 
 	if (!programs || programs.length === 0) {
 		return (
-			<Alert icon={<IconInfoCircle size='0.9rem' />} color='yellow' variant='light'>
-				No eligible programs found. Contact the registry office if you believe this is a mistake.
+			<Alert
+				icon={<IconInfoCircle size='0.9rem' />}
+				color='yellow'
+				variant='light'
+			>
+				No eligible programs found. Contact the registry office if you believe
+				this is a mistake.
 			</Alert>
 		);
 	}
@@ -64,7 +78,12 @@ export default function ProgramSelection({
 			>
 				<Stack gap='xs' pt='xs'>
 					{programs.map((program) => (
-						<Radio.Card key={program.id} value={program.id.toString()} radius='md' p={'sm'}>
+						<Radio.Card
+							key={program.id}
+							value={program.id.toString()}
+							radius='md'
+							p={'sm'}
+						>
 							<Group wrap='nowrap' align='flex-start'>
 								<Radio.Indicator />
 								<Box>
@@ -96,7 +115,11 @@ function ProgramCard({ program }: { program: StudentProgram }) {
 			<Group justify='space-between' mb={3}>
 				<Text fw={500}>{program.structure.program.name}</Text>
 				<Group gap='xs'>
-					<Badge color={getStatusColor(program.status)} variant='light' size='xs'>
+					<Badge
+						color={getStatusColor(program.status)}
+						variant='light'
+						size='xs'
+					>
 						{program.status}
 					</Badge>
 				</Group>

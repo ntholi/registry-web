@@ -1,4 +1,12 @@
-import { Box, Container, Divider, Group, Stack, Text, Title } from '@mantine/core';
+import {
+	Box,
+	Container,
+	Divider,
+	Group,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/auth';
@@ -12,7 +20,9 @@ export default async function RegistrationPage() {
 	if (!session?.user?.stdNo) {
 		return forbidden();
 	}
-	const registrationHistory = await getStudentRegistrationHistory(session.user.stdNo);
+	const registrationHistory = await getStudentRegistrationHistory(
+		session.user.stdNo
+	);
 
 	return (
 		<Container size='md'>
@@ -23,7 +33,8 @@ export default async function RegistrationPage() {
 							Registration Requests
 						</Title>
 						<Text c='dimmed' size='sm'>
-							View and track all your registration requests and their current status
+							View and track all your registration requests and their current
+							status
 						</Text>
 					</Box>
 				</Group>
@@ -35,7 +46,10 @@ export default async function RegistrationPage() {
 				<Divider />
 
 				<Suspense fallback={<RegistrationHistorySkeleton />}>
-					<RegistrationHistory data={registrationHistory} stdNo={session.user.stdNo!} />
+					<RegistrationHistory
+						data={registrationHistory}
+						stdNo={session.user.stdNo!}
+					/>
 				</Suspense>
 			</Stack>
 		</Container>

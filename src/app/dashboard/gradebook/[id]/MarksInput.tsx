@@ -4,7 +4,10 @@ import { Box, Group, Text, TextInput } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import type { assessmentMarks, moduleGrades } from '@/db/schema';
-import { createAssessmentMark, updateAssessmentMark } from '@/server/assessment-marks/actions';
+import {
+	createAssessmentMark,
+	updateAssessmentMark,
+} from '@/server/assessment-marks/actions';
 import { calculateModuleGrade } from '@/utils/gradeCalculations';
 
 type AssessmentMark = typeof assessmentMarks.$inferSelect;
@@ -38,7 +41,11 @@ export default function MarksInput({
 		}
 	}, [isEditing]);
 	const markMutation = useMutation({
-		mutationFn: async (data: { assessmentId: number; stdNo: number; marks: number }) => {
+		mutationFn: async (data: {
+			assessmentId: number;
+			stdNo: number;
+			marks: number;
+		}) => {
 			let result: AssessmentMark;
 			if (existingMarkId !== undefined) {
 				console.log('Updating existing mark:', existingMarkId, data);
@@ -59,30 +66,45 @@ export default function MarksInput({
 				queryKey: ['moduleGrade', moduleId, studentId],
 			});
 
-			const previousAssessmentMarks = queryClient.getQueryData(['assessmentMarks', moduleId]);
-			const previousModuleGrades = queryClient.getQueryData(['moduleGrades', moduleId]);
-			const previousModuleGrade = queryClient.getQueryData(['moduleGrade', moduleId, studentId]);
+			const previousAssessmentMarks = queryClient.getQueryData([
+				'assessmentMarks',
+				moduleId,
+			]);
+			const previousModuleGrades = queryClient.getQueryData([
+				'moduleGrades',
+				moduleId,
+			]);
+			const previousModuleGrade = queryClient.getQueryData([
+				'moduleGrade',
+				moduleId,
+				studentId,
+			]);
 
-			queryClient.setQueryData(['assessmentMarks', moduleId], (old: AssessmentMark[]) => {
-				if (!old) return old;
+			queryClient.setQueryData(
+				['assessmentMarks', moduleId],
+				(old: AssessmentMark[]) => {
+					if (!old) return old;
 
-				if (existingMarkId !== undefined) {
-					return old.map((mark) =>
-						mark.id === existingMarkId ? { ...mark, marks: newMark.marks } : mark
-					);
-				} else {
-					return [
-						...old,
-						{
-							id: Date.now(),
-							assessmentId: newMark.assessmentId,
-							stdNo: newMark.stdNo,
-							marks: newMark.marks,
-							createdAt: new Date(),
-						},
-					];
+					if (existingMarkId !== undefined) {
+						return old.map((mark) =>
+							mark.id === existingMarkId
+								? { ...mark, marks: newMark.marks }
+								: mark
+						);
+					} else {
+						return [
+							...old,
+							{
+								id: Date.now(),
+								assessmentId: newMark.assessmentId,
+								stdNo: newMark.stdNo,
+								marks: newMark.marks,
+								createdAt: new Date(),
+							},
+						];
+					}
 				}
-			});
+			);
 
 			const assessments = queryClient.getQueryData(['assessments', moduleId]) as
 				| Array<{
@@ -99,7 +121,8 @@ export default function MarksInput({
 				]) as AssessmentMark[];
 
 				const studentMarks =
-					updatedAssessmentMarks?.filter((mark) => mark.stdNo === studentId) || [];
+					updatedAssessmentMarks?.filter((mark) => mark.stdNo === studentId) ||
+					[];
 
 				const gradeCalculation = calculateModuleGrade(
 					assessments.map((a) => ({
@@ -124,21 +147,29 @@ export default function MarksInput({
 						updatedAt: new Date(),
 					};
 
-					queryClient.setQueryData(['moduleGrade', moduleId, studentId], newModuleGrade);
+					queryClient.setQueryData(
+						['moduleGrade', moduleId, studentId],
+						newModuleGrade
+					);
 
-					queryClient.setQueryData(['moduleGrades', moduleId], (old: ModuleGrade[]) => {
-						if (!old) return [newModuleGrade];
+					queryClient.setQueryData(
+						['moduleGrades', moduleId],
+						(old: ModuleGrade[]) => {
+							if (!old) return [newModuleGrade];
 
-						const existingIndex = old.findIndex((grade) => grade.stdNo === studentId);
+							const existingIndex = old.findIndex(
+								(grade) => grade.stdNo === studentId
+							);
 
-						if (existingIndex >= 0) {
-							const updated = [...old];
-							updated[existingIndex] = newModuleGrade;
-							return updated;
-						} else {
-							return [...old, newModuleGrade];
+							if (existingIndex >= 0) {
+								const updated = [...old];
+								updated[existingIndex] = newModuleGrade;
+								return updated;
+							} else {
+								return [...old, newModuleGrade];
+							}
 						}
-					});
+					);
 				}
 			}
 
@@ -164,13 +195,22 @@ export default function MarksInput({
 		},
 		onError: (_error, _newMark, context) => {
 			if (context?.previousAssessmentMarks) {
-				queryClient.setQueryData(['assessmentMarks', moduleId], context.previousAssessmentMarks);
+				queryClient.setQueryData(
+					['assessmentMarks', moduleId],
+					context.previousAssessmentMarks
+				);
 			}
 			if (context?.previousModuleGrades) {
-				queryClient.setQueryData(['moduleGrades', moduleId], context.previousModuleGrades);
+				queryClient.setQueryData(
+					['moduleGrades', moduleId],
+					context.previousModuleGrades
+				);
 			}
 			if (context?.previousModuleGrade) {
-				queryClient.setQueryData(['moduleGrade', moduleId, studentId], context.previousModuleGrade);
+				queryClient.setQueryData(
+					['moduleGrade', moduleId, studentId],
+					context.previousModuleGrade
+				);
 			}
 
 			setPendingMark(null);

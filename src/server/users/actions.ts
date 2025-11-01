@@ -21,7 +21,11 @@ export async function findAllUsers(page: number = 1, search = '') {
 	return service.findAll({ page, search, searchColumns: ['email', 'name'] });
 }
 
-export async function findAllByRole(page: number = 1, search = '', role?: User['role']) {
+export async function findAllByRole(
+	page: number = 1,
+	search = '',
+	role?: User['role']
+) {
 	return service.findAll({
 		page,
 		search,

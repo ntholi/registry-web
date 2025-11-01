@@ -42,7 +42,10 @@ describe('Sponsor Permissions', () => {
 		it('should allow an admin to update a sponsor', async () => {
 			setMockUser({ role: 'admin' } as User);
 			const sponsorToUpdate = { name: 'Updated Sponsor Name' };
-			const updatedSponsor = await updateSponsor(createdSponsor!.id, sponsorToUpdate);
+			const updatedSponsor = await updateSponsor(
+				createdSponsor!.id,
+				sponsorToUpdate
+			);
 			expect(updatedSponsor).toBeDefined();
 			expect(updatedSponsor?.name).toBe(sponsorToUpdate.name);
 		});
@@ -86,7 +89,10 @@ describe('Sponsor Permissions', () => {
 		it('should allow a finance user to update a sponsor', async () => {
 			setMockUser({ role: 'finance' } as User);
 			const sponsorToUpdate = { name: 'Finance Updated Sponsor Name' };
-			const updatedSponsor = await updateSponsor(createdSponsor!.id, sponsorToUpdate);
+			const updatedSponsor = await updateSponsor(
+				createdSponsor!.id,
+				sponsorToUpdate
+			);
 			expect(updatedSponsor).toBeDefined();
 			expect(updatedSponsor?.name).toBe(sponsorToUpdate.name);
 		});
@@ -128,14 +134,18 @@ describe('Sponsor Permissions', () => {
 		it('should not allow a regular user to update a sponsor', async () => {
 			setMockUser({ role: 'user' } as User);
 			const sponsorToUpdate = { name: 'User Updated Sponsor Name' };
-			await expect(updateSponsor(createdSponsor!.id, sponsorToUpdate)).rejects.toThrow('Forbidden');
+			await expect(
+				updateSponsor(createdSponsor!.id, sponsorToUpdate)
+			).rejects.toThrow('Forbidden');
 		});
 
 		it('should not allow a regular user to delete a sponsor', async () => {
 			setMockUser({ role: 'user' } as User);
 			const sponsorIdToDelete = createdSponsor?.id;
 			// @ts-expect-error - Testing with potentially undefined ID
-			await expect(deleteSponsor(sponsorIdToDelete)).rejects.toThrow('Forbidden');
+			await expect(deleteSponsor(sponsorIdToDelete)).rejects.toThrow(
+				'Forbidden'
+			);
 		});
 
 		it('should allow a regular user to get a sponsor', async () => {
@@ -179,14 +189,18 @@ describe('Sponsor Permissions', () => {
 		it('should not allow a registry user to update a sponsor', async () => {
 			setMockUser({ role: 'registry' } as User);
 			const sponsorToUpdate = { name: 'Registry Updated Sponsor Name' };
-			await expect(updateSponsor(createdSponsor!.id, sponsorToUpdate)).rejects.toThrow('Forbidden');
+			await expect(
+				updateSponsor(createdSponsor!.id, sponsorToUpdate)
+			).rejects.toThrow('Forbidden');
 		});
 
 		it('should not allow a registry user to delete a sponsor', async () => {
 			setMockUser({ role: 'registry' } as User);
 			const sponsorIdToDelete = createdSponsor?.id;
 			// @ts-expect-error - Testing with potentially undefined ID
-			await expect(deleteSponsor(sponsorIdToDelete)).rejects.toThrow('Forbidden');
+			await expect(deleteSponsor(sponsorIdToDelete)).rejects.toThrow(
+				'Forbidden'
+			);
 		});
 	});
 });

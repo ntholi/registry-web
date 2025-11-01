@@ -67,14 +67,19 @@ export default async function page({ params }: Props) {
 							<Title order={1} size='h2' fw={600} mb='xs'>
 								Registration
 							</Title>
-							<Badge radius='xs' color={getStatusColor(clearanceStatus)} variant='light'>
+							<Badge
+								radius='xs'
+								color={getStatusColor(clearanceStatus)}
+								variant='light'
+							>
 								{clearanceStatus}
 							</Badge>
 						</Group>
 
 						<Flex justify={'space-between'} align={'center'}>
 							<Text c='dimmed' size='sm'>
-								{registration.term.name} • {formatSemester(registration.semesterNumber)}
+								{registration.term.name} •{' '}
+								{formatSemester(registration.semesterNumber)}
 							</Text>
 							{registration.status === 'pending' &&
 								registration.count <= MAX_REGISTRATION_ATTEMPTS && (

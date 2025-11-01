@@ -5,7 +5,10 @@ type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 export function getCleanedSemesters(program: Student['programs'][number]) {
 	if (!program) return [];
 	const semesters = program.semesters
-		.filter((s) => !['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(s.status))
+		.filter(
+			(s) =>
+				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(s.status)
+		)
 		.map((semester) => ({
 			...semester,
 			studentModules: semester.studentModules.filter(

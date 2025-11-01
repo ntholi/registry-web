@@ -11,11 +11,16 @@ import type { getAssignedModuleByUserAndModule } from '@/server/assigned-modules
 import ExportButton from './export/ExportButton';
 
 type ModuleDetailsCardProps = {
-	modules: NonNullable<Awaited<ReturnType<typeof getAssignedModuleByUserAndModule>>>;
+	modules: NonNullable<
+		Awaited<ReturnType<typeof getAssignedModuleByUserAndModule>>
+	>;
 	moduleId: number;
 };
 
-export default function ModuleDetailsCard({ modules, moduleId }: ModuleDetailsCardProps) {
+export default function ModuleDetailsCard({
+	modules,
+	moduleId,
+}: ModuleDetailsCardProps) {
 	const [programId, setProgramId] = useQueryState('programId');
 	const { currentTerm } = useCurrentTerm();
 	const { data: session } = useSession();
@@ -52,7 +57,8 @@ export default function ModuleDetailsCard({ modules, moduleId }: ModuleDetailsCa
 			return null;
 		}
 		return modules.find(
-			(it) => it.semesterModule?.semester?.structure.program.id === Number(programId)
+			(it) =>
+				it.semesterModule?.semester?.structure.program.id === Number(programId)
 		)?.semesterModule?.semester?.structure.program;
 	}, [modules, programId]);
 
@@ -64,7 +70,10 @@ export default function ModuleDetailsCard({ modules, moduleId }: ModuleDetailsCa
 		);
 
 		if (firstModule?.semesterModule?.semester) {
-			return toClassName(program.code || '', firstModule.semesterModule.semester.name || '');
+			return toClassName(
+				program.code || '',
+				firstModule.semesterModule.semester.name || ''
+			);
 		}
 
 		return program.name || 'All Programs';

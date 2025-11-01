@@ -12,7 +12,11 @@ interface TermSelectorProps {
 	error?: string;
 }
 
-export default function TermSelector({ value, onChange, error }: TermSelectorProps) {
+export default function TermSelector({
+	value,
+	onChange,
+	error,
+}: TermSelectorProps) {
 	const { currentTerm } = useCurrentTerm();
 
 	const { data: terms, isLoading: termsLoading } = useQuery({

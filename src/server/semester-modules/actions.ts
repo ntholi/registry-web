@@ -22,7 +22,9 @@ export async function findModulesByStructure(structureId: number, search = '') {
 	return semesterModulesService.findModulesByStructure(structureId, search);
 }
 
-export async function createModule(module: Module & { prerequisiteCodes?: string[] }) {
+export async function createModule(
+	module: Module & { prerequisiteCodes?: string[] }
+) {
 	const { prerequisiteCodes, ...moduleData } = module;
 	const newModule = await semesterModulesService.create(moduleData);
 
@@ -40,7 +42,10 @@ export async function createModule(module: Module & { prerequisiteCodes?: string
 	return newModule;
 }
 
-export async function updateModule(id: number, module: Module & { prerequisiteCodes?: string[] }) {
+export async function updateModule(
+	id: number,
+	module: Module & { prerequisiteCodes?: string[] }
+) {
 	const { prerequisiteCodes, ...moduleData } = module;
 	const updatedModule = await semesterModulesService.update(id, moduleData);
 

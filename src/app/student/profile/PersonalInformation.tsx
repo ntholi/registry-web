@@ -7,7 +7,13 @@ type Props = {
 	student: NonNullable<Student>;
 };
 
-function InfoItem({ label, value }: { label: string; value: string | number | null | undefined }) {
+function InfoItem({
+	label,
+	value,
+}: {
+	label: string;
+	value: string | number | null | undefined;
+}) {
 	const displayValue = value ?? 'Not provided';
 	const hasValue = value !== null && value !== undefined && value !== '';
 
@@ -16,7 +22,11 @@ function InfoItem({ label, value }: { label: string; value: string | number | nu
 			<Text size='sm' c='dimmed' mb={4}>
 				{label}
 			</Text>
-			<Text size='sm' fw={hasValue ? 500 : 400} c={hasValue ? undefined : 'dimmed'}>
+			<Text
+				size='sm'
+				fw={hasValue ? 500 : 400}
+				c={hasValue ? undefined : 'dimmed'}
+			>
 				{displayValue}
 			</Text>
 		</Box>
@@ -44,7 +54,10 @@ export default function PersonalInformation({ student }: Props) {
 				</Grid.Col>
 
 				<Grid.Col span={{ base: 12, sm: 6 }}>
-					<InfoItem label='Date of Birth' value={formatDate(student.dateOfBirth)} />
+					<InfoItem
+						label='Date of Birth'
+						value={formatDate(student.dateOfBirth)}
+					/>
 				</Grid.Col>
 
 				<Grid.Col span={{ base: 12, sm: 6 }}>

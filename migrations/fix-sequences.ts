@@ -7,7 +7,9 @@ config({ path: '.env.local' });
 
 const databaseEnv = process.env.DATABASE_ENV || 'local';
 process.env.DATABASE_URL =
-	databaseEnv === 'remote' ? process.env.DATABASE_REMOTE_URL! : process.env.DATABASE_LOCAL_URL!;
+	databaseEnv === 'remote'
+		? process.env.DATABASE_REMOTE_URL!
+		: process.env.DATABASE_LOCAL_URL!;
 
 type SequenceConfig = {
 	readonly tableName: string;
@@ -164,12 +166,16 @@ function assertEnvironment(): void {
 	}
 }
 
-async function openDatabase(): Promise<ReturnType<typeof drizzle<typeof schema>>> {
+async function openDatabase(): Promise<
+	ReturnType<typeof drizzle<typeof schema>>
+> {
 	const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 	return drizzle(pool, { schema, casing: 'snake_case' });
 }
 
-async function closeDatabase(db: ReturnType<typeof drizzle<typeof schema>>): Promise<void> {
+async function closeDatabase(
+	db: ReturnType<typeof drizzle<typeof schema>>
+): Promise<void> {
 	await db.$client.end();
 }
 
@@ -188,7 +194,9 @@ async function fixSequence(
 	}
 
 	const nextVal = maxId + 1;
-	await db.$client.query(`SELECT setval('${config.sequenceName}', $1, false)`, [nextVal]);
+	await db.$client.query(`SELECT setval('${config.sequenceName}', $1, false)`, [
+		nextVal,
+	]);
 }
 
 async function verifySequence(
@@ -255,7 +263,9 @@ async function run(): Promise<void> {
 		}
 
 		if (allValid) {
-			console.log(`✓ Fixed ${invalidSequences.length} sequence(s) successfully.\n`);
+			console.log(
+				`✓ Fixed ${invalidSequences.length} sequence(s) successfully.\n`
+			);
 		} else {
 			console.log('\n✗ Some sequences could not be fixed!\n');
 			process.exit(1);

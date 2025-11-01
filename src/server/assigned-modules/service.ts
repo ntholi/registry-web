@@ -58,11 +58,17 @@ class AssignedModuleService {
 		);
 	}
 	async getLecturersByModule(moduleId: number) {
-		return withAuth(async () => this.repository.findByModule(moduleId), ['academic']);
+		return withAuth(
+			async () => this.repository.findByModule(moduleId),
+			['academic']
+		);
 	}
 
 	async getByUser(userId: string) {
-		return withAuth(async () => this.repository.findByUser(userId), ['academic']);
+		return withAuth(
+			async () => this.repository.findByUser(userId),
+			['academic']
+		);
 	}
 
 	async getByUserGroupedByModule(userId: string) {

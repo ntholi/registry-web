@@ -1,10 +1,21 @@
-import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import {
+	Document,
+	Font,
+	Image,
+	Page,
+	StyleSheet,
+	Text,
+	View,
+} from '@react-pdf/renderer';
 import { formatDate } from '@/lib/utils';
 import type { getStudentRegistrationData } from '@/server/students/actions';
 
 Font.register({
 	family: 'Arial',
-	fonts: [{ src: '/fonts/ARIAL.TTF' }, { src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' }],
+	fonts: [
+		{ src: '/fonts/ARIAL.TTF' },
+		{ src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' },
+	],
 });
 
 const styles = StyleSheet.create({
@@ -203,15 +214,20 @@ const styles = StyleSheet.create({
 	},
 });
 
-type StudentRegistrationData = NonNullable<Awaited<ReturnType<typeof getStudentRegistrationData>>>;
+type StudentRegistrationData = NonNullable<
+	Awaited<ReturnType<typeof getStudentRegistrationData>>
+>;
 
-type StudentModule = StudentRegistrationData['programs'][0]['semesters'][0]['studentModules'][0];
+type StudentModule =
+	StudentRegistrationData['programs'][0]['semesters'][0]['studentModules'][0];
 
 type ProofOfRegistrationPDFProps = {
 	student: StudentRegistrationData;
 };
 
-export default function ProofOfRegistrationPDF({ student }: ProofOfRegistrationPDFProps) {
+export default function ProofOfRegistrationPDF({
+	student,
+}: ProofOfRegistrationPDFProps) {
 	if (!student || !student.programs || student.programs.length === 0) {
 		return (
 			<Document>
@@ -222,9 +238,9 @@ export default function ProofOfRegistrationPDF({ student }: ProofOfRegistrationP
 		);
 	}
 
-	const activeProgram = student.programs.find((p) => p.status === 'Active') as NonNullable<
-		(typeof student.programs)[number]
-	>;
+	const activeProgram = student.programs.find(
+		(p) => p.status === 'Active'
+	) as NonNullable<(typeof student.programs)[number]>;
 	const latestSemester = activeProgram.semesters.at(-1);
 
 	if (!latestSemester) {
@@ -250,10 +266,14 @@ export default function ProofOfRegistrationPDF({ student }: ProofOfRegistrationP
 		<Document>
 			<Page size='A4' style={styles.page}>
 				<View style={styles.headerContainer}>
-					<Text style={styles.universityName}>Limkokwing University of Creative Technology</Text>
+					<Text style={styles.universityName}>
+						Limkokwing University of Creative Technology
+					</Text>
 					<View style={styles.headerContent}>
 						<View style={styles.addressContainer}>
-							<Text style={styles.addressLine}>Moshoshoe Road Maseru Central</Text>
+							<Text style={styles.addressLine}>
+								Moshoshoe Road Maseru Central
+							</Text>
 							<Text style={styles.addressLine}>P.O. Box 8571</Text>
 							<Text style={styles.addressLine}>Maseru Maseru 0101</Text>
 							<Text style={styles.addressLine}>Lesotho</Text>
@@ -322,7 +342,9 @@ export default function ProofOfRegistrationPDF({ student }: ProofOfRegistrationP
 								<Text style={styles.moduleHeaderText}>#</Text>
 							</View>
 							<View style={[styles.moduleHeaderCell, styles.moduleCodeDescCol]}>
-								<Text style={styles.moduleHeaderText}>Module Code & Description</Text>
+								<Text style={styles.moduleHeaderText}>
+									Module Code & Description
+								</Text>
 							</View>
 							<View style={[styles.moduleHeaderCell, styles.moduleTypeCol]}>
 								<Text style={styles.moduleHeaderText}>Type</Text>
@@ -332,70 +354,91 @@ export default function ProofOfRegistrationPDF({ student }: ProofOfRegistrationP
 							</View>
 						</View>
 
-						{latestSemester.studentModules.map((studentModule: StudentModule, index: number) => {
-							const isLastRow = index === latestSemester.studentModules.length - 1;
-							return (
-								<View
-									key={studentModule.id}
-									style={isLastRow ? styles.moduleLastDataRow : styles.moduleDataRow}
-								>
+						{latestSemester.studentModules.map(
+							(studentModule: StudentModule, index: number) => {
+								const isLastRow =
+									index === latestSemester.studentModules.length - 1;
+								return (
 									<View
-										style={[
-											isLastRow ? styles.moduleLastDataCell : styles.moduleDataCell,
-											styles.moduleNumberCol,
-										]}
+										key={studentModule.id}
+										style={
+											isLastRow
+												? styles.moduleLastDataRow
+												: styles.moduleDataRow
+										}
 									>
-										<Text style={styles.moduleNumber}>{index + 1}</Text>
+										<View
+											style={[
+												isLastRow
+													? styles.moduleLastDataCell
+													: styles.moduleDataCell,
+												styles.moduleNumberCol,
+											]}
+										>
+											<Text style={styles.moduleNumber}>{index + 1}</Text>
+										</View>
+										<View
+											style={[
+												isLastRow
+													? styles.moduleLastDataCell
+													: styles.moduleDataCell,
+												styles.moduleCodeDescCol,
+											]}
+										>
+											<Text style={styles.moduleCode}>
+												{studentModule.semesterModule.module?.code || 'N/A'}
+											</Text>
+											<Text style={styles.moduleDescription}>
+												{studentModule.semesterModule.module?.name || 'N/A'}
+											</Text>
+										</View>
+										<View
+											style={[
+												isLastRow
+													? styles.moduleLastDataCell
+													: styles.moduleDataCell,
+												styles.moduleTypeCol,
+											]}
+										>
+											<Text style={styles.moduleType}>
+												{studentModule.semesterModule.type === 'Major'
+													? 'Major'
+													: 'Minor'}
+											</Text>
+										</View>
+										<View
+											style={[
+												isLastRow
+													? styles.moduleLastDataCell
+													: styles.moduleDataCell,
+												styles.moduleCreditsCol,
+											]}
+										>
+											<Text style={styles.moduleCredits}>
+												{studentModule.semesterModule.credits.toFixed(1)}
+											</Text>
+										</View>
 									</View>
-									<View
-										style={[
-											isLastRow ? styles.moduleLastDataCell : styles.moduleDataCell,
-											styles.moduleCodeDescCol,
-										]}
-									>
-										<Text style={styles.moduleCode}>
-											{studentModule.semesterModule.module?.code || 'N/A'}
-										</Text>
-										<Text style={styles.moduleDescription}>
-											{studentModule.semesterModule.module?.name || 'N/A'}
-										</Text>
-									</View>
-									<View
-										style={[
-											isLastRow ? styles.moduleLastDataCell : styles.moduleDataCell,
-											styles.moduleTypeCol,
-										]}
-									>
-										<Text style={styles.moduleType}>
-											{studentModule.semesterModule.type === 'Major' ? 'Major' : 'Minor'}
-										</Text>
-									</View>
-									<View
-										style={[
-											isLastRow ? styles.moduleLastDataCell : styles.moduleDataCell,
-											styles.moduleCreditsCol,
-										]}
-									>
-										<Text style={styles.moduleCredits}>
-											{studentModule.semesterModule.credits.toFixed(1)}
-										</Text>
-									</View>
-								</View>
-							);
-						})}
+								);
+							}
+						)}
 					</View>
 
 					<View style={styles.creditsRow}>
-						<Text style={styles.creditsLabel}>Credits: {totalCredits.toFixed(1)}</Text>
+						<Text style={styles.creditsLabel}>
+							Credits: {totalCredits.toFixed(1)}
+						</Text>
 					</View>
 				</View>
 
 				<View style={styles.footerSection}>
 					<Text style={styles.footerText}>
-						Document ID: registration_{student.stdNo}_{latestSemester.term.replace(/\s+/g, '_')}_
-						{formatDate(new Date()).replace(/\//g, '')} | This document serves as official proof of
-						registration for the above student. Registration processed through the official
-						university system on {formatDate(new Date())}.
+						Document ID: registration_{student.stdNo}_
+						{latestSemester.term.replace(/\s+/g, '_')}_
+						{formatDate(new Date()).replace(/\//g, '')} | This document serves
+						as official proof of registration for the above student.
+						Registration processed through the official university system on{' '}
+						{formatDate(new Date())}.
 					</Text>
 				</View>
 			</Page>

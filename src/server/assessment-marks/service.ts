@@ -37,7 +37,10 @@ class AssessmentMarkService {
 	}
 
 	async getByModuleId(moduleId: number) {
-		return withAuth(async () => this.repository.findByModuleId(moduleId), ['academic']);
+		return withAuth(
+			async () => this.repository.findByModuleId(moduleId),
+			['academic']
+		);
 	}
 
 	async getByModuleAndStudent(moduleId: number, stdNo: number) {
@@ -48,22 +51,37 @@ class AssessmentMarkService {
 	}
 
 	async getAssessmentsByModuleId(moduleId: number) {
-		return withAuth(async () => this.repository.getAssessmentsByModuleId(moduleId), ['academic']);
+		return withAuth(
+			async () => this.repository.getAssessmentsByModuleId(moduleId),
+			['academic']
+		);
 	}
 
 	async getAuditHistory(assessmentMarkId: number) {
-		return withAuth(async () => this.repository.getAuditHistory(assessmentMarkId), ['academic']);
+		return withAuth(
+			async () => this.repository.getAuditHistory(assessmentMarkId),
+			['academic']
+		);
 	}
 	async createOrUpdateMarks(data: AssessmentMark) {
-		return withAuth(async () => this.repository.createOrUpdateMarks(data), ['academic']);
+		return withAuth(
+			async () => this.repository.createOrUpdateMarks(data),
+			['academic']
+		);
 	}
 
 	async createOrUpdateMarksInBulk(dataArray: AssessmentMark[]) {
-		return withAuth(async () => this.repository.createOrUpdateMarksInBulk(dataArray), ['academic']);
+		return withAuth(
+			async () => this.repository.createOrUpdateMarksInBulk(dataArray),
+			['academic']
+		);
 	}
 
 	async getStudentAuditHistory(stdNo: number) {
-		return withAuth(async () => this.repository.getStudentAuditHistory(stdNo), ['academic']);
+		return withAuth(
+			async () => this.repository.getStudentAuditHistory(stdNo),
+			['academic']
+		);
 	}
 }
 

@@ -1,4 +1,13 @@
-import { Badge, Group, Paper, ScrollArea, Skeleton, Stack, Table, Text } from '@mantine/core';
+import {
+	Badge,
+	Group,
+	Paper,
+	ScrollArea,
+	Skeleton,
+	Stack,
+	Table,
+	Text,
+} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { formatSemester } from '@/lib/utils';
 
@@ -17,14 +26,19 @@ interface ProgramBreakdownTableProps {
 	};
 }
 
-export default function ProgramBreakdownTable({ school, loading }: ProgramBreakdownTableProps) {
+export default function ProgramBreakdownTable({
+	school,
+	loading,
+}: ProgramBreakdownTableProps) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
 	const allSemesters = school
 		? Array.from(
 				new Set(
 					school.programs.flatMap((program) =>
-						Object.keys(program.yearBreakdown).map((semester) => parseInt(semester, 10))
+						Object.keys(program.yearBreakdown).map((semester) =>
+							parseInt(semester, 10)
+						)
 					)
 				)
 			).sort((a, b) => a - b)
@@ -53,7 +67,10 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 								<Table.Th miw={isMobile ? 140 : 250}>
 									<Skeleton height={18} width={isMobile ? 100 : 160} />
 								</Table.Th>
-								{Array.from({ length: cols }, (_, i) => `skeleton-header-col-${i}`).map((key) => (
+								{Array.from(
+									{ length: cols },
+									(_, i) => `skeleton-header-col-${i}`
+								).map((key) => (
 									<Table.Th key={key} ta='center' miw={70}>
 										<Skeleton height={16} width={40} />
 									</Table.Th>
@@ -65,21 +82,26 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 						</Table.Thead>
 
 						<Table.Tbody>
-							{Array.from({ length: rows }, (_, r) => `skeleton-row-${r}`).map((rowKey) => (
-								<Table.Tr key={rowKey}>
-									<Table.Td>
-										<Skeleton height={16} width={isMobile ? 120 : 220} />
-									</Table.Td>
-									{Array.from({ length: cols }, (_, c) => `${rowKey}-col-${c}`).map((cellKey) => (
-										<Table.Td key={cellKey} ta='center'>
-											<Skeleton height={14} width={32} />
+							{Array.from({ length: rows }, (_, r) => `skeleton-row-${r}`).map(
+								(rowKey) => (
+									<Table.Tr key={rowKey}>
+										<Table.Td>
+											<Skeleton height={16} width={isMobile ? 120 : 220} />
 										</Table.Td>
-									))}
-									<Table.Td ta='center'>
-										<Skeleton height={20} width={48} />
-									</Table.Td>
-								</Table.Tr>
-							))}
+										{Array.from(
+											{ length: cols },
+											(_, c) => `${rowKey}-col-${c}`
+										).map((cellKey) => (
+											<Table.Td key={cellKey} ta='center'>
+												<Skeleton height={14} width={32} />
+											</Table.Td>
+										))}
+										<Table.Td ta='center'>
+											<Skeleton height={20} width={48} />
+										</Table.Td>
+									</Table.Tr>
+								)
+							)}
 						</Table.Tbody>
 					</Table>
 				</ScrollArea>
@@ -124,7 +146,10 @@ export default function ProgramBreakdownTable({ school, loading }: ProgramBreakd
 								</Table.Td>
 								{allSemesters.map((semester) => (
 									<Table.Td key={semester} ta='center'>
-										<Text size='sm' c={program.yearBreakdown[semester] ? undefined : 'dimmed'}>
+										<Text
+											size='sm'
+											c={program.yearBreakdown[semester] ? undefined : 'dimmed'}
+										>
 											{program.yearBreakdown[semester] || '-'}
 										</Text>
 									</Table.Td>

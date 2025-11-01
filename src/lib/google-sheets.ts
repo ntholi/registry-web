@@ -60,17 +60,25 @@ async function getOAuth2Client(userId: string) {
 				.set({
 					refresh_token: tokens.refresh_token,
 					access_token: tokens.access_token,
-					expires_at: tokens.expiry_date ? Math.floor(tokens.expiry_date / 1000) : null,
+					expires_at: tokens.expiry_date
+						? Math.floor(tokens.expiry_date / 1000)
+						: null,
 				})
-				.where(and(eq(accounts.userId, userId), eq(accounts.provider, 'google')));
+				.where(
+					and(eq(accounts.userId, userId), eq(accounts.provider, 'google'))
+				);
 		} else if (tokens.access_token) {
 			await db
 				.update(accounts)
 				.set({
 					access_token: tokens.access_token,
-					expires_at: tokens.expiry_date ? Math.floor(tokens.expiry_date / 1000) : null,
+					expires_at: tokens.expiry_date
+						? Math.floor(tokens.expiry_date / 1000)
+						: null,
 				})
-				.where(and(eq(accounts.userId, userId), eq(accounts.provider, 'google')));
+				.where(
+					and(eq(accounts.userId, userId), eq(accounts.provider, 'google'))
+				);
 		}
 	});
 
@@ -226,7 +234,9 @@ export async function formatSheet(
 			includeGridData: true,
 		});
 
-		const sheet = spreadsheet.data.sheets?.find((s) => s.properties?.sheetId === sheetId);
+		const sheet = spreadsheet.data.sheets?.find(
+			(s) => s.properties?.sheetId === sheetId
+		);
 
 		const columnCount = sheet?.data?.[0]?.rowData?.[0]?.values?.length || 10;
 

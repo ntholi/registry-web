@@ -15,7 +15,9 @@ type RegistrationRequest = typeof registrationRequests.$inferInsert;
 type RequestedModule = typeof requestedModules.$inferInsert;
 
 class RegistrationRequestService {
-	constructor(private readonly repository = new RegistrationRequestRepository()) {}
+	constructor(
+		private readonly repository = new RegistrationRequestRepository()
+	) {}
 
 	async first() {
 		return withAuth(async () => this.repository.findFirst(), ['registry']);
@@ -37,7 +39,10 @@ class RegistrationRequestService {
 	}
 
 	async getHistory(stdNo: number) {
-		return withAuth(async () => this.repository.getHistory(stdNo), ['dashboard', 'student']);
+		return withAuth(
+			async () => this.repository.getHistory(stdNo),
+			['dashboard', 'student']
+		);
 	}
 
 	async findByStatus(
@@ -51,9 +56,14 @@ class RegistrationRequestService {
 		);
 	}
 
-	async countByStatus(status: 'pending' | 'registered' | 'rejected' | 'approved') {
+	async countByStatus(
+		status: 'pending' | 'registered' | 'rejected' | 'approved'
+	) {
 		const term = await getCurrentTerm();
-		return withAuth(async () => this.repository.countByStatus(status, term.id), ['dashboard']);
+		return withAuth(
+			async () => this.repository.countByStatus(status, term.id),
+			['dashboard']
+		);
 	}
 
 	async get(id: number) {
@@ -114,7 +124,10 @@ class RegistrationRequestService {
 	}
 
 	async update(id: number, data: Partial<RegistrationRequest>) {
-		return withAuth(async () => this.repository.update(id, data), ['student', 'registry']);
+		return withAuth(
+			async () => this.repository.update(id, data),
+			['student', 'registry']
+		);
 	}
 
 	async delete(id: number) {
@@ -141,7 +154,8 @@ class RegistrationRequestService {
 				return this.repository.createRegistrationWithModules(data);
 			},
 			['student', 'registry'],
-			async (session) => session.user?.stdNo === data.stdNo || session.user?.role === 'registry'
+			async (session) =>
+				session.user?.stdNo === data.stdNo || session.user?.role === 'registry'
 		);
 	}
 
@@ -190,7 +204,9 @@ class RegistrationRequestService {
 
 	async getStudentSemesterModules(student: Student, remarks: AcademicRemarks) {
 		return withAuth(async () => {
-			const { getStudentSemesterModulesLogic } = await import('./getStudentSemesterModules');
+			const { getStudentSemesterModulesLogic } = await import(
+				'./getStudentSemesterModules'
+			);
 			return getStudentSemesterModulesLogic(student, remarks);
 		}, ['student', 'registry']);
 	}

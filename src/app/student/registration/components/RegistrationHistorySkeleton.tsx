@@ -1,4 +1,12 @@
-import { Card, CardSection, Flex, Group, SimpleGrid, Skeleton, Stack } from '@mantine/core';
+import {
+	Card,
+	CardSection,
+	Flex,
+	Group,
+	SimpleGrid,
+	Skeleton,
+	Stack,
+} from '@mantine/core';
 
 export default function RegistrationHistorySkeleton() {
 	return (

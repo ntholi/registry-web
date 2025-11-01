@@ -14,7 +14,9 @@ type Props = {
 	onSubmit: (values: BlockedStudent) => Promise<BlockedStudent>;
 	defaultValues?: BlockedStudent;
 	onSuccess?: (value: BlockedStudent) => void;
-	onError?: (error: Error | React.SyntheticEvent<HTMLDivElement, Event>) => void;
+	onError?: (
+		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+	) => void;
 	title?: string;
 };
 
@@ -23,7 +25,11 @@ const blockedStudentSchema = createInsertSchema(blockedStudents).omit({
 	status: true,
 });
 
-export default function BlockedStudentForm({ onSubmit, defaultValues, title }: Props) {
+export default function BlockedStudentForm({
+	onSubmit,
+	defaultValues,
+	title,
+}: Props) {
 	const router = useRouter();
 	const [validStudentNo, setValidStudentNo] = useState<boolean>(
 		!!defaultValues?.stdNo && String(defaultValues.stdNo).length === 9
@@ -44,14 +50,21 @@ export default function BlockedStudentForm({ onSubmit, defaultValues, title }: P
 				const handleStdNoChange = (value: number | string) => {
 					form.setFieldValue('stdNo', value as number);
 					const strValue = String(value);
-					setValidStudentNo(strValue.length === 9 && strValue.startsWith('9010'));
+					setValidStudentNo(
+						strValue.length === 9 && strValue.startsWith('9010')
+					);
 				};
 
 				return (
 					<>
-						<StdNoInput {...form.getInputProps('stdNo')} onChange={handleStdNoChange} />
+						<StdNoInput
+							{...form.getInputProps('stdNo')}
+							onChange={handleStdNoChange}
+						/>
 
-						{validStudentNo && <Textarea label='Reason' {...form.getInputProps('reason')} />}
+						{validStudentNo && (
+							<Textarea label='Reason' {...form.getInputProps('reason')} />
+						)}
 					</>
 				);
 			}}

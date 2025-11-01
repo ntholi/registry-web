@@ -1,5 +1,15 @@
 'use client';
-import { Badge, Box, Divider, Grid, Paper, Skeleton, Stack, Text, Title } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	Divider,
+	Grid,
+	Paper,
+	Skeleton,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import useUserStudent from '@/hooks/use-user-student';
@@ -29,8 +39,12 @@ export default function Countdown({ targetDate }: { targetDate: number }) {
 
 			if (difference > 0) {
 				const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-				const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-				const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+				const hours = Math.floor(
+					(difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+				);
+				const minutes = Math.floor(
+					(difference % (1000 * 60 * 60)) / (1000 * 60)
+				);
 				const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
 				setTimeLeft({ days, hours, minutes, seconds });

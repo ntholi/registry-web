@@ -41,7 +41,11 @@ type ModuleTableProps = {
 	}[];
 };
 
-export default function SemesterTable({ modules, showMarks, allSemesters }: ModuleTableProps) {
+export default function SemesterTable({
+	modules,
+	showMarks,
+	allSemesters,
+}: ModuleTableProps) {
 	const colorScheme = useComputedColorScheme('dark');
 
 	const getModulesWithFailHistory = (moduleCode: string) => {
@@ -137,14 +141,20 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 										{attempt.term}
 									</Text>
 									<Text size='xs' c='dimmed'>
-										{attempt.semesterNumber ? formatSemester(attempt.semesterNumber) : ''}
+										{attempt.semesterNumber
+											? formatSemester(attempt.semesterNumber)
+											: ''}
 									</Text>
 								</Stack>
 								<Badge
 									size='md'
 									variant='light'
 									color={
-										failed(attempt.grade) ? 'red' : attempt.grade === 'NM' ? 'orange' : 'green'
+										failed(attempt.grade)
+											? 'red'
+											: attempt.grade === 'NM'
+												? 'orange'
+												: 'green'
 									}
 								>
 									{attempt.grade}
@@ -172,7 +182,8 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 				</Table.Thead>
 				<Table.Tbody>
 					{modules.map((module, idx) => {
-						const isDroppedOrDeleted = module.status === 'Drop' || module.status === 'Delete';
+						const isDroppedOrDeleted =
+							module.status === 'Drop' || module.status === 'Delete';
 
 						return (
 							<Table.Tr
@@ -197,13 +208,22 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 										>
 											<Anchor
 												size='sm'
-												c={isDroppedOrDeleted ? 'dimmed' : failed(module.grade) ? 'red' : 'blue'}
+												c={
+													isDroppedOrDeleted
+														? 'dimmed'
+														: failed(module.grade)
+															? 'red'
+															: 'blue'
+												}
 											>
 												{module.code}
 											</Anchor>
 										</Tooltip>
 									) : (
-										<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+										<Text
+											size='sm'
+											c={isDroppedOrDeleted ? 'dimmed' : undefined}
+										>
 											{module.code}
 										</Text>
 									)}
@@ -216,7 +236,11 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 								<Table.Td>
 									<Text
 										size='sm'
-										c={['Drop', 'Delete'].includes(module.status) ? 'red' : undefined}
+										c={
+											['Drop', 'Delete'].includes(module.status)
+												? 'red'
+												: undefined
+										}
 									>
 										{module.status}
 									</Text>
@@ -228,7 +252,10 @@ export default function SemesterTable({ modules, showMarks, allSemesters }: Modu
 								</Table.Td>
 								{showMarks && (
 									<Table.Td>
-										<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+										<Text
+											size='sm'
+											c={isDroppedOrDeleted ? 'dimmed' : undefined}
+										>
 											{module.marks}
 										</Text>
 									</Table.Td>

@@ -6,17 +6,27 @@ import { getGradeColor } from './gradeColors';
 
 export function GradeTable() {
 	const uniqueGrades = grades.filter(
-		(grade, index, array) => array.findIndex((g) => g.grade === grade.grade) === index
+		(grade, index, array) =>
+			array.findIndex((g) => g.grade === grade.grade) === index
 	);
 
 	const rows = uniqueGrades.map((grade) => (
 		<Table.Tr key={grade.grade}>
 			<Table.Td>
-				{grade.marksRange ? `${grade.marksRange.min} - ${grade.marksRange.max}` : 'N/A'}
+				{grade.marksRange
+					? `${grade.marksRange.min} - ${grade.marksRange.max}`
+					: 'N/A'}
 			</Table.Td>
-			<Table.Td>{grade.points !== null ? grade.points.toFixed(2) : 'N/A'}</Table.Td>
 			<Table.Td>
-				<Badge color={getGradeColor(grade.grade)} variant='light' w={50} radius={'md'}>
+				{grade.points !== null ? grade.points.toFixed(2) : 'N/A'}
+			</Table.Td>
+			<Table.Td>
+				<Badge
+					color={getGradeColor(grade.grade)}
+					variant='light'
+					w={50}
+					radius={'md'}
+				>
 					{grade.grade}
 				</Badge>
 			</Table.Td>

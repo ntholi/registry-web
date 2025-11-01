@@ -26,7 +26,9 @@ export function calculateModuleGrade(
 	assessments.forEach((assessment) => {
 		totalWeight += assessment.weight;
 
-		const markRecord = assessmentMarks.find((mark) => mark.assessment_id === assessment.id);
+		const markRecord = assessmentMarks.find(
+			(mark) => mark.assessment_id === assessment.id
+		);
 
 		if (markRecord && markRecord.marks !== undefined) {
 			const percentage = markRecord.marks / assessment.totalMarks;

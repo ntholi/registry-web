@@ -22,9 +22,15 @@ class BulkService {
 		}, ['admin', 'registry']);
 	}
 
-	async getStudentsByGraduationDate(graduationDate: string, programIds?: number[]) {
+	async getStudentsByGraduationDate(
+		graduationDate: string,
+		programIds?: number[]
+	) {
 		return withAuth(async () => {
-			const stdNos = await this.repository.findStudentsByGraduationDate(graduationDate, programIds);
+			const stdNos = await this.repository.findStudentsByGraduationDate(
+				graduationDate,
+				programIds
+			);
 
 			const students = await Promise.all(
 				stdNos.map(async (stdNo) => {
@@ -36,7 +42,9 @@ class BulkService {
 				})
 			);
 
-			return students.filter((student): student is NonNullable<typeof student> => student !== null);
+			return students.filter(
+				(student): student is NonNullable<typeof student> => student !== null
+			);
 		}, ['admin', 'registry']);
 	}
 }

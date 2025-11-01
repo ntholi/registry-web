@@ -1,7 +1,14 @@
 import { and, desc, eq, like, or, type SQL } from 'drizzle-orm';
 import { db } from '@/db';
-import { type fortinetLevel, fortinetRegistrations, schools, students } from '@/db/schema';
-import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
+import {
+	type fortinetLevel,
+	fortinetRegistrations,
+	schools,
+	students,
+} from '@/db/schema';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 
 type FortinetLevel = (typeof fortinetLevel.enumValues)[number];
 
@@ -36,7 +43,10 @@ export default class FortinetRegistrationRepository extends BaseRepository<
 
 	async findByStudentAndLevel(stdNo: number, level: FortinetLevel) {
 		return await db.query.fortinetRegistrations.findFirst({
-			where: and(eq(fortinetRegistrations.stdNo, stdNo), eq(fortinetRegistrations.level, level)),
+			where: and(
+				eq(fortinetRegistrations.stdNo, stdNo),
+				eq(fortinetRegistrations.level, level)
+			),
 			with: {
 				student: {
 					columns: {
@@ -54,16 +64,28 @@ export default class FortinetRegistrationRepository extends BaseRepository<
 		});
 	}
 
-	async findForSchool(schoolId: number, options?: QueryOptions<typeof fortinetRegistrations>) {
-		const { orderBy, offset, limit, where } = this.buildQueryCriteria(options || {});
+	async findForSchool(
+		schoolId: number,
+		options?: QueryOptions<typeof fortinetRegistrations>
+	) {
+		const { orderBy, offset, limit, where } = this.buildQueryCriteria(
+			options || {}
+		);
 
-		let customWhere: SQL | undefined = eq(fortinetRegistrations.schoolId, schoolId);
+		let customWhere: SQL | undefined = eq(
+			fortinetRegistrations.schoolId,
+			schoolId
+		);
 		if (where) {
 			customWhere = and(customWhere, where);
 		}
 
 		if (options?.search) {
-			const searchTerms = options.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
+			const searchTerms = options.search
+				.trim()
+				.toLowerCase()
+				.split(/\s+/)
+				.filter(Boolean);
 
 			if (searchTerms.length > 0) {
 				const searchConditions = searchTerms.map((term) => {
@@ -116,7 +138,9 @@ export default class FortinetRegistrationRepository extends BaseRepository<
 		};
 	}
 
-	protected override buildQueryCriteria(options: QueryOptions<typeof fortinetRegistrations>) {
+	protected override buildQueryCriteria(
+		options: QueryOptions<typeof fortinetRegistrations>
+	) {
 		const criteria = super.buildQueryCriteria(options);
 		if (!options.sort || options.sort.length === 0) {
 			criteria.orderBy = [desc(fortinetRegistrations.createdAt)];
@@ -125,4 +149,5 @@ export default class FortinetRegistrationRepository extends BaseRepository<
 	}
 }
 
-export const fortinetRegistrationRepository = new FortinetRegistrationRepository();
+export const fortinetRegistrationRepository =
+	new FortinetRegistrationRepository();

@@ -7,7 +7,10 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { clearanceRequestStatus, type dashboardUsers } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
-import { type getClearance, updateClearance } from '@/server/registration/clearance/actions';
+import {
+	type getClearance,
+	updateClearance,
+} from '@/server/registration/clearance/actions';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;
@@ -15,9 +18,16 @@ type Props = {
 	comment?: string;
 };
 
-type Status = Exclude<(typeof clearanceRequestStatus.enumValues)[number], 'registered'>;
+type Status = Exclude<
+	(typeof clearanceRequestStatus.enumValues)[number],
+	'registered'
+>;
 
-export default function ClearanceSwitch({ request, comment, setAccordion }: Props) {
+export default function ClearanceSwitch({
+	request,
+	comment,
+	setAccordion,
+}: Props) {
 	const { data: session } = useSession();
 	const queryClient = useQueryClient();
 	const [status, setStatus] = useState<Status>(request.status as Status);
@@ -35,7 +45,8 @@ export default function ClearanceSwitch({ request, comment, setAccordion }: Prop
 
 			const result = await updateClearance(request.id, {
 				message: comment,
-				department: session.user.role as (typeof dashboardUsers.enumValues)[number],
+				department: session.user
+					.role as (typeof dashboardUsers.enumValues)[number],
 				status,
 			});
 			return { result };

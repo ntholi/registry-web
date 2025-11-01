@@ -1,11 +1,23 @@
 import { ASSESSMENT_TYPES } from '../../../assessments/[id]/assessments';
 import type { AssessmentInfo, DetectedColumns, ExcelData } from './types';
-import { columnIndexToLetter, findColumnByHeader, fuzzyMatch, isValidStudentNumber } from './utils';
+import {
+	columnIndexToLetter,
+	findColumnByHeader,
+	fuzzyMatch,
+	isValidStudentNumber,
+} from './utils';
 
 export const ColumnDetector = {
-	detectColumns(excelData: ExcelData, assessments: AssessmentInfo[]): DetectedColumns {
-		const studentNumberColumn = ColumnDetector.detectStudentNumberColumn(excelData);
-		const assessmentColumns = ColumnDetector.detectAssessmentColumns(excelData, assessments);
+	detectColumns(
+		excelData: ExcelData,
+		assessments: AssessmentInfo[]
+	): DetectedColumns {
+		const studentNumberColumn =
+			ColumnDetector.detectStudentNumberColumn(excelData);
+		const assessmentColumns = ColumnDetector.detectAssessmentColumns(
+			excelData,
+			assessments
+		);
 
 		const confidence = ColumnDetector.calculateConfidence(
 			studentNumberColumn,
@@ -53,7 +65,10 @@ export const ColumnDetector = {
 		return null;
 	},
 
-	validateStudentNumberColumn(rows: (string | number)[][], columnIndex: number): boolean {
+	validateStudentNumberColumn(
+		rows: (string | number)[][],
+		columnIndex: number
+	): boolean {
 		let validCount = 0;
 		let totalCount = 0;
 
@@ -83,7 +98,11 @@ export const ColumnDetector = {
 
 			if (!assessmentTypeLabel) continue;
 
-			const columnIndex = this.findAssessmentColumn(headers, rows, assessmentTypeLabel);
+			const columnIndex = this.findAssessmentColumn(
+				headers,
+				rows,
+				assessmentTypeLabel
+			);
 			if (columnIndex !== null) {
 				detectedColumns[assessment.id] = columnIndexToLetter(columnIndex);
 			}
@@ -96,10 +115,12 @@ export const ColumnDetector = {
 		rows: (string | number)[][],
 		assessmentTypeLabel: string
 	): number | null {
-		let bestMatch: { index: number; score: number; rowIndex: number } | null = null;
+		let bestMatch: { index: number; score: number; rowIndex: number } | null =
+			null;
 
 		const searchRows = Math.min(15, rows.length);
-		const searchVariations = this.createAssessmentVariations(assessmentTypeLabel);
+		const searchVariations =
+			this.createAssessmentVariations(assessmentTypeLabel);
 
 		for (let rowIndex = 0; rowIndex < searchRows; rowIndex++) {
 			const row = rows[rowIndex];
@@ -111,7 +132,8 @@ export const ColumnDetector = {
 				let score = 0;
 
 				for (const variation of searchVariations) {
-					const exactScore = cellValue.toLowerCase() === variation.toLowerCase() ? 1.0 : 0;
+					const exactScore =
+						cellValue.toLowerCase() === variation.toLowerCase() ? 1.0 : 0;
 					const fuzzyScore = fuzzyMatch(cellValue, variation);
 					score = Math.max(score, exactScore, fuzzyScore);
 				}
@@ -122,7 +144,10 @@ export const ColumnDetector = {
 			}
 		}
 
-		if (bestMatch && this.isMarksColumn(headers, rows, bestMatch.index, bestMatch.rowIndex)) {
+		if (
+			bestMatch &&
+			this.isMarksColumn(headers, rows, bestMatch.index, bestMatch.rowIndex)
+		) {
 			return bestMatch.index;
 		}
 
@@ -174,7 +199,9 @@ export const ColumnDetector = {
 
 		const words = assessmentTypeLabel.split(/\s+/);
 		if (words.length > 1) {
-			const acronym = words.map((word) => word.charAt(0).toUpperCase()).join('');
+			const acronym = words
+				.map((word) => word.charAt(0).toUpperCase())
+				.join('');
 			variations.push(acronym);
 
 			const numberMatch = assessmentTypeLabel.match(/\d+/);
@@ -191,9 +218,11 @@ export const ColumnDetector = {
 		columnIndex: number,
 		foundRowIndex: number
 	): boolean {
-		const checkRows = [foundRowIndex - 1, foundRowIndex, foundRowIndex + 1].filter(
-			(rowIndex) => rowIndex >= 0 && rowIndex < rows.length
-		);
+		const checkRows = [
+			foundRowIndex - 1,
+			foundRowIndex,
+			foundRowIndex + 1,
+		].filter((rowIndex) => rowIndex >= 0 && rowIndex < rows.length);
 
 		for (const rowIndex of checkRows) {
 			const row = rows[rowIndex];
@@ -201,10 +230,14 @@ export const ColumnDetector = {
 
 			const cellValue = (row[columnIndex] || '').toString().toLowerCase();
 			const nextCellValue =
-				columnIndex + 1 < row.length ? (row[columnIndex + 1] || '').toString().toLowerCase() : '';
+				columnIndex + 1 < row.length
+					? (row[columnIndex + 1] || '').toString().toLowerCase()
+					: '';
 
 			const weightKeywords = ['weight', '%', 'percent', 'percentage'];
-			const isNextColumnWeight = weightKeywords.some((keyword) => nextCellValue.includes(keyword));
+			const isNextColumnWeight = weightKeywords.some((keyword) =>
+				nextCellValue.includes(keyword)
+			);
 
 			if (isNextColumnWeight) {
 				const marksKeywords = ['mark', 'score', 'point', 'grade'];
@@ -222,7 +255,9 @@ export const ColumnDetector = {
 				: '';
 
 		const weightKeywords = ['weight', '%', 'percent', 'percentage'];
-		const isNextColumnWeight = weightKeywords.some((keyword) => nextHeader.includes(keyword));
+		const isNextColumnWeight = weightKeywords.some((keyword) =>
+			nextHeader.includes(keyword)
+		);
 
 		if (isNextColumnWeight) {
 			const marksKeywords = ['mark', 'score', 'point', 'grade'];

@@ -2,7 +2,12 @@
 
 import { Button, Group, NumberInput, Select, Stack } from '@mantine/core';
 import { useState } from 'react';
-import { getGradeByMarks, getGradeByPoints, getGradeBySymbol, grades } from '@/utils/grades';
+import {
+	getGradeByMarks,
+	getGradeByPoints,
+	getGradeBySymbol,
+	grades,
+} from '@/utils/grades';
 import { GradeResultDisplay } from './GradeResultDisplay';
 
 type InputType = 'marks' | 'points' | 'grade';
@@ -88,7 +93,10 @@ export function GradeCalculatorForm() {
 	};
 
 	const gradeOptions = grades
-		.filter((grade, index, array) => array.findIndex((g) => g.grade === grade.grade) === index)
+		.filter(
+			(grade, index, array) =>
+				array.findIndex((g) => g.grade === grade.grade) === index
+		)
 		.map((g) => ({
 			value: g.grade,
 			label: `${g.grade}`,

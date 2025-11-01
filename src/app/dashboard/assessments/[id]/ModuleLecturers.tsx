@@ -63,13 +63,22 @@ export default function ModuleLecturers({ moduleId }: Props) {
 	}
 
 	return (
-		<SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing='md' verticalSpacing='md'>
+		<SimpleGrid
+			cols={{ base: 1, sm: 2, lg: 3 }}
+			spacing='md'
+			verticalSpacing='md'
+		>
 			{' '}
 			{lecturers.map((lecturer) => (
 				<Card key={lecturer.id} withBorder shadow='sm' p='sm'>
 					<Stack gap='xs'>
 						<Group gap='md' align='center'>
-							<Avatar radius='xl' color='blue' variant='filled' src={lecturer.image} />
+							<Avatar
+								radius='xl'
+								color='blue'
+								variant='filled'
+								src={lecturer.image}
+							/>
 
 							<Box style={{ flex: 1 }}>
 								<Text fw={600} size='lg' lineClamp={1}>
@@ -93,7 +102,10 @@ export default function ModuleLecturers({ moduleId }: Props) {
 										key={`${assignment.programCode}-${assignment.semesterName}`}
 										variant='default'
 									>
-										{toClassName(assignment.programCode, assignment.semesterName)}
+										{toClassName(
+											assignment.programCode,
+											assignment.semesterName
+										)}
 									</Badge>
 								))}
 							</Group>

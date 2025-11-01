@@ -12,7 +12,9 @@ type Props = {
 	onSubmit: (values: Sponsor) => Promise<Sponsor>;
 	defaultValues?: Sponsor;
 	onSuccess?: (value: Sponsor) => void;
-	onError?: (error: Error | React.SyntheticEvent<HTMLDivElement, Event>) => void;
+	onError?: (
+		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+	) => void;
 	title?: string;
 };
 

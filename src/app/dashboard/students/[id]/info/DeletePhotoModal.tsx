@@ -31,16 +31,26 @@ export default function DeletePhotoModal({
 			{renderTrigger ? (
 				renderTrigger({ open, close, opened })
 			) : (
-				<Button color='red' onClick={open} leftSection={<IconTrash size='1rem' />}>
+				<Button
+					color='red'
+					onClick={open}
+					leftSection={<IconTrash size='1rem' />}
+				>
 					Delete Photo
 				</Button>
 			)}
 
-			<Modal opened={opened} onClose={close} title='Delete Photo' centered size='sm'>
+			<Modal
+				opened={opened}
+				onClose={close}
+				title='Delete Photo'
+				centered
+				size='sm'
+			>
 				<Stack gap='md'>
 					<Text size='sm'>
-						Are you sure you want to delete the photo for <strong>{studentName}</strong>? This
-						action cannot be undone.
+						Are you sure you want to delete the photo for{' '}
+						<strong>{studentName}</strong>? This action cannot be undone.
 					</Text>
 
 					<Group justify='flex-end' mt='md'>

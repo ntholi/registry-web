@@ -18,8 +18,12 @@ import type { AcademicRemarks } from '@/lib/helpers/students';
 import { formatSemester } from '@/lib/utils';
 import { getStatusColor } from '../utils/colors';
 
-type Program = ReturnType<typeof import('@/lib/helpers/students').getActiveProgram>;
-type Semester = ReturnType<typeof import('@/lib/helpers/students').getCurrentSemester>;
+type Program = ReturnType<
+	typeof import('@/lib/helpers/students').getActiveProgram
+>;
+type Semester = ReturnType<
+	typeof import('@/lib/helpers/students').getCurrentSemester
+>;
 
 type Props = {
 	program: Program;
@@ -96,7 +100,10 @@ export default function AcademicInformation({ program, semester }: Props) {
 						</Grid.Col>
 
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Structure ID' value={program.structureId?.toString()} />
+							<InfoItem
+								label='Structure ID'
+								value={program.structureId?.toString()}
+							/>
 						</Grid.Col>
 					</Grid>
 				</Box>
@@ -118,7 +125,11 @@ export default function AcademicInformation({ program, semester }: Props) {
 								</Grid.Col>
 
 								<Grid.Col span={{ base: 12, sm: 6 }}>
-									<InfoItem label='Term' value={semester.term} icon={<IconCalendar size={14} />} />
+									<InfoItem
+										label='Term'
+										value={semester.term}
+										icon={<IconCalendar size={14} />}
+									/>
 								</Grid.Col>
 
 								<Grid.Col span={{ base: 12, sm: 6 }}>

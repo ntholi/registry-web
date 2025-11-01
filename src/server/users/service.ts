@@ -26,7 +26,10 @@ class UserService {
 	}
 
 	async getUserSchoolIds(userId: string) {
-		return withAuth(async () => this.repository.getUserSchoolIds(userId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.getUserSchoolIds(userId),
+			['dashboard']
+		);
 	}
 
 	async getUserSchools(userId: string) {

@@ -8,7 +8,9 @@ function getClassification(gpa: number): string {
 	const gradesWithGPA = grades
 		.filter((grade) => grade.points !== null)
 		.sort((a, b) => (b.points || 0) - (a.points || 0));
-	const matchingGrade = gradesWithGPA.find((grade) => gpa >= (grade.points || 0));
+	const matchingGrade = gradesWithGPA.find(
+		(grade) => gpa >= (grade.points || 0)
+	);
 	return matchingGrade?.description || 'No Classification';
 }
 
@@ -21,7 +23,8 @@ export function extractStatementOfResultsData(student: Student) {
 	const lastPoint = academicRemarks.latestPoints;
 
 	const primaryProgram = programs[0];
-	const programName = primaryProgram?.structure?.program?.name || 'Unknown Program';
+	const programName =
+		primaryProgram?.structure?.program?.name || 'Unknown Program';
 
 	return {
 		stdNo: student.stdNo,

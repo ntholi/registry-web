@@ -3,7 +3,10 @@ import { db } from '@/db';
 import { modules } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
-export default class ModuleRepository extends BaseRepository<typeof modules, 'id'> {
+export default class ModuleRepository extends BaseRepository<
+	typeof modules,
+	'id'
+> {
 	constructor() {
 		super(modules, modules.id);
 	}

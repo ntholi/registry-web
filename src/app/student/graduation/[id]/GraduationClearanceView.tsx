@@ -15,10 +15,16 @@ import {
 import { IconInfoCircle } from '@tabler/icons-react';
 import { formatDateTime, toTitleCase } from '@/lib/utils';
 import type { getGraduationRequest } from '@/server/graduation/requests/actions';
-import { getClearanceStatus, getStatusColor, getStatusIcon } from '../../utils/status';
+import {
+	getClearanceStatus,
+	getStatusColor,
+	getStatusIcon,
+} from '../../utils/status';
 
 interface Props {
-	graduationRequest: NonNullable<Awaited<ReturnType<typeof getGraduationRequest>>>;
+	graduationRequest: NonNullable<
+		Awaited<ReturnType<typeof getGraduationRequest>>
+	>;
 }
 
 export default function GraduationClearanceView({ graduationRequest }: Props) {
@@ -40,15 +46,23 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 				<Divider />
 
 				{graduationClearances.length === 0 ? (
-					<Alert icon={<IconInfoCircle size='1rem' />} color='gray' variant='light'>
+					<Alert
+						icon={<IconInfoCircle size='1rem' />}
+						color='gray'
+						variant='light'
+					>
 						<Text size='sm'>
-							Your graduation request doesn&apos;t have any clearance requirements assigned yet.
-							Clearance requests will be created automatically once your graduation request is
-							processed.
+							Your graduation request doesn&apos;t have any clearance
+							requirements assigned yet. Clearance requests will be created
+							automatically once your graduation request is processed.
 						</Text>
 					</Alert>
 				) : (
-					<Timeline active={graduationClearances.length} bulletSize={20} lineWidth={2}>
+					<Timeline
+						active={graduationClearances.length}
+						bulletSize={20}
+						lineWidth={2}
+					>
 						{departments.map((dept) => {
 							const clearanceMapping = graduationClearances.find(
 								(gc) => gc.clearance.department === dept
@@ -81,7 +95,9 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 												Created Date
 											</Text>
 											<Text size='sm'>
-												{clearance ? formatDateTime(clearance.createdAt) : 'Not created yet'}
+												{clearance
+													? formatDateTime(clearance.createdAt)
+													: 'Not created yet'}
 											</Text>
 										</Box>
 
@@ -90,12 +106,17 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 												<Text size='xs' c='dimmed' fw={500}>
 													Response Date
 												</Text>
-												<Text size='sm'>{formatDateTime(clearance.responseDate)}</Text>
+												<Text size='sm'>
+													{formatDateTime(clearance.responseDate)}
+												</Text>
 											</Box>
 										)}
 
 										{clearance?.message && (
-											<ClearanceMessage message={clearance.message} status={clearance.status} />
+											<ClearanceMessage
+												message={clearance.message}
+												status={clearance.status}
+											/>
 										)}
 
 										{clearance?.respondedBy && (
@@ -109,8 +130,8 @@ export default function GraduationClearanceView({ graduationRequest }: Props) {
 
 										{clearance?.status === 'pending' && (
 											<Text size='sm' c='dimmed' fs='italic'>
-												Waiting for {toTitleCase(dept)} Department to process your graduation
-												request...
+												Waiting for {toTitleCase(dept)} Department to process
+												your graduation request...
 											</Text>
 										)}
 									</Stack>
@@ -134,7 +155,11 @@ function ClearanceMessage({
 	const color = getStatusColor(status);
 
 	const title =
-		status === 'approved' ? 'Note' : status === 'rejected' ? 'Action Required' : 'Message';
+		status === 'approved'
+			? 'Note'
+			: status === 'rejected'
+				? 'Action Required'
+				: 'Message';
 
 	return (
 		<Box>

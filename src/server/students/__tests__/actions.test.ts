@@ -30,7 +30,10 @@ describe('Students Service', () => {
 			role: 'user',
 		};
 
-		const updatedStudent = await studentsService.updateUserId(createdStudent.stdNo, userData.id!);
+		const updatedStudent = await studentsService.updateUserId(
+			createdStudent.stdNo,
+			userData.id!
+		);
 
 		expect(updatedStudent).toBeDefined();
 		expect(updatedStudent[0].userId).toBe(userData.id);
@@ -48,7 +51,10 @@ describe('Students Service', () => {
 		const createdStudent = await studentsService.create(studentData);
 		expect(createdStudent.userId).toBeDefined();
 
-		const updatedStudent = await studentsService.updateUserId(createdStudent.stdNo, null);
+		const updatedStudent = await studentsService.updateUserId(
+			createdStudent.stdNo,
+			null
+		);
 
 		expect(updatedStudent).toBeDefined();
 		expect(updatedStudent[0].userId).toBeNull();

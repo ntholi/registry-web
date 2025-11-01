@@ -1,6 +1,9 @@
 import type ExcelJS from 'exceljs';
 import { getGradePoints } from '@/utils/grades';
-import type { ProgramSemesterReport, StudentSemesterReport } from './repository';
+import type {
+	ProgramSemesterReport,
+	StudentSemesterReport,
+} from './repository';
 
 function getColumnLetter(col: number): string {
 	let letter = '';
@@ -13,7 +16,10 @@ function getColumnLetter(col: number): string {
 }
 
 function getUniqueModules(students: StudentSemesterReport[]) {
-	const moduleMap = new Map<string, { code: string; name: string; credits: number }>();
+	const moduleMap = new Map<
+		string,
+		{ code: string; name: string; credits: number }
+	>();
 
 	for (const student of students) {
 		for (const it of student.studentModules) {
@@ -146,7 +152,9 @@ export function createWorksheet(
 
 		colIndex = 5;
 		moduleColumns.forEach((moduleCol) => {
-			const studentModule = student.studentModules.find((sm) => sm.moduleCode === moduleCol.code);
+			const studentModule = student.studentModules.find(
+				(sm) => sm.moduleCode === moduleCol.code
+			);
 
 			let marksDisplay: number | string = '-';
 			let gradeDisplay = '';
@@ -161,7 +169,12 @@ export function createWorksheet(
 				pointsDisplay = Number.isNaN(pts) ? '' : Number(pts.toFixed(2));
 			}
 			if (marksDisplay === '-') {
-				worksheet.mergeCells(studentRow.number, colIndex, studentRow.number, colIndex + 2);
+				worksheet.mergeCells(
+					studentRow.number,
+					colIndex,
+					studentRow.number,
+					colIndex + 2
+				);
 				studentRow.getCell(colIndex).value = '-';
 				studentRow.getCell(colIndex).alignment = {
 					horizontal: 'center',
@@ -197,8 +210,12 @@ export function createWorksheet(
 		const gpaVal = parseFloat(student.gpa);
 		const cgpaVal = parseFloat(student.cgpa);
 
-		studentRow.getCell(colIndex++).value = Number.isNaN(gpaVal) ? student.gpa : gpaVal;
-		studentRow.getCell(colIndex++).value = Number.isNaN(cgpaVal) ? student.cgpa : cgpaVal;
+		studentRow.getCell(colIndex++).value = Number.isNaN(gpaVal)
+			? student.gpa
+			: gpaVal;
+		studentRow.getCell(colIndex++).value = Number.isNaN(cgpaVal)
+			? student.cgpa
+			: cgpaVal;
 
 		const facultyRemark = student.facultyRemark || 'Proceed';
 		const facultyRemarkCell = studentRow.getCell(colIndex++);
@@ -210,15 +227,23 @@ export function createWorksheet(
 	});
 
 	const longestName = programReport.students.reduce((longest, student) => {
-		return student.studentName.length > longest.length ? student.studentName : longest;
+		return student.studentName.length > longest.length
+			? student.studentName
+			: longest;
 	}, '');
 	const nameColumnWidth = Math.max(longestName.length * 1.1, 25);
 
-	const longestFacultyRemark = programReport.students.reduce((longest, student) => {
-		const facultyRemark = student.facultyRemark || 'Proceed';
-		return facultyRemark.length > longest.length ? facultyRemark : longest;
-	}, '');
-	const facultyRemarkColumnWidth = Math.max(longestFacultyRemark.length * 1.1, 15); // 1.1 multiplier for padding, minimum 25
+	const longestFacultyRemark = programReport.students.reduce(
+		(longest, student) => {
+			const facultyRemark = student.facultyRemark || 'Proceed';
+			return facultyRemark.length > longest.length ? facultyRemark : longest;
+		},
+		''
+	);
+	const facultyRemarkColumnWidth = Math.max(
+		longestFacultyRemark.length * 1.1,
+		15
+	); // 1.1 multiplier for padding, minimum 25
 
 	worksheet.getColumn(1).width = 4; // No
 	worksheet.getColumn(2).width = nameColumnWidth; // Name

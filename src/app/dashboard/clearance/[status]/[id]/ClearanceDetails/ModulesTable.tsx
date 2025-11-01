@@ -15,7 +15,11 @@ type Module = NonNullable<
 	Awaited<ReturnType<typeof getClearance>>
 >['registrationRequest']['requestedModules'];
 
-export function ModulesTable({ requestedModules }: { requestedModules: Module }) {
+export function ModulesTable({
+	requestedModules,
+}: {
+	requestedModules: Module;
+}) {
 	const rows = [...requestedModules]
 		.sort((a, b) => {
 			const aIsRepeat = a.moduleStatus.startsWith('Repeat');
@@ -30,7 +34,10 @@ export function ModulesTable({ requestedModules }: { requestedModules: Module })
 				<TableTd>{semesterModule.module!.name}</TableTd>
 				<TableTd>{semesterModule.credits}</TableTd>
 				<TableTd>
-					<Text size='sm' c={semesterModule.type === 'Delete' ? 'red' : undefined}>
+					<Text
+						size='sm'
+						c={semesterModule.type === 'Delete' ? 'red' : undefined}
+					>
 						{semesterModule.type}
 					</Text>
 				</TableTd>

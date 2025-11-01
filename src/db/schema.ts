@@ -127,7 +127,11 @@ export const authenticators = pgTable(
 	})
 );
 
-export const signupStatus = pgEnum('signup_status', ['pending', 'approved', 'rejected']);
+export const signupStatus = pgEnum('signup_status', [
+	'pending',
+	'approved',
+	'rejected',
+]);
 export const signups = pgTable(
 	'signups',
 	{
@@ -174,7 +178,10 @@ export const students = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		nameTrigramIdx: index('idx_students_name_trgm').using('gin', sql`${table.name} gin_trgm_ops`),
+		nameTrigramIdx: index('idx_students_name_trgm').using(
+			'gin',
+			sql`${table.name} gin_trgm_ops`
+		),
 		userIdIdx: index('fk_students_user_id').on(table.userId),
 	})
 );
@@ -210,8 +217,13 @@ export const studentPrograms = pgTable(
 	(table) => ({
 		stdNoIdx: index('fk_student_programs_std_no').on(table.stdNo),
 		statusIdx: index('idx_student_programs_status').on(table.status),
-		structureIdIdx: index('fk_student_programs_structure_id').on(table.structureId),
-		stdNoStatusIdx: index('idx_student_programs_std_no_status').on(table.stdNo, table.status),
+		structureIdIdx: index('fk_student_programs_structure_id').on(
+			table.structureId
+		),
+		stdNoStatusIdx: index('idx_student_programs_std_no_status').on(
+			table.stdNo,
+			table.status
+		),
 	})
 );
 
@@ -301,7 +313,8 @@ export const grade = pgEnum('grade', [
 	'NM',
 ]);
 
-export type StudentModuleStatus = (typeof studentModuleStatus.enumValues)[number];
+export type StudentModuleStatus =
+	(typeof studentModuleStatus.enumValues)[number];
 export type Grade = (typeof grade.enumValues)[number];
 
 export const studentModules = pgTable(
@@ -323,7 +336,9 @@ export const studentModules = pgTable(
 		studentSemesterIdIdx: index('fk_student_modules_student_semester_id').on(
 			table.studentSemesterId
 		),
-		semesterModuleIdIdx: index('fk_student_modules_semester_module_id').on(table.semesterModuleId),
+		semesterModuleIdIdx: index('fk_student_modules_semester_module_id').on(
+			table.semesterModuleId
+		),
 		statusIdx: index('idx_student_modules_status').on(table.status),
 	})
 );
@@ -336,7 +351,11 @@ export const schools = pgTable('schools', {
 	createdAt: timestamp().defaultNow(),
 });
 
-export const programLevelEnum = pgEnum('program_level', ['certificate', 'diploma', 'degree']);
+export const programLevelEnum = pgEnum('program_level', [
+	'certificate',
+	'diploma',
+	'degree',
+]);
 export const programs = pgTable(
 	'programs',
 	{
@@ -391,7 +410,13 @@ export const modules = pgTable('modules', {
 	timestamp: text(),
 });
 
-export const moduleType = pgEnum('module_type', ['Major', 'Minor', 'Core', 'Delete', 'Elective']);
+export const moduleType = pgEnum('module_type', [
+	'Major',
+	'Minor',
+	'Core',
+	'Delete',
+	'Elective',
+]);
 export type ModuleType = (typeof moduleType.enumValues)[number];
 
 export const semesterModules = pgTable(
@@ -411,7 +436,9 @@ export const semesterModules = pgTable(
 	},
 	(table) => ({
 		moduleIdIdx: index('fk_semester_modules_module_id').on(table.moduleId),
-		semesterIdIdx: index('fk_semester_modules_semester_id').on(table.semesterId),
+		semesterIdIdx: index('fk_semester_modules_semester_id').on(
+			table.semesterId
+		),
 	})
 );
 
@@ -428,7 +455,10 @@ export const modulePrerequisites = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		uniquePrerequisite: unique().on(table.semesterModuleId, table.prerequisiteId),
+		uniquePrerequisite: unique().on(
+			table.semesterModuleId,
+			table.prerequisiteId
+		),
 	})
 );
 
@@ -448,10 +478,10 @@ export const registrationRequestStatus = pgEnum('registration_request_status', [
 	'registered',
 ]);
 
-export const semesterStatusForRegistration = pgEnum('semester_status_for_registration', [
-	'Active',
-	'Repeat',
-]);
+export const semesterStatusForRegistration = pgEnum(
+	'semester_status_for_registration',
+	['Active', 'Repeat']
+);
 
 export const registrationRequests = pgTable(
 	'registration_requests',
@@ -481,7 +511,9 @@ export const registrationRequests = pgTable(
 		stdNoIdx: index('fk_registration_requests_std_no').on(table.stdNo),
 		termIdIdx: index('fk_registration_requests_term_id').on(table.termId),
 		statusIdx: index('idx_registration_requests_status').on(table.status),
-		sponsorIdIdx: index('fk_registration_requests_sponsor_id').on(table.sponsorId),
+		sponsorIdIdx: index('fk_registration_requests_sponsor_id').on(
+			table.sponsorId
+		),
 	})
 );
 
@@ -506,9 +538,9 @@ export const requestedModules = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		registrationRequestIdIdx: index('fk_requested_modules_registration_request_id').on(
-			table.registrationRequestId
-		),
+		registrationRequestIdIdx: index(
+			'fk_requested_modules_registration_request_id'
+		).on(table.registrationRequestId),
 		semesterModuleIdIdx: index('fk_requested_modules_semester_module_id').on(
 			table.semesterModuleId
 		),
@@ -552,11 +584,16 @@ export const registrationClearance = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		uniqueRegistrationClearance: unique().on(table.registrationRequestId, table.clearanceId),
-		registrationRequestIdIdx: index('fk_registration_clearance_registration_request_id').on(
-			table.registrationRequestId
+		uniqueRegistrationClearance: unique().on(
+			table.registrationRequestId,
+			table.clearanceId
 		),
-		clearanceIdIdx: index('fk_registration_clearance_clearance_id').on(table.clearanceId),
+		registrationRequestIdIdx: index(
+			'fk_registration_clearance_registration_request_id'
+		).on(table.registrationRequestId),
+		clearanceIdIdx: index('fk_registration_clearance_clearance_id').on(
+			table.clearanceId
+		),
 	})
 );
 
@@ -594,10 +631,12 @@ export const graduationClearance = pgTable(
 	},
 	(table) => ({
 		uniqueRegistrationClearance: unique().on(table.clearanceId),
-		graduationRequestIdIdx: index('fk_graduation_clearance_graduation_request_id').on(
-			table.graduationRequestId
+		graduationRequestIdIdx: index(
+			'fk_graduation_clearance_graduation_request_id'
+		).on(table.graduationRequestId),
+		clearanceIdIdx: index('fk_graduation_clearance_clearance_id').on(
+			table.clearanceId
 		),
-		clearanceIdIdx: index('fk_graduation_clearance_clearance_id').on(table.clearanceId),
 	})
 );
 
@@ -622,7 +661,10 @@ export const graduationLists = pgTable('graduation_lists', {
 	createdAt: timestamp().defaultNow(),
 });
 
-export const paymentType = pgEnum('payment_type', ['graduation_gown', 'graduation_fee']);
+export const paymentType = pgEnum('payment_type', [
+	'graduation_gown',
+	'graduation_fee',
+]);
 
 export const paymentReceipts = pgTable(
 	'payment_receipts',
@@ -636,9 +678,9 @@ export const paymentReceipts = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		graduationRequestIdIdx: index('fk_payment_receipts_graduation_request_id').on(
-			table.graduationRequestId
-		),
+		graduationRequestIdIdx: index(
+			'fk_payment_receipts_graduation_request_id'
+		).on(table.graduationRequestId),
 	})
 );
 
@@ -659,7 +701,9 @@ export const clearanceAudit = pgTable(
 		modules: jsonb().$type<string[]>().notNull().default([]),
 	},
 	(table) => ({
-		clearanceIdIdx: index('fk_clearance_audit_clearance_id').on(table.clearanceId),
+		clearanceIdIdx: index('fk_clearance_audit_clearance_id').on(
+			table.clearanceId
+		),
 		createdByIdx: index('fk_clearance_audit_created_by').on(table.createdBy),
 	})
 );
@@ -736,7 +780,9 @@ export const assignedModules = pgTable(
 	(table) => ({
 		userIdIdx: index('fk_assigned_modules_user_id').on(table.userId),
 		termIdIdx: index('fk_assigned_modules_term_id').on(table.termId),
-		semesterModuleIdIdx: index('fk_assigned_modules_semester_module_id').on(table.semesterModuleId),
+		semesterModuleIdIdx: index('fk_assigned_modules_semester_module_id').on(
+			table.semesterModuleId
+		),
 	})
 );
 
@@ -794,7 +840,11 @@ export const assessments = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		uniqueAssessmentModule: unique().on(table.moduleId, table.assessmentNumber, table.termId),
+		uniqueAssessmentModule: unique().on(
+			table.moduleId,
+			table.assessmentNumber,
+			table.termId
+		),
 		moduleIdIdx: index('fk_assessments_module_id').on(table.moduleId),
 		termIdIdx: index('fk_assessments_term_id').on(table.termId),
 	})
@@ -814,7 +864,9 @@ export const assessmentMarks = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		assessmentIdIdx: index('fk_assessment_marks_assessment_id').on(table.assessmentId),
+		assessmentIdIdx: index('fk_assessment_marks_assessment_id').on(
+			table.assessmentId
+		),
 		stdNoIdx: index('fk_assessment_marks_std_no').on(table.stdNo),
 		assessmentIdStdNoIdx: index('idx_assessment_marks_assessment_id_std_no').on(
 			table.assessmentId,
@@ -823,11 +875,10 @@ export const assessmentMarks = pgTable(
 	})
 );
 
-export const assessmentMarksAuditAction = pgEnum('assessment_marks_audit_action', [
-	'create',
-	'update',
-	'delete',
-]);
+export const assessmentMarksAuditAction = pgEnum(
+	'assessment_marks_audit_action',
+	['create', 'update', 'delete']
+);
 
 export const assessmentMarksAudit = pgTable(
 	'assessment_marks_audit',
@@ -845,10 +896,12 @@ export const assessmentMarksAudit = pgTable(
 		date: timestamp().defaultNow().notNull(),
 	},
 	(table) => ({
-		assessmentMarkIdIdx: index('fk_assessment_marks_audit_assessment_mark_id').on(
-			table.assessmentMarkId
+		assessmentMarkIdIdx: index(
+			'fk_assessment_marks_audit_assessment_mark_id'
+		).on(table.assessmentMarkId),
+		createdByIdx: index('fk_assessment_marks_audit_created_by').on(
+			table.createdBy
 		),
-		createdByIdx: index('fk_assessment_marks_audit_created_by').on(table.createdBy),
 	})
 );
 
@@ -880,7 +933,9 @@ export const assessmentsAudit = pgTable(
 		date: timestamp().defaultNow().notNull(),
 	},
 	(table) => ({
-		assessmentIdIdx: index('fk_assessments_audit_assessment_id').on(table.assessmentId),
+		assessmentIdIdx: index('fk_assessments_audit_assessment_id').on(
+			table.assessmentId
+		),
 		createdByIdx: index('fk_assessments_audit_created_by').on(table.createdBy),
 	})
 );
@@ -929,7 +984,9 @@ export const statementOfResultsPrints = pgTable(
 	},
 	(table) => ({
 		stdNoIdx: index('fk_statement_of_results_prints_std_no').on(table.stdNo),
-		printedByIdx: index('fk_statement_of_results_prints_printed_by').on(table.printedBy),
+		printedByIdx: index('fk_statement_of_results_prints_printed_by').on(
+			table.printedBy
+		),
 	})
 );
 
@@ -957,7 +1014,10 @@ export const transcriptPrints = pgTable(
 	})
 );
 
-export const blockedStudentStatusEnum = pgEnum('blocked_student_status', ['blocked', 'unblocked']);
+export const blockedStudentStatusEnum = pgEnum('blocked_student_status', [
+	'blocked',
+	'unblocked',
+]);
 
 export const blockedStudents = pgTable(
 	'blocked_students',
@@ -993,7 +1053,9 @@ export const studentCardPrints = pgTable(
 	},
 	(table) => ({
 		stdNoIdx: index('fk_student_card_prints_std_no').on(table.stdNo),
-		printedByIdx: index('fk_student_card_prints_printed_by').on(table.printedBy),
+		printedByIdx: index('fk_student_card_prints_printed_by').on(
+			table.printedBy
+		),
 	})
 );
 
@@ -1026,12 +1088,10 @@ export const fortinetLevel = pgEnum('fortinet_level', [
 	'nse8',
 ]);
 
-export const fortinetRegistrationStatus = pgEnum('fortinet_registration_status', [
-	'pending',
-	'approved',
-	'rejected',
-	'completed',
-]);
+export const fortinetRegistrationStatus = pgEnum(
+	'fortinet_registration_status',
+	['pending', 'approved', 'rejected', 'completed']
+);
 
 export const fortinetRegistrations = pgTable(
 	'fortinet_registrations',
@@ -1052,7 +1112,9 @@ export const fortinetRegistrations = pgTable(
 	(table) => ({
 		uniqueStudentLevel: unique().on(table.stdNo, table.level),
 		stdNoIdx: index('fk_fortinet_registrations_std_no').on(table.stdNo),
-		schoolIdIdx: index('fk_fortinet_registrations_school_id').on(table.schoolId),
+		schoolIdIdx: index('fk_fortinet_registrations_school_id').on(
+			table.schoolId
+		),
 		statusIdx: index('idx_fortinet_registrations_status').on(table.status),
 	})
 );
@@ -1065,7 +1127,12 @@ export const taskStatus = pgEnum('task_status', [
 	'cancelled',
 ]);
 
-export const taskPriority = pgEnum('task_priority', ['low', 'medium', 'high', 'urgent']);
+export const taskPriority = pgEnum('task_priority', [
+	'low',
+	'medium',
+	'high',
+	'urgent',
+]);
 
 export type TaskStatus = (typeof taskStatus.enumValues)[number];
 export type TaskPriority = (typeof taskPriority.enumValues)[number];

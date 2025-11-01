@@ -33,7 +33,9 @@ export default async function ClearanceRequestDetails({ params }: Props) {
 			<Tabs defaultValue='details' variant='outline'>
 				<TabsList>
 					<TabsTab value='details'>Details</TabsTab>
-					{session?.user?.role === 'finance' && <TabsTab value='academics'>Academics</TabsTab>}
+					{session?.user?.role === 'finance' && (
+						<TabsTab value='academics'>Academics</TabsTab>
+					)}
 					<TabsTab value='history'>History</TabsTab>
 				</TabsList>
 				<TabsPanel value='details'>

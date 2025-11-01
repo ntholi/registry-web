@@ -36,7 +36,10 @@ import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
 } from '@/server/registration/requests/actions';
-import { getStudent, getStudentRegistrationData } from '@/server/students/actions';
+import {
+	getStudent,
+	getStudentRegistrationData,
+} from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import SemesterStatusModal from './SemesterStatusModal';
 
@@ -74,15 +77,17 @@ export default function RegistrationSimulator() {
 		defaultValue: '',
 	});
 	const [student, setStudent] = useState<Student | null>(null);
-	const [fullStudentData, setFullStudentData] = useState<FullStudentData | null>(null);
+	const [fullStudentData, setFullStudentData] =
+		useState<FullStudentData | null>(null);
 	const [modules, setModules] = useState<ModuleData | null>(null);
-	const [selectedModules, setSelectedModules] = useState<Set<number>>(new Set());
+	const [selectedModules, setSelectedModules] = useState<Set<number>>(
+		new Set()
+	);
 	const [error, setError] = useState<string | null>(null);
 	const [isPending, startTransition] = useTransition();
 	const [isAnalyzing, startAnalyzing] = useTransition();
-	const [semesterStatusResult, setSemesterStatusResult] = useState<SemesterStatusResult | null>(
-		null
-	);
+	const [semesterStatusResult, setSemesterStatusResult] =
+		useState<SemesterStatusResult | null>(null);
 	const [modalOpened, setModalOpened] = useState(false);
 
 	const handleSubmit = () => {
@@ -125,7 +130,10 @@ export default function RegistrationSimulator() {
 				setFullStudentData(studentData);
 
 				const remarks = getAcademicRemarks(studentData.programs);
-				const moduleDataResponse = await getStudentSemesterModules(studentData, remarks);
+				const moduleDataResponse = await getStudentSemesterModules(
+					studentData,
+					remarks
+				);
 
 				// Check if there's an error in the response
 				if (moduleDataResponse.error) {
@@ -139,7 +147,9 @@ export default function RegistrationSimulator() {
 					return;
 				}
 
-				const activeProgram = studentData.programs.find((p) => p.status === 'Active');
+				const activeProgram = studentData.programs.find(
+					(p) => p.status === 'Active'
+				);
 				if (activeProgram) {
 					setStudent({
 						name: lookup.name,
@@ -156,7 +166,8 @@ export default function RegistrationSimulator() {
 
 				setModules(moduleDataResponse.modules);
 			} catch (err) {
-				const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+				const errorMessage =
+					err instanceof Error ? err.message : 'Unknown error occurred';
 				setError(errorMessage);
 				notifications.show({
 					title: 'Simulation Error',
@@ -247,11 +258,15 @@ export default function RegistrationSimulator() {
 						prerequisites: m.prerequisites,
 					}));
 
-				const result = await determineSemesterStatus(selectedModuleData, fullStudentData);
+				const result = await determineSemesterStatus(
+					selectedModuleData,
+					fullStudentData
+				);
 				setSemesterStatusResult(result);
 				setModalOpened(true);
 			} catch (err) {
-				const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+				const errorMessage =
+					err instanceof Error ? err.message : 'Unknown error occurred';
 				notifications.show({
 					title: 'Analysis Error',
 					message: errorMessage,
@@ -339,7 +354,11 @@ export default function RegistrationSimulator() {
 								<Text size='xs' c='dimmed' mb={4}>
 									Student Number
 								</Text>
-								<Link size='sm' c='default' href={`/dashboard/students/${student.stdNo}`}>
+								<Link
+									size='sm'
+									c='default'
+									href={`/dashboard/students/${student.stdNo}`}
+								>
 									{student.stdNo}
 								</Link>
 							</Paper>
@@ -348,7 +367,9 @@ export default function RegistrationSimulator() {
 									Current Semester
 								</Text>
 								<Text fw={500} size='sm'>
-									{formatSemester(getCurrentSemester(fullStudentData)?.semesterNumber)}
+									{formatSemester(
+										getCurrentSemester(fullStudentData)?.semesterNumber
+									)}
 								</Text>
 							</Paper>
 							<Paper withBorder p='sm' radius='sm'>
@@ -377,7 +398,9 @@ export default function RegistrationSimulator() {
 									label='Select All'
 									checked={allSelected}
 									indeterminate={indeterminate}
-									onChange={(event) => handleSelectAll(event.currentTarget.checked)}
+									onChange={(event) =>
+										handleSelectAll(event.currentTarget.checked)
+									}
 									disabled={modules.length > 8}
 								/>
 								<Badge color='blue' variant='light' size='sm'>
@@ -388,7 +411,9 @@ export default function RegistrationSimulator() {
 								onClick={handleDetermineSemester}
 								loading={isAnalyzing}
 								variant='outline'
-								disabled={selectedModules.size === 0 || selectedModules.size > 8}
+								disabled={
+									selectedModules.size === 0 || selectedModules.size > 8
+								}
 								size='xs'
 							>
 								{isAnalyzing ? 'Determining...' : 'Determine Semester'}
@@ -411,8 +436,9 @@ export default function RegistrationSimulator() {
 					color='blue'
 					variant='light'
 				>
-					No eligible modules found for this student. This could mean the student has completed all
-					required modules or there are no modules available for their current semester.
+					No eligible modules found for this student. This could mean the
+					student has completed all required modules or there are no modules
+					available for their current semester.
 				</Alert>
 			)}
 
@@ -420,7 +446,9 @@ export default function RegistrationSimulator() {
 				opened={modalOpened}
 				onClose={() => setModalOpened(false)}
 				result={semesterStatusResult}
-				selectedModules={modules?.filter((m) => selectedModules.has(m.semesterModuleId)) || []}
+				selectedModules={
+					modules?.filter((m) => selectedModules.has(m.semesterModuleId)) || []
+				}
 			/>
 		</Stack>
 	);
@@ -465,10 +493,14 @@ function ModuleTable({
 								<Checkbox
 									checked={selectedModules.has(module.semesterModuleId)}
 									onChange={(event) =>
-										onModuleSelect(module.semesterModuleId, event.currentTarget.checked)
+										onModuleSelect(
+											module.semesterModuleId,
+											event.currentTarget.checked
+										)
 									}
 									disabled={
-										!selectedModules.has(module.semesterModuleId) && selectedModules.size >= 8
+										!selectedModules.has(module.semesterModuleId) &&
+										selectedModules.size >= 8
 									}
 								/>
 							</Table.Td>
@@ -489,7 +521,11 @@ function ModuleTable({
 								</Text>
 							</Table.Td>
 							<Table.Td>
-								<Badge color={getStatusColor(module.status)} variant='light' size='sm'>
+								<Badge
+									color={getStatusColor(module.status)}
+									variant='light'
+									size='sm'
+								>
 									{module.status}
 								</Badge>
 							</Table.Td>

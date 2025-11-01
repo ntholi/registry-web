@@ -15,14 +15,17 @@ type ProofOfClearancePrinterProps = {
 	stdNo: string;
 };
 
-export default function ProofOfClearancePrinter({ stdNo }: ProofOfClearancePrinterProps) {
+export default function ProofOfClearancePrinter({
+	stdNo,
+}: ProofOfClearancePrinterProps) {
 	const [isGenerating, setIsGenerating] = useState(false);
 
-	const { refetch: fetchGraduationRequest, isLoading: isLoadingRequest } = useQuery({
-		queryKey: ['graduationRequest', stdNo],
-		queryFn: () => getGraduationRequestByStudentNo(Number(stdNo)),
-		enabled: false,
-	});
+	const { refetch: fetchGraduationRequest, isLoading: isLoadingRequest } =
+		useQuery({
+			queryKey: ['graduationRequest', stdNo],
+			queryFn: () => getGraduationRequestByStudentNo(Number(stdNo)),
+			enabled: false,
+		});
 
 	const { refetch: fetchGraduationData, isLoading: isLoadingData } = useQuery({
 		queryKey: ['graduationClearanceData'],
@@ -52,7 +55,9 @@ export default function ProofOfClearancePrinter({ stdNo }: ProofOfClearancePrint
 				graduationData.studentProgram.student.stdNo
 			);
 
-			const blob = await pdf(<ProofOfClearancePDF graduationData={graduationData} />).toBlob();
+			const blob = await pdf(
+				<ProofOfClearancePDF graduationData={graduationData} />
+			).toBlob();
 
 			console.log('PDF blob generated, size:', blob.size);
 
@@ -79,7 +84,10 @@ export default function ProofOfClearancePrinter({ stdNo }: ProofOfClearancePrint
 						}
 						setIsGenerating(false);
 						if (iframe.contentWindow) {
-							iframe.contentWindow.removeEventListener('afterprint', handleAfterPrint);
+							iframe.contentWindow.removeEventListener(
+								'afterprint',
+								handleAfterPrint
+							);
 						}
 					};
 
@@ -112,7 +120,9 @@ export default function ProofOfClearancePrinter({ stdNo }: ProofOfClearancePrint
 
 	return (
 		<Button
-			leftSection={isLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />}
+			leftSection={
+				isLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />
+			}
 			variant='subtle'
 			color='gray'
 			size='xs'

@@ -1,4 +1,12 @@
-import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import {
+	Document,
+	Font,
+	Image,
+	Page,
+	StyleSheet,
+	Text,
+	View,
+} from '@react-pdf/renderer';
 import { formatDate } from '@/lib/utils';
 import type { getAcademicHistory } from '@/server/students/actions';
 
@@ -348,7 +356,11 @@ const styles = StyleSheet.create({
 	},
 });
 
-import { getAcademicRemarks, getGradePoints, isFailingGrade } from '@/utils/grades';
+import {
+	getAcademicRemarks,
+	getGradePoints,
+	isFailingGrade,
+} from '@/utils/grades';
 import { getCleanedSemesters } from './utils';
 
 function getGradeStyle(grade: string) {
@@ -385,7 +397,9 @@ export default function StatementOfResultsPDF({
 					<View style={styles.header}>
 						<Image style={styles.logo} src='/images/logo-lesotho.jpg' />
 						<Text style={styles.title}>STATEMENT OF RESULTS</Text>
-						<Text style={styles.universityAddress}>This document does not certify graduation</Text>
+						<Text style={styles.universityAddress}>
+							This document does not certify graduation
+						</Text>
 					</View>
 					<View style={styles.studentInfo}>
 						<Text style={styles.studentInfoTitle}>STUDENT INFORMATION</Text>
@@ -408,7 +422,9 @@ export default function StatementOfResultsPDF({
 					</View>
 					{programs.map((program) => (
 						<View key={program.id} style={styles.programSection}>
-							<Text style={styles.programTitle}>{program.structure.program.name}</Text>
+							<Text style={styles.programTitle}>
+								{program.structure.program.name}
+							</Text>
 							{getCleanedSemesters(program).map((semester) => {
 								const semesterPoint = academicRemarks.points.find(
 									(point) => point.semesterId === semester.id
@@ -423,20 +439,53 @@ export default function StatementOfResultsPDF({
 										</View>
 
 										<View style={styles.table}>
-											<View style={[styles.tableRow, styles.tableHeader]} wrap={false}>
-												<Text style={[styles.tableCell, styles.codeCell, styles.moduleText]}>
+											<View
+												style={[styles.tableRow, styles.tableHeader]}
+												wrap={false}
+											>
+												<Text
+													style={[
+														styles.tableCell,
+														styles.codeCell,
+														styles.moduleText,
+													]}
+												>
 													Code
 												</Text>
-												<Text style={[styles.tableCell, styles.nameCell, styles.moduleText]}>
+												<Text
+													style={[
+														styles.tableCell,
+														styles.nameCell,
+														styles.moduleText,
+													]}
+												>
 													Module Name
 												</Text>
-												<Text style={[styles.tableCell, styles.creditsCell, styles.moduleText]}>
+												<Text
+													style={[
+														styles.tableCell,
+														styles.creditsCell,
+														styles.moduleText,
+													]}
+												>
 													Credits
 												</Text>
-												<Text style={[styles.tableCell, styles.gradeCell, styles.moduleText]}>
+												<Text
+													style={[
+														styles.tableCell,
+														styles.gradeCell,
+														styles.moduleText,
+													]}
+												>
 													Grade
 												</Text>
-												<Text style={[styles.tableCell, styles.pointsCell, styles.moduleText]}>
+												<Text
+													style={[
+														styles.tableCell,
+														styles.pointsCell,
+														styles.moduleText,
+													]}
+												>
 													Points
 												</Text>
 											</View>
@@ -446,14 +495,33 @@ export default function StatementOfResultsPDF({
 													style={styles.tableRow}
 													wrap={false}
 												>
-													<Text style={[styles.tableCell, styles.codeCell, styles.moduleText]}>
-														{sm.semesterModule?.module?.code ?? `${sm.semesterModuleId}`}
+													<Text
+														style={[
+															styles.tableCell,
+															styles.codeCell,
+															styles.moduleText,
+														]}
+													>
+														{sm.semesterModule?.module?.code ??
+															`${sm.semesterModuleId}`}
 													</Text>
-													<Text style={[styles.tableCell, styles.nameCell, styles.moduleText]}>
+													<Text
+														style={[
+															styles.tableCell,
+															styles.nameCell,
+															styles.moduleText,
+														]}
+													>
 														{sm.semesterModule?.module?.name ??
 															`<<Semester Module ID: ${sm.semesterModuleId}>>`}
 													</Text>
-													<Text style={[styles.tableCell, styles.creditsCell, styles.moduleText]}>
+													<Text
+														style={[
+															styles.tableCell,
+															styles.creditsCell,
+															styles.moduleText,
+														]}
+													>
 														{sm.semesterModule?.credits || 0}
 													</Text>
 													<Text
@@ -466,7 +534,13 @@ export default function StatementOfResultsPDF({
 													>
 														{sm.grade || 'NM'}
 													</Text>
-													<Text style={[styles.tableCell, styles.pointsCell, styles.moduleText]}>
+													<Text
+														style={[
+															styles.tableCell,
+															styles.pointsCell,
+															styles.moduleText,
+														]}
+													>
 														{getGradePoints(sm.grade || 'NM').toFixed(1)}
 													</Text>
 												</View>
@@ -479,11 +553,15 @@ export default function StatementOfResultsPDF({
 					))}
 					<View wrap={false}>
 						<View style={styles.cumulativeSummary}>
-							<Text style={styles.cumulativeTitle}>CUMULATIVE ACADEMIC SUMMARY</Text>
+							<Text style={styles.cumulativeTitle}>
+								CUMULATIVE ACADEMIC SUMMARY
+							</Text>
 							<View style={styles.cumulativeGrid}>
 								<View style={styles.cumulativeColumn}>
 									<View style={styles.cumulativeItem}>
-										<Text style={styles.cumulativeLabel}>Credits Attempted</Text>
+										<Text style={styles.cumulativeLabel}>
+											Credits Attempted
+										</Text>
 										<Text style={styles.cumulativeValue}>
 											{academicRemarks.totalCreditsAttempted}
 										</Text>
@@ -503,9 +581,15 @@ export default function StatementOfResultsPDF({
 								</View>
 								<View style={styles.academicRemarksColumn}>
 									<View style={styles.academicRemarksSection}>
-										<Text style={styles.academicRemarksLabel}>Academic Status</Text>
-										<Text style={styles.academicRemarksValue}>{academicRemarks.status}</Text>
-										<Text style={styles.academicRemarksDetails}>{academicRemarks.details}</Text>
+										<Text style={styles.academicRemarksLabel}>
+											Academic Status
+										</Text>
+										<Text style={styles.academicRemarksValue}>
+											{academicRemarks.status}
+										</Text>
+										<Text style={styles.academicRemarksDetails}>
+											{academicRemarks.details}
+										</Text>
 									</View>
 									{(academicRemarks.failedModules.length > 0 ||
 										academicRemarks.supplementaryModules.length > 0) && (
@@ -524,14 +608,16 @@ export default function StatementOfResultsPDF({
 													• {module.code} - {module.name} (Repeat)
 												</Text>
 											))}
-											{academicRemarks.supplementaryModules.map((module, index) => (
-												<Text
-													key={`supplementary-${module.code}-${index}`}
-													style={styles.outstandingModuleItem}
-												>
-													• {module.code} - {module.name} (Supplementary)
-												</Text>
-											))}
+											{academicRemarks.supplementaryModules.map(
+												(module, index) => (
+													<Text
+														key={`supplementary-${module.code}-${index}`}
+														style={styles.outstandingModuleItem}
+													>
+														• {module.code} - {module.name} (Supplementary)
+													</Text>
+												)
+											)}
 										</View>
 									)}
 								</View>
@@ -540,7 +626,10 @@ export default function StatementOfResultsPDF({
 						{includeSignature && (
 							<View style={styles.signatureContainer}>
 								<View style={styles.signatureSection}>
-									<Image style={styles.signatureImage} src='/images/signature_small.png' />
+									<Image
+										style={styles.signatureImage}
+										src='/images/signature_small.png'
+									/>
 									<Text style={styles.signatureLine}></Text>
 									<Text style={styles.signatureLabel}>Registrar</Text>
 								</View>

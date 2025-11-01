@@ -49,7 +49,9 @@ export default function PhotoView({ student }: Props) {
 		}
 	};
 
-	const canEditPhoto = ['admin', 'registry'].includes(session?.user?.role ?? '');
+	const canEditPhoto = ['admin', 'registry'].includes(
+		session?.user?.role ?? ''
+	);
 
 	const cardContent = (
 		<Center h='100%'>

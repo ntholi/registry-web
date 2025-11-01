@@ -56,7 +56,11 @@ export function DeleteButton({
 	const openModal = () =>
 		modals.openConfirmModal({
 			title: 'Confirm Delete',
-			children: <Text size='sm'>{message || 'Are you sure you want to delete this'}</Text>,
+			children: (
+				<Text size='sm'>
+					{message || 'Are you sure you want to delete this'}
+				</Text>
+			),
 			labels: { confirm: 'Delete', cancel: 'Cancel' },
 			confirmProps: { color: 'red' },
 			onCancel: () => console.log('Cancel'),
@@ -64,7 +68,12 @@ export function DeleteButton({
 		});
 
 	return (
-		<ActionIcon color='red' loading={mutation.isPending} onClick={openModal} {...props}>
+		<ActionIcon
+			color='red'
+			loading={mutation.isPending}
+			onClick={openModal}
+			{...props}
+		>
 			<IconTrashFilled size={'1rem'} />
 		</ActionIcon>
 	);

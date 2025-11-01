@@ -89,7 +89,12 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 						</Stack>
 					</Center>
 				) : !auditHistory || auditHistory.length === 0 ? (
-					<Paper p='xl' radius='lg' withBorder bg={colorScheme === 'dark' ? 'dark.6' : 'gray.0'}>
+					<Paper
+						p='xl'
+						radius='lg'
+						withBorder
+						bg={colorScheme === 'dark' ? 'dark.6' : 'gray.0'}
+					>
 						<Center py='xl'>
 							<Stack align='center' gap='lg'>
 								<Avatar size={80} radius='xl' variant='light' color='blue'>
@@ -100,9 +105,11 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 										No Assessment History
 									</Text>
 									<Text c='dimmed' size='md' ta='center' maw={400} lh={1.5}>
-										No assessment mark changes have been recorded for this student yet.
+										No assessment mark changes have been recorded for this
+										student yet.
 										<br />
-										All future modifications will appear here as a chronological timeline.
+										All future modifications will appear here as a chronological
+										timeline.
 									</Text>
 								</Stack>
 							</Stack>
@@ -116,7 +123,11 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 							paddingRight: '8px',
 						}}
 					>
-						<Timeline active={auditHistory.length} lineWidth={1} bulletSize={30}>
+						<Timeline
+							active={auditHistory.length}
+							lineWidth={1}
+							bulletSize={30}
+						>
 							{auditHistory.map((audit, index) => {
 								const assessmentType = getAssessmentTypeLabel(
 									audit.assessmentMark?.assessment?.assessmentType
@@ -128,7 +139,9 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 									assessmentType
 								);
 
-								const getActionIcon = (action: 'create' | 'update' | 'delete') => {
+								const getActionIcon = (
+									action: 'create' | 'update' | 'delete'
+								) => {
 									switch (action) {
 										case 'create':
 											return <IconPlus size={16} />;
@@ -152,7 +165,9 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 												</Text>
 											</Box>
 										}
-										lineVariant={index === auditHistory.length - 1 ? 'dashed' : 'solid'}
+										lineVariant={
+											index === auditHistory.length - 1 ? 'dashed' : 'solid'
+										}
 									>
 										<Paper
 											p='sm'
@@ -168,7 +183,10 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 														{audit.createdByUser?.name || 'Unknown User'}
 													</Text>
 													<Text size='xs' c='dimmed'>
-														{format(new Date(audit.date), "EEEE, dd MMM yyyy 'at' HH:mm")}
+														{format(
+															new Date(audit.date),
+															"EEEE, dd MMM yyyy 'at' HH:mm"
+														)}
 													</Text>
 												</Box>
 											</Group>

@@ -1,6 +1,16 @@
 'use client';
 
-import { Alert, Box, Card, Checkbox, Group, Stack, Text, TextInput, Title } from '@mantine/core';
+import {
+	Alert,
+	Box,
+	Card,
+	Checkbox,
+	Group,
+	Stack,
+	Text,
+	TextInput,
+	Title,
+} from '@mantine/core';
 import {
 	IconAlertTriangle,
 	IconGenderFemale,
@@ -68,12 +78,14 @@ export default function InformationConfirmation({
 			>
 				<Stack gap='sm'>
 					<Text size='sm'>
-						Please carefully verify that your personal information below is correct.
+						Please carefully verify that your personal information below is
+						correct.
 					</Text>
 					<Text size='sm'>
-						If this information is <strong>not</strong> correct, you must report to the Registry
-						Department before the clearance deadline. This information <strong>cannot</strong> be
-						corrected after the clearance deadline has passed.
+						If this information is <strong>not</strong> correct, you must report
+						to the Registry Department before the clearance deadline. This
+						information <strong>cannot</strong> be corrected after the clearance
+						deadline has passed.
 					</Text>
 				</Stack>
 			</Alert>
@@ -153,8 +165,8 @@ export default function InformationConfirmation({
 									Program Name
 								</Text>
 								<Text fw={500}>
-									{selectedProgram.structure.program.name} ({selectedProgram.structure.program.code}
-									)
+									{selectedProgram.structure.program.name} (
+									{selectedProgram.structure.program.code})
 								</Text>
 							</Box>
 						</Group>
@@ -181,18 +193,21 @@ export default function InformationConfirmation({
 
 				<Stack gap='md'>
 					<Text>
-						To proceed with your graduation clearance, please verify that ALL the information above
-						is correct.
+						To proceed with your graduation clearance, please verify that ALL
+						the information above is correct.
 					</Text>
 
 					<Text fw={500} c='red' size='sm'>
-						Type exactly &quot;information correct&quot; (without quotes) to confirm:
+						Type exactly &quot;information correct&quot; (without quotes) to
+						confirm:
 					</Text>
 
 					<TextInput
 						placeholder='Type "information correct" here...'
 						value={confirmationText}
-						onChange={(event) => handleConfirmationTextChange(event.currentTarget.value)}
+						onChange={(event) =>
+							handleConfirmationTextChange(event.currentTarget.value)
+						}
 						error={
 							confirmationText.length > 0 && !hasTypedCorrectly
 								? 'Please type exactly "information correct"'
@@ -207,7 +222,8 @@ export default function InformationConfirmation({
 						onChange={() => {}}
 						label={
 							<Text size='sm'>
-								I confirm that all my personal information displayed above is correct and accurate
+								I confirm that all my personal information displayed above is
+								correct and accurate
 							</Text>
 						}
 					/>

@@ -32,7 +32,11 @@ class ClearanceService {
 		const session = await auth();
 		if (!session?.user?.role) return 0;
 
-		return this.repository.countByStatus(status, session.user.role as DashboardUser, term.id);
+		return this.repository.countByStatus(
+			status,
+			session.user.role as DashboardUser,
+			term.id
+		);
 	}
 
 	async findByDepartment(
@@ -42,7 +46,8 @@ class ClearanceService {
 		termId?: number
 	) {
 		return withAuth(
-			async () => this.repository.findByDepartment(department, params, status, termId),
+			async () =>
+				this.repository.findByDepartment(department, params, status, termId),
 			['dashboard']
 		);
 	}
@@ -70,7 +75,9 @@ class ClearanceService {
 
 				// If status is changing and responseDate is not already set, set response tracking
 				const shouldSetResponseTracking =
-					data.status && data.status !== current.status && !current.responseDate;
+					data.status &&
+					data.status !== current.status &&
+					!current.responseDate;
 
 				if (shouldSetResponseTracking) {
 					return this.repository.update(id, {
@@ -95,7 +102,10 @@ class ClearanceService {
 	}
 
 	async getHistory(clearanceId: number) {
-		return withAuth(async () => this.repository.findHistory(clearanceId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.findHistory(clearanceId),
+			['dashboard']
+		);
 	}
 
 	async getHistoryByStudentNo(stdNo: number) {
@@ -103,15 +113,24 @@ class ClearanceService {
 			const session = await auth();
 			if (!session?.user?.role) throw new Error('Unauthorized');
 
-			return this.repository.findHistoryByStudentNo(stdNo, session.user.role as DashboardUser);
+			return this.repository.findHistoryByStudentNo(
+				stdNo,
+				session.user.role as DashboardUser
+			);
 		}, ['dashboard']);
 	}
 
 	async findNextPending(department: DashboardUser) {
-		return withAuth(async () => this.repository.findNextPending(department), ['dashboard']);
+		return withAuth(
+			async () => this.repository.findNextPending(department),
+			['dashboard']
+		);
 	}
 
-	async findByStatusForExport(status: 'pending' | 'approved' | 'rejected', termId?: number) {
+	async findByStatusForExport(
+		status: 'pending' | 'approved' | 'rejected',
+		termId?: number
+	) {
 		return withAuth(
 			async () => this.repository.findByStatusForExport(status, termId),
 			['dashboard']
@@ -119,4 +138,7 @@ class ClearanceService {
 	}
 }
 
-export const clearanceService = serviceWrapper(ClearanceService, 'ClearanceService');
+export const clearanceService = serviceWrapper(
+	ClearanceService,
+	'ClearanceService'
+);

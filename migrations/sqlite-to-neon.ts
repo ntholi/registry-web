@@ -43,10 +43,16 @@ config({ path: '.env.local' });
 
 const databaseEnv = process.env.DATABASE_ENV || 'local';
 process.env.DATABASE_URL =
-	databaseEnv === 'remote' ? process.env.DATABASE_REMOTE_URL! : process.env.DATABASE_LOCAL_URL!;
+	databaseEnv === 'remote'
+		? process.env.DATABASE_REMOTE_URL!
+		: process.env.DATABASE_LOCAL_URL!;
 
-type SqliteSelect<TTable> = TTable extends { $inferSelect: infer TRow } ? TRow : never;
-type PostgresInsert<TTable> = TTable extends { $inferInsert: infer TRow } ? TRow : never;
+type SqliteSelect<TTable> = TTable extends { $inferSelect: infer TRow }
+	? TRow
+	: never;
+type PostgresInsert<TTable> = TTable extends { $inferInsert: infer TRow }
+	? TRow
+	: never;
 
 type MigrationPlan<STable, PTable> = {
 	readonly name: string;
@@ -138,7 +144,9 @@ function loadEnumMappingsFromFile(): void {
 			}
 		}
 
-		console.log(`✓ Loaded ${totalMappings} enum mappings from enum-mappings.json\n`);
+		console.log(
+			`✓ Loaded ${totalMappings} enum mappings from enum-mappings.json\n`
+		);
 	} catch (_error) {
 		console.log('ℹ No existing enum-mappings.json found, starting fresh\n');
 	}
@@ -158,7 +166,9 @@ const POSTGRES_ENUMS: Record<string, readonly string[]> = {
 	program_level: [...programLevelEnum.enumValues],
 	module_status: [...moduleStatusEnum.enumValues],
 	registration_request_status: [...registrationRequestStatus.enumValues],
-	semester_status_for_registration: [...semesterStatusForRegistration.enumValues],
+	semester_status_for_registration: [
+		...semesterStatusForRegistration.enumValues,
+	],
 	requested_module_status: [...requestedModuleStatus.enumValues],
 	clearance_request_status: [...clearanceRequestStatus.enumValues],
 	graduation_list_status: [...graduationListStatusEnum.enumValues],
@@ -259,7 +269,9 @@ function cleanupSqliteDatabase(): void {
 	}
 }
 
-function openSqliteDatabase(): ReturnType<typeof drizzleSqlite<typeof sqliteSchema>> {
+function openSqliteDatabase(): ReturnType<
+	typeof drizzleSqlite<typeof sqliteSchema>
+> {
 	const database = new Database('local.db', { readonly: true });
 	return drizzleSqlite(database, {
 		schema: sqliteSchema,
@@ -396,7 +408,9 @@ function toOptionalDateFromSeconds(value: unknown): Date | null {
 			return parsedDate;
 		}
 	}
-	throw new Error(`Unable to convert value "${String(value)}" (seconds) to Date.`);
+	throw new Error(
+		`Unable to convert value "${String(value)}" (seconds) to Date.`
+	);
 }
 
 function toOptionalDateFromMilliseconds(value: unknown): Date | null {
@@ -438,7 +452,9 @@ function toOptionalDateFromMilliseconds(value: unknown): Date | null {
 			return parsedDate;
 		}
 	}
-	throw new Error(`Unable to convert value "${String(value)}" (milliseconds) to Date.`);
+	throw new Error(
+		`Unable to convert value "${String(value)}" (milliseconds) to Date.`
+	);
 }
 
 function parseJsonArray(value: unknown): string[] {
@@ -457,7 +473,10 @@ function parseJsonArray(value: unknown): string[] {
 	throw new Error(`Unable to convert value "${String(value)}" to JSON array.`);
 }
 
-function chunkArray<TItem>(items: ReadonlyArray<TItem>, size: number): TItem[][] {
+function chunkArray<TItem>(
+	items: ReadonlyArray<TItem>,
+	size: number
+): TItem[][] {
 	if (size <= 0) {
 		throw new Error('Chunk size must be greater than zero.');
 	}
@@ -608,7 +627,10 @@ function getRowIdentifier<STable>(
 	return { _allFields: rowObj };
 }
 
-function getEnumNameFromField(fieldName: string, tableName: string): string | null {
+function getEnumNameFromField(
+	fieldName: string,
+	tableName: string
+): string | null {
 	if (tableName === 'semester_modules' && fieldName === 'type') {
 		return 'module_type';
 	}
@@ -677,7 +699,8 @@ function getEnumNameFromField(fieldName: string, tableName: string): string | nu
 	}
 	if (
 		tableName === 'assessments_audit' &&
-		(fieldName === 'previousAssessmentNumber' || fieldName === 'newAssessmentNumber')
+		(fieldName === 'previousAssessmentNumber' ||
+			fieldName === 'newAssessmentNumber')
 	) {
 		return 'assessment_number';
 	}
@@ -763,7 +786,9 @@ async function promptForEnumValue(
 	let rl2: readline.Interface | null = null;
 
 	try {
-		const answer = await rl.question('\nSelect a valid option (number) or press Enter to skip: ');
+		const answer = await rl.question(
+			'\nSelect a valid option (number) or press Enter to skip: '
+		);
 
 		rl.close();
 
@@ -804,7 +829,9 @@ async function promptForEnumValue(
 				enumMappings.set(tableKey, new Map());
 			}
 			enumMappings.get(tableKey)!.set(invalidValue, mapping);
-			console.log(`✓ Will apply "${validValue}" to all future occurrences of "${invalidValue}"\n`);
+			console.log(
+				`✓ Will apply "${validValue}" to all future occurrences of "${invalidValue}"\n`
+			);
 		} else {
 			console.log(`✓ Applied "${validValue}" to this row only\n`);
 		}
@@ -927,7 +954,9 @@ function compareValues(sqliteValue: unknown, postgresValue: unknown): boolean {
 		}
 	}
 
-	return JSON.stringify(normalizedSqlite) === JSON.stringify(normalizedPostgres);
+	return (
+		JSON.stringify(normalizedSqlite) === JSON.stringify(normalizedPostgres)
+	);
 }
 
 function compareRows(
@@ -1914,7 +1943,9 @@ async function migrateTables(
 		const normalised = transformed.map(function normaliseRow(row) {
 			const result: Record<string, unknown> = {};
 			for (const key of Object.keys(row)) {
-				result[key] = normaliseForPostgres((row as Record<string, unknown>)[key]);
+				result[key] = normaliseForPostgres(
+					(row as Record<string, unknown>)[key]
+				);
 			}
 			return result;
 		});
@@ -1932,7 +1963,11 @@ async function migrateTables(
 
 			const mappedRow = applyEnumMapping(row, plan.name);
 
-			const validatedRow = await validateAndFixEnumValues(mappedRow, plan.name, rowIdentifier);
+			const validatedRow = await validateAndFixEnumValues(
+				mappedRow,
+				plan.name,
+				rowIdentifier
+			);
 
 			if (validatedRow === null) {
 				enumSkipped++;
@@ -1948,7 +1983,9 @@ async function migrateTables(
 		}
 
 		if (enumSkipped > 0) {
-			console.log(`  ⚠️  Skipped ${enumSkipped} rows due to invalid enum values`);
+			console.log(
+				`  ⚠️  Skipped ${enumSkipped} rows due to invalid enum values`
+			);
 		}
 
 		const chunks = chunkArray(validatedRows, BATCH_SIZE);
@@ -1966,7 +2003,9 @@ async function migrateTables(
 					if (error.message.includes('enum')) {
 						console.error('\n   This appears to be an enum validation error.');
 						console.error('   The interactive prompt should have caught this.');
-						console.error('   Please report this issue with the error details above.');
+						console.error(
+							'   Please report this issue with the error details above.'
+						);
 					}
 				}
 				throw error;
@@ -1975,7 +2014,9 @@ async function migrateTables(
 		totalMigrated += validatedRows.length;
 	}
 
-	console.log(`✓ Migrated ${totalMigrated} rows across ${plans.length} tables.`);
+	console.log(
+		`✓ Migrated ${totalMigrated} rows across ${plans.length} tables.`
+	);
 	if (totalSkipped > 0) {
 		console.log(`  (Skipped ${totalSkipped} rows total)`);
 	}
@@ -1997,13 +2038,18 @@ async function verifyTables(
 
 		if (plan.name === 'student_modules') {
 			const validStudentSemesterIds = getStudentSemesterIds(sqliteDb);
-			filteredSqliteRows = sqliteRawRows.filter(function filterStudentModules(row) {
-				const r = row as Record<string, unknown>;
-				if (r.studentSemesterId === null || r.studentSemesterId === undefined) {
-					return false;
+			filteredSqliteRows = sqliteRawRows.filter(
+				function filterStudentModules(row) {
+					const r = row as Record<string, unknown>;
+					if (
+						r.studentSemesterId === null ||
+						r.studentSemesterId === undefined
+					) {
+						return false;
+					}
+					return validStudentSemesterIds.has(r.studentSemesterId as number);
 				}
-				return validStudentSemesterIds.has(r.studentSemesterId as number);
-			});
+			);
 		}
 
 		const postgresRows = await postgresDb.select().from(plan.postgresTable);
@@ -2015,10 +2061,14 @@ async function verifyTables(
 		for (const row of filteredSqliteRows) {
 			const rowObj = row as Record<string, unknown>;
 			const mappedRow = applyEnumMapping(rowObj, plan.name);
-			const transformed = (plan as MigrationPlan<unknown, unknown>).map(mappedRow as never);
+			const transformed = (plan as MigrationPlan<unknown, unknown>).map(
+				mappedRow as never
+			);
 			const normalised: Record<string, unknown> = {};
 			for (const key of Object.keys(transformed)) {
-				normalised[key] = normaliseValue((transformed as Record<string, unknown>)[key]);
+				normalised[key] = normaliseValue(
+					(transformed as Record<string, unknown>)[key]
+				);
 			}
 			const key = createRowKey(normalised);
 			sqliteRowMap.set(key, normalised);
@@ -2060,7 +2110,9 @@ async function verifyTables(
 				const identifierKey = JSON.stringify(identifier);
 				const rowObj = row as Record<string, unknown>;
 				const mappedRow = applyEnumMapping(rowObj, plan.name);
-				const transformed = (plan as MigrationPlan<unknown, unknown>).map(mappedRow as never);
+				const transformed = (plan as MigrationPlan<unknown, unknown>).map(
+					mappedRow as never
+				);
 				const normalised: Record<string, unknown> = {};
 				for (const key of Object.keys(transformed)) {
 					normalised[key] = (transformed as Record<string, unknown>)[key];
@@ -2141,10 +2193,14 @@ async function verifyTables(
 				);
 			}
 			if (result.missingInPostgres.length > 0) {
-				console.log(`      Missing in Postgres: ${result.missingInPostgres.length} rows`);
+				console.log(
+					`      Missing in Postgres: ${result.missingInPostgres.length} rows`
+				);
 			}
 			if (result.extraInPostgres.length > 0) {
-				console.log(`      Extra in Postgres: ${result.extraInPostgres.length} rows`);
+				console.log(
+					`      Extra in Postgres: ${result.extraInPostgres.length} rows`
+				);
 			}
 			if (result.rowMismatches.length > 0) {
 				console.log(`      Row mismatches: ${result.rowMismatches.length}`);
@@ -2172,7 +2228,9 @@ function parseMode(): Mode {
 	if (argument === 'migrate-and-verify') {
 		return 'migrate-and-verify';
 	}
-	throw new Error(`Unknown mode "${argument}". Use migrate, verify, or migrate-and-verify.`);
+	throw new Error(
+		`Unknown mode "${argument}". Use migrate, verify, or migrate-and-verify.`
+	);
 }
 
 async function run(): Promise<void> {

@@ -147,7 +147,8 @@ export default function DocumentCard({
 				<Box>
 					<Group justify='space-between' align='flex-start'>
 						<Text fw={500} size='sm' lineClamp={2} style={{ flex: 1 }}>
-							{documentTypes.find((it) => it.value === type)?.label || 'Unknown'}
+							{documentTypes.find((it) => it.value === type)?.label ||
+								'Unknown'}
 						</Text>
 						<Badge color='gray' variant='light' size='sm'>
 							{ext}
@@ -167,7 +168,11 @@ export default function DocumentCard({
 					</Tooltip>
 					{canEdit && (
 						<Tooltip label='Delete'>
-							<ActionIcon variant='light' color='red' onClick={() => onDelete(id, fileName)}>
+							<ActionIcon
+								variant='light'
+								color='red'
+								onClick={() => onDelete(id, fileName)}
+							>
 								<IconTrash size={16} />
 							</ActionIcon>
 						</Tooltip>

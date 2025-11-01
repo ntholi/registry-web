@@ -36,7 +36,12 @@ export default function RegistrationModal({ opened, onClose, stdNo }: Props) {
 				</Tabs.Panel>
 
 				<Tabs.Panel value='academics' pt='md'>
-					<AcademicsView mih='80vh' stdNo={stdNo} showMarks isActive={activeTab === 'academics'} />
+					<AcademicsView
+						mih='80vh'
+						stdNo={stdNo}
+						showMarks
+						isActive={activeTab === 'academics'}
+					/>
 				</Tabs.Panel>
 
 				<Tabs.Panel value='structure' pt='md'>

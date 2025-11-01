@@ -1,4 +1,12 @@
-import { Divider, Grid, Group, Paper, Skeleton, Stack, ThemeIcon } from '@mantine/core';
+import {
+	Divider,
+	Grid,
+	Group,
+	Paper,
+	Skeleton,
+	Stack,
+	ThemeIcon,
+} from '@mantine/core';
 import { IconBook, IconTrophy } from '@tabler/icons-react';
 import { studentColors } from '../utils/colors';
 

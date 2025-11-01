@@ -1,4 +1,13 @@
-import { and, desc, eq, ilike, notInArray, or, type SQL, sql } from 'drizzle-orm';
+import {
+	and,
+	desc,
+	eq,
+	ilike,
+	notInArray,
+	or,
+	type SQL,
+	sql,
+} from 'drizzle-orm';
 import { db } from '@/db';
 import {
 	programs,
@@ -11,10 +20,15 @@ import {
 	terms,
 	users,
 } from '@/db/schema';
-import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 import type { StudentFilter } from './actions';
 
-export default class StudentRepository extends BaseRepository<typeof students, 'stdNo'> {
+export default class StudentRepository extends BaseRepository<
+	typeof students,
+	'stdNo'
+> {
 	constructor() {
 		super(students, students.stdNo);
 	}
@@ -204,9 +218,18 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 			.from(students)
 			.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(studentSemesters, eq(studentSemesters.studentProgramId, studentPrograms.id))
-			.innerJoin(studentModules, eq(studentModules.studentSemesterId, studentSemesters.id))
-			.innerJoin(semesterModules, eq(studentModules.semesterModuleId, semesterModules.id))
+			.innerJoin(
+				studentSemesters,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
+			.innerJoin(
+				studentModules,
+				eq(studentModules.studentSemesterId, studentSemesters.id)
+			)
+			.innerJoin(
+				semesterModules,
+				eq(studentModules.semesterModuleId, semesterModules.id)
+			)
 			.where(
 				and(
 					eq(semesterModules.moduleId, moduleId),
@@ -222,7 +245,9 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 			);
 	}
 
-	protected override buildQueryCriteria(options: QueryOptions<typeof students>) {
+	protected override buildQueryCriteria(
+		options: QueryOptions<typeof students>
+	) {
 		const criteria = super.buildQueryCriteria(options);
 		if (!options.sort || options.sort.length === 0) {
 			criteria.orderBy = [desc(students.stdNo)];
@@ -231,7 +256,9 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 		return criteria;
 	}
 
-	async queryBasic(options: QueryOptions<typeof students> & { filter?: StudentFilter }): Promise<{
+	async queryBasic(
+		options: QueryOptions<typeof students> & { filter?: StudentFilter }
+	): Promise<{
 		items: { stdNo: number; name: string }[];
 		totalPages: number;
 		totalItems: number;
@@ -252,7 +279,9 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 
 					const normalizedTerm = normalizeSearchTerm(term);
 					conditions.push(ilike(students.name, `%${normalizedTerm}%`));
-					conditions.push(sql`similarity(${students.name}, ${normalizedTerm}::text) > 0.25`);
+					conditions.push(
+						sql`similarity(${students.name}, ${normalizedTerm}::text) > 0.25`
+					);
 
 					const digitCount = (normalizedTerm.match(/\d/g) || []).length;
 					if (digitCount > 5) {
@@ -275,7 +304,9 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 			}
 
 			if (options.filter.programId) {
-				filterConditions.push(eq(structures.programId, options.filter.programId));
+				filterConditions.push(
+					eq(structures.programId, options.filter.programId)
+				);
 			}
 
 			if (options.filter.termId) {
@@ -283,7 +314,9 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 			}
 
 			if (options.filter.semesterNumber) {
-				filterConditions.push(eq(studentSemesters.semesterNumber, options.filter.semesterNumber));
+				filterConditions.push(
+					eq(studentSemesters.semesterNumber, options.filter.semesterNumber)
+				);
 			}
 		}
 
@@ -301,7 +334,8 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 
 		const needsTermJoin = options.filter?.termId;
 		const needsSemesterJoin =
-			options.filter && (options.filter.termId || options.filter.semesterNumber);
+			options.filter &&
+			(options.filter.termId || options.filter.semesterNumber);
 
 		let items: { stdNo: number; name: string }[];
 		let totalItems: number;
@@ -325,7 +359,10 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 			}
 
 			if (needsTermJoin) {
-				joinedQuery = joinedQuery.innerJoin(terms, eq(terms.name, studentSemesters.term));
+				joinedQuery = joinedQuery.innerJoin(
+					terms,
+					eq(terms.name, studentSemesters.term)
+				);
 			}
 
 			items = await joinedQuery
@@ -350,7 +387,10 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 			}
 
 			if (needsTermJoin) {
-				countJoinedQuery = countJoinedQuery.innerJoin(terms, eq(terms.name, studentSemesters.term));
+				countJoinedQuery = countJoinedQuery.innerJoin(
+					terms,
+					eq(terms.name, studentSemesters.term)
+				);
 			}
 
 			totalItems = await countJoinedQuery
@@ -390,7 +430,10 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 				user: true,
 				programs: {
 					orderBy: [desc(studentPrograms.id)],
-					where: or(eq(studentPrograms.status, 'Active'), eq(studentPrograms.status, 'Completed')),
+					where: or(
+						eq(studentPrograms.status, 'Active'),
+						eq(studentPrograms.status, 'Completed')
+					),
 					columns: {
 						id: true,
 						status: true,
@@ -423,7 +466,10 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 	async updateUserId(stdNo: number, userId: string | null) {
 		return await db.transaction(async (tx) => {
 			if (userId) {
-				await tx.update(students).set({ userId: null }).where(eq(students.userId, userId));
+				await tx
+					.update(students)
+					.set({ userId: null })
+					.where(eq(students.userId, userId));
 			}
 			const updatedStudent = await tx
 				.update(students)
@@ -431,7 +477,10 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 				.where(eq(students.stdNo, stdNo))
 				.returning();
 			if (userId) {
-				await tx.update(users).set({ role: 'student' }).where(eq(users.id, userId));
+				await tx
+					.update(users)
+					.set({ role: 'student' })
+					.where(eq(users.id, userId));
 			}
 
 			return updatedStudent;
@@ -442,7 +491,12 @@ export default class StudentRepository extends BaseRepository<typeof students, '
 		return await db
 			.update(studentPrograms)
 			.set({ structureId })
-			.where(and(eq(studentPrograms.stdNo, stdNo), eq(studentPrograms.status, 'Active')))
+			.where(
+				and(
+					eq(studentPrograms.stdNo, stdNo),
+					eq(studentPrograms.status, 'Active')
+				)
+			)
 			.returning();
 	}
 }

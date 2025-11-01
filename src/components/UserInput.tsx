@@ -24,7 +24,9 @@ export default function UserInput({
 	placeholder,
 	...props
 }: UserInputProps) {
-	const [inputValue, setInputValue] = useState(() => (value ? `${value.name || value.email}` : ''));
+	const [inputValue, setInputValue] = useState(() =>
+		value ? `${value.name || value.email}` : ''
+	);
 	const [users, setUsers] = useState<User[]>([]);
 	const [isSearching, setIsSearching] = useState(false);
 	const [debounced] = useDebouncedValue(inputValue, 300);
@@ -64,7 +66,9 @@ export default function UserInput({
 				setInputValue(newValue);
 			}}
 			onOptionSubmit={(option) => {
-				const selectedUser = users.find((u) => `${u.id}:${u.name || u.email}` === option);
+				const selectedUser = users.find(
+					(u) => `${u.id}:${u.name || u.email}` === option
+				);
 				if (selectedUser) {
 					onChange?.(selectedUser);
 				}
@@ -76,7 +80,9 @@ export default function UserInput({
 				return (
 					<div>
 						<div>{user?.name || 'Unnamed User'}</div>
-						<div style={{ fontSize: '0.8em', color: 'gray' }}>{user?.email}</div>
+						<div style={{ fontSize: '0.8em', color: 'gray' }}>
+							{user?.email}
+						</div>
 					</div>
 				);
 			}}

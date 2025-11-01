@@ -9,7 +9,9 @@ import {
 	type paymentType,
 	studentPrograms,
 } from '@/db/schema';
-import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 import { studentsService } from '@/server/students/service';
 import { getOutstandingFromStructure } from '@/utils/grades';
 
@@ -23,7 +25,10 @@ export default class GraduationRequestRepository extends BaseRepository<
 
 	override async create(data: typeof graduationRequests.$inferInsert) {
 		return db.transaction(async (tx) => {
-			const [request] = await tx.insert(graduationRequests).values(data).returning();
+			const [request] = await tx
+				.insert(graduationRequests)
+				.values(data)
+				.returning();
 
 			for (const department of ['finance', 'library']) {
 				const [clearanceRecord] = await tx
@@ -41,7 +46,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 			}
 
 			try {
-				await this.processAcademicClearance(tx, request.id, data.studentProgramId);
+				await this.processAcademicClearance(
+					tx,
+					request.id,
+					data.studentProgramId
+				);
 			} catch (error) {
 				console.error('Error processing academic clearance:', error);
 				const [academicClearanceRecord] = await tx
@@ -49,7 +58,8 @@ export default class GraduationRequestRepository extends BaseRepository<
 					.values({
 						department: 'academic',
 						status: 'pending',
-						message: 'Error processing academic clearance automatically. Manual review required.',
+						message:
+							'Error processing academic clearance automatically. Manual review required.',
 					})
 					.returning();
 
@@ -152,10 +162,15 @@ export default class GraduationRequestRepository extends BaseRepository<
 		});
 	}
 
-	async selectStudentProgramForGraduation(stdNo: number): Promise<number | null> {
+	async selectStudentProgramForGraduation(
+		stdNo: number
+	): Promise<number | null> {
 		// First priority: Completed programs with specific terms
 		const completedProgram = await db.query.studentPrograms.findFirst({
-			where: and(eq(studentPrograms.stdNo, stdNo), eq(studentPrograms.status, 'Completed')),
+			where: and(
+				eq(studentPrograms.stdNo, stdNo),
+				eq(studentPrograms.status, 'Completed')
+			),
 			with: {
 				semesters: true,
 			},
@@ -174,7 +189,10 @@ export default class GraduationRequestRepository extends BaseRepository<
 
 		// Second priority: Active programs
 		const activeProgram = await db.query.studentPrograms.findFirst({
-			where: and(eq(studentPrograms.stdNo, stdNo), eq(studentPrograms.status, 'Active')),
+			where: and(
+				eq(studentPrograms.stdNo, stdNo),
+				eq(studentPrograms.status, 'Active')
+			),
 		});
 
 		if (activeProgram) {
@@ -261,7 +279,8 @@ export default class GraduationRequestRepository extends BaseRepository<
 					.values({
 						department: 'academic',
 						status: 'pending',
-						message: 'Error processing academic clearance automatically. Manual review required.',
+						message:
+							'Error processing academic clearance automatically. Manual review required.',
 					})
 					.returning();
 
@@ -301,7 +320,9 @@ export default class GraduationRequestRepository extends BaseRepository<
 			throw new Error('Student program not found');
 		}
 
-		const programs = await studentsService.getStudentPrograms(studentProgram.stdNo);
+		const programs = await studentsService.getStudentPrograms(
+			studentProgram.stdNo
+		);
 		if (!programs || programs.length === 0) {
 			throw new Error('Student not found');
 		}
@@ -316,7 +337,10 @@ export default class GraduationRequestRepository extends BaseRepository<
 		let status: 'approved' | 'rejected' | 'pending';
 		let message: string | undefined;
 
-		if (outstanding.failedNeverRepeated.length === 0 && outstanding.neverAttempted.length === 0) {
+		if (
+			outstanding.failedNeverRepeated.length === 0 &&
+			outstanding.neverAttempted.length === 0
+		) {
 			status = 'approved';
 		} else {
 			status = 'pending';

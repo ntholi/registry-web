@@ -33,7 +33,11 @@ export async function getSponsoredStudent(stdNo: number, termId: number) {
 	return await service.getSponsoredStudent(stdNo, termId);
 }
 
-export async function getSponsoredStudents(sponsorId: string, page: number = 1, search = '') {
+export async function getSponsoredStudents(
+	sponsorId: string,
+	page: number = 1,
+	search = ''
+) {
 	return service.getSponsoredStudents(sponsorId, {
 		page,
 		search,

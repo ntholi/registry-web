@@ -30,7 +30,9 @@ export default function CertificatePreview({
 	isActive,
 	onProgramSelect,
 }: CertificatePreviewProps) {
-	const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
+	const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
+		null
+	);
 
 	const { data: student, isLoading } = useQuery({
 		queryKey: ['student', stdNo, 'no-current-term'],
@@ -72,7 +74,9 @@ export default function CertificatePreview({
 	}));
 
 	const currentProgramId = selectedProgramId || String(completedPrograms[0].id);
-	const currentProgram = completedPrograms.find((p) => String(p.id) === currentProgramId);
+	const currentProgram = completedPrograms.find(
+		(p) => String(p.id) === currentProgramId
+	);
 
 	const handleProgramChange = (value: string | null) => {
 		setSelectedProgramId(value);
@@ -99,12 +103,20 @@ export default function CertificatePreview({
 				</Box>
 			)}
 
-			{currentProgram && <Certificate student={student} program={currentProgram} />}
+			{currentProgram && (
+				<Certificate student={student} program={currentProgram} />
+			)}
 		</Stack>
 	);
 }
 
-function Certificate({ student, program }: { student: Student; program: StudentProgram }) {
+function Certificate({
+	student,
+	program,
+}: {
+	student: Student;
+	program: StudentProgram;
+}) {
 	const graduationDate = program.graduationDate
 		? new Date(program.graduationDate).toLocaleDateString('en-GB', {
 				day: '2-digit',
@@ -132,7 +144,11 @@ function Certificate({ student, program }: { student: Student; program: StudentP
 			}}
 		>
 			<Box style={{ position: 'relative', width: '100%', height: '100%' }}>
-				<Image src='/images/certificate.webp' alt='Certificate' style={{ objectFit: 'contain' }} />
+				<Image
+					src='/images/certificate.webp'
+					alt='Certificate'
+					style={{ objectFit: 'contain' }}
+				/>
 
 				<Text
 					style={{

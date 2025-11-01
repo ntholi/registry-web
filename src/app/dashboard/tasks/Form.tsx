@@ -39,7 +39,13 @@ type Props = {
 const taskSchema = createInsertSchema(tasks, {
 	title: z.string().min(1, 'Title is required'),
 	description: z.string().optional(),
-	status: z.enum(['scheduled', 'active', 'in_progress', 'completed', 'cancelled']),
+	status: z.enum([
+		'scheduled',
+		'active',
+		'in_progress',
+		'completed',
+		'cancelled',
+	]),
 	priority: z.enum(['low', 'medium', 'high', 'urgent']),
 })
 	.extend({
@@ -62,9 +68,12 @@ const taskSchema = createInsertSchema(tasks, {
 
 export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
-	const [users, setUsers] = useState<{ id: string; name: string; email: string }[]>([]);
+	const [users, setUsers] = useState<
+		{ id: string; name: string; email: string }[]
+	>([]);
 	const [assignToAll, setAssignToAll] = useState(
-		!defaultValues?.assignedUserIds || defaultValues.assignedUserIds.length === 0
+		!defaultValues?.assignedUserIds ||
+			defaultValues.assignedUserIds.length === 0
 	);
 
 	useEffect(function loadUsers() {

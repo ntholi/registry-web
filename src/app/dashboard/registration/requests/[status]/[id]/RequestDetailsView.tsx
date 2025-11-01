@@ -1,6 +1,14 @@
 'use client';
 
-import { ActionIcon, Badge, Flex, Paper, SimpleGrid, Stack, Tooltip } from '@mantine/core';
+import {
+	ActionIcon,
+	Badge,
+	Flex,
+	Paper,
+	SimpleGrid,
+	Stack,
+	Tooltip,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { FieldView } from '@/components/adease';
@@ -27,7 +35,10 @@ export default function RequestDetailsView({ value, sponsorship }: Props) {
 				<FieldView label='Semester' underline={false}>
 					{formatSemester(value.semesterNumber)}
 				</FieldView>
-				<Badge radius={'sm'} color={value.semesterStatus === 'Active' ? 'blue' : 'red'}>
+				<Badge
+					radius={'sm'}
+					color={value.semesterStatus === 'Active' ? 'blue' : 'red'}
+				>
 					{value.semesterStatus}
 				</Badge>
 			</Flex>

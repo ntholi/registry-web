@@ -13,7 +13,10 @@ function DesktopTableSkeleton() {
 				<Skeleton height={16} width='15%' />
 			</Group>
 			{Array.from({ length: 4 }).map((_, _index) => (
-				<Group key={`desktop-skeleton-${crypto.randomUUID()}`} justify='space-between'>
+				<Group
+					key={`desktop-skeleton-${crypto.randomUUID()}`}
+					justify='space-between'
+				>
 					<Skeleton height={14} width='12%' />
 					<Skeleton height={14} width='40%' />
 					<Skeleton height={14} width='8%' />
@@ -81,7 +84,11 @@ export default function LoadingSkeleton() {
 
 				<Stack gap='md'>
 					{Array.from({ length: 3 }).map((_, _index) => (
-						<Paper key={`paper-skeleton-${crypto.randomUUID()}`} withBorder radius='md'>
+						<Paper
+							key={`paper-skeleton-${crypto.randomUUID()}`}
+							withBorder
+							radius='md'
+						>
 							<Box
 								p='md'
 								style={{
@@ -96,7 +103,9 @@ export default function LoadingSkeleton() {
 									<Skeleton height={16} width={20} />
 								</Group>
 							</Box>
-							<Box p='md'>{isMobile ? <MobileTableSkeleton /> : <DesktopTableSkeleton />}</Box>
+							<Box p='md'>
+								{isMobile ? <MobileTableSkeleton /> : <DesktopTableSkeleton />}
+							</Box>
 						</Paper>
 					))}
 				</Stack>

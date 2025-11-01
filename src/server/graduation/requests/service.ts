@@ -16,7 +16,9 @@ type CreateGraduationRequestData = GraduationRequest & {
 };
 
 class GraduationRequestService {
-	constructor(private readonly repository = new GraduationRequestRepository()) {}
+	constructor(
+		private readonly repository = new GraduationRequestRepository()
+	) {}
 
 	async first() {
 		return withAuth(async () => this.repository.findFirst(), []);
@@ -34,7 +36,10 @@ class GraduationRequestService {
 	}
 
 	async getByStudentNo(stdNo: number) {
-		return withAuth(async () => this.repository.findByStudentNo(stdNo), ['student']);
+		return withAuth(
+			async () => this.repository.findByStudentNo(stdNo),
+			['student']
+		);
 	}
 
 	async getByStudentProgramId(studentProgramId: number) {
@@ -45,7 +50,10 @@ class GraduationRequestService {
 	}
 
 	async getEligiblePrograms(stdNo: number) {
-		return withAuth(async () => this.repository.getEligiblePrograms(stdNo), ['student']);
+		return withAuth(
+			async () => this.repository.getEligiblePrograms(stdNo),
+			['student']
+		);
 	}
 
 	async selectStudentProgramForGraduation(stdNo: number) {
@@ -91,14 +99,18 @@ class GraduationRequestService {
 			async () => this.repository.getClearanceData(graduationRequestId),
 			['student', 'admin', 'registry'],
 			async (session) => {
-				const graduationRequest = await this.repository.findById(graduationRequestId);
+				const graduationRequest =
+					await this.repository.findById(graduationRequestId);
 				return graduationRequest?.studentProgram?.stdNo === session.user?.stdNo;
 			}
 		);
 	}
 
 	async countByStatus(status: 'pending' | 'approved' | 'rejected') {
-		return withAuth(async () => this.repository.countByStatus(status), ['dashboard']);
+		return withAuth(
+			async () => this.repository.countByStatus(status),
+			['dashboard']
+		);
 	}
 
 	async findByStatus(

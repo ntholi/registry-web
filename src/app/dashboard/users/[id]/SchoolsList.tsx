@@ -1,4 +1,14 @@
-import { Badge, Box, Divider, Group, Paper, Skeleton, Stack, Text, Title } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	Divider,
+	Group,
+	Paper,
+	Skeleton,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { Suspense } from 'react';
 import { getUserSchools } from '@/server/users/actions';
 
@@ -18,7 +28,10 @@ function SchoolsListSkeleton() {
 					Schools
 				</Title>
 				<Stack gap='xs'>
-					{Array.from({ length: 3 }, (_, index) => `skeleton-school-${index}`).map((key) => (
+					{Array.from(
+						{ length: 3 },
+						(_, index) => `skeleton-school-${index}`
+					).map((key) => (
 						<Group key={key}>
 							<Skeleton height={24} width={60} radius='sm' />
 							<Skeleton height={20} width={200} />

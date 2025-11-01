@@ -22,7 +22,10 @@ export async function getStudent(stdNo: number) {
 	return service.get(stdNo);
 }
 
-export async function getAcademicHistory(stdNo: number, excludeCurrentTerm: boolean = false) {
+export async function getAcademicHistory(
+	stdNo: number,
+	excludeCurrentTerm: boolean = false
+) {
 	return service.getAcademicHistory(stdNo, excludeCurrentTerm);
 }
 
@@ -39,11 +42,18 @@ export async function getStudentRegistrationData(stdNo: number) {
 	return service.getRegistrationData(stdNo);
 }
 
-export async function getStudentRegistrationDataByTerm(stdNo: number, termName: string) {
+export async function getStudentRegistrationDataByTerm(
+	stdNo: number,
+	termName: string
+) {
 	return service.getRegistrationDataByTerm(stdNo, termName);
 }
 
-export async function findAllStudents(page: number = 1, search = '', filter?: StudentFilter) {
+export async function findAllStudents(
+	page: number = 1,
+	search = '',
+	filter?: StudentFilter
+) {
 	const params: StudentQueryParams = {
 		page,
 		search,
@@ -52,7 +62,9 @@ export async function findAllStudents(page: number = 1, search = '', filter?: St
 	if (filter) {
 		params.filter = filter;
 	}
-	return service.findAll(params as QueryOptions<typeof students> & { filter?: StudentFilter });
+	return service.findAll(
+		params as QueryOptions<typeof students> & { filter?: StudentFilter }
+	);
 }
 
 export async function createStudent(student: Student) {
@@ -67,13 +79,19 @@ export async function deleteStudent(stdNo: number) {
 	return service.delete(stdNo);
 }
 
-export async function updateStudentUserId(stdNo: number, userId: string | null) {
+export async function updateStudentUserId(
+	stdNo: number,
+	userId: string | null
+) {
 	const res = service.updateUserId(stdNo, userId);
 	revalidatePath(`/dashboard/students/${stdNo}`);
 	return res;
 }
 
-export async function updateStudentProgramStructure(stdNo: number, structureId: number) {
+export async function updateStudentProgramStructure(
+	stdNo: number,
+	structureId: number
+) {
 	const res = await service.updateProgramStructure(stdNo, structureId);
 	revalidatePath(`/dashboard/students/${stdNo}`);
 	return res;

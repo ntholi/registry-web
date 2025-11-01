@@ -27,7 +27,10 @@ export default function HideButton({ moduleId, hidden, structureId }: Props) {
 		onError: (error) => {
 			notifications.show({
 				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to update module visibility',
+				message:
+					error instanceof Error
+						? error.message
+						: 'Failed to update module visibility',
 				color: 'red',
 			});
 		},

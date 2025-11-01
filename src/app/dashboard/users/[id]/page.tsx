@@ -1,6 +1,19 @@
-import { Avatar, Badge, Card, Center, Grid, GridCol, Stack } from '@mantine/core';
+import {
+	Avatar,
+	Badge,
+	Card,
+	Center,
+	Grid,
+	GridCol,
+	Stack,
+} from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewBody, DetailsViewHeader, FieldView } from '@/components/adease';
+import {
+	DetailsView,
+	DetailsViewBody,
+	DetailsViewHeader,
+	FieldView,
+} from '@/components/adease';
 import { largeProfilePic, toTitleCase } from '@/lib/utils';
 import { deleteUser, getUser, getUserSchools } from '@/server/users/actions';
 import { SchoolsList } from './SchoolsList';
@@ -43,11 +56,17 @@ export default async function UserDetails({ params }: Props) {
 
 							<FieldView label='Email'>{users.email}</FieldView>
 							<FieldView label='Role'>
-								<Badge color={getRoleColor(users.role)} radius={'sm'} variant='light'>
+								<Badge
+									color={getRoleColor(users.role)}
+									radius={'sm'}
+									variant='light'
+								>
 									{toTitleCase(users.role)}
 								</Badge>
 							</FieldView>
-							<FieldView label='Position'>{toTitleCase(users.position)}</FieldView>
+							<FieldView label='Position'>
+								{toTitleCase(users.position)}
+							</FieldView>
 						</Stack>
 					</GridCol>
 				</Grid>

@@ -11,5 +11,11 @@ export interface ListItemProps extends Omit<NavLinkProps, 'component'> {
 
 export function ListItem({ id, path, onClick, ...props }: ListItemProps) {
 	const pathname = usePathname();
-	return <NavLink active={pathname.includes(`${path}/${id}`)} onClick={onClick} {...props} />;
+	return (
+		<NavLink
+			active={pathname.includes(`${path}/${id}`)}
+			onClick={onClick}
+			{...props}
+		/>
+	);
 }

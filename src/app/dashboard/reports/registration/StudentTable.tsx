@@ -77,7 +77,10 @@ export default function StudentTable({
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
-								{Array.from({ length: rowCount }, (_, i) => `skeleton-row-${i}`).map((key) => (
+								{Array.from(
+									{ length: rowCount },
+									(_, i) => `skeleton-row-${i}`
+								).map((key) => (
 									<Table.Tr key={key}>
 										<Table.Td>
 											<Skeleton height={14} width={70} />
@@ -122,7 +125,9 @@ export default function StudentTable({
 
 					<Box py='xl' ta='center'>
 						<Text c='dimmed'>
-							{searchQuery ? 'No students match your search' : 'No students found'}
+							{searchQuery
+								? 'No students match your search'
+								: 'No students found'}
 						</Text>
 					</Box>
 				</Stack>
@@ -160,7 +165,11 @@ export default function StudentTable({
 							{data.map((student, index) => (
 								<Table.Tr key={`${student.stdNo}-${index}`}>
 									<Table.Td>
-										<Link href={`/dashboard/students/${student.stdNo}`} size='sm' fw={500}>
+										<Link
+											href={`/dashboard/students/${student.stdNo}`}
+											size='sm'
+											fw={500}
+										>
 											{student.stdNo}
 										</Link>
 									</Table.Td>
@@ -198,7 +207,12 @@ export default function StudentTable({
 					</Text>
 
 					{totalPages > 1 && (
-						<Pagination total={totalPages} value={currentPage} onChange={onPageChange} size='sm' />
+						<Pagination
+							total={totalPages}
+							value={currentPage}
+							onChange={onPageChange}
+							size='sm'
+						/>
 					)}
 				</Group>
 			</Stack>

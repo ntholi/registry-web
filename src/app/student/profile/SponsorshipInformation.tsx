@@ -1,6 +1,14 @@
 'use client';
 
-import { Alert, Badge, Card, Group, Skeleton, Stack, Text } from '@mantine/core';
+import {
+	Alert,
+	Badge,
+	Card,
+	Group,
+	Skeleton,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { IconInfoCircle, IconWallet } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getStudentCurrentSponsorship } from '@/server/sponsors/actions';
@@ -9,7 +17,9 @@ interface SponsorshipInformationProps {
 	studentNo: number;
 }
 
-export default function SponsorshipInformation({ studentNo }: SponsorshipInformationProps) {
+export default function SponsorshipInformation({
+	studentNo,
+}: SponsorshipInformationProps) {
 	const { data: sponsorship, isLoading } = useQuery({
 		queryKey: ['student-sponsorship', studentNo],
 		queryFn: () => getStudentCurrentSponsorship(studentNo),
@@ -49,8 +59,8 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 					</Group>
 					<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
 						<Text size='sm'>
-							No sponsorship information found. If you believe this is an error, please contact the
-							finance office.
+							No sponsorship information found. If you believe this is an error,
+							please contact the finance office.
 						</Text>
 					</Alert>
 				</Stack>
@@ -110,7 +120,10 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 							<Text size='sm' c='dimmed'>
 								Status
 							</Text>
-							<Badge color={sponsorship.confirmed ? 'green' : 'orange'} variant='light'>
+							<Badge
+								color={sponsorship.confirmed ? 'green' : 'orange'}
+								variant='light'
+							>
 								{sponsorship.confirmed ? 'Confirmed' : 'Pending Confirmation'}
 							</Badge>
 						</Group>
@@ -120,8 +133,8 @@ export default function SponsorshipInformation({ studentNo }: SponsorshipInforma
 				{isNMDS && !sponsorship.confirmed && (
 					<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
 						<Text size='sm'>
-							Your NMDS sponsorship is pending confirmation. Please ensure your borrower number and
-							bank details are correct.
+							Your NMDS sponsorship is pending confirmation. Please ensure your
+							borrower number and bank details are correct.
 						</Text>
 					</Alert>
 				)}

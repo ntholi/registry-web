@@ -1,4 +1,13 @@
-import { Alert, Card, Group, Loader, LoadingOverlay, Stack, Text, TextInput } from '@mantine/core';
+import {
+	Alert,
+	Card,
+	Group,
+	Loader,
+	LoadingOverlay,
+	Stack,
+	Text,
+	TextInput,
+} from '@mantine/core';
 import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -43,7 +52,10 @@ export default function AccountConfirmation({
 			queryClient.invalidateQueries({ queryKey: ['previous-sponsorship'] });
 		},
 		onError: (error) => {
-			console.error('Confirmation Failed:', error.message || 'Failed to confirm account details');
+			console.error(
+				'Confirmation Failed:',
+				error.message || 'Failed to confirm account details'
+			);
 		},
 	});
 
@@ -51,13 +63,19 @@ export default function AccountConfirmation({
 		setConfirmedAccountNumber(value);
 	};
 
-	const accountNumberMatches = confirmedAccountNumber === sponsorshipData?.accountNumber;
+	const accountNumberMatches =
+		confirmedAccountNumber === sponsorshipData?.accountNumber;
 
 	useEffect(() => {
 		if (accountNumberMatches && confirmedAccountNumber && !isConfirmed) {
 			confirmationMutation.mutate();
 		}
-	}, [accountNumberMatches, confirmedAccountNumber, isConfirmed, confirmationMutation.mutate]);
+	}, [
+		accountNumberMatches,
+		confirmedAccountNumber,
+		isConfirmed,
+		confirmationMutation.mutate,
+	]);
 
 	if (loading) {
 		return (
@@ -78,8 +96,8 @@ export default function AccountConfirmation({
 					<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
 						<Text size='sm'>
 							<strong>
-								Please review your account details below and re-enter your account number to
-								confirm:
+								Please review your account details below and re-enter your
+								account number to confirm:
 							</strong>
 						</Text>
 					</Alert>
@@ -90,14 +108,18 @@ export default function AccountConfirmation({
 								<Text size='sm' fw={500}>
 									Bank Name:
 								</Text>
-								<Text size='sm'>{sponsorshipData?.bankName || 'Not provided'}</Text>
+								<Text size='sm'>
+									{sponsorshipData?.bankName || 'Not provided'}
+								</Text>
 							</Group>
 
 							<Group justify='space-between'>
 								<Text size='sm' fw={500}>
 									Account Number:
 								</Text>
-								<Text size='sm'>{sponsorshipData?.accountNumber || 'Not provided'}</Text>
+								<Text size='sm'>
+									{sponsorshipData?.accountNumber || 'Not provided'}
+								</Text>
 							</Group>
 
 							{sponsorshipData?.borrowerNo && (
@@ -115,12 +137,18 @@ export default function AccountConfirmation({
 						label='Confirm Account Number'
 						placeholder='Re-enter your account number'
 						value={confirmedAccountNumber}
-						onChange={(event) => handleAccountNumberChange(event.currentTarget.value)}
+						onChange={(event) =>
+							handleAccountNumberChange(event.currentTarget.value)
+						}
 						size='sm'
 						error={
-							confirmedAccountNumber && !accountNumberMatches && 'Account numbers do not match'
+							confirmedAccountNumber &&
+							!accountNumberMatches &&
+							'Account numbers do not match'
 						}
-						rightSection={confirmationMutation.isPending && <Loader size='sm' />}
+						rightSection={
+							confirmationMutation.isPending && <Loader size='sm' />
+						}
 						disabled={isConfirmed}
 					/>
 
@@ -136,9 +164,10 @@ export default function AccountConfirmation({
 
 			<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
 				<Text size='sm'>
-					<strong>Important:</strong> Once you confirm your account details by correctly re-entering
-					your account number, you cannot change them without contacting the finance office. Please
-					ensure all information is accurate before confirming.
+					<strong>Important:</strong> Once you confirm your account details by
+					correctly re-entering your account number, you cannot change them
+					without contacting the finance office. Please ensure all information
+					is accurate before confirming.
 				</Text>
 			</Alert>
 		</Stack>

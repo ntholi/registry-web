@@ -1,5 +1,15 @@
 'use client';
-import { Avatar, Divider, Grid, Group, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import {
+	Avatar,
+	Divider,
+	Grid,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	ThemeIcon,
+	Title,
+} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconBook, IconTrophy, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';

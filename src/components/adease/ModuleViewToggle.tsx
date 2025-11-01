@@ -33,7 +33,11 @@ export function ModuleViewToggle({
 				onClick={handleToggle}
 				size='lg'
 			>
-				{showAssignedOnly ? <IconFilter size='1rem' /> : <IconFilterOff size='1rem' />}
+				{showAssignedOnly ? (
+					<IconFilter size='1rem' />
+				) : (
+					<IconFilterOff size='1rem' />
+				)}
 			</ActionIcon>
 		</Tooltip>
 	);

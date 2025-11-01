@@ -149,7 +149,9 @@ const TermSection = ({
 	semester: ReturnType<typeof getCleanedSemesters>[number];
 	academicRemarks: ReturnType<typeof getAcademicRemarks>;
 }) => {
-	const semesterPoint = academicRemarks.points.find((point) => point.semesterId === semester.id);
+	const semesterPoint = academicRemarks.points.find(
+		(point) => point.semesterId === semester.id
+	);
 
 	const semesterIndex = academicRemarks.points.findIndex(
 		(point) => point.semesterId === semester.id
@@ -231,21 +233,42 @@ export function TranscriptPages({
 
 				return (
 					<Fragment key={key}>
-						<Page size='A4' style={tw('pt-5 px-10 pb-10 font-sans text-[6.5pt] pt-[155pt]')}>
+						<Page
+							size='A4'
+							style={tw('pt-5 px-10 pb-10 font-sans text-[6.5pt] pt-[155pt]')}
+						>
 							<View style={tw('border-t border-b py-1')}>
 								<View style={tw('flex flex-row')}>
 									<View style={tw('w-1/2 pr-1')}>
 										<HeaderRow label='Student Name' value={student.name} />
-										<HeaderRow label='Student ID' value={String(student.stdNo)} />
-										<HeaderRow label='IC / Passport No.' value={student.nationalId} />
+										<HeaderRow
+											label='Student ID'
+											value={String(student.stdNo)}
+										/>
+										<HeaderRow
+											label='IC / Passport No.'
+											value={student.nationalId}
+										/>
 										<HeaderRow label='Gender' value={student.gender || 'N/A'} />
 										<HeaderRow label='Nationality' value='Mosotho' />
 									</View>
 									<View style={tw('w-1/2 pl-1')}>
-										<HeaderRow label='Date of Admission' value={admissionDate} />
-										<HeaderRow label='Date of Completion' value={completionDate} />
-										<HeaderRow label='Programme' value={program?.structure?.program?.name} />
-										<HeaderRow label='Faculty' value={program?.structure?.program?.school.name} />
+										<HeaderRow
+											label='Date of Admission'
+											value={admissionDate}
+										/>
+										<HeaderRow
+											label='Date of Completion'
+											value={completionDate}
+										/>
+										<HeaderRow
+											label='Programme'
+											value={program?.structure?.program?.name}
+										/>
+										<HeaderRow
+											label='Faculty'
+											value={program?.structure?.program?.school.name}
+										/>
 										<HeaderRow label='Issued Date' value={issueDate} />
 									</View>
 								</View>
@@ -282,28 +305,38 @@ export function TranscriptPages({
 							</View>
 
 							<View style={tw('absolute bottom-[50pt] left-[85pt]')}>
-								{['Total MPU Credits', 'Total Credit Transferred'].map((label) => (
-									<View key={label} style={tw('flex flex-row items-start')}>
-										<Text style={tw('w-[160pt]')}>{label}</Text>
-										<Text>{': '}-</Text>
-									</View>
-								))}
-								{['Total Credits Earned', 'Total Cumulative Credits'].map((label) => (
-									<View key={label} style={tw('flex flex-row items-start')}>
-										<Text style={tw('w-[160pt]')}>{label}</Text>
-										<Text>
-											{': '}
-											{programRemarks.totalCreditsCompleted}
-										</Text>
-									</View>
-								))}
+								{['Total MPU Credits', 'Total Credit Transferred'].map(
+									(label) => (
+										<View key={label} style={tw('flex flex-row items-start')}>
+											<Text style={tw('w-[160pt]')}>{label}</Text>
+											<Text>{': '}-</Text>
+										</View>
+									)
+								)}
+								{['Total Credits Earned', 'Total Cumulative Credits'].map(
+									(label) => (
+										<View key={label} style={tw('flex flex-row items-start')}>
+											<Text style={tw('w-[160pt]')}>{label}</Text>
+											<Text>
+												{': '}
+												{programRemarks.totalCreditsCompleted}
+											</Text>
+										</View>
+									)
+								)}
 							</View>
 
-							<View style={tw('absolute bottom-[50pt] right-14 w-[190pt] border-t pt-1')}>
-								<Text style={tw('pt-0.5 text-center font-bold')}>REGISTRAR</Text>
+							<View
+								style={tw(
+									'absolute bottom-[50pt] right-14 w-[190pt] border-t pt-1'
+								)}
+							>
+								<Text style={tw('pt-0.5 text-center font-bold')}>
+									REGISTRAR
+								</Text>
 								<Text style={tw('text-justify')}>
-									This is not a valid record unless it bears both the stamp and signatory on behalf
-									of the university
+									This is not a valid record unless it bears both the stamp and
+									signatory on behalf of the university
 								</Text>
 							</View>
 						</Page>

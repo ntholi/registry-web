@@ -1,6 +1,14 @@
 'use client';
 
-import { Alert, Button, Card, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
+import {
+	Alert,
+	Button,
+	Card,
+	Skeleton,
+	Stack,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
 import { IconInfoCircle, IconPlus, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -58,8 +66,8 @@ export default function NewGraduationCard() {
 				color='red'
 				mb='xl'
 			>
-				Your account has been blocked from submitting graduation requests. Please contact the{' '}
-				{blockedStudent.byDepartment} office for assistance.
+				Your account has been blocked from submitting graduation requests.
+				Please contact the {blockedStudent.byDepartment} office for assistance.
 				<br />
 				<Text fw={500} mt='xs'>
 					Reason: {blockedStudent?.reason}
@@ -79,8 +87,8 @@ export default function NewGraduationCard() {
 						Request Graduation
 					</Text>
 					<Text size='sm' c='dimmed' ta='center'>
-						You haven&apos;t submitted a graduation request yet. Click below to start your
-						graduation application process.
+						You haven&apos;t submitted a graduation request yet. Click below to
+						start your graduation application process.
 					</Text>
 				</Stack>
 				<Button

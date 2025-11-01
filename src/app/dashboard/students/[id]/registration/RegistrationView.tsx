@@ -81,7 +81,8 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 					<Text size='sm' c='dimmed' ta='center'>
 						This student has not submitted any registration requests yet.
 					</Text>
-					{(session?.user?.role === 'registry' || session?.user?.role === 'admin') && (
+					{(session?.user?.role === 'registry' ||
+						session?.user?.role === 'admin') && (
 						<Button
 							leftSection={<IconPlus size={16} />}
 							variant='filled'
@@ -103,7 +104,8 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 			<Stack gap='md'>
 				{!hasCurrentTermRegistration &&
 					currentTerm &&
-					(session?.user?.role === 'registry' || session?.user?.role === 'admin') && (
+					(session?.user?.role === 'registry' ||
+						session?.user?.role === 'admin') && (
 						<Card withBorder p='md'>
 							<Group justify='space-between' align='center'>
 								<Stack gap={4}>
@@ -127,7 +129,10 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 						</Card>
 					)}
 
-				<Accordion variant='separated' defaultValue={registrationRequests[0]?.id.toString()}>
+				<Accordion
+					variant='separated'
+					defaultValue={registrationRequests[0]?.id.toString()}
+				>
 					{registrationRequests.map((request: StudentRegistrationHistory) => (
 						<Accordion.Item key={request.id} value={request.id.toString()}>
 							<Accordion.Control>
@@ -157,7 +162,8 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 										<Button
 											component={Link}
 											href={
-												session?.user?.role === 'finance' || session?.user?.role === 'library'
+												session?.user?.role === 'finance' ||
+												session?.user?.role === 'library'
 													? `/dashboard/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`
 													: `/dashboard/registration/requests/${request.status}/${request.id}`
 											}
@@ -177,7 +183,9 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 										<Text fw={500} w={150}>
 											Semester
 										</Text>
-										<Text size='sm'>{formatSemester(request.semesterNumber)}</Text>
+										<Text size='sm'>
+											{formatSemester(request.semesterNumber)}
+										</Text>
 									</Group>
 									<Group>
 										<Text fw={500} w={150}>

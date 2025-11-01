@@ -22,7 +22,11 @@ export const studentColors = {
 
 export const getStatusColor = (status: string) => {
 	const normalizedStatus = status.toLowerCase();
-	return studentColors.status[normalizedStatus as keyof typeof studentColors.status] || 'gray';
+	return (
+		studentColors.status[
+			normalizedStatus as keyof typeof studentColors.status
+		] || 'gray'
+	);
 };
 
 export const getGradeColor = (grade: string) => {

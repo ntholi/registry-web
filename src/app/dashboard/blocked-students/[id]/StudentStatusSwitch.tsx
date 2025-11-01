@@ -2,7 +2,12 @@
 
 import { Group, Paper, Stack, Switch, Text, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconExclamationCircle, IconLock, IconLockOpen } from '@tabler/icons-react';
+import {
+	IconCheck,
+	IconExclamationCircle,
+	IconLock,
+	IconLockOpen,
+} from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -15,7 +20,12 @@ type Props = {
 	studentName: string;
 };
 
-export default function StudentStatusSwitch({ id, currentStatus, stdNo, studentName }: Props) {
+export default function StudentStatusSwitch({
+	id,
+	currentStatus,
+	stdNo,
+	studentName,
+}: Props) {
 	const queryClient = useQueryClient();
 	const [status, setStatus] = useState<'blocked' | 'unblocked'>(currentStatus);
 

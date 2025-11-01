@@ -12,7 +12,11 @@ import {
 	ThemeIcon,
 	UnstyledButton,
 } from '@mantine/core';
-import { IconBook, IconChevronRight, IconInfoCircle } from '@tabler/icons-react';
+import {
+	IconBook,
+	IconChevronRight,
+	IconInfoCircle,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';

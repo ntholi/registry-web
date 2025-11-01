@@ -49,15 +49,21 @@ export function generateAssessmentAuditMessage(
 			const changeDetails = [];
 
 			if (previousAssessmentNumber !== newAssessmentNumber) {
-				changeDetails.push(`number from ${previousAssessmentNumber} to ${newAssessmentNumber}`);
+				changeDetails.push(
+					`number from ${previousAssessmentNumber} to ${newAssessmentNumber}`
+				);
 			}
 
 			if (previousAssessmentType !== newAssessmentType) {
-				changeDetails.push(`type from ${previousAssessmentType} to ${newAssessmentType}`);
+				changeDetails.push(
+					`type from ${previousAssessmentType} to ${newAssessmentType}`
+				);
 			}
 
 			if (previousTotalMarks !== newTotalMarks) {
-				changeDetails.push(`total marks from ${previousTotalMarks} to ${newTotalMarks}`);
+				changeDetails.push(
+					`total marks from ${previousTotalMarks} to ${newTotalMarks}`
+				);
 			}
 
 			if (previousWeight !== newWeight) {

@@ -33,8 +33,8 @@ export default async function CertificateVerificationPage() {
 					mb='xl'
 				>
 					<Text size='sm'>
-						The certificate verification system is currently under development and will be available
-						soon.
+						The certificate verification system is currently under development
+						and will be available soon.
 					</Text>
 				</Alert>
 
@@ -53,8 +53,9 @@ export default async function CertificateVerificationPage() {
 								<Divider w={64} />
 
 								<Text size='md' ta='center' c='dimmed' maw={500}>
-									Our new certificate verification system will allow you to instantly verify the
-									authenticity of academic certificates issued by Limkokwing University.
+									Our new certificate verification system will allow you to
+									instantly verify the authenticity of academic certificates
+									issued by Limkokwing University.
 								</Text>
 							</Stack>
 						</Stack>

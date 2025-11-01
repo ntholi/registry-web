@@ -1,6 +1,16 @@
 'use client';
 
-import { Alert, Badge, Card, Group, ScrollArea, Stack, Table, Text, Title } from '@mantine/core';
+import {
+	Alert,
+	Badge,
+	Card,
+	Group,
+	ScrollArea,
+	Stack,
+	Table,
+	Text,
+	Title,
+} from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import type { getRegistrationRequest } from '@/server/registration/requests/actions';
 
@@ -52,7 +62,13 @@ export default function ModulesView({ registration }: Props) {
 					<Badge
 						variant='light'
 						size='xs'
-						color={status === 'registered' ? 'green' : status === 'rejected' ? 'red' : 'gray'}
+						color={
+							status === 'registered'
+								? 'green'
+								: status === 'rejected'
+									? 'red'
+									: 'gray'
+						}
 					>
 						{status}
 					</Badge>
@@ -67,7 +83,10 @@ export default function ModulesView({ registration }: Props) {
 
 	const approvedCredits = requestedModules
 		.filter(({ status }) => status === 'registered')
-		.reduce((sum, { semesterModule }) => sum + (semesterModule.credits || 0), 0);
+		.reduce(
+			(sum, { semesterModule }) => sum + (semesterModule.credits || 0),
+			0
+		);
 
 	return (
 		<Card withBorder p='md' radius='md'>
@@ -98,8 +117,14 @@ export default function ModulesView({ registration }: Props) {
 				</ScrollArea>
 
 				{totalCredits !== approvedCredits && (
-					<Alert icon={<IconInfoCircle size='1rem' />} color='blue' variant='light'>
-						<Text size='sm'>Some modules are still pending approval. Please check back later</Text>
+					<Alert
+						icon={<IconInfoCircle size='1rem' />}
+						color='blue'
+						variant='light'
+					>
+						<Text size='sm'>
+							Some modules are still pending approval. Please check back later
+						</Text>
 					</Alert>
 				)}
 			</Stack>

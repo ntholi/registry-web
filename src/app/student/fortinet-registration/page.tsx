@@ -43,18 +43,20 @@ export default function FortinetRegistrationPage() {
 	const { student, isLoading: studentLoading } = useUserStudent();
 	const queryClient = useQueryClient();
 
-	const { data: existingRegistrations, isLoading: registrationsLoading } = useQuery({
-		queryKey: ['fortinet-registrations', 'current-student'],
-		queryFn: getCurrentStudentFortinetRegistrations,
-		enabled: !!student,
-	});
+	const { data: existingRegistrations, isLoading: registrationsLoading } =
+		useQuery({
+			queryKey: ['fortinet-registrations', 'current-student'],
+			queryFn: getCurrentStudentFortinetRegistrations,
+			enabled: !!student,
+		});
 
 	const createMutation = useMutation({
 		mutationFn: createFortinetRegistration,
 		onSuccess: () => {
 			notifications.show({
 				title: 'Registration Submitted',
-				message: 'Your Fortinet training registration has been submitted successfully.',
+				message:
+					'Your Fortinet training registration has been submitted successfully.',
 				color: 'green',
 			});
 			queryClient.invalidateQueries({ queryKey: ['fortinet-registrations'] });
@@ -113,14 +115,16 @@ export default function FortinetRegistrationPage() {
 		return (
 			<Container size='md' py='xl'>
 				<Alert color='orange' icon={<IconInfoCircle />}>
-					Fortinet training registration is only available for students in the Faculty of
-					Information & Communication Technology.
+					Fortinet training registration is only available for students in the
+					Faculty of Information & Communication Technology.
 				</Alert>
 			</Container>
 		);
 	}
 
-	const registeredLevels = new Set(existingRegistrations?.map((reg) => reg.level) || []);
+	const registeredLevels = new Set(
+		existingRegistrations?.map((reg) => reg.level) || []
+	);
 
 	return (
 		<Container size='md' py='xl'>

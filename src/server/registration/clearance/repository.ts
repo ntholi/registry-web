@@ -10,11 +10,16 @@ import {
 	requestedModules,
 	studentPrograms,
 } from '@/db/schema';
-import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 
 type Model = typeof clearance.$inferInsert;
 
-export default class ClearanceRepository extends BaseRepository<typeof clearance, 'id'> {
+export default class ClearanceRepository extends BaseRepository<
+	typeof clearance,
+	'id'
+> {
 	constructor() {
 		super(clearance, clearance.id);
 	}
@@ -42,7 +47,10 @@ export default class ClearanceRepository extends BaseRepository<typeof clearance
 			});
 
 			const modulesList = await tx.query.requestedModules.findMany({
-				where: eq(requestedModules.registrationRequestId, data.registrationRequestId),
+				where: eq(
+					requestedModules.registrationRequestId,
+					data.registrationRequestId
+				),
 				with: {
 					semesterModule: {
 						with: {
@@ -94,7 +102,10 @@ export default class ClearanceRepository extends BaseRepository<typeof clearance
 
 				if (regClearance) {
 					const modulesList = await tx.query.requestedModules.findMany({
-						where: eq(requestedModules.registrationRequestId, regClearance.registrationRequestId),
+						where: eq(
+							requestedModules.registrationRequestId,
+							regClearance.registrationRequestId
+						),
 						with: {
 							semesterModule: {
 								with: {
@@ -157,7 +168,10 @@ export default class ClearanceRepository extends BaseRepository<typeof clearance
 				},
 			}),
 			db.query.requestedModules.findMany({
-				where: eq(requestedModules.registrationRequestId, rc.registrationRequest.id),
+				where: eq(
+					requestedModules.registrationRequestId,
+					rc.registrationRequest.id
+				),
 				with: {
 					semesterModule: {
 						with: {
@@ -190,7 +204,9 @@ export default class ClearanceRepository extends BaseRepository<typeof clearance
 		const { offset, limit } = this.buildQueryCriteria(params);
 
 		const whereJoin = and(
-			params.search ? like(registrationRequests.stdNo, `%${params.search}%`) : undefined,
+			params.search
+				? like(registrationRequests.stdNo, `%${params.search}%`)
+				: undefined,
 			termId ? eq(registrationRequests.termId, termId) : undefined,
 			eq(clearance.department, department),
 			status ? eq(clearance.status, status) : undefined
@@ -315,7 +331,12 @@ export default class ClearanceRepository extends BaseRepository<typeof clearance
 				eq(registrationClearance.registrationRequestId, registrationRequests.id)
 			)
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
-			.where(and(eq(registrationRequests.stdNo, stdNo), eq(clearance.department, department)));
+			.where(
+				and(
+					eq(registrationRequests.stdNo, stdNo),
+					eq(clearance.department, department)
+				)
+			);
 
 		const ids = idRows.map((r) => r.id);
 		if (ids.length === 0) return [];
@@ -347,7 +368,12 @@ export default class ClearanceRepository extends BaseRepository<typeof clearance
 			.select({ id: registrationClearance.id })
 			.from(registrationClearance)
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
-			.where(and(eq(clearance.status, 'pending'), eq(clearance.department, department)))
+			.where(
+				and(
+					eq(clearance.status, 'pending'),
+					eq(clearance.department, department)
+				)
+			)
 			.orderBy(desc(clearance.createdAt))
 			.limit(1)
 			.then((rows) => rows[0]);
@@ -370,7 +396,10 @@ export default class ClearanceRepository extends BaseRepository<typeof clearance
 		};
 	}
 
-	async findByStatusForExport(status: 'pending' | 'approved' | 'rejected', termId?: number) {
+	async findByStatusForExport(
+		status: 'pending' | 'approved' | 'rejected',
+		termId?: number
+	) {
 		const whereJoin = and(
 			eq(clearance.status, status),
 			termId ? eq(registrationRequests.termId, termId) : undefined
@@ -405,7 +434,10 @@ export default class ClearanceRepository extends BaseRepository<typeof clearance
 
 		const studentNos = rows.map((rc) => rc.registrationRequest.stdNo);
 		const activePrograms = await db.query.studentPrograms.findMany({
-			where: and(inArray(studentPrograms.stdNo, studentNos), eq(studentPrograms.status, 'Active')),
+			where: and(
+				inArray(studentPrograms.stdNo, studentNos),
+				eq(studentPrograms.status, 'Active')
+			),
 			orderBy: [asc(studentPrograms.id)],
 			with: {
 				structure: {
@@ -416,13 +448,17 @@ export default class ClearanceRepository extends BaseRepository<typeof clearance
 			},
 		});
 
-		const programsByStudentNo = new Map(activePrograms.map((sp) => [sp.stdNo, sp]));
+		const programsByStudentNo = new Map(
+			activePrograms.map((sp) => [sp.stdNo, sp])
+		);
 
 		const byIdOrder = new Map(ids.map((id, idx) => [id, idx] as const));
 		return rows
 			.sort((a, b) => byIdOrder.get(a.id)! - byIdOrder.get(b.id)!)
 			.map((rc) => {
-				const studentProgram = programsByStudentNo.get(rc.registrationRequest.stdNo);
+				const studentProgram = programsByStudentNo.get(
+					rc.registrationRequest.stdNo
+				);
 				return {
 					...rc.clearance,
 					registrationRequest: {

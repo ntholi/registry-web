@@ -21,7 +21,11 @@ type Props = {
 	onSubmit: (values: SemesterModule) => Promise<SemesterModule>;
 };
 
-export default function ModuleEditForm({ defaultValues, structureId, onSubmit }: Props) {
+export default function ModuleEditForm({
+	defaultValues,
+	structureId,
+	onSubmit,
+}: Props) {
 	const router = useRouter();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,7 +34,9 @@ export default function ModuleEditForm({ defaultValues, structureId, onSubmit }:
 		queryFn: () => findModulesByStructure(structureId),
 	});
 
-	const prerequisiteOptions = Array.from(new Set(modulesList?.map((mod) => mod.module!.code) || []))
+	const prerequisiteOptions = Array.from(
+		new Set(modulesList?.map((mod) => mod.module!.code) || [])
+	)
 		.map((code) => {
 			const foundModule = modulesList?.find((m) => m.module!.code === code);
 			if (!foundModule) return null;
@@ -59,7 +65,8 @@ export default function ModuleEditForm({ defaultValues, structureId, onSubmit }:
 		} catch (error) {
 			notifications.show({
 				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to update module',
+				message:
+					error instanceof Error ? error.message : 'Failed to update module',
 				color: 'red',
 			});
 		} finally {
@@ -76,15 +83,22 @@ export default function ModuleEditForm({ defaultValues, structureId, onSubmit }:
 					</Text>
 					<Radio.Group
 						value={form.values.hidden ? 'not-visible' : 'visible'}
-						onChange={(value) => form.setFieldValue('hidden', value === 'not-visible')}
+						onChange={(value) =>
+							form.setFieldValue('hidden', value === 'not-visible')
+						}
 					>
 						<Stack gap='xs'>
 							<Radio value='visible' label='Visible' disabled={isSubmitting} />
-							<Radio value='not-visible' label='Not Visible' disabled={isSubmitting} />
+							<Radio
+								value='not-visible'
+								label='Not Visible'
+								disabled={isSubmitting}
+							/>
 						</Stack>
 					</Radio.Group>
 					<Text size='xs' c='dimmed' mt='xs'>
-						If not visible, students will not be able to register for this module
+						If not visible, students will not be able to register for this
+						module
 					</Text>
 				</div>
 				<MultiSelect

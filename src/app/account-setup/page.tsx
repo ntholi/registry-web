@@ -77,8 +77,8 @@ export default function AccountSetupPage() {
 							</Card>
 
 							<Text ta='center' c='dimmed' size='sm' lh={1.5}>
-								This email address is not registered in our system. Please contact the Registry
-								Department for assistance.
+								This email address is not registered in our system. Please
+								contact the Registry Department for assistance.
 							</Text>
 
 							<Center>

@@ -7,7 +7,9 @@ import * as schema from './schema';
 
 const databaseEnv = process.env.DATABASE_ENV || 'local';
 const connectionString =
-	databaseEnv === 'remote' ? process.env.DATABASE_REMOTE_URL! : process.env.DATABASE_LOCAL_URL!;
+	databaseEnv === 'remote'
+		? process.env.DATABASE_REMOTE_URL!
+		: process.env.DATABASE_LOCAL_URL!;
 
 const neonDb = drizzleNeon(new NeonPool({ connectionString }), {
 	schema: { ...schema, ...relations },

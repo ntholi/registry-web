@@ -29,7 +29,10 @@ const DEGREE_EXPANSIONS: Record<string, string> = {
 
 export function expandProgramName(programName: string): string {
 	const hasHons = programName.includes('(Hons)');
-	const workingName = programName.replace(' (Hons)', '').replace('(Hons)', '').trim();
+	const workingName = programName
+		.replace(' (Hons)', '')
+		.replace('(Hons)', '')
+		.trim();
 
 	for (const [abbrev, fullName] of Object.entries(DEGREE_EXPANSIONS)) {
 		if (workingName.trim() === abbrev) {
@@ -68,7 +71,9 @@ export function buildCertificateReference(
 	return `LSO${normalizedCode}${stdNo}`;
 }
 
-export async function generateQRCodeWithLogo(reference: string): Promise<Buffer> {
+export async function generateQRCodeWithLogo(
+	reference: string
+): Promise<Buffer> {
 	const verificationUrl = `http://portal.co.ls/verify/certificate/${reference}`;
 
 	const qrCodeBuffer = await QRCode.toBuffer(verificationUrl, {
@@ -138,7 +143,9 @@ export async function generateQRCodeWithLogo(reference: string): Promise<Buffer>
 	}
 }
 
-export async function generateQRCodeDataURL(reference: string): Promise<string> {
+export async function generateQRCodeDataURL(
+	reference: string
+): Promise<string> {
 	const qrBuffer = await generateQRCodeWithLogo(reference);
 	const base64 = qrBuffer.toString('base64');
 	return `data:image/png;base64,${base64}`;

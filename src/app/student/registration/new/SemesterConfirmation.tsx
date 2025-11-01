@@ -57,7 +57,8 @@ export default function SemesterConfirmation({
 	if (!semesterData) {
 		return (
 			<Alert icon={<IconInfoCircle size={16} />} color='orange'>
-				Semester information is being calculated based on your selected modules...
+				Semester information is being calculated based on your selected
+				modules...
 			</Alert>
 		);
 	}
@@ -68,7 +69,9 @@ export default function SemesterConfirmation({
 				const moduleDetail = availableModules.find(
 					(module) => module.semesterModuleId === selected.moduleId
 				);
-				return moduleDetail ? { ...moduleDetail, selectedStatus: selected.moduleStatus } : null;
+				return moduleDetail
+					? { ...moduleDetail, selectedStatus: selected.moduleStatus }
+					: null;
 			})
 			.filter(Boolean);
 	};
@@ -111,7 +114,11 @@ export default function SemesterConfirmation({
 					</SimpleGrid>
 
 					{semesterData.status === 'Repeat' && (
-						<Alert icon={<IconInfoCircle size={16} />} color='orange' variant='light'>
+						<Alert
+							icon={<IconInfoCircle size={16} />}
+							color='orange'
+							variant='light'
+						>
 							You are repeating this semester and retaking some modules.
 						</Alert>
 					)}
@@ -144,8 +151,8 @@ export default function SemesterConfirmation({
 			</div>
 
 			<Alert icon={<IconInfoCircle size={16} />} color='blue'>
-				Please review the information above carefully. It is your responsibility to ensure all
-				details are correct before proceeding.
+				Please review the information above carefully. It is your responsibility
+				to ensure all details are correct before proceeding.
 			</Alert>
 		</Stack>
 	);

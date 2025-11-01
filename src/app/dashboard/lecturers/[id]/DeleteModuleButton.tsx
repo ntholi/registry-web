@@ -14,7 +14,12 @@ type Props = {
 	userId: string;
 } & BoxProps;
 
-export default function DeleteModuleButton({ assignmentId, moduleName, userId, ...props }: Props) {
+export default function DeleteModuleButton({
+	assignmentId,
+	moduleName,
+	userId,
+	...props
+}: Props) {
 	const queryClient = useQueryClient();
 	const [isDeleting, setIsDeleting] = useState(false);
 

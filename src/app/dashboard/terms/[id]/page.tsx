@@ -1,6 +1,11 @@
 import { Badge } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewBody, DetailsViewHeader, FieldView } from '@/components/adease';
+import {
+	DetailsView,
+	DetailsViewBody,
+	DetailsViewHeader,
+	FieldView,
+} from '@/components/adease';
 import { deleteTerm, getTerm } from '@/server/terms/actions';
 
 type Props = {

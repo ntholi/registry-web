@@ -47,7 +47,9 @@ export function StatsTable({ data, clearanceType = 'all' }: Props) {
 			<TableTbody>
 				{sortedData.map((stat) => {
 					const percentOfTotal =
-						totalRequests > 0 ? Math.round((stat.total / totalRequests) * 100) : 0;
+						totalRequests > 0
+							? Math.round((stat.total / totalRequests) * 100)
+							: 0;
 
 					return (
 						<TableTr key={stat.respondedBy || 'unknown'}>
@@ -71,7 +73,13 @@ export function StatsTable({ data, clearanceType = 'all' }: Props) {
 									<Progress
 										value={percentOfTotal}
 										size='sm'
-										color={percentOfTotal >= 30 ? 'blue' : percentOfTotal >= 20 ? 'blue' : 'red'}
+										color={
+											percentOfTotal >= 30
+												? 'blue'
+												: percentOfTotal >= 20
+													? 'blue'
+													: 'red'
+										}
 									/>
 								</div>
 							</TableTd>

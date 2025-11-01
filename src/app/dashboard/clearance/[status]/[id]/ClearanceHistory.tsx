@@ -1,6 +1,15 @@
 'use client';
 
-import { Accordion, Badge, Center, Group, Loader, Paper, Table, Text } from '@mantine/core';
+import {
+	Accordion,
+	Badge,
+	Center,
+	Group,
+	Loader,
+	Paper,
+	Table,
+	Text,
+} from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import Link from '@/components/Link';
 import { formatDateTime } from '@/lib/utils';
@@ -41,7 +50,9 @@ export default function ClearanceHistory({ stdNo }: Props) {
 					<Accordion.Item key={clearance.id} value={clearance.id.toString()}>
 						<Accordion.Control>
 							<Group justify='space-between' pe={'md'}>
-								<Text fw={500}>Term: {clearance.registrationRequest?.term.name || 'N/A'}</Text>
+								<Text fw={500}>
+									Term: {clearance.registrationRequest?.term.name || 'N/A'}
+								</Text>
 								<Badge
 									color={clearance.status === 'approved' ? 'green' : 'red'}
 									variant='outline'
@@ -76,7 +87,10 @@ export default function ClearanceHistory({ stdNo }: Props) {
 											<Table.Td>{audit.newStatus}</Table.Td>
 											<Table.Td>{audit.message || '-'}</Table.Td>
 											<Table.Td>
-												<Link size='sm' href={`/dashboard/users/${audit.createdBy}`}>
+												<Link
+													size='sm'
+													href={`/dashboard/users/${audit.createdBy}`}
+												>
 													{audit.user.name}
 												</Link>
 											</Table.Td>

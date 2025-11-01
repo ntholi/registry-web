@@ -104,8 +104,8 @@ export default function ReviewAndSubmit({
 								Program:
 							</Text>
 							<Text fw={500}>
-								{selectedProgram?.structure.program.name} ({selectedProgram?.structure.program.code}
-								)
+								{selectedProgram?.structure.program.name} (
+								{selectedProgram?.structure.program.code})
 							</Text>
 						</Group>
 
@@ -159,7 +159,11 @@ export default function ReviewAndSubmit({
 
 					<Stack gap='md'>
 						{paymentReceipts.map((receipt) => (
-							<Paper key={`${receipt.paymentType}-${receipt.receiptNo}`} p='sm' withBorder>
+							<Paper
+								key={`${receipt.paymentType}-${receipt.receiptNo}`}
+								p='sm'
+								withBorder
+							>
 								<Group justify='space-between' align='center'>
 									<Box>
 										<Text fw={500} size='sm'>
@@ -182,8 +186,8 @@ export default function ReviewAndSubmit({
 				<Divider />
 
 				<Text size='sm' c='dimmed' ta='center'>
-					By submitting this request, you confirm that all information provided is accurate and
-					complete.
+					By submitting this request, you confirm that all information provided
+					is accurate and complete.
 				</Text>
 			</Stack>
 		</Box>

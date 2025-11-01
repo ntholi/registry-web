@@ -153,7 +153,9 @@ export default function StudentCardPrinter({
 			</Modal>
 
 			<Button
-				leftSection={photoLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />}
+				leftSection={
+					photoLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />
+				}
 				onClick={openReceiptModal}
 				variant='subtle'
 				color='gray'

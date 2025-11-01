@@ -38,9 +38,23 @@ export default function PhotoPreviewModal({
 
 	return (
 		<>
-			<Modal title={title} opened={opened} onClose={close} size='lg' radius='md' centered>
+			<Modal
+				title={title}
+				opened={opened}
+				onClose={close}
+				size='lg'
+				radius='md'
+				centered
+			>
 				<Center>
-					<Image src={photoUrl} alt={alt} fit='contain' h={'100%'} radius={'md'} w={'98%'} />
+					<Image
+						src={photoUrl}
+						alt={alt}
+						fit='contain'
+						h={'100%'}
+						radius={'md'}
+						w={'98%'}
+					/>
 				</Center>
 
 				{canEdit && (onEdit || onDelete) && (

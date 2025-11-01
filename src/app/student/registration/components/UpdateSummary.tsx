@@ -1,6 +1,15 @@
 'use client';
 
-import { Badge, Box, Card, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	Card,
+	Group,
+	SimpleGrid,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import type { StudentModuleStatus } from '@/db/schema';
 
 type SelectedModule = {
@@ -57,15 +66,21 @@ export default function UpdateSummary({
 	};
 
 	const addedModules = updatedModules.filter(
-		(updated) => !originalModules.some((original) => original.moduleId === updated.moduleId)
+		(updated) =>
+			!originalModules.some(
+				(original) => original.moduleId === updated.moduleId
+			)
 	);
 
 	const removedModules = originalModules.filter(
-		(original) => !updatedModules.some((updated) => updated.moduleId === original.moduleId)
+		(original) =>
+			!updatedModules.some((updated) => updated.moduleId === original.moduleId)
 	);
 
 	const changedModules = updatedModules.filter((updated) => {
-		const original = originalModules.find((o) => o.moduleId === updated.moduleId);
+		const original = originalModules.find(
+			(o) => o.moduleId === updated.moduleId
+		);
 		return original && original.moduleStatus !== updated.moduleStatus;
 	});
 
@@ -100,7 +115,9 @@ export default function UpdateSummary({
 							Semester Status
 						</Text>
 						<Group>
-							<Badge color={semesterData.status === 'Active' ? 'blue' : 'orange'}>
+							<Badge
+								color={semesterData.status === 'Active' ? 'blue' : 'orange'}
+							>
 								{semesterData.status}
 							</Badge>
 							<Text size='sm'>Semester {semesterData.semesterNo}</Text>
@@ -147,11 +164,13 @@ export default function UpdateSummary({
 										Status Changes ({changedModules.length})
 									</Text>
 									{changedModules.map((module) => {
-										const original = originalModules.find((o) => o.moduleId === module.moduleId);
+										const original = originalModules.find(
+											(o) => o.moduleId === module.moduleId
+										);
 										return (
 											<Text key={module.moduleId} size='xs' c='dimmed' pl='sm'>
-												{getModuleName(module.moduleId)}: {original?.moduleStatus} →{' '}
-												{module.moduleStatus}
+												{getModuleName(module.moduleId)}:{' '}
+												{original?.moduleStatus} → {module.moduleStatus}
 											</Text>
 										);
 									})}
@@ -176,7 +195,8 @@ export default function UpdateSummary({
 						<Stack gap='xs'>
 							{sponsorshipChanged ? (
 								<>
-									{originalSponsorship?.sponsorId !== updatedSponsorship?.sponsorId && (
+									{originalSponsorship?.sponsorId !==
+										updatedSponsorship?.sponsorId && (
 										<Box>
 											<Text size='sm' c='blue' fw={500}>
 												Sponsor
@@ -186,12 +206,15 @@ export default function UpdateSummary({
 													? getSponsorName(originalSponsorship.sponsorId)
 													: 'None'}{' '}
 												→{' '}
-												{updatedSponsorship ? getSponsorName(updatedSponsorship.sponsorId) : 'None'}
+												{updatedSponsorship
+													? getSponsorName(updatedSponsorship.sponsorId)
+													: 'None'}
 											</Text>
 										</Box>
 									)}
 
-									{originalSponsorship?.borrowerNo !== updatedSponsorship?.borrowerNo && (
+									{originalSponsorship?.borrowerNo !==
+										updatedSponsorship?.borrowerNo && (
 										<Box>
 											<Text size='sm' c='blue' fw={500}>
 												Borrower Number

@@ -1,6 +1,15 @@
 'use client';
 
-import { Button, Center, FileButton, Group, Image, Modal, Stack, Text } from '@mantine/core';
+import {
+	Button,
+	Center,
+	FileButton,
+	Group,
+	Image,
+	Modal,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useCallback, useRef, useState } from 'react';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
@@ -65,25 +74,28 @@ export default function PhotoInputModal({
 		reader.readAsDataURL(file);
 	}, []);
 
-	const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-		const { width, height } = e.currentTarget;
+	const onImageLoad = useCallback(
+		(e: React.SyntheticEvent<HTMLImageElement>) => {
+			const { width, height } = e.currentTarget;
 
-		const size = Math.min(width, height);
-		const x = (width - size) / 2;
-		const y = (height - size) / 2;
+			const size = Math.min(width, height);
+			const x = (width - size) / 2;
+			const y = (height - size) / 2;
 
-		const newCrop = {
-			unit: 'px' as const,
-			x,
-			y,
-			width: size,
-			height: size,
-		};
+			const newCrop = {
+				unit: 'px' as const,
+				x,
+				y,
+				width: size,
+				height: size,
+			};
 
-		setCrop(newCrop);
-		setCompletedCrop(newCrop);
-		setInitialCropSet(true);
-	}, []);
+			setCrop(newCrop);
+			setCompletedCrop(newCrop);
+			setInitialCropSet(true);
+		},
+		[]
+	);
 
 	const getCroppedImg = useCallback(
 		async (image: HTMLImageElement, crop: PixelCrop): Promise<Blob> => {
@@ -154,7 +166,10 @@ export default function PhotoInputModal({
 		setIsProcessing(true);
 
 		try {
-			const croppedImageBlob = await getCroppedImg(imgRef.current, completedCrop);
+			const croppedImageBlob = await getCroppedImg(
+				imgRef.current,
+				completedCrop
+			);
 			await onPhotoSubmit(croppedImageBlob);
 			if (onConfirm) onConfirm();
 			close();
@@ -190,7 +205,14 @@ export default function PhotoInputModal({
 				</Button>
 			)}
 
-			<Modal opened={opened} onClose={handleClose} title={title} size='xl' centered closeOnEscape>
+			<Modal
+				opened={opened}
+				onClose={handleClose}
+				title={title}
+				size='xl'
+				centered
+				closeOnEscape
+			>
 				<Stack gap='md'>
 					{!imageSrc ? (
 						<Center>
@@ -234,7 +256,11 @@ export default function PhotoInputModal({
 							</Center>
 
 							<Group justify='center' mt='lg'>
-								<Button variant='outline' onClick={handleClose} disabled={isProcessing}>
+								<Button
+									variant='outline'
+									onClick={handleClose}
+									disabled={isProcessing}
+								>
 									Cancel
 								</Button>
 								<Button onClick={handleSubmit} loading={isProcessing}>

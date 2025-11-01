@@ -35,7 +35,10 @@ type SemesterModuleWithModule = typeof semesterModules.$inferSelect & {
 	semester: { semesterNumber: number };
 };
 
-export async function getStudentSemesterModulesLogic(student: Student, remarks: AcademicRemarks) {
+export async function getStudentSemesterModulesLogic(
+	student: Student,
+	remarks: AcademicRemarks
+) {
 	if (!student) {
 		return {
 			error: 'Student not found',
@@ -58,7 +61,9 @@ export async function getStudentSemesterModulesLogic(student: Student, remarks: 
 		};
 	}
 
-	const failedPrerequisites = await getFailedPrerequisites(remarks.failedModules);
+	const failedPrerequisites = await getFailedPrerequisites(
+		remarks.failedModules
+	);
 	const repeatModules = await getRepeatModules(
 		remarks.failedModules,
 		getNextSemesterNo(student),
@@ -79,7 +84,9 @@ export async function getStudentSemesterModulesLogic(student: Student, remarks: 
 		activeProgram.structureId
 	);
 
-	const filteredModules = eligibleModules.filter((m) => !attemptedModules.has(m.module?.name));
+	const filteredModules = eligibleModules.filter(
+		(m) => !attemptedModules.has(m.module?.name)
+	);
 
 	const modules = [
 		...filteredModules.map(
@@ -134,7 +141,11 @@ async function getFailedPrerequisites(failedModules: Module[]) {
 
 	return prerequisites.reduce(
 		(acc, { semesterModule: { module }, prerequisite }) => {
-			if (module && prerequisite.module && failedModulesByName[prerequisite.module.name]) {
+			if (
+				module &&
+				prerequisite.module &&
+				failedModulesByName[prerequisite.module.name]
+			) {
 				acc[module.name] = acc[module.name] || [];
 				const pModule = failedModulesByName[prerequisite.module.name];
 
@@ -160,7 +171,10 @@ async function getRepeatModules(
 	const targetSemesters = nextSemester % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7];
 
 	const allRepeatModules: ModuleWithStatus[] = [];
-	const allSemesterModules = await getSemesterModulesMultiple(targetSemesters, structureId);
+	const allSemesterModules = await getSemesterModulesMultiple(
+		targetSemesters,
+		structureId
+	);
 
 	targetSemesters.forEach((semesterNumber) => {
 		const semesterModules = allSemesterModules.filter(
@@ -189,9 +203,9 @@ async function getRepeatModules(
 }
 
 async function getSemesterModules(semesterNumber: number, structureId: number) {
-	const semesterNos = (semesterNumber % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7]).filter(
-		(s) => s <= semesterNumber
-	);
+	const semesterNos = (
+		semesterNumber % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7]
+	).filter((s) => s <= semesterNumber);
 
 	const semesters = await db.query.structureSemesters.findMany({
 		where: and(
@@ -210,13 +224,21 @@ async function getSemesterModules(semesterNumber: number, structureId: number) {
 				columns: { semesterNumber: true },
 			},
 		},
-		where: and(inArray(semesterModules.semesterId, semesterIds), eq(semesterModules.hidden, false)),
+		where: and(
+			inArray(semesterModules.semesterId, semesterIds),
+			eq(semesterModules.hidden, false)
+		),
 	});
 
-	return data.filter((m) => m.module !== null && m.semester !== null) as SemesterModuleWithModule[];
+	return data.filter(
+		(m) => m.module !== null && m.semester !== null
+	) as SemesterModuleWithModule[];
 }
 
-async function getSemesterModulesMultiple(semesterNumbers: number[], structureId: number) {
+async function getSemesterModulesMultiple(
+	semesterNumbers: number[],
+	structureId: number
+) {
 	const semesters = await db.query.structureSemesters.findMany({
 		where: and(
 			eq(structureSemesters.structureId, structureId),
@@ -234,8 +256,13 @@ async function getSemesterModulesMultiple(semesterNumbers: number[], structureId
 				columns: { semesterNumber: true },
 			},
 		},
-		where: and(inArray(semesterModules.semesterId, semesterIds), eq(semesterModules.hidden, false)),
+		where: and(
+			inArray(semesterModules.semesterId, semesterIds),
+			eq(semesterModules.hidden, false)
+		),
 	});
 
-	return data.filter((m) => m.module !== null && m.semester !== null) as SemesterModuleWithModule[];
+	return data.filter(
+		(m) => m.module !== null && m.semester !== null
+	) as SemesterModuleWithModule[];
 }

@@ -1,5 +1,9 @@
 import { Box, Paper } from '@mantine/core';
-import type { modules, StudentModuleStatus, semesterModules } from '@/db/schema';
+import type {
+	modules,
+	StudentModuleStatus,
+	semesterModules,
+} from '@/db/schema';
 import { createRegistrationWithModules } from '@/server/registration/requests/actions';
 import Form from '../Form';
 
@@ -76,7 +80,11 @@ export default async function NewPage({ searchParams }: Props) {
 	return (
 		<Box p={'lg'}>
 			<Paper withBorder p='md'>
-				<Form title={'Create Registration Request'} onSubmit={handleSubmit} initialStdNo={stdNo} />
+				<Form
+					title={'Create Registration Request'}
+					onSubmit={handleSubmit}
+					initialStdNo={stdNo}
+				/>
 			</Paper>
 		</Box>
 	);

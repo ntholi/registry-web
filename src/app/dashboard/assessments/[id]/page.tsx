@@ -25,7 +25,11 @@ export default async function ModuleDetails({ params }: Props) {
 					{mod.code} - {mod.name}
 				</Title>
 				<Link href={`/dashboard/gradebook/${mod.id}`} passHref>
-					<Button variant='light' leftSection={<IconNotebook size={16} />} size='sm'>
+					<Button
+						variant='light'
+						leftSection={<IconNotebook size={16} />}
+						size='sm'
+					>
 						View Gradebook
 					</Button>
 				</Link>

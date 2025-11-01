@@ -55,7 +55,12 @@ export default function TaskFilterView({ filter, value }: TaskFilterViewProps) {
 		queryFn: async () => {
 			if (filter === 'status') {
 				return await getTasksByStatus(
-					value as 'scheduled' | 'active' | 'in_progress' | 'completed' | 'cancelled',
+					value as
+						| 'scheduled'
+						| 'active'
+						| 'in_progress'
+						| 'completed'
+						| 'cancelled',
 					page,
 					search
 				);

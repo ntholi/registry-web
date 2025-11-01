@@ -44,11 +44,17 @@ class ModuleGradeService {
 	}
 
 	async getByModuleId(moduleId: number) {
-		return withAuth(async () => this.repository.findByModuleId(moduleId), ['academic']);
+		return withAuth(
+			async () => this.repository.findByModuleId(moduleId),
+			['academic']
+		);
 	}
 
 	async upsertModuleGrade(data: ModuleGrade) {
-		return withAuth(async () => this.repository.upsertModuleGrade(data), ['academic']);
+		return withAuth(
+			async () => this.repository.upsertModuleGrade(data),
+			['academic']
+		);
 	}
 }
 

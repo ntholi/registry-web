@@ -1,6 +1,10 @@
 'use server';
 
-import type { registrationRequests, requestedModules, StudentModuleStatus } from '@/db/schema';
+import type {
+	registrationRequests,
+	requestedModules,
+	StudentModuleStatus,
+} from '@/db/schema';
 import type { AcademicRemarks, Student } from '@/lib/helpers/students';
 import { registrationRequestsService as service } from './service';
 
@@ -22,7 +26,10 @@ export async function getRegistrationRequest(id: number) {
 	return service.get(id);
 }
 
-export async function getRegistrationRequestByStdNo(stdNo: number, termId: number) {
+export async function getRegistrationRequestByStdNo(
+	stdNo: number,
+	termId: number
+) {
 	return service.getByStdNo(stdNo, termId);
 }
 
@@ -30,7 +37,9 @@ export async function getRequestedModules(registrationRequestId: number) {
 	return service.getRequestedModules(registrationRequestId);
 }
 
-export async function countByStatus(status: 'pending' | 'registered' | 'rejected' | 'approved') {
+export async function countByStatus(
+	status: 'pending' | 'registered' | 'rejected' | 'approved'
+) {
 	return service.countByStatus(status);
 }
 
@@ -50,11 +59,17 @@ export async function findAllRegistrationRequests(
 	);
 }
 
-export async function getStudentSemesterModules(student: Student, remarks: AcademicRemarks) {
+export async function getStudentSemesterModules(
+	student: Student,
+	remarks: AcademicRemarks
+) {
 	return service.getStudentSemesterModules(student, remarks);
 }
 
-export async function determineSemesterStatus(modules: ModuleWithStatus[], student: Student) {
+export async function determineSemesterStatus(
+	modules: ModuleWithStatus[],
+	student: Student
+) {
 	const semesterNo = commonSemesterNo(modules);
 	const completedSemesters =
 		student?.programs
@@ -90,7 +105,10 @@ export async function deleteRegistrationRequest(id: number) {
 	return service.delete(id);
 }
 
-export async function createRequestedModules(stdNo: number, modules: RequestedModule[]) {
+export async function createRequestedModules(
+	stdNo: number,
+	modules: RequestedModule[]
+) {
 	return service.createRequestedModules(stdNo, modules);
 }
 

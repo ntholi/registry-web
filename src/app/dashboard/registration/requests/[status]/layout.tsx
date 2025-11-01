@@ -42,7 +42,11 @@ export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
 			path={`/dashboard/registration/requests/${status}`}
-			queryKey={['registrationRequests', status, selectedTerm?.toString() || 'all']}
+			queryKey={[
+				'registrationRequests',
+				status,
+				selectedTerm?.toString() || 'all',
+			]}
 			getData={async (page, search) => {
 				const response = await findAllRegistrationRequests(
 					page,
@@ -60,7 +64,9 @@ export default function Layout({ children }: PropsWithChildren) {
 					totalPages: response.pages,
 				};
 			}}
-			actionIcons={[<TermFilter key='term-filter' onTermChange={setSelectedTerm} />]}
+			actionIcons={[
+				<TermFilter key='term-filter' onTermChange={setSelectedTerm} />,
+			]}
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}

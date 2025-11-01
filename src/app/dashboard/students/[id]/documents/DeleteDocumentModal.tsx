@@ -61,7 +61,10 @@ export default function DeleteDocumentModal({
 			closeOnEscape={!loading}
 		>
 			<Stack gap='md'>
-				<Text>Are you sure you want to delete this document? This action cannot be undone.</Text>
+				<Text>
+					Are you sure you want to delete this document? This action cannot be
+					undone.
+				</Text>
 				<Text fw={500}>{displayName}</Text>
 
 				<Group justify='flex-end' mt='md'>

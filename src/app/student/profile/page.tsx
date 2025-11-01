@@ -33,7 +33,11 @@ export default function Profile() {
 
 				<PersonalInformation student={student} />
 
-				<AcademicInformation program={program} semester={semester} remarks={remarks} />
+				<AcademicInformation
+					program={program}
+					semester={semester}
+					remarks={remarks}
+				/>
 
 				<SponsorshipInformation studentNo={student.stdNo} />
 			</Stack>

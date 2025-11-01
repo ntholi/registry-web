@@ -13,7 +13,9 @@ export async function getStudentCardPrints(page: number = 1, search = '') {
 	return service.getAll({ page, search });
 }
 
-export async function createStudentCardPrint(studentCardPrint: StudentCardPrint) {
+export async function createStudentCardPrint(
+	studentCardPrint: StudentCardPrint
+) {
 	return service.create(studentCardPrint);
 }
 

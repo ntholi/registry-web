@@ -1,6 +1,16 @@
 'use client';
 
-import { Accordion, Alert, Box, Container, Group, Paper, Stack, Text, Title } from '@mantine/core';
+import {
+	Accordion,
+	Alert,
+	Box,
+	Container,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -39,9 +49,14 @@ export default function TranscriptsPage() {
 					<Title order={1} size={'h3'} ta='left'>
 						Academic Transcripts
 					</Title>
-					<Alert icon={<IconLock size='1.2rem' />} title='Access Blocked' color='red' radius='md'>
-						Your access to academic transcripts has been blocked. Please contact the{' '}
-						{blockedStudent.byDepartment} office for assistance.
+					<Alert
+						icon={<IconLock size='1.2rem' />}
+						title='Access Blocked'
+						color='red'
+						radius='md'
+					>
+						Your access to academic transcripts has been blocked. Please contact
+						the {blockedStudent.byDepartment} office for assistance.
 						<Text fw={500} mt='xs'>
 							Reason: {blockedStudent.reason}
 						</Text>
@@ -71,7 +86,9 @@ export default function TranscriptsPage() {
 		);
 	}
 
-	const semesters = getCleanedSemesters(program).filter((it) => it.term !== currentTerm?.name);
+	const semesters = getCleanedSemesters(program).filter(
+		(it) => it.term !== currentTerm?.name
+	);
 
 	return (
 		<Container size='md'>
@@ -122,11 +139,15 @@ export default function TranscriptsPage() {
 					<Accordion variant='separated' radius='md'>
 						{semesters.map((semester) => {
 							const modules =
-								semester.studentModules?.filter((m) => !['Delete', 'Drop'].includes(m.status)) ||
-								[];
+								semester.studentModules?.filter(
+									(m) => !['Delete', 'Drop'].includes(m.status)
+								) || [];
 
 							return (
-								<Accordion.Item key={semester.id} value={semester.id.toString()}>
+								<Accordion.Item
+									key={semester.id}
+									value={semester.id.toString()}
+								>
 									<Accordion.Control>
 										<Box>
 											<Text size='sm' fw={600}>

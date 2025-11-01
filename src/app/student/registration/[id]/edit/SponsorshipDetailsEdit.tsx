@@ -1,10 +1,21 @@
-import { Alert, Card, LoadingOverlay, Select, Stack, Text, TextInput } from '@mantine/core';
+import {
+	Alert,
+	Card,
+	LoadingOverlay,
+	Select,
+	Stack,
+	Text,
+	TextInput,
+} from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { useCurrentTerm } from '@/hooks/use-current-term';
 import useUserStudent from '@/hooks/use-user-student';
-import { findAllSponsors, getSponsoredStudent } from '@/server/sponsors/actions';
+import {
+	findAllSponsors,
+	getSponsoredStudent,
+} from '@/server/sponsors/actions';
 
 type SponsorshipData = {
 	sponsorId: number;
@@ -25,7 +36,9 @@ export default function SponsorshipDetailsEdit({
 	const { student } = useUserStudent();
 	const { currentTerm } = useCurrentTerm();
 
-	const [borrowerNo, setBorrowerNo] = useState(sponsorshipData?.borrowerNo || '');
+	const [borrowerNo, setBorrowerNo] = useState(
+		sponsorshipData?.borrowerNo || ''
+	);
 
 	const { data: sponsorsData, isLoading: sponsorsLoading } = useQuery({
 		queryKey: ['sponsors'],
@@ -74,7 +87,10 @@ export default function SponsorshipDetailsEdit({
 
 			let newBorrowerNo = borrowerNo;
 
-			if (selectedSponsor?.name === 'NMDS' && previousSponsorshipData?.borrowerNo) {
+			if (
+				selectedSponsor?.name === 'NMDS' &&
+				previousSponsorshipData?.borrowerNo
+			) {
 				newBorrowerNo = previousSponsorshipData.borrowerNo;
 				setBorrowerNo(newBorrowerNo);
 			} else if (selectedSponsor?.name !== 'NMDS') {
@@ -132,7 +148,9 @@ export default function SponsorshipDetailsEdit({
 							label='Borrower Number'
 							placeholder='Enter your borrower number'
 							value={borrowerNo}
-							onChange={(event) => handleBorrowerNoChange(event.currentTarget.value)}
+							onChange={(event) =>
+								handleBorrowerNoChange(event.currentTarget.value)
+							}
 							description='Required for NMDS sponsored students'
 							required
 						/>
@@ -142,18 +160,24 @@ export default function SponsorshipDetailsEdit({
 
 			<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
 				<Text size='sm'>
-					<strong>Note:</strong> When editing your registration, only sponsor and borrower number
-					can be updated. Banking details cannot be changed during registration updates.
+					<strong>Note:</strong> When editing your registration, only sponsor
+					and borrower number can be updated. Banking details cannot be changed
+					during registration updates.
 					{sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
-						<span> For NMDS sponsorship, make sure your borrower number is correct.</span>
+						<span>
+							{' '}
+							For NMDS sponsorship, make sure your borrower number is correct.
+						</span>
 					)}{' '}
-					If you need to update banking details, please contact the finance office.
+					If you need to update banking details, please contact the finance
+					office.
 				</Text>
 			</Alert>
 
 			{sponsors.length === 0 && !sponsorsLoading && (
 				<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
-					No sponsors found. Please contact the administration to set up sponsors.
+					No sponsors found. Please contact the administration to set up
+					sponsors.
 				</Alert>
 			)}
 		</Stack>

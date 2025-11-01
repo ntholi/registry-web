@@ -28,7 +28,10 @@ export async function getFortinetRegistrationsForSchool(
 	});
 }
 
-export async function createFortinetRegistration(data: { level: FortinetLevel; message?: string }) {
+export async function createFortinetRegistration(data: {
+	level: FortinetLevel;
+	message?: string;
+}) {
 	return fortinetRegistrationService.create(data);
 }
 
@@ -44,7 +47,10 @@ export async function deleteFortinetRegistration(id: number) {
 	return fortinetRegistrationService.delete(id);
 }
 
-export async function getAllFortinetRegistrations(page: number = 1, search?: string) {
+export async function getAllFortinetRegistrations(
+	page: number = 1,
+	search?: string
+) {
 	return fortinetRegistrationService.getAll({ page, search });
 }
 

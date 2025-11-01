@@ -50,28 +50,30 @@ export default function StudentsTable({ sponsorId }: Props) {
 		if (isLoading) {
 			return (
 				<Table.Tbody>
-					{Array.from({ length: 5 }, (_, index) => `skeleton-row-${index}`).map((key) => (
-						<Table.Tr key={key}>
-							<Table.Td>
-								<Skeleton height={20} width={100} />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width={150} />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width={200} />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width={120} />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width={120} />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width={120} />
-							</Table.Td>
-						</Table.Tr>
-					))}
+					{Array.from({ length: 5 }, (_, index) => `skeleton-row-${index}`).map(
+						(key) => (
+							<Table.Tr key={key}>
+								<Table.Td>
+									<Skeleton height={20} width={100} />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width={150} />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width={200} />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width={120} />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width={120} />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width={120} />
+								</Table.Td>
+							</Table.Tr>
+						)
+					)}
 				</Table.Tbody>
 			);
 		}
@@ -83,7 +85,9 @@ export default function StudentsTable({ sponsorId }: Props) {
 						<Table.Td colSpan={6}>
 							<Center p='md'>
 								<Text c='dimmed'>
-									{searchQuery ? 'No students match your search.' : 'No sponsored students found.'}
+									{searchQuery
+										? 'No students match your search.'
+										: 'No sponsored students found.'}
 								</Text>
 							</Center>
 						</Table.Td>
@@ -96,7 +100,9 @@ export default function StudentsTable({ sponsorId }: Props) {
 			<Table.Tbody>
 				{data.items.map((sponsoredStudent) => {
 					const student = sponsoredStudent.student;
-					const activeProgram = student?.programs?.find((p) => p.status === 'Active');
+					const activeProgram = student?.programs?.find(
+						(p) => p.status === 'Active'
+					);
 					const programName = activeProgram?.structure?.program?.name || 'N/A';
 
 					return (
@@ -144,7 +150,11 @@ export default function StudentsTable({ sponsorId }: Props) {
 					style={{ flex: 1, maxWidth: 400 }}
 					rightSection={
 						searchQuery ? (
-							<CloseButton onClick={() => setSearchQuery('')} variant='subtle' size='sm' />
+							<CloseButton
+								onClick={() => setSearchQuery('')}
+								variant='subtle'
+								size='sm'
+							/>
 						) : null
 					}
 					leftSection={<IconSearch size='1.2rem' />}
@@ -152,7 +162,8 @@ export default function StudentsTable({ sponsorId }: Props) {
 				{!isLoading && data && (
 					<Paper withBorder p={8.5}>
 						<Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
-							{data.items.length} student{data.items.length !== 1 ? 's' : ''} displayed
+							{data.items.length} student{data.items.length !== 1 ? 's' : ''}{' '}
+							displayed
 						</Text>
 					</Paper>
 				)}
@@ -165,7 +176,12 @@ export default function StudentsTable({ sponsorId }: Props) {
 
 			{data && data.totalPages > 1 && (
 				<Group justify='center'>
-					<MPagination total={data.totalPages} value={page} onChange={setPage} size='sm' />
+					<MPagination
+						total={data.totalPages}
+						value={page}
+						onChange={setPage}
+						size='sm'
+					/>
 				</Group>
 			)}
 		</Stack>

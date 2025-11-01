@@ -76,15 +76,27 @@ export default function AssessmentDelete({ assessment }: Props) {
 				</ActionIcon>
 			</Tooltip>
 
-			<Modal opened={opened} onClose={handleClose} title='Delete Assessment' size='md' centered>
+			<Modal
+				opened={opened}
+				onClose={handleClose}
+				title='Delete Assessment'
+				size='md'
+				centered
+			>
 				<Box mb='md'>
-					<Alert icon={<IconAlertTriangle size={16} />} title='Warning' color='red' mb='md'>
+					<Alert
+						icon={<IconAlertTriangle size={16} />}
+						title='Warning'
+						color='red'
+						mb='md'
+					>
 						<Text fw={500} mb='xs'>
-							You are about to delete {getAssessmentTypeLabel(assessment.assessmentType)}.
+							You are about to delete{' '}
+							{getAssessmentTypeLabel(assessment.assessmentType)}.
 						</Text>
 						<Text size='sm'>
-							This will permanently remove all student marks for this assessment. This action cannot
-							be undone.
+							This will permanently remove all student marks for this
+							assessment. This action cannot be undone.
 						</Text>
 					</Alert>
 
@@ -109,7 +121,12 @@ export default function AssessmentDelete({ assessment }: Props) {
 					<Button variant='outline' onClick={handleClose}>
 						Cancel
 					</Button>
-					<Button color='red' onClick={handleDelete} disabled={!isConfirmed} loading={isDeleting}>
+					<Button
+						color='red'
+						onClick={handleDelete}
+						disabled={!isConfirmed}
+						loading={isDeleting}
+					>
 						Delete Assessment
 					</Button>
 				</Group>

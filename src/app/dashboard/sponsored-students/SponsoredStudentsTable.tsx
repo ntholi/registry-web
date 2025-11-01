@@ -27,7 +27,9 @@ export default function SponsoredStudentsTable() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedSponsor, setSelectedSponsor] = useState<string | null>(null);
 	const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
-	const [selectedConfirmation, setSelectedConfirmation] = useState<string | null>(null);
+	const [selectedConfirmation, setSelectedConfirmation] = useState<
+		string | null
+	>(null);
 	const [selectedTerm, setSelectedTerm] = useState<string | null>(null);
 	const [onlyCleared, setOnlyCleared] = useState(false);
 	const [page, setPage] = useState(1);
@@ -109,37 +111,39 @@ export default function SponsoredStudentsTable() {
 		if (isLoading) {
 			return (
 				<Table.Tbody>
-					{Array.from({ length: 5 }, (_, index) => `skeleton-row-${index}`).map((key) => (
-						<Table.Tr key={key}>
-							<Table.Td>
-								<Skeleton height={20} width='80%' />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width='90%' />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width='85%' />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width='80%' />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width='75%' />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width='75%' />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width='85%' />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width='70%' />
-							</Table.Td>
-							<Table.Td>
-								<Skeleton height={20} width='60%' />
-							</Table.Td>
-						</Table.Tr>
-					))}
+					{Array.from({ length: 5 }, (_, index) => `skeleton-row-${index}`).map(
+						(key) => (
+							<Table.Tr key={key}>
+								<Table.Td>
+									<Skeleton height={20} width='80%' />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width='90%' />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width='85%' />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width='80%' />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width='75%' />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width='75%' />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width='85%' />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width='70%' />
+								</Table.Td>
+								<Table.Td>
+									<Skeleton height={20} width='60%' />
+								</Table.Td>
+							</Table.Tr>
+						)
+					)}
 				</Table.Tbody>
 			);
 		}
@@ -166,7 +170,9 @@ export default function SponsoredStudentsTable() {
 			<Table.Tbody>
 				{data.items.map((sponsoredStudent) => {
 					const student = sponsoredStudent.student;
-					const activeProgram = student?.programs?.find((p) => p.status === 'Active');
+					const activeProgram = student?.programs?.find(
+						(p) => p.status === 'Active'
+					);
 					const programName = activeProgram?.structure?.program?.name || 'N/A';
 
 					return (
@@ -190,7 +196,10 @@ export default function SponsoredStudentsTable() {
 							</Table.Td>
 							<Table.Td>
 								{sponsoredStudent.sponsor ? (
-									<Link size='sm' href={`/dashboard/sponsors/${sponsoredStudent.sponsor.id}`}>
+									<Link
+										size='sm'
+										href={`/dashboard/sponsors/${sponsoredStudent.sponsor.id}`}
+									>
 										{sponsoredStudent.sponsor.name}
 									</Link>
 								) : (
@@ -210,7 +219,11 @@ export default function SponsoredStudentsTable() {
 							</Table.Td>
 							<Table.Td>
 								{sponsoredStudent.sponsor?.name === 'NMDS' ? (
-									<Text size='sm' c={sponsoredStudent.confirmed ? 'green' : 'orange'} fw={500}>
+									<Text
+										size='sm'
+										c={sponsoredStudent.confirmed ? 'green' : 'orange'}
+										fw={500}
+									>
 										{sponsoredStudent.confirmed ? 'Confirmed' : 'Pending'}
 									</Text>
 								) : (
@@ -251,7 +264,11 @@ export default function SponsoredStudentsTable() {
 					<Title order={3} fw={500}>
 						Sponsored Students
 					</Title>
-					<Badge variant='light' color='gray' leftSection={<IconUsers size={14} />}>
+					<Badge
+						variant='light'
+						color='gray'
+						leftSection={<IconUsers size={14} />}
+					>
 						{(data?.totalItems ?? 0).toLocaleString()} total
 					</Badge>
 				</Group>
@@ -293,7 +310,12 @@ export default function SponsoredStudentsTable() {
 
 			{data && data.totalPages > 1 && (
 				<Group justify='center'>
-					<MPagination total={data.totalPages} value={page} onChange={setPage} size='sm' />
+					<MPagination
+						total={data.totalPages}
+						value={page}
+						onChange={setPage}
+						size='sm'
+					/>
 				</Group>
 			)}
 		</Stack>

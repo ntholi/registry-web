@@ -67,7 +67,9 @@ export default function Body() {
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement('a');
 			a.href = url;
-			const selectedSchool = schools?.find((s) => s.id === Number(selectedSchoolId));
+			const selectedSchool = schools?.find(
+				(s) => s.id === Number(selectedSchoolId)
+			);
 			const schoolCode = selectedSchool?.code || 'School';
 			a.download = `${schoolCode}_BOE_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
 			document.body.appendChild(a);
@@ -103,8 +105,8 @@ export default function Body() {
 				<CardSection inheritPadding>
 					<Stack gap='md'>
 						<Text my='xs'>
-							Select a school to generate BOE reports for all programs and students in that school
-							for {currentTerm?.name}.
+							Select a school to generate BOE reports for all programs and
+							students in that school for {currentTerm?.name}.
 						</Text>
 
 						<Select
@@ -123,9 +125,15 @@ export default function Body() {
 						<Button
 							fullWidth
 							onClick={() => generateReportMutation.mutate()}
-							disabled={!selectedSchoolId || generateReportMutation.isPending || isDownloading}
+							disabled={
+								!selectedSchoolId ||
+								generateReportMutation.isPending ||
+								isDownloading
+							}
 							leftSection={
-								generateReportMutation.isPending || isDownloading ? <Loader size={16} /> : null
+								generateReportMutation.isPending || isDownloading ? (
+									<Loader size={16} />
+								) : null
 							}
 						>
 							{generateReportMutation.isPending || isDownloading

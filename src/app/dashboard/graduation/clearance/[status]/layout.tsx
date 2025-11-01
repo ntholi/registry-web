@@ -41,7 +41,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			path={`/dashboard/graduation/clearance/${status}`}
 			queryKey={['graduationClearances', status]}
 			getData={async (page, search) => {
-				const response = await graduationClearanceByStatus(status, page, search);
+				const response = await graduationClearanceByStatus(
+					status,
+					page,
+					search
+				);
 				return {
 					items: response.items || [],
 					totalPages: response.totalPages || 1,
@@ -51,7 +55,9 @@ export default function Layout({ children }: PropsWithChildren) {
 			renderItem={(it: GraduationClearanceItem) => (
 				<ListItem
 					id={it.id}
-					label={it.graduationRequest?.studentProgram.stdNo || 'Unknown Student'}
+					label={
+						it.graduationRequest?.studentProgram.stdNo || 'Unknown Student'
+					}
 					description={it.graduationRequest?.studentProgram.student.name}
 					rightSection={getStatusIcon(it.status)}
 				/>

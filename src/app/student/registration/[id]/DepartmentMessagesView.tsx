@@ -12,13 +12,20 @@ type Props = {
 export default function DepartmentMessagesView({ registration }: Props) {
 	const { clearances = [] } = registration;
 
-	const rejectedClearances = clearances.filter((c) => c.clearance.status === 'rejected');
+	const rejectedClearances = clearances.filter(
+		(c) => c.clearance.status === 'rejected'
+	);
 
 	if (rejectedClearances.length === 0 && registration.message) {
 		return (
 			<>
 				<Divider my='sm' />
-				<Alert icon={<IconInfoCircle size='1rem' />} color='blue' variant='light' title='Message'>
+				<Alert
+					icon={<IconInfoCircle size='1rem' />}
+					color='blue'
+					variant='light'
+					title='Message'
+				>
 					{registration.message}
 				</Alert>
 			</>
@@ -58,7 +65,8 @@ export default function DepartmentMessagesView({ registration }: Props) {
 									</Text>
 								)}
 								{rejectedClearances.length > 1 &&
-									clearanceMapping !== rejectedClearances[rejectedClearances.length - 1] && (
+									clearanceMapping !==
+										rejectedClearances[rejectedClearances.length - 1] && (
 										<Divider mt='sm' />
 									)}
 							</Box>

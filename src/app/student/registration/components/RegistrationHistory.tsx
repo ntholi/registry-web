@@ -12,7 +12,11 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { IconCalendar, IconChevronRight, IconFileText } from '@tabler/icons-react';
+import {
+	IconCalendar,
+	IconChevronRight,
+	IconFileText,
+} from '@tabler/icons-react';
 import Link from 'next/link';
 import { formatDateTime, formatSemester } from '@/lib/utils';
 import type { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
@@ -92,8 +96,9 @@ export default function RegistrationHistory({ data, stdNo }: Props) {
 								No Registration Requests
 							</Text>
 							<Text size='sm' c='dimmed' ta='center'>
-								You haven&apos;t submitted any registration requests yet. Your registration history
-								will appear here once you submit your first request.
+								You haven&apos;t submitted any registration requests yet. Your
+								registration history will appear here once you submit your first
+								request.
 							</Text>
 						</Stack>
 					</Stack>

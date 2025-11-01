@@ -68,8 +68,15 @@ export default function GradeSymbolModal({
 				queryKey: ['moduleGrades', moduleId],
 			});
 
-			const previousModuleGrade = queryClient.getQueryData(['moduleGrade', moduleId, studentId]);
-			const previousModuleGrades = queryClient.getQueryData(['moduleGrades', moduleId]);
+			const previousModuleGrade = queryClient.getQueryData([
+				'moduleGrade',
+				moduleId,
+				studentId,
+			]);
+			const previousModuleGrades = queryClient.getQueryData([
+				'moduleGrades',
+				moduleId,
+			]);
 
 			const optimisticModuleGrade = {
 				id: Date.now(),
@@ -81,21 +88,29 @@ export default function GradeSymbolModal({
 				updatedAt: new Date(),
 			};
 
-			queryClient.setQueryData(['moduleGrade', moduleId, studentId], optimisticModuleGrade);
+			queryClient.setQueryData(
+				['moduleGrade', moduleId, studentId],
+				optimisticModuleGrade
+			);
 
-			queryClient.setQueryData(['moduleGrades', moduleId], (old: ModuleGrade[]) => {
-				if (!old) return [optimisticModuleGrade];
+			queryClient.setQueryData(
+				['moduleGrades', moduleId],
+				(old: ModuleGrade[]) => {
+					if (!old) return [optimisticModuleGrade];
 
-				const existingIndex = old.findIndex((grade) => grade.stdNo === studentId);
+					const existingIndex = old.findIndex(
+						(grade) => grade.stdNo === studentId
+					);
 
-				if (existingIndex >= 0) {
-					const updated = [...old];
-					updated[existingIndex] = optimisticModuleGrade;
-					return updated;
-				} else {
-					return [...old, optimisticModuleGrade];
+					if (existingIndex >= 0) {
+						const updated = [...old];
+						updated[existingIndex] = optimisticModuleGrade;
+						return updated;
+					} else {
+						return [...old, optimisticModuleGrade];
+					}
 				}
-			});
+			);
 
 			return { previousModuleGrade, previousModuleGrades };
 		},
@@ -115,10 +130,16 @@ export default function GradeSymbolModal({
 		},
 		onError: (error, _data, context) => {
 			if (context?.previousModuleGrade) {
-				queryClient.setQueryData(['moduleGrade', moduleId, studentId], context.previousModuleGrade);
+				queryClient.setQueryData(
+					['moduleGrade', moduleId, studentId],
+					context.previousModuleGrade
+				);
 			}
 			if (context?.previousModuleGrades) {
-				queryClient.setQueryData(['moduleGrades', moduleId], context.previousModuleGrades);
+				queryClient.setQueryData(
+					['moduleGrades', moduleId],
+					context.previousModuleGrades
+				);
 			}
 
 			notifications.show({
@@ -229,7 +250,8 @@ export default function GradeSymbolModal({
 						<Paper p='md' withBorder>
 							<Stack gap='md'>
 								<Text size='sm' c='dimmed'>
-									The grade will be automatically generated based on the weighted total.
+									The grade will be automatically generated based on the
+									weighted total.
 								</Text>
 								<Group>
 									<Text size='sm' fw={500}>

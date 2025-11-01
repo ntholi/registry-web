@@ -1,10 +1,21 @@
-import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import {
+	Document,
+	Font,
+	Image,
+	Page,
+	StyleSheet,
+	Text,
+	View,
+} from '@react-pdf/renderer';
 import { formatDate, toTitleCase } from '@/lib/utils';
 import type { getGraduationClearanceData } from '@/server/graduation/requests/actions';
 
 Font.register({
 	family: 'Arial',
-	fonts: [{ src: '/fonts/ARIAL.TTF' }, { src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' }],
+	fonts: [
+		{ src: '/fonts/ARIAL.TTF' },
+		{ src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' },
+	],
 });
 
 const styles = StyleSheet.create({
@@ -200,13 +211,17 @@ const styles = StyleSheet.create({
 	},
 });
 
-type GraduationClearanceData = NonNullable<Awaited<ReturnType<typeof getGraduationClearanceData>>>;
+type GraduationClearanceData = NonNullable<
+	Awaited<ReturnType<typeof getGraduationClearanceData>>
+>;
 
 type ProofOfClearancePDFProps = {
 	graduationData: GraduationClearanceData;
 };
 
-export default function ProofOfClearancePDF({ graduationData }: ProofOfClearancePDFProps) {
+export default function ProofOfClearancePDF({
+	graduationData,
+}: ProofOfClearancePDFProps) {
 	if (!graduationData) {
 		return (
 			<Document>
@@ -230,10 +245,14 @@ export default function ProofOfClearancePDF({ graduationData }: ProofOfClearance
 		<Document>
 			<Page size='A4' style={styles.page}>
 				<View style={styles.headerContainer}>
-					<Text style={styles.universityName}>Limkokwing University of Creative Technology</Text>
+					<Text style={styles.universityName}>
+						Limkokwing University of Creative Technology
+					</Text>
 					<View style={styles.headerContent}>
 						<View style={styles.addressContainer}>
-							<Text style={styles.addressLine}>Moshoshoe Road Maseru Central</Text>
+							<Text style={styles.addressLine}>
+								Moshoshoe Road Maseru Central
+							</Text>
 							<Text style={styles.addressLine}>P.O. Box 8571</Text>
 							<Text style={styles.addressLine}>Maseru Maseru 0101</Text>
 							<Text style={styles.addressLine}>Lesotho</Text>
@@ -301,9 +320,10 @@ export default function ProofOfClearancePDF({ graduationData }: ProofOfClearance
 
 				<View style={styles.clearanceSection}>
 					<Text style={styles.statementText}>
-						The student has successfully completed all program requirements and has met all
-						university obligations. This clearance is issued to confirm that there are no
-						outstanding issues that would prevent the not prevented from graduating.
+						The student has successfully completed all program requirements and
+						has met all university obligations. This clearance is issued to
+						confirm that there are no outstanding issues that would prevent the
+						not prevented from graduating.
 					</Text>
 				</View>
 
@@ -327,11 +347,17 @@ export default function ProofOfClearancePDF({ graduationData }: ProofOfClearance
 								return (
 									<View
 										key={receipt.id}
-										style={isLastRow ? styles.paymentLastDataRow : styles.paymentDataRow}
+										style={
+											isLastRow
+												? styles.paymentLastDataRow
+												: styles.paymentDataRow
+										}
 									>
 										<View
 											style={[
-												isLastRow ? styles.paymentLastDataCell : styles.paymentDataCell,
+												isLastRow
+													? styles.paymentLastDataCell
+													: styles.paymentDataCell,
 												styles.paymentTypeCol,
 											]}
 										>
@@ -341,11 +367,15 @@ export default function ProofOfClearancePDF({ graduationData }: ProofOfClearance
 										</View>
 										<View
 											style={[
-												isLastRow ? styles.paymentLastDataCell : styles.paymentDataCell,
+												isLastRow
+													? styles.paymentLastDataCell
+													: styles.paymentDataCell,
 												styles.receiptNoCol,
 											]}
 										>
-											<Text style={styles.receiptNoText}>{receipt.receiptNo}</Text>
+											<Text style={styles.receiptNoText}>
+												{receipt.receiptNo}
+											</Text>
 										</View>
 									</View>
 								);
@@ -357,21 +387,22 @@ export default function ProofOfClearancePDF({ graduationData }: ProofOfClearance
 				<View style={styles.warningSection}>
 					<Text style={styles.warningTitle}>IMPORTANT NOTICE</Text>
 					<Text style={styles.warningText}>
-						Please verify that all information on this document, especially the student name and
-						national ID number, are correct. If you find any discrepancies, please contact the
-						Registry Office immediately! This document is only valid if all information is accurate
-						and complete.
+						Please verify that all information on this document, especially the
+						student name and national ID number, are correct. If you find any
+						discrepancies, please contact the Registry Office immediately! This
+						document is only valid if all information is accurate and complete.
 					</Text>
 				</View>
 
 				<View style={styles.footerSection}>
 					<Text style={styles.footerText}>
-						Document ID: clearance_{student.stdNo}_{formatDate(new Date()).replace(/\//g, '')} |
-						This document serves as official proof that all departmental clearances have been
-						approved for graduation. All academic, financial, and library obligations have been
-						satisfied. Clearance processed through the official university system on{' '}
-						{formatDate(new Date())}. This certificate is invalid if any information is found to be
-						incorrect.
+						Document ID: clearance_{student.stdNo}_
+						{formatDate(new Date()).replace(/\//g, '')} | This document serves
+						as official proof that all departmental clearances have been
+						approved for graduation. All academic, financial, and library
+						obligations have been satisfied. Clearance processed through the
+						official university system on {formatDate(new Date())}. This
+						certificate is invalid if any information is found to be incorrect.
 					</Text>
 				</View>
 			</Page>

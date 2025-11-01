@@ -40,7 +40,9 @@ export default function ImportProgress({
 				}> = [];
 
 				for (const row of validRows) {
-					for (const [assessmentId, marks] of Object.entries(row.assessmentMarks)) {
+					for (const [assessmentId, marks] of Object.entries(
+						row.assessmentMarks
+					)) {
 						bulkData.push({
 							assessmentId: parseInt(assessmentId, 10),
 							stdNo: parseInt(row.studentNumber, 10),
@@ -91,10 +93,13 @@ export default function ImportProgress({
 		onError: (error) => {
 			notifications.show({
 				title: 'Import Failed',
-				message: error instanceof Error ? error.message : 'Failed to import data',
+				message:
+					error instanceof Error ? error.message : 'Failed to import data',
 				color: 'red',
 			});
-			onImportError(error instanceof Error ? error : new Error('Import failed'));
+			onImportError(
+				error instanceof Error ? error : new Error('Import failed')
+			);
 		},
 	});
 
@@ -112,7 +117,11 @@ export default function ImportProgress({
 					<Button variant='subtle' onClick={onBack}>
 						Back
 					</Button>
-					<Button onClick={handleImport} disabled={parsedRows.length === 0} loading={isImporting}>
+					<Button
+						onClick={handleImport}
+						disabled={parsedRows.length === 0}
+						loading={isImporting}
+					>
 						Start Import
 					</Button>
 				</Group>
@@ -124,7 +133,8 @@ export default function ImportProgress({
 							Importing data
 						</Text>
 						<Text size='xs' c='dimmed'>
-							Processing {totalRecords} student records, this may take a while...
+							Processing {totalRecords} student records, this may take a
+							while...
 						</Text>
 						<Progress value={100} animated striped />
 					</Stack>

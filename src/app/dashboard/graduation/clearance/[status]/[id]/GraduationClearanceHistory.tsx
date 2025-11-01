@@ -1,6 +1,15 @@
 'use client';
 
-import { Accordion, Badge, Center, Group, Loader, Paper, Table, Text } from '@mantine/core';
+import {
+	Accordion,
+	Badge,
+	Center,
+	Group,
+	Loader,
+	Paper,
+	Table,
+	Text,
+} from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import Link from '@/components/Link';
 import { formatDateTime } from '@/lib/utils';
@@ -84,7 +93,10 @@ export default function GraduationClearanceHistory({ stdNo }: Props) {
 												<Table.Td>{audit.newStatus}</Table.Td>
 												<Table.Td>{audit.message || '-'}</Table.Td>
 												<Table.Td>
-													<Link size='sm' href={`/dashboard/users/${audit.createdBy}`}>
+													<Link
+														size='sm'
+														href={`/dashboard/users/${audit.createdBy}`}
+													>
 														{audit.user.name || 'Unknown User'}
 													</Link>
 												</Table.Td>

@@ -12,7 +12,9 @@ type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function GraduationClearanceRequestDetails({ params }: Props) {
+export default async function GraduationClearanceRequestDetails({
+	params,
+}: Props) {
 	const { id } = await params;
 	const request = await getGraduationClearance(Number(id));
 	const session = await auth();
@@ -38,10 +40,14 @@ export default async function GraduationClearanceRequestDetails({ params }: Prop
 					<GraduationClearanceDetails request={request} />
 				</TabsPanel>
 				<TabsPanel value='academics'>
-					<AcademicsLoader stdNo={request.graduationRequest.studentProgram.stdNo} />
+					<AcademicsLoader
+						stdNo={request.graduationRequest.studentProgram.stdNo}
+					/>
 				</TabsPanel>
 				<TabsPanel value='history'>
-					<GraduationClearanceHistory stdNo={request.graduationRequest.studentProgram.stdNo} />
+					<GraduationClearanceHistory
+						stdNo={request.graduationRequest.studentProgram.stdNo}
+					/>
 				</TabsPanel>
 			</Tabs>
 		</DetailsView>

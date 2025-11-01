@@ -1,6 +1,15 @@
 'use client';
 
-import { Box, Checkbox, CloseButton, Flex, Paper, Select, Stack, TextInput } from '@mantine/core';
+import {
+	Box,
+	Checkbox,
+	CloseButton,
+	Flex,
+	Paper,
+	Select,
+	Stack,
+	TextInput,
+} from '@mantine/core';
 import { IconFilter, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getAllPrograms } from '@/server/schools/actions';
@@ -90,7 +99,11 @@ export default function SponsoredStudentsHeader({
 							leftSection={<IconSearch size='1.1rem' stroke={1.5} />}
 							rightSection={
 								searchQuery ? (
-									<CloseButton onClick={() => onSearchChange('')} variant='subtle' size='sm' />
+									<CloseButton
+										onClick={() => onSearchChange('')}
+										variant='subtle'
+										size='sm'
+									/>
 								) : null
 							}
 							styles={{
@@ -110,7 +123,12 @@ export default function SponsoredStudentsHeader({
 					gap='md'
 					align={{ base: 'stretch', md: 'flex-start' }}
 				>
-					<Flex flex={1} direction={{ base: 'column', sm: 'row' }} gap='md' align='center'>
+					<Flex
+						flex={1}
+						direction={{ base: 'column', sm: 'row' }}
+						gap='md'
+						align='center'
+					>
 						<Box flex={1} miw={200}>
 							<Select
 								placeholder='All Sponsors'

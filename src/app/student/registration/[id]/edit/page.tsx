@@ -14,7 +14,11 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconArrowLeft, IconArrowRight, IconInfoCircle } from '@tabler/icons-react';
+import {
+	IconArrowLeft,
+	IconArrowRight,
+	IconInfoCircle,
+} from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -74,7 +78,8 @@ export default function EditRegistrationPage() {
 		semesterNo: number;
 		status: 'Active' | 'Repeat';
 	} | null>(null);
-	const [sponsorshipData, setSponsorshipData] = useState<SponsorshipData | null>(null);
+	const [sponsorshipData, setSponsorshipData] =
+		useState<SponsorshipData | null>(null);
 	const { currentTerm } = useCurrentTerm();
 
 	const registrationId = Number(params.id);
@@ -88,11 +93,12 @@ export default function EditRegistrationPage() {
 		enabled: !!student?.stdNo,
 	});
 
-	const { data: registrationRequest, isLoading: registrationLoading } = useQuery({
-		queryKey: ['registration-request', registrationId],
-		queryFn: () => getRegistrationRequest(registrationId),
-		enabled: !!registrationId,
-	});
+	const { data: registrationRequest, isLoading: registrationLoading } =
+		useQuery({
+			queryKey: ['registration-request', registrationId],
+			queryFn: () => getRegistrationRequest(registrationId),
+			enabled: !!registrationId,
+		});
 
 	const { data: moduleResult, isLoading: modulesLoading } = useQuery({
 		queryKey: ['student-semester-modules', student?.stdNo],
@@ -120,7 +126,9 @@ export default function EditRegistrationPage() {
 				return null;
 			}
 			const modulesWithStatus = availableModules.filter((module) =>
-				selectedModules.some((selected) => selected.moduleId === module.semesterModuleId)
+				selectedModules.some(
+					(selected) => selected.moduleId === module.semesterModuleId
+				)
 			);
 			return await determineSemesterStatus(modulesWithStatus, student);
 		},
@@ -210,13 +218,20 @@ export default function EditRegistrationPage() {
 		}
 	};
 
-	const canProceedStep1 = selectedModules.length > 0 && selectedModules.length <= MAX_REG_MODULES;
+	const canProceedStep1 =
+		selectedModules.length > 0 && selectedModules.length <= MAX_REG_MODULES;
 	const canProceedStep2 = semesterData !== null;
 	const canSubmit = sponsorshipData !== null;
 
 	const progressValue = ((activeStep + 1) / STEPS.length) * 100;
 
-	if (studentLoading || blockedLoading || registrationLoading || !student || !registrationRequest) {
+	if (
+		studentLoading ||
+		blockedLoading ||
+		registrationLoading ||
+		!student ||
+		!registrationRequest
+	) {
 		return (
 			<Container size='lg' py='xl'>
 				<LoadingOverlay visible />
@@ -227,7 +242,11 @@ export default function EditRegistrationPage() {
 	if (blockedStudent && blockedStudent.status === 'blocked') {
 		return (
 			<Container size='lg' py='xl'>
-				<Alert icon={<IconInfoCircle size='1rem' />} title='Registration Blocked' color='red'>
+				<Alert
+					icon={<IconInfoCircle size='1rem' />}
+					title='Registration Blocked'
+					color='red'
+				>
 					Your account has been blocked from registering. Please contact the{' '}
 					{blockedStudent.byDepartment} office for assistance.
 					<br />
@@ -240,7 +259,11 @@ export default function EditRegistrationPage() {
 	if (!currentTerm) {
 		return (
 			<Container size='lg' py='xl'>
-				<Alert icon={<IconInfoCircle size='1rem' />} title='No Active Term' color='orange'>
+				<Alert
+					icon={<IconInfoCircle size='1rem' />}
+					title='No Active Term'
+					color='orange'
+				>
 					There is currently no active registration term.
 				</Alert>
 			</Container>
@@ -255,8 +278,8 @@ export default function EditRegistrationPage() {
 					title='Cannot Edit Registration'
 					color='orange'
 				>
-					You can only edit registrations that are in pending status. This registration is currently{' '}
-					{registrationRequest.status}.
+					You can only edit registrations that are in pending status. This
+					registration is currently {registrationRequest.status}.
 				</Alert>
 			</Container>
 		);
@@ -305,7 +328,9 @@ export default function EditRegistrationPage() {
 					<Group justify='space-between'>
 						<Text c='dimmed'>Term: {currentTerm.name}</Text>
 						<Badge
-							color={registrationRequest.status === 'pending' ? 'yellow' : 'blue'}
+							color={
+								registrationRequest.status === 'pending' ? 'yellow' : 'blue'
+							}
 							variant='light'
 							size='sm'
 							mt='xs'
@@ -350,14 +375,19 @@ export default function EditRegistrationPage() {
 						<Button
 							onClick={nextStep}
 							disabled={
-								(activeStep === 0 && !canProceedStep1) || (activeStep === 1 && !canProceedStep2)
+								(activeStep === 0 && !canProceedStep1) ||
+								(activeStep === 1 && !canProceedStep2)
 							}
 							rightSection={<IconArrowRight size={16} />}
 						>
 							Next
 						</Button>
 					) : (
-						<Button onClick={handleSubmit} disabled={!canSubmit} loading={updateMutation.isPending}>
+						<Button
+							onClick={handleSubmit}
+							disabled={!canSubmit}
+							loading={updateMutation.isPending}
+						>
 							Update Registration
 						</Button>
 					)}

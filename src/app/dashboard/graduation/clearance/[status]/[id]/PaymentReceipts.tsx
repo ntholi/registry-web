@@ -35,7 +35,10 @@ export default function PaymentReceipts({ graduationRequest }: Props) {
 		}
 	};
 
-	if (!graduationRequest.paymentReceipts || graduationRequest.paymentReceipts.length === 0) {
+	if (
+		!graduationRequest.paymentReceipts ||
+		graduationRequest.paymentReceipts.length === 0
+	) {
 		return (
 			<Card shadow='sm' padding='xl' radius='md' withBorder>
 				<Stack align='center' gap='md'>
@@ -45,7 +48,8 @@ export default function PaymentReceipts({ graduationRequest }: Props) {
 							No Payment Receipts
 						</Text>
 						<Text size='sm' c='dimmed' ta='center'>
-							No payment receipts have been submitted for this graduation request yet.
+							No payment receipts have been submitted for this graduation
+							request yet.
 						</Text>
 					</Stack>
 				</Stack>
@@ -59,7 +63,11 @@ export default function PaymentReceipts({ graduationRequest }: Props) {
 				<Card withBorder key={receipt.id}>
 					<Group justify='space-between' mb='xs'>
 						<Group>
-							<ThemeIcon color={getPaymentTypeColor(receipt.paymentType)} variant='light' size='sm'>
+							<ThemeIcon
+								color={getPaymentTypeColor(receipt.paymentType)}
+								variant='light'
+								size='sm'
+							>
 								<IconReceipt size='1rem' />
 							</ThemeIcon>
 							<Text fw={500} size='sm'>

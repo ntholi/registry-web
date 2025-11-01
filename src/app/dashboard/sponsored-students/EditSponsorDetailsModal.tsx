@@ -1,12 +1,24 @@
 'use client';
 
-import { Button, Group, Modal, Select, Stack, Switch, Text, TextInput } from '@mantine/core';
+import {
+	Button,
+	Group,
+	Modal,
+	Select,
+	Stack,
+	Switch,
+	Text,
+	TextInput,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useCurrentTerm } from '@/hooks/use-current-term';
-import { findAllSponsors, updateStudentSponsorshipById } from '@/server/sponsors/actions';
+import {
+	findAllSponsors,
+	updateStudentSponsorshipById,
+} from '@/server/sponsors/actions';
 
 interface SponsoredStudentData {
 	id: number;
@@ -35,10 +47,16 @@ export default function EditSponsorDetailsModal({
 }: EditSponsorDetailsModalProps) {
 	const [opened, setOpened] = useState(false);
 	const [sponsorId, setSponsorId] = useState(sponsoredStudent.sponsorId);
-	const [borrowerNo, setBorrowerNo] = useState(sponsoredStudent.borrowerNo || '');
+	const [borrowerNo, setBorrowerNo] = useState(
+		sponsoredStudent.borrowerNo || ''
+	);
 	const [bankName, setBankName] = useState(sponsoredStudent.bankName || '');
-	const [accountNumber, setAccountNumber] = useState(sponsoredStudent.accountNumber || '');
-	const [confirmed, setConfirmed] = useState(sponsoredStudent.confirmed || false);
+	const [accountNumber, setAccountNumber] = useState(
+		sponsoredStudent.accountNumber || ''
+	);
+	const [confirmed, setConfirmed] = useState(
+		sponsoredStudent.confirmed || false
+	);
 
 	const bankOptions = [
 		{ value: 'SLB', label: 'Standard Lesotho Bank' },
@@ -218,7 +236,9 @@ export default function EditSponsorDetailsModal({
 						<Button
 							onClick={handleSubmit}
 							loading={updateMutation.isPending}
-							disabled={!hasChanges || (isNMDS(sponsorId) && !borrowerNo.trim())}
+							disabled={
+								!hasChanges || (isNMDS(sponsorId) && !borrowerNo.trim())
+							}
 						>
 							Update Details
 						</Button>

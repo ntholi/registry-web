@@ -8,7 +8,11 @@ import {
 	TabsTab,
 	ThemeIcon,
 } from '@mantine/core';
-import { IconCheck, IconClock, IconExclamationCircle } from '@tabler/icons-react';
+import {
+	IconCheck,
+	IconClock,
+	IconExclamationCircle,
+} from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
 import type { DashboardUser, registrationRequestStatus } from '@/db/schema';
@@ -27,7 +31,9 @@ interface Props {
 }
 
 function getOverallClearanceStatus(
-	registrationRequest: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>
+	registrationRequest: NonNullable<
+		Awaited<ReturnType<typeof getRegistrationRequest>>
+	>
 ) {
 	const departments: DashboardUser[] = ['finance', 'library'];
 	const statuses = departments.map((dept) => {
@@ -42,7 +48,9 @@ function getOverallClearanceStatus(
 	return 'approved';
 }
 
-function getStatusColor(status: (typeof registrationRequestStatus.enumValues)[number]) {
+function getStatusColor(
+	status: (typeof registrationRequestStatus.enumValues)[number]
+) {
 	switch (status) {
 		case 'approved':
 			return 'green';
@@ -53,7 +61,9 @@ function getStatusColor(status: (typeof registrationRequestStatus.enumValues)[nu
 	}
 }
 
-function getStatusIcon(status: (typeof registrationRequestStatus.enumValues)[number]) {
+function getStatusIcon(
+	status: (typeof registrationRequestStatus.enumValues)[number]
+) {
 	switch (status) {
 		case 'approved':
 			return <IconCheck size={16} />;
@@ -64,7 +74,10 @@ function getStatusIcon(status: (typeof registrationRequestStatus.enumValues)[num
 	}
 }
 
-export default async function RegistrationRequestDetails({ params, searchParams }: Props) {
+export default async function RegistrationRequestDetails({
+	params,
+	searchParams,
+}: Props) {
 	const { id } = await params;
 	const sp = (await searchParams) || {};
 	const defaultTab = typeof sp.tab === 'string' ? sp.tab : undefined;
@@ -72,7 +85,9 @@ export default async function RegistrationRequestDetails({ params, searchParams 
 	const rawDept = sp.dept;
 	const deptParam = Array.isArray(rawDept) ? rawDept[0] : rawDept;
 	const defaultDept: ClearanceDept | undefined =
-		deptParam === 'finance' || deptParam === 'library' ? (deptParam as ClearanceDept) : undefined;
+		deptParam === 'finance' || deptParam === 'library'
+			? (deptParam as ClearanceDept)
+			: undefined;
 	const registrationRequest = await getRegistrationRequest(Number(id));
 
 	if (!registrationRequest) {
@@ -101,7 +116,9 @@ export default async function RegistrationRequestDetails({ params, searchParams 
 					<TabsTab value='clearance'>
 						<Group gap='xs'>
 							<ThemeIcon
-								color={getStatusColor(getOverallClearanceStatus(registrationRequest))}
+								color={getStatusColor(
+									getOverallClearanceStatus(registrationRequest)
+								)}
 								variant='light'
 								size={20}
 							>
@@ -113,14 +130,20 @@ export default async function RegistrationRequestDetails({ params, searchParams 
 				</TabsList>
 				<TabsPanel value='details'>
 					<Stack mt='md' p='sm'>
-						<RequestDetailsView value={registrationRequest} sponsorship={sponsorship} />
+						<RequestDetailsView
+							value={registrationRequest}
+							sponsorship={sponsorship}
+						/>
 						<Divider />
 						<ModulesView value={registrationRequest} />
 					</Stack>
 				</TabsPanel>
 				<TabsPanel value='clearance'>
 					<Stack gap='xl' mt='md' p='sm'>
-						<ClearanceAccordion value={registrationRequest} defaultDept={defaultDept} />
+						<ClearanceAccordion
+							value={registrationRequest}
+							defaultDept={defaultDept}
+						/>
 					</Stack>
 				</TabsPanel>
 			</Tabs>

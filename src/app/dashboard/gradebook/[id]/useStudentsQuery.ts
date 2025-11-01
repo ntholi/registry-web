@@ -12,7 +12,10 @@ type UseStudentsQueryParams = {
 	searchQuery: string;
 };
 
-export function useStudentsQuery({ moduleId, searchQuery }: UseStudentsQueryParams) {
+export function useStudentsQuery({
+	moduleId,
+	searchQuery,
+}: UseStudentsQueryParams) {
 	const [programId] = useQueryState('programId');
 	return useQuery({
 		queryKey: ['students', moduleId],
@@ -21,7 +24,9 @@ export function useStudentsQuery({ moduleId, searchQuery }: UseStudentsQueryPara
 			let filteredData = data;
 
 			if (programId) {
-				filteredData = data.filter((it) => it.programId?.toString() === programId);
+				filteredData = data.filter(
+					(it) => it.programId?.toString() === programId
+				);
 			}
 
 			if (searchQuery.trim()) {

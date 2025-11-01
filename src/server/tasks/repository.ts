@@ -1,7 +1,9 @@
 import { and, eq, inArray, or, type SQL } from 'drizzle-orm';
 import { db } from '@/db';
 import { type DashboardUser, taskAssignments, tasks, users } from '@/db/schema';
-import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 
 export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	constructor() {
@@ -25,7 +27,10 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		let taskWhere: SQL | undefined;
 
 		if (taskIds.length > 0) {
-			taskWhere = or(eq(tasks.department, department as DashboardUser), inArray(tasks.id, taskIds));
+			taskWhere = or(
+				eq(tasks.department, department as DashboardUser),
+				inArray(tasks.id, taskIds)
+			);
 		} else {
 			taskWhere = eq(tasks.department, department as DashboardUser);
 		}
@@ -91,7 +96,10 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		await db.insert(taskAssignments).values(assignments);
 	}
 
-	async createWithAssignments(taskData: typeof tasks.$inferInsert, assignedUserIds: string[] = []) {
+	async createWithAssignments(
+		taskData: typeof tasks.$inferInsert,
+		assignedUserIds: string[] = []
+	) {
 		return await db.transaction(async (tx) => {
 			const [task] = await tx.insert(tasks).values(taskData).returning();
 
@@ -114,10 +122,16 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		assignedUserIds?: string[]
 	) {
 		return await db.transaction(async (tx) => {
-			const [task] = await tx.update(tasks).set(taskData).where(eq(tasks.id, taskId)).returning();
+			const [task] = await tx
+				.update(tasks)
+				.set(taskData)
+				.where(eq(tasks.id, taskId))
+				.returning();
 
 			if (assignedUserIds !== undefined) {
-				await tx.delete(taskAssignments).where(eq(taskAssignments.taskId, taskId));
+				await tx
+					.delete(taskAssignments)
+					.where(eq(taskAssignments.taskId, taskId));
 
 				if (assignedUserIds.length > 0) {
 					const assignments = assignedUserIds.map((userId) => ({

@@ -10,7 +10,13 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { IconBook, IconCheck, IconFileText, IconSchool, IconUser } from '@tabler/icons-react';
+import {
+	IconBook,
+	IconCheck,
+	IconFileText,
+	IconSchool,
+	IconUser,
+} from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { formatDateTime } from '@/lib/utils';
 import { getStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
@@ -48,7 +54,8 @@ export default async function StatementOfResultsPage({ params }: Props) {
 					mb='xl'
 				>
 					<Text size='sm' c='dimmed'>
-						Please verify that the printed document matches the information below
+						Please verify that the printed document matches the information
+						below
 					</Text>
 				</Alert>
 
@@ -189,7 +196,12 @@ export default async function StatementOfResultsPage({ params }: Props) {
 									<Text size='sm' c='dimmed' mb={4}>
 										Verification ID
 									</Text>
-									<Text size='sm' ff='monospace' c='dimmed' style={{ wordBreak: 'break-all' }}>
+									<Text
+										size='sm'
+										ff='monospace'
+										c='dimmed'
+										style={{ wordBreak: 'break-all' }}
+									>
 										{item.id}
 									</Text>
 								</Paper>

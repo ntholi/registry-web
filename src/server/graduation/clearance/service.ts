@@ -8,16 +8,24 @@ import GraduationClearanceRepository from './repository';
 type Clearance = typeof clearance.$inferInsert;
 
 class GraduationClearanceService {
-	constructor(private readonly repository = new GraduationClearanceRepository()) {}
+	constructor(
+		private readonly repository = new GraduationClearanceRepository()
+	) {}
 
 	async get(id: number) {
-		return withAuth(async () => this.repository.findByIdWithRelations(id), ['dashboard']);
+		return withAuth(
+			async () => this.repository.findByIdWithRelations(id),
+			['dashboard']
+		);
 	}
 
 	async countByStatus(status: 'pending' | 'approved' | 'rejected') {
 		const session = await auth();
 		if (!session?.user?.role) return 0;
-		return this.repository.countByStatus(status, session.user.role as DashboardUser);
+		return this.repository.countByStatus(
+			status,
+			session.user.role as DashboardUser
+		);
 	}
 
 	async findByDepartment(
@@ -40,7 +48,9 @@ class GraduationClearanceService {
 
 				// If status is changing and responseDate is not already set, set response tracking
 				const shouldSetResponseTracking =
-					data.status && data.status !== current.status && !current.responseDate;
+					data.status &&
+					data.status !== current.status &&
+					!current.responseDate;
 
 				if (shouldSetResponseTracking) {
 					return this.repository.update(id, {
@@ -75,14 +85,20 @@ class GraduationClearanceService {
 	}
 
 	async getHistory(clearanceId: number) {
-		return withAuth(async () => this.repository.findHistory(clearanceId), ['dashboard']);
+		return withAuth(
+			async () => this.repository.findHistory(clearanceId),
+			['dashboard']
+		);
 	}
 
 	async getHistoryByStudentNo(stdNo: number) {
 		return withAuth(async () => {
 			const session = await auth();
 			if (!session?.user?.role) throw new Error('Unauthorized');
-			return this.repository.findHistoryByStudentNo(stdNo, session.user.role as DashboardUser);
+			return this.repository.findHistoryByStudentNo(
+				stdNo,
+				session.user.role as DashboardUser
+			);
 		}, ['dashboard']);
 	}
 }

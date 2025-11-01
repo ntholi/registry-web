@@ -47,7 +47,12 @@ export async function GET(request: NextRequest) {
 		const [account] = await db
 			.select()
 			.from(accounts)
-			.where(and(eq(accounts.userId, session.user.id), eq(accounts.provider, 'google')))
+			.where(
+				and(
+					eq(accounts.userId, session.user.id),
+					eq(accounts.provider, 'google')
+				)
+			)
 			.limit(1);
 
 		if (account) {
@@ -63,15 +68,25 @@ export async function GET(request: NextRequest) {
 				.set({
 					access_token: tokens.access_token,
 					refresh_token: tokens.refresh_token || account.refresh_token,
-					expires_at: tokens.expiry_date ? Math.floor(tokens.expiry_date / 1000) : null,
+					expires_at: tokens.expiry_date
+						? Math.floor(tokens.expiry_date / 1000)
+						: null,
 					scope: existingScopes.join(' '),
 				})
-				.where(and(eq(accounts.userId, session.user.id), eq(accounts.provider, 'google')));
+				.where(
+					and(
+						eq(accounts.userId, session.user.id),
+						eq(accounts.provider, 'google')
+					)
+				);
 		}
 
 		return NextResponse.redirect(new URL(returnUrl, request.url));
 	} catch (error) {
 		console.error('Error exchanging code for tokens:', error);
-		return NextResponse.json({ error: 'Failed to authenticate with Google' }, { status: 500 });
+		return NextResponse.json(
+			{ error: 'Failed to authenticate with Google' },
+			{ status: 500 }
+		);
 	}
 }

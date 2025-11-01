@@ -33,7 +33,11 @@ export function StatusToggle({
 				onClick={handleToggle}
 				size='lg'
 			>
-				{status === 'blocked' ? <IconLock size='1rem' /> : <IconLockOpen size='1rem' />}
+				{status === 'blocked' ? (
+					<IconLock size='1rem' />
+				) : (
+					<IconLockOpen size='1rem' />
+				)}
 			</ActionIcon>
 		</Tooltip>
 	);

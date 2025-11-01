@@ -11,7 +11,10 @@ import BaseRepository from '@/server/base/BaseRepository';
 
 type SponsoredStudent = typeof sponsoredStudents.$inferSelect;
 
-export default class SponsorRepository extends BaseRepository<typeof sponsors, 'id'> {
+export default class SponsorRepository extends BaseRepository<
+	typeof sponsors,
+	'id'
+> {
 	constructor() {
 		super(sponsors, sponsors.id);
 	}
@@ -25,9 +28,20 @@ export default class SponsorRepository extends BaseRepository<typeof sponsors, '
 				updatedAt: sponsors.updatedAt,
 			})
 			.from(sponsors)
-			.innerJoin(sponsoredStudents, eq(sponsors.id, sponsoredStudents.sponsorId))
-			.innerJoin(sponsoredTerms, eq(sponsoredStudents.id, sponsoredTerms.sponsoredStudentId))
-			.where(and(eq(sponsoredStudents.stdNo, stdNo), eq(sponsoredTerms.termId, termId)))
+			.innerJoin(
+				sponsoredStudents,
+				eq(sponsors.id, sponsoredStudents.sponsorId)
+			)
+			.innerJoin(
+				sponsoredTerms,
+				eq(sponsoredStudents.id, sponsoredTerms.sponsoredStudentId)
+			)
+			.where(
+				and(
+					eq(sponsoredStudents.stdNo, stdNo),
+					eq(sponsoredTerms.termId, termId)
+				)
+			)
 			.limit(1);
 
 		return result[0] || null;
@@ -54,8 +68,16 @@ export default class SponsorRepository extends BaseRepository<typeof sponsors, '
 			})
 			.from(sponsoredStudents)
 			.innerJoin(sponsors, eq(sponsoredStudents.sponsorId, sponsors.id))
-			.innerJoin(sponsoredTerms, eq(sponsoredStudents.id, sponsoredTerms.sponsoredStudentId))
-			.where(and(eq(sponsoredStudents.stdNo, stdNo), eq(sponsoredTerms.termId, termId)))
+			.innerJoin(
+				sponsoredTerms,
+				eq(sponsoredStudents.id, sponsoredTerms.sponsoredStudentId)
+			)
+			.where(
+				and(
+					eq(sponsoredStudents.stdNo, stdNo),
+					eq(sponsoredTerms.termId, termId)
+				)
+			)
 			.limit(1);
 
 		return result[0] || null;
@@ -106,7 +128,9 @@ export default class SponsorRepository extends BaseRepository<typeof sponsors, '
 			totalItemsQuery.where(eq(sponsoredStudents.sponsorId, Number(sponsorId)));
 		}
 
-		const totalItems = await totalItemsQuery.then((result) => result[0]?.count || 0);
+		const totalItems = await totalItemsQuery.then(
+			(result) => result[0]?.count || 0
+		);
 
 		const itemsQuery = db
 			.select()
@@ -124,7 +148,9 @@ export default class SponsorRepository extends BaseRepository<typeof sponsors, '
 
 		const rawItems = await itemsQuery;
 
-		const sponsoredStudentIds = rawItems.map((item) => item.sponsored_students.id);
+		const sponsoredStudentIds = rawItems.map(
+			(item) => item.sponsored_students.id
+		);
 
 		const items = await db.query.sponsoredStudents.findMany({
 			where: inArray(sponsoredStudents.id, sponsoredStudentIds),
@@ -189,7 +215,9 @@ export default class SponsorRepository extends BaseRepository<typeof sponsors, '
 		}
 
 		if (params?.sponsorId) {
-			whereConditions.push(eq(sponsoredStudents.sponsorId, Number(params.sponsorId)));
+			whereConditions.push(
+				eq(sponsoredStudents.sponsorId, Number(params.sponsorId))
+			);
 		}
 
 		if (params?.programId) {
@@ -239,7 +267,8 @@ export default class SponsorRepository extends BaseRepository<typeof sponsors, '
 			);
 		}
 
-		const whereCondition = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+		const whereCondition =
+			whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
 		const totalItemsQuery = db
 			.select({ count: sql<number>`count(*)` })
@@ -251,7 +280,9 @@ export default class SponsorRepository extends BaseRepository<typeof sponsors, '
 			totalItemsQuery.where(whereCondition);
 		}
 
-		const totalItems = await totalItemsQuery.then((result) => result[0]?.count || 0);
+		const totalItems = await totalItemsQuery.then(
+			(result) => result[0]?.count || 0
+		);
 
 		const itemsQuery = db
 			.select()
@@ -269,7 +300,9 @@ export default class SponsorRepository extends BaseRepository<typeof sponsors, '
 		const rawItems = await itemsQuery;
 
 		// Get the sponsored student IDs to fetch relations
-		const sponsoredStudentIds = rawItems.map((item) => item.sponsored_students.id);
+		const sponsoredStudentIds = rawItems.map(
+			(item) => item.sponsored_students.id
+		);
 
 		const items = await db.query.sponsoredStudents.findMany({
 			where: inArray(sponsoredStudents.id, sponsoredStudentIds),
@@ -557,7 +590,9 @@ export default class SponsorRepository extends BaseRepository<typeof sponsors, '
 		const sponsoredStudent = await this.findSponsoredStudent(stdNo, termId);
 
 		if (!sponsoredStudent) {
-			throw new Error(`No sponsored student found for stdNo ${stdNo} in term ${termId}`);
+			throw new Error(
+				`No sponsored student found for stdNo ${stdNo} in term ${termId}`
+			);
 		}
 
 		const result = await db

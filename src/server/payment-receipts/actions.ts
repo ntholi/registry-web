@@ -18,7 +18,9 @@ export async function getPaymentReceipts(page: number = 1, search = '') {
 	return service.getAll({ page, search });
 }
 
-export async function getPaymentReceiptsByGraduationRequest(graduationRequestId: number) {
+export async function getPaymentReceiptsByGraduationRequest(
+	graduationRequestId: number
+) {
 	return service.getByGraduationRequest(graduationRequestId);
 }
 
@@ -30,7 +32,10 @@ export async function createPaymentReceipts(receipts: PaymentReceipt[]) {
 	return service.createMany(receipts);
 }
 
-export async function updatePaymentReceipt(id: number, receipt: Partial<PaymentReceipt>) {
+export async function updatePaymentReceipt(
+	id: number,
+	receipt: Partial<PaymentReceipt>
+) {
 	return service.update(id, receipt);
 }
 
@@ -45,7 +50,10 @@ export async function updateGraduationPaymentReceipts(
 	return service.updateGraduationPaymentReceipts(graduationRequestId, receipts);
 }
 
-export async function addPaymentReceipt(graduationRequestId: number, receipt: PaymentReceiptData) {
+export async function addPaymentReceipt(
+	graduationRequestId: number,
+	receipt: PaymentReceiptData
+) {
 	return service.addPaymentReceipt(graduationRequestId, receipt);
 }
 

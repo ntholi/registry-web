@@ -1,7 +1,12 @@
 import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewBody, DetailsViewHeader, FieldView } from '@/components/adease';
+import {
+	DetailsView,
+	DetailsViewBody,
+	DetailsViewHeader,
+	FieldView,
+} from '@/components/adease';
 import { deleteTask, getTask, updateTaskStatus } from '@/server/tasks/actions';
 
 type Props = {
@@ -109,7 +114,9 @@ export default async function TaskDetails({ params }: Props) {
 					</Group>
 
 					{task.completedAt && (
-						<FieldView label='Completed At'>{format(new Date(task.completedAt), 'PPpp')}</FieldView>
+						<FieldView label='Completed At'>
+							{format(new Date(task.completedAt), 'PPpp')}
+						</FieldView>
 					)}
 
 					<FieldView label='Created At'>

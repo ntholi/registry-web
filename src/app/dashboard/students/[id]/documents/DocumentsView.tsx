@@ -1,6 +1,14 @@
 'use client';
 
-import { Button, Card, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import {
+	Button,
+	Card,
+	Group,
+	Paper,
+	SimpleGrid,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
@@ -34,7 +42,8 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 		enabled: isActive,
 	});
 
-	const canEdit = session?.user?.role === 'admin' || session?.user?.role === 'registry';
+	const canEdit =
+		session?.user?.role === 'admin' || session?.user?.role === 'registry';
 
 	const canView =
 		session?.user?.role === 'admin' ||
@@ -65,7 +74,8 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 								Student Documents
 							</Text>
 							<Text size='xs' c='dimmed'>
-								Upload student documents such as internal documents, certificates, or ID copies
+								Upload student documents such as internal documents,
+								certificates, or ID copies
 							</Text>
 						</Stack>
 						<Button

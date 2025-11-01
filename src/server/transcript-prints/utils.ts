@@ -8,7 +8,8 @@ export function extractTranscriptData(student: Student) {
 		(program) => program && program.status === 'Completed'
 	);
 	const primaryProgram = programs[0];
-	const programName = primaryProgram?.structure?.program?.name || 'Unknown Program';
+	const programName =
+		primaryProgram?.structure?.program?.name || 'Unknown Program';
 
 	let totalCredits = 0;
 	programs.forEach((program) => {

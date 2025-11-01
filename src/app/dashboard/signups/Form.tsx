@@ -12,7 +12,9 @@ type Props = {
 	onSubmit: (values: Signup) => Promise<Signup>;
 	defaultValues?: Signup;
 	onSuccess?: (value: Signup) => void;
-	onError?: (error: Error | React.SyntheticEvent<HTMLDivElement, Event>) => void;
+	onError?: (
+		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+	) => void;
 	title?: string;
 };
 

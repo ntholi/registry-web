@@ -12,7 +12,9 @@ import {
 	studentSemesters,
 	type terms,
 } from '@/db/schema';
-import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 
 type ModuleInfo = {
 	code: string;
@@ -30,12 +32,18 @@ type ModuleInfo = {
 	}>;
 };
 
-export default class SemesterModuleRepository extends BaseRepository<typeof semesterModules, 'id'> {
+export default class SemesterModuleRepository extends BaseRepository<
+	typeof semesterModules,
+	'id'
+> {
 	constructor() {
 		super(semesterModules, semesterModules.id);
 	}
 
-	private buildModuleSearchWhere(search: string, baseWhere?: SQL): SQL | undefined {
+	private buildModuleSearchWhere(
+		search: string,
+		baseWhere?: SQL
+	): SQL | undefined {
 		const trimmed = search.trim();
 		if (!trimmed) return baseWhere;
 		const moduleFilter = inArray(
@@ -43,12 +51,20 @@ export default class SemesterModuleRepository extends BaseRepository<typeof seme
 			db
 				.select({ value: modules.id })
 				.from(modules)
-				.where(or(like(modules.code, `%${trimmed}%`), like(modules.name, `%${trimmed}%`)))
+				.where(
+					or(
+						like(modules.code, `%${trimmed}%`),
+						like(modules.name, `%${trimmed}%`)
+					)
+				)
 		);
 		return baseWhere ? and(baseWhere, moduleFilter) : moduleFilter;
 	}
 
-	async search(options: QueryOptions<typeof semesterModules>, searchKey: string) {
+	async search(
+		options: QueryOptions<typeof semesterModules>,
+		searchKey: string
+	) {
 		const criteria = this.buildQueryCriteria(options);
 
 		const where = this.buildModuleSearchWhere(searchKey, criteria.where);
@@ -137,7 +153,10 @@ export default class SemesterModuleRepository extends BaseRepository<typeof seme
 				name: modules.name,
 			})
 			.from(modulePrerequisites)
-			.innerJoin(semesterModules, eq(semesterModules.id, modulePrerequisites.prerequisiteId))
+			.innerJoin(
+				semesterModules,
+				eq(semesterModules.id, modulePrerequisites.prerequisiteId)
+			)
 			.innerJoin(modules, eq(modules.id, semesterModules.moduleId))
 			.where(eq(modulePrerequisites.semesterModuleId, semesterModuleId))
 			.orderBy(modules.code);
@@ -184,7 +203,11 @@ export default class SemesterModuleRepository extends BaseRepository<typeof seme
 	}
 
 	async getProgramsBySchool(schoolId: number) {
-		return db.select().from(programs).where(eq(programs.schoolId, schoolId)).orderBy(programs.code);
+		return db
+			.select()
+			.from(programs)
+			.where(eq(programs.schoolId, schoolId))
+			.orderBy(programs.code);
 	}
 
 	async getStructuresByModule(moduleId: number) {
@@ -196,7 +219,10 @@ export default class SemesterModuleRepository extends BaseRepository<typeof seme
 				programName: programs.name,
 			})
 			.from(semesterModules)
-			.innerJoin(structureSemesters, eq(semesterModules.semesterId, structureSemesters.id))
+			.innerJoin(
+				structureSemesters,
+				eq(semesterModules.semesterId, structureSemesters.id)
+			)
 			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.where(eq(semesterModules.moduleId, moduleId))
@@ -242,13 +268,19 @@ export default class SemesterModuleRepository extends BaseRepository<typeof seme
 			})
 			.from(semesterModules)
 			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
-			.innerJoin(structureSemesters, eq(semesterModules.semesterId, structureSemesters.id))
+			.innerJoin(
+				structureSemesters,
+				eq(semesterModules.semesterId, structureSemesters.id)
+			)
 			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.where(
 				and(
 					search
-						? or(like(modules.code, `%${search}%`), like(modules.name, `%${search}%`))
+						? or(
+								like(modules.code, `%${search}%`),
+								like(modules.name, `%${search}%`)
+							)
 						: undefined
 				)
 			)
@@ -261,7 +293,10 @@ export default class SemesterModuleRepository extends BaseRepository<typeof seme
 				count: sql<number>`count(*)`.as('count'),
 			})
 			.from(studentModules)
-			.innerJoin(studentSemesters, eq(studentModules.studentSemesterId, studentSemesters.id))
+			.innerJoin(
+				studentSemesters,
+				eq(studentModules.studentSemesterId, studentSemesters.id)
+			)
 			.where(
 				and(
 					inArray(studentModules.semesterModuleId, semesterModuleIds),
@@ -271,7 +306,8 @@ export default class SemesterModuleRepository extends BaseRepository<typeof seme
 			.groupBy(studentModules.semesterModuleId)
 			.then((rows) =>
 				rows.reduce(
-					(map, { semesterModuleId, count }) => map.set(semesterModuleId, count),
+					(map, { semesterModuleId, count }) =>
+						map.set(semesterModuleId, count),
 					new Map<number, number>()
 				)
 			);
@@ -303,7 +339,10 @@ export default class SemesterModuleRepository extends BaseRepository<typeof seme
 		return Array.from(groupedModules.values())
 			.map((module) => ({
 				...module,
-				totalStudents: module.semesters.reduce((sum, s) => sum + (s.studentCount || 0), 0),
+				totalStudents: module.semesters.reduce(
+					(sum, s) => sum + (s.studentCount || 0),
+					0
+				),
 			}))
 			.sort((a, b) => b.totalStudents - a.totalStudents)
 			.map(({ totalStudents: _, ...module }) => module);

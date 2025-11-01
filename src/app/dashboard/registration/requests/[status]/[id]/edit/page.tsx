@@ -1,6 +1,10 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import type { modules, StudentModuleStatus, semesterModules } from '@/db/schema';
+import type {
+	modules,
+	StudentModuleStatus,
+	semesterModules,
+} from '@/db/schema';
 import {
 	getRegistrationRequest,
 	updateRegistrationWithModulesAndSponsorship,

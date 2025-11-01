@@ -5,7 +5,17 @@ import { getModule } from '@/server/modules/actions';
 
 type Assessment = typeof assessments.$inferSelect;
 
-import { ActionIcon, Badge, Flex, Group, Paper, Table, Text, Title, Tooltip } from '@mantine/core';
+import {
+	ActionIcon,
+	Badge,
+	Flex,
+	Group,
+	Paper,
+	Table,
+	Text,
+	Title,
+	Tooltip,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -13,7 +23,10 @@ import { useState } from 'react';
 import AssessmentAuditModal from './AssessmentAuditModal';
 import AssessmentDelete from './AssessmentDelete';
 import AssessmentModal from './AssessmentModal';
-import { getAssessmentNumberLabel, getAssessmentTypeLabel } from './assessments';
+import {
+	getAssessmentNumberLabel,
+	getAssessmentTypeLabel,
+} from './assessments';
 
 interface Props {
 	moduleId: number;
@@ -22,7 +35,8 @@ interface Props {
 export default function AssessmentsTable({ moduleId }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [selectedAssessment, setSelectedAssessment] = useState<
-		NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][0] | undefined
+		| NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][0]
+		| undefined
 	>(undefined);
 
 	const { data: module, isLoading } = useQuery({
@@ -36,7 +50,9 @@ export default function AssessmentsTable({ moduleId }: Props) {
 	};
 
 	const handleEditAssessment = (
-		assessment: NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][0]
+		assessment: NonNullable<
+			Awaited<ReturnType<typeof getModule>>
+		>['assessments'][0]
 	) => {
 		setSelectedAssessment(assessment);
 		open();
@@ -50,7 +66,12 @@ export default function AssessmentsTable({ moduleId }: Props) {
 						Assessments
 					</Title>
 					<Badge variant='light' radius={'xs'}>
-						Weight: {module?.assessments.reduce((sum: number, a: Assessment) => sum + a.weight, 0)}%
+						Weight:{' '}
+						{module?.assessments.reduce(
+							(sum: number, a: Assessment) => sum + a.weight,
+							0
+						)}
+						%
 					</Badge>
 				</Group>
 				<ActionIcon onClick={handleAddAssessment}>
@@ -75,8 +96,12 @@ export default function AssessmentsTable({ moduleId }: Props) {
 					<Table.Tbody>
 						{module.assessments.map((assessment: Assessment) => (
 							<Table.Tr key={assessment.id}>
-								<Table.Td>{getAssessmentNumberLabel(assessment.assessmentNumber)}</Table.Td>
-								<Table.Td>{getAssessmentTypeLabel(assessment.assessmentType)}</Table.Td>
+								<Table.Td>
+									{getAssessmentNumberLabel(assessment.assessmentNumber)}
+								</Table.Td>
+								<Table.Td>
+									{getAssessmentTypeLabel(assessment.assessmentType)}
+								</Table.Td>
 								<Table.Td>{assessment.totalMarks}</Table.Td>
 								<Table.Td>{assessment.weight}%</Table.Td>
 								<Table.Td>

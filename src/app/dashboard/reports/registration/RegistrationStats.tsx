@@ -18,7 +18,10 @@ export default function RegistrationStats({
 		<Group grow>
 			<Card withBorder p='md'>
 				<Stack gap='xs' align='center'>
-					<IconUsers size={32} style={{ color: 'var(--mantine-color-blue-6)' }} />
+					<IconUsers
+						size={32}
+						style={{ color: 'var(--mantine-color-blue-6)' }}
+					/>
 					<Text size='xl' fw={700} c='blue'>
 						{totalStudents}
 					</Text>
@@ -30,7 +33,10 @@ export default function RegistrationStats({
 
 			<Card withBorder p='md'>
 				<Stack gap='xs' align='center'>
-					<IconBuilding size={32} style={{ color: 'var(--mantine-color-green-6)' }} />
+					<IconBuilding
+						size={32}
+						style={{ color: 'var(--mantine-color-green-6)' }}
+					/>
 					<Text size='xl' fw={700} c='green'>
 						{totalSchools}
 					</Text>
@@ -42,7 +48,10 @@ export default function RegistrationStats({
 
 			<Card withBorder p='md'>
 				<Stack gap='xs' align='center'>
-					<IconBook2 size={32} style={{ color: 'var(--mantine-color-orange-6)' }} />
+					<IconBook2
+						size={32}
+						style={{ color: 'var(--mantine-color-orange-6)' }}
+					/>
 					<Text size='xl' fw={700} c='orange'>
 						{totalPrograms}
 					</Text>

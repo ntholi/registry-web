@@ -1,7 +1,11 @@
 'use client';
 
 import { Card, SimpleGrid, Stack, Text, Title } from '@mantine/core';
-import { IconChartBar, IconFilePencil, IconFileText } from '@tabler/icons-react';
+import {
+	IconChartBar,
+	IconFilePencil,
+	IconFileText,
+} from '@tabler/icons-react';
 import Link from 'next/link';
 import { dashboardUsers } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils';
@@ -23,7 +27,12 @@ export default function ReportsPage() {
 			</Title>
 			<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
 				<Link href='/dashboard/reports/boe' style={{ textDecoration: 'none' }}>
-					<Card withBorder shadow='sm' padding='lg' style={{ cursor: 'pointer' }}>
+					<Card
+						withBorder
+						shadow='sm'
+						padding='lg'
+						style={{ cursor: 'pointer' }}
+					>
 						<Stack gap='xs' align='center'>
 							<IconChartBar size={24} />
 							<Text fw={500}>BOE Reports</Text>
@@ -34,8 +43,16 @@ export default function ReportsPage() {
 					</Card>
 				</Link>
 
-				<Link href='/dashboard/reports/course-summary' style={{ textDecoration: 'none' }}>
-					<Card withBorder shadow='sm' padding='lg' style={{ cursor: 'pointer' }}>
+				<Link
+					href='/dashboard/reports/course-summary'
+					style={{ textDecoration: 'none' }}
+				>
+					<Card
+						withBorder
+						shadow='sm'
+						padding='lg'
+						style={{ cursor: 'pointer' }}
+					>
 						<Stack gap='xs' align='center'>
 							<IconFileText size={24} />
 							<Text fw={500}>Course Summary Reports</Text>
@@ -51,8 +68,16 @@ export default function ReportsPage() {
 				Registry Reports
 			</Title>
 			<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
-				<Link href='/dashboard/reports/registration' style={{ textDecoration: 'none' }}>
-					<Card withBorder shadow='sm' padding='lg' style={{ cursor: 'pointer' }}>
+				<Link
+					href='/dashboard/reports/registration'
+					style={{ textDecoration: 'none' }}
+				>
+					<Card
+						withBorder
+						shadow='sm'
+						padding='lg'
+						style={{ cursor: 'pointer' }}
+					>
 						<Stack gap='xs' align='center'>
 							<IconFileText size={24} />
 							<Text fw={500}>Registration Reports</Text>
@@ -78,7 +103,12 @@ export default function ReportsPage() {
 						href={`/dashboard/reports/clearance/${dept}`}
 						style={{ textDecoration: 'none' }}
 					>
-						<Card withBorder shadow='sm' padding='lg' style={{ cursor: 'pointer' }}>
+						<Card
+							withBorder
+							shadow='sm'
+							padding='lg'
+							style={{ cursor: 'pointer' }}
+						>
 							<Stack gap='xs' align='center'>
 								<IconFilePencil size={24} />
 								<Text fw={500}>{toTitleCase(dept)} Department</Text>

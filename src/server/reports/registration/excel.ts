@@ -1,6 +1,9 @@
 import ExcelJS from 'exceljs';
 import { formatSemester } from '@/lib/utils';
-import type { FullRegistrationReport, SummaryRegistrationReport } from './repository';
+import type {
+	FullRegistrationReport,
+	SummaryRegistrationReport,
+} from './repository';
 
 export async function createFullRegistrationExcel(
 	report: FullRegistrationReport,
@@ -16,7 +19,8 @@ export async function createFullRegistrationExcel(
 	const worksheet = workbook.addWorksheet('Full Registration Report');
 
 	worksheet.mergeCells('A1:F1');
-	worksheet.getCell('A1').value = 'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY';
+	worksheet.getCell('A1').value =
+		'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY';
 	worksheet.getCell('A1').font = { name: 'Arial', size: 16, bold: true };
 	worksheet.getCell('A1').alignment = { horizontal: 'center' };
 
@@ -36,13 +40,14 @@ export async function createFullRegistrationExcel(
 	worksheet.getCell('A4').alignment = { horizontal: 'center' };
 
 	worksheet.mergeCells('A5:F5');
-	worksheet.getCell('A5').value = `Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	})}`;
+	worksheet.getCell('A5').value =
+		`Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		})}`;
 	worksheet.getCell('A5').font = { name: 'Arial', size: 10, italic: true };
 	worksheet.getCell('A5').alignment = { horizontal: 'center' };
 
@@ -145,7 +150,10 @@ export async function createFullRegistrationExcel(
 	return Buffer.from(buffer);
 }
 
-function createSummarySheet(workbook: ExcelJS.Workbook, summaryReport: SummaryRegistrationReport) {
+function createSummarySheet(
+	workbook: ExcelJS.Workbook,
+	summaryReport: SummaryRegistrationReport
+) {
 	const worksheet = workbook.addWorksheet('Summary');
 
 	const allSemesters = new Set<number>();
@@ -287,7 +295,8 @@ function createSummarySheet(workbook: ExcelJS.Workbook, summaryReport: SummaryRe
 		school.programs.forEach((program) => {
 			Object.entries(program.yearBreakdown).forEach(([sem, count]) => {
 				const semNum = Number(sem);
-				schoolSemesterTotals[semNum] = (schoolSemesterTotals[semNum] || 0) + count;
+				schoolSemesterTotals[semNum] =
+					(schoolSemesterTotals[semNum] || 0) + count;
 			});
 		});
 
@@ -328,7 +337,8 @@ function createSummarySheet(workbook: ExcelJS.Workbook, summaryReport: SummaryRe
 		school.programs.forEach((program) => {
 			Object.entries(program.yearBreakdown).forEach(([sem, count]) => {
 				const semNum = Number(sem);
-				grandTotalSemesters[semNum] = (grandTotalSemesters[semNum] || 0) + count;
+				grandTotalSemesters[semNum] =
+					(grandTotalSemesters[semNum] || 0) + count;
 			});
 		});
 	});

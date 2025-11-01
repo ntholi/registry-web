@@ -186,7 +186,10 @@ export async function exportToExcel(data: ExportData) {
 	data.assessments.forEach((assessment) => {
 		const label = `${getAssessmentTypeLabel(assessment.assessmentType)}`;
 		assessmentHeaders.push(label, '');
-		assessmentWeights.push(`Score (${assessment.totalMarks})`, `${assessment.weight}%`);
+		assessmentWeights.push(
+			`Score (${assessment.totalMarks})`,
+			`${assessment.weight}%`
+		);
 	});
 
 	const baseHeaders = ['No', 'Names', 'Student No.'];
@@ -229,7 +232,12 @@ export async function exportToExcel(data: ExportData) {
 
 	const subHeaderRow = headerRow + 1;
 	const baseSubHeaders = ['', '', ''];
-	const fullSubHeaders = [...baseSubHeaders, ...assessmentWeights, '40.00%', 'Grade'];
+	const fullSubHeaders = [
+		...baseSubHeaders,
+		...assessmentWeights,
+		'40.00%',
+		'Grade',
+	];
 
 	const subHeaderRowCells = worksheet.getRow(subHeaderRow);
 	fullSubHeaders.forEach((header, index) => {
@@ -281,7 +289,9 @@ export async function exportToExcel(data: ExportData) {
 			currentCol += 2;
 		});
 
-		const moduleGrade = data.moduleGrades.find((g) => g.stdNo === student.stdNo);
+		const moduleGrade = data.moduleGrades.find(
+			(g) => g.stdNo === student.stdNo
+		);
 
 		const totalCell = row.getCell(currentCol);
 		totalCell.value = moduleGrade ? moduleGrade.weightedTotal : '';

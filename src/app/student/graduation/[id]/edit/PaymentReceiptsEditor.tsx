@@ -19,10 +19,18 @@ import {
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconCurrencyDollar, IconPlus, IconReceipt, IconTrash } from '@tabler/icons-react';
+import {
+	IconCurrencyDollar,
+	IconPlus,
+	IconReceipt,
+	IconTrash,
+} from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { paymentType } from '@/db/schema';
-import { addPaymentReceipt, removePaymentReceipt } from '@/server/payment-receipts/actions';
+import {
+	addPaymentReceipt,
+	removePaymentReceipt,
+} from '@/server/payment-receipts/actions';
 
 type PaymentReceipt = {
 	id: number;
@@ -41,7 +49,10 @@ interface Props {
 	paymentReceipts: PaymentReceipt[];
 }
 
-export default function PaymentReceiptsEditor({ graduationRequestId, paymentReceipts }: Props) {
+export default function PaymentReceiptsEditor({
+	graduationRequestId,
+	paymentReceipts,
+}: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const queryClient = useQueryClient();
 
@@ -128,12 +139,16 @@ export default function PaymentReceiptsEditor({ graduationRequestId, paymentRece
 		);
 
 		if (existingReceipt) {
-			form.setFieldError('paymentType', 'A receipt for this payment type already exists');
+			form.setFieldError(
+				'paymentType',
+				'A receipt for this payment type already exists'
+			);
 			return;
 		}
 
 		addReceipt({
-			paymentType: values.paymentType as (typeof paymentType.enumValues)[number],
+			paymentType:
+				values.paymentType as (typeof paymentType.enumValues)[number],
 			receiptNo: values.receiptNo,
 		});
 	};
@@ -192,7 +207,9 @@ export default function PaymentReceiptsEditor({ graduationRequestId, paymentRece
 
 					<Group justify='flex-end' mt='lg'>
 						<Button
-							leftSection={isAdding ? <Loader size='xs' /> : <IconPlus size='1rem' />}
+							leftSection={
+								isAdding ? <Loader size='xs' /> : <IconPlus size='1rem' />
+							}
 							type='submit'
 							loading={isAdding}
 							disabled={isAdding || isDeleting}

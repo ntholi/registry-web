@@ -11,7 +11,12 @@ import {
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { DetailsView, DetailsViewBody, DetailsViewHeader, FieldView } from '@/components/adease';
+import {
+	DetailsView,
+	DetailsViewBody,
+	DetailsViewHeader,
+	FieldView,
+} from '@/components/adease';
 import Link from '@/components/Link';
 import { deleteModule, getModule } from '@/server/modules/actions';
 import { getStructuresByModule } from '@/server/semester-modules/actions';
@@ -72,7 +77,10 @@ async function StructuresSection({ moduleId }: StructuresSectionProps) {
 							<TableTr key={s.id}>
 								<TableTd>{s.programName}</TableTd>
 								<TableTd>
-									<Link size='sm' href={`/dashboard/schools/structures/${s.id}`}>
+									<Link
+										size='sm'
+										href={`/dashboard/schools/structures/${s.id}`}
+									>
 										{s.code}
 									</Link>
 								</TableTd>

@@ -14,10 +14,14 @@ import { findAllModules } from '@/server/semester-modules/actions';
 type Module = typeof semesterModules.$inferInsert;
 
 type Props = {
-	onSubmit: (values: Module & { prerequisiteCodes?: string[] }) => Promise<Module>;
+	onSubmit: (
+		values: Module & { prerequisiteCodes?: string[] }
+	) => Promise<Module>;
 	defaultValues?: Module & { prerequisiteCodes?: string[] };
 	onSuccess?: (value: Module) => void;
-	onError?: (error: Error | React.SyntheticEvent<HTMLDivElement, Event>) => void;
+	onError?: (
+		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
+	) => void;
 	title?: string;
 };
 
@@ -31,9 +35,13 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
 		queryFn: () => findAllModules(1, debouncedSearch),
 	});
 
-	const prerequisiteOptions = Array.from(new Set(modulesList?.items.map((mod) => mod.module!.code)))
+	const prerequisiteOptions = Array.from(
+		new Set(modulesList?.items.map((mod) => mod.module!.code))
+	)
 		.map((code) => {
-			const foundModule = modulesList?.items.find((m) => m.module!.code === code);
+			const foundModule = modulesList?.items.find(
+				(m) => m.module!.code === code
+			);
 			if (!foundModule) return null;
 			return {
 				value: code,
@@ -63,7 +71,10 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
 					<NumberInput label='Module Id' {...form.getInputProps('moduleId')} />
 					<Select
 						label='Type'
-						data={moduleType.enumValues.map((type) => ({ value: type, label: type }))}
+						data={moduleType.enumValues.map((type) => ({
+							value: type,
+							label: type,
+						}))}
 						{...form.getInputProps('type')}
 					/>
 					<NumberInput label='Credits' {...form.getInputProps('credits')} />

@@ -1,6 +1,11 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewBody, DetailsViewHeader, FieldView } from '@/components/adease';
+import {
+	DetailsView,
+	DetailsViewBody,
+	DetailsViewHeader,
+	FieldView,
+} from '@/components/adease';
 import { deleteSponsor, getSponsor } from '@/server/sponsors/actions';
 import StudentsTable from './students/StudentsTable';
 

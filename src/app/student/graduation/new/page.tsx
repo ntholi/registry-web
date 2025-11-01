@@ -13,7 +13,11 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconArrowLeft, IconArrowRight, IconInfoCircle } from '@tabler/icons-react';
+import {
+	IconArrowLeft,
+	IconArrowRight,
+	IconInfoCircle,
+} from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -58,7 +62,9 @@ export default function GraduationPage() {
 	const queryClient = useQueryClient();
 	const { student } = useUserStudent();
 	const [activeStep, setActiveStep] = useState(0);
-	const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null);
+	const [selectedProgramId, setSelectedProgramId] = useState<number | null>(
+		null
+	);
 	const [informationConfirmed, setInformationConfirmed] = useState(false);
 	const [receipts, setReceipts] = useState<PaymentReceiptData[]>([]);
 
@@ -150,7 +156,8 @@ export default function GraduationPage() {
 
 	const canProceedStep0 = selectedProgramId !== null;
 	const canProceedStep1 = informationConfirmed;
-	const canProceedStep2 = receipts.length > 0 && receipts.every((r) => r.receiptNo.trim() !== '');
+	const canProceedStep2 =
+		receipts.length > 0 && receipts.every((r) => r.receiptNo.trim() !== '');
 	const canSubmit =
 		selectedProgramId &&
 		informationConfirmed &&
@@ -175,8 +182,8 @@ export default function GraduationPage() {
 					title='Graduation Request Already Submitted'
 					color='blue'
 				>
-					You have already submitted a graduation request. Please check with the registry office for
-					the status of your request.
+					You have already submitted a graduation request. Please check with the
+					registry office for the status of your request.
 					<br />
 					<strong>Submitted on:</strong>{' '}
 					{new Date(existingRequest.createdAt || '').toLocaleDateString()}
@@ -193,7 +200,8 @@ export default function GraduationPage() {
 					title='Student Information Not Found'
 					color='red'
 				>
-					Unable to load your student information. Please contact the registry office.
+					Unable to load your student information. Please contact the registry
+					office.
 				</Alert>
 			</Container>
 		);
@@ -213,7 +221,9 @@ export default function GraduationPage() {
 				return (
 					<InformationConfirmation
 						student={student}
-						selectedProgram={eligiblePrograms?.find((p) => p.id === selectedProgramId) || null}
+						selectedProgram={
+							eligiblePrograms?.find((p) => p.id === selectedProgramId) || null
+						}
 						confirmed={informationConfirmed}
 						onConfirm={setInformationConfirmed}
 					/>
@@ -229,7 +239,9 @@ export default function GraduationPage() {
 				return (
 					<ReviewAndSubmit
 						student={student}
-						selectedProgram={eligiblePrograms?.find((p) => p.id === selectedProgramId)}
+						selectedProgram={eligiblePrograms?.find(
+							(p) => p.id === selectedProgramId
+						)}
 						paymentReceipts={receipts}
 						loading={graduationMutation.isPending}
 					/>

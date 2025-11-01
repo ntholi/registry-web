@@ -16,7 +16,9 @@ export default function Layout({ children }: PropsWithChildren) {
 				<ListItem
 					id={it.id}
 					label={it.name}
-					rightSection={it.isActive ? <IconCheck size={'1rem'} color='green' /> : null}
+					rightSection={
+						it.isActive ? <IconCheck size={'1rem'} color='green' /> : null
+					}
 				/>
 			)}
 		>

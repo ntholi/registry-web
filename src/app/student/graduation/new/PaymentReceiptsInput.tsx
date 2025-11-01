@@ -17,7 +17,12 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconCurrencyDollar, IconPlus, IconReceipt, IconTrash } from '@tabler/icons-react';
+import {
+	IconCurrencyDollar,
+	IconPlus,
+	IconReceipt,
+	IconTrash,
+} from '@tabler/icons-react';
 import { paymentType } from '@/db/schema';
 
 type PaymentReceiptData = {
@@ -30,7 +35,10 @@ interface Props {
 	onPaymentReceiptsChange: (receipts: PaymentReceiptData[]) => void;
 }
 
-export default function PaymentReceiptsInput({ paymentReceipts, onPaymentReceiptsChange }: Props) {
+export default function PaymentReceiptsInput({
+	paymentReceipts,
+	onPaymentReceiptsChange,
+}: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
 	const form = useForm({
@@ -66,7 +74,8 @@ export default function PaymentReceiptsInput({ paymentReceipts, onPaymentReceipt
 		onPaymentReceiptsChange([
 			...paymentReceipts,
 			{
-				paymentType: values.paymentType as (typeof paymentType.enumValues)[number],
+				paymentType:
+					values.paymentType as (typeof paymentType.enumValues)[number],
 				receiptNo: values.receiptNo,
 			},
 		]);
@@ -133,19 +142,25 @@ export default function PaymentReceiptsInput({ paymentReceipts, onPaymentReceipt
 					</Group>
 
 					<Text mb='lg' c='dimmed'>
-						Your added payment receipts. Click the trash icon to remove any receipt.
+						Your added payment receipts. Click the trash icon to remove any
+						receipt.
 					</Text>
 
 					<Stack gap='md'>
 						{paymentReceipts.map((receipt, index) => (
-							<Paper key={`${receipt.paymentType}-${receipt.receiptNo}`} withBorder p='md'>
+							<Paper
+								key={`${receipt.paymentType}-${receipt.receiptNo}`}
+								withBorder
+								p='md'
+							>
 								{isMobile ? (
 									<Stack gap='sm'>
 										<Group justify='space-between' align='center'>
 											<Text size='sm' fw={500}>
 												{
-													paymentTypeOptions.find((option) => option.value === receipt.paymentType)
-														?.label
+													paymentTypeOptions.find(
+														(option) => option.value === receipt.paymentType
+													)?.label
 												}
 											</Text>
 											<ActionIcon

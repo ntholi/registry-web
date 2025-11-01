@@ -1,6 +1,10 @@
 'use server';
 
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+	DeleteObjectCommand,
+	PutObjectCommand,
+	S3Client,
+} from '@aws-sdk/client-s3';
 import { nanoid } from 'nanoid';
 import { unauthorized } from 'next/navigation';
 import { auth } from '@/auth';
@@ -16,7 +20,11 @@ const s3Client = new S3Client({
 
 const BUCKET_NAME = process.env.R2_BUCKET_NAME || '';
 
-export async function uploadDocument(file: File | Blob, fileName: string, folder: string) {
+export async function uploadDocument(
+	file: File | Blob,
+	fileName: string,
+	folder: string
+) {
 	const session = await auth();
 	if (!session || !session.user) {
 		return unauthorized();

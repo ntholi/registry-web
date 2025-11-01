@@ -124,7 +124,10 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
 						}
 						setIsGenerating(false);
 						if (iframe.contentWindow) {
-							iframe.contentWindow.removeEventListener('afterprint', handleAfterPrint);
+							iframe.contentWindow.removeEventListener(
+								'afterprint',
+								handleAfterPrint
+							);
 						}
 					};
 

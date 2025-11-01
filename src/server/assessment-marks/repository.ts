@@ -1,12 +1,19 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/db';
-import { assessmentMarks, assessmentMarksAudit, assessments } from '@/db/schema';
+import {
+	assessmentMarks,
+	assessmentMarksAudit,
+	assessments,
+} from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
 type Mark = typeof assessmentMarks.$inferSelect;
 
-export default class AssessmentMarkRepository extends BaseRepository<typeof assessmentMarks, 'id'> {
+export default class AssessmentMarkRepository extends BaseRepository<
+	typeof assessmentMarks,
+	'id'
+> {
 	constructor() {
 		super(assessmentMarks, assessmentMarks.id);
 	}
@@ -81,7 +88,10 @@ export default class AssessmentMarkRepository extends BaseRepository<typeof asse
 
 		return inserted;
 	}
-	override async update(id: number, data: Partial<typeof assessmentMarks.$inferInsert>) {
+	override async update(
+		id: number,
+		data: Partial<typeof assessmentMarks.$inferInsert>
+	) {
 		const session = await auth();
 
 		const updated = await db.transaction(async (tx) => {
@@ -194,7 +204,10 @@ export default class AssessmentMarkRepository extends BaseRepository<typeof asse
 
 				return { mark: updated, isNew: false };
 			} else {
-				const [created] = await tx.insert(assessmentMarks).values(data).returning();
+				const [created] = await tx
+					.insert(assessmentMarks)
+					.values(data)
+					.returning();
 
 				await tx.insert(assessmentMarksAudit).values({
 					assessmentMarkId: created.id,
@@ -233,11 +246,14 @@ export default class AssessmentMarkRepository extends BaseRepository<typeof asse
 				isNew: boolean;
 				stdNo: number;
 			}[] = [];
-			const batchAuditEntries: (typeof assessmentMarksAudit.$inferInsert)[] = [];
+			const batchAuditEntries: (typeof assessmentMarksAudit.$inferInsert)[] =
+				[];
 
 			try {
 				await db.transaction(async (tx) => {
-					const assessmentIds = [...new Set(batch.map((data) => data.assessmentId))];
+					const assessmentIds = [
+						...new Set(batch.map((data) => data.assessmentId)),
+					];
 					const stdNos = batch.map((data) => data.stdNo);
 
 					const existingMarks = await tx
@@ -251,7 +267,10 @@ export default class AssessmentMarkRepository extends BaseRepository<typeof asse
 						);
 
 					const existingMarksMap = new Map(
-						existingMarks.map((mark) => [`${mark.assessmentId}-${mark.stdNo}`, mark])
+						existingMarks.map((mark) => [
+							`${mark.assessmentId}-${mark.stdNo}`,
+							mark,
+						])
 					);
 
 					const updatesData: {
@@ -309,7 +328,10 @@ export default class AssessmentMarkRepository extends BaseRepository<typeof asse
 					}
 
 					if (insertsData.length > 0) {
-						const insertedMarks = await tx.insert(assessmentMarks).values(insertsData).returning();
+						const insertedMarks = await tx
+							.insert(assessmentMarks)
+							.values(insertsData)
+							.returning();
 
 						for (const inserted of insertedMarks) {
 							batchResults.push({

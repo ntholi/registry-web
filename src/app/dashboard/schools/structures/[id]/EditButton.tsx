@@ -76,7 +76,11 @@ export default function EditButton({ moduleId, structureId }: Props) {
 							>
 								Cancel
 							</Button>
-							<Button type='submit' form='module-edit-form' loading={isSubmitting}>
+							<Button
+								type='submit'
+								form='module-edit-form'
+								loading={isSubmitting}
+							>
 								Save Changes
 							</Button>
 						</Group>
@@ -86,7 +90,8 @@ export default function EditButton({ moduleId, structureId }: Props) {
 		} catch (error) {
 			notifications.show({
 				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to load module',
+				message:
+					error instanceof Error ? error.message : 'Failed to load module',
 				color: 'red',
 			});
 			modals.closeAll();

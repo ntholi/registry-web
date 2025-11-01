@@ -1,9 +1,14 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { blockedStudents } from '@/db/schema';
-import BaseRepository, { type QueryOptions } from '@/server/base/BaseRepository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 
-export default class BlockedStudentRepository extends BaseRepository<typeof blockedStudents, 'id'> {
+export default class BlockedStudentRepository extends BaseRepository<
+	typeof blockedStudents,
+	'id'
+> {
 	constructor() {
 		super(blockedStudents, blockedStudents.id);
 	}
@@ -17,9 +22,15 @@ export default class BlockedStudentRepository extends BaseRepository<typeof bloc
 		});
 	}
 
-	async findByStdNo(stdNo: number, status: 'blocked' | 'unblocked' = 'blocked') {
+	async findByStdNo(
+		stdNo: number,
+		status: 'blocked' | 'unblocked' = 'blocked'
+	) {
 		return db.query.blockedStudents.findFirst({
-			where: and(eq(blockedStudents.stdNo, stdNo), eq(blockedStudents.status, status)),
+			where: and(
+				eq(blockedStudents.stdNo, stdNo),
+				eq(blockedStudents.status, status)
+			),
 		});
 	}
 

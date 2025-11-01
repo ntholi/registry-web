@@ -1,13 +1,31 @@
 'use client';
 
-import { Accordion, Badge, Group, ScrollArea, Stack, Table, Text, Title } from '@mantine/core';
+import {
+	Accordion,
+	Badge,
+	Group,
+	ScrollArea,
+	Stack,
+	Table,
+	Text,
+	Title,
+} from '@mantine/core';
 import { IconEye } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { getStudentsByModuleId } from '@/server/students/actions';
 import { getAssessmentTypeLabel } from '../../../assessments/[id]/assessments';
-import type { AssessmentInfo, ColumnMapping, ExcelData, ParsedRow } from './types';
-import { columnLetterToIndex, normalizeStudentNumber, parseNumericValue } from './utils';
+import type {
+	AssessmentInfo,
+	ColumnMapping,
+	ExcelData,
+	ParsedRow,
+} from './types';
+import {
+	columnLetterToIndex,
+	normalizeStudentNumber,
+	parseNumericValue,
+} from './utils';
 
 type Props = {
 	excelData: ExcelData;
@@ -31,7 +49,13 @@ export default function ImportPreview({
 	});
 
 	const parsedData = useMemo(
-		() => parseExcelData(excelData, assessments, columnMapping, registeredStudents || []),
+		() =>
+			parseExcelData(
+				excelData,
+				assessments,
+				columnMapping,
+				registeredStudents || []
+			),
 		[excelData, assessments, columnMapping, registeredStudents]
 	);
 
@@ -40,7 +64,10 @@ export default function ImportPreview({
 		[parsedData]
 	);
 
-	const invalidRows = useMemo(() => parsedData.filter((row) => !row.isValid), [parsedData]);
+	const invalidRows = useMemo(
+		() => parsedData.filter((row) => !row.isValid),
+		[parsedData]
+	);
 
 	const unregisteredRows = useMemo(
 		() => parsedData.filter((row) => row.isValid && !row.isRegistered),
@@ -68,7 +95,10 @@ export default function ImportPreview({
 			<Accordion variant='separated' defaultValue={'valid-students'}>
 				{unregisteredRows.length > 0 && (
 					<Accordion.Item value='unregistered-students'>
-						<Accordion.Control icon={<IconEye size={16} />} style={{ cursor: 'pointer' }}>
+						<Accordion.Control
+							icon={<IconEye size={16} />}
+							style={{ cursor: 'pointer' }}
+						>
 							<Group justify='space-between' style={{ width: '100%' }}>
 								<Group>
 									<Text fw={500}>Unregistered Students</Text>
@@ -83,7 +113,8 @@ export default function ImportPreview({
 						</Accordion.Control>
 						<Accordion.Panel>
 							<Text size='xs' c='dimmed' mb='sm'>
-								These students appear in the Excel file but are not registered for this module
+								These students appear in the Excel file but are not registered
+								for this module
 							</Text>
 							<ScrollArea h={200}>
 								<Table striped>
@@ -93,7 +124,9 @@ export default function ImportPreview({
 											<Table.Th>Student Number</Table.Th>
 											{assessments.map((assessment) => (
 												<Table.Th key={assessment.id}>
-													{shorten(getAssessmentTypeLabel(assessment.assessmentType))}
+													{shorten(
+														getAssessmentTypeLabel(assessment.assessmentType)
+													)}
 													<Text size='xs' c='dimmed'>
 														{assessment.totalMarks} · {assessment.weight}%
 													</Text>
@@ -123,7 +156,10 @@ export default function ImportPreview({
 				)}
 				{invalidRows.length > 0 && (
 					<Accordion.Item value='invalid-records'>
-						<Accordion.Control icon={<IconEye size={16} />} style={{ cursor: 'pointer' }}>
+						<Accordion.Control
+							icon={<IconEye size={16} />}
+							style={{ cursor: 'pointer' }}
+						>
 							<Group justify='space-between' style={{ width: '100%' }}>
 								<Group>
 									<Text fw={500}>Invalid Records</Text>
@@ -166,7 +202,10 @@ export default function ImportPreview({
 				)}
 				{validRows.length > 0 && (
 					<Accordion.Item value='valid-students'>
-						<Accordion.Control icon={<IconEye size={16} />} style={{ cursor: 'pointer' }}>
+						<Accordion.Control
+							icon={<IconEye size={16} />}
+							style={{ cursor: 'pointer' }}
+						>
 							<Group justify='space-between' style={{ width: '100%' }}>
 								<Group>
 									<Text fw={500}>Students</Text>
@@ -188,7 +227,9 @@ export default function ImportPreview({
 											<Table.Th>Student Number</Table.Th>
 											{assessments.map((assessment) => (
 												<Table.Th key={assessment.id}>
-													{shorten(getAssessmentTypeLabel(assessment.assessmentType))}
+													{shorten(
+														getAssessmentTypeLabel(assessment.assessmentType)
+													)}
 													<Text size='xs' c='dimmed'>
 														{assessment.totalMarks} · {assessment.weight}%
 													</Text>
@@ -232,11 +273,16 @@ function parseExcelData(
 		: -1;
 
 	const assessmentColIndices: Record<number, number> = {};
-	for (const [assessmentId, column] of Object.entries(mapping.assessmentColumns)) {
-		assessmentColIndices[parseInt(assessmentId, 10)] = columnLetterToIndex(column);
+	for (const [assessmentId, column] of Object.entries(
+		mapping.assessmentColumns
+	)) {
+		assessmentColIndices[parseInt(assessmentId, 10)] =
+			columnLetterToIndex(column);
 	}
 
-	const registeredStudentNumbers = new Set(registeredStudents.map((s) => s.stdNo.toString()));
+	const registeredStudentNumbers = new Set(
+		registeredStudents.map((s) => s.stdNo.toString())
+	);
 
 	return excelData.rows
 		.map((row, index) => {
@@ -245,7 +291,9 @@ function parseExcelData(
 			const assessmentMarks: Record<number, number> = {};
 
 			if (studentNumberColIndex >= 0) {
-				const normalizedStudentNumber = normalizeStudentNumber(row[studentNumberColIndex]);
+				const normalizedStudentNumber = normalizeStudentNumber(
+					row[studentNumberColIndex]
+				);
 				if (normalizedStudentNumber) {
 					studentNumber = normalizedStudentNumber;
 				}
@@ -269,7 +317,9 @@ function parseExcelData(
 				}
 			}
 
-			const isRegistered = studentNumber ? registeredStudentNumbers.has(studentNumber) : false;
+			const isRegistered = studentNumber
+				? registeredStudentNumbers.has(studentNumber)
+				: false;
 
 			return {
 				rowIndex: index,

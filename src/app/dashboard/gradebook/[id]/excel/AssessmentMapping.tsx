@@ -1,10 +1,23 @@
 'use client';
 
-import { Button, Group, Paper, Select, Stack, Text, Title } from '@mantine/core';
+import {
+	Button,
+	Group,
+	Paper,
+	Select,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { IconCheck, IconQuestionMark } from '@tabler/icons-react';
 import { useState } from 'react';
 import { getAssessmentTypeLabel } from '../../../assessments/[id]/assessments';
-import type { AssessmentInfo, ColumnMapping, DetectedColumns, ExcelData } from './types';
+import type {
+	AssessmentInfo,
+	ColumnMapping,
+	DetectedColumns,
+	ExcelData,
+} from './types';
 import { columnIndexToLetter } from './utils';
 
 type Props = {
@@ -37,7 +50,10 @@ export default function AssessmentMapping({
 		});
 	};
 
-	const handleAssessmentColumnChange = (assessmentId: number, value: string | null) => {
+	const handleAssessmentColumnChange = (
+		assessmentId: number,
+		value: string | null
+	) => {
 		const newAssessmentColumns = { ...mapping.assessmentColumns };
 		if (value) {
 			newAssessmentColumns[assessmentId] = value;
@@ -82,8 +98,8 @@ export default function AssessmentMapping({
 						Assessment Columns
 					</Text>{' '}
 					<Text size='xs' c='dimmed'>
-						Map each assessment to its corresponding column. You can choose to import only specific
-						assessments by leaving others unmapped.
+						Map each assessment to its corresponding column. You can choose to
+						import only specific assessments by leaving others unmapped.
 					</Text>
 					{assessments.map((assessment) => (
 						<Group key={assessment.id} align='center' gap='md'>
@@ -94,7 +110,9 @@ export default function AssessmentMapping({
 								placeholder='Select column'
 								data={columnOptions}
 								value={mapping.assessmentColumns[assessment.id] || null}
-								onChange={(value) => handleAssessmentColumnChange(assessment.id, value)}
+								onChange={(value) =>
+									handleAssessmentColumnChange(assessment.id, value)
+								}
 								searchable
 								clearable
 								style={{ flex: 1 }}

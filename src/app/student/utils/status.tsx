@@ -1,4 +1,8 @@
-import { IconCircleCheck, IconClock, IconExclamationCircle } from '@tabler/icons-react';
+import {
+	IconCircleCheck,
+	IconClock,
+	IconExclamationCircle,
+} from '@tabler/icons-react';
 
 export type BaseStatus = 'pending' | 'approved' | 'rejected' | 'confirmed';
 export type RegistrationStatus = BaseStatus | 'partial' | 'registered';
@@ -42,7 +46,9 @@ export function getClearanceStatus<T extends { clearance: { status: string } }>(
 	const anyRejected = clearances.some((c) => c.clearance.status === 'rejected');
 	if (anyRejected) return 'rejected';
 
-	const allApproved = clearances.every((c) => c.clearance.status === 'approved');
+	const allApproved = clearances.every(
+		(c) => c.clearance.status === 'approved'
+	);
 	if (allApproved) return 'approved';
 
 	return 'pending';

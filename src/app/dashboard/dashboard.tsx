@@ -103,11 +103,18 @@ function getNavigation(department: DashboardUser) {
 			href: '/dashboard/students',
 			icon: IconUsersGroup,
 			isVisible: (session) => {
-				if (['registry', 'finance', 'admin'].includes(session?.user?.role || '')) {
+				if (
+					['registry', 'finance', 'admin'].includes(session?.user?.role || '')
+				) {
 					return true;
 				}
 				const position = session?.user?.position;
-				return position && ['manager', 'admin', 'program_leader', 'year_leader'].includes(position);
+				return (
+					position &&
+					['manager', 'admin', 'program_leader', 'year_leader'].includes(
+						position
+					)
+				);
 			},
 		},
 		{
@@ -123,7 +130,9 @@ function getNavigation(department: DashboardUser) {
 			icon: IconSchool,
 			isVisible: (session) => {
 				const position = session?.user?.position;
-				return position && ['manager', 'admin', 'program_leader'].includes(position);
+				return (
+					position && ['manager', 'admin', 'program_leader'].includes(position)
+				);
 			},
 		},
 		{
@@ -263,9 +272,13 @@ function getNavigation(department: DashboardUser) {
 			label: 'Graduation Clearance',
 			icon: IconCertificate,
 			isVisible: (session) => {
-				if (['finance', 'library'].includes(session?.user?.role as UserRole)) return true;
+				if (['finance', 'library'].includes(session?.user?.role as UserRole))
+					return true;
 				const academicRole = session?.user?.position as UserPosition;
-				return academicRole && ['manager', 'admin', 'program_leader'].includes(academicRole);
+				return (
+					academicRole &&
+					['manager', 'admin', 'program_leader'].includes(academicRole)
+				);
 			},
 			collapsed: true,
 			children: [
@@ -425,9 +438,13 @@ function getNavigation(department: DashboardUser) {
 					icon: IconCopyCheck,
 					roles: ['academic', 'registry', 'admin'],
 					isVisible: (session) => {
-						if (['admin', 'registry'].includes(session?.user?.role as UserRole)) return true;
+						if (['admin', 'registry'].includes(session?.user?.role as UserRole))
+							return true;
 						const academicRole = session?.user?.position as UserPosition;
-						return academicRole && ['manager', 'admin', 'program_leader'].includes(academicRole);
+						return (
+							academicRole &&
+							['manager', 'admin', 'program_leader'].includes(academicRole)
+						);
 					},
 				},
 				{
@@ -436,10 +453,17 @@ function getNavigation(department: DashboardUser) {
 					icon: IconCopyCheck,
 					roles: ['academic', 'registry', 'admin', 'finance'],
 					isVisible: (session) => {
-						if (['admin', 'registry', 'finance'].includes(session?.user?.role as UserRole))
+						if (
+							['admin', 'registry', 'finance'].includes(
+								session?.user?.role as UserRole
+							)
+						)
 							return true;
 						const academicRole = session?.user?.position as UserPosition;
-						return academicRole && ['manager', 'admin', 'program_leader'].includes(academicRole);
+						return (
+							academicRole &&
+							['manager', 'admin', 'program_leader'].includes(academicRole)
+						);
 					},
 				},
 			],
@@ -583,7 +607,11 @@ function ItemDisplay({ item }: { item: NavItem }) {
 		return null;
 	}
 
-	if (item.roles && (!session?.user?.role || !item.roles.includes(session.user.role as UserRole))) {
+	if (
+		item.roles &&
+		(!session?.user?.role ||
+			!item.roles.includes(session.user.role as UserRole))
+	) {
 		return null;
 	}
 
@@ -618,7 +646,9 @@ function ItemDisplay({ item }: { item: NavItem }) {
 			active={item.href ? pathname.startsWith(item.href) : false}
 			leftSection={Icon ? <Icon size='1.1rem' /> : null}
 			description={item.description}
-			rightSection={item.href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined}
+			rightSection={
+				item.href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined
+			}
 			opened={opened}
 			onClick={() => setOpen((o) => !o)}
 		>

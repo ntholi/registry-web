@@ -23,7 +23,10 @@ export async function getAssessmentMarksAuditHistory(assessmentMarkId: number) {
 	return service.getAuditHistory(assessmentMarkId);
 }
 
-export async function createAssessmentMark(assessmentMark: AssessmentMark, moduleId: number) {
+export async function createAssessmentMark(
+	assessmentMark: AssessmentMark,
+	moduleId: number
+) {
 	const result = await service.create(assessmentMark);
 	await calculateAndSaveModuleGrade(moduleId, assessmentMark.stdNo);
 	return result;
@@ -40,7 +43,9 @@ export async function createOrUpdateMarksInBulk(
 	assessmentMarks: AssessmentMark[],
 	moduleId: number
 ) {
-	const invalidMarks = assessmentMarks.filter((mark) => Number.isNaN(mark.marks));
+	const invalidMarks = assessmentMarks.filter((mark) =>
+		Number.isNaN(mark.marks)
+	);
 	if (invalidMarks.length > 0) {
 		throw new Error('All marks must be valid numbers');
 	}
@@ -78,7 +83,10 @@ export async function deleteAssessmentMark(id: number) {
 	return service.delete(id);
 }
 
-export async function calculateAndSaveModuleGrade(moduleId: number, stdNo: number) {
+export async function calculateAndSaveModuleGrade(
+	moduleId: number,
+	stdNo: number
+) {
 	const assessments = await service.getAssessmentsByModuleId(moduleId);
 	const assessmentMarks = await service.getByModuleAndStudent(moduleId, stdNo);
 

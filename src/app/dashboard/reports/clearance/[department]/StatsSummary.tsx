@@ -1,5 +1,10 @@
 import { Group, Paper, SimpleGrid, Text, ThemeIcon } from '@mantine/core';
-import { IconCheck, IconClock, IconExclamationCircle, IconUsers } from '@tabler/icons-react';
+import {
+	IconCheck,
+	IconClock,
+	IconExclamationCircle,
+	IconUsers,
+} from '@tabler/icons-react';
 import type { ClearanceType } from '@/server/reports/clearance/repository';
 import type { ClearanceStatsOverall } from '@/server/reports/clearance/service';
 

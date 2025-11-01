@@ -26,7 +26,10 @@ export async function createAssignedModule(assignedModule: AssignedModule) {
 	return service.create(assignedModule);
 }
 
-export async function updateAssignedModule(id: number, assignedModule: AssignedModule) {
+export async function updateAssignedModule(
+	id: number,
+	assignedModule: AssignedModule
+) {
 	return service.update(id, assignedModule);
 }
 
@@ -34,7 +37,10 @@ export async function deleteAssignedModule(id: number) {
 	return service.delete(id);
 }
 
-export async function assignModulesToLecturer(userId: string, semesterModuleIds: number[]) {
+export async function assignModulesToLecturer(
+	userId: string,
+	semesterModuleIds: number[]
+) {
 	return service.assignModulesToLecturer(userId, semesterModuleIds);
 }
 
@@ -54,6 +60,9 @@ export async function getAssignedModulesByCurrentUser() {
 	return service.getByUserGroupedByModule(session.user.id);
 }
 
-export async function checkModuleAssignment(userId: string, semesterModuleId: number) {
+export async function checkModuleAssignment(
+	userId: string,
+	semesterModuleId: number
+) {
 	return service.checkAssignment(userId, semesterModuleId);
 }
