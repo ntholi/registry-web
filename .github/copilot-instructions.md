@@ -44,6 +44,6 @@
 ### Very Important Rules  
 - SQL names: snake_case, lowercase  
 - Never create/update docs (`.md`, `.txt`, etc.)  
-- PowerShell v7 only  
+- Only and always use PowerShell v7 for terminal commands  
 - Always fix all lint errors → `pnpm lint --fix` repeatedly until 0 errors  
 - Always test and ensure commands/code run cleanly with no errors before finishing  

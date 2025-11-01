@@ -1,12 +1,7 @@
-import path from 'node:path';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-	turbopack: {
-		// Set the Turbopack root to this project directory to avoid
-		// Next.js picking a different lockfile in the user's home.
-		root: path.join(__dirname),
-	},
+	reactCompiler: true,
 	experimental: {
 		optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
 		authInterrupts: true,
