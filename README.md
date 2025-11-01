@@ -1,74 +1,66 @@
-# Limkokwing Student Portal
+# Limkokwing Registry Portal
 
-A modern web portal for Limkokwing University's Registry Department that manages student records, course registrations, and administrative processes.
+Next.js based portal for Limkokwing University that manages student records, course registrations, and administrative processes.
 
 ## Tech Stack
 
-### Frontend
+- Next.js 16 (App Router, React 19, TypeScript)
+- Mantine 8, Jotai, React Hook Form, Zod
+- TanStack Query 5
+- Drizzle ORM + PostgreSQL (Neon or local)
+- Auth.js (Google OAuth)
+- Cloudflare R2, Google Sheets API
 
-- Next.js 15
-- TypeScript
-- Tailwind CSS
-- Tanstack Query
-- shadcn/ui & mantine components
+## Structure
 
-### Backend
+```
+src/
+├ app/
+├ components/
+├ hooks/
+├ server/
+├ db/
+├ utils/
+├ atoms/
+└ private/
+```
 
-- Next.js Server Actions
-- Drizzle ORM
-- Turso (SQLite-compatible) database
-- NextAuth.js for authentication
+## Setup
 
-## Getting Started
+Requirements: Node.js 18+, pnpm 9+, PostgreSQL.
 
-1. **Environment Variables**: Copy `.env.example` to `.env.local` and configure your environment variables:
+Create `.env.local`:
 
-   ```bash
-   cp .env.example .env.local
-   ```
+```
+AUTH_URL=
+AUTH_SECRET=
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+DATABASE_ENV=local|remote
+DATABASE_LOCAL_URL=
+DATABASE_REMOTE_URL=
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=
+```
 
-   Required variables:
-   - `TURSO_DATABASE_URL`: Your Turso database URL
-   - `TURSO_AUTH_TOKEN`: Your Turso authentication token
-   - `AUTH_SECRET`: Secret for NextAuth.js
-   - `AUTH_GOOGLE_ID` & `AUTH_GOOGLE_SECRET`: Google OAuth credentials
+Commands:
 
-2. **Install dependencies**:
-
-```bash
+```
 pnpm install
-```
-
-3. **Database Setup**:
-   - Create a Turso database: `turso db create your-db-name`
-   - Get database URL: `turso db show your-db-name`
-   - Create auth token: `turso db tokens create your-db-name`
-   - Update your `.env.local` with the credentials
-   - Push database schema: `pnpm db:push`
-
-4. **Run the development server**:
-
-```bash
+pnpm db:generate
+pnpm db:migrate
+pnpm migrate:psql:full   # Neon sync
 pnpm dev
+pnpm lint
+pnpm test
+pnpm build
+pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Notes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Actions → Service → Repository pattern with `withAuth` and `serviceWrapper`.
+- Client data via TanStack Query calling server actions.
+- Storage and exports use R2 and Google Sheets integrations.
