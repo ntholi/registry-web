@@ -211,7 +211,7 @@ function cleanupSqliteDatabase(): void {
 		const updates = [
 			// student_modules.grade updates
 			{ table: 'student_modules', column: 'grade', from: 'Def', to: 'DEF' },
-			{ table: 'student_modules', column: 'grade', from: 'DFR', to: 'F' },
+			{ table: 'student_modules', column: 'grade', from: 'DFR', to: 'DEF' },
 			{ table: 'student_modules', column: 'grade', from: ' B', to: 'B' },
 			{ table: 'student_modules', column: 'grade', from: 'W', to: 'F' },
 			{ table: 'student_modules', column: 'grade', from: 'P', to: 'C-' },
@@ -223,9 +223,10 @@ function cleanupSqliteDatabase(): void {
 			{ table: 'student_modules', column: 'grade', from: 'c+', to: 'C+' },
 			{ table: 'student_modules', column: 'grade', from: '50', to: 'C-' },
 			{ table: 'student_modules', column: 'grade', from: 'A-   ', to: 'A-' },
+			{ table: 'student_modules', column: 'grade', from: 'A-\t', to: 'A-' },
 			// module_grades.grade updates
 			{ table: 'module_grades', column: 'grade', from: 'Def', to: 'DEF' },
-			{ table: 'module_grades', column: 'grade', from: 'DFR', to: 'F' },
+			{ table: 'module_grades', column: 'grade', from: 'DFR', to: 'DEF' },
 			{ table: 'module_grades', column: 'grade', from: ' B', to: 'B' },
 			{ table: 'module_grades', column: 'grade', from: 'W', to: 'F' },
 			{ table: 'module_grades', column: 'grade', from: 'P', to: 'C-' },
@@ -237,6 +238,7 @@ function cleanupSqliteDatabase(): void {
 			{ table: 'module_grades', column: 'grade', from: 'c+', to: 'C+' },
 			{ table: 'module_grades', column: 'grade', from: '50', to: 'C-' },
 			{ table: 'module_grades', column: 'grade', from: 'A-   ', to: 'A-' },
+			{ table: 'module_grades', column: 'grade', from: 'A-\t', to: 'A-' },
 		];
 
 		for (const update of updates) {
@@ -2011,7 +2013,9 @@ async function verifyTables(
 		const postgresRowMap = new Map<string, Record<string, unknown>>();
 
 		for (const row of filteredSqliteRows) {
-			const transformed = (plan as MigrationPlan<unknown, unknown>).map(row as never);
+			const rowObj = row as Record<string, unknown>;
+			const mappedRow = applyEnumMapping(rowObj, plan.name);
+			const transformed = (plan as MigrationPlan<unknown, unknown>).map(mappedRow as never);
 			const normalised: Record<string, unknown> = {};
 			for (const key of Object.keys(transformed)) {
 				normalised[key] = normaliseValue((transformed as Record<string, unknown>)[key]);
@@ -2054,7 +2058,9 @@ async function verifyTables(
 				const row = filteredSqliteRows[i];
 				const identifier = getRowIdentifier(row as never, plan as never);
 				const identifierKey = JSON.stringify(identifier);
-				const transformed = (plan as MigrationPlan<unknown, unknown>).map(row as never);
+				const rowObj = row as Record<string, unknown>;
+				const mappedRow = applyEnumMapping(rowObj, plan.name);
+				const transformed = (plan as MigrationPlan<unknown, unknown>).map(mappedRow as never);
 				const normalised: Record<string, unknown> = {};
 				for (const key of Object.keys(transformed)) {
 					normalised[key] = (transformed as Record<string, unknown>)[key];
