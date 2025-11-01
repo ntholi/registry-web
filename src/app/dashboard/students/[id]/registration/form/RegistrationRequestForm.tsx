@@ -9,6 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { StudentModuleStatus } from '@/db/schema';
 import { useCurrentTerm } from '@/hooks/use-current-term';
+import type { Student } from '@/lib/helpers/students';
 import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
@@ -21,7 +22,6 @@ import ModuleSection from './ModuleSection';
 import SemesterInfoCard from './SemesterInfoCard';
 import SponsorSelector from './SponsorSelector';
 import TermSelector from './TermSelector';
-import type { Student } from '@/lib/helpers/students';
 
 type Props = {
 	stdNo: number;
