@@ -136,18 +136,33 @@ export const maritalStatusEnum = pgEnum('marital_status', [
 	'Other',
 ]);
 
+export const studentStatus = pgEnum('student_status', [
+	'Active',
+	'Applied',
+	'Deceased',
+	'Deleted',
+	'Graduated',
+	'Suspended',
+	'Terminated',
+	'Withdrawn',
+]);
+
 export const students = pgTable(
 	'students',
 	{
 		stdNo: bigint({ mode: 'number' }).primaryKey(),
 		name: text().notNull(),
 		nationalId: text().notNull(),
-		sem: integer().notNull(), //TODO: Remove this
+		status: studentStatus().notNull(),
 		dateOfBirth: timestamp({ mode: 'date' }),
 		phone1: text(),
 		phone2: text(),
 		gender: gender(),
 		maritalStatus: maritalStatusEnum(),
+		country: text(),
+		race: text(),
+		nationality: text(),
+		birthPlace: text(),
 		religion: text(),
 		userId: text().references(() => users.id, { onDelete: 'set null' }),
 		createdAt: timestamp().defaultNow(),
@@ -158,6 +173,74 @@ export const students = pgTable(
 			sql`${table.name} gin_trgm_ops`
 		),
 		userIdIdx: index('fk_students_user_id').on(table.userId),
+	})
+);
+
+export const educationType = pgEnum('education_type', [
+	'Primary',
+	'Secondary',
+	'Tertiary',
+]);
+
+export const educationLevel = pgEnum('education_level', [
+	'PSLE',
+	'BJCE',
+	'LGSE',
+	'COSC',
+	'LGCSE',
+	'IGCSE',
+	'BGCSE',
+	'Certificate',
+	'Diploma',
+	'Degree',
+	'Masters',
+	'Doctorate',
+	'Other',
+]);
+
+export const studentEducation = pgTable(
+	'student_education',
+	{
+		id: serial().primaryKey(),
+		stdNo: bigint({ mode: 'number' })
+			.references(() => students.stdNo, { onDelete: 'cascade' })
+			.notNull(),
+		type: educationType().notNull(),
+		level: educationLevel().notNull(),
+		startDate: timestamp({ mode: 'date' }).notNull(),
+		endDate: timestamp({ mode: 'date' }).notNull(),
+		createdAt: timestamp().defaultNow(),
+	},
+	(table) => ({
+		stdNoIdx: index('fk_student_education_std_no').on(table.stdNo),
+	})
+);
+
+const nextOfKinRelationship = pgEnum('next_of_kin_relationship', [
+	'Mother',
+	'Father',
+	'Brother',
+	'Sister',
+	'Child',
+	'Spouse',
+	'Other',
+]);
+
+export const nextOfKins = pgTable(
+	'next_of_kins',
+	{
+		id: serial().primaryKey(),
+		stdNo: bigint({ mode: 'number' })
+			.references(() => students.stdNo, { onDelete: 'cascade' })
+			.notNull(),
+		name: text().notNull(),
+		relationship: nextOfKinRelationship().notNull(),
+		phone: text(),
+		email: text(),
+		createdAt: timestamp().defaultNow(),
+	},
+	(table) => ({
+		stdNoIdx: index('fk_next_of_kins_std_no').on(table.stdNo),
 	})
 );
 
