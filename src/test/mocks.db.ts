@@ -43,7 +43,6 @@
 //     schema.schools,
 //     schema.modules,
 //     schema.students,
-//     schema.signups,
 //     schema.authenticators,
 //     schema.sessions,
 //     schema.accounts,

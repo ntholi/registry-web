@@ -31,7 +31,6 @@ import {
 	requestedModuleStatus,
 	semesterStatus,
 	semesterStatusForRegistration,
-	signupStatus,
 	studentModuleStatus,
 	taskPriority,
 	taskStatus,
@@ -156,7 +155,6 @@ const POSTGRES_ENUMS: Record<string, readonly string[]> = {
 	module_type: [...moduleType.enumValues],
 	user_roles: [...userRoles.enumValues],
 	user_positions: [...userPositions.enumValues],
-	signup_status: [...signupStatus.enumValues],
 	gender: [...gender.enumValues],
 	marital_status: [...maritalStatusEnum.enumValues],
 	program_status: [...programStatus.enumValues],
@@ -640,9 +638,6 @@ function getEnumNameFromField(
 	if (tableName === 'users' && fieldName === 'position') {
 		return 'user_positions';
 	}
-	if (tableName === 'signups' && fieldName === 'status') {
-		return 'signup_status';
-	}
 	if (tableName === 'students' && fieldName === 'gender') {
 		return 'gender';
 	}
@@ -1061,20 +1056,6 @@ function mapAuthenticators(
 		credentialDeviceType: row.credentialDeviceType,
 		credentialBackedUp: toBoolean(row.credentialBackedUp),
 		transports: row.transports,
-	};
-}
-
-function mapSignups(
-	row: SqliteSelect<typeof sqliteSchema.signups>
-): PostgresInsert<typeof postgresSchema.signups> {
-	return {
-		userId: row.userId,
-		name: row.name,
-		stdNo: row.stdNo,
-		status: row.status,
-		message: row.message,
-		createdAt: toOptionalDateFromSeconds(row.createdAt),
-		updatedAt: toOptionalDateFromSeconds(row.updatedAt),
 	};
 }
 
@@ -1662,12 +1643,6 @@ const plans = [
 		sqliteTable: sqliteSchema.authenticators,
 		postgresTable: postgresSchema.authenticators,
 		map: mapAuthenticators,
-	}),
-	definePlan({
-		name: 'signups',
-		sqliteTable: sqliteSchema.signups,
-		postgresTable: postgresSchema.signups,
-		map: mapSignups,
 	}),
 	definePlan({
 		name: 'schools',

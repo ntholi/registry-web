@@ -127,31 +127,6 @@ export const authenticators = pgTable(
 	})
 );
 
-export const signupStatus = pgEnum('signup_status', [
-	'pending',
-	'approved',
-	'rejected',
-]);
-export const signups = pgTable(
-	'signups',
-	{
-		userId: text()
-			.primaryKey()
-			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' }),
-		name: text().notNull(),
-		stdNo: text().notNull(),
-		status: signupStatus().notNull().default('pending'),
-		message: text().default('Pending approval'),
-		createdAt: timestamp().defaultNow(),
-		updatedAt: timestamp(),
-	},
-	(table) => ({
-		statusIdx: index('idx_signups_status').on(table.status),
-		userIdIdx: index('fk_signups_user_id').on(table.userId),
-	})
-);
-
 export const gender = pgEnum('gender', ['Male', 'Female', 'Unknown']);
 export const maritalStatusEnum = pgEnum('marital_status', [
 	'Single',

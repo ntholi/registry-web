@@ -114,20 +114,6 @@ export const authenticators = sqliteTable(
 	})
 );
 
-export const signupStatusEnum = ['pending', 'approved', 'rejected'] as const;
-export const signups = sqliteTable('signups', {
-	userId: text()
-		.primaryKey()
-		.notNull()
-		.references(() => users.id, { onDelete: 'cascade' }),
-	name: text().notNull(),
-	stdNo: text().notNull(),
-	status: text({ enum: signupStatusEnum }).notNull().default('pending'),
-	message: text().default('Pending approval'),
-	createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-	updatedAt: integer({ mode: 'timestamp' }),
-});
-
 export const genderEnum = ['Male', 'Female', 'Other'] as const;
 export const maritalStatusEnum = [
 	'Single',

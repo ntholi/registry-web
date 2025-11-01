@@ -26,7 +26,6 @@ import {
 	schools,
 	semesterModules,
 	sessions,
-	signups,
 	sponsoredStudents,
 	sponsoredTerms,
 	sponsors,
@@ -50,10 +49,6 @@ export const usersRelations = relations(users, ({ many, one }) => ({
 	accounts: many(accounts),
 	sessions: many(sessions),
 	authenticators: many(authenticators),
-	signup: one(signups, {
-		fields: [users.id],
-		references: [signups.userId],
-	}),
 	student: one(students, {
 		fields: [users.id],
 		references: [students.userId],
@@ -89,13 +84,6 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const authenticatorsRelations = relations(authenticators, ({ one }) => ({
 	user: one(users, {
 		fields: [authenticators.userId],
-		references: [users.id],
-	}),
-}));
-
-export const signupsRelations = relations(signups, ({ one }) => ({
-	user: one(users, {
-		fields: [signups.userId],
 		references: [users.id],
 	}),
 }));
