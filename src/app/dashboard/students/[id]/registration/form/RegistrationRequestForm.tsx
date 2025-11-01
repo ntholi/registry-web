@@ -63,6 +63,20 @@ type FormValues = {
 	selectedTermId: number | null;
 };
 
+function normalizeModuleStatus(
+	status: ModuleWithStatus['status']
+): StudentModuleStatus {
+	if (status.startsWith('Repeat')) {
+		const repeatNumber = Number.parseInt(status.replace('Repeat', ''), 10);
+		if (Number.isInteger(repeatNumber) && repeatNumber >= 1 && repeatNumber <= 7) {
+			return `Repeat${repeatNumber}` as StudentModuleStatus;
+		}
+		return 'Repeat1';
+	}
+
+	return 'Compulsory';
+}
+
 export default function RegistrationRequestForm({
 	stdNo,
 }: Omit<Props, 'opened' | 'onClose'>) {
@@ -255,9 +269,7 @@ export default function RegistrationRequestForm({
 			.filter((m) => newSelected.has(m.semesterModuleId))
 			.map((m) => ({
 				moduleId: m.semesterModuleId,
-				moduleStatus: m.status.includes('Repeat')
-					? ('Repeat' as StudentModuleStatus)
-					: ('Active' as StudentModuleStatus),
+				moduleStatus: normalizeModuleStatus(m.status),
 			}));
 
 		form.setFieldValue('modules', selectedModulesList);
