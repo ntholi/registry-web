@@ -21,6 +21,7 @@ import ModuleSection from './ModuleSection';
 import SemesterInfoCard from './SemesterInfoCard';
 import SponsorSelector from './SponsorSelector';
 import TermSelector from './TermSelector';
+import type { Student } from '@/lib/helpers/students';
 
 type Props = {
 	stdNo: number;
@@ -110,7 +111,7 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 			if (!student) return null;
 
 			const remarks = getAcademicRemarks(student.programs);
-			const result = await getStudentSemesterModules(student, remarks);
+			const result = await getStudentSemesterModules(student as unknown as Student, remarks);
 
 			if (result.error?.includes('Remain in Semester')) {
 				const modifiedRemarks = {
@@ -118,7 +119,10 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 					status: 'Proceed' as const,
 				};
 
-				const overrideResult = await getStudentSemesterModules(student, modifiedRemarks);
+				const overrideResult = await getStudentSemesterModules(
+					student as unknown as Student,
+					modifiedRemarks
+				);
 
 				return {
 					...overrideResult,
@@ -142,7 +146,7 @@ export default function RegistrationRequestForm({ stdNo }: Omit<Props, 'opened' 
 			if (debouncedSelectedModules.size === 0 || !student || selectedModuleData.length === 0)
 				return null;
 
-			return determineSemesterStatus(selectedModuleData, student);
+			return determineSemesterStatus(selectedModuleData, student as never);
 		},
 		enabled: debouncedSelectedModules.size > 0 && !!student && selectedModuleData.length > 0,
 	});

@@ -41,6 +41,7 @@ export default function EditButton({ moduleId, structureId }: Props) {
 					<div>
 						<ModuleEditForm
 							defaultValues={{
+								moduleId: mod.id,
 								credits: mod.credits,
 								module: mod.module!,
 								type: mod.type,
