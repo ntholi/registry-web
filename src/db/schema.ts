@@ -153,7 +153,7 @@ export const students = pgTable(
 		stdNo: bigint({ mode: 'number' }).primaryKey(),
 		name: text().notNull(),
 		nationalId: text().notNull(),
-		status: studentStatus().notNull(),
+		status: studentStatus().notNull().default('Active'),
 		dateOfBirth: timestamp({ mode: 'date' }),
 		phone1: text(),
 		phone2: text(),

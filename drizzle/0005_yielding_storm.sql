@@ -1,0 +1,1 @@
+ALTER TABLE "students" ALTER COLUMN "status" SET DEFAULT 'Active';
