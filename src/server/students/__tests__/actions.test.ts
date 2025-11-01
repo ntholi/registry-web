@@ -17,7 +17,6 @@ describe('Students Service', () => {
 			stdNo: 123456,
 			name: 'Test Student',
 			nationalId: 'TEST123',
-			sem: 1,
 		};
 
 		const createdStudent = await studentsService.create(studentData);
@@ -44,7 +43,6 @@ describe('Students Service', () => {
 			stdNo: 789012,
 			name: 'Test Student 2',
 			nationalId: 'TEST456',
-			sem: 1,
 			userId: nanoid(),
 		};
 
@@ -65,7 +63,6 @@ describe('Students Service', () => {
 			stdNo: 345678,
 			name: 'Test Student Get',
 			nationalId: 'TEST789',
-			sem: 1,
 		};
 
 		const createdStudent = await studentsService.create(studentData);

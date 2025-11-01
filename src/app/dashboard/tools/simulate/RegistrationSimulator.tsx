@@ -151,10 +151,11 @@ export default function RegistrationSimulator() {
 					(p) => p.status === 'Active'
 				);
 				if (activeProgram) {
+					const currentSemester = getCurrentSemester(studentData);
 					setStudent({
-						name: lookup.name,
-						stdNo: lookup.stdNo,
-						semester: lookup.sem,
+						name: studentData.name,
+						stdNo: studentData.stdNo,
+						semester: currentSemester?.semesterNumber ?? 1,
 						program: {
 							structureCode: activeProgram.structure.code,
 							structureId: activeProgram.structure.id,
