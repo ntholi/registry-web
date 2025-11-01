@@ -13,7 +13,6 @@ import {
 	documents,
 	fortinetRegistrations,
 	graduationClearance,
-	graduationLists,
 	graduationRequests,
 	moduleGrades,
 	modulePrerequisites,
@@ -57,7 +56,6 @@ export const usersRelations = relations(users, ({ many, one }) => ({
 	assignedModules: many(assignedModules),
 	createdTasks: many(tasks),
 	taskAssignments: many(taskAssignments),
-	graduationListsCreated: many(graduationLists),
 	statementOfResultsPrinted: many(statementOfResultsPrints),
 	transcriptsPrinted: many(transcriptPrints),
 	studentCardsPrinted: many(studentCardPrints),
@@ -265,16 +263,6 @@ export const documentsRelations = relations(documents, ({ one }) => ({
 		references: [students.stdNo],
 	}),
 }));
-
-export const graduationListsRelations = relations(
-	graduationLists,
-	({ one }) => ({
-		createdByUser: one(users, {
-			fields: [graduationLists.createdBy],
-			references: [users.id],
-		}),
-	})
-);
 
 export const modulesRelations = relations(modules, ({ many }) => ({
 	semesterModules: many(semesterModules),

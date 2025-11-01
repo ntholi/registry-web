@@ -615,27 +615,6 @@ export const graduationClearance = pgTable(
 	})
 );
 
-//TODO: Delete/Remove lists
-export const graduationListStatusEnum = pgEnum('graduation_list_status', [
-	'created',
-	'populated',
-	'archived',
-]);
-
-//TODO: Delete/Remove lists
-export const graduationLists = pgTable('graduation_lists', {
-	id: text()
-		.primaryKey()
-		.$defaultFn(() => nanoid()),
-	name: text().notNull().default('Graduation List'),
-	spreadsheetId: text(),
-	spreadsheetUrl: text(),
-	status: graduationListStatusEnum().notNull().default('created'),
-	createdBy: text().references(() => users.id, { onDelete: 'set null' }),
-	populatedAt: timestamp(),
-	createdAt: timestamp().defaultNow(),
-});
-
 export const paymentType = pgEnum('payment_type', [
 	'graduation_gown',
 	'graduation_fee',

@@ -20,7 +20,6 @@ import {
 	fortinetRegistrationStatus,
 	gender,
 	grade,
-	graduationListStatusEnum,
 	maritalStatusEnum,
 	moduleStatusEnum,
 	moduleType,
@@ -169,7 +168,6 @@ const POSTGRES_ENUMS: Record<string, readonly string[]> = {
 	],
 	requested_module_status: [...requestedModuleStatus.enumValues],
 	clearance_request_status: [...clearanceRequestStatus.enumValues],
-	graduation_list_status: [...graduationListStatusEnum.enumValues],
 	payment_type: [...paymentType.enumValues],
 	assessment_number: [...assessmentNumber.enumValues],
 	assessment_marks_audit_action: [...assessmentMarksAuditAction.enumValues],
@@ -199,7 +197,6 @@ const _FIELD_TO_ENUM_MAP: Record<string, string> = {
 	semesterStatusForRegistration: 'semester_status_for_registration',
 	requestedModuleStatus: 'requested_module_status',
 	clearanceStatus: 'clearance_request_status',
-	graduationListStatus: 'graduation_list_status',
 	paymentType: 'payment_type',
 	assessmentNumber: 'assessment_number',
 	action: 'assessment_marks_audit_action',
@@ -676,9 +673,6 @@ function getEnumNameFromField(
 	}
 	if (tableName === 'clearance' && fieldName === 'status') {
 		return 'clearance_request_status';
-	}
-	if (tableName === 'graduation_lists' && fieldName === 'status') {
-		return 'graduation_list_status';
 	}
 	if (tableName === 'payment_receipts' && fieldName === 'paymentType') {
 		return 'payment_type';
@@ -1306,21 +1300,6 @@ function mapGraduationClearance(
 	};
 }
 
-function mapGraduationLists(
-	row: SqliteSelect<typeof sqliteSchema.graduationLists>
-): PostgresInsert<typeof postgresSchema.graduationLists> {
-	return {
-		id: row.id,
-		name: row.name,
-		spreadsheetId: row.spreadsheetId,
-		spreadsheetUrl: row.spreadsheetUrl,
-		status: row.status,
-		createdBy: row.createdBy,
-		populatedAt: toOptionalDateFromSeconds(row.populatedAt),
-		createdAt: toOptionalDateFromSeconds(row.createdAt),
-	};
-}
-
 function mapPaymentReceipts(
 	row: SqliteSelect<typeof sqliteSchema.paymentReceipts>
 ): PostgresInsert<typeof postgresSchema.paymentReceipts> {
@@ -1757,12 +1736,6 @@ const plans = [
 		sqliteTable: sqliteSchema.registrationClearance,
 		postgresTable: postgresSchema.registrationClearance,
 		map: mapRegistrationClearance,
-	}),
-	definePlan({
-		name: 'graduation_lists',
-		sqliteTable: sqliteSchema.graduationLists,
-		postgresTable: postgresSchema.graduationLists,
-		map: mapGraduationLists,
 	}),
 	definePlan({
 		name: 'graduation_requests',

@@ -488,25 +488,6 @@ export const graduationClearance = sqliteTable(
 	})
 );
 
-export const graduationListStatusEnum = [
-	'created',
-	'populated',
-	'archived',
-] as const;
-
-export const graduationLists = sqliteTable('graduation_lists', {
-	id: text()
-		.primaryKey()
-		.$defaultFn(() => nanoid()),
-	name: text().notNull().default('Graduation List'),
-	spreadsheetId: text(),
-	spreadsheetUrl: text(),
-	status: text({ enum: graduationListStatusEnum }).notNull().default('created'),
-	createdBy: text().references(() => users.id, { onDelete: 'set null' }),
-	populatedAt: integer({ mode: 'timestamp' }),
-	createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
 export const paymentTypeEnum = ['graduation_gown', 'graduation_fee'] as const;
 
 export const paymentReceipts = sqliteTable('payment_receipts', {
