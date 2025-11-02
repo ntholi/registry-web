@@ -6,7 +6,7 @@ import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { type assessmentNumber, assessments } from '@/db/schema';
 import {
 	createAssessment,
@@ -56,18 +56,29 @@ export default function AssessmentModal({
 			})
 		),
 	});
+
+	const formResetRef = useRef(form.reset);
+	const formSetValuesRef = useRef(form.setValues);
+	const formSetFieldValueRef = useRef(form.setFieldValue);
+
+	useEffect(() => {
+		formResetRef.current = form.reset;
+		formSetValuesRef.current = form.setValues;
+		formSetFieldValueRef.current = form.setFieldValue;
+	}, [form.reset, form.setValues, form.setFieldValue]);
+
 	useEffect(() => {
 		if (!opened) return;
 
 		if (isEditing && assessment) {
-			form.setValues({
+			formSetValuesRef.current({
 				assessmentNumber: assessment.assessmentNumber,
 				assessmentType: assessment.assessmentType,
 				totalMarks: assessment.totalMarks,
 				weight: assessment.weight,
 			});
 		} else if (!isEditing) {
-			form.reset();
+			formResetRef.current();
 
 			const moduleData = queryClient.getQueryData<{
 				assessments: Assessment[];
@@ -83,7 +94,7 @@ export default function AssessmentModal({
 
 				const nextNumber = highestNumber + 1;
 				if (nextNumber <= 15) {
-					form.setFieldValue(
+					formSetFieldValueRef.current(
 						'assessmentNumber',
 						`CW${nextNumber}` as AssessmentNumberType
 					);
@@ -95,19 +106,10 @@ export default function AssessmentModal({
 				);
 
 				const remainingWeight = Math.max(0, 100 - currentTotalWeight);
-				form.setFieldValue('weight', remainingWeight);
+				formSetFieldValueRef.current('weight', remainingWeight);
 			}
 		}
-	}, [
-		opened,
-		isEditing,
-		moduleId,
-		queryClient,
-		assessment,
-		form.reset,
-		form.setFieldValue,
-		form.setValues,
-	]);
+	}, [opened, isEditing, moduleId, queryClient, assessment]);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
