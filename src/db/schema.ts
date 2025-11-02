@@ -190,6 +190,8 @@ export const educationLevel = pgEnum('education_level', [
 	'LGCSE',
 	'IGCSE',
 	'BGCSE',
+	'O level',
+	'A level',
 	'Certificate',
 	'Diploma',
 	'Degree',
