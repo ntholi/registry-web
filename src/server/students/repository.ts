@@ -10,9 +10,11 @@ import {
 } from 'drizzle-orm';
 import { db } from '@/db';
 import {
+	nextOfKins,
 	programs,
 	semesterModules,
 	structures,
+	studentEducation,
 	studentModules,
 	studentPrograms,
 	studentSemesters,
@@ -428,6 +430,12 @@ export default class StudentRepository extends BaseRepository<
 			where: eq(students.stdNo, stdNo),
 			with: {
 				user: true,
+				nextOfKins: {
+					orderBy: [desc(nextOfKins.id)],
+				},
+				studentEducation: {
+					orderBy: [desc(studentEducation.id)],
+				},
 				programs: {
 					orderBy: [desc(studentPrograms.id)],
 					where: or(

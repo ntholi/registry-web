@@ -17,6 +17,7 @@ import {
 	moduleGrades,
 	modulePrerequisites,
 	modules,
+	nextOfKins,
 	paymentReceipts,
 	programs,
 	registrationClearance,
@@ -32,6 +33,7 @@ import {
 	structureSemesters,
 	structures,
 	studentCardPrints,
+	studentEducation,
 	studentModules,
 	studentPrograms,
 	studentSemesters,
@@ -92,6 +94,8 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
 		references: [users.id],
 	}),
 	programs: many(studentPrograms),
+	nextOfKins: many(nextOfKins),
+	studentEducation: many(studentEducation),
 	registrationRequests: many(registrationRequests),
 	graduationRequests: many(graduationRequests),
 	sponsorships: many(sponsoredStudents),
@@ -556,6 +560,23 @@ export const taskAssignmentsRelations = relations(
 		user: one(users, {
 			fields: [taskAssignments.userId],
 			references: [users.id],
+		}),
+	})
+);
+
+export const nextOfKinsRelations = relations(nextOfKins, ({ one }) => ({
+	student: one(students, {
+		fields: [nextOfKins.stdNo],
+		references: [students.stdNo],
+	}),
+}));
+
+export const studentEducationRelations = relations(
+	studentEducation,
+	({ one }) => ({
+		student: one(students, {
+			fields: [studentEducation.stdNo],
+			references: [students.stdNo],
 		}),
 	})
 );

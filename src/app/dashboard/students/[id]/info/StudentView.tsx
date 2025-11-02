@@ -89,6 +89,18 @@ export default function StudentView({ student }: Props) {
 				</Card>
 			</Group>
 			<div>
+				<Flex justify='space-between'>
+					<Title order={4} mb='xs' fw={100}>
+						Personal Information
+					</Title>
+					<Badge
+						radius='sm'
+						color={getStudentStatusColor(student.status)}
+						variant='light'
+					>
+						{student.status}
+					</Badge>
+				</Flex>
 				<Paper p='md' radius='md' withBorder>
 					<Grid gutter='xl'>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
@@ -111,6 +123,18 @@ export default function StudentView({ student }: Props) {
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem label='Marital Status' value={student.maritalStatus} />
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<InfoItem label='Nationality' value={student.nationality} />
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<InfoItem label='Country' value={student.country} />
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<InfoItem label='Birth Place' value={student.birthPlace} />
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<InfoItem label='Race' value={student.race} />
 						</Grid.Col>
 					</Grid>
 				</Paper>
@@ -189,6 +213,85 @@ export default function StudentView({ student }: Props) {
 					</Grid>
 				</Paper>
 			</div>
+
+			{student.nextOfKins && student.nextOfKins.length > 0 && (
+				<div>
+					<Title order={4} mb='xs' fw={100}>
+						Next of Kin
+					</Title>
+					<Stack gap='md'>
+						{student.nextOfKins.map((kin) => (
+							<Paper key={kin.id} p='md' radius='md' withBorder>
+								<Grid gutter='xl'>
+									<Grid.Col span={{ base: 12, sm: 6 }}>
+										<InfoItem label='Name' value={kin.name} />
+									</Grid.Col>
+									<Grid.Col span={{ base: 12, sm: 6 }}>
+										<InfoItem label='Relationship' value={kin.relationship} />
+									</Grid.Col>
+									<Grid.Col span={{ base: 12, sm: 6 }}>
+										<InfoItem
+											label='Phone'
+											href={
+												kin.phone
+													? `tel:${stripPhoneNumber(kin.phone)}`
+													: undefined
+											}
+											displayValue={
+												kin.phone ? formatPhoneNumber(kin.phone) : undefined
+											}
+											value={
+												kin.phone ? stripPhoneNumber(kin.phone) : undefined
+											}
+										/>
+									</Grid.Col>
+									<Grid.Col span={{ base: 12, sm: 6 }}>
+										<InfoItem
+											label='Email'
+											href={kin.email ? `mailto:${kin.email}` : undefined}
+											value={kin.email}
+										/>
+									</Grid.Col>
+								</Grid>
+							</Paper>
+						))}
+					</Stack>
+				</div>
+			)}
+
+			{student.studentEducation && student.studentEducation.length > 0 && (
+				<div>
+					<Title order={4} mb='xs' fw={100}>
+						Education
+					</Title>
+					<Stack gap='md'>
+						{student.studentEducation.map((edu) => (
+							<Paper key={edu.id} p='md' radius='md' withBorder>
+								<Grid gutter='xl'>
+									<Grid.Col span={{ base: 12, sm: 6 }}>
+										<InfoItem label='Type' value={edu.type} />
+									</Grid.Col>
+									<Grid.Col span={{ base: 12, sm: 6 }}>
+										<InfoItem label='Level' value={edu.level} />
+									</Grid.Col>
+									<Grid.Col span={{ base: 12, sm: 6 }}>
+										<InfoItem
+											label='Start Date'
+											value={formatDate(edu.startDate)}
+										/>
+									</Grid.Col>
+									<Grid.Col span={{ base: 12, sm: 6 }}>
+										<InfoItem
+											label='End Date'
+											value={formatDate(edu.endDate)}
+										/>
+									</Grid.Col>
+								</Grid>
+							</Paper>
+						))}
+					</Stack>
+				</div>
+			)}
 		</Stack>
 	);
 }
@@ -269,4 +372,23 @@ function stripPhoneNumber(phone: string | null | undefined) {
 		.replaceAll('-', '')
 		.replaceAll('(', '')
 		.replaceAll(')', '');
+}
+
+function getStudentStatusColor(status: string) {
+	switch (status) {
+		case 'Active':
+			return 'green';
+		case 'Graduated':
+			return 'blue';
+		case 'Suspended':
+		case 'Terminated':
+			return 'red';
+		case 'Withdrawn':
+		case 'Deceased':
+			return 'gray';
+		case 'Applied':
+			return 'yellow';
+		default:
+			return 'gray';
+	}
 }
