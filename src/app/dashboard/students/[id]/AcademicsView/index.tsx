@@ -15,33 +15,25 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import Link from '@/components/Link';
 import SemesterStatus from '@/components/SemesterStatus';
 import { formatSemester } from '@/lib/utils';
-import { getAcademicHistory } from '@/server/students/actions';
+import type { getStudent } from '@/server/students/actions';
 import { getAcademicRemarks } from '@/utils/grades';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
 
 type Props = {
-	stdNo: number;
+	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
 	showMarks?: boolean;
-	isActive?: boolean;
 } & StackProps;
 
 export default function AcademicsView({
-	stdNo,
+	student,
 	showMarks,
-	isActive = false,
 	...props
 }: Props) {
-	const { data: student, isLoading } = useQuery({
-		queryKey: ['student', stdNo],
-		queryFn: () => getAcademicHistory(stdNo, false),
-		enabled: isActive,
-	});
 	const [openPrograms, setOpenPrograms] = useState<string[]>();
 
 	useEffect(() => {
@@ -51,10 +43,6 @@ export default function AcademicsView({
 				.map((program) => program.id?.toString() ?? '') ?? []
 		);
 	}, [student]);
-
-	if (isLoading) {
-		return <Loader />;
-	}
 
 	if (!student?.programs?.length) {
 		return (

@@ -1,7 +1,9 @@
 'use client';
 
-import { Modal, Tabs } from '@mantine/core';
+import { Center, Loader, Modal, Tabs } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { getStudent } from '@/server/students/actions';
 import AcademicsView from '../../AcademicsView';
 import RegistrationRequestForm from './RegistrationRequestForm';
 import StructureView from './StructureView';
@@ -14,6 +16,12 @@ type Props = {
 
 export default function RegistrationModal({ opened, onClose, stdNo }: Props) {
 	const [activeTab, setActiveTab] = useState<string | null>('registration');
+
+	const { data: student, isLoading } = useQuery({
+		queryKey: ['student', stdNo],
+		queryFn: () => getStudent(stdNo),
+		enabled: opened,
+	});
 
 	return (
 		<Modal
@@ -36,12 +44,17 @@ export default function RegistrationModal({ opened, onClose, stdNo }: Props) {
 				</Tabs.Panel>
 
 				<Tabs.Panel value='academics' pt='md'>
-					<AcademicsView
-						mih='80vh'
-						stdNo={stdNo}
-						showMarks
-						isActive={activeTab === 'academics'}
-					/>
+					{isLoading ? (
+						<Center mih='80vh'>
+							<Loader size='sm' />
+						</Center>
+					) : student ? (
+						<AcademicsView
+							mih='80vh'
+							student={student}
+							showMarks
+						/>
+					) : null}
 				</Tabs.Panel>
 
 				<Tabs.Panel value='structure' pt='md'>

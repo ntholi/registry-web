@@ -111,9 +111,8 @@ export function StudentTabs({
 					/>
 				) : (
 					<AcademicsView
-						stdNo={student.stdNo}
+						student={student}
 						showMarks
-						isActive={activeTab === 'academics'}
 					/>
 				)}
 			</TabsPanel>

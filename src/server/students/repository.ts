@@ -447,12 +447,63 @@ export default class StudentRepository extends BaseRepository<
 					},
 					with: {
 						structure: {
+							columns: {
+								id: true,
+								code: true,
+								desc: true,
+								programId: true,
+								createdAt: true,
+							},
 							with: {
 								program: {
 									columns: {
 										id: true,
 										name: true,
 										code: true,
+									},
+									with: {
+										school: {
+											columns: {
+												id: true,
+												name: true,
+											},
+										},
+									},
+								},
+							},
+						},
+						semesters: {
+							columns: {
+								id: true,
+								term: true,
+								semesterNumber: true,
+								status: true,
+							},
+							with: {
+								studentModules: {
+									columns: {
+										id: true,
+										semesterModuleId: true,
+										grade: true,
+										marks: true,
+										status: true,
+									},
+									with: {
+										semesterModule: {
+											columns: {
+												credits: true,
+												type: true,
+											},
+											with: {
+												module: {
+													columns: {
+														id: true,
+														code: true,
+														name: true,
+													},
+												},
+											},
+										},
 									},
 								},
 							},

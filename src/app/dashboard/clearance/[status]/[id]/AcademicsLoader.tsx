@@ -27,7 +27,7 @@ export default function AcademicsLoader({ stdNo }: Props) {
 
 	return (
 		<Box p={'lg'}>
-			<AcademicsView stdNo={student.stdNo} isActive />
+			<AcademicsView student={student} />
 		</Box>
 	);
 }
