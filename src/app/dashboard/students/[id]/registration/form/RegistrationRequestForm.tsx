@@ -68,7 +68,11 @@ function normalizeModuleStatus(
 ): StudentModuleStatus {
 	if (status.startsWith('Repeat')) {
 		const repeatNumber = Number.parseInt(status.replace('Repeat', ''), 10);
-		if (Number.isInteger(repeatNumber) && repeatNumber >= 1 && repeatNumber <= 7) {
+		if (
+			Number.isInteger(repeatNumber) &&
+			repeatNumber >= 1 &&
+			repeatNumber <= 7
+		) {
 			return `Repeat${repeatNumber}` as StudentModuleStatus;
 		}
 		return 'Repeat1';

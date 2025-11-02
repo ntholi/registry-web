@@ -49,11 +49,7 @@ export default function RegistrationModal({ opened, onClose, stdNo }: Props) {
 							<Loader size='sm' />
 						</Center>
 					) : student ? (
-						<AcademicsView
-							mih='80vh'
-							student={student}
-							showMarks
-						/>
+						<AcademicsView mih='80vh' student={student} showMarks />
 					) : null}
 				</Tabs.Panel>
 

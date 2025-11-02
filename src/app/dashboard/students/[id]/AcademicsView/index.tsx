@@ -8,7 +8,6 @@ import {
 	Flex,
 	Group,
 	Paper,
-	Skeleton,
 	Stack,
 	type StackProps,
 	Text,
@@ -29,11 +28,7 @@ type Props = {
 	showMarks?: boolean;
 } & StackProps;
 
-export default function AcademicsView({
-	student,
-	showMarks,
-	...props
-}: Props) {
+export default function AcademicsView({ student, showMarks, ...props }: Props) {
 	const [openPrograms, setOpenPrograms] = useState<string[]>();
 
 	useEffect(() => {
@@ -178,80 +173,6 @@ export default function AcademicsView({
 										No semesters available for this program
 									</Text>
 								)}
-							</Stack>
-						</Accordion.Panel>
-					</Accordion.Item>
-				))}
-			</Accordion>
-		</Stack>
-	);
-}
-
-function Loader() {
-	return (
-		<Stack gap='md'>
-			<Accordion variant='separated' value={['0']} radius='md' multiple>
-				{Array.from(
-					{ length: 1 },
-					(_, index) => `skeleton-program-${index}`
-				).map((key, index) => (
-					<Accordion.Item key={key} value={index.toString()}>
-						<Accordion.Control>
-							<Group>
-								<Skeleton height={40} width={40} radius='md' />
-								<Stack gap={5}>
-									<Skeleton height={20} width={250} radius='sm' />
-									<Group gap='xs'>
-										<Skeleton height={16} width={60} radius='sm' />
-										<Skeleton height={16} width={80} radius='sm' />
-									</Group>
-								</Stack>
-							</Group>
-						</Accordion.Control>
-						<Accordion.Panel>
-							<Stack gap='xl'>
-								{Array.from(
-									{ length: 3 },
-									(_, semIndex) => `skeleton-semester-${semIndex}`
-								).map((key) => (
-									<Paper key={key} p='md' withBorder>
-										<Stack gap='md'>
-											<Flex align='flex-end' justify='space-between'>
-												<Group gap='xs' align='flex-end'>
-													<Skeleton height={20} width={80} radius='xs' />
-													<Skeleton height={16} width={100} radius='sm' />
-												</Group>
-												<Group gap='md' align='flex-end'>
-													<Stack gap={4} align='flex-end'>
-														<Skeleton height={14} width={60} radius='sm' />
-														<Skeleton height={14} width={70} radius='sm' />
-													</Stack>
-													<Skeleton height={20} width={80} radius='sm' />
-												</Group>
-											</Flex>
-											<Divider />
-											<Stack gap='xs'>
-												{Array.from(
-													{ length: 4 },
-													(_, moduleIndex) => `skeleton-module-${moduleIndex}`
-												).map((key) => (
-													<Group key={key} justify='space-between' p='xs'>
-														<Group gap='md' style={{ flex: 1 }}>
-															<Skeleton height={16} width={80} radius='sm' />
-															<Skeleton height={16} width={200} radius='sm' />
-															<Skeleton height={16} width={60} radius='sm' />
-														</Group>
-														<Group gap='md'>
-															<Skeleton height={16} width={40} radius='sm' />
-															<Skeleton height={16} width={30} radius='sm' />
-															<Skeleton height={16} width={50} radius='sm' />
-														</Group>
-													</Group>
-												))}
-											</Stack>
-										</Stack>
-									</Paper>
-								))}
 							</Stack>
 						</Accordion.Panel>
 					</Accordion.Item>

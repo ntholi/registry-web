@@ -110,10 +110,7 @@ export function StudentTabs({
 						blockedStudent={blockedStudent}
 					/>
 				) : (
-					<AcademicsView
-						student={student}
-						showMarks
-					/>
+					<AcademicsView student={student} showMarks />
 				)}
 			</TabsPanel>
 			<TabsPanel value='info' pt={'xl'} p={'sm'}>
