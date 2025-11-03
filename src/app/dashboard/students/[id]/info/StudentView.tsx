@@ -21,17 +21,19 @@ import { useSession } from 'next-auth/react';
 import Link from '@/components/Link';
 import type { UserRole } from '@/db/schema';
 import { formatDate, formatPhoneNumber } from '@/lib/utils';
-import type { getStudent } from '@/server/students/actions';
+import type { getStudent, getAcademicHistory } from '@/server/students/actions';
 import { getProgramStatusColor } from '../AcademicsView';
 import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
 import PhotoView from './PhotoView';
 import StructureChange from './StructureChange';
+import AcademicSummary from './AcademicSummary';
 
 type Props = {
 	student: Awaited<ReturnType<typeof getStudent>>;
+	academicHistory?: Awaited<ReturnType<typeof getAcademicHistory>>;
 };
 
-export default function StudentView({ student }: Props) {
+export default function StudentView({ student, academicHistory }: Props) {
 	const { data: session } = useSession();
 	if (!student) return null;
 
@@ -91,7 +93,7 @@ export default function StudentView({ student }: Props) {
 			<div>
 				<Flex justify='space-between'>
 					<Title order={4} mb='xs' fw={100}>
-						Personal Information
+						Student
 					</Title>
 					<Badge
 						radius='sm'
@@ -186,6 +188,10 @@ export default function StudentView({ student }: Props) {
 						</Grid>
 					</Paper>
 				</div>
+			)}
+
+			{academicHistory && (
+				<AcademicSummary student={academicHistory} />
 			)}
 
 			<div>
