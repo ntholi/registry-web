@@ -50,6 +50,20 @@
       "when": 1762103715055,
       "tag": "0006_fast_shinko_yamashiro",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1762149528857,
+      "tag": "0007_cloudy_sentinels",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1762152767191,
+      "tag": "0008_serious_roughhouse",
+      "breakpoints": true
     }
   ]
 }

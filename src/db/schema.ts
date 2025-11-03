@@ -183,21 +183,21 @@ export const educationType = pgEnum('education_type', [
 ]);
 
 export const educationLevel = pgEnum('education_level', [
-	'PSLE',
+	'JCE',
 	'BJCE',
-	'LGSE',
-	'COSC',
+	'BGGSE',
 	'LGCSE',
 	'IGCSE',
-	'BGCSE',
-	'O level',
-	'A level',
+	'O-Levels',
+	'A-Levels',
+	'Matriculation',
+	'COSC',
 	'Certificate',
 	'Diploma',
 	'Degree',
 	'Masters',
 	'Doctorate',
-	'Other',
+	'Others',
 ]);
 
 export const studentEducation = pgTable(
@@ -207,14 +207,18 @@ export const studentEducation = pgTable(
 		stdNo: bigint({ mode: 'number' })
 			.references(() => students.stdNo, { onDelete: 'cascade' })
 			.notNull(),
-		type: educationType().notNull(),
-		level: educationLevel().notNull(),
-		startDate: timestamp({ mode: 'date' }).notNull(),
-		endDate: timestamp({ mode: 'date' }).notNull(),
-		createdAt: timestamp().defaultNow(),
+		schoolName: text().notNull(),
+		type: educationType(),
+		level: educationLevel(),
+		startDate: timestamp({ mode: 'date' }),
+		endDate: timestamp({ mode: 'date' }),
+		createdAt: timestamp().notNull().defaultNow(),
 	},
 	(table) => ({
 		stdNoIdx: index('fk_student_education_std_no').on(table.stdNo),
+		schoolNameIdx: index('idx_student_education_school_name').on(
+			table.schoolName
+		),
 	})
 );
 
