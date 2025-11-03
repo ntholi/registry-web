@@ -191,7 +191,7 @@ export const educationLevel = pgEnum('education_level', [
 	'O-Levels',
 	'A-Levels',
 	'Matriculation',
-	'COSC',
+	'Cambridge Oversea School Certificate',
 	'Certificate',
 	'Diploma',
 	'Degree',
