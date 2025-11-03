@@ -4,7 +4,7 @@ import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import type { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import type { getStudent, getAcademicHistory } from '@/server/students/actions';
+import type { getStudent } from '@/server/students/actions';
 import AcademicsView from './AcademicsView';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';
@@ -21,14 +21,12 @@ type StudentTabsProps = {
 	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
 	session: Session | null;
 	blockedStudent: Awaited<ReturnType<typeof getBlockedStudentByStdNo>>;
-	academicHistory?: Awaited<ReturnType<typeof getAcademicHistory>>;
 };
 
 export function StudentTabs({
 	student,
 	session,
 	blockedStudent,
-	academicHistory,
 }: StudentTabsProps) {
 	const [activeTab, setActiveTab] = useLocalStorage<string | null>(
 		'studentDetailsTab',
@@ -116,7 +114,7 @@ export function StudentTabs({
 				)}
 			</TabsPanel>
 			<TabsPanel value='info' pt={'xl'} p={'sm'}>
-				<StudentView student={student} academicHistory={academicHistory} />
+				<StudentView student={student} />
 			</TabsPanel>
 			<TabsPanel value='registration' pt={'xl'} p={'sm'}>
 				<RegistrationView

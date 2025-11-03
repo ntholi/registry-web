@@ -1,20 +1,20 @@
 'use client';
 
-import type { getAcademicHistory } from '@/server/students/actions';
-import { getAcademicRemarks } from '@/utils/grades';
 import {
-  Badge,
-  Flex,
-  Grid,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  Title
+	Badge,
+	Flex,
+	Grid,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	Title,
 } from '@mantine/core';
+import type { getStudent } from '@/server/students/actions';
+import { getAcademicRemarks } from '@/utils/grades';
 
 type AcademicSummaryProps = {
-	student: NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
+	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
 };
 
 export default function AcademicSummary({ student }: AcademicSummaryProps) {
@@ -22,15 +22,13 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 		return null;
 	}
 
-	const programs = (student.programs || []).filter(
-		(program) => program && ['Active', 'Completed'].includes(program.status)
-	);
+	const activeProgram = (student.programs || []).find(p => p.status === 'Active');
 
-	if (programs.length === 0) {
+	if (!activeProgram) {
 		return null;
 	}
 
-	const academicRemarks = getAcademicRemarks(programs);
+	const academicRemarks = getAcademicRemarks([activeProgram]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -136,21 +134,19 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 											</Text>
 										</Group>
 									))}
-									{academicRemarks.supplementaryModules.map(
-										(module, index) => (
-											<Group
-												key={`supplementary-${module.code}-${index}`}
-												gap='xs'
-											>
-												<Badge size='xs' color='yellow' variant='outline'>
-													Supplementary
-												</Badge>
-												<Text size='sm'>
-													{module.code} - {module.name}
-												</Text>
-											</Group>
-										)
-									)}
+									{academicRemarks.supplementaryModules.map((module, index) => (
+										<Group
+											key={`supplementary-${module.code}-${index}`}
+											gap='xs'
+										>
+											<Badge size='xs' color='yellow' variant='outline'>
+												Supplementary
+											</Badge>
+											<Text size='sm'>
+												{module.code} - {module.name}
+											</Text>
+										</Group>
+									))}
 								</Stack>
 							</Stack>
 						</Grid.Col>

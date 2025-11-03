@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import { getStudent, getAcademicHistory } from '@/server/students/actions';
+import { getStudent } from '@/server/students/actions';
 import { StudentTabs } from './StudentTabs';
 
 type Props = {
@@ -22,7 +22,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function StudentDetails({ params }: Props) {
 	const { id } = await params;
 	const student = await getStudent(Number(id));
-	const academicHistory = await getAcademicHistory(Number(id));
 	const session = await auth();
 
 	if (!student) {
@@ -38,7 +37,6 @@ export default async function StudentDetails({ params }: Props) {
 				student={student}
 				session={session}
 				blockedStudent={blockedStudent}
-				academicHistory={academicHistory}
 			/>
 		</DetailsView>
 	);

@@ -434,10 +434,6 @@ export default class StudentRepository extends BaseRepository<
 				},
 				programs: {
 					orderBy: [desc(studentPrograms.id)],
-					where: or(
-						eq(studentPrograms.status, 'Active'),
-						eq(studentPrograms.status, 'Completed')
-					),
 					columns: {
 						id: true,
 						status: true,

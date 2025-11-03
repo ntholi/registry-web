@@ -21,21 +21,24 @@ import { useSession } from 'next-auth/react';
 import Link from '@/components/Link';
 import type { UserRole } from '@/db/schema';
 import { formatDate, formatPhoneNumber } from '@/lib/utils';
-import type { getStudent, getAcademicHistory } from '@/server/students/actions';
+import type { getStudent } from '@/server/students/actions';
 import { getProgramStatusColor } from '../AcademicsView';
 import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
+import AcademicSummary from './AcademicSummary';
 import PhotoView from './PhotoView';
 import StructureChange from './StructureChange';
-import AcademicSummary from './AcademicSummary';
 
 type Props = {
 	student: Awaited<ReturnType<typeof getStudent>>;
-	academicHistory?: Awaited<ReturnType<typeof getAcademicHistory>>;
 };
 
-export default function StudentView({ student, academicHistory }: Props) {
+export default function StudentView({ student }: Props) {
 	const { data: session } = useSession();
 	if (!student) return null;
+
+	const activePrograms = student.programs?.filter(
+		(program) => program.status === 'Active' || program.status === 'Completed'
+	);
 
 	return (
 		<Stack gap='xl'>
@@ -142,7 +145,7 @@ export default function StudentView({ student, academicHistory }: Props) {
 				</Paper>
 			</div>
 
-			{student.programs && student.programs.length > 0 && (
+			{activePrograms && activePrograms.length > 0 && (
 				<div>
 					<Flex justify='space-between'>
 						<Title order={4} mb='xs' fw={100}>
@@ -150,10 +153,10 @@ export default function StudentView({ student, academicHistory }: Props) {
 						</Title>
 						<Badge
 							radius={'sm'}
-							color={getProgramStatusColor(student.programs[0].status)}
+							color={getProgramStatusColor(activePrograms[0].status)}
 							variant='light'
 						>
-							{student.programs[0].status}
+							{activePrograms[0].status}
 						</Badge>
 					</Flex>
 					<Paper p='md' radius='md' withBorder>
@@ -162,8 +165,8 @@ export default function StudentView({ student, academicHistory }: Props) {
 								<Group>
 									<InfoItem
 										label='Name'
-										value={student.programs[0].structure.program.name}
-										displayValue={`${student.programs[0].structure.program.name} (${student.programs[0].structure.program.code})`}
+										value={activePrograms[0].structure.program.name}
+										displayValue={`${activePrograms[0].structure.program.name} (${activePrograms[0].structure.program.code})`}
 									/>
 								</Group>
 							</Grid.Col>
@@ -171,13 +174,13 @@ export default function StudentView({ student, academicHistory }: Props) {
 							<Grid.Col span={{ base: 12, sm: 6 }}>
 								<InfoItem
 									label='Intake Date'
-									value={student.programs[0].intakeDate}
+									value={activePrograms[0].intakeDate}
 								/>
 							</Grid.Col>
 							<Grid.Col span={{ base: 12, sm: 3 }}>
 								<InfoItem
 									label='Graduation Date'
-									value={student.programs[0].graduationDate}
+									value={activePrograms[0].graduationDate}
 								/>
 							</Grid.Col>
 							<Grid.Col span={{ base: 12, sm: 3 }}>
@@ -190,9 +193,7 @@ export default function StudentView({ student, academicHistory }: Props) {
 				</div>
 			)}
 
-			{academicHistory && (
-				<AcademicSummary student={academicHistory} />
-			)}
+			{student && <AcademicSummary student={student} />}
 
 			<div>
 				<Title order={4} mb='xs' fw={100}>
