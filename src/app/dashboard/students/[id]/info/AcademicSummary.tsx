@@ -78,6 +78,14 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 								Performance Metrics
 							</Text>
 							<Grid gutter='xs'>
+								<Grid.Col span={12}>
+									<Text size='xs' c='dimmed'>
+										Cumulative GPA
+									</Text>
+									<Text size='sm' fw={600}>
+										{academicRemarks.latestPoints?.cgpa.toFixed(2) || '0.00'}
+									</Text>
+								</Grid.Col>
 								<Grid.Col span={6}>
 									<Text size='xs' c='dimmed'>
 										Credits Attempted
@@ -92,22 +100,6 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 									</Text>
 									<Text size='sm' fw={600}>
 										{academicRemarks.totalCreditsCompleted}
-									</Text>
-								</Grid.Col>
-								<Grid.Col span={6}>
-									<Text size='xs' c='dimmed'>
-										Cumulative GPA
-									</Text>
-									<Text size='sm' fw={600}>
-										{academicRemarks.latestPoints?.cgpa.toFixed(2) || '0.00'}
-									</Text>
-								</Grid.Col>
-								<Grid.Col span={6}>
-									<Text size='xs' c='dimmed'>
-										Total Modules
-									</Text>
-									<Text size='sm' fw={600}>
-										{academicRemarks.totalModules}
 									</Text>
 								</Grid.Col>
 							</Grid>
@@ -126,7 +118,7 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 								<Stack gap='xs'>
 									{academicRemarks.failedModules.map((module, index) => (
 										<Group key={`failed-${module.code}-${index}`} gap='xs'>
-											<Badge size='xs' color='red' variant='outline'>
+											<Badge size='xs' color='red' variant='dot'>
 												Repeat
 											</Badge>
 											<Text size='sm'>
@@ -139,7 +131,7 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 											key={`supplementary-${module.code}-${index}`}
 											gap='xs'
 										>
-											<Badge size='xs' color='yellow' variant='outline'>
+											<Badge size='xs' color='yellow' variant='dot'>
 												Supplementary
 											</Badge>
 											<Text size='sm'>

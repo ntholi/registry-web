@@ -130,16 +130,10 @@ export default function StudentView({ student }: Props) {
 							<InfoItem label='Marital Status' value={student.maritalStatus} />
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Nationality' value={student.nationality} />
-						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem label='Country' value={student.country} />
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem label='Birth Place' value={student.birthPlace} />
-						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Race' value={student.race} />
 						</Grid.Col>
 					</Grid>
 				</Paper>
