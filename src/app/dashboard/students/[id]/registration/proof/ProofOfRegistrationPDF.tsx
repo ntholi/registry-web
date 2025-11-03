@@ -253,7 +253,11 @@ export default function ProofOfRegistrationPDF({
 		);
 	}
 
-	const totalCredits = latestSemester.studentModules.reduce(
+	const activeModules = latestSemester.studentModules.filter(
+		(sm: StudentModule) => sm.status !== 'Drop' && sm.status !== 'Delete'
+	);
+
+	const totalCredits = activeModules.reduce(
 		(sum: number, sm: StudentModule) => sum + (sm.semesterModule.credits || 0),
 		0
 	);
@@ -354,10 +358,9 @@ export default function ProofOfRegistrationPDF({
 							</View>
 						</View>
 
-						{latestSemester.studentModules.map(
+						{activeModules.map(
 							(studentModule: StudentModule, index: number) => {
-								const isLastRow =
-									index === latestSemester.studentModules.length - 1;
+								const isLastRow = index === activeModules.length - 1;
 								return (
 									<View
 										key={studentModule.id}
