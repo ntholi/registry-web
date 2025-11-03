@@ -274,8 +274,12 @@ export default class StudentRepository extends BaseRepository<
 				const searchConditions = searchTerms.map((term) => {
 					const conditions = [];
 
-					if (!Number.isNaN(Number(term))) {
-						conditions.push(eq(students.stdNo, Number(term)));
+					const digitCount = (term.match(/\d/g) || []).length;
+					if (digitCount >= 5) {
+						conditions.push(sql`${students.stdNo}::text ilike ${`%${term}%`}`);
+						conditions.push(ilike(students.nationalId, `%${term}%`));
+						conditions.push(ilike(students.phone1, `%${term}%`));
+						conditions.push(ilike(students.phone2, `%${term}%`));
 					}
 
 					const normalizedTerm = normalizeSearchTerm(term);
@@ -283,13 +287,6 @@ export default class StudentRepository extends BaseRepository<
 					conditions.push(
 						sql`similarity(${students.name}, ${normalizedTerm}::text) > 0.25`
 					);
-
-					const digitCount = (normalizedTerm.match(/\d/g) || []).length;
-					if (digitCount > 5) {
-						conditions.push(ilike(students.nationalId, `%${normalizedTerm}%`));
-						conditions.push(ilike(students.phone1, `%${normalizedTerm}%`));
-						conditions.push(ilike(students.phone2, `%${normalizedTerm}%`));
-					}
 
 					return or(...conditions);
 				});

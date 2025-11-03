@@ -22,7 +22,9 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 		return null;
 	}
 
-	const activeProgram = (student.programs || []).find(p => p.status === 'Active');
+	const activeProgram = (student.programs || []).find(
+		(p) => p.status === 'Active'
+	);
 
 	if (!activeProgram) {
 		return null;
