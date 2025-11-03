@@ -258,40 +258,6 @@ export default function StudentView({ student }: Props) {
 					</Stack>
 				</div>
 			)}
-
-			{student.studentEducation && student.studentEducation.length > 0 && (
-				<div>
-					<Title order={4} mb='xs' fw={100}>
-						Education
-					</Title>
-					<Stack gap='md'>
-						{student.studentEducation.map((edu) => (
-							<Paper key={edu.id} p='md' radius='md' withBorder>
-								<Grid gutter='xl'>
-									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<InfoItem label='Type' value={edu.type} />
-									</Grid.Col>
-									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<InfoItem label='Level' value={edu.level} />
-									</Grid.Col>
-									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<InfoItem
-											label='Start Date'
-											value={formatDate(edu.startDate)}
-										/>
-									</Grid.Col>
-									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<InfoItem
-											label='End Date'
-											value={formatDate(edu.endDate)}
-										/>
-									</Grid.Col>
-								</Grid>
-							</Paper>
-						))}
-					</Stack>
-				</div>
-			)}
 		</Stack>
 	);
 }

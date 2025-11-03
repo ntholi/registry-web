@@ -14,7 +14,6 @@ import {
 	programs,
 	semesterModules,
 	structures,
-	studentEducation,
 	studentModules,
 	studentPrograms,
 	studentSemesters,
@@ -432,9 +431,6 @@ export default class StudentRepository extends BaseRepository<
 				user: true,
 				nextOfKins: {
 					orderBy: [desc(nextOfKins.id)],
-				},
-				studentEducation: {
-					orderBy: [desc(studentEducation.id)],
 				},
 				programs: {
 					orderBy: [desc(studentPrograms.id)],
