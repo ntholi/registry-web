@@ -7,7 +7,7 @@ import {
 	Text,
 	View,
 } from '@react-pdf/renderer';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatSemester } from '@/lib/utils';
 import type { getStudentRegistrationData } from '@/server/students/actions';
 
 Font.register({
@@ -262,10 +262,6 @@ export default function ProofOfRegistrationPDF({
 		0
 	);
 
-	const semesterNumber = latestSemester.semesterNumber || 1;
-	const yearNumber = Math.ceil(semesterNumber / 2);
-	const semesterInYear = semesterNumber % 2 === 0 ? '2' : '1';
-
 	return (
 		<Document>
 			<Page size='A4' style={styles.page}>
@@ -330,7 +326,7 @@ export default function ProofOfRegistrationPDF({
 							</View>
 							<View style={[styles.valueCell]}>
 								<Text>
-									Year {yearNumber} Semester {semesterInYear}
+									{formatSemester(latestSemester.semesterNumber, 'full')}
 								</Text>
 							</View>
 						</View>

@@ -1,4 +1,5 @@
 import type ExcelJS from 'exceljs';
+import { formatSemester } from '@/lib/utils';
 import { getGradePoints } from '@/utils/grades';
 import type {
 	ProgramSemesterReport,
@@ -102,9 +103,7 @@ export function createWorksheet(
 	worksheet.addRow([`Term : ${termName}`]);
 	worksheet.addRow([`Printing date : ${dateStr}, ${timeStr}`]);
 	worksheet.addRow(['By Country : Lesotho']);
-	const programSemesterLabel = `${programReport.programCode}Y${Math.ceil(
-		programReport.semesterNumber / 2
-	)}S${programReport.semesterNumber % 2 === 0 ? 2 : 1}`;
+	const programSemesterLabel = `${programReport.programCode}${formatSemester(programReport.semesterNumber, 'mini')}`;
 	const row10 = worksheet.addRow([programSemesterLabel]);
 	worksheet.getCell('A10').font = { bold: true };
 

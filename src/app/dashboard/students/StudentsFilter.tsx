@@ -18,20 +18,15 @@ import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { terms as termsTable } from '@/db/schema';
+import { formatSemester } from '@/lib/utils';
 import { getAllSchools, getProgramsBySchoolId } from '@/server/schools/actions';
 import { getAllTerms } from '@/server/terms/actions';
-
-const getSemesterLabel = (semesterNumber: number): string => {
-	const year = Math.ceil(semesterNumber / 2);
-	const semester = semesterNumber % 2 === 0 ? 2 : 1;
-	return `Y${year}S${semester}`;
-};
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = i + 1;
 	return {
 		value: semesterNumber.toString(),
-		label: `Year ${Math.ceil(semesterNumber / 2)} Semester ${semesterNumber % 2 === 0 ? 2 : 1}`,
+		label: formatSemester(semesterNumber, 'full'),
 	};
 });
 
@@ -111,7 +106,7 @@ export default function StudentsFilter() {
 			(t) => t.id?.toString() === (filters.termId || '')
 		);
 		const selectedSemester = filters.semesterNumber
-			? getSemesterLabel(Number(filters.semesterNumber))
+			? formatSemester(Number(filters.semesterNumber), 'mini')
 			: null;
 
 		if (selectedProgram) {

@@ -7,6 +7,7 @@ import {
 	type StudentModuleStatus,
 	type schools,
 } from '@/db/schema';
+import { formatSemester } from '@/lib/utils';
 import { termsRepository } from '@/server/terms/repository';
 import { getAcademicRemarks, summarizeModules } from '@/utils/grades';
 import { boeReportRepository, type ProgramSemesterReport } from './repository';
@@ -84,9 +85,7 @@ export default class BoeReportService {
 					),
 				};
 
-				const year = Math.ceil(parseInt(semesterNumber, 10) / 2);
-				const semester = parseInt(semesterNumber, 10) % 2 === 0 ? 2 : 1;
-				const sheetName = `${programReport.programCode}Y${year}S${semester}`;
+				const sheetName = `${programReport.programCode}${formatSemester(parseInt(semesterNumber, 10), 'mini')}`;
 				const worksheet = workbook.addWorksheet(sheetName);
 
 				createWorksheet(

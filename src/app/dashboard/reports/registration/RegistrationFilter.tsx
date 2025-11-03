@@ -3,23 +3,18 @@ import { Group, Loader, Paper, Select, SimpleGrid, Text } from '@mantine/core';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { formatSemester } from '@/lib/utils';
 import {
 	getAvailableProgramsForReports,
 	getAvailableSchoolsForReports,
 	getAvailableTermsForReport,
 } from '@/server/reports/registration/actions';
 
-const getSemesterLabel = (semesterNumber: number): string => {
-	const year = Math.ceil(semesterNumber / 2);
-	const semester = semesterNumber % 2 === 0 ? 2 : 1;
-	return `Year ${year} Semester ${semester}`;
-};
-
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = i + 1;
 	return {
 		value: semesterNumber.toString(),
-		label: getSemesterLabel(semesterNumber),
+		label: formatSemester(semesterNumber, 'full'),
 	};
 });
 
