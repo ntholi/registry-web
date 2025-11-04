@@ -62,7 +62,9 @@ export default function Hero() {
 						<Stack gap={2}>
 							<Text fw={500}>{program?.name}</Text>
 							<Text size='xs' c='dimmed'>
-								{formatSemester(semester?.structureSemester?.semesterNumber)}
+								{semester?.structureSemester?.semesterNumber
+									? formatSemester(semester.structureSemester.semesterNumber)
+									: 'N/A'}
 							</Text>
 						</Stack>
 					</Group>

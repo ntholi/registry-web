@@ -18,7 +18,7 @@ type ModuleWithStatus = {
 	type: string;
 	credits: number;
 	status: 'Compulsory' | 'Elective' | `Repeat${number}`;
-	semesterNo: number;
+	semesterNo: string;
 	prerequisites?: Array<{ id: number; code: string; name: string }>;
 };
 
@@ -76,7 +76,7 @@ export async function determineSemesterStatus(
 			.flatMap((program) => program.semesters)
 			.map((semester) => semester.structureSemester?.semesterNumber)
 			.filter(
-				(semesterNo): semesterNo is number =>
+				(semesterNo): semesterNo is string =>
 					semesterNo !== null && semesterNo !== undefined
 			) ?? [];
 
@@ -119,7 +119,7 @@ export async function createRegistrationWithModules(data: {
 	stdNo: number;
 	modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
 	sponsorId: number;
-	semesterNumber: number;
+	semesterNumber: string;
 	semesterStatus: 'Active' | 'Repeat';
 	termId: number;
 	borrowerNo?: string;
@@ -132,7 +132,7 @@ export async function createRegistrationWithModules(data: {
 export async function updateRegistrationWithModules(
 	registrationRequestId: number,
 	modules: { id: number; status: StudentModuleStatus }[],
-	semesterNumber?: number,
+	semesterNumber?: string,
 	semesterStatus?: 'Active' | 'Repeat',
 	termId?: number
 ) {
@@ -154,7 +154,7 @@ export async function updateRegistrationWithModulesAndSponsorship(
 		bankName?: string;
 		accountNumber?: string;
 	},
-	semesterNumber?: number,
+	semesterNumber?: string,
 	semesterStatus?: 'Active' | 'Repeat',
 	termId?: number
 ) {
@@ -172,15 +172,15 @@ export async function getStudentRegistrationHistory(stdNo: number) {
 	return service.getHistory(stdNo);
 }
 
-function commonSemesterNo(modules: ModuleWithStatus[]): number {
-	const semesterCounts = new Map<number, number>();
+function commonSemesterNo(modules: ModuleWithStatus[]): string {
+	const semesterCounts = new Map<string, number>();
 
 	for (const m of modules) {
 		const count = semesterCounts.get(m.semesterNo) || 0;
 		semesterCounts.set(m.semesterNo, count + 1);
 	}
 
-	let mostCommonSemester = modules[0]?.semesterNo || 1;
+	let mostCommonSemester = modules[0]?.semesterNo || '1';
 	let maxCount = 0;
 
 	for (const [semesterNo, count] of semesterCounts) {

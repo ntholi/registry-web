@@ -34,7 +34,7 @@ export type Program = {
 		status: SemesterStatus;
 		term: string;
 		structureSemester?: {
-			semesterNumber: number;
+			semesterNumber: string;
 		} | null;
 		studentModules: StudentModule[];
 	}[];

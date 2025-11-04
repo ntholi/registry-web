@@ -23,9 +23,9 @@ import { getAllSchools, getProgramsBySchoolId } from '@/server/schools/actions';
 import { getAllTerms } from '@/server/terms/actions';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
-	const semesterNumber = i + 1;
+	const semesterNumber = (i + 1).toString();
 	return {
-		value: semesterNumber.toString(),
+		value: semesterNumber,
 		label: formatSemester(semesterNumber, 'full'),
 	};
 });
@@ -106,7 +106,7 @@ export default function StudentsFilter() {
 			(t) => t.id?.toString() === (filters.termId || '')
 		);
 		const selectedSemester = filters.semesterNumber
-			? formatSemester(Number(filters.semesterNumber), 'mini')
+			? formatSemester(filters.semesterNumber, 'mini')
 			: null;
 
 		if (selectedProgram) {

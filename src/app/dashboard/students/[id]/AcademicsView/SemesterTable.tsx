@@ -28,7 +28,7 @@ type ModuleTableProps = {
 	showMarks?: boolean;
 	allSemesters?: {
 		term: string;
-		semesterNumber: number | null;
+		semesterNumber: string | null;
 		studentModules: {
 			semesterModule: {
 				module: {
@@ -100,7 +100,7 @@ export default function SemesterTable({
 				);
 				return {
 					term: sem.term,
-					semesterNumber: sem.semesterNumber ?? 0,
+					semesterNumber: sem.semesterNumber ?? '',
 					grade: studentModule?.grade ?? '',
 				};
 			})

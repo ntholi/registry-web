@@ -10,7 +10,7 @@ import { getStudentRegistrationDataByTerm } from '@/server/students/actions';
 interface ProofOfRegistrationDownloadProps {
 	stdNo: number;
 	termName: string;
-	semesterNumber: number;
+	semesterNumber: string;
 }
 
 export default function ProofOfRegistrationDownload({

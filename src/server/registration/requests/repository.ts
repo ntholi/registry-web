@@ -369,7 +369,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
 		sponsorId: number;
 		semesterStatus: 'Active' | 'Repeat';
-		semesterNumber: number;
+		semesterNumber: string;
 		borrowerNo?: string;
 		bankName?: string;
 		accountNumber?: string;
@@ -450,7 +450,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 	async updateRegistrationWithModules(
 		registrationRequestId: number,
 		modules: { id: number; status: StudentModuleStatus }[],
-		semesterNumber?: number,
+		semesterNumber?: string,
 		semesterStatus?: 'Active' | 'Repeat',
 		termId?: number
 	) {
@@ -527,7 +527,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			bankName?: string;
 			accountNumber?: string;
 		},
-		semesterNumber?: number,
+		semesterNumber?: string,
 		semesterStatus?: 'Active' | 'Repeat',
 		termId?: number
 	) {

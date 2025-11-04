@@ -72,7 +72,7 @@ export default function NewRegistrationPage() {
 	const [activeStep, setActiveStep] = useState(0);
 	const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
 	const [semesterData, setSemesterData] = useState<{
-		semesterNo: number;
+		semesterNo: string;
 		status: 'Active' | 'Repeat';
 	} | null>(null);
 	const [sponsorshipData, setSponsorshipData] =

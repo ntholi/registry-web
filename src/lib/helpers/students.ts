@@ -31,21 +31,27 @@ export function getCurrentSemester(student: Student | null | undefined) {
 }
 
 export function getNextSemesterNo(student: Student | null) {
-	if (!student) return 1;
+	if (!student) return '1';
 
 	const currentSemester =
-		getCurrentSemester(student)?.structureSemester?.semesterNumber ?? 1;
-	const semesterNos = currentSemester % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7];
+		getCurrentSemester(student)?.structureSemester?.semesterNumber;
+	if (!currentSemester) return '1';
+
+	const currentNum = Number.parseInt(currentSemester, 10);
+	const semesterNos =
+		currentNum % 2 === 0 ? ['2', '4', '6', '8'] : ['1', '3', '5', '7'];
 
 	const allSemesters = student.programs
 		.flatMap((program) => program.semesters)
-		.filter((semester) =>
-			semesterNos.includes(semester.structureSemester?.semesterNumber ?? 0)
-		);
+		.filter((semester) => {
+			const semNo = semester.structureSemester?.semesterNumber;
+			return semNo && semesterNos.includes(semNo);
+		});
 	const maxSemesterNo = Math.max(
-		...allSemesters.map(
-			(semester) => semester.structureSemester?.semesterNumber || 0
-		)
+		...allSemesters.map((semester) => {
+			const semNo = semester.structureSemester?.semesterNumber;
+			return semNo ? Number.parseInt(semNo, 10) : 0;
+		})
 	);
-	return maxSemesterNo + 1;
+	return String(maxSemesterNo + 1);
 }

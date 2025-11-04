@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
 	bigint,
 	boolean,
+	char,
 	index,
 	integer,
 	jsonb,
@@ -463,7 +464,7 @@ export const structureSemesters = pgTable('structure_semesters', {
 	structureId: integer()
 		.references(() => structures.id, { onDelete: 'cascade' })
 		.notNull(),
-	semesterNumber: integer().notNull(),
+	semesterNumber: char({ length: 2 }).notNull(),
 	name: text().notNull(),
 	totalCredits: real().notNull(),
 	createdAt: timestamp().defaultNow(),
@@ -569,7 +570,7 @@ export const registrationRequests = pgTable(
 		mailSent: boolean().notNull().default(false),
 		count: integer().notNull().default(1),
 		semesterStatus: semesterStatusForRegistration().notNull(),
-		semesterNumber: integer().notNull(),
+		semesterNumber: char({ length: 2 }).notNull(),
 		message: text(),
 		createdAt: timestamp().defaultNow(),
 		updatedAt: timestamp(),

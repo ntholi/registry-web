@@ -24,12 +24,12 @@ type ModuleForRemarks = {
 	grade: string;
 	credits: number;
 	status: StudentModuleStatus;
-	semesterNumber: number;
+	semesterNumber: string;
 	semesterModuleId: number;
 };
 
 type SemesterModuleData = {
-	semesterNumber: number;
+	semesterNumber: string;
 	modules: ModuleForRemarks[];
 };
 
@@ -77,15 +77,15 @@ export default class BoeReportService {
 						semesters[0]?.studentProgram.structure.program.code || '',
 					programName:
 						semesters[0]?.studentProgram.structure.program.name || '',
-					semesterNumber: parseInt(semesterNumber, 10),
+					semesterNumber: semesterNumber,
 					students: this.createStudentReports(
 						updatedCurrentSemesters,
 						allStudentSemesters as StudentSemester[],
-						parseInt(semesterNumber, 10)
+						semesterNumber
 					),
 				};
 
-				const sheetName = `${programReport.programCode}${formatSemester(parseInt(semesterNumber, 10), 'mini')}`;
+				const sheetName = `${programReport.programCode}${formatSemester(semesterNumber, 'mini')}`;
 				const worksheet = workbook.addWorksheet(sheetName);
 
 				createWorksheet(
@@ -174,7 +174,7 @@ export default class BoeReportService {
 	private groupBySemesterNumber(studentSemesters: StudentSemester[]) {
 		return studentSemesters.reduce(
 			(groups, semester) => {
-				const semesterNumber = semester.structureSemester?.semesterNumber || 0;
+				const semesterNumber = semester.structureSemester?.semesterNumber || '';
 				if (!groups[semesterNumber]) {
 					groups[semesterNumber] = [];
 				}
@@ -201,7 +201,7 @@ export default class BoeReportService {
 	private createStudentReports(
 		semesters: StudentSemester[],
 		allStudentSemesters: StudentSemester[],
-		_currentSemesterNumber: number
+		_currentSemesterNumber: string
 	) {
 		const studentReports = semesters.map((semester) => {
 			const student = semester.studentProgram.student;
@@ -224,10 +224,10 @@ export default class BoeReportService {
 			}));
 
 			const historicalSemesters: SemesterModuleData[] = [];
-			const semesterGroups = new Map<number, ModuleForRemarks[]>();
+			const semesterGroups = new Map<string, ModuleForRemarks[]>();
 
 			studentSemesters.forEach((ss) => {
-				const semNum = ss.structureSemester?.semesterNumber || 0;
+				const semNum = ss.structureSemester?.semesterNumber || '';
 				if (!semesterGroups.has(semNum)) {
 					semesterGroups.set(semNum, []);
 				}
@@ -280,7 +280,7 @@ export default class BoeReportService {
 					semesters: studentSemesters.map((ss) => ({
 						id: ss.id,
 						term: ss.term,
-						semesterNumber: ss.structureSemester?.semesterNumber || 0,
+						semesterNumber: ss.structureSemester?.semesterNumber ?? '',
 						status: ss.status,
 						studentModules: ss.studentModules.map((sm) => ({
 							id: sm.id,

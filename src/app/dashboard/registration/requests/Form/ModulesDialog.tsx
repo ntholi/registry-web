@@ -17,7 +17,7 @@ import type { modules, semesterModules } from '@/db/schema';
 type Module = typeof modules.$inferSelect;
 
 type SemesterModule = typeof semesterModules.$inferSelect & {
-	semesterNumber?: number;
+	semesterNumber?: string;
 	semesterName?: string;
 	module: Module;
 };
@@ -52,7 +52,7 @@ export default function ModulesDialog({
 
 	const modulesBySemester = filteredModules.reduce(
 		(acc, module) => {
-			const semesterKey = module.semesterNumber || 0;
+			const semesterKey = module.semesterNumber ?? '';
 			if (!acc[semesterKey]) {
 				acc[semesterKey] = {
 					name: module.semesterName || `Semester ${semesterKey}`,
@@ -62,7 +62,7 @@ export default function ModulesDialog({
 			acc[semesterKey].modules.push(module);
 			return acc;
 		},
-		{} as Record<number, { name: string; modules: SemesterModule[] }>
+		{} as Record<string, { name: string; modules: SemesterModule[] }>
 	);
 
 	const handleAddModule = (module: SemesterModule) => {

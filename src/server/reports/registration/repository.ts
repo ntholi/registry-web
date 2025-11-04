@@ -15,7 +15,7 @@ export interface RegistrationReportFilter {
 	termId?: number;
 	schoolId?: number;
 	programId?: number;
-	semesterNumber?: number;
+	semesterNumber?: string;
 	searchQuery?: string;
 }
 
@@ -23,7 +23,7 @@ export interface FullRegistrationStudent {
 	stdNo: number;
 	name: string;
 	programName: string;
-	semesterNumber: number;
+	semesterNumber: string;
 	schoolName: string;
 	schoolCode: string;
 	phone: string;
@@ -35,7 +35,7 @@ export interface SummaryProgramData {
 	schoolName: string;
 	schoolCode: string;
 	schoolId: number;
-	yearBreakdown: { [year: number]: number };
+	yearBreakdown: { [year: string]: number };
 	totalStudents: number;
 }
 
@@ -118,7 +118,7 @@ export class RegistrationReportRepository {
 			stdNo: row.stdNo,
 			name: row.name,
 			programName: row.programName,
-			semesterNumber: row.semesterNumber || 0,
+			semesterNumber: row.semesterNumber || '',
 			schoolName: row.schoolName,
 			schoolCode: row.schoolCode,
 			phone: row.phone || '',
@@ -233,7 +233,7 @@ export class RegistrationReportRepository {
 				stdNo: row.stdNo,
 				name: row.name,
 				programName: row.programName,
-				semesterNumber: row.semesterNumber || 0,
+				semesterNumber: row.semesterNumber || '',
 				schoolName: row.schoolName,
 				schoolCode: row.schoolCode,
 				phone: row.phone || '',
@@ -281,11 +281,19 @@ export class RegistrationReportRepository {
 			const program = programsMap.get(programKey)!;
 			const year = student.semesterNumber;
 
-			if (!program.yearBreakdown[year]) {
-				program.yearBreakdown[year] = 0;
+			if (
+				!program.yearBreakdown[
+					year as unknown as keyof typeof program.yearBreakdown
+				]
+			) {
+				program.yearBreakdown[
+					year as unknown as keyof typeof program.yearBreakdown
+				] = 0;
 			}
 
-			program.yearBreakdown[year]++;
+			program.yearBreakdown[
+				year as unknown as keyof typeof program.yearBreakdown
+			]++;
 			program.totalStudents++;
 
 			const school = schoolsMap.get(schoolKey)!;

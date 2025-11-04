@@ -10,14 +10,14 @@ import Form from '../Form';
 type Module = typeof modules.$inferSelect;
 
 type SemesterModule = typeof semesterModules.$inferSelect & {
-	semesterNumber?: number;
+	semesterNumber?: string;
 	semesterName?: string;
 	module: Module;
 };
 
 interface SelectedModule extends SemesterModule {
 	status: StudentModuleStatus;
-	semesterNumber?: number;
+	semesterNumber?: string;
 	semesterName?: string;
 }
 
@@ -27,7 +27,7 @@ export type RegistrationRequest = {
 	semesterStatus: 'Active' | 'Repeat';
 	sponsorId: number;
 	borrowerNo?: string;
-	semesterNumber: number;
+	semesterNumber: string;
 	termId: number;
 	selectedModules?: Array<SelectedModule>;
 };

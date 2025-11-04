@@ -75,7 +75,7 @@ export default function EditRegistrationPage() {
 	const [activeStep, setActiveStep] = useState(0);
 	const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
 	const [semesterData, setSemesterData] = useState<{
-		semesterNo: number;
+		semesterNo: string;
 		status: 'Active' | 'Repeat';
 	} | null>(null);
 	const [sponsorshipData, setSponsorshipData] =
@@ -182,7 +182,7 @@ export default function EditRegistrationPage() {
 			setSelectedModules(modules);
 
 			setSemesterData({
-				semesterNo: registrationRequest.semesterNumber || 1,
+				semesterNo: registrationRequest.semesterNumber ?? '',
 				status: registrationRequest.semesterStatus || 'Active',
 			});
 

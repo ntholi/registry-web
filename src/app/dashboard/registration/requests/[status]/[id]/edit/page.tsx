@@ -19,7 +19,7 @@ type Props = {
 
 type Module = typeof modules.$inferSelect;
 type SemesterModule = typeof semesterModules.$inferSelect & {
-	semesterNumber?: number;
+	semesterNumber?: string;
 	semesterName?: string;
 	module: Module;
 };
@@ -35,7 +35,7 @@ type RegistrationRequest = {
 	borrowerNo?: string;
 	bankName?: string;
 	accountNumber?: string;
-	semesterNumber: number;
+	semesterNumber: string;
 	termId: number;
 	selectedModules?: Array<SelectedModule>;
 };
@@ -98,7 +98,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 					borrowerNo: sponsored?.borrowerNo || '',
 					bankName: sponsored?.bankName || '',
 					accountNumber: sponsored?.accountNumber || '',
-					semesterNumber: registrationRequest.semesterNumber ?? 1,
+					semesterNumber: registrationRequest.semesterNumber,
 					termId: registrationRequest.termId,
 					selectedModules,
 				}}

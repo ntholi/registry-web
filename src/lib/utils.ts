@@ -22,12 +22,18 @@ export function formatDateTime(timestamp: number | Date | undefined | null) {
 }
 
 export function formatSemester(
-	sem: number | undefined | null,
+	sem: string | undefined | null,
 	type: 'full' | 'short' | 'mini' = 'full'
 ) {
-	if (!sem) return '';
-	const year = Math.ceil(sem / 2);
-	const semester = sem % 2 === 0 ? 2 : 1;
+	if (sem === null || sem === undefined) {
+		throw new Error('Semester number cannot be null or undefined');
+	}
+	const semNumber = typeof sem === 'string' ? Number.parseInt(sem, 10) : sem;
+	if (Number.isNaN(semNumber)) {
+		throw new Error(`Invalid semester number: ${sem}`);
+	}
+	const year = Math.ceil(semNumber / 2);
+	const semester = semNumber % 2 === 0 ? 2 : 1;
 
 	return type === 'full'
 		? `Year ${year} • Semester ${semester}`

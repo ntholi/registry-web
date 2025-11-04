@@ -36,7 +36,7 @@ export interface ProgramSemesterReport {
 	programId: number;
 	programCode: string;
 	programName: string;
-	semesterNumber: number;
+	semesterNumber: string;
 	students: StudentSemesterReport[];
 }
 
@@ -232,10 +232,15 @@ export default class BoeReportRepository extends BaseRepository<
 			if (a.term !== b.term) {
 				return a.term.localeCompare(b.term);
 			}
-			return (
-				(a.structureSemester?.semesterNumber || 0) -
-				(b.structureSemester?.semesterNumber || 0)
+			const aNum = Number.parseInt(
+				a.structureSemester?.semesterNumber ?? '',
+				10
 			);
+			const bNum = Number.parseInt(
+				b.structureSemester?.semesterNumber ?? '',
+				10
+			);
+			return aNum - bNum;
 		});
 	}
 
@@ -298,10 +303,15 @@ export default class BoeReportRepository extends BaseRepository<
 			if (a.term !== b.term) {
 				return a.term.localeCompare(b.term);
 			}
-			return (
-				(a.structureSemester?.semesterNumber || 0) -
-				(b.structureSemester?.semesterNumber || 0)
+			const aNum = Number.parseInt(
+				a.structureSemester?.semesterNumber ?? '',
+				10
 			);
+			const bNum = Number.parseInt(
+				b.structureSemester?.semesterNumber ?? '',
+				10
+			);
+			return aNum - bNum;
 		});
 	}
 }

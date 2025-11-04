@@ -144,7 +144,7 @@ class RegistrationRequestService {
 		modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
 		sponsorId: number;
 		semesterStatus: 'Active' | 'Repeat';
-		semesterNumber: number;
+		semesterNumber: string;
 		borrowerNo?: string;
 		bankName?: string;
 		accountNumber?: string;
@@ -162,7 +162,7 @@ class RegistrationRequestService {
 	async updateRegistrationWithModules(
 		registrationRequestId: number,
 		modules: { id: number; status: StudentModuleStatus }[],
-		semesterNumber?: number,
+		semesterNumber?: string,
 		semesterStatus?: 'Active' | 'Repeat',
 		termId?: number
 	) {
@@ -186,7 +186,7 @@ class RegistrationRequestService {
 			bankName?: string;
 			accountNumber?: string;
 		},
-		semesterNumber?: number,
+		semesterNumber?: string,
 		semesterStatus?: 'Active' | 'Repeat',
 		termId?: number
 	) {

@@ -11,9 +11,9 @@ import {
 } from '@/server/reports/registration/actions';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
-	const semesterNumber = i + 1;
+	const semesterNumber = (i + 1).toString();
 	return {
-		value: semesterNumber.toString(),
+		value: semesterNumber,
 		label: formatSemester(semesterNumber, 'full'),
 	};
 });
@@ -22,7 +22,7 @@ export interface ReportFilter {
 	termId?: number;
 	schoolId?: number;
 	programId?: number;
-	semesterNumber?: number;
+	semesterNumber?: string;
 }
 
 interface Props {
@@ -98,9 +98,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 			termId: updated.termId ? Number(updated.termId) : undefined,
 			schoolId: updated.schoolId ? Number(updated.schoolId) : undefined,
 			programId: updated.programId ? Number(updated.programId) : undefined,
-			semesterNumber: updated.semesterNumber
-				? Number(updated.semesterNumber)
-				: undefined,
+			semesterNumber: updated.semesterNumber || undefined,
 		};
 
 		onFilterChange(newFilter);

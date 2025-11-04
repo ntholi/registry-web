@@ -11,7 +11,7 @@ export interface StudentFilter {
 	schoolId?: number;
 	programId?: number;
 	termId?: number;
-	semesterNumber?: number;
+	semesterNumber?: string;
 }
 
 type StudentQueryParams = Omit<QueryOptions<typeof students>, 'filter'> & {

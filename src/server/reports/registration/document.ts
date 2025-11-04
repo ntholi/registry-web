@@ -536,7 +536,7 @@ function createFullStudentsTable(
 		stdNo: number;
 		name: string;
 		programName: string;
-		semesterNumber: number;
+		semesterNumber: string;
 		schoolName: string;
 		status: string;
 	}>
@@ -829,13 +829,15 @@ function createSummaryTable(
 		});
 	}
 
-	const allSemesters = new Set<number>();
+	const allSemesters = new Set<string>();
 	programs.forEach((program) => {
 		Object.keys(program.yearBreakdown).forEach((semester) => {
-			allSemesters.add(parseInt(semester, 10));
+			allSemesters.add(semester);
 		});
 	});
-	const sortedSemesters = Array.from(allSemesters).sort((a, b) => a - b);
+	const sortedSemesters = Array.from(allSemesters).sort(
+		(a, b) => Number(a) - Number(b)
+	);
 
 	const headerRow = new TableRow({
 		children: [
@@ -936,7 +938,11 @@ function createSummaryTable(
 								new Paragraph({
 									children: [
 										new TextRun({
-											text: (program.yearBreakdown[semester] || 0).toString(),
+											text: (
+												program.yearBreakdown[
+													semester as unknown as keyof typeof program.yearBreakdown
+												] || 0
+											).toString(),
 											font: 'Arial',
 											size: 14,
 											color: '000000',
@@ -973,11 +979,10 @@ function createSummaryTable(
 		});
 	});
 
-	const semesterTotals: { [key: number]: number } = {};
+	const semesterTotals: { [key: string]: number } = {};
 	programs.forEach((program) => {
 		Object.entries(program.yearBreakdown).forEach(([semester, count]) => {
-			const semesterNum = parseInt(semester, 10);
-			semesterTotals[semesterNum] = (semesterTotals[semesterNum] || 0) + count;
+			semesterTotals[semester] = (semesterTotals[semester] || 0) + count;
 		});
 	});
 

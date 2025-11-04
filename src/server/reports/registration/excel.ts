@@ -156,16 +156,18 @@ function createSummarySheet(
 ) {
 	const worksheet = workbook.addWorksheet('Summary');
 
-	const allSemesters = new Set<number>();
+	const allSemesters = new Set<string>();
 	summaryReport.schools.forEach((school) => {
 		school.programs.forEach((program) => {
 			Object.keys(program.yearBreakdown).forEach((sem) => {
-				allSemesters.add(Number(sem));
+				allSemesters.add(sem);
 			});
 		});
 	});
 
-	const sortedSemesters = Array.from(allSemesters).sort((a, b) => a - b);
+	const sortedSemesters = Array.from(allSemesters).sort(
+		(a, b) => Number(a) - Number(b)
+	);
 
 	const columns: Partial<ExcelJS.Column>[] = [
 		{ key: 'schoolFaculty', width: 50 },
@@ -290,13 +292,11 @@ function createSummarySheet(
 		});
 
 		const totalRowData: (string | number)[] = ['', 'Total'];
-		const schoolSemesterTotals: { [key: number]: number } = {};
+		const schoolSemesterTotals: { [key: string]: number } = {};
 
 		school.programs.forEach((program) => {
 			Object.entries(program.yearBreakdown).forEach(([sem, count]) => {
-				const semNum = Number(sem);
-				schoolSemesterTotals[semNum] =
-					(schoolSemesterTotals[semNum] || 0) + count;
+				schoolSemesterTotals[sem] = (schoolSemesterTotals[sem] || 0) + count;
 			});
 		});
 
@@ -329,16 +329,14 @@ function createSummarySheet(
 	});
 
 	const grandTotalRowData: (string | number)[] = ['', 'GRAND TOTAL'];
-	const grandTotalSemesters: { [key: number]: number } = {};
+	const grandTotalSemesters: { [key: string]: number } = {};
 	let grandTotal = 0;
 
 	summaryReport.schools.forEach((school) => {
 		grandTotal += school.totalStudents;
 		school.programs.forEach((program) => {
 			Object.entries(program.yearBreakdown).forEach(([sem, count]) => {
-				const semNum = Number(sem);
-				grandTotalSemesters[semNum] =
-					(grandTotalSemesters[semNum] || 0) + count;
+				grandTotalSemesters[sem] = (grandTotalSemesters[sem] || 0) + count;
 			});
 		});
 	});

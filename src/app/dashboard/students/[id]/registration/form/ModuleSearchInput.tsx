@@ -24,7 +24,7 @@ interface ModuleOption extends ComboboxItem {
 	name: string;
 	type: string;
 	credits: number;
-	semesterNumber: number;
+	semesterNumber: string;
 }
 
 export type ModuleSearchInputProps = Omit<

@@ -1,9 +1,5 @@
 'use client';
 
-import SemesterStatus from '@/components/SemesterStatus';
-import { formatSemester } from '@/lib/utils';
-import type { getStudent } from '@/server/students/actions';
-import { getAcademicRemarks } from '@/utils/grades';
 import {
 	Accordion,
 	Badge,
@@ -19,6 +15,10 @@ import {
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
+import SemesterStatus from '@/components/SemesterStatus';
+import { formatSemester } from '@/lib/utils';
+import type { getStudent } from '@/server/students/actions';
+import { getAcademicRemarks } from '@/utils/grades';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
 
@@ -137,7 +137,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																allSemesters={program.semesters.map((sem) => ({
 																	term: sem.term,
 																	semesterNumber:
-																		sem.structureSemester?.semesterNumber ?? 0,
+																		sem.structureSemester?.semesterNumber,
 																	studentModules: sem.studentModules.map(
 																		(m) => ({
 																			semesterModule: {

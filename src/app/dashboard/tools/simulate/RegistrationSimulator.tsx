@@ -48,7 +48,7 @@ type ModuleData = ModuleDataResponse['modules'];
 type Student = {
 	name: string;
 	stdNo: number;
-	semester: number;
+	semester: number | string;
 	program: {
 		structureCode: string;
 		structureId: number;
@@ -64,7 +64,7 @@ type ModuleWithStatus = {
 	type: string;
 	credits: number;
 	status: 'Compulsory' | 'Elective' | `Repeat${number}`;
-	semesterNo: number;
+	semesterNo: string;
 	prerequisites?: Array<{ id: number; code: string; name: string }>;
 };
 
@@ -155,7 +155,7 @@ export default function RegistrationSimulator() {
 					setStudent({
 						name: studentData.name,
 						stdNo: studentData.stdNo,
-						semester: currentSemester?.structureSemester?.semesterNumber ?? 1,
+						semester: currentSemester?.structureSemester?.semesterNumber ?? '',
 						program: {
 							structureCode: activeProgram.structure.code,
 							structureId: activeProgram.structure.id,
@@ -367,12 +367,7 @@ export default function RegistrationSimulator() {
 								<Text size='xs' c='dimmed' mb={4}>
 									Current Semester
 								</Text>
-								<Text fw={500} size='sm'>
-									{formatSemester(
-										getCurrentSemester(fullStudentData)?.structureSemester
-											?.semesterNumber
-									)}
-								</Text>
+								<Text fw={500} size='sm'></Text>
 							</Paper>
 							<Paper withBorder p='sm' radius='sm'>
 								<Text size='xs' c='dimmed' mb={4}>

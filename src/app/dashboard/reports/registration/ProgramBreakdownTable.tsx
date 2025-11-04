@@ -36,12 +36,10 @@ export default function ProgramBreakdownTable({
 		? Array.from(
 				new Set(
 					school.programs.flatMap((program) =>
-						Object.keys(program.yearBreakdown).map((semester) =>
-							parseInt(semester, 10)
-						)
+						Object.keys(program.yearBreakdown)
 					)
 				)
-			).sort((a, b) => a - b)
+			).sort((a, b) => Number(a) - Number(b))
 		: [];
 
 	const placeholderColumnCount = 6;
@@ -148,9 +146,17 @@ export default function ProgramBreakdownTable({
 									<Table.Td key={semester} ta='center'>
 										<Text
 											size='sm'
-											c={program.yearBreakdown[semester] ? undefined : 'dimmed'}
+											c={
+												program.yearBreakdown[
+													semester as unknown as keyof typeof program.yearBreakdown
+												]
+													? undefined
+													: 'dimmed'
+											}
 										>
-											{program.yearBreakdown[semester] || '-'}
+											{program.yearBreakdown[
+												semester as unknown as keyof typeof program.yearBreakdown
+											] || '-'}
 										</Text>
 									</Table.Td>
 								))}

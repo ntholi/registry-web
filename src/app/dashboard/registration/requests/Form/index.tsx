@@ -38,14 +38,14 @@ import SponsorInput from './SponsorInput';
 type Module = typeof modules.$inferSelect;
 
 type SemesterModule = typeof semesterModules.$inferSelect & {
-	semesterNumber?: number;
+	semesterNumber?: string;
 	semesterName?: string;
 	module: Module;
 };
 
 interface SelectedModule extends SemesterModule {
 	status: StudentModuleStatus;
-	semesterNumber?: number;
+	semesterNumber?: string;
 	semesterName?: string;
 }
 
@@ -57,7 +57,7 @@ type RegistrationRequest = {
 	borrowerNo?: string;
 	bankName?: string;
 	accountNumber?: string;
-	semesterNumber: number;
+	semesterNumber: string;
 	termId: number;
 	selectedModules?: Array<SelectedModule>;
 };
@@ -129,15 +129,17 @@ export default function RegistrationRequestForm({
 	});
 
 	const semesterOptions = structureModules
-		? [...new Set(structureModules.map((sem) => sem.id.toString()))].map(
-				(id) => {
+		? [...new Set(structureModules.map((sem) => sem.id.toString()))]
+				.map((id) => {
 					const semester = structureModules.find((s) => s.id.toString() === id);
+					const semNum = semester?.semesterNumber;
+					if (!semNum) return { value: '', label: '' };
 					return {
-						value: String(semester?.semesterNumber),
-						label: formatSemester(semester?.semesterNumber),
+						value: String(semNum),
+						label: formatSemester(semNum),
 					};
-				}
-			)
+				})
+				.filter((opt) => opt.value !== '')
 		: [];
 
 	const filteredModules = structureModules
@@ -216,7 +218,7 @@ export default function RegistrationRequestForm({
 				}));
 
 				const { semesterNo, status } = await determineSemesterStatus(
-					semesterData.modules,
+					semesterData.modules as Parameters<typeof determineSemesterStatus>[0],
 					student
 				);
 
@@ -378,7 +380,7 @@ export default function RegistrationRequestForm({
 								data={semesterOptions}
 								{...form.getInputProps('semesterNumber')}
 								onChange={(value: string | null) => {
-									form.setFieldValue('semesterNumber', Number(value));
+									form.setFieldValue('semesterNumber', value || '');
 								}}
 								disabled={!structureId || semesterOptions.length === 0}
 								required

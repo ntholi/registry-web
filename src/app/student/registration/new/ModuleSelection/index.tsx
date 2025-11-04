@@ -18,7 +18,7 @@ type ModuleWithStatus = {
 	type: string;
 	credits: number;
 	status: 'Compulsory' | 'Elective' | `Repeat${number}`;
-	semesterNo: number;
+	semesterNo: string;
 	prerequisites?: Array<{ id: number; code: string; name: string }>;
 };
 

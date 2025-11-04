@@ -22,7 +22,7 @@ interface Student {
 	stdNo: number;
 	name: string;
 	programName: string;
-	semesterNumber: number;
+	semesterNumber: string;
 	schoolName: string;
 	schoolCode: string;
 	phone: string;

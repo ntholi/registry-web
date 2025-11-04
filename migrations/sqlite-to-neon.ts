@@ -1153,7 +1153,7 @@ function mapStructureSemesters(
 	return {
 		id: row.id,
 		structureId: row.structureId,
-		semesterNumber: row.semesterNumber,
+		semesterNumber: String(row.semesterNumber),
 		name: row.name,
 		totalCredits: row.totalCredits,
 		createdAt: toOptionalDateFromSeconds(row.createdAt),
@@ -1221,7 +1221,7 @@ function mapRegistrationRequests(
 		mailSent: toBoolean(row.mailSent),
 		count: row.count,
 		semesterStatus: row.semesterStatus,
-		semesterNumber: row.semesterNumber,
+		semesterNumber: String(row.semesterNumber),
 		message: row.message,
 		createdAt: toOptionalDateFromSeconds(row.createdAt),
 		updatedAt: toOptionalDateFromSeconds(row.updatedAt),

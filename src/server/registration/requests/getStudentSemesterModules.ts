@@ -20,7 +20,7 @@ type ModuleWithStatus = {
 	type: string;
 	credits: number;
 	status: 'Compulsory' | 'Elective' | `Repeat${number}`;
-	semesterNo: number;
+	semesterNo: string;
 	prerequisites?: Module[];
 };
 
@@ -32,7 +32,7 @@ type Module = {
 
 type SemesterModuleWithModule = typeof semesterModules.$inferSelect & {
 	module: typeof modules.$inferSelect;
-	semester: { semesterNumber: number };
+	semester: { semesterNumber: string };
 };
 
 export async function getStudentSemesterModulesLogic(
@@ -161,14 +161,16 @@ async function getFailedPrerequisites(failedModules: Module[]) {
 
 async function getRepeatModules(
 	failedModules: Module[],
-	nextSemester: number,
+	nextSemester: string,
 	structureId: number
 ) {
 	if (failedModules.length === 0) return [];
 
 	const failedModuleNames = failedModules.map((m) => m.name);
 	const failedPrerequisites = await getFailedPrerequisites(failedModules);
-	const targetSemesters = nextSemester % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7];
+	const nextSemNum = Number.parseInt(nextSemester, 10);
+	const targetSemesters =
+		nextSemNum % 2 === 0 ? ['2', '4', '6', '8'] : ['1', '3', '5', '7'];
 
 	const allRepeatModules: ModuleWithStatus[] = [];
 	const allSemesterModules = await getSemesterModulesMultiple(
@@ -202,15 +204,16 @@ async function getRepeatModules(
 	return allRepeatModules;
 }
 
-async function getSemesterModules(semesterNumber: number, structureId: number) {
-	const semesterNos = (
-		semesterNumber % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7]
-	).filter((s) => s <= semesterNumber);
+async function getSemesterModules(semesterNumber: string, structureId: number) {
+	const semNum = Number.parseInt(semesterNumber, 10);
+	const semesterNos = (semNum % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7]).filter(
+		(s) => s <= semNum
+	);
 
 	const semesters = await db.query.structureSemesters.findMany({
 		where: and(
 			eq(structureSemesters.structureId, structureId),
-			inArray(structureSemesters.semesterNumber, semesterNos)
+			inArray(structureSemesters.semesterNumber, semesterNos.map(String))
 		),
 	});
 
@@ -236,7 +239,7 @@ async function getSemesterModules(semesterNumber: number, structureId: number) {
 }
 
 async function getSemesterModulesMultiple(
-	semesterNumbers: number[],
+	semesterNumbers: string[],
 	structureId: number
 ) {
 	const semesters = await db.query.structureSemesters.findMany({

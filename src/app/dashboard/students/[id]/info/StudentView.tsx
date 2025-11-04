@@ -36,16 +36,16 @@ export default function StudentView({ student }: Props) {
 	const { data: session } = useSession();
 	if (!student) return null;
 
-	const activePrograms = student.programs?.filter(
-		(p) => ['Active', 'Completed'].includes(p.status)
+	const activePrograms = student.programs?.filter((p) =>
+		['Active', 'Completed'].includes(p.status)
 	);
 
 	const getLatestSemesterNumber = () => {
 		if (!activePrograms || activePrograms.length === 0) return null;
-		
+
 		let latestSemesterId = 0;
 		let latestSemesterNumber = null;
-		
+
 		activePrograms.forEach((program) => {
 			if (program.semesters) {
 				program.semesters.forEach((semester) => {
@@ -56,7 +56,7 @@ export default function StudentView({ student }: Props) {
 				});
 			}
 		});
-		
+
 		return latestSemesterNumber;
 	};
 

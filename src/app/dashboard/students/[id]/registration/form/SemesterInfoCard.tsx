@@ -13,7 +13,7 @@ import {
 import { formatSemester } from '@/lib/utils';
 
 type SemesterData = {
-	semesterNo: number;
+	semesterNo: string;
 	status: 'Active' | 'Repeat';
 };
 
@@ -36,7 +36,7 @@ export default function SemesterInfoCard({
 
 	const semesterOptions = Array.from({ length: 8 }, (_, i) => ({
 		value: (i + 1).toString(),
-		label: formatSemester(i + 1),
+		label: formatSemester((i + 1).toString()),
 	}));
 
 	const statusOptions = [
@@ -44,7 +44,7 @@ export default function SemesterInfoCard({
 		{ value: 'Repeat', label: 'Repeat' },
 	];
 
-	const handleSemesterChange = (semesterNo: number) => {
+	const handleSemesterChange = (semesterNo: string) => {
 		if (semesterData) {
 			onSemesterChange({
 				...semesterData,
@@ -93,7 +93,7 @@ export default function SemesterInfoCard({
 						value={semesterData?.semesterNo.toString()}
 						onChange={(value) => {
 							if (value) {
-								handleSemesterChange(parseInt(value, 10));
+								handleSemesterChange(value);
 							}
 						}}
 						disabled={isLoading}

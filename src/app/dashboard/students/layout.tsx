@@ -20,7 +20,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		if (schoolId) filter.schoolId = Number(schoolId);
 		if (programId) filter.programId = Number(programId);
 		if (termId) filter.termId = Number(termId);
-		if (semesterNumber) filter.semesterNumber = Number(semesterNumber);
+		if (semesterNumber) filter.semesterNumber = semesterNumber;
 
 		return findAllStudents(
 			page,

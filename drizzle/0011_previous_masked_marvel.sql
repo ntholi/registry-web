@@ -1,0 +1,2 @@
+ALTER TABLE "registration_requests" ALTER COLUMN "semester_number" SET DATA TYPE char(2);--> statement-breakpoint
+ALTER TABLE "structure_semesters" ALTER COLUMN "semester_number" SET DATA TYPE char(2);

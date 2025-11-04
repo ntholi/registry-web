@@ -27,7 +27,7 @@ import RegistrationModal from './form/RegistrationModal';
 type StudentRegistrationHistory = {
 	id: number;
 	status: (typeof registrationRequests.$inferSelect)['status'];
-	semesterNumber: number;
+	semesterNumber: string;
 	createdAt: Date | null;
 	term: {
 		id: number;

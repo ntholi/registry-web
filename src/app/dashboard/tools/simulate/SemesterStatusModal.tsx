@@ -17,7 +17,7 @@ import {
 import { formatSemester } from '@/lib/utils';
 
 type SemesterStatusResult = {
-	semesterNo: number;
+	semesterNo: string;
 	status: 'Active' | 'Repeat';
 };
 
@@ -28,7 +28,7 @@ type SelectedModule = {
 	type: string;
 	credits: number;
 	status: 'Compulsory' | 'Elective' | `Repeat${number}`;
-	semesterNo: number;
+	semesterNo: string;
 	prerequisites?: Array<{ id: number; code: string; name: string }>;
 };
 
