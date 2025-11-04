@@ -20,7 +20,7 @@ import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import Link from '@/components/Link';
 import type { UserRole } from '@/db/schema';
-import { formatDate, formatPhoneNumber } from '@/lib/utils';
+import { formatDate, formatPhoneNumber, formatSemester } from '@/lib/utils';
 import type { getStudent } from '@/server/students/actions';
 import { getProgramStatusColor } from '../AcademicsView';
 import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
@@ -37,8 +37,30 @@ export default function StudentView({ student }: Props) {
 	if (!student) return null;
 
 	const activePrograms = student.programs?.filter(
-		(program) => program.status === 'Active' || program.status === 'Completed'
+		(p) => ['Active', 'Completed'].includes(p.status)
 	);
+
+	const getLatestSemesterNumber = () => {
+		if (!activePrograms || activePrograms.length === 0) return null;
+		
+		let latestSemesterId = 0;
+		let latestSemesterNumber = null;
+		
+		activePrograms.forEach((program) => {
+			if (program.semesters) {
+				program.semesters.forEach((semester) => {
+					if (semester.id > latestSemesterId) {
+						latestSemesterId = semester.id;
+						latestSemesterNumber = semester.structureSemester?.semesterNumber;
+					}
+				});
+			}
+		});
+		
+		return latestSemesterNumber;
+	};
+
+	const latestSemester = getLatestSemesterNumber();
 
 	return (
 		<Stack gap='xl'>
@@ -158,9 +180,9 @@ export default function StudentView({ student }: Props) {
 							<Grid.Col span={{ base: 12 }}>
 								<Group>
 									<InfoItem
-										label='Name'
+										label='Program/Class'
 										value={activePrograms[0].structure.program.name}
-										displayValue={`${activePrograms[0].structure.program.name} (${activePrograms[0].structure.program.code})`}
+										displayValue={`${activePrograms[0].structure.program.name} (${activePrograms[0].structure.program.code}${formatSemester(latestSemester, 'mini')})`}
 									/>
 								</Group>
 							</Grid.Col>
