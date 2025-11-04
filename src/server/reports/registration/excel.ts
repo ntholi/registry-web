@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import { formatSemester } from '@/lib/utils';
+import { compareSemesters, formatSemester } from '@/lib/utils';
 import type {
 	FullRegistrationReport,
 	SummaryRegistrationReport,
@@ -165,9 +165,7 @@ function createSummarySheet(
 		});
 	});
 
-	const sortedSemesters = Array.from(allSemesters).sort(
-		(a, b) => Number(a) - Number(b)
-	);
+	const sortedSemesters = Array.from(allSemesters).sort(compareSemesters);
 
 	const columns: Partial<ExcelJS.Column>[] = [
 		{ key: 'schoolFaculty', width: 50 },

@@ -14,7 +14,7 @@ import {
 	TextRun,
 	WidthType,
 } from 'docx';
-import { formatSemester } from '@/lib/utils';
+import { compareSemesters, formatSemester } from '@/lib/utils';
 import type {
 	FullRegistrationReport,
 	SummaryRegistrationReport,
@@ -835,9 +835,7 @@ function createSummaryTable(
 			allSemesters.add(semester);
 		});
 	});
-	const sortedSemesters = Array.from(allSemesters).sort(
-		(a, b) => Number(a) - Number(b)
-	);
+	const sortedSemesters = Array.from(allSemesters).sort(compareSemesters);
 
 	const headerRow = new TableRow({
 		children: [

@@ -7,6 +7,7 @@ import {
 	studentSemesters,
 	students,
 } from '@/db/schema';
+import { compareSemesters } from '@/lib/utils';
 import BaseRepository from '@/server/base/BaseRepository';
 
 export interface StudentModuleReport {
@@ -232,15 +233,10 @@ export default class BoeReportRepository extends BaseRepository<
 			if (a.term !== b.term) {
 				return a.term.localeCompare(b.term);
 			}
-			const aNum = Number.parseInt(
+			return compareSemesters(
 				a.structureSemester?.semesterNumber ?? '',
-				10
+				b.structureSemester?.semesterNumber ?? ''
 			);
-			const bNum = Number.parseInt(
-				b.structureSemester?.semesterNumber ?? '',
-				10
-			);
-			return aNum - bNum;
 		});
 	}
 
@@ -303,15 +299,10 @@ export default class BoeReportRepository extends BaseRepository<
 			if (a.term !== b.term) {
 				return a.term.localeCompare(b.term);
 			}
-			const aNum = Number.parseInt(
+			return compareSemesters(
 				a.structureSemester?.semesterNumber ?? '',
-				10
+				b.structureSemester?.semesterNumber ?? ''
 			);
-			const bNum = Number.parseInt(
-				b.structureSemester?.semesterNumber ?? '',
-				10
-			);
-			return aNum - bNum;
 		});
 	}
 }

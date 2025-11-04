@@ -9,7 +9,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { formatSemester } from '@/lib/utils';
+import { compareSemesters, formatSemester } from '@/lib/utils';
 
 interface ProgramBreakdownTableProps {
 	loading?: boolean;
@@ -39,7 +39,7 @@ export default function ProgramBreakdownTable({
 						Object.keys(program.yearBreakdown)
 					)
 				)
-			).sort((a, b) => Number(a) - Number(b))
+			).sort(compareSemesters)
 		: [];
 
 	const placeholderColumnCount = 6;

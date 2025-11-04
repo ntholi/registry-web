@@ -13,6 +13,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { type ReactNode, useState } from 'react';
 import type { modules, semesterModules } from '@/db/schema';
+import { compareSemesters } from '@/lib/utils';
 
 type Module = typeof modules.$inferSelect;
 
@@ -113,7 +114,7 @@ export default function ModulesDialog({
 						) : (
 							<Accordion variant='separated'>
 								{Object.entries(modulesBySemester)
-									.sort(([a], [b]) => Number(a) - Number(b))
+									.sort(([a], [b]) => compareSemesters(a, b))
 									.map(([semester, { name, modules }]) => (
 										<Accordion.Item key={semester} value={semester}>
 											<Accordion.Control>

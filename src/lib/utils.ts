@@ -42,6 +42,10 @@ export function formatSemester(
 			: `Y${year}S${semester}`;
 }
 
+export function compareSemesters(a: string, b: string) {
+	return Number(a) - Number(b);
+}
+
 export function toTitleCase(str: string | undefined | null) {
 	if (!str) return '';
 	return str
