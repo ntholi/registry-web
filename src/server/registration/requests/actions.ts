@@ -74,8 +74,11 @@ export async function determineSemesterStatus(
 	const completedSemesters =
 		student?.programs
 			.flatMap((program) => program.semesters)
-			.map((semester) => semester.semesterNumber)
-			.filter((semesterNo): semesterNo is number => semesterNo !== null) ?? [];
+			.map((semester) => semester.structureSemester?.semesterNumber)
+			.filter(
+				(semesterNo): semesterNo is number =>
+					semesterNo !== null && semesterNo !== undefined
+			) ?? [];
 
 	const hasCompletedSemester = completedSemesters.includes(semesterNo);
 

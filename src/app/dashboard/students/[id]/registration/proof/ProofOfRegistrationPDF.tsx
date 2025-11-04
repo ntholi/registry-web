@@ -326,7 +326,10 @@ export default function ProofOfRegistrationPDF({
 							</View>
 							<View style={[styles.valueCell]}>
 								<Text>
-									{formatSemester(latestSemester.semesterNumber, 'full')}
+									{formatSemester(
+										latestSemester.structureSemester?.semesterNumber,
+										'full'
+									)}
 								</Text>
 							</View>
 						</View>

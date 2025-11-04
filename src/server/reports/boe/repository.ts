@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, ne, notInArray } from 'drizzle-orm';
+import { and, eq, inArray, ne, notInArray } from 'drizzle-orm';
 import { db } from '@/db';
 import {
 	programs,
@@ -83,6 +83,7 @@ export default class BoeReportRepository extends BaseRepository<
 				ne(studentSemesters.status, 'Deleted')
 			),
 			with: {
+				structureSemester: true,
 				studentProgram: {
 					with: {
 						student: true,
@@ -129,6 +130,7 @@ export default class BoeReportRepository extends BaseRepository<
 				ne(studentSemesters.status, 'Deleted')
 			),
 			with: {
+				structureSemester: true,
 				studentProgram: {
 					with: {
 						student: true,
@@ -198,11 +200,8 @@ export default class BoeReportRepository extends BaseRepository<
 					inArray(studentSemesters.studentProgramId, batch),
 					ne(studentSemesters.status, 'Deleted')
 				),
-				orderBy: [
-					asc(studentSemesters.term),
-					asc(studentSemesters.semesterNumber),
-				],
 				with: {
+					structureSemester: true,
 					studentProgram: {
 						with: {
 							student: true,
@@ -229,7 +228,15 @@ export default class BoeReportRepository extends BaseRepository<
 			allResults.push(...batchResults);
 		}
 
-		return allResults;
+		return allResults.sort((a, b) => {
+			if (a.term !== b.term) {
+				return a.term.localeCompare(b.term);
+			}
+			return (
+				(a.structureSemester?.semesterNumber || 0) -
+				(b.structureSemester?.semesterNumber || 0)
+			);
+		});
 	}
 
 	async getStudentSemesterHistoryForStudents(studentNumbers: number[]) {
@@ -259,11 +266,8 @@ export default class BoeReportRepository extends BaseRepository<
 					),
 					ne(studentSemesters.status, 'Deleted')
 				),
-				orderBy: [
-					asc(studentSemesters.term),
-					asc(studentSemesters.semesterNumber),
-				],
 				with: {
+					structureSemester: true,
 					studentProgram: {
 						with: {
 							student: true,
@@ -290,7 +294,15 @@ export default class BoeReportRepository extends BaseRepository<
 			allResults.push(...batchResults);
 		}
 
-		return allResults;
+		return allResults.sort((a, b) => {
+			if (a.term !== b.term) {
+				return a.term.localeCompare(b.term);
+			}
+			return (
+				(a.structureSemester?.semesterNumber || 0) -
+				(b.structureSemester?.semesterNumber || 0)
+			);
+		});
 	}
 }
 

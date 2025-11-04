@@ -62,7 +62,7 @@ export default function Hero() {
 						<Stack gap={2}>
 							<Text fw={500}>{program?.name}</Text>
 							<Text size='xs' c='dimmed'>
-								{formatSemester(semester?.semesterNumber)}
+								{formatSemester(semester?.structureSemester?.semesterNumber)}
 							</Text>
 						</Stack>
 					</Group>

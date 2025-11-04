@@ -110,7 +110,9 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																	{semester.term}
 																</Badge>
 																<Text size='sm'>
-																	{formatSemester(semester.semesterNumber)}
+																	{formatSemester(
+																		semester.structureSemester?.semesterNumber
+																	)}
 																</Text>
 															</Group>
 															<Group gap='md' align='flex-end'>
@@ -143,7 +145,8 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																showMarks={showMarks}
 																allSemesters={program.semesters.map((sem) => ({
 																	term: sem.term,
-																	semesterNumber: sem.semesterNumber ?? 0,
+																	semesterNumber:
+																		sem.structureSemester?.semesterNumber ?? 0,
 																	studentModules: sem.studentModules.map(
 																		(m) => ({
 																			semesterModule: {

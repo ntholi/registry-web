@@ -119,7 +119,9 @@ export default function AcademicInformation({ program, semester }: Props) {
 								<Grid.Col span={{ base: 12, sm: 6 }}>
 									<InfoItem
 										label='Semester'
-										value={formatSemester(semester.semesterNumber)}
+										value={formatSemester(
+											semester.structureSemester?.semesterNumber
+										)}
 										icon={<IconBook size={14} />}
 									/>
 								</Grid.Col>

@@ -154,7 +154,9 @@ export default function TranscriptsPage() {
 												{semester.term}
 											</Text>
 											<Text size='sm' c='dimmed'>
-												{formatSemester(semester.semesterNumber)}
+												{formatSemester(
+													semester.structureSemester?.semesterNumber
+												)}
 											</Text>
 										</Box>
 									</Accordion.Control>

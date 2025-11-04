@@ -174,7 +174,7 @@ export default class BoeReportService {
 	private groupBySemesterNumber(studentSemesters: StudentSemester[]) {
 		return studentSemesters.reduce(
 			(groups, semester) => {
-				const semesterNumber = semester.semesterNumber || 0;
+				const semesterNumber = semester.structureSemester?.semesterNumber || 0;
 				if (!groups[semesterNumber]) {
 					groups[semesterNumber] = [];
 				}
@@ -227,7 +227,7 @@ export default class BoeReportService {
 			const semesterGroups = new Map<number, ModuleForRemarks[]>();
 
 			studentSemesters.forEach((ss) => {
-				const semNum = ss.semesterNumber || 0;
+				const semNum = ss.structureSemester?.semesterNumber || 0;
 				if (!semesterGroups.has(semNum)) {
 					semesterGroups.set(semNum, []);
 				}
@@ -280,7 +280,7 @@ export default class BoeReportService {
 					semesters: studentSemesters.map((ss) => ({
 						id: ss.id,
 						term: ss.term,
-						semesterNumber: ss.semesterNumber,
+						semesterNumber: ss.structureSemester?.semesterNumber || 0,
 						status: ss.status,
 						studentModules: ss.studentModules.map((sm) => ({
 							id: sm.id,

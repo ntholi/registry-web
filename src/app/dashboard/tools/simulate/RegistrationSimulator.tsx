@@ -155,7 +155,7 @@ export default function RegistrationSimulator() {
 					setStudent({
 						name: studentData.name,
 						stdNo: studentData.stdNo,
-						semester: currentSemester?.semesterNumber ?? 1,
+						semester: currentSemester?.structureSemester?.semesterNumber ?? 1,
 						program: {
 							structureCode: activeProgram.structure.code,
 							structureId: activeProgram.structure.id,
@@ -369,7 +369,8 @@ export default function RegistrationSimulator() {
 								</Text>
 								<Text fw={500} size='sm'>
 									{formatSemester(
-										getCurrentSemester(fullStudentData)?.semesterNumber
+										getCurrentSemester(fullStudentData)?.structureSemester
+											?.semesterNumber
 									)}
 								</Text>
 							</Paper>

@@ -135,6 +135,10 @@ export const studentSemestersRelations = relations(
 			fields: [studentSemesters.studentProgramId],
 			references: [studentPrograms.id],
 		}),
+		structureSemester: one(structureSemesters, {
+			fields: [studentSemesters.structureSemesterId],
+			references: [structureSemesters.id],
+		}),
 		studentModules: many(studentModules),
 	})
 );

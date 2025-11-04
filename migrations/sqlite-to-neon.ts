@@ -1088,7 +1088,7 @@ function mapStudentSemesters(
 	return {
 		id: row.id,
 		term: row.term,
-		semesterNumber: row.semesterNumber,
+		structureSemesterId: row.semesterNumber || 1,
 		status: row.status,
 		studentProgramId: row.studentProgramId,
 		cafDate: row.cafDate,

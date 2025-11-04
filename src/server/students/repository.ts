@@ -13,6 +13,7 @@ import {
 	nextOfKins,
 	programs,
 	semesterModules,
+	structureSemesters,
 	structures,
 	studentModules,
 	studentPrograms,
@@ -75,11 +76,16 @@ export default class StudentRepository extends BaseRepository<
 							columns: {
 								id: true,
 								term: true,
-								semesterNumber: true,
 								status: true,
+								structureSemesterId: true,
 							},
 							where: eq(studentSemesters.term, termName),
 							with: {
+								structureSemester: {
+									columns: {
+										semesterNumber: true,
+									},
+								},
 								studentModules: {
 									columns: {
 										id: true,
@@ -151,10 +157,15 @@ export default class StudentRepository extends BaseRepository<
 							columns: {
 								id: true,
 								term: true,
-								semesterNumber: true,
 								status: true,
+								structureSemesterId: true,
 							},
 							with: {
+								structureSemester: {
+									columns: {
+										semesterNumber: true,
+									},
+								},
 								studentModules: {
 									columns: {
 										id: true,
@@ -313,7 +324,7 @@ export default class StudentRepository extends BaseRepository<
 
 			if (options.filter.semesterNumber) {
 				filterConditions.push(
-					eq(studentSemesters.semesterNumber, options.filter.semesterNumber)
+					eq(structureSemesters.semesterNumber, options.filter.semesterNumber)
 				);
 			}
 		}
@@ -350,10 +361,15 @@ export default class StudentRepository extends BaseRepository<
 				.innerJoin(programs, eq(structures.programId, programs.id));
 
 			if (needsSemesterJoin) {
-				joinedQuery = joinedQuery.innerJoin(
-					studentSemesters,
-					eq(studentSemesters.studentProgramId, studentPrograms.id)
-				);
+				joinedQuery = joinedQuery
+					.innerJoin(
+						studentSemesters,
+						eq(studentSemesters.studentProgramId, studentPrograms.id)
+					)
+					.innerJoin(
+						structureSemesters,
+						eq(studentSemesters.structureSemesterId, structureSemesters.id)
+					);
 			}
 
 			if (needsTermJoin) {
@@ -378,10 +394,15 @@ export default class StudentRepository extends BaseRepository<
 				.innerJoin(programs, eq(structures.programId, programs.id));
 
 			if (needsSemesterJoin) {
-				countJoinedQuery = countJoinedQuery.innerJoin(
-					studentSemesters,
-					eq(studentSemesters.studentProgramId, studentPrograms.id)
-				);
+				countJoinedQuery = countJoinedQuery
+					.innerJoin(
+						studentSemesters,
+						eq(studentSemesters.studentProgramId, studentPrograms.id)
+					)
+					.innerJoin(
+						structureSemesters,
+						eq(studentSemesters.structureSemesterId, structureSemesters.id)
+					);
 			}
 
 			if (needsTermJoin) {
@@ -473,10 +494,15 @@ export default class StudentRepository extends BaseRepository<
 							columns: {
 								id: true,
 								term: true,
-								semesterNumber: true,
 								status: true,
+								structureSemesterId: true,
 							},
 							with: {
+								structureSemester: {
+									columns: {
+										semesterNumber: true,
+									},
+								},
 								studentModules: {
 									columns: {
 										id: true,

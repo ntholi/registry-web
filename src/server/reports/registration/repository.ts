@@ -3,6 +3,7 @@ import { db } from '@/db';
 import {
 	programs,
 	schools,
+	structureSemesters,
 	structures,
 	studentPrograms,
 	studentSemesters,
@@ -69,13 +70,17 @@ export class RegistrationReportRepository {
 				stdNo: students.stdNo,
 				name: students.name,
 				programName: programs.name,
-				semesterNumber: studentSemesters.semesterNumber,
+				semesterNumber: structureSemesters.semesterNumber,
 				schoolName: schools.name,
 				schoolCode: schools.code,
 				phone: students.phone1,
 				status: studentSemesters.status,
 			})
 			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
 			.innerJoin(
 				studentPrograms,
 				eq(studentSemesters.studentProgramId, studentPrograms.id)
@@ -101,13 +106,13 @@ export class RegistrationReportRepository {
 
 		if (filter?.semesterNumber) {
 			conditions.push(
-				eq(studentSemesters.semesterNumber, filter.semesterNumber)
+				eq(structureSemesters.semesterNumber, filter.semesterNumber)
 			);
 		}
 
 		const result = await query
 			.where(and(...conditions))
-			.orderBy(schools.name, programs.name, studentSemesters.semesterNumber);
+			.orderBy(schools.name, programs.name, structureSemesters.semesterNumber);
 
 		return result.map((row) => ({
 			stdNo: row.stdNo,
@@ -139,13 +144,17 @@ export class RegistrationReportRepository {
 				stdNo: students.stdNo,
 				name: students.name,
 				programName: programs.name,
-				semesterNumber: studentSemesters.semesterNumber,
+				semesterNumber: structureSemesters.semesterNumber,
 				schoolName: schools.name,
 				schoolCode: schools.code,
 				phone: students.phone1,
 				status: studentSemesters.status,
 			})
 			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
 			.innerJoin(
 				studentPrograms,
 				eq(studentSemesters.studentProgramId, studentPrograms.id)
@@ -158,6 +167,10 @@ export class RegistrationReportRepository {
 		const countQuery = db
 			.select({ count: students.stdNo })
 			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
 			.innerJoin(
 				studentPrograms,
 				eq(studentSemesters.studentProgramId, studentPrograms.id)
@@ -183,7 +196,7 @@ export class RegistrationReportRepository {
 
 		if (filter?.semesterNumber) {
 			conditions.push(
-				eq(studentSemesters.semesterNumber, filter.semesterNumber)
+				eq(structureSemesters.semesterNumber, filter.semesterNumber)
 			);
 		}
 
@@ -206,7 +219,7 @@ export class RegistrationReportRepository {
 		const [studentsResult, totalResult] = await Promise.all([
 			studentsQuery
 				.where(whereClause)
-				.orderBy(schools.name, programs.name, studentSemesters.semesterNumber)
+				.orderBy(schools.name, programs.name, structureSemesters.semesterNumber)
 				.limit(pageSize)
 				.offset(offset),
 			countQuery.where(whereClause),

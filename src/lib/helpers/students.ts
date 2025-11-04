@@ -33,14 +33,19 @@ export function getCurrentSemester(student: Student | null | undefined) {
 export function getNextSemesterNo(student: Student | null) {
 	if (!student) return 1;
 
-	const currentSemester = getCurrentSemester(student)?.semesterNumber ?? 1;
+	const currentSemester =
+		getCurrentSemester(student)?.structureSemester?.semesterNumber ?? 1;
 	const semesterNos = currentSemester % 2 === 0 ? [2, 4, 6, 8] : [1, 3, 5, 7];
 
 	const allSemesters = student.programs
 		.flatMap((program) => program.semesters)
-		.filter((semester) => semesterNos.includes(semester.semesterNumber ?? 0));
+		.filter((semester) =>
+			semesterNos.includes(semester.structureSemester?.semesterNumber ?? 0)
+		);
 	const maxSemesterNo = Math.max(
-		...allSemesters.map((semester) => semester.semesterNumber || 0)
+		...allSemesters.map(
+			(semester) => semester.structureSemester?.semesterNumber || 0
+		)
 	);
 	return maxSemesterNo + 1;
 }

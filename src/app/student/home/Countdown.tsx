@@ -104,7 +104,7 @@ export default function Countdown({ targetDate }: { targetDate: number }) {
 								{program?.name}
 							</Text>
 							<Text size='md' c='dimmed' mt={4}>
-								{formatSemester(semester?.semesterNumber)}
+								{formatSemester(semester?.structureSemester?.semesterNumber)}
 							</Text>
 						</Box>
 					</Stack>

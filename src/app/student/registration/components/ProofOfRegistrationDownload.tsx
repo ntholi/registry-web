@@ -48,7 +48,9 @@ export default function ProofOfRegistrationDownload({
 			}
 
 			const targetSemester = activeProgram.semesters.find(
-				(s) => s.term === termName && s.semesterNumber === semesterNumber
+				(s) =>
+					s.term === termName &&
+					s.structureSemester?.semesterNumber === semesterNumber
 			);
 
 			if (!targetSemester) {
