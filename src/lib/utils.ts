@@ -28,7 +28,22 @@ export function formatSemester(
 	if (sem === null || sem === undefined) {
 		throw new Error('Semester number cannot be null or undefined');
 	}
-	const semNumber = typeof sem === 'string' ? Number.parseInt(sem, 10) : sem;
+
+	const semStr = String(sem);
+	const letterMatch = semStr.match(/^([A-Z])(\d+)$/);
+
+	if (letterMatch) {
+		const [, letter, number] = letterMatch;
+		if (letter === 'F') {
+			return type === 'full' ? `Foundation ${number}` : `F${number}`;
+		}
+		if (letter === 'B') {
+			return type === 'full' ? `Bridging ${number}` : `B${number}`;
+		}
+		return semStr;
+	}
+
+	const semNumber = Number.parseInt(semStr, 10);
 	if (Number.isNaN(semNumber)) {
 		throw new Error(`Invalid semester number: ${sem}`);
 	}
@@ -43,7 +58,30 @@ export function formatSemester(
 }
 
 export function compareSemesters(a: string, b: string) {
-	return Number(a) - Number(b);
+	const aStr = String(a);
+	const bStr = String(b);
+
+	const aLetterMatch = aStr.match(/^([A-Z])(\d+)$/);
+	const bLetterMatch = bStr.match(/^([A-Z])(\d+)$/);
+
+	if (aLetterMatch && bLetterMatch) {
+		const [, aLetter, aNumber] = aLetterMatch;
+		const [, bLetter, bNumber] = bLetterMatch;
+		if (aLetter !== bLetter) {
+			return aLetter.localeCompare(bLetter);
+		}
+		return Number(aNumber) - Number(bNumber);
+	}
+
+	if (aLetterMatch && !bLetterMatch) {
+		return -1;
+	}
+
+	if (!aLetterMatch && bLetterMatch) {
+		return 1;
+	}
+
+	return Number(aStr) - Number(bStr);
 }
 
 export function toTitleCase(str: string | undefined | null) {
