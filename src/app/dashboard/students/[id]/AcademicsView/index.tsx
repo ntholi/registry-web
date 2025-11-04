@@ -1,5 +1,9 @@
 'use client';
 
+import SemesterStatus from '@/components/SemesterStatus';
+import { formatSemester } from '@/lib/utils';
+import type { getStudent } from '@/server/students/actions';
+import { getAcademicRemarks } from '@/utils/grades';
 import {
 	Accordion,
 	Badge,
@@ -15,11 +19,6 @@ import {
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
-import Link from '@/components/Link';
-import SemesterStatus from '@/components/SemesterStatus';
-import { formatSemester } from '@/lib/utils';
-import type { getStudent } from '@/server/students/actions';
-import { getAcademicRemarks } from '@/utils/grades';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
 
@@ -75,14 +74,6 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 										>
 											{program.status}
 										</Badge>
-										<Link
-											size='0.715rem'
-											c={'gray'}
-											href={`/dashboard/schools/structures/${program.structureId}`}
-											onClick={(e) => e.stopPropagation()}
-										>
-											{program.structure.code}
-										</Link>
 									</Group>
 								</Stack>
 							</Group>

@@ -102,7 +102,7 @@ export function StudentTabs({
 					</Box>
 				)}
 			</TabsList>
-			<TabsPanel value='academics' pt={'xl'} p={'sm'}>
+			<TabsPanel value='academics' pt={'xl'} p={'sm'} key='academics'>
 				{blockedStudent ? (
 					<BlockedAcademicsView
 						student={student}
@@ -113,29 +113,29 @@ export function StudentTabs({
 					<AcademicsView student={student} showMarks />
 				)}
 			</TabsPanel>
-			<TabsPanel value='info' pt={'xl'} p={'sm'}>
+			<TabsPanel value='info' pt={'xl'} p={'sm'} key='info'>
 				<StudentView student={student} />
 			</TabsPanel>
-			<TabsPanel value='registration' pt={'xl'} p={'sm'}>
+			<TabsPanel value='registration' pt={'xl'} p={'sm'} key='registration'>
 				<RegistrationView
 					stdNo={student.stdNo}
 					isActive={activeTab === 'registration'}
 				/>
 			</TabsPanel>
-			<TabsPanel value='studentcard' pt={'xl'} p={'sm'}>
+			<TabsPanel value='studentcard' pt={'xl'} p={'sm'} key='studentcard'>
 				<StudentCardView
 					student={student}
 					isActive={activeTab === 'studentcard'}
 				/>
 			</TabsPanel>
-			<TabsPanel value='graduation' pt={'xl'} p={'sm'}>
+			<TabsPanel value='graduation' pt={'xl'} p={'sm'} key='graduation'>
 				<GraduationView
 					stdNo={student.stdNo.toString()}
 					isActive={activeTab === 'graduation'}
 					blockedStudent={blockedStudent}
 				/>
 			</TabsPanel>
-			<TabsPanel value='documents' pt={'xl'} p={'sm'}>
+			<TabsPanel value='documents' pt={'xl'} p={'sm'} key='documents'>
 				<DocumentsView
 					stdNo={student.stdNo}
 					isActive={activeTab === 'documents'}
