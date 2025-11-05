@@ -1,5 +1,10 @@
-import { Stack, Text } from '@mantine/core';
+'use client';
+
+import { ActionIcon, Stack, Text, Tooltip } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { IconCopy } from '@tabler/icons-react';
 import { FieldView } from '@/components/adease';
+import Link from '@/components/Link';
 import type { getGraduationRequest } from '@/server/graduation/requests/actions';
 
 interface Props {
@@ -8,46 +13,63 @@ interface Props {
 
 export default function GraduationRequestDetailsView({ value }: Props) {
 	return (
-		<Stack gap='md'>
-			<FieldView label='Student Number'>{value.studentProgram.stdNo}</FieldView>
-
-			<FieldView label='Student Name'>
-				{value.studentProgram.student.name}
-			</FieldView>
-
-			<FieldView label='Program'>
-				{value.studentProgram.structure.program.name}
-			</FieldView>
-
-			<FieldView label='School ID'>
-				{value.studentProgram.structure.program.schoolId}
-			</FieldView>
-
-			<FieldView label='Program Status'>
-				{value.studentProgram.status}
-			</FieldView>
-
-			<FieldView label='Information Confirmed'>
-				{value.informationConfirmed ? 'Yes' : 'No'}
-			</FieldView>
-
+		<Stack gap='lg'>
+			<StudentNameView
+				stdNo={value.studentProgram.stdNo}
+				name={value.studentProgram.student.name}
+			/>
+			<Flex justify='space-between' w='100%'>
+				<FieldView label='Program' underline={false}>
+					{value.studentProgram.structure.program.name}
+				</FieldView>
+			</Flex>
+			<Flex justify='space-between' w='100%'>
+				<FieldView label='Created At' underline={false}>
+					{value.createdAt
+						? new Date(value.createdAt).toLocaleDateString()
+						: 'N/A'}
+				</FieldView>
+				{value.updatedAt && (
+					<FieldView label='Updated At' underline={false}>
+						{new Date(value.updatedAt).toLocaleDateString()}
+					</FieldView>
+				)}
+			</Flex>
 			{value.message && (
-				<FieldView label='Message'>
-					<Text size='sm'>{value.message}</Text>
-				</FieldView>
-			)}
-
-			<FieldView label='Created At'>
-				{value.createdAt
-					? new Date(value.createdAt).toLocaleDateString()
-					: 'N/A'}
-			</FieldView>
-
-			{value.updatedAt && (
-				<FieldView label='Updated At'>
-					{new Date(value.updatedAt).toLocaleDateString()}
-				</FieldView>
+				<Paper withBorder p='md'>
+					<FieldView label='Message' underline={false}>
+						<Text size='sm'>{value.message}</Text>
+					</FieldView>
+				</Paper>
 			)}
 		</Stack>
+	);
+}
+
+function StudentNameView({ stdNo, name }: { stdNo: number; name: string }) {
+	return (
+		<FieldView label='Student' underline={false}>
+			<Flex align='center' gap='xs'>
+				<Link href={`/dashboard/students/${stdNo}`} size='sm' fw={500}>
+					{name} ({stdNo})
+				</Link>
+				<Tooltip label='Copy student number'>
+					<ActionIcon
+						variant='subtle'
+						color='gray'
+						size='sm'
+						onClick={() => {
+							navigator.clipboard.writeText(String(stdNo));
+							notifications.show({
+								message: 'Student number copied to clipboard',
+								color: 'green',
+							});
+						}}
+					>
+						<IconCopy size={16} />
+					</ActionIcon>
+				</Tooltip>
+			</Flex>
+		</FieldView>
 	);
 }

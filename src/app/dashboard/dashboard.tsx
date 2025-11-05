@@ -1,23 +1,5 @@
 'use client';
 
-import { Shell } from '@/components/adease';
-import Logo from '@/components/Logo';
-import type { DashboardUser, UserPosition, UserRole } from '@/db/schema';
-import { toTitleCase } from '@/lib/utils';
-import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
-import {
-	countApprovedGraduationClearances,
-	countPendingGraduationClearances,
-	countRejectedGraduationClearances,
-} from '@/server/graduation/clearance/actions';
-import { countByStatus as countGraduationByStatus } from '@/server/graduation/requests/actions';
-import {
-	countApprovedClearances,
-	countPendingClearances,
-	countRejectedClearances,
-} from '@/server/registration/clearance/actions';
-import { countByStatus } from '@/server/registration/requests/actions';
-import { getUserSchools } from '@/server/users/actions';
 import {
 	ActionIcon,
 	Avatar,
@@ -63,11 +45,29 @@ import {
 	IconUserX,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import type { Session } from 'next-auth';
-import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import type { Session } from 'next-auth';
+import { signOut, useSession } from 'next-auth/react';
 import React from 'react';
+import { Shell } from '@/components/adease';
+import Logo from '@/components/Logo';
+import type { DashboardUser, UserPosition, UserRole } from '@/db/schema';
+import { toTitleCase } from '@/lib/utils';
+import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
+import {
+	countApprovedGraduationClearances,
+	countPendingGraduationClearances,
+	countRejectedGraduationClearances,
+} from '@/server/graduation/clearance/actions';
+import { countByStatus as countGraduationByStatus } from '@/server/graduation/requests/actions';
+import {
+	countApprovedClearances,
+	countPendingClearances,
+	countRejectedClearances,
+} from '@/server/registration/clearance/actions';
+import { countByStatus } from '@/server/registration/requests/actions';
+import { getUserSchools } from '@/server/users/actions';
 
 type NotificationConfig = {
 	queryKey: string[];

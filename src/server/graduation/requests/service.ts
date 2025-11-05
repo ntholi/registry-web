@@ -27,11 +27,7 @@ class GraduationRequestService {
 	async get(id: number) {
 		return withAuth(
 			async () => this.repository.findById(id),
-			['admin', 'registry', 'student'],
-			async (session) => {
-				const graduationRequest = await this.repository.findById(id);
-				return graduationRequest?.studentProgram?.stdNo === session.user?.stdNo;
-			}
+			['registry', 'finance', 'student']
 		);
 	}
 
