@@ -1,5 +1,23 @@
 'use client';
 
+import { Shell } from '@/components/adease';
+import Logo from '@/components/Logo';
+import type { DashboardUser, UserPosition, UserRole } from '@/db/schema';
+import { toTitleCase } from '@/lib/utils';
+import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
+import {
+	countApprovedGraduationClearances,
+	countPendingGraduationClearances,
+	countRejectedGraduationClearances,
+} from '@/server/graduation/clearance/actions';
+import { countByStatus as countGraduationByStatus } from '@/server/graduation/requests/actions';
+import {
+	countApprovedClearances,
+	countPendingClearances,
+	countRejectedClearances,
+} from '@/server/registration/clearance/actions';
+import { countByStatus } from '@/server/registration/requests/actions';
+import { getUserSchools } from '@/server/users/actions';
 import {
 	ActionIcon,
 	Avatar,
@@ -32,7 +50,6 @@ import {
 	IconCopyCheck,
 	IconFileCheck,
 	IconFileDownload,
-	IconListDetails,
 	IconLogout2,
 	IconMessageQuestion,
 	IconNotebook,
@@ -46,29 +63,11 @@ import {
 	IconUserX,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { signOut, useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
-import { Shell } from '@/components/adease';
-import Logo from '@/components/Logo';
-import type { DashboardUser, UserPosition, UserRole } from '@/db/schema';
-import { toTitleCase } from '@/lib/utils';
-import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
-import {
-	countApprovedGraduationClearances,
-	countPendingGraduationClearances,
-	countRejectedGraduationClearances,
-} from '@/server/graduation/clearance/actions';
-import { countByStatus as countGraduationByStatus } from '@/server/graduation/requests/actions';
-import {
-	countApprovedClearances,
-	countPendingClearances,
-	countRejectedClearances,
-} from '@/server/registration/clearance/actions';
-import { countByStatus } from '@/server/registration/requests/actions';
-import { getUserSchools } from '@/server/users/actions';
 
 type NotificationConfig = {
 	queryKey: string[];
@@ -391,18 +390,6 @@ function getNavigation(department: DashboardUser) {
 					label: 'Export Transcript',
 					href: '/dashboard/bulk/transcripts',
 					icon: IconFileDownload,
-				},
-			],
-		},
-		{
-			label: 'Lists',
-			icon: IconListDetails,
-			children: [
-				{
-					label: 'Graduation',
-					href: `/dashboard/lists/graduation`,
-					icon: IconSchool,
-					roles: ['admin', 'registry'],
 				},
 			],
 		},

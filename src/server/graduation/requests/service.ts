@@ -38,7 +38,7 @@ class GraduationRequestService {
 	async getByStudentNo(stdNo: number) {
 		return withAuth(
 			async () => this.repository.findByStudentNo(stdNo),
-			['student']
+			['student', 'registry']
 		);
 	}
 
