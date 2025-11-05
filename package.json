@@ -17,7 +17,8 @@
 		"db:studio": "drizzle-kit studio",
 		"migrate:psql:data": "tsx migrations/sqlite-to-neon.ts migrate-and-verify",
 		"migrate:psql:sequences": "tsx migrations/fix-sequences.ts",
-		"migrate:psql:full": "pnpm migrate:psql:data && pnpm migrate:psql:sequences"
+		"migrate:psql:full": "pnpm migrate:psql:data && pnpm migrate:psql:sequences",
+		"migrate:semester-numbers": "tsx migrations/prepend-zeros-to-semester-number.ts"
 	},
 	"dependencies": {
 		"@auth/drizzle-adapter": "^1.11.1",
