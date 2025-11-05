@@ -232,7 +232,7 @@ function BlockedModuleTable({
 	const shortPlaceholderChar = '██';
 
 	const placeholderModules = Array.from({ length: moduleCount }, (_, i) => ({
-		id: i,
+		id: `placeholder-${Math.random()}-${i}`,
 		code: placeholderChar,
 		name: `${placeholderChar}${placeholderChar}${placeholderChar}`,
 		type: placeholderChar,
@@ -256,7 +256,7 @@ function BlockedModuleTable({
 			</Table.Thead>
 			<Table.Tbody>
 				{placeholderModules.map((module) => (
-					<Table.Tr key={module.code}>
+					<Table.Tr key={module.id}>
 						<Table.Td>
 							<Text size='sm'>{module.code}</Text>
 						</Table.Td>
