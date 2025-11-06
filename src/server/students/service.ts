@@ -82,9 +82,13 @@ class StudentService {
 			async (session) => {
 				if (
 					session.user?.role &&
-					['admin', 'registry', 'finance', 'library'].includes(
-						session.user.role
-					)
+					[
+						'admin',
+						'registry',
+						'finance',
+						'library',
+						'student_services',
+					].includes(session.user.role)
 				) {
 					return true;
 				}

@@ -31,10 +31,17 @@ export function StudentTabs({
 		'studentDetailsTab',
 		'info'
 	);
+
+	const showAcademics =
+		session?.user?.role === 'admin' ||
+		session?.user?.role === 'registry' ||
+		session?.user?.role === 'finance';
+
 	const showRegistration =
 		session?.user?.role === 'admin' ||
 		session?.user?.role === 'registry' ||
 		session?.user?.role === 'finance' ||
+		session?.user?.role === 'student_services' ||
 		session?.user?.position === 'admin' ||
 		session?.user?.position === 'manager' ||
 		session?.user?.position === 'program_leader' ||
@@ -62,7 +69,7 @@ export function StudentTabs({
 	return (
 		<Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
 			<TabsList>
-				<TabsTab value='academics'>Academics</TabsTab>
+				{showAcademics && <TabsTab value='academics'>Academics</TabsTab>}
 				<TabsTab value='info'>Student</TabsTab>
 				{showRegistration && (
 					<TabsTab value='registration'>Registration</TabsTab>

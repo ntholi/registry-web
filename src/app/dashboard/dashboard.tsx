@@ -103,7 +103,9 @@ function getNavigation(department: DashboardUser) {
 			icon: IconUsersGroup,
 			isVisible: (session) => {
 				if (
-					['registry', 'finance', 'admin'].includes(session?.user?.role || '')
+					['registry', 'finance', 'admin', 'student_services'].includes(
+						session?.user?.role || ''
+					)
 				) {
 					return true;
 				}
@@ -344,7 +346,7 @@ function getNavigation(department: DashboardUser) {
 			label: 'Schools',
 			href: '/dashboard/schools',
 			icon: IconBuildingStore,
-			roles: ['registry', 'admin', 'academic', 'finance'],
+			roles: ['registry', 'admin', 'academic', 'finance', 'student_services'],
 		},
 		{
 			label: 'Terms',
@@ -367,7 +369,7 @@ function getNavigation(department: DashboardUser) {
 		{
 			label: 'Tools',
 			icon: IconTool,
-			roles: ['registry', 'academic', 'admin'],
+			roles: ['registry', 'academic', 'admin', 'student_services'],
 			children: [
 				{
 					label: 'Simulator',
