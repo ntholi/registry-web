@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { sponsors, terms, users } from '@/db/schema';
 import { resetMockUser, setMockUser } from '@/test/mocks.auth';
+import { studentsService } from '../../students/service';
 import { termsService } from '../../terms/service';
 import { sponsorsService } from '../service';
 
@@ -20,6 +21,12 @@ describe('updateStudentSponsorship Authorization', () => {
 
 	beforeEach(async () => {
 		setMockUser({ role: 'admin' } as User);
+
+		await studentsService.create({
+			stdNo: testStdNo,
+			name: 'Test Student',
+			nationalId: 'TEST123',
+		});
 		testTerm = await termsService.create({
 			name: 'Test Term',
 			semester: 1,

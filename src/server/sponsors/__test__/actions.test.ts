@@ -37,10 +37,10 @@ describe('Sponsors Service', () => {
 		expect(sponsor?.name).toBe('Test Sponsor for Get');
 	});
 
-	it('should return undefined for non-existent sponsor', async () => {
+	it('should return null for non-existent sponsor', async () => {
 		const sponsor = await sponsorsService.get(999);
 
-		expect(sponsor).toBeUndefined();
+		expect(sponsor).toBeNull();
 	});
 
 	it('should create multiple sponsors and retrieve them', async () => {
@@ -94,7 +94,7 @@ describe('Sponsors Service', () => {
 		await sponsorsService.delete(sponsor.id);
 
 		const retrievedSponsor = await sponsorsService.get(sponsor.id);
-		expect(retrievedSponsor).toBeUndefined();
+		expect(retrievedSponsor).toBeNull();
 	});
 
 	it('should find all sponsors with pagination', async () => {

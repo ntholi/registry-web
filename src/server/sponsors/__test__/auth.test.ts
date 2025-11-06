@@ -58,7 +58,7 @@ describe('Sponsor Permissions', () => {
 
 			// @ts-expect-error - Testing with potentially undefined ID
 			const deletedSponsor = await getSponsor(sponsorIdToDelete);
-			expect(deletedSponsor).toBeUndefined();
+			expect(deletedSponsor).toBeNull();
 		});
 
 		it('should allow an admin to get a sponsor', async () => {
@@ -105,7 +105,7 @@ describe('Sponsor Permissions', () => {
 
 			// @ts-expect-error - Testing with potentially undefined ID
 			const deletedSponsor = await getSponsor(sponsorIdToDelete);
-			expect(deletedSponsor).toBeUndefined();
+			expect(deletedSponsor).toBeNull();
 		});
 
 		it('should allow a finance user to get a sponsor', async () => {

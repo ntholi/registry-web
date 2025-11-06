@@ -1,64 +1,78 @@
-// import { drizzle } from 'drizzle-orm/libsql';
-// import { createClient } from '@libsql/client';
-// import { migrate } from 'drizzle-orm/libsql/migrator';
-// import * as schema from '../db/schema';
-// import * as relations from '../db/relations';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { Pool } from 'pg';
+import * as relations from '../db/relations';
+import * as schema from '../db/schema';
 
-// const testClient = createClient({
-//   url: ':memory:',
-// });
+const testConnectionString =
+	process.env.DATABASE_TEST_URL ||
+	'postgresql://postgres:postgres@localhost:5432/registry_test';
 
-// const testDb = drizzle(testClient, {
-//   schema: { ...schema, ...relations },
-//   casing: 'snake_case',
-// });
+const testPool = new Pool({ connectionString: testConnectionString });
 
-// async function setupTestDatabase() {
-//   await migrate(testDb, { migrationsFolder: './drizzle' });
-// }
+const testDb = drizzle(testPool, {
+	schema: { ...schema, ...relations },
+	casing: 'snake_case',
+});
 
-// async function cleanupTestDatabase() {
-//   const tables = [
-//     schema.assessmentMarksAudit,
-//     schema.assessmentsAudit,
-//     schema.assessmentMarks,
-//     schema.assessments,
-//     schema.moduleGrades,
-//     schema.clearanceAudit,
-//     schema.clearance,
-//     schema.registrationClearance,
-//     schema.requestedModules,
-//     schema.registrationRequests,
-//     schema.sponsoredStudents,
-//     schema.assignedModules,
-//     schema.userSchools,
-//     schema.studentModules,
-//     schema.studentSemesters,
-//     schema.studentPrograms,
-//     schema.modulePrerequisites,
-//     schema.semesterModules,
-//     schema.structureSemesters,
-//     schema.structures,
-//     schema.programs,
-//     schema.schools,
-//     schema.modules,
-//     schema.students,
-//     schema.authenticators,
-//     schema.sessions,
-//     schema.accounts,
-//     schema.verificationTokens,
-//     schema.users,
-//     schema.terms,
-//     schema.sponsors,
-//   ];
+async function setupTestDatabase() {
+	await migrate(testDb, { migrationsFolder: './drizzle' });
+}
 
-//   for (const table of tables) {
-//     try {
-//       await testDb.delete(table);
-//     } catch {
-//       // Ignore errors during cleanup
-//     }
-//   }
-// }
+async function cleanupTestDatabase() {
+	await testPool.query(`
+		TRUNCATE TABLE
+			task_assignments,
+			tasks,
+			fortinet_registrations,
+			documents,
+			student_card_prints,
+			blocked_students,
+			transcript_prints,
+			statement_of_results_prints,
+			module_grades,
+			assessments_audit,
+			assessment_marks_audit,
+			assessment_marks,
+			assessments,
+			user_schools,
+			assigned_modules,
+			sponsored_terms,
+			sponsored_students,
+			sponsors,
+			clearance_audit,
+			payment_receipts,
+			graduation_clearance,
+			graduation_requests,
+			registration_clearance,
+			clearance,
+			requested_modules,
+			registration_requests,
+			terms,
+			module_prerequisites,
+			semester_modules,
+			modules,
+			structure_semesters,
+			structures,
+			programs,
+			schools,
+			student_modules,
+			student_semesters,
+			student_programs,
+			next_of_kins,
+			student_education,
+			students,
+			authenticators,
+			sessions,
+			accounts,
+			verification_tokens,
+			users
+		RESTART IDENTITY CASCADE
+	`);
+}
 
-// export { testDb, setupTestDatabase, cleanupTestDatabase };
+async function closeTestDatabase() {
+	await testPool.end();
+}
+
+export { testDb, setupTestDatabase, cleanupTestDatabase, closeTestDatabase };
