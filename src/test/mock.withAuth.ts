@@ -5,6 +5,7 @@ import withAuth from '@/server/base/withAuth';
 import { getMockUser } from '@/test/mocks.auth';
 
 type Role = UserRole | 'all' | 'auth' | 'dashboard';
+type AccessCheckFunction = (session: Session) => Promise<boolean>;
 
 vi.mock('@/auth', () => ({
 	auth: vi.fn(() =>
@@ -24,14 +25,13 @@ vi.mock('next/navigation', () => ({
 	}),
 }));
 
-export const mockWithAuth = vi.fn(
-	async <T>(
-		fn: (session?: Session | null) => Promise<T>,
-		roles: Role[] = [],
-		accessCheck?: (session: Session) => Promise<boolean>
-	) => {
-		return withAuth(fn, roles, accessCheck);
-	}
-);
+async function mockWithAuthImplementation<T>(
+	fn: (session?: Session | null) => Promise<T>,
+	rolesOrAccessCheck: Role[] | AccessCheckFunction
+): Promise<T> {
+	return withAuth(fn, rolesOrAccessCheck as Role[]);
+}
+
+export const mockWithAuth = vi.fn(mockWithAuthImplementation);
 
 export default mockWithAuth;

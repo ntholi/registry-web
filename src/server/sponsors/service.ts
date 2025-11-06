@@ -67,7 +67,6 @@ class SponsorService {
 	}) {
 		return withAuth(
 			async () => this.repository.upsertSponsoredStudent(data),
-			['auth'],
 			async (session) => {
 				if (
 					['registry', 'finance', 'admin'].includes(
@@ -145,7 +144,6 @@ class SponsorService {
 	async confirmAccountDetails(stdNo: number, termId: number) {
 		return withAuth(
 			async () => this.repository.confirmSponsoredStudent(stdNo, termId),
-			['auth'],
 			async (session) => {
 				if (
 					['registry', 'finance', 'admin'].includes(

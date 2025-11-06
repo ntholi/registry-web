@@ -93,8 +93,10 @@ class GraduationRequestService {
 	async getClearanceData(graduationRequestId: number) {
 		return withAuth(
 			async () => this.repository.getClearanceData(graduationRequestId),
-			['student', 'admin', 'registry'],
 			async (session) => {
+				if (['admin', 'registry'].includes(session.user?.role as string)) {
+					return true;
+				}
 				const graduationRequest =
 					await this.repository.findById(graduationRequestId);
 				return graduationRequest?.studentProgram?.stdNo === session.user?.stdNo;

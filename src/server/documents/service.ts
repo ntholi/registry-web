@@ -16,10 +16,9 @@ class DocumentService {
 	async get(id: string) {
 		return withAuth(
 			async () => this.repository.findById(id),
-			['admin', 'registry', 'finance', 'student_services'],
 			async (session) => {
 				if (
-					['admin', 'registry', 'finance'].includes(
+					['admin', 'registry', 'finance', 'student_services'].includes(
 						session.user?.role as string
 					)
 				) {
@@ -33,7 +32,6 @@ class DocumentService {
 	async getAll(params: QueryOptions<typeof documents>) {
 		return withAuth(
 			async () => this.repository.query(params),
-			['admin', 'registry', 'finance'],
 			async (session) => {
 				if (
 					['admin', 'registry', 'finance', 'student_services'].includes(
@@ -50,10 +48,9 @@ class DocumentService {
 	async getByStudent(stdNo: number) {
 		return withAuth(
 			async () => this.repository.findByStudent(stdNo),
-			['admin', 'registry', 'finance'],
 			async (session) => {
 				if (
-					['admin', 'registry', 'finance'].includes(
+					['admin', 'registry', 'finance', 'student_services'].includes(
 						session.user?.role as string
 					)
 				) {

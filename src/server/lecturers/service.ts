@@ -17,12 +17,14 @@ class LecturerService {
 		const userSchools = await getUserSchoolIds(session?.user?.id);
 		return withAuth(
 			async () => this.repository.getBySchools(userSchools, params),
-			['academic'],
 			async (session) => {
-				if (session.user?.position) {
-					return ['admin', 'manager', 'program_leader'].includes(
-						session.user.position
-					);
+				if (session.user?.role === 'academic') {
+					if (session.user?.position) {
+						return ['admin', 'manager', 'program_leader'].includes(
+							session.user.position
+						);
+					}
+					return false;
 				}
 				return false;
 			}

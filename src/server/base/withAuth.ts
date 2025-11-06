@@ -6,63 +6,131 @@ import { auth } from '@/auth';
 import { dashboardUsers, type UserRole } from '@/db/schema';
 
 type Role = UserRole | 'all' | 'auth' | 'dashboard';
+type AccessCheckFunction = (session: Session) => Promise<boolean>;
 
 export default async function withAuth<T>(
 	fn: (session?: Session | null) => Promise<T>,
-	roles: Role[] = [],
-	accessCheck?: (session: Session) => Promise<boolean>
-) {
-	const session = await auth();
-	const method = fn.toString();
+	roles: Role[]
+): Promise<T>;
 
-	const callFnWithAccessCheck = async (session?: Session | null) => {
-		if (accessCheck && session?.user) {
-			const isAuthorized = await accessCheck(session);
-			if (!isAuthorized && session.user.role !== 'admin') {
-				console.warn(
-					'Custom Auth Check',
+export default async function withAuth<T>(
+	fn: (session?: Session | null) => Promise<T>,
+	accessCheck: AccessCheckFunction
+): Promise<T>;
+
+export default async function withAuth<T>(
+	fn: (session?: Session | null) => Promise<T>,
+	rolesOrAccessCheck: Role[] | AccessCheckFunction
+): Promise<T> {
+	const session = await auth();
+	const functionName = fn.toString();
+
+	const isRoleBased = Array.isArray(rolesOrAccessCheck);
+	const roles = isRoleBased ? rolesOrAccessCheck : [];
+	const accessCheck = isRoleBased ? null : rolesOrAccessCheck;
+
+	try {
+		if (isRoleBased && roles.length === 1 && roles.includes('all')) {
+			return await fn(session);
+		}
+
+		if (!session?.user) {
+			logAuthError('No session found', functionName, { expectedAuth: true });
+			return unauthorized();
+		}
+
+		if (isRoleBased && roles.includes('auth')) {
+			return await fn(session);
+		}
+
+		const isAdmin = session.user.role === 'admin';
+
+		if (isRoleBased && isAdmin) {
+			return await fn(session);
+		}
+
+		if (isRoleBased && roles.includes('dashboard')) {
+			const isDashboardUser = dashboardUsers.enumValues.includes(
+				session.user.role as (typeof dashboardUsers.enumValues)[number]
+			);
+
+			if (!isDashboardUser) {
+				logAuthError(
+					'Insufficient permissions for dashboard access',
+					functionName,
 					{
-						role: session.user.role,
+						currentRole: session.user.role,
+						requiredRoles: roles,
 						userId: session.user.id,
-						expectedRoles: ['admin', ...roles],
-					},
-					method
+					}
 				);
 				return forbidden();
 			}
+
+			return await fn(session);
 		}
-		return fn(session);
-	};
 
-	if (roles.length === 1 && roles.includes('all')) {
-		return callFnWithAccessCheck(session);
-	}
+		if (isRoleBased) {
+			const hasRequiredRole = roles.includes(session.user.role as Role);
 
-	if (!session?.user) {
-		console.warn('No session', method);
-		return unauthorized();
-	}
+			if (!hasRequiredRole) {
+				logAuthError('Insufficient role permissions', functionName, {
+					currentRole: session.user.role,
+					requiredRoles: roles,
+					userId: session.user.id,
+				});
+				return forbidden();
+			}
 
-	if (roles.includes('auth') && session?.user) {
-		return callFnWithAccessCheck(session);
-	}
+			return await fn(session);
+		}
 
-	if (
-		roles.includes('dashboard') &&
-		dashboardUsers.enumValues.includes(
-			session?.user?.role as (typeof dashboardUsers.enumValues)[number]
-		)
-	) {
-		return callFnWithAccessCheck(session);
-	}
+		if (accessCheck) {
+			let hasAccess = false;
 
-	if (!['admin', ...roles].includes(session.user.role as Role)) {
-		console.warn('Permission Error', method, {
-			currentRole: session.user.role,
-			expectedRoles: ['admin', ...roles],
+			try {
+				hasAccess = await accessCheck(session);
+			} catch (error) {
+				logAuthError('Access check function threw an error', functionName, {
+					userId: session.user.id,
+					userRole: session.user.role,
+					error: error instanceof Error ? error.message : 'Unknown error',
+				});
+				return forbidden();
+			}
+
+			if (!hasAccess && !isAdmin) {
+				logAuthError('Custom access check failed', functionName, {
+					userId: session.user.id,
+					userRole: session.user.role,
+				});
+				return forbidden();
+			}
+
+			return await fn(session);
+		}
+
+		logAuthError('Invalid authorization configuration', functionName, {
+			rolesOrAccessCheck: typeof rolesOrAccessCheck,
 		});
 		return forbidden();
+	} catch (error) {
+		logAuthError('Auth Error', functionName, {
+			error: error instanceof Error ? error.message : 'Unknown error',
+			userId: session?.user?.id,
+		});
+		throw error;
 	}
+}
 
-	return callFnWithAccessCheck(session);
+function logAuthError(
+	message: string,
+	functionName: string,
+	details: Record<string, unknown>
+): void {
+	console.error(`[withAuth] ${message}`, {
+		function: functionName,
+		timestamp: new Date().toISOString(),
+		...details,
+	});
 }

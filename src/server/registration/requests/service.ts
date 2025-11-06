@@ -26,7 +26,6 @@ class RegistrationRequestService {
 	async getByStdNo(stdNo: number, termId: number) {
 		return withAuth(
 			async () => this.repository.findByStdNo(stdNo, termId),
-			['student'],
 			async (session) => session.user?.stdNo === stdNo
 		);
 	}
@@ -78,7 +77,6 @@ class RegistrationRequestService {
 					structureId: activeProgram?.structureId,
 				};
 			},
-			['dashboard', 'student'],
 			async (session) => {
 				if (
 					session.user?.role &&
@@ -110,7 +108,6 @@ class RegistrationRequestService {
 			async () => {
 				return this.repository.create(data);
 			},
-			['student'],
 			async (session) => session.user?.stdNo === data.stdNo
 		);
 	}
@@ -118,7 +115,6 @@ class RegistrationRequestService {
 	async createRequestedModules(stdNo: number, modules: RequestedModule[]) {
 		return withAuth(
 			async () => this.repository.createRequestedModules(modules),
-			['student'],
 			async (session) => session.user?.stdNo === stdNo
 		);
 	}
@@ -153,7 +149,6 @@ class RegistrationRequestService {
 			async () => {
 				return this.repository.createRegistrationWithModules(data);
 			},
-			['student', 'registry'],
 			async (session) =>
 				session.user?.stdNo === data.stdNo || session.user?.role === 'registry'
 		);
