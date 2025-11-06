@@ -12,7 +12,6 @@ import StudentCardPrinter from './card/StudentCardPrinter';
 import StudentCardView from './card/StudentCardView';
 import DocumentsView from './documents/DocumentsView';
 import GraduationView from './graduation/GraduationView';
-import ProofOfClearancePrinter from './graduation/ProofOfClearancePrinter';
 import StudentView from './info/StudentView';
 import ProofOfRegistrationPrinter from './registration/proof/ProofOfRegistrationPrinter';
 import RegistrationView from './registration/RegistrationView';
@@ -94,11 +93,6 @@ export function StudentTabs({
 							isActive={activeTab === 'studentcard'}
 							disabled={!!blockedStudent}
 						/>
-					</Box>
-				)}
-				{showGraduation && activeTab === 'graduation' && (
-					<Box ml='auto'>
-						<ProofOfClearancePrinter stdNo={student.stdNo.toString()} />
 					</Box>
 				)}
 			</TabsList>

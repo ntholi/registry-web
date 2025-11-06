@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionIcon, Stack, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Flex, Paper, Stack, Text, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { FieldView } from '@/components/adease';

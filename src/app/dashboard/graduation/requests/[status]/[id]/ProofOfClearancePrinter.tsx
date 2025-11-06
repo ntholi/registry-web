@@ -8,42 +8,35 @@ import { useState } from 'react';
 import ProofOfClearancePDF from '@/app/student/graduation/components/ProofOfClearancePDF';
 import {
 	getGraduationClearanceData,
-	getGraduationRequestByStudentNo,
+	getGraduationRequest,
 } from '@/server/graduation/requests/actions';
 
 type ProofOfClearancePrinterProps = {
-	stdNo: string;
+	requestId: string;
 };
 
 export default function ProofOfClearancePrinter({
-	stdNo,
+	requestId,
 }: ProofOfClearancePrinterProps) {
 	const [isGenerating, setIsGenerating] = useState(false);
 
-	const { refetch: fetchGraduationRequest, isLoading: isLoadingRequest } =
-		useQuery({
-			queryKey: ['graduationRequest', stdNo],
-			queryFn: () => getGraduationRequestByStudentNo(Number(stdNo)),
-			enabled: false,
-		});
+	const { data: graduationRequest, isLoading: isLoadingRequest } = useQuery({
+		queryKey: ['graduationRequest', requestId],
+		queryFn: () => getGraduationRequest(Number(requestId)),
+	});
 
-	const { refetch: fetchGraduationData, isLoading: isLoadingData } = useQuery({
-		queryKey: ['graduationClearanceData'],
+	const { data: graduationData, isLoading: isLoadingData } = useQuery({
+		queryKey: ['graduationClearanceData', requestId],
 		queryFn: async () => {
-			const requestResult = await fetchGraduationRequest();
-			const request = requestResult.data;
-			if (!request) throw new Error('No graduation request found');
-			return getGraduationClearanceData(request.id);
+			if (!graduationRequest) throw new Error('No graduation request found');
+			return getGraduationClearanceData(graduationRequest.id);
 		},
-		enabled: false,
+		enabled: !!graduationRequest,
 	});
 
 	const handlePrint = async () => {
 		setIsGenerating(true);
 		try {
-			const result = await fetchGraduationData();
-			const graduationData = result.data;
-
 			if (!graduationData) {
 				console.error('Invalid graduation data for PDF generation');
 				setIsGenerating(false);
@@ -126,7 +119,7 @@ export default function ProofOfClearancePrinter({
 			variant='subtle'
 			color='gray'
 			size='xs'
-			disabled={isGenerating}
+			disabled={isGenerating || !graduationData}
 			onClick={handlePrint}
 		>
 			Print

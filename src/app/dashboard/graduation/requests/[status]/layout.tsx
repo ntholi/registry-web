@@ -57,7 +57,7 @@ export default function Layout({ children }: PropsWithChildren) {
 				<ListItem
 					id={it.id}
 					label={it.studentProgram.stdNo.toString()}
-					description={`${it.studentProgram.student.name} - ${it.studentProgram.structure.program.name}`}
+					description={`${it.studentProgram.student.name}`}
 					rightSection={getStatusIcon(status)}
 				/>
 			)}

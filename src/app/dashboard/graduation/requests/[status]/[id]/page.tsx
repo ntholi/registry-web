@@ -1,4 +1,5 @@
 import {
+	Box,
 	Divider,
 	Group,
 	Stack,
@@ -23,6 +24,7 @@ import {
 import GraduationClearanceAccordion from './GraduationClearanceAccordion';
 import GraduationRequestDetailsView from './GraduationRequestDetailsView';
 import PaymentReceiptsView from './PaymentReceiptsView';
+import ProofOfClearancePrinter from './ProofOfClearancePrinter';
 
 interface Props {
 	params: Promise<{ id: string }>;
@@ -103,7 +105,7 @@ export default async function GraduationRequestDetails({
 					await deleteGraduationRequest(Number(id));
 				}}
 			/>
-			<Tabs defaultValue={defaultTab || 'details'} variant='outline'>
+			<Tabs defaultValue={defaultTab || 'details'} variant='outline' mt={'xl'}>
 				<TabsList>
 					<TabsTab value='details'>Details</TabsTab>
 					<TabsTab value='clearance'>
@@ -120,6 +122,11 @@ export default async function GraduationRequestDetails({
 							Clearance
 						</Group>
 					</TabsTab>
+					{getOverallClearanceStatus(graduationRequest) === 'approved' && (
+						<Box ml='auto'>
+							<ProofOfClearancePrinter requestId={id} />
+						</Box>
+					)}
 				</TabsList>
 				<TabsPanel value='details'>
 					<Stack mt='md' p='sm'>
