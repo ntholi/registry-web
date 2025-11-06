@@ -64,6 +64,7 @@ export function StudentTabs({
 		session?.user?.role === 'admin' ||
 		session?.user?.role === 'registry' ||
 		session?.user?.role === 'finance' ||
+		session?.user?.role === 'student_services' ||
 		session?.user?.position === 'manager';
 
 	return (

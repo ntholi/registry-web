@@ -16,7 +16,7 @@ class DocumentService {
 	async get(id: string) {
 		return withAuth(
 			async () => this.repository.findById(id),
-			['admin', 'registry', 'finance'],
+			['admin', 'registry', 'finance', 'student_services'],
 			async (session) => {
 				if (
 					['admin', 'registry', 'finance'].includes(
@@ -36,7 +36,7 @@ class DocumentService {
 			['admin', 'registry', 'finance'],
 			async (session) => {
 				if (
-					['admin', 'registry', 'finance'].includes(
+					['admin', 'registry', 'finance', 'student_services'].includes(
 						session.user?.role as string
 					)
 				) {

@@ -49,6 +49,7 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 		session?.user?.role === 'admin' ||
 		session?.user?.role === 'registry' ||
 		session?.user?.role === 'finance' ||
+		session?.user?.role === 'student_services' ||
 		session?.user?.position === 'manager';
 
 	if (!canView) {
