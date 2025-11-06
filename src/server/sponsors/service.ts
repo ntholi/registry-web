@@ -68,11 +68,9 @@ class SponsorService {
 		return withAuth(
 			async () => this.repository.upsertSponsoredStudent(data),
 			async (session) => {
-				if (
-					['registry', 'finance', 'admin'].includes(
-						session.user?.role as string
-					)
-				) {
+				const allowedRoles = ['registry', 'finance', 'admin'];
+
+				if (allowedRoles.includes(session.user?.role || '')) {
 					return true;
 				}
 
@@ -145,11 +143,9 @@ class SponsorService {
 		return withAuth(
 			async () => this.repository.confirmSponsoredStudent(stdNo, termId),
 			async (session) => {
-				if (
-					['registry', 'finance', 'admin'].includes(
-						session.user?.role as string
-					)
-				) {
+				const allowedRoles = ['registry', 'finance', 'admin'];
+
+				if (allowedRoles.includes(session.user?.role || '')) {
 					return true;
 				}
 

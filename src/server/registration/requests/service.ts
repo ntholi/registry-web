@@ -86,14 +86,18 @@ class RegistrationRequestService {
 				) {
 					return true;
 				}
+
+				const allowedRoles = ['admin', 'registry', 'student'];
+				const allowedPositions = [
+					'admin',
+					'manager',
+					'program_leader',
+					'year_leader',
+				];
+
 				return (
-					session.user?.role === 'admin' ||
-					session.user?.role === 'registry' ||
-					session.user?.position === 'admin' ||
-					session.user?.position === 'manager' ||
-					session.user?.position === 'program_leader' ||
-					session.user?.position === 'year_leader' ||
-					session.user?.role === 'student'
+					allowedRoles.includes(session.user?.role || '') ||
+					allowedPositions.includes(session.user?.position || '')
 				);
 			}
 		);

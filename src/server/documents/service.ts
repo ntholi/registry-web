@@ -17,14 +17,18 @@ class DocumentService {
 		return withAuth(
 			async () => this.repository.findById(id),
 			async (session) => {
-				if (
-					['admin', 'registry', 'finance', 'student_services'].includes(
-						session.user?.role as string
-					)
-				) {
-					return true;
-				}
-				return session.user?.position === 'manager';
+				const allowedRoles = [
+					'admin',
+					'registry',
+					'finance',
+					'student_services',
+				];
+				const allowedPositions = ['manager'];
+
+				return (
+					allowedRoles.includes(session.user?.role || '') ||
+					allowedPositions.includes(session.user?.position || '')
+				);
 			}
 		);
 	}
@@ -33,14 +37,18 @@ class DocumentService {
 		return withAuth(
 			async () => this.repository.query(params),
 			async (session) => {
-				if (
-					['admin', 'registry', 'finance', 'student_services'].includes(
-						session.user?.role as string
-					)
-				) {
-					return true;
-				}
-				return session.user?.position === 'manager';
+				const allowedRoles = [
+					'admin',
+					'registry',
+					'finance',
+					'student_services',
+				];
+				const allowedPositions = ['manager'];
+
+				return (
+					allowedRoles.includes(session.user?.role || '') ||
+					allowedPositions.includes(session.user?.position || '')
+				);
 			}
 		);
 	}
@@ -49,14 +57,18 @@ class DocumentService {
 		return withAuth(
 			async () => this.repository.findByStudent(stdNo),
 			async (session) => {
-				if (
-					['admin', 'registry', 'finance', 'student_services'].includes(
-						session.user?.role as string
-					)
-				) {
-					return true;
-				}
-				return session.user?.position === 'manager';
+				const allowedRoles = [
+					'admin',
+					'registry',
+					'finance',
+					'student_services',
+				];
+				const allowedPositions = ['manager'];
+
+				return (
+					allowedRoles.includes(session.user?.role || '') ||
+					allowedPositions.includes(session.user?.position || '')
+				);
 			}
 		);
 	}
