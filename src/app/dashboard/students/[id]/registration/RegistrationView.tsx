@@ -7,6 +7,7 @@ import {
 	Button,
 	Card,
 	Divider,
+	Flex,
 	Group,
 	Paper,
 	Skeleton,
@@ -14,7 +15,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus } from '@tabler/icons-react';
+import { IconChevronRight, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -159,41 +160,44 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 												{request.status.toUpperCase()}
 											</Badge>
 										</Group>
-										<Button
-											component={Link}
-											href={
-												session?.user?.role === 'finance' ||
-												session?.user?.role === 'library'
-													? `/dashboard/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`
-													: `/dashboard/registration/requests/${request.status}/${request.id}`
-											}
-											size='xs'
-											variant='light'
-											color='blue'
-										>
-											View Details
-										</Button>
 									</Group>
-									<Divider my='sm' />
 								</Stack>
 							</Accordion.Control>
 							<Accordion.Panel>
-								<Stack gap={5}>
-									<Group>
-										<Text fw={500} w={150}>
-											Semester
-										</Text>
-										<Text size='sm'>
-											{formatSemester(request.semesterNumber)}
-										</Text>
-									</Group>
-									<Group>
-										<Text fw={500} w={150}>
-											Date Requested
-										</Text>
-										<Text size='sm'>{formatDateTime(request.createdAt)}</Text>
-									</Group>
-								</Stack>
+								<Divider mb='sm' />
+								<Flex justify={'space-between'}>
+									<Stack gap={8}>
+										<Group>
+											<Text size='sm' fw={500} w={150}>
+												Semester
+											</Text>
+											<Text size='sm'>
+												{formatSemester(request.semesterNumber)}
+											</Text>
+										</Group>
+										<Group>
+											<Text size='sm' fw={500} w={150}>
+												Date Requested
+											</Text>
+											<Text size='sm'>{formatDateTime(request.createdAt)}</Text>
+										</Group>
+									</Stack>
+									<Button
+										component={Link}
+										href={
+											session?.user?.role === 'finance' ||
+											session?.user?.role === 'library'
+												? `/dashboard/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`
+												: `/dashboard/registration/requests/${request.status}/${request.id}`
+										}
+										size='xs'
+										variant='subtle'
+										color='blue'
+										rightSection={<IconChevronRight size={14} />}
+									>
+										View Details
+									</Button>
+								</Flex>
 							</Accordion.Panel>
 						</Accordion.Item>
 					))}
