@@ -186,9 +186,12 @@ export default function EditRegistrationPage() {
 				status: registrationRequest.semesterStatus || 'Active',
 			});
 
-			if (registrationRequest.sponsorId && previousSponsorshipData) {
+			if (
+				registrationRequest.sponsoredStudent?.sponsorId &&
+				previousSponsorshipData
+			) {
 				setSponsorshipData({
-					sponsorId: registrationRequest.sponsorId,
+					sponsorId: registrationRequest.sponsoredStudent.sponsorId,
 					borrowerNo: previousSponsorshipData.borrowerNo || undefined,
 				});
 			}

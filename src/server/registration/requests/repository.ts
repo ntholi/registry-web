@@ -21,7 +21,6 @@ import {
 	sponsoredStudents,
 	sponsoredTerms,
 	studentPrograms,
-	terms,
 } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, {
@@ -84,6 +83,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					},
 				},
 				term: true,
+				sponsoredStudent: {
+					with: {
+						sponsor: true,
+					},
+				},
 				requestedModules: {
 					with: {
 						semesterModule: {
@@ -382,25 +386,46 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			if (!student) {
 				throw new Error('Student not found');
 			}
-			const [sponsoredStudent] = await tx
-				.insert(sponsoredStudents)
-				.values({
-					sponsorId: data.sponsorId,
-					stdNo: data.stdNo,
-					borrowerNo: data.borrowerNo,
-					bankName: data.bankName,
-					accountNumber: data.accountNumber,
-				})
-				.onConflictDoUpdate({
-					target: [sponsoredStudents.sponsorId, sponsoredStudents.stdNo],
-					set: {
+
+			let sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+				where: and(
+					eq(sponsoredStudents.sponsorId, data.sponsorId),
+					eq(sponsoredStudents.stdNo, data.stdNo)
+				),
+			});
+
+			if (!sponsoredStudent) {
+				sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+					where: eq(sponsoredStudents.stdNo, data.stdNo),
+				});
+			}
+
+			if (sponsoredStudent) {
+				const [updated] = await tx
+					.update(sponsoredStudents)
+					.set({
+						sponsorId: data.sponsorId,
 						borrowerNo: data.borrowerNo,
 						bankName: data.bankName,
 						accountNumber: data.accountNumber,
 						updatedAt: new Date(),
-					},
-				})
-				.returning();
+					})
+					.where(eq(sponsoredStudents.id, sponsoredStudent.id))
+					.returning();
+				sponsoredStudent = updated;
+			} else {
+				const [created] = await tx
+					.insert(sponsoredStudents)
+					.values({
+						sponsorId: data.sponsorId,
+						stdNo: data.stdNo,
+						borrowerNo: data.borrowerNo,
+						bankName: data.bankName,
+						accountNumber: data.accountNumber,
+					})
+					.returning();
+				sponsoredStudent = created;
+			}
 
 			await tx
 				.insert(sponsoredTerms)
@@ -418,11 +443,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					status: 'pending',
 					semesterNumber: data.semesterNumber,
 					semesterStatus: data.semesterStatus,
-					sponsorId: data.sponsorId,
+					sponsoredStudentId: sponsoredStudent.id,
 				})
 				.returning();
 
-			// Create clearance requests
 			for (const department of ['finance', 'library']) {
 				const [clearanceRecord] = await tx
 					.insert(clearance)
@@ -540,18 +564,57 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				throw new Error('Registration request not found');
 			}
 
+			let sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+				where: and(
+					eq(sponsoredStudents.sponsorId, sponsorshipData.sponsorId),
+					eq(sponsoredStudents.stdNo, registration.stdNo)
+				),
+			});
+
+			if (!sponsoredStudent) {
+				sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+					where: eq(sponsoredStudents.stdNo, registration.stdNo),
+				});
+			}
+
+			if (sponsoredStudent) {
+				const [updated] = await tx
+					.update(sponsoredStudents)
+					.set({
+						sponsorId: sponsorshipData.sponsorId,
+						borrowerNo: sponsorshipData.borrowerNo,
+						bankName: sponsorshipData.bankName,
+						accountNumber: sponsorshipData.accountNumber,
+						updatedAt: new Date(),
+					})
+					.where(eq(sponsoredStudents.id, sponsoredStudent.id))
+					.returning();
+				sponsoredStudent = updated;
+			} else {
+				const [created] = await tx
+					.insert(sponsoredStudents)
+					.values({
+						sponsorId: sponsorshipData.sponsorId,
+						stdNo: registration.stdNo,
+						borrowerNo: sponsorshipData.borrowerNo,
+						bankName: sponsorshipData.bankName,
+						accountNumber: sponsorshipData.accountNumber,
+					})
+					.returning();
+				sponsoredStudent = created;
+			}
+
 			const updatePayload: Partial<RegistrationRequestInsert> = {
 				status: 'pending',
 				updatedAt: new Date(),
 				semesterNumber,
 				semesterStatus,
-				sponsorId: sponsorshipData.sponsorId,
+				sponsoredStudentId: sponsoredStudent.id,
 			};
 			if (typeof termId === 'number') {
 				updatePayload.termId = termId;
 			}
 
-			// Check if modules have changed
 			const existingModules = await tx.query.requestedModules.findMany({
 				where: eq(
 					requestedModules.registrationRequestId,
@@ -573,7 +636,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					)
 				);
 
-			// Increment count for each update
 			await tx
 				.update(registrationRequests)
 				.set({ count: sql`${registrationRequests.count} + 1` })
@@ -585,7 +647,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				.where(eq(registrationRequests.id, registrationRequestId))
 				.returning();
 
-			// Update finance clearance status to pending only if modules have changed
 			if (hasModulesChanged) {
 				const financeClearances = await tx
 					.select({ clearanceId: registrationClearance.clearanceId })
@@ -615,46 +676,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			}
 
 			await tx
-				.insert(sponsoredStudents)
+				.insert(sponsoredTerms)
 				.values({
-					sponsorId: sponsorshipData.sponsorId,
-					stdNo: registration.stdNo,
-					borrowerNo: sponsorshipData.borrowerNo,
-					bankName: sponsorshipData.bankName,
-					accountNumber: sponsorshipData.accountNumber,
+					sponsoredStudentId: sponsoredStudent.id,
+					termId: termId ?? registration.termId,
 				})
-				.onConflictDoUpdate({
-					target: [sponsoredStudents.sponsorId, sponsoredStudents.stdNo],
-					set: {
-						borrowerNo: sponsorshipData.borrowerNo,
-						bankName: sponsorshipData.bankName,
-						accountNumber: sponsorshipData.accountNumber,
-						updatedAt: new Date(),
-					},
-				});
-
-			const sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
-				where: and(
-					eq(sponsoredStudents.sponsorId, sponsorshipData.sponsorId),
-					eq(sponsoredStudents.stdNo, registration.stdNo)
-				),
-			});
-
-			if (sponsoredStudent) {
-				const term = await tx.query.terms.findFirst({
-					where: eq(terms.id, registration.termId),
-				});
-
-				if (term) {
-					await tx
-						.insert(sponsoredTerms)
-						.values({
-							sponsoredStudentId: sponsoredStudent.id,
-							termId: term.id,
-						})
-						.onConflictDoNothing();
-				}
-			}
+				.onConflictDoNothing();
 
 			const convertedModules = modules.map((module) => ({
 				moduleId: module.id,

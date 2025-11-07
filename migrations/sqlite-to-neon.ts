@@ -1210,23 +1210,12 @@ function mapTerms(
 }
 
 function mapRegistrationRequests(
-	row: SqliteSelect<typeof sqliteSchema.registrationRequests>
+	_row: SqliteSelect<typeof sqliteSchema.registrationRequests>
 ): PostgresInsert<typeof postgresSchema.registrationRequests> {
-	return {
-		id: row.id,
-		sponsorId: row.sponsorId,
-		stdNo: row.stdNo,
-		termId: row.termId,
-		status: row.status,
-		mailSent: toBoolean(row.mailSent),
-		count: row.count,
-		semesterStatus: row.semesterStatus,
-		semesterNumber: String(row.semesterNumber),
-		message: row.message,
-		createdAt: toOptionalDateFromSeconds(row.createdAt),
-		updatedAt: toOptionalDateFromSeconds(row.updatedAt),
-		dateApproved: toOptionalDateFromSeconds(row.dateApproved),
-	};
+	throw new Error(
+		'Registration requests migration is not supported with the new schema. ' +
+			'Use the SQL migration script to migrate registration requests data.'
+	);
 }
 
 function mapRequestedModules(

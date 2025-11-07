@@ -312,9 +312,9 @@ export const registrationRequestsRelations = relations(
 			fields: [registrationRequests.termId],
 			references: [terms.id],
 		}),
-		sponsor: one(sponsors, {
-			fields: [registrationRequests.sponsorId],
-			references: [sponsors.id],
+		sponsoredStudent: one(sponsoredStudents, {
+			fields: [registrationRequests.sponsoredStudentId],
+			references: [sponsoredStudents.id],
 		}),
 		clearances: many(registrationClearance),
 		requestedModules: many(requestedModules),
@@ -407,7 +407,6 @@ export const clearanceAuditRelations = relations(clearanceAudit, ({ one }) => ({
 }));
 
 export const sponsorsRelations = relations(sponsors, ({ many }) => ({
-	registrationRequests: many(registrationRequests),
 	sponsoredStudents: many(sponsoredStudents),
 }));
 
@@ -423,6 +422,7 @@ export const sponsoredStudentsRelations = relations(
 			references: [students.stdNo],
 		}),
 		sponsoredTerms: many(sponsoredTerms),
+		registrationRequests: many(registrationRequests),
 	})
 );
 

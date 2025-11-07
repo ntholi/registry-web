@@ -69,7 +69,7 @@ export default async function NewPage({ searchParams }: Props) {
 			id: res.request.id,
 			stdNo: res.request.stdNo,
 			semesterStatus: res.request.semesterStatus,
-			sponsorId: res.request.sponsorId,
+			sponsorId: sponsorId,
 			borrowerNo: borrowerNo,
 			semesterNumber: res.request.semesterNumber,
 			termId: res.request.termId,

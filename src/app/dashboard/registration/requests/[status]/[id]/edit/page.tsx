@@ -83,7 +83,14 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 			values.semesterStatus,
 			values.termId
 		);
-		return { ...res.request, id: values.id };
+		return {
+			...values,
+			id: values.id,
+			stdNo: res.request.stdNo,
+			termId: res.request.termId,
+			semesterNumber: res.request.semesterNumber,
+			semesterStatus: res.request.semesterStatus,
+		};
 	}
 
 	return (
@@ -94,10 +101,22 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 					id: registrationRequest.id,
 					stdNo: registrationRequest.stdNo,
 					semesterStatus: registrationRequest.semesterStatus ?? 'Active',
-					sponsorId: sponsored?.sponsor?.id || registrationRequest.sponsorId,
-					borrowerNo: sponsored?.borrowerNo || '',
-					bankName: sponsored?.bankName || '',
-					accountNumber: sponsored?.accountNumber || '',
+					sponsorId:
+						registrationRequest.sponsoredStudent?.sponsorId ||
+						sponsored?.sponsor?.id ||
+						0,
+					borrowerNo:
+						registrationRequest.sponsoredStudent?.borrowerNo ||
+						sponsored?.borrowerNo ||
+						'',
+					bankName:
+						registrationRequest.sponsoredStudent?.bankName ||
+						sponsored?.bankName ||
+						'',
+					accountNumber:
+						registrationRequest.sponsoredStudent?.accountNumber ||
+						sponsored?.accountNumber ||
+						'',
 					semesterNumber: registrationRequest.semesterNumber,
 					termId: registrationRequest.termId,
 					selectedModules,

@@ -560,8 +560,8 @@ export const registrationRequests = pgTable(
 	'registration_requests',
 	{
 		id: serial().primaryKey(),
-		sponsorId: integer()
-			.references(() => sponsors.id, { onDelete: 'cascade' })
+		sponsoredStudentId: integer()
+			.references(() => sponsoredStudents.id, { onDelete: 'cascade' })
 			.notNull(),
 		stdNo: bigint({ mode: 'number' })
 			.references(() => students.stdNo, { onDelete: 'cascade' })
@@ -584,9 +584,9 @@ export const registrationRequests = pgTable(
 		stdNoIdx: index('fk_registration_requests_std_no').on(table.stdNo),
 		termIdIdx: index('fk_registration_requests_term_id').on(table.termId),
 		statusIdx: index('idx_registration_requests_status').on(table.status),
-		sponsorIdIdx: index('fk_registration_requests_sponsor_id').on(
-			table.sponsorId
-		),
+		sponsoredStudentIdIdx: index(
+			'fk_registration_requests_sponsored_student_id'
+		).on(table.sponsoredStudentId),
 	})
 );
 
