@@ -322,6 +322,7 @@ export const studentSemesters = pgTable(
 		studentProgramId: integer()
 			.references(() => studentPrograms.id, { onDelete: 'cascade' })
 			.notNull(),
+		sponsorId: integer().references(() => sponsors.id, { onDelete: 'set null' }),
 		cafDate: text(),
 		createdAt: timestamp().defaultNow(),
 	},
@@ -334,6 +335,7 @@ export const studentSemesters = pgTable(
 		).on(table.structureSemesterId),
 		termIdx: index('idx_student_semesters_term').on(table.term),
 		statusIdx: index('idx_student_semesters_status').on(table.status),
+		sponsorIdIdx: index('fk_student_semesters_sponsor_id').on(table.sponsorId),
 	})
 );
 
