@@ -1,10 +1,4 @@
 'use client';
-import { formatSemester } from '@/lib/utils';
-import {
-	getAvailableProgramsForReports,
-	getAvailableSchoolsForReports,
-	getAvailableTermsForReport,
-} from '@/server/reports/registration/actions';
 import {
 	ActionIcon,
 	Flex,
@@ -18,6 +12,12 @@ import {
 import { IconFilter, IconPlayerPlayFilled } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { formatSemester } from '@/lib/utils';
+import {
+	getAvailableProgramsForReports,
+	getAvailableSchoolsForReports,
+	getAvailableTermsForReport,
+} from '@/server/reports/registration/actions';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString();
@@ -146,13 +146,29 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 						placeholder='All schools'
 						data={schools.map((school) => ({
 							value: school.id?.toString() || '',
-							label: school.name,
+							label: school.code,
+							description: school.name,
 						}))}
 						rightSection={schoolsLoading && <Loader size='xs' />}
 						value={localFilter.schoolId || null}
 						onChange={(value) => handleChange('schoolId', value)}
 						searchable
 						clearable
+						renderOption={({ option }) => {
+							const customOption = option as {
+								value: string;
+								label: string;
+								description: string;
+							};
+							return (
+								<div>
+									<Text size='sm'>{customOption.label}</Text>
+									<Text size='xs' c='dimmed'>
+										{customOption.description}
+									</Text>
+								</div>
+							);
+						}}
 					/>
 
 					<Select
@@ -160,7 +176,8 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 						placeholder='All programs'
 						data={programs.map((program) => ({
 							value: program.id?.toString() || '',
-							label: program.name,
+							label: program.code,
+							description: program.name,
 						}))}
 						rightSection={programsLoading && <Loader size='xs' />}
 						value={localFilter.programId || null}
@@ -168,6 +185,21 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 						searchable
 						clearable
 						disabled={!localFilter.schoolId}
+						renderOption={({ option }) => {
+							const customOption = option as {
+								value: string;
+								label: string;
+								description: string;
+							};
+							return (
+								<div>
+									<Text>{customOption.label}</Text>
+									<Text size='xs' c='dimmed'>
+										{customOption.description}
+									</Text>
+								</div>
+							);
+						}}
 					/>
 
 					<Select
