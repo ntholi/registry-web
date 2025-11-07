@@ -40,6 +40,7 @@ export default async function SponsorDetails({ params }: Props) {
 				<TabsPanel value='info'>
 					<DetailsViewBody>
 						<FieldView label='Name'>{sponsor.name}</FieldView>
+						<FieldView label='Code'>{sponsor.code}</FieldView>
 					</DetailsViewBody>
 				</TabsPanel>
 

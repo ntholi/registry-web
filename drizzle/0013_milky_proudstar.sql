@@ -1,0 +1,1 @@
+ALTER TABLE "sponsors" ADD COLUMN "code" varchar(10);

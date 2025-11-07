@@ -14,6 +14,7 @@ import {
 	text,
 	timestamp,
 	unique,
+	varchar,
 } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 import type { AdapterAccountType } from 'next-auth/adapters';
@@ -762,6 +763,7 @@ export const clearanceAudit = pgTable(
 export const sponsors = pgTable('sponsors', {
 	id: serial().primaryKey(),
 	name: text().notNull().unique(),
+	code: varchar({ length: 10 }).notNull().unique(),
 	createdAt: timestamp().defaultNow(),
 	updatedAt: timestamp(),
 });
