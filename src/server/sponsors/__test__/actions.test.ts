@@ -13,6 +13,7 @@ describe('Sponsors Service', () => {
 	it('should create a new sponsor', async () => {
 		const sponsorData: Sponsor = {
 			name: 'Test Sponsor',
+			code: 'TS001',
 		};
 
 		const createdSponsor = await sponsorsService.create(sponsorData);
@@ -26,6 +27,7 @@ describe('Sponsors Service', () => {
 	it('should get a sponsor by id', async () => {
 		const sponsorData: Sponsor = {
 			name: 'Test Sponsor for Get',
+			code: 'TS002',
 		};
 
 		const createdSponsor = await sponsorsService.create(sponsorData);
@@ -46,10 +48,12 @@ describe('Sponsors Service', () => {
 	it('should create multiple sponsors and retrieve them', async () => {
 		const sponsor1 = await sponsorsService.create({
 			name: 'Sponsor 1',
+			code: 'SP001',
 		});
 
 		const sponsor2 = await sponsorsService.create({
 			name: 'Sponsor 2',
+			code: 'SP002',
 		});
 
 		const retrievedSponsor1 = await sponsorsService.get(sponsor1.id);
@@ -63,11 +67,13 @@ describe('Sponsors Service', () => {
 	it('should handle unique constraint on sponsor names', async () => {
 		await sponsorsService.create({
 			name: 'Unique Sponsor',
+			code: 'UNQ001',
 		});
 
 		await expect(
 			sponsorsService.create({
 				name: 'Unique Sponsor',
+				code: 'UNQ002',
 			})
 		).rejects.toThrow();
 	});
@@ -75,10 +81,12 @@ describe('Sponsors Service', () => {
 	it('should update sponsor information', async () => {
 		const sponsor = await sponsorsService.create({
 			name: 'Original Sponsor Name',
+			code: 'ORG001',
 		});
 
 		const updatedSponsor = await sponsorsService.update(sponsor.id, {
 			name: 'Updated Sponsor Name',
+			code: 'UPD001',
 		});
 
 		expect(updatedSponsor).toBeDefined();
@@ -89,6 +97,7 @@ describe('Sponsors Service', () => {
 	it('should delete a sponsor', async () => {
 		const sponsor = await sponsorsService.create({
 			name: 'Sponsor to Delete',
+			code: 'DEL001',
 		});
 
 		await sponsorsService.delete(sponsor.id);
@@ -98,9 +107,9 @@ describe('Sponsors Service', () => {
 	});
 
 	it('should find all sponsors with pagination', async () => {
-		await sponsorsService.create({ name: 'Sponsor A' });
-		await sponsorsService.create({ name: 'Sponsor B' });
-		await sponsorsService.create({ name: 'Sponsor C' });
+		await sponsorsService.create({ name: 'Sponsor A', code: 'SPA001' });
+		await sponsorsService.create({ name: 'Sponsor B', code: 'SPB001' });
+		await sponsorsService.create({ name: 'Sponsor C', code: 'SPC001' });
 
 		const result = await sponsorsService.findAll({
 			page: 1,
@@ -114,9 +123,12 @@ describe('Sponsors Service', () => {
 	});
 
 	it('should search sponsors by name', async () => {
-		await sponsorsService.create({ name: 'Government Sponsor' });
-		await sponsorsService.create({ name: 'Private Company' });
-		await sponsorsService.create({ name: 'NGO Sponsor' });
+		await sponsorsService.create({
+			name: 'Government Sponsor',
+			code: 'GOV001',
+		});
+		await sponsorsService.create({ name: 'Private Company', code: 'PVT001' });
+		await sponsorsService.create({ name: 'NGO Sponsor', code: 'NGO001' });
 
 		const result = await sponsorsService.findAll({
 			page: 1,
@@ -132,8 +144,14 @@ describe('Sponsors Service', () => {
 	it('should get count of sponsors', async () => {
 		const initialCount = await sponsorsService.count();
 
-		await sponsorsService.create({ name: 'Count Test Sponsor 1' });
-		await sponsorsService.create({ name: 'Count Test Sponsor 2' });
+		await sponsorsService.create({
+			name: 'Count Test Sponsor 1',
+			code: 'CNT001',
+		});
+		await sponsorsService.create({
+			name: 'Count Test Sponsor 2',
+			code: 'CNT002',
+		});
 
 		const newCount = await sponsorsService.count();
 
@@ -141,7 +159,10 @@ describe('Sponsors Service', () => {
 	});
 
 	it('should get first sponsor', async () => {
-		await sponsorsService.create({ name: 'First Sponsor Test' });
+		await sponsorsService.create({
+			name: 'First Sponsor Test',
+			code: 'FST001',
+		});
 
 		const firstSponsor = await sponsorsService.first();
 

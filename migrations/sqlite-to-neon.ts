@@ -1323,9 +1323,11 @@ function mapClearanceAudit(
 function mapSponsors(
 	row: SqliteSelect<typeof sqliteSchema.sponsors>
 ): PostgresInsert<typeof postgresSchema.sponsors> {
+	const code = `SP${String(row.id).padStart(4, '0')}`;
 	return {
 		id: row.id,
 		name: row.name,
+		code: code,
 		createdAt: toOptionalDateFromSeconds(row.createdAt),
 		updatedAt: toOptionalDateFromSeconds(row.updatedAt),
 	};

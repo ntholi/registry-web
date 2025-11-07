@@ -21,7 +21,7 @@ describe('Sponsor Permissions', () => {
 
 	beforeEach(async () => {
 		setMockUser({ role: 'admin' } as User);
-		const newSponsor = { name: 'Initial Test Sponsor' };
+		const newSponsor = { name: 'Initial Test Sponsor', code: 'INIT01' };
 		createdSponsor = await createSponsor(newSponsor);
 	});
 
@@ -33,7 +33,7 @@ describe('Sponsor Permissions', () => {
 	describe('Admin Users', () => {
 		it('should allow an admin to create a sponsor', async () => {
 			setMockUser({ role: 'admin' } as User);
-			const newSponsor = { name: 'Admin Test Sponsor' };
+			const newSponsor = { name: 'Admin Test Sponsor', code: 'ADMIN1' };
 			const sponsor = await createSponsor(newSponsor);
 			expect(sponsor).toBeDefined();
 			expect(sponsor.name).toBe(newSponsor.name);
@@ -41,7 +41,7 @@ describe('Sponsor Permissions', () => {
 
 		it('should allow an admin to update a sponsor', async () => {
 			setMockUser({ role: 'admin' } as User);
-			const sponsorToUpdate = { name: 'Updated Sponsor Name' };
+			const sponsorToUpdate = { name: 'Updated Sponsor Name', code: 'UPD01' };
 			const updatedSponsor = await updateSponsor(
 				createdSponsor!.id,
 				sponsorToUpdate
@@ -80,7 +80,7 @@ describe('Sponsor Permissions', () => {
 	describe('Finance Users', () => {
 		it('should allow a finance user to create a sponsor', async () => {
 			setMockUser({ role: 'finance' } as User);
-			const newSponsor = { name: 'Finance Test Sponsor' };
+			const newSponsor = { name: 'Finance Test Sponsor', code: 'FIN001' };
 			const sponsor = await createSponsor(newSponsor);
 			expect(sponsor).toBeDefined();
 			expect(sponsor.name).toBe(newSponsor.name);
@@ -88,7 +88,10 @@ describe('Sponsor Permissions', () => {
 
 		it('should allow a finance user to update a sponsor', async () => {
 			setMockUser({ role: 'finance' } as User);
-			const sponsorToUpdate = { name: 'Finance Updated Sponsor Name' };
+			const sponsorToUpdate = {
+				name: 'Finance Updated Sponsor Name',
+				code: 'FINUP1',
+			};
 			const updatedSponsor = await updateSponsor(
 				createdSponsor!.id,
 				sponsorToUpdate
@@ -127,13 +130,16 @@ describe('Sponsor Permissions', () => {
 	describe('Non-Admin/Finance Users', () => {
 		it('should not allow a regular user to create a sponsor', async () => {
 			setMockUser({ role: 'user' } as User);
-			const newSponsor = { name: 'User Test Sponsor' };
+			const newSponsor = { name: 'User Test Sponsor', code: 'USER01' };
 			await expect(createSponsor(newSponsor)).rejects.toThrow('Forbidden');
 		});
 
 		it('should not allow a regular user to update a sponsor', async () => {
 			setMockUser({ role: 'user' } as User);
-			const sponsorToUpdate = { name: 'User Updated Sponsor Name' };
+			const sponsorToUpdate = {
+				name: 'User Updated Sponsor Name',
+				code: 'USERUP',
+			};
 			await expect(
 				updateSponsor(createdSponsor!.id, sponsorToUpdate)
 			).rejects.toThrow('Forbidden');
@@ -182,13 +188,16 @@ describe('Sponsor Permissions', () => {
 
 		it('should not allow a registry user to create a sponsor', async () => {
 			setMockUser({ role: 'registry' } as User);
-			const newSponsor = { name: 'Registry Test Sponsor' };
+			const newSponsor = { name: 'Registry Test Sponsor', code: 'REG001' };
 			await expect(createSponsor(newSponsor)).rejects.toThrow('Forbidden');
 		});
 
 		it('should not allow a registry user to update a sponsor', async () => {
 			setMockUser({ role: 'registry' } as User);
-			const sponsorToUpdate = { name: 'Registry Updated Sponsor Name' };
+			const sponsorToUpdate = {
+				name: 'Registry Updated Sponsor Name',
+				code: 'REGUP1',
+			};
 			await expect(
 				updateSponsor(createdSponsor!.id, sponsorToUpdate)
 			).rejects.toThrow('Forbidden');

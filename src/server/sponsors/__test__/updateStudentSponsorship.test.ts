@@ -32,7 +32,10 @@ describe('updateStudentSponsorship Authorization', () => {
 			semester: 1,
 			isActive: true,
 		});
-		testSponsor = await sponsorsService.create({ name: 'Test Sponsor' });
+		testSponsor = await sponsorsService.create({
+			name: 'Test Sponsor',
+			code: 'TEST',
+		});
 	});
 
 	afterEach(() => {
@@ -198,7 +201,10 @@ describe('updateStudentSponsorship Authorization', () => {
 
 		it('should handle student updating with NMDS sponsor and borrower number', async () => {
 			setMockUser({ role: 'admin' } as User);
-			const nmdsSponsor = await sponsorsService.create({ name: 'NMDS' });
+			const nmdsSponsor = await sponsorsService.create({
+				name: 'NMDS',
+				code: 'NMDS',
+			});
 
 			setMockUser({
 				id: 'student-123',
