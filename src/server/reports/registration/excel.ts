@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import ExcelJS from 'exceljs';
 import { compareSemesters, formatSemester } from '@/lib/utils';
 import type {
@@ -28,29 +30,57 @@ export async function createFullRegistrationExcel(
 		{ header: 'Sponsor', key: 'sponsor', width: 20 },
 	];
 
+	const logoPath = path.join(
+		process.cwd(),
+		'public',
+		'images',
+		'logo-lesotho.jpg'
+	);
+	const logoData = fs.readFileSync(logoPath);
+
+	const imageId = workbook.addImage({
+		buffer: logoData.buffer,
+		extension: 'jpeg',
+	});
+
+	worksheet.addImage(imageId, {
+		tl: { col: 3, row: 0.5 } as ExcelJS.Anchor,
+		br: { col: 4, row: 4.5 } as ExcelJS.Anchor,
+		editAs: 'oneCell',
+	});
+
 	worksheet.mergeCells('A1:G1');
-	worksheet.getCell('A1').value =
-		'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY';
-	worksheet.getCell('A1').font = { name: 'Arial', size: 14, bold: true };
-	worksheet.getCell('A1').alignment = { horizontal: 'center' };
+	worksheet.getCell('A1').value = '';
 
 	worksheet.mergeCells('A2:G2');
-	worksheet.getCell('A2').value = 'Registration Report';
-	worksheet.getCell('A2').font = { name: 'Arial', size: 16, bold: true };
-	worksheet.getCell('A2').alignment = { horizontal: 'center' };
+	worksheet.getCell('A2').value = '';
 
 	worksheet.mergeCells('A3:G3');
-	worksheet.getCell('A3').value = `Term: ${report.termName}`;
-	worksheet.getCell('A3').font = { name: 'Arial', size: 12, bold: true };
-	worksheet.getCell('A3').alignment = { horizontal: 'center' };
+	worksheet.getCell('A3').value = '';
 
 	worksheet.mergeCells('A4:G4');
-	worksheet.getCell('A4').value = `Total Students: ${report.totalStudents}`;
-	worksheet.getCell('A4').font = { name: 'Arial', size: 12 };
-	worksheet.getCell('A4').alignment = { horizontal: 'center' };
+	worksheet.getCell('A4').value = '';
 
 	worksheet.mergeCells('A5:G5');
-	worksheet.getCell('A5').value =
+	worksheet.getCell('A5').value = '';
+
+	worksheet.mergeCells('A6:G6');
+	worksheet.getCell('A6').value = 'Registration Report';
+	worksheet.getCell('A6').font = { name: 'Arial', size: 16, bold: true };
+	worksheet.getCell('A6').alignment = { horizontal: 'center' };
+
+	worksheet.mergeCells('A7:G7');
+	worksheet.getCell('A7').value = `Term: ${report.termName}`;
+	worksheet.getCell('A7').font = { name: 'Arial', size: 12, bold: true };
+	worksheet.getCell('A7').alignment = { horizontal: 'center' };
+
+	worksheet.mergeCells('A8:G8');
+	worksheet.getCell('A8').value = `Total Students: ${report.totalStudents}`;
+	worksheet.getCell('A8').font = { name: 'Arial', size: 12 };
+	worksheet.getCell('A8').alignment = { horizontal: 'center' };
+
+	worksheet.mergeCells('A9:G9');
+	worksheet.getCell('A9').value =
 		`Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
 			year: 'numeric',
 			month: 'long',
@@ -58,8 +88,8 @@ export async function createFullRegistrationExcel(
 			hour: '2-digit',
 			minute: '2-digit',
 		})}`;
-	worksheet.getCell('A5').font = { name: 'Arial', size: 10, italic: true };
-	worksheet.getCell('A5').alignment = { horizontal: 'center' };
+	worksheet.getCell('A9').font = { name: 'Arial', size: 10, italic: true };
+	worksheet.getCell('A9').alignment = { horizontal: 'center' };
 
 	worksheet.addRow([]);
 
