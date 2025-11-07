@@ -18,15 +18,25 @@ export async function createFullRegistrationExcel(
 
 	const worksheet = workbook.addWorksheet('Full Registration Report');
 
+	worksheet.columns = [
+		{ header: 'No.', key: 'no', width: 6 },
+		{ header: 'Student Number', key: 'stdNo', width: 15 },
+		{ header: 'Student Name', key: 'name', width: 25 },
+		{ header: 'Program', key: 'program', width: 35 },
+		{ header: 'Semester', key: 'semester', width: 10 },
+		{ header: 'School', key: 'school', width: 20 },
+		{ header: 'Sponsor', key: 'sponsor', width: 20 },
+	];
+
 	worksheet.mergeCells('A1:G1');
 	worksheet.getCell('A1').value =
 		'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY';
-	worksheet.getCell('A1').font = { name: 'Arial', size: 16, bold: true };
+	worksheet.getCell('A1').font = { name: 'Arial', size: 14, bold: true };
 	worksheet.getCell('A1').alignment = { horizontal: 'center' };
 
 	worksheet.mergeCells('A2:G2');
 	worksheet.getCell('A2').value = 'Registration Report';
-	worksheet.getCell('A2').font = { name: 'Arial', size: 14, bold: true };
+	worksheet.getCell('A2').font = { name: 'Arial', size: 16, bold: true };
 	worksheet.getCell('A2').alignment = { horizontal: 'center' };
 
 	worksheet.mergeCells('A3:G3');
@@ -131,16 +141,6 @@ export async function createFullRegistrationExcel(
 			}
 		});
 	});
-
-	worksheet.columns = [
-		{ header: 'No.', key: 'no', width: 6 },
-		{ header: 'Student Number', key: 'stdNo', width: 15 },
-		{ header: 'Student Name', key: 'name', width: 25 },
-		{ header: 'Program', key: 'program', width: 35 },
-		{ header: 'Semester', key: 'semester', width: 10 },
-		{ header: 'School', key: 'school', width: 20 },
-		{ header: 'Sponsor', key: 'sponsor', width: 20 },
-	];
 
 	if (summaryReport) {
 		createSummarySheet(workbook, summaryReport);
