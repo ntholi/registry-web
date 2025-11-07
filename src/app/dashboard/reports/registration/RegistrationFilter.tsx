@@ -215,7 +215,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 				<ActionIcon
 					onClick={handleApplyFilter}
 					disabled={!localFilter.termId}
-					variant='outline'
+					variant='light'
 					size={35}
 				>
 					<IconPlayerPlayFilled size={16} />

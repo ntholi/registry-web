@@ -229,7 +229,7 @@ export default function RegistrationReportPage() {
 						color='blue'
 						variant='light'
 					>
-						Select an academic term and click the search button to generate the
+						Select an academic term and click the play button to generate the
 						report.
 					</Alert>
 				)}

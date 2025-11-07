@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
+import sharp from 'sharp';
 import { compareSemesters, formatSemester } from '@/lib/utils';
 import type {
 	FullRegistrationReport,
@@ -23,11 +24,11 @@ export async function createFullRegistrationExcel(
 	worksheet.columns = [
 		{ header: 'No.', key: 'no', width: 6 },
 		{ header: 'Student Number', key: 'stdNo', width: 15 },
-		{ header: 'Student Name', key: 'name', width: 25 },
-		{ header: 'Program', key: 'program', width: 35 },
-		{ header: 'Semester', key: 'semester', width: 10 },
-		{ header: 'School', key: 'school', width: 20 },
+		{ header: 'Student Name', key: 'name', width: 30 },
+		{ header: 'Program', key: 'program', width: 42 },
+		{ header: 'Semester', key: 'semester', width: 15 },
 		{ header: 'Sponsor', key: 'sponsor', width: 20 },
+		{ header: 'School', key: 'school', width: 46 },
 	];
 
 	const logoPath = path.join(
@@ -38,14 +39,30 @@ export async function createFullRegistrationExcel(
 	);
 	const logoData = fs.readFileSync(logoPath);
 
+	const metadata = await sharp(logoData).metadata();
+	const naturalWidth = metadata.width ?? 100;
+	const naturalHeight = metadata.height ?? 100;
+
+	const maxWidth = 200;
+	const maxHeight = 100;
+
+	const ratio = Math.min(maxWidth / naturalWidth, maxHeight / naturalHeight, 1);
+	const width = Math.round(naturalWidth * ratio);
+	const height = Math.round(naturalHeight * ratio);
+
+	const arrayBuffer = logoData.buffer.slice(
+		logoData.byteOffset,
+		logoData.byteOffset + logoData.byteLength
+	);
+
 	const imageId = workbook.addImage({
-		buffer: logoData.buffer,
+		buffer: arrayBuffer,
 		extension: 'jpeg',
 	});
 
 	worksheet.addImage(imageId, {
 		tl: { col: 3, row: 0.5 } as ExcelJS.Anchor,
-		br: { col: 4, row: 4.5 } as ExcelJS.Anchor,
+		ext: { width, height },
 		editAs: 'oneCell',
 	});
 
@@ -99,8 +116,8 @@ export async function createFullRegistrationExcel(
 		'Student Name',
 		'Program',
 		'Semester',
-		'School',
 		'Sponsor',
+		'School',
 	]);
 
 	headerRow.font = { name: 'Arial', size: 12, bold: true };
@@ -143,8 +160,8 @@ export async function createFullRegistrationExcel(
 			student.name,
 			student.programName,
 			formatSemester(student.semesterNumber, 'short'),
-			student.schoolName,
 			student.sponsorName || '-',
+			student.schoolName,
 		]);
 
 		row.font = { name: 'Arial', size: 11 };
