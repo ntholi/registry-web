@@ -1,4 +1,4 @@
-import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import {
 	programs,
@@ -336,7 +336,7 @@ export class RegistrationReportRepository {
 	}
 
 	async getAllActiveTerms() {
-		return await db.select().from(terms).orderBy(terms.createdAt);
+		return await db.select().from(terms).orderBy(desc(terms.name));
 	}
 
 	async getAvailableSchools() {
@@ -348,7 +348,7 @@ export class RegistrationReportRepository {
 			})
 			.from(schools)
 			.where(eq(schools.isActive, true))
-			.orderBy(schools.name);
+			.orderBy(schools.code);
 	}
 
 	async getAvailablePrograms(schoolId?: number) {
@@ -364,9 +364,9 @@ export class RegistrationReportRepository {
 		if (schoolId) {
 			return await baseQuery
 				.where(eq(programs.schoolId, schoolId))
-				.orderBy(programs.name);
+				.orderBy(desc(programs.id));
 		}
 
-		return await baseQuery.orderBy(programs.name);
+		return await baseQuery.orderBy(desc(programs.id));
 	}
 }
