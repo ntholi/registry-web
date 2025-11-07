@@ -40,6 +40,7 @@ export default function RegistrationReportPage() {
 	const [debouncedSearch] = useDebouncedValue(searchQuery, 500);
 	const [isExportingSummary, setIsExportingSummary] = useState(false);
 	const [isExportingStudents, setIsExportingStudents] = useState(false);
+	const [isFilterApplied, setIsFilterApplied] = useState(false);
 
 	const {
 		data: reportData,
@@ -52,7 +53,7 @@ export default function RegistrationReportPage() {
 			const result = await getRegistrationDataPreview(filter.termId, filter);
 			return result.success ? result.data : null;
 		},
-		enabled: Boolean(filter.termId),
+		enabled: isFilterApplied && Boolean(filter.termId),
 	});
 
 	const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
@@ -75,7 +76,7 @@ export default function RegistrationReportPage() {
 			);
 			return result.success ? result.data : null;
 		},
-		enabled: Boolean(filter.termId),
+		enabled: isFilterApplied && Boolean(filter.termId),
 	});
 
 	const canGenerateReport = Boolean(filter.termId);
@@ -94,6 +95,7 @@ export default function RegistrationReportPage() {
 		setFilter(newFilter);
 		setCurrentPage(1);
 		setSearchQuery('');
+		setIsFilterApplied(true);
 	};
 
 	const handleSearchChange = useCallback((query: string) => {
@@ -221,7 +223,18 @@ export default function RegistrationReportPage() {
 					onFilterChange={handleFilterChange}
 				/>
 
-				{canGenerateReport && !hasData && !isLoading && (
+				{!isFilterApplied && (
+					<Alert
+						icon={<IconInfoCircle size={16} />}
+						color='blue'
+						variant='light'
+					>
+						Select an academic term and click the search button to generate the
+						report.
+					</Alert>
+				)}
+
+				{isFilterApplied && canGenerateReport && !hasData && !isLoading && (
 					<Alert
 						icon={<IconInfoCircle size={16} />}
 						color='yellow'
@@ -232,7 +245,7 @@ export default function RegistrationReportPage() {
 					</Alert>
 				)}
 
-				{canGenerateReport && (
+				{isFilterApplied && canGenerateReport && (
 					<Tabs defaultValue='summary'>
 						<Tabs.List>
 							<Tabs.Tab

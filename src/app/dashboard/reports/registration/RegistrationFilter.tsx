@@ -1,14 +1,23 @@
 'use client';
-import { Group, Loader, Paper, Select, SimpleGrid, Text } from '@mantine/core';
-import { IconFilter } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
 import { formatSemester } from '@/lib/utils';
 import {
 	getAvailableProgramsForReports,
 	getAvailableSchoolsForReports,
 	getAvailableTermsForReport,
 } from '@/server/reports/registration/actions';
+import {
+	ActionIcon,
+	Flex,
+	Group,
+	Loader,
+	Paper,
+	Select,
+	SimpleGrid,
+	Text,
+} from '@mantine/core';
+import { IconFilter, IconPlayerPlayFilled } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString();
@@ -93,12 +102,16 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		};
 
 		setLocalFilter(updated);
+	}
 
+	function handleApplyFilter() {
 		const newFilter: ReportFilter = {
-			termId: updated.termId ? Number(updated.termId) : undefined,
-			schoolId: updated.schoolId ? Number(updated.schoolId) : undefined,
-			programId: updated.programId ? Number(updated.programId) : undefined,
-			semesterNumber: updated.semesterNumber || undefined,
+			termId: localFilter.termId ? Number(localFilter.termId) : undefined,
+			schoolId: localFilter.schoolId ? Number(localFilter.schoolId) : undefined,
+			programId: localFilter.programId
+				? Number(localFilter.programId)
+				: undefined,
+			semesterNumber: localFilter.semesterNumber || undefined,
 		};
 
 		onFilterChange(newFilter);
@@ -111,61 +124,71 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 				<Text fw={600}>Filters</Text>
 			</Group>
 
-			<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing='md'>
-				<Select
-					label='Academic Term'
-					placeholder='Select term'
-					data={terms.map((term) => ({
-						value: term.id?.toString() || '',
-						label: term.name,
-					}))}
-					rightSection={termsLoading && <Loader size='xs' />}
-					value={localFilter.termId || null}
-					onChange={(value) => handleChange('termId', value)}
-					searchable
-					clearable
-					withAsterisk
-				/>
+			<Flex align={'flex-end'} gap={'sm'}>
+				<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} flex={1} spacing='md'>
+					<Select
+						label='Academic Term'
+						placeholder='Select term'
+						data={terms.map((term) => ({
+							value: term.id?.toString() || '',
+							label: term.name,
+						}))}
+						rightSection={termsLoading && <Loader size='xs' />}
+						value={localFilter.termId || null}
+						onChange={(value) => handleChange('termId', value)}
+						searchable
+						clearable
+						withAsterisk
+					/>
 
-				<Select
-					label='School'
-					placeholder='All schools'
-					data={schools.map((school) => ({
-						value: school.id?.toString() || '',
-						label: school.name,
-					}))}
-					rightSection={schoolsLoading && <Loader size='xs' />}
-					value={localFilter.schoolId || null}
-					onChange={(value) => handleChange('schoolId', value)}
-					searchable
-					clearable
-				/>
+					<Select
+						label='School'
+						placeholder='All schools'
+						data={schools.map((school) => ({
+							value: school.id?.toString() || '',
+							label: school.name,
+						}))}
+						rightSection={schoolsLoading && <Loader size='xs' />}
+						value={localFilter.schoolId || null}
+						onChange={(value) => handleChange('schoolId', value)}
+						searchable
+						clearable
+					/>
 
-				<Select
-					label='Program'
-					placeholder='All programs'
-					data={programs.map((program) => ({
-						value: program.id?.toString() || '',
-						label: program.name,
-					}))}
-					rightSection={programsLoading && <Loader size='xs' />}
-					value={localFilter.programId || null}
-					onChange={(value) => handleChange('programId', value)}
-					searchable
-					clearable
-					disabled={!localFilter.schoolId}
-				/>
+					<Select
+						label='Program'
+						placeholder='All programs'
+						data={programs.map((program) => ({
+							value: program.id?.toString() || '',
+							label: program.name,
+						}))}
+						rightSection={programsLoading && <Loader size='xs' />}
+						value={localFilter.programId || null}
+						onChange={(value) => handleChange('programId', value)}
+						searchable
+						clearable
+						disabled={!localFilter.schoolId}
+					/>
 
-				<Select
-					label='Semester'
-					placeholder='All semesters'
-					data={semesterOptions}
-					value={localFilter.semesterNumber || null}
-					onChange={(value) => handleChange('semesterNumber', value)}
-					searchable
-					clearable
-				/>
-			</SimpleGrid>
+					<Select
+						label='Semester'
+						placeholder='All semesters'
+						data={semesterOptions}
+						value={localFilter.semesterNumber || null}
+						onChange={(value) => handleChange('semesterNumber', value)}
+						searchable
+						clearable
+					/>
+				</SimpleGrid>
+				<ActionIcon
+					onClick={handleApplyFilter}
+					disabled={!localFilter.termId}
+					variant='outline'
+					size={35}
+				>
+					<IconPlayerPlayFilled size={16} />
+				</ActionIcon>
+			</Flex>
 		</Paper>
 	);
 }
