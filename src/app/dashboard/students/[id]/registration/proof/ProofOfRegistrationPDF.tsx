@@ -238,9 +238,18 @@ export default function ProofOfRegistrationPDF({
 		);
 	}
 
-	const activeProgram = student.programs.find(
-		(p) => p.status === 'Active'
-	) as NonNullable<(typeof student.programs)[number]>;
+	const activeProgram = student.programs.find((p) => p.status === 'Active');
+
+	if (!activeProgram) {
+		return (
+			<Document>
+				<Page size='A4' style={styles.page}>
+					<Text>No active program found</Text>
+				</Page>
+			</Document>
+		);
+	}
+
 	const latestSemester = activeProgram.semesters.at(-1);
 
 	if (!latestSemester) {
