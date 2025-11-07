@@ -322,7 +322,9 @@ export const studentSemesters = pgTable(
 		studentProgramId: integer()
 			.references(() => studentPrograms.id, { onDelete: 'cascade' })
 			.notNull(),
-		sponsorId: integer().references(() => sponsors.id, { onDelete: 'set null' }),
+		sponsorId: integer().references(() => sponsors.id, {
+			onDelete: 'set null',
+		}),
 		cafDate: text(),
 		createdAt: timestamp().defaultNow(),
 	},

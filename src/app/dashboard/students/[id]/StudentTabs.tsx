@@ -33,6 +33,7 @@ export function StudentTabs({
 	);
 
 	const showAcademics =
+		session?.user?.role === 'academic' ||
 		session?.user?.role === 'admin' ||
 		session?.user?.role === 'registry' ||
 		session?.user?.role === 'finance';
