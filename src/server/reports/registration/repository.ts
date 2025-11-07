@@ -3,6 +3,7 @@ import { db } from '@/db';
 import {
 	programs,
 	schools,
+	sponsors,
 	structureSemesters,
 	structures,
 	studentPrograms,
@@ -28,6 +29,7 @@ export interface FullRegistrationStudent {
 	schoolCode: string;
 	phone: string;
 	status: string;
+	sponsorName: string | null;
 }
 
 export interface SummaryProgramData {
@@ -75,6 +77,7 @@ export class RegistrationReportRepository {
 				schoolCode: schools.code,
 				phone: students.phone1,
 				status: studentSemesters.status,
+				sponsorName: sponsors.name,
 			})
 			.from(studentSemesters)
 			.innerJoin(
@@ -88,7 +91,8 @@ export class RegistrationReportRepository {
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id));
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
 
 		const conditions = [
 			eq(studentSemesters.term, termName),
@@ -123,6 +127,7 @@ export class RegistrationReportRepository {
 			schoolCode: row.schoolCode,
 			phone: row.phone || '',
 			status: row.status,
+			sponsorName: row.sponsorName || null,
 		}));
 	}
 
@@ -149,6 +154,7 @@ export class RegistrationReportRepository {
 				schoolCode: schools.code,
 				phone: students.phone1,
 				status: studentSemesters.status,
+				sponsorName: sponsors.name,
 			})
 			.from(studentSemesters)
 			.innerJoin(
@@ -162,7 +168,8 @@ export class RegistrationReportRepository {
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id));
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
 
 		const countQuery = db
 			.select({ count: students.stdNo })
@@ -238,6 +245,7 @@ export class RegistrationReportRepository {
 				schoolCode: row.schoolCode,
 				phone: row.phone || '',
 				status: row.status,
+				sponsorName: row.sponsorName || null,
 			})),
 			totalCount,
 			totalPages,

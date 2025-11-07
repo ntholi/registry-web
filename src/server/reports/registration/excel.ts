@@ -18,28 +18,28 @@ export async function createFullRegistrationExcel(
 
 	const worksheet = workbook.addWorksheet('Full Registration Report');
 
-	worksheet.mergeCells('A1:F1');
+	worksheet.mergeCells('A1:G1');
 	worksheet.getCell('A1').value =
 		'LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY';
 	worksheet.getCell('A1').font = { name: 'Arial', size: 16, bold: true };
 	worksheet.getCell('A1').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A2:F2');
+	worksheet.mergeCells('A2:G2');
 	worksheet.getCell('A2').value = 'Registration Report';
 	worksheet.getCell('A2').font = { name: 'Arial', size: 14, bold: true };
 	worksheet.getCell('A2').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A3:F3');
+	worksheet.mergeCells('A3:G3');
 	worksheet.getCell('A3').value = `Term: ${report.termName}`;
 	worksheet.getCell('A3').font = { name: 'Arial', size: 12, bold: true };
 	worksheet.getCell('A3').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A4:F4');
+	worksheet.mergeCells('A4:G4');
 	worksheet.getCell('A4').value = `Total Students: ${report.totalStudents}`;
 	worksheet.getCell('A4').font = { name: 'Arial', size: 12 };
 	worksheet.getCell('A4').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A5:F5');
+	worksheet.mergeCells('A5:G5');
 	worksheet.getCell('A5').value =
 		`Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
 			year: 'numeric',
@@ -60,14 +60,13 @@ export async function createFullRegistrationExcel(
 		'Program',
 		'Semester',
 		'School',
+		'Sponsor',
 	]);
 
 	headerRow.font = { name: 'Arial', size: 12, bold: true };
 	headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
 
-	// Apply black background and white font only to the first 6 header cells (A..F)
 	headerRow.eachCell((cell, colNumber) => {
-		// default font settings for all header cells
 		cell.font = {
 			name: 'Arial',
 			size: 12,
@@ -75,8 +74,7 @@ export async function createFullRegistrationExcel(
 			color: { argb: 'FF000000' },
 		};
 
-		// Apply black fill and white font color only for columns 1..6
-		if (colNumber >= 1 && colNumber <= 6) {
+		if (colNumber >= 1 && colNumber <= 7) {
 			cell.fill = {
 				type: 'pattern',
 				pattern: 'solid',
@@ -106,6 +104,7 @@ export async function createFullRegistrationExcel(
 			student.programName,
 			formatSemester(student.semesterNumber, 'short'),
 			student.schoolName,
+			student.sponsorName || '-',
 		]);
 
 		row.font = { name: 'Arial', size: 11 };
@@ -140,6 +139,7 @@ export async function createFullRegistrationExcel(
 		{ header: 'Program', key: 'program', width: 35 },
 		{ header: 'Semester', key: 'semester', width: 10 },
 		{ header: 'School', key: 'school', width: 20 },
+		{ header: 'Sponsor', key: 'sponsor', width: 20 },
 	];
 
 	if (summaryReport) {
