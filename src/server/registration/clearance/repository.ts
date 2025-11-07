@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray, like } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/db';
 import {
@@ -205,7 +205,7 @@ export default class ClearanceRepository extends BaseRepository<
 
 		const whereJoin = and(
 			params.search
-				? like(registrationRequests.stdNo, `%${params.search}%`)
+				? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
 				: undefined,
 			termId ? eq(registrationRequests.termId, termId) : undefined,
 			eq(clearance.department, department),

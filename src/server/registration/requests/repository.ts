@@ -138,7 +138,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			whereCondition = and(
 				eq(registrationRequests.status, status),
 				params.search
-					? like(registrationRequests.stdNo, `%${params.search}%`)
+					? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
 					: undefined,
 				termId ? eq(registrationRequests.termId, termId) : undefined
 			);
@@ -188,7 +188,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			whereCondition = and(
 				inArray(registrationRequests.id, approvedRequestIds),
 				params.search
-					? like(registrationRequests.stdNo, `%${params.search}%`)
+					? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
 					: undefined
 			);
 		} else {
@@ -205,7 +205,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 						.where(eq(clearance.status, status))
 				),
 				params.search
-					? like(registrationRequests.stdNo, `%${params.search}%`)
+					? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
 					: undefined,
 				termId ? eq(registrationRequests.termId, termId) : undefined
 			);

@@ -1,4 +1,4 @@
-import { count, eq, like, or, type SQL, sql } from 'drizzle-orm';
+import { count, eq, or, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn as Column, PgTable as Table } from 'drizzle-orm/pg-core';
 import { db } from '@/db';
 
@@ -89,8 +89,9 @@ class BaseRepository<
 
 		if (search && searchColumns.length > 0) {
 			const searchCondition = or(
-				...searchColumns.map((column) =>
-					like(this.getColumn(column as keyof ModelSelect<T>), `%${search}%`)
+				...searchColumns.map(
+					(column) =>
+						sql`${this.getColumn(column as keyof ModelSelect<T>)}::text LIKE ${`%${search}%`}`
 				)
 			);
 

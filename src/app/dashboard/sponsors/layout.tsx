@@ -13,7 +13,9 @@ export default function Layout({ children }: PropsWithChildren) {
 			actionIcons={[
 				<NewLink key={'new-link'} href='/dashboard/sponsors/new' />,
 			]}
-			renderItem={(it) => <ListItem id={it.id} label={it.code} description={it.name} />}
+			renderItem={(it) => (
+				<ListItem id={it.id} label={it.code} description={it.name} />
+			)}
 		>
 			{children}
 		</ListLayout>

@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray, like } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/db';
 import {
@@ -148,7 +148,9 @@ export default class GraduationClearanceRepository extends BaseRepository<
 		}
 
 		const baseWhereConditions = [
-			params.search ? like(students.stdNo, `%${params.search}%`) : undefined,
+			params.search
+				? sql`${students.stdNo}::text LIKE ${`%${params.search}%`}`
+				: undefined,
 			eq(clearance.department, department),
 			status ? eq(clearance.status, status) : undefined,
 		].filter(Boolean);
