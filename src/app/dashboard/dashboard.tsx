@@ -518,6 +518,7 @@ function UserButton() {
 	if (status === 'unauthenticated') {
 		router.push('/login');
 	}
+	const user = session?.user;
 
 	const openModal = () =>
 		modals.openConfirmModal({
@@ -532,19 +533,18 @@ function UserButton() {
 	return (
 		<Flex mt={'md'} mb={'sm'} justify='space-between' align={'center'}>
 			<Group>
-				<Avatar src={session?.user?.image} />
+				<Avatar src={user?.image} />
 				<Stack gap={5}>
-					<Text size='0.9rem'>{session?.user?.name}</Text>
+					<Text size='0.9rem'>{user?.name}</Text>
 					<Text size='0.7rem' c={'dimmed'}>
-						{session?.user?.email}
+						{user?.email}
 					</Text>
-					{session?.user?.position && (
-						<Text size='0.65rem' c={'dimmed'}>
-							{userSchools?.map((it) => it.school.code).join(', ')}
-							{' | '}
-							{toTitleCase(session?.user?.position)}
-						</Text>
-					)}
+					<Text size='0.65rem' c={'dimmed'}>
+						{user?.role === 'academic'
+							? userSchools?.map((it) => it.school.code).join(', ')
+							: toTitleCase(user?.role)}
+						{user?.position ? ` | ${toTitleCase(user.position)}` : ''}
+					</Text>
 				</Stack>
 			</Group>
 			<ActionIcon variant='default' size={'lg'}>
