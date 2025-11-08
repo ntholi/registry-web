@@ -1,0 +1,1 @@
+ALTER TYPE "public"."education_level" ADD VALUE 'BGCSE' BEFORE 'LGCSE';
