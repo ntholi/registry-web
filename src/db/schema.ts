@@ -227,13 +227,18 @@ export const studentEducation = pgTable(
 	})
 );
 
-const nextOfKinRelationship = pgEnum('next_of_kin_relationship', [
+export const nextOfKinRelationship = pgEnum('next_of_kin_relationship', [
 	'Mother',
 	'Father',
 	'Brother',
 	'Sister',
 	'Child',
 	'Spouse',
+	'Guardian',
+	'Husband',
+	'Wife',
+	'Permanent',
+	'Self',
 	'Other',
 ]);
 
