@@ -147,3 +147,19 @@ export async function getAvailableProgramsForReports(schoolId?: number) {
 		};
 	}
 }
+
+export async function getRegistrationChartData(
+	termId: number,
+	filter?: RegistrationReportFilter
+) {
+	try {
+		const data = await registrationReportService.getChartData(termId, filter);
+		return { success: true, data };
+	} catch (error) {
+		console.error('Error fetching chart data:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
