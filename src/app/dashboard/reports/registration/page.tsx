@@ -15,6 +15,7 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconChartBar,
+	IconChartPie,
 	IconDownload,
 	IconInfoCircle,
 	IconUsers,
@@ -28,6 +29,7 @@ import {
 	getRegistrationDataPreview,
 } from '@/server/reports/registration/actions';
 import ProgramBreakdownTable from './ProgramBreakdownTable';
+import RegistrationCharts from './RegistrationCharts';
 import RegistrationFilter, { type ReportFilter } from './RegistrationFilter';
 import StudentTable from './StudentTable';
 
@@ -257,6 +259,9 @@ export default function RegistrationReportPage() {
 							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
 								Students
 							</Tabs.Tab>
+							<Tabs.Tab value='charts' leftSection={<IconChartPie size={16} />}>
+								Charts
+							</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='summary' pt='xl'>
@@ -343,6 +348,10 @@ export default function RegistrationReportPage() {
 									onSearchChange={handleSearchChange}
 								/>
 							</Stack>
+						</Tabs.Panel>
+
+						<Tabs.Panel value='charts' pt='xl'>
+							<RegistrationCharts filter={filter} />
 						</Tabs.Panel>
 					</Tabs>
 				)}

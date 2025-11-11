@@ -369,4 +369,131 @@ export class RegistrationReportRepository {
 
 		return await baseQuery.orderBy(desc(programs.id));
 	}
+
+	async getChartData(
+		termName: string,
+		filter?: RegistrationReportFilter
+	): Promise<{
+		studentsBySchool: Array<{ name: string; count: number; code: string }>;
+		studentsByProgram: Array<{ name: string; count: number; school: string }>;
+		studentsBySemester: Array<{ semester: string; count: number }>;
+		studentsByGender: Array<{ gender: string; count: number }>;
+		studentsBySponsor: Array<{ sponsor: string; count: number }>;
+		programsBySchool: Array<{ school: string; programCount: number }>;
+	}> {
+		const query = db
+			.select({
+				schoolName: schools.name,
+				schoolCode: schools.code,
+				programName: programs.name,
+				semesterNumber: structureSemesters.semesterNumber,
+				gender: students.gender,
+				sponsorName: sponsors.name,
+				studentId: students.stdNo,
+			})
+			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
+			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
+
+		const conditions = [
+			eq(studentSemesters.term, termName),
+			inArray(studentSemesters.status, ['Active', 'Repeat']),
+			eq(studentPrograms.status, 'Active'),
+		];
+
+		if (filter?.schoolId) {
+			conditions.push(eq(schools.id, filter.schoolId));
+		}
+
+		if (filter?.programId) {
+			conditions.push(eq(programs.id, filter.programId));
+		}
+
+		if (filter?.semesterNumber) {
+			conditions.push(
+				eq(structureSemesters.semesterNumber, filter.semesterNumber)
+			);
+		}
+
+		const result = await query.where(and(...conditions));
+
+		const schoolMap = new Map<string, number>();
+		const programMap = new Map<string, { count: number; school: string }>();
+		const semesterMap = new Map<string, number>();
+		const genderMap = new Map<string, number>();
+		const sponsorMap = new Map<string, number>();
+		const schoolProgramsMap = new Map<string, Set<string>>();
+
+		result.forEach((row) => {
+			schoolMap.set(row.schoolName, (schoolMap.get(row.schoolName) || 0) + 1);
+
+			const programKey = `${row.programName}|${row.schoolName}`;
+			if (!programMap.has(programKey)) {
+				programMap.set(programKey, {
+					count: 0,
+					school: row.schoolName,
+				});
+			}
+			programMap.get(programKey)!.count++;
+
+			const semester = row.semesterNumber || 'Unknown';
+			semesterMap.set(semester, (semesterMap.get(semester) || 0) + 1);
+
+			const gender = row.gender || 'Unknown';
+			genderMap.set(gender, (genderMap.get(gender) || 0) + 1);
+
+			const sponsor = row.sponsorName || 'Self-Sponsored';
+			sponsorMap.set(sponsor, (sponsorMap.get(sponsor) || 0) + 1);
+
+			if (!schoolProgramsMap.has(row.schoolName)) {
+				schoolProgramsMap.set(row.schoolName, new Set());
+			}
+			schoolProgramsMap.get(row.schoolName)!.add(row.programName);
+		});
+
+		return {
+			studentsBySchool: Array.from(schoolMap.entries())
+				.map(([name, count]) => ({
+					name,
+					count,
+					code: result.find((r) => r.schoolName === name)?.schoolCode || name,
+				}))
+				.sort((a, b) => b.count - a.count),
+			studentsByProgram: Array.from(programMap.entries())
+				.map(([key, data]) => ({
+					name: key.split('|')[0],
+					count: data.count,
+					school: data.school,
+				}))
+				.sort((a, b) => b.count - a.count)
+				.slice(0, 10),
+			studentsBySemester: Array.from(semesterMap.entries())
+				.map(([semester, count]) => ({ semester, count }))
+				.sort((a, b) => a.semester.localeCompare(b.semester)),
+			studentsByGender: Array.from(genderMap.entries())
+				.map(([gender, count]) => ({ gender, count }))
+				.sort((a, b) => b.count - a.count),
+			studentsBySponsor: Array.from(sponsorMap.entries())
+				.map(([sponsor, count]) => ({ sponsor, count }))
+				.sort((a, b) => b.count - a.count)
+				.slice(0, 10),
+			programsBySchool: Array.from(schoolProgramsMap.entries())
+				.map(([school, programs]) => ({
+					school,
+					programCount: programs.size,
+				}))
+				.sort((a, b) => b.programCount - a.programCount),
+		};
+	}
 }

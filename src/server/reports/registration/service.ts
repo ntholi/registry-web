@@ -161,6 +161,17 @@ export class RegistrationReportService {
 			return await this.repository.getAvailablePrograms(schoolId);
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
+
+	async getChartData(termId: number, filter?: RegistrationReportFilter) {
+		return withAuth(async () => {
+			const term = await this.repository.getTermById(termId);
+			if (!term) {
+				throw new Error('Term not found');
+			}
+
+			return await this.repository.getChartData(term.name, filter);
+		}, ['registry', 'admin', 'finance', 'academic']);
+	}
 }
 
 export const registrationReportService = serviceWrapper(

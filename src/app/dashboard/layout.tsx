@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
-import { DebugRibbon } from '@/components/DebugRibbon';
 import { auth } from '@/auth';
+import { DebugRibbon } from '@/components/DebugRibbon';
 import { toTitleCase } from '@/lib/utils';
 import Dashboard from './dashboard';
 
