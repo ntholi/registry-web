@@ -1,6 +1,6 @@
 'use client';
 import { Center, Container, Stack, Text } from '@mantine/core';
-import useUserStudent from '@/hooks/use-user-student';
+import useUserStudent from '@/lib/hooks/use-user-student';
 import AcademicInformation from './AcademicInformation';
 import PersonalInformation from './PersonalInformation';
 import ProfileHeader from './ProfileHeader';

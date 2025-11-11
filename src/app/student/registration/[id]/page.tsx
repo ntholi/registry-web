@@ -21,7 +21,7 @@ import { forbidden, notFound } from 'next/navigation';
 import { getStatusColor } from '@/app/student/utils/colors';
 import { auth } from '@/auth';
 import { MAX_REGISTRATION_ATTEMPTS } from '@/lib/constants';
-import { formatSemester } from '@/lib/utils';
+import { formatSemester } from '@/lib/utils/utils';
 import { getRegistrationRequest } from '@/server/registration/requests/actions';
 import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,

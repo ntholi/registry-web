@@ -15,7 +15,7 @@ import {
 	IconSchool,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { formatDateTime } from '@/lib/utils';
+import { formatDateTime } from '@/lib/utils/utils';
 import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
 import { getGraduationStatus, getStatusColor } from '../../utils/status';
 

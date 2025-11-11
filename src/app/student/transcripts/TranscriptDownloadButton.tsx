@@ -6,7 +6,7 @@ import { pdf } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import StatementOfResultsPDF from '@/app/dashboard/students/[id]/AcademicsView/statements/StatementOfResultsPDF';
+import StatementOfResultsPDF from '@/app/(registry)/students/[id]/AcademicsView/statements/StatementOfResultsPDF';
 import { getAcademicHistory } from '@/server/students/actions';
 
 interface TranscriptDownloadButtonProps {

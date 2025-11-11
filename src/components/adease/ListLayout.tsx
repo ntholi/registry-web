@@ -16,7 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import React from 'react';
-import { useViewSelect } from '@/hooks/useViewSelect';
+import { useViewSelect } from '@/lib/hooks/useViewSelect';
 import { ListItem } from './ListItem';
 import { Pagination } from './Pagination';
 import { SearchField } from './SearchField';

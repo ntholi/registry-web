@@ -12,7 +12,7 @@ import {
 import { IconInfoCircle, IconPlus, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import useUserStudent from '@/hooks/use-user-student';
+import useUserStudent from '@/lib/hooks/use-user-student';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
 

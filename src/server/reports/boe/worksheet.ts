@@ -1,6 +1,6 @@
 import type ExcelJS from 'exceljs';
-import { formatSemester } from '@/lib/utils';
-import { getGradePoints } from '@/utils/grades';
+import { getGradePoints } from '@/lib/utils/grades';
+import { formatSemester } from '@/lib/utils/utils';
 import type {
 	ProgramSemesterReport,
 	StudentSemesterReport,

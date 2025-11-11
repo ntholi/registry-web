@@ -1,7 +1,7 @@
 import type { students } from '@/db/schema';
+import type { Program } from '@/lib/utils/grades/type';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
-import type { Program } from '@/utils/grades/type';
 import type { QueryOptions } from '../base/BaseRepository';
 import { getCurrentTerm } from '../terms/actions';
 import type { StudentFilter } from './actions';

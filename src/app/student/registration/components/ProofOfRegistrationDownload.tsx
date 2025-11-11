@@ -4,7 +4,7 @@ import { ActionIcon } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
-import ProofOfRegistrationPDF from '@/app/dashboard/students/[id]/registration/proof/ProofOfRegistrationPDF';
+import ProofOfRegistrationPDF from '@/app/(registry)/students/[id]/registration/proof/ProofOfRegistrationPDF';
 import { getStudentRegistrationDataByTerm } from '@/server/students/actions';
 
 interface ProofOfRegistrationDownloadProps {

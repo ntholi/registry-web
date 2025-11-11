@@ -53,7 +53,7 @@ import React from 'react';
 import { Shell } from '@/components/adease';
 import Logo from '@/components/Logo';
 import type { DashboardUser, UserPosition, UserRole } from '@/db/schema';
-import { toTitleCase } from '@/lib/utils';
+import { toTitleCase } from '@/lib/utils/utils';
 import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
 import {
 	countApprovedGraduationClearances,

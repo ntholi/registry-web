@@ -14,10 +14,10 @@ import {
 import { useMediaQuery } from '@mantine/hooks';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getCleanedSemesters } from '@/app/dashboard/students/[id]/AcademicsView/statements/utils';
-import { useCurrentTerm } from '@/hooks/use-current-term';
-import useUserStudent from '@/hooks/use-user-student';
-import { formatSemester } from '@/lib/utils';
+import { getCleanedSemesters } from '@/app/(registry)/students/[id]/AcademicsView/statements/utils';
+import { useCurrentTerm } from '@/lib/hooks/use-current-term';
+import useUserStudent from '@/lib/hooks/use-user-student';
+import { formatSemester } from '@/lib/utils/utils';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import DesktopTable from './DesktopTable';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -87,7 +87,7 @@ export default function TranscriptsPage() {
 	}
 
 	const semesters = getCleanedSemesters(program).filter(
-		(it) => it.term !== currentTerm?.name
+		(it: { term: string }) => it.term !== currentTerm?.name
 	);
 
 	return (

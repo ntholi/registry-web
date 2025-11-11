@@ -13,7 +13,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { formatDateTime, toTitleCase } from '@/lib/utils';
+import { formatDateTime, toTitleCase } from '@/lib/utils/utils';
 import type { getGraduationRequest } from '@/server/graduation/requests/actions';
 import {
 	getClearanceStatus,

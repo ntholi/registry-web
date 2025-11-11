@@ -11,7 +11,7 @@ import { IconLogout, IconMoon, IconSun, IconUser } from '@tabler/icons-react';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import Logo from '@/components/Logo';
-import useUserStudent from '@/hooks/use-user-student';
+import useUserStudent from '@/lib/hooks/use-user-student';
 
 export default function Navbar() {
 	const { student } = useUserStudent();

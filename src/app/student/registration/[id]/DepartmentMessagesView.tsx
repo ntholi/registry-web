@@ -2,7 +2,7 @@
 
 import { Alert, Box, Divider, Stack, Text } from '@mantine/core';
 import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
-import { toTitleCase } from '@/lib/utils';
+import { toTitleCase } from '@/lib/utils/utils';
 import type { getRegistrationRequest } from '@/server/registration/requests/actions';
 
 type Props = {

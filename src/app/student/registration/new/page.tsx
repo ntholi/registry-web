@@ -22,9 +22,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { StudentModuleStatus } from '@/db/schema';
-import { useCurrentTerm } from '@/hooks/use-current-term';
-import useUserStudent from '@/hooks/use-user-student';
 import { MAX_REG_MODULES } from '@/lib/constants';
+import { useCurrentTerm } from '@/lib/hooks/use-current-term';
+import useUserStudent from '@/lib/hooks/use-user-student';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import {
 	createRegistrationWithModules,

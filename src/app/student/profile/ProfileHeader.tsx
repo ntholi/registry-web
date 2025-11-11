@@ -22,9 +22,9 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import type { Student } from '@/lib/helpers/students';
-import { formatDate } from '@/lib/utils';
+import { useMediaQuery } from '@/lib/utils/use-media-query';
+import { formatDate } from '@/lib/utils/utils';
 import { getStudentPhoto } from '@/server/students/actions';
-import { useMediaQuery } from '@/utils/use-media-query';
 import { studentColors } from '../utils/colors';
 
 type Props = {

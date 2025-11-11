@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import type { UserRole } from '@/db/schema';
-import { useViewSelect } from '@/hooks/useViewSelect';
+import { useViewSelect } from '@/lib/hooks/useViewSelect';
 import { DeleteButton } from './DeleteButton';
 
 export interface DetailsViewHeaderProps {

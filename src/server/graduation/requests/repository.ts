@@ -9,11 +9,11 @@ import {
 	type paymentType,
 	studentPrograms,
 } from '@/db/schema';
+import { getOutstandingFromStructure } from '@/lib/utils/grades';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/server/base/BaseRepository';
 import { studentsService } from '@/server/students/service';
-import { getOutstandingFromStructure } from '@/utils/grades';
 
 export default class GraduationRequestRepository extends BaseRepository<
 	typeof graduationRequests,

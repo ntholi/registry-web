@@ -13,8 +13,8 @@ import {
 import { useMediaQuery } from '@mantine/hooks';
 import { IconBook, IconTrophy, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import useUserStudent from '@/hooks/use-user-student';
-import { formatSemester } from '@/lib/utils';
+import useUserStudent from '@/lib/hooks/use-user-student';
+import { formatSemester } from '@/lib/utils/utils';
 import { getStudentPhoto } from '@/server/students/actions';
 import { studentColors } from '../utils/colors';
 import HeroSkeleton from './HeroSkeleton';

@@ -10,7 +10,7 @@ import {
 	expandProgramName,
 	formatIssueDate,
 	generateQRCodeDataURL,
-} from '@/app/dashboard/students/[id]/graduation/certificate/utils';
+} from '@/app/(registry)/students/[id]/graduation/certificate/utils';
 
 const PRIMARY_COLOR = rgb(0, 0, 0);
 const REFERENCE_RIGHT_MARGIN = 36;

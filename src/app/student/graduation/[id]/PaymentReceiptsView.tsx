@@ -11,7 +11,7 @@ import {
 import { IconEdit, IconFileText, IconReceipt } from '@tabler/icons-react';
 import Link from 'next/link';
 import type { graduationRequests, paymentReceipts } from '@/db/schema';
-import { formatDateTime } from '@/lib/utils';
+import { formatDateTime } from '@/lib/utils/utils';
 
 type PaymentReceipt = typeof paymentReceipts.$inferSelect;
 type GraduationRequest = typeof graduationRequests.$inferSelect & {

@@ -10,8 +10,8 @@ import {
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { useCurrentTerm } from '@/hooks/use-current-term';
-import useUserStudent from '@/hooks/use-user-student';
+import { useCurrentTerm } from '@/lib/hooks/use-current-term';
+import useUserStudent from '@/lib/hooks/use-user-student';
 import {
 	findAllSponsors,
 	getSponsoredStudent,

@@ -7,7 +7,7 @@ import {
 	studentSemesters,
 	students,
 } from '@/db/schema';
-import { compareSemesters } from '@/lib/utils';
+import { compareSemesters } from '@/lib/utils/utils';
 import BaseRepository from '@/server/base/BaseRepository';
 
 export interface StudentModuleReport {

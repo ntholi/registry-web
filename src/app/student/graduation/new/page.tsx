@@ -22,7 +22,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { paymentType } from '@/db/schema';
-import useUserStudent from '@/hooks/use-user-student';
+import useUserStudent from '@/lib/hooks/use-user-student';
 import {
 	createGraduationRequestWithPaymentReceipts,
 	getEligiblePrograms,

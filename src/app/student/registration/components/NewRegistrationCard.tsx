@@ -12,8 +12,8 @@ import {
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useCurrentTerm } from '@/hooks/use-current-term';
-import useUserStudent from '@/hooks/use-user-student';
+import { useCurrentTerm } from '@/lib/hooks/use-current-term';
+import useUserStudent from '@/lib/hooks/use-user-student';
 import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
 import { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
 
