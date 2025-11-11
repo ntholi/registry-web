@@ -499,7 +499,7 @@ export class RegistrationReportRepository {
 			studentsBySponsor: Array.from(sponsorMap.entries())
 				.map(([sponsor, count]) => ({ sponsor, count }))
 				.sort((a, b) => b.count - a.count)
-				.slice(0, 10),
+				.slice(0, 5),
 			programsBySchool: Array.from(schoolProgramsMap.entries())
 				.map(([school, programs]) => ({
 					school,

@@ -320,7 +320,7 @@ export default function RegistrationCharts({
 							<div>
 								<Title order={4}>Top Sponsors</Title>
 								<Text size='sm' c='dimmed'>
-									Top 10 sponsors by student count
+									Top 5 sponsors by student count
 								</Text>
 							</div>
 						</Group>
