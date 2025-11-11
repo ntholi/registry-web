@@ -184,44 +184,11 @@ export default function RegistrationCharts({
 									cx='50%'
 									cy='50%'
 									labelLine={false}
-									label={({
-										cx,
-										cy,
-										midAngle,
-										innerRadius,
-										outerRadius,
-										percent,
-									}) => {
-										if (
-											!percent ||
-											!midAngle ||
-											!cx ||
-											!cy ||
-											!innerRadius ||
-											!outerRadius
-										) {
-											return null;
-										}
-										const radius =
-											innerRadius + (outerRadius - innerRadius) * 0.5;
-										const x =
-											cx + radius * Math.cos(-midAngle * (Math.PI / 180));
-										const y =
-											cy + radius * Math.sin(-midAngle * (Math.PI / 180));
-
-										return (
-											<text
-												x={x}
-												y={y}
-												fill='white'
-												textAnchor={x > cx ? 'start' : 'end'}
-												dominantBaseline='central'
-												style={{ fontSize: '14px', fontWeight: 'bold' }}
-											>
-												{`${(percent * 100).toFixed(0)}%`}
-											</text>
-										);
-									}}
+									label={({ percent }) =>
+										percent && percent > 0.05
+											? `${(percent * 100).toFixed(0)}%`
+											: ''
+									}
 									outerRadius={100}
 									fill='#8884d8'
 									dataKey='count'
@@ -236,9 +203,10 @@ export default function RegistrationCharts({
 								</Pie>
 								<Tooltip
 									contentStyle={{
-										backgroundColor: theme.colors.dark[7],
+										backgroundColor: theme.colors.gray[0],
 										border: `1px solid ${theme.colors.dark[4]}`,
 										borderRadius: '4px',
+										color: theme.colors.dark[9],
 									}}
 								/>
 								<Legend />
@@ -382,9 +350,10 @@ export default function RegistrationCharts({
 								</Pie>
 								<Tooltip
 									contentStyle={{
-										backgroundColor: theme.colors.dark[7],
+										backgroundColor: theme.colors.gray[0],
 										border: `1px solid ${theme.colors.dark[4]}`,
 										borderRadius: '4px',
+										color: theme.colors.dark[9],
 									}}
 								/>
 								<Legend
