@@ -20,7 +20,7 @@ import {
 } from '@/server/reports/registration/actions';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
-	const semesterNumber = (i + 1).toString();
+	const semesterNumber = (i + 1).toString().padStart(2, '0');
 	return {
 		value: semesterNumber,
 		label: formatSemester(semesterNumber, 'full'),
@@ -49,7 +49,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		termId: filter.termId?.toString() || '',
 		schoolId: filter.schoolId?.toString() || '',
 		programId: filter.programId?.toString() || '',
-		semesterNumber: filter.semesterNumber?.toString() || '',
+		semesterNumber: filter.semesterNumber || '',
 	});
 
 	useEffect(() => {
@@ -57,7 +57,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 			termId: filter.termId?.toString() || '',
 			schoolId: filter.schoolId?.toString() || '',
 			programId: filter.programId?.toString() || '',
-			semesterNumber: filter.semesterNumber?.toString() || '',
+			semesterNumber: filter.semesterNumber || '',
 		});
 	}, [filter]);
 
