@@ -82,8 +82,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 					<Text size='sm' c='dimmed' ta='center'>
 						This student has not submitted any registration requests yet.
 					</Text>
-					{(session?.user?.role === 'registry' ||
-						session?.user?.role === 'admin') && (
+					{['registry', 'admin'].includes(session?.user?.role ?? '') && (
 						<Button
 							leftSection={<IconPlus size={16} />}
 							variant='filled'
@@ -105,8 +104,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 			<Stack gap='md'>
 				{!hasCurrentTermRegistration &&
 					currentTerm &&
-					(session?.user?.role === 'registry' ||
-						session?.user?.role === 'admin') && (
+					['registry', 'admin'].includes(session?.user?.role ?? '') && (
 						<Card withBorder p='md'>
 							<Group justify='space-between' align='center'>
 								<Stack gap={4}>
@@ -185,9 +183,8 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 									<Button
 										component={Link}
 										href={
-											session?.user?.role === 'finance' ||
-											session?.user?.role === 'library'
-												? `/dashboard/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session.user.role}`
+											['finance', 'library'].includes(session?.user?.role ?? '')
+												? `/dashboard/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session?.user?.role ?? ''}`
 												: `/dashboard/registration/requests/${request.status}/${request.id}`
 										}
 										size='xs'

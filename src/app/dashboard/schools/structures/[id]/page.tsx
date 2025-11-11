@@ -257,10 +257,8 @@ export default function StructureDetailsPage() {
 function canEditModule(session: Session | null) {
 	if (!session) return false;
 	return (
-		session?.user?.role === 'admin' ||
-		session?.user?.role === 'registry' ||
+		['admin', 'registry'].includes(session?.user?.role ?? '') ||
 		(session?.user?.role === 'academic' &&
-			(session.user.position === 'manager' ||
-				session.user.position === 'program_leader'))
+			['manager', 'program_leader'].includes(session.user.position ?? ''))
 	);
 }

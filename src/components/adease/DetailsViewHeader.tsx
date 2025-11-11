@@ -54,16 +54,18 @@ export function DetailsViewHeader({
 				)}
 				<Group>
 					{handleDelete &&
-						(deleteRoles?.includes(session?.user?.role as UserRole) ||
-							session?.user?.role === 'admin') && (
+						([...(deleteRoles ?? []), 'admin'].includes(
+							session?.user?.role ?? ''
+						) as boolean) && (
 							<DeleteButton
 								handleDelete={handleDelete}
 								onSuccess={onDeleteSuccess}
 								queryKey={queryKey}
 							/>
 						)}
-					{(editRoles?.includes(session?.user?.role as UserRole) ||
-						session?.user?.role === 'admin') && (
+					{[...(editRoles ?? []), 'admin'].includes(
+						session?.user?.role ?? ''
+					) && (
 						<ActionIcon
 							component={Link}
 							href={`${pathname}/edit?${newSearchParams.toString()}`}

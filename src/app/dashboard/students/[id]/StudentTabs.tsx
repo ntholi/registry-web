@@ -32,41 +32,36 @@ export function StudentTabs({
 		'info'
 	);
 
-	const showAcademics =
-		session?.user?.role === 'academic' ||
-		session?.user?.role === 'admin' ||
-		session?.user?.role === 'registry' ||
-		session?.user?.role === 'finance';
+	const showAcademics = ['academic', 'admin', 'registry', 'finance'].includes(
+		session?.user?.role ?? ''
+	);
 
 	const showRegistration =
-		session?.user?.role === 'admin' ||
-		session?.user?.role === 'registry' ||
-		session?.user?.role === 'finance' ||
-		session?.user?.role === 'student_services' ||
-		session?.user?.position === 'admin' ||
-		session?.user?.position === 'manager' ||
-		session?.user?.position === 'program_leader' ||
-		session?.user?.position === 'year_leader';
+		['admin', 'registry', 'finance', 'student_services'].includes(
+			session?.user?.role ?? ''
+		) ||
+		['admin', 'manager', 'program_leader', 'year_leader'].includes(
+			session?.user?.position ?? ''
+		);
 
 	const showStatementOfResults =
-		session?.user?.role === 'admin' ||
-		session?.user?.role === 'registry' ||
-		session?.user?.position === 'admin' ||
-		session?.user?.position === 'manager' ||
-		session?.user?.position === 'program_leader';
+		['admin', 'registry'].includes(session?.user?.role ?? '') ||
+		['admin', 'manager', 'program_leader'].includes(
+			session?.user?.position ?? ''
+		);
 
-	const showStudentCard =
-		session?.user?.role === 'admin' || session?.user?.role === 'registry';
+	const showStudentCard = ['admin', 'registry'].includes(
+		session?.user?.role ?? ''
+	);
 
-	const showGraduation =
-		session?.user?.role === 'admin' || session?.user?.role === 'registry';
+	const showGraduation = ['admin', 'registry'].includes(
+		session?.user?.role ?? ''
+	);
 
 	const showDocuments =
-		session?.user?.role === 'admin' ||
-		session?.user?.role === 'registry' ||
-		session?.user?.role === 'finance' ||
-		session?.user?.role === 'student_services' ||
-		session?.user?.position === 'manager';
+		['admin', 'registry', 'finance', 'student_services'].includes(
+			session?.user?.role ?? ''
+		) || session?.user?.position === 'manager';
 
 	return (
 		<Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
@@ -89,8 +84,7 @@ export function StudentTabs({
 				)}
 				{showRegistration &&
 					activeTab === 'registration' &&
-					(session?.user?.role === 'registry' ||
-						session?.user?.role === 'admin') && (
+					['registry', 'admin'].includes(session?.user?.role ?? '') && (
 						<Box ml='auto'>
 							<ProofOfRegistrationPrinter stdNo={student.stdNo} />
 						</Box>

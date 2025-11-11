@@ -42,17 +42,14 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 		enabled: isActive,
 	});
 
-	const canEdit =
-		session?.user?.role === 'admin' ||
-		session?.user?.role === 'registry' ||
-		session?.user?.role === 'student_services';
+	const canEdit = ['admin', 'registry', 'student_services'].includes(
+		session?.user?.role ?? ''
+	);
 
 	const canView =
-		session?.user?.role === 'admin' ||
-		session?.user?.role === 'registry' ||
-		session?.user?.role === 'finance' ||
-		session?.user?.role === 'student_services' ||
-		session?.user?.position === 'manager';
+		['admin', 'registry', 'finance', 'student_services'].includes(
+			session?.user?.role ?? ''
+		) || session?.user?.position === 'manager';
 
 	if (!canView) {
 		return (
