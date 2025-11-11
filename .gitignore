@@ -49,5 +49,4 @@ data/*
 .vercel
 webtest.db
 /.claude
-/CLAUDE.md
 /.windsurf

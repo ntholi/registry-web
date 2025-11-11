@@ -19,16 +19,16 @@ export function DebugRibbon() {
 			<Box
 				style={{
 					position: 'absolute',
-					top: '40px',
-					right: '-60px',
+					top: '30px',
+					right: '-80px',
 					width: '250px',
 					transform: 'rotate(45deg)',
 					backgroundColor: 'rgba(255, 0, 0, 0.7)',
 					color: 'white',
 					textAlign: 'center',
-					fontSize: '0.8rem',
+					fontSize: '0.6rem',
 					fontWeight: 'bold',
-					padding: '5px 0',
+					padding: '6px 0',
 					letterSpacing: '1px',
 					textTransform: 'uppercase',
 				}}
