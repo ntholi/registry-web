@@ -375,7 +375,12 @@ export class RegistrationReportRepository {
 		filter?: RegistrationReportFilter
 	): Promise<{
 		studentsBySchool: Array<{ name: string; count: number; code: string }>;
-		studentsByProgram: Array<{ name: string; count: number; school: string }>;
+		studentsByProgram: Array<{
+			name: string;
+			code: string;
+			count: number;
+			school: string;
+		}>;
 		studentsBySemester: Array<{ semester: string; count: number }>;
 		studentsByGender: Array<{ gender: string; count: number }>;
 		studentsBySponsor: Array<{ sponsor: string; count: number }>;
@@ -386,6 +391,7 @@ export class RegistrationReportRepository {
 				schoolName: schools.name,
 				schoolCode: schools.code,
 				programName: programs.name,
+				programCode: programs.code,
 				semesterNumber: structureSemesters.semesterNumber,
 				gender: students.gender,
 				sponsorName: sponsors.name,
@@ -429,7 +435,10 @@ export class RegistrationReportRepository {
 		const result = await query.where(and(...conditions));
 
 		const schoolMap = new Map<string, number>();
-		const programMap = new Map<string, { count: number; school: string }>();
+		const programMap = new Map<
+			string,
+			{ count: number; school: string; code: string; name: string }
+		>();
 		const semesterMap = new Map<string, number>();
 		const genderMap = new Map<string, number>();
 		const sponsorMap = new Map<string, number>();
@@ -443,6 +452,8 @@ export class RegistrationReportRepository {
 				programMap.set(programKey, {
 					count: 0,
 					school: row.schoolName,
+					code: row.programCode,
+					name: row.programName,
 				});
 			}
 			programMap.get(programKey)!.count++;
@@ -471,8 +482,9 @@ export class RegistrationReportRepository {
 				}))
 				.sort((a, b) => b.count - a.count),
 			studentsByProgram: Array.from(programMap.entries())
-				.map(([key, data]) => ({
-					name: key.split('|')[0],
+				.map(([_key, data]) => ({
+					name: data.name,
+					code: data.code,
 					count: data.count,
 					school: data.school,
 				}))

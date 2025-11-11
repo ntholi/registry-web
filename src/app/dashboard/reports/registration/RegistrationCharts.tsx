@@ -263,7 +263,7 @@ export default function RegistrationCharts({
 							<BarChart
 								data={chartData.studentsByProgram}
 								layout='vertical'
-								margin={{ left: 150 }}
+								margin={{ left: 10, right: 10 }}
 							>
 								<CartesianGrid
 									strokeDasharray='3 3'
@@ -271,10 +271,10 @@ export default function RegistrationCharts({
 								/>
 								<XAxis type='number' stroke={theme.colors.gray[6]} />
 								<YAxis
-									dataKey='name'
+									dataKey='code'
 									type='category'
 									stroke={theme.colors.gray[6]}
-									width={140}
+									width={80}
 									style={{ fontSize: '11px' }}
 								/>
 								<Tooltip
@@ -282,6 +282,12 @@ export default function RegistrationCharts({
 										backgroundColor: theme.colors.dark[7],
 										border: `1px solid ${theme.colors.dark[4]}`,
 										borderRadius: '4px',
+									}}
+									labelFormatter={(value, payload) => {
+										if (payload && payload.length > 0) {
+											return payload[0].payload.name;
+										}
+										return value;
 									}}
 								/>
 								<Bar
