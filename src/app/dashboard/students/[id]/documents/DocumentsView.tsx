@@ -43,7 +43,9 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 	});
 
 	const canEdit =
-		session?.user?.role === 'admin' || session?.user?.role === 'registry';
+		session?.user?.role === 'admin' ||
+		session?.user?.role === 'registry' ||
+		session?.user?.role === 'student_services';
 
 	const canView =
 		session?.user?.role === 'admin' ||

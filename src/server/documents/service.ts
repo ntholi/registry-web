@@ -76,21 +76,21 @@ class DocumentService {
 	async create(data: Document) {
 		return withAuth(
 			async () => this.repository.create(data),
-			['admin', 'registry']
+			['admin', 'registry', 'student_services']
 		);
 	}
 
 	async update(id: string, data: Partial<Document>) {
 		return withAuth(
 			async () => this.repository.update(id, data),
-			['admin', 'registry']
+			['admin', 'registry', 'student_services']
 		);
 	}
 
 	async delete(id: string) {
 		return withAuth(
 			async () => this.repository.delete(id),
-			['admin', 'registry']
+			['admin', 'registry', 'student_services']
 		);
 	}
 
