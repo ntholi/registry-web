@@ -287,7 +287,7 @@ export default function RegistrationCharts({
 									stroke={theme.colors.gray[3]}
 								/>
 								<XAxis
-									dataKey='school'
+									dataKey='schoolCode'
 									stroke={theme.colors.gray[6]}
 									style={{ fontSize: '11px' }}
 									angle={-45}
@@ -300,6 +300,12 @@ export default function RegistrationCharts({
 										backgroundColor: theme.colors.dark[7],
 										border: `1px solid ${theme.colors.dark[4]}`,
 										borderRadius: '4px',
+									}}
+									labelFormatter={(value, payload) => {
+										if (payload && payload.length > 0) {
+											return payload[0].payload.school;
+										}
+										return value;
 									}}
 								/>
 								<Bar

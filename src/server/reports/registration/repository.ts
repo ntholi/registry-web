@@ -384,7 +384,11 @@ export class RegistrationReportRepository {
 		studentsBySemester: Array<{ semester: string; count: number }>;
 		studentsByGender: Array<{ gender: string; count: number }>;
 		studentsBySponsor: Array<{ sponsor: string; count: number }>;
-		programsBySchool: Array<{ school: string; programCount: number }>;
+		programsBySchool: Array<{
+			school: string;
+			schoolCode: string;
+			programCount: number;
+		}>;
 	}> {
 		const query = db
 			.select({
@@ -442,7 +446,10 @@ export class RegistrationReportRepository {
 		const semesterMap = new Map<string, number>();
 		const genderMap = new Map<string, number>();
 		const sponsorMap = new Map<string, number>();
-		const schoolProgramsMap = new Map<string, Set<string>>();
+		const schoolProgramsMap = new Map<
+			string,
+			{ programs: Set<string>; schoolCode: string }
+		>();
 
 		result.forEach((row) => {
 			schoolMap.set(row.schoolName, (schoolMap.get(row.schoolName) || 0) + 1);
@@ -468,9 +475,12 @@ export class RegistrationReportRepository {
 			sponsorMap.set(sponsor, (sponsorMap.get(sponsor) || 0) + 1);
 
 			if (!schoolProgramsMap.has(row.schoolName)) {
-				schoolProgramsMap.set(row.schoolName, new Set());
+				schoolProgramsMap.set(row.schoolName, {
+					programs: new Set(),
+					schoolCode: row.schoolCode,
+				});
 			}
-			schoolProgramsMap.get(row.schoolName)!.add(row.programName);
+			schoolProgramsMap.get(row.schoolName)!.programs.add(row.programName);
 		});
 
 		return {
@@ -501,9 +511,10 @@ export class RegistrationReportRepository {
 				.sort((a, b) => b.count - a.count)
 				.slice(0, 5),
 			programsBySchool: Array.from(schoolProgramsMap.entries())
-				.map(([school, programs]) => ({
+				.map(([school, data]) => ({
 					school,
-					programCount: programs.size,
+					schoolCode: data.schoolCode,
+					programCount: data.programs.size,
 				}))
 				.sort((a, b) => b.programCount - a.programCount),
 		};
