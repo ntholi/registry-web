@@ -72,7 +72,7 @@ function SchoolCard({ school }: { school: School }) {
 	return (
 		<UnstyledButton
 			component={Link}
-			href={`/dashboard/schools/structures?schoolId=${school.id}`}
+			href={`/schools/structures?schoolId=${school.id}`}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 		>

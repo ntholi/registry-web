@@ -14,12 +14,12 @@ import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import {
 	findAllSponsors,
 	updateStudentSponsorshipById,
 } from '@/server/sponsors/actions';
-import StdNoInput from '@/app/dashboard/base/StdNoInput';
 
 export default function NewSponsoredStudentModal() {
 	const [opened, { open, close }] = useDisclosure(false);

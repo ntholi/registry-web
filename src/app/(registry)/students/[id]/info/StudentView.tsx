@@ -77,11 +77,7 @@ export default function StudentView({ student }: Props) {
 								User
 							</Text>
 							{student.user ? (
-								<Link
-									href={`/dashboard/users/${student.user?.id}`}
-									size='sm'
-									fw={500}
-								>
+								<Link href={`/users/${student.user?.id}`} size='sm' fw={500}>
 									{student.user?.email}
 								</Link>
 							) : (

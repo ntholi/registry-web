@@ -93,13 +93,13 @@ function getNavigation(department: DashboardUser) {
 	const navItems = [
 		{
 			label: 'Users',
-			href: '/dashboard/users',
+			href: '/users',
 			icon: IconUserCog,
 			roles: ['admin'],
 		},
 		{
 			label: 'Students',
-			href: '/dashboard/students',
+			href: '/students',
 			icon: IconUsersGroup,
 			isVisible: (session) => {
 				if (
@@ -120,13 +120,13 @@ function getNavigation(department: DashboardUser) {
 		},
 		{
 			label: 'Tasks',
-			href: '/dashboard/tasks',
+			href: '/tasks',
 			icon: IconCalendarStats,
 			roles: ['admin'],
 		},
 		{
 			label: 'Lecturers',
-			href: '/dashboard/lecturers',
+			href: '/lecturers',
 			roles: ['academic'],
 			icon: IconSchool,
 			isVisible: (session) => {
@@ -139,7 +139,7 @@ function getNavigation(department: DashboardUser) {
 		{
 			label: 'Modules',
 			description: 'Assessments',
-			href: '/dashboard/assessments',
+			href: '/assessments',
 			icon: IconAB2,
 			roles: ['academic'],
 			isVisible: (session) => {
@@ -154,7 +154,7 @@ function getNavigation(department: DashboardUser) {
 			children: [
 				{
 					label: 'Pending',
-					href: '/dashboard/registration/requests/pending',
+					href: '/registration/requests/pending',
 					icon: IconMessageQuestion,
 					notificationCount: {
 						queryKey: ['registrationRequests', 'pending'],
@@ -164,7 +164,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					label: 'Registered',
-					href: '/dashboard/registration/requests/registered',
+					href: '/registration/requests/registered',
 					icon: IconSquareRoundedCheck,
 					notificationCount: {
 						queryKey: ['registrationRequests', 'registered'],
@@ -174,7 +174,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					label: 'Rejected',
-					href: '/dashboard/registration/requests/rejected',
+					href: '/registration/requests/rejected',
 					icon: IconBarrierBlock,
 					notificationCount: {
 						queryKey: ['registrationRequests', 'rejected'],
@@ -184,7 +184,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					label: 'Approved',
-					href: '/dashboard/registration/requests/approved',
+					href: '/registration/requests/approved',
 					icon: IconSquareRoundedCheck,
 					notificationCount: {
 						queryKey: ['registrationRequests', 'approved'],
@@ -202,7 +202,7 @@ function getNavigation(department: DashboardUser) {
 			children: [
 				{
 					label: 'Pending',
-					href: '/dashboard/graduation/requests/pending',
+					href: '/graduation/requests/pending',
 					icon: IconMessageQuestion,
 					notificationCount: {
 						queryKey: ['graduationRequests', 'pending'],
@@ -212,7 +212,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					label: 'Approved',
-					href: '/dashboard/graduation/requests/approved',
+					href: '/graduation/requests/approved',
 					icon: IconSquareRoundedCheck,
 					notificationCount: {
 						queryKey: ['graduationRequests', 'approved'],
@@ -222,7 +222,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					label: 'Rejected',
-					href: '/dashboard/graduation/requests/rejected',
+					href: '/graduation/requests/rejected',
 					icon: IconBarrierBlock,
 					notificationCount: {
 						queryKey: ['graduationRequests', 'rejected'],
@@ -239,7 +239,7 @@ function getNavigation(department: DashboardUser) {
 			children: [
 				{
 					label: 'Requests',
-					href: '/dashboard/clearance/pending',
+					href: '/clearance/pending',
 					icon: IconMessageQuestion,
 					notificationCount: {
 						queryKey: ['clearances', 'pending'],
@@ -249,7 +249,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					label: 'Approved',
-					href: '/dashboard/clearance/approved',
+					href: '/clearance/approved',
 					icon: IconSquareRoundedCheck,
 					notificationCount: {
 						queryKey: ['clearances', 'approved'],
@@ -259,7 +259,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					label: 'Rejected',
-					href: '/dashboard/clearance/rejected',
+					href: '/clearance/rejected',
 					icon: IconBarrierBlock,
 					notificationCount: {
 						queryKey: ['clearances', 'rejected'],
@@ -285,7 +285,7 @@ function getNavigation(department: DashboardUser) {
 			children: [
 				{
 					label: 'Requests',
-					href: '/dashboard/graduation/clearance/pending',
+					href: '/graduation/clearance/pending',
 					icon: IconMessageQuestion,
 					notificationCount: {
 						queryKey: ['graduationClearances', 'pending'],
@@ -295,7 +295,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					label: 'Approved',
-					href: '/dashboard/graduation/clearance/approved',
+					href: '/graduation/clearance/approved',
 					icon: IconSquareRoundedCheck,
 					notificationCount: {
 						queryKey: ['graduationClearances', 'approved'],
@@ -305,7 +305,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					label: 'Rejected',
-					href: '/dashboard/graduation/clearance/rejected',
+					href: '/graduation/clearance/rejected',
 					icon: IconBarrierBlock,
 					notificationCount: {
 						queryKey: ['graduationClearances', 'rejected'],
@@ -326,43 +326,43 @@ function getNavigation(department: DashboardUser) {
 		},
 		{
 			label: 'Blocked Students',
-			href: '/dashboard/blocked-students',
+			href: '/blocked-students',
 			icon: IconUserX,
 			roles: ['finance'],
 		},
 		{
 			label: 'Modules',
-			href: '/dashboard/modules',
+			href: '/modules',
 			icon: IconBookmark,
 			roles: ['admin'],
 		},
 		{
 			label: 'Semester Modules',
-			href: '/dashboard/semester-modules',
+			href: '/semester-modules',
 			icon: IconBookmarks,
 			roles: ['admin'],
 		},
 		{
 			label: 'Schools',
-			href: '/dashboard/schools',
+			href: '/schools',
 			icon: IconBuildingStore,
 			roles: ['registry', 'admin', 'academic', 'finance', 'student_services'],
 		},
 		{
 			label: 'Terms',
-			href: '/dashboard/terms',
+			href: '/terms',
 			icon: IconCalendarEvent,
 			roles: ['admin'],
 		},
 		{
 			label: 'Sponsors',
-			href: '/dashboard/sponsors',
+			href: '/sponsors',
 			icon: IconBuildingBank,
 			roles: ['admin', 'finance'],
 		},
 		{
 			label: 'Sponsored Students',
-			href: '/dashboard/sponsored-students',
+			href: '/sponsored-students',
 			icon: IconUsersGroup,
 			roles: ['admin', 'finance', 'registry'],
 		},
@@ -373,12 +373,12 @@ function getNavigation(department: DashboardUser) {
 			children: [
 				{
 					label: 'Simulator',
-					href: '/dashboard/tools/simulate',
+					href: '/tools/simulate',
 					icon: IconTestPipe,
 				},
 				{
 					label: 'Grade Calculator',
-					href: '/dashboard/tools/grade-calculator',
+					href: '/tools/grade-calculator',
 					icon: IconCalculator,
 				},
 			],
@@ -390,7 +390,7 @@ function getNavigation(department: DashboardUser) {
 			children: [
 				{
 					label: 'Export Transcript',
-					href: '/dashboard/bulk/transcripts',
+					href: '/bulk/transcripts',
 					icon: IconFileDownload,
 				},
 			],
@@ -401,7 +401,7 @@ function getNavigation(department: DashboardUser) {
 			children: [
 				{
 					label: 'Clearance',
-					href: `/dashboard/reports/clearance/${department}`,
+					href: `/reports/clearance/${department}`,
 					icon: IconCopyCheck,
 					isVisible: (session) => {
 						const userRole = session?.user?.role;
@@ -414,7 +414,7 @@ function getNavigation(department: DashboardUser) {
 				},
 				{
 					description: 'Course Summary Report',
-					href: '/dashboard/reports/course-summary',
+					href: '/reports/course-summary',
 					icon: IconCopyCheck,
 					roles: ['academic'],
 					isVisible: (session) => {
@@ -422,7 +422,7 @@ function getNavigation(department: DashboardUser) {
 					},
 				},
 				{
-					href: `/dashboard/reports/boe`,
+					href: `/reports/boe`,
 					description: 'Board of Examination',
 					icon: IconCopyCheck,
 					roles: ['academic', 'registry', 'admin'],
@@ -437,7 +437,7 @@ function getNavigation(department: DashboardUser) {
 					},
 				},
 				{
-					href: `/dashboard/reports/registration`,
+					href: `/reports/registration`,
 					description: 'Student Registration',
 					icon: IconCopyCheck,
 					roles: ['academic', 'registry', 'admin', 'finance'],
@@ -480,7 +480,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 					nav.children?.push({
 						label: it?.semesterModule?.module?.code || 'Unknown Module',
 						description: it?.semesterModule?.module?.name || 'Unknown Module',
-						href: `/dashboard/gradebook/${it?.semesterModule.moduleId}`,
+						href: `/gradebook/${it?.semesterModule.moduleId}`,
 					});
 				});
 			}

@@ -179,7 +179,7 @@ export default function SponsoredStudentsTable() {
 						<Table.Tr key={sponsoredStudent.id}>
 							<Table.Td>
 								{student?.stdNo ? (
-									<Link size='sm' href={`/dashboard/students/${student.stdNo}`}>
+									<Link size='sm' href={`/students/${student.stdNo}`}>
 										{student.stdNo}
 									</Link>
 								) : (
@@ -198,7 +198,7 @@ export default function SponsoredStudentsTable() {
 								{sponsoredStudent.sponsor ? (
 									<Link
 										size='sm'
-										href={`/dashboard/sponsors/${sponsoredStudent.sponsor.id}`}
+										href={`/sponsors/${sponsoredStudent.sponsor.id}`}
 									>
 										{sponsoredStudent.sponsor.name}
 									</Link>

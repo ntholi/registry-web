@@ -41,13 +41,13 @@ export default function SchoolProgramsPage() {
 	});
 
 	if (!schoolId) {
-		router.push('/dashboard/schools');
+		router.push('/schools');
 	}
 
 	return (
 		<Stack p='lg'>
 			<Group>
-				<Link c='dimmed' href='/dashboard/schools'>
+				<Link c='dimmed' href='/schools'>
 					<Group gap='xs'>
 						<IconArrowLeft size={16} />
 						<Text size='sm'>Back to Schools</Text>

@@ -109,7 +109,7 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 				...defaultValues,
 			}}
 			onSuccess={({ id }) => {
-				router.push(`/dashboard/tasks/${id}`);
+				router.push(`/tasks/${id}`);
 			}}
 		>
 			{(form) => {

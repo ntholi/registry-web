@@ -14,6 +14,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
+import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import { Form } from '@/components/adease';
 import {
 	type modules,
@@ -31,7 +32,6 @@ import {
 import { getModulesForStructure } from '@/server/semester-modules/actions';
 import { getStudentRegistrationData } from '@/server/students/actions';
 import { findAllTerms } from '@/server/terms/actions';
-import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 
@@ -263,7 +263,7 @@ export default function RegistrationRequestForm({
 				termId: defaultValues?.termId || currentTerm?.id || '',
 			}}
 			onSuccess={({ id }) => {
-				router.push(`/dashboard/registration/requests/pending/${id}`);
+				router.push(`/registration/requests/pending/${id}`);
 			}}
 		>
 			{(form) => {

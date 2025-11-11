@@ -29,7 +29,7 @@ export default function SponsorForm({ onSubmit, defaultValues, title }: Props) {
 			schema={createInsertSchema(sponsors)}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/dashboard/sponsors/${id}`);
+				router.push(`/sponsors/${id}`);
 			}}
 		>
 			{(form) => (

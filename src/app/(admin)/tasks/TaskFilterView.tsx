@@ -105,7 +105,7 @@ export default function TaskFilterView({ filter, value }: TaskFilterViewProps) {
 						withBorder
 						p='md'
 						component={Link}
-						href={`/dashboard/tasks/${task.id}`}
+						href={`/tasks/${task.id}`}
 						style={{ textDecoration: 'none', cursor: 'pointer' }}
 					>
 						<Stack gap='xs'>

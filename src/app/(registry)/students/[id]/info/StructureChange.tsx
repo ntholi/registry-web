@@ -153,7 +153,7 @@ export default function StructureChange({ student }: Props) {
 				</Text>
 				<Group>
 					<Link
-						href={`/dashboard/schools/structures/${student?.programs[0].structureId}`}
+						href={`/schools/structures/${student?.programs[0].structureId}`}
 						size='sm'
 						fw={500}
 					>

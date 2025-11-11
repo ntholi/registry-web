@@ -14,9 +14,9 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-import { ModuleSearchInput } from './ModuleSearchInput';
 import { assignModulesToLecturer } from '@/server/assigned-modules/actions';
 import type { searchModulesWithDetails } from '@/server/semester-modules/actions';
+import { ModuleSearchInput } from './ModuleSearchInput';
 
 type FormValues = {
 	userId: string;

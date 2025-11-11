@@ -7,12 +7,10 @@ import { findAllSponsors } from '@/server/sponsors/actions';
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path={'/dashboard/sponsors'}
+			path={'/sponsors'}
 			queryKey={['sponsors']}
 			getData={findAllSponsors}
-			actionIcons={[
-				<NewLink key={'new-link'} href='/dashboard/sponsors/new' />,
-			]}
+			actionIcons={[<NewLink key={'new-link'} href='/sponsors/new' />]}
 			renderItem={(it) => (
 				<ListItem id={it.id} label={it.code} description={it.name} />
 			)}

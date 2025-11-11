@@ -77,10 +77,7 @@ export default function GraduationClearanceAccordion({
 										Responded By:
 									</Text>
 									{clearance?.respondedBy ? (
-										<Link
-											size='sm'
-											href={`/dashboard/users/${clearance.respondedBy.id}`}
-										>
+										<Link size='sm' href={`/users/${clearance.respondedBy.id}`}>
 											{clearance.respondedBy.name ||
 												clearance.respondedBy.email ||
 												`User: ${clearance.respondedBy.id}`}

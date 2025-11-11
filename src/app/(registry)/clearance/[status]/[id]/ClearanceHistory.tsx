@@ -87,10 +87,7 @@ export default function ClearanceHistory({ stdNo }: Props) {
 											<Table.Td>{audit.newStatus}</Table.Td>
 											<Table.Td>{audit.message || '-'}</Table.Td>
 											<Table.Td>
-												<Link
-													size='sm'
-													href={`/dashboard/users/${audit.createdBy}`}
-												>
+												<Link size='sm' href={`/users/${audit.createdBy}`}>
 													{audit.user.name}
 												</Link>
 											</Table.Td>

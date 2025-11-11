@@ -24,7 +24,7 @@ export default async function ModuleDetails({ params }: Props) {
 				<Title order={3} fw={400}>
 					{mod.code} - {mod.name}
 				</Title>
-				<Link href={`/dashboard/gradebook/${mod.id}`} passHref>
+				<Link href={`/gradebook/${mod.id}`} passHref>
 					<Button
 						variant='light'
 						leftSection={<IconNotebook size={16} />}

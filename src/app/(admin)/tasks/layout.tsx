@@ -96,12 +96,12 @@ export default function Layout({ children }: PropsWithChildren) {
 
 	return (
 		<ListLayout
-			path={'/dashboard/tasks'}
+			path={'/tasks'}
 			queryKey={['tasks', searchParams.toString()]}
 			getData={getTasksData}
 			actionIcons={[
 				<TasksFilter key={'filter-link'} />,
-				<NewLink key={'new-link'} href='/dashboard/tasks/new' />,
+				<NewLink key={'new-link'} href='/tasks/new' />,
 			]}
 			renderItem={(task) => {
 				const isOverdue =

@@ -7,7 +7,7 @@ import { getLecturers } from '@/server/lecturers/actions';
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path={'/dashboard/lecturers'}
+			path={'/lecturers'}
 			queryKey={['lecturers']}
 			getData={getLecturers}
 			renderItem={(it) => (

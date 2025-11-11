@@ -41,7 +41,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
 	return (
 		<ListLayout
-			path={`/dashboard/registration/requests/${status}`}
+			path={`/registration/requests/${status}`}
 			queryKey={[
 				'registrationRequests',
 				status,

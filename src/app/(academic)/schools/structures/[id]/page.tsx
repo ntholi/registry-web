@@ -73,7 +73,7 @@ export default function StructureDetailsPage() {
 						<Text size='sm' c='dimmed' ta='center'>
 							The requested program structure could not be found.
 						</Text>
-						<Link href='/dashboard/schools'>
+						<Link href='/schools'>
 							<Group gap='xs'>
 								<IconArrowLeft size={16} />
 								<Text size='sm'>Back to Schools</Text>
@@ -86,14 +86,14 @@ export default function StructureDetailsPage() {
 	}
 
 	const breadcrumbItems = [
-		{ title: 'Schools', href: '/dashboard/schools' },
+		{ title: 'Schools', href: '/schools' },
 		{
 			title: structure.program?.school?.name || 'School',
-			href: `/dashboard/schools/structures?schoolId=${structure.program?.school?.id}`,
+			href: `/schools/structures?schoolId=${structure.program?.school?.id}`,
 		},
 		{
 			title: structure.program?.name || 'Program',
-			href: `/dashboard/schools/structures?schoolId=${structure.program?.school?.id}`,
+			href: `/schools/structures?schoolId=${structure.program?.school?.id}`,
 		},
 	].map((item) => (
 		<Link
@@ -169,7 +169,7 @@ export default function StructureDetailsPage() {
 													<Table.Td>
 														<Link
 															size='sm'
-															href={`/dashboard/semester-modules/${semModule.id}`}
+															href={`/semester-modules/${semModule.id}`}
 															c={semModule.hidden ? 'dark' : undefined}
 														>
 															{semModule.module?.code}

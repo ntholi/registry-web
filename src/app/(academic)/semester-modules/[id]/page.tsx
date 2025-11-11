@@ -47,7 +47,7 @@ export default async function ModuleDetails({ params }: Props) {
 			<DetailsViewBody>
 				<FieldView label='ID'>{item.id}</FieldView>
 				<FieldView label='Module'>
-					<Link size='sm' href={`/dashboard/modules/${item.module?.id}`}>
+					<Link size='sm' href={`/modules/${item.module?.id}`}>
 						{item.module?.name} ({item.module?.code})
 					</Link>
 				</FieldView>
@@ -59,7 +59,7 @@ export default async function ModuleDetails({ params }: Props) {
 					{item.semester?.structure ? (
 						<Link
 							size='sm'
-							href={`/dashboard/schools/structures/${item.semester.structure.id}`}
+							href={`/schools/structures/${item.semester.structure.id}`}
 						>
 							{item.semester.structure.code}
 						</Link>
@@ -86,7 +86,7 @@ export default async function ModuleDetails({ params }: Props) {
 						>
 							{prerequisites.map((it) => (
 								<ListItem key={it.id}>
-									<Link size='sm' href={`/dashboard/semester-modules/${it.id}`}>
+									<Link size='sm' href={`/semester-modules/${it.id}`}>
 										{it.code} - {it.name}
 									</Link>
 								</ListItem>

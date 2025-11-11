@@ -7,12 +7,10 @@ import { findAllModules } from '@/server/semester-modules/actions';
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path={'/dashboard/semester-modules'}
+			path={'/semester-modules'}
 			queryKey={['semester-modules']}
 			getData={findAllModules}
-			actionIcons={[
-				<NewLink key={'new-link'} href='/dashboard/semester-modules/new' />,
-			]}
+			actionIcons={[<NewLink key={'new-link'} href='/semester-modules/new' />]}
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}

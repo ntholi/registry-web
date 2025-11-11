@@ -8,10 +8,10 @@ import { findAllTerms } from '@/server/terms/actions';
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path={'/dashboard/terms'}
+			path={'/terms'}
 			queryKey={['terms']}
 			getData={findAllTerms}
-			actionIcons={[<NewLink key={'new-link'} href='/dashboard/terms/new' />]}
+			actionIcons={[<NewLink key={'new-link'} href='/terms/new' />]}
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}

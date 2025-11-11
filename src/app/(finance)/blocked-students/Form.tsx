@@ -4,9 +4,9 @@ import { Textarea } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import { Form } from '@/components/adease';
 import { blockedStudents } from '@/db/schema';
-import StdNoInput from '@/app/dashboard/base/StdNoInput';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;
 
@@ -43,7 +43,7 @@ export default function BlockedStudentForm({
 			schema={blockedStudentSchema}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/dashboard/blocked-students/${id}`);
+				router.push(`/blocked-students/${id}`);
 			}}
 		>
 			{(form) => {

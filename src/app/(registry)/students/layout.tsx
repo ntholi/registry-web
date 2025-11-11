@@ -31,7 +31,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
 	return (
 		<ListLayout
-			path={'/dashboard/students'}
+			path={'/students'}
 			queryKey={['students', searchParams.toString()]}
 			getData={getStudentsData}
 			actionIcons={[<StudentsFilter key={'filter-link'} />]}

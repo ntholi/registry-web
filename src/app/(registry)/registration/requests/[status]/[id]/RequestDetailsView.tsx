@@ -69,7 +69,7 @@ function StudentNameView({ stdNo, name }: { stdNo: number; name: string }) {
 	return (
 		<FieldView label='Student' underline={false}>
 			<Flex align='center' gap='xs'>
-				<Link href={`/dashboard/students/${stdNo}`} size='sm' fw={500}>
+				<Link href={`/students/${stdNo}`} size='sm' fw={500}>
 					{name} ({stdNo})
 				</Link>
 				<Tooltip label='Copy student number'>

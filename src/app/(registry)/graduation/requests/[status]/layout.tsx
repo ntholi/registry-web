@@ -40,7 +40,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
 	return (
 		<ListLayout
-			path={`/dashboard/graduation/requests/${status}`}
+			path={`/graduation/requests/${status}`}
 			queryKey={['graduationRequests', status]}
 			getData={async (page, search) => {
 				const response = await findAllGraduationRequests(page, search, status);

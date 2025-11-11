@@ -184,8 +184,8 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 										component={Link}
 										href={
 											['finance', 'library'].includes(session?.user?.role ?? '')
-												? `/dashboard/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session?.user?.role ?? ''}`
-												: `/dashboard/registration/requests/${request.status}/${request.id}`
+												? `/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session?.user?.role ?? ''}`
+												: `/registration/requests/${request.status}/${request.id}`
 										}
 										size='xs'
 										variant='subtle'

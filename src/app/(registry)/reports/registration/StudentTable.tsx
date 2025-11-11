@@ -172,7 +172,7 @@ export default function StudentTable({
 								<Table.Tr key={`${student.stdNo}-${index}`}>
 									<Table.Td>
 										<Link
-											href={`/dashboard/students/${student.stdNo}`}
+											href={`/students/${student.stdNo}`}
 											size='sm'
 											fw={500}
 										>

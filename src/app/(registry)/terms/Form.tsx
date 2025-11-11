@@ -29,7 +29,7 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 			schema={createInsertSchema(terms)}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/dashboard/terms/${id}`);
+				router.push(`/terms/${id}`);
 			}}
 		>
 			{(form) => (

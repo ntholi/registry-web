@@ -41,7 +41,7 @@ export default function PrerequisiteDisplay({ prerequisites, hidden }: Props) {
 					<Group gap={'xs'}>
 						<Link
 							c={hidden ? 'dark' : undefined}
-							href={`/dashboard/semester-modules/${it.prerequisite.id}`}
+							href={`/semester-modules/${it.prerequisite.id}`}
 							size='0.8rem'
 						>
 							{it.prerequisite.module?.code}

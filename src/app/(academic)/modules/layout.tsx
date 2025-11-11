@@ -7,10 +7,10 @@ import { getModules } from '@/server/modules/actions';
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path={'/dashboard/modules'}
+			path={'/modules'}
 			queryKey={['modules']}
 			getData={getModules}
-			actionIcons={[<NewLink key={'new-link'} href='/dashboard/modules/new' />]}
+			actionIcons={[<NewLink key={'new-link'} href='/modules/new' />]}
 			renderItem={(it) => (
 				<ListItem id={it.id} label={it.code} description={it.name} />
 			)}
