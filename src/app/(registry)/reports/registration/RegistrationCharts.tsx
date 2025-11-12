@@ -60,8 +60,8 @@ export default function RegistrationCharts({
 	if (isLoading) {
 		return (
 			<Grid>
-				{Array.from({ length: 6 }, (_, i) => (
-					<Grid.Col key={`skeleton-${i}`} span={{ base: 12, md: 6 }}>
+				{[1, 2, 3, 4, 5, 6].map((num) => (
+					<Grid.Col key={`skeleton-${num}`} span={{ base: 12, md: 6 }}>
 						<Card withBorder p='md'>
 							<Skeleton height={300} />
 						</Card>
