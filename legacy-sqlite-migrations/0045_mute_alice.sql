@@ -1,1 +1,0 @@
-ALTER TABLE `users` RENAME COLUMN "academic_role" TO "position";

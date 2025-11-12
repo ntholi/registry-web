@@ -1,1 +1,0 @@
-ALTER TABLE `registration_clearances` ADD `email_sent` integer DEFAULT false NOT NULL;

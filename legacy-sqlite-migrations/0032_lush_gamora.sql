@@ -1,1 +1,0 @@
-CREATE UNIQUE INDEX `assessments_moduleId_termId_unique` ON `assessments` (`module_id`,`term_id`);

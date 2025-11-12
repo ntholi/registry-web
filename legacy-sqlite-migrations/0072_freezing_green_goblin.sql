@@ -1,1 +1,0 @@
-ALTER TABLE `graduation_requests` ADD `information_confirmed` integer DEFAULT false NOT NULL;

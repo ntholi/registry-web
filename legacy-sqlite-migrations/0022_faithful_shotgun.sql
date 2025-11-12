@@ -1,1 +1,0 @@
-ALTER TABLE `assessments` DROP COLUMN `code`;

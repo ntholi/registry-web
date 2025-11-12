@@ -1,1 +1,0 @@
-ALTER TABLE `registration_requests` ADD `count` integer DEFAULT 1 NOT NULL;

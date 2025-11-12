@@ -1,1 +1,0 @@
-ALTER TABLE `modules` ADD `semester_id` integer REFERENCES structure_semesters(id);

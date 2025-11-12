@@ -1,1 +1,0 @@
-ALTER TABLE `registration_requests` ADD `semester_status` text DEFAULT 'Active' NOT NULL;

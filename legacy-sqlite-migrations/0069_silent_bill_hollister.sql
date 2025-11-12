@@ -1,1 +1,0 @@
-CREATE INDEX `blocked_students_std_no_idx` ON `blocked_students` (`std_no`);

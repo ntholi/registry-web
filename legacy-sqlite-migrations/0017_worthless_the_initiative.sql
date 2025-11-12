@@ -1,1 +1,0 @@
-DROP TABLE `semester_modules`;

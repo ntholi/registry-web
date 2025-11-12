@@ -1,1 +1,0 @@
-ALTER TABLE `requested_modules` ADD `status` text DEFAULT 'pending' NOT NULL;

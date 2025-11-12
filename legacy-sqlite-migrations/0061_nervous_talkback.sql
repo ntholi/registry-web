@@ -1,1 +1,0 @@
-ALTER TABLE `blocked_students` ADD `reason` text NOT NULL;

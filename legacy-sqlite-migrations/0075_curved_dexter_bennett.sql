@@ -1,1 +1,0 @@
-ALTER TABLE `clearance` DROP COLUMN `auto_approved`;

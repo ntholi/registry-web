@@ -1,1 +1,0 @@
-ALTER TABLE `clearance` ADD `auto_approved` integer DEFAULT false NOT NULL;

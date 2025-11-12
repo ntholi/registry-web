@@ -1,1 +1,0 @@
-ALTER TABLE `documents` ADD `type` text;
