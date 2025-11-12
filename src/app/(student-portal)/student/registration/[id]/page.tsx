@@ -18,7 +18,7 @@ import {
 import { IconBooks, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
-import { getStatusColor } from '@/app/student/utils/colors';
+import { getStatusColor } from '@/app/(student-portal)/student/utils/colors';
 import { auth } from '@/auth';
 import { MAX_REGISTRATION_ATTEMPTS } from '@/lib/constants';
 import { formatSemester } from '@/lib/utils/utils';

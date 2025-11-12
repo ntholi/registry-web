@@ -5,7 +5,7 @@ import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import ProofOfClearancePDF from '@/app/student/graduation/components/ProofOfClearancePDF';
+import ProofOfClearancePDF from '@/app/(student-portal)/student/graduation/components/ProofOfClearancePDF';
 import {
 	getGraduationClearanceData,
 	getGraduationRequest,
