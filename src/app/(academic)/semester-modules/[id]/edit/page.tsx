@@ -1,10 +1,10 @@
+import Form from '@academic/semester-modules/Form';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
 	getSemesterModule,
 	updateModule,
 } from '@/server/academic/semester-modules/actions';
-import Form from '../../Form';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -16,6 +16,10 @@ import {
 	Title,
 } from '@mantine/core';
 import { getStatusColor } from '@student-portal/student/utils/colors';
+import {
+	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
+	getStatusIcon,
+} from '@student-portal/student/utils/status';
 import { IconBooks, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
@@ -23,10 +27,6 @@ import { auth } from '@/auth';
 import { MAX_REGISTRATION_ATTEMPTS } from '@/lib/constants';
 import { formatSemester } from '@/lib/utils/utils';
 import { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
-import {
-	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
-	getStatusIcon,
-} from '../../utils/status';
 import ProofOfRegistrationDownload from '../components/ProofOfRegistrationDownload';
 import ClearanceStatusView from './ClearanceStatusView';
 import DepartmentMessagesView from './DepartmentMessagesView';

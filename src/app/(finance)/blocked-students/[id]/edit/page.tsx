@@ -1,10 +1,10 @@
+import Form from '@finance/blocked-students/Form';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
 	getBlockedStudent,
 	updateBlockedStudent,
 } from '@/server/finance/blocked-students/actions';
-import Form from '../../Form';
 
 type Props = {
 	params: Promise<{ id: string }>;

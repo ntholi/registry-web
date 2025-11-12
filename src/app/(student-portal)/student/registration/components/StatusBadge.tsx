@@ -1,13 +1,13 @@
 'use client';
 
 import { Badge, Skeleton } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
-import { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
 	getStatusColor,
 	type RegistrationStatus,
-} from '../../utils/status';
+} from '@student-portal/student/utils/status';
+import { useQuery } from '@tanstack/react-query';
+import { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 
 interface Props {
 	requestId: number;

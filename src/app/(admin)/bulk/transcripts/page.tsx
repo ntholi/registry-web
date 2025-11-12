@@ -16,6 +16,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { Document, pdf } from '@react-pdf/renderer';
+import { TranscriptPages } from '@registry/students/[id]/graduation/transcript/TranscriptPDF';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -25,7 +26,6 @@ import {
 	getStudentsByGraduationDate,
 } from '@/server/admin/bulk/transcripts/actions';
 import type { getAcademicHistory } from '@/server/registry/students/actions';
-import { TranscriptPages } from '../../../(registry)/students/[id]/graduation/transcript/TranscriptPDF';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 

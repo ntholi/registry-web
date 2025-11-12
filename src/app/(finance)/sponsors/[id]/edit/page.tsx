@@ -1,7 +1,7 @@
+import Form from '@finance/sponsors/Form';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { getSponsor, updateSponsor } from '@/server/finance/sponsors/actions';
-import Form from '../../Form';
 
 type Props = {
 	params: Promise<{ id: string }>;

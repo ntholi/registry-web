@@ -1,7 +1,7 @@
+import BulkRepository from '@server/admin/bulk/transcripts/repository';
+import { serviceWrapper } from '@server/base/serviceWrapper';
+import { studentsService } from '@server/registry/students/service';
 import withAuth from '@/server/base/withAuth';
-import BulkRepository from '../../admin/bulk/transcripts/repository';
-import { serviceWrapper } from '../../base/serviceWrapper';
-import { studentsService } from '../../registry/students/service';
 
 class BulkService {
 	private repository: BulkRepository;

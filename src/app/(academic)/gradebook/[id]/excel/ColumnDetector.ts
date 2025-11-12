@@ -1,4 +1,4 @@
-import { ASSESSMENT_TYPES } from '../../../assessments/[id]/assessments';
+import { ASSESSMENT_TYPES } from '@academic/assessments/[id]/assessments';
 import type { AssessmentInfo, DetectedColumns, ExcelData } from './types';
 import {
 	columnIndexToLetter,

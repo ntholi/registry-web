@@ -1,9 +1,9 @@
+import type { QueryOptions } from '@server/base/BaseRepository';
+import { getCurrentTerm } from '@server/registry/terms/actions';
 import { auth } from '@/auth';
 import type { clearance, DashboardUser } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
-import type { QueryOptions } from '../../../base/BaseRepository';
-import { getCurrentTerm } from '../../terms/actions';
 import ClearanceRepository from './repository';
 
 type Clearance = typeof clearance.$inferInsert;

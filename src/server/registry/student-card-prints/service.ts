@@ -1,7 +1,7 @@
+import type { QueryOptions } from '@server/base/BaseRepository';
+import { serviceWrapper } from '@server/base/serviceWrapper';
 import type { studentCardPrints } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
-import type { QueryOptions } from '../../base/BaseRepository';
-import { serviceWrapper } from '../../base/serviceWrapper';
 import StudentCardPrintRepository from './repository';
 
 type StudentCardPrint = typeof studentCardPrints.$inferInsert;

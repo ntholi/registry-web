@@ -12,14 +12,14 @@ import {
 	TimelineItem,
 	Title,
 } from '@mantine/core';
-import { IconInfoCircle } from '@tabler/icons-react';
-import { formatDateTime, toTitleCase } from '@/lib/utils/utils';
-import type { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
 import {
 	getClearanceStatus,
 	getStatusColor,
 	getStatusIcon,
-} from '../../utils/status';
+} from '@student-portal/student/utils/status';
+import { IconInfoCircle } from '@tabler/icons-react';
+import { formatDateTime, toTitleCase } from '@/lib/utils/utils';
+import type { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
 
 interface Props {
 	graduationRequest: NonNullable<

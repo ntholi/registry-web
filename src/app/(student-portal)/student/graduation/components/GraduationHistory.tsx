@@ -10,6 +10,10 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import {
+	getGraduationStatus,
+	getStatusColor,
+} from '@student-portal/student/utils/status';
+import {
 	IconChevronRight,
 	IconFileText,
 	IconSchool,
@@ -17,7 +21,6 @@ import {
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/utils/utils';
 import { getGraduationRequestByStudentNo } from '@/server/registry/graduation/requests/actions';
-import { getGraduationStatus, getStatusColor } from '../../utils/status';
 
 interface GraduationHistoryProps {
 	stdNo: number;

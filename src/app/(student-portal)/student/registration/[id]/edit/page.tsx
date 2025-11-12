@@ -14,6 +14,8 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import ModuleSelection from '@student-portal/student/registration/new/ModuleSelection';
+import SemesterConfirmation from '@student-portal/student/registration/new/SemesterConfirmation';
 import {
 	IconArrowLeft,
 	IconArrowRight,
@@ -34,8 +36,6 @@ import {
 	getStudentSemesterModules,
 	updateRegistrationWithModulesAndSponsorship,
 } from '@/server/registry/registration/requests/actions';
-import ModuleSelection from '../../new/ModuleSelection';
-import SemesterConfirmation from '../../new/SemesterConfirmation';
 import SponsorshipDetailsEdit from './SponsorshipDetailsEdit';
 
 type SelectedModule = {

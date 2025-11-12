@@ -1,4 +1,5 @@
 import { Box } from '@mantine/core';
+import EditForm from '@registry/registration/requests/Form';
 import { notFound } from 'next/navigation';
 import type {
 	modules,
@@ -11,7 +12,6 @@ import {
 	getRegistrationRequest,
 	updateRegistrationWithModulesAndSponsorship,
 } from '@/server/registry/registration/requests/actions';
-import EditForm from '../../../Form';
 
 type Props = {
 	params: Promise<{ id: string }>;

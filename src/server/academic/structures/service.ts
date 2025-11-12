@@ -1,7 +1,7 @@
+import type { QueryOptions } from '@server/base/BaseRepository';
 import type { structures } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
-import type { QueryOptions } from '../../base/BaseRepository';
 import StructureRepository from './repository';
 
 type Structure = typeof structures.$inferInsert;

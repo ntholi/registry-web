@@ -1,4 +1,5 @@
 'use client';
+import { getAssessmentTypeLabel } from '@academic/assessments/[id]/assessments';
 import {
 	Center,
 	CloseButton,
@@ -19,7 +20,6 @@ import {
 } from '@tabler/icons-react';
 import React, { useState } from 'react';
 import Link from '@/components/Link';
-import { getAssessmentTypeLabel } from '../../assessments/[id]/assessments';
 import ExcelImport from './excel/ExcelImport';
 import GradeDisplay from './GradeDisplay';
 import GradeSymbolModal from './GradeSymbolModal';
