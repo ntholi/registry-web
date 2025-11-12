@@ -2,10 +2,10 @@
 
 import { Button, Loader } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
+import ProofOfClearancePDF from '@student-portal/student/graduation/components/ProofOfClearancePDF';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import ProofOfClearancePDF from '@/app/(student-portal)/student/graduation/components/ProofOfClearancePDF';
 import {
 	getGraduationClearanceData,
 	getGraduationRequest,

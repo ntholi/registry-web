@@ -20,7 +20,11 @@
 			}
 		],
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@academic/*": ["./src/app/(academic)/*"],
+			"@registry/*": ["./src/app/(registry)/*"],
+			"@student-portal/*": ["./src/app/(student-portal)/*"],
+			"@finance/*": ["./src/app/(finance)/*"]
 		}
 	},
 	"include": [

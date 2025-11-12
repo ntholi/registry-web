@@ -1,5 +1,5 @@
+import { getAssessmentTypeLabel } from '@academic/assessments/[id]/assessments';
 import { Packer } from 'docx';
-import { getAssessmentTypeLabel } from '@/app/(academic)/assessments/[id]/assessments';
 import { auth } from '@/auth';
 import { termsRepository } from '@/server/terms/repository';
 import { createCourseSummaryDocument } from './document';

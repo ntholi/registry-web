@@ -3,14 +3,14 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import fontkit from '@pdf-lib/fontkit';
-import type { PDFFont, PDFPage } from 'pdf-lib';
-import { PDFDocument, rgb } from 'pdf-lib';
 import {
 	buildCertificateReference,
 	expandProgramName,
 	formatIssueDate,
 	generateQRCodeDataURL,
-} from '@/app/(registry)/students/[id]/graduation/certificate/utils';
+} from '@registry/students/[id]/graduation/certificate/utils';
+import type { PDFFont, PDFPage } from 'pdf-lib';
+import { PDFDocument, rgb } from 'pdf-lib';
 
 const PRIMARY_COLOR = rgb(0, 0, 0);
 const REFERENCE_RIGHT_MARGIN = 36;

@@ -12,9 +12,9 @@ import {
 	Title,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { getCleanedSemesters } from '@registry/students/[id]/AcademicsView/statements/utils';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getCleanedSemesters } from '@/app/(registry)/students/[id]/AcademicsView/statements/utils';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import useUserStudent from '@/lib/hooks/use-user-student';
 import { formatSemester } from '@/lib/utils/utils';
