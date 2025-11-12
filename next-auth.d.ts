@@ -7,4 +7,8 @@ declare module 'next-auth' {
 		stdNo?: number;
 		position?: UserPosition;
 	}
+
+	interface Session {
+		accessToken?: string;
+	}
 }

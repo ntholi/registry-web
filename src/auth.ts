@@ -29,7 +29,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 	}) as Adapter,
 
 	callbacks: {
-		async session({ session, user }) {
+		async session({ session, user, trigger }) {
 			session.user.role = user.role;
 			session.user.position = user.position;
 
@@ -40,6 +40,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
 				session.user.stdNo = student?.stdNo;
 			}
+
+			if (trigger === 'update' || !session.accessToken) {
+				const account = await db.query.accounts.findFirst({
+					where: eq(accounts.userId, user.id),
+				});
+
+				if (account?.access_token) {
+					session.accessToken = account.access_token;
+				}
+			}
+
 			return session;
 		},
 	},
