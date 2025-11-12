@@ -1,7 +1,7 @@
-import type { fortinetLevel, fortinetRegistrations } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import { getStudentByUserId } from '@/server/registry/students/actions';
+import type { fortinetLevel, fortinetRegistrations } from '@/shared/db/schema';
 import type { QueryOptions } from '../base/BaseRepository';
 import FortinetRegistrationRepository from './repository';
 

@@ -1,9 +1,14 @@
 import { and, eq, inArray, or, type SQL } from 'drizzle-orm';
-import { db } from '@/db';
-import { type DashboardUser, taskAssignments, tasks, users } from '@/db/schema';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/server/base/BaseRepository';
+import { db } from '@/shared/db';
+import {
+	type DashboardUser,
+	taskAssignments,
+	tasks,
+	users,
+} from '@/shared/db/schema';
 
 export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	constructor() {

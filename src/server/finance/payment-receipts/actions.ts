@@ -1,6 +1,6 @@
 'use server';
 
-import type { paymentReceipts, paymentType } from '@/db/schema';
+import type { paymentReceipts, paymentType } from '@/shared/db/schema';
 import { paymentReceiptService as service } from './service';
 
 type PaymentReceipt = typeof paymentReceipts.$inferInsert;

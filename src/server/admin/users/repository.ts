@@ -1,8 +1,8 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { and, eq, inArray } from 'drizzle-orm';
-import { db } from '@/db';
-import { userSchools, users } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
+import { db } from '@/shared/db';
+import { userSchools, users } from '@/shared/db/schema';
 
 export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 	constructor() {

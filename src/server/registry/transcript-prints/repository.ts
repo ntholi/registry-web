@@ -1,5 +1,5 @@
-import { transcriptPrints } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
+import { transcriptPrints } from '@/shared/db/schema';
 
 export default class TranscriptPrintRepository extends BaseRepository<
 	typeof transcriptPrints,

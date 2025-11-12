@@ -2,8 +2,8 @@ import { getUserSchoolIds } from '@server/admin/users/actions';
 import UserRepository from '@server/admin/users/repository';
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { auth } from '@/auth';
-import type { users } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
+import type { users } from '@/shared/db/schema';
 
 class LecturerService {
 	constructor(private readonly repository = new UserRepository()) {}

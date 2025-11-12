@@ -1,8 +1,8 @@
 import type { Session } from 'next-auth';
 import { vi } from 'vitest';
-import type { UserRole } from '@/db/schema';
 import { getMockUser } from '@/server/admin/test/mocks.auth';
 import withAuth from '@/server/base/withAuth';
+import type { UserRole } from '@/shared/db/schema';
 
 type Role = UserRole | 'all' | 'auth' | 'dashboard';
 type AccessCheckFunction = (session: Session) => Promise<boolean>;

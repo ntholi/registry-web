@@ -1,6 +1,6 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
-import type { modules } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
+import type { modules } from '@/shared/db/schema';
 import ModuleRepository from './repository';
 
 type Module = typeof modules.$inferInsert;

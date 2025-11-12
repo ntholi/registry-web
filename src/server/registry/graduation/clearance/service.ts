@@ -1,8 +1,8 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { auth } from '@/auth';
-import type { clearance, DashboardUser } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
+import type { clearance, DashboardUser } from '@/shared/db/schema';
 import GraduationClearanceRepository from './repository';
 
 type Clearance = typeof clearance.$inferInsert;

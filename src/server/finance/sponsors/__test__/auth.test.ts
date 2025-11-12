@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { sponsors, users } from '@/db/schema';
 import { resetMockUser, setMockUser } from '@/server/admin/test/mocks.auth';
 import {
 	createSponsor,
@@ -8,6 +7,7 @@ import {
 	getSponsor,
 	updateSponsor,
 } from '@/server/finance/sponsors/actions';
+import type { sponsors, users } from '@/shared/db/schema';
 
 vi.mock('@/server/base/withAuth', () => {
 	return vi.importActual('@/test/mock.withAuth');

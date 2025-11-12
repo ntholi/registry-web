@@ -1,11 +1,11 @@
 'use server';
 
+import type { AcademicRemarks, Student } from '@/lib/helpers/students';
 import type {
 	registrationRequests,
 	requestedModules,
 	StudentModuleStatus,
-} from '@/db/schema';
-import type { AcademicRemarks, Student } from '@/lib/helpers/students';
+} from '@/shared/db/schema';
 import { registrationRequestsService as service } from './service';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;

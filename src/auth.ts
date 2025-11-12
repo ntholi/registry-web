@@ -5,14 +5,14 @@ import { eq } from 'drizzle-orm';
 import NextAuth from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
 import Google from 'next-auth/providers/google';
-import { db } from '@/db';
+import { db } from '@/shared/db';
 import {
 	accounts,
 	sessions,
 	students,
 	users,
 	verificationTokens,
-} from './db/schema';
+} from './shared/db/schema';
 
 interface UserData {
 	email: string;

@@ -14,7 +14,6 @@ import { notifications } from '@mantine/notifications';
 import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { StudentModuleStatus } from '@/db/schema';
 import type { Student } from '@/lib/helpers/students';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/lib/utils/grades';
@@ -25,6 +24,7 @@ import {
 	getStudentSemesterModules,
 } from '@/server/registry/registration/requests/actions';
 import { getAcademicHistory } from '@/server/registry/students/actions';
+import type { StudentModuleStatus } from '@/shared/db/schema';
 import ModuleSection from './ModuleSection';
 import SemesterInfoCard from './SemesterInfoCard';
 import SponsorSelector from './SponsorSelector';

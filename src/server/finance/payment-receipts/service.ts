@@ -2,9 +2,9 @@ import type { QueryOptions } from '@server/base/BaseRepository';
 import { serviceWrapper } from '@server/base/serviceWrapper';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/auth';
-import { db } from '@/db';
-import { paymentReceipts, type paymentType } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
+import { db } from '@/shared/db';
+import { paymentReceipts, type paymentType } from '@/shared/db/schema';
 import PaymentReceiptRepository from './repository';
 
 type PaymentReceipt = typeof paymentReceipts.$inferInsert;

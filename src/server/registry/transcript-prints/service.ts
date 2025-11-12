@@ -1,9 +1,9 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { eq } from 'drizzle-orm';
-import { db } from '@/db';
-import { transcriptPrints } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
+import { db } from '@/shared/db';
+import { transcriptPrints } from '@/shared/db/schema';
 import TranscriptPrintsRepository from './repository';
 
 type TranscriptPrint = typeof transcriptPrints.$inferInsert;

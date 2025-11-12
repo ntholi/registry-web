@@ -1,16 +1,10 @@
 import {
 	IconAB2,
-	IconBuildingStore,
-	IconCalculator,
-	IconChartLine,
 	IconCopyCheck,
 	IconNotebook,
 	IconSchool,
-	IconTestPipe,
-	IconTool,
 } from '@tabler/icons-react';
-import type { ModuleConfig, NavItem } from '@/app/dashboard/module-config.types';
-import type { UserPosition, UserRole } from '@/db/schema';
+import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 
 export const academicConfig: ModuleConfig = {
 	id: 'academic-management',
@@ -28,7 +22,8 @@ export const academicConfig: ModuleConfig = {
 				isVisible: (session) => {
 					const position = session?.user?.position;
 					return !!(
-						position && ['manager', 'admin', 'program_leader'].includes(position)
+						position &&
+						['manager', 'admin', 'program_leader'].includes(position)
 					);
 				},
 			},

@@ -15,12 +15,15 @@ import {
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
-import type { DashboardUser, registrationRequestStatus } from '@/db/schema';
 import { getSponsoredStudent } from '@/server/finance/sponsors/actions';
 import {
 	deleteRegistrationRequest,
 	getRegistrationRequest,
 } from '@/server/registry/registration/requests/actions';
+import type {
+	DashboardUser,
+	registrationRequestStatus,
+} from '@/shared/db/schema';
 import ClearanceAccordion from './ClearanceAccordion';
 import ModulesView from './ModulesView';
 import RequestDetailsView from './RequestDetailsView';

@@ -1,5 +1,5 @@
-import { paymentReceipts } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
+import { paymentReceipts } from '@/shared/db/schema';
 
 export default class PaymentReceiptRepository extends BaseRepository<
 	typeof paymentReceipts,

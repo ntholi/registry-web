@@ -21,13 +21,13 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import type { paymentType } from '@/db/schema';
 import useUserStudent from '@/lib/hooks/use-user-student';
 import {
 	createGraduationRequestWithPaymentReceipts,
 	getEligiblePrograms,
 	getGraduationRequestByStudentNo,
 } from '@/server/registry/graduation/requests/actions';
+import type { paymentType } from '@/shared/db/schema';
 import InformationConfirmation from './InformationConfirmation';
 import PaymentReceiptsInput from './PaymentReceiptsInput';
 import ProgramSelection from './ProgramSelection';

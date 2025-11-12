@@ -1,7 +1,7 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
-import type { schools } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
+import type { schools } from '@/shared/db/schema';
 import SchoolRepository from './repository';
 
 class SchoolService {

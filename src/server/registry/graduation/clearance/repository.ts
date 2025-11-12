@@ -1,6 +1,10 @@
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/auth';
-import { db } from '@/db';
+import { usersRepository } from '@/server/admin/users/repository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
+import { db } from '@/shared/db';
 import {
 	clearance,
 	clearanceAudit,
@@ -12,11 +16,7 @@ import {
 	structures,
 	studentPrograms,
 	students,
-} from '@/db/schema';
-import { usersRepository } from '@/server/admin/users/repository';
-import BaseRepository, {
-	type QueryOptions,
-} from '@/server/base/BaseRepository';
+} from '@/shared/db/schema';
 
 type Model = typeof clearance.$inferInsert;
 

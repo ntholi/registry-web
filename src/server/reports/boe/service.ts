@@ -1,15 +1,15 @@
 import { and, inArray } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
-import { db } from '@/db';
+import { getAcademicRemarks, summarizeModules } from '@/lib/utils/grades';
+import { formatSemester } from '@/lib/utils/utils';
+import { termsRepository } from '@/server/registry/terms/repository';
+import { db } from '@/shared/db';
 import {
 	type Grade,
 	moduleGrades,
 	type StudentModuleStatus,
 	type schools,
-} from '@/db/schema';
-import { getAcademicRemarks, summarizeModules } from '@/lib/utils/grades';
-import { formatSemester } from '@/lib/utils/utils';
-import { termsRepository } from '@/server/registry/terms/repository';
+} from '@/shared/db/schema';
 import { boeReportRepository, type ProgramSemesterReport } from './repository';
 import { createWorksheet } from './worksheet';
 

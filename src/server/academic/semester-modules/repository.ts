@@ -1,5 +1,8 @@
 import { and, desc, eq, inArray, like, or, type SQL, sql } from 'drizzle-orm';
-import { db } from '@/db';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
+import { db } from '@/shared/db';
 import {
 	modulePrerequisites,
 	modules,
@@ -11,10 +14,7 @@ import {
 	studentModules,
 	studentSemesters,
 	type terms,
-} from '@/db/schema';
-import BaseRepository, {
-	type QueryOptions,
-} from '@/server/base/BaseRepository';
+} from '@/shared/db/schema';
 
 type ModuleInfo = {
 	code: string;

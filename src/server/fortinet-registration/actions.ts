@@ -1,6 +1,6 @@
 'use server';
 
-import type { fortinetLevel } from '@/db/schema';
+import type { fortinetLevel } from '@/shared/db/schema';
 import { fortinetRegistrationService } from './service';
 
 type FortinetLevel = (typeof fortinetLevel.enumValues)[number];

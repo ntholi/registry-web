@@ -4,7 +4,7 @@ import { Grid, NumberInput, Select, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { Form } from '@/components/adease';
-import { modules } from '@/db/schema';
+import { modules } from '@/shared/db/schema';
 
 type Module = typeof modules.$inferInsert;
 

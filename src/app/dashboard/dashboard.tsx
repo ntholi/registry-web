@@ -18,17 +18,17 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import React from 'react';
-import { Shell } from '@/components/adease';
-import Logo from '@/components/Logo';
-import type { DashboardUser, UserRole } from '@/db/schema';
-import { toTitleCase } from '@/lib/utils/utils';
-import { getAssignedModulesByCurrentUser } from '@/server/academic/assigned-modules/actions';
-import { getUserSchools } from '@/server/admin/users/actions';
-import type { NavItem } from './module-config.types';
 import { academicConfig } from '@/app/(academic)/academic.config';
 import { adminConfig } from '@/app/(admin)/admin.config';
 import { financeConfig } from '@/app/(finance)/finance.config';
 import { registryConfig } from '@/app/(registry)/registry.config';
+import { Shell } from '@/components/adease';
+import Logo from '@/components/Logo';
+import { toTitleCase } from '@/lib/utils/utils';
+import { getAssignedModulesByCurrentUser } from '@/server/academic/assigned-modules/actions';
+import { getUserSchools } from '@/server/admin/users/actions';
+import type { DashboardUser, UserRole } from '@/shared/db/schema';
+import type { NavItem } from './module-config.types';
 
 function getNavigation(department: DashboardUser) {
 	const allConfigs = [
@@ -50,7 +50,12 @@ function getNavigation(department: DashboardUser) {
 	const itemMap = new Map<string, NavItem>();
 	const reportItems: NavItem[] = [];
 
-	const reportLabels = ['Course Summary', 'Clearance', 'Board of Examination', 'Student Registration'];
+	const reportLabels = [
+		'Course Summary',
+		'Clearance',
+		'Board of Examination',
+		'Student Registration',
+	];
 
 	for (const item of navItems) {
 		if (reportLabels.includes(item.label)) {
@@ -65,11 +70,13 @@ function getNavigation(department: DashboardUser) {
 			if (item.children && existing.children) {
 				const childrenMap = new Map<string, NavItem>();
 				for (const child of existing.children) {
-					const childKey = typeof child.href === 'string' ? child.href : child.label;
+					const childKey =
+						typeof child.href === 'string' ? child.href : child.label;
 					childrenMap.set(childKey, child);
 				}
 				for (const child of item.children) {
-					const childKey = typeof child.href === 'string' ? child.href : child.label;
+					const childKey =
+						typeof child.href === 'string' ? child.href : child.label;
 					if (!childrenMap.has(childKey)) {
 						existing.children.push(child);
 					}
@@ -83,7 +90,7 @@ function getNavigation(department: DashboardUser) {
 		}
 	}
 
-	const reportsParent = combinedItems.find(item => item.label === 'Reports');
+	const reportsParent = combinedItems.find((item) => item.label === 'Reports');
 	if (reportsParent && reportItems.length > 0) {
 		reportsParent.children = reportItems;
 	}
@@ -201,8 +208,7 @@ export function Navigation({ navigation }: { navigation: NavItem[] }) {
 	return (
 		<>
 			{navigation.map((item) => {
-				const key =
-					typeof item.href === 'string' ? item.href : item.label;
+				const key = typeof item.href === 'string' ? item.href : item.label;
 				return <DisplayWithNotification key={key} item={item} />;
 			})}
 		</>

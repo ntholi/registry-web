@@ -1,26 +1,27 @@
 import {
 	IconBarrierBlock,
-	IconBuildingStore,
 	IconCertificate,
-	IconChartLine,
 	IconCopyCheck,
 	IconFileCheck,
 	IconMessageQuestion,
 	IconSquareRoundedCheck,
 	IconUserX,
 } from '@tabler/icons-react';
-import type { ModuleConfig, NavItem } from '@/app/dashboard/module-config.types';
-import type { DashboardUser, UserPosition, UserRole } from '@/db/schema';
-import {
-	countApprovedClearances,
-	countPendingClearances,
-	countRejectedClearances,
-} from '@/server/registry/registration/clearance/actions';
+import type {
+	ModuleConfig,
+	NavItem,
+} from '@/app/dashboard/module-config.types';
 import {
 	countApprovedGraduationClearances,
 	countPendingGraduationClearances,
 	countRejectedGraduationClearances,
 } from '@/server/registry/graduation/clearance/actions';
+import {
+	countApprovedClearances,
+	countPendingClearances,
+	countRejectedClearances,
+} from '@/server/registry/registration/clearance/actions';
+import type { UserPosition, UserRole } from '@/shared/db/schema';
 
 export const financeConfig: ModuleConfig = {
 	id: 'finance-management',

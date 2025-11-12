@@ -16,11 +16,11 @@ import {
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
-import type { DashboardUser } from '@/db/schema';
 import {
 	deleteGraduationRequest,
 	getGraduationRequest,
 } from '@/server/registry/graduation/requests/actions';
+import type { DashboardUser } from '@/shared/db/schema';
 import GraduationClearanceAccordion from './GraduationClearanceAccordion';
 import GraduationRequestDetailsView from './GraduationRequestDetailsView';
 import PaymentReceiptsView from './PaymentReceiptsView';

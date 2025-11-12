@@ -1,6 +1,6 @@
 'use server';
 
-import type { schools } from '@/db/schema';
+import type { schools } from '@/shared/db/schema';
 import { boeReportService } from './service';
 
 type School = typeof schools.$inferSelect;

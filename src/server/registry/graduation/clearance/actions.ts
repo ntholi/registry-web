@@ -1,7 +1,7 @@
 'use server';
 
 import { auth } from '@/auth';
-import type { clearance, DashboardUser } from '@/db/schema';
+import type { clearance, DashboardUser } from '@/shared/db/schema';
 import { graduationClearanceService as service } from './service';
 
 type Clearance = typeof clearance.$inferInsert;

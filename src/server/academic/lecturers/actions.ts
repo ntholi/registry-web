@@ -1,7 +1,7 @@
 'use server';
 
 import { and, eq, ne } from 'drizzle-orm';
-import { users } from '@/db/schema';
+import { users } from '@/shared/db/schema';
 import { lecturersService as service } from './service';
 
 export async function getLecturer(id: string) {

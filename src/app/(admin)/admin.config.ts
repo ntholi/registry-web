@@ -7,7 +7,6 @@ import {
 	IconCalendarEvent,
 	IconCalendarStats,
 	IconChartLine,
-	IconCopyCheck,
 	IconFileDownload,
 	IconPackages,
 	IconTestPipe,
@@ -15,8 +14,10 @@ import {
 	IconUserCog,
 	IconUsersGroup,
 } from '@tabler/icons-react';
-import type { ModuleConfig, NavItem } from '@/app/dashboard/module-config.types';
-import type { DashboardUser, UserPosition, UserRole } from '@/db/schema';
+import type {
+	ModuleConfig,
+	NavItem,
+} from '@/app/dashboard/module-config.types';
 
 export const adminConfig: ModuleConfig = {
 	id: 'admin-management',

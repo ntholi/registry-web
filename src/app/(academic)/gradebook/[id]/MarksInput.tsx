@@ -3,12 +3,12 @@
 import { Box, Group, Text, TextInput } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import type { assessmentMarks, moduleGrades } from '@/db/schema';
 import { calculateModuleGrade } from '@/lib/utils/gradeCalculations';
 import {
 	createAssessmentMark,
 	updateAssessmentMark,
 } from '@/server/academic/assessment-marks/actions';
+import type { assessmentMarks, moduleGrades } from '@/shared/db/schema';
 
 type AssessmentMark = typeof assessmentMarks.$inferSelect;
 type ModuleGrade = typeof moduleGrades.$inferSelect;

@@ -1,14 +1,14 @@
 import { and, eq, inArray, ne, notInArray } from 'drizzle-orm';
-import { db } from '@/db';
+import { compareSemesters } from '@/lib/utils/utils';
+import BaseRepository from '@/server/base/BaseRepository';
+import { db } from '@/shared/db';
 import {
 	programs,
 	structures,
 	studentPrograms,
 	studentSemesters,
 	students,
-} from '@/db/schema';
-import { compareSemesters } from '@/lib/utils/utils';
-import BaseRepository from '@/server/base/BaseRepository';
+} from '@/shared/db/schema';
 
 export interface StudentModuleReport {
 	studentId: number;

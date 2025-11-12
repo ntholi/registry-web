@@ -1,6 +1,11 @@
 import { and, eq, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm/sql';
-import { db } from '@/db';
+import { getOutstandingFromStructure } from '@/lib/utils/grades';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
+import { studentsService } from '@/server/registry/students/service';
+import { db } from '@/shared/db';
 import {
 	clearance,
 	graduationClearance,
@@ -8,12 +13,7 @@ import {
 	paymentReceipts,
 	type paymentType,
 	studentPrograms,
-} from '@/db/schema';
-import { getOutstandingFromStructure } from '@/lib/utils/grades';
-import BaseRepository, {
-	type QueryOptions,
-} from '@/server/base/BaseRepository';
-import { studentsService } from '@/server/registry/students/service';
+} from '@/shared/db/schema';
 
 export default class GraduationRequestRepository extends BaseRepository<
 	typeof graduationRequests,

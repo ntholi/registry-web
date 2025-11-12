@@ -7,8 +7,8 @@ import { notifications } from '@mantine/notifications';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import type { modules, semesterModules } from '@/db/schema';
 import { findModulesByStructure } from '@/server/academic/semester-modules/actions';
+import type { modules, semesterModules } from '@/shared/db/schema';
 
 type SemesterModule = typeof semesterModules.$inferInsert & {
 	prerequisiteCodes?: string[];

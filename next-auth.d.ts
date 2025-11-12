@@ -1,4 +1,4 @@
-import { UserRole, UserPosition } from '@/db/schema';
+import { UserRole, UserPosition } from '@/shared/db/schema';
 import { User as DefaultUser } from 'next-auth';
 
 declare module 'next-auth' {

@@ -1,6 +1,6 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
-import type { moduleGrades } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
+import type { moduleGrades } from '@/shared/db/schema';
 import ModuleGradeRepository from './repository';
 
 type ModuleGrade = typeof moduleGrades.$inferInsert;

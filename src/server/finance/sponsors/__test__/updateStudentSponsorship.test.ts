@@ -1,8 +1,8 @@
 import { studentsService } from '@server/registry/students/service';
 import { termsService } from '@server/registry/terms/service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { sponsors, terms, users } from '@/db/schema';
 import { resetMockUser, setMockUser } from '@/server/admin/test/mocks.auth';
+import type { sponsors, terms, users } from '@/shared/db/schema';
 import { sponsorsService } from '../service';
 
 vi.mock('@/server/base/withAuth', () => {
