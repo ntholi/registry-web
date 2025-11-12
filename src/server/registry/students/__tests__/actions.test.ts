@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { db } from '@/db';
+import type { students } from '@/db/schema';
+import { users as usersTable } from '@/db/schema';
 import { setMockUser } from '@/server/admin/test/mocks.auth';
-import { db } from '@/shared/db';
-import type { students } from '@/shared/db/schema';
-import { users as usersTable } from '@/shared/db/schema';
 import { studentsService } from '../service';
 
 type Student = typeof students.$inferInsert;

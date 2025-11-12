@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { terms } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { db } from '@/shared/db';
-import { terms } from '@/shared/db/schema';
 
 export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
 	constructor() {

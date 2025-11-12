@@ -11,9 +11,9 @@ import type {
 	ModuleConfig,
 	NavItem,
 } from '@/app/dashboard/module-config.types';
+import type { UserPosition, UserRole } from '@/db/schema';
 import { countByStatus as countGraduationByStatus } from '@/server/registry/graduation/requests/actions';
 import { countByStatus } from '@/server/registry/registration/requests/actions';
-import type { UserPosition, UserRole } from '@/shared/db/schema';
 
 export const registryConfig: ModuleConfig = {
 	id: 'registry-management',

@@ -1,7 +1,7 @@
 'use server';
 
 import { auth } from '@/auth';
-import type { DashboardUser } from '@/shared/db/schema';
+import type { DashboardUser } from '@/db/schema';
 import type { ClearanceFilter } from './repository';
 import { getDepartmentClearanceStats } from './service';
 

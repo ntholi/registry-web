@@ -26,9 +26,9 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import type { assessments } from '@/db/schema';
 import { generateAssessmentAuditMessage } from '@/lib/utils/auditUtils';
 import { getAssessmentAuditHistory } from '@/server/academic/assessments/actions';
-import type { assessments } from '@/shared/db/schema';
 import {
 	getAssessmentNumberLabel,
 	getAssessmentTypeLabel,

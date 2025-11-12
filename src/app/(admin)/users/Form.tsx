@@ -17,14 +17,14 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { Form } from '@/components/adease';
-import { toTitleCase } from '@/lib/utils/utils';
-import { findAllSchools, getUserSchools } from '@/server/admin/users/actions';
 import {
 	type schools,
 	userPositions,
 	userRoles,
 	type users,
-} from '@/shared/db/schema';
+} from '@/db/schema';
+import { toTitleCase } from '@/lib/utils/utils';
+import { findAllSchools, getUserSchools } from '@/server/admin/users/actions';
 
 type User = typeof users.$inferInsert;
 

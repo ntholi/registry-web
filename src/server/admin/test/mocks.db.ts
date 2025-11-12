@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool } from 'pg';
-import * as relations from '@/shared/db/relations';
-import * as schema from '@/shared/db/schema';
+import * as relations from '@/db/relations';
+import * as schema from '@/db/schema';
 
 const testConnectionString =
 	process.env.DATABASE_TEST_URL ||

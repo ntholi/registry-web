@@ -1,6 +1,5 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import BaseRepository from '@/server/base/BaseRepository';
-import { db } from '@/shared/db';
+import { db } from '@/db';
 import {
 	assignedModules,
 	programs,
@@ -8,7 +7,8 @@ import {
 	structureSemesters,
 	structures,
 	users,
-} from '@/shared/db/schema';
+} from '@/db/schema';
+import BaseRepository from '@/server/base/BaseRepository';
 
 export default class AssignedModuleRepository extends BaseRepository<
 	typeof assignedModules,

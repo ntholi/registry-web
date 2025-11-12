@@ -11,6 +11,7 @@ import type {
 	ModuleConfig,
 	NavItem,
 } from '@/app/dashboard/module-config.types';
+import type { UserPosition, UserRole } from '@/db/schema';
 import {
 	countApprovedGraduationClearances,
 	countPendingGraduationClearances,
@@ -21,7 +22,6 @@ import {
 	countPendingClearances,
 	countRejectedClearances,
 } from '@/server/registry/registration/clearance/actions';
-import type { UserPosition, UserRole } from '@/shared/db/schema';
 
 export const financeConfig: ModuleConfig = {
 	id: 'finance-management',

@@ -11,11 +11,7 @@ import {
 	sql,
 } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm/sql';
-import { MAX_REG_MODULES } from '@/lib/constants';
-import BaseRepository, {
-	type QueryOptions,
-} from '@/server/base/BaseRepository';
-import { db } from '@/shared/db';
+import { db } from '@/db';
 import {
 	clearance,
 	registrationClearance,
@@ -25,7 +21,11 @@ import {
 	sponsoredStudents,
 	sponsoredTerms,
 	studentPrograms,
-} from '@/shared/db/schema';
+} from '@/db/schema';
+import { MAX_REG_MODULES } from '@/lib/constants';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 type RegistrationRequestInsert = typeof registrationRequests.$inferInsert;

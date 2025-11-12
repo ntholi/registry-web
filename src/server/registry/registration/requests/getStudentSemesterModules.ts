@@ -1,17 +1,17 @@
 import { and, eq, inArray } from 'drizzle-orm';
+import { db } from '@/db';
+import {
+	modulePrerequisites,
+	type modules,
+	semesterModules,
+	structureSemesters,
+} from '@/db/schema';
 import {
 	type AcademicRemarks,
 	getActiveProgram,
 	getNextSemesterNo,
 	type Student,
 } from '@/lib/helpers/students';
-import { db } from '@/shared/db';
-import {
-	modulePrerequisites,
-	type modules,
-	semesterModules,
-	structureSemesters,
-} from '@/shared/db/schema';
 
 type ModuleWithStatus = {
 	semesterModuleId: number;

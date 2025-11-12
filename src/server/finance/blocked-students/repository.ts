@@ -1,9 +1,9 @@
 import { and, eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { blockedStudents } from '@/db/schema';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/server/base/BaseRepository';
-import { db } from '@/shared/db';
-import { blockedStudents } from '@/shared/db/schema';
 
 export default class BlockedStudentRepository extends BaseRepository<
 	typeof blockedStudents,

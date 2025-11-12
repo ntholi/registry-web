@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { programs, schools } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { db } from '@/shared/db';
-import { programs, schools } from '@/shared/db/schema';
 
 export default class SchoolRepository extends BaseRepository<
 	typeof schools,

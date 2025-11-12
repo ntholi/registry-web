@@ -1,8 +1,8 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { getCurrentTerm } from '@server/registry/terms/actions';
+import type { semesterModules } from '@/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
-import type { semesterModules } from '@/shared/db/schema';
 import ModuleRepository from './repository';
 
 type Module = typeof semesterModules.$inferInsert;

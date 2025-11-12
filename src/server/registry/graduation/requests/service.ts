@@ -1,7 +1,7 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { serviceWrapper } from '@server/base/serviceWrapper';
+import type { graduationRequests, paymentType } from '@/db/schema';
 import withAuth from '@/server/base/withAuth';
-import type { graduationRequests, paymentType } from '@/shared/db/schema';
 import GraduationRequestRepository from './repository';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;

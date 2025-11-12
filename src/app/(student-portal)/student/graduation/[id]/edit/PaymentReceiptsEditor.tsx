@@ -26,11 +26,11 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { paymentType } from '@/db/schema';
 import {
 	addPaymentReceipt,
 	removePaymentReceipt,
 } from '@/server/finance/payment-receipts/actions';
-import { paymentType } from '@/shared/db/schema';
 
 type PaymentReceipt = {
 	id: number;

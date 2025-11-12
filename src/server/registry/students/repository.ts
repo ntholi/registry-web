@@ -9,10 +9,7 @@ import {
 	type SQL,
 	sql,
 } from 'drizzle-orm';
-import BaseRepository, {
-	type QueryOptions,
-} from '@/server/base/BaseRepository';
-import { db } from '@/shared/db';
+import { db } from '@/db';
 import {
 	nextOfKins,
 	programs,
@@ -25,7 +22,10 @@ import {
 	students,
 	terms,
 	users,
-} from '@/shared/db/schema';
+} from '@/db/schema';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 import type { StudentFilter } from './actions';
 
 export default class StudentRepository extends BaseRepository<

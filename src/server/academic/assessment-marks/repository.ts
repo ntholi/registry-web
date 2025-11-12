@@ -1,12 +1,12 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import { auth } from '@/auth';
-import BaseRepository from '@/server/base/BaseRepository';
-import { db } from '@/shared/db';
+import { db } from '@/db';
 import {
 	assessmentMarks,
 	assessmentMarksAudit,
 	assessments,
-} from '@/shared/db/schema';
+} from '@/db/schema';
+import BaseRepository from '@/server/base/BaseRepository';
 
 type Mark = typeof assessmentMarks.$inferSelect;
 

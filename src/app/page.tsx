@@ -2,7 +2,7 @@ import { Center, Loader, Stack, Text } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/auth';
-import { dashboardUsers } from '@/shared/db/schema';
+import { dashboardUsers } from '@/db/schema';
 
 function LoadingComponent() {
 	return (

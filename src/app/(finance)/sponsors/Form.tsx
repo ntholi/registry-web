@@ -4,7 +4,7 @@ import { TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { Form } from '@/components/adease';
-import { sponsors } from '@/shared/db/schema';
+import { sponsors } from '@/db/schema';
 
 type Sponsor = typeof sponsors.$inferInsert;
 

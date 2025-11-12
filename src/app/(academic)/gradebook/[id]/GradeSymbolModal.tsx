@@ -21,9 +21,9 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import type { grade, moduleGrades } from '@/db/schema';
 import { getLetterGrade } from '@/lib/utils/grades';
 import { upsertModuleGrade } from '@/server/academic/module-grades/actions';
-import type { grade, moduleGrades } from '@/shared/db/schema';
 
 interface Props {
 	studentId: number;

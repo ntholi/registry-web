@@ -21,6 +21,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import type { StudentModuleStatus } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import useUserStudent from '@/lib/hooks/use-user-student';
@@ -31,7 +32,6 @@ import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
 } from '@/server/registry/registration/requests/actions';
-import type { StudentModuleStatus } from '@/shared/db/schema';
 import AccountConfirmation from './AccountConfirmation';
 import ModuleSelection from './ModuleSelection';
 import SemesterConfirmation from './SemesterConfirmation';

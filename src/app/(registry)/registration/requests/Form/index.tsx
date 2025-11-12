@@ -16,6 +16,12 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import { Form } from '@/components/adease';
+import {
+	type modules,
+	type StudentModuleStatus,
+	type semesterModules,
+	studentModuleStatus,
+} from '@/db/schema';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/lib/utils/grades';
 import { formatSemester } from '@/lib/utils/utils';
@@ -26,12 +32,6 @@ import {
 } from '@/server/registry/registration/requests/actions';
 import { getStudentRegistrationData } from '@/server/registry/students/actions';
 import { findAllTerms } from '@/server/registry/terms/actions';
-import {
-	type modules,
-	type StudentModuleStatus,
-	type semesterModules,
-	studentModuleStatus,
-} from '@/shared/db/schema';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 

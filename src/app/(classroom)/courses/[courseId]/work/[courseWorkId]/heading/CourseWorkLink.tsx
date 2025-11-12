@@ -1,6 +1,6 @@
-import googleClassroom from '@/lib/googleClassroom';
 import { Anchor } from '@mantine/core';
 import Link from 'next/link';
+import googleClassroom from '@/lib/googleClassroom';
 
 type Props = {
 	courseId?: string | null;

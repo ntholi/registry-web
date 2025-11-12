@@ -1,7 +1,7 @@
 import type { MantineColor, NavLinkProps } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
 import type { Session } from 'next-auth';
-import type { UserRole } from '@/shared/db/schema';
+import type { UserRole } from '@/db/schema';
 
 export type NotificationConfig = {
 	queryKey: string[];

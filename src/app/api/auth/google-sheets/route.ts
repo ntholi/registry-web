@@ -2,8 +2,8 @@ import { and, eq } from 'drizzle-orm';
 import { google } from 'googleapis';
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { db } from '@/shared/db';
-import * as schema from '@/shared/db/schema';
+import { db } from '@/db';
+import * as schema from '@/db/schema';
 
 const { accounts } = schema;
 

@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
-import { db } from '@/shared/db';
-import { programs, structures, studentPrograms } from '@/shared/db/schema';
+import { db } from '@/db';
+import { programs, structures, studentPrograms } from '@/db/schema';
 
 export default class BulkRepository {
 	async findDistinctGraduationDates() {

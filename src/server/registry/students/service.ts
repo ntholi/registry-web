@@ -1,8 +1,8 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
+import type { students } from '@/db/schema';
 import type { Program } from '@/lib/utils/grades/type';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
-import type { students } from '@/shared/db/schema';
 import { getCurrentTerm } from '../terms/actions';
 import type { StudentFilter } from './actions';
 import StudentRepository from './repository';

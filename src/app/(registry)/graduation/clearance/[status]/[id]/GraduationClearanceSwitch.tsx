@@ -5,15 +5,12 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import { clearanceRequestStatus, type dashboardUsers } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils/utils';
 import {
 	type getGraduationClearance,
 	updateGraduationClearance,
 } from '@/server/registry/graduation/clearance/actions';
-import {
-	clearanceRequestStatus,
-	type dashboardUsers,
-} from '@/shared/db/schema';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getGraduationClearance>>>;

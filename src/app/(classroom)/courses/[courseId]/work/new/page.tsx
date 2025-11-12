@@ -1,4 +1,3 @@
-import googleClassroom from '@/lib/googleClassroom';
 import {
 	Anchor,
 	Breadcrumbs,
@@ -10,6 +9,7 @@ import {
 } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
 import Link from 'next/link';
+import googleClassroom from '@/lib/googleClassroom';
 import CourseWorkForm from './CourseWorkForm';
 
 type Props = {

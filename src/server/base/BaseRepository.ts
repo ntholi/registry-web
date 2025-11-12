@@ -1,6 +1,6 @@
 import { count, eq, or, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn as Column, PgTable as Table } from 'drizzle-orm/pg-core';
-import { db } from '@/shared/db';
+import { db } from '@/db';
 
 type ModelInsert<T extends Table> = T['$inferInsert'];
 type ModelSelect<T extends Table> = T['$inferSelect'];

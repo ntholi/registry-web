@@ -17,12 +17,12 @@ import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconShield } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { fortinetLevel } from '@/db/schema';
 import useUserStudent from '@/lib/hooks/use-user-student';
 import {
 	createFortinetRegistration,
 	getCurrentStudentFortinetRegistrations,
 } from '@/server/fortinet-registration/actions';
-import { fortinetLevel } from '@/shared/db/schema';
 
 type FortinetLevel = (typeof fortinetLevel.enumValues)[number];
 

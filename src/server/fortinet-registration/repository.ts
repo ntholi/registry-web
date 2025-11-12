@@ -1,14 +1,14 @@
 import { and, desc, eq, like, or, type SQL } from 'drizzle-orm';
-import BaseRepository, {
-	type QueryOptions,
-} from '@/server/base/BaseRepository';
-import { db } from '@/shared/db';
+import { db } from '@/db';
 import {
 	type fortinetLevel,
 	fortinetRegistrations,
 	schools,
 	students,
-} from '@/shared/db/schema';
+} from '@/db/schema';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/server/base/BaseRepository';
 
 type FortinetLevel = (typeof fortinetLevel.enumValues)[number];
 

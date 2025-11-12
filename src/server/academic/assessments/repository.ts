@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { auth } from '@/auth';
+import { db } from '@/db';
+import { assessments, assessmentsAudit } from '@/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
-import { db } from '@/shared/db';
-import { assessments, assessmentsAudit } from '@/shared/db/schema';
 
 export default class AssessmentRepository extends BaseRepository<
 	typeof assessments,

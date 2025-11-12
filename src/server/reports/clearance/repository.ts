@@ -1,7 +1,7 @@
 import { and, between, count, eq, isNotNull, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm/sql';
-import { db } from '@/shared/db';
-import { clearance, type DashboardUser } from '@/shared/db/schema';
+import { db } from '@/db';
+import { clearance, type DashboardUser } from '@/db/schema';
 
 type DateInput = Date | string | number;
 

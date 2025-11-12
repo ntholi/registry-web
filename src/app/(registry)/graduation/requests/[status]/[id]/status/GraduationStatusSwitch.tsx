@@ -5,11 +5,8 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import { clearanceRequestStatus, type dashboardUsers } from '@/db/schema';
 import { updateGraduationClearance } from '@/server/registry/graduation/clearance/actions';
-import {
-	clearanceRequestStatus,
-	type dashboardUsers,
-} from '@/shared/db/schema';
 
 type Status = Exclude<
 	(typeof clearanceRequestStatus.enumValues)[number],

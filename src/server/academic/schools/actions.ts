@@ -1,7 +1,7 @@
 'use server';
 
 import { eq } from 'drizzle-orm';
-import { schools } from '@/shared/db/schema';
+import { schools } from '@/db/schema';
 import { schoolsService as service } from './service';
 
 export async function findAllSchools() {

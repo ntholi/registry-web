@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import { Form } from '@/components/adease';
-import { blockedStudents } from '@/shared/db/schema';
+import { blockedStudents } from '@/db/schema';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;
 

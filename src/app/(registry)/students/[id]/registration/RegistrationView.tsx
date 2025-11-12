@@ -19,10 +19,10 @@ import { IconChevronRight, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import type { registrationRequests } from '@/db/schema';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import { formatDateTime, formatSemester } from '@/lib/utils/utils';
 import { getStudentRegistrationHistory } from '@/server/registry/registration/requests/actions';
-import type { registrationRequests } from '@/shared/db/schema';
 import RegistrationModal from './form/RegistrationModal';
 
 type StudentRegistrationHistory = {
