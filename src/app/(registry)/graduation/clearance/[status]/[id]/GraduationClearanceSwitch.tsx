@@ -10,7 +10,7 @@ import { toTitleCase } from '@/lib/utils/utils';
 import {
 	type getGraduationClearance,
 	updateGraduationClearance,
-} from '@/server/graduation/clearance/actions';
+} from '@/server/registry/graduation/clearance/actions';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getGraduationClearance>>>;

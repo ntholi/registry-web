@@ -24,7 +24,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { Student } from '@/lib/helpers/students';
 import { useMediaQuery } from '@/lib/utils/use-media-query';
 import { formatDate } from '@/lib/utils/utils';
-import { getStudentPhoto } from '@/server/students/actions';
+import { getStudentPhoto } from '@/server/registry/students/actions';
 import { studentColors } from '../utils/colors';
 
 type Props = {

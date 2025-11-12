@@ -36,11 +36,11 @@ import { formatSemester } from '@/lib/utils/utils';
 import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@/server/registration/requests/actions';
+} from '@/server/registry/registration/requests/actions';
 import {
 	getStudent,
 	getStudentRegistrationData,
-} from '@/server/students/actions';
+} from '@/server/registry/students/actions';
 import SemesterStatusModal from './SemesterStatusModal';
 
 type ModuleDataResponse = Awaited<ReturnType<typeof getStudentSemesterModules>>;

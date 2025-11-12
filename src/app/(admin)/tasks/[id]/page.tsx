@@ -7,7 +7,11 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/components/adease';
-import { deleteTask, getTask, updateTaskStatus } from '@/server/tasks/actions';
+import {
+	deleteTask,
+	getTask,
+	updateTaskStatus,
+} from '@/server/admin/tasks/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

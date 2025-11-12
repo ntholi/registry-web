@@ -15,11 +15,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import Link from '@/components/Link';
-import { getStructuresByProgramId } from '@/server/structures/actions';
+import { getStructuresByProgramId } from '@/server/academic/structures/actions';
 import {
 	type getStudent,
 	updateStudentProgramStructure,
-} from '@/server/students/actions';
+} from '@/server/registry/students/actions';
 
 type Props = {
 	student: Awaited<ReturnType<typeof getStudent>>;

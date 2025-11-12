@@ -11,7 +11,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { updateBlockedStudent } from '@/server/blocked-students/actions';
+import { updateBlockedStudent } from '@/server/finance/blocked-students/actions';
 
 type Props = {
 	id: number;

@@ -10,7 +10,7 @@ import { toTitleCase } from '@/lib/utils/utils';
 import {
 	type getClearance,
 	updateClearance,
-} from '@/server/registration/clearance/actions';
+} from '@/server/registry/registration/clearance/actions';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;

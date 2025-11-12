@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getAcademicHistory } from '@/server/students/actions';
+import { getAcademicHistory } from '@/server/registry/students/actions';
 
 type CertificatePreviewProps = {
 	stdNo: number;

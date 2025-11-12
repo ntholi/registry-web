@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { Form } from '@/components/adease';
 import { tasks } from '@/db/schema';
-import { getDepartmentUsers } from '@/server/tasks/actions';
+import { getDepartmentUsers } from '@/server/admin/tasks/actions';
 
 type Task = typeof tasks.$inferInsert;
 type TaskWithAssignments = Task & { assignedUserIds?: string[] };

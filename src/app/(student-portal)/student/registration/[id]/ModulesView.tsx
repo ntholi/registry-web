@@ -12,7 +12,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import type { getRegistrationRequest } from '@/server/registration/requests/actions';
+import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 
 type Props = {
 	registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

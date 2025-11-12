@@ -18,13 +18,13 @@ import type { StudentModuleStatus } from '@/db/schema';
 import type { Student } from '@/lib/helpers/students';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/lib/utils/grades';
+import { getStudentCurrentSponsorship } from '@/server/finance/sponsors/actions';
 import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@/server/registration/requests/actions';
-import { getStudentCurrentSponsorship } from '@/server/sponsors/actions';
-import { getAcademicHistory } from '@/server/students/actions';
+} from '@/server/registry/registration/requests/actions';
+import { getAcademicHistory } from '@/server/registry/students/actions';
 import ModuleSection from './ModuleSection';
 import SemesterInfoCard from './SemesterInfoCard';
 import SponsorSelector from './SponsorSelector';

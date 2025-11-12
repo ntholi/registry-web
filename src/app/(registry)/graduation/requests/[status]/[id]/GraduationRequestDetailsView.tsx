@@ -5,7 +5,7 @@ import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { FieldView } from '@/components/adease';
 import Link from '@/components/Link';
-import type { getGraduationRequest } from '@/server/graduation/requests/actions';
+import type { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getGraduationRequest>>>;

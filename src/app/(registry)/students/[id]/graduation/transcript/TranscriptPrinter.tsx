@@ -6,9 +6,9 @@ import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { getAcademicHistory } from '@/server/students/actions';
-import { createTranscriptPrint } from '@/server/transcript-prints/actions';
-import { extractTranscriptData } from '@/server/transcript-prints/utils';
+import { getAcademicHistory } from '@/server/registry/students/actions';
+import { createTranscriptPrint } from '@/server/registry/transcript-prints/actions';
+import { extractTranscriptData } from '@/server/registry/transcript-prints/utils';
 import TranscriptPDF from './TranscriptPDF';
 
 type Props = {

@@ -19,7 +19,7 @@ import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import {
 	findAllSponsors,
 	updateStudentSponsorshipById,
-} from '@/server/sponsors/actions';
+} from '@/server/finance/sponsors/actions';
 
 export default function NewSponsoredStudentModal() {
 	const [opened, { open, close }] = useDisclosure(false);

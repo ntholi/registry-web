@@ -20,7 +20,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { moduleGrades } from '@/db/schema';
 import { getLetterGrade } from '@/lib/utils/grades';
-import { upsertModuleGrade } from '@/server/module-grades/actions';
+import { upsertModuleGrade } from '@/server/academic/module-grades/actions';
 
 type ModuleGrade = typeof moduleGrades.$inferSelect;
 

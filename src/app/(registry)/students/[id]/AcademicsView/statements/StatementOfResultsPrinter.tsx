@@ -7,9 +7,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import QRCode from 'qrcode';
 import { useState } from 'react';
-import { createStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
-import { extractStatementOfResultsData } from '@/server/statement-of-results-prints/utils';
-import { getAcademicHistory } from '@/server/students/actions';
+import { createStatementOfResultsPrint } from '@/server/registry/statement-of-results-prints/actions';
+import { extractStatementOfResultsData } from '@/server/registry/statement-of-results-prints/utils';
+import { getAcademicHistory } from '@/server/registry/students/actions';
 import StatementOfResultsPDF from './StatementOfResultsPDF';
 
 type Props = {

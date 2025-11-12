@@ -2,7 +2,7 @@
 
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
-import { getBlockedStudentByStatus } from '@/server/blocked-students/actions';
+import { getBlockedStudentByStatus } from '@/server/finance/blocked-students/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (

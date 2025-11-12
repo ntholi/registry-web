@@ -3,7 +3,7 @@ import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { DetailsView } from '@/components/adease';
-import { getModule } from '@/server/modules/actions';
+import { getModule } from '@/server/academic/modules/actions';
 import AssessmentsTable from './AssessmentsTable';
 import ModuleLecturers from './ModuleLecturers';
 

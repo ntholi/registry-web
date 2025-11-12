@@ -28,7 +28,7 @@ import {
 import { nanoid } from 'nanoid';
 import { useState } from 'react';
 import { uploadDocument } from '@/lib/storage';
-import { createDocument } from '@/server/documents/actions';
+import { createDocument } from '@/server/registry/documents/actions';
 import documentTypes from './documentTypes';
 
 type AddDocumentModalProps = {

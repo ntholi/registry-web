@@ -1,5 +1,5 @@
 import { Box } from '@mantine/core';
-import { createBlockedStudent } from '@/server/blocked-students/actions';
+import { createBlockedStudent } from '@/server/finance/blocked-students/actions';
 import Form from '../Form';
 
 export default async function NewPage() {

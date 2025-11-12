@@ -19,8 +19,11 @@ import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { terms as termsTable } from '@/db/schema';
 import { formatSemester } from '@/lib/utils/utils';
-import { getAllSchools, getProgramsBySchoolId } from '@/server/schools/actions';
-import { getAllTerms } from '@/server/terms/actions';
+import {
+	getAllSchools,
+	getProgramsBySchoolId,
+} from '@/server/academic/schools/actions';
+import { getAllTerms } from '@/server/registry/terms/actions';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString();

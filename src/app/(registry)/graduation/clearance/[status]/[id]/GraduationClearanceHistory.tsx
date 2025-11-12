@@ -13,7 +13,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import Link from '@/components/Link';
 import { formatDateTime } from '@/lib/utils/utils';
-import { getGraduationClearanceHistoryByStudentNo } from '@/server/graduation/clearance/actions';
+import { getGraduationClearanceHistoryByStudentNo } from '@/server/registry/graduation/clearance/actions';
 
 type Props = {
 	stdNo: number;

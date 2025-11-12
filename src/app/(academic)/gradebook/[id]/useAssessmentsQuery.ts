@@ -1,9 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { getAssessmentMarksByModuleId } from '@/server/assessment-marks/actions';
-import { getAssessmentByModuleId } from '@/server/assessments/actions';
-import { getModuleGradesByModuleId } from '@/server/module-grades/actions';
+import { getAssessmentMarksByModuleId } from '@/server/academic/assessment-marks/actions';
+import { getAssessmentByModuleId } from '@/server/academic/assessments/actions';
+import { getModuleGradesByModuleId } from '@/server/academic/module-grades/actions';
 
 export function useAssessmentsQuery(moduleId: number) {
 	return useQuery({

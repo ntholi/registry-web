@@ -7,7 +7,7 @@ import StatementOfResultsPDF from '@registry/students/[id]/AcademicsView/stateme
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getAcademicHistory } from '@/server/students/actions';
+import { getAcademicHistory } from '@/server/registry/students/actions';
 
 interface TranscriptDownloadButtonProps {
 	stdNo: number;

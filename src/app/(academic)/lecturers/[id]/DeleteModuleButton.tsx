@@ -6,7 +6,7 @@ import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { deleteAssignedModule } from '@/server/assigned-modules/actions';
+import { deleteAssignedModule } from '@/server/academic/assigned-modules/actions';
 
 type Props = {
 	assignmentId: number;

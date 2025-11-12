@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { modules, semesterModules } from '@/db/schema';
-import { findModulesByStructure } from '@/server/semester-modules/actions';
+import { findModulesByStructure } from '@/server/academic/semester-modules/actions';
 
 type SemesterModule = typeof semesterModules.$inferInsert & {
 	prerequisiteCodes?: string[];

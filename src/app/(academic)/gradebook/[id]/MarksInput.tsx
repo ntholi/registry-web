@@ -8,7 +8,7 @@ import { calculateModuleGrade } from '@/lib/utils/gradeCalculations';
 import {
 	createAssessmentMark,
 	updateAssessmentMark,
-} from '@/server/assessment-marks/actions';
+} from '@/server/academic/assessment-marks/actions';
 
 type AssessmentMark = typeof assessmentMarks.$inferSelect;
 type ModuleGrade = typeof moduleGrades.$inferSelect;

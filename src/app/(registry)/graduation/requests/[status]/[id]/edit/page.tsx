@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import {
 	getGraduationRequest,
 	updateGraduationRequest,
-} from '@/server/graduation/requests/actions';
+} from '@/server/registry/graduation/requests/actions';
 import Form from '../../../Form';
 
 type Props = {

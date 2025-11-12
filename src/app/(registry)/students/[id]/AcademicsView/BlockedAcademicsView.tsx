@@ -18,8 +18,8 @@ import {
 } from '@mantine/core';
 import { IconLock, IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
-import type { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import type { getStudent } from '@/server/students/actions';
+import type { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
+import type { getStudent } from '@/server/registry/students/actions';
 import GpaDisplay from './GpaDisplay';
 
 type Props = {

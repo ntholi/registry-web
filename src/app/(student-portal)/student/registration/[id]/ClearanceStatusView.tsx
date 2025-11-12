@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { formatDateTime, toTitleCase } from '@/lib/utils/utils';
-import type { getRegistrationRequest } from '@/server/registration/requests/actions';
+import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
 	getStatusColor,

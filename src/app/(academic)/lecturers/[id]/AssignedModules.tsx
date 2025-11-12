@@ -13,7 +13,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import type { users } from '@/db/schema';
 import { toClassName } from '@/lib/utils/utils';
-import { getAssignedModulesByUser } from '@/server/assigned-modules/actions';
+import { getAssignedModulesByUser } from '@/server/academic/assigned-modules/actions';
 import DeleteModuleButton from './DeleteModuleButton';
 
 type Props = {

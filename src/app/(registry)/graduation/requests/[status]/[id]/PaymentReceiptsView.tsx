@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
-import type { getGraduationRequest } from '@/server/graduation/requests/actions';
+import type { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getGraduationRequest>>>;

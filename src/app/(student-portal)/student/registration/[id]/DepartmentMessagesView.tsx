@@ -3,7 +3,7 @@
 import { Alert, Box, Divider, Stack, Text } from '@mantine/core';
 import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
 import { toTitleCase } from '@/lib/utils/utils';
-import type { getRegistrationRequest } from '@/server/registration/requests/actions';
+import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 
 type Props = {
 	registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

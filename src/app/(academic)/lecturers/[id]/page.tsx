@@ -1,6 +1,6 @@
 import { Box, Divider, Flex, Stack, Text, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { getUser } from '@/server/users/actions';
+import { getUser } from '@/server/admin/users/actions';
 import AssignedModules from './AssignedModules';
 import ModuleAssignModal from './ModuleAssignModal';
 

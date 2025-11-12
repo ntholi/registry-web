@@ -10,7 +10,7 @@ import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/auth';
-import { getGraduationRequest } from '@/server/graduation/requests/actions';
+import { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
 import PaymentReceiptsEditor from './PaymentReceiptsEditor';
 
 type Props = {

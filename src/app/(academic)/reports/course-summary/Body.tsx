@@ -19,7 +19,7 @@ import { toClassName } from '@/lib/utils/utils';
 import {
 	getAssignedModuleByUserAndModule,
 	getAssignedModulesByCurrentUser,
-} from '@/server/assigned-modules/actions';
+} from '@/server/academic/assigned-modules/actions';
 import { generateCourseSummaryReport } from '@/server/reports/course-summary/actions';
 
 export default function Body() {

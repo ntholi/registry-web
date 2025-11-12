@@ -13,7 +13,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { getStudentDocuments } from '@/server/documents/actions';
+import { getStudentDocuments } from '@/server/registry/documents/actions';
 import AddDocumentModal from './AddDocumentModal';
 import DeleteDocumentModal from './DeleteDocumentModal';
 import DocumentCard from './DocumentCard';

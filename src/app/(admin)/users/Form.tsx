@@ -24,7 +24,7 @@ import {
 	type users,
 } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils/utils';
-import { findAllSchools, getUserSchools } from '@/server/users/actions';
+import { findAllSchools, getUserSchools } from '@/server/admin/users/actions';
 
 type User = typeof users.$inferInsert;
 

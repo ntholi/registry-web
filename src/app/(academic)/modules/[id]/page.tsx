@@ -18,8 +18,8 @@ import {
 	FieldView,
 } from '@/components/adease';
 import Link from '@/components/Link';
-import { deleteModule, getModule } from '@/server/modules/actions';
-import { getStructuresByModule } from '@/server/semester-modules/actions';
+import { deleteModule, getModule } from '@/server/academic/modules/actions';
+import { getStructuresByModule } from '@/server/academic/semester-modules/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

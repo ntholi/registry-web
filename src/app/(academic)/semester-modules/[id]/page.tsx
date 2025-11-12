@@ -19,7 +19,7 @@ import {
 	deleteModule,
 	getModulePrerequisites,
 	getSemesterModule,
-} from '@/server/semester-modules/actions';
+} from '@/server/academic/semester-modules/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -3,7 +3,7 @@ import AcademicsLoader from '@registry/clearance/[status]/[id]/AcademicsLoader';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { DetailsView } from '@/components/adease';
-import { getGraduationClearance } from '@/server/graduation/clearance/actions';
+import { getGraduationClearance } from '@/server/registry/graduation/clearance/actions';
 import GraduationClearanceDetails from './GraduationClearanceDetails';
 import GraduationClearanceHeader from './GraduationClearanceHeader';
 import GraduationClearanceHistory from './GraduationClearanceHistory';

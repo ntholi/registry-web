@@ -12,7 +12,7 @@ import {
 import {
 	deleteBlockedStudent,
 	getBlockedStudent,
-} from '@/server/blocked-students/actions';
+} from '@/server/finance/blocked-students/actions';
 import StudentStatusSwitch from './StudentStatusSwitch';
 
 export default function BlockedStudentDetails() {

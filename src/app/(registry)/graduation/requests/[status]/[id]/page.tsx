@@ -20,7 +20,7 @@ import type { DashboardUser } from '@/db/schema';
 import {
 	deleteGraduationRequest,
 	getGraduationRequest,
-} from '@/server/graduation/requests/actions';
+} from '@/server/registry/graduation/requests/actions';
 import GraduationClearanceAccordion from './GraduationClearanceAccordion';
 import GraduationRequestDetailsView from './GraduationRequestDetailsView';
 import PaymentReceiptsView from './PaymentReceiptsView';

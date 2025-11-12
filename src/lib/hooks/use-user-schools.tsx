@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { getUserSchools } from '@/server/users/actions';
+import { getUserSchools } from '@/server/admin/users/actions';
 
 export function useUserSchools() {
 	const { data: session } = useSession();

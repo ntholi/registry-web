@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import {
 	getSemesterModule,
 	updateModule,
-} from '@/server/semester-modules/actions';
+} from '@/server/academic/semester-modules/actions';
 import Form from '../../Form';
 
 type Props = {

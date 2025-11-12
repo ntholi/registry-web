@@ -18,7 +18,7 @@ import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import {
 	findAllSponsors,
 	updateStudentSponsorshipById,
-} from '@/server/sponsors/actions';
+} from '@/server/finance/sponsors/actions';
 
 interface SponsoredStudentData {
 	id: number;

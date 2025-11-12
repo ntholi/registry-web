@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
-import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import { getStudent } from '@/server/students/actions';
+import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
+import { getStudent } from '@/server/registry/students/actions';
 import { StudentTabs } from './StudentTabs';
 
 type Props = {

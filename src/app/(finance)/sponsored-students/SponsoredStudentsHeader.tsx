@@ -12,9 +12,9 @@ import {
 } from '@mantine/core';
 import { IconFilter, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPrograms } from '@/server/schools/actions';
-import { findAllSponsors } from '@/server/sponsors/actions';
-import { getAllTerms } from '@/server/terms/actions';
+import { getAllPrograms } from '@/server/academic/schools/actions';
+import { findAllSponsors } from '@/server/finance/sponsors/actions';
+import { getAllTerms } from '@/server/registry/terms/actions';
 
 interface SponsoredStudentsHeaderProps {
 	searchQuery: string;

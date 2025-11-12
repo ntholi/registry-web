@@ -7,7 +7,7 @@ import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import { toClassName } from '@/lib/utils/utils';
-import type { getAssignedModuleByUserAndModule } from '@/server/assigned-modules/actions';
+import type { getAssignedModuleByUserAndModule } from '@/server/academic/assigned-modules/actions';
 import ExportButton from './export/ExportButton';
 
 type ModuleDetailsCardProps = {

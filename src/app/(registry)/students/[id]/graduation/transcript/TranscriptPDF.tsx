@@ -2,7 +2,7 @@ import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
 import { Fragment } from 'react';
 import { createTw } from 'react-pdf-tailwind';
 import { getAcademicRemarks } from '@/lib/utils/grades';
-import type { getAcademicHistory } from '@/server/students/actions';
+import type { getAcademicHistory } from '@/server/registry/students/actions';
 import { getCleanedSemesters } from '../../AcademicsView/statements/utils';
 import GradeClassificationPage from './GradeClassificationPage';
 

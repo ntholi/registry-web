@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react';
 import SemesterStatus from '@/components/SemesterStatus';
 import { getAcademicRemarks } from '@/lib/utils/grades';
 import { formatSemester } from '@/lib/utils/utils';
-import type { getStudent } from '@/server/students/actions';
+import type { getStudent } from '@/server/registry/students/actions';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
 

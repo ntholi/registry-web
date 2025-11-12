@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { clearanceRequestStatus, type dashboardUsers } from '@/db/schema';
-import { updateGraduationClearance } from '@/server/graduation/clearance/actions';
+import { updateGraduationClearance } from '@/server/registry/graduation/clearance/actions';
 
 type Status = Exclude<
 	(typeof clearanceRequestStatus.enumValues)[number],

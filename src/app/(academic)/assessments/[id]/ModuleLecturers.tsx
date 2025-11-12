@@ -16,7 +16,7 @@ import {
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { toClassName, toTitleCase } from '@/lib/utils/utils';
-import { getLecturersByModule } from '@/server/assigned-modules/actions';
+import { getLecturersByModule } from '@/server/academic/assigned-modules/actions';
 
 type Props = {
 	moduleId: number;

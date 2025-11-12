@@ -11,8 +11,8 @@ import { type assessmentNumber, assessments } from '@/db/schema';
 import {
 	createAssessment,
 	updateAssessment,
-} from '@/server/assessments/actions';
-import type { getModule } from '@/server/modules/actions';
+} from '@/server/academic/assessments/actions';
+import type { getModule } from '@/server/academic/modules/actions';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from './assessments';
 
 type AssessmentNumberType = (typeof assessmentNumber.enumValues)[number];

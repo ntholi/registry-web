@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Form } from '@/components/adease';
 import { graduationRequests } from '@/db/schema';
-import { getEligiblePrograms } from '@/server/graduation/requests/actions';
+import { getEligiblePrograms } from '@/server/registry/graduation/requests/actions';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
 

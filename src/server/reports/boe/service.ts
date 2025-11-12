@@ -9,7 +9,7 @@ import {
 } from '@/db/schema';
 import { getAcademicRemarks, summarizeModules } from '@/lib/utils/grades';
 import { formatSemester } from '@/lib/utils/utils';
-import { termsRepository } from '@/server/terms/repository';
+import { termsRepository } from '@/server/registry/terms/repository';
 import { boeReportRepository, type ProgramSemesterReport } from './repository';
 import { createWorksheet } from './worksheet';
 

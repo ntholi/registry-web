@@ -11,7 +11,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { getAcademicRemarks } from '@/lib/utils/grades';
-import type { getStudent } from '@/server/students/actions';
+import type { getStudent } from '@/server/registry/students/actions';
 
 type AcademicSummaryProps = {
 	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;

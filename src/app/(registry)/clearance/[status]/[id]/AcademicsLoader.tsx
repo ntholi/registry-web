@@ -3,7 +3,7 @@
 import { Box, Center, Loader } from '@mantine/core';
 import AcademicsView from '@registry/students/[id]/AcademicsView';
 import { useQuery } from '@tanstack/react-query';
-import { getStudent } from '@/server/students/actions';
+import { getStudent } from '@/server/registry/students/actions';
 
 type Props = {
 	stdNo: number;

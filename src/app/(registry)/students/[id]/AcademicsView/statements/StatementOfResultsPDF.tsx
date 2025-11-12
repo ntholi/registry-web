@@ -8,7 +8,7 @@ import {
 	View,
 } from '@react-pdf/renderer';
 import { formatDate } from '@/lib/utils/utils';
-import type { getAcademicHistory } from '@/server/students/actions';
+import type { getAcademicHistory } from '@/server/registry/students/actions';
 
 type StatementOfResultsPDFProps = {
 	student: NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;

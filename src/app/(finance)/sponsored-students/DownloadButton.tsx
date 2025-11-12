@@ -4,7 +4,7 @@ import { Button } from '@mantine/core';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
-import { getAllSponsoredStudents } from '@/server/sponsors/actions';
+import { getAllSponsoredStudents } from '@/server/finance/sponsors/actions';
 
 interface Props {
 	searchQuery: string;

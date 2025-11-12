@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle, IconWallet } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getStudentCurrentSponsorship } from '@/server/sponsors/actions';
+import { getStudentCurrentSponsorship } from '@/server/finance/sponsors/actions';
 
 interface SponsorshipInformationProps {
 	studentNo: number;

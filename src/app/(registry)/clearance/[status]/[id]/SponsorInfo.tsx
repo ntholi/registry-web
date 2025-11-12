@@ -3,7 +3,7 @@
 import { Skeleton, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { FieldView } from '@/components/adease';
-import { getSponsoredStudent } from '@/server/sponsors/actions';
+import { getSponsoredStudent } from '@/server/finance/sponsors/actions';
 
 type Props = {
 	stdNo: number;

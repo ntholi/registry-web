@@ -13,7 +13,7 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { forwardRef, useState } from 'react';
 import { formatSemester } from '@/lib/utils/utils';
-import { getStructureModules } from '@/server/structures/actions';
+import { getStructureModules } from '@/server/academic/structures/actions';
 
 type Module = Awaited<ReturnType<typeof getStructureModules>>[number];
 

@@ -3,7 +3,10 @@
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout } from '@/components/adease';
-import { findAllStudents, type StudentFilter } from '@/server/students/actions';
+import {
+	findAllStudents,
+	type StudentFilter,
+} from '@/server/registry/students/actions';
 import StudentsFilter from './StudentsFilter';
 
 export default function Layout({ children }: PropsWithChildren) {

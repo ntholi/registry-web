@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 import { Form } from '@/components/adease';
 import { moduleType, semesterModules } from '@/db/schema';
-import { findAllModules } from '@/server/semester-modules/actions';
+import { findAllModules } from '@/server/academic/semester-modules/actions';
 
 type Module = typeof semesterModules.$inferInsert;
 

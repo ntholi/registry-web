@@ -2,7 +2,7 @@
 
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
-import { findAllUsers } from '@/server/users/actions';
+import { findAllUsers } from '@/server/admin/users/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (

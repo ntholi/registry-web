@@ -15,8 +15,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import { useUserSchools } from '@/lib/hooks/use-user-schools';
+import { getSchools } from '@/server/academic/semester-modules/actions';
 import { generateBoeReportForFaculty } from '@/server/reports/boe/actions';
-import { getSchools } from '@/server/semester-modules/actions';
 
 export default function Body() {
 	const [isDownloading, setIsDownloading] = useState(false);

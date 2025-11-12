@@ -19,7 +19,7 @@ import {
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { formatDateTime } from '@/lib/utils/utils';
-import { getStatementOfResultsPrint } from '@/server/statement-of-results-prints/actions';
+import { getStatementOfResultsPrint } from '@/server/registry/statement-of-results-prints/actions';
 import Logo from '../../../../../components/Logo';
 
 type Props = {

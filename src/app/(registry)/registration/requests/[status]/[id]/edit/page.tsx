@@ -5,12 +5,12 @@ import type {
 	StudentModuleStatus,
 	semesterModules,
 } from '@/db/schema';
+import { getModulesForStructure } from '@/server/academic/semester-modules/actions';
+import { getSponsoredStudent } from '@/server/finance/sponsors/actions';
 import {
 	getRegistrationRequest,
 	updateRegistrationWithModulesAndSponsorship,
-} from '@/server/registration/requests/actions';
-import { getModulesForStructure } from '@/server/semester-modules/actions';
-import { getSponsoredStudent } from '@/server/sponsors/actions';
+} from '@/server/registry/registration/requests/actions';
 import EditForm from '../../../Form';
 
 type Props = {

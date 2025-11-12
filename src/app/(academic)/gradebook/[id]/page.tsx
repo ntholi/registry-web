@@ -1,6 +1,6 @@
 import { Container, Paper } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { getAssignedModuleByUserAndModule } from '@/server/assigned-modules/actions';
+import { getAssignedModuleByUserAndModule } from '@/server/academic/assigned-modules/actions';
 import ModuleDetailsCard from './ModuleDetailsCard';
 import StudentTable from './StudentTable';
 

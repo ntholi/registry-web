@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import {
 	getBlockedStudent,
 	updateBlockedStudent,
-} from '@/server/blocked-students/actions';
+} from '@/server/finance/blocked-students/actions';
 import Form from '../../Form';
 
 type Props = {

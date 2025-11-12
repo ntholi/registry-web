@@ -5,7 +5,7 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
-import { createOrUpdateMarksInBulk } from '@/server/assessment-marks/actions';
+import { createOrUpdateMarksInBulk } from '@/server/academic/assessment-marks/actions';
 import type { ImportResult, ParsedRow } from './types';
 
 interface Props {

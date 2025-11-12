@@ -27,7 +27,7 @@ import {
 	createGraduationRequestWithPaymentReceipts,
 	getEligiblePrograms,
 	getGraduationRequestByStudentNo,
-} from '@/server/graduation/requests/actions';
+} from '@/server/registry/graduation/requests/actions';
 import InformationConfirmation from './InformationConfirmation';
 import PaymentReceiptsInput from './PaymentReceiptsInput';
 import ProgramSelection from './ProgramSelection';

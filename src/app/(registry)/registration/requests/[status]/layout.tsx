@@ -8,8 +8,8 @@ import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout } from '@/components/adease';
 import TermFilter from '@/components/TermFilter';
 import { selectedTermAtom } from '@/lib/atoms/termAtoms';
-import { findAllRegistrationRequests } from '@/server/registration/requests/actions';
-import { getCurrentTerm } from '@/server/terms/actions';
+import { findAllRegistrationRequests } from '@/server/registry/registration/requests/actions';
+import { getCurrentTerm } from '@/server/registry/terms/actions';
 
 type Status = 'pending' | 'registered' | 'rejected' | 'approved';
 

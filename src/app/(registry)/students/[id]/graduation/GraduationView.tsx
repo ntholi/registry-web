@@ -16,9 +16,9 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
-import type { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import { getGraduationRequestByStudentNo } from '@/server/graduation/requests/actions';
-import { getAcademicHistory } from '@/server/students/actions';
+import type { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
+import { getGraduationRequestByStudentNo } from '@/server/registry/graduation/requests/actions';
+import { getAcademicHistory } from '@/server/registry/students/actions';
 import CertificateDownloader from './certificate/CertificateDownloader';
 import CertificatePreview from './certificate/CertificatePreview';
 import TranscriptPreview from './transcript/TranscriptPreview';

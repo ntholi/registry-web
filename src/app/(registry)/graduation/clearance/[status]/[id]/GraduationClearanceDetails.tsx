@@ -21,7 +21,7 @@ import { useState } from 'react';
 import { FieldView } from '@/components/adease';
 import Link from '@/components/Link';
 import { formatDateTime } from '@/lib/utils/utils';
-import type { getGraduationClearance } from '@/server/graduation/clearance/actions';
+import type { getGraduationClearance } from '@/server/registry/graduation/clearance/actions';
 import GraduationClearanceSwitch from './GraduationClearanceSwitch';
 import PaymentReceipts from './PaymentReceipts';
 

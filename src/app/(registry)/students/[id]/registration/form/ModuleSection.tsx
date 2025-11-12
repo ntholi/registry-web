@@ -4,7 +4,7 @@ import { ActionIcon, Box, Group, Paper } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import type { StudentModuleStatus } from '@/db/schema';
-import type { getStructureModules } from '@/server/structures/actions';
+import type { getStructureModules } from '@/server/academic/structures/actions';
 import { ModuleSearchInput } from './ModuleSearchInput';
 import ModulesTable from './ModulesTable';
 

@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getActiveProgram, getCurrentSemester } from '@/lib/helpers/students';
 import { getAcademicRemarks } from '@/lib/utils/grades';
-import { getStudentByUserId } from '@/server/students/actions';
+import { getStudentByUserId } from '@/server/registry/students/actions';
 
 export default function useUserStudent() {
 	const router = useRouter();

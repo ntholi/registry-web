@@ -16,8 +16,8 @@ import {
 import { IconBook, IconInfoCircle, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { formatSemester } from '@/lib/utils/utils';
-import { getStructure } from '@/server/structures/actions';
-import { getAcademicHistory } from '@/server/students/actions';
+import { getStructure } from '@/server/academic/structures/actions';
+import { getAcademicHistory } from '@/server/registry/students/actions';
 
 type Props = {
 	stdNo: number;

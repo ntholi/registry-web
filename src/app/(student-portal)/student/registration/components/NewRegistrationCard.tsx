@@ -14,8 +14,8 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import useUserStudent from '@/lib/hooks/use-user-student';
-import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
+import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
+import { getStudentRegistrationHistory } from '@/server/registry/registration/requests/actions';
 
 export default function NewRegistrationCard() {
 	const { student, isLoading: studentLoading } = useUserStudent();

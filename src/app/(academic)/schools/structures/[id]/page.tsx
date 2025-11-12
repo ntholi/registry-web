@@ -26,7 +26,7 @@ import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import Link from '@/components/Link';
 import { formatSemester } from '@/lib/utils/utils';
-import { getStructure } from '@/server/structures/actions';
+import { getStructure } from '@/server/academic/structures/actions';
 import EditButton from './EditButton';
 import HideButton from './HideButton';
 import PrerequisiteDisplay from './PrerequisiteDisplay';

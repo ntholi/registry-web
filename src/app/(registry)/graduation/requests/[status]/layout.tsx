@@ -4,7 +4,7 @@ import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout } from '@/components/adease';
-import { findAllGraduationRequests } from '@/server/graduation/requests/actions';
+import { findAllGraduationRequests } from '@/server/registry/graduation/requests/actions';
 
 type Status = 'pending' | 'rejected' | 'approved';
 

@@ -5,7 +5,10 @@ import { IconEdit, IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { deleteDocument, uploadDocument } from '@/lib/storage';
-import { type getStudent, getStudentPhoto } from '@/server/students/actions';
+import {
+	type getStudent,
+	getStudentPhoto,
+} from '@/server/registry/students/actions';
 import PhotoInputModal from './PhotoInputModal';
 import PhotoPreviewModal from './PhotoPreviewModal';
 

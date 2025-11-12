@@ -2,7 +2,7 @@
 
 import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
 import Link from '@/components/Link';
-import type { getRegistrationRequest } from '@/server/registration/requests/actions';
+import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 
 type Props = {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

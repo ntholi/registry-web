@@ -18,7 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import useUserStudent from '@/lib/hooks/use-user-student';
 import { formatSemester } from '@/lib/utils/utils';
-import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
+import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
 import DesktopTable from './DesktopTable';
 import LoadingSkeleton from './LoadingSkeleton';
 import MobileTable from './MobileTable';

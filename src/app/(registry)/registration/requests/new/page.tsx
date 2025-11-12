@@ -4,7 +4,7 @@ import type {
 	StudentModuleStatus,
 	semesterModules,
 } from '@/db/schema';
-import { createRegistrationWithModules } from '@/server/registration/requests/actions';
+import { createRegistrationWithModules } from '@/server/registry/registration/requests/actions';
 import Form from '../Form';
 
 type Module = typeof modules.$inferSelect;

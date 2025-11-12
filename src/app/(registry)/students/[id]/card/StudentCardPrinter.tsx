@@ -7,8 +7,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { convertUrlToBase64 } from '@/lib/utils/utils';
-import { createStudentCardPrint } from '@/server/student-card-prints/actions';
-import { type getStudent, getStudentPhoto } from '@/server/students/actions';
+import { createStudentCardPrint } from '@/server/registry/student-card-prints/actions';
+import {
+	type getStudent,
+	getStudentPhoto,
+} from '@/server/registry/students/actions';
 import StudentCardPDF from './StudentCardPDF';
 
 type StudentCardPrinterProps = {

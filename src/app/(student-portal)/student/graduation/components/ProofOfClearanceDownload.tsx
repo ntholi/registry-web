@@ -4,7 +4,7 @@ import { ActionIcon } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
-import { getGraduationClearanceData } from '@/server/graduation/requests/actions';
+import { getGraduationClearanceData } from '@/server/registry/graduation/requests/actions';
 import { getClearanceStatus } from '../../utils/status';
 import ProofOfClearancePDF from './ProofOfClearancePDF';
 

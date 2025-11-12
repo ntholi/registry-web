@@ -54,20 +54,20 @@ import { Shell } from '@/components/adease';
 import Logo from '@/components/Logo';
 import type { DashboardUser, UserPosition, UserRole } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils/utils';
-import { getAssignedModulesByCurrentUser } from '@/server/assigned-modules/actions';
+import { getAssignedModulesByCurrentUser } from '@/server/academic/assigned-modules/actions';
+import { getUserSchools } from '@/server/admin/users/actions';
 import {
 	countApprovedGraduationClearances,
 	countPendingGraduationClearances,
 	countRejectedGraduationClearances,
-} from '@/server/graduation/clearance/actions';
-import { countByStatus as countGraduationByStatus } from '@/server/graduation/requests/actions';
+} from '@/server/registry/graduation/clearance/actions';
+import { countByStatus as countGraduationByStatus } from '@/server/registry/graduation/requests/actions';
 import {
 	countApprovedClearances,
 	countPendingClearances,
 	countRejectedClearances,
-} from '@/server/registration/clearance/actions';
-import { countByStatus } from '@/server/registration/requests/actions';
-import { getUserSchools } from '@/server/users/actions';
+} from '@/server/registry/registration/clearance/actions';
+import { countByStatus } from '@/server/registry/registration/requests/actions';
 
 type NotificationConfig = {
 	queryKey: string[];

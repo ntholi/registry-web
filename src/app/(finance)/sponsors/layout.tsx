@@ -2,7 +2,7 @@
 
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/components/adease';
-import { findAllSponsors } from '@/server/sponsors/actions';
+import { findAllSponsors } from '@/server/finance/sponsors/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (

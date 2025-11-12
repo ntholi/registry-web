@@ -7,7 +7,7 @@ import {
 	Text,
 	View,
 } from '@react-pdf/renderer';
-import type { getStudent } from '@/server/students/actions';
+import type { getStudent } from '@/server/registry/students/actions';
 
 Font.register({
 	family: 'Arial',

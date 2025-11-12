@@ -3,8 +3,8 @@
 import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
 import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
-import type { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
-import type { getStudent } from '@/server/students/actions';
+import type { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
+import type { getStudent } from '@/server/registry/students/actions';
 import AcademicsView from './AcademicsView';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';

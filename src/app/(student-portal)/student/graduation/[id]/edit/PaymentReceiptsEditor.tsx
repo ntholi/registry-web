@@ -30,7 +30,7 @@ import { paymentType } from '@/db/schema';
 import {
 	addPaymentReceipt,
 	removePaymentReceipt,
-} from '@/server/payment-receipts/actions';
+} from '@/server/finance/payment-receipts/actions';
 
 type PaymentReceipt = {
 	id: number;

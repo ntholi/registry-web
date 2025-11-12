@@ -9,7 +9,7 @@ import { useState } from 'react';
 import {
 	getGraduationClearanceData,
 	getGraduationRequest,
-} from '@/server/graduation/requests/actions';
+} from '@/server/registry/graduation/requests/actions';
 
 type ProofOfClearancePrinterProps = {
 	requestId: string;

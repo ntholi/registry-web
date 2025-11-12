@@ -6,7 +6,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/components/adease';
-import { deleteSponsor, getSponsor } from '@/server/sponsors/actions';
+import { deleteSponsor, getSponsor } from '@/server/finance/sponsors/actions';
 import StudentsTable from './students/StudentsTable';
 
 type Props = {

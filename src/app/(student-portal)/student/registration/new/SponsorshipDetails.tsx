@@ -15,7 +15,7 @@ import useUserStudent from '@/lib/hooks/use-user-student';
 import {
 	findAllSponsors,
 	getSponsoredStudent,
-} from '@/server/sponsors/actions';
+} from '@/server/finance/sponsors/actions';
 
 type SponsorshipData = {
 	sponsorId: number;

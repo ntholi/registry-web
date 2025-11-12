@@ -25,13 +25,13 @@ import {
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/lib/utils/grades';
 import { formatSemester } from '@/lib/utils/utils';
+import { getModulesForStructure } from '@/server/academic/semester-modules/actions';
 import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@/server/registration/requests/actions';
-import { getModulesForStructure } from '@/server/semester-modules/actions';
-import { getStudentRegistrationData } from '@/server/students/actions';
-import { findAllTerms } from '@/server/terms/actions';
+} from '@/server/registry/registration/requests/actions';
+import { getStudentRegistrationData } from '@/server/registry/students/actions';
+import { findAllTerms } from '@/server/registry/terms/actions';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 

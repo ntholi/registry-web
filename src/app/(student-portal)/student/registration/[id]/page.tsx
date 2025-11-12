@@ -22,7 +22,7 @@ import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { MAX_REGISTRATION_ATTEMPTS } from '@/lib/constants';
 import { formatSemester } from '@/lib/utils/utils';
-import { getRegistrationRequest } from '@/server/registration/requests/actions';
+import { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
 	getStatusIcon,

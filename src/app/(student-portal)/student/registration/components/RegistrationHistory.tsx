@@ -19,7 +19,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { formatDateTime, formatSemester } from '@/lib/utils/utils';
-import type { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
+import type { getStudentRegistrationHistory } from '@/server/registry/registration/requests/actions';
 import ProofOfRegistrationDownload from './ProofOfRegistrationDownload';
 import StatusBadge from './StatusBadge';
 

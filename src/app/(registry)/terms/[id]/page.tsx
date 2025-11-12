@@ -6,7 +6,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/components/adease';
-import { deleteTerm, getTerm } from '@/server/terms/actions';
+import { deleteTerm, getTerm } from '@/server/registry/terms/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

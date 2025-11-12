@@ -25,7 +25,7 @@ import {
 	formatPhoneNumber,
 	formatSemester,
 } from '@/lib/utils/utils';
-import type { getStudent } from '@/server/students/actions';
+import type { getStudent } from '@/server/registry/students/actions';
 import { getProgramStatusColor } from '../AcademicsView';
 import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
 import AcademicSummary from './AcademicSummary';

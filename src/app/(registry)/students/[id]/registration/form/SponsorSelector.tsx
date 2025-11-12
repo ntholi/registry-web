@@ -2,7 +2,7 @@
 
 import { Grid, GridCol, Paper, Select, TextInput, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { findAllSponsors } from '@/server/sponsors/actions';
+import { findAllSponsors } from '@/server/finance/sponsors/actions';
 
 interface SponsorshipData {
 	sponsorId: number;

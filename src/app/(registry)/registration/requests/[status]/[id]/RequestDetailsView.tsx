@@ -14,8 +14,8 @@ import { IconCopy } from '@tabler/icons-react';
 import { FieldView } from '@/components/adease';
 import Link from '@/components/Link';
 import { formatSemester } from '@/lib/utils/utils';
-import type { getRegistrationRequest } from '@/server/registration/requests/actions';
-import type { getSponsoredStudent } from '@/server/sponsors/actions';
+import type { getSponsoredStudent } from '@/server/finance/sponsors/actions';
+import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 
 type Props = {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

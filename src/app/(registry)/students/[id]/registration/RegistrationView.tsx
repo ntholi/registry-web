@@ -22,7 +22,7 @@ import { useSession } from 'next-auth/react';
 import type { registrationRequests } from '@/db/schema';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import { formatDateTime, formatSemester } from '@/lib/utils/utils';
-import { getStudentRegistrationHistory } from '@/server/registration/requests/actions';
+import { getStudentRegistrationHistory } from '@/server/registry/registration/requests/actions';
 import RegistrationModal from './form/RegistrationModal';
 
 type StudentRegistrationHistory = {

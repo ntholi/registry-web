@@ -24,7 +24,8 @@
 			"@academic/*": ["./src/app/(academic)/*"],
 			"@registry/*": ["./src/app/(registry)/*"],
 			"@student-portal/*": ["./src/app/(student-portal)/*"],
-			"@finance/*": ["./src/app/(finance)/*"]
+			"@finance/*": ["./src/app/(finance)/*"],
+			"@server/*": ["./src/server/*"]
 		}
 	},
 	"include": [

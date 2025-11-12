@@ -25,13 +25,13 @@ import type { StudentModuleStatus } from '@/db/schema';
 import { MAX_REG_MODULES } from '@/lib/constants';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import useUserStudent from '@/lib/hooks/use-user-student';
-import { getBlockedStudentByStdNo } from '@/server/blocked-students/actions';
+import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
+import { findAllSponsors } from '@/server/finance/sponsors/actions';
 import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@/server/registration/requests/actions';
-import { findAllSponsors } from '@/server/sponsors/actions';
+} from '@/server/registry/registration/requests/actions';
 import AccountConfirmation from './AccountConfirmation';
 import ModuleSelection from './ModuleSelection';
 import SemesterConfirmation from './SemesterConfirmation';

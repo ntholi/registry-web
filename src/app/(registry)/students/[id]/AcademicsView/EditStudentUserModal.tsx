@@ -16,7 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import UserInput from '@/components/UserInput';
 import type { users } from '@/db/schema';
-import { updateStudentUserId } from '@/server/students/actions';
+import { updateStudentUserId } from '@/server/registry/students/actions';
 
 type User = typeof users.$inferSelect;
 

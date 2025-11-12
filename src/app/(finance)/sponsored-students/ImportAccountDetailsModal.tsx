@@ -22,7 +22,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
-import { bulkUpdateAccountDetails } from '@/server/sponsors/actions';
+import { bulkUpdateAccountDetails } from '@/server/finance/sponsors/actions';
 
 interface ImportRow {
 	stdNo: string;

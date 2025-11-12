@@ -15,7 +15,11 @@ import {
 	FieldView,
 } from '@/components/adease';
 import { largeProfilePic, toTitleCase } from '@/lib/utils/utils';
-import { deleteUser, getUser, getUserSchools } from '@/server/users/actions';
+import {
+	deleteUser,
+	getUser,
+	getUserSchools,
+} from '@/server/admin/users/actions';
 import { SchoolsList } from './SchoolsList';
 
 type Props = {

@@ -16,11 +16,11 @@ import {
 import { notFound } from 'next/navigation';
 import { DetailsView, DetailsViewHeader } from '@/components/adease';
 import type { DashboardUser, registrationRequestStatus } from '@/db/schema';
+import { getSponsoredStudent } from '@/server/finance/sponsors/actions';
 import {
 	deleteRegistrationRequest,
 	getRegistrationRequest,
-} from '@/server/registration/requests/actions';
-import { getSponsoredStudent } from '@/server/sponsors/actions';
+} from '@/server/registry/registration/requests/actions';
 import ClearanceAccordion from './ClearanceAccordion';
 import ModulesView from './ModulesView';
 import RequestDetailsView from './RequestDetailsView';

@@ -1,6 +1,6 @@
 'use client';
 
-import { getStudentsByModuleId } from '@/server/students/actions';
+import { getStudentsByModuleId } from '@/server/registry/students/actions';
 
 export type Student = Awaited<ReturnType<typeof getStudentsByModuleId>>[number];
 

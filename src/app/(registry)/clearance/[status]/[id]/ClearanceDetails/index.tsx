@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { FieldView } from '@/components/adease';
 import Link from '@/components/Link';
 import { formatDateTime } from '@/lib/utils/utils';
-import type { getClearance } from '@/server/registration/clearance/actions';
+import type { getClearance } from '@/server/registry/registration/clearance/actions';
 import SponsorInfo from '../SponsorInfo';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';

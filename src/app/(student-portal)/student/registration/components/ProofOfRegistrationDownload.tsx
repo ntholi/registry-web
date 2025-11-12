@@ -5,7 +5,7 @@ import { pdf } from '@react-pdf/renderer';
 import ProofOfRegistrationPDF from '@registry/students/[id]/registration/proof/ProofOfRegistrationPDF';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
-import { getStudentRegistrationDataByTerm } from '@/server/students/actions';
+import { getStudentRegistrationDataByTerm } from '@/server/registry/students/actions';
 
 interface ProofOfRegistrationDownloadProps {
 	stdNo: number;

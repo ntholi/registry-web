@@ -4,7 +4,7 @@ import { Paper, Select, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useCurrentTerm } from '@/lib/hooks/use-current-term';
-import { getAllTerms } from '@/server/terms/actions';
+import { getAllTerms } from '@/server/registry/terms/actions';
 
 interface TermSelectorProps {
 	value: number | null;

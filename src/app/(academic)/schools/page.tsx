@@ -17,7 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { schools } from '@/db/schema';
-import { getAllSchools } from '@/server/schools/actions';
+import { getAllSchools } from '@/server/academic/schools/actions';
 
 type School = typeof schools.$inferSelect;
 

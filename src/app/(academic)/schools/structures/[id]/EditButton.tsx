@@ -10,7 +10,7 @@ import {
 	getModulePrerequisites,
 	getSemesterModule,
 	updateModule,
-} from '@/server/semester-modules/actions';
+} from '@/server/academic/semester-modules/actions';
 import ModuleEditForm from './ModuleEditForm';
 
 type Props = {
