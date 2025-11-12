@@ -6,460 +6,103 @@ import {
 	Flex,
 	Group,
 	Indicator,
-	type MantineColor,
 	NavLink,
-	type NavLinkProps,
 	Skeleton,
 	Stack,
 	Text,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import {
-	type Icon,
-	IconAB2,
-	IconBarrierBlock,
-	IconBookmark,
-	IconBookmarks,
-	IconBuildingBank,
-	IconBuildingStore,
-	IconCalculator,
-	IconCalendarEvent,
-	IconCalendarStats,
-	IconCertificate,
-	IconChartLine,
-	IconChevronRight,
-	IconClipboardCheck,
-	IconCopyCheck,
-	IconFileCheck,
-	IconFileDownload,
-	IconLogout2,
-	IconMessageQuestion,
-	IconNotebook,
-	IconPackages,
-	IconSchool,
-	IconSquareRoundedCheck,
-	IconTestPipe,
-	IconTool,
-	IconUserCog,
-	IconUsersGroup,
-	IconUserX,
-} from '@tabler/icons-react';
+import { IconChevronRight, IconLogout2 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import type { Session } from 'next-auth';
 import { signOut, useSession } from 'next-auth/react';
 import React from 'react';
 import { Shell } from '@/components/adease';
 import Logo from '@/components/Logo';
-import type { DashboardUser, UserPosition, UserRole } from '@/db/schema';
+import type { DashboardUser, UserRole } from '@/db/schema';
 import { toTitleCase } from '@/lib/utils/utils';
 import { getAssignedModulesByCurrentUser } from '@/server/academic/assigned-modules/actions';
 import { getUserSchools } from '@/server/admin/users/actions';
-import {
-	countApprovedGraduationClearances,
-	countPendingGraduationClearances,
-	countRejectedGraduationClearances,
-} from '@/server/registry/graduation/clearance/actions';
-import { countByStatus as countGraduationByStatus } from '@/server/registry/graduation/requests/actions';
-import {
-	countApprovedClearances,
-	countPendingClearances,
-	countRejectedClearances,
-} from '@/server/registry/registration/clearance/actions';
-import { countByStatus } from '@/server/registry/registration/requests/actions';
-
-type NotificationConfig = {
-	queryKey: string[];
-	queryFn: () => Promise<number>;
-	refetchInterval?: number;
-	color?: MantineColor;
-};
-
-export type NavItem = {
-	label: string;
-	href?: string;
-	icon?: Icon;
-	description?: string;
-	roles?: UserRole[];
-	isVisible?: (session: Session | null) => boolean;
-	children?: NavItem[];
-	notificationCount?: NotificationConfig;
-	isLoading?: boolean;
-	collapsed?: boolean;
-} & NavLinkProps;
+import type { NavItem } from './module-config.types';
+import { academicConfig } from '@/app/(academic)/academic.config';
+import { adminConfig } from '@/app/(admin)/admin.config';
+import { financeConfig } from '@/app/(finance)/finance.config';
+import { registryConfig } from '@/app/(registry)/registry.config';
 
 function getNavigation(department: DashboardUser) {
-	const navItems = [
-		{
-			label: 'Users',
-			href: '/users',
-			icon: IconUserCog,
-			roles: ['admin'],
-		},
-		{
-			label: 'Students',
-			href: '/students',
-			icon: IconUsersGroup,
-			isVisible: (session) => {
-				if (
-					['registry', 'finance', 'admin', 'student_services'].includes(
-						session?.user?.role || ''
-					)
-				) {
-					return true;
-				}
-				const position = session?.user?.position;
-				return (
-					position &&
-					['manager', 'admin', 'program_leader', 'year_leader'].includes(
-						position
-					)
-				);
-			},
-		},
-		{
-			label: 'Tasks',
-			href: '/tasks',
-			icon: IconCalendarStats,
-			roles: ['admin'],
-		},
-		{
-			label: 'Lecturers',
-			href: '/lecturers',
-			roles: ['academic'],
-			icon: IconSchool,
-			isVisible: (session) => {
-				const position = session?.user?.position;
-				return (
-					position && ['manager', 'admin', 'program_leader'].includes(position)
-				);
-			},
-		},
-		{
-			label: 'Modules',
-			description: 'Assessments',
-			href: '/assessments',
-			icon: IconAB2,
-			roles: ['academic'],
-			isVisible: (session) => {
-				return session?.user?.position !== 'admin';
-			},
-		},
-		{
-			label: 'Registration Requests',
-			icon: IconClipboardCheck,
-			roles: ['registry', 'admin'],
-			collapsed: true,
-			children: [
-				{
-					label: 'Pending',
-					href: '/registration/requests/pending',
-					icon: IconMessageQuestion,
-					notificationCount: {
-						queryKey: ['registrationRequests', 'pending'],
-						queryFn: () => countByStatus('pending'),
-						color: 'red',
-					},
-				},
-				{
-					label: 'Registered',
-					href: '/registration/requests/registered',
-					icon: IconSquareRoundedCheck,
-					notificationCount: {
-						queryKey: ['registrationRequests', 'registered'],
-						queryFn: () => countByStatus('registered'),
-						color: 'gray',
-					},
-				},
-				{
-					label: 'Rejected',
-					href: '/registration/requests/rejected',
-					icon: IconBarrierBlock,
-					notificationCount: {
-						queryKey: ['registrationRequests', 'rejected'],
-						queryFn: () => countByStatus('rejected'),
-						color: 'gray',
-					},
-				},
-				{
-					label: 'Approved',
-					href: '/registration/requests/approved',
-					icon: IconSquareRoundedCheck,
-					notificationCount: {
-						queryKey: ['registrationRequests', 'approved'],
-						queryFn: () => countByStatus('approved'),
-						color: 'gray',
-					},
-				},
-			],
-		},
-		{
-			label: 'Graduation Requests',
-			icon: IconCertificate,
-			roles: ['registry', 'admin'],
-			collapsed: true,
-			children: [
-				{
-					label: 'Pending',
-					href: '/graduation/requests/pending',
-					icon: IconMessageQuestion,
-					notificationCount: {
-						queryKey: ['graduationRequests', 'pending'],
-						queryFn: () => countGraduationByStatus('pending'),
-						color: 'red',
-					},
-				},
-				{
-					label: 'Approved',
-					href: '/graduation/requests/approved',
-					icon: IconSquareRoundedCheck,
-					notificationCount: {
-						queryKey: ['graduationRequests', 'approved'],
-						queryFn: () => countGraduationByStatus('approved'),
-						color: 'gray',
-					},
-				},
-				{
-					label: 'Rejected',
-					href: '/graduation/requests/rejected',
-					icon: IconBarrierBlock,
-					notificationCount: {
-						queryKey: ['graduationRequests', 'rejected'],
-						queryFn: () => countGraduationByStatus('rejected'),
-						color: 'gray',
-					},
-				},
-			],
-		},
-		{
-			label: 'Registration Clearance',
-			icon: IconFileCheck,
-			roles: ['finance', 'library', 'resource'],
-			children: [
-				{
-					label: 'Requests',
-					href: '/clearance/pending',
-					icon: IconMessageQuestion,
-					notificationCount: {
-						queryKey: ['clearances', 'pending'],
-						queryFn: () => countPendingClearances(),
-						color: 'red',
-					},
-				},
-				{
-					label: 'Approved',
-					href: '/clearance/approved',
-					icon: IconSquareRoundedCheck,
-					notificationCount: {
-						queryKey: ['clearances', 'approved'],
-						queryFn: () => countApprovedClearances(),
-						color: 'gray',
-					},
-				},
-				{
-					label: 'Rejected',
-					href: '/clearance/rejected',
-					icon: IconBarrierBlock,
-					notificationCount: {
-						queryKey: ['clearances', 'rejected'],
-						queryFn: () => countRejectedClearances(),
-						color: 'gray',
-					},
-				},
-			],
-		},
-		{
-			label: 'Graduation Clearance',
-			icon: IconCertificate,
-			isVisible: (session) => {
-				if (['finance', 'library'].includes(session?.user?.role as UserRole))
-					return true;
-				const academicRole = session?.user?.position as UserPosition;
-				return (
-					academicRole &&
-					['manager', 'admin', 'program_leader'].includes(academicRole)
-				);
-			},
-			collapsed: true,
-			children: [
-				{
-					label: 'Requests',
-					href: '/graduation/clearance/pending',
-					icon: IconMessageQuestion,
-					notificationCount: {
-						queryKey: ['graduationClearances', 'pending'],
-						queryFn: () => countPendingGraduationClearances(),
-						color: 'red',
-					},
-				},
-				{
-					label: 'Approved',
-					href: '/graduation/clearance/approved',
-					icon: IconSquareRoundedCheck,
-					notificationCount: {
-						queryKey: ['graduationClearances', 'approved'],
-						queryFn: () => countApprovedGraduationClearances(),
-						color: 'gray',
-					},
-				},
-				{
-					label: 'Rejected',
-					href: '/graduation/clearance/rejected',
-					icon: IconBarrierBlock,
-					notificationCount: {
-						queryKey: ['graduationClearances', 'rejected'],
-						queryFn: () => countRejectedGraduationClearances(),
-						color: 'gray',
-					},
-				},
-			],
-		},
-		{
-			label: 'Gradebook',
-			icon: IconNotebook,
-			roles: ['academic'],
-			children: [],
-			isVisible: (session) => {
-				return session?.user?.position !== 'admin';
-			},
-		},
-		{
-			label: 'Blocked Students',
-			href: '/blocked-students',
-			icon: IconUserX,
-			roles: ['finance'],
-		},
-		{
-			label: 'Modules',
-			href: '/modules',
-			icon: IconBookmark,
-			roles: ['admin'],
-		},
-		{
-			label: 'Semester Modules',
-			href: '/semester-modules',
-			icon: IconBookmarks,
-			roles: ['admin'],
-		},
-		{
-			label: 'Schools',
-			href: '/schools',
-			icon: IconBuildingStore,
-			roles: ['registry', 'admin', 'academic', 'finance', 'student_services'],
-		},
-		{
-			label: 'Terms',
-			href: '/terms',
-			icon: IconCalendarEvent,
-			roles: ['admin'],
-		},
-		{
-			label: 'Sponsors',
-			href: '/sponsors',
-			icon: IconBuildingBank,
-			roles: ['admin', 'finance'],
-		},
-		{
-			label: 'Sponsored Students',
-			href: '/sponsored-students',
-			icon: IconUsersGroup,
-			roles: ['admin', 'finance', 'registry'],
-		},
-		{
-			label: 'Tools',
-			icon: IconTool,
-			roles: ['registry', 'academic', 'admin', 'student_services'],
-			children: [
-				{
-					label: 'Simulator',
-					href: '/tools/simulate',
-					icon: IconTestPipe,
-				},
-				{
-					label: 'Grade Calculator',
-					href: '/tools/grade-calculator',
-					icon: IconCalculator,
-				},
-			],
-		},
-		{
-			label: 'Bulk',
-			icon: IconPackages,
-			roles: ['admin', 'registry'],
-			children: [
-				{
-					label: 'Export Transcript',
-					href: '/bulk/transcripts',
-					icon: IconFileDownload,
-				},
-			],
-		},
-		{
-			label: 'Reports',
-			icon: IconChartLine,
-			children: [
-				{
-					label: 'Clearance',
-					href: `/reports/clearance/${department}`,
-					icon: IconCopyCheck,
-					isVisible: (session) => {
-						const userRole = session?.user?.role;
-						return (
-							session?.user?.position === 'manager' &&
-							userRole &&
-							['finance', 'library', 'resource'].includes(userRole)
-						);
-					},
-				},
-				{
-					description: 'Course Summary Report',
-					href: '/reports/course-summary',
-					icon: IconCopyCheck,
-					roles: ['academic'],
-					isVisible: (session) => {
-						return session?.user?.position !== 'admin';
-					},
-				},
-				{
-					href: `/reports/boe`,
-					description: 'Board of Examination',
-					icon: IconCopyCheck,
-					roles: ['academic', 'registry', 'admin'],
-					isVisible: (session) => {
-						if (['admin', 'registry'].includes(session?.user?.role as UserRole))
-							return true;
-						const academicRole = session?.user?.position as UserPosition;
-						return (
-							academicRole &&
-							['manager', 'admin', 'program_leader'].includes(academicRole)
-						);
-					},
-				},
-				{
-					href: `/reports/registration`,
-					description: 'Student Registration',
-					icon: IconCopyCheck,
-					roles: ['academic', 'registry', 'admin', 'finance'],
-					isVisible: (session) => {
-						if (
-							['admin', 'registry', 'finance'].includes(
-								session?.user?.role as UserRole
-							)
-						)
-							return true;
-						const academicRole = session?.user?.position as UserPosition;
-						return (
-							academicRole &&
-							['manager', 'admin', 'program_leader'].includes(academicRole)
-						);
-					},
-				},
-			],
-		},
-	] as NavItem[];
+	const allConfigs = [
+		adminConfig,
+		academicConfig,
+		registryConfig,
+		financeConfig,
+	];
 
-	return navItems;
+	const navItems: NavItem[] = [];
+
+	for (const config of allConfigs) {
+		if (config.flags.enabled) {
+			navItems.push(...config.navigation.dashboard);
+		}
+	}
+
+	const combinedItems: NavItem[] = [];
+	const itemMap = new Map<string, NavItem>();
+	const reportItems: NavItem[] = [];
+
+	const reportLabels = ['Course Summary', 'Clearance', 'Board of Examination', 'Student Registration'];
+
+	for (const item of navItems) {
+		if (reportLabels.includes(item.label)) {
+			reportItems.push(item);
+			continue;
+		}
+
+		const key = item.label;
+
+		if (itemMap.has(key)) {
+			const existing = itemMap.get(key)!;
+			if (item.children && existing.children) {
+				const childrenMap = new Map<string, NavItem>();
+				for (const child of existing.children) {
+					const childKey = typeof child.href === 'string' ? child.href : child.label;
+					childrenMap.set(childKey, child);
+				}
+				for (const child of item.children) {
+					const childKey = typeof child.href === 'string' ? child.href : child.label;
+					if (!childrenMap.has(childKey)) {
+						existing.children.push(child);
+					}
+				}
+			} else if (item.children && !existing.children) {
+				existing.children = item.children;
+			}
+		} else {
+			itemMap.set(key, { ...item });
+			combinedItems.push(itemMap.get(key)!);
+		}
+	}
+
+	const reportsParent = combinedItems.find(item => item.label === 'Reports');
+	if (reportsParent && reportItems.length > 0) {
+		reportsParent.children = reportItems;
+	}
+
+	for (const item of combinedItems) {
+		if (item.children) {
+			for (let i = 0; i < item.children.length; i++) {
+				const child = item.children[i];
+				if (typeof child.href === 'function') {
+					item.children[i] = {
+						...child,
+						href: child.href(department),
+					};
+				}
+			}
+		}
+	}
+
+	return combinedItems;
 }
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {
@@ -557,9 +200,11 @@ function UserButton() {
 export function Navigation({ navigation }: { navigation: NavItem[] }) {
 	return (
 		<>
-			{navigation.map((item) => (
-				<DisplayWithNotification key={item.href || item.label} item={item} />
-			))}
+			{navigation.map((item) => {
+				const key =
+					typeof item.href === 'string' ? item.href : item.label;
+				return <DisplayWithNotification key={key} item={item} />;
+			})}
 		</>
 	);
 }
@@ -627,23 +272,29 @@ function ItemDisplay({ item }: { item: NavItem }) {
 		);
 	}
 
+	const href = typeof item.href === 'function' ? undefined : item.href;
+	const isActive =
+		href && typeof href === 'string' ? pathname.startsWith(href) : false;
+
 	const navLink = (
 		<NavLink
 			label={item.label}
-			component={item.href ? Link : undefined}
-			href={item.href || '#something'}
-			active={item.href ? pathname.startsWith(item.href) : false}
+			component={href ? Link : undefined}
+			href={href || '#something'}
+			active={isActive}
 			leftSection={Icon ? <Icon size='1.1rem' /> : null}
 			description={item.description}
 			rightSection={
-				item.href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined
+				href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined
 			}
 			opened={opened}
 			onClick={() => setOpen((o) => !o)}
 		>
-			{item.children?.map((child) => (
-				<DisplayWithNotification key={child.href || child.label} item={child} />
-			))}
+			{item.children?.map((child) => {
+				const childKey =
+					typeof child.href === 'string' ? child.href : child.label;
+				return <DisplayWithNotification key={childKey} item={child} />;
+			})}
 		</NavLink>
 	);
 	return navLink;
