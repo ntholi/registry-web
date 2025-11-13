@@ -1,8 +1,8 @@
 import { Container, Paper } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { getAssignedModuleByUserAndModule } from '@/modules/academic/features/assigned-modules/server/actions';
-import ModuleDetailsCard from '@/modules/academic/features/gradebook/components/[id]/ModuleDetailsCard';
-import StudentTable from '@/modules/academic/features/gradebook/components/[id]/StudentTable';
+import ModuleDetailsCard from '@/modules/academic/features/gradebook/components/ModuleDetailsCard';
+import StudentTable from '@/modules/academic/features/gradebook/components/StudentTable';
 
 type Props = {
 	params: Promise<{ id: string }>;

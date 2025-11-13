@@ -29,8 +29,8 @@ import {
 	useAssessmentMarksQuery,
 	useAssessmentsQuery,
 	useModuleGradesQuery,
-} from './useAssessmentsQuery';
-import { type Student, useStudentsQuery } from './useStudentsQuery';
+} from '../hooks/useAssessmentsQuery';
+import { type Student, useStudentsQuery } from '../hooks/useStudentsQuery';
 
 type Props = {
 	moduleId: number;

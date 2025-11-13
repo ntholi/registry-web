@@ -8,8 +8,8 @@ import {
 	useAssessmentMarksQuery,
 	useAssessmentsQuery,
 	useModuleGradesQuery,
-} from '../useAssessmentsQuery';
-import { useStudentsQuery } from '../useStudentsQuery';
+} from '../../hooks/useAssessmentsQuery';
+import { useStudentsQuery } from '../../hooks/useStudentsQuery';
 import { exportToExcel } from './exportToExcel';
 
 type Props = {
