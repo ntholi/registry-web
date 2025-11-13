@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import { db } from '@/core/database';
 import { assessments, assessmentsAudit } from '@/core/database/schema';
-import BaseRepository from '@/server/base/BaseRepository';
+import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class AssessmentRepository extends BaseRepository<
 	typeof assessments,

@@ -1,6 +1,6 @@
-import type { QueryOptions } from '@server/base/BaseRepository';
 import type { assessmentMarks } from '@/core/database/schema';
-import withAuth from '@/server/base/withAuth';
+import type { QueryOptions } from '@/core/platform/BaseRepository';
+import withAuth from '@/core/platform/withAuth';
 import AssessmentMarkRepository from './repository';
 
 type AssessmentMark = typeof assessmentMarks.$inferInsert;

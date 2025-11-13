@@ -19,7 +19,7 @@ import {
 } from '@tabler/icons-react';
 import React, { useState } from 'react';
 import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/components/[id]/assessments';
-import Link from '@/shared/components/Link';
+import Link from '@/shared/ui/Link';
 import ExcelImport from './excel/ExcelImport';
 import GradeDisplay from './GradeDisplay';
 import GradeSymbolModal from './GradeSymbolModal';

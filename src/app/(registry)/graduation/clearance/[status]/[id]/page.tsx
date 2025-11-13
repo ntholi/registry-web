@@ -6,7 +6,7 @@ import GraduationClearanceDetails from '@/modules/registry/features/graduation-c
 import GraduationClearanceHeader from '@/modules/registry/features/graduation-clearance/components/[status]/[id]/GraduationClearanceHeader';
 import GraduationClearanceHistory from '@/modules/registry/features/graduation-clearance/components/[status]/[id]/GraduationClearanceHistory';
 import { getGraduationClearance } from '@/modules/registry/features/graduation-clearance/server/clearance/actions';
-import { DetailsView } from '@/shared/components/adease';
+import { DetailsView } from '@/shared/ui/adease';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -7,7 +7,7 @@ import ClearanceHeader from '@/modules/registry/features/clearance/components/[s
 import ClearanceHistory from '@/modules/registry/features/clearance/components/[status]/[id]/ClearanceHistory';
 import { getClearance } from '@/modules/registry/features/registration-requests/server/clearance/actions';
 import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
-import { DetailsView } from '@/shared/components/adease';
+import { DetailsView } from '@/shared/ui/adease';
 
 type Props = {
 	params: Promise<{ id: string }>;

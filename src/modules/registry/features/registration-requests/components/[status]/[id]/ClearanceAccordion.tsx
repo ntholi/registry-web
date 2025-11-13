@@ -11,8 +11,8 @@ import type {
 	registrationRequestStatus,
 } from '@/core/database/schema';
 import type { getRegistrationRequest } from '@/modules/registry/features/registration-requests/server/requests/actions';
-import Link from '@/shared/components/Link';
 import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
+import Link from '@/shared/ui/Link';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

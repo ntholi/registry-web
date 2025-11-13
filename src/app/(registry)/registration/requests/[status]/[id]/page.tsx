@@ -26,7 +26,7 @@ import {
 	deleteRegistrationRequest,
 	getRegistrationRequest,
 } from '@/modules/registry/features/registration-requests/server/requests/actions';
-import { DetailsView, DetailsViewHeader } from '@/shared/components/adease';
+import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 interface Props {
 	params: Promise<{ id: string }>;

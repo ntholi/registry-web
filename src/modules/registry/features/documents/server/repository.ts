@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 import { db } from '@/core/database';
 import { documents } from '@/core/database/schema';
-import BaseRepository from '@/server/base/BaseRepository';
+import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class DocumentRepository extends BaseRepository<
 	typeof documents,

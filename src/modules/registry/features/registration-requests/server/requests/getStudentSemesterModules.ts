@@ -11,7 +11,7 @@ import {
 	getActiveProgram,
 	getNextSemesterNo,
 	type Student,
-} from '@/shared/lib/helpers/students';
+} from '@/modules/registry/features/students/utils';
 
 type ModuleWithStatus = {
 	semesterModuleId: number;

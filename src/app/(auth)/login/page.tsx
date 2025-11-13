@@ -12,7 +12,7 @@ import {
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { auth, signIn } from '@/core/auth';
-import Logo from '@/shared/components/Logo';
+import Logo from '@/shared/ui/Logo';
 
 async function handleGoogleSignIn() {
 	'use server';

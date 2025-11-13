@@ -14,13 +14,13 @@ import {
 	getUser,
 	getUserSchools,
 } from '@/modules/admin/features/users/server/actions';
+import { largeProfilePic, toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
-} from '@/shared/components/adease';
-import { largeProfilePic, toTitleCase } from '@/shared/lib/utils/utils';
+} from '@/shared/ui/adease';
 
 type Props = {
 	params: Promise<{ id: string }>;

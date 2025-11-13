@@ -4,7 +4,7 @@ import { auth } from '@/core/auth';
 import { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
 import { StudentTabs } from '@/modules/registry/features/students/components/[id]/StudentTabs';
 import { getStudent } from '@/modules/registry/features/students/server/actions';
-import { DetailsView, DetailsViewHeader } from '@/shared/components/adease';
+import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -28,10 +28,10 @@ import {
 } from '@/modules/registry/features/registration-requests/server/requests/actions';
 import { getStudentRegistrationData } from '@/modules/registry/features/students/server/actions';
 import { findAllTerms } from '@/modules/registry/features/terms/server/actions';
-import { Form } from '@/shared/components/adease';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import { Form } from '@/shared/ui/adease';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 

@@ -19,9 +19,9 @@ import { IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import type { getGraduationClearance } from '@/modules/registry/features/graduation-clearance/server/clearance/actions';
-import { FieldView } from '@/shared/components/adease';
-import Link from '@/shared/components/Link';
 import { formatDateTime } from '@/shared/lib/utils/utils';
+import { FieldView } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 import GraduationClearanceSwitch from './GraduationClearanceSwitch';
 import PaymentReceipts from './PaymentReceipts';
 

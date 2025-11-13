@@ -10,7 +10,7 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
-} from '@/shared/components/adease';
+} from '@/shared/ui/adease';
 
 type Props = {
 	params: Promise<{ id: string }>;

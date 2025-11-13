@@ -24,8 +24,8 @@ import {
 } from '@/core/database/schema';
 import BaseRepository, {
 	type QueryOptions,
-} from '@/server/base/BaseRepository';
-import { MAX_REG_MODULES } from '@/shared/lib/constants';
+} from '@/core/platform/BaseRepository';
+import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 type RegistrationRequestInsert = typeof registrationRequests.$inferInsert;

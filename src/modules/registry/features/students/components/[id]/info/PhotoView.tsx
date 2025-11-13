@@ -4,11 +4,11 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit, IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
 import {
 	type getStudent,
 	getStudentPhoto,
 } from '@/modules/registry/features/students/server/actions';
-import { deleteDocument, uploadDocument } from '@/shared/lib/storage';
 import PhotoInputModal from './PhotoInputModal';
 import PhotoPreviewModal from './PhotoPreviewModal';
 

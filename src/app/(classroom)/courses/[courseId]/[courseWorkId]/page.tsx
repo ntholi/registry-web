@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
+import { hasGoogleClassroomScope } from '@/core/integrations/google-classroom';
 import AttachmentCard from '@/modules/classroom/features/courses/components/[courseId]/[courseWorkId]/AttachmentCard';
 import CourseHeader from '@/modules/classroom/features/courses/components/[courseId]/[courseWorkId]/CourseHeader';
 import SubmissionCard from '@/modules/classroom/features/courses/components/[courseId]/[courseWorkId]/SubmissionCard';
@@ -20,7 +21,6 @@ import {
 	getCourseWorkById,
 	getCourseWorkSubmissions,
 } from '@/modules/classroom/features/courses/server/actions';
-import { hasGoogleClassroomScope } from '@/shared/lib/googleClassroom';
 
 type Props = {
 	params: Promise<{

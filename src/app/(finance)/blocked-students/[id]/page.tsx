@@ -13,7 +13,7 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
-} from '@/shared/components/adease';
+} from '@/shared/ui/adease';
 
 export default function BlockedStudentDetails() {
 	const params = useParams();

@@ -18,7 +18,7 @@ import {
 	getProgramsBySchoolId,
 	getSchool,
 } from '@/modules/academic/features/schools/server/actions';
-import Link from '@/shared/components/Link';
+import Link from '@/shared/ui/Link';
 
 type Program = {
 	id: number;

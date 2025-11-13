@@ -1,9 +1,9 @@
-import type { QueryOptions } from '@server/base/BaseRepository';
 import { auth } from '@/core/auth';
 import type { users } from '@/core/database/schema';
+import type { QueryOptions } from '@/core/platform/BaseRepository';
+import withAuth from '@/core/platform/withAuth';
 import { getUserSchoolIds } from '@/modules/admin/features/users/server/actions';
 import UserRepository from '@/modules/admin/features/users/server/repository';
-import withAuth from '@/server/base/withAuth';
 
 class LecturerService {
 	constructor(private readonly repository = new UserRepository()) {}

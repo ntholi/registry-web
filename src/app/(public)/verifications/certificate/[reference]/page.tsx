@@ -10,7 +10,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconCertificate, IconInfoCircle } from '@tabler/icons-react';
-import Logo from '@/shared/components/Logo';
+import Logo from '@/shared/ui/Logo';
 
 export default async function CertificateVerificationPage() {
 	return (

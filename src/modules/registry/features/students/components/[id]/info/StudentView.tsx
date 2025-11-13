@@ -20,12 +20,12 @@ import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import type { UserRole } from '@/core/database/schema';
 import type { getStudent } from '@/modules/registry/features/students/server/actions';
-import Link from '@/shared/components/Link';
 import {
 	formatDate,
 	formatPhoneNumber,
 	formatSemester,
 } from '@/shared/lib/utils/utils';
+import Link from '@/shared/ui/Link';
 import { getProgramStatusColor } from '../AcademicsView';
 import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
 import AcademicSummary from './AcademicSummary';

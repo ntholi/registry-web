@@ -28,8 +28,8 @@ import EditButton from '@/modules/academic/features/schools/components/structure
 import HideButton from '@/modules/academic/features/schools/components/structures/[id]/HideButton';
 import PrerequisiteDisplay from '@/modules/academic/features/schools/components/structures/[id]/PrerequisiteDisplay';
 import { getStructure } from '@/modules/academic/features/structures/server/actions';
-import Link from '@/shared/components/Link';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import Link from '@/shared/ui/Link';
 
 export default function StructureDetailsPage() {
 	const params = useParams();

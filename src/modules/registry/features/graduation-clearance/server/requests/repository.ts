@@ -9,10 +9,10 @@ import {
 	type paymentType,
 	studentPrograms,
 } from '@/core/database/schema';
-import { studentsService } from '@/modules/registry/features/students/server/service';
 import BaseRepository, {
 	type QueryOptions,
-} from '@/server/base/BaseRepository';
+} from '@/core/platform/BaseRepository';
+import { studentsService } from '@/modules/registry/features/students/server/service';
 import { getOutstandingFromStructure } from '@/shared/lib/utils/grades';
 
 export default class GraduationRequestRepository extends BaseRepository<

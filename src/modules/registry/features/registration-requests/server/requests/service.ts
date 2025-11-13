@@ -1,14 +1,17 @@
-import type { QueryOptions } from '@server/base/BaseRepository';
 import {
 	dashboardUsers,
 	type registrationRequests,
 	type requestedModules,
 	type StudentModuleStatus,
 } from '@/core/database/schema';
+import type { QueryOptions } from '@/core/platform/BaseRepository';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withAuth from '@/core/platform/withAuth';
+import type {
+	AcademicRemarks,
+	Student,
+} from '@/modules/registry/features/students/utils';
 import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
-import { serviceWrapper } from '@/server/base/serviceWrapper';
-import withAuth from '@/server/base/withAuth';
-import type { AcademicRemarks, Student } from '@/shared/lib/helpers/students';
 import RegistrationRequestRepository from './repository';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;

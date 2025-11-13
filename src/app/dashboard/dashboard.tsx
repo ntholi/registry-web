@@ -26,9 +26,9 @@ import { registryConfig } from '@/app/(registry)/registry.config';
 import type { DashboardUser, UserRole } from '@/core/database/schema';
 import { getAssignedModulesByCurrentUser } from '@/modules/academic/features/assigned-modules/server/actions';
 import { getUserSchools } from '@/modules/admin/features/users/server/actions';
-import { Shell } from '@/shared/components/adease';
-import Logo from '@/shared/components/Logo';
 import { toTitleCase } from '@/shared/lib/utils/utils';
+import { Shell } from '@/shared/ui/adease';
+import Logo from '@/shared/ui/Logo';
 import type { NavItem } from './module-config.types';
 
 function getNavigation(department: DashboardUser) {

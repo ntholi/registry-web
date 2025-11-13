@@ -16,9 +16,9 @@ import {
 import { IconSchool } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import type { getStudent } from '@/modules/registry/features/students/server/actions';
-import SemesterStatus from '@/shared/components/SemesterStatus';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import SemesterStatus from '@/shared/ui/SemesterStatus';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
 

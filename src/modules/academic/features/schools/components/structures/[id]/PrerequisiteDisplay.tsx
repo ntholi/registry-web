@@ -1,6 +1,6 @@
 import { Group, Text } from '@mantine/core';
 import { Fragment } from 'react';
-import Link from '@/shared/components/Link';
+import Link from '@/shared/ui/Link';
 
 type Prerequisite = {
 	id: number;

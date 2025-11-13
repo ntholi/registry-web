@@ -3,7 +3,7 @@ import { db } from '@/core/database';
 import { blockedStudents } from '@/core/database/schema';
 import BaseRepository, {
 	type QueryOptions,
-} from '@/server/base/BaseRepository';
+} from '@/core/platform/BaseRepository';
 
 export default class BlockedStudentRepository extends BaseRepository<
 	typeof blockedStudents,

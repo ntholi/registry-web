@@ -3,7 +3,7 @@
 import { IconCheck } from '@tabler/icons-react';
 import type { PropsWithChildren } from 'react';
 import { findAllTerms } from '@/modules/registry/features/terms/server/actions';
-import { ListItem, ListLayout, NewLink } from '@/shared/components/adease';
+import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (

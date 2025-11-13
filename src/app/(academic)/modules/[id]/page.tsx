@@ -21,8 +21,8 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
-} from '@/shared/components/adease';
-import Link from '@/shared/components/Link';
+} from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 
 type Props = {
 	params: Promise<{ id: string }>;

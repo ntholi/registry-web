@@ -29,11 +29,11 @@ import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
 } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
 import AccountConfirmation from '@/modules/student-portal/features/registration/components/new/AccountConfirmation';
 import ModuleSelection from '@/modules/student-portal/features/registration/components/new/ModuleSelection';
 import SemesterConfirmation from '@/modules/student-portal/features/registration/components/new/SemesterConfirmation';
 import SponsorshipDetails from '@/modules/student-portal/features/registration/components/new/SponsorshipDetails';
-import { MAX_REG_MODULES } from '@/shared/lib/constants';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 

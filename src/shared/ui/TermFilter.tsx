@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { findAllTerms } from '@/modules/registry/features/terms/server/actions';
-import { selectedTermAtom } from '@/shared/lib/atoms/termAtoms';
+import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 
 interface TermFilterProps {
 	onTermChange?: (termId: number | null) => void;

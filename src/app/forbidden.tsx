@@ -1,5 +1,5 @@
 import { IconBan } from '@tabler/icons-react';
-import StatusPage from '@/shared/components/StatusPage';
+import StatusPage from '@/shared/ui/StatusPage';
 
 export default function Forbidden() {
 	return (

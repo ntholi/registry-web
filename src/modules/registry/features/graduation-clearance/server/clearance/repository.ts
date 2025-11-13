@@ -13,10 +13,10 @@ import {
 	studentPrograms,
 	students,
 } from '@/core/database/schema';
-import { usersRepository } from '@/modules/admin/features/users/server/repository';
 import BaseRepository, {
 	type QueryOptions,
-} from '@/server/base/BaseRepository';
+} from '@/core/platform/BaseRepository';
+import { usersRepository } from '@/modules/admin/features/users/server/repository';
 
 type Model = typeof clearance.$inferInsert;
 

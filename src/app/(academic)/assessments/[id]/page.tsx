@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import AssessmentsTable from '@/modules/academic/features/assessments/components/[id]/AssessmentsTable';
 import ModuleLecturers from '@/modules/academic/features/assessments/components/[id]/ModuleLecturers';
 import { getModule } from '@/modules/academic/features/modules/server/actions';
-import { DetailsView } from '@/shared/components/adease';
+import { DetailsView } from '@/shared/ui/adease';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -18,7 +18,7 @@ import {
 	getTasks,
 	type TaskFilter,
 } from '@/modules/admin/features/tasks/server/actions';
-import { ListItem, ListLayout, NewLink } from '@/shared/components/adease';
+import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 function getPriorityColor(priority: string) {
 	switch (priority) {

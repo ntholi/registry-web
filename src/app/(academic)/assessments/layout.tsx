@@ -3,11 +3,7 @@ import { useSession } from 'next-auth/react';
 import { type PropsWithChildren, useState } from 'react';
 import { getAssignedModulesByCurrentUser } from '@/modules/academic/features/assigned-modules/server/actions';
 import { getModules } from '@/modules/academic/features/modules/server/actions';
-import {
-	ListItem,
-	ListLayout,
-	ModuleViewToggle,
-} from '@/shared/components/adease';
+import { ListItem, ListLayout, ModuleViewToggle } from '@/shared/ui/adease';
 
 interface Module {
 	id: number;

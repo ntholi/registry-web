@@ -1,8 +1,8 @@
-import type { QueryOptions } from '@server/base/BaseRepository';
 import { auth } from '@/core/auth';
 import type { DashboardUser, tasks } from '@/core/database/schema';
-import { serviceWrapper } from '@/server/base/serviceWrapper';
-import withAuth from '@/server/base/withAuth';
+import type { QueryOptions } from '@/core/platform/BaseRepository';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withAuth from '@/core/platform/withAuth';
 import TaskRepository from './repository';
 
 type Task = typeof tasks.$inferInsert;

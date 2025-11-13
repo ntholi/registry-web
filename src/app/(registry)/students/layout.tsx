@@ -7,7 +7,7 @@ import {
 	findAllStudents,
 	type StudentFilter,
 } from '@/modules/registry/features/students/server/actions';
-import { ListItem, ListLayout } from '@/shared/components/adease';
+import { ListItem, ListLayout } from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();

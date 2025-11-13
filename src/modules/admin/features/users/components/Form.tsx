@@ -26,8 +26,8 @@ import {
 	findAllSchools,
 	getUserSchools,
 } from '@/modules/admin/features/users/server/actions';
-import { Form } from '@/shared/components/adease';
 import { toTitleCase } from '@/shared/lib/utils/utils';
+import { Form } from '@/shared/ui/adease';
 
 type User = typeof users.$inferInsert;
 

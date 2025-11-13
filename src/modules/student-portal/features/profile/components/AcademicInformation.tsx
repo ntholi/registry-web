@@ -14,15 +14,15 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconBook, IconCalendar, IconTrophy } from '@tabler/icons-react';
+import type { AcademicRemarks } from '@/modules/registry/features/students/utils';
 import { getStatusColor } from '@/modules/student-portal/features/utils/components/colors';
-import type { AcademicRemarks } from '@/shared/lib/helpers/students';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Program = ReturnType<
-	typeof import('@/shared/lib/helpers/students').getActiveProgram
+	typeof import('@/modules/registry/features/students/utils').getActiveProgram
 >;
 type Semester = ReturnType<
-	typeof import('@/shared/lib/helpers/students').getCurrentSemester
+	typeof import('@/modules/registry/features/students/utils').getCurrentSemester
 >;
 
 type Props = {

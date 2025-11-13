@@ -1,9 +1,9 @@
-import type { QueryOptions } from '@server/base/BaseRepository';
 import { eq } from 'drizzle-orm';
 import { db } from '@/core/database';
 import { userSchools, type users } from '@/core/database/schema';
-import { serviceWrapper } from '@/server/base/serviceWrapper';
-import withAuth from '@/server/base/withAuth';
+import type { QueryOptions } from '@/core/platform/BaseRepository';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withAuth from '@/core/platform/withAuth';
 import UserRepository from './repository';
 
 type User = typeof users.$inferInsert;

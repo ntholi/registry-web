@@ -13,9 +13,9 @@ import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import type { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
 import type { getRegistrationRequest } from '@/modules/registry/features/registration-requests/server/requests/actions';
-import { FieldView } from '@/shared/components/adease';
-import Link from '@/shared/components/Link';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import { FieldView } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 
 type Props = {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

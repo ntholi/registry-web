@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { getRegistrationRequest } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import { MAX_REGISTRATION_ATTEMPTS } from '@/modules/registry/shared/constants';
 import ClearanceStatusView from '@/modules/student-portal/features/registration/components/[id]/ClearanceStatusView';
 import DepartmentMessagesView from '@/modules/student-portal/features/registration/components/[id]/DepartmentMessagesView';
 import ModulesView from '@/modules/student-portal/features/registration/components/[id]/ModulesView';
@@ -29,7 +30,6 @@ import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
 	getStatusIcon,
 } from '@/modules/student-portal/features/utils/components/status';
-import { MAX_REGISTRATION_ATTEMPTS } from '@/shared/lib/constants';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Props = {

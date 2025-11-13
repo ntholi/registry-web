@@ -1,5 +1,5 @@
 import { studentCardPrints } from '@/core/database/schema';
-import BaseRepository from '@/server/base/BaseRepository';
+import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class StudentCardPrintRepository extends BaseRepository<
 	typeof studentCardPrints,

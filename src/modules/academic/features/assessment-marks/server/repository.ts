@@ -6,7 +6,7 @@ import {
 	assessmentMarksAudit,
 	assessments,
 } from '@/core/database/schema';
-import BaseRepository from '@/server/base/BaseRepository';
+import BaseRepository from '@/core/platform/BaseRepository';
 
 type Mark = typeof assessmentMarks.$inferSelect;
 

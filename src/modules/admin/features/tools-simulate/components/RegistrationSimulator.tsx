@@ -37,10 +37,10 @@ import {
 	getStudent,
 	getStudentRegistrationData,
 } from '@/modules/registry/features/students/server/actions';
-import Link from '@/shared/components/Link';
-import { getCurrentSemester } from '@/shared/lib/helpers/students';
+import { getCurrentSemester } from '@/modules/registry/features/students/utils';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import Link from '@/shared/ui/Link';
 import SemesterStatusModal from './SemesterStatusModal';
 
 type ModuleDataResponse = Awaited<ReturnType<typeof getStudentSemesterModules>>;

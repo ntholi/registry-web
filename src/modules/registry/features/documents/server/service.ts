@@ -1,7 +1,7 @@
-import type { QueryOptions } from '@server/base/BaseRepository';
-import { serviceWrapper } from '@server/base/serviceWrapper';
 import type { documents } from '@/core/database/schema';
-import withAuth from '@/server/base/withAuth';
+import type { QueryOptions } from '@/core/platform/BaseRepository';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withAuth from '@/core/platform/withAuth';
 import DocumentRepository from './repository';
 
 type Document = typeof documents.$inferInsert;

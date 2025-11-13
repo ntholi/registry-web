@@ -1,6 +1,6 @@
 'use client';
 import { Box, Grid, Paper, Text, Title } from '@mantine/core';
-import type { Student } from '@/shared/lib/helpers/students';
+import type { Student } from '@/modules/registry/features/students/utils';
 import { formatDate } from '@/shared/lib/utils/utils';
 
 type Props = {

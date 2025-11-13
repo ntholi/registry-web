@@ -4,7 +4,7 @@ import { NumberInput, Switch, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { terms } from '@/core/database/schema';
-import { Form } from '@/shared/components/adease';
+import { Form } from '@/shared/ui/adease';
 
 type Term = typeof terms.$inferInsert;
 

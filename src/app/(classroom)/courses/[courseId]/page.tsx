@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
+import { hasGoogleClassroomScope } from '@/core/integrations/google-classroom';
 import AssessmentsTab from '@/modules/classroom/features/courses/components/[courseId]/AssessmentsTab';
 import DashboardTab from '@/modules/classroom/features/courses/components/[courseId]/DashboardTab';
 import MaterialTab from '@/modules/classroom/features/courses/components/[courseId]/MaterialTab';
@@ -23,7 +24,6 @@ import {
 	getCourseTopics,
 	getCourseWork,
 } from '@/modules/classroom/features/courses/server/actions';
-import { hasGoogleClassroomScope } from '@/shared/lib/googleClassroom';
 
 type Props = {
 	params: Promise<{

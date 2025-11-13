@@ -10,8 +10,8 @@ import {
 import { IconLogout, IconMoon, IconSun, IconUser } from '@tabler/icons-react';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
-import Logo from '@/shared/components/Logo';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import Logo from '@/shared/ui/Logo';
 
 export default function Navbar() {
 	const { student } = useUserStudent();

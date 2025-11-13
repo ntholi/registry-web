@@ -19,7 +19,7 @@ import {
 	type getStudent,
 	updateStudentProgramStructure,
 } from '@/modules/registry/features/students/server/actions';
-import Link from '@/shared/components/Link';
+import Link from '@/shared/ui/Link';
 
 type Props = {
 	student: Awaited<ReturnType<typeof getStudent>>;

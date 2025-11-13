@@ -9,7 +9,7 @@ import {
 	students,
 	terms,
 } from '@/core/database/schema';
-import BaseRepository from '@/server/base/BaseRepository';
+import BaseRepository from '@/core/platform/BaseRepository';
 
 export interface StudentModuleReport {
 	studentId: number;

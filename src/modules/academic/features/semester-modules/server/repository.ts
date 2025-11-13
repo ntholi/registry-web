@@ -14,7 +14,7 @@ import {
 } from '@/core/database/schema';
 import BaseRepository, {
 	type QueryOptions,
-} from '@/server/base/BaseRepository';
+} from '@/core/platform/BaseRepository';
 
 type ModuleInfo = {
 	code: string;

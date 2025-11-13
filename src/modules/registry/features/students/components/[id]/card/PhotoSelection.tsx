@@ -20,7 +20,7 @@ import {
 	IconVideo,
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { deleteDocument, uploadDocument } from '@/shared/lib/storage';
+import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
 import PhotoInputModal from '../info/PhotoInputModal';
 
 type PhotoSelectionProps = {

@@ -5,7 +5,10 @@ import type {
 	requestedModules,
 	StudentModuleStatus,
 } from '@/core/database/schema';
-import type { AcademicRemarks, Student } from '@/shared/lib/helpers/students';
+import type {
+	AcademicRemarks,
+	Student,
+} from '@/modules/registry/features/students/utils';
 import { registrationRequestsService as service } from './service';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;

@@ -5,7 +5,7 @@ import { getStudentByUserId } from '@/modules/registry/features/students/server/
 import {
 	getActiveProgram,
 	getCurrentSemester,
-} from '@/shared/lib/helpers/students';
+} from '@/modules/registry/features/students/utils';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 
 export default function useUserStudent() {

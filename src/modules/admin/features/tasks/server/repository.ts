@@ -8,7 +8,7 @@ import {
 } from '@/core/database/schema';
 import BaseRepository, {
 	type QueryOptions,
-} from '@/server/base/BaseRepository';
+} from '@/core/platform/BaseRepository';
 
 export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	constructor() {

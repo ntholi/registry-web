@@ -7,7 +7,7 @@ import {
 	studentPrograms,
 	students,
 } from '@/core/database/schema';
-import BaseRepository from '@/server/base/BaseRepository';
+import BaseRepository from '@/core/platform/BaseRepository';
 
 type SponsoredStudent = typeof sponsoredStudents.$inferSelect;
 

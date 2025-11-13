@@ -7,9 +7,9 @@ import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { clearanceByStatus } from '@/modules/registry/features/registration-requests/server/clearance/actions';
 import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
-import { ListItem, ListLayout } from '@/shared/components/adease';
-import TermFilter from '@/shared/components/TermFilter';
-import { selectedTermAtom } from '@/shared/lib/atoms/termAtoms';
+import { ListItem, ListLayout } from '@/shared/ui/adease';
+import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
+import TermFilter from '@/shared/ui/TermFilter';
 
 type Status = 'pending' | 'approved' | 'rejected';
 

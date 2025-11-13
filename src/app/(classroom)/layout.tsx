@@ -1,7 +1,7 @@
 import { Alert } from '@mantine/core';
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
-import { DebugRibbon } from '@/shared/components/DebugRibbon';
+import { DebugRibbon } from '@/shared/ui/DebugRibbon';
 import Dashboard from '../dashboard/dashboard';
 
 export async function generateMetadata(): Promise<Metadata> {

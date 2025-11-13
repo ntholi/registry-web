@@ -25,7 +25,7 @@ import {
 } from '@/core/database/schema';
 import BaseRepository, {
 	type QueryOptions,
-} from '@/server/base/BaseRepository';
+} from '@/core/platform/BaseRepository';
 import type { StudentFilter } from './actions';
 
 export default class StudentRepository extends BaseRepository<

@@ -24,7 +24,7 @@ import GraduationClearanceAccordion from '@/modules/registry/features/graduation
 import GraduationRequestDetailsView from '@/modules/registry/features/graduation-requests/components/[status]/[id]/GraduationRequestDetailsView';
 import PaymentReceiptsView from '@/modules/registry/features/graduation-requests/components/[status]/[id]/PaymentReceiptsView';
 import ProofOfClearancePrinter from '@/modules/registry/features/graduation-requests/components/[status]/[id]/ProofOfClearancePrinter';
-import { DetailsView, DetailsViewHeader } from '@/shared/components/adease';
+import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 interface Props {
 	params: Promise<{ id: string }>;
