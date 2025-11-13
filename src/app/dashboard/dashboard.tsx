@@ -23,7 +23,7 @@ import { adminConfig } from '@/app/(admin)/admin.config';
 import { classroomConfig } from '@/app/(classroom)/classroom.config';
 import { financeConfig } from '@/app/(finance)/finance.config';
 import { registryConfig } from '@/app/(registry)/registry.config';
-import type { DashboardUser, UserRole } from '@/db/schema';
+import type { DashboardUser, UserRole } from '@/core/db/schema';
 import { getAssignedModulesByCurrentUser } from '@/server/academic/assigned-modules/actions';
 import { getUserSchools } from '@/server/admin/users/actions';
 import { Shell } from '@/shared/components/adease';

@@ -2,8 +2,8 @@
 
 import { forbidden, unauthorized } from 'next/navigation';
 import type { Session } from 'next-auth';
-import { auth } from '@/auth';
-import { dashboardUsers, type UserRole } from '@/db/schema';
+import { auth } from '@/core/auth';
+import { dashboardUsers, type UserRole } from '@/core/db/schema';
 
 type Role = UserRole | 'all' | 'auth' | 'dashboard';
 type AccessCheckFunction = (session: Session) => Promise<boolean>;

@@ -7,7 +7,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import type { StudentModuleStatus } from '@/db/schema';
+import type { StudentModuleStatus } from '@/core/db/schema';
 import { MAX_REG_MODULES } from '@/shared/lib/constants';
 import ModuleCheckbox from './ModuleCheckbox';
 

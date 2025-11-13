@@ -23,7 +23,7 @@ import {
 } from '@student-portal/student/utils/status';
 import { IconReceipt } from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 import { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 import ProofOfClearanceDownload from '../components/ProofOfClearanceDownload';

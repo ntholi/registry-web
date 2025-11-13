@@ -1,4 +1,4 @@
-import { statementOfResultsPrints } from '@/db/schema';
+import { statementOfResultsPrints } from '@/core/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
 export default class StatementOfResultsPrintRepository extends BaseRepository<

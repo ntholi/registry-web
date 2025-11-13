@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { nanoid } from 'nanoid';
 import { unauthorized } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 
 const s3Client = new S3Client({
 	endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,

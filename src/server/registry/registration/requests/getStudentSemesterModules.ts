@@ -1,11 +1,11 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import { db } from '@/db';
+import { db } from '@/core/db';
 import {
 	modulePrerequisites,
 	type modules,
 	semesterModules,
 	structureSemesters,
-} from '@/db/schema';
+} from '@/core/db/schema';
 import {
 	type AcademicRemarks,
 	getActiveProgram,

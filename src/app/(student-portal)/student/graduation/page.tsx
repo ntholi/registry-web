@@ -9,7 +9,7 @@ import {
 } from '@mantine/core';
 import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 import GraduationHistory from './components/GraduationHistory';
 import GraduationHistorySkeleton from './components/GraduationHistorySkeleton';
 import NewGraduationCard from './components/NewGraduationCard';

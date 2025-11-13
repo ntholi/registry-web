@@ -5,7 +5,7 @@ import type {
 	modules,
 	StudentModuleStatus,
 	semesterModules,
-} from '@/db/schema';
+} from '@/core/db/schema';
 import { getModulesForStructure } from '@/server/academic/semester-modules/actions';
 import { getSponsoredStudent } from '@/server/finance/sponsors/actions';
 import {

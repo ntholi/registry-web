@@ -16,7 +16,7 @@ import { IconChevronRight, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
-import type { schools } from '@/db/schema';
+import type { schools } from '@/core/db/schema';
 import { getAllSchools } from '@/server/academic/schools/actions';
 
 type School = typeof schools.$inferSelect;

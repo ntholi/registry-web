@@ -1,7 +1,7 @@
 'use server';
 
 import { getCurrentTerm } from '@server/registry/terms/actions';
-import type { assessments } from '@/db/schema';
+import type { assessments } from '@/core/db/schema';
 import { assessmentsService as service } from './service';
 
 type Assessment = typeof assessments.$inferInsert;

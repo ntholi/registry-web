@@ -11,7 +11,7 @@ import {
 	sql,
 } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm/sql';
-import { db } from '@/db';
+import { db } from '@/core/db';
 import {
 	clearance,
 	registrationClearance,
@@ -21,7 +21,7 @@ import {
 	sponsoredStudents,
 	sponsoredTerms,
 	studentPrograms,
-} from '@/db/schema';
+} from '@/core/db/schema';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/server/base/BaseRepository';

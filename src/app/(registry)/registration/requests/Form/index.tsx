@@ -20,7 +20,7 @@ import {
 	type StudentModuleStatus,
 	type semesterModules,
 	studentModuleStatus,
-} from '@/db/schema';
+} from '@/core/db/schema';
 import { getModulesForStructure } from '@/server/academic/semester-modules/actions';
 import {
 	determineSemesterStatus,

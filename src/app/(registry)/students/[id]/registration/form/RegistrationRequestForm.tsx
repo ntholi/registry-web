@@ -14,7 +14,7 @@ import { notifications } from '@mantine/notifications';
 import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { StudentModuleStatus } from '@/db/schema';
+import type { StudentModuleStatus } from '@/core/db/schema';
 import { getStudentCurrentSponsorship } from '@/server/finance/sponsors/actions';
 import {
 	createRegistrationWithModules,

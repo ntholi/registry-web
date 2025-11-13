@@ -5,7 +5,7 @@ import {
 	type registrationRequests,
 	type requestedModules,
 	type StudentModuleStatus,
-} from '@/db/schema';
+} from '@/core/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import type { AcademicRemarks, Student } from '@/shared/lib/helpers/students';

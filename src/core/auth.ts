@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import NextAuth from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
 import Google from 'next-auth/providers/google';
-import { db } from '@/db';
+import { db } from '@/core/db';
 import {
 	accounts,
 	sessions,

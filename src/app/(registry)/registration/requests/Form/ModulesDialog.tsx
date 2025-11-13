@@ -12,7 +12,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { type ReactNode, useState } from 'react';
-import type { modules, semesterModules } from '@/db/schema';
+import type { modules, semesterModules } from '@/core/db/schema';
 import { compareSemesters } from '@/shared/lib/utils/utils';
 
 type Module = typeof modules.$inferSelect;

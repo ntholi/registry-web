@@ -21,7 +21,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import type { StudentModuleStatus } from '@/db/schema';
+import type { StudentModuleStatus } from '@/core/db/schema';
 import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
 import { findAllSponsors } from '@/server/finance/sponsors/actions';
 import {

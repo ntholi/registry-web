@@ -7,8 +7,8 @@ import { config } from 'dotenv';
 import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
 import { drizzle as drizzlePostgres } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as sqliteSchema from '../src/db/old.schema';
-import * as postgresSchema from '../src/db/schema';
+import * as sqliteSchema from '../src/core/db/old.schema';
+import * as postgresSchema from '../src/core/db/schema';
 import {
 	assessmentMarksAuditAction,
 	assessmentNumber,
@@ -35,7 +35,7 @@ import {
 	taskStatus,
 	userPositions,
 	userRoles,
-} from '../src/db/schema';
+} from '../src/core/db/schema';
 
 config({ path: '.env.local' });
 

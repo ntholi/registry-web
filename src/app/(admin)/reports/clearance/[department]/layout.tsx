@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 
 type Props = {
 	children: React.ReactNode;

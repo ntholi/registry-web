@@ -14,7 +14,10 @@ import {
 	IconExclamationCircle,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import type { DashboardUser, registrationRequestStatus } from '@/db/schema';
+import type {
+	DashboardUser,
+	registrationRequestStatus,
+} from '@/core/db/schema';
 import { getSponsoredStudent } from '@/server/finance/sponsors/actions';
 import {
 	deleteRegistrationRequest,

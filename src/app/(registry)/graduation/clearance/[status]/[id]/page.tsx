@@ -1,7 +1,7 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import AcademicsLoader from '@registry/clearance/[status]/[id]/AcademicsLoader';
 import { notFound } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 import { getGraduationClearance } from '@/server/registry/graduation/clearance/actions';
 import { DetailsView } from '@/shared/components/adease';
 import GraduationClearanceDetails from './GraduationClearanceDetails';

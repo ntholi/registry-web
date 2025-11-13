@@ -1,7 +1,7 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { eq } from 'drizzle-orm';
-import { db } from '@/db';
-import { userSchools, type users } from '@/db/schema';
+import { db } from '@/core/db';
+import { userSchools, type users } from '@/core/db/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import UserRepository from './repository';

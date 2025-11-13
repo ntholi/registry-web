@@ -18,7 +18,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
-import type { UserRole } from '@/db/schema';
+import type { UserRole } from '@/core/db/schema';
 import type { getStudent } from '@/server/registry/students/actions';
 import Link from '@/shared/components/Link';
 import {

@@ -13,7 +13,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 import {
 	getCourse,
 	getCourseAnnouncements,

@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
-import { auth } from '@/auth';
-import { db } from '@/db';
+import { auth } from '@/core/auth';
+import { db } from '@/core/db';
 import {
 	clearance,
 	clearanceAudit,
@@ -12,7 +12,7 @@ import {
 	structures,
 	studentPrograms,
 	students,
-} from '@/db/schema';
+} from '@/core/db/schema';
 import { usersRepository } from '@/server/admin/users/repository';
 import BaseRepository, {
 	type QueryOptions,

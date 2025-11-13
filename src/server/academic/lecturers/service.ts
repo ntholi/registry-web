@@ -1,8 +1,8 @@
 import { getUserSchoolIds } from '@server/admin/users/actions';
 import UserRepository from '@server/admin/users/repository';
 import type { QueryOptions } from '@server/base/BaseRepository';
-import { auth } from '@/auth';
-import type { users } from '@/db/schema';
+import { auth } from '@/core/auth';
+import type { users } from '@/core/db/schema';
 import withAuth from '@/server/base/withAuth';
 
 class LecturerService {

@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { auth, signIn } from '@/auth';
+import { auth, signIn } from '@/core/auth';
 import Logo from '@/shared/components/Logo';
 
 async function handleGoogleSignIn() {

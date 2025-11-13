@@ -1,8 +1,8 @@
 import { Center, Loader, Stack, Text } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { auth } from '@/auth';
-import { dashboardUsers } from '@/db/schema';
+import { auth } from '@/core/auth';
+import { dashboardUsers } from '@/core/db/schema';
 
 function LoadingComponent() {
 	return (

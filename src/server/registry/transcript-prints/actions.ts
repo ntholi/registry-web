@@ -1,6 +1,6 @@
 'use server';
 
-import type { transcriptPrints } from '@/db/schema';
+import type { transcriptPrints } from '@/core/db/schema';
 import { transcriptPrintsService as service } from './service';
 
 type TranscriptPrint = typeof transcriptPrints.$inferInsert;

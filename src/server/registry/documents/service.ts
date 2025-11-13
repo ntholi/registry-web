@@ -1,6 +1,6 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { serviceWrapper } from '@server/base/serviceWrapper';
-import type { documents } from '@/db/schema';
+import type { documents } from '@/core/db/schema';
 import withAuth from '@/server/base/withAuth';
 import DocumentRepository from './repository';
 

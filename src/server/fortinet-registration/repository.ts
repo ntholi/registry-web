@@ -1,11 +1,11 @@
 import { and, desc, eq, like, or, type SQL } from 'drizzle-orm';
-import { db } from '@/db';
+import { db } from '@/core/db';
 import {
 	type fortinetLevel,
 	fortinetRegistrations,
 	schools,
 	students,
-} from '@/db/schema';
+} from '@/core/db/schema';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/server/base/BaseRepository';

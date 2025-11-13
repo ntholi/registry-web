@@ -17,7 +17,7 @@ import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { terms as termsTable } from '@/db/schema';
+import type { terms as termsTable } from '@/core/db/schema';
 import {
 	getAllSchools,
 	getProgramsBySchoolId,

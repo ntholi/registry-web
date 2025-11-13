@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 import { getClearance } from '@/server/registry/registration/clearance/actions';
 import { getCurrentTerm } from '@/server/registry/terms/actions';
 import { DetailsView } from '@/shared/components/adease';

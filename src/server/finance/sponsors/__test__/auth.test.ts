@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { sponsors, users } from '@/db/schema';
+import type { sponsors, users } from '@/core/db/schema';
 import { resetMockUser, setMockUser } from '@/server/admin/test/mocks.auth';
 import {
 	createSponsor,

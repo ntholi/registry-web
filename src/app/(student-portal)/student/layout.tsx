@@ -1,7 +1,7 @@
 import { Space } from '@mantine/core';
 import type { Metadata } from 'next';
 import type React from 'react';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 import BottomNavigation from './base/BottomNavigation';
 import Footer from './base/Footer';
 import Navbar from './base/Navbar';

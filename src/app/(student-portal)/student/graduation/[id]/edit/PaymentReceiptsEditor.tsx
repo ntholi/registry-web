@@ -26,7 +26,7 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { paymentType } from '@/db/schema';
+import { paymentType } from '@/core/db/schema';
 import {
 	addPaymentReceipt,
 	removePaymentReceipt,

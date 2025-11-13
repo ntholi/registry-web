@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { graduationRequests } from '@/db/schema';
+import { graduationRequests } from '@/core/db/schema';
 import { getEligiblePrograms } from '@/server/registry/graduation/requests/actions';
 import { Form } from '@/shared/components/adease';
 

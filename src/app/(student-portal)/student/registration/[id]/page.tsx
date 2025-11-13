@@ -23,7 +23,7 @@ import {
 import { IconBooks, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 import { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 import { MAX_REGISTRATION_ATTEMPTS } from '@/shared/lib/constants';
 import { formatSemester } from '@/shared/lib/utils/utils';

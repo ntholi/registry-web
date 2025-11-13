@@ -3,7 +3,7 @@
 import { Box, Group, Text, TextInput } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import type { assessmentMarks, moduleGrades } from '@/db/schema';
+import type { assessmentMarks, moduleGrades } from '@/core/db/schema';
 import {
 	createAssessmentMark,
 	updateAssessmentMark,

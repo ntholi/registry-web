@@ -1,6 +1,6 @@
 import { Container, SimpleGrid } from '@mantine/core';
 import { redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 import googleClassroom, {
 	hasGoogleClassroomScope,
 } from '@/shared/lib/googleClassroom';

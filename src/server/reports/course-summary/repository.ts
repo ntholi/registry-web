@@ -1,5 +1,5 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import { db } from '@/db';
+import { db } from '@/core/db';
 import {
 	assessmentMarks,
 	moduleGrades,
@@ -8,7 +8,7 @@ import {
 	studentModules,
 	students,
 	terms,
-} from '@/db/schema';
+} from '@/core/db/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
 export interface StudentModuleReport {

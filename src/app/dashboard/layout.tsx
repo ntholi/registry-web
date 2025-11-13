@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
-import { auth } from '@/auth';
+import { auth } from '@/core/auth';
 import { DebugRibbon } from '@/shared/components/DebugRibbon';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import Dashboard from './dashboard';

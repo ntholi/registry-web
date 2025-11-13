@@ -14,7 +14,7 @@ import { DatePickerInput, type DatesRangeValue } from '@mantine/dates';
 import { IconCalendar, IconFilter, IconSearch } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import type { DashboardUser } from '@/db/schema';
+import type { DashboardUser } from '@/core/db/schema';
 import { fetchClearanceStats } from '@/server/reports/clearance/actions';
 import type {
 	ClearanceFilter,
