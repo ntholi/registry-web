@@ -53,8 +53,8 @@ export default async function CoursePage({ params }: Props) {
 		getCourseWorkList(courseId),
 	]);
 
-	const items = [{ title: 'Courses', href: '.' }].map((item, index) => (
-		<Anchor component={Link} href={item.href} key={index}>
+	const items = [{ title: 'Courses', href: '.' }].map((item) => (
+		<Anchor component={Link} href={item.href} key={item.href}>
 			{item.title}
 		</Anchor>
 	));

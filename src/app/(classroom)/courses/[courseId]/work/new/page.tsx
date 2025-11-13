@@ -30,8 +30,8 @@ export default async function NewCourseWorkPage({ params }: Props) {
 	const items = [
 		{ title: 'Courses', href: '/courses' },
 		{ title: course.name, href: '.' },
-	].map((item, index) => (
-		<Anchor component={Link} href={item.href} key={index}>
+	].map((item) => (
+		<Anchor component={Link} href={item.href} key={item.href}>
 			{item.title}
 		</Anchor>
 	));
