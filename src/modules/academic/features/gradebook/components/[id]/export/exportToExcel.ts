@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/components/[id]/assessments';
+import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/utils';
 
 type Student = {
 	stdNo: number;

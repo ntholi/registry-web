@@ -1,4 +1,4 @@
-import { ASSESSMENT_TYPES } from '@/modules/academic/features/assessments/components/[id]/assessments';
+import { ASSESSMENT_TYPES } from '@/modules/academic/features/assessments/utils';
 import type { AssessmentInfo, DetectedColumns, ExcelData } from './types';
 import {
 	columnIndexToLetter,

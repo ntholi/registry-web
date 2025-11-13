@@ -13,7 +13,7 @@ import {
 	updateAssessment,
 } from '@/modules/academic/features/assessments/server/actions';
 import type { getModule } from '@/modules/academic/features/modules/server/actions';
-import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from './assessments';
+import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from '../utils';
 
 type AssessmentNumberType = (typeof assessmentNumber.enumValues)[number];
 type Assessment = NonNullable<

@@ -20,13 +20,10 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { getAssessmentNumberLabel, getAssessmentTypeLabel } from '../utils';
 import AssessmentAuditModal from './AssessmentAuditModal';
 import AssessmentDelete from './AssessmentDelete';
 import AssessmentModal from './AssessmentModal';
-import {
-	getAssessmentNumberLabel,
-	getAssessmentTypeLabel,
-} from './assessments';
 
 interface Props {
 	moduleId: number;

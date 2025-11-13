@@ -18,7 +18,7 @@ import {
 	IconSelector,
 } from '@tabler/icons-react';
 import React, { useState } from 'react';
-import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/components/[id]/assessments';
+import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/utils';
 import Link from '@/shared/ui/Link';
 import ExcelImport from './excel/ExcelImport';
 import GradeDisplay from './GradeDisplay';

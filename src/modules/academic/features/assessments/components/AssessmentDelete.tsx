@@ -16,7 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { assessments } from '@/core/database/schema';
 import { deleteAssessment } from '@/modules/academic/features/assessments/server/actions';
-import { getAssessmentTypeLabel } from './assessments';
+import { getAssessmentTypeLabel } from '../utils';
 
 type Props = {
 	assessment: typeof assessments.$inferSelect;

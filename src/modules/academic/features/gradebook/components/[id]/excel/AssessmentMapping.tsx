@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { IconCheck, IconQuestionMark } from '@tabler/icons-react';
 import { useState } from 'react';
-import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/components/[id]/assessments';
+import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/utils';
 import type {
 	AssessmentInfo,
 	ColumnMapping,

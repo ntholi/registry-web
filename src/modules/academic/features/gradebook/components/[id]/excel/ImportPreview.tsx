@@ -13,7 +13,7 @@ import {
 import { IconEye } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
-import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/components/[id]/assessments';
+import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/utils';
 import { getStudentsByModuleId } from '@/modules/registry/features/students/server/actions';
 import type {
 	AssessmentInfo,

@@ -5,7 +5,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { assessments } from '@/core/database/schema';
 import { Form } from '@/shared/ui/adease';
-import { ASSESSMENT_TYPES } from './[id]/assessments';
+import { ASSESSMENT_TYPES } from '../utils';
 
 type Assessment = typeof assessments.$inferInsert;
 

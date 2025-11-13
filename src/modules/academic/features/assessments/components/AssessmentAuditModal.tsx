@@ -29,10 +29,7 @@ import { format } from 'date-fns';
 import type { assessments } from '@/core/database/schema';
 import { getAssessmentAuditHistory } from '@/modules/academic/features/assessments/server/actions';
 import { generateAssessmentAuditMessage } from '@/shared/lib/utils/auditUtils';
-import {
-	getAssessmentNumberLabel,
-	getAssessmentTypeLabel,
-} from './assessments';
+import { getAssessmentNumberLabel, getAssessmentTypeLabel } from '../utils';
 
 interface Props {
 	assessment: NonNullable<typeof assessments.$inferSelect>;
