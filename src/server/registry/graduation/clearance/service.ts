@@ -1,6 +1,6 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { auth } from '@/core/auth';
-import type { clearance, DashboardUser } from '@/core/db/schema';
+import type { clearance, DashboardUser } from '@/core/database/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import GraduationClearanceRepository from './repository';

@@ -1,8 +1,8 @@
 'use server';
 
 import { eq } from 'drizzle-orm';
-import { db } from '@/core/db';
-import { users } from '@/core/db/schema';
+import { db } from '@/core/database';
+import { users } from '@/core/database/schema';
 import { usersService as service } from './service';
 
 type User = typeof users.$inferInsert;

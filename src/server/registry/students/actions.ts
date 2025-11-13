@@ -2,7 +2,7 @@
 
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { revalidatePath } from 'next/cache';
-import type { students } from '@/core/db/schema';
+import type { students } from '@/core/database/schema';
 import { studentsService as service } from './service';
 
 type Student = typeof students.$inferInsert;

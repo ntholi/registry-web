@@ -13,7 +13,7 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import {
 	type StudentModuleStatus,
 	studentModuleStatus,
-} from '@/core/db/schema';
+} from '@/core/database/schema';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type ModuleWithStatus = {

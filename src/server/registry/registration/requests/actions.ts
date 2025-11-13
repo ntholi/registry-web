@@ -4,7 +4,7 @@ import type {
 	registrationRequests,
 	requestedModules,
 	StudentModuleStatus,
-} from '@/core/db/schema';
+} from '@/core/database/schema';
 import type { AcademicRemarks, Student } from '@/shared/lib/helpers/students';
 import { registrationRequestsService as service } from './service';
 

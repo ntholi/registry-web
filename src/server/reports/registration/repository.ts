@@ -1,5 +1,5 @@
 import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
-import { db } from '@/core/db';
+import { db } from '@/core/database';
 import {
 	programs,
 	schools,
@@ -10,7 +10,7 @@ import {
 	studentSemesters,
 	students,
 	terms,
-} from '@/core/db/schema';
+} from '@/core/database/schema';
 
 export interface RegistrationReportFilter {
 	termId?: number;

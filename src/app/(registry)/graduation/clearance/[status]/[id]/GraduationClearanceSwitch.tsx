@@ -5,7 +5,10 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { clearanceRequestStatus, type dashboardUsers } from '@/core/db/schema';
+import {
+	clearanceRequestStatus,
+	type dashboardUsers,
+} from '@/core/database/schema';
 import {
 	type getGraduationClearance,
 	updateGraduationClearance,

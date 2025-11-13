@@ -1,4 +1,4 @@
-import type { Grade, grade } from '@/core/db/schema';
+import type { Grade, grade } from '@/core/database/schema';
 import { getVisibleModulesForStructure } from '@/server/academic/semester-modules/actions';
 import type {
 	FacultyRemarksResult,

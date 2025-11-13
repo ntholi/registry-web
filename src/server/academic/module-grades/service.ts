@@ -1,5 +1,5 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
-import type { moduleGrades } from '@/core/db/schema';
+import type { moduleGrades } from '@/core/database/schema';
 import withAuth from '@/server/base/withAuth';
 import ModuleGradeRepository from './repository';
 

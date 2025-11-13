@@ -2,8 +2,8 @@ import type { QueryOptions } from '@server/base/BaseRepository';
 import { serviceWrapper } from '@server/base/serviceWrapper';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/core/auth';
-import { db } from '@/core/db';
-import { paymentReceipts, type paymentType } from '@/core/db/schema';
+import { db } from '@/core/database';
+import { paymentReceipts, type paymentType } from '@/core/database/schema';
 import withAuth from '@/server/base/withAuth';
 import PaymentReceiptRepository from './repository';
 

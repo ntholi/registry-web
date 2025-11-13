@@ -1,5 +1,5 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
-import type { assessments } from '@/core/db/schema';
+import type { assessments } from '@/core/database/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import AssessmentRepository from './repository';

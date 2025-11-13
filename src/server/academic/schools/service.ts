@@ -1,5 +1,5 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
-import type { schools } from '@/core/db/schema';
+import type { schools } from '@/core/database/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import SchoolRepository from './repository';

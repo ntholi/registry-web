@@ -11,7 +11,7 @@ import type {
 	ModuleConfig,
 	NavItem,
 } from '@/app/dashboard/module-config.types';
-import type { UserPosition, UserRole } from '@/core/db/schema';
+import type { UserPosition, UserRole } from '@/core/database/schema';
 import { countByStatus as countGraduationByStatus } from '@/server/registry/graduation/requests/actions';
 import { countByStatus } from '@/server/registry/registration/requests/actions';
 

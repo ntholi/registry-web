@@ -1,6 +1,6 @@
 'use server';
 
-import type { sponsors } from '@/core/db/schema';
+import type { sponsors } from '@/core/database/schema';
 import { sponsorsService as service } from './service';
 
 type Sponsor = typeof sponsors.$inferInsert;

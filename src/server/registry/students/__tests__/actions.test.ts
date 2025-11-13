@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '@/core/db';
-import type { students } from '@/core/db/schema';
-import { users as usersTable } from '@/core/db/schema';
+import { db } from '@/core/database';
+import type { students } from '@/core/database/schema';
+import { users as usersTable } from '@/core/database/schema';
 import { setMockUser } from '@/server/admin/test/mocks.auth';
 import { studentsService } from '../service';
 

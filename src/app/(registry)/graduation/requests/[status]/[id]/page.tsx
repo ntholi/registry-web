@@ -15,7 +15,7 @@ import {
 	IconExclamationCircle,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import type { DashboardUser } from '@/core/db/schema';
+import type { DashboardUser } from '@/core/database/schema';
 import {
 	deleteGraduationRequest,
 	getGraduationRequest,

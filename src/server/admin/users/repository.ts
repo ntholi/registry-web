@@ -1,7 +1,7 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { and, eq, inArray } from 'drizzle-orm';
-import { db } from '@/core/db';
-import { userSchools, users } from '@/core/db/schema';
+import { db } from '@/core/database';
+import { userSchools, users } from '@/core/database/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
 export default class UserRepository extends BaseRepository<typeof users, 'id'> {

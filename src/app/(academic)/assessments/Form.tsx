@@ -3,7 +3,7 @@
 import { Grid, NumberInput, Select } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { assessments } from '@/core/db/schema';
+import { assessments } from '@/core/database/schema';
 import { Form } from '@/shared/components/adease';
 import { ASSESSMENT_TYPES } from './[id]/assessments';
 

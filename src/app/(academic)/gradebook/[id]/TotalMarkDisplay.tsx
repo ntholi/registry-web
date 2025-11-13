@@ -18,7 +18,7 @@ import {
 	IconExclamationMark,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { moduleGrades } from '@/core/db/schema';
+import type { moduleGrades } from '@/core/database/schema';
 import { upsertModuleGrade } from '@/server/academic/module-grades/actions';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 

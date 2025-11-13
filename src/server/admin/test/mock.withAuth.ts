@@ -1,6 +1,6 @@
 import type { Session } from 'next-auth';
 import { vi } from 'vitest';
-import type { UserRole } from '@/core/db/schema';
+import type { UserRole } from '@/core/database/schema';
 import { getMockUser } from '@/server/admin/test/mocks.auth';
 import withAuth from '@/server/base/withAuth';
 

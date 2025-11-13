@@ -1,4 +1,4 @@
-import type { DashboardUser } from '@/core/db/schema';
+import type { DashboardUser } from '@/core/database/schema';
 import {
 	type ClearanceFilter,
 	getClearanceStatsByDepartment,

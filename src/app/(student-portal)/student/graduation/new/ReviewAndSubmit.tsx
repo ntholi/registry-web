@@ -20,7 +20,7 @@ import {
 	IconSchool,
 	IconUser,
 } from '@tabler/icons-react';
-import type { paymentType, students } from '@/core/db/schema';
+import type { paymentType, students } from '@/core/database/schema';
 
 type Student = typeof students.$inferSelect & {
 	user?: { name?: string | null } | null;

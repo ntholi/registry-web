@@ -9,7 +9,7 @@ import {
 import type {
 	DashboardUser,
 	registrationRequestStatus,
-} from '@/core/db/schema';
+} from '@/core/database/schema';
 import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
 import Link from '@/shared/components/Link';
 import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';

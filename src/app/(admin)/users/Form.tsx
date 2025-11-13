@@ -21,7 +21,7 @@ import {
 	userPositions,
 	userRoles,
 	type users,
-} from '@/core/db/schema';
+} from '@/core/database/schema';
 import { findAllSchools, getUserSchools } from '@/server/admin/users/actions';
 import { Form } from '@/shared/components/adease';
 import { toTitleCase } from '@/shared/lib/utils/utils';

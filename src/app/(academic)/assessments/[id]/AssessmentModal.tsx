@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type assessmentNumber, assessments } from '@/core/db/schema';
+import { type assessmentNumber, assessments } from '@/core/database/schema';
 import {
 	createAssessment,
 	updateAssessment,

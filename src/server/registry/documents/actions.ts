@@ -1,6 +1,6 @@
 'use server';
 
-import type { documents } from '@/core/db/schema';
+import type { documents } from '@/core/database/schema';
 import { documentsService as service } from './service';
 
 type Document = typeof documents.$inferInsert;

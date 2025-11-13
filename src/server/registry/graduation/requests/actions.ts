@@ -1,6 +1,6 @@
 'use server';
 
-import type { graduationRequests, paymentType } from '@/core/db/schema';
+import type { graduationRequests, paymentType } from '@/core/database/schema';
 import { graduationRequestsService as service } from './service';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;

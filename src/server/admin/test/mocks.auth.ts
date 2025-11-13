@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import type { users } from '@/core/db/schema';
+import type { users } from '@/core/database/schema';
 
 type User = Partial<typeof users.$inferSelect>;
 

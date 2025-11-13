@@ -1,11 +1,11 @@
 import { and, eq, inArray, or, type SQL } from 'drizzle-orm';
-import { db } from '@/core/db';
+import { db } from '@/core/database';
 import {
 	type DashboardUser,
 	taskAssignments,
 	tasks,
 	users,
-} from '@/core/db/schema';
+} from '@/core/database/schema';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/server/base/BaseRepository';

@@ -1,5 +1,5 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
-import type { students } from '@/core/db/schema';
+import type { students } from '@/core/database/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import type { Program } from '@/shared/lib/utils/grades/type';

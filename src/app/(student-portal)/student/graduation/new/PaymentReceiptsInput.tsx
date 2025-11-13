@@ -23,7 +23,7 @@ import {
 	IconReceipt,
 	IconTrash,
 } from '@tabler/icons-react';
-import { paymentType } from '@/core/db/schema';
+import { paymentType } from '@/core/database/schema';
 
 type PaymentReceiptData = {
 	paymentType: (typeof paymentType.enumValues)[number];

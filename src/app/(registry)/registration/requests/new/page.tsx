@@ -3,7 +3,7 @@ import type {
 	modules,
 	StudentModuleStatus,
 	semesterModules,
-} from '@/core/db/schema';
+} from '@/core/database/schema';
 import { createRegistrationWithModules } from '@/server/registry/registration/requests/actions';
 import Form from '../Form';
 

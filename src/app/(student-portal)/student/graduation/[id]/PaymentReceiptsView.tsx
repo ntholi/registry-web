@@ -10,7 +10,10 @@ import {
 } from '@mantine/core';
 import { IconEdit, IconFileText, IconReceipt } from '@tabler/icons-react';
 import Link from 'next/link';
-import type { graduationRequests, paymentReceipts } from '@/core/db/schema';
+import type {
+	graduationRequests,
+	paymentReceipts,
+} from '@/core/database/schema';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 
 type PaymentReceipt = typeof paymentReceipts.$inferSelect;

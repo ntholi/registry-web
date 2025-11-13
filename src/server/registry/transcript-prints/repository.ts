@@ -1,4 +1,4 @@
-import { transcriptPrints } from '@/core/db/schema';
+import { transcriptPrints } from '@/core/database/schema';
 import BaseRepository from '@/server/base/BaseRepository';
 
 export default class TranscriptPrintRepository extends BaseRepository<

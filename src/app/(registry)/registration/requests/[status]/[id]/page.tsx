@@ -17,7 +17,7 @@ import { notFound } from 'next/navigation';
 import type {
 	DashboardUser,
 	registrationRequestStatus,
-} from '@/core/db/schema';
+} from '@/core/database/schema';
 import { getSponsoredStudent } from '@/server/finance/sponsors/actions';
 import {
 	deleteRegistrationRequest,

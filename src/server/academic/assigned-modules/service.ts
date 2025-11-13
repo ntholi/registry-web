@@ -1,6 +1,6 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { getCurrentTerm } from '@server/registry/terms/actions';
-import type { assignedModules } from '@/core/db/schema';
+import type { assignedModules } from '@/core/database/schema';
 import withAuth from '@/server/base/withAuth';
 import AssignedModuleRepository from './repository';
 

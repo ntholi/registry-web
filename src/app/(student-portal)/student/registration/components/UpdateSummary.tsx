@@ -10,7 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import type { StudentModuleStatus } from '@/core/db/schema';
+import type { StudentModuleStatus } from '@/core/database/schema';
 
 type SelectedModule = {
 	moduleId: number;

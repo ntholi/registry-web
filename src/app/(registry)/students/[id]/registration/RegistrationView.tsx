@@ -19,7 +19,7 @@ import { IconChevronRight, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import type { registrationRequests } from '@/core/db/schema';
+import type { registrationRequests } from '@/core/database/schema';
 import { getStudentRegistrationHistory } from '@/server/registry/registration/requests/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';

@@ -1,7 +1,7 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
 import { eq } from 'drizzle-orm';
-import { db } from '@/core/db';
-import { statementOfResultsPrints } from '@/core/db/schema';
+import { db } from '@/core/database';
+import { statementOfResultsPrints } from '@/core/database/schema';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
 import StatementOfResultsPrintsRepository from './repository';

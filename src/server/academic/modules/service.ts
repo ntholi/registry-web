@@ -1,5 +1,5 @@
 import type { QueryOptions } from '@server/base/BaseRepository';
-import type { modules } from '@/core/db/schema';
+import type { modules } from '@/core/database/schema';
 import withAuth from '@/server/base/withAuth';
 import ModuleRepository from './repository';
 

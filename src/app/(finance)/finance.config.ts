@@ -11,7 +11,7 @@ import type {
 	ModuleConfig,
 	NavItem,
 } from '@/app/dashboard/module-config.types';
-import type { UserPosition, UserRole } from '@/core/db/schema';
+import type { UserPosition, UserRole } from '@/core/database/schema';
 import {
 	countApprovedGraduationClearances,
 	countPendingGraduationClearances,
