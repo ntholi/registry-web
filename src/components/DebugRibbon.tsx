@@ -2,7 +2,15 @@
 
 import { Box } from '@mantine/core';
 
-export function DebugRibbon() {
+type Props = {
+	isLocal: boolean;
+};
+
+export function DebugRibbon({ isLocal }: Props) {
+	const backgroundColor = isLocal
+		? 'rgba(0, 0, 255, 0.5)'
+		: 'rgba(255, 0, 0, 0.7)';
+
 	return (
 		<Box
 			style={{
@@ -23,7 +31,7 @@ export function DebugRibbon() {
 					right: '-80px',
 					width: '250px',
 					transform: 'rotate(45deg)',
-					backgroundColor: 'rgba(255, 0, 0, 0.7)',
+					backgroundColor,
 					color: 'white',
 					textAlign: 'center',
 					fontSize: '0.6rem',
