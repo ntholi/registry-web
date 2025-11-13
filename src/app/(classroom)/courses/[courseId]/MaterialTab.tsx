@@ -109,7 +109,13 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 																<Group gap='xs' mt='xs'>
 																	{material.materials.map((mat, index) => (
 																		<Badge
-																			key={index}
+																			key={
+																				mat.driveFile?.driveFile?.id ||
+																				mat.link?.url ||
+																				mat.youtubeVideo?.id ||
+																				mat.form?.formUrl ||
+																				index
+																			}
 																			size='xs'
 																			variant='outline'
 																		>

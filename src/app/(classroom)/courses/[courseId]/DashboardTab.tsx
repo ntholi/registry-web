@@ -58,7 +58,17 @@ export default function DashboardTab({ announcements }: Props) {
 						{announcement.materials && announcement.materials.length > 0 && (
 							<Stack gap='xs' mt='sm'>
 								{announcement.materials.map((material, index) => (
-									<Card key={index} withBorder padding='xs'>
+									<Card
+										key={
+											material.driveFile?.driveFile?.id ||
+											material.link?.url ||
+											material.youtubeVideo?.id ||
+											material.form?.formUrl ||
+											index
+										}
+										withBorder
+										padding='xs'
+									>
 										<Text size='sm'>
 											{material.driveFile?.driveFile?.title ||
 												material.link?.title ||

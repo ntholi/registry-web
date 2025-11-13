@@ -155,7 +155,17 @@ export default async function CourseWorkPage({ params }: Props) {
 								</Text>
 								<Stack gap='xs'>
 									{courseWork.materials.map((material, index) => (
-										<Card key={index} withBorder padding='sm'>
+										<Card
+											key={
+												material.driveFile?.driveFile?.id ||
+												material.link?.url ||
+												material.youtubeVideo?.id ||
+												material.form?.formUrl ||
+												index
+											}
+											withBorder
+											padding='sm'
+										>
 											<Group justify='space-between'>
 												<Text size='sm'>
 													{material.driveFile?.driveFile?.title ||

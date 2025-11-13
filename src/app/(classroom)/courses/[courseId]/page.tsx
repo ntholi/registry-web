@@ -1,4 +1,4 @@
-import { Container, Tabs } from '@mantine/core';
+import { Container, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { hasGoogleClassroomScope } from '@/lib/googleClassroom';
@@ -52,31 +52,31 @@ export default async function CoursePage({ params }: Props) {
 	return (
 		<Container size='xl' mt='lg'>
 			<Tabs defaultValue='dashboard' variant='outline'>
-				<Tabs.List mb='lg'>
-					<Tabs.Tab value='dashboard'>Dashboard</Tabs.Tab>
-					<Tabs.Tab value='assessments'>Assessments</Tabs.Tab>
-					<Tabs.Tab value='material'>Material</Tabs.Tab>
-				</Tabs.List>
+				<TabsList mb='lg'>
+					<TabsTab value='dashboard'>Dashboard</TabsTab>
+					<TabsTab value='assessments'>Assessments</TabsTab>
+					<TabsTab value='material'>Material</TabsTab>
+				</TabsList>
 
-				<Tabs.Panel value='dashboard'>
+				<TabsPanel value='dashboard'>
 					<DashboardTab announcements={announcements} />
-				</Tabs.Panel>
+				</TabsPanel>
 
-				<Tabs.Panel value='assessments'>
+				<TabsPanel value='assessments'>
 					<AssessmentsTab
 						assessments={assessments}
 						topics={topics}
 						courseId={courseId}
 					/>
-				</Tabs.Panel>
+				</TabsPanel>
 
-				<Tabs.Panel value='material'>
+				<TabsPanel value='material'>
 					<MaterialTab
 						materials={materials}
 						topics={topics}
 						courseId={courseId}
 					/>
-				</Tabs.Panel>
+				</TabsPanel>
 			</Tabs>
 		</Container>
 	);
