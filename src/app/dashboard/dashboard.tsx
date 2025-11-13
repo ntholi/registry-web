@@ -20,6 +20,7 @@ import { signOut, useSession } from 'next-auth/react';
 import React from 'react';
 import { academicConfig } from '@/app/(academic)/academic.config';
 import { adminConfig } from '@/app/(admin)/admin.config';
+import { classroomConfig } from '@/app/(classroom)/classroom.config';
 import { financeConfig } from '@/app/(finance)/finance.config';
 import { registryConfig } from '@/app/(registry)/registry.config';
 import { Shell } from '@/components/adease';
@@ -34,6 +35,7 @@ function getNavigation(department: DashboardUser) {
 	const allConfigs = [
 		adminConfig,
 		academicConfig,
+		classroomConfig,
 		registryConfig,
 		financeConfig,
 	];
