@@ -8,7 +8,7 @@ type Props = {
 
 export function DebugRibbon({ isLocal }: Props) {
 	const backgroundColor = isLocal
-		? 'rgba(0, 0, 255, 0.5)'
+		? 'rgba(255, 165, 0, 0.5)'
 		: 'rgba(255, 0, 0, 0.7)';
 
 	return (
