@@ -4,6 +4,7 @@ import {
 	Container,
 	Divider,
 	Grid,
+	GridCol,
 	Group,
 	Paper,
 	Stack,
@@ -127,7 +128,7 @@ export default async function CourseWorkPage({ params }: Props) {
 				/>
 
 				<Grid gutter='lg'>
-					<Grid.Col span={{ base: 12, md: 8 }}>
+					<GridCol span={{ base: 12, md: 8 }}>
 						<Stack gap='md'>
 							<Paper shadow='xs' p='xl' radius='md'>
 								<Stack gap='lg'>
@@ -210,9 +211,9 @@ export default async function CourseWorkPage({ params }: Props) {
 								</Stack>
 							</Paper>
 						</Stack>
-					</Grid.Col>
+					</GridCol>
 
-					<Grid.Col span={{ base: 12, md: 4 }}>
+					<GridCol span={{ base: 12, md: 4 }}>
 						<Stack gap='md'>
 							<Paper shadow='xs' p='lg' radius='md'>
 								<Stack gap='md'>
@@ -308,7 +309,7 @@ export default async function CourseWorkPage({ params }: Props) {
 								</Paper>
 							)}
 						</Stack>
-					</Grid.Col>
+					</GridCol>
 				</Grid>
 
 				{courseWork.workType !== 'MATERIAL' && submissions.length > 0 && (
