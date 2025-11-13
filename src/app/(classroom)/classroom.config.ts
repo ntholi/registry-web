@@ -14,7 +14,6 @@ export const classroomConfig: ModuleConfig = {
 				icon: IconChalkboard,
 				roles: ['academic'],
 				href: '/courses',
-				children: [],
 				isVisible: (session) => {
 					return session?.user?.position !== 'admin';
 				},
