@@ -1,9 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { getActiveProgram, getCurrentSemester } from '@/lib/helpers/students';
-import { getAcademicRemarks } from '@/lib/utils/grades';
 import { getStudentByUserId } from '@/server/registry/students/actions';
+import {
+	getActiveProgram,
+	getCurrentSemester,
+} from '@/shared/lib/helpers/students';
+import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 
 export default function useUserStudent() {
 	const router = useRouter();

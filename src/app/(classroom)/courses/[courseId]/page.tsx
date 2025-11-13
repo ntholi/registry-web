@@ -14,13 +14,13 @@ import {
 } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { hasGoogleClassroomScope } from '@/lib/googleClassroom';
 import {
 	getCourse,
 	getCourseAnnouncements,
 	getCourseTopics,
 	getCourseWork,
 } from '@/server/classroom/actions';
+import { hasGoogleClassroomScope } from '@/shared/lib/googleClassroom';
 import AssessmentsTab from './AssessmentsTab';
 import DashboardTab from './DashboardTab';
 import MaterialTab from './MaterialTab';

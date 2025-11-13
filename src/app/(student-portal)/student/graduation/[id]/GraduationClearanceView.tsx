@@ -18,8 +18,8 @@ import {
 	getStatusIcon,
 } from '@student-portal/student/utils/status';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { formatDateTime, toTitleCase } from '@/lib/utils/utils';
 import type { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
+import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 
 interface Props {
 	graduationRequest: NonNullable<

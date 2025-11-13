@@ -22,9 +22,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { StudentModuleStatus } from '@/db/schema';
-import { MAX_REG_MODULES } from '@/lib/constants';
-import { useCurrentTerm } from '@/lib/hooks/use-current-term';
-import useUserStudent from '@/lib/hooks/use-user-student';
 import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
 import { findAllSponsors } from '@/server/finance/sponsors/actions';
 import {
@@ -32,6 +29,9 @@ import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
 } from '@/server/registry/registration/requests/actions';
+import { MAX_REG_MODULES } from '@/shared/lib/constants';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import AccountConfirmation from './AccountConfirmation';
 import ModuleSelection from './ModuleSelection';
 import SemesterConfirmation from './SemesterConfirmation';

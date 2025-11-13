@@ -4,15 +4,15 @@ import { Center, Loader, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { notFound, useParams } from 'next/navigation';
 import {
+	deleteBlockedStudent,
+	getBlockedStudent,
+} from '@/server/finance/blocked-students/actions';
+import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/components/adease';
-import {
-	deleteBlockedStudent,
-	getBlockedStudent,
-} from '@/server/finance/blocked-students/actions';
 import StudentStatusSwitch from './StudentStatusSwitch';
 
 export default function BlockedStudentDetails() {

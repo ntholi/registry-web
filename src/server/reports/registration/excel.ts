@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
 import sharp from 'sharp';
-import { compareSemesters, formatSemester } from '@/lib/utils/utils';
+import { compareSemesters, formatSemester } from '@/shared/lib/utils/utils';
 import type {
 	FullRegistrationReport,
 	SummaryRegistrationReport,

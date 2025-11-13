@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
 import { auth } from '@/auth';
 import { DebugRibbon } from '@/shared/components/DebugRibbon';
-import { toTitleCase } from '@/lib/utils/utils';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import Dashboard from './dashboard';
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -23,8 +23,8 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
-import { formatSemester } from '@/lib/utils/utils';
 import { getRegistrationChartData } from '@/server/reports/registration/actions';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import type { ReportFilter } from './RegistrationFilter';
 
 interface RegistrationChartsProps {

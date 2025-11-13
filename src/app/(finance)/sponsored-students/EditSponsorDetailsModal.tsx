@@ -14,11 +14,11 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import {
 	findAllSponsors,
 	updateStudentSponsorshipById,
 } from '@/server/finance/sponsors/actions';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 
 interface SponsoredStudentData {
 	id: number;

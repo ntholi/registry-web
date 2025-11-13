@@ -1,8 +1,8 @@
 'use client';
 
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout, NewLink } from '@/shared/components/adease';
 import { findAllUsers } from '@/server/admin/users/actions';
+import { ListItem, ListLayout, NewLink } from '@/shared/components/adease';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (

@@ -7,7 +7,7 @@ import {
 	getGradeByPoints,
 	getGradeBySymbol,
 	grades,
-} from '@/lib/utils/grades';
+} from '@/shared/lib/utils/grades';
 import { GradeResultDisplay } from './GradeResultDisplay';
 
 type InputType = 'marks' | 'points' | 'grade';

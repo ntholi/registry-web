@@ -6,12 +6,12 @@ import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { convertUrlToBase64 } from '@/lib/utils/utils';
 import { createStudentCardPrint } from '@/server/registry/student-card-prints/actions';
 import {
 	type getStudent,
 	getStudentPhoto,
 } from '@/server/registry/students/actions';
+import { convertUrlToBase64 } from '@/shared/lib/utils/utils';
 import StudentCardPDF from './StudentCardPDF';
 
 type StudentCardPrinterProps = {

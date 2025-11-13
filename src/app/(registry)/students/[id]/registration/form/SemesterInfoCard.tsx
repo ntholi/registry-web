@@ -10,7 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { formatSemester } from '@/lib/utils/utils';
+import { formatSemester } from '@/shared/lib/utils/utils';
 
 type SemesterData = {
 	semesterNo: string;

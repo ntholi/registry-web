@@ -12,10 +12,10 @@ import {
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useCurrentTerm } from '@/lib/hooks/use-current-term';
-import useUserStudent from '@/lib/hooks/use-user-student';
 import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
 import { getStudentRegistrationHistory } from '@/server/registry/registration/requests/actions';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 export default function NewRegistrationCard() {
 	const { student, isLoading: studentLoading } = useUserStudent();

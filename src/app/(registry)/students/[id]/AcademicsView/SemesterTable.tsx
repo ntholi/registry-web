@@ -11,8 +11,8 @@ import {
 	Tooltip,
 	useComputedColorScheme,
 } from '@mantine/core';
-import { isFailingOrSupGrade as failed } from '@/lib/utils/grades';
-import { formatSemester } from '@/lib/utils/utils';
+import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
+import { formatSemester } from '@/shared/lib/utils/utils';
 
 type ModuleTableProps = {
 	modules: {

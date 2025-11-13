@@ -3,8 +3,8 @@
 import { ActionIcon, Badge, Divider, Flex, Group, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
-import { useCurrentTerm } from '@/lib/hooks/use-current-term';
-import { useViewSelect } from '@/lib/hooks/useViewSelect';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useViewSelect } from '@/shared/lib/hooks/useViewSelect';
 
 interface Props {
 	studentName: string;

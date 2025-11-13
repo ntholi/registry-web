@@ -19,8 +19,8 @@ import {
 	getStatusIcon,
 } from '@student-portal/student/utils/status';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { formatDateTime, toTitleCase } from '@/lib/utils/utils';
 import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
+import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {
 	registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

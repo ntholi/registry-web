@@ -7,8 +7,8 @@ import {
 	Text,
 	View,
 } from '@react-pdf/renderer';
-import { formatDate, toTitleCase } from '@/lib/utils/utils';
 import type { getGraduationClearanceData } from '@/server/registry/graduation/requests/actions';
+import { formatDate, toTitleCase } from '@/shared/lib/utils/utils';
 
 Font.register({
 	family: 'Arial',

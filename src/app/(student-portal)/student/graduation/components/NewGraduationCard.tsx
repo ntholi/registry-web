@@ -12,9 +12,9 @@ import {
 import { IconInfoCircle, IconPlus, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import useUserStudent from '@/lib/hooks/use-user-student';
 import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
 import { getGraduationRequestByStudentNo } from '@/server/registry/graduation/requests/actions';
+import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 export default function NewGraduationCard() {
 	const { student, isLoading: studentLoading } = useUserStudent();

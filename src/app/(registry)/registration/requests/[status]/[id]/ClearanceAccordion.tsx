@@ -6,10 +6,10 @@ import {
 	IconClock,
 	IconExclamationCircle,
 } from '@tabler/icons-react';
-import Link from '@/shared/components/Link';
 import type { DashboardUser, registrationRequestStatus } from '@/db/schema';
-import { formatDateTime, toTitleCase } from '@/lib/utils/utils';
 import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
+import Link from '@/shared/components/Link';
+import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

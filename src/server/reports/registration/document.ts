@@ -14,7 +14,7 @@ import {
 	TextRun,
 	WidthType,
 } from 'docx';
-import { compareSemesters, formatSemester } from '@/lib/utils/utils';
+import { compareSemesters, formatSemester } from '@/shared/lib/utils/utils';
 import type {
 	FullRegistrationReport,
 	SummaryRegistrationReport,

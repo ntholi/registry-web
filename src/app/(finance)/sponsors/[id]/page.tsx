@@ -1,12 +1,12 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { deleteSponsor, getSponsor } from '@/server/finance/sponsors/actions';
 import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/components/adease';
-import { deleteSponsor, getSponsor } from '@/server/finance/sponsors/actions';
 import StudentsTable from './students/StudentsTable';
 
 type Props = {

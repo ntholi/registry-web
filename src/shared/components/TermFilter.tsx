@@ -6,8 +6,8 @@ import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
-import { selectedTermAtom } from '@/lib/atoms/termAtoms';
 import { findAllTerms } from '@/server/registry/terms/actions';
+import { selectedTermAtom } from '@/shared/lib/atoms/termAtoms';
 
 interface TermFilterProps {
 	onTermChange?: (termId: number | null) => void;

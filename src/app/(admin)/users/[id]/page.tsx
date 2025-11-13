@@ -9,17 +9,17 @@ import {
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
+	deleteUser,
+	getUser,
+	getUserSchools,
+} from '@/server/admin/users/actions';
+import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/components/adease';
-import { largeProfilePic, toTitleCase } from '@/lib/utils/utils';
-import {
-	deleteUser,
-	getUser,
-	getUserSchools,
-} from '@/server/admin/users/actions';
+import { largeProfilePic, toTitleCase } from '@/shared/lib/utils/utils';
 import { SchoolsList } from './SchoolsList';
 
 type Props = {

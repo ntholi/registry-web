@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { type StudentModuleStatus, studentModuleStatus } from '@/db/schema';
-import { formatSemester } from '@/lib/utils/utils';
+import { formatSemester } from '@/shared/lib/utils/utils';
 
 type ModuleWithStatus = {
 	semesterModuleId: number;

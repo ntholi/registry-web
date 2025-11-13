@@ -2,8 +2,8 @@ import { Button, Group, Paper, Title } from '@mantine/core';
 import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { DetailsView } from '@/shared/components/adease';
 import { getModule } from '@/server/academic/modules/actions';
+import { DetailsView } from '@/shared/components/adease';
 import AssessmentsTable from './AssessmentsTable';
 import ModuleLecturers from './ModuleLecturers';
 

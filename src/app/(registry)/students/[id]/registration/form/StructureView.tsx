@@ -15,9 +15,9 @@ import {
 } from '@mantine/core';
 import { IconBook, IconInfoCircle, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { formatSemester } from '@/lib/utils/utils';
 import { getStructure } from '@/server/academic/structures/actions';
 import { getAcademicHistory } from '@/server/registry/students/actions';
+import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Props = {
 	stdNo: number;

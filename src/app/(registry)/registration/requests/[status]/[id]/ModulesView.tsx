@@ -1,8 +1,8 @@
 'use client';
 
 import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
-import Link from '@/shared/components/Link';
 import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
+import Link from '@/shared/components/Link';
 
 type Props = {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

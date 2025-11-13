@@ -3,8 +3,8 @@
 import { Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
-import { deleteDocument as deleteFromStorage } from '@/lib/storage';
 import { deleteDocument } from '@/server/registry/documents/actions';
+import { deleteDocument as deleteFromStorage } from '@/shared/lib/storage';
 
 type DeleteDocumentModalProps = {
 	opened: boolean;

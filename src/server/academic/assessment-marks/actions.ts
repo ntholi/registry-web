@@ -1,7 +1,7 @@
 'use server';
 
 import type { assessmentMarks } from '@/db/schema';
-import { calculateModuleGrade } from '@/lib/utils/gradeCalculations';
+import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 import { upsertModuleGrade } from '../module-grades/actions';
 import { assessmentMarksService as service } from './service';
 

@@ -11,11 +11,11 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
-import { FieldView } from '@/shared/components/adease';
-import Link from '@/shared/components/Link';
-import { formatSemester } from '@/lib/utils/utils';
 import type { getSponsoredStudent } from '@/server/finance/sponsors/actions';
 import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
+import { FieldView } from '@/shared/components/adease';
+import Link from '@/shared/components/Link';
+import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Props = {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

@@ -2,8 +2,8 @@ import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
 import { getCleanedSemesters } from '@registry/students/[id]/AcademicsView/statements/utils';
 import { Fragment } from 'react';
 import { createTw } from 'react-pdf-tailwind';
-import { getAcademicRemarks } from '@/lib/utils/grades';
 import type { getAcademicHistory } from '@/server/registry/students/actions';
+import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import GradeClassificationPage from './GradeClassificationPage';
 
 Font.register({

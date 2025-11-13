@@ -6,11 +6,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { clearanceRequestStatus, type dashboardUsers } from '@/db/schema';
-import { toTitleCase } from '@/lib/utils/utils';
 import {
 	type getGraduationClearance,
 	updateGraduationClearance,
 } from '@/server/registry/graduation/clearance/actions';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getGraduationClearance>>>;

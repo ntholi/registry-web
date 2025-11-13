@@ -21,10 +21,10 @@ import {
 	IconUser,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import type { Student } from '@/lib/helpers/students';
-import { useMediaQuery } from '@/lib/utils/use-media-query';
-import { formatDate } from '@/lib/utils/utils';
 import { getStudentPhoto } from '@/server/registry/students/actions';
+import type { Student } from '@/shared/lib/helpers/students';
+import { useMediaQuery } from '@/shared/lib/utils/use-media-query';
+import { formatDate } from '@/shared/lib/utils/utils';
 import { studentColors } from '../utils/colors';
 
 type Props = {

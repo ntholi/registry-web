@@ -19,8 +19,8 @@ import {
 	IconSchool,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { formatDateTime } from '@/lib/utils/utils';
 import { getGraduationRequestByStudentNo } from '@/server/registry/graduation/requests/actions';
+import { formatDateTime } from '@/shared/lib/utils/utils';
 
 interface GraduationHistoryProps {
 	stdNo: number;

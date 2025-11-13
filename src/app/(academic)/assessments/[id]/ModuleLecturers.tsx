@@ -15,8 +15,8 @@ import {
 } from '@mantine/core';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { toClassName, toTitleCase } from '@/lib/utils/utils';
 import { getLecturersByModule } from '@/server/academic/assigned-modules/actions';
+import { toClassName, toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {
 	moduleId: number;

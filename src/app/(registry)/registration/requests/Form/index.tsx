@@ -15,16 +15,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
-import { Form } from '@/shared/components/adease';
 import {
 	type modules,
 	type StudentModuleStatus,
 	type semesterModules,
 	studentModuleStatus,
 } from '@/db/schema';
-import { useCurrentTerm } from '@/lib/hooks/use-current-term';
-import { getAcademicRemarks } from '@/lib/utils/grades';
-import { formatSemester } from '@/lib/utils/utils';
 import { getModulesForStructure } from '@/server/academic/semester-modules/actions';
 import {
 	determineSemesterStatus,
@@ -32,6 +28,10 @@ import {
 } from '@/server/registry/registration/requests/actions';
 import { getStudentRegistrationData } from '@/server/registry/students/actions';
 import { findAllTerms } from '@/server/registry/terms/actions';
+import { Form } from '@/shared/components/adease';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { getAcademicRemarks } from '@/shared/lib/utils/grades';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 

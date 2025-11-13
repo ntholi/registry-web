@@ -3,9 +3,9 @@
 import { ActionIcon, Flex, Paper, Stack, Text, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
+import type { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
 import { FieldView } from '@/shared/components/adease';
 import Link from '@/shared/components/Link';
-import type { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getGraduationRequest>>>;

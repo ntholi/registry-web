@@ -30,6 +30,7 @@ export async function generateCertificatePDF(
 	const templatePath = join(
 		process.cwd(),
 		'src',
+		'shared',
 		'private',
 		'files',
 		'certificate.pdf'

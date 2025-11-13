@@ -7,8 +7,8 @@ import {
 	Text,
 	View,
 } from '@react-pdf/renderer';
-import { formatDate } from '@/lib/utils/utils';
 import type { getAcademicHistory } from '@/server/registry/students/actions';
+import { formatDate } from '@/shared/lib/utils/utils';
 
 type StatementOfResultsPDFProps = {
 	student: NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
@@ -360,7 +360,7 @@ import {
 	getAcademicRemarks,
 	getGradePoints,
 	isFailingGrade,
-} from '@/lib/utils/grades';
+} from '@/shared/lib/utils/grades';
 import { getCleanedSemesters } from './utils';
 
 function getGradeStyle(grade: string) {

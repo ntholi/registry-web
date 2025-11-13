@@ -18,10 +18,10 @@ import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import type { getGraduationClearance } from '@/server/registry/graduation/clearance/actions';
 import { FieldView } from '@/shared/components/adease';
 import Link from '@/shared/components/Link';
-import { formatDateTime } from '@/lib/utils/utils';
-import type { getGraduationClearance } from '@/server/registry/graduation/clearance/actions';
+import { formatDateTime } from '@/shared/lib/utils/utils';
 import GraduationClearanceSwitch from './GraduationClearanceSwitch';
 import PaymentReceipts from './PaymentReceipts';
 

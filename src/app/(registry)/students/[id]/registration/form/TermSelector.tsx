@@ -3,8 +3,8 @@
 import { Paper, Select, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { useCurrentTerm } from '@/lib/hooks/use-current-term';
 import { getAllTerms } from '@/server/registry/terms/actions';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 
 interface TermSelectorProps {
 	value: number | null;

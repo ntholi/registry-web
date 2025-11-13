@@ -15,8 +15,8 @@ import {
 } from '@mantine/core';
 import { IconDownload, IconFile, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { formatDate } from '@/lib/utils/utils';
 import { getDocumentUrl } from '@/server/registry/documents/actions';
+import { formatDate } from '@/shared/lib/utils/utils';
 import documentTypes from './documentTypes';
 
 type DocumentCardProps = {

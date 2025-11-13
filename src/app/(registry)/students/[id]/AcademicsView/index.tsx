@@ -15,10 +15,10 @@ import {
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
-import SemesterStatus from '@/shared/components/SemesterStatus';
-import { getAcademicRemarks } from '@/lib/utils/grades';
-import { formatSemester } from '@/lib/utils/utils';
 import type { getStudent } from '@/server/registry/students/actions';
+import SemesterStatus from '@/shared/components/SemesterStatus';
+import { getAcademicRemarks } from '@/shared/lib/utils/grades';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
 

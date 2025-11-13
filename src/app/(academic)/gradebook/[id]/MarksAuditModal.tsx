@@ -27,8 +27,8 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { generateAssessmentMarkAuditMessage } from '@/lib/utils/auditUtils';
 import { getMarksAudit } from '@/server/academic/assessment-marks/actions';
+import { generateAssessmentMarkAuditMessage } from '@/shared/lib/utils/auditUtils';
 
 interface Props {
 	stdNo: number;

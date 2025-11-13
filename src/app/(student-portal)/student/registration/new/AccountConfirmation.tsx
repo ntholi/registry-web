@@ -11,9 +11,9 @@ import {
 import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { useCurrentTerm } from '@/lib/hooks/use-current-term';
-import useUserStudent from '@/lib/hooks/use-user-student';
 import { confirmAccountDetails } from '@/server/finance/sponsors/actions';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type SponsorshipData = {
 	sponsorId: number;

@@ -2,16 +2,16 @@ import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
 import {
+	deleteTask,
+	getTask,
+	updateTaskStatus,
+} from '@/server/admin/tasks/actions';
+import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/components/adease';
-import {
-	deleteTask,
-	getTask,
-	updateTaskStatus,
-} from '@/server/admin/tasks/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

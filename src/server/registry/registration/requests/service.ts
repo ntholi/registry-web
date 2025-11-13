@@ -6,9 +6,9 @@ import {
 	type requestedModules,
 	type StudentModuleStatus,
 } from '@/db/schema';
-import type { AcademicRemarks, Student } from '@/lib/helpers/students';
 import { serviceWrapper } from '@/server/base/serviceWrapper';
 import withAuth from '@/server/base/withAuth';
+import type { AcademicRemarks, Student } from '@/shared/lib/helpers/students';
 import RegistrationRequestRepository from './repository';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;

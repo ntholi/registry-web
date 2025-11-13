@@ -19,8 +19,8 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { moduleGrades } from '@/db/schema';
-import { getLetterGrade } from '@/lib/utils/grades';
 import { upsertModuleGrade } from '@/server/academic/module-grades/actions';
+import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 type ModuleGrade = typeof moduleGrades.$inferSelect;
 

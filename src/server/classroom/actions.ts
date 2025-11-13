@@ -1,7 +1,7 @@
 'use server';
 
 import type { classroom_v1 } from 'googleapis';
-import googleClassroom from '@/lib/googleClassroom';
+import googleClassroom from '@/shared/lib/googleClassroom';
 
 export async function getCourse(courseId: string) {
 	try {

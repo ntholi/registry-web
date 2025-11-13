@@ -23,12 +23,12 @@ import { adminConfig } from '@/app/(admin)/admin.config';
 import { classroomConfig } from '@/app/(classroom)/classroom.config';
 import { financeConfig } from '@/app/(finance)/finance.config';
 import { registryConfig } from '@/app/(registry)/registry.config';
-import { Shell } from '@/shared/components/adease';
-import Logo from '@/shared/components/Logo';
 import type { DashboardUser, UserRole } from '@/db/schema';
-import { toTitleCase } from '@/lib/utils/utils';
 import { getAssignedModulesByCurrentUser } from '@/server/academic/assigned-modules/actions';
 import { getUserSchools } from '@/server/admin/users/actions';
+import { Shell } from '@/shared/components/adease';
+import Logo from '@/shared/components/Logo';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import type { NavItem } from './module-config.types';
 
 function getNavigation(department: DashboardUser) {

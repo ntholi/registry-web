@@ -7,8 +7,8 @@ import {
 	Text,
 	View,
 } from '@react-pdf/renderer';
-import { formatDate, formatSemester } from '@/lib/utils/utils';
 import type { getStudentRegistrationData } from '@/server/registry/students/actions';
+import { formatDate, formatSemester } from '@/shared/lib/utils/utils';
 
 Font.register({
 	family: 'Arial',

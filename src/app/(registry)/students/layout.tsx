@@ -2,11 +2,11 @@
 
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout } from '@/shared/components/adease';
 import {
 	findAllStudents,
 	type StudentFilter,
 } from '@/server/registry/students/actions';
+import { ListItem, ListLayout } from '@/shared/components/adease';
 import StudentsFilter from './StudentsFilter';
 
 export default function Layout({ children }: PropsWithChildren) {

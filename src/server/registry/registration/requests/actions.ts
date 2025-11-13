@@ -5,7 +5,7 @@ import type {
 	requestedModules,
 	StudentModuleStatus,
 } from '@/db/schema';
-import type { AcademicRemarks, Student } from '@/lib/helpers/students';
+import type { AcademicRemarks, Student } from '@/shared/lib/helpers/students';
 import { registrationRequestsService as service } from './service';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;

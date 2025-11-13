@@ -16,15 +16,15 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
-import { Form } from '@/shared/components/adease';
 import {
 	type schools,
 	userPositions,
 	userRoles,
 	type users,
 } from '@/db/schema';
-import { toTitleCase } from '@/lib/utils/utils';
 import { findAllSchools, getUserSchools } from '@/server/admin/users/actions';
+import { Form } from '@/shared/components/adease';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 
 type User = typeof users.$inferInsert;
 

@@ -21,7 +21,7 @@ type Props = {
 	isLoading?: boolean;
 };
 
-import { isFailingGrade } from '@/lib/utils/grades';
+import { isFailingGrade } from '@/shared/lib/utils/grades';
 
 export default function GradeDisplay({
 	studentId,

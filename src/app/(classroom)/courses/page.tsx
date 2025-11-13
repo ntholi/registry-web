@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import googleClassroom, {
 	hasGoogleClassroomScope,
-} from '@/lib/googleClassroom';
+} from '@/shared/lib/googleClassroom';
 import CourseItem from './CourseItem';
 
 export default async function CoursesPage() {

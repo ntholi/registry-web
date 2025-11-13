@@ -7,9 +7,12 @@ import {
 	type StudentModuleStatus,
 	type schools,
 } from '@/db/schema';
-import { getAcademicRemarks, summarizeModules } from '@/lib/utils/grades';
-import { formatSemester } from '@/lib/utils/utils';
 import { termsRepository } from '@/server/registry/terms/repository';
+import {
+	getAcademicRemarks,
+	summarizeModules,
+} from '@/shared/lib/utils/grades';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import { boeReportRepository, type ProgramSemesterReport } from './repository';
 import { createWorksheet } from './worksheet';
 

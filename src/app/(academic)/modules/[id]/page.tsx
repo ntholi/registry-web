@@ -11,6 +11,8 @@ import {
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+import { deleteModule, getModule } from '@/server/academic/modules/actions';
+import { getStructuresByModule } from '@/server/academic/semester-modules/actions';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -18,8 +20,6 @@ import {
 	FieldView,
 } from '@/shared/components/adease';
 import Link from '@/shared/components/Link';
-import { deleteModule, getModule } from '@/server/academic/modules/actions';
-import { getStructuresByModule } from '@/server/academic/semester-modules/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

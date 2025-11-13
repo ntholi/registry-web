@@ -1,13 +1,13 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import { type PropsWithChildren, useState } from 'react';
+import { getAssignedModulesByCurrentUser } from '@/server/academic/assigned-modules/actions';
+import { getModules } from '@/server/academic/modules/actions';
 import {
 	ListItem,
 	ListLayout,
 	ModuleViewToggle,
 } from '@/shared/components/adease';
-import { getAssignedModulesByCurrentUser } from '@/server/academic/assigned-modules/actions';
-import { getModules } from '@/server/academic/modules/actions';
 
 interface Module {
 	id: number;

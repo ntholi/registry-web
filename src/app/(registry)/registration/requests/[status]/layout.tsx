@@ -5,11 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout } from '@/shared/components/adease';
-import TermFilter from '@/shared/components/TermFilter';
-import { selectedTermAtom } from '@/lib/atoms/termAtoms';
 import { findAllRegistrationRequests } from '@/server/registry/registration/requests/actions';
 import { getCurrentTerm } from '@/server/registry/terms/actions';
+import { ListItem, ListLayout } from '@/shared/components/adease';
+import TermFilter from '@/shared/components/TermFilter';
+import { selectedTermAtom } from '@/shared/lib/atoms/termAtoms';
 
 type Status = 'pending' | 'registered' | 'rejected' | 'approved';
 

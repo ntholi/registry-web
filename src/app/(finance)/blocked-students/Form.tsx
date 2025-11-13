@@ -5,8 +5,8 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
-import { Form } from '@/shared/components/adease';
 import { blockedStudents } from '@/db/schema';
+import { Form } from '@/shared/components/adease';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;
 

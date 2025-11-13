@@ -9,7 +9,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { compareSemesters, formatSemester } from '@/lib/utils/utils';
+import { compareSemesters, formatSemester } from '@/shared/lib/utils/utils';
 
 interface ProgramBreakdownTableProps {
 	loading?: boolean;

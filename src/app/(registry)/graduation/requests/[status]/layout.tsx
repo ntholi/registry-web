@@ -3,8 +3,8 @@
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout } from '@/shared/components/adease';
 import { findAllGraduationRequests } from '@/server/registry/graduation/requests/actions';
+import { ListItem, ListLayout } from '@/shared/components/adease';
 
 type Status = 'pending' | 'rejected' | 'approved';
 

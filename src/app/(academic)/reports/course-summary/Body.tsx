@@ -14,13 +14,13 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import { useCurrentTerm } from '@/lib/hooks/use-current-term';
-import { toClassName } from '@/lib/utils/utils';
 import {
 	getAssignedModuleByUserAndModule,
 	getAssignedModulesByCurrentUser,
 } from '@/server/academic/assigned-modules/actions';
 import { generateCourseSummaryReport } from '@/server/reports/course-summary/actions';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { toClassName } from '@/shared/lib/utils/utils';
 
 export default function Body() {
 	const [isDownloading, setIsDownloading] = useState(false);

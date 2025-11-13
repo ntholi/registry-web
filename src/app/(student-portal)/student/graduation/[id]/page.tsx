@@ -24,8 +24,8 @@ import {
 import { IconReceipt } from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/auth';
-import { formatDateTime } from '@/lib/utils/utils';
 import { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
+import { formatDateTime } from '@/shared/lib/utils/utils';
 import ProofOfClearanceDownload from '../components/ProofOfClearanceDownload';
 import GraduationClearanceView from './GraduationClearanceView';
 import PaymentReceiptsView from './PaymentReceiptsView';

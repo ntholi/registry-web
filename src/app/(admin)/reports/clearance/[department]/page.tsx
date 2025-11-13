@@ -15,13 +15,13 @@ import { IconCalendar, IconFilter, IconSearch } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import type { DashboardUser } from '@/db/schema';
-import { toTitleCase } from '@/lib/utils/utils';
 import { fetchClearanceStats } from '@/server/reports/clearance/actions';
 import type {
 	ClearanceFilter,
 	ClearanceType,
 } from '@/server/reports/clearance/repository';
 import type { ClearanceStatsSummary } from '@/server/reports/clearance/service';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import { StatsSummary } from './StatsSummary';
 import { StatsTable } from './StatsTable';
 

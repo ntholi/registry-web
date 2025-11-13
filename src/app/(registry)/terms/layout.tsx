@@ -2,8 +2,8 @@
 
 import { IconCheck } from '@tabler/icons-react';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout, NewLink } from '@/shared/components/adease';
 import { findAllTerms } from '@/server/registry/terms/actions';
+import { ListItem, ListLayout, NewLink } from '@/shared/components/adease';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (

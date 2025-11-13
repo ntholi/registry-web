@@ -12,12 +12,12 @@ import {
 import { IconFilter, IconPlayerPlayFilled } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { formatSemester } from '@/lib/utils/utils';
 import {
 	getAvailableProgramsForReports,
 	getAvailableSchoolsForReports,
 	getAvailableTermsForReport,
 } from '@/server/reports/registration/actions';
+import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString().padStart(2, '0');

@@ -18,12 +18,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { terms as termsTable } from '@/db/schema';
-import { formatSemester } from '@/lib/utils/utils';
 import {
 	getAllSchools,
 	getProgramsBySchoolId,
 } from '@/server/academic/schools/actions';
 import { getAllTerms } from '@/server/registry/terms/actions';
+import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString();

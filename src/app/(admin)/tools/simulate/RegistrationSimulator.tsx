@@ -29,10 +29,6 @@ import {
 } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
-import Link from '@/shared/components/Link';
-import { getCurrentSemester } from '@/lib/helpers/students';
-import { getAcademicRemarks } from '@/lib/utils/grades';
-import { formatSemester } from '@/lib/utils/utils';
 import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
@@ -41,6 +37,10 @@ import {
 	getStudent,
 	getStudentRegistrationData,
 } from '@/server/registry/students/actions';
+import Link from '@/shared/components/Link';
+import { getCurrentSemester } from '@/shared/lib/helpers/students';
+import { getAcademicRemarks } from '@/shared/lib/utils/grades';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import SemesterStatusModal from './SemesterStatusModal';
 
 type ModuleDataResponse = Awaited<ReturnType<typeof getStudentSemesterModules>>;

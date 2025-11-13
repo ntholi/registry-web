@@ -18,8 +18,8 @@ import {
 	IconFileText,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { formatDateTime, formatSemester } from '@/lib/utils/utils';
 import type { getStudentRegistrationHistory } from '@/server/registry/registration/requests/actions';
+import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 import ProofOfRegistrationDownload from './ProofOfRegistrationDownload';
 import StatusBadge from './StatusBadge';
 

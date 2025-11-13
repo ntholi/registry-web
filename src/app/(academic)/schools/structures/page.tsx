@@ -13,11 +13,11 @@ import {
 import { IconArrowLeft, IconBook, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from '@/shared/components/Link';
 import {
 	getProgramsBySchoolId,
 	getSchool,
 } from '@/server/academic/schools/actions';
+import Link from '@/shared/components/Link';
 import ProgramDisplay from './ProgramDisplay';
 
 type Program = {

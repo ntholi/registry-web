@@ -2,9 +2,9 @@
 
 import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
-import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
 import type { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
 import type { getStudent } from '@/server/registry/students/actions';
+import { useLocalStorage } from '@/shared/lib/hooks/useLocalStorage';
 import AcademicsView from './AcademicsView';
 import BlockedAcademicsView from './AcademicsView/BlockedAcademicsView';
 import StatementOfResultsPrinter from './AcademicsView/statements/StatementOfResultsPrinter';

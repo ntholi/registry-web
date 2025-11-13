@@ -3,7 +3,7 @@
 import { ActionIcon, Divider, Flex, Group, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
-import { useViewSelect } from '@/lib/hooks/useViewSelect';
+import { useViewSelect } from '@/shared/lib/hooks/useViewSelect';
 
 interface Props {
 	studentName: string;

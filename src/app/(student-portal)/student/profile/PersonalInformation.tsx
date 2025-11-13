@@ -1,7 +1,7 @@
 'use client';
 import { Box, Grid, Paper, Text, Title } from '@mantine/core';
-import type { Student } from '@/lib/helpers/students';
-import { formatDate } from '@/lib/utils/utils';
+import type { Student } from '@/shared/lib/helpers/students';
+import { formatDate } from '@/shared/lib/utils/utils';
 
 type Props = {
 	student: NonNullable<Student>;

@@ -12,8 +12,8 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import type { users } from '@/db/schema';
-import { toClassName } from '@/lib/utils/utils';
 import { getAssignedModulesByUser } from '@/server/academic/assigned-modules/actions';
+import { toClassName } from '@/shared/lib/utils/utils';
 import DeleteModuleButton from './DeleteModuleButton';
 
 type Props = {

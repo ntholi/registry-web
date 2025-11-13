@@ -1,12 +1,12 @@
 import { Badge } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { deleteTerm, getTerm } from '@/server/registry/terms/actions';
 import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/components/adease';
-import { deleteTerm, getTerm } from '@/server/registry/terms/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

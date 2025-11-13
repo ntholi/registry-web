@@ -18,7 +18,7 @@ import {
 	IconShield,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import useUserStudent from '@/lib/hooks/use-user-student';
+import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { studentColors } from '../utils/colors';
 
 type Action = {

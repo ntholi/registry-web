@@ -1,6 +1,6 @@
-import { getAcademicRemarks, grades } from '@/lib/utils/grades';
-import type { Program as GradeProgram } from '@/lib/utils/grades/type';
 import type { getAcademicHistory } from '@/server/registry/students/actions';
+import { getAcademicRemarks, grades } from '@/shared/lib/utils/grades';
+import type { Program as GradeProgram } from '@/shared/lib/utils/grades/type';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 

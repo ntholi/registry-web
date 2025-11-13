@@ -12,12 +12,12 @@ import {
 } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { hasGoogleClassroomScope } from '@/lib/googleClassroom';
 import {
 	getCourse,
 	getCourseWorkById,
 	getCourseWorkSubmissions,
 } from '@/server/classroom/actions';
+import { hasGoogleClassroomScope } from '@/shared/lib/googleClassroom';
 import AttachmentCard from './AttachmentCard';
 import CourseHeader from './CourseHeader';
 import SubmissionCard from './SubmissionCard';

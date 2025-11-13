@@ -18,14 +18,14 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
-import Link from '@/shared/components/Link';
 import type { UserRole } from '@/db/schema';
+import type { getStudent } from '@/server/registry/students/actions';
+import Link from '@/shared/components/Link';
 import {
 	formatDate,
 	formatPhoneNumber,
 	formatSemester,
-} from '@/lib/utils/utils';
-import type { getStudent } from '@/server/registry/students/actions';
+} from '@/shared/lib/utils/utils';
 import { getProgramStatusColor } from '../AcademicsView';
 import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
 import AcademicSummary from './AcademicSummary';

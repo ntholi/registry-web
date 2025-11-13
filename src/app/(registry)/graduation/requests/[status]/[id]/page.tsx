@@ -15,12 +15,12 @@ import {
 	IconExclamationCircle,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewHeader } from '@/shared/components/adease';
 import type { DashboardUser } from '@/db/schema';
 import {
 	deleteGraduationRequest,
 	getGraduationRequest,
 } from '@/server/registry/graduation/requests/actions';
+import { DetailsView, DetailsViewHeader } from '@/shared/components/adease';
 import GraduationClearanceAccordion from './GraduationClearanceAccordion';
 import GraduationRequestDetailsView from './GraduationRequestDetailsView';
 import PaymentReceiptsView from './PaymentReceiptsView';

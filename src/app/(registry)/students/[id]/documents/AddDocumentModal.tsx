@@ -27,8 +27,8 @@ import {
 } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
 import { useState } from 'react';
-import { uploadDocument } from '@/lib/storage';
 import { createDocument } from '@/server/registry/documents/actions';
+import { uploadDocument } from '@/shared/lib/storage';
 import documentTypes from './documentTypes';
 
 type AddDocumentModalProps = {

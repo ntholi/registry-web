@@ -18,9 +18,9 @@ import {
 	IconUser,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import Logo from '@/shared/components/Logo';
-import { formatDateTime } from '@/lib/utils/utils';
 import { getStatementOfResultsPrint } from '@/server/registry/statement-of-results-prints/actions';
+import Logo from '@/shared/components/Logo';
+import { formatDateTime } from '@/shared/lib/utils/utils';
 
 type Props = {
 	params: Promise<{ id: string }>;

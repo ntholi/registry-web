@@ -5,9 +5,9 @@ import { IconBook, IconCalendar, IconChevronDown } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
-import { useCurrentTerm } from '@/lib/hooks/use-current-term';
-import { toClassName } from '@/lib/utils/utils';
 import type { getAssignedModuleByUserAndModule } from '@/server/academic/assigned-modules/actions';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { toClassName } from '@/shared/lib/utils/utils';
 import ExportButton from './export/ExportButton';
 
 type ModuleDetailsCardProps = {

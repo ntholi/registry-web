@@ -9,17 +9,17 @@ import {
 import { IconCircleCheck } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import {
+	deleteModule,
+	getModulePrerequisites,
+	getSemesterModule,
+} from '@/server/academic/semester-modules/actions';
+import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/components/adease';
 import Link from '@/shared/components/Link';
-import {
-	deleteModule,
-	getModulePrerequisites,
-	getSemesterModule,
-} from '@/server/academic/semester-modules/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

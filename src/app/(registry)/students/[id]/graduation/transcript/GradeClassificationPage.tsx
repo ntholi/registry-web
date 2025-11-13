@@ -1,6 +1,6 @@
 import { Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
-import { grades } from '@/lib/utils/grades';
+import { grades } from '@/shared/lib/utils/grades';
 
 const tw = createTw({
 	theme: {

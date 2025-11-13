@@ -22,10 +22,10 @@ import {
 	sponsoredTerms,
 	studentPrograms,
 } from '@/db/schema';
-import { MAX_REG_MODULES } from '@/lib/constants';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/server/base/BaseRepository';
+import { MAX_REG_MODULES } from '@/shared/lib/constants';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 type RegistrationRequestInsert = typeof registrationRequests.$inferInsert;
