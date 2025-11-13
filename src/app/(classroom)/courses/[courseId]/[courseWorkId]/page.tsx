@@ -122,7 +122,7 @@ export default async function CourseWorkPage({ params }: Props) {
 				/>
 
 				<Grid gutter='lg'>
-					<Grid.Col span={{ base: 12, md: 8 }}>
+					<GridCol span={{ base: 12, md: 8 }}>
 						<Paper withBorder p='xl' radius='md'>
 							<Stack gap='lg'>
 								<Box>
@@ -199,9 +199,9 @@ export default async function CourseWorkPage({ params }: Props) {
 								)}
 							</Stack>
 						</Paper>
-					</Grid.Col>
+					</GridCol>
 
-					<Grid.Col span={{ base: 12, md: 4 }}>
+					<GridCol span={{ base: 12, md: 4 }}>
 						<Stack gap='md'>
 							<Paper withBorder p='lg' radius='md'>
 								<Stack gap='lg'>
