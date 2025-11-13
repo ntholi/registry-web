@@ -1,8 +1,6 @@
 import {
-	ActionIcon,
 	Badge,
 	Box,
-	Card,
 	Container,
 	Divider,
 	Grid,
@@ -13,17 +11,11 @@ import {
 	Title,
 } from '@mantine/core';
 import {
-	IconArrowLeft,
 	IconCalendar,
 	IconClock,
-	IconFile,
 	IconFileText,
-	IconLink,
 	IconPaperclip,
-	IconPointFilled,
-	IconUser,
 } from '@tabler/icons-react';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { hasGoogleClassroomScope } from '@/lib/googleClassroom';
@@ -32,6 +24,9 @@ import {
 	getCourseWorkById,
 	getCourseWorkSubmissions,
 } from '@/server/classroom/actions';
+import AttachmentCard from './AttachmentCard';
+import CourseHeader from './CourseHeader';
+import SubmissionCard from './SubmissionCard';
 
 type Props = {
 	params: Promise<{
@@ -90,40 +85,6 @@ function getWorkTypeColor(workType: string | null | undefined) {
 	}
 }
 
-function getStateColor(state: string | null | undefined) {
-	switch (state) {
-		case 'NEW':
-			return 'yellow';
-		case 'CREATED':
-			return 'gray';
-		case 'TURNED_IN':
-			return 'blue';
-		case 'RETURNED':
-			return 'green';
-		case 'RECLAIMED_BY_STUDENT':
-			return 'orange';
-		default:
-			return 'gray';
-	}
-}
-
-function getStateLabel(state: string | null | undefined) {
-	switch (state) {
-		case 'NEW':
-			return 'Assigned';
-		case 'CREATED':
-			return 'Not started';
-		case 'TURNED_IN':
-			return 'Turned in';
-		case 'RETURNED':
-			return 'Graded';
-		case 'RECLAIMED_BY_STUDENT':
-			return 'Reclaimed';
-		default:
-			return state || 'Unknown';
-	}
-}
-
 export default async function CourseWorkPage({ params }: Props) {
 	const { courseId, courseWorkId } = await params;
 
@@ -159,24 +120,11 @@ export default async function CourseWorkPage({ params }: Props) {
 	return (
 		<Container size='xl' mt='md' mb='xl'>
 			<Stack gap='lg'>
-				<Box>
-					<Group gap='xs' mb='sm'>
-						<ActionIcon
-							component={Link}
-							href={`/courses/${courseId}`}
-							variant='subtle'
-							size='lg'
-						>
-							<IconArrowLeft size='1.25rem' />
-						</ActionIcon>
-						<Box>
-							<Text size='sm' c='dimmed' lineClamp={1}>
-								{course?.name}
-								{course?.section && ` • ${course.section}`}
-							</Text>
-						</Box>
-					</Group>
-				</Box>
+				<CourseHeader
+					courseId={courseId}
+					courseName={course?.name}
+					courseSection={course?.section}
+				/>
 
 				<Grid gutter='lg'>
 					<Grid.Col span={{ base: 12, md: 8 }}>
@@ -241,7 +189,7 @@ export default async function CourseWorkPage({ params }: Props) {
 															material.form?.formUrl;
 
 														return (
-															<Card
+															<AttachmentCard
 																key={
 																	material.driveFile?.driveFile?.id ||
 																	material.link?.url ||
@@ -249,49 +197,10 @@ export default async function CourseWorkPage({ params }: Props) {
 																	material.form?.formUrl ||
 																	index
 																}
-																withBorder
-																padding='md'
-																component={url ? 'a' : 'div'}
-																href={url || undefined}
-																target='_blank'
-																style={{
-																	cursor: url ? 'pointer' : 'default',
-																	transition: 'all 0.2s',
-																}}
-																className={url ? 'hover-lift' : ''}
-															>
-																<Group gap='sm' wrap='nowrap'>
-																	<Box
-																		style={{
-																			color: 'var(--mantine-color-blue-6)',
-																		}}
-																	>
-																		{material.driveFile ? (
-																			<IconFile size='1.25rem' />
-																		) : (
-																			<IconLink size='1.25rem' />
-																		)}
-																	</Box>
-																	<Box style={{ flex: 1, minWidth: 0 }}>
-																		<Text
-																			size='sm'
-																			fw={500}
-																			style={{
-																				overflow: 'hidden',
-																				textOverflow: 'ellipsis',
-																				whiteSpace: 'nowrap',
-																			}}
-																		>
-																			{title}
-																		</Text>
-																		{url && (
-																			<Text size='xs' c='dimmed' lineClamp={1}>
-																				{url}
-																			</Text>
-																		)}
-																	</Box>
-																</Group>
-															</Card>
+																title={title}
+																url={url}
+																isFile={!!material.driveFile}
+															/>
 														);
 													})}
 												</Stack>
@@ -416,75 +325,15 @@ export default async function CourseWorkPage({ params }: Props) {
 
 							<Stack gap='xs'>
 								{submissions.map((submission) => (
-									<Card
+									<SubmissionCard
 										key={submission.id}
-										withBorder
-										padding='md'
-										radius='sm'
-										style={{ transition: 'all 0.2s' }}
-										className='hover-lift'
-									>
-										<Group justify='space-between' wrap='nowrap'>
-											<Group gap='md' style={{ flex: 1, minWidth: 0 }}>
-												<Box
-													style={{
-														width: '2.5rem',
-														height: '2.5rem',
-														borderRadius: '50%',
-														background: 'var(--mantine-color-blue-1)',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-														flexShrink: 0,
-													}}
-												>
-													<IconUser
-														size='1.25rem'
-														style={{ color: 'var(--mantine-color-blue-6)' }}
-													/>
-												</Box>
-												<Box style={{ flex: 1, minWidth: 0 }}>
-													<Text size='sm' fw={500} lineClamp={1}>
-														{submission.userId}
-													</Text>
-													<Group gap='xs' mt='0.25rem'>
-														<Badge
-															size='sm'
-															variant='dot'
-															color={getStateColor(submission.state)}
-															leftSection={<IconPointFilled size='0.5rem' />}
-														>
-															{getStateLabel(submission.state)}
-														</Badge>
-														{submission.late && (
-															<Badge size='sm' color='red' variant='light'>
-																Late
-															</Badge>
-														)}
-													</Group>
-												</Box>
-											</Group>
-
-											{(submission.assignedGrade !== null &&
-												submission.assignedGrade !== undefined) ||
-											submission.draftGrade !== null ? (
-												<Box style={{ textAlign: 'right', flexShrink: 0 }}>
-													<Text size='xl' fw={700} c='blue' mb='0.25rem'>
-														{submission.assignedGrade ?? submission.draftGrade}
-													</Text>
-													<Text size='xs' c='dimmed'>
-														/ {courseWork.maxPoints}
-													</Text>
-												</Box>
-											) : (
-												<Box style={{ textAlign: 'right', flexShrink: 0 }}>
-													<Text size='sm' c='dimmed'>
-														Not graded
-													</Text>
-												</Box>
-											)}
-										</Group>
-									</Card>
+										userId={submission.userId}
+										state={submission.state}
+										late={submission.late}
+										assignedGrade={submission.assignedGrade}
+										draftGrade={submission.draftGrade}
+										maxPoints={courseWork.maxPoints}
+									/>
 								))}
 							</Stack>
 						</Stack>
