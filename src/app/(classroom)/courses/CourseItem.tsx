@@ -19,9 +19,9 @@ export default function CourseItem({ course }: Props) {
 		>
 			<Card.Section>
 				<Image
-					src='https://images.unsplash.com/photo-1579227114347-15d08fc37cae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2550&q=80'
+					src={`https://picsum.photos/seed/${course.id}/800/160`}
 					h={160}
-					alt='No way!'
+					alt={course.name ?? 'Course image'}
 				/>
 			</Card.Section>
 			<Text fw={500} mt='lg' size='lg'>
