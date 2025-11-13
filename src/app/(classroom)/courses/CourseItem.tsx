@@ -1,5 +1,5 @@
 'use client';
-import { Badge, Box, Card, Group, Stack, Text } from '@mantine/core';
+import { Badge, Box, Card, Flex, Group, Stack, Text } from '@mantine/core';
 import type { classroom_v1 } from 'googleapis';
 import Link from 'next/link';
 
@@ -64,30 +64,9 @@ function getCourseMonogram(name?: string | null): string {
 	return letters.toUpperCase();
 }
 
-function getCourseStateLabel(state?: string | null): string | null {
-	if (!state) {
-		return null;
-	}
-
-	const normalized = state.toLowerCase();
-	const mapping: { [key: string]: string } = {
-		active: 'Active',
-		archived: 'Archived',
-		provisioned: 'Provisioned',
-		suspended: 'Suspended',
-	};
-
-	if (Object.hasOwn(mapping, normalized)) {
-		return mapping[normalized];
-	}
-
-	return state;
-}
-
 export default function CourseItem({ course }: Props) {
 	const gradient = getCourseGradient(course.id);
 	const monogram = getCourseMonogram(course.name);
-	const stateLabel = getCourseStateLabel(course.courseState);
 	const section = course.section?.trim();
 	const room = course.room?.trim();
 	const description = course.description?.trim();
@@ -96,7 +75,7 @@ export default function CourseItem({ course }: Props) {
 		<Card
 			shadow='lg'
 			padding='lg'
-			radius='lg'
+			radius='sm'
 			component={Link}
 			withBorder
 			href={`/courses/${course.id}`}
@@ -183,17 +162,15 @@ export default function CourseItem({ course }: Props) {
 							{monogram}
 						</Text>
 					</Box>
-					{stateLabel && (
-						<Badge size='sm' variant='filled' color='indigo'>
-							{stateLabel}
-						</Badge>
-					)}
 				</Box>
 			</Card.Section>
 			<Stack gap='sm'>
-				<Text size='lg' fw={600} lineClamp={2}>
-					{course.name}
-				</Text>
+				<Flex justify={'space-between'} align={'baseline'}>
+					<Text size='lg' fw={600} lineClamp={2}>
+						{course.name}
+					</Text>
+					<Badge variant='default'>{description}</Badge>
+				</Flex>
 				{(section || room) && (
 					<Group gap='xs'>
 						{section && (
@@ -203,15 +180,10 @@ export default function CourseItem({ course }: Props) {
 						)}
 						{room && (
 							<Badge variant='light' color='cyan'>
-								Room {room}
+								{room}
 							</Badge>
 						)}
 					</Group>
-				)}
-				{description && (
-					<Text size='sm' c='dimmed' lineClamp={3}>
-						{description}
-					</Text>
 				)}
 			</Stack>
 		</Card>

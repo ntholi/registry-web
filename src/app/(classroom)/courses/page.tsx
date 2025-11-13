@@ -20,11 +20,11 @@ export default async function CoursesPage() {
 	}
 
 	const classroom = await googleClassroom();
-	const courses = await classroom.courses.list();
+	const courses = await classroom.courses.list({ courseStates: ['ACTIVE'] });
 
 	return (
 		<Container mt='lg' size='xl'>
-			<SimpleGrid cols={{ base: 1, sm: 2, md: 3, xl: 4 }}>
+			<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
 				{courses.data.courses?.map((course) => (
 					<CourseItem key={course.id} course={course} />
 				))}
