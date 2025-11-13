@@ -38,7 +38,7 @@ export const financeConfig: ModuleConfig = {
 				children: [
 					{
 						label: 'Requests',
-						href: '/clearance/pending',
+						href: '/registration/clearance/pending',
 						icon: IconMessageQuestion,
 						notificationCount: {
 							queryKey: ['clearances', 'pending'],
@@ -48,7 +48,7 @@ export const financeConfig: ModuleConfig = {
 					},
 					{
 						label: 'Approved',
-						href: '/clearance/approved',
+						href: '/registration/clearance/approved',
 						icon: IconSquareRoundedCheck,
 						notificationCount: {
 							queryKey: ['clearances', 'approved'],
@@ -58,7 +58,7 @@ export const financeConfig: ModuleConfig = {
 					},
 					{
 						label: 'Rejected',
-						href: '/clearance/rejected',
+						href: '/registration/clearance/rejected',
 						icon: IconBarrierBlock,
 						notificationCount: {
 							queryKey: ['clearances', 'rejected'],
