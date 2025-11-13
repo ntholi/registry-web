@@ -5,7 +5,7 @@ import {
 	deleteTask,
 	getTask,
 	updateTaskStatus,
-} from '@/server/admin/tasks/actions';
+} from '@/modules/admin/features/tasks/server/actions';
 import {
 	DetailsView,
 	DetailsViewBody,

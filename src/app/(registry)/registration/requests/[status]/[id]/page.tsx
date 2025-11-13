@@ -18,15 +18,15 @@ import type {
 	DashboardUser,
 	registrationRequestStatus,
 } from '@/core/database/schema';
-import { getSponsoredStudent } from '@/server/finance/sponsors/actions';
+import { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
+import ClearanceAccordion from '@/modules/registry/features/registration-requests/components/[status]/[id]/ClearanceAccordion';
+import ModulesView from '@/modules/registry/features/registration-requests/components/[status]/[id]/ModulesView';
+import RequestDetailsView from '@/modules/registry/features/registration-requests/components/[status]/[id]/RequestDetailsView';
 import {
 	deleteRegistrationRequest,
 	getRegistrationRequest,
-} from '@/server/registry/registration/requests/actions';
+} from '@/modules/registry/features/registration-requests/server/requests/actions';
 import { DetailsView, DetailsViewHeader } from '@/shared/components/adease';
-import ClearanceAccordion from './ClearanceAccordion';
-import ModulesView from './ModulesView';
-import RequestDetailsView from './RequestDetailsView';
 
 interface Props {
 	params: Promise<{ id: string }>;

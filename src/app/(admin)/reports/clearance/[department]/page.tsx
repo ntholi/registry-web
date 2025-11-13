@@ -15,15 +15,15 @@ import { IconCalendar, IconFilter, IconSearch } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import type { DashboardUser } from '@/core/database/schema';
-import { fetchClearanceStats } from '@/server/reports/clearance/actions';
+import { StatsSummary } from '@/modules/admin/features/reports-clearance/components/[department]/StatsSummary';
+import { StatsTable } from '@/modules/admin/features/reports-clearance/components/[department]/StatsTable';
+import { fetchClearanceStats } from '@/modules/admin/features/reports-clearance/server/actions';
 import type {
 	ClearanceFilter,
 	ClearanceType,
-} from '@/server/reports/clearance/repository';
-import type { ClearanceStatsSummary } from '@/server/reports/clearance/service';
+} from '@/modules/admin/features/reports-clearance/server/repository';
+import type { ClearanceStatsSummary } from '@/modules/admin/features/reports-clearance/server/service';
 import { toTitleCase } from '@/shared/lib/utils/utils';
-import { StatsSummary } from './StatsSummary';
-import { StatsTable } from './StatsTable';
 
 export default function ClearanceReportsPage() {
 	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([

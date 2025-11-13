@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import ModuleRepository from '@/server/academic/semester-modules/repository';
-import TermRepository from '@/server/registry/terms/repository';
+import ModuleRepository from '@/modules/academic/features/semester-modules/server/repository';
+import TermRepository from '@/modules/registry/features/terms/server/repository';
 
 export async function GET(request: NextRequest) {
 	const search = request.nextUrl.searchParams.get('module');

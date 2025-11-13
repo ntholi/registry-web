@@ -1,8 +1,8 @@
 import { Box, Divider, Flex, Stack, Text, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { getUser } from '@/server/admin/users/actions';
-import AssignedModules from './AssignedModules';
-import ModuleAssignModal from './ModuleAssignModal';
+import AssignedModules from '@/modules/academic/features/lecturers/components/[id]/AssignedModules';
+import ModuleAssignModal from '@/modules/academic/features/lecturers/components/[id]/ModuleAssignModal';
+import { getUser } from '@/modules/admin/features/users/server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

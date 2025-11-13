@@ -2,7 +2,7 @@
 
 import { Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getCurrentTerm } from '@/server/registry/terms/actions';
+import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 
 export default function ActiveTermDisplay() {
 	const {

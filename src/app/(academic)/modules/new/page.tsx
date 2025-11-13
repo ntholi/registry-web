@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
-import { createModule } from '@/server/academic/modules/actions';
-import Form from '../Form';
+import Form from '@/modules/academic/features/modules/components/Form';
+import { createModule } from '@/modules/academic/features/modules/server/actions';
 
 export default async function NewPage() {
 	return (

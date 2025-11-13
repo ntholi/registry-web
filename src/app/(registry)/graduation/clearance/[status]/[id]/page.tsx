@@ -1,12 +1,12 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
-import AcademicsLoader from '@registry/clearance/[status]/[id]/AcademicsLoader';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import { getGraduationClearance } from '@/server/registry/graduation/clearance/actions';
+import AcademicsLoader from '@/modules/registry/features/clearance/components/[status]/[id]/AcademicsLoader';
+import GraduationClearanceDetails from '@/modules/registry/features/graduation-clearance/components/[status]/[id]/GraduationClearanceDetails';
+import GraduationClearanceHeader from '@/modules/registry/features/graduation-clearance/components/[status]/[id]/GraduationClearanceHeader';
+import GraduationClearanceHistory from '@/modules/registry/features/graduation-clearance/components/[status]/[id]/GraduationClearanceHistory';
+import { getGraduationClearance } from '@/modules/registry/features/graduation-clearance/server/clearance/actions';
 import { DetailsView } from '@/shared/components/adease';
-import GraduationClearanceDetails from './GraduationClearanceDetails';
-import GraduationClearanceHeader from './GraduationClearanceHeader';
-import GraduationClearanceHistory from './GraduationClearanceHistory';
 
 type Props = {
 	params: Promise<{ id: string }>;

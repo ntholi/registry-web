@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
-import { createSponsor } from '@/server/finance/sponsors/actions';
-import Form from '../Form';
+import Form from '@/modules/finance/features/sponsors/components/Form';
+import { createSponsor } from '@/modules/finance/features/sponsors/server/actions';
 
 export default async function NewPage() {
 	return (

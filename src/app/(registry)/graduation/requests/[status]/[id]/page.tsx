@@ -19,12 +19,12 @@ import type { DashboardUser } from '@/core/database/schema';
 import {
 	deleteGraduationRequest,
 	getGraduationRequest,
-} from '@/server/registry/graduation/requests/actions';
+} from '@/modules/registry/features/graduation-clearance/server/requests/actions';
+import GraduationClearanceAccordion from '@/modules/registry/features/graduation-requests/components/[status]/[id]/GraduationClearanceAccordion';
+import GraduationRequestDetailsView from '@/modules/registry/features/graduation-requests/components/[status]/[id]/GraduationRequestDetailsView';
+import PaymentReceiptsView from '@/modules/registry/features/graduation-requests/components/[status]/[id]/PaymentReceiptsView';
+import ProofOfClearancePrinter from '@/modules/registry/features/graduation-requests/components/[status]/[id]/ProofOfClearancePrinter';
 import { DetailsView, DetailsViewHeader } from '@/shared/components/adease';
-import GraduationClearanceAccordion from './GraduationClearanceAccordion';
-import GraduationRequestDetailsView from './GraduationRequestDetailsView';
-import PaymentReceiptsView from './PaymentReceiptsView';
-import ProofOfClearancePrinter from './ProofOfClearancePrinter';
 
 interface Props {
 	params: Promise<{ id: string }>;

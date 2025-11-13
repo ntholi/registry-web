@@ -9,7 +9,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconTestPipe } from '@tabler/icons-react';
-import RegistrationSimulator from './RegistrationSimulator';
+import RegistrationSimulator from '@/modules/admin/features/tools-simulate/components/RegistrationSimulator';
 
 export default function SimulatePage() {
 	return (

@@ -1,8 +1,8 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import { type PropsWithChildren, useState } from 'react';
-import { getAssignedModulesByCurrentUser } from '@/server/academic/assigned-modules/actions';
-import { getModules } from '@/server/academic/modules/actions';
+import { getAssignedModulesByCurrentUser } from '@/modules/academic/features/assigned-modules/server/actions';
+import { getModules } from '@/modules/academic/features/modules/server/actions';
 import {
 	ListItem,
 	ListLayout,

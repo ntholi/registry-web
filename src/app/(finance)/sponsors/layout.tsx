@@ -1,7 +1,7 @@
 'use client';
 
 import type { PropsWithChildren } from 'react';
-import { findAllSponsors } from '@/server/finance/sponsors/actions';
+import { findAllSponsors } from '@/modules/finance/features/sponsors/server/actions';
 import { ListItem, ListLayout, NewLink } from '@/shared/components/adease';
 
 export default function Layout({ children }: PropsWithChildren) {

@@ -1,5 +1,5 @@
 import type { Grade, grade } from '@/core/database/schema';
-import { getVisibleModulesForStructure } from '@/server/academic/semester-modules/actions';
+import { getVisibleModulesForStructure } from '@/modules/academic/features/semester-modules/server/actions';
 import type {
 	FacultyRemarksResult,
 	GradePoint,

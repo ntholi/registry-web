@@ -18,7 +18,7 @@ import {
 	IconUser,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import { getStatementOfResultsPrint } from '@/server/registry/statement-of-results-prints/actions';
+import { getStatementOfResultsPrint } from '@/modules/registry/features/statement-of-results-prints/server/actions';
 import Logo from '@/shared/components/Logo';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 

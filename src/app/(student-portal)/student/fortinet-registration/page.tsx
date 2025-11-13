@@ -21,7 +21,7 @@ import { fortinetLevel } from '@/core/database/schema';
 import {
 	createFortinetRegistration,
 	getCurrentStudentFortinetRegistrations,
-} from '@/server/fortinet-registration/actions';
+} from '@/modules/student-portal/features/fortinet-registration/server/actions';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type FortinetLevel = (typeof fortinetLevel.enumValues)[number];

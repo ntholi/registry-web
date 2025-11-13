@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
-import { getStudent } from '@/server/registry/students/actions';
+import { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
+import { StudentTabs } from '@/modules/registry/features/students/components/[id]/StudentTabs';
+import { getStudent } from '@/modules/registry/features/students/server/actions';
 import { DetailsView, DetailsViewHeader } from '@/shared/components/adease';
-import { StudentTabs } from './StudentTabs';
 
 type Props = {
 	params: Promise<{ id: string }>;

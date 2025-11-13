@@ -15,20 +15,20 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
+import { IconReceipt } from '@tabler/icons-react';
+import { forbidden, notFound } from 'next/navigation';
+import { auth } from '@/core/auth';
+import { getGraduationRequest } from '@/modules/registry/features/graduation-clearance/server/requests/actions';
+import GraduationClearanceView from '@/modules/student-portal/features/graduation/components/[id]/GraduationClearanceView';
+import PaymentReceiptsView from '@/modules/student-portal/features/graduation/components/[id]/PaymentReceiptsView';
+import ProofOfClearanceDownload from '@/modules/student-portal/features/graduation/components/components/ProofOfClearanceDownload';
 import {
 	getClearanceStatus,
 	getGraduationStatus,
 	getStatusColor,
 	getStatusIcon,
-} from '@student-portal/student/utils/status';
-import { IconReceipt } from '@tabler/icons-react';
-import { forbidden, notFound } from 'next/navigation';
-import { auth } from '@/core/auth';
-import { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
+} from '@/modules/student-portal/features/utils/components/status';
 import { formatDateTime } from '@/shared/lib/utils/utils';
-import ProofOfClearanceDownload from '../components/ProofOfClearanceDownload';
-import GraduationClearanceView from './GraduationClearanceView';
-import PaymentReceiptsView from './PaymentReceiptsView';
 
 type Props = {
 	params: Promise<{

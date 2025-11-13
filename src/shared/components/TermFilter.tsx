@@ -6,7 +6,7 @@ import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
-import { findAllTerms } from '@/server/registry/terms/actions';
+import { findAllTerms } from '@/modules/registry/features/terms/server/actions';
 import { selectedTermAtom } from '@/shared/lib/atoms/termAtoms';
 
 interface TermFilterProps {

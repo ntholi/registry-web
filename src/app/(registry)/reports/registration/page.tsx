@@ -22,16 +22,18 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
+import ProgramBreakdownTable from '@/modules/registry/features/reports-registration/components/ProgramBreakdownTable';
+import RegistrationCharts from '@/modules/registry/features/reports-registration/components/RegistrationCharts';
+import RegistrationFilter, {
+	type ReportFilter,
+} from '@/modules/registry/features/reports-registration/components/RegistrationFilter';
+import StudentTable from '@/modules/registry/features/reports-registration/components/StudentTable';
 import {
 	generateStudentsListReport,
 	generateSummaryRegistrationReport,
 	getPaginatedRegistrationStudents,
 	getRegistrationDataPreview,
-} from '@/server/reports/registration/actions';
-import ProgramBreakdownTable from './ProgramBreakdownTable';
-import RegistrationCharts from './RegistrationCharts';
-import RegistrationFilter, { type ReportFilter } from './RegistrationFilter';
-import StudentTable from './StudentTable';
+} from '@/modules/registry/features/reports-registration/server/actions';
 
 const PAGE_SIZE = 20;
 

@@ -11,8 +11,11 @@ import {
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { deleteModule, getModule } from '@/server/academic/modules/actions';
-import { getStructuresByModule } from '@/server/academic/semester-modules/actions';
+import {
+	deleteModule,
+	getModule,
+} from '@/modules/academic/features/modules/server/actions';
+import { getStructuresByModule } from '@/modules/academic/features/semester-modules/server/actions';
 import {
 	DetailsView,
 	DetailsViewBody,

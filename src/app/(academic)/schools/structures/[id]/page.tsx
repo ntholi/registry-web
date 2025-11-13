@@ -24,12 +24,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
-import { getStructure } from '@/server/academic/structures/actions';
+import EditButton from '@/modules/academic/features/schools/components/structures/[id]/EditButton';
+import HideButton from '@/modules/academic/features/schools/components/structures/[id]/HideButton';
+import PrerequisiteDisplay from '@/modules/academic/features/schools/components/structures/[id]/PrerequisiteDisplay';
+import { getStructure } from '@/modules/academic/features/structures/server/actions';
 import Link from '@/shared/components/Link';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import EditButton from './EditButton';
-import HideButton from './HideButton';
-import PrerequisiteDisplay from './PrerequisiteDisplay';
 
 export default function StructureDetailsPage() {
 	const params = useParams();

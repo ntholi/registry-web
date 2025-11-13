@@ -1,10 +1,10 @@
-import Form from '@academic/assessments/Form';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import Form from '@/modules/academic/features/assessments/components/Form';
 import {
 	getAssessment,
 	updateAssessment,
-} from '@/server/academic/assessments/actions';
+} from '@/modules/academic/features/assessments/server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

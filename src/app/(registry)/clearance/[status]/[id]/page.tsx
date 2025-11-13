@@ -1,13 +1,13 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import { getClearance } from '@/server/registry/registration/clearance/actions';
-import { getCurrentTerm } from '@/server/registry/terms/actions';
+import AcademicsLoader from '@/modules/registry/features/clearance/components/[status]/[id]/AcademicsLoader';
+import ClearanceDetails from '@/modules/registry/features/clearance/components/[status]/[id]/ClearanceDetails';
+import ClearanceHeader from '@/modules/registry/features/clearance/components/[status]/[id]/ClearanceHeader';
+import ClearanceHistory from '@/modules/registry/features/clearance/components/[status]/[id]/ClearanceHistory';
+import { getClearance } from '@/modules/registry/features/registration-requests/server/clearance/actions';
+import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 import { DetailsView } from '@/shared/components/adease';
-import AcademicsLoader from './AcademicsLoader';
-import ClearanceDetails from './ClearanceDetails';
-import ClearanceHeader from './ClearanceHeader';
-import ClearanceHistory from './ClearanceHistory';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -15,22 +15,22 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { getStatusColor } from '@student-portal/student/utils/colors';
-import {
-	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
-	getStatusIcon,
-} from '@student-portal/student/utils/status';
 import { IconBooks, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import { getRegistrationRequest } from '@/server/registry/registration/requests/actions';
+import { getRegistrationRequest } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import ClearanceStatusView from '@/modules/student-portal/features/registration/components/[id]/ClearanceStatusView';
+import DepartmentMessagesView from '@/modules/student-portal/features/registration/components/[id]/DepartmentMessagesView';
+import ModulesView from '@/modules/student-portal/features/registration/components/[id]/ModulesView';
+import ProofOfRegistrationDownload from '@/modules/student-portal/features/registration/components/components/ProofOfRegistrationDownload';
+import { getStatusColor } from '@/modules/student-portal/features/utils/components/colors';
+import {
+	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
+	getStatusIcon,
+} from '@/modules/student-portal/features/utils/components/status';
 import { MAX_REGISTRATION_ATTEMPTS } from '@/shared/lib/constants';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import ProofOfRegistrationDownload from '../components/ProofOfRegistrationDownload';
-import ClearanceStatusView from './ClearanceStatusView';
-import DepartmentMessagesView from './DepartmentMessagesView';
-import ModulesView from './ModulesView';
 
 type Props = {
 	params: Promise<{

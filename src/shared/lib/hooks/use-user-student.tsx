@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { getStudentByUserId } from '@/server/registry/students/actions';
+import { getStudentByUserId } from '@/modules/registry/features/students/server/actions';
 import {
 	getActiveProgram,
 	getCurrentSemester,

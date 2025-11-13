@@ -10,9 +10,9 @@ import {
 import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/core/auth';
-import { getStudentRegistrationHistory } from '@/server/registry/registration/requests/actions';
-import RegistrationHistory from './components/RegistrationHistory';
-import RegistrationHistorySkeleton from './components/RegistrationHistorySkeleton';
+import { getStudentRegistrationHistory } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import RegistrationHistory from '@/modules/student-portal/features/registration/components/components/RegistrationHistory';
+import RegistrationHistorySkeleton from '@/modules/student-portal/features/registration/components/components/RegistrationHistorySkeleton';
 
 export default async function RegistrationPage() {
 	const session = await auth();

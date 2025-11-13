@@ -1,7 +1,7 @@
 'use client';
 
 import type { PropsWithChildren } from 'react';
-import { getLecturers } from '@/server/academic/lecturers/actions';
+import { getLecturers } from '@/modules/academic/features/lecturers/server/actions';
 import { ListItem, ListLayout } from '@/shared/components/adease';
 
 export default function Layout({ children }: PropsWithChildren) {

@@ -1,4 +1,4 @@
-import type { getStudentByUserId } from '@/server/registry/students/actions';
+import type { getStudentByUserId } from '@/modules/registry/features/students/server/actions';
 import type { getAcademicRemarks } from '@/shared/lib/utils/grades';
 
 export type Student = NonNullable<

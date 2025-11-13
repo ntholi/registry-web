@@ -10,10 +10,10 @@ import {
 import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/core/auth';
-import GraduationHistory from './components/GraduationHistory';
-import GraduationHistorySkeleton from './components/GraduationHistorySkeleton';
-import NewGraduationCard from './components/NewGraduationCard';
-import NewGraduationCardSkeleton from './components/NewGraduationCardSkeleton';
+import GraduationHistory from '@/modules/student-portal/features/graduation/components/components/GraduationHistory';
+import GraduationHistorySkeleton from '@/modules/student-portal/features/graduation/components/components/GraduationHistorySkeleton';
+import NewGraduationCard from '@/modules/student-portal/features/graduation/components/components/NewGraduationCard';
+import NewGraduationCardSkeleton from '@/modules/student-portal/features/graduation/components/components/NewGraduationCardSkeleton';
 
 export default async function GraduationPage() {
 	const session = await auth();

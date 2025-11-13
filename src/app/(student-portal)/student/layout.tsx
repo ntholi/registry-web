@@ -2,9 +2,9 @@ import { Space } from '@mantine/core';
 import type { Metadata } from 'next';
 import type React from 'react';
 import { auth } from '@/core/auth';
-import BottomNavigation from './base/BottomNavigation';
-import Footer from './base/Footer';
-import Navbar from './base/Navbar';
+import BottomNavigation from '@/modules/student-portal/features/base/components/BottomNavigation';
+import Footer from '@/modules/student-portal/features/base/components/Footer';
+import Navbar from '@/modules/student-portal/features/base/components/Navbar';
 
 export async function generateMetadata(): Promise<Metadata> {
 	const session = await auth();

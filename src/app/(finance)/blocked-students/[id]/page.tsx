@@ -3,17 +3,17 @@
 import { Center, Loader, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { notFound, useParams } from 'next/navigation';
+import StudentStatusSwitch from '@/modules/finance/features/blocked-students/components/[id]/StudentStatusSwitch';
 import {
 	deleteBlockedStudent,
 	getBlockedStudent,
-} from '@/server/finance/blocked-students/actions';
+} from '@/modules/finance/features/blocked-students/server/actions';
 import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/components/adease';
-import StudentStatusSwitch from './StudentStatusSwitch';
 
 export default function BlockedStudentDetails() {
 	const params = useParams();

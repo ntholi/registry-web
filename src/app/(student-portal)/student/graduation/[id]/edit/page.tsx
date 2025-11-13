@@ -10,8 +10,8 @@ import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
-import PaymentReceiptsEditor from './PaymentReceiptsEditor';
+import { getGraduationRequest } from '@/modules/registry/features/graduation-clearance/server/requests/actions';
+import PaymentReceiptsEditor from '@/modules/student-portal/features/graduation/components/[id]/edit/PaymentReceiptsEditor';
 
 type Props = {
 	params: Promise<{

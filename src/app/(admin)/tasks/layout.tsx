@@ -13,9 +13,12 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { getTasks, type TaskFilter } from '@/server/admin/tasks/actions';
+import TasksFilter from '@/modules/admin/features/tasks/components/TasksFilter';
+import {
+	getTasks,
+	type TaskFilter,
+} from '@/modules/admin/features/tasks/server/actions';
 import { ListItem, ListLayout, NewLink } from '@/shared/components/adease';
-import TasksFilter from './TasksFilter';
 
 function getPriorityColor(priority: string) {
 	switch (priority) {

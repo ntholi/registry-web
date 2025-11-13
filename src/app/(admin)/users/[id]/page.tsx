@@ -8,11 +8,12 @@ import {
 	Stack,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { SchoolsList } from '@/modules/admin/features/users/components/[id]/SchoolsList';
 import {
 	deleteUser,
 	getUser,
 	getUserSchools,
-} from '@/server/admin/users/actions';
+} from '@/modules/admin/features/users/server/actions';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -20,7 +21,6 @@ import {
 	FieldView,
 } from '@/shared/components/adease';
 import { largeProfilePic, toTitleCase } from '@/shared/lib/utils/utils';
-import { SchoolsList } from './SchoolsList';
 
 type Props = {
 	params: Promise<{ id: string }>;

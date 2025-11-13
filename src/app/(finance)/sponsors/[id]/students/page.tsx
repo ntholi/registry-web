@@ -1,7 +1,7 @@
 'use client';
 
 import { Paper } from '@mantine/core';
-import StudentsTable from './StudentsTable';
+import StudentsTable from '@/modules/finance/features/sponsors/components/[id]/students/StudentsTable';
 
 type Props = {
 	params: Promise<{ id: string }>;

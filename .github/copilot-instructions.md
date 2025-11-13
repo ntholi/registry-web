@@ -45,6 +45,6 @@
 - SQL names: snake_case, lowercase  
 - Never create/update docs (`.md`, `.txt`, etc.)  
 - Only and always use PowerShell v7 for terminal commands  
-- Fixed all lint errors run 'pnpm tsc --noEmit' repeatedly until no errors
-- Always fix all lint errors → `pnpm lint --fix` repeatedly until 0 errors  
+- Always fix all lint errors run 'pnpm tsc --noEmit' repeatedly until no errors
+- After you've run pnpm tsc --noEmit and there are no more errors run `pnpm lint --fix` repeatedly until 0 errors  
 - Always test and ensure commands/code run cleanly with no errors before finishing  

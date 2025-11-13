@@ -12,15 +12,15 @@ import {
 } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
+import AttachmentCard from '@/modules/classroom/features/courses/components/[courseId]/[courseWorkId]/AttachmentCard';
+import CourseHeader from '@/modules/classroom/features/courses/components/[courseId]/[courseWorkId]/CourseHeader';
+import SubmissionCard from '@/modules/classroom/features/courses/components/[courseId]/[courseWorkId]/SubmissionCard';
 import {
 	getCourse,
 	getCourseWorkById,
 	getCourseWorkSubmissions,
-} from '@/server/classroom/actions';
+} from '@/modules/classroom/features/courses/server/actions';
 import { hasGoogleClassroomScope } from '@/shared/lib/googleClassroom';
-import AttachmentCard from './AttachmentCard';
-import CourseHeader from './CourseHeader';
-import SubmissionCard from './SubmissionCard';
 
 type Props = {
 	params: Promise<{

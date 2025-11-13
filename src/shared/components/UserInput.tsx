@@ -2,7 +2,7 @@ import { Autocomplete, type BoxProps, Loader } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import type { users } from '@/core/database/schema';
-import { findAllByRole } from '@/server/admin/users/actions';
+import { findAllByRole } from '@/modules/admin/features/users/server/actions';
 
 type User = typeof users.$inferSelect;
 

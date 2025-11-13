@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
-import { createUser } from '@/server/admin/users/actions';
-import Form from '../Form';
+import Form from '@/modules/admin/features/users/components/Form';
+import { createUser } from '@/modules/admin/features/users/server/actions';
 
 export default async function NewPage() {
 	return (

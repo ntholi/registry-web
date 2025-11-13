@@ -1,11 +1,11 @@
 'use client';
 import { Center, Container, Stack, Text } from '@mantine/core';
+import AcademicInformation from '@/modules/student-portal/features/profile/components/AcademicInformation';
+import PersonalInformation from '@/modules/student-portal/features/profile/components/PersonalInformation';
+import ProfileHeader from '@/modules/student-portal/features/profile/components/ProfileHeader';
+import ProfileSkeleton from '@/modules/student-portal/features/profile/components/ProfileSkeleton';
+import SponsorshipInformation from '@/modules/student-portal/features/profile/components/SponsorshipInformation';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
-import AcademicInformation from './AcademicInformation';
-import PersonalInformation from './PersonalInformation';
-import ProfileHeader from './ProfileHeader';
-import ProfileSkeleton from './ProfileSkeleton';
-import SponsorshipInformation from './SponsorshipInformation';
 
 export default function Profile() {
 	const { student, program, semester, remarks, isLoading } = useUserStudent();

@@ -12,17 +12,17 @@ import {
 	Title,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { getCleanedSemesters } from '@registry/students/[id]/AcademicsView/statements/utils';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getBlockedStudentByStdNo } from '@/server/finance/blocked-students/actions';
+import { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
+import { getCleanedSemesters } from '@/modules/registry/features/students/components/[id]/AcademicsView/statements/utils';
+import DesktopTable from '@/modules/student-portal/features/transcripts/components/DesktopTable';
+import LoadingSkeleton from '@/modules/student-portal/features/transcripts/components/LoadingSkeleton';
+import MobileTable from '@/modules/student-portal/features/transcripts/components/MobileTable';
+import TranscriptDownloadButton from '@/modules/student-portal/features/transcripts/components/TranscriptDownloadButton';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import DesktopTable from './DesktopTable';
-import LoadingSkeleton from './LoadingSkeleton';
-import MobileTable from './MobileTable';
-import TranscriptDownloadButton from './TranscriptDownloadButton';
 
 export default function TranscriptsPage() {
 	const { student, program, isLoading } = useUserStudent();

@@ -13,12 +13,12 @@ import {
 import { IconArrowLeft, IconBook, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
+import ProgramDisplay from '@/modules/academic/features/schools/components/structures/ProgramDisplay';
 import {
 	getProgramsBySchoolId,
 	getSchool,
-} from '@/server/academic/schools/actions';
+} from '@/modules/academic/features/schools/server/actions';
 import Link from '@/shared/components/Link';
-import ProgramDisplay from './ProgramDisplay';
 
 type Program = {
 	id: number;

@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
-import { createAssessment } from '@/server/academic/assessments/actions';
-import Form from '../Form';
+import Form from '@/modules/academic/features/assessments/components/Form';
+import { createAssessment } from '@/modules/academic/features/assessments/server/actions';
 
 export default async function NewPage() {
 	return (

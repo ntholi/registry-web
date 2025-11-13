@@ -14,16 +14,16 @@ import {
 } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
+import AssessmentsTab from '@/modules/classroom/features/courses/components/[courseId]/AssessmentsTab';
+import DashboardTab from '@/modules/classroom/features/courses/components/[courseId]/DashboardTab';
+import MaterialTab from '@/modules/classroom/features/courses/components/[courseId]/MaterialTab';
 import {
 	getCourse,
 	getCourseAnnouncements,
 	getCourseTopics,
 	getCourseWork,
-} from '@/server/classroom/actions';
+} from '@/modules/classroom/features/courses/server/actions';
 import { hasGoogleClassroomScope } from '@/shared/lib/googleClassroom';
-import AssessmentsTab from './AssessmentsTab';
-import DashboardTab from './DashboardTab';
-import MaterialTab from './MaterialTab';
 
 type Props = {
 	params: Promise<{

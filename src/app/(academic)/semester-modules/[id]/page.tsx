@@ -12,7 +12,7 @@ import {
 	deleteModule,
 	getModulePrerequisites,
 	getSemesterModule,
-} from '@/server/academic/semester-modules/actions';
+} from '@/modules/academic/features/semester-modules/server/actions';
 import {
 	DetailsView,
 	DetailsViewBody,

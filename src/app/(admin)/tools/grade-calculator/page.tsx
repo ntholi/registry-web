@@ -11,8 +11,8 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconCalculator } from '@tabler/icons-react';
-import { GradeCalculatorForm } from './components/GradeCalculatorForm';
-import { GradeTable } from './components/GradeTable';
+import { GradeCalculatorForm } from '@/modules/admin/features/tools-grade-calculator/components/components/GradeCalculatorForm';
+import { GradeTable } from '@/modules/admin/features/tools-grade-calculator/components/components/GradeTable';
 
 export default function GradeCalculatorPage() {
 	return (
