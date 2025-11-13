@@ -1,5 +1,6 @@
 import {
 	IconAB2,
+	IconChalkboard,
 	IconCopyCheck,
 	IconNotebook,
 	IconSchool,
@@ -38,6 +39,16 @@ export const academicConfig: ModuleConfig = {
 				},
 			},
 			{
+				label: 'Courses',
+				icon: IconChalkboard,
+				roles: ['academic'],
+				href: '/courses',
+				children: [],
+				isVisible: (session) => {
+					return session?.user?.position !== 'admin';
+				},
+			},
+			{
 				label: 'Gradebook',
 				icon: IconNotebook,
 				roles: ['academic'],
@@ -46,6 +57,7 @@ export const academicConfig: ModuleConfig = {
 					return session?.user?.position !== 'admin';
 				},
 			},
+
 			{
 				label: 'Course Summary',
 				description: 'Course Summary Report',
