@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Card, Group, Text } from '@mantine/core';
+import { Card, Group, Text, ThemeIcon } from '@mantine/core';
 import { IconFile, IconLink } from '@tabler/icons-react';
 
 type Props = {
@@ -10,37 +10,31 @@ type Props = {
 };
 
 export default function AttachmentCard({ title, url, isFile }: Props) {
-	const content = (
-		<Group gap='sm' wrap='nowrap'>
-			<Box c='blue'>
-				{isFile ? <IconFile size='1.25rem' /> : <IconLink size='1.25rem' />}
-			</Box>
-			<Box style={{ flex: 1, minWidth: 0 }}>
-				<Text size='sm' fw={500} truncate>
-					{title}
-				</Text>
-			</Box>
-		</Group>
-	);
-
-	if (url) {
-		return (
-			<Card
-				withBorder
-				p='md'
-				radius='sm'
-				component='a'
-				href={url}
-				target='_blank'
-			>
-				{content}
-			</Card>
-		);
-	}
+	const Icon = isFile ? IconFile : IconLink;
+	const cardProps = url
+		? {
+				component: 'a' as const,
+				href: url,
+				target: '_blank',
+				rel: 'noreferrer',
+			}
+		: undefined;
 
 	return (
-		<Card withBorder p='md' radius='sm'>
-			{content}
+		<Card withBorder p='md' radius='md' {...cardProps}>
+			<Group gap='sm' align='flex-start'>
+				<ThemeIcon
+					size='lg'
+					radius='md'
+					variant='light'
+					color={isFile ? 'blue' : 'violet'}
+				>
+					<Icon size='1.1rem' />
+				</ThemeIcon>
+				<Text size='sm' fw={500} flex={1} truncate>
+					{title}
+				</Text>
+			</Group>
 		</Card>
 	);
 }

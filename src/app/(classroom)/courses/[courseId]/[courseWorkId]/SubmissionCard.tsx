@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Box, Card, Group, Text } from '@mantine/core';
+import { Badge, Card, Group, Stack, Text } from '@mantine/core';
 
 type Props = {
 	userId: string | null | undefined;
@@ -45,12 +45,19 @@ export default function SubmissionCard({
 	draftGrade,
 	maxPoints,
 }: Props) {
+	const score =
+		assignedGrade !== null && assignedGrade !== undefined
+			? assignedGrade
+			: draftGrade !== null && draftGrade !== undefined
+				? draftGrade
+				: null;
+
 	return (
-		<Card withBorder p='md' radius='sm'>
-			<Group justify='space-between' wrap='nowrap'>
-				<Box style={{ flex: 1, minWidth: 0 }}>
-					<Text size='sm' fw={500} mb='xs' truncate>
-						{userId}
+		<Card withBorder p='md' radius='lg'>
+			<Group justify='space-between' align='flex-start'>
+				<Stack gap='xs' style={{ flex: 1, minWidth: 0 }}>
+					<Text size='sm' fw={600} truncate>
+						{userId || 'Student'}
 					</Text>
 					<Group gap='xs'>
 						<Badge size='sm' variant='light' color={getStateColor(state)}>
@@ -62,21 +69,22 @@ export default function SubmissionCard({
 							</Badge>
 						)}
 					</Group>
-				</Box>
+				</Stack>
 
-				{(assignedGrade !== null && assignedGrade !== undefined) ||
-				draftGrade !== null ? (
-					<Box style={{ textAlign: 'right' }}>
-						<Text size='xl' fw={700} c='blue'>
-							{assignedGrade ?? draftGrade}
+				{score !== null ? (
+					<Stack gap='4px' align='flex-end'>
+						<Text size='lg' fw={700} c='blue'>
+							{score}
 						</Text>
-						<Text size='xs' c='dimmed'>
-							/ {maxPoints}
-						</Text>
-					</Box>
+						{maxPoints !== null && maxPoints !== undefined && (
+							<Text size='xs' c='dimmed'>
+								of {maxPoints}
+							</Text>
+						)}
+					</Stack>
 				) : (
 					<Text size='sm' c='dimmed'>
-						—
+						Awaiting submission
 					</Text>
 				)}
 			</Group>

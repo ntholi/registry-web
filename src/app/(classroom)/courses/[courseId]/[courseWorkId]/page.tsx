@@ -2,7 +2,6 @@ import {
 	Badge,
 	Box,
 	Container,
-	Divider,
 	Grid,
 	GridCol,
 	Group,
@@ -29,15 +28,6 @@ type Props = {
 		courseWorkId: string;
 	}>;
 };
-
-function formatDate(dateString: string | null | undefined) {
-	if (!dateString) return '';
-	return new Date(dateString).toLocaleDateString('en-US', {
-		month: 'long',
-		day: 'numeric',
-		year: 'numeric',
-	});
-}
 
 function formatDateTime(dateString: string | null | undefined) {
 	if (!dateString) return '';
@@ -111,6 +101,9 @@ export default async function CourseWorkPage({ params }: Props) {
 		(s) => s.state === 'TURNED_IN' || s.state === 'RETURNED'
 	).length;
 	const gradedCount = submissions.filter((s) => s.state === 'RETURNED').length;
+	const dueLabel = courseWork.dueDate
+		? formatDueDate(courseWork.dueDate, courseWork.dueTime)
+		: '';
 
 	return (
 		<Container size='xl' py='xl'>
@@ -119,14 +112,16 @@ export default async function CourseWorkPage({ params }: Props) {
 					courseId={courseId}
 					courseName={course?.name}
 					courseSection={course?.section}
+					courseLink={course?.alternateLink}
+					courseState={course?.courseState}
 				/>
 
 				<Grid gutter='lg'>
 					<GridCol span={{ base: 12, md: 8 }}>
-						<Paper withBorder p='xl' radius='md'>
+						<Paper withBorder p='xl' radius='lg'>
 							<Stack gap='lg'>
 								<Box>
-									<Group gap='sm' mb='md'>
+									<Group gap='sm' mb='md' wrap='wrap'>
 										<Badge
 											size='lg'
 											variant='light'
@@ -134,11 +129,12 @@ export default async function CourseWorkPage({ params }: Props) {
 										>
 											{getWorkTypeLabel(courseWork.workType)}
 										</Badge>
-										{courseWork.maxPoints && (
-											<Badge size='lg' variant='outline'>
-												{courseWork.maxPoints} points
-											</Badge>
-										)}
+										{courseWork.maxPoints !== null &&
+											courseWork.maxPoints !== undefined && (
+												<Badge size='lg' variant='outline'>
+													{courseWork.maxPoints} points
+												</Badge>
+											)}
 									</Group>
 
 									<Title order={1} size='h2' mb='md'>
@@ -158,44 +154,41 @@ export default async function CourseWorkPage({ params }: Props) {
 								</Box>
 
 								{courseWork.materials && courseWork.materials.length > 0 && (
-									<>
-										<Divider />
-										<Box>
-											<Text size='sm' fw={600} mb='md'>
-												Attachments
-											</Text>
-											<Stack gap='xs'>
-												{courseWork.materials.map((material, index) => {
-													const title =
-														material.driveFile?.driveFile?.title ||
-														material.link?.title ||
-														material.youtubeVideo?.title ||
-														material.form?.title ||
-														'Attachment';
-													const url =
-														material.link?.url ||
-														material.driveFile?.driveFile?.alternateLink ||
-														material.youtubeVideo?.alternateLink ||
-														material.form?.formUrl;
+									<Stack gap='md'>
+										<Text size='xs' fw={600} tt='uppercase' c='dimmed'>
+											Attachments
+										</Text>
+										<Stack gap='sm'>
+											{courseWork.materials.map((material, index) => {
+												const title =
+													material.driveFile?.driveFile?.title ||
+													material.link?.title ||
+													material.youtubeVideo?.title ||
+													material.form?.title ||
+													'Attachment';
+												const url =
+													material.link?.url ||
+													material.driveFile?.driveFile?.alternateLink ||
+													material.youtubeVideo?.alternateLink ||
+													material.form?.formUrl;
 
-													return (
-														<AttachmentCard
-															key={
-																material.driveFile?.driveFile?.id ||
-																material.link?.url ||
-																material.youtubeVideo?.id ||
-																material.form?.formUrl ||
-																index
-															}
-															title={title}
-															url={url}
-															isFile={!!material.driveFile}
-														/>
-													);
-												})}
-											</Stack>
-										</Box>
-									</>
+												return (
+													<AttachmentCard
+														key={
+															material.driveFile?.driveFile?.id ||
+															material.link?.url ||
+															material.youtubeVideo?.id ||
+															material.form?.formUrl ||
+															index
+														}
+														title={title}
+														url={url}
+														isFile={!!material.driveFile}
+													/>
+												);
+											})}
+										</Stack>
+									</Stack>
 								)}
 							</Stack>
 						</Paper>
@@ -203,28 +196,20 @@ export default async function CourseWorkPage({ params }: Props) {
 
 					<GridCol span={{ base: 12, md: 4 }}>
 						<Stack gap='md'>
-							<Paper withBorder p='lg' radius='md'>
+							<Paper withBorder p='lg' radius='lg'>
 								<Stack gap='lg'>
 									<Box>
 										<Text size='xs' fw={600} tt='uppercase' c='dimmed' mb='sm'>
 											Details
 										</Text>
 										<Stack gap='md'>
-											{courseWork.dueDate && (
+											{dueLabel && (
 												<Box>
 													<Text size='sm' fw={500} mb='0.25rem'>
 														Due date
 													</Text>
 													<Text size='sm' c='dimmed'>
-														{formatDate(
-															new Date(
-																courseWork.dueDate.year || 0,
-																(courseWork.dueDate.month || 1) - 1,
-																courseWork.dueDate.day || 1,
-																courseWork.dueTime?.hours || 23,
-																courseWork.dueTime?.minutes || 59
-															).toISOString()
-														)}
+														{dueLabel}
 													</Text>
 												</Box>
 											)}
@@ -242,40 +227,31 @@ export default async function CourseWorkPage({ params }: Props) {
 
 									{courseWork.workType !== 'MATERIAL' &&
 										submissions.length > 0 && (
-											<>
-												<Divider />
-												<Box>
-													<Text
-														size='xs'
-														fw={600}
-														tt='uppercase'
-														c='dimmed'
-														mb='sm'
-													>
-														Progress
-													</Text>
-													<Stack gap='sm'>
-														<Group justify='space-between'>
-															<Text size='sm'>Total students</Text>
-															<Text size='sm' fw={600}>
-																{submissions.length}
-															</Text>
-														</Group>
-														<Group justify='space-between'>
-															<Text size='sm'>Turned in</Text>
-															<Text size='sm' fw={600} c='blue'>
-																{turnedInCount}
-															</Text>
-														</Group>
-														<Group justify='space-between'>
-															<Text size='sm'>Graded</Text>
-															<Text size='sm' fw={600} c='green'>
-																{gradedCount}
-															</Text>
-														</Group>
-													</Stack>
-												</Box>
-											</>
+											<Stack gap='sm'>
+												<Text size='xs' fw={600} tt='uppercase' c='dimmed'>
+													Progress
+												</Text>
+												<Stack gap='sm'>
+													<Group justify='space-between'>
+														<Text size='sm'>Total students</Text>
+														<Text size='sm' fw={600}>
+															{submissions.length}
+														</Text>
+													</Group>
+													<Group justify='space-between'>
+														<Text size='sm'>Turned in</Text>
+														<Text size='sm' fw={600} c='blue'>
+															{turnedInCount}
+														</Text>
+													</Group>
+													<Group justify='space-between'>
+														<Text size='sm'>Graded</Text>
+														<Text size='sm' fw={600} c='green'>
+															{gradedCount}
+														</Text>
+													</Group>
+												</Stack>
+											</Stack>
 										)}
 								</Stack>
 							</Paper>
@@ -284,10 +260,10 @@ export default async function CourseWorkPage({ params }: Props) {
 				</Grid>
 
 				{courseWork.workType !== 'MATERIAL' && submissions.length > 0 && (
-					<Paper withBorder p='xl' radius='md'>
+					<Paper withBorder p='xl' radius='lg'>
 						<Stack gap='lg'>
 							<Group justify='space-between'>
-								<Title order={2} size='h4'>
+								<Title order={2} size='h3'>
 									Student Submissions
 								</Title>
 								<Badge variant='light' size='lg'>
@@ -295,7 +271,7 @@ export default async function CourseWorkPage({ params }: Props) {
 								</Badge>
 							</Group>
 
-							<Stack gap='xs'>
+							<Stack gap='sm'>
 								{submissions.map((submission) => (
 									<SubmissionCard
 										key={submission.id}
@@ -313,5 +289,40 @@ export default async function CourseWorkPage({ params }: Props) {
 				)}
 			</Stack>
 		</Container>
+	);
+}
+
+function formatDueDate(
+	dueDate:
+		| {
+				day?: number | null | undefined;
+				month?: number | null | undefined;
+				year?: number | null | undefined;
+		  }
+		| null
+		| undefined,
+	dueTime:
+		| {
+				hours?: number | null | undefined;
+				minutes?: number | null | undefined;
+		  }
+		| null
+		| undefined
+) {
+	if (!dueDate) return '';
+	const year = dueDate.year || 0;
+	const month = (dueDate.month || 1) - 1;
+	const day = dueDate.day || 1;
+	const hours = dueTime?.hours ?? 23;
+	const minutes = dueTime?.minutes ?? 59;
+	return new Date(year, month, day, hours, minutes).toLocaleDateString(
+		'en-US',
+		{
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		}
 	);
 }

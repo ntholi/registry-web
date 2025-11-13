@@ -1,7 +1,6 @@
 'use client';
 
 import {
-	Accordion,
 	Badge,
 	Box,
 	Button,
@@ -14,6 +13,7 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import type { CourseWork, Topic } from '@/server/classroom/actions';
+import { groupCourseWorkByTopic } from './courseWorkGrouping';
 
 type Props = {
 	assessments: CourseWork[];
@@ -48,40 +48,20 @@ export default function AssessmentsTab({
 	topics,
 	courseId,
 }: Props) {
-	const topicMap = new Map(
-		topics.map((t) => [t.topicId, t.name || 'Untitled'])
-	);
-
-	const groupedByTopic = assessments.reduce(
-		(acc, assessment) => {
-			const topicId = assessment.topicId || 'no-topic';
-			if (!acc[topicId]) {
-				acc[topicId] = [];
-			}
-			acc[topicId].push(assessment);
-			return acc;
-		},
-		{} as Record<string, CourseWork[]>
-	);
-
-	const sortedTopics = Object.keys(groupedByTopic).sort((a, b) => {
-		if (a === 'no-topic') return 1;
-		if (b === 'no-topic') return -1;
-		return 0;
-	});
+	const topicGroups = groupCourseWorkByTopic(assessments, topics);
 
 	if (assessments.length === 0) {
 		return (
-			<Stack gap='md'>
-				<Group justify='space-between'>
-					<Title order={3} size='h4'>
+			<Stack gap='lg'>
+				<Group justify='space-between' align='center'>
+					<Title order={3} size='h3'>
 						Assessments
 					</Title>
 					<Button leftSection={<IconPlus size='1rem' />} variant='light'>
 						Create
 					</Button>
 				</Group>
-				<Paper p='xl' radius='md' withBorder>
+				<Paper p='xl' radius='lg' withBorder>
 					<Text c='dimmed' ta='center'>
 						No assessments yet
 					</Text>
@@ -92,8 +72,8 @@ export default function AssessmentsTab({
 
 	return (
 		<Stack gap='xl'>
-			<Group justify='space-between'>
-				<Title order={3} size='h4'>
+			<Group justify='space-between' align='center'>
+				<Title order={3} size='h3'>
 					Assessments
 				</Title>
 				<Button leftSection={<IconPlus size='1rem' />} variant='light'>
@@ -101,93 +81,109 @@ export default function AssessmentsTab({
 				</Button>
 			</Group>
 
-			{sortedTopics.map((topicId) => {
-				const topicName =
-					topicId === 'no-topic' ? 'General' : topicMap.get(topicId) || 'Topic';
-				const topicAssessments = groupedByTopic[topicId];
-
-				return (
-					<Box key={topicId}>
-						<Group mb='md'>
+			{topicGroups.map((group) => (
+				<Box key={group.id}>
+					<Group justify='space-between' align='center' mb='md'>
+						<Group gap='sm'>
 							<Text size='lg' fw={600}>
-								{topicName}
+								{group.name}
 							</Text>
 							<Badge variant='light' size='md'>
-								{topicAssessments.length}
+								{group.items.length}
 							</Badge>
 						</Group>
+					</Group>
+					<Stack gap='md'>
+						{group.items.map((assessment) => {
+							const attachmentsCount = assessment.materials?.length || 0;
+							const dueLabel = formatDueDate(assessment);
 
-						<Paper withBorder radius='md'>
-							<Accordion variant='contained'>
-								{topicAssessments.map((assessment) => (
-									<Accordion.Item
-										key={assessment.id}
-										value={assessment.id || ''}
-									>
-										<Accordion.Control>
-											<Group justify='space-between' wrap='nowrap' pr='md'>
-												<Box style={{ flex: 1 }}>
-													<Text fw={500} mb='xs'>
-														{assessment.title}
-													</Text>
-													<Group gap='xs'>
-														<Badge size='sm' variant='light'>
-															{getWorkTypeLabel(assessment.workType)}
-														</Badge>
-														{assessment.maxPoints && (
-															<Badge size='sm' variant='outline'>
-																{assessment.maxPoints} pts
-															</Badge>
-														)}
-														<Text size='xs' c='dimmed'>
-															{formatDate(assessment.creationTime)}
-														</Text>
-													</Group>
-												</Box>
-											</Group>
-										</Accordion.Control>
-										<Accordion.Panel>
-											<Stack gap='md'>
+							return (
+								<Paper key={assessment.id} withBorder radius='lg' p='lg'>
+									<Stack gap='md'>
+										<Group justify='space-between' align='flex-start'>
+											<Stack gap='xs' style={{ flex: 1, minWidth: 0 }}>
+												<Text size='sm' fw={600}>
+													{assessment.title}
+												</Text>
 												{assessment.description && (
-													<Text size='sm' c='dimmed'>
-														{assessment.description}
-													</Text>
-												)}
-
-												{assessment.dueDate && (
-													<Text size='sm'>
-														<Text component='span' fw={500}>
-															Due:
-														</Text>{' '}
-														{formatDate(
-															new Date(
-																assessment.dueDate.year || 0,
-																(assessment.dueDate.month || 1) - 1,
-																assessment.dueDate.day || 1
-															).toISOString()
-														)}
-													</Text>
-												)}
-
-												<Group justify='flex-end'>
-													<Button
-														component={Link}
-														href={`/courses/${courseId}/${assessment.id}`}
-														variant='light'
+													<Text
 														size='sm'
-													>
-														View Details
-													</Button>
-												</Group>
+														c='dimmed'
+														style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
+														dangerouslySetInnerHTML={{
+															__html: assessment.description,
+														}}
+													/>
+												)}
 											</Stack>
-										</Accordion.Panel>
-									</Accordion.Item>
-								))}
-							</Accordion>
-						</Paper>
-					</Box>
-				);
-			})}
+											<Button
+												component={Link}
+												href={`/courses/${courseId}/${assessment.id}`}
+												variant='light'
+												size='sm'
+											>
+												View details
+											</Button>
+										</Group>
+
+										<Group gap='xs' wrap='wrap'>
+											<Badge size='sm' variant='light'>
+												{getWorkTypeLabel(assessment.workType)}
+											</Badge>
+											{assessment.maxPoints !== null &&
+												assessment.maxPoints !== undefined && (
+													<Badge size='sm' variant='outline'>
+														{assessment.maxPoints} pts
+													</Badge>
+												)}
+											{attachmentsCount > 0 && (
+												<Badge size='sm' variant='outline'>
+													{attachmentsCount} attachment
+													{attachmentsCount > 1 ? 's' : ''}
+												</Badge>
+											)}
+											{assessment.creationTime && (
+												<Text size='xs' c='dimmed'>
+													Posted {formatDate(assessment.creationTime)}
+												</Text>
+											)}
+										</Group>
+
+										{dueLabel && (
+											<Group gap='xs'>
+												<Text size='sm' fw={500}>
+													Due
+												</Text>
+												<Text size='sm' c='dimmed'>
+													{dueLabel}
+												</Text>
+											</Group>
+										)}
+									</Stack>
+								</Paper>
+							);
+						})}
+					</Stack>
+				</Box>
+			))}
 		</Stack>
 	);
+}
+
+function formatDueDate(courseWork: CourseWork) {
+	if (!courseWork.dueDate) return '';
+	const year = courseWork.dueDate.year || 0;
+	const month = (courseWork.dueDate.month || 1) - 1;
+	const day = courseWork.dueDate.day || 1;
+	const hours = courseWork.dueTime?.hours ?? 23;
+	const minutes = courseWork.dueTime?.minutes ?? 59;
+	const due = new Date(year, month, day, hours, minutes);
+	return due.toLocaleDateString('en-US', {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	});
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import {
-	Accordion,
 	Badge,
 	Box,
 	Button,
@@ -14,6 +13,7 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import type { CourseWork, Topic } from '@/server/classroom/actions';
+import { groupCourseWorkByTopic } from './courseWorkGrouping';
 
 type Props = {
 	materials: CourseWork[];
@@ -31,40 +31,20 @@ function formatDate(dateString: string | null | undefined) {
 }
 
 export default function MaterialTab({ materials, topics, courseId }: Props) {
-	const topicMap = new Map(
-		topics.map((t) => [t.topicId, t.name || 'Untitled'])
-	);
-
-	const groupedByTopic = materials.reduce(
-		(acc, material) => {
-			const topicId = material.topicId || 'no-topic';
-			if (!acc[topicId]) {
-				acc[topicId] = [];
-			}
-			acc[topicId].push(material);
-			return acc;
-		},
-		{} as Record<string, CourseWork[]>
-	);
-
-	const sortedTopics = Object.keys(groupedByTopic).sort((a, b) => {
-		if (a === 'no-topic') return 1;
-		if (b === 'no-topic') return -1;
-		return 0;
-	});
+	const topicGroups = groupCourseWorkByTopic(materials, topics);
 
 	if (materials.length === 0) {
 		return (
-			<Stack gap='md'>
-				<Group justify='space-between'>
-					<Title order={3} size='h4'>
+			<Stack gap='lg'>
+				<Group justify='space-between' align='center'>
+					<Title order={3} size='h3'>
 						Material
 					</Title>
 					<Button leftSection={<IconPlus size='1rem' />} variant='light'>
 						Create
 					</Button>
 				</Group>
-				<Paper p='xl' radius='md' withBorder>
+				<Paper p='xl' radius='lg' withBorder>
 					<Text c='dimmed' ta='center'>
 						No materials yet
 					</Text>
@@ -75,8 +55,8 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 
 	return (
 		<Stack gap='xl'>
-			<Group justify='space-between'>
-				<Title order={3} size='h4'>
+			<Group justify='space-between' align='center'>
+				<Title order={3} size='h3'>
 					Material
 				</Title>
 				<Button leftSection={<IconPlus size='1rem' />} variant='light'>
@@ -84,74 +64,74 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 				</Button>
 			</Group>
 
-			{sortedTopics.map((topicId) => {
-				const topicName =
-					topicId === 'no-topic' ? 'General' : topicMap.get(topicId) || 'Topic';
-				const topicMaterials = groupedByTopic[topicId];
-
-				return (
-					<Box key={topicId}>
-						<Group mb='md'>
+			{topicGroups.map((group) => (
+				<Box key={group.id}>
+					<Group justify='space-between' align='center' mb='md'>
+						<Group gap='sm'>
 							<Text size='lg' fw={600}>
-								{topicName}
+								{group.name}
 							</Text>
 							<Badge variant='light' size='md'>
-								{topicMaterials.length}
+								{group.items.length}
 							</Badge>
 						</Group>
+					</Group>
+					<Stack gap='md'>
+						{group.items.map((material) => {
+							const attachmentsCount = material.materials?.length || 0;
 
-						<Paper withBorder radius='md'>
-							<Accordion variant='contained'>
-								{topicMaterials.map((material) => (
-									<Accordion.Item key={material.id} value={material.id || ''}>
-										<Accordion.Control>
-											<Group justify='space-between' wrap='nowrap' pr='md'>
-												<Box style={{ flex: 1 }}>
-													<Text fw={500} mb='xs'>
-														{material.title}
-													</Text>
-													<Group gap='xs'>
-														{material.materials &&
-															material.materials.length > 0 && (
-																<Badge size='sm' variant='outline'>
-																	{material.materials.length} attachment
-																	{material.materials.length > 1 ? 's' : ''}
-																</Badge>
-															)}
-														<Text size='xs' c='dimmed'>
-															{formatDate(material.creationTime)}
-														</Text>
-													</Group>
-												</Box>
-											</Group>
-										</Accordion.Control>
-										<Accordion.Panel>
-											<Stack gap='md'>
+							return (
+								<Paper key={material.id} withBorder radius='lg' p='lg'>
+									<Stack gap='md'>
+										<Group justify='space-between' align='flex-start'>
+											<Stack gap='xs' style={{ flex: 1, minWidth: 0 }}>
+												<Text size='sm' fw={600}>
+													{material.title}
+												</Text>
 												{material.description && (
-													<Text size='sm' c='dimmed'>
-														{material.description}
-													</Text>
-												)}
-
-												<Group justify='flex-end'>
-													<Button
-														component={Link}
-														href={`/courses/${courseId}/${material.id}`}
-														variant='light'
+													<Text
 														size='sm'
-													>
-														View Details
-													</Button>
-												</Group>
+														c='dimmed'
+														style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
+														dangerouslySetInnerHTML={{
+															__html: material.description,
+														}}
+													/>
+												)}
 											</Stack>
-										</Accordion.Panel>
-									</Accordion.Item>
-								))}
-							</Accordion>
-						</Paper>
-					</Box>
-				);
-			})}
+											<Button
+												component={Link}
+												href={`/courses/${courseId}/${material.id}`}
+												variant='light'
+												size='sm'
+											>
+												View details
+											</Button>
+										</Group>
+
+										<Group gap='xs' wrap='wrap'>
+											<Badge size='sm' variant='light'>
+												Material
+											</Badge>
+											{attachmentsCount > 0 && (
+												<Badge size='sm' variant='outline'>
+													{attachmentsCount} attachment
+													{attachmentsCount > 1 ? 's' : ''}
+												</Badge>
+											)}
+											{material.creationTime && (
+												<Text size='xs' c='dimmed'>
+													Posted {formatDate(material.creationTime)}
+												</Text>
+											)}
+										</Group>
+									</Stack>
+								</Paper>
+							);
+						})}
+					</Stack>
+				</Box>
+			))}
 		</Stack>
 	);
 }
