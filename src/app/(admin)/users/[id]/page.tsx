@@ -13,7 +13,7 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
-} from '@/components/adease';
+} from '@/shared/components/adease';
 import { largeProfilePic, toTitleCase } from '@/lib/utils/utils';
 import {
 	deleteUser,

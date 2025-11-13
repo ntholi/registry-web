@@ -1,7 +1,7 @@
 'use client';
 
 import { IconSearchOff } from '@tabler/icons-react';
-import StatusPage from '@/components/StatusPage';
+import StatusPage from '@/shared/components/StatusPage';
 
 export default function NotFound() {
 	return (

@@ -6,7 +6,7 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
-} from '@/components/adease';
+} from '@/shared/components/adease';
 import {
 	deleteTask,
 	getTask,

@@ -13,7 +13,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout, NewLink } from '@/components/adease';
+import { ListItem, ListLayout, NewLink } from '@/shared/components/adease';
 import { getTasks, type TaskFilter } from '@/server/admin/tasks/actions';
 import TasksFilter from './TasksFilter';
 

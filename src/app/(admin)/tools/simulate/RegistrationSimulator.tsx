@@ -29,7 +29,7 @@ import {
 } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
-import Link from '@/components/Link';
+import Link from '@/shared/components/Link';
 import { getCurrentSemester } from '@/lib/helpers/students';
 import { getAcademicRemarks } from '@/lib/utils/grades';
 import { formatSemester } from '@/lib/utils/utils';

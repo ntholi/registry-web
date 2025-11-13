@@ -7,7 +7,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
-import { Form } from '@/components/adease';
+import { Form } from '@/shared/components/adease';
 import { moduleType, semesterModules } from '@/db/schema';
 import { findAllModules } from '@/server/academic/semester-modules/actions';
 

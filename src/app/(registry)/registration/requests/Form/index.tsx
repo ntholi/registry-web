@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
-import { Form } from '@/components/adease';
+import { Form } from '@/shared/components/adease';
 import {
 	type modules,
 	type StudentModuleStatus,

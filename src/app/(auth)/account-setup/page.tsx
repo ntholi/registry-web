@@ -17,7 +17,7 @@ import { modals } from '@mantine/modals';
 import { IconLogout, IconMail } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import Logo from '@/components/Logo';
+import Logo from '@/shared/components/Logo';
 
 export default function AccountSetupPage() {
 	const { data: session, status } = useSession();

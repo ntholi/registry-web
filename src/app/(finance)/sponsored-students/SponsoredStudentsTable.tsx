@@ -15,7 +15,7 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import Link from '@/components/Link';
+import Link from '@/shared/components/Link';
 import { getAllSponsoredStudents } from '@/server/finance/sponsors/actions';
 import DownloadSponsoredStudentsButton from './DownloadButton';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';

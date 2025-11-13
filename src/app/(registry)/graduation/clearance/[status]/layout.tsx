@@ -3,7 +3,7 @@
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout } from '@/components/adease';
+import { ListItem, ListLayout } from '@/shared/components/adease';
 import { graduationClearanceByStatus } from '@/server/registry/graduation/clearance/actions';
 
 type Status = 'pending' | 'approved' | 'rejected';

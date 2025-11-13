@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout } from '@/components/adease';
+import { ListItem, ListLayout } from '@/shared/components/adease';
 import {
 	findAllStudents,
 	type StudentFilter,

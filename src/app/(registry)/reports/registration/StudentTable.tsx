@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
-import Link from '@/components/Link';
+import Link from '@/shared/components/Link';
 import { formatPhoneNumber, formatSemester } from '@/lib/utils/utils';
 
 interface Student {

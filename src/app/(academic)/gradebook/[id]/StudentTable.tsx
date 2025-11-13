@@ -19,7 +19,7 @@ import {
 	IconSelector,
 } from '@tabler/icons-react';
 import React, { useState } from 'react';
-import Link from '@/components/Link';
+import Link from '@/shared/components/Link';
 import ExcelImport from './excel/ExcelImport';
 import GradeDisplay from './GradeDisplay';
 import GradeSymbolModal from './GradeSymbolModal';

@@ -16,8 +16,8 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
-} from '@/components/adease';
-import Link from '@/components/Link';
+} from '@/shared/components/adease';
+import Link from '@/shared/components/Link';
 import { deleteModule, getModule } from '@/server/academic/modules/actions';
 import { getStructuresByModule } from '@/server/academic/semester-modules/actions';
 

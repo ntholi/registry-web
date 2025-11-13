@@ -8,7 +8,7 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
-} from '@/components/adease';
+} from '@/shared/components/adease';
 import {
 	deleteBlockedStudent,
 	getBlockedStudent,

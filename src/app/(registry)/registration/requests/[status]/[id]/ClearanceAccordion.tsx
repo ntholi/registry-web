@@ -6,7 +6,7 @@ import {
 	IconClock,
 	IconExclamationCircle,
 } from '@tabler/icons-react';
-import Link from '@/components/Link';
+import Link from '@/shared/components/Link';
 import type { DashboardUser, registrationRequestStatus } from '@/db/schema';
 import { formatDateTime, toTitleCase } from '@/lib/utils/utils';
 import type { getRegistrationRequest } from '@/server/registry/registration/requests/actions';

@@ -14,7 +14,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import UserInput from '@/components/UserInput';
+import UserInput from '@/shared/components/UserInput';
 import type { users } from '@/db/schema';
 import { updateStudentUserId } from '@/server/registry/students/actions';
 

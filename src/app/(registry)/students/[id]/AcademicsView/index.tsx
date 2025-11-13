@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
-import SemesterStatus from '@/components/SemesterStatus';
+import SemesterStatus from '@/shared/components/SemesterStatus';
 import { getAcademicRemarks } from '@/lib/utils/grades';
 import { formatSemester } from '@/lib/utils/utils';
 import type { getStudent } from '@/server/registry/students/actions';

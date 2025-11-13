@@ -3,8 +3,8 @@
 import { ActionIcon, Flex, Paper, Stack, Text, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
-import { FieldView } from '@/components/adease';
-import Link from '@/components/Link';
+import { FieldView } from '@/shared/components/adease';
+import Link from '@/shared/components/Link';
 import type { getGraduationRequest } from '@/server/registry/graduation/requests/actions';
 
 interface Props {

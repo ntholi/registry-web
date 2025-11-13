@@ -17,8 +17,8 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { useState } from 'react';
-import { FieldView } from '@/components/adease';
-import Link from '@/components/Link';
+import { FieldView } from '@/shared/components/adease';
+import Link from '@/shared/components/Link';
 import { formatDateTime } from '@/lib/utils/utils';
 import type { getClearance } from '@/server/registry/registration/clearance/actions';
 import SponsorInfo from '../SponsorInfo';

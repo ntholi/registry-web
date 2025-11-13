@@ -1,7 +1,7 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
-import { DetailsView } from '@/components/adease';
+import { DetailsView } from '@/shared/components/adease';
 import { getClearance } from '@/server/registry/registration/clearance/actions';
 import { getCurrentTerm } from '@/server/registry/terms/actions';
 import AcademicsLoader from './AcademicsLoader';

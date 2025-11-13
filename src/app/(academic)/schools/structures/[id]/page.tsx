@@ -24,7 +24,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
-import Link from '@/components/Link';
+import Link from '@/shared/components/Link';
 import { formatSemester } from '@/lib/utils/utils';
 import { getStructure } from '@/server/academic/structures/actions';
 import EditButton from './EditButton';

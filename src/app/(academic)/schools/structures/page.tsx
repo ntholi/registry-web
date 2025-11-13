@@ -13,7 +13,7 @@ import {
 import { IconArrowLeft, IconBook, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from '@/components/Link';
+import Link from '@/shared/components/Link';
 import {
 	getProgramsBySchoolId,
 	getSchool,

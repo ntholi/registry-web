@@ -4,7 +4,7 @@ import { Select, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { Form } from '@/components/adease';
+import { Form } from '@/shared/components/adease';
 import { students } from '@/db/schema';
 
 type Student = typeof students.$inferInsert;

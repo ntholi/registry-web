@@ -2,7 +2,7 @@
 
 import { Skeleton, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { FieldView } from '@/components/adease';
+import { FieldView } from '@/shared/components/adease';
 import { getSponsoredStudent } from '@/server/finance/sponsors/actions';
 
 type Props = {

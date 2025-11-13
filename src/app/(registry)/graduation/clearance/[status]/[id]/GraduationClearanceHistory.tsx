@@ -11,7 +11,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import Link from '@/components/Link';
+import Link from '@/shared/components/Link';
 import { formatDateTime } from '@/lib/utils/utils';
 import { getGraduationClearanceHistoryByStudentNo } from '@/server/registry/graduation/clearance/actions';
 

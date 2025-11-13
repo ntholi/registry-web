@@ -15,7 +15,7 @@ import {
 	IconExclamationCircle,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewHeader } from '@/components/adease';
+import { DetailsView, DetailsViewHeader } from '@/shared/components/adease';
 import type { DashboardUser } from '@/db/schema';
 import {
 	deleteGraduationRequest,

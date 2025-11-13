@@ -1,4 +1,4 @@
-import { NothingSelected } from '@/components/adease';
+import { NothingSelected } from '@/shared/components/adease';
 
 export default function Page() {
 	return <NothingSelected title='Users' />;

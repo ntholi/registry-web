@@ -14,7 +14,7 @@ import { IconEdit, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import Link from '@/components/Link';
+import Link from '@/shared/components/Link';
 import { getStructuresByProgramId } from '@/server/academic/structures/actions';
 import {
 	type getStudent,
