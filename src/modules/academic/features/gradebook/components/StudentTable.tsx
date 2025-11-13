@@ -20,17 +20,17 @@ import {
 import React, { useState } from 'react';
 import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/utils';
 import Link from '@/shared/ui/Link';
-import ExcelImport from './excel/ExcelImport';
-import GradeDisplay from './GradeDisplay';
-import GradeSymbolModal from './GradeSymbolModal';
-import MarksAuditModal from './MarksAuditModal';
-import MarksInput from './MarksInput';
 import {
 	useAssessmentMarksQuery,
 	useAssessmentsQuery,
 	useModuleGradesQuery,
 } from '../hooks/useAssessmentsQuery';
 import { type Student, useStudentsQuery } from '../hooks/useStudentsQuery';
+import ExcelImport from './excel/ExcelImport';
+import GradeDisplay from './GradeDisplay';
+import GradeSymbolModal from './GradeSymbolModal';
+import MarksAuditModal from './MarksAuditModal';
+import MarksInput from './MarksInput';
 
 type Props = {
 	moduleId: number;

@@ -1,7 +1,7 @@
 import { Box, Divider, Flex, Stack, Text, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import AssignedModules from '@/modules/academic/features/lecturers/components/[id]/AssignedModules';
-import ModuleAssignModal from '@/modules/academic/features/lecturers/components/[id]/ModuleAssignModal';
+import AssignedModules from '@/modules/academic/features/lecturers/components/AssignedModules';
+import ModuleAssignModal from '@/modules/academic/features/lecturers/components/ModuleAssignModal';
 import { getUser } from '@/modules/admin/features/users/server/actions';
 
 type Props = {
