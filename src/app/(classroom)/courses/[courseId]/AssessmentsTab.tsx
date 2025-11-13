@@ -1,13 +1,15 @@
 'use client';
+
 import {
 	Accordion,
 	Badge,
 	Box,
 	Button,
-	Card,
 	Group,
+	Paper,
 	Stack,
 	Text,
+	Title,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
@@ -20,10 +22,11 @@ type Props = {
 };
 
 function formatDate(dateString: string | null | undefined) {
-	if (!dateString) return 'No date';
+	if (!dateString) return '';
 	return new Date(dateString).toLocaleDateString('en-US', {
 		month: 'short',
 		day: 'numeric',
+		year: 'numeric',
 	});
 }
 
@@ -67,141 +70,124 @@ export default function AssessmentsTab({
 		return 0;
 	});
 
+	if (assessments.length === 0) {
+		return (
+			<Stack gap='md'>
+				<Group justify='space-between'>
+					<Title order={3} size='h4'>
+						Assessments
+					</Title>
+					<Button leftSection={<IconPlus size='1rem' />} variant='light'>
+						Create
+					</Button>
+				</Group>
+				<Paper p='xl' radius='md' withBorder>
+					<Text c='dimmed' ta='center'>
+						No assessments yet
+					</Text>
+				</Paper>
+			</Stack>
+		);
+	}
+
 	return (
-		<Stack gap='lg'>
+		<Stack gap='xl'>
 			<Group justify='space-between'>
-				<Text size='lg' fw={500}>
+				<Title order={3} size='h4'>
 					Assessments
-				</Text>
+				</Title>
 				<Button leftSection={<IconPlus size='1rem' />} variant='light'>
 					Create
 				</Button>
 			</Group>
 
-			{assessments.length === 0 ? (
-				<Card>
-					<Text c='dimmed'>No assessments yet</Text>
-				</Card>
-			) : (
-				<Stack gap='xl'>
-					{sortedTopics.map((topicId) => {
-						const topicName =
-							topicId === 'no-topic'
-								? 'General'
-								: topicMap.get(topicId) || 'Topic';
-						const topicAssessments = groupedByTopic[topicId];
+			{sortedTopics.map((topicId) => {
+				const topicName =
+					topicId === 'no-topic' ? 'General' : topicMap.get(topicId) || 'Topic';
+				const topicAssessments = groupedByTopic[topicId];
 
-						return (
-							<Box key={topicId}>
-								<Group mb='md' gap='sm'>
-									<Text size='md' fw={600} c='blue'>
-										{topicName}
-									</Text>
-									<Badge size='sm' variant='light'>
-										{topicAssessments.length}
-									</Badge>
-								</Group>
+				return (
+					<Box key={topicId}>
+						<Group mb='md'>
+							<Text size='lg' fw={600}>
+								{topicName}
+							</Text>
+							<Badge variant='light' size='md'>
+								{topicAssessments.length}
+							</Badge>
+						</Group>
 
-								<Accordion variant='separated' chevronPosition='right'>
-									{topicAssessments.map((assessment) => (
-										<Accordion.Item
-											key={assessment.id}
-											value={assessment.id || ''}
-										>
-											<Accordion.Control>
-												<Group justify='space-between' wrap='nowrap' mr='md'>
-													<Box style={{ flex: 1 }}>
-														<Group gap='xs' mb='xs'>
-															<Badge size='sm' variant='dot'>
-																{getWorkTypeLabel(assessment.workType)}
-															</Badge>
-															{assessment.maxPoints && (
-																<Badge size='sm' variant='outline'>
-																	{assessment.maxPoints} pts
-																</Badge>
-															)}
-														</Group>
-														<Text fw={500} size='sm' lineClamp={2}>
-															{assessment.title}
-														</Text>
-													</Box>
-													<Text
-														size='xs'
-														c='dimmed'
-														style={{ whiteSpace: 'nowrap' }}
-													>
-														{formatDate(assessment.creationTime)}
+						<Paper withBorder radius='md'>
+							<Accordion variant='contained'>
+								{topicAssessments.map((assessment) => (
+									<Accordion.Item
+										key={assessment.id}
+										value={assessment.id || ''}
+									>
+										<Accordion.Control>
+											<Group justify='space-between' wrap='nowrap' pr='md'>
+												<Box style={{ flex: 1 }}>
+													<Text fw={500} mb='xs'>
+														{assessment.title}
 													</Text>
-												</Group>
-											</Accordion.Control>
-											<Accordion.Panel>
-												<Stack gap='sm'>
-													{assessment.description && (
-														<Text size='sm' c='dimmed'>
-															{assessment.description}
-														</Text>
-													)}
-
-													{assessment.materials &&
-														assessment.materials.length > 0 && (
-															<Box>
-																<Text size='sm' fw={500} mb='xs'>
-																	Attachments
-																</Text>
-																<Stack gap='xs'>
-																	{assessment.materials.map(
-																		(material, index) => (
-																			<Card key={index} withBorder padding='xs'>
-																				<Text size='sm'>
-																					{material.driveFile?.driveFile
-																						?.title ||
-																						material.link?.title ||
-																						material.youtubeVideo?.title ||
-																						material.form?.title ||
-																						'Attachment'}
-																				</Text>
-																			</Card>
-																		)
-																	)}
-																</Stack>
-															</Box>
+													<Group gap='xs'>
+														<Badge size='sm' variant='light'>
+															{getWorkTypeLabel(assessment.workType)}
+														</Badge>
+														{assessment.maxPoints && (
+															<Badge size='sm' variant='outline'>
+																{assessment.maxPoints} pts
+															</Badge>
 														)}
-
-													{assessment.dueDate && (
 														<Text size='xs' c='dimmed'>
-															Due:{' '}
-															{new Date(
+															{formatDate(assessment.creationTime)}
+														</Text>
+													</Group>
+												</Box>
+											</Group>
+										</Accordion.Control>
+										<Accordion.Panel>
+											<Stack gap='md'>
+												{assessment.description && (
+													<Text size='sm' c='dimmed'>
+														{assessment.description}
+													</Text>
+												)}
+
+												{assessment.dueDate && (
+													<Text size='sm'>
+														<Text component='span' fw={500}>
+															Due:
+														</Text>{' '}
+														{formatDate(
+															new Date(
 																assessment.dueDate.year || 0,
 																(assessment.dueDate.month || 1) - 1,
 																assessment.dueDate.day || 1
-															).toLocaleDateString('en-US', {
-																month: 'long',
-																day: 'numeric',
-																year: 'numeric',
-															})}
-														</Text>
-													)}
+															).toISOString()
+														)}
+													</Text>
+												)}
 
-													<Group justify='flex-end' mt='sm'>
-														<Button
-															component={Link}
-															href={`/courses/${courseId}/${assessment.id}`}
-															size='sm'
-															variant='light'
-														>
-															View Details
-														</Button>
-													</Group>
-												</Stack>
-											</Accordion.Panel>
-										</Accordion.Item>
-									))}
-								</Accordion>
-							</Box>
-						);
-					})}
-				</Stack>
-			)}
+												<Group justify='flex-end'>
+													<Button
+														component={Link}
+														href={`/courses/${courseId}/${assessment.id}`}
+														variant='light'
+														size='sm'
+													>
+														View Details
+													</Button>
+												</Group>
+											</Stack>
+										</Accordion.Panel>
+									</Accordion.Item>
+								))}
+							</Accordion>
+						</Paper>
+					</Box>
+				);
+			})}
 		</Stack>
 	);
 }

@@ -1,12 +1,15 @@
+'use client';
+
 import {
 	Accordion,
 	Badge,
 	Box,
 	Button,
-	Card,
 	Group,
+	Paper,
 	Stack,
 	Text,
+	Title,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
@@ -19,10 +22,11 @@ type Props = {
 };
 
 function formatDate(dateString: string | null | undefined) {
-	if (!dateString) return 'No date';
+	if (!dateString) return '';
 	return new Date(dateString).toLocaleDateString('en-US', {
 		month: 'short',
 		day: 'numeric',
+		year: 'numeric',
 	});
 }
 
@@ -49,147 +53,105 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 		return 0;
 	});
 
+	if (materials.length === 0) {
+		return (
+			<Stack gap='md'>
+				<Group justify='space-between'>
+					<Title order={3} size='h4'>
+						Material
+					</Title>
+					<Button leftSection={<IconPlus size='1rem' />} variant='light'>
+						Create
+					</Button>
+				</Group>
+				<Paper p='xl' radius='md' withBorder>
+					<Text c='dimmed' ta='center'>
+						No materials yet
+					</Text>
+				</Paper>
+			</Stack>
+		);
+	}
+
 	return (
-		<Stack gap='lg'>
+		<Stack gap='xl'>
 			<Group justify='space-between'>
-				<Text size='lg' fw={500}>
+				<Title order={3} size='h4'>
 					Material
-				</Text>
+				</Title>
 				<Button leftSection={<IconPlus size='1rem' />} variant='light'>
 					Create
 				</Button>
 			</Group>
 
-			{materials.length === 0 ? (
-				<Card>
-					<Text c='dimmed'>No materials yet</Text>
-				</Card>
-			) : (
-				<Stack gap='xl'>
-					{sortedTopics.map((topicId) => {
-						const topicName =
-							topicId === 'no-topic'
-								? 'General'
-								: topicMap.get(topicId) || 'Topic';
-						const topicMaterials = groupedByTopic[topicId];
+			{sortedTopics.map((topicId) => {
+				const topicName =
+					topicId === 'no-topic' ? 'General' : topicMap.get(topicId) || 'Topic';
+				const topicMaterials = groupedByTopic[topicId];
 
-						return (
-							<Box key={topicId}>
-								<Group mb='md' gap='sm'>
-									<Text size='md' fw={600} c='blue'>
-										{topicName}
-									</Text>
-									<Badge size='sm' variant='light'>
-										{topicMaterials.length}
-									</Badge>
-								</Group>
+				return (
+					<Box key={topicId}>
+						<Group mb='md'>
+							<Text size='lg' fw={600}>
+								{topicName}
+							</Text>
+							<Badge variant='light' size='md'>
+								{topicMaterials.length}
+							</Badge>
+						</Group>
 
-								<Accordion variant='separated' chevronPosition='right'>
-									{topicMaterials.map((material) => (
-										<Accordion.Item key={material.id} value={material.id || ''}>
-											<Accordion.Control>
-												<Group justify='space-between' wrap='nowrap' mr='md'>
-													<Box style={{ flex: 1 }}>
-														<Text fw={500} size='sm' lineClamp={2}>
-															{material.title}
-														</Text>
+						<Paper withBorder radius='md'>
+							<Accordion variant='contained'>
+								{topicMaterials.map((material) => (
+									<Accordion.Item key={material.id} value={material.id || ''}>
+										<Accordion.Control>
+											<Group justify='space-between' wrap='nowrap' pr='md'>
+												<Box style={{ flex: 1 }}>
+													<Text fw={500} mb='xs'>
+														{material.title}
+													</Text>
+													<Group gap='xs'>
 														{material.materials &&
 															material.materials.length > 0 && (
-																<Group gap='xs' mt='xs'>
-																	{material.materials.map((mat, index) => (
-																		<Badge
-																			key={
-																				mat.driveFile?.driveFile?.id ||
-																				mat.link?.url ||
-																				mat.youtubeVideo?.id ||
-																				mat.form?.formUrl ||
-																				index
-																			}
-																			size='xs'
-																			variant='outline'
-																		>
-																			{mat.driveFile?.driveFile?.title ||
-																				mat.link?.title ||
-																				mat.youtubeVideo?.title ||
-																				mat.form?.title ||
-																				'Attachment'}
-																		</Badge>
-																	))}
-																</Group>
+																<Badge size='sm' variant='outline'>
+																	{material.materials.length} attachment
+																	{material.materials.length > 1 ? 's' : ''}
+																</Badge>
 															)}
-													</Box>
-													<Text
-														size='xs'
-														c='dimmed'
-														style={{ whiteSpace: 'nowrap' }}
-													>
-														{formatDate(material.creationTime)}
-													</Text>
-												</Group>
-											</Accordion.Control>
-											<Accordion.Panel>
-												<Stack gap='sm'>
-													{material.description && (
-														<Text size='sm' c='dimmed'>
-															{material.description}
+														<Text size='xs' c='dimmed'>
+															{formatDate(material.creationTime)}
 														</Text>
-													)}
-
-													{material.materials &&
-														material.materials.length > 0 && (
-															<Box>
-																<Text size='sm' fw={500} mb='xs'>
-																	Attachments
-																</Text>
-																<Stack gap='xs'>
-																	{material.materials.map((mat, index) => (
-																		<Card key={index} withBorder padding='xs'>
-																			<Group justify='space-between'>
-																				<Text size='sm'>
-																					{mat.driveFile?.driveFile?.title ||
-																						mat.link?.title ||
-																						mat.youtubeVideo?.title ||
-																						mat.form?.title ||
-																						'Attachment'}
-																				</Text>
-																				{mat.link?.url && (
-																					<Text
-																						size='xs'
-																						component='a'
-																						href={mat.link.url}
-																						target='_blank'
-																						c='blue'
-																					>
-																						Open
-																					</Text>
-																				)}
-																			</Group>
-																		</Card>
-																	))}
-																</Stack>
-															</Box>
-														)}
-
-													<Group justify='flex-end' mt='sm'>
-														<Button
-															component={Link}
-															href={`/courses/${courseId}/${material.id}`}
-															size='sm'
-															variant='light'
-														>
-															View Details
-														</Button>
 													</Group>
-												</Stack>
-											</Accordion.Panel>
-										</Accordion.Item>
-									))}
-								</Accordion>
-							</Box>
-						);
-					})}
-				</Stack>
-			)}
+												</Box>
+											</Group>
+										</Accordion.Control>
+										<Accordion.Panel>
+											<Stack gap='md'>
+												{material.description && (
+													<Text size='sm' c='dimmed'>
+														{material.description}
+													</Text>
+												)}
+
+												<Group justify='flex-end'>
+													<Button
+														component={Link}
+														href={`/courses/${courseId}/${material.id}`}
+														variant='light'
+														size='sm'
+													>
+														View Details
+													</Button>
+												</Group>
+											</Stack>
+										</Accordion.Panel>
+									</Accordion.Item>
+								))}
+							</Accordion>
+						</Paper>
+					</Box>
+				);
+			})}
 		</Stack>
 	);
 }
