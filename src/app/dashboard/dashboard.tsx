@@ -33,11 +33,11 @@ import type { NavItem } from './module-config.types';
 
 function getNavigation(department: DashboardUser) {
 	const allConfigs = [
-		adminConfig,
 		academicConfig,
 		classroomConfig,
 		registryConfig,
 		financeConfig,
+		adminConfig,
 	];
 
 	const navItems: NavItem[] = [];
