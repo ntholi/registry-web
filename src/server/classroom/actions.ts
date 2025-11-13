@@ -4,60 +4,84 @@ import type { classroom_v1 } from 'googleapis';
 import googleClassroom from '@/lib/googleClassroom';
 
 export async function getCourse(courseId: string) {
-	const classroom = await googleClassroom();
-	const course = await classroom.courses.get({ id: courseId });
-	return course.data;
+	try {
+		const classroom = await googleClassroom();
+		const course = await classroom.courses.get({ id: courseId });
+		return course.data;
+	} catch {
+		return null;
+	}
 }
 
 export async function getCourseAnnouncements(courseId: string) {
-	const classroom = await googleClassroom();
-	const announcements = await classroom.courses.announcements.list({
-		courseId,
-		orderBy: 'updateTime desc',
-	});
-	return announcements.data.announcements || [];
+	try {
+		const classroom = await googleClassroom();
+		const announcements = await classroom.courses.announcements.list({
+			courseId,
+			orderBy: 'updateTime desc',
+		});
+		return announcements.data.announcements || [];
+	} catch {
+		return [];
+	}
 }
 
 export async function getCourseWork(courseId: string) {
-	const classroom = await googleClassroom();
-	const courseWork = await classroom.courses.courseWork.list({
-		courseId,
-		orderBy: 'updateTime desc',
-	});
-	return courseWork.data.courseWork || [];
+	try {
+		const classroom = await googleClassroom();
+		const courseWork = await classroom.courses.courseWork.list({
+			courseId,
+			orderBy: 'updateTime desc',
+		});
+		return courseWork.data.courseWork || [];
+	} catch {
+		return [];
+	}
 }
 
 export async function getCourseWorkById(
 	courseId: string,
 	courseWorkId: string
 ) {
-	const classroom = await googleClassroom();
-	const courseWork = await classroom.courses.courseWork.get({
-		courseId,
-		id: courseWorkId,
-	});
-	return courseWork.data;
+	try {
+		const classroom = await googleClassroom();
+		const courseWork = await classroom.courses.courseWork.get({
+			courseId,
+			id: courseWorkId,
+		});
+		return courseWork.data;
+	} catch {
+		return null;
+	}
 }
 
 export async function getCourseWorkSubmissions(
 	courseId: string,
 	courseWorkId: string
 ) {
-	const classroom = await googleClassroom();
-	const submissions =
-		await classroom.courses.courseWork.studentSubmissions.list({
-			courseId,
-			courseWorkId,
-		});
-	return submissions.data.studentSubmissions || [];
+	try {
+		const classroom = await googleClassroom();
+		const submissions =
+			await classroom.courses.courseWork.studentSubmissions.list({
+				courseId,
+				courseWorkId,
+			});
+		return submissions.data.studentSubmissions || [];
+	} catch {
+		return [];
+	}
 }
 
 export async function getCourseTopics(courseId: string) {
-	const classroom = await googleClassroom();
-	const topics = await classroom.courses.topics.list({
-		courseId,
-	});
-	return topics.data.topic || [];
+	try {
+		const classroom = await googleClassroom();
+		const topics = await classroom.courses.topics.list({
+			courseId,
+		});
+		return topics.data.topic || [];
+	} catch {
+		return [];
+	}
 }
 
 export type CourseWork = classroom_v1.Schema$CourseWork;

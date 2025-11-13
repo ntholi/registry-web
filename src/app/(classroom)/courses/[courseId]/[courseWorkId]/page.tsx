@@ -89,6 +89,10 @@ export default async function CourseWorkPage({ params }: Props) {
 		getCourseWorkSubmissions(courseId, courseWorkId),
 	]);
 
+	if (!courseWork) {
+		redirect(`/courses/${courseId}`);
+	}
+
 	return (
 		<Container size='xl' mt='lg'>
 			<Stack gap='lg'>

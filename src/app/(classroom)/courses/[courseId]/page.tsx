@@ -33,12 +33,16 @@ export default async function CoursePage({ params }: Props) {
 		redirect(`/api/auth/google-classroom?state=/courses/${courseId}`);
 	}
 
-	const [_course, announcements, courseWork, topics] = await Promise.all([
+	const [course, announcements, courseWork, topics] = await Promise.all([
 		getCourse(courseId),
 		getCourseAnnouncements(courseId),
 		getCourseWork(courseId),
 		getCourseTopics(courseId),
 	]);
+
+	if (!course) {
+		redirect('/courses');
+	}
 
 	const assessments = courseWork.filter(
 		(work) =>
