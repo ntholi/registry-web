@@ -50,7 +50,7 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 	});
 
 	return (
-		<Stack gap='md'>
+		<Stack gap='lg'>
 			<Group justify='space-between'>
 				<Text size='lg' fw={500}>
 					Material
@@ -65,7 +65,7 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 					<Text c='dimmed'>No materials yet</Text>
 				</Card>
 			) : (
-				<Accordion variant='separated' chevronPosition='left'>
+				<Stack gap='xl'>
 					{sortedTopics.map((topicId) => {
 						const topicName =
 							topicId === 'no-topic'
@@ -74,36 +74,25 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 						const topicMaterials = groupedByTopic[topicId];
 
 						return (
-							<Accordion.Item key={topicId} value={topicId}>
-								<Accordion.Control>
-									<Group justify='space-between'>
-										<Text fw={500}>{topicName}</Text>
-										<Badge size='sm' variant='light'>
-											{topicMaterials.length}
-										</Badge>
-									</Group>
-								</Accordion.Control>
-								<Accordion.Panel>
-									<Stack gap='xs'>
-										{topicMaterials.map((material) => (
-											<Card
-												key={material.id}
-												component={Link}
-												href={`/courses/${courseId}/${material.id}`}
-												withBorder
-												padding='md'
-												style={{ cursor: 'pointer' }}
-											>
-												<Group justify='space-between' wrap='nowrap'>
+							<Box key={topicId}>
+								<Group mb='md' gap='sm'>
+									<Text size='md' fw={600} c='blue'>
+										{topicName}
+									</Text>
+									<Badge size='sm' variant='light'>
+										{topicMaterials.length}
+									</Badge>
+								</Group>
+
+								<Accordion variant='separated' chevronPosition='right'>
+									{topicMaterials.map((material) => (
+										<Accordion.Item key={material.id} value={material.id || ''}>
+											<Accordion.Control>
+												<Group justify='space-between' wrap='nowrap' mr='md'>
 													<Box style={{ flex: 1 }}>
 														<Text fw={500} size='sm' lineClamp={2}>
 															{material.title}
 														</Text>
-														{material.description && (
-															<Text size='xs' c='dimmed' lineClamp={2} mt='xs'>
-																{material.description}
-															</Text>
-														)}
 														{material.materials &&
 															material.materials.length > 0 && (
 																<Group gap='xs' mt='xs'>
@@ -137,14 +126,69 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 														{formatDate(material.creationTime)}
 													</Text>
 												</Group>
-											</Card>
-										))}
-									</Stack>
-								</Accordion.Panel>
-							</Accordion.Item>
+											</Accordion.Control>
+											<Accordion.Panel>
+												<Stack gap='sm'>
+													{material.description && (
+														<Text size='sm' c='dimmed'>
+															{material.description}
+														</Text>
+													)}
+
+													{material.materials &&
+														material.materials.length > 0 && (
+															<Box>
+																<Text size='sm' fw={500} mb='xs'>
+																	Attachments
+																</Text>
+																<Stack gap='xs'>
+																	{material.materials.map((mat, index) => (
+																		<Card key={index} withBorder padding='xs'>
+																			<Group justify='space-between'>
+																				<Text size='sm'>
+																					{mat.driveFile?.driveFile?.title ||
+																						mat.link?.title ||
+																						mat.youtubeVideo?.title ||
+																						mat.form?.title ||
+																						'Attachment'}
+																				</Text>
+																				{mat.link?.url && (
+																					<Text
+																						size='xs'
+																						component='a'
+																						href={mat.link.url}
+																						target='_blank'
+																						c='blue'
+																					>
+																						Open
+																					</Text>
+																				)}
+																			</Group>
+																		</Card>
+																	))}
+																</Stack>
+															</Box>
+														)}
+
+													<Group justify='flex-end' mt='sm'>
+														<Button
+															component={Link}
+															href={`/courses/${courseId}/${material.id}`}
+															size='sm'
+															variant='light'
+														>
+															View Details
+														</Button>
+													</Group>
+												</Stack>
+											</Accordion.Panel>
+										</Accordion.Item>
+									))}
+								</Accordion>
+							</Box>
 						);
 					})}
-				</Accordion>
+				</Stack>
 			)}
 		</Stack>
 	);

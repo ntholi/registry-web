@@ -68,7 +68,7 @@ export default function AssessmentsTab({
 	});
 
 	return (
-		<Stack gap='md'>
+		<Stack gap='lg'>
 			<Group justify='space-between'>
 				<Text size='lg' fw={500}>
 					Assessments
@@ -83,7 +83,7 @@ export default function AssessmentsTab({
 					<Text c='dimmed'>No assessments yet</Text>
 				</Card>
 			) : (
-				<Accordion variant='separated' chevronPosition='left'>
+				<Stack gap='xl'>
 					{sortedTopics.map((topicId) => {
 						const topicName =
 							topicId === 'no-topic'
@@ -92,27 +92,24 @@ export default function AssessmentsTab({
 						const topicAssessments = groupedByTopic[topicId];
 
 						return (
-							<Accordion.Item key={topicId} value={topicId}>
-								<Accordion.Control>
-									<Group justify='space-between'>
-										<Text fw={500}>{topicName}</Text>
-										<Badge size='sm' variant='light'>
-											{topicAssessments.length}
-										</Badge>
-									</Group>
-								</Accordion.Control>
-								<Accordion.Panel>
-									<Stack gap='xs'>
-										{topicAssessments.map((assessment) => (
-											<Card
-												key={assessment.id}
-												component={Link}
-												href={`/courses/${courseId}/${assessment.id}`}
-												withBorder
-												padding='md'
-												style={{ cursor: 'pointer' }}
-											>
-												<Group justify='space-between' wrap='nowrap'>
+							<Box key={topicId}>
+								<Group mb='md' gap='sm'>
+									<Text size='md' fw={600} c='blue'>
+										{topicName}
+									</Text>
+									<Badge size='sm' variant='light'>
+										{topicAssessments.length}
+									</Badge>
+								</Group>
+
+								<Accordion variant='separated' chevronPosition='right'>
+									{topicAssessments.map((assessment) => (
+										<Accordion.Item
+											key={assessment.id}
+											value={assessment.id || ''}
+										>
+											<Accordion.Control>
+												<Group justify='space-between' wrap='nowrap' mr='md'>
 													<Box style={{ flex: 1 }}>
 														<Group gap='xs' mb='xs'>
 															<Badge size='sm' variant='dot'>
@@ -127,11 +124,6 @@ export default function AssessmentsTab({
 														<Text fw={500} size='sm' lineClamp={2}>
 															{assessment.title}
 														</Text>
-														{assessment.description && (
-															<Text size='xs' c='dimmed' lineClamp={1} mt='xs'>
-																{assessment.description}
-															</Text>
-														)}
 													</Box>
 													<Text
 														size='xs'
@@ -141,14 +133,74 @@ export default function AssessmentsTab({
 														{formatDate(assessment.creationTime)}
 													</Text>
 												</Group>
-											</Card>
-										))}
-									</Stack>
-								</Accordion.Panel>
-							</Accordion.Item>
+											</Accordion.Control>
+											<Accordion.Panel>
+												<Stack gap='sm'>
+													{assessment.description && (
+														<Text size='sm' c='dimmed'>
+															{assessment.description}
+														</Text>
+													)}
+
+													{assessment.materials &&
+														assessment.materials.length > 0 && (
+															<Box>
+																<Text size='sm' fw={500} mb='xs'>
+																	Attachments
+																</Text>
+																<Stack gap='xs'>
+																	{assessment.materials.map(
+																		(material, index) => (
+																			<Card key={index} withBorder padding='xs'>
+																				<Text size='sm'>
+																					{material.driveFile?.driveFile
+																						?.title ||
+																						material.link?.title ||
+																						material.youtubeVideo?.title ||
+																						material.form?.title ||
+																						'Attachment'}
+																				</Text>
+																			</Card>
+																		)
+																	)}
+																</Stack>
+															</Box>
+														)}
+
+													{assessment.dueDate && (
+														<Text size='xs' c='dimmed'>
+															Due:{' '}
+															{new Date(
+																assessment.dueDate.year || 0,
+																(assessment.dueDate.month || 1) - 1,
+																assessment.dueDate.day || 1
+															).toLocaleDateString('en-US', {
+																month: 'long',
+																day: 'numeric',
+																year: 'numeric',
+															})}
+														</Text>
+													)}
+
+													<Group justify='flex-end' mt='sm'>
+														<Button
+															component={Link}
+															href={`/courses/${courseId}/${assessment.id}`}
+															size='sm'
+															variant='light'
+														>
+															View Details
+														</Button>
+													</Group>
+												</Stack>
+											</Accordion.Panel>
+										</Accordion.Item>
+									))}
+								</Accordion>
+							</Box>
 						);
 					})}
-				</Accordion>
+				</Stack>
 			)}
 		</Stack>
 	);

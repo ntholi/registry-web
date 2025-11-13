@@ -13,6 +13,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { hasGoogleClassroomScope } from '@/lib/googleClassroom';
 import {
+	getCourse,
 	getCourseWorkById,
 	getCourseWorkSubmissions,
 } from '@/server/classroom/actions';
@@ -84,7 +85,8 @@ export default async function CourseWorkPage({ params }: Props) {
 		);
 	}
 
-	const [courseWork, submissions] = await Promise.all([
+	const [course, courseWork, submissions] = await Promise.all([
+		getCourse(courseId),
 		getCourseWorkById(courseId, courseWorkId),
 		getCourseWorkSubmissions(courseId, courseWorkId),
 	]);
@@ -96,6 +98,22 @@ export default async function CourseWorkPage({ params }: Props) {
 	return (
 		<Container size='xl' mt='lg'>
 			<Stack gap='lg'>
+				<Box mb='md'>
+					<Group gap='xs' mb='xs'>
+						<Text size='xl' fw={600}>
+							{course.name}
+						</Text>
+						{course.section && (
+							<Badge size='lg' variant='light'>
+								{course.section}
+							</Badge>
+						)}
+					</Group>
+					<Text size='sm' c='dimmed'>
+						{course.descriptionHeading}
+					</Text>
+				</Box>
+
 				<Card shadow='sm' padding='lg' radius='md'>
 					<Stack gap='md'>
 						<Group justify='space-between'>
