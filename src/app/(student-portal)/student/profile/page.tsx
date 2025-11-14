@@ -1,10 +1,12 @@
 'use client';
 import { Center, Container, Stack, Text } from '@mantine/core';
-import AcademicInformation from '@/modules/student-portal/features/profile/components/AcademicInformation';
+import {
+	AcademicInformation,
+	ProfileHeader,
+	SponsorshipInformation,
+} from '@student-portal/profile';
 import PersonalInformation from '@/modules/student-portal/features/profile/components/PersonalInformation';
-import ProfileHeader from '@/modules/student-portal/features/profile/components/ProfileHeader';
 import ProfileSkeleton from '@/modules/student-portal/features/profile/components/ProfileSkeleton';
-import SponsorshipInformation from '@/modules/student-portal/features/profile/components/SponsorshipInformation';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 export default function Profile() {

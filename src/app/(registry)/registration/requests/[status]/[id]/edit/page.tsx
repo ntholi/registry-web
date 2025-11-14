@@ -1,13 +1,13 @@
+import { getModulesForStructure } from '@academic/semester-modules';
 import { Box } from '@mantine/core';
+import { Form } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
 import type {
 	modules,
 	StudentModuleStatus,
 	semesterModules,
 } from '@/core/database/schema';
-import { getModulesForStructure } from '@/modules/academic/features/semester-modules/server/actions';
 import { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
-import EditForm from '@/modules/registry/features/registration/requests/components/Form';
 import {
 	getRegistrationRequest,
 	updateRegistrationWithModulesAndSponsorship,
@@ -95,7 +95,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 
 	return (
 		<Box p={'lg'}>
-			<EditForm
+			<Form
 				title={'Edit Registration Request'}
 				defaultValues={{
 					id: registrationRequest.id,

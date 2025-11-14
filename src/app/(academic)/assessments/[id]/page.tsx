@@ -1,10 +1,10 @@
+import { AssessmentsTable } from '@academic/assessments';
+import { getModule } from '@academic/modules';
 import { Button, Group, Paper, Title } from '@mantine/core';
 import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import AssessmentsTable from '@/modules/academic/features/assessments/components/AssessmentsTable';
 import ModuleLecturers from '@/modules/academic/features/assessments/components/ModuleLecturers';
-import { getModule } from '@/modules/academic/features/modules/server/actions';
 import { DetailsView } from '@/shared/ui/adease';
 
 type Props = {

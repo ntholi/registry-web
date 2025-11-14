@@ -1,5 +1,6 @@
 'use client';
 
+import { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Accordion,
 	Alert,
@@ -12,13 +13,11 @@ import {
 	Title,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { DesktopTable, MobileTable } from '@student-portal/transcripts';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
 import { getCleanedSemesters } from '@/modules/registry/features/students/components/academics/statements/utils';
-import DesktopTable from '@/modules/student-portal/features/transcripts/components/DesktopTable';
 import LoadingSkeleton from '@/modules/student-portal/features/transcripts/components/LoadingSkeleton';
-import MobileTable from '@/modules/student-portal/features/transcripts/components/MobileTable';
 import TranscriptDownloadButton from '@/modules/student-portal/features/transcripts/components/TranscriptDownloadButton';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';

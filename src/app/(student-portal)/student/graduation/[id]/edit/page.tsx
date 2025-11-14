@@ -6,11 +6,11 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { getGraduationRequest } from '@registry/graduation/clearance';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import { getGraduationRequest } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import PaymentReceiptsEditor from '@/modules/student-portal/features/graduation/components/request/PaymentReceiptsEditor';
 
 type Props = {

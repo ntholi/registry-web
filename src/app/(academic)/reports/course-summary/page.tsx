@@ -1,4 +1,4 @@
-import Body from '@/modules/academic/features/reports/course-summary/components/Body';
+import { Body } from '@academic/reports/course-summary';
 
 export default function page() {
 	return <Body />;

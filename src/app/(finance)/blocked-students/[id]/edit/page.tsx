@@ -1,6 +1,6 @@
+import { Form } from '@finance/blocked-students';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/finance/features/blocked-students/components/Form';
 import {
 	getBlockedStudent,
 	updateBlockedStudent,

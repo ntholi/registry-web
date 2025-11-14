@@ -1,7 +1,7 @@
 'use client';
 
 import { Center, Container, Loader } from '@mantine/core';
-import ActionButtons from '@/modules/student-portal/features/home/components/ActionButtons';
+import { ActionButtons } from '@student-portal/home';
 import Hero from '@/modules/student-portal/features/home/components/Hero';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 

@@ -1,6 +1,6 @@
+import { Form } from '@academic/assessments';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/academic/features/assessments/components/Form';
 import {
 	getAssessment,
 	updateAssessment,

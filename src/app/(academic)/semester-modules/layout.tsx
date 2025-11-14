@@ -1,7 +1,7 @@
 'use client';
 
+import { findAllModules } from '@academic/semester-modules';
 import type { PropsWithChildren } from 'react';
-import { findAllModules } from '@/modules/academic/features/semester-modules/server/actions';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {

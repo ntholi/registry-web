@@ -1,11 +1,7 @@
+import { deleteTask, getTask, updateTaskStatus } from '@admin/tasks';
 import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
-import {
-	deleteTask,
-	getTask,
-	updateTaskStatus,
-} from '@/modules/admin/features/tasks/server/actions';
 import {
 	DetailsView,
 	DetailsViewBody,

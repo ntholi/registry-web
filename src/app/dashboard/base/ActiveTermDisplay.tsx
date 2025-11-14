@@ -1,8 +1,8 @@
 'use client';
 
 import { Text } from '@mantine/core';
+import { getCurrentTerm } from '@registry/terms';
 import { useQuery } from '@tanstack/react-query';
-import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 
 export default function ActiveTermDisplay() {
 	const {

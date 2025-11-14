@@ -1,5 +1,6 @@
 'use client';
 
+import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import {
 	ActionIcon,
 	Avatar,
@@ -24,7 +25,6 @@ import { classroomConfig } from '@/app/(classroom)/classroom.config';
 import { financeConfig } from '@/app/(finance)/finance.config';
 import { registryConfig } from '@/app/(registry)/registry.config';
 import type { DashboardUser, UserRole } from '@/core/database/schema';
-import { getAssignedModulesByCurrentUser } from '@/modules/academic/features/assigned-modules/server/actions';
 import { getUserSchools } from '@/modules/admin/features/users/server/actions';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';

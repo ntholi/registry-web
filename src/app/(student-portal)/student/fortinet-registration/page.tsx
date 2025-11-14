@@ -14,14 +14,14 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import {
+	createFortinetRegistration,
+	getCurrentStudentFortinetRegistrations,
+} from '@student-portal/fortinet-registration';
 import { IconInfoCircle, IconShield } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { fortinetLevel } from '@/core/database/schema';
-import {
-	createFortinetRegistration,
-	getCurrentStudentFortinetRegistrations,
-} from '@/modules/student-portal/features/fortinet-registration/server/actions';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type FortinetLevel = (typeof fortinetLevel.enumValues)[number];

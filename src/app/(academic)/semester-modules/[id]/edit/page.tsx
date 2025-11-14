@@ -1,6 +1,6 @@
+import { Form } from '@academic/semester-modules';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/academic/features/semester-modules/components/Form';
 import {
 	getSemesterModule,
 	updateModule,

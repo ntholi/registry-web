@@ -1,6 +1,6 @@
+import { Form } from '@admin/tasks';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/admin/features/tasks/components/Form';
 import {
 	getTask,
 	updateTask,

@@ -10,20 +10,22 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import {
+	deleteGraduationRequest,
+	getGraduationRequest,
+} from '@registry/graduation/clearance';
+import {
+	GraduationRequestDetailsView,
+	ProofOfClearancePrinter,
+} from '@registry/graduation/requests';
+import {
 	IconCheck,
 	IconClock,
 	IconExclamationCircle,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import type { DashboardUser } from '@/core/database/schema';
-import {
-	deleteGraduationRequest,
-	getGraduationRequest,
-} from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import GraduationClearanceAccordion from '@/modules/registry/features/graduation/requests/components/GraduationClearanceAccordion';
-import GraduationRequestDetailsView from '@/modules/registry/features/graduation/requests/components/GraduationRequestDetailsView';
 import PaymentReceiptsView from '@/modules/registry/features/graduation/requests/components/PaymentReceiptsView';
-import ProofOfClearancePrinter from '@/modules/registry/features/graduation/requests/components/ProofOfClearancePrinter';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 interface Props {

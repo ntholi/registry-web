@@ -1,3 +1,4 @@
+import { AttachmentCard, SubmissionCard } from '@classroom/courses';
 import {
 	Badge,
 	Box,
@@ -13,9 +14,7 @@ import {
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { hasGoogleClassroomScope } from '@/core/integrations/google-classroom';
-import AttachmentCard from '@/modules/classroom/features/courses/components/course-work/AttachmentCard';
 import CourseHeader from '@/modules/classroom/features/courses/components/course-work/CourseHeader';
-import SubmissionCard from '@/modules/classroom/features/courses/components/course-work/SubmissionCard';
 import {
 	getCourse,
 	getCourseWorkById,

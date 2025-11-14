@@ -1,5 +1,6 @@
 'use client';
 
+import { TasksFilter } from '@admin/tasks';
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import {
 	IconAlertCircle,
@@ -13,7 +14,6 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import TasksFilter from '@/modules/admin/features/tasks/components/TasksFilter';
 import {
 	getTasks,
 	type TaskFilter,

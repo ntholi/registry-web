@@ -1,6 +1,6 @@
+import { Form } from '@finance/sponsors';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/finance/features/sponsors/components/Form';
 import {
 	getSponsor,
 	updateSponsor,

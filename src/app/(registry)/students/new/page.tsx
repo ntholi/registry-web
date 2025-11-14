@@ -1,5 +1,5 @@
 import { Box } from '@mantine/core';
-import Form from '@/modules/registry/features/students/components/Form';
+import { Form } from '@registry/students';
 import { createStudent } from '@/modules/registry/features/students/server/actions';
 
 export default async function NewPage() {

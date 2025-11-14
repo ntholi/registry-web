@@ -14,6 +14,15 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
+	createGraduationRequestWithPaymentReceipts,
+	getEligiblePrograms,
+	getGraduationRequestByStudentNo,
+} from '@registry/graduation/clearance';
+import {
+	PaymentReceiptsInput,
+	ReviewAndSubmit,
+} from '@student-portal/graduation';
+import {
 	IconArrowLeft,
 	IconArrowRight,
 	IconInfoCircle,
@@ -22,15 +31,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { paymentType } from '@/core/database/schema';
-import {
-	createGraduationRequestWithPaymentReceipts,
-	getEligiblePrograms,
-	getGraduationRequestByStudentNo,
-} from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import InformationConfirmation from '@/modules/student-portal/features/graduation/components/new/InformationConfirmation';
-import PaymentReceiptsInput from '@/modules/student-portal/features/graduation/components/new/PaymentReceiptsInput';
 import ProgramSelection from '@/modules/student-portal/features/graduation/components/new/ProgramSelection';
-import ReviewAndSubmit from '@/modules/student-portal/features/graduation/components/new/ReviewAndSubmit';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type PaymentReceiptData = {

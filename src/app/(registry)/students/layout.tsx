@@ -1,8 +1,8 @@
 'use client';
 
+import { StudentsFilter } from '@registry/students';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import StudentsFilter from '@/modules/registry/features/students/components/StudentsFilter';
 import {
 	findAllStudents,
 	type StudentFilter,

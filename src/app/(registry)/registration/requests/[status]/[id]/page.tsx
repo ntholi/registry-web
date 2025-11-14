@@ -1,3 +1,4 @@
+import { getSponsoredStudent } from '@finance/sponsors';
 import {
 	Divider,
 	Group,
@@ -9,6 +10,11 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import {
+	deleteRegistrationRequest,
+	getRegistrationRequest,
+	ModulesView,
+} from '@registry/registration/requests';
+import {
 	IconCheck,
 	IconClock,
 	IconExclamationCircle,
@@ -18,14 +24,8 @@ import type {
 	DashboardUser,
 	registrationRequestStatus,
 } from '@/core/database/schema';
-import { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
 import ClearanceAccordion from '@/modules/registry/features/registration/requests/components/ClearanceAccordion';
-import ModulesView from '@/modules/registry/features/registration/requests/components/ModulesView';
 import RequestDetailsView from '@/modules/registry/features/registration/requests/components/RequestDetailsView';
-import {
-	deleteRegistrationRequest,
-	getRegistrationRequest,
-} from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 interface Props {

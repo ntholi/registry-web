@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
+import { Form } from '@registry/terms';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/registry/features/terms/components/Form';
 import {
 	getTerm,
 	updateTerm,

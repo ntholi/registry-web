@@ -1,4 +1,9 @@
 import {
+	deleteModule,
+	getModulePrerequisites,
+	getSemesterModule,
+} from '@academic/semester-modules';
+import {
 	Fieldset,
 	List,
 	ListItem,
@@ -8,11 +13,6 @@ import {
 } from '@mantine/core';
 import { IconCircleCheck } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import {
-	deleteModule,
-	getModulePrerequisites,
-	getSemesterModule,
-} from '@/modules/academic/features/semester-modules/server/actions';
 import {
 	DetailsView,
 	DetailsViewBody,

@@ -1,3 +1,4 @@
+import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance';
 import {
 	IconBarrierBlock,
 	IconCertificate,
@@ -12,7 +13,6 @@ import type {
 	NavItem,
 } from '@/app/dashboard/module-config.types';
 import type { UserPosition, UserRole } from '@/core/database/schema';
-import { countByStatus as countGraduationByStatus } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import { countByStatus } from '@/modules/registry/features/registration/requests/server/requests/actions';
 
 export const registryConfig: ModuleConfig = {

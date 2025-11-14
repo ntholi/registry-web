@@ -21,10 +21,13 @@
 		],
 		"paths": {
 			"@/*": ["./src/*"],
-			"@academic/*": ["./src/app/(academic)/*"],
-			"@registry/*": ["./src/app/(registry)/*"],
-			"@student-portal/*": ["./src/app/(student-portal)/*"],
-			"@finance/*": ["./src/app/(finance)/*"],
+			"@academic/*": ["./src/modules/academic/features/*"],
+			"@registry/*": ["./src/modules/registry/features/*"],
+			"@student-portal/*": ["./src/modules/student-portal/features/*"],
+			"@finance/*": ["./src/modules/finance/features/*"],
+			"@admin/*": ["./src/modules/admin/features/*"],
+			"@classroom/*": ["./src/modules/classroom/features/*"],
+			"@auth/*": ["./src/modules/auth/features/*"],
 			"@server/*": ["./src/server/*"]
 		}
 	},

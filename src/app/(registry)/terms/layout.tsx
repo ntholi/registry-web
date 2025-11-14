@@ -1,8 +1,8 @@
 'use client';
 
+import { findAllTerms } from '@registry/terms';
 import { IconCheck } from '@tabler/icons-react';
 import type { PropsWithChildren } from 'react';
-import { findAllTerms } from '@/modules/registry/features/terms/server/actions';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {

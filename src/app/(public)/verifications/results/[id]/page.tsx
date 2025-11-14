@@ -10,6 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { getStatementOfResultsPrint } from '@registry/print/statement-of-results';
 import {
 	IconBook,
 	IconCheck,
@@ -18,7 +19,6 @@ import {
 	IconUser,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import { getStatementOfResultsPrint } from '@/modules/registry/features/print/statement-of-results/server/actions';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 import Logo from '@/shared/ui/Logo';
 

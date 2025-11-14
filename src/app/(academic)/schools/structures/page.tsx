@@ -1,5 +1,6 @@
 'use client';
 
+import { ProgramDisplay } from '@academic/schools';
 import {
 	Accordion,
 	Card,
@@ -13,7 +14,6 @@ import {
 import { IconArrowLeft, IconBook, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import ProgramDisplay from '@/modules/academic/features/schools/components/ProgramDisplay';
 import {
 	getProgramsBySchoolId,
 	getSchool,

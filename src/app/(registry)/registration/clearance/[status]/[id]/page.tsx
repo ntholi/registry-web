@@ -1,11 +1,13 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import {
+	AcademicsLoader,
+	ClearanceHeader,
+} from '@registry/registration/clearance';
+import { getClearance } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import AcademicsLoader from '@/modules/registry/features/registration/clearance/components/AcademicsLoader';
 import ClearanceDetails from '@/modules/registry/features/registration/clearance/components/ClearanceDetails';
-import ClearanceHeader from '@/modules/registry/features/registration/clearance/components/ClearanceHeader';
 import ClearanceHistory from '@/modules/registry/features/registration/clearance/components/ClearanceHistory';
-import { getClearance } from '@/modules/registry/features/registration/requests/server/clearance/actions';
 import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 import { DetailsView } from '@/shared/ui/adease';
 

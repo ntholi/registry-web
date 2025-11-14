@@ -1,6 +1,6 @@
+import { Form } from '@admin/users';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/admin/features/users/components/Form';
 import {
 	getUser,
 	updateUser,

@@ -1,4 +1,9 @@
 import {
+	countApprovedGraduationClearances,
+	countPendingGraduationClearances,
+	countRejectedGraduationClearances,
+} from '@registry/graduation/clearance';
+import {
 	IconBarrierBlock,
 	IconCertificate,
 	IconCopyCheck,
@@ -12,11 +17,6 @@ import type {
 	NavItem,
 } from '@/app/dashboard/module-config.types';
 import type { UserPosition, UserRole } from '@/core/database/schema';
-import {
-	countApprovedGraduationClearances,
-	countPendingGraduationClearances,
-	countRejectedGraduationClearances,
-} from '@/modules/registry/features/graduation/clearance/server/clearance/actions';
 import {
 	countApprovedClearances,
 	countPendingClearances,

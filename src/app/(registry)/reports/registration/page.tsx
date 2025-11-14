@@ -14,6 +14,10 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
+	ProgramBreakdownTable,
+	StudentTable,
+} from '@registry/reports/registration';
+import {
 	IconChartBar,
 	IconChartPie,
 	IconDownload,
@@ -22,12 +26,10 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
-import ProgramBreakdownTable from '@/modules/registry/features/reports/registration/components/ProgramBreakdownTable';
 import RegistrationCharts from '@/modules/registry/features/reports/registration/components/RegistrationCharts';
 import RegistrationFilter, {
 	type ReportFilter,
 } from '@/modules/registry/features/reports/registration/components/RegistrationFilter';
-import StudentTable from '@/modules/registry/features/reports/registration/components/StudentTable';
 import {
 	generateStudentsListReport,
 	generateSummaryRegistrationReport,

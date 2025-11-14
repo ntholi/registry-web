@@ -1,3 +1,4 @@
+import { SchoolsList } from '@admin/users';
 import {
 	Avatar,
 	Badge,
@@ -8,7 +9,6 @@ import {
 	Stack,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { SchoolsList } from '@/modules/admin/features/users/components/SchoolsList';
 import {
 	deleteUser,
 	getUser,

@@ -7,12 +7,14 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import {
+	GraduationHistory,
+	NewGraduationCard,
+} from '@student-portal/graduation';
 import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/core/auth';
-import GraduationHistory from '@/modules/student-portal/features/graduation/components/GraduationHistory';
 import GraduationHistorySkeleton from '@/modules/student-portal/features/graduation/components/GraduationHistorySkeleton';
-import NewGraduationCard from '@/modules/student-portal/features/graduation/components/NewGraduationCard';
 import NewGraduationCardSkeleton from '@/modules/student-portal/features/graduation/components/NewGraduationCardSkeleton';
 
 export default async function GraduationPage() {

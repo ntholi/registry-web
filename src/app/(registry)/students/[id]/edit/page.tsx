@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
+import { Form } from '@registry/students';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/registry/features/students/components/Form';
 import {
 	getStudent,
 	updateStudent,

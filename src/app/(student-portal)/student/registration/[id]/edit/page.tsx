@@ -1,5 +1,6 @@
 'use client';
 
+import { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Alert,
 	Badge,
@@ -15,6 +16,16 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
+	determineSemesterStatus,
+	getRegistrationRequest,
+	getStudentSemesterModules,
+	updateRegistrationWithModulesAndSponsorship,
+} from '@registry/registration/requests';
+import {
+	ModuleSelection,
+	SponsorshipDetailsEdit,
+} from '@student-portal/registration';
+import {
 	IconArrowLeft,
 	IconArrowRight,
 	IconInfoCircle,
@@ -23,18 +34,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { StudentModuleStatus } from '@/core/database/schema';
-import { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
 import { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
-import {
-	determineSemesterStatus,
-	getRegistrationRequest,
-	getStudentSemesterModules,
-	updateRegistrationWithModulesAndSponsorship,
-} from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
-import ModuleSelection from '@/modules/student-portal/features/registration/components/new/ModuleSelection';
 import SemesterConfirmation from '@/modules/student-portal/features/registration/components/new/SemesterConfirmation';
-import SponsorshipDetailsEdit from '@/modules/student-portal/features/registration/components/request/SponsorshipDetailsEdit';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 

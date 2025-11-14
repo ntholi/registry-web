@@ -1,5 +1,6 @@
 'use client';
 
+import { EditButton, PrerequisiteDisplay } from '@academic/schools';
 import {
 	Box,
 	Breadcrumbs,
@@ -24,9 +25,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
-import EditButton from '@/modules/academic/features/schools/components/EditButton';
 import HideButton from '@/modules/academic/features/schools/components/HideButton';
-import PrerequisiteDisplay from '@/modules/academic/features/schools/components/PrerequisiteDisplay';
 import { getStructure } from '@/modules/academic/features/structures/server/actions';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';

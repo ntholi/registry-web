@@ -1,10 +1,10 @@
+import { CourseItem } from '@classroom/courses';
 import { Container, SimpleGrid } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 import googleClassroom, {
 	hasGoogleClassroomScope,
 } from '@/core/integrations/google-classroom';
-import CourseItem from '@/modules/classroom/features/courses/components/CourseItem';
 
 export default async function CoursesPage() {
 	const session = await auth();

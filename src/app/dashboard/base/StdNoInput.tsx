@@ -1,8 +1,8 @@
 'use client';
 import { NumberInput, type NumberInputProps, Stack, Text } from '@mantine/core';
+import { getStudent } from '@registry/students';
 import { IconUser } from '@tabler/icons-react';
 import { useState } from 'react';
-import { getStudent } from '@/modules/registry/features/students/server/actions';
 
 export default function StdNoInput(props: NumberInputProps) {
 	const { value, onChange, ...rest } = props;

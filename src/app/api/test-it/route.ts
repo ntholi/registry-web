@@ -1,5 +1,5 @@
+import { modulesRepository } from '@academic/semester-modules';
 import { type NextRequest, NextResponse } from 'next/server';
-import ModuleRepository from '@/modules/academic/features/semester-modules/server/repository';
 import TermRepository from '@/modules/registry/features/terms/server/repository';
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 	if (!term) {
 		throw new Error('No active term');
 	}
-	const modules = await new ModuleRepository().searchModulesWithDetails(
+	const modules = await modulesRepository.searchModulesWithDetails(
 		search,
 		term
 	);
