@@ -2,6 +2,7 @@ import { getUserSchoolIds, UserRepository } from '@admin/users';
 import { auth } from '@/core/auth';
 import type { users } from '@/core/database/schema';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 
 class LecturerService {
@@ -31,4 +32,7 @@ class LecturerService {
 	}
 }
 
-export const lecturersService = new LecturerService();
+export const lecturersService = serviceWrapper(
+	LecturerService,
+	'LecturerService'
+);

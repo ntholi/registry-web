@@ -1,6 +1,7 @@
 import { getCurrentTerm } from '@registry/terms';
 import type { assignedModules } from '@/core/database/schema';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import AssignedModuleRepository from './repository';
 
@@ -93,4 +94,7 @@ class AssignedModuleService {
 	}
 }
 
-export const assignedModulesService = new AssignedModuleService();
+export const assignedModulesService = serviceWrapper(
+	AssignedModuleService,
+	'AssignedModuleService'
+);

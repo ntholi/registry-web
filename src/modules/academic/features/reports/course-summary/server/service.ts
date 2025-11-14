@@ -2,6 +2,7 @@ import { getAssessmentTypeLabel } from '@academic/assessments';
 import { termsRepository } from '@registry/terms';
 import { Packer } from 'docx';
 import { auth } from '@/core/auth';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import { createCourseSummaryDocument } from './document';
 import {
 	type CourseSummaryReport,
@@ -203,4 +204,7 @@ export default class CourseSummaryService {
 	}
 }
 
-export const courseSummaryService = new CourseSummaryService();
+export const courseSummaryService = serviceWrapper(
+	CourseSummaryService,
+	'CourseSummaryService'
+);

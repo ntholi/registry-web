@@ -1,5 +1,6 @@
 import type { moduleGrades } from '@/core/database/schema';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import ModuleGradeRepository from './repository';
 
@@ -58,4 +59,7 @@ class ModuleGradeService {
 	}
 }
 
-export const moduleGradesService = new ModuleGradeService();
+export const moduleGradesService = serviceWrapper(
+	ModuleGradeService,
+	'ModuleGradeService'
+);
