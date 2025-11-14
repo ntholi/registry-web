@@ -2,8 +2,19 @@ import { Pool as NeonPool } from '@neondatabase/serverless';
 import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleNode } from 'drizzle-orm/node-postgres';
 import { Pool as NodePool } from 'pg';
-import * as relations from './relations';
-import * as schema from './schema';
+import * as academic from '@/modules/academic/database';
+import * as admin from '@/modules/admin/database';
+import * as auth from '@/modules/auth/database';
+import * as finance from '@/modules/finance/database';
+import * as registry from '@/modules/registry/database';
+
+const schema = {
+	...academic,
+	...admin,
+	...auth,
+	...finance,
+	...registry,
+};
 
 const databaseEnv = process.env.DATABASE_ENV || 'local';
 const connectionString =
@@ -12,15 +23,22 @@ const connectionString =
 		: process.env.DATABASE_LOCAL_URL!;
 
 const neonDb = drizzleNeon(new NeonPool({ connectionString }), {
-	schema: { ...schema, ...relations },
+	schema,
 	casing: 'snake_case',
 });
 
 const nodeDb = drizzleNode(new NodePool({ connectionString }), {
-	schema: { ...schema, ...relations },
+	schema,
 	casing: 'snake_case',
 });
 
 const db = databaseEnv === 'remote' ? neonDb : nodeDb;
 
 export { db };
+
+export * from '@/modules/academic/database';
+export * from '@/modules/admin/database';
+export * from '@/modules/auth/database';
+export * from '@/modules/finance/database';
+export * from '@/modules/registry/database';
+export * from './types';
