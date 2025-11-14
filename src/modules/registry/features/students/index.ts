@@ -13,6 +13,5 @@ export { default as RegistrationView } from './components/registration/Registrat
 export { default as StudentsFilter } from './components/StudentsFilter';
 export { StudentTabs } from './components/StudentTabs';
 export * from './server/actions';
-export { studentsRepository } from './server/repository';
 export * from './types';
 export * from './utils';

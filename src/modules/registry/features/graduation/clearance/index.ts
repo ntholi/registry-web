@@ -4,9 +4,5 @@ export { default as GraduationClearanceHistory } from './components/GraduationCl
 export { default as GraduationClearanceSwitch } from './components/GraduationClearanceSwitch';
 export { default as PaymentReceipts } from './components/PaymentReceipts';
 export * from './server/clearance/actions';
-export * from './server/clearance/repository';
-export * from './server/clearance/service';
 export * from './server/requests/actions';
-export * from './server/requests/repository';
-export * from './server/requests/service';
 export * from './types';

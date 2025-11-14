@@ -1,5 +1,5 @@
-import { modulesRepository } from '@academic/semester-modules';
 import { type NextRequest, NextResponse } from 'next/server';
+import { modulesRepository } from '@/modules/academic/features/semester-modules/server/repository';
 import TermRepository from '@/modules/registry/features/terms/server/repository';
 
 export async function GET(request: NextRequest) {

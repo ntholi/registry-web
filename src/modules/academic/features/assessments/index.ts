@@ -4,6 +4,5 @@ export { default as AssessmentModal } from './components/AssessmentModal';
 export { default as AssessmentsTable } from './components/AssessmentsTable';
 export { default as Form } from './components/Form';
 export * from './server/actions';
-export { assessmentsRepository } from './server/repository';
 export * from './types';
 export * from './utils';
