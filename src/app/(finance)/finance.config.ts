@@ -4,6 +4,11 @@ import {
 	countRejectedGraduationClearances,
 } from '@registry/graduation/clearance';
 import {
+	countApprovedClearances,
+	countPendingClearances,
+	countRejectedClearances,
+} from '@registry/registration';
+import {
 	IconBarrierBlock,
 	IconCertificate,
 	IconCopyCheck,
@@ -17,11 +22,6 @@ import type {
 	NavItem,
 } from '@/app/dashboard/module-config.types';
 import type { UserPosition, UserRole } from '@/core/database/schema';
-import {
-	countApprovedClearances,
-	countPendingClearances,
-	countRejectedClearances,
-} from '@/modules/registry/features/registration/requests/server/clearance/actions';
 
 export const financeConfig: ModuleConfig = {
 	id: 'finance-management',

@@ -5,8 +5,8 @@ import {
 	IconExclamationCircle,
 	IconUsers,
 } from '@tabler/icons-react';
-import type { ClearanceType } from '@/modules/admin/features/reports/clearance/server/repository';
-import type { ClearanceStatsOverall } from '@/modules/admin/features/reports/clearance/server/service';
+import type { ClearanceType } from '../server/repository';
+import type { ClearanceStatsOverall } from '../server/service';
 
 interface Props {
 	data: ClearanceStatsOverall;

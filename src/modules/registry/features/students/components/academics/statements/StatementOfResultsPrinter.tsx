@@ -2,14 +2,16 @@
 
 import { Button } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
+import {
+	createStatementOfResultsPrint,
+	extractStatementOfResultsData,
+} from '@registry/print';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import QRCode from 'qrcode';
 import { useState } from 'react';
-import { createStatementOfResultsPrint } from '@/modules/registry/features/print/statement-of-results/server/actions';
-import { extractStatementOfResultsData } from '@/modules/registry/features/print/statement-of-results/server/utils';
-import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
+import { getAcademicHistory } from '../../../server/actions';
 import StatementOfResultsPDF from './StatementOfResultsPDF';
 
 type Props = {

@@ -1,6 +1,10 @@
 'use client';
 
 import {
+	addPaymentReceipt,
+	removePaymentReceipt,
+} from '@finance/payment-receipts';
+import {
 	ActionIcon,
 	Badge,
 	Box,
@@ -27,10 +31,6 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { paymentType } from '@/core/database/schema';
-import {
-	addPaymentReceipt,
-	removePaymentReceipt,
-} from '@/modules/finance/features/payment-receipts/server/actions';
 
 type PaymentReceipt = {
 	id: number;

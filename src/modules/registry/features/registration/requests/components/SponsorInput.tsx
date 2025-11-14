@@ -1,6 +1,6 @@
+import { findAllSponsors } from '@finance/sponsors';
 import { Grid, GridCol, Paper, Select, Text, TextInput } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { findAllSponsors } from '@/modules/finance/features/sponsors/server/actions';
 
 interface SponsorInputProps {
 	sponsorId: number;

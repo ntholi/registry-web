@@ -1,10 +1,9 @@
-import { AssessmentsTable } from '@academic/assessments';
+import { AssessmentsTable, ModuleLecturers } from '@academic/assessments';
 import { getModule } from '@academic/modules';
 import { Button, Group, Paper, Title } from '@mantine/core';
 import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import ModuleLecturers from '@/modules/academic/features/assessments/components/ModuleLecturers';
 import { DetailsView } from '@/shared/ui/adease';
 
 type Props = {

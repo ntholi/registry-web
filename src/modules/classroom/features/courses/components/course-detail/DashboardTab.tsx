@@ -5,7 +5,7 @@ import {
 	IconListCheck,
 	IconPlayerPlay,
 } from '@tabler/icons-react';
-import type { Announcement } from '@/modules/classroom/features/courses/server/actions';
+import type { Announcement } from '../../server/actions';
 
 type Props = {
 	announcements: Announcement[];

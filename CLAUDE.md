@@ -37,7 +37,7 @@ Modular monolith with feature-based organization. Each module (academic, registr
             repository.ts       # Database operations
           /components/          # UI components
             Form.tsx            # Entity form component
-          index.ts              # Feature exports
+          index.ts              # Feature exports, exports all components used outside this /[feature]/ folder
           types.ts              # Feature types
       /shared/                  # Module-level shared code
   /core                         # Core platform functionality
@@ -226,6 +226,10 @@ export async function deleteEntity(id: number) {
 ### 5. Feature Index
 
 **Location**: `/src/modules/[module]/features/[feature]/index.ts`
+- Exports all components that are used outside the `/src/modules/[module]/features/[feature]/` directory
+- Exports everything in `[feature]/server/actions.ts`
+- Never export service and repository files
+- Each feature should be self contained and avoid exposing it's internals to the outside
 
 ```typescript
 export { default as Form } from './components/Form';
@@ -388,7 +392,7 @@ export default async function EntityDetails({ params }: Props) {
 import { Box } from '@mantine/core';
 import { Form } from '@module/feature';
 import { notFound } from 'next/navigation';
-import { getEntity, updateEntity } from '@/modules/[module]/features/[feature]/server/actions';
+import { getEntity, updateEntity } from '@[module]/[feature]';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -428,7 +432,7 @@ export default async function EntityEdit({ params }: Props) {
 ```typescript
 import { Box } from '@mantine/core';
 import { Form } from '@module/feature';
-import { createEntity } from '@/modules/[module]/features/[feature]/server/actions';
+import { createEntity } from '@[module]/[feature]';
 
 export default async function NewPage() {
   return (
@@ -471,7 +475,7 @@ Configure in `tsconfig.json`:
 pnpm dev                    # Start dev server
 pnpm build                  # Production build
 pnpm db:generate            # Generate migrations
-pnpm db:migrate             # Run migrations
+pnpm db:migrate             # Run migrations (never run this command unless user has approved)
 pnpm db:studio              # Open Drizzle Studio
 pnpm tsc --noEmit           # Type check (run until 0 errors)
 pnpm lint:fix               # Lint and fix (run until 0 errors)
@@ -517,7 +521,7 @@ pnpm check                  # Format and lint
 - Use `PropsWithChildren` for layout components
 
 ### Code Organization
-- NO comments (code should be self-documenting)
+- NO comments
 - Follow DRY principle
 - One file = one responsibility
 - Export types, constants, functions explicitly
@@ -569,7 +573,6 @@ const { data, isLoading } = useQuery({
 
 Study these for complete examples:
 - **Terms** (registry): `/src/modules/registry/features/terms/`
-- **Schools** (academic): `/src/modules/academic/features/schools/`
 
 ## Important Constraints
 
@@ -580,6 +583,7 @@ Study these for complete examples:
 - ❌ NO comments - self-documenting code
 - ❌ NO CSS-in-JS vars for colors - use Mantine's `c` prop
 - ❌ NO `useEffect` for data fetching - use TanStack Query
+- ❌ Never create/update docs (`.md`, `.txt`, etc.)  
 - ✅ ALWAYS run type check and lint before finishing
 - ✅ ALWAYS use `withAuth` in service methods
 - ✅ ALWAYS use `serviceWrapper` for services

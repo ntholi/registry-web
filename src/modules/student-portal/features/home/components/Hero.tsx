@@ -11,10 +11,10 @@ import {
 	Title,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { getStudentPhoto } from '@registry/students';
+import { studentColors } from '@student-portal/utils';
 import { IconBook, IconTrophy, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getStudentPhoto } from '@/modules/registry/features/students/server/actions';
-import { studentColors } from '@/modules/student-portal/features/utils/lib/colors';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import HeroSkeleton from './HeroSkeleton';

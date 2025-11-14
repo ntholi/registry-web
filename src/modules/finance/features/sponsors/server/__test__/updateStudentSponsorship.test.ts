@@ -1,11 +1,8 @@
+import { resetMockUser, setMockUser } from '@admin/test';
+import { studentsService } from '@registry/students';
+import { termsService } from '@registry/terms';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { sponsors, terms, users } from '@/core/database/schema';
-import {
-	resetMockUser,
-	setMockUser,
-} from '@/modules/admin/features/test/server/mocks.auth';
-import { studentsService } from '@/modules/registry/features/students/server/service';
-import { termsService } from '@/modules/registry/features/terms/server/service';
 import { sponsorsService } from '../service';
 
 vi.mock('@/server/base/withAuth', () => {

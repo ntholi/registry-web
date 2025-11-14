@@ -17,10 +17,10 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { useState } from 'react';
-import type { getClearance } from '@/modules/registry/features/registration/requests/server/clearance/actions';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
+import type { getClearance } from '../../requests/server/clearance/actions';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
 import SponsorInfo from './SponsorInfo';

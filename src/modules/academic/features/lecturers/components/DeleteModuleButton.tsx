@@ -1,12 +1,12 @@
 'use client';
 
+import { deleteAssignedModule } from '@academic/assigned-modules';
 import { ActionIcon, type BoxProps, Text, Tooltip } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { deleteAssignedModule } from '@/modules/academic/features/assigned-modules/server/actions';
 
 type Props = {
 	assignmentId: number;

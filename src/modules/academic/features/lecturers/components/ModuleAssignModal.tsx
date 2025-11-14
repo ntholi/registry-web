@@ -1,4 +1,6 @@
 'use client';
+import { assignModulesToLecturer } from '@academic/assigned-modules';
+import type { searchModulesWithDetails } from '@academic/semester-modules';
 import {
 	Button,
 	Checkbox,
@@ -14,8 +16,6 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-import { assignModulesToLecturer } from '@/modules/academic/features/assigned-modules/server/actions';
-import type { searchModulesWithDetails } from '@/modules/academic/features/semester-modules/server/actions';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
 type FormValues = {

@@ -10,6 +10,10 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import {
+	GraduationClearanceAccordion,
+	PaymentReceiptsView,
+} from '@registry/graduation';
+import {
 	deleteGraduationRequest,
 	getGraduationRequest,
 } from '@registry/graduation/clearance';
@@ -24,8 +28,6 @@ import {
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import type { DashboardUser } from '@/core/database/schema';
-import GraduationClearanceAccordion from '@/modules/registry/features/graduation/requests/components/GraduationClearanceAccordion';
-import PaymentReceiptsView from '@/modules/registry/features/graduation/requests/components/PaymentReceiptsView';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 interface Props {

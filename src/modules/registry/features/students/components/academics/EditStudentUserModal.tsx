@@ -15,8 +15,8 @@ import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { users } from '@/core/database/schema';
-import { updateStudentUserId } from '@/modules/registry/features/students/server/actions';
 import UserInput from '@/shared/ui/UserInput';
+import { updateStudentUserId } from '../../server/actions';
 
 type User = typeof users.$inferSelect;
 

@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
+import { Form } from '@registry/graduation';
 import { createGraduationRequest } from '@registry/graduation/clearance';
-import Form from '@/modules/registry/features/graduation/requests/components/Form';
 
 export default async function NewPage() {
 	return (

@@ -11,9 +11,9 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getGraduationClearanceHistoryByStudentNo } from '@/modules/registry/features/graduation/clearance/server/clearance/actions';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
+import { getGraduationClearanceHistoryByStudentNo } from '../server/clearance/actions';
 
 type Props = {
 	stdNo: number;

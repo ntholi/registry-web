@@ -1,16 +1,13 @@
+import { resetMockUser, setMockUser } from '@admin/test';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { sponsors, users } from '@/core/database/schema';
-import {
-	resetMockUser,
-	setMockUser,
-} from '@/modules/admin/features/test/server/mocks.auth';
 import {
 	createSponsor,
 	deleteSponsor,
 	findAllSponsors,
 	getSponsor,
 	updateSponsor,
-} from '@/modules/finance/features/sponsors/server/actions';
+} from '../actions';
 
 vi.mock('@/server/base/withAuth', () => {
 	return vi.importActual('@/test/mock.withAuth');

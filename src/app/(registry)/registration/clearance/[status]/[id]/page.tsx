@@ -1,14 +1,13 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import { ClearanceDetails, ClearanceHistory } from '@registry/registration';
 import {
 	AcademicsLoader,
 	ClearanceHeader,
 } from '@registry/registration/clearance';
 import { getClearance } from '@registry/registration/requests';
+import { getCurrentTerm } from '@registry/terms';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import ClearanceDetails from '@/modules/registry/features/registration/clearance/components/ClearanceDetails';
-import ClearanceHistory from '@/modules/registry/features/registration/clearance/components/ClearanceHistory';
-import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 import { DetailsView } from '@/shared/ui/adease';
 
 type Props = {

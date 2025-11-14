@@ -1,5 +1,5 @@
+import { getCurrentTerm } from '@registry/terms';
 import { useQuery } from '@tanstack/react-query';
-import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 
 export function useCurrentTerm() {
 	const { data, isLoading, isError } = useQuery({

@@ -10,7 +10,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { Suspense } from 'react';
-import { getUserSchools } from '@/modules/admin/features/users/server/actions';
+import { getUserSchools } from '../server/actions';
 
 interface SchoolsListProps {
 	userId: string;

@@ -1,7 +1,4 @@
-import type {
-	CourseWork,
-	Topic,
-} from '@/modules/classroom/features/courses/server/actions';
+import type { CourseWork, Topic } from '../../server/actions';
 
 export type TopicGroup = {
 	id: string;

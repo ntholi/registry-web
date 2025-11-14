@@ -1,5 +1,6 @@
 'use client';
 
+import { getLecturersByModule } from '@academic/assigned-modules';
 import {
 	Avatar,
 	Badge,
@@ -15,7 +16,6 @@ import {
 } from '@mantine/core';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getLecturersByModule } from '@/modules/academic/features/assigned-modules/server/actions';
 import { toClassName, toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {

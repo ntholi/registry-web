@@ -1,5 +1,6 @@
 'use client';
 
+import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Accordion,
 	Anchor,
@@ -18,8 +19,7 @@ import {
 } from '@mantine/core';
 import { IconLock, IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
-import type { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
-import type { getStudent } from '@/modules/registry/features/students/server/actions';
+import type { getStudent } from '../../server/actions';
 import GpaDisplay from './GpaDisplay';
 
 type Props = {

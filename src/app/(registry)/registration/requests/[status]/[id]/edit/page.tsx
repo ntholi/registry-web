@@ -1,5 +1,10 @@
 import { getModulesForStructure } from '@academic/semester-modules';
+import { getSponsoredStudent } from '@finance/sponsors';
 import { Box } from '@mantine/core';
+import {
+	getRegistrationRequest,
+	updateRegistrationWithModulesAndSponsorship,
+} from '@registry/registration';
 import { Form } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
 import type {
@@ -7,11 +12,6 @@ import type {
 	StudentModuleStatus,
 	semesterModules,
 } from '@/core/database/schema';
-import { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
-import {
-	getRegistrationRequest,
-	updateRegistrationWithModulesAndSponsorship,
-} from '@/modules/registry/features/registration/requests/server/requests/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

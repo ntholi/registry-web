@@ -9,11 +9,11 @@ import {
 	clearanceRequestStatus,
 	type dashboardUsers,
 } from '@/core/database/schema';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	type getGraduationClearance,
 	updateGraduationClearance,
-} from '@/modules/registry/features/graduation/clearance/server/clearance/actions';
-import { toTitleCase } from '@/shared/lib/utils/utils';
+} from '../server/clearance/actions';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getGraduationClearance>>>;

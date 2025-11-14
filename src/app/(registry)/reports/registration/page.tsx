@@ -14,6 +14,15 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
+	generateStudentsListReport,
+	generateSummaryRegistrationReport,
+	getPaginatedRegistrationStudents,
+	getRegistrationDataPreview,
+	RegistrationCharts,
+	RegistrationFilter,
+	type ReportFilter,
+} from '@registry/reports';
+import {
 	ProgramBreakdownTable,
 	StudentTable,
 } from '@registry/reports/registration';
@@ -26,16 +35,6 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
-import RegistrationCharts from '@/modules/registry/features/reports/registration/components/RegistrationCharts';
-import RegistrationFilter, {
-	type ReportFilter,
-} from '@/modules/registry/features/reports/registration/components/RegistrationFilter';
-import {
-	generateStudentsListReport,
-	generateSummaryRegistrationReport,
-	getPaginatedRegistrationStudents,
-	getRegistrationDataPreview,
-} from '@/modules/registry/features/reports/registration/server/actions';
 
 const PAGE_SIZE = 20;
 

@@ -1,5 +1,7 @@
 'use client';
 
+import { getMarksAudit } from '@academic/assessment-marks';
+import { getAssessmentTypeLabel } from '@academic/assessments';
 import {
 	ActionIcon,
 	Avatar,
@@ -26,8 +28,6 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { getMarksAudit } from '@/modules/academic/features/assessment-marks/server/actions';
-import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/utils';
 import { generateAssessmentMarkAuditMessage } from '@/shared/lib/utils/auditUtils';
 
 interface Props {

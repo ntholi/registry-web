@@ -2,16 +2,13 @@
 
 import { Button, Group, Loader, Modal, Stack, TextInput } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
+import { createStudentCardPrint } from '@registry/print';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { createStudentCardPrint } from '@/modules/registry/features/print/student-card/server/actions';
-import {
-	type getStudent,
-	getStudentPhoto,
-} from '@/modules/registry/features/students/server/actions';
 import { convertUrlToBase64 } from '@/shared/lib/utils/utils';
+import { type getStudent, getStudentPhoto } from '../../server/actions';
 import StudentCardPDF from './StudentCardPDF';
 
 type StudentCardPrinterProps = {

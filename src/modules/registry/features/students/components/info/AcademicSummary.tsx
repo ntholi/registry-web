@@ -10,8 +10,8 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import type { getStudent } from '@/modules/registry/features/students/server/actions';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
+import type { getStudent } from '../../server/actions';
 
 type AcademicSummaryProps = {
 	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;

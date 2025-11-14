@@ -16,8 +16,8 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { tasks } from '@/core/database/schema';
-import { getDepartmentUsers } from '@/modules/admin/features/tasks/server/actions';
 import { Form } from '@/shared/ui/adease';
+import { getDepartmentUsers } from '../server/actions';
 
 type Task = typeof tasks.$inferInsert;
 type TaskWithAssignments = Task & { assignedUserIds?: string[] };

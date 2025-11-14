@@ -1,10 +1,10 @@
 'use client';
 
+import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
-import type { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
-import type { getStudent } from '@/modules/registry/features/students/server/actions';
 import { useLocalStorage } from '@/shared/lib/hooks/use-local-storage';
+import type { getStudent } from '../server/actions';
 import AcademicsView from './academics/AcademicsView';
 import BlockedAcademicsView from './academics/BlockedAcademicsView';
 import StatementOfResultsPrinter from './academics/statements/StatementOfResultsPrinter';

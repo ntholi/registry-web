@@ -1,10 +1,10 @@
 'use client';
 
+import { getAllSponsoredStudents } from '@finance/sponsors';
 import { Button } from '@mantine/core';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
-import { getAllSponsoredStudents } from '@/modules/finance/features/sponsors/server/actions';
 
 interface Props {
 	searchQuery: string;

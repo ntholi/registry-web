@@ -1,5 +1,6 @@
 'use client';
 
+import { getModulesForStructure } from '@academic/semester-modules';
 import {
 	ActionIcon,
 	Divider,
@@ -10,6 +11,8 @@ import {
 	Table,
 	Text,
 } from '@mantine/core';
+import { getStudentRegistrationData } from '@registry/students';
+import { getAllTerms } from '@registry/terms';
 import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
@@ -21,17 +24,14 @@ import {
 	type semesterModules,
 	studentModuleStatus,
 } from '@/core/database/schema';
-import { getModulesForStructure } from '@/modules/academic/features/semester-modules/server/actions';
-import {
-	determineSemesterStatus,
-	getStudentSemesterModules,
-} from '@/modules/registry/features/registration/requests/server/requests/actions';
-import { getStudentRegistrationData } from '@/modules/registry/features/students/server/actions';
-import { getAllTerms } from '@/modules/registry/features/terms/server/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
+import {
+	determineSemesterStatus,
+	getStudentSemesterModules,
+} from '../server/requests/actions';
 import ModulesDialog from './ModulesDialog';
 import SponsorInput from './SponsorInput';
 

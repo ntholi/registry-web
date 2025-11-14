@@ -16,7 +16,11 @@ import {
 	Title,
 } from '@mantine/core';
 import { getGraduationRequest } from '@registry/graduation/clearance';
-import { GraduationClearanceView } from '@student-portal/graduation';
+import {
+	GraduationClearanceView,
+	PaymentReceiptsView,
+	ProofOfClearanceDownload,
+} from '@student-portal/graduation';
 import {
 	getClearanceStatus,
 	getGraduationStatus,
@@ -26,8 +30,6 @@ import {
 import { IconReceipt } from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import ProofOfClearanceDownload from '@/modules/student-portal/features/graduation/components/ProofOfClearanceDownload';
-import PaymentReceiptsView from '@/modules/student-portal/features/graduation/components/request/PaymentReceiptsView';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 
 type Props = {

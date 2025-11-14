@@ -22,12 +22,9 @@ import {
 	userRoles,
 	type users,
 } from '@/core/database/schema';
-import {
-	findAllSchools,
-	getUserSchools,
-} from '@/modules/admin/features/users/server/actions';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
+import { findAllSchools, getUserSchools } from '../server/actions';
 
 type User = typeof users.$inferInsert;
 

@@ -3,7 +3,7 @@
 import { Box, Center, Loader, Text } from '@mantine/core';
 import { PDFViewer } from '@react-pdf/renderer';
 import { useQuery } from '@tanstack/react-query';
-import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
+import { getAcademicHistory } from '../../../server/actions';
 import TranscriptPDF from './TranscriptPDF';
 
 type TranscriptPreviewProps = {

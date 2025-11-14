@@ -13,10 +13,7 @@ import {
 import { IconCamera } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import {
-	type getStudent,
-	getStudentPhoto,
-} from '@/modules/registry/features/students/server/actions';
+import { type getStudent, getStudentPhoto } from '../../server/actions';
 
 import PhotoSelection from './PhotoSelection';
 

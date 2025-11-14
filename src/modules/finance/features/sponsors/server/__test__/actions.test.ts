@@ -1,6 +1,6 @@
+import { setMockUser } from '@admin/test';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { sponsors } from '@/core/database/schema';
-import { setMockUser } from '@/modules/admin/features/test/server/mocks.auth';
 import { sponsorsService } from '../service';
 
 type Sponsor = typeof sponsors.$inferInsert;

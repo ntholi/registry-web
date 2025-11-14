@@ -1,5 +1,6 @@
 'use client';
 
+import { getStructuresByProgram } from '@academic/semester-modules';
 import {
 	Accordion,
 	Alert,
@@ -20,7 +21,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
-import { getStructuresByProgram } from '@/modules/academic/features/semester-modules/server/actions';
 
 type Structure = {
 	id: number;

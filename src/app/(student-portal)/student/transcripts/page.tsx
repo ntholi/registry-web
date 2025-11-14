@@ -13,12 +13,15 @@ import {
 	Title,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { DesktopTable, MobileTable } from '@student-portal/transcripts';
+import { getCleanedSemesters } from '@registry/students';
+import {
+	DesktopTable,
+	LoadingSkeleton,
+	MobileTable,
+	TranscriptDownloadButton,
+} from '@student-portal/transcripts';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getCleanedSemesters } from '@/modules/registry/features/students/components/academics/statements/utils';
-import LoadingSkeleton from '@/modules/student-portal/features/transcripts/components/LoadingSkeleton';
-import TranscriptDownloadButton from '@/modules/student-portal/features/transcripts/components/TranscriptDownloadButton';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';

@@ -9,7 +9,7 @@ import {
 	TableTr,
 	Text,
 } from '@mantine/core';
-import type { getClearance } from '@/modules/registry/features/registration/requests/server/clearance/actions';
+import type { getClearance } from '../../requests/server/clearance/actions';
 
 type Module = NonNullable<
 	Awaited<ReturnType<typeof getClearance>>

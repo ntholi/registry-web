@@ -1,3 +1,4 @@
+import { findAllSponsors, getSponsoredStudent } from '@finance/sponsors';
 import {
 	Alert,
 	Card,
@@ -10,10 +11,6 @@ import {
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import {
-	findAllSponsors,
-	getSponsoredStudent,
-} from '@/modules/finance/features/sponsors/server/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 

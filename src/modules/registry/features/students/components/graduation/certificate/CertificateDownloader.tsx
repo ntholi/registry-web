@@ -5,7 +5,7 @@ import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
+import { getAcademicHistory } from '../../../server/actions';
 import { generateCertificate } from './CertificatePDF';
 
 type Props = {

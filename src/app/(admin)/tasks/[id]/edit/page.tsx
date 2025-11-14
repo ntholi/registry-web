@@ -1,10 +1,6 @@
-import { Form } from '@admin/tasks';
+import { Form, getTask, updateTask } from '@admin/tasks';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import {
-	getTask,
-	updateTask,
-} from '@/modules/admin/features/tasks/server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

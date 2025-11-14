@@ -7,9 +7,9 @@ import {
 	IconExclamationCircle,
 } from '@tabler/icons-react';
 import type { DashboardUser } from '@/core/database/schema';
-import type { getGraduationRequest } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
+import type { getGraduationRequest } from '../../clearance/server/requests/actions';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getGraduationRequest>>>;

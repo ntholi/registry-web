@@ -1,8 +1,8 @@
+import { setMockUser } from '@admin/test';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '@/core/database';
 import type { students } from '@/core/database/schema';
 import { users as usersTable } from '@/core/database/schema';
-import { setMockUser } from '@/modules/admin/features/test/server/mocks.auth';
 import { studentsService } from '../service';
 
 type Student = typeof students.$inferInsert;

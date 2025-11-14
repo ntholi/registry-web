@@ -1,5 +1,6 @@
 'use client';
 
+import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Badge,
 	Box,
@@ -13,12 +14,11 @@ import {
 	TabsTab,
 	Text,
 } from '@mantine/core';
+import { getGraduationRequestByStudentNo } from '@registry/graduation';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
-import type { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
-import { getGraduationRequestByStudentNo } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
-import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
+import { getAcademicHistory } from '../../server/actions';
 import CertificateDownloader from './certificate/CertificateDownloader';
 import CertificatePreview from './certificate/CertificatePreview';
 import TranscriptPreview from './transcript/TranscriptPreview';

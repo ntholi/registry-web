@@ -1,4 +1,5 @@
 'use client';
+import { getSchools } from '@academic/semester-modules';
 import {
 	Button,
 	Card,
@@ -13,10 +14,9 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { generateBoeReportForFaculty } from '@/modules/academic/features/reports/boe/server/actions';
-import { getSchools } from '@/modules/academic/features/semester-modules/server/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
+import { generateBoeReportForFaculty } from '../server/actions';
 
 export default function Body() {
 	const [isDownloading, setIsDownloading] = useState(false);

@@ -1,4 +1,11 @@
-import { AttachmentCard, SubmissionCard } from '@classroom/courses';
+import {
+	AttachmentCard,
+	CourseHeader,
+	getCourse,
+	getCourseWorkById,
+	getCourseWorkSubmissions,
+	SubmissionCard,
+} from '@classroom/courses';
 import {
 	Badge,
 	Box,
@@ -14,12 +21,6 @@ import {
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { hasGoogleClassroomScope } from '@/core/integrations/google-classroom';
-import CourseHeader from '@/modules/classroom/features/courses/components/course-work/CourseHeader';
-import {
-	getCourse,
-	getCourseWorkById,
-	getCourseWorkSubmissions,
-} from '@/modules/classroom/features/courses/server/actions';
 
 type Props = {
 	params: Promise<{

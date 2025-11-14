@@ -1,16 +1,16 @@
 'use client';
 
+import {
+	getModulePrerequisites,
+	getSemesterModule,
+	updateModule,
+} from '@academic/semester-modules';
 import { ActionIcon, Button, Group } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import {
-	getModulePrerequisites,
-	getSemesterModule,
-	updateModule,
-} from '@/modules/academic/features/semester-modules/server/actions';
 import ModuleEditForm from './ModuleEditForm';
 
 type Props = {

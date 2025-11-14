@@ -2,13 +2,12 @@
 
 import { Button } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
+import { createTranscriptPrint, extractTranscriptData } from '@registry/print';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { createTranscriptPrint } from '@/modules/registry/features/print/transcript/server/actions';
-import { extractTranscriptData } from '@/modules/registry/features/print/transcript/server/utils';
-import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
+import { getAcademicHistory } from '../../../server/actions';
 import TranscriptPDF from './TranscriptPDF';
 
 type Props = {

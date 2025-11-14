@@ -1,5 +1,5 @@
-import type { getStudentByUserId } from '@/modules/registry/features/students/server/actions';
 import type { getAcademicRemarks } from '@/shared/lib/utils/grades';
+import type { getStudentByUserId } from './server/actions';
 
 export type Student = NonNullable<
 	Awaited<ReturnType<typeof getStudentByUserId>>

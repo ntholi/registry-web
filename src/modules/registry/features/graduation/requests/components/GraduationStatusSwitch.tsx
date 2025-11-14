@@ -9,7 +9,7 @@ import {
 	clearanceRequestStatus,
 	type dashboardUsers,
 } from '@/core/database/schema';
-import { updateGraduationClearance } from '@/modules/registry/features/graduation/clearance/server/clearance/actions';
+import { updateGraduationClearance } from '../../clearance/server/clearance/actions';
 
 type Status = Exclude<
 	(typeof clearanceRequestStatus.enumValues)[number],

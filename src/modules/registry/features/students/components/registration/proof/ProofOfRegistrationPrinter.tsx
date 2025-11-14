@@ -5,7 +5,7 @@ import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getStudentRegistrationData } from '@/modules/registry/features/students/server/actions';
+import { getStudentRegistrationData } from '../../../server/actions';
 import ProofOfRegistrationPDF from './ProofOfRegistrationPDF';
 
 type Props = {

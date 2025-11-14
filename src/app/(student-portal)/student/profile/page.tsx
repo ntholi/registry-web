@@ -2,11 +2,11 @@
 import { Center, Container, Stack, Text } from '@mantine/core';
 import {
 	AcademicInformation,
+	PersonalInformation,
 	ProfileHeader,
+	ProfileSkeleton,
 	SponsorshipInformation,
 } from '@student-portal/profile';
-import PersonalInformation from '@/modules/student-portal/features/profile/components/PersonalInformation';
-import ProfileSkeleton from '@/modules/student-portal/features/profile/components/ProfileSkeleton';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 export default function Profile() {

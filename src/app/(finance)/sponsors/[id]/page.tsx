@@ -1,10 +1,6 @@
-import { StudentsTable } from '@finance/sponsors';
+import { deleteSponsor, getSponsor, StudentsTable } from '@finance/sponsors';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import {
-	deleteSponsor,
-	getSponsor,
-} from '@/modules/finance/features/sponsors/server/actions';
 import {
 	DetailsView,
 	DetailsViewBody,

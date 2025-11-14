@@ -21,11 +21,11 @@ import {
 	Text,
 } from '@mantine/core';
 import { Document, pdf } from '@react-pdf/renderer';
+import { TranscriptPages } from '@registry/students';
 import type { getAcademicHistory } from '@registry/students/server/actions';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { TranscriptPages } from '@/modules/registry/features/students/components/graduation/transcript/TranscriptPDF';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 

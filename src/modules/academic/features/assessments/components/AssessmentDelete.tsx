@@ -15,7 +15,7 @@ import { IconAlertTriangle, IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { assessments } from '@/core/database/schema';
-import { deleteAssessment } from '@/modules/academic/features/assessments/server/actions';
+import { deleteAssessment } from '../server/actions';
 import { getAssessmentTypeLabel } from '../utils';
 
 type Props = {

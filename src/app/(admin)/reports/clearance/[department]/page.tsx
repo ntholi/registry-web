@@ -1,5 +1,7 @@
 'use client';
 
+import type { ClearanceFilter, ClearanceType } from '@admin/reports';
+import { StatsTable } from '@admin/reports';
 import { fetchClearanceStats, StatsSummary } from '@admin/reports/clearance';
 import type { ClearanceStatsSummary } from '@admin/reports/clearance/server/service';
 import {
@@ -17,11 +19,6 @@ import { IconCalendar, IconFilter, IconSearch } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import type { DashboardUser } from '@/core/database/schema';
-import { StatsTable } from '@/modules/admin/features/reports/clearance/components/StatsTable';
-import type {
-	ClearanceFilter,
-	ClearanceType,
-} from '@/modules/admin/features/reports/clearance/server/repository';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 
 export default function ClearanceReportsPage() {

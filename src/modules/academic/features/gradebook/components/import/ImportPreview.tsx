@@ -1,5 +1,6 @@
 'use client';
 
+import { getAssessmentTypeLabel } from '@academic/assessments';
 import {
 	Accordion,
 	Badge,
@@ -10,11 +11,10 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { getStudentsByModuleId } from '@registry/students';
 import { IconEye } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
-import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/utils';
-import { getStudentsByModuleId } from '@/modules/registry/features/students/server/actions';
 import type {
 	AssessmentInfo,
 	ColumnMapping,

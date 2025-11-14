@@ -1,5 +1,6 @@
 'use client';
 
+import type { getSponsoredStudent } from '@finance/sponsors';
 import {
 	ActionIcon,
 	Badge,
@@ -11,11 +12,10 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
-import type { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
-import type { getRegistrationRequest } from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
+import type { getRegistrationRequest } from '../server/requests/actions';
 
 type Props = {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

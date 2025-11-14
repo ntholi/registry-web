@@ -2,14 +2,14 @@
 
 import { Button, Loader } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
+import { ProofOfClearancePDF } from '@student-portal/graduation';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
 	getGraduationClearanceData,
 	getGraduationRequest,
-} from '@/modules/registry/features/graduation/clearance/server/requests/actions';
-import ProofOfClearancePDF from '@/modules/student-portal/features/graduation/components/ProofOfClearancePDF';
+} from '../../clearance/server/requests/actions';
 
 type ProofOfClearancePrinterProps = {
 	requestId: string;

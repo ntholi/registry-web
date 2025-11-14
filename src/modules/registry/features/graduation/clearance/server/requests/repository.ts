@@ -1,3 +1,4 @@
+import { studentsService } from '@registry/students';
 import { and, eq, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm/sql';
 import { db } from '@/core/database';
@@ -12,7 +13,6 @@ import {
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
-import { studentsService } from '@/modules/registry/features/students/server/service';
 import { getOutstandingFromStructure } from '@/shared/lib/utils/grades';
 
 export default class GraduationRequestRepository extends BaseRepository<

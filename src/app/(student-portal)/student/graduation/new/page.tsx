@@ -19,7 +19,9 @@ import {
 	getGraduationRequestByStudentNo,
 } from '@registry/graduation/clearance';
 import {
+	InformationConfirmation,
 	PaymentReceiptsInput,
+	ProgramSelection,
 	ReviewAndSubmit,
 } from '@student-portal/graduation';
 import {
@@ -31,8 +33,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { paymentType } from '@/core/database/schema';
-import InformationConfirmation from '@/modules/student-portal/features/graduation/components/new/InformationConfirmation';
-import ProgramSelection from '@/modules/student-portal/features/graduation/components/new/ProgramSelection';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type PaymentReceiptData = {

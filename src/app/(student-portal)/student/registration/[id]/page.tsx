@@ -17,21 +17,21 @@ import {
 } from '@mantine/core';
 import { getRegistrationRequest } from '@registry/registration/requests';
 import {
+	ClearanceStatusView,
 	DepartmentMessagesView,
+	ModulesView,
 	ProofOfRegistrationDownload,
 } from '@student-portal/registration';
-import { getStatusColor } from '@student-portal/utils';
+import {
+	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
+	getStatusColor,
+	getStatusIcon,
+} from '@student-portal/utils';
 import { IconBooks, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { MAX_REGISTRATION_ATTEMPTS } from '@/modules/registry/shared/constants';
-import ClearanceStatusView from '@/modules/student-portal/features/registration/components/request/ClearanceStatusView';
-import ModulesView from '@/modules/student-portal/features/registration/components/request/ModulesView';
-import {
-	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
-	getStatusIcon,
-} from '@/modules/student-portal/features/utils/lib/status';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Props = {

@@ -1,5 +1,6 @@
 'use client';
 
+import { getStudentCurrentSponsorship } from '@finance/sponsors';
 import {
 	Alert,
 	Box,
@@ -11,20 +12,19 @@ import {
 import { useForm } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { StudentModuleStatus } from '@/core/database/schema';
-import { getStudentCurrentSponsorship } from '@/modules/finance/features/sponsors/server/actions';
 import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@/modules/registry/features/registration/requests/server/requests/actions';
-import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
-import type { Student } from '@/modules/registry/features/students/utils';
+} from '@registry/registration';
+import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { StudentModuleStatus } from '@/core/database/schema';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
+import { getAcademicHistory } from '../../../server/actions';
+import type { Student } from '../../../utils';
 import ModuleSection from './ModuleSection';
 import SemesterInfoCard from './SemesterInfoCard';
 import SponsorSelector from './SponsorSelector';

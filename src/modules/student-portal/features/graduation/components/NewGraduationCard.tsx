@@ -1,5 +1,6 @@
 'use client';
 
+import { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Alert,
 	Button,
@@ -9,11 +10,10 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
+import { getGraduationRequestByStudentNo } from '@registry/graduation';
 import { IconInfoCircle, IconPlus, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
-import { getGraduationRequestByStudentNo } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 export default function NewGraduationCard() {

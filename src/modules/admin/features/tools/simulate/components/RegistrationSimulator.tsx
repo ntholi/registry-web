@@ -20,6 +20,15 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
+	determineSemesterStatus,
+	getStudentSemesterModules,
+} from '@registry/registration';
+import {
+	getCurrentSemester,
+	getStudent,
+	getStudentRegistrationData,
+} from '@registry/students';
+import {
 	IconAlertCircle,
 	IconExclamationCircle,
 	IconInfoCircle,
@@ -29,15 +38,6 @@ import {
 } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
-import {
-	determineSemesterStatus,
-	getStudentSemesterModules,
-} from '@/modules/registry/features/registration/requests/server/requests/actions';
-import {
-	getStudent,
-	getStudentRegistrationData,
-} from '@/modules/registry/features/students/server/actions';
-import { getCurrentSemester } from '@/modules/registry/features/students/utils';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';

@@ -1,7 +1,7 @@
+import { getCurrentTerm } from '@registry/terms';
 import type { assignedModules } from '@/core/database/schema';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import withAuth from '@/core/platform/withAuth';
-import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 import AssignedModuleRepository from './repository';
 
 type AssignedModule = typeof assignedModules.$inferInsert;

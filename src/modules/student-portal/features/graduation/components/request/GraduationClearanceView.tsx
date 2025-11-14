@@ -12,13 +12,13 @@ import {
 	TimelineItem,
 	Title,
 } from '@mantine/core';
-import { IconInfoCircle } from '@tabler/icons-react';
-import type { getGraduationRequest } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
+import type { getGraduationRequest } from '@registry/graduation';
 import {
 	getClearanceStatus,
 	getStatusColor,
 	getStatusIcon,
-} from '@/modules/student-portal/features/utils/lib/status';
+} from '@student-portal/utils';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 
 interface Props {

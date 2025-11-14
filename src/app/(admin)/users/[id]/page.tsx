@@ -1,4 +1,4 @@
-import { SchoolsList } from '@admin/users';
+import { deleteUser, getUser, getUserSchools, SchoolsList } from '@admin/users';
 import {
 	Avatar,
 	Badge,
@@ -9,11 +9,6 @@ import {
 	Stack,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import {
-	deleteUser,
-	getUser,
-	getUserSchools,
-} from '@/modules/admin/features/users/server/actions';
 import { largeProfilePic, toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	DetailsView,

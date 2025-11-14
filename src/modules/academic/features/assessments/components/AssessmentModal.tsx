@@ -1,5 +1,6 @@
 'use client';
 
+import type { getModule } from '@academic/modules';
 import { Button, Group, Modal, NumberInput, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -8,11 +9,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type assessmentNumber, assessments } from '@/core/database/schema';
-import {
-	createAssessment,
-	updateAssessment,
-} from '@/modules/academic/features/assessments/server/actions';
-import type { getModule } from '@/modules/academic/features/modules/server/actions';
+import { createAssessment, updateAssessment } from '../server/actions';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from '../utils';
 
 type AssessmentNumberType = (typeof assessmentNumber.enumValues)[number];

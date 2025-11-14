@@ -1,3 +1,4 @@
+import { confirmAccountDetails } from '@finance/sponsors';
 import {
 	Alert,
 	Card,
@@ -11,7 +12,6 @@ import {
 import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { confirmAccountDetails } from '@/modules/finance/features/sponsors/server/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 

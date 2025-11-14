@@ -7,11 +7,11 @@ import {
 	Title,
 } from '@mantine/core';
 import { getGraduationRequest } from '@registry/graduation/clearance';
+import { PaymentReceiptsEditor } from '@student-portal/graduation';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import PaymentReceiptsEditor from '@/modules/student-portal/features/graduation/components/request/PaymentReceiptsEditor';
 
 type Props = {
 	params: Promise<{

@@ -13,9 +13,9 @@ import {
 	Text,
 	Tooltip,
 } from '@mantine/core';
+import { getDocumentUrl } from '@registry/documents';
 import { IconDownload, IconFile, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getDocumentUrl } from '@/modules/registry/features/documents/server/actions';
 import { formatDate } from '@/shared/lib/utils/utils';
 import documentTypes from './documentTypes';
 

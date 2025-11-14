@@ -1,6 +1,6 @@
 'use client';
 
-import { TasksFilter } from '@admin/tasks';
+import { getTasks, type TaskFilter, TasksFilter } from '@admin/tasks';
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import {
 	IconAlertCircle,
@@ -14,10 +14,6 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import {
-	getTasks,
-	type TaskFilter,
-} from '@/modules/admin/features/tasks/server/actions';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 function getPriorityColor(priority: string) {

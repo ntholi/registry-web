@@ -9,6 +9,7 @@ import {
 	TabsTab,
 	ThemeIcon,
 } from '@mantine/core';
+import { ClearanceAccordion, RequestDetailsView } from '@registry/registration';
 import {
 	deleteRegistrationRequest,
 	getRegistrationRequest,
@@ -24,8 +25,6 @@ import type {
 	DashboardUser,
 	registrationRequestStatus,
 } from '@/core/database/schema';
-import ClearanceAccordion from '@/modules/registry/features/registration/requests/components/ClearanceAccordion';
-import RequestDetailsView from '@/modules/registry/features/registration/requests/components/RequestDetailsView';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 interface Props {

@@ -1,4 +1,5 @@
 'use client';
+import { getAssessmentTypeLabel } from '@academic/assessments';
 import {
 	Center,
 	CloseButton,
@@ -18,7 +19,6 @@ import {
 	IconSelector,
 } from '@tabler/icons-react';
 import React, { useState } from 'react';
-import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/utils';
 import Link from '@/shared/ui/Link';
 import {
 	useAssessmentMarksQuery,

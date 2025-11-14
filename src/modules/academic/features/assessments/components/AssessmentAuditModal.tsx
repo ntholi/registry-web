@@ -27,8 +27,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import type { assessments } from '@/core/database/schema';
-import { getAssessmentAuditHistory } from '@/modules/academic/features/assessments/server/actions';
 import { generateAssessmentAuditMessage } from '@/shared/lib/utils/auditUtils';
+import { getAssessmentAuditHistory } from '../server/actions';
 import { getAssessmentNumberLabel, getAssessmentTypeLabel } from '../utils';
 
 interface Props {

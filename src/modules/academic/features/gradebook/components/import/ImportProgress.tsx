@@ -1,11 +1,10 @@
 'use client';
 
+import { createOrUpdateMarksInBulk } from '@academic/assessment-marks';
 import { Button, Group, Paper, Progress, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
-
-import { createOrUpdateMarksInBulk } from '@/modules/academic/features/assessment-marks/server/actions';
 import type { ImportResult, ParsedRow } from './types';
 
 interface Props {

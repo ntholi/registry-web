@@ -9,8 +9,8 @@ import {
 	TableTr,
 	Text,
 } from '@mantine/core';
-import type { ClearanceType } from '@/modules/admin/features/reports/clearance/server/repository';
-import type { ClearanceStats } from '@/modules/admin/features/reports/clearance/server/service';
+import type { ClearanceType } from '../server/repository';
+import type { ClearanceStats } from '../server/service';
 
 interface Props {
 	data: ClearanceStats[];

@@ -1,9 +1,8 @@
 'use client';
 
 import { Box, Center, Loader } from '@mantine/core';
+import { AcademicsView, getStudent } from '@registry/students';
 import { useQuery } from '@tanstack/react-query';
-import AcademicsView from '@/modules/registry/features/students/components/academics/AcademicsView';
-import { getStudent } from '@/modules/registry/features/students/server/actions';
 
 type Props = {
 	stdNo: number;

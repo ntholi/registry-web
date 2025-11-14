@@ -1,3 +1,9 @@
+import {
+	type AcademicRemarks,
+	getActiveProgram,
+	getNextSemesterNo,
+	type Student,
+} from '@registry/students';
 import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '@/core/database';
 import {
@@ -6,12 +12,6 @@ import {
 	semesterModules,
 	structureSemesters,
 } from '@/core/database/schema';
-import {
-	type AcademicRemarks,
-	getActiveProgram,
-	getNextSemesterNo,
-	type Student,
-} from '@/modules/registry/features/students/utils';
 
 type ModuleWithStatus = {
 	semesterModuleId: number;

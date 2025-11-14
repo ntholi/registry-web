@@ -1,10 +1,6 @@
 import { Box } from '@mantine/core';
-import { Form } from '@registry/terms';
+import { Form, getTerm, updateTerm } from '@registry/terms';
 import { notFound } from 'next/navigation';
-import {
-	getTerm,
-	updateTerm,
-} from '@/modules/registry/features/terms/server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

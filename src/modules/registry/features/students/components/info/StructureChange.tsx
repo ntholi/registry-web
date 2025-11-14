@@ -1,4 +1,5 @@
 'use client';
+import { getStructuresByProgramId } from '@academic/structures';
 import {
 	ActionIcon,
 	Alert,
@@ -14,12 +15,11 @@ import { IconEdit, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { getStructuresByProgramId } from '@/modules/academic/features/structures/server/actions';
+import Link from '@/shared/ui/Link';
 import {
 	type getStudent,
 	updateStudentProgramStructure,
-} from '@/modules/registry/features/students/server/actions';
-import Link from '@/shared/ui/Link';
+} from '../../server/actions';
 
 type Props = {
 	student: Awaited<ReturnType<typeof getStudent>>;

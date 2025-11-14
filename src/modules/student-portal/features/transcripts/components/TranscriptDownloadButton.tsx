@@ -3,11 +3,10 @@
 import { ActionIcon, Button } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { pdf } from '@react-pdf/renderer';
+import { getAcademicHistory, StatementOfResultsPDF } from '@registry/students';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import StatementOfResultsPDF from '@/modules/registry/features/students/components/academics/statements/StatementOfResultsPDF';
-import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
 
 interface TranscriptDownloadButtonProps {
 	stdNo: number;

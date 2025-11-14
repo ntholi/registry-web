@@ -2,10 +2,12 @@
 
 import { ActionIcon } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
+import {
+	getStudentRegistrationDataByTerm,
+	ProofOfRegistrationPDF,
+} from '@registry/students';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
-import ProofOfRegistrationPDF from '@/modules/registry/features/students/components/registration/proof/ProofOfRegistrationPDF';
-import { getStudentRegistrationDataByTerm } from '@/modules/registry/features/students/server/actions';
 
 interface ProofOfRegistrationDownloadProps {
 	stdNo: number;

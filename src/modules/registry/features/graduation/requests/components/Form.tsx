@@ -6,8 +6,8 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { graduationRequests } from '@/core/database/schema';
-import { getEligiblePrograms } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import { Form } from '@/shared/ui/adease';
+import { getEligiblePrograms } from '../../clearance/server/requests/actions';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
 

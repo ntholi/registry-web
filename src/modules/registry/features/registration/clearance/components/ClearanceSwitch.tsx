@@ -9,11 +9,11 @@ import {
 	clearanceRequestStatus,
 	type dashboardUsers,
 } from '@/core/database/schema';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	type getClearance,
 	updateClearance,
-} from '@/modules/registry/features/registration/requests/server/clearance/actions';
-import { toTitleCase } from '@/shared/lib/utils/utils';
+} from '../../requests/server/clearance/actions';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;

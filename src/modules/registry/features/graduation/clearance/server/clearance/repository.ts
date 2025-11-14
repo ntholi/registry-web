@@ -1,3 +1,4 @@
+import { usersRepository } from '@admin/users';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import { db } from '@/core/database';
@@ -16,7 +17,6 @@ import {
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
-import { usersRepository } from '@/modules/admin/features/users/server/repository';
 
 type Model = typeof clearance.$inferInsert;
 

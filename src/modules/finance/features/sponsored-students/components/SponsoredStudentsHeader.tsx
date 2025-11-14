@@ -1,5 +1,7 @@
 'use client';
 
+import { getAllPrograms } from '@academic/schools';
+import { findAllSponsors } from '@finance/sponsors';
 import {
 	Box,
 	Checkbox,
@@ -10,11 +12,9 @@ import {
 	Stack,
 	TextInput,
 } from '@mantine/core';
+import { getAllTerms } from '@registry/terms';
 import { IconFilter, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPrograms } from '@/modules/academic/features/schools/server/actions';
-import { findAllSponsors } from '@/modules/finance/features/sponsors/server/actions';
-import { getAllTerms } from '@/modules/registry/features/terms/server/actions';
 
 interface SponsoredStudentsHeaderProps {
 	searchQuery: string;

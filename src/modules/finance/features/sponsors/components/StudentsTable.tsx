@@ -16,8 +16,8 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getSponsoredStudents } from '@/modules/finance/features/sponsors/server/actions';
 import Link from '@/shared/ui/Link';
+import { getSponsoredStudents } from '../server/actions';
 
 type Props = {
 	sponsorId: string;

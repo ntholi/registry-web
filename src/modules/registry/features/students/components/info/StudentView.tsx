@@ -19,13 +19,13 @@ import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import type { UserRole } from '@/core/database/schema';
-import type { getStudent } from '@/modules/registry/features/students/server/actions';
 import {
 	formatDate,
 	formatPhoneNumber,
 	formatSemester,
 } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
+import type { getStudent } from '../../server/actions';
 import { getProgramStatusColor } from '../academics/AcademicsView';
 import EditStudentUserModal from '../academics/EditStudentUserModal';
 import AcademicSummary from './AcademicSummary';

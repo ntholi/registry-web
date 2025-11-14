@@ -8,11 +8,13 @@ import {
 	Title,
 } from '@mantine/core';
 import { getStudentRegistrationHistory } from '@registry/registration/requests';
-import { RegistrationHistorySkeleton } from '@student-portal/registration';
+import {
+	RegistrationHistory,
+	RegistrationHistorySkeleton,
+} from '@student-portal/registration';
 import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/core/auth';
-import RegistrationHistory from '@/modules/student-portal/features/registration/components/RegistrationHistory';
 
 export default async function RegistrationPage() {
 	const session = await auth();

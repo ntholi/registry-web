@@ -12,10 +12,7 @@ import {
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
-import type {
-	CourseWork,
-	Topic,
-} from '@/modules/classroom/features/courses/server/actions';
+import type { CourseWork, Topic } from '../../server/actions';
 import { groupCourseWorkByTopic } from './courseWorkGrouping';
 
 type Props = {

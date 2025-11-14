@@ -1,3 +1,5 @@
+import type { AcademicRemarks, Student } from '@registry/students';
+import { getCurrentTerm } from '@registry/terms';
 import {
 	dashboardUsers,
 	type registrationRequests,
@@ -7,11 +9,6 @@ import {
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import type {
-	AcademicRemarks,
-	Student,
-} from '@/modules/registry/features/students/utils';
-import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 import RegistrationRequestRepository from './repository';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;

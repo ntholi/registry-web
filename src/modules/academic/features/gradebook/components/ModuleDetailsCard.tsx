@@ -1,11 +1,11 @@
 'use client';
 
+import type { getAssignedModuleByUserAndModule } from '@academic/assigned-modules';
 import { Flex, Group, Paper, Select, Stack, Text, Title } from '@mantine/core';
 import { IconBook, IconCalendar, IconChevronDown } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
-import type { getAssignedModuleByUserAndModule } from '@/modules/academic/features/assigned-modules/server/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { toClassName } from '@/shared/lib/utils/utils';
 import ExportButton from './export/ExportButton';

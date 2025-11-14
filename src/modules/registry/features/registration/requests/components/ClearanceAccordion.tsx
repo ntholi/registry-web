@@ -10,9 +10,9 @@ import type {
 	DashboardUser,
 	registrationRequestStatus,
 } from '@/core/database/schema';
-import type { getRegistrationRequest } from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
+import type { getRegistrationRequest } from '../server/requests/actions';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

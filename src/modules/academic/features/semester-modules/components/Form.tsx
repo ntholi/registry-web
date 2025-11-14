@@ -8,8 +8,8 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
 import { moduleType, semesterModules } from '@/core/database/schema';
-import { findAllModules } from '@/modules/academic/features/semester-modules/server/actions';
 import { Form } from '@/shared/ui/adease';
+import { findAllModules } from '../server/actions';
 
 type Module = typeof semesterModules.$inferInsert;
 

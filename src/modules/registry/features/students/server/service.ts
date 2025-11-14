@@ -1,8 +1,8 @@
+import { getCurrentTerm } from '@registry/terms';
 import type { students } from '@/core/database/schema';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 import type { Program } from '@/shared/lib/utils/grades/type';
 import type { StudentFilter } from './actions';
 import StudentRepository from './repository';

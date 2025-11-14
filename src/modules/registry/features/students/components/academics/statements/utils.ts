@@ -1,4 +1,4 @@
-import type { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
+import type { getAcademicHistory } from '../../../server/actions';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 

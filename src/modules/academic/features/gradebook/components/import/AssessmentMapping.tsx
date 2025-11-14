@@ -1,5 +1,6 @@
 'use client';
 
+import { getAssessmentTypeLabel } from '@academic/assessments';
 import {
 	Button,
 	Group,
@@ -11,7 +12,6 @@ import {
 } from '@mantine/core';
 import { IconCheck, IconQuestionMark } from '@tabler/icons-react';
 import { useState } from 'react';
-import { getAssessmentTypeLabel } from '@/modules/academic/features/assessments/utils';
 import type {
 	AssessmentInfo,
 	ColumnMapping,

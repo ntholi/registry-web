@@ -1,12 +1,12 @@
 'use client';
 
-import { StudentsFilter } from '@registry/students';
-import { useSearchParams } from 'next/navigation';
-import type { PropsWithChildren } from 'react';
 import {
 	findAllStudents,
 	type StudentFilter,
-} from '@/modules/registry/features/students/server/actions';
+	StudentsFilter,
+} from '@registry/students';
+import { useSearchParams } from 'next/navigation';
+import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {

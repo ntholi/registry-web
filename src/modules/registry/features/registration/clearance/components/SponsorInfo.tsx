@@ -1,8 +1,8 @@
 'use client';
 
+import { getSponsoredStudent } from '@finance/sponsors';
 import { Skeleton, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
 import { FieldView } from '@/shared/ui/adease';
 
 type Props = {

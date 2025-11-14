@@ -18,6 +18,7 @@ import {
 	MIME_TYPES,
 } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
+import { createDocument } from '@registry/documents';
 import {
 	IconFile,
 	IconFileUpload,
@@ -28,7 +29,6 @@ import {
 import { nanoid } from 'nanoid';
 import { useState } from 'react';
 import { uploadDocument } from '@/core/integrations/storage';
-import { createDocument } from '@/modules/registry/features/documents/server/actions';
 import documentTypes from './documentTypes';
 
 type AddDocumentModalProps = {

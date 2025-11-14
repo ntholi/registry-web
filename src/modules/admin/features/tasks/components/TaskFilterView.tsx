@@ -6,10 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import {
-	getTasksByPriority,
-	getTasksByStatus,
-} from '@/modules/admin/features/tasks/server/actions';
+import { getTasksByPriority, getTasksByStatus } from '../server/actions';
 
 type TaskFilterViewProps = {
 	filter: 'status' | 'priority';

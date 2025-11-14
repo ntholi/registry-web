@@ -1,9 +1,8 @@
 import { getBlockedStudentByStdNo } from '@finance/blocked-students';
-import { getStudent } from '@registry/students';
+import { getStudent, StudentTabs } from '@registry/students';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import { StudentTabs } from '@/modules/registry/features/students/components/StudentTabs';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 type Props = {

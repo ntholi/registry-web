@@ -1,5 +1,6 @@
 'use client';
 
+import { searchModulesWithDetails } from '@academic/semester-modules';
 import {
 	Autocomplete,
 	type AutocompleteProps,
@@ -12,7 +13,6 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { forwardRef, useState } from 'react';
-import { searchModulesWithDetails } from '@/modules/academic/features/semester-modules/server/actions';
 
 type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
 

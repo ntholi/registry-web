@@ -1,5 +1,6 @@
 'use client';
 
+import { upsertModuleGrade } from '@academic/module-grades';
 import {
 	Alert,
 	Badge,
@@ -19,7 +20,6 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { moduleGrades } from '@/core/database/schema';
-import { upsertModuleGrade } from '@/modules/academic/features/module-grades/server/actions';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 type ModuleGrade = typeof moduleGrades.$inferSelect;

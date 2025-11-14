@@ -1,5 +1,6 @@
 'use client';
 
+import { getStudentCurrentSponsorship } from '@finance/sponsors';
 import {
 	Alert,
 	Badge,
@@ -11,7 +12,6 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle, IconWallet } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getStudentCurrentSponsorship } from '@/modules/finance/features/sponsors/server/actions';
 
 interface SponsorshipInformationProps {
 	studentNo: number;

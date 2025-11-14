@@ -1,6 +1,7 @@
 'use client';
 
 import { getBlockedStudentByStdNo } from '@finance/blocked-students';
+import { getSponsoredStudent } from '@finance/sponsors';
 import {
 	Alert,
 	Badge,
@@ -23,6 +24,7 @@ import {
 } from '@registry/registration/requests';
 import {
 	ModuleSelection,
+	SemesterConfirmation,
 	SponsorshipDetailsEdit,
 } from '@student-portal/registration';
 import {
@@ -34,9 +36,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { StudentModuleStatus } from '@/core/database/schema';
-import { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
-import SemesterConfirmation from '@/modules/student-portal/features/registration/components/new/SemesterConfirmation';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 

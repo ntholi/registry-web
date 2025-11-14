@@ -1,5 +1,6 @@
 'use client';
 
+import { getAllSchools, getProgramsBySchoolId } from '@academic/schools';
 import {
 	ActionIcon,
 	Button,
@@ -13,16 +14,12 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { getAllTerms } from '@registry/terms';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { terms as termsTable } from '@/core/database/schema';
-import {
-	getAllSchools,
-	getProgramsBySchoolId,
-} from '@/modules/academic/features/schools/server/actions';
-import { getAllTerms } from '@/modules/registry/features/terms/server/actions';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {

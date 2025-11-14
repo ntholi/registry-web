@@ -1,6 +1,10 @@
 'use client';
 
 import {
+	findAllSponsors,
+	updateStudentSponsorshipById,
+} from '@finance/sponsors';
+import {
 	Button,
 	Group,
 	Modal,
@@ -14,10 +18,6 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import {
-	findAllSponsors,
-	updateStudentSponsorshipById,
-} from '@/modules/finance/features/sponsors/server/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 
 interface SponsoredStudentData {

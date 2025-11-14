@@ -1,10 +1,10 @@
 import { Box } from '@mantine/core';
+import { Form } from '@registry/graduation';
 import {
 	getGraduationRequest,
 	updateGraduationRequest,
 } from '@registry/graduation/clearance';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/registry/features/graduation/requests/components/Form';
 
 type Props = {
 	params: Promise<{ id: string }>;

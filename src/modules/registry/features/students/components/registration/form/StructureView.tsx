@@ -1,5 +1,6 @@
 'use client';
 
+import { getStructure } from '@academic/structures';
 import {
 	Alert,
 	Badge,
@@ -15,9 +16,8 @@ import {
 } from '@mantine/core';
 import { IconBook, IconInfoCircle, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getStructure } from '@/modules/academic/features/structures/server/actions';
-import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import { getAcademicHistory } from '../../../server/actions';
 
 type Props = {
 	stdNo: number;

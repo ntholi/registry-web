@@ -1,10 +1,10 @@
 'use client';
 
+import type { getStructureModules } from '@academic/structures';
 import { ActionIcon, Box, Group, Paper } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import type { StudentModuleStatus } from '@/core/database/schema';
-import type { getStructureModules } from '@/modules/academic/features/structures/server/actions';
 import { ModuleSearchInput } from './ModuleSearchInput';
 import ModulesTable from './ModulesTable';
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { getAllSponsoredStudents } from '@finance/sponsors';
 import {
 	Badge,
 	Center,
@@ -15,7 +16,6 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { getAllSponsoredStudents } from '@/modules/finance/features/sponsors/server/actions';
 import Link from '@/shared/ui/Link';
 import DownloadSponsoredStudentsButton from './DownloadButton';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';

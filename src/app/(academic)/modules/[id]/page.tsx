@@ -1,4 +1,5 @@
 import { deleteModule, getModule } from '@academic/modules';
+import { getStructuresByModule } from '@academic/semester-modules';
 import {
 	Box,
 	Skeleton,
@@ -12,7 +13,6 @@ import {
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { getStructuresByModule } from '@/modules/academic/features/semester-modules/server/actions';
 import {
 	DetailsView,
 	DetailsViewBody,

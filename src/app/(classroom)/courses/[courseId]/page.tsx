@@ -1,4 +1,12 @@
-import { AssessmentsTab, MaterialTab } from '@classroom/courses';
+import {
+	AssessmentsTab,
+	DashboardTab,
+	getCourse,
+	getCourseAnnouncements,
+	getCourseTopics,
+	getCourseWork,
+	MaterialTab,
+} from '@classroom/courses';
 import {
 	Badge,
 	Button,
@@ -16,13 +24,6 @@ import {
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { hasGoogleClassroomScope } from '@/core/integrations/google-classroom';
-import DashboardTab from '@/modules/classroom/features/courses/components/course-detail/DashboardTab';
-import {
-	getCourse,
-	getCourseAnnouncements,
-	getCourseTopics,
-	getCourseWork,
-} from '@/modules/classroom/features/courses/server/actions';
 
 type Props = {
 	params: Promise<{

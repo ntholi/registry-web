@@ -7,8 +7,8 @@ import {
 	Stack,
 	ThemeIcon,
 } from '@mantine/core';
+import { studentColors } from '@student-portal/utils';
 import { IconBook, IconTrophy } from '@tabler/icons-react';
-import { studentColors } from '@/modules/student-portal/features/utils/lib/colors';
 
 type Props = {
 	isMobile: boolean;

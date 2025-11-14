@@ -1,5 +1,6 @@
 'use client';
 
+import { GradeTable } from '@admin/tools';
 import { GradeCalculatorForm } from '@admin/tools/grade-calculator';
 import {
 	Box,
@@ -12,7 +13,6 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconCalculator } from '@tabler/icons-react';
-import { GradeTable } from '@/modules/admin/features/tools/grade-calculator/components/GradeTable';
 
 export default function GradeCalculatorPage() {
 	return (
