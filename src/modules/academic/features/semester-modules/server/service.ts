@@ -6,8 +6,6 @@ import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import ModuleRepository from './repository';
 
-type Module = typeof semesterModules.$inferInsert;
-
 class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 	constructor() {
 		super(new ModuleRepository(), {
@@ -16,6 +14,13 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 			createRoles: ['registry'],
 			updateRoles: ['registry'],
 		});
+	}
+
+	override async get(id: number) {
+		return withAuth(
+			async () => (this.repository as ModuleRepository).findById(id),
+			['dashboard']
+		);
 	}
 
 	async getByCode(code: string) {
@@ -34,67 +39,89 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 
 	async findModulesByStructure(structureId: number, search = '') {
 		return withAuth(
-			async () => (this.repository as ModuleRepository).findModulesByStructure(structureId, search),
+			async () =>
+				(this.repository as ModuleRepository).findModulesByStructure(
+					structureId,
+					search
+				),
 			['dashboard']
 		);
 	}
 
 	async getModulesByStructure(structureId: number) {
 		return withAuth(
-			async () => (this.repository as ModuleRepository).getModulesByStructure(structureId),
+			async () =>
+				(this.repository as ModuleRepository).getModulesByStructure(
+					structureId
+				),
 			['dashboard']
 		);
 	}
 
 	async getSchools() {
-		return withAuth(async () => (this.repository as ModuleRepository).getSchools(), ['dashboard']);
+		return withAuth(
+			async () => (this.repository as ModuleRepository).getSchools(),
+			['dashboard']
+		);
 	}
 
 	async getProgramsBySchool(schoolId: number) {
 		return withAuth(
-			async () => (this.repository as ModuleRepository).getProgramsBySchool(schoolId),
+			async () =>
+				(this.repository as ModuleRepository).getProgramsBySchool(schoolId),
 			['dashboard']
 		);
 	}
 
 	async getStructuresByProgram(programId: number) {
 		return withAuth(
-			async () => (this.repository as ModuleRepository).getStructuresByProgram(programId),
+			async () =>
+				(this.repository as ModuleRepository).getStructuresByProgram(programId),
 			['dashboard']
 		);
 	}
 
 	async getStructuresByModule(moduleId: number) {
 		return withAuth(
-			async () => (this.repository as ModuleRepository).getStructuresByModule(moduleId),
+			async () =>
+				(this.repository as ModuleRepository).getStructuresByModule(moduleId),
 			['dashboard']
 		);
 	}
 
 	async addPrerequisite(moduleId: number, prerequisiteId: number) {
 		return withAuth(
-			async () => (this.repository as ModuleRepository).addPrerequisite(moduleId, prerequisiteId),
+			async () =>
+				(this.repository as ModuleRepository).addPrerequisite(
+					moduleId,
+					prerequisiteId
+				),
 			['dashboard']
 		);
 	}
 
 	async clearPrerequisites(moduleId: number) {
 		return withAuth(
-			async () => (this.repository as ModuleRepository).clearPrerequisites(moduleId),
+			async () =>
+				(this.repository as ModuleRepository).clearPrerequisites(moduleId),
 			['dashboard']
 		);
 	}
 
 	async getPrerequisites(moduleId: number) {
 		return withAuth(
-			async () => (this.repository as ModuleRepository).getPrerequisites(moduleId),
+			async () =>
+				(this.repository as ModuleRepository).getPrerequisites(moduleId),
 			['dashboard']
 		);
 	}
 
 	async getModulesForStructure(structureId: number) {
 		return withAuth(
-			async () => (this.repository as ModuleRepository).getModulesForStructure(structureId),
+			async () =>
+				(this.repository as ModuleRepository).getModulesForStructure(
+					structureId
+				),
 			['dashboard', 'student']
 		);
 	}
@@ -102,7 +129,11 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 	async searchModulesWithDetails(search = '') {
 		const term = await getCurrentTerm();
 		return withAuth(
-			async () => (this.repository as ModuleRepository).searchModulesWithDetails(search, term),
+			async () =>
+				(this.repository as ModuleRepository).searchModulesWithDetails(
+					search,
+					term
+				),
 			['dashboard']
 		);
 	}

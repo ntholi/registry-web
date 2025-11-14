@@ -13,21 +13,27 @@ class ModuleGradeService extends BaseService<typeof moduleGrades, 'id'> {
 
 	async findByModuleAndStudent(moduleId: number, stdNo: number) {
 		return withAuth(
-			async () => (this.repository as ModuleGradeRepository).findByModuleAndStudent(moduleId, stdNo),
+			async () =>
+				(this.repository as ModuleGradeRepository).findByModuleAndStudent(
+					moduleId,
+					stdNo
+				),
 			['academic']
 		);
 	}
 
 	async getByModuleId(moduleId: number) {
 		return withAuth(
-			async () => (this.repository as ModuleGradeRepository).findByModuleId(moduleId),
+			async () =>
+				(this.repository as ModuleGradeRepository).findByModuleId(moduleId),
 			['academic']
 		);
 	}
 
 	async upsertModuleGrade(data: ModuleGrade) {
 		return withAuth(
-			async () => (this.repository as ModuleGradeRepository).upsertModuleGrade(data),
+			async () =>
+				(this.repository as ModuleGradeRepository).upsertModuleGrade(data),
 			['academic']
 		);
 	}

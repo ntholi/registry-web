@@ -4,8 +4,6 @@ import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import StructureRepository from './repository';
 
-type Structure = typeof structures.$inferInsert;
-
 class StructureService extends BaseService<typeof structures, 'id'> {
 	constructor() {
 		super(new StructureRepository(), {
@@ -14,20 +12,35 @@ class StructureService extends BaseService<typeof structures, 'id'> {
 		});
 	}
 
+	override async get(id: number) {
+		return withAuth(
+			async () => (this.repository as StructureRepository).findById(id),
+			['dashboard']
+		);
+	}
+
 	async getByProgramId(programId: number) {
 		return withAuth(
-			async () => (this.repository as StructureRepository).findByProgramId(programId),
+			async () =>
+				(this.repository as StructureRepository).findByProgramId(programId),
 			['dashboard']
 		);
 	}
 
 	async deleteSemesterModule(id: number) {
-		withAuth(async () => (this.repository as StructureRepository).deleteSemesterModule(id), []);
+		withAuth(
+			async () =>
+				(this.repository as StructureRepository).deleteSemesterModule(id),
+			[]
+		);
 	}
 
 	async getStructureModules(structureId: number) {
 		return withAuth(
-			async () => (this.repository as StructureRepository).getStructureModules(structureId),
+			async () =>
+				(this.repository as StructureRepository).getStructureModules(
+					structureId
+				),
 			['dashboard']
 		);
 	}

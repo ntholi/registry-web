@@ -4,8 +4,6 @@ import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import AssessmentRepository from './repository';
 
-type Assessment = typeof assessments.$inferInsert;
-
 class AssessmentService extends BaseService<typeof assessments, 'id'> {
 	constructor() {
 		super(new AssessmentRepository(), {
@@ -20,14 +18,16 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 
 	async getByModuleId(moduleId: number) {
 		return withAuth(
-			async () => (this.repository as AssessmentRepository).getByModuleId(moduleId),
+			async () =>
+				(this.repository as AssessmentRepository).getByModuleId(moduleId),
 			['academic']
 		);
 	}
 
 	async getAuditHistory(assessmentId: number) {
 		return withAuth(
-			async () => (this.repository as AssessmentRepository).getAuditHistory(assessmentId),
+			async () =>
+				(this.repository as AssessmentRepository).getAuditHistory(assessmentId),
 			['academic']
 		);
 	}

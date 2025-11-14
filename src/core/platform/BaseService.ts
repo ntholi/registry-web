@@ -1,9 +1,9 @@
 import type { PgTable as Table } from 'drizzle-orm/pg-core';
 import type { Session } from 'next-auth';
 import type { UserRole } from '@/core/database/schema';
-import withAuth from './withAuth';
 import type BaseRepository from './BaseRepository';
 import type { QueryOptions } from './BaseRepository';
+import withAuth from './withAuth';
 
 type ModelInsert<T extends Table> = T['$inferInsert'];
 type ModelSelect<T extends Table> = T['$inferSelect'];
@@ -95,7 +95,10 @@ abstract class BaseService<
 
 	async update(id: ModelSelect<T>[PK], data: Partial<ModelInsert<T>>) {
 		const roles = this.updateRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async () => this.repository.update(id, data), roles as Role[]);
+		return withAuth(
+			async () => this.repository.update(id, data),
+			roles as Role[]
+		);
 	}
 
 	async delete(id: ModelSelect<T>[PK]) {

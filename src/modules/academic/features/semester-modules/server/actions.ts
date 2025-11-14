@@ -10,7 +10,7 @@ export async function getSemesterModule(id: number) {
 }
 
 export async function findAllModules(page: number = 1, search = '') {
-	return semesterModulesService.findAll(
+	return semesterModulesService.search(
 		{
 			page,
 		},
