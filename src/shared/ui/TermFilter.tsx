@@ -6,7 +6,7 @@ import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
-import { findAllTerms } from '@/modules/registry/features/terms/server/actions';
+import { getAllTerms } from '@/modules/registry/features/terms/server/actions';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 
 interface TermFilterProps {
@@ -26,10 +26,9 @@ export default function TermFilter({
 }: TermFilterProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const { data: terms, isLoading } = useQuery({
-		queryKey: ['all-terms'],
-		queryFn: () => findAllTerms(),
+		queryKey: ['terms'],
+		queryFn: () => getAllTerms(),
 		staleTime: 1000 * 60 * 10,
-		select: (data) => data.items,
 	});
 	const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 

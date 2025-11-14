@@ -124,7 +124,7 @@ export default function RegistrationRequestForm({
 	});
 
 	const { data: student, isLoading: studentLoading } = useQuery({
-		queryKey: ['student', stdNo],
+		queryKey: ['academic-history', stdNo],
 		queryFn: () => getAcademicHistory(stdNo),
 		enabled: !!stdNo,
 	});
@@ -222,7 +222,7 @@ export default function RegistrationRequestForm({
 				color: 'green',
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['registration-requests', stdNo],
+				queryKey: ['registration-history', stdNo],
 			});
 			handleReset();
 		},

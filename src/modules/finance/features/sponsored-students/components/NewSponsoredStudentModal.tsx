@@ -29,7 +29,7 @@ export default function NewSponsoredStudentModal() {
 	const { currentTerm } = useCurrentTerm();
 
 	const { data: sponsors, isLoading: isLoadingSponsors } = useQuery({
-		queryKey: ['sponsors-for-new-sponsored-student'],
+		queryKey: ['sponsors'],
 		queryFn: () => findAllSponsors(1, '').then((response) => response.items),
 	});
 

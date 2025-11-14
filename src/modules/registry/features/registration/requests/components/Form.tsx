@@ -27,7 +27,7 @@ import {
 	getStudentSemesterModules,
 } from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { getStudentRegistrationData } from '@/modules/registry/features/students/server/actions';
-import { findAllTerms } from '@/modules/registry/features/terms/server/actions';
+import { getAllTerms } from '@/modules/registry/features/terms/server/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -108,11 +108,11 @@ export default function RegistrationRequestForm({
 
 	const { currentTerm } = useCurrentTerm();
 	const { data: allTerms = [] } = useQuery({
-		queryKey: ['all-terms'],
-		queryFn: async () => await findAllTerms(),
+		queryKey: ['terms'],
+		queryFn: async () => await getAllTerms(),
 		select: (terms) => {
 			console.log('Terms fetched:', terms);
-			return terms.items;
+			return terms;
 		},
 	});
 

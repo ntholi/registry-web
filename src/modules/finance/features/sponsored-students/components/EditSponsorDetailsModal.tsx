@@ -69,7 +69,7 @@ export default function EditSponsorDetailsModal({
 	const queryClient = useQueryClient();
 
 	const { data: sponsors, isLoading: isLoadingSponsors } = useQuery({
-		queryKey: ['sponsors-for-edit'],
+		queryKey: ['sponsors'],
 		queryFn: () => findAllSponsors(1, '').then((response) => response.items),
 	});
 

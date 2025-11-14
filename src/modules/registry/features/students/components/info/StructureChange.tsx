@@ -55,6 +55,9 @@ export default function StructureChange({ student }: Props) {
 				color: 'green',
 			});
 			queryClient.invalidateQueries({ queryKey: ['student', student?.stdNo] });
+			queryClient.invalidateQueries({
+				queryKey: ['academic-history', student?.stdNo],
+			});
 			setOpened(false);
 			setSelectedStructureId(null);
 		},

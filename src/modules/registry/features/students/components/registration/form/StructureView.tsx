@@ -26,7 +26,7 @@ type Props = {
 
 export default function StructureView({ stdNo, isActive = false }: Props) {
 	const { data: student, isLoading: studentLoading } = useQuery({
-		queryKey: ['student', stdNo],
+		queryKey: ['academic-history', stdNo],
 		queryFn: () => getAcademicHistory(stdNo),
 		enabled: isActive && !!stdNo,
 	});
