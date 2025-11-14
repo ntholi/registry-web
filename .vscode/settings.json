@@ -1,0 +1,10 @@
+{
+	"chat.tools.edits.autoApprove": {
+		"**/*": true,
+		"**/.vscode/*.json": false,
+		"**/.git/**": false,
+		"**/{package.json,package-lock.json,server.xml,build.rs,web.config,.gitattributes,.env}": false,
+		"**/*.{csproj,fsproj,vbproj,vcxproj,proj,targets,props}": false
+	},
+	"chat.tools.terminal.enableAutoApprove": true
+}

@@ -19,9 +19,9 @@ import type {
 	registrationRequestStatus,
 } from '@/core/database/schema';
 import { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
-import ClearanceAccordion from '@/modules/registry/features/registration-requests/components/[status]/[id]/ClearanceAccordion';
-import ModulesView from '@/modules/registry/features/registration-requests/components/[status]/[id]/ModulesView';
-import RequestDetailsView from '@/modules/registry/features/registration-requests/components/[status]/[id]/RequestDetailsView';
+import ClearanceAccordion from '@/modules/registry/features/registration-requests/components/ClearanceAccordion';
+import ModulesView from '@/modules/registry/features/registration-requests/components/ModulesView';
+import RequestDetailsView from '@/modules/registry/features/registration-requests/components/RequestDetailsView';
 import {
 	deleteRegistrationRequest,
 	getRegistrationRequest,

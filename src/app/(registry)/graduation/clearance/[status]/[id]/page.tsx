@@ -1,10 +1,10 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import AcademicsLoader from '@/modules/registry/features/clearance/components/[status]/[id]/AcademicsLoader';
-import GraduationClearanceDetails from '@/modules/registry/features/graduation-clearance/components/[status]/[id]/GraduationClearanceDetails';
-import GraduationClearanceHeader from '@/modules/registry/features/graduation-clearance/components/[status]/[id]/GraduationClearanceHeader';
-import GraduationClearanceHistory from '@/modules/registry/features/graduation-clearance/components/[status]/[id]/GraduationClearanceHistory';
+import AcademicsLoader from '@/modules/registry/features/clearance/components/AcademicsLoader';
+import GraduationClearanceDetails from '@/modules/registry/features/graduation-clearance/components/GraduationClearanceDetails';
+import GraduationClearanceHeader from '@/modules/registry/features/graduation-clearance/components/GraduationClearanceHeader';
+import GraduationClearanceHistory from '@/modules/registry/features/graduation-clearance/components/GraduationClearanceHistory';
 import { getGraduationClearance } from '@/modules/registry/features/graduation-clearance/server/clearance/actions';
 import { DetailsView } from '@/shared/ui/adease';
 

@@ -26,8 +26,8 @@ import {
 	formatSemester,
 } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
-import { getProgramStatusColor } from '../AcademicsView';
-import EditStudentUserModal from '../AcademicsView/EditStudentUserModal';
+import { getProgramStatusColor } from '../academics/AcademicsView';
+import EditStudentUserModal from '../academics/EditStudentUserModal';
 import AcademicSummary from './AcademicSummary';
 import PhotoView from './PhotoView';
 import StructureChange from './StructureChange';

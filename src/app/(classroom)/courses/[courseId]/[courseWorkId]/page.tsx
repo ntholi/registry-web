@@ -13,9 +13,9 @@ import {
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { hasGoogleClassroomScope } from '@/core/integrations/google-classroom';
-import AttachmentCard from '@/modules/classroom/features/courses/components/[courseId]/[courseWorkId]/AttachmentCard';
-import CourseHeader from '@/modules/classroom/features/courses/components/[courseId]/[courseWorkId]/CourseHeader';
-import SubmissionCard from '@/modules/classroom/features/courses/components/[courseId]/[courseWorkId]/SubmissionCard';
+import AttachmentCard from '@/modules/classroom/features/courses/components/course-work/AttachmentCard';
+import CourseHeader from '@/modules/classroom/features/courses/components/course-work/CourseHeader';
+import SubmissionCard from '@/modules/classroom/features/courses/components/course-work/SubmissionCard';
 import {
 	getCourse,
 	getCourseWorkById,

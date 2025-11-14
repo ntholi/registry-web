@@ -3,7 +3,7 @@
 import { Center, Loader, Modal, Tabs } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import AcademicsView from '@/modules/registry/features/students/components/[id]/AcademicsView';
+import AcademicsView from '@/modules/registry/features/students/components/academics/AcademicsView';
 import { getStudent } from '@/modules/registry/features/students/server/actions';
 import RegistrationRequestForm from './RegistrationRequestForm';
 import StructureView from './StructureView';

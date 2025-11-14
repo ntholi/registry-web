@@ -15,9 +15,9 @@ import {
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { hasGoogleClassroomScope } from '@/core/integrations/google-classroom';
-import AssessmentsTab from '@/modules/classroom/features/courses/components/[courseId]/AssessmentsTab';
-import DashboardTab from '@/modules/classroom/features/courses/components/[courseId]/DashboardTab';
-import MaterialTab from '@/modules/classroom/features/courses/components/[courseId]/MaterialTab';
+import AssessmentsTab from '@/modules/classroom/features/courses/components/course-detail/AssessmentsTab';
+import DashboardTab from '@/modules/classroom/features/courses/components/course-detail/DashboardTab';
+import MaterialTab from '@/modules/classroom/features/courses/components/course-detail/MaterialTab';
 import {
 	getCourse,
 	getCourseAnnouncements,

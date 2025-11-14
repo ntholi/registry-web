@@ -26,9 +26,9 @@ import {
 	useModuleGradesQuery,
 } from '../hooks/useAssessmentsQuery';
 import { type Student, useStudentsQuery } from '../hooks/useStudentsQuery';
-import ExcelImport from './excel/ExcelImport';
 import GradeDisplay from './GradeDisplay';
 import GradeSymbolModal from './GradeSymbolModal';
+import ExcelImport from './import/ExcelImport';
 import MarksAuditModal from './MarksAuditModal';
 import MarksInput from './MarksInput';
 

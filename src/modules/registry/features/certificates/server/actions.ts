@@ -10,7 +10,7 @@ import {
 	expandProgramName,
 	formatIssueDate,
 	generateQRCodeDataURL,
-} from '@/modules/registry/features/students/components/[id]/graduation/certificate/utils';
+} from '@/modules/registry/features/students/components/graduation/certificate/utils';
 
 const PRIMARY_COLOR = rgb(0, 0, 0);
 const REFERENCE_RIGHT_MARGIN = 36;

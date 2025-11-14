@@ -24,7 +24,7 @@ import {
 	getProgramsByGraduationDate,
 	getStudentsByGraduationDate,
 } from '@/modules/admin/features/bulk-transcripts/server/actions';
-import { TranscriptPages } from '@/modules/registry/features/students/components/[id]/graduation/transcript/TranscriptPDF';
+import { TranscriptPages } from '@/modules/registry/features/students/components/graduation/transcript/TranscriptPDF';
 import type { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;

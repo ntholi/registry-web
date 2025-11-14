@@ -15,7 +15,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
-import { getCleanedSemesters } from '@/modules/registry/features/students/components/[id]/AcademicsView/statements/utils';
+import { getCleanedSemesters } from '@/modules/registry/features/students/components/academics/statements/utils';
 import DesktopTable from '@/modules/student-portal/features/transcripts/components/DesktopTable';
 import LoadingSkeleton from '@/modules/student-portal/features/transcripts/components/LoadingSkeleton';
 import MobileTable from '@/modules/student-portal/features/transcripts/components/MobileTable';

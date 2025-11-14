@@ -2,7 +2,7 @@
 
 import { Box, Center, Loader } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import AcademicsView from '@/modules/registry/features/students/components/[id]/AcademicsView';
+import AcademicsView from '@/modules/registry/features/students/components/academics/AcademicsView';
 import { getStudent } from '@/modules/registry/features/students/server/actions';
 
 type Props = {

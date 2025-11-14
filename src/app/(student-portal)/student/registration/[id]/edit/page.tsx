@@ -32,9 +32,9 @@ import {
 	updateRegistrationWithModulesAndSponsorship,
 } from '@/modules/registry/features/registration-requests/server/requests/actions';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
-import SponsorshipDetailsEdit from '@/modules/student-portal/features/registration/components/[id]/edit/SponsorshipDetailsEdit';
 import ModuleSelection from '@/modules/student-portal/features/registration/components/new/ModuleSelection';
 import SemesterConfirmation from '@/modules/student-portal/features/registration/components/new/SemesterConfirmation';
+import SponsorshipDetailsEdit from '@/modules/student-portal/features/registration/components/request/SponsorshipDetailsEdit';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 

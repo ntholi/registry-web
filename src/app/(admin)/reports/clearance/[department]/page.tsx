@@ -15,8 +15,8 @@ import { IconCalendar, IconFilter, IconSearch } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import type { DashboardUser } from '@/core/database/schema';
-import { StatsSummary } from '@/modules/admin/features/reports-clearance/components/[department]/StatsSummary';
-import { StatsTable } from '@/modules/admin/features/reports-clearance/components/[department]/StatsTable';
+import { StatsSummary } from '@/modules/admin/features/reports-clearance/components/StatsSummary';
+import { StatsTable } from '@/modules/admin/features/reports-clearance/components/StatsTable';
 import { fetchClearanceStats } from '@/modules/admin/features/reports-clearance/server/actions';
 import type {
 	ClearanceFilter,

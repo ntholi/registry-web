@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/registry/features/clearance/components/[status]/Form';
+import Form from '@/modules/registry/features/clearance/components/Form';
 import {
 	getClearance,
 	updateClearance,

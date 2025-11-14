@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { getGraduationRequest } from '@/modules/registry/features/graduation-clearance/server/requests/actions';
-import PaymentReceiptsEditor from '@/modules/student-portal/features/graduation/components/[id]/edit/PaymentReceiptsEditor';
+import PaymentReceiptsEditor from '@/modules/student-portal/features/graduation/components/request/PaymentReceiptsEditor';
 
 type Props = {
 	params: Promise<{

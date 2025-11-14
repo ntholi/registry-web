@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
-import { StudentTabs } from '@/modules/registry/features/students/components/[id]/StudentTabs';
+import { StudentTabs } from '@/modules/registry/features/students/components/StudentTabs';
 import { getStudent } from '@/modules/registry/features/students/server/actions';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 

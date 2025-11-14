@@ -9,7 +9,7 @@ import {
 	getGraduationClearanceData,
 	getGraduationRequest,
 } from '@/modules/registry/features/graduation-clearance/server/requests/actions';
-import ProofOfClearancePDF from '@/modules/student-portal/features/graduation/components/components/ProofOfClearancePDF';
+import ProofOfClearancePDF from '@/modules/student-portal/features/graduation/components/ProofOfClearancePDF';
 
 type ProofOfClearancePrinterProps = {
 	requestId: string;

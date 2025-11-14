@@ -1,7 +1,7 @@
 import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
 import { Fragment } from 'react';
 import { createTw } from 'react-pdf-tailwind';
-import { getCleanedSemesters } from '@/modules/registry/features/students/components/[id]/AcademicsView/statements/utils';
+import { getCleanedSemesters } from '@/modules/registry/features/students/components/academics/statements/utils';
 import type { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import GradeClassificationPage from './GradeClassificationPage';

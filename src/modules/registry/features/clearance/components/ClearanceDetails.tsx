@@ -21,9 +21,9 @@ import type { getClearance } from '@/modules/registry/features/registration-requ
 import { formatDateTime } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
-import SponsorInfo from '../SponsorInfo';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
+import SponsorInfo from './SponsorInfo';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;
