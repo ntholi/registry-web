@@ -15,7 +15,7 @@ export async function getPaymentReceipt(id: number) {
 }
 
 export async function getPaymentReceipts(page: number = 1, search = '') {
-	return service.getAll({ page, search });
+	return service.findAll({ page, search });
 }
 
 export async function getPaymentReceiptsByGraduationRequest(

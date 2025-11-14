@@ -1,116 +1,100 @@
 import { getCurrentTerm } from '@registry/terms';
 import type { semesterModules } from '@/core/database/schema';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
+import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import ModuleRepository from './repository';
 
 type Module = typeof semesterModules.$inferInsert;
 
-class SemesterModuleService {
-	constructor(private readonly repository = new ModuleRepository()) {}
-
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
-	async get(id: number) {
-		return withAuth(async () => this.repository.findById(id), ['dashboard']);
+class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
+	constructor() {
+		super(new ModuleRepository(), {
+			byIdRoles: ['dashboard'],
+			findAllRoles: ['dashboard'],
+			createRoles: ['registry'],
+			updateRoles: ['registry'],
+		});
 	}
 
 	async getByCode(code: string) {
 		return withAuth(
-			async () => this.repository.findByCode(code),
+			async () => (this.repository as ModuleRepository).findByCode(code),
 			['dashboard']
 		);
 	}
 
-	async findAll(params: QueryOptions<typeof semesterModules>, search: string) {
+	async search(params: QueryOptions<typeof semesterModules>, search: string) {
 		return withAuth(
-			async () => this.repository.search(params, search),
+			async () => (this.repository as ModuleRepository).search(params, search),
 			['dashboard']
 		);
 	}
 
 	async findModulesByStructure(structureId: number, search = '') {
 		return withAuth(
-			async () => this.repository.findModulesByStructure(structureId, search),
+			async () => (this.repository as ModuleRepository).findModulesByStructure(structureId, search),
 			['dashboard']
 		);
 	}
 
-	async create(data: Module) {
-		return withAuth(async () => this.repository.create(data), ['registry']);
-	}
-
-	async update(id: number, data: Module) {
-		return withAuth(async () => this.repository.update(id, data), ['registry']);
-	}
-
-	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), []);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
-	}
-
 	async getModulesByStructure(structureId: number) {
 		return withAuth(
-			async () => this.repository.getModulesByStructure(structureId),
+			async () => (this.repository as ModuleRepository).getModulesByStructure(structureId),
 			['dashboard']
 		);
 	}
 
 	async getSchools() {
-		return withAuth(async () => this.repository.getSchools(), ['dashboard']);
+		return withAuth(async () => (this.repository as ModuleRepository).getSchools(), ['dashboard']);
 	}
 
 	async getProgramsBySchool(schoolId: number) {
 		return withAuth(
-			async () => this.repository.getProgramsBySchool(schoolId),
+			async () => (this.repository as ModuleRepository).getProgramsBySchool(schoolId),
 			['dashboard']
 		);
 	}
 
 	async getStructuresByProgram(programId: number) {
 		return withAuth(
-			async () => this.repository.getStructuresByProgram(programId),
+			async () => (this.repository as ModuleRepository).getStructuresByProgram(programId),
 			['dashboard']
 		);
 	}
 
 	async getStructuresByModule(moduleId: number) {
 		return withAuth(
-			async () => this.repository.getStructuresByModule(moduleId),
+			async () => (this.repository as ModuleRepository).getStructuresByModule(moduleId),
 			['dashboard']
 		);
 	}
 
 	async addPrerequisite(moduleId: number, prerequisiteId: number) {
 		return withAuth(
-			async () => this.repository.addPrerequisite(moduleId, prerequisiteId),
+			async () => (this.repository as ModuleRepository).addPrerequisite(moduleId, prerequisiteId),
 			['dashboard']
 		);
 	}
 
 	async clearPrerequisites(moduleId: number) {
 		return withAuth(
-			async () => this.repository.clearPrerequisites(moduleId),
+			async () => (this.repository as ModuleRepository).clearPrerequisites(moduleId),
 			['dashboard']
 		);
 	}
 
 	async getPrerequisites(moduleId: number) {
 		return withAuth(
-			async () => this.repository.getPrerequisites(moduleId),
+			async () => (this.repository as ModuleRepository).getPrerequisites(moduleId),
 			['dashboard']
 		);
 	}
 
 	async getModulesForStructure(structureId: number) {
 		return withAuth(
-			async () => this.repository.getModulesForStructure(structureId),
+			async () => (this.repository as ModuleRepository).getModulesForStructure(structureId),
 			['dashboard', 'student']
 		);
 	}
@@ -118,7 +102,7 @@ class SemesterModuleService {
 	async searchModulesWithDetails(search = '') {
 		const term = await getCurrentTerm();
 		return withAuth(
-			async () => this.repository.searchModulesWithDetails(search, term),
+			async () => (this.repository as ModuleRepository).searchModulesWithDetails(search, term),
 			['dashboard']
 		);
 	}

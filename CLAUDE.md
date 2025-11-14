@@ -127,35 +127,17 @@ export const entityRepository = new EntityRepository();
 **Location**: `/src/modules/[module]/features/[feature]/server/service.ts`
 
 ```typescript
+import type { tableName } from '@/core/database/schema';
+import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
-import EntityRepository, { type EntityInsert, type EntityQueryOptions } from './repository';
+import EntityRepository from './repository';
 
-class EntityService {
-  constructor(private readonly repository = new EntityRepository()) {}
-
-  async get(id: number) {
-    return withAuth(async () => this.repository.findById(id), ['dashboard']);
-  }
-
-  async getAll() {
-    return withAuth(async () => this.repository.findAll(), ['dashboard']);
-  }
-
-  async findAll(params: EntityQueryOptions) {
-    return withAuth(async () => this.repository.query(params), ['dashboard']);
-  }
-
-  async create(data: EntityInsert) {
-    return withAuth(async () => this.repository.create(data), []);
-  }
-
-  async update(id: number, data: Partial<EntityInsert>) {
-    return withAuth(async () => this.repository.update(id, data), []);
-  }
-
-  async delete(id: number) {
-    return withAuth(async () => this.repository.delete(id), []);
+class EntityService extends BaseService<typeof tableName, 'id'> {
+  constructor() {
+    super(new EntityRepository(), {
+      byIdRoles: ['dashboard'],
+      findAllRoles: ['dashboard'],
+    });
   }
 }
 
@@ -163,16 +145,20 @@ export const entityService = serviceWrapper(EntityService, 'EntityService');
 ```
 
 **Rules**:
-- Plain class with repository dependency injection in constructor
-- Wrap ALL methods with `withAuth(fn, roles)`
+- Extend `BaseService<typeof table, 'id'>` for standard CRUD operations
+- Pass roles config in constructor (optional): `byIdRoles`, `findAllRoles`, `createRoles`, `updateRoles`, `deleteRoles`, `countRoles`
+- Default roles if not specified: `byIdRoles` and `findAllRoles` default to `['dashboard']`, others default to `[]` (admin only)
 - Roles:
   - `[]` = admin only
   - `['dashboard']` = any staff user (admin, registry, finance, academic, student_service)
   - `['all']` = any authenticated user + unauthenticated
   - `['auth']` = authenticated users only
-  - `['finance']`,  `['student']`, etc = specific roles
+  - `['finance']`, `['student']`, etc = specific roles
+- Override role methods for custom behavior: `protected byIdRoles()`, `protected findAllRoles()`, etc.
+- Inherited methods: `get(id)`, `getAll()`, `findAll(params)`, `first()`, `create(data)`, `update(id, data)`, `delete(id)`, `count()`
+- Override any method for custom behavior (e.g., custom delete logic)
+- Add custom methods with `withAuth` wrapper as needed
 - Export with `serviceWrapper(ClassName, 'ServiceName')` for logging
-- Never use arrow functions
 
 ### 4. Actions Layer
 
@@ -583,8 +569,8 @@ Study these for complete examples:
 - ❌ NO comments - self-documenting code
 - ❌ NO CSS-in-JS vars for colors - use Mantine's `c` prop
 - ❌ NO `useEffect` for data fetching - use TanStack Query
-- ❌ Never create/update docs (`.md`, `.txt`, etc.)  
+- ❌ Never create/update docs (`.md`, `.txt`, etc.)
 - ✅ ALWAYS run type check and lint before finishing
-- ✅ ALWAYS use `withAuth` in service methods
+- ✅ ALWAYS extend `BaseService` for standard CRUD services
 - ✅ ALWAYS use `serviceWrapper` for services
 - ✅ ALWAYS export singleton instances of repos and services

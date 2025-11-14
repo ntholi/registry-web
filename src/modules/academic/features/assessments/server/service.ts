@@ -1,51 +1,33 @@
 import type { assessments } from '@/core/database/schema';
-import type { QueryOptions } from '@/core/platform/BaseRepository';
+import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import AssessmentRepository from './repository';
 
 type Assessment = typeof assessments.$inferInsert;
 
-class AssessmentService {
-	constructor(private readonly repository = new AssessmentRepository()) {}
-
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
-	async get(id: number) {
-		return withAuth(async () => this.repository.findById(id), ['academic']);
-	}
-
-	async getAll(params: QueryOptions<typeof assessments>) {
-		return withAuth(async () => this.repository.query(params), ['academic']);
+class AssessmentService extends BaseService<typeof assessments, 'id'> {
+	constructor() {
+		super(new AssessmentRepository(), {
+			byIdRoles: ['academic'],
+			findAllRoles: ['academic'],
+			createRoles: ['academic'],
+			updateRoles: ['academic'],
+			deleteRoles: ['academic'],
+			countRoles: ['academic'],
+		});
 	}
 
 	async getByModuleId(moduleId: number) {
 		return withAuth(
-			async () => this.repository.getByModuleId(moduleId),
+			async () => (this.repository as AssessmentRepository).getByModuleId(moduleId),
 			['academic']
 		);
 	}
 
-	async create(data: Assessment) {
-		return withAuth(async () => this.repository.create(data), ['academic']);
-	}
-
-	async update(id: number, data: Assessment) {
-		return withAuth(async () => this.repository.update(id, data), ['academic']);
-	}
-	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), ['academic']);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), ['academic']);
-	}
-
 	async getAuditHistory(assessmentId: number) {
 		return withAuth(
-			async () => this.repository.getAuditHistory(assessmentId),
+			async () => (this.repository as AssessmentRepository).getAuditHistory(assessmentId),
 			['academic']
 		);
 	}

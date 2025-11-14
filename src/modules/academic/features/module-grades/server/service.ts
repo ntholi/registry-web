@@ -1,59 +1,33 @@
 import type { moduleGrades } from '@/core/database/schema';
-import type { QueryOptions } from '@/core/platform/BaseRepository';
+import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import ModuleGradeRepository from './repository';
 
 type ModuleGrade = typeof moduleGrades.$inferInsert;
 
-class ModuleGradeService {
-	constructor(private readonly repository = new ModuleGradeRepository()) {}
-
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
-	async get(id: number) {
-		return withAuth(async () => this.repository.findById(id), []);
-	}
-
-	async getAll(params: QueryOptions<typeof moduleGrades>) {
-		return withAuth(async () => this.repository.query(params), []);
-	}
-
-	async create(data: ModuleGrade) {
-		return withAuth(async () => this.repository.create(data), []);
-	}
-
-	async update(id: number, data: ModuleGrade) {
-		return withAuth(async () => this.repository.update(id, data), []);
-	}
-
-	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), []);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
+class ModuleGradeService extends BaseService<typeof moduleGrades, 'id'> {
+	constructor() {
+		super(new ModuleGradeRepository());
 	}
 
 	async findByModuleAndStudent(moduleId: number, stdNo: number) {
 		return withAuth(
-			async () => this.repository.findByModuleAndStudent(moduleId, stdNo),
+			async () => (this.repository as ModuleGradeRepository).findByModuleAndStudent(moduleId, stdNo),
 			['academic']
 		);
 	}
 
 	async getByModuleId(moduleId: number) {
 		return withAuth(
-			async () => this.repository.findByModuleId(moduleId),
+			async () => (this.repository as ModuleGradeRepository).findByModuleId(moduleId),
 			['academic']
 		);
 	}
 
 	async upsertModuleGrade(data: ModuleGrade) {
 		return withAuth(
-			async () => this.repository.upsertModuleGrade(data),
+			async () => (this.repository as ModuleGradeRepository).upsertModuleGrade(data),
 			['academic']
 		);
 	}

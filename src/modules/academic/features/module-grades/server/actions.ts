@@ -10,7 +10,7 @@ export async function getModuleGrade(id: number) {
 }
 
 export async function getModuleGrades(page: number = 1, search = '') {
-	return service.getAll({ page, search });
+	return service.findAll({ page, search });
 }
 
 export async function createModuleGrade(moduleGrade: ModuleGrade) {

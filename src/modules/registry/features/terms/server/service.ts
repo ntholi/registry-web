@@ -1,51 +1,26 @@
+import type { terms } from '@/core/database/schema';
+import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import TermRepository, {
-	type TermInsert,
-	type TermQueryOptions,
-} from './repository';
+import TermRepository, { type TermInsert } from './repository';
 
-class TermService {
-	constructor(private readonly repository = new TermRepository()) {}
-
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
-	async get(id: number) {
-		return withAuth(async () => this.repository.findById(id), []);
+class TermService extends BaseService<typeof terms, 'id'> {
+	constructor() {
+		super(new TermRepository(), {
+			findAllRoles: ['dashboard'],
+		});
 	}
 
 	async getActive() {
-		return withAuth(async () => this.repository.getActive(), ['all']);
+		return withAuth(async () => (this.repository as TermRepository).getActive(), ['all']);
 	}
 
-	async findAll(params: TermQueryOptions) {
-		return withAuth(async () => this.repository.query(params), ['dashboard']);
-	}
-
-	async getAll() {
-		return withAuth(async () => this.repository.findAll(), ['dashboard']);
-	}
-
-	async create(data: TermInsert) {
-		return withAuth(async () => this.repository.create(data), []);
-	}
-
-	async update(id: number, data: Partial<TermInsert>) {
-		return withAuth(async () => this.repository.update(id, data), []);
-	}
-
-	async delete(id: number) {
+	async deleteTerm(id: number) {
 		return withAuth(async () => {
 			const term = await this.repository.findById(id);
 			await this.repository.delete(id);
 			return term;
 		}, []);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
 	}
 }
 

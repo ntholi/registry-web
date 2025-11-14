@@ -1,56 +1,33 @@
 import type { structures } from '@/core/database/schema';
-import type { QueryOptions } from '@/core/platform/BaseRepository';
+import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import StructureRepository from './repository';
 
 type Structure = typeof structures.$inferInsert;
 
-class StructureService {
-	constructor(private readonly repository = new StructureRepository()) {}
-
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
-	async get(id: number) {
-		return withAuth(async () => this.repository.findById(id), ['dashboard']);
+class StructureService extends BaseService<typeof structures, 'id'> {
+	constructor() {
+		super(new StructureRepository(), {
+			byIdRoles: ['dashboard'],
+			findAllRoles: ['dashboard'],
+		});
 	}
 
 	async getByProgramId(programId: number) {
 		return withAuth(
-			async () => this.repository.findByProgramId(programId),
+			async () => (this.repository as StructureRepository).findByProgramId(programId),
 			['dashboard']
 		);
 	}
 
-	async findAll(params: QueryOptions<typeof structures>) {
-		return withAuth(async () => this.repository.query(params), ['dashboard']);
-	}
-
-	async create(data: Structure) {
-		return withAuth(async () => this.repository.create(data), []);
-	}
-
-	async update(id: number, data: Structure) {
-		return withAuth(async () => this.repository.update(id, data), []);
-	}
-
-	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), []);
-	}
-
 	async deleteSemesterModule(id: number) {
-		withAuth(async () => this.repository.deleteSemesterModule(id), []);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
+		withAuth(async () => (this.repository as StructureRepository).deleteSemesterModule(id), []);
 	}
 
 	async getStructureModules(structureId: number) {
 		return withAuth(
-			async () => this.repository.getStructureModules(structureId),
+			async () => (this.repository as StructureRepository).getStructureModules(structureId),
 			['dashboard']
 		);
 	}

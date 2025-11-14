@@ -38,5 +38,5 @@ export async function updateTerm(id: number, term: Term) {
 }
 
 export async function deleteTerm(id: number) {
-	return service.delete(id);
+	return service.deleteTerm(id);
 }

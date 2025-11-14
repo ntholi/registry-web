@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import { db } from '@/core/database';
 import { paymentReceipts, type paymentType } from '@/core/database/schema';
-import type { QueryOptions } from '@/core/platform/BaseRepository';
+import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import PaymentReceiptRepository from './repository';
@@ -14,15 +14,16 @@ type PaymentReceiptData = {
 	receiptNo: string;
 };
 
-class PaymentReceiptService {
-	constructor(private readonly repository = new PaymentReceiptRepository()) {}
-
-	async get(id: number) {
-		return withAuth(async () => this.repository.findById(id), ['student']);
-	}
-
-	async getAll(params: QueryOptions<typeof paymentReceipts>) {
-		return withAuth(async () => this.repository.query(params), ['student']);
+class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
+	constructor() {
+		super(new PaymentReceiptRepository(), {
+			byIdRoles: ['student'],
+			findAllRoles: ['student'],
+			createRoles: ['student'],
+			updateRoles: ['student'],
+			deleteRoles: ['student'],
+			countRoles: ['student'],
+		});
 	}
 
 	async getByGraduationRequest(graduationRequestId: number) {
@@ -33,10 +34,6 @@ class PaymentReceiptService {
 		}, ['student']);
 	}
 
-	async create(data: PaymentReceipt) {
-		return withAuth(async () => this.repository.create(data), ['student']);
-	}
-
 	async createMany(data: PaymentReceipt[]) {
 		return withAuth(async () => {
 			const results = [];
@@ -45,14 +42,6 @@ class PaymentReceiptService {
 			}
 			return results;
 		}, ['student']);
-	}
-
-	async update(id: number, data: Partial<PaymentReceipt>) {
-		return withAuth(async () => this.repository.update(id, data), ['student']);
-	}
-
-	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), ['student']);
 	}
 
 	async updateGraduationPaymentReceipts(
@@ -66,7 +55,6 @@ class PaymentReceiptService {
 			}
 
 			return db.transaction(async (tx) => {
-				// First, verify that the graduation request belongs to the authenticated user
 				const graduationRequest = await tx.query.graduationRequests.findFirst({
 					where: (table, { eq }) => eq(table.id, graduationRequestId),
 					with: {
@@ -81,12 +69,10 @@ class PaymentReceiptService {
 					throw new Error('Graduation request not found or access denied');
 				}
 
-				// Delete existing payment receipts
 				await tx
 					.delete(paymentReceipts)
 					.where(eq(paymentReceipts.graduationRequestId, graduationRequestId));
 
-				// Insert new payment receipts
 				if (receipts.length > 0) {
 					const receiptValues = receipts.map((receipt) => ({
 						...receipt,
@@ -112,7 +98,6 @@ class PaymentReceiptService {
 			}
 
 			return db.transaction(async (tx) => {
-				// Verify that the graduation request belongs to the authenticated user
 				const graduationRequest = await tx.query.graduationRequests.findFirst({
 					where: (table, { eq }) => eq(table.id, graduationRequestId),
 					with: {
@@ -148,7 +133,6 @@ class PaymentReceiptService {
 			}
 
 			return db.transaction(async (tx) => {
-				// First, verify that the receipt belongs to a graduation request of the authenticated user
 				const receipt = await tx.query.paymentReceipts.findFirst({
 					where: eq(paymentReceipts.id, receiptId),
 					with: {
