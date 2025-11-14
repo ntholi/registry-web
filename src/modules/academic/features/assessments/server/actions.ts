@@ -11,7 +11,7 @@ export async function getAssessment(id: number) {
 }
 
 export async function getAssessments(page: number = 1, search = '') {
-	return service.getAll({
+	return service.findAll({
 		page,
 		search,
 		searchColumns: ['assessmentNumber', 'assessmentType'],

@@ -10,7 +10,7 @@ export async function getModule(id: number) {
 }
 
 export async function getModules(page: number = 1, search = '') {
-	return service.getAll({
+	return service.findAll({
 		page,
 		search: search.trim(),
 		searchColumns: ['code', 'name'],
