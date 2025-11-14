@@ -14,7 +14,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconBook, IconTrophy, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getStudentPhoto } from '@/modules/registry/features/students/server/actions';
-import { studentColors } from '@/modules/student-portal/features/utils/components/colors';
+import { studentColors } from '@/modules/student-portal/features/utils/lib/colors';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import HeroSkeleton from './HeroSkeleton';

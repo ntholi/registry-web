@@ -18,7 +18,7 @@ import {
 	IconShield,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { studentColors } from '@/modules/student-portal/features/utils/components/colors';
+import { studentColors } from '@/modules/student-portal/features/utils/lib/colors';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type Action = {

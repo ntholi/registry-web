@@ -23,7 +23,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getStudentPhoto } from '@/modules/registry/features/students/server/actions';
 import type { Student } from '@/modules/registry/features/students/utils';
-import { studentColors } from '@/modules/student-portal/features/utils/components/colors';
+import { studentColors } from '@/modules/student-portal/features/utils/lib/colors';
 import { useMediaQuery } from '@/shared/lib/hooks/use-media-query';
 import { formatDate } from '@/shared/lib/utils/utils';
 

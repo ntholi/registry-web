@@ -19,7 +19,7 @@ import { getGraduationRequestByStudentNo } from '@/modules/registry/features/gra
 import {
 	getGraduationStatus,
 	getStatusColor,
-} from '@/modules/student-portal/features/utils/components/status';
+} from '@/modules/student-portal/features/utils/lib/status';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 
 interface GraduationHistoryProps {

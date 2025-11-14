@@ -2,7 +2,7 @@
 
 import { Badge, Paper, Stack, Table, Title } from '@mantine/core';
 import { grades } from '@/shared/lib/utils/grades';
-import { getGradeColor } from './gradeColors';
+import { getGradeColor } from '../lib/gradeColors';
 
 export function GradeTable() {
 	const uniqueGrades = grades.filter(

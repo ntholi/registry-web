@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
-import { getGradeColor, getPointsColor } from './gradeColors';
+import { getGradeColor, getPointsColor } from '../lib/gradeColors';
 
 type GradeResult = {
 	grade: string;

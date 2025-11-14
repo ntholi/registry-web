@@ -18,7 +18,7 @@ import {
 	getClearanceStatus,
 	getStatusColor,
 	getStatusIcon,
-} from '@/modules/student-portal/features/utils/components/status';
+} from '@/modules/student-portal/features/utils/lib/status';
 import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 
 interface Props {

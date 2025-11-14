@@ -7,7 +7,7 @@ import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
 	getStatusColor,
 	type RegistrationStatus,
-} from '@/modules/student-portal/features/utils/components/status';
+} from '@/modules/student-portal/features/utils/lib/status';
 
 interface Props {
 	requestId: number;

@@ -6,5 +6,9 @@
 		"**/{package.json,package-lock.json,server.xml,build.rs,web.config,.gitattributes,.env}": false,
 		"**/*.{csproj,fsproj,vbproj,vcxproj,proj,targets,props}": false
 	},
-	"chat.tools.terminal.enableAutoApprove": true
+	"chat.tools.terminal.enableAutoApprove": true,
+	"chat.tools.terminal.autoApprove": {
+		"pwsh -NoLogo -Command": true,
+		"pwsh -NoLogo -NoProfile -Command": true
+	}
 }

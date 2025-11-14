@@ -5,7 +5,7 @@ import { pdf } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
 import { getGraduationClearanceData } from '@/modules/registry/features/graduation-clearance/server/requests/actions';
-import { getClearanceStatus } from '@/modules/student-portal/features/utils/components/status';
+import { getClearanceStatus } from '@/modules/student-portal/features/utils/lib/status';
 import ProofOfClearancePDF from './ProofOfClearancePDF';
 
 interface ProofOfClearanceDownloadProps {

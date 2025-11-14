@@ -25,11 +25,11 @@ import ProofOfRegistrationDownload from '@/modules/student-portal/features/regis
 import ClearanceStatusView from '@/modules/student-portal/features/registration/components/request/ClearanceStatusView';
 import DepartmentMessagesView from '@/modules/student-portal/features/registration/components/request/DepartmentMessagesView';
 import ModulesView from '@/modules/student-portal/features/registration/components/request/ModulesView';
-import { getStatusColor } from '@/modules/student-portal/features/utils/components/colors';
+import { getStatusColor } from '@/modules/student-portal/features/utils/lib/colors';
 import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
 	getStatusIcon,
-} from '@/modules/student-portal/features/utils/components/status';
+} from '@/modules/student-portal/features/utils/lib/status';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Props = {
