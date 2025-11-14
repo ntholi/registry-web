@@ -134,6 +134,13 @@
 			"when": 1762704847566,
 			"tag": "0018_worthless_lizard",
 			"breakpoints": true
+		},
+		{
+			"idx": 19,
+			"version": "7",
+			"when": 1763143349007,
+			"tag": "0019_colossal_whirlwind",
+			"breakpoints": true
 		}
 	]
 }

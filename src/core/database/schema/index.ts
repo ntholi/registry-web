@@ -8,4 +8,5 @@ export * from './printing';
 export * from './registration';
 export * from './sponsorship';
 export * from './students';
+export * from './timetable';
 export * from './types';

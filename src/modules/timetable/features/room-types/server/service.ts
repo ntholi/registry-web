@@ -1,0 +1,18 @@
+import type { roomTypes } from '@/core/database/schema';
+import BaseService from '@/core/platform/BaseService';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import RoomTypeRepository from './repository';
+
+class RoomTypeService extends BaseService<typeof roomTypes, 'id'> {
+	constructor() {
+		super(new RoomTypeRepository(), {
+			byIdRoles: ['dashboard'],
+			findAllRoles: ['dashboard'],
+		});
+	}
+}
+
+export const roomTypeService = serviceWrapper(
+	RoomTypeService,
+	'RoomTypeService'
+);

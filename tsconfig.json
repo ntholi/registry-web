@@ -27,6 +27,7 @@
 			"@finance/*": ["./src/modules/finance/features/*"],
 			"@admin/*": ["./src/modules/admin/features/*"],
 			"@classroom/*": ["./src/modules/classroom/features/*"],
+			"@timetable/*": ["./src/modules/timetable/features/*"],
 			"@auth/*": ["./src/modules/auth/features/*"],
 			"@server/*": ["./src/server/*"]
 		}
