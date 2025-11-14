@@ -1,6 +1,6 @@
 export { default as Body } from './components/Body';
 export * from './server/actions';
 export * from './server/document';
-export * from './server/repository';
-export * from './server/service';
+export { courseSummaryRepository } from './server/repository';
+export { courseSummaryService } from './server/service';
 export * from './types';

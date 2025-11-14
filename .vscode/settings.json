@@ -8,6 +8,8 @@
 	},
 	"chat.tools.terminal.enableAutoApprove": true,
 	"chat.tools.terminal.autoApprove": {
+		"pnpm lint --fix": true,
+		"pwsh -Command": true,
 		"pwsh -NoLogo -Command": true,
 		"pwsh -NoLogo -NoProfile -Command": true
 	}
