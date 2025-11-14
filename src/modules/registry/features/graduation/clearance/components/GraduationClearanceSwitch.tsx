@@ -56,13 +56,13 @@ export default function GraduationClearanceSwitch({
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: ['graduationClearances', 'pending'],
+				queryKey: ['graduation-clearances', 'pending'],
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['graduationClearances', 'approved'],
+				queryKey: ['graduation-clearances', 'approved'],
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['graduationClearances', 'rejected'],
+				queryKey: ['graduation-clearances', 'rejected'],
 			});
 			notifications.show({
 				title: 'Success',

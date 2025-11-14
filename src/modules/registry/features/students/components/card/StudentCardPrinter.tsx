@@ -33,7 +33,7 @@ export default function StudentCardPrinter({
 	const { data: session } = useSession();
 
 	const { data: fetchedPhotoUrl, isLoading: photoLoading } = useQuery({
-		queryKey: ['studentPhoto', student.stdNo],
+		queryKey: ['student-photo', student.stdNo],
 		queryFn: () => getStudentPhoto(student.stdNo),
 		staleTime: 1000 * 60 * 3,
 		enabled: isActive && !photoUrl,

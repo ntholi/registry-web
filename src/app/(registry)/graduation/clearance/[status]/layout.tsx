@@ -39,7 +39,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
 			path={`/graduation/clearance/${status}`}
-			queryKey={['graduationClearances', status]}
+			queryKey={['graduation-clearances', status]}
 			getData={async (page, search) => {
 				const response = await graduationClearanceByStatus(
 					status,

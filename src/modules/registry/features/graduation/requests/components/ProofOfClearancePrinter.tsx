@@ -21,12 +21,12 @@ export default function ProofOfClearancePrinter({
 	const [isGenerating, setIsGenerating] = useState(false);
 
 	const { data: graduationRequest, isLoading: isLoadingRequest } = useQuery({
-		queryKey: ['graduationRequest', requestId],
+		queryKey: ['graduation-request', requestId],
 		queryFn: () => getGraduationRequest(Number(requestId)),
 	});
 
 	const { data: graduationData, isLoading: isLoadingData } = useQuery({
-		queryKey: ['graduationClearanceData', requestId],
+		queryKey: ['graduation-clearance-data', requestId],
 		queryFn: async () => {
 			if (!graduationRequest) throw new Error('No graduation request found');
 			return getGraduationClearanceData(graduationRequest.id);

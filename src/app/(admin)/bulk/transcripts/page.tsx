@@ -51,12 +51,12 @@ export default function ExportTranscriptPage() {
 	const [progressText, setProgressText] = useState('');
 
 	const { data: graduationDates, isLoading: isDatesLoading } = useQuery({
-		queryKey: ['distinctGraduationDates'],
+		queryKey: ['distinct-graduation-dates'],
 		queryFn: getDistinctGraduationDates,
 	});
 
 	const { data: programs, isLoading: isProgramsLoading } = useQuery({
-		queryKey: ['programsByGraduationDate', selectedDate],
+		queryKey: ['programs-by-graduation-date', selectedDate],
 		queryFn: () => getProgramsByGraduationDate(selectedDate!),
 		enabled: !!selectedDate,
 	});

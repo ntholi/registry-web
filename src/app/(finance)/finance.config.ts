@@ -87,7 +87,7 @@ export const financeConfig: ModuleConfig = {
 						href: '/graduation/clearance/pending',
 						icon: IconMessageQuestion,
 						notificationCount: {
-							queryKey: ['graduationClearances', 'pending'],
+							queryKey: ['graduation-clearances', 'pending'],
 							queryFn: () => countPendingGraduationClearances(),
 							color: 'red',
 						},
@@ -97,7 +97,7 @@ export const financeConfig: ModuleConfig = {
 						href: '/graduation/clearance/approved',
 						icon: IconSquareRoundedCheck,
 						notificationCount: {
-							queryKey: ['graduationClearances', 'approved'],
+							queryKey: ['graduation-clearances', 'approved'],
 							queryFn: () => countApprovedGraduationClearances(),
 							color: 'gray',
 						},
@@ -107,7 +107,7 @@ export const financeConfig: ModuleConfig = {
 						href: '/graduation/clearance/rejected',
 						icon: IconBarrierBlock,
 						notificationCount: {
-							queryKey: ['graduationClearances', 'rejected'],
+							queryKey: ['graduation-clearances', 'rejected'],
 							queryFn: () => countRejectedGraduationClearances(),
 							color: 'gray',
 						},

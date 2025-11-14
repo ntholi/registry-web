@@ -37,7 +37,7 @@ export default function DocumentCard({
 	onDelete,
 }: DocumentCardProps) {
 	const { data: documentUrl } = useQuery({
-		queryKey: ['documentUrl', fileName],
+		queryKey: ['document-url', fileName],
 		queryFn: () => getDocumentUrl(fileName),
 		staleTime: 1000 * 60 * 3,
 	});

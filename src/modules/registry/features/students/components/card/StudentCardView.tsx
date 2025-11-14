@@ -33,7 +33,7 @@ export default function StudentCardView({
 	const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
 	const { data: existingPhotoUrl } = useQuery({
-		queryKey: ['studentPhoto', student.stdNo],
+		queryKey: ['student-photo', student.stdNo],
 		queryFn: () => getStudentPhoto(student.stdNo),
 		staleTime: 1000 * 60 * 3,
 		enabled: isActive,

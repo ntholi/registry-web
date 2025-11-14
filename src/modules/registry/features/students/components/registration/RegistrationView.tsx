@@ -51,7 +51,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 		isLoading,
 		error,
 	} = useQuery({
-		queryKey: ['registrationRequests', stdNo],
+		queryKey: ['registration-requests', stdNo],
 		queryFn: () => getStudentRegistrationHistory(stdNo),
 		enabled: isActive,
 	});

@@ -26,7 +26,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 
 	const { data: currentTerm } = useQuery({
-		queryKey: ['currentTerm'],
+		queryKey: ['current-term'],
 		queryFn: getCurrentTerm,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
@@ -43,7 +43,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path={`/registration/requests/${status}`}
 			queryKey={[
-				'registrationRequests',
+				'registration-requests',
 				status,
 				selectedTerm?.toString() || 'all',
 			]}

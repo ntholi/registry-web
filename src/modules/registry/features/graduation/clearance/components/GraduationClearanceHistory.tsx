@@ -21,7 +21,7 @@ type Props = {
 
 export default function GraduationClearanceHistory({ stdNo }: Props) {
 	const { data: history, isLoading } = useQuery({
-		queryKey: ['graduationClearanceHistory', stdNo],
+		queryKey: ['graduation-clearance-history', stdNo],
 		queryFn: () => getGraduationClearanceHistoryByStudentNo(stdNo),
 	});
 

@@ -18,7 +18,7 @@ type Props = {
 
 export default function PhotoView({ student }: Props) {
 	const { data: photoUrl, refetch } = useQuery({
-		queryKey: ['studentPhoto', student.stdNo],
+		queryKey: ['student-photo', student.stdNo],
 		queryFn: () => getStudentPhoto(student.stdNo),
 		staleTime: 1000 * 60 * 3,
 	});

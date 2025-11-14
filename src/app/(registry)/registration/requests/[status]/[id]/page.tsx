@@ -106,7 +106,7 @@ export default async function RegistrationRequestDetails({
 		<DetailsView>
 			<DetailsViewHeader
 				title={registrationRequest.student.name}
-				queryKey={['registrationRequests']}
+				queryKey={['registration-requests']}
 				editRoles={['registry']}
 				handleDelete={async () => {
 					'use server';

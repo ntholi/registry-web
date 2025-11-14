@@ -130,7 +130,7 @@ export default function RegistrationRequestForm({
 	});
 
 	const { data: sponsorshipData, isLoading: sponsorshipLoading } = useQuery({
-		queryKey: ['studentSponsorship', stdNo],
+		queryKey: ['student-sponsorship', stdNo],
 		queryFn: () => getStudentCurrentSponsorship(stdNo),
 		enabled: !!stdNo,
 	});
@@ -139,7 +139,7 @@ export default function RegistrationRequestForm({
 	const structureId = activeProgram?.structureId;
 
 	const { data: moduleData, isLoading: modulesLoading } = useQuery({
-		queryKey: ['studentSemesterModules', stdNo],
+		queryKey: ['student-semester-modules', stdNo],
 		queryFn: async () => {
 			if (!student) return null;
 
@@ -180,7 +180,7 @@ export default function RegistrationRequestForm({
 	);
 
 	const { data: semesterStatus, isLoading: semesterStatusLoading } = useQuery({
-		queryKey: ['semesterStatus', Array.from(debouncedSelectedModules)],
+		queryKey: ['semester-status', Array.from(debouncedSelectedModules)],
 		queryFn: async () => {
 			if (
 				debouncedSelectedModules.size === 0 ||
@@ -222,7 +222,7 @@ export default function RegistrationRequestForm({
 				color: 'green',
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['registrationRequests', stdNo],
+				queryKey: ['registration-requests', stdNo],
 			});
 			handleReset();
 		},

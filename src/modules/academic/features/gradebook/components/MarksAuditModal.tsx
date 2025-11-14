@@ -40,7 +40,7 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 	const { colorScheme } = useMantineColorScheme();
 
 	const { data: auditHistory, isLoading } = useQuery({
-		queryKey: ['marksAudit', stdNo],
+		queryKey: ['marks-audit', stdNo],
 		queryFn: () => getMarksAudit(stdNo),
 		enabled: opened,
 	});

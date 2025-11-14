@@ -55,7 +55,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 	});
 
 	const { data: userSchoolsData } = useQuery({
-		queryKey: ['userSchools', defaultValues?.id],
+		queryKey: ['user-schools', defaultValues?.id],
 		queryFn: () =>
 			defaultValues?.id
 				? getUserSchools(defaultValues.id)

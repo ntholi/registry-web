@@ -76,10 +76,10 @@ export default function ImportProgress({
 		},
 		onSuccess: (result) => {
 			queryClient.invalidateQueries({
-				queryKey: ['assessmentMarks', moduleId],
+				queryKey: ['assessment-marks', moduleId],
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['moduleGrades', moduleId],
+				queryKey: ['module-grades', moduleId],
 			});
 
 			notifications.show({

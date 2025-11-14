@@ -26,7 +26,7 @@ export default function TermFilter({
 }: TermFilterProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const { data: terms, isLoading } = useQuery({
-		queryKey: ['allTerms'],
+		queryKey: ['all-terms'],
 		queryFn: () => findAllTerms(),
 		staleTime: 1000 * 60 * 10,
 		select: (data) => data.items,

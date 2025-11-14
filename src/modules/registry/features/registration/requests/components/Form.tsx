@@ -108,7 +108,7 @@ export default function RegistrationRequestForm({
 
 	const { currentTerm } = useCurrentTerm();
 	const { data: allTerms = [] } = useQuery({
-		queryKey: ['allTerms'],
+		queryKey: ['all-terms'],
 		queryFn: async () => await findAllTerms(),
 		select: (terms) => {
 			console.log('Terms fetched:', terms);
@@ -117,7 +117,7 @@ export default function RegistrationRequestForm({
 	});
 
 	const { data: structureModules, isLoading } = useQuery({
-		queryKey: ['structureModules', structureId],
+		queryKey: ['structure-modules', structureId],
 		queryFn: async () => {
 			if (structureId) {
 				return getModulesForStructure(structureId);
@@ -224,7 +224,7 @@ export default function RegistrationRequestForm({
 
 				form.setFieldValue('selectedModules', mappedModules);
 				form.setFieldValue('semesterNumber', semesterNo.toString());
-				form.setFieldValue('semesterStatus', status);
+				form.setFieldValue('semester-status', status);
 			} catch (error) {
 				console.error('Error loading student modules:', error);
 			}
@@ -254,7 +254,7 @@ export default function RegistrationRequestForm({
 		<Form
 			title={title}
 			action={(values: RegistrationRequest) => onSubmit(values)}
-			queryKey={['registrationRequests']}
+			queryKey={['registration-requests']}
 			defaultValues={{
 				...defaultValues,
 				stdNo: initialStdNo || defaultValues?.stdNo,
@@ -392,7 +392,7 @@ export default function RegistrationRequestForm({
 									{ value: 'Active', label: 'Active' },
 									{ value: 'Repeat', label: 'Repeat' },
 								]}
-								{...form.getInputProps('semesterStatus')}
+								{...form.getInputProps('semester-status')}
 								disabled={!structureId}
 							/>
 						</Group>

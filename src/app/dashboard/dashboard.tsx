@@ -119,7 +119,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 	const navigation = getNavigation(session?.user?.role as DashboardUser);
 
 	const { data: assignedModules, isLoading: isModulesLoading } = useQuery({
-		queryKey: ['assignedModules'],
+		queryKey: ['assigned-modules'],
 		queryFn: getAssignedModulesByCurrentUser,
 		enabled: session?.user?.role === 'academic',
 	});
@@ -162,7 +162,7 @@ function UserButton() {
 	const router = useRouter();
 
 	const { data: userSchools } = useQuery({
-		queryKey: ['userSchools'],
+		queryKey: ['user-schools'],
 		queryFn: () => getUserSchools(session?.user?.id),
 		enabled: session?.user?.role === 'academic',
 	});

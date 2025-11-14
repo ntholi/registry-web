@@ -10,7 +10,7 @@ export default function ActiveTermDisplay() {
 		isLoading,
 		isError,
 	} = useQuery({
-		queryKey: ['activeTerm'],
+		queryKey: ['active-term'],
 		queryFn: async () => {
 			const term = await getCurrentTerm();
 			return term || null;

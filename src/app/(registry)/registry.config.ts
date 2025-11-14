@@ -55,7 +55,7 @@ export const registryConfig: ModuleConfig = {
 						href: '/registration/requests/pending',
 						icon: IconMessageQuestion,
 						notificationCount: {
-							queryKey: ['registrationRequests', 'pending'],
+							queryKey: ['registration-requests', 'pending'],
 							queryFn: () => countByStatus('pending'),
 							color: 'red',
 						},
@@ -65,7 +65,7 @@ export const registryConfig: ModuleConfig = {
 						href: '/registration/requests/registered',
 						icon: IconSquareRoundedCheck,
 						notificationCount: {
-							queryKey: ['registrationRequests', 'registered'],
+							queryKey: ['registration-requests', 'registered'],
 							queryFn: () => countByStatus('registered'),
 							color: 'gray',
 						},
@@ -75,7 +75,7 @@ export const registryConfig: ModuleConfig = {
 						href: '/registration/requests/rejected',
 						icon: IconBarrierBlock,
 						notificationCount: {
-							queryKey: ['registrationRequests', 'rejected'],
+							queryKey: ['registration-requests', 'rejected'],
 							queryFn: () => countByStatus('rejected'),
 							color: 'gray',
 						},
@@ -85,7 +85,7 @@ export const registryConfig: ModuleConfig = {
 						href: '/registration/requests/approved',
 						icon: IconSquareRoundedCheck,
 						notificationCount: {
-							queryKey: ['registrationRequests', 'approved'],
+							queryKey: ['registration-requests', 'approved'],
 							queryFn: () => countByStatus('approved'),
 							color: 'gray',
 						},
@@ -103,7 +103,7 @@ export const registryConfig: ModuleConfig = {
 						href: '/graduation/requests/pending',
 						icon: IconMessageQuestion,
 						notificationCount: {
-							queryKey: ['graduationRequests', 'pending'],
+							queryKey: ['graduation-requests', 'pending'],
 							queryFn: () => countGraduationByStatus('pending'),
 							color: 'red',
 						},
@@ -113,7 +113,7 @@ export const registryConfig: ModuleConfig = {
 						href: '/graduation/requests/approved',
 						icon: IconSquareRoundedCheck,
 						notificationCount: {
-							queryKey: ['graduationRequests', 'approved'],
+							queryKey: ['graduation-requests', 'approved'],
 							queryFn: () => countGraduationByStatus('approved'),
 							color: 'gray',
 						},
@@ -123,7 +123,7 @@ export const registryConfig: ModuleConfig = {
 						href: '/graduation/requests/rejected',
 						icon: IconBarrierBlock,
 						notificationCount: {
-							queryKey: ['graduationRequests', 'rejected'],
+							queryKey: ['graduation-requests', 'rejected'],
 							queryFn: () => countGraduationByStatus('rejected'),
 							color: 'gray',
 						},

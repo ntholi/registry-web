@@ -55,7 +55,7 @@ export default function EditButton({ moduleId, structureId }: Props) {
 									const result = await updateModule(moduleId, values);
 									await Promise.all([
 										queryClient.invalidateQueries({
-											queryKey: ['modulePrerequisites', moduleId],
+											queryKey: ['module-prerequisites', moduleId],
 										}),
 										queryClient.invalidateQueries({
 											queryKey: ['structure', structureId],

@@ -39,7 +39,7 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	const { data: auditHistory, isLoading } = useQuery({
-		queryKey: ['assessmentAuditHistory', assessment.id],
+		queryKey: ['assessment-audit-history', assessment.id],
 		queryFn: () => getAssessmentAuditHistory(assessment.id),
 		enabled: opened,
 	});

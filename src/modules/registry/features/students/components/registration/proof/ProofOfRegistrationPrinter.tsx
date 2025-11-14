@@ -16,7 +16,7 @@ export default function ProofOfRegistrationPrinter({ stdNo }: Props) {
 	const [isGenerating, setIsGenerating] = useState(false);
 
 	const { refetch: fetchRegistrationData, isLoading } = useQuery({
-		queryKey: ['studentRegistrationData', stdNo],
+		queryKey: ['student-registration-data', stdNo],
 		queryFn: () => getStudentRegistrationData(stdNo),
 		enabled: false,
 	});

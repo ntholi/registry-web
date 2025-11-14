@@ -12,7 +12,7 @@ type Props = {
 
 export default function SponsorInfo({ stdNo, termId }: Props) {
 	const { data: sponsorInfo, isLoading } = useQuery({
-		queryKey: ['sponsoredStudents', stdNo, termId],
+		queryKey: ['sponsored-students', stdNo, termId],
 		queryFn: () => getSponsoredStudent(stdNo, termId),
 	});
 

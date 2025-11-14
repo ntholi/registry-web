@@ -35,7 +35,7 @@ export default function ProfileHeader({ student }: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
 	const { data: photoUrl } = useQuery({
-		queryKey: ['studentPhoto', student?.stdNo],
+		queryKey: ['student-photo', student?.stdNo],
 		queryFn: () => getStudentPhoto(student?.stdNo),
 		staleTime: 1000 * 60 * 10,
 	});

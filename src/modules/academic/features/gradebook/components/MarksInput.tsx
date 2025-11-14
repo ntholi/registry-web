@@ -57,31 +57,31 @@ export default function MarksInput({
 		},
 		onMutate: async (newMark) => {
 			await queryClient.cancelQueries({
-				queryKey: ['assessmentMarks', moduleId],
+				queryKey: ['assessment-marks', moduleId],
 			});
 			await queryClient.cancelQueries({
-				queryKey: ['moduleGrades', moduleId],
+				queryKey: ['module-grades', moduleId],
 			});
 			await queryClient.cancelQueries({
-				queryKey: ['moduleGrade', moduleId, studentId],
+				queryKey: ['module-grade', moduleId, studentId],
 			});
 
 			const previousAssessmentMarks = queryClient.getQueryData([
-				'assessmentMarks',
+				'assessment-marks',
 				moduleId,
 			]);
 			const previousModuleGrades = queryClient.getQueryData([
-				'moduleGrades',
+				'module-grades',
 				moduleId,
 			]);
 			const previousModuleGrade = queryClient.getQueryData([
-				'moduleGrade',
+				'module-grade',
 				moduleId,
 				studentId,
 			]);
 
 			queryClient.setQueryData(
-				['assessmentMarks', moduleId],
+				['assessment-marks', moduleId],
 				(old: AssessmentMark[]) => {
 					if (!old) return old;
 
@@ -116,7 +116,7 @@ export default function MarksInput({
 
 			if (assessments) {
 				const updatedAssessmentMarks = queryClient.getQueryData([
-					'assessmentMarks',
+					'assessment-marks',
 					moduleId,
 				]) as AssessmentMark[];
 
@@ -148,12 +148,12 @@ export default function MarksInput({
 					};
 
 					queryClient.setQueryData(
-						['moduleGrade', moduleId, studentId],
+						['module-grade', moduleId, studentId],
 						newModuleGrade
 					);
 
 					queryClient.setQueryData(
-						['moduleGrades', moduleId],
+						['module-grades', moduleId],
 						(old: ModuleGrade[]) => {
 							if (!old) return [newModuleGrade];
 
@@ -182,33 +182,33 @@ export default function MarksInput({
 		onSuccess: async () => {
 			setError('');
 			queryClient.invalidateQueries({
-				queryKey: ['assessmentMarks', moduleId],
+				queryKey: ['assessment-marks', moduleId],
 			});
 
 			queryClient.invalidateQueries({
-				queryKey: ['moduleGrades', moduleId],
+				queryKey: ['module-grades', moduleId],
 			});
 
 			queryClient.invalidateQueries({
-				queryKey: ['moduleGrade', moduleId, studentId],
+				queryKey: ['module-grade', moduleId, studentId],
 			});
 		},
 		onError: (_error, _newMark, context) => {
 			if (context?.previousAssessmentMarks) {
 				queryClient.setQueryData(
-					['assessmentMarks', moduleId],
+					['assessment-marks', moduleId],
 					context.previousAssessmentMarks
 				);
 			}
 			if (context?.previousModuleGrades) {
 				queryClient.setQueryData(
-					['moduleGrades', moduleId],
+					['module-grades', moduleId],
 					context.previousModuleGrades
 				);
 			}
 			if (context?.previousModuleGrade) {
 				queryClient.setQueryData(
-					['moduleGrade', moduleId, studentId],
+					['module-grade', moduleId, studentId],
 					context.previousModuleGrade
 				);
 			}

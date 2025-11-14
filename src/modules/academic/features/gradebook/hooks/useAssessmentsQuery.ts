@@ -14,14 +14,14 @@ export function useAssessmentsQuery(moduleId: number) {
 
 export function useAssessmentMarksQuery(moduleId: number) {
 	return useQuery({
-		queryKey: ['assessmentMarks', moduleId],
+		queryKey: ['assessment-marks', moduleId],
 		queryFn: () => getAssessmentMarksByModuleId(moduleId),
 	});
 }
 
 export function useModuleGradesQuery(moduleId: number) {
 	return useQuery({
-		queryKey: ['moduleGrades', moduleId],
+		queryKey: ['module-grades', moduleId],
 		queryFn: () => getModuleGradesByModuleId(moduleId),
 	});
 }

@@ -100,7 +100,7 @@ export default async function GraduationRequestDetails({
 		<DetailsView>
 			<DetailsViewHeader
 				title={graduationRequest.studentProgram.student.name}
-				queryKey={['graduationRequests']}
+				queryKey={['graduation-requests']}
 				editRoles={['registry', 'admin']}
 				handleDelete={async () => {
 					'use server';

@@ -50,7 +50,7 @@ export default function GraduationView({
 	const stdNoNum = Number(stdNo);
 
 	const { data: graduationRequest, isLoading } = useQuery({
-		queryKey: ['graduationRequest', stdNoNum],
+		queryKey: ['graduation-request', stdNoNum],
 		queryFn: () => getGraduationRequestByStudentNo(stdNoNum),
 		enabled: isActive,
 	});

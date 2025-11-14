@@ -73,19 +73,19 @@ export default function TotalMarkDisplay({
 		},
 		onMutate: async (newScore) => {
 			await queryClient.cancelQueries({
-				queryKey: ['moduleGrade', moduleId, studentId],
+				queryKey: ['module-grade', moduleId, studentId],
 			});
 			await queryClient.cancelQueries({
-				queryKey: ['moduleGrades', moduleId],
+				queryKey: ['module-grades', moduleId],
 			});
 
 			const previousModuleGrade = queryClient.getQueryData([
-				'moduleGrade',
+				'module-grade',
 				moduleId,
 				studentId,
 			]);
 			const previousModuleGrades = queryClient.getQueryData([
-				'moduleGrades',
+				'module-grades',
 				moduleId,
 			]);
 
@@ -101,12 +101,12 @@ export default function TotalMarkDisplay({
 			};
 
 			queryClient.setQueryData(
-				['moduleGrade', moduleId, studentId],
+				['module-grade', moduleId, studentId],
 				optimisticModuleGrade
 			);
 
 			queryClient.setQueryData(
-				['moduleGrades', moduleId],
+				['module-grades', moduleId],
 				(old: ModuleGrade[]) => {
 					if (!old) return [optimisticModuleGrade];
 
@@ -128,23 +128,23 @@ export default function TotalMarkDisplay({
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: ['moduleGrade', moduleId, studentId],
+				queryKey: ['module-grade', moduleId, studentId],
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['moduleGrades', moduleId],
+				queryKey: ['module-grades', moduleId],
 			});
 			close();
 		},
 		onError: (_error, _newScore, context) => {
 			if (context?.previousModuleGrade) {
 				queryClient.setQueryData(
-					['moduleGrade', moduleId, studentId],
+					['module-grade', moduleId, studentId],
 					context.previousModuleGrade
 				);
 			}
 			if (context?.previousModuleGrades) {
 				queryClient.setQueryData(
-					['moduleGrades', moduleId],
+					['module-grades', moduleId],
 					context.previousModuleGrades
 				);
 			}
