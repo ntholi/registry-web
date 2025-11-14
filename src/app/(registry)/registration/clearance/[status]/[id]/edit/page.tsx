@@ -1,10 +1,10 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import Form from '@/modules/registry/features/clearance/components/Form';
+import Form from '@/modules/registry/features/registration/clearance/components/Form';
 import {
 	getClearance,
 	updateClearance,
-} from '@/modules/registry/features/registration-requests/server/clearance/actions';
+} from '@/modules/registry/features/registration/requests/server/clearance/actions';
 
 type Props = {
 	params: Promise<{ id: string; status: string }>;

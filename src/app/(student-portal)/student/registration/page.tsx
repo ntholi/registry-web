@@ -10,7 +10,7 @@ import {
 import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/core/auth';
-import { getStudentRegistrationHistory } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import { getStudentRegistrationHistory } from '@/modules/registry/features/registration/requests/server/requests/actions';
 import RegistrationHistory from '@/modules/student-portal/features/registration/components/RegistrationHistory';
 import RegistrationHistorySkeleton from '@/modules/student-portal/features/registration/components/RegistrationHistorySkeleton';
 

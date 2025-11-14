@@ -13,7 +13,7 @@ import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
-import { getStudentRegistrationHistory } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import { getStudentRegistrationHistory } from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 

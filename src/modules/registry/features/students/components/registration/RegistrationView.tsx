@@ -20,7 +20,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import type { registrationRequests } from '@/core/database/schema';
-import { getStudentRegistrationHistory } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import { getStudentRegistrationHistory } from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 import RegistrationModal from './form/RegistrationModal';

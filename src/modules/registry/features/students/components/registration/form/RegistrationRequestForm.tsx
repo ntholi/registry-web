@@ -20,7 +20,7 @@ import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@/modules/registry/features/registration-requests/server/requests/actions';
+} from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
 import type { Student } from '@/modules/registry/features/students/utils';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';

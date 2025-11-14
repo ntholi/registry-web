@@ -23,7 +23,7 @@ import {
 	getDistinctGraduationDates,
 	getProgramsByGraduationDate,
 	getStudentsByGraduationDate,
-} from '@/modules/admin/features/bulk-transcripts/server/actions';
+} from '@/modules/admin/features/bulk/transcripts/server/actions';
 import { TranscriptPages } from '@/modules/registry/features/students/components/graduation/transcript/TranscriptPDF';
 import type { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
 

@@ -15,7 +15,7 @@ import {
 	IconSchool,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { getGraduationRequestByStudentNo } from '@/modules/registry/features/graduation-clearance/server/requests/actions';
+import { getGraduationRequestByStudentNo } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import {
 	getGraduationStatus,
 	getStatusColor,

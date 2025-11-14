@@ -26,7 +26,7 @@ import {
 	createGraduationRequestWithPaymentReceipts,
 	getEligiblePrograms,
 	getGraduationRequestByStudentNo,
-} from '@/modules/registry/features/graduation-clearance/server/requests/actions';
+} from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import InformationConfirmation from '@/modules/student-portal/features/graduation/components/new/InformationConfirmation';
 import PaymentReceiptsInput from '@/modules/student-portal/features/graduation/components/new/PaymentReceiptsInput';
 import ProgramSelection from '@/modules/student-portal/features/graduation/components/new/ProgramSelection';

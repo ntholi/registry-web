@@ -16,12 +16,12 @@ import {
 	countApprovedGraduationClearances,
 	countPendingGraduationClearances,
 	countRejectedGraduationClearances,
-} from '@/modules/registry/features/graduation-clearance/server/clearance/actions';
+} from '@/modules/registry/features/graduation/clearance/server/clearance/actions';
 import {
 	countApprovedClearances,
 	countPendingClearances,
 	countRejectedClearances,
-} from '@/modules/registry/features/registration-requests/server/clearance/actions';
+} from '@/modules/registry/features/registration/requests/server/clearance/actions';
 
 export const financeConfig: ModuleConfig = {
 	id: 'finance-management',

@@ -13,7 +13,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import type { getGraduationRequest } from '@/modules/registry/features/graduation-clearance/server/requests/actions';
+import type { getGraduationRequest } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import {
 	getClearanceStatus,
 	getStatusColor,

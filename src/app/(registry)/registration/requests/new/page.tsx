@@ -4,8 +4,8 @@ import type {
 	StudentModuleStatus,
 	semesterModules,
 } from '@/core/database/schema';
-import Form from '@/modules/registry/features/registration-requests/components/Form';
-import { createRegistrationWithModules } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import Form from '@/modules/registry/features/registration/requests/components/Form';
+import { createRegistrationWithModules } from '@/modules/registry/features/registration/requests/server/requests/actions';
 
 type Module = typeof modules.$inferSelect;
 

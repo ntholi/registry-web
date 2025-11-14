@@ -17,7 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { getBlockedStudentByStdNo } from '@/modules/finance/features/blocked-students/server/actions';
-import { getGraduationRequestByStudentNo } from '@/modules/registry/features/graduation-clearance/server/requests/actions';
+import { getGraduationRequestByStudentNo } from '@/modules/registry/features/graduation/clearance/server/requests/actions';
 import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
 import CertificateDownloader from './certificate/CertificateDownloader';
 import CertificatePreview from './certificate/CertificatePreview';

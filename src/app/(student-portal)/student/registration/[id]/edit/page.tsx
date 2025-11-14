@@ -30,7 +30,7 @@ import {
 	getRegistrationRequest,
 	getStudentSemesterModules,
 	updateRegistrationWithModulesAndSponsorship,
-} from '@/modules/registry/features/registration-requests/server/requests/actions';
+} from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
 import ModuleSelection from '@/modules/student-portal/features/registration/components/new/ModuleSelection';
 import SemesterConfirmation from '@/modules/student-portal/features/registration/components/new/SemesterConfirmation';

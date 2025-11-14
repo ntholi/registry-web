@@ -7,11 +7,11 @@ import type {
 } from '@/core/database/schema';
 import { getModulesForStructure } from '@/modules/academic/features/semester-modules/server/actions';
 import { getSponsoredStudent } from '@/modules/finance/features/sponsors/server/actions';
-import EditForm from '@/modules/registry/features/registration-requests/components/Form';
+import EditForm from '@/modules/registry/features/registration/requests/components/Form';
 import {
 	getRegistrationRequest,
 	updateRegistrationWithModulesAndSponsorship,
-} from '@/modules/registry/features/registration-requests/server/requests/actions';
+} from '@/modules/registry/features/registration/requests/server/requests/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

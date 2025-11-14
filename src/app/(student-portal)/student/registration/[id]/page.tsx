@@ -19,7 +19,7 @@ import { IconBooks, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
-import { getRegistrationRequest } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import { getRegistrationRequest } from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { MAX_REGISTRATION_ATTEMPTS } from '@/modules/registry/shared/constants';
 import ProofOfRegistrationDownload from '@/modules/student-portal/features/registration/components/ProofOfRegistrationDownload';
 import ClearanceStatusView from '@/modules/student-portal/features/registration/components/request/ClearanceStatusView';

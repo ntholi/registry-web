@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { clearanceByStatus } from '@/modules/registry/features/registration-requests/server/clearance/actions';
+import { clearanceByStatus } from '@/modules/registry/features/registration/requests/server/clearance/actions';
 import { getCurrentTerm } from '@/modules/registry/features/terms/server/actions';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';

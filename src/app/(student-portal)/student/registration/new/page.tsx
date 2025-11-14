@@ -28,7 +28,7 @@ import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@/modules/registry/features/registration-requests/server/requests/actions';
+} from '@/modules/registry/features/registration/requests/server/requests/actions';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
 import AccountConfirmation from '@/modules/student-portal/features/registration/components/new/AccountConfirmation';
 import ModuleSelection from '@/modules/student-portal/features/registration/components/new/ModuleSelection';

@@ -2,7 +2,7 @@
 
 import { Badge, Skeleton } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getRegistrationRequest } from '@/modules/registry/features/registration-requests/server/requests/actions';
+import { getRegistrationRequest } from '@/modules/registry/features/registration/requests/server/requests/actions';
 import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
 	getStatusColor,
