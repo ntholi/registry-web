@@ -11,7 +11,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import ModuleEditForm from './ModuleEditForm';
+import ModuleEditForm from '../../structures/components/ModuleEditForm';
 
 type Props = {
 	moduleId: number;
