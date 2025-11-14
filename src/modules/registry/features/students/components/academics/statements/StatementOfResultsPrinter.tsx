@@ -7,8 +7,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import QRCode from 'qrcode';
 import { useState } from 'react';
-import { createStatementOfResultsPrint } from '@/modules/registry/features/statement-of-results-prints/server/actions';
-import { extractStatementOfResultsData } from '@/modules/registry/features/statement-of-results-prints/server/utils';
+import { createStatementOfResultsPrint } from '@/modules/registry/features/print/statement-of-results/server/actions';
+import { extractStatementOfResultsData } from '@/modules/registry/features/print/statement-of-results/server/utils';
 import { getAcademicHistory } from '@/modules/registry/features/students/server/actions';
 import StatementOfResultsPDF from './StatementOfResultsPDF';
 

@@ -6,7 +6,7 @@ import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { createStudentCardPrint } from '@/modules/registry/features/student-card-prints/server/actions';
+import { createStudentCardPrint } from '@/modules/registry/features/print/student-card/server/actions';
 import {
 	type getStudent,
 	getStudentPhoto,
