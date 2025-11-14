@@ -1,12 +1,9 @@
-import { eq } from 'drizzle-orm';
-import { db } from '@/core/database';
-import { terms } from '@/core/database/schema';
-import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import TermRepository from './repository';
-
-type Term = typeof terms.$inferInsert;
+import TermRepository, {
+	type TermInsert,
+	type TermQueryOptions,
+} from './repository';
 
 class TermService {
 	constructor(private readonly repository = new TermRepository()) {}
@@ -23,7 +20,7 @@ class TermService {
 		return withAuth(async () => this.repository.getActive(), ['all']);
 	}
 
-	async findAll(params: QueryOptions<typeof terms>) {
+	async findAll(params: TermQueryOptions) {
 		return withAuth(async () => this.repository.query(params), ['dashboard']);
 	}
 
@@ -31,29 +28,12 @@ class TermService {
 		return withAuth(async () => this.repository.findAll(), ['dashboard']);
 	}
 
-	async create(data: Term) {
-		return withAuth(async () => {
-			if (data.isActive) {
-				await db
-					.update(terms)
-					.set({ isActive: false })
-					.where(eq(terms.isActive, true));
-			}
-			return this.repository.create(data);
-		}, []);
+	async create(data: TermInsert) {
+		return withAuth(async () => this.repository.create(data), []);
 	}
 
-	async update(id: number, data: Partial<Term>) {
-		return withAuth(async () => {
-			if (data.isActive) {
-				await db
-					.update(terms)
-					.set({ isActive: false })
-					.where(eq(terms.isActive, true));
-			}
-			await this.repository.update(id, data);
-			return this.repository.findById(id);
-		}, []);
+	async update(id: number, data: Partial<TermInsert>) {
+		return withAuth(async () => this.repository.update(id, data), []);
 	}
 
 	async delete(id: number) {
