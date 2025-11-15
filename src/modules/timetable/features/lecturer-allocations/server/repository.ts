@@ -76,6 +76,56 @@ export default class LecturerAllocationRepository extends BaseRepository<
 		});
 	}
 
+	async findByUserIdWithRelations(userId: string) {
+		return db.query.lecturerAllocations.findMany({
+			where: eq(lecturerAllocations.userId, userId),
+			with: {
+				user: true,
+				semesterModule: {
+					with: {
+						module: true,
+						semester: {
+							with: {
+								structure: {
+									with: {
+										program: true,
+									},
+								},
+							},
+						},
+					},
+				},
+				term: true,
+			},
+			orderBy: (lecturerAllocations, { desc }) => [
+				desc(lecturerAllocations.createdAt),
+			],
+		});
+	}
+
+	async findUniqueLecturers() {
+		const allocations = await db.query.lecturerAllocations.findMany({
+			with: {
+				user: true,
+			},
+			orderBy: (lecturerAllocations, { desc }) => [
+				desc(lecturerAllocations.createdAt),
+			],
+		});
+
+		const uniqueLecturers = new Map();
+		for (const allocation of allocations) {
+			if (!uniqueLecturers.has(allocation.userId)) {
+				uniqueLecturers.set(allocation.userId, allocation.user);
+			}
+		}
+
+		return Array.from(uniqueLecturers.entries()).map(([userId, user]) => ({
+			userId,
+			user,
+		}));
+	}
+
 	async createMany(allocations: LecturerAllocationInsert[]) {
 		return db.insert(lecturerAllocations).values(allocations).returning();
 	}

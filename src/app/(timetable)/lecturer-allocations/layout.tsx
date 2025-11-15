@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllLecturerAllocations } from '@timetable/lecturer-allocations';
+import { getUniqueLecturers } from '@timetable/lecturer-allocations';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
@@ -10,10 +10,10 @@ export default function Layout({ children }: PropsWithChildren) {
 			path={'/lecturer-allocations'}
 			queryKey={['lecturer-allocations']}
 			getData={async () => {
-				const allocations = await getAllLecturerAllocations();
+				const lecturers = await getUniqueLecturers();
 				return {
-					items: allocations,
-					count: allocations.length,
+					items: lecturers,
+					count: lecturers.length,
 					totalPages: 1,
 					page: 1,
 				};
@@ -23,9 +23,9 @@ export default function Layout({ children }: PropsWithChildren) {
 			]}
 			renderItem={(it) => (
 				<ListItem
-					id={it.id}
-					label={`${it.user?.name || 'Unknown'} - ${it.term?.name || 'Unknown Term'}`}
-					description={`${it.semesterModule?.module?.code || 'Unknown Module'}`}
+					id={it.userId}
+					label={it.user?.name || 'Unknown Lecturer'}
+					description={it.user?.email || ''}
 				/>
 			)}
 		>

@@ -4,10 +4,25 @@ import {
 	LecturerAllocationForm,
 } from '@timetable/lecturer-allocations';
 
-export default async function NewPage() {
+type Props = {
+	searchParams: Promise<{ userId?: string }>;
+};
+
+export default async function NewPage({ searchParams }: Props) {
+	const { userId } = await searchParams;
+
 	return (
 		<Box p='lg'>
 			<LecturerAllocationForm
+				defaultValues={
+					userId
+						? {
+								userId,
+								termId: 0,
+								semesterModuleIds: [],
+							}
+						: undefined
+				}
 				onSubmit={async (values) => {
 					'use server';
 					const allocations = values.semesterModuleIds.map(
