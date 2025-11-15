@@ -8,6 +8,9 @@ class RoomTypeService extends BaseService<typeof roomTypes, 'id'> {
 		super(new RoomTypeRepository(), {
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
+			createRoles: ['academic'],
+			updateRoles: ['academic'],
+			deleteRoles: ['academic'],
 		});
 	}
 }

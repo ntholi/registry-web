@@ -1,21 +1,32 @@
 import { IconChalkboard } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 
-export const classroomConfig: ModuleConfig = {
+export const timetableConfig: ModuleConfig = {
 	id: 'timetable',
-	name: 'Classroom',
+	name: 'Timetable',
 	version: '1.0.0',
 	category: 'core',
 
 	navigation: {
 		dashboard: [
 			{
-				label: 'Classroom',
+				label: 'Timetable',
 				icon: IconChalkboard,
+				children: [
+					{
+						label: 'Rooms',
+						href: '/rooms',
+					},
+					{
+						label: 'Room Types',
+						href: '/room-types',
+					},
+				],
 				roles: ['academic'],
-				href: '/courses',
 				isVisible: (session) => {
-					return session?.user?.position !== 'admin';
+					return ['manager', 'admin', 'program_leader'].includes(
+						session?.user?.position || ''
+					);
 				},
 			},
 		],
