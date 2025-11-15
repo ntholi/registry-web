@@ -59,10 +59,6 @@ export default function LecturerAllocationForm({
 		queryFn: getAllTerms,
 	});
 
-	const selectedTerm = terms.find(
-		(t) => t.id === defaultValues?.termId || t.id === form.values.termId
-	);
-
 	useEffect(() => {
 		async function fetchUser() {
 			if (defaultValues?.userId && !selectedUser) {
@@ -173,13 +169,14 @@ export default function LecturerAllocationForm({
 						/>
 					)}
 
-					{isTermPreFilled && selectedTerm ? (
+					{isTermPreFilled && defaultValues?.termId ? (
 						<div>
 							<Text size='sm' c='dimmed' mb={4}>
 								Term
 							</Text>
 							<Text size='md' fw={500}>
-								{selectedTerm.name}
+								{terms.find((t) => t.id === defaultValues.termId)?.name ||
+									'Unknown'}
 							</Text>
 						</div>
 					) : (
