@@ -7,8 +7,8 @@ import {
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 
 export const academicConfig: ModuleConfig = {
-	id: 'academic-management',
-	name: 'Academic Management',
+	id: 'academic',
+	name: 'Academic',
 	version: '1.0.0',
 	category: 'core',
 

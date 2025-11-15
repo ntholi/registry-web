@@ -20,8 +20,8 @@ import type {
 } from '@/app/dashboard/module-config.types';
 
 export const adminConfig: ModuleConfig = {
-	id: 'admin-management',
-	name: 'Admin Management',
+	id: 'admin',
+	name: 'Admin',
 	version: '1.0.0',
 	category: 'core',
 
