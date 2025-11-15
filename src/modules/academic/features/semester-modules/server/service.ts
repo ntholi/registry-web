@@ -1,4 +1,4 @@
-import { getCurrentTerm } from '@registry/terms/server';
+import { getCurrentTerm } from '@registry/terms';
 import type { semesterModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';

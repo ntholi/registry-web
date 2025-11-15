@@ -6,7 +6,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getGraduationRequest } from '@registry/graduation/clearance/server';
+import { getGraduationRequest } from '@registry/graduation/clearance';
 import { PaymentReceiptsEditor } from '@student-portal/graduation';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';

@@ -7,7 +7,7 @@ import {
 	Text,
 	View,
 } from '@react-pdf/renderer';
-import type { getGraduationClearanceData } from '@registry/graduation/clearance/server';
+import type { getGraduationClearanceData } from '@registry/graduation/clearance';
 import { formatDate, toTitleCase } from '@/shared/lib/utils/utils';
 
 Font.register({

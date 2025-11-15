@@ -1,5 +1,5 @@
 import type { AcademicRemarks, Student } from '@registry/students';
-import { getCurrentTerm } from '@registry/terms/server';
+import { getCurrentTerm } from '@registry/terms';
 import {
 	dashboardUsers,
 	type registrationRequests,

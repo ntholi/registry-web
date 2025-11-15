@@ -1,8 +1,8 @@
-import { Form } from '@academic/semester-modules';
 import {
+	Form,
 	getSemesterModule,
 	updateModule,
-} from '@academic/semester-modules/server';
+} from '@academic/semester-modules';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 

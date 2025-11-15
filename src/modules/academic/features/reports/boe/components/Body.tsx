@@ -1,5 +1,5 @@
 'use client';
-import { getAllSchools } from '@academic/schools/server';
+import { getAllSchools } from '@academic/schools';
 import {
 	Button,
 	Card,

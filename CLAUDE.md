@@ -52,7 +52,7 @@ Modular monolith with feature-based organization. Each module (academic, registr
 
 ## Creating a New Feature (Step-by-Step)
 
-Use **terms** (registry module) as reference implementations.
+Use **terms** (registry module) as reference implementation.
 
 ### 1. Database Schema
 
@@ -72,7 +72,7 @@ export const tableName = pgTable('table_name', {
 **Rules**:
 - Table names: `snake_case`, lowercase, plural
 - Column names: `camelCase` in code (Drizzle converts to `snake_case` via `casing: 'snake_case'`)
-- Add `createdAt: timestamp().defaultNow()` for audit trail
+- Add `createdAt: timestamp().defaultNow()`
 - Add indexes for foreign keys: use second parameter of `pgTable` with callback
 
 **Export Schema**: Add to `/src/modules/[module]/database/index.ts`
@@ -151,11 +151,8 @@ export const entityService = serviceWrapper(EntityService, 'EntityService');
 - Roles:
   - `[]` = admin only
   - `['dashboard']` = any staff user (admin, registry, finance, academic, student_service)
-  - `['all']` = any authenticated user + unauthenticated
-  - `['auth']` = authenticated users only
   - `['finance']`, `['student']`, etc = specific roles
 - Override role methods for custom behavior: `protected byIdRoles()`, `protected findAllRoles()`, etc.
-- Inherited methods: `get(id)`, `getAll()`, `findAll(params)`, `first()`, `create(data)`, `update(id, data)`, `delete(id)`, `count()`
 - Override any method for custom behavior (e.g., custom delete logic)
 - Add custom methods with `withAuth` wrapper as needed
 - Export with `serviceWrapper(ClassName, 'ServiceName')` for logging
@@ -255,7 +252,7 @@ export default function EntityForm({ onSubmit, defaultValues, title }: Props) {
       schema={createInsertSchema(tableName)}
       defaultValues={defaultValues}
       onSuccess={({ id }) => {
-        router.push(`/path/${id}`);
+        router.push(`/<feature-name>/${id}`);
       }}
     >
       {(form) => (

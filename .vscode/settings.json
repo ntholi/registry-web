@@ -11,6 +11,7 @@
 		"pnpm lint --fix": true,
 		"pwsh -Command": true,
 		"pwsh -NoLogo -Command": true,
-		"pwsh -NoLogo -NoProfile -Command": true
+		"pwsh -NoLogo -NoProfile -Command": true,
+		"del": true
 	}
 }

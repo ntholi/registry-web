@@ -1,5 +1,4 @@
-import { SchoolsList } from '@admin/users';
-import { deleteUser, getUser, getUserSchools } from '@admin/users/server';
+import { deleteUser, getUser, getUserSchools, SchoolsList } from '@admin/users';
 import {
 	Avatar,
 	Badge,

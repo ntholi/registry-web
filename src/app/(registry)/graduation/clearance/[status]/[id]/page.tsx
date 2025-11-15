@@ -3,8 +3,8 @@ import { GraduationClearanceHeader } from '@registry/graduation';
 import {
 	GraduationClearanceDetails,
 	GraduationClearanceHistory,
+	getGraduationClearance,
 } from '@registry/graduation/clearance';
-import { getGraduationClearance } from '@registry/graduation/clearance/server';
 import { AcademicsLoader } from '@registry/registration/clearance';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';

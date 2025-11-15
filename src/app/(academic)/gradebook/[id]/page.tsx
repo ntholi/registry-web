@@ -1,4 +1,4 @@
-import { getAssignedModuleByUserAndModule } from '@academic/assigned-modules/server';
+import { getAssignedModuleByUserAndModule } from '@academic/assigned-modules';
 import { ModuleDetailsCard, StudentTable } from '@academic/gradebook';
 import { Container, Paper } from '@mantine/core';
 import { notFound } from 'next/navigation';

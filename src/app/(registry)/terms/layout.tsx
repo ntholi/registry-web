@@ -1,6 +1,6 @@
 'use client';
 
-import { findAllTerms } from '@registry/terms/server';
+import { findAllTerms } from '@registry/terms';
 import { IconCheck } from '@tabler/icons-react';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';

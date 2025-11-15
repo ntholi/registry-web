@@ -18,7 +18,7 @@ import {
 	MIME_TYPES,
 } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
-import { createDocument } from '@registry/documents/server';
+import { createDocument } from '@registry/documents';
 import {
 	IconFile,
 	IconFileUpload,

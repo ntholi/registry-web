@@ -5,7 +5,7 @@ import { pdf } from '@react-pdf/renderer';
 import {
 	createStatementOfResultsPrint,
 	extractStatementOfResultsData,
-} from '@registry/print/statement-of-results/server';
+} from '@registry/print/statement-of-results';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';

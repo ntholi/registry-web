@@ -1,7 +1,7 @@
 'use client';
 
 import { Paper, Select, Title } from '@mantine/core';
-import { getAllTerms } from '@registry/terms/server';
+import { getAllTerms } from '@registry/terms';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';

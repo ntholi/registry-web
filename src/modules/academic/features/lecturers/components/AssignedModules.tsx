@@ -1,6 +1,6 @@
 'use client';
 
-import { getAssignedModulesByUser } from '@academic/assigned-modules/server';
+import { getAssignedModulesByUser } from '@academic/assigned-modules';
 import {
 	Avatar,
 	Badge,

@@ -1,6 +1,6 @@
 import { Box, Paper } from '@mantine/core';
+import { createRegistrationWithModules } from '@registry/registration';
 import { Form } from '@registry/registration/requests';
-import { createRegistrationWithModules } from '@registry/registration/server';
 import type {
 	modules,
 	StudentModuleStatus,

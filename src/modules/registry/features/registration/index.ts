@@ -9,6 +9,7 @@ export {
 	SponsorInfo,
 } from './clearance';
 export * from './clearance/types';
+export * from './requests';
 export {
 	ClearanceAccordion,
 	Form as RegistrationRequestForm,

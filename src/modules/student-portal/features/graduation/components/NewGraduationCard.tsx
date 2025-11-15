@@ -1,6 +1,6 @@
 'use client';
 
-import { getBlockedStudentByStdNo } from '@finance/blocked-students/server';
+import { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Alert,
 	Button,
@@ -10,7 +10,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { getGraduationRequestByStudentNo } from '@registry/graduation/clearance/server';
+import { getGraduationRequestByStudentNo } from '@registry/graduation/clearance';
 
 import { IconInfoCircle, IconPlus, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';

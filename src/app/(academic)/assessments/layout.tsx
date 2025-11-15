@@ -1,6 +1,6 @@
 'use client';
-import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules/server';
-import { getModules } from '@academic/modules/server';
+import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
+import { getModules } from '@academic/modules';
 import { useSession } from 'next-auth/react';
 import { type PropsWithChildren, useState } from 'react';
 import { ListItem, ListLayout, ModuleViewToggle } from '@/shared/ui/adease';

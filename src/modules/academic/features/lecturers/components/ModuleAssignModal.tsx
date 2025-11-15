@@ -1,6 +1,6 @@
 'use client';
-import { assignModulesToLecturer } from '@academic/assigned-modules/server';
-import type { searchModulesWithDetails } from '@academic/semester-modules/server';
+import { assignModulesToLecturer } from '@academic/assigned-modules';
+import type { searchModulesWithDetails } from '@academic/semester-modules';
 import {
 	Button,
 	Checkbox,

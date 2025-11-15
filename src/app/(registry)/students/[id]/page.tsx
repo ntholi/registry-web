@@ -1,6 +1,5 @@
-import { getBlockedStudentByStdNo } from '@finance/blocked-students/server';
-import { StudentTabs } from '@registry/students';
-import { getStudent } from '@registry/students/server';
+import { getBlockedStudentByStdNo } from '@finance/blocked-students';
+import { getStudent, StudentTabs } from '@registry/students';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';

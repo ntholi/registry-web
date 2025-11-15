@@ -1,6 +1,6 @@
 'use client';
 
-import type { getSponsoredStudent } from '@finance/sponsors/server';
+import type { getSponsoredStudent } from '@finance/sponsors';
 import {
 	ActionIcon,
 	Badge,

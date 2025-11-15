@@ -1,7 +1,10 @@
 'use client';
 
-import { StudentsFilter } from '@registry/students';
-import { findAllStudents, type StudentFilter } from '@registry/students/server';
+import {
+	findAllStudents,
+	type StudentFilter,
+	StudentsFilter,
+} from '@registry/students';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout } from '@/shared/ui/adease';

@@ -1,4 +1,4 @@
-import { deleteRoomType, getRoomType } from '@timetable/room-types/server';
+import { deleteRoomType, getRoomType } from '@timetable/room-types';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,

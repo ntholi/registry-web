@@ -4,7 +4,7 @@ import { Form } from '@registry/graduation';
 import {
 	getGraduationRequest,
 	updateGraduationRequest,
-} from '@registry/graduation/clearance/server';
+} from '@registry/graduation/clearance';
 import { notFound } from 'next/navigation';
 
 type Props = {

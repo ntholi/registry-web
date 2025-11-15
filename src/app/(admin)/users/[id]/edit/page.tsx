@@ -1,5 +1,4 @@
-import { Form } from '@admin/users';
-import { getUser, updateUser } from '@admin/users/server';
+import { Form, getUser, updateUser } from '@admin/users';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 

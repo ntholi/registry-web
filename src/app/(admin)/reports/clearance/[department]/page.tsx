@@ -1,8 +1,7 @@
 'use client';
 
 import { StatsTable } from '@admin/reports';
-import { StatsSummary } from '@admin/reports/clearance';
-import { fetchClearanceStats } from '@admin/reports/clearance/server';
+import { fetchClearanceStats, StatsSummary } from '@admin/reports/clearance';
 import type {
 	ClearanceFilter,
 	ClearanceType,

@@ -9,7 +9,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { getGraduationRequestByStudentNo } from '@registry/graduation/clearance/server';
+import { getGraduationRequestByStudentNo } from '@registry/graduation/clearance';
 
 import { getGraduationStatus, getStatusColor } from '@student-portal/utils';
 import {

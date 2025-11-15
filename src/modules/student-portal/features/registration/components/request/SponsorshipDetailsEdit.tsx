@@ -1,6 +1,6 @@
 'use client';
 
-import { findAllSponsors, getSponsoredStudent } from '@finance/sponsors/server';
+import { findAllSponsors, getSponsoredStudent } from '@finance/sponsors';
 import {
 	Alert,
 	Card,

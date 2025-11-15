@@ -1,4 +1,4 @@
-import { setMockUser } from '@admin/test/server';
+import { setMockUser } from '@admin/test';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { students } from '@/core/database';
 import { db, users as usersTable } from '@/core/database';

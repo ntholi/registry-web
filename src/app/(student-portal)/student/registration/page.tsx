@@ -7,7 +7,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getStudentRegistrationHistory } from '@registry/registration/requests/server';
+import { getStudentRegistrationHistory } from '@registry/registration/requests';
 import {
 	RegistrationHistory,
 	RegistrationHistorySkeleton,

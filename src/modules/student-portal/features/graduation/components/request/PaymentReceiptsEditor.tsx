@@ -3,7 +3,7 @@
 import {
 	addPaymentReceipt,
 	removePaymentReceipt,
-} from '@finance/payment-receipts/server';
+} from '@finance/payment-receipts';
 import {
 	ActionIcon,
 	Badge,

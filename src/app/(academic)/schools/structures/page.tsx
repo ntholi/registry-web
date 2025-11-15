@@ -1,7 +1,10 @@
 'use client';
 
-import { ProgramDisplay } from '@academic/schools';
-import { getProgramsBySchoolId, getSchool } from '@academic/schools/server';
+import {
+	getProgramsBySchoolId,
+	getSchool,
+	ProgramDisplay,
+} from '@academic/schools';
 import {
 	Accordion,
 	Card,

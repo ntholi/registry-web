@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllSchools, getProgramsBySchoolId } from '@academic/schools/server';
+import { getAllSchools, getProgramsBySchoolId } from '@academic/schools';
 import {
 	ActionIcon,
 	Button,
@@ -14,7 +14,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@registry/terms/server';
+import { getAllTerms } from '@registry/terms';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';

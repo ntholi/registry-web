@@ -1,6 +1,6 @@
 'use client';
 
-import type { getBlockedStudentByStdNo } from '@finance/blocked-students/server';
+import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
 import { useLocalStorage } from '@/shared/lib/hooks/use-local-storage';

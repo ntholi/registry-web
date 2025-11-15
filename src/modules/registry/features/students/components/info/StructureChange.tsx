@@ -1,5 +1,5 @@
 'use client';
-import { getStructuresByProgramId } from '@academic/structures/server';
+import { getStructuresByProgramId } from '@academic/structures';
 import {
 	ActionIcon,
 	Alert,

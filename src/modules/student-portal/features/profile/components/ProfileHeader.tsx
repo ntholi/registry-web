@@ -13,7 +13,7 @@ import {
 	Title,
 } from '@mantine/core';
 import type { Student } from '@registry/students';
-import { getStudentPhoto } from '@registry/students/server';
+import { getStudentPhoto } from '@registry/students';
 import { studentColors } from '@student-portal/utils';
 import {
 	IconCalendar,

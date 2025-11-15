@@ -1,6 +1,9 @@
 'use client';
-import { getActiveProgram, getCurrentSemester } from '@registry/students';
-import { getStudentByUserId } from '@registry/students/server';
+import {
+	getActiveProgram,
+	getCurrentSemester,
+	getStudentByUserId,
+} from '@registry/students';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';

@@ -1,6 +1,6 @@
 'use client';
 
-import { findAllSponsors } from '@finance/sponsors/server';
+import { findAllSponsors } from '@finance/sponsors';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 

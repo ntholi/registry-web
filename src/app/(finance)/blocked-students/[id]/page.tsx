@@ -1,10 +1,10 @@
 'use client';
 
-import { StudentStatusSwitch } from '@finance/blocked-students';
 import {
 	deleteBlockedStudent,
 	getBlockedStudent,
-} from '@finance/blocked-students/server';
+	StudentStatusSwitch,
+} from '@finance/blocked-students';
 import { Center, Loader, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { notFound, useParams } from 'next/navigation';

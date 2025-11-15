@@ -1,6 +1,6 @@
 'use client';
 
-import { getModulesForStructure } from '@academic/semester-modules/server';
+import { getModulesForStructure } from '@academic/semester-modules';
 import {
 	ActionIcon,
 	Divider,
@@ -11,8 +11,8 @@ import {
 	Table,
 	Text,
 } from '@mantine/core';
-import { getStudentRegistrationData } from '@registry/students/server';
-import { getAllTerms } from '@registry/terms/server';
+import { getStudentRegistrationData } from '@registry/students';
+import { getAllTerms } from '@registry/terms';
 import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';

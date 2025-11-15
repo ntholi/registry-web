@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
+import { getClearance, updateClearance } from '@registry/registration';
 import { Form } from '@registry/registration/clearance';
-import { getClearance, updateClearance } from '@registry/registration/server';
 import { notFound } from 'next/navigation';
 
 type Props = {

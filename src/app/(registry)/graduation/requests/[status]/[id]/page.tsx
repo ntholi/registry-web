@@ -17,7 +17,7 @@ import {
 import {
 	deleteGraduationRequest,
 	getGraduationRequest,
-} from '@registry/graduation/clearance/server';
+} from '@registry/graduation/clearance';
 import {
 	GraduationRequestDetailsView,
 	ProofOfClearancePrinter,

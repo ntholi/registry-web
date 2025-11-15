@@ -2,12 +2,12 @@ import {
 	countApprovedGraduationClearances,
 	countPendingGraduationClearances,
 	countRejectedGraduationClearances,
-} from '@registry/graduation/clearance/server';
+} from '@registry/graduation/clearance';
 import {
 	countApprovedClearances,
 	countPendingClearances,
 	countRejectedClearances,
-} from '@registry/registration/server';
+} from '@registry/registration';
 import {
 	IconBarrierBlock,
 	IconCertificate,

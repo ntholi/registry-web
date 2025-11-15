@@ -1,6 +1,6 @@
 'use client';
 
-import { graduationClearanceByStatus } from '@registry/graduation/clearance/server';
+import { graduationClearanceByStatus } from '@registry/graduation/clearance';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';

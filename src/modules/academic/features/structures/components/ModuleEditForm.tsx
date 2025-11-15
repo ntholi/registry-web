@@ -1,6 +1,6 @@
 'use client';
 
-import { findModulesByStructure } from '@academic/semester-modules/server';
+import { findModulesByStructure } from '@academic/semester-modules';
 import { MultiSelect, Radio, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';

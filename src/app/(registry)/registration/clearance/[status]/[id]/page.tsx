@@ -4,8 +4,8 @@ import {
 	AcademicsLoader,
 	ClearanceHeader,
 } from '@registry/registration/clearance';
-import { getClearance } from '@registry/registration/requests/server';
-import { getCurrentTerm } from '@registry/terms/server';
+import { getClearance } from '@registry/registration/requests';
+import { getCurrentTerm } from '@registry/terms';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { DetailsView } from '@/shared/ui/adease';

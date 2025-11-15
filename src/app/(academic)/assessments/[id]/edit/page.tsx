@@ -1,5 +1,4 @@
-import { Form } from '@academic/assessments';
-import { getAssessment, updateAssessment } from '@academic/assessments/server';
+import { Form, getAssessment, updateAssessment } from '@academic/assessments';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 

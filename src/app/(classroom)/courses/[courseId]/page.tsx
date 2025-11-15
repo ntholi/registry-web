@@ -1,10 +1,12 @@
-import { AssessmentsTab, DashboardTab, MaterialTab } from '@classroom/courses';
 import {
+	AssessmentsTab,
+	DashboardTab,
 	getCourse,
 	getCourseAnnouncements,
 	getCourseTopics,
 	getCourseWork,
-} from '@classroom/courses/server';
+	MaterialTab,
+} from '@classroom/courses';
 import {
 	Badge,
 	Button,

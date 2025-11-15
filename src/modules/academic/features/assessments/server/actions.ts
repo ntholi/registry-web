@@ -1,6 +1,6 @@
 'use server';
 
-import { getCurrentTerm } from '@registry/terms/server';
+import { getCurrentTerm } from '@registry/terms';
 import type { assessments } from '@/core/database';
 import { assessmentsService as service } from './service';
 

@@ -1,4 +1,4 @@
-import { findAllByRole } from '@admin/users/server';
+import { findAllByRole } from '@admin/users';
 import { Autocomplete, type BoxProps, Loader } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useEffect, useState } from 'react';

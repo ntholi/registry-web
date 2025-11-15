@@ -13,7 +13,7 @@ import {
 	Text,
 	Tooltip,
 } from '@mantine/core';
-import { getDocumentUrl } from '@registry/documents/server';
+import { getDocumentUrl } from '@registry/documents';
 import { IconDownload, IconFile, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { formatDate } from '@/shared/lib/utils/utils';

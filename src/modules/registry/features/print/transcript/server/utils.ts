@@ -1,4 +1,4 @@
-import type { getAcademicHistory } from '@registry/students/server';
+import type { getAcademicHistory } from '@registry/students';
 import { getGradePoints } from '@/shared/lib/utils/grades';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;

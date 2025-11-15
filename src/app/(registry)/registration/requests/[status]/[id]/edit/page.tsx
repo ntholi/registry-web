@@ -1,11 +1,11 @@
-import { getModulesForStructure } from '@academic/semester-modules/server';
-import { getSponsoredStudent } from '@finance/sponsors/server';
+import { getModulesForStructure } from '@academic/semester-modules';
+import { getSponsoredStudent } from '@finance/sponsors';
 import { Box } from '@mantine/core';
-import { Form } from '@registry/registration/requests';
 import {
 	getRegistrationRequest,
 	updateRegistrationWithModulesAndSponsorship,
-} from '@registry/registration/server';
+} from '@registry/registration';
+import { Form } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
 import type {
 	modules,

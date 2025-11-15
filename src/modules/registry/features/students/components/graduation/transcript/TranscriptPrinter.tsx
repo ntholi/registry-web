@@ -5,7 +5,7 @@ import { pdf } from '@react-pdf/renderer';
 import {
 	createTranscriptPrint,
 	extractTranscriptData,
-} from '@registry/print/transcript/server';
+} from '@registry/print/transcript';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';

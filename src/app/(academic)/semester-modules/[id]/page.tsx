@@ -2,7 +2,7 @@ import {
 	deleteModule,
 	getModulePrerequisites,
 	getSemesterModule,
-} from '@academic/semester-modules/server';
+} from '@academic/semester-modules';
 import {
 	Fieldset,
 	List,

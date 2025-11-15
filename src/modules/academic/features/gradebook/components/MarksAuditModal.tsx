@@ -1,6 +1,6 @@
 'use client';
 
-import { getMarksAudit } from '@academic/assessment-marks/server';
+import { getMarksAudit } from '@academic/assessment-marks';
 import { getAssessmentTypeLabel } from '@academic/assessments';
 import {
 	ActionIcon,

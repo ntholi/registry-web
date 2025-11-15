@@ -1,4 +1,4 @@
-import { getSponsoredStudent } from '@finance/sponsors/server';
+import { getSponsoredStudent } from '@finance/sponsors';
 import {
 	Divider,
 	Group,
@@ -10,11 +10,11 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { ClearanceAccordion, RequestDetailsView } from '@registry/registration';
-import { ModulesView } from '@registry/registration/requests';
 import {
 	deleteRegistrationRequest,
 	getRegistrationRequest,
-} from '@registry/registration/requests/server';
+	ModulesView,
+} from '@registry/registration/requests';
 import {
 	IconCheck,
 	IconClock,

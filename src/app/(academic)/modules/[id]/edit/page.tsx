@@ -1,5 +1,4 @@
-import { Form } from '@academic/modules';
-import { getModule, updateModule } from '@academic/modules/server';
+import { Form, getModule, updateModule } from '@academic/modules';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { getAllPrograms } from '@academic/schools/server';
-import { findAllSponsors } from '@finance/sponsors/server';
+import { getAllPrograms } from '@academic/schools';
+import { findAllSponsors } from '@finance/sponsors';
 import {
 	Box,
 	Checkbox,
@@ -12,7 +12,7 @@ import {
 	Stack,
 	TextInput,
 } from '@mantine/core';
-import { getAllTerms } from '@registry/terms/server';
+import { getAllTerms } from '@registry/terms';
 import { IconFilter, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 

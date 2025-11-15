@@ -13,7 +13,7 @@ import {
 	TimelineItem,
 	Title,
 } from '@mantine/core';
-import type { getRegistrationRequest } from '@registry/registration/server';
+import type { getRegistrationRequest } from '@registry/registration';
 import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
 	getStatusColor,

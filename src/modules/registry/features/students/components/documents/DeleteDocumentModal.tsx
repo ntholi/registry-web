@@ -2,7 +2,7 @@
 
 import { Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { deleteDocument } from '@registry/documents/server';
+import { deleteDocument } from '@registry/documents';
 import { useState } from 'react';
 import { deleteDocument as deleteFromStorage } from '@/core/integrations/storage';
 

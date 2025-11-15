@@ -1,6 +1,6 @@
 'use client';
 
-import { bulkUpdateAccountDetails } from '@finance/sponsors/server';
+import { bulkUpdateAccountDetails } from '@finance/sponsors';
 import {
 	Alert,
 	Badge,

@@ -1,5 +1,5 @@
 import { Badge, Group, SimpleGrid } from '@mantine/core';
-import { deleteRoom, getRoomWithRelations } from '@timetable/rooms/server';
+import { deleteRoom, getRoomWithRelations } from '@timetable/rooms';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,

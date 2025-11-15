@@ -1,9 +1,9 @@
 'use client';
 
-import { getAllSchools } from '@academic/schools/server';
+import { getAllSchools } from '@academic/schools';
 import { MultiSelect, NumberInput, Select, TextInput } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getAllRoomTypes } from '@timetable/room-types/server';
+import { getAllRoomTypes } from '@timetable/room-types';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { rooms } from '@/modules/timetable/database';

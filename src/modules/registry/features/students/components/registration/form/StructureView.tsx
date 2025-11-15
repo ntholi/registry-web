@@ -1,6 +1,6 @@
 'use client';
 
-import { getStructure } from '@academic/structures/server';
+import { getStructure } from '@academic/structures';
 import {
 	Alert,
 	Badge,

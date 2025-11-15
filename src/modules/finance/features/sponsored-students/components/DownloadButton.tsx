@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllSponsoredStudents } from '@finance/sponsors/server';
+import { getAllSponsoredStudents } from '@finance/sponsors';
 import { Button } from '@mantine/core';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';

@@ -11,7 +11,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import type { getRegistrationRequest } from '@registry/registration/server';
+import type { getRegistrationRequest } from '@registry/registration';
 import { IconInfoCircle } from '@tabler/icons-react';
 
 type Props = {

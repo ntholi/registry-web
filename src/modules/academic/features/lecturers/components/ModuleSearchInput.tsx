@@ -1,6 +1,6 @@
 'use client';
 
-import { searchModulesWithDetails } from '@academic/semester-modules/server';
+import { searchModulesWithDetails } from '@academic/semester-modules';
 import {
 	Autocomplete,
 	type AutocompleteProps,

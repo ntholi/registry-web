@@ -1,4 +1,4 @@
-import { generateCertificatePDF } from '@registry/certificates/server';
+import { generateCertificatePDF } from '@registry/certificates';
 
 interface CertificatePDFProps {
 	studentName: string;

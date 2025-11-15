@@ -2,7 +2,7 @@
 import {
 	getAssignedModuleByUserAndModule,
 	getAssignedModulesByCurrentUser,
-} from '@academic/assigned-modules/server';
+} from '@academic/assigned-modules';
 import {
 	Alert,
 	Button,

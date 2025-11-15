@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllSchools } from '@academic/schools/server';
+import { getAllSchools } from '@academic/schools';
 import {
 	Box,
 	Card,

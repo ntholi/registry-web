@@ -1,6 +1,6 @@
 'use client';
 
-import { getModule } from '@academic/modules/server';
+import { getModule } from '@academic/modules';
 import type { assessments } from '@/modules/academic/database';
 
 type Assessment = typeof assessments.$inferSelect;

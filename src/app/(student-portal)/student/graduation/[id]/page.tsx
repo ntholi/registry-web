@@ -15,7 +15,7 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { getGraduationRequest } from '@registry/graduation/clearance/server';
+import { getGraduationRequest } from '@registry/graduation/clearance';
 import {
 	GraduationClearanceView,
 	PaymentReceiptsView,

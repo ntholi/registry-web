@@ -1,5 +1,4 @@
-import { Form } from '@admin/tasks';
-import { createTask } from '@admin/tasks/server';
+import { createTask, Form } from '@admin/tasks';
 import { Box } from '@mantine/core';
 
 export default async function NewPage() {

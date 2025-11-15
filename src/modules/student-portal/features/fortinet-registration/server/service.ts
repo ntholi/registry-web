@@ -1,4 +1,4 @@
-import { getStudentByUserId } from '@registry/students/server';
+import { getStudentByUserId } from '@registry/students';
 import type { fortinetLevel, fortinetRegistrations } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';

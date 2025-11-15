@@ -1,6 +1,5 @@
 import { Box } from '@mantine/core';
-import { Form } from '@timetable/room-types';
-import { createRoomType } from '@timetable/room-types/server';
+import { createRoomType, Form } from '@timetable/room-types';
 
 export default async function NewPage() {
 	return (

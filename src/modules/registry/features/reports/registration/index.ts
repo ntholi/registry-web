@@ -5,4 +5,5 @@ export {
 	type ReportFilter,
 } from './components/RegistrationFilter';
 export { default as StudentTable } from './components/StudentTable';
+export * from './server/actions';
 export * from './types';

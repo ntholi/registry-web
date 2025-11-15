@@ -1,5 +1,4 @@
-import { Form } from '@finance/sponsors';
-import { createSponsor } from '@finance/sponsors/server';
+import { createSponsor, Form } from '@finance/sponsors';
 import { Box } from '@mantine/core';
 
 export default async function NewPage() {

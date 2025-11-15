@@ -1,6 +1,6 @@
 'use client';
 
-import { getStudentCurrentSponsorship } from '@finance/sponsors/server';
+import { getStudentCurrentSponsorship } from '@finance/sponsors';
 import {
 	Alert,
 	Box,
@@ -16,7 +16,7 @@ import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@registry/registration/server';
+} from '@registry/registration';
 import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';

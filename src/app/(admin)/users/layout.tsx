@@ -1,6 +1,6 @@
 'use client';
 
-import { findAllUsers } from '@admin/users/server';
+import { findAllUsers } from '@admin/users';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 

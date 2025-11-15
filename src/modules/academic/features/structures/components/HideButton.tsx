@@ -1,6 +1,6 @@
 'use client';
 
-import { updateModuleVisibility } from '@academic/semester-modules/server';
+import { updateModuleVisibility } from '@academic/semester-modules';
 import { ActionIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';

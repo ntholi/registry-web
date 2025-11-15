@@ -17,7 +17,7 @@ import {
 	createGraduationRequestWithPaymentReceipts,
 	getEligiblePrograms,
 	getGraduationRequestByStudentNo,
-} from '@registry/graduation/clearance/server';
+} from '@registry/graduation/clearance';
 import {
 	InformationConfirmation,
 	PaymentReceiptsInput,

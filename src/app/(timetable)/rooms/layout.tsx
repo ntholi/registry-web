@@ -1,6 +1,6 @@
 'use client';
 
-import { findAllRooms } from '@timetable/rooms/server';
+import { findAllRooms } from '@timetable/rooms';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 

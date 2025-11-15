@@ -19,15 +19,13 @@ import {
 	type ReportFilter,
 } from '@registry/reports';
 import {
-	ProgramBreakdownTable,
-	StudentTable,
-} from '@registry/reports/registration';
-import {
 	generateStudentsListReport,
 	generateSummaryRegistrationReport,
 	getPaginatedRegistrationStudents,
 	getRegistrationDataPreview,
-} from '@registry/reports/registration/server';
+	ProgramBreakdownTable,
+	StudentTable,
+} from '@registry/reports/registration';
 import {
 	IconChartBar,
 	IconChartPie,
