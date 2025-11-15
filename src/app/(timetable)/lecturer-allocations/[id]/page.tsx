@@ -6,6 +6,11 @@ import {
 	Group,
 	Stack,
 	Table,
+	TableTbody,
+	TableTd,
+	TableTh,
+	TableThead,
+	TableTr,
 	Text,
 	Title,
 } from '@mantine/core';
@@ -62,34 +67,34 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 					</div>
 
 					<Table striped highlightOnHover>
-						<Table.Thead>
-							<Table.Tr>
-								<Table.Th>Module Code</Table.Th>
-								<Table.Th>Module Name</Table.Th>
-								<Table.Th>Term</Table.Th>
-								<Table.Th>Program</Table.Th>
-								<Table.Th>Semester</Table.Th>
-								<Table.Th>Actions</Table.Th>
-							</Table.Tr>
-						</Table.Thead>
-						<Table.Tbody>
+						<TableThead>
+							<TableTr>
+								<TableTh>Module Code</TableTh>
+								<TableTh>Module Name</TableTh>
+								<TableTh>Term</TableTh>
+								<TableTh>Program</TableTh>
+								<TableTh>Semester</TableTh>
+								<TableTh>Actions</TableTh>
+							</TableTr>
+						</TableThead>
+						<TableTbody>
 							{allocations.map((allocation) => (
-								<Table.Tr key={allocation.id}>
-									<Table.Td>
+								<TableTr key={allocation.id}>
+									<TableTd>
 										{allocation.semesterModule?.module?.code || '-'}
-									</Table.Td>
-									<Table.Td>
+									</TableTd>
+									<TableTd>
 										{allocation.semesterModule?.module?.name || '-'}
-									</Table.Td>
-									<Table.Td>{allocation.term?.name || '-'}</Table.Td>
-									<Table.Td>
+									</TableTd>
+									<TableTd>{allocation.term?.name || '-'}</TableTd>
+									<TableTd>
 										{allocation.semesterModule?.semester?.structure?.program
 											?.name || '-'}
-									</Table.Td>
-									<Table.Td>
+									</TableTd>
+									<TableTd>
 										{allocation.semesterModule?.semester?.name || '-'}
-									</Table.Td>
-									<Table.Td>
+									</TableTd>
+									<TableTd>
 										<form
 											action={async () => {
 												'use server';
@@ -105,10 +110,10 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 												<IconTrash size={16} />
 											</ActionIcon>
 										</form>
-									</Table.Td>
-								</Table.Tr>
+									</TableTd>
+								</TableTr>
 							))}
-						</Table.Tbody>
+						</TableTbody>
 					</Table>
 				</Stack>
 			</DetailsViewBody>
