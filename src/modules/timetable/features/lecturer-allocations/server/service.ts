@@ -22,37 +22,36 @@ class LecturerAllocationService extends BaseService<
 
 	async getWithRelations(id: number) {
 		return withAuth(async () => {
-			return this.lecturerAllocationRepository.findByIdWithRelations(id);
+			const repository = this.lecturerAllocationRepository;
+			return repository.findByIdWithRelations(id);
 		}, ['dashboard']);
 	}
 
 	async getAllWithRelations() {
 		return withAuth(async () => {
-			return this.lecturerAllocationRepository.findAllWithRelations();
+			const repository = this.lecturerAllocationRepository;
+			return repository.findAllWithRelations();
 		}, ['dashboard']);
 	}
 
 	async getByUserAndTerm(userId: string, termId: number) {
 		return withAuth(async () => {
-			return this.lecturerAllocationRepository.findByUserAndTerm(
-				userId,
-				termId
-			);
+			const repository = this.lecturerAllocationRepository;
+			return repository.findByUserAndTerm(userId, termId);
 		}, ['dashboard']);
 	}
 
 	async createMany(allocations: LecturerAllocationInsert[]) {
 		return withAuth(async () => {
-			return this.lecturerAllocationRepository.createMany(allocations);
-		}, []);
+			const repository = this.lecturerAllocationRepository;
+			return repository.createMany(allocations);
+		}, ['academic']);
 	}
 
 	async deleteByUserAndTerm(userId: string, termId: number) {
 		return withAuth(async () => {
-			return this.lecturerAllocationRepository.deleteByUserAndTerm(
-				userId,
-				termId
-			);
+			const repository = this.lecturerAllocationRepository;
+			return repository.deleteByUserAndTerm(userId, termId);
 		}, []);
 	}
 }
