@@ -7,15 +7,14 @@ import { getAllRoomTypes } from '@timetable/room-types/server';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { rooms } from '@/modules/timetable/database';
+import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { Form } from '@/shared/ui/adease';
 
-type Room = typeof rooms.$inferInsert;
-type RoomFormValues = Room & { schoolIds: number[] };
+type Room = typeof rooms.$inferInsert & { schoolIds?: number[] };
 
 type Props = {
-	// biome-ignore lint/suspicious/noExplicitAny: Form handler can return different types
-	onSubmit: (values: RoomFormValues) => Promise<any>;
-	defaultValues?: Partial<RoomFormValues>;
+	onSubmit: (values: Room) => Promise<Room>;
+	defaultValues?: Partial<Room>;
 	title?: string;
 };
 
@@ -34,6 +33,16 @@ export default function RoomForm({ onSubmit, defaultValues, title }: Props) {
 
 	const schools = schoolsData || [];
 
+	const { userSchools } = useUserSchools();
+	const userSchoolIds =
+		userSchools?.map((us: { schoolId: number }) => us.schoolId) || [];
+
+	const computedDefaultValues = {
+		...(defaultValues || {}),
+		schoolIds: defaultValues?.schoolIds ?? userSchoolIds,
+	};
+	const formKey = JSON.stringify(computedDefaultValues || {});
+
 	return (
 		<Form
 			title={title}
@@ -42,9 +51,10 @@ export default function RoomForm({ onSubmit, defaultValues, title }: Props) {
 			schema={createInsertSchema(rooms).extend({
 				schoolIds: createInsertSchema(rooms).shape.typeId.array(),
 			})}
-			defaultValues={defaultValues}
+			key={formKey}
+			defaultValues={computedDefaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/timetable/rooms/${id}`);
+				router.push(`/rooms/${id}`);
 			}}
 		>
 			{(form) => (

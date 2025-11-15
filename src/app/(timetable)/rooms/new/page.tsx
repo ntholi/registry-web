@@ -10,7 +10,7 @@ export default async function NewPage() {
 				onSubmit={async (value) => {
 					'use server';
 					const { schoolIds, ...room } = value;
-					return await createRoom(room, schoolIds);
+					return await createRoom(room, schoolIds ?? []);
 				}}
 			/>
 		</Box>

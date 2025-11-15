@@ -38,7 +38,9 @@ export default async function RoomDetails({ params }: Props) {
 					<Group gap='xs'>
 						{room.roomSchools.map(
 							(rs: { school: { id: number; name: string } }) => (
-								<Badge key={rs.school.id}>{rs.school.name}</Badge>
+								<Badge variant='default' key={rs.school.id}>
+									{rs.school.name}
+								</Badge>
 							)
 						)}
 					</Group>

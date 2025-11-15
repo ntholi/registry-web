@@ -26,7 +26,7 @@ class RoomService extends BaseService<typeof rooms, 'id'> {
 	createWithSchools = async (room: RoomInsert, schoolIds: number[]) => {
 		return withAuth(async () => {
 			return this.roomRepository.createWithSchools(room, schoolIds);
-		}, []);
+		}, ['academic', 'registry']);
 	};
 
 	updateWithSchools = async (
