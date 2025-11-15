@@ -1,4 +1,4 @@
-import { resetMockUser, setMockUser } from '@admin/test';
+import { resetMockUser, setMockUser } from '@admin/test/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { sponsors, users } from '@/core/database/schema';
 import {

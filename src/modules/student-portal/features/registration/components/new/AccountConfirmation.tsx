@@ -1,4 +1,4 @@
-import { confirmAccountDetails } from '@finance/sponsors';
+import { confirmAccountDetails } from '@finance/sponsors/server';
 import {
 	Alert,
 	Card,

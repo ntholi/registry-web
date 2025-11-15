@@ -18,7 +18,5 @@ export { default as ProofOfRegistrationPrinter } from './components/registration
 export { default as RegistrationView } from './components/registration/RegistrationView';
 export { default as StudentsFilter } from './components/StudentsFilter';
 export { StudentTabs } from './components/StudentTabs';
-export * from './server/actions';
-export * from './server/service';
 export * from './types';
 export * from './utils';

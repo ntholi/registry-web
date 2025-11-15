@@ -1,7 +1,7 @@
 'use client';
 
-import { getBlockedStudentByStdNo } from '@finance/blocked-students';
-import { findAllSponsors } from '@finance/sponsors';
+import { getBlockedStudentByStdNo } from '@finance/blocked-students/server';
+import { findAllSponsors } from '@finance/sponsors/server';
 import {
 	Alert,
 	Box,
@@ -19,7 +19,7 @@ import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@registry/registration/requests';
+} from '@registry/registration/requests/server';
 import {
 	AccountConfirmation,
 	ModuleSelection,

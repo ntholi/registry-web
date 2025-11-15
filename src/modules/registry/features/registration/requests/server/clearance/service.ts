@@ -1,4 +1,4 @@
-import { getCurrentTerm } from '@registry/terms';
+import { getCurrentTerm } from '@registry/terms/server';
 import { auth } from '@/core/auth';
 import type { clearance, DashboardUser } from '@/core/database/schema';
 import type { QueryOptions } from '@/core/platform/BaseRepository';

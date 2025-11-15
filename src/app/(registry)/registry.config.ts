@@ -1,4 +1,4 @@
-import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance';
+import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance/server';
 import { countByStatus } from '@registry/registration';
 import {
 	IconBarrierBlock,

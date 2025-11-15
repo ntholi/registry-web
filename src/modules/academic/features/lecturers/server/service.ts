@@ -1,4 +1,4 @@
-import { getUserSchoolIds, UserRepository } from '@admin/users';
+import { getUserSchoolIds, UserRepository } from '@admin/users/server';
 import { auth } from '@/core/auth';
 import type { users } from '@/core/database/schema';
 import type { QueryOptions } from '@/core/platform/BaseRepository';

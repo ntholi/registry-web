@@ -1,4 +1,4 @@
-import { findAllSponsors } from '@finance/sponsors';
+import { findAllSponsors } from '@finance/sponsors/server';
 import { Grid, GridCol, Paper, Select, Text, TextInput } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { getBlockedStudentByStatus } from '@finance/blocked-students';
+import { getBlockedStudentByStatus } from '@finance/blocked-students/server';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 

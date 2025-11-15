@@ -1,6 +1,6 @@
 'use client';
 import { NumberInput, type NumberInputProps, Stack, Text } from '@mantine/core';
-import { getStudent } from '@registry/students';
+import { getStudent } from '@registry/students/server';
 import { IconUser } from '@tabler/icons-react';
 import { useState } from 'react';
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { clearanceByStatus } from '@registry/registration/requests';
-import { getCurrentTerm } from '@registry/terms';
+import { clearanceByStatus } from '@registry/registration/requests/server';
+import { getCurrentTerm } from '@registry/terms/server';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';

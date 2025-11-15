@@ -1,4 +1,4 @@
-import { usersRepository } from '@admin/users';
+import { usersRepository } from '@admin/users/server';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import { db } from '@/core/database';

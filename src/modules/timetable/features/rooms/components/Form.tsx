@@ -1,12 +1,12 @@
 'use client';
 
+import { getAllSchools } from '@academic/schools/server';
 import { MultiSelect, NumberInput, Select, TextInput } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import { getAllRoomTypes } from '@timetable/room-types/server';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { rooms } from '@/core/database/schema';
-import { getAllSchools } from '@/modules/academic/features/schools';
-import { getAllRoomTypes } from '@/modules/timetable/features/room-types';
 import { Form } from '@/shared/ui/adease';
 
 type Room = typeof rooms.$inferInsert;
@@ -32,7 +32,7 @@ export default function RoomForm({ onSubmit, defaultValues, title }: Props) {
 		queryFn: getAllSchools,
 	});
 
-	const schools = schoolsData?.items || [];
+	const schools = schoolsData || [];
 
 	return (
 		<Form
@@ -65,7 +65,7 @@ export default function RoomForm({ onSubmit, defaultValues, title }: Props) {
 					/>
 					<MultiSelect
 						label='Schools'
-						data={schools.map((s) => ({
+						data={schools.map((s: { id: number; name: string }) => ({
 							value: String(s.id),
 							label: s.name,
 						}))}

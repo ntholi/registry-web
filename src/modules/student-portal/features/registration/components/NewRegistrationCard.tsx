@@ -1,6 +1,6 @@
 'use client';
 
-import { getBlockedStudentByStdNo } from '@finance/blocked-students';
+import { getBlockedStudentByStdNo } from '@finance/blocked-students/server';
 import {
 	Alert,
 	Button,

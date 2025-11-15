@@ -3,7 +3,7 @@
 import {
 	findAllSponsors,
 	updateStudentSponsorshipById,
-} from '@finance/sponsors';
+} from '@finance/sponsors/server';
 import {
 	Alert,
 	Button,

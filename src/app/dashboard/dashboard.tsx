@@ -1,7 +1,7 @@
 'use client';
 
-import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
-import { getUserSchools } from '@admin/users';
+import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules/server';
+import { getUserSchools } from '@admin/users/server';
 import {
 	ActionIcon,
 	Avatar,

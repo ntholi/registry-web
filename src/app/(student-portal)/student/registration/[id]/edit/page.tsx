@@ -1,7 +1,7 @@
 'use client';
 
-import { getBlockedStudentByStdNo } from '@finance/blocked-students';
-import { getSponsoredStudent } from '@finance/sponsors';
+import { getBlockedStudentByStdNo } from '@finance/blocked-students/server';
+import { getSponsoredStudent } from '@finance/sponsors/server';
 import {
 	Alert,
 	Badge,
@@ -21,7 +21,7 @@ import {
 	getRegistrationRequest,
 	getStudentSemesterModules,
 	updateRegistrationWithModulesAndSponsorship,
-} from '@registry/registration/requests';
+} from '@registry/registration/requests/server';
 import {
 	ModuleSelection,
 	SemesterConfirmation,

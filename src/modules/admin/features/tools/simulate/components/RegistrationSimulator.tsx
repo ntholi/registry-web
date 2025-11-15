@@ -23,11 +23,11 @@ import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
 } from '@registry/registration';
+import { getCurrentSemester } from '@registry/students';
 import {
-	getCurrentSemester,
 	getStudent,
 	getStudentRegistrationData,
-} from '@registry/students';
+} from '@registry/students/server';
 import {
 	IconAlertCircle,
 	IconExclamationCircle,

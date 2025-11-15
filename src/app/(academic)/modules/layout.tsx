@@ -1,6 +1,6 @@
 'use client';
 
-import { getModules } from '@academic/modules';
+import { getModules } from '@academic/modules/server';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 

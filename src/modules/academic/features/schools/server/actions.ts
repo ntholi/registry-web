@@ -9,7 +9,8 @@ export async function findAllSchools() {
 }
 
 export async function getAllSchools() {
-	return service.findAll({ filter: eq(schools.isActive, true) });
+	const data = await service.findAll({ filter: eq(schools.isActive, true) });
+	return data.items;
 }
 
 export async function getSchool(id: number) {

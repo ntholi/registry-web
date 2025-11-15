@@ -12,7 +12,7 @@ import {
 	TimelineItem,
 	Title,
 } from '@mantine/core';
-import type { getGraduationRequest } from '@registry/graduation';
+import type { getGraduationRequest } from '@registry/graduation/clearance/server';
 import {
 	getClearanceStatus,
 	getStatusColor,

@@ -1,5 +1,5 @@
 import { getAssessmentTypeLabel } from '@academic/assessments';
-import { termsRepository } from '@registry/terms';
+import { termsRepository } from '@registry/terms/server';
 import { Packer } from 'docx';
 import { auth } from '@/core/auth';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';

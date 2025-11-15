@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
-import { Form, getRoomType, updateRoomType } from '@timetable/room-types';
+import { Form } from '@timetable/room-types';
+import { getRoomType, updateRoomType } from '@timetable/room-types/server';
 import { notFound } from 'next/navigation';
 
 type Props = {

@@ -1,6 +1,6 @@
 'use client';
 
-import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
+import type { getBlockedStudentByStdNo } from '@finance/blocked-students/server';
 import {
 	Accordion,
 	Anchor,

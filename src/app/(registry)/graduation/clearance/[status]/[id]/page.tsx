@@ -1,12 +1,10 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
-import {
-	GraduationClearanceHeader,
-	getGraduationClearance,
-} from '@registry/graduation';
+import { GraduationClearanceHeader } from '@registry/graduation';
 import {
 	GraduationClearanceDetails,
 	GraduationClearanceHistory,
 } from '@registry/graduation/clearance';
+import { getGraduationClearance } from '@registry/graduation/clearance/server';
 import { AcademicsLoader } from '@registry/registration/clearance';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';

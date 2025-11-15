@@ -1,6 +1,6 @@
-import { resetMockUser, setMockUser } from '@admin/test';
-import { studentsService } from '@registry/students';
-import { termsService } from '@registry/terms';
+import { resetMockUser, setMockUser } from '@admin/test/server';
+import { studentsService } from '@registry/students/server';
+import { termsService } from '@registry/terms/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { sponsors, terms, users } from '@/core/database/schema';
 import { sponsorsService } from '../service';

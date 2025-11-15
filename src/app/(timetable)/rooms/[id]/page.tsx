@@ -1,5 +1,5 @@
 import { Badge, Group } from '@mantine/core';
-import { deleteRoom, getRoomWithRelations } from '@timetable/rooms';
+import { deleteRoom, getRoomWithRelations } from '@timetable/rooms/server';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,

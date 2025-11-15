@@ -1,5 +1,5 @@
-import { getModulesForStructure } from '@academic/semester-modules';
-import { getSponsoredStudent } from '@finance/sponsors';
+import { getModulesForStructure } from '@academic/semester-modules/server';
+import { getSponsoredStudent } from '@finance/sponsors/server';
 import { Box } from '@mantine/core';
 import {
 	getRegistrationRequest,

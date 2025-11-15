@@ -1,6 +1,7 @@
 'use client';
 
-import { getTasks, type TaskFilter, TasksFilter } from '@admin/tasks';
+import { TasksFilter } from '@admin/tasks';
+import { getTasks, type TaskFilter } from '@admin/tasks/server';
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import {
 	IconAlertCircle,

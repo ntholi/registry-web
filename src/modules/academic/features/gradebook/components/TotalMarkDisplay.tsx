@@ -1,6 +1,6 @@
 'use client';
 
-import { upsertModuleGrade } from '@academic/module-grades';
+import { upsertModuleGrade } from '@academic/module-grades/server';
 import {
 	Alert,
 	Badge,

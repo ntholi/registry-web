@@ -1,4 +1,4 @@
-import type { getAcademicHistory } from '@registry/students';
+import type { getAcademicHistory } from '@registry/students/server';
 import { getAcademicRemarks, grades } from '@/shared/lib/utils/grades';
 import type { Program as GradeProgram } from '@/shared/lib/utils/grades/type';
 

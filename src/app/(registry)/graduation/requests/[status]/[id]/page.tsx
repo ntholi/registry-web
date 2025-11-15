@@ -13,10 +13,11 @@ import {
 	GraduationClearanceAccordion,
 	PaymentReceiptsView,
 } from '@registry/graduation';
+
 import {
 	deleteGraduationRequest,
 	getGraduationRequest,
-} from '@registry/graduation/clearance';
+} from '@registry/graduation/clearance/server';
 import {
 	GraduationRequestDetailsView,
 	ProofOfClearancePrinter,

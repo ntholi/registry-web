@@ -1,4 +1,4 @@
-import { findAllSponsors, getSponsoredStudent } from '@finance/sponsors';
+import { findAllSponsors, getSponsoredStudent } from '@finance/sponsors/server';
 import {
 	Alert,
 	Card,

@@ -4,7 +4,7 @@ import {
 	getDistinctGraduationDates,
 	getProgramsByGraduationDate,
 	getStudentsByGraduationDate,
-} from '@admin/bulk/transcripts';
+} from '@admin/bulk/transcripts/server';
 import {
 	Box,
 	Button,

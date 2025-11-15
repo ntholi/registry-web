@@ -1,4 +1,5 @@
-import { Form, getTask, updateTask } from '@admin/tasks';
+import { Form } from '@admin/tasks';
+import { getTask, updateTask } from '@admin/tasks/server';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 

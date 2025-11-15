@@ -2,10 +2,8 @@
 
 import { ActionIcon } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
-import {
-	getStudentRegistrationDataByTerm,
-	ProofOfRegistrationPDF,
-} from '@registry/students';
+import { ProofOfRegistrationPDF } from '@registry/students';
+import { getStudentRegistrationDataByTerm } from '@registry/students/server';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
 

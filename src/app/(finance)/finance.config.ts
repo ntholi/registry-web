@@ -2,7 +2,7 @@ import {
 	countApprovedGraduationClearances,
 	countPendingGraduationClearances,
 	countRejectedGraduationClearances,
-} from '@registry/graduation/clearance';
+} from '@registry/graduation/clearance/server';
 import {
 	countApprovedClearances,
 	countPendingClearances,

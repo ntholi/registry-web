@@ -1,8 +1,12 @@
 'use client';
 
-import type { ClearanceFilter, ClearanceType } from '@admin/reports';
 import { StatsTable } from '@admin/reports';
-import { fetchClearanceStats, StatsSummary } from '@admin/reports/clearance';
+import { StatsSummary } from '@admin/reports/clearance';
+import { fetchClearanceStats } from '@admin/reports/clearance/server';
+import type {
+	ClearanceFilter,
+	ClearanceType,
+} from '@admin/reports/clearance/server/repository';
 import type { ClearanceStatsSummary } from '@admin/reports/clearance/server/service';
 import {
 	Button,

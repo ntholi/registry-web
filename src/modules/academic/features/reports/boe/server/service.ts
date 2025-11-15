@@ -1,4 +1,4 @@
-import { termsRepository } from '@registry/terms';
+import { termsRepository } from '@registry/terms/server';
 import { and, inArray } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
 import { db } from '@/core/database';

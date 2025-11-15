@@ -1,7 +1,7 @@
 'use client';
 
 import { EditButton, HideButton, PrerequisiteDisplay } from '@academic/schools';
-import { getStructure } from '@academic/structures';
+import { getStructure } from '@academic/structures/server';
 import {
 	Box,
 	Breadcrumbs,

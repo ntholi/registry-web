@@ -2,7 +2,8 @@
 
 import { ActionIcon } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
-import { getGraduationClearanceData } from '@registry/graduation';
+import { getGraduationClearanceData } from '@registry/graduation/clearance/server';
+
 import { getClearanceStatus } from '@student-portal/utils';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';

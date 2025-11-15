@@ -1,6 +1,6 @@
 'use client';
 
-import { getSponsoredStudent } from '@finance/sponsors';
+import { getSponsoredStudent } from '@finance/sponsors/server';
 import { Skeleton, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { FieldView } from '@/shared/ui/adease';

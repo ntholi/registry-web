@@ -9,7 +9,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { getStudentDocuments } from '@registry/documents';
+import { getStudentDocuments } from '@registry/documents/server';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
