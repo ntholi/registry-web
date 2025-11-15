@@ -10,7 +10,6 @@ import {
 	Select,
 	Skeleton,
 	Stack,
-	Text,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getAllTerms } from '@registry/terms';
@@ -58,11 +57,11 @@ export default function Layout({ children }: PropsWithChildren) {
 		<Grid columns={14} gutter='md'>
 			<GridCol span={isMobile ? 14 : 4} pb={0}>
 				<Paper withBorder h='88vh'>
-					<Flex direction='column' h='100%'>
-						<Stack p='md' gap='sm'>
+					<Stack h='100%'>
+						<Flex p='md' gap='sm'>
 							<Select
-								label='Term'
-								placeholder='Select a term to view allocations'
+								flex={1}
+								placeholder='Select a term'
 								data={terms.map((term) => ({
 									value: term.id.toString(),
 									label: term.name,
@@ -87,12 +86,7 @@ export default function Layout({ children }: PropsWithChildren) {
 									}
 								/>
 							</Flex>
-							{!selectedTermId && (
-								<Text size='sm' c='dimmed'>
-									Please select a term to view lecturer allocations
-								</Text>
-							)}
-						</Stack>
+						</Flex>
 
 						<Divider />
 
@@ -110,7 +104,6 @@ export default function Layout({ children }: PropsWithChildren) {
 											key={lecturer.userId}
 											id={lecturer.userId}
 											label={lecturer.user?.name || 'Unknown Lecturer'}
-											description={lecturer.user?.email || ''}
 											path='/lecturer-allocations'
 											onClick={async () => {
 												if (isMobile) {
@@ -123,7 +116,7 @@ export default function Layout({ children }: PropsWithChildren) {
 								</Stack>
 							)}
 						</ScrollArea>
-					</Flex>
+					</Stack>
 				</Paper>
 			</GridCol>
 
