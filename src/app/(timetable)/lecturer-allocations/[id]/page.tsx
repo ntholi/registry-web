@@ -26,6 +26,20 @@ type Props = {
 	params: Promise<{ id: string }>;
 };
 
+function formatDuration(totalMinutes: number): string {
+	if (totalMinutes <= 0) return '0 hours';
+	const hours = Math.floor(totalMinutes / 60);
+	const mins = totalMinutes % 60;
+
+	if (hours === 0) {
+		return `${mins} minute${mins !== 1 ? 's' : ''}`;
+	}
+	if (mins === 0) {
+		return `${hours} hour${hours !== 1 ? 's' : ''}`;
+	}
+	return `${hours} hour${hours !== 1 ? 's' : ''} ${mins} minute${mins !== 1 ? 's' : ''}`;
+}
+
 export default async function LecturerAllocationDetails({ params }: Props) {
 	const { id } = await params;
 	const allocations = await getLecturerAllocationsByUserId(id);
@@ -39,6 +53,12 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 	const uniqueTerms = Array.from(
 		new Set(allocations.map((a) => a.term?.name).filter(Boolean))
 	);
+
+	const totalMinutes = allocations.reduce(
+		(sum, allocation) => sum + (allocation.minutes || 0),
+		0
+	);
+	const totalHours = (totalMinutes / 60).toFixed(2);
 
 	return (
 		<DetailsView>
@@ -74,12 +94,25 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 					</Group>
 				</div>
 
+				<div>
+					<Text size='sm' c='dimmed' mb={4}>
+						Total Hours
+					</Text>
+					<Text size='lg' fw={500}>
+						{totalHours} hours
+					</Text>
+					<Text size='sm' c='dimmed'>
+						{formatDuration(totalMinutes)}
+					</Text>
+				</div>
+
 				<Table striped highlightOnHover withTableBorder>
 					<TableThead>
 						<TableTr>
 							<TableTh>Module</TableTh>
 							<TableTh>Program</TableTh>
 							<TableTh>Semester</TableTh>
+							<TableTh>Duration</TableTh>
 							<TableTh>Actions</TableTh>
 						</TableTr>
 					</TableThead>
@@ -100,6 +133,7 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 										'mini'
 									)}
 								</TableTd>
+								<TableTd>{formatDuration(allocation.minutes || 0)}</TableTd>
 								<TableTd>
 									<form
 										action={async () => {

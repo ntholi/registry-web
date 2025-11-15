@@ -12,6 +12,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -30,6 +31,7 @@ type FormValues = {
 	userId: string;
 	termId: number;
 	semesterModuleIds: number[];
+	minutes: number;
 };
 
 type Props = {
@@ -76,12 +78,28 @@ export default function LecturerAllocationForm({
 			userId: defaultValues?.userId || '',
 			termId: defaultValues?.termId || 0,
 			semesterModuleIds: defaultValues?.semesterModuleIds || [],
+			minutes: defaultValues?.minutes || 30,
 		},
 		validate: {
 			userId: (value) => (!value ? 'Please select a lecturer' : null),
 			termId: (value) => (!value ? 'Please select a term' : null),
+			minutes: (value) => (value <= 0 ? 'Please enter a valid duration' : null),
 		},
 	});
+
+	const formatDuration = (totalMinutes: number): string => {
+		if (totalMinutes <= 0) return '0 hours';
+		const hours = Math.floor(totalMinutes / 60);
+		const mins = totalMinutes % 60;
+
+		if (hours === 0) {
+			return `${mins} minute${mins !== 1 ? 's' : ''}`;
+		}
+		if (mins === 0) {
+			return `${hours} hour${hours !== 1 ? 's' : ''}`;
+		}
+		return `${hours} hour${hours !== 1 ? 's' : ''} ${mins} minute${mins !== 1 ? 's' : ''}`;
+	};
 
 	const submitMutation = useMutation({
 		mutationFn: onSubmit,
@@ -198,6 +216,35 @@ export default function LecturerAllocationForm({
 							required
 						/>
 					)}
+
+					<div>
+						<TimeInput
+							label='Duration'
+							description={formatDuration(form.values.minutes)}
+							placeholder='Enter duration'
+							value={
+								form.values.minutes > 0
+									? `${Math.floor(form.values.minutes / 60)
+											.toString()
+											.padStart(2, '0')}:${(form.values.minutes % 60)
+											.toString()
+											.padStart(2, '0')}`
+									: ''
+							}
+							onChange={(event) => {
+								const timeValue = event.currentTarget.value;
+								if (timeValue) {
+									const [hours, mins] = timeValue.split(':').map(Number);
+									const totalMinutes = (hours || 0) * 60 + (mins || 0);
+									form.setFieldValue('minutes', totalMinutes);
+								} else {
+									form.setFieldValue('minutes', 0);
+								}
+							}}
+							error={form.errors.minutes}
+							required
+						/>
+					</div>
 
 					<Paper withBorder p='md'>
 						<Stack gap='sm'>

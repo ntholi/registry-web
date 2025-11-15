@@ -30,6 +30,7 @@ export default async function NewPage({ searchParams }: Props) {
 							userId: values.userId,
 							termId: values.termId,
 							semesterModuleId,
+							minutes: values.minutes,
 						})
 					);
 					await createLecturerAllocations(allocations);
