@@ -20,41 +20,41 @@ class LecturerAllocationService extends BaseService<
 		this.lecturerAllocationRepository = repository;
 	}
 
-	getWithRelations = async (id: number) => {
+	async getWithRelations(id: number) {
 		return withAuth(async () => {
 			return this.lecturerAllocationRepository.findByIdWithRelations(id);
 		}, ['dashboard']);
-	};
+	}
 
-	getAllWithRelations = async () => {
+	async getAllWithRelations() {
 		return withAuth(async () => {
 			return this.lecturerAllocationRepository.findAllWithRelations();
 		}, ['dashboard']);
-	};
+	}
 
-	getByUserAndTerm = async (userId: string, termId: number) => {
+	async getByUserAndTerm(userId: string, termId: number) {
 		return withAuth(async () => {
 			return this.lecturerAllocationRepository.findByUserAndTerm(
 				userId,
 				termId
 			);
 		}, ['dashboard']);
-	};
+	}
 
-	createMany = async (allocations: LecturerAllocationInsert[]) => {
+	async createMany(allocations: LecturerAllocationInsert[]) {
 		return withAuth(async () => {
 			return this.lecturerAllocationRepository.createMany(allocations);
 		}, []);
-	};
+	}
 
-	deleteByUserAndTerm = async (userId: string, termId: number) => {
+	async deleteByUserAndTerm(userId: string, termId: number) {
 		return withAuth(async () => {
 			return this.lecturerAllocationRepository.deleteByUserAndTerm(
 				userId,
 				termId
 			);
 		}, []);
-	};
+	}
 }
 
 export const lecturerAllocationService = serviceWrapper(
