@@ -1,6 +1,6 @@
 'use server';
 
-import type { rooms } from '@/core/database/schema';
+import type { rooms } from '@/core/database';
 import type { RoomInsert } from './repository';
 import { roomService as service } from './service';
 

@@ -5,7 +5,7 @@ import type {
 	registrationRequests,
 	requestedModules,
 	StudentModuleStatus,
-} from '@/core/database/schema';
+} from '@/core/database';
 import { registrationRequestsService as service } from './service';
 
 type RegistrationRequest = typeof registrationRequests.$inferInsert;

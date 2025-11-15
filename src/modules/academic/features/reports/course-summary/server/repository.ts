@@ -1,14 +1,14 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import { db } from '@/core/database';
 import {
 	assessmentMarks,
+	db,
 	moduleGrades,
 	semesterModules,
 	structures,
 	studentModules,
 	students,
 	terms,
-} from '@/core/database/schema';
+} from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export interface StudentModuleReport {

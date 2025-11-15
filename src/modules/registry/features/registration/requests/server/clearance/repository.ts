@@ -1,15 +1,15 @@
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
-import { db } from '@/core/database';
 import {
 	clearance,
 	clearanceAudit,
 	type DashboardUser,
+	db,
 	registrationClearance,
 	registrationRequests,
 	requestedModules,
 	studentPrograms,
-} from '@/core/database/schema';
+} from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';

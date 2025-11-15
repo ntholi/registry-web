@@ -1,6 +1,6 @@
-import { studentsService } from '@/modules/registry/features/students/server/service';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import { studentsService } from '@/modules/registry/features/students/server/service';
 import BulkRepository from './repository';
 
 class BulkService {

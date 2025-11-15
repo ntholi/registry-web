@@ -30,17 +30,18 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { paymentType } from '@/core/database/schema';
+import type { PaymentType } from '@/modules/registry/database';
+import { paymentType } from '@/modules/registry/database';
 
 type PaymentReceipt = {
 	id: number;
-	paymentType: (typeof paymentType.enumValues)[number];
+	paymentType: PaymentType;
 	receiptNo: string;
 	createdAt: Date | null;
 };
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentType.enumValues)[number];
+	paymentType: PaymentType;
 	receiptNo: string;
 };
 
@@ -77,13 +78,16 @@ export default function PaymentReceiptsEditor({
 		},
 	});
 
-	const paymentTypeOptions = paymentType.enumValues.map((type) => ({
-		value: type,
-		label: type
-			.split('_')
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' '),
-	}));
+	// Options for the payment type select
+	const paymentTypeOptions = paymentType.enumValues.map(
+		(type: (typeof paymentType.enumValues)[number]) => ({
+			value: type,
+			label: type
+				.split('_')
+				.map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+				.join(' '),
+		})
+	);
 
 	const { mutate: addReceipt, isPending: isAdding } = useMutation({
 		mutationFn: async (receiptData: PaymentReceiptData) => {

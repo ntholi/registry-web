@@ -20,14 +20,14 @@ import {
 	IconSchool,
 	IconUser,
 } from '@tabler/icons-react';
-import type { paymentType, students } from '@/core/database/schema';
+import type { PaymentType, students } from '@/modules/registry/database';
 
 type Student = typeof students.$inferSelect & {
 	user?: { name?: string | null } | null;
 };
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentType.enumValues)[number];
+	paymentType: PaymentType;
 	receiptNo: string;
 };
 

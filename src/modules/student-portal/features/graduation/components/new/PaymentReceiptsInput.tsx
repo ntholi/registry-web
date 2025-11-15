@@ -23,7 +23,8 @@ import {
 	IconReceipt,
 	IconTrash,
 } from '@tabler/icons-react';
-import { paymentType } from '@/core/database/schema';
+import type { PaymentType } from '@/modules/registry/database';
+import { paymentType } from '@/modules/registry/database';
 
 type PaymentReceiptData = {
 	paymentType: (typeof paymentType.enumValues)[number];
@@ -62,13 +63,15 @@ export default function PaymentReceiptsInput({
 		},
 	});
 
-	const paymentTypeOptions = paymentType.enumValues.map((type) => ({
-		value: type,
-		label: type
-			.split('_')
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' '),
-	}));
+	const paymentTypeOptions = paymentType.enumValues.map(
+		(type: (typeof paymentType.enumValues)[number]) => ({
+			value: type,
+			label: type
+				.split('_')
+				.map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+				.join(' '),
+		})
+	);
 
 	const addPaymentReceipt = (values: typeof form.values) => {
 		onPaymentReceiptsChange([
@@ -159,7 +162,8 @@ export default function PaymentReceiptsInput({
 											<Text size='sm' fw={500}>
 												{
 													paymentTypeOptions.find(
-														(option) => option.value === receipt.paymentType
+														(option: { value: PaymentType }) =>
+															option.value === receipt.paymentType
 													)?.label
 												}
 											</Text>
@@ -189,7 +193,8 @@ export default function PaymentReceiptsInput({
 												<Text size='sm' fw={500}>
 													{
 														paymentTypeOptions.find(
-															(option) => option.value === receipt.paymentType
+															(option: { value: PaymentType }) =>
+																option.value === receipt.paymentType
 														)?.label
 													}
 												</Text>

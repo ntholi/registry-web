@@ -10,10 +10,8 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import {
-	type StudentModuleStatus,
-	studentModuleStatus,
-} from '@/core/database/schema';
+import type { StudentModuleStatus } from '@/modules/registry/database';
+import { studentModuleStatus } from '@/modules/registry/database';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type ModuleWithStatus = {

@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray, like, or, type SQL, sql } from 'drizzle-orm';
-import { db } from '@/core/database';
 import {
+	db,
 	modulePrerequisites,
 	modules,
 	programs,
@@ -11,7 +11,7 @@ import {
 	studentModules,
 	studentSemesters,
 	type terms,
-} from '@/core/database/schema';
+} from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';

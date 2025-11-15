@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import type { students } from '@/core/database/schema';
+import type { students } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { studentsService as service } from './service';
 

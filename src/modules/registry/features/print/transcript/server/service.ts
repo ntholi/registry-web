@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { db } from '@/core/database';
-import { transcriptPrints } from '@/core/database/schema';
+import { db, transcriptPrints } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';

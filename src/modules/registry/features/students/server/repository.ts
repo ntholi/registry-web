@@ -9,8 +9,8 @@ import {
 	type SQL,
 	sql,
 } from 'drizzle-orm';
-import { db } from '@/core/database';
 import {
+	db,
 	nextOfKins,
 	programs,
 	semesterModules,
@@ -22,7 +22,7 @@ import {
 	students,
 	terms,
 	users,
-} from '@/core/database/schema';
+} from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';

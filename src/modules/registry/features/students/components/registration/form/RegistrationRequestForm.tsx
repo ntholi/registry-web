@@ -20,7 +20,7 @@ import {
 import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { StudentModuleStatus } from '@/core/database/schema';
+import type { StudentModuleStatus } from '@/modules/registry/database';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { getAcademicHistory } from '../../../server/actions';

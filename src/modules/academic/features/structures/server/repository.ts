@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { db } from '@/core/database';
-import { semesterModules, structures } from '@/core/database/schema';
+import { db, semesterModules, structures } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class StructureRepository extends BaseRepository<

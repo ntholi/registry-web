@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { db } from '@/core/database';
-import { modules } from '@/core/database/schema';
+import { db, modules } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class ModuleRepository extends BaseRepository<

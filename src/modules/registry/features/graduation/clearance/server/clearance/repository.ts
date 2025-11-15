@@ -1,11 +1,10 @@
-import { usersRepository } from '@/modules/admin/features/users/server/repository';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
-import { db } from '@/core/database';
 import {
 	clearance,
 	clearanceAudit,
 	type DashboardUser,
+	db,
 	graduationClearance,
 	graduationRequests,
 	programs,
@@ -13,10 +12,11 @@ import {
 	structures,
 	studentPrograms,
 	students,
-} from '@/core/database/schema';
+} from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
+import { usersRepository } from '@/modules/admin/features/users/server/repository';
 
 type Model = typeof clearance.$inferInsert;
 

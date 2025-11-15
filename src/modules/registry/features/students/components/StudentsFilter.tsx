@@ -19,7 +19,7 @@ import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { terms as termsTable } from '@/core/database/schema';
+import type { Term } from '@/core/database';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
@@ -82,7 +82,7 @@ export default function StudentsFilter() {
 		(
 			desc: string,
 			selectedSemester: string | null,
-			selectedTerm: typeof termsTable.$inferSelect | undefined
+			selectedTerm: Term | undefined
 		) => {
 			if (selectedSemester && selectedTerm) {
 				return `${desc} in ${selectedSemester}`;

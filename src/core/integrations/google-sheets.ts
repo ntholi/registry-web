@@ -1,7 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { google, type sheets_v4 } from 'googleapis';
-import { db } from '@/core/database';
-import { accounts } from '@/core/database/schema';
+import { accounts, db } from '@/core/database';
 
 export interface SheetConfig {
 	title: string;

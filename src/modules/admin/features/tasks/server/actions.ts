@@ -1,7 +1,7 @@
 'use server';
 
 import { and, eq, inArray, type SQL } from 'drizzle-orm';
-import { type DashboardUser, tasks } from '@/core/database/schema';
+import { type DashboardUser, tasks } from '@/core/database';
 import { tasksService as service } from './service';
 
 type Task = typeof tasks.$inferInsert;

@@ -1,4 +1,4 @@
-import { roomTypes } from '@/core/database/schema';
+import { roomTypes } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';

@@ -1,6 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from '@/core/database';
-import { blockedStudents } from '@/core/database/schema';
+import { blockedStudents, db } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';

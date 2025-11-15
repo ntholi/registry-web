@@ -1,12 +1,12 @@
 import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
-import { db } from '@/core/database';
 import {
+	db,
 	sponsoredStudents,
 	sponsoredTerms,
 	sponsors,
 	studentPrograms,
 	students,
-} from '@/core/database/schema';
+} from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 type SponsoredStudent = typeof sponsoredStudents.$inferSelect;

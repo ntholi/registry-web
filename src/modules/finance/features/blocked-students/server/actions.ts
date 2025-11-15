@@ -1,7 +1,7 @@
 'use server';
 
 import { eq } from 'drizzle-orm/sql/expressions/conditions';
-import { blockedStudents } from '@/core/database/schema';
+import { blockedStudents } from '@/core/database';
 import { blockedStudentsService as service } from './service';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;

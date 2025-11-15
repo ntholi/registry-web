@@ -28,7 +28,7 @@ import {
 	IconExclamationCircle,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import type { DashboardUser } from '@/core/database/schema';
+import type { DashboardUser } from '@/core/database';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 interface Props {

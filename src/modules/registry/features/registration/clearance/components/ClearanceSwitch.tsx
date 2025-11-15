@@ -5,10 +5,8 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import {
-	clearanceRequestStatus,
-	type dashboardUsers,
-} from '@/core/database/schema';
+import type { dashboardUsers } from '@/modules/auth/database';
+import { clearanceRequestStatus } from '@/modules/registry/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	type getClearance,

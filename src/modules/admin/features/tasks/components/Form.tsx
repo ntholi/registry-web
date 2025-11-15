@@ -15,7 +15,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
-import { tasks } from '@/core/database/schema';
+import { tasks } from '@/modules/admin/database';
 import { Form } from '@/shared/ui/adease';
 import { getDepartmentUsers } from '../server/actions';
 

@@ -1,4 +1,4 @@
-import type { moduleGrades } from '@/core/database/schema';
+import type { moduleGrades } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';

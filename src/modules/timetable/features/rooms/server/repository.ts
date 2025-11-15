@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { db } from '@/core/database';
-import { roomSchools, rooms } from '@/core/database/schema';
+import { db, roomSchools, rooms } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';

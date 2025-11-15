@@ -1,5 +1,5 @@
 import { getCurrentTerm } from '@registry/terms/server';
-import type { semesterModules } from '@/core/database/schema';
+import type { semesterModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';

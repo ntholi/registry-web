@@ -1,4 +1,4 @@
-import { paymentReceipts } from '@/core/database/schema';
+import { paymentReceipts } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class PaymentReceiptRepository extends BaseRepository<

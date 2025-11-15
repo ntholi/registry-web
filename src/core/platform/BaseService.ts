@@ -1,6 +1,6 @@
 import type { PgTable as Table } from 'drizzle-orm/pg-core';
 import type { Session } from 'next-auth';
-import type { UserRole } from '@/core/database/schema';
+import type { UserRole } from '@/core/database';
 import type BaseRepository from './BaseRepository';
 import type { QueryOptions } from './BaseRepository';
 import withAuth from './withAuth';

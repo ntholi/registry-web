@@ -4,7 +4,7 @@ import type {
 	SemesterStatus,
 	StudentModuleStatus,
 	StudentProgramStatus,
-} from '@/core/database/schema';
+} from '@/core/database';
 
 export type StudentModule = {
 	id: number;

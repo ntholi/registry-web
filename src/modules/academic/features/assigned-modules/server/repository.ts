@@ -1,13 +1,13 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import { db } from '@/core/database';
 import {
 	assignedModules,
+	db,
 	programs,
 	semesterModules,
 	structureSemesters,
 	structures,
 	users,
-} from '@/core/database/schema';
+} from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class AssignedModuleRepository extends BaseRepository<

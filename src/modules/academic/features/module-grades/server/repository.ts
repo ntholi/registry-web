@@ -1,6 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from '@/core/database';
-import { moduleGrades } from '@/core/database/schema';
+import { db, moduleGrades } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class ModuleGradeRepository extends BaseRepository<

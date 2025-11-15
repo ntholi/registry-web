@@ -7,7 +7,10 @@ import {
 import { Box, Group, Text, TextInput } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import type { assessmentMarks, moduleGrades } from '@/core/database/schema';
+import type {
+	assessmentMarks,
+	moduleGrades,
+} from '@/modules/academic/database';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 
 type AssessmentMark = typeof assessmentMarks.$inferSelect;

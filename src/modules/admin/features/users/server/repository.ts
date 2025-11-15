@@ -1,6 +1,5 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import { db } from '@/core/database';
-import { userSchools, users } from '@/core/database/schema';
+import { db, userSchools, users } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseRepository from '@/core/platform/BaseRepository';
 

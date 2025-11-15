@@ -1,5 +1,5 @@
 import { getCurrentTerm } from '@registry/terms/server';
-import type { assignedModules } from '@/core/database/schema';
+import type { assignedModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';

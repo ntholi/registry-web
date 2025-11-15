@@ -13,7 +13,7 @@ import type {
 	ModuleConfig,
 	NavItem,
 } from '@/app/dashboard/module-config.types';
-import type { UserPosition, UserRole } from '@/core/database/schema';
+import type { UserPosition, UserRole } from '@/core/database';
 
 export const registryConfig: ModuleConfig = {
 	id: 'registry',

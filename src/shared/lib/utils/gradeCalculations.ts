@@ -1,4 +1,4 @@
-import type { grade } from '@/core/database/schema';
+import type { grade } from '@/core/database';
 import { getLetterGrade } from './grades';
 
 export type GradeCalculation = {

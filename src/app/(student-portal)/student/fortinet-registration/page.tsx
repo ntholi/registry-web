@@ -21,7 +21,7 @@ import {
 import { IconInfoCircle, IconShield } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { fortinetLevel } from '@/core/database/schema';
+import { fortinetLevel } from '@/modules/admin/database';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type FortinetLevel = (typeof fortinetLevel.enumValues)[number];

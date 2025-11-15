@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllRoomTypes } from '@timetable/room-types/server';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { rooms } from '@/core/database/schema';
+import { rooms } from '@/modules/timetable/database';
 import { Form } from '@/shared/ui/adease';
 
 type Room = typeof rooms.$inferInsert;

@@ -6,7 +6,7 @@ import { IconArrowNarrowLeft, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import type { UserRole } from '@/core/database/schema';
+import type { UserRole } from '@/core/database';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import { DeleteButton } from './DeleteButton';
 

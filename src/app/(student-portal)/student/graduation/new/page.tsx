@@ -32,7 +32,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import type { paymentType } from '@/core/database/schema';
+import type { paymentType } from '@/modules/registry/database';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type PaymentReceiptData = {

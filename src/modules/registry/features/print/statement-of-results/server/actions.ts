@@ -1,6 +1,6 @@
 'use server';
 
-import type { statementOfResultsPrints } from '@/core/database/schema';
+import type { statementOfResultsPrints } from '@/core/database';
 import { statementOfResultsPrintsService as service } from './service';
 
 type StatementOfResultsPrint = typeof statementOfResultsPrints.$inferInsert;

@@ -7,7 +7,7 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { schools } from '@/core/database/schema';
+import { schools } from '@/modules/academic/database';
 
 export const roomTypes = pgTable('room_types', {
 	id: serial().primaryKey(),

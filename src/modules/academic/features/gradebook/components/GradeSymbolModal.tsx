@@ -22,7 +22,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { grade, moduleGrades } from '@/core/database/schema';
+import type { grade, moduleGrades } from '@/modules/academic/database';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 interface Props {

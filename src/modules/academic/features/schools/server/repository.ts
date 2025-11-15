@@ -1,6 +1,5 @@
 import { desc, eq } from 'drizzle-orm';
-import { db } from '@/core/database';
-import { programs, schools } from '@/core/database/schema';
+import { db, programs, schools } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class SchoolRepository extends BaseRepository<

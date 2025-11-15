@@ -3,7 +3,7 @@
 import { Textarea, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { roomTypes } from '@/core/database/schema';
+import { roomTypes } from '@/modules/timetable/database';
 import { Form } from '@/shared/ui/adease';
 
 type RoomType = typeof roomTypes.$inferInsert;

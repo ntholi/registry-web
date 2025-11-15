@@ -1,8 +1,7 @@
 import { setMockUser } from '@admin/test/server';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '@/core/database';
-import type { students } from '@/core/database/schema';
-import { users as usersTable } from '@/core/database/schema';
+import type { students } from '@/core/database';
+import { db, users as usersTable } from '@/core/database';
 import { studentsService } from '../service';
 
 type Student = typeof students.$inferInsert;

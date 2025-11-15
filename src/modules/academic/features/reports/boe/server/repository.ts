@@ -1,12 +1,12 @@
 import { and, eq, inArray, ne, notInArray } from 'drizzle-orm';
-import { db } from '@/core/database';
 import {
+	db,
 	programs,
 	structures,
 	studentPrograms,
 	studentSemesters,
 	students,
-} from '@/core/database/schema';
+} from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 import { compareSemesters } from '@/shared/lib/utils/utils';
 

@@ -1,4 +1,4 @@
-import type { rooms } from '@/core/database/schema';
+import type { rooms } from '@/core/database';
 
 export type RoomWithRelations = typeof rooms.$inferSelect & {
 	type: {

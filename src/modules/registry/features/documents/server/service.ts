@@ -1,4 +1,4 @@
-import type { documents } from '@/core/database/schema';
+import type { documents } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';

@@ -1,9 +1,6 @@
 import { Card, Group, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconFileText, IconReceipt } from '@tabler/icons-react';
-import type {
-	graduationRequests,
-	paymentReceipts,
-} from '@/core/database/schema';
+import type { graduationRequests, paymentReceipts } from '@/core/database';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 
 type PaymentReceipt = typeof paymentReceipts.$inferSelect;

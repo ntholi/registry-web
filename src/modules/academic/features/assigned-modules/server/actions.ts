@@ -1,7 +1,7 @@
 'use server';
 
 import { auth } from '@/core/auth';
-import type { assignedModules } from '@/core/database/schema';
+import type { assignedModules } from '@/core/database';
 import { assignedModulesService as service } from './service';
 
 type AssignedModule = typeof assignedModules.$inferInsert;

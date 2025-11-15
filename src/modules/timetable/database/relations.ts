@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { schools } from '@/core/database/schema';
+import { schools } from '@/modules/academic/database';
 import { roomSchools, rooms, roomTypes } from './schema/rooms';
 
 export const roomTypesRelations = relations(roomTypes, ({ many }) => ({

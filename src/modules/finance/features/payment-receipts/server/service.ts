@@ -1,7 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { auth } from '@/core/auth';
-import { db } from '@/core/database';
-import { paymentReceipts, type paymentType } from '@/core/database/schema';
+import { db, paymentReceipts, type paymentType } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';

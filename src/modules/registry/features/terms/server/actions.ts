@@ -1,6 +1,6 @@
 'use server';
 
-import type { terms } from '@/core/database/schema';
+import type { terms } from '@/core/database';
 import { termsService as service } from './service';
 
 type Term = typeof terms.$inferInsert;

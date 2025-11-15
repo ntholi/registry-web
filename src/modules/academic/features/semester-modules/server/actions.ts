@@ -1,6 +1,6 @@
 'use server';
 
-import type { semesterModules } from '@/core/database/schema';
+import type { semesterModules } from '@/core/database';
 import { semesterModulesService } from './service';
 
 type Module = typeof semesterModules.$inferInsert;

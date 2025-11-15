@@ -16,7 +16,7 @@ import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle, IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { assessments } from '@/core/database/schema';
+import type { assessments } from '@/modules/academic/database';
 import { deleteAssessment } from '../server/actions';
 import { getAssessmentTypeLabel } from '../utils';
 

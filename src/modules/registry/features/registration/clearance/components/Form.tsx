@@ -3,7 +3,7 @@
 import { TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { clearance } from '@/core/database/schema';
+import { clearance } from '@/modules/registry/database';
 import { Form } from '@/shared/ui/adease';
 
 type Clearance = typeof clearance.$inferInsert;

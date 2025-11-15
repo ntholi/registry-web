@@ -1,6 +1,6 @@
 'use server';
 
-import type { roomTypes } from '@/core/database/schema';
+import type { roomTypes } from '@/core/database';
 import { roomTypeService as service } from './service';
 
 type RoomType = typeof roomTypes.$inferInsert;

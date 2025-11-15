@@ -1,11 +1,11 @@
 import { Box, Paper } from '@mantine/core';
-import { createRegistrationWithModules } from '@registry/registration/server';
 import { Form } from '@registry/registration/requests';
+import { createRegistrationWithModules } from '@registry/registration/server';
 import type {
 	modules,
 	StudentModuleStatus,
 	semesterModules,
-} from '@/core/database/schema';
+} from '@/core/database';
 
 type Module = typeof modules.$inferSelect;
 

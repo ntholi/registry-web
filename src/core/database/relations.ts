@@ -1,50 +1,58 @@
 import { relations } from 'drizzle-orm';
 import {
-	accounts,
 	assessmentMarks,
 	assessmentMarksAudit,
 	assessments,
 	assessmentsAudit,
 	assignedModules,
+	moduleGrades,
+	modulePrerequisites,
+	modules,
+	programs,
+	schools,
+	semesterModules,
+	structureSemesters,
+	structures,
+	terms,
+} from '@/modules/academic/database';
+import {
+	fortinetRegistrations,
+	taskAssignments,
+	tasks,
+} from '@/modules/admin/database';
+import {
+	accounts,
 	authenticators,
+	sessions,
+	userSchools,
+	users,
+} from '@/modules/auth/database';
+import {
+	sponsoredStudents,
+	sponsoredTerms,
+	sponsors,
+} from '@/modules/finance/database';
+import {
 	blockedStudents,
 	clearance,
 	clearanceAudit,
 	documents,
-	fortinetRegistrations,
 	graduationClearance,
 	graduationRequests,
-	moduleGrades,
-	modulePrerequisites,
-	modules,
 	nextOfKins,
 	paymentReceipts,
-	programs,
 	registrationClearance,
 	registrationRequests,
 	requestedModules,
-	schools,
-	semesterModules,
-	sessions,
-	sponsoredStudents,
-	sponsoredTerms,
-	sponsors,
 	statementOfResultsPrints,
-	structureSemesters,
-	structures,
 	studentCardPrints,
 	studentEducation,
 	studentModules,
 	studentPrograms,
 	studentSemesters,
 	students,
-	taskAssignments,
-	tasks,
-	terms,
 	transcriptPrints,
-	userSchools,
-	users,
-} from './schema';
+} from '@/modules/registry/database';
 
 export const usersRelations = relations(users, ({ many, one }) => ({
 	accounts: many(accounts),

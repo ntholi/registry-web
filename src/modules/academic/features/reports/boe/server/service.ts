@@ -1,12 +1,12 @@
 import { and, inArray } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
-import { db } from '@/core/database';
 import {
+	db,
 	type Grade,
 	moduleGrades,
 	type StudentModuleStatus,
 	type schools,
-} from '@/core/database/schema';
+} from '@/core/database';
 import { getCurrentTerm } from '@/modules/registry/features/terms/server';
 import {
 	getAcademicRemarks,

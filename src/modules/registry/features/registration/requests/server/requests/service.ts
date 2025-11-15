@@ -5,7 +5,7 @@ import {
 	type registrationRequests,
 	type requestedModules,
 	type StudentModuleStatus,
-} from '@/core/database/schema';
+} from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';

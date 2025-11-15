@@ -1,8 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import { google } from 'googleapis';
 import { auth } from '@/core/auth';
-import { db } from '@/core/database';
-import { accounts } from '@/core/database/schema';
+import { accounts, db } from '@/core/database';
 
 async function getOAuth2Client(userId: string) {
 	const account = await db.query.accounts.findFirst({

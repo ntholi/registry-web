@@ -18,12 +18,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
-import {
-	type modules,
-	type StudentModuleStatus,
-	type semesterModules,
-	studentModuleStatus,
-} from '@/core/database/schema';
+import type { modules, semesterModules } from '@/modules/academic/database';
+import type { StudentModuleStatus } from '@/modules/registry/database';
+import { studentModuleStatus } from '@/modules/registry/database';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';

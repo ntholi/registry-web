@@ -1,8 +1,5 @@
 import { getStudentByUserId } from '@registry/students/server';
-import type {
-	fortinetLevel,
-	fortinetRegistrations,
-} from '@/core/database/schema';
+import type { fortinetLevel, fortinetRegistrations } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';

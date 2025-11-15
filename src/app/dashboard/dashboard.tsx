@@ -25,7 +25,7 @@ import { adminConfig } from '@/app/(admin)/admin.config';
 import { classroomConfig } from '@/app/(classroom)/classroom.config';
 import { financeConfig } from '@/app/(finance)/finance.config';
 import { registryConfig } from '@/app/(registry)/registry.config';
-import type { DashboardUser, UserRole } from '@/core/database/schema';
+import type { DashboardUser, UserRole } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';

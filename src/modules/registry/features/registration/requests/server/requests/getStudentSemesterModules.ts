@@ -5,13 +5,13 @@ import {
 	type Student,
 } from '@registry/students';
 import { and, eq, inArray } from 'drizzle-orm';
-import { db } from '@/core/database';
 import {
+	db,
 	modulePrerequisites,
 	type modules,
 	semesterModules,
 	structureSemesters,
-} from '@/core/database/schema';
+} from '@/core/database';
 
 type ModuleWithStatus = {
 	semesterModuleId: number;

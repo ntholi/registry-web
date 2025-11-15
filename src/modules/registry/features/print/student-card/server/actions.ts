@@ -1,6 +1,6 @@
 'use server';
 
-import type { studentCardPrints } from '@/core/database/schema';
+import type { studentCardPrints } from '@/core/database';
 import { studentCardPrintsService as service } from './service';
 
 type StudentCardPrint = typeof studentCardPrints.$inferInsert;

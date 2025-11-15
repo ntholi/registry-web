@@ -18,7 +18,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
-import type { UserRole } from '@/core/database/schema';
+import type { UserRole } from '@/core/database';
 import {
 	formatDate,
 	formatPhoneNumber,

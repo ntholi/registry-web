@@ -8,7 +8,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type assessmentNumber, assessments } from '@/core/database/schema';
+import type { assessmentNumber } from '@/modules/academic/database';
+import { assessments } from '@/modules/academic/database';
 import { createAssessment, updateAssessment } from '../server/actions';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from '../utils';
 

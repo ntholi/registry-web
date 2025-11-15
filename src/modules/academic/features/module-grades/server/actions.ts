@@ -1,6 +1,6 @@
 'use server';
 
-import type { moduleGrades } from '@/core/database/schema';
+import type { moduleGrades } from '@/core/database';
 import { moduleGradesService as service } from './service';
 
 type ModuleGrade = typeof moduleGrades.$inferInsert;

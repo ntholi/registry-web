@@ -92,7 +92,7 @@ export * from './relations';
 ```typescript
 import { eq } from 'drizzle-orm';
 import { db } from '@/core/database';
-import { tableName } from '@/core/database/schema';
+import { tableName } from '@/core/database';
 import BaseRepository, { type QueryOptions } from '@/core/platform/BaseRepository';
 
 export type EntityInsert = typeof tableName.$inferInsert;
@@ -127,7 +127,7 @@ export const entityRepository = new EntityRepository();
 **Location**: `/src/modules/[module]/features/[feature]/server/service.ts`
 
 ```typescript
-import type { tableName } from '@/core/database/schema';
+import type { tableName } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import EntityRepository from './repository';
@@ -167,7 +167,7 @@ export const entityService = serviceWrapper(EntityService, 'EntityService');
 ```typescript
 'use server';
 
-import type { tableName } from '@/core/database/schema';
+import type { tableName } from '@/core/database';
 import { entityService as service } from './service';
 
 type Entity = typeof tableName.$inferInsert;
@@ -233,7 +233,7 @@ export * from './types';
 import { NumberInput, Switch, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { tableName } from '@/core/database/schema';
+import { tableName } from '@/core/database';
 import { Form } from '@/shared/ui/adease';
 
 type Entity = typeof tableName.$inferInsert;

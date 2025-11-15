@@ -1,6 +1,6 @@
 'use server';
 
-import type { structures } from '@/core/database/schema';
+import type { structures } from '@/core/database';
 import { structuresService as service } from './service';
 
 type Structure = typeof structures.$inferInsert;

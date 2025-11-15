@@ -19,7 +19,7 @@ import {
 	IconExclamationMark,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { moduleGrades } from '@/core/database/schema';
+import type { moduleGrades } from '@/modules/academic/database';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 type ModuleGrade = typeof moduleGrades.$inferSelect;

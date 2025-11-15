@@ -12,11 +12,8 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
-import type {
-	programs,
-	structures,
-	studentPrograms,
-} from '@/core/database/schema';
+import type { programs, structures } from '@/modules/academic/database';
+import type { studentPrograms } from '@/modules/registry/database';
 
 type StudentProgram = typeof studentPrograms.$inferSelect & {
 	structure: typeof structures.$inferSelect & {

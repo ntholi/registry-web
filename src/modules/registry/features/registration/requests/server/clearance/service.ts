@@ -1,6 +1,6 @@
 import { getCurrentTerm } from '@registry/terms/server';
 import { auth } from '@/core/auth';
-import type { clearance, DashboardUser } from '@/core/database/schema';
+import type { clearance, DashboardUser } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
