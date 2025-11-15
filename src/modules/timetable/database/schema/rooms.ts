@@ -8,18 +8,22 @@ import {
 	timestamp,
 } from 'drizzle-orm/pg-core';
 import { schools } from '@/core/database/schema';
-import { roomTypes as roomTypesTable } from './room-types';
 
-export { roomTypes } from './room-types';
+export const roomTypes = pgTable('room_types', {
+	id: serial().primaryKey(),
+	name: text().notNull().unique(),
+	description: text(),
+	createdAt: timestamp().defaultNow(),
+});
 
 export const rooms = pgTable(
 	'rooms',
 	{
 		id: serial().primaryKey(),
-		name: text().notNull(),
+		name: text().notNull().unique(),
 		capacity: integer().notNull(),
 		typeId: integer()
-			.references(() => roomTypesTable.id, { onDelete: 'cascade' })
+			.references(() => roomTypes.id, { onDelete: 'cascade' })
 			.notNull(),
 		createdAt: timestamp().defaultNow(),
 	},

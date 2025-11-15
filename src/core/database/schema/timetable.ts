@@ -7,11 +7,11 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { schools } from './academic-structure';
+import { schools } from '@/core/database/schema';
 
 export const roomTypes = pgTable('room_types', {
 	id: serial().primaryKey(),
-	name: text().notNull(),
+	name: text().notNull().unique(),
 	description: text(),
 	createdAt: timestamp().defaultNow(),
 });
@@ -20,7 +20,7 @@ export const rooms = pgTable(
 	'rooms',
 	{
 		id: serial().primaryKey(),
-		name: text().notNull(),
+		name: text().notNull().unique(),
 		capacity: integer().notNull(),
 		typeId: integer()
 			.references(() => roomTypes.id, { onDelete: 'cascade' })

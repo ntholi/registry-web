@@ -29,7 +29,7 @@ export default function RoomTypeForm({
 			schema={createInsertSchema(roomTypes)}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/timetable/room-types/${id}`);
+				router.push(`/room-types/${id}`);
 			}}
 		>
 			{(form) => (
