@@ -1,10 +1,8 @@
 import {
 	ActionIcon,
-	Badge,
 	Divider,
 	Flex,
 	Group,
-	Stack,
 	Table,
 	TableTbody,
 	TableTd,
@@ -21,6 +19,7 @@ import {
 } from '@timetable/lecturer-allocations';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import { DetailsView, DetailsViewBody } from '@/shared/ui/adease';
 
 type Props = {
@@ -55,82 +54,73 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 			</Flex>
 			<Divider my={15} />
 			<DetailsViewBody>
-				<Stack gap='md'>
-					<div>
-						<Text size='sm' c='dimmed'>
-							Lecturer
-						</Text>
-						<Group gap='xs'>
-							<Text size='lg' fw={500}>
-								{lecturer?.name || 'Unknown'}
-							</Text>
-							{lecturer?.email && (
-								<Badge variant='light'>{lecturer.email}</Badge>
-							)}
-						</Group>
-					</div>
+				<div>
+					<Text size='sm' c='dimmed'>
+						Lecturer
+					</Text>
+					<Text size='lg' fw={500}>
+						{lecturer?.name || 'Unknown'}
+					</Text>
+				</div>
 
-					<div>
-						<Text size='sm' c='dimmed' mb={4}>
-							Terms
-						</Text>
-						<Group gap='xs'>
-							{uniqueTerms.map((termName) => (
-								<Badge key={termName} variant='light' size='lg'>
-									{termName}
-								</Badge>
-							))}
-						</Group>
-					</div>
+				<div>
+					<Text size='sm' c='dimmed' mb={4}>
+						Terms
+					</Text>
+					<Group gap='xs'>
+						{uniqueTerms.map((termName) => (
+							<Text key={termName}>{termName}</Text>
+						))}
+					</Group>
+				</div>
 
-					<Table striped highlightOnHover>
-						<TableThead>
-							<TableTr>
-								<TableTh>Module Code</TableTh>
-								<TableTh>Module Name</TableTh>
-								<TableTh>Program</TableTh>
-								<TableTh>Semester</TableTh>
-								<TableTh>Actions</TableTh>
-							</TableTr>
-						</TableThead>
-						<TableTbody>
-							{allocations.map((allocation) => (
-								<TableTr key={allocation.id}>
-									<TableTd>
-										{allocation.semesterModule?.module?.code || '-'}
-									</TableTd>
-									<TableTd>
-										{allocation.semesterModule?.module?.name || '-'}
-									</TableTd>
-									<TableTd>
-										{allocation.semesterModule?.semester?.structure?.program
-											?.name || '-'}
-									</TableTd>
-									<TableTd>
-										{allocation.semesterModule?.semester?.name || '-'}
-									</TableTd>
-									<TableTd>
-										<form
-											action={async () => {
-												'use server';
-												await deleteLecturerAllocation(allocation.id);
-											}}
+				<Table striped highlightOnHover withTableBorder>
+					<TableThead>
+						<TableTr>
+							<TableTh>Module</TableTh>
+							<TableTh>Program</TableTh>
+							<TableTh>Semester</TableTh>
+							<TableTh>Actions</TableTh>
+						</TableTr>
+					</TableThead>
+					<TableTbody>
+						{allocations.map((allocation) => (
+							<TableTr key={allocation.id}>
+								<TableTd>
+									{allocation.semesterModule?.module?.name} (
+									{allocation.semesterModule?.module?.code})
+								</TableTd>
+								<TableTd>
+									{allocation.semesterModule?.semester?.structure?.program
+										?.name || '-'}
+								</TableTd>
+								<TableTd>
+									{formatSemester(
+										allocation.semesterModule?.semester?.semesterNumber,
+										'mini'
+									)}
+								</TableTd>
+								<TableTd>
+									<form
+										action={async () => {
+											'use server';
+											await deleteLecturerAllocation(allocation.id);
+										}}
+									>
+										<ActionIcon
+											type='submit'
+											variant='subtle'
+											color='red'
+											size='sm'
 										>
-											<ActionIcon
-												type='submit'
-												variant='subtle'
-												color='red'
-												size='sm'
-											>
-												<IconTrash size={16} />
-											</ActionIcon>
-										</form>
-									</TableTd>
-								</TableTr>
-							))}
-						</TableTbody>
-					</Table>
-				</Stack>
+											<IconTrash size={16} />
+										</ActionIcon>
+									</form>
+								</TableTd>
+							</TableTr>
+						))}
+					</TableTbody>
+				</Table>
 			</DetailsViewBody>
 		</DetailsView>
 	);

@@ -58,7 +58,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			<GridCol span={isMobile ? 14 : 4} pb={0}>
 				<Paper withBorder h='88vh'>
 					<Stack h='100%'>
-						<Flex p='md' gap='sm'>
+						<Flex p='md' pb={0} gap='sm'>
 							<Select
 								flex={1}
 								placeholder='Select a term'
@@ -90,7 +90,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
 						<Divider />
 
-						<ScrollArea type='always' style={{ flex: 1 }} p='md'>
+						<ScrollArea type='always' style={{ flex: 1 }} p='md' pt={5}>
 							{isLoading ? (
 								<Stack gap='sm'>
 									{Array.from({ length: 5 }).map(() => (
