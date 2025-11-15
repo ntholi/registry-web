@@ -130,13 +130,11 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 		if (nav.label === 'Gradebook') {
 			nav.isLoading = isModulesLoading && session?.user?.role === 'academic';
 			if (!isModulesLoading && assignedModules) {
-				assignedModules.forEach((it) => {
-					nav.children?.push({
-						label: it?.semesterModule?.module?.code || 'Unknown Module',
-						description: it?.semesterModule?.module?.name || 'Unknown Module',
-						href: `/gradebook/${it?.semesterModule.moduleId}`,
-					});
-				});
+				nav.children = assignedModules.map((it) => ({
+					label: it?.semesterModule?.module?.code || 'Unknown Module',
+					description: it?.semesterModule?.module?.name || 'Unknown Module',
+					href: `/gradebook/${it?.semesterModule.moduleId}`,
+				}));
 			}
 		}
 	}

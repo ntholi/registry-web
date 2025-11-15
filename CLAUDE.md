@@ -8,7 +8,7 @@ trigger: always_on
 
 ## Architecture Overview
 
-Modular monolith with feature-based organization. Each module (academic, registry, admin, finance, student-portal, etc) contains its own database schemas, business logic, and UI components.
+Modular monolith with feature-based organization. Each module (academic, registry, admin, etc) contains its own database schemas, business logic, and UI components.
 
 ## Directory Structure
 
@@ -17,13 +17,13 @@ Modular monolith with feature-based organization. Each module (academic, registr
   /app                          # Next.js App Router
     /(module-name)/             # Route groups (academic, registry, admin, etc.)
       /feature-name/            # Feature routes
-        page.tsx                # List/overview page
+        page.tsx                # Overview page
         layout.tsx              # ListLayout with sidebar navigation
         new/page.tsx            # Create new entity page
         [id]/page.tsx           # Detail/view page
         [id]/edit/page.tsx      # Edit page
   /modules                      # Business logic modules
-    /[module]/                  # Module name (academic, registry, admin, finance, etc.)
+    /[module]/                  # Module name (academic, registry, admin, etc.)
       /database/                # Database schema for this module
         /schema/                # Schema files (groups related entities or one per entity)
           entity.ts             # Table definitions
@@ -32,7 +32,7 @@ Modular monolith with feature-based organization. Each module (academic, registr
       /features/                # Feature modules
         /[feature]/             # Feature name (terms, schools, students, etc.)
           /server/              # Server-side code
-            actions.ts          # Server actions ('use server')
+            actions.ts          # Server actions 'use server'
             service.ts          # Business logic with auth
             repository.ts       # Database operations
           /components/          # UI components
