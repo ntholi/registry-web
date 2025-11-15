@@ -3,9 +3,15 @@ import { join } from 'node:path';
 import QRCode from 'qrcode';
 import sharp from 'sharp';
 
-export async function generateQRCodeWithLogo(
+export async function generateQRCodeDataURL(
 	reference: string
-): Promise<Buffer> {
+): Promise<string> {
+	const qrBuffer = await generateQRCodeWithLogo(reference);
+	const base64 = qrBuffer.toString('base64');
+	return `data:image/png;base64,${base64}`;
+}
+
+async function generateQRCodeWithLogo(reference: string): Promise<Buffer> {
 	const verificationUrl = `http://portal.co.ls/verify/certificate/${reference}`;
 
 	const qrCodeBuffer = await QRCode.toBuffer(verificationUrl, {
@@ -73,12 +79,4 @@ export async function generateQRCodeWithLogo(
 		console.error('Error adding logo to QR code:', error);
 		return qrCodeBuffer;
 	}
-}
-
-export async function generateQRCodeDataURL(
-	reference: string
-): Promise<string> {
-	const qrBuffer = await generateQRCodeWithLogo(reference);
-	const base64 = qrBuffer.toString('base64');
-	return `data:image/png;base64,${base64}`;
 }

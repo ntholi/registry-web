@@ -8,9 +8,9 @@ import {
 	expandProgramName,
 	formatIssueDate,
 } from '@registry/students';
-import { generateQRCodeDataURL } from '@/modules/registry/features/students/server/certificate-utils';
 import type { PDFFont, PDFPage } from 'pdf-lib';
 import { PDFDocument, rgb } from 'pdf-lib';
+import { generateQRCodeDataURL } from '../utils';
 
 const PRIMARY_COLOR = rgb(0, 0, 0);
 const REFERENCE_RIGHT_MARGIN = 36;
