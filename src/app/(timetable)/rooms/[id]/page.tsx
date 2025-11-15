@@ -1,4 +1,4 @@
-import { Badge, Group } from '@mantine/core';
+import { Badge, Group, SimpleGrid } from '@mantine/core';
 import { deleteRoom, getRoomWithRelations } from '@timetable/rooms/server';
 import { notFound } from 'next/navigation';
 import {
@@ -31,18 +31,18 @@ export default async function RoomDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label='Name'>{room.name}</FieldView>
+				<SimpleGrid cols={2}>
+					<FieldView label='Name'>{room.name}</FieldView>
+					<FieldView label='Type'>{room.type.name}</FieldView>
+				</SimpleGrid>
 				<FieldView label='Capacity'>{room.capacity}</FieldView>
-				<FieldView label='Type'>{room.type.name}</FieldView>
 				<FieldView label='Schools'>
 					<Group gap='xs'>
-						{room.roomSchools.map(
-							(rs: { school: { id: number; name: string } }) => (
-								<Badge variant='default' key={rs.school.id}>
-									{rs.school.name}
-								</Badge>
-							)
-						)}
+						{room.roomSchools.map((rs) => (
+							<Badge variant='light' key={rs.school.id}>
+								{rs.school.code}
+							</Badge>
+						))}
 					</Group>
 				</FieldView>
 			</DetailsViewBody>
