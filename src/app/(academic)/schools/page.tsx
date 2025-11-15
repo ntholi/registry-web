@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllSchools } from '@academic/schools';
+import { getAllSchools } from '@academic/schools/server';
 import {
 	Box,
 	Card,
@@ -25,7 +25,6 @@ export default function SchoolsPage() {
 	const { data: schools, isLoading } = useQuery({
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
-		select: (data) => data.items,
 	});
 
 	return (

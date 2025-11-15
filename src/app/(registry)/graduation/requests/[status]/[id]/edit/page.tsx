@@ -1,9 +1,10 @@
 import { Box } from '@mantine/core';
 import { Form } from '@registry/graduation';
+
 import {
 	getGraduationRequest,
 	updateGraduationRequest,
-} from '@registry/graduation/clearance';
+} from '@registry/graduation/clearance/server';
 import { notFound } from 'next/navigation';
 
 type Props = {

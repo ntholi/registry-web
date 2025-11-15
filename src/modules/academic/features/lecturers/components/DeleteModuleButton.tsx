@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteAssignedModule } from '@academic/assigned-modules';
+import { deleteAssignedModule } from '@academic/assigned-modules/server';
 import { ActionIcon, type BoxProps, Text, Tooltip } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';

@@ -1,7 +1,7 @@
 'use client';
 
-import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
-import { getUserSchools } from '@admin/users';
+import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules/server';
+import { getUserSchools } from '@admin/users/server';
 import {
 	ActionIcon,
 	Avatar,
@@ -29,10 +29,12 @@ import type { DashboardUser, UserRole } from '@/core/database/schema';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
+import { timetableConfig } from '../(timetable)/timetable.config';
 import type { NavItem } from './module-config.types';
 
 function getNavigation(department: DashboardUser) {
 	const allConfigs = [
+		timetableConfig,
 		academicConfig,
 		classroomConfig,
 		registryConfig,

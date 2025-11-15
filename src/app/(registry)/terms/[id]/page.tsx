@@ -1,5 +1,5 @@
 import { Badge } from '@mantine/core';
-import { deleteTerm, getTerm } from '@registry/terms';
+import { deleteTerm, getTerm } from '@registry/terms/server';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,

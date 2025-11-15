@@ -14,10 +14,6 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
-	generateStudentsListReport,
-	generateSummaryRegistrationReport,
-	getPaginatedRegistrationStudents,
-	getRegistrationDataPreview,
 	RegistrationCharts,
 	RegistrationFilter,
 	type ReportFilter,
@@ -26,6 +22,12 @@ import {
 	ProgramBreakdownTable,
 	StudentTable,
 } from '@registry/reports/registration';
+import {
+	generateStudentsListReport,
+	generateSummaryRegistrationReport,
+	getPaginatedRegistrationStudents,
+	getRegistrationDataPreview,
+} from '@registry/reports/registration/server';
 import {
 	IconChartBar,
 	IconChartPie,

@@ -1,4 +1,5 @@
-import { Form, getSponsor, updateSponsor } from '@finance/sponsors';
+import { Form } from '@finance/sponsors';
+import { getSponsor, updateSponsor } from '@finance/sponsors/server';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 

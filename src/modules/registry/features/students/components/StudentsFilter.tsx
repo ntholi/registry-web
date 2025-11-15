@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllSchools, getProgramsBySchoolId } from '@academic/schools';
+import { getAllSchools, getProgramsBySchoolId } from '@academic/schools/server';
 import {
 	ActionIcon,
 	Button,
@@ -14,7 +14,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@registry/terms';
+import { getAllTerms } from '@registry/terms/server';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
@@ -57,7 +57,6 @@ export default function StudentsFilter() {
 	const { data: schools = [], isLoading: schoolLoading } = useQuery({
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
-		select: (data) => data.items,
 		enabled: opened,
 	});
 
@@ -97,7 +96,7 @@ export default function StudentsFilter() {
 
 	const previewDescription = useMemo(() => {
 		const selectedSchool = schools.find(
-			(s) => s.id?.toString() === (filters.schoolId || '')
+			(s: { id: number }) => s.id?.toString() === (filters.schoolId || '')
 		);
 		const selectedProgram = programs.find(
 			(p) => p.id?.toString() === (filters.programId || '')
@@ -201,7 +200,7 @@ export default function StudentsFilter() {
 					<Select
 						label='School'
 						placeholder='Select school'
-						data={schools.map((school) => ({
+						data={schools.map((school: { id: number; name: string }) => ({
 							value: school.id?.toString() || '',
 							label: school.name,
 						}))}

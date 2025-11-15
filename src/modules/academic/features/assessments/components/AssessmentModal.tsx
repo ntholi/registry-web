@@ -1,6 +1,6 @@
 'use client';
 
-import type { getModule } from '@academic/modules';
+import type { getModule } from '@academic/modules/server';
 import { Button, Group, Modal, NumberInput, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';

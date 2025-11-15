@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, Skeleton } from '@mantine/core';
-import { getRegistrationRequest } from '@registry/registration';
+import { getRegistrationRequest } from '@registry/registration/server';
 import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
 	getStatusColor,

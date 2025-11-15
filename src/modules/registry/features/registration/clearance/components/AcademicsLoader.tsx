@@ -1,7 +1,8 @@
 'use client';
 
 import { Box, Center, Loader } from '@mantine/core';
-import { AcademicsView, getStudent } from '@registry/students';
+import { AcademicsView } from '@registry/students';
+import { getStudent } from '@registry/students/server';
 import { useQuery } from '@tanstack/react-query';
 
 type Props = {

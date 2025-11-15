@@ -7,10 +7,10 @@ import {
 	buildCertificateReference,
 	expandProgramName,
 	formatIssueDate,
-	generateQRCodeDataURL,
 } from '@registry/students';
 import type { PDFFont, PDFPage } from 'pdf-lib';
 import { PDFDocument, rgb } from 'pdf-lib';
+import { generateQRCodeDataURL } from '../utils';
 
 const PRIMARY_COLOR = rgb(0, 0, 0);
 const REFERENCE_RIGHT_MARGIN = 36;

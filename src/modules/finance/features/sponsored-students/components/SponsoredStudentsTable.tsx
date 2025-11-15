@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllSponsoredStudents } from '@finance/sponsors';
+import { getAllSponsoredStudents } from '@finance/sponsors/server';
 import {
 	Badge,
 	Center,

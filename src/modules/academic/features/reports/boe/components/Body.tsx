@@ -1,5 +1,5 @@
 'use client';
-import { getSchools } from '@academic/semester-modules';
+import { getAllSchools } from '@academic/schools/server';
 import {
 	Button,
 	Card,
@@ -23,7 +23,7 @@ export default function Body() {
 	const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
 	const { data: schools, isLoading: schoolsLoading } = useQuery({
 		queryKey: ['schools'],
-		queryFn: getSchools,
+		queryFn: getAllSchools,
 	});
 	const { currentTerm } = useCurrentTerm();
 	const { userSchools, isLoading: userSchoolsLoading } = useUserSchools();

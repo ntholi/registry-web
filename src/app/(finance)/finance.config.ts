@@ -2,12 +2,12 @@ import {
 	countApprovedGraduationClearances,
 	countPendingGraduationClearances,
 	countRejectedGraduationClearances,
-} from '@registry/graduation/clearance';
+} from '@registry/graduation/clearance/server';
 import {
 	countApprovedClearances,
 	countPendingClearances,
 	countRejectedClearances,
-} from '@registry/registration';
+} from '@registry/registration/server';
 import {
 	IconBarrierBlock,
 	IconCertificate,
@@ -24,8 +24,8 @@ import type {
 import type { UserPosition, UserRole } from '@/core/database/schema';
 
 export const financeConfig: ModuleConfig = {
-	id: 'finance-management',
-	name: 'Finance Management',
+	id: 'finance',
+	name: 'Finance',
 	version: '1.0.0',
 	category: 'core',
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { getStructureModules } from '@academic/structures';
+import { getStructureModules } from '@academic/structures/server';
 import {
 	Autocomplete,
 	type AutocompleteProps,

@@ -1,4 +1,3 @@
-import { termsRepository } from '@registry/terms';
 import { and, inArray } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
 import { db } from '@/core/database';
@@ -8,6 +7,7 @@ import {
 	type StudentModuleStatus,
 	type schools,
 } from '@/core/database/schema';
+import { getCurrentTerm } from '@/modules/registry/features/terms/server';
 import {
 	getAcademicRemarks,
 	summarizeModules,
@@ -39,7 +39,7 @@ type SemesterModuleData = {
 export default class BoeReportService {
 	private repository = boeReportRepository;
 	async generateBoeReportForFaculty(school: School): Promise<Buffer> {
-		const currentTerm = await termsRepository.getActive();
+		const currentTerm = await getCurrentTerm();
 		if (!currentTerm) {
 			throw new Error('No active term found');
 		}

@@ -22,12 +22,12 @@ import { notifications } from '@mantine/notifications';
 import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
-} from '@registry/registration';
+} from '@registry/registration/server';
+import { getCurrentSemester } from '@registry/students';
 import {
-	getCurrentSemester,
 	getStudent,
 	getStudentRegistrationData,
-} from '@registry/students';
+} from '@registry/students/server';
 import {
 	IconAlertCircle,
 	IconExclamationCircle,

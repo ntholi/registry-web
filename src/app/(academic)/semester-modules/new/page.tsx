@@ -1,4 +1,5 @@
-import { createModule, Form } from '@academic/semester-modules';
+import { Form } from '@academic/semester-modules';
+import { createModule } from '@academic/semester-modules/server';
 import { Box } from '@mantine/core';
 
 export default async function NewPage() {

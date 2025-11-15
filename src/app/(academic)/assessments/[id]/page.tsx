@@ -1,5 +1,5 @@
 import { AssessmentsTable, ModuleLecturers } from '@academic/assessments';
-import { getModule } from '@academic/modules';
+import { getModule } from '@academic/modules/server';
 import { Button, Group, Paper, Title } from '@mantine/core';
 import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';

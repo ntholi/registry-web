@@ -1,11 +1,13 @@
 import {
 	AttachmentCard,
 	CourseHeader,
+	SubmissionCard,
+} from '@classroom/courses';
+import {
 	getCourse,
 	getCourseWorkById,
 	getCourseWorkSubmissions,
-	SubmissionCard,
-} from '@classroom/courses';
+} from '@classroom/courses/server';
 import {
 	Badge,
 	Box,

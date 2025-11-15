@@ -17,7 +17,4 @@ export {
 	RequestDetailsView,
 	SponsorInput,
 } from './requests';
-export * from './requests/server/clearance/actions';
-export * from './requests/server/requests/actions';
-export * from './requests/server/requests/getStudentSemesterModules';
 export * from './requests/types';

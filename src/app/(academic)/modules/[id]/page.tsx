@@ -1,5 +1,8 @@
-import { deleteModule, getModule } from '@academic/modules';
-import { getStructuresByModule } from '@academic/semester-modules';
+import { getModule } from '@academic/modules/server';
+import {
+	deleteModule,
+	getStructuresByModule,
+} from '@academic/semester-modules/server';
 import {
 	Box,
 	Skeleton,

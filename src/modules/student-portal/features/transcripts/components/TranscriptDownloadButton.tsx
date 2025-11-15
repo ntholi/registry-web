@@ -3,7 +3,8 @@
 import { ActionIcon, Button } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { pdf } from '@react-pdf/renderer';
-import { getAcademicHistory, StatementOfResultsPDF } from '@registry/students';
+import { StatementOfResultsPDF } from '@registry/students';
+import { getAcademicHistory } from '@registry/students/server';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';

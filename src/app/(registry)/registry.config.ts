@@ -1,5 +1,5 @@
-import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance';
-import { countByStatus } from '@registry/registration';
+import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance/server';
+import { countByStatus } from '@registry/registration/server';
 import {
 	IconBarrierBlock,
 	IconCertificate,
@@ -16,8 +16,8 @@ import type {
 import type { UserPosition, UserRole } from '@/core/database/schema';
 
 export const registryConfig: ModuleConfig = {
-	id: 'registry-management',
-	name: 'Registry Management',
+	id: 'registry',
+	name: 'Registry',
 	version: '1.0.0',
 	category: 'core',
 

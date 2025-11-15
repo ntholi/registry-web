@@ -1,4 +1,4 @@
-import { getStudentByUserId } from '@registry/students';
+import { getStudentByUserId } from '@registry/students/server';
 import type {
 	fortinetLevel,
 	fortinetRegistrations,

@@ -2,7 +2,7 @@
 
 import { ActionIcon, Modal, Paper, Select, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@registry/terms';
+import { getAllTerms } from '@registry/terms/server';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';

@@ -15,7 +15,7 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { getRegistrationRequest } from '@registry/registration/requests';
+import { getRegistrationRequest } from '@registry/registration/requests/server';
 import {
 	ClearanceStatusView,
 	DepartmentMessagesView,

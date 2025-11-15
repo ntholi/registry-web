@@ -1,4 +1,4 @@
-import { setMockUser } from '@admin/test';
+import { setMockUser } from '@admin/test/server';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { sponsors } from '@/core/database/schema';
 import { sponsorsService } from '../service';

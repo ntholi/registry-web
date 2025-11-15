@@ -2,8 +2,8 @@ import { IconChalkboard } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 
 export const classroomConfig: ModuleConfig = {
-	id: 'classroom-management',
-	name: 'Classroom Management',
+	id: 'classroom',
+	name: 'Classroom',
 	version: '1.0.0',
 	category: 'core',
 

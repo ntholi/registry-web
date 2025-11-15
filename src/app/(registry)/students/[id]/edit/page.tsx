@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
-import { Form, getStudent, updateStudent } from '@registry/students';
+import { Form } from '@registry/students';
+import { getStudent, updateStudent } from '@registry/students/server';
 import { notFound } from 'next/navigation';
 
 type Props = {

@@ -1,5 +1,5 @@
 import { Box } from '@mantine/core';
-import { getClearance, updateClearance } from '@registry/registration';
+import { getClearance, updateClearance } from '@registry/registration/server';
 import { Form } from '@registry/registration/clearance';
 import { notFound } from 'next/navigation';
 

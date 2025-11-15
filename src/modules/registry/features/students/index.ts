@@ -5,7 +5,11 @@ export * from './components/academics/statements/utils';
 export { default as StudentCardView } from './components/card/StudentCardView';
 export { default as Form } from './components/Form';
 export { default as CertificateDownloader } from './components/graduation/certificate/CertificateDownloader';
-export * from './components/graduation/certificate/utils';
+export {
+	buildCertificateReference,
+	expandProgramName,
+	formatIssueDate,
+} from './components/graduation/certificate/utils';
 export { default as GraduationView } from './components/graduation/GraduationView';
 export {
 	default as TranscriptPDF,
@@ -18,7 +22,5 @@ export { default as ProofOfRegistrationPrinter } from './components/registration
 export { default as RegistrationView } from './components/registration/RegistrationView';
 export { default as StudentsFilter } from './components/StudentsFilter';
 export { StudentTabs } from './components/StudentTabs';
-export * from './server/actions';
-export * from './server/service';
 export * from './types';
 export * from './utils';

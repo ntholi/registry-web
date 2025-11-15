@@ -1,6 +1,6 @@
 'use client';
 
-import { getUserSchools } from '@admin/users';
+import { getUserSchools } from '@admin/users/server';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 

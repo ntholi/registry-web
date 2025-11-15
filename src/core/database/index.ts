@@ -7,6 +7,7 @@ import * as admin from '@/modules/admin/database';
 import * as auth from '@/modules/auth/database';
 import * as finance from '@/modules/finance/database';
 import * as registry from '@/modules/registry/database';
+import * as timetable from '@/modules/timetable/database';
 
 const schema = {
 	...academic,
@@ -14,6 +15,7 @@ const schema = {
 	...auth,
 	...finance,
 	...registry,
+	...timetable,
 };
 
 const databaseEnv = process.env.DATABASE_ENV || 'local';
@@ -41,4 +43,5 @@ export * from '@/modules/admin/database';
 export * from '@/modules/auth/database';
 export * from '@/modules/finance/database';
 export * from '@/modules/registry/database';
+export * from '@/modules/timetable/database';
 export * from './types';

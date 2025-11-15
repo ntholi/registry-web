@@ -1,6 +1,6 @@
 'use client';
 
-import type { getAssignedModuleByUserAndModule } from '@academic/assigned-modules';
+import type { getAssignedModuleByUserAndModule } from '@academic/assigned-modules/server';
 import { Flex, Group, Paper, Select, Stack, Text, Title } from '@mantine/core';
 import { IconBook, IconCalendar, IconChevronDown } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';

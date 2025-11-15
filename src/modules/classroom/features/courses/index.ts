@@ -6,5 +6,4 @@ export { default as MaterialTab } from './components/course-detail/MaterialTab';
 export { default as AttachmentCard } from './components/course-work/AttachmentCard';
 export { default as CourseHeader } from './components/course-work/CourseHeader';
 export { default as SubmissionCard } from './components/course-work/SubmissionCard';
-export * from './server/actions';
 export * from './types';

@@ -2,7 +2,7 @@
 
 import { Button, Group, Loader, Modal, Stack, TextInput } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
-import { createStudentCardPrint } from '@registry/print';
+import { createStudentCardPrint } from '@registry/print/student-card/server';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';

@@ -1,6 +1,6 @@
 'use client';
 
-import { getStructuresByProgram } from '@academic/semester-modules';
+import { getStructuresByProgramId } from '@academic/structures/server';
 import {
 	Accordion,
 	Alert,
@@ -26,8 +26,6 @@ type Structure = {
 	id: number;
 	code: string;
 	desc: string | null;
-	programId: number;
-	createdAt: Date | null;
 };
 
 type Props = {
@@ -41,7 +39,7 @@ type Props = {
 export default function ProgramDisplay({ program }: Props) {
 	const { data: structures, isLoading } = useQuery({
 		queryKey: ['structures', program.id],
-		queryFn: () => getStructuresByProgram(program.id),
+		queryFn: () => getStructuresByProgramId(program.id),
 	});
 
 	return (

@@ -1,4 +1,4 @@
-import { deleteTask, getTask, updateTaskStatus } from '@admin/tasks';
+import { deleteTask, getTask, updateTaskStatus } from '@admin/tasks/server';
 import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import { format } from 'date-fns';
 import { notFound } from 'next/navigation';

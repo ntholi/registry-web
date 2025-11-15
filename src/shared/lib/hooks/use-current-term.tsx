@@ -1,4 +1,4 @@
-import { getCurrentTerm } from '@registry/terms';
+import { getCurrentTerm } from '@registry/terms/server';
 import { useQuery } from '@tanstack/react-query';
 
 export function useCurrentTerm() {

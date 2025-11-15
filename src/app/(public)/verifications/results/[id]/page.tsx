@@ -10,7 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getStatementOfResultsPrint } from '@registry/print/statement-of-results';
+import { getStatementOfResultsPrint } from '@registry/print/statement-of-results/server';
 import {
 	IconBook,
 	IconCheck,

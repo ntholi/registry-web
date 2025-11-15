@@ -11,7 +11,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getStudentsByModuleId } from '@registry/students';
+import { getStudentsByModuleId } from '@registry/students/server';
 import { IconEye } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
