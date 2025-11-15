@@ -1,6 +1,7 @@
 'use client';
 
 import type { searchModulesWithDetails } from '@academic/semester-modules';
+import { getUser } from '@admin/users';
 import {
 	Button,
 	Checkbox,
@@ -17,7 +18,7 @@ import { notifications } from '@mantine/notifications';
 import { getAllTerms } from '@registry/terms';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { users } from '@/core/database';
 import UserInput from '@/shared/ui/UserInput';
 import { ModuleSearchInput } from './ModuleSearchInput';
@@ -50,11 +51,24 @@ export default function LecturerAllocationForm({
 	const [selectedSemesterModules, setSelectedSemesterModules] = useState<
 		number[]
 	>(defaultValues?.semesterModuleIds || []);
+	const isUserPreFilled = Boolean(defaultValues?.userId);
 
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms', 'all'],
 		queryFn: getAllTerms,
 	});
+
+	useEffect(() => {
+		async function fetchUser() {
+			if (defaultValues?.userId && !selectedUser) {
+				const user = await getUser(defaultValues.userId);
+				if (user) {
+					setSelectedUser(user);
+				}
+			}
+		}
+		fetchUser();
+	}, [defaultValues?.userId, selectedUser]);
 
 	const form = useForm<FormValues>({
 		initialValues: {
@@ -79,7 +93,11 @@ export default function LecturerAllocationForm({
 			queryClient.invalidateQueries({
 				queryKey: ['lecturer-allocations'],
 			});
-			router.push('/lecturer-allocations');
+			if (isUserPreFilled && defaultValues?.userId) {
+				router.push(`/lecturer-allocations/${defaultValues.userId}`);
+			} else {
+				router.push('/lecturer-allocations');
+			}
 		},
 		onError: (error) => {
 			console.error('Error assigning modules:', error);
@@ -121,18 +139,34 @@ export default function LecturerAllocationForm({
 						{title}
 					</Text>
 
-					<UserInput
-						label='Lecturer'
-						placeholder='Search for a lecturer'
-						value={selectedUser}
-						onChange={(user) => {
-							setSelectedUser(user);
-							if (user) {
-								form.setFieldValue('userId', user.id);
-							}
-						}}
-						error={form.errors.userId as string}
-					/>
+					{isUserPreFilled && selectedUser ? (
+						<div>
+							<Text size='sm' c='dimmed' mb={4}>
+								Lecturer
+							</Text>
+							<Text size='md' fw={500}>
+								{selectedUser.name || 'Unknown'}
+							</Text>
+							{selectedUser.email && (
+								<Text size='sm' c='dimmed'>
+									{selectedUser.email}
+								</Text>
+							)}
+						</div>
+					) : (
+						<UserInput
+							label='Lecturer'
+							placeholder='Search for a lecturer'
+							value={selectedUser}
+							onChange={(user) => {
+								setSelectedUser(user);
+								if (user) {
+									form.setFieldValue('userId', user.id);
+								}
+							}}
+							error={form.errors.userId as string}
+						/>
+					)}
 
 					<Select
 						label='Term'

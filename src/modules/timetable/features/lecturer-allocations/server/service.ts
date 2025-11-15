@@ -41,6 +41,20 @@ class LecturerAllocationService extends BaseService<
 		}, ['dashboard']);
 	};
 
+	getByUserIdWithRelations = async (userId: string) => {
+		return withAuth(async () => {
+			return this.lecturerAllocationRepository.findByUserIdWithRelations(
+				userId
+			);
+		}, ['dashboard']);
+	};
+
+	getUniqueLecturers = async () => {
+		return withAuth(async () => {
+			return this.lecturerAllocationRepository.findUniqueLecturers();
+		}, ['dashboard']);
+	};
+
 	createMany = async (allocations: LecturerAllocationInsert[]) => {
 		return withAuth(async () => {
 			return this.lecturerAllocationRepository.createMany(allocations);

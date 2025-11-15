@@ -20,6 +20,14 @@ export async function getLecturerAllocationsByUserAndTerm(
 	return service.getByUserAndTerm(userId, termId);
 }
 
+export async function getLecturerAllocationsByUserId(userId: string) {
+	return service.getByUserIdWithRelations(userId);
+}
+
+export async function getUniqueLecturers() {
+	return service.getUniqueLecturers();
+}
+
 export async function createLecturerAllocations(
 	allocations: LecturerAllocation[]
 ) {
