@@ -15,7 +15,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getStudentRegistrationHistory } from '@registry/registration';
+import { getStudentRegistrationHistory } from '@registry/registration/server';
 import { IconChevronRight, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';

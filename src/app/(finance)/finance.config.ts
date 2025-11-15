@@ -7,7 +7,7 @@ import {
 	countApprovedClearances,
 	countPendingClearances,
 	countRejectedClearances,
-} from '@registry/registration';
+} from '@registry/registration/server';
 import {
 	IconBarrierBlock,
 	IconCertificate,

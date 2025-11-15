@@ -4,7 +4,7 @@ import { Box } from '@mantine/core';
 import {
 	getRegistrationRequest,
 	updateRegistrationWithModulesAndSponsorship,
-} from '@registry/registration';
+} from '@registry/registration/server';
 import { Form } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
 import type {

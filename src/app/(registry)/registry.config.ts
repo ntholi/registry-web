@@ -1,5 +1,5 @@
 import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance/server';
-import { countByStatus } from '@registry/registration';
+import { countByStatus } from '@registry/registration/server';
 import {
 	IconBarrierBlock,
 	IconCertificate,

@@ -12,7 +12,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import type { getStudentRegistrationHistory } from '@registry/registration';
+import type { getStudentRegistrationHistory } from '@registry/registration/server';
 import {
 	IconCalendar,
 	IconChevronRight,

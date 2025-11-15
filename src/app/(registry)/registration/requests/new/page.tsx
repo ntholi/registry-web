@@ -1,5 +1,5 @@
 import { Box, Paper } from '@mantine/core';
-import { createRegistrationWithModules } from '@registry/registration';
+import { createRegistrationWithModules } from '@registry/registration/server';
 import { Form } from '@registry/registration/requests';
 import type {
 	modules,

@@ -7,8 +7,8 @@ import {
 	buildCertificateReference,
 	expandProgramName,
 	formatIssueDate,
-	generateQRCodeDataURL,
 } from '@registry/students';
+import { generateQRCodeDataURL } from '@/modules/registry/features/students/server/certificate-utils';
 import type { PDFFont, PDFPage } from 'pdf-lib';
 import { PDFDocument, rgb } from 'pdf-lib';
 

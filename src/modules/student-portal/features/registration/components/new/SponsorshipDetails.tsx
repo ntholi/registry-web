@@ -1,3 +1,5 @@
+'use client';
+
 import { findAllSponsors, getSponsoredStudent } from '@finance/sponsors/server';
 import {
 	Alert,

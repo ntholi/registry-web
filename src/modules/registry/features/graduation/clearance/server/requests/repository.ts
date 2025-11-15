@@ -1,4 +1,4 @@
-import { studentsService } from '@registry/students/server';
+import { studentsService } from '@/modules/registry/features/students/server/service';
 import { and, eq, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm/sql';
 import { db } from '@/core/database';

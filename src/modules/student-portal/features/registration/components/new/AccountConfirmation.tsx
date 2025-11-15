@@ -1,3 +1,5 @@
+'use client';
+
 import { confirmAccountDetails } from '@finance/sponsors/server';
 import {
 	Alert,

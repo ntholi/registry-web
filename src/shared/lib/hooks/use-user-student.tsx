@@ -1,3 +1,4 @@
+'use client';
 import { getActiveProgram, getCurrentSemester } from '@registry/students';
 import { getStudentByUserId } from '@registry/students/server';
 import { useQuery } from '@tanstack/react-query';
