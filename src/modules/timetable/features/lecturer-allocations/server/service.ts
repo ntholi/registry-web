@@ -9,7 +9,7 @@ class LecturerAllocationService extends BaseService<
 	typeof lecturerAllocations,
 	'id'
 > {
-	private lecturerAllocationRepository: LecturerAllocationRepository;
+	private repo: LecturerAllocationRepository;
 
 	constructor() {
 		const repository = new LecturerAllocationRepository();
@@ -17,42 +17,49 @@ class LecturerAllocationService extends BaseService<
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
 		});
-		this.lecturerAllocationRepository = repository;
+		this.repo = repository;
 	}
 
 	async getWithRelations(id: number) {
 		return withAuth(async () => {
-			const repository = this.lecturerAllocationRepository;
-			return repository.findByIdWithRelations(id);
+			return this.repo.findByIdWithRelations(id);
 		}, ['dashboard']);
 	}
 
 	async getAllWithRelations() {
 		return withAuth(async () => {
-			const repository = this.lecturerAllocationRepository;
-			return repository.findAllWithRelations();
+			return this.repo.findAllWithRelations();
 		}, ['dashboard']);
 	}
 
 	async getByUserAndTerm(userId: string, termId: number) {
 		return withAuth(async () => {
-			const repository = this.lecturerAllocationRepository;
-			return repository.findByUserAndTerm(userId, termId);
+			return this.repo.findByUserAndTerm(userId, termId);
 		}, ['dashboard']);
 	}
 
 	async createMany(allocations: LecturerAllocationInsert[]) {
 		return withAuth(async () => {
-			const repository = this.lecturerAllocationRepository;
-			return repository.createMany(allocations);
+			return this.repo.createMany(allocations);
 		}, ['academic']);
 	}
 
 	async deleteByUserAndTerm(userId: string, termId: number) {
 		return withAuth(async () => {
-			const repository = this.lecturerAllocationRepository;
-			return repository.deleteByUserAndTerm(userId, termId);
+			return this.repo.deleteByUserAndTerm(userId, termId);
 		}, []);
+	}
+
+	async getByUserIdWithRelations(userId: string) {
+		return withAuth(async () => {
+			return this.repo.findByUserIdWithRelations(userId);
+		}, ['dashboard']);
+	}
+
+	async getUniqueLecturers() {
+		return withAuth(async () => {
+			return this.repo.findUniqueLecturers();
+		}, ['dashboard']);
 	}
 }
 
