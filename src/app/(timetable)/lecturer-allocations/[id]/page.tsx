@@ -37,6 +37,10 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 
 	const lecturer = allocations[0]?.user;
 
+	const uniqueTerms = Array.from(
+		new Set(allocations.map((a) => a.term?.name).filter(Boolean))
+	);
+
 	return (
 		<DetailsView>
 			<Flex justify='space-between' align='center'>
@@ -66,12 +70,24 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 						</Group>
 					</div>
 
+					<div>
+						<Text size='sm' c='dimmed' mb={4}>
+							Terms
+						</Text>
+						<Group gap='xs'>
+							{uniqueTerms.map((termName) => (
+								<Badge key={termName} variant='light' size='lg'>
+									{termName}
+								</Badge>
+							))}
+						</Group>
+					</div>
+
 					<Table striped highlightOnHover>
 						<TableThead>
 							<TableTr>
 								<TableTh>Module Code</TableTh>
 								<TableTh>Module Name</TableTh>
-								<TableTh>Term</TableTh>
 								<TableTh>Program</TableTh>
 								<TableTh>Semester</TableTh>
 								<TableTh>Actions</TableTh>
@@ -86,7 +102,6 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 									<TableTd>
 										{allocation.semesterModule?.module?.name || '-'}
 									</TableTd>
-									<TableTd>{allocation.term?.name || '-'}</TableTd>
 									<TableTd>
 										{allocation.semesterModule?.semester?.structure?.program
 											?.name || '-'}

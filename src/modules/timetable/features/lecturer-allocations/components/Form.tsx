@@ -52,11 +52,16 @@ export default function LecturerAllocationForm({
 		number[]
 	>(defaultValues?.semesterModuleIds || []);
 	const isUserPreFilled = Boolean(defaultValues?.userId);
+	const isTermPreFilled = Boolean(defaultValues?.termId);
 
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms', 'all'],
 		queryFn: getAllTerms,
 	});
+
+	const selectedTerm = terms.find(
+		(t) => t.id === defaultValues?.termId || t.id === form.values.termId
+	);
 
 	useEffect(() => {
 		async function fetchUser() {
@@ -168,23 +173,34 @@ export default function LecturerAllocationForm({
 						/>
 					)}
 
-					<Select
-						label='Term'
-						placeholder='Select a term'
-						data={terms.map((term) => ({
-							value: term.id.toString(),
-							label: term.name,
-						}))}
-						value={form.values.termId ? form.values.termId.toString() : null}
-						onChange={(value) => {
-							if (value) {
-								form.setFieldValue('termId', Number(value));
-							}
-						}}
-						error={form.errors.termId}
-						searchable
-						required
-					/>
+					{isTermPreFilled && selectedTerm ? (
+						<div>
+							<Text size='sm' c='dimmed' mb={4}>
+								Term
+							</Text>
+							<Text size='md' fw={500}>
+								{selectedTerm.name}
+							</Text>
+						</div>
+					) : (
+						<Select
+							label='Term'
+							placeholder='Select a term'
+							data={terms.map((term) => ({
+								value: term.id.toString(),
+								label: term.name,
+							}))}
+							value={form.values.termId ? form.values.termId.toString() : null}
+							onChange={(value) => {
+								if (value) {
+									form.setFieldValue('termId', Number(value));
+								}
+							}}
+							error={form.errors.termId}
+							searchable
+							required
+						/>
+					)}
 
 					<Paper withBorder p='md'>
 						<Stack gap='sm'>

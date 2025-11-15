@@ -5,20 +5,20 @@ import {
 } from '@timetable/lecturer-allocations';
 
 type Props = {
-	searchParams: Promise<{ userId?: string }>;
+	searchParams: Promise<{ userId?: string; termId?: string }>;
 };
 
 export default async function NewPage({ searchParams }: Props) {
-	const { userId } = await searchParams;
+	const { userId, termId } = await searchParams;
 
 	return (
 		<Box p='lg'>
 			<LecturerAllocationForm
 				defaultValues={
-					userId
+					userId || termId
 						? {
-								userId,
-								termId: 0,
+								userId: userId || '',
+								termId: termId ? Number(termId) : 0,
 								semesterModuleIds: [],
 							}
 						: undefined

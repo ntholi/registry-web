@@ -28,6 +28,10 @@ export async function getUniqueLecturers() {
 	return service.getUniqueLecturers();
 }
 
+export async function getLecturersByTerm(termId: number) {
+	return service.getLecturersByTerm(termId);
+}
+
 export async function createLecturerAllocations(
 	allocations: LecturerAllocation[]
 ) {

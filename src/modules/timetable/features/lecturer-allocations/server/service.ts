@@ -38,18 +38,6 @@ class LecturerAllocationService extends BaseService<
 		}, ['dashboard']);
 	}
 
-	async createMany(allocations: LecturerAllocationInsert[]) {
-		return withAuth(async () => {
-			return this.repo.createMany(allocations);
-		}, ['academic']);
-	}
-
-	async deleteByUserAndTerm(userId: string, termId: number) {
-		return withAuth(async () => {
-			return this.repo.deleteByUserAndTerm(userId, termId);
-		}, []);
-	}
-
 	async getByUserIdWithRelations(userId: string) {
 		return withAuth(async () => {
 			return this.repo.findByUserIdWithRelations(userId);
@@ -60,6 +48,24 @@ class LecturerAllocationService extends BaseService<
 		return withAuth(async () => {
 			return this.repo.findUniqueLecturers();
 		}, ['dashboard']);
+	}
+
+	async getLecturersByTerm(termId: number) {
+		return withAuth(async () => {
+			return this.repo.findLecturersByTerm(termId);
+		}, ['dashboard']);
+	}
+
+	async createMany(allocations: LecturerAllocationInsert[]) {
+		return withAuth(async () => {
+			return this.repo.createMany(allocations);
+		}, ['academic']);
+	}
+
+	async deleteByUserAndTerm(userId: string, termId: number) {
+		return withAuth(async () => {
+			return this.repo.deleteByUserAndTerm(userId, termId);
+		}, []);
 	}
 }
 
