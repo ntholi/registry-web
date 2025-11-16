@@ -11,7 +11,7 @@ export type NotificationConfig = {
 };
 
 export type NavItem = {
-	label?: string;
+	label: string;
 	href?: string | ((department: string) => string);
 	icon?: Icon;
 	description?: string;
@@ -21,7 +21,7 @@ export type NavItem = {
 	notificationCount?: NotificationConfig;
 	isLoading?: boolean;
 	collapsed?: boolean;
-} & Omit<NavLinkProps, 'children'>;
+} & Omit<NavLinkProps, 'children' | 'label'>;
 
 export type ModuleConfig = {
 	id: string;

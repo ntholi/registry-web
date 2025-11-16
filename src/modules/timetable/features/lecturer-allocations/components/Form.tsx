@@ -12,7 +12,6 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -21,6 +20,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import type { users } from '@/core/database';
+import DurationInput from '@/shared/ui/DurationInput';
 import UserInput from '@/shared/ui/UserInput';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
@@ -151,6 +151,10 @@ export default function LecturerAllocationForm({
 
 	const canAddModules = form.values.userId && form.values.termId;
 
+	function handleDurationChange(minutes: number) {
+		form.setFieldValue('duration', minutes);
+	}
+
 	return (
 		<>
 			<form onSubmit={form.onSubmit(handleSubmit)}>
@@ -218,34 +222,14 @@ export default function LecturerAllocationForm({
 						/>
 					)}
 
-					<div>
-						<TimeInput
-							label='Duration'
-							description={formatDuration(form.values.duration)}
-							placeholder='Enter duration'
-							value={
-								form.values.duration > 0
-									? `${Math.floor(form.values.duration / 60)
-											.toString()
-											.padStart(2, '0')}:${(form.values.duration % 60)
-											.toString()
-											.padStart(2, '0')}`
-									: ''
-							}
-							onChange={(event) => {
-								const timeValue = event.currentTarget.value;
-								if (timeValue) {
-									const [hours, mins] = timeValue.split(':').map(Number);
-									const totalMinutes = (hours || 0) * 60 + (mins || 0);
-									form.setFieldValue('duration', totalMinutes);
-								} else {
-									form.setFieldValue('duration', 0);
-								}
-							}}
-							error={form.errors.duration}
-							required
-						/>
-					</div>
+					<DurationInput
+						label='Duration'
+						description={formatDuration(form.values.duration)}
+						value={form.values.duration}
+						onChange={handleDurationChange}
+						error={form.errors.duration}
+						required
+					/>
 
 					<Paper withBorder p='md'>
 						<Stack gap='sm'>
