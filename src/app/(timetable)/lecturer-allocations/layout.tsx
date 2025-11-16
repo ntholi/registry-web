@@ -73,39 +73,36 @@ export default function Layout({ children }: PropsWithChildren) {
 			<GridCol span={isMobile ? 14 : 4} pb={0}>
 				<Paper withBorder h='88vh'>
 					<Stack h='100%'>
-						<Flex p='md' pb={0} gap='sm'>
-							<Select
-								flex={1}
-								placeholder='Select a term'
-								data={terms.map((term) => ({
-									value: term.id.toString(),
-									label: term.name,
-								}))}
-								value={selectedTermId ? selectedTermId.toString() : null}
-								onChange={(value) => {
-									if (value) {
-										setSelectedTermId(Number(value));
-									} else {
-										setSelectedTermId(null);
-									}
-								}}
-								searchable
-								clearable
-							/>
-							<Flex justify='flex-end'>
-								<NewLink
-									href={
-										selectedTermId
-											? `/lecturer-allocations/new?termId=${selectedTermId}`
-											: '/lecturer-allocations/new'
-									}
+						<Stack p='md' pb={0} gap={'md'}>
+							<Flex gap='sm'>
+								<Select
+									flex={1}
+									placeholder='Select a term'
+									data={terms.map((term) => ({
+										value: term.id.toString(),
+										label: term.name,
+									}))}
+									value={selectedTermId ? selectedTermId.toString() : null}
+									onChange={(value) => {
+										if (value) {
+											setSelectedTermId(Number(value));
+										} else {
+											setSelectedTermId(null);
+										}
+									}}
+									searchable
+									clearable
 								/>
+								<Flex justify='flex-end'>
+									<NewLink
+										href={
+											selectedTermId
+												? `/lecturer-allocations/new?termId=${selectedTermId}`
+												: '/lecturer-allocations/new'
+										}
+									/>
+								</Flex>
 							</Flex>
-						</Flex>
-
-						<Divider />
-
-						<Stack p='md' pb={0} gap='xs'>
 							<SearchField
 								value={search}
 								onChange={(e) => setSearch(e.currentTarget.value)}
@@ -115,6 +112,8 @@ export default function Layout({ children }: PropsWithChildren) {
 								}
 							/>
 						</Stack>
+
+						<Divider />
 
 						<ScrollArea type='always' style={{ flex: 1 }} p='md' pt={5}>
 							{isLoading ? (
