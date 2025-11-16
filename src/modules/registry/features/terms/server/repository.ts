@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { db, terms } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
@@ -10,6 +10,14 @@ export type TermQueryOptions = QueryOptions<typeof terms>;
 export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
 	constructor() {
 		super(terms, terms.id);
+	}
+
+	async findAll() {
+		const result = await db
+			.select()
+			.from(this.table as unknown as typeof terms)
+			.orderBy(desc(terms.name));
+		return result;
 	}
 
 	async getActive() {
