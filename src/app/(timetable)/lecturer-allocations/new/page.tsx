@@ -34,6 +34,7 @@ export default async function NewPage({ searchParams }: Props) {
 						})
 					);
 					await createLecturerAllocations(allocations);
+					return values;
 				}}
 			/>
 		</Box>
