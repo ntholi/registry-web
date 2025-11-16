@@ -55,7 +55,7 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 	);
 
 	const totalMinutes = allocations.reduce(
-		(sum, allocation) => sum + (allocation.minutes || 0),
+		(sum, allocation) => sum + (allocation.duration || 0),
 		0
 	);
 	const totalHours = (totalMinutes / 60).toFixed(2);
@@ -133,7 +133,7 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 										'mini'
 									)}
 								</TableTd>
-								<TableTd>{formatDuration(allocation.minutes || 0)}</TableTd>
+								<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
 								<TableTd>
 									<form
 										action={async () => {

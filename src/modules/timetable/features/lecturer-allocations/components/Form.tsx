@@ -31,7 +31,7 @@ type FormValues = {
 	userId: string;
 	termId: number;
 	semesterModuleIds: number[];
-	minutes: number;
+	duration: number;
 };
 
 type Props = {
@@ -78,12 +78,13 @@ export default function LecturerAllocationForm({
 			userId: defaultValues?.userId || '',
 			termId: defaultValues?.termId || 0,
 			semesterModuleIds: defaultValues?.semesterModuleIds || [],
-			minutes: defaultValues?.minutes || 30,
+			duration: defaultValues?.duration || 30,
 		},
 		validate: {
 			userId: (value) => (!value ? 'Please select a lecturer' : null),
 			termId: (value) => (!value ? 'Please select a term' : null),
-			minutes: (value) => (value <= 0 ? 'Please enter a valid duration' : null),
+			duration: (value) =>
+				value <= 0 ? 'Please enter a valid duration' : null,
 		},
 	});
 
@@ -220,13 +221,13 @@ export default function LecturerAllocationForm({
 					<div>
 						<TimeInput
 							label='Duration'
-							description={formatDuration(form.values.minutes)}
+							description={formatDuration(form.values.duration)}
 							placeholder='Enter duration'
 							value={
-								form.values.minutes > 0
-									? `${Math.floor(form.values.minutes / 60)
+								form.values.duration > 0
+									? `${Math.floor(form.values.duration / 60)
 											.toString()
-											.padStart(2, '0')}:${(form.values.minutes % 60)
+											.padStart(2, '0')}:${(form.values.duration % 60)
 											.toString()
 											.padStart(2, '0')}`
 									: ''
@@ -236,12 +237,12 @@ export default function LecturerAllocationForm({
 								if (timeValue) {
 									const [hours, mins] = timeValue.split(':').map(Number);
 									const totalMinutes = (hours || 0) * 60 + (mins || 0);
-									form.setFieldValue('minutes', totalMinutes);
+									form.setFieldValue('duration', totalMinutes);
 								} else {
-									form.setFieldValue('minutes', 0);
+									form.setFieldValue('duration', 0);
 								}
 							}}
-							error={form.errors.minutes}
+							error={form.errors.duration}
 							required
 						/>
 					</div>

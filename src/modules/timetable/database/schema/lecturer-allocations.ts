@@ -13,7 +13,7 @@ export const lecturerAllocations = pgTable(
 	'lecturer_allocations',
 	{
 		id: serial().primaryKey(),
-		minutes: integer().notNull().default(30),
+		duration: integer().notNull().default(30),
 		userId: text()
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
