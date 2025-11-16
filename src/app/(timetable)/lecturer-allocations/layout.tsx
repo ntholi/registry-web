@@ -15,14 +15,16 @@ import { useMediaQuery } from '@mantine/hooks';
 import { getAllTerms } from '@registry/terms';
 import { useQuery } from '@tanstack/react-query';
 import { getLecturersByTerm } from '@timetable/lecturer-allocations';
+import { useAtom } from 'jotai';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { useEffect, useState } from 'react';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import { ListItem, NewLink, SearchField } from '@/shared/ui/adease';
+import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 
 export default function Layout({ children }: PropsWithChildren) {
-	const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
+	const [selectedTermId, setSelectedTermId] = useAtom(selectedTermAtom);
 	const [search, setSearch] = useState('');
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 768px)');
@@ -35,7 +37,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
 	useEffect(() => {
 		setSearch('');
-	}, [selectedTermId]);
+	}, []);
 
 	const { isLoading, data: lecturers = [] } = useQuery({
 		queryKey: ['lecturer-allocations', selectedTermId?.toString() ?? 'all'],
