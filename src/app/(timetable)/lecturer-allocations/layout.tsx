@@ -17,12 +17,13 @@ import { useQuery } from '@tanstack/react-query';
 import { getLecturersByTerm } from '@timetable/lecturer-allocations';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
-import { ListItem, NewLink } from '@/shared/ui/adease';
+import { ListItem, NewLink, SearchField } from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {
 	const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
+	const [search, setSearch] = useState('');
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [view, setView] = useViewSelect();
@@ -31,6 +32,10 @@ export default function Layout({ children }: PropsWithChildren) {
 		queryKey: ['terms', 'all'],
 		queryFn: getAllTerms,
 	});
+
+	useEffect(() => {
+		setSearch('');
+	}, [selectedTermId]);
 
 	const { isLoading, data: lecturers = [] } = useQuery({
 		queryKey: ['lecturer-allocations', selectedTermId?.toString() ?? 'all'],
@@ -41,6 +46,14 @@ export default function Layout({ children }: PropsWithChildren) {
 			return getLecturersByTerm(selectedTermId);
 		},
 		staleTime: 0,
+	});
+
+	const filteredLecturers = lecturers.filter((lecturer) => {
+		if (!search) return true;
+		const searchLower = search.toLowerCase();
+		const name = lecturer.user?.name?.toLowerCase() || '';
+		const email = lecturer.user?.email?.toLowerCase() || '';
+		return name.includes(searchLower) || email.includes(searchLower);
 	});
 
 	if (isMobile && view === 'details') {
@@ -90,6 +103,17 @@ export default function Layout({ children }: PropsWithChildren) {
 
 						<Divider />
 
+						<Stack p='md' pb={0} gap='xs'>
+							<SearchField
+								value={search}
+								onChange={(e) => setSearch(e.currentTarget.value)}
+								disabled={!selectedTermId}
+								placeholder={
+									selectedTermId ? 'Search lecturers...' : 'Select a term first'
+								}
+							/>
+						</Stack>
+
 						<ScrollArea type='always' style={{ flex: 1 }} p='md' pt={5}>
 							{isLoading ? (
 								<Stack gap='sm'>
@@ -99,7 +123,7 @@ export default function Layout({ children }: PropsWithChildren) {
 								</Stack>
 							) : (
 								<Stack gap={3}>
-									{lecturers.map((lecturer) => (
+									{filteredLecturers.map((lecturer) => (
 										<ListItem
 											key={lecturer.userId}
 											id={lecturer.userId}
