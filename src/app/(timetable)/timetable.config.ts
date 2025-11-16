@@ -14,6 +14,10 @@ export const timetableConfig: ModuleConfig = {
 				icon: IconChalkboard,
 				children: [
 					{
+						label: 'Allocations',
+						href: '/lecturer-allocations',
+					},
+					{
 						label: 'Rooms',
 						href: '/rooms',
 					},

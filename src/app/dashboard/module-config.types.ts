@@ -11,7 +11,7 @@ export type NotificationConfig = {
 };
 
 export type NavItem = {
-	label: string;
+	label?: string;
 	href?: string | ((department: string) => string);
 	icon?: Icon;
 	description?: string;

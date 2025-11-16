@@ -1,0 +1,1 @@
+ALTER TABLE "lecturer_allocations" ADD COLUMN "minutes" integer DEFAULT 30 NOT NULL;

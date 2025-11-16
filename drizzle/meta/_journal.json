@@ -148,6 +148,20 @@
 			"when": 1763188844725,
 			"tag": "0020_bouncy_hex",
 			"breakpoints": true
+		},
+		{
+			"idx": 21,
+			"version": "7",
+			"when": 1763213620785,
+			"tag": "0021_neat_ezekiel_stane",
+			"breakpoints": true
+		},
+		{
+			"idx": 22,
+			"version": "7",
+			"when": 1763221537022,
+			"tag": "0022_typical_invaders",
+			"breakpoints": true
 		}
 	]
 }
