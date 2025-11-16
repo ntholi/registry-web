@@ -88,20 +88,6 @@ export default function LecturerAllocationForm({
 		},
 	});
 
-	const formatDuration = (totalMinutes: number): string => {
-		if (totalMinutes <= 0) return '0 hours';
-		const hours = Math.floor(totalMinutes / 60);
-		const mins = totalMinutes % 60;
-
-		if (hours === 0) {
-			return `${mins} minute${mins !== 1 ? 's' : ''}`;
-		}
-		if (mins === 0) {
-			return `${hours} hour${hours !== 1 ? 's' : ''}`;
-		}
-		return `${hours} hour${hours !== 1 ? 's' : ''} ${mins} minute${mins !== 1 ? 's' : ''}`;
-	};
-
 	const submitMutation = useMutation({
 		mutationFn: onSubmit,
 		onSuccess: () => {
@@ -224,7 +210,6 @@ export default function LecturerAllocationForm({
 
 					<DurationInput
 						label='Duration'
-						description={formatDuration(form.values.duration)}
 						value={form.values.duration}
 						onChange={handleDurationChange}
 						error={form.errors.duration}

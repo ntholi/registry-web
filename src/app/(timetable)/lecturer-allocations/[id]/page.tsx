@@ -58,7 +58,6 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 		(sum, allocation) => sum + (allocation.duration || 0),
 		0
 	);
-	const totalHours = (totalMinutes / 60).toFixed(2);
 
 	return (
 		<DetailsView>
@@ -99,9 +98,6 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 						Total Hours
 					</Text>
 					<Text size='lg' fw={500}>
-						{totalHours} hours
-					</Text>
-					<Text size='sm' c='dimmed'>
 						{formatDuration(totalMinutes)}
 					</Text>
 				</div>
