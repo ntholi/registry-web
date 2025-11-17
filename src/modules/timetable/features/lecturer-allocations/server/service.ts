@@ -29,40 +29,10 @@ class LecturerAllocationService extends BaseService<
 		}, ['dashboard']);
 	}
 
-	async getAllWithRelations() {
-		return withAuth(async () => {
-			return this.repo.findAllWithRelations();
-		}, ['dashboard']);
-	}
-
-	async getByUserAndTerm(userId: string, termId: number) {
-		return withAuth(async () => {
-			return this.repo.findByUserAndTerm(userId, termId);
-		}, ['dashboard']);
-	}
-
 	async getByUserIdWithRelations(userId: string) {
 		return withAuth(async () => {
 			return this.repo.findByUserIdWithRelations(userId);
 		}, ['dashboard']);
-	}
-
-	async getUniqueLecturers() {
-		return withAuth(async () => {
-			return this.repo.findUniqueLecturers();
-		}, ['dashboard']);
-	}
-
-	async getLecturersByTerm(termId: number) {
-		return withAuth(async () => {
-			return this.repo.findLecturersByTerm(termId);
-		}, ['dashboard']);
-	}
-
-	async createMany(allocations: LecturerAllocationInsert[]) {
-		return withAuth(async () => {
-			return this.repo.createMany(allocations);
-		}, ['academic']);
 	}
 
 	async createWithVenueTypes(
@@ -94,12 +64,6 @@ class LecturerAllocationService extends BaseService<
 	async updateVenueTypes(allocationId: number, venueTypeIds: number[]) {
 		return withAuth(async () => {
 			return this.repo.updateVenueTypes(allocationId, venueTypeIds);
-		}, ['academic']);
-	}
-
-	async deleteByUserAndTerm(userId: string, termId: number) {
-		return withAuth(async () => {
-			return this.repo.deleteByUserAndTerm(userId, termId);
 		}, ['academic']);
 	}
 }
