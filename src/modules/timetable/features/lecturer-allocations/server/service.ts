@@ -62,6 +62,38 @@ class LecturerAllocationService extends BaseService<
 		}, ['academic']);
 	}
 
+	async createWithVenueTypes(
+		allocation: LecturerAllocationInsert,
+		venueTypeIds: number[]
+	) {
+		return withAuth(async () => {
+			return this.repo.createWithVenueTypes(allocation, venueTypeIds);
+		}, ['academic']);
+	}
+
+	async createManyWithVenueTypes(
+		allocations: LecturerAllocationInsert[],
+		venueTypeIds: number[]
+	) {
+		return withAuth(async () => {
+			const created = [];
+			for (const allocation of allocations) {
+				const result = await this.repo.createWithVenueTypes(
+					allocation,
+					venueTypeIds
+				);
+				created.push(result);
+			}
+			return created;
+		}, ['academic']);
+	}
+
+	async updateVenueTypes(allocationId: number, venueTypeIds: number[]) {
+		return withAuth(async () => {
+			return this.repo.updateVenueTypes(allocationId, venueTypeIds);
+		}, []);
+	}
+
 	async deleteByUserAndTerm(userId: string, termId: number) {
 		return withAuth(async () => {
 			return this.repo.deleteByUserAndTerm(userId, termId);

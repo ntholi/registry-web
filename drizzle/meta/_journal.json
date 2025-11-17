@@ -169,6 +169,13 @@
 			"when": 1763308231639,
 			"tag": "0023_far_wildside",
 			"breakpoints": true
+		},
+		{
+			"idx": 24,
+			"version": "7",
+			"when": 1763349133977,
+			"tag": "0024_peaceful_human_cannonball",
+			"breakpoints": true
 		}
 	]
 }

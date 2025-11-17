@@ -38,6 +38,13 @@ export async function createLecturerAllocations(
 	return service.createMany(allocations);
 }
 
+export async function createLecturerAllocationsWithVenueTypes(
+	allocations: LecturerAllocation[],
+	venueTypeIds: number[]
+) {
+	return service.createManyWithVenueTypes(allocations, venueTypeIds);
+}
+
 export async function deleteLecturerAllocationsByUserAndTerm(
 	userId: string,
 	termId: number
@@ -49,11 +56,25 @@ export async function createLecturerAllocation(allocation: LecturerAllocation) {
 	return service.create(allocation);
 }
 
+export async function createLecturerAllocationWithVenueTypes(
+	allocation: LecturerAllocation,
+	venueTypeIds: number[]
+) {
+	return service.createWithVenueTypes(allocation, venueTypeIds);
+}
+
 export async function updateLecturerAllocation(
 	id: number,
 	allocation: Partial<LecturerAllocation>
 ) {
 	return service.update(id, allocation);
+}
+
+export async function updateLecturerAllocationVenueTypes(
+	id: number,
+	venueTypeIds: number[]
+) {
+	return service.updateVenueTypes(id, venueTypeIds);
 }
 
 export async function deleteLecturerAllocation(id: number) {

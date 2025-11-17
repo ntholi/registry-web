@@ -1,7 +1,11 @@
 import { relations } from 'drizzle-orm';
 import { schools, semesterModules, terms } from '@/modules/academic/database';
 import { users } from '@/modules/auth/database';
-import { lecturerAllocations } from './schema/lecturer-allocations';
+import {
+	lecturerAllocations,
+	lecturerAllocationVenueTypes,
+	venueTypes,
+} from './schema/lecturer-allocations';
 import { roomSchools, rooms, roomTypes } from './schema/rooms';
 
 export const roomTypesRelations = relations(roomTypes, ({ many }) => ({
@@ -27,9 +31,13 @@ export const roomSchoolsRelations = relations(roomSchools, ({ one }) => ({
 	}),
 }));
 
+export const venueTypesRelations = relations(venueTypes, ({ many }) => ({
+	lecturerAllocationVenueTypes: many(lecturerAllocationVenueTypes),
+}));
+
 export const lecturerAllocationsRelations = relations(
 	lecturerAllocations,
-	({ one }) => ({
+	({ many, one }) => ({
 		user: one(users, {
 			fields: [lecturerAllocations.userId],
 			references: [users.id],
@@ -41,6 +49,21 @@ export const lecturerAllocationsRelations = relations(
 		term: one(terms, {
 			fields: [lecturerAllocations.termId],
 			references: [terms.id],
+		}),
+		lecturerAllocationVenueTypes: many(lecturerAllocationVenueTypes),
+	})
+);
+
+export const lecturerAllocationVenueTypesRelations = relations(
+	lecturerAllocationVenueTypes,
+	({ one }) => ({
+		lecturerAllocation: one(lecturerAllocations, {
+			fields: [lecturerAllocationVenueTypes.lecturerAllocationId],
+			references: [lecturerAllocations.id],
+		}),
+		venueType: one(venueTypes, {
+			fields: [lecturerAllocationVenueTypes.venueTypeId],
+			references: [venueTypes.id],
 		}),
 	})
 );

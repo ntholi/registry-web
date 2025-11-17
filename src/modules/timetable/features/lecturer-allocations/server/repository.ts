@@ -1,5 +1,9 @@
 import { and, eq } from 'drizzle-orm';
-import { db, lecturerAllocations } from '@/core/database';
+import {
+	db,
+	lecturerAllocations,
+	lecturerAllocationVenueTypes,
+} from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
@@ -37,6 +41,11 @@ export default class LecturerAllocationRepository extends BaseRepository<
 					},
 				},
 				term: true,
+				lecturerAllocationVenueTypes: {
+					with: {
+						venueType: true,
+					},
+				},
 			},
 		});
 	}
@@ -52,6 +61,11 @@ export default class LecturerAllocationRepository extends BaseRepository<
 					},
 				},
 				term: true,
+				lecturerAllocationVenueTypes: {
+					with: {
+						venueType: true,
+					},
+				},
 			},
 			orderBy: (lecturerAllocations, { desc }) => [
 				desc(lecturerAllocations.createdAt),
@@ -70,6 +84,11 @@ export default class LecturerAllocationRepository extends BaseRepository<
 					with: {
 						module: true,
 						semester: true,
+					},
+				},
+				lecturerAllocationVenueTypes: {
+					with: {
+						venueType: true,
 					},
 				},
 			},
@@ -96,6 +115,11 @@ export default class LecturerAllocationRepository extends BaseRepository<
 					},
 				},
 				term: true,
+				lecturerAllocationVenueTypes: {
+					with: {
+						venueType: true,
+					},
+				},
 			},
 			orderBy: (lecturerAllocations, { desc }) => [
 				desc(lecturerAllocations.createdAt),
@@ -164,6 +188,48 @@ export default class LecturerAllocationRepository extends BaseRepository<
 				)
 			)
 			.returning();
+	}
+
+	async createWithVenueTypes(
+		allocation: LecturerAllocationInsert,
+		venueTypeIds: number[]
+	) {
+		return db.transaction(async (tx) => {
+			const [created] = await tx
+				.insert(lecturerAllocations)
+				.values(allocation)
+				.returning();
+
+			if (venueTypeIds.length > 0) {
+				await tx.insert(lecturerAllocationVenueTypes).values(
+					venueTypeIds.map((venueTypeId) => ({
+						lecturerAllocationId: created.id,
+						venueTypeId,
+					}))
+				);
+			}
+
+			return created;
+		});
+	}
+
+	async updateVenueTypes(allocationId: number, venueTypeIds: number[]) {
+		return db.transaction(async (tx) => {
+			await tx
+				.delete(lecturerAllocationVenueTypes)
+				.where(
+					eq(lecturerAllocationVenueTypes.lecturerAllocationId, allocationId)
+				);
+
+			if (venueTypeIds.length > 0) {
+				await tx.insert(lecturerAllocationVenueTypes).values(
+					venueTypeIds.map((venueTypeId) => ({
+						lecturerAllocationId: allocationId,
+						venueTypeId,
+					}))
+				);
+			}
+		});
 	}
 }
 
