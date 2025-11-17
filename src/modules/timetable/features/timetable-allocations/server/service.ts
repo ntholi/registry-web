@@ -1,18 +1,18 @@
-import type { lecturerAllocations } from '@/core/database';
+import type { timetableAllocations } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import type { LecturerAllocationInsert } from './repository';
-import LecturerAllocationRepository from './repository';
+import type { TimetableAllocationInsert } from './repository';
+import TimetableAllocationRepository from './repository';
 
-class LecturerAllocationService extends BaseService<
-	typeof lecturerAllocations,
+class TimetableAllocationService extends BaseService<
+	typeof timetableAllocations,
 	'id'
 > {
-	private repo: LecturerAllocationRepository;
+	private repo: TimetableAllocationRepository;
 
 	constructor() {
-		const repository = new LecturerAllocationRepository();
+		const repository = new TimetableAllocationRepository();
 		super(repository, {
 			createRoles: ['academic'],
 			updateRoles: ['academic'],
@@ -36,7 +36,7 @@ class LecturerAllocationService extends BaseService<
 	}
 
 	async createWithVenueTypes(
-		allocation: LecturerAllocationInsert,
+		allocation: TimetableAllocationInsert,
 		venueTypeIds: number[]
 	) {
 		return withAuth(async () => {
@@ -45,7 +45,7 @@ class LecturerAllocationService extends BaseService<
 	}
 
 	async createManyWithVenueTypes(
-		allocations: LecturerAllocationInsert[],
+		allocations: TimetableAllocationInsert[],
 		venueTypeIds: number[]
 	) {
 		return withAuth(async () => {
@@ -68,7 +68,7 @@ class LecturerAllocationService extends BaseService<
 	}
 }
 
-export const lecturerAllocationService = serviceWrapper(
-	LecturerAllocationService,
-	'LecturerAllocationService'
+export const timetableAllocationService = serviceWrapper(
+	TimetableAllocationService,
+	'TimetableAllocationService'
 );

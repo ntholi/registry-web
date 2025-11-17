@@ -2,14 +2,14 @@ import { relations } from 'drizzle-orm';
 import { schools, semesterModules, terms } from '@/modules/academic/database';
 import { users } from '@/modules/auth/database';
 import {
-	lecturerAllocations,
-	lecturerAllocationVenueTypes,
-} from './schema/lecturer-allocations';
+	timetableAllocations,
+	timetableAllocationVenueTypes,
+} from './schema/timetable-allocations';
 import { venueSchools, venues, venueTypes } from './schema/venues';
 
 export const venueTypesRelations = relations(venueTypes, ({ many }) => ({
 	venues: many(venues),
-	lecturerAllocationVenueTypes: many(lecturerAllocationVenueTypes),
+	timetableAllocationVenueTypes: many(timetableAllocationVenueTypes),
 }));
 
 export const venuesRelations = relations(venues, ({ many, one }) => ({
@@ -31,34 +31,34 @@ export const venueSchoolsRelations = relations(venueSchools, ({ one }) => ({
 	}),
 }));
 
-export const lecturerAllocationsRelations = relations(
-	lecturerAllocations,
+export const timetableAllocationsRelations = relations(
+	timetableAllocations,
 	({ many, one }) => ({
 		user: one(users, {
-			fields: [lecturerAllocations.userId],
+			fields: [timetableAllocations.userId],
 			references: [users.id],
 		}),
 		semesterModule: one(semesterModules, {
-			fields: [lecturerAllocations.semesterModuleId],
+			fields: [timetableAllocations.semesterModuleId],
 			references: [semesterModules.id],
 		}),
 		term: one(terms, {
-			fields: [lecturerAllocations.termId],
+			fields: [timetableAllocations.termId],
 			references: [terms.id],
 		}),
-		lecturerAllocationVenueTypes: many(lecturerAllocationVenueTypes),
+		timetableAllocationVenueTypes: many(timetableAllocationVenueTypes),
 	})
 );
 
-export const lecturerAllocationVenueTypesRelations = relations(
-	lecturerAllocationVenueTypes,
+export const timetableAllocationVenueTypesRelations = relations(
+	timetableAllocationVenueTypes,
 	({ one }) => ({
-		lecturerAllocation: one(lecturerAllocations, {
-			fields: [lecturerAllocationVenueTypes.lecturerAllocationId],
-			references: [lecturerAllocations.id],
+		timetableAllocation: one(timetableAllocations, {
+			fields: [timetableAllocationVenueTypes.timetableAllocationId],
+			references: [timetableAllocations.id],
 		}),
 		venueType: one(venueTypes, {
-			fields: [lecturerAllocationVenueTypes.venueTypeId],
+			fields: [timetableAllocationVenueTypes.venueTypeId],
 			references: [venueTypes.id],
 		}),
 	})

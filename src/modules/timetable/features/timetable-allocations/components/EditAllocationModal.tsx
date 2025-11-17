@@ -22,8 +22,8 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import DurationInput from '@/shared/ui/DurationInput';
 import {
-	updateLecturerAllocation,
-	updateLecturerAllocationVenueTypes,
+	updateTimetableAllocation,
+	updateTimetableAllocationVenueTypes,
 } from '../server/actions';
 
 const daysOfWeek = [
@@ -90,21 +90,21 @@ export default function EditAllocationModal({
 
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
-			await updateLecturerAllocation(allocationId, {
+			await updateTimetableAllocation(allocationId, {
 				duration: values.duration,
 				numberOfStudents: values.numberOfStudents,
 				allowedDays: values.allowedDays,
 				startTime: values.startTime,
 				endTime: values.endTime,
 			});
-			await updateLecturerAllocationVenueTypes(
+			await updateTimetableAllocationVenueTypes(
 				allocationId,
 				values.venueTypeIds
 			);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
-				queryKey: ['lecturer-allocations'],
+				queryKey: ['timetable-allocations'],
 				refetchType: 'all',
 			});
 			notifications.show({

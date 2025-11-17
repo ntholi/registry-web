@@ -7,8 +7,8 @@ import { ListItem, ListLayout } from '@/shared/ui/adease';
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path={'/lecturer-allocations'}
-			queryKey={['lecturer-allocations']}
+			path={'/timetable-allocations'}
+			queryKey={['timetable-allocations']}
 			getData={getLecturers}
 			renderItem={(it) => (
 				<ListItem id={it.id} label={it.name} description={it.email} />

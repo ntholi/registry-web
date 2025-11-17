@@ -22,10 +22,10 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import {
 	AddAllocationModal,
-	deleteLecturerAllocation,
+	deleteTimetableAllocation,
 	EditAllocationModal,
-	getLecturerAllocationsByUserId,
-} from '@timetable/lecturer-allocations';
+	getTimetableAllocationsByUserId,
+} from '@timetable/timetable-allocations';
 import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
 import { use, useMemo } from 'react';
@@ -67,8 +67,8 @@ export default function LecturerAllocationDetails({ params }: Props) {
 	});
 
 	const { data: allocations = [], isLoading: allocationsLoading } = useQuery({
-		queryKey: ['lecturer-allocations', id],
-		queryFn: () => getLecturerAllocationsByUserId(id),
+		queryKey: ['timetable-allocations', id],
+		queryFn: () => getTimetableAllocationsByUserId(id),
 	});
 
 	const { data: terms = [] } = useQuery({
@@ -111,7 +111,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 		<DetailsView>
 			<Flex justify='space-between' align='center' gap='md' wrap='wrap'>
 				<Title order={3} fw={100}>
-					Lecturer Allocations
+					{lecturer.name}
 				</Title>
 				<Select
 					placeholder='Select a term'
@@ -141,7 +141,9 @@ export default function LecturerAllocationDetails({ params }: Props) {
 			) : (
 				<DetailsViewBody gap={'sm'}>
 					<Stack gap={'lg'}>
-						<FieldView label='Lecturer'>{lecturer.name}</FieldView>
+						<FieldView label='Term'>
+							{terms.find((term) => term.id === selectedTermId)?.name}
+						</FieldView>
 					</Stack>
 					<Box mt='lg'>
 						<Flex justify='space-between' align={'flex-end'} mb='xs'>
@@ -212,10 +214,10 @@ export default function LecturerAllocationDetails({ params }: Props) {
 												<Text size='sm'>{allocation.numberOfStudents}</Text>
 											</TableTd>
 											<TableTd>
-												{allocation.lecturerAllocationVenueTypes &&
-												allocation.lecturerAllocationVenueTypes.length > 0 ? (
+												{allocation.timetableAllocationVenueTypes &&
+												allocation.timetableAllocationVenueTypes.length > 0 ? (
 													<Group gap='xs'>
-														{allocation.lecturerAllocationVenueTypes.map(
+														{allocation.timetableAllocationVenueTypes.map(
 															(avt) => (
 																<Text key={avt.venueTypeId} size='sm'>
 																	{avt.venueType?.name}
@@ -240,7 +242,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 															allocation.numberOfStudents ?? 0
 														}
 														currentVenueTypeIds={
-															allocation.lecturerAllocationVenueTypes?.map(
+															allocation.timetableAllocationVenueTypes?.map(
 																(avt) => avt.venueTypeId
 															) || []
 														}
@@ -269,9 +271,9 @@ export default function LecturerAllocationDetails({ params }: Props) {
 														variant='subtle'
 														size='sm'
 														handleDelete={async () => {
-															await deleteLecturerAllocation(allocation.id);
+															await deleteTimetableAllocation(allocation.id);
 														}}
-														queryKey={['lecturer-allocations', id]}
+														queryKey={['timetable-allocations', id]}
 														message='Are you sure you want to delete this allocation?'
 														onSuccess={() => {}}
 													/>

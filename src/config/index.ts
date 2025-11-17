@@ -9,7 +9,7 @@ export type DayOfWeek =
 
 export type AppConfig = {
 	timetable: {
-		lecturerAllocations: {
+		timetableAllocations: {
 			duration: number;
 			allowedDays: DayOfWeek[];
 			startTime: string;
