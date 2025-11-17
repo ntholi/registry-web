@@ -1,5 +1,6 @@
 'use client';
 
+import { getLecturer } from '@academic/lecturers';
 import {
 	Center,
 	Divider,
@@ -57,7 +58,12 @@ export default function LecturerAllocationDetails({ params }: Props) {
 	const { id } = use(params);
 	const [selectedTermId, setSelectedTermId] = useAtom(selectedTermAtom);
 
-	const { data: allocations, isLoading } = useQuery({
+	const { data: lecturer, isLoading: lecturerLoading } = useQuery({
+		queryKey: ['lecturer', id],
+		queryFn: () => getLecturer(id),
+	});
+
+	const { data: allocations = [], isLoading: allocationsLoading } = useQuery({
 		queryKey: ['lecturer-allocations', id],
 		queryFn: () => getLecturerAllocationsByUserId(id),
 	});
@@ -68,7 +74,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 	});
 
 	const filteredAllocations = useMemo(() => {
-		if (!allocations) return [];
 		if (!selectedTermId) return [];
 		return allocations.filter(
 			(allocation) => allocation.termId === selectedTermId
@@ -82,15 +87,13 @@ export default function LecturerAllocationDetails({ params }: Props) {
 		);
 	}, [filteredAllocations]);
 
-	if (isLoading) {
+	if (lecturerLoading || allocationsLoading) {
 		return null;
 	}
 
-	if (!allocations || allocations.length === 0) {
+	if (!lecturer) {
 		return notFound();
 	}
-
-	const lecturer = allocations[0]?.user;
 
 	return (
 		<DetailsView>
@@ -125,7 +128,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 				</Center>
 			) : (
 				<DetailsViewBody>
-					<FieldView label='Lecturer'>{lecturer?.name}</FieldView>
+					<FieldView label='Lecturer'>{lecturer.name}</FieldView>
 
 					<FieldView label='Total Hours'>
 						{formatDuration(totalMinutes)}
@@ -139,71 +142,84 @@ export default function LecturerAllocationDetails({ params }: Props) {
 						<AddAllocationModal userId={id} termId={selectedTermId} />
 					</Flex>
 
-					<Table striped highlightOnHover withTableBorder>
-						<TableThead>
-							<TableTr>
-								<TableTh>Module</TableTh>
-								<TableTh>Program</TableTh>
-								<TableTh>Duration</TableTh>
-								<TableTh>Venue</TableTh>
-								<TableTh>Actions</TableTh>
-							</TableTr>
-						</TableThead>
-						<TableTbody>
-							{filteredAllocations.map((allocation) => (
-								<TableTr key={allocation.id}>
-									<TableTd>
-										{allocation.semesterModule?.module?.name} (
-										{allocation.semesterModule?.module?.code})
-									</TableTd>
-									<TableTd>
-										{allocation.semesterModule?.semester?.structure?.program
-											?.name || '-'}
-									</TableTd>
-									<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
-									<TableTd>
-										{allocation.lecturerAllocationVenueTypes &&
-										allocation.lecturerAllocationVenueTypes.length > 0 ? (
-											<Group gap='xs'>
-												{allocation.lecturerAllocationVenueTypes.map((avt) => (
-													<Text key={avt.venueTypeId} size='sm'>
-														{avt.venueType?.name}
-													</Text>
-												))}
-											</Group>
-										) : (
-											<Text size='sm' c='dimmed'>
-												-
-											</Text>
-										)}
-									</TableTd>
-									<TableTd>
-										<Group gap={2} wrap='nowrap'>
-											<EditAllocationModal
-												allocationId={allocation.id}
-												currentDuration={allocation.duration || 0}
-												currentVenueTypeIds={
-													allocation.lecturerAllocationVenueTypes?.map(
-														(avt) => avt.venueTypeId
-													) || []
-												}
-											/>
-											<DeleteButton
-												variant='subtle'
-												size='sm'
-												handleDelete={async () => {
-													await deleteLecturerAllocation(allocation.id);
-												}}
-												queryKey={['lecturer-allocations', id]}
-												message='Are you sure you want to delete this allocation?'
-												onSuccess={() => {}}
-											/>
-										</Group>
-									</TableTd>
+					{filteredAllocations.length === 0 ? (
+						<Center h={200}>
+							<Text c='dimmed'>
+								No allocations found for this term. Click &quot;Add
+								Allocation&quot; to create one.
+							</Text>
+						</Center>
+					) : (
+						<Table striped highlightOnHover withTableBorder>
+							<TableThead>
+								<TableTr>
+									<TableTh>Module</TableTh>
+									<TableTh>Program</TableTh>
+									<TableTh>Duration</TableTh>
+									<TableTh>Venue</TableTh>
+									<TableTh>Actions</TableTh>
 								</TableTr>
-							))}
-						</TableTbody>
-					</Table>
+							</TableThead>
+							<TableTbody>
+								{filteredAllocations.map((allocation) => (
+									<TableTr key={allocation.id}>
+										<TableTd>
+											{allocation.semesterModule?.module?.name} (
+											{allocation.semesterModule?.module?.code})
+										</TableTd>
+										<TableTd>
+											{allocation.semesterModule?.semester?.structure?.program
+												?.name || '-'}
+										</TableTd>
+										<TableTd>
+											{formatDuration(allocation.duration || 0)}
+										</TableTd>
+										<TableTd>
+											{allocation.lecturerAllocationVenueTypes &&
+											allocation.lecturerAllocationVenueTypes.length > 0 ? (
+												<Group gap='xs'>
+													{allocation.lecturerAllocationVenueTypes.map(
+														(avt) => (
+															<Text key={avt.venueTypeId} size='sm'>
+																{avt.venueType?.name}
+															</Text>
+														)
+													)}
+												</Group>
+											) : (
+												<Text size='sm' c='dimmed'>
+													-
+												</Text>
+											)}
+										</TableTd>
+										<TableTd>
+											<Group gap={2} wrap='nowrap'>
+												<EditAllocationModal
+													allocationId={allocation.id}
+													currentDuration={allocation.duration || 0}
+													currentVenueTypeIds={
+														allocation.lecturerAllocationVenueTypes?.map(
+															(avt) => avt.venueTypeId
+														) || []
+													}
+												/>
+												<DeleteButton
+													variant='subtle'
+													size='sm'
+													handleDelete={async () => {
+														await deleteLecturerAllocation(allocation.id);
+													}}
+													queryKey={['lecturer-allocations', id]}
+													message='Are you sure you want to delete this allocation?'
+													onSuccess={() => {}}
+												/>
+											</Group>
+										</TableTd>
+									</TableTr>
+								))}
+							</TableTbody>
+						</Table>
+					)}
 				</DetailsViewBody>
 			)}
 		</DetailsView>
