@@ -1,5 +1,6 @@
+'use client';
+
 import {
-	ActionIcon,
 	Divider,
 	Flex,
 	Group,
@@ -12,14 +13,21 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { IconTrash } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import {
 	deleteLecturerAllocation,
+	EditAllocationModal,
 	getLecturerAllocationsByUserId,
 } from '@timetable/lecturer-allocations';
 import { notFound } from 'next/navigation';
+import { use } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import { DetailsView, DetailsViewBody, FieldView } from '@/shared/ui/adease';
+import {
+	DeleteButton,
+	DetailsView,
+	DetailsViewBody,
+	FieldView,
+} from '@/shared/ui/adease';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -39,9 +47,17 @@ function formatDuration(totalMinutes: number): string {
 	return `${hours} hour${hours !== 1 ? 's' : ''} ${mins} minute${mins !== 1 ? 's' : ''}`;
 }
 
-export default async function LecturerAllocationDetails({ params }: Props) {
-	const { id } = await params;
-	const allocations = await getLecturerAllocationsByUserId(id);
+export default function LecturerAllocationDetails({ params }: Props) {
+	const { id } = use(params);
+
+	const { data: allocations, isLoading } = useQuery({
+		queryKey: ['lecturer-allocations', id],
+		queryFn: () => getLecturerAllocationsByUserId(id),
+	});
+
+	if (isLoading) {
+		return null;
+	}
 
 	if (!allocations || allocations.length === 0) {
 		return notFound();
@@ -133,21 +149,27 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 									)}
 								</TableTd>
 								<TableTd>
-									<form
-										action={async () => {
-											'use server';
-											await deleteLecturerAllocation(allocation.id);
-										}}
-									>
-										<ActionIcon
-											type='submit'
+									<Group gap='xs'>
+										<EditAllocationModal
+											allocationId={allocation.id}
+											currentDuration={allocation.duration || 0}
+											currentVenueTypeIds={
+												allocation.lecturerAllocationVenueTypes?.map(
+													(avt) => avt.venueTypeId
+												) || []
+											}
+										/>
+										<DeleteButton
 											variant='subtle'
-											color='red'
 											size='sm'
-										>
-											<IconTrash size={16} />
-										</ActionIcon>
-									</form>
+											handleDelete={async () => {
+												await deleteLecturerAllocation(allocation.id);
+											}}
+											queryKey={['lecturer-allocations', id]}
+											message='Are you sure you want to delete this allocation?'
+											onSuccess={() => {}}
+										/>
+									</Group>
 								</TableTd>
 							</TableTr>
 						))}
