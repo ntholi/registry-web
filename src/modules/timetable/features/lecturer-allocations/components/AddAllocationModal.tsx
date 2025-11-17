@@ -160,7 +160,7 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 				Add
 			</Button>
 
-			<Modal opened={opened} onClose={close} title='Add Allocation' size='md'>
+			<Modal opened={opened} onClose={close} title='Add Allocation' size='lg'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Stack gap='md'>
 						<ModuleSearchInput onModuleSelect={handleModuleSelect} required />
@@ -206,10 +206,15 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 								step={1}
 								marks={[
 									{ value: 0, label: '0' },
+									{ value: 1, label: '1' },
 									{ value: 2, label: '2' },
+									{ value: 3, label: '3' },
 									{ value: 4, label: '4' },
+									{ value: 5, label: '5' },
 									{ value: 6, label: '6' },
+									{ value: 7, label: '7' },
 									{ value: 8, label: '8' },
+									{ value: 9, label: '9' },
 									{ value: 10, label: '10' },
 								]}
 								label={(value) =>
@@ -224,14 +229,6 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 									: `Split the class into ${form.values.numberOfGroups} group${form.values.numberOfGroups === 1 ? '' : 's'}`}
 							</Text>
 						</Stack>
-
-						{form.values.groups.length > 0 && (
-							<Text size='sm' c='blue'>
-								{form.values.groups.length} separate allocation
-								{form.values.groups.length === 1 ? '' : 's'} will be created:
-								Group {form.values.groups.join(', Group ')}
-							</Text>
-						)}
 
 						<MultiSelect
 							label='Venue Types'
