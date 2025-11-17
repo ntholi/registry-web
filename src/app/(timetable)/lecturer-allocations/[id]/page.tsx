@@ -187,14 +187,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 												{formatDuration(allocation.duration || 0)}
 											</TableTd>
 											<TableTd>
-												{allocation.numberOfStudents !== null &&
-												allocation.numberOfStudents !== undefined ? (
-													<Text size='sm'>{allocation.numberOfStudents}</Text>
-												) : (
-													<Text size='sm' c='dimmed'>
-														-
-													</Text>
-												)}
+												<Text size='sm'>{allocation.numberOfStudents}</Text>
 											</TableTd>
 											<TableTd>
 												{allocation.lecturerAllocationVenueTypes &&
@@ -220,7 +213,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 														allocationId={allocation.id}
 														currentDuration={allocation.duration || 0}
 														currentNumberOfStudents={
-															allocation.numberOfStudents ?? undefined
+															allocation.numberOfStudents ?? 0
 														}
 														currentVenueTypeIds={
 															allocation.lecturerAllocationVenueTypes?.map(

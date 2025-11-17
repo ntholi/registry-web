@@ -16,7 +16,7 @@ export const lecturerAllocations = pgTable(
 	{
 		id: serial().primaryKey(),
 		duration: integer().notNull().default(30),
-		numberOfStudents: integer(),
+		numberOfStudents: integer().notNull().default(0),
 		groupName: text(),
 		userId: text()
 			.notNull()

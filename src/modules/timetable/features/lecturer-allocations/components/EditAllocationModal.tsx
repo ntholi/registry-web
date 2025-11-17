@@ -25,7 +25,7 @@ import {
 
 const schema = z.object({
 	duration: z.number().min(1, 'Please enter a valid duration'),
-	numberOfStudents: z.number().min(0).optional(),
+	numberOfStudents: z.number().min(0),
 	venueTypeIds: z.array(z.number()),
 });
 
@@ -34,7 +34,7 @@ type FormValues = z.infer<typeof schema>;
 type Props = {
 	allocationId: number;
 	currentDuration: number;
-	currentNumberOfStudents?: number;
+	currentNumberOfStudents: number;
 	currentVenueTypeIds: number[];
 };
 
@@ -122,21 +122,17 @@ export default function EditAllocationModal({
 							error={form.errors.duration}
 							required
 						/>
-
 						<NumberInput
 							label='Number of Students'
 							placeholder='Enter number of students'
 							value={form.values.numberOfStudents}
 							onChange={(value) =>
-								form.setFieldValue(
-									'numberOfStudents',
-									value as number | undefined
-								)
+								form.setFieldValue('numberOfStudents', value as number)
 							}
 							error={form.errors.numberOfStudents}
 							min={0}
-						/>
-
+							required
+						/>{' '}
 						<MultiSelect
 							label='Venue Types'
 							placeholder='Select venue types (optional)'
@@ -154,7 +150,6 @@ export default function EditAllocationModal({
 							searchable
 							clearable
 						/>
-
 						<Group justify='flex-end' mt='md'>
 							<Button variant='subtle' onClick={close}>
 								Cancel

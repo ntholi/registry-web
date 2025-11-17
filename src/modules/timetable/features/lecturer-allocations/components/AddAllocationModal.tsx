@@ -31,7 +31,7 @@ import { ModuleSearchInput } from './ModuleSearchInput';
 const schema = z.object({
 	semesterModuleId: z.number().min(1, 'Please select a semester module'),
 	duration: z.number().min(1, 'Please enter a valid duration'),
-	numberOfStudents: z.number().min(0).optional(),
+	numberOfStudents: z.number().min(0),
 	venueTypeIds: z.array(z.number()),
 	numberOfGroups: z.number().min(0).max(10),
 	groups: z.array(z.string()),
@@ -61,7 +61,7 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 		initialValues: {
 			semesterModuleId: 0,
 			duration: 30,
-			numberOfStudents: undefined,
+			numberOfStudents: 0,
 			venueTypeIds: [],
 			numberOfGroups: 0,
 			groups: [],
@@ -99,7 +99,9 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 				termId,
 				semesterModuleId: values.semesterModuleId,
 				duration: values.duration,
-				numberOfStudents: values.numberOfStudents,
+				numberOfStudents: Math.floor(
+					values.numberOfStudents / values.groups.length
+				),
 				groupName,
 			}));
 
@@ -169,7 +171,6 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Stack gap='md'>
 						<ModuleSearchInput onModuleSelect={handleModuleSelect} required />
-
 						<Select
 							label='Semester Module'
 							placeholder='Select a semester module'
@@ -190,7 +191,6 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							searchable
 							required
 						/>
-
 						<DurationInput
 							label='Duration'
 							value={form.values.duration}
@@ -198,21 +198,17 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							error={form.errors.duration}
 							required
 						/>
-
 						<NumberInput
 							label='Number of Students'
 							placeholder='Enter number of students'
 							value={form.values.numberOfStudents}
 							onChange={(value) =>
-								form.setFieldValue(
-									'numberOfStudents',
-									value as number | undefined
-								)
+								form.setFieldValue('numberOfStudents', value as number)
 							}
 							error={form.errors.numberOfStudents}
 							min={0}
-						/>
-
+							required
+						/>{' '}
 						<Stack gap='xs'>
 							<Text size='sm' fw={500}>
 								Number of Groups
@@ -248,7 +244,6 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 									: `Split the class into ${form.values.numberOfGroups} group${form.values.numberOfGroups === 1 ? '' : 's'}`}
 							</Text>
 						</Stack>
-
 						<MultiSelect
 							label='Venue Types'
 							placeholder='Select venue types (optional)'
@@ -266,7 +261,6 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							searchable
 							clearable
 						/>
-
 						<Group justify='flex-end' mt='md'>
 							<Button variant='subtle' onClick={close}>
 								Cancel
