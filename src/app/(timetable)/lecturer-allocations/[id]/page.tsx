@@ -22,6 +22,7 @@ import {
 } from '@timetable/lecturer-allocations';
 import { notFound } from 'next/navigation';
 import { use, useMemo, useState } from 'react';
+import { getAllTerms } from '@/modules/registry/features/terms';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DeleteButton,
@@ -57,6 +58,11 @@ export default function LecturerAllocationDetails({ params }: Props) {
 		queryFn: () => getLecturerAllocationsByUserId(id),
 	});
 
+	const { data: terms = [] } = useQuery({
+		queryKey: ['terms'],
+		queryFn: () => getAllTerms(),
+	});
+
 	const filteredAllocations = useMemo(() => {
 		if (!allocations) return [];
 		if (!selectedTermId) return allocations;
@@ -64,17 +70,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 			(allocation) => allocation.termId === Number(selectedTermId)
 		);
 	}, [allocations, selectedTermId]);
-
-	const uniqueTerms = useMemo(() => {
-		if (!allocations) return [];
-		return Array.from(
-			new Map(
-				allocations
-					.filter((a) => a.term?.id && a.term?.name)
-					.map((a) => [a.term?.id, a.term])
-			).values()
-		);
-	}, [allocations]);
 
 	const totalMinutes = useMemo(() => {
 		return filteredAllocations.reduce(
@@ -101,7 +96,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 				</Title>
 				<Select
 					placeholder='All Terms'
-					data={uniqueTerms.map((term) => ({
+					data={terms.map((term) => ({
 						value: term.id.toString(),
 						label: term.name,
 					}))}
