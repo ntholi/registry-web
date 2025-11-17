@@ -98,6 +98,9 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 						semesterModuleId: values.semesterModuleId,
 						duration: values.duration,
 						numberOfStudents: values.numberOfStudents,
+						allowedDays: values.allowedDays,
+						startTime: values.startTime,
+						endTime: values.endTime,
 					},
 					values.venueTypeIds
 				);
@@ -112,6 +115,9 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 					values.numberOfStudents / values.groups.length
 				),
 				groupName,
+				allowedDays: values.allowedDays,
+				startTime: values.startTime,
+				endTime: values.endTime,
 			}));
 
 			return createLecturerAllocationsWithVenueTypes(

@@ -27,6 +27,12 @@ export const lecturerAllocations = pgTable(
 		termId: integer()
 			.notNull()
 			.references(() => terms.id, { onDelete: 'cascade' }),
+		allowedDays: text()
+			.array()
+			.notNull()
+			.default(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
+		startTime: text().notNull().default('08:30'),
+		endTime: text().notNull().default('17:30'),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({

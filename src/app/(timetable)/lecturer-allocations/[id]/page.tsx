@@ -220,6 +220,17 @@ export default function LecturerAllocationDetails({ params }: Props) {
 																(avt) => avt.venueTypeId
 															) || []
 														}
+														currentAllowedDays={
+															allocation.allowedDays || [
+																'monday',
+																'tuesday',
+																'wednesday',
+																'thursday',
+																'friday',
+															]
+														}
+														currentStartTime={allocation.startTime || '08:30'}
+														currentEndTime={allocation.endTime || '17:30'}
 													/>
 													<DeleteButton
 														variant='subtle'
