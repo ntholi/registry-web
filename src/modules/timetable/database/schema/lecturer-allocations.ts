@@ -27,7 +27,7 @@ export const lecturerAllocations = pgTable(
 	'lecturer_allocations',
 	{
 		id: serial().primaryKey(),
-		duration: integer().notNull().default(30),
+		duration: integer().notNull(),
 		numberOfStudents: integer().notNull().default(0),
 		groupName: text(),
 		userId: text()
@@ -39,12 +39,9 @@ export const lecturerAllocations = pgTable(
 		termId: integer()
 			.notNull()
 			.references(() => terms.id, { onDelete: 'cascade' }),
-		allowedDays: dayOfWeekEnum()
-			.array()
-			.notNull()
-			.default(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
-		startTime: time().notNull().default('08:30:00'),
-		endTime: time().notNull().default('17:30:00'),
+		allowedDays: dayOfWeekEnum().array().notNull(),
+		startTime: time().notNull(),
+		endTime: time().notNull(),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
