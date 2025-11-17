@@ -116,8 +116,13 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 
 	return (
 		<>
-			<Button leftSection={<IconPlus size={16} />} onClick={handleOpen}>
-				Add Allocation
+			<Button
+				variant='light'
+				size='sm'
+				leftSection={<IconPlus size={16} />}
+				onClick={handleOpen}
+			>
+				Add
 			</Button>
 
 			<Modal opened={opened} onClose={close} title='Add Allocation' size='md'>

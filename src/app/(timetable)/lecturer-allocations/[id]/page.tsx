@@ -2,6 +2,7 @@
 
 import { getLecturer } from '@academic/lecturers';
 import {
+	Box,
 	Center,
 	Divider,
 	Flex,
@@ -127,99 +128,102 @@ export default function LecturerAllocationDetails({ params }: Props) {
 					</Stack>
 				</Center>
 			) : (
-				<DetailsViewBody>
-					<FieldView label='Lecturer'>{lecturer.name}</FieldView>
+				<DetailsViewBody gap={'sm'}>
+					<Stack gap={'lg'}>
+						<FieldView label='Lecturer'>{lecturer.name}</FieldView>
 
-					<FieldView label='Total Hours'>
-						{formatDuration(totalMinutes)}
-					</FieldView>
+						<FieldView label='Total Hours'>
+							{formatDuration(totalMinutes)}
+						</FieldView>
 
-					<FieldView label='Term'>
-						{terms.find((term) => term.id === selectedTermId)?.name}
-					</FieldView>
+						<FieldView label='Term'>
+							{terms.find((term) => term.id === selectedTermId)?.name}
+						</FieldView>
+					</Stack>
+					<Box mt='lg'>
+						<Flex justify='flex-end' mb='xs'>
+							<AddAllocationModal userId={id} termId={selectedTermId} />
+						</Flex>
 
-					<Flex justify='flex-end' mb='md'>
-						<AddAllocationModal userId={id} termId={selectedTermId} />
-					</Flex>
-
-					{filteredAllocations.length === 0 ? (
-						<Center h={200}>
-							<Text c='dimmed'>
-								No allocations found for this term. Click &quot;Add
-								Allocation&quot; to create one.
-							</Text>
-						</Center>
-					) : (
-						<Table striped highlightOnHover withTableBorder>
-							<TableThead>
-								<TableTr>
-									<TableTh>Module</TableTh>
-									<TableTh>Program</TableTh>
-									<TableTh>Duration</TableTh>
-									<TableTh>Venue</TableTh>
-									<TableTh>Actions</TableTh>
-								</TableTr>
-							</TableThead>
-							<TableTbody>
-								{filteredAllocations.map((allocation) => (
-									<TableTr key={allocation.id}>
-										<TableTd>
-											{allocation.semesterModule?.module?.name} (
-											{allocation.semesterModule?.module?.code})
-										</TableTd>
-										<TableTd>
-											{allocation.semesterModule?.semester?.structure?.program
-												?.name || '-'}
-										</TableTd>
-										<TableTd>
-											{formatDuration(allocation.duration || 0)}
-										</TableTd>
-										<TableTd>
-											{allocation.lecturerAllocationVenueTypes &&
-											allocation.lecturerAllocationVenueTypes.length > 0 ? (
-												<Group gap='xs'>
-													{allocation.lecturerAllocationVenueTypes.map(
-														(avt) => (
-															<Text key={avt.venueTypeId} size='sm'>
-																{avt.venueType?.name}
-															</Text>
-														)
-													)}
-												</Group>
-											) : (
-												<Text size='sm' c='dimmed'>
-													-
-												</Text>
-											)}
-										</TableTd>
-										<TableTd>
-											<Group gap={2} wrap='nowrap'>
-												<EditAllocationModal
-													allocationId={allocation.id}
-													currentDuration={allocation.duration || 0}
-													currentVenueTypeIds={
-														allocation.lecturerAllocationVenueTypes?.map(
-															(avt) => avt.venueTypeId
-														) || []
-													}
-												/>
-												<DeleteButton
-													variant='subtle'
-													size='sm'
-													handleDelete={async () => {
-														await deleteLecturerAllocation(allocation.id);
-													}}
-													queryKey={['lecturer-allocations', id]}
-													message='Are you sure you want to delete this allocation?'
-													onSuccess={() => {}}
-												/>
-											</Group>
-										</TableTd>
+						{filteredAllocations.length === 0 ? (
+							<Center h={200}>
+								<Text c='dimmed'>
+									No allocations found for this term. Click &quot;Add
+									Allocation&quot; to create one.
+								</Text>
+							</Center>
+						) : (
+							<Table striped highlightOnHover withTableBorder>
+								<TableThead>
+									<TableTr>
+										<TableTh>Module</TableTh>
+										<TableTh>Program</TableTh>
+										<TableTh>Duration</TableTh>
+										<TableTh>Venue</TableTh>
+										<TableTh>Actions</TableTh>
 									</TableTr>
-								))}
-							</TableTbody>
-						</Table>
-					)}
+								</TableThead>
+								<TableTbody>
+									{filteredAllocations.map((allocation) => (
+										<TableTr key={allocation.id}>
+											<TableTd>
+												{allocation.semesterModule?.module?.name} (
+												{allocation.semesterModule?.module?.code})
+											</TableTd>
+											<TableTd>
+												{allocation.semesterModule?.semester?.structure?.program
+													?.name || '-'}
+											</TableTd>
+											<TableTd>
+												{formatDuration(allocation.duration || 0)}
+											</TableTd>
+											<TableTd>
+												{allocation.lecturerAllocationVenueTypes &&
+												allocation.lecturerAllocationVenueTypes.length > 0 ? (
+													<Group gap='xs'>
+														{allocation.lecturerAllocationVenueTypes.map(
+															(avt) => (
+																<Text key={avt.venueTypeId} size='sm'>
+																	{avt.venueType?.name}
+																</Text>
+															)
+														)}
+													</Group>
+												) : (
+													<Text size='sm' c='dimmed'>
+														-
+													</Text>
+												)}
+											</TableTd>
+											<TableTd>
+												<Group gap={2} wrap='nowrap'>
+													<EditAllocationModal
+														allocationId={allocation.id}
+														currentDuration={allocation.duration || 0}
+														currentVenueTypeIds={
+															allocation.lecturerAllocationVenueTypes?.map(
+																(avt) => avt.venueTypeId
+															) || []
+														}
+													/>
+													<DeleteButton
+														variant='subtle'
+														size='sm'
+														handleDelete={async () => {
+															await deleteLecturerAllocation(allocation.id);
+														}}
+														queryKey={['lecturer-allocations', id]}
+														message='Are you sure you want to delete this allocation?'
+														onSuccess={() => {}}
+													/>
+												</Group>
+											</TableTd>
+										</TableTr>
+									))}
+								</TableTbody>
+							</Table>
+						)}
+					</Box>
 				</DetailsViewBody>
 			)}
 		</DetailsView>
