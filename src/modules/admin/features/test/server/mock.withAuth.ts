@@ -7,7 +7,7 @@ import { getMockUser } from './mocks.auth';
 type Role = UserRole | 'all' | 'auth' | 'dashboard';
 type AccessCheckFunction = (session: Session) => Promise<boolean>;
 
-vi.mock('@/auth', () => ({
+vi.mock('@/core/auth', () => ({
 	auth: vi.fn(() =>
 		Promise.resolve({
 			user: getMockUser(),

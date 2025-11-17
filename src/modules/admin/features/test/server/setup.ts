@@ -8,9 +8,10 @@ import {
 
 vi.mock('@/auth', () => vi.importActual('./mocks.auth'));
 
-vi.mock('@/db', async () => {
+vi.mock('@/core/database', async () => {
+	const actualDb = await import('@/core/database');
 	const { testDb } = await vi.importActual('./mocks.db');
-	return { db: testDb };
+	return { ...actualDb, db: testDb };
 });
 
 beforeAll(async () => {

@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { sponsors, users } from '@/core/database';
 import { createSponsor, updateSponsor } from '../actions';
 
-vi.mock('@/server/base/withAuth', () => {
-	return vi.importActual('@/test/mock.withAuth');
+vi.mock('@/core/platform/withAuth', () => {
+	return vi.importActual('@admin/test/server/mock.withAuth');
 });
 
 type Sponsor = typeof sponsors.$inferSelect;

@@ -1,7 +1,11 @@
 import { setMockUser } from '@admin/test';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { sponsors } from '@/core/database';
 import { sponsorsService } from '../service';
+
+vi.mock('@/core/platform/withAuth', () => {
+	return vi.importActual('@admin/test/server/mock.withAuth');
+});
 
 type Sponsor = typeof sponsors.$inferInsert;
 

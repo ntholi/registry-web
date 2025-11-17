@@ -1,8 +1,21 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool } from 'pg';
-import * as schema from '@/core/database';
-import * as relations from '@/core/database/relations';
+import * as academic from '@/modules/academic/database';
+import * as admin from '@/modules/admin/database';
+import * as auth from '@/modules/auth/database';
+import * as finance from '@/modules/finance/database';
+import * as registry from '@/modules/registry/database';
+import * as timetable from '@/modules/timetable/database';
+
+const schema = {
+	...academic,
+	...admin,
+	...auth,
+	...finance,
+	...registry,
+	...timetable,
+};
 
 const testConnectionString =
 	process.env.DATABASE_TEST_URL ||
@@ -11,7 +24,7 @@ const testConnectionString =
 const testPool = new Pool({ connectionString: testConnectionString });
 
 const testDb = drizzle(testPool, {
-	schema: { ...schema, ...relations },
+	schema,
 	casing: 'snake_case',
 });
 
