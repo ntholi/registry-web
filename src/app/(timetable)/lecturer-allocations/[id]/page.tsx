@@ -18,6 +18,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import {
+	AddAllocationModal,
 	deleteLecturerAllocation,
 	EditAllocationModal,
 	getLecturerAllocationsByUserId,
@@ -26,7 +27,6 @@ import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
 import { use, useMemo } from 'react';
 import { getAllTerms } from '@/modules/registry/features/terms';
-import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DeleteButton,
 	DetailsView,
@@ -135,12 +135,15 @@ export default function LecturerAllocationDetails({ params }: Props) {
 						{terms.find((term) => term.id === selectedTermId)?.name}
 					</FieldView>
 
-					<Table striped highlightOnHover withTableBorder mt={'lg'}>
+					<Flex justify='flex-end' mb='md'>
+						<AddAllocationModal userId={id} termId={selectedTermId} />
+					</Flex>
+
+					<Table striped highlightOnHover withTableBorder>
 						<TableThead>
 							<TableTr>
 								<TableTh>Module</TableTh>
 								<TableTh>Program</TableTh>
-								<TableTh>Semester</TableTh>
 								<TableTh>Duration</TableTh>
 								<TableTh>Venue</TableTh>
 								<TableTh>Actions</TableTh>
@@ -156,12 +159,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 									<TableTd>
 										{allocation.semesterModule?.semester?.structure?.program
 											?.name || '-'}
-									</TableTd>
-									<TableTd>
-										{formatSemester(
-											allocation.semesterModule?.semester?.semesterNumber,
-											'mini'
-										)}
 									</TableTd>
 									<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
 									<TableTd>
