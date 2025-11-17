@@ -45,9 +45,13 @@ const daysOfWeek = [
 const schema = z.object({
 	semesterModuleId: z.number().min(1, 'Please select a semester module'),
 	duration: z.number().min(1, 'Please enter a valid duration'),
-	numberOfStudents: z.number().min(0),
+	numberOfStudents: z.number().min(1, 'A class should have at least 1 student'),
 	venueTypeIds: z.array(z.number()),
-	numberOfGroups: z.number().min(0).max(10),
+	numberOfGroups: z
+		.number()
+		.min(0)
+		.max(10)
+		.refine((val) => val !== 1, 'Number of groups must be 0 or at least 2'),
 	groups: z.array(z.string()),
 	allowedDays: z
 		.array(z.enum(daysOfWeek))
@@ -278,7 +282,6 @@ export default function AddAllocationModal({
 										step={1}
 										marks={[
 											{ value: 0, label: '0' },
-											{ value: 1, label: '1' },
 											{ value: 2, label: '2' },
 											{ value: 3, label: '3' },
 											{ value: 4, label: '4' },
