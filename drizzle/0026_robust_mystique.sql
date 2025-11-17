@@ -1,0 +1,1 @@
+ALTER TABLE "lecturer_allocations" ADD COLUMN "group_name" text;

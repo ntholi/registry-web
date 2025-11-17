@@ -8,6 +8,8 @@ import {
 	MultiSelect,
 	Select,
 	Stack,
+	TagsInput,
+	Text,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
@@ -19,13 +21,17 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
 import DurationInput from '@/shared/ui/DurationInput';
-import { createLecturerAllocationWithVenueTypes } from '../server/actions';
+import {
+	createLecturerAllocationsWithVenueTypes,
+	createLecturerAllocationWithVenueTypes,
+} from '../server/actions';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
 const schema = z.object({
 	semesterModuleId: z.number().min(1, 'Please select a semester module'),
 	duration: z.number().min(1, 'Please enter a valid duration'),
 	venueTypeIds: z.array(z.number()),
+	groups: z.array(z.string()),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -53,18 +59,34 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 			semesterModuleId: 0,
 			duration: 30,
 			venueTypeIds: [],
+			groups: [],
 		},
 	});
 
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
-			return createLecturerAllocationWithVenueTypes(
-				{
-					userId,
-					termId,
-					semesterModuleId: values.semesterModuleId,
-					duration: values.duration,
-				},
+			if (values.groups.length === 0) {
+				return createLecturerAllocationWithVenueTypes(
+					{
+						userId,
+						termId,
+						semesterModuleId: values.semesterModuleId,
+						duration: values.duration,
+					},
+					values.venueTypeIds
+				);
+			}
+
+			const allocations = values.groups.map((groupName) => ({
+				userId,
+				termId,
+				semesterModuleId: values.semesterModuleId,
+				duration: values.duration,
+				groupName,
+			}));
+
+			return createLecturerAllocationsWithVenueTypes(
+				allocations,
 				values.venueTypeIds
 			);
 		},
@@ -158,6 +180,25 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							error={form.errors.duration}
 							required
 						/>
+
+						<TagsInput
+							label='Groups'
+							placeholder='Enter group names (e.g., Group A, Group B)'
+							description='Leave empty to assign the entire class. Add groups to split the class into sections. Press Enter to add each group.'
+							value={form.values.groups}
+							onChange={(values) => {
+								form.setFieldValue('groups', values);
+							}}
+							clearable
+							splitChars={[',', '|']}
+						/>
+
+						{form.values.groups.length > 0 && (
+							<Text size='sm' c='dimmed'>
+								{form.values.groups.length} separate allocation
+								{form.values.groups.length === 1 ? '' : 's'} will be created
+							</Text>
+						)}
 
 						<MultiSelect
 							label='Venue Types'
