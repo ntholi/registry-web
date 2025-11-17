@@ -9,7 +9,6 @@ import {
 	Select,
 	Slider,
 	Stack,
-	TagsInput,
 	Text,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -226,17 +225,13 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							</Text>
 						</Stack>
 
-						<TagsInput
-							label='Group Names'
-							placeholder='Group names'
-							description='Edit group names if needed (A, B, C, etc.)'
-							value={form.values.groups}
-							onChange={(values) => {
-								form.setFieldValue('groups', values);
-							}}
-							disabled={form.values.numberOfGroups === 0}
-							splitChars={[',', '|']}
-						/>
+						{form.values.groups.length > 0 && (
+							<Text size='sm' c='blue'>
+								{form.values.groups.length} separate allocation
+								{form.values.groups.length === 1 ? '' : 's'} will be created:
+								Group {form.values.groups.join(', Group ')}
+							</Text>
+						)}
 
 						<MultiSelect
 							label='Venue Types'
