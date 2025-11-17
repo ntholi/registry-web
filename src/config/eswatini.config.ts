@@ -2,7 +2,7 @@ import type { AppConfig } from './index';
 
 const config: AppConfig = {
 	timetable: {
-		lecturerAllocations: {
+		timetableAllocations: {
 			duration: 120,
 			allowedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
 			startTime: '08:00:00',

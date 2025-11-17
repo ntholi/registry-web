@@ -1,29 +1,30 @@
 import { eq } from 'drizzle-orm';
 import {
 	db,
-	lecturerAllocations,
-	lecturerAllocationVenueTypes,
+	timetableAllocations,
+	timetableAllocationVenueTypes,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
-export type LecturerAllocationInsert = typeof lecturerAllocations.$inferInsert;
-export type LecturerAllocationQueryOptions = QueryOptions<
-	typeof lecturerAllocations
+export type TimetableAllocationInsert =
+	typeof timetableAllocations.$inferInsert;
+export type TimetableAllocationQueryOptions = QueryOptions<
+	typeof timetableAllocations
 >;
 
-export default class LecturerAllocationRepository extends BaseRepository<
-	typeof lecturerAllocations,
+export default class TimetableAllocationRepository extends BaseRepository<
+	typeof timetableAllocations,
 	'id'
 > {
 	constructor() {
-		super(lecturerAllocations, lecturerAllocations.id);
+		super(timetableAllocations, timetableAllocations.id);
 	}
 
 	async findByIdWithRelations(id: number) {
-		return db.query.lecturerAllocations.findFirst({
-			where: eq(lecturerAllocations.id, id),
+		return db.query.timetableAllocations.findFirst({
+			where: eq(timetableAllocations.id, id),
 			with: {
 				user: true,
 				semesterModule: {
@@ -41,7 +42,7 @@ export default class LecturerAllocationRepository extends BaseRepository<
 					},
 				},
 				term: true,
-				lecturerAllocationVenueTypes: {
+				timetableAllocationVenueTypes: {
 					with: {
 						venueType: true,
 					},
@@ -51,8 +52,8 @@ export default class LecturerAllocationRepository extends BaseRepository<
 	}
 
 	async findByUserIdWithRelations(userId: string) {
-		return db.query.lecturerAllocations.findMany({
-			where: eq(lecturerAllocations.userId, userId),
+		return db.query.timetableAllocations.findMany({
+			where: eq(timetableAllocations.userId, userId),
 			with: {
 				user: true,
 				semesterModule: {
@@ -70,32 +71,32 @@ export default class LecturerAllocationRepository extends BaseRepository<
 					},
 				},
 				term: true,
-				lecturerAllocationVenueTypes: {
+				timetableAllocationVenueTypes: {
 					with: {
 						venueType: true,
 					},
 				},
 			},
-			orderBy: (lecturerAllocations, { desc }) => [
-				desc(lecturerAllocations.createdAt),
+			orderBy: (timetableAllocations, { desc }) => [
+				desc(timetableAllocations.createdAt),
 			],
 		});
 	}
 
 	async createWithVenueTypes(
-		allocation: LecturerAllocationInsert,
+		allocation: TimetableAllocationInsert,
 		venueTypeIds: number[]
 	) {
 		return db.transaction(async (tx) => {
 			const [created] = await tx
-				.insert(lecturerAllocations)
+				.insert(timetableAllocations)
 				.values(allocation)
 				.returning();
 
 			if (venueTypeIds.length > 0) {
-				await tx.insert(lecturerAllocationVenueTypes).values(
+				await tx.insert(timetableAllocationVenueTypes).values(
 					venueTypeIds.map((venueTypeId) => ({
-						lecturerAllocationId: created.id,
+						timetableAllocationId: created.id,
 						venueTypeId,
 					}))
 				);
@@ -108,15 +109,15 @@ export default class LecturerAllocationRepository extends BaseRepository<
 	async updateVenueTypes(allocationId: number, venueTypeIds: number[]) {
 		return db.transaction(async (tx) => {
 			await tx
-				.delete(lecturerAllocationVenueTypes)
+				.delete(timetableAllocationVenueTypes)
 				.where(
-					eq(lecturerAllocationVenueTypes.lecturerAllocationId, allocationId)
+					eq(timetableAllocationVenueTypes.timetableAllocationId, allocationId)
 				);
 
 			if (venueTypeIds.length > 0) {
-				await tx.insert(lecturerAllocationVenueTypes).values(
+				await tx.insert(timetableAllocationVenueTypes).values(
 					venueTypeIds.map((venueTypeId) => ({
-						lecturerAllocationId: allocationId,
+						timetableAllocationId: allocationId,
 						venueTypeId,
 					}))
 				);
@@ -125,4 +126,5 @@ export default class LecturerAllocationRepository extends BaseRepository<
 	}
 }
 
-export const lecturerAllocationRepository = new LecturerAllocationRepository();
+export const timetableAllocationRepository =
+	new TimetableAllocationRepository();

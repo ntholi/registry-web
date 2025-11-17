@@ -15,7 +15,7 @@ export const timetableConfig: ModuleConfig = {
 				children: [
 					{
 						label: 'Allocations',
-						href: '/lecturer-allocations',
+						href: '/timetable-allocations',
 					},
 					{
 						label: 'Venues',

@@ -3,5 +3,5 @@
 import { config } from './index';
 
 export async function getConfigDefaults() {
-	return config.timetable.lecturerAllocations;
+	return config.timetable.timetableAllocations;
 }

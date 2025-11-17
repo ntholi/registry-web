@@ -23,8 +23,8 @@ export const dayOfWeekEnum = pgEnum('day_of_week', [
 	'sunday',
 ]);
 
-export const lecturerAllocations = pgTable(
-	'lecturer_allocations',
+export const timetableAllocations = pgTable(
+	'timetable_allocations',
 	{
 		id: serial().primaryKey(),
 		duration: integer().notNull(),
@@ -45,19 +45,19 @@ export const lecturerAllocations = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		userIdIdx: index('fk_lecturer_allocations_user_id').on(table.userId),
-		semesterModuleIdIdx: index('fk_lecturer_allocations_semester_module_id').on(
-			table.semesterModuleId
-		),
-		termIdIdx: index('fk_lecturer_allocations_term_id').on(table.termId),
+		userIdIdx: index('fk_timetable_allocations_user_id').on(table.userId),
+		semesterModuleIdIdx: index(
+			'fk_timetable_allocations_semester_module_id'
+		).on(table.semesterModuleId),
+		termIdIdx: index('fk_timetable_allocations_term_id').on(table.termId),
 	})
 );
 
-export const lecturerAllocationVenueTypes = pgTable(
-	'lecturer_allocation_venue_types',
+export const timetableAllocationVenueTypes = pgTable(
+	'timetable_allocation_venue_types',
 	{
-		lecturerAllocationId: integer()
-			.references(() => lecturerAllocations.id, { onDelete: 'cascade' })
+		timetableAllocationId: integer()
+			.references(() => timetableAllocations.id, { onDelete: 'cascade' })
 			.notNull(),
 		venueTypeId: integer()
 			.references(() => venueTypes.id, { onDelete: 'cascade' })
@@ -66,13 +66,13 @@ export const lecturerAllocationVenueTypes = pgTable(
 	},
 	(table) => ({
 		pk: primaryKey({
-			columns: [table.lecturerAllocationId, table.venueTypeId],
+			columns: [table.timetableAllocationId, table.venueTypeId],
 		}),
-		lecturerAllocationIdIdx: index(
-			'fk_lecturer_allocation_venue_types_allocation_id'
-		).on(table.lecturerAllocationId),
+		timetableAllocationIdIdx: index(
+			'fk_timetable_allocation_venue_types_allocation_id'
+		).on(table.timetableAllocationId),
 		venueTypeIdIdx: index(
-			'fk_lecturer_allocation_venue_types_venue_type_id'
+			'fk_timetable_allocation_venue_types_venue_type_id'
 		).on(table.venueTypeId),
 	})
 );

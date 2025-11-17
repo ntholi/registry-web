@@ -27,8 +27,8 @@ import { useState } from 'react';
 import { z } from 'zod';
 import DurationInput from '@/shared/ui/DurationInput';
 import {
-	createLecturerAllocationsWithVenueTypes,
-	createLecturerAllocationWithVenueTypes,
+	createTimetableAllocationsWithVenueTypes,
+	createTimetableAllocationWithVenueTypes,
 } from '../server/actions';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
@@ -119,7 +119,7 @@ export default function AddAllocationModal({
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
 			if (values.groups.length === 0) {
-				return createLecturerAllocationWithVenueTypes(
+				return createTimetableAllocationWithVenueTypes(
 					{
 						userId,
 						termId,
@@ -148,14 +148,14 @@ export default function AddAllocationModal({
 				endTime: values.endTime,
 			}));
 
-			return createLecturerAllocationsWithVenueTypes(
+			return createTimetableAllocationsWithVenueTypes(
 				allocations,
 				values.venueTypeIds
 			);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
-				queryKey: ['lecturer-allocations'],
+				queryKey: ['timetable-allocations'],
 				refetchType: 'all',
 			});
 			notifications.show({
