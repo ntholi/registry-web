@@ -108,16 +108,17 @@ export default function LecturerAllocationDetails({ params }: Props) {
 			</Flex>
 			<Divider my={15} />
 			<DetailsViewBody>
-				<FieldView label='Lecturer'>
-					<Text size='lg' fw={500}>
-						{lecturer?.name || 'Unknown'}
-					</Text>
-				</FieldView>
+				<FieldView label='Lecturer'>{lecturer?.name || 'Unknown'}</FieldView>
 
 				<FieldView label='Total Hours'>
-					<Text size='lg' fw={500}>
-						{formatDuration(totalMinutes)}
-					</Text>
+					{formatDuration(totalMinutes)}
+				</FieldView>
+
+				<FieldView label='Term'>
+					{selectedTermId
+						? terms.find((term) => term.id === Number(selectedTermId))?.name ||
+							'Unknown Term'
+						: 'All Terms'}
 				</FieldView>
 
 				<Table striped highlightOnHover withTableBorder mt={'lg'}>
@@ -126,7 +127,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 							<TableTh>Module</TableTh>
 							<TableTh>Program</TableTh>
 							<TableTh>Semester</TableTh>
-							<TableTh>Term</TableTh>
 							<TableTh>Duration</TableTh>
 							<TableTh>Venue</TableTh>
 							<TableTh>Actions</TableTh>
@@ -149,7 +149,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 										'mini'
 									)}
 								</TableTd>
-								<TableTd>{allocation.term?.name || '-'}</TableTd>
 								<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
 								<TableTd>
 									{allocation.lecturerAllocationVenueTypes &&
