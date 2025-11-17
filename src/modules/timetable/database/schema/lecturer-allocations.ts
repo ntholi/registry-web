@@ -1,15 +1,27 @@
 import {
 	index,
 	integer,
+	pgEnum,
 	pgTable,
 	primaryKey,
 	serial,
 	text,
+	time,
 	timestamp,
 } from 'drizzle-orm/pg-core';
 import { semesterModules, terms } from '@/modules/academic/database';
 import { users } from '@/modules/auth/database';
 import { venueTypes } from './venues';
+
+export const dayOfWeekEnum = pgEnum('day_of_week', [
+	'monday',
+	'tuesday',
+	'wednesday',
+	'thursday',
+	'friday',
+	'saturday',
+	'sunday',
+]);
 
 export const lecturerAllocations = pgTable(
 	'lecturer_allocations',
@@ -27,12 +39,12 @@ export const lecturerAllocations = pgTable(
 		termId: integer()
 			.notNull()
 			.references(() => terms.id, { onDelete: 'cascade' }),
-		allowedDays: text()
+		allowedDays: dayOfWeekEnum()
 			.array()
 			.notNull()
 			.default(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
-		startTime: text().notNull().default('08:30'),
-		endTime: text().notNull().default('17:30'),
+		startTime: time().notNull().default('08:30:00'),
+		endTime: time().notNull().default('17:30:00'),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({

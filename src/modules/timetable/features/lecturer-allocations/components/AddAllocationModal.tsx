@@ -72,8 +72,8 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 			numberOfGroups: 0,
 			groups: [],
 			allowedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-			startTime: '08:30',
-			endTime: '17:30',
+			startTime: '08:30:00',
+			endTime: '17:30:00',
 		},
 	});
 
