@@ -111,7 +111,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 		<DetailsView>
 			<Flex justify='space-between' align='center' gap='md' wrap='wrap'>
 				<Title order={3} fw={100}>
-					Timetable Allocations
+					{lecturer.name}
 				</Title>
 				<Select
 					placeholder='Select a term'
@@ -141,7 +141,9 @@ export default function LecturerAllocationDetails({ params }: Props) {
 			) : (
 				<DetailsViewBody gap={'sm'}>
 					<Stack gap={'lg'}>
-						<FieldView label='Lecturer'>{lecturer.name}</FieldView>
+						<FieldView label='Term'>
+							{terms.find((term) => term.id === selectedTermId)?.name}
+						</FieldView>
 					</Stack>
 					<Box mt='lg'>
 						<Flex justify='space-between' align={'flex-end'} mb='xs'>
