@@ -110,7 +110,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 							<TableTh>Program</TableTh>
 							<TableTh>Semester</TableTh>
 							<TableTh>Duration</TableTh>
-							<TableTh>Venue Types</TableTh>
+							<TableTh>Venue</TableTh>
 							<TableTh>Actions</TableTh>
 						</TableTr>
 					</TableThead>
@@ -149,7 +149,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 									)}
 								</TableTd>
 								<TableTd>
-									<Group gap='xs'>
+									<Group gap={2} wrap='nowrap'>
 										<EditAllocationModal
 											allocationId={allocation.id}
 											currentDuration={allocation.duration || 0}

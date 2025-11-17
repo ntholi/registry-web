@@ -94,13 +94,13 @@ class LecturerAllocationService extends BaseService<
 	async updateVenueTypes(allocationId: number, venueTypeIds: number[]) {
 		return withAuth(async () => {
 			return this.repo.updateVenueTypes(allocationId, venueTypeIds);
-		}, []);
+		}, ['academic']);
 	}
 
 	async deleteByUserAndTerm(userId: string, termId: number) {
 		return withAuth(async () => {
 			return this.repo.deleteByUserAndTerm(userId, termId);
-		}, []);
+		}, ['academic']);
 	}
 }
 
