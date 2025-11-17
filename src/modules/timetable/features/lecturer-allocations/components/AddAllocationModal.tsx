@@ -3,6 +3,7 @@
 import type { searchModulesWithDetails } from '@academic/semester-modules';
 import {
 	Button,
+	Grid,
 	Group,
 	Modal,
 	MultiSelect,
@@ -169,7 +170,7 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 
 			<Modal opened={opened} onClose={close} title='Add Allocation' size='lg'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<Stack gap='md'>
+					<Stack gap='lg'>
 						<ModuleSearchInput onModuleSelect={handleModuleSelect} required />
 						<Select
 							label='Semester Module'
@@ -191,24 +192,30 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							searchable
 							required
 						/>
-						<DurationInput
-							label='Duration'
-							value={form.values.duration}
-							onChange={(value) => form.setFieldValue('duration', value)}
-							error={form.errors.duration}
-							required
-						/>
-						<NumberInput
-							label='Number of Students'
-							placeholder='Enter number of students'
-							value={form.values.numberOfStudents}
-							onChange={(value) =>
-								form.setFieldValue('numberOfStudents', value as number)
-							}
-							error={form.errors.numberOfStudents}
-							min={0}
-							required
-						/>{' '}
+						<Grid align='end'>
+							<Grid.Col span={6}>
+								<DurationInput
+									label='Duration'
+									value={form.values.duration}
+									onChange={(value) => form.setFieldValue('duration', value)}
+									error={form.errors.duration}
+									required
+								/>
+							</Grid.Col>
+							<Grid.Col span={6}>
+								<NumberInput
+									label='Number of Students'
+									placeholder='Enter number of students'
+									value={form.values.numberOfStudents}
+									onChange={(value) =>
+										form.setFieldValue('numberOfStudents', value as number)
+									}
+									error={form.errors.numberOfStudents}
+									min={0}
+									required
+								/>
+							</Grid.Col>
+						</Grid>
 						<Stack gap='xs'>
 							<Text size='sm' fw={500}>
 								Number of Groups
