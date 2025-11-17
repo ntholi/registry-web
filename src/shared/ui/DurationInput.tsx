@@ -1,6 +1,6 @@
 'use client';
 
-import { Group, Input, NumberInput, Text } from '@mantine/core';
+import { type BoxProps, Group, Input, NumberInput, Text } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { useId } from 'react';
 
@@ -15,7 +15,7 @@ type DurationInputProps = {
 	minutesLabel?: string;
 	hoursPlaceholder?: string;
 	minutesPlaceholder?: string;
-};
+} & BoxProps;
 
 export default function DurationInput({
 	label,
@@ -28,6 +28,7 @@ export default function DurationInput({
 	minutesLabel = 'Minutes',
 	hoursPlaceholder = '0',
 	minutesPlaceholder = '0',
+	...others
 }: DurationInputProps) {
 	const normalizedValue = Number.isFinite(value) && value > 0 ? value : 0;
 	const total = normalizedValue < 0 ? 0 : normalizedValue;
@@ -63,6 +64,7 @@ export default function DurationInput({
 			description={description}
 			error={error}
 			required={required}
+			{...others}
 		>
 			<Group gap='sm' wrap='nowrap'>
 				<div>
