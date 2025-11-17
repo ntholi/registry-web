@@ -18,12 +18,12 @@ export const timetableConfig: ModuleConfig = {
 						href: '/lecturer-allocations',
 					},
 					{
-						label: 'Rooms',
-						href: '/rooms',
+						label: 'Venues',
+						href: '/venues',
 					},
 					{
-						label: 'Room Types',
-						href: '/room-types',
+						label: 'Venue Types',
+						href: '/venue-types',
 					},
 				],
 				roles: ['academic'],

@@ -1,12 +1,12 @@
-import type { rooms } from '@/core/database';
+import type { venues } from '@/core/database';
 
-export type RoomWithRelations = typeof rooms.$inferSelect & {
+export type VenueWithRelations = typeof venues.$inferSelect & {
 	type: {
 		id: number;
 		name: string;
 		description: string | null;
 	};
-	roomSchools: {
+	venueSchools: {
 		school: {
 			id: number;
 			code: string;

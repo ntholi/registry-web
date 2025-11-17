@@ -9,34 +9,34 @@ import {
 } from 'drizzle-orm/pg-core';
 import { schools } from '@/modules/academic/database';
 
-export const roomTypes = pgTable('room_types', {
+export const venueTypes = pgTable('venue_types', {
 	id: serial().primaryKey(),
 	name: text().notNull().unique(),
 	description: text(),
 	createdAt: timestamp().defaultNow(),
 });
 
-export const rooms = pgTable(
-	'rooms',
+export const venues = pgTable(
+	'venues',
 	{
 		id: serial().primaryKey(),
 		name: text().notNull().unique(),
 		capacity: integer().notNull(),
 		typeId: integer()
-			.references(() => roomTypes.id, { onDelete: 'cascade' })
+			.references(() => venueTypes.id, { onDelete: 'cascade' })
 			.notNull(),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		typeIdIdx: index('fk_rooms_type_id').on(table.typeId),
+		typeIdIdx: index('fk_venues_type_id').on(table.typeId),
 	})
 );
 
-export const roomSchools = pgTable(
-	'room_schools',
+export const venueSchools = pgTable(
+	'venue_schools',
 	{
-		roomId: integer()
-			.references(() => rooms.id, { onDelete: 'cascade' })
+		venueId: integer()
+			.references(() => venues.id, { onDelete: 'cascade' })
 			.notNull(),
 		schoolId: integer()
 			.references(() => schools.id, { onDelete: 'cascade' })
@@ -44,8 +44,8 @@ export const roomSchools = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		pk: primaryKey({ columns: [table.roomId, table.schoolId] }),
-		roomIdIdx: index('fk_room_schools_room_id').on(table.roomId),
-		schoolIdIdx: index('fk_room_schools_school_id').on(table.schoolId),
+		pk: primaryKey({ columns: [table.venueId, table.schoolId] }),
+		venueIdIdx: index('fk_venue_schools_venue_id').on(table.venueId),
+		schoolIdIdx: index('fk_venue_schools_school_id').on(table.schoolId),
 	})
 );

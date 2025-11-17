@@ -4,35 +4,31 @@ import { users } from '@/modules/auth/database';
 import {
 	lecturerAllocations,
 	lecturerAllocationVenueTypes,
-	venueTypes,
 } from './schema/lecturer-allocations';
-import { roomSchools, rooms, roomTypes } from './schema/rooms';
-
-export const roomTypesRelations = relations(roomTypes, ({ many }) => ({
-	rooms: many(rooms),
-}));
-
-export const roomsRelations = relations(rooms, ({ many, one }) => ({
-	type: one(roomTypes, {
-		fields: [rooms.typeId],
-		references: [roomTypes.id],
-	}),
-	roomSchools: many(roomSchools),
-}));
-
-export const roomSchoolsRelations = relations(roomSchools, ({ one }) => ({
-	room: one(rooms, {
-		fields: [roomSchools.roomId],
-		references: [rooms.id],
-	}),
-	school: one(schools, {
-		fields: [roomSchools.schoolId],
-		references: [schools.id],
-	}),
-}));
+import { venueSchools, venues, venueTypes } from './schema/venues';
 
 export const venueTypesRelations = relations(venueTypes, ({ many }) => ({
+	venues: many(venues),
 	lecturerAllocationVenueTypes: many(lecturerAllocationVenueTypes),
+}));
+
+export const venuesRelations = relations(venues, ({ many, one }) => ({
+	type: one(venueTypes, {
+		fields: [venues.typeId],
+		references: [venueTypes.id],
+	}),
+	venueSchools: many(venueSchools),
+}));
+
+export const venueSchoolsRelations = relations(venueSchools, ({ one }) => ({
+	venue: one(venues, {
+		fields: [venueSchools.venueId],
+		references: [venues.id],
+	}),
+	school: one(schools, {
+		fields: [venueSchools.schoolId],
+		references: [schools.id],
+	}),
 }));
 
 export const lecturerAllocationsRelations = relations(

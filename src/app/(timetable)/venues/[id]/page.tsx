@@ -1,5 +1,5 @@
 import { Badge, Group, SimpleGrid } from '@mantine/core';
-import { deleteRoom, getRoomWithRelations } from '@timetable/rooms';
+import { deleteVenue, getVenueWithRelations } from '@timetable/venues';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -12,35 +12,35 @@ type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function RoomDetails({ params }: Props) {
+export default async function VenueDetails({ params }: Props) {
 	const { id } = await params;
-	const room = await getRoomWithRelations(Number(id));
+	const venue = await getVenueWithRelations(Number(id));
 
-	if (!room) {
+	if (!venue) {
 		return notFound();
 	}
 
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Room'
-				queryKey={['rooms']}
+				title='Venue'
+				queryKey={['venues']}
 				handleDelete={async () => {
 					'use server';
-					await deleteRoom(Number(id));
+					await deleteVenue(Number(id));
 				}}
 			/>
 			<DetailsViewBody>
 				<SimpleGrid cols={2}>
-					<FieldView label='Name'>{room.name}</FieldView>
-					<FieldView label='Type'>{room.type.name}</FieldView>
+					<FieldView label='Name'>{venue.name}</FieldView>
+					<FieldView label='Type'>{venue.type.name}</FieldView>
 				</SimpleGrid>
-				<FieldView label='Capacity'>{room.capacity}</FieldView>
+				<FieldView label='Capacity'>{venue.capacity}</FieldView>
 				<FieldView label='Schools'>
 					<Group gap='xs'>
-						{room.roomSchools.map((rs) => (
-							<Badge variant='light' key={rs.school.id}>
-								{rs.school.code}
+						{venue.venueSchools.map((vs) => (
+							<Badge variant='light' key={vs.school.id}>
+								{vs.school.code}
 							</Badge>
 						))}
 					</Group>

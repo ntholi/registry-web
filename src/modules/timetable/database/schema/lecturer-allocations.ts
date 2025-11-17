@@ -9,13 +9,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { semesterModules, terms } from '@/modules/academic/database';
 import { users } from '@/modules/auth/database';
-
-export const venueTypes = pgTable('venue_types', {
-	id: serial().primaryKey(),
-	name: text().notNull().unique(),
-	description: text(),
-	createdAt: timestamp().defaultNow(),
-});
+import { venueTypes } from './venues';
 
 export const lecturerAllocations = pgTable(
 	'lecturer_allocations',

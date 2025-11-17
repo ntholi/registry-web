@@ -3,27 +3,27 @@
 import { getAllSchools } from '@academic/schools';
 import { MultiSelect, NumberInput, Select, TextInput } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getAllRoomTypes } from '@timetable/room-types';
+import { getAllVenueTypes } from '@timetable/venue-types';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { rooms } from '@/modules/timetable/database';
+import { venues } from '@/modules/timetable/database';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { Form } from '@/shared/ui/adease';
 
-type Room = typeof rooms.$inferInsert & { schoolIds?: number[] };
+type Venue = typeof venues.$inferInsert & { schoolIds?: number[] };
 
 type Props = {
-	onSubmit: (values: Room) => Promise<Room>;
-	defaultValues?: Partial<Room>;
+	onSubmit: (values: Venue) => Promise<Venue>;
+	defaultValues?: Partial<Venue>;
 	title?: string;
 };
 
-export default function RoomForm({ onSubmit, defaultValues, title }: Props) {
+export default function VenueForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
 
-	const { data: roomTypes = [] } = useQuery({
-		queryKey: ['room-types'],
-		queryFn: getAllRoomTypes,
+	const { data: venueTypes = [] } = useQuery({
+		queryKey: ['venue-types'],
+		queryFn: getAllVenueTypes,
 	});
 
 	const { data: schoolsData } = useQuery({
@@ -47,14 +47,14 @@ export default function RoomForm({ onSubmit, defaultValues, title }: Props) {
 		<Form
 			title={title}
 			action={onSubmit}
-			queryKey={['rooms']}
-			schema={createInsertSchema(rooms).extend({
-				schoolIds: createInsertSchema(rooms).shape.typeId.array(),
+			queryKey={['venues']}
+			schema={createInsertSchema(venues).extend({
+				schoolIds: createInsertSchema(venues).shape.typeId.array(),
 			})}
 			key={formKey}
 			defaultValues={computedDefaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/rooms/${id}`);
+				router.push(`/venues/${id}`);
 			}}
 		>
 			{(form) => (
@@ -62,10 +62,10 @@ export default function RoomForm({ onSubmit, defaultValues, title }: Props) {
 					<TextInput label='Name' {...form.getInputProps('name')} />
 					<NumberInput label='Capacity' {...form.getInputProps('capacity')} />
 					<Select
-						label='Room Type'
-						data={roomTypes.map((rt: { id: number; name: string }) => ({
-							value: String(rt.id),
-							label: rt.name,
+						label='Venue Type'
+						data={venueTypes.map((vt: { id: number; name: string }) => ({
+							value: String(vt.id),
+							label: vt.name,
 						}))}
 						{...form.getInputProps('typeId')}
 						onChange={(value) => {

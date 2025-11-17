@@ -1,5 +1,5 @@
 import { NothingSelected } from '@/shared/ui/adease';
 
 export default function Page() {
-	return <NothingSelected title='Room Types' />;
+	return <NothingSelected title='Venues' />;
 }
