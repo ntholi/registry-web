@@ -26,11 +26,23 @@ import {
 	updateLecturerAllocationVenueTypes,
 } from '../server/actions';
 
+const daysOfWeek = [
+	'monday',
+	'tuesday',
+	'wednesday',
+	'thursday',
+	'friday',
+	'saturday',
+	'sunday',
+] as const;
+
 const schema = z.object({
 	duration: z.number().min(1, 'Please enter a valid duration'),
 	numberOfStudents: z.number().min(0),
 	venueTypeIds: z.array(z.number()),
-	allowedDays: z.array(z.string()).min(1, 'Please select at least one day'),
+	allowedDays: z
+		.array(z.enum(daysOfWeek))
+		.min(1, 'Please select at least one day'),
 	startTime: z.string().min(1, 'Please enter a start time'),
 	endTime: z.string().min(1, 'Please enter an end time'),
 });
@@ -42,7 +54,7 @@ type Props = {
 	currentDuration: number;
 	currentNumberOfStudents: number;
 	currentVenueTypeIds: number[];
-	currentAllowedDays: string[];
+	currentAllowedDays: (typeof daysOfWeek)[number][];
 	currentStartTime: string;
 	currentEndTime: string;
 };
@@ -187,7 +199,12 @@ export default function EditAllocationModal({
 									label='Allowed Days'
 									description='Select which days of the week this allocation can be scheduled'
 									value={form.values.allowedDays}
-									onChange={(value) => form.setFieldValue('allowedDays', value)}
+									onChange={(value) =>
+										form.setFieldValue(
+											'allowedDays',
+											value as unknown as (typeof daysOfWeek)[number][]
+										)
+									}
 									error={form.errors.allowedDays}
 									required
 								>

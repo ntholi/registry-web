@@ -32,6 +32,16 @@ import {
 } from '../server/actions';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
+const daysOfWeek = [
+	'monday',
+	'tuesday',
+	'wednesday',
+	'thursday',
+	'friday',
+	'saturday',
+	'sunday',
+] as const;
+
 const schema = z.object({
 	semesterModuleId: z.number().min(1, 'Please select a semester module'),
 	duration: z.number().min(1, 'Please enter a valid duration'),
@@ -39,7 +49,9 @@ const schema = z.object({
 	venueTypeIds: z.array(z.number()),
 	numberOfGroups: z.number().min(0).max(10),
 	groups: z.array(z.string()),
-	allowedDays: z.array(z.string()).min(1, 'Please select at least one day'),
+	allowedDays: z
+		.array(z.enum(daysOfWeek))
+		.min(1, 'Please select at least one day'),
 	startTime: z.string().min(1, 'Please enter a start time'),
 	endTime: z.string().min(1, 'Please enter an end time'),
 });
@@ -304,7 +316,12 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 									label='Allowed Days'
 									description='Select which days of the week this allocation can be scheduled'
 									value={form.values.allowedDays}
-									onChange={(value) => form.setFieldValue('allowedDays', value)}
+									onChange={(value) =>
+										form.setFieldValue(
+											'allowedDays',
+											value as unknown as (typeof daysOfWeek)[number][]
+										)
+									}
 									error={form.errors.allowedDays}
 									required
 								>

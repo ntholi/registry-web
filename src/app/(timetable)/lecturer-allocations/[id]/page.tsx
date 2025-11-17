@@ -241,7 +241,9 @@ export default function LecturerAllocationDetails({ params }: Props) {
 																'friday',
 															]
 														}
-														currentStartTime={allocation.startTime || '08:30:00'}
+														currentStartTime={
+															allocation.startTime || '08:30:00'
+														}
 														currentEndTime={allocation.endTime || '17:30:00'}
 													/>
 													<DeleteButton
