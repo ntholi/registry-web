@@ -4,6 +4,7 @@ import {
 	Divider,
 	Flex,
 	Group,
+	Select,
 	Table,
 	TableTbody,
 	TableTd,
@@ -20,7 +21,7 @@ import {
 	getLecturerAllocationsByUserId,
 } from '@timetable/lecturer-allocations';
 import { notFound } from 'next/navigation';
-import { use } from 'react';
+import { use, useMemo, useState } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DeleteButton,
@@ -49,11 +50,38 @@ function formatDuration(totalMinutes: number): string {
 
 export default function LecturerAllocationDetails({ params }: Props) {
 	const { id } = use(params);
+	const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
 
 	const { data: allocations, isLoading } = useQuery({
 		queryKey: ['lecturer-allocations', id],
 		queryFn: () => getLecturerAllocationsByUserId(id),
 	});
+
+	const filteredAllocations = useMemo(() => {
+		if (!allocations) return [];
+		if (!selectedTermId) return allocations;
+		return allocations.filter(
+			(allocation) => allocation.termId === Number(selectedTermId)
+		);
+	}, [allocations, selectedTermId]);
+
+	const uniqueTerms = useMemo(() => {
+		if (!allocations) return [];
+		return Array.from(
+			new Map(
+				allocations
+					.filter((a) => a.term?.id && a.term?.name)
+					.map((a) => [a.term?.id, a.term])
+			).values()
+		);
+	}, [allocations]);
+
+	const totalMinutes = useMemo(() => {
+		return filteredAllocations.reduce(
+			(sum, allocation) => sum + (allocation.duration || 0),
+			0
+		);
+	}, [filteredAllocations]);
 
 	if (isLoading) {
 		return null;
@@ -65,21 +93,23 @@ export default function LecturerAllocationDetails({ params }: Props) {
 
 	const lecturer = allocations[0]?.user;
 
-	const uniqueTerms = Array.from(
-		new Set(allocations.map((a) => a.term?.name).filter(Boolean))
-	);
-
-	const totalMinutes = allocations.reduce(
-		(sum, allocation) => sum + (allocation.duration || 0),
-		0
-	);
-
 	return (
 		<DetailsView>
-			<Flex justify='space-between' align='center'>
+			<Flex justify='space-between' align='center' gap='md' wrap='wrap'>
 				<Title order={3} fw={100}>
 					Lecturer Allocations
 				</Title>
+				<Select
+					placeholder='All Terms'
+					data={uniqueTerms.map((term) => ({
+						value: term.id.toString(),
+						label: term.name,
+					}))}
+					value={selectedTermId}
+					onChange={setSelectedTermId}
+					clearable
+					w={200}
+				/>
 			</Flex>
 			<Divider my={15} />
 			<DetailsViewBody>
@@ -87,14 +117,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 					<Text size='lg' fw={500}>
 						{lecturer?.name || 'Unknown'}
 					</Text>
-				</FieldView>
-
-				<FieldView label='Terms'>
-					<Group gap='xs'>
-						{uniqueTerms.map((termName) => (
-							<Text key={termName}>{termName}</Text>
-						))}
-					</Group>
 				</FieldView>
 
 				<FieldView label='Total Hours'>
@@ -109,13 +131,14 @@ export default function LecturerAllocationDetails({ params }: Props) {
 							<TableTh>Module</TableTh>
 							<TableTh>Program</TableTh>
 							<TableTh>Semester</TableTh>
+							<TableTh>Term</TableTh>
 							<TableTh>Duration</TableTh>
 							<TableTh>Venue</TableTh>
 							<TableTh>Actions</TableTh>
 						</TableTr>
 					</TableThead>
 					<TableTbody>
-						{allocations.map((allocation) => (
+						{filteredAllocations.map((allocation) => (
 							<TableTr key={allocation.id}>
 								<TableTd>
 									{allocation.semesterModule?.module?.name} (
@@ -131,6 +154,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 										'mini'
 									)}
 								</TableTd>
+								<TableTd>{allocation.term?.name || '-'}</TableTd>
 								<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
 								<TableTd>
 									{allocation.lecturerAllocationVenueTypes &&

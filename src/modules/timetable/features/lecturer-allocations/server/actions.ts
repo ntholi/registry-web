@@ -28,6 +28,30 @@ export async function getUniqueLecturers() {
 	return service.getUniqueLecturers();
 }
 
+export async function getAllLecturersForList(page: number = 1, search = '') {
+	const allLecturers = await service.getUniqueLecturers();
+
+	const filteredLecturers = search
+		? allLecturers.filter((lecturer) => {
+				const searchLower = search.toLowerCase();
+				const name = lecturer.user?.name?.toLowerCase() || '';
+				const email = lecturer.user?.email?.toLowerCase() || '';
+				return name.includes(searchLower) || email.includes(searchLower);
+			})
+		: allLecturers;
+
+	const pageSize = 50;
+	const totalPages = Math.ceil(filteredLecturers.length / pageSize);
+	const startIndex = (page - 1) * pageSize;
+	const endIndex = startIndex + pageSize;
+
+	return {
+		items: filteredLecturers.slice(startIndex, endIndex),
+		totalPages,
+		totalItems: filteredLecturers.length,
+	};
+}
+
 export async function getLecturersByTerm(termId: number) {
 	return service.getLecturersByTerm(termId);
 }
