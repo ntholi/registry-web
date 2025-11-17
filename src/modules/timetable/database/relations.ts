@@ -1,35 +1,39 @@
 import { relations } from 'drizzle-orm';
 import { schools, semesterModules, terms } from '@/modules/academic/database';
 import { users } from '@/modules/auth/database';
-import { lecturerAllocations } from './schema/lecturer-allocations';
-import { roomSchools, rooms, roomTypes } from './schema/rooms';
+import {
+	lecturerAllocations,
+	lecturerAllocationVenueTypes,
+} from './schema/lecturer-allocations';
+import { venueSchools, venues, venueTypes } from './schema/venues';
 
-export const roomTypesRelations = relations(roomTypes, ({ many }) => ({
-	rooms: many(rooms),
+export const venueTypesRelations = relations(venueTypes, ({ many }) => ({
+	venues: many(venues),
+	lecturerAllocationVenueTypes: many(lecturerAllocationVenueTypes),
 }));
 
-export const roomsRelations = relations(rooms, ({ many, one }) => ({
-	type: one(roomTypes, {
-		fields: [rooms.typeId],
-		references: [roomTypes.id],
+export const venuesRelations = relations(venues, ({ many, one }) => ({
+	type: one(venueTypes, {
+		fields: [venues.typeId],
+		references: [venueTypes.id],
 	}),
-	roomSchools: many(roomSchools),
+	venueSchools: many(venueSchools),
 }));
 
-export const roomSchoolsRelations = relations(roomSchools, ({ one }) => ({
-	room: one(rooms, {
-		fields: [roomSchools.roomId],
-		references: [rooms.id],
+export const venueSchoolsRelations = relations(venueSchools, ({ one }) => ({
+	venue: one(venues, {
+		fields: [venueSchools.venueId],
+		references: [venues.id],
 	}),
 	school: one(schools, {
-		fields: [roomSchools.schoolId],
+		fields: [venueSchools.schoolId],
 		references: [schools.id],
 	}),
 }));
 
 export const lecturerAllocationsRelations = relations(
 	lecturerAllocations,
-	({ one }) => ({
+	({ many, one }) => ({
 		user: one(users, {
 			fields: [lecturerAllocations.userId],
 			references: [users.id],
@@ -41,6 +45,21 @@ export const lecturerAllocationsRelations = relations(
 		term: one(terms, {
 			fields: [lecturerAllocations.termId],
 			references: [terms.id],
+		}),
+		lecturerAllocationVenueTypes: many(lecturerAllocationVenueTypes),
+	})
+);
+
+export const lecturerAllocationVenueTypesRelations = relations(
+	lecturerAllocationVenueTypes,
+	({ one }) => ({
+		lecturerAllocation: one(lecturerAllocations, {
+			fields: [lecturerAllocationVenueTypes.lecturerAllocationId],
+			references: [lecturerAllocations.id],
+		}),
+		venueType: one(venueTypes, {
+			fields: [lecturerAllocationVenueTypes.venueTypeId],
+			references: [venueTypes.id],
 		}),
 	})
 );

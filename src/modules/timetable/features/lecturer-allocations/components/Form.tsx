@@ -7,6 +7,7 @@ import {
 	Checkbox,
 	Group,
 	Modal,
+	MultiSelect,
 	Paper,
 	Select,
 	Stack,
@@ -15,6 +16,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { getAllTerms } from '@registry/terms';
 import { useQuery } from '@tanstack/react-query';
+import { getAllVenueTypes } from '@timetable/venue-types';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
@@ -34,6 +36,7 @@ const schema = z.object({
 		.array(z.number())
 		.min(1, 'Please select at least one module'),
 	duration: z.number().min(1, 'Please enter a valid duration'),
+	venueTypeIds: z.array(z.number()),
 });
 
 type FormValues = {
@@ -41,6 +44,7 @@ type FormValues = {
 	termId: number;
 	semesterModuleIds: number[];
 	duration: number;
+	venueTypeIds: number[];
 };
 
 type Props = {
@@ -62,8 +66,13 @@ export default function LecturerAllocationForm({
 	const isTermPreFilled = Boolean(defaultValues?.termId);
 
 	const { data: terms = [] } = useQuery({
-		queryKey: ['terms', 'all'],
+		queryKey: ['terms'],
 		queryFn: getAllTerms,
+	});
+
+	const { data: venueTypes = [] } = useQuery({
+		queryKey: ['venue-types'],
+		queryFn: getAllVenueTypes,
 	});
 
 	useEffect(() => {
@@ -86,6 +95,7 @@ export default function LecturerAllocationForm({
 		termId: defaultValues?.termId || 0,
 		semesterModuleIds: defaultValues?.semesterModuleIds || [],
 		duration: defaultValues?.duration || 30,
+		venueTypeIds: defaultValues?.venueTypeIds || [],
 	};
 
 	return (
@@ -191,6 +201,24 @@ export default function LecturerAllocationForm({
 								onChange={handleDurationChange}
 								error={form.errors.duration}
 								required
+							/>
+
+							<MultiSelect
+								label='Venue Types'
+								placeholder='Select venue types (optional)'
+								data={venueTypes.map((vt: { id: number; name: string }) => ({
+									value: vt.id.toString(),
+									label: vt.name,
+								}))}
+								value={form.values.venueTypeIds.map((id) => id.toString())}
+								onChange={(values) => {
+									form.setFieldValue(
+										'venueTypeIds',
+										values.map((v) => Number(v))
+									);
+								}}
+								searchable
+								clearable
 							/>
 
 							<Paper withBorder p='md'>

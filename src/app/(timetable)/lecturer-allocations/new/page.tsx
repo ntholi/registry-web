@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
 import {
-	createLecturerAllocations,
+	createLecturerAllocationsWithVenueTypes,
 	LecturerAllocationForm,
 } from '@timetable/lecturer-allocations';
 
@@ -20,6 +20,7 @@ export default async function NewPage({ searchParams }: Props) {
 								userId: userId || '',
 								termId: termId ? Number(termId) : 0,
 								semesterModuleIds: [],
+								venueTypeIds: [],
 							}
 						: undefined
 				}
@@ -33,7 +34,10 @@ export default async function NewPage({ searchParams }: Props) {
 							duration: values.duration,
 						})
 					);
-					await createLecturerAllocations(allocations);
+					await createLecturerAllocationsWithVenueTypes(
+						allocations,
+						values.venueTypeIds
+					);
 					return values;
 				}}
 			/>

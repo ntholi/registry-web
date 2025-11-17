@@ -14,6 +14,9 @@ class LecturerAllocationService extends BaseService<
 	constructor() {
 		const repository = new LecturerAllocationRepository();
 		super(repository, {
+			createRoles: ['academic'],
+			updateRoles: ['academic'],
+			deleteRoles: ['academic'],
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
 		});
@@ -60,6 +63,38 @@ class LecturerAllocationService extends BaseService<
 		return withAuth(async () => {
 			return this.repo.createMany(allocations);
 		}, ['academic']);
+	}
+
+	async createWithVenueTypes(
+		allocation: LecturerAllocationInsert,
+		venueTypeIds: number[]
+	) {
+		return withAuth(async () => {
+			return this.repo.createWithVenueTypes(allocation, venueTypeIds);
+		}, ['academic']);
+	}
+
+	async createManyWithVenueTypes(
+		allocations: LecturerAllocationInsert[],
+		venueTypeIds: number[]
+	) {
+		return withAuth(async () => {
+			const created = [];
+			for (const allocation of allocations) {
+				const result = await this.repo.createWithVenueTypes(
+					allocation,
+					venueTypeIds
+				);
+				created.push(result);
+			}
+			return created;
+		}, ['academic']);
+	}
+
+	async updateVenueTypes(allocationId: number, venueTypeIds: number[]) {
+		return withAuth(async () => {
+			return this.repo.updateVenueTypes(allocationId, venueTypeIds);
+		}, []);
 	}
 
 	async deleteByUserAndTerm(userId: string, termId: number) {

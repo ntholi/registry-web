@@ -94,6 +94,7 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 							<TableTh>Program</TableTh>
 							<TableTh>Semester</TableTh>
 							<TableTh>Duration</TableTh>
+							<TableTh>Venue Types</TableTh>
 							<TableTh>Actions</TableTh>
 						</TableTr>
 					</TableThead>
@@ -115,6 +116,22 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 									)}
 								</TableTd>
 								<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
+								<TableTd>
+									{allocation.lecturerAllocationVenueTypes &&
+									allocation.lecturerAllocationVenueTypes.length > 0 ? (
+										<Group gap='xs'>
+											{allocation.lecturerAllocationVenueTypes.map((avt) => (
+												<Text key={avt.venueTypeId} size='sm'>
+													{avt.venueType?.name}
+												</Text>
+											))}
+										</Group>
+									) : (
+										<Text size='sm' c='dimmed'>
+											-
+										</Text>
+									)}
+								</TableTd>
 								<TableTd>
 									<form
 										action={async () => {

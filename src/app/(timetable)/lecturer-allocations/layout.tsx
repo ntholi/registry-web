@@ -31,7 +31,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	const [view, setView] = useViewSelect();
 
 	const { data: terms = [] } = useQuery({
-		queryKey: ['terms', 'all'],
+		queryKey: ['terms'],
 		queryFn: getAllTerms,
 	});
 
