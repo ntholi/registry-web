@@ -25,6 +25,7 @@ import {
 import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
 import { use, useMemo } from 'react';
+import { getAllTerms } from '@/modules/registry/features/terms';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DeleteButton,
@@ -61,6 +62,11 @@ export default function LecturerAllocationDetails({ params }: Props) {
 		queryFn: () => getLecturerAllocationsByUserId(id),
 	});
 
+	const { data: terms = [] } = useQuery({
+		queryKey: ['terms'],
+		queryFn: async () => getAllTerms(),
+	});
+
 	const filteredAllocations = useMemo(() => {
 		if (!allocations) return [];
 		if (!selectedTermId) return [];
@@ -68,17 +74,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 			(allocation) => allocation.termId === selectedTermId
 		);
 	}, [allocations, selectedTermId]);
-
-	const uniqueTerms = useMemo(() => {
-		if (!allocations) return [];
-		return Array.from(
-			new Map(
-				allocations
-					.filter((a) => a.term?.id && a.term?.name)
-					.map((a) => [a.term?.id, a.term])
-			).values()
-		);
-	}, [allocations]);
 
 	const totalMinutes = useMemo(() => {
 		return filteredAllocations.reduce(
@@ -105,7 +100,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 				</Title>
 				<Select
 					placeholder='Select a term'
-					data={uniqueTerms.map((term) => ({
+					data={terms.map((term) => ({
 						value: term.id.toString(),
 						label: term.name,
 					}))}
@@ -125,23 +120,19 @@ export default function LecturerAllocationDetails({ params }: Props) {
 			{!selectedTermId ? (
 				<Center h={400}>
 					<Stack align='center' gap='md'>
-						<Text size='lg' c='dimmed'>
-							Please select a term to view allocations
-						</Text>
+						<Text>Please select a term to view allocations</Text>
 					</Stack>
 				</Center>
 			) : (
 				<DetailsViewBody>
-					<FieldView label='Lecturer'>
-						<Text size='lg' fw={500}>
-							{lecturer?.name || 'Unknown'}
-						</Text>
-					</FieldView>
+					<FieldView label='Lecturer'>{lecturer?.name}</FieldView>
 
 					<FieldView label='Total Hours'>
-						<Text size='lg' fw={500}>
-							{formatDuration(totalMinutes)}
-						</Text>
+						{formatDuration(totalMinutes)}
+					</FieldView>
+
+					<FieldView label='Term'>
+						{terms.find((term) => term.id === selectedTermId)?.name}
 					</FieldView>
 
 					<Table striped highlightOnHover withTableBorder mt={'lg'}>
@@ -150,7 +141,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 								<TableTh>Module</TableTh>
 								<TableTh>Program</TableTh>
 								<TableTh>Semester</TableTh>
-								<TableTh>Term</TableTh>
 								<TableTh>Duration</TableTh>
 								<TableTh>Venue</TableTh>
 								<TableTh>Actions</TableTh>
@@ -173,7 +163,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 											'mini'
 										)}
 									</TableTd>
-									<TableTd>{allocation.term?.name || '-'}</TableTd>
 									<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
 									<TableTd>
 										{allocation.lecturerAllocationVenueTypes &&
