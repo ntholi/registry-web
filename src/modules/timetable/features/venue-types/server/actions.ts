@@ -19,9 +19,7 @@ export async function findAllVenueTypes(page: number = 1, search = '') {
 }
 
 export async function getAllVenueTypes() {
-	const data = await service.getAll();
-	console.log('\n\n\n\nVenue Types:', data);
-	return data;
+	return await service.getAll();
 }
 
 export async function createVenueType(venueType: VenueType) {
