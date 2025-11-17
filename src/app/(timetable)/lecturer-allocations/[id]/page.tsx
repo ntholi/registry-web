@@ -29,6 +29,7 @@ import {
 import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
 import { use, useMemo } from 'react';
+import { getConfigDefaults } from '@/config/server-actions';
 import { getAllTerms } from '@/modules/registry/features/terms';
 import {
 	DeleteButton,
@@ -73,6 +74,12 @@ export default function LecturerAllocationDetails({ params }: Props) {
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms'],
 		queryFn: async () => getAllTerms(),
+	});
+
+	const { data: configDefaults } = useQuery({
+		queryKey: ['config-defaults'],
+		queryFn: getConfigDefaults,
+		staleTime: Number.POSITIVE_INFINITY,
 	});
 
 	const filteredAllocations = useMemo(() => {
@@ -150,7 +157,14 @@ export default function LecturerAllocationDetails({ params }: Props) {
 									{`${totalStudents} Student${totalStudents !== 1 ? 's' : ''}`}
 								</Badge>
 							</Group>
-							<AddAllocationModal userId={id} termId={selectedTermId} />
+							<AddAllocationModal
+								userId={id}
+								termId={selectedTermId}
+								defaultDuration={configDefaults?.duration}
+								defaultAllowedDays={configDefaults?.allowedDays}
+								defaultStartTime={configDefaults?.startTime}
+								defaultEndTime={configDefaults?.endTime}
+							/>
 						</Flex>
 
 						{filteredAllocations.length === 0 ? (
@@ -223,7 +237,11 @@ export default function LecturerAllocationDetails({ params }: Props) {
 												<Group gap={2} wrap='nowrap'>
 													<EditAllocationModal
 														allocationId={allocation.id}
-														currentDuration={allocation.duration || 0}
+														currentDuration={
+															allocation.duration ||
+															configDefaults?.duration ||
+															120
+														}
 														currentNumberOfStudents={
 															allocation.numberOfStudents ?? 0
 														}
@@ -233,7 +251,8 @@ export default function LecturerAllocationDetails({ params }: Props) {
 															) || []
 														}
 														currentAllowedDays={
-															allocation.allowedDays || [
+															allocation.allowedDays ||
+															configDefaults?.allowedDays || [
 																'monday',
 																'tuesday',
 																'wednesday',
@@ -242,9 +261,15 @@ export default function LecturerAllocationDetails({ params }: Props) {
 															]
 														}
 														currentStartTime={
-															allocation.startTime || '08:30:00'
+															allocation.startTime ||
+															configDefaults?.startTime ||
+															'08:30:00'
 														}
-														currentEndTime={allocation.endTime || '17:30:00'}
+														currentEndTime={
+															allocation.endTime ||
+															configDefaults?.endTime ||
+															'17:30:00'
+														}
 													/>
 													<DeleteButton
 														variant='subtle'

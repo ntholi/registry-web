@@ -19,9 +19,9 @@ export default async function NewPage({ searchParams }: Props) {
 				defaultValues={{
 					userId: userId || '',
 					termId: termId ? Number(termId) : 0,
+					duration: defaults.duration,
 					semesterModuleIds: [],
 					venueTypeIds: [],
-					duration: defaults.duration,
 				}}
 				onSubmit={async (values) => {
 					'use server';

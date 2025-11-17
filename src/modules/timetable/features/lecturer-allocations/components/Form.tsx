@@ -90,11 +90,12 @@ export default function LecturerAllocationForm({
 	const handleModuleSelect = (module: Module | null) => {
 		setSelectedModule(module);
 	};
+
 	const initialValues: FormValues = {
 		userId: defaultValues?.userId || '',
 		termId: defaultValues?.termId || 0,
 		semesterModuleIds: defaultValues?.semesterModuleIds || [],
-		duration: defaultValues?.duration || 0,
+		duration: defaultValues?.duration || 120,
 		venueTypeIds: defaultValues?.venueTypeIds || [],
 	};
 

@@ -61,11 +61,22 @@ type FormValues = z.infer<typeof schema>;
 type Props = {
 	userId: string;
 	termId: number;
+	defaultDuration?: number;
+	defaultAllowedDays?: (typeof daysOfWeek)[number][];
+	defaultStartTime?: string;
+	defaultEndTime?: string;
 };
 
 type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
 
-export default function AddAllocationModal({ userId, termId }: Props) {
+export default function AddAllocationModal({
+	userId,
+	termId,
+	defaultDuration = 120,
+	defaultAllowedDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+	defaultStartTime = '08:30:00',
+	defaultEndTime = '17:30:00',
+}: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 	const [selectedModule, setSelectedModule] = useState<Module | null>(null);
@@ -79,14 +90,14 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 		validate: zodResolver(schema),
 		initialValues: {
 			semesterModuleId: 0,
-			duration: 30,
+			duration: defaultDuration,
 			numberOfStudents: 0,
 			venueTypeIds: [],
 			numberOfGroups: 0,
 			groups: [],
-			allowedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-			startTime: '08:30:00',
-			endTime: '17:30:00',
+			allowedDays: defaultAllowedDays,
+			startTime: defaultStartTime,
+			endTime: defaultEndTime,
 		},
 	});
 
