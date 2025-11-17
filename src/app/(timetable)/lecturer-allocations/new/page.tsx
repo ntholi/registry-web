@@ -3,6 +3,7 @@ import {
 	createLecturerAllocationsWithVenueTypes,
 	LecturerAllocationForm,
 } from '@timetable/lecturer-allocations';
+import { config } from '@/config';
 
 type Props = {
 	searchParams: Promise<{ userId?: string; termId?: string }>;
@@ -10,20 +11,18 @@ type Props = {
 
 export default async function NewPage({ searchParams }: Props) {
 	const { userId, termId } = await searchParams;
+	const defaults = config.timetable.lecturerAllocations;
 
 	return (
 		<Box p='lg'>
 			<LecturerAllocationForm
-				defaultValues={
-					userId || termId
-						? {
-								userId: userId || '',
-								termId: termId ? Number(termId) : 0,
-								semesterModuleIds: [],
-								venueTypeIds: [],
-							}
-						: undefined
-				}
+				defaultValues={{
+					userId: userId || '',
+					termId: termId ? Number(termId) : 0,
+					semesterModuleIds: [],
+					venueTypeIds: [],
+					duration: defaults.duration,
+				}}
 				onSubmit={async (values) => {
 					'use server';
 					const allocations = values.semesterModuleIds.map(
@@ -32,6 +31,9 @@ export default async function NewPage({ searchParams }: Props) {
 							termId: values.termId,
 							semesterModuleId,
 							duration: values.duration,
+							allowedDays: defaults.allowedDays,
+							startTime: defaults.startTime,
+							endTime: defaults.endTime,
 						})
 					);
 					await createLecturerAllocationsWithVenueTypes(

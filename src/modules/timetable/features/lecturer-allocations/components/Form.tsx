@@ -94,7 +94,7 @@ export default function LecturerAllocationForm({
 		userId: defaultValues?.userId || '',
 		termId: defaultValues?.termId || 0,
 		semesterModuleIds: defaultValues?.semesterModuleIds || [],
-		duration: defaultValues?.duration || 30,
+		duration: defaultValues?.duration || 0,
 		venueTypeIds: defaultValues?.venueTypeIds || [],
 	};
 
