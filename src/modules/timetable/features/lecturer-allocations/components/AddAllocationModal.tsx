@@ -7,6 +7,7 @@ import {
 	Modal,
 	MultiSelect,
 	Select,
+	Slider,
 	Stack,
 	TagsInput,
 	Text,
@@ -31,6 +32,7 @@ const schema = z.object({
 	semesterModuleId: z.number().min(1, 'Please select a semester module'),
 	duration: z.number().min(1, 'Please enter a valid duration'),
 	venueTypeIds: z.array(z.number()),
+	numberOfGroups: z.number().min(0).max(10),
 	groups: z.array(z.string()),
 });
 
@@ -59,9 +61,21 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 			semesterModuleId: 0,
 			duration: 30,
 			venueTypeIds: [],
+			numberOfGroups: 0,
 			groups: [],
 		},
 	});
+
+	function generateGroupNames(count: number): string[] {
+		if (count === 0) return [];
+		const letters = 'ABCDEFGHIJ'.split('');
+		return letters.slice(0, count);
+	}
+
+	function handleGroupCountChange(value: number) {
+		form.setFieldValue('numberOfGroups', value);
+		form.setFieldValue('groups', generateGroupNames(value));
+	}
 
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
@@ -181,22 +195,54 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							required
 						/>
 
+						<Stack gap='xs'>
+							<Text size='sm' fw={500}>
+								Number of Groups
+							</Text>
+							<Slider
+								value={form.values.numberOfGroups}
+								onChange={handleGroupCountChange}
+								min={0}
+								max={10}
+								step={1}
+								marks={[
+									{ value: 0, label: '0' },
+									{ value: 2, label: '2' },
+									{ value: 4, label: '4' },
+									{ value: 6, label: '6' },
+									{ value: 8, label: '8' },
+									{ value: 10, label: '10' },
+								]}
+								label={(value) =>
+									value === 0
+										? 'All Students'
+										: `${value} Group${value === 1 ? '' : 's'}`
+								}
+							/>
+							<Text size='xs' c='dimmed'>
+								{form.values.numberOfGroups === 0
+									? 'Assign the entire class to this lecturer'
+									: `Split the class into ${form.values.numberOfGroups} group${form.values.numberOfGroups === 1 ? '' : 's'}`}
+							</Text>
+						</Stack>
+
 						<TagsInput
-							label='Groups'
-							placeholder='Enter group names (e.g., Group A, Group B)'
-							description='Leave empty to assign the entire class. Add groups to split the class into sections. Press Enter to add each group.'
+							label='Group Names'
+							placeholder='Group names'
+							description='Edit group names if needed (A, B, C, etc.)'
 							value={form.values.groups}
 							onChange={(values) => {
 								form.setFieldValue('groups', values);
 							}}
-							clearable
+							disabled={form.values.numberOfGroups === 0}
 							splitChars={[',', '|']}
 						/>
 
 						{form.values.groups.length > 0 && (
-							<Text size='sm' c='dimmed'>
+							<Text size='sm' c='blue'>
 								{form.values.groups.length} separate allocation
-								{form.values.groups.length === 1 ? '' : 's'} will be created
+								{form.values.groups.length === 1 ? '' : 's'} will be created:
+								Group {form.values.groups.join(', Group ')}
 							</Text>
 						)}
 
