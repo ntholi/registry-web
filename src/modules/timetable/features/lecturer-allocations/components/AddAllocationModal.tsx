@@ -219,7 +219,7 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 										: `${value} Group${value === 1 ? '' : 's'}`
 								}
 							/>
-							<Text size='xs' c='dimmed'>
+							<Text size='xs' c='dimmed' mt='md'>
 								{form.values.numberOfGroups === 0
 									? 'Assign the entire class to this lecturer'
 									: `Split the class into ${form.values.numberOfGroups} group${form.values.numberOfGroups === 1 ? '' : 's'}`}
@@ -237,14 +237,6 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							disabled={form.values.numberOfGroups === 0}
 							splitChars={[',', '|']}
 						/>
-
-						{form.values.groups.length > 0 && (
-							<Text size='sm' c='blue'>
-								{form.values.groups.length} separate allocation
-								{form.values.groups.length === 1 ? '' : 's'} will be created:
-								Group {form.values.groups.join(', Group ')}
-							</Text>
-						)}
 
 						<MultiSelect
 							label='Venue Types'
