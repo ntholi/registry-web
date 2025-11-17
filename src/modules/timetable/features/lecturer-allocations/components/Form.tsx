@@ -66,12 +66,12 @@ export default function LecturerAllocationForm({
 	const isTermPreFilled = Boolean(defaultValues?.termId);
 
 	const { data: terms = [] } = useQuery({
-		queryKey: ['terms', 'all'],
+		queryKey: ['terms'],
 		queryFn: getAllTerms,
 	});
 
 	const { data: venueTypes = [] } = useQuery({
-		queryKey: ['venue-types', 'all'],
+		queryKey: ['venue-types'],
 		queryFn: getAllVenueTypes,
 	});
 
