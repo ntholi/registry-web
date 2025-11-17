@@ -118,7 +118,7 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 		<>
 			<Button
 				variant='light'
-				size='sm'
+				size='xs'
 				leftSection={<IconPlus size={16} />}
 				onClick={handleOpen}
 			>

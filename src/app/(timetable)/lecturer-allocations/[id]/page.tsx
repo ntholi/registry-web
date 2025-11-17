@@ -2,6 +2,7 @@
 
 import { getLecturer } from '@academic/lecturers';
 import {
+	Badge,
 	Box,
 	Center,
 	Divider,
@@ -131,25 +132,20 @@ export default function LecturerAllocationDetails({ params }: Props) {
 				<DetailsViewBody gap={'sm'}>
 					<Stack gap={'lg'}>
 						<FieldView label='Lecturer'>{lecturer.name}</FieldView>
-
-						<FieldView label='Total Hours'>
-							{formatDuration(totalMinutes)}
-						</FieldView>
-
-						<FieldView label='Term'>
-							{terms.find((term) => term.id === selectedTermId)?.name}
-						</FieldView>
 					</Stack>
 					<Box mt='lg'>
-						<Flex justify='flex-end' mb='xs'>
+						<Flex justify='space-between' align={'flex-end'} mb='xs'>
+							<Badge variant='light' radius={'sm'}>
+								{formatDuration(totalMinutes)}
+							</Badge>
 							<AddAllocationModal userId={id} termId={selectedTermId} />
 						</Flex>
 
 						{filteredAllocations.length === 0 ? (
 							<Center h={200}>
-								<Text c='dimmed'>
-									No allocations found for this term. Click &quot;Add
-									Allocation&quot; to create one.
+								<Text size='sm' c='dimmed'>
+									No allocations found for this term. Click &quot;Add&quot;
+									button to create one.
 								</Text>
 							</Center>
 						) : (
