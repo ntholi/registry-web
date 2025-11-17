@@ -14,6 +14,9 @@ class LecturerAllocationService extends BaseService<
 	constructor() {
 		const repository = new LecturerAllocationRepository();
 		super(repository, {
+			createRoles: ['academic'],
+			updateRoles: ['academic'],
+			deleteRoles: ['academic'],
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
 		});

@@ -11,6 +11,9 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 	constructor() {
 		const repository = new VenueRepository();
 		super(repository, {
+			createRoles: ['academic', 'registry'],
+			updateRoles: ['academic', 'registry'],
+			deleteRoles: ['academic', 'registry'],
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
 		});
