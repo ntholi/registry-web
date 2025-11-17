@@ -1,10 +1,12 @@
 'use client';
 
 import {
+	Center,
 	Divider,
 	Flex,
 	Group,
 	Select,
+	Stack,
 	Table,
 	TableTbody,
 	TableTd,
@@ -20,9 +22,9 @@ import {
 	EditAllocationModal,
 	getLecturerAllocationsByUserId,
 } from '@timetable/lecturer-allocations';
+import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
-import { use, useMemo, useState } from 'react';
-import { getAllTerms } from '@/modules/registry/features/terms';
+import { use, useMemo } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DeleteButton,
@@ -30,6 +32,7 @@ import {
 	DetailsViewBody,
 	FieldView,
 } from '@/shared/ui/adease';
+import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -51,25 +54,31 @@ function formatDuration(totalMinutes: number): string {
 
 export default function LecturerAllocationDetails({ params }: Props) {
 	const { id } = use(params);
-	const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
+	const [selectedTermId, setSelectedTermId] = useAtom(selectedTermAtom);
 
 	const { data: allocations, isLoading } = useQuery({
 		queryKey: ['lecturer-allocations', id],
 		queryFn: () => getLecturerAllocationsByUserId(id),
 	});
 
-	const { data: terms = [] } = useQuery({
-		queryKey: ['terms'],
-		queryFn: () => getAllTerms(),
-	});
-
 	const filteredAllocations = useMemo(() => {
 		if (!allocations) return [];
-		if (!selectedTermId) return allocations;
+		if (!selectedTermId) return [];
 		return allocations.filter(
-			(allocation) => allocation.termId === Number(selectedTermId)
+			(allocation) => allocation.termId === selectedTermId
 		);
 	}, [allocations, selectedTermId]);
+
+	const uniqueTerms = useMemo(() => {
+		if (!allocations) return [];
+		return Array.from(
+			new Map(
+				allocations
+					.filter((a) => a.term?.id && a.term?.name)
+					.map((a) => [a.term?.id, a.term])
+			).values()
+		);
+	}, [allocations]);
 
 	const totalMinutes = useMemo(() => {
 		return filteredAllocations.reduce(
@@ -95,105 +104,122 @@ export default function LecturerAllocationDetails({ params }: Props) {
 					Lecturer Allocations
 				</Title>
 				<Select
-					placeholder='All Terms'
-					data={terms.map((term) => ({
+					placeholder='Select a term'
+					data={uniqueTerms.map((term) => ({
 						value: term.id.toString(),
 						label: term.name,
 					}))}
-					value={selectedTermId}
-					onChange={setSelectedTermId}
+					value={selectedTermId ? selectedTermId.toString() : null}
+					onChange={(value) => {
+						if (value) {
+							setSelectedTermId(Number(value));
+						} else {
+							setSelectedTermId(null);
+						}
+					}}
 					clearable
 					w={200}
 				/>
 			</Flex>
 			<Divider my={15} />
-			<DetailsViewBody>
-				<FieldView label='Lecturer'>{lecturer?.name || 'Unknown'}</FieldView>
+			{!selectedTermId ? (
+				<Center h={400}>
+					<Stack align='center' gap='md'>
+						<Text size='lg' c='dimmed'>
+							Please select a term to view allocations
+						</Text>
+					</Stack>
+				</Center>
+			) : (
+				<DetailsViewBody>
+					<FieldView label='Lecturer'>
+						<Text size='lg' fw={500}>
+							{lecturer?.name || 'Unknown'}
+						</Text>
+					</FieldView>
 
-				<FieldView label='Total Hours'>
-					{formatDuration(totalMinutes)}
-				</FieldView>
+					<FieldView label='Total Hours'>
+						<Text size='lg' fw={500}>
+							{formatDuration(totalMinutes)}
+						</Text>
+					</FieldView>
 
-				<FieldView label='Term'>
-					{selectedTermId
-						? terms.find((term) => term.id === Number(selectedTermId))?.name ||
-							'Unknown Term'
-						: 'All Terms'}
-				</FieldView>
-
-				<Table striped highlightOnHover withTableBorder mt={'lg'}>
-					<TableThead>
-						<TableTr>
-							<TableTh>Module</TableTh>
-							<TableTh>Program</TableTh>
-							<TableTh>Semester</TableTh>
-							<TableTh>Duration</TableTh>
-							<TableTh>Venue</TableTh>
-							<TableTh>Actions</TableTh>
-						</TableTr>
-					</TableThead>
-					<TableTbody>
-						{filteredAllocations.map((allocation) => (
-							<TableTr key={allocation.id}>
-								<TableTd>
-									{allocation.semesterModule?.module?.name} (
-									{allocation.semesterModule?.module?.code})
-								</TableTd>
-								<TableTd>
-									{allocation.semesterModule?.semester?.structure?.program
-										?.name || '-'}
-								</TableTd>
-								<TableTd>
-									{formatSemester(
-										allocation.semesterModule?.semester?.semesterNumber,
-										'mini'
-									)}
-								</TableTd>
-								<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
-								<TableTd>
-									{allocation.lecturerAllocationVenueTypes &&
-									allocation.lecturerAllocationVenueTypes.length > 0 ? (
-										<Group gap='xs'>
-											{allocation.lecturerAllocationVenueTypes.map((avt) => (
-												<Text key={avt.venueTypeId} size='sm'>
-													{avt.venueType?.name}
-												</Text>
-											))}
-										</Group>
-									) : (
-										<Text size='sm' c='dimmed'>
-											-
-										</Text>
-									)}
-								</TableTd>
-								<TableTd>
-									<Group gap={2} wrap='nowrap'>
-										<EditAllocationModal
-											allocationId={allocation.id}
-											currentDuration={allocation.duration || 0}
-											currentVenueTypeIds={
-												allocation.lecturerAllocationVenueTypes?.map(
-													(avt) => avt.venueTypeId
-												) || []
-											}
-										/>
-										<DeleteButton
-											variant='subtle'
-											size='sm'
-											handleDelete={async () => {
-												await deleteLecturerAllocation(allocation.id);
-											}}
-											queryKey={['lecturer-allocations', id]}
-											message='Are you sure you want to delete this allocation?'
-											onSuccess={() => {}}
-										/>
-									</Group>
-								</TableTd>
+					<Table striped highlightOnHover withTableBorder mt={'lg'}>
+						<TableThead>
+							<TableTr>
+								<TableTh>Module</TableTh>
+								<TableTh>Program</TableTh>
+								<TableTh>Semester</TableTh>
+								<TableTh>Term</TableTh>
+								<TableTh>Duration</TableTh>
+								<TableTh>Venue</TableTh>
+								<TableTh>Actions</TableTh>
 							</TableTr>
-						))}
-					</TableTbody>
-				</Table>
-			</DetailsViewBody>
+						</TableThead>
+						<TableTbody>
+							{filteredAllocations.map((allocation) => (
+								<TableTr key={allocation.id}>
+									<TableTd>
+										{allocation.semesterModule?.module?.name} (
+										{allocation.semesterModule?.module?.code})
+									</TableTd>
+									<TableTd>
+										{allocation.semesterModule?.semester?.structure?.program
+											?.name || '-'}
+									</TableTd>
+									<TableTd>
+										{formatSemester(
+											allocation.semesterModule?.semester?.semesterNumber,
+											'mini'
+										)}
+									</TableTd>
+									<TableTd>{allocation.term?.name || '-'}</TableTd>
+									<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
+									<TableTd>
+										{allocation.lecturerAllocationVenueTypes &&
+										allocation.lecturerAllocationVenueTypes.length > 0 ? (
+											<Group gap='xs'>
+												{allocation.lecturerAllocationVenueTypes.map((avt) => (
+													<Text key={avt.venueTypeId} size='sm'>
+														{avt.venueType?.name}
+													</Text>
+												))}
+											</Group>
+										) : (
+											<Text size='sm' c='dimmed'>
+												-
+											</Text>
+										)}
+									</TableTd>
+									<TableTd>
+										<Group gap={2} wrap='nowrap'>
+											<EditAllocationModal
+												allocationId={allocation.id}
+												currentDuration={allocation.duration || 0}
+												currentVenueTypeIds={
+													allocation.lecturerAllocationVenueTypes?.map(
+														(avt) => avt.venueTypeId
+													) || []
+												}
+											/>
+											<DeleteButton
+												variant='subtle'
+												size='sm'
+												handleDelete={async () => {
+													await deleteLecturerAllocation(allocation.id);
+												}}
+												queryKey={['lecturer-allocations', id]}
+												message='Are you sure you want to delete this allocation?'
+												onSuccess={() => {}}
+											/>
+										</Group>
+									</TableTd>
+								</TableTr>
+							))}
+						</TableTbody>
+					</Table>
+				</DetailsViewBody>
+			)}
 		</DetailsView>
 	);
 }
