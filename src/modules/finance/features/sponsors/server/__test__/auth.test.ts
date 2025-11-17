@@ -1,10 +1,10 @@
-import { resetMockUser, setMockUser } from '@admin/test';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { sponsors, users } from '@/core/database';
+import { resetMockUser, setMockUser } from '@/test/mocks.auth';
 import { createSponsor, updateSponsor } from '../actions';
 
 vi.mock('@/core/platform/withAuth', () => {
-	return vi.importActual('@admin/test/server/mock.withAuth');
+	return vi.importActual('@/test/mock.withAuth');
 });
 
 type Sponsor = typeof sponsors.$inferSelect;
