@@ -156,6 +156,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 										<TableTh>Program</TableTh>
 										<TableTh>Group</TableTh>
 										<TableTh>Duration</TableTh>
+										<TableTh>Students</TableTh>
 										<TableTh>Venue</TableTh>
 										<TableTh>Actions</TableTh>
 									</TableTr>
@@ -186,6 +187,16 @@ export default function LecturerAllocationDetails({ params }: Props) {
 												{formatDuration(allocation.duration || 0)}
 											</TableTd>
 											<TableTd>
+												{allocation.numberOfStudents !== null &&
+												allocation.numberOfStudents !== undefined ? (
+													<Text size='sm'>{allocation.numberOfStudents}</Text>
+												) : (
+													<Text size='sm' c='dimmed'>
+														-
+													</Text>
+												)}
+											</TableTd>
+											<TableTd>
 												{allocation.lecturerAllocationVenueTypes &&
 												allocation.lecturerAllocationVenueTypes.length > 0 ? (
 													<Group gap='xs'>
@@ -208,6 +219,9 @@ export default function LecturerAllocationDetails({ params }: Props) {
 													<EditAllocationModal
 														allocationId={allocation.id}
 														currentDuration={allocation.duration || 0}
+														currentNumberOfStudents={
+															allocation.numberOfStudents ?? undefined
+														}
 														currentVenueTypeIds={
 															allocation.lecturerAllocationVenueTypes?.map(
 																(avt) => avt.venueTypeId

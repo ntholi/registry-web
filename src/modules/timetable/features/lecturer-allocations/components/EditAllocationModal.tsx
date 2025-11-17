@@ -6,6 +6,7 @@ import {
 	Group,
 	Modal,
 	MultiSelect,
+	NumberInput,
 	Stack,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -24,6 +25,7 @@ import {
 
 const schema = z.object({
 	duration: z.number().min(1, 'Please enter a valid duration'),
+	numberOfStudents: z.number().min(0).optional(),
 	venueTypeIds: z.array(z.number()),
 });
 
@@ -32,12 +34,14 @@ type FormValues = z.infer<typeof schema>;
 type Props = {
 	allocationId: number;
 	currentDuration: number;
+	currentNumberOfStudents?: number;
 	currentVenueTypeIds: number[];
 };
 
 export default function EditAllocationModal({
 	allocationId,
 	currentDuration,
+	currentNumberOfStudents,
 	currentVenueTypeIds,
 }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
@@ -52,6 +56,7 @@ export default function EditAllocationModal({
 		validate: zodResolver(schema),
 		initialValues: {
 			duration: currentDuration,
+			numberOfStudents: currentNumberOfStudents,
 			venueTypeIds: currentVenueTypeIds,
 		},
 	});
@@ -60,6 +65,7 @@ export default function EditAllocationModal({
 		mutationFn: async (values: FormValues) => {
 			await updateLecturerAllocation(allocationId, {
 				duration: values.duration,
+				numberOfStudents: values.numberOfStudents,
 			});
 			await updateLecturerAllocationVenueTypes(
 				allocationId,
@@ -94,6 +100,7 @@ export default function EditAllocationModal({
 	const handleOpen = () => {
 		form.setValues({
 			duration: currentDuration,
+			numberOfStudents: currentNumberOfStudents,
 			venueTypeIds: currentVenueTypeIds,
 		});
 		open();
@@ -114,6 +121,20 @@ export default function EditAllocationModal({
 							onChange={(value) => form.setFieldValue('duration', value)}
 							error={form.errors.duration}
 							required
+						/>
+
+						<NumberInput
+							label='Number of Students'
+							placeholder='Enter number of students'
+							value={form.values.numberOfStudents}
+							onChange={(value) =>
+								form.setFieldValue(
+									'numberOfStudents',
+									value as number | undefined
+								)
+							}
+							error={form.errors.numberOfStudents}
+							min={0}
 						/>
 
 						<MultiSelect

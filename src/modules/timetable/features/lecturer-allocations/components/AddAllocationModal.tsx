@@ -6,6 +6,7 @@ import {
 	Group,
 	Modal,
 	MultiSelect,
+	NumberInput,
 	Select,
 	Slider,
 	Stack,
@@ -30,6 +31,7 @@ import { ModuleSearchInput } from './ModuleSearchInput';
 const schema = z.object({
 	semesterModuleId: z.number().min(1, 'Please select a semester module'),
 	duration: z.number().min(1, 'Please enter a valid duration'),
+	numberOfStudents: z.number().min(0).optional(),
 	venueTypeIds: z.array(z.number()),
 	numberOfGroups: z.number().min(0).max(10),
 	groups: z.array(z.string()),
@@ -59,6 +61,7 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 		initialValues: {
 			semesterModuleId: 0,
 			duration: 30,
+			numberOfStudents: undefined,
 			venueTypeIds: [],
 			numberOfGroups: 0,
 			groups: [],
@@ -85,6 +88,7 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 						termId,
 						semesterModuleId: values.semesterModuleId,
 						duration: values.duration,
+						numberOfStudents: values.numberOfStudents,
 					},
 					values.venueTypeIds
 				);
@@ -95,6 +99,7 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 				termId,
 				semesterModuleId: values.semesterModuleId,
 				duration: values.duration,
+				numberOfStudents: values.numberOfStudents,
 				groupName,
 			}));
 
@@ -192,6 +197,20 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							onChange={(value) => form.setFieldValue('duration', value)}
 							error={form.errors.duration}
 							required
+						/>
+
+						<NumberInput
+							label='Number of Students'
+							placeholder='Enter number of students'
+							value={form.values.numberOfStudents}
+							onChange={(value) =>
+								form.setFieldValue(
+									'numberOfStudents',
+									value as number | undefined
+								)
+							}
+							error={form.errors.numberOfStudents}
+							min={0}
 						/>
 
 						<Stack gap='xs'>

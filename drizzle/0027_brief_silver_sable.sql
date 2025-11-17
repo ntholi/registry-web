@@ -1,0 +1,1 @@
+ALTER TABLE "lecturer_allocations" ADD COLUMN "number_of_students" integer;
