@@ -154,6 +154,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 									<TableTr>
 										<TableTh>Module</TableTh>
 										<TableTh>Program</TableTh>
+										<TableTh>Group</TableTh>
 										<TableTh>Duration</TableTh>
 										<TableTh>Venue</TableTh>
 										<TableTh>Actions</TableTh>
@@ -169,6 +170,17 @@ export default function LecturerAllocationDetails({ params }: Props) {
 											<TableTd>
 												{allocation.semesterModule?.semester?.structure?.program
 													?.name || '-'}
+											</TableTd>
+											<TableTd>
+												{allocation.groupName ? (
+													<Badge variant='light' size='sm'>
+														{allocation.groupName}
+													</Badge>
+												) : (
+													<Text size='sm' c='dimmed'>
+														All Students
+													</Text>
+												)}
 											</TableTd>
 											<TableTd>
 												{formatDuration(allocation.duration || 0)}
