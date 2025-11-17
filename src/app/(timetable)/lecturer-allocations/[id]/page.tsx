@@ -12,15 +12,14 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconTrash } from '@tabler/icons-react';
 import {
 	deleteLecturerAllocation,
 	getLecturerAllocationsByUserId,
 } from '@timetable/lecturer-allocations';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import { DetailsView, DetailsViewBody } from '@/shared/ui/adease';
+import { DetailsView, DetailsViewBody, FieldView } from '@/shared/ui/adease';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -65,44 +64,30 @@ export default async function LecturerAllocationDetails({ params }: Props) {
 				<Title order={3} fw={100}>
 					Lecturer Allocations
 				</Title>
-				<Link href={`/lecturer-allocations/new?userId=${id}`}>
-					<ActionIcon variant='outline' size='lg'>
-						<IconPlus size='1.2rem' />
-					</ActionIcon>
-				</Link>
 			</Flex>
 			<Divider my={15} />
 			<DetailsViewBody>
-				<div>
-					<Text size='sm' c='dimmed'>
-						Lecturer
-					</Text>
+				<FieldView label='Lecturer'>
 					<Text size='lg' fw={500}>
 						{lecturer?.name || 'Unknown'}
 					</Text>
-				</div>
+				</FieldView>
 
-				<div>
-					<Text size='sm' c='dimmed' mb={4}>
-						Terms
-					</Text>
+				<FieldView label='Terms'>
 					<Group gap='xs'>
 						{uniqueTerms.map((termName) => (
 							<Text key={termName}>{termName}</Text>
 						))}
 					</Group>
-				</div>
+				</FieldView>
 
-				<div>
-					<Text size='sm' c='dimmed' mb={4}>
-						Total Hours
-					</Text>
+				<FieldView label='Total Hours'>
 					<Text size='lg' fw={500}>
 						{formatDuration(totalMinutes)}
 					</Text>
-				</div>
+				</FieldView>
 
-				<Table striped highlightOnHover withTableBorder>
+				<Table striped highlightOnHover withTableBorder mt={'lg'}>
 					<TableThead>
 						<TableTr>
 							<TableTh>Module</TableTh>
