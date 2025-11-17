@@ -89,6 +89,13 @@ export default function LecturerAllocationDetails({ params }: Props) {
 		);
 	}, [filteredAllocations]);
 
+	const totalStudents = useMemo(() => {
+		return filteredAllocations.reduce(
+			(sum, allocation) => sum + (allocation.numberOfStudents ?? 0),
+			0
+		);
+	}, [filteredAllocations]);
+
 	if (lecturerLoading || allocationsLoading) {
 		return null;
 	}
@@ -135,9 +142,14 @@ export default function LecturerAllocationDetails({ params }: Props) {
 					</Stack>
 					<Box mt='lg'>
 						<Flex justify='space-between' align={'flex-end'} mb='xs'>
-							<Badge variant='light' radius={'sm'}>
-								{formatDuration(totalMinutes)}
-							</Badge>
+							<Group align='center' gap='xs'>
+								<Badge variant='light' color='cyan' radius={'sm'}>
+									{formatDuration(totalMinutes)}
+								</Badge>
+								<Badge variant='light' color='teal' radius={'sm'}>
+									{`${totalStudents} Student${totalStudents !== 1 ? 's' : ''}`}
+								</Badge>
+							</Group>
 							<AddAllocationModal userId={id} termId={selectedTermId} />
 						</Flex>
 

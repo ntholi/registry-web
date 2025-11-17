@@ -4,6 +4,7 @@ import type { searchModulesWithDetails } from '@academic/semester-modules';
 import {
 	Button,
 	Checkbox,
+	Grid,
 	Group,
 	Modal,
 	MultiSelect,
@@ -213,6 +214,30 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 									searchable
 									required
 								/>
+					<Stack gap='lg'>
+						<ModuleSearchInput onModuleSelect={handleModuleSelect} required />
+						<Select
+							label='Semester Module'
+							placeholder='Select a semester module'
+							data={semesterOptions}
+							value={
+								form.values.semesterModuleId
+									? form.values.semesterModuleId.toString()
+									: null
+							}
+							onChange={(value) => {
+								form.setFieldValue(
+									'semesterModuleId',
+									value ? Number(value) : 0
+								);
+							}}
+							error={form.errors.semesterModuleId}
+							disabled={!selectedModule || semesterOptions.length === 0}
+							searchable
+							required
+						/>
+						<Grid align='end'>
+							<Grid.Col span={6}>
 								<DurationInput
 									label='Duration'
 									value={form.values.duration}
@@ -220,6 +245,8 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 									error={form.errors.duration}
 									required
 								/>
+							</Grid.Col>
+							<Grid.Col span={6}>
 								<NumberInput
 									label='Number of Students'
 									placeholder='Enter number of students'
@@ -340,6 +367,69 @@ export default function AddAllocationModal({ userId, termId }: Props) {
 							Add Allocation
 						</Button>
 					</Group>
+							</Grid.Col>
+						</Grid>
+						<Stack gap='xs'>
+							<Text size='sm' fw={500}>
+								Number of Groups
+							</Text>
+							<Slider
+								value={form.values.numberOfGroups}
+								onChange={handleGroupCountChange}
+								min={0}
+								max={10}
+								step={1}
+								marks={[
+									{ value: 0, label: '0' },
+									{ value: 1, label: '1' },
+									{ value: 2, label: '2' },
+									{ value: 3, label: '3' },
+									{ value: 4, label: '4' },
+									{ value: 5, label: '5' },
+									{ value: 6, label: '6' },
+									{ value: 7, label: '7' },
+									{ value: 8, label: '8' },
+									{ value: 9, label: '9' },
+									{ value: 10, label: '10' },
+								]}
+								label={(value) =>
+									value === 0
+										? 'All Students'
+										: `${value} Group${value === 1 ? '' : 's'}`
+								}
+							/>
+							<Text size='xs' c='dimmed' mt='md'>
+								{form.values.numberOfGroups === 0
+									? 'Assign the entire class to this lecturer'
+									: `Split the class into ${form.values.numberOfGroups} group${form.values.numberOfGroups === 1 ? '' : 's'}`}
+							</Text>
+						</Stack>
+						<MultiSelect
+							label='Venue Types'
+							placeholder='Select venue types (optional)'
+							data={venueTypes.map((vt: { id: number; name: string }) => ({
+								value: vt.id.toString(),
+								label: vt.name,
+							}))}
+							value={form.values.venueTypeIds.map((id) => id.toString())}
+							onChange={(values) => {
+								form.setFieldValue(
+									'venueTypeIds',
+									values.map((v) => Number(v))
+								);
+							}}
+							searchable
+							clearable
+						/>
+						<Group justify='flex-end' mt='md'>
+							<Button variant='subtle' onClick={close}>
+								Cancel
+							</Button>
+							<Button type='submit' loading={mutation.isPending}>
+								Add Allocation
+							</Button>
+						</Group>
+					</Stack>
 				</form>
 			</Modal>
 		</>
