@@ -1,5 +1,16 @@
 import { and, between, count, eq, gte, lte, or } from 'drizzle-orm';
-import type { timetableAllocations, venues, venueTypes } from '@/core/database';
+import type {
+	modules,
+	programs,
+	semesterModules,
+	structureSemesters,
+	structures,
+	terms,
+	timetableAllocations,
+	users,
+	venues,
+	venueTypes,
+} from '@/core/database';
 import { db, timetableSlotAllocations, timetableSlots } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -14,6 +25,33 @@ export interface SlotWithAllocations extends TimetableSlot {
 	}[];
 	venue: typeof venues.$inferSelect & { type: typeof venueTypes.$inferSelect };
 }
+
+export type UserSlot = TimetableSlot & {
+	timetableSlotAllocations: Array<{
+		slotId: number;
+		timetableAllocationId: number;
+		createdAt: Date | null;
+		timetableAllocation: typeof timetableAllocations.$inferSelect & {
+			semesterModule: typeof semesterModules.$inferSelect & {
+				module: typeof modules.$inferSelect;
+				semester:
+					| (typeof structureSemesters.$inferSelect & {
+							structure: typeof structures.$inferSelect & {
+								program: typeof programs.$inferSelect;
+							};
+					  })
+					| null;
+			};
+			term: typeof terms.$inferSelect;
+			user: typeof users.$inferSelect;
+		};
+	}>;
+	venue:
+		| (typeof venues.$inferSelect & {
+				type: typeof venueTypes.$inferSelect;
+		  })
+		| null;
+};
 
 export interface PlannedSlotInput {
 	termId: number;
@@ -237,7 +275,10 @@ export default class TimetableSlotRepository extends BaseRepository<
 		return inserted;
 	}
 
-	async findUserSlotsForTerm(userId: string, termId: number) {
+	async findUserSlotsForTerm(
+		userId: string,
+		termId: number
+	): Promise<UserSlot[]> {
 		const slots = await db.query.timetableSlots.findMany({
 			where: eq(timetableSlots.termId, termId),
 			with: {
@@ -245,32 +286,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 					with: {
 						timetableAllocation: {
 							with: {
-								semesterModule: {
-									columns: {
-										id: true,
-										moduleId: true,
-										semesterId: true,
-										type: true,
-										credits: true,
-									},
-									with: {
-										module: {
-											columns: {
-												id: true,
-												code: true,
-												name: true,
-											},
-										},
-										semester: {
-											columns: {
-												id: true,
-												structureId: true,
-												semesterNumber: true,
-												name: true,
-											},
-										},
-									},
-								},
+								semesterModule: true,
 								term: true,
 								user: true,
 							},
@@ -291,14 +307,28 @@ export default class TimetableSlotRepository extends BaseRepository<
 			)
 		);
 
-		const structureIds = new Set<number>();
+		const semesterModuleIds = new Set<number>();
 		for (const slot of filteredSlots) {
 			for (const allocation of slot.timetableSlotAllocations) {
-				const semesterId =
-					allocation.timetableAllocation.semesterModule.semester?.structureId;
-				if (semesterId) {
-					structureIds.add(semesterId);
-				}
+				semesterModuleIds.add(allocation.timetableAllocation.semesterModule.id);
+			}
+		}
+
+		const semesterModules = await db.query.semesterModules.findMany({
+			where: (tbl, { inArray }) =>
+				inArray(tbl.id, Array.from(semesterModuleIds)),
+			with: {
+				module: true,
+				semester: true,
+			},
+		});
+
+		const semesterModuleMap = new Map(semesterModules.map((sm) => [sm.id, sm]));
+
+		const structureIds = new Set<number>();
+		for (const sm of semesterModules) {
+			if (sm.semester?.structureId) {
+				structureIds.add(sm.semester.structureId);
 			}
 		}
 
@@ -321,26 +351,32 @@ export default class TimetableSlotRepository extends BaseRepository<
 		return filteredSlots.map((slot) => ({
 			...slot,
 			timetableSlotAllocations: slot.timetableSlotAllocations.map(
-				(allocation) => ({
-					...allocation,
-					timetableAllocation: {
-						...allocation.timetableAllocation,
-						semesterModule: {
-							...allocation.timetableAllocation.semesterModule,
-							semester: allocation.timetableAllocation.semesterModule.semester
+				(allocation) => {
+					const semesterModule = semesterModuleMap.get(
+						allocation.timetableAllocation.semesterModule.id
+					);
+					return {
+						...allocation,
+						timetableAllocation: {
+							...allocation.timetableAllocation,
+							semesterModule: semesterModule
 								? {
-										...allocation.timetableAllocation.semesterModule.semester,
-										structure: structureMap.get(
-											allocation.timetableAllocation.semesterModule.semester
-												.structureId
-										),
+										...semesterModule,
+										semester: semesterModule.semester
+											? {
+													...semesterModule.semester,
+													structure: structureMap.get(
+														semesterModule.semester.structureId
+													),
+												}
+											: null,
 									}
-								: undefined,
+								: allocation.timetableAllocation.semesterModule,
 						},
-					},
-				})
+					};
+				}
 			),
-		}));
+		})) as UserSlot[];
 	}
 
 	private buildSlotKey(

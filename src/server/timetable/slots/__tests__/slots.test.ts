@@ -123,9 +123,9 @@ describe('getUserTimetableSlots', () => {
 			expect(slot.venue).toHaveProperty('name');
 			expect(slot.venue).toHaveProperty('capacity');
 			expect(slot.venue).toHaveProperty('type');
-			expect(slot.venue.type).toBeDefined();
-			expect(slot.venue.type).toHaveProperty('id');
-			expect(slot.venue.type).toHaveProperty('name');
+			expect(slot.venue?.type).toBeDefined();
+			expect(slot.venue?.type).toHaveProperty('id');
+			expect(slot.venue?.type).toHaveProperty('name');
 		}
 	});
 
@@ -259,7 +259,7 @@ describe('getUserTimetableSlots', () => {
 			const slot = slots[0];
 			expect(slot.venue).toBeDefined();
 			expect(slot.venue).toHaveProperty('name');
-			expect(slot.venue.name).toBeTruthy();
+			expect(slot.venue?.name).toBeTruthy();
 		}
 	});
 

@@ -33,20 +33,20 @@ const DAY_LABELS: Record<(typeof DAYS)[number], string> = {
 function toClassName(
 	semesterModule: {
 		semester?: {
-			semesterNumber: string;
+			semesterNumber: number | string;
 			structure?: {
 				program: {
 					code: string;
 				};
 			};
-		};
+		} | null;
 	},
 	groupName: string | null
 ) {
 	if (!semesterModule.semester || !semesterModule.semester.structure)
 		return 'Unknown';
 	const code = semesterModule.semester.structure.program.code;
-	const num = semesterModule.semester.semesterNumber;
+	const num = String(semesterModule.semester.semesterNumber);
 	return `${code}${formatSemester(num, 'mini')}${groupName ? `${groupName}` : ''}`;
 }
 
@@ -111,7 +111,7 @@ function groupAllocationsByModule(slot: SlotData) {
 				moduleCode,
 				moduleName,
 				venueId: slot.venueId,
-				venueName: slot.venue.name,
+				venueName: slot.venue?.name || '',
 				classNames: [className],
 			});
 		}
