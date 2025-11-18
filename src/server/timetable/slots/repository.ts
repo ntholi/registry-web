@@ -237,6 +237,42 @@ export default class TimetableSlotRepository extends BaseRepository<
 		return inserted;
 	}
 
+	async findUserSlotsForTerm(userId: string, termId: number) {
+		return db.query.timetableSlots
+			.findMany({
+				where: eq(timetableSlots.termId, termId),
+				with: {
+					timetableSlotAllocations: {
+						with: {
+							timetableAllocation: {
+								with: {
+									semesterModule: {
+										with: {
+											module: true,
+										},
+									},
+									term: true,
+									user: true,
+								},
+							},
+						},
+					},
+					venue: {
+						with: {
+							type: true,
+						},
+					},
+				},
+			})
+			.then((slots) =>
+				slots.filter((slot) =>
+					slot.timetableSlotAllocations.some(
+						(allocation) => allocation.timetableAllocation.userId === userId
+					)
+				)
+			);
+	}
+
 	private buildSlotKey(
 		venueId: number,
 		dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number],

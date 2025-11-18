@@ -9,3 +9,7 @@ export async function allocateTimetableSlot(allocationId: number) {
 export async function getTermSlots(termId: number) {
 	return timetableSlotService.listTermSlots(termId);
 }
+
+export async function getUserTimetableSlots(userId: string, termId: number) {
+	return timetableSlotService.getUserSlots(userId, termId);
+}

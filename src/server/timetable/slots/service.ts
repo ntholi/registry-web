@@ -31,6 +31,12 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 		}, ['dashboard']);
 	}
 
+	async getUserSlots(userId: string, termId: number) {
+		return withAuth(async () => {
+			return this.slotRepository.findUserSlotsForTerm(userId, termId);
+		}, ['dashboard']);
+	}
+
 	async allocateSlot(allocationId: number) {
 		return withAuth(async () => {
 			const allocation = await this.loadAllocation(allocationId);
