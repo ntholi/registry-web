@@ -29,19 +29,13 @@ const testDb = drizzle(testPool, {
 });
 
 async function setupTestDatabase() {
-	try {
-		await migrate(testDb, { migrationsFolder: './drizzle' });
-	} catch (error) {
-		const cause =
-			error instanceof Error
-				? (error as { cause?: { code?: string } }).cause
-				: undefined;
-		if (cause?.code === '42P07') {
-			await resetPublicSchema();
-			await migrate(testDb, { migrationsFolder: './drizzle' });
-			return;
-		}
-		throw error;
+	await resetPublicSchema();
+	await migrate(testDb, { migrationsFolder: './drizzle' });
+	const result = await testPool.query(
+		"select to_regclass('public.sponsors') as table_name"
+	);
+	if (!result.rows[0]?.table_name) {
+		throw new Error('Sponsors table missing after migrations');
 	}
 }
 
@@ -50,6 +44,8 @@ async function resetPublicSchema() {
 	await testPool.query('CREATE SCHEMA public');
 	await testPool.query('GRANT ALL ON SCHEMA public TO postgres');
 	await testPool.query('GRANT ALL ON SCHEMA public TO public');
+	await testPool.query('DROP SCHEMA IF EXISTS drizzle CASCADE');
+	await testPool.query('CREATE SCHEMA drizzle');
 }
 
 async function cleanupTestDatabase() {
