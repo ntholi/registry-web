@@ -249,7 +249,6 @@ function evaluateDayPlacement(
 	};
 }
 
-
 function findCombinableSlot(
 	allocation: AllocationRecord,
 	venue: VenueRecord,

@@ -31,6 +31,7 @@ import { notFound } from 'next/navigation';
 import { use, useMemo } from 'react';
 import { getAllTerms } from '@/modules/registry/features/terms';
 import useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DeleteButton,
 	DetailsView,
@@ -177,8 +178,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 								<TableThead>
 									<TableTr>
 										<TableTh>Module</TableTh>
-										<TableTh>Program</TableTh>
-										<TableTh>Group</TableTh>
+										<TableTh>Class</TableTh>
 										<TableTh>Duration</TableTh>
 										<TableTh>Students</TableTh>
 										<TableTh>Venue</TableTh>
@@ -193,18 +193,9 @@ export default function LecturerAllocationDetails({ params }: Props) {
 												{allocation.semesterModule?.module?.code})
 											</TableTd>
 											<TableTd>
-												{allocation.semesterModule?.semester?.structure?.program
-													?.name || '-'}
-											</TableTd>
-											<TableTd>
-												{allocation.groupName ? (
-													<Badge variant='light' size='sm'>
-														{allocation.groupName}
-													</Badge>
-												) : (
-													<Text size='sm' c='dimmed'>
-														All Students
-													</Text>
+												{toClassName(
+													allocation.semesterModule,
+													allocation.groupName
 												)}
 											</TableTd>
 											<TableTd>
@@ -289,4 +280,22 @@ export default function LecturerAllocationDetails({ params }: Props) {
 			)}
 		</DetailsView>
 	);
+}
+
+type SemesterModule = {
+	semester: {
+		semesterNumber: string;
+		structure: {
+			program: {
+				code: string;
+			};
+		};
+	} | null;
+};
+
+function toClassName(semesterModule: SemesterModule, groupName: string | null) {
+	if (!semesterModule.semester) return 'Unknown';
+	const code = semesterModule.semester.structure?.program?.code;
+	const num = semesterModule.semester.semesterNumber;
+	return `${code}${formatSemester(num, 'mini')}${groupName ? `${groupName}` : ''}`;
 }
