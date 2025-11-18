@@ -49,21 +49,31 @@ class TimetableAllocationService extends BaseService<
 		venueTypeIds: number[]
 	) {
 		return withAuth(async () => {
-			const created = [];
-			for (const allocation of allocations) {
-				const result = await this.repo.createWithVenueTypes(
-					allocation,
-					venueTypeIds
-				);
-				created.push(result);
-			}
-			return created;
+			return this.repo.createManyWithVenueTypes(allocations, venueTypeIds);
+		}, ['academic']);
+	}
+
+	async create(allocation: TimetableAllocationInsert) {
+		return withAuth(async () => {
+			return this.repo.createAllocation(allocation);
+		}, ['academic']);
+	}
+
+	async update(id: number, allocation: Partial<TimetableAllocationInsert>) {
+		return withAuth(async () => {
+			return this.repo.updateAllocation(id, allocation);
+		}, ['academic']);
+	}
+
+	async delete(id: number) {
+		return withAuth(async () => {
+			return this.repo.deleteAllocation(id);
 		}, ['academic']);
 	}
 
 	async updateVenueTypes(allocationId: number, venueTypeIds: number[]) {
 		return withAuth(async () => {
-			return this.repo.updateVenueTypes(allocationId, venueTypeIds);
+			await this.repo.updateVenueTypes(allocationId, venueTypeIds);
 		}, ['academic']);
 	}
 }

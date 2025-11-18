@@ -5,10 +5,15 @@ import {
 	timetableAllocations,
 	timetableAllocationVenueTypes,
 } from './schema/timetable-allocations';
+import {
+	timetableSlotAllocations,
+	timetableSlots,
+} from './schema/timetable-slots';
 import { venueSchools, venues, venueTypes } from './schema/venues';
 
 export const venueTypesRelations = relations(venueTypes, ({ many }) => ({
 	venues: many(venues),
+	timetableSlots: many(timetableSlots),
 	timetableAllocationVenueTypes: many(timetableAllocationVenueTypes),
 }));
 
@@ -18,6 +23,7 @@ export const venuesRelations = relations(venues, ({ many, one }) => ({
 		references: [venueTypes.id],
 	}),
 	venueSchools: many(venueSchools),
+	timetableSlots: many(timetableSlots),
 }));
 
 export const venueSchoolsRelations = relations(venueSchools, ({ one }) => ({
@@ -47,6 +53,7 @@ export const timetableAllocationsRelations = relations(
 			references: [terms.id],
 		}),
 		timetableAllocationVenueTypes: many(timetableAllocationVenueTypes),
+		timetableSlotAllocations: many(timetableSlotAllocations),
 	})
 );
 
@@ -60,6 +67,35 @@ export const timetableAllocationVenueTypesRelations = relations(
 		venueType: one(venueTypes, {
 			fields: [timetableAllocationVenueTypes.venueTypeId],
 			references: [venueTypes.id],
+		}),
+	})
+);
+
+export const timetableSlotsRelations = relations(
+	timetableSlots,
+	({ many, one }) => ({
+		term: one(terms, {
+			fields: [timetableSlots.termId],
+			references: [terms.id],
+		}),
+		venue: one(venues, {
+			fields: [timetableSlots.venueId],
+			references: [venues.id],
+		}),
+		timetableSlotAllocations: many(timetableSlotAllocations),
+	})
+);
+
+export const timetableSlotAllocationsRelations = relations(
+	timetableSlotAllocations,
+	({ one }) => ({
+		slot: one(timetableSlots, {
+			fields: [timetableSlotAllocations.slotId],
+			references: [timetableSlots.id],
+		}),
+		timetableAllocation: one(timetableAllocations, {
+			fields: [timetableSlotAllocations.timetableAllocationId],
+			references: [timetableAllocations.id],
 		}),
 	})
 );
