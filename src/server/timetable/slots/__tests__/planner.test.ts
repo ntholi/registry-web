@@ -236,4 +236,72 @@ describe('buildTermPlan', () => {
 		const starts = plan.map((slot) => slot.startTime);
 		expect(starts).toStrictEqual(['08:00:00', '09:00:00', '10:00:00']);
 	});
+
+	it('keeps distinct modules in separate slots even when durations match', () => {
+		const venue = makeVenue({ id: 15, capacity: 200 });
+		const first = makeAllocation({
+			duration: 120,
+			semesterModule: { id: 100, module: { id: 500 } },
+			semesterModuleId: 100,
+		});
+		const second = makeAllocation({
+			duration: 120,
+			semesterModule: { id: 101, module: { id: 501 } },
+			semesterModuleId: 101,
+		});
+		const plan = buildTermPlan(1, [first, second], [venue]);
+		expect(plan).toHaveLength(2);
+		const overlapping = plan.some((slotA, indexA) =>
+			plan.some((slotB, indexB) => {
+				if (indexA === indexB) {
+					return false;
+				}
+				if (slotA.venueId !== slotB.venueId) {
+					return false;
+				}
+				return !(
+					slotA.endTime <= slotB.startTime || slotB.endTime <= slotA.startTime
+				);
+			})
+		);
+		expect(overlapping).toBe(false);
+	});
+
+	it('prefers alternate allowed days when primary day is saturated', () => {
+		const venue = makeVenue({ id: 21 });
+		const morning = makeAllocation({
+			allowedDays: ['monday'],
+			startTime: '08:00:00',
+			endTime: '12:00:00',
+			duration: 240,
+		});
+		const afternoon = makeAllocation({
+			allowedDays: ['monday'],
+			startTime: '12:00:00',
+			endTime: '18:00:00',
+			duration: 360,
+		});
+		const flexible = makeAllocation({
+			allowedDays: ['monday', 'tuesday'],
+			startTime: '08:00:00',
+			endTime: '18:00:00',
+			duration: 180,
+		});
+		const plan = buildTermPlan(1, [morning, afternoon, flexible], [venue]);
+		const flexibleSlot = plan.find((slot) =>
+			slot.allocationIds.includes(flexible.id)
+		);
+		expect(flexibleSlot?.dayOfWeek).toBe('tuesday');
+	});
+
+	it('throws when a required venue type is unavailable', () => {
+		const restricted = makeAllocation({
+			timetableAllocationVenueTypes: [{ venueTypeId: 999 }],
+		});
+		const attempt = () =>
+			buildTermPlan(1, [restricted], [makeVenue({ typeId: 1 })]);
+		expect(attempt).toThrow(
+			'Unable to allocate slot with provided constraints'
+		);
+	});
 });

@@ -111,9 +111,11 @@ async function cleanupTestDatabase() {
 				? ((error as { code?: string; cause?: { code?: string } }).code ??
 					(error as { code?: string; cause?: { code?: string } }).cause?.code)
 				: undefined;
-		if (code !== '42P01') {
-			throw error;
+		if (code === '42P01') {
+			await setupTestDatabase();
+			return;
 		}
+		throw error;
 	}
 }
 
