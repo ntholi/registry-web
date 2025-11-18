@@ -165,9 +165,15 @@ function evaluateDayPlacement(
 ) {
 	const dayKey = buildDayKey(venue.id, day);
 	const daySlots = planningState.daySchedules.get(dayKey) ?? [];
-	const combinable = findCombinableSlot(allocation, venue, daySlots);
 	const earliestStart = toMinutes(allocation.startTime);
 	const latestEnd = toMinutes(allocation.endTime);
+	const combinable = findCombinableSlot(
+		allocation,
+		venue,
+		daySlots,
+		earliestStart,
+		latestEnd
+	);
 	if (combinable) {
 		const startMinutes = combinable.startMinutes;
 		const score = computePlacementScore({
@@ -243,16 +249,22 @@ function evaluateDayPlacement(
 	};
 }
 
+
 function findCombinableSlot(
 	allocation: AllocationRecord,
 	venue: VenueRecord,
-	daySlots: PlanSlot[]
+	daySlots: PlanSlot[],
+	earliestStart: number,
+	latestEnd: number
 ) {
 	for (const slot of daySlots) {
 		if (
 			slot.moduleId !== allocation.semesterModule.module.id &&
 			slot.semesterModuleId !== allocation.semesterModuleId
 		) {
+			continue;
+		}
+		if (slot.startMinutes < earliestStart || slot.endMinutes > latestEnd) {
 			continue;
 		}
 		if (slot.endMinutes - slot.startMinutes !== allocation.duration) {
@@ -381,5 +393,3 @@ function minutesToTime(minutesValue: number) {
 	const minutesText = minutesPart.toString().padStart(2, '0');
 	return `${hoursText}:${minutesText}:00`;
 }
-
-``;

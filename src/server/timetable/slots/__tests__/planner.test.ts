@@ -74,6 +74,11 @@ function makeVenue(overrides: Partial<VenueRecord> = {}): VenueRecord {
 	} as VenueRecord;
 }
 
+function timeToMinutes(time: string) {
+	const [hours, minutes] = time.split(':');
+	return Number(hours) * 60 + Number(minutes);
+}
+
 describe('buildTermPlan', () => {
 	it('schedules a single allocation at earliest feasible slot', () => {
 		const allocation = makeAllocation({
@@ -292,6 +297,144 @@ describe('buildTermPlan', () => {
 			slot.allocationIds.includes(flexible.id)
 		);
 		expect(flexibleSlot?.dayOfWeek).toBe('tuesday');
+	});
+
+	it('does not exceed venue capacity by more than ten percent for any slot', () => {
+		const baseCapacity = 100;
+		const venue = makeVenue({ id: 30, capacity: baseCapacity });
+		const moduleId = nextSemesterModuleId();
+		const first = makeAllocation({
+			semesterModule: { id: moduleId, module: { id: 900 } },
+			semesterModuleId: moduleId,
+			duration: 60,
+			numberOfStudents: 55,
+		});
+		const second = makeAllocation({
+			semesterModule: { id: moduleId, module: { id: 900 } },
+			semesterModuleId: moduleId,
+			duration: 60,
+			numberOfStudents: 55,
+		});
+		const third = makeAllocation({
+			semesterModule: { id: moduleId, module: { id: 900 } },
+			semesterModuleId: moduleId,
+			duration: 60,
+			numberOfStudents: 10,
+		});
+		const plan = buildTermPlan(1, [first, second, third], [venue]);
+		const maxCapacity = Math.floor(baseCapacity * 1.1);
+		for (const slot of plan) {
+			expect(slot.capacityUsed).toBeLessThanOrEqual(maxCapacity);
+		}
+	});
+
+	it('never overlaps slots for the same venue and day', () => {
+		const venue = makeVenue({ id: 31, capacity: 200 });
+		const allocations = [
+			makeAllocation({ duration: 90 }),
+			makeAllocation({ duration: 120 }),
+			makeAllocation({ duration: 60 }),
+			makeAllocation({ duration: 150 }),
+		];
+		const plan = buildTermPlan(1, allocations, [venue]);
+		const grouped: Record<string, { start: number; end: number }[]> = {};
+		for (const slot of plan) {
+			const key = `${slot.venueId}-${slot.dayOfWeek}`;
+			const list = grouped[key] ?? [];
+			list.push({
+				start: timeToMinutes(slot.startTime),
+				end: timeToMinutes(slot.endTime),
+			});
+			grouped[key] = list;
+		}
+		for (const key of Object.keys(grouped)) {
+			const sorted = grouped[key].sort((a, b) => a.start - b.start);
+			for (let i = 1; i < sorted.length; i += 1) {
+				expect(sorted[i - 1].end).toBeLessThanOrEqual(sorted[i].start);
+			}
+		}
+	});
+
+	it('respects allowed days and time windows for every allocation', () => {
+		const venue = makeVenue({ id: 32, capacity: 150 });
+		const allocations: AllocationRecord[] = [];
+		allocations.push(
+			makeAllocation({
+				allowedDays: ['monday', 'tuesday'],
+				startTime: '08:00:00',
+				endTime: '12:00:00',
+				duration: 120,
+			}),
+			makeAllocation({
+				allowedDays: ['wednesday'],
+				startTime: '10:00:00',
+				endTime: '16:00:00',
+				duration: 180,
+			}),
+			makeAllocation({
+				allowedDays: ['thursday', 'friday'],
+				startTime: '09:00:00',
+				endTime: '17:00:00',
+				duration: 90,
+			})
+		);
+		const plan = buildTermPlan(1, allocations, [venue]);
+		const byId = new Map<number, AllocationRecord>();
+		for (const allocation of allocations) {
+			byId.set(allocation.id, allocation);
+		}
+		for (const slot of plan) {
+			for (const allocationId of slot.allocationIds) {
+				const allocation = byId.get(allocationId);
+				if (!allocation) {
+					continue;
+				}
+				expect(allocation.allowedDays).toContain(slot.dayOfWeek);
+				const slotStart = timeToMinutes(slot.startTime);
+				const slotEnd = timeToMinutes(slot.endTime);
+				const windowStart = timeToMinutes(allocation.startTime);
+				const windowEnd = timeToMinutes(allocation.endTime);
+				expect(slotStart).toBeGreaterThanOrEqual(windowStart);
+				expect(slotEnd).toBeLessThanOrEqual(windowEnd);
+			}
+		}
+	});
+
+	it('can schedule many allocations without violating constraints', () => {
+		const venues = [
+			makeVenue({ id: 40, capacity: 80 }),
+			makeVenue({ id: 41, capacity: 100 }),
+			makeVenue({ id: 42, capacity: 120 }),
+		];
+		const allocations: AllocationRecord[] = [];
+		for (let i = 0; i < 30; i += 1) {
+			allocations.push(
+				makeAllocation({
+					allowedDays: ['monday', 'tuesday'],
+					startTime: '08:00:00',
+					endTime: '18:00:00',
+					duration: 60 + (i % 4) * 30,
+					numberOfStudents: 30 + (i % 5) * 10,
+				})
+			);
+		}
+		const plan = buildTermPlan(1, allocations, venues);
+		const allAllocationIds = new Set<number>();
+		for (const slot of plan) {
+			const venue = venues.find((v) => v.id === slot.venueId);
+			expect(venue).toBeDefined();
+			if (!venue) {
+				continue;
+			}
+			const maxCapacity = Math.floor(venue.capacity * 1.1);
+			expect(slot.capacityUsed).toBeLessThanOrEqual(maxCapacity);
+			for (const allocationId of slot.allocationIds) {
+				allAllocationIds.add(allocationId);
+			}
+		}
+		for (const allocation of allocations) {
+			expect(allAllocationIds.has(allocation.id)).toBe(true);
+		}
 	});
 
 	it('throws when a required venue type is unavailable', () => {
