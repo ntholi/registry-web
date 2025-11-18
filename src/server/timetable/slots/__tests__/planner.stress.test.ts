@@ -39,18 +39,31 @@ function nextModuleId(): number {
 }
 
 function makeAllocation(
-	overrides: Partial<AllocationRecord> = {}
+	overrides: Partial<Omit<AllocationRecord, 'semesterModule'>> & {
+		semesterModule?: {
+			id?: number;
+			semesterId?: number | null;
+			module?: { id?: number; name?: string };
+		};
+	} = {}
 ): AllocationRecord {
 	const id = overrides.id ?? nextAllocationId();
 	const semesterModuleIdValue =
-		overrides.semesterModuleId ?? nextSemesterModuleId();
-	const moduleIdValue = overrides.semesterModule?.module.id ?? nextModuleId();
+		overrides.semesterModuleId ??
+		overrides.semesterModule?.id ??
+		nextSemesterModuleId();
+	const moduleIdValue = overrides.semesterModule?.module?.id ?? nextModuleId();
+	const moduleNameValue =
+		overrides.semesterModule?.module?.name ?? `Module-${moduleIdValue}`;
 	const semesterIdValue = overrides.semesterModule?.semesterId ?? null;
 
-	const semesterModule = overrides.semesterModule ?? {
-		id: semesterModuleIdValue,
-		semesterId: semesterIdValue,
-		module: { id: moduleIdValue },
+	const semesterModule = {
+		id: overrides.semesterModule?.id ?? semesterModuleIdValue,
+		semesterId: overrides.semesterModule?.semesterId ?? semesterIdValue,
+		module: {
+			id: moduleIdValue,
+			name: moduleNameValue,
+		},
 	};
 
 	return {
@@ -99,6 +112,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 		const lecturerId = 'lecturer-venue-share';
 		const semesterModuleIdValue = nextSemesterModuleId();
 		const moduleIdValue = nextModuleId();
+		const moduleName = 'Mathematics 101';
 
 		const group1 = makeAllocation({
 			userId: lecturerId,
@@ -107,7 +121,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 			semesterModule: {
 				id: semesterModuleIdValue,
 				semesterId: null,
-				module: { id: moduleIdValue },
+				module: { id: moduleIdValue, name: moduleName },
 			},
 			semesterModuleId: semesterModuleIdValue,
 		});
@@ -119,7 +133,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 			semesterModule: {
 				id: semesterModuleIdValue,
 				semesterId: null,
-				module: { id: moduleIdValue },
+				module: { id: moduleIdValue, name: moduleName },
 			},
 			semesterModuleId: semesterModuleIdValue,
 		});
@@ -135,6 +149,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 	it('allows venue sharing for same module + same lecturer (even with different semesterModuleIds)', () => {
 		const lecturerId = 'lecturer-share-module';
 		const moduleIdValue = nextModuleId();
+		const moduleName = 'Physics 201';
 		const semesterModuleId1 = nextSemesterModuleId();
 		const semesterModuleId2 = nextSemesterModuleId();
 
@@ -145,7 +160,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 			semesterModule: {
 				id: semesterModuleId1,
 				semesterId: null,
-				module: { id: moduleIdValue },
+				module: { id: moduleIdValue, name: moduleName },
 			},
 			semesterModuleId: semesterModuleId1,
 		});
@@ -157,7 +172,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 			semesterModule: {
 				id: semesterModuleId2,
 				semesterId: null,
-				module: { id: moduleIdValue },
+				module: { id: moduleIdValue, name: moduleName },
 			},
 			semesterModuleId: semesterModuleId2,
 		});
@@ -173,6 +188,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 	it('does NOT allow venue sharing for different lecturers even with same module', () => {
 		const semesterModuleIdValue = nextSemesterModuleId();
 		const moduleIdValue = nextModuleId();
+		const moduleName = 'Chemistry 301';
 
 		const alloc1 = makeAllocation({
 			userId: 'lecturer-A',
@@ -181,7 +197,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 			semesterModule: {
 				id: semesterModuleIdValue,
 				semesterId: null,
-				module: { id: moduleIdValue },
+				module: { id: moduleIdValue, name: moduleName },
 			},
 			semesterModuleId: semesterModuleIdValue,
 		});
@@ -193,7 +209,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 			semesterModule: {
 				id: semesterModuleIdValue,
 				semesterId: null,
-				module: { id: moduleIdValue },
+				module: { id: moduleIdValue, name: moduleName },
 			},
 			semesterModuleId: semesterModuleIdValue,
 		});
@@ -208,6 +224,8 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 		const lecturerId = 'lecturer-multi-module';
 		const moduleId1 = nextModuleId();
 		const moduleId2 = nextModuleId();
+		const moduleName1 = 'Biology 101';
+		const moduleName2 = 'Biology 201';
 
 		const alloc1 = makeAllocation({
 			userId: lecturerId,
@@ -216,7 +234,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 			semesterModule: {
 				id: nextSemesterModuleId(),
 				semesterId: null,
-				module: { id: moduleId1 },
+				module: { id: moduleId1, name: moduleName1 },
 			},
 		});
 
@@ -227,7 +245,7 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 			semesterModule: {
 				id: nextSemesterModuleId(),
 				semesterId: null,
-				module: { id: moduleId2 },
+				module: { id: moduleId2, name: moduleName2 },
 			},
 		});
 

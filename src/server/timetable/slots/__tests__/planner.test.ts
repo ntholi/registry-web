@@ -39,18 +39,31 @@ function nextModuleId(): number {
 }
 
 function makeAllocation(
-	overrides: Partial<AllocationRecord> = {}
+	overrides: Partial<Omit<AllocationRecord, 'semesterModule'>> & {
+		semesterModule?: {
+			id?: number;
+			semesterId?: number | null;
+			module?: { id?: number; name?: string };
+		};
+	} = {}
 ): AllocationRecord {
 	const id = overrides.id ?? nextAllocationId();
 	const semesterModuleIdValue =
-		overrides.semesterModuleId ?? nextSemesterModuleId();
-	const moduleIdValue = overrides.semesterModule?.module.id ?? nextModuleId();
+		overrides.semesterModuleId ??
+		overrides.semesterModule?.id ??
+		nextSemesterModuleId();
+	const moduleIdValue = overrides.semesterModule?.module?.id ?? nextModuleId();
+	const moduleNameValue =
+		overrides.semesterModule?.module?.name ?? `Module-${moduleIdValue}`;
 	const semesterIdValue = overrides.semesterModule?.semesterId ?? null;
 
-	const semesterModule = overrides.semesterModule ?? {
-		id: semesterModuleIdValue,
-		semesterId: semesterIdValue,
-		module: { id: moduleIdValue },
+	const semesterModule = {
+		id: overrides.semesterModule?.id ?? semesterModuleIdValue,
+		semesterId: overrides.semesterModule?.semesterId ?? semesterIdValue,
+		module: {
+			id: moduleIdValue,
+			name: moduleNameValue,
+		},
 	};
 
 	return {
@@ -267,7 +280,7 @@ describe('buildTermPlan - Lecturer Constraints', () => {
 			semesterModule: {
 				id: nextSemesterModuleId(),
 				semesterId: semester1,
-				module: { id: module1 },
+				module: { id: module1, name: 'Computer Science 101' },
 			},
 			duration: 120,
 		});
@@ -278,7 +291,7 @@ describe('buildTermPlan - Lecturer Constraints', () => {
 			semesterModule: {
 				id: nextSemesterModuleId(),
 				semesterId: semester1,
-				module: { id: module2 },
+				module: { id: module2, name: 'Computer Science 201' },
 			},
 			duration: 120,
 		});
@@ -306,6 +319,7 @@ describe('buildTermPlan - Lecturer Constraints', () => {
 	it('allows same lecturer to share slot for same module with different groups', () => {
 		const lecturerId = 'lecturer-shared';
 		const moduleIdValue = nextModuleId();
+		const moduleName = 'Engineering 101';
 		const semesterModuleIdValue = nextSemesterModuleId();
 
 		const group1 = makeAllocation({
@@ -316,7 +330,7 @@ describe('buildTermPlan - Lecturer Constraints', () => {
 			semesterModule: {
 				id: semesterModuleIdValue,
 				semesterId: null,
-				module: { id: moduleIdValue },
+				module: { id: moduleIdValue, name: moduleName },
 			},
 			semesterModuleId: semesterModuleIdValue,
 		});
@@ -329,7 +343,7 @@ describe('buildTermPlan - Lecturer Constraints', () => {
 			semesterModule: {
 				id: semesterModuleIdValue,
 				semesterId: null,
-				module: { id: moduleIdValue },
+				module: { id: moduleIdValue, name: moduleName },
 			},
 			semesterModuleId: semesterModuleIdValue,
 		});

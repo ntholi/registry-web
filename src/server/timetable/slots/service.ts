@@ -79,6 +79,7 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 						module: {
 							columns: {
 								id: true,
+								name: true,
 							},
 						},
 					},
@@ -105,6 +106,7 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 						module: {
 							columns: {
 								id: true,
+								name: true,
 							},
 						},
 					},

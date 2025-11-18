@@ -18,6 +18,7 @@ export type AllocationRecord = typeof timetableAllocations.$inferSelect & {
 		semesterId: number | null;
 		module: {
 			id: number;
+			name: string;
 		};
 	};
 };
@@ -36,7 +37,7 @@ interface PlanSlot {
 	allocationIds: Set<number>;
 	lecturerIds: Set<string>;
 	semesterIds: Set<number>;
-	moduleId: number;
+	moduleName: string;
 	semesterModuleId: number;
 }
 
@@ -479,7 +480,7 @@ function findCombinableSlot(
 
 	for (const slot of daySlots) {
 		if (
-			slot.moduleId !== allocation.semesterModule.module.id ||
+			slot.moduleName !== allocation.semesterModule.module.name ||
 			!slot.lecturerIds.has(allocation.userId)
 		) {
 			continue;
@@ -659,7 +660,7 @@ function checkLecturerConflicts(
 	const daySlots = lecturerSchedule.slotsByDay.get(day) ?? [];
 
 	for (const slot of daySlots) {
-		if (slot.moduleId === allocation.semesterModule.module.id) {
+		if (slot.moduleName === allocation.semesterModule.module.name) {
 			continue;
 		}
 
@@ -853,7 +854,7 @@ function applyPlacement(
 			allocationIds: new Set([allocation.id]),
 			lecturerIds: new Set([allocation.userId]),
 			semesterIds: new Set(semesterId !== null ? [semesterId] : []),
-			moduleId: allocation.semesterModule.module.id,
+			moduleName: allocation.semesterModule.module.name,
 			semesterModuleId: allocation.semesterModuleId,
 		};
 
