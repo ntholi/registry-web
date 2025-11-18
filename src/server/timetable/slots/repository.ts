@@ -249,6 +249,15 @@ export default class TimetableSlotRepository extends BaseRepository<
 									semesterModule: {
 										with: {
 											module: true,
+											semester: {
+												with: {
+													structure: {
+														with: {
+															program: true,
+														},
+													},
+												},
+											},
 										},
 									},
 									term: true,

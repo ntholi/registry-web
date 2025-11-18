@@ -161,6 +161,105 @@ describe('getUserTimetableSlots', () => {
 			expect(slotAllocation.timetableAllocation.semesterModule).toHaveProperty(
 				'module'
 			);
+			expect(slotAllocation.timetableAllocation.semesterModule).toHaveProperty(
+				'semester'
+			);
+		}
+	});
+
+	it('should include program code and semester number', async () => {
+		const testUserId = 'test-lecturer-7';
+
+		const allocation = await db.query.timetableAllocations.findFirst({
+			where: (tbl, { eq }) => eq(tbl.userId, testUserId),
+		});
+
+		if (!allocation) {
+			console.warn('No allocations found for test user, skipping test');
+			return;
+		}
+
+		const slots = await getUserTimetableSlots(testUserId, allocation.termId);
+
+		if (slots.length > 0) {
+			const slot = slots[0];
+			const slotAllocation = slot.timetableSlotAllocations[0];
+
+			expect(
+				slotAllocation.timetableAllocation.semesterModule.semester
+			).toBeDefined();
+
+			if (slotAllocation.timetableAllocation.semesterModule.semester) {
+				expect(
+					slotAllocation.timetableAllocation.semesterModule.semester
+				).toHaveProperty('semesterNumber');
+				expect(
+					slotAllocation.timetableAllocation.semesterModule.semester
+				).toHaveProperty('structure');
+
+				if (
+					slotAllocation.timetableAllocation.semesterModule.semester.structure
+				) {
+					expect(
+						slotAllocation.timetableAllocation.semesterModule.semester.structure
+					).toHaveProperty('program');
+					if (
+						slotAllocation.timetableAllocation.semesterModule.semester.structure
+							.program
+					) {
+						expect(
+							slotAllocation.timetableAllocation.semesterModule.semester
+								.structure.program
+						).toHaveProperty('code');
+					}
+				}
+			}
+		}
+	});
+
+	it('should include lecturer name for display', async () => {
+		const testUserId = 'test-lecturer-8';
+
+		const allocation = await db.query.timetableAllocations.findFirst({
+			where: (tbl, { eq }) => eq(tbl.userId, testUserId),
+		});
+
+		if (!allocation) {
+			console.warn('No allocations found for test user, skipping test');
+			return;
+		}
+
+		const slots = await getUserTimetableSlots(testUserId, allocation.termId);
+
+		if (slots.length > 0) {
+			const slot = slots[0];
+			const slotAllocation = slot.timetableSlotAllocations[0];
+
+			expect(slotAllocation.timetableAllocation.user).toBeDefined();
+			expect(slotAllocation.timetableAllocation.user).toHaveProperty('name');
+			expect(slotAllocation.timetableAllocation.user.name).toBeTruthy();
+		}
+	});
+
+	it('should include venue name for display', async () => {
+		const testUserId = 'test-lecturer-9';
+
+		const allocation = await db.query.timetableAllocations.findFirst({
+			where: (tbl, { eq }) => eq(tbl.userId, testUserId),
+		});
+
+		if (!allocation) {
+			console.warn('No allocations found for test user, skipping test');
+			return;
+		}
+
+		const slots = await getUserTimetableSlots(testUserId, allocation.termId);
+
+		if (slots.length > 0) {
+			const slot = slots[0];
+			expect(slot.venue).toBeDefined();
+			expect(slot.venue).toHaveProperty('name');
+			expect(slot.venue.name).toBeTruthy();
 		}
 	});
 
