@@ -71,8 +71,16 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 			with: {
 				timetableAllocationVenueTypes: true,
 				semesterModule: {
+					columns: {
+						id: true,
+						semesterId: true,
+					},
 					with: {
-						module: true,
+						module: {
+							columns: {
+								id: true,
+							},
+						},
 					},
 				},
 			},
@@ -89,8 +97,16 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 			with: {
 				timetableAllocationVenueTypes: true,
 				semesterModule: {
+					columns: {
+						id: true,
+						semesterId: true,
+					},
 					with: {
-						module: true,
+						module: {
+							columns: {
+								id: true,
+							},
+						},
 					},
 				},
 			},
