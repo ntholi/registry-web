@@ -29,59 +29,92 @@ const testDb = drizzle(testPool, {
 });
 
 async function setupTestDatabase() {
-	await migrate(testDb, { migrationsFolder: './drizzle' });
+	try {
+		await migrate(testDb, { migrationsFolder: './drizzle' });
+	} catch (error) {
+		const cause =
+			error instanceof Error
+				? (error as { cause?: { code?: string } }).cause
+				: undefined;
+		if (cause?.code === '42P07') {
+			await resetPublicSchema();
+			await migrate(testDb, { migrationsFolder: './drizzle' });
+			return;
+		}
+		throw error;
+	}
+}
+
+async function resetPublicSchema() {
+	await testPool.query('DROP SCHEMA IF EXISTS public CASCADE');
+	await testPool.query('CREATE SCHEMA public');
+	await testPool.query('GRANT ALL ON SCHEMA public TO postgres');
+	await testPool.query('GRANT ALL ON SCHEMA public TO public');
 }
 
 async function cleanupTestDatabase() {
-	await testPool.query(`
-		TRUNCATE TABLE
-			task_assignments,
-			tasks,
-			fortinet_registrations,
-			documents,
-			student_card_prints,
-			blocked_students,
-			transcript_prints,
-			statement_of_results_prints,
-			module_grades,
-			assessments_audit,
-			assessment_marks_audit,
-			assessment_marks,
-			assessments,
-			user_schools,
-			assigned_modules,
-			sponsored_terms,
-			sponsored_students,
-			sponsors,
-			clearance_audit,
-			payment_receipts,
-			graduation_clearance,
-			graduation_requests,
-			registration_clearance,
-			clearance,
-			requested_modules,
-			registration_requests,
-			terms,
-			module_prerequisites,
-			semester_modules,
-			modules,
-			structure_semesters,
-			structures,
-			programs,
-			schools,
-			student_modules,
-			student_semesters,
-			student_programs,
-			next_of_kins,
-			student_education,
-			students,
-			authenticators,
-			sessions,
-			accounts,
-			verification_tokens,
-			users
-		RESTART IDENTITY CASCADE
-	`);
+	try {
+		await testPool.query(`
+			TRUNCATE TABLE
+				task_assignments,
+				tasks,
+				fortinet_registrations,
+				documents,
+				student_card_prints,
+				blocked_students,
+				transcript_prints,
+				statement_of_results_prints,
+				module_grades,
+				assessments_audit,
+				assessment_marks_audit,
+				assessment_marks,
+				assessments,
+				timetable_slot_allocations,
+				timetable_slots,
+				user_schools,
+				assigned_modules,
+				sponsored_terms,
+				sponsored_students,
+				sponsors,
+				clearance_audit,
+				payment_receipts,
+				graduation_clearance,
+				graduation_requests,
+				registration_clearance,
+				clearance,
+				requested_modules,
+				registration_requests,
+				terms,
+				module_prerequisites,
+				semester_modules,
+				modules,
+				structure_semesters,
+				structures,
+				programs,
+				schools,
+				student_modules,
+				student_semesters,
+				student_programs,
+				next_of_kins,
+				student_education,
+				students,
+				authenticators,
+				sessions,
+				accounts,
+				verification_tokens,
+				users
+			RESTART IDENTITY CASCADE
+		`);
+	} catch (error) {
+		const code =
+			error instanceof Error
+				? ((error as { code?: string; cause?: { code?: string } }).code ??
+					(error as { code?: string; cause?: { code?: string } }).cause?.code)
+				: undefined;
+		if (code !== '42P01') {
+			throw error;
+		}
+	}
 }
 
 async function closeTestDatabase() {
