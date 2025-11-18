@@ -337,4 +337,67 @@ describe('getUserTimetableSlots', () => {
 			expect(slot.startTime < slot.endTime).toBe(true);
 		}
 	});
+
+	it('should handle deeply nested relations without lateral join errors', async () => {
+		const allocation = await db.query.timetableAllocations.findFirst({
+			where: (tbl, { isNotNull }) => isNotNull(tbl.userId),
+			with: {
+				semesterModule: {
+					with: {
+						module: true,
+						semester: {
+							with: {
+								structure: {
+									with: {
+										program: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!allocation) {
+			console.warn('No allocations found, skipping test');
+			return;
+		}
+
+		const slots = await getUserTimetableSlots(
+			allocation.userId,
+			allocation.termId
+		);
+
+		expect(slots).toBeDefined();
+		expect(Array.isArray(slots)).toBe(true);
+
+		if (slots.length > 0) {
+			const slot = slots[0];
+			const slotAllocation = slot.timetableSlotAllocations[0];
+
+			expect(slotAllocation.timetableAllocation.semesterModule).toBeDefined();
+			expect(
+				slotAllocation.timetableAllocation.semesterModule.module
+			).toBeDefined();
+			expect(
+				slotAllocation.timetableAllocation.semesterModule.semester
+			).toBeDefined();
+
+			if (slotAllocation.timetableAllocation.semesterModule.semester) {
+				expect(
+					slotAllocation.timetableAllocation.semesterModule.semester.structure
+				).toBeDefined();
+
+				if (
+					slotAllocation.timetableAllocation.semesterModule.semester.structure
+				) {
+					expect(
+						slotAllocation.timetableAllocation.semesterModule.semester.structure
+							.program
+					).toBeDefined();
+				}
+			}
+		}
+	});
 });

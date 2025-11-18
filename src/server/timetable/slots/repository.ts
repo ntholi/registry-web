@@ -238,48 +238,109 @@ export default class TimetableSlotRepository extends BaseRepository<
 	}
 
 	async findUserSlotsForTerm(userId: string, termId: number) {
-		return db.query.timetableSlots
-			.findMany({
-				where: eq(timetableSlots.termId, termId),
-				with: {
-					timetableSlotAllocations: {
-						with: {
-							timetableAllocation: {
-								with: {
-									semesterModule: {
-										with: {
-											module: true,
-											semester: {
-												with: {
-													structure: {
-														with: {
-															program: true,
-														},
-													},
-												},
+		const slots = await db.query.timetableSlots.findMany({
+			where: eq(timetableSlots.termId, termId),
+			with: {
+				timetableSlotAllocations: {
+					with: {
+						timetableAllocation: {
+							with: {
+								semesterModule: {
+									columns: {
+										id: true,
+										moduleId: true,
+										semesterId: true,
+										type: true,
+										credits: true,
+									},
+									with: {
+										module: {
+											columns: {
+												id: true,
+												code: true,
+												name: true,
+											},
+										},
+										semester: {
+											columns: {
+												id: true,
+												structureId: true,
+												semesterNumber: true,
+												name: true,
 											},
 										},
 									},
-									term: true,
-									user: true,
 								},
+								term: true,
+								user: true,
 							},
 						},
 					},
-					venue: {
-						with: {
-							type: true,
-						},
+				},
+				venue: {
+					with: {
+						type: true,
 					},
 				},
-			})
-			.then((slots) =>
-				slots.filter((slot) =>
-					slot.timetableSlotAllocations.some(
-						(allocation) => allocation.timetableAllocation.userId === userId
-					)
-				)
-			);
+			},
+		});
+
+		const filteredSlots = slots.filter((slot) =>
+			slot.timetableSlotAllocations.some(
+				(allocation) => allocation.timetableAllocation.userId === userId
+			)
+		);
+
+		const structureIds = new Set<number>();
+		for (const slot of filteredSlots) {
+			for (const allocation of slot.timetableSlotAllocations) {
+				const semesterId =
+					allocation.timetableAllocation.semesterModule.semester?.structureId;
+				if (semesterId) {
+					structureIds.add(semesterId);
+				}
+			}
+		}
+
+		const structures = await db.query.structures.findMany({
+			where: (tbl, { inArray }) => inArray(tbl.id, Array.from(structureIds)),
+			with: {
+				program: {
+					columns: {
+						id: true,
+						code: true,
+						name: true,
+						level: true,
+					},
+				},
+			},
+		});
+
+		const structureMap = new Map(structures.map((s) => [s.id, s]));
+
+		return filteredSlots.map((slot) => ({
+			...slot,
+			timetableSlotAllocations: slot.timetableSlotAllocations.map(
+				(allocation) => ({
+					...allocation,
+					timetableAllocation: {
+						...allocation.timetableAllocation,
+						semesterModule: {
+							...allocation.timetableAllocation.semesterModule,
+							semester: allocation.timetableAllocation.semesterModule.semester
+								? {
+										...allocation.timetableAllocation.semesterModule.semester,
+										structure: structureMap.get(
+											allocation.timetableAllocation.semesterModule.semester
+												.structureId
+										),
+									}
+								: undefined,
+						},
+					},
+				})
+			),
+		}));
 	}
 
 	private buildSlotKey(
