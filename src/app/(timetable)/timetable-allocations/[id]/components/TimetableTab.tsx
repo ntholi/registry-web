@@ -1,10 +1,9 @@
 'use client';
 
-import { Box, Center, Stack, Text } from '@mantine/core';
+import { Box, Card, Center, Stack, Table, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { getUserTimetableSlots } from '@/server/timetable/slots/actions';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import classes from './TimetableTab.module.css';
 
 type Props = {
 	userId: string;
@@ -157,81 +156,145 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 	const grid = groupSlotsByDayAndTime(slots);
 
 	return (
-		<Box className={classes.timetableContainer}>
-			<table className={classes.timetable}>
-				<thead>
-					<tr>
-						<th className={classes.timeHeader} />
+		<Box p='md'>
+			<Table
+				withTableBorder
+				withColumnBorders
+				withRowBorders
+				verticalSpacing='0'
+				horizontalSpacing='0'
+				style={{
+					tableLayout: 'fixed',
+				}}
+			>
+				<Table.Thead>
+					<Table.Tr>
+						<Table.Th
+							w='120'
+							style={{
+								backgroundColor: 'var(--mantine-color-dark-6)',
+								textAlign: 'center',
+								fontWeight: 600,
+							}}
+						/>
 						{TIME_SLOTS.map((timeSlot) => (
-							<th key={`${timeSlot.start}-${timeSlot.end}`}>
-								{timeSlot.start} - {timeSlot.end}
-							</th>
+							<Table.Th
+								key={`${timeSlot.start}-${timeSlot.end}`}
+								style={{
+									backgroundColor: 'var(--mantine-color-dark-6)',
+									textAlign: 'center',
+									fontWeight: 600,
+									padding: '1rem',
+								}}
+							>
+								<Text size='sm' fw={600}>
+									{timeSlot.start} - {timeSlot.end}
+								</Text>
+							</Table.Th>
 						))}
-					</tr>
-				</thead>
-				<tbody>
+					</Table.Tr>
+				</Table.Thead>
+				<Table.Tbody>
 					{DAYS.map((day) => (
-						<tr key={day}>
-							<td className={classes.dayLabel}>{DAY_LABELS[day]}</td>
+						<Table.Tr key={day}>
+							<Table.Td
+								style={{
+									backgroundColor: 'var(--mantine-color-dark-6)',
+									textAlign: 'center',
+									fontWeight: 600,
+									verticalAlign: 'middle',
+								}}
+							>
+								<Text size='sm' fw={600}>
+									{DAY_LABELS[day]}
+								</Text>
+							</Table.Td>
 							{TIME_SLOTS.map((timeSlot) => {
 								const key = `${timeSlot.start}-${timeSlot.end}`;
 								const slotsInCell = grid[day][key];
 
 								if (slotsInCell.length === 0) {
-									return <td key={key} className={classes.emptyCell} />;
+									return (
+										<Table.Td
+											key={key}
+											style={{
+												minHeight: '100px',
+												backgroundColor: 'var(--mantine-color-dark-7)',
+											}}
+										/>
+									);
 								}
 
 								return (
-									<td key={key} className={classes.slotCell}>
-										{slotsInCell.map((slot, _idx) => {
-											const modules = groupAllocationsByModule(slot);
-											return (
-												<Box key={slot.id} className={classes.slot}>
-													{modules.map((module) => (
-														<Stack
-															key={`${module.moduleCode}-${module.venueId}`}
-															gap={4}
-															className={classes.moduleBlock}
-														>
-															<Text
-																size='sm'
-																fw={600}
-																ta='center'
-																className={classes.moduleName}
+									<Table.Td
+										key={key}
+										p='xs'
+										style={{
+											backgroundColor: 'var(--mantine-color-dark-7)',
+											verticalAlign: 'top',
+										}}
+									>
+										<Stack gap='xs'>
+											{slotsInCell.map((slot) => {
+												const modules = groupAllocationsByModule(slot);
+												return (
+													<Stack key={slot.id} gap='xs'>
+														{modules.map((module) => (
+															<Card
+																withBorder
+																key={`${module.moduleCode}-${module.venueId}`}
+																p='xs'
+																radius='md'
 															>
-																{module.moduleName}
-															</Text>
-															<Text
-																size='xs'
-																ta='center'
-																className={classes.moduleCode}
-															>
-																{module.moduleCode}
-															</Text>
-															<Box className={classes.slotFooter}>
-																<Text size='xs' className={classes.venueName}>
-																	{module.venueName}
-																</Text>
-																<Text
-																	size='xs'
-																	className={classes.classNames}
-																	ta='right'
-																>
-																	{module.classNames.join(', ')}
-																</Text>
-															</Box>
-														</Stack>
-													))}
-												</Box>
-											);
-										})}
-									</td>
+																<Stack gap='4'>
+																	<Text
+																		size='sm'
+																		fw={600}
+																		c='blue.2'
+																		style={{ lineHeight: 1.3 }}
+																	>
+																		{module.moduleName}
+																	</Text>
+																	<Text
+																		size='xs'
+																		c='gray.4'
+																		style={{ lineHeight: 1.2 }}
+																	>
+																		{module.moduleCode}
+																	</Text>
+																	<Box
+																		style={{
+																			display: 'flex',
+																			justifyContent: 'space-between',
+																			alignItems: 'center',
+																			gap: '0.5rem',
+																		}}
+																	>
+																		<Text size='xs' c='gray.5'>
+																			{module.venueName}
+																		</Text>
+																		<Text
+																			size='xs'
+																			c='gray.5'
+																			style={{ textAlign: 'right' }}
+																		>
+																			{module.classNames.join(', ')}
+																		</Text>
+																	</Box>
+																</Stack>
+															</Card>
+														))}
+													</Stack>
+												);
+											})}
+										</Stack>
+									</Table.Td>
 								);
 							})}
-						</tr>
+						</Table.Tr>
 					))}
-				</tbody>
-			</table>
+				</Table.Tbody>
+			</Table>
 		</Box>
 	);
 }
