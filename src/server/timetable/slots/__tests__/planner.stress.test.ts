@@ -95,7 +95,7 @@ function timeToMinutes(time: string): number {
 }
 
 describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
-	it('only allows venue sharing for same semesterModuleId + same lecturer', () => {
+	it('allows venue sharing for same module + same lecturer', () => {
 		const lecturerId = 'lecturer-venue-share';
 		const semesterModuleIdValue = nextSemesterModuleId();
 		const moduleIdValue = nextModuleId();
@@ -132,8 +132,8 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 		expect(plan[0].capacityUsed).toBe(60);
 	});
 
-	it('does NOT allow venue sharing for different semesterModuleIds even with same module', () => {
-		const lecturerId = 'lecturer-no-share';
+	it('allows venue sharing for same module + same lecturer (even with different semesterModuleIds)', () => {
+		const lecturerId = 'lecturer-share-module';
 		const moduleIdValue = nextModuleId();
 		const semesterModuleId1 = nextSemesterModuleId();
 		const semesterModuleId2 = nextSemesterModuleId();
@@ -162,19 +162,15 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 			semesterModuleId: semesterModuleId2,
 		});
 
-		const venues = [makeVenue({ capacity: 80 }), makeVenue({ capacity: 80 })];
+		const venues = [makeVenue({ capacity: 80 })];
 		const plan = buildTermPlan(1, [alloc1, alloc2], venues);
 
-		expect(plan.length).toBe(2);
-
-		const slot1 = plan.find((p) => p.allocationIds.includes(alloc1.id));
-		const slot2 = plan.find((p) => p.allocationIds.includes(alloc2.id));
-
-		expect(slot1?.allocationIds).toHaveLength(1);
-		expect(slot2?.allocationIds).toHaveLength(1);
+		expect(plan.length).toBe(1);
+		expect(plan[0].allocationIds.sort()).toEqual([alloc1.id, alloc2.id].sort());
+		expect(plan[0].capacityUsed).toBe(60);
 	});
 
-	it('does NOT allow venue sharing for different lecturers even with same semesterModule', () => {
+	it('does NOT allow venue sharing for different lecturers even with same module', () => {
 		const semesterModuleIdValue = nextSemesterModuleId();
 		const moduleIdValue = nextModuleId();
 
@@ -206,6 +202,45 @@ describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
 		const plan = buildTermPlan(1, [alloc1, alloc2], venues);
 
 		expect(plan.length).toBe(2);
+	});
+
+	it('does NOT allow venue sharing for different modules even with same lecturer', () => {
+		const lecturerId = 'lecturer-multi-module';
+		const moduleId1 = nextModuleId();
+		const moduleId2 = nextModuleId();
+
+		const alloc1 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 120,
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: moduleId1 },
+			},
+		});
+
+		const alloc2 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 120,
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: moduleId2 },
+			},
+		});
+
+		const venues = [makeVenue({ capacity: 80 }), makeVenue({ capacity: 80 })];
+		const plan = buildTermPlan(1, [alloc1, alloc2], venues);
+
+		expect(plan.length).toBe(2);
+
+		const slot1 = plan.find((p) => p.allocationIds.includes(alloc1.id));
+		const slot2 = plan.find((p) => p.allocationIds.includes(alloc2.id));
+
+		expect(slot1?.allocationIds).toHaveLength(1);
+		expect(slot2?.allocationIds).toHaveLength(1);
 	});
 });
 

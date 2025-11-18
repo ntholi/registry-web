@@ -479,7 +479,7 @@ function findCombinableSlot(
 
 	for (const slot of daySlots) {
 		if (
-			slot.semesterModuleId !== allocation.semesterModuleId ||
+			slot.moduleId !== allocation.semesterModule.module.id ||
 			!slot.lecturerIds.has(allocation.userId)
 		) {
 			continue;
