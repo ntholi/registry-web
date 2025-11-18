@@ -10,6 +10,7 @@ export type DayOfWeek =
 export type AppConfig = {
 	timetable: {
 		timetableAllocations: {
+			maxSlotsPerDay: number; // Maximum number of slots (class) a lecturer or student class can have per day
 			duration: number;
 			allowedDays: DayOfWeek[];
 			startTime: string;
