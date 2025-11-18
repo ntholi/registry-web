@@ -2,6 +2,7 @@
 
 import {
 	Accordion,
+	ActionIcon,
 	Badge,
 	Card,
 	Divider,
@@ -13,8 +14,10 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { IconSchool } from '@tabler/icons-react';
+import { IconEdit, IconSchool } from '@tabler/icons-react';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import { EditStudentSemesterModal } from '@cms-sync/student-semesters';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import SemesterStatus from '@/shared/ui/SemesterStatus';
@@ -28,7 +31,20 @@ type Props = {
 } & StackProps;
 
 export default function AcademicsView({ student, showMarks, ...props }: Props) {
+	const { data: session } = useSession();
 	const [openPrograms, setOpenPrograms] = useState<string[]>();
+	const [editModalOpened, setEditModalOpened] = useState(false);
+	const [selectedSemester, setSelectedSemester] = useState<{
+		id: number;
+		term: string;
+		structureSemesterId: number;
+		status: string;
+		sponsorId: number | null;
+		studentProgramId: number;
+		structureId: number;
+	} | null>(null);
+
+	const canEdit = session?.user?.role === 'registry' || session?.user?.role === 'admin';
 
 	useEffect(() => {
 		setOpenPrograms(
@@ -96,7 +112,11 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 												<Paper key={semester.id} p='md' withBorder>
 													<Stack gap='md'>
 														<Flex align='flex-end' justify='space-between'>
-															<Group gap={'xs'} align='flex-end'>
+															<Group
+																gap={'xs'}
+																align='flex-end'
+																style={{ position: 'relative' }}
+															>
 																<Badge radius={'xs'} variant='default'>
 																	{semester.term}
 																</Badge>
@@ -105,6 +125,34 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																		semester.structureSemester?.semesterNumber
 																	)}
 																</Text>
+																{canEdit && (
+																	<ActionIcon
+																		size='sm'
+																		variant='subtle'
+																		color='gray'
+																		onClick={() => {
+																			setSelectedSemester({
+																				id: semester.id,
+																				term: semester.term,
+																				structureSemesterId:
+																					semester.structureSemesterId,
+																				status: semester.status,
+																				sponsorId: semester.sponsorId,
+																				studentProgramId:
+																					semester.studentProgramId,
+																				structureId: program.structure.id,
+																			});
+																			setEditModalOpened(true);
+																		}}
+																		style={{
+																			opacity: 0,
+																			transition: 'opacity 0.2s',
+																		}}
+																		className='edit-semester-icon'
+																	>
+																		<IconEdit size='1rem' />
+																	</ActionIcon>
+																)}
 															</Group>
 															<Group gap='md' align='flex-end'>
 																<GpaDisplay
@@ -172,6 +220,24 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 					</Accordion.Item>
 				))}
 			</Accordion>
+			{selectedSemester && (
+				<EditStudentSemesterModal
+					semester={selectedSemester as never}
+					structureId={selectedSemester.structureId}
+					opened={editModalOpened}
+					onClose={() => {
+						setEditModalOpened(false);
+						setSelectedSemester(null);
+					}}
+				/>
+			)}
+			<style>
+				{`
+					.mantine-Paper-root:hover .edit-semester-icon {
+						opacity: 1 !important;
+					}
+				`}
+			</style>
 		</Stack>
 	);
 }

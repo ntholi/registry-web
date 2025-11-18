@@ -29,6 +29,7 @@
 			"@classroom/*": ["./src/modules/classroom/features/*"],
 			"@timetable/*": ["./src/modules/timetable/features/*"],
 			"@auth/*": ["./src/modules/auth/features/*"],
+			"@cms-sync/*": ["./src/modules/cms-sync/features/*"],
 			"@server/*": ["./src/server/*"]
 		}
 	},
