@@ -70,8 +70,8 @@ export default class StudentModuleAuditLogRepository extends BaseRepository<
 
 			await tx.insert(studentModuleAuditLogs).values({
 				studentModuleId,
-				oldValues: oldRecord as unknown as Record<string, unknown>,
-				newValues: updatedRecord as unknown as Record<string, unknown>,
+				oldValues: oldRecord,
+				newValues: updatedRecord,
 				reasons: reasons || null,
 				updatedBy: userId,
 			});

@@ -13,6 +13,8 @@ import { studentSemesters } from '@/modules/registry/database';
 
 export const operationType = pgEnum('operation_type', ['create', 'update']);
 
+type StudentSemester = typeof studentSemesters.$inferSelect;
+
 export const studentSemesterAuditLogs = pgTable(
 	'student_semester_audit_logs',
 	{
@@ -20,8 +22,8 @@ export const studentSemesterAuditLogs = pgTable(
 		studentSemesterId: integer()
 			.references(() => studentSemesters.id, { onDelete: 'cascade' })
 			.notNull(),
-		oldValues: jsonb().notNull(),
-		newValues: jsonb().notNull(),
+		oldValues: jsonb().$type<StudentSemester>().notNull(),
+		newValues: jsonb().$type<StudentSemester>().notNull(),
 		operation: operationType().notNull().default('update'),
 		reasons: text(),
 		updatedBy: text()

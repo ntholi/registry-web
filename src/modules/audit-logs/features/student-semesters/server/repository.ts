@@ -79,8 +79,8 @@ export default class StudentSemesterSyncRepository extends BaseRepository<
 
 			await tx.insert(studentSemesterAuditLogs).values({
 				studentSemesterId,
-				oldValues: oldRecord as unknown as Record<string, unknown>,
-				newValues: updatedRecord as unknown as Record<string, unknown>,
+				oldValues: oldRecord,
+				newValues: updatedRecord,
 				reasons: reasons || null,
 				updatedBy: userId,
 			});

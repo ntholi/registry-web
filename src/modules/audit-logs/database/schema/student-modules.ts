@@ -11,6 +11,8 @@ import { users } from '@/modules/auth/database';
 import { studentModules } from '@/modules/registry/database';
 import { operationType } from './student-semesters';
 
+type StudentModule = typeof studentModules.$inferSelect;
+
 export const studentModuleAuditLogs = pgTable(
 	'student_module_audit_logs',
 	{
@@ -18,8 +20,8 @@ export const studentModuleAuditLogs = pgTable(
 		studentModuleId: integer()
 			.references(() => studentModules.id, { onDelete: 'cascade' })
 			.notNull(),
-		oldValues: jsonb().notNull(),
-		newValues: jsonb().notNull(),
+		oldValues: jsonb().$type<StudentModule>().notNull(),
+		newValues: jsonb().$type<StudentModule>().notNull(),
 		operation: operationType().notNull().default('update'),
 		reasons: text(),
 		updatedBy: text()

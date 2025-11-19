@@ -69,8 +69,8 @@ export default class StudentAuditLogRepository extends BaseRepository<
 
 			await tx.insert(studentAuditLogs).values({
 				stdNo,
-				oldValues: oldRecord as unknown as Record<string, unknown>,
-				newValues: updatedRecord as unknown as Record<string, unknown>,
+				oldValues: oldRecord,
+				newValues: updatedRecord,
 				operation: 'update',
 				reasons: reasons || null,
 				updatedBy: userId,
