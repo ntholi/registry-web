@@ -87,7 +87,7 @@ export default function EditStudentSemesterModal({
 				setSponsors(
 					sponsorsData.map((s) => ({
 						value: s.id.toString(),
-						label: `${s.name} (${s.code})`,
+						label: s.name,
 					}))
 				);
 

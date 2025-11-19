@@ -37,7 +37,7 @@ export async function getAllSponsors() {
 			columns: { id: true, name: true, code: true },
 			orderBy: (sponsors, { asc }) => [asc(sponsors.name)],
 		});
-	}, ['registry', 'admin']);
+	}, ['registry', 'admin', 'finance']);
 }
 
 export async function getStructureSemestersByStructureId(structureId: number) {
