@@ -5,10 +5,10 @@ import { Pool as NodePool } from 'pg';
 import * as academic from '@/modules/academic/database';
 import * as admin from '@/modules/admin/database';
 import * as auth from '@/modules/auth/database';
-import * as updatedRecords from '@/modules/updated-records/database';
 import * as finance from '@/modules/finance/database';
 import * as registry from '@/modules/registry/database';
 import * as timetable from '@/modules/timetable/database';
+import * as updatedRecords from '@/modules/updated-records/database';
 
 const schema = {
 	...academic,
@@ -43,8 +43,8 @@ export { db };
 export * from '@/modules/academic/database';
 export * from '@/modules/admin/database';
 export * from '@/modules/auth/database';
-export * from '@/modules/updated-records/database';
 export * from '@/modules/finance/database';
 export * from '@/modules/registry/database';
 export * from '@/modules/timetable/database';
+export * from '@/modules/updated-records/database';
 export * from './types';

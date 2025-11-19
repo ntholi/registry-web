@@ -4,3 +4,4 @@ export * from '@/modules/auth/database';
 export * from '@/modules/finance/database';
 export * from '@/modules/registry/database';
 export * from '@/modules/timetable/database';
+export * from '@/modules/updated-records/database';
