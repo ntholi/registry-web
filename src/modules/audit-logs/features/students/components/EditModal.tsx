@@ -99,12 +99,14 @@ export default function EditStudentModal({ student }: Props) {
 					{
 						name: values.name,
 						nationalId: values.nationalId,
-						status: values.status as typeof studentStatus.enumValues[number],
+						status: values.status as (typeof studentStatus.enumValues)[number],
 						dateOfBirth: values.dateOfBirth,
 						phone1: values.phone1 || null,
 						phone2: values.phone2 || null,
-						gender: values.gender as typeof gender.enumValues[number] | null,
-						maritalStatus: values.maritalStatus as typeof maritalStatusEnum.enumValues[number] | null,
+						gender: values.gender as (typeof gender.enumValues)[number] | null,
+						maritalStatus: values.maritalStatus as
+							| (typeof maritalStatusEnum.enumValues)[number]
+							| null,
 						country: values.country || null,
 						race: values.race || null,
 						nationality: values.nationality || null,
@@ -141,17 +143,7 @@ export default function EditStudentModal({ student }: Props) {
 
 	return (
 		<>
-			<ActionIcon
-				size='sm'
-				variant='subtle'
-				color='gray'
-				onClick={open}
-				style={{
-					opacity: 0,
-					transition: 'opacity 0.2s',
-				}}
-				className='edit-student-icon'
-			>
+			<ActionIcon size='sm' variant='subtle' color='gray' onClick={open}>
 				<IconEdit size='1rem' />
 			</ActionIcon>
 			<Modal opened={opened} onClose={close} title='Edit Student' size='lg'>

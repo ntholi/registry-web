@@ -1,5 +1,6 @@
 'use client';
 
+import { EditStudentModal } from '@audit-logs/students';
 import {
 	ActionIcon,
 	Badge,
@@ -25,7 +26,6 @@ import {
 	formatSemester,
 } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
-import { EditStudentModal } from '@audit-logs/students';
 import type { getStudent } from '../../server/actions';
 import { getProgramStatusColor } from '../academics/AcademicsView';
 import EditStudentUserModal from '../academics/EditStudentUserModal';
@@ -116,22 +116,10 @@ export default function StudentView({ student }: Props) {
 					</Group>
 				</Card>
 			</Group>
-			<div
-				onMouseEnter={(e) => {
-					const editIcon = e.currentTarget.querySelector(
-						'.edit-student-icon'
-					) as HTMLElement;
-					if (editIcon) editIcon.style.opacity = '1';
-				}}
-				onMouseLeave={(e) => {
-					const editIcon = e.currentTarget.querySelector(
-						'.edit-student-icon'
-					) as HTMLElement;
-					if (editIcon) editIcon.style.opacity = '0';
-				}}
-			>
+
+			<div>
 				<Flex justify='space-between'>
-					<Group gap='xs'>
+					<Group gap='lg' align='start'>
 						<Title order={4} mb='xs' fw={100}>
 							Student
 						</Title>
