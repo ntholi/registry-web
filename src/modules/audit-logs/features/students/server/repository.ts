@@ -1,11 +1,12 @@
 import { eq } from 'drizzle-orm';
-import { db, studentAuditLogs } from '@/core/database';
+import { db, studentAuditLogs, students } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
 export type StudentAuditLogInsert = typeof studentAuditLogs.$inferInsert;
 export type StudentAuditLogQueryOptions = QueryOptions<typeof studentAuditLogs>;
+export type StudentUpdate = Partial<typeof students.$inferInsert>;
 
 export default class StudentAuditLogRepository extends BaseRepository<
 	typeof studentAuditLogs,
@@ -35,6 +36,48 @@ export default class StudentAuditLogRepository extends BaseRepository<
 			.set({ syncedAt: new Date() })
 			.where(eq(studentAuditLogs.id, id))
 			.returning();
+	}
+
+	async updateStudentWithAudit(
+		stdNo: number,
+		updates: StudentUpdate,
+		userId: string,
+		reasons?: string
+	) {
+		return db.transaction(async (tx) => {
+			const oldRecord = await tx.query.students.findFirst({
+				where: eq(students.stdNo, stdNo),
+			});
+
+			if (!oldRecord) {
+				throw new Error('Student not found');
+			}
+
+			// Convert dateOfBirth string to Date object if present
+			const processedUpdates = {
+				...updates,
+				dateOfBirth: updates.dateOfBirth
+					? new Date(updates.dateOfBirth)
+					: updates.dateOfBirth,
+			};
+
+			const [updatedRecord] = await tx
+				.update(students)
+				.set(processedUpdates)
+				.where(eq(students.stdNo, stdNo))
+				.returning();
+
+			await tx.insert(studentAuditLogs).values({
+				stdNo,
+				oldValues: oldRecord as unknown as Record<string, unknown>,
+				newValues: updatedRecord as unknown as Record<string, unknown>,
+				operation: 'update',
+				reasons: reasons || null,
+				updatedBy: userId,
+			});
+
+			return updatedRecord;
+		});
 	}
 }
 

@@ -1,15 +1,10 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/core/auth';
-import {
-	db,
-	structureSemesters,
+import type {
 	studentSemesterAuditLogs,
 	studentSemesters,
 } from '@/core/database';
-import withAuth from '@/core/platform/withAuth';
 import { studentSemesterSyncService as service } from './service';
 
 type StudentSemesterSyncRecord = typeof studentSemesterAuditLogs.$inferInsert;
@@ -32,13 +27,7 @@ export async function createSyncRecord(record: StudentSemesterSyncRecord) {
 }
 
 export async function getStructureSemestersByStructureId(structureId: number) {
-	return withAuth(async () => {
-		return db.query.structureSemesters.findMany({
-			where: eq(structureSemesters.structureId, structureId),
-			columns: { id: true, name: true, semesterNumber: true },
-			orderBy: (sems, { asc }) => [asc(sems.semesterNumber)],
-		});
-	}, ['registry', 'admin']);
+	return service.getStructureSemestersByStructureId(structureId);
 }
 
 export async function updateStudentSemester(
@@ -46,36 +35,11 @@ export async function updateStudentSemester(
 	updates: StudentSemesterUpdate,
 	reasons?: string
 ) {
-	return withAuth(async () => {
-		const session = await auth();
-		if (!session?.user?.id) {
-			throw new Error('User not authenticated');
-		}
-
-		const oldRecord = await db.query.studentSemesters.findFirst({
-			where: eq(studentSemesters.id, studentSemesterId),
-		});
-
-		if (!oldRecord) {
-			throw new Error('Student semester not found');
-		}
-
-		const [updatedRecord] = await db
-			.update(studentSemesters)
-			.set(updates)
-			.where(eq(studentSemesters.id, studentSemesterId))
-			.returning();
-
-		await db.insert(studentSemesterAuditLogs).values({
-			studentSemesterId,
-			oldValues: oldRecord as unknown as Record<string, unknown>,
-			newValues: updatedRecord as unknown as Record<string, unknown>,
-			reasons: reasons || null,
-			updatedBy: session.user.id,
-		});
-
-		revalidatePath('/dashboard/students');
-
-		return updatedRecord;
-	}, ['registry', 'admin']);
+	const result = await service.updateStudentSemester(
+		studentSemesterId,
+		updates,
+		reasons
+	);
+	revalidatePath('/dashboard/students');
+	return result;
 }

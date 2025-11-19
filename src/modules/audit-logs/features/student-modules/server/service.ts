@@ -1,20 +1,22 @@
-import { eq } from 'drizzle-orm';
 import type { Session } from 'next-auth';
 import { auth } from '@/core/auth';
-import { db, studentModuleAuditLogs, studentModules } from '@/core/database';
+import type { studentModuleAuditLogs } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import StudentModuleAuditLogRepository from './repository';
-
-type StudentModuleUpdate = Partial<typeof studentModules.$inferInsert>;
+import StudentModuleAuditLogRepository, {
+	type StudentModuleUpdate,
+} from './repository';
 
 class StudentModuleAuditLogService extends BaseService<
 	typeof studentModuleAuditLogs,
 	'id'
 > {
+	protected declare repository: StudentModuleAuditLogRepository;
+
 	constructor() {
-		super(new StudentModuleAuditLogRepository(), {
+		const repository = new StudentModuleAuditLogRepository();
+		super(repository, {
 			byIdRoles: ['registry', 'admin'],
 			findAllRoles: ['registry', 'admin'],
 			createRoles: ['registry', 'admin'],
@@ -33,29 +35,12 @@ class StudentModuleAuditLogService extends BaseService<
 					throw new Error('User not authenticated');
 				}
 
-				const oldRecord = await db.query.studentModules.findFirst({
-					where: eq(studentModules.id, studentModuleId),
-				});
-
-				if (!oldRecord) {
-					throw new Error('Student module not found');
-				}
-
-				const [updatedRecord] = await db
-					.update(studentModules)
-					.set(updates)
-					.where(eq(studentModules.id, studentModuleId))
-					.returning();
-
-				await db.insert(studentModuleAuditLogs).values({
+				return this.repository.updateStudentModuleWithAudit(
 					studentModuleId,
-					oldValues: oldRecord as unknown as Record<string, unknown>,
-					newValues: updatedRecord as unknown as Record<string, unknown>,
-					reasons: reasons || null,
-					updatedBy: session.user.id,
-				});
-
-				return updatedRecord;
+					updates,
+					session.user.id,
+					reasons
+				);
 			},
 			async (session: Session) => {
 				if (!session?.user) {
