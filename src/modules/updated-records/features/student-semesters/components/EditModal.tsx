@@ -97,7 +97,7 @@ export default function EditStudentSemesterModal({
 						label: s.name,
 					}))
 				);
-			} catch (error) {
+			} catch (_error) {
 				notifications.show({
 					title: 'Error',
 					message: 'Failed to load data for the form',
@@ -119,7 +119,7 @@ export default function EditStudentSemesterModal({
 				reasons: '',
 			});
 		}
-	}, [opened, semester]);
+	}, [opened, semester, form.setValues]);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
@@ -130,8 +130,8 @@ export default function EditStudentSemesterModal({
 					{
 						term: values.term,
 						status: values.status as SemesterStatus,
-						structureSemesterId: parseInt(values.structureSemesterId),
-						sponsorId: values.sponsorId ? parseInt(values.sponsorId) : null,
+						structureSemesterId: parseInt(values.structureSemesterId, 10),
+						sponsorId: values.sponsorId ? parseInt(values.sponsorId, 10) : null,
 					},
 					values.reasons
 				);

@@ -5,7 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/core/auth';
 import {
 	db,
-	sponsors,
 	structureSemesters,
 	studentSemesterSyncRecords,
 	studentSemesters,
