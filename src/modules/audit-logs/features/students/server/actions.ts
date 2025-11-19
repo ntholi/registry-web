@@ -45,9 +45,17 @@ export async function updateStudent(
 			throw new Error('Student not found');
 		}
 
+		// Convert dateOfBirth string to Date object if present
+		const processedUpdates = {
+			...updates,
+			dateOfBirth: updates.dateOfBirth
+				? new Date(updates.dateOfBirth)
+				: updates.dateOfBirth,
+		};
+
 		const [updatedRecord] = await db
 			.update(students)
-			.set(updates)
+			.set(processedUpdates)
 			.where(eq(students.stdNo, stdNo))
 			.returning();
 
