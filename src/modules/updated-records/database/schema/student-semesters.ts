@@ -1,4 +1,12 @@
-import { index, integer, jsonb, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+	index,
+	integer,
+	jsonb,
+	pgTable,
+	serial,
+	text,
+	timestamp,
+} from 'drizzle-orm/pg-core';
 import { users } from '@/modules/auth/database';
 import { studentSemesters } from '@/modules/registry/database';
 
@@ -20,10 +28,14 @@ export const studentSemesterSyncRecords = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		studentSemesterIdIdx: index('fk_student_semester_sync_records_student_semester_id').on(
-			table.studentSemesterId
+		studentSemesterIdIdx: index(
+			'fk_student_semester_sync_records_student_semester_id'
+		).on(table.studentSemesterId),
+		updatedByIdx: index('fk_student_semester_sync_records_updated_by').on(
+			table.updatedBy
 		),
-		updatedByIdx: index('fk_student_semester_sync_records_updated_by').on(table.updatedBy),
-		syncedAtIdx: index('idx_student_semester_sync_records_synced_at').on(table.syncedAt),
+		syncedAtIdx: index('idx_student_semester_sync_records_synced_at').on(
+			table.syncedAt
+		),
 	})
 );

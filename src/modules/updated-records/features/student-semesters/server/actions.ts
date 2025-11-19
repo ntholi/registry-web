@@ -3,7 +3,13 @@
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/core/auth';
-import { db, sponsors, studentSemesters, studentSemesterSyncRecords, structureSemesters } from '@/core/database';
+import {
+	db,
+	sponsors,
+	structureSemesters,
+	studentSemesterSyncRecords,
+	studentSemesters,
+} from '@/core/database';
 import withAuth from '@/core/platform/withAuth';
 import { studentSemesterSyncService as service } from './service';
 
@@ -27,28 +33,22 @@ export async function createSyncRecord(record: StudentSemesterSyncRecord) {
 }
 
 export async function getAllSponsors() {
-	return withAuth(
-		async () => {
-			return db.query.sponsors.findMany({
-				columns: { id: true, name: true, code: true },
-				orderBy: (sponsors, { asc }) => [asc(sponsors.name)],
-			});
-		},
-		['registry', 'admin']
-	);
+	return withAuth(async () => {
+		return db.query.sponsors.findMany({
+			columns: { id: true, name: true, code: true },
+			orderBy: (sponsors, { asc }) => [asc(sponsors.name)],
+		});
+	}, ['registry', 'admin']);
 }
 
 export async function getStructureSemestersByStructureId(structureId: number) {
-	return withAuth(
-		async () => {
-			return db.query.structureSemesters.findMany({
-				where: eq(structureSemesters.structureId, structureId),
-				columns: { id: true, name: true, semesterNumber: true },
-				orderBy: (sems, { asc }) => [asc(sems.semesterNumber)],
-			});
-		},
-		['registry', 'admin']
-	);
+	return withAuth(async () => {
+		return db.query.structureSemesters.findMany({
+			where: eq(structureSemesters.structureId, structureId),
+			columns: { id: true, name: true, semesterNumber: true },
+			orderBy: (sems, { asc }) => [asc(sems.semesterNumber)],
+		});
+	}, ['registry', 'admin']);
 }
 
 export async function updateStudentSemester(
@@ -56,39 +56,36 @@ export async function updateStudentSemester(
 	updates: StudentSemesterUpdate,
 	reasons?: string
 ) {
-	return withAuth(
-		async () => {
-			const session = await auth();
-			if (!session?.user?.id) {
-				throw new Error('User not authenticated');
-			}
+	return withAuth(async () => {
+		const session = await auth();
+		if (!session?.user?.id) {
+			throw new Error('User not authenticated');
+		}
 
-			const oldRecord = await db.query.studentSemesters.findFirst({
-				where: eq(studentSemesters.id, studentSemesterId),
-			});
+		const oldRecord = await db.query.studentSemesters.findFirst({
+			where: eq(studentSemesters.id, studentSemesterId),
+		});
 
-			if (!oldRecord) {
-				throw new Error('Student semester not found');
-			}
+		if (!oldRecord) {
+			throw new Error('Student semester not found');
+		}
 
-			const [updatedRecord] = await db
-				.update(studentSemesters)
-				.set(updates)
-				.where(eq(studentSemesters.id, studentSemesterId))
-				.returning();
+		const [updatedRecord] = await db
+			.update(studentSemesters)
+			.set(updates)
+			.where(eq(studentSemesters.id, studentSemesterId))
+			.returning();
 
-			await db.insert(studentSemesterSyncRecords).values({
-				studentSemesterId,
-				oldValues: oldRecord as unknown as Record<string, unknown>,
-				newValues: updatedRecord as unknown as Record<string, unknown>,
-				reasons: reasons || null,
-				updatedBy: session.user.id,
-			});
+		await db.insert(studentSemesterSyncRecords).values({
+			studentSemesterId,
+			oldValues: oldRecord as unknown as Record<string, unknown>,
+			newValues: updatedRecord as unknown as Record<string, unknown>,
+			reasons: reasons || null,
+			updatedBy: session.user.id,
+		});
 
-			revalidatePath('/dashboard/students');
+		revalidatePath('/dashboard/students');
 
-			return updatedRecord;
-		},
-		['registry', 'admin']
-	);
+		return updatedRecord;
+	}, ['registry', 'admin']);
 }

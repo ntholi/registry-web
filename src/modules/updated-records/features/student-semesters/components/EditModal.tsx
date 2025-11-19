@@ -12,6 +12,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { getAllTerms } from '@registry/terms';
 import { IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
@@ -19,7 +20,6 @@ import {
 	type SemesterStatus,
 	semesterStatus,
 } from '@/modules/registry/database/schema/enums';
-import { getAllTerms } from '@registry/terms';
 import {
 	getAllSponsors,
 	getStructureSemestersByStructureId,
@@ -70,11 +70,12 @@ export default function EditStudentSemesterModal({
 
 		async function loadData() {
 			try {
-				const [termsData, sponsorsData, structureSemestersData] = await Promise.all([
-					getAllTerms(),
-					getAllSponsors(),
-					getStructureSemestersByStructureId(structureId),
-				]);
+				const [termsData, sponsorsData, structureSemestersData] =
+					await Promise.all([
+						getAllTerms(),
+						getAllSponsors(),
+						getStructureSemestersByStructureId(structureId),
+					]);
 
 				setTerms(
 					termsData.map((t) => ({
