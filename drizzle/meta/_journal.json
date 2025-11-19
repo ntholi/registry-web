@@ -239,6 +239,13 @@
       "when": 1763561531296,
       "tag": "0033_pretty_genesis",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1763564531211,
+      "tag": "0034_light_raza",
+      "breakpoints": true
     }
   ]
 }

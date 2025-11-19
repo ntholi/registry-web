@@ -27,7 +27,6 @@ export const classTypeEnum = pgEnum('class_type', [
 	'lecture',
 	'tutorial',
 	'lab',
-	'seminar',
 	'workshop',
 	'practical',
 ]);
