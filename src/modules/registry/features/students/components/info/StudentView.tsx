@@ -1,5 +1,6 @@
 'use client';
 
+import { EditStudentModal } from '@audit-logs/students';
 import {
 	ActionIcon,
 	Badge,
@@ -115,11 +116,18 @@ export default function StudentView({ student }: Props) {
 					</Group>
 				</Card>
 			</Group>
+
 			<div>
 				<Flex justify='space-between'>
-					<Title order={4} mb='xs' fw={100}>
-						Student
-					</Title>
+					<Group gap='lg' align='center' mb='xs'>
+						<Title order={4} fw={100}>
+							Student
+						</Title>
+						{session?.user?.role &&
+							(['admin', 'registry'] as UserRole[]).includes(
+								session.user.role
+							) && <EditStudentModal student={student} />}
+					</Group>
 					<Badge
 						radius='sm'
 						color={getStudentStatusColor(student.status)}

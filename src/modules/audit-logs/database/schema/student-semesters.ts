@@ -2,6 +2,7 @@ import {
 	index,
 	integer,
 	jsonb,
+	pgEnum,
 	pgTable,
 	serial,
 	text,
@@ -9,6 +10,8 @@ import {
 } from 'drizzle-orm/pg-core';
 import { users } from '@/modules/auth/database';
 import { studentSemesters } from '@/modules/registry/database';
+
+export const operationType = pgEnum('operation_type', ['create', 'update']);
 
 export const studentSemesterAuditLogs = pgTable(
 	'student_semester_audit_logs',
@@ -19,6 +22,7 @@ export const studentSemesterAuditLogs = pgTable(
 			.notNull(),
 		oldValues: jsonb().notNull(),
 		newValues: jsonb().notNull(),
+		operation: operationType().notNull().default('update'),
 		reasons: text(),
 		updatedBy: text()
 			.references(() => users.id, { onDelete: 'set null' })
