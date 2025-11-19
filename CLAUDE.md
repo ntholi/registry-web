@@ -166,5 +166,8 @@ export default function EntityForm({ onSubmit, defaultValues, title }: any) {
 2.  **Types**: Strict TS. No `any`. Infer from Drizzle (`typeof table.$inferSelect`).
 3.  **Imports**: Use aliases (`@registry/terms`, `@shared/ui/adease`).
 4.  **QA**:
-    *   Run `pnpm tsc --noEmit` (Must pass).
+    *   Run `pnpm tsc --noEmit` (run iteratively until no more issues).
     *   Run `pnpm lint:fix` (Must pass).
+
+
+Never run pnpm:db generate, I will do that manually, and never run migration script or the push script

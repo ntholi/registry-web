@@ -1,18 +1,6 @@
 'use client';
 
-import {
-	ActionIcon,
-	Button,
-	Checkbox,
-	Group,
-	Modal,
-	MultiSelect,
-	NumberInput,
-	Select,
-	Stack,
-	Tabs,
-} from '@mantine/core';
-import { TimeInput } from '@mantine/dates';
+import { ActionIcon, Button, Group, Modal } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -21,40 +9,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
-import DurationInput from '@/shared/ui/DurationInput';
 import {
 	updateTimetableAllocation,
 	updateTimetableAllocationVenueTypes,
 } from '../server/actions';
+import {
+	AllocationForm,
+	baseAllocationSchema,
+	type DayOfWeek,
+} from './AllocationForm';
 
-const daysOfWeek = [
-	'monday',
-	'tuesday',
-	'wednesday',
-	'thursday',
-	'friday',
-	'saturday',
-	'sunday',
-] as const;
-
-const classTypes = [
-	{ value: 'lecture', label: 'Lecture' },
-	{ value: 'tutorial', label: 'Tutorial' },
-	{ value: 'lab', label: 'Lab' },
-	{ value: 'workshop', label: 'Workshop' },
-	{ value: 'practical', label: 'Practical' },
-] as const;
-
-const schema = z.object({
-	duration: z.number().min(1, 'Please enter a valid duration'),
-	classType: z.enum(['lecture', 'tutorial', 'lab', 'workshop', 'practical']),
+const schema = baseAllocationSchema.extend({
 	numberOfStudents: z.number().min(0),
-	venueTypeIds: z.array(z.number()),
-	allowedDays: z
-		.array(z.enum(daysOfWeek))
-		.min(1, 'Please select at least one day'),
-	startTime: z.string().min(1, 'Please enter a start time'),
-	endTime: z.string().min(1, 'Please enter an end time'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -65,7 +31,7 @@ type Props = {
 	currentClassType: FormValues['classType'];
 	currentNumberOfStudents: number;
 	currentVenueTypeIds: number[];
-	currentAllowedDays: (typeof daysOfWeek)[number][];
+	currentAllowedDays: DayOfWeek[];
 	currentStartTime: string;
 	currentEndTime: string;
 };
@@ -162,116 +128,7 @@ export default function EditAllocationModal({
 
 			<Modal opened={opened} onClose={close} title='Edit Allocation' size='md'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<Tabs defaultValue='details'>
-						<Tabs.List>
-							<Tabs.Tab value='details'>Details</Tabs.Tab>
-							<Tabs.Tab value='constraints'>Constraints</Tabs.Tab>
-						</Tabs.List>
-
-						<Tabs.Panel value='details' pt='md'>
-							<Stack gap='md'>
-								<DurationInput
-									label='Duration'
-									value={form.values.duration}
-									onChange={(value) => form.setFieldValue('duration', value)}
-									error={form.errors.duration}
-									required
-								/>
-								<Select
-									label='Class Type'
-									placeholder='Select class type'
-									data={classTypes}
-									value={form.values.classType}
-									onChange={(value) =>
-										form.setFieldValue(
-											'classType',
-											value as FormValues['classType']
-										)
-									}
-									error={form.errors.classType}
-									required
-								/>
-								<NumberInput
-									label='Number of Students'
-									placeholder='Enter number of students'
-									value={form.values.numberOfStudents}
-									onChange={(value) =>
-										form.setFieldValue('numberOfStudents', value as number)
-									}
-									error={form.errors.numberOfStudents}
-									min={0}
-									required
-								/>
-								<MultiSelect
-									label='Venue Types'
-									placeholder='Select venue types (optional)'
-									data={venueTypes.map((vt: { id: number; name: string }) => ({
-										value: vt.id.toString(),
-										label: vt.name,
-									}))}
-									value={form.values.venueTypeIds.map((id) => id.toString())}
-									onChange={(values) => {
-										form.setFieldValue(
-											'venueTypeIds',
-											values.map((v) => Number(v))
-										);
-									}}
-									searchable
-									clearable
-								/>
-							</Stack>
-						</Tabs.Panel>
-
-						<Tabs.Panel value='constraints' pt='md'>
-							<Stack gap='md'>
-								<Checkbox.Group
-									label='Allowed Days'
-									description='Select which days of the week this allocation can be scheduled'
-									value={form.values.allowedDays}
-									onChange={(value) =>
-										form.setFieldValue(
-											'allowedDays',
-											value as unknown as (typeof daysOfWeek)[number][]
-										)
-									}
-									error={form.errors.allowedDays}
-									required
-								>
-									<Stack mt='xs' gap='xs'>
-										<Checkbox value='monday' label='Monday' />
-										<Checkbox value='tuesday' label='Tuesday' />
-										<Checkbox value='wednesday' label='Wednesday' />
-										<Checkbox value='thursday' label='Thursday' />
-										<Checkbox value='friday' label='Friday' />
-										<Checkbox value='saturday' label='Saturday' />
-										<Checkbox value='sunday' label='Sunday' />
-									</Stack>
-								</Checkbox.Group>
-
-								<TimeInput
-									label='Start Time'
-									description='Earliest time this allocation can be scheduled'
-									value={form.values.startTime}
-									onChange={(event) =>
-										form.setFieldValue('startTime', event.currentTarget.value)
-									}
-									error={form.errors.startTime}
-									required
-								/>
-
-								<TimeInput
-									label='End Time'
-									description='Latest time this allocation can be scheduled'
-									value={form.values.endTime}
-									onChange={(event) =>
-										form.setFieldValue('endTime', event.currentTarget.value)
-									}
-									error={form.errors.endTime}
-									required
-								/>
-							</Stack>
-						</Tabs.Panel>
-					</Tabs>
+					<AllocationForm form={form} venueTypes={venueTypes} />
 
 					<Group justify='flex-end' mt='md'>
 						<Button variant='subtle' onClick={close}>
