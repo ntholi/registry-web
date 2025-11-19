@@ -25,6 +25,7 @@ import {
 	formatSemester,
 } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
+import { EditStudentModal } from '@audit-logs/students';
 import type { getStudent } from '../../server/actions';
 import { getProgramStatusColor } from '../academics/AcademicsView';
 import EditStudentUserModal from '../academics/EditStudentUserModal';
@@ -115,11 +116,30 @@ export default function StudentView({ student }: Props) {
 					</Group>
 				</Card>
 			</Group>
-			<div>
+			<div
+				onMouseEnter={(e) => {
+					const editIcon = e.currentTarget.querySelector(
+						'.edit-student-icon'
+					) as HTMLElement;
+					if (editIcon) editIcon.style.opacity = '1';
+				}}
+				onMouseLeave={(e) => {
+					const editIcon = e.currentTarget.querySelector(
+						'.edit-student-icon'
+					) as HTMLElement;
+					if (editIcon) editIcon.style.opacity = '0';
+				}}
+			>
 				<Flex justify='space-between'>
-					<Title order={4} mb='xs' fw={100}>
-						Student
-					</Title>
+					<Group gap='xs'>
+						<Title order={4} mb='xs' fw={100}>
+							Student
+						</Title>
+						{session?.user?.role &&
+							(['admin', 'registry'] as UserRole[]).includes(
+								session.user.role
+							) && <EditStudentModal student={student} />}
+					</Group>
 					<Badge
 						radius='sm'
 						color={getStudentStatusColor(student.status)}
