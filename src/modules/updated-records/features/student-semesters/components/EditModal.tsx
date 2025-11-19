@@ -8,7 +8,6 @@ import {
 	Select,
 	Tabs,
 	Textarea,
-	TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
@@ -20,6 +19,7 @@ import {
 	type SemesterStatus,
 	semesterStatus,
 } from '@/modules/registry/database/schema/enums';
+import { getAllTerms } from '@registry/terms';
 import {
 	getAllSponsors,
 	getStructureSemestersByStructureId,
@@ -47,6 +47,7 @@ export default function EditStudentSemesterModal({
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [terms, setTerms] = useState<{ value: string; label: string }[]>([]);
 	const [sponsors, setSponsors] = useState<{ value: string; label: string }[]>(
 		[]
 	);
@@ -69,10 +70,18 @@ export default function EditStudentSemesterModal({
 
 		async function loadData() {
 			try {
-				const [sponsorsData, structureSemestersData] = await Promise.all([
+				const [termsData, sponsorsData, structureSemestersData] = await Promise.all([
+					getAllTerms(),
 					getAllSponsors(),
 					getStructureSemestersByStructureId(structureId),
 				]);
+
+				setTerms(
+					termsData.map((t) => ({
+						value: t.name,
+						label: t.name,
+					}))
+				);
 
 				setSponsors(
 					sponsorsData.map((s) => ({
@@ -180,9 +189,12 @@ export default function EditStudentSemesterModal({
 						</Tabs.List>
 
 						<Tabs.Panel value='details' pt='md'>
-							<TextInput
+							<Select
 								label='Term'
-								placeholder='Enter term'
+								placeholder='Select term'
+								searchable
+								clearable
+								data={terms}
 								required
 								mb='md'
 								{...form.getInputProps('term')}
