@@ -1,10 +1,7 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/core/auth';
-import { db, studentAuditLogs, students } from '@/core/database';
-import withAuth from '@/core/platform/withAuth';
+import type { studentAuditLogs, students } from '@/core/database';
 import { studentAuditLogService as service } from './service';
 
 type StudentAuditLog = typeof studentAuditLogs.$inferInsert;
@@ -31,45 +28,7 @@ export async function updateStudent(
 	updates: StudentUpdate,
 	reasons?: string
 ) {
-	return withAuth(async () => {
-		const session = await auth();
-		if (!session?.user?.id) {
-			throw new Error('User not authenticated');
-		}
-
-		const oldRecord = await db.query.students.findFirst({
-			where: eq(students.stdNo, stdNo),
-		});
-
-		if (!oldRecord) {
-			throw new Error('Student not found');
-		}
-
-		// Convert dateOfBirth string to Date object if present
-		const processedUpdates = {
-			...updates,
-			dateOfBirth: updates.dateOfBirth
-				? new Date(updates.dateOfBirth)
-				: updates.dateOfBirth,
-		};
-
-		const [updatedRecord] = await db
-			.update(students)
-			.set(processedUpdates)
-			.where(eq(students.stdNo, stdNo))
-			.returning();
-
-		await db.insert(studentAuditLogs).values({
-			stdNo,
-			oldValues: oldRecord as unknown as Record<string, unknown>,
-			newValues: updatedRecord as unknown as Record<string, unknown>,
-			operation: 'update',
-			reasons: reasons || null,
-			updatedBy: session.user.id,
-		});
-
-		revalidatePath(`/dashboard/students/${stdNo}`);
-
-		return updatedRecord;
-	}, ['registry', 'admin']);
+	const result = await service.updateStudent(stdNo, updates, reasons);
+	revalidatePath(`/dashboard/students/${stdNo}`);
+	return result;
 }

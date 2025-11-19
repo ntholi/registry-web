@@ -246,6 +246,13 @@
 			"when": 1763564531211,
 			"tag": "0034_light_raza",
 			"breakpoints": true
+		},
+		{
+			"idx": 35,
+			"version": "7",
+			"when": 1763570746385,
+			"tag": "0035_mixed_jean_grey",
+			"breakpoints": true
 		}
 	]
 }

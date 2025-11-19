@@ -1,5 +1,6 @@
 'use client';
 
+import { EditStudentModuleModal } from '@audit-logs/student-modules';
 import {
 	Anchor,
 	Badge,
@@ -11,6 +12,7 @@ import {
 	Tooltip,
 	useComputedColorScheme,
 } from '@mantine/core';
+import { useSession } from 'next-auth/react';
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
@@ -47,6 +49,10 @@ export default function SemesterTable({
 	allSemesters,
 }: ModuleTableProps) {
 	const colorScheme = useComputedColorScheme('dark');
+	const { data: session } = useSession();
+
+	const canEdit =
+		session?.user?.role === 'registry' || session?.user?.role === 'admin';
 
 	const getModulesWithFailHistory = (moduleCode: string) => {
 		if (!allSemesters) return false;
@@ -204,7 +210,10 @@ export default function SemesterTable({
 											color={colorScheme}
 											withArrow
 											multiline
-											transitionProps={{ transition: 'fade', duration: 200 }}
+											transitionProps={{
+												transition: 'fade',
+												duration: 200,
+											}}
 										>
 											<Anchor
 												size='sm'
@@ -234,16 +243,42 @@ export default function SemesterTable({
 									</Text>
 								</Table.Td>
 								<Table.Td>
-									<Text
-										size='sm'
-										c={
-											['Drop', 'Delete'].includes(module.status)
-												? 'red'
-												: undefined
-										}
+									<Group
+										gap='xs'
+										align='center'
+										pos={'relative'}
+										className='module-code-group'
 									>
-										{module.status}
-									</Text>
+										<style>{`
+											.module-code-group:hover .edit-module-icon {
+												opacity: 1 !important;
+											}
+										`}</style>
+										<Text
+											size='sm'
+											c={
+												['Drop', 'Delete'].includes(module.status)
+													? 'red'
+													: undefined
+											}
+										>
+											{module.status}
+										</Text>
+										{canEdit && (
+											<EditStudentModuleModal
+												pos={'absolute'}
+												right={-13}
+												module={{
+													id: module.id,
+													code: module.code,
+													name: module.name,
+													status: module.status as never,
+													marks: module.marks,
+													grade: module.grade as never,
+												}}
+											/>
+										)}
+									</Group>
 								</Table.Td>
 								<Table.Td>
 									<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
