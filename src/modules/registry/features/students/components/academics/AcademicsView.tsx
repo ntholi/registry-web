@@ -1,5 +1,6 @@
 'use client';
 
+import { EditStudentProgramModal } from '@audit-logs/student-programs';
 import { EditStudentSemesterModal } from '@audit-logs/student-semesters';
 import {
 	Accordion,
@@ -72,7 +73,11 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 								</ThemeIcon>
 								<Stack gap={5}>
 									<Text fw={500}>{program.structure.program.name}</Text>
-									<Group gap={'xs'}>
+									<Group
+										gap={'xs'}
+										align='center'
+										style={{ position: 'relative' }}
+									>
 										<Badge
 											color={getProgramStatusColor(program.status)}
 											size='xs'
@@ -80,6 +85,22 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 										>
 											{program.status}
 										</Badge>
+										{canEdit && (
+											<EditStudentProgramModal
+												program={{
+													id: program.id,
+													stdNo: student.stdNo,
+													intakeDate: program.intakeDate,
+													regDate: program.regDate,
+													startTerm: program.startTerm,
+													structureId: program.structureId,
+													stream: program.stream,
+													graduationDate: program.graduationDate,
+													status: program.status,
+													assistProvider: program.assistProvider,
+												}}
+											/>
+										)}
 									</Group>
 								</Stack>
 							</Group>
@@ -195,6 +216,9 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 			<style>
 				{`
 					.semester-header:hover .edit-semester-icon {
+						opacity: 1 !important;
+					}
+					.mantine-Accordion-control:hover .edit-program-icon {
 						opacity: 1 !important;
 					}
 				`}
