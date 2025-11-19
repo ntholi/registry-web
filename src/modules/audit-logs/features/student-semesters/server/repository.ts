@@ -1,35 +1,32 @@
 import { eq } from 'drizzle-orm';
-import { db, studentSemesterSyncRecords } from '@/core/database';
+import { db, studentSemesterAuditLogs } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
 export type StudentSemesterSyncRecordInsert =
-	typeof studentSemesterSyncRecords.$inferInsert;
+	typeof studentSemesterAuditLogs.$inferInsert;
 export type StudentSemesterSyncRecordQueryOptions = QueryOptions<
-	typeof studentSemesterSyncRecords
+	typeof studentSemesterAuditLogs
 >;
 
 export default class StudentSemesterSyncRepository extends BaseRepository<
-	typeof studentSemesterSyncRecords,
+	typeof studentSemesterAuditLogs,
 	'id'
 > {
 	constructor() {
-		super(studentSemesterSyncRecords, studentSemesterSyncRecords.id);
+		super(studentSemesterAuditLogs, studentSemesterAuditLogs.id);
 	}
 
 	async findByStudentSemesterId(studentSemesterId: number) {
-		return db.query.studentSemesterSyncRecords.findMany({
-			where: eq(
-				studentSemesterSyncRecords.studentSemesterId,
-				studentSemesterId
-			),
+		return db.query.studentSemesterAuditLogs.findMany({
+			where: eq(studentSemesterAuditLogs.studentSemesterId, studentSemesterId),
 			orderBy: (records, { desc }) => [desc(records.updatedAt)],
 		});
 	}
 
 	async findUnsynced() {
-		return db.query.studentSemesterSyncRecords.findMany({
+		return db.query.studentSemesterAuditLogs.findMany({
 			where: (records, { isNull }) => isNull(records.syncedAt),
 			orderBy: (records, { asc }) => [asc(records.updatedAt)],
 		});
@@ -37,9 +34,9 @@ export default class StudentSemesterSyncRepository extends BaseRepository<
 
 	async markAsSynced(id: number) {
 		return db
-			.update(studentSemesterSyncRecords)
+			.update(studentSemesterAuditLogs)
 			.set({ syncedAt: new Date() })
-			.where(eq(studentSemesterSyncRecords.id, id))
+			.where(eq(studentSemesterAuditLogs.id, id))
 			.returning();
 	}
 }

@@ -1,10 +1,10 @@
-import type { studentSemesterSyncRecords } from '@/core/database';
+import type { studentSemesterAuditLogs } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import StudentSemesterSyncRepository from './repository';
 
 class StudentSemesterSyncService extends BaseService<
-	typeof studentSemesterSyncRecords,
+	typeof studentSemesterAuditLogs,
 	'id'
 > {
 	constructor() {

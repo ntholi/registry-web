@@ -6,13 +6,13 @@ import { auth } from '@/core/auth';
 import {
 	db,
 	structureSemesters,
-	studentSemesterSyncRecords,
+	studentSemesterAuditLogs,
 	studentSemesters,
 } from '@/core/database';
 import withAuth from '@/core/platform/withAuth';
 import { studentSemesterSyncService as service } from './service';
 
-type StudentSemesterSyncRecord = typeof studentSemesterSyncRecords.$inferInsert;
+type StudentSemesterSyncRecord = typeof studentSemesterAuditLogs.$inferInsert;
 type StudentSemesterUpdate = Partial<typeof studentSemesters.$inferInsert>;
 
 export async function getSyncRecord(id: number) {
@@ -66,7 +66,7 @@ export async function updateStudentSemester(
 			.where(eq(studentSemesters.id, studentSemesterId))
 			.returning();
 
-		await db.insert(studentSemesterSyncRecords).values({
+		await db.insert(studentSemesterAuditLogs).values({
 			studentSemesterId,
 			oldValues: oldRecord as unknown as Record<string, unknown>,
 			newValues: updatedRecord as unknown as Record<string, unknown>,

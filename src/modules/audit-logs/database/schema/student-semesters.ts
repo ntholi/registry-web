@@ -10,8 +10,8 @@ import {
 import { users } from '@/modules/auth/database';
 import { studentSemesters } from '@/modules/registry/database';
 
-export const studentSemesterSyncRecords = pgTable(
-	'student_semester_sync_records',
+export const studentSemesterAuditLogs = pgTable(
+	'student_semester_audit_logs',
 	{
 		id: serial().primaryKey(),
 		studentSemesterId: integer()

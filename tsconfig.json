@@ -29,7 +29,7 @@
 			"@classroom/*": ["./src/modules/classroom/features/*"],
 			"@timetable/*": ["./src/modules/timetable/features/*"],
 			"@auth/*": ["./src/modules/auth/features/*"],
-			"@updated-records/*": ["./src/modules/updated-records/features/*"],
+			"@audit-logs/*": ["./src/modules/audit-logs/features/*"],
 			"@server/*": ["./src/server/*"]
 		}
 	},

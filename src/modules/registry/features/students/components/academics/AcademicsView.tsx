@@ -1,5 +1,6 @@
 'use client';
 
+import { EditStudentSemesterModal } from '@audit-logs/student-semesters';
 import {
 	Accordion,
 	Badge,
@@ -14,7 +15,6 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
-import { EditStudentSemesterModal } from '@updated-records/student-semesters';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
