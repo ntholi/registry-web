@@ -6,6 +6,7 @@ import {
 	Group,
 	Modal,
 	Select,
+	Stack,
 	Tabs,
 	Textarea,
 } from '@mantine/core';
@@ -23,7 +24,6 @@ import {
 } from '@/modules/registry/database/schema/enums';
 import { getStructures, updateStudentProgram } from '../server/actions';
 
-// Helper functions to convert between Date and string format (YYYY-MM-DD)
 function parseDate(dateString: string | null): Date | null {
 	if (!dateString) return null;
 	const date = new Date(dateString);
@@ -32,9 +32,7 @@ function parseDate(dateString: string | null): Date | null {
 
 function formatDate(date: Date | null | undefined): string | null {
 	if (!date) return null;
-	// Handle case where date might already be a string
 	if (typeof date === 'string') return date;
-	// Ensure it's a valid Date object
 	if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
 	const year = date.getFullYear();
 	const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -198,32 +196,46 @@ export default function EditStudentProgramModal({ program }: Props) {
 						</Tabs.List>
 
 						<Tabs.Panel value='details' pt='md'>
-							<Select
-								label='Status'
-								placeholder='Select status'
-								searchable
-								clearable
-								data={programStatus.enumValues.map((s) => ({
-									value: s,
-									label: s,
-								}))}
-								required
-								mb='md'
-								{...form.getInputProps('status')}
-							/>
+							<Stack>
+								<Select
+									label='Status'
+									placeholder='Select status'
+									searchable
+									clearable
+									data={programStatus.enumValues.map((s) => ({
+										value: s,
+										label: s,
+									}))}
+									required
+									{...form.getInputProps('status')}
+								/>
 
-							<Select
-								label='Structure'
-								placeholder='Select structure'
-								searchable
-								clearable
-								data={structures}
-								required
-								mb='md'
-								{...form.getInputProps('structureId')}
-							/>
+								<Select
+									label='Structure'
+									placeholder='Select structure'
+									searchable
+									clearable
+									data={structures}
+									required
+									{...form.getInputProps('structureId')}
+								/>
 
-							<Group grow mb='md'>
+								<Group grow>
+									<DateInput
+										label='Intake Date'
+										placeholder='Select intake date'
+										clearable
+										valueFormat='YYYY-MM-DD'
+										{...form.getInputProps('intakeDate')}
+									/>
+									<DateInput
+										label='Registration Date'
+										placeholder='Select registration date'
+										clearable
+										valueFormat='YYYY-MM-DD'
+										{...form.getInputProps('regDate')}
+									/>
+								</Group>
 								<Select
 									label='Start Term'
 									placeholder='Select start term'
@@ -234,31 +246,13 @@ export default function EditStudentProgramModal({ program }: Props) {
 								/>
 
 								<DateInput
-									label='Intake Date'
-									placeholder='Select intake date'
+									label='Graduation Date'
+									placeholder='Select graduation date'
 									clearable
 									valueFormat='YYYY-MM-DD'
-									{...form.getInputProps('intakeDate')}
+									{...form.getInputProps('graduationDate')}
 								/>
-							</Group>
-
-							<DateInput
-								label='Registration Date'
-								placeholder='Select registration date'
-								clearable
-								valueFormat='YYYY-MM-DD'
-								mb='md'
-								{...form.getInputProps('regDate')}
-							/>
-
-							<DateInput
-								label='Graduation Date'
-								placeholder='Select graduation date'
-								clearable
-								valueFormat='YYYY-MM-DD'
-								mb='md'
-								{...form.getInputProps('graduationDate')}
-							/>
+							</Stack>
 						</Tabs.Panel>
 
 						<Tabs.Panel value='reasons' pt='md'>
