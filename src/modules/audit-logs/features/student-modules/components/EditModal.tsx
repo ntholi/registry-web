@@ -22,7 +22,7 @@ import {
 	type StudentModuleStatus,
 	studentModuleStatus,
 } from '@/modules/registry/database/schema/enums';
-import { updateStudentModule } from '../server/actions';
+import { canEditMarksAndGrades, updateStudentModule } from '../server/actions';
 
 interface StudentModule {
 	id: number;
@@ -39,6 +39,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [canEditMarks, setCanEditMarks] = useState(false);
 
 	const form = useForm({
 		initialValues: {
@@ -48,6 +49,14 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 			reasons: '',
 		},
 	});
+
+	useEffect(() => {
+		async function checkPermissions() {
+			const hasPermission = await canEditMarksAndGrades();
+			setCanEditMarks(hasPermission);
+		}
+		checkPermissions();
+	}, []);
 
 	useEffect(() => {
 		if (opened) {
@@ -133,7 +142,6 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								label='Status'
 								placeholder='Select status'
 								searchable
-								clearable
 								data={studentModuleStatus.enumValues.map((s) => ({
 									value: s,
 									label: s,
@@ -148,6 +156,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								placeholder='Enter marks'
 								required
 								mb='md'
+								disabled={!canEditMarks}
 								{...form.getInputProps('marks')}
 							/>
 
@@ -162,6 +171,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								}))}
 								required
 								mb='md'
+								disabled={!canEditMarks}
 								{...form.getInputProps('grade')}
 							/>
 						</Tabs.Panel>
