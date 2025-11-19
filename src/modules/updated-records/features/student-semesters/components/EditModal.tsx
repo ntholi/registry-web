@@ -99,7 +99,8 @@ export default function EditStudentSemesterModal({
 				reasons: '',
 			});
 		}
-	}, [opened, semester, form]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [opened, semester]);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
