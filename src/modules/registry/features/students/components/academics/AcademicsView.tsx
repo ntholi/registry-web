@@ -14,6 +14,8 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
+import { EditStudentSemesterModal } from '@updated-records/student-semesters';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -28,7 +30,11 @@ type Props = {
 } & StackProps;
 
 export default function AcademicsView({ student, showMarks, ...props }: Props) {
+	const { data: session } = useSession();
 	const [openPrograms, setOpenPrograms] = useState<string[]>();
+
+	const canEdit =
+		session?.user?.role === 'registry' || session?.user?.role === 'admin';
 
 	useEffect(() => {
 		setOpenPrograms(
@@ -95,8 +101,16 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 											return (
 												<Paper key={semester.id} p='md' withBorder>
 													<Stack gap='md'>
-														<Flex align='flex-end' justify='space-between'>
-															<Group gap={'xs'} align='flex-end'>
+														<Flex
+															align='flex-end'
+															justify='space-between'
+															className='semester-header'
+														>
+															<Group
+																gap={'xs'}
+																align='flex-end'
+																style={{ position: 'relative' }}
+															>
 																<Badge radius={'xs'} variant='default'>
 																	{semester.term}
 																</Badge>
@@ -105,6 +119,12 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																		semester.structureSemester?.semesterNumber
 																	)}
 																</Text>
+																{canEdit && (
+																	<EditStudentSemesterModal
+																		semester={semester as never}
+																		structureId={program.structure.id}
+																	/>
+																)}
 															</Group>
 															<Group gap='md' align='flex-end'>
 																<GpaDisplay
@@ -172,6 +192,13 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 					</Accordion.Item>
 				))}
 			</Accordion>
+			<style>
+				{`
+					.semester-header:hover .edit-semester-icon {
+						opacity: 1 !important;
+					}
+				`}
+			</style>
 		</Stack>
 	);
 }

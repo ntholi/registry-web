@@ -225,6 +225,13 @@
 			"when": 1763409511957,
 			"tag": "0031_certain_mojo",
 			"breakpoints": true
+		},
+		{
+			"idx": 32,
+			"version": "7",
+			"when": 1763555739906,
+			"tag": "0032_yellow_garia",
+			"breakpoints": true
 		}
 	]
 }

@@ -8,11 +8,13 @@ import * as auth from '@/modules/auth/database';
 import * as finance from '@/modules/finance/database';
 import * as registry from '@/modules/registry/database';
 import * as timetable from '@/modules/timetable/database';
+import * as updatedRecords from '@/modules/updated-records/database';
 
 const schema = {
 	...academic,
 	...admin,
 	...auth,
+	...updatedRecords,
 	...finance,
 	...registry,
 	...timetable,
@@ -44,4 +46,5 @@ export * from '@/modules/auth/database';
 export * from '@/modules/finance/database';
 export * from '@/modules/registry/database';
 export * from '@/modules/timetable/database';
+export * from '@/modules/updated-records/database';
 export * from './types';

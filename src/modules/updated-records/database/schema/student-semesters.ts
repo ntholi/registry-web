@@ -1,0 +1,41 @@
+import {
+	index,
+	integer,
+	jsonb,
+	pgTable,
+	serial,
+	text,
+	timestamp,
+} from 'drizzle-orm/pg-core';
+import { users } from '@/modules/auth/database';
+import { studentSemesters } from '@/modules/registry/database';
+
+export const studentSemesterSyncRecords = pgTable(
+	'student_semester_sync_records',
+	{
+		id: serial().primaryKey(),
+		studentSemesterId: integer()
+			.references(() => studentSemesters.id, { onDelete: 'cascade' })
+			.notNull(),
+		oldValues: jsonb().notNull(),
+		newValues: jsonb().notNull(),
+		reasons: text(),
+		updatedBy: text()
+			.references(() => users.id, { onDelete: 'set null' })
+			.notNull(),
+		updatedAt: timestamp().notNull().defaultNow(),
+		syncedAt: timestamp(),
+		createdAt: timestamp().defaultNow(),
+	},
+	(table) => ({
+		studentSemesterIdIdx: index(
+			'fk_student_semester_sync_records_student_semester_id'
+		).on(table.studentSemesterId),
+		updatedByIdx: index('fk_student_semester_sync_records_updated_by').on(
+			table.updatedBy
+		),
+		syncedAtIdx: index('idx_student_semester_sync_records_synced_at').on(
+			table.syncedAt
+		),
+	})
+);
