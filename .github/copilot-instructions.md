@@ -168,3 +168,5 @@ export default function EntityForm({ onSubmit, defaultValues, title }: any) {
 4.  **QA**:
     *   Run `pnpm tsc --noEmit` (run iteratively until no more issues).
     *   Run `pnpm lint:fix` (Must pass).
+
+5.  **Data Fetching**: Never use useEffect for data fetching but always use TanStack Query. TanStack Query keys should use kebab-case.

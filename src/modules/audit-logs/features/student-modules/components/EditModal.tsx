@@ -15,7 +15,7 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { type Grade, grade } from '@/modules/academic/database/schema/enums';
 import {
@@ -39,7 +39,12 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [canEditMarks, setCanEditMarks] = useState(false);
+
+	const { data: canEditMarks = false } = useQuery({
+		queryKey: ['can-edit-marks'],
+		queryFn: canEditMarksAndGrades,
+		staleTime: 1000 * 60 * 15,
+	});
 
 	const form = useForm({
 		initialValues: {
@@ -49,14 +54,6 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 			reasons: '',
 		},
 	});
-
-	useEffect(() => {
-		async function checkPermissions() {
-			const hasPermission = await canEditMarksAndGrades();
-			setCanEditMarks(hasPermission);
-		}
-		checkPermissions();
-	}, []);
 
 	useEffect(() => {
 		if (opened) {
