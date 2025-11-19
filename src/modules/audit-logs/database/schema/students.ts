@@ -31,9 +31,7 @@ export const studentAuditLogs = pgTable(
 	},
 	(table) => ({
 		stdNoIdx: index('fk_student_audit_logs_std_no').on(table.stdNo),
-		updatedByIdx: index('fk_student_audit_logs_updated_by').on(
-			table.updatedBy
-		),
+		updatedByIdx: index('fk_student_audit_logs_updated_by').on(table.updatedBy),
 		syncedAtIdx: index('idx_student_audit_logs_synced_at').on(table.syncedAt),
 	})
 );

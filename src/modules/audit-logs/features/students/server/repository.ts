@@ -5,9 +5,7 @@ import BaseRepository, {
 } from '@/core/platform/BaseRepository';
 
 export type StudentAuditLogInsert = typeof studentAuditLogs.$inferInsert;
-export type StudentAuditLogQueryOptions = QueryOptions<
-	typeof studentAuditLogs
->;
+export type StudentAuditLogQueryOptions = QueryOptions<typeof studentAuditLogs>;
 
 export default class StudentAuditLogRepository extends BaseRepository<
 	typeof studentAuditLogs,

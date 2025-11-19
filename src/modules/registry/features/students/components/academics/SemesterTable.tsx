@@ -202,12 +202,16 @@ export default function SemesterTable({
 											}
 										: undefined
 								}
-								className='module-row'
 							>
 								<Table.Td>
-									<Group gap='xs' align='center' pos={'relative'}>
+									<Group
+										gap='xs'
+										align='center'
+										pos={'relative'}
+										className='module-code-group'
+									>
 										<style>{`
-				.module-row:hover .edit-module-icon {
+				.module-code-group:hover .edit-module-icon {
 					opacity: 1 !important;
 				}
 			`}</style>
