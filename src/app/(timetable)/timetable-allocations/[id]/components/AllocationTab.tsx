@@ -28,7 +28,7 @@ type Props = {
 	filteredAllocations: {
 		id: number;
 		duration: number | null;
-		classType: 'lecture' | 'tutorial' | 'lab' | 'seminar' | 'workshop' | 'practical' | null;
+		classType: 'lecture' | 'tutorial' | 'lab' | 'workshop' | 'practical' | null;
 		numberOfStudents: number | null;
 		groupName: string | null;
 		allowedDays:

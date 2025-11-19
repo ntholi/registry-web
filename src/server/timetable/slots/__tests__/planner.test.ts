@@ -1171,7 +1171,11 @@ describe('buildTermPlan - Class Type Constraints', () => {
 			semesterModuleId: semesterModuleIdValue,
 		});
 
-		const plan = buildTermPlan(1, [lecture, lab], [makeVenue({ capacity: 80 })]);
+		const plan = buildTermPlan(
+			1,
+			[lecture, lab],
+			[makeVenue({ capacity: 80 })]
+		);
 
 		expect(plan.length).toBeGreaterThanOrEqual(2);
 

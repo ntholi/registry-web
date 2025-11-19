@@ -8,6 +8,7 @@ import {
 	Modal,
 	MultiSelect,
 	NumberInput,
+	Select,
 	Stack,
 	Tabs,
 } from '@mantine/core';
@@ -40,14 +41,13 @@ const classTypes = [
 	{ value: 'lecture', label: 'Lecture' },
 	{ value: 'tutorial', label: 'Tutorial' },
 	{ value: 'lab', label: 'Lab' },
-	{ value: 'seminar', label: 'Seminar' },
 	{ value: 'workshop', label: 'Workshop' },
 	{ value: 'practical', label: 'Practical' },
 ] as const;
 
 const schema = z.object({
 	duration: z.number().min(1, 'Please enter a valid duration'),
-	classType: z.enum(['lecture', 'tutorial', 'lab', 'seminar', 'workshop', 'practical']),
+	classType: z.enum(['lecture', 'tutorial', 'lab', 'workshop', 'practical']),
 	numberOfStudents: z.number().min(0),
 	venueTypeIds: z.array(z.number()),
 	allowedDays: z
@@ -183,7 +183,10 @@ export default function EditAllocationModal({
 									data={classTypes}
 									value={form.values.classType}
 									onChange={(value) =>
-										form.setFieldValue('classType', value as FormValues['classType'])
+										form.setFieldValue(
+											'classType',
+											value as FormValues['classType']
+										)
 									}
 									error={form.errors.classType}
 									required

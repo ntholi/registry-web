@@ -46,7 +46,6 @@ const classTypes = [
 	{ value: 'lecture', label: 'Lecture' },
 	{ value: 'tutorial', label: 'Tutorial' },
 	{ value: 'lab', label: 'Lab' },
-	{ value: 'seminar', label: 'Seminar' },
 	{ value: 'workshop', label: 'Workshop' },
 	{ value: 'practical', label: 'Practical' },
 ] as const;
@@ -54,7 +53,7 @@ const classTypes = [
 const schema = z.object({
 	semesterModuleId: z.number().min(1, 'Please select a semester module'),
 	duration: z.number().min(1, 'Please enter a valid duration'),
-	classType: z.enum(['lecture', 'tutorial', 'lab', 'seminar', 'workshop', 'practical']),
+	classType: z.enum(['lecture', 'tutorial', 'lab', 'workshop', 'practical']),
 	numberOfStudents: z.number().min(1, 'A class should have at least 1 student'),
 	venueTypeIds: z.array(z.number()),
 	numberOfGroups: z
@@ -258,7 +257,7 @@ export default function AddAllocationModal({
 									required
 								/>
 								<Grid align='end'>
-									<Grid.Col span={4}>
+									<Grid.Col span={6}>
 										<DurationInput
 											label='Duration'
 											value={form.values.duration}
@@ -269,20 +268,7 @@ export default function AddAllocationModal({
 											required
 										/>
 									</Grid.Col>
-									<Grid.Col span={4}>
-										<Select
-											label='Class Type'
-											placeholder='Select class type'
-											data={classTypes}
-											value={form.values.classType}
-											onChange={(value) =>
-												form.setFieldValue('classType', value as FormValues['classType'])
-											}
-											error={form.errors.classType}
-											required
-										/>
-									</Grid.Col>
-									<Grid.Col span={4}>
+									<Grid.Col span={6}>
 										<NumberInput
 											label='Number of Students'
 											placeholder='Enter number of students'
@@ -296,6 +282,20 @@ export default function AddAllocationModal({
 										/>
 									</Grid.Col>
 								</Grid>
+								<Select
+									label='Class Type'
+									placeholder='Select class type'
+									data={classTypes}
+									value={form.values.classType}
+									onChange={(value) =>
+										form.setFieldValue(
+											'classType',
+											value as FormValues['classType']
+										)
+									}
+									error={form.errors.classType}
+									required
+								/>
 								<Stack gap='xs'>
 									<Text size='sm' fw={500}>
 										Number of Groups

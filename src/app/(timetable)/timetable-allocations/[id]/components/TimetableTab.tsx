@@ -271,7 +271,7 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 																		fw={500}
 																		style={{
 																			lineHeight: 1.2,
-																			textTransform: 'capitalize'
+																			textTransform: 'capitalize',
 																		}}
 																	>
 																		{module.classType}
