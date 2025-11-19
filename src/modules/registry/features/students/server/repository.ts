@@ -161,6 +161,8 @@ export default class StudentRepository extends BaseRepository<
 								term: true,
 								status: true,
 								structureSemesterId: true,
+								sponsorId: true,
+								studentProgramId: true,
 							},
 							with: {
 								structureSemester: {
@@ -499,6 +501,8 @@ export default class StudentRepository extends BaseRepository<
 								term: true,
 								status: true,
 								structureSemesterId: true,
+								sponsorId: true,
+								studentProgramId: true,
 							},
 							with: {
 								structureSemester: {
