@@ -94,10 +94,8 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 													regDate: program.regDate,
 													startTerm: program.startTerm,
 													structureId: program.structureId,
-													stream: program.stream,
 													graduationDate: program.graduationDate,
 													status: program.status,
-													assistProvider: program.assistProvider,
 												}}
 											/>
 										)}

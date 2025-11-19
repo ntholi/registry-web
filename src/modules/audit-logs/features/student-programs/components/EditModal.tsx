@@ -30,10 +30,8 @@ interface StudentProgram {
 	regDate: string | null;
 	startTerm: string | null;
 	structureId: number;
-	stream: string | null;
 	graduationDate: string | null;
 	status: StudentProgramStatus;
-	assistProvider: string | null;
 }
 
 interface Props {
@@ -55,10 +53,8 @@ export default function EditStudentProgramModal({ program }: Props) {
 			regDate: program.regDate || '',
 			startTerm: program.startTerm || '',
 			structureId: program.structureId.toString(),
-			stream: program.stream || '',
 			graduationDate: program.graduationDate || '',
 			status: program.status,
-			assistProvider: program.assistProvider || '',
 			reasons: '',
 		},
 	});
@@ -105,10 +101,8 @@ export default function EditStudentProgramModal({ program }: Props) {
 				regDate: program.regDate || '',
 				startTerm: program.startTerm || '',
 				structureId: program.structureId.toString(),
-				stream: program.stream || '',
 				graduationDate: program.graduationDate || '',
 				status: program.status,
-				assistProvider: program.assistProvider || '',
 				reasons: '',
 			});
 		}
@@ -125,10 +119,8 @@ export default function EditStudentProgramModal({ program }: Props) {
 						regDate: values.regDate || null,
 						startTerm: values.startTerm || null,
 						structureId: parseInt(values.structureId, 10),
-						stream: values.stream || null,
 						graduationDate: values.graduationDate || null,
 						status: values.status as StudentProgramStatus,
-						assistProvider: values.assistProvider || null,
 					},
 					values.reasons
 				);
@@ -177,7 +169,7 @@ export default function EditStudentProgramModal({ program }: Props) {
 				opened={opened}
 				onClose={close}
 				title='Edit Student Program'
-				size='md'
+				size='lg'
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Tabs defaultValue='details'>
@@ -212,22 +204,22 @@ export default function EditStudentProgramModal({ program }: Props) {
 								{...form.getInputProps('structureId')}
 							/>
 
-							<Select
-								label='Start Term'
-								placeholder='Select start term'
-								searchable
-								clearable
-								data={terms}
-								mb='md'
-								{...form.getInputProps('startTerm')}
-							/>
+							<Group grow mb='md'>
+								<Select
+									label='Start Term'
+									placeholder='Select start term'
+									searchable
+									clearable
+									data={terms}
+									{...form.getInputProps('startTerm')}
+								/>
 
-							<TextInput
-								label='Intake Date'
-								placeholder='Enter intake date'
-								mb='md'
-								{...form.getInputProps('intakeDate')}
-							/>
+								<TextInput
+									label='Intake Date'
+									placeholder='Enter intake date'
+									{...form.getInputProps('intakeDate')}
+								/>
+							</Group>
 
 							<TextInput
 								label='Registration Date'
@@ -237,24 +229,10 @@ export default function EditStudentProgramModal({ program }: Props) {
 							/>
 
 							<TextInput
-								label='Stream'
-								placeholder='Enter stream (optional)'
-								mb='md'
-								{...form.getInputProps('stream')}
-							/>
-
-							<TextInput
 								label='Graduation Date'
 								placeholder='Enter graduation date'
 								mb='md'
 								{...form.getInputProps('graduationDate')}
-							/>
-
-							<TextInput
-								label='Assist Provider'
-								placeholder='Enter assist provider (optional)'
-								mb='md'
-								{...form.getInputProps('assistProvider')}
 							/>
 						</Tabs.Panel>
 
