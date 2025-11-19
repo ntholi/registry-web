@@ -84,6 +84,7 @@ function groupAllocationsByModule(slot: SlotData) {
 		{
 			moduleCode: string;
 			moduleName: string;
+			classType: string;
 			venueId: number;
 			venueName: string;
 			classNames: string[];
@@ -95,6 +96,7 @@ function groupAllocationsByModule(slot: SlotData) {
 		const moduleId = allocation.semesterModule.moduleId;
 		const moduleName = allocation.semesterModule.module.name;
 		const moduleCode = allocation.semesterModule.module.code;
+		const classType = allocation.classType;
 		const className = toClassName(
 			allocation.semesterModule,
 			allocation.groupName
@@ -109,6 +111,7 @@ function groupAllocationsByModule(slot: SlotData) {
 			moduleMap.set(moduleId, {
 				moduleCode,
 				moduleName,
+				classType,
 				venueId: slot.venueId,
 				venueName: slot.venue?.name || '',
 				classNames: [className],
@@ -261,6 +264,17 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 																		style={{ lineHeight: 1.2 }}
 																	>
 																		{module.moduleCode}
+																	</Text>
+																	<Text
+																		size='xs'
+																		c='cyan.3'
+																		fw={500}
+																		style={{
+																			lineHeight: 1.2,
+																			textTransform: 'capitalize',
+																		}}
+																	>
+																		{module.classType}
 																	</Text>
 																	<Box
 																		style={{

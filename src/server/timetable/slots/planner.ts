@@ -39,6 +39,7 @@ interface PlanSlot {
 	semesterIds: Set<number>;
 	moduleName: string;
 	semesterModuleId: number;
+	classType: string;
 }
 
 interface LecturerSchedule {
@@ -481,7 +482,8 @@ function findCombinableSlot(
 	for (const slot of daySlots) {
 		if (
 			slot.moduleName !== allocation.semesterModule.module.name ||
-			!slot.lecturerIds.has(allocation.userId)
+			!slot.lecturerIds.has(allocation.userId) ||
+			slot.classType !== allocation.classType
 		) {
 			continue;
 		}
@@ -660,20 +662,27 @@ function checkLecturerConflicts(
 	const daySlots = lecturerSchedule.slotsByDay.get(day) ?? [];
 
 	for (const slot of daySlots) {
-		if (slot.moduleName === allocation.semesterModule.module.name) {
-			continue;
-		}
-
 		const overlaps =
 			(startMinutes >= slot.startMinutes && startMinutes < slot.endMinutes) ||
 			(endMinutes > slot.startMinutes && endMinutes <= slot.endMinutes) ||
 			(startMinutes <= slot.startMinutes && endMinutes >= slot.endMinutes);
 
 		if (overlaps) {
-			return {
-				valid: false,
-				reason: `Lecturer conflict: lecturer has another module at this time`,
-			};
+			// Check for different modules
+			if (slot.moduleName !== allocation.semesterModule.module.name) {
+				return {
+					valid: false,
+					reason: `Lecturer conflict: lecturer has another module at this time`,
+				};
+			}
+
+			// Check for different class types (even if same module)
+			if (slot.classType !== allocation.classType) {
+				return {
+					valid: false,
+					reason: `Lecturer conflict: lecturer cannot have different class types (${slot.classType} and ${allocation.classType}) at overlapping times`,
+				};
+			}
 		}
 	}
 
@@ -856,6 +865,7 @@ function applyPlacement(
 			semesterIds: new Set(semesterId !== null ? [semesterId] : []),
 			moduleName: allocation.semesterModule.module.name,
 			semesterModuleId: allocation.semesterModuleId,
+			classType: allocation.classType,
 		};
 
 		planningState.slots.set(slot.key, slot);

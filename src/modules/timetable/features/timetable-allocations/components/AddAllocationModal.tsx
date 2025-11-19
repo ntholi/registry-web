@@ -3,19 +3,13 @@
 import type { searchModulesWithDetails } from '@academic/semester-modules';
 import {
 	Button,
-	Checkbox,
-	Grid,
 	Group,
 	Modal,
-	MultiSelect,
-	NumberInput,
 	Select,
 	Slider,
 	Stack,
-	Tabs,
 	Text,
 } from '@mantine/core';
-import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -25,40 +19,28 @@ import { getAllVenueTypes } from '@timetable/venue-types';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
-import DurationInput from '@/shared/ui/DurationInput';
 import {
 	createTimetableAllocationsWithVenueTypes,
 	createTimetableAllocationWithVenueTypes,
 } from '../server/actions';
+import {
+	AllocationForm,
+	baseAllocationSchema,
+	type DayOfWeek,
+} from './AllocationForm';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
-const daysOfWeek = [
-	'monday',
-	'tuesday',
-	'wednesday',
-	'thursday',
-	'friday',
-	'saturday',
-	'sunday',
-] as const;
-
-const schema = z.object({
-	semesterModuleId: z.number().min(1, 'Please select a semester module'),
-	duration: z.number().min(1, 'Please enter a valid duration'),
-	numberOfStudents: z.number().min(1, 'A class should have at least 1 student'),
-	venueTypeIds: z.array(z.number()),
-	numberOfGroups: z
-		.number()
-		.min(0)
-		.max(10)
-		.refine((val) => val !== 1, 'Number of groups must be 0 or at least 2'),
-	groups: z.array(z.string()),
-	allowedDays: z
-		.array(z.enum(daysOfWeek))
-		.min(1, 'Please select at least one day'),
-	startTime: z.string().min(1, 'Please enter a start time'),
-	endTime: z.string().min(1, 'Please enter an end time'),
-});
+const schema = z
+	.object({
+		semesterModuleId: z.number().min(1, 'Please select a semester module'),
+		numberOfGroups: z
+			.number()
+			.min(0)
+			.max(10)
+			.refine((val) => val !== 1, 'Number of groups must be 0 or at least 2'),
+		groups: z.array(z.string()),
+	})
+	.merge(baseAllocationSchema);
 
 type FormValues = z.infer<typeof schema>;
 
@@ -66,7 +48,7 @@ type Props = {
 	userId: string;
 	termId: number;
 	defaultDuration?: number;
-	defaultAllowedDays?: (typeof daysOfWeek)[number][];
+	defaultAllowedDays?: DayOfWeek[];
 	defaultStartTime?: string;
 	defaultEndTime?: string;
 };
@@ -95,6 +77,7 @@ export default function AddAllocationModal({
 		initialValues: {
 			semesterModuleId: 0,
 			duration: defaultDuration,
+			classType: 'lecture',
 			numberOfStudents: 0,
 			venueTypeIds: [],
 			numberOfGroups: 0,
@@ -125,6 +108,7 @@ export default function AddAllocationModal({
 						termId,
 						semesterModuleId: values.semesterModuleId,
 						duration: values.duration,
+						classType: values.classType,
 						numberOfStudents: values.numberOfStudents,
 						allowedDays: values.allowedDays,
 						startTime: values.startTime,
@@ -139,6 +123,7 @@ export default function AddAllocationModal({
 				termId,
 				semesterModuleId: values.semesterModuleId,
 				duration: values.duration,
+				classType: values.classType,
 				numberOfStudents: Math.floor(
 					values.numberOfStudents / values.groups.length
 				),
@@ -212,14 +197,11 @@ export default function AddAllocationModal({
 
 			<Modal opened={opened} onClose={close} title='Add Allocation' size='lg'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<Tabs defaultValue='details'>
-						<Tabs.List>
-							<Tabs.Tab value='details'>Details</Tabs.Tab>
-							<Tabs.Tab value='constraints'>Constraints</Tabs.Tab>
-						</Tabs.List>
-
-						<Tabs.Panel value='details' pt='md'>
-							<Stack gap='md'>
+					<AllocationForm
+						form={form}
+						venueTypes={venueTypes}
+						renderTopDetails={() => (
+							<>
 								<ModuleSearchInput
 									onModuleSelect={handleModuleSelect}
 									required
@@ -244,136 +226,45 @@ export default function AddAllocationModal({
 									searchable
 									required
 								/>
-								<Grid align='end'>
-									<Grid.Col span={6}>
-										<DurationInput
-											label='Duration'
-											value={form.values.duration}
-											onChange={(value) =>
-												form.setFieldValue('duration', value)
-											}
-											error={form.errors.duration}
-											required
-										/>
-									</Grid.Col>
-									<Grid.Col span={6}>
-										<NumberInput
-											label='Number of Students'
-											placeholder='Enter number of students'
-											value={form.values.numberOfStudents}
-											onChange={(value) =>
-												form.setFieldValue('numberOfStudents', value as number)
-											}
-											error={form.errors.numberOfStudents}
-											min={0}
-											required
-										/>
-									</Grid.Col>
-								</Grid>
-								<Stack gap='xs'>
-									<Text size='sm' fw={500}>
-										Number of Groups
-									</Text>
-									<Slider
-										value={form.values.numberOfGroups}
-										onChange={handleGroupCountChange}
-										min={0}
-										max={10}
-										step={1}
-										marks={[
-											{ value: 0, label: '0' },
-											{ value: 2, label: '2' },
-											{ value: 3, label: '3' },
-											{ value: 4, label: '4' },
-											{ value: 5, label: '5' },
-											{ value: 6, label: '6' },
-											{ value: 7, label: '7' },
-											{ value: 8, label: '8' },
-											{ value: 9, label: '9' },
-											{ value: 10, label: '10' },
-										]}
-										label={(value) =>
-											value === 0
-												? 'All Students'
-												: `${value} Group${value === 1 ? '' : 's'}`
-										}
-									/>
-									<Text size='xs' c='dimmed' mt='md'>
-										{form.values.numberOfGroups === 0
-											? 'Assign the entire class to this lecturer'
-											: `Split the class into ${form.values.numberOfGroups} group${form.values.numberOfGroups === 1 ? '' : 's'}`}
-									</Text>
-								</Stack>
-								<MultiSelect
-									label='Venue Types'
-									placeholder='Select venue types (optional)'
-									data={venueTypes.map((vt: { id: number; name: string }) => ({
-										value: vt.id.toString(),
-										label: vt.name,
-									}))}
-									value={form.values.venueTypeIds.map((id) => id.toString())}
-									onChange={(values) => {
-										form.setFieldValue(
-											'venueTypeIds',
-											values.map((v) => Number(v))
-										);
-									}}
-									searchable
-									clearable
+							</>
+						)}
+						renderMiddleDetails={() => (
+							<Stack gap='xs'>
+								<Text size='sm' fw={500}>
+									Number of Groups
+								</Text>
+								<Slider
+									value={form.values.numberOfGroups}
+									onChange={handleGroupCountChange}
+									min={0}
+									max={10}
+									step={1}
+									marks={[
+										{ value: 0, label: '0' },
+										{ value: 2, label: '2' },
+										{ value: 3, label: '3' },
+										{ value: 4, label: '4' },
+										{ value: 5, label: '5' },
+										{ value: 6, label: '6' },
+										{ value: 7, label: '7' },
+										{ value: 8, label: '8' },
+										{ value: 9, label: '9' },
+										{ value: 10, label: '10' },
+									]}
+									label={(value) =>
+										value === 0
+											? 'All Students'
+											: `${value} Group${value === 1 ? '' : 's'}`
+									}
 								/>
+								<Text size='xs' c='dimmed' mt='md'>
+									{form.values.numberOfGroups === 0
+										? 'Assign the entire class to this lecturer'
+										: `Split the class into ${form.values.numberOfGroups} group${form.values.numberOfGroups === 1 ? '' : 's'}`}
+								</Text>
 							</Stack>
-						</Tabs.Panel>
-
-						<Tabs.Panel value='constraints' pt='md'>
-							<Stack gap='md'>
-								<Checkbox.Group
-									label='Allowed Days'
-									description='Select which days of the week this allocation can be scheduled'
-									value={form.values.allowedDays}
-									onChange={(value) =>
-										form.setFieldValue(
-											'allowedDays',
-											value as unknown as (typeof daysOfWeek)[number][]
-										)
-									}
-									error={form.errors.allowedDays}
-									required
-								>
-									<Stack mt='xs' gap='xs'>
-										<Checkbox value='monday' label='Monday' />
-										<Checkbox value='tuesday' label='Tuesday' />
-										<Checkbox value='wednesday' label='Wednesday' />
-										<Checkbox value='thursday' label='Thursday' />
-										<Checkbox value='friday' label='Friday' />
-										<Checkbox value='saturday' label='Saturday' />
-										<Checkbox value='sunday' label='Sunday' />
-									</Stack>
-								</Checkbox.Group>
-
-								<TimeInput
-									label='Start Time'
-									description='Earliest time this allocation can be scheduled'
-									value={form.values.startTime}
-									onChange={(event) =>
-										form.setFieldValue('startTime', event.currentTarget.value)
-									}
-									error={form.errors.startTime}
-									required
-								/>
-
-								<TimeInput
-									label='End Time'
-									description='Latest time this allocation can be scheduled'
-									value={form.values.endTime}
-									onChange={(event) =>
-										form.setFieldValue('endTime', event.currentTarget.value)
-									}
-									error={form.errors.endTime}
-									required
-								/>
-							</Stack>
-						</Tabs.Panel>
-					</Tabs>
+						)}
+					/>
 
 					<Group justify='flex-end' mt='md'>
 						<Button variant='subtle' onClick={close}>

@@ -1,0 +1,2 @@
+CREATE TYPE "public"."class_type" AS ENUM('lecture', 'tutorial', 'lab', 'workshop', 'practical');--> statement-breakpoint
+ALTER TABLE "timetable_allocations" ADD COLUMN "class_type" "class_type" DEFAULT 'lecture' NOT NULL;
