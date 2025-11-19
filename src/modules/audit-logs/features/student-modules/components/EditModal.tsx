@@ -3,11 +3,13 @@
 import {
 	ActionIcon,
 	type ActionIconProps,
+	Box,
 	Button,
 	Group,
 	Modal,
 	Select,
 	Tabs,
+	Text,
 	Textarea,
 	TextInput,
 } from '@mantine/core';
@@ -26,6 +28,8 @@ import { canEditMarksAndGrades, updateStudentModule } from '../server/actions';
 
 interface StudentModule {
 	id: number;
+	code: string;
+	name: string;
 	status: StudentModuleStatus;
 	marks: string;
 	grade: Grade;
@@ -124,7 +128,14 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 			<Modal
 				opened={opened}
 				onClose={close}
-				title='Edit Student Module'
+				title={
+					<Box>
+						<Box style={{ fontWeight: 600 }}>Edit Student Module</Box>
+						<Text size='sm' c='dimmed' mt='xs'>
+							{module.code} - {module.name}
+						</Text>
+					</Box>
+				}
 				size='md'
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>

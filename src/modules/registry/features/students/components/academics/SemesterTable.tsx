@@ -270,6 +270,8 @@ export default function SemesterTable({
 												right={-10}
 												module={{
 													id: module.id,
+													code: module.code,
+													name: module.name,
 													status: module.status as never,
 													marks: module.marks,
 													grade: module.grade as never,
