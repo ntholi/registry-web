@@ -125,8 +125,8 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 						}))}
 						value={form.values.venueTypeIds.map((id) => id.toString())}
 						onChange={(values) => {
-							// biome-ignore lint/suspicious/noExplicitAny: Generic form handling
-							const castValues = values.map((v) => Number(v)) as any;
+							const castValues = values.map((v) => Number(v));
+							// @ts-expect-error - Generic form type inference limitation with Mantine
 							form.setFieldValue('venueTypeIds', castValues);
 						}}
 						searchable
@@ -142,9 +142,8 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 						description='Select which days of the week this allocation can be scheduled'
 						value={form.values.allowedDays}
 						onChange={(value) => {
-							// biome-ignore lint/suspicious/noExplicitAny: Generic form handling
-							const castValue = value as any;
-							form.setFieldValue('allowedDays', castValue);
+							// @ts-expect-error - Generic form type inference limitation with Mantine
+							form.setFieldValue('allowedDays', value);
 						}}
 						error={form.errors.allowedDays}
 						required
