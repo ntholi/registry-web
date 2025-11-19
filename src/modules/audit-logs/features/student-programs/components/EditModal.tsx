@@ -8,8 +8,8 @@ import {
 	Select,
 	Tabs,
 	Textarea,
-	TextInput,
 } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -22,6 +22,25 @@ import {
 	type StudentProgramStatus,
 } from '@/modules/registry/database/schema/enums';
 import { getStructures, updateStudentProgram } from '../server/actions';
+
+// Helper functions to convert between Date and string format (YYYY-MM-DD)
+function parseDate(dateString: string | null): Date | null {
+	if (!dateString) return null;
+	const date = new Date(dateString);
+	return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatDate(date: Date | null | undefined): string | null {
+	if (!date) return null;
+	// Handle case where date might already be a string
+	if (typeof date === 'string') return date;
+	// Ensure it's a valid Date object
+	if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${year}-${month}-${day}`;
+}
 
 interface StudentProgram {
 	id: number;
@@ -49,11 +68,11 @@ export default function EditStudentProgramModal({ program }: Props) {
 
 	const form = useForm({
 		initialValues: {
-			intakeDate: program.intakeDate || '',
-			regDate: program.regDate || '',
+			intakeDate: parseDate(program.intakeDate),
+			regDate: parseDate(program.regDate),
 			startTerm: program.startTerm || '',
 			structureId: program.structureId.toString(),
-			graduationDate: program.graduationDate || '',
+			graduationDate: parseDate(program.graduationDate),
 			status: program.status,
 			reasons: '',
 		},
@@ -97,11 +116,11 @@ export default function EditStudentProgramModal({ program }: Props) {
 	useEffect(() => {
 		if (opened) {
 			form.setValues({
-				intakeDate: program.intakeDate || '',
-				regDate: program.regDate || '',
+				intakeDate: parseDate(program.intakeDate),
+				regDate: parseDate(program.regDate),
 				startTerm: program.startTerm || '',
 				structureId: program.structureId.toString(),
-				graduationDate: program.graduationDate || '',
+				graduationDate: parseDate(program.graduationDate),
 				status: program.status,
 				reasons: '',
 			});
@@ -115,11 +134,11 @@ export default function EditStudentProgramModal({ program }: Props) {
 				await updateStudentProgram(
 					program.id,
 					{
-						intakeDate: values.intakeDate || null,
-						regDate: values.regDate || null,
+						intakeDate: formatDate(values.intakeDate),
+						regDate: formatDate(values.regDate),
 						startTerm: values.startTerm || null,
 						structureId: parseInt(values.structureId, 10),
-						graduationDate: values.graduationDate || null,
+						graduationDate: formatDate(values.graduationDate),
 						status: values.status as StudentProgramStatus,
 					},
 					values.reasons
@@ -214,23 +233,29 @@ export default function EditStudentProgramModal({ program }: Props) {
 									{...form.getInputProps('startTerm')}
 								/>
 
-								<TextInput
+								<DateInput
 									label='Intake Date'
-									placeholder='Enter intake date'
+									placeholder='Select intake date'
+									clearable
+									valueFormat='YYYY-MM-DD'
 									{...form.getInputProps('intakeDate')}
 								/>
 							</Group>
 
-							<TextInput
+							<DateInput
 								label='Registration Date'
-								placeholder='Enter registration date'
+								placeholder='Select registration date'
+								clearable
+								valueFormat='YYYY-MM-DD'
 								mb='md'
 								{...form.getInputProps('regDate')}
 							/>
 
-							<TextInput
+							<DateInput
 								label='Graduation Date'
-								placeholder='Enter graduation date'
+								placeholder='Select graduation date'
+								clearable
+								valueFormat='YYYY-MM-DD'
 								mb='md'
 								{...form.getInputProps('graduationDate')}
 							/>
