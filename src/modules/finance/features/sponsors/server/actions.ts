@@ -17,6 +17,10 @@ export async function findAllSponsors(page: number = 1, search = '') {
 	});
 }
 
+export async function getAllSponsors() {
+	return service.getAll();
+}
+
 export async function createSponsor(sponsor: Sponsor) {
 	return service.create(sponsor);
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { getAllSponsors } from '@finance/sponsors';
 import {
 	ActionIcon,
 	Button,
@@ -21,7 +22,6 @@ import {
 	semesterStatus,
 } from '@/modules/registry/database/schema/enums';
 import {
-	getAllSponsors,
 	getStructureSemestersByStructureId,
 	updateStudentSemester,
 } from '../server/actions';

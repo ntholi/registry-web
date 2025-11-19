@@ -31,15 +31,6 @@ export async function createSyncRecord(record: StudentSemesterSyncRecord) {
 	return service.create(record);
 }
 
-export async function getAllSponsors() {
-	return withAuth(async () => {
-		return db.query.sponsors.findMany({
-			columns: { id: true, name: true, code: true },
-			orderBy: (sponsors, { asc }) => [asc(sponsors.name)],
-		});
-	}, ['registry', 'admin', 'finance']);
-}
-
 export async function getStructureSemestersByStructureId(structureId: number) {
 	return withAuth(async () => {
 		return db.query.structureSemesters.findMany({

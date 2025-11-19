@@ -21,6 +21,10 @@ class SponsorService {
 		return withAuth(async () => this.repository.query(params), ['all']);
 	}
 
+	async getAll() {
+		return withAuth(async () => this.repository.findAll(), ['all']);
+	}
+
 	async create(data: Sponsor) {
 		return withAuth(
 			async () => this.repository.create(data),
