@@ -1,13 +1,24 @@
 'use client';
 
-import { Button, Group, Modal, Select, Tabs, TextInput, Textarea } from '@mantine/core';
+import {
+	ActionIcon,
+	Button,
+	Group,
+	Modal,
+	Select,
+	Tabs,
+	Textarea,
+	TextInput,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import {
-	semesterStatus,
 	type SemesterStatus,
+	semesterStatus,
 } from '@/modules/registry/database/schema/enums';
 import {
 	getAllSponsors,
@@ -27,19 +38,18 @@ interface StudentSemester {
 interface Props {
 	semester: StudentSemester;
 	structureId: number;
-	opened: boolean;
-	onClose: () => void;
 }
 
 export default function EditStudentSemesterModal({
 	semester,
 	structureId,
-	opened,
-	onClose,
 }: Props) {
 	const queryClient = useQueryClient();
+	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [sponsors, setSponsors] = useState<{ value: string; label: string }[]>([]);
+	const [sponsors, setSponsors] = useState<{ value: string; label: string }[]>(
+		[]
+	);
 	const [structureSemesters, setStructureSemesters] = useState<
 		{ value: string; label: string }[]
 	>([]);
@@ -99,7 +109,6 @@ export default function EditStudentSemesterModal({
 				reasons: '',
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [opened, semester]);
 
 	const handleSubmit = useCallback(
@@ -128,7 +137,7 @@ export default function EditStudentSemesterModal({
 				});
 
 				form.reset();
-				onClose();
+				close();
 			} catch (error) {
 				notifications.show({
 					title: 'Error',
@@ -139,84 +148,102 @@ export default function EditStudentSemesterModal({
 				setIsSubmitting(false);
 			}
 		},
-		[semester.id, form, onClose, queryClient]
+		[semester.id, form, close, queryClient]
 	);
 
 	return (
-		<Modal
-			opened={opened}
-			onClose={onClose}
-			title='Edit Student Semester'
-			size='md'
-		>
-			<form onSubmit={form.onSubmit(handleSubmit)}>
-				<Tabs defaultValue='details'>
-					<Tabs.List>
-						<Tabs.Tab value='details'>Details</Tabs.Tab>
-						<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
-					</Tabs.List>
+		<>
+			<ActionIcon
+				size='sm'
+				variant='subtle'
+				color='gray'
+				onClick={open}
+				style={{
+					opacity: 0,
+					transition: 'opacity 0.2s',
+				}}
+				className='edit-semester-icon'
+			>
+				<IconEdit size='1rem' />
+			</ActionIcon>
+			<Modal
+				opened={opened}
+				onClose={close}
+				title='Edit Student Semester'
+				size='md'
+			>
+				<form onSubmit={form.onSubmit(handleSubmit)}>
+					<Tabs defaultValue='details'>
+						<Tabs.List>
+							<Tabs.Tab value='details'>Details</Tabs.Tab>
+							<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
+						</Tabs.List>
 
-					<Tabs.Panel value='details' pt='md'>
-						<TextInput
-							label='Term'
-							placeholder='Enter term'
-							required
-							mb='md'
-							{...form.getInputProps('term')}
-						/>
+						<Tabs.Panel value='details' pt='md'>
+							<TextInput
+								label='Term'
+								placeholder='Enter term'
+								required
+								mb='md'
+								{...form.getInputProps('term')}
+							/>
 
-						<Select
-							label='Status'
-							placeholder='Select status'
-							searchable
-							clearable
-							data={semesterStatus.enumValues.map((s) => ({ value: s, label: s }))}
-							required
-							mb='md'
-							{...form.getInputProps('status')}
-						/>
+							<Select
+								label='Status'
+								placeholder='Select status'
+								searchable
+								clearable
+								data={semesterStatus.enumValues.map((s) => ({
+									value: s,
+									label: s,
+								}))}
+								required
+								mb='md'
+								{...form.getInputProps('status')}
+							/>
 
-						<Select
-							label='Structure Semester'
-							placeholder='Select structure semester'
-							searchable
-							clearable
-							data={structureSemesters}
-							required
-							mb='md'
-							{...form.getInputProps('structureSemesterId')}
-						/>
+							<Select
+								label='Structure Semester'
+								placeholder='Select structure semester'
+								searchable
+								clearable
+								data={structureSemesters}
+								required
+								mb='md'
+								{...form.getInputProps('structureSemesterId')}
+							/>
 
-						<Select
-							label='Sponsor'
-							placeholder='Select sponsor (optional)'
-							searchable
-							clearable
-							data={sponsors}
-							mb='md'
-							{...form.getInputProps('sponsorId')}
-						/>
-					</Tabs.Panel>
+							<Select
+								label='Sponsor'
+								placeholder='Select sponsor (optional)'
+								searchable
+								clearable
+								data={sponsors}
+								mb='md'
+								{...form.getInputProps('sponsorId')}
+							/>
+						</Tabs.Panel>
 
-					<Tabs.Panel value='reasons' pt='md'>
-						<Textarea
-							label='Reasons for Update'
-							placeholder='Enter the reason for this update (optional)'
-							rows={6}
-							{...form.getInputProps('reasons')}
-						/>
-					</Tabs.Panel>
-				</Tabs>
+						<Tabs.Panel value='reasons' pt='md'>
+							<Textarea
+								label='Reasons for Update'
+								placeholder='Enter the reason for this update (optional)'
+								rows={6}
+								{...form.getInputProps('reasons')}
+							/>
+						</Tabs.Panel>
+					</Tabs>
 
-				<Group justify='flex-end' mt='md'>
-					<Button variant='outline' onClick={onClose} disabled={isSubmitting}>
-						Cancel
-					</Button>
-					<Button type='submit' loading={isSubmitting}>
-						Update
-					</Button>
-				</Group>
-			</form>
-		</Modal>
+					<Group justify='flex-end' mt='md'>
+						<Button variant='outline' onClick={close} disabled={isSubmitting}>
+							Cancel
+						</Button>
+						<Button type='submit' loading={isSubmitting}>
+							Update
+						</Button>
+					</Group>
+				</form>
+			</Modal>
+		</>
 	);
 }
