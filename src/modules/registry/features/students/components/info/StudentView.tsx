@@ -119,8 +119,8 @@ export default function StudentView({ student }: Props) {
 
 			<div>
 				<Flex justify='space-between'>
-					<Group gap='lg' align='start'>
-						<Title order={4} mb='xs' fw={100}>
+					<Group gap='lg' align='center' mb='xs'>
+						<Title order={4} fw={100}>
 							Student
 						</Title>
 						{session?.user?.role &&

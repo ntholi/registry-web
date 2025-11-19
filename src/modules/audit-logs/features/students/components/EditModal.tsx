@@ -143,7 +143,7 @@ export default function EditStudentModal({ student }: Props) {
 
 	return (
 		<>
-			<ActionIcon size='sm' variant='subtle' color='gray' onClick={open}>
+			<ActionIcon size='sm' variant='subtle' color='dimmed' onClick={open}>
 				<IconEdit size='1rem' />
 			</ActionIcon>
 			<Modal opened={opened} onClose={close} title='Edit Student' size='lg'>
