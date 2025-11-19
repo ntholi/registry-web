@@ -1,4 +1,3 @@
-import type { Session } from 'next-auth';
 import { auth } from '@/core/auth';
 import type { studentModuleAuditLogs } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
@@ -28,31 +27,19 @@ class StudentModuleAuditLogService extends BaseService<
 		updates: StudentModuleUpdate,
 		reasons?: string
 	) {
-		return withAuth(
-			async () => {
-				const session = await auth();
-				if (!session?.user?.id) {
-					throw new Error('User not authenticated');
-				}
-
-				return this.repository.updateStudentModuleWithAudit(
-					studentModuleId,
-					updates,
-					session.user.id,
-					reasons
-				);
-			},
-			async (session: Session) => {
-				if (!session?.user) {
-					return false;
-				}
-				const isAdmin = session.user.role === 'admin';
-				const isRegistryManager =
-					session.user.role === 'registry' &&
-					session.user.position === 'manager';
-				return isAdmin || isRegistryManager;
+		return withAuth(async () => {
+			const session = await auth();
+			if (!session?.user?.id) {
+				throw new Error('User not authenticated');
 			}
-		);
+
+			return this.repository.updateStudentModuleWithAudit(
+				studentModuleId,
+				updates,
+				session.user.id,
+				reasons
+			);
+		}, ['registry', 'admin']);
 	}
 }
 
