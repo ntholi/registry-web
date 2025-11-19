@@ -11,6 +11,8 @@ import {
 	Tooltip,
 	useComputedColorScheme,
 } from '@mantine/core';
+import { useSession } from 'next-auth/react';
+import { EditStudentModuleModal } from '@audit-logs/student-modules';
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
@@ -47,6 +49,10 @@ export default function SemesterTable({
 	allSemesters,
 }: ModuleTableProps) {
 	const colorScheme = useComputedColorScheme('dark');
+	const { data: session } = useSession();
+
+	const canEdit =
+		session?.user?.role === 'registry' || session?.user?.role === 'admin';
 
 	const getModulesWithFailHistory = (moduleCode: string) => {
 		if (!allSemesters) return false;
@@ -168,20 +174,21 @@ export default function SemesterTable({
 	};
 
 	return (
-		<Table.ScrollContainer minWidth={600} type='native'>
-			<Table>
-				<Table.Thead>
-					<Table.Tr>
-						<Table.Th w={105}>Code</Table.Th>
-						<Table.Th w={270}>Name</Table.Th>
-						<Table.Th w={105}>Status</Table.Th>
-						<Table.Th w={50}>Cr</Table.Th>
-						{showMarks && <Table.Th w={50}>Mk</Table.Th>}
-						<Table.Th w={60}>Gd</Table.Th>
-					</Table.Tr>
-				</Table.Thead>
-				<Table.Tbody>
-					{modules.map((module, idx) => {
+		<>
+			<Table.ScrollContainer minWidth={600} type='native'>
+				<Table>
+					<Table.Thead>
+						<Table.Tr>
+							<Table.Th w={105}>Code</Table.Th>
+							<Table.Th w={270}>Name</Table.Th>
+							<Table.Th w={105}>Status</Table.Th>
+							<Table.Th w={50}>Cr</Table.Th>
+							{showMarks && <Table.Th w={50}>Mk</Table.Th>}
+							<Table.Th w={60}>Gd</Table.Th>
+						</Table.Tr>
+					</Table.Thead>
+					<Table.Tbody>
+						{modules.map((module, idx) => {
 						const isDroppedOrDeleted =
 							module.status === 'Drop' || module.status === 'Delete';
 
@@ -196,37 +203,50 @@ export default function SemesterTable({
 											}
 										: undefined
 								}
+								className='module-row'
 							>
 								<Table.Td>
-									{modulesWithFailHistory.includes(module.code) ? (
-										<Tooltip
-											label={renderAttemptHistory(module)}
-											color={colorScheme}
-											withArrow
-											multiline
-											transitionProps={{ transition: 'fade', duration: 200 }}
-										>
-											<Anchor
+									<Group gap='xs' align='center'>
+										{modulesWithFailHistory.includes(module.code) ? (
+											<Tooltip
+												label={renderAttemptHistory(module)}
+												color={colorScheme}
+												withArrow
+												multiline
+												transitionProps={{ transition: 'fade', duration: 200 }}
+											>
+												<Anchor
+													size='sm'
+													c={
+														isDroppedOrDeleted
+															? 'dimmed'
+															: failed(module.grade)
+																? 'red'
+																: 'blue'
+													}
+												>
+													{module.code}
+												</Anchor>
+											</Tooltip>
+										) : (
+											<Text
 												size='sm'
-												c={
-													isDroppedOrDeleted
-														? 'dimmed'
-														: failed(module.grade)
-															? 'red'
-															: 'blue'
-												}
+												c={isDroppedOrDeleted ? 'dimmed' : undefined}
 											>
 												{module.code}
-											</Anchor>
-										</Tooltip>
-									) : (
-										<Text
-											size='sm'
-											c={isDroppedOrDeleted ? 'dimmed' : undefined}
-										>
-											{module.code}
-										</Text>
-									)}
+											</Text>
+										)}
+										{canEdit && (
+											<EditStudentModuleModal
+												module={{
+													id: module.id,
+													status: module.status as never,
+													marks: module.marks,
+													grade: module.grade as never,
+												}}
+											/>
+										)}
+									</Group>
 								</Table.Td>
 								<Table.Td>
 									<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
@@ -278,9 +298,16 @@ export default function SemesterTable({
 								</Table.Td>
 							</Table.Tr>
 						);
-					})}
-				</Table.Tbody>
-			</Table>
-		</Table.ScrollContainer>
+						})}
+					</Table.Tbody>
+				</Table>
+			</Table.ScrollContainer>
+
+			<style>{`
+				.module-row:hover .edit-module-icon {
+					opacity: 1 !important;
+				}
+			`}</style>
+		</>
 	);
 }
