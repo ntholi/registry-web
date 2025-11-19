@@ -24,6 +24,7 @@ import {
 	type StudentModuleStatus,
 	studentModuleStatus,
 } from '@/modules/registry/database/schema/enums';
+import { getLetterGrade } from '@/shared/lib/utils/grades';
 import { canEditMarksAndGrades, updateStudentModule } from '../server/actions';
 
 interface StudentModule {
@@ -69,6 +70,22 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 			});
 		}
 	}, [opened, module, form.setValues]);
+
+	const handleMarksChange = useCallback(
+		(value: string) => {
+			form.setFieldValue('marks', value);
+			const numericMarks = Number.parseFloat(value);
+			if (
+				!Number.isNaN(numericMarks) &&
+				numericMarks >= 0 &&
+				numericMarks <= 100
+			) {
+				const determinedGrade = getLetterGrade(numericMarks);
+				form.setFieldValue('grade', determinedGrade);
+			}
+		},
+		[form]
+	);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
@@ -165,7 +182,11 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								required
 								mb='md'
 								disabled={!canEditMarks}
-								{...form.getInputProps('marks')}
+								value={form.values.marks}
+								onChange={(event) =>
+									handleMarksChange(event.currentTarget.value)
+								}
+								error={form.errors.marks}
 							/>
 
 							<Select

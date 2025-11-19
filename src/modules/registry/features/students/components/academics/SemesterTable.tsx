@@ -267,7 +267,7 @@ export default function SemesterTable({
 										{canEdit && (
 											<EditStudentModuleModal
 												pos={'absolute'}
-												right={-10}
+												right={-13}
 												module={{
 													id: module.id,
 													code: module.code,
