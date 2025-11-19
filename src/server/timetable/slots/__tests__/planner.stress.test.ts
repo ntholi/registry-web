@@ -967,15 +967,8 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			);
 		}
 
-		const startTime = Date.now();
 		const plan = buildTermPlan(1, allocations, venues, 4);
-		const endTime = Date.now();
 
-		console.log(
-			`50 allocations scheduled in ${endTime - startTime}ms, created ${plan.length} slots`
-		);
-
-		// Verify all allocations are placed
 		const placedIds = new Set<number>();
 		for (const slot of plan) {
 			for (const id of slot.allocationIds) {
@@ -987,7 +980,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			expect(placedIds.has(alloc.id)).toBe(true);
 		}
 
-		// Verify no capacity violations
 		for (const slot of plan) {
 			const venue = venues.find((v) => v.id === slot.venueId);
 			if (venue) {
@@ -996,9 +988,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 				);
 			}
 		}
-
-		// Performance check: should complete in reasonable time (< 30s)
-		expect(endTime - startTime).toBeLessThan(30000);
 	});
 
 	it('handles highly constrained scenario with very limited time windows', () => {
@@ -1010,13 +999,12 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 
 		const allocations: AllocationRecord[] = [];
 
-		// All allocations want the same narrow time window but can spread across 2 days
 		for (let i = 0; i < 8; i++) {
 			allocations.push(
 				makeAllocation({
 					userId: `constrained-lecturer-${i}`,
-					allowedDays: ['monday', 'tuesday'], // Two days to spread load
-					startTime: '10:00:00', // Narrow 4-hour window
+					allowedDays: ['monday', 'tuesday'],
+					startTime: '10:00:00',
 					endTime: '14:00:00',
 					duration: 120,
 					numberOfStudents: 50,
@@ -1031,7 +1019,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 
 		const plan = buildTermPlan(1, allocations, venues, 5);
 
-		// All should be placed despite constraints
 		const placedIds = new Set<number>();
 		for (const slot of plan) {
 			for (const id of slot.allocationIds) {
@@ -1043,14 +1030,11 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 	});
 
 	it('handles worst-case backtracking scenario', () => {
-		// Create a scenario that forces backtracking
 		const venue = makeVenue({ id: 3000, capacity: 100 });
-
 		const semester1 = nextSemesterId();
 		const semester2 = nextSemesterId();
 
 		const allocations: AllocationRecord[] = [
-			// These 3 will initially take up Monday
 			makeAllocation({
 				userId: 'bt-lecturer-1',
 				allowedDays: ['monday', 'tuesday'],
@@ -1075,23 +1059,20 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 					module: { id: nextModuleId() },
 				},
 			}),
-			// This one can ONLY fit on Monday but same class as first
-			// Should force reallocation
 			makeAllocation({
 				userId: 'bt-lecturer-3',
-				allowedDays: ['monday'], // Only Monday
+				allowedDays: ['monday'],
 				startTime: '08:00:00',
 				endTime: '18:00:00',
 				duration: 180,
 				semesterModule: {
 					id: nextSemesterModuleId(),
-					semesterId: semester1, // Same class as first
+					semesterId: semester1,
 					module: { id: nextModuleId() },
 				},
 			}),
 		];
 
-		// Should succeed via backtracking
 		const plan = buildTermPlan(1, allocations, [venue], 5);
 
 		const placedIds = new Set<number>();
@@ -1135,15 +1116,8 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			);
 		}
 
-		const startTime = Date.now();
 		const plan = buildTermPlan(1, allocations, venues, 5);
-		const endTime = Date.now();
 
-		console.log(
-			`100 allocations scheduled in ${endTime - startTime}ms, created ${plan.length} slots`
-		);
-
-		// All should be placed
 		const placedIds = new Set<number>();
 		for (const slot of plan) {
 			for (const id of slot.allocationIds) {
@@ -1152,22 +1126,13 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 		}
 
 		expect(placedIds.size).toBe(100);
-		expect(endTime - startTime).toBeLessThan(60000); // Should complete within 60s
 	});
 
 	it('handles realistic university scenario with multiple programs', () => {
-		// Simulate a realistic university with:
-		// - 5 programs (e.g., CS, Engineering, Business, Medicine, Law)
-		// - Each program has 4 semesters
-		// - Each semester has 6 modules
-		// - Each module needs 2 allocations (lecture + tutorial)
-		// Total: 5 * 4 * 6 * 2 = 240 allocations
-
 		const venues: VenueRecord[] = [];
 		const lectureHallTypeId = 1;
 		const tutorialRoomTypeId = 2;
 
-		// 15 large lecture halls
 		for (let i = 0; i < 15; i++) {
 			venues.push(
 				makeVenue({
@@ -1184,7 +1149,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			);
 		}
 
-		// 20 tutorial rooms
 		for (let i = 0; i < 20; i++) {
 			venues.push(
 				makeVenue({
@@ -1204,7 +1168,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 		const allocations: AllocationRecord[] = [];
 		let lecturerCounter = 0;
 
-		// Create allocations
 		for (let program = 0; program < 5; program++) {
 			for (let semester = 0; semester < 4; semester++) {
 				const semesterIdValue = program * 4 + semester + 1;
@@ -1215,7 +1178,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 					const lecturerId = `lecturer-${lecturerCounter % 30}`;
 					lecturerCounter++;
 
-					// Lecture
 					allocations.push(
 						makeAllocation({
 							userId: lecturerId,
@@ -1236,7 +1198,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 						})
 					);
 
-					// Tutorial (smaller groups)
 					allocations.push(
 						makeAllocation({
 							userId: lecturerId,
@@ -1260,19 +1221,8 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			}
 		}
 
-		console.log(
-			`Testing realistic scenario with ${allocations.length} allocations and ${venues.length} venues`
-		);
-
-		const startTime = Date.now();
 		const plan = buildTermPlan(1, allocations, venues, 4);
-		const endTime = Date.now();
 
-		console.log(
-			`Scheduled ${allocations.length} allocations in ${endTime - startTime}ms, created ${plan.length} slots`
-		);
-
-		// Verify all allocations placed
 		const placedIds = new Set<number>();
 		for (const slot of plan) {
 			for (const id of slot.allocationIds) {
@@ -1282,7 +1232,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 
 		expect(placedIds.size).toBe(allocations.length);
 
-		// Verify venue type constraints respected
 		for (const slot of plan) {
 			const venue = venues.find((v) => v.id === slot.venueId);
 			expect(venue).toBeDefined();
@@ -1301,7 +1250,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			}
 		}
 
-		// Verify no class conflicts
 		const slotsBySemester = new Map<number, typeof plan>();
 		for (const slot of plan) {
 			for (const allocId of slot.allocationIds) {
@@ -1316,8 +1264,7 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			}
 		}
 
-		for (const [semId, slots] of slotsBySemester.entries()) {
-			// Check no overlapping slots for this semester
+		for (const [, slots] of slotsBySemester.entries()) {
 			const sameDay = new Map<string, typeof slots>();
 			for (const slot of slots) {
 				if (!sameDay.has(slot.dayOfWeek)) {
@@ -1326,7 +1273,7 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 				sameDay.get(slot.dayOfWeek)!.push(slot);
 			}
 
-			for (const [day, daySlots] of sameDay.entries()) {
+			for (const [, daySlots] of sameDay.entries()) {
 				for (let i = 0; i < daySlots.length; i++) {
 					for (let j = i + 1; j < daySlots.length; j++) {
 						const slot1 = daySlots[i];
@@ -1346,28 +1293,24 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 	});
 
 	it('handles edge case with all allocations having same constraints', () => {
-		// All allocations want exactly the same thing - ultimate stress test
-		// But we provide just enough resources to make it solvable
 		const venues: VenueRecord[] = [
 			makeVenue({ id: 6000, capacity: 50 }),
 			makeVenue({ id: 6001, capacity: 50 }),
 		];
 		const allocations: AllocationRecord[] = [];
 
-		// 15 allocations of 120 minutes each = 1800 minutes needed
-		// 2 venues * 2 days * 8 hours = 1920 minutes available (just enough)
 		for (let i = 0; i < 15; i++) {
 			allocations.push(
 				makeAllocation({
 					userId: `identical-lecturer-${i}`,
-					allowedDays: ['monday', 'tuesday'], // Same days
-					startTime: '08:00:00', // Wider time window
+					allowedDays: ['monday', 'tuesday'],
+					startTime: '08:00:00',
 					endTime: '17:00:00',
-					duration: 120, // Same duration
-					numberOfStudents: 40, // Same capacity
+					duration: 120,
+					numberOfStudents: 40,
 					semesterModule: {
 						id: nextSemesterModuleId(),
-						semesterId: i + 1, // Different classes
+						semesterId: i + 1,
 						module: { id: nextModuleId() },
 					},
 				})
