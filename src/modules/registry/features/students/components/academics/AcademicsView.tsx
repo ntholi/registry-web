@@ -17,7 +17,7 @@ import {
 import { IconEdit, IconSchool } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { EditStudentSemesterModal } from '@cms-sync/student-semesters';
+import { EditStudentSemesterModal } from '@updated-records/student-semesters';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import SemesterStatus from '@/shared/ui/SemesterStatus';

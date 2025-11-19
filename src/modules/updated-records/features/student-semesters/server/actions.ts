@@ -53,7 +53,8 @@ export async function getStructureSemestersByStructureId(structureId: number) {
 
 export async function updateStudentSemester(
 	studentSemesterId: number,
-	updates: StudentSemesterUpdate
+	updates: StudentSemesterUpdate,
+	reasons?: string
 ) {
 	return withAuth(
 		async () => {
@@ -80,6 +81,7 @@ export async function updateStudentSemester(
 				studentSemesterId,
 				oldValues: oldRecord as unknown as Record<string, unknown>,
 				newValues: updatedRecord as unknown as Record<string, unknown>,
+				reasons: reasons || null,
 				updatedBy: session.user.id,
 			});
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Group, Modal, Select, TextInput } from '@mantine/core';
+import { Button, Group, Modal, Select, Tabs, TextInput, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
@@ -48,6 +48,7 @@ export default function EditStudentSemesterModal({
 			status: semester.status,
 			structureSemesterId: semester.structureSemesterId.toString(),
 			sponsorId: semester.sponsorId?.toString() || '',
+			reasons: '',
 		},
 	});
 
@@ -93,6 +94,7 @@ export default function EditStudentSemesterModal({
 				status: semester.status,
 				structureSemesterId: semester.structureSemesterId.toString(),
 				sponsorId: semester.sponsorId?.toString() || '',
+				reasons: '',
 			});
 		}
 	}, [opened, semester, form]);
@@ -101,12 +103,16 @@ export default function EditStudentSemesterModal({
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
-				await updateStudentSemester(semester.id, {
-					term: values.term,
-					status: values.status as SemesterStatus,
-					structureSemesterId: parseInt(values.structureSemesterId),
-					sponsorId: values.sponsorId ? parseInt(values.sponsorId) : null,
-				});
+				await updateStudentSemester(
+					semester.id,
+					{
+						term: values.term,
+						status: values.status as SemesterStatus,
+						structureSemesterId: parseInt(values.structureSemesterId),
+						sponsorId: values.sponsorId ? parseInt(values.sponsorId) : null,
+					},
+					values.reasons
+				);
 
 				notifications.show({
 					title: 'Success',
@@ -141,45 +147,63 @@ export default function EditStudentSemesterModal({
 			size='md'
 		>
 			<form onSubmit={form.onSubmit(handleSubmit)}>
-				<TextInput
-					label='Term'
-					placeholder='Enter term'
-					required
-					mb='md'
-					{...form.getInputProps('term')}
-				/>
+				<Tabs defaultValue='details'>
+					<Tabs.List>
+						<Tabs.Tab value='details'>Details</Tabs.Tab>
+						<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
+					</Tabs.List>
 
-				<Select
-					label='Status'
-					placeholder='Select status'
-					searchable
-					clearable
-					data={semesterStatus.enumValues.map((s) => ({ value: s, label: s }))}
-					required
-					mb='md'
-					{...form.getInputProps('status')}
-				/>
+					<Tabs.Panel value='details' pt='md'>
+						<TextInput
+							label='Term'
+							placeholder='Enter term'
+							required
+							mb='md'
+							{...form.getInputProps('term')}
+						/>
 
-				<Select
-					label='Structure Semester'
-					placeholder='Select structure semester'
-					searchable
-					clearable
-					data={structureSemesters}
-					required
-					mb='md'
-					{...form.getInputProps('structureSemesterId')}
-				/>
+						<Select
+							label='Status'
+							placeholder='Select status'
+							searchable
+							clearable
+							data={semesterStatus.enumValues.map((s) => ({ value: s, label: s }))}
+							required
+							mb='md'
+							{...form.getInputProps('status')}
+						/>
 
-				<Select
-					label='Sponsor'
-					placeholder='Select sponsor (optional)'
-					searchable
-					clearable
-					data={sponsors}
-					mb='md'
-					{...form.getInputProps('sponsorId')}
-				/>
+						<Select
+							label='Structure Semester'
+							placeholder='Select structure semester'
+							searchable
+							clearable
+							data={structureSemesters}
+							required
+							mb='md'
+							{...form.getInputProps('structureSemesterId')}
+						/>
+
+						<Select
+							label='Sponsor'
+							placeholder='Select sponsor (optional)'
+							searchable
+							clearable
+							data={sponsors}
+							mb='md'
+							{...form.getInputProps('sponsorId')}
+						/>
+					</Tabs.Panel>
+
+					<Tabs.Panel value='reasons' pt='md'>
+						<Textarea
+							label='Reasons for Update'
+							placeholder='Enter the reason for this update (optional)'
+							rows={6}
+							{...form.getInputProps('reasons')}
+						/>
+					</Tabs.Panel>
+				</Tabs>
 
 				<Group justify='flex-end' mt='md'>
 					<Button variant='outline' onClick={onClose} disabled={isSubmitting}>

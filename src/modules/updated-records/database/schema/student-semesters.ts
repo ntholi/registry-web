@@ -11,6 +11,7 @@ export const studentSemesterSyncRecords = pgTable(
 			.notNull(),
 		oldValues: jsonb().notNull(),
 		newValues: jsonb().notNull(),
+		reasons: text(),
 		updatedBy: text()
 			.references(() => users.id, { onDelete: 'set null' })
 			.notNull(),
