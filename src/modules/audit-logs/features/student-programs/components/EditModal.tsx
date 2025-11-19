@@ -1,5 +1,6 @@
 'use client';
 
+import { getStructuresByProgramId } from '@academic/structures';
 import {
 	ActionIcon,
 	Button,
@@ -22,7 +23,7 @@ import {
 	programStatus,
 	type StudentProgramStatus,
 } from '@/modules/registry/database/schema/enums';
-import { getStructures, updateStudentProgram } from '../server/actions';
+import { updateStudentProgram } from '../server/actions';
 
 function parseDate(dateString: string | null): Date | null {
 	if (!dateString) return null;
@@ -47,6 +48,7 @@ interface StudentProgram {
 	regDate: string | null;
 	startTerm: string | null;
 	structureId: number;
+	programId: number;
 	graduationDate: string | null;
 	status: StudentProgramStatus;
 }
@@ -83,7 +85,7 @@ export default function EditStudentProgramModal({ program }: Props) {
 			try {
 				const [termsData, structuresData] = await Promise.all([
 					getAllTerms(),
-					getStructures(),
+					getStructuresByProgramId(program.programId),
 				]);
 
 				setTerms(
@@ -96,7 +98,7 @@ export default function EditStudentProgramModal({ program }: Props) {
 				setStructures(
 					structuresData.map((s) => ({
 						value: s.id.toString(),
-						label: `${s.program?.code} - ${s.code}${s.desc ? ` (${s.desc})` : ''}`,
+						label: `${s.code}${s.desc ? ` - ${s.desc}` : ''}`,
 					}))
 				);
 			} catch (_error) {
@@ -109,7 +111,7 @@ export default function EditStudentProgramModal({ program }: Props) {
 		}
 
 		loadData();
-	}, [opened]);
+	}, [opened, program.programId]);
 
 	useEffect(() => {
 		if (opened) {

@@ -41,18 +41,6 @@ export default class StudentProgramAuditRepository extends BaseRepository<
 			.returning();
 	}
 
-	async getStructures() {
-		return db.query.structures.findMany({
-			columns: { id: true, code: true, desc: true },
-			with: {
-				program: {
-					columns: { code: true },
-				},
-			},
-			orderBy: (structs, { asc }) => [asc(structs.code)],
-		});
-	}
-
 	async updateStudentProgramWithAudit(
 		studentProgramId: number,
 		updates: StudentProgramUpdate,

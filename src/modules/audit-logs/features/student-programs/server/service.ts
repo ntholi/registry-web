@@ -22,12 +22,6 @@ class StudentProgramAuditService extends BaseService<
 		});
 	}
 
-	async getStructures() {
-		return withAuth(async () => {
-			return this.repository.getStructures();
-		}, ['registry', 'admin']);
-	}
-
 	async updateStudentProgram(
 		studentProgramId: number,
 		updates: StudentProgramUpdate,

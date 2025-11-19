@@ -31,7 +31,6 @@ import { getProgramStatusColor } from '../academics/AcademicsView';
 import EditStudentUserModal from '../academics/EditStudentUserModal';
 import AcademicSummary from './AcademicSummary';
 import PhotoView from './PhotoView';
-import StructureChange from './StructureChange';
 
 type Props = {
 	student: Awaited<ReturnType<typeof getStudent>>;
@@ -209,7 +208,12 @@ export default function StudentView({ student }: Props) {
 							</Grid.Col>
 							<Grid.Col span={{ base: 12, sm: 3 }}>
 								<Flex justify='flex-end'>
-									<StructureChange student={student} />
+									<InfoItem
+										label='Structure'
+										value={activePrograms[0].structure.code}
+										href={`/schools/structures/${activePrograms[0].structureId}`}
+										copyable={false}
+									/>
 								</Flex>
 							</Grid.Col>
 						</Grid>

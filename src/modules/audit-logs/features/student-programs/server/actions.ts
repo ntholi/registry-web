@@ -23,10 +23,6 @@ export async function createAuditRecord(record: StudentProgramAuditRecord) {
 	return service.create(record);
 }
 
-export async function getStructures() {
-	return service.getStructures();
-}
-
 export async function updateStudentProgram(
 	studentProgramId: number,
 	updates: StudentProgramUpdate,
