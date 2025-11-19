@@ -72,6 +72,7 @@ function makeAllocation(
 		userId: overrides.userId ?? 'lecturer-1',
 		semesterModuleId: semesterModule.id,
 		duration: overrides.duration ?? 120,
+		classType: overrides.classType ?? 'lecture',
 		numberOfStudents: overrides.numberOfStudents ?? 60,
 		groupName: overrides.groupName ?? null,
 		allowedDays: overrides.allowedDays ?? (['monday'] as DayOfWeek[]),
@@ -1034,6 +1035,148 @@ describe('buildTermPlan - Validation', () => {
 
 		for (const slot of plan) {
 			expect(slot.allocationIds.length).toBeGreaterThan(0);
+		}
+	});
+});
+
+describe('buildTermPlan - Class Type Constraints', () => {
+	it('prevents lecturer from having different class types at overlapping times even for same module', () => {
+		const lecturerId = 'lecturer-classtype-test';
+		const moduleIdValue = nextModuleId();
+		const moduleName = 'Computer Science 101';
+		const semesterModuleIdValue = nextSemesterModuleId();
+
+		const lectureAlloc = makeAllocation({
+			userId: lecturerId,
+			allowedDays: ['monday'],
+			classType: 'lecture',
+			duration: 120,
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: null,
+				module: { id: moduleIdValue, name: moduleName },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const tutorialAlloc = makeAllocation({
+			userId: lecturerId,
+			allowedDays: ['monday'],
+			classType: 'tutorial',
+			duration: 120,
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: null,
+				module: { id: moduleIdValue, name: moduleName },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const venues = [makeVenue({ id: 950 }), makeVenue({ id: 951 })];
+		const plan = buildTermPlan(1, [lectureAlloc, tutorialAlloc], venues);
+
+		expect(plan.length).toBe(2);
+
+		const slots = plan.map((p) => ({
+			start: timeToMinutes(p.startTime),
+			end: timeToMinutes(p.endTime),
+			day: p.dayOfWeek,
+		}));
+
+		const slot1 = slots[0];
+		const slot2 = slots[1];
+
+		if (slot1.day === slot2.day) {
+			const noOverlap = slot1.end <= slot2.start || slot2.end <= slot1.start;
+			expect(noOverlap).toBe(true);
+		}
+	});
+
+	it('allows same lecturer to combine allocations with same class type and module', () => {
+		const lecturerId = 'lecturer-same-classtype';
+		const moduleIdValue = nextModuleId();
+		const moduleName = 'Engineering 101';
+		const semesterModuleIdValue = nextSemesterModuleId();
+
+		const lecture1 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 90,
+			classType: 'lecture',
+			groupName: 'Group A',
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: null,
+				module: { id: moduleIdValue, name: moduleName },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const lecture2 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 90,
+			classType: 'lecture',
+			groupName: 'Group B',
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: null,
+				module: { id: moduleIdValue, name: moduleName },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const plan = buildTermPlan(
+			1,
+			[lecture1, lecture2],
+			[makeVenue({ capacity: 80 })]
+		);
+
+		expect(plan).toHaveLength(1);
+		expect(plan[0].allocationIds.sort()).toEqual(
+			[lecture1.id, lecture2.id].sort()
+		);
+		expect(plan[0].capacityUsed).toBe(60);
+	});
+
+	it('does not combine allocations with different class types even if same module and lecturer', () => {
+		const lecturerId = 'lecturer-mixed-classtype';
+		const moduleIdValue = nextModuleId();
+		const moduleName = 'Physics 101';
+		const semesterModuleIdValue = nextSemesterModuleId();
+
+		const lecture = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 90,
+			classType: 'lecture',
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: null,
+				module: { id: moduleIdValue, name: moduleName },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const lab = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 90,
+			classType: 'lab',
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: null,
+				module: { id: moduleIdValue, name: moduleName },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const plan = buildTermPlan(1, [lecture, lab], [makeVenue({ capacity: 80 })]);
+
+		expect(plan.length).toBeGreaterThanOrEqual(2);
+
+		for (const slot of plan) {
+			expect(slot.allocationIds.length).toBeLessThanOrEqual(1);
 		}
 	});
 });

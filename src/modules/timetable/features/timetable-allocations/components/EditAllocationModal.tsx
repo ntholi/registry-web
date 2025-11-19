@@ -36,8 +36,18 @@ const daysOfWeek = [
 	'sunday',
 ] as const;
 
+const classTypes = [
+	{ value: 'lecture', label: 'Lecture' },
+	{ value: 'tutorial', label: 'Tutorial' },
+	{ value: 'lab', label: 'Lab' },
+	{ value: 'seminar', label: 'Seminar' },
+	{ value: 'workshop', label: 'Workshop' },
+	{ value: 'practical', label: 'Practical' },
+] as const;
+
 const schema = z.object({
 	duration: z.number().min(1, 'Please enter a valid duration'),
+	classType: z.enum(['lecture', 'tutorial', 'lab', 'seminar', 'workshop', 'practical']),
 	numberOfStudents: z.number().min(0),
 	venueTypeIds: z.array(z.number()),
 	allowedDays: z
@@ -52,6 +62,7 @@ type FormValues = z.infer<typeof schema>;
 type Props = {
 	allocationId: number;
 	currentDuration: number;
+	currentClassType: FormValues['classType'];
 	currentNumberOfStudents: number;
 	currentVenueTypeIds: number[];
 	currentAllowedDays: (typeof daysOfWeek)[number][];
@@ -62,6 +73,7 @@ type Props = {
 export default function EditAllocationModal({
 	allocationId,
 	currentDuration,
+	currentClassType,
 	currentNumberOfStudents,
 	currentVenueTypeIds,
 	currentAllowedDays,
@@ -80,6 +92,7 @@ export default function EditAllocationModal({
 		validate: zodResolver(schema),
 		initialValues: {
 			duration: currentDuration,
+			classType: currentClassType,
 			numberOfStudents: currentNumberOfStudents,
 			venueTypeIds: currentVenueTypeIds,
 			allowedDays: currentAllowedDays,
@@ -92,6 +105,7 @@ export default function EditAllocationModal({
 		mutationFn: async (values: FormValues) => {
 			await updateTimetableAllocation(allocationId, {
 				duration: values.duration,
+				classType: values.classType,
 				numberOfStudents: values.numberOfStudents,
 				allowedDays: values.allowedDays,
 				startTime: values.startTime,
@@ -130,6 +144,7 @@ export default function EditAllocationModal({
 	const handleOpen = () => {
 		form.setValues({
 			duration: currentDuration,
+			classType: currentClassType,
 			numberOfStudents: currentNumberOfStudents,
 			venueTypeIds: currentVenueTypeIds,
 			allowedDays: currentAllowedDays,
@@ -160,6 +175,17 @@ export default function EditAllocationModal({
 									value={form.values.duration}
 									onChange={(value) => form.setFieldValue('duration', value)}
 									error={form.errors.duration}
+									required
+								/>
+								<Select
+									label='Class Type'
+									placeholder='Select class type'
+									data={classTypes}
+									value={form.values.classType}
+									onChange={(value) =>
+										form.setFieldValue('classType', value as FormValues['classType'])
+									}
+									error={form.errors.classType}
 									required
 								/>
 								<NumberInput

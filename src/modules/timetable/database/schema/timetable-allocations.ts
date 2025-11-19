@@ -23,11 +23,21 @@ export const dayOfWeekEnum = pgEnum('day_of_week', [
 	'sunday',
 ]);
 
+export const classTypeEnum = pgEnum('class_type', [
+	'lecture',
+	'tutorial',
+	'lab',
+	'seminar',
+	'workshop',
+	'practical',
+]);
+
 export const timetableAllocations = pgTable(
 	'timetable_allocations',
 	{
 		id: serial().primaryKey(),
 		duration: integer().notNull(),
+		classType: classTypeEnum().notNull().default('lecture'),
 		numberOfStudents: integer().notNull().default(0),
 		groupName: text(),
 		userId: text()

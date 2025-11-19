@@ -42,9 +42,19 @@ const daysOfWeek = [
 	'sunday',
 ] as const;
 
+const classTypes = [
+	{ value: 'lecture', label: 'Lecture' },
+	{ value: 'tutorial', label: 'Tutorial' },
+	{ value: 'lab', label: 'Lab' },
+	{ value: 'seminar', label: 'Seminar' },
+	{ value: 'workshop', label: 'Workshop' },
+	{ value: 'practical', label: 'Practical' },
+] as const;
+
 const schema = z.object({
 	semesterModuleId: z.number().min(1, 'Please select a semester module'),
 	duration: z.number().min(1, 'Please enter a valid duration'),
+	classType: z.enum(['lecture', 'tutorial', 'lab', 'seminar', 'workshop', 'practical']),
 	numberOfStudents: z.number().min(1, 'A class should have at least 1 student'),
 	venueTypeIds: z.array(z.number()),
 	numberOfGroups: z
@@ -95,6 +105,7 @@ export default function AddAllocationModal({
 		initialValues: {
 			semesterModuleId: 0,
 			duration: defaultDuration,
+			classType: 'lecture',
 			numberOfStudents: 0,
 			venueTypeIds: [],
 			numberOfGroups: 0,
@@ -125,6 +136,7 @@ export default function AddAllocationModal({
 						termId,
 						semesterModuleId: values.semesterModuleId,
 						duration: values.duration,
+						classType: values.classType,
 						numberOfStudents: values.numberOfStudents,
 						allowedDays: values.allowedDays,
 						startTime: values.startTime,
@@ -139,6 +151,7 @@ export default function AddAllocationModal({
 				termId,
 				semesterModuleId: values.semesterModuleId,
 				duration: values.duration,
+				classType: values.classType,
 				numberOfStudents: Math.floor(
 					values.numberOfStudents / values.groups.length
 				),
@@ -245,7 +258,7 @@ export default function AddAllocationModal({
 									required
 								/>
 								<Grid align='end'>
-									<Grid.Col span={6}>
+									<Grid.Col span={4}>
 										<DurationInput
 											label='Duration'
 											value={form.values.duration}
@@ -256,7 +269,20 @@ export default function AddAllocationModal({
 											required
 										/>
 									</Grid.Col>
-									<Grid.Col span={6}>
+									<Grid.Col span={4}>
+										<Select
+											label='Class Type'
+											placeholder='Select class type'
+											data={classTypes}
+											value={form.values.classType}
+											onChange={(value) =>
+												form.setFieldValue('classType', value as FormValues['classType'])
+											}
+											error={form.errors.classType}
+											required
+										/>
+									</Grid.Col>
+									<Grid.Col span={4}>
 										<NumberInput
 											label='Number of Students'
 											placeholder='Enter number of students'

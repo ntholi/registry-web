@@ -28,6 +28,7 @@ type Props = {
 	filteredAllocations: {
 		id: number;
 		duration: number | null;
+		classType: 'lecture' | 'tutorial' | 'lab' | 'seminar' | 'workshop' | 'practical' | null;
 		numberOfStudents: number | null;
 		groupName: string | null;
 		allowedDays:
@@ -198,6 +199,7 @@ export default function AllocationTab({
 												currentDuration={
 													allocation.duration || defaults?.duration || 120
 												}
+												currentClassType={allocation.classType || 'lecture'}
 												currentNumberOfStudents={
 													allocation.numberOfStudents ?? 0
 												}
