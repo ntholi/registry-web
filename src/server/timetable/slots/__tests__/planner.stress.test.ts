@@ -914,3 +914,475 @@ describe('RUTHLESS STRESS TESTS - Mixed Extreme Scenarios', () => {
 		}
 	});
 });
+
+describe('buildTermPlan - EXTREME Stress Tests', () => {
+	it('handles 50+ allocations with multiple constraints', () => {
+		const venues: VenueRecord[] = [];
+		for (let i = 0; i < 10; i++) {
+			venues.push(
+				makeVenue({
+					id: 1000 + i,
+					capacity: 50 + i * 10,
+					typeId: (i % 3) + 1,
+					type: {
+						id: (i % 3) + 1,
+						name: `Type ${(i % 3) + 1}`,
+						description: null,
+						createdAt: new Date(),
+					},
+				})
+			);
+		}
+
+		const allocations: AllocationRecord[] = [];
+		const lecturers = 15;
+		const semesters = 10;
+
+		for (let i = 0; i < 50; i++) {
+			const lecturerId = `stress-lecturer-${i % lecturers}`;
+			const semesterIdValue = (i % semesters) + 1;
+
+			allocations.push(
+				makeAllocation({
+					userId: lecturerId,
+					allowedDays: [
+						'monday',
+						'tuesday',
+						'wednesday',
+						'thursday',
+						'friday',
+					].slice(0, 3 + (i % 3)) as DayOfWeek[],
+					startTime: '08:00:00',
+					endTime: '17:00:00',
+					duration: 60 + (i % 5) * 30,
+					numberOfStudents: 30 + (i % 8) * 5,
+					semesterModule: {
+						id: nextSemesterModuleId(),
+						semesterId: semesterIdValue,
+						module: { id: nextModuleId(), name: `Module-${i}` },
+					},
+					timetableAllocationVenueTypes:
+						i % 4 === 0 ? [{ venueTypeId: ((i % 3) + 1) as number }] : [],
+				})
+			);
+		}
+
+		const startTime = Date.now();
+		const plan = buildTermPlan(1, allocations, venues, 4);
+		const endTime = Date.now();
+
+		console.log(
+			`50 allocations scheduled in ${endTime - startTime}ms, created ${plan.length} slots`
+		);
+
+		// Verify all allocations are placed
+		const placedIds = new Set<number>();
+		for (const slot of plan) {
+			for (const id of slot.allocationIds) {
+				placedIds.add(id);
+			}
+		}
+
+		for (const alloc of allocations) {
+			expect(placedIds.has(alloc.id)).toBe(true);
+		}
+
+		// Verify no capacity violations
+		for (const slot of plan) {
+			const venue = venues.find((v) => v.id === slot.venueId);
+			if (venue) {
+				expect(slot.capacityUsed).toBeLessThanOrEqual(
+					Math.floor(venue.capacity * 1.1)
+				);
+			}
+		}
+
+		// Performance check: should complete in reasonable time (< 30s)
+		expect(endTime - startTime).toBeLessThan(30000);
+	});
+
+	it('handles highly constrained scenario with very limited time windows', () => {
+		const venues: VenueRecord[] = [
+			makeVenue({ id: 2000, capacity: 100 }),
+			makeVenue({ id: 2001, capacity: 100 }),
+			makeVenue({ id: 2002, capacity: 100 }),
+		];
+
+		const allocations: AllocationRecord[] = [];
+
+		// All allocations want the same narrow time window but can spread across 2 days
+		for (let i = 0; i < 8; i++) {
+			allocations.push(
+				makeAllocation({
+					userId: `constrained-lecturer-${i}`,
+					allowedDays: ['monday', 'tuesday'], // Two days to spread load
+					startTime: '10:00:00', // Narrow 4-hour window
+					endTime: '14:00:00',
+					duration: 120,
+					numberOfStudents: 50,
+					semesterModule: {
+						id: nextSemesterModuleId(),
+						semesterId: i + 1,
+						module: { id: nextModuleId() },
+					},
+				})
+			);
+		}
+
+		const plan = buildTermPlan(1, allocations, venues, 5);
+
+		// All should be placed despite constraints
+		const placedIds = new Set<number>();
+		for (const slot of plan) {
+			for (const id of slot.allocationIds) {
+				placedIds.add(id);
+			}
+		}
+
+		expect(placedIds.size).toBe(allocations.length);
+	});
+
+	it('handles worst-case backtracking scenario', () => {
+		// Create a scenario that forces backtracking
+		const venue = makeVenue({ id: 3000, capacity: 100 });
+
+		const semester1 = nextSemesterId();
+		const semester2 = nextSemesterId();
+
+		const allocations: AllocationRecord[] = [
+			// These 3 will initially take up Monday
+			makeAllocation({
+				userId: 'bt-lecturer-1',
+				allowedDays: ['monday', 'tuesday'],
+				startTime: '08:00:00',
+				endTime: '18:00:00',
+				duration: 180,
+				semesterModule: {
+					id: nextSemesterModuleId(),
+					semesterId: semester1,
+					module: { id: nextModuleId() },
+				},
+			}),
+			makeAllocation({
+				userId: 'bt-lecturer-2',
+				allowedDays: ['monday', 'tuesday'],
+				startTime: '08:00:00',
+				endTime: '18:00:00',
+				duration: 180,
+				semesterModule: {
+					id: nextSemesterModuleId(),
+					semesterId: semester2,
+					module: { id: nextModuleId() },
+				},
+			}),
+			// This one can ONLY fit on Monday but same class as first
+			// Should force reallocation
+			makeAllocation({
+				userId: 'bt-lecturer-3',
+				allowedDays: ['monday'], // Only Monday
+				startTime: '08:00:00',
+				endTime: '18:00:00',
+				duration: 180,
+				semesterModule: {
+					id: nextSemesterModuleId(),
+					semesterId: semester1, // Same class as first
+					module: { id: nextModuleId() },
+				},
+			}),
+		];
+
+		// Should succeed via backtracking
+		const plan = buildTermPlan(1, allocations, [venue], 5);
+
+		const placedIds = new Set<number>();
+		for (const slot of plan) {
+			for (const id of slot.allocationIds) {
+				placedIds.add(id);
+			}
+		}
+
+		expect(placedIds.size).toBe(3);
+	});
+
+	it('handles 100+ allocations across multiple days and venues', () => {
+		const venues: VenueRecord[] = [];
+		for (let i = 0; i < 20; i++) {
+			venues.push(
+				makeVenue({
+					id: 4000 + i,
+					capacity: 40 + i * 5,
+				})
+			);
+		}
+
+		const allocations: AllocationRecord[] = [];
+
+		for (let i = 0; i < 100; i++) {
+			allocations.push(
+				makeAllocation({
+					userId: `mega-lecturer-${i % 25}`,
+					allowedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+					startTime: '08:00:00',
+					endTime: '18:00:00',
+					duration: 60 + (i % 4) * 30,
+					numberOfStudents: 25 + (i % 10) * 3,
+					semesterModule: {
+						id: nextSemesterModuleId(),
+						semesterId: (i % 15) + 1,
+						module: { id: nextModuleId() },
+					},
+				})
+			);
+		}
+
+		const startTime = Date.now();
+		const plan = buildTermPlan(1, allocations, venues, 5);
+		const endTime = Date.now();
+
+		console.log(
+			`100 allocations scheduled in ${endTime - startTime}ms, created ${plan.length} slots`
+		);
+
+		// All should be placed
+		const placedIds = new Set<number>();
+		for (const slot of plan) {
+			for (const id of slot.allocationIds) {
+				placedIds.add(id);
+			}
+		}
+
+		expect(placedIds.size).toBe(100);
+		expect(endTime - startTime).toBeLessThan(60000); // Should complete within 60s
+	});
+
+	it('handles realistic university scenario with multiple programs', () => {
+		// Simulate a realistic university with:
+		// - 5 programs (e.g., CS, Engineering, Business, Medicine, Law)
+		// - Each program has 4 semesters
+		// - Each semester has 6 modules
+		// - Each module needs 2 allocations (lecture + tutorial)
+		// Total: 5 * 4 * 6 * 2 = 240 allocations
+
+		const venues: VenueRecord[] = [];
+		const lectureHallTypeId = 1;
+		const tutorialRoomTypeId = 2;
+
+		// 15 large lecture halls
+		for (let i = 0; i < 15; i++) {
+			venues.push(
+				makeVenue({
+					id: 5000 + i,
+					capacity: 100 + i * 10,
+					typeId: lectureHallTypeId,
+					type: {
+						id: lectureHallTypeId,
+						name: 'Lecture Hall',
+						description: null,
+						createdAt: new Date(),
+					},
+				})
+			);
+		}
+
+		// 20 tutorial rooms
+		for (let i = 0; i < 20; i++) {
+			venues.push(
+				makeVenue({
+					id: 5100 + i,
+					capacity: 30 + i * 2,
+					typeId: tutorialRoomTypeId,
+					type: {
+						id: tutorialRoomTypeId,
+						name: 'Tutorial Room',
+						description: null,
+						createdAt: new Date(),
+					},
+				})
+			);
+		}
+
+		const allocations: AllocationRecord[] = [];
+		let lecturerCounter = 0;
+
+		// Create allocations
+		for (let program = 0; program < 5; program++) {
+			for (let semester = 0; semester < 4; semester++) {
+				const semesterIdValue = program * 4 + semester + 1;
+
+				for (let module = 0; module < 6; module++) {
+					const moduleIdValue = nextModuleId();
+					const moduleName = `Program${program}-Module${module}`;
+					const lecturerId = `lecturer-${lecturerCounter % 30}`;
+					lecturerCounter++;
+
+					// Lecture
+					allocations.push(
+						makeAllocation({
+							userId: lecturerId,
+							allowedDays: ['monday', 'tuesday', 'wednesday', 'thursday'],
+							startTime: '08:00:00',
+							endTime: '17:00:00',
+							duration: 120,
+							classType: 'lecture',
+							numberOfStudents: 80 + program * 10,
+							semesterModule: {
+								id: nextSemesterModuleId(),
+								semesterId: semesterIdValue,
+								module: { id: moduleIdValue, name: moduleName },
+							},
+							timetableAllocationVenueTypes: [
+								{ venueTypeId: lectureHallTypeId },
+							],
+						})
+					);
+
+					// Tutorial (smaller groups)
+					allocations.push(
+						makeAllocation({
+							userId: lecturerId,
+							allowedDays: ['wednesday', 'thursday', 'friday'],
+							startTime: '08:00:00',
+							endTime: '17:00:00',
+							duration: 90,
+							classType: 'tutorial',
+							numberOfStudents: 25,
+							semesterModule: {
+								id: nextSemesterModuleId(),
+								semesterId: semesterIdValue,
+								module: { id: moduleIdValue, name: moduleName },
+							},
+							timetableAllocationVenueTypes: [
+								{ venueTypeId: tutorialRoomTypeId },
+							],
+						})
+					);
+				}
+			}
+		}
+
+		console.log(
+			`Testing realistic scenario with ${allocations.length} allocations and ${venues.length} venues`
+		);
+
+		const startTime = Date.now();
+		const plan = buildTermPlan(1, allocations, venues, 4);
+		const endTime = Date.now();
+
+		console.log(
+			`Scheduled ${allocations.length} allocations in ${endTime - startTime}ms, created ${plan.length} slots`
+		);
+
+		// Verify all allocations placed
+		const placedIds = new Set<number>();
+		for (const slot of plan) {
+			for (const id of slot.allocationIds) {
+				placedIds.add(id);
+			}
+		}
+
+		expect(placedIds.size).toBe(allocations.length);
+
+		// Verify venue type constraints respected
+		for (const slot of plan) {
+			const venue = venues.find((v) => v.id === slot.venueId);
+			expect(venue).toBeDefined();
+
+			const allocsInSlot = allocations.filter((a) =>
+				slot.allocationIds.includes(a.id)
+			);
+
+			for (const alloc of allocsInSlot) {
+				if (alloc.timetableAllocationVenueTypes.length > 0) {
+					const requiredTypeIds = alloc.timetableAllocationVenueTypes.map(
+						(vt) => vt.venueTypeId
+					);
+					expect(requiredTypeIds).toContain(venue!.typeId);
+				}
+			}
+		}
+
+		// Verify no class conflicts
+		const slotsBySemester = new Map<number, typeof plan>();
+		for (const slot of plan) {
+			for (const allocId of slot.allocationIds) {
+				const alloc = allocations.find((a) => a.id === allocId);
+				if (alloc && alloc.semesterModule.semesterId !== null) {
+					const semId = alloc.semesterModule.semesterId;
+					if (!slotsBySemester.has(semId)) {
+						slotsBySemester.set(semId, []);
+					}
+					slotsBySemester.get(semId)!.push(slot);
+				}
+			}
+		}
+
+		for (const [semId, slots] of slotsBySemester.entries()) {
+			// Check no overlapping slots for this semester
+			const sameDay = new Map<string, typeof slots>();
+			for (const slot of slots) {
+				if (!sameDay.has(slot.dayOfWeek)) {
+					sameDay.set(slot.dayOfWeek, []);
+				}
+				sameDay.get(slot.dayOfWeek)!.push(slot);
+			}
+
+			for (const [day, daySlots] of sameDay.entries()) {
+				for (let i = 0; i < daySlots.length; i++) {
+					for (let j = i + 1; j < daySlots.length; j++) {
+						const slot1 = daySlots[i];
+						const slot2 = daySlots[j];
+
+						const start1 = timeToMinutes(slot1.startTime);
+						const end1 = timeToMinutes(slot1.endTime);
+						const start2 = timeToMinutes(slot2.startTime);
+						const end2 = timeToMinutes(slot2.endTime);
+
+						const noOverlap = end1 <= start2 || end2 <= start1;
+						expect(noOverlap).toBe(true);
+					}
+				}
+			}
+		}
+	});
+
+	it('handles edge case with all allocations having same constraints', () => {
+		// All allocations want exactly the same thing - ultimate stress test
+		// But we provide just enough resources to make it solvable
+		const venues: VenueRecord[] = [
+			makeVenue({ id: 6000, capacity: 50 }),
+			makeVenue({ id: 6001, capacity: 50 }),
+		];
+		const allocations: AllocationRecord[] = [];
+
+		// 15 allocations of 120 minutes each = 1800 minutes needed
+		// 2 venues * 2 days * 8 hours = 1920 minutes available (just enough)
+		for (let i = 0; i < 15; i++) {
+			allocations.push(
+				makeAllocation({
+					userId: `identical-lecturer-${i}`,
+					allowedDays: ['monday', 'tuesday'], // Same days
+					startTime: '08:00:00', // Wider time window
+					endTime: '17:00:00',
+					duration: 120, // Same duration
+					numberOfStudents: 40, // Same capacity
+					semesterModule: {
+						id: nextSemesterModuleId(),
+						semesterId: i + 1, // Different classes
+						module: { id: nextModuleId() },
+					},
+				})
+			);
+		}
+
+		const plan = buildTermPlan(1, allocations, venues, 10);
+
+		const placedIds = new Set<number>();
+		for (const slot of plan) {
+			for (const id of slot.allocationIds) {
+				placedIds.add(id);
+			}
+		}
+
+		expect(placedIds.size).toBe(15);
+	});
+});

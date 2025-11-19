@@ -26,6 +26,9 @@
     *   Do not invent new UI patterns; mimic existing screens.
     * Always strive for a beautiful yet very simplistic design but very professional looking
 
+5.  **No Comments**:
+    *   Never generate comments in code. Keep code clean and self-explanatory.
+
 ---
 
 ## Directory Structure
