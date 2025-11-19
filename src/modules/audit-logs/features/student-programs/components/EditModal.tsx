@@ -172,13 +172,18 @@ export default function EditStudentProgramModal({ program }: Props) {
 	return (
 		<>
 			<ActionIcon
+				component='div'
 				size='sm'
 				variant='subtle'
 				color='gray'
-				onClick={open}
+				onClick={(e) => {
+					e.stopPropagation();
+					open();
+				}}
 				style={{
 					opacity: 0,
 					transition: 'opacity 0.2s',
+					cursor: 'pointer',
 				}}
 				className='edit-program-icon'
 			>
