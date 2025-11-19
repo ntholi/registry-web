@@ -2,6 +2,7 @@
 
 import {
 	ActionIcon,
+	type ActionIconProps,
 	Button,
 	Group,
 	Modal,
@@ -30,11 +31,11 @@ interface StudentModule {
 	grade: Grade;
 }
 
-interface Props {
+type Props = {
 	module: StudentModule;
-}
+} & ActionIconProps;
 
-export default function EditStudentModuleModal({ module }: Props) {
+export default function EditStudentModuleModal({ module, ...rest }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -110,6 +111,7 @@ export default function EditStudentModuleModal({ module }: Props) {
 					transition: 'opacity 0.2s',
 				}}
 				className='edit-module-icon'
+				{...rest}
 			>
 				<IconEdit size='1rem' />
 			</ActionIcon>

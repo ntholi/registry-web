@@ -1,5 +1,6 @@
 'use client';
 
+import { EditStudentModuleModal } from '@audit-logs/student-modules';
 import {
 	Anchor,
 	Badge,
@@ -12,7 +13,6 @@ import {
 	useComputedColorScheme,
 } from '@mantine/core';
 import { useSession } from 'next-auth/react';
-import { EditStudentModuleModal } from '@audit-logs/student-modules';
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
@@ -174,21 +174,20 @@ export default function SemesterTable({
 	};
 
 	return (
-		<>
-			<Table.ScrollContainer minWidth={600} type='native'>
-				<Table>
-					<Table.Thead>
-						<Table.Tr>
-							<Table.Th w={105}>Code</Table.Th>
-							<Table.Th w={270}>Name</Table.Th>
-							<Table.Th w={105}>Status</Table.Th>
-							<Table.Th w={50}>Cr</Table.Th>
-							{showMarks && <Table.Th w={50}>Mk</Table.Th>}
-							<Table.Th w={60}>Gd</Table.Th>
-						</Table.Tr>
-					</Table.Thead>
-					<Table.Tbody>
-						{modules.map((module, idx) => {
+		<Table.ScrollContainer minWidth={600} type='native'>
+			<Table>
+				<Table.Thead>
+					<Table.Tr>
+						<Table.Th w={105}>Code</Table.Th>
+						<Table.Th w={270}>Name</Table.Th>
+						<Table.Th w={105}>Status</Table.Th>
+						<Table.Th w={50}>Cr</Table.Th>
+						{showMarks && <Table.Th w={50}>Mk</Table.Th>}
+						<Table.Th w={60}>Gd</Table.Th>
+					</Table.Tr>
+				</Table.Thead>
+				<Table.Tbody>
+					{modules.map((module, idx) => {
 						const isDroppedOrDeleted =
 							module.status === 'Drop' || module.status === 'Delete';
 
@@ -206,14 +205,22 @@ export default function SemesterTable({
 								className='module-row'
 							>
 								<Table.Td>
-									<Group gap='xs' align='center'>
+									<Group gap='xs' align='center' pos={'relative'}>
+										<style>{`
+				.module-row:hover .edit-module-icon {
+					opacity: 1 !important;
+				}
+			`}</style>
 										{modulesWithFailHistory.includes(module.code) ? (
 											<Tooltip
 												label={renderAttemptHistory(module)}
 												color={colorScheme}
 												withArrow
 												multiline
-												transitionProps={{ transition: 'fade', duration: 200 }}
+												transitionProps={{
+													transition: 'fade',
+													duration: 200,
+												}}
 											>
 												<Anchor
 													size='sm'
@@ -238,6 +245,8 @@ export default function SemesterTable({
 										)}
 										{canEdit && (
 											<EditStudentModuleModal
+												pos={'absolute'}
+												right={0}
 												module={{
 													id: module.id,
 													status: module.status as never,
@@ -298,16 +307,9 @@ export default function SemesterTable({
 								</Table.Td>
 							</Table.Tr>
 						);
-						})}
-					</Table.Tbody>
-				</Table>
-			</Table.ScrollContainer>
-
-			<style>{`
-				.module-row:hover .edit-module-icon {
-					opacity: 1 !important;
-				}
-			`}</style>
-		</>
+					})}
+				</Table.Tbody>
+			</Table>
+		</Table.ScrollContainer>
 	);
 }
