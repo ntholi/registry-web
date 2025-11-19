@@ -204,6 +204,45 @@ export default function SemesterTable({
 								}
 							>
 								<Table.Td>
+									{modulesWithFailHistory.includes(module.code) ? (
+										<Tooltip
+											label={renderAttemptHistory(module)}
+											color={colorScheme}
+											withArrow
+											multiline
+											transitionProps={{
+												transition: 'fade',
+												duration: 200,
+											}}
+										>
+											<Anchor
+												size='sm'
+												c={
+													isDroppedOrDeleted
+														? 'dimmed'
+														: failed(module.grade)
+															? 'red'
+															: 'blue'
+												}
+											>
+												{module.code}
+											</Anchor>
+										</Tooltip>
+									) : (
+										<Text
+											size='sm'
+											c={isDroppedOrDeleted ? 'dimmed' : undefined}
+										>
+											{module.code}
+										</Text>
+									)}
+								</Table.Td>
+								<Table.Td>
+									<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+										{module.name}
+									</Text>
+								</Table.Td>
+								<Table.Td>
 									<Group
 										gap='xs'
 										align='center'
@@ -211,46 +250,24 @@ export default function SemesterTable({
 										className='module-code-group'
 									>
 										<style>{`
-				.module-code-group:hover .edit-module-icon {
-					opacity: 1 !important;
-				}
-			`}</style>
-										{modulesWithFailHistory.includes(module.code) ? (
-											<Tooltip
-												label={renderAttemptHistory(module)}
-												color={colorScheme}
-												withArrow
-												multiline
-												transitionProps={{
-													transition: 'fade',
-													duration: 200,
-												}}
-											>
-												<Anchor
-													size='sm'
-													c={
-														isDroppedOrDeleted
-															? 'dimmed'
-															: failed(module.grade)
-																? 'red'
-																: 'blue'
-													}
-												>
-													{module.code}
-												</Anchor>
-											</Tooltip>
-										) : (
-											<Text
-												size='sm'
-												c={isDroppedOrDeleted ? 'dimmed' : undefined}
-											>
-												{module.code}
-											</Text>
-										)}
+											.module-code-group:hover .edit-module-icon {
+												opacity: 1 !important;
+											}
+										`}</style>
+										<Text
+											size='sm'
+											c={
+												['Drop', 'Delete'].includes(module.status)
+													? 'red'
+													: undefined
+											}
+										>
+											{module.status}
+										</Text>
 										{canEdit && (
 											<EditStudentModuleModal
 												pos={'absolute'}
-												right={0}
+												right={-10}
 												module={{
 													id: module.id,
 													status: module.status as never,
@@ -260,23 +277,6 @@ export default function SemesterTable({
 											/>
 										)}
 									</Group>
-								</Table.Td>
-								<Table.Td>
-									<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
-										{module.name}
-									</Text>
-								</Table.Td>
-								<Table.Td>
-									<Text
-										size='sm'
-										c={
-											['Drop', 'Delete'].includes(module.status)
-												? 'red'
-												: undefined
-										}
-									>
-										{module.status}
-									</Text>
 								</Table.Td>
 								<Table.Td>
 									<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
