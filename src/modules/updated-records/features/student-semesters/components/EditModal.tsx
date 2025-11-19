@@ -5,8 +5,10 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import type { SemesterStatus } from '@/core/database';
-import { semesterStatus } from '@/core/database';
+import {
+	semesterStatus,
+	type SemesterStatus,
+} from '@/modules/registry/database/schema/enums';
 import {
 	getAllSponsors,
 	getStructureSemestersByStructureId,
