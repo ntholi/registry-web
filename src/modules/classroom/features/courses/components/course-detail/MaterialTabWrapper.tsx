@@ -1,5 +1,5 @@
-import { Suspense } from 'react';
 import { Skeleton, Stack } from '@mantine/core';
+import { Suspense } from 'react';
 import { getCourseTopics, getCourseWork } from '../../server/actions';
 import MaterialTab from './MaterialTab';
 
@@ -15,7 +15,9 @@ async function MaterialContent({ courseId }: Props) {
 
 	const materials = courseWork.filter((work) => work.workType === 'MATERIAL');
 
-	return <MaterialTab materials={materials} topics={topics} courseId={courseId} />;
+	return (
+		<MaterialTab materials={materials} topics={topics} courseId={courseId} />
+	);
 }
 
 function MaterialSkeleton() {

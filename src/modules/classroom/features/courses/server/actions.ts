@@ -2,8 +2,8 @@
 
 import type { classroom_v1 } from 'googleapis';
 import { auth } from '@/core/auth';
-import { assignedModulesRepository } from '@/modules/academic/features/assigned-modules/server/repository';
 import googleClassroom from '@/core/integrations/google-classroom';
+import { assignedModulesRepository } from '@/modules/academic/features/assigned-modules/server/repository';
 
 export async function getCourse(courseId: string) {
 	try {
@@ -109,7 +109,9 @@ export async function getUserAssignedModules() {
 			return [];
 		}
 
-		const assigned = await assignedModulesRepository.findByUser(session.user.id);
+		const assigned = await assignedModulesRepository.findByUser(
+			session.user.id
+		);
 
 		return assigned.map((item) => ({
 			semesterModuleId: item.semesterModuleId,

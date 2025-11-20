@@ -1,5 +1,5 @@
-import { Suspense } from 'react';
 import { Skeleton, Stack } from '@mantine/core';
+import { Suspense } from 'react';
 import { getCourseAnnouncements } from '../../server/actions';
 import DashboardTab from './DashboardTab';
 
