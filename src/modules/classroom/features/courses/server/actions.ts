@@ -182,3 +182,23 @@ export async function getUserCourses() {
 		return [];
 	}
 }
+
+export async function createAnnouncement(data: {
+	courseId: string;
+	text: string;
+}) {
+	try {
+		const classroom = await googleClassroom();
+		const announcement = await classroom.courses.announcements.create({
+			courseId: data.courseId,
+			requestBody: {
+				text: data.text,
+				state: 'PUBLISHED',
+			},
+		});
+		return { success: true, data: announcement.data };
+	} catch (error) {
+		console.error('Failed to create announcement:', error);
+		return { success: false, error: 'Failed to create announcement' };
+	}
+}
