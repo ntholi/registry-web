@@ -168,7 +168,7 @@ export default function EntityForm({ onSubmit, defaultValues, title }: any) {
 1.  **Functions**: Use `function name() {}`. **NO** arrow functions for top-level exports.
 2.  **Types**: Strict TS. No `any`. Infer from Drizzle (`typeof table.$inferSelect`).
 3.  **Imports**: Use aliases (`@registry/terms`, `@shared/ui/adease`).
-4.  **QA**:
+4.  **Always and every single time always do the following:**:
     *   Run `pnpm tsc --noEmit` (run iteratively until no more issues).
     *   Run `pnpm lint:fix` (Must pass).
 

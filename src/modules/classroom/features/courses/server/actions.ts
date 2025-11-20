@@ -102,29 +102,6 @@ export type Course = classroom_v1.Schema$Course;
 export type Topic = classroom_v1.Schema$Topic;
 export type StudentSubmission = classroom_v1.Schema$StudentSubmission;
 
-export async function getUserAssignedModules() {
-	try {
-		const session = await auth();
-		if (!session?.user?.id) {
-			return [];
-		}
-
-		const assigned = await assignedModulesRepository.findByUser(
-			session.user.id
-		);
-
-		return assigned.map((item) => ({
-			semesterModuleId: item.semesterModuleId,
-			moduleName: item.semesterModule?.module?.name || '',
-			moduleCode: item.semesterModule?.module?.code || '',
-			programCode:
-				item.semesterModule?.semester?.structure?.program?.code || '',
-		}));
-	} catch {
-		return [];
-	}
-}
-
 export async function createCourse(data: {
 	name: string;
 	section: string;

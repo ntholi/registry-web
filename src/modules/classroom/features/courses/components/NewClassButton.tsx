@@ -8,7 +8,8 @@ import { IconPlus } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { createCourse, getUserAssignedModules } from '../server/actions';
+import { getAssignedModulesByCurrentUser } from '@/modules/academic/features/assigned-modules';
+import { createCourse } from '../server/actions';
 
 export default function NewClassButton() {
 	const [opened, { open, close }] = useDisclosure(false);
@@ -17,8 +18,8 @@ export default function NewClassButton() {
 	const router = useRouter();
 
 	const { data: modules = [], isLoading } = useQuery({
-		queryKey: ['user-assigned-modules'],
-		queryFn: getUserAssignedModules,
+		queryKey: ['assigned-modules'],
+		queryFn: getAssignedModulesByCurrentUser,
 	});
 
 	const form = useForm({
@@ -33,7 +34,7 @@ export default function NewClassButton() {
 	async function handleSubmit(values: typeof form.values) {
 		setIsSubmitting(true);
 		try {
-			const selectedModule = modules.find(
+			const selectedModule = modules?.find(
 				(m) => m.semesterModuleId.toString() === values.semesterModuleId
 			);
 
@@ -47,9 +48,10 @@ export default function NewClassButton() {
 			}
 
 			const result = await createCourse({
-				name: selectedModule.moduleName,
-				section: selectedModule.programCode,
-				subject: selectedModule.moduleCode,
+				name: selectedModule.semesterModule.module.name,
+				subject: selectedModule.semesterModule.module.code,
+				section:
+					selectedModule.semesterModule.semester?.structure.program.code || '',
 				semesterModuleId: selectedModule.semesterModuleId,
 			});
 
@@ -85,10 +87,11 @@ export default function NewClassButton() {
 		}
 	}
 
-	const moduleOptions = modules.map((module) => ({
-		value: module.semesterModuleId.toString(),
-		label: `${module.moduleCode} - ${module.moduleName} (${module.programCode})`,
-	}));
+	const moduleOptions =
+		modules?.map((module) => ({
+			value: module.semesterModuleId.toString(),
+			label: `${module.semesterModule.module.code} - ${module.semesterModule.module.name} (${module.semesterModule.semester?.structure.program.code || ''})`,
+		})) ?? [];
 
 	return (
 		<>
