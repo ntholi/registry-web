@@ -85,7 +85,6 @@ export default function DashboardTab({ courseId }: Props) {
 						radius='md'
 						withBorder
 						shadow='xs'
-						bg='white'
 					>
 						<Stack gap='md'>
 							<Group justify='space-between' align='flex-start'>
