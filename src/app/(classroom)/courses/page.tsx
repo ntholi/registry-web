@@ -1,8 +1,4 @@
-import {
-	CourseItem,
-	getUserCourses,
-	NewClassButton,
-} from '@classroom/courses';
+import { CourseItem, getUserCourses, NewClassButton } from '@classroom/courses';
 import { Container, Divider, Flex, SimpleGrid, Title } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';

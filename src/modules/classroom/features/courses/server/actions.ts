@@ -174,8 +174,9 @@ export async function getUserCourses() {
 		const courses = await classroom.courses.list({ courseStates: ['ACTIVE'] });
 		const allCourses = courses.data.courses || [];
 
-		const userCourseIds =
-			await assignedModulesRepository.getUserCourseIds(session.user.id);
+		const userCourseIds = await assignedModulesRepository.getUserCourseIds(
+			session.user.id
+		);
 
 		return allCourses.filter((course) =>
 			course.id ? userCourseIds.includes(course.id) : false
