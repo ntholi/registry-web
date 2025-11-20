@@ -20,6 +20,7 @@ export default function NewClassButton() {
 	const { data: modules = [], isLoading } = useQuery({
 		queryKey: ['assigned-modules'],
 		queryFn: getAssignedModulesByCurrentUser,
+		select: (data) => data.filter((module) => !module.classroomCourseId),
 	});
 
 	const form = useForm({
