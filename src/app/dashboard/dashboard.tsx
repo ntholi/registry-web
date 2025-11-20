@@ -14,7 +14,11 @@ import {
 	Text,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { IconChevronRight, IconLogout2 } from '@tabler/icons-react';
+import {
+	IconChevronRight,
+	IconChevronUp,
+	IconLogout2,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -293,7 +297,11 @@ function ItemDisplay({ item }: { item: NavItem }) {
 			leftSection={Icon ? <Icon size='1.1rem' /> : null}
 			description={item.description}
 			rightSection={
-				href ? <IconChevronRight size='0.8rem' stroke={1.5} /> : undefined
+				item.children && item.children.length > 0 ? (
+					<IconChevronRight size='0.8rem' stroke={1.5} />
+				) : (
+					<IconChevronUp size='0.8rem' stroke={1.5} />
+				)
 			}
 			opened={opened}
 			onClick={() => setOpen((o) => !o)}
