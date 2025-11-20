@@ -8,9 +8,10 @@ import {
 	Paper,
 	Stack,
 	Text,
+	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
+import { IconBook2, IconPaperclip, IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import type { CourseWork, Topic } from '../../server/actions';
 import { groupCourseWorkByTopic } from './courseWorkGrouping';
@@ -37,17 +38,27 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 		return (
 			<Stack gap='lg'>
 				<Group justify='space-between' align='center'>
-					<Title order={3} size='h3'>
+					<Title order={3} size='h4'>
 						Material
 					</Title>
-					<Button leftSection={<IconPlus size='1rem' />} variant='light'>
+					<Button
+						leftSection={<IconPlus size='1rem' />}
+						variant='filled'
+						color='black'
+						size='xs'
+					>
 						Create
 					</Button>
 				</Group>
-				<Paper p='xl' radius='lg' withBorder>
-					<Text c='dimmed' ta='center'>
-						No materials yet
-					</Text>
+				<Paper p='xl' radius='md' withBorder>
+					<Stack align='center' gap='md'>
+						<ThemeIcon size={48} radius='xl' variant='light' color='gray'>
+							<IconBook2 size={24} />
+						</ThemeIcon>
+						<Text c='dimmed' ta='center'>
+							No materials yet
+						</Text>
+					</Stack>
 				</Paper>
 			</Stack>
 		);
@@ -56,10 +67,15 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 	return (
 		<Stack gap='xl'>
 			<Group justify='space-between' align='center'>
-				<Title order={3} size='h3'>
+				<Title order={3} size='h4'>
 					Material
 				</Title>
-				<Button leftSection={<IconPlus size='1rem' />} variant='light'>
+				<Button
+					leftSection={<IconPlus size='1rem' />}
+					variant='filled'
+					color='black'
+					size='xs'
+				>
 					Create
 				</Button>
 			</Group>
@@ -67,65 +83,79 @@ export default function MaterialTab({ materials, topics, courseId }: Props) {
 			{topicGroups.map((group) => (
 				<Box key={group.id}>
 					<Group justify='space-between' align='center' mb='md'>
-						<Group gap='sm'>
-							<Text size='lg' fw={600}>
+						<Group gap='xs'>
+							<Text size='lg' fw={600} c='dark.4'>
 								{group.name}
 							</Text>
-							<Badge variant='light' size='md'>
+							<Badge variant='light' color='gray' size='sm' circle>
 								{group.items.length}
 							</Badge>
 						</Group>
 					</Group>
-					<Stack gap='md'>
+					<Stack gap='sm'>
 						{group.items.map((material) => {
 							const attachmentsCount = material.materials?.length || 0;
 
 							return (
-								<Paper key={material.id} withBorder radius='lg' p='lg'>
-									<Stack gap='md'>
-										<Group justify='space-between' align='flex-start'>
-											<Stack gap='xs' style={{ flex: 1, minWidth: 0 }}>
-												<Text size='sm' fw={600}>
-													{material.title}
-												</Text>
-												{material.description && (
-													<Text
-														size='sm'
-														c='dimmed'
-														style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
-														dangerouslySetInnerHTML={{
-															__html: material.description,
-														}}
-													/>
-												)}
-											</Stack>
-											<Button
-												component={Link}
-												href={`/courses/${courseId}/${material.id}`}
-												variant='light'
-												size='sm'
-											>
-												View details
-											</Button>
-										</Group>
+								<Paper
+									key={material.id}
+									withBorder
+									radius='md'
+									p='md'
+									shadow='xs'
+									style={{ transition: 'transform 0.2s ease' }}
+								>
+									<Group wrap='nowrap' align='flex-start'>
+										<ThemeIcon
+											size='lg'
+											radius='md'
+											variant='light'
+											color='teal'
+											mt={4}
+										>
+											<IconBook2 size='1.1rem' />
+										</ThemeIcon>
 
-										<Group gap='xs' wrap='wrap'>
-											<Badge size='sm' variant='light'>
-												Material
-											</Badge>
+										<Stack gap='xs' style={{ flex: 1, minWidth: 0 }}>
+											<Group justify='space-between' align='flex-start'>
+												<Box>
+													<Text size='sm' fw={600} lineClamp={1}>
+														{material.title}
+													</Text>
+													<Group gap='xs' mt={2}>
+														<Text size='xs' c='dimmed' fw={500}>
+															Material
+														</Text>
+														<Text size='xs' c='dimmed'>
+															•
+														</Text>
+														<Text size='xs' c='dimmed'>
+															Posted {formatDate(material.creationTime)}
+														</Text>
+													</Group>
+												</Box>
+												<Button
+													component={Link}
+													href={`/courses/${courseId}/${material.id}`}
+													variant='subtle'
+													size='xs'
+													color='gray'
+												>
+													View
+												</Button>
+											</Group>
+
 											{attachmentsCount > 0 && (
-												<Badge size='sm' variant='outline'>
-													{attachmentsCount} attachment
-													{attachmentsCount > 1 ? 's' : ''}
-												</Badge>
+												<Group gap={4}>
+													<IconPaperclip size={14} color='gray' />
+													<Text size='xs' c='dimmed'>
+														{attachmentsCount} attachment
+														{attachmentsCount > 1 ? 's' : ''}
+													</Text>
+												</Group>
 											)}
-											{material.creationTime && (
-												<Text size='xs' c='dimmed'>
-													Posted {formatDate(material.creationTime)}
-												</Text>
-											)}
-										</Group>
-									</Stack>
+										</Stack>
+									</Group>
 								</Paper>
 							);
 						})}

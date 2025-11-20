@@ -1,9 +1,20 @@
-import { Card, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
-	IconFile,
+	Avatar,
+	Box,
+	Card,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	ThemeIcon,
+	TypographyStylesProvider,
+} from '@mantine/core';
+import {
+	IconBrandYoutube,
+	IconFileText,
+	IconForms,
 	IconLink,
-	IconListCheck,
-	IconPlayerPlay,
+	IconSpeakerphone,
 } from '@tabler/icons-react';
 import type { Announcement } from '../../server/actions';
 
@@ -17,18 +28,21 @@ function formatDate(dateString: string | null | undefined) {
 		month: 'short',
 		day: 'numeric',
 		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
 	});
 }
 
 export default function DashboardTab({ announcements }: Props) {
 	if (announcements.length === 0) {
 		return (
-			<Paper p='xl' radius='lg' withBorder>
-				<Text c='dimmed' ta='center'>
-					No announcements yet
-				</Text>
+			<Paper p='xl' radius='md' withBorder>
+				<Stack align='center' gap='md'>
+					<ThemeIcon size={48} radius='xl' variant='light' color='gray'>
+						<IconSpeakerphone size={24} />
+					</ThemeIcon>
+					<Text c='dimmed' ta='center'>
+						No announcements yet
+					</Text>
+				</Stack>
 			</Paper>
 		);
 	}
@@ -41,76 +55,81 @@ export default function DashboardTab({ announcements }: Props) {
 				);
 
 				return (
-					<Paper key={announcement.id} p='xl' radius='lg' withBorder>
-						<Stack gap='lg'>
+					<Paper
+						key={announcement.id}
+						p='lg'
+						radius='md'
+						withBorder
+						shadow='xs'
+						bg='white'
+					>
+						<Stack gap='md'>
 							<Group justify='space-between' align='flex-start'>
-								<Text size='sm' c='dimmed'>
-									{formatDate(announcement.creationTime)}
-								</Text>
+								<Group gap='sm'>
+									<Avatar radius='xl' color='blue'>
+										<IconSpeakerphone size='1.2rem' />
+									</Avatar>
+									<div>
+										<Text size='sm' fw={600}>
+											Announcement
+										</Text>
+										<Text size='xs' c='dimmed'>
+											{formatDate(announcement.creationTime)}
+										</Text>
+									</div>
+								</Group>
 							</Group>
 
 							{announcement.text && (
-								<Text
-									size='sm'
-									c='dimmed'
-									style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
-									dangerouslySetInnerHTML={{ __html: announcement.text }}
-								/>
+								<TypographyStylesProvider p={0} fz='sm'>
+									<div
+										dangerouslySetInnerHTML={{ __html: announcement.text }}
+										style={{ fontSize: 'var(--mantine-font-size-sm)' }}
+									/>
+								</TypographyStylesProvider>
 							)}
 
 							{attachments.length > 0 && (
-								<Stack gap='sm'>
-									<Text size='xs' fw={600} tt='uppercase' c='dimmed'>
-										Attachments
-									</Text>
-									<Stack gap='xs'>
-										{attachments.map((attachment) => {
-											const Icon = getAttachmentIcon(attachment.type);
-											const content = (
-												<Group gap='sm' align='flex-start'>
-													<ThemeIcon size='lg' radius='md' variant='light'>
-														<Icon size='1.1rem' />
+								<Stack gap='xs' mt='xs'>
+									{attachments.map((attachment) => {
+										const Icon = getAttachmentIcon(attachment.type);
+										return (
+											<Card
+												key={attachment.key}
+												component={attachment.url ? 'a' : 'div'}
+												href={attachment.url}
+												target='_blank'
+												rel='noreferrer'
+												withBorder
+												radius='sm'
+												p='xs'
+												bg='gray.0'
+												style={{
+													cursor: attachment.url ? 'pointer' : 'default',
+													transition: 'background-color 0.2s',
+												}}
+											>
+												<Group gap='sm' wrap='nowrap'>
+													<ThemeIcon
+														size='md'
+														radius='sm'
+														variant='white'
+														color='gray'
+													>
+														<Icon size='1rem' />
 													</ThemeIcon>
-													<Stack gap='2px' style={{ flex: 1, minWidth: 0 }}>
+													<Box style={{ flex: 1, minWidth: 0 }}>
 														<Text size='sm' fw={500} truncate>
 															{attachment.title}
 														</Text>
 														<Text size='xs' c='dimmed'>
 															{attachment.label}
 														</Text>
-													</Stack>
+													</Box>
 												</Group>
-											);
-
-											if (attachment.url) {
-												return (
-													<Card
-														key={attachment.key}
-														component='a'
-														href={attachment.url}
-														target='_blank'
-														rel='noreferrer'
-														withBorder
-														radius='md'
-														p='md'
-													>
-														{content}
-													</Card>
-												);
-											}
-
-											return (
-												<Card
-													key={attachment.key}
-													withBorder
-													radius='md'
-													p='md'
-												>
-													{content}
-												</Card>
-											);
-										})}
-									</Stack>
+											</Card>
+										);
+									})}
 								</Stack>
 							)}
 						</Stack>
@@ -202,10 +221,10 @@ function getAttachmentIcon(type: AttachmentType) {
 		case 'link':
 			return IconLink;
 		case 'video':
-			return IconPlayerPlay;
+			return IconBrandYoutube;
 		case 'form':
-			return IconListCheck;
+			return IconForms;
 		default:
-			return IconFile;
+			return IconFileText;
 	}
 }

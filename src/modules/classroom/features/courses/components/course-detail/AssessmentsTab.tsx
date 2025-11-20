@@ -8,9 +8,16 @@ import {
 	Paper,
 	Stack,
 	Text,
+	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
+import {
+	IconCheckbox,
+	IconClipboardList,
+	IconHelp,
+	IconPaperclip,
+	IconPlus,
+} from '@tabler/icons-react';
 import Link from 'next/link';
 import type { CourseWork, Topic } from '../../server/actions';
 import { groupCourseWorkByTopic } from './courseWorkGrouping';
@@ -30,16 +37,16 @@ function formatDate(dateString: string | null | undefined) {
 	});
 }
 
-function getWorkTypeLabel(workType: string | null | undefined) {
+function getWorkTypeConfig(workType: string | null | undefined) {
 	switch (workType) {
 		case 'ASSIGNMENT':
-			return 'Assignment';
+			return { label: 'Assignment', icon: IconClipboardList, color: 'blue' };
 		case 'SHORT_ANSWER_QUESTION':
-			return 'Question';
+			return { label: 'Question', icon: IconHelp, color: 'orange' };
 		case 'MULTIPLE_CHOICE_QUESTION':
-			return 'Quiz';
+			return { label: 'Quiz', icon: IconCheckbox, color: 'violet' };
 		default:
-			return 'Work';
+			return { label: 'Work', icon: IconClipboardList, color: 'gray' };
 	}
 }
 
@@ -54,17 +61,27 @@ export default function AssessmentsTab({
 		return (
 			<Stack gap='lg'>
 				<Group justify='space-between' align='center'>
-					<Title order={3} size='h3'>
+					<Title order={3} size='h4'>
 						Assessments
 					</Title>
-					<Button leftSection={<IconPlus size='1rem' />} variant='light'>
+					<Button
+						leftSection={<IconPlus size='1rem' />}
+						variant='filled'
+						color='black'
+						size='xs'
+					>
 						Create
 					</Button>
 				</Group>
-				<Paper p='xl' radius='lg' withBorder>
-					<Text c='dimmed' ta='center'>
-						No assessments yet
-					</Text>
+				<Paper p='xl' radius='md' withBorder>
+					<Stack align='center' gap='md'>
+						<ThemeIcon size={48} radius='xl' variant='light' color='gray'>
+							<IconClipboardList size={24} />
+						</ThemeIcon>
+						<Text c='dimmed' ta='center'>
+							No assessments yet
+						</Text>
+					</Stack>
 				</Paper>
 			</Stack>
 		);
@@ -73,10 +90,15 @@ export default function AssessmentsTab({
 	return (
 		<Stack gap='xl'>
 			<Group justify='space-between' align='center'>
-				<Title order={3} size='h3'>
+				<Title order={3} size='h4'>
 					Assessments
 				</Title>
-				<Button leftSection={<IconPlus size='1rem' />} variant='light'>
+				<Button
+					leftSection={<IconPlus size='1rem' />}
+					variant='filled'
+					color='black'
+					size='xs'
+				>
 					Create
 				</Button>
 			</Group>
@@ -84,83 +106,107 @@ export default function AssessmentsTab({
 			{topicGroups.map((group) => (
 				<Box key={group.id}>
 					<Group justify='space-between' align='center' mb='md'>
-						<Group gap='sm'>
-							<Text size='lg' fw={600}>
+						<Group gap='xs'>
+							<Text size='lg' fw={600} c='dark.4'>
 								{group.name}
 							</Text>
-							<Badge variant='light' size='md'>
+							<Badge variant='light' color='gray' size='sm' circle>
 								{group.items.length}
 							</Badge>
 						</Group>
 					</Group>
-					<Stack gap='md'>
+					<Stack gap='sm'>
 						{group.items.map((assessment) => {
 							const attachmentsCount = assessment.materials?.length || 0;
 							const dueLabel = formatDueDate(assessment);
+							const {
+								icon: TypeIcon,
+								color,
+								label,
+							} = getWorkTypeConfig(assessment.workType);
 
 							return (
-								<Paper key={assessment.id} withBorder radius='lg' p='lg'>
-									<Stack gap='md'>
-										<Group justify='space-between' align='flex-start'>
-											<Stack gap='xs' style={{ flex: 1, minWidth: 0 }}>
-												<Text size='sm' fw={600}>
-													{assessment.title}
-												</Text>
-												{assessment.description && (
-													<Text
-														size='sm'
-														c='dimmed'
-														style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
-														dangerouslySetInnerHTML={{
-															__html: assessment.description,
-														}}
-													/>
-												)}
-											</Stack>
-											<Button
-												component={Link}
-												href={`/courses/${courseId}/${assessment.id}`}
-												variant='light'
-												size='sm'
-											>
-												View details
-											</Button>
-										</Group>
+								<Paper
+									key={assessment.id}
+									withBorder
+									radius='md'
+									p='md'
+									shadow='xs'
+									style={{ transition: 'transform 0.2s ease' }}
+								>
+									<Group wrap='nowrap' align='flex-start'>
+										<ThemeIcon
+											size='lg'
+											radius='md'
+											variant='light'
+											color={color}
+											mt={4}
+										>
+											<TypeIcon size='1.1rem' />
+										</ThemeIcon>
 
-										<Group gap='xs' wrap='wrap'>
-											<Badge size='sm' variant='light'>
-												{getWorkTypeLabel(assessment.workType)}
-											</Badge>
-											{assessment.maxPoints !== null &&
-												assessment.maxPoints !== undefined && (
-													<Badge size='sm' variant='outline'>
-														{assessment.maxPoints} pts
+										<Stack gap='xs' style={{ flex: 1, minWidth: 0 }}>
+											<Group justify='space-between' align='flex-start'>
+												<Box>
+													<Text size='sm' fw={600} lineClamp={1}>
+														{assessment.title}
+													</Text>
+													<Group gap='xs' mt={2}>
+														<Text size='xs' c='dimmed' fw={500}>
+															{label}
+														</Text>
+														<Text size='xs' c='dimmed'>
+															•
+														</Text>
+														<Text size='xs' c='dimmed'>
+															Posted {formatDate(assessment.creationTime)}
+														</Text>
+													</Group>
+												</Box>
+												<Button
+													component={Link}
+													href={`/courses/${courseId}/${assessment.id}`}
+													variant='subtle'
+													size='xs'
+													color='gray'
+												>
+													View
+												</Button>
+											</Group>
+
+											<Group gap='sm'>
+												{dueLabel && (
+													<Badge
+														size='sm'
+														variant='dot'
+														color='red'
+														radius='sm'
+													>
+														Due {dueLabel}
 													</Badge>
 												)}
-											{attachmentsCount > 0 && (
-												<Badge size='sm' variant='outline'>
-													{attachmentsCount} attachment
-													{attachmentsCount > 1 ? 's' : ''}
-												</Badge>
-											)}
-											{assessment.creationTime && (
-												<Text size='xs' c='dimmed'>
-													Posted {formatDate(assessment.creationTime)}
-												</Text>
-											)}
-										</Group>
-
-										{dueLabel && (
-											<Group gap='xs'>
-												<Text size='sm' fw={500}>
-													Due
-												</Text>
-												<Text size='sm' c='dimmed'>
-													{dueLabel}
-												</Text>
+												{assessment.maxPoints !== null &&
+													assessment.maxPoints !== undefined && (
+														<Badge
+															size='sm'
+															variant='outline'
+															color='gray'
+															radius='sm'
+														>
+															{assessment.maxPoints} pts
+														</Badge>
+													)}
+												{attachmentsCount > 0 && (
+													<Group gap={4}>
+														<IconPaperclip size={14} color='gray' />
+														<Text size='xs' c='dimmed'>
+															{attachmentsCount}
+														</Text>
+													</Group>
+												)}
 											</Group>
-										)}
-									</Stack>
+										</Stack>
+									</Group>
 								</Paper>
 							);
 						})}
