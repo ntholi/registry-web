@@ -53,11 +53,21 @@ export default async function CoursePage({ params }: Props) {
 							<Flex justify='space-between' align='flex-start'>
 								<Stack gap='xs'>
 									<Group gap='md' align='center'>
-										<ThemeIcon size={42} radius='md' variant='light' color='blue'>
+										<ThemeIcon
+											size={42}
+											radius='md'
+											variant='light'
+											color='blue'
+										>
 											<IconSchool size={24} />
 										</ThemeIcon>
 										<Box>
-											<Title order={1} size={28} fw={700} style={{ lineHeight: 1.1 }}>
+											<Title
+												order={1}
+												size={28}
+												fw={700}
+												style={{ lineHeight: 1.1 }}
+											>
 												{course.name}
 											</Title>
 											<Group gap='xs' mt={4}>

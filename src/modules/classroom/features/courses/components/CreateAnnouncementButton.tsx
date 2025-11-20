@@ -2,11 +2,11 @@
 
 import { Button, Modal, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { createAnnouncement } from '../server/actions';
-import { notifications } from '@mantine/notifications';
-import { useQueryClient } from '@tanstack/react-query';
 
 type Props = {
 	courseId: string;
@@ -84,12 +84,7 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 					minRows={4}
 					required
 				/>
-				<Button
-					onClick={handleSubmit}
-					loading={loading}
-					fullWidth
-					mt='md'
-				>
+				<Button onClick={handleSubmit} loading={loading} fullWidth mt='md'>
 					Create
 				</Button>
 			</Modal>

@@ -1,18 +1,7 @@
 'use client';
 
-import {
-	AssessmentsTab,
-	DashboardTab,
-	MaterialTab,
-} from '@classroom/courses';
-import {
-	Box,
-	Button,
-	Tabs,
-	TabsList,
-	TabsPanel,
-	TabsTab,
-} from '@mantine/core';
+import { AssessmentsTab, DashboardTab, MaterialTab } from '@classroom/courses';
+import { Box, Button, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import {
 	IconBook2,
 	IconChalkboard,

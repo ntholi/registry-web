@@ -43,7 +43,6 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
 	nextOfKins: many(nextOfKins),
 	studentEducation: many(studentEducation),
 	registrationRequests: many(registrationRequests),
-	graduationRequests: many(graduationRequests),
 	blockedStudents: many(blockedStudents),
 	statementOfResultsPrints: many(statementOfResultsPrints),
 	transcriptPrints: many(transcriptPrints),

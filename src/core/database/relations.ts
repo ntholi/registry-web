@@ -105,7 +105,6 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
 	nextOfKins: many(nextOfKins),
 	studentEducation: many(studentEducation),
 	registrationRequests: many(registrationRequests),
-	graduationRequests: many(graduationRequests),
 	sponsorships: many(sponsoredStudents),
 	fortinetRegistrations: many(fortinetRegistrations),
 	moduleGrades: many(moduleGrades),
