@@ -53,7 +53,7 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 					color: 'red',
 				});
 			}
-		} catch (error) {
+		} catch (_error) {
 			notifications.show({
 				title: 'Error',
 				message: 'Failed to create announcement',
