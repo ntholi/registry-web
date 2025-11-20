@@ -10,18 +10,16 @@ import {
 	Stack,
 	Text,
 	ThemeIcon,
-	Title,
 } from '@mantine/core';
 import {
 	IconCheckbox,
 	IconClipboardList,
 	IconHelp,
 	IconPaperclip,
-	IconPlus,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import type { CourseWork, Topic } from '../../server/actions';
+import type { CourseWork } from '../../server/actions';
 import { getCourseTopics, getCourseWork } from '../../server/actions';
 import { groupCourseWorkByTopic } from './courseWorkGrouping';
 
@@ -91,50 +89,21 @@ export default function AssessmentsTab({ courseId }: Props) {
 
 	if (assessments.length === 0) {
 		return (
-			<Stack gap='lg'>
-				<Group justify='space-between' align='center'>
-					<Title order={3} size='h4'>
-						Assessments
-					</Title>
-					<Button
-						leftSection={<IconPlus size='1rem' />}
-						variant='filled'
-						color='black'
-						size='xs'
-					>
-						Create
-					</Button>
-				</Group>
-				<Paper p='xl' radius='md' withBorder>
-					<Stack align='center' gap='md'>
-						<ThemeIcon size={48} radius='xl' variant='light' color='gray'>
-							<IconClipboardList size={24} />
-						</ThemeIcon>
-						<Text c='dimmed' ta='center'>
-							No assessments yet
-						</Text>
-					</Stack>
-				</Paper>
-			</Stack>
+			<Paper p='xl' radius='md' withBorder>
+				<Stack align='center' gap='md'>
+					<ThemeIcon size={48} radius='xl' variant='light' color='gray'>
+						<IconClipboardList size={24} />
+					</ThemeIcon>
+					<Text c='dimmed' ta='center'>
+						No assessments yet
+					</Text>
+				</Stack>
+			</Paper>
 		);
 	}
 
 	return (
 		<Stack gap='xl'>
-			<Group justify='space-between' align='center'>
-				<Title order={3} size='h4'>
-					Assessments
-				</Title>
-				<Button
-					leftSection={<IconPlus size='1rem' />}
-					variant='filled'
-					color='black'
-					size='xs'
-				>
-					Create
-				</Button>
-			</Group>
-
 			{topicGroups.map((group) => (
 				<Box key={group.id}>
 					<Group justify='space-between' align='center' mb='md'>
