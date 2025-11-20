@@ -6,15 +6,6 @@ type Props = {
 	course: Course;
 };
 
-function formatCourseState(state: string | null | undefined) {
-	if (!state) return '';
-	return state
-		.toLowerCase()
-		.split('_')
-		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-		.join(' ');
-}
-
 function formatUpdatedTime(dateString: string | null | undefined) {
 	if (!dateString) return '';
 	return new Date(dateString).toLocaleDateString('en-US', {
@@ -25,7 +16,6 @@ function formatUpdatedTime(dateString: string | null | undefined) {
 }
 
 export default function CourseHeader({ course }: Props) {
-	const stateLabel = formatCourseState(course.courseState);
 	const metadataBadges = [
 		course.section ? `Section ${course.section}` : null,
 		course.room ? `Room ${course.room}` : null,
@@ -47,26 +37,19 @@ export default function CourseHeader({ course }: Props) {
 							</Text>
 						)}
 					</Stack>
-					<Group gap='sm'>
-						{stateLabel && (
-							<Badge size='lg' variant='dot' color='blue'>
-								{stateLabel}
-							</Badge>
-						)}
-						{course.alternateLink && (
-							<Button
-								component='a'
-								href={course.alternateLink}
-								target='_blank'
-								rel='noreferrer'
-								variant='light'
-								size='sm'
-								rightSection={<IconExternalLink size='1rem' />}
-							>
-								Open in Classroom
-							</Button>
-						)}
-					</Group>
+					{course.alternateLink && (
+						<Button
+							component='a'
+							href={course.alternateLink}
+							target='_blank'
+							rel='noreferrer'
+							variant='light'
+							size='sm'
+							rightSection={<IconExternalLink size='1rem' />}
+						>
+							Open in Classroom
+						</Button>
+					)}
 				</Group>
 
 				{(metadataBadges.length > 0 || updatedLabel) && (

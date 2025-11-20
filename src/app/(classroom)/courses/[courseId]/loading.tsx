@@ -11,10 +11,7 @@ export default function CourseLoading() {
 								<Skeleton height={36} width='60%' radius='md' />
 								<Skeleton height={24} width='80%' radius='md' />
 							</Stack>
-							<Group gap='sm'>
-								<Skeleton height={32} width={100} radius='md' />
-								<Skeleton height={32} width={160} radius='md' />
-							</Group>
+							<Skeleton height={32} width={160} radius='md' />
 						</Group>
 
 						<Group gap='md'>
