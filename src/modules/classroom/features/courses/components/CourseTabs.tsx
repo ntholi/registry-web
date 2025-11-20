@@ -1,9 +1,9 @@
 'use client';
 
 import {
-	AssessmentsTabWrapper,
+	AssessmentsTab,
 	DashboardTab,
-	MaterialTabWrapper,
+	MaterialTab,
 } from '@classroom/courses';
 import {
 	Box,
@@ -95,11 +95,11 @@ export default function CourseTabs({ courseId }: Props) {
 				</TabsPanel>
 
 				<TabsPanel value='assessments'>
-					<AssessmentsTabWrapper courseId={courseId} />
+					<AssessmentsTab courseId={courseId} />
 				</TabsPanel>
 
 				<TabsPanel value='material'>
-					<MaterialTabWrapper courseId={courseId} />
+					<MaterialTab courseId={courseId} />
 				</TabsPanel>
 			</Box>
 		</Tabs>

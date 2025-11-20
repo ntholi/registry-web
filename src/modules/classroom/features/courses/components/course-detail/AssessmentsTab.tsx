@@ -6,6 +6,7 @@ import {
 	Button,
 	Group,
 	Paper,
+	Skeleton,
 	Stack,
 	Text,
 	ThemeIcon,
@@ -18,15 +19,26 @@ import {
 	IconPaperclip,
 	IconPlus,
 } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import type { CourseWork, Topic } from '../../server/actions';
+import { getCourseTopics, getCourseWork } from '../../server/actions';
 import { groupCourseWorkByTopic } from './courseWorkGrouping';
 
 type Props = {
-	assessments: CourseWork[];
-	topics: Topic[];
 	courseId: string;
 };
+
+function AssessmentsSkeleton() {
+	return (
+		<Stack gap='lg'>
+			<Skeleton height={40} width={200} radius='md' />
+			{[0, 1, 2, 3].map((i) => (
+				<Skeleton key={i} height={120} radius='lg' />
+			))}
+		</Stack>
+	);
+}
 
 function formatDate(dateString: string | null | undefined) {
 	if (!dateString) return '';
@@ -50,12 +62,32 @@ function getWorkTypeConfig(workType: string | null | undefined) {
 	}
 }
 
-export default function AssessmentsTab({
-	assessments,
-	topics,
-	courseId,
-}: Props) {
-	const topicGroups = groupCourseWorkByTopic(assessments, topics);
+export default function AssessmentsTab({ courseId }: Props) {
+	const { data: courseWork, isLoading: isLoadingCourseWork } = useQuery({
+		queryKey: ['course-work', courseId],
+		queryFn: () => getCourseWork(courseId),
+	});
+
+	const { data: topics, isLoading: isLoadingTopics } = useQuery({
+		queryKey: ['course-topics', courseId],
+		queryFn: () => getCourseTopics(courseId),
+	});
+
+	const isLoading = isLoadingCourseWork || isLoadingTopics;
+
+	if (isLoading) {
+		return <AssessmentsSkeleton />;
+	}
+
+	const assessments =
+		courseWork?.filter(
+			(work) =>
+				work.workType === 'ASSIGNMENT' ||
+				work.workType === 'SHORT_ANSWER_QUESTION' ||
+				work.workType === 'MULTIPLE_CHOICE_QUESTION'
+		) || [];
+
+	const topicGroups = groupCourseWorkByTopic(assessments, topics || []);
 
 	if (assessments.length === 0) {
 		return (

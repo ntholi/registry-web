@@ -1,12 +1,10 @@
 export { default as CourseItem } from './components/CourseItem';
 export { default as CourseTabs } from './components/CourseTabs';
 export { default as AssessmentsTab } from './components/course-detail/AssessmentsTab';
-export { default as AssessmentsTabWrapper } from './components/course-detail/AssessmentsTabWrapper';
 export { default as CourseDetailHeader } from './components/course-detail/CourseHeader';
 export * from './components/course-detail/courseWorkGrouping';
 export { default as DashboardTab } from './components/course-detail/DashboardTab';
 export { default as MaterialTab } from './components/course-detail/MaterialTab';
-export { default as MaterialTabWrapper } from './components/course-detail/MaterialTabWrapper';
 export { default as AttachmentCard } from './components/course-work/AttachmentCard';
 export { default as CourseHeader } from './components/course-work/CourseHeader';
 export { default as SubmissionCard } from './components/course-work/SubmissionCard';
