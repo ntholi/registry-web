@@ -6,6 +6,7 @@ import {
 	Box,
 	Button,
 	Group,
+	Loader,
 	Modal,
 	Select,
 	Tabs,
@@ -45,11 +46,13 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const { data: canEditMarks = false } = useQuery({
-		queryKey: ['can-edit-marks'],
-		queryFn: canEditMarksAndGrades,
-		staleTime: 1000 * 60 * 15,
-	});
+	const { data: canEditMarks = false, isLoading: isLoadingPermissions } =
+		useQuery({
+			queryKey: ['can-edit-marks'],
+			queryFn: canEditMarksAndGrades,
+			staleTime: 1000 * 60 * 15,
+			enabled: opened,
+		});
 
 	const form = useForm({
 		initialValues: {
@@ -181,12 +184,15 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								placeholder='Enter marks'
 								required
 								mb='md'
-								disabled={!canEditMarks}
+								disabled={!canEditMarks || isLoadingPermissions}
 								value={form.values.marks}
 								onChange={(event) =>
 									handleMarksChange(event.currentTarget.value)
 								}
 								error={form.errors.marks}
+								rightSection={
+									isLoadingPermissions ? <Loader size='xs' /> : undefined
+								}
 							/>
 
 							<Select
@@ -200,8 +206,11 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								}))}
 								required
 								mb='md'
-								disabled={!canEditMarks}
+								disabled={!canEditMarks || isLoadingPermissions}
 								{...form.getInputProps('grade')}
+								rightSection={
+									isLoadingPermissions ? <Loader size='xs' /> : undefined
+								}
 							/>
 						</Tabs.Panel>
 
@@ -216,10 +225,18 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 					</Tabs>
 
 					<Group justify='flex-end' mt='md'>
-						<Button variant='outline' onClick={close} disabled={isSubmitting}>
+						<Button
+							variant='outline'
+							onClick={close}
+							disabled={isSubmitting || isLoadingPermissions}
+						>
 							Cancel
 						</Button>
-						<Button type='submit' loading={isSubmitting}>
+						<Button
+							type='submit'
+							loading={isSubmitting}
+							disabled={isLoadingPermissions}
+						>
 							Update
 						</Button>
 					</Group>
