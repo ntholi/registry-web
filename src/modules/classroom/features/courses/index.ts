@@ -10,5 +10,6 @@ export { default as MaterialTabWrapper } from './components/course-detail/Materi
 export { default as AttachmentCard } from './components/course-work/AttachmentCard';
 export { default as CourseHeader } from './components/course-work/CourseHeader';
 export { default as SubmissionCard } from './components/course-work/SubmissionCard';
+export { default as NewClassButton } from './components/NewClassButton';
 export * from './server/actions';
 export * from './types';

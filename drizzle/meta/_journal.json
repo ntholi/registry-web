@@ -260,6 +260,13 @@
 			"when": 1763582097597,
 			"tag": "0036_purple_madelyne_pryor",
 			"breakpoints": true
+		},
+		{
+			"idx": 37,
+			"version": "7",
+			"when": 1763636132270,
+			"tag": "0037_mean_bloodscream",
+			"breakpoints": true
 		}
 	]
 }

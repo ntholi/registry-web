@@ -1,5 +1,5 @@
-import { Suspense } from 'react';
 import { Skeleton, Stack } from '@mantine/core';
+import { Suspense } from 'react';
 import { getCourseAnnouncements } from '../../server/actions';
 import DashboardTab from './DashboardTab';
 
@@ -15,7 +15,7 @@ async function DashboardContent({ courseId }: Props) {
 function DashboardSkeleton() {
 	return (
 		<Stack gap='lg'>
-			{[...Array(3)].map((_, i) => (
+			{[0, 1, 2].map((i) => (
 				<Skeleton key={i} height={150} radius='lg' />
 			))}
 		</Stack>
