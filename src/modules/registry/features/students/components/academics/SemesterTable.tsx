@@ -187,13 +187,13 @@ export default function SemesterTable({
 					</Table.Tr>
 				</Table.Thead>
 				<Table.Tbody>
-					{modules.map((module, idx) => {
+					{modules.map((module) => {
 						const isDroppedOrDeleted =
 							module.status === 'Drop' || module.status === 'Delete';
 
 						return (
 							<Table.Tr
-								key={`${module.id}-${module.marks}-${module.status}-${idx}`}
+								key={`${module.id}-${module.marks}-${module.status}`}
 								style={
 									isDroppedOrDeleted
 										? {

@@ -98,7 +98,7 @@ export default function EditStudentProgramModal({ program }: Props) {
 				setStructures(
 					structuresData.map((s) => ({
 						value: s.id.toString(),
-						label: `${s.code}${s.desc ? ` - ${s.desc}` : ''}`,
+						label: s.code,
 					}))
 				);
 			} catch (_error) {
