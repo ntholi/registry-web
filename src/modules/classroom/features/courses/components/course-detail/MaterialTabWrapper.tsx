@@ -24,7 +24,7 @@ function MaterialSkeleton() {
 	return (
 		<Stack gap='lg'>
 			<Skeleton height={40} width={200} radius='md' />
-			{[...Array(4)].map((_, i) => (
+			{[0, 1, 2, 3].map((i) => (
 				<Skeleton key={i} height={120} radius='lg' />
 			))}
 		</Stack>

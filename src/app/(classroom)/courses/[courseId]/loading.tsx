@@ -31,7 +31,7 @@ export default function CourseLoading() {
 					</Group>
 
 					<Stack gap='lg'>
-						{[...Array(3)].map((_, i) => (
+						{[0, 1, 2].map((i) => (
 							<Skeleton key={i} height={150} radius='lg' />
 						))}
 					</Stack>
