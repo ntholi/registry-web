@@ -1,10 +1,8 @@
-import { CourseItem } from '@classroom/courses';
+import { CourseItem, getCourses } from '@classroom/courses';
 import { Container, SimpleGrid } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
-import googleClassroom, {
-	hasGoogleClassroomScope,
-} from '@/core/integrations/google-classroom';
+import { hasGoogleClassroomScope } from '@/core/integrations/google-classroom';
 
 export default async function CoursesPage() {
 	const session = await auth();
@@ -19,13 +17,12 @@ export default async function CoursesPage() {
 		redirect('/api/auth/google-classroom?state=/courses');
 	}
 
-	const classroom = await googleClassroom();
-	const courses = await classroom.courses.list({ courseStates: ['ACTIVE'] });
+	const courses = await getCourses();
 
 	return (
 		<Container mt='lg' size='xl'>
 			<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
-				{courses.data.courses?.map((course) => (
+				{courses?.map((course) => (
 					<CourseItem key={course.id} course={course} />
 				))}
 			</SimpleGrid>

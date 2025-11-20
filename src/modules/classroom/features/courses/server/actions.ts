@@ -13,6 +13,16 @@ export async function getCourse(courseId: string) {
 	}
 }
 
+export async function getCourses() {
+	try {
+		const classroom = await googleClassroom();
+		const courses = await classroom.courses.list({ courseStates: ['ACTIVE'] });
+		return courses.data.courses || [];
+	} catch {
+		return [];
+	}
+}
+
 export async function getCourseAnnouncements(courseId: string) {
 	try {
 		const classroom = await googleClassroom();
