@@ -165,6 +165,40 @@ export default class AssignedModuleRepository extends BaseRepository<
 			},
 		});
 	}
+
+	async linkCourseToAssignment(
+		userId: string,
+		semesterModuleId: number,
+		courseId: string
+	) {
+		return await db
+			.update(assignedModules)
+			.set({ courseId })
+			.where(
+				and(
+					eq(assignedModules.userId, userId),
+					eq(assignedModules.semesterModuleId, semesterModuleId),
+					eq(assignedModules.active, true)
+				)
+			)
+			.returning();
+	}
+
+	async getUserCourseIds(userId: string) {
+		const results = await db
+			.select({ courseId: assignedModules.courseId })
+			.from(assignedModules)
+			.where(
+				and(
+					eq(assignedModules.userId, userId),
+					eq(assignedModules.active, true)
+				)
+			);
+
+		return results
+			.map((r) => r.courseId)
+			.filter((id): id is string => id !== null);
+	}
 }
 
 export const assignedModulesRepository = new AssignedModuleRepository();

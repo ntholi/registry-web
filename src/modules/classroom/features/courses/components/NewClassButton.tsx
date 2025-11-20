@@ -50,6 +50,7 @@ export default function NewClassButton() {
 				name: selectedModule.moduleName,
 				section: selectedModule.programCode,
 				subject: selectedModule.moduleCode,
+				semesterModuleId: selectedModule.semesterModuleId,
 			});
 
 			if (result.success) {

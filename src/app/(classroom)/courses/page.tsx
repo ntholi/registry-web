@@ -1,4 +1,8 @@
-import { CourseItem, getCourses, NewClassButton } from '@classroom/courses';
+import {
+	CourseItem,
+	getUserCourses,
+	NewClassButton,
+} from '@classroom/courses';
 import { Container, Divider, Flex, SimpleGrid, Title } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
@@ -17,7 +21,7 @@ export default async function CoursesPage() {
 		redirect('/api/auth/google-classroom?state=/courses');
 	}
 
-	const courses = await getCourses();
+	const courses = await getUserCourses();
 
 	return (
 		<Container mt='lg' size='xl'>
