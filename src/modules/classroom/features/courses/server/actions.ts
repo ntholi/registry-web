@@ -131,6 +131,22 @@ export async function createCourse(data: {
 				data.semesterModuleId,
 				course.data.id
 			);
+
+			const topics = ['Assignments', 'Exercises', 'Tests'];
+			await Promise.all(
+				topics.map((topicName) =>
+					classroom.courses.topics
+						.create({
+							courseId: course.data.id!,
+							requestBody: {
+								name: topicName,
+							},
+						})
+						.catch((error) => {
+							console.error(`Failed to create topic ${topicName}:`, error);
+						})
+				)
+			);
 		}
 
 		return { success: true, data: course.data };
