@@ -2,7 +2,7 @@
 
 import {
 	AssessmentsTabWrapper,
-	DashboardTabWrapper,
+	DashboardTab,
 	MaterialTabWrapper,
 } from '@classroom/courses';
 import {
@@ -91,7 +91,7 @@ export default function CourseTabs({ courseId }: Props) {
 
 			<Box py='xl'>
 				<TabsPanel value='dashboard'>
-					<DashboardTabWrapper courseId={courseId} />
+					<DashboardTab courseId={courseId} />
 				</TabsPanel>
 
 				<TabsPanel value='assessments'>

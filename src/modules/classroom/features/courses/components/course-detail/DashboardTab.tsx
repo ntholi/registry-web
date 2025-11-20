@@ -1,9 +1,12 @@
+'use client';
+
 import {
 	Avatar,
 	Box,
 	Card,
 	Group,
 	Paper,
+	Skeleton,
 	Stack,
 	Text,
 	ThemeIcon,
@@ -16,10 +19,12 @@ import {
 	IconLink,
 	IconSpeakerphone,
 } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import type { Announcement } from '../../server/actions';
+import { getCourseAnnouncements } from '../../server/actions';
 
 type Props = {
-	announcements: Announcement[];
+	courseId: string;
 };
 
 function formatDate(dateString: string | null | undefined) {
@@ -31,8 +36,27 @@ function formatDate(dateString: string | null | undefined) {
 	});
 }
 
-export default function DashboardTab({ announcements }: Props) {
-	if (announcements.length === 0) {
+function DashboardSkeleton() {
+	return (
+		<Stack gap='lg'>
+			{[0, 1, 2].map((i) => (
+				<Skeleton key={i} height={150} radius='lg' />
+			))}
+		</Stack>
+	);
+}
+
+export default function DashboardTab({ courseId }: Props) {
+	const { data: announcements, isLoading } = useQuery({
+		queryKey: ['course-announcements', courseId],
+		queryFn: () => getCourseAnnouncements(courseId),
+	});
+
+	if (isLoading) {
+		return <DashboardSkeleton />;
+	}
+
+	if (!announcements || announcements.length === 0) {
 		return (
 			<Paper p='xl' radius='md' withBorder>
 				<Stack align='center' gap='md'>

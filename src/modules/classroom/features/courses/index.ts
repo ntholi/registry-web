@@ -5,7 +5,6 @@ export { default as AssessmentsTabWrapper } from './components/course-detail/Ass
 export { default as CourseDetailHeader } from './components/course-detail/CourseHeader';
 export * from './components/course-detail/courseWorkGrouping';
 export { default as DashboardTab } from './components/course-detail/DashboardTab';
-export { default as DashboardTabWrapper } from './components/course-detail/DashboardTabWrapper';
 export { default as MaterialTab } from './components/course-detail/MaterialTab';
 export { default as MaterialTabWrapper } from './components/course-detail/MaterialTabWrapper';
 export { default as AttachmentCard } from './components/course-work/AttachmentCard';
