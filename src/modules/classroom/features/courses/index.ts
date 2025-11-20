@@ -1,4 +1,5 @@
 export { default as CourseItem } from './components/CourseItem';
+export { default as NewClassButton } from './components/NewClassButton';
 export { default as AssessmentsTab } from './components/course-detail/AssessmentsTab';
 export { default as AssessmentsTabWrapper } from './components/course-detail/AssessmentsTabWrapper';
 export { default as CourseDetailHeader } from './components/course-detail/CourseHeader';
