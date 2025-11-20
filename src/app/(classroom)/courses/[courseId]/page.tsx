@@ -9,7 +9,9 @@ import {
 	Box,
 	Button,
 	Container,
+	Flex,
 	Group,
+	Paper,
 	Stack,
 	Tabs,
 	TabsList,
@@ -63,60 +65,62 @@ export default async function CoursePage({ params }: Props) {
 				<Box>
 					<Container size='xl' pt='lg'>
 						<Stack gap='xl'>
-							<Group justify='space-between' align='flex-start'>
-								<Stack gap='xs'>
-									<Group gap='md' align='center'>
-										<ThemeIcon
-											size={42}
-											radius='md'
-											variant='light'
-											color='blue'
-										>
-											<IconSchool size={24} />
-										</ThemeIcon>
-										<div>
-											<Title
-												order={1}
-												size={28}
-												fw={700}
-												style={{ lineHeight: 1.1 }}
+							<Paper withBorder p='lg'>
+								<Flex justify='space-between' align='flex-start'>
+									<Stack gap='xs'>
+										<Group gap='md' align='center'>
+											<ThemeIcon
+												size={42}
+												radius='md'
+												variant='light'
+												color='blue'
 											>
-												{course.name}
-											</Title>
-											<Group gap='xs' mt={4}>
-												{course.section && (
-													<Text size='sm' c='dimmed' fw={500}>
-														{course.section}
-													</Text>
-												)}
-												{course.room && (
-													<>
-														<Text size='sm' c='dimmed'>
-															•
+												<IconSchool size={24} />
+											</ThemeIcon>
+											<Box>
+												<Title
+													order={1}
+													size={28}
+													fw={700}
+													style={{ lineHeight: 1.1 }}
+												>
+													{course.name}
+												</Title>
+												<Group gap='xs' mt={4}>
+													{course.section && (
+														<Text size='sm' c='dimmed' fw={500}>
+															{course.section}
 														</Text>
-														<Badge size='sm' variant='dot' color='gray'>
-															Room {course.room}
-														</Badge>
-													</>
-												)}
-											</Group>
-										</div>
-									</Group>
-								</Stack>
+													)}
+													{course.room && (
+														<>
+															<Text size='sm' c='dimmed'>
+																•
+															</Text>
+															<Badge size='sm' variant='dot' color='gray'>
+																Room {course.room}
+															</Badge>
+														</>
+													)}
+												</Group>
+											</Box>
+										</Group>
+									</Stack>
 
-								{course.alternateLink && (
-									<Button
-										component='a'
-										href={course.alternateLink}
-										target='_blank'
-										variant='default'
-										size='xs'
-										leftSection={<IconExternalLink size={14} />}
-									>
-										Google Classroom
-									</Button>
-								)}
-							</Group>
+									{course.alternateLink && (
+										<Button
+											component='a'
+											href={course.alternateLink}
+											target='_blank'
+											variant='default'
+											size='xs'
+											leftSection={<IconExternalLink size={14} />}
+										>
+											Google Classroom
+										</Button>
+									)}
+								</Flex>
+							</Paper>
 
 							<TabsList style={{ borderBottom: 'none' }}>
 								<TabsTab
