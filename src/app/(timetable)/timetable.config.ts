@@ -1,4 +1,9 @@
-import { IconChalkboard } from '@tabler/icons-react';
+import {
+	IconBuilding,
+	IconCalendarEvent,
+	IconCategory,
+	IconChalkboard,
+} from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 
 export const timetableConfig: ModuleConfig = {
@@ -12,17 +17,21 @@ export const timetableConfig: ModuleConfig = {
 			{
 				label: 'Timetable',
 				icon: IconChalkboard,
+				collapsed: true,
 				children: [
 					{
 						label: 'Allocations',
+						icon: IconCalendarEvent,
 						href: '/timetable-allocations',
 					},
 					{
 						label: 'Venues',
+						icon: IconBuilding,
 						href: '/venues',
 					},
 					{
 						label: 'Venue Types',
+						icon: IconCategory,
 						href: '/venue-types',
 					},
 				],
