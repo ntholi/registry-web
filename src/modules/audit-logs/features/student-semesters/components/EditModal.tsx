@@ -5,6 +5,7 @@ import {
 	ActionIcon,
 	Button,
 	Group,
+	Loader,
 	Modal,
 	Select,
 	Tabs,
@@ -15,7 +16,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { getAllTerms } from '@registry/terms';
 import { IconEdit } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import {
 	type SemesterStatus,
@@ -47,13 +48,42 @@ export default function EditStudentSemesterModal({
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [terms, setTerms] = useState<{ value: string; label: string }[]>([]);
-	const [sponsors, setSponsors] = useState<{ value: string; label: string }[]>(
-		[]
-	);
-	const [structureSemesters, setStructureSemesters] = useState<
-		{ value: string; label: string }[]
-	>([]);
+
+	const { data: termsData = [], isLoading: isLoadingTerms } = useQuery({
+		queryKey: ['terms'],
+		queryFn: getAllTerms,
+		enabled: opened,
+		select: (data) =>
+			data.map((t) => ({
+				value: t.name,
+				label: t.name,
+			})),
+	});
+
+	const { data: sponsorsData = [], isLoading: isLoadingSponsors } = useQuery({
+		queryKey: ['sponsors'],
+		queryFn: getAllSponsors,
+		enabled: opened,
+		select: (data) =>
+			data.map((s) => ({
+				value: s.id.toString(),
+				label: s.name,
+			})),
+	});
+
+	const {
+		data: structureSemestersData = [],
+		isLoading: isLoadingStructureSemesters,
+	} = useQuery({
+		queryKey: ['structure-semesters', structureId],
+		queryFn: () => getStructureSemestersByStructureId(structureId),
+		enabled: opened,
+		select: (data) =>
+			data.map((s) => ({
+				value: s.id.toString(),
+				label: s.name,
+			})),
+	});
 
 	const form = useForm({
 		initialValues: {
@@ -64,50 +94,6 @@ export default function EditStudentSemesterModal({
 			reasons: '',
 		},
 	});
-
-	useEffect(() => {
-		if (!opened) return;
-
-		async function loadData() {
-			try {
-				const [termsData, sponsorsData, structureSemestersData] =
-					await Promise.all([
-						getAllTerms(),
-						getAllSponsors(),
-						getStructureSemestersByStructureId(structureId),
-					]);
-
-				setTerms(
-					termsData.map((t) => ({
-						value: t.name,
-						label: t.name,
-					}))
-				);
-
-				setSponsors(
-					sponsorsData.map((s) => ({
-						value: s.id.toString(),
-						label: s.name,
-					}))
-				);
-
-				setStructureSemesters(
-					structureSemestersData.map((s) => ({
-						value: s.id.toString(),
-						label: s.name,
-					}))
-				);
-			} catch (_error) {
-				notifications.show({
-					title: 'Error',
-					message: 'Failed to load data for the form',
-					color: 'red',
-				});
-			}
-		}
-
-		loadData();
-	}, [opened, structureId]);
 
 	useEffect(() => {
 		if (opened) {
@@ -200,10 +186,12 @@ export default function EditStudentSemesterModal({
 								placeholder='Select term'
 								searchable
 								clearable
-								data={terms}
+								data={termsData}
 								required
 								mb='md'
+								disabled={isLoadingTerms}
 								{...form.getInputProps('term')}
+								rightSection={isLoadingTerms ? <Loader size='xs' /> : undefined}
 							/>
 
 							<Select
@@ -225,10 +213,14 @@ export default function EditStudentSemesterModal({
 								placeholder='Select structure semester'
 								searchable
 								clearable
-								data={structureSemesters}
+								data={structureSemestersData}
 								required
 								mb='md'
+								disabled={isLoadingStructureSemesters}
 								{...form.getInputProps('structureSemesterId')}
+								rightSection={
+									isLoadingStructureSemesters ? <Loader size='xs' /> : undefined
+								}
 							/>
 
 							<Select
@@ -236,9 +228,13 @@ export default function EditStudentSemesterModal({
 								placeholder='Select sponsor (optional)'
 								searchable
 								clearable
-								data={sponsors}
+								data={sponsorsData}
 								mb='md'
+								disabled={isLoadingSponsors}
 								{...form.getInputProps('sponsorId')}
+								rightSection={
+									isLoadingSponsors ? <Loader size='xs' /> : undefined
+								}
 							/>
 						</Tabs.Panel>
 
@@ -253,10 +249,27 @@ export default function EditStudentSemesterModal({
 					</Tabs>
 
 					<Group justify='flex-end' mt='md'>
-						<Button variant='outline' onClick={close} disabled={isSubmitting}>
+						<Button
+							variant='outline'
+							onClick={close}
+							disabled={
+								isSubmitting ||
+								isLoadingTerms ||
+								isLoadingSponsors ||
+								isLoadingStructureSemesters
+							}
+						>
 							Cancel
 						</Button>
-						<Button type='submit' loading={isSubmitting}>
+						<Button
+							type='submit'
+							loading={isSubmitting}
+							disabled={
+								isLoadingTerms ||
+								isLoadingSponsors ||
+								isLoadingStructureSemesters
+							}
+						>
 							Update
 						</Button>
 					</Group>

@@ -5,6 +5,7 @@ import {
 	ActionIcon,
 	Button,
 	Group,
+	Loader,
 	Modal,
 	Select,
 	Stack,
@@ -17,7 +18,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { getAllTerms } from '@registry/terms';
 import { IconEdit } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import {
 	programStatus,
@@ -61,10 +62,29 @@ export default function EditStudentProgramModal({ program }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [terms, setTerms] = useState<{ value: string; label: string }[]>([]);
-	const [structures, setStructures] = useState<
-		{ value: string; label: string }[]
-	>([]);
+
+	const { data: termsData = [], isLoading: isLoadingTerms } = useQuery({
+		queryKey: ['terms'],
+		queryFn: getAllTerms,
+		enabled: opened,
+		select: (data) =>
+			data.map((t) => ({
+				value: t.name,
+				label: t.name,
+			})),
+	});
+
+	const { data: structuresData = [], isLoading: isLoadingStructures } =
+		useQuery({
+			queryKey: ['structures', program.programId],
+			queryFn: () => getStructuresByProgramId(program.programId),
+			enabled: opened,
+			select: (data) =>
+				data.map((s) => ({
+					value: s.id.toString(),
+					label: s.code,
+				})),
+		});
 
 	const form = useForm({
 		initialValues: {
@@ -77,41 +97,6 @@ export default function EditStudentProgramModal({ program }: Props) {
 			reasons: '',
 		},
 	});
-
-	useEffect(() => {
-		if (!opened) return;
-
-		async function loadData() {
-			try {
-				const [termsData, structuresData] = await Promise.all([
-					getAllTerms(),
-					getStructuresByProgramId(program.programId),
-				]);
-
-				setTerms(
-					termsData.map((t) => ({
-						value: t.name,
-						label: t.name,
-					}))
-				);
-
-				setStructures(
-					structuresData.map((s) => ({
-						value: s.id.toString(),
-						label: s.code,
-					}))
-				);
-			} catch (_error) {
-				notifications.show({
-					title: 'Error',
-					message: 'Failed to load data for the form',
-					color: 'red',
-				});
-			}
-		}
-
-		loadData();
-	}, [opened, program.programId]);
 
 	useEffect(() => {
 		if (opened) {
@@ -222,9 +207,13 @@ export default function EditStudentProgramModal({ program }: Props) {
 									placeholder='Select structure'
 									searchable
 									clearable
-									data={structures}
+									data={structuresData}
 									required
+									disabled={isLoadingStructures}
 									{...form.getInputProps('structureId')}
+									rightSection={
+										isLoadingStructures ? <Loader size='xs' /> : undefined
+									}
 								/>
 
 								<Group grow>
@@ -248,8 +237,12 @@ export default function EditStudentProgramModal({ program }: Props) {
 									placeholder='Select start term'
 									searchable
 									clearable
-									data={terms}
+									data={termsData}
+									disabled={isLoadingTerms}
 									{...form.getInputProps('startTerm')}
+									rightSection={
+										isLoadingTerms ? <Loader size='xs' /> : undefined
+									}
 								/>
 
 								<DateInput
@@ -273,10 +266,18 @@ export default function EditStudentProgramModal({ program }: Props) {
 					</Tabs>
 
 					<Group justify='flex-end' mt='md'>
-						<Button variant='outline' onClick={close} disabled={isSubmitting}>
+						<Button
+							variant='outline'
+							onClick={close}
+							disabled={isSubmitting || isLoadingTerms || isLoadingStructures}
+						>
 							Cancel
 						</Button>
-						<Button type='submit' loading={isSubmitting}>
+						<Button
+							type='submit'
+							loading={isSubmitting}
+							disabled={isLoadingTerms || isLoadingStructures}
+						>
 							Update
 						</Button>
 					</Group>
