@@ -9,6 +9,7 @@ import {
 	structureSemesters,
 	structures,
 	studentSemesters,
+	terms,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
@@ -27,6 +28,7 @@ type ModuleInfo = {
 		programId: number;
 		programName: string;
 		programCode: string;
+		studentCount?: number;
 	}>;
 };
 
@@ -298,6 +300,10 @@ export default class SemesterModuleRepository extends BaseRepository<
 				});
 			}
 
+			const studentCount = await this.getStudentCountForPreviousSemester(
+				it.semesterModuleId
+			);
+
 			groupedModules.get(key)?.semesters.push({
 				semesterModuleId: it.semesterModuleId,
 				semesterId: it.semesterId!,
@@ -307,63 +313,66 @@ export default class SemesterModuleRepository extends BaseRepository<
 				programId: it.programId,
 				programName: it.programName,
 				programCode: it.programCode,
+				studentCount,
 			});
 		}
 		return Array.from(groupedModules.values());
 	}
 	async getStudentCountForPreviousSemester(semesterModuleId: number) {
-		const currentModule = await db.query.semesterModules.findFirst({
+		const semesterModule = await db.query.semesterModules.findFirst({
 			where: eq(semesterModules.id, semesterModuleId),
 			with: {
 				semester: true,
 			},
 		});
 
-		if (!currentModule || !currentModule.semester) return 0;
-
-		const currentSemesterNumber = parseInt(
-			currentModule.semester.semesterNumber
-		);
-		if (Number.isNaN(currentSemesterNumber) || currentSemesterNumber <= 1)
+		if (!semesterModule?.semester) {
 			return 0;
+		}
 
-		const prevSemesterNumber = currentSemesterNumber - 1;
-		const structureId = currentModule.semester.structureId;
+		const currentSemesterNumber = Number.parseInt(
+			semesterModule.semester.semesterNumber,
+			10
+		);
+		const previousSemesterNumber = currentSemesterNumber - 1;
 
-		const allSemesters = await db.query.structureSemesters.findMany({
-			where: eq(structureSemesters.structureId, structureId),
+		if (previousSemesterNumber < 1) {
+			return 0;
+		}
+
+		const previousSemester = await db.query.structureSemesters.findFirst({
+			where: and(
+				eq(structureSemesters.structureId, semesterModule.semester.structureId),
+				eq(
+					structureSemesters.semesterNumber,
+					previousSemesterNumber.toString().padStart(2, '0')
+				)
+			),
 		});
 
-		const prevSemester = allSemesters.find(
-			(s) => parseInt(s.semesterNumber) === prevSemesterNumber
-		);
+		if (!previousSemester) {
+			return 0;
+		}
 
-		if (!prevSemester) return 0;
+		const mostRecentTerm = await db.query.terms.findFirst({
+			orderBy: desc(terms.id),
+		});
 
-		const prevStructureSemesterId = prevSemester.id;
-
-		const latestTermEntry = await db
-			.select({ term: studentSemesters.term })
-			.from(studentSemesters)
-			.where(eq(studentSemesters.structureSemesterId, prevStructureSemesterId))
-			.orderBy(desc(studentSemesters.createdAt))
-			.limit(1);
-
-		if (latestTermEntry.length === 0) return 0;
-
-		const latestTerm = latestTermEntry[0].term;
+		if (!mostRecentTerm) {
+			return 0;
+		}
 
 		const result = await db
 			.select({ count: count() })
 			.from(studentSemesters)
 			.where(
 				and(
-					eq(studentSemesters.structureSemesterId, prevStructureSemesterId),
-					eq(studentSemesters.term, latestTerm)
+					eq(studentSemesters.structureSemesterId, previousSemester.id),
+					eq(studentSemesters.term, mostRecentTerm.name)
 				)
 			);
 
-		return result[0].count;
+		return result[0]?.count || 0;
 	}
 }
 
