@@ -19,6 +19,7 @@ import { getAllVenueTypes } from '@timetable/venue-types';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
+import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	createTimetableAllocationsWithVenueTypes,
 	createTimetableAllocationWithVenueTypes,
@@ -29,7 +30,6 @@ import {
 	type DayOfWeek,
 } from './AllocationForm';
 import { ModuleSearchInput } from './ModuleSearchInput';
-import { toClassName } from '@/shared/lib/utils/utils';
 
 const schema = z
 	.object({
@@ -55,6 +55,13 @@ type Props = {
 };
 
 type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
+
+type SemesterOption = {
+	value: string;
+	label: string;
+	description: string;
+	searchValue: string;
+};
 
 export default function AddAllocationModal({
 	userId,
@@ -180,10 +187,18 @@ export default function AddAllocationModal({
 	};
 
 	const semesterOptions =
-		selectedModule?.semesters.map((semester) => ({
-			value: semester.semesterModuleId.toString(),
-			label: `${semester.programName} (${toClassName(semester.programCode, semester.semesterName)})`,
-		})) || [];
+		selectedModule?.semesters.map((semester) => {
+			const className = toClassName(
+				semester.programCode,
+				semester.semesterName
+			);
+			return {
+				value: semester.semesterModuleId.toString(),
+				label: className,
+				description: semester.programName,
+				searchValue: `${className} ${semester.programName}`,
+			};
+		}) || [];
 
 	return (
 		<>
@@ -226,6 +241,17 @@ export default function AddAllocationModal({
 									disabled={!selectedModule || semesterOptions.length === 0}
 									searchable
 									required
+									renderOption={({ option }) => {
+										const semesterOption = option as SemesterOption;
+										return (
+											<Stack gap={0}>
+												<Text size='sm'>{semesterOption.label}</Text>
+												<Text size='xs' c='dimmed'>
+													{semesterOption.description}
+												</Text>
+											</Stack>
+										);
+									}}
 								/>
 							</>
 						)}
