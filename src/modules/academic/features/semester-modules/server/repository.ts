@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, like, or, type SQL, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, like, or, type SQL } from 'drizzle-orm';
 import {
 	db,
 	modulePrerequisites,
@@ -8,9 +8,6 @@ import {
 	semesterModules,
 	structureSemesters,
 	structures,
-	studentModules,
-	studentSemesters,
-	type terms,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
@@ -29,7 +26,6 @@ type ModuleInfo = {
 		programId: number;
 		programName: string;
 		programCode: string;
-		studentCount?: number;
 	}>;
 };
 
@@ -253,7 +249,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 		});
 	}
 
-	async searchModulesWithDetails(search = '', term: typeof terms.$inferSelect) {
+	async searchModulesWithDetails(search = '') {
 		const results = await db
 			.select({
 				semesterModuleId: semesterModules.id,
@@ -286,33 +282,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 						: undefined
 				)
 			)
-			.orderBy(modules.code);
-
-		const semesterModuleIds = results.map((module) => module.semesterModuleId);
-		const studentCounts = await db
-			.select({
-				semesterModuleId: studentModules.semesterModuleId,
-				count: sql<number>`count(*)`.as('count'),
-			})
-			.from(studentModules)
-			.innerJoin(
-				studentSemesters,
-				eq(studentModules.studentSemesterId, studentSemesters.id)
-			)
-			.where(
-				and(
-					inArray(studentModules.semesterModuleId, semesterModuleIds),
-					eq(studentSemesters.term, term.name)
-				)
-			)
-			.groupBy(studentModules.semesterModuleId)
-			.then((rows) =>
-				rows.reduce(
-					(map, { semesterModuleId, count }) =>
-						map.set(semesterModuleId, count),
-					new Map<number, number>()
-				)
-			);
+			.orderBy(desc(semesterModules.id));
 
 		const groupedModules = new Map<string, ModuleInfo>();
 		for (const it of results) {
@@ -336,19 +306,9 @@ export default class SemesterModuleRepository extends BaseRepository<
 				programId: it.programId,
 				programName: it.programName,
 				programCode: it.programCode,
-				studentCount: studentCounts.get(it.semesterModuleId) || 0,
 			});
 		}
-		return Array.from(groupedModules.values())
-			.map((module) => ({
-				...module,
-				totalStudents: module.semesters.reduce(
-					(sum, s) => sum + (s.studentCount || 0),
-					0
-				),
-			}))
-			.sort((a, b) => b.totalStudents - a.totalStudents)
-			.map(({ totalStudents: _, ...module }) => module);
+		return Array.from(groupedModules.values());
 	}
 }
 
