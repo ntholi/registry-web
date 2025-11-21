@@ -26,12 +26,14 @@ import { signOut, useSession } from 'next-auth/react';
 import React from 'react';
 import { academicConfig } from '@/app/(academic)/academic.config';
 import { adminConfig } from '@/app/(admin)/admin.config';
+import { classroomConfig } from '@/app/(classroom)/classroom.config';
 import { financeConfig } from '@/app/(finance)/finance.config';
 import { registryConfig } from '@/app/(registry)/registry.config';
 import type { DashboardUser, UserRole } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
+import { timetableConfig } from '../(timetable)/timetable.config';
 import type { NavItem } from './module-config.types';
 
 function getNavigation(department: DashboardUser) {
