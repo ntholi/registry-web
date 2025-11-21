@@ -84,6 +84,15 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 						},
 					},
 				},
+				user: {
+					with: {
+						userSchools: {
+							columns: {
+								schoolId: true,
+							},
+						},
+					},
+				},
 			},
 		});
 		if (!allocation) {
@@ -111,6 +120,15 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 						},
 					},
 				},
+				user: {
+					with: {
+						userSchools: {
+							columns: {
+								schoolId: true,
+							},
+						},
+					},
+				},
 			},
 		});
 		return allocations as AllocationRecord[];
@@ -120,6 +138,11 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 		const venues = await db.query.venues.findMany({
 			with: {
 				type: true,
+				venueSchools: {
+					columns: {
+						schoolId: true,
+					},
+				},
 			},
 		});
 		return venues as VenueRecord[];
