@@ -132,6 +132,15 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 			['dashboard']
 		);
 	}
+	async getStudentCountForModule(id: number) {
+		return withAuth(
+			async () =>
+				(
+					this.repository as ModuleRepository
+				).getStudentCountForPreviousSemester(id),
+			['dashboard']
+		);
+	}
 }
 
 export const semesterModulesService = serviceWrapper(

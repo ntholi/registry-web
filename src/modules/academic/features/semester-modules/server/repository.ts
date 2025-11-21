@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, like, or, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, like, or, type SQL } from 'drizzle-orm';
 import {
 	db,
 	modulePrerequisites,
@@ -8,6 +8,7 @@ import {
 	semesterModules,
 	structureSemesters,
 	structures,
+	studentSemesters,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
@@ -309,6 +310,60 @@ export default class SemesterModuleRepository extends BaseRepository<
 			});
 		}
 		return Array.from(groupedModules.values());
+	}
+	async getStudentCountForPreviousSemester(semesterModuleId: number) {
+		const currentModule = await db.query.semesterModules.findFirst({
+			where: eq(semesterModules.id, semesterModuleId),
+			with: {
+				semester: true,
+			},
+		});
+
+		if (!currentModule || !currentModule.semester) return 0;
+
+		const currentSemesterNumber = parseInt(
+			currentModule.semester.semesterNumber
+		);
+		if (Number.isNaN(currentSemesterNumber) || currentSemesterNumber <= 1)
+			return 0;
+
+		const prevSemesterNumber = currentSemesterNumber - 1;
+		const structureId = currentModule.semester.structureId;
+
+		const allSemesters = await db.query.structureSemesters.findMany({
+			where: eq(structureSemesters.structureId, structureId),
+		});
+
+		const prevSemester = allSemesters.find(
+			(s) => parseInt(s.semesterNumber) === prevSemesterNumber
+		);
+
+		if (!prevSemester) return 0;
+
+		const prevStructureSemesterId = prevSemester.id;
+
+		const latestTermEntry = await db
+			.select({ term: studentSemesters.term })
+			.from(studentSemesters)
+			.where(eq(studentSemesters.structureSemesterId, prevStructureSemesterId))
+			.orderBy(desc(studentSemesters.createdAt))
+			.limit(1);
+
+		if (latestTermEntry.length === 0) return 0;
+
+		const latestTerm = latestTermEntry[0].term;
+
+		const result = await db
+			.select({ count: count() })
+			.from(studentSemesters)
+			.where(
+				and(
+					eq(studentSemesters.structureSemesterId, prevStructureSemesterId),
+					eq(studentSemesters.term, latestTerm)
+				)
+			);
+
+		return result[0].count;
 	}
 }
 

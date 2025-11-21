@@ -1,6 +1,9 @@
 'use client';
 
-import type { searchModulesWithDetails } from '@academic/semester-modules';
+import {
+	getStudentCountForModule,
+	type searchModulesWithDetails,
+} from '@academic/semester-modules';
 import {
 	Button,
 	Group,
@@ -232,10 +235,15 @@ export default function AddAllocationModal({
 											: null
 									}
 									onChange={(value) => {
-										form.setFieldValue(
-											'semesterModuleId',
-											value ? Number(value) : 0
-										);
+										const val = value ? Number(value) : 0;
+										form.setFieldValue('semesterModuleId', val);
+										if (val) {
+											getStudentCountForModule(val).then((count) => {
+												form.setFieldValue('numberOfStudents', count);
+											});
+										} else {
+											form.setFieldValue('numberOfStudents', 0);
+										}
 									}}
 									error={form.errors.semesterModuleId}
 									disabled={!selectedModule || semesterOptions.length === 0}
