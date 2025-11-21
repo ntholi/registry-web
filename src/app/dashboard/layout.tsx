@@ -13,7 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function AdminLayout({ children }: PropsWithChildren) {
-	const isLocal = process.env.DATABASE_ENV === 'local';
+	const isLocal =
+		process.env.DATABASE_ENV === 'local' ||
+		process.env.NODE_ENV === 'development';
 	return (
 		<Dashboard>
 			{!process.env.AUTH_URL?.includes('portal.co.ls') && (
