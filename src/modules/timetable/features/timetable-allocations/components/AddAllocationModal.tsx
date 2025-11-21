@@ -29,6 +29,7 @@ import {
 	type DayOfWeek,
 } from './AllocationForm';
 import { ModuleSearchInput } from './ModuleSearchInput';
+import { toClassName } from '@/shared/lib/utils/utils';
 
 const schema = z
 	.object({
@@ -181,7 +182,7 @@ export default function AddAllocationModal({
 	const semesterOptions =
 		selectedModule?.semesters.map((semester) => ({
 			value: semester.semesterModuleId.toString(),
-			label: `${semester.programName} - ${semester.semesterName} (${semester.studentCount} Students)`,
+			label: `${semester.programName} (${toClassName(semester.programCode, semester.semesterName)})`,
 		})) || [];
 
 	return (

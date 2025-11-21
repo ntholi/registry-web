@@ -28,6 +28,7 @@ type ModuleInfo = {
 		structureId: number;
 		programId: number;
 		programName: string;
+		programCode: string;
 		studentCount?: number;
 	}>;
 };
@@ -265,6 +266,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 				structureId: structureSemesters.structureId,
 				programId: programs.id,
 				programName: programs.name,
+				programCode: programs.code,
 			})
 			.from(semesterModules)
 			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
@@ -333,6 +335,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 				structureId: it.structureId,
 				programId: it.programId,
 				programName: it.programName,
+				programCode: it.programCode,
 				studentCount: studentCounts.get(it.semesterModuleId) || 0,
 			});
 		}
