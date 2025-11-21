@@ -29,6 +29,19 @@ export default class VenueRepository extends BaseRepository<
 		});
 	}
 
+	async findAllWithRelations(options: VenueQueryOptions) {
+		const citeria = this.buildQueryCriteria(options);
+
+		const items = await db.query.venues.findMany({
+			...citeria,
+			with: {
+				type: true,
+			},
+		});
+
+		return this.createPaginatedResult(items, citeria);
+	}
+
 	async createWithSchools(
 		venue: VenueInsert,
 		schoolIds: number[]

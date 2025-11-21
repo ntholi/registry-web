@@ -1030,25 +1030,25 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 		}
 
 		const venues: VenueRecord[] = [
-			...Array.from({ length: 5 }, (_, i) =>
+			...Array.from({ length: 5 }, (_, _i) =>
 				makeVenue({
 					capacity: 100,
 					venueSchools: [{ schoolId: school1 }],
 				})
 			),
-			...Array.from({ length: 5 }, (_, i) =>
+			...Array.from({ length: 5 }, (_, _i) =>
 				makeVenue({
 					capacity: 100,
 					venueSchools: [{ schoolId: school2 }],
 				})
 			),
-			...Array.from({ length: 5 }, (_, i) =>
+			...Array.from({ length: 5 }, (_, _i) =>
 				makeVenue({
 					capacity: 100,
 					venueSchools: [{ schoolId: school3 }],
 				})
 			),
-			...Array.from({ length: 3 }, (_, i) =>
+			...Array.from({ length: 3 }, (_, _i) =>
 				makeVenue({
 					capacity: 100,
 					venueSchools: [{ schoolId: school1 }, { schoolId: school2 }],
@@ -1109,7 +1109,7 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 						['monday', 'wednesday'],
 						['tuesday', 'thursday'],
 						['monday', 'tuesday', 'wednesday'],
-					][i % 3] as any,
+					][i % 3] as DayOfWeek[],
 					user: {
 						userSchools: [{ schoolId }],
 					},
@@ -1124,7 +1124,7 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 		}
 
 		const venues: VenueRecord[] = [
-			...Array.from({ length: 6 }, (_, i) =>
+			...Array.from({ length: 6 }, (_, _i) =>
 				makeVenue({
 					capacity: 100,
 					typeId: labTypeId,
@@ -1137,7 +1137,7 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 					venueSchools: [{ schoolId: school1 }],
 				})
 			),
-			...Array.from({ length: 6 }, (_, i) =>
+			...Array.from({ length: 6 }, (_, _i) =>
 				makeVenue({
 					capacity: 100,
 					typeId: lectureTypeId,

@@ -231,6 +231,11 @@ export default class TimetableAllocationRepository extends BaseRepository<
 						module: true,
 					},
 				},
+				user: {
+					with: {
+						userSchools: true,
+					},
+				},
 			},
 		})) as AllocationRecord[];
 		if (allocations.length === 0) {

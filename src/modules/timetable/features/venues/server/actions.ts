@@ -15,7 +15,7 @@ export async function getVenueWithRelations(id: number) {
 }
 
 export async function findAllVenues(page = 1, search = '') {
-	return service.findAll({
+	return service.findAllWithRelations({
 		page,
 		search,
 		searchColumns: ['name'],

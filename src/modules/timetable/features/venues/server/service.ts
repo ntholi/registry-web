@@ -2,7 +2,7 @@ import type { venues } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import type { VenueInsert } from './repository';
+import type { VenueInsert, VenueQueryOptions } from './repository';
 import VenueRepository from './repository';
 
 class VenueService extends BaseService<typeof venues, 'id'> {
@@ -23,6 +23,12 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 	getWithRelations = async (id: number) => {
 		return withAuth(async () => {
 			return this.venueRepository.findByIdWithRelations(id);
+		}, ['dashboard']);
+	};
+
+	findAllWithRelations = async (options: VenueQueryOptions) => {
+		return withAuth(async () => {
+			return this.venueRepository.findAllWithRelations(options);
 		}, ['dashboard']);
 	};
 

@@ -1049,7 +1049,7 @@ describe('buildTermPlan - Validation', () => {
 });
 
 describe('buildTermPlan - School-Based Venue Filtering', () => {
-	it('only allocates venues from lecturer\'s schools', () => {
+	it("only allocates venues from lecturer's schools", () => {
 		const schoolId1 = 100;
 		const schoolId2 = 200;
 
@@ -1139,7 +1139,7 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 		expect(plan[0].venueId).toBe(3001);
 	});
 
-	it('throws error when no venues match lecturer\'s schools', () => {
+	it("throws error when no venues match lecturer's schools", () => {
 		const schoolId1 = 100;
 		const schoolId2 = 200;
 
