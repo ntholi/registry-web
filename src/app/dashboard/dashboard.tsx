@@ -38,9 +38,9 @@ import type { NavItem } from './module-config.types';
 
 function getNavigation(department: DashboardUser) {
 	const allConfigs = [
-		// timetableConfig,
+		timetableConfig,
 		academicConfig,
-		// classroomConfig,
+		classroomConfig,
 		registryConfig,
 		financeConfig,
 		adminConfig,
