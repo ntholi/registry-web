@@ -1,27 +1,39 @@
 'use client';
 
 import {
+	ActionIcon,
 	Avatar,
 	Box,
+	Button,
 	Card,
+	Collapse,
+	Divider,
 	Group,
 	Paper,
 	Skeleton,
 	Stack,
 	Text,
+	Textarea,
 	ThemeIcon,
 	TypographyStylesProvider,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
 import {
 	IconBrandYoutube,
 	IconFileText,
 	IconForms,
 	IconLink,
-	IconSpeakerphone,
+	IconMessage,
+	IconSend,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import type { Announcement } from '../../server/actions';
-import { getCourseAnnouncements } from '../../server/actions';
+import {
+	createPostReply,
+	getCourseAnnouncements,
+} from '../../server/actions';
 
 type Props = {
 	courseId: string;
@@ -46,6 +58,208 @@ function DashboardSkeleton() {
 	);
 }
 
+type AnnouncementWithCreator = Announcement & {
+	creator?: {
+		id?: string | null;
+		name?: { givenName?: string | null; familyName?: string | null; fullName?: string | null } | null;
+		emailAddress?: string | null;
+		photoUrl?: string | null;
+	};
+};
+
+function ForumPost({ post, courseId }: { post: AnnouncementWithCreator; courseId: string }) {
+	const [opened, { toggle }] = useDisclosure(false);
+	const [replyText, setReplyText] = useState('');
+	const [loading, setLoading] = useState(false);
+	const queryClient = useQueryClient();
+
+	const attachments = (post.materials || []).map((material, index) =>
+		resolveAttachment(material, index)
+	);
+
+	async function handleReply() {
+		if (!replyText.trim()) {
+			notifications.show({
+				title: 'Error',
+				message: 'Please enter a reply',
+				color: 'red',
+			});
+			return;
+		}
+
+		setLoading(true);
+		try {
+			const result = await createPostReply({
+				courseId,
+				text: replyText.trim(),
+				parentPostId: post.id || undefined,
+			});
+
+			if (result.success) {
+				notifications.show({
+					title: 'Success',
+					message: 'Reply posted successfully',
+					color: 'green',
+				});
+				setReplyText('');
+				toggle();
+				await queryClient.invalidateQueries({
+					queryKey: ['course-announcements', courseId],
+				});
+			} else {
+				notifications.show({
+					title: 'Error',
+					message: result.error || 'Failed to post reply',
+					color: 'red',
+				});
+			}
+		} catch (_error) {
+			notifications.show({
+				title: 'Error',
+				message: 'Failed to post reply',
+				color: 'red',
+			});
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	const authorName =
+		post.creator?.name?.fullName ||
+		`${post.creator?.name?.givenName || ''} ${post.creator?.name?.familyName || ''}`.trim() ||
+		post.creator?.emailAddress ||
+		'Unknown User';
+
+	const avatarSrc = post.creator?.photoUrl || undefined;
+
+	return (
+		<Paper
+			p='lg'
+			radius='md'
+			withBorder
+			shadow='sm'
+			style={{
+				transition: 'box-shadow 0.2s',
+			}}
+		>
+			<Stack gap='md'>
+				<Group gap='md' wrap='nowrap'>
+					<Avatar src={avatarSrc} radius='xl' size='lg' color='blue'>
+						{!avatarSrc && authorName.charAt(0).toUpperCase()}
+					</Avatar>
+					<div style={{ flex: 1 }}>
+						<Text size='sm' fw={600}>
+							{authorName}
+						</Text>
+						<Text size='xs' c='dimmed'>
+							{formatDate(post.creationTime)}
+						</Text>
+					</div>
+				</Group>
+
+				{post.text && (
+					<TypographyStylesProvider p={0}>
+						<div
+							dangerouslySetInnerHTML={{ __html: post.text }}
+							style={{
+								fontSize: 'var(--mantine-font-size-sm)',
+								lineHeight: 1.6,
+							}}
+						/>
+					</TypographyStylesProvider>
+				)}
+
+				{attachments.length > 0 && (
+					<Stack gap='xs'>
+						{attachments.map((attachment) => {
+							const Icon = getAttachmentIcon(attachment.type);
+							return (
+								<Card
+									key={attachment.key}
+									component={attachment.url ? 'a' : 'div'}
+									href={attachment.url}
+									target='_blank'
+									rel='noreferrer'
+									withBorder
+									radius='sm'
+									p='sm'
+									bg='gray.0'
+									style={{
+										cursor: attachment.url ? 'pointer' : 'default',
+										transition: 'background-color 0.2s, transform 0.2s',
+									}}
+								>
+									<Group gap='sm' wrap='nowrap'>
+										<ThemeIcon size='md' radius='sm' variant='light'>
+											<Icon size='1rem' />
+										</ThemeIcon>
+										<Box style={{ flex: 1, minWidth: 0 }}>
+											<Text size='sm' fw={500} truncate>
+												{attachment.title}
+											</Text>
+											<Text size='xs' c='dimmed'>
+												{attachment.label}
+											</Text>
+										</Box>
+									</Group>
+								</Card>
+							);
+						})}
+					</Stack>
+				)}
+
+				<Divider />
+
+				<Group gap='xs'>
+					<ActionIcon
+						variant='subtle'
+						color='gray'
+						size='md'
+						onClick={toggle}
+						title='Reply to this post'
+					>
+						<IconMessage size='1rem' />
+					</ActionIcon>
+					<Text size='xs' c='dimmed' onClick={toggle} style={{ cursor: 'pointer' }}>
+						Reply
+					</Text>
+				</Group>
+
+				<Collapse in={opened}>
+					<Stack gap='sm' pt='xs'>
+						<Textarea
+							placeholder='Write a reply...'
+							value={replyText}
+							onChange={(e) => setReplyText(e.currentTarget.value)}
+							minRows={2}
+							autosize
+						/>
+						<Group justify='flex-end'>
+							<Button
+								size='xs'
+								variant='subtle'
+								color='gray'
+								onClick={toggle}
+								disabled={loading}
+							>
+								Cancel
+							</Button>
+							<Button
+								size='xs'
+								leftSection={<IconSend size={14} />}
+								onClick={handleReply}
+								loading={loading}
+							>
+								Post Reply
+							</Button>
+						</Group>
+					</Stack>
+				</Collapse>
+			</Stack>
+		</Paper>
+	);
+}
+
 export default function DashboardTab({ courseId }: Props) {
 	const { data: announcements, isLoading } = useQuery({
 		queryKey: ['course-announcements', courseId],
@@ -60,105 +274,31 @@ export default function DashboardTab({ courseId }: Props) {
 		return (
 			<Paper p='xl' radius='md' withBorder>
 				<Stack align='center' gap='md'>
-					<ThemeIcon size={48} radius='xl' variant='light' color='gray'>
-						<IconSpeakerphone size={24} />
+					<ThemeIcon size={60} radius='xl' variant='light' color='gray'>
+						<IconMessage size={30} />
 					</ThemeIcon>
-					<Text c='dimmed' ta='center'>
-						No announcements yet
-					</Text>
+					<div>
+						<Text size='lg' fw={600} ta='center'>
+							No posts yet
+						</Text>
+						<Text size='sm' c='dimmed' ta='center' mt={4}>
+							Start a discussion by creating a new post
+						</Text>
+					</div>
 				</Stack>
 			</Paper>
 		);
 	}
 
 	return (
-		<Stack gap='lg'>
-			{announcements.map((announcement) => {
-				const attachments = (announcement.materials || []).map(
-					(material, index) => resolveAttachment(material, index)
-				);
-
-				return (
-					<Paper
-						key={announcement.id}
-						p='lg'
-						radius='md'
-						withBorder
-						shadow='xs'
-					>
-						<Stack gap='md'>
-							<Group justify='space-between' align='flex-start'>
-								<Group gap='sm'>
-									<Avatar radius='xl' color='blue'>
-										<IconSpeakerphone size='1.2rem' />
-									</Avatar>
-									<div>
-										<Text size='sm' fw={600}>
-											Announcement
-										</Text>
-										<Text size='xs' c='dimmed'>
-											{formatDate(announcement.creationTime)}
-										</Text>
-									</div>
-								</Group>
-							</Group>
-
-							{announcement.text && (
-								<TypographyStylesProvider p={0} fz='sm'>
-									<div
-										dangerouslySetInnerHTML={{ __html: announcement.text }}
-										style={{ fontSize: 'var(--mantine-font-size-sm)' }}
-									/>
-								</TypographyStylesProvider>
-							)}
-
-							{attachments.length > 0 && (
-								<Stack gap='xs' mt='xs'>
-									{attachments.map((attachment) => {
-										const Icon = getAttachmentIcon(attachment.type);
-										return (
-											<Card
-												key={attachment.key}
-												component={attachment.url ? 'a' : 'div'}
-												href={attachment.url}
-												target='_blank'
-												rel='noreferrer'
-												withBorder
-												radius='sm'
-												p='xs'
-												bg='gray.0'
-												style={{
-													cursor: attachment.url ? 'pointer' : 'default',
-													transition: 'background-color 0.2s',
-												}}
-											>
-												<Group gap='sm' wrap='nowrap'>
-													<ThemeIcon
-														size='md'
-														radius='sm'
-														variant='white'
-														color='gray'
-													>
-														<Icon size='1rem' />
-													</ThemeIcon>
-													<Box style={{ flex: 1, minWidth: 0 }}>
-														<Text size='sm' fw={500} truncate>
-															{attachment.title}
-														</Text>
-														<Text size='xs' c='dimmed'>
-															{attachment.label}
-														</Text>
-													</Box>
-												</Group>
-											</Card>
-										);
-									})}
-								</Stack>
-							)}
-						</Stack>
-					</Paper>
-				);
-			})}
+		<Stack gap='md'>
+			{announcements.map((announcement) => (
+				<ForumPost
+					key={announcement.id}
+					post={announcement as AnnouncementWithCreator}
+					courseId={courseId}
+				/>
+			))}
 		</Stack>
 	);
 }

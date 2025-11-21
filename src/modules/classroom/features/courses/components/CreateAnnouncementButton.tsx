@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Modal, Textarea } from '@mantine/core';
+import { Button, Modal, Stack, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
@@ -22,7 +22,7 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 		if (!text.trim()) {
 			notifications.show({
 				title: 'Error',
-				message: 'Please enter announcement text',
+				message: 'Please enter your post content',
 				color: 'red',
 			});
 			return;
@@ -38,7 +38,7 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 			if (result.success) {
 				notifications.show({
 					title: 'Success',
-					message: 'Announcement created successfully',
+					message: 'Post created successfully',
 					color: 'green',
 				});
 				setText('');
@@ -49,14 +49,14 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 			} else {
 				notifications.show({
 					title: 'Error',
-					message: result.error || 'Failed to create announcement',
+					message: result.error || 'Failed to create post',
 					color: 'red',
 				});
 			}
 		} catch (_error) {
 			notifications.show({
 				title: 'Error',
-				message: 'Failed to create announcement',
+				message: 'Failed to create post',
 				color: 'red',
 			});
 		} finally {
@@ -67,26 +67,29 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 	return (
 		<>
 			<Button size='xs' leftSection={<IconPlus size={14} />} onClick={open}>
-				Create Announcement
+				New Post
 			</Button>
 
 			<Modal
 				opened={opened}
 				onClose={close}
-				title='Create Announcement'
+				title='Create New Post'
 				centered
+				size='md'
 			>
-				<Textarea
-					label='Announcement'
-					placeholder='Enter announcement text...'
-					value={text}
-					onChange={(e) => setText(e.currentTarget.value)}
-					minRows={4}
-					required
-				/>
-				<Button onClick={handleSubmit} loading={loading} fullWidth mt='md'>
-					Create
-				</Button>
+				<Stack gap='md'>
+					<Textarea
+						placeholder='Share something with your class...'
+						value={text}
+						onChange={(e) => setText(e.currentTarget.value)}
+						minRows={5}
+						autosize
+						maxRows={12}
+					/>
+					<Button onClick={handleSubmit} loading={loading} fullWidth>
+						Publish Post
+					</Button>
+				</Stack>
 			</Modal>
 		</>
 	);

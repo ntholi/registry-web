@@ -4,8 +4,8 @@ import { AssessmentsTab, DashboardTab, MaterialTab } from '@classroom/courses';
 import { Box, Button, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import {
 	IconBook2,
-	IconChalkboard,
 	IconClipboardCheck,
+	IconMessages,
 	IconPlus,
 } from '@tabler/icons-react';
 import { useLocalStorage } from '@/shared/lib/hooks/use-local-storage';
@@ -31,12 +31,12 @@ export default function CourseTabs({ courseId }: Props) {
 			<TabsList style={{ borderBottom: 'none' }}>
 				<TabsTab
 					value='dashboard'
-					leftSection={<IconChalkboard size={16} />}
+					leftSection={<IconMessages size={16} />}
 					pb='md'
 					px='lg'
 					fw={500}
 				>
-					Dashboard
+					Posts
 				</TabsTab>
 				<TabsTab
 					value='assessments'
