@@ -6,6 +6,7 @@ import * as academic from '@/modules/academic/database';
 import * as admin from '@/modules/admin/database';
 import * as auditLogs from '@/modules/audit-logs/database';
 import * as auth from '@/modules/auth/database';
+import * as classroom from '@/modules/classroom/database';
 import * as finance from '@/modules/finance/database';
 import * as registry from '@/modules/registry/database';
 import * as timetable from '@/modules/timetable/database';
@@ -15,6 +16,7 @@ const schema = {
 	...admin,
 	...auth,
 	...auditLogs,
+	...classroom,
 	...finance,
 	...registry,
 	...timetable,
@@ -44,6 +46,7 @@ export * from '@/modules/academic/database';
 export * from '@/modules/admin/database';
 export * from '@/modules/audit-logs/database';
 export * from '@/modules/auth/database';
+export * from '@/modules/classroom/database';
 export * from '@/modules/finance/database';
 export * from '@/modules/registry/database';
 export * from '@/modules/timetable/database';

@@ -12,7 +12,7 @@ type Props = {
 	courseId: string;
 };
 
-export default function CreateAnnouncementButton({ courseId }: Props) {
+export default function CreatePostButton({ courseId }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [text, setText] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 		if (!text.trim()) {
 			notifications.show({
 				title: 'Error',
-				message: 'Please enter announcement text',
+				message: 'Please enter post text',
 				color: 'red',
 			});
 			return;
@@ -38,7 +38,7 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 			if (result.success) {
 				notifications.show({
 					title: 'Success',
-					message: 'Announcement created successfully',
+					message: 'Post created successfully',
 					color: 'green',
 				});
 				setText('');
@@ -49,14 +49,14 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 			} else {
 				notifications.show({
 					title: 'Error',
-					message: result.error || 'Failed to create announcement',
+					message: result.error || 'Failed to create post',
 					color: 'red',
 				});
 			}
 		} catch (_error) {
 			notifications.show({
 				title: 'Error',
-				message: 'Failed to create announcement',
+				message: 'Failed to create post',
 				color: 'red',
 			});
 		} finally {
@@ -67,25 +67,20 @@ export default function CreateAnnouncementButton({ courseId }: Props) {
 	return (
 		<>
 			<Button size='xs' leftSection={<IconPlus size={14} />} onClick={open}>
-				Create Announcement
+				Create Post
 			</Button>
 
-			<Modal
-				opened={opened}
-				onClose={close}
-				title='Create Announcement'
-				centered
-			>
+			<Modal opened={opened} onClose={close} title='Create Post' centered>
 				<Textarea
-					label='Announcement'
-					placeholder='Enter announcement text...'
+					label='Post'
+					placeholder='Share something with your class...'
 					value={text}
 					onChange={(e) => setText(e.currentTarget.value)}
 					minRows={4}
 					required
 				/>
 				<Button onClick={handleSubmit} loading={loading} fullWidth mt='md'>
-					Create
+					Post
 				</Button>
 			</Modal>
 		</>

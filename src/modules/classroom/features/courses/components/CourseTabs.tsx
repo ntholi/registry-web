@@ -9,7 +9,7 @@ import {
 	IconPlus,
 } from '@tabler/icons-react';
 import { useLocalStorage } from '@/shared/lib/hooks/use-local-storage';
-import CreateAnnouncementButton from './CreateAnnouncementButton';
+import CreatePostButton from './CreatePostButton';
 
 type Props = {
 	courseId: string;
@@ -59,7 +59,7 @@ export default function CourseTabs({ courseId }: Props) {
 
 				{activeTab === 'dashboard' && (
 					<Box ml='auto'>
-						<CreateAnnouncementButton courseId={courseId} />
+						<CreatePostButton courseId={courseId} />
 					</Box>
 				)}
 				{activeTab === 'assessments' && (
