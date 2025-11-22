@@ -124,7 +124,7 @@ function groupAllocationsByModule(slot: SlotData) {
 
 export default function TimetableTab({ userId, selectedTermId }: Props) {
 	const { data: slots = [], isLoading } = useQuery({
-		queryKey: ['user-timetable-slots', userId, selectedTermId],
+		queryKey: ['timetable-slots', userId, selectedTermId],
 		queryFn: () => getUserTimetableSlots(userId, selectedTermId!),
 		enabled: !!selectedTermId,
 	});

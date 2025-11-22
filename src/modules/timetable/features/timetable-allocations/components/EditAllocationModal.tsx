@@ -88,7 +88,7 @@ export default function EditAllocationModal({
 				refetchType: 'all',
 			});
 			await queryClient.invalidateQueries({
-				queryKey: ['user-timetable-slots'],
+				queryKey: ['timetable-slots'],
 				refetchType: 'all',
 			});
 			notifications.show({

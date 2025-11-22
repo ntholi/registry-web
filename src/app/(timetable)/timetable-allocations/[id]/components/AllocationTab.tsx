@@ -235,7 +235,7 @@ export default function AllocationTab({
 												message='Are you sure you want to delete this allocation?'
 												onSuccess={async () => {
 													await queryClient.invalidateQueries({
-														queryKey: ['user-timetable-slots'],
+														queryKey: ['timetable-slots'],
 														refetchType: 'all',
 													});
 												}}
