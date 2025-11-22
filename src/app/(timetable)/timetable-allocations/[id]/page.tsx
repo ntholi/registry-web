@@ -11,17 +11,17 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { getAllTerms } from '@registry/terms';
 import { useQuery } from '@tanstack/react-query';
 import { getTimetableAllocationsByUserId } from '@timetable/timetable-allocations';
+import AllocationTab from '@timetable/timetable-allocations/components/AllocationTab';
+import TimetableTab from '@timetable/timetable-allocations/components/TimetableTab';
 import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
 import { use, useMemo } from 'react';
-import { getAllTerms } from '@/modules/registry/features/terms';
 import useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
 import { DetailsView } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
-import AllocationTab from './components/AllocationTab';
-import TimetableTab from './components/TimetableTab';
 
 type Props = {
 	params: Promise<{ id: string }>;
