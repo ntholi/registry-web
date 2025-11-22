@@ -94,7 +94,41 @@ export default class TimetableAllocationRepository extends BaseRepository<
 		});
 	}
 
+	async findDuplicate(
+		semesterModuleId: number,
+		termId: number,
+		classType: string,
+		groupName: string | null | undefined
+	) {
+		return db.query.timetableAllocations.findFirst({
+			where: (timetableAllocations, { eq, and, isNull }) => {
+				const conditions = [
+					eq(timetableAllocations.semesterModuleId, semesterModuleId),
+					eq(timetableAllocations.termId, termId),
+					eq(timetableAllocations.classType, classType),
+				];
+				if (groupName === null || groupName === undefined) {
+					conditions.push(isNull(timetableAllocations.groupName));
+				} else {
+					conditions.push(eq(timetableAllocations.groupName, groupName));
+				}
+				return and(...conditions);
+			},
+		});
+	}
+
 	async createAllocation(allocation: TimetableAllocationInsert) {
+		const existing = await this.findDuplicate(
+			allocation.semesterModuleId,
+			allocation.termId,
+			allocation.classType,
+			allocation.groupName
+		);
+		if (existing) {
+			throw new Error(
+				'An allocation with the same semester module, term, class type, and group name already exists'
+			);
+		}
 		return db.transaction(async (tx) => {
 			const [created] = await tx
 				.insert(timetableAllocations)
@@ -109,6 +143,17 @@ export default class TimetableAllocationRepository extends BaseRepository<
 		allocation: TimetableAllocationInsert,
 		venueTypeIds: number[]
 	) {
+		const existing = await this.findDuplicate(
+			allocation.semesterModuleId,
+			allocation.termId,
+			allocation.classType,
+			allocation.groupName
+		);
+		if (existing) {
+			throw new Error(
+				'An allocation with the same semester module, term, class type, and group name already exists'
+			);
+		}
 		return db.transaction(async (tx) => {
 			const [created] = await tx
 				.insert(timetableAllocations)
@@ -135,6 +180,19 @@ export default class TimetableAllocationRepository extends BaseRepository<
 	) {
 		if (allocations.length === 0) {
 			return [] as (typeof timetableAllocations.$inferSelect)[];
+		}
+		for (const allocation of allocations) {
+			const existing = await this.findDuplicate(
+				allocation.semesterModuleId,
+				allocation.termId,
+				allocation.classType,
+				allocation.groupName
+			);
+			if (existing) {
+				throw new Error(
+					'An allocation with the same semester module, term, class type, and group name already exists'
+				);
+			}
 		}
 		return db.transaction(async (tx) => {
 			const created: (typeof timetableAllocations.$inferSelect)[] = [];
