@@ -130,7 +130,8 @@ describe('buildTermPlan - Basic Allocation', () => {
 		expect(plan).toHaveLength(1);
 		expect(plan[0].venueId).toBe(5);
 		expect(plan[0].allocationIds).toEqual([allocation.id]);
-		const slotDuration = timeToMinutes(plan[0].endTime) - timeToMinutes(plan[0].startTime);
+		const slotDuration =
+			timeToMinutes(plan[0].endTime) - timeToMinutes(plan[0].startTime);
 		expect(slotDuration).toBe(120);
 	});
 
@@ -975,10 +976,12 @@ describe('buildTermPlan - Edge Cases', () => {
 		const plan = buildTermPlan(1, [first, second, third], [venue]);
 
 		expect(plan).toHaveLength(3);
-		const slots = plan.map((slot) => ({
-			start: timeToMinutes(slot.startTime),
-			end: timeToMinutes(slot.endTime),
-		})).sort((a, b) => a.start - b.start);
+		const slots = plan
+			.map((slot) => ({
+				start: timeToMinutes(slot.startTime),
+				end: timeToMinutes(slot.endTime),
+			}))
+			.sort((a, b) => a.start - b.start);
 
 		for (let i = 0; i < slots.length - 1; i++) {
 			expect(slots[i].end).toBeLessThanOrEqual(slots[i + 1].start);
@@ -1016,7 +1019,11 @@ describe('buildTermPlan - Edge Cases', () => {
 			duration: 120,
 		});
 
-		const plan = buildTermPlan(1, [morning, afternoon, evening, flexible], [venue]);
+		const plan = buildTermPlan(
+			1,
+			[morning, afternoon, evening, flexible],
+			[venue]
+		);
 
 		const flexibleSlot = plan.find((slot) =>
 			slot.allocationIds.includes(flexible.id)

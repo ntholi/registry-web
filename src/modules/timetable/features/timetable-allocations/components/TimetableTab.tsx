@@ -29,6 +29,23 @@ const DAY_LABELS: Record<(typeof DAYS)[number], string> = {
 	friday: 'Friday',
 };
 
+function getClassTypeColor(classType: string): string {
+	switch (classType) {
+		case 'lecture':
+			return 'blue.3';
+		case 'tutorial':
+			return 'green.3';
+		case 'lab':
+			return 'orange.3';
+		case 'workshop':
+			return 'purple.3';
+		case 'practical':
+			return 'red.3';
+		default:
+			return 'cyan.3';
+	}
+}
+
 function toClassName(
 	semesterModule: {
 		semester?: {
@@ -281,7 +298,7 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 
 																		<Text
 																			size='xs'
-																			c='cyan.3'
+																			c={getClassTypeColor(module.classType)}
 																			fw={500}
 																			ta={'center'}
 																			tt={'capitalize'}

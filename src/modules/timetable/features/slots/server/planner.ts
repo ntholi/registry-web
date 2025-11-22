@@ -96,13 +96,18 @@ function generateValidStartTimes(
 	windowEnd: number
 ): number[] {
 	const validTimes: number[] = [];
-	const baseStartMinutes = toMinutes(config.timetable.timetableAllocations.startTime);
+	const baseStartMinutes = toMinutes(
+		config.timetable.timetableAllocations.startTime
+	);
 	const configDuration = config.timetable.timetableAllocations.duration;
 
 	let candidateTime = baseStartMinutes;
 
 	while (candidateTime < windowEnd) {
-		if (candidateTime >= windowStart && candidateTime + allocation.duration <= windowEnd) {
+		if (
+			candidateTime >= windowStart &&
+			candidateTime + allocation.duration <= windowEnd
+		) {
 			validTimes.push(candidateTime);
 		}
 		candidateTime += configDuration;
@@ -251,7 +256,7 @@ function attemptPlaceAllocation(
 	);
 
 	if (validPlacements.length > 0) {
-		const combinedPlacements = validPlacements.filter(p => p.canCombine);
+		const combinedPlacements = validPlacements.filter((p) => p.canCombine);
 
 		if (combinedPlacements.length > 0) {
 			combinedPlacements.sort((a, b) => a.score - b.score);
@@ -259,11 +264,13 @@ function attemptPlaceAllocation(
 			return true;
 		}
 
-		const newPlacements = validPlacements.filter(p => !p.canCombine);
+		const newPlacements = validPlacements.filter((p) => !p.canCombine);
 		newPlacements.sort((a, b) => a.score - b.score);
 
 		const topScoreThreshold = newPlacements[0].score + 200;
-		const topPlacements = newPlacements.filter(p => p.score <= topScoreThreshold);
+		const topPlacements = newPlacements.filter(
+			(p) => p.score <= topScoreThreshold
+		);
 
 		const randomIndex = Math.floor(Math.random() * topPlacements.length);
 		const selected = topPlacements[randomIndex];

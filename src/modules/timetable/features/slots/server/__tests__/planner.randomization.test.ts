@@ -334,7 +334,9 @@ describe('buildTermPlan - Randomization Tests', () => {
 	});
 
 	it('produces varied distributions with larger datasets', () => {
-		const venues = Array.from({ length: 3 }, () => makeVenue({ capacity: 100 }));
+		const venues = Array.from({ length: 3 }, () =>
+			makeVenue({ capacity: 100 })
+		);
 		const timeDistribution: Record<string, number> = {};
 		const iterations = 20;
 
