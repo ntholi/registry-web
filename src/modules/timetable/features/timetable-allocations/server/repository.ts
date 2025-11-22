@@ -245,6 +245,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 		const venues = (await tx.query.venues.findMany({
 			with: {
 				type: true,
+				venueSchools: true,
 			},
 		})) as VenueRecord[];
 		if (venues.length === 0) {
