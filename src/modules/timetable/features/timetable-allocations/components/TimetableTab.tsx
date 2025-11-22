@@ -215,7 +215,6 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 									}}
 								>
 									<Box pos='relative' h='100%' mih={100}>
-										{/* Background Grid */}
 										<Box
 											pos='absolute'
 											style={{
@@ -238,14 +237,12 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 											))}
 										</Box>
 
-										{/* Content Grid */}
 										<Box
 											display='grid'
 											style={{
 												gridTemplateColumns: `repeat(${GRID_COLUMNS}, 1fr)`,
 												gap: '4px 0',
 											}}
-											p='xs'
 										>
 											{daySlots.map((slot) => {
 												const style = getSlotStyle(slot);
@@ -253,14 +250,14 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 												const modules = groupAllocationsByModule(slot);
 
 												return (
-													<Box key={slot.id} style={style} pr={4}>
+													<Box key={slot.id} style={style} p={7}>
 														<Stack gap='xs'>
 															{modules.map((module) => (
 																<Card
 																	withBorder
 																	key={`${module.moduleCode}-${module.venueId}`}
 																	p='xs'
-																	radius='md'
+																	radius='sm'
 																>
 																	<Stack gap='4'>
 																		<Text
