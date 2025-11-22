@@ -40,6 +40,17 @@ class TimetableAllocationService extends BaseService<
 		venueTypeIds: number[]
 	) {
 		return withAuth(async () => {
+			const duplicate = await this.repo.findDuplicate(
+				allocation.semesterModuleId,
+				allocation.termId,
+				allocation.classType,
+				allocation.groupName
+			);
+			if (duplicate) {
+				throw new Error(
+					'An allocation with the same semester module, term, class type, and group already exists'
+				);
+			}
 			return this.repo.createWithVenueTypes(allocation, venueTypeIds);
 		}, ['academic']);
 	}
@@ -49,6 +60,19 @@ class TimetableAllocationService extends BaseService<
 		venueTypeIds: number[]
 	) {
 		return withAuth(async () => {
+			for (const allocation of allocations) {
+				const duplicate = await this.repo.findDuplicate(
+					allocation.semesterModuleId,
+					allocation.termId,
+					allocation.classType,
+					allocation.groupName
+				);
+				if (duplicate) {
+					throw new Error(
+						`An allocation with the same semester module, term, class type, and group "${allocation.groupName ?? 'All Students'}" already exists`
+					);
+				}
+			}
 			return this.repo.createManyWithVenueTypes(allocations, venueTypeIds);
 		}, ['academic']);
 	}
