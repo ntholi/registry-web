@@ -251,28 +251,28 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 															>
 																<Stack gap='4'>
 																	<Text
-																		size='sm'
+																		size='xs'
 																		fw={600}
 																		c='blue.2'
+																		ta={'center'}
 																		style={{ lineHeight: 1.3 }}
 																	>
 																		{module.moduleName}
+																		<Text
+																			component='span'
+																			c='gray.4'
+																			style={{ lineHeight: 1.2 }}
+																		>
+																			{` (${module.moduleCode})`}
+																		</Text>
 																	</Text>
-																	<Text
-																		size='xs'
-																		c='gray.4'
-																		style={{ lineHeight: 1.2 }}
-																	>
-																		{module.moduleCode}
-																	</Text>
+
 																	<Text
 																		size='xs'
 																		c='cyan.3'
 																		fw={500}
-																		style={{
-																			lineHeight: 1.2,
-																			textTransform: 'capitalize',
-																		}}
+																		ta={'center'}
+																		tt={'capitalize'}
 																	>
 																		{module.classType}
 																	</Text>
