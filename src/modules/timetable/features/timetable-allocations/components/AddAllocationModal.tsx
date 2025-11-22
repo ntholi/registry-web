@@ -154,6 +154,10 @@ export default function AddAllocationModal({
 				queryKey: ['timetable-allocations'],
 				refetchType: 'all',
 			});
+			await queryClient.invalidateQueries({
+				queryKey: ['user-timetable-slots'],
+				refetchType: 'all',
+			});
 			notifications.show({
 				title: 'Success',
 				message: 'Allocation added successfully',
