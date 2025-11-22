@@ -21,10 +21,18 @@ export type AllocationRecord = typeof timetableAllocations.$inferSelect & {
 			name: string;
 		};
 	};
+	user: {
+		userSchools: {
+			schoolId: number;
+		}[];
+	};
 };
 
 export type VenueRecord = typeof venues.$inferSelect & {
 	type: typeof venueTypes.$inferSelect;
+	venueSchools: {
+		schoolId: number;
+	}[];
 };
 
 interface PlanSlot {
@@ -338,6 +346,9 @@ function collectCandidateVenues(
 	const requiredTypes = allocation.timetableAllocationVenueTypes.map(
 		(item) => item.venueTypeId
 	);
+	const lecturerSchoolIds = allocation.user.userSchools.map(
+		(us) => us.schoolId
+	);
 
 	const candidates: VenueRecord[] = [];
 
@@ -348,6 +359,15 @@ function collectCandidateVenues(
 
 		const maxCapacity = Math.floor(venue.capacity * 1.1);
 		if (requiredCapacity > maxCapacity) {
+			continue;
+		}
+
+		const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
+		const hasCommonSchool = lecturerSchoolIds.some((schoolId) =>
+			venueSchoolIds.includes(schoolId)
+		);
+
+		if (!hasCommonSchool) {
 			continue;
 		}
 

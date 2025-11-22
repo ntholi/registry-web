@@ -116,3 +116,6 @@ export async function updateModuleVisibility(id: number, hidden: boolean) {
 export async function searchModulesWithDetails(search = '') {
 	return semesterModulesService.searchModulesWithDetails(search);
 }
+export async function getStudentCountForModule(id: number) {
+	return semesterModulesService.getStudentCountForModule(id);
+}

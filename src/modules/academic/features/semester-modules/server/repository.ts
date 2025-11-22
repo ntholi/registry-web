@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, like, or, type SQL, sql } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, like, or, type SQL } from 'drizzle-orm';
 import {
 	db,
 	modulePrerequisites,
@@ -8,9 +8,8 @@ import {
 	semesterModules,
 	structureSemesters,
 	structures,
-	studentModules,
 	studentSemesters,
-	type terms,
+	terms,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
@@ -28,6 +27,7 @@ type ModuleInfo = {
 		structureId: number;
 		programId: number;
 		programName: string;
+		programCode: string;
 		studentCount?: number;
 	}>;
 };
@@ -252,7 +252,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 		});
 	}
 
-	async searchModulesWithDetails(search = '', term: typeof terms.$inferSelect) {
+	async searchModulesWithDetails(search = '') {
 		const results = await db
 			.select({
 				semesterModuleId: semesterModules.id,
@@ -265,6 +265,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 				structureId: structureSemesters.structureId,
 				programId: programs.id,
 				programName: programs.name,
+				programCode: programs.code,
 			})
 			.from(semesterModules)
 			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
@@ -284,33 +285,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 						: undefined
 				)
 			)
-			.orderBy(modules.code);
-
-		const semesterModuleIds = results.map((module) => module.semesterModuleId);
-		const studentCounts = await db
-			.select({
-				semesterModuleId: studentModules.semesterModuleId,
-				count: sql<number>`count(*)`.as('count'),
-			})
-			.from(studentModules)
-			.innerJoin(
-				studentSemesters,
-				eq(studentModules.studentSemesterId, studentSemesters.id)
-			)
-			.where(
-				and(
-					inArray(studentModules.semesterModuleId, semesterModuleIds),
-					eq(studentSemesters.term, term.name)
-				)
-			)
-			.groupBy(studentModules.semesterModuleId)
-			.then((rows) =>
-				rows.reduce(
-					(map, { semesterModuleId, count }) =>
-						map.set(semesterModuleId, count),
-					new Map<number, number>()
-				)
-			);
+			.orderBy(desc(semesterModules.id));
 
 		const groupedModules = new Map<string, ModuleInfo>();
 		for (const it of results) {
@@ -325,6 +300,10 @@ export default class SemesterModuleRepository extends BaseRepository<
 				});
 			}
 
+			const studentCount = await this.getStudentCountForPreviousSemester(
+				it.semesterModuleId
+			);
+
 			groupedModules.get(key)?.semesters.push({
 				semesterModuleId: it.semesterModuleId,
 				semesterId: it.semesterId!,
@@ -333,19 +312,67 @@ export default class SemesterModuleRepository extends BaseRepository<
 				structureId: it.structureId,
 				programId: it.programId,
 				programName: it.programName,
-				studentCount: studentCounts.get(it.semesterModuleId) || 0,
+				programCode: it.programCode,
+				studentCount,
 			});
 		}
-		return Array.from(groupedModules.values())
-			.map((module) => ({
-				...module,
-				totalStudents: module.semesters.reduce(
-					(sum, s) => sum + (s.studentCount || 0),
-					0
-				),
-			}))
-			.sort((a, b) => b.totalStudents - a.totalStudents)
-			.map(({ totalStudents: _, ...module }) => module);
+		return Array.from(groupedModules.values());
+	}
+	async getStudentCountForPreviousSemester(semesterModuleId: number) {
+		const semesterModule = await db.query.semesterModules.findFirst({
+			where: eq(semesterModules.id, semesterModuleId),
+			with: {
+				semester: true,
+			},
+		});
+
+		if (!semesterModule?.semester) {
+			return 0;
+		}
+
+		const currentSemesterNumber = Number.parseInt(
+			semesterModule.semester.semesterNumber,
+			10
+		);
+		const previousSemesterNumber = currentSemesterNumber - 1;
+
+		if (previousSemesterNumber < 1) {
+			return 0;
+		}
+
+		const previousSemester = await db.query.structureSemesters.findFirst({
+			where: and(
+				eq(structureSemesters.structureId, semesterModule.semester.structureId),
+				eq(
+					structureSemesters.semesterNumber,
+					previousSemesterNumber.toString().padStart(2, '0')
+				)
+			),
+		});
+
+		if (!previousSemester) {
+			return 0;
+		}
+
+		const mostRecentTerm = await db.query.terms.findFirst({
+			orderBy: desc(terms.id),
+		});
+
+		if (!mostRecentTerm) {
+			return 0;
+		}
+
+		const result = await db
+			.select({ count: count() })
+			.from(studentSemesters)
+			.where(
+				and(
+					eq(studentSemesters.structureSemesterId, previousSemester.id),
+					eq(studentSemesters.term, mostRecentTerm.name)
+				)
+			);
+
+		return result[0]?.count || 0;
 	}
 }
 

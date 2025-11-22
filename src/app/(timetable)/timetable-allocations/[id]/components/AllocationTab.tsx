@@ -6,7 +6,6 @@ import {
 	Center,
 	Flex,
 	Group,
-	Stack,
 	Table,
 	TableTbody,
 	TableTd,
@@ -22,7 +21,7 @@ import {
 } from '@timetable/timetable-allocations';
 import type useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import { DeleteButton, FieldView } from '@/shared/ui/adease';
+import { DeleteButton } from '@/shared/ui/adease';
 
 type Props = {
 	filteredAllocations: {
@@ -110,16 +109,12 @@ export default function AllocationTab({
 	filteredAllocations,
 	userId,
 	selectedTermId,
-	termName,
 	totalMinutes,
 	totalStudents,
 	defaults,
 }: Props) {
 	return (
 		<Box>
-			<Stack gap={'lg'}>
-				<FieldView label='Term'>{termName}</FieldView>
-			</Stack>
 			<Box mt='lg'>
 				<Flex justify='space-between' align={'flex-end'} mb='xs'>
 					<Group align='center' gap='xs'>

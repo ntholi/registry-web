@@ -1,6 +1,9 @@
 'use client';
 
-import type { searchModulesWithDetails } from '@academic/semester-modules';
+import {
+	getStudentCountForModule,
+	type searchModulesWithDetails,
+} from '@academic/semester-modules';
 import {
 	Button,
 	Group,
@@ -19,6 +22,7 @@ import { getAllVenueTypes } from '@timetable/venue-types';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
+import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	createTimetableAllocationsWithVenueTypes,
 	createTimetableAllocationWithVenueTypes,
@@ -54,6 +58,13 @@ type Props = {
 };
 
 type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
+
+type SemesterOption = {
+	value: string;
+	label: string;
+	description: string;
+	searchValue: string;
+};
 
 export default function AddAllocationModal({
 	userId,
@@ -179,10 +190,18 @@ export default function AddAllocationModal({
 	};
 
 	const semesterOptions =
-		selectedModule?.semesters.map((semester) => ({
-			value: semester.semesterModuleId.toString(),
-			label: `${semester.programName} - ${semester.semesterName} (${semester.studentCount} Students)`,
-		})) || [];
+		selectedModule?.semesters.map((semester) => {
+			const className = toClassName(
+				semester.programCode,
+				semester.semesterName
+			);
+			return {
+				value: semester.semesterModuleId.toString(),
+				label: className,
+				description: semester.programName,
+				searchValue: `${className} ${semester.programName}`,
+			};
+		}) || [];
 
 	return (
 		<>
@@ -216,15 +235,31 @@ export default function AddAllocationModal({
 											: null
 									}
 									onChange={(value) => {
-										form.setFieldValue(
-											'semesterModuleId',
-											value ? Number(value) : 0
-										);
+										const val = value ? Number(value) : 0;
+										form.setFieldValue('semesterModuleId', val);
+										if (val) {
+											getStudentCountForModule(val).then((count) => {
+												form.setFieldValue('numberOfStudents', count);
+											});
+										} else {
+											form.setFieldValue('numberOfStudents', 0);
+										}
 									}}
 									error={form.errors.semesterModuleId}
 									disabled={!selectedModule || semesterOptions.length === 0}
 									searchable
 									required
+									renderOption={({ option }) => {
+										const semesterOption = option as SemesterOption;
+										return (
+											<Stack gap={0}>
+												<Text size='sm'>{semesterOption.label}</Text>
+												<Text size='xs' c='dimmed'>
+													{semesterOption.description}
+												</Text>
+											</Stack>
+										);
+									}}
 								/>
 							</>
 						)}

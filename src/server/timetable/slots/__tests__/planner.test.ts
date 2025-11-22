@@ -39,11 +39,14 @@ function nextModuleId(): number {
 }
 
 function makeAllocation(
-	overrides: Partial<Omit<AllocationRecord, 'semesterModule'>> & {
+	overrides: Partial<Omit<AllocationRecord, 'semesterModule' | 'user'>> & {
 		semesterModule?: {
 			id?: number;
 			semesterId?: number | null;
 			module?: { id?: number; name?: string };
+		};
+		user?: {
+			userSchools?: { schoolId: number }[];
 		};
 	} = {}
 ): AllocationRecord {
@@ -66,6 +69,10 @@ function makeAllocation(
 		},
 	};
 
+	const user = {
+		userSchools: overrides.user?.userSchools ?? [{ schoolId: 1 }],
+	};
+
 	return {
 		id,
 		termId: overrides.termId ?? 1,
@@ -82,6 +89,7 @@ function makeAllocation(
 		timetableAllocationVenueTypes:
 			overrides.timetableAllocationVenueTypes ?? [],
 		semesterModule,
+		user,
 	} as AllocationRecord;
 }
 
@@ -100,6 +108,7 @@ function makeVenue(overrides: Partial<VenueRecord> = {}): VenueRecord {
 			description: null,
 			createdAt: new Date(),
 		},
+		venueSchools: overrides.venueSchools ?? [{ schoolId: 1 }],
 	} as VenueRecord;
 }
 
@@ -1036,6 +1045,233 @@ describe('buildTermPlan - Validation', () => {
 		for (const slot of plan) {
 			expect(slot.allocationIds.length).toBeGreaterThan(0);
 		}
+	});
+});
+
+describe('buildTermPlan - School-Based Venue Filtering', () => {
+	it("only allocates venues from lecturer's schools", () => {
+		const schoolId1 = 100;
+		const schoolId2 = 200;
+
+		const allocation = makeAllocation({
+			numberOfStudents: 50,
+			user: {
+				userSchools: [{ schoolId: schoolId1 }],
+			},
+		});
+
+		const venues = [
+			makeVenue({
+				id: 1001,
+				capacity: 60,
+				venueSchools: [{ schoolId: schoolId1 }],
+			}),
+			makeVenue({
+				id: 1002,
+				capacity: 60,
+				venueSchools: [{ schoolId: schoolId2 }],
+			}),
+		];
+
+		const plan = buildTermPlan(1, [allocation], venues);
+
+		expect(plan).toHaveLength(1);
+		expect(plan[0].venueId).toBe(1001);
+	});
+
+	it('allows lecturer with multiple schools to use any of their school venues', () => {
+		const schoolId1 = 100;
+		const schoolId2 = 200;
+		const schoolId3 = 300;
+
+		const allocation = makeAllocation({
+			numberOfStudents: 50,
+			user: {
+				userSchools: [{ schoolId: schoolId1 }, { schoolId: schoolId2 }],
+			},
+		});
+
+		const venues = [
+			makeVenue({
+				id: 2001,
+				capacity: 60,
+				venueSchools: [{ schoolId: schoolId1 }],
+			}),
+			makeVenue({
+				id: 2002,
+				capacity: 60,
+				venueSchools: [{ schoolId: schoolId2 }],
+			}),
+			makeVenue({
+				id: 2003,
+				capacity: 60,
+				venueSchools: [{ schoolId: schoolId3 }],
+			}),
+		];
+
+		const plan = buildTermPlan(1, [allocation], venues);
+
+		expect(plan).toHaveLength(1);
+		expect([2001, 2002]).toContain(plan[0].venueId);
+		expect(plan[0].venueId).not.toBe(2003);
+	});
+
+	it('allows venue shared by multiple schools if one matches lecturer school', () => {
+		const schoolId1 = 100;
+		const schoolId2 = 200;
+
+		const allocation = makeAllocation({
+			numberOfStudents: 50,
+			user: {
+				userSchools: [{ schoolId: schoolId1 }],
+			},
+		});
+
+		const sharedVenue = makeVenue({
+			id: 3001,
+			capacity: 60,
+			venueSchools: [{ schoolId: schoolId1 }, { schoolId: schoolId2 }],
+		});
+
+		const plan = buildTermPlan(1, [allocation], [sharedVenue]);
+
+		expect(plan).toHaveLength(1);
+		expect(plan[0].venueId).toBe(3001);
+	});
+
+	it("throws error when no venues match lecturer's schools", () => {
+		const schoolId1 = 100;
+		const schoolId2 = 200;
+
+		const allocation = makeAllocation({
+			numberOfStudents: 50,
+			user: {
+				userSchools: [{ schoolId: schoolId1 }],
+			},
+		});
+
+		const venues = [
+			makeVenue({
+				id: 4001,
+				capacity: 100,
+				venueSchools: [{ schoolId: schoolId2 }],
+			}),
+		];
+
+		expect(() => buildTermPlan(1, [allocation], venues)).toThrow();
+	});
+
+	it('correctly filters venues for multiple lecturers with different schools', () => {
+		const schoolId1 = 100;
+		const schoolId2 = 200;
+
+		const alloc1 = makeAllocation({
+			userId: 'lecturer-school-1',
+			numberOfStudents: 50,
+			user: {
+				userSchools: [{ schoolId: schoolId1 }],
+			},
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: nextModuleId() },
+			},
+		});
+
+		const alloc2 = makeAllocation({
+			userId: 'lecturer-school-2',
+			numberOfStudents: 50,
+			user: {
+				userSchools: [{ schoolId: schoolId2 }],
+			},
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: nextModuleId() },
+			},
+		});
+
+		const venues = [
+			makeVenue({
+				id: 5001,
+				capacity: 60,
+				venueSchools: [{ schoolId: schoolId1 }],
+			}),
+			makeVenue({
+				id: 5002,
+				capacity: 60,
+				venueSchools: [{ schoolId: schoolId2 }],
+			}),
+		];
+
+		const plan = buildTermPlan(1, [alloc1, alloc2], venues);
+
+		expect(plan).toHaveLength(2);
+
+		const slot1 = plan.find((p) => p.allocationIds.includes(alloc1.id));
+		const slot2 = plan.find((p) => p.allocationIds.includes(alloc2.id));
+
+		expect(slot1?.venueId).toBe(5001);
+		expect(slot2?.venueId).toBe(5002);
+	});
+
+	it('handles complex scenario with school filtering and venue type requirements', () => {
+		const schoolId1 = 100;
+		const schoolId2 = 200;
+		const labTypeId = 50;
+		const lectureTypeId = 51;
+
+		const allocation = makeAllocation({
+			numberOfStudents: 50,
+			user: {
+				userSchools: [{ schoolId: schoolId1 }],
+			},
+			timetableAllocationVenueTypes: [{ venueTypeId: labTypeId }],
+		});
+
+		const venues = [
+			makeVenue({
+				id: 6001,
+				capacity: 60,
+				typeId: labTypeId,
+				type: {
+					id: labTypeId,
+					name: 'Lab',
+					description: null,
+					createdAt: new Date(),
+				},
+				venueSchools: [{ schoolId: schoolId2 }],
+			}),
+			makeVenue({
+				id: 6002,
+				capacity: 60,
+				typeId: labTypeId,
+				type: {
+					id: labTypeId,
+					name: 'Lab',
+					description: null,
+					createdAt: new Date(),
+				},
+				venueSchools: [{ schoolId: schoolId1 }],
+			}),
+			makeVenue({
+				id: 6003,
+				capacity: 60,
+				typeId: lectureTypeId,
+				type: {
+					id: lectureTypeId,
+					name: 'Lecture',
+					description: null,
+					createdAt: new Date(),
+				},
+				venueSchools: [{ schoolId: schoolId1 }],
+			}),
+		];
+
+		const plan = buildTermPlan(1, [allocation], venues);
+
+		expect(plan).toHaveLength(1);
+		expect(plan[0].venueId).toBe(6002);
 	});
 });
 

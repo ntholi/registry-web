@@ -39,11 +39,14 @@ function nextModuleId(): number {
 }
 
 function makeAllocation(
-	overrides: Partial<Omit<AllocationRecord, 'semesterModule'>> & {
+	overrides: Partial<Omit<AllocationRecord, 'semesterModule' | 'user'>> & {
 		semesterModule?: {
 			id?: number;
 			semesterId?: number | null;
 			module?: { id?: number; name?: string };
+		};
+		user?: {
+			userSchools?: { schoolId: number }[];
 		};
 	} = {}
 ): AllocationRecord {
@@ -66,6 +69,10 @@ function makeAllocation(
 		},
 	};
 
+	const user = {
+		userSchools: overrides.user?.userSchools ?? [{ schoolId: 1 }],
+	};
+
 	return {
 		id,
 		termId: overrides.termId ?? 1,
@@ -81,6 +88,7 @@ function makeAllocation(
 		timetableAllocationVenueTypes:
 			overrides.timetableAllocationVenueTypes ?? [],
 		semesterModule,
+		user,
 	} as AllocationRecord;
 }
 
@@ -99,6 +107,7 @@ function makeVenue(overrides: Partial<VenueRecord> = {}): VenueRecord {
 			description: null,
 			createdAt: new Date(),
 		},
+		venueSchools: overrides.venueSchools ?? [{ schoolId: 1 }],
 	} as VenueRecord;
 }
 
@@ -911,6 +920,275 @@ describe('RUTHLESS STRESS TESTS - Mixed Extreme Scenarios', () => {
 
 		for (const allocation of allocations) {
 			expect(allAllocationIds.has(allocation.id)).toBe(true);
+		}
+	});
+});
+
+describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
+	it('handles 50 lecturers across 10 schools with strict venue filtering', () => {
+		const schools = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+		const venues: VenueRecord[] = [];
+
+		for (let i = 0; i < 30; i++) {
+			const schoolId = schools[i % schools.length];
+			venues.push(
+				makeVenue({
+					capacity: 80 + i * 5,
+					venueSchools: [{ schoolId }],
+				})
+			);
+		}
+
+		const allocations: AllocationRecord[] = [];
+		for (let i = 0; i < 50; i++) {
+			const schoolId = schools[i % schools.length];
+			allocations.push(
+				makeAllocation({
+					userId: `lecturer-${i}`,
+					duration: 90,
+					numberOfStudents: 40 + (i % 10) * 5,
+					allowedDays: ['monday', 'tuesday', 'wednesday'],
+					user: {
+						userSchools: [{ schoolId }],
+					},
+					semesterModule: {
+						id: nextSemesterModuleId(),
+						semesterId: i % 8,
+						module: { id: nextModuleId() },
+					},
+				})
+			);
+		}
+
+		const plan = buildTermPlan(1, allocations, venues, 4);
+
+		expect(plan.length).toBeGreaterThan(0);
+
+		const allAllocationIds = new Set<number>();
+		for (const slot of plan) {
+			for (const allocationId of slot.allocationIds) {
+				allAllocationIds.add(allocationId);
+			}
+		}
+
+		for (const allocation of allocations) {
+			expect(allAllocationIds.has(allocation.id)).toBe(true);
+		}
+
+		for (const slot of plan) {
+			const venue = venues.find((v) => v.id === slot.venueId);
+			expect(venue).toBeDefined();
+
+			for (const allocId of slot.allocationIds) {
+				const alloc = allocations.find((a) => a.id === allocId);
+				expect(alloc).toBeDefined();
+
+				if (venue && alloc) {
+					const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
+					const lecturerSchoolIds = alloc.user.userSchools.map(
+						(us) => us.schoolId
+					);
+					const hasCommonSchool = lecturerSchoolIds.some((id) =>
+						venueSchoolIds.includes(id)
+					);
+					expect(hasCommonSchool).toBe(true);
+				}
+			}
+		}
+	});
+
+	it('handles lecturers with multiple schools accessing shared venues', () => {
+		const school1 = 100;
+		const school2 = 200;
+		const school3 = 300;
+
+		const allocations: AllocationRecord[] = [];
+		for (let i = 0; i < 20; i++) {
+			const schools =
+				i % 3 === 0
+					? [school1, school2]
+					: i % 3 === 1
+						? [school2, school3]
+						: [school1];
+
+			allocations.push(
+				makeAllocation({
+					userId: `multi-school-lecturer-${i}`,
+					duration: 90,
+					numberOfStudents: 50,
+					allowedDays: ['monday', 'tuesday', 'wednesday', 'thursday'],
+					user: {
+						userSchools: schools.map((schoolId) => ({ schoolId })),
+					},
+					semesterModule: {
+						id: nextSemesterModuleId(),
+						semesterId: i % 5,
+						module: { id: nextModuleId() },
+					},
+				})
+			);
+		}
+
+		const venues: VenueRecord[] = [
+			...Array.from({ length: 5 }, (_, _i) =>
+				makeVenue({
+					capacity: 100,
+					venueSchools: [{ schoolId: school1 }],
+				})
+			),
+			...Array.from({ length: 5 }, (_, _i) =>
+				makeVenue({
+					capacity: 100,
+					venueSchools: [{ schoolId: school2 }],
+				})
+			),
+			...Array.from({ length: 5 }, (_, _i) =>
+				makeVenue({
+					capacity: 100,
+					venueSchools: [{ schoolId: school3 }],
+				})
+			),
+			...Array.from({ length: 3 }, (_, _i) =>
+				makeVenue({
+					capacity: 100,
+					venueSchools: [{ schoolId: school1 }, { schoolId: school2 }],
+				})
+			),
+		];
+
+		const plan = buildTermPlan(1, allocations, venues, 4);
+
+		const allAllocationIds = new Set<number>();
+		for (const slot of plan) {
+			for (const allocationId of slot.allocationIds) {
+				allAllocationIds.add(allocationId);
+			}
+		}
+
+		for (const allocation of allocations) {
+			expect(allAllocationIds.has(allocation.id)).toBe(true);
+		}
+
+		for (const slot of plan) {
+			const venue = venues.find((v) => v.id === slot.venueId);
+			expect(venue).toBeDefined();
+
+			for (const allocId of slot.allocationIds) {
+				const alloc = allocations.find((a) => a.id === allocId);
+				if (venue && alloc) {
+					const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
+					const lecturerSchoolIds = alloc.user.userSchools.map(
+						(us) => us.schoolId
+					);
+					const hasCommonSchool = lecturerSchoolIds.some((id) =>
+						venueSchoolIds.includes(id)
+					);
+					expect(hasCommonSchool).toBe(true);
+				}
+			}
+		}
+	});
+
+	it('correctly handles school filtering with all other constraints combined', () => {
+		const school1 = 500;
+		const school2 = 600;
+		const labTypeId = 777;
+		const lectureTypeId = 888;
+
+		const allocations: AllocationRecord[] = [];
+		for (let i = 0; i < 30; i++) {
+			const schoolId = i % 2 === 0 ? school1 : school2;
+			const venueType = i % 2 === 0 ? labTypeId : lectureTypeId;
+
+			allocations.push(
+				makeAllocation({
+					userId: `complex-lecturer-${i % 10}`,
+					duration: [60, 90, 120][i % 3],
+					numberOfStudents: 40 + (i % 8) * 5,
+					allowedDays: [
+						['monday', 'wednesday'],
+						['tuesday', 'thursday'],
+						['monday', 'tuesday', 'wednesday'],
+					][i % 3] as DayOfWeek[],
+					user: {
+						userSchools: [{ schoolId }],
+					},
+					timetableAllocationVenueTypes: [{ venueTypeId: venueType }],
+					semesterModule: {
+						id: nextSemesterModuleId(),
+						semesterId: i % 6,
+						module: { id: nextModuleId() },
+					},
+				})
+			);
+		}
+
+		const venues: VenueRecord[] = [
+			...Array.from({ length: 6 }, (_, _i) =>
+				makeVenue({
+					capacity: 100,
+					typeId: labTypeId,
+					type: {
+						id: labTypeId,
+						name: 'Lab',
+						description: null,
+						createdAt: new Date(),
+					},
+					venueSchools: [{ schoolId: school1 }],
+				})
+			),
+			...Array.from({ length: 6 }, (_, _i) =>
+				makeVenue({
+					capacity: 100,
+					typeId: lectureTypeId,
+					type: {
+						id: lectureTypeId,
+						name: 'Lecture',
+						description: null,
+						createdAt: new Date(),
+					},
+					venueSchools: [{ schoolId: school2 }],
+				})
+			),
+		];
+
+		const plan = buildTermPlan(1, allocations, venues, 4);
+
+		const allAllocationIds = new Set<number>();
+		for (const slot of plan) {
+			for (const allocationId of slot.allocationIds) {
+				allAllocationIds.add(allocationId);
+			}
+		}
+
+		for (const allocation of allocations) {
+			expect(allAllocationIds.has(allocation.id)).toBe(true);
+		}
+
+		for (const slot of plan) {
+			const venue = venues.find((v) => v.id === slot.venueId);
+			expect(venue).toBeDefined();
+
+			for (const allocId of slot.allocationIds) {
+				const alloc = allocations.find((a) => a.id === allocId);
+				if (venue && alloc) {
+					const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
+					const lecturerSchoolIds = alloc.user.userSchools.map(
+						(us) => us.schoolId
+					);
+					const hasCommonSchool = lecturerSchoolIds.some((id) =>
+						venueSchoolIds.includes(id)
+					);
+					expect(hasCommonSchool).toBe(true);
+
+					if (alloc.timetableAllocationVenueTypes.length > 0) {
+						const requiredTypeIds = alloc.timetableAllocationVenueTypes.map(
+							(vt) => vt.venueTypeId
+						);
+						expect(requiredTypeIds).toContain(venue.typeId);
+					}
+				}
+			}
 		}
 	});
 });

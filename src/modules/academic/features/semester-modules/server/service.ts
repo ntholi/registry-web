@@ -1,4 +1,3 @@
-import { getCurrentTerm } from '@registry/terms';
 import type { semesterModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
@@ -127,13 +126,18 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 	}
 
 	async searchModulesWithDetails(search = '') {
-		const term = await getCurrentTerm();
 		return withAuth(
 			async () =>
-				(this.repository as ModuleRepository).searchModulesWithDetails(
-					search,
-					term
-				),
+				(this.repository as ModuleRepository).searchModulesWithDetails(search),
+			['dashboard']
+		);
+	}
+	async getStudentCountForModule(id: number) {
+		return withAuth(
+			async () =>
+				(
+					this.repository as ModuleRepository
+				).getStudentCountForPreviousSemester(id),
 			['dashboard']
 		);
 	}

@@ -21,7 +21,6 @@ interface ModuleOption extends ComboboxItem {
 	label: string;
 	code: string;
 	name: string;
-	studentCount: number;
 }
 
 export type ModuleSearchInputProps = Omit<
@@ -43,14 +42,6 @@ export const ModuleSearchInput = forwardRef<
 	const { data: modules, isLoading } = useQuery({
 		queryKey: ['modules', 'search', debouncedSearch],
 		queryFn: () => searchModulesWithDetails(debouncedSearch),
-		select: (modules) =>
-			modules.map((module) => ({
-				...module,
-				studentCount: module.semesters.reduce(
-					(count, semester) => count + (semester.studentCount ?? 0),
-					0
-				),
-			})),
 		enabled: debouncedSearch.length > 1,
 	});
 
@@ -60,7 +51,6 @@ export const ModuleSearchInput = forwardRef<
 			label: `${module.code} - ${module.name}`,
 			code: module.code,
 			name: module.name,
-			studentCount: module.studentCount,
 		})) || [];
 
 	const handleInputChange = (value: string) => {
@@ -110,16 +100,12 @@ export const ModuleSearchInput = forwardRef<
 				const moduleOption = option as ModuleOption;
 				return (
 					<Stack gap={0}>
-						<Group gap='xs'>
+						<Group gap={5}>
 							<Text size='sm' fw={500}>
 								{moduleOption.code}
-							</Text>
-							<Text size='sm'>{moduleOption.name}</Text>
+							</Text>{' '}
+							-<Text size='sm'>{moduleOption.name}</Text>
 						</Group>
-						<Text size='xs' c='dimmed'>
-							{moduleOption.studentCount} student
-							{moduleOption.studentCount === 1 ? '' : 's'} registered
-						</Text>
 					</Stack>
 				);
 			}}
