@@ -2,7 +2,7 @@
 
 import { Box, Card, Center, Stack, Table, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getUserTimetableSlots } from '@/server/timetable/slots/actions';
+import { getUserTimetableSlots } from '@timetable/slots/server/actions';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Props = {

@@ -11,8 +11,8 @@ import {
 	type AllocationRecord,
 	buildTermPlan,
 	type VenueRecord,
-} from '@/server/timetable/slots/planner';
-import TimetableSlotRepository from '@/server/timetable/slots/repository';
+} from '../../slots/server/planner';
+import TimetableSlotRepository from '../../slots/server/repository';
 
 type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
