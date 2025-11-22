@@ -348,32 +348,30 @@ export default class SemesterModuleRepository extends BaseRepository<
 					eq(
 						structureSemesters.semesterNumber,
 						previousSemesterNumber.toString().padStart(2, '0')
-					),
-					eq(
-						structureSemesters.semesterNumber,
-						previousSemesterNumber.toString()
 					)
 				)
 			),
 		});
 
-		console.log(
-			'\n\n\n\n*******************\nPrevious Semester:',
-			previousSemester
-		);
-
 		if (!previousSemester) {
 			return 0;
 		}
 
-		const mostRecentTerm = await db.query.terms
-			.findMany({
-				orderBy: desc(terms.name),
-				limit: 2,
-			})
-			.then((terms) => terms.at(-1));
+		const studentSemesterTerms = await db
+			.selectDistinct({ term: studentSemesters.term })
+			.from(studentSemesters)
+			.where(eq(studentSemesters.structureSemesterId, previousSemester.id));
 
-		console.log('\nMost Recent Term:', mostRecentTerm);
+		if (studentSemesterTerms.length === 0) {
+			return 0;
+		}
+
+		const termNames = studentSemesterTerms.map((t) => t.term);
+
+		const mostRecentTerm = await db.query.terms.findFirst({
+			where: inArray(terms.name, termNames),
+			orderBy: [desc(terms.id)],
+		});
 
 		if (!mostRecentTerm) {
 			return 0;
