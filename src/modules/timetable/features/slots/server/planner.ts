@@ -251,9 +251,24 @@ function attemptPlaceAllocation(
 	);
 
 	if (validPlacements.length > 0) {
-		validPlacements.sort((a, b) => a.score - b.score);
-		const best = validPlacements[0];
-		applyPlacement(allocation, best, planningState);
+		const combinedPlacements = validPlacements.filter(p => p.canCombine);
+
+		if (combinedPlacements.length > 0) {
+			combinedPlacements.sort((a, b) => a.score - b.score);
+			applyPlacement(allocation, combinedPlacements[0], planningState);
+			return true;
+		}
+
+		const newPlacements = validPlacements.filter(p => !p.canCombine);
+		newPlacements.sort((a, b) => a.score - b.score);
+
+		const topScoreThreshold = newPlacements[0].score + 200;
+		const topPlacements = newPlacements.filter(p => p.score <= topScoreThreshold);
+
+		const randomIndex = Math.floor(Math.random() * topPlacements.length);
+		const selected = topPlacements[randomIndex];
+
+		applyPlacement(allocation, selected, planningState);
 		return true;
 	}
 
@@ -484,8 +499,6 @@ function evaluateAllPlacements(
 			planningState
 		);
 
-		const randomnessFactor = Math.random() * 50;
-
 		const score = computePlacementScore({
 			allocation,
 			startMinutes: start,
@@ -496,7 +509,7 @@ function evaluateAllPlacements(
 			venue,
 			isCombined: false,
 			violationCount: constraintCheck.valid ? 0 : 1,
-		}) + randomnessFactor;
+		});
 
 		placements.push({
 			score,
