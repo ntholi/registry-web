@@ -191,7 +191,9 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 				</Table.Thead>
 				<Table.Tbody>
 					{DAYS.map((day) => {
-						const daySlots = slots.filter((s) => s.dayOfWeek === day);
+						const daySlots = slots
+							.filter((s) => s.dayOfWeek === day)
+							.sort((a, b) => a.startTime.localeCompare(b.startTime));
 						return (
 							<Table.Tr key={day}>
 								<Table.Td
