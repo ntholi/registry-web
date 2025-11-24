@@ -13,6 +13,7 @@ import type {
 	ModuleConfig,
 	NavItem,
 } from '@/app/dashboard/module-config.types';
+import { moduleConfig } from '@/config/modules.config';
 import type { UserPosition, UserRole } from '@/core/database';
 
 export const registryConfig: ModuleConfig = {
@@ -170,7 +171,7 @@ export const registryConfig: ModuleConfig = {
 	},
 
 	flags: {
-		enabled: true,
+		enabled: moduleConfig.registry,
 		beta: false,
 	},
 };

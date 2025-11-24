@@ -1,5 +1,6 @@
 import { IconChalkboard } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
+import { moduleConfig } from '@/config/modules.config';
 
 export const classroomConfig: ModuleConfig = {
 	id: 'classroom',
@@ -22,7 +23,7 @@ export const classroomConfig: ModuleConfig = {
 	},
 
 	flags: {
-		enabled: true,
+		enabled: moduleConfig.classroom,
 		beta: false,
 	},
 };

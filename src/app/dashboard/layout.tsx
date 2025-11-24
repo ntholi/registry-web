@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
+import { getModuleConfig } from '@/config/modules.config';
 import { auth } from '@/core/auth';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { DebugRibbon } from '@/shared/ui/DebugRibbon';
@@ -14,8 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function AdminLayout({ children }: PropsWithChildren) {
 	const isLocal = process.env.DATABASE_ENV === 'local';
+	const moduleConfig = getModuleConfig();
+
 	return (
-		<Dashboard>
+		<Dashboard moduleConfig={moduleConfig}>
 			{!process.env.AUTH_URL?.includes('portal.co.ls') && (
 				<DebugRibbon isLocal={isLocal} />
 			)}

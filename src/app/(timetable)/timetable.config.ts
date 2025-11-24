@@ -5,6 +5,7 @@ import {
 	IconChalkboard,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
+import { moduleConfig } from '@/config/modules.config';
 
 export const timetableConfig: ModuleConfig = {
 	id: 'timetable',
@@ -46,7 +47,7 @@ export const timetableConfig: ModuleConfig = {
 	},
 
 	flags: {
-		enabled: true,
+		enabled: moduleConfig.timetable,
 		beta: false,
 	},
 };
