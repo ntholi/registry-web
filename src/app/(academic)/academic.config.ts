@@ -5,6 +5,7 @@ import {
 	IconSchool,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
+import { moduleConfig } from '@/config/modules.config';
 
 export const academicConfig: ModuleConfig = {
 	id: 'academic',
@@ -60,7 +61,7 @@ export const academicConfig: ModuleConfig = {
 	},
 
 	flags: {
-		enabled: true,
+		enabled: moduleConfig.academic,
 		beta: false,
 	},
 };

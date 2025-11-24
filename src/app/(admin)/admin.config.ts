@@ -18,6 +18,7 @@ import type {
 	ModuleConfig,
 	NavItem,
 } from '@/app/dashboard/module-config.types';
+import { moduleConfig } from '@/config/modules.config';
 
 export const adminConfig: ModuleConfig = {
 	id: 'admin',
@@ -113,7 +114,7 @@ export const adminConfig: ModuleConfig = {
 	},
 
 	flags: {
-		enabled: true,
+		enabled: moduleConfig.admin,
 		beta: false,
 	},
 };

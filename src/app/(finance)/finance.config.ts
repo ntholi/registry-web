@@ -21,6 +21,7 @@ import type {
 	ModuleConfig,
 	NavItem,
 } from '@/app/dashboard/module-config.types';
+import { moduleConfig } from '@/config/modules.config';
 import type { UserPosition, UserRole } from '@/core/database';
 
 export const financeConfig: ModuleConfig = {
@@ -137,7 +138,7 @@ export const financeConfig: ModuleConfig = {
 	},
 
 	flags: {
-		enabled: true,
+		enabled: moduleConfig.finance,
 		beta: false,
 	},
 };

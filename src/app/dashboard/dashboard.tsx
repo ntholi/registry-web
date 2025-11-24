@@ -29,6 +29,7 @@ import { adminConfig } from '@/app/(admin)/admin.config';
 import { classroomConfig } from '@/app/(classroom)/classroom.config';
 import { financeConfig } from '@/app/(finance)/finance.config';
 import { registryConfig } from '@/app/(registry)/registry.config';
+import type { ClientModuleConfig } from '@/config/modules.config';
 import type { DashboardUser, UserRole } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
@@ -36,20 +37,23 @@ import Logo from '@/shared/ui/Logo';
 import { timetableConfig } from '../(timetable)/timetable.config';
 import type { NavItem } from './module-config.types';
 
-function getNavigation(department: DashboardUser) {
+function getNavigation(
+	department: DashboardUser,
+	moduleConfig: ClientModuleConfig
+) {
 	const allConfigs = [
-		timetableConfig,
-		academicConfig,
-		classroomConfig,
-		registryConfig,
-		financeConfig,
-		adminConfig,
+		{ config: timetableConfig, enabled: moduleConfig.timetable },
+		{ config: academicConfig, enabled: moduleConfig.academic },
+		{ config: classroomConfig, enabled: moduleConfig.classroom },
+		{ config: registryConfig, enabled: moduleConfig.registry },
+		{ config: financeConfig, enabled: moduleConfig.finance },
+		{ config: adminConfig, enabled: moduleConfig.admin },
 	];
 
 	const navItems: NavItem[] = [];
 
-	for (const config of allConfigs) {
-		if (config.flags.enabled) {
+	for (const { config, enabled } of allConfigs) {
+		if (enabled && config.flags.enabled) {
 			navItems.push(...config.navigation.dashboard);
 		}
 	}
@@ -120,9 +124,18 @@ function getNavigation(department: DashboardUser) {
 	return combinedItems;
 }
 
-export default function Dashboard({ children }: { children: React.ReactNode }) {
+export default function Dashboard({
+	children,
+	moduleConfig,
+}: {
+	children: React.ReactNode;
+	moduleConfig: ClientModuleConfig;
+}) {
 	const { data: session } = useSession();
-	const navigation = getNavigation(session?.user?.role as DashboardUser);
+	const navigation = getNavigation(
+		session?.user?.role as DashboardUser,
+		moduleConfig
+	);
 
 	const { data: assignedModules, isLoading: isModulesLoading } = useQuery({
 		queryKey: ['assigned-modules'],
