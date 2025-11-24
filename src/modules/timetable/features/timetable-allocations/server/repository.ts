@@ -11,8 +11,8 @@ import {
 	type AllocationRecord,
 	buildTermPlan,
 	type VenueRecord,
-} from '@/server/timetable/slots/planner';
-import TimetableSlotRepository from '@/server/timetable/slots/repository';
+} from '../../slots/server/planner';
+import TimetableSlotRepository from '../../slots/server/repository';
 
 type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -91,6 +91,36 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			orderBy: (timetableAllocations, { desc }) => [
 				desc(timetableAllocations.createdAt),
 			],
+		});
+	}
+
+	async findDuplicate(
+		semesterModuleId: number,
+		termId: number,
+		classType:
+			| 'lecture'
+			| 'tutorial'
+			| 'lab'
+			| 'workshop'
+			| 'practical'
+			| undefined,
+		groupName: string | null | undefined
+	) {
+		const resolvedClassType = classType ?? 'lecture';
+		return db.query.timetableAllocations.findFirst({
+			where: (table, { eq, and, isNull }) => {
+				const conditions = [
+					eq(table.semesterModuleId, semesterModuleId),
+					eq(table.termId, termId),
+					eq(table.classType, resolvedClassType),
+				];
+				if (groupName === null || groupName === undefined) {
+					conditions.push(isNull(table.groupName));
+				} else {
+					conditions.push(eq(table.groupName, groupName));
+				}
+				return and(...conditions);
+			},
 		});
 	}
 

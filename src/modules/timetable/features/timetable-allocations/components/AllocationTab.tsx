@@ -14,6 +14,7 @@ import {
 	TableTr,
 	Text,
 } from '@mantine/core';
+import { useQueryClient } from '@tanstack/react-query';
 import {
 	AddAllocationModal,
 	deleteTimetableAllocation,
@@ -113,6 +114,8 @@ export default function AllocationTab({
 	totalStudents,
 	defaults,
 }: Props) {
+	const queryClient = useQueryClient();
+
 	return (
 		<Box>
 			<Box mt='lg'>
@@ -230,7 +233,12 @@ export default function AllocationTab({
 												}}
 												queryKey={['timetable-allocations', userId]}
 												message='Are you sure you want to delete this allocation?'
-												onSuccess={() => {}}
+												onSuccess={async () => {
+													await queryClient.invalidateQueries({
+														queryKey: ['timetable-slots'],
+														refetchType: 'all',
+													});
+												}}
 											/>
 										</Group>
 									</TableTd>

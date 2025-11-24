@@ -87,9 +87,34 @@ interface ConstraintCheck {
 	reason?: string;
 }
 
-const TIME_STEP_MINUTES = 5;
 const MAX_CONSECUTIVE_SLOTS = 2;
 const MAX_BACKTRACK_ATTEMPTS = 50;
+
+function generateValidStartTimes(
+	allocation: AllocationRecord,
+	windowStart: number,
+	windowEnd: number
+): number[] {
+	const validTimes: number[] = [];
+	const baseStartMinutes = toMinutes(
+		config.timetable.timetableAllocations.startTime
+	);
+	const configDuration = config.timetable.timetableAllocations.duration;
+
+	let candidateTime = baseStartMinutes;
+
+	while (candidateTime < windowEnd) {
+		if (
+			candidateTime >= windowStart &&
+			candidateTime + allocation.duration <= windowEnd
+		) {
+			validTimes.push(candidateTime);
+		}
+		candidateTime += configDuration;
+	}
+
+	return validTimes;
+}
 
 export function buildTermPlan(
 	termId: number,
@@ -231,9 +256,26 @@ function attemptPlaceAllocation(
 	);
 
 	if (validPlacements.length > 0) {
-		validPlacements.sort((a, b) => a.score - b.score);
-		const best = validPlacements[0];
-		applyPlacement(allocation, best, planningState);
+		const combinedPlacements = validPlacements.filter((p) => p.canCombine);
+
+		if (combinedPlacements.length > 0) {
+			combinedPlacements.sort((a, b) => a.score - b.score);
+			applyPlacement(allocation, combinedPlacements[0], planningState);
+			return true;
+		}
+
+		const newPlacements = validPlacements.filter((p) => !p.canCombine);
+		newPlacements.sort((a, b) => a.score - b.score);
+
+		const topScoreThreshold = newPlacements[0].score + 200;
+		const topPlacements = newPlacements.filter(
+			(p) => p.score <= topScoreThreshold
+		);
+
+		const randomIndex = Math.floor(Math.random() * topPlacements.length);
+		const selected = topPlacements[randomIndex];
+
+		applyPlacement(allocation, selected, planningState);
 		return true;
 	}
 
@@ -441,47 +483,52 @@ function evaluateAllPlacements(
 		planningState
 	);
 
+	const validStartTimes: number[] = [];
 	for (const window of windows) {
-		let start = window.start;
-		while (start + allocation.duration <= window.end) {
-			const end = start + allocation.duration;
+		const timesInWindow = generateValidStartTimes(
+			allocation,
+			window.start,
+			window.end
+		);
+		validStartTimes.push(...timesInWindow);
+	}
 
-			const constraintCheck = validatePlacement(
-				allocation,
-				venue.id,
-				day,
-				start,
-				end,
-				true,
-				planningState
-			);
+	for (const start of validStartTimes) {
+		const end = start + allocation.duration;
 
-			const score = computePlacementScore({
-				allocation,
-				startMinutes: start,
-				venueLoad: planningState.venueLoad.get(venue.id) ?? 0,
-				dayLoad: (
-					planningState.daySchedules.get(buildDayKey(venue.id, day)) ?? []
-				).length,
-				venue,
-				isCombined: false,
-				violationCount: constraintCheck.valid ? 0 : 1,
-			});
+		const constraintCheck = validatePlacement(
+			allocation,
+			venue.id,
+			day,
+			start,
+			end,
+			true,
+			planningState
+		);
 
-			placements.push({
-				score,
-				slotKey: buildSlotKey(venue.id, day, start, end),
-				isNew: true,
-				canCombine: false,
-				venueId: venue.id,
-				dayOfWeek: day,
-				startMinutes: start,
-				endMinutes: end,
-				violations: constraintCheck.valid ? [] : [constraintCheck.reason || ''],
-			});
+		const score = computePlacementScore({
+			allocation,
+			startMinutes: start,
+			venueLoad: planningState.venueLoad.get(venue.id) ?? 0,
+			dayLoad: (
+				planningState.daySchedules.get(buildDayKey(venue.id, day)) ?? []
+			).length,
+			venue,
+			isCombined: false,
+			violationCount: constraintCheck.valid ? 0 : 1,
+		});
 
-			start += TIME_STEP_MINUTES;
-		}
+		placements.push({
+			score,
+			slotKey: buildSlotKey(venue.id, day, start, end),
+			isNew: true,
+			canCombine: false,
+			venueId: venue.id,
+			dayOfWeek: day,
+			startMinutes: start,
+			endMinutes: end,
+			violations: constraintCheck.valid ? [] : [constraintCheck.reason || ''],
+		});
 	}
 
 	return placements;

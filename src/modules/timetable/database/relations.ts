@@ -13,7 +13,6 @@ import { venueSchools, venues, venueTypes } from './schema/venues';
 
 export const venueTypesRelations = relations(venueTypes, ({ many }) => ({
 	venues: many(venues),
-	timetableSlots: many(timetableSlots),
 	timetableAllocationVenueTypes: many(timetableAllocationVenueTypes),
 }));
 

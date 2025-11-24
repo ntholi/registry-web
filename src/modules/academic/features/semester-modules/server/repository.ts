@@ -318,6 +318,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 		}
 		return Array.from(groupedModules.values());
 	}
+
 	async getStudentCountForPreviousSemester(semesterModuleId: number) {
 		const semesterModule = await db.query.semesterModules.findFirst({
 			where: eq(semesterModules.id, semesterModuleId),
@@ -343,9 +344,11 @@ export default class SemesterModuleRepository extends BaseRepository<
 		const previousSemester = await db.query.structureSemesters.findFirst({
 			where: and(
 				eq(structureSemesters.structureId, semesterModule.semester.structureId),
-				eq(
-					structureSemesters.semesterNumber,
-					previousSemesterNumber.toString().padStart(2, '0')
+				or(
+					eq(
+						structureSemesters.semesterNumber,
+						previousSemesterNumber.toString().padStart(2, '0')
+					)
 				)
 			),
 		});
@@ -354,8 +357,20 @@ export default class SemesterModuleRepository extends BaseRepository<
 			return 0;
 		}
 
+		const studentSemesterTerms = await db
+			.selectDistinct({ term: studentSemesters.term })
+			.from(studentSemesters)
+			.where(eq(studentSemesters.structureSemesterId, previousSemester.id));
+
+		if (studentSemesterTerms.length === 0) {
+			return 0;
+		}
+
+		const termNames = studentSemesterTerms.map((t) => t.term);
+
 		const mostRecentTerm = await db.query.terms.findFirst({
-			orderBy: desc(terms.id),
+			where: inArray(terms.name, termNames),
+			orderBy: [desc(terms.id)],
 		});
 
 		if (!mostRecentTerm) {

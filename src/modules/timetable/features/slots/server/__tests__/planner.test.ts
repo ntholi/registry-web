@@ -120,18 +120,19 @@ function timeToMinutes(time: string): number {
 describe('buildTermPlan - Basic Allocation', () => {
 	it('schedules a single allocation at earliest feasible slot', () => {
 		const allocation = makeAllocation({
-			startTime: '09:00:00',
-			endTime: '12:00:00',
+			startTime: '08:30:00',
+			endTime: '12:30:00',
 			duration: 120,
 		});
 		const venues = [makeVenue({ id: 5 })];
 		const plan = buildTermPlan(1, [allocation], venues);
 
 		expect(plan).toHaveLength(1);
-		expect(plan[0].startTime).toBe('09:00:00');
-		expect(plan[0].endTime).toBe('11:00:00');
 		expect(plan[0].venueId).toBe(5);
 		expect(plan[0].allocationIds).toEqual([allocation.id]);
+		const slotDuration =
+			timeToMinutes(plan[0].endTime) - timeToMinutes(plan[0].startTime);
+		expect(slotDuration).toBe(120);
 	});
 
 	it('schedules multiple independent allocations in same venue on different time slots', () => {
@@ -954,28 +955,37 @@ describe('buildTermPlan - Edge Cases', () => {
 	it('fills gaps efficiently to minimize idle time', () => {
 		const venue = makeVenue({ id: 600 });
 
-		const early = makeAllocation({
-			duration: 60,
-			startTime: '08:00:00',
-			endTime: '10:00:00',
-		});
-
-		const middle = makeAllocation({
-			duration: 60,
+		const first = makeAllocation({
+			duration: 120,
 			startTime: '08:30:00',
-			endTime: '12:00:00',
+			endTime: '14:30:00',
 		});
 
-		const late = makeAllocation({
-			duration: 60,
+		const second = makeAllocation({
+			duration: 120,
 			startTime: '08:30:00',
-			endTime: '12:00:00',
+			endTime: '14:30:00',
 		});
 
-		const plan = buildTermPlan(1, [early, middle, late], [venue]);
+		const third = makeAllocation({
+			duration: 120,
+			startTime: '08:30:00',
+			endTime: '14:30:00',
+		});
 
-		const starts = plan.map((slot) => slot.startTime).sort();
-		expect(starts).toStrictEqual(['08:00:00', '09:00:00', '10:00:00']);
+		const plan = buildTermPlan(1, [first, second, third], [venue]);
+
+		expect(plan).toHaveLength(3);
+		const slots = plan
+			.map((slot) => ({
+				start: timeToMinutes(slot.startTime),
+				end: timeToMinutes(slot.endTime),
+			}))
+			.sort((a, b) => a.start - b.start);
+
+		for (let i = 0; i < slots.length - 1; i++) {
+			expect(slots[i].end).toBeLessThanOrEqual(slots[i + 1].start);
+		}
 	});
 
 	it('prefers alternate days when primary day is saturated', () => {
@@ -983,26 +993,37 @@ describe('buildTermPlan - Edge Cases', () => {
 
 		const morning = makeAllocation({
 			allowedDays: ['monday'],
-			startTime: '08:00:00',
-			endTime: '12:00:00',
-			duration: 240,
+			startTime: '08:30:00',
+			endTime: '14:30:00',
+			duration: 120,
 		});
 
 		const afternoon = makeAllocation({
 			allowedDays: ['monday'],
-			startTime: '12:00:00',
-			endTime: '18:00:00',
-			duration: 360,
+			startTime: '08:30:00',
+			endTime: '16:30:00',
+			duration: 120,
+		});
+
+		const evening = makeAllocation({
+			allowedDays: ['monday'],
+			startTime: '08:30:00',
+			endTime: '17:30:00',
+			duration: 120,
 		});
 
 		const flexible = makeAllocation({
 			allowedDays: ['monday', 'tuesday'],
-			startTime: '08:00:00',
-			endTime: '18:00:00',
-			duration: 180,
+			startTime: '08:30:00',
+			endTime: '17:30:00',
+			duration: 120,
 		});
 
-		const plan = buildTermPlan(1, [morning, afternoon, flexible], [venue]);
+		const plan = buildTermPlan(
+			1,
+			[morning, afternoon, evening, flexible],
+			[venue]
+		);
 
 		const flexibleSlot = plan.find((slot) =>
 			slot.allocationIds.includes(flexible.id)
