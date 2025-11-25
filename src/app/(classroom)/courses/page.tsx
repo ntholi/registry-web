@@ -1,11 +1,5 @@
-import {
-	Button,
-	Container,
-	Divider,
-	Flex,
-	SimpleGrid,
-	Title,
-} from '@mantine/core';
+import { CreateCourseModal } from '@classroom/courses';
+import { Container, Divider, Flex, SimpleGrid, Title } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 
@@ -20,7 +14,7 @@ export default async function CoursesPage() {
 		<Container mt='lg' size='xl'>
 			<Flex justify='space-between' align='center' mb='md'>
 				<Title order={2}>My Courses</Title>
-				<Button>New Course</Button>
+				<CreateCourseModal />
 			</Flex>
 
 			<Divider mb='lg' />

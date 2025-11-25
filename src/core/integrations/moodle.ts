@@ -1,4 +1,4 @@
-const MOODLE_URL = process.env.MOODLE_URL || 'http://localhost';
+const MOODLE_URL = process.env.MOODLE_URL;
 const MOODLE_TOKEN = process.env.MOODLE_TOKEN || '';
 
 export async function moodleRequest(
