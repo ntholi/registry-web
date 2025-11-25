@@ -35,25 +35,19 @@ async function moodleRequest(
 ) {
 	const url = new URL(`${MOODLE_URL}/webservice/rest/server.php`);
 
-	const requestParams: Record<string, string> = {
-		wstoken: MOODLE_TOKEN,
-		wsfunction,
-		moodlewsrestformat: 'json',
-	};
+	url.searchParams.set('wstoken', MOODLE_TOKEN);
+	url.searchParams.set('wsfunction', wsfunction);
+	url.searchParams.set('moodlewsrestformat', 'json');
 
 	for (const [key, value] of Object.entries(params)) {
 		if (value !== undefined) {
-			requestParams[key] = String(value);
+			url.searchParams.set(key, String(value));
 		}
 	}
 
 	console.log(`[Moodle] Requesting ${wsfunction}`, {
-		...requestParams,
-		wstoken: '***',
+		url: url.toString().replace(MOODLE_TOKEN, '***'),
 	});
-
-	const formData =
-		method === 'POST' ? new URLSearchParams(requestParams) : undefined;
 
 	try {
 		const response = await fetch(url.toString(), {
@@ -61,14 +55,25 @@ async function moodleRequest(
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
-			body: formData?.toString(),
 		});
 
 		if (!response.ok) {
 			throw new Error(`Moodle API request failed: ${response.statusText}`);
 		}
 
-		const data = await response.json();
+		const text = await response.text();
+
+		if (text.startsWith('<?xml') || text.startsWith('<')) {
+			console.error(
+				'Moodle returned XML instead of JSON:',
+				text.substring(0, 500)
+			);
+			throw new Error(
+				'Moodle API returned XML. Check if the web service is properly configured.'
+			);
+		}
+
+		const data = JSON.parse(text);
 
 		if (data.exception) {
 			throw new MoodleError(
