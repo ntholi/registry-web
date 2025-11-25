@@ -4,7 +4,6 @@ const MOODLE_TOKEN = process.env.MOODLE_TOKEN || '';
 export class MoodleError extends Error {
 	exception: string;
 	errorcode?: string;
-
 	constructor(message: string, exception: string, errorcode?: string) {
 		super(message);
 		this.name = 'MoodleError';
@@ -13,8 +12,25 @@ export class MoodleError extends Error {
 	}
 }
 
-export async function moodleRequest(
+type Method = 'GET' | 'POST';
+
+export async function moodleGet(
 	wsfunction: string,
+	params: Record<string, string | number | boolean | undefined> = {}
+) {
+	return moodleRequest(wsfunction, 'GET', params);
+}
+
+export async function moodlePost(
+	wsfunction: string,
+	params: Record<string, string | number | boolean | undefined> = {}
+) {
+	return moodleRequest(wsfunction, 'POST', params);
+}
+
+async function moodleRequest(
+	wsfunction: string,
+	method: Method,
 	params: Record<string, string | number | boolean | undefined> = {}
 ) {
 	const url = new URL(`${MOODLE_URL}/webservice/rest/server.php`);
@@ -36,15 +52,16 @@ export async function moodleRequest(
 		wstoken: '***',
 	});
 
-	const formData = new URLSearchParams(requestParams);
+	const formData =
+		method === 'POST' ? new URLSearchParams(requestParams) : undefined;
 
 	try {
 		const response = await fetch(url.toString(), {
-			method: 'POST',
+			method,
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
-			body: formData.toString(),
+			body: formData?.toString(),
 		});
 
 		if (!response.ok) {

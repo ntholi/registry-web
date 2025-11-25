@@ -1,7 +1,7 @@
 'use server';
 
 import { auth } from '@/core/auth';
-import { moodleRequest } from '@/core/integrations/moodle';
+import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { assignedModulesRepository } from '@/modules/academic/features/assigned-modules/server/repository';
 
 export type CreateMoodleCourseParams = {
@@ -19,7 +19,7 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 
 	const { fullname, shortname, categoryid, semesterModuleId } = params;
 
-	const result = await moodleRequest('core_course_create_courses', {
+	const result = await moodlePost('core_course_create_courses', {
 		'courses[0][fullname]': fullname,
 		'courses[0][shortname]': shortname,
 		'courses[0][categoryid]': categoryid,
@@ -46,7 +46,7 @@ export async function getMoodleCategories() {
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleRequest('core_course_get_categories', {});
+	const result = await moodleGet('core_course_get_categories', {});
 
 	return result as Array<{
 		id: number;
