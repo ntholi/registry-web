@@ -29,7 +29,11 @@ export default class AssignedModuleRepository extends BaseRepository<
 							with: {
 								structure: {
 									with: {
-										program: true,
+										program: {
+											with: {
+												school: true,
+											},
+										},
 									},
 								},
 							},
@@ -74,7 +78,11 @@ export default class AssignedModuleRepository extends BaseRepository<
 							with: {
 								structure: {
 									with: {
-										program: true,
+										program: {
+											with: {
+												school: true,
+											},
+										},
 									},
 								},
 							},
@@ -155,7 +163,11 @@ export default class AssignedModuleRepository extends BaseRepository<
 							with: {
 								structure: {
 									with: {
-										program: true,
+										program: {
+											with: {
+												school: true,
+											},
+										},
 									},
 								},
 							},
