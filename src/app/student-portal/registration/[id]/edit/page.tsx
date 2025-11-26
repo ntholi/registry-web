@@ -164,7 +164,7 @@ export default function EditRegistrationPage() {
 			queryClient.invalidateQueries({
 				queryKey: ['registration-request', registrationId],
 			});
-			router.push('/student-portal/student/registration');
+			router.push('/student-portal/registration');
 		},
 		onError: (error) => {
 			notifications.show({

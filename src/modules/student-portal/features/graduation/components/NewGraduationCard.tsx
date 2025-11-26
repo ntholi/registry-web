@@ -94,7 +94,7 @@ export default function NewGraduationCard() {
 				</Stack>
 				<Button
 					component={Link}
-					href='/student-portal/student/graduation/new'
+					href='/student-portal/graduation/new'
 					color='violet'
 					leftSection={<IconPlus size='1rem' />}
 				>

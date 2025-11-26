@@ -118,7 +118,7 @@ export default function GraduationPage() {
 				color: 'green',
 			});
 			queryClient.invalidateQueries({ queryKey: ['graduation-request'] });
-			router.push('/student-portal/student/graduation');
+			router.push('/student-portal/graduation');
 		},
 		onError: (error) => {
 			notifications.show({

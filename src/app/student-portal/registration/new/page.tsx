@@ -162,7 +162,7 @@ export default function NewRegistrationPage() {
 				color: 'green',
 			});
 			queryClient.invalidateQueries({ queryKey: ['student-registrations'] });
-			router.push('/student-portal/student/registration');
+			router.push('/student-portal/registration');
 		},
 		onError: (error) => {
 			notifications.show({

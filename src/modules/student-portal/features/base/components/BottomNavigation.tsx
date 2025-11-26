@@ -28,26 +28,26 @@ const navItems: NavItem[] = [
 	{
 		icon: <IconHome size={20} />,
 		label: 'Home',
-		href: '/student-portal/student',
-		path: '/student-portal/student',
+		href: '/student-portal',
+		path: '/student-portal',
 	},
 	{
 		icon: <IconClipboardCheck size={20} />,
 		label: 'Registration',
-		href: '/student-portal/student/registration',
-		path: '/student-portal/student/registration',
+		href: '/student-portal/registration',
+		path: '/student-portal/registration',
 	},
 	{
 		icon: <IconFileCertificate size={20} />,
 		label: 'Transcript',
-		href: '/student-portal/student/transcripts',
-		path: '/student-portal/student/transcripts',
+		href: '/student-portal/transcripts',
+		path: '/student-portal/transcripts',
 	},
 	{
 		icon: <IconUser size={20} />,
 		label: 'Profile',
-		href: '/student-portal/student/profile',
-		path: '/student-portal/student/profile',
+		href: '/student-portal/profile',
+		path: '/student-portal/profile',
 	},
 ];
 
@@ -63,7 +63,7 @@ export default function BottomNavigation() {
 	};
 
 	const isActive = (path: string) => {
-		if (path === '/student-portal/student') {
+		if (path === '/student-portal') {
 			return pathname === path;
 		}
 		return pathname.startsWith(path);
