@@ -42,7 +42,7 @@ export default function AccountSetupPage() {
 			children: 'Are you sure you want to logout?',
 			confirmProps: { color: 'red' },
 			labels: { confirm: 'Logout', cancel: 'Cancel' },
-			onConfirm: () => signOut({ callbackUrl: '/login' }),
+			onConfirm: () => signOut({ callbackUrl: '/auth/login' }),
 		});
 	};
 

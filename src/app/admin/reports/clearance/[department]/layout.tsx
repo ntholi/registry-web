@@ -8,7 +8,7 @@ type Props = {
 export default async function Layout({ children, params }: Props) {
 	const session = await auth();
 	if (!session?.user?.role) {
-		redirect('/login');
+		redirect('/auth/login');
 	}
 
 	const { department } = await params;

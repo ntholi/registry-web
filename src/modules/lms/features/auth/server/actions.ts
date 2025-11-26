@@ -44,7 +44,7 @@ export async function checkMoodleAuth(): Promise<{
 		return { isAuthenticated: false, lmsUserId: null, needsLinking: false };
 	}
 
-	const lmsUserId = await lmsAuthRepository.getlmsUserId(session.user.id);
+	const lmsUserId = await lmsAuthRepository.getLmsUserId(session.user.id);
 
 	if (lmsUserId) {
 		return { isAuthenticated: true, lmsUserId, needsLinking: false };
@@ -54,7 +54,7 @@ export async function checkMoodleAuth(): Promise<{
 		const moodleUser = await getMoodleUserByEmail(session.user.email);
 
 		if (moodleUser) {
-			await lmsAuthRepository.setlmsUserId(session.user.id, moodleUser.id);
+			await lmsAuthRepository.setLmsUserId(session.user.id, moodleUser.id);
 			return {
 				isAuthenticated: true,
 				lmsUserId: moodleUser.id,
@@ -76,10 +76,10 @@ export async function linkMoodleAccount(): Promise<{
 		return { success: false, error: 'Not authenticated' };
 	}
 
-	const existinglmsUserId = await lmsAuthRepository.getlmsUserId(
+	const existingLmsUserId = await lmsAuthRepository.getLmsUserId(
 		session.user.id
 	);
-	if (existinglmsUserId) {
+	if (existingLmsUserId) {
 		return { success: true };
 	}
 
@@ -93,7 +93,7 @@ export async function linkMoodleAccount(): Promise<{
 		};
 	}
 
-	await lmsAuthRepository.setlmsUserId(session.user.id, moodleUser.id);
+	await lmsAuthRepository.setLmsUserId(session.user.id, moodleUser.id);
 	return { success: true };
 }
 

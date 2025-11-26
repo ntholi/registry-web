@@ -185,7 +185,7 @@ function UserButton() {
 	});
 
 	if (status === 'unauthenticated') {
-		router.push('/login');
+		router.push('/auth/login');
 	}
 	const user = session?.user;
 
