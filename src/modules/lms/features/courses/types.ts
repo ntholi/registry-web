@@ -1,1 +1,34 @@
-export type {};
+export type MoodleCourse = {
+	id: number;
+	shortname: string;
+	fullname: string;
+	displayname: string;
+	enrolledusercount: number;
+	idnumber: string;
+	visible: number;
+	summary: string;
+	summaryformat: number;
+	format: string;
+	showgrades: boolean;
+	lang: string;
+	enablecompletion: boolean;
+	completionhascriteria: boolean;
+	completionusertracked: boolean;
+	category: number;
+	progress: number | null;
+	completed: boolean | null;
+	startdate: number;
+	enddate: number;
+	marker: number;
+	lastaccess: number | null;
+	isfavourite: boolean;
+	hidden: boolean;
+	overviewfiles: Array<{
+		filename: string;
+		filepath: string;
+		filesize: number;
+		fileurl: string;
+		timemodified: number;
+		mimetype: string;
+	}>;
+};

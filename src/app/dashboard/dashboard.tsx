@@ -150,7 +150,7 @@ export default function Dashboard({
 				nav.children = assignedModules.map((it) => ({
 					label: it?.semesterModule?.module?.code || 'Unknown Module',
 					description: it?.semesterModule?.module?.name || 'Unknown Module',
-					href: `/gradebook/${it?.semesterModule.moduleId}`,
+					href: `/academic/gradebook/${it?.semesterModule.moduleId}`,
 				}));
 			}
 		}

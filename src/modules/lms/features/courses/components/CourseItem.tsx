@@ -1,13 +1,13 @@
 'use client';
 import { Badge, Box, Card, Flex, Group, Stack, Text } from '@mantine/core';
-import type { classroom_v1 } from 'googleapis';
 import Link from 'next/link';
+import type { MoodleCourse } from '../types';
 
 type Props = {
-	course: classroom_v1.Schema$Course;
+	course: MoodleCourse;
 };
 
-function getCourseGradient(courseId?: string | null): string {
+function getCourseGradient(courseId?: number | null): string {
 	const gradients = [
 		'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
 		'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -27,13 +27,7 @@ function getCourseGradient(courseId?: string | null): string {
 		return gradients[0];
 	}
 
-	let hash = 0;
-	for (let index = 0; index < courseId.length; index += 1) {
-		const charCode = courseId.charCodeAt(index);
-		hash = charCode + ((hash << 5) - hash);
-	}
-
-	const gradientIndex = Math.abs(hash) % gradients.length;
+	const gradientIndex = Math.abs(courseId) % gradients.length;
 	return gradients[gradientIndex];
 }
 
@@ -66,10 +60,7 @@ function getCourseMonogram(name?: string | null): string {
 
 export default function CourseItem({ course }: Props) {
 	const gradient = getCourseGradient(course.id);
-	const monogram = getCourseMonogram(course.name);
-	const section = course.section?.trim();
-	const room = course.room?.trim();
-	const description = course.description?.trim();
+	const monogram = getCourseMonogram(course.fullname);
 
 	return (
 		<Card
@@ -167,22 +158,17 @@ export default function CourseItem({ course }: Props) {
 			<Stack gap='sm'>
 				<Flex justify={'space-between'} align={'baseline'}>
 					<Text size='lg' fw={600} lineClamp={2}>
-						{course.name}
+						{course.fullname}
 					</Text>
-					<Badge variant='default'>{description}</Badge>
+					{course.shortname && (
+						<Badge variant='default'>{course.shortname}</Badge>
+					)}
 				</Flex>
-				{(section || room) && (
+				{course.enrolledusercount > 0 && (
 					<Group gap='xs'>
-						{section && (
-							<Badge variant='light' color='violet'>
-								{section}
-							</Badge>
-						)}
-						{room && (
-							<Badge variant='light' color='cyan'>
-								{room}
-							</Badge>
-						)}
+						<Badge variant='light' color='violet'>
+							{course.enrolledusercount} enrolled
+						</Badge>
 					</Group>
 				)}
 			</Stack>

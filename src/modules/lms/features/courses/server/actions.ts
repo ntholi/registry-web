@@ -3,6 +3,26 @@
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { assignedModulesRepository } from '@/modules/academic/features/assigned-modules/server/repository';
+import { lmsAuthRepository } from '@/modules/lms/features/auth/server/repository';
+import type { MoodleCourse } from '../types';
+
+export async function getUserCourses(): Promise<MoodleCourse[]> {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	const lmsUserId = await lmsAuthRepository.getLmsUserId(session.user.id);
+	if (!lmsUserId) {
+		return [];
+	}
+
+	const result = await moodleGet('core_enrol_get_users_courses', {
+		userid: lmsUserId,
+	});
+
+	return result as MoodleCourse[];
+}
 
 export type CreateMoodleCourseParams = {
 	fullname: string;
