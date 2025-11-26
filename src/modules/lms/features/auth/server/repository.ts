@@ -9,16 +9,6 @@ class LmsAuthRepository {
 		});
 		return user?.lmsUserId ?? null;
 	}
-
-	async setLmsUserId(userId: string, lmsUserId: number): Promise<void> {
-		await db.update(users).set({ lmsUserId }).where(eq(users.id, userId));
-	}
-
-	async getUserByEmail(email: string) {
-		return db.query.users.findFirst({
-			where: eq(users.email, email),
-		});
-	}
 }
 
 export const lmsAuthRepository = new LmsAuthRepository();

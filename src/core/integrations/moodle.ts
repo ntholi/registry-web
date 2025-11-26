@@ -1,4 +1,4 @@
-const MOODLE_URL = process.env.MOODLE_URL;
+const NEXT_PUBLIC_MOODLE_URL = process.env.NEXT_PUBLIC_MOODLE_URL;
 const MOODLE_TOKEN = process.env.MOODLE_TOKEN || '';
 
 export class MoodleError extends Error {
@@ -33,7 +33,7 @@ async function moodleRequest(
 	method: Method,
 	params: Record<string, string | number | boolean | undefined> = {}
 ) {
-	const url = new URL(`${MOODLE_URL}/webservice/rest/server.php`);
+	const url = new URL(`${NEXT_PUBLIC_MOODLE_URL}/webservice/rest/server.php`);
 
 	url.searchParams.set('wstoken', MOODLE_TOKEN);
 	url.searchParams.set('wsfunction', wsfunction);
