@@ -10,7 +10,9 @@ export default function Layout({ children }: PropsWithChildren) {
 			path={'/academic/semester-modules'}
 			queryKey={['semester-modules']}
 			getData={findAllModules}
-			actionIcons={[<NewLink key={'new-link'} href='/academic/semester-modules/new' />]}
+			actionIcons={[
+				<NewLink key={'new-link'} href='/academic/semester-modules/new' />,
+			]}
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}

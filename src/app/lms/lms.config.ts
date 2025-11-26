@@ -2,19 +2,19 @@ import { IconChalkboard } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 
-export const classroomConfig: ModuleConfig = {
-	id: 'classroom',
-	name: 'Classroom',
+export const lmsConfig: ModuleConfig = {
+	id: 'lms',
+	name: 'LMS',
 	version: '1.0.0',
 	category: 'core',
 
 	navigation: {
 		dashboard: [
 			{
-				label: 'Classroom',
+				label: 'LMS',
 				icon: IconChalkboard,
 				roles: ['academic'],
-				href: '/classroom/courses',
+				href: '/lms/courses',
 				isVisible: (session) => {
 					return session?.user?.position !== 'admin';
 				},
@@ -23,7 +23,7 @@ export const classroomConfig: ModuleConfig = {
 	},
 
 	flags: {
-		enabled: moduleConfig.classroom,
+		enabled: moduleConfig.lms,
 		beta: false,
 	},
 };

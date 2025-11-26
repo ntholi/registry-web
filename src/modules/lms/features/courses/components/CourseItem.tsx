@@ -78,7 +78,7 @@ export default function CourseItem({ course }: Props) {
 			radius='sm'
 			component={Link}
 			withBorder
-			href={`/courses/${course.id}`}
+			href={`/lms/courses/${course.id}`}
 			style={{
 				overflow: 'hidden',
 				transition:

@@ -1,4 +1,4 @@
-import { CreateCourseModal } from '@classroom/courses';
+import { CreateCourseModal } from '@lms/courses';
 import { Container, Divider, Flex, SimpleGrid, Title } from '@mantine/core';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';

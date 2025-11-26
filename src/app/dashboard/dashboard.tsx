@@ -24,17 +24,17 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import React from 'react';
-import { academicConfig } from '@/app/(academic)/academic.config';
-import { adminConfig } from '@/app/(admin)/admin.config';
-import { classroomConfig } from '@/app/(classroom)/classroom.config';
-import { financeConfig } from '@/app/(finance)/finance.config';
-import { registryConfig } from '@/app/(registry)/registry.config';
+import { academicConfig } from '@/app/academic/academic.config';
+import { adminConfig } from '@/app/admin/admin.config';
+import { financeConfig } from '@/app/finance/finance.config';
+import { lmsConfig } from '@/app/lms/lms.config';
+import { registryConfig } from '@/app/registry/registry.config';
 import type { ClientModuleConfig } from '@/config/modules.config';
 import type { DashboardUser, UserRole } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
-import { timetableConfig } from '../(timetable)/timetable.config';
+import { timetableConfig } from '../timetable/timetable.config';
 import type { NavItem } from './module-config.types';
 
 function getNavigation(
@@ -44,7 +44,7 @@ function getNavigation(
 	const allConfigs = [
 		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: academicConfig, enabled: moduleConfig.academic },
-		{ config: classroomConfig, enabled: moduleConfig.classroom },
+		{ config: lmsConfig, enabled: moduleConfig.lms },
 		{ config: registryConfig, enabled: moduleConfig.registry },
 		{ config: financeConfig, enabled: moduleConfig.finance },
 		{ config: adminConfig, enabled: moduleConfig.admin },

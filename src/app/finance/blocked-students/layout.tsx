@@ -12,7 +12,9 @@ export default function Layout({ children }: PropsWithChildren) {
 			getData={async (page, search) =>
 				await getBlockedStudentByStatus('blocked', page, search)
 			}
-			actionIcons={[<NewLink key={'new-link'} href='/finance/blocked-students/new' />]}
+			actionIcons={[
+				<NewLink key={'new-link'} href='/finance/blocked-students/new' />,
+			]}
 			renderItem={(it) => (
 				<ListItem id={it.id} label={it.stdNo} description={it.student.name} />
 			)}
