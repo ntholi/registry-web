@@ -2,7 +2,6 @@
 
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
-import { lmsAuthRepository } from '@/modules/lms/features/auth/server/repository';
 import type {
 	CreateDiscussionParams,
 	MoodleDiscussion,
@@ -46,11 +45,11 @@ export async function getForumDiscussions(
 
 export async function createForumDiscussion(params: CreateDiscussionParams) {
 	const session = await auth();
-	if (!session?.user?.id) {
+	if (!session?.user) {
 		throw new Error('Unauthorized');
 	}
 
-	const lmsUserId = await lmsAuthRepository.getLmsUserId(session.user.id);
+	const lmsUserId = session.user.lmsUserId;
 	if (!lmsUserId) {
 		throw new Error('User is not linked to a Moodle account');
 	}

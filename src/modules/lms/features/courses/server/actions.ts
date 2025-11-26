@@ -3,16 +3,15 @@
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { assignedModulesRepository } from '@/modules/academic/features/assigned-modules/server/repository';
-import { lmsAuthRepository } from '@/modules/lms/features/auth/server/repository';
 import type { MoodleCourse } from '../types';
 
 export async function getUserCourses(): Promise<MoodleCourse[]> {
 	const session = await auth();
-	if (!session?.user?.id) {
+	if (!session?.user) {
 		throw new Error('Unauthorized');
 	}
 
-	const lmsUserId = await lmsAuthRepository.getLmsUserId(session.user.id);
+	const lmsUserId = session.user.lmsUserId;
 	if (!lmsUserId) {
 		return [];
 	}
@@ -39,7 +38,7 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 
 	const { fullname, shortname, categoryid, semesterModuleId } = params;
 
-	const lmsUserId = await lmsAuthRepository.getLmsUserId(session.user.id);
+	const lmsUserId = session.user.lmsUserId;
 	if (!lmsUserId) {
 		throw new Error('User is not linked to a Moodle account');
 	}

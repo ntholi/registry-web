@@ -3,16 +3,6 @@
 import { auth } from '@/core/auth';
 import { lmsAuthRepository } from './repository';
 
-export async function getLmsUserId(): Promise<number | null> {
-	const session = await auth();
-
-	if (!session?.user?.id) {
-		return null;
-	}
-
-	return lmsAuthRepository.getLmsUserId(session.user.id);
-}
-
 export async function linkMoodleAccount(): Promise<{
 	success: boolean;
 	error?: string;
@@ -26,10 +16,7 @@ export async function linkMoodleAccount(): Promise<{
 		};
 	}
 
-	const existingLmsUserId = await lmsAuthRepository.getLmsUserId(
-		session.user.id
-	);
-	if (existingLmsUserId) {
+	if (session.user.lmsUserId) {
 		return {
 			success: false,
 			error: 'Your account is already linked to Moodle',

@@ -13,29 +13,28 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconLink, IconSchool, IconUserPlus } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import type { PropsWithChildren } from 'react';
-import { getLmsUserId, linkMoodleAccount } from '../server/actions';
+import { linkMoodleAccount } from '../server/actions';
 
 export default function LmsAuthGuard({ children }: PropsWithChildren) {
-	const queryClient = useQueryClient();
-
-	const { data: lmsUserId, isLoading } = useQuery({
-		queryKey: ['lms-user-id'],
-		queryFn: getLmsUserId,
-		staleTime: 5 * 60 * 1000,
-	});
+	const router = useRouter();
+	const { data: session, status, update } = useSession();
+	const lmsUserId = session?.user?.lmsUserId;
 
 	const linkMutation = useMutation({
 		mutationFn: linkMoodleAccount,
-		onSuccess: (result) => {
+		onSuccess: async (result) => {
 			if (result.success) {
 				notifications.show({
 					title: 'Account Linked',
 					message: 'Your Moodle account has been linked successfully!',
 					color: 'green',
 				});
-				queryClient.invalidateQueries({ queryKey: ['lms-user-id'] });
+				await update();
+				router.refresh();
 			} else {
 				notifications.show({
 					title: 'Link Failed',
@@ -53,7 +52,7 @@ export default function LmsAuthGuard({ children }: PropsWithChildren) {
 		},
 	});
 
-	if (isLoading) {
+	if (status === 'loading') {
 		return (
 			<Center h='60vh'>
 				<Loader size='lg' />
