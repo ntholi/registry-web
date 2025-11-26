@@ -34,7 +34,7 @@ export default async function CoursePage({ params }: Props) {
 	const category = categories.find((c) => c.id === course.category);
 
 	return (
-		<Container size='xl' mt='lg'>
+		<Container size='xl'>
 			<CourseHeader
 				fullname={course.fullname}
 				shortname={course.shortname}
