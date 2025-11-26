@@ -40,7 +40,6 @@ export default function ForumPostForm({ forumId }: ForumPostFormProps) {
 				forumid: forumId,
 				subject: values.subject,
 				message: values.message,
-				messageformat: 1,
 			});
 		},
 		onSuccess: () => {

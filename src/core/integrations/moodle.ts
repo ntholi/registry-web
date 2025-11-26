@@ -39,9 +39,20 @@ async function moodleRequest(
 	url.searchParams.set('wsfunction', wsfunction);
 	url.searchParams.set('moodlewsrestformat', 'json');
 
-	for (const [key, value] of Object.entries(params)) {
-		if (value !== undefined) {
-			url.searchParams.set(key, String(value));
+	let body: URLSearchParams | undefined;
+
+	if (method === 'POST') {
+		body = new URLSearchParams();
+		for (const [key, value] of Object.entries(params)) {
+			if (value !== undefined) {
+				body.append(key, String(value));
+			}
+		}
+	} else {
+		for (const [key, value] of Object.entries(params)) {
+			if (value !== undefined) {
+				url.searchParams.set(key, String(value));
+			}
 		}
 	}
 
@@ -56,6 +67,7 @@ async function moodleRequest(
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
+			body,
 		});
 
 		if (!response.ok) {

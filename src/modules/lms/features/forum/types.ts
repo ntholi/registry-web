@@ -67,5 +67,4 @@ export type CreateDiscussionParams = {
 	forumid: number;
 	subject: string;
 	message: string;
-	messageformat?: number;
 };

@@ -67,8 +67,6 @@ export async function createForumDiscussion(params: CreateDiscussionParams) {
 		forumid: params.forumid,
 		subject: params.subject.trim(),
 		message: params.message.trim(),
-		messageformat: 1,
-		groupid: -1,
 	});
 
 	return result;
