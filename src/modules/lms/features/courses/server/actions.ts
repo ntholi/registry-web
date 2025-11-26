@@ -39,6 +39,11 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 
 	const { fullname, shortname, categoryid, semesterModuleId } = params;
 
+	const lmsUserId = await lmsAuthRepository.getLmsUserId(session.user.id);
+	if (!lmsUserId) {
+		throw new Error('User is not linked to a Moodle account');
+	}
+
 	const result = await moodlePost('core_course_create_courses', {
 		'courses[0][fullname]': fullname,
 		'courses[0][shortname]': shortname,
@@ -50,6 +55,12 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 	}
 
 	const courseId = String(result[0].id);
+
+	await moodlePost('enrol_manual_enrol_users', {
+		'enrolments[0][roleid]': 3,
+		'enrolments[0][userid]': lmsUserId,
+		'enrolments[0][courseid]': Number(courseId),
+	});
 
 	await assignedModulesRepository.linkCourseToAssignment(
 		session.user.id,

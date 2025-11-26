@@ -75,7 +75,7 @@ async function moodleRequest(
 
 		const data = JSON.parse(text);
 
-		if (data.exception) {
+		if (data?.exception) {
 			throw new MoodleError(
 				data.message || data.exception,
 				data.exception,

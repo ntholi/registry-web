@@ -3,10 +3,8 @@
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import {
 	Alert,
-	Avatar,
 	Badge,
 	Button,
-	Card,
 	Group,
 	Loader,
 	Modal,
@@ -160,11 +158,6 @@ export default function CreateCourseModal() {
 											<Group wrap='nowrap' align='flex-start'>
 												<Radio.Indicator />
 												<Group gap='md' align='flex-start' style={{ flex: 1 }}>
-													<Avatar size={50} radius='md' variant='default'>
-														<Text ff='monospace' size='xs' fw={700} ta='center'>
-															{assignment.semesterModule?.module?.code || 'N/A'}
-														</Text>
-													</Avatar>
 													<Stack gap={4} style={{ flex: 1 }}>
 														<Text fw={500} size='sm'>
 															{assignment.semesterModule?.module?.name ||
@@ -179,11 +172,6 @@ export default function CreateCourseModal() {
 																)}
 															</Badge>
 														)}
-														<Text size='xs' c='dimmed'>
-															School:{' '}
-															{assignment.semesterModule?.semester?.structure
-																.program.school?.code || 'N/A'}
-														</Text>
 													</Stack>
 												</Group>
 											</Group>
@@ -191,35 +179,6 @@ export default function CreateCourseModal() {
 									))}
 								</Stack>
 							</Radio.Group>
-
-							{selectedModule && (
-								<Card withBorder p='sm' bg='gray.0'>
-									<Text size='sm' fw={500} mb='xs'>
-										Course Details Preview:
-									</Text>
-									<Stack gap={4}>
-										<Text size='xs'>
-											<Text span fw={500}>
-												Full Name:
-											</Text>{' '}
-											{selectedModule.semesterModule?.module?.name}
-										</Text>
-										<Text size='xs'>
-											<Text span fw={500}>
-												Short Name:
-											</Text>{' '}
-											{selectedModule.semesterModule?.module?.code}
-										</Text>
-										<Text size='xs'>
-											<Text span fw={500}>
-												Category:
-											</Text>{' '}
-											{selectedModule.semesterModule?.semester?.structure
-												.program.school?.code || 'Default'}
-										</Text>
-									</Stack>
-								</Card>
-							)}
 						</>
 					)}
 
