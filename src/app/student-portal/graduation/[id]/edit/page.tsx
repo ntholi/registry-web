@@ -43,7 +43,7 @@ export default async function EditGraduationPage({ params }: Props) {
 				<Group>
 					<ActionIcon
 						component={Link}
-						href={`/student/graduation/${id}`}
+						href={`/student-portal/graduation/${id}`}
 						variant='subtle'
 						size='lg'
 						title='Back to graduation request'

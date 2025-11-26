@@ -33,21 +33,21 @@ const baseActions: Action[] = [
 	{
 		label: 'Registration',
 		icon: IconClipboardCheck,
-		href: '/student/registration',
+		href: '/student-portal/registration',
 		color: studentColors.theme.primary,
 		description: 'Submit or view your registration requests',
 	},
 	{
 		label: 'Transcripts',
 		icon: IconFileCertificate,
-		href: '/student/transcripts',
+		href: '/student-portal/transcripts',
 		color: studentColors.theme.primary,
 		description: 'View and download your academic transcripts',
 	},
 	{
 		label: 'Graduation',
 		icon: IconSchool,
-		href: '/student/graduation',
+		href: '/student-portal/graduation',
 		color: studentColors.theme.primary,
 		description: 'Submit your graduation request',
 	},
@@ -73,7 +73,7 @@ export default function ActionButtons() {
 		actions.push({
 			label: 'Fortinet Training',
 			icon: IconShield,
-			href: '/student/fortinet-registration',
+			href: '/student-portal/fortinet-registration',
 			color: studentColors.theme.primary,
 			description: 'Register for Fortinet network security certification',
 		});

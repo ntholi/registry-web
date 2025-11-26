@@ -355,7 +355,11 @@ export default function RegistrationSimulator() {
 								<Text size='xs' c='dimmed' mb={4}>
 									Student Number
 								</Text>
-								<Link size='sm' c='default' href={`/students/${student.stdNo}`}>
+								<Link
+									size='sm'
+									c='default'
+									href={`/registry/students/${student.stdNo}`}
+								>
 									{student.stdNo}
 								</Link>
 							</Paper>
@@ -372,7 +376,7 @@ export default function RegistrationSimulator() {
 								<Link
 									size='sm'
 									c='default'
-									href={`/schools/structures/${student.program.structureId}`}
+									href={`/academic/schools/structures/${student.program.structureId}`}
 								>
 									{student.program.code}
 								</Link>

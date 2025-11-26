@@ -85,6 +85,7 @@ export const adminConfig: ModuleConfig = {
 						label: 'Simulator',
 						href: '/admin/tools/simulate',
 						icon: IconTestPipe,
+						roles: ['admin', 'registry'],
 					},
 					{
 						label: 'Grade Calculator',

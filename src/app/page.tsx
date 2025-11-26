@@ -24,7 +24,7 @@ async function AuthHandler() {
 		const role = session.user.role;
 
 		if (role === 'student') {
-			redirect('/student');
+			redirect('/student-portal');
 		} else if (role !== 'user' && dashboardUsers.enumValues.includes(role)) {
 			redirect('/dashboard');
 		} else {

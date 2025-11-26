@@ -29,6 +29,6 @@ export async function updateStudent(
 	reasons?: string
 ) {
 	const result = await service.updateStudent(stdNo, updates, reasons);
-	revalidatePath(`/dashboard/students/${stdNo}`);
+	revalidatePath(`/registry/students/${stdNo}`);
 	return result;
 }

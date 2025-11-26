@@ -87,7 +87,7 @@ export default async function page({ params }: Props) {
 								registration.count <= MAX_REGISTRATION_ATTEMPTS && (
 									<Button
 										component={Link}
-										href={`/student/registration/${registration.id}/edit`}
+										href={`/student-portal/registration/${registration.id}/edit`}
 										variant='subtle'
 										mr={-10}
 										size='xs'

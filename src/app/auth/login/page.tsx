@@ -25,7 +25,7 @@ export default async function LoginPage() {
 	if (session?.user) {
 		const role = session.user.role;
 		if (role === 'student') {
-			redirect('/student');
+			redirect('/student-portal');
 		} else if (
 			[
 				'admin',

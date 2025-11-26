@@ -80,7 +80,7 @@ async function StructuresSection({ moduleId }: StructuresSectionProps) {
 							<TableTr key={s.id}>
 								<TableTd>{s.programName}</TableTd>
 								<TableTd>
-									<Link size='sm' href={`/schools/structures/${s.id}`}>
+									<Link size='sm' href={`/academic/schools/structures/${s.id}`}>
 										{s.code}
 									</Link>
 								</TableTd>

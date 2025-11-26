@@ -109,7 +109,7 @@ export default function StudentsTable({ sponsorId }: Props) {
 						<Table.Tr key={sponsoredStudent.id}>
 							<Table.Td>
 								{student?.stdNo ? (
-									<Link size='sm' href={`/students/${student.stdNo}`}>
+									<Link size='sm' href={`/registry/students/${student.stdNo}`}>
 										{student.stdNo}
 									</Link>
 								) : (

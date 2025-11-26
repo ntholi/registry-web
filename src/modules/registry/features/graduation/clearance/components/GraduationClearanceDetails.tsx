@@ -44,7 +44,7 @@ export default function GraduationClearanceDetails({ request }: Props) {
 							<Stack>
 								<FieldView label='Student Number' underline={false}>
 									<Group justify='space-between'>
-										<Link href={`/students/${studentProgram.stdNo}`}>
+										<Link href={`/registry/students/${studentProgram.stdNo}`}>
 											{studentProgram.stdNo}
 										</Link>
 										<Tooltip label='Copy'>

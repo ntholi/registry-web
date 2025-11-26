@@ -15,7 +15,10 @@ export default function ModulesView({ value }: Props) {
 		({ semesterModule, moduleStatus, status }) => (
 			<Table.Tr key={semesterModule.id}>
 				<Table.Td fw={500}>
-					<Link size='sm' href={`/semester-modules/${semesterModule.id}`}>
+					<Link
+						size='sm'
+						href={`/academic/semester-modules/${semesterModule.id}`}
+					>
 						{semesterModule.module!.code}
 					</Link>
 				</Table.Td>
