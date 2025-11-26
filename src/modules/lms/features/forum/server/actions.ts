@@ -55,11 +55,20 @@ export async function createForumDiscussion(params: CreateDiscussionParams) {
 		throw new Error('User is not linked to a Moodle account');
 	}
 
+	if (!params.subject?.trim()) {
+		throw new Error('Subject is required');
+	}
+
+	if (!params.message?.trim()) {
+		throw new Error('Message is required');
+	}
+
 	const result = await moodlePost('mod_forum_add_discussion', {
 		forumid: params.forumid,
-		subject: params.subject,
-		message: params.message,
-		messageformat: params.messageformat || 1,
+		subject: params.subject.trim(),
+		message: params.message.trim(),
+		messageformat: 1,
+		groupid: -1,
 	});
 
 	return result;
