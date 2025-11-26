@@ -1,6 +1,7 @@
 'use client';
 
-import { Tabs, Text } from '@mantine/core';
+import ForumDashboard from '@lms/forum/components/ForumDashboard';
+import { Box, Tabs, Text } from '@mantine/core';
 import { useState } from 'react';
 import type { MoodleCourse } from '../types';
 
@@ -26,9 +27,9 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 				<Tabs.Tab value='students'>Students</Tabs.Tab>
 			</Tabs.List>
 			<Tabs.Panel value='dashboard' pt='lg'>
-				<Text size='sm' c='dimmed'>
-					Dashboard content for {course.fullname}.
-				</Text>
+				<Box p='sm'>
+					<ForumDashboard courseId={course.id} />
+				</Box>
 			</Tabs.Panel>
 			<Tabs.Panel value='assessments' pt='lg'>
 				<Text size='sm' c='dimmed'>
