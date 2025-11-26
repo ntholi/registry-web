@@ -34,7 +34,7 @@ export const assignedModules = pgTable(
 		semesterModuleId: integer()
 			.references(() => semesterModules.id, { onDelete: 'cascade' })
 			.notNull(),
-		classroomCourseId: text(),
+		lmsCourseId: text(),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
@@ -43,9 +43,7 @@ export const assignedModules = pgTable(
 		semesterModuleIdIdx: index('fk_assigned_modules_semester_module_id').on(
 			table.semesterModuleId
 		),
-		courseIdIdx: index('idx_assigned_modules_course_id').on(
-			table.classroomCourseId
-		),
+		courseIdIdx: index('idx_assigned_modules_course_id').on(table.lmsCourseId),
 	})
 );
 

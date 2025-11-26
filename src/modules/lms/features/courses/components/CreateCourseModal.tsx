@@ -109,7 +109,7 @@ export default function CreateCourseModal() {
 		createCourseMutation.mutate();
 	}
 
-	const availableModules = assignedModules?.filter((m) => !m.classroomCourseId);
+	const availableModules = assignedModules?.filter((m) => !m.lmsCourseId);
 
 	return (
 		<>

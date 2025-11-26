@@ -181,11 +181,11 @@ export default class AssignedModuleRepository extends BaseRepository<
 	async linkCourseToAssignment(
 		userId: string,
 		semesterModuleId: number,
-		classroomCourseId: string
+		lmsCourseId: string
 	) {
 		return await db
 			.update(assignedModules)
-			.set({ classroomCourseId })
+			.set({ lmsCourseId })
 			.where(
 				and(
 					eq(assignedModules.userId, userId),
@@ -198,7 +198,7 @@ export default class AssignedModuleRepository extends BaseRepository<
 
 	async getUserCourseIds(userId: string) {
 		const results = await db
-			.select({ courseId: assignedModules.classroomCourseId })
+			.select({ courseId: assignedModules.lmsCourseId })
 			.from(assignedModules)
 			.where(
 				and(
