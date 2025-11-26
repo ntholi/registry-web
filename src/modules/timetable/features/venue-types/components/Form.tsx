@@ -29,7 +29,7 @@ export default function VenueTypeForm({
 			schema={createInsertSchema(venueTypes)}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/venue-types/${id}`);
+				router.push(`/timetable/venue-types/${id}`);
 			}}
 		>
 			{(form) => (

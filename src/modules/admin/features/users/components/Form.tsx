@@ -144,7 +144,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 						'user') as (typeof userRoles.enumValues)[number],
 				}}
 				onSuccess={({ id }) => {
-					router.push(`/users/${id}`);
+					router.push(`/admin/users/${id}`);
 				}}
 			>
 				{(form) => (

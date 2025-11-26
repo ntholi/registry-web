@@ -43,7 +43,7 @@ export default function BlockedStudentForm({
 			schema={blockedStudentSchema}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/blocked-students/${id}`);
+				router.push(`/finance/blocked-students/${id}`);
 			}}
 		>
 			{(form) => {

@@ -54,7 +54,7 @@ export default function VenueForm({ onSubmit, defaultValues, title }: Props) {
 			key={formKey}
 			defaultValues={computedDefaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/venues/${id}`);
+				router.push(`/timetable/venues/${id}`);
 			}}
 		>
 			{(form) => (

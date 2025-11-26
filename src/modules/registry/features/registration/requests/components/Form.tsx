@@ -260,7 +260,7 @@ export default function RegistrationRequestForm({
 				termId: defaultValues?.termId || currentTerm?.id || '',
 			}}
 			onSuccess={({ id }) => {
-				router.push(`/registration/requests/pending/${id}`);
+				router.push(`/registry/registration/requests/pending/${id}`);
 			}}
 		>
 			{(form) => {

@@ -30,7 +30,7 @@ export default function StudentForm({ onSubmit, defaultValues, title }: Props) {
 			schema={createInsertSchema(students)}
 			defaultValues={defaultValues}
 			onSuccess={({ stdNo }) => {
-				router.push(`/students/${stdNo}`);
+				router.push(`/registry/students/${stdNo}`);
 			}}
 		>
 			{(form) => (

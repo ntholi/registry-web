@@ -116,7 +116,7 @@ export default function NewRegistrationCard() {
 						yet. Click below to start your registration process.
 					</Text>
 				</Stack>
-				<Button component={Link} href='/student/registration/new'>
+				<Button component={Link} href='/student-portal/student/registration/new'>
 					New Registration
 				</Button>
 			</Stack>
