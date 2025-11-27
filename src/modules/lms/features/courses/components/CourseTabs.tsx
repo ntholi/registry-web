@@ -1,5 +1,7 @@
 'use client';
 
+import AssessmentForm from '@lms/assessment/components/AssessmentForm';
+import AssessmentsList from '@lms/assessment/components/AssessmentsList';
 import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
@@ -39,6 +41,9 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 					{activeTab === 'forum' && forum && (
 						<ForumPostForm forumId={forum.id} />
 					)}
+					{activeTab === 'assessments' && (
+						<AssessmentForm courseId={course.id} />
+					)}
 				</Box>
 			</Tabs.List>
 			<Tabs.Panel value='dashboard' pt='lg'>
@@ -66,9 +71,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			</Tabs.Panel>
 			<Tabs.Panel value='assessments' pt='lg'>
 				<Box p='sm'>
-					<Text size='sm' c='dimmed'>
-						Assessments for {course.shortname} will appear here.
-					</Text>
+					<AssessmentsList courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 			<Tabs.Panel value='material' pt='lg'>
