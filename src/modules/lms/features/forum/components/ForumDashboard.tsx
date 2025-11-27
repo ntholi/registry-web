@@ -12,7 +12,7 @@ type ForumDashboardProps = {
 
 export default function ForumDashboard({ courseId }: ForumDashboardProps) {
 	const { data: forum, isLoading } = useQuery({
-		queryKey: ['main-forum', courseId],
+		queryKey: ['forum', courseId],
 		queryFn: () => getMainForum(courseId),
 	});
 

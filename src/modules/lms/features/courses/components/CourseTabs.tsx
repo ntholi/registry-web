@@ -16,7 +16,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 	const [activeTab, setActiveTab] = useState<string | null>('dashboard');
 
 	const { data: forum, isLoading } = useQuery({
-		queryKey: ['main-forum', course.id],
+		queryKey: ['forum', course.id],
 		queryFn: () => getMainForum(course.id),
 		enabled: activeTab === 'forum',
 	});
