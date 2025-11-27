@@ -39,6 +39,7 @@ export default async function CoursePage({ params }: Props) {
 				fullname={course.fullname}
 				shortname={course.shortname}
 				categoryName={category?.name}
+				courseId={course.id}
 			/>
 			<CourseTabs course={course} />
 		</Container>

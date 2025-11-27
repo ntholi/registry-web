@@ -2,6 +2,7 @@
 
 import {
 	Badge,
+	Button,
 	Flex,
 	Group,
 	Paper,
@@ -10,19 +11,25 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { IconArrowNarrowLeft, IconBook2 } from '@tabler/icons-react';
+import {
+	IconArrowNarrowLeft,
+	IconBook2,
+	IconExternalLink,
+} from '@tabler/icons-react';
 import Link from '@/shared/ui/Link';
 
 type Props = {
 	fullname: string;
 	shortname: string;
 	categoryName?: string;
+	courseId: number;
 };
 
 export default function CourseHeader({
 	fullname,
 	shortname,
 	categoryName,
+	courseId,
 }: Props) {
 	return (
 		<Stack>
@@ -35,23 +42,36 @@ export default function CourseHeader({
 				</Group>
 			</Link>
 			<Paper p='xl' withBorder>
-				<Flex align='center' gap='md'>
-					<ThemeIcon size={60} variant='light' color='gray'>
-						<IconBook2 size={'1.5rem'} />
-					</ThemeIcon>
-					<Stack gap={1}>
-						<Group gap={'xs'}>
-							<Badge radius={'xs'} variant='light' color='blue'>
-								{shortname}
-							</Badge>
-							{categoryName && (
-								<Badge radius={'xs'} variant='light' color='gray'>
-									{categoryName}
+				<Flex align='start' gap='md' justify='space-between'>
+					<Flex align='center' gap='md'>
+						<ThemeIcon size={60} variant='light' color='gray'>
+							<IconBook2 size={'1.5rem'} />
+						</ThemeIcon>
+						<Stack gap={1}>
+							<Group gap={'xs'}>
+								<Badge radius={'xs'} variant='light' color='blue'>
+									{shortname}
 								</Badge>
-							)}
-						</Group>
-						<Title order={2}>{fullname}</Title>
-					</Stack>
+								{categoryName && (
+									<Badge radius={'xs'} variant='light' color='gray'>
+										{categoryName}
+									</Badge>
+								)}
+							</Group>
+							<Title order={2}>{fullname}</Title>
+						</Stack>
+					</Flex>
+					<Button
+						component='a'
+						href={`${process.env.NEXT_PUBLIC_MOODLE_URL}/course/view.php?id=${courseId}`}
+						target='_blank'
+						rel='noopener noreferrer'
+						rightSection={<IconExternalLink size={16} />}
+						variant='default'
+						size='xs'
+					>
+						Open in Moodle
+					</Button>
 				</Flex>
 			</Paper>
 		</Stack>
