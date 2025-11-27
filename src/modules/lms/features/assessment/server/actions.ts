@@ -101,12 +101,23 @@ export async function createAssignment(params: CreateAssignmentParams) {
 
 	const sectionNumber = await getOrCreateAssessmentsSection(params.courseid);
 
-	throw new Error(
-		'Moodle does not provide a built-in web service to create assignments. ' +
-			'You need to either: ' +
-			'1. Create a custom Moodle plugin that exposes assignment creation via web service, or ' +
-			'2. Use the Moodle REST API with admin credentials to directly call course/modedit.php, or ' +
-			'3. Use the Moosh CLI tool for scripted assignment creation. ' +
-			`Section number ${sectionNumber} is ready for the assignment.`
+	const requestParams: Record<string, string | number> = {
+		courseid: params.courseid,
+		name: params.name,
+		intro: params.intro,
+		duedate: params.duedate,
+		allowsubmissionsfromdate: params.allowsubmissionsfromdate,
+		section: sectionNumber,
+	};
+
+	if (params.activityinstructions) {
+		requestParams.activity = params.activityinstructions;
+	}
+
+	const result = await moodlePost(
+		'local_createassign_create_assessment',
+		requestParams
 	);
+
+	return result;
 }
