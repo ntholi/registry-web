@@ -13,4 +13,5 @@ export const users = pgTable('users', {
 	emailVerified: timestamp({ mode: 'date' }),
 	image: text(),
 	lmsUserId: integer(),
+	lmsToken: text(),
 });

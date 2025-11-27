@@ -12,30 +12,69 @@ export class MoodleError extends Error {
 	}
 }
 
+export async function getUserInfoFromToken(token: string) {
+	const url = new URL(`${NEXT_PUBLIC_MOODLE_URL}/webservice/rest/server.php`);
+	url.searchParams.set('wstoken', token);
+	url.searchParams.set('wsfunction', 'core_webservice_get_site_info');
+	url.searchParams.set('moodlewsrestformat', 'json');
+
+	try {
+		const response = await fetch(url.toString(), {
+			method: 'GET',
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to get user info: ${response.statusText}`);
+		}
+
+		const data = await response.json();
+
+		if (data?.exception) {
+			throw new MoodleError(
+				data.message || data.exception,
+				data.exception,
+				data.errorcode
+			);
+		}
+
+		return data;
+	} catch (error) {
+		if (error instanceof MoodleError) {
+			throw error;
+		}
+		console.error('Moodle User Info Error:', error);
+		throw error;
+	}
+}
+
 type Method = 'GET' | 'POST';
 
 export async function moodleGet(
 	wsfunction: string,
-	params: Record<string, string | number | boolean | undefined> = {}
+	params: Record<string, string | number | boolean | undefined> = {},
+	userToken?: string
 ) {
-	return moodleRequest(wsfunction, 'GET', params);
+	return moodleRequest(wsfunction, 'GET', params, userToken);
 }
 
 export async function moodlePost(
 	wsfunction: string,
-	params: Record<string, string | number | boolean | undefined> = {}
+	params: Record<string, string | number | boolean | undefined> = {},
+	userToken?: string
 ) {
-	return moodleRequest(wsfunction, 'POST', params);
+	return moodleRequest(wsfunction, 'POST', params, userToken);
 }
 
 async function moodleRequest(
 	wsfunction: string,
 	method: Method,
-	params: Record<string, string | number | boolean | undefined> = {}
+	params: Record<string, string | number | boolean | undefined> = {},
+	userToken?: string
 ) {
 	const url = new URL(`${NEXT_PUBLIC_MOODLE_URL}/webservice/rest/server.php`);
 
-	url.searchParams.set('wstoken', MOODLE_TOKEN);
+	const token = userToken || MOODLE_TOKEN;
+	url.searchParams.set('wstoken', token);
 	url.searchParams.set('wsfunction', wsfunction);
 	url.searchParams.set('moodlewsrestformat', 'json');
 
@@ -58,7 +97,7 @@ async function moodleRequest(
 
 	console.log(`[Moodle:${method}] ${wsfunction}`, {
 		params,
-		url: url.toString().replace(MOODLE_TOKEN, '***'),
+		url: url.toString().replace(token, '***'),
 	});
 
 	try {

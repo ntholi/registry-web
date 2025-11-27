@@ -16,9 +16,13 @@ export async function getUserCourses(): Promise<MoodleCourse[]> {
 		return [];
 	}
 
-	const result = await moodleGet('core_enrol_get_users_courses', {
-		userid: lmsUserId,
-	});
+	const result = await moodleGet(
+		'core_enrol_get_users_courses',
+		{
+			userid: lmsUserId,
+		},
+		session.user.lmsToken
+	);
 
 	return result as MoodleCourse[];
 }
@@ -43,11 +47,17 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 		throw new Error('User is not linked to a Moodle account');
 	}
 
-	const result = await moodlePost('core_course_create_courses', {
-		'courses[0][fullname]': fullname,
-		'courses[0][shortname]': shortname,
-		'courses[0][categoryid]': categoryid,
-	});
+	const lmsToken = session.user.lmsToken;
+
+	const result = await moodlePost(
+		'core_course_create_courses',
+		{
+			'courses[0][fullname]': fullname,
+			'courses[0][shortname]': shortname,
+			'courses[0][categoryid]': categoryid,
+		},
+		lmsToken
+	);
 
 	if (!result || !Array.isArray(result) || result.length === 0) {
 		throw new Error('Failed to create course in Moodle');
@@ -55,11 +65,15 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 
 	const courseId = String(result[0].id);
 
-	await moodlePost('enrol_manual_enrol_users', {
-		'enrolments[0][roleid]': 3,
-		'enrolments[0][userid]': lmsUserId,
-		'enrolments[0][courseid]': Number(courseId),
-	});
+	await moodlePost(
+		'enrol_manual_enrol_users',
+		{
+			'enrolments[0][roleid]': 3,
+			'enrolments[0][userid]': lmsUserId,
+			'enrolments[0][courseid]': Number(courseId),
+		},
+		lmsToken
+	);
 
 	await assignedModulesRepository.linkCourseToAssignment(
 		session.user.id,
@@ -76,7 +90,11 @@ export async function getMoodleCategories() {
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet('core_course_get_categories', {});
+	const result = await moodleGet(
+		'core_course_get_categories',
+		{},
+		session.user.lmsToken
+	);
 
 	return result as Array<{
 		id: number;

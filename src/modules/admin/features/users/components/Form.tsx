@@ -81,6 +81,8 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 		role: z.enum(userRoles.enumValues),
 		position: z.enum(userPositions.enumValues).nullable().optional(),
 		schoolIds: z.array(z.string()).optional(),
+		lmsUserId: z.number().nullable().optional(),
+		lmsToken: z.string().nullable().optional(),
 	});
 
 	const handleAddSchool = () => {
@@ -189,6 +191,28 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 								{...form.getInputProps('position')}
 							/>
 						</Group>
+						<Group>
+							<TextInput
+								label='Moodle User ID'
+								flex={1}
+								type='number'
+								placeholder='Enter Moodle User ID'
+								description='The user ID from Moodle system'
+								{...form.getInputProps('lmsUserId')}
+								onChange={(event) => {
+									const value = event.currentTarget.value;
+									form.setFieldValue('lmsUserId', value ? Number(value) : null);
+								}}
+							/>
+							<TextInput
+								label='Moodle Token'
+								flex={1}
+								placeholder='Enter Moodle access token'
+								description='Web service token from Moodle'
+								{...form.getInputProps('lmsToken')}
+							/>
+						</Group>
+
 						{form.values.role === 'academic' && (
 							<div>
 								<Group justify='space-between' align='center' mb='xs'>

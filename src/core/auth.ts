@@ -33,6 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			session.user.role = user.role;
 			session.user.position = user.position;
 			session.user.lmsUserId = user.lmsUserId;
+			session.user.lmsToken = user.lmsToken;
 
 			if (user.role === 'student') {
 				const student = await db.query.students.findFirst({

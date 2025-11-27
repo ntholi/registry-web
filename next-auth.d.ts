@@ -7,6 +7,7 @@ declare module 'next-auth' {
 		stdNo?: number;
 		position?: UserPosition;
 		lmsUserId?: number;
+		lmsToken?: string;
 	}
 
 	interface Session {
