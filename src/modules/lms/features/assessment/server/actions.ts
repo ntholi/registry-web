@@ -81,6 +81,12 @@ async function getOrCreateAssessmentsSection(
 	}
 }
 
+async function fileToBase64(file: File): Promise<string> {
+	const bytes = await file.arrayBuffer();
+	const buffer = Buffer.from(bytes);
+	return buffer.toString('base64');
+}
+
 export async function createAssignment(params: CreateAssignmentParams) {
 	const session = await auth();
 	if (!session?.user) {
@@ -112,6 +118,17 @@ export async function createAssignment(params: CreateAssignmentParams) {
 
 	if (params.activityinstructions) {
 		requestParams.activity = params.activityinstructions;
+	}
+
+	if (params.attachments && params.attachments.length > 0) {
+		const introfiles = await Promise.all(
+			params.attachments.map(async (file) => ({
+				filename: file.name,
+				content: await fileToBase64(file),
+				base64: true,
+			}))
+		);
+		requestParams.introfiles = JSON.stringify(introfiles);
 	}
 
 	const result = await moodlePost(
