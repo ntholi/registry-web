@@ -11,7 +11,6 @@ import {
 	Paper,
 	Stack,
 	Text,
-	Title,
 	useMantineTheme,
 } from '@mantine/core';
 import { IconMessage, IconPin } from '@tabler/icons-react';
@@ -59,52 +58,50 @@ export default function ForumPostsList({ forumId }: ForumPostsListProps) {
 			{discussions.map((discussion) => (
 				<Card key={discussion.id} withBorder shadow='xs' padding='lg'>
 					<Stack gap='md'>
-						<Group justify='space-between' wrap='nowrap'>
-							<Group gap='md' wrap='nowrap'>
-								<Avatar
-									src={discussion.userpictureurl}
-									radius='xl'
-									size='md'
-									alt={discussion.userfullname}
-								/>
-								<Box style={{ flex: 1, minWidth: 0 }}>
-									<Group gap='xs' wrap='nowrap'>
-										<Text fw={600} size='sm' truncate>
-											{discussion.userfullname}
-										</Text>
-										{discussion.pinned && (
-											<Badge
-												size='xs'
-												variant='light'
-												color='blue'
-												leftSection={<IconPin size={12} />}
-											>
-												Pinned
-											</Badge>
-										)}
-									</Group>
+						<Group gap='md' wrap='nowrap' align='flex-start'>
+							<Avatar
+								src={discussion.userpictureurl}
+								radius='xl'
+								size='md'
+								alt={discussion.userfullname}
+							/>
+							<Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+								<Group gap='xs' wrap='nowrap'>
+									<Text fw={600} size='sm'>
+										{discussion.userfullname}
+									</Text>
+									<Text c='dimmed' size='xs'>
+										·
+									</Text>
 									<Text size='xs' c='dimmed'>
 										{formatDistanceToNow(new Date(discussion.created * 1000), {
 											addSuffix: true,
 										})}
 									</Text>
-								</Box>
-							</Group>
+									{discussion.pinned && (
+										<Badge
+											size='xs'
+											variant='light'
+											color='blue'
+											leftSection={<IconPin size={12} />}
+										>
+											Pinned
+										</Badge>
+									)}
+								</Group>
+								<Text fw={500} size='sm' lineClamp={2}>
+									{discussion.subject}
+								</Text>
+							</Stack>
 						</Group>
 
-						<Stack gap='sm'>
-							<Title order={4} fw={600} size='h5'>
-								{discussion.subject}
-							</Title>
-
-							<div
-								dangerouslySetInnerHTML={{ __html: discussion.message }}
-								style={{
-									fontSize: '0.875rem',
-									lineHeight: 1.6,
-								}}
-							/>
-						</Stack>
+						<div
+							dangerouslySetInnerHTML={{ __html: discussion.message }}
+							style={{
+								fontSize: '0.875rem',
+								lineHeight: 1.6,
+							}}
+						/>
 
 						<Divider />
 
