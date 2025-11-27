@@ -16,13 +16,9 @@ export async function getUserCourses(): Promise<MoodleCourse[]> {
 		return [];
 	}
 
-	const result = await moodleGet(
-		'core_enrol_get_users_courses',
-		{
-			userid: lmsUserId,
-		},
-		session.user.lmsToken
-	);
+	const result = await moodleGet('core_enrol_get_users_courses', {
+		userid: lmsUserId,
+	});
 
 	return result as MoodleCourse[];
 }
@@ -42,22 +38,11 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 
 	const { fullname, shortname, categoryid, semesterModuleId } = params;
 
-	const lmsUserId = session.user.lmsUserId;
-	if (!lmsUserId) {
-		throw new Error('User is not linked to a Moodle account');
-	}
-
-	const lmsToken = session.user.lmsToken;
-
-	const result = await moodlePost(
-		'core_course_create_courses',
-		{
-			'courses[0][fullname]': fullname,
-			'courses[0][shortname]': shortname,
-			'courses[0][categoryid]': categoryid,
-		},
-		lmsToken
-	);
+	const result = await moodlePost('core_course_create_courses', {
+		'courses[0][fullname]': fullname,
+		'courses[0][shortname]': shortname,
+		'courses[0][categoryid]': categoryid,
+	});
 
 	if (!result || !Array.isArray(result) || result.length === 0) {
 		throw new Error('Failed to create course in Moodle');
@@ -65,15 +50,11 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 
 	const courseId = String(result[0].id);
 
-	await moodlePost(
-		'enrol_manual_enrol_users',
-		{
-			'enrolments[0][roleid]': 3,
-			'enrolments[0][userid]': lmsUserId,
-			'enrolments[0][courseid]': Number(courseId),
-		},
-		lmsToken
-	);
+	await moodlePost('enrol_manual_enrol_users', {
+		'enrolments[0][roleid]': 3,
+		'enrolments[0][userid]': session.user.lmsUserId,
+		'enrolments[0][courseid]': Number(courseId),
+	});
 
 	await assignedModulesRepository.linkCourseToAssignment(
 		session.user.id,
@@ -90,11 +71,7 @@ export async function getMoodleCategories() {
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet(
-		'core_course_get_categories',
-		{},
-		session.user.lmsToken
-	);
+	const result = await moodleGet('core_course_get_categories', {});
 
 	return result as Array<{
 		id: number;

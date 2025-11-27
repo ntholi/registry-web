@@ -16,13 +16,9 @@ export async function getCourseForums(
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet(
-		'mod_forum_get_forums_by_courses',
-		{
-			'courseids[0]': courseId,
-		},
-		session.user.lmsToken
-	);
+	const result = await moodleGet('mod_forum_get_forums_by_courses', {
+		'courseids[0]': courseId,
+	});
 
 	return result as MoodleForum[];
 }
@@ -35,14 +31,10 @@ export async function getForumDiscussions(
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet(
-		'mod_forum_get_forum_discussions',
-		{
-			forumid: forumId,
-			sortorder: -1,
-		},
-		session.user.lmsToken
-	);
+	const result = await moodleGet('mod_forum_get_forum_discussions', {
+		forumid: forumId,
+		sortorder: -1,
+	});
 
 	if (!result || !result.discussions) {
 		return [];
@@ -57,13 +49,6 @@ export async function createForumDiscussion(params: CreateDiscussionParams) {
 		throw new Error('Unauthorized');
 	}
 
-	const lmsToken = session.user.lmsToken;
-	if (!lmsToken) {
-		throw new Error(
-			'User does not have a Moodle token. Please contact administrator.'
-		);
-	}
-
 	if (!params.subject?.trim()) {
 		throw new Error('Subject is required');
 	}
@@ -72,15 +57,11 @@ export async function createForumDiscussion(params: CreateDiscussionParams) {
 		throw new Error('Message is required');
 	}
 
-	const result = await moodlePost(
-		'mod_forum_add_discussion',
-		{
-			forumid: params.forumid,
-			subject: params.subject.trim(),
-			message: params.message.trim(),
-		},
-		lmsToken
-	);
+	const result = await moodlePost('mod_forum_add_discussion', {
+		forumid: params.forumid,
+		subject: params.subject.trim(),
+		message: params.message.trim(),
+	});
 
 	return result;
 }

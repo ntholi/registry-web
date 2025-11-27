@@ -10,10 +10,14 @@ export async function checkMoodleUserExists() {
 	}
 
 	try {
-		const response = await moodleGet('core_user_get_users', {
-			'criteria[0][key]': 'email',
-			'criteria[0][value]': session.user.email,
-		});
+		const response = await moodleGet(
+			'core_user_get_users',
+			{
+				'criteria[0][key]': 'email',
+				'criteria[0][value]': session.user.email,
+			},
+			process.env.MOODLE_TOKEN
+		);
 
 		if (response?.users && Array.isArray(response.users)) {
 			return {

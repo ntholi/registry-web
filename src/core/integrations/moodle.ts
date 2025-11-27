@@ -1,3 +1,5 @@
+import { auth } from '../auth';
+
 const NEXT_PUBLIC_MOODLE_URL = process.env.NEXT_PUBLIC_MOODLE_URL;
 const MOODLE_TOKEN = process.env.MOODLE_TOKEN || '';
 
@@ -12,57 +14,34 @@ export class MoodleError extends Error {
 	}
 }
 
-export async function getUserInfoFromToken(token: string) {
-	const url = new URL(`${NEXT_PUBLIC_MOODLE_URL}/webservice/rest/server.php`);
-	url.searchParams.set('wstoken', token);
-	url.searchParams.set('wsfunction', 'core_webservice_get_site_info');
-	url.searchParams.set('moodlewsrestformat', 'json');
-
-	try {
-		const response = await fetch(url.toString(), {
-			method: 'GET',
-		});
-
-		if (!response.ok) {
-			throw new Error(`Failed to get user info: ${response.statusText}`);
-		}
-
-		const data = await response.json();
-
-		if (data?.exception) {
-			throw new MoodleError(
-				data.message || data.exception,
-				data.exception,
-				data.errorcode
-			);
-		}
-
-		return data;
-	} catch (error) {
-		if (error instanceof MoodleError) {
-			throw error;
-		}
-		console.error('Moodle User Info Error:', error);
-		throw error;
-	}
-}
-
 type Method = 'GET' | 'POST';
 
 export async function moodleGet(
 	wsfunction: string,
 	params: Record<string, string | number | boolean | undefined> = {},
-	userToken?: string
+	lmsToken?: string
 ) {
-	return moodleRequest(wsfunction, 'GET', params, userToken);
+	const session = await auth();
+	return moodleRequest(
+		wsfunction,
+		'GET',
+		params,
+		lmsToken || session?.user?.lmsToken
+	);
 }
 
 export async function moodlePost(
 	wsfunction: string,
 	params: Record<string, string | number | boolean | undefined> = {},
-	userToken?: string
+	lmsToken?: string
 ) {
-	return moodleRequest(wsfunction, 'POST', params, userToken);
+	const session = await auth();
+	return moodleRequest(
+		wsfunction,
+		'POST',
+		params,
+		lmsToken || session?.user?.lmsToken
+	);
 }
 
 async function moodleRequest(

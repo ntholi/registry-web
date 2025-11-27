@@ -79,13 +79,13 @@ export const adminConfig: ModuleConfig = {
 			{
 				label: 'Tools',
 				icon: IconTool,
+				collapsed: true,
 				roles: ['registry', 'academic', 'admin', 'student_services'],
 				children: [
 					{
 						label: 'Simulator',
 						href: '/admin/tools/simulate',
 						icon: IconTestPipe,
-						roles: ['admin', 'registry'],
 					},
 					{
 						label: 'Grade Calculator',
