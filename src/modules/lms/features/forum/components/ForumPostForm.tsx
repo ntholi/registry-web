@@ -67,8 +67,13 @@ export default function ForumPostForm({ forumId }: ForumPostFormProps) {
 
 	return (
 		<>
-			<Button onClick={open} leftSection={<IconPlus size={16} />}>
-				Post
+			<Button
+				onClick={open}
+				variant='light'
+				leftSection={<IconPlus size={16} />}
+				size='xs'
+			>
+				New
 			</Button>
 
 			<Modal opened={opened} onClose={close} title='Create Post' size='lg'>
