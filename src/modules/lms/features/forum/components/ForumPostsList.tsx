@@ -2,16 +2,21 @@
 
 import {
 	Avatar,
+	Badge,
 	Box,
 	Card,
+	Divider,
 	Group,
 	Loader,
+	Paper,
 	Stack,
 	Text,
 	Title,
+	useMantineTheme,
 } from '@mantine/core';
+import { IconMessage, IconPin } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { getForumDiscussions } from '../server/actions';
 
 type ForumPostsListProps = {
@@ -19,6 +24,7 @@ type ForumPostsListProps = {
 };
 
 export default function ForumPostsList({ forumId }: ForumPostsListProps) {
+	const theme = useMantineTheme();
 	const { data: discussions, isLoading } = useQuery({
 		queryKey: ['forum-discussions', forumId],
 		queryFn: () => getForumDiscussions(forumId),
@@ -27,54 +33,88 @@ export default function ForumPostsList({ forumId }: ForumPostsListProps) {
 	if (isLoading) {
 		return (
 			<Box ta='center' py='xl'>
-				<Loader />
+				<Loader size='lg' />
 			</Box>
 		);
 	}
 
 	if (!discussions || discussions.length === 0) {
 		return (
-			<Box ta='center' py='xl'>
-				<Text c='dimmed'>No posts yet</Text>
-			</Box>
+			<Paper p='xl' withBorder>
+				<Stack align='center' gap='xs'>
+					<IconMessage size={48} stroke={1.5} color={theme.colors.gray[4]} />
+					<Text c='dimmed' size='lg'>
+						No discussions yet
+					</Text>
+					<Text c='dimmed' size='sm'>
+						Be the first to start a conversation
+					</Text>
+				</Stack>
+			</Paper>
 		);
 	}
 
 	return (
 		<Stack gap='md'>
 			{discussions.map((discussion) => (
-				<Card key={discussion.id} withBorder shadow='sm'>
-					<Stack gap='sm'>
-						<Group justify='space-between'>
-							<Group>
-								<Avatar src={discussion.userpictureurl} radius='xl' />
-								<Box>
-									<Text fw={600}>{discussion.userfullname}</Text>
-									<Text size='xs' c='dimmed'>
-										{format(
-											new Date(discussion.created * 1000),
-											'MMM dd, yyyy HH:mm'
+				<Card key={discussion.id} withBorder shadow='xs' padding='lg'>
+					<Stack gap='md'>
+						<Group justify='space-between' wrap='nowrap'>
+							<Group gap='md' wrap='nowrap'>
+								<Avatar
+									src={discussion.userpictureurl}
+									radius='xl'
+									size='md'
+									alt={discussion.userfullname}
+								/>
+								<Box style={{ flex: 1, minWidth: 0 }}>
+									<Group gap='xs' wrap='nowrap'>
+										<Text fw={600} size='sm' truncate>
+											{discussion.userfullname}
+										</Text>
+										{discussion.pinned && (
+											<Badge
+												size='xs'
+												variant='light'
+												color='blue'
+												leftSection={<IconPin size={12} />}
+											>
+												Pinned
+											</Badge>
 										)}
+									</Group>
+									<Text size='xs' c='dimmed'>
+										{formatDistanceToNow(new Date(discussion.created * 1000), {
+											addSuffix: true,
+										})}
 									</Text>
 								</Box>
 							</Group>
 						</Group>
 
-						<Title order={4}>{discussion.subject}</Title>
+						<Stack gap='sm'>
+							<Title order={4} fw={600} size='h5'>
+								{discussion.subject}
+							</Title>
 
-						<Box
-							dangerouslySetInnerHTML={{ __html: discussion.message }}
-							style={{
-								maxWidth: '100%',
-							}}
-						/>
+							<div
+								dangerouslySetInnerHTML={{ __html: discussion.message }}
+								style={{
+									fontSize: '0.875rem',
+									lineHeight: 1.6,
+								}}
+							/>
+						</Stack>
 
-						{discussion.numreplies > 0 && (
+						<Divider />
+
+						<Group gap='xs'>
+							<IconMessage size={18} stroke={1.5} style={{ opacity: 0.6 }} />
 							<Text size='sm' c='dimmed'>
 								{discussion.numreplies}{' '}
 								{discussion.numreplies === 1 ? 'reply' : 'replies'}
 							</Text>
-						)}
+						</Group>
 					</Stack>
 				</Card>
 			))}
