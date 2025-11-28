@@ -1,20 +1,12 @@
 'use server';
 
 import { getCurrentTerm } from '@registry/terms';
-import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
+import { ilike, or, type SQL, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
-import {
-	db,
-	programs,
-	structureSemesters,
-	structures,
-	studentPrograms,
-	studentSemesters,
-	students,
-	users,
-} from '@/core/database';
+import { students } from '@/core/database';
 import { MoodleError, moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type { MoodleEnrolledUser, StudentSearchResult } from '../types';
+import { studentRepository } from './repository';
 
 async function enrollUserInMoodleCourse(
 	userId: number,
@@ -92,38 +84,7 @@ export async function getEnrolledStudentsFromDB(courseId: number) {
 
 	const lmsUserIds = studentUsers.map((u) => u.id);
 
-	const enrolledStudents = await db
-		.selectDistinctOn([students.stdNo], {
-			stdNo: students.stdNo,
-			name: students.name,
-			email: users.email,
-			phone: students.phone1,
-			programCode: programs.code,
-			semesterNumber: structureSemesters.semesterNumber,
-			lmsUserId: users.lmsUserId,
-		})
-		.from(users)
-		.innerJoin(students, eq(students.userId, users.id))
-		.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
-		.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-		.innerJoin(programs, eq(structures.programId, programs.id))
-		.innerJoin(
-			studentSemesters,
-			eq(studentSemesters.studentProgramId, studentPrograms.id)
-		)
-		.innerJoin(
-			structureSemesters,
-			eq(studentSemesters.structureSemesterId, structureSemesters.id)
-		)
-		.where(
-			and(
-				inArray(users.lmsUserId, lmsUserIds),
-				eq(studentPrograms.status, 'Active')
-			)
-		)
-		.orderBy(students.stdNo, sql`${structureSemesters.semesterNumber} DESC`);
-
-	return enrolledStudents;
+	return studentRepository.findEnrolledStudentsByLmsUserIds(lmsUserIds);
 }
 
 export async function searchStudentsForEnrollment(
@@ -149,38 +110,10 @@ export async function searchStudentsForEnrollment(
 		searchCondition = or(ilike(students.name, `%${searchTerm}%`));
 	}
 
-	const results = await db
-		.select({
-			stdNo: students.stdNo,
-			name: students.name,
-			programName: programs.name,
-			semesterNumber: structureSemesters.semesterNumber,
-			userId: students.userId,
-			lmsUserId: users.lmsUserId,
-		})
-		.from(students)
-		.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
-		.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-		.innerJoin(programs, eq(structures.programId, programs.id))
-		.innerJoin(
-			studentSemesters,
-			eq(studentSemesters.studentProgramId, studentPrograms.id)
-		)
-		.innerJoin(
-			structureSemesters,
-			eq(studentSemesters.structureSemesterId, structureSemesters.id)
-		)
-		.leftJoin(users, eq(students.userId, users.id))
-		.where(
-			and(
-				searchCondition,
-				eq(studentPrograms.status, 'Active'),
-				eq(studentSemesters.term, currentTerm.name)
-			)
-		)
-		.limit(10);
-
-	return results;
+	return studentRepository.searchStudentsForEnrollment(
+		searchCondition,
+		currentTerm.name
+	);
 }
 
 export async function enrollStudentInCourse(
@@ -192,12 +125,7 @@ export async function enrollStudentInCourse(
 		throw new Error('Unauthorized');
 	}
 
-	const student = await db.query.students.findFirst({
-		where: eq(students.stdNo, studentStdNo),
-		with: {
-			user: true,
-		},
-	});
+	const student = await studentRepository.findStudentWithUser(studentStdNo);
 
 	if (!student) {
 		return { success: false, message: 'Student not found' };
@@ -231,10 +159,7 @@ export async function enrollStudentInCourse(
 		}
 
 		const moodleUserId = moodleUserResult.users[0].id;
-		await db
-			.update(users)
-			.set({ lmsUserId: moodleUserId })
-			.where(eq(users.id, student.user.id));
+		await studentRepository.updateUserLmsUserId(student.user.id, moodleUserId);
 
 		return enrollUserInMoodleCourse(moodleUserId, courseId);
 	}
