@@ -21,56 +21,63 @@ export default function AssessmentCard({ assignment }: Props) {
 	return (
 		<Card key={assignment.id} padding='md' withBorder>
 			<Stack gap='sm'>
-				<Group justify='space-between' wrap='nowrap'>
-					<Text fw={500} size='md'>
-						{assignment.name}
-					</Text>
-					{isOverdue ? (
-						<Badge color='red' size='sm'>
-							Overdue
-						</Badge>
-					) : isUpcoming ? (
-						<Badge color='blue' size='sm'>
-							Upcoming
-						</Badge>
-					) : (
-						<Badge color='green' size='sm'>
-							Active
-						</Badge>
-					)}
-				</Group>
+				<Card.Section withBorder inheritPadding py='xs'>
+					<Group justify='space-between' wrap='nowrap'>
+						<Text fw={500} size='md'>
+							{assignment.name}
+						</Text>
+						{isOverdue ? (
+							<Badge color='red' size='sm' variant='outline'>
+								Overdue
+							</Badge>
+						) : isUpcoming ? (
+							<Badge color='blue' size='sm' variant='outline'>
+								Upcoming
+							</Badge>
+						) : (
+							<Badge color='green' size='sm' variant='outline'>
+								Active
+							</Badge>
+						)}
+					</Group>
+				</Card.Section>
 
-				{assignment.intro && (
+				{assignment.intro ? (
 					<Text
 						size='sm'
-						c='dimmed'
 						lineClamp={2}
 						dangerouslySetInnerHTML={{ __html: assignment.intro }}
 					/>
+				) : (
+					<Text py={'md'} size='sm' c={'dimmed'}>
+						No Description
+					</Text>
 				)}
 
-				<Group gap='xl'>
-					{availableFrom && (
-						<Group gap='xs'>
-							<IconCalendar size={16} />
-							<Text size='xs' c='dimmed'>
-								Available: {availableFrom.toLocaleDateString()}
-							</Text>
-						</Group>
-					)}
-					{dueDate && (
-						<Group gap='xs'>
-							<IconClock size={16} />
-							<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
-								Due: {dueDate.toLocaleDateString()} at{' '}
-								{dueDate.toLocaleTimeString([], {
-									hour: '2-digit',
-									minute: '2-digit',
-								})}
-							</Text>
-						</Group>
-					)}
-				</Group>
+				<Card.Section withBorder inheritPadding py='xs'>
+					<Group gap='xl'>
+						{availableFrom && (
+							<Group gap='xs'>
+								<IconCalendar size={16} />
+								<Text size='xs' c='dimmed'>
+									Available: {availableFrom.toLocaleDateString()}
+								</Text>
+							</Group>
+						)}
+						{dueDate && (
+							<Group gap='xs'>
+								<IconClock size={16} />
+								<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
+									Due: {dueDate.toLocaleDateString()} at{' '}
+									{dueDate.toLocaleTimeString([], {
+										hour: '2-digit',
+										minute: '2-digit',
+									})}
+								</Text>
+							</Group>
+						)}
+					</Group>
+				</Card.Section>
 			</Stack>
 		</Card>
 	);
