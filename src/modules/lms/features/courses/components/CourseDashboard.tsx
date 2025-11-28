@@ -9,6 +9,7 @@ import {
 	Grid,
 	Group,
 	Paper,
+	SimpleGrid,
 	Skeleton,
 	Stack,
 	Text,
@@ -53,12 +54,7 @@ function UpcomingAssessmentCard({
 		<Paper withBorder p='sm' radius='sm'>
 			<Group justify='space-between' wrap='nowrap'>
 				<Group gap='sm' wrap='nowrap' style={{ flex: 1, minWidth: 0 }}>
-					<ThemeIcon
-						color={isOverdue ? 'red' : daysUntilDue <= 3 ? 'orange' : 'blue'}
-						variant='light'
-						size='md'
-						radius='sm'
-					>
+					<ThemeIcon variant='default' size='lg'>
 						<IconClipboardCheck size={16} />
 					</ThemeIcon>
 					<div style={{ minWidth: 0 }}>
@@ -256,7 +252,7 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 							<Group mb='md' justify='space-between'>
 								<Group gap='xs'>
 									<IconClipboardCheck size={20} />
-									<Text fw={600}>Upcoming Assessments</Text>
+									<Text fw={600}>Assessments</Text>
 								</Group>
 							</Group>
 							{assignmentsLoading ? (
@@ -270,14 +266,14 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 									No upcoming assessments
 								</Text>
 							) : (
-								<Stack gap='sm'>
+								<SimpleGrid cols={3}>
 									{upcomingAssignments.map((assignment) => (
 										<UpcomingAssessmentCard
 											key={assignment.id}
 											assignment={assignment}
 										/>
 									))}
-								</Stack>
+								</SimpleGrid>
 							)}
 						</Paper>
 
