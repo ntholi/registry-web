@@ -4,6 +4,7 @@ import { Anchor, Box, Skeleton, Table, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { formatPhoneNumber, toClassName } from '@/shared/lib/utils/utils';
 import { getEnrolledStudentsFromDB } from '../server/actions';
+import StudentPhotoCell from './StudentPhotoCell';
 
 type StudentsListProps = {
 	courseId: number;
@@ -23,6 +24,9 @@ function TableSkeleton() {
 		<Table.Tbody>
 			{[1, 2, 3, 4, 5].map((i) => (
 				<Table.Tr key={i}>
+					<Table.Td w={50}>
+						<Skeleton height={32} width={32} circle />
+					</Table.Td>
 					<Table.Td>
 						<Skeleton height={16} width='80%' />
 					</Table.Td>
@@ -55,6 +59,7 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 			<Table striped highlightOnHover withTableBorder withColumnBorders>
 				<Table.Thead>
 					<Table.Tr>
+						<Table.Th w={50}></Table.Th>
 						<Table.Th>Student Number</Table.Th>
 						<Table.Th>Name</Table.Th>
 						<Table.Th>Class</Table.Th>
@@ -74,9 +79,10 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 					<Text c='dimmed'>No students enrolled in this course</Text>
 				</Box>
 			) : (
-				<Table striped highlightOnHover withTableBorder withColumnBorders>
+				<Table striped highlightOnHover withTableBorder>
 					<Table.Thead>
 						<Table.Tr>
+							<Table.Th w={50}></Table.Th>
 							<Table.Th>Student Number</Table.Th>
 							<Table.Th>Name</Table.Th>
 							<Table.Th>Class</Table.Th>
@@ -87,6 +93,9 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 					<Table.Tbody>
 						{students.map((student) => (
 							<Table.Tr key={student.stdNo}>
+								<Table.Td>
+									<StudentPhotoCell stdNo={student.stdNo} name={student.name} />
+								</Table.Td>
 								<Table.Td>
 									<Anchor
 										href={`/registry/students/${student.stdNo}`}

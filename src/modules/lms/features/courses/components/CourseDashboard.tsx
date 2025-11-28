@@ -14,10 +14,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import {
-	IconClipboardCheck,
-	IconMessageCircle,
-} from '@tabler/icons-react';
+import { IconClipboardCheck, IconMessageCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -25,8 +22,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 import Link from 'next/link';
-import DashboardCalendar from './DashboardCalendar';
 import type { MoodleCourse } from '../types';
+import DashboardCalendar from './DashboardCalendar';
 
 type CourseDashboardProps = {
 	course: MoodleCourse;
@@ -174,7 +171,6 @@ function RecentDiscussionCard({
 		</Group>
 	);
 }
-
 
 export default function CourseDashboard({ course }: CourseDashboardProps) {
 	const { data: assignments, isLoading: assignmentsLoading } = useQuery({
