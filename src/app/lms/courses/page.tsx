@@ -15,7 +15,9 @@ export default async function CoursesPage() {
 	return (
 		<Container mt='lg' size='xl'>
 			<Flex justify='space-between' align='center' mb='md'>
-				<Title order={2}>My Courses</Title>
+				<Title order={2} fw={'normal'}>
+					My Courses
+				</Title>
 				<CreateCourseModal />
 			</Flex>
 

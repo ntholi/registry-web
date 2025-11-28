@@ -1,5 +1,5 @@
 'use client';
-import { Badge, Box, Card, Flex, Group, Stack, Text } from '@mantine/core';
+import { Badge, Box, Card, Flex, Text } from '@mantine/core';
 import Link from 'next/link';
 import type { MoodleCourse } from '../types';
 
@@ -155,23 +155,17 @@ export default function CourseItem({ course }: Props) {
 					</Box>
 				</Box>
 			</Card.Section>
-			<Stack gap='sm'>
-				<Flex justify={'space-between'} align={'baseline'}>
-					<Text size='lg' fw={600} lineClamp={2}>
-						{course.fullname}
-					</Text>
-					{course.shortname && (
-						<Badge variant='default'>{course.shortname}</Badge>
-					)}
-				</Flex>
-				{course.enrolledusercount > 0 && (
-					<Group gap='xs'>
-						<Badge variant='light' color='violet'>
-							{course.enrolledusercount} enrolled
-						</Badge>
-					</Group>
+
+			<Flex justify={'space-between'} align={'baseline'} px={'sx'} pt={'md'}>
+				<Text size='md' fw={600} lineClamp={2}>
+					{course.fullname}
+				</Text>
+				{course.shortname && (
+					<Badge variant='default' radius={'sm'}>
+						{course.shortname}
+					</Badge>
 				)}
-			</Stack>
+			</Flex>
 		</Card>
 	);
 }

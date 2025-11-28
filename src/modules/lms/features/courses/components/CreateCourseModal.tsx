@@ -111,7 +111,11 @@ export default function CreateCourseModal() {
 
 	return (
 		<>
-			<Button leftSection={<IconPlus size={16} />} onClick={open}>
+			<Button
+				variant='light'
+				leftSection={<IconPlus size={16} />}
+				onClick={open}
+			>
 				New Course
 			</Button>
 
