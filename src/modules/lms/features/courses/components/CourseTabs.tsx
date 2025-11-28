@@ -7,7 +7,7 @@ import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
 import { Box, Loader, Tabs, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useQueryState } from 'nuqs';
 import type { MoodleCourse } from '../types';
 
 type CourseTabsProps = {
@@ -15,7 +15,9 @@ type CourseTabsProps = {
 };
 
 export default function CourseTabs({ course }: CourseTabsProps) {
-	const [activeTab, setActiveTab] = useState<string | null>('dashboard');
+	const [activeTab, setActiveTab] = useQueryState('tab', {
+		defaultValue: 'dashboard',
+	});
 
 	const { data: forum, isLoading } = useQuery({
 		queryKey: ['forum', course.id],

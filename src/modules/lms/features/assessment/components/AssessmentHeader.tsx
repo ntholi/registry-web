@@ -33,7 +33,7 @@ export default function AssessmentHeader({
 }: Props) {
 	return (
 		<Stack>
-			<Link c='gray' href={`/lms/courses/${courseId}`}>
+			<Link c='gray' href={`/lms/courses/${courseId}?tab=assessments`}>
 				<Group align='center'>
 					<ThemeIcon radius='xl' variant='light' color='gray'>
 						<IconArrowNarrowLeft size='1.2rem' />
