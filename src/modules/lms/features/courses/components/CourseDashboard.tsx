@@ -11,7 +11,6 @@ import {
 	Grid,
 	Group,
 	Paper,
-	RingProgress,
 	Skeleton,
 	Stack,
 	Text,
@@ -19,7 +18,6 @@ import {
 } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import {
-	IconBook,
 	IconCalendarEvent,
 	IconClipboardCheck,
 	IconClock,
@@ -184,93 +182,6 @@ function RecentDiscussionCard({
 					</Group>
 				</div>
 			</Group>
-		</Paper>
-	);
-}
-
-function CourseProgressRing({ course }: { course: MoodleCourse }) {
-	const progress = course.progress ?? 0;
-	const startDate = course.startdate ? new Date(course.startdate * 1000) : null;
-	const endDate = course.enddate ? new Date(course.enddate * 1000) : null;
-
-	let timeProgress = 0;
-	if (startDate && endDate) {
-		const now = Date.now();
-		const total = endDate.getTime() - startDate.getTime();
-		const elapsed = now - startDate.getTime();
-		timeProgress = Math.min(100, Math.max(0, (elapsed / total) * 100));
-	}
-
-	return (
-		<Paper withBorder p='md' radius='md'>
-			<Text fw={600} mb='md'>
-				Course Progress
-			</Text>
-			<Group justify='center' gap='xl'>
-				<Stack align='center' gap='xs'>
-					<RingProgress
-						size={100}
-						thickness={8}
-						roundCaps
-						sections={[{ value: progress, color: 'blue' }]}
-						label={
-							<Text ta='center' fz='lg' fw={700}>
-								{Math.round(progress)}%
-							</Text>
-						}
-					/>
-					<Text size='xs' c='dimmed'>
-						Completion
-					</Text>
-				</Stack>
-				<Stack align='center' gap='xs'>
-					<RingProgress
-						size={100}
-						thickness={8}
-						roundCaps
-						sections={[{ value: timeProgress, color: 'teal' }]}
-						label={
-							<Text ta='center' fz='lg' fw={700}>
-								{Math.round(timeProgress)}%
-							</Text>
-						}
-					/>
-					<Text size='xs' c='dimmed'>
-						Time Elapsed
-					</Text>
-				</Stack>
-			</Group>
-			{startDate && endDate && (
-				<>
-					<Divider my='md' />
-					<Group justify='space-between'>
-						<div>
-							<Text size='xs' c='dimmed'>
-								Start Date
-							</Text>
-							<Text size='sm' fw={500}>
-								{startDate.toLocaleDateString('en-US', {
-									month: 'short',
-									day: 'numeric',
-									year: 'numeric',
-								})}
-							</Text>
-						</div>
-						<div style={{ textAlign: 'right' }}>
-							<Text size='xs' c='dimmed'>
-								End Date
-							</Text>
-							<Text size='sm' fw={500}>
-								{endDate.toLocaleDateString('en-US', {
-									month: 'short',
-									day: 'numeric',
-									year: 'numeric',
-								})}
-							</Text>
-						</div>
-					</Group>
-				</>
-			)}
 		</Paper>
 	);
 }
@@ -440,25 +351,6 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 				<Grid.Col span={{ base: 12, md: 8 }}>
 					<Stack gap='md'>
 						<Paper withBorder p='md' radius='md'>
-							<Group mb='md' gap='xs'>
-								<IconBook size={20} />
-								<Text fw={600}>Course Overview</Text>
-							</Group>
-							{course.summary ? (
-								<div
-									dangerouslySetInnerHTML={{
-										__html: course.summary,
-									}}
-									style={{ fontSize: '0.875rem', lineHeight: 1.6 }}
-								/>
-							) : (
-								<Text size='sm' c='dimmed'>
-									No course description available.
-								</Text>
-							)}
-						</Paper>
-
-						<Paper withBorder p='md' radius='md'>
 							<Group mb='md' justify='space-between'>
 								<Group gap='xs'>
 									<IconClipboardCheck size={20} />
@@ -524,13 +416,10 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 				</Grid.Col>
 
 				<Grid.Col span={{ base: 12, md: 4 }}>
-					<Stack gap='md'>
-						<CourseProgressRing course={course} />
-						<AssessmentCalendar
-							assignments={upcomingAssignments}
-							isLoading={assignmentsLoading}
-						/>
-					</Stack>
+					<AssessmentCalendar
+						assignments={upcomingAssignments}
+						isLoading={assignmentsLoading}
+					/>
 				</Grid.Col>
 			</Grid>
 		</Stack>
