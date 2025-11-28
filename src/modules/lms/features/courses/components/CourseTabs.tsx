@@ -5,9 +5,10 @@ import AssessmentsList from '@lms/assessment/components/AssessmentsList';
 import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
+import { getEnrolledStudentsFromDB } from '@lms/students';
 import AddStudentModal from '@lms/students/components/AddStudentModal';
 import StudentsList from '@lms/students/components/StudentsList';
-import { Box, Loader, Tabs, Text } from '@mantine/core';
+import { Badge, Box, Loader, Tabs, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import type { MoodleCourse } from '../types';
@@ -27,6 +28,11 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 		enabled: activeTab === 'forum',
 	});
 
+	const { data: students } = useQuery({
+		queryKey: ['course-students', course.id],
+		queryFn: () => getEnrolledStudentsFromDB(course.id),
+	});
+
 	return (
 		<Tabs
 			value={activeTab}
@@ -40,7 +46,14 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 				<Tabs.Tab value='forum'>Forum</Tabs.Tab>
 				<Tabs.Tab value='assessments'>Assessments</Tabs.Tab>
 				<Tabs.Tab value='material'>Material</Tabs.Tab>
-				<Tabs.Tab value='students'>Students</Tabs.Tab>
+				<Tabs.Tab value='students'>
+					Students
+					{students && students.length > 0 && (
+						<Badge ml='xs' size='sm' variant='default' color='gray'>
+							{students.length}
+						</Badge>
+					)}
+				</Tabs.Tab>
 				<Box ml='auto' mt={-5}>
 					{activeTab === 'forum' && forum && (
 						<ForumPostForm forumId={forum.id} />
