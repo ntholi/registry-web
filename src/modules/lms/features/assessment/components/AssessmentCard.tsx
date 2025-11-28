@@ -40,13 +40,11 @@ export default function AssessmentCard({ assignment, courseId }: Props) {
 				</Card.Section>
 
 				{assignment.intro ? (
-					<Text
-						size='sm'
-						lineClamp={2}
-						dangerouslySetInnerHTML={{ __html: assignment.intro }}
-					/>
+					<Text py={'xs'} size='sm' lineClamp={2}>
+						{shorten(assignment.intro)}
+					</Text>
 				) : (
-					<Text py={'md'} size='sm' c={'dimmed'}>
+					<Text py={'xs'} size='sm' c={'dimmed'}>
 						No Description
 					</Text>
 				)}
@@ -70,4 +68,9 @@ export default function AssessmentCard({ assignment, courseId }: Props) {
 			</Stack>
 		</Card>
 	);
+}
+
+function shorten(html: string): string {
+	const text = html.replace(/<[^>]*>/g, '');
+	return text.length > 90 ? `${text.substring(0, 90)}...` : text;
 }

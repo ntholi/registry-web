@@ -32,7 +32,7 @@ export default function AssessmentsList({ courseId }: AssessmentsListProps) {
 	}
 
 	return (
-		<SimpleGrid cols={{ base: 1, sm: 2 }}>
+		<SimpleGrid cols={{ base: 1, sm: 3 }}>
 			{assignments.map((assignment) => {
 				return (
 					<AssessmentCard
