@@ -2,7 +2,7 @@
 
 import { Anchor, Box, Skeleton, Table, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { formatPhoneNumber, toClassName } from '@/shared/lib/utils/utils';
+import { formatPhoneNumber, formatSemester } from '@/shared/lib/utils/utils';
 import { getEnrolledStudentsFromDB } from '../server/actions';
 import StudentPhotoCell from './StudentPhotoCell';
 
@@ -106,7 +106,7 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 								</Table.Td>
 								<Table.Td>{student.name}</Table.Td>
 								<Table.Td>
-									{toClassName(student.programCode, student.semesterNumber)}
+									{`${student.programCode}${formatSemester(student.semesterNumber, 'mini')}`}
 								</Table.Td>
 								<Table.Td>
 									{student.email ? (
