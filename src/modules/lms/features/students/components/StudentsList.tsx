@@ -10,13 +10,22 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { toClassName } from '@/shared/lib/utils/utils';
+import { formatPhoneNumber, toClassName } from '@/shared/lib/utils/utils';
 import { getEnrolledStudentsFromDB } from '../server/actions';
 import AddStudentModal from './AddStudentModal';
 
 type StudentsListProps = {
 	courseId: number;
 };
+
+function stripPhoneNumber(phone: string | null | undefined) {
+	if (!phone) return '';
+	return phone
+		.replaceAll(' ', '')
+		.replaceAll('-', '')
+		.replaceAll('(', '')
+		.replaceAll(')', '');
+}
 
 function TableSkeleton() {
 	return (
@@ -99,7 +108,14 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 					<Table.Tbody>
 						{students.map((student) => (
 							<Table.Tr key={student.stdNo}>
-								<Table.Td>{student.stdNo}</Table.Td>
+								<Table.Td>
+									<Anchor
+										href={`/registry/students/${student.stdNo}`}
+										size='sm'
+									>
+										{student.stdNo}
+									</Anchor>
+								</Table.Td>
 								<Table.Td>{student.name}</Table.Td>
 								<Table.Td>
 									{toClassName(student.programCode, student.semesterNumber)}
@@ -117,8 +133,11 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 								</Table.Td>
 								<Table.Td>
 									{student.phone ? (
-										<Anchor href={`tel:${student.phone}`} size='sm'>
-											{student.phone}
+										<Anchor
+											href={`tel:${stripPhoneNumber(formatPhoneNumber(student.phone))}`}
+											size='sm'
+										>
+											{formatPhoneNumber(student.phone)}
 										</Anchor>
 									) : (
 										<Text c='dimmed' size='sm'>
