@@ -1,9 +1,10 @@
 'use client';
 
-import { Badge, Card, Group, Stack, Text } from '@mantine/core';
+import { Card, Group, Stack, Text } from '@mantine/core';
 import { IconClock } from '@tabler/icons-react';
 import Link from 'next/link';
 import type { MoodleAssignment } from '../types';
+import AssessmentStatus from './AssessmentStatus';
 
 type Props = {
 	assignment: MoodleAssignment;
@@ -13,12 +14,7 @@ export default function AssessmentCard({ assignment, courseId }: Props) {
 	const dueDate = assignment.duedate
 		? new Date(assignment.duedate * 1000)
 		: null;
-	const availableFrom = assignment.allowsubmissionsfromdate
-		? new Date(assignment.allowsubmissionsfromdate * 1000)
-		: null;
-	const now = new Date();
-	const isOverdue = dueDate && dueDate < now;
-	const isUpcoming = availableFrom && availableFrom > now;
+	const isOverdue = dueDate && dueDate < new Date();
 
 	return (
 		<Card
@@ -35,19 +31,11 @@ export default function AssessmentCard({ assignment, courseId }: Props) {
 						<Text fw={500} size='md'>
 							{assignment.name}
 						</Text>
-						{isOverdue ? (
-							<Badge color='red' size='sm' variant='light'>
-								Overdue
-							</Badge>
-						) : isUpcoming ? (
-							<Badge color='teal' size='sm' variant='light'>
-								Upcoming
-							</Badge>
-						) : (
-							<Badge color='green' size='sm' variant='light'>
-								Active
-							</Badge>
-						)}
+						<AssessmentStatus
+							assignment={assignment}
+							size='sm'
+							variant='light'
+						/>
 					</Group>
 				</Card.Section>
 

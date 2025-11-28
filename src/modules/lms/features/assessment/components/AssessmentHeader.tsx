@@ -18,6 +18,7 @@ import {
 } from '@tabler/icons-react';
 import Link from '@/shared/ui/Link';
 import type { MoodleAssignment } from '../types';
+import AssessmentStatus from './AssessmentStatus';
 
 type Props = {
 	assignment: MoodleAssignment;
@@ -30,38 +31,6 @@ export default function AssessmentHeader({
 	courseName,
 	courseId,
 }: Props) {
-	const dueDate = assignment.duedate
-		? new Date(assignment.duedate * 1000)
-		: null;
-	const now = new Date();
-	const isOverdue = dueDate && dueDate < now;
-	const availableFrom = assignment.allowsubmissionsfromdate
-		? new Date(assignment.allowsubmissionsfromdate * 1000)
-		: null;
-	const isUpcoming = availableFrom && availableFrom > now;
-
-	function getStatusBadge() {
-		if (isOverdue) {
-			return (
-				<Badge radius='xs' variant='light' color='red'>
-					Overdue
-				</Badge>
-			);
-		}
-		if (isUpcoming) {
-			return (
-				<Badge radius='xs' variant='light' color='teal'>
-					Upcoming
-				</Badge>
-			);
-		}
-		return (
-			<Badge radius='xs' variant='light' color='green'>
-				Active
-			</Badge>
-		);
-	}
-
 	return (
 		<Stack>
 			<Link c='gray' href={`/lms/courses/${courseId}`}>
@@ -83,7 +52,11 @@ export default function AssessmentHeader({
 								<Badge size='sm' variant='default' radius={'sm'}>
 									{courseName}
 								</Badge>
-								{getStatusBadge()}
+								<AssessmentStatus
+									assignment={assignment}
+									radius='xs'
+									variant='light'
+								/>
 							</Group>
 							<Title order={2}>{assignment.name}</Title>
 						</Stack>
