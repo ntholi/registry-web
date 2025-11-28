@@ -100,7 +100,12 @@ export default function AddStudentModal({
 
 	return (
 		<>
-			<Button leftSection={<IconPlus size={16} />} onClick={open}>
+			<Button
+				variant='light'
+				size='xs'
+				leftSection={<IconPlus size={16} />}
+				onClick={open}
+			>
 				Add Student
 			</Button>
 

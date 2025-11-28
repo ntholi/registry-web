@@ -2,10 +2,8 @@
 
 import { getCourseAssignments } from '@lms/assessment';
 import { getForumDiscussions, getMainForum } from '@lms/forum';
-import { getEnrolledStudentsFromDB } from '@lms/students';
 import {
 	Avatar,
-	Badge,
 	Box,
 	Divider,
 	Grid,
@@ -20,9 +18,7 @@ import { Calendar } from '@mantine/dates';
 import {
 	IconCalendarEvent,
 	IconClipboardCheck,
-	IconClock,
 	IconMessage,
-	IconUsers,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -41,42 +37,6 @@ type AssignmentDueDate = {
 	name: string;
 	duedate: number;
 };
-
-function StatCard({
-	icon,
-	label,
-	value,
-	color,
-	isLoading,
-}: {
-	icon: React.ReactNode;
-	label: string;
-	value: number | string;
-	color: string;
-	isLoading?: boolean;
-}) {
-	return (
-		<Paper withBorder p='md' radius='md'>
-			<Group justify='space-between'>
-				<div>
-					<Text c='dimmed' tt='uppercase' fw={700} fz='xs'>
-						{label}
-					</Text>
-					{isLoading ? (
-						<Skeleton height={28} width={60} mt={4} />
-					) : (
-						<Text fw={700} fz='xl'>
-							{value}
-						</Text>
-					)}
-				</div>
-				<ThemeIcon color={color} variant='light' size={48} radius='md'>
-					{icon}
-				</ThemeIcon>
-			</Group>
-		</Paper>
-	);
-}
 
 function UpcomingAssessmentCard({
 	assignment,
@@ -116,16 +76,6 @@ function UpcomingAssessmentCard({
 						</Text>
 					</div>
 				</Group>
-				<Badge
-					size='sm'
-					variant='light'
-					color={isOverdue ? 'red' : daysUntilDue <= 3 ? 'orange' : 'gray'}
-				>
-					{dueDate.toLocaleDateString('en-US', {
-						month: 'short',
-						day: 'numeric',
-					})}
-				</Badge>
 			</Group>
 		</Paper>
 	);
@@ -199,7 +149,7 @@ function AssessmentCalendar({
 		<Paper withBorder p='md' radius='md'>
 			<Group mb='md' gap='xs'>
 				<IconCalendarEvent size={20} />
-				<Text fw={600}>Assessment Calendar</Text>
+				<Text fw={600}>Calendar</Text>
 			</Group>
 			{isLoading ? (
 				<Stack align='center' py='xl'>
@@ -272,11 +222,6 @@ function AssessmentCalendar({
 }
 
 export default function CourseDashboard({ course }: CourseDashboardProps) {
-	const { data: students, isLoading: studentsLoading } = useQuery({
-		queryKey: ['course-students', course.id],
-		queryFn: () => getEnrolledStudentsFromDB(course.id),
-	});
-
 	const { data: assignments, isLoading: assignmentsLoading } = useQuery({
 		queryKey: ['course-assignments', course.id],
 		queryFn: () => getCourseAssignments(course.id),
@@ -300,53 +245,10 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 			.sort((a, b) => a.duedate - b.duedate)
 			.slice(0, 5) ?? [];
 
-	const overdueCount =
-		assignments?.filter((a) => a.duedate > 0 && a.duedate * 1000 < Date.now())
-			.length ?? 0;
-
 	const recentDiscussions = discussions?.slice(0, 4) ?? [];
 
 	return (
-		<Stack gap='lg'>
-			<Grid>
-				<Grid.Col span={{ base: 6, md: 3 }}>
-					<StatCard
-						icon={<IconUsers size={24} />}
-						label='Students'
-						value={students?.length ?? 0}
-						color='blue'
-						isLoading={studentsLoading}
-					/>
-				</Grid.Col>
-				<Grid.Col span={{ base: 6, md: 3 }}>
-					<StatCard
-						icon={<IconClipboardCheck size={24} />}
-						label='Assessments'
-						value={assignments?.length ?? 0}
-						color='teal'
-						isLoading={assignmentsLoading}
-					/>
-				</Grid.Col>
-				<Grid.Col span={{ base: 6, md: 3 }}>
-					<StatCard
-						icon={<IconClock size={24} />}
-						label='Overdue'
-						value={overdueCount}
-						color={overdueCount > 0 ? 'red' : 'gray'}
-						isLoading={assignmentsLoading}
-					/>
-				</Grid.Col>
-				<Grid.Col span={{ base: 6, md: 3 }}>
-					<StatCard
-						icon={<IconMessage size={24} />}
-						label='Discussions'
-						value={discussions?.length ?? 0}
-						color='violet'
-						isLoading={discussionsLoading}
-					/>
-				</Grid.Col>
-			</Grid>
-
+		<Stack gap='lg' mt={'lg'} px={'md'}>
 			<Grid>
 				<Grid.Col span={{ base: 12, md: 8 }}>
 					<Stack gap='md'>
@@ -356,11 +258,6 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 									<IconClipboardCheck size={20} />
 									<Text fw={600}>Upcoming Assessments</Text>
 								</Group>
-								{upcomingAssignments.length > 0 && (
-									<Badge variant='light' color='blue'>
-										{upcomingAssignments.length} upcoming
-									</Badge>
-								)}
 							</Group>
 							{assignmentsLoading ? (
 								<Stack gap='sm'>
