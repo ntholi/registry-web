@@ -4,22 +4,21 @@ import { getCourseAssignments } from '@lms/assessment';
 import { getForumDiscussions, getMainForum } from '@lms/forum';
 import {
 	Avatar,
+	Badge,
 	Box,
 	Divider,
 	Grid,
 	Group,
 	Paper,
-	SimpleGrid,
 	Skeleton,
 	Stack,
 	Text,
-	ThemeIcon,
 } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import {
 	IconCalendarEvent,
 	IconClipboardCheck,
-	IconMessage,
+	IconMessageCircle,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -41,8 +40,10 @@ type AssignmentDueDate = {
 
 function UpcomingAssessmentCard({
 	assignment,
+	isLast,
 }: {
 	assignment: AssignmentDueDate;
+	isLast: boolean;
 }) {
 	const dueDate = new Date(assignment.duedate * 1000);
 	const isOverdue = dueDate < new Date();
@@ -50,35 +51,48 @@ function UpcomingAssessmentCard({
 		(dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
 	);
 
+	const statusText = isOverdue
+		? 'Overdue'
+		: daysUntilDue === 0
+			? 'Today'
+			: daysUntilDue === 1
+				? 'Tomorrow'
+				: `${daysUntilDue} days`;
+
 	return (
-		<Paper withBorder p='sm' radius='sm'>
-			<Group justify='space-between' wrap='nowrap'>
-				<Group gap='sm' wrap='nowrap' style={{ flex: 1, minWidth: 0 }}>
-					<ThemeIcon variant='default' size='lg'>
-						<IconClipboardCheck size={16} />
-					</ThemeIcon>
-					<div style={{ minWidth: 0 }}>
-						<Text size='sm' fw={500} truncate>
-							{assignment.name}
-						</Text>
-						<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
-							{isOverdue
-								? 'Overdue'
-								: daysUntilDue === 0
-									? 'Due today'
-									: daysUntilDue === 1
-										? 'Due tomorrow'
-										: `Due in ${daysUntilDue} days`}
-						</Text>
-					</div>
-				</Group>
+		<>
+			<Group gap='sm' wrap='nowrap' py='sm'>
+				<Box
+					w={3}
+					h={32}
+					bg={isOverdue ? 'red.5' : 'blue.5'}
+					style={{ borderRadius: 2, flexShrink: 0 }}
+				/>
+				<Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+					<Text size='sm' fw={500} truncate>
+						{assignment.name}
+					</Text>
+					<Text size='xs' c='dimmed'>
+						{dayjs(dueDate).format('D MMM YYYY')}
+					</Text>
+				</Stack>
+				<Badge
+					variant='light'
+					color={isOverdue ? 'red' : 'blue'}
+					size='sm'
+					style={{ flexShrink: 0 }}
+				>
+					{statusText}
+				</Badge>
 			</Group>
-		</Paper>
+			{!isLast && <Divider />}
+		</>
 	);
 }
 
 function RecentDiscussionCard({
 	discussion,
+	isLast,
 }: {
 	discussion: {
 		id: number;
@@ -88,47 +102,55 @@ function RecentDiscussionCard({
 		created: number;
 		numreplies: number;
 	};
+	isLast: boolean;
 }) {
 	return (
-		<Paper withBorder p='sm' radius='sm'>
-			<Group gap='sm' wrap='nowrap'>
-				<Avatar
-					src={discussion.userpictureurl}
-					size='sm'
-					radius='xl'
-					alt={discussion.userfullname}
-				/>
-				<div style={{ flex: 1, minWidth: 0 }}>
-					<Text size='sm' fw={500} truncate>
-						{discussion.subject}
+		<Group
+			gap='sm'
+			wrap='nowrap'
+			py='sm'
+			style={
+				!isLast
+					? { borderBottom: '1px solid var(--mantine-color-gray-2)' }
+					: undefined
+			}
+		>
+			<Avatar
+				src={discussion.userpictureurl}
+				size='sm'
+				radius='xl'
+				alt={discussion.userfullname}
+			/>
+			<Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+				<Text size='sm' fw={500} truncate>
+					{discussion.subject}
+				</Text>
+				<Group gap='xs'>
+					<Text size='xs' c='dimmed'>
+						{discussion.userfullname}
 					</Text>
-					<Group gap='xs'>
-						<Text size='xs' c='dimmed'>
-							{discussion.userfullname}
-						</Text>
-						<Text size='xs' c='dimmed'>
-							·
-						</Text>
-						<Text size='xs' c='dimmed'>
-							{dayjs(discussion.created * 1000).fromNow()}
-						</Text>
-						{discussion.numreplies > 0 && (
-							<>
+					<Text size='xs' c='dimmed'>
+						·
+					</Text>
+					<Text size='xs' c='dimmed'>
+						{dayjs(discussion.created * 1000).fromNow()}
+					</Text>
+					{discussion.numreplies > 0 && (
+						<>
+							<Text size='xs' c='dimmed'>
+								·
+							</Text>
+							<Group gap={4}>
+								<IconMessageCircle size={12} />
 								<Text size='xs' c='dimmed'>
-									·
+									{discussion.numreplies}
 								</Text>
-								<Group gap={4}>
-									<IconMessage size={12} />
-									<Text size='xs' c='dimmed'>
-										{discussion.numreplies}
-									</Text>
-								</Group>
-							</>
-						)}
-					</Group>
-				</div>
-			</Group>
-		</Paper>
+							</Group>
+						</>
+					)}
+				</Group>
+			</Stack>
+		</Group>
 	);
 }
 
@@ -266,21 +288,22 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 									No upcoming assessments
 								</Text>
 							) : (
-								<SimpleGrid cols={3}>
-									{upcomingAssignments.map((assignment) => (
+								<Stack gap={0}>
+									{upcomingAssignments.map((assignment, index) => (
 										<UpcomingAssessmentCard
 											key={assignment.id}
 											assignment={assignment}
+											isLast={index === upcomingAssignments.length - 1}
 										/>
 									))}
-								</SimpleGrid>
+								</Stack>
 							)}
 						</Paper>
 
 						<Paper withBorder p='md' radius='md'>
 							<Group mb='md' justify='space-between'>
 								<Group gap='xs'>
-									<IconMessage size={20} />
+									<IconMessageCircle size={20} />
 									<Text fw={600}>Recent Discussions</Text>
 								</Group>
 							</Group>
@@ -295,11 +318,12 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 									No discussions yet
 								</Text>
 							) : (
-								<Stack gap='sm'>
-									{recentDiscussions.map((discussion) => (
+								<Stack gap={0}>
+									{recentDiscussions.map((discussion, index) => (
 										<RecentDiscussionCard
 											key={discussion.id}
 											discussion={discussion}
+											isLast={index === recentDiscussions.length - 1}
 										/>
 									))}
 								</Stack>
