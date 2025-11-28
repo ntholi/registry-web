@@ -26,6 +26,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 
+import Link from 'next/link';
 import type { MoodleCourse } from '../types';
 
 type CourseDashboardProps = {
@@ -38,12 +39,14 @@ type AssignmentDueDate = {
 	duedate: number;
 };
 
-function UpcomingAssessmentCard({
+function AssessmentCard({
 	assignment,
 	isLast,
+	courseId,
 }: {
 	assignment: AssignmentDueDate;
 	isLast: boolean;
+	courseId: number;
 }) {
 	const dueDate = new Date(assignment.duedate * 1000);
 	const isOverdue = dueDate < new Date();
@@ -61,30 +64,49 @@ function UpcomingAssessmentCard({
 
 	return (
 		<>
-			<Group gap='sm' wrap='nowrap' py='sm'>
-				<Box
-					w={3}
-					h={32}
-					bg={isOverdue ? 'red.5' : 'blue.5'}
-					style={{ borderRadius: 2, flexShrink: 0 }}
-				/>
-				<Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-					<Text size='sm' fw={500} truncate>
-						{assignment.name}
-					</Text>
-					<Text size='xs' c='dimmed'>
-						{dayjs(dueDate).format('D MMM YYYY')}
-					</Text>
-				</Stack>
-				<Badge
-					variant='light'
-					color={isOverdue ? 'red' : 'blue'}
-					size='sm'
-					style={{ flexShrink: 0 }}
-				>
-					{statusText}
-				</Badge>
-			</Group>
+			<Box
+				component={Link}
+				href={`/lms/courses/${courseId}/assessments/${assignment.id}`}
+				style={{
+					textDecoration: 'none',
+					color: 'inherit',
+					display: 'block',
+					transition: 'background-color 0.2s ease',
+					cursor: 'pointer',
+				}}
+				onMouseEnter={(e) => {
+					e.currentTarget.style.backgroundColor =
+						'light-dark(rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.03))';
+				}}
+				onMouseLeave={(e) => {
+					e.currentTarget.style.backgroundColor = 'transparent';
+				}}
+			>
+				<Group gap='sm' wrap='nowrap' py='sm'>
+					<Box
+						w={3}
+						h={32}
+						bg={isOverdue ? 'red.5' : 'blue.5'}
+						style={{ borderRadius: 2, flexShrink: 0 }}
+					/>
+					<Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+						<Text size='sm' fw={500} truncate>
+							{assignment.name}
+						</Text>
+						<Text size='xs' c='dimmed'>
+							{dayjs(dueDate).format('D MMM YYYY')}
+						</Text>
+					</Stack>
+					<Badge
+						variant='light'
+						color={isOverdue ? 'red' : 'blue'}
+						size='sm'
+						style={{ flexShrink: 0 }}
+					>
+						{statusText}
+					</Badge>
+				</Group>
+			</Box>
 			{!isLast && <Divider />}
 		</>
 	);
@@ -290,10 +312,11 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 							) : (
 								<Stack gap={0}>
 									{upcomingAssignments.map((assignment, index) => (
-										<UpcomingAssessmentCard
+										<AssessmentCard
 											key={assignment.id}
 											assignment={assignment}
 											isLast={index === upcomingAssignments.length - 1}
+											courseId={course.id}
 										/>
 									))}
 								</Stack>
