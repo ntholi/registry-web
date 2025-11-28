@@ -14,9 +14,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { Calendar } from '@mantine/dates';
 import {
-	IconCalendarEvent,
 	IconClipboardCheck,
 	IconMessageCircle,
 } from '@tabler/icons-react';
@@ -27,6 +25,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 import Link from 'next/link';
+import DashboardCalendar from './DashboardCalendar';
 import type { MoodleCourse } from '../types';
 
 type CourseDashboardProps = {
@@ -176,90 +175,6 @@ function RecentDiscussionCard({
 	);
 }
 
-function AssessmentCalendar({
-	assignments,
-	isLoading,
-}: {
-	assignments: AssignmentDueDate[] | undefined;
-	isLoading: boolean;
-}) {
-	const dueDates = assignments?.map((a) => dayjs(a.duedate * 1000)) ?? [];
-
-	return (
-		<Paper withBorder p='md' radius='md'>
-			<Group mb='md' gap='xs'>
-				<IconCalendarEvent size={20} />
-				<Text fw={600}>Calendar</Text>
-			</Group>
-			{isLoading ? (
-				<Stack align='center' py='xl'>
-					<Skeleton height={250} width='100%' radius='md' />
-				</Stack>
-			) : (
-				<Calendar
-					static
-					getDayProps={(date) => {
-						const hasAssignment = dueDates.some((d) =>
-							dayjs(date).isSame(d, 'day')
-						);
-						const isPast = dayjs(date).isBefore(dayjs(), 'day');
-						return {
-							style: hasAssignment
-								? {
-										backgroundColor: isPast
-											? 'var(--mantine-color-red-1)'
-											: 'var(--mantine-color-blue-1)',
-										borderRadius: 'var(--mantine-radius-sm)',
-									}
-								: undefined,
-						};
-					}}
-					renderDay={(date) => {
-						const day = dayjs(date).date();
-						const hasAssignment = dueDates.some((d) =>
-							dayjs(date).isSame(d, 'day')
-						);
-						return (
-							<Box pos='relative'>
-								<div>{day}</div>
-								{hasAssignment && (
-									<Box
-										pos='absolute'
-										bottom={-2}
-										left='50%'
-										style={{ transform: 'translateX(-50%)' }}
-									>
-										<Box
-											w={4}
-											h={4}
-											bg='blue'
-											style={{ borderRadius: '50%' }}
-										/>
-									</Box>
-								)}
-							</Box>
-						);
-					}}
-				/>
-			)}
-			<Divider my='md' />
-			<Group gap='md' justify='center'>
-				<Group gap={6}>
-					<Box w={10} h={10} bg='blue.1' style={{ borderRadius: 2 }} />
-					<Text size='xs' c='dimmed'>
-						Upcoming
-					</Text>
-				</Group>
-				<Group gap={6}>
-					<Box w={10} h={10} bg='red.1' style={{ borderRadius: 2 }} />
-					<Text size='xs' c='dimmed'>
-						Past Due
-					</Text>
-				</Group>
-			</Group>
-		</Paper>
-	);
-}
 
 export default function CourseDashboard({ course }: CourseDashboardProps) {
 	const { data: assignments, isLoading: assignmentsLoading } = useQuery({
@@ -356,7 +271,7 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 				</Grid.Col>
 
 				<Grid.Col span={{ base: 12, md: 4 }}>
-					<AssessmentCalendar
+					<DashboardCalendar
 						assignments={upcomingAssignments}
 						isLoading={assignmentsLoading}
 					/>
