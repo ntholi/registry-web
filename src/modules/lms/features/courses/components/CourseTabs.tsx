@@ -5,6 +5,8 @@ import AssessmentsList from '@lms/assessment/components/AssessmentsList';
 import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
+import MaterialForm from '@lms/material/components/MaterialForm';
+import MaterialPagesList from '@lms/material/components/MaterialPagesList';
 import { getEnrolledStudentsFromDB } from '@lms/students';
 import AddStudentModal from '@lms/students/components/AddStudentModal';
 import StudentsList from '@lms/students/components/StudentsList';
@@ -62,6 +64,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 					{activeTab === 'assessments' && (
 						<AssessmentForm courseId={course.id} />
 					)}
+					{activeTab === 'material' && <MaterialForm courseId={course.id} />}
 					{activeTab === 'students' && <AddStudentModal courseId={course.id} />}
 				</Box>
 			</Tabs.List>
@@ -90,9 +93,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			</Tabs.Panel>
 			<Tabs.Panel value='material' pt='lg'>
 				<Box p='sm'>
-					<Text size='sm' c='dimmed'>
-						Learning material will be organized here.
-					</Text>
+					<MaterialPagesList courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 			<Tabs.Panel value='students' pt='lg'>
