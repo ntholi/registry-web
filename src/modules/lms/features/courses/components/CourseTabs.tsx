@@ -5,6 +5,7 @@ import AssessmentsList from '@lms/assessment/components/AssessmentsList';
 import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
+import AddStudentModal from '@lms/students/components/AddStudentModal';
 import StudentsList from '@lms/students/components/StudentsList';
 import { Box, Loader, Tabs, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
@@ -47,6 +48,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 					{activeTab === 'assessments' && (
 						<AssessmentForm courseId={course.id} />
 					)}
+					{activeTab === 'students' && <AddStudentModal courseId={course.id} />}
 				</Box>
 			</Tabs.List>
 			<Tabs.Panel value='dashboard' pt='lg'>

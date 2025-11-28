@@ -21,7 +21,7 @@ import {
 	IconSearch,
 	IconUser,
 } from '@tabler/icons-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
 	enrollStudentInCourse,
@@ -38,6 +38,7 @@ export default function AddStudentModal({
 	courseId,
 	onSuccess,
 }: AddStudentModalProps) {
+	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [search, setSearch] = useState('');
 	const [debouncedSearch] = useDebouncedValue(search, 300);
@@ -60,6 +61,9 @@ export default function AddStudentModal({
 					color: 'green',
 				});
 				handleClose();
+				queryClient.invalidateQueries({
+					queryKey: ['course-students', courseId],
+				});
 				onSuccess?.();
 			} else {
 				notifications.show({

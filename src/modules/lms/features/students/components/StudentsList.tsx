@@ -1,18 +1,9 @@
 'use client';
 
-import {
-	Anchor,
-	Box,
-	Group,
-	Skeleton,
-	Stack,
-	Table,
-	Text,
-} from '@mantine/core';
+import { Anchor, Box, Skeleton, Table, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { formatPhoneNumber, toClassName } from '@/shared/lib/utils/utils';
 import { getEnrolledStudentsFromDB } from '../server/actions';
-import AddStudentModal from './AddStudentModal';
 
 type StudentsListProps = {
 	courseId: number;
@@ -54,42 +45,30 @@ function TableSkeleton() {
 }
 
 export default function StudentsList({ courseId }: StudentsListProps) {
-	const {
-		data: students,
-		isLoading,
-		refetch,
-	} = useQuery({
+	const { data: students, isLoading } = useQuery({
 		queryKey: ['course-students', courseId],
 		queryFn: () => getEnrolledStudentsFromDB(courseId),
 	});
 
 	if (isLoading) {
 		return (
-			<Stack gap='md'>
-				<Group justify='flex-end'>
-					<AddStudentModal courseId={courseId} onSuccess={() => refetch()} />
-				</Group>
-				<Table striped highlightOnHover withTableBorder withColumnBorders>
-					<Table.Thead>
-						<Table.Tr>
-							<Table.Th>Student Number</Table.Th>
-							<Table.Th>Name</Table.Th>
-							<Table.Th>Class</Table.Th>
-							<Table.Th>Email</Table.Th>
-							<Table.Th>Phone</Table.Th>
-						</Table.Tr>
-					</Table.Thead>
-					<TableSkeleton />
-				</Table>
-			</Stack>
+			<Table striped highlightOnHover withTableBorder withColumnBorders>
+				<Table.Thead>
+					<Table.Tr>
+						<Table.Th>Student Number</Table.Th>
+						<Table.Th>Name</Table.Th>
+						<Table.Th>Class</Table.Th>
+						<Table.Th>Email</Table.Th>
+						<Table.Th>Phone</Table.Th>
+					</Table.Tr>
+				</Table.Thead>
+				<TableSkeleton />
+			</Table>
 		);
 	}
 
 	return (
-		<Stack gap='md'>
-			<Group justify='flex-end'>
-				<AddStudentModal courseId={courseId} onSuccess={() => refetch()} />
-			</Group>
+		<>
 			{!students || students.length === 0 ? (
 				<Box ta='center' py='xl'>
 					<Text c='dimmed'>No students enrolled in this course</Text>
@@ -150,6 +129,6 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 					</Table.Tbody>
 				</Table>
 			)}
-		</Stack>
+		</>
 	);
 }
