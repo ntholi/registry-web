@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Loader, Stack, Text } from '@mantine/core';
+import { Box, Loader, SimpleGrid, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { getCourseAssignments } from '../server/actions';
 import AssessmentCard from './AssessmentCard';
@@ -32,10 +32,10 @@ export default function AssessmentsList({ courseId }: AssessmentsListProps) {
 	}
 
 	return (
-		<Stack gap='md'>
+		<SimpleGrid cols={{ base: 1, sm: 2 }}>
 			{assignments.map((assignment) => {
 				return <AssessmentCard key={assignment.id} assignment={assignment} />;
 			})}
-		</Stack>
+		</SimpleGrid>
 	);
 }

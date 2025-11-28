@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, Card, Group, Stack, Text } from '@mantine/core';
-import { IconCalendar, IconClock } from '@tabler/icons-react';
+import { IconClock } from '@tabler/icons-react';
 import type { MoodleAssignment } from '../types';
 
 type Props = {
@@ -27,15 +27,15 @@ export default function AssessmentCard({ assignment }: Props) {
 							{assignment.name}
 						</Text>
 						{isOverdue ? (
-							<Badge color='red' size='sm' variant='outline'>
+							<Badge color='red' size='sm' variant='light'>
 								Overdue
 							</Badge>
 						) : isUpcoming ? (
-							<Badge color='blue' size='sm' variant='outline'>
+							<Badge color='teal' size='sm' variant='light'>
 								Upcoming
 							</Badge>
 						) : (
-							<Badge color='green' size='sm' variant='outline'>
+							<Badge color='green' size='sm' variant='light'>
 								Active
 							</Badge>
 						)}
@@ -56,14 +56,6 @@ export default function AssessmentCard({ assignment }: Props) {
 
 				<Card.Section withBorder inheritPadding py='xs'>
 					<Group gap='xl'>
-						{availableFrom && (
-							<Group gap='xs'>
-								<IconCalendar size={16} />
-								<Text size='xs' c='dimmed'>
-									Available: {availableFrom.toLocaleDateString()}
-								</Text>
-							</Group>
-						)}
 						{dueDate && (
 							<Group gap='xs'>
 								<IconClock size={16} />

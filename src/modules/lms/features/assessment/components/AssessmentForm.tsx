@@ -111,7 +111,7 @@ export default function AssessmentForm({ courseId }: AssessmentFormProps) {
 			<Modal
 				opened={opened}
 				onClose={close}
-				title='Create Assignment'
+				title='Create Assessment'
 				size='lg'
 			>
 				<form onSubmit={handleSubmit}>
@@ -125,8 +125,8 @@ export default function AssessmentForm({ courseId }: AssessmentFormProps) {
 						<Tabs.Panel value='general' pt='md'>
 							<Stack>
 								<TextInput
-									label='Assignment Name'
-									placeholder='Enter assignment name'
+									label='Assessment Name'
+									placeholder='Eg. Assessment 1'
 									required
 									{...form.getInputProps('name')}
 								/>
