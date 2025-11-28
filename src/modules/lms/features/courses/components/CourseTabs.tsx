@@ -5,6 +5,7 @@ import AssessmentsList from '@lms/assessment/components/AssessmentsList';
 import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
+import StudentsList from '@lms/students/components/StudentsList';
 import { Box, Loader, Tabs, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
@@ -85,9 +86,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			</Tabs.Panel>
 			<Tabs.Panel value='students' pt='lg'>
 				<Box p='sm'>
-					<Text size='sm' c='dimmed'>
-						Student roster and activity will show up here.
-					</Text>
+					<StudentsList courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 		</Tabs>
