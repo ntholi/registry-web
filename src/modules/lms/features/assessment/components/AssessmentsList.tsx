@@ -34,7 +34,13 @@ export default function AssessmentsList({ courseId }: AssessmentsListProps) {
 	return (
 		<SimpleGrid cols={{ base: 1, sm: 2 }}>
 			{assignments.map((assignment) => {
-				return <AssessmentCard key={assignment.id} assignment={assignment} />;
+				return (
+					<AssessmentCard
+						key={assignment.id}
+						assignment={assignment}
+						courseId={courseId}
+					/>
+				);
 			})}
 		</SimpleGrid>
 	);

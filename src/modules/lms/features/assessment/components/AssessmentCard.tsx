@@ -2,12 +2,14 @@
 
 import { Badge, Card, Group, Stack, Text } from '@mantine/core';
 import { IconClock } from '@tabler/icons-react';
+import Link from 'next/link';
 import type { MoodleAssignment } from '../types';
 
 type Props = {
 	assignment: MoodleAssignment;
+	courseId: number;
 };
-export default function AssessmentCard({ assignment }: Props) {
+export default function AssessmentCard({ assignment, courseId }: Props) {
 	const dueDate = assignment.duedate
 		? new Date(assignment.duedate * 1000)
 		: null;
@@ -19,7 +21,14 @@ export default function AssessmentCard({ assignment }: Props) {
 	const isUpcoming = availableFrom && availableFrom > now;
 
 	return (
-		<Card key={assignment.id} padding='md' withBorder>
+		<Card
+			key={assignment.id}
+			padding='md'
+			withBorder
+			component={Link}
+			href={`/lms/courses/${courseId}/assessments/${assignment.id}`}
+			style={{ textDecoration: 'none', color: 'inherit' }}
+		>
 			<Stack gap='sm'>
 				<Card.Section withBorder inheritPadding py='xs'>
 					<Group justify='space-between' wrap='nowrap'>

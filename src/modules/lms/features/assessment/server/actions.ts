@@ -36,6 +36,14 @@ export async function getCourseAssignments(
 	return result.courses[0].assignments as MoodleAssignment[];
 }
 
+export async function getAssignment(
+	courseId: number,
+	assignmentId: number
+): Promise<MoodleAssignment | null> {
+	const assignments = await getCourseAssignments(courseId);
+	return assignments.find((a) => a.id === assignmentId) || null;
+}
+
 async function getCourseSections(courseId: number): Promise<CourseSection[]> {
 	const result = await moodleGet('core_course_get_contents', {
 		courseid: courseId,
