@@ -1,7 +1,7 @@
 'use server';
 
 import { getCurrentTerm } from '@registry/terms';
-import { and, eq, ilike, or, type SQL, sql } from 'drizzle-orm';
+import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import {
 	db,
@@ -65,6 +65,65 @@ export async function getEnrolledStudents(
 	return enrolledUsers.filter((user) =>
 		user.roles.some((role) => role.shortname === 'student')
 	);
+}
+
+export async function getEnrolledStudentsFromDB(courseId: number) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const result = await moodleGet(
+		'core_enrol_get_enrolled_users',
+		{
+			courseid: courseId,
+		},
+		process.env.MOODLE_TOKEN
+	);
+
+	const enrolledUsers = result as MoodleEnrolledUser[];
+	const studentUsers = enrolledUsers.filter((user) =>
+		user.roles.some((role) => role.shortname === 'student')
+	);
+
+	if (studentUsers.length === 0) {
+		return [];
+	}
+
+	const lmsUserIds = studentUsers.map((u) => u.id);
+
+	const enrolledStudents = await db
+		.selectDistinctOn([students.stdNo], {
+			stdNo: students.stdNo,
+			name: students.name,
+			email: users.email,
+			phone: students.phone1,
+			programCode: programs.code,
+			semesterNumber: structureSemesters.semesterNumber,
+			lmsUserId: users.lmsUserId,
+		})
+		.from(users)
+		.innerJoin(students, eq(students.userId, users.id))
+		.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
+		.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+		.innerJoin(programs, eq(structures.programId, programs.id))
+		.innerJoin(
+			studentSemesters,
+			eq(studentSemesters.studentProgramId, studentPrograms.id)
+		)
+		.innerJoin(
+			structureSemesters,
+			eq(studentSemesters.structureSemesterId, structureSemesters.id)
+		)
+		.where(
+			and(
+				inArray(users.lmsUserId, lmsUserIds),
+				eq(studentPrograms.status, 'Active')
+			)
+		)
+		.orderBy(students.stdNo, sql`${structureSemesters.semesterNumber} DESC`);
+
+	return enrolledStudents;
 }
 
 export async function searchStudentsForEnrollment(
