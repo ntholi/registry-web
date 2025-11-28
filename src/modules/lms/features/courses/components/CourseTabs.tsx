@@ -12,6 +12,7 @@ import { Badge, Box, Loader, Tabs, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import type { MoodleCourse } from '../types';
+import CourseDashboard from './CourseDashboard';
 
 type CourseTabsProps = {
 	course: MoodleCourse;
@@ -65,12 +66,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 				</Box>
 			</Tabs.List>
 			<Tabs.Panel value='dashboard' pt='lg'>
-				<Box p='sm'>
-					<Text size='sm' c='dimmed'>
-						Welcome to {course.fullname}. Use the tabs above to navigate through
-						course content, discussions, assessments, and more.
-					</Text>
-				</Box>
+				<CourseDashboard course={course} />
 			</Tabs.Panel>
 			<Tabs.Panel value='forum' pt='lg'>
 				<Box p='sm'>
