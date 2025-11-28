@@ -3,12 +3,11 @@
 import {
 	Avatar,
 	Badge,
-	Box,
 	Card,
 	Divider,
 	Group,
-	Loader,
 	Paper,
+	Skeleton,
 	Stack,
 	Text,
 	useMantineTheme,
@@ -22,6 +21,41 @@ type ForumPostsListProps = {
 	forumId: number;
 };
 
+function ForumPostSkeleton() {
+	return (
+		<Card withBorder shadow='xs' padding='lg'>
+			<Stack gap='md'>
+				<Group gap='md' wrap='nowrap' align='flex-start'>
+					<Skeleton height={40} circle />
+					<Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+						<Group gap='xs' wrap='nowrap'>
+							<Skeleton height={16} width={120} />
+							<Text c='dimmed' size='xs'>
+								·
+							</Text>
+							<Skeleton height={14} width={80} />
+						</Group>
+						<Skeleton height={16} width='70%' />
+					</Stack>
+				</Group>
+
+				<Stack gap='xs'>
+					<Skeleton height={14} width='100%' />
+					<Skeleton height={14} width='95%' />
+					<Skeleton height={14} width='98%' />
+				</Stack>
+
+				<Divider />
+
+				<Group gap='xs'>
+					<IconMessage size={18} stroke={1.5} style={{ opacity: 0.3 }} />
+					<Skeleton height={14} width={60} />
+				</Group>
+			</Stack>
+		</Card>
+	);
+}
+
 export default function ForumPostsList({ forumId }: ForumPostsListProps) {
 	const theme = useMantineTheme();
 	const { data: discussions, isLoading } = useQuery({
@@ -31,9 +65,11 @@ export default function ForumPostsList({ forumId }: ForumPostsListProps) {
 
 	if (isLoading) {
 		return (
-			<Box ta='center' py='xl'>
-				<Loader size='lg' />
-			</Box>
+			<Stack gap='md'>
+				{[1, 2, 3].map((i) => (
+					<ForumPostSkeleton key={i} />
+				))}
+			</Stack>
 		);
 	}
 
