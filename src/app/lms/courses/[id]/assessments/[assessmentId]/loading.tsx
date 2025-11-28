@@ -14,7 +14,6 @@ import {
 	TabsList,
 	TabsPanel,
 	TabsTab,
-	Text,
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
@@ -35,9 +34,7 @@ export default function AssessmentLoading() {
 					<ThemeIcon radius='xl' variant='light' color='gray'>
 						<IconArrowNarrowLeft size='1.2rem' />
 					</ThemeIcon>
-					<Text size='sm' c='gray'>
-						<Skeleton height={16} width={150} />
-					</Text>
+					<Skeleton height={16} width={150} />
 				</Group>
 
 				<Paper p='xl' withBorder>
