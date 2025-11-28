@@ -13,8 +13,37 @@ import {
 	students,
 	users,
 } from '@/core/database';
-import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { MoodleError, moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type { MoodleEnrolledUser, StudentSearchResult } from '../types';
+
+async function enrollUserInMoodleCourse(
+	userId: number,
+	courseId: number
+): Promise<{ success: boolean; message: string }> {
+	try {
+		await moodlePost(
+			'enrol_manual_enrol_users',
+			{
+				'enrolments[0][roleid]': 5,
+				'enrolments[0][userid]': userId,
+				'enrolments[0][courseid]': courseId,
+			},
+			process.env.MOODLE_TOKEN
+		);
+		return { success: true, message: 'Student enrolled successfully' };
+	} catch (error) {
+		if (
+			error instanceof MoodleError &&
+			error.errorcode === 'Message was not sent.'
+		) {
+			return {
+				success: true,
+				message: 'Student enrolled successfully (email notification skipped)',
+			};
+		}
+		throw error;
+	}
+}
 
 export async function getEnrolledStudents(
 	courseId: number
@@ -148,28 +177,8 @@ export async function enrollStudentInCourse(
 			.set({ lmsUserId: moodleUserId })
 			.where(eq(users.id, student.user.id));
 
-		await moodlePost(
-			'enrol_manual_enrol_users',
-			{
-				'enrolments[0][roleid]': 5,
-				'enrolments[0][userid]': moodleUserId,
-				'enrolments[0][courseid]': courseId,
-			},
-			process.env.MOODLE_TOKEN
-		);
-
-		return { success: true, message: 'Student enrolled successfully' };
+		return enrollUserInMoodleCourse(moodleUserId, courseId);
 	}
 
-	await moodlePost(
-		'enrol_manual_enrol_users',
-		{
-			'enrolments[0][roleid]': 5,
-			'enrolments[0][userid]': lmsUserId,
-			'enrolments[0][courseid]': courseId,
-		},
-		process.env.MOODLE_TOKEN
-	);
-
-	return { success: true, message: 'Student enrolled successfully' };
+	return enrollUserInMoodleCourse(lmsUserId, courseId);
 }
