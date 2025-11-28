@@ -2,6 +2,7 @@
 
 import {
 	Box,
+	Button,
 	Divider,
 	Grid,
 	Group,
@@ -16,6 +17,7 @@ import {
 	IconCalendarDue,
 	IconCalendarEvent,
 	IconClipboardCheck,
+	IconEdit,
 	IconFileDescription,
 	IconStar,
 	IconUsers,
@@ -61,6 +63,15 @@ export default function AssessmentTabs({ assignment }: Props) {
 				<Tabs.Tab value='submissions' leftSection={<IconUsers size={16} />}>
 					Submissions
 				</Tabs.Tab>
+				<Box ml={'auto'} mt={-5}>
+					<Button
+						variant='light'
+						leftSection={<IconEdit size={16} />}
+						size='xs'
+					>
+						Edit
+					</Button>
+				</Box>
 			</Tabs.List>
 
 			<Tabs.Panel value='details' pt='lg'>

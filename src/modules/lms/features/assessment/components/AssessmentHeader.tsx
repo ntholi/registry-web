@@ -44,12 +44,12 @@ export default function AssessmentHeader({
 			<Paper p='xl' withBorder>
 				<Flex align='start' gap='md' justify='space-between'>
 					<Flex align='center' gap='md'>
-						<ThemeIcon size={60} variant='light' color='blue'>
+						<ThemeIcon size={60} variant='light' color='gray'>
 							<IconClipboardList size='1.5rem' />
 						</ThemeIcon>
 						<Stack gap={1}>
 							<Group gap='xs'>
-								<Badge size='sm' variant='default' radius={'sm'}>
+								<Badge size='sm' variant='default' radius={'xs'}>
 									{courseName}
 								</Badge>
 								<AssessmentStatus
