@@ -68,14 +68,14 @@ async function getOrCreateAssessmentsSection(
 	}
 
 	try {
-		const result = await moodlePost('local_wsmanagesections_create_sections', {
+		const result = await moodlePost('local_activity_utils_create_section', {
 			courseid: courseId,
-			sectionnumber: sections.length,
-			sectionname: 'Assessments',
+			name: 'Assessments',
+			summary: 'Course assessments and assignments',
 		});
 
-		if (result && result.sectionnumber !== undefined) {
-			return result.sectionnumber;
+		if (result && result.sectionnum !== undefined) {
+			return result.sectionnum;
 		}
 
 		const updatedSections = await getCourseSections(courseId);
@@ -85,7 +85,9 @@ async function getOrCreateAssessmentsSection(
 		return newSection?.section || 0;
 	} catch (error) {
 		console.error('Failed to create Assessments section:', error);
-		return 0;
+		throw new Error(
+			'Unable to create Assessments section. Please ensure the local_activity_utils plugin is installed.'
+		);
 	}
 }
 
@@ -140,7 +142,7 @@ export async function createAssignment(params: CreateAssignmentParams) {
 	}
 
 	const result = await moodlePost(
-		'local_createassign_create_assessment',
+		'local_activity_utils_create_assignment',
 		requestParams
 	);
 

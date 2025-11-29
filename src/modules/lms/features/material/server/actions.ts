@@ -48,16 +48,14 @@ async function findOrCreateMaterialSection(courseId: number): Promise<number> {
 	}
 
 	try {
-		const result = await moodlePost('local_wsmanagesections_create_sections', {
-			'sections[0][course]': courseId,
-			'sections[0][name]': 'Material',
-			'sections[0][summary]': 'Course materials and resources',
-			'sections[0][summaryformat]': 1,
-			'sections[0][visible]': 1,
+		const result = await moodlePost('local_activity_utils_create_section', {
+			courseid: courseId,
+			name: 'Material',
+			summary: 'Course materials and resources',
 		});
 
-		if (result && result[0] && result[0].section !== undefined) {
-			return result[0].section;
+		if (result && result.sectionnum !== undefined) {
+			return result.sectionnum;
 		}
 
 		const updatedSections = await getCourseSections(courseId);
@@ -73,7 +71,7 @@ async function findOrCreateMaterialSection(courseId: number): Promise<number> {
 	} catch (error) {
 		console.error('Error creating Material section:', error);
 		throw new Error(
-			'Unable to create Material section. Please ensure the local_wsmanagesections plugin is installed.'
+			'Unable to create Material section. Please ensure the local_activity_utils plugin is installed.'
 		);
 	}
 }
