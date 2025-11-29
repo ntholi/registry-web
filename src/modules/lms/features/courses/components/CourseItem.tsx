@@ -2,6 +2,7 @@
 import { Badge, Box, Card, Flex, Text } from '@mantine/core';
 import Link from 'next/link';
 import type { MoodleCourse } from '../types';
+import { extractShort } from '../utils';
 
 type Props = {
 	course: MoodleCourse;
@@ -162,7 +163,7 @@ export default function CourseItem({ course }: Props) {
 				</Text>
 				{course.shortname && (
 					<Badge variant='default' radius={'sm'}>
-						{course.shortname}
+						{extractShort(course.shortname).code}
 					</Badge>
 				)}
 			</Flex>
