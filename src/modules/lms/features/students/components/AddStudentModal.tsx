@@ -47,23 +47,19 @@ export default function AddStudentModal({
 		useState<StudentSearchResult | null>(null);
 
 	const { data: searchResults, isLoading: isSearching } = useQuery({
-		queryKey: [
-			'student-search',
-			debouncedSearch,
-			course.fullname,
-			course.shortname,
-		],
-		queryFn: () =>
-			searchStudentsForEnrollment(
-				debouncedSearch,
-				course.fullname,
-				course.shortname
-			),
+		queryKey: ['student-search', debouncedSearch],
+		queryFn: () => searchStudentsForEnrollment(debouncedSearch),
 		enabled: debouncedSearch.length >= 2 && !selectedStudent,
 	});
 
 	const enrollMutation = useMutation({
-		mutationFn: () => enrollStudentInCourse(course.id, selectedStudent!.stdNo),
+		mutationFn: () =>
+			enrollStudentInCourse(
+				course.id,
+				selectedStudent!.stdNo,
+				course.fullname,
+				course.shortname
+			),
 		onSuccess: (result) => {
 			if (result.success) {
 				notifications.show({
@@ -141,7 +137,9 @@ export default function AddStudentModal({
 								<Box>
 									{isSearching ? (
 										<Box ta='center' py='md'>
-											<Loader size='sm' />
+											<Text size='xs' c={'dimmed'}>
+												Searching...
+											</Text>
 										</Box>
 									) : searchResults && searchResults.length > 0 ? (
 										<Stack gap='xs'>

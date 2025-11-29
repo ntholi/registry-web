@@ -88,17 +88,11 @@ export async function getEnrolledStudentsFromDB(courseId: number) {
 }
 
 export async function searchStudentsForEnrollment(
-	search: string,
-	courseFullname: string,
-	courseShortname: string
+	search: string
 ): Promise<StudentSearchResult[]> {
 	const session = await auth();
 	if (!session?.user) {
 		throw new Error('Unauthorized');
-	}
-	const courseTerm = splitShortName(courseShortname).term;
-	if (!courseTerm) {
-		throw new Error('Course term could not be determined');
 	}
 
 	if (!search || search.trim().length < 2) {
@@ -115,20 +109,39 @@ export async function searchStudentsForEnrollment(
 		searchCondition = or(ilike(students.name, `%${searchTerm}%`));
 	}
 
-	return studentRepository.searchStudentsForEnrollment(
-		searchCondition,
-		courseFullname,
-		courseTerm
-	);
+	return studentRepository.searchStudentsForEnrollment(searchCondition);
 }
 
 export async function enrollStudentInCourse(
 	courseId: number,
-	studentStdNo: number
+	studentStdNo: number,
+	courseFullname: string,
+	courseShortname: string
 ): Promise<{ success: boolean; message: string }> {
 	const session = await auth();
 	if (!session?.user) {
 		throw new Error('Unauthorized');
+	}
+
+	const courseTerm = splitShortName(courseShortname).term;
+	if (!courseTerm) {
+		return {
+			success: false,
+			message: 'Course term could not be determined from shortname',
+		};
+	}
+
+	const isEligible = await studentRepository.checkStudentEligibilityForCourse(
+		studentStdNo,
+		courseFullname,
+		courseTerm
+	);
+
+	if (!isEligible) {
+		return {
+			success: false,
+			message: `Student has not enrolled for the module "${courseFullname}" in term ${courseTerm}`,
+		};
 	}
 
 	const student = await studentRepository.findStudentWithUser(studentStdNo);

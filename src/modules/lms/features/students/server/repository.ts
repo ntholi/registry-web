@@ -55,13 +55,9 @@ export default class StudentRepository extends BaseRepository<
 			.orderBy(students.stdNo, sql`${structureSemesters.semesterNumber} DESC`);
 	}
 
-	async searchStudentsForEnrollment(
-		searchCondition: SQL | undefined,
-		courseFullname: string,
-		courseTerm: string
-	) {
+	async searchStudentsForEnrollment(searchCondition: SQL | undefined) {
 		return db
-			.selectDistinctOn([students.stdNo], {
+			.select({
 				stdNo: students.stdNo,
 				name: students.name,
 				programName: programs.name,
@@ -81,6 +77,26 @@ export default class StudentRepository extends BaseRepository<
 				structureSemesters,
 				eq(studentSemesters.structureSemesterId, structureSemesters.id)
 			)
+			.leftJoin(users, eq(students.userId, users.id))
+			.where(and(searchCondition, eq(studentPrograms.status, 'Active')))
+			.limit(10);
+	}
+
+	async checkStudentEligibilityForCourse(
+		stdNo: number,
+		courseFullname: string,
+		courseTerm: string
+	) {
+		const result = await db
+			.select({
+				stdNo: students.stdNo,
+			})
+			.from(students)
+			.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
+			.innerJoin(
+				studentSemesters,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
 			.innerJoin(
 				studentModules,
 				eq(studentModules.studentSemesterId, studentSemesters.id)
@@ -90,16 +106,17 @@ export default class StudentRepository extends BaseRepository<
 				eq(studentModules.semesterModuleId, semesterModules.id)
 			)
 			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
-			.leftJoin(users, eq(students.userId, users.id))
 			.where(
 				and(
-					searchCondition,
+					eq(students.stdNo, stdNo),
 					eq(studentPrograms.status, 'Active'),
-					eq(modules.name, courseFullname),
-					eq(studentSemesters.term, courseTerm)
+					eq(studentSemesters.term, courseTerm),
+					eq(modules.name, courseFullname)
 				)
 			)
-			.limit(10);
+			.limit(1);
+
+		return result.length > 0;
 	}
 
 	async findStudentWithUser(stdNo: number) {
