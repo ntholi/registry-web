@@ -92,6 +92,13 @@ class AssignedModuleService {
 			['academic']
 		);
 	}
+
+	async getByLmsCourseId(lmsCourseId: string) {
+		return withAuth(
+			async () => this.repository.findByLmsCourseId(lmsCourseId),
+			['dashboard']
+		);
+	}
 }
 
 export const assignedModulesService = serviceWrapper(

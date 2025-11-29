@@ -5,6 +5,7 @@ import AssessmentsList from '@lms/assessment/components/AssessmentsList';
 import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
+import { Gradebook } from '@lms/gradebook';
 import MaterialForm from '@lms/material/components/MaterialForm';
 import MaterialList from '@lms/material/components/MaterialList';
 import { getEnrolledStudentsFromDB } from '@lms/students';
@@ -57,6 +58,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 						</Badge>
 					)}
 				</Tabs.Tab>
+				<Tabs.Tab value='gradebook'>Gradebook</Tabs.Tab>
 				<Box ml='auto' mt={-5}>
 					{activeTab === 'forum' && forum && (
 						<ForumPostForm forumId={forum.id} />
@@ -99,6 +101,11 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			<Tabs.Panel value='students' pt='lg'>
 				<Box p='sm'>
 					<StudentsList courseId={course.id} />
+				</Box>
+			</Tabs.Panel>
+			<Tabs.Panel value='gradebook' pt='lg'>
+				<Box p='sm'>
+					<Gradebook courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 		</Tabs>

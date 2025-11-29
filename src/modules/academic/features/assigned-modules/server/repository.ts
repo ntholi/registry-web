@@ -211,6 +211,33 @@ export default class AssignedModuleRepository extends BaseRepository<
 			.map((r) => r.courseId)
 			.filter((id): id is string => id !== null);
 	}
+
+	async findByLmsCourseId(lmsCourseId: string) {
+		return await db.query.assignedModules.findFirst({
+			where: eq(assignedModules.lmsCourseId, lmsCourseId),
+			with: {
+				semesterModule: {
+					with: {
+						module: true,
+						semester: {
+							with: {
+								structure: {
+									with: {
+										program: {
+											with: {
+												school: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				term: true,
+			},
+		});
+	}
 }
 
 export const assignedModulesRepository = new AssignedModuleRepository();
