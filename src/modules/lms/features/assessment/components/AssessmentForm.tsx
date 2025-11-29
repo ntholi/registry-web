@@ -135,42 +135,39 @@ export default function AssessmentForm({
 				opened={opened}
 				onClose={close}
 				title='Create Assessment'
-				size='xl'
+				size='lg'
 			>
 				<form onSubmit={handleSubmit}>
 					<Tabs defaultValue='general'>
 						<Tabs.List>
 							<Tabs.Tab value='general'>General</Tabs.Tab>
-							<Tabs.Tab value='instructions'>Activity Instructions</Tabs.Tab>
+							<Tabs.Tab value='instructions'>Description</Tabs.Tab>
 							<Tabs.Tab value='attachments'>Attachments</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='general' pt='md'>
 							<Stack>
+								<Select
+									label='Assessment Number'
+									placeholder='Select assessment number'
+									searchable
+									clearable
+									data={COURSE_WORK_OPTIONS}
+									required
+									{...form.getInputProps('assessmentNumber')}
+								/>
+								<Select
+									label='Assessment Type'
+									placeholder='Select assessment type'
+									searchable
+									clearable
+									data={ASSESSMENT_TYPES}
+									required
+									{...form.getInputProps('assessmentType')}
+								/>
+
 								<Grid>
-									<Grid.Col span={3}>
-										<Select
-											label='Assessment Number'
-											placeholder='Select assessment number'
-											searchable
-											clearable
-											data={COURSE_WORK_OPTIONS}
-											required
-											{...form.getInputProps('assessmentNumber')}
-										/>
-									</Grid.Col>
-									<Grid.Col span={5}>
-										<Select
-											label='Assessment Type'
-											placeholder='Select assessment type'
-											searchable
-											clearable
-											data={ASSESSMENT_TYPES}
-											required
-											{...form.getInputProps('assessmentType')}
-										/>
-									</Grid.Col>
-									<Grid.Col span={2}>
+									<Grid.Col span={6}>
 										<NumberInput
 											label='Total Marks'
 											placeholder='100'
@@ -179,7 +176,7 @@ export default function AssessmentForm({
 											{...form.getInputProps('totalMarks')}
 										/>
 									</Grid.Col>
-									<Grid.Col span={2}>
+									<Grid.Col span={6}>
 										<NumberInput
 											label='Weight (%)'
 											placeholder='0'
@@ -191,38 +188,27 @@ export default function AssessmentForm({
 									</Grid.Col>
 								</Grid>
 
-								<Grid>
-									<Grid.Col span={6}>
-										<DateTimePicker
-											label='Available From'
-											placeholder='Select date and time'
-											{...form.getInputProps('availableFrom')}
-										/>
-									</Grid.Col>
-									<Grid.Col span={6}>
-										<DateTimePicker
-											label='Due Date'
-											placeholder='Select date and time'
-											required
-											{...form.getInputProps('dueDate')}
-										/>
-									</Grid.Col>
-								</Grid>
+								<DateTimePicker
+									label='Available From'
+									placeholder='Select date and time'
+									{...form.getInputProps('availableFrom')}
+								/>
 
-								<RichTextField
-									label='Description'
-									height={250}
+								<DateTimePicker
+									label='Due Date'
+									placeholder='Select date and time'
 									required
-									{...form.getInputProps('description')}
+									{...form.getInputProps('dueDate')}
 								/>
 							</Stack>
 						</Tabs.Panel>
 
 						<Tabs.Panel value='instructions' pt='md'>
 							<RichTextField
-								label='Activity Instructions'
+								label='Description'
 								height={350}
-								{...form.getInputProps('activityInstructions')}
+								required
+								{...form.getInputProps('description')}
 							/>
 						</Tabs.Panel>
 
