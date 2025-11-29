@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { IconExternalLink, IconFileText } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { getMaterialContent } from '../server/actions';
 
 type Material = {
 	id: number;
@@ -27,25 +28,6 @@ type MaterialPreviewModalProps = {
 	material: Material | null;
 	onClose: () => void;
 };
-
-async function getMaterialContent(material: Material) {
-	if (material.modname === 'page') {
-		try {
-			const response = await fetch(material.url);
-			const html = await response.text();
-
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(html, 'text/html');
-
-			const mainContent = doc.querySelector('.box.generalbox.center');
-			return mainContent?.innerHTML || 'Content not available';
-		} catch {
-			return 'Unable to load content';
-		}
-	}
-
-	return null;
-}
 
 function getFileType(url: string): 'pdf' | 'image' | 'video' | 'unknown' {
 	const extension = url.split('.').pop()?.toLowerCase();
@@ -61,9 +43,9 @@ function getFileType(url: string): 'pdf' | 'image' | 'video' | 'unknown' {
 function MaterialPreview({ material }: { material: Material }) {
 	const theme = useMantineTheme();
 	const colorScheme = useComputedColorScheme('dark');
-	const { data: content, isLoading } = useQuery({
+	const { data: contentData, isLoading } = useQuery({
 		queryKey: ['material-content', material.id],
-		queryFn: () => getMaterialContent(material),
+		queryFn: () => getMaterialContent(material.id, material.modname),
 		enabled: material.modname === 'page',
 	});
 
@@ -89,7 +71,11 @@ function MaterialPreview({ material }: { material: Material }) {
 					borderRadius: theme.radius.md,
 				}}
 			>
-				<div dangerouslySetInnerHTML={{ __html: content || '' }} />
+				<div
+					dangerouslySetInnerHTML={{
+						__html: contentData?.content || 'Content not available',
+					}}
+				/>
 			</Box>
 		);
 	}

@@ -164,3 +164,50 @@ export async function getMaterialSection(
 		null
 	);
 }
+
+export async function getMaterialContent(moduleId: number, modname: string) {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	if (modname === 'page') {
+		const result = await moodleGet('mod_page_view_page', {
+			pageid: moduleId,
+		});
+
+		if (result) {
+			const pageData = await moodleGet('core_course_get_course_module', {
+				cmid: moduleId,
+			});
+
+			if (pageData?.cm?.content) {
+				return {
+					type: 'page' as const,
+					content: pageData.cm.content,
+				};
+			}
+		}
+
+		return {
+			type: 'page' as const,
+			content: 'Content not available',
+		};
+	}
+
+	if (modname === 'resource') {
+		const result = await moodleGet('core_course_get_course_module', {
+			cmid: moduleId,
+		});
+
+		if (result?.cm) {
+			return {
+				type: 'resource' as const,
+				url: result.cm.url,
+				filename: result.cm.name,
+			};
+		}
+	}
+
+	return null;
+}
