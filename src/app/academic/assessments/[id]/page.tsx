@@ -1,6 +1,6 @@
 import { AssessmentsTable, ModuleLecturers } from '@academic/assessments';
 import { getModule } from '@academic/modules';
-import { Button, Group, Paper, Title } from '@mantine/core';
+import { Button, Divider, Group, Paper, Title } from '@mantine/core';
 import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -21,23 +21,24 @@ export default async function ModuleDetails({ params }: Props) {
 		<DetailsView>
 			<Group justify='space-between' align='center' mb='md'>
 				<Title order={3} fw={400}>
-					{mod.code} - {mod.name}
+					{mod.name} ({mod.code})
 				</Title>
 				<Link href={`/academic/gradebook/${mod.id}`} passHref>
 					<Button
 						variant='light'
 						leftSection={<IconNotebook size={16} />}
-						size='sm'
+						size='xs'
 					>
-						View Gradebook
+						Gradebook
 					</Button>
 				</Link>
 			</Group>
 
 			<Paper p='md' radius='md' withBorder shadow='sm' mb='md' mt='lg'>
 				<Title order={4} fw={400} mb='md'>
-					Assigned Lecturers
+					Lecturers
 				</Title>
+				<Divider my='sm' />
 				<ModuleLecturers moduleId={mod.id} />
 			</Paper>
 

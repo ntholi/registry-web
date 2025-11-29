@@ -71,8 +71,12 @@ export default function AssessmentsTable({ moduleId }: Props) {
 						%
 					</Badge>
 				</Group>
-				<ActionIcon onClick={handleAddAssessment}>
-					<IconPlus size={16} />
+				<ActionIcon
+					variant='gradient'
+					size={'md'}
+					onClick={handleAddAssessment}
+				>
+					<IconPlus size={'1.25rem'} />
 				</ActionIcon>
 			</Flex>
 			{isLoading ? (
@@ -102,7 +106,6 @@ export default function AssessmentsTable({ moduleId }: Props) {
 								<Table.Td>{assessment.totalMarks}</Table.Td>
 								<Table.Td>{assessment.weight}%</Table.Td>
 								<Table.Td>
-									{' '}
 									<Group gap='xs'>
 										<Tooltip label='Edit'>
 											<ActionIcon

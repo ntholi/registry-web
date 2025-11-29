@@ -84,7 +84,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
 	return (
 		<ListLayout
-			path={'/assessments'}
+			path={'/academic/assessments'}
 			queryKey={
 				showAssignedOnly ? ['assessments-assigned'] : ['assessments-all']
 			}
