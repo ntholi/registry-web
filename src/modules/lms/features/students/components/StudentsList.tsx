@@ -34,6 +34,9 @@ function TableSkeleton() {
 						<Skeleton height={16} width='70%' />
 					</Table.Td>
 					<Table.Td>
+						<Skeleton height={16} width='40%' />
+					</Table.Td>
+					<Table.Td>
 						<Skeleton height={16} width='60%' />
 					</Table.Td>
 					<Table.Td>
@@ -62,6 +65,7 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 						<Table.Th w={50}></Table.Th>
 						<Table.Th>Student Number</Table.Th>
 						<Table.Th>Name</Table.Th>
+						<Table.Th>Gender</Table.Th>
 						<Table.Th>Class</Table.Th>
 						<Table.Th>Email</Table.Th>
 						<Table.Th>Phone</Table.Th>
@@ -85,6 +89,7 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 							<Table.Th w={50}></Table.Th>
 							<Table.Th>Student Number</Table.Th>
 							<Table.Th>Name</Table.Th>
+							<Table.Th>Gender</Table.Th>
 							<Table.Th>Class</Table.Th>
 							<Table.Th>Email</Table.Th>
 							<Table.Th>Phone</Table.Th>
@@ -105,6 +110,15 @@ export default function StudentsList({ courseId }: StudentsListProps) {
 									</Anchor>
 								</Table.Td>
 								<Table.Td>{student.name}</Table.Td>
+								<Table.Td>
+									{student.gender ? (
+										<Text size='sm'>{student.gender}</Text>
+									) : (
+										<Text c='dimmed' size='sm'>
+											N/A
+										</Text>
+									)}
+								</Table.Td>
 								<Table.Td>
 									{`${student.programCode}${formatSemester(student.semesterNumber, 'mini')}`}
 								</Table.Td>

@@ -27,6 +27,7 @@ export default class StudentRepository extends BaseRepository<
 			.selectDistinctOn([students.stdNo], {
 				stdNo: students.stdNo,
 				name: students.name,
+				gender: students.gender,
 				email: users.email,
 				phone: students.phone1,
 				programCode: programs.code,
