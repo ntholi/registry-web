@@ -44,8 +44,17 @@ export type MoodleSection = {
 	}>;
 };
 
+export type MaterialType = 'file' | 'page';
+
 export type CreatePageParams = {
 	courseid: number;
 	name: string;
 	content: string;
+};
+
+export type CreateFileParams = {
+	courseid: number;
+	name: string;
+	filename: string;
+	filecontent: string;
 };

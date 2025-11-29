@@ -48,18 +48,21 @@ export default function MaterialPagesList({
 		);
 	}
 
-	const pages = section?.modules?.filter((m) => m.modname === 'page') || [];
+	const materials =
+		section?.modules?.filter(
+			(m) => m.modname === 'page' || m.modname === 'resource'
+		) || [];
 
-	if (pages.length === 0) {
+	if (materials.length === 0) {
 		return (
 			<Paper p='xl' withBorder>
 				<Stack align='center' gap='xs'>
 					<IconFileText size={48} stroke={1.5} color={theme.colors.gray[4]} />
 					<Text c='dimmed' size='lg'>
-						No pages yet
+						No materials yet
 					</Text>
 					<Text c='dimmed' size='sm'>
-						Create your first page to get started
+						Create your first page or upload a file to get started
 					</Text>
 				</Stack>
 			</Paper>
@@ -68,27 +71,26 @@ export default function MaterialPagesList({
 
 	return (
 		<Stack gap='md'>
-			{pages.map((page) => (
+			{materials.map((material) => (
 				<Card
-					key={page.id}
+					key={material.id}
 					withBorder
 					shadow='xs'
 					padding='lg'
 					component='a'
-					href={page.url}
+					href={material.url}
 					target='_blank'
 					rel='noopener noreferrer'
 					style={{ cursor: 'pointer', textDecoration: 'none' }}
 				>
 					<Stack gap='xs'>
 						<Text fw={500} size='md'>
-							{page.name}
+							{material.name}
 						</Text>
-						{page.visible === 0 && (
-							<Text size='xs' c='dimmed'>
-								Hidden
-							</Text>
-						)}
+						<Text size='xs' c='dimmed'>
+							{material.modname === 'page' ? 'Page' : 'File'}
+							{material.visible === 0 && ' • Hidden'}
+						</Text>
 					</Stack>
 				</Card>
 			))}

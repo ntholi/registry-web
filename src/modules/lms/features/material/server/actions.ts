@@ -2,7 +2,12 @@
 
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
-import type { CreatePageParams, MoodlePage, MoodleSection } from '../types';
+import type {
+	CreateFileParams,
+	CreatePageParams,
+	MoodlePage,
+	MoodleSection,
+} from '../types';
 
 export async function getCourseSections(
 	courseId: number
@@ -90,24 +95,58 @@ export async function createPage(params: CreatePageParams) {
 		throw new Error('Page content is required');
 	}
 
-	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
+	await findOrCreateMaterialSection(params.courseid);
 
 	try {
-		const result = await moodlePost('local_wsmanagecourses_create_modules', {
-			'modules[0][courseid]': params.courseid,
-			'modules[0][modulename]': 'page',
-			'modules[0][section]': sectionNumber,
-			'modules[0][name]': params.name.trim(),
-			'modules[0][page][content]': params.content.trim(),
-			'modules[0][page][contentformat]': 1,
-			'modules[0][visible]': 1,
+		const result = await moodlePost('local_activity_utils_create_page', {
+			courseid: params.courseid,
+			name: params.name.trim(),
+			content: params.content.trim(),
+			visible: 1,
 		});
 
 		return result;
 	} catch (error) {
 		console.error('Error creating page:', error);
 		throw new Error(
-			'Unable to create page. Please ensure the local_wsmanagecourses plugin is installed and configured.'
+			'Unable to create page. Please ensure the local_activity_utils plugin is installed and configured.'
+		);
+	}
+}
+
+export async function createFile(params: CreateFileParams) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	if (!params.name?.trim()) {
+		throw new Error('Name is required');
+	}
+
+	if (!params.filename?.trim()) {
+		throw new Error('Filename is required');
+	}
+
+	if (!params.filecontent) {
+		throw new Error('File content is required');
+	}
+
+	await findOrCreateMaterialSection(params.courseid);
+
+	try {
+		const result = await moodlePost('local_activity_utils_create_file', {
+			courseid: params.courseid,
+			name: params.name.trim(),
+			filename: params.filename.trim(),
+			filecontent: params.filecontent,
+		});
+
+		return result;
+	} catch (error) {
+		console.error('Error creating file:', error);
+		throw new Error(
+			'Unable to create file. Please ensure the local_activity_utils plugin is installed and configured.'
 		);
 	}
 }
