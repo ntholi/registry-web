@@ -6,7 +6,7 @@ import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
 import MaterialForm from '@lms/material/components/MaterialForm';
-import MaterialPagesList from '@lms/material/components/MaterialPagesList';
+import MaterialList from '@lms/material/components/MaterialList';
 import { getEnrolledStudentsFromDB } from '@lms/students';
 import AddStudentModal from '@lms/students/components/AddStudentModal';
 import StudentsList from '@lms/students/components/StudentsList';
@@ -93,7 +93,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			</Tabs.Panel>
 			<Tabs.Panel value='material' pt='lg'>
 				<Box p='sm'>
-					<MaterialPagesList courseId={course.id} />
+					<MaterialList courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 			<Tabs.Panel value='students' pt='lg'>

@@ -21,10 +21,13 @@
     *   Avoid multiple database calls
     *   Use `db.transaction` for multi-step writes.
 
-4.  **UI Consistency**:
-    *   Strictly follow the UI patterns below (ListLayout, DetailsView, Mantine components).
-    *   Do not invent new UI patterns; mimic existing screens.
-    * Always strive for a beautiful yet very simplistic design but very professional looking
+4.  **UI Design Principles**:
+    *   **Visual Quality**: Create beautiful, minimalistic, and highly professional interfaces.
+    *   **Mantine Native**: Use Mantine's native components and their built-in props exclusively. Avoid external CSS customization.
+    *   **Theme Awareness**: Design for both dark and light modes. Optimize for dark mode as it's the primary usage mode. 
+    *   **Minimal Interactions**: Avoid hover effects and unnecessary animations unless absolutely essential for functionality.
+    *   **Pattern Consistency**: Strictly follow existing UI patterns (ListLayout, DetailsView). Do not invent new patterns; mimic existing screens.
+    *   **Native Styling**: Use only Mantine's component props (size, variant, color, radius, etc.) for styling. No custom CSS classes.
 
 5.  **No Comments**:
     *   Never generate comments in code. Keep code clean and self-explanatory.
