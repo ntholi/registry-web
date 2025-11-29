@@ -158,14 +158,21 @@ export async function createAssignment(params: CreateAssignmentParams) {
 		requestParams
 	);
 
-	await createAcademicAssessment({
-		moduleId: params.moduleId,
-		assessmentNumber: params.idnumber as AssessmentNumber,
-		assessmentType: params.name,
-		totalMarks: params.grademax,
-		weight: params.weight,
-		termId: term.id,
-	});
+	try {
+		await createAcademicAssessment({
+			moduleId: params.moduleId,
+			assessmentNumber: params.idnumber as AssessmentNumber,
+			assessmentType: params.name,
+			totalMarks: params.grademax,
+			weight: params.weight,
+			termId: term.id,
+		});
+	} catch (error) {
+		await moodlePost('local_activity_utils_delete_assignment', {
+			cmid: result.coursemoduleid,
+		});
+		throw error;
+	}
 
 	return result;
 }
