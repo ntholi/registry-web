@@ -114,10 +114,6 @@ export async function createAssignment(params: CreateAssignmentParams) {
 		throw new Error('Assignment name is required');
 	}
 
-	if (!params.intro?.trim()) {
-		throw new Error('Description is required');
-	}
-
 	if (!params.duedate) {
 		throw new Error('Due date is required');
 	}
@@ -131,13 +127,16 @@ export async function createAssignment(params: CreateAssignmentParams) {
 	const requestParams: Record<string, string | number> = {
 		courseid: params.courseid,
 		name: params.name,
-		intro: params.intro,
 		duedate: params.duedate,
 		allowsubmissionsfromdate: params.allowsubmissionsfromdate,
 		section: sectionNumber,
 		idnumber: params.idnumber,
 		grademax: params.grademax,
 	};
+
+	if (params.intro) {
+		requestParams.intro = params.intro;
+	}
 
 	if (params.activityinstructions) {
 		requestParams.activity = params.activityinstructions;

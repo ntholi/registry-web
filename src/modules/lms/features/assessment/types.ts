@@ -39,7 +39,7 @@ export type MoodleAssignment = {
 export type CreateAssignmentParams = {
 	courseid: number;
 	name: string;
-	intro: string;
+	intro?: string;
 	allowsubmissionsfromdate: number;
 	duedate: number;
 	activityinstructions?: string;
