@@ -301,23 +301,27 @@ function ItemDisplay({ item }: { item: NavItem }) {
 	const isActive =
 		href && typeof href === 'string' ? pathname.startsWith(href) : false;
 
+	const hasChildren = item.children && item.children.length > 0;
+
 	const navLink = (
 		<NavLink
 			label={item.label}
 			component={href ? Link : undefined}
-			href={href || '#something'}
+			href={href || '#'}
 			active={isActive}
 			leftSection={Icon ? <Icon size='1.1rem' /> : null}
 			description={item.description}
 			rightSection={
-				item.children && item.children.length > 0 ? (
-					<IconChevronRight size='0.8rem' stroke={1.5} />
-				) : (
-					<IconChevronUp size='0.8rem' stroke={1.5} />
-				)
+				hasChildren ? (
+					opened ? (
+						<IconChevronUp size='0.8rem' stroke={1.5} />
+					) : (
+						<IconChevronRight size='0.8rem' stroke={1.5} />
+					)
+				) : null
 			}
 			opened={opened}
-			onClick={() => setOpen((o) => !o)}
+			onClick={hasChildren ? () => setOpen((o) => !o) : undefined}
 		>
 			{item.children?.map((child) => {
 				const childKey =

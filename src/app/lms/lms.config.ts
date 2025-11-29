@@ -12,6 +12,7 @@ export const lmsConfig: ModuleConfig = {
 		dashboard: [
 			{
 				label: 'LMS',
+				description: 'Learning Management System',
 				icon: IconChalkboard,
 				roles: ['academic'],
 				href: '/lms/courses',
