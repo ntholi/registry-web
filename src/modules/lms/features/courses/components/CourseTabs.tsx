@@ -5,7 +5,7 @@ import AssessmentsList from '@lms/assessment/components/AssessmentsList';
 import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
-import { Gradebook } from '@lms/gradebook';
+import { Gradebook, getAssignedModuleByCourseId } from '@lms/gradebook';
 import MaterialForm from '@lms/material/components/MaterialForm';
 import MaterialList from '@lms/material/components/MaterialList';
 import { getEnrolledStudentsFromDB } from '@lms/students';
@@ -37,6 +37,13 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 		queryFn: () => getEnrolledStudentsFromDB(course.id),
 	});
 
+	const { data: assignedModule } = useQuery({
+		queryKey: ['assigned-module-by-course', course.id],
+		queryFn: () => getAssignedModuleByCourseId(course.id),
+	});
+
+	const moduleId = assignedModule?.semesterModule?.moduleId;
+
 	return (
 		<Tabs
 			value={activeTab}
@@ -63,8 +70,8 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 					{activeTab === 'forum' && forum && (
 						<ForumPostForm forumId={forum.id} />
 					)}
-					{activeTab === 'assessments' && (
-						<AssessmentForm courseId={course.id} />
+					{activeTab === 'assessments' && moduleId && (
+						<AssessmentForm courseId={course.id} moduleId={moduleId} />
 					)}
 					{activeTab === 'material' && <MaterialForm courseId={course.id} />}
 					{activeTab === 'students' && <AddStudentModal course={course} />}

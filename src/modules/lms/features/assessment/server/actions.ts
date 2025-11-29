@@ -1,7 +1,10 @@
 'use server';
 
 import { auth } from '@/core/auth';
+import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
+import { getCurrentTerm } from '@/modules/registry/features/terms';
 import type { CreateAssignmentParams, MoodleAssignment } from '../types';
 
 type CourseSection = {
@@ -102,6 +105,10 @@ export async function createAssignment(params: CreateAssignmentParams) {
 	if (!session?.user) {
 		throw new Error('Unauthorized');
 	}
+	const term = await getCurrentTerm();
+	if (!term) {
+		throw new Error('No active term found');
+	}
 
 	if (!params.name?.trim()) {
 		throw new Error('Assignment name is required');
@@ -115,6 +122,10 @@ export async function createAssignment(params: CreateAssignmentParams) {
 		throw new Error('Due date is required');
 	}
 
+	if (!params.idnumber?.trim()) {
+		throw new Error('Assessment number is required');
+	}
+
 	const sectionNumber = await getOrCreateAssessmentsSection(params.courseid);
 
 	const requestParams: Record<string, string | number> = {
@@ -124,6 +135,8 @@ export async function createAssignment(params: CreateAssignmentParams) {
 		duedate: params.duedate,
 		allowsubmissionsfromdate: params.allowsubmissionsfromdate,
 		section: sectionNumber,
+		idnumber: params.idnumber,
+		grademax: params.grademax,
 	};
 
 	if (params.activityinstructions) {
@@ -145,6 +158,15 @@ export async function createAssignment(params: CreateAssignmentParams) {
 		'local_activity_utils_create_assignment',
 		requestParams
 	);
+
+	await createAcademicAssessment({
+		moduleId: params.moduleId,
+		assessmentNumber: params.idnumber as AssessmentNumber,
+		assessmentType: params.name,
+		totalMarks: params.grademax,
+		weight: params.weight,
+		termId: term.id,
+	});
 
 	return result;
 }

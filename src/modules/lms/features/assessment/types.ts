@@ -44,4 +44,8 @@ export type CreateAssignmentParams = {
 	duedate: number;
 	activityinstructions?: string;
 	attachments?: File[];
+	idnumber: string;
+	grademax: number;
+	moduleId: number;
+	weight: number;
 };
