@@ -3,7 +3,6 @@
 import type { MoodleCourse } from '@lms/courses/types';
 import {
 	ActionIcon,
-	Badge,
 	Box,
 	Button,
 	Card,
@@ -24,6 +23,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	enrollStudentInCourse,
 	searchStudentsForEnrollment,
@@ -230,9 +230,9 @@ export default function AddStudentModal({
 										<Text size='sm' c='dimmed'>
 											Current Semester
 										</Text>
-										<Badge variant='light' size='sm'>
-											Semester {selectedStudent.semesterNumber}
-										</Badge>
+										<Text size='sm'>
+											{formatSemester(selectedStudent.semesterNumber)}
+										</Text>
 									</Group>
 								</Stack>
 

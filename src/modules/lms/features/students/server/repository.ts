@@ -57,7 +57,7 @@ export default class StudentRepository extends BaseRepository<
 
 	async searchStudentsForEnrollment(searchCondition: SQL | undefined) {
 		return db
-			.select({
+			.selectDistinctOn([students.stdNo], {
 				stdNo: students.stdNo,
 				name: students.name,
 				programName: programs.name,
@@ -79,6 +79,7 @@ export default class StudentRepository extends BaseRepository<
 			)
 			.leftJoin(users, eq(students.userId, users.id))
 			.where(and(searchCondition, eq(studentPrograms.status, 'Active')))
+			.orderBy(students.stdNo, sql`${structureSemesters.semesterNumber} DESC`)
 			.limit(10);
 	}
 
