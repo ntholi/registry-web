@@ -9,13 +9,13 @@ import {
 	countRejectedClearances,
 } from '@registry/registration';
 import {
-	IconBarrierBlock,
+	IconBan,
 	IconCertificate,
-	IconCopyCheck,
-	IconFileCheck,
-	IconMessageQuestion,
-	IconSquareRoundedCheck,
-	IconUserX,
+	IconCircleCheck,
+	IconClipboardCheck,
+	IconHourglass,
+	IconReportMoney,
+	IconUserOff,
 } from '@tabler/icons-react';
 import type {
 	ModuleConfig,
@@ -34,13 +34,13 @@ export const financeConfig: ModuleConfig = {
 		dashboard: [
 			{
 				label: 'Registration Clearance',
-				icon: IconFileCheck,
+				icon: IconClipboardCheck,
 				roles: ['finance', 'library', 'resource'],
 				children: [
 					{
 						label: 'Requests',
 						href: '/registry/registration/clearance/pending',
-						icon: IconMessageQuestion,
+						icon: IconHourglass,
 						notificationCount: {
 							queryKey: ['clearances', 'pending'],
 							queryFn: () => countPendingClearances(),
@@ -50,7 +50,7 @@ export const financeConfig: ModuleConfig = {
 					{
 						label: 'Approved',
 						href: '/registry/registration/clearance/approved',
-						icon: IconSquareRoundedCheck,
+						icon: IconCircleCheck,
 						notificationCount: {
 							queryKey: ['clearances', 'approved'],
 							queryFn: () => countApprovedClearances(),
@@ -60,7 +60,7 @@ export const financeConfig: ModuleConfig = {
 					{
 						label: 'Rejected',
 						href: '/registry/registration/clearance/rejected',
-						icon: IconBarrierBlock,
+						icon: IconBan,
 						notificationCount: {
 							queryKey: ['clearances', 'rejected'],
 							queryFn: () => countRejectedClearances(),
@@ -86,7 +86,7 @@ export const financeConfig: ModuleConfig = {
 					{
 						label: 'Requests',
 						href: '/registry/graduation/clearance/pending',
-						icon: IconMessageQuestion,
+						icon: IconHourglass,
 						notificationCount: {
 							queryKey: ['graduation-clearances', 'pending'],
 							queryFn: () => countPendingGraduationClearances(),
@@ -96,7 +96,7 @@ export const financeConfig: ModuleConfig = {
 					{
 						label: 'Approved',
 						href: '/registry/graduation/clearance/approved',
-						icon: IconSquareRoundedCheck,
+						icon: IconCircleCheck,
 						notificationCount: {
 							queryKey: ['graduation-clearances', 'approved'],
 							queryFn: () => countApprovedGraduationClearances(),
@@ -106,7 +106,7 @@ export const financeConfig: ModuleConfig = {
 					{
 						label: 'Rejected',
 						href: '/registry/graduation/clearance/rejected',
-						icon: IconBarrierBlock,
+						icon: IconBan,
 						notificationCount: {
 							queryKey: ['graduation-clearances', 'rejected'],
 							queryFn: () => countRejectedGraduationClearances(),
@@ -118,13 +118,13 @@ export const financeConfig: ModuleConfig = {
 			{
 				label: 'Blocked Students',
 				href: '/finance/blocked-students',
-				icon: IconUserX,
+				icon: IconUserOff,
 				roles: ['finance'],
 			},
 			{
 				label: 'Clearance',
 				href: (department: string) => `/admin/reports/clearance/${department}`,
-				icon: IconCopyCheck,
+				icon: IconReportMoney,
 				isVisible: (session) => {
 					const userRole = session?.user?.role;
 					return !!(

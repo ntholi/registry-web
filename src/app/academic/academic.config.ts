@@ -1,8 +1,8 @@
 import {
-	IconAB2,
-	IconCopyCheck,
-	IconNotebook,
-	IconSchool,
+	IconClipboardData,
+	IconListCheck,
+	IconPresentation,
+	IconReportAnalytics,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
@@ -19,7 +19,7 @@ export const academicConfig: ModuleConfig = {
 				label: 'Lecturers',
 				href: '/academic/lecturers',
 				roles: ['academic'],
-				icon: IconSchool,
+				icon: IconPresentation,
 				isVisible: (session) => {
 					const position = session?.user?.position;
 					return !!(
@@ -29,10 +29,9 @@ export const academicConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Modules',
-				description: 'Assessments',
+				label: 'Assessments',
 				href: '/academic/assessments',
-				icon: IconAB2,
+				icon: IconListCheck,
 				roles: ['academic'],
 				isVisible: (session) => {
 					return session?.user?.position !== 'admin';
@@ -40,7 +39,7 @@ export const academicConfig: ModuleConfig = {
 			},
 			{
 				label: 'Gradebook',
-				icon: IconNotebook,
+				icon: IconClipboardData,
 				roles: ['academic'],
 				collapsed: true,
 				children: [],
@@ -52,7 +51,7 @@ export const academicConfig: ModuleConfig = {
 				label: 'Course Summary',
 				description: 'Course Summary Report',
 				href: '/academic/reports/course-summary',
-				icon: IconCopyCheck,
+				icon: IconReportAnalytics,
 				roles: ['academic'],
 				isVisible: (session) => {
 					return session?.user?.position !== 'admin';

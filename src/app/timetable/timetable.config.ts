@@ -1,8 +1,8 @@
 import {
-	IconBuilding,
-	IconCalendarEvent,
-	IconCategory,
-	IconChalkboard,
+	IconCalendarTime,
+	IconDoor,
+	IconLayoutGrid,
+	IconTags,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
@@ -17,22 +17,22 @@ export const timetableConfig: ModuleConfig = {
 		dashboard: [
 			{
 				label: 'Timetable',
-				icon: IconChalkboard,
+				icon: IconCalendarTime,
 				collapsed: true,
 				children: [
 					{
 						label: 'Allocations',
-						icon: IconCalendarEvent,
+						icon: IconLayoutGrid,
 						href: '/timetable/timetable-allocations',
 					},
 					{
 						label: 'Venues',
-						icon: IconBuilding,
+						icon: IconDoor,
 						href: '/timetable/venues',
 					},
 					{
 						label: 'Venue Types',
-						icon: IconCategory,
+						icon: IconTags,
 						href: '/timetable/venue-types',
 					},
 				],

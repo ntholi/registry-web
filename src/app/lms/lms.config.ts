@@ -1,4 +1,4 @@
-import { IconChalkboard } from '@tabler/icons-react';
+import { IconDeviceDesktopAnalytics } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 
@@ -13,7 +13,7 @@ export const lmsConfig: ModuleConfig = {
 			{
 				label: 'LMS',
 				description: 'Learning Management System',
-				icon: IconChalkboard,
+				icon: IconDeviceDesktopAnalytics,
 				roles: ['academic'],
 				href: '/lms/courses',
 				isVisible: (session) => {

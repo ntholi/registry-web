@@ -1,13 +1,15 @@
 import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance';
 import { countByStatus } from '@registry/registration';
 import {
-	IconBarrierBlock,
-	IconCertificate,
-	IconClipboardCheck,
-	IconCopyCheck,
-	IconMessageQuestion,
-	IconSquareRoundedCheck,
-	IconUsersGroup,
+	IconBan,
+	IconCheck,
+	IconCircleCheck,
+	IconClipboardList,
+	IconFileDescription,
+	IconGavel,
+	IconHourglass,
+	IconSchoolBell,
+	IconUsers,
 } from '@tabler/icons-react';
 import type {
 	ModuleConfig,
@@ -27,7 +29,7 @@ export const registryConfig: ModuleConfig = {
 			{
 				label: 'Students',
 				href: '/registry/students',
-				icon: IconUsersGroup,
+				icon: IconUsers,
 				isVisible: (session) => {
 					if (
 						['registry', 'finance', 'admin', 'student_services'].includes(
@@ -47,14 +49,14 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Registration Requests',
-				icon: IconClipboardCheck,
+				icon: IconClipboardList,
 				roles: ['registry', 'admin'],
 				collapsed: true,
 				children: [
 					{
 						label: 'Pending',
 						href: '/registry/registration/requests/pending',
-						icon: IconMessageQuestion,
+						icon: IconHourglass,
 						notificationCount: {
 							queryKey: ['registration-requests', 'pending'],
 							queryFn: () => countByStatus('pending'),
@@ -64,7 +66,7 @@ export const registryConfig: ModuleConfig = {
 					{
 						label: 'Registered',
 						href: '/registry/registration/requests/registered',
-						icon: IconSquareRoundedCheck,
+						icon: IconCheck,
 						notificationCount: {
 							queryKey: ['registration-requests', 'registered'],
 							queryFn: () => countByStatus('registered'),
@@ -74,7 +76,7 @@ export const registryConfig: ModuleConfig = {
 					{
 						label: 'Rejected',
 						href: '/registry/registration/requests/rejected',
-						icon: IconBarrierBlock,
+						icon: IconBan,
 						notificationCount: {
 							queryKey: ['registration-requests', 'rejected'],
 							queryFn: () => countByStatus('rejected'),
@@ -84,7 +86,7 @@ export const registryConfig: ModuleConfig = {
 					{
 						label: 'Approved',
 						href: '/registry/registration/requests/approved',
-						icon: IconSquareRoundedCheck,
+						icon: IconCircleCheck,
 						notificationCount: {
 							queryKey: ['registration-requests', 'approved'],
 							queryFn: () => countByStatus('approved'),
@@ -95,14 +97,14 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Graduation Requests',
-				icon: IconCertificate,
+				icon: IconSchoolBell,
 				roles: ['registry', 'admin'],
 				collapsed: true,
 				children: [
 					{
 						label: 'Pending',
 						href: '/registry/graduation/requests/pending',
-						icon: IconMessageQuestion,
+						icon: IconHourglass,
 						notificationCount: {
 							queryKey: ['graduation-requests', 'pending'],
 							queryFn: () => countGraduationByStatus('pending'),
@@ -112,7 +114,7 @@ export const registryConfig: ModuleConfig = {
 					{
 						label: 'Approved',
 						href: '/registry/graduation/requests/approved',
-						icon: IconSquareRoundedCheck,
+						icon: IconCircleCheck,
 						notificationCount: {
 							queryKey: ['graduation-requests', 'approved'],
 							queryFn: () => countGraduationByStatus('approved'),
@@ -122,7 +124,7 @@ export const registryConfig: ModuleConfig = {
 					{
 						label: 'Rejected',
 						href: '/registry/graduation/requests/rejected',
-						icon: IconBarrierBlock,
+						icon: IconBan,
 						notificationCount: {
 							queryKey: ['graduation-requests', 'rejected'],
 							queryFn: () => countGraduationByStatus('rejected'),
@@ -135,7 +137,7 @@ export const registryConfig: ModuleConfig = {
 				label: 'Board of Examination',
 				href: '/academic/reports/boe',
 				description: 'Board of Examination',
-				icon: IconCopyCheck,
+				icon: IconGavel,
 				roles: ['academic', 'registry', 'admin'],
 				isVisible: (session) => {
 					if (['admin', 'registry'].includes(session?.user?.role as UserRole))
@@ -151,7 +153,7 @@ export const registryConfig: ModuleConfig = {
 				label: 'Student Registration',
 				href: '/registry/reports/registration',
 				description: 'Student Registration',
-				icon: IconCopyCheck,
+				icon: IconFileDescription,
 				roles: ['academic', 'registry', 'admin', 'finance'],
 				isVisible: (session) => {
 					if (
