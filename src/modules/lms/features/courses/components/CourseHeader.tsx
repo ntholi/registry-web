@@ -17,6 +17,7 @@ import {
 	IconExternalLink,
 } from '@tabler/icons-react';
 import Link from '@/shared/ui/Link';
+import { splitShortName } from '../utils';
 
 type Props = {
 	fullname: string;
@@ -50,7 +51,7 @@ export default function CourseHeader({
 						<Stack gap={1}>
 							<Group gap={'xs'}>
 								<Badge radius={'xs'} variant='light' color='blue'>
-									{shortname}
+									{splitShortName(shortname).code}
 								</Badge>
 								{categoryName && (
 									<Badge radius={'xs'} variant='light' color='gray'>
