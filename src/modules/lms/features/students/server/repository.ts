@@ -80,7 +80,7 @@ export default class StudentRepository extends BaseRepository<
 			.leftJoin(users, eq(students.userId, users.id))
 			.where(and(searchCondition, eq(studentPrograms.status, 'Active')))
 			.orderBy(students.stdNo, sql`${structureSemesters.semesterNumber} DESC`)
-			.limit(10);
+			.limit(5);
 	}
 
 	async checkStudentEligibilityForCourse(
