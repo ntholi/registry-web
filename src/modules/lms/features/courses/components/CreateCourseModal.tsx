@@ -17,6 +17,7 @@ import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { createMoodleCourse, getMoodleCategories } from '../server/actions';
 
@@ -43,6 +44,8 @@ export default function CreateCourseModal() {
 		enabled: opened,
 	});
 
+	const { currentTerm } = useCurrentTerm();
+
 	const createCourseMutation = useMutation({
 		mutationFn: async () => {
 			if (!selectedModule) {
@@ -57,17 +60,25 @@ export default function CreateCourseModal() {
 				throw new Error('Module or school information is missing');
 			}
 
+			if (!currentTerm) {
+				throw new Error('Current term is not set');
+			}
+
 			const category = categories?.find(
-				(cat) =>
-					cat.idnumber?.toLowerCase() === school.code?.toLowerCase() ||
-					cat.name?.toLowerCase() === school.code?.toLowerCase()
+				(cat) => cat.name?.toLowerCase() === school.code?.toLowerCase()
 			);
+
+			if (!category) {
+				throw new Error(
+					`No matching category found for school code: ${school.code}. Please create a category in Moodle and name it '${school.code}'`
+				);
+			}
 
 			const categoryId = category?.id ?? 1;
 
 			return createMoodleCourse({
 				fullname: module.name,
-				shortname: module.code,
+				shortname: `${module.code}_${currentTerm.name}`,
 				categoryid: categoryId,
 				semesterModuleId: selectedModule.semesterModuleId,
 			});

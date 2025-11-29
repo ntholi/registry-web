@@ -38,11 +38,15 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 
 	const { fullname, shortname, categoryid, semesterModuleId } = params;
 
-	const result = await moodlePost('core_course_create_courses', {
-		'courses[0][fullname]': fullname,
-		'courses[0][shortname]': shortname,
-		'courses[0][categoryid]': categoryid,
-	});
+	const result = await moodlePost(
+		'core_course_create_courses',
+		{
+			'courses[0][fullname]': fullname,
+			'courses[0][shortname]': shortname,
+			'courses[0][categoryid]': categoryid,
+		},
+		process.env.MOODLE_TOKEN
+	);
 
 	if (!result || !Array.isArray(result) || result.length === 0) {
 		throw new Error('Failed to create course in Moodle');
@@ -50,11 +54,15 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 
 	const courseId = String(result[0].id);
 
-	await moodlePost('enrol_manual_enrol_users', {
-		'enrolments[0][roleid]': 3,
-		'enrolments[0][userid]': session.user.lmsUserId,
-		'enrolments[0][courseid]': Number(courseId),
-	});
+	await moodlePost(
+		'enrol_manual_enrol_users',
+		{
+			'enrolments[0][roleid]': 3,
+			'enrolments[0][userid]': session.user.lmsUserId,
+			'enrolments[0][courseid]': Number(courseId),
+		},
+		process.env.MOODLE_TOKEN
+	);
 
 	await assignedModulesRepository.linkCourseToAssignment(
 		session.user.id,
@@ -71,7 +79,7 @@ export async function getMoodleCategories() {
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet('core_course_get_categories', {});
+	const result = await moodleGet('core_course_get_categories');
 
 	return result as Array<{
 		id: number;
