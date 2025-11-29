@@ -1,9 +1,12 @@
 import { and, eq, inArray, type SQL, sql } from 'drizzle-orm';
 import {
 	db,
+	modules,
 	programs,
+	semesterModules,
 	structureSemesters,
 	structures,
+	studentModules,
 	studentPrograms,
 	studentSemesters,
 	students,
@@ -54,10 +57,11 @@ export default class StudentRepository extends BaseRepository<
 
 	async searchStudentsForEnrollment(
 		searchCondition: SQL | undefined,
-		currentTermName: string
+		courseFullname: string,
+		courseTerm: string
 	) {
 		return db
-			.select({
+			.selectDistinctOn([students.stdNo], {
 				stdNo: students.stdNo,
 				name: students.name,
 				programName: programs.name,
@@ -77,12 +81,22 @@ export default class StudentRepository extends BaseRepository<
 				structureSemesters,
 				eq(studentSemesters.structureSemesterId, structureSemesters.id)
 			)
+			.innerJoin(
+				studentModules,
+				eq(studentModules.studentSemesterId, studentSemesters.id)
+			)
+			.innerJoin(
+				semesterModules,
+				eq(studentModules.semesterModuleId, semesterModules.id)
+			)
+			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
 			.leftJoin(users, eq(students.userId, users.id))
 			.where(
 				and(
 					searchCondition,
 					eq(studentPrograms.status, 'Active'),
-					eq(studentSemesters.term, currentTermName)
+					eq(modules.name, courseFullname),
+					eq(studentSemesters.term, courseTerm)
 				)
 			)
 			.limit(10);

@@ -65,7 +65,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 						<AssessmentForm courseId={course.id} />
 					)}
 					{activeTab === 'material' && <MaterialForm courseId={course.id} />}
-					{activeTab === 'students' && <AddStudentModal courseId={course.id} />}
+					{activeTab === 'students' && <AddStudentModal course={course} />}
 				</Box>
 			</Tabs.List>
 			<Tabs.Panel value='dashboard' pt='lg'>

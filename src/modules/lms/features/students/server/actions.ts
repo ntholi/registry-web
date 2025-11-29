@@ -1,10 +1,10 @@
 'use server';
 
-import { getCurrentTerm } from '@registry/terms';
 import { ilike, or, type SQL, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import { students } from '@/core/database';
 import { MoodleError, moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { splitShortName } from '../../courses/utils';
 import type { MoodleEnrolledUser, StudentSearchResult } from '../types';
 import { studentRepository } from './repository';
 
@@ -88,18 +88,23 @@ export async function getEnrolledStudentsFromDB(courseId: number) {
 }
 
 export async function searchStudentsForEnrollment(
-	search: string
+	search: string,
+	courseFullname: string,
+	courseShortname: string
 ): Promise<StudentSearchResult[]> {
 	const session = await auth();
 	if (!session?.user) {
 		throw new Error('Unauthorized');
+	}
+	const courseTerm = splitShortName(courseShortname).term;
+	if (!courseTerm) {
+		throw new Error('Course term could not be determined');
 	}
 
 	if (!search || search.trim().length < 2) {
 		return [];
 	}
 
-	const currentTerm = await getCurrentTerm();
 	const searchTerm = search.trim();
 
 	let searchCondition: SQL | undefined;
@@ -112,7 +117,8 @@ export async function searchStudentsForEnrollment(
 
 	return studentRepository.searchStudentsForEnrollment(
 		searchCondition,
-		currentTerm.name
+		courseFullname,
+		courseTerm
 	);
 }
 

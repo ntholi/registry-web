@@ -1,5 +1,6 @@
 'use client';
 
+import type { MoodleCourse } from '@lms/courses/types';
 import {
 	ActionIcon,
 	Badge,
@@ -30,12 +31,12 @@ import {
 import type { StudentSearchResult } from '../types';
 
 type AddStudentModalProps = {
-	courseId: number;
+	course: MoodleCourse;
 	onSuccess?: () => void;
 };
 
 export default function AddStudentModal({
-	courseId,
+	course,
 	onSuccess,
 }: AddStudentModalProps) {
 	const queryClient = useQueryClient();
@@ -46,13 +47,23 @@ export default function AddStudentModal({
 		useState<StudentSearchResult | null>(null);
 
 	const { data: searchResults, isLoading: isSearching } = useQuery({
-		queryKey: ['student-search', debouncedSearch],
-		queryFn: () => searchStudentsForEnrollment(debouncedSearch),
+		queryKey: [
+			'student-search',
+			debouncedSearch,
+			course.fullname,
+			course.shortname,
+		],
+		queryFn: () =>
+			searchStudentsForEnrollment(
+				debouncedSearch,
+				course.fullname,
+				course.shortname
+			),
 		enabled: debouncedSearch.length >= 2 && !selectedStudent,
 	});
 
 	const enrollMutation = useMutation({
-		mutationFn: () => enrollStudentInCourse(courseId, selectedStudent!.stdNo),
+		mutationFn: () => enrollStudentInCourse(course.id, selectedStudent!.stdNo),
 		onSuccess: (result) => {
 			if (result.success) {
 				notifications.show({
@@ -62,7 +73,7 @@ export default function AddStudentModal({
 				});
 				handleClose();
 				queryClient.invalidateQueries({
-					queryKey: ['course-students', courseId],
+					queryKey: ['course-students', course.id],
 				});
 				onSuccess?.();
 			} else {
