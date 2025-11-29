@@ -95,13 +95,14 @@ export async function createPage(params: CreatePageParams) {
 		throw new Error('Page content is required');
 	}
 
-	await findOrCreateMaterialSection(params.courseid);
+	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
 
 	try {
 		const result = await moodlePost('local_activity_utils_create_page', {
 			courseid: params.courseid,
 			name: params.name.trim(),
 			content: params.content.trim(),
+			section: sectionNumber,
 			visible: 1,
 		});
 
@@ -132,7 +133,7 @@ export async function createFile(params: CreateFileParams) {
 		throw new Error('File content is required');
 	}
 
-	await findOrCreateMaterialSection(params.courseid);
+	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
 
 	try {
 		const result = await moodlePost('local_activity_utils_create_file', {
@@ -140,6 +141,8 @@ export async function createFile(params: CreateFileParams) {
 			name: params.name.trim(),
 			filename: params.filename.trim(),
 			filecontent: params.filecontent,
+			section: sectionNumber,
+			visible: 1,
 		});
 
 		return result;
