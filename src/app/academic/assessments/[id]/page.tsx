@@ -27,7 +27,7 @@ export default async function ModuleDetails({ params }: Props) {
 					<Button
 						variant='light'
 						leftSection={<IconNotebook size={16} />}
-						size='xs'
+						size={'sm'}
 					>
 						Gradebook
 					</Button>
