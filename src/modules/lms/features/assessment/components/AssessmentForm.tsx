@@ -1,20 +1,24 @@
 'use client';
 
 import {
+	ActionIcon,
 	Button,
-	FileInput,
+	FileButton,
 	Grid,
+	Group,
 	Modal,
 	NumberInput,
+	Paper,
 	Select,
 	Stack,
 	Tabs,
+	Text,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconPlus, IconUpload } from '@tabler/icons-react';
+import { IconPlus, IconTrash, IconUpload } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useEffect, useRef } from 'react';
@@ -40,7 +44,7 @@ const schema = z.object({
 			message: 'Due date is required',
 		}),
 	description: z.string().optional(),
-	activityInstructions: z.string().optional(),
+	instructions: z.string().optional(),
 	attachments: z.array(z.instanceof(File)).optional(),
 });
 
@@ -74,7 +78,7 @@ export default function AssessmentForm({
 			availableFrom: null,
 			dueDate: null,
 			description: '',
-			activityInstructions: '',
+			instructions: '',
 			attachments: [],
 		},
 	});
@@ -141,7 +145,7 @@ export default function AssessmentForm({
 					? Math.floor(new Date(values.availableFrom).getTime() / 1000)
 					: 0,
 				duedate: Math.floor(new Date(values.dueDate).getTime() / 1000),
-				activityinstructions: values.activityInstructions,
+				activityinstructions: values.instructions,
 				attachments: values.attachments,
 				idnumber: values.assessmentNumber,
 				grademax: values.totalMarks,
@@ -175,6 +179,19 @@ export default function AssessmentForm({
 		mutation.mutate(values);
 	});
 
+	function handleFilesSelect(files: File[]) {
+		const currentFiles = form.values.attachments || [];
+		form.setFieldValue('attachments', [...currentFiles, ...files]);
+	}
+
+	function handleFileRemove(index: number) {
+		const currentFiles = form.values.attachments || [];
+		form.setFieldValue(
+			'attachments',
+			currentFiles.filter((_, i) => i !== index)
+		);
+	}
+
 	return (
 		<>
 			<Button
@@ -196,8 +213,9 @@ export default function AssessmentForm({
 					<Tabs defaultValue='general'>
 						<Tabs.List>
 							<Tabs.Tab value='general'>General</Tabs.Tab>
-							<Tabs.Tab value='instructions'>Description</Tabs.Tab>
+							<Tabs.Tab value='description'>Description</Tabs.Tab>
 							<Tabs.Tab value='attachments'>Attachments</Tabs.Tab>
+							<Tabs.Tab value='instructions'>Instructions</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='general' pt='md'>
@@ -258,25 +276,63 @@ export default function AssessmentForm({
 							</Stack>
 						</Tabs.Panel>
 
-						<Tabs.Panel value='instructions' pt='md'>
+						<Tabs.Panel value='description' pt='md'>
 							<RichTextField
 								label='Description'
 								height={350}
-								required
 								{...form.getInputProps('description')}
 							/>
 						</Tabs.Panel>
 
 						<Tabs.Panel value='attachments' pt='md'>
 							<Stack>
-								<FileInput
-									label='Attachments'
-									placeholder='Upload files'
-									multiple
-									leftSection={<IconUpload size={16} />}
-									{...form.getInputProps('attachments')}
-								/>
+								<FileButton onChange={handleFilesSelect} multiple>
+									{(props) => (
+										<Button
+											variant='light'
+											leftSection={<IconUpload size={16} />}
+											{...props}
+										>
+											Upload Files
+										</Button>
+									)}
+								</FileButton>
+
+								{form.values.attachments &&
+									form.values.attachments.length > 0 && (
+										<Grid>
+											{form.values.attachments.map((file, index) => (
+												<Grid.Col key={`${file.name}-${index}`} span={6}>
+													<Paper withBorder p='sm'>
+														<Group justify='space-between' wrap='nowrap'>
+															<Text size='sm' truncate style={{ flex: 1 }}>
+																{file.name}
+															</Text>
+															<ActionIcon
+																variant='subtle'
+																color='red'
+																onClick={() => handleFileRemove(index)}
+															>
+																<IconTrash size={16} />
+															</ActionIcon>
+														</Group>
+														<Text size='xs' c='dimmed'>
+															{(file.size / 1024).toFixed(1)} KB
+														</Text>
+													</Paper>
+												</Grid.Col>
+											))}
+										</Grid>
+									)}
 							</Stack>
+						</Tabs.Panel>
+
+						<Tabs.Panel value='instructions' pt='md'>
+							<RichTextField
+								label='Instructions'
+								height={350}
+								{...form.getInputProps('instructions')}
+							/>
 						</Tabs.Panel>
 					</Tabs>
 
