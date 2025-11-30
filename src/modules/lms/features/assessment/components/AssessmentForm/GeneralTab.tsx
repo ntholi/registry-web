@@ -71,12 +71,14 @@ export default function GeneralTab({ form }: GeneralTabProps) {
 			<DateTimePicker
 				label='Available From'
 				placeholder='Select date and time'
+				valueFormat='DD MMMM YYYY HH:mm'
 				{...form.getInputProps('availableFrom')}
 			/>
 
 			<DateTimePicker
 				label='Due Date'
 				placeholder='Select date and time'
+				valueFormat='DD MMMM YYYY HH:mm'
 				required
 				{...form.getInputProps('dueDate')}
 			/>
