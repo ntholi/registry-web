@@ -15,7 +15,7 @@ export default async function CoursesPage() {
 	return (
 		<Container mt='lg' size='xl'>
 			<Flex justify='space-between' align='center' mb='md'>
-				<Text size='1.7rem' fw={500}>
+				<Text size='1.9rem' fw={500}>
 					<Text component='span' fw={500} c='blue'>
 						Five
 					</Text>
