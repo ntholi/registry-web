@@ -70,6 +70,7 @@ export default function GeneralTab({ form }: GeneralTabProps) {
 
 			<DateTimePicker
 				label='Available From'
+				firstDayOfWeek={0}
 				placeholder='Select date and time'
 				valueFormat='DD MMMM YYYY HH:mm'
 				{...form.getInputProps('availableFrom')}
@@ -77,6 +78,7 @@ export default function GeneralTab({ form }: GeneralTabProps) {
 
 			<DateTimePicker
 				label='Due Date'
+				firstDayOfWeek={0}
 				placeholder='Select date and time'
 				valueFormat='DD MMMM YYYY HH:mm'
 				required

@@ -219,6 +219,7 @@ export default function EditStudentProgramModal({ program }: Props) {
 								<Group grow>
 									<DateInput
 										label='Intake Date'
+										firstDayOfWeek={0}
 										placeholder='Select intake date'
 										clearable
 										valueFormat='YYYY-MM-DD'
@@ -226,6 +227,7 @@ export default function EditStudentProgramModal({ program }: Props) {
 									/>
 									<DateInput
 										label='Registration Date'
+										firstDayOfWeek={0}
 										placeholder='Select registration date'
 										clearable
 										valueFormat='YYYY-MM-DD'
@@ -247,6 +249,7 @@ export default function EditStudentProgramModal({ program }: Props) {
 
 								<DateInput
 									label='Graduation Date'
+									firstDayOfWeek={0}
 									placeholder='Select graduation date'
 									clearable
 									valueFormat='YYYY-MM-DD'

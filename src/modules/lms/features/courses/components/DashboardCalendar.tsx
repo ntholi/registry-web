@@ -54,6 +54,7 @@ export default function DashboardCalendar({
 					<Calendar
 						static
 						size='md'
+						firstDayOfWeek={0}
 						styles={{
 							calendarHeader: {
 								maxWidth: '100%',
