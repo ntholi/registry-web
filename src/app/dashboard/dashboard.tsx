@@ -69,13 +69,19 @@ function getNavigation(
 		'Student Registration',
 	];
 
+	const getLabelKey = (label: React.ReactNode): string => {
+		if (typeof label === 'string') return label;
+		return String(label);
+	};
+
 	for (const item of navItems) {
-		if (reportLabels.includes(item.label)) {
+		const labelKey = getLabelKey(item.label);
+		if (reportLabels.includes(labelKey)) {
 			reportItems.push(item);
 			continue;
 		}
 
-		const key = item.label;
+		const key = labelKey;
 
 		if (itemMap.has(key)) {
 			const existing = itemMap.get(key)!;
@@ -83,12 +89,16 @@ function getNavigation(
 				const childrenMap = new Map<string, NavItem>();
 				for (const child of existing.children) {
 					const childKey =
-						typeof child.href === 'string' ? child.href : child.label;
+						typeof child.href === 'string'
+							? child.href
+							: getLabelKey(child.label);
 					childrenMap.set(childKey, child);
 				}
 				for (const child of item.children) {
 					const childKey =
-						typeof child.href === 'string' ? child.href : child.label;
+						typeof child.href === 'string'
+							? child.href
+							: getLabelKey(child.label);
 					if (!childrenMap.has(childKey)) {
 						existing.children.push(child);
 					}
@@ -102,7 +112,9 @@ function getNavigation(
 		}
 	}
 
-	const reportsParent = combinedItems.find((item) => item.label === 'Reports');
+	const reportsParent = combinedItems.find(
+		(item) => getLabelKey(item.label) === 'Reports'
+	);
 	if (reportsParent && reportItems.length > 0) {
 		reportsParent.children = reportItems;
 	}
@@ -224,10 +236,16 @@ function UserButton() {
 }
 
 export function Navigation({ navigation }: { navigation: NavItem[] }) {
+	const getLabelKey = (label: React.ReactNode): string => {
+		if (typeof label === 'string') return label;
+		return String(label);
+	};
+
 	return (
 		<>
 			{navigation.map((item) => {
-				const key = typeof item.href === 'string' ? item.href : item.label;
+				const key =
+					typeof item.href === 'string' ? item.href : getLabelKey(item.label);
 				return <DisplayWithNotification key={key} item={item} />;
 			})}
 		</>
@@ -261,6 +279,11 @@ function ItemDisplay({ item }: { item: NavItem }) {
 	const Icon = item.icon;
 	const { data: session } = useSession();
 	const [opened, setOpen] = React.useState(!item.collapsed);
+
+	const getLabelKey = (label: React.ReactNode): string => {
+		if (typeof label === 'string') return label;
+		return String(label);
+	};
 
 	if (item.isVisible && !item.isVisible(session)) {
 		return null;
@@ -325,7 +348,9 @@ function ItemDisplay({ item }: { item: NavItem }) {
 		>
 			{item.children?.map((child) => {
 				const childKey =
-					typeof child.href === 'string' ? child.href : child.label;
+					typeof child.href === 'string'
+						? child.href
+						: getLabelKey(child.label);
 				return <DisplayWithNotification key={childKey} item={child} />;
 			})}
 		</NavLink>

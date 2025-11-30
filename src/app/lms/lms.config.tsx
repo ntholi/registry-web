@@ -1,3 +1,4 @@
+import { Text } from '@mantine/core';
 import { IconDeviceDesktopAnalytics } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
@@ -11,7 +12,16 @@ export const lmsConfig: ModuleConfig = {
 	navigation: {
 		dashboard: [
 			{
-				label: 'LMS',
+				label: (
+					<Text>
+						<Text component='span' size='sm' c='blue'>
+							Five
+						</Text>
+						<Text component='span' size='sm'>
+							Days
+						</Text>
+					</Text>
+				),
 				description: 'Learning Management System',
 				icon: IconDeviceDesktopAnalytics,
 				roles: ['academic'],

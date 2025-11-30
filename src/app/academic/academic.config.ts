@@ -49,7 +49,6 @@ export const academicConfig: ModuleConfig = {
 			},
 			{
 				label: 'Course Summary',
-				description: 'Course Summary Report',
 				href: '/academic/reports/course-summary',
 				icon: IconReportAnalytics,
 				roles: ['academic'],

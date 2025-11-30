@@ -3,15 +3,28 @@ import {
 	Card,
 	CardSection,
 	Container,
+	Divider,
 	Flex,
 	SimpleGrid,
 	Skeleton,
 	Stack,
+	Text,
 } from '@mantine/core';
 
 export default function CoursesLoading() {
 	return (
 		<Container mt='lg' size='xl'>
+			<Flex justify='space-between' align='center' mb='md'>
+				<Text size='1.7rem'>
+					<Text component='span' c='blue'>
+						Five
+					</Text>
+					Days
+				</Text>
+				<Skeleton height={36} width={120} radius='sm' />
+			</Flex>
+
+			<Divider mb='xl' />
 			<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
 				{[1, 2, 3, 4, 5, 6].map((i) => (
 					<Card

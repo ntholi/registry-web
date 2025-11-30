@@ -136,7 +136,6 @@ export const registryConfig: ModuleConfig = {
 			{
 				label: 'Board of Examination',
 				href: '/academic/reports/boe',
-				description: 'Board of Examination',
 				icon: IconGavel,
 				roles: ['academic', 'registry', 'admin'],
 				isVisible: (session) => {
@@ -152,7 +151,6 @@ export const registryConfig: ModuleConfig = {
 			{
 				label: 'Student Registration',
 				href: '/registry/reports/registration',
-				description: 'Student Registration',
 				icon: IconFileDescription,
 				roles: ['academic', 'registry', 'admin', 'finance'],
 				isVisible: (session) => {
