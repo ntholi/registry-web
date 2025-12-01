@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	Anchor,
 	Box,
 	Card,
 	CardSection,
@@ -39,14 +40,41 @@ export default function CoursesList() {
 
 			{isLoading ? (
 				<CoursesLoadingSkeleton />
-			) : (
+			) : courses && courses.length > 0 ? (
 				<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
-					{courses?.map((course) => (
+					{courses.map((course) => (
 						<CourseItem key={course.id} course={course} />
 					))}
 				</SimpleGrid>
+			) : (
+				<EmptyState />
 			)}
 		</Container>
+	);
+}
+
+function EmptyState() {
+	return (
+		<Box ta='center' py='xl'>
+			<Text size='sm' c='dimmed'>
+				<Text component='span' fw={500} mb='md'>
+					<Text component='span' c='blue'>
+						Five
+					</Text>
+					Days
+				</Text>{' '}
+				is a learning management system powered by Moodle. Click the "New
+				Course" button above to create your first course.
+			</Text>
+			<Anchor
+				href='https://github.com/ntholi/registry-web'
+				target='_blank'
+				size='sm'
+				c={'dimmed'}
+			>
+				View source code
+			</Anchor>
+		</Box>
 	);
 }
 
