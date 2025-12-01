@@ -4,14 +4,14 @@ import {
 	Badge,
 	Button,
 	Flex,
+	Grid,
 	Group,
 	Loader,
 	Modal,
 	MultiSelect,
-	NumberInput,
 	Paper,
+	RangeSlider,
 	Select,
-	SimpleGrid,
 	Stack,
 	Text,
 } from '@mantine/core';
@@ -36,7 +36,7 @@ const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString().padStart(2, '0');
 	return {
 		value: semesterNumber,
-		label: formatSemester(semesterNumber, 'full'),
+		label: formatSemester(semesterNumber, 'mini'),
 	};
 });
 
@@ -66,8 +66,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		semesterNumber: string;
 		gender: string;
 		sponsorId: string;
-		ageRangeMin: string;
-		ageRangeMax: string;
+		ageRange: [number, number];
 		country: string;
 	}>({
 		termIds: filter.termIds?.map((id) => id.toString()) || [],
@@ -76,8 +75,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		semesterNumber: filter.semesterNumber || '',
 		gender: filter.gender || '',
 		sponsorId: filter.sponsorId?.toString() || '',
-		ageRangeMin: filter.ageRangeMin?.toString() || '',
-		ageRangeMax: filter.ageRangeMax?.toString() || '',
+		ageRange: [filter.ageRangeMin || 12, filter.ageRangeMax || 75],
 		country: filter.country || '',
 	});
 
@@ -89,18 +87,19 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 			semesterNumber: filter.semesterNumber || '',
 			gender: filter.gender || '',
 			sponsorId: filter.sponsorId?.toString() || '',
-			ageRangeMin: filter.ageRangeMin?.toString() || '',
-			ageRangeMax: filter.ageRangeMax?.toString() || '',
+			ageRange: [filter.ageRangeMin || 12, filter.ageRangeMax || 75],
 			country: filter.country || '',
 		});
 	}, [filter]);
+
+	const hasAgeFilter =
+		filter.ageRangeMin !== undefined || filter.ageRangeMax !== undefined;
 
 	const activeFiltersCount =
 		[
 			localFilter.gender,
 			localFilter.sponsorId,
-			localFilter.ageRangeMin,
-			localFilter.ageRangeMax,
+			hasAgeFilter,
 			localFilter.country,
 		].filter(Boolean).length || 0;
 
@@ -155,7 +154,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 
 	function handleChange(
 		field: keyof typeof localFilter,
-		value: string | string[] | null
+		value: string | string[] | [number, number] | null
 	) {
 		const updated = {
 			...localFilter,
@@ -181,12 +180,10 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 			sponsorId: localFilter.sponsorId
 				? Number(localFilter.sponsorId)
 				: undefined,
-			ageRangeMin: localFilter.ageRangeMin
-				? Number(localFilter.ageRangeMin)
-				: undefined,
-			ageRangeMax: localFilter.ageRangeMax
-				? Number(localFilter.ageRangeMax)
-				: undefined,
+			ageRangeMin:
+				localFilter.ageRange[0] !== 12 ? localFilter.ageRange[0] : undefined,
+			ageRangeMax:
+				localFilter.ageRange[1] !== 75 ? localFilter.ageRange[1] : undefined,
 			country: localFilter.country || undefined,
 		};
 
@@ -202,93 +199,101 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 				</Group>
 
 				<Flex align={'flex-end'} gap={'sm'}>
-					<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} flex={1} spacing='md'>
-						<MultiSelect
-							label='Academic Terms'
-							placeholder='Select terms'
-							data={terms.map((term) => ({
-								value: term.id?.toString() || '',
-								label: term.name,
-							}))}
-							rightSection={termsLoading && <Loader size='xs' />}
-							value={localFilter.termIds}
-							onChange={(value) => handleChange('termIds', value)}
-							searchable
-							clearable
-							withAsterisk
-						/>
+					<Grid gutter='md' flex={1}>
+						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+							<MultiSelect
+								label='Academic Terms'
+								placeholder='Select terms'
+								data={terms.map((term) => ({
+									value: term.id?.toString() || '',
+									label: term.name,
+								}))}
+								rightSection={termsLoading && <Loader size='xs' />}
+								value={localFilter.termIds}
+								onChange={(value) => handleChange('termIds', value)}
+								searchable
+								clearable
+								withAsterisk
+							/>
+						</Grid.Col>
 
-						<Select
-							label='School'
-							placeholder='All schools'
-							data={schools.map((school) => ({
-								value: school.id?.toString() || '',
-								label: school.code,
-								description: school.name,
-							}))}
-							rightSection={schoolsLoading && <Loader size='xs' />}
-							value={localFilter.schoolId || null}
-							onChange={(value) => handleChange('schoolId', value)}
-							searchable
-							clearable
-							renderOption={({ option }) => {
-								const customOption = option as {
-									value: string;
-									label: string;
-									description: string;
-								};
-								return (
-									<div>
-										<Text size='sm'>{customOption.label}</Text>
-										<Text size='xs' c='dimmed'>
-											{customOption.description}
-										</Text>
-									</div>
-								);
-							}}
-						/>
+						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+							<Select
+								label='School'
+								placeholder='All schools'
+								data={schools.map((school) => ({
+									value: school.id?.toString() || '',
+									label: school.code,
+									description: school.name,
+								}))}
+								rightSection={schoolsLoading && <Loader size='xs' />}
+								value={localFilter.schoolId || null}
+								onChange={(value) => handleChange('schoolId', value)}
+								searchable
+								clearable
+								renderOption={({ option }) => {
+									const customOption = option as {
+										value: string;
+										label: string;
+										description: string;
+									};
+									return (
+										<div>
+											<Text size='sm'>{customOption.label}</Text>
+											<Text size='xs' c='dimmed'>
+												{customOption.description}
+											</Text>
+										</div>
+									);
+								}}
+							/>
+						</Grid.Col>
 
-						<Select
-							label='Program'
-							placeholder='All programs'
-							data={programs.map((program) => ({
-								value: program.id?.toString() || '',
-								label: program.code,
-								description: program.name,
-							}))}
-							rightSection={programsLoading && <Loader size='xs' />}
-							value={localFilter.programId || null}
-							onChange={(value) => handleChange('programId', value)}
-							searchable
-							clearable
-							disabled={!localFilter.schoolId}
-							renderOption={({ option }) => {
-								const customOption = option as {
-									value: string;
-									label: string;
-									description: string;
-								};
-								return (
-									<div>
-										<Text>{customOption.label}</Text>
-										<Text size='xs' c='dimmed'>
-											{customOption.description}
-										</Text>
-									</div>
-								);
-							}}
-						/>
+						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+							<Select
+								label='Program'
+								placeholder='All programs'
+								data={programs.map((program) => ({
+									value: program.id?.toString() || '',
+									label: program.code,
+									description: program.name,
+								}))}
+								rightSection={programsLoading && <Loader size='xs' />}
+								value={localFilter.programId || null}
+								onChange={(value) => handleChange('programId', value)}
+								searchable
+								clearable
+								disabled={!localFilter.schoolId}
+								renderOption={({ option }) => {
+									const customOption = option as {
+										value: string;
+										label: string;
+										description: string;
+									};
+									return (
+										<div>
+											<Text>{customOption.label}</Text>
+											<Text size='xs' c='dimmed'>
+												{customOption.description}
+											</Text>
+										</div>
+									);
+								}}
+							/>
+						</Grid.Col>
 
-						<Select
-							label='Semester'
-							placeholder='All semesters'
-							data={semesterOptions}
-							value={localFilter.semesterNumber || null}
-							onChange={(value) => handleChange('semesterNumber', value)}
-							searchable
-							clearable
-						/>
-					</SimpleGrid>
+						<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+							<Select
+								label='Semester'
+								placeholder='All semesters'
+								data={semesterOptions}
+								value={localFilter.semesterNumber || null}
+								onChange={(value) => handleChange('semesterNumber', value)}
+								searchable
+								clearable
+							/>
+						</Grid.Col>
+					</Grid>
 
 					<Group gap='xs'>
 						<Button
@@ -350,32 +355,32 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 						clearable
 					/>
 
-					<Group grow>
-						<NumberInput
-							label='Age Range Min'
-							placeholder='Min age'
-							value={localFilter.ageRangeMin || ''}
-							onChange={(value) =>
-								handleChange('ageRangeMin', value?.toString() || '')
-							}
-							min={0}
-							max={100}
+					<Stack gap='xs'>
+						<Text size='sm' fw={500}>
+							Age Range: {localFilter.ageRange[0]} - {localFilter.ageRange[1]}{' '}
+							years
+						</Text>
+						<RangeSlider
+							value={localFilter.ageRange}
+							onChange={(value) => handleChange('ageRange', value)}
+							min={12}
+							max={75}
+							step={1}
+							marks={[
+								{ value: 12, label: '12' },
+								{ value: 18, label: '18' },
+								{ value: 25, label: '25' },
+								{ value: 35, label: '35' },
+								{ value: 45, label: '45' },
+								{ value: 55, label: '55' },
+								{ value: 75, label: '75' },
+							]}
 						/>
-
-						<NumberInput
-							label='Age Range Max'
-							placeholder='Max age'
-							value={localFilter.ageRangeMax || ''}
-							onChange={(value) =>
-								handleChange('ageRangeMax', value?.toString() || '')
-							}
-							min={0}
-							max={100}
-						/>
-					</Group>
+					</Stack>
 
 					<Select
 						label='Country'
+						mt={'md'}
 						placeholder='All countries'
 						data={countries.map((country) => ({
 							value: country,
