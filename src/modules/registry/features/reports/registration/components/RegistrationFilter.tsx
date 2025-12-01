@@ -12,6 +12,7 @@ import {
 	Paper,
 	RangeSlider,
 	Select,
+	SimpleGrid,
 	Stack,
 	Text,
 } from '@mantine/core';
@@ -418,33 +419,34 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 						clearable
 					/>
 
-					<Select
-						label='Student Status'
-						placeholder='All statuses'
-						data={studentStatus.enumValues.map((status) => ({
-							value: status,
-							label: status,
-						}))}
-						value={localFilter.studentStatus || null}
-						onChange={(value) => handleChange('studentStatus', value)}
-						searchable
-						clearable
-					/>
+					<SimpleGrid cols={{ base: 1, sm: 2 }}>
+						<Select
+							label='Student Status'
+							placeholder='All statuses'
+							data={studentStatus.enumValues.map((status) => ({
+								value: status,
+								label: status,
+							}))}
+							value={localFilter.studentStatus || null}
+							onChange={(value) => handleChange('studentStatus', value)}
+							searchable
+							clearable
+						/>
 
-					<Select
-						label='Program Status'
-						placeholder='All statuses'
-						data={programStatus.enumValues.map((status) => ({
-							value: status,
-							label: status,
-						}))}
-						value={localFilter.programStatus || null}
-						onChange={(value) => handleChange('programStatus', value)}
-						searchable
-						clearable
-						disabled={!localFilter.programId}
-					/>
-
+						<Select
+							label='Program Status'
+							placeholder='All statuses'
+							data={programStatus.enumValues.map((status) => ({
+								value: status,
+								label: status,
+							}))}
+							value={localFilter.programStatus || null}
+							onChange={(value) => handleChange('programStatus', value)}
+							searchable
+							clearable
+							disabled={!localFilter.programId}
+						/>
+					</SimpleGrid>
 					<Select
 						label='Semester Status'
 						placeholder='All statuses'
@@ -456,9 +458,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 						onChange={(value) => handleChange('semesterStatus', value)}
 						searchable
 						clearable
-						disabled={!localFilter.semesterNumber}
 					/>
-
 					<Group justify='flex-end' mt='md'>
 						<Button variant='default' onClick={close}>
 							Close
