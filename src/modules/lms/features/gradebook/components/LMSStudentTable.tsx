@@ -270,7 +270,7 @@ export default function LMSStudentTable({ courseId, moduleId }: Props) {
 				<Table.Tr>
 					<Table.Td colSpan={assessments ? assessments.length + 4 : 4}>
 						<Center p='md'>
-							<Text>
+							<Text size='sm' c='dimmed'>
 								{searchQuery
 									? 'No students match your search.'
 									: 'No students enrolled in this course.'}
