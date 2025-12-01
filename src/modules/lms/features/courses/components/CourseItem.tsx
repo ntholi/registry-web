@@ -1,5 +1,6 @@
 'use client';
-import { Badge, Box, Card, Flex, Text } from '@mantine/core';
+import { ActionIcon, Badge, Box, Card, Flex, Text } from '@mantine/core';
+import { IconExternalLink } from '@tabler/icons-react';
 import Link from 'next/link';
 import type { MoodleCourse } from '../types';
 import { splitShortName } from '../utils';
@@ -62,6 +63,16 @@ function getCourseMonogram(name?: string | null): string {
 export default function CourseItem({ course }: Props) {
 	const gradient = getCourseGradient(course.id);
 	const monogram = getCourseMonogram(course.fullname);
+
+	const handleMoodleClick = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		window.open(
+			`${process.env.NEXT_PUBLIC_MOODLE_URL}/course/view.php?id=${course.id}`,
+			'_blank',
+			'noopener,noreferrer'
+		);
+	};
 
 	return (
 		<Card
@@ -154,6 +165,17 @@ export default function CourseItem({ course }: Props) {
 							{monogram}
 						</Text>
 					</Box>
+					<ActionIcon
+						onClick={handleMoodleClick}
+						variant='white'
+						size='lg'
+						radius='md'
+						style={{
+							boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
+						}}
+					>
+						<IconExternalLink size={18} />
+					</ActionIcon>
 				</Box>
 			</Card.Section>
 

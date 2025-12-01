@@ -8,11 +8,13 @@ import {
 	Container,
 	Divider,
 	Flex,
+	Group,
 	SimpleGrid,
 	Skeleton,
 	Stack,
 	Text,
 } from '@mantine/core';
+import { IconBrandGithub } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getUserCourses } from '../server/actions';
 import CourseItem from './CourseItem';
@@ -55,26 +57,43 @@ export default function CoursesList() {
 
 function EmptyState() {
 	return (
-		<Box ta='center' py='xl'>
-			<Text size='sm' c='dimmed'>
-				<Text component='span' fw={500} mb='md'>
-					<Text component='span' c='blue'>
-						Five
+		<Container ta='center' py='xl' size={'sm'}>
+			<Stack gap='sm' align='center'>
+				<Text c='dimmed'>
+					<Text component='span' fw={500} mb='md'>
+						<Text component='span' c='blue'>
+							Five
+						</Text>
+						Days
+					</Text>{' '}
+					is a Learning Management System powered by Moodle. Click the "New
+					Course" button above to create your first course.
+				</Text>
+				<Anchor
+					href={process.env.NEXT_PUBLIC_MOODLE_URL}
+					target='_blank'
+					size='sm'
+				>
+					Click here to view the Moodle instance
+				</Anchor>
+				<Group gap='xs' mt={'lg'}>
+					<Text size='xs' c='dimmed'>
+						View source code on
 					</Text>
-					Days
-				</Text>{' '}
-				is a learning management system powered by Moodle. Click the "New
-				Course" button above to create your first course.
-			</Text>
-			<Anchor
-				href='https://github.com/ntholi/registry-web'
-				target='_blank'
-				size='sm'
-				c={'dimmed'}
-			>
-				View source code
-			</Anchor>
-		</Box>
+					<Anchor
+						href='https://github.com/ntholi/registry-web'
+						target='_blank'
+						c='dimmed'
+						size='xs'
+					>
+						<Group gap={4}>
+							<IconBrandGithub size={14} />
+							GitHub
+						</Group>
+					</Anchor>
+				</Group>
+			</Stack>
+		</Container>
 	);
 }
 
