@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
-import { formatPhoneNumber, formatSemester } from '@/shared/lib/utils/utils';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 
 interface Student {
@@ -25,7 +25,6 @@ interface Student {
 	semesterNumber: string;
 	schoolName: string;
 	schoolCode: string;
-	phone: string;
 	sponsorName: string | null;
 	gender: string | null;
 }
@@ -77,7 +76,6 @@ export default function StudentTable({
 									<Table.Th ta='center'>Semester</Table.Th>
 									<Table.Th>School</Table.Th>
 									<Table.Th>Sponsor</Table.Th>
-									<Table.Th>Phone</Table.Th>
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
@@ -106,9 +104,6 @@ export default function StudentTable({
 										</Table.Td>
 										<Table.Td>
 											<Skeleton height={14} width='70%' />
-										</Table.Td>
-										<Table.Td>
-											<Skeleton height={14} width={90} />
 										</Table.Td>
 									</Table.Tr>
 								))}
@@ -172,7 +167,6 @@ export default function StudentTable({
 								</Table.Th>
 								<Table.Th miw={100}>School</Table.Th>
 								<Table.Th miw={150}>Sponsor</Table.Th>
-								<Table.Th miw={120}>Phone</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
@@ -218,9 +212,6 @@ export default function StudentTable({
 										<Text size='sm' c='dimmed'>
 											{student.sponsorName || '-'}
 										</Text>
-									</Table.Td>
-									<Table.Td>
-										<Text size='sm'>{formatPhoneNumber(student.phone)}</Text>
 									</Table.Td>
 								</Table.Tr>
 							))}
