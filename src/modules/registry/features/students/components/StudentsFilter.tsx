@@ -23,7 +23,7 @@ import type { Term } from '@/core/database';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
-	const semesterNumber = (i + 1).toString();
+	const semesterNumber = (i + 1).toString().padStart(2, '0');
 	return {
 		value: semesterNumber,
 		label: formatSemester(semesterNumber, 'full'),
