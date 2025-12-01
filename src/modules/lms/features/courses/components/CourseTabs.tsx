@@ -2,6 +2,7 @@
 
 import AssessmentForm from '@lms/assessment/components/AssessmentForm';
 import AssessmentsList from '@lms/assessment/components/AssessmentsList';
+import { CourseOutline } from '@lms/course-outline';
 import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';
 import ForumPostsList from '@lms/forum/components/ForumPostsList';
@@ -57,6 +58,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 				<Tabs.Tab value='forum'>Forum</Tabs.Tab>
 				<Tabs.Tab value='assessments'>Assessments</Tabs.Tab>
 				<Tabs.Tab value='material'>Material</Tabs.Tab>
+				<Tabs.Tab value='outline'>Outline</Tabs.Tab>
 				<Tabs.Tab value='students'>
 					Students
 					{students && students.length > 0 && (
@@ -103,6 +105,11 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			<Tabs.Panel value='material' pt='lg'>
 				<Box p='sm'>
 					<MaterialList courseId={course.id} />
+				</Box>
+			</Tabs.Panel>
+			<Tabs.Panel value='outline' pt='lg'>
+				<Box p='sm'>
+					<CourseOutline courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 			<Tabs.Panel value='students' pt='lg'>
