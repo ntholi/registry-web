@@ -280,7 +280,8 @@ export default function RegistrationReportPage() {
 												Program Enrollment
 											</Text>
 											<Text size='sm' c='dimmed'>
-												Registration statistics by program
+												{reportData?.fullData?.totalStudents || 0} student
+												{reportData?.fullData?.totalStudents !== 1 ? 's' : ''} found
 											</Text>
 										</Box>
 										{hasData && (
