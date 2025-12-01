@@ -281,7 +281,8 @@ export default function RegistrationReportPage() {
 											</Text>
 											<Text size='sm' c='dimmed'>
 												{reportData?.fullData?.totalStudents || 0} student
-												{reportData?.fullData?.totalStudents !== 1 ? 's' : ''} found
+												{reportData?.fullData?.totalStudents !== 1 ? 's' : ''}{' '}
+												found
 											</Text>
 										</Box>
 										{hasData && (

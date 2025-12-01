@@ -23,6 +23,11 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import {
+	programStatus,
+	semesterStatus,
+	studentStatus,
+} from '@/modules/registry/database/schema/enums';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getAvailableCountriesForReports,
@@ -50,6 +55,9 @@ export interface ReportFilter {
 	ageRangeMin?: number;
 	ageRangeMax?: number;
 	country?: string;
+	studentStatus?: string;
+	programStatus?: string;
+	semesterStatus?: string;
 }
 
 interface Props {
@@ -68,6 +76,9 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		sponsorId: string;
 		ageRange: [number, number];
 		country: string;
+		studentStatus: string;
+		programStatus: string;
+		semesterStatus: string;
 	}>({
 		termIds: filter.termIds?.map((id) => id.toString()) || [],
 		schoolId: filter.schoolId?.toString() || '',
@@ -77,6 +88,9 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		sponsorId: filter.sponsorId?.toString() || '',
 		ageRange: [filter.ageRangeMin || 12, filter.ageRangeMax || 75],
 		country: filter.country || '',
+		studentStatus: filter.studentStatus || '',
+		programStatus: filter.programStatus || '',
+		semesterStatus: filter.semesterStatus || '',
 	});
 
 	useEffect(() => {
@@ -89,6 +103,9 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 			sponsorId: filter.sponsorId?.toString() || '',
 			ageRange: [filter.ageRangeMin || 12, filter.ageRangeMax || 75],
 			country: filter.country || '',
+			studentStatus: filter.studentStatus || '',
+			programStatus: filter.programStatus || '',
+			semesterStatus: filter.semesterStatus || '',
 		});
 	}, [filter]);
 
@@ -101,6 +118,9 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 			localFilter.sponsorId,
 			hasAgeFilter,
 			localFilter.country,
+			localFilter.studentStatus,
+			localFilter.programStatus,
+			localFilter.semesterStatus,
 		].filter(Boolean).length || 0;
 
 	const { data: terms = [], isLoading: termsLoading } = useQuery({
@@ -159,7 +179,9 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		const updated = {
 			...localFilter,
 			[field]: Array.isArray(value) ? value : value || '',
-			...(field === 'schoolId' && { programId: '' }),
+			...(field === 'schoolId' && { programId: '', programStatus: '' }),
+			...(field === 'programId' && { programStatus: '' }),
+			...(field === 'semesterNumber' && { semesterStatus: '' }),
 		};
 
 		setLocalFilter(updated);
@@ -185,6 +207,9 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 			ageRangeMax:
 				localFilter.ageRange[1] !== 75 ? localFilter.ageRange[1] : undefined,
 			country: localFilter.country || undefined,
+			studentStatus: localFilter.studentStatus || undefined,
+			programStatus: localFilter.programStatus || undefined,
+			semesterStatus: localFilter.semesterStatus || undefined,
 		};
 
 		onFilterChange(newFilter);
@@ -391,6 +416,47 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 						onChange={(value) => handleChange('country', value)}
 						searchable
 						clearable
+					/>
+
+					<Select
+						label='Student Status'
+						placeholder='All statuses'
+						data={studentStatus.enumValues.map((status) => ({
+							value: status,
+							label: status,
+						}))}
+						value={localFilter.studentStatus || null}
+						onChange={(value) => handleChange('studentStatus', value)}
+						searchable
+						clearable
+					/>
+
+					<Select
+						label='Program Status'
+						placeholder='All statuses'
+						data={programStatus.enumValues.map((status) => ({
+							value: status,
+							label: status,
+						}))}
+						value={localFilter.programStatus || null}
+						onChange={(value) => handleChange('programStatus', value)}
+						searchable
+						clearable
+						disabled={!localFilter.programId}
+					/>
+
+					<Select
+						label='Semester Status'
+						placeholder='All statuses'
+						data={semesterStatus.enumValues.map((status) => ({
+							value: status,
+							label: status === 'DroppedOut' ? 'Dropped Out' : status,
+						}))}
+						value={localFilter.semesterStatus || null}
+						onChange={(value) => handleChange('semesterStatus', value)}
+						searchable
+						clearable
+						disabled={!localFilter.semesterNumber}
 					/>
 
 					<Group justify='flex-end' mt='md'>
