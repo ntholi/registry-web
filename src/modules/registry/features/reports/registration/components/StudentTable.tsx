@@ -27,6 +27,7 @@ interface Student {
 	schoolCode: string;
 	phone: string;
 	sponsorName: string | null;
+	gender: string | null;
 }
 
 interface StudentTableProps {
@@ -71,6 +72,7 @@ export default function StudentTable({
 								<Table.Tr>
 									<Table.Th>Student No.</Table.Th>
 									<Table.Th>Name</Table.Th>
+									<Table.Th ta='center'>Gender</Table.Th>
 									<Table.Th>Program</Table.Th>
 									<Table.Th ta='center'>Semester</Table.Th>
 									<Table.Th>School</Table.Th>
@@ -89,6 +91,9 @@ export default function StudentTable({
 										</Table.Td>
 										<Table.Td>
 											<Skeleton height={14} width='60%' />
+										</Table.Td>
+										<Table.Td ta='center'>
+											<Skeleton height={14} width={20} />
 										</Table.Td>
 										<Table.Td>
 											<Skeleton height={14} width='70%' />
@@ -158,6 +163,9 @@ export default function StudentTable({
 							<Table.Tr>
 								<Table.Th miw={90}>Student No.</Table.Th>
 								<Table.Th miw={isMobile ? 140 : 200}>Name</Table.Th>
+								<Table.Th ta='center' miw={70}>
+									Gender
+								</Table.Th>
 								<Table.Th miw={isMobile ? 160 : 250}>Program</Table.Th>
 								<Table.Th ta='center' miw={90}>
 									Semester
@@ -181,6 +189,15 @@ export default function StudentTable({
 									</Table.Td>
 									<Table.Td>
 										<Text size='sm'>{student.name}</Text>
+									</Table.Td>
+									<Table.Td ta='center'>
+										<Text size='sm'>
+											{student.gender === 'Male'
+												? 'M'
+												: student.gender === 'Female'
+													? 'F'
+													: '-'}
+										</Text>
 									</Table.Td>
 									<Table.Td>
 										<Text size='sm' c='dimmed'>

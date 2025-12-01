@@ -50,11 +50,11 @@ export default function RegistrationCharts({
 	const { data: chartData, isLoading } = useQuery({
 		queryKey: ['registration-chart-data', filter],
 		queryFn: async () => {
-			if (!filter.termId) return null;
-			const result = await getRegistrationChartData(filter.termId, filter);
+			if (!filter.termIds || filter.termIds.length === 0) return null;
+			const result = await getRegistrationChartData(filter.termIds[0], filter);
 			return result.success ? result.data : null;
 		},
-		enabled: Boolean(filter.termId),
+		enabled: Boolean(filter.termIds && filter.termIds.length > 0),
 	});
 
 	if (isLoading) {

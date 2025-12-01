@@ -41,19 +41,21 @@ export class RegistrationReportService {
 	}
 
 	async generateSummaryRegistrationReport(
-		termId: number,
+		termIds: number[],
 		filter?: RegistrationReportFilter
 	): Promise<Buffer> {
 		return withAuth(async () => {
-			const term = await this.repository.getTermById(termId);
-			if (!term) {
-				throw new Error('Term not found');
+			const terms = await this.repository.getTermsByIds(termIds);
+			if (!terms || terms.length === 0) {
+				throw new Error('Terms not found');
 			}
 
-			const reportData = await this.repository.getSummaryRegistrationData(
-				term.name,
-				filter
-			);
+			const termNames = terms.map((t) => t.name);
+			const reportData =
+				await this.repository.getSummaryRegistrationDataForMultipleTerms(
+					termNames,
+					filter
+				);
 
 			const document = createSummaryRegistrationDocument(reportData);
 			const buffer = await Packer.toBuffer(document);
@@ -62,25 +64,28 @@ export class RegistrationReportService {
 	}
 
 	async generateStudentsListReport(
-		termId: number,
+		termIds: number[],
 		filter?: RegistrationReportFilter
 	): Promise<Buffer> {
 		return withAuth(async () => {
-			const term = await this.repository.getTermById(termId);
-			if (!term) {
-				throw new Error('Term not found');
+			const terms = await this.repository.getTermsByIds(termIds);
+			if (!terms || terms.length === 0) {
+				throw new Error('Terms not found');
 			}
 
-			const reportData = await this.repository.getFullRegistrationData(
-				term.name,
-				filter
-			);
-			const summaryData = await this.repository.getSummaryRegistrationData(
-				term.name,
-				filter
-			);
+			const termNames = terms.map((t) => t.name);
+			const reportData =
+				await this.repository.getFullRegistrationDataForMultipleTerms(
+					termNames,
+					filter
+				);
+			const summaryData =
+				await this.repository.getSummaryRegistrationDataForMultipleTerms(
+					termNames,
+					filter
+				);
 			const fullReport = {
-				termName: term.name,
+				termName: terms.map((t) => t.name).join(', '),
 				totalStudents: reportData.length,
 				students: reportData,
 				generatedAt: new Date(),
@@ -97,29 +102,32 @@ export class RegistrationReportService {
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
-	async getRegistrationDataForTerm(
-		termId: number,
+	async getRegistrationDataForTerms(
+		termIds: number[],
 		filter?: RegistrationReportFilter
 	) {
 		return withAuth(async () => {
-			const term = await this.repository.getTermById(termId);
-			if (!term) {
-				throw new Error('Term not found');
+			const terms = await this.repository.getTermsByIds(termIds);
+			if (!terms || terms.length === 0) {
+				throw new Error('Terms not found');
 			}
 
-			const fullData = await this.repository.getFullRegistrationData(
-				term.name,
-				filter
-			);
-			const summaryData = await this.repository.getSummaryRegistrationData(
-				term.name,
-				filter
-			);
+			const termNames = terms.map((t) => t.name);
+			const fullData =
+				await this.repository.getFullRegistrationDataForMultipleTerms(
+					termNames,
+					filter
+				);
+			const summaryData =
+				await this.repository.getSummaryRegistrationDataForMultipleTerms(
+					termNames,
+					filter
+				);
 
 			return {
-				term,
+				terms,
 				fullData: {
-					termName: term.name,
+					termName: terms.map((t) => t.name).join(', '),
 					totalStudents: fullData.length,
 					students: fullData,
 					generatedAt: new Date(),
@@ -130,19 +138,20 @@ export class RegistrationReportService {
 	}
 
 	async getPaginatedRegistrationStudents(
-		termId: number,
+		termIds: number[],
 		page: number = 1,
 		pageSize: number = 20,
 		filter?: RegistrationReportFilter
 	) {
 		return withAuth(async () => {
-			const term = await this.repository.getTermById(termId);
-			if (!term) {
-				throw new Error('Term not found');
+			const terms = await this.repository.getTermsByIds(termIds);
+			if (!terms || terms.length === 0) {
+				throw new Error('Terms not found');
 			}
 
-			return await this.repository.getPaginatedRegistrationData(
-				term.name,
+			const termNames = terms.map((t) => t.name);
+			return await this.repository.getPaginatedRegistrationDataForMultipleTerms(
+				termNames,
 				page,
 				pageSize,
 				filter
@@ -170,6 +179,18 @@ export class RegistrationReportService {
 			}
 
 			return await this.repository.getChartData(term.name, filter);
+		}, ['registry', 'admin', 'finance', 'academic']);
+	}
+
+	async getAvailableSponsors() {
+		return withAuth(async () => {
+			return await this.repository.getAvailableSponsors();
+		}, ['registry', 'admin', 'finance', 'academic']);
+	}
+
+	async getAvailableCountries() {
+		return withAuth(async () => {
+			return await this.repository.getAvailableCountries();
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 }

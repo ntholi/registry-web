@@ -13,11 +13,16 @@ import {
 } from '@/core/database';
 
 export interface RegistrationReportFilter {
-	termId?: number;
+	termIds?: number[];
 	schoolId?: number;
 	programId?: number;
 	semesterNumber?: string;
 	searchQuery?: string;
+	gender?: string;
+	sponsorId?: number;
+	ageRangeMin?: number;
+	ageRangeMax?: number;
+	country?: string;
 }
 
 export interface FullRegistrationStudent {
@@ -30,6 +35,7 @@ export interface FullRegistrationStudent {
 	phone: string;
 	status: string;
 	sponsorName: string | null;
+	gender: string | null;
 }
 
 export interface SummaryProgramData {
@@ -78,6 +84,9 @@ export class RegistrationReportRepository {
 				phone: students.phone1,
 				status: studentSemesters.status,
 				sponsorName: sponsors.name,
+				gender: students.gender,
+				dateOfBirth: students.dateOfBirth,
+				country: students.country,
 			})
 			.from(studentSemesters)
 			.innerJoin(
@@ -114,6 +123,40 @@ export class RegistrationReportRepository {
 			);
 		}
 
+		if (filter?.gender) {
+			conditions.push(
+				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
+			);
+		}
+
+		if (filter?.sponsorId) {
+			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
+		}
+
+		if (filter?.country) {
+			conditions.push(eq(students.country, filter.country));
+		}
+
+		if (filter?.ageRangeMin || filter?.ageRangeMax) {
+			const currentDate = new Date();
+			if (filter.ageRangeMin) {
+				const maxBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMin,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
+			}
+			if (filter.ageRangeMax) {
+				const minBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMax - 1,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
+			}
+		}
+
 		const result = await query
 			.where(and(...conditions))
 			.orderBy(schools.name, programs.name, structureSemesters.semesterNumber);
@@ -128,6 +171,7 @@ export class RegistrationReportRepository {
 			phone: row.phone || '',
 			status: row.status,
 			sponsorName: row.sponsorName || null,
+			gender: row.gender || null,
 		}));
 	}
 
@@ -155,6 +199,9 @@ export class RegistrationReportRepository {
 				phone: students.phone1,
 				status: studentSemesters.status,
 				sponsorName: sponsors.name,
+				gender: students.gender,
+				dateOfBirth: students.dateOfBirth,
+				country: students.country,
 			})
 			.from(studentSemesters)
 			.innerJoin(
@@ -207,6 +254,40 @@ export class RegistrationReportRepository {
 			);
 		}
 
+		if (filter?.gender) {
+			conditions.push(
+				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
+			);
+		}
+
+		if (filter?.sponsorId) {
+			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
+		}
+
+		if (filter?.country) {
+			conditions.push(eq(students.country, filter.country));
+		}
+
+		if (filter?.ageRangeMin || filter?.ageRangeMax) {
+			const currentDate = new Date();
+			if (filter.ageRangeMin) {
+				const maxBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMin,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
+			}
+			if (filter.ageRangeMax) {
+				const minBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMax - 1,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
+			}
+		}
+
 		if (filter?.searchQuery?.trim()) {
 			const searchTerm = `%${filter.searchQuery.trim()}%`;
 			conditions.push(
@@ -246,6 +327,7 @@ export class RegistrationReportRepository {
 				phone: row.phone || '',
 				status: row.status,
 				sponsorName: row.sponsorName || null,
+				gender: row.gender || null,
 			})),
 			totalCount,
 			totalPages,
@@ -333,6 +415,14 @@ export class RegistrationReportRepository {
 			.limit(1);
 
 		return term;
+	}
+
+	async getTermsByIds(termIds: number[]) {
+		return await db
+			.select()
+			.from(terms)
+			.where(inArray(terms.id, termIds))
+			.orderBy(desc(terms.name));
 	}
 
 	async getAllActiveTerms() {
@@ -517,6 +607,367 @@ export class RegistrationReportRepository {
 					programCount: data.programs.size,
 				}))
 				.sort((a, b) => b.programCount - a.programCount),
+		};
+	}
+
+	async getAvailableSponsors() {
+		return await db
+			.select({
+				id: sponsors.id,
+				name: sponsors.name,
+			})
+			.from(sponsors)
+			.orderBy(sponsors.name);
+	}
+
+	async getAvailableCountries() {
+		const result = await db
+			.selectDistinct({ country: students.country })
+			.from(students)
+			.where(sql`${students.country} IS NOT NULL AND ${students.country} != ''`)
+			.orderBy(students.country);
+
+		return result.map((row) => row.country).filter((c): c is string => !!c);
+	}
+
+	async getFullRegistrationDataForMultipleTerms(
+		termNames: string[],
+		filter?: RegistrationReportFilter
+	): Promise<FullRegistrationStudent[]> {
+		const query = db
+			.select({
+				stdNo: students.stdNo,
+				name: students.name,
+				programName: programs.name,
+				semesterNumber: structureSemesters.semesterNumber,
+				schoolName: schools.name,
+				schoolCode: schools.code,
+				phone: students.phone1,
+				status: studentSemesters.status,
+				sponsorName: sponsors.name,
+				gender: students.gender,
+				dateOfBirth: students.dateOfBirth,
+				country: students.country,
+			})
+			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
+			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
+
+		const conditions = [
+			inArray(studentSemesters.term, termNames),
+			inArray(studentSemesters.status, ['Active', 'Repeat']),
+			eq(studentPrograms.status, 'Active'),
+		];
+
+		if (filter?.schoolId) {
+			conditions.push(eq(schools.id, filter.schoolId));
+		}
+
+		if (filter?.programId) {
+			conditions.push(eq(programs.id, filter.programId));
+		}
+
+		if (filter?.semesterNumber) {
+			conditions.push(
+				eq(structureSemesters.semesterNumber, filter.semesterNumber)
+			);
+		}
+
+		if (filter?.gender) {
+			conditions.push(
+				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
+			);
+		}
+
+		if (filter?.sponsorId) {
+			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
+		}
+
+		if (filter?.country) {
+			conditions.push(eq(students.country, filter.country));
+		}
+
+		if (filter?.ageRangeMin || filter?.ageRangeMax) {
+			const currentDate = new Date();
+			if (filter.ageRangeMin) {
+				const maxBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMin,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
+			}
+			if (filter.ageRangeMax) {
+				const minBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMax - 1,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
+			}
+		}
+
+		const result = await query
+			.where(and(...conditions))
+			.orderBy(schools.name, programs.name, structureSemesters.semesterNumber);
+
+		return result.map((row) => ({
+			stdNo: row.stdNo,
+			name: row.name,
+			programName: row.programName,
+			semesterNumber: row.semesterNumber || '',
+			schoolName: row.schoolName,
+			schoolCode: row.schoolCode,
+			phone: row.phone || '',
+			status: row.status,
+			sponsorName: row.sponsorName || null,
+			gender: row.gender || null,
+		}));
+	}
+
+	async getPaginatedRegistrationDataForMultipleTerms(
+		termNames: string[],
+		page: number = 1,
+		pageSize: number = 20,
+		filter?: RegistrationReportFilter
+	): Promise<{
+		students: FullRegistrationStudent[];
+		totalCount: number;
+		totalPages: number;
+		currentPage: number;
+	}> {
+		const offset = (page - 1) * pageSize;
+
+		const studentsQuery = db
+			.select({
+				stdNo: students.stdNo,
+				name: students.name,
+				programName: programs.name,
+				semesterNumber: structureSemesters.semesterNumber,
+				schoolName: schools.name,
+				schoolCode: schools.code,
+				phone: students.phone1,
+				status: studentSemesters.status,
+				sponsorName: sponsors.name,
+				gender: students.gender,
+				dateOfBirth: students.dateOfBirth,
+				country: students.country,
+			})
+			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
+			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
+
+		const countQuery = db
+			.select({ count: students.stdNo })
+			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
+			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id));
+
+		const conditions = [
+			inArray(studentSemesters.term, termNames),
+			inArray(studentSemesters.status, ['Active', 'Repeat']),
+			eq(studentPrograms.status, 'Active'),
+		];
+
+		if (filter?.schoolId) {
+			conditions.push(eq(schools.id, filter.schoolId));
+		}
+
+		if (filter?.programId) {
+			conditions.push(eq(programs.id, filter.programId));
+		}
+
+		if (filter?.semesterNumber) {
+			conditions.push(
+				eq(structureSemesters.semesterNumber, filter.semesterNumber)
+			);
+		}
+
+		if (filter?.gender) {
+			conditions.push(
+				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
+			);
+		}
+
+		if (filter?.sponsorId) {
+			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
+		}
+
+		if (filter?.country) {
+			conditions.push(eq(students.country, filter.country));
+		}
+
+		if (filter?.ageRangeMin || filter?.ageRangeMax) {
+			const currentDate = new Date();
+			if (filter.ageRangeMin) {
+				const maxBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMin,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
+			}
+			if (filter.ageRangeMax) {
+				const minBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMax - 1,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
+			}
+		}
+
+		if (filter?.searchQuery?.trim()) {
+			const searchTerm = `%${filter.searchQuery.trim()}%`;
+			conditions.push(
+				or(
+					like(sql`CAST(${students.stdNo} AS TEXT)`, searchTerm),
+					like(students.name, searchTerm),
+					like(programs.name, searchTerm),
+					like(schools.name, searchTerm),
+					like(schools.code, searchTerm),
+					like(students.phone1, searchTerm)
+				)!
+			);
+		}
+
+		const whereClause = and(...conditions);
+
+		const [studentsResult, totalResult] = await Promise.all([
+			studentsQuery
+				.where(whereClause)
+				.orderBy(schools.name, programs.name, structureSemesters.semesterNumber)
+				.limit(pageSize)
+				.offset(offset),
+			countQuery.where(whereClause),
+		]);
+
+		const totalCount = totalResult.length;
+		const totalPages = Math.ceil(totalCount / pageSize);
+
+		return {
+			students: studentsResult.map((row) => ({
+				stdNo: row.stdNo,
+				name: row.name,
+				programName: row.programName,
+				semesterNumber: row.semesterNumber || '',
+				schoolName: row.schoolName,
+				schoolCode: row.schoolCode,
+				phone: row.phone || '',
+				status: row.status,
+				sponsorName: row.sponsorName || null,
+				gender: row.gender || null,
+			})),
+			totalCount,
+			totalPages,
+			currentPage: page,
+		};
+	}
+
+	async getSummaryRegistrationDataForMultipleTerms(
+		termNames: string[],
+		filter?: RegistrationReportFilter
+	): Promise<SummaryRegistrationReport> {
+		const fullData = await this.getFullRegistrationDataForMultipleTerms(
+			termNames,
+			filter
+		);
+
+		const schoolsMap = new Map<string, SummarySchoolData>();
+		const programsMap = new Map<string, SummaryProgramData>();
+
+		fullData.forEach((student) => {
+			const schoolKey = student.schoolName;
+			const programKey = `${student.programName}_${student.schoolName}`;
+
+			if (!schoolsMap.has(schoolKey)) {
+				schoolsMap.set(schoolKey, {
+					schoolName: student.schoolName,
+					schoolCode: student.schoolCode,
+					totalStudents: 0,
+					programs: [],
+				});
+			}
+
+			if (!programsMap.has(programKey)) {
+				programsMap.set(programKey, {
+					programName: student.programName,
+					schoolName: student.schoolName,
+					schoolCode: student.schoolCode,
+					schoolId: 0,
+					yearBreakdown: {},
+					totalStudents: 0,
+				});
+			}
+
+			const program = programsMap.get(programKey)!;
+			const year = student.semesterNumber;
+
+			if (
+				!program.yearBreakdown[
+					year as unknown as keyof typeof program.yearBreakdown
+				]
+			) {
+				program.yearBreakdown[
+					year as unknown as keyof typeof program.yearBreakdown
+				] = 0;
+			}
+
+			program.yearBreakdown[
+				year as unknown as keyof typeof program.yearBreakdown
+			]++;
+			program.totalStudents++;
+
+			const school = schoolsMap.get(schoolKey)!;
+			school.totalStudents++;
+		});
+
+		const schools = Array.from(schoolsMap.values())
+			.map((school) => ({
+				...school,
+				programs: Array.from(programsMap.values())
+					.filter((program) => program.schoolName === school.schoolName)
+					.sort((a, b) => a.programName.localeCompare(b.programName)),
+			}))
+			.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+
+		return {
+			termName: termNames.join(', '),
+			totalStudents: fullData.length,
+			schools,
+			generatedAt: new Date(),
 		};
 	}
 }

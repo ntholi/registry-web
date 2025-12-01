@@ -25,13 +25,13 @@ export async function generateFullRegistrationReport(
 }
 
 export async function generateSummaryRegistrationReport(
-	termId: number,
+	termIds: number[],
 	filter?: RegistrationReportFilter
 ) {
 	try {
 		const buffer =
 			await registrationReportService.generateSummaryRegistrationReport(
-				termId,
+				termIds,
 				filter
 			);
 		const base64Data = Buffer.from(buffer).toString('base64');
@@ -46,12 +46,12 @@ export async function generateSummaryRegistrationReport(
 }
 
 export async function generateStudentsListReport(
-	termId: number,
+	termIds: number[],
 	filter?: RegistrationReportFilter
 ) {
 	try {
 		const buffer = await registrationReportService.generateStudentsListReport(
-			termId,
+			termIds,
 			filter
 		);
 		const base64Data = Buffer.from(buffer).toString('base64');
@@ -79,12 +79,12 @@ export async function getAvailableTermsForReport() {
 }
 
 export async function getRegistrationDataPreview(
-	termId: number,
+	termIds: number[],
 	filter?: RegistrationReportFilter
 ) {
 	try {
-		const data = await registrationReportService.getRegistrationDataForTerm(
-			termId,
+		const data = await registrationReportService.getRegistrationDataForTerms(
+			termIds,
 			filter
 		);
 		return { success: true, data };
@@ -98,7 +98,7 @@ export async function getRegistrationDataPreview(
 }
 
 export async function getPaginatedRegistrationStudents(
-	termId: number,
+	termIds: number[],
 	page: number = 1,
 	pageSize: number = 20,
 	filter?: RegistrationReportFilter
@@ -106,7 +106,7 @@ export async function getPaginatedRegistrationStudents(
 	try {
 		const data =
 			await registrationReportService.getPaginatedRegistrationStudents(
-				termId,
+				termIds,
 				page,
 				pageSize,
 				filter
@@ -157,6 +157,32 @@ export async function getRegistrationChartData(
 		return { success: true, data };
 	} catch (error) {
 		console.error('Error fetching chart data:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
+export async function getAvailableSponsorsForReports() {
+	try {
+		const sponsors = await registrationReportService.getAvailableSponsors();
+		return { success: true, data: sponsors };
+	} catch (error) {
+		console.error('Error fetching available sponsors:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
+export async function getAvailableCountriesForReports() {
+	try {
+		const countries = await registrationReportService.getAvailableCountries();
+		return { success: true, data: countries };
+	} catch (error) {
+		console.error('Error fetching available countries:', error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',

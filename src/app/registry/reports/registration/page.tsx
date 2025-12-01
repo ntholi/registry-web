@@ -54,11 +54,12 @@ export default function RegistrationReportPage() {
 	} = useQuery({
 		queryKey: ['registration-data-preview', filter],
 		queryFn: async () => {
-			if (!filter.termId) return null;
-			const result = await getRegistrationDataPreview(filter.termId, filter);
+			if (!filter.termIds || filter.termIds.length === 0) return null;
+			const result = await getRegistrationDataPreview(filter.termIds, filter);
 			return result.success ? result.data : null;
 		},
-		enabled: isFilterApplied && Boolean(filter.termId),
+		enabled:
+			isFilterApplied && Boolean(filter.termIds && filter.termIds.length > 0),
 	});
 
 	const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
@@ -69,9 +70,9 @@ export default function RegistrationReportPage() {
 			debouncedSearch,
 		],
 		queryFn: async () => {
-			if (!filter.termId) return null;
+			if (!filter.termIds || filter.termIds.length === 0) return null;
 			const result = await getPaginatedRegistrationStudents(
-				filter.termId,
+				filter.termIds,
 				currentPage,
 				PAGE_SIZE,
 				{
@@ -81,10 +82,13 @@ export default function RegistrationReportPage() {
 			);
 			return result.success ? result.data : null;
 		},
-		enabled: isFilterApplied && Boolean(filter.termId),
+		enabled:
+			isFilterApplied && Boolean(filter.termIds && filter.termIds.length > 0),
 	});
 
-	const canGenerateReport = Boolean(filter.termId);
+	const canGenerateReport = Boolean(
+		filter.termIds && filter.termIds.length > 0
+	);
 	const hasData = Boolean(
 		reportData &&
 			((reportData.summaryData?.schools &&
@@ -109,12 +113,12 @@ export default function RegistrationReportPage() {
 	}, []);
 
 	const handleExportSummary = async () => {
-		if (!filter.termId) return;
+		if (!filter.termIds || filter.termIds.length === 0) return;
 
 		setIsExportingSummary(true);
 		try {
 			const result = await generateSummaryRegistrationReport(
-				filter.termId,
+				filter.termIds,
 				filter
 			);
 
@@ -162,11 +166,11 @@ export default function RegistrationReportPage() {
 	};
 
 	const handleExportStudents = async () => {
-		if (!filter.termId) return;
+		if (!filter.termIds || filter.termIds.length === 0) return;
 
 		setIsExportingStudents(true);
 		try {
-			const result = await generateStudentsListReport(filter.termId, filter);
+			const result = await generateStudentsListReport(filter.termIds, filter);
 
 			if (result.success && result.data) {
 				const byteCharacters = atob(result.data);
