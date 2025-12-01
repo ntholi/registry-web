@@ -23,6 +23,9 @@ export interface RegistrationReportFilter {
 	ageRangeMin?: number;
 	ageRangeMax?: number;
 	country?: string;
+	studentStatus?: string;
+	programStatus?: string;
+	semesterStatus?: string;
 }
 
 export interface FullRegistrationStudent {
@@ -103,11 +106,25 @@ export class RegistrationReportRepository {
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
 
-		const conditions = [
-			eq(studentSemesters.term, termName),
-			inArray(studentSemesters.status, ['Active', 'Repeat']),
-			eq(studentPrograms.status, 'Active'),
-		];
+		const conditions = [eq(studentSemesters.term, termName)];
+
+		if (filter?.studentStatus) {
+			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
+		}
+
+		if (filter?.programStatus) {
+			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
+		} else {
+			conditions.push(eq(studentPrograms.status, 'Active'));
+		}
+
+		if (filter?.semesterStatus) {
+			conditions.push(
+				sql`${studentSemesters.status} = ${filter.semesterStatus}`
+			);
+		} else {
+			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
+		}
 
 		if (filter?.schoolId) {
 			conditions.push(eq(schools.id, filter.schoolId));
@@ -234,11 +251,25 @@ export class RegistrationReportRepository {
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id));
 
-		const conditions = [
-			eq(studentSemesters.term, termName),
-			inArray(studentSemesters.status, ['Active', 'Repeat']),
-			eq(studentPrograms.status, 'Active'),
-		];
+		const conditions = [eq(studentSemesters.term, termName)];
+
+		if (filter?.studentStatus) {
+			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
+		}
+
+		if (filter?.programStatus) {
+			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
+		} else {
+			conditions.push(eq(studentPrograms.status, 'Active'));
+		}
+
+		if (filter?.semesterStatus) {
+			conditions.push(
+				sql`${studentSemesters.status} = ${filter.semesterStatus}`
+			);
+		} else {
+			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
+		}
 
 		if (filter?.schoolId) {
 			conditions.push(eq(schools.id, filter.schoolId));
@@ -664,11 +695,25 @@ export class RegistrationReportRepository {
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
 
-		const conditions = [
-			inArray(studentSemesters.term, termNames),
-			inArray(studentSemesters.status, ['Active', 'Repeat']),
-			eq(studentPrograms.status, 'Active'),
-		];
+		const conditions = [inArray(studentSemesters.term, termNames)];
+
+		if (filter?.studentStatus) {
+			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
+		}
+
+		if (filter?.programStatus) {
+			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
+		} else {
+			conditions.push(eq(studentPrograms.status, 'Active'));
+		}
+
+		if (filter?.semesterStatus) {
+			conditions.push(
+				sql`${studentSemesters.status} = ${filter.semesterStatus}`
+			);
+		} else {
+			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
+		}
 
 		if (filter?.schoolId) {
 			conditions.push(eq(schools.id, filter.schoolId));
@@ -795,11 +840,25 @@ export class RegistrationReportRepository {
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id));
 
-		const conditions = [
-			inArray(studentSemesters.term, termNames),
-			inArray(studentSemesters.status, ['Active', 'Repeat']),
-			eq(studentPrograms.status, 'Active'),
-		];
+		const conditions = [inArray(studentSemesters.term, termNames)];
+
+		if (filter?.studentStatus) {
+			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
+		}
+
+		if (filter?.programStatus) {
+			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
+		} else {
+			conditions.push(eq(studentPrograms.status, 'Active'));
+		}
+
+		if (filter?.semesterStatus) {
+			conditions.push(
+				sql`${studentSemesters.status} = ${filter.semesterStatus}`
+			);
+		} else {
+			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
+		}
 
 		if (filter?.schoolId) {
 			conditions.push(eq(schools.id, filter.schoolId));
