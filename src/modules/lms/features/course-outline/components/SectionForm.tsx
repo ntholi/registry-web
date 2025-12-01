@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Modal, Stack, TextInput } from '@mantine/core';
+import { Button, Modal, NumberInput, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -9,14 +9,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import RichTextField from '@/shared/ui/adease/RichTextField';
-import { createCourseSection } from '../server/actions';
+import { addCourseSection } from '../server/actions';
 
-const sectionSchema = z.object({
-	name: z.string().min(1, 'Section name is required'),
-	content: z.string().min(1, 'Section content is required'),
+const schema = z.object({
+	title: z.string().min(1, 'Title is required'),
+	content: z.string().min(1, 'Content is required'),
+	pagenum: z.number().min(0, 'Position must be 0 or greater'),
 });
 
-type SectionFormValues = z.infer<typeof sectionSchema>;
+type FormValues = z.infer<typeof schema>;
 
 type SectionFormProps = {
 	courseId: number;
@@ -26,21 +27,18 @@ export default function SectionForm({ courseId }: SectionFormProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const form = useForm<SectionFormValues>({
-		validate: zodResolver(sectionSchema),
+	const form = useForm<FormValues>({
+		validate: zodResolver(schema),
 		initialValues: {
-			name: '',
+			title: '',
 			content: '',
+			pagenum: 0,
 		},
 	});
 
 	const mutation = useMutation({
-		mutationFn: async (values: SectionFormValues) => {
-			return createCourseSection({
-				courseId,
-				name: values.name,
-				content: values.content,
-			});
+		mutationFn: async (values: FormValues) => {
+			return addCourseSection(courseId, values);
 		},
 		onSuccess: () => {
 			notifications.show({
@@ -48,7 +46,7 @@ export default function SectionForm({ courseId }: SectionFormProps) {
 				color: 'green',
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['course-sections', courseId],
+				queryKey: ['course-outline', courseId],
 			});
 			form.reset();
 			close();
@@ -84,20 +82,28 @@ export default function SectionForm({ courseId }: SectionFormProps) {
 			<Modal
 				opened={opened}
 				onClose={handleClose}
-				title='Create Course Section'
+				title='Add Course Section'
 				size='lg'
 			>
 				<form onSubmit={handleSubmit}>
 					<Stack>
 						<TextInput
-							label='Section Name'
-							placeholder='Enter section name'
+							label='Section Title'
+							placeholder='Enter section title'
 							required
-							{...form.getInputProps('name')}
+							{...form.getInputProps('title')}
+						/>
+
+						<NumberInput
+							label='Position'
+							description='Order of the section (0 appends at end)'
+							placeholder='0'
+							min={0}
+							{...form.getInputProps('pagenum')}
 						/>
 
 						<RichTextField
-							label='Section Content'
+							label='Content'
 							height={300}
 							{...form.getInputProps('content')}
 						/>

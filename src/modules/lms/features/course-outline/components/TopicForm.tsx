@@ -9,41 +9,40 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import RichTextField from '@/shared/ui/adease/RichTextField';
-import { createCourseTopic } from '../server/actions';
+import { addCourseTopic } from '../server/actions';
 
-const topicSchema = z.object({
+const schema = z.object({
 	weekNumber: z.number().min(1, 'Week number must be at least 1'),
-	name: z.string().min(1, 'Topic name is required'),
-	description: z.string().optional(),
+	title: z.string().min(1, 'Title is required'),
+	description: z.string().min(1, 'Description is required'),
 });
 
-type TopicFormValues = z.infer<typeof topicSchema>;
+type FormValues = z.infer<typeof schema>;
 
 type TopicFormProps = {
 	courseId: number;
+	nextWeekNumber?: number;
 };
 
-export default function TopicForm({ courseId }: TopicFormProps) {
+export default function TopicForm({
+	courseId,
+	nextWeekNumber = 1,
+}: TopicFormProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const form = useForm<TopicFormValues>({
-		validate: zodResolver(topicSchema),
+	const form = useForm<FormValues>({
+		validate: zodResolver(schema),
 		initialValues: {
-			weekNumber: 1,
-			name: '',
+			weekNumber: nextWeekNumber,
+			title: '',
 			description: '',
 		},
 	});
 
 	const mutation = useMutation({
-		mutationFn: async (values: TopicFormValues) => {
-			return createCourseTopic({
-				courseId,
-				weekNumber: values.weekNumber,
-				name: values.name,
-				description: values.description || '',
-			});
+		mutationFn: async (values: FormValues) => {
+			return addCourseTopic(courseId, values);
 		},
 		onSuccess: () => {
 			notifications.show({
@@ -51,9 +50,10 @@ export default function TopicForm({ courseId }: TopicFormProps) {
 				color: 'green',
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['course-topics', courseId],
+				queryKey: ['course-outline', courseId],
 			});
 			form.reset();
+			form.setFieldValue('weekNumber', nextWeekNumber + 1);
 			close();
 		},
 		onError: (error) => {
@@ -87,29 +87,29 @@ export default function TopicForm({ courseId }: TopicFormProps) {
 			<Modal
 				opened={opened}
 				onClose={handleClose}
-				title='Create Course Topic'
+				title='Add Course Topic'
 				size='lg'
 			>
 				<form onSubmit={handleSubmit}>
 					<Stack>
 						<NumberInput
 							label='Week Number'
-							placeholder='Enter week number'
-							min={1}
+							placeholder='1'
 							required
+							min={1}
 							{...form.getInputProps('weekNumber')}
 						/>
 
 						<TextInput
-							label='Topic Name'
-							placeholder='Enter topic name'
+							label='Topic Title'
+							placeholder='Enter topic title'
 							required
-							{...form.getInputProps('name')}
+							{...form.getInputProps('title')}
 						/>
 
 						<RichTextField
 							label='Description'
-							height={200}
+							height={250}
 							{...form.getInputProps('description')}
 						/>
 

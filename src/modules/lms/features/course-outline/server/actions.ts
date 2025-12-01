@@ -1,108 +1,259 @@
 'use server';
 
-import type { MoodleSection } from '@lms/material';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type {
+	AddChapterResponse,
+	BookInfo,
 	CourseSection,
 	CourseTopic,
-	CreateSectionParams,
-	CreateTopicParams,
+	CreateBookResponse,
+	SectionFormData,
+	TopicFormData,
 } from '../types';
 
 const COURSE_OUTLINE_SECTION_NAME = 'Course Outline';
-const SECTIONS_SUBSECTION_NAME = 'Course Sections';
-const TOPICS_SUBSECTION_NAME = 'Course Topics';
+const COURSE_OUTLINE_BOOK_NAME = 'Course Outline';
+const TOPICS_CHAPTER_TITLE = 'Topics';
 
-async function getCourseSections(courseId: number): Promise<MoodleSection[]> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+type MoodleCourseSection = {
+	id: number;
+	name: string;
+	section: number;
+	modules?: Array<{
+		id: number;
+		instance: number;
+		name: string;
+		modname: string;
+	}>;
+};
 
+type MoodleBook = {
+	id: number;
+	coursemodule: number;
+	course: number;
+	name: string;
+	intro: string;
+	introformat: number;
+	numbering: number;
+	navstyle: number;
+	customtitles: number;
+	revision: number;
+	timecreated: number;
+	timemodified: number;
+	section: number;
+};
+
+type MoodleBookChapter = {
+	id: number;
+	bookid: number;
+	pagenum: number;
+	subchapter: string;
+	title: string;
+	content: string;
+	contentformat: number;
+	hidden: string;
+	timecreated: number;
+	timemodified: number;
+};
+
+async function getCourseSections(
+	courseId: number
+): Promise<MoodleCourseSection[]> {
 	const result = await moodleGet('core_course_get_contents', {
 		courseid: courseId,
 	});
-
-	return result as MoodleSection[];
+	return result as MoodleCourseSection[];
 }
 
-async function findOrCreateCourseOutlineSection(
+async function findCourseOutlineSection(
 	courseId: number
-): Promise<number> {
+): Promise<MoodleCourseSection | null> {
 	const sections = await getCourseSections(courseId);
-
-	const outlineSection = sections.find(
-		(section) =>
-			section.name.toLowerCase() === COURSE_OUTLINE_SECTION_NAME.toLowerCase()
+	return (
+		sections.find(
+			(s) => s.name.toLowerCase() === COURSE_OUTLINE_SECTION_NAME.toLowerCase()
+		) || null
 	);
+}
 
-	if (outlineSection) {
-		return outlineSection.section;
-	}
-
+async function createCourseOutlineSection(courseId: number): Promise<number> {
 	const result = await moodlePost('local_activity_utils_create_section', {
 		courseid: courseId,
 		name: COURSE_OUTLINE_SECTION_NAME,
-		summary: 'Course outline including sections and topics',
+		summary: '<p>Course outline and structure</p>',
 	});
 
-	if (result?.sectionnum !== undefined) {
+	if (result && result.sectionnum !== undefined) {
 		return result.sectionnum;
 	}
 
 	throw new Error('Failed to create Course Outline section');
 }
 
-async function findOrCreateSubsection(
-	courseId: number,
-	parentSectionNum: number,
-	name: string
-): Promise<{ sectionnum: number; id: number }> {
-	const sections = await getCourseSections(courseId);
-
-	const subsection = sections.find(
-		(section) => section.name.toLowerCase() === name.toLowerCase()
-	);
-
-	if (subsection) {
-		return { sectionnum: subsection.section, id: subsection.id };
-	}
-
-	const result = await moodlePost('local_activity_utils_create_subsection', {
-		courseid: courseId,
-		parentsection: parentSectionNum,
-		name: name,
+async function findCourseOutlineBook(
+	courseId: number
+): Promise<BookInfo | null> {
+	const result = await moodleGet('mod_book_get_books_by_courses', {
+		'courseids[0]': courseId,
 	});
 
-	if (result?.sectionnum !== undefined) {
-		return { sectionnum: result.sectionnum, id: result.id };
+	if (!result || !result.books || result.books.length === 0) {
+		return null;
 	}
 
-	throw new Error(`Failed to create ${name} subsection`);
-}
-
-async function getSectionsSubsectionNum(courseId: number): Promise<number> {
-	const outlineSectionNum = await findOrCreateCourseOutlineSection(courseId);
-	const subsection = await findOrCreateSubsection(
-		courseId,
-		outlineSectionNum,
-		SECTIONS_SUBSECTION_NAME
+	const books = result.books as MoodleBook[];
+	const outlineBook = books.find(
+		(b) => b.name.toLowerCase() === COURSE_OUTLINE_BOOK_NAME.toLowerCase()
 	);
-	return subsection.sectionnum;
+
+	if (!outlineBook) {
+		return null;
+	}
+
+	return {
+		id: outlineBook.id,
+		coursemoduleid: outlineBook.coursemodule,
+		name: outlineBook.name,
+		sectionId: outlineBook.section,
+		sectionNum: outlineBook.section,
+	};
 }
 
-async function getTopicsSubsectionNum(courseId: number): Promise<number> {
-	const outlineSectionNum = await findOrCreateCourseOutlineSection(courseId);
-	const subsection = await findOrCreateSubsection(
-		courseId,
-		outlineSectionNum,
-		TOPICS_SUBSECTION_NAME
+async function createCourseOutlineBook(
+	courseId: number,
+	sectionNum: number
+): Promise<BookInfo> {
+	const result = (await moodlePost('local_activity_utils_create_book', {
+		courseid: courseId,
+		name: COURSE_OUTLINE_BOOK_NAME,
+		intro: '<p>Course outline containing sections and topics</p>',
+		section: sectionNum,
+		numbering: 1,
+		navstyle: 1,
+		'chapters[0][title]': TOPICS_CHAPTER_TITLE,
+		'chapters[0][content]': '<p>Weekly topics for this course</p>',
+		'chapters[0][subchapter]': 0,
+	})) as CreateBookResponse;
+
+	if (!result || !result.success) {
+		throw new Error('Failed to create Course Outline book');
+	}
+
+	return {
+		id: result.id,
+		coursemoduleid: result.coursemoduleid,
+		name: result.name,
+		sectionId: sectionNum,
+		sectionNum: sectionNum,
+	};
+}
+
+export async function getOrCreateCourseOutlineBook(
+	courseId: number
+): Promise<BookInfo> {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	let bookInfo = await findCourseOutlineBook(courseId);
+	if (bookInfo) {
+		return bookInfo;
+	}
+
+	const outlineSection = await findCourseOutlineSection(courseId);
+	let sectionNum: number;
+
+	if (outlineSection) {
+		sectionNum = outlineSection.section;
+	} else {
+		sectionNum = await createCourseOutlineSection(courseId);
+	}
+
+	bookInfo = await createCourseOutlineBook(courseId, sectionNum);
+	return bookInfo;
+}
+
+export async function getBookChapters(
+	courseId: number
+): Promise<MoodleBookChapter[]> {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	const bookInfo = await findCourseOutlineBook(courseId);
+	if (!bookInfo) {
+		return [];
+	}
+
+	const result = await moodleGet('mod_book_get_books_by_courses', {
+		'courseids[0]': courseId,
+	});
+
+	if (!result || !result.books) {
+		return [];
+	}
+
+	const book = result.books.find(
+		(b: MoodleBook) =>
+			b.name.toLowerCase() === COURSE_OUTLINE_BOOK_NAME.toLowerCase()
 	);
-	return subsection.sectionnum;
+
+	if (!book) {
+		return [];
+	}
+
+	await moodleGet('mod_book_view_book', {
+		bookid: book.id,
+	});
+
+	const contentResult = await moodleGet('core_course_get_contents', {
+		courseid: courseId,
+		'options[0][name]': 'modid',
+		'options[0][value]': book.coursemodule,
+	});
+
+	if (!contentResult || !Array.isArray(contentResult)) {
+		return [];
+	}
+
+	for (const section of contentResult) {
+		if (section.modules) {
+			for (const mod of section.modules) {
+				if (mod.instance === book.id && mod.modname === 'book') {
+					if (mod.contents) {
+						return mod.contents
+							.filter((c: { type: string }) => c.type === 'content')
+							.map(
+								(c: {
+									content: string;
+									filename: string;
+									timemodified: number;
+								}) => ({
+									id: 0,
+									bookid: book.id,
+									pagenum: 0,
+									subchapter: '0',
+									title: c.filename || '',
+									content: c.content || '',
+									contentformat: 1,
+									hidden: '0',
+									timecreated: c.timemodified,
+									timemodified: c.timemodified,
+								})
+							);
+					}
+				}
+			}
+		}
+	}
+
+	return [];
 }
 
-export async function getCourseSectionsContent(
+export async function getCourseSectionsData(
 	courseId: number
 ): Promise<CourseSection[]> {
 	const session = await auth();
@@ -110,37 +261,68 @@ export async function getCourseSectionsContent(
 		throw new Error('Unauthorized');
 	}
 
-	const sections = await getCourseSections(courseId);
-	const sectionsSubsection = sections.find(
-		(s) => s.name.toLowerCase() === SECTIONS_SUBSECTION_NAME.toLowerCase()
-	);
-
-	if (!sectionsSubsection?.modules) {
+	const bookInfo = await findCourseOutlineBook(courseId);
+	if (!bookInfo) {
 		return [];
 	}
 
-	const pages = sectionsSubsection.modules.filter((m) => m.modname === 'page');
-
-	const result = await moodleGet('mod_page_get_pages_by_courses', {
+	const result = await moodleGet('mod_book_get_books_by_courses', {
 		'courseids[0]': courseId,
 	});
 
-	const allPages = result?.pages || [];
+	if (!result || !result.books) {
+		return [];
+	}
 
-	return pages.map((pageModule) => {
-		const pageData = allPages.find(
-			(p: { coursemodule: number }) => p.coursemodule === pageModule.id
-		);
-		return {
-			id: pageData?.id || pageModule.instance,
-			coursemoduleId: pageModule.id,
-			name: pageModule.name,
-			content: pageData?.content || '',
-		};
+	const book = result.books.find(
+		(b: MoodleBook) =>
+			b.name.toLowerCase() === COURSE_OUTLINE_BOOK_NAME.toLowerCase()
+	);
+
+	if (!book) {
+		return [];
+	}
+
+	await moodleGet('mod_book_view_book', {
+		bookid: book.id,
 	});
+
+	const contentResult = await moodleGet('core_course_get_contents', {
+		courseid: courseId,
+	});
+
+	if (!contentResult || !Array.isArray(contentResult)) {
+		return [];
+	}
+
+	for (const section of contentResult) {
+		if (section.modules) {
+			for (const mod of section.modules) {
+				if (mod.instance === book.id && mod.modname === 'book') {
+					if (mod.contentsinfo?.chapters) {
+						const chapters = mod.contentsinfo.chapters as MoodleBookChapter[];
+						return chapters
+							.filter(
+								(ch) =>
+									ch.subchapter === '0' &&
+									ch.title.toLowerCase() !== TOPICS_CHAPTER_TITLE.toLowerCase()
+							)
+							.map((ch) => ({
+								id: ch.id,
+								pagenum: ch.pagenum,
+								title: ch.title,
+								content: ch.content || '',
+							}));
+					}
+				}
+			}
+		}
+	}
+
+	return [];
 }
 
-export async function getCourseTopics(
+export async function getCourseTopicsData(
 	courseId: number
 ): Promise<CourseTopic[]> {
 	const session = await auth();
@@ -148,109 +330,149 @@ export async function getCourseTopics(
 		throw new Error('Unauthorized');
 	}
 
-	const sections = await getCourseSections(courseId);
-	const topicsSubsection = sections.find(
-		(s) => s.name.toLowerCase() === TOPICS_SUBSECTION_NAME.toLowerCase()
-	);
-
-	if (!topicsSubsection?.modules) {
+	const bookInfo = await findCourseOutlineBook(courseId);
+	if (!bookInfo) {
 		return [];
 	}
 
-	const pages = topicsSubsection.modules.filter((m) => m.modname === 'page');
-
-	const result = await moodleGet('mod_page_get_pages_by_courses', {
+	const result = await moodleGet('mod_book_get_books_by_courses', {
 		'courseids[0]': courseId,
 	});
 
-	const allPages = result?.pages || [];
+	if (!result || !result.books) {
+		return [];
+	}
 
-	return pages
-		.map((pageModule) => {
-			const pageData = allPages.find(
-				(p: { coursemodule: number }) => p.coursemodule === pageModule.id
-			);
-			const weekMatch = pageModule.name.match(/^Week\s+(\d+):\s*(.+)$/i);
-			const weekNumber = weekMatch ? Number.parseInt(weekMatch[1], 10) : 0;
-			const topicName = weekMatch ? weekMatch[2] : pageModule.name;
+	const book = result.books.find(
+		(b: MoodleBook) =>
+			b.name.toLowerCase() === COURSE_OUTLINE_BOOK_NAME.toLowerCase()
+	);
 
-			return {
-				id: pageData?.id || pageModule.instance,
-				coursemoduleId: pageModule.id,
-				weekNumber,
-				name: topicName,
-				description: pageData?.content || '',
-			};
-		})
-		.sort((a, b) => a.weekNumber - b.weekNumber);
+	if (!book) {
+		return [];
+	}
+
+	await moodleGet('mod_book_view_book', {
+		bookid: book.id,
+	});
+
+	const contentResult = await moodleGet('core_course_get_contents', {
+		courseid: courseId,
+	});
+
+	if (!contentResult || !Array.isArray(contentResult)) {
+		return [];
+	}
+
+	for (const section of contentResult) {
+		if (section.modules) {
+			for (const mod of section.modules) {
+				if (mod.instance === book.id && mod.modname === 'book') {
+					if (mod.contentsinfo?.chapters) {
+						const chapters = mod.contentsinfo.chapters as MoodleBookChapter[];
+
+						const topicsChapterIndex = chapters.findIndex(
+							(ch) =>
+								ch.title.toLowerCase() === TOPICS_CHAPTER_TITLE.toLowerCase() &&
+								ch.subchapter === '0'
+						);
+
+						if (topicsChapterIndex === -1) {
+							return [];
+						}
+
+						const topics: CourseTopic[] = [];
+						let weekNumber = 1;
+
+						for (let i = topicsChapterIndex + 1; i < chapters.length; i++) {
+							const ch = chapters[i];
+							if (ch.subchapter === '0') {
+								break;
+							}
+							topics.push({
+								id: ch.id,
+								pagenum: ch.pagenum,
+								weekNumber: weekNumber++,
+								title: ch.title,
+								description: ch.content || '',
+							});
+						}
+
+						return topics;
+					}
+				}
+			}
+		}
+	}
+
+	return [];
 }
 
-export async function createCourseSection(
-	params: CreateSectionParams
-): Promise<CourseSection> {
+export async function addCourseSection(
+	courseId: number,
+	data: SectionFormData
+): Promise<AddChapterResponse> {
 	const session = await auth();
-	if (!session?.user) {
+	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
 
-	if (!params.name?.trim()) {
-		throw new Error('Section name is required');
+	const bookInfo = await getOrCreateCourseOutlineBook(courseId);
+
+	const result = (await moodlePost('local_activity_utils_add_book_chapter', {
+		bookid: bookInfo.id,
+		title: data.title,
+		content: data.content,
+		subchapter: 0,
+		pagenum: data.pagenum > 0 ? data.pagenum : 0,
+	})) as AddChapterResponse;
+
+	if (!result || !result.success) {
+		throw new Error('Failed to add course section');
 	}
 
-	if (!params.content?.trim()) {
-		throw new Error('Section content is required');
-	}
-
-	const sectionNum = await getSectionsSubsectionNum(params.courseId);
-
-	const result = await moodlePost('local_activity_utils_create_page', {
-		courseid: params.courseId,
-		name: params.name.trim(),
-		content: params.content.trim(),
-		section: sectionNum,
-		visible: 1,
-	});
-
-	return {
-		id: result.id,
-		coursemoduleId: result.coursemoduleid,
-		name: params.name.trim(),
-		content: params.content.trim(),
-	};
+	return result;
 }
 
-export async function createCourseTopic(
-	params: CreateTopicParams
-): Promise<CourseTopic> {
+export async function addCourseTopic(
+	courseId: number,
+	data: TopicFormData
+): Promise<AddChapterResponse> {
 	const session = await auth();
-	if (!session?.user) {
+	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
 
-	if (!params.name?.trim()) {
-		throw new Error('Topic name is required');
+	const bookInfo = await getOrCreateCourseOutlineBook(courseId);
+
+	const result = (await moodlePost('local_activity_utils_add_book_chapter', {
+		bookid: bookInfo.id,
+		title: `Week ${data.weekNumber}: ${data.title}`,
+		content: data.description,
+		subchapter: 1,
+		pagenum: 0,
+	})) as AddChapterResponse;
+
+	if (!result || !result.success) {
+		throw new Error('Failed to add course topic');
 	}
 
-	if (params.weekNumber < 1) {
-		throw new Error('Week number must be at least 1');
+	return result;
+}
+
+export async function initializeCourseOutline(courseId: number): Promise<{
+	bookInfo: BookInfo;
+	sections: CourseSection[];
+	topics: CourseTopic[];
+}> {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
 	}
 
-	const sectionNum = await getTopicsSubsectionNum(params.courseId);
-	const pageName = `Week ${params.weekNumber}: ${params.name.trim()}`;
+	const bookInfo = await getOrCreateCourseOutlineBook(courseId);
+	const sections = await getCourseSectionsData(courseId);
+	const topics = await getCourseTopicsData(courseId);
 
-	const result = await moodlePost('local_activity_utils_create_page', {
-		courseid: params.courseId,
-		name: pageName,
-		content: params.description?.trim() || '',
-		section: sectionNum,
-		visible: 1,
-	});
-
-	return {
-		id: result.id,
-		coursemoduleId: result.coursemoduleid,
-		weekNumber: params.weekNumber,
-		name: params.name.trim(),
-		description: params.description?.trim() || '',
-	};
+	return { bookInfo, sections, topics };
 }

@@ -1,62 +1,73 @@
 'use client';
 
 import {
+	Box,
 	Card,
+	Group,
+	Modal,
+	Stack,
 	Text,
-	useComputedColorScheme,
-	useMantineTheme,
+	ThemeIcon,
+	TypographyStylesProvider,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IconFileText } from '@tabler/icons-react';
 import type { CourseSection } from '../types';
 
 type SectionCardProps = {
 	section: CourseSection;
-	onClick: () => void;
 };
 
-function stripHtml(html: string): string {
-	const div =
-		typeof document !== 'undefined' ? document.createElement('div') : null;
-	if (div) {
-		div.innerHTML = html;
-		return div.textContent || div.innerText || '';
+function truncateHtml(html: string, maxLength: number): string {
+	const text = html.replace(/<[^>]*>/g, '');
+	if (text.length <= maxLength) {
+		return text;
 	}
-	return html.replace(/<[^>]*>/g, '');
+	return `${text.substring(0, maxLength)}...`;
 }
 
-function truncateText(text: string, maxLength: number): string {
-	const plainText = stripHtml(text);
-	if (plainText.length <= maxLength) return plainText;
-	return `${plainText.substring(0, maxLength)}...`;
-}
-
-export default function SectionCard({ section, onClick }: SectionCardProps) {
-	const theme = useMantineTheme();
-	const colorScheme = useComputedColorScheme('dark');
+export default function SectionCard({ section }: SectionCardProps) {
+	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
-		<Card
-			withBorder
-			padding='lg'
-			style={{ cursor: 'pointer' }}
-			onClick={onClick}
-		>
-			<Text fw={600} size='md' mb='sm'>
-				{section.name}
-			</Text>
-			<Text
-				size='sm'
-				c='dimmed'
-				style={{
-					backgroundColor:
-						colorScheme === 'dark'
-							? theme.colors.dark[6]
-							: theme.colors.gray[0],
-					padding: theme.spacing.sm,
-					borderRadius: theme.radius.sm,
-				}}
+		<>
+			<Card withBorder p='lg' style={{ cursor: 'pointer' }} onClick={open}>
+				<Stack gap='md'>
+					<Group align='flex-start' wrap='nowrap'>
+						<ThemeIcon variant='light' size='xl' radius='md'>
+							<Text size='sm' fw={700}>
+								{section.pagenum}
+							</Text>
+						</ThemeIcon>
+						<Box style={{ flex: 1 }}>
+							<Text fw={600} size='sm' lineClamp={2}>
+								{section.title}
+							</Text>
+							<Text size='xs' c='dimmed' mt='xs'>
+								{truncateHtml(section.content, 100)}
+							</Text>
+						</Box>
+					</Group>
+				</Stack>
+			</Card>
+
+			<Modal
+				opened={opened}
+				onClose={close}
+				title={
+					<Group gap='sm'>
+						<ThemeIcon variant='light' size='lg'>
+							<IconFileText size={18} />
+						</ThemeIcon>
+						<Text fw={600}>{section.title}</Text>
+					</Group>
+				}
+				size='lg'
 			>
-				{truncateText(section.content, 100)}
-			</Text>
-		</Card>
+				<TypographyStylesProvider>
+					<div dangerouslySetInnerHTML={{ __html: section.content }} />
+				</TypographyStylesProvider>
+			</Modal>
+		</>
 	);
 }
