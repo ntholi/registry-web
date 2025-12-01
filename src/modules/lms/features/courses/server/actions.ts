@@ -39,21 +39,36 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 
 	const { fullname, shortname, categoryid, semesterModuleId } = params;
 
-	const result = await moodlePost(
-		'core_course_create_courses',
-		{
-			'courses[0][fullname]': fullname,
-			'courses[0][shortname]': shortname,
-			'courses[0][categoryid]': categoryid,
-		},
-		process.env.MOODLE_TOKEN
-	);
+	let courseId: string;
 
-	if (!result || !Array.isArray(result) || result.length === 0) {
-		throw new Error('Failed to create course in Moodle');
+	const existingCourse = await moodleGet('core_course_get_courses_by_field', {
+		field: 'shortname',
+		value: shortname,
+	});
+
+	if (
+		existingCourse &&
+		Array.isArray(existingCourse.courses) &&
+		existingCourse.courses.length > 0
+	) {
+		courseId = String(existingCourse.courses[0].id);
+	} else {
+		const result = await moodlePost(
+			'core_course_create_courses',
+			{
+				'courses[0][fullname]': fullname,
+				'courses[0][shortname]': shortname,
+				'courses[0][categoryid]': categoryid,
+			},
+			process.env.MOODLE_TOKEN
+		);
+
+		if (!result || !Array.isArray(result) || result.length === 0) {
+			throw new Error('Failed to create course in Moodle');
+		}
+
+		courseId = String(result[0].id);
 	}
-
-	const courseId = String(result[0].id);
 
 	await moodlePost(
 		'enrol_manual_enrol_users',

@@ -18,7 +18,6 @@ import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
-import { toClassName } from '@/shared/lib/utils/utils';
 import { createMoodleCourse, getMoodleCategories } from '../server/actions';
 
 type AssignedModule = Awaited<
@@ -179,12 +178,8 @@ export default function CreateCourseModal() {
 																'Unknown Module'}
 														</Text>
 														{assignment.semesterModule?.semester?.name && (
-															<Badge variant='light' color='gray' size='xs'>
-																{toClassName(
-																	assignment.semesterModule.semester.structure
-																		.program.code,
-																	assignment.semesterModule.semester.name
-																)}
+															<Badge variant='light' color='gray'>
+																{assignment.semesterModule.module.code}
 															</Badge>
 														)}
 													</Stack>
