@@ -1,14 +1,33 @@
+export type CourseOutlineBook = {
+	id: number;
+	coursemoduleid: number;
+	courseid: number;
+	name: string;
+	intro: string;
+	introformat: number;
+	numbering: number;
+	navstyle: number;
+	customtitles: number;
+	revision: number;
+	timecreated: number;
+	timemodified: number;
+	chapters: BookChapter[];
+	success: boolean;
+	message: string;
+};
+
 export type BookChapter = {
 	id: number;
-	bookid: number;
 	pagenum: number;
-	subchapter: number;
+	subchapter: 0 | 1;
 	title: string;
 	content: string;
 	contentformat: number;
 	hidden: number;
 	timecreated: number;
 	timemodified: number;
+	importsrc: string;
+	tags: string[];
 };
 
 export type CourseSection = {
@@ -26,15 +45,21 @@ export type CourseTopic = {
 	description: string;
 };
 
-export type BookInfo = {
-	id: number;
-	coursemoduleid: number;
-	name: string;
-	sectionId: number;
-	sectionNum: number;
+export type CreateSectionParams = {
+	courseId: number;
+	title: string;
+	content: string;
+	sectionNumber: number;
 };
 
-export type CreateBookResponse = {
+export type CreateTopicParams = {
+	courseId: number;
+	weekNumber: number;
+	title: string;
+	description: string;
+};
+
+export type MoodleBookResponse = {
 	id: number;
 	coursemoduleid: number;
 	name: string;
@@ -43,30 +68,18 @@ export type CreateBookResponse = {
 		id: number;
 		pagenum: number;
 		title: string;
-		subchapter: number;
+		subchapter: 0 | 1;
 	}>;
 	success: boolean;
 	message: string;
 };
 
-export type AddChapterResponse = {
+export type MoodleChapterResponse = {
 	id: number;
 	bookid: number;
 	pagenum: number;
 	title: string;
-	subchapter: number;
+	subchapter: 0 | 1;
 	success: boolean;
 	message: string;
-};
-
-export type SectionFormData = {
-	title: string;
-	content: string;
-	pagenum: number;
-};
-
-export type TopicFormData = {
-	weekNumber: number;
-	title: string;
-	description: string;
 };

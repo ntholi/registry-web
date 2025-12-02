@@ -9,36 +9,45 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import RichTextField from '@/shared/ui/adease/RichTextField';
-import { addCourseSection } from '../server/actions';
+import { createSection } from '../server/actions';
 
-const schema = z.object({
+const sectionSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
 	content: z.string().min(1, 'Content is required'),
-	pagenum: z.number().min(0, 'Position must be 0 or greater'),
+	sectionNumber: z.number().min(1, 'Section number must be at least 1'),
 });
 
-type FormValues = z.infer<typeof schema>;
+type SectionFormValues = z.infer<typeof sectionSchema>;
 
 type SectionFormProps = {
 	courseId: number;
+	nextSectionNumber: number;
 };
 
-export default function SectionForm({ courseId }: SectionFormProps) {
+export default function SectionForm({
+	courseId,
+	nextSectionNumber,
+}: SectionFormProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const form = useForm<FormValues>({
-		validate: zodResolver(schema),
+	const form = useForm<SectionFormValues>({
+		validate: zodResolver(sectionSchema),
 		initialValues: {
 			title: '',
 			content: '',
-			pagenum: 0,
+			sectionNumber: nextSectionNumber,
 		},
 	});
 
 	const mutation = useMutation({
-		mutationFn: async (values: FormValues) => {
-			return addCourseSection(courseId, values);
+		mutationFn: async (values: SectionFormValues) => {
+			return createSection({
+				courseId,
+				title: values.title,
+				content: values.content,
+				sectionNumber: values.sectionNumber,
+			});
 		},
 		onSuccess: () => {
 			notifications.show({
@@ -49,6 +58,7 @@ export default function SectionForm({ courseId }: SectionFormProps) {
 				queryKey: ['course-outline', courseId],
 			});
 			form.reset();
+			form.setFieldValue('sectionNumber', nextSectionNumber + 1);
 			close();
 		},
 		onError: (error) => {
@@ -59,14 +69,15 @@ export default function SectionForm({ courseId }: SectionFormProps) {
 		},
 	});
 
-	const handleSubmit = form.onSubmit((values) => {
-		mutation.mutate(values);
-	});
-
-	const handleClose = () => {
+	function handleClose() {
 		close();
 		form.reset();
-	};
+		form.setFieldValue('sectionNumber', nextSectionNumber);
+	}
+
+	function handleSubmit(values: SectionFormValues) {
+		mutation.mutate(values);
+	}
 
 	return (
 		<>
@@ -85,26 +96,26 @@ export default function SectionForm({ courseId }: SectionFormProps) {
 				title='Add Course Section'
 				size='lg'
 			>
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Stack>
+						<NumberInput
+							label='Section Number'
+							description='The order/position of this section'
+							min={1}
+							required
+							{...form.getInputProps('sectionNumber')}
+						/>
+
 						<TextInput
-							label='Section Title'
+							label='Title'
 							placeholder='Enter section title'
 							required
 							{...form.getInputProps('title')}
 						/>
 
-						<NumberInput
-							label='Position'
-							description='Order of the section (0 appends at end)'
-							placeholder='0'
-							min={0}
-							{...form.getInputProps('pagenum')}
-						/>
-
 						<RichTextField
 							label='Content'
-							height={300}
+							height={250}
 							{...form.getInputProps('content')}
 						/>
 

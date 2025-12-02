@@ -9,30 +9,30 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import RichTextField from '@/shared/ui/adease/RichTextField';
-import { addCourseTopic } from '../server/actions';
+import { createTopic } from '../server/actions';
 
-const schema = z.object({
+const topicSchema = z.object({
 	weekNumber: z.number().min(1, 'Week number must be at least 1'),
-	title: z.string().min(1, 'Title is required'),
+	title: z.string().min(1, 'Topic title is required'),
 	description: z.string().min(1, 'Description is required'),
 });
 
-type FormValues = z.infer<typeof schema>;
+type TopicFormValues = z.infer<typeof topicSchema>;
 
 type TopicFormProps = {
 	courseId: number;
-	nextWeekNumber?: number;
+	nextWeekNumber: number;
 };
 
 export default function TopicForm({
 	courseId,
-	nextWeekNumber = 1,
+	nextWeekNumber,
 }: TopicFormProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const form = useForm<FormValues>({
-		validate: zodResolver(schema),
+	const form = useForm<TopicFormValues>({
+		validate: zodResolver(topicSchema),
 		initialValues: {
 			weekNumber: nextWeekNumber,
 			title: '',
@@ -41,8 +41,13 @@ export default function TopicForm({
 	});
 
 	const mutation = useMutation({
-		mutationFn: async (values: FormValues) => {
-			return addCourseTopic(courseId, values);
+		mutationFn: async (values: TopicFormValues) => {
+			return createTopic({
+				courseId,
+				weekNumber: values.weekNumber,
+				title: values.title,
+				description: values.description,
+			});
 		},
 		onSuccess: () => {
 			notifications.show({
@@ -64,14 +69,15 @@ export default function TopicForm({
 		},
 	});
 
-	const handleSubmit = form.onSubmit((values) => {
-		mutation.mutate(values);
-	});
-
-	const handleClose = () => {
+	function handleClose() {
 		close();
 		form.reset();
-	};
+		form.setFieldValue('weekNumber', nextWeekNumber);
+	}
+
+	function handleSubmit(values: TopicFormValues) {
+		mutation.mutate(values);
+	}
 
 	return (
 		<>
@@ -90,13 +96,13 @@ export default function TopicForm({
 				title='Add Course Topic'
 				size='lg'
 			>
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Stack>
 						<NumberInput
 							label='Week Number'
-							placeholder='1'
-							required
+							description='The week this topic is covered'
 							min={1}
+							required
 							{...form.getInputProps('weekNumber')}
 						/>
 
