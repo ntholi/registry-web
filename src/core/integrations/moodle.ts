@@ -94,6 +94,11 @@ async function moodleRequest(
 
 		const text = await response.text();
 
+		console.log(`[Moodle Response:${method}] ${wsfunction}`, {
+			status: response.status,
+			text: text,
+		});
+
 		if (text.startsWith('<?xml') || text.startsWith('<')) {
 			console.error(
 				'Moodle returned XML instead of JSON:',

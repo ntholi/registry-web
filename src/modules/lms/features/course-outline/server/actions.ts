@@ -46,15 +46,35 @@ type MoodleBook = {
 
 type MoodleBookChapter = {
 	id: number;
-	bookid: number;
 	pagenum: number;
-	subchapter: string;
+	subchapter: number;
 	title: string;
 	content: string;
 	contentformat: number;
-	hidden: string;
+	hidden: number;
 	timecreated: number;
 	timemodified: number;
+	importsrc: string;
+	tags: string[];
+};
+
+type GetBookResponse = {
+	id: number;
+	coursemoduleid: number;
+	courseid: number;
+	coursename: string;
+	name: string;
+	intro: string;
+	introformat: number;
+	numbering: number;
+	navstyle: number;
+	customtitles: number;
+	revision: number;
+	timecreated: number;
+	timemodified: number;
+	chapters: MoodleBookChapter[];
+	success: boolean;
+	message: string;
 };
 
 async function getCourseSections(
@@ -188,69 +208,15 @@ export async function getBookChapters(
 		return [];
 	}
 
-	const result = await moodleGet('mod_book_get_books_by_courses', {
-		'courseids[0]': courseId,
-	});
+	const result = (await moodleGet('local_activity_utils_get_book', {
+		bookid: bookInfo.id,
+	})) as GetBookResponse;
 
-	if (!result || !result.books) {
+	if (!result || !result.success) {
 		return [];
 	}
 
-	const book = result.books.find(
-		(b: MoodleBook) =>
-			b.name.toLowerCase() === COURSE_OUTLINE_BOOK_NAME.toLowerCase()
-	);
-
-	if (!book) {
-		return [];
-	}
-
-	await moodleGet('mod_book_view_book', {
-		bookid: book.id,
-	});
-
-	const contentResult = await moodleGet('core_course_get_contents', {
-		courseid: courseId,
-		'options[0][name]': 'modid',
-		'options[0][value]': book.coursemodule,
-	});
-
-	if (!contentResult || !Array.isArray(contentResult)) {
-		return [];
-	}
-
-	for (const section of contentResult) {
-		if (section.modules) {
-			for (const mod of section.modules) {
-				if (mod.instance === book.id && mod.modname === 'book') {
-					if (mod.contents) {
-						return mod.contents
-							.filter((c: { type: string }) => c.type === 'content')
-							.map(
-								(c: {
-									content: string;
-									filename: string;
-									timemodified: number;
-								}) => ({
-									id: 0,
-									bookid: book.id,
-									pagenum: 0,
-									subchapter: '0',
-									title: c.filename || '',
-									content: c.content || '',
-									contentformat: 1,
-									hidden: '0',
-									timecreated: c.timemodified,
-									timemodified: c.timemodified,
-								})
-							);
-					}
-				}
-			}
-		}
-	}
-
-	return [];
+	return result.chapters || [];
 }
 
 export async function getCourseSectionsData(
@@ -266,60 +232,26 @@ export async function getCourseSectionsData(
 		return [];
 	}
 
-	const result = await moodleGet('mod_book_get_books_by_courses', {
-		'courseids[0]': courseId,
-	});
+	const result = (await moodleGet('local_activity_utils_get_book', {
+		bookid: bookInfo.id,
+	})) as GetBookResponse;
 
-	if (!result || !result.books) {
+	if (!result || !result.success || !result.chapters) {
 		return [];
 	}
 
-	const book = result.books.find(
-		(b: MoodleBook) =>
-			b.name.toLowerCase() === COURSE_OUTLINE_BOOK_NAME.toLowerCase()
-	);
-
-	if (!book) {
-		return [];
-	}
-
-	await moodleGet('mod_book_view_book', {
-		bookid: book.id,
-	});
-
-	const contentResult = await moodleGet('core_course_get_contents', {
-		courseid: courseId,
-	});
-
-	if (!contentResult || !Array.isArray(contentResult)) {
-		return [];
-	}
-
-	for (const section of contentResult) {
-		if (section.modules) {
-			for (const mod of section.modules) {
-				if (mod.instance === book.id && mod.modname === 'book') {
-					if (mod.contentsinfo?.chapters) {
-						const chapters = mod.contentsinfo.chapters as MoodleBookChapter[];
-						return chapters
-							.filter(
-								(ch) =>
-									ch.subchapter === '0' &&
-									ch.title.toLowerCase() !== TOPICS_CHAPTER_TITLE.toLowerCase()
-							)
-							.map((ch) => ({
-								id: ch.id,
-								pagenum: ch.pagenum,
-								title: ch.title,
-								content: ch.content || '',
-							}));
-					}
-				}
-			}
-		}
-	}
-
-	return [];
+	return result.chapters
+		.filter(
+			(ch) =>
+				ch.subchapter === 0 &&
+				ch.title.toLowerCase() !== TOPICS_CHAPTER_TITLE.toLowerCase()
+		)
+		.map((ch) => ({
+			id: ch.id,
+			pagenum: ch.pagenum,
+			title: ch.title,
+			content: ch.content || '',
+		}));
 }
 
 export async function getCourseTopicsData(
@@ -335,77 +267,43 @@ export async function getCourseTopicsData(
 		return [];
 	}
 
-	const result = await moodleGet('mod_book_get_books_by_courses', {
-		'courseids[0]': courseId,
-	});
+	const result = (await moodleGet('local_activity_utils_get_book', {
+		bookid: bookInfo.id,
+	})) as GetBookResponse;
 
-	if (!result || !result.books) {
+	if (!result || !result.success || !result.chapters) {
 		return [];
 	}
 
-	const book = result.books.find(
-		(b: MoodleBook) =>
-			b.name.toLowerCase() === COURSE_OUTLINE_BOOK_NAME.toLowerCase()
+	const chapters = result.chapters;
+	const topicsChapterIndex = chapters.findIndex(
+		(ch) =>
+			ch.title.toLowerCase() === TOPICS_CHAPTER_TITLE.toLowerCase() &&
+			ch.subchapter === 0
 	);
 
-	if (!book) {
+	if (topicsChapterIndex === -1) {
 		return [];
 	}
 
-	await moodleGet('mod_book_view_book', {
-		bookid: book.id,
-	});
+	const topics: CourseTopic[] = [];
+	let weekNumber = 1;
 
-	const contentResult = await moodleGet('core_course_get_contents', {
-		courseid: courseId,
-	});
-
-	if (!contentResult || !Array.isArray(contentResult)) {
-		return [];
-	}
-
-	for (const section of contentResult) {
-		if (section.modules) {
-			for (const mod of section.modules) {
-				if (mod.instance === book.id && mod.modname === 'book') {
-					if (mod.contentsinfo?.chapters) {
-						const chapters = mod.contentsinfo.chapters as MoodleBookChapter[];
-
-						const topicsChapterIndex = chapters.findIndex(
-							(ch) =>
-								ch.title.toLowerCase() === TOPICS_CHAPTER_TITLE.toLowerCase() &&
-								ch.subchapter === '0'
-						);
-
-						if (topicsChapterIndex === -1) {
-							return [];
-						}
-
-						const topics: CourseTopic[] = [];
-						let weekNumber = 1;
-
-						for (let i = topicsChapterIndex + 1; i < chapters.length; i++) {
-							const ch = chapters[i];
-							if (ch.subchapter === '0') {
-								break;
-							}
-							topics.push({
-								id: ch.id,
-								pagenum: ch.pagenum,
-								weekNumber: weekNumber++,
-								title: ch.title,
-								description: ch.content || '',
-							});
-						}
-
-						return topics;
-					}
-				}
-			}
+	for (let i = topicsChapterIndex + 1; i < chapters.length; i++) {
+		const ch = chapters[i];
+		if (ch.subchapter === 0) {
+			break;
 		}
+		topics.push({
+			id: ch.id,
+			pagenum: ch.pagenum,
+			weekNumber: weekNumber++,
+			title: ch.title,
+			description: ch.content || '',
+		});
 	}
 
-	return [];
+	return topics;
 }
 
 export async function addCourseSection(
