@@ -150,11 +150,6 @@ function StudentList({ users, selectedUser, onSelectUser }: StudentListProps) {
 							leftSection={
 								<Avatar src={user.profileimageurl} size='sm' radius='xl' />
 							}
-							rightSection={
-								<Badge size='xs' variant='light' color='green'>
-									{files.length}
-								</Badge>
-							}
 							onClick={() => onSelectUser(user)}
 						/>
 					);
