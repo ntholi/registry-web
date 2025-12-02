@@ -23,12 +23,14 @@ import {
 	IconUsers,
 } from '@tabler/icons-react';
 import type { MoodleAssignment } from '../types';
+import SubmissionsView from './SubmissionsView';
 
 type Props = {
 	assignment: MoodleAssignment;
+	courseId: number;
 };
 
-export default function AssessmentTabs({ assignment }: Props) {
+export default function AssessmentTabs({ assignment, courseId }: Props) {
 	const dueDate = assignment.duedate
 		? new Date(assignment.duedate * 1000)
 		: null;
@@ -179,16 +181,7 @@ export default function AssessmentTabs({ assignment }: Props) {
 			</Tabs.Panel>
 
 			<Tabs.Panel value='submissions' pt='lg'>
-				<Paper p='xl' withBorder>
-					<Stack align='center' py='xl'>
-						<ThemeIcon size={60} variant='light' color='gray'>
-							<IconUsers size={30} />
-						</ThemeIcon>
-						<Text c='dimmed' size='sm'>
-							Student submissions will be displayed here.
-						</Text>
-					</Stack>
-				</Paper>
+				<SubmissionsView assignmentId={assignment.id} courseId={courseId} />
 			</Tabs.Panel>
 		</Tabs>
 	);

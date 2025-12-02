@@ -5,7 +5,12 @@ import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
 import { getCurrentTerm } from '@/modules/registry/features/terms';
-import type { CreateAssignmentParams, MoodleAssignment } from '../types';
+import type {
+	CreateAssignmentParams,
+	MoodleAssignment,
+	MoodleSubmission,
+	SubmissionUser,
+} from '../types';
 
 type CourseSection = {
 	id: number;
@@ -175,4 +180,51 @@ export async function createAssignment(params: CreateAssignmentParams) {
 	}
 
 	return result;
+}
+
+export async function getAssignmentSubmissions(
+	assignmentId: number,
+	courseId: number
+): Promise<SubmissionUser[]> {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const [submissionsResult, enrolledUsersResult] = await Promise.all([
+		moodleGet('mod_assign_get_submissions', {
+			'assignmentids[0]': assignmentId,
+		}),
+		moodleGet(
+			'core_enrol_get_enrolled_users',
+			{
+				courseid: courseId,
+			},
+			process.env.MOODLE_TOKEN
+		),
+	]);
+
+	const enrolledUsers = (
+		enrolledUsersResult as Array<{
+			id: number;
+			fullname: string;
+			profileimageurl: string;
+			roles: Array<{ shortname: string }>;
+		}>
+	).filter((user) => user.roles.some((role) => role.shortname === 'student'));
+
+	const submissions: MoodleSubmission[] =
+		submissionsResult?.assignments?.[0]?.submissions || [];
+
+	const submissionMap = new Map<number, MoodleSubmission>();
+	for (const submission of submissions) {
+		submissionMap.set(submission.userid, submission);
+	}
+
+	return enrolledUsers.map((user) => ({
+		id: user.id,
+		fullname: user.fullname,
+		profileimageurl: user.profileimageurl,
+		submission: submissionMap.get(user.id) || null,
+	}));
 }

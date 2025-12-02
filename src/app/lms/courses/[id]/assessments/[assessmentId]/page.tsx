@@ -40,7 +40,7 @@ export default async function AssessmentPage({ params }: Props) {
 				courseName={course.fullname}
 				courseId={course.id}
 			/>
-			<AssessmentTabs assignment={assignment} />
+			<AssessmentTabs assignment={assignment} courseId={course.id} />
 		</Container>
 	);
 }

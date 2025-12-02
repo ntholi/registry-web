@@ -49,3 +49,45 @@ export type CreateAssignmentParams = {
 	moduleId: number;
 	weight: number;
 };
+
+export type SubmissionFile = {
+	filename: string;
+	filepath: string;
+	filesize: number;
+	fileurl: string;
+	timemodified: number;
+	mimetype: string;
+};
+
+export type SubmissionPlugin = {
+	type: string;
+	name: string;
+	fileareas?: Array<{
+		area: string;
+		files: SubmissionFile[];
+	}>;
+	editorfields?: Array<{
+		name: string;
+		description: string;
+		text: string;
+		format: number;
+	}>;
+};
+
+export type MoodleSubmission = {
+	id: number;
+	userid: number;
+	attemptnumber: number;
+	timecreated: number;
+	timemodified: number;
+	status: 'new' | 'draft' | 'submitted';
+	groupid: number;
+	plugins: SubmissionPlugin[];
+};
+
+export type SubmissionUser = {
+	id: number;
+	fullname: string;
+	profileimageurl: string;
+	submission: MoodleSubmission | null;
+};
