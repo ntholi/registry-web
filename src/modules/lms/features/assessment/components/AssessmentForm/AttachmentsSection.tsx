@@ -2,10 +2,12 @@
 
 import {
 	ActionIcon,
+	Button,
+	Fieldset,
 	FileButton,
 	Group,
 	Paper,
-	Stack,
+	SimpleGrid,
 	Text,
 } from '@mantine/core';
 import type { UseFormReturnType } from '@mantine/form';
@@ -31,28 +33,26 @@ export default function AttachmentsSection({ form }: AttachmentsSectionProps) {
 	}
 
 	return (
-		<Stack gap='xs'>
-			<Group gap='xs'>
-				<IconPaperclip size={16} />
-				<Text size='sm' fw={500}>
-					Attachments
-				</Text>
-			</Group>
-
-			<FileButton onChange={handleFilesSelect} multiple>
-				{(props) => (
-					<Paper withBorder p='md' style={{ cursor: 'pointer' }} {...props}>
-						<Group justify='center' gap='xs'>
-							<IconUpload size={18} />
-							<Text size='sm'>Click to upload files</Text>
-						</Group>
-					</Paper>
-				)}
-			</FileButton>
-
-			{form.values.attachments && form.values.attachments.length > 0 && (
-				<Stack gap='xs'>
-					{form.values.attachments.map((file, index) => (
+		<Fieldset legend='Attachments' mt='md' px={10} py={8}>
+			<SimpleGrid cols={{ base: 1, sm: 3 }}>
+				<FileButton onChange={handleFilesSelect} multiple>
+					{(props) => (
+						<Button
+							h={'2.7rem'}
+							variant='default'
+							style={{ cursor: 'pointer' }}
+							{...props}
+						>
+							<Group justify='center' gap='xs'>
+								<IconUpload size={18} />
+								<Text size='sm'>Click to upload files</Text>
+							</Group>
+						</Button>
+					)}
+				</FileButton>
+				{form.values.attachments &&
+					form.values.attachments.length > 0 &&
+					form.values.attachments.map((file, index) => (
 						<Paper key={`${file.name}-${index}`} withBorder p='xs'>
 							<Group justify='space-between' wrap='nowrap'>
 								<Group gap='xs' style={{ flex: 1, minWidth: 0 }}>
@@ -75,8 +75,7 @@ export default function AttachmentsSection({ form }: AttachmentsSectionProps) {
 							</Group>
 						</Paper>
 					))}
-				</Stack>
-			)}
-		</Stack>
+			</SimpleGrid>
+		</Fieldset>
 	);
 }
