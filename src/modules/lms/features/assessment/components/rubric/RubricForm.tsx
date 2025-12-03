@@ -155,85 +155,89 @@ export default function RubricForm({
 
 					<Divider />
 
-					{form.values.criteria.map((criterion, criterionIndex) => (
-						<Paper key={criterion.id ?? criterionIndex} p='md' withBorder>
-							<Stack gap='md'>
-								<Group justify='space-between'>
-									<Text size='sm' fw={500}>
-										Criterion {criterionIndex + 1}
-									</Text>
-									{form.values.criteria.length > 1 && (
-										<ActionIcon
-											variant='subtle'
-											color='red'
-											onClick={() => removeCriterion(criterionIndex)}
-										>
-											<IconTrash size={16} />
-										</ActionIcon>
-									)}
-								</Group>
-
-								<Textarea
-									placeholder='Enter criterion description'
-									autosize
-									minRows={1}
-									{...form.getInputProps(
-										`criteria.${criterionIndex}.description`
-									)}
-								/>
-
-								<Text size='xs' c='dimmed'>
-									Levels
-								</Text>
-
-								{criterion.levels.map((level, levelIndex) => (
-									<Group
-										key={level.id ?? `level-${criterionIndex}-${levelIndex}`}
-										align='flex-start'
-										gap='sm'
-									>
-										<NumberInput
-											w={80}
-											size='xs'
-											placeholder='Score'
-											min={0}
-											{...form.getInputProps(
-												`criteria.${criterionIndex}.levels.${levelIndex}.score`
-											)}
-										/>
-										<Box style={{ flex: 1 }}>
-											<TextInput
-												size='xs'
-												placeholder='Level definition'
-												{...form.getInputProps(
-													`criteria.${criterionIndex}.levels.${levelIndex}.definition`
-												)}
-											/>
-										</Box>
-										{criterion.levels.length > 1 && (
+					<Group gap='md' wrap='wrap'>
+						{form.values.criteria.map((criterion, criterionIndex) => (
+							<Paper key={criterion.id ?? criterionIndex} p='md' withBorder>
+								<Stack gap='md'>
+									<Group justify='space-between'>
+										<Text size='sm' fw={500}>
+											Criterion {criterionIndex + 1}
+										</Text>
+										{form.values.criteria.length > 1 && (
 											<ActionIcon
 												variant='subtle'
 												color='red'
-												size='sm'
-												onClick={() => removeLevel(criterionIndex, levelIndex)}
+												onClick={() => removeCriterion(criterionIndex)}
 											>
-												<IconTrash size={14} />
+												<IconTrash size={16} />
 											</ActionIcon>
 										)}
 									</Group>
-								))}
 
-								<Button
-									variant='subtle'
-									size='xs'
-									leftSection={<IconPlus size={14} />}
-									onClick={() => addLevel(criterionIndex)}
-								>
-									Add Level
-								</Button>
-							</Stack>
-						</Paper>
-					))}
+									<Textarea
+										placeholder='Enter criterion description'
+										autosize
+										minRows={1}
+										{...form.getInputProps(
+											`criteria.${criterionIndex}.description`
+										)}
+									/>
+
+									<Text size='xs' c='dimmed'>
+										Levels
+									</Text>
+
+									{criterion.levels.map((level, levelIndex) => (
+										<Group
+											key={level.id ?? `level-${criterionIndex}-${levelIndex}`}
+											align='flex-start'
+											gap='sm'
+										>
+											<NumberInput
+												w={80}
+												size='xs'
+												placeholder='Score'
+												min={0}
+												{...form.getInputProps(
+													`criteria.${criterionIndex}.levels.${levelIndex}.score`
+												)}
+											/>
+											<Box style={{ flex: 1 }}>
+												<TextInput
+													size='xs'
+													placeholder='Level definition'
+													{...form.getInputProps(
+														`criteria.${criterionIndex}.levels.${levelIndex}.definition`
+													)}
+												/>
+											</Box>
+											{criterion.levels.length > 1 && (
+												<ActionIcon
+													variant='subtle'
+													color='red'
+													size='sm'
+													onClick={() =>
+														removeLevel(criterionIndex, levelIndex)
+													}
+												>
+													<IconTrash size={14} />
+												</ActionIcon>
+											)}
+										</Group>
+									))}
+
+									<Button
+										variant='subtle'
+										size='xs'
+										leftSection={<IconPlus size={14} />}
+										onClick={() => addLevel(criterionIndex)}
+									>
+										Add Level
+									</Button>
+								</Stack>
+							</Paper>
+						))}
+					</Group>
 
 					<Button
 						variant='light'
