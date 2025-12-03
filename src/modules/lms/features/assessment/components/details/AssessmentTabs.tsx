@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	ActionIcon,
 	Box,
 	Button,
 	Divider,
@@ -17,17 +18,19 @@ import {
 	IconCalendarDue,
 	IconCalendarEvent,
 	IconClipboardCheck,
+	IconDeviceFloppy,
 	IconEdit,
 	IconFileDescription,
 	IconPlus,
 	IconRuler2,
 	IconStar,
+	IconTrash,
 	IconUsers,
 	IconX,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
-import { getRubric } from '../../server/actions';
+import { deleteRubric, getRubric } from '../../server/actions';
 import type { MoodleAssignment } from '../../types';
 import RubricView from '../rubric';
 import SubmissionsView from '../submission';
@@ -41,11 +44,19 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 	const [activeTab, setActiveTab] = useState<string | null>('details');
 	const [isEditingRubric, setIsEditingRubric] = useState(false);
 	const rubricFormRef = useRef<{ submit: () => void } | null>(null);
+	const queryClient = useQueryClient();
 
 	const { data: rubric } = useQuery({
 		queryKey: ['rubric', assignment.cmid],
 		queryFn: () => getRubric(assignment.cmid!),
 		enabled: !!assignment.cmid,
+	});
+
+	const deleteMutation = useMutation({
+		mutationFn: () => deleteRubric(assignment.cmid!),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['rubric', assignment.cmid] });
+		},
 	});
 
 	const dueDate = assignment.duedate
@@ -111,12 +122,38 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 					</Box>
 				)}
 
+				{activeTab === 'rubric' && !isEditingRubric && rubric && (
+					<Group ml='auto' mb={10} gap='xs'>
+						<Button
+							variant='light'
+							onClick={() => setIsEditingRubric(true)}
+							size='xs'
+							leftSection={<IconEdit size={16} />}
+						>
+							Edit
+						</Button>
+						<ActionIcon
+							variant='subtle'
+							color='red'
+							loading={deleteMutation.isPending}
+							onClick={() => {
+								if (confirm('Are you sure you want to delete this rubric?')) {
+									deleteMutation.mutate();
+								}
+							}}
+						>
+							<IconTrash size={16} />
+						</ActionIcon>
+					</Group>
+				)}
+
 				{activeTab === 'rubric' && isEditingRubric && (
 					<Group ml='auto' mt={-5} gap='xs'>
 						<Button
 							variant='light'
 							size='xs'
 							onClick={() => rubricFormRef.current?.submit()}
+							leftSection={<IconDeviceFloppy size={16} />}
 						>
 							Save
 						</Button>
