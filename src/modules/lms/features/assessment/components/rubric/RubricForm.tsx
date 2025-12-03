@@ -4,7 +4,6 @@ import {
 	ActionIcon,
 	Box,
 	Button,
-	Divider,
 	Group,
 	NumberInput,
 	Paper,
@@ -12,12 +11,11 @@ import {
 	Text,
 	Textarea,
 	TextInput,
-	ThemeIcon,
-	Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconPlus, IconRuler2, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useImperativeHandle } from 'react';
 import { createRubric, updateRubric } from '../../server/actions';
 import type { Rubric, RubricCriterion } from '../../types';
 
@@ -26,8 +24,8 @@ type Props = {
 	maxGrade: number;
 	assessmentName: string;
 	existingRubric: Rubric | null;
-	onCancel: () => void;
 	onSuccess: () => void;
+	formRef?: React.RefObject<{ submit: () => void } | null>;
 };
 
 type FormValues = {
@@ -41,8 +39,8 @@ export default function RubricForm({
 	maxGrade,
 	assessmentName,
 	existingRubric,
-	onCancel,
 	onSuccess,
+	formRef,
 }: Props) {
 	const queryClient = useQueryClient();
 
@@ -99,6 +97,10 @@ export default function RubricForm({
 		},
 	});
 
+	useImperativeHandle(formRef, () => ({
+		submit: () => form.onSubmit((values) => saveMutation.mutate(values))(),
+	}));
+
 	function addCriterion() {
 		form.insertListItem('criteria', {
 			description: '',
@@ -131,123 +133,98 @@ export default function RubricForm({
 	}
 
 	return (
-		<Paper p='lg' withBorder>
-			<form onSubmit={form.onSubmit((values) => saveMutation.mutate(values))}>
-				<Stack gap='md'>
-					<Group justify='space-between' align='flex-start'>
-						<Group gap='xs'>
-							<ThemeIcon size='sm' variant='light' color='gray'>
-								<IconRuler2 size={14} />
-							</ThemeIcon>
-							<Title order={5}>
-								{existingRubric ? 'Edit Rubric' : 'Create Rubric'}
-							</Title>
-						</Group>
-						<Group gap='xs'>
-							<Button variant='subtle' color='gray' onClick={onCancel}>
-								Cancel
-							</Button>
-							<Button type='submit' loading={saveMutation.isPending}>
-								Save Rubric
-							</Button>
-						</Group>
-					</Group>
+		<form onSubmit={form.onSubmit((values) => saveMutation.mutate(values))}>
+			<Stack gap='md'>
+				<Group gap='md' wrap='wrap'>
+					{form.values.criteria.map((criterion, criterionIndex) => (
+						<Paper key={criterion.id ?? criterionIndex} p='md' withBorder>
+							<Stack gap='md'>
+								<Group justify='space-between'>
+									<Text size='sm' fw={500}>
+										Criterion {criterionIndex + 1}
+									</Text>
+									{form.values.criteria.length > 1 && (
+										<ActionIcon
+											variant='subtle'
+											color='red'
+											onClick={() => removeCriterion(criterionIndex)}
+										>
+											<IconTrash size={16} />
+										</ActionIcon>
+									)}
+								</Group>
 
-					<Divider />
+								<Textarea
+									placeholder='Enter criterion description'
+									autosize
+									minRows={1}
+									{...form.getInputProps(
+										`criteria.${criterionIndex}.description`
+									)}
+								/>
 
-					<Group gap='md' wrap='wrap'>
-						{form.values.criteria.map((criterion, criterionIndex) => (
-							<Paper key={criterion.id ?? criterionIndex} p='md' withBorder>
-								<Stack gap='md'>
-									<Group justify='space-between'>
-										<Text size='sm' fw={500}>
-											Criterion {criterionIndex + 1}
-										</Text>
-										{form.values.criteria.length > 1 && (
+								<Text size='xs' c='dimmed'>
+									Levels
+								</Text>
+
+								{criterion.levels.map((level, levelIndex) => (
+									<Group
+										key={level.id ?? `level-${criterionIndex}-${levelIndex}`}
+										align='flex-start'
+										gap='sm'
+									>
+										<NumberInput
+											w={80}
+											size='xs'
+											placeholder='Score'
+											min={0}
+											{...form.getInputProps(
+												`criteria.${criterionIndex}.levels.${levelIndex}.score`
+											)}
+										/>
+										<Box style={{ flex: 1 }}>
+											<TextInput
+												size='xs'
+												placeholder='Level definition'
+												{...form.getInputProps(
+													`criteria.${criterionIndex}.levels.${levelIndex}.definition`
+												)}
+											/>
+										</Box>
+										{criterion.levels.length > 1 && (
 											<ActionIcon
 												variant='subtle'
 												color='red'
-												onClick={() => removeCriterion(criterionIndex)}
+												size='sm'
+												onClick={() => removeLevel(criterionIndex, levelIndex)}
 											>
-												<IconTrash size={16} />
+												<IconTrash size={14} />
 											</ActionIcon>
 										)}
 									</Group>
+								))}
 
-									<Textarea
-										placeholder='Enter criterion description'
-										autosize
-										minRows={1}
-										{...form.getInputProps(
-											`criteria.${criterionIndex}.description`
-										)}
-									/>
+								<Button
+									variant='subtle'
+									size='xs'
+									leftSection={<IconPlus size={14} />}
+									onClick={() => addLevel(criterionIndex)}
+								>
+									Add Level
+								</Button>
+							</Stack>
+						</Paper>
+					))}
+				</Group>
 
-									<Text size='xs' c='dimmed'>
-										Levels
-									</Text>
-
-									{criterion.levels.map((level, levelIndex) => (
-										<Group
-											key={level.id ?? `level-${criterionIndex}-${levelIndex}`}
-											align='flex-start'
-											gap='sm'
-										>
-											<NumberInput
-												w={80}
-												size='xs'
-												placeholder='Score'
-												min={0}
-												{...form.getInputProps(
-													`criteria.${criterionIndex}.levels.${levelIndex}.score`
-												)}
-											/>
-											<Box style={{ flex: 1 }}>
-												<TextInput
-													size='xs'
-													placeholder='Level definition'
-													{...form.getInputProps(
-														`criteria.${criterionIndex}.levels.${levelIndex}.definition`
-													)}
-												/>
-											</Box>
-											{criterion.levels.length > 1 && (
-												<ActionIcon
-													variant='subtle'
-													color='red'
-													size='sm'
-													onClick={() =>
-														removeLevel(criterionIndex, levelIndex)
-													}
-												>
-													<IconTrash size={14} />
-												</ActionIcon>
-											)}
-										</Group>
-									))}
-
-									<Button
-										variant='subtle'
-										size='xs'
-										leftSection={<IconPlus size={14} />}
-										onClick={() => addLevel(criterionIndex)}
-									>
-										Add Level
-									</Button>
-								</Stack>
-							</Paper>
-						))}
-					</Group>
-
-					<Button
-						variant='light'
-						leftSection={<IconPlus size={16} />}
-						onClick={addCriterion}
-					>
-						Add Criterion
-					</Button>
-				</Stack>
-			</form>
-		</Paper>
+				<Button
+					variant='light'
+					leftSection={<IconPlus size={16} />}
+					onClick={addCriterion}
+				>
+					Add Criterion
+				</Button>
+			</Stack>
+		</form>
 	);
 }

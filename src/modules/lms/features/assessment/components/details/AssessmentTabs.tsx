@@ -19,11 +19,15 @@ import {
 	IconClipboardCheck,
 	IconEdit,
 	IconFileDescription,
+	IconPlus,
 	IconRuler2,
 	IconStar,
 	IconUsers,
+	IconX,
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useRef, useState } from 'react';
+import { getRubric } from '../../server/actions';
 import type { MoodleAssignment } from '../../types';
 import RubricView from '../rubric';
 import SubmissionsView from '../submission';
@@ -35,6 +39,15 @@ type Props = {
 
 export default function AssessmentTabs({ assignment, courseId }: Props) {
 	const [activeTab, setActiveTab] = useState<string | null>('details');
+	const [isEditingRubric, setIsEditingRubric] = useState(false);
+	const rubricFormRef = useRef<{ submit: () => void } | null>(null);
+
+	const { data: rubric } = useQuery({
+		queryKey: ['rubric', assignment.cmid],
+		queryFn: () => getRubric(assignment.cmid!),
+		enabled: !!assignment.cmid,
+	});
+
 	const dueDate = assignment.duedate
 		? new Date(assignment.duedate * 1000)
 		: null;
@@ -74,7 +87,7 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 				</Tabs.Tab>
 
 				{activeTab === 'details' && (
-					<Box ml={'auto'} mt={-5}>
+					<Box ml='auto' mt={-5}>
 						<Button
 							variant='light'
 							leftSection={<IconEdit size={16} />}
@@ -83,6 +96,40 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 							Edit
 						</Button>
 					</Box>
+				)}
+
+				{activeTab === 'rubric' && !isEditingRubric && !rubric && (
+					<Box ml='auto' mt={-5}>
+						<Button
+							variant='light'
+							leftSection={<IconPlus size={16} />}
+							size='xs'
+							onClick={() => setIsEditingRubric(true)}
+						>
+							Create
+						</Button>
+					</Box>
+				)}
+
+				{activeTab === 'rubric' && isEditingRubric && (
+					<Group ml='auto' mt={-5} gap='xs'>
+						<Button
+							variant='light'
+							size='xs'
+							onClick={() => rubricFormRef.current?.submit()}
+						>
+							Save
+						</Button>
+						<Button
+							variant='subtle'
+							color='gray'
+							size='xs'
+							onClick={() => setIsEditingRubric(false)}
+							leftSection={<IconX size={16} />}
+						>
+							Cancel
+						</Button>
+					</Group>
 				)}
 			</Tabs.List>
 
@@ -204,6 +251,9 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 						cmid={assignment.cmid}
 						maxGrade={assignment.grade > 0 ? assignment.grade : 100}
 						assessmentName={assignment.name}
+						isEditing={isEditingRubric}
+						setIsEditing={setIsEditingRubric}
+						formRef={rubricFormRef}
 					/>
 				)}
 			</Tabs.Panel>
