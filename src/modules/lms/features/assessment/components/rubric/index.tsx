@@ -24,9 +24,10 @@ import RubricForm from './RubricForm';
 type Props = {
 	cmid: number;
 	maxGrade: number;
+	assessmentName: string;
 };
 
-export default function RubricView({ cmid, maxGrade }: Props) {
+export default function RubricView({ cmid, maxGrade, assessmentName }: Props) {
 	const [isEditing, setIsEditing] = useState(false);
 	const queryClient = useQueryClient();
 
@@ -60,6 +61,7 @@ export default function RubricView({ cmid, maxGrade }: Props) {
 			<RubricForm
 				cmid={cmid}
 				maxGrade={maxGrade}
+				assessmentName={assessmentName}
 				existingRubric={rubric ?? null}
 				onCancel={() => setIsEditing(false)}
 				onSuccess={() => setIsEditing(false)}

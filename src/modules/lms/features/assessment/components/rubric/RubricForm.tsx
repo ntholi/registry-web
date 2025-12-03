@@ -24,6 +24,7 @@ import type { Rubric, RubricCriterion } from '../../types';
 type Props = {
 	cmid: number;
 	maxGrade: number;
+	assessmentName: string;
 	existingRubric: Rubric | null;
 	onCancel: () => void;
 	onSuccess: () => void;
@@ -38,6 +39,7 @@ type FormValues = {
 export default function RubricForm({
 	cmid,
 	maxGrade,
+	assessmentName,
 	existingRubric,
 	onCancel,
 	onSuccess,
@@ -46,7 +48,7 @@ export default function RubricForm({
 
 	const form = useForm<FormValues>({
 		initialValues: {
-			name: existingRubric?.name ?? 'Assessment Rubric',
+			name: existingRubric?.name ?? `${assessmentName} Rubric`,
 			description: existingRubric?.description ?? '',
 			criteria: existingRubric?.criteria ?? [
 				{
@@ -152,22 +154,6 @@ export default function RubricForm({
 					</Group>
 
 					<Divider />
-
-					<TextInput
-						label='Rubric Name'
-						placeholder='Enter rubric name'
-						{...form.getInputProps('name')}
-					/>
-
-					<Textarea
-						label='Description'
-						placeholder='Enter rubric description (optional)'
-						autosize
-						minRows={2}
-						{...form.getInputProps('description')}
-					/>
-
-					<Divider label='Criteria' labelPosition='left' />
 
 					{form.values.criteria.map((criterion, criterionIndex) => (
 						<Paper key={criterion.id ?? criterionIndex} p='md' withBorder>

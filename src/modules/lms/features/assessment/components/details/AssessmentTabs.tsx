@@ -203,6 +203,7 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 					<RubricView
 						cmid={assignment.cmid}
 						maxGrade={assignment.grade > 0 ? assignment.grade : 100}
+						assessmentName={assignment.name}
 					/>
 				)}
 			</Tabs.Panel>
