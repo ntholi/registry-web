@@ -17,16 +17,9 @@ import { formatDate } from './utils';
 type Props = {
 	selectedUser: SubmissionUser | null;
 	files: SubmissionFile[];
-	selectedFile: SubmissionFile | null;
-	onSelectFile: (file: SubmissionFile) => void;
 };
 
-export default function SubmissionDetails({
-	selectedUser,
-	files,
-	selectedFile,
-	onSelectFile,
-}: Props) {
+export default function SubmissionDetails({ selectedUser, files }: Props) {
 	if (!selectedUser) {
 		return (
 			<Stack align='center' py='xl'>
@@ -58,11 +51,7 @@ export default function SubmissionDetails({
 					<Badge color='green'>Submitted</Badge>
 				)}
 			</Group>
-			<FileList
-				files={files}
-				selectedFile={selectedFile}
-				onSelectFile={onSelectFile}
-			/>
+			<FileList files={files} />
 		</Stack>
 	);
 }

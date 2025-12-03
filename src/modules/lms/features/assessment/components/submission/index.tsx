@@ -5,8 +5,7 @@ import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getAssignmentSubmissions } from '../../server/actions';
-import type { SubmissionFile, SubmissionUser } from '../../types';
-import FilePreviewModal from './FilePreviewModal';
+import type { SubmissionUser } from '../../types';
 import StudentList from './StudentList';
 import SubmissionDetails from './SubmissionDetails';
 import { getSubmissionFiles } from './utils';
@@ -18,7 +17,6 @@ type Props = {
 
 export default function SubmissionsView({ assignmentId, courseId }: Props) {
 	const [selectedUser, setSelectedUser] = useState<SubmissionUser | null>(null);
-	const [selectedFile, setSelectedFile] = useState<SubmissionFile | null>(null);
 
 	const { data: users, isLoading } = useQuery({
 		queryKey: ['assignment-submissions', assignmentId, courseId],
@@ -56,38 +54,24 @@ export default function SubmissionsView({ assignmentId, courseId }: Props) {
 	const files = selectedUser ? getSubmissionFiles(selectedUser) : [];
 
 	return (
-		<>
-			<Grid gutter='md'>
-				<Grid.Col span={{ base: 12, md: 4, lg: 3 }}>
-					<Paper p='md' withBorder h='100%'>
-						<Text fw={600} size='sm' mb='md'>
-							Students
-						</Text>
-						<StudentList
-							users={users}
-							selectedUser={selectedUser}
-							onSelectUser={setSelectedUser}
-						/>
-					</Paper>
-				</Grid.Col>
-				<Grid.Col span={{ base: 12, md: 8, lg: 9 }}>
-					<Paper p='md' withBorder h='100%'>
-						<SubmissionDetails
-							selectedUser={selectedUser}
-							files={files}
-							selectedFile={selectedFile}
-							onSelectFile={setSelectedFile}
-						/>
-					</Paper>
-				</Grid.Col>
-			</Grid>
-
-			<FilePreviewModal
-				file={selectedFile}
-				files={files}
-				onClose={() => setSelectedFile(null)}
-				onNavigate={setSelectedFile}
-			/>
-		</>
+		<Grid gutter='md'>
+			<Grid.Col span={{ base: 12, md: 4, lg: 3 }}>
+				<Paper p='md' withBorder h='100%'>
+					<Text fw={600} size='sm' mb='md'>
+						Students
+					</Text>
+					<StudentList
+						users={users}
+						selectedUser={selectedUser}
+						onSelectUser={setSelectedUser}
+					/>
+				</Paper>
+			</Grid.Col>
+			<Grid.Col span={{ base: 12, md: 8, lg: 9 }}>
+				<Paper p='md' withBorder h='100%'>
+					<SubmissionDetails selectedUser={selectedUser} files={files} />
+				</Paper>
+			</Grid.Col>
+		</Grid>
 	);
 }
