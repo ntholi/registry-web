@@ -185,9 +185,9 @@ export default function AssessmentForm({
 				size='100%'
 			>
 				<form onSubmit={handleSubmit}>
-					<Grid>
-						<Grid.Col span={{ base: 12, md: 8 }}>
-							<Stack gap='md'>
+					<Stack gap='md'>
+						<Grid>
+							<Grid.Col span={{ base: 12, md: 8 }}>
 								<Grid>
 									<Grid.Col span={6}>
 										<Select
@@ -210,17 +210,31 @@ export default function AssessmentForm({
 										/>
 									</Grid.Col>
 								</Grid>
+							</Grid.Col>
+							<Grid.Col span={{ base: 12, md: 4 }}>
+								<Button
+									type='submit'
+									mt={25}
+									loading={mutation.isPending}
+									fullWidth
+								>
+									Create Assignment
+								</Button>
+							</Grid.Col>
+						</Grid>
 
-								<ContentTabs form={form} />
-
-								<AttachmentsSection form={form} />
-							</Stack>
-						</Grid.Col>
-
-						<Grid.Col span={{ base: 12, md: 4 }}>
-							<SettingsPanel form={form} isPending={mutation.isPending} />
-						</Grid.Col>
-					</Grid>
+						<Grid>
+							<Grid.Col span={{ base: 12, md: 8 }}>
+								<Stack gap='md'>
+									<ContentTabs form={form} />
+									<AttachmentsSection form={form} />
+								</Stack>
+							</Grid.Col>
+							<Grid.Col span={{ base: 12, md: 4 }}>
+								<SettingsPanel form={form} />
+							</Grid.Col>
+						</Grid>
+					</Stack>
 				</form>
 			</Modal>
 		</>

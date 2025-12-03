@@ -25,9 +25,13 @@ type Props = {
 	label?: React.ReactNode;
 	value?: string;
 	onChange?: (value: string) => void;
+	showFullScreenButton?: boolean;
 } & InputProps;
 
-export default function RichTextField(props: Props) {
+export default function RichTextField({
+	showFullScreenButton = true,
+	...props
+}: Props) {
 	const [opened, { close, open }] = useDisclosure(false);
 	const [content, setContent] = useState(
 		props.value || props.defaultValue || ''
@@ -78,9 +82,11 @@ export default function RichTextField(props: Props) {
 				) : (
 					props.label
 				)}
-				<ActionIcon variant='default' onClick={open}>
-					<IconMaximize size={'1rem'} />
-				</ActionIcon>
+				{showFullScreenButton && (
+					<ActionIcon variant='default' onClick={open}>
+						<IconMaximize size={'1rem'} />
+					</ActionIcon>
+				)}
 			</Group>
 			<RichTextComponent
 				{...props}

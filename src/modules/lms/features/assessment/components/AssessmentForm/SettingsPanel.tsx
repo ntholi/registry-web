@@ -1,18 +1,17 @@
 'use client';
 
-import { Button, NumberInput, Paper, Stack, Text } from '@mantine/core';
+import { NumberInput, Paper, Stack, Text } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import type { UseFormReturnType } from '@mantine/form';
 import type { FormValues } from './index';
 
 type SettingsPanelProps = {
 	form: UseFormReturnType<FormValues>;
-	isPending: boolean;
 };
 
-export default function SettingsPanel({ form, isPending }: SettingsPanelProps) {
+export default function SettingsPanel({ form }: SettingsPanelProps) {
 	return (
-		<Paper withBorder p='md' h='100%'>
+		<Paper withBorder p='md'>
 			<Stack gap='md'>
 				<Text fw={500} size='sm'>
 					Settings
@@ -50,10 +49,6 @@ export default function SettingsPanel({ form, isPending }: SettingsPanelProps) {
 					withAsterisk
 					{...form.getInputProps('dueDate')}
 				/>
-
-				<Button type='submit' loading={isPending} fullWidth mt='auto'>
-					Create Assignment
-				</Button>
 			</Stack>
 		</Paper>
 	);
