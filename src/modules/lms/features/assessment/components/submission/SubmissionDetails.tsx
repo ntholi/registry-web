@@ -1,10 +1,28 @@
 'use client';
 
-import { Avatar, Box, Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconUsers } from '@tabler/icons-react';
+import {
+	Avatar,
+	Box,
+	Group,
+	Stack,
+	Tabs,
+	TabsList,
+	TabsPanel,
+	TabsTab,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
+import {
+	IconListCheck,
+	IconMessageCircle,
+	IconUsers,
+} from '@tabler/icons-react';
+import { useState } from 'react';
 import type { SubmissionFile, SubmissionUser } from '../../types';
+import CommentsView from './CommentsView';
 import FileList from './FileList';
 import GradeInput from './GradeInput';
+import RubricView from './RubricView';
 import { formatDate } from './utils';
 
 type Props = {
@@ -13,6 +31,7 @@ type Props = {
 	assignmentId: number;
 	maxGrade: number;
 	existingGrade?: number;
+	cmid?: number;
 };
 
 export default function SubmissionDetails({
@@ -21,7 +40,10 @@ export default function SubmissionDetails({
 	assignmentId,
 	maxGrade,
 	existingGrade,
+	cmid,
 }: Props) {
+	const [activeTab, setActiveTab] = useState<string | null>('rubric');
+
 	if (!selectedUser) {
 		return (
 			<Stack align='center' py='xl'>
@@ -59,6 +81,43 @@ export default function SubmissionDetails({
 				)}
 			</Group>
 			<FileList files={files} />
+
+			{selectedUser.submission?.status === 'submitted' && (
+				<Tabs value={activeTab} onChange={setActiveTab} variant='outline'>
+					<TabsList>
+						<TabsTab value='rubric' leftSection={<IconListCheck size={16} />}>
+							Rubric
+						</TabsTab>
+						<TabsTab
+							value='comments'
+							leftSection={<IconMessageCircle size={16} />}
+						>
+							Comments
+						</TabsTab>
+					</TabsList>
+
+					<TabsPanel value='rubric' pt='md'>
+						{cmid ? (
+							<RubricView
+								cmid={cmid}
+								assignmentId={assignmentId}
+								userId={selectedUser.id}
+							/>
+						) : (
+							<Text c='dimmed' size='sm'>
+								No course module ID available
+							</Text>
+						)}
+					</TabsPanel>
+
+					<TabsPanel value='comments' pt='md'>
+						<CommentsView
+							assignmentId={assignmentId}
+							userId={selectedUser.id}
+						/>
+					</TabsPanel>
+				</Tabs>
+			)}
 		</Stack>
 	);
 }

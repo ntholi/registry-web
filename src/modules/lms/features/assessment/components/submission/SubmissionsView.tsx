@@ -17,12 +17,14 @@ type Props = {
 	assignmentId: number;
 	courseId: number;
 	maxGrade: number;
+	cmid?: number;
 };
 
 export default function SubmissionsView({
 	assignmentId,
 	courseId,
 	maxGrade,
+	cmid = undefined,
 }: Props) {
 	const [selectedUser, setSelectedUser] = useState<SubmissionUser | null>(null);
 
@@ -89,6 +91,7 @@ export default function SubmissionsView({
 						assignmentId={assignmentId}
 						maxGrade={maxGrade}
 						existingGrade={existingGrade}
+						cmid={cmid}
 					/>
 				</Paper>
 			</Grid.Col>

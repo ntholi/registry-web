@@ -264,6 +264,7 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 					assignmentId={assignment.id}
 					courseId={courseId}
 					maxGrade={assignment.grade > 0 ? assignment.grade : 100}
+					cmid={assignment.cmid}
 				/>
 			</Tabs.Panel>
 
