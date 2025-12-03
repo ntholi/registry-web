@@ -2,7 +2,7 @@
 
 import type { BadgeProps } from '@mantine/core';
 import { Badge } from '@mantine/core';
-import type { MoodleAssignment } from '../types';
+import type { MoodleAssignment } from '../../types';
 
 type Props = {
 	assignment: MoodleAssignment;

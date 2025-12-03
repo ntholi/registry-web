@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getCourseAssignments } from '../server/actions';
+import { getCourseAssignments } from '../../server/actions';
 import AssessmentCard from './AssessmentCard';
 
 type AssessmentsListProps = {

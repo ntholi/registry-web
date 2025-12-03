@@ -3,8 +3,8 @@
 import { Card, Group, Stack, Text } from '@mantine/core';
 import { IconClock } from '@tabler/icons-react';
 import Link from 'next/link';
-import type { MoodleAssignment } from '../types';
-import AssessmentStatus from './AssessmentStatus';
+import type { MoodleAssignment } from '../../types';
+import AssessmentStatus from '../details/AssessmentStatus';
 
 type Props = {
 	assignment: MoodleAssignment;

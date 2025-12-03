@@ -1,7 +1,6 @@
 'use client';
 
-import AssessmentForm from '@lms/assessment/components/AssessmentForm';
-import AssessmentsList from '@lms/assessment/components/AssessmentsList';
+import { AssessmentForm, AssessmentsList } from '@lms/assessment';
 import { CourseOutline } from '@lms/course-outline';
 import { getMainForum } from '@lms/forum';
 import ForumPostForm from '@lms/forum/components/ForumPostForm';

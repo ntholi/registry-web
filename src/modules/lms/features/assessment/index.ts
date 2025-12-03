@@ -1,7 +1,6 @@
-export { default as AssessmentForm } from './components/AssessmentForm';
-export { default as AssessmentHeader } from './components/AssessmentHeader';
-export { default as AssessmentsList } from './components/AssessmentsList';
-export { default as AssessmentTabs } from './components/AssessmentTabs';
+export { AssessmentHeader, AssessmentTabs } from './components/details';
+export { default as AssessmentForm } from './components/form';
+export { AssessmentsList } from './components/list';
 export {
 	createAssignment,
 	getAssignment,

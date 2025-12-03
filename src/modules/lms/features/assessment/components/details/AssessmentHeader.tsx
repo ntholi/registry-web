@@ -17,7 +17,7 @@ import {
 	IconExternalLink,
 } from '@tabler/icons-react';
 import Link from '@/shared/ui/Link';
-import type { MoodleAssignment } from '../types';
+import type { MoodleAssignment } from '../../types';
 import AssessmentStatus from './AssessmentStatus';
 
 type Props = {

@@ -24,9 +24,9 @@ import {
 	IconUsers,
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import type { MoodleAssignment } from '../types';
-import RubricView from './rubric';
-import SubmissionsView from './SubmissionsView';
+import type { MoodleAssignment } from '../../types';
+import RubricView from '../rubric';
+import SubmissionsView from '../submission';
 
 type Props = {
 	assignment: MoodleAssignment;

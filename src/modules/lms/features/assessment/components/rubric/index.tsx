@@ -127,7 +127,7 @@ function RubricTable({ rubric }: { rubric: Rubric }) {
 					<Table.Tr>
 						<Table.Th style={{ minWidth: 200 }}>Criterion</Table.Th>
 						{Array.from({ length: maxLevels }).map((_, idx) => (
-							<Table.Th key={`level-header-${idx}`} style={{ minWidth: 150 }}>
+							<Table.Th key={`level-${idx + 1}`} style={{ minWidth: 150 }}>
 								Level {idx + 1}
 							</Table.Th>
 						))}
