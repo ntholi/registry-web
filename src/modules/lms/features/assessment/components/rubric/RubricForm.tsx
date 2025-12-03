@@ -7,6 +7,7 @@ import {
 	Group,
 	NumberInput,
 	Paper,
+	SimpleGrid,
 	Stack,
 	Text,
 	Textarea,
@@ -70,6 +71,23 @@ export default function RubricForm({
 				levels: {
 					definition: (value) =>
 						!value.trim() ? 'Level definition is required' : null,
+					score: (_value, values, path) => {
+						const criteriaPath = path.split('.')[1];
+						const criterionIndex = Number.parseInt(criteriaPath, 10);
+						const criterion = values.criteria[criterionIndex];
+						const maxCriterionScore = Math.max(
+							...criterion.levels.map((l) => l.score || 0)
+						);
+						const otherCriteriaTotal = values.criteria.reduce((sum, c, idx) => {
+							if (idx === criterionIndex) return sum;
+							return sum + Math.max(...c.levels.map((l) => l.score || 0));
+						}, 0);
+						const totalScore = otherCriteriaTotal + maxCriterionScore;
+						if (totalScore > maxGrade) {
+							return `Total criteria score (${totalScore}) exceeds maximum grade (${maxGrade})`;
+						}
+						return null;
+					},
 				},
 			},
 		},
@@ -132,10 +150,46 @@ export default function RubricForm({
 		form.removeListItem(`criteria.${criterionIndex}.levels`, levelIndex);
 	}
 
+	const totalScore = form.values.criteria.reduce((sum, criterion) => {
+		const maxCriterionScore = Math.max(
+			...criterion.levels.map((l) => l.score || 0)
+		);
+		return sum + maxCriterionScore;
+	}, 0);
+
+	const isOverLimit = totalScore > maxGrade;
+
 	return (
 		<form onSubmit={form.onSubmit((values) => saveMutation.mutate(values))}>
 			<Stack gap='md'>
-				<Group gap='md' wrap='wrap'>
+				<Paper p='sm' withBorder bg={isOverLimit ? 'red.0' : undefined}>
+					<Group justify='space-between'>
+						<Text size='sm' fw={500}>
+							Total Criteria Score
+						</Text>
+						<Text
+							size='sm'
+							fw={700}
+							c={
+								isOverLimit
+									? 'red'
+									: totalScore === maxGrade
+										? 'green'
+										: undefined
+							}
+						>
+							{totalScore} / {maxGrade}
+						</Text>
+					</Group>
+					{isOverLimit && (
+						<Text size='xs' c='red' mt='xs'>
+							Total score exceeds the maximum grade. Please adjust the criteria
+							levels.
+						</Text>
+					)}
+				</Paper>
+
+				<SimpleGrid cols={2} spacing='md'>
 					{form.values.criteria.map((criterion, criterionIndex) => (
 						<Paper key={criterion.id ?? criterionIndex} p='md' withBorder>
 							<Stack gap='md'>
@@ -215,7 +269,7 @@ export default function RubricForm({
 							</Stack>
 						</Paper>
 					))}
-				</Group>
+				</SimpleGrid>
 
 				<Button
 					variant='light'
