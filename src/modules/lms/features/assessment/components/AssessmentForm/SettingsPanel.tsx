@@ -11,7 +11,7 @@ type SettingsPanelProps = {
 
 export default function SettingsPanel({ form }: SettingsPanelProps) {
 	return (
-		<Paper withBorder p='md'>
+		<Paper withBorder p='md' mt={30}>
 			<Stack gap='md'>
 				<Text fw={500} size='sm'>
 					Settings
