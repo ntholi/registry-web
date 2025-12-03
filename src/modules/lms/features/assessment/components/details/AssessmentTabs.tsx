@@ -66,12 +66,13 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 				>
 					Details
 				</Tabs.Tab>
-				<Tabs.Tab value='submissions' leftSection={<IconUsers size={16} />}>
-					Submissions
-				</Tabs.Tab>
 				<Tabs.Tab value='rubric' leftSection={<IconRuler2 size={16} />}>
 					Rubric
 				</Tabs.Tab>
+				<Tabs.Tab value='submissions' leftSection={<IconUsers size={16} />}>
+					Submissions
+				</Tabs.Tab>
+
 				{activeTab === 'details' && (
 					<Box ml={'auto'} mt={-5}>
 						<Button
