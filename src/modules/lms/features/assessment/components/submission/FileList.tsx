@@ -38,7 +38,7 @@ export default function FileList({ files }: Props) {
 	return (
 		<Grid gutter='xs'>
 			{files.map((file, index) => (
-				<Grid.Col key={`${file.filename}-${index}`} span={6}>
+				<Grid.Col key={`${file.filename}-${index}`} span={4}>
 					<Paper p='sm' withBorder>
 						<Group gap='sm' wrap='nowrap'>
 							<ThemeIcon variant='light' color='gray' size='lg'>

@@ -185,7 +185,11 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 			</Tabs.Panel>
 
 			<Tabs.Panel value='submissions' pt='lg'>
-				<SubmissionsView assignmentId={assignment.id} courseId={courseId} />
+				<SubmissionsView
+					assignmentId={assignment.id}
+					courseId={courseId}
+					maxGrade={assignment.grade > 0 ? assignment.grade : 100}
+				/>
 			</Tabs.Panel>
 		</Tabs>
 	);

@@ -4,7 +4,10 @@ import { Grid, Loader, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getAssignmentSubmissions } from '../../server/actions';
+import {
+	getAssignmentGrades,
+	getAssignmentSubmissions,
+} from '../../server/actions';
 import type { SubmissionUser } from '../../types';
 import StudentList from './StudentList';
 import SubmissionDetails from './SubmissionDetails';
@@ -13,14 +16,24 @@ import { getSubmissionFiles } from './utils';
 type Props = {
 	assignmentId: number;
 	courseId: number;
+	maxGrade: number;
 };
 
-export default function SubmissionsView({ assignmentId, courseId }: Props) {
+export default function SubmissionsView({
+	assignmentId,
+	courseId,
+	maxGrade,
+}: Props) {
 	const [selectedUser, setSelectedUser] = useState<SubmissionUser | null>(null);
 
 	const { data: users, isLoading } = useQuery({
 		queryKey: ['assignment-submissions', assignmentId, courseId],
 		queryFn: () => getAssignmentSubmissions(assignmentId, courseId),
+	});
+
+	const { data: grades } = useQuery({
+		queryKey: ['assignment-grades', assignmentId],
+		queryFn: () => getAssignmentGrades(assignmentId),
 	});
 
 	if (isLoading) {
@@ -52,6 +65,7 @@ export default function SubmissionsView({ assignmentId, courseId }: Props) {
 	}
 
 	const files = selectedUser ? getSubmissionFiles(selectedUser) : [];
+	const existingGrade = selectedUser ? grades?.get(selectedUser.id) : undefined;
 
 	return (
 		<Grid gutter='md'>
@@ -69,7 +83,13 @@ export default function SubmissionsView({ assignmentId, courseId }: Props) {
 			</Grid.Col>
 			<Grid.Col span={{ base: 12, md: 8, lg: 9 }}>
 				<Paper p='md' withBorder h='100%'>
-					<SubmissionDetails selectedUser={selectedUser} files={files} />
+					<SubmissionDetails
+						selectedUser={selectedUser}
+						files={files}
+						assignmentId={assignmentId}
+						maxGrade={maxGrade}
+						existingGrade={existingGrade}
+					/>
 				</Paper>
 			</Grid.Col>
 		</Grid>

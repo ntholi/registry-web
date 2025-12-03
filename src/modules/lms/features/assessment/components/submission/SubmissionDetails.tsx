@@ -1,25 +1,27 @@
 'use client';
 
-import {
-	Avatar,
-	Badge,
-	Box,
-	Group,
-	Stack,
-	Text,
-	ThemeIcon,
-} from '@mantine/core';
+import { Avatar, Box, Group, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconUsers } from '@tabler/icons-react';
 import type { SubmissionFile, SubmissionUser } from '../../types';
 import FileList from './FileList';
+import GradeInput from './GradeInput';
 import { formatDate } from './utils';
 
 type Props = {
 	selectedUser: SubmissionUser | null;
 	files: SubmissionFile[];
+	assignmentId: number;
+	maxGrade: number;
+	existingGrade?: number;
 };
 
-export default function SubmissionDetails({ selectedUser, files }: Props) {
+export default function SubmissionDetails({
+	selectedUser,
+	files,
+	assignmentId,
+	maxGrade,
+	existingGrade,
+}: Props) {
 	if (!selectedUser) {
 		return (
 			<Stack align='center' py='xl'>
@@ -48,7 +50,12 @@ export default function SubmissionDetails({ selectedUser, files }: Props) {
 					</Box>
 				</Group>
 				{selectedUser.submission?.status === 'submitted' && (
-					<Badge color='green'>Submitted</Badge>
+					<GradeInput
+						assignmentId={assignmentId}
+						userId={selectedUser.id}
+						maxGrade={maxGrade}
+						existingGrade={existingGrade}
+					/>
 				)}
 			</Group>
 			<FileList files={files} />
