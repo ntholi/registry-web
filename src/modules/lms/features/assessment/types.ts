@@ -91,3 +91,47 @@ export type SubmissionUser = {
 	profileimageurl: string;
 	submission: MoodleSubmission | null;
 };
+
+export type RubricLevel = {
+	id?: number;
+	score: number;
+	definition: string;
+};
+
+export type RubricCriterion = {
+	id?: number;
+	description: string;
+	sortorder?: number;
+	levels: RubricLevel[];
+};
+
+export type RubricOptions = {
+	sortlevelsasc?: number;
+	lockzeropoints?: number;
+	showdescriptionstudent?: number;
+	showdescriptionteacher?: number;
+	showscoreteacher?: number;
+	showscorestudent?: number;
+	enableremarks?: number;
+	showremarksstudent?: number;
+};
+
+export type Rubric = {
+	definitionid: number;
+	name: string;
+	description: string;
+	status: number;
+	criteria: RubricCriterion[];
+	options: RubricOptions;
+	maxscore: number;
+	success: boolean;
+	message: string;
+};
+
+export type CreateRubricParams = {
+	cmid: number;
+	name: string;
+	description?: string;
+	criteria: RubricCriterion[];
+	options?: RubricOptions;
+};

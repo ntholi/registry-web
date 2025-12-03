@@ -19,11 +19,13 @@ import {
 	IconClipboardCheck,
 	IconEdit,
 	IconFileDescription,
+	IconRuler2,
 	IconStar,
 	IconUsers,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import type { MoodleAssignment } from '../types';
+import RubricView from './rubric';
 import SubmissionsView from './SubmissionsView';
 
 type Props = {
@@ -66,6 +68,9 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 				</Tabs.Tab>
 				<Tabs.Tab value='submissions' leftSection={<IconUsers size={16} />}>
 					Submissions
+				</Tabs.Tab>
+				<Tabs.Tab value='rubric' leftSection={<IconRuler2 size={16} />}>
+					Rubric
 				</Tabs.Tab>
 				{activeTab === 'details' && (
 					<Box ml={'auto'} mt={-5}>
@@ -190,6 +195,15 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 					courseId={courseId}
 					maxGrade={assignment.grade > 0 ? assignment.grade : 100}
 				/>
+			</Tabs.Panel>
+
+			<Tabs.Panel value='rubric' pt='lg'>
+				{assignment.cmid && (
+					<RubricView
+						cmid={assignment.cmid}
+						maxGrade={assignment.grade > 0 ? assignment.grade : 100}
+					/>
+				)}
 			</Tabs.Panel>
 		</Tabs>
 	);
