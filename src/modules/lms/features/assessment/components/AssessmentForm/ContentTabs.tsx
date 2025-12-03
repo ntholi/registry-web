@@ -17,18 +17,18 @@ export default function ContentTabs({ form }: ContentTabsProps) {
 				<Tabs.Tab value='instructions'>Instructions</Tabs.Tab>
 			</Tabs.List>
 
-			<Tabs.Panel value='description' pt='md'>
+			<Tabs.Panel value='description'>
 				<RichTextField
 					showFullScreenButton={false}
-					height={280}
+					height={320}
 					{...form.getInputProps('description')}
 				/>
 			</Tabs.Panel>
 
-			<Tabs.Panel value='instructions' pt='md'>
+			<Tabs.Panel value='instructions'>
 				<RichTextField
 					showFullScreenButton={false}
-					height={280}
+					height={320}
 					{...form.getInputProps('instructions')}
 				/>
 			</Tabs.Panel>
