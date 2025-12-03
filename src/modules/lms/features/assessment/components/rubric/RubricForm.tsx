@@ -45,6 +45,9 @@ export default function RubricForm({
 }: Props) {
 	const queryClient = useQueryClient();
 
+	const maxScorePerCriterion = Math.floor(maxGrade / 3);
+	const midScorePerCriterion = Math.floor(maxScorePerCriterion / 2);
+
 	const form = useForm<FormValues>({
 		initialValues: {
 			name: existingRubric?.name ?? `${assessmentName} Rubric`,
@@ -55,10 +58,13 @@ export default function RubricForm({
 					levels: [
 						{ score: 0, definition: 'Does not meet requirements' },
 						{
-							score: Math.floor(maxGrade / 2),
+							score: midScorePerCriterion,
 							definition: 'Meets some requirements',
 						},
-						{ score: maxGrade, definition: 'Meets all requirements' },
+						{
+							score: maxScorePerCriterion,
+							definition: 'Meets all requirements',
+						},
 					],
 				},
 			],
@@ -125,10 +131,10 @@ export default function RubricForm({
 			levels: [
 				{ score: 0, definition: 'Does not meet requirements' },
 				{
-					score: Math.floor(maxGrade / 2),
+					score: midScorePerCriterion,
 					definition: 'Meets some requirements',
 				},
-				{ score: maxGrade, definition: 'Meets all requirements' },
+				{ score: maxScorePerCriterion, definition: 'Meets all requirements' },
 			],
 		});
 	}
