@@ -22,6 +22,7 @@ import {
 	IconStar,
 	IconUsers,
 } from '@tabler/icons-react';
+import { useState } from 'react';
 import type { MoodleAssignment } from '../types';
 import SubmissionsView from './SubmissionsView';
 
@@ -31,6 +32,7 @@ type Props = {
 };
 
 export default function AssessmentTabs({ assignment, courseId }: Props) {
+	const [activeTab, setActiveTab] = useState<string | null>('details');
 	const dueDate = assignment.duedate
 		? new Date(assignment.duedate * 1000)
 		: null;
@@ -54,7 +56,7 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 	}
 
 	return (
-		<Tabs defaultValue='details' variant='outline' mt='xl'>
+		<Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt='xl'>
 			<Tabs.List>
 				<Tabs.Tab
 					value='details'
@@ -65,15 +67,17 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 				<Tabs.Tab value='submissions' leftSection={<IconUsers size={16} />}>
 					Submissions
 				</Tabs.Tab>
-				<Box ml={'auto'} mt={-5}>
-					<Button
-						variant='light'
-						leftSection={<IconEdit size={16} />}
-						size='xs'
-					>
-						Edit
-					</Button>
-				</Box>
+				{activeTab === 'details' && (
+					<Box ml={'auto'} mt={-5}>
+						<Button
+							variant='light'
+							leftSection={<IconEdit size={16} />}
+							size='xs'
+						>
+							Edit
+						</Button>
+					</Box>
+				)}
 			</Tabs.List>
 
 			<Tabs.Panel value='details' pt='lg'>
