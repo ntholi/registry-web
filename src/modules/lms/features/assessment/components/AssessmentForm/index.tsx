@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Modal, Tabs } from '@mantine/core';
+import { Button, Grid, Modal, Select, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -10,12 +10,14 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useEffect, useRef } from 'react';
 import { z } from 'zod';
 import { getAssessmentByModuleId } from '@/modules/academic/features/assessments/server/actions';
-import { ASSESSMENT_TYPES } from '@/modules/academic/features/assessments/utils';
+import {
+	ASSESSMENT_TYPES,
+	COURSE_WORK_OPTIONS,
+} from '@/modules/academic/features/assessments/utils';
 import { createAssignment } from '../../server/actions';
-import AttachmentsTab from './AttachmentsTab';
-import DescriptionTab from './DescriptionTab';
-import GeneralTab from './GeneralTab';
-import InstructionsTab from './InstructionsTab';
+import AttachmentsSection from './AttachmentsSection';
+import ContentTabs from './ContentTabs';
+import SettingsPanel from './SettingsPanel';
 
 const schema = z.object({
 	assessmentNumber: z.string().min(1, 'Assessment number is required'),
@@ -34,7 +36,7 @@ const schema = z.object({
 	attachments: z.array(z.instanceof(File)).optional(),
 });
 
-type FormValues = z.infer<typeof schema>;
+export type FormValues = z.infer<typeof schema>;
 
 type AssessmentFormProps = {
 	courseId: number;
@@ -180,37 +182,45 @@ export default function AssessmentForm({
 				opened={opened}
 				onClose={close}
 				title='Create Assessment'
-				size='lg'
+				size='100%'
 			>
 				<form onSubmit={handleSubmit}>
-					<Tabs defaultValue='general'>
-						<Tabs.List>
-							<Tabs.Tab value='general'>General</Tabs.Tab>
-							<Tabs.Tab value='description'>Description</Tabs.Tab>
-							<Tabs.Tab value='attachments'>Attachments</Tabs.Tab>
-							<Tabs.Tab value='instructions'>Instructions</Tabs.Tab>
-						</Tabs.List>
+					<Grid>
+						<Grid.Col span={{ base: 12, md: 8 }}>
+							<Stack gap='md'>
+								<Grid>
+									<Grid.Col span={6}>
+										<Select
+											label='Assessment Number'
+											placeholder='Select assessment number'
+											searchable
+											clearable
+											data={COURSE_WORK_OPTIONS}
+											{...form.getInputProps('assessmentNumber')}
+										/>
+									</Grid.Col>
+									<Grid.Col span={6}>
+										<Select
+											label='Assessment Type'
+											placeholder='Select assessment type'
+											searchable
+											clearable
+											data={ASSESSMENT_TYPES}
+											{...form.getInputProps('assessmentType')}
+										/>
+									</Grid.Col>
+								</Grid>
 
-						<Tabs.Panel value='general' pt='md'>
-							<GeneralTab form={form} />
-						</Tabs.Panel>
+								<ContentTabs form={form} />
 
-						<Tabs.Panel value='description' pt='md'>
-							<DescriptionTab form={form} />
-						</Tabs.Panel>
+								<AttachmentsSection form={form} />
+							</Stack>
+						</Grid.Col>
 
-						<Tabs.Panel value='attachments' pt='md'>
-							<AttachmentsTab form={form} />
-						</Tabs.Panel>
-
-						<Tabs.Panel value='instructions' pt='md'>
-							<InstructionsTab form={form} />
-						</Tabs.Panel>
-					</Tabs>
-
-					<Button type='submit' loading={mutation.isPending} fullWidth mt='xl'>
-						Create Assignment
-					</Button>
+						<Grid.Col span={{ base: 12, md: 4 }}>
+							<SettingsPanel form={form} isPending={mutation.isPending} />
+						</Grid.Col>
+					</Grid>
 				</form>
 			</Modal>
 		</>
