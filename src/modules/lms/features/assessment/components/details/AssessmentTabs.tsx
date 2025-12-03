@@ -1,7 +1,6 @@
 'use client';
 
 import {
-	ActionIcon,
 	Box,
 	Button,
 	Divider,
@@ -24,12 +23,12 @@ import {
 	IconPlus,
 	IconRuler2,
 	IconStar,
-	IconTrash,
 	IconUsers,
 	IconX,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
+import { DeleteButton } from '@/shared/ui/adease';
 import { deleteRubric, getRubric } from '../../server/actions';
 import type { MoodleAssignment } from '../../types';
 import RubricView from '../rubric';
@@ -44,19 +43,11 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 	const [activeTab, setActiveTab] = useState<string | null>('details');
 	const [isEditingRubric, setIsEditingRubric] = useState(false);
 	const rubricFormRef = useRef<{ submit: () => void } | null>(null);
-	const queryClient = useQueryClient();
 
 	const { data: rubric } = useQuery({
 		queryKey: ['rubric', assignment.cmid],
 		queryFn: () => getRubric(assignment.cmid!),
 		enabled: !!assignment.cmid,
-	});
-
-	const deleteMutation = useMutation({
-		mutationFn: () => deleteRubric(assignment.cmid!),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['rubric', assignment.cmid] });
-		},
 	});
 
 	const dueDate = assignment.duedate
@@ -132,18 +123,12 @@ export default function AssessmentTabs({ assignment, courseId }: Props) {
 						>
 							Edit
 						</Button>
-						<ActionIcon
+						<DeleteButton
 							variant='subtle'
-							color='red'
-							loading={deleteMutation.isPending}
-							onClick={() => {
-								if (confirm('Are you sure you want to delete this rubric?')) {
-									deleteMutation.mutate();
-								}
-							}}
-						>
-							<IconTrash size={16} />
-						</ActionIcon>
+							handleDelete={() => deleteRubric(assignment.cmid!)}
+							message='Are you sure you want to delete this rubric?'
+							queryKey={['rubric', String(assignment.cmid)]}
+						/>
 					</Group>
 				)}
 
