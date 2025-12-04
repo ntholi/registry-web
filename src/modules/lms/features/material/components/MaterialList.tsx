@@ -14,7 +14,12 @@ import {
 	ThemeIcon,
 	useMantineTheme,
 } from '@mantine/core';
-import { IconExternalLink, IconFile, IconFileText } from '@tabler/icons-react';
+import {
+	IconDownload,
+	IconExternalLink,
+	IconFile,
+	IconFileText,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getMaterialSection } from '../server/actions';
@@ -108,6 +113,7 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 				{materials.map((material) => {
 					const Icon = getMaterialIcon(material.modname);
 					const isHidden = material.visible === 0;
+					const isFile = material.modname === 'resource';
 
 					return (
 						<Card
@@ -115,9 +121,9 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 							withBorder
 							p='lg'
 							style={{
-								cursor: 'pointer',
+								cursor: isFile ? 'default' : 'pointer',
 							}}
-							onClick={() => setSelectedMaterial(material)}
+							onClick={isFile ? undefined : () => setSelectedMaterial(material)}
 						>
 							<Stack gap='md'>
 								<Flex justify='space-between' align='flex-start'>
@@ -149,14 +155,19 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 									<ActionIcon
 										variant='subtle'
 										color='gray'
-										size='sm'
+										size='md'
 										component='a'
 										href={material.url}
-										target='_blank'
-										rel='noopener noreferrer'
+										{...(isFile
+											? { download: true }
+											: { target: '_blank', rel: 'noopener noreferrer' })}
 										onClick={(e) => e.stopPropagation()}
 									>
-										<IconExternalLink size={16} />
+										{isFile ? (
+											<IconDownload size={16} />
+										) : (
+											<IconExternalLink size={16} />
+										)}
 									</ActionIcon>
 								</Flex>
 							</Stack>
