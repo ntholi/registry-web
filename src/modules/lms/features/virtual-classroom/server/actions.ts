@@ -151,3 +151,27 @@ export async function getVirtualClassroomSessions(
 		) || null
 	);
 }
+
+export async function getBigBlueButtonJoinUrl(
+	cmid: number
+): Promise<string | null> {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	try {
+		const result = await moodleGet('mod_bigbluebuttonbn_get_join_url', {
+			cmid,
+		});
+
+		if (result?.join_url) {
+			return result.join_url;
+		}
+
+		return null;
+	} catch (error) {
+		console.error('Error getting BigBlueButton join URL:', error);
+		return null;
+	}
+}

@@ -17,7 +17,10 @@ import {
 } from '@mantine/core';
 import { IconExternalLink, IconVideo, IconVideoOff } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getVirtualClassroomSessions } from '../server/actions';
+import {
+	getBigBlueButtonJoinUrl,
+	getVirtualClassroomSessions,
+} from '../server/actions';
 
 type VirtualClassroomListProps = {
 	courseId: number;
@@ -30,6 +33,13 @@ type VirtualSession = {
 	modname: string;
 	visible: number;
 };
+
+async function handleJoinSession(cmid: number) {
+	const joinUrl = await getBigBlueButtonJoinUrl(cmid);
+	if (joinUrl) {
+		window.open(joinUrl, '_blank', 'noopener,noreferrer');
+	}
+}
 
 function SessionCardSkeleton() {
 	return (
@@ -96,11 +106,8 @@ export default function VirtualClassroomList({
 						key={session.id}
 						withBorder
 						p='lg'
-						component='a'
-						href={session.url}
-						target='_blank'
-						rel='noopener noreferrer'
-						style={{ textDecoration: 'none' }}
+						style={{ cursor: 'pointer' }}
+						onClick={() => handleJoinSession(session.id)}
 					>
 						<Stack gap='md'>
 							<Flex justify='space-between' align='flex-start'>
