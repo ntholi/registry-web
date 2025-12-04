@@ -13,6 +13,7 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import {
+	IconFileSearch,
 	IconListCheck,
 	IconMessageCircle,
 	IconUsers,
@@ -24,6 +25,7 @@ import CommentsView from './CommentsView';
 import FileList from './FileList';
 import GradeInput from './GradeInput';
 import RubricView from './RubricView';
+import TurnitinView from './TurnitinView';
 import { formatDate } from './utils';
 
 type Props = {
@@ -113,6 +115,12 @@ export default function SubmissionDetails({
 						>
 							Comments
 						</TabsTab>
+						<TabsTab
+							value='turnitin'
+							leftSection={<IconFileSearch size={16} />}
+						>
+							Turnitin
+						</TabsTab>
 					</TabsList>
 
 					<TabsPanel value='rubric' pt='md'>
@@ -135,6 +143,10 @@ export default function SubmissionDetails({
 							assignmentId={assignmentId}
 							userId={selectedUser.id}
 						/>
+					</TabsPanel>
+
+					<TabsPanel value='turnitin' pt='md'>
+						<TurnitinView />
 					</TabsPanel>
 				</Tabs>
 			)}
