@@ -24,7 +24,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getMaterialSection } from '../server/actions';
-import MaterialPreviewModal from './MaterialPreviewModal';
+import PagePreviewModal from './PagePreviewModal';
 
 type MaterialListProps = {
 	courseId: number;
@@ -64,9 +64,7 @@ function MaterialCardSkeleton() {
 
 export default function MaterialList({ courseId }: MaterialListProps) {
 	const theme = useMantineTheme();
-	const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(
-		null
-	);
+	const [selectedPage, setSelectedPage] = useState<Material | null>(null);
 
 	const { data: section, isLoading } = useQuery({
 		queryKey: ['material-pages', courseId],
@@ -124,7 +122,7 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 							style={{
 								cursor: isFile ? 'default' : 'pointer',
 							}}
-							onClick={isFile ? undefined : () => setSelectedMaterial(material)}
+							onClick={isFile ? undefined : () => setSelectedPage(material)}
 						>
 							<Stack gap='md'>
 								<Flex justify='space-between' align='flex-start'>
@@ -179,9 +177,9 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 				})}
 			</SimpleGrid>
 
-			<MaterialPreviewModal
-				material={selectedMaterial}
-				onClose={() => setSelectedMaterial(null)}
+			<PagePreviewModal
+				page={selectedPage}
+				onClose={() => setSelectedPage(null)}
 			/>
 		</>
 	);
