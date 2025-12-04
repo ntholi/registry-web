@@ -1,6 +1,7 @@
 import {
 	IconCalendarTime,
 	IconDoor,
+	IconEye,
 	IconLayoutGrid,
 	IconTags,
 } from '@tabler/icons-react';
@@ -20,6 +21,11 @@ export const timetableConfig: ModuleConfig = {
 				icon: IconCalendarTime,
 				collapsed: true,
 				children: [
+					{
+						label: 'View Timetable',
+						icon: IconEye,
+						href: '/timetable/viewer',
+					},
 					{
 						label: 'Allocations',
 						icon: IconLayoutGrid,
