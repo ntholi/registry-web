@@ -6,6 +6,7 @@ import type {
 	CreatePostParams,
 	MoodleDiscussion,
 	MoodleForum,
+	MoodlePost,
 	PostType,
 } from '../types';
 
@@ -173,4 +174,43 @@ export async function getAllPosts(courseId: number): Promise<{
 	]);
 
 	return { announcements, discussions };
+}
+
+export async function getDiscussionPosts(
+	discussionId: number
+): Promise<MoodlePost[]> {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	const result = await moodleGet('mod_forum_get_discussion_posts', {
+		discussionid: discussionId,
+		sortby: 'created',
+		sortdirection: 'ASC',
+	});
+
+	if (!result || !result.posts) {
+		return [];
+	}
+
+	const posts = result.posts as Array<{
+		id: number;
+		subject: string;
+		message: string;
+		author: {
+			id: number;
+			fullname: string;
+			urls: { profileimage?: string };
+		};
+		timecreated: number;
+		parent: number;
+	}>;
+
+	return posts.map((p) => ({
+		...p,
+		created: p.timecreated,
+		userfullname: p.author.fullname,
+		userpictureurl: p.author.urls.profileimage || '',
+	})) as MoodlePost[];
 }

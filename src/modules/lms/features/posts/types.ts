@@ -71,3 +71,61 @@ export type CreatePostParams = {
 	subject: string;
 	message: string;
 };
+
+export type MoodlePost = {
+	id: number;
+	subject: string;
+	message: string;
+	author: {
+		id: number;
+		fullname: string;
+		isdeleted: boolean;
+		groups: unknown[];
+		urls: {
+			profile?: string;
+			profileimage?: string;
+		};
+	};
+	timecreated: number;
+	unread?: boolean;
+	isdeleted: boolean;
+	isprivatereply: boolean;
+	haswordcount: boolean;
+	wordcount?: number;
+	charcount?: number;
+	capabilities: {
+		view: boolean;
+		edit: boolean;
+		delete: boolean;
+		split: boolean;
+		reply: boolean;
+		selfenrol: boolean;
+		export: boolean;
+		controlreadstatus: boolean;
+		canreplyprivately: boolean;
+	};
+	urls: {
+		view?: string;
+		viewisolated?: string;
+		viewparent?: string;
+		edit?: string;
+		delete?: string;
+		split?: string;
+		reply?: string;
+		export?: string;
+		markasread?: string;
+		markasunread?: string;
+		discuss?: string;
+	};
+	attachments: unknown[];
+	tags?: unknown[];
+	html?: {
+		rating?: string;
+		taglist?: string;
+		authorsubheading?: string;
+	};
+	parent: number;
+	created: number;
+	userfullname: string;
+	userpictureurl: string;
+};
