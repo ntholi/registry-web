@@ -11,6 +11,10 @@ import MaterialList from '@lms/material/components/MaterialList';
 import { getEnrolledStudentsFromDB } from '@lms/students';
 import AddStudentModal from '@lms/students/components/AddStudentModal';
 import StudentsList from '@lms/students/components/StudentsList';
+import {
+	VirtualClassroomForm,
+	VirtualClassroomList,
+} from '@lms/virtual-classroom';
 import { Badge, Box, Loader, Tabs, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
@@ -67,6 +71,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 					)}
 				</Tabs.Tab>
 				<Tabs.Tab value='gradebook'>Gradebook</Tabs.Tab>
+				<Tabs.Tab value='virtual-classroom'>Virtual Classroom</Tabs.Tab>
 				<Box ml='auto' mt={-5}>
 					{activeTab === 'forum' && forum && (
 						<ForumPostForm forumId={forum.id} />
@@ -76,6 +81,9 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 					)}
 					{activeTab === 'material' && <MaterialForm courseId={course.id} />}
 					{activeTab === 'students' && <AddStudentModal course={course} />}
+					{activeTab === 'virtual-classroom' && (
+						<VirtualClassroomForm courseId={course.id} />
+					)}
 				</Box>
 			</Tabs.List>
 			<Tabs.Panel value='dashboard' pt='lg'>
@@ -119,6 +127,11 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			<Tabs.Panel value='gradebook' pt='lg'>
 				<Box p='sm'>
 					<Gradebook courseId={course.id} />
+				</Box>
+			</Tabs.Panel>
+			<Tabs.Panel value='virtual-classroom' pt='lg'>
+				<Box p='sm'>
+					<VirtualClassroomList courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 		</Tabs>
