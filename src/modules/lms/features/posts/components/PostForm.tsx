@@ -1,6 +1,12 @@
 'use client';
 
-import { Button, Modal, Stack, TextInput } from '@mantine/core';
+import {
+	Button,
+	Modal,
+	SegmentedControl,
+	Stack,
+	TextInput,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -9,26 +15,29 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import RichTextField from '@/shared/ui/adease/RichTextField';
-import { createForumDiscussion } from '../server/actions';
+import { createPost } from '../server/actions';
+import type { PostType } from '../types';
 
 const schema = z.object({
+	postType: z.enum(['announcement', 'discussion']),
 	subject: z.string().min(1, 'Subject is required'),
 	message: z.string().min(1, 'Message is required'),
 });
 
 type FormValues = z.infer<typeof schema>;
 
-type ForumPostFormProps = {
-	forumId: number;
+type PostFormProps = {
+	courseId: number;
 };
 
-export default function ForumPostForm({ forumId }: ForumPostFormProps) {
+export default function PostForm({ courseId }: PostFormProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
 	const form = useForm<FormValues>({
 		validate: zodResolver(schema),
 		initialValues: {
+			postType: 'announcement' as PostType,
 			subject: '',
 			message: '',
 		},
@@ -36,8 +45,9 @@ export default function ForumPostForm({ forumId }: ForumPostFormProps) {
 
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
-			return createForumDiscussion({
-				forumid: forumId,
+			return createPost({
+				courseId,
+				postType: values.postType as PostType,
 				subject: values.subject,
 				message: values.message,
 			});
@@ -48,7 +58,7 @@ export default function ForumPostForm({ forumId }: ForumPostFormProps) {
 				color: 'green',
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['forum-discussions', forumId],
+				queryKey: ['course-posts', courseId],
 			});
 			form.reset();
 			close();
@@ -73,12 +83,20 @@ export default function ForumPostForm({ forumId }: ForumPostFormProps) {
 				leftSection={<IconPlus size={16} />}
 				size='xs'
 			>
-				New
+				New Post
 			</Button>
 
 			<Modal opened={opened} onClose={close} title='Create Post' size='lg'>
 				<form onSubmit={handleSubmit}>
 					<Stack>
+						<SegmentedControl
+							data={[
+								{ label: 'Announcement', value: 'announcement' },
+								{ label: 'Discussion', value: 'discussion' },
+							]}
+							{...form.getInputProps('postType')}
+						/>
+
 						<TextInput
 							label='Subject'
 							placeholder='Enter post subject'

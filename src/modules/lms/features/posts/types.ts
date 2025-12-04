@@ -1,3 +1,5 @@
+export type PostType = 'announcement' | 'discussion';
+
 export type MoodleForum = {
 	id: number;
 	course: number;
@@ -63,8 +65,9 @@ export type MoodleDiscussion = {
 	canfavourite?: boolean;
 };
 
-export type CreateDiscussionParams = {
-	forumid: number;
+export type CreatePostParams = {
+	courseId: number;
+	postType: PostType;
 	subject: string;
 	message: string;
 };

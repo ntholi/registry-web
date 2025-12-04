@@ -1,7 +1,7 @@
 'use client';
 
 import { getCourseAssignments } from '@lms/assessment';
-import { getForumDiscussions, getMainForum } from '@lms/forum';
+import { getAllPosts } from '@lms/posts';
 import {
 	Avatar,
 	Badge,
@@ -178,16 +178,9 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 		queryFn: () => getCourseAssignments(course.id),
 	});
 
-	const { data: forum } = useQuery({
-		queryKey: ['forum', course.id],
-		queryFn: () => getMainForum(course.id),
-	});
-
-	const { data: discussions, isLoading: discussionsLoading } = useQuery({
-		queryKey: ['forum-discussions', forum?.id],
-		queryFn: () =>
-			forum ? getForumDiscussions(forum.id) : Promise.resolve([]),
-		enabled: !!forum,
+	const { data: postsData, isLoading: discussionsLoading } = useQuery({
+		queryKey: ['course-posts', course.id],
+		queryFn: () => getAllPosts(course.id),
 	});
 
 	const upcomingAssignments =
@@ -196,7 +189,7 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 			.sort((a, b) => a.duedate - b.duedate)
 			.slice(0, 5) ?? [];
 
-	const recentDiscussions = discussions?.slice(0, 4) ?? [];
+	const recentDiscussions = postsData?.discussions?.slice(0, 4) ?? [];
 
 	return (
 		<Stack gap='lg' mt={'lg'} px={'md'}>

@@ -62,7 +62,7 @@ export default function CourseLoading() {
 			<Tabs defaultValue='dashboard' variant='outline' mt='xl'>
 				<TabsList>
 					<TabsTab value='dashboard'>Dashboard</TabsTab>
-					<TabsTab value='forum'>Forum</TabsTab>
+					<TabsTab value='posts'>Posts</TabsTab>
 					<TabsTab value='assessments'>Assessments</TabsTab>
 					<TabsTab value='material'>Material</TabsTab>
 					<TabsTab value='students'>Students</TabsTab>

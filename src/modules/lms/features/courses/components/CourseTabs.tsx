@@ -2,12 +2,10 @@
 
 import { AssessmentForm, AssessmentsList } from '@lms/assessment';
 import { CourseOutline } from '@lms/course-outline';
-import { getMainForum } from '@lms/forum';
-import ForumPostForm from '@lms/forum/components/ForumPostForm';
-import ForumPostsList from '@lms/forum/components/ForumPostsList';
 import { Gradebook, getAssignedModuleByCourseId } from '@lms/gradebook';
 import MaterialForm from '@lms/material/components/MaterialForm';
 import MaterialList from '@lms/material/components/MaterialList';
+import { PostForm, PostsList } from '@lms/posts';
 import { getEnrolledStudentsFromDB } from '@lms/students';
 import AddStudentModal from '@lms/students/components/AddStudentModal';
 import StudentsList from '@lms/students/components/StudentsList';
@@ -15,7 +13,7 @@ import {
 	VirtualClassroomForm,
 	VirtualClassroomList,
 } from '@lms/virtual-classroom';
-import { Badge, Box, Loader, Tabs, Text } from '@mantine/core';
+import { Badge, Box, Tabs } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import type { MoodleCourse } from '../types';
@@ -28,12 +26,6 @@ type CourseTabsProps = {
 export default function CourseTabs({ course }: CourseTabsProps) {
 	const [activeTab, setActiveTab] = useQueryState('tab', {
 		defaultValue: 'dashboard',
-	});
-
-	const { data: forum, isLoading } = useQuery({
-		queryKey: ['forum', course.id],
-		queryFn: () => getMainForum(course.id),
-		enabled: activeTab === 'forum',
 	});
 
 	const { data: students } = useQuery({
@@ -58,7 +50,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 		>
 			<Tabs.List>
 				<Tabs.Tab value='dashboard'>Dashboard</Tabs.Tab>
-				<Tabs.Tab value='forum'>Forum</Tabs.Tab>
+				<Tabs.Tab value='posts'>Posts</Tabs.Tab>
 				<Tabs.Tab value='assessments'>Assessments</Tabs.Tab>
 				<Tabs.Tab value='material'>Material</Tabs.Tab>
 				<Tabs.Tab value='outline'>Outline</Tabs.Tab>
@@ -73,9 +65,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 				<Tabs.Tab value='gradebook'>Gradebook</Tabs.Tab>
 				<Tabs.Tab value='virtual-classroom'>Virtual Classroom</Tabs.Tab>
 				<Box ml='auto' mt={-5}>
-					{activeTab === 'forum' && forum && (
-						<ForumPostForm forumId={forum.id} />
-					)}
+					{activeTab === 'posts' && <PostForm courseId={course.id} />}
 					{activeTab === 'assessments' && moduleId && (
 						<AssessmentForm courseId={course.id} moduleId={moduleId} />
 					)}
@@ -89,19 +79,9 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			<Tabs.Panel value='dashboard' pt='lg'>
 				<CourseDashboard course={course} />
 			</Tabs.Panel>
-			<Tabs.Panel value='forum' pt='lg'>
+			<Tabs.Panel value='posts' pt='lg'>
 				<Box p='sm'>
-					{isLoading ? (
-						<Box ta='center' py='xl'>
-							<Loader />
-						</Box>
-					) : !forum ? (
-						<Box ta='center' py='xl'>
-							<Text c='dimmed'>No forum available for this course</Text>
-						</Box>
-					) : (
-						<ForumPostsList forumId={forum.id} />
-					)}
+					<PostsList courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 			<Tabs.Panel value='assessments' pt='lg'>
