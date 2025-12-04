@@ -9,6 +9,23 @@ import type {
 	MoodleSection,
 } from '../types';
 
+type CourseModule = {
+	content?: string;
+	course: number;
+	id: number;
+	instance: number;
+	name: string;
+	url: string;
+};
+
+type CourseModuleResponse = {
+	cm?: CourseModule;
+};
+
+type MoodlePagesResponse = {
+	pages?: MoodlePage[];
+};
+
 export async function getCourseSections(
 	courseId: number
 ): Promise<MoodleSection[]> {
@@ -182,14 +199,16 @@ export async function getMaterialContent(
 			});
 		}
 
-		const pageData = await moodleGet('core_course_get_course_module', {
+		const moduleData = (await moodleGet('core_course_get_course_module', {
 			cmid: moduleId,
-		});
+		})) as CourseModuleResponse;
+		const courseId = moduleData.cm?.course;
+		const pageContent = await getPageContent(instanceId, courseId);
 
-		if (pageData?.cm?.content) {
+		if (pageContent) {
 			return {
 				type: 'page' as const,
-				content: pageData.cm.content,
+				content: pageContent,
 			};
 		}
 
@@ -200,9 +219,9 @@ export async function getMaterialContent(
 	}
 
 	if (modname === 'resource') {
-		const result = await moodleGet('core_course_get_course_module', {
+		const result = (await moodleGet('core_course_get_course_module', {
 			cmid: moduleId,
-		});
+		})) as CourseModuleResponse;
 
 		if (result?.cm) {
 			return {
@@ -214,4 +233,22 @@ export async function getMaterialContent(
 	}
 
 	return null;
+}
+
+async function getPageContent(pageId?: number, courseId?: number) {
+	if (!pageId || !courseId) {
+		return null;
+	}
+
+	const response = (await moodleGet('mod_page_get_pages_by_courses', {
+		'courseids[0]': courseId,
+	})) as MoodlePagesResponse;
+	const pages = response.pages;
+
+	if (!pages?.length) {
+		return null;
+	}
+
+	const page = pages.find((item) => item.id === pageId);
+	return page?.content || null;
 }
