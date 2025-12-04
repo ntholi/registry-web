@@ -88,7 +88,6 @@ export type MoodleSubmission = {
 export type DBStudentInfo = {
 	stdNo: number;
 	name: string;
-	photoUrl: string | null;
 };
 
 export type SubmissionUser = {
@@ -96,7 +95,7 @@ export type SubmissionUser = {
 	fullname: string;
 	profileimageurl: string;
 	submission: MoodleSubmission | null;
-	dbStudent?: DBStudentInfo | null;
+	dbStudent: DBStudentInfo | null;
 };
 
 export type RubricLevel = {

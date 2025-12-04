@@ -5,7 +5,6 @@ import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
 import { studentRepository } from '@/modules/lms/features/students/server/repository';
-import { getStudentPhoto } from '@/modules/registry/features/students/server/actions';
 import { getCurrentTerm } from '@/modules/registry/features/terms';
 import type {
 	CreateAssignmentParams,
@@ -194,9 +193,7 @@ async function enrichUsersWithDBStudentInfo(
 		profileimageurl: string;
 	}>,
 	submissionMap: Map<number, MoodleSubmission>
-): Promise<
-	Map<number, { stdNo: number; name: string; photoUrl: string | null }>
-> {
+): Promise<Map<number, { stdNo: number; name: string }>> {
 	const submittedUserIds = users
 		.filter((user) => {
 			const submission = submissionMap.get(user.id);
@@ -213,20 +210,8 @@ async function enrichUsersWithDBStudentInfo(
 			submittedUserIds
 		);
 
-	const photoResults = await Promise.all(
-		dbStudents.map(async (s) => ({
-			lmsUserId: s.lmsUserId!,
-			stdNo: s.stdNo,
-			name: s.name,
-			photoUrl: await getStudentPhoto(s.stdNo),
-		}))
-	);
-
 	return new Map(
-		photoResults.map((r) => [
-			r.lmsUserId,
-			{ stdNo: r.stdNo, name: r.name, photoUrl: r.photoUrl },
-		])
+		dbStudents.map((s) => [s.lmsUserId!, { stdNo: s.stdNo, name: s.name }])
 	);
 }
 

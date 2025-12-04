@@ -1,7 +1,23 @@
 'use client';
 
 import { Avatar, Badge, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
+import { getStudentPhoto } from '@registry/students';
+import { useQuery } from '@tanstack/react-query';
 import type { SubmissionUser } from '../../types';
+
+type StudentAvatarProps = {
+	stdNo: number;
+};
+
+function StudentAvatar({ stdNo }: StudentAvatarProps) {
+	const { data: photoUrl } = useQuery({
+		queryKey: ['student-photo', stdNo],
+		queryFn: () => getStudentPhoto(stdNo),
+		staleTime: 1000 * 60 * 5,
+	});
+
+	return <Avatar src={photoUrl} size='sm' radius='xl' />;
+}
 
 type Props = {
 	users: SubmissionUser[];
@@ -27,19 +43,21 @@ export default function StudentList({
 				<Text size='xs' fw={600} tt='uppercase' pb='xs'>
 					Submitted ({submittedUsers.length})
 				</Text>
-				{submittedUsers.map((user) => {
-					const displayName = user.dbStudent?.name || user.fullname;
-					const photoUrl = user.dbStudent?.photoUrl || user.profileimageurl;
-					return (
-						<NavLink
-							key={user.id}
-							active={selectedUser?.id === user.id}
-							label={displayName}
-							leftSection={<Avatar src={photoUrl} size='sm' radius='xl' />}
-							onClick={() => onSelectUser(user)}
-						/>
-					);
-				})}
+				{submittedUsers.map((user) => (
+					<NavLink
+						key={user.id}
+						active={selectedUser?.id === user.id}
+						label={user.dbStudent?.name ?? user.fullname}
+						leftSection={
+							user.dbStudent ? (
+								<StudentAvatar stdNo={user.dbStudent.stdNo} />
+							) : (
+								<Avatar src={user.profileimageurl} size='sm' radius='xl' />
+							)
+						}
+						onClick={() => onSelectUser(user)}
+					/>
+				))}
 
 				{notSubmittedUsers.length > 0 && (
 					<>
