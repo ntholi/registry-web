@@ -1,7 +1,18 @@
 'use client';
 
-import { Center, Group, Select, Stack, Tabs, Text } from '@mantine/core';
+import {
+	Box,
+	Center,
+	Select,
+	Stack,
+	Tabs,
+	TabsList,
+	TabsPanel,
+	TabsTab,
+	Text,
+} from '@mantine/core';
 import { getAllTerms } from '@registry/terms';
+import { IconBuilding, IconSchool, IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
@@ -29,15 +40,21 @@ export default function TimetableViewer() {
 
 	return (
 		<Stack gap='md' p='md'>
-			<Tabs defaultValue='lecturers'>
-				<Tabs.List>
-					<Tabs.Tab value='lecturers'>Lecturers</Tabs.Tab>
-					<Tabs.Tab value='venues'>Venues</Tabs.Tab>
-					<Tabs.Tab value='students'>Students</Tabs.Tab>
-					<Group ml='auto' mb={'xs'}>
-						<Text>Term:</Text>
+			<Tabs defaultValue='lecturers' variant='outline'>
+				<TabsList>
+					<TabsTab value='lecturers' leftSection={<IconUsers size={16} />}>
+						Lecturers
+					</TabsTab>
+					<TabsTab value='venues' leftSection={<IconBuilding size={16} />}>
+						Venues
+					</TabsTab>
+					<TabsTab value='students' leftSection={<IconSchool size={16} />}>
+						Students
+					</TabsTab>
+					<Box ml='auto' mb={10}>
 						<Select
-							placeholder='Select a term'
+							placeholder='Select term'
+							size='sm'
 							data={terms.map((term) => ({
 								value: term.id.toString(),
 								label: term.name,
@@ -51,9 +68,10 @@ export default function TimetableViewer() {
 								}
 							}}
 							clearable
+							w={200}
 						/>
-					</Group>
-				</Tabs.List>
+					</Box>
+				</TabsList>
 
 				{!selectedTermId ? (
 					<Center h={400}>
@@ -61,17 +79,17 @@ export default function TimetableViewer() {
 					</Center>
 				) : (
 					<>
-						<Tabs.Panel value='lecturers' pt='lg'>
+						<TabsPanel value='lecturers' pt='lg'>
 							<LecturerTimetable termId={selectedTermId} />
-						</Tabs.Panel>
+						</TabsPanel>
 
-						<Tabs.Panel value='venues' pt='lg'>
+						<TabsPanel value='venues' pt='lg'>
 							<VenueTimetable termId={selectedTermId} />
-						</Tabs.Panel>
+						</TabsPanel>
 
-						<Tabs.Panel value='students' pt='lg'>
+						<TabsPanel value='students' pt='lg'>
 							<ClassTimetable termId={selectedTermId} />
-						</Tabs.Panel>
+						</TabsPanel>
 					</>
 				)}
 			</Tabs>
