@@ -22,7 +22,7 @@ export const timetableConfig: ModuleConfig = {
 				collapsed: true,
 				children: [
 					{
-						label: 'View Timetable',
+						label: 'Timetables',
 						icon: IconEye,
 						href: '/timetable/viewer',
 					},
