@@ -4,7 +4,7 @@ import {
 	Button,
 	Group,
 	Modal,
-	Radio,
+	SegmentedControl,
 	Stack,
 	Text,
 	TextInput,
@@ -174,17 +174,15 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 				size='lg'
 			>
 				<Stack>
-					<Radio.Group
+					<SegmentedControl
 						value={materialType}
 						onChange={(value) => setMaterialType(value as MaterialType)}
-						label='Material Type'
-						description='Choose the type of material you want to create'
-					>
-						<Group mt='xs'>
-							<Radio value='page' label='Page' />
-							<Radio value='file' label='File' />
-						</Group>
-					</Radio.Group>
+						fullWidth
+						data={[
+							{ label: 'Page', value: 'page' },
+							{ label: 'File', value: 'file' },
+						]}
+					/>
 
 					{materialType === 'page' ? (
 						<form onSubmit={handlePageSubmit}>
