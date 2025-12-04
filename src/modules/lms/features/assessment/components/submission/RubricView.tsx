@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button, Card, Group, Slider, Stack, Text } from '@mantine/core';
+import { Box, Card, Slider, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getRubric } from '../../server/actions';
@@ -65,75 +65,52 @@ export default function RubricView({
 	};
 
 	return (
-		<Stack gap='md'>
-			<Box>
-				<Text fw={600} size='lg'>
-					{rubric.name}
-				</Text>
-				{rubric.description && (
-					<Text size='sm' c='dimmed'>
-						{rubric.description}
-					</Text>
-				)}
-			</Box>
+		<Stack gap='lg'>
+			{rubric.criteria.map((criterion) => {
+				const sortedLevels = [...criterion.levels].sort(
+					(a, b) => a.score - b.score
+				);
+				const minScore = sortedLevels[0]?.score || 0;
+				const maxScore = sortedLevels[sortedLevels.length - 1]?.score || 0;
 
-			<Stack gap='lg'>
-				{rubric.criteria.map((criterion) => {
-					const sortedLevels = [...criterion.levels].sort(
-						(a, b) => a.score - b.score
-					);
-					const minScore = sortedLevels[0]?.score || 0;
-					const maxScore = sortedLevels[sortedLevels.length - 1]?.score || 0;
+				const marks = sortedLevels.map((level) => ({
+					value: level.score,
+					label: level.score.toString(),
+				}));
 
-					const marks = sortedLevels.map((level) => ({
-						value: level.score,
-						label: level.score.toString(),
-					}));
+				const currentValue = selectedLevels[criterion.id || 0] || minScore || 0;
+				const currentLevel = sortedLevels.find((l) => l.score === currentValue);
 
-					const currentValue =
-						selectedLevels[criterion.id || 0] || minScore || 0;
-					const currentLevel = sortedLevels.find(
-						(l) => l.score === currentValue
-					);
-
-					return (
-						<Card key={criterion.id} withBorder p='md'>
-							<Text fw={600} mb='xs'>
-								{criterion.description}
+				return (
+					<Card key={criterion.id} withBorder p='md'>
+						<Text fw={600}>{criterion.description}</Text>
+						{currentLevel && (
+							<Text size='sm' c='dimmed'>
+								{currentLevel.definition}
 							</Text>
-							{currentLevel && (
-								<Text size='sm' c='dimmed' mb='md'>
-									{currentLevel.definition}
-								</Text>
-							)}
-							<Box mt='md' mb='xl'>
-								<Slider
-									value={currentValue}
-									onChange={(value) =>
-										handleLevelSelect(criterion.id || 0, value)
-									}
-									min={minScore}
-									max={maxScore}
-									marks={marks}
-									restrictToMarks
-									size='md'
-									label={(value) => {
-										const level = sortedLevels.find((l) => l.score === value);
-										return level ? `${level.score}` : value.toString();
-									}}
-									styles={{
-										markLabel: { marginTop: 8 },
-									}}
-								/>
-							</Box>
-						</Card>
-					);
-				})}
-			</Stack>
-
-			<Group justify='flex-end'>
-				<Button>Save Rubric Marking</Button>
-			</Group>
+						)}
+						<Box mt='md' mb='lg'>
+							<Slider
+								value={currentValue}
+								onChange={(value) =>
+									handleLevelSelect(criterion.id || 0, value)
+								}
+								min={minScore}
+								max={maxScore}
+								marks={marks}
+								size='md'
+								label={(value) => {
+									const level = sortedLevels.find((l) => l.score === value);
+									return level ? `${level.score}` : value.toString();
+								}}
+								styles={{
+									markLabel: { marginTop: 8 },
+								}}
+							/>
+						</Box>
+					</Card>
+				);
+			})}
 		</Stack>
 	);
 }
