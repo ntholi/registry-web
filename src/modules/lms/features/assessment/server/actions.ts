@@ -4,6 +4,8 @@ import { auth } from '@/core/auth';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
+import { studentRepository } from '@/modules/lms/features/students/server/repository';
+import { getStudentPhoto } from '@/modules/registry/features/students/server/actions';
 import { getCurrentTerm } from '@/modules/registry/features/terms';
 import type {
 	CreateAssignmentParams,
@@ -185,6 +187,49 @@ export async function createAssignment(params: CreateAssignmentParams) {
 	return result;
 }
 
+async function enrichUsersWithDBStudentInfo(
+	users: Array<{
+		id: number;
+		fullname: string;
+		profileimageurl: string;
+	}>,
+	submissionMap: Map<number, MoodleSubmission>
+): Promise<
+	Map<number, { stdNo: number; name: string; photoUrl: string | null }>
+> {
+	const submittedUserIds = users
+		.filter((user) => {
+			const submission = submissionMap.get(user.id);
+			return submission && submission.status === 'submitted';
+		})
+		.map((user) => user.id);
+
+	if (submittedUserIds.length === 0) {
+		return new Map();
+	}
+
+	const dbStudents =
+		await studentRepository.findStudentsByLmsUserIdsForSubmissions(
+			submittedUserIds
+		);
+
+	const photoResults = await Promise.all(
+		dbStudents.map(async (s) => ({
+			lmsUserId: s.lmsUserId!,
+			stdNo: s.stdNo,
+			name: s.name,
+			photoUrl: await getStudentPhoto(s.stdNo),
+		}))
+	);
+
+	return new Map(
+		photoResults.map((r) => [
+			r.lmsUserId,
+			{ stdNo: r.stdNo, name: r.name, photoUrl: r.photoUrl },
+		])
+	);
+}
+
 export async function getAssignmentSubmissions(
 	assignmentId: number,
 	courseId: number
@@ -224,11 +269,17 @@ export async function getAssignmentSubmissions(
 		submissionMap.set(submission.userid, submission);
 	}
 
+	const dbStudentMap = await enrichUsersWithDBStudentInfo(
+		enrolledUsers,
+		submissionMap
+	);
+
 	return enrolledUsers.map((user) => ({
 		id: user.id,
 		fullname: user.fullname,
 		profileimageurl: user.profileimageurl,
 		submission: submissionMap.get(user.id) || null,
+		dbStudent: dbStudentMap.get(user.id) || null,
 	}));
 }
 

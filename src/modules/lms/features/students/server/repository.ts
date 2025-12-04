@@ -133,6 +133,20 @@ export default class StudentRepository extends BaseRepository<
 	async updateUserLmsUserId(userId: string, lmsUserId: number) {
 		return db.update(users).set({ lmsUserId }).where(eq(users.id, userId));
 	}
+
+	async findStudentsByLmsUserIdsForSubmissions(lmsUserIds: number[]) {
+		if (lmsUserIds.length === 0) return [];
+		return db
+			.selectDistinctOn([users.lmsUserId], {
+				stdNo: students.stdNo,
+				name: students.name,
+				lmsUserId: users.lmsUserId,
+			})
+			.from(users)
+			.innerJoin(students, eq(students.userId, users.id))
+			.where(inArray(users.lmsUserId, lmsUserIds))
+			.orderBy(users.lmsUserId);
+	}
 }
 
 export const studentRepository = new StudentRepository();

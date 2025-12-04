@@ -85,11 +85,18 @@ export type MoodleSubmission = {
 	plugins: SubmissionPlugin[];
 };
 
+export type DBStudentInfo = {
+	stdNo: number;
+	name: string;
+	photoUrl: string | null;
+};
+
 export type SubmissionUser = {
 	id: number;
 	fullname: string;
 	profileimageurl: string;
 	submission: MoodleSubmission | null;
+	dbStudent?: DBStudentInfo | null;
 };
 
 export type RubricLevel = {

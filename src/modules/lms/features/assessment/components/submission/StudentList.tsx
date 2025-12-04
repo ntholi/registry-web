@@ -28,14 +28,14 @@ export default function StudentList({
 					Submitted ({submittedUsers.length})
 				</Text>
 				{submittedUsers.map((user) => {
+					const displayName = user.dbStudent?.name || user.fullname;
+					const photoUrl = user.dbStudent?.photoUrl || user.profileimageurl;
 					return (
 						<NavLink
 							key={user.id}
 							active={selectedUser?.id === user.id}
-							label={user.fullname}
-							leftSection={
-								<Avatar src={user.profileimageurl} size='sm' radius='xl' />
-							}
+							label={displayName}
+							leftSection={<Avatar src={photoUrl} size='sm' radius='xl' />}
 							onClick={() => onSelectUser(user)}
 						/>
 					);
