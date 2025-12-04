@@ -45,8 +45,13 @@ export default function RubricForm({
 }: Props) {
 	const queryClient = useQueryClient();
 
-	const maxScorePerCriterion = Math.floor(maxGrade / 3);
-	const midScorePerCriterion = Math.floor(maxScorePerCriterion / 2);
+	const maxScorePerCriterion = Math.floor(maxGrade / 4);
+	const levelScores = [
+		0,
+		Math.floor(maxScorePerCriterion / 3),
+		Math.floor((maxScorePerCriterion * 2) / 3),
+		maxScorePerCriterion,
+	];
 
 	const form = useForm<FormValues>({
 		initialValues: {
@@ -56,15 +61,10 @@ export default function RubricForm({
 				{
 					description: '',
 					levels: [
-						{ score: 0, definition: 'Does not meet requirements' },
-						{
-							score: midScorePerCriterion,
-							definition: 'Meets some requirements',
-						},
-						{
-							score: maxScorePerCriterion,
-							definition: 'Meets all requirements',
-						},
+						{ score: levelScores[0], definition: 'Poor' },
+						{ score: levelScores[1], definition: 'Fair' },
+						{ score: levelScores[2], definition: 'Good' },
+						{ score: levelScores[3], definition: 'Excellent' },
 					],
 				},
 			],
@@ -129,12 +129,10 @@ export default function RubricForm({
 		form.insertListItem('criteria', {
 			description: '',
 			levels: [
-				{ score: 0, definition: 'Does not meet requirements' },
-				{
-					score: midScorePerCriterion,
-					definition: 'Meets some requirements',
-				},
-				{ score: maxScorePerCriterion, definition: 'Meets all requirements' },
+				{ score: levelScores[0], definition: 'Poor' },
+				{ score: levelScores[1], definition: 'Fair' },
+				{ score: levelScores[2], definition: 'Good' },
+				{ score: levelScores[3], definition: 'Excellent' },
 			],
 		});
 	}
