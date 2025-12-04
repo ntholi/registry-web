@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 
 export type Term = {
 	id: number;
@@ -6,4 +6,7 @@ export type Term = {
 	isActive: boolean;
 };
 
-export const selectedTermAtom = atom<number | null>(null);
+export const selectedTermAtom = atomWithStorage<number | null>(
+	'timetable-selected-term',
+	null
+);

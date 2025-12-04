@@ -18,7 +18,7 @@ import AllocationTab from '@timetable/timetable-allocations/components/Allocatio
 import TimetableTab from '@timetable/timetable-allocations/components/TimetableTab';
 import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
-import { use, useMemo } from 'react';
+import { use, useEffect, useMemo } from 'react';
 import useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
 import { DetailsView } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
@@ -47,6 +47,15 @@ export default function LecturerAllocationDetails({ params }: Props) {
 	});
 
 	const { defaults } = useConfigDefaults();
+
+	useEffect(() => {
+		if (!selectedTermId && terms.length > 0) {
+			const activeTerm = terms.find((term) => term.isActive);
+			if (activeTerm) {
+				setSelectedTermId(activeTerm.id);
+			}
+		}
+	}, [selectedTermId, terms, setSelectedTermId]);
 
 	const filteredAllocations = useMemo(() => {
 		if (!selectedTermId) return [];
@@ -87,7 +96,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 					placeholder='Select a term'
 					data={terms.map((term) => ({
 						value: term.id.toString(),
-						label: term.name,
+						label: term.name + (term.isActive ? ' (Current)' : ''),
 					}))}
 					value={selectedTermId ? selectedTermId.toString() : null}
 					onChange={(value) => {
