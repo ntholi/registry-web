@@ -1,9 +1,9 @@
 'use client';
 
 import { Box, Card, Slider, Stack, Text } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getRubric } from '../../server/actions';
+import { getRubric, saveAssignmentGrade } from '../../server/actions';
 
 type Props = {
 	cmid: number;
@@ -14,17 +14,30 @@ type Props = {
 
 export default function RubricView({
 	cmid,
-	assignmentId: _assignmentId,
-	userId: _userId,
+	assignmentId,
+	userId,
 	onGradeChange,
 }: Props) {
 	const [selectedLevels, setSelectedLevels] = useState<Record<number, number>>(
 		{}
 	);
+	const queryClient = useQueryClient();
 
 	const { data: rubric, isLoading } = useQuery({
 		queryKey: ['rubric', cmid],
 		queryFn: () => getRubric(cmid),
+	});
+
+	const gradeMutation = useMutation({
+		mutationFn: async (newGrade: number) => {
+			await saveAssignmentGrade(assignmentId, userId, newGrade);
+			return newGrade;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['assignment-grades', assignmentId],
+			});
+		},
 	});
 
 	if (isLoading) {
@@ -47,7 +60,7 @@ export default function RubricView({
 		);
 	}
 
-	const handleLevelSelect = (criterionId: number, value: number) => {
+	const handleLevelChange = (criterionId: number, value: number) => {
 		setSelectedLevels((prev) => {
 			const updated = {
 				...prev,
@@ -62,6 +75,18 @@ export default function RubricView({
 			}
 			return updated;
 		});
+	};
+
+	const handleLevelChangeEnd = (criterionId: number, value: number) => {
+		const updated = {
+			...selectedLevels,
+			[criterionId]: value,
+		};
+		const newTotal = Object.values(updated).reduce(
+			(sum, score) => sum + score,
+			0
+		);
+		gradeMutation.mutate(newTotal);
 	};
 
 	return (
@@ -97,7 +122,10 @@ export default function RubricView({
 							<Slider
 								value={currentValue}
 								onChange={(value) =>
-									handleLevelSelect(criterion.id || 0, value)
+									handleLevelChange(criterion.id || 0, value)
+								}
+								onChangeEnd={(value) =>
+									handleLevelChangeEnd(criterion.id || 0, value)
 								}
 								min={minScore}
 								max={maxScore}
