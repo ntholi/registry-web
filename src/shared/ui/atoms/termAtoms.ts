@@ -6,7 +6,4 @@ export type Term = {
 	isActive: boolean;
 };
 
-export const selectedTermAtom = atomWithStorage<number | null>(
-	'timetable-selected-term',
-	null
-);
+export const selectedTermAtom = atomWithStorage<number | null>('term', null);
