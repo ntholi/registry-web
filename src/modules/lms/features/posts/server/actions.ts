@@ -59,12 +59,12 @@ async function findOrCreateForum(
 	);
 
 	if (!forum) {
-		await moodlePost('mod_forum_add_forum', {
+		await moodlePost('local_activity_utils_create_forum', {
 			courseid: courseId,
 			name: forumName,
-			intro: `${forumName} forum for the course`,
-			introformat: 1,
+			intro: `${forumName} for the course`,
 			type: forumType,
+			section: 0,
 		});
 
 		const updatedForums = await getCourseForums(courseId);
