@@ -2,7 +2,6 @@
 
 import { Avatar, Badge, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
 import type { SubmissionUser } from '../../types';
-import { getSubmissionFiles } from './utils';
 
 type Props = {
 	users: SubmissionUser[];
@@ -25,17 +24,15 @@ export default function StudentList({
 	return (
 		<ScrollArea h='calc(100vh - 350px)' type='auto'>
 			<Stack gap={4}>
-				<Text size='xs' fw={600} c='dimmed' tt='uppercase' px='sm' pb='xs'>
+				<Text size='xs' fw={600} tt='uppercase' pb='xs'>
 					Submitted ({submittedUsers.length})
 				</Text>
 				{submittedUsers.map((user) => {
-					const files = getSubmissionFiles(user);
 					return (
 						<NavLink
 							key={user.id}
 							active={selectedUser?.id === user.id}
 							label={user.fullname}
-							description={`${files.length} file${files.length !== 1 ? 's' : ''}`}
 							leftSection={
 								<Avatar src={user.profileimageurl} size='sm' radius='xl' />
 							}
@@ -46,15 +43,7 @@ export default function StudentList({
 
 				{notSubmittedUsers.length > 0 && (
 					<>
-						<Text
-							size='xs'
-							fw={600}
-							c='dimmed'
-							tt='uppercase'
-							px='sm'
-							pt='md'
-							pb='xs'
-						>
+						<Text size='xs' fw={600} tt='uppercase' pt='md' pb='xs'>
 							Not Submitted ({notSubmittedUsers.length})
 						</Text>
 						{notSubmittedUsers.map((user) => (
@@ -62,7 +51,6 @@ export default function StudentList({
 								key={user.id}
 								active={selectedUser?.id === user.id}
 								label={user.fullname}
-								description='No submission'
 								leftSection={
 									<Avatar src={user.profileimageurl} size='sm' radius='xl' />
 								}

@@ -73,9 +73,6 @@ export default function SubmissionsView({
 		<Grid gutter='md'>
 			<Grid.Col span={{ base: 12, md: 4, lg: 3 }}>
 				<Paper p='md' withBorder h='100%'>
-					<Text fw={600} size='sm' mb='md'>
-						Students
-					</Text>
 					<StudentList
 						users={users}
 						selectedUser={selectedUser}
