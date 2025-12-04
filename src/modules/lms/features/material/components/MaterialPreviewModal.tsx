@@ -22,6 +22,7 @@ type Material = {
 	name: string;
 	modname: string;
 	visible: number;
+	instance: number;
 };
 
 type MaterialPreviewModalProps = {
@@ -45,7 +46,8 @@ function MaterialPreview({ material }: { material: Material }) {
 	const colorScheme = useComputedColorScheme('dark');
 	const { data: contentData, isLoading } = useQuery({
 		queryKey: ['material-content', material.id],
-		queryFn: () => getMaterialContent(material.id, material.modname),
+		queryFn: () =>
+			getMaterialContent(material.id, material.modname, material.instance),
 		enabled: material.modname === 'page',
 	});
 

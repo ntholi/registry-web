@@ -30,6 +30,7 @@ type Material = {
 	name: string;
 	modname: string;
 	visible: number;
+	instance: number;
 };
 
 function getMaterialIcon(modname: string) {
