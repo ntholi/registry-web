@@ -6,6 +6,7 @@ import {
 	Group,
 	Loader,
 	Modal,
+	Paper,
 	Text,
 	useComputedColorScheme,
 	useMantineTheme,
@@ -43,9 +44,15 @@ function PageContent({ page }: { page: Page }) {
 		);
 	}
 
+	const styledContent = data?.content
+		? `<style>a { color: ${theme.colors.blue[4]}; text-decoration: underline; }</style>${data.content}`
+		: 'Content not available';
+
 	return (
-		<Box
+		<Paper
 			p='md'
+			pt={0}
+			withBorder
 			style={{
 				maxHeight: '70vh',
 				overflowY: 'auto',
@@ -56,10 +63,10 @@ function PageContent({ page }: { page: Page }) {
 		>
 			<div
 				dangerouslySetInnerHTML={{
-					__html: data?.content || 'Content not available',
+					__html: styledContent,
 				}}
 			/>
-		</Box>
+		</Paper>
 	);
 }
 
@@ -79,13 +86,14 @@ export default function PagePreviewModal({
 					</Text>
 					{page && (
 						<ActionIcon
-							variant='subtle'
-							color='gray'
+							variant='light'
+							color='blue'
 							component='a'
 							href={page.url}
 							target='_blank'
 							rel='noopener noreferrer'
 							onClick={(e) => e.stopPropagation()}
+							title='Open in Moodle'
 						>
 							<IconExternalLink size={18} />
 						</ActionIcon>
