@@ -111,7 +111,9 @@ export default function PostForm({ courseId }: PostFormProps) {
 						/>
 
 						<Button type='submit' loading={mutation.isPending}>
-							Post
+							{form.getInputProps('postType').value === 'announcement'
+								? 'Create Announcement'
+								: 'Create Discussion'}
 						</Button>
 					</Stack>
 				</form>
