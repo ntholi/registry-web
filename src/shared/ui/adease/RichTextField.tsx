@@ -20,6 +20,8 @@ import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useEffect, useState } from 'react';
 
+type ToolbarVariant = 'mini' | 'normal' | 'full';
+
 type Props = {
 	height?: number;
 	defaultValue?: string;
@@ -28,10 +30,12 @@ type Props = {
 	onChange?: (value: string) => void;
 	showFullScreenButton?: boolean;
 	placeholder?: string;
+	toolbar?: ToolbarVariant;
 } & InputProps;
 
 export default function RichTextField({
 	showFullScreenButton = true,
+	toolbar = 'normal',
 	...props
 }: Props) {
 	const [opened, { close, open }] = useDisclosure(false);
@@ -72,6 +76,7 @@ export default function RichTextField({
 			>
 				<RichTextComponent
 					{...props}
+					toolbar={toolbar}
 					content={content}
 					onContentChange={handleContentChange}
 					height={window.innerHeight - 160}
@@ -92,6 +97,7 @@ export default function RichTextField({
 			</Group>
 			<RichTextComponent
 				{...props}
+				toolbar={toolbar}
 				content={content}
 				onContentChange={handleContentChange}
 			/>
@@ -102,9 +108,11 @@ export default function RichTextField({
 type RichTextComponentProps = Props & {
 	content: string;
 	onContentChange: (newContent: string) => void;
+	toolbar: ToolbarVariant;
 };
 
 function RichTextComponent(props: RichTextComponentProps) {
+	const { toolbar } = props;
 	const editor = useEditor({
 		extensions: [
 			StarterKit,
@@ -136,51 +144,63 @@ function RichTextComponent(props: RichTextComponentProps) {
 				<RichTextEditor.ControlsGroup>
 					<RichTextEditor.Bold />
 					<RichTextEditor.Italic />
-					<RichTextEditor.Underline />
-					<RichTextEditor.Strikethrough />
-					<RichTextEditor.Highlight />
-					<RichTextEditor.ClearFormatting />
+					{toolbar !== 'mini' && <RichTextEditor.Underline />}
+					{toolbar === 'full' && <RichTextEditor.Strikethrough />}
+					{toolbar === 'full' && <RichTextEditor.Highlight />}
+					{toolbar !== 'mini' && <RichTextEditor.ClearFormatting />}
 				</RichTextEditor.ControlsGroup>
 
-				<RichTextEditor.ControlsGroup>
-					<RichTextEditor.H1 />
-					<RichTextEditor.H2 />
-					<RichTextEditor.H3 />
-				</RichTextEditor.ControlsGroup>
+				{toolbar !== 'mini' && (
+					<RichTextEditor.ControlsGroup>
+						<RichTextEditor.H1 />
+						<RichTextEditor.H2 />
+						{toolbar === 'full' && <RichTextEditor.H3 />}
+					</RichTextEditor.ControlsGroup>
+				)}
 
 				<RichTextEditor.ControlsGroup>
 					<RichTextEditor.BulletList />
 					<RichTextEditor.OrderedList />
-					<RichTextEditor.Blockquote />
-					<RichTextEditor.Hr />
+					{toolbar === 'full' && <RichTextEditor.Blockquote />}
+					{toolbar === 'full' && <RichTextEditor.Hr />}
 				</RichTextEditor.ControlsGroup>
 
-				<RichTextEditor.ControlsGroup>
-					<RichTextEditor.Code />
-					<RichTextEditor.CodeBlock />
-				</RichTextEditor.ControlsGroup>
+				{toolbar === 'full' && (
+					<RichTextEditor.ControlsGroup>
+						<RichTextEditor.Code />
+						<RichTextEditor.CodeBlock />
+					</RichTextEditor.ControlsGroup>
+				)}
 
-				<RichTextEditor.ControlsGroup>
-					<RichTextEditor.Link />
-					<RichTextEditor.Unlink />
-				</RichTextEditor.ControlsGroup>
+				{toolbar !== 'mini' && (
+					<RichTextEditor.ControlsGroup>
+						<RichTextEditor.Link />
+						<RichTextEditor.Unlink />
+					</RichTextEditor.ControlsGroup>
+				)}
 
-				<RichTextEditor.ControlsGroup>
-					<RichTextEditor.AlignLeft />
-					<RichTextEditor.AlignCenter />
-					<RichTextEditor.AlignRight />
-					<RichTextEditor.AlignJustify />
-				</RichTextEditor.ControlsGroup>
+				{toolbar === 'full' && (
+					<RichTextEditor.ControlsGroup>
+						<RichTextEditor.AlignLeft />
+						<RichTextEditor.AlignCenter />
+						<RichTextEditor.AlignRight />
+						<RichTextEditor.AlignJustify />
+					</RichTextEditor.ControlsGroup>
+				)}
 
-				<RichTextEditor.ControlsGroup>
-					<RichTextEditor.Subscript />
-					<RichTextEditor.Superscript />
-				</RichTextEditor.ControlsGroup>
+				{toolbar === 'full' && (
+					<RichTextEditor.ControlsGroup>
+						<RichTextEditor.Subscript />
+						<RichTextEditor.Superscript />
+					</RichTextEditor.ControlsGroup>
+				)}
 
-				<RichTextEditor.ControlsGroup>
-					<RichTextEditor.Undo />
-					<RichTextEditor.Redo />
-				</RichTextEditor.ControlsGroup>
+				{toolbar !== 'mini' && (
+					<RichTextEditor.ControlsGroup>
+						<RichTextEditor.Undo />
+						<RichTextEditor.Redo />
+					</RichTextEditor.ControlsGroup>
+				)}
 			</RichTextEditor.Toolbar>
 
 			<RichTextEditor.Content />

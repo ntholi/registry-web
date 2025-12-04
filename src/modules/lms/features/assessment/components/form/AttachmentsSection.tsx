@@ -39,7 +39,7 @@ export default function AttachmentsSection({ form }: AttachmentsSectionProps) {
 					{(props) => (
 						<Button
 							h={'2.7rem'}
-							variant='default'
+							variant='light'
 							style={{ cursor: 'pointer' }}
 							{...props}
 						>

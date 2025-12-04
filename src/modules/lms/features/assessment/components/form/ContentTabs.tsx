@@ -21,6 +21,7 @@ export default function ContentTabs({ form }: ContentTabsProps) {
 				<RichTextField
 					showFullScreenButton={false}
 					height={320}
+					toolbar='full'
 					{...form.getInputProps('description')}
 				/>
 			</Tabs.Panel>
