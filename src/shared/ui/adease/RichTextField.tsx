@@ -11,6 +11,7 @@ import { Link, RichTextEditor } from '@mantine/tiptap';
 import '@mantine/tiptap/styles.css';
 import { IconMaximize, IconMinimize } from '@tabler/icons-react';
 import Highlight from '@tiptap/extension-highlight';
+import Placeholder from '@tiptap/extension-placeholder';
 import SubScript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
 import TextAlign from '@tiptap/extension-text-align';
@@ -26,6 +27,7 @@ type Props = {
 	value?: string;
 	onChange?: (value: string) => void;
 	showFullScreenButton?: boolean;
+	placeholder?: string;
 } & InputProps;
 
 export default function RichTextField({
@@ -112,6 +114,7 @@ function RichTextComponent(props: RichTextComponentProps) {
 			SubScript,
 			Highlight,
 			TextAlign.configure({ types: ['heading', 'paragraph'] }),
+			Placeholder.configure({ placeholder: props.placeholder }),
 		],
 		content: props.content,
 		immediatelyRender: false,
@@ -129,21 +132,49 @@ function RichTextComponent(props: RichTextComponentProps) {
 
 	return (
 		<RichTextEditor mt={5} editor={editor} mih={props.height || 300}>
-			<RichTextEditor.Toolbar>
+			<RichTextEditor.Toolbar sticky stickyOffset={60}>
 				<RichTextEditor.ControlsGroup>
 					<RichTextEditor.Bold />
 					<RichTextEditor.Italic />
 					<RichTextEditor.Underline />
+					<RichTextEditor.Strikethrough />
+					<RichTextEditor.Highlight />
+					<RichTextEditor.ClearFormatting />
+				</RichTextEditor.ControlsGroup>
+
+				<RichTextEditor.ControlsGroup>
+					<RichTextEditor.H1 />
+					<RichTextEditor.H2 />
+					<RichTextEditor.H3 />
 				</RichTextEditor.ControlsGroup>
 
 				<RichTextEditor.ControlsGroup>
 					<RichTextEditor.BulletList />
 					<RichTextEditor.OrderedList />
+					<RichTextEditor.Blockquote />
+					<RichTextEditor.Hr />
+				</RichTextEditor.ControlsGroup>
+
+				<RichTextEditor.ControlsGroup>
+					<RichTextEditor.Code />
+					<RichTextEditor.CodeBlock />
 				</RichTextEditor.ControlsGroup>
 
 				<RichTextEditor.ControlsGroup>
 					<RichTextEditor.Link />
 					<RichTextEditor.Unlink />
+				</RichTextEditor.ControlsGroup>
+
+				<RichTextEditor.ControlsGroup>
+					<RichTextEditor.AlignLeft />
+					<RichTextEditor.AlignCenter />
+					<RichTextEditor.AlignRight />
+					<RichTextEditor.AlignJustify />
+				</RichTextEditor.ControlsGroup>
+
+				<RichTextEditor.ControlsGroup>
+					<RichTextEditor.Subscript />
+					<RichTextEditor.Superscript />
 				</RichTextEditor.ControlsGroup>
 
 				<RichTextEditor.ControlsGroup>
