@@ -27,6 +27,7 @@ import {
 	IconX,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { useQueryState } from 'nuqs';
 import { useRef, useState } from 'react';
 import { DeleteButton } from '@/shared/ui/adease';
 import { deleteRubric, getRubric } from '../../server/actions';
@@ -40,7 +41,9 @@ type Props = {
 };
 
 export default function AssessmentTabs({ assignment, courseId }: Props) {
-	const [activeTab, setActiveTab] = useState<string | null>('details');
+	const [activeTab, setActiveTab] = useQueryState('tab', {
+		defaultValue: 'details',
+	});
 	const [isEditingRubric, setIsEditingRubric] = useState(false);
 	const rubricFormRef = useRef<{ submit: () => void } | null>(null);
 
