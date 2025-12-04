@@ -12,35 +12,19 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { getStudentPhoto } from '@registry/students';
 import {
 	IconListCheck,
 	IconMessageCircle,
 	IconUsers,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import type { SubmissionFile, SubmissionUser } from '../../types';
 import CommentsView from './CommentsView';
 import FileList from './FileList';
 import GradeInput from './GradeInput';
 import RubricView from './RubricView';
 import { formatDate } from './utils';
-
-type StudentAvatarProps = {
-	stdNo: number;
-	size?: string;
-};
-
-function StudentAvatar({ stdNo, size = 'md' }: StudentAvatarProps) {
-	const { data: photoUrl } = useQuery({
-		queryKey: ['student-photo', stdNo],
-		queryFn: () => getStudentPhoto(stdNo),
-		staleTime: 1000 * 60 * 5,
-	});
-
-	return <Avatar src={photoUrl} size={size} radius='xl' />;
-}
 
 type Props = {
 	selectedUser: SubmissionUser | null;
@@ -84,7 +68,11 @@ export default function SubmissionDetails({
 			<Group justify='space-between'>
 				<Group gap='sm'>
 					{selectedUser.dbStudent ? (
-						<StudentAvatar stdNo={selectedUser.dbStudent.stdNo} />
+						<StudentAvatar
+							stdNo={selectedUser.dbStudent.stdNo}
+							size='md'
+							radius='xl'
+						/>
 					) : (
 						<Avatar src={selectedUser.profileimageurl} size='md' radius='xl' />
 					)}

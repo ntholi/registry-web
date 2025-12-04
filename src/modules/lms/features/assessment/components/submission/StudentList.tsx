@@ -1,23 +1,8 @@
 'use client';
 
 import { Avatar, Badge, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
-import { getStudentPhoto } from '@registry/students';
-import { useQuery } from '@tanstack/react-query';
+import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import type { SubmissionUser } from '../../types';
-
-type StudentAvatarProps = {
-	stdNo: number;
-};
-
-function StudentAvatar({ stdNo }: StudentAvatarProps) {
-	const { data: photoUrl } = useQuery({
-		queryKey: ['student-photo', stdNo],
-		queryFn: () => getStudentPhoto(stdNo),
-		staleTime: 1000 * 60 * 5,
-	});
-
-	return <Avatar src={photoUrl} size='sm' radius='xl' />;
-}
 
 type Props = {
 	users: SubmissionUser[];
@@ -50,7 +35,11 @@ export default function StudentList({
 						label={user.dbStudent?.name ?? user.fullname}
 						leftSection={
 							user.dbStudent ? (
-								<StudentAvatar stdNo={user.dbStudent.stdNo} />
+								<StudentAvatar
+									stdNo={user.dbStudent.stdNo}
+									size='sm'
+									radius='xl'
+								/>
 							) : (
 								<Avatar src={user.profileimageurl} size='sm' radius='xl' />
 							)
