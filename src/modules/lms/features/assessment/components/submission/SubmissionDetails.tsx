@@ -43,6 +43,9 @@ export default function SubmissionDetails({
 	cmid,
 }: Props) {
 	const [activeTab, setActiveTab] = useState<string | null>('rubric');
+	const [rubricGrade, setRubricGrade] = useState<number | undefined>(
+		existingGrade
+	);
 
 	if (!selectedUser) {
 		return (
@@ -76,7 +79,7 @@ export default function SubmissionDetails({
 						assignmentId={assignmentId}
 						userId={selectedUser.id}
 						maxGrade={maxGrade}
-						existingGrade={existingGrade}
+						existingGrade={rubricGrade}
 					/>
 				)}
 			</Group>
@@ -102,6 +105,7 @@ export default function SubmissionDetails({
 								cmid={cmid}
 								assignmentId={assignmentId}
 								userId={selectedUser.id}
+								onGradeChange={setRubricGrade}
 							/>
 						) : (
 							<Text c='dimmed' size='sm'>

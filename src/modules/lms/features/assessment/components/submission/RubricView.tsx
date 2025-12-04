@@ -9,12 +9,14 @@ type Props = {
 	cmid: number;
 	assignmentId: number;
 	userId: number;
+	onGradeChange?: (grade: number) => void;
 };
 
 export default function RubricView({
 	cmid,
 	assignmentId: _assignmentId,
 	userId: _userId,
+	onGradeChange,
 }: Props) {
 	const [selectedLevels, setSelectedLevels] = useState<Record<number, number>>(
 		{}
@@ -46,39 +48,34 @@ export default function RubricView({
 	}
 
 	const handleLevelSelect = (criterionId: number, value: number) => {
-		setSelectedLevels((prev) => ({
-			...prev,
-			[criterionId]: value,
-		}));
+		setSelectedLevels((prev) => {
+			const updated = {
+				...prev,
+				[criterionId]: value,
+			};
+			const newTotal = Object.values(updated).reduce(
+				(sum, score) => sum + score,
+				0
+			);
+			if (onGradeChange) {
+				onGradeChange(newTotal);
+			}
+			return updated;
+		});
 	};
-
-	const totalScore = Object.values(selectedLevels).reduce(
-		(sum, score) => sum + score,
-		0
-	);
 
 	return (
 		<Stack gap='md'>
-			<Group justify='space-between'>
-				<Box>
-					<Text fw={600} size='lg'>
-						{rubric.name}
-					</Text>
-					{rubric.description && (
-						<Text size='sm' c='dimmed'>
-							{rubric.description}
-						</Text>
-					)}
-				</Box>
-				<Box>
+			<Box>
+				<Text fw={600} size='lg'>
+					{rubric.name}
+				</Text>
+				{rubric.description && (
 					<Text size='sm' c='dimmed'>
-						Score
+						{rubric.description}
 					</Text>
-					<Text fw={700} size='xl'>
-						{totalScore} / {rubric.maxscore}
-					</Text>
-				</Box>
-			</Group>
+				)}
+			</Box>
 
 			<Stack gap='lg'>
 				{rubric.criteria.map((criterion) => {
