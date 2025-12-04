@@ -86,7 +86,12 @@ export default function SubmissionDetails({
 			<FileList files={files} />
 
 			{selectedUser.submission?.status === 'submitted' && (
-				<Tabs value={activeTab} onChange={setActiveTab} variant='outline'>
+				<Tabs
+					value={activeTab}
+					onChange={setActiveTab}
+					variant='outline'
+					mt={'md'}
+				>
 					<TabsList>
 						<TabsTab value='rubric' leftSection={<IconListCheck size={16} />}>
 							Rubric

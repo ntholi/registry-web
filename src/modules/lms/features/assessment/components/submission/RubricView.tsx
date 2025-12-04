@@ -79,7 +79,11 @@ export default function RubricView({
 				}));
 
 				const currentValue = selectedLevels[criterion.id || 0] || minScore || 0;
-				const currentLevel = sortedLevels.find((l) => l.score === currentValue);
+				const currentLevel =
+					sortedLevels
+						.slice()
+						.reverse()
+						.find((l) => l.score <= currentValue) || sortedLevels[0];
 
 				return (
 					<Card key={criterion.id} withBorder p='md'>
@@ -99,10 +103,6 @@ export default function RubricView({
 								max={maxScore}
 								marks={marks}
 								size='md'
-								label={(value) => {
-									const level = sortedLevels.find((l) => l.score === value);
-									return level ? `${level.score}` : value.toString();
-								}}
 								styles={{
 									markLabel: { marginTop: 8 },
 								}}
