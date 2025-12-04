@@ -23,6 +23,7 @@ import {
 	IconEdit,
 	IconExternalLink,
 	IconFileDescription,
+	IconRuler2,
 	IconUsers,
 } from '@tabler/icons-react';
 
@@ -70,6 +71,9 @@ export default function AssessmentLoading() {
 						leftSection={<IconFileDescription size={16} />}
 					>
 						Details
+					</TabsTab>
+					<TabsTab value='rubric' leftSection={<IconRuler2 size={16} />}>
+						Rubric
 					</TabsTab>
 					<TabsTab value='submissions' leftSection={<IconUsers size={16} />}>
 						Submissions
