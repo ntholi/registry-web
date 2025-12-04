@@ -58,6 +58,7 @@ type Props = {
 	showVenue?: boolean;
 	showLecturer?: boolean;
 	showClass?: boolean;
+	height?: number;
 };
 
 const TIME_SLOTS = [
@@ -193,6 +194,7 @@ export default function TimetableGrid({
 	showVenue = true,
 	showLecturer = false,
 	showClass = true,
+	height = 80,
 }: Props) {
 	if (isLoading) {
 		return (
@@ -276,7 +278,7 @@ export default function TimetableGrid({
 										backgroundColor: 'var(--mantine-color-dark-7)',
 									}}
 								>
-									<Box pos='relative' h='100%' mih={100}>
+									<Box pos='relative' h='100%' mih={height}>
 										<Box
 											pos='absolute'
 											style={{

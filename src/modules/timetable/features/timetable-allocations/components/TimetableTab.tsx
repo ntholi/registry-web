@@ -33,6 +33,7 @@ export default function TimetableTab({ userId, selectedTermId }: Props) {
 			showVenue
 			showClass
 			showLecturer={false}
+			height={60}
 		/>
 	);
 }
