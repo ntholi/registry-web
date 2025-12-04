@@ -12,6 +12,7 @@ import {
 	Stack,
 	Text,
 	ThemeIcon,
+	Tooltip,
 	useMantineTheme,
 } from '@mantine/core';
 import {
@@ -152,23 +153,25 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 											</Group>
 										</Box>
 									</Group>
-									<ActionIcon
-										variant='subtle'
-										color='gray'
-										size='md'
-										component='a'
-										href={material.url}
-										{...(isFile
-											? { download: true }
-											: { target: '_blank', rel: 'noopener noreferrer' })}
-										onClick={(e) => e.stopPropagation()}
-									>
-										{isFile ? (
-											<IconDownload size={16} />
-										) : (
-											<IconExternalLink size={16} />
-										)}
-									</ActionIcon>
+									<Tooltip label={isFile ? 'Download file' : 'Open in new tab'}>
+										<ActionIcon
+											variant='subtle'
+											color='gray'
+											size='md'
+											component='a'
+											href={material.url}
+											{...(isFile
+												? { download: true }
+												: { target: '_blank', rel: 'noopener noreferrer' })}
+											onClick={(e) => e.stopPropagation()}
+										>
+											{isFile ? (
+												<IconDownload size={16} />
+											) : (
+												<IconExternalLink size={16} />
+											)}
+										</ActionIcon>
+									</Tooltip>
 								</Flex>
 							</Stack>
 						</Card>
