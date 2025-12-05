@@ -288,3 +288,19 @@ async function getPageContent(pageId?: number, courseId?: number) {
 	const page = pages.find((item) => item.id === pageId);
 	return page?.content || null;
 }
+
+export async function deleteMaterial(cmid: number) {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	try {
+		await moodlePost('core_course_delete_modules', {
+			'cmids[0]': cmid,
+		});
+	} catch (error) {
+		console.error('Error deleting material:', error);
+		throw new Error('Unable to delete material');
+	}
+}

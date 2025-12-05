@@ -214,3 +214,19 @@ export async function getDiscussionPosts(
 		userpictureurl: p.author.urls.profileimage || '',
 	})) as MoodlePost[];
 }
+
+export async function deletePost(discussionId: number) {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	try {
+		await moodlePost('mod_forum_delete_discussion', {
+			discussionid: discussionId,
+		});
+	} catch (error) {
+		console.error('Error deleting post:', error);
+		throw new Error('Unable to delete post');
+	}
+}
