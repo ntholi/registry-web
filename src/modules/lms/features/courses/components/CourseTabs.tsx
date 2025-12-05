@@ -1,7 +1,7 @@
 'use client';
 
 import { AssessmentForm, AssessmentsList } from '@lms/assessment';
-import { CourseOutline } from '@lms/course-outline';
+import { CourseOutline, CourseOutlineDownload } from '@lms/course-outline';
 import { Gradebook, getAssignedModuleByCourseId } from '@lms/gradebook';
 import MaterialForm from '@lms/material/components/MaterialForm';
 import MaterialList from '@lms/material/components/MaterialList';
@@ -70,6 +70,13 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 						<AssessmentForm courseId={course.id} moduleId={moduleId} />
 					)}
 					{activeTab === 'material' && <MaterialForm courseId={course.id} />}
+					{activeTab === 'outline' && (
+						<CourseOutlineDownload
+							courseId={course.id}
+							courseName={course.fullname}
+							courseCode={course.shortname}
+						/>
+					)}
 					{activeTab === 'students' && <AddStudentModal course={course} />}
 					{activeTab === 'virtual-classroom' && (
 						<VirtualClassroomForm courseId={course.id} />
