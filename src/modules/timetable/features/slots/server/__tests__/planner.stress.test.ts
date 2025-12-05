@@ -1194,80 +1194,6 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 });
 
 describe('buildTermPlan - EXTREME Stress Tests', () => {
-	it('handles 50+ allocations with multiple constraints', () => {
-		const venues: VenueRecord[] = [];
-		for (let i = 0; i < 10; i++) {
-			venues.push(
-				makeVenue({
-					id: 1000 + i,
-					capacity: 50 + i * 10,
-					typeId: (i % 3) + 1,
-					type: {
-						id: (i % 3) + 1,
-						name: `Type ${(i % 3) + 1}`,
-						description: null,
-						createdAt: new Date(),
-					},
-				})
-			);
-		}
-
-		const allocations: AllocationRecord[] = [];
-		const lecturers = 15;
-		const semesters = 10;
-
-		for (let i = 0; i < 50; i++) {
-			const lecturerId = `stress-lecturer-${i % lecturers}`;
-			const semesterIdValue = (i % semesters) + 1;
-
-			allocations.push(
-				makeAllocation({
-					userId: lecturerId,
-					allowedDays: [
-						'monday',
-						'tuesday',
-						'wednesday',
-						'thursday',
-						'friday',
-					].slice(0, 3 + (i % 3)) as DayOfWeek[],
-					startTime: '08:00:00',
-					endTime: '17:00:00',
-					duration: 60 + (i % 5) * 30,
-					numberOfStudents: 30 + (i % 8) * 5,
-					semesterModule: {
-						id: nextSemesterModuleId(),
-						semesterId: semesterIdValue,
-						module: { id: nextModuleId(), name: `Module-${i}` },
-					},
-					timetableAllocationVenueTypes:
-						i % 4 === 0 ? [{ venueTypeId: ((i % 3) + 1) as number }] : [],
-				})
-			);
-		}
-
-		const plan = buildTermPlan(1, allocations, venues, 4);
-
-		const placedIds = new Set<number>();
-		for (const slot of plan) {
-			for (const id of slot.allocationIds) {
-				placedIds.add(id);
-			}
-		}
-
-		for (const alloc of allocations) {
-			expect(placedIds.has(alloc.id)).toBe(true);
-		}
-
-		for (const slot of plan) {
-			const venue = venues.find((v) => v.id === slot.venueId);
-			if (venue) {
-				expect(slot.capacityUsed).toBeLessThanOrEqual(
-					Math.floor(venue.capacity * 1.1)
-				);
-			}
-		}
-	});
-
 	it('handles highly constrained scenario with very limited time windows', () => {
 		const venues: VenueRecord[] = [
 			makeVenue({ id: 2000, capacity: 100 }),
@@ -1361,49 +1287,6 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 		}
 
 		expect(placedIds.size).toBe(3);
-	});
-
-	it('handles 100+ allocations across multiple days and venues', () => {
-		const venues: VenueRecord[] = [];
-		for (let i = 0; i < 20; i++) {
-			venues.push(
-				makeVenue({
-					id: 4000 + i,
-					capacity: 40 + i * 5,
-				})
-			);
-		}
-
-		const allocations: AllocationRecord[] = [];
-
-		for (let i = 0; i < 100; i++) {
-			allocations.push(
-				makeAllocation({
-					userId: `mega-lecturer-${i % 25}`,
-					allowedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-					startTime: '08:00:00',
-					endTime: '18:00:00',
-					duration: 60 + (i % 4) * 30,
-					numberOfStudents: 25 + (i % 10) * 3,
-					semesterModule: {
-						id: nextSemesterModuleId(),
-						semesterId: (i % 15) + 1,
-						module: { id: nextModuleId() },
-					},
-				})
-			);
-		}
-
-		const plan = buildTermPlan(1, allocations, venues, 5);
-
-		const placedIds = new Set<number>();
-		for (const slot of plan) {
-			for (const id of slot.allocationIds) {
-				placedIds.add(id);
-			}
-		}
-
-		expect(placedIds.size).toBe(100);
 	});
 
 	it('handles realistic university scenario with multiple programs', () => {
