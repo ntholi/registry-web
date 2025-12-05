@@ -5,6 +5,7 @@ import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type {
 	CreateFileParams,
 	CreatePageParams,
+	CreateUrlParams,
 	MoodlePage,
 	MoodleSection,
 } from '../types';
@@ -167,6 +168,41 @@ export async function createFile(params: CreateFileParams) {
 		console.error('Error creating file:', error);
 		throw new Error(
 			'Unable to create file. Please ensure the local_activity_utils plugin is installed and configured.'
+		);
+	}
+}
+
+export async function createUrl(params: CreateUrlParams) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	if (!params.name?.trim()) {
+		throw new Error('Name is required');
+	}
+
+	if (!params.externalurl?.trim()) {
+		throw new Error('URL is required');
+	}
+
+	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
+
+	try {
+		const result = await moodlePost('local_activity_utils_create_url', {
+			courseid: params.courseid,
+			name: params.name.trim(),
+			externalurl: params.externalurl.trim(),
+			intro: params.intro?.trim() || '',
+			section: sectionNumber,
+			visible: 1,
+		});
+
+		return result;
+	} catch (error) {
+		console.error('Error creating URL:', error);
+		throw new Error(
+			'Unable to create URL. Please ensure the local_activity_utils plugin is installed and configured.'
 		);
 	}
 }

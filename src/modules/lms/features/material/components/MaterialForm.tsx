@@ -19,7 +19,7 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
 import RichTextField from '@/shared/ui/adease/RichTextField';
-import { createFile, createPage } from '../server/actions';
+import { createFile, createPage, createUrl } from '../server/actions';
 import type { MaterialType } from '../types';
 
 const pageSchema = z.object({
@@ -38,8 +38,14 @@ const fileSchema = z.object({
 		),
 });
 
+const urlSchema = z.object({
+	name: z.string().min(1, 'Name is required'),
+	externalurl: z.string().url('Please enter a valid URL'),
+});
+
 type PageFormValues = z.infer<typeof pageSchema>;
 type FileFormValues = z.infer<typeof fileSchema>;
+type UrlFormValues = z.infer<typeof urlSchema>;
 
 type MaterialFormProps = {
 	courseId: number;
@@ -63,6 +69,14 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 		initialValues: {
 			name: '',
 			file: null as unknown as File,
+		},
+	});
+
+	const urlForm = useForm<UrlFormValues>({
+		validate: zodResolver(urlSchema),
+		initialValues: {
+			name: '',
+			externalurl: '',
 		},
 	});
 
@@ -135,11 +149,39 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 		},
 	});
 
+	const urlMutation = useMutation({
+		mutationFn: async (values: UrlFormValues) => {
+			return createUrl({
+				courseid: courseId,
+				name: values.name,
+				externalurl: values.externalurl,
+			});
+		},
+		onSuccess: () => {
+			notifications.show({
+				message: 'URL created successfully',
+				color: 'green',
+			});
+			queryClient.invalidateQueries({
+				queryKey: ['material-pages', courseId],
+			});
+			urlForm.reset();
+			handleClose();
+		},
+		onError: (error) => {
+			notifications.show({
+				message: error.message || 'Failed to create URL',
+				color: 'red',
+			});
+		},
+	});
+
 	const handleClose = () => {
 		close();
 		setMaterialType('page');
 		pageForm.reset();
 		fileForm.reset();
+		urlForm.reset();
 	};
 
 	const handlePageSubmit = pageForm.onSubmit((values) => {
@@ -148,6 +190,10 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 
 	const handleFileSubmit = fileForm.onSubmit((values) => {
 		fileMutation.mutate(values);
+	});
+
+	const handleUrlSubmit = urlForm.onSubmit((values) => {
+		urlMutation.mutate(values);
 	});
 
 	const handleFileDrop = (files: FileWithPath[]) => {
@@ -181,10 +227,11 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 						data={[
 							{ label: 'Page', value: 'page' },
 							{ label: 'File', value: 'file' },
+							{ label: 'URL', value: 'url' },
 						]}
 					/>
 
-					{materialType === 'page' ? (
+					{materialType === 'page' && (
 						<form onSubmit={handlePageSubmit}>
 							<Stack>
 								<TextInput
@@ -205,7 +252,9 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 								</Button>
 							</Stack>
 						</form>
-					) : (
+					)}
+
+					{materialType === 'file' && (
 						<form onSubmit={handleFileSubmit}>
 							<Stack>
 								<TextInput
@@ -262,6 +311,31 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 
 								<Button type='submit' loading={fileMutation.isPending}>
 									Upload File
+								</Button>
+							</Stack>
+						</form>
+					)}
+
+					{materialType === 'url' && (
+						<form onSubmit={handleUrlSubmit}>
+							<Stack>
+								<TextInput
+									label='Name'
+									placeholder='Enter URL name/description'
+									required
+									{...urlForm.getInputProps('name')}
+								/>
+
+								<TextInput
+									label='URL'
+									type='url'
+									placeholder='https://example.com'
+									required
+									{...urlForm.getInputProps('externalurl')}
+								/>
+
+								<Button type='submit' loading={urlMutation.isPending}>
+									Create URL
 								</Button>
 							</Stack>
 						</form>
