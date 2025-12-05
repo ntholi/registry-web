@@ -171,14 +171,18 @@ export class RegistrationReportService {
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
-	async getChartData(termId: number, filter?: RegistrationReportFilter) {
+	async getChartData(termIds: number[], filter?: RegistrationReportFilter) {
 		return withAuth(async () => {
-			const term = await this.repository.getTermById(termId);
-			if (!term) {
-				throw new Error('Term not found');
+			const terms = await this.repository.getTermsByIds(termIds);
+			if (!terms || terms.length === 0) {
+				throw new Error('Terms not found');
 			}
 
-			return await this.repository.getChartData(term.name, filter);
+			const termNames = terms.map((t) => t.name);
+			return await this.repository.getChartDataForMultipleTerms(
+				termNames,
+				filter
+			);
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
