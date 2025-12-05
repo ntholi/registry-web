@@ -108,7 +108,9 @@ export default function CourseSections({
 									{section.pagenum}
 								</Badge>
 								<Text fw={600} size='sm' lineClamp={1}>
-									{section.title}
+									{section.title.length > 30
+										? `${section.title.slice(0, 30)}...`
+										: section.title}
 								</Text>
 							</Group>
 							<Text size='xs' c='dimmed' lineClamp={3}>
