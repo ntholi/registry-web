@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, like, or, type SQL, sql } from 'drizzle-orm';
 import {
 	db,
 	programs,
@@ -71,12 +71,55 @@ export interface SummaryRegistrationReport {
 	generatedAt: Date;
 }
 
+interface ChartDataResult {
+	studentsBySchool: Array<{ name: string; count: number; code: string }>;
+	studentsByProgram: Array<{
+		name: string;
+		code: string;
+		count: number;
+		school: string;
+	}>;
+	studentsBySemester: Array<{ semester: string; count: number }>;
+	studentsByGender: Array<{ gender: string; count: number }>;
+	studentsBySponsor: Array<{ sponsor: string; count: number }>;
+	programsBySchool: Array<{
+		school: string;
+		schoolCode: string;
+		programCount: number;
+	}>;
+}
+
+interface StudentQueryRow {
+	stdNo: number;
+	name: string;
+	programName: string;
+	semesterNumber: string | null;
+	schoolName: string;
+	schoolCode: string;
+	phone: string | null;
+	status: string;
+	sponsorName: string | null;
+	gender: string | null;
+	dateOfBirth: Date | null;
+	country: string | null;
+}
+
+interface ChartQueryRow {
+	schoolName: string;
+	schoolCode: string;
+	programName: string;
+	programCode: string;
+	semesterNumber: string | null;
+	gender: string | null;
+	sponsorName: string | null;
+	studentId: number;
+	dateOfBirth: Date | null;
+	country: string | null;
+}
+
 export class RegistrationReportRepository {
-	async getFullRegistrationData(
-		termName: string,
-		filter?: RegistrationReportFilter
-	): Promise<FullRegistrationStudent[]> {
-		const query = db
+	private createBaseStudentQuery() {
+		return db
 			.select({
 				stdNo: students.stdNo,
 				name: students.name,
@@ -105,137 +148,10 @@ export class RegistrationReportRepository {
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
-
-		const conditions = [eq(studentSemesters.term, termName)];
-
-		if (filter?.studentStatus) {
-			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
-		}
-
-		if (filter?.programStatus) {
-			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
-		} else {
-			conditions.push(eq(studentPrograms.status, 'Active'));
-		}
-
-		if (filter?.semesterStatus) {
-			conditions.push(
-				sql`${studentSemesters.status} = ${filter.semesterStatus}`
-			);
-		} else {
-			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
-		}
-
-		if (filter?.schoolId) {
-			conditions.push(eq(schools.id, filter.schoolId));
-		}
-
-		if (filter?.programId) {
-			conditions.push(eq(programs.id, filter.programId));
-		}
-
-		if (filter?.semesterNumber) {
-			conditions.push(
-				eq(structureSemesters.semesterNumber, filter.semesterNumber)
-			);
-		}
-
-		if (filter?.gender) {
-			conditions.push(
-				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
-			);
-		}
-
-		if (filter?.sponsorId) {
-			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
-		}
-
-		if (filter?.country) {
-			conditions.push(eq(students.country, filter.country));
-		}
-
-		if (filter?.ageRangeMin || filter?.ageRangeMax) {
-			const currentDate = new Date();
-			if (filter.ageRangeMin) {
-				const maxBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMin,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
-			}
-			if (filter.ageRangeMax) {
-				const minBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMax - 1,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
-			}
-		}
-
-		const result = await query
-			.where(and(...conditions))
-			.orderBy(schools.name, programs.name, structureSemesters.semesterNumber);
-
-		return result.map((row) => ({
-			stdNo: row.stdNo,
-			name: row.name,
-			programName: row.programName,
-			semesterNumber: row.semesterNumber || '',
-			schoolName: row.schoolName,
-			schoolCode: row.schoolCode,
-			phone: row.phone || '',
-			status: row.status,
-			sponsorName: row.sponsorName || null,
-			gender: row.gender || null,
-		}));
 	}
 
-	async getPaginatedRegistrationData(
-		termName: string,
-		page: number = 1,
-		pageSize: number = 20,
-		filter?: RegistrationReportFilter
-	): Promise<{
-		students: FullRegistrationStudent[];
-		totalCount: number;
-		totalPages: number;
-		currentPage: number;
-	}> {
-		const offset = (page - 1) * pageSize;
-
-		const studentsQuery = db
-			.select({
-				stdNo: students.stdNo,
-				name: students.name,
-				programName: programs.name,
-				semesterNumber: structureSemesters.semesterNumber,
-				schoolName: schools.name,
-				schoolCode: schools.code,
-				phone: students.phone1,
-				status: studentSemesters.status,
-				sponsorName: sponsors.name,
-				gender: students.gender,
-				dateOfBirth: students.dateOfBirth,
-				country: students.country,
-			})
-			.from(studentSemesters)
-			.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			)
-			.innerJoin(
-				studentPrograms,
-				eq(studentSemesters.studentProgramId, studentPrograms.id)
-			)
-			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
-
-		const countQuery = db
+	private createCountQuery() {
+		return db
 			.select({ count: students.stdNo })
 			.from(studentSemesters)
 			.innerJoin(
@@ -250,8 +166,43 @@ export class RegistrationReportRepository {
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id));
+	}
 
-		const conditions = [eq(studentSemesters.term, termName)];
+	private createChartQuery() {
+		return db
+			.select({
+				schoolName: schools.name,
+				schoolCode: schools.code,
+				programName: programs.name,
+				programCode: programs.code,
+				semesterNumber: structureSemesters.semesterNumber,
+				gender: students.gender,
+				sponsorName: sponsors.name,
+				studentId: students.stdNo,
+				dateOfBirth: students.dateOfBirth,
+				country: students.country,
+			})
+			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
+			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
+	}
+
+	private buildFilterConditions(
+		filter: RegistrationReportFilter | undefined,
+		options: { includeSearchQuery?: boolean } = {}
+	): SQL[] {
+		const conditions: SQL[] = [];
 
 		if (filter?.studentStatus) {
 			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
@@ -319,7 +270,7 @@ export class RegistrationReportRepository {
 			}
 		}
 
-		if (filter?.searchQuery?.trim()) {
+		if (options.includeSearchQuery && filter?.searchQuery?.trim()) {
 			const searchTerm = `%${filter.searchQuery.trim()}%`;
 			conditions.push(
 				or(
@@ -333,45 +284,28 @@ export class RegistrationReportRepository {
 			);
 		}
 
-		const whereClause = and(...conditions);
+		return conditions;
+	}
 
-		const [studentsResult, totalResult] = await Promise.all([
-			studentsQuery
-				.where(whereClause)
-				.orderBy(schools.name, programs.name, structureSemesters.semesterNumber)
-				.limit(pageSize)
-				.offset(offset),
-			countQuery.where(whereClause),
-		]);
-
-		const totalCount = totalResult.length;
-		const totalPages = Math.ceil(totalCount / pageSize);
-
+	private mapRowToStudent(row: StudentQueryRow): FullRegistrationStudent {
 		return {
-			students: studentsResult.map((row) => ({
-				stdNo: row.stdNo,
-				name: row.name,
-				programName: row.programName,
-				semesterNumber: row.semesterNumber || '',
-				schoolName: row.schoolName,
-				schoolCode: row.schoolCode,
-				phone: row.phone || '',
-				status: row.status,
-				sponsorName: row.sponsorName || null,
-				gender: row.gender || null,
-			})),
-			totalCount,
-			totalPages,
-			currentPage: page,
+			stdNo: row.stdNo,
+			name: row.name,
+			programName: row.programName,
+			semesterNumber: row.semesterNumber || '',
+			schoolName: row.schoolName,
+			schoolCode: row.schoolCode,
+			phone: row.phone || '',
+			status: row.status,
+			sponsorName: row.sponsorName || null,
+			gender: row.gender || null,
 		};
 	}
 
-	async getSummaryRegistrationData(
-		termName: string,
-		filter?: RegistrationReportFilter
-	): Promise<SummaryRegistrationReport> {
-		const fullData = await this.getFullRegistrationData(termName, filter);
-
+	private processSummaryData(fullData: FullRegistrationStudent[]): {
+		schoolsMap: Map<string, SummarySchoolData>;
+		programsMap: Map<string, SummaryProgramData>;
+	} {
 		const schoolsMap = new Map<string, SummarySchoolData>();
 		const programsMap = new Map<string, SummaryProgramData>();
 
@@ -421,7 +355,16 @@ export class RegistrationReportRepository {
 			school.totalStudents++;
 		});
 
-		const schools = Array.from(schoolsMap.values())
+		return { schoolsMap, programsMap };
+	}
+
+	private buildSummaryReport(
+		termName: string,
+		fullData: FullRegistrationStudent[],
+		schoolsMap: Map<string, SummarySchoolData>,
+		programsMap: Map<string, SummaryProgramData>
+	): SummaryRegistrationReport {
+		const schoolsList = Array.from(schoolsMap.values())
 			.map((school) => ({
 				...school,
 				programs: Array.from(programsMap.values())
@@ -433,9 +376,161 @@ export class RegistrationReportRepository {
 		return {
 			termName,
 			totalStudents: fullData.length,
-			schools,
+			schools: schoolsList,
 			generatedAt: new Date(),
 		};
+	}
+
+	private aggregateChartData(result: ChartQueryRow[]): ChartDataResult {
+		const schoolMap = new Map<string, number>();
+		const programMap = new Map<
+			string,
+			{ count: number; school: string; code: string; name: string }
+		>();
+		const semesterMap = new Map<string, number>();
+		const genderMap = new Map<string, number>();
+		const sponsorMap = new Map<string, number>();
+		const schoolProgramsMap = new Map<
+			string,
+			{ programs: Set<string>; schoolCode: string }
+		>();
+
+		result.forEach((row) => {
+			schoolMap.set(row.schoolName, (schoolMap.get(row.schoolName) || 0) + 1);
+
+			const programKey = `${row.programName}|${row.schoolName}`;
+			if (!programMap.has(programKey)) {
+				programMap.set(programKey, {
+					count: 0,
+					school: row.schoolName,
+					code: row.programCode,
+					name: row.programName,
+				});
+			}
+			programMap.get(programKey)!.count++;
+
+			const semester = row.semesterNumber || 'Unknown';
+			semesterMap.set(semester, (semesterMap.get(semester) || 0) + 1);
+
+			const gender = row.gender || 'Unknown';
+			genderMap.set(gender, (genderMap.get(gender) || 0) + 1);
+
+			const sponsor = row.sponsorName || 'Unknown';
+			sponsorMap.set(sponsor, (sponsorMap.get(sponsor) || 0) + 1);
+
+			if (!schoolProgramsMap.has(row.schoolName)) {
+				schoolProgramsMap.set(row.schoolName, {
+					programs: new Set(),
+					schoolCode: row.schoolCode,
+				});
+			}
+			schoolProgramsMap.get(row.schoolName)!.programs.add(row.programName);
+		});
+
+		return {
+			studentsBySchool: Array.from(schoolMap.entries())
+				.map(([name, count]) => ({
+					name,
+					count,
+					code: result.find((r) => r.schoolName === name)?.schoolCode || name,
+				}))
+				.sort((a, b) => b.count - a.count),
+			studentsByProgram: Array.from(programMap.entries())
+				.map(([_key, data]) => ({
+					name: data.name,
+					code: data.code,
+					count: data.count,
+					school: data.school,
+				}))
+				.sort((a, b) => b.count - a.count)
+				.slice(0, 10),
+			studentsBySemester: Array.from(semesterMap.entries())
+				.map(([semester, count]) => ({ semester, count }))
+				.sort((a, b) => a.semester.localeCompare(b.semester)),
+			studentsByGender: Array.from(genderMap.entries())
+				.map(([gender, count]) => ({ gender, count }))
+				.sort((a, b) => b.count - a.count),
+			studentsBySponsor: Array.from(sponsorMap.entries())
+				.map(([sponsor, count]) => ({ sponsor, count }))
+				.sort((a, b) => b.count - a.count)
+				.slice(0, 5),
+			programsBySchool: Array.from(schoolProgramsMap.entries())
+				.map(([school, data]) => ({
+					school,
+					schoolCode: data.schoolCode,
+					programCount: data.programs.size,
+				}))
+				.sort((a, b) => b.programCount - a.programCount),
+		};
+	}
+
+	async getFullRegistrationData(
+		termName: string,
+		filter?: RegistrationReportFilter
+	): Promise<FullRegistrationStudent[]> {
+		const query = this.createBaseStudentQuery();
+		const conditions = [
+			eq(studentSemesters.term, termName),
+			...this.buildFilterConditions(filter),
+		];
+
+		const result = await query
+			.where(and(...conditions))
+			.orderBy(schools.name, programs.name, structureSemesters.semesterNumber);
+
+		return result.map((row) => this.mapRowToStudent(row));
+	}
+
+	async getPaginatedRegistrationData(
+		termName: string,
+		page: number = 1,
+		pageSize: number = 20,
+		filter?: RegistrationReportFilter
+	): Promise<{
+		students: FullRegistrationStudent[];
+		totalCount: number;
+		totalPages: number;
+		currentPage: number;
+	}> {
+		const offset = (page - 1) * pageSize;
+
+		const studentsQuery = this.createBaseStudentQuery();
+		const countQuery = this.createCountQuery();
+
+		const conditions = [
+			eq(studentSemesters.term, termName),
+			...this.buildFilterConditions(filter, { includeSearchQuery: true }),
+		];
+
+		const whereClause = and(...conditions);
+
+		const [studentsResult, totalResult] = await Promise.all([
+			studentsQuery
+				.where(whereClause)
+				.orderBy(schools.name, programs.name, structureSemesters.semesterNumber)
+				.limit(pageSize)
+				.offset(offset),
+			countQuery.where(whereClause),
+		]);
+
+		const totalCount = totalResult.length;
+		const totalPages = Math.ceil(totalCount / pageSize);
+
+		return {
+			students: studentsResult.map((row) => this.mapRowToStudent(row)),
+			totalCount,
+			totalPages,
+			currentPage: page,
+		};
+	}
+
+	async getSummaryRegistrationData(
+		termName: string,
+		filter?: RegistrationReportFilter
+	): Promise<SummaryRegistrationReport> {
+		const fullData = await this.getFullRegistrationData(termName, filter);
+		const { schoolsMap, programsMap } = this.processSummaryData(fullData);
+		return this.buildSummaryReport(termName, fullData, schoolsMap, programsMap);
 	}
 
 	async getTermById(termId: number) {
@@ -494,401 +589,29 @@ export class RegistrationReportRepository {
 	async getChartData(
 		termName: string,
 		filter?: RegistrationReportFilter
-	): Promise<{
-		studentsBySchool: Array<{ name: string; count: number; code: string }>;
-		studentsByProgram: Array<{
-			name: string;
-			code: string;
-			count: number;
-			school: string;
-		}>;
-		studentsBySemester: Array<{ semester: string; count: number }>;
-		studentsByGender: Array<{ gender: string; count: number }>;
-		studentsBySponsor: Array<{ sponsor: string; count: number }>;
-		programsBySchool: Array<{
-			school: string;
-			schoolCode: string;
-			programCount: number;
-		}>;
-	}> {
-		const query = db
-			.select({
-				schoolName: schools.name,
-				schoolCode: schools.code,
-				programName: programs.name,
-				programCode: programs.code,
-				semesterNumber: structureSemesters.semesterNumber,
-				gender: students.gender,
-				sponsorName: sponsors.name,
-				studentId: students.stdNo,
-				dateOfBirth: students.dateOfBirth,
-				country: students.country,
-			})
-			.from(studentSemesters)
-			.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			)
-			.innerJoin(
-				studentPrograms,
-				eq(studentSemesters.studentProgramId, studentPrograms.id)
-			)
-			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
-
-		const conditions = [eq(studentSemesters.term, termName)];
-
-		if (filter?.studentStatus) {
-			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
-		}
-
-		if (filter?.programStatus) {
-			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
-		} else {
-			conditions.push(eq(studentPrograms.status, 'Active'));
-		}
-
-		if (filter?.semesterStatus) {
-			conditions.push(
-				sql`${studentSemesters.status} = ${filter.semesterStatus}`
-			);
-		} else {
-			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
-		}
-
-		if (filter?.schoolId) {
-			conditions.push(eq(schools.id, filter.schoolId));
-		}
-
-		if (filter?.programId) {
-			conditions.push(eq(programs.id, filter.programId));
-		}
-
-		if (filter?.semesterNumber) {
-			conditions.push(
-				eq(structureSemesters.semesterNumber, filter.semesterNumber)
-			);
-		}
-
-		if (filter?.gender) {
-			conditions.push(
-				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
-			);
-		}
-
-		if (filter?.sponsorId) {
-			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
-		}
-
-		if (filter?.country) {
-			conditions.push(eq(students.country, filter.country));
-		}
-
-		if (filter?.ageRangeMin || filter?.ageRangeMax) {
-			const currentDate = new Date();
-			if (filter.ageRangeMin) {
-				const maxBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMin,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
-			}
-			if (filter.ageRangeMax) {
-				const minBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMax - 1,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
-			}
-		}
+	): Promise<ChartDataResult> {
+		const query = this.createChartQuery();
+		const conditions = [
+			eq(studentSemesters.term, termName),
+			...this.buildFilterConditions(filter),
+		];
 
 		const result = await query.where(and(...conditions));
-
-		const schoolMap = new Map<string, number>();
-		const programMap = new Map<
-			string,
-			{ count: number; school: string; code: string; name: string }
-		>();
-		const semesterMap = new Map<string, number>();
-		const genderMap = new Map<string, number>();
-		const sponsorMap = new Map<string, number>();
-		const schoolProgramsMap = new Map<
-			string,
-			{ programs: Set<string>; schoolCode: string }
-		>();
-
-		result.forEach((row) => {
-			schoolMap.set(row.schoolName, (schoolMap.get(row.schoolName) || 0) + 1);
-
-			const programKey = `${row.programName}|${row.schoolName}`;
-			if (!programMap.has(programKey)) {
-				programMap.set(programKey, {
-					count: 0,
-					school: row.schoolName,
-					code: row.programCode,
-					name: row.programName,
-				});
-			}
-			programMap.get(programKey)!.count++;
-
-			const semester = row.semesterNumber || 'Unknown';
-			semesterMap.set(semester, (semesterMap.get(semester) || 0) + 1);
-
-			const gender = row.gender || 'Unknown';
-			genderMap.set(gender, (genderMap.get(gender) || 0) + 1);
-
-			const sponsor = row.sponsorName || 'Unknown';
-			sponsorMap.set(sponsor, (sponsorMap.get(sponsor) || 0) + 1);
-
-			if (!schoolProgramsMap.has(row.schoolName)) {
-				schoolProgramsMap.set(row.schoolName, {
-					programs: new Set(),
-					schoolCode: row.schoolCode,
-				});
-			}
-			schoolProgramsMap.get(row.schoolName)!.programs.add(row.programName);
-		});
-
-		return {
-			studentsBySchool: Array.from(schoolMap.entries())
-				.map(([name, count]) => ({
-					name,
-					count,
-					code: result.find((r) => r.schoolName === name)?.schoolCode || name,
-				}))
-				.sort((a, b) => b.count - a.count),
-			studentsByProgram: Array.from(programMap.entries())
-				.map(([_key, data]) => ({
-					name: data.name,
-					code: data.code,
-					count: data.count,
-					school: data.school,
-				}))
-				.sort((a, b) => b.count - a.count)
-				.slice(0, 10),
-			studentsBySemester: Array.from(semesterMap.entries())
-				.map(([semester, count]) => ({ semester, count }))
-				.sort((a, b) => a.semester.localeCompare(b.semester)),
-			studentsByGender: Array.from(genderMap.entries())
-				.map(([gender, count]) => ({ gender, count }))
-				.sort((a, b) => b.count - a.count),
-			studentsBySponsor: Array.from(sponsorMap.entries())
-				.map(([sponsor, count]) => ({ sponsor, count }))
-				.sort((a, b) => b.count - a.count)
-				.slice(0, 5),
-			programsBySchool: Array.from(schoolProgramsMap.entries())
-				.map(([school, data]) => ({
-					school,
-					schoolCode: data.schoolCode,
-					programCount: data.programs.size,
-				}))
-				.sort((a, b) => b.programCount - a.programCount),
-		};
+		return this.aggregateChartData(result);
 	}
 
 	async getChartDataForMultipleTerms(
 		termNames: string[],
 		filter?: RegistrationReportFilter
-	): Promise<{
-		studentsBySchool: Array<{ name: string; count: number; code: string }>;
-		studentsByProgram: Array<{
-			name: string;
-			code: string;
-			count: number;
-			school: string;
-		}>;
-		studentsBySemester: Array<{ semester: string; count: number }>;
-		studentsByGender: Array<{ gender: string; count: number }>;
-		studentsBySponsor: Array<{ sponsor: string; count: number }>;
-		programsBySchool: Array<{
-			school: string;
-			schoolCode: string;
-			programCount: number;
-		}>;
-	}> {
-		const query = db
-			.select({
-				schoolName: schools.name,
-				schoolCode: schools.code,
-				programName: programs.name,
-				programCode: programs.code,
-				semesterNumber: structureSemesters.semesterNumber,
-				gender: students.gender,
-				sponsorName: sponsors.name,
-				studentId: students.stdNo,
-				dateOfBirth: students.dateOfBirth,
-				country: students.country,
-			})
-			.from(studentSemesters)
-			.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			)
-			.innerJoin(
-				studentPrograms,
-				eq(studentSemesters.studentProgramId, studentPrograms.id)
-			)
-			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
-
-		const conditions = [inArray(studentSemesters.term, termNames)];
-
-		if (filter?.studentStatus) {
-			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
-		}
-
-		if (filter?.programStatus) {
-			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
-		} else {
-			conditions.push(eq(studentPrograms.status, 'Active'));
-		}
-
-		if (filter?.semesterStatus) {
-			conditions.push(
-				sql`${studentSemesters.status} = ${filter.semesterStatus}`
-			);
-		} else {
-			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
-		}
-
-		if (filter?.schoolId) {
-			conditions.push(eq(schools.id, filter.schoolId));
-		}
-
-		if (filter?.programId) {
-			conditions.push(eq(programs.id, filter.programId));
-		}
-
-		if (filter?.semesterNumber) {
-			conditions.push(
-				eq(structureSemesters.semesterNumber, filter.semesterNumber)
-			);
-		}
-
-		if (filter?.gender) {
-			conditions.push(
-				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
-			);
-		}
-
-		if (filter?.sponsorId) {
-			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
-		}
-
-		if (filter?.country) {
-			conditions.push(eq(students.country, filter.country));
-		}
-
-		if (filter?.ageRangeMin || filter?.ageRangeMax) {
-			const currentDate = new Date();
-			if (filter.ageRangeMin) {
-				const maxBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMin,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
-			}
-			if (filter.ageRangeMax) {
-				const minBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMax - 1,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
-			}
-		}
+	): Promise<ChartDataResult> {
+		const query = this.createChartQuery();
+		const conditions = [
+			inArray(studentSemesters.term, termNames),
+			...this.buildFilterConditions(filter),
+		];
 
 		const result = await query.where(and(...conditions));
-
-		const schoolMap = new Map<string, number>();
-		const programMap = new Map<
-			string,
-			{ count: number; school: string; code: string; name: string }
-		>();
-		const semesterMap = new Map<string, number>();
-		const genderMap = new Map<string, number>();
-		const sponsorMap = new Map<string, number>();
-		const schoolProgramsMap = new Map<
-			string,
-			{ programs: Set<string>; schoolCode: string }
-		>();
-
-		result.forEach((row) => {
-			schoolMap.set(row.schoolName, (schoolMap.get(row.schoolName) || 0) + 1);
-
-			const programKey = `${row.programName}|${row.schoolName}`;
-			if (!programMap.has(programKey)) {
-				programMap.set(programKey, {
-					count: 0,
-					school: row.schoolName,
-					code: row.programCode,
-					name: row.programName,
-				});
-			}
-			programMap.get(programKey)!.count++;
-
-			const semester = row.semesterNumber || 'Unknown';
-			semesterMap.set(semester, (semesterMap.get(semester) || 0) + 1);
-
-			const gender = row.gender || 'Unknown';
-			genderMap.set(gender, (genderMap.get(gender) || 0) + 1);
-
-			const sponsor = row.sponsorName || 'Unknown';
-			sponsorMap.set(sponsor, (sponsorMap.get(sponsor) || 0) + 1);
-
-			if (!schoolProgramsMap.has(row.schoolName)) {
-				schoolProgramsMap.set(row.schoolName, {
-					programs: new Set(),
-					schoolCode: row.schoolCode,
-				});
-			}
-			schoolProgramsMap.get(row.schoolName)!.programs.add(row.programName);
-		});
-
-		return {
-			studentsBySchool: Array.from(schoolMap.entries())
-				.map(([name, count]) => ({
-					name,
-					count,
-					code: result.find((r) => r.schoolName === name)?.schoolCode || name,
-				}))
-				.sort((a, b) => b.count - a.count),
-			studentsByProgram: Array.from(programMap.entries())
-				.map(([_key, data]) => ({
-					name: data.name,
-					code: data.code,
-					count: data.count,
-					school: data.school,
-				}))
-				.sort((a, b) => b.count - a.count)
-				.slice(0, 10),
-			studentsBySemester: Array.from(semesterMap.entries())
-				.map(([semester, count]) => ({ semester, count }))
-				.sort((a, b) => a.semester.localeCompare(b.semester)),
-			studentsByGender: Array.from(genderMap.entries())
-				.map(([gender, count]) => ({ gender, count }))
-				.sort((a, b) => b.count - a.count),
-			studentsBySponsor: Array.from(sponsorMap.entries())
-				.map(([sponsor, count]) => ({ sponsor, count }))
-				.sort((a, b) => b.count - a.count)
-				.slice(0, 5),
-			programsBySchool: Array.from(schoolProgramsMap.entries())
-				.map(([school, data]) => ({
-					school,
-					schoolCode: data.schoolCode,
-					programCount: data.programs.size,
-				}))
-				.sort((a, b) => b.programCount - a.programCount),
-		};
+		return this.aggregateChartData(result);
 	}
 
 	async getAvailableSponsors() {
@@ -915,120 +638,17 @@ export class RegistrationReportRepository {
 		termNames: string[],
 		filter?: RegistrationReportFilter
 	): Promise<FullRegistrationStudent[]> {
-		const query = db
-			.select({
-				stdNo: students.stdNo,
-				name: students.name,
-				programName: programs.name,
-				semesterNumber: structureSemesters.semesterNumber,
-				schoolName: schools.name,
-				schoolCode: schools.code,
-				phone: students.phone1,
-				status: studentSemesters.status,
-				sponsorName: sponsors.name,
-				gender: students.gender,
-				dateOfBirth: students.dateOfBirth,
-				country: students.country,
-			})
-			.from(studentSemesters)
-			.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			)
-			.innerJoin(
-				studentPrograms,
-				eq(studentSemesters.studentProgramId, studentPrograms.id)
-			)
-			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
-
-		const conditions = [inArray(studentSemesters.term, termNames)];
-
-		if (filter?.studentStatus) {
-			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
-		}
-
-		if (filter?.programStatus) {
-			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
-		} else {
-			conditions.push(eq(studentPrograms.status, 'Active'));
-		}
-
-		if (filter?.semesterStatus) {
-			conditions.push(
-				sql`${studentSemesters.status} = ${filter.semesterStatus}`
-			);
-		} else {
-			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
-		}
-
-		if (filter?.schoolId) {
-			conditions.push(eq(schools.id, filter.schoolId));
-		}
-
-		if (filter?.programId) {
-			conditions.push(eq(programs.id, filter.programId));
-		}
-
-		if (filter?.semesterNumber) {
-			conditions.push(
-				eq(structureSemesters.semesterNumber, filter.semesterNumber)
-			);
-		}
-
-		if (filter?.gender) {
-			conditions.push(
-				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
-			);
-		}
-
-		if (filter?.sponsorId) {
-			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
-		}
-
-		if (filter?.country) {
-			conditions.push(eq(students.country, filter.country));
-		}
-
-		if (filter?.ageRangeMin || filter?.ageRangeMax) {
-			const currentDate = new Date();
-			if (filter.ageRangeMin) {
-				const maxBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMin,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
-			}
-			if (filter.ageRangeMax) {
-				const minBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMax - 1,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
-			}
-		}
+		const query = this.createBaseStudentQuery();
+		const conditions = [
+			inArray(studentSemesters.term, termNames),
+			...this.buildFilterConditions(filter),
+		];
 
 		const result = await query
 			.where(and(...conditions))
 			.orderBy(schools.name, programs.name, structureSemesters.semesterNumber);
 
-		return result.map((row) => ({
-			stdNo: row.stdNo,
-			name: row.name,
-			programName: row.programName,
-			semesterNumber: row.semesterNumber || '',
-			schoolName: row.schoolName,
-			schoolCode: row.schoolCode,
-			phone: row.phone || '',
-			status: row.status,
-			sponsorName: row.sponsorName || null,
-			gender: row.gender || null,
-		}));
+		return result.map((row) => this.mapRowToStudent(row));
 	}
 
 	async getPaginatedRegistrationDataForMultipleTerms(
@@ -1044,133 +664,13 @@ export class RegistrationReportRepository {
 	}> {
 		const offset = (page - 1) * pageSize;
 
-		const studentsQuery = db
-			.select({
-				stdNo: students.stdNo,
-				name: students.name,
-				programName: programs.name,
-				semesterNumber: structureSemesters.semesterNumber,
-				schoolName: schools.name,
-				schoolCode: schools.code,
-				phone: students.phone1,
-				status: studentSemesters.status,
-				sponsorName: sponsors.name,
-				gender: students.gender,
-				dateOfBirth: students.dateOfBirth,
-				country: students.country,
-			})
-			.from(studentSemesters)
-			.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			)
-			.innerJoin(
-				studentPrograms,
-				eq(studentSemesters.studentProgramId, studentPrograms.id)
-			)
-			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
+		const studentsQuery = this.createBaseStudentQuery();
+		const countQuery = this.createCountQuery();
 
-		const countQuery = db
-			.select({ count: students.stdNo })
-			.from(studentSemesters)
-			.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			)
-			.innerJoin(
-				studentPrograms,
-				eq(studentSemesters.studentProgramId, studentPrograms.id)
-			)
-			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id));
-
-		const conditions = [inArray(studentSemesters.term, termNames)];
-
-		if (filter?.studentStatus) {
-			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
-		}
-
-		if (filter?.programStatus) {
-			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
-		} else {
-			conditions.push(eq(studentPrograms.status, 'Active'));
-		}
-
-		if (filter?.semesterStatus) {
-			conditions.push(
-				sql`${studentSemesters.status} = ${filter.semesterStatus}`
-			);
-		} else {
-			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
-		}
-
-		if (filter?.schoolId) {
-			conditions.push(eq(schools.id, filter.schoolId));
-		}
-
-		if (filter?.programId) {
-			conditions.push(eq(programs.id, filter.programId));
-		}
-
-		if (filter?.semesterNumber) {
-			conditions.push(
-				eq(structureSemesters.semesterNumber, filter.semesterNumber)
-			);
-		}
-
-		if (filter?.gender) {
-			conditions.push(
-				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
-			);
-		}
-
-		if (filter?.sponsorId) {
-			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
-		}
-
-		if (filter?.country) {
-			conditions.push(eq(students.country, filter.country));
-		}
-
-		if (filter?.ageRangeMin || filter?.ageRangeMax) {
-			const currentDate = new Date();
-			if (filter.ageRangeMin) {
-				const maxBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMin,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
-			}
-			if (filter.ageRangeMax) {
-				const minBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMax - 1,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
-			}
-		}
-
-		if (filter?.searchQuery?.trim()) {
-			const searchTerm = `%${filter.searchQuery.trim()}%`;
-			conditions.push(
-				or(
-					like(sql`CAST(${students.stdNo} AS TEXT)`, searchTerm),
-					like(students.name, searchTerm),
-					like(programs.name, searchTerm),
-					like(schools.name, searchTerm),
-					like(schools.code, searchTerm),
-					like(students.phone1, searchTerm)
-				)!
-			);
-		}
+		const conditions = [
+			inArray(studentSemesters.term, termNames),
+			...this.buildFilterConditions(filter, { includeSearchQuery: true }),
+		];
 
 		const whereClause = and(...conditions);
 
@@ -1187,18 +687,7 @@ export class RegistrationReportRepository {
 		const totalPages = Math.ceil(totalCount / pageSize);
 
 		return {
-			students: studentsResult.map((row) => ({
-				stdNo: row.stdNo,
-				name: row.name,
-				programName: row.programName,
-				semesterNumber: row.semesterNumber || '',
-				schoolName: row.schoolName,
-				schoolCode: row.schoolCode,
-				phone: row.phone || '',
-				status: row.status,
-				sponsorName: row.sponsorName || null,
-				gender: row.gender || null,
-			})),
+			students: studentsResult.map((row) => this.mapRowToStudent(row)),
 			totalCount,
 			totalPages,
 			currentPage: page,
@@ -1213,70 +702,12 @@ export class RegistrationReportRepository {
 			termNames,
 			filter
 		);
-
-		const schoolsMap = new Map<string, SummarySchoolData>();
-		const programsMap = new Map<string, SummaryProgramData>();
-
-		fullData.forEach((student) => {
-			const schoolKey = student.schoolName;
-			const programKey = `${student.programName}_${student.schoolName}`;
-
-			if (!schoolsMap.has(schoolKey)) {
-				schoolsMap.set(schoolKey, {
-					schoolName: student.schoolName,
-					schoolCode: student.schoolCode,
-					totalStudents: 0,
-					programs: [],
-				});
-			}
-
-			if (!programsMap.has(programKey)) {
-				programsMap.set(programKey, {
-					programName: student.programName,
-					schoolName: student.schoolName,
-					schoolCode: student.schoolCode,
-					schoolId: 0,
-					yearBreakdown: {},
-					totalStudents: 0,
-				});
-			}
-
-			const program = programsMap.get(programKey)!;
-			const year = student.semesterNumber;
-
-			if (
-				!program.yearBreakdown[
-					year as unknown as keyof typeof program.yearBreakdown
-				]
-			) {
-				program.yearBreakdown[
-					year as unknown as keyof typeof program.yearBreakdown
-				] = 0;
-			}
-
-			program.yearBreakdown[
-				year as unknown as keyof typeof program.yearBreakdown
-			]++;
-			program.totalStudents++;
-
-			const school = schoolsMap.get(schoolKey)!;
-			school.totalStudents++;
-		});
-
-		const schools = Array.from(schoolsMap.values())
-			.map((school) => ({
-				...school,
-				programs: Array.from(programsMap.values())
-					.filter((program) => program.schoolName === school.schoolName)
-					.sort((a, b) => a.programName.localeCompare(b.programName)),
-			}))
-			.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
-
-		return {
-			termName: termNames.join(', '),
-			totalStudents: fullData.length,
-			schools,
-			generatedAt: new Date(),
-		};
+		const { schoolsMap, programsMap } = this.processSummaryData(fullData);
+		return this.buildSummaryReport(
+			termNames.join(', '),
+			fullData,
+			schoolsMap,
+			programsMap
+		);
 	}
 }
