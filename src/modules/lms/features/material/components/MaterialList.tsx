@@ -62,6 +62,12 @@ function MaterialCardSkeleton() {
 	);
 }
 
+function truncateName(name: string, max = 20) {
+	if (!name) return name;
+	if (name.length <= max) return name;
+	return `${name.slice(0, max - 3)}...`;
+}
+
 export default function MaterialList({ courseId }: MaterialListProps) {
 	const theme = useMantineTheme();
 	const [selectedPage, setSelectedPage] = useState<Material | null>(null);
@@ -132,7 +138,7 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 										</ThemeIcon>
 										<Box>
 											<Text fw={500} size='sm'>
-												{material.name}
+												{truncateName(material.name, 30)}
 											</Text>
 											<Group gap='xs'>
 												<Text size='xs' c='dimmed'>
