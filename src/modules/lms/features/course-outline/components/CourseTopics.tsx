@@ -29,13 +29,13 @@ function TopicsTableSkeleton() {
 			<Table.Tbody>
 				{[1, 2, 3, 4].map((i) => (
 					<Table.Tr key={i}>
-						<Table.Td>
+						<Table.Td style={{ verticalAlign: 'top' }}>
 							<Skeleton height={16} width={40} />
 						</Table.Td>
-						<Table.Td>
+						<Table.Td style={{ verticalAlign: 'top' }}>
 							<Skeleton height={16} width={150} />
 						</Table.Td>
-						<Table.Td>
+						<Table.Td style={{ verticalAlign: 'top' }}>
 							<Skeleton height={16} width='100%' />
 						</Table.Td>
 					</Table.Tr>
@@ -72,7 +72,7 @@ export default function CourseTopics({ topics, isLoading }: CourseTopicsProps) {
 	const sortedTopics = [...topics].sort((a, b) => a.weekNumber - b.weekNumber);
 
 	return (
-		<Table striped highlightOnHover withTableBorder withColumnBorders>
+		<Table withColumnBorders>
 			<Table.Thead>
 				<Table.Tr>
 					<Table.Th w={100}>Week</Table.Th>
@@ -83,17 +83,17 @@ export default function CourseTopics({ topics, isLoading }: CourseTopicsProps) {
 			<Table.Tbody>
 				{sortedTopics.map((topic) => (
 					<Table.Tr key={topic.id}>
-						<Table.Td>
+						<Table.Td style={{ verticalAlign: 'top' }}>
 							<Text fw={600} size='sm'>
 								Week {topic.weekNumber}
 							</Text>
 						</Table.Td>
-						<Table.Td>
+						<Table.Td style={{ verticalAlign: 'top' }}>
 							<Text size='sm' fw={500}>
 								{topic.title}
 							</Text>
 						</Table.Td>
-						<Table.Td>
+						<Table.Td style={{ verticalAlign: 'top' }}>
 							<Box>
 								<div
 									dangerouslySetInnerHTML={{ __html: topic.description }}
