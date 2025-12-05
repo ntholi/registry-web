@@ -104,7 +104,7 @@ function RepliesSection({ discussionId, numReplies }: RepliesSectionProps) {
 		enabled: opened,
 	});
 
-	const replies = posts?.filter((p) => p.parent !== 0) || [];
+	const replies = posts?.filter((p) => p.id !== discussionId) || [];
 
 	return (
 		<Stack gap='sm'>
@@ -227,7 +227,7 @@ function PostCard({ post, type }: PostCardProps) {
 
 			{!isAnnouncement && post.numreplies > 0 && (
 				<>
-					<Divider />
+					<Divider my={'sm'} />
 					<RepliesSection
 						discussionId={post.discussion}
 						numReplies={post.numreplies}
