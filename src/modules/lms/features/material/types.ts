@@ -41,6 +41,11 @@ export type MoodleSection = {
 		modname: string;
 		modplural: string;
 		indent: number;
+		contents?: Array<{
+			type: string;
+			filename: string;
+			fileurl: string;
+		}>;
 	}>;
 };
 

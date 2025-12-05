@@ -20,6 +20,7 @@ import {
 	IconExternalLink,
 	IconFile,
 	IconFileText,
+	IconLink,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -37,6 +38,11 @@ type Material = {
 	modname: string;
 	visible: number;
 	instance: number;
+	contents?: Array<{
+		type: string;
+		filename: string;
+		fileurl: string;
+	}>;
 };
 
 function getMaterialIcon(modname: string) {
@@ -45,6 +51,8 @@ function getMaterialIcon(modname: string) {
 			return IconFileText;
 		case 'resource':
 			return IconFile;
+		case 'url':
+			return IconLink;
 		default:
 			return IconFile;
 	}
@@ -68,6 +76,13 @@ function truncateName(name: string, max = 20) {
 	return `${name.slice(0, max - 3)}...`;
 }
 
+function getMaterialUrl(material: Material) {
+	if (material.modname === 'url' && material.contents?.[0]?.fileurl) {
+		return material.contents[0].fileurl;
+	}
+	return material.url;
+}
+
 export default function MaterialList({ courseId }: MaterialListProps) {
 	const theme = useMantineTheme();
 	const [selectedPage, setSelectedPage] = useState<Material | null>(null);
@@ -89,7 +104,8 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 
 	const materials =
 		section?.modules?.filter(
-			(m) => m.modname === 'page' || m.modname === 'resource'
+			(m) =>
+				m.modname === 'page' || m.modname === 'resource' || m.modname === 'url'
 		) || [];
 
 	if (materials.length === 0) {
@@ -119,6 +135,8 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 					const Icon = getMaterialIcon(material.modname);
 					const isHidden = material.visible === 0;
 					const isFile = material.modname === 'resource';
+					const isUrl = material.modname === 'url';
+					const isClickable = !isFile && !isUrl;
 
 					return (
 						<Card
@@ -126,9 +144,11 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 							withBorder
 							p='lg'
 							style={{
-								cursor: isFile ? 'default' : 'pointer',
+								cursor: isClickable ? 'pointer' : 'default',
 							}}
-							onClick={isFile ? undefined : () => setSelectedPage(material)}
+							onClick={
+								isClickable ? () => setSelectedPage(material) : undefined
+							}
 						>
 							<Stack gap='md'>
 								<Flex justify='space-between' align='flex-start'>
@@ -142,7 +162,11 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 											</Text>
 											<Group gap='xs'>
 												<Text size='xs' c='dimmed'>
-													{material.modname === 'page' ? 'Page' : 'File'}
+													{material.modname === 'page'
+														? 'Page'
+														: material.modname === 'url'
+															? 'URL'
+															: 'File'}
 												</Text>
 												{isHidden && (
 													<>
@@ -157,13 +181,21 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 											</Group>
 										</Box>
 									</Group>
-									<Tooltip label={isFile ? 'Download file' : 'Open in new tab'}>
+									<Tooltip
+										label={
+											isFile
+												? 'Download file'
+												: isUrl
+													? 'Open link'
+													: 'Open in new tab'
+										}
+									>
 										<ActionIcon
 											variant='subtle'
 											color='gray'
 											size='md'
 											component='a'
-											href={material.url}
+											href={getMaterialUrl(material)}
 											{...(isFile
 												? { download: true }
 												: { target: '_blank', rel: 'noopener noreferrer' })}
