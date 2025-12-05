@@ -169,81 +169,78 @@ function PostCard({ post, type }: PostCardProps) {
 
 	return (
 		<Paper p='lg' radius='md' withBorder>
-			<Stack gap='md'>
-				<Group gap='sm' wrap='nowrap' align='flex-start'>
-					<Avatar
-						src={post.userpictureurl}
-						radius='xl'
-						size={44}
-						alt={post.userfullname}
-					/>
-					<Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-						<Group gap='xs' wrap='wrap'>
-							<Text fw={600} size='sm'>
-								{post.userfullname}
-							</Text>
+			<Group gap='sm' wrap='nowrap' align='flex-start'>
+				<Avatar
+					src={post.userpictureurl}
+					radius='xl'
+					size={44}
+					alt={post.userfullname}
+				/>
+				<Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+					<Group gap='xs' wrap='wrap'>
+						<Text fw={600} size='sm'>
+							{post.userfullname}
+						</Text>
+						<Badge
+							size='xs'
+							variant='light'
+							color={isAnnouncement ? 'blue' : 'teal'}
+							leftSection={
+								isAnnouncement ? (
+									<IconBellRinging size={10} />
+								) : (
+									<IconMessages size={10} />
+								)
+							}
+						>
+							{isAnnouncement ? 'Announcement' : 'Discussion'}
+						</Badge>
+						{post.pinned && (
 							<Badge
 								size='xs'
-								variant='light'
-								color={isAnnouncement ? 'blue' : 'teal'}
-								leftSection={
-									isAnnouncement ? (
-										<IconBellRinging size={10} />
-									) : (
-										<IconMessages size={10} />
-									)
-								}
+								variant='outline'
+								color='yellow'
+								leftSection={<IconPin size={10} />}
 							>
-								{isAnnouncement ? 'Announcement' : 'Discussion'}
+								Pinned
 							</Badge>
-							{post.pinned && (
-								<Badge
-									size='xs'
-									variant='outline'
-									color='yellow'
-									leftSection={<IconPin size={10} />}
-								>
-									Pinned
-								</Badge>
-							)}
-						</Group>
-						<Text size='xs' c='dimmed'>
-							{formatDistanceToNow(new Date(post.created * 1000), {
-								addSuffix: true,
-							})}
-						</Text>
-					</Stack>
-				</Group>
-
-				<Text fw={500} size='md'>
-					{post.subject}
-				</Text>
-
-				<Box
-					dangerouslySetInnerHTML={{ __html: post.message }}
-					fz='sm'
-					lh={1.6}
-					c='dimmed'
-					className='post-content'
-				/>
-
-				{!isAnnouncement && post.numreplies > 0 && (
-					<>
-						<Divider />
-						<RepliesSection
-							discussionId={post.discussion}
-							numReplies={post.numreplies}
-						/>
-					</>
-				)}
-
-				{!isAnnouncement && post.numreplies === 0 && (
-					<Group gap='xs' c='dimmed'>
-						<IconMessageCircle size={16} stroke={1.5} />
-						<Text size='sm'>No replies yet</Text>
+						)}
 					</Group>
-				)}
-			</Stack>
+					<Text size='xs' c='dimmed'>
+						{formatDistanceToNow(new Date(post.created * 1000), {
+							addSuffix: true,
+						})}
+					</Text>
+				</Stack>
+			</Group>
+
+			<Text fw={500} size='md' mt={'md'}>
+				{post.subject}
+			</Text>
+
+			<Box
+				dangerouslySetInnerHTML={{ __html: post.message }}
+				fz='sm'
+				c='dimmed'
+				className='post-content'
+			/>
+
+			{!isAnnouncement && post.numreplies > 0 && (
+				<>
+					<Divider />
+					<RepliesSection
+						discussionId={post.discussion}
+						numReplies={post.numreplies}
+					/>
+				</>
+			)}
+
+			{!isAnnouncement && post.numreplies === 0 && (
+				<Group gap='xs' c='dimmed'>
+					<IconMessageCircle size={16} stroke={1.5} />
+					<Text size='sm'>No replies yet</Text>
+				</Group>
+			)}
 		</Paper>
 	);
 }
