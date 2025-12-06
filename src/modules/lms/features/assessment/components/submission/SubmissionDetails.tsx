@@ -18,7 +18,7 @@ import {
 	IconMessageCircle,
 	IconUsers,
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import type { SubmissionFile, SubmissionUser } from '../../types';
 import CommentsView from './CommentsView';
@@ -49,6 +49,12 @@ export default function SubmissionDetails({
 	const [rubricGrade, setRubricGrade] = useState<number | undefined>(
 		existingGrade
 	);
+
+	useEffect(() => {
+		if (existingGrade !== undefined && existingGrade !== rubricGrade) {
+			setRubricGrade(existingGrade);
+		}
+	}, [existingGrade, rubricGrade]);
 
 	if (!selectedUser) {
 		return (
