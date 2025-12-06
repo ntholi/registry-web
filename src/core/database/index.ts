@@ -24,9 +24,7 @@ const databaseEnv = process.env.DATABASE_ENV || 'local';
 const connectionString =
 	databaseEnv === 'remote'
 		? process.env.DATABASE_REMOTE_URL!
-		: databaseEnv === 'remote_dev'
-			? process.env.DATABASE_REMOTE_DEV_URL!
-			: process.env.DATABASE_LOCAL_URL!;
+		: process.env.DATABASE_LOCAL_URL!;
 
 const neonDb = drizzleNeon(new NeonPool({ connectionString }), {
 	schema,
@@ -38,8 +36,7 @@ const nodeDb = drizzleNode(new NodePool({ connectionString }), {
 	casing: 'snake_case',
 });
 
-const db =
-	databaseEnv === 'remote' || databaseEnv === 'remote_dev' ? neonDb : nodeDb;
+const db = databaseEnv === 'remote' ? neonDb : nodeDb;
 
 export { db };
 
