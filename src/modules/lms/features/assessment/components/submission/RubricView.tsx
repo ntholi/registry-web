@@ -39,10 +39,14 @@ export default function RubricView({
 	});
 
 	useEffect(() => {
-		if (rubricFillings?.fillings && rubric?.criteria) {
+		if (
+			rubricFillings?.success &&
+			rubricFillings.fillings &&
+			rubric?.criteria
+		) {
 			const fillingsMap: Record<number, number> = {};
 			for (const filling of rubricFillings.fillings) {
-				fillingsMap[filling.criterionid] = filling.score;
+				fillingsMap[filling.criterionid] = filling.level.score;
 			}
 			setSelectedLevels(fillingsMap);
 			if (onGradeChange && rubricFillings.grade) {

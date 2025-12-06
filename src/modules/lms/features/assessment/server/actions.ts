@@ -353,10 +353,7 @@ export async function getRubricFillings(
 			return null;
 		}
 
-		return {
-			fillings: result.fillings,
-			grade: result.grade || 0,
-		};
+		return result as RubricGradeData;
 	} catch {
 		return null;
 	}
