@@ -280,7 +280,7 @@ export default function StudentTable({ moduleId }: Props) {
 			return (
 				<Table.Tr key={student.stdNo}>
 					<Table.Td>
-						<Link size='sm' href={`/students/${student.stdNo}`}>
+						<Link size='sm' href={`/registry/students/${student.stdNo}`}>
 							{student.stdNo}
 						</Link>
 					</Table.Td>

@@ -2,10 +2,12 @@
 
 import { getLecturersByModule } from '@academic/assigned-modules';
 import {
+	ActionIcon,
 	Avatar,
 	Badge,
 	Box,
 	Card,
+	Collapse,
 	Divider,
 	Group,
 	Loader,
@@ -14,7 +16,8 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { IconUsers } from '@tabler/icons-react';
+import { useDisclosure } from '@mantine/hooks';
+import { IconChevronDown, IconChevronUp, IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { toClassName, toTitleCase } from '@/shared/lib/utils/utils';
 
@@ -22,7 +25,60 @@ type Props = {
 	moduleId: number;
 };
 
+type Lecturer = {
+	id: string;
+	name: string | null;
+	position: string | null;
+	image: string | null;
+	assignments: { programCode: string; semesterName: string }[];
+};
+
+function LecturerCard({ lecturer }: { lecturer: Lecturer }) {
+	return (
+		<Card withBorder shadow='sm' p='sm'>
+			<Stack gap='xs'>
+				<Group gap='md' align='center'>
+					<Avatar
+						radius='xl'
+						color='blue'
+						variant='filled'
+						src={lecturer.image}
+					/>
+
+					<Box style={{ flex: 1 }}>
+						<Text fw={600} size='lg' lineClamp={1}>
+							{lecturer.name || 'Unknown Lecturer'}
+						</Text>
+
+						{lecturer.position && (
+							<Text c='dimmed' size='xs'>
+								{toTitleCase(lecturer.position)}
+							</Text>
+						)}
+					</Box>
+				</Group>
+			</Stack>
+			<Divider my={'xs'} />
+			<Group>
+				{lecturer.assignments && lecturer.assignments.length > 0 && (
+					<Group gap='xs'>
+						{lecturer.assignments.map((assignment, index) => (
+							<Badge
+								key={`${lecturer.id}-${assignment.programCode}-${assignment.semesterName}-${index}`}
+								variant='default'
+							>
+								{toClassName(assignment.programCode, assignment.semesterName)}
+							</Badge>
+						))}
+					</Group>
+				)}
+			</Group>
+		</Card>
+	);
+}
+
 export default function ModuleLecturers({ moduleId }: Props) {
+	const [expanded, { toggle }] = useDisclosure(false);
 	const { data: lecturers, isLoading } = useQuery({
 		queryKey: ['module-lecturers', moduleId],
 		queryFn: () => getLecturersByModule(moduleId),
@@ -62,57 +118,54 @@ export default function ModuleLecturers({ moduleId }: Props) {
 		);
 	}
 
+	const visibleLecturers = lecturers.slice(0, 3);
+	const hiddenLecturers = lecturers.slice(3);
+	const hasMore = lecturers.length > 3;
+
 	return (
-		<SimpleGrid
-			cols={{ base: 1, sm: 2, lg: 3 }}
-			spacing='md'
-			verticalSpacing='md'
-		>
-			{' '}
-			{lecturers.map((lecturer) => (
-				<Card key={lecturer.id} withBorder shadow='sm' p='sm'>
-					<Stack gap='xs'>
-						<Group gap='md' align='center'>
-							<Avatar
-								radius='xl'
-								color='blue'
-								variant='filled'
-								src={lecturer.image}
-							/>
+		<Stack gap='md'>
+			<SimpleGrid
+				cols={{ base: 1, sm: 2, lg: 3 }}
+				spacing='md'
+				verticalSpacing='md'
+			>
+				{visibleLecturers.map((lecturer) => (
+					<LecturerCard key={lecturer.id} lecturer={lecturer} />
+				))}
+			</SimpleGrid>
 
-							<Box style={{ flex: 1 }}>
-								<Text fw={600} size='lg' lineClamp={1}>
-									{lecturer.name || 'Unknown Lecturer'}
-								</Text>
+			{hasMore && (
+				<>
+					<Collapse in={expanded}>
+						<SimpleGrid
+							cols={{ base: 1, sm: 2, lg: 3 }}
+							spacing='md'
+							verticalSpacing='md'
+						>
+							{hiddenLecturers.map((lecturer) => (
+								<LecturerCard key={lecturer.id} lecturer={lecturer} />
+							))}
+						</SimpleGrid>
+					</Collapse>
 
-								{lecturer.position && (
-									<Text c='dimmed' size='xs'>
-										{toTitleCase(lecturer.position)}
-									</Text>
-								)}
-							</Box>
-						</Group>
-					</Stack>
-					<Divider my={'xs'} />
-					<Group>
-						{lecturer.assignments && lecturer.assignments.length > 0 && (
-							<Group gap='xs'>
-								{lecturer.assignments.map((assignment, index) => (
-									<Badge
-										key={`${lecturer.id}-${assignment.programCode}-${assignment.semesterName}-${index}`}
-										variant='default'
-									>
-										{toClassName(
-											assignment.programCode,
-											assignment.semesterName
-										)}
-									</Badge>
-								))}
-							</Group>
-						)}
+					<Group justify='center'>
+						<ActionIcon
+							variant='subtle'
+							size='lg'
+							color='gray'
+							radius={'lg'}
+							onClick={toggle}
+							aria-label={expanded ? 'Show less' : 'Show more'}
+						>
+							{expanded ? (
+								<IconChevronUp size={20} />
+							) : (
+								<IconChevronDown size={20} />
+							)}
+						</ActionIcon>
 					</Group>
-				</Card>
-			))}
-		</SimpleGrid>
+				</>
+			)}
+		</Stack>
 	);
 }

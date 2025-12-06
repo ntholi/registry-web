@@ -30,7 +30,7 @@ export default function StudentForm({ onSubmit, defaultValues, title }: Props) {
 			schema={createInsertSchema(students)}
 			defaultValues={defaultValues}
 			onSuccess={({ stdNo }) => {
-				router.push(`/students/${stdNo}`);
+				router.push(`/registry/students/${stdNo}`);
 			}}
 		>
 			{(form) => (
@@ -45,6 +45,7 @@ export default function StudentForm({ onSubmit, defaultValues, title }: Props) {
 					<TextInput label='Religion' {...form.getInputProps('religion')} />
 					<DateInput
 						label='Date of Birth'
+						firstDayOfWeek={0}
 						{...form.getInputProps('dateOfBirth')}
 					/>
 					<Select

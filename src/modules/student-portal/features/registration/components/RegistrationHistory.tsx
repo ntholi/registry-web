@@ -37,7 +37,7 @@ export default function RegistrationHistory({ data, stdNo }: Props) {
 						withBorder
 						key={request.id}
 						component={Link}
-						href={`/student/registration/${request.id}`}
+						href={`/student-portal/registration/${request.id}`}
 					>
 						<CardSection p='xs'>
 							<Flex gap='xs' align='center' justify='space-between'>

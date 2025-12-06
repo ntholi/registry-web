@@ -54,7 +54,7 @@ export default function PaymentReceiptsView({ graduationRequest }: Props) {
 				<Group justify='flex-end'>
 					<Button
 						component={Link}
-						href={`/student/graduation/${graduationRequest.id}/edit`}
+						href={`/student-portal/graduation/${graduationRequest.id}/edit`}
 						leftSection={<IconEdit size='1rem' />}
 						variant='light'
 					>
@@ -85,7 +85,7 @@ export default function PaymentReceiptsView({ graduationRequest }: Props) {
 			<Group justify='flex-end'>
 				<Button
 					component={Link}
-					href={`/student/graduation/${graduationRequest.id}/edit`}
+					href={`/student-portal/graduation/${graduationRequest.id}/edit`}
 					leftSection={<IconEdit size='1rem' />}
 					variant='light'
 				>

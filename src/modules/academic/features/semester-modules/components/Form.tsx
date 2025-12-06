@@ -63,7 +63,7 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
 			schema={schema}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/semester-modules/${id}`);
+				router.push(`/academic/semester-modules/${id}`);
 			}}
 		>
 			{(form) => (

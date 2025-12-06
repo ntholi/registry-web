@@ -191,7 +191,7 @@ function RequestCard({ request }: { request?: GraduationRequest | null }) {
 				{request && (
 					<Button
 						component={Link}
-						href={`/graduation/requests/${status}/${request.id}`}
+						href={`/registry/graduation/requests/${status}/${request.id}`}
 						size='xs'
 						variant='light'
 						color='blue'

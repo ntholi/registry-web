@@ -25,6 +25,7 @@ export async function createFullRegistrationExcel(
 		{ header: 'No.', key: 'no', width: 6 },
 		{ header: 'Student Number', key: 'stdNo', width: 15 },
 		{ header: 'Student Name', key: 'name', width: 30 },
+		{ header: 'Gender', key: 'gender', width: 10 },
 		{ header: 'Program', key: 'program', width: 42 },
 		{ header: 'Semester', key: 'semester', width: 15 },
 		{ header: 'Sponsor', key: 'sponsor', width: 20 },
@@ -66,37 +67,37 @@ export async function createFullRegistrationExcel(
 		editAs: 'oneCell',
 	});
 
-	worksheet.mergeCells('A1:G1');
+	worksheet.mergeCells('A1:H1');
 	worksheet.getCell('A1').value = '';
 
-	worksheet.mergeCells('A2:G2');
+	worksheet.mergeCells('A2:H2');
 	worksheet.getCell('A2').value = '';
 
-	worksheet.mergeCells('A3:G3');
+	worksheet.mergeCells('A3:H3');
 	worksheet.getCell('A3').value = '';
 
-	worksheet.mergeCells('A4:G4');
+	worksheet.mergeCells('A4:H4');
 	worksheet.getCell('A4').value = '';
 
-	worksheet.mergeCells('A5:G5');
+	worksheet.mergeCells('A5:H5');
 	worksheet.getCell('A5').value = '';
 
-	worksheet.mergeCells('A6:G6');
+	worksheet.mergeCells('A6:H6');
 	worksheet.getCell('A6').value = 'Registration Report';
 	worksheet.getCell('A6').font = { name: 'Arial', size: 16, bold: true };
 	worksheet.getCell('A6').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A7:G7');
+	worksheet.mergeCells('A7:H7');
 	worksheet.getCell('A7').value = `Term: ${report.termName}`;
 	worksheet.getCell('A7').font = { name: 'Arial', size: 12, bold: true };
 	worksheet.getCell('A7').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A8:G8');
+	worksheet.mergeCells('A8:H8');
 	worksheet.getCell('A8').value = `Total Students: ${report.totalStudents}`;
 	worksheet.getCell('A8').font = { name: 'Arial', size: 12 };
 	worksheet.getCell('A8').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A9:G9');
+	worksheet.mergeCells('A9:H9');
 	worksheet.getCell('A9').value =
 		`Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
 			year: 'numeric',
@@ -114,6 +115,7 @@ export async function createFullRegistrationExcel(
 		'No.',
 		'Student Number',
 		'Student Name',
+		'Gender',
 		'Program',
 		'Semester',
 		'Sponsor',
@@ -131,7 +133,7 @@ export async function createFullRegistrationExcel(
 			color: { argb: 'FF000000' },
 		};
 
-		if (colNumber >= 1 && colNumber <= 7) {
+		if (colNumber >= 1 && colNumber <= 8) {
 			cell.fill = {
 				type: 'pattern',
 				pattern: 'solid',
@@ -158,6 +160,7 @@ export async function createFullRegistrationExcel(
 			index + 1,
 			student.stdNo,
 			student.name,
+			student.gender === 'Male' ? 'M' : student.gender === 'Female' ? 'F' : '-',
 			student.programName,
 			formatSemester(student.semesterNumber, 'short'),
 			student.sponsorName || '-',
@@ -183,7 +186,7 @@ export async function createFullRegistrationExcel(
 				right: { style: 'thin' },
 			};
 
-			if (colNumber === 2 || colNumber === 5) {
+			if (colNumber === 2 || colNumber === 4 || colNumber === 6) {
 				cell.alignment = { horizontal: 'center', vertical: 'middle' };
 			}
 		});

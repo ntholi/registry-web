@@ -66,3 +66,7 @@ export async function checkModuleAssignment(
 ) {
 	return service.checkAssignment(userId, semesterModuleId);
 }
+
+export async function getAssignedModuleByLmsCourseId(lmsCourseId: string) {
+	return service.getByLmsCourseId(lmsCourseId);
+}

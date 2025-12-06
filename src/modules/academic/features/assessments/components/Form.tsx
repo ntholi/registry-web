@@ -34,7 +34,7 @@ export default function AssessmentForm({
 			schema={createInsertSchema(assessments)}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/assessments/${id}`);
+				router.push(`/academic/assessments/${id}`);
 			}}
 		>
 			{(form) => (

@@ -29,7 +29,11 @@ export default class AssignedModuleRepository extends BaseRepository<
 							with: {
 								structure: {
 									with: {
-										program: true,
+										program: {
+											with: {
+												school: true,
+											},
+										},
 									},
 								},
 							},
@@ -74,7 +78,11 @@ export default class AssignedModuleRepository extends BaseRepository<
 							with: {
 								structure: {
 									with: {
-										program: true,
+										program: {
+											with: {
+												school: true,
+											},
+										},
 									},
 								},
 							},
@@ -155,7 +163,11 @@ export default class AssignedModuleRepository extends BaseRepository<
 							with: {
 								structure: {
 									with: {
-										program: true,
+										program: {
+											with: {
+												school: true,
+											},
+										},
 									},
 								},
 							},
@@ -169,11 +181,11 @@ export default class AssignedModuleRepository extends BaseRepository<
 	async linkCourseToAssignment(
 		userId: string,
 		semesterModuleId: number,
-		classroomCourseId: string
+		lmsCourseId: string
 	) {
 		return await db
 			.update(assignedModules)
-			.set({ classroomCourseId })
+			.set({ lmsCourseId })
 			.where(
 				and(
 					eq(assignedModules.userId, userId),
@@ -186,7 +198,7 @@ export default class AssignedModuleRepository extends BaseRepository<
 
 	async getUserCourseIds(userId: string) {
 		const results = await db
-			.select({ courseId: assignedModules.classroomCourseId })
+			.select({ courseId: assignedModules.lmsCourseId })
 			.from(assignedModules)
 			.where(
 				and(
@@ -198,6 +210,33 @@ export default class AssignedModuleRepository extends BaseRepository<
 		return results
 			.map((r) => r.courseId)
 			.filter((id): id is string => id !== null);
+	}
+
+	async findByLmsCourseId(lmsCourseId: string) {
+		return await db.query.assignedModules.findFirst({
+			where: eq(assignedModules.lmsCourseId, lmsCourseId),
+			with: {
+				semesterModule: {
+					with: {
+						module: true,
+						semester: {
+							with: {
+								structure: {
+									with: {
+										program: {
+											with: {
+												school: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				term: true,
+			},
+		});
 	}
 }
 

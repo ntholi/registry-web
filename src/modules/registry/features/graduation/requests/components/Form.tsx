@@ -73,7 +73,7 @@ export default function GraduationRequestForm({
 			})}
 			defaultValues={defaultValues}
 			onSuccess={() => {
-				router.push(`/graduation/requests/pending`);
+				router.push('/registry/graduation/requests/pending');
 			}}
 		>
 			{() => (

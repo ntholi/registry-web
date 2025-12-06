@@ -25,7 +25,7 @@ export default function Navbar() {
 		<>
 			<Container size='xl'>
 				<Flex p={5} justify='space-between' align='center'>
-					<Link href='/student'>
+					<Link href='/student-portal'>
 						<Logo />
 					</Link>
 					<Menu shadow='md' width={200}>
@@ -44,7 +44,7 @@ export default function Navbar() {
 							<Menu.Item
 								leftSection={<IconUser size={14} />}
 								component={Link}
-								href='/student/profile'
+								href='/student-portal/profile'
 							>
 								Profile
 							</Menu.Item>

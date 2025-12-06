@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
-import { formatPhoneNumber, formatSemester } from '@/shared/lib/utils/utils';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 
 interface Student {
@@ -25,8 +25,8 @@ interface Student {
 	semesterNumber: string;
 	schoolName: string;
 	schoolCode: string;
-	phone: string;
 	sponsorName: string | null;
+	gender: string | null;
 }
 
 interface StudentTableProps {
@@ -71,11 +71,11 @@ export default function StudentTable({
 								<Table.Tr>
 									<Table.Th>Student No.</Table.Th>
 									<Table.Th>Name</Table.Th>
+									<Table.Th ta='center'>Gender</Table.Th>
 									<Table.Th>Program</Table.Th>
 									<Table.Th ta='center'>Semester</Table.Th>
 									<Table.Th>School</Table.Th>
 									<Table.Th>Sponsor</Table.Th>
-									<Table.Th>Phone</Table.Th>
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
@@ -90,6 +90,9 @@ export default function StudentTable({
 										<Table.Td>
 											<Skeleton height={14} width='60%' />
 										</Table.Td>
+										<Table.Td ta='center'>
+											<Skeleton height={14} width={20} />
+										</Table.Td>
 										<Table.Td>
 											<Skeleton height={14} width='70%' />
 										</Table.Td>
@@ -101,9 +104,6 @@ export default function StudentTable({
 										</Table.Td>
 										<Table.Td>
 											<Skeleton height={14} width='70%' />
-										</Table.Td>
-										<Table.Td>
-											<Skeleton height={14} width={90} />
 										</Table.Td>
 									</Table.Tr>
 								))}
@@ -158,13 +158,15 @@ export default function StudentTable({
 							<Table.Tr>
 								<Table.Th miw={90}>Student No.</Table.Th>
 								<Table.Th miw={isMobile ? 140 : 200}>Name</Table.Th>
+								<Table.Th ta='center' miw={70}>
+									Gender
+								</Table.Th>
 								<Table.Th miw={isMobile ? 160 : 250}>Program</Table.Th>
 								<Table.Th ta='center' miw={90}>
 									Semester
 								</Table.Th>
 								<Table.Th miw={100}>School</Table.Th>
 								<Table.Th miw={150}>Sponsor</Table.Th>
-								<Table.Th miw={120}>Phone</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
@@ -172,7 +174,7 @@ export default function StudentTable({
 								<Table.Tr key={`${student.stdNo}-${index}`}>
 									<Table.Td>
 										<Link
-											href={`/students/${student.stdNo}`}
+											href={`/registry/students/${student.stdNo}`}
 											size='sm'
 											fw={500}
 										>
@@ -181,6 +183,15 @@ export default function StudentTable({
 									</Table.Td>
 									<Table.Td>
 										<Text size='sm'>{student.name}</Text>
+									</Table.Td>
+									<Table.Td ta='center'>
+										<Text size='sm'>
+											{student.gender === 'Male'
+												? 'M'
+												: student.gender === 'Female'
+													? 'F'
+													: '-'}
+										</Text>
 									</Table.Td>
 									<Table.Td>
 										<Text size='sm' c='dimmed'>
@@ -201,9 +212,6 @@ export default function StudentTable({
 										<Text size='sm' c='dimmed'>
 											{student.sponsorName || '-'}
 										</Text>
-									</Table.Td>
-									<Table.Td>
-										<Text size='sm'>{formatPhoneNumber(student.phone)}</Text>
 									</Table.Td>
 								</Table.Tr>
 							))}

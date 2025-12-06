@@ -43,7 +43,7 @@ export default function ClearanceDetails({ request }: Props) {
 						<Stack>
 							<FieldView label='Student Number' underline={false}>
 								<Group justify='space-between'>
-									<Link href={`/students/${student.stdNo}`}>
+									<Link href={`/registry/students/${student.stdNo}`}>
 										{student.stdNo}
 									</Link>
 									<Tooltip label='Copy'>

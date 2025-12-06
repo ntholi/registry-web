@@ -109,7 +109,7 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 				...defaultValues,
 			}}
 			onSuccess={({ id }) => {
-				router.push(`/tasks/${id}`);
+				router.push(`/admin/tasks/${id}`);
 			}}
 		>
 			{(form) => {
@@ -162,6 +162,7 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 						<Group grow>
 							<DateTimePicker
 								label='Scheduled For'
+								firstDayOfWeek={0}
 								placeholder='Pick date and time'
 								clearable
 								{...form.getInputProps('scheduledFor')}
@@ -169,6 +170,7 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 
 							<DateTimePicker
 								label='Due Date'
+								firstDayOfWeek={0}
 								placeholder='Pick date and time'
 								clearable
 								{...form.getInputProps('dueDate')}

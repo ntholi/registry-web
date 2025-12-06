@@ -77,7 +77,11 @@ export default function StudentView({ student }: Props) {
 								User
 							</Text>
 							{student.user ? (
-								<Link href={`/users/${student.user?.id}`} size='sm' fw={500}>
+								<Link
+									href={`/admin/users/${student.user?.id}`}
+									size='sm'
+									fw={500}
+								>
 									{student.user?.email}
 								</Link>
 							) : (
@@ -211,7 +215,7 @@ export default function StudentView({ student }: Props) {
 									<InfoItem
 										label='Structure'
 										value={activePrograms[0].structure.code}
-										href={`/schools/structures/${activePrograms[0].structureId}`}
+										href={`/academic/schools/structures/${activePrograms[0].structureId}`}
 										copyable={false}
 									/>
 								</Flex>

@@ -54,7 +54,7 @@ export default async function GraduationHistory({
 		<Card
 			withBorder
 			component={Link}
-			href={`/student/graduation/${graduationRequest.id}`}
+			href={`/student-portal/graduation/${graduationRequest.id}`}
 		>
 			<CardSection p='xs'>
 				<Flex gap='xs' align='center' justify='space-between'>

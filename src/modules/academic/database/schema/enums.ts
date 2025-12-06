@@ -64,6 +64,8 @@ export const assessmentNumber = pgEnum('assessment_number', [
 	'CW15',
 ]);
 
+export type AssessmentNumber = (typeof assessmentNumber.enumValues)[number];
+
 export const assessmentMarksAuditAction = pgEnum(
 	'assessment_marks_audit_action',
 	['create', 'update', 'delete']

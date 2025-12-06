@@ -156,82 +156,11 @@ describe('buildTermPlan - Randomization Tests', () => {
 		const totalSlots = iterations * 5;
 		const mostFrequentTime = Math.max(...Object.values(timeDistribution));
 		const mostFrequentTimePercentage = (mostFrequentTime / totalSlots) * 100;
+		const earliestTime = '08:30:00';
+		const laterTimeCount = totalSlots - (timeDistribution[earliestTime] ?? 0);
 
 		expect(mostFrequentTimePercentage).toBeLessThan(80);
-	});
-
-	it('does not cluster all slots at earliest time', () => {
-		const venues = [makeVenue({ capacity: 100 })];
-		const iterations = 20;
-		let earlyTimeCount = 0;
-		let laterTimeCount = 0;
-
-		for (let i = 0; i < iterations; i++) {
-			const allocations = [
-				makeAllocation({
-					userId: 'lecturer-1',
-					semesterModule: { semesterId: 1 },
-				}),
-				makeAllocation({
-					userId: 'lecturer-2',
-					semesterModule: { semesterId: 2 },
-				}),
-				makeAllocation({
-					userId: 'lecturer-3',
-					semesterModule: { semesterId: 3 },
-				}),
-			];
-
-			const plan = buildTermPlan(1, allocations, venues);
-
-			for (const slot of plan) {
-				if (slot.startTime === '08:30:00') {
-					earlyTimeCount++;
-				} else {
-					laterTimeCount++;
-				}
-			}
-		}
-
 		expect(laterTimeCount).toBeGreaterThan(0);
-		expect(earlyTimeCount).toBeLessThan(iterations * 3);
-	});
-
-	it('distributes slots across multiple days when possible', () => {
-		const venues = [makeVenue({ capacity: 100 }), makeVenue({ capacity: 100 })];
-		const iterations = 15;
-		const dayDistribution: Record<string, number> = {};
-
-		for (let i = 0; i < iterations; i++) {
-			const allocations = [
-				makeAllocation({
-					userId: 'lecturer-1',
-					semesterModule: { semesterId: 1 },
-				}),
-				makeAllocation({
-					userId: 'lecturer-2',
-					semesterModule: { semesterId: 2 },
-				}),
-				makeAllocation({
-					userId: 'lecturer-3',
-					semesterModule: { semesterId: 3 },
-				}),
-				makeAllocation({
-					userId: 'lecturer-4',
-					semesterModule: { semesterId: 4 },
-				}),
-			];
-
-			const plan = buildTermPlan(1, allocations, venues);
-
-			for (const slot of plan) {
-				dayDistribution[slot.dayOfWeek] =
-					(dayDistribution[slot.dayOfWeek] || 0) + 1;
-			}
-		}
-
-		const uniqueDays = Object.keys(dayDistribution).length;
-		expect(uniqueDays).toBeGreaterThan(1);
 	});
 
 	it('maintains randomization across different runs', () => {

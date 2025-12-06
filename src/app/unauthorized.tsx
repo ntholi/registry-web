@@ -8,7 +8,7 @@ export default function Unauthorized() {
 			description='You need to sign in to access this page.'
 			color='yellow'
 			icon={<IconLock size={32} />}
-			primaryActionHref='/login'
+			primaryActionHref='/auth/login'
 			primaryActionLabel='Sign in'
 		/>
 	);

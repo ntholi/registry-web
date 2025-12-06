@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
 	const searchParams = request.nextUrl.searchParams;
 	const code = searchParams.get('code');
-	const returnUrl = searchParams.get('state') || '/courses';
+	const returnUrl = searchParams.get('state') || '/lms/courses';
 
 	if (!code) {
 		const oauth2Client = new google.auth.OAuth2(

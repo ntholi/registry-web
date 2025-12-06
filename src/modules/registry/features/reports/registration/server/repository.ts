@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, like, or, type SQL, sql } from 'drizzle-orm';
 import {
 	db,
 	programs,
@@ -13,11 +13,19 @@ import {
 } from '@/core/database';
 
 export interface RegistrationReportFilter {
-	termId?: number;
+	termIds?: number[];
 	schoolId?: number;
 	programId?: number;
 	semesterNumber?: string;
 	searchQuery?: string;
+	gender?: string;
+	sponsorId?: number;
+	ageRangeMin?: number;
+	ageRangeMax?: number;
+	country?: string;
+	studentStatus?: string;
+	programStatus?: string;
+	semesterStatus?: string;
 }
 
 export interface FullRegistrationStudent {
@@ -30,6 +38,7 @@ export interface FullRegistrationStudent {
 	phone: string;
 	status: string;
 	sponsorName: string | null;
+	gender: string | null;
 }
 
 export interface SummaryProgramData {
@@ -62,12 +71,55 @@ export interface SummaryRegistrationReport {
 	generatedAt: Date;
 }
 
+interface ChartDataResult {
+	studentsBySchool: Array<{ name: string; count: number; code: string }>;
+	studentsByProgram: Array<{
+		name: string;
+		code: string;
+		count: number;
+		school: string;
+	}>;
+	studentsBySemester: Array<{ semester: string; count: number }>;
+	studentsByGender: Array<{ gender: string; count: number }>;
+	studentsBySponsor: Array<{ sponsor: string; count: number }>;
+	programsBySchool: Array<{
+		school: string;
+		schoolCode: string;
+		programCount: number;
+	}>;
+}
+
+interface StudentQueryRow {
+	stdNo: number;
+	name: string;
+	programName: string;
+	semesterNumber: string | null;
+	schoolName: string;
+	schoolCode: string;
+	phone: string | null;
+	status: string;
+	sponsorName: string | null;
+	gender: string | null;
+	dateOfBirth: Date | null;
+	country: string | null;
+}
+
+interface ChartQueryRow {
+	schoolName: string;
+	schoolCode: string;
+	programName: string;
+	programCode: string;
+	semesterNumber: string | null;
+	gender: string | null;
+	sponsorName: string | null;
+	studentId: number;
+	dateOfBirth: Date | null;
+	country: string | null;
+}
+
 export class RegistrationReportRepository {
-	async getFullRegistrationData(
-		termName: string,
-		filter?: RegistrationReportFilter
-	): Promise<FullRegistrationStudent[]> {
-		const query = db
+	private createBaseStudentQuery() {
+		return db
 			.select({
 				stdNo: students.stdNo,
 				name: students.name,
@@ -78,6 +130,9 @@ export class RegistrationReportRepository {
 				phone: students.phone1,
 				status: studentSemesters.status,
 				sponsorName: sponsors.name,
+				gender: students.gender,
+				dateOfBirth: students.dateOfBirth,
+				country: students.country,
 			})
 			.from(studentSemesters)
 			.innerJoin(
@@ -93,85 +148,10 @@ export class RegistrationReportRepository {
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
-
-		const conditions = [
-			eq(studentSemesters.term, termName),
-			inArray(studentSemesters.status, ['Active', 'Repeat']),
-			eq(studentPrograms.status, 'Active'),
-		];
-
-		if (filter?.schoolId) {
-			conditions.push(eq(schools.id, filter.schoolId));
-		}
-
-		if (filter?.programId) {
-			conditions.push(eq(programs.id, filter.programId));
-		}
-
-		if (filter?.semesterNumber) {
-			conditions.push(
-				eq(structureSemesters.semesterNumber, filter.semesterNumber)
-			);
-		}
-
-		const result = await query
-			.where(and(...conditions))
-			.orderBy(schools.name, programs.name, structureSemesters.semesterNumber);
-
-		return result.map((row) => ({
-			stdNo: row.stdNo,
-			name: row.name,
-			programName: row.programName,
-			semesterNumber: row.semesterNumber || '',
-			schoolName: row.schoolName,
-			schoolCode: row.schoolCode,
-			phone: row.phone || '',
-			status: row.status,
-			sponsorName: row.sponsorName || null,
-		}));
 	}
 
-	async getPaginatedRegistrationData(
-		termName: string,
-		page: number = 1,
-		pageSize: number = 20,
-		filter?: RegistrationReportFilter
-	): Promise<{
-		students: FullRegistrationStudent[];
-		totalCount: number;
-		totalPages: number;
-		currentPage: number;
-	}> {
-		const offset = (page - 1) * pageSize;
-
-		const studentsQuery = db
-			.select({
-				stdNo: students.stdNo,
-				name: students.name,
-				programName: programs.name,
-				semesterNumber: structureSemesters.semesterNumber,
-				schoolName: schools.name,
-				schoolCode: schools.code,
-				phone: students.phone1,
-				status: studentSemesters.status,
-				sponsorName: sponsors.name,
-			})
-			.from(studentSemesters)
-			.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			)
-			.innerJoin(
-				studentPrograms,
-				eq(studentSemesters.studentProgramId, studentPrograms.id)
-			)
-			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
-
-		const countQuery = db
+	private createCountQuery() {
+		return db
 			.select({ count: students.stdNo })
 			.from(studentSemesters)
 			.innerJoin(
@@ -186,12 +166,61 @@ export class RegistrationReportRepository {
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id));
+	}
 
-		const conditions = [
-			eq(studentSemesters.term, termName),
-			inArray(studentSemesters.status, ['Active', 'Repeat']),
-			eq(studentPrograms.status, 'Active'),
-		];
+	private createChartQuery() {
+		return db
+			.select({
+				schoolName: schools.name,
+				schoolCode: schools.code,
+				programName: programs.name,
+				programCode: programs.code,
+				semesterNumber: structureSemesters.semesterNumber,
+				gender: students.gender,
+				sponsorName: sponsors.name,
+				studentId: students.stdNo,
+				dateOfBirth: students.dateOfBirth,
+				country: students.country,
+			})
+			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
+			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
+	}
+
+	private buildFilterConditions(
+		filter: RegistrationReportFilter | undefined,
+		options: { includeSearchQuery?: boolean } = {}
+	): SQL[] {
+		const conditions: SQL[] = [];
+
+		if (filter?.studentStatus) {
+			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
+		}
+
+		if (filter?.programStatus) {
+			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
+		} else {
+			conditions.push(eq(studentPrograms.status, 'Active'));
+		}
+
+		if (filter?.semesterStatus) {
+			conditions.push(
+				sql`${studentSemesters.status} = ${filter.semesterStatus}`
+			);
+		} else {
+			conditions.push(inArray(studentSemesters.status, ['Active', 'Repeat']));
+		}
 
 		if (filter?.schoolId) {
 			conditions.push(eq(schools.id, filter.schoolId));
@@ -207,7 +236,41 @@ export class RegistrationReportRepository {
 			);
 		}
 
-		if (filter?.searchQuery?.trim()) {
+		if (filter?.gender) {
+			conditions.push(
+				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
+			);
+		}
+
+		if (filter?.sponsorId) {
+			conditions.push(eq(studentSemesters.sponsorId, filter.sponsorId));
+		}
+
+		if (filter?.country) {
+			conditions.push(eq(students.country, filter.country));
+		}
+
+		if (filter?.ageRangeMin || filter?.ageRangeMax) {
+			const currentDate = new Date();
+			if (filter.ageRangeMin) {
+				const maxBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMin,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
+			}
+			if (filter.ageRangeMax) {
+				const minBirthDate = new Date(
+					currentDate.getFullYear() - filter.ageRangeMax - 1,
+					currentDate.getMonth(),
+					currentDate.getDate()
+				);
+				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
+			}
+		}
+
+		if (options.includeSearchQuery && filter?.searchQuery?.trim()) {
 			const searchTerm = `%${filter.searchQuery.trim()}%`;
 			conditions.push(
 				or(
@@ -221,44 +284,28 @@ export class RegistrationReportRepository {
 			);
 		}
 
-		const whereClause = and(...conditions);
+		return conditions;
+	}
 
-		const [studentsResult, totalResult] = await Promise.all([
-			studentsQuery
-				.where(whereClause)
-				.orderBy(schools.name, programs.name, structureSemesters.semesterNumber)
-				.limit(pageSize)
-				.offset(offset),
-			countQuery.where(whereClause),
-		]);
-
-		const totalCount = totalResult.length;
-		const totalPages = Math.ceil(totalCount / pageSize);
-
+	private mapRowToStudent(row: StudentQueryRow): FullRegistrationStudent {
 		return {
-			students: studentsResult.map((row) => ({
-				stdNo: row.stdNo,
-				name: row.name,
-				programName: row.programName,
-				semesterNumber: row.semesterNumber || '',
-				schoolName: row.schoolName,
-				schoolCode: row.schoolCode,
-				phone: row.phone || '',
-				status: row.status,
-				sponsorName: row.sponsorName || null,
-			})),
-			totalCount,
-			totalPages,
-			currentPage: page,
+			stdNo: row.stdNo,
+			name: row.name,
+			programName: row.programName,
+			semesterNumber: row.semesterNumber || '',
+			schoolName: row.schoolName,
+			schoolCode: row.schoolCode,
+			phone: row.phone || '',
+			status: row.status,
+			sponsorName: row.sponsorName || null,
+			gender: row.gender || null,
 		};
 	}
 
-	async getSummaryRegistrationData(
-		termName: string,
-		filter?: RegistrationReportFilter
-	): Promise<SummaryRegistrationReport> {
-		const fullData = await this.getFullRegistrationData(termName, filter);
-
+	private processSummaryData(fullData: FullRegistrationStudent[]): {
+		schoolsMap: Map<string, SummarySchoolData>;
+		programsMap: Map<string, SummaryProgramData>;
+	} {
 		const schoolsMap = new Map<string, SummarySchoolData>();
 		const programsMap = new Map<string, SummaryProgramData>();
 
@@ -308,7 +355,16 @@ export class RegistrationReportRepository {
 			school.totalStudents++;
 		});
 
-		const schools = Array.from(schoolsMap.values())
+		return { schoolsMap, programsMap };
+	}
+
+	private buildSummaryReport(
+		termName: string,
+		fullData: FullRegistrationStudent[],
+		schoolsMap: Map<string, SummarySchoolData>,
+		programsMap: Map<string, SummaryProgramData>
+	): SummaryRegistrationReport {
+		const schoolsList = Array.from(schoolsMap.values())
 			.map((school) => ({
 				...school,
 				programs: Array.from(programsMap.values())
@@ -320,124 +376,12 @@ export class RegistrationReportRepository {
 		return {
 			termName,
 			totalStudents: fullData.length,
-			schools,
+			schools: schoolsList,
 			generatedAt: new Date(),
 		};
 	}
 
-	async getTermById(termId: number) {
-		const [term] = await db
-			.select()
-			.from(terms)
-			.where(eq(terms.id, termId))
-			.limit(1);
-
-		return term;
-	}
-
-	async getAllActiveTerms() {
-		return await db.select().from(terms).orderBy(desc(terms.name));
-	}
-
-	async getAvailableSchools() {
-		return await db
-			.select({
-				id: schools.id,
-				code: schools.code,
-				name: schools.name,
-			})
-			.from(schools)
-			.where(eq(schools.isActive, true))
-			.orderBy(schools.code);
-	}
-
-	async getAvailablePrograms(schoolId?: number) {
-		const baseQuery = db
-			.select({
-				id: programs.id,
-				code: programs.code,
-				name: programs.name,
-				schoolId: programs.schoolId,
-			})
-			.from(programs);
-
-		if (schoolId) {
-			return await baseQuery
-				.where(eq(programs.schoolId, schoolId))
-				.orderBy(desc(programs.id));
-		}
-
-		return await baseQuery.orderBy(desc(programs.id));
-	}
-
-	async getChartData(
-		termName: string,
-		filter?: RegistrationReportFilter
-	): Promise<{
-		studentsBySchool: Array<{ name: string; count: number; code: string }>;
-		studentsByProgram: Array<{
-			name: string;
-			code: string;
-			count: number;
-			school: string;
-		}>;
-		studentsBySemester: Array<{ semester: string; count: number }>;
-		studentsByGender: Array<{ gender: string; count: number }>;
-		studentsBySponsor: Array<{ sponsor: string; count: number }>;
-		programsBySchool: Array<{
-			school: string;
-			schoolCode: string;
-			programCount: number;
-		}>;
-	}> {
-		const query = db
-			.select({
-				schoolName: schools.name,
-				schoolCode: schools.code,
-				programName: programs.name,
-				programCode: programs.code,
-				semesterNumber: structureSemesters.semesterNumber,
-				gender: students.gender,
-				sponsorName: sponsors.name,
-				studentId: students.stdNo,
-			})
-			.from(studentSemesters)
-			.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			)
-			.innerJoin(
-				studentPrograms,
-				eq(studentSemesters.studentProgramId, studentPrograms.id)
-			)
-			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(sponsors, eq(studentSemesters.sponsorId, sponsors.id));
-
-		const conditions = [
-			eq(studentSemesters.term, termName),
-			inArray(studentSemesters.status, ['Active', 'Repeat']),
-			eq(studentPrograms.status, 'Active'),
-		];
-
-		if (filter?.schoolId) {
-			conditions.push(eq(schools.id, filter.schoolId));
-		}
-
-		if (filter?.programId) {
-			conditions.push(eq(programs.id, filter.programId));
-		}
-
-		if (filter?.semesterNumber) {
-			conditions.push(
-				eq(structureSemesters.semesterNumber, filter.semesterNumber)
-			);
-		}
-
-		const result = await query.where(and(...conditions));
-
+	private aggregateChartData(result: ChartQueryRow[]): ChartDataResult {
 		const schoolMap = new Map<string, number>();
 		const programMap = new Map<
 			string,
@@ -471,7 +415,7 @@ export class RegistrationReportRepository {
 			const gender = row.gender || 'Unknown';
 			genderMap.set(gender, (genderMap.get(gender) || 0) + 1);
 
-			const sponsor = row.sponsorName || 'Self-Sponsored';
+			const sponsor = row.sponsorName || 'Unknown';
 			sponsorMap.set(sponsor, (sponsorMap.get(sponsor) || 0) + 1);
 
 			if (!schoolProgramsMap.has(row.schoolName)) {
@@ -518,5 +462,252 @@ export class RegistrationReportRepository {
 				}))
 				.sort((a, b) => b.programCount - a.programCount),
 		};
+	}
+
+	async getFullRegistrationData(
+		termName: string,
+		filter?: RegistrationReportFilter
+	): Promise<FullRegistrationStudent[]> {
+		const query = this.createBaseStudentQuery();
+		const conditions = [
+			eq(studentSemesters.term, termName),
+			...this.buildFilterConditions(filter),
+		];
+
+		const result = await query
+			.where(and(...conditions))
+			.orderBy(schools.name, programs.name, structureSemesters.semesterNumber);
+
+		return result.map((row) => this.mapRowToStudent(row));
+	}
+
+	async getPaginatedRegistrationData(
+		termName: string,
+		page: number = 1,
+		pageSize: number = 20,
+		filter?: RegistrationReportFilter
+	): Promise<{
+		students: FullRegistrationStudent[];
+		totalCount: number;
+		totalPages: number;
+		currentPage: number;
+	}> {
+		const offset = (page - 1) * pageSize;
+
+		const studentsQuery = this.createBaseStudentQuery();
+		const countQuery = this.createCountQuery();
+
+		const conditions = [
+			eq(studentSemesters.term, termName),
+			...this.buildFilterConditions(filter, { includeSearchQuery: true }),
+		];
+
+		const whereClause = and(...conditions);
+
+		const [studentsResult, totalResult] = await Promise.all([
+			studentsQuery
+				.where(whereClause)
+				.orderBy(schools.name, programs.name, structureSemesters.semesterNumber)
+				.limit(pageSize)
+				.offset(offset),
+			countQuery.where(whereClause),
+		]);
+
+		const totalCount = totalResult.length;
+		const totalPages = Math.ceil(totalCount / pageSize);
+
+		return {
+			students: studentsResult.map((row) => this.mapRowToStudent(row)),
+			totalCount,
+			totalPages,
+			currentPage: page,
+		};
+	}
+
+	async getSummaryRegistrationData(
+		termName: string,
+		filter?: RegistrationReportFilter
+	): Promise<SummaryRegistrationReport> {
+		const fullData = await this.getFullRegistrationData(termName, filter);
+		const { schoolsMap, programsMap } = this.processSummaryData(fullData);
+		return this.buildSummaryReport(termName, fullData, schoolsMap, programsMap);
+	}
+
+	async getTermById(termId: number) {
+		const [term] = await db
+			.select()
+			.from(terms)
+			.where(eq(terms.id, termId))
+			.limit(1);
+
+		return term;
+	}
+
+	async getTermsByIds(termIds: number[]) {
+		return await db
+			.select()
+			.from(terms)
+			.where(inArray(terms.id, termIds))
+			.orderBy(desc(terms.name));
+	}
+
+	async getAllActiveTerms() {
+		return await db.select().from(terms).orderBy(desc(terms.name));
+	}
+
+	async getAvailableSchools() {
+		return await db
+			.select({
+				id: schools.id,
+				code: schools.code,
+				name: schools.name,
+			})
+			.from(schools)
+			.where(eq(schools.isActive, true))
+			.orderBy(schools.code);
+	}
+
+	async getAvailablePrograms(schoolId?: number) {
+		const baseQuery = db
+			.select({
+				id: programs.id,
+				code: programs.code,
+				name: programs.name,
+				schoolId: programs.schoolId,
+			})
+			.from(programs);
+
+		if (schoolId) {
+			return await baseQuery
+				.where(eq(programs.schoolId, schoolId))
+				.orderBy(desc(programs.id));
+		}
+
+		return await baseQuery.orderBy(desc(programs.id));
+	}
+
+	async getChartData(
+		termName: string,
+		filter?: RegistrationReportFilter
+	): Promise<ChartDataResult> {
+		const query = this.createChartQuery();
+		const conditions = [
+			eq(studentSemesters.term, termName),
+			...this.buildFilterConditions(filter),
+		];
+
+		const result = await query.where(and(...conditions));
+		return this.aggregateChartData(result);
+	}
+
+	async getChartDataForMultipleTerms(
+		termNames: string[],
+		filter?: RegistrationReportFilter
+	): Promise<ChartDataResult> {
+		const query = this.createChartQuery();
+		const conditions = [
+			inArray(studentSemesters.term, termNames),
+			...this.buildFilterConditions(filter),
+		];
+
+		const result = await query.where(and(...conditions));
+		return this.aggregateChartData(result);
+	}
+
+	async getAvailableSponsors() {
+		return await db
+			.select({
+				id: sponsors.id,
+				name: sponsors.name,
+			})
+			.from(sponsors)
+			.orderBy(sponsors.name);
+	}
+
+	async getAvailableCountries() {
+		const result = await db
+			.selectDistinct({ country: students.country })
+			.from(students)
+			.where(sql`${students.country} IS NOT NULL AND ${students.country} != ''`)
+			.orderBy(students.country);
+
+		return result.map((row) => row.country).filter((c): c is string => !!c);
+	}
+
+	async getFullRegistrationDataForMultipleTerms(
+		termNames: string[],
+		filter?: RegistrationReportFilter
+	): Promise<FullRegistrationStudent[]> {
+		const query = this.createBaseStudentQuery();
+		const conditions = [
+			inArray(studentSemesters.term, termNames),
+			...this.buildFilterConditions(filter),
+		];
+
+		const result = await query
+			.where(and(...conditions))
+			.orderBy(schools.name, programs.name, structureSemesters.semesterNumber);
+
+		return result.map((row) => this.mapRowToStudent(row));
+	}
+
+	async getPaginatedRegistrationDataForMultipleTerms(
+		termNames: string[],
+		page: number = 1,
+		pageSize: number = 20,
+		filter?: RegistrationReportFilter
+	): Promise<{
+		students: FullRegistrationStudent[];
+		totalCount: number;
+		totalPages: number;
+		currentPage: number;
+	}> {
+		const offset = (page - 1) * pageSize;
+
+		const studentsQuery = this.createBaseStudentQuery();
+		const countQuery = this.createCountQuery();
+
+		const conditions = [
+			inArray(studentSemesters.term, termNames),
+			...this.buildFilterConditions(filter, { includeSearchQuery: true }),
+		];
+
+		const whereClause = and(...conditions);
+
+		const [studentsResult, totalResult] = await Promise.all([
+			studentsQuery
+				.where(whereClause)
+				.orderBy(schools.name, programs.name, structureSemesters.semesterNumber)
+				.limit(pageSize)
+				.offset(offset),
+			countQuery.where(whereClause),
+		]);
+
+		const totalCount = totalResult.length;
+		const totalPages = Math.ceil(totalCount / pageSize);
+
+		return {
+			students: studentsResult.map((row) => this.mapRowToStudent(row)),
+			totalCount,
+			totalPages,
+			currentPage: page,
+		};
+	}
+
+	async getSummaryRegistrationDataForMultipleTerms(
+		termNames: string[],
+		filter?: RegistrationReportFilter
+	): Promise<SummaryRegistrationReport> {
+		const fullData = await this.getFullRegistrationDataForMultipleTerms(
+			termNames,
+			filter
+		);
+		const { schoolsMap, programsMap } = this.processSummaryData(fullData);
+		return this.buildSummaryReport(
+			termNames.join(', '),
+			fullData,
+			schoolsMap,
+			programsMap
+		);
 	}
 }

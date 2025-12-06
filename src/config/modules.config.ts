@@ -1,7 +1,7 @@
 export type ModuleKey =
 	| 'academic'
 	| 'admin'
-	| 'classroom'
+	| 'lms'
 	| 'finance'
 	| 'registry'
 	| 'timetable'
@@ -11,7 +11,7 @@ export type ModuleKey =
 const moduleEnvKeys: Record<ModuleKey, string> = {
 	academic: 'ENABLE_MODULE_ACADEMIC',
 	admin: 'ENABLE_MODULE_ADMIN',
-	classroom: 'ENABLE_MODULE_CLASSROOM',
+	lms: 'ENABLE_MODULE_LMS',
 	finance: 'ENABLE_MODULE_FINANCE',
 	registry: 'ENABLE_MODULE_REGISTRY',
 	timetable: 'ENABLE_MODULE_TIMETABLE',
@@ -33,7 +33,7 @@ function isModuleEnabled(moduleKey: ModuleKey): boolean {
 export const moduleConfig = {
 	academic: isModuleEnabled('academic'),
 	admin: isModuleEnabled('admin'),
-	classroom: isModuleEnabled('classroom'),
+	lms: isModuleEnabled('lms'),
 	finance: isModuleEnabled('finance'),
 	registry: isModuleEnabled('registry'),
 	timetable: isModuleEnabled('timetable'),
@@ -53,7 +53,7 @@ export function getModuleConfig() {
 	return {
 		academic: moduleConfig.academic,
 		admin: moduleConfig.admin,
-		classroom: moduleConfig.classroom,
+		lms: moduleConfig.lms,
 		finance: moduleConfig.finance,
 		registry: moduleConfig.registry,
 		timetable: moduleConfig.timetable,

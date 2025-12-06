@@ -24,17 +24,17 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import React from 'react';
-import { academicConfig } from '@/app/(academic)/academic.config';
-import { adminConfig } from '@/app/(admin)/admin.config';
-import { classroomConfig } from '@/app/(classroom)/classroom.config';
-import { financeConfig } from '@/app/(finance)/finance.config';
-import { registryConfig } from '@/app/(registry)/registry.config';
+import { academicConfig } from '@/app/academic/academic.config';
+import { adminConfig } from '@/app/admin/admin.config';
+import { financeConfig } from '@/app/finance/finance.config';
+import { lmsConfig } from '@/app/lms/lms.config';
+import { registryConfig } from '@/app/registry/registry.config';
 import type { ClientModuleConfig } from '@/config/modules.config';
 import type { DashboardUser, UserRole } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
-import { timetableConfig } from '../(timetable)/timetable.config';
+import { timetableConfig } from '../timetable/timetable.config';
 import type { NavItem } from './module-config.types';
 
 function getNavigation(
@@ -44,7 +44,7 @@ function getNavigation(
 	const allConfigs = [
 		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: academicConfig, enabled: moduleConfig.academic },
-		{ config: classroomConfig, enabled: moduleConfig.classroom },
+		{ config: lmsConfig, enabled: moduleConfig.lms },
 		{ config: registryConfig, enabled: moduleConfig.registry },
 		{ config: financeConfig, enabled: moduleConfig.finance },
 		{ config: adminConfig, enabled: moduleConfig.admin },
@@ -69,13 +69,19 @@ function getNavigation(
 		'Student Registration',
 	];
 
+	const getLabelKey = (label: React.ReactNode): string => {
+		if (typeof label === 'string') return label;
+		return String(label);
+	};
+
 	for (const item of navItems) {
-		if (reportLabels.includes(item.label)) {
+		const labelKey = getLabelKey(item.label);
+		if (reportLabels.includes(labelKey)) {
 			reportItems.push(item);
 			continue;
 		}
 
-		const key = item.label;
+		const key = labelKey;
 
 		if (itemMap.has(key)) {
 			const existing = itemMap.get(key)!;
@@ -83,12 +89,16 @@ function getNavigation(
 				const childrenMap = new Map<string, NavItem>();
 				for (const child of existing.children) {
 					const childKey =
-						typeof child.href === 'string' ? child.href : child.label;
+						typeof child.href === 'string'
+							? child.href
+							: getLabelKey(child.label);
 					childrenMap.set(childKey, child);
 				}
 				for (const child of item.children) {
 					const childKey =
-						typeof child.href === 'string' ? child.href : child.label;
+						typeof child.href === 'string'
+							? child.href
+							: getLabelKey(child.label);
 					if (!childrenMap.has(childKey)) {
 						existing.children.push(child);
 					}
@@ -102,7 +112,9 @@ function getNavigation(
 		}
 	}
 
-	const reportsParent = combinedItems.find((item) => item.label === 'Reports');
+	const reportsParent = combinedItems.find(
+		(item) => getLabelKey(item.label) === 'Reports'
+	);
 	if (reportsParent && reportItems.length > 0) {
 		reportsParent.children = reportItems;
 	}
@@ -150,7 +162,7 @@ export default function Dashboard({
 				nav.children = assignedModules.map((it) => ({
 					label: it?.semesterModule?.module?.code || 'Unknown Module',
 					description: it?.semesterModule?.module?.name || 'Unknown Module',
-					href: `/gradebook/${it?.semesterModule.moduleId}`,
+					href: `/academic/gradebook/${it?.semesterModule.moduleId}`,
 				}));
 			}
 		}
@@ -185,7 +197,7 @@ function UserButton() {
 	});
 
 	if (status === 'unauthenticated') {
-		router.push('/login');
+		router.push('/auth/login');
 	}
 	const user = session?.user;
 
@@ -224,10 +236,16 @@ function UserButton() {
 }
 
 export function Navigation({ navigation }: { navigation: NavItem[] }) {
+	const getLabelKey = (label: React.ReactNode): string => {
+		if (typeof label === 'string') return label;
+		return String(label);
+	};
+
 	return (
 		<>
 			{navigation.map((item) => {
-				const key = typeof item.href === 'string' ? item.href : item.label;
+				const key =
+					typeof item.href === 'string' ? item.href : getLabelKey(item.label);
 				return <DisplayWithNotification key={key} item={item} />;
 			})}
 		</>
@@ -261,6 +279,11 @@ function ItemDisplay({ item }: { item: NavItem }) {
 	const Icon = item.icon;
 	const { data: session } = useSession();
 	const [opened, setOpen] = React.useState(!item.collapsed);
+
+	const getLabelKey = (label: React.ReactNode): string => {
+		if (typeof label === 'string') return label;
+		return String(label);
+	};
 
 	if (item.isVisible && !item.isVisible(session)) {
 		return null;
@@ -301,27 +324,33 @@ function ItemDisplay({ item }: { item: NavItem }) {
 	const isActive =
 		href && typeof href === 'string' ? pathname.startsWith(href) : false;
 
+	const hasChildren = item.children && item.children.length > 0;
+
 	const navLink = (
 		<NavLink
 			label={item.label}
 			component={href ? Link : undefined}
-			href={href || '#something'}
+			href={href || '#'}
 			active={isActive}
 			leftSection={Icon ? <Icon size='1.1rem' /> : null}
 			description={item.description}
 			rightSection={
-				item.children && item.children.length > 0 ? (
-					<IconChevronRight size='0.8rem' stroke={1.5} />
-				) : (
-					<IconChevronUp size='0.8rem' stroke={1.5} />
-				)
+				hasChildren ? (
+					opened ? (
+						<IconChevronUp size='0.8rem' stroke={1.5} />
+					) : (
+						<IconChevronRight size='0.8rem' stroke={1.5} />
+					)
+				) : null
 			}
 			opened={opened}
-			onClick={() => setOpen((o) => !o)}
+			onClick={hasChildren ? () => setOpen((o) => !o) : undefined}
 		>
 			{item.children?.map((child) => {
 				const childKey =
-					typeof child.href === 'string' ? child.href : child.label;
+					typeof child.href === 'string'
+						? child.href
+						: getLabelKey(child.label);
 				return <DisplayWithNotification key={childKey} item={child} />;
 			})}
 		</NavLink>

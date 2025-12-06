@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 import { userPositions, userRoles } from './enums';
 
@@ -12,4 +12,6 @@ export const users = pgTable('users', {
 	email: text().unique(),
 	emailVerified: timestamp({ mode: 'date' }),
 	image: text(),
+	lmsUserId: integer(),
+	lmsToken: text(),
 });
