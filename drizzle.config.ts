@@ -7,7 +7,9 @@ const databaseEnv = process.env.DATABASE_ENV || 'local';
 const databaseUrl =
 	databaseEnv === 'remote'
 		? process.env.DATABASE_REMOTE_URL!
-		: process.env.DATABASE_LOCAL_URL!;
+		: databaseEnv === 'remote_dev'
+			? process.env.DATABASE_REMOTE_DEV_URL!
+			: process.env.DATABASE_LOCAL_URL!;
 
 export default defineConfig({
 	schema: './src/core/database/schema',
