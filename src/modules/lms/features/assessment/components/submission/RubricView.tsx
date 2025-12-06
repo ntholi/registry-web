@@ -2,8 +2,12 @@
 
 import { Box, Card, Slider, Stack, Text } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { getRubric, saveAssignmentGrade } from '../../server/actions';
+import { useEffect, useState } from 'react';
+import {
+	getRubric,
+	getRubricFillings,
+	saveAssignmentGrade,
+} from '../../server/actions';
 
 type Props = {
 	cmid: number;
@@ -27,6 +31,25 @@ export default function RubricView({
 		queryKey: ['rubric', cmid],
 		queryFn: () => getRubric(cmid),
 	});
+
+	const { data: rubricFillings } = useQuery({
+		queryKey: ['rubric-fillings', cmid, userId],
+		queryFn: () => getRubricFillings(cmid, userId),
+		enabled: !!rubric?.success,
+	});
+
+	useEffect(() => {
+		if (rubricFillings?.fillings && rubric?.criteria) {
+			const fillingsMap: Record<number, number> = {};
+			for (const filling of rubricFillings.fillings) {
+				fillingsMap[filling.criterionid] = filling.score;
+			}
+			setSelectedLevels(fillingsMap);
+			if (onGradeChange && rubricFillings.grade) {
+				onGradeChange(rubricFillings.grade);
+			}
+		}
+	}, [rubricFillings, rubric, onGradeChange]);
 
 	const gradeMutation = useMutation({
 		mutationFn: async (newGrade: number) => {
