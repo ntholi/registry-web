@@ -129,6 +129,7 @@ export default function RubricView({
 								}
 								min={minScore}
 								max={maxScore}
+								restrictToMarks
 								marks={marks}
 								size='md'
 								styles={{

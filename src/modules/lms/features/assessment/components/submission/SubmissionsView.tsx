@@ -36,6 +36,8 @@ export default function SubmissionsView({
 	const { data: grades } = useQuery({
 		queryKey: ['assignment-grades', assignmentId],
 		queryFn: () => getAssignmentGrades(assignmentId),
+		staleTime: 0,
+		refetchOnMount: 'always',
 	});
 
 	if (isLoading) {

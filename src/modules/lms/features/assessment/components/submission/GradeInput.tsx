@@ -1,9 +1,9 @@
 'use client';
 
 import { Box, Group, Text, TextInput } from '@mantine/core';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { saveAssignmentGrade } from '../../server/actions';
+import { getAssignmentGrades, saveAssignmentGrade } from '../../server/actions';
 
 type Props = {
 	assignmentId: number;
@@ -18,7 +18,16 @@ export default function GradeInput({
 	maxGrade,
 	existingGrade,
 }: Props) {
-	const [grade, setGrade] = useState(existingGrade?.toString() || '');
+	const { data: grades } = useQuery({
+		queryKey: ['assignment-grades', assignmentId],
+		queryFn: () => getAssignmentGrades(assignmentId),
+		staleTime: 0,
+		refetchOnMount: 'always',
+	});
+
+	const currentGrade = grades?.get(userId) ?? existingGrade;
+
+	const [grade, setGrade] = useState(currentGrade?.toString() || '');
 	const [isEditing, setIsEditing] = useState(false);
 	const [error, setError] = useState('');
 	const [pendingGrade, setPendingGrade] = useState<number | null>(null);
@@ -72,19 +81,19 @@ export default function GradeInput({
 				);
 			}
 			setPendingGrade(null);
-			setGrade(existingGrade?.toString() || '');
+			setGrade(currentGrade?.toString() || '');
 			setError('Failed to save grade');
 		},
 	});
 
 	useEffect(() => {
-		if (existingGrade !== undefined && !gradeMutation.isPending) {
-			setGrade(existingGrade.toString());
-			if (pendingGrade !== null && existingGrade === pendingGrade) {
+		if (currentGrade !== undefined && !gradeMutation.isPending) {
+			setGrade(currentGrade.toString());
+			if (pendingGrade !== null && currentGrade === pendingGrade) {
 				setPendingGrade(null);
 			}
 		}
-	}, [existingGrade, pendingGrade, gradeMutation.isPending]);
+	}, [currentGrade, pendingGrade, gradeMutation.isPending]);
 
 	function handleGradeChange(value: string) {
 		setGrade(value);
@@ -94,7 +103,7 @@ export default function GradeInput({
 	function saveGrade() {
 		if (grade.trim() === '') {
 			setIsEditing(false);
-			setGrade(existingGrade?.toString() || '');
+			setGrade(currentGrade?.toString() || '');
 			return;
 		}
 
@@ -130,18 +139,18 @@ export default function GradeInput({
 
 	function cancelEdit() {
 		setIsEditing(false);
-		setGrade(existingGrade?.toString() || '');
+		setGrade(currentGrade?.toString() || '');
 		setError('');
 	}
 
 	function getGradeStatus() {
-		const currentGrade = pendingGrade ?? existingGrade;
-		if (currentGrade === undefined) return null;
-		const percentage = (currentGrade / maxGrade) * 100;
+		const displayGrade = pendingGrade ?? currentGrade;
+		if (displayGrade === undefined) return null;
+		const percentage = (displayGrade / maxGrade) * 100;
 		return percentage >= 50 ? 'green' : 'red';
 	}
 
-	const gradeDisplay = pendingGrade ?? existingGrade ?? '-';
+	const gradeDisplay = pendingGrade ?? currentGrade ?? '-';
 	const statusColor = getGradeStatus();
 
 	return (
