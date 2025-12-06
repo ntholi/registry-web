@@ -65,7 +65,10 @@ export default function CourseLoading() {
 					<TabsTab value='posts'>Posts</TabsTab>
 					<TabsTab value='assessments'>Assessments</TabsTab>
 					<TabsTab value='material'>Material</TabsTab>
+					<TabsTab value='outline'>Outline</TabsTab>
 					<TabsTab value='students'>Students</TabsTab>
+					<TabsTab value='gradebook'>Gradebook</TabsTab>
+					<TabsTab value='virtual-classroom'>Virtual Classroom</TabsTab>
 				</TabsList>
 
 				<TabsPanel value='dashboard' pt='lg'>
