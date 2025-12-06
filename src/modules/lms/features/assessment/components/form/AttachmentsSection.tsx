@@ -33,7 +33,7 @@ export default function AttachmentsSection({ form }: AttachmentsSectionProps) {
 	}
 
 	return (
-		<Fieldset legend='Attachments' mt='md' px={10} py={8}>
+		<Fieldset legend='Attachments' px={10} py={8}>
 			<SimpleGrid cols={{ base: 1, sm: 3, md: 4 }} spacing='sm'>
 				<FileButton onChange={handleFilesSelect} multiple>
 					{(props) => (
