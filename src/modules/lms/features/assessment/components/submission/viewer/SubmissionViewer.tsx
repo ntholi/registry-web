@@ -60,11 +60,8 @@ export default function SubmissionViewer({
 		}
 	}
 
-	function addMoodleToken(url: string): string {
-		const token = process.env.NEXT_PUBLIC_MOODLE_TOKEN;
-		if (!token) return url;
-		const separator = url.includes('?') ? '&' : '?';
-		return `${url}${separator}token=${token}`;
+	function transformMoodleFileUrl(url: string): string {
+		return url.replace('/webservice/pluginfile.php', '/pluginfile.php');
 	}
 
 	return (
@@ -84,7 +81,7 @@ export default function SubmissionViewer({
 				onPrevUser={handlePrevUser}
 				onNextUser={handleNextUser}
 				currentFileUrl={
-					currentFile ? addMoodleToken(currentFile.fileurl) : undefined
+					currentFile ? transformMoodleFileUrl(currentFile.fileurl) : undefined
 				}
 			/>
 
