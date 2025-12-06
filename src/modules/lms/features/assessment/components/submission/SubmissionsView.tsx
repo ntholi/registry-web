@@ -88,6 +88,7 @@ export default function SubmissionsView({
 						selectedUser={selectedUser}
 						files={files}
 						assignmentId={assignmentId}
+						courseId={courseId}
 						maxGrade={maxGrade}
 						existingGrade={existingGrade}
 						cmid={cmid}
