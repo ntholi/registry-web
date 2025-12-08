@@ -136,7 +136,6 @@ function MultiChoiceEditor({
 	return (
 		<Stack gap='sm'>
 			<SegmentedControl
-				size='xs'
 				value={question.single ? 'single' : 'multiple'}
 				onChange={(v) => onUpdate({ ...question, single: v === 'single' })}
 				data={[
@@ -182,7 +181,6 @@ function MultiChoiceEditor({
 				</Group>
 			))}
 			<Text
-				size='xs'
 				c='blue'
 				style={{ cursor: 'pointer' }}
 				onClick={addAnswer}
@@ -269,7 +267,7 @@ function ShortAnswerEditor({
 				</Group>
 			))}
 			<Text
-				size='xs'
+				size='sm'
 				c='blue'
 				style={{ cursor: 'pointer' }}
 				onClick={addAnswer}
@@ -291,7 +289,6 @@ function EssayEditor({
 		<Stack gap='sm'>
 			<Select
 				label='Response format'
-				size='xs'
 				value={question.responseFormat}
 				onChange={(v) =>
 					onUpdate({
@@ -308,7 +305,6 @@ function EssayEditor({
 			/>
 			<NumberInput
 				label='Response field lines'
-				size='xs'
 				value={question.responseFieldLines}
 				onChange={(v) =>
 					onUpdate({ ...question, responseFieldLines: Number(v) || 15 })
@@ -318,7 +314,6 @@ function EssayEditor({
 			/>
 			<NumberInput
 				label='Allowed attachments'
-				size='xs'
 				value={question.attachments}
 				onChange={(v) => onUpdate({ ...question, attachments: Number(v) || 0 })}
 				min={0}
@@ -388,14 +383,12 @@ export default function QuestionCard({
 					<Group grow align='flex-start'>
 						<Select
 							label='Question type'
-							size='xs'
 							value={question.type}
 							onChange={handleTypeChange}
 							data={QUESTION_TYPE_OPTIONS}
 						/>
 						<NumberInput
 							label='Marks'
-							size='xs'
 							value={question.defaultMark}
 							onChange={(v) =>
 								handleQuestionUpdate({
@@ -417,7 +410,7 @@ export default function QuestionCard({
 								questionText: e.target.value,
 							})
 						}
-						minRows={2}
+						minRows={4}
 						autosize
 					/>
 
