@@ -7,6 +7,7 @@ import {
 	Checkbox,
 	Group,
 	NumberInput,
+	Paper,
 	Radio,
 	SegmentedControl,
 	Select,
@@ -347,7 +348,7 @@ export default function QuestionCard({
 	};
 
 	return (
-		<Card withBorder padding='md'>
+		<Paper withBorder p='md'>
 			<Stack gap='md'>
 				<Group justify='space-between'>
 					<Group gap='xs'>
@@ -428,7 +429,7 @@ export default function QuestionCard({
 					/>
 				)}
 			</Stack>
-		</Card>
+		</Paper>
 	);
 }
 

@@ -36,10 +36,6 @@ type QuizFormProps = {
 	moduleId: number;
 };
 
-const QUIZ_TYPE_OPTIONS = ASSESSMENT_TYPES.filter((t) =>
-	['38', '39', '40', '41', '42', '43'].includes(t.value)
-);
-
 export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
@@ -121,7 +117,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 	const mutation = useMutation({
 		mutationFn: async (values: QuizFormValues) => {
 			const typeLabel =
-				QUIZ_TYPE_OPTIONS.find((t) => t.value === values.assessmentType)
+				ASSESSMENT_TYPES.find((t) => t.value === values.assessmentType)
 					?.label || 'Quiz';
 
 			return createQuiz({
@@ -273,9 +269,9 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 									/>
 
 									<Select
-										label='Quiz Type'
-										placeholder='Select quiz type'
-										data={QUIZ_TYPE_OPTIONS}
+										label='Assessment Type'
+										placeholder='Select assessment type'
+										data={ASSESSMENT_TYPES}
 										{...form.getInputProps('assessmentType')}
 									/>
 
