@@ -41,7 +41,7 @@ export const academicConfig: ModuleConfig = {
 				label: 'Gradebook',
 				icon: IconClipboardData,
 				roles: ['academic'],
-				collapsed: true,
+				collapsed: false,
 				children: [],
 				isVisible: (session) => {
 					return session?.user?.position !== 'admin';

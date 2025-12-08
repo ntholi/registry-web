@@ -75,7 +75,7 @@ async function getOrCreateTestsQuizzesSection(
 }
 
 async function getOrCreateQuestionCategory(courseId: number): Promise<number> {
-	const contextResult = await moodleGet('core_course_get_courses', {
+	const contextResult = await moodleGet('core_enrol_get_users_courses', {
 		'options[ids][0]': courseId,
 	});
 
