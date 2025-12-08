@@ -141,3 +141,27 @@ export type CreateRubricParams = {
 	criteria: RubricCriterion[];
 	options?: RubricOptions;
 };
+
+export type RubricFilling = {
+	criterionid: number;
+	criteriondescription?: string;
+	levelid: number;
+	level: {
+		id: number;
+		score: number;
+		definition: string;
+	};
+	remark?: string;
+};
+
+export type RubricGradeData = {
+	instanceid?: number;
+	grade: number;
+	grader?: string;
+	graderid?: number;
+	timecreated?: number;
+	timemodified?: number;
+	fillings: RubricFilling[];
+	success: boolean;
+	message?: string;
+};

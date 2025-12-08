@@ -32,6 +32,7 @@ type Props = {
 	selectedUser: SubmissionUser | null;
 	files: SubmissionFile[];
 	assignmentId: number;
+	courseId: number;
 	maxGrade: number;
 	existingGrade?: number;
 	cmid?: number;
@@ -41,6 +42,7 @@ export default function SubmissionDetails({
 	selectedUser,
 	files,
 	assignmentId,
+	courseId,
 	maxGrade,
 	existingGrade,
 	cmid,
@@ -96,7 +98,14 @@ export default function SubmissionDetails({
 					/>
 				)}
 			</Group>
-			<FileList files={files} />
+			<FileList
+				files={files}
+				viewerUrl={
+					selectedUser
+						? `/lms/courses/${courseId}/assessments/${assignmentId}/submission/${selectedUser.id}`
+						: undefined
+				}
+			/>
 
 			{selectedUser.submission?.status === 'submitted' && (
 				<Tabs

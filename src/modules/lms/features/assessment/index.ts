@@ -4,6 +4,11 @@ export { AssessmentsList } from './components/list';
 export {
 	createAssignment,
 	getAssignment,
+	getAssignmentSubmissions,
 	getCourseAssignments,
 } from './server/actions';
-export type { CreateAssignmentParams, MoodleAssignment } from './types';
+export type {
+	CreateAssignmentParams,
+	MoodleAssignment,
+	SubmissionUser,
+} from './types';

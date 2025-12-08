@@ -5,9 +5,10 @@ import {
 	Button,
 	Fieldset,
 	FileButton,
+	Grid,
+	GridCol,
 	Group,
 	Paper,
-	SimpleGrid,
 	Text,
 } from '@mantine/core';
 import type { UseFormReturnType } from '@mantine/form';
@@ -34,48 +35,52 @@ export default function AttachmentsSection({ form }: AttachmentsSectionProps) {
 
 	return (
 		<Fieldset legend='Attachments' px={10} py={8}>
-			<SimpleGrid cols={{ base: 1, sm: 3, md: 4 }} spacing='sm'>
-				<FileButton onChange={handleFilesSelect} multiple>
-					{(props) => (
-						<Button
-							h={'2.7rem'}
-							variant='light'
-							style={{ cursor: 'pointer' }}
-							{...props}
-						>
-							<Group justify='center' gap='xs'>
-								<IconUpload size={18} />
-								<Text size='sm'>Click to upload files</Text>
-							</Group>
-						</Button>
-					)}
-				</FileButton>
+			<Grid>
+				<GridCol span={{ base: 12, sm: 3 }}>
+					<FileButton onChange={handleFilesSelect} multiple>
+						{(props) => (
+							<Button
+								h={'2.7rem'}
+								variant='light'
+								style={{ cursor: 'pointer' }}
+								{...props}
+							>
+								<Group justify='center' gap='xs'>
+									<IconUpload size={18} />
+									<Text size='sm'>Click to upload files</Text>
+								</Group>
+							</Button>
+						)}
+					</FileButton>
+				</GridCol>
 				{form.values.attachments &&
 					form.values.attachments.length > 0 &&
 					form.values.attachments.map((file, index) => (
-						<Paper key={`${file.name}-${index}`} withBorder p='xs'>
-							<Group justify='space-between' wrap='nowrap'>
-								<Group gap='xs' style={{ flex: 1, minWidth: 0 }}>
-									<IconPaperclip size={14} />
-									<Text size='sm' truncate style={{ flex: 1 }}>
-										{file.name}
-									</Text>
-									<Text size='xs' c='dimmed'>
-										{(file.size / 1024).toFixed(1)} KB
-									</Text>
+						<GridCol key={`${file.name}-${index}`} span={{ base: 12, sm: 4 }}>
+							<Paper withBorder p='xs'>
+								<Group justify='space-between' wrap='nowrap'>
+									<Group gap='xs' style={{ flex: 1, minWidth: 0 }}>
+										<IconPaperclip size={14} />
+										<Text size='sm' truncate style={{ flex: 1 }}>
+											{file.name}
+										</Text>
+										<Text size='xs' c='dimmed'>
+											{(file.size / 1024).toFixed(1)} KB
+										</Text>
+									</Group>
+									<ActionIcon
+										variant='subtle'
+										color='red'
+										size='sm'
+										onClick={() => handleFileRemove(index)}
+									>
+										<IconTrash size={14} />
+									</ActionIcon>
 								</Group>
-								<ActionIcon
-									variant='subtle'
-									color='red'
-									size='sm'
-									onClick={() => handleFileRemove(index)}
-								>
-									<IconTrash size={14} />
-								</ActionIcon>
-							</Group>
-						</Paper>
+							</Paper>
+						</GridCol>
 					))}
-			</SimpleGrid>
+			</Grid>
 		</Fieldset>
 	);
 }

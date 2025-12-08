@@ -13,6 +13,7 @@ import type {
 	MoodleSubmission,
 	Rubric,
 	RubricCriterion,
+	RubricGradeData,
 	SubmissionUser,
 } from '../types';
 
@@ -328,6 +329,31 @@ export async function getRubric(cmid: number): Promise<Rubric | null> {
 		}
 
 		return result as Rubric;
+	} catch {
+		return null;
+	}
+}
+
+export async function getRubricFillings(
+	cmid: number,
+	userId: number
+): Promise<RubricGradeData | null> {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	try {
+		const result = await moodleGet('local_activity_utils_get_rubric_filling', {
+			cmid,
+			userid: userId,
+		});
+
+		if (!result?.success || !result?.fillings) {
+			return null;
+		}
+
+		return result as RubricGradeData;
 	} catch {
 		return null;
 	}
