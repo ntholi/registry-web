@@ -5,7 +5,6 @@ import {
 	Box,
 	Button,
 	Divider,
-	Grid,
 	Group,
 	Modal,
 	NumberInput,
@@ -194,28 +193,32 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 				onClose={close}
 				title='Create Quiz'
 				fullScreen
-				styles={{ body: { height: '100%', display: 'flex', flexDirection: 'column' } }}
+				styles={{
+					content: { display: 'flex', flexDirection: 'column' },
+					body: {
+						flex: 1,
+						display: 'flex',
+						flexDirection: 'column',
+						overflow: 'hidden',
+					},
+				}}
 			>
 				<Box style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
 					<form
 						onSubmit={handleSubmit}
 						style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
 					>
-						<Grid gutter='lg' style={{ flex: 1, minHeight: 0 }}>
-							<Grid.Col
-								span={{ base: 12, md: 8 }}
-								style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
+						<div style={{ display: 'flex', gap: 'var(--mantine-spacing-lg)', flex: 1, minHeight: 0 }}>
+							<div
+								style={{
+									flex: 1,
+									display: 'flex',
+									flexDirection: 'column',
+									minHeight: 0,
+									overflow: 'hidden',
+								}}
 							>
-								<Group
-									justify='space-between'
-									mb='md'
-									pos='sticky'
-									top={0}
-									bg='var(--mantine-color-body)'
-									style={{
-										zIndex: 1
-									}}
-								>
+								<Group justify='space-between' mb='md'>
 									<Text fw={500}>Questions</Text>
 									<Button
 										variant='light'
@@ -258,10 +261,10 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 										)}
 									</Stack>
 								</ScrollArea>
-							</Grid.Col>
+							</div>
 
-							<Grid.Col span={{ base: 12, md: 4 }}>
-								<Paper withBorder p='md' pos='sticky' top={0}>
+							<div style={{ width: 350, minWidth: 350 }}>
+								<Paper withBorder p='md'>
 									<Stack gap='md'>
 										<Text fw={500}>Quiz Settings</Text>
 
@@ -333,8 +336,8 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 										</Button>
 									</Stack>
 								</Paper>
-							</Grid.Col>
-						</Grid>
+							</div>
+						</div>
 					</form>
 				</Box>
 			</Modal>
