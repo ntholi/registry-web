@@ -193,14 +193,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 				opened={opened}
 				onClose={close}
 				title='Create Quiz'
-				size='100%'
-				styles={{
-					body: {
-						height: 'calc(100vh - 120px)',
-						display: 'flex',
-						flexDirection: 'column',
-					},
-				}}
+				fullScreen
 			>
 				<form
 					onSubmit={handleSubmit}
