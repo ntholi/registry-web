@@ -6,6 +6,7 @@ import { Gradebook, getAssignedModuleByCourseId } from '@lms/gradebook';
 import MaterialForm from '@lms/material/components/MaterialForm';
 import MaterialList from '@lms/material/components/MaterialList';
 import { PostForm, PostsList } from '@lms/posts';
+import { QuizForm, QuizzesList } from '@lms/quizzes';
 import { getEnrolledStudentsFromDB } from '@lms/students';
 import AddStudentModal from '@lms/students/components/AddStudentModal';
 import StudentsList from '@lms/students/components/StudentsList';
@@ -52,6 +53,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 				<Tabs.Tab value='dashboard'>Dashboard</Tabs.Tab>
 				<Tabs.Tab value='posts'>Posts</Tabs.Tab>
 				<Tabs.Tab value='assessments'>Assessments</Tabs.Tab>
+				<Tabs.Tab value='quizzes'>Tests & Quizzes</Tabs.Tab>
 				<Tabs.Tab value='material'>Material</Tabs.Tab>
 				<Tabs.Tab value='outline'>Outline</Tabs.Tab>
 				<Tabs.Tab value='students'>
@@ -68,6 +70,9 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 					{activeTab === 'posts' && <PostForm courseId={course.id} />}
 					{activeTab === 'assessments' && moduleId && (
 						<AssessmentForm courseId={course.id} moduleId={moduleId} />
+					)}
+					{activeTab === 'quizzes' && moduleId && (
+						<QuizForm courseId={course.id} moduleId={moduleId} />
 					)}
 					{activeTab === 'material' && <MaterialForm courseId={course.id} />}
 					{activeTab === 'outline' && (
@@ -94,6 +99,11 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			<Tabs.Panel value='assessments' pt='lg'>
 				<Box p='sm'>
 					<AssessmentsList courseId={course.id} />
+				</Box>
+			</Tabs.Panel>
+			<Tabs.Panel value='quizzes' pt='lg'>
+				<Box p='sm'>
+					<QuizzesList courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 			<Tabs.Panel value='material' pt='lg'>
