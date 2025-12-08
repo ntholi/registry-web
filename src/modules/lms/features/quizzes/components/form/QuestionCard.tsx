@@ -27,6 +27,7 @@ import type {
 	ShortAnswerQuestion,
 	TrueFalseQuestion,
 } from '../../types';
+import { truncateText } from '@/shared/lib/utils/utils';
 
 type QuestionCardProps = {
 	question: Question;
@@ -356,7 +357,7 @@ export default function QuestionCard({
 
 					<Stack gap={2} style={{ flex: 1 }}>
 						<Text size='sm' fw={600} lineClamp={1}>
-							{question.questionText || 'Untitled Question'}
+							{truncateText(question.questionText) || 'Untitled Question'}
 						</Text>
 						<Group gap='xs' align='center'>
 							<Badge
