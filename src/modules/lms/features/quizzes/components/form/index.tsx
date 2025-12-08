@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	Accordion,
 	Badge,
 	Box,
 	Button,
@@ -20,7 +21,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getAssessmentByModuleId } from '@/modules/academic/features/assessments/server/actions';
 import {
 	ASSESSMENT_TYPES,
@@ -38,6 +39,7 @@ type QuizFormProps = {
 export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
+	const [openedQuestion, setOpenedQuestion] = useState<string | null>(null);
 
 	const { data: assessments } = useQuery({
 		queryKey: ['module-assessments', moduleId],
@@ -162,6 +164,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			form.values.questions.length
 		);
 		form.setFieldValue('questions', [...form.values.questions, newQuestion]);
+		setOpenedQuestion(`question-${form.values.questions.length}`);
 	};
 
 	const updateQuestion = (index: number, question: Question) => {
@@ -203,12 +206,31 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 					},
 				}}
 			>
-				<Box style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+				<Box
+					style={{
+						flex: 1,
+						display: 'flex',
+						flexDirection: 'column',
+						minHeight: 0,
+					}}
+				>
 					<form
 						onSubmit={handleSubmit}
-						style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+						style={{
+							flex: 1,
+							display: 'flex',
+							flexDirection: 'column',
+							minHeight: 0,
+						}}
 					>
-						<div style={{ display: 'flex', gap: 'var(--mantine-spacing-lg)', flex: 1, minHeight: 0 }}>
+						<div
+							style={{
+								display: 'flex',
+								gap: 'var(--mantine-spacing-lg)',
+								flex: 1,
+								minHeight: 0,
+							}}
+						>
 							<div
 								style={{
 									flex: 1,
@@ -231,25 +253,29 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 								</Group>
 
 								<ScrollArea style={{ flex: 1, minHeight: 0 }} offsetScrollbars>
-									<Stack gap='md' pb='md'>
-										{form.values.questions.length === 0 ? (
-											<Paper withBorder p='xl' ta='center'>
-												<Stack align='center' gap='sm'>
-													<Text c='dimmed' size='sm'>
-														No questions added yet
-													</Text>
-													<Button
-														variant='light'
-														size='sm'
-														leftSection={<IconPlus size={16} />}
-														onClick={addQuestion}
-													>
-														Add Your First Question
-													</Button>
-												</Stack>
-											</Paper>
-										) : (
-											form.values.questions.map((question, index) => (
+									{form.values.questions.length === 0 ? (
+										<Paper withBorder p='xl' ta='center'>
+											<Stack align='center' gap='sm'>
+												<Text c='dimmed' size='sm'>
+													No questions added yet
+												</Text>
+												<Button
+													variant='light'
+													size='sm'
+													leftSection={<IconPlus size={16} />}
+													onClick={addQuestion}
+												>
+													Add Your First Question
+												</Button>
+											</Stack>
+										</Paper>
+									) : (
+										<Accordion
+											value={openedQuestion}
+											onChange={setOpenedQuestion}
+											variant='separated'
+										>
+											{form.values.questions.map((question, index) => (
 												<QuestionCard
 													key={index}
 													question={question}
@@ -257,9 +283,9 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 													onUpdate={updateQuestion}
 													onDelete={deleteQuestion}
 												/>
-											))
-										)}
-									</Stack>
+											))}
+										</Accordion>
+									)}
 								</ScrollArea>
 							</div>
 

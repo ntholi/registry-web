@@ -1,13 +1,12 @@
 'use client';
 
 import {
+	Accordion,
 	ActionIcon,
 	Badge,
-	Card,
 	Checkbox,
 	Group,
 	NumberInput,
-	Paper,
 	Radio,
 	SegmentedControl,
 	Select,
@@ -16,7 +15,7 @@ import {
 	Textarea,
 	TextInput,
 } from '@mantine/core';
-import { IconGripVertical, IconTrash } from '@tabler/icons-react';
+import { IconTrash } from '@tabler/icons-react';
 import type {
 	EssayQuestion,
 	MultiChoiceQuestion,
@@ -347,89 +346,108 @@ export default function QuestionCard({
 		onUpdate(index, updatedQuestion);
 	};
 
+	const questionTypeLabel =
+		QUESTION_TYPE_OPTIONS.find((t) => t.value === question.type)?.label ||
+		question.type;
+
 	return (
-		<Paper withBorder p='md'>
-			<Stack gap='md'>
-				<Group justify='space-between'>
-					<Group gap='xs'>
-						<IconGripVertical
-							size={16}
-							color='gray'
-							style={{ cursor: 'grab' }}
-						/>
+		<Accordion.Item value={`question-${index}`}>
+			<Accordion.Control>
+				<Group justify='space-between' wrap='nowrap'>
+					<Group gap='xs' wrap='nowrap'>
 						<Badge variant='light' size='sm'>
 							Q{index + 1}
+						</Badge>
+						<Text size='sm' lineClamp={1}>
+							{question.questionText || 'New Question'}
+						</Text>
+					</Group>
+					<Group gap='xs' wrap='nowrap'>
+						<Badge variant='outline' size='sm'>
+							{questionTypeLabel}
 						</Badge>
 						<Badge variant='outline' size='sm'>
 							{question.defaultMark}{' '}
 							{question.defaultMark === 1 ? 'mark' : 'marks'}
 						</Badge>
 					</Group>
-					<ActionIcon
-						variant='subtle'
-						color='red'
-						onClick={() => onDelete(index)}
-					>
-						<IconTrash size={18} />
-					</ActionIcon>
 				</Group>
+			</Accordion.Control>
+			<Accordion.Panel>
+				<Stack gap='md'>
+					<Group justify='flex-end'>
+						<ActionIcon
+							variant='subtle'
+							color='red'
+							onClick={() => onDelete(index)}
+						>
+							<IconTrash size={18} />
+						</ActionIcon>
+					</Group>
 
-				<Group grow align='flex-start'>
-					<Select
-						label='Question type'
-						size='xs'
-						value={question.type}
-						onChange={handleTypeChange}
-						data={QUESTION_TYPE_OPTIONS}
-					/>
-					<NumberInput
-						label='Marks'
-						size='xs'
-						value={question.defaultMark}
-						onChange={(v) =>
-							handleQuestionUpdate({ ...question, defaultMark: Number(v) || 1 })
+					<Group grow align='flex-start'>
+						<Select
+							label='Question type'
+							size='xs'
+							value={question.type}
+							onChange={handleTypeChange}
+							data={QUESTION_TYPE_OPTIONS}
+						/>
+						<NumberInput
+							label='Marks'
+							size='xs'
+							value={question.defaultMark}
+							onChange={(v) =>
+								handleQuestionUpdate({
+									...question,
+									defaultMark: Number(v) || 1,
+								})
+							}
+							min={1}
+							max={100}
+						/>
+					</Group>
+
+					<Textarea
+						placeholder='Enter your question here...'
+						value={question.questionText}
+						onChange={(e) =>
+							handleQuestionUpdate({
+								...question,
+								questionText: e.target.value,
+							})
 						}
-						min={1}
-						max={100}
+						minRows={2}
+						autosize
 					/>
-				</Group>
 
-				<Textarea
-					placeholder='Enter your question here...'
-					value={question.questionText}
-					onChange={(e) =>
-						handleQuestionUpdate({ ...question, questionText: e.target.value })
-					}
-					minRows={2}
-					autosize
-				/>
-
-				{question.type === 'multichoice' && (
-					<MultiChoiceEditor
-						question={question}
-						onUpdate={(q) => handleQuestionUpdate(q)}
-					/>
-				)}
-				{question.type === 'truefalse' && (
-					<TrueFalseEditor
-						question={question}
-						onUpdate={(q) => handleQuestionUpdate(q)}
-					/>
-				)}
-				{question.type === 'shortanswer' && (
-					<ShortAnswerEditor
-						question={question}
-						onUpdate={(q) => handleQuestionUpdate(q)}
-					/>
-				)}
-				{question.type === 'essay' && (
-					<EssayEditor
-						question={question}
-						onUpdate={(q) => handleQuestionUpdate(q)}
-					/>
-				)}
-			</Stack>
-		</Paper>
+					{question.type === 'multichoice' && (
+						<MultiChoiceEditor
+							question={question}
+							onUpdate={(q) => handleQuestionUpdate(q)}
+						/>
+					)}
+					{question.type === 'truefalse' && (
+						<TrueFalseEditor
+							question={question}
+							onUpdate={(q) => handleQuestionUpdate(q)}
+						/>
+					)}
+					{question.type === 'shortanswer' && (
+						<ShortAnswerEditor
+							question={question}
+							onUpdate={(q) => handleQuestionUpdate(q)}
+						/>
+					)}
+					{question.type === 'essay' && (
+						<EssayEditor
+							question={question}
+							onUpdate={(q) => handleQuestionUpdate(q)}
+						/>
+					)}
+				</Stack>
+			</Accordion.Panel>
+		</Accordion.Item>
 	);
 }
 
