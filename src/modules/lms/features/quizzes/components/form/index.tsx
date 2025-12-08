@@ -297,6 +297,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 										<Select
 											label='Assessment Number'
 											placeholder='Select assessment number'
+											searchable
 											data={COURSE_WORK_OPTIONS}
 											{...form.getInputProps('assessmentNumber')}
 										/>
@@ -304,6 +305,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 										<Select
 											label='Assessment Type'
 											placeholder='Select assessment type'
+											searchable
 											data={ASSESSMENT_TYPES}
 											{...form.getInputProps('assessmentType')}
 										/>
