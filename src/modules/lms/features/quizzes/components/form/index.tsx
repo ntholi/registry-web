@@ -148,7 +148,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		},
 		onError: (error) => {
 			notifications.show({
-				message: error.message || 'Failed to create quiz',
+				message: error.message || 'Failed to create an assessment',
 				color: 'red',
 			});
 		},
@@ -194,7 +194,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			<Modal
 				opened={opened}
 				onClose={close}
-				title='Create Quiz'
+				title='Create Assessment'
 				fullScreen
 				styles={{
 					content: { display: 'flex', flexDirection: 'column' },
@@ -260,7 +260,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 													No questions added yet
 												</Text>
 												<Button
-													variant='light'
+													variant='default'
 													size='sm'
 													leftSection={<IconPlus size={16} />}
 													onClick={addQuestion}
@@ -358,7 +358,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 											loading={mutation.isPending}
 											disabled={form.values.questions.length === 0}
 										>
-											Create Quiz
+											Create Assessment
 										</Button>
 									</Stack>
 								</Paper>
