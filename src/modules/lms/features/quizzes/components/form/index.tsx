@@ -194,137 +194,149 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 				onClose={close}
 				title='Create Quiz'
 				fullScreen
+				styles={{ body: { height: '100%', display: 'flex', flexDirection: 'column' } }}
 			>
-				<form
-					onSubmit={handleSubmit}
-					style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
-				>
-					<Grid gutter='lg' style={{ flex: 1, minHeight: 0 }}>
-						<Grid.Col
-							span={{ base: 12, md: 8 }}
-							style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}
-						>
-							<Group justify='space-between' mb='md'>
-								<Text fw={500}>Questions</Text>
-								<Button
-									variant='light'
-									size='xs'
-									leftSection={<IconPlus size={14} />}
-									onClick={addQuestion}
+				<Box style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+					<form
+						onSubmit={handleSubmit}
+						style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+					>
+						<Grid gutter='lg' style={{ flex: 1, minHeight: 0 }}>
+							<Grid.Col
+								span={{ base: 12, md: 8 }}
+								style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
+							>
+								<Group
+									justify='space-between'
+									mb='md'
+									pos='sticky'
+									top={0}
+									bg='var(--mantine-color-body)'
+									style={{
+										zIndex: 1
+									}}
 								>
-									Add Question
-								</Button>
-							</Group>
-
-							<ScrollArea style={{ flex: 1 }} offsetScrollbars>
-								<Stack gap='md' pb='md'>
-									{form.values.questions.length === 0 ? (
-										<Paper withBorder p='xl' ta='center'>
-											<Stack align='center' gap='sm'>
-												<Text c='dimmed' size='sm'>
-													No questions added yet
-												</Text>
-												<Button
-													variant='light'
-													size='sm'
-													leftSection={<IconPlus size={16} />}
-													onClick={addQuestion}
-												>
-													Add Your First Question
-												</Button>
-											</Stack>
-										</Paper>
-									) : (
-										form.values.questions.map((question, index) => (
-											<QuestionCard
-												key={index}
-												question={question}
-												index={index}
-												onUpdate={updateQuestion}
-												onDelete={deleteQuestion}
-											/>
-										))
-									)}
-								</Stack>
-							</ScrollArea>
-						</Grid.Col>
-
-						<Grid.Col span={{ base: 12, md: 4 }}>
-							<Paper withBorder p='md'>
-								<Stack gap='md'>
-									<Text fw={500}>Quiz Settings</Text>
-
-									<Select
-										label='Assessment Number'
-										placeholder='Select assessment number'
-										data={COURSE_WORK_OPTIONS}
-										{...form.getInputProps('assessmentNumber')}
-									/>
-
-									<Select
-										label='Assessment Type'
-										placeholder='Select assessment type'
-										data={ASSESSMENT_TYPES}
-										{...form.getInputProps('assessmentType')}
-									/>
-
-									<Divider />
-
-									<Box>
-										<Group justify='space-between' mb='xs'>
-											<Text size='sm' c='dimmed'>
-												Total Marks
-											</Text>
-											<Badge size='lg' variant='light'>
-												{totalMarks}
-											</Badge>
-										</Group>
-										<Text size='xs' c='dimmed'>
-											Calculated from question marks
-										</Text>
-									</Box>
-
-									<NumberInput
-										label='Weight (%)'
-										placeholder='0'
-										min={0}
-										max={100}
-										{...form.getInputProps('weight')}
-									/>
-
-									<Divider />
-
-									<TextInput
-										label='Time Limit (minutes)'
-										placeholder='No limit'
-										type='number'
-										min={0}
-										{...form.getInputProps('timelimit')}
-									/>
-
-									<NumberInput
-										label='Allowed Attempts'
-										placeholder='1'
-										min={0}
-										description='0 = unlimited'
-										{...form.getInputProps('attempts')}
-									/>
-
-									<Divider />
-
+									<Text fw={500}>Questions</Text>
 									<Button
-										type='submit'
-										fullWidth
-										loading={mutation.isPending}
-										disabled={form.values.questions.length === 0}
+										variant='light'
+										size='xs'
+										leftSection={<IconPlus size={14} />}
+										onClick={addQuestion}
 									>
-										Create Quiz
+										Add Question
 									</Button>
-								</Stack>
-							</Paper>
-						</Grid.Col>
-					</Grid>
-				</form>
+								</Group>
+
+								<ScrollArea style={{ flex: 1, minHeight: 0 }} offsetScrollbars>
+									<Stack gap='md' pb='md'>
+										{form.values.questions.length === 0 ? (
+											<Paper withBorder p='xl' ta='center'>
+												<Stack align='center' gap='sm'>
+													<Text c='dimmed' size='sm'>
+														No questions added yet
+													</Text>
+													<Button
+														variant='light'
+														size='sm'
+														leftSection={<IconPlus size={16} />}
+														onClick={addQuestion}
+													>
+														Add Your First Question
+													</Button>
+												</Stack>
+											</Paper>
+										) : (
+											form.values.questions.map((question, index) => (
+												<QuestionCard
+													key={index}
+													question={question}
+													index={index}
+													onUpdate={updateQuestion}
+													onDelete={deleteQuestion}
+												/>
+											))
+										)}
+									</Stack>
+								</ScrollArea>
+							</Grid.Col>
+
+							<Grid.Col span={{ base: 12, md: 4 }}>
+								<Paper withBorder p='md' pos='sticky' top={0}>
+									<Stack gap='md'>
+										<Text fw={500}>Quiz Settings</Text>
+
+										<Select
+											label='Assessment Number'
+											placeholder='Select assessment number'
+											data={COURSE_WORK_OPTIONS}
+											{...form.getInputProps('assessmentNumber')}
+										/>
+
+										<Select
+											label='Assessment Type'
+											placeholder='Select assessment type'
+											data={ASSESSMENT_TYPES}
+											{...form.getInputProps('assessmentType')}
+										/>
+
+										<Divider />
+
+										<Box>
+											<Group justify='space-between' mb='xs'>
+												<Text size='sm' c='dimmed'>
+													Total Marks
+												</Text>
+												<Badge size='lg' variant='light'>
+													{totalMarks}
+												</Badge>
+											</Group>
+											<Text size='xs' c='dimmed'>
+												Calculated from question marks
+											</Text>
+										</Box>
+
+										<NumberInput
+											label='Weight (%)'
+											placeholder='0'
+											min={0}
+											max={100}
+											{...form.getInputProps('weight')}
+										/>
+
+										<Divider />
+
+										<TextInput
+											label='Time Limit (minutes)'
+											placeholder='No limit'
+											type='number'
+											min={0}
+											{...form.getInputProps('timelimit')}
+										/>
+
+										<NumberInput
+											label='Allowed Attempts'
+											placeholder='1'
+											min={0}
+											description='0 = unlimited'
+											{...form.getInputProps('attempts')}
+										/>
+
+										<Divider />
+
+										<Button
+											type='submit'
+											fullWidth
+											loading={mutation.isPending}
+											disabled={form.values.questions.length === 0}
+										>
+											Create Quiz
+										</Button>
+									</Stack>
+								</Paper>
+							</Grid.Col>
+						</Grid>
+					</form>
+				</Box>
 			</Modal>
 		</>
 	);
