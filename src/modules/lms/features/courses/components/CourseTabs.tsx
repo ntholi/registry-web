@@ -63,7 +63,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 					)}
 				</Tabs.Tab>
 				<Tabs.Tab value='gradebook'>Gradebook</Tabs.Tab>
-				<Tabs.Tab value='virtual-classroom'>Virtual Classroom</Tabs.Tab>
+				<Tabs.Tab value='virtual-classroom'>Virtual Class</Tabs.Tab>
 				<Box ml='auto' mt={-5}>
 					{activeTab === 'posts' && <PostForm courseId={course.id} />}
 					{activeTab === 'assessments' && moduleId && (
