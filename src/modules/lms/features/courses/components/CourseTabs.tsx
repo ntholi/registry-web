@@ -1,6 +1,6 @@
 'use client';
 
-import { AssessmentForm, AssessmentsList } from '@lms/assessment';
+import { AssignmentForm, AssignmentsList } from '@lms/assignments';
 import { CourseOutline, CourseOutlineDownload } from '@lms/course-outline';
 import { Gradebook, getAssignedModuleByCourseId } from '@lms/gradebook';
 import MaterialForm from '@lms/material/components/MaterialForm';
@@ -52,7 +52,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			<Tabs.List>
 				<Tabs.Tab value='dashboard'>Dashboard</Tabs.Tab>
 				<Tabs.Tab value='posts'>Posts</Tabs.Tab>
-				<Tabs.Tab value='assessments'>Assessments</Tabs.Tab>
+				<Tabs.Tab value='assignments'>Assignments</Tabs.Tab>
 				<Tabs.Tab value='quizzes'>Tests & Quizzes</Tabs.Tab>
 				<Tabs.Tab value='material'>Material</Tabs.Tab>
 				<Tabs.Tab value='outline'>Outline</Tabs.Tab>
@@ -68,8 +68,8 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 				<Tabs.Tab value='virtual-classroom'>Virtual Class</Tabs.Tab>
 				<Box ml='auto' mt={-5}>
 					{activeTab === 'posts' && <PostForm courseId={course.id} />}
-					{activeTab === 'assessments' && moduleId && (
-						<AssessmentForm courseId={course.id} moduleId={moduleId} />
+					{activeTab === 'assignments' && moduleId && (
+						<AssignmentForm courseId={course.id} moduleId={moduleId} />
 					)}
 					{activeTab === 'quizzes' && moduleId && (
 						<QuizForm courseId={course.id} moduleId={moduleId} />
@@ -96,9 +96,9 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 					<PostsList courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
-			<Tabs.Panel value='assessments' pt='lg'>
+			<Tabs.Panel value='assignments' pt='lg'>
 				<Box p='sm'>
-					<AssessmentsList courseId={course.id} />
+					<AssignmentsList courseId={course.id} />
 				</Box>
 			</Tabs.Panel>
 			<Tabs.Panel value='quizzes' pt='lg'>

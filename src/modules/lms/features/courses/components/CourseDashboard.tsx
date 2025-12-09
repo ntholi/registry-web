@@ -1,6 +1,6 @@
 'use client';
 
-import { getCourseAssignments } from '@lms/assessment';
+import { getCourseAssignments } from '@lms/assignments';
 import { getAllPosts } from '@lms/posts';
 import {
 	Avatar,
@@ -35,7 +35,7 @@ type AssignmentDueDate = {
 	duedate: number;
 };
 
-function AssessmentCard({
+function AssignmentCard({
 	assignment,
 	isLast,
 	courseId,
@@ -62,7 +62,7 @@ function AssessmentCard({
 		<>
 			<Box
 				component={Link}
-				href={`/lms/courses/${courseId}/assessments/${assignment.id}`}
+				href={`/lms/courses/${courseId}/assignments/${assignment.id}`}
 				style={{
 					textDecoration: 'none',
 					color: 'inherit',
@@ -200,7 +200,7 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 							<Group mb='md' justify='space-between'>
 								<Group gap='xs'>
 									<IconClipboardCheck size={20} />
-									<Text fw={600}>Assessments</Text>
+									<Text fw={600}>Assignments</Text>
 								</Group>
 							</Group>
 							{assignmentsLoading ? (
@@ -211,12 +211,12 @@ export default function CourseDashboard({ course }: CourseDashboardProps) {
 								</Stack>
 							) : upcomingAssignments.length === 0 ? (
 								<Text size='sm' c='dimmed' ta='center' py='md'>
-									No upcoming assessments
+									No upcoming assignments
 								</Text>
 							) : (
 								<Stack gap={0}>
 									{upcomingAssignments.map((assignment, index) => (
-										<AssessmentCard
+										<AssignmentCard
 											key={assignment.id}
 											assignment={assignment}
 											isLast={index === upcomingAssignments.length - 1}
