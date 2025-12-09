@@ -1,6 +1,11 @@
 import { eq } from 'drizzle-orm';
 import { auth } from '@/core/auth';
-import { assessments, assessmentsAudit, db } from '@/core/database';
+import {
+	assessments,
+	assessmentsAudit,
+	db,
+	lmsAssessments,
+} from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class AssessmentRepository extends BaseRepository<
@@ -9,6 +14,29 @@ export default class AssessmentRepository extends BaseRepository<
 > {
 	constructor() {
 		super(assessments, assessments.id);
+	}
+
+	override async findById(id: number) {
+		return db.query.assessments.findFirst({
+			where: eq(assessments.id, id),
+			with: {
+				lmsAssessment: true,
+			},
+		});
+	}
+
+	async findByLmsId(lmsId: number) {
+		const lmsAssessment = await db.query.lmsAssessments.findFirst({
+			where: eq(lmsAssessments.lmsId, lmsId),
+			with: {
+				assessment: {
+					with: {
+						lmsAssessment: true,
+					},
+				},
+			},
+		});
+		return lmsAssessment?.assessment;
 	}
 
 	async getByModuleId(moduleId: number) {

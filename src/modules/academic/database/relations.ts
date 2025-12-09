@@ -6,6 +6,7 @@ import {
 	assessments,
 	assessmentsAudit,
 	assignedModules,
+	lmsAssessments,
 	moduleGrades,
 } from './schema/assessments';
 import {
@@ -125,6 +126,10 @@ export const assessmentsRelations = relations(assessments, ({ many, one }) => ({
 	}),
 	marks: many(assessmentMarks),
 	audits: many(assessmentsAudit),
+	lmsAssessment: one(lmsAssessments, {
+		fields: [assessments.id],
+		references: [lmsAssessments.assessmentId],
+	}),
 }));
 
 export const assessmentMarksRelations = relations(
@@ -170,5 +175,12 @@ export const moduleGradesRelations = relations(moduleGrades, ({ one }) => ({
 	module: one(modules, {
 		fields: [moduleGrades.moduleId],
 		references: [modules.id],
+	}),
+}));
+
+export const lmsAssessmentsRelations = relations(lmsAssessments, ({ one }) => ({
+	assessment: one(assessments, {
+		fields: [lmsAssessments.assessmentId],
+		references: [assessments.id],
 	}),
 }));

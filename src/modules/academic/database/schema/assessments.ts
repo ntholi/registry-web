@@ -3,6 +3,7 @@ import {
 	boolean,
 	index,
 	integer,
+	pgEnum,
 	pgTable,
 	real,
 	serial,
@@ -19,6 +20,18 @@ import {
 } from './enums';
 import { modules, semesterModules } from './modules';
 import { terms } from './terms';
+
+export const activityTypeEnum = pgEnum('activity_type', [
+	'quiz',
+	'assignment',
+	'lesson',
+	'forum',
+	'workshop',
+	'survey',
+	'choice',
+	'feedback',
+	'scorm',
+]);
 
 export const assignedModules = pgTable(
 	'assigned_modules',
@@ -166,5 +179,24 @@ export const moduleGrades = pgTable(
 	},
 	(table) => ({
 		uniqueModuleStudent: unique().on(table.moduleId, table.stdNo),
+	})
+);
+
+export const lmsAssessments = pgTable(
+	'lms_assessments',
+	{
+		id: serial().primaryKey(),
+		assessmentId: integer()
+			.references(() => assessments.id, { onDelete: 'cascade' })
+			.notNull(),
+		lmsId: integer().notNull(),
+		activityType: activityTypeEnum('activity_type').notNull(),
+		createdAt: timestamp('created_at').defaultNow().notNull(),
+	},
+	(table) => ({
+		assessmentIdIdx: index('fk_lms_assessments_assessment_id').on(
+			table.assessmentId
+		),
+		lmsIdIdx: index('idx_lms_assessments_lms_id').on(table.lmsId),
 	})
 );

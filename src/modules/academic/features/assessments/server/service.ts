@@ -24,6 +24,13 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		);
 	}
 
+	async getByLmsId(lmsId: number) {
+		return withAuth(
+			async () => (this.repository as AssessmentRepository).findByLmsId(lmsId),
+			['academic']
+		);
+	}
+
 	async getAuditHistory(assessmentId: number) {
 		return withAuth(
 			async () =>

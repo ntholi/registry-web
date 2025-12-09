@@ -22,6 +22,10 @@ export async function getAssessmentByModuleId(moduleId: number) {
 	return service.getByModuleId(moduleId);
 }
 
+export async function getAssessmentByLmsId(lmsId: number) {
+	return service.getByLmsId(lmsId);
+}
+
 export async function createAssessment(assessment: Assessment) {
 	const term = await getCurrentTerm();
 	return service.create({ ...assessment, termId: term.id });
