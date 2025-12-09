@@ -76,6 +76,7 @@ async function moodleRequest(
 
 	console.log(`[Moodle:${method}] ${wsfunction}`, {
 		params,
+		bodyParams: body?.toString(),
 		url: url.toString().replace(token, '***'),
 	});
 

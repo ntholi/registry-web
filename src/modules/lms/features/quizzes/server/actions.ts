@@ -108,7 +108,7 @@ async function createMultiChoiceQuestion(
 			name: question.name,
 			questiontext: question.questionText,
 			defaultmark: question.defaultMark,
-			single: question.single,
+			single: question.single ? 1 : 0,
 			shuffleanswers: 1,
 			answers: JSON.stringify(answers),
 		}
@@ -128,7 +128,7 @@ async function createTrueFalseQuestion(
 			name: question.name,
 			questiontext: question.questionText,
 			defaultmark: question.defaultMark,
-			correctanswer: question.correctAnswer,
+			correctanswer: question.correctAnswer ? 1 : 0,
 		}
 	);
 
@@ -152,7 +152,7 @@ async function createShortAnswerQuestion(
 			name: question.name,
 			questiontext: question.questionText,
 			defaultmark: question.defaultMark,
-			usecase: question.useCase,
+			usecase: question.useCase ? 1 : 0,
 			answers: JSON.stringify(answers),
 		}
 	);
@@ -266,12 +266,27 @@ export async function createQuiz(input: CreateQuizInput) {
 	const quizId = quizResult.quizid;
 	const courseModuleId = quizResult.coursemoduleid;
 
+	if (!quizId) {
+		throw new Error('Failed to create quiz: No quiz ID returned');
+	}
+
 	try {
 		const categoryId = await getOrCreateQuestionCategory(input.courseId);
 
 		for (let i = 0; i < input.questions.length; i++) {
 			const question = input.questions[i];
 			const questionId = await createQuestionInMoodle(categoryId, question);
+
+			if (!questionId) {
+				throw new Error(`Failed to create question: ${question.name}`);
+			}
+
+			console.log('Adding question to quiz:', {
+				quizId,
+				questionId,
+				page: i + 1,
+				maxMark: question.defaultMark,
+			});
 
 			await moodlePost('local_activity_utils_add_question_to_quiz', {
 				quizid: quizId,
