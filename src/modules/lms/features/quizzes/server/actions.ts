@@ -263,7 +263,7 @@ export async function createQuiz(input: CreateQuizInput) {
 		quizParams
 	);
 
-	const quizId = quizResult.quizid;
+	const quizId = quizResult.id;
 	const courseModuleId = quizResult.coursemoduleid;
 
 	if (!quizId) {
