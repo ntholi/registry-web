@@ -6,6 +6,7 @@ import {
 	Card,
 	Flex,
 	Group,
+	Menu,
 	Paper,
 	SimpleGrid,
 	Skeleton,
@@ -15,16 +16,20 @@ import {
 	Tooltip,
 	useMantineTheme,
 } from '@mantine/core';
+import { modals } from '@mantine/modals';
 import {
+	IconDotsVertical,
 	IconDownload,
+	IconEdit,
 	IconExternalLink,
 	IconFile,
 	IconFileText,
 	IconLink,
+	IconTrash,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getMaterialSection } from '../server/actions';
+import { deleteMaterial, getMaterialSection } from '../server/actions';
 import PagePreviewModal from './PagePreviewModal';
 
 type MaterialListProps = {
@@ -131,88 +136,14 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 	return (
 		<>
 			<SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing='md'>
-				{materials.map((material) => {
-					const Icon = getMaterialIcon(material.modname);
-					const isHidden = material.visible === 0;
-					const isFile = material.modname === 'resource';
-					const isUrl = material.modname === 'url';
-					const isClickable = !isFile && !isUrl;
-
-					return (
-						<Card
-							key={material.id}
-							withBorder
-							p='lg'
-							style={{
-								cursor: isClickable ? 'pointer' : 'default',
-							}}
-							onClick={
-								isClickable ? () => setSelectedPage(material) : undefined
-							}
-						>
-							<Stack gap='md'>
-								<Flex justify='space-between' align='flex-start'>
-									<Group align='flex-start'>
-										<ThemeIcon variant='default' size={'xl'}>
-											<Icon size={16} stroke={1.5} />
-										</ThemeIcon>
-										<Box>
-											<Text fw={500} size='sm'>
-												{truncateName(material.name, 30)}
-											</Text>
-											<Group gap='xs'>
-												<Text size='xs' c='dimmed'>
-													{material.modname === 'page'
-														? 'Page'
-														: material.modname === 'url'
-															? 'URL'
-															: 'File'}
-												</Text>
-												{isHidden && (
-													<>
-														<Text size='xs' c='dimmed'>
-															•
-														</Text>
-														<Text size='xs' c='dimmed'>
-															Hidden
-														</Text>
-													</>
-												)}
-											</Group>
-										</Box>
-									</Group>
-									<Tooltip
-										label={
-											isFile
-												? 'Download file'
-												: isUrl
-													? 'Open link'
-													: 'Open in new tab'
-										}
-									>
-										<ActionIcon
-											variant='subtle'
-											color='gray'
-											size='md'
-											component='a'
-											href={getMaterialUrl(material)}
-											{...(isFile
-												? { download: true }
-												: { target: '_blank', rel: 'noopener noreferrer' })}
-											onClick={(e) => e.stopPropagation()}
-										>
-											{isFile ? (
-												<IconDownload size={16} />
-											) : (
-												<IconExternalLink size={16} />
-											)}
-										</ActionIcon>
-									</Tooltip>
-								</Flex>
-							</Stack>
-						</Card>
-					);
-				})}
+				{materials.map((material) => (
+					<MaterialCard
+						key={material.id}
+						material={material}
+						courseId={courseId}
+						onPageClick={() => setSelectedPage(material)}
+					/>
+				))}
 			</SimpleGrid>
 
 			<PagePreviewModal
@@ -220,5 +151,152 @@ export default function MaterialList({ courseId }: MaterialListProps) {
 				onClose={() => setSelectedPage(null)}
 			/>
 		</>
+	);
+}
+
+type MaterialCardProps = {
+	material: Material;
+	courseId: number;
+	onPageClick: () => void;
+};
+
+function MaterialCard({ material, courseId, onPageClick }: MaterialCardProps) {
+	const queryClient = useQueryClient();
+	const Icon = getMaterialIcon(material.modname);
+	const isHidden = material.visible === 0;
+	const isFile = material.modname === 'resource';
+	const isUrl = material.modname === 'url';
+	const isPage = material.modname === 'page';
+
+	const deleteMutation = useMutation({
+		mutationFn: () => deleteMaterial(material.id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['material-pages', courseId] });
+		},
+	});
+
+	function handleDelete() {
+		modals.openConfirmModal({
+			title: 'Delete Material',
+			children: (
+				<Text size='sm'>
+					Are you sure you want to delete "{material.name}"? This action cannot
+					be undone.
+				</Text>
+			),
+			labels: { confirm: 'Delete', cancel: 'Cancel' },
+			confirmProps: { color: 'red' },
+			onConfirm: () => deleteMutation.mutate(),
+		});
+	}
+
+	function handleViewInMoodle() {
+		const moodleUrl = process.env.NEXT_PUBLIC_MOODLE_URL;
+		const modType = isFile ? 'resource' : material.modname;
+		window.open(
+			`${moodleUrl}/mod/${modType}/view.php?id=${material.id}`,
+			'_blank'
+		);
+	}
+
+	return (
+		<Card
+			withBorder
+			p='lg'
+			style={{
+				cursor: isPage ? 'pointer' : 'default',
+			}}
+			onClick={isPage ? onPageClick : undefined}
+		>
+			<Stack gap='md'>
+				<Flex justify='space-between' align='flex-start'>
+					<Group align='flex-start' style={{ flex: 1 }}>
+						<ThemeIcon variant='default' size='xl'>
+							<Icon size={16} stroke={1.5} />
+						</ThemeIcon>
+						<Box style={{ flex: 1, minWidth: 0 }}>
+							<Text fw={500} size='sm'>
+								{truncateName(material.name, 30)}
+							</Text>
+							<Group gap='xs'>
+								<Text size='xs' c='dimmed'>
+									{isPage ? 'Page' : isUrl ? 'URL' : 'File'}
+								</Text>
+								{isHidden && (
+									<>
+										<Text size='xs' c='dimmed'>
+											·
+										</Text>
+										<Text size='xs' c='dimmed'>
+											Hidden
+										</Text>
+									</>
+								)}
+							</Group>
+						</Box>
+					</Group>
+					<Group gap={4} wrap='nowrap'>
+						{(isFile || isUrl) && (
+							<Tooltip label={isFile ? 'Download file' : 'Open link'}>
+								<ActionIcon
+									variant='subtle'
+									color='gray'
+									size='sm'
+									component='a'
+									href={getMaterialUrl(material)}
+									{...(isFile
+										? { download: true }
+										: { target: '_blank', rel: 'noopener noreferrer' })}
+									onClick={(e) => e.stopPropagation()}
+								>
+									{isFile ? (
+										<IconDownload size={16} />
+									) : (
+										<IconExternalLink size={16} />
+									)}
+								</ActionIcon>
+							</Tooltip>
+						)}
+						<Menu position='bottom-end' withArrow shadow='md'>
+							<Menu.Target>
+								<ActionIcon
+									variant='subtle'
+									color='gray'
+									size='sm'
+									onClick={(e) => e.stopPropagation()}
+								>
+									<IconDotsVertical size={16} />
+								</ActionIcon>
+							</Menu.Target>
+							<Menu.Dropdown>
+								<Menu.Item leftSection={<IconEdit size={14} />} disabled>
+									Edit
+								</Menu.Item>
+								<Menu.Item
+									leftSection={<IconExternalLink size={14} />}
+									onClick={(e) => {
+										e.stopPropagation();
+										handleViewInMoodle();
+									}}
+								>
+									View in Moodle
+								</Menu.Item>
+								<Menu.Divider />
+								<Menu.Item
+									leftSection={<IconTrash size={14} />}
+									color='red'
+									onClick={(e) => {
+										e.stopPropagation();
+										handleDelete();
+									}}
+								>
+									Delete
+								</Menu.Item>
+							</Menu.Dropdown>
+						</Menu>
+					</Group>
+				</Flex>
+			</Stack>
+		</Card>
 	);
 }

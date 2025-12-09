@@ -1,12 +1,14 @@
 'use client';
 
 import {
+	ActionIcon,
 	Avatar,
 	Badge,
 	Box,
 	Collapse,
 	Divider,
 	Group,
+	Menu,
 	Paper,
 	Skeleton,
 	Stack,
@@ -15,17 +17,22 @@ import {
 	UnstyledButton,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { modals } from '@mantine/modals';
 import {
 	IconBellRinging,
 	IconChevronDown,
 	IconChevronUp,
+	IconDotsVertical,
+	IconEdit,
+	IconExternalLink,
 	IconMessageCircle,
 	IconMessages,
 	IconPin,
+	IconTrash,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { getAllPosts, getDiscussionPosts } from '../server/actions';
+import { deletePost, getAllPosts, getDiscussionPosts } from '../server/actions';
 import type { MoodleDiscussion, MoodlePost, PostType } from '../types';
 
 type PostsListProps = {
@@ -162,10 +169,42 @@ function RepliesSection({ discussionId, numReplies }: RepliesSectionProps) {
 type PostCardProps = {
 	post: MoodleDiscussion;
 	type: PostType;
+	courseId: number;
 };
 
-function PostCard({ post, type }: PostCardProps) {
+function PostCard({ post, type, courseId }: PostCardProps) {
 	const isAnnouncement = type === 'announcement';
+	const queryClient = useQueryClient();
+
+	const deleteMutation = useMutation({
+		mutationFn: () => deletePost(post.discussion),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['course-posts', courseId] });
+		},
+	});
+
+	function handleDelete() {
+		modals.openConfirmModal({
+			title: `Delete ${isAnnouncement ? 'Announcement' : 'Discussion'}`,
+			children: (
+				<Text size='sm'>
+					Are you sure you want to delete "{post.subject}"? This action cannot
+					be undone.
+				</Text>
+			),
+			labels: { confirm: 'Delete', cancel: 'Cancel' },
+			confirmProps: { color: 'red' },
+			onConfirm: () => deleteMutation.mutate(),
+		});
+	}
+
+	function handleViewInMoodle() {
+		const moodleUrl = process.env.NEXT_PUBLIC_MOODLE_URL;
+		window.open(
+			`${moodleUrl}/mod/forum/discuss.php?d=${post.discussion}`,
+			'_blank'
+		);
+	}
 
 	return (
 		<Paper p='lg' radius='md' withBorder>
@@ -212,9 +251,35 @@ function PostCard({ post, type }: PostCardProps) {
 						})}
 					</Text>
 				</Stack>
+				<Menu position='bottom-end' withArrow shadow='md'>
+					<Menu.Target>
+						<ActionIcon variant='subtle' color='gray' size='sm'>
+							<IconDotsVertical size={16} />
+						</ActionIcon>
+					</Menu.Target>
+					<Menu.Dropdown>
+						<Menu.Item leftSection={<IconEdit size={14} />} disabled>
+							Edit
+						</Menu.Item>
+						<Menu.Item
+							leftSection={<IconExternalLink size={14} />}
+							onClick={handleViewInMoodle}
+						>
+							View in Moodle
+						</Menu.Item>
+						<Menu.Divider />
+						<Menu.Item
+							leftSection={<IconTrash size={14} />}
+							color='red'
+							onClick={handleDelete}
+						>
+							Delete
+						</Menu.Item>
+					</Menu.Dropdown>
+				</Menu>
 			</Group>
 
-			<Text fw={500} size='md' mt={'md'}>
+			<Text fw={500} size='md' mt='md'>
 				{post.subject}
 			</Text>
 
@@ -227,7 +292,7 @@ function PostCard({ post, type }: PostCardProps) {
 
 			{!isAnnouncement && post.numreplies > 0 && (
 				<>
-					<Divider my={'sm'} />
+					<Divider my='sm' />
 					<RepliesSection
 						discussionId={post.discussion}
 						numReplies={post.numreplies}
@@ -317,7 +382,12 @@ export default function PostsList({ courseId }: PostsListProps) {
 	return (
 		<Stack gap='md'>
 			{combinedPosts.map(({ post, type }) => (
-				<PostCard key={`${type}-${post.id}`} post={post} type={type} />
+				<PostCard
+					key={`${type}-${post.id}`}
+					post={post}
+					type={type}
+					courseId={courseId}
+				/>
 			))}
 		</Stack>
 	);

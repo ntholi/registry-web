@@ -464,3 +464,14 @@ export async function deleteRubric(cmid: number) {
 
 	return result;
 }
+
+export async function deleteAssignment(cmid: number) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	await moodlePost('local_activity_utils_delete_assignment', {
+		cmid,
+	});
+}
