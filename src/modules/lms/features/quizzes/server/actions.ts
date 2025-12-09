@@ -109,12 +109,12 @@ async function createMultiChoiceQuestion(
 			questiontext: question.questionText,
 			defaultmark: question.defaultMark,
 			single: question.single ? 1 : 0,
-			shuffleanswers: 1,
+			shufficanswers: 1,
 			answers: JSON.stringify(answers),
 		}
 	);
 
-	return result.questionid;
+	return result.id;
 }
 
 async function createTrueFalseQuestion(
@@ -132,7 +132,7 @@ async function createTrueFalseQuestion(
 		}
 	);
 
-	return result.questionid;
+	return result.id;
 }
 
 async function createShortAnswerQuestion(
@@ -157,7 +157,7 @@ async function createShortAnswerQuestion(
 		}
 	);
 
-	return result.questionid;
+	return result.id;
 }
 
 async function createEssayQuestion(
@@ -177,7 +177,7 @@ async function createEssayQuestion(
 		}
 	);
 
-	return result.questionid;
+	return result.id;
 }
 
 async function createQuestionInMoodle(
