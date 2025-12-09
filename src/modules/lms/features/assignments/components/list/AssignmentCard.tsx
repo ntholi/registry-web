@@ -1,15 +1,6 @@
 'use client';
 
-import {
-	ActionIcon,
-	Box,
-	Card,
-	Group,
-	Menu,
-	Stack,
-	Text,
-	TextInput,
-} from '@mantine/core';
+import { ActionIcon, Box, Card, Group, Menu, Stack, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import {
 	IconClock,
@@ -20,11 +11,11 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useState } from 'react';
 import {
 	deleteAssessment,
 	getAssessmentByLmsId,
 } from '@/modules/academic/features/assessments/server/actions';
+import { DeleteConfirmContent } from '@/shared/ui/adease';
 import { deleteAssignment } from '../../server/actions';
 import type { MoodleAssignment } from '../../types';
 import AssignmentStatus from '../details/AssignmentStatus';
@@ -33,40 +24,6 @@ type Props = {
 	assignment: MoodleAssignment;
 	courseId: number;
 };
-
-function DeleteConfirmContent({
-	assignmentName,
-	onConfirmChange,
-}: {
-	assignmentName: string;
-	onConfirmChange: (isValid: boolean) => void;
-}) {
-	const [value, setValue] = useState('');
-
-	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-		const newValue = e.target.value;
-		setValue(newValue);
-		onConfirmChange(newValue === 'delete permanently');
-	}
-
-	return (
-		<Stack gap='md'>
-			<Text size='sm'>
-				Are you sure you want to delete "{assignmentName}"? This will also
-				delete the associated assessment and all student marks.
-			</Text>
-			<Text size='sm' fw={500}>
-				Type "delete permanently" to confirm:
-			</Text>
-			<TextInput
-				placeholder='delete permanently'
-				value={value}
-				onChange={handleChange}
-				data-autofocus
-			/>
-		</Stack>
-	);
-}
 
 export default function AssignmentCard({ assignment, courseId }: Props) {
 	const dueDate = assignment.duedate
@@ -95,7 +52,9 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 			title: 'Delete Assignment',
 			children: (
 				<DeleteConfirmContent
-					assignmentName={assignment.name}
+					itemName={assignment.name}
+					itemType='assignment'
+					warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
 					onConfirmChange={(isValid) => {
 						canConfirm = isValid;
 					}}

@@ -1,22 +1,13 @@
 'use client';
 
-import {
-	ActionIcon,
-	Alert,
-	Box,
-	Button,
-	Group,
-	Modal,
-	Text,
-	TextInput,
-	Tooltip,
-} from '@mantine/core';
+import { ActionIcon, Box, Button, Group, Modal, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertTriangle, IconTrash } from '@tabler/icons-react';
+import { IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { assessments } from '@/modules/academic/database';
+import { DeleteConfirmContent } from '@/shared/ui/adease';
 import { deleteAssessment } from '../server/actions';
 import { getAssessmentTypeLabel } from '../utils';
 
@@ -26,12 +17,12 @@ type Props = {
 
 export default function AssessmentDelete({ assessment }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
-	const [confirmText, setConfirmText] = useState('');
+	const [isConfirmed, setIsConfirmed] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const queryClient = useQueryClient();
 
 	const handleDelete = async () => {
-		if (confirmText !== 'delete permanently') {
+		if (!isConfirmed) {
 			return;
 		}
 
@@ -59,7 +50,7 @@ export default function AssessmentDelete({ assessment }: Props) {
 	};
 
 	const resetForm = () => {
-		setConfirmText('');
+		setIsConfirmed(false);
 		setIsDeleting(false);
 	};
 
@@ -67,8 +58,6 @@ export default function AssessmentDelete({ assessment }: Props) {
 		resetForm();
 		close();
 	};
-
-	const isConfirmed = confirmText === 'delete permanently';
 
 	return (
 		<>
@@ -86,36 +75,11 @@ export default function AssessmentDelete({ assessment }: Props) {
 				centered
 			>
 				<Box mb='md'>
-					<Alert
-						icon={<IconAlertTriangle size={16} />}
-						title='Warning'
-						color='red'
-						mb='md'
-					>
-						<Text fw={500} mb='xs'>
-							You are about to delete{' '}
-							{getAssessmentTypeLabel(assessment.assessmentType)}.
-						</Text>
-						<Text size='sm'>
-							This will permanently remove all student marks for this
-							assessment. This action cannot be undone.
-						</Text>
-					</Alert>
-
-					<Text size='sm' mb='md'>
-						To confirm deletion, please type{' '}
-						<Text span fw={700}>
-							delete permanently
-						</Text>{' '}
-						in the field below:
-					</Text>
-
-					<TextInput
-						placeholder='delete permanently'
-						value={confirmText}
-						onChange={(e) => setConfirmText(e.currentTarget.value)}
-						mb='md'
-						data-autofocus
+					<DeleteConfirmContent
+						itemName={getAssessmentTypeLabel(assessment.assessmentType)}
+						itemType='assessment'
+						warningMessage='This will permanently remove all student marks for this assessment. This action cannot be undone.'
+						onConfirmChange={setIsConfirmed}
 					/>
 				</Box>
 

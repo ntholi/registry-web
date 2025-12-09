@@ -9,7 +9,6 @@ import {
 	Menu,
 	Stack,
 	Text,
-	TextInput,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import {
@@ -22,11 +21,11 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useState } from 'react';
 import {
 	deleteAssessment,
 	getAssessmentByLmsId,
 } from '@/modules/academic/features/assessments/server/actions';
+import { DeleteConfirmContent } from '@/shared/ui/adease';
 import { deleteQuiz } from '../../server/actions';
 import type { MoodleQuiz } from '../../types';
 
@@ -61,40 +60,6 @@ function getQuizStatus(quiz: MoodleQuiz): {
 	return { label: 'Open', color: 'green' };
 }
 
-function DeleteConfirmContent({
-	quizName,
-	onConfirmChange,
-}: {
-	quizName: string;
-	onConfirmChange: (isValid: boolean) => void;
-}) {
-	const [value, setValue] = useState('');
-
-	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-		const newValue = e.target.value;
-		setValue(newValue);
-		onConfirmChange(newValue === 'delete permanently');
-	}
-
-	return (
-		<Stack gap='md'>
-			<Text size='sm'>
-				Are you sure you want to delete "{quizName}"? This will also delete the
-				associated assessment and all student marks.
-			</Text>
-			<Text size='sm' fw={500}>
-				Type "delete permanently" to confirm:
-			</Text>
-			<TextInput
-				placeholder='delete permanently'
-				value={value}
-				onChange={handleChange}
-				data-autofocus
-			/>
-		</Stack>
-	);
-}
-
 export default function QuizCard({ quiz, courseId }: Props) {
 	const status = getQuizStatus(quiz);
 	const closeDate = quiz.timeclose ? new Date(quiz.timeclose * 1000) : null;
@@ -121,7 +86,9 @@ export default function QuizCard({ quiz, courseId }: Props) {
 			title: 'Delete Quiz',
 			children: (
 				<DeleteConfirmContent
-					quizName={quiz.name}
+					itemName={quiz.name}
+					itemType='quiz'
+					warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
 					onConfirmChange={(isValid) => {
 						canConfirm = isValid;
 					}}
