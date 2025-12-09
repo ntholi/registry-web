@@ -75,21 +75,12 @@ async function getOrCreateTestsQuizzesSection(
 }
 
 async function getOrCreateQuestionCategory(courseId: number): Promise<number> {
-	const contextResult = await moodleGet('core_enrol_get_users_courses', {
-		'options[ids][0]': courseId,
-	});
-
-	if (!contextResult || contextResult.length === 0) {
-		throw new Error('Course not found');
-	}
-
 	const categoryName = `Quiz Questions - Course ${courseId}`;
 
 	try {
 		const result = await moodlePost(
 			'local_activity_utils_create_question_category',
 			{
-				contextid: 0,
 				courseid: courseId,
 				name: categoryName,
 				info: 'Auto-created category for quiz questions',
