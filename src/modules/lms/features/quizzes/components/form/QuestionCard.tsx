@@ -19,6 +19,7 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
+import { truncateText } from '@/shared/lib/utils/utils';
 import type {
 	EssayQuestion,
 	MultiChoiceQuestion,
@@ -27,7 +28,6 @@ import type {
 	ShortAnswerQuestion,
 	TrueFalseQuestion,
 } from '../../types';
-import { truncateText } from '@/shared/lib/utils/utils';
 
 type QuestionCardProps = {
 	question: Question;

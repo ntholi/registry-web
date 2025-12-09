@@ -76,36 +76,19 @@ async function getOrCreateTestsQuizzesSection(
 
 async function getOrCreateQuestionCategory(courseId: number): Promise<number> {
 	const categoryName = `Quiz Questions - Course ${courseId}`;
+	const idNumber = `quiz_cat_${courseId}`;
 
-	try {
-		const result = await moodlePost(
-			'local_activity_utils_create_question_category',
-			{
-				courseid: courseId,
-				name: categoryName,
-				info: 'Auto-created category for quiz questions',
-			}
-		);
-
-		return result.categoryid;
-	} catch (error: unknown) {
-		const err = error as { errorcode?: string };
-		if (err.errorcode === 'categoryexists') {
-			const categories = await moodleGet(
-				'local_activity_utils_get_question_categories',
-				{
-					courseid: courseId,
-				}
-			);
-			const existingCategory = categories?.find(
-				(cat: { name: string }) => cat.name === categoryName
-			);
-			if (existingCategory) {
-				return existingCategory.id;
-			}
+	const result = await moodlePost(
+		'local_activity_utils_get_or_create_question_category',
+		{
+			courseid: courseId,
+			name: categoryName,
+			info: 'Auto-created category for quiz questions',
+			idnumber: idNumber,
 		}
-		throw error;
-	}
+	);
+
+	return result.id;
 }
 
 async function createMultiChoiceQuestion(
@@ -125,7 +108,8 @@ async function createMultiChoiceQuestion(
 			name: question.name,
 			questiontext: question.questionText,
 			defaultmark: question.defaultMark,
-			single: question.single ? 1 : 0,
+			single: question.single,
+			shuffleanswers: 1,
 			answers: JSON.stringify(answers),
 		}
 	);
@@ -144,7 +128,7 @@ async function createTrueFalseQuestion(
 			name: question.name,
 			questiontext: question.questionText,
 			defaultmark: question.defaultMark,
-			correctanswer: question.correctAnswer ? 1 : 0,
+			correctanswer: question.correctAnswer,
 		}
 	);
 
@@ -168,7 +152,7 @@ async function createShortAnswerQuestion(
 			name: question.name,
 			questiontext: question.questionText,
 			defaultmark: question.defaultMark,
-			usecase: question.useCase ? 1 : 0,
+			usecase: question.useCase,
 			answers: JSON.stringify(answers),
 		}
 	);
@@ -252,20 +236,26 @@ export async function createQuiz(input: CreateQuizInput) {
 
 	const sectionNumber = await getOrCreateTestsQuizzesSection(input.courseId);
 
-	const quizParams: Record<string, string | number> = {
+	const quizParams: Record<string, string | number | boolean> = {
 		courseid: input.courseId,
 		name: input.name,
 		section: sectionNumber,
 		grademax: totalMarks,
 		questionsperpage: 1,
+		preferredbehaviour: 'deferredfeedback',
+		navmethod: 'free',
+		shuffleanswers: 1,
+		visible: 1,
 	};
 
 	if (input.timelimit && input.timelimit > 0) {
 		quizParams.timelimit = input.timelimit * 60;
 	}
 
-	if (input.attempts > 0) {
+	if (input.attempts && input.attempts > 0) {
 		quizParams.attempts = input.attempts;
+	} else {
+		quizParams.attempts = 0;
 	}
 
 	const quizResult = await moodlePost(

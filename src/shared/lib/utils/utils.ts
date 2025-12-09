@@ -199,7 +199,6 @@ export const convertUrlToBase64 = async (url: string): Promise<string> => {
 	}
 };
 
-
 export function truncateText(text: string, maxLength: number = 50) {
 	if (text.length <= maxLength) {
 		return text;
