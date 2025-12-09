@@ -6,357 +6,561 @@ import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
 import { getCurrentTerm } from '@/modules/registry/features/terms';
 import type {
-	EssayQuestion,
-	MoodleQuiz,
-	MultiChoiceQuestion,
-	Question,
-	ShortAnswerQuestion,
-	TrueFalseQuestion,
+  AddQuestionToQuizResponse,
+  CreateQuestionResponse,
+  CreateQuizResponse,
+  EssayQuestion,
+  MoodleQuiz,
+  MultiChoiceQuestion,
+  NumericalQuestion,
+  Question,
+  ShortAnswerQuestion,
+  TrueFalseQuestion,
 } from '../types';
 
 type CourseSection = {
-	id: number;
-	name: string;
-	section: number;
-	summaryformat: number;
-	summary: string;
-	modules: Array<{
-		id: number;
-		name: string;
-		modname: string;
-	}>;
+  id: number;
+  name: string;
+  section: number;
+  summaryformat: number;
+  summary: string;
+  modules: Array<{
+    id: number;
+    name: string;
+    modname: string;
+  }>;
 };
 
 async function getCourseSections(courseId: number): Promise<CourseSection[]> {
-	const result = await moodleGet('core_course_get_contents', {
-		courseid: courseId,
-	});
-
-	return result as CourseSection[];
+  const result = await moodleGet('core_course_get_contents', {
+    courseid: courseId,
+  });
+  return result as CourseSection[];
 }
 
 async function getOrCreateTestsQuizzesSection(
-	courseId: number
+  courseId: number
 ): Promise<number> {
-	const sections = await getCourseSections(courseId);
+  const sections = await getCourseSections(courseId);
 
-	const quizSection = sections.find(
-		(section) =>
-			section.name.toLowerCase() === 'tests & quizzes' ||
-			section.name.toLowerCase() === 'tests and quizzes'
-	);
+  const quizSection = sections.find(
+    (section) =>
+      section.name.toLowerCase() === 'tests & quizzes' ||
+      section.name.toLowerCase() === 'tests and quizzes'
+  );
 
-	if (quizSection) {
-		return quizSection.section;
-	}
+  if (quizSection) {
+    return quizSection.section;
+  }
 
-	try {
-		const result = await moodlePost('local_activity_utils_create_section', {
-			courseid: courseId,
-			name: 'Tests & Quizzes',
-			summary: 'Course tests and quizzes',
-		});
+  try {
+    const result = await moodlePost('local_activity_utils_create_section', {
+      courseid: courseId,
+      name: 'Tests & Quizzes',
+      summary: 'Course tests and quizzes',
+    });
 
-		if (result && result.sectionnum !== undefined) {
-			return result.sectionnum;
-		}
+    if (result && result.sectionnum !== undefined) {
+      return result.sectionnum;
+    }
 
-		const updatedSections = await getCourseSections(courseId);
-		const newSection = updatedSections.find(
-			(section) => section.name === 'Tests & Quizzes'
-		);
-		return newSection?.section || 0;
-	} catch (error) {
-		console.error('Failed to create Tests & Quizzes section:', error);
-		throw new Error(
-			'Unable to create Tests & Quizzes section. Please ensure the local_activity_utils plugin is installed.'
-		);
-	}
+    const updatedSections = await getCourseSections(courseId);
+    const newSection = updatedSections.find(
+      (section) => section.name === 'Tests & Quizzes'
+    );
+    return newSection?.section || 0;
+  } catch (error) {
+    console.error('Failed to create Tests & Quizzes section:', error);
+    throw new Error(
+      'Unable to create Tests & Quizzes section. Please ensure the local_activity_utils plugin is installed.'
+    );
+  }
 }
 
 async function getOrCreateQuestionCategory(courseId: number): Promise<number> {
-	const categoryName = `Quiz Questions - Course ${courseId}`;
-	const idNumber = `quiz_cat_${courseId}`;
+  const categoryName = `Quiz Questions - Course ${courseId}`;
 
-	const result = await moodlePost(
-		'local_activity_utils_get_or_create_question_category',
-		{
-			courseid: courseId,
-			name: categoryName,
-			info: 'Auto-created category for quiz questions',
-			idnumber: idNumber,
-		}
-	);
+  const result = await moodlePost(
+    'local_activity_utils_get_or_create_question_category',
+    {
+      courseid: courseId,
+      name: categoryName,
+      info: 'Auto-created category for quiz questions',
+    }
+  );
 
-	return result.id;
+  return result.id;
 }
 
+// ============================================================================
+// Question Creation Functions - Using correct API function names
+// ============================================================================
+
 async function createMultiChoiceQuestion(
-	categoryId: number,
-	question: MultiChoiceQuestion
-): Promise<number> {
-	const answers = question.answers.map((a) => ({
-		text: a.text,
-		fraction: a.fraction,
-		feedback: a.feedback || '',
-	}));
+  categoryId: number,
+  question: MultiChoiceQuestion
+): Promise<CreateQuestionResponse> {
+  const answers = question.answers.map((a) => ({
+    text: a.text,
+    fraction: a.fraction,
+    feedback: a.feedback || '',
+  }));
 
-	const result = await moodlePost(
-		'local_activity_utils_create_question_multichoice',
-		{
-			categoryid: categoryId,
-			name: question.name,
-			questiontext: question.questionText,
-			defaultmark: question.defaultMark,
-			single: question.single ? 1 : 0,
-			shufficanswers: 1,
-			answers: JSON.stringify(answers),
-		}
-	);
+  const result = await moodlePost(
+    'local_activity_utils_create_multichoice_question',
+    {
+      categoryid: categoryId,
+      name: question.name,
+      questiontext: question.questionText,
+      defaultmark: question.defaultMark,
+      single: question.single ? 1 : 0,
+      shuffleanswers: question.shuffleAnswers !== false ? 1 : 0,
+      answernumbering: question.answerNumbering || 'abc',
+      correctfeedback: question.correctFeedback || '',
+      partiallycorrectfeedback: question.partiallyCorrectFeedback || '',
+      incorrectfeedback: question.incorrectFeedback || '',
+      generalfeedback: question.generalFeedback || '',
+      answers: JSON.stringify(answers),
+    }
+  );
 
-	return result.id;
+  return result as CreateQuestionResponse;
 }
 
 async function createTrueFalseQuestion(
-	categoryId: number,
-	question: TrueFalseQuestion
-): Promise<number> {
-	const result = await moodlePost(
-		'local_activity_utils_create_question_truefalse',
-		{
-			categoryid: categoryId,
-			name: question.name,
-			questiontext: question.questionText,
-			defaultmark: question.defaultMark,
-			correctanswer: question.correctAnswer ? 1 : 0,
-		}
-	);
+  categoryId: number,
+  question: TrueFalseQuestion
+): Promise<CreateQuestionResponse> {
+  const result = await moodlePost(
+    'local_activity_utils_create_truefalse_question',
+    {
+      categoryid: categoryId,
+      name: question.name,
+      questiontext: question.questionText,
+      defaultmark: question.defaultMark,
+      correctanswer: question.correctAnswer ? 1 : 0,
+      feedbacktrue: question.feedbackTrue || '',
+      feedbackfalse: question.feedbackFalse || '',
+      generalfeedback: question.generalFeedback || '',
+    }
+  );
 
-	return result.id;
+  return result as CreateQuestionResponse;
 }
 
 async function createShortAnswerQuestion(
-	categoryId: number,
-	question: ShortAnswerQuestion
-): Promise<number> {
-	const answers = question.answers.map((a) => ({
-		text: a.text,
-		fraction: a.fraction,
-		feedback: a.feedback || '',
-	}));
+  categoryId: number,
+  question: ShortAnswerQuestion
+): Promise<CreateQuestionResponse> {
+  const answers = question.answers.map((a) => ({
+    text: a.text,
+    fraction: a.fraction ?? 1.0,
+    feedback: a.feedback || '',
+  }));
 
-	const result = await moodlePost(
-		'local_activity_utils_create_question_shortanswer',
-		{
-			categoryid: categoryId,
-			name: question.name,
-			questiontext: question.questionText,
-			defaultmark: question.defaultMark,
-			usecase: question.useCase ? 1 : 0,
-			answers: JSON.stringify(answers),
-		}
-	);
+  const result = await moodlePost(
+    'local_activity_utils_create_shortanswer_question',
+    {
+      categoryid: categoryId,
+      name: question.name,
+      questiontext: question.questionText,
+      defaultmark: question.defaultMark,
+      usecase: question.useCase ? 1 : 0,
+      generalfeedback: question.generalFeedback || '',
+      answers: JSON.stringify(answers),
+    }
+  );
 
-	return result.id;
+  return result as CreateQuestionResponse;
 }
 
 async function createEssayQuestion(
-	categoryId: number,
-	question: EssayQuestion
-): Promise<number> {
-	const result = await moodlePost(
-		'local_activity_utils_create_question_essay',
-		{
-			categoryid: categoryId,
-			name: question.name,
-			questiontext: question.questionText,
-			defaultmark: question.defaultMark,
-			responseformat: question.responseFormat,
-			responsefieldlines: question.responseFieldLines,
-			attachments: question.attachments,
-		}
-	);
+  categoryId: number,
+  question: EssayQuestion
+): Promise<CreateQuestionResponse> {
+  const result = await moodlePost(
+    'local_activity_utils_create_essay_question',
+    {
+      categoryid: categoryId,
+      name: question.name,
+      questiontext: question.questionText,
+      defaultmark: question.defaultMark,
+      responseformat: question.responseFormat,
+      responserequired: question.responseRequired !== false ? 1 : 0,
+      responsefieldlines: question.responseFieldLines,
+      minwordlimit: question.minWordLimit || 0,
+      maxwordlimit: question.maxWordLimit || 0,
+      attachments: question.attachments,
+      attachmentsrequired: question.attachmentsRequired || 0,
+      graderinfo: question.graderInfo || '',
+      responsetemplate: question.responseTemplate || '',
+      generalfeedback: question.generalFeedback || '',
+    }
+  );
 
-	return result.id;
+  return result as CreateQuestionResponse;
+}
+
+async function createNumericalQuestion(
+  categoryId: number,
+  question: NumericalQuestion
+): Promise<CreateQuestionResponse> {
+  const answers = question.answers.map((a) => ({
+    answer: a.answer,
+    tolerance: a.tolerance ?? 0,
+    fraction: a.fraction ?? 1.0,
+    feedback: a.feedback || '',
+  }));
+
+  const result = await moodlePost(
+    'local_activity_utils_create_numerical_question',
+    {
+      categoryid: categoryId,
+      name: question.name,
+      questiontext: question.questionText,
+      defaultmark: question.defaultMark,
+      generalfeedback: question.generalFeedback || '',
+      answers: JSON.stringify(answers),
+    }
+  );
+
+  return result as CreateQuestionResponse;
 }
 
 async function createQuestionInMoodle(
-	categoryId: number,
-	question: Question
-): Promise<number> {
-	switch (question.type) {
-		case 'multichoice':
-			return createMultiChoiceQuestion(categoryId, question);
-		case 'truefalse':
-			return createTrueFalseQuestion(categoryId, question);
-		case 'shortanswer':
-			return createShortAnswerQuestion(categoryId, question);
-		case 'essay':
-			return createEssayQuestion(categoryId, question);
-		default:
-			throw new Error(`Unknown question type: ${(question as Question).type}`);
-	}
+  categoryId: number,
+  question: Question
+): Promise<CreateQuestionResponse> {
+  switch (question.type) {
+    case 'multichoice':
+      return createMultiChoiceQuestion(categoryId, question);
+    case 'truefalse':
+      return createTrueFalseQuestion(categoryId, question);
+    case 'shortanswer':
+      return createShortAnswerQuestion(categoryId, question);
+    case 'essay':
+      return createEssayQuestion(categoryId, question);
+    case 'numerical':
+      return createNumericalQuestion(categoryId, question);
+    default:
+      throw new Error(`Unknown question type: ${(question as Question).type}`);
+  }
 }
 
+// ============================================================================
+// Quiz CRUD Operations
+// ============================================================================
+
 type CreateQuizInput = {
-	courseId: number;
-	moduleId: number;
-	name: string;
-	assessmentNumber: string;
-	weight: number;
-	timelimit: number | null;
-	attempts: number;
-	questions: Question[];
+  courseId: number;
+  moduleId: number;
+  name: string;
+  assessmentNumber: string;
+  weight: number;
+  timelimit: number | null;
+  attempts: number;
+  questions: Question[];
 };
 
 export async function createQuiz(input: CreateQuizInput) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
 
-	const term = await getCurrentTerm();
-	if (!term) {
-		throw new Error('No active term found');
-	}
+  const term = await getCurrentTerm();
+  if (!term) {
+    throw new Error('No active term found');
+  }
 
-	if (!input.name?.trim()) {
-		throw new Error('Quiz name is required');
-	}
+  if (!input.name?.trim()) {
+    throw new Error('Quiz name is required');
+  }
 
-	if (!input.assessmentNumber?.trim()) {
-		throw new Error('Assessment number is required');
-	}
+  if (!input.assessmentNumber?.trim()) {
+    throw new Error('Assessment number is required');
+  }
 
-	if (input.questions.length === 0) {
-		throw new Error('At least one question is required');
-	}
+  if (input.questions.length === 0) {
+    throw new Error('At least one question is required');
+  }
 
-	const totalMarks = input.questions.reduce((sum, q) => sum + q.defaultMark, 0);
+  const totalMarks = input.questions.reduce((sum, q) => sum + q.defaultMark, 0);
 
-	const sectionNumber = await getOrCreateTestsQuizzesSection(input.courseId);
+  const sectionNumber = await getOrCreateTestsQuizzesSection(input.courseId);
 
-	const quizParams: Record<string, string | number | boolean> = {
-		courseid: input.courseId,
-		name: input.name,
-		section: sectionNumber,
-		grademax: totalMarks,
-		questionsperpage: 1,
-		preferredbehaviour: 'deferredfeedback',
-		navmethod: 'free',
-		shuffleanswers: 1,
-		visible: 1,
-	};
+  // Create quiz using correct API parameters
+  const quizParams: Record<string, string | number | boolean> = {
+    courseid: input.courseId,
+    name: input.name,
+    section: sectionNumber,
+    grade: totalMarks, // Maximum grade (not grademax)
+    questionsperpage: 1,
+    preferredbehaviour: 'deferredfeedback',
+    navmethod: 'free',
+    shuffleanswers: 1,
+    visible: 1,
+  };
 
-	if (input.timelimit && input.timelimit > 0) {
-		quizParams.timelimit = input.timelimit * 60;
-	}
+  if (input.timelimit && input.timelimit > 0) {
+    quizParams.timelimit = input.timelimit * 60; // Convert minutes to seconds
+  }
 
-	if (input.attempts && input.attempts > 0) {
-		quizParams.attempts = input.attempts;
-	} else {
-		quizParams.attempts = 0;
-	}
+  if (input.attempts && input.attempts > 0) {
+    quizParams.attempts = input.attempts;
+  } else {
+    quizParams.attempts = 0; // Unlimited
+  }
 
-	const quizResult = await moodlePost(
-		'local_activity_utils_create_quiz',
-		quizParams
-	);
+  const quizResult = (await moodlePost(
+    'local_activity_utils_create_quiz',
+    quizParams
+  )) as CreateQuizResponse;
 
-	const quizId = quizResult.id;
-	const courseModuleId = quizResult.coursemoduleid;
+  const quizId = quizResult.id;
+  const courseModuleId = quizResult.coursemoduleid;
 
-	if (!quizId) {
-		throw new Error('Failed to create quiz: No quiz ID returned');
-	}
+  if (!quizId) {
+    throw new Error('Failed to create quiz: No quiz ID returned');
+  }
 
-	try {
-		const categoryId = await getOrCreateQuestionCategory(input.courseId);
+  try {
+    const categoryId = await getOrCreateQuestionCategory(input.courseId);
 
-		for (let i = 0; i < input.questions.length; i++) {
-			const question = input.questions[i];
-			const questionId = await createQuestionInMoodle(categoryId, question);
+    for (let i = 0; i < input.questions.length; i++) {
+      const question = input.questions[i];
+      const questionResult = await createQuestionInMoodle(categoryId, question);
 
-			if (!questionId) {
-				throw new Error(`Failed to create question: ${question.name}`);
-			}
+      if (!questionResult.questionbankentryid) {
+        throw new Error(`Failed to create question: ${question.name}`);
+      }
 
-			console.log('Adding question to quiz:', {
-				quizId,
-				questionId,
-				page: i + 1,
-				maxMark: question.defaultMark,
-			});
+      // Use questionbankentryid (not questionid) as per the API documentation
+      const addResult = (await moodlePost(
+        'local_activity_utils_add_question_to_quiz',
+        {
+          quizid: quizId,
+          questionbankentryid: questionResult.questionbankentryid,
+          page: i + 1,
+          maxmark: question.defaultMark,
+        }
+      )) as AddQuestionToQuizResponse;
 
-			await moodlePost('local_activity_utils_add_question_to_quiz', {
-				quizid: quizId,
-				questionid: questionId,
-				page: i + 1,
-				maxmark: question.defaultMark,
-			});
-		}
+      if (!addResult.success) {
+        throw new Error(`Failed to add question to quiz: ${addResult.message}`);
+      }
+    }
 
-		await createAcademicAssessment({
-			moduleId: input.moduleId,
-			assessmentNumber: input.assessmentNumber as AssessmentNumber,
-			assessmentType: input.name,
-			totalMarks: totalMarks,
-			weight: input.weight,
-			termId: term.id,
-		});
-	} catch (error) {
-		await moodlePost('local_activity_utils_delete_quiz', {
-			cmid: courseModuleId,
-		});
-		throw error;
-	}
+    await createAcademicAssessment({
+      moduleId: input.moduleId,
+      assessmentNumber: input.assessmentNumber as AssessmentNumber,
+      assessmentType: input.name,
+      totalMarks: totalMarks,
+      weight: input.weight,
+      termId: term.id,
+    });
+  } catch (error) {
+    // Rollback: delete the quiz if question creation fails
+    await moodlePost('local_activity_utils_delete_quiz', {
+      cmid: courseModuleId,
+    });
+    throw error;
+  }
 
-	return { quizId, courseModuleId, totalMarks };
+  return { quizId, courseModuleId, totalMarks };
 }
 
 export async function getCourseQuizzes(
-	courseId: number
+  courseId: number
 ): Promise<MoodleQuiz[]> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
 
-	const result = await moodleGet('mod_quiz_get_quizzes_by_courses', {
-		'courseids[0]': courseId,
-	});
+  const result = await moodleGet('mod_quiz_get_quizzes_by_courses', {
+    'courseids[0]': courseId,
+  });
 
-	if (!result || !result.quizzes) {
-		return [];
-	}
+  if (!result || !result.quizzes) {
+    return [];
+  }
 
-	return result.quizzes as MoodleQuiz[];
+  return result.quizzes as MoodleQuiz[];
 }
 
 export async function getQuiz(quizId: number): Promise<MoodleQuiz | null> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
 
-	try {
-		const result = await moodleGet('local_activity_utils_get_quiz', {
-			quizid: quizId,
-		});
+  try {
+    const result = await moodleGet('local_activity_utils_get_quiz', {
+      quizid: quizId,
+    });
 
-		return result as MoodleQuiz;
-	} catch {
-		return null;
-	}
+    return result as MoodleQuiz;
+  } catch {
+    return null;
+  }
 }
 
 export async function deleteQuiz(cmid: number): Promise<void> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
 
-	await moodlePost('local_activity_utils_delete_quiz', {
-		cmid,
-	});
+  await moodlePost('local_activity_utils_delete_quiz', {
+    cmid,
+  });
+}
+
+// ============================================================================
+// Question Bank Operations
+// ============================================================================
+
+export async function getQuestionCategories(courseId: number) {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+
+  const result = await moodleGet(
+    'local_activity_utils_list_question_categories',
+    {
+      courseid: courseId,
+    }
+  );
+
+  return result;
+}
+
+export async function getQuestionsInCategory(
+  categoryId: number,
+  options?: {
+    includeSubcategories?: boolean;
+    qtype?: string;
+    limit?: number;
+    offset?: number;
+  }
+) {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+
+  const result = await moodleGet('local_activity_utils_get_questions', {
+    categoryid: categoryId,
+    includesubcategories: options?.includeSubcategories ? 1 : 0,
+    qtype: options?.qtype || '',
+    limit: options?.limit || 0,
+    offset: options?.offset || 0,
+  });
+
+  return result;
+}
+
+export async function removeQuestionFromQuiz(
+  quizId: number,
+  slot: number
+): Promise<void> {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+
+  await moodlePost('local_activity_utils_remove_question_from_quiz', {
+    quizid: quizId,
+    slot,
+  });
+}
+
+export async function reorderQuizQuestions(
+  quizId: number,
+  slots: Array<{ slotid: number; newslot: number; page?: number }>
+): Promise<void> {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+
+  await moodlePost('local_activity_utils_reorder_quiz_questions', {
+    quizid: quizId,
+    slots: JSON.stringify(slots),
+  });
+}
+
+export async function updateQuiz(
+  quizId: number,
+  params: {
+    name?: string;
+    intro?: string;
+    timeopen?: number;
+    timeclose?: number;
+    timelimit?: number;
+    attempts?: number;
+    grade?: number;
+    visible?: boolean;
+  }
+): Promise<void> {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+
+  const updateParams: Record<string, string | number | boolean | undefined> = {
+    quizid: quizId,
+  };
+
+  if (params.name !== undefined) updateParams.name = params.name;
+  if (params.intro !== undefined) updateParams.intro = params.intro;
+  if (params.timeopen !== undefined) updateParams.timeopen = params.timeopen;
+  if (params.timeclose !== undefined) updateParams.timeclose = params.timeclose;
+  if (params.timelimit !== undefined) updateParams.timelimit = params.timelimit;
+  if (params.attempts !== undefined) updateParams.attempts = params.attempts;
+  if (params.grade !== undefined) updateParams.grade = params.grade;
+  if (params.visible !== undefined)
+    updateParams.visible = params.visible ? 1 : 0;
+
+  await moodlePost('local_activity_utils_update_quiz', updateParams);
+}
+
+export async function addExistingQuestionToQuiz(
+  quizId: number,
+  questionBankEntryId: number,
+  options?: {
+    page?: number;
+    maxMark?: number;
+    requirePrevious?: boolean;
+  }
+): Promise<AddQuestionToQuizResponse> {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+
+  const result = await moodlePost('local_activity_utils_add_question_to_quiz', {
+    quizid: quizId,
+    questionbankentryid: questionBankEntryId,
+    page: options?.page || 0, // 0 = last page
+    maxmark: options?.maxMark,
+    requireprevious: options?.requirePrevious ? 1 : 0,
+  });
+
+  return result as AddQuestionToQuizResponse;
+}
+
+export async function deleteQuestion(
+  questionBankEntryId: number
+): Promise<void> {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+
+  await moodlePost('local_activity_utils_delete_question', {
+    questionbankentryid: questionBankEntryId,
+  });
 }
