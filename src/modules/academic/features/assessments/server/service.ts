@@ -1,4 +1,4 @@
-import type { assessments } from '@/core/database';
+import type { assessments, lmsAssessments } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -14,6 +14,29 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 			deleteRoles: ['academic'],
 			countRoles: ['academic'],
 		});
+	}
+
+	override async create(
+		data: typeof assessments.$inferInsert,
+		lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
+	) {
+		return withAuth(
+			async () =>
+				(this.repository as AssessmentRepository).create(data, lmsData),
+			['academic']
+		);
+	}
+
+	override async update(
+		id: number,
+		data: Partial<typeof assessments.$inferInsert>,
+		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
+	) {
+		return withAuth(
+			async () =>
+				(this.repository as AssessmentRepository).update(id, data, lmsData),
+			['academic']
+		);
 	}
 
 	async getByModuleId(moduleId: number) {

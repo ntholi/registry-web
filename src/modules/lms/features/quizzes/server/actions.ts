@@ -351,14 +351,20 @@ export async function createQuiz(input: CreateQuizInput) {
 			}
 		}
 
-		await createAcademicAssessment({
-			moduleId: input.moduleId,
-			assessmentNumber: input.assessmentNumber as AssessmentNumber,
-			assessmentType: input.name,
-			totalMarks: totalMarks,
-			weight: input.weight,
-			termId: term.id,
-		});
+		await createAcademicAssessment(
+			{
+				moduleId: input.moduleId,
+				assessmentNumber: input.assessmentNumber as AssessmentNumber,
+				assessmentType: input.name,
+				totalMarks: totalMarks,
+				weight: input.weight,
+				termId: term.id,
+			},
+			{
+				lmsId: quizId,
+				activityType: 'quiz',
+			}
+		);
 	} catch (error) {
 		// Rollback: delete the quiz if question creation fails
 		await moodlePost('local_activity_utils_delete_quiz', {

@@ -45,7 +45,10 @@ export default class AssessmentRepository extends BaseRepository<
 		});
 	}
 
-	override async create(data: typeof assessments.$inferInsert) {
+	override async create(
+		data: typeof assessments.$inferInsert,
+		lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
+	) {
 		const session = await auth();
 
 		const inserted = await db.transaction(async (tx) => {
@@ -69,6 +72,13 @@ export default class AssessmentRepository extends BaseRepository<
 				createdBy: session.user.id,
 			});
 
+			if (lmsData) {
+				await tx.insert(lmsAssessments).values({
+					...lmsData,
+					assessmentId: assessment.id,
+				});
+			}
+
 			return assessment;
 		});
 
@@ -77,7 +87,8 @@ export default class AssessmentRepository extends BaseRepository<
 
 	override async update(
 		id: number,
-		data: Partial<typeof assessments.$inferInsert>
+		data: Partial<typeof assessments.$inferInsert>,
+		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
 	) {
 		const session = await auth();
 
@@ -122,6 +133,13 @@ export default class AssessmentRepository extends BaseRepository<
 					newWeight: assessment.weight,
 					createdBy: session.user.id,
 				});
+			}
+
+			if (lmsData) {
+				await tx
+					.update(lmsAssessments)
+					.set(lmsData)
+					.where(eq(lmsAssessments.assessmentId, id));
 			}
 
 			return assessment;
