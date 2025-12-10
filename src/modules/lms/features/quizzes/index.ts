@@ -5,6 +5,7 @@ export {
 	QuizTabs,
 } from './components/details';
 export { default as QuizForm } from './components/form';
+export { default as QuizEditForm } from './components/form/QuizEditForm';
 export { QuizCard, QuizzesList } from './components/list';
 export {
 	addExistingQuestionToQuiz,

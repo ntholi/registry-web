@@ -23,6 +23,7 @@ import {
 	IconStar,
 	IconUsers,
 } from '@tabler/icons-react';
+import Link from 'next/link';
 import { useQueryState } from 'nuqs';
 import type { MoodleQuiz } from '../../types';
 import QuestionPreview from './QuestionPreview';
@@ -71,7 +72,7 @@ function getGradeMethodLabel(method: number): string {
 	}
 }
 
-export default function QuizTabs({ quiz, courseId: _courseId }: Props) {
+export default function QuizTabs({ quiz, courseId }: Props) {
 	const [activeTab, setActiveTab] = useQueryState('tab', {
 		defaultValue: 'preview',
 	});
@@ -91,6 +92,8 @@ export default function QuizTabs({ quiz, courseId: _courseId }: Props) {
 				{activeTab === 'preview' && (
 					<Box ml='auto' mt={-5}>
 						<Button
+							component={Link}
+							href={`/lms/courses/${courseId}/quizzes/${quiz.id}/edit`}
 							variant='light'
 							leftSection={<IconEdit size={16} />}
 							size='xs'
