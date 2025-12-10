@@ -2,17 +2,14 @@
 
 import {
 	Accordion,
-	ActionIcon,
 	Badge,
 	Box,
 	Button,
-	Checkbox,
 	Divider,
 	Grid,
 	Group,
 	NumberInput,
 	Paper,
-	Radio,
 	ScrollArea,
 	Select,
 	Stack,
@@ -30,8 +27,6 @@ import { notifications } from '@mantine/notifications';
 import {
 	IconAlertCircle,
 	IconCheck,
-	IconChevronDown,
-	IconChevronUp,
 	IconClock,
 	IconFileText,
 	IconPlus,
@@ -40,8 +35,8 @@ import {
 	IconStar,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useQueryState } from 'nuqs';
 import { useRouter } from 'next/navigation';
+import { useQueryState } from 'nuqs';
 import { useState } from 'react';
 import { removeQuestionFromQuiz, updateQuiz } from '../../server/actions';
 import type { MoodleQuiz, MoodleQuizQuestion, Question } from '../../types';
@@ -275,18 +270,6 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 		setPendingNewQuestions(pendingNewQuestions.filter((_, i) => i !== index));
 	};
 
-	const moveQuestion = (fromIndex: number, direction: 'up' | 'down') => {
-		const toIndex = direction === 'up' ? fromIndex - 1 : fromIndex + 1;
-		if (toIndex < 0 || toIndex >= form.values.questions.length) return;
-
-		const newQuestions = [...form.values.questions];
-		[newQuestions[fromIndex], newQuestions[toIndex]] = [
-			newQuestions[toIndex],
-			newQuestions[fromIndex],
-		];
-		form.setFieldValue('questions', newQuestions);
-	};
-
 	return (
 		<form onSubmit={handleSubmit}>
 			<Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt='xl'>
@@ -294,7 +277,10 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 					<Tabs.Tab value='general' leftSection={<IconFileText size={16} />}>
 						General
 					</Tabs.Tab>
-					<Tabs.Tab value='questions' leftSection={<IconAlertCircle size={16} />}>
+					<Tabs.Tab
+						value='questions'
+						leftSection={<IconAlertCircle size={16} />}
+					>
 						Questions
 						<Badge size='sm' variant='light' ml='xs'>
 							{allQuestions.length}
@@ -462,40 +448,13 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 									variant='separated'
 								>
 									{form.values.questions.map((question, index) => (
-										<Box key={question.name} pos='relative'>
-											<Group
-												gap={4}
-												pos='absolute'
-												left={-30}
-												top={16}
-												style={{ zIndex: 10 }}
-											>
-												<ActionIcon
-													size='xs'
-													variant='subtle'
-													color='gray'
-													onClick={() => moveQuestion(index, 'up')}
-													disabled={index === 0}
-												>
-													<IconChevronUp size={14} />
-												</ActionIcon>
-												<ActionIcon
-													size='xs'
-													variant='subtle'
-													color='gray'
-													onClick={() => moveQuestion(index, 'down')}
-													disabled={index === form.values.questions.length - 1}
-												>
-													<IconChevronDown size={14} />
-												</ActionIcon>
-											</Group>
-											<QuestionCard
-												question={question}
-												index={index}
-												onUpdate={updateExistingQuestion}
-												onDelete={deleteExistingQuestion}
-											/>
-										</Box>
+										<QuestionCard
+											key={question.name}
+											question={question}
+											index={index}
+											onUpdate={updateExistingQuestion}
+											onDelete={deleteExistingQuestion}
+										/>
 									))}
 
 									{pendingNewQuestions.map((question, index) => (
