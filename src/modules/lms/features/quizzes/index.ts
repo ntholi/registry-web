@@ -1,3 +1,9 @@
+export {
+	QuestionPreview,
+	QuizHeader,
+	QuizStatus,
+	QuizTabs,
+} from './components/details';
 export { default as QuizForm } from './components/form';
 export { QuizCard, QuizzesList } from './components/list';
 export {
