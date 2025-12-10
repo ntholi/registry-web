@@ -12,7 +12,7 @@ export async function generateQRCodeDataURL(
 }
 
 async function generateQRCodeWithLogo(reference: string): Promise<Buffer> {
-	const verificationUrl = `http://portal.co.ls/verify/certificate/${reference}`;
+	const verificationUrl = `https://www.portal.co.ls/verifications/certificate/${reference}`;
 
 	const qrCodeBuffer = await QRCode.toBuffer(verificationUrl, {
 		errorCorrectionLevel: 'H',
