@@ -129,6 +129,14 @@ export type MoodleQuizSection = {
 	shufflequestions: number;
 };
 
+export type MoodleQuestionAnswer = {
+	id: number;
+	answer: string;
+	answerformat: number;
+	fraction: number;
+	feedback?: string;
+};
+
 export type MoodleQuizQuestion = {
 	slotid: number;
 	slot: number;
@@ -145,6 +153,8 @@ export type MoodleQuizQuestion = {
 	defaultmark: number;
 	version: number;
 	status: string;
+	answers?: MoodleQuestionAnswer[];
+	correctanswer?: number;
 };
 
 export type MoodleQuiz = {
