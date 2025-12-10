@@ -22,7 +22,6 @@ import {
 	IconTextCaption,
 	IconX,
 } from '@tabler/icons-react';
-import { truncateText } from '@/shared/lib/utils/utils';
 import type { MoodleQuizQuestion } from '../../types';
 
 type Props = {
@@ -187,7 +186,7 @@ function QuestionCard({
 
 					<Stack gap={2} style={{ flex: 1 }}>
 						<Text size='sm' fw={600} lineClamp={1}>
-							{truncateText(questionText) || 'Untitled Question'}
+							{question.questionname || 'Untitled Question'}
 						</Text>
 						<Group gap='xs' align='center'>
 							<Badge
