@@ -18,7 +18,7 @@ export function extractTranscriptData(student: Student) {
 				const grade = module.grade || '';
 				const gradePoint = getGradePoints(grade);
 				if (gradePoint > 0) {
-					totalCredits += module.semesterModule?.credits || 0;
+					totalCredits += module.credits || 0;
 				}
 			});
 		});
@@ -30,7 +30,7 @@ export function extractTranscriptData(student: Student) {
 		program.semesters?.forEach((semester) => {
 			semester.studentModules?.forEach((module) => {
 				const grade = module.grade || '';
-				const credits = module.semesterModule?.credits || 0;
+				const credits = module.credits || 0;
 				const gradePoint = getGradePoints(grade);
 				if (gradePoint > 0) {
 					cgpaSum += gradePoint * credits;

@@ -4,6 +4,7 @@ import {
 	index,
 	integer,
 	pgTable,
+	real,
 	serial,
 	text,
 	timestamp,
@@ -167,6 +168,7 @@ export const studentModules = pgTable(
 		status: studentModuleStatus().notNull(),
 		marks: text().notNull(),
 		grade: grade().notNull(),
+		credits: real().notNull(),
 		studentSemesterId: integer()
 			.references(() => studentSemesters.id, { onDelete: 'cascade' })
 			.notNull(),

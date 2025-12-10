@@ -169,7 +169,7 @@ const TermSection = ({
 					key={`${sm.semesterModule?.module?.code}-${sm.id}-${smIdx}`}
 					courseCode={sm.semesterModule?.module?.code || ''}
 					courseName={sm.semesterModule?.module?.name || ''}
-					credits={sm.semesterModule?.credits || 0}
+					credits={sm.credits || 0}
 					grade={sm.grade || ''}
 				/>
 			))}

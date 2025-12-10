@@ -96,11 +96,11 @@ export default class StudentRepository extends BaseRepository<
 										grade: true,
 										marks: true,
 										status: true,
+										credits: true,
 									},
 									with: {
 										semesterModule: {
 											columns: {
-												credits: true,
 												type: true,
 											},
 											with: {
@@ -179,11 +179,11 @@ export default class StudentRepository extends BaseRepository<
 										grade: true,
 										marks: true,
 										status: true,
+										credits: true,
 									},
 									with: {
 										semesterModule: {
 											columns: {
-												credits: true,
 												type: true,
 											},
 											with: {
@@ -519,11 +519,11 @@ export default class StudentRepository extends BaseRepository<
 										grade: true,
 										marks: true,
 										status: true,
+										credits: true,
 									},
 									with: {
 										semesterModule: {
 											columns: {
-												credits: true,
 												type: true,
 											},
 											with: {

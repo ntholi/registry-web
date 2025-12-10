@@ -288,6 +288,13 @@
 			"when": 1765303086932,
 			"tag": "0040_boring_alex_power",
 			"breakpoints": true
+		},
+		{
+			"idx": 41,
+			"version": "7",
+			"when": 1765372378046,
+			"tag": "0041_medical_spirit",
+			"breakpoints": true
 		}
 	]
 }

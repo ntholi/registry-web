@@ -222,7 +222,7 @@ export default class BoeReportService {
 				code: sm.semesterModule.module?.code || '',
 				name: sm.semesterModule.module?.name || '',
 				grade: sm.grade,
-				credits: Number(sm.semesterModule.credits),
+				credits: Number(sm.credits),
 				status: (sm.status as StudentModuleStatus) || 'Active',
 			}));
 
@@ -240,7 +240,7 @@ export default class BoeReportService {
 						code: sm.semesterModule.module?.code || '',
 						name: sm.semesterModule.module?.name || '',
 						grade: sm.grade,
-						credits: Number(sm.semesterModule.credits),
+						credits: Number(sm.credits),
 						status: (sm.status as StudentModuleStatus) || 'Active',
 						semesterNumber: semNum,
 						semesterModuleId: sm.semesterModuleId,
@@ -291,8 +291,8 @@ export default class BoeReportService {
 							grade: sm.grade,
 							marks: sm.marks,
 							status: sm.status,
+							credits: sm.credits,
 							semesterModule: {
-								credits: sm.semesterModule.credits,
 								type: sm.semesterModule.type,
 								module: sm.semesterModule.module
 									? {
@@ -317,7 +317,7 @@ export default class BoeReportService {
 					studentName: student.name,
 					moduleCode: sm.semesterModule.module?.code || '',
 					moduleName: sm.semesterModule.module?.name || '',
-					credits: sm.semesterModule.credits,
+					credits: sm.credits,
 					marks: sm.marks,
 					grade: sm.grade,
 				})),

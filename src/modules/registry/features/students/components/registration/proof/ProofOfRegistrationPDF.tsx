@@ -267,7 +267,7 @@ export default function ProofOfRegistrationPDF({
 	);
 
 	const totalCredits = activeModules.reduce(
-		(sum: number, sm: StudentModule) => sum + (sm.semesterModule.credits || 0),
+		(sum: number, sm: StudentModule) => sum + (sm.credits || 0),
 		0
 	);
 
@@ -426,7 +426,7 @@ export default function ProofOfRegistrationPDF({
 											]}
 										>
 											<Text style={styles.moduleCredits}>
-												{studentModule.semesterModule.credits.toFixed(1)}
+												{studentModule.credits.toFixed(1)}
 											</Text>
 										</View>
 									</View>

@@ -258,17 +258,17 @@ export function summarizeModules(modules: StudentModule[]) {
 			return sum;
 		}
 		const gradePoints = getGradePoints(m.grade);
-		return gradePoints > 0 ? sum + m.semesterModule.credits : sum;
+		return gradePoints > 0 ? sum + m.credits : sum;
 	}, 0);
 	relevant.forEach((m) => {
 		const normalizedGrade = normalizeGradeSymbol(m.grade);
 		const gradePoints = getGradePoints(m.grade);
 		const gradeDefinition = getGradeBySymbol(m.grade);
-		creditsAttempted += m.semesterModule.credits;
+		creditsAttempted += m.credits;
 		if (normalizedGrade !== 'NM' && normalizedGrade !== '') {
-			creditsForGPA += m.semesterModule.credits;
+			creditsForGPA += m.credits;
 			if (gradeDefinition && gradeDefinition.points !== null) {
-				points += gradePoints * m.semesterModule.credits;
+				points += gradePoints * m.credits;
 			}
 		}
 	});
@@ -299,7 +299,7 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 		const semesterCreditsForGPA = semester.studentModules
 			.filter((sm) => !['Delete', 'Drop'].includes(sm.status || ''))
 			.filter((sm) => sm.grade && sm.grade !== 'NM')
-			.reduce((sum, sm) => sum + Number(sm.semesterModule.credits), 0);
+			.reduce((sum, sm) => sum + Number(sm.credits), 0);
 
 		cumulativeCreditsForGPA += semesterCreditsForGPA;
 

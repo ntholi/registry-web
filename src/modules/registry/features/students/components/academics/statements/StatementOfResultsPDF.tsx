@@ -522,7 +522,7 @@ export default function StatementOfResultsPDF({
 															styles.moduleText,
 														]}
 													>
-														{sm.semesterModule?.credits || 0}
+														{sm.credits || 0}
 													</Text>
 													<Text
 														style={[

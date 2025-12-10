@@ -171,7 +171,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																	status: sm.status,
 																	marks: sm.marks,
 																	grade: sm.grade,
-																	credits: sm.semesterModule.credits,
+																	credits: sm.credits,
 																}))}
 																showMarks={showMarks}
 																allSemesters={program.semesters.map((sem) => ({
