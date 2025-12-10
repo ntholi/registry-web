@@ -212,3 +212,75 @@ export type AddQuestionToQuizResponse = {
 	slotid: number;
 	slot: number;
 };
+
+export type QuizAttemptState =
+	| 'inprogress'
+	| 'overdue'
+	| 'finished'
+	| 'abandoned';
+
+export type QuestionState =
+	| 'gradedright'
+	| 'gradedwrong'
+	| 'gradedpartial'
+	| 'needsgrading'
+	| 'gaveup'
+	| 'todo'
+	| 'complete';
+
+export type QuizAttemptUser = {
+	id: number;
+	fullname: string;
+	profileimageurl: string;
+};
+
+export type QuizAttempt = {
+	id: number;
+	userid: number;
+	attempt: number;
+	state: QuizAttemptState;
+	timestart: number;
+	timefinish: number | null;
+	timemodified: number;
+	sumgrades: number | null;
+	user: QuizAttemptUser;
+};
+
+export type QuizAttemptQuestion = {
+	slot: number;
+	type: string;
+	name: string;
+	questiontext: string;
+	maxmark: number;
+	mark: number | null;
+	response: string | null;
+	rightanswer: string | null;
+	state: QuestionState;
+	feedback: string | null;
+	sequencenumber?: number;
+};
+
+export type QuizAttemptDetails = {
+	id: number;
+	userid: number;
+	state: QuizAttemptState;
+	timestart: number;
+	timefinish: number | null;
+	sumgrades: number | null;
+	grade: number | null;
+	questions: QuizAttemptQuestion[];
+};
+
+export type DBStudentInfo = {
+	stdNo: number;
+	name: string;
+};
+
+export type QuizSubmissionUser = {
+	id: number;
+	fullname: string;
+	profileimageurl: string;
+	attempts: QuizAttempt[];
+	bestAttempt: QuizAttempt | null;
+	dbStudent: DBStudentInfo | null;
+};

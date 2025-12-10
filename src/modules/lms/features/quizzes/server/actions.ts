@@ -4,6 +4,7 @@ import { auth } from '@/core/auth';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
+import { studentRepository } from '@/modules/lms/features/students/server/repository';
 import { getCurrentTerm } from '@/modules/registry/features/terms';
 import type {
 	AddQuestionToQuizResponse,
@@ -14,6 +15,9 @@ import type {
 	MultiChoiceQuestion,
 	NumericalQuestion,
 	Question,
+	QuizAttempt,
+	QuizAttemptDetails,
+	QuizSubmissionUser,
 	ShortAnswerQuestion,
 	TrueFalseQuestion,
 } from '../types';
@@ -569,4 +573,201 @@ export async function deleteQuestion(
 	await moodlePost('local_activity_utils_delete_question', {
 		questionbankentryid: questionBankEntryId,
 	});
+}
+
+async function enrichUsersWithDBStudentInfo(
+	users: Array<{
+		id: number;
+		fullname: string;
+		profileimageurl: string;
+	}>,
+	attemptsMap: Map<number, QuizAttempt[]>
+): Promise<Map<number, { stdNo: number; name: string }>> {
+	const usersWithAttempts = users
+		.filter((user) => {
+			const attempts = attemptsMap.get(user.id);
+			return attempts && attempts.length > 0;
+		})
+		.map((user) => user.id);
+
+	if (usersWithAttempts.length === 0) {
+		return new Map();
+	}
+
+	const dbStudents =
+		await studentRepository.findStudentsByLmsUserIdsForSubmissions(
+			usersWithAttempts
+		);
+
+	return new Map(
+		dbStudents.map((s) => [s.lmsUserId!, { stdNo: s.stdNo, name: s.name }])
+	);
+}
+
+export async function getQuizSubmissions(
+	quizId: number,
+	courseId: number
+): Promise<QuizSubmissionUser[]> {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const [attemptsResult, enrolledUsersResult] = await Promise.all([
+		moodleGet('local_activity_utils_get_quiz_attempts', {
+			quizid: quizId,
+		}),
+		moodleGet(
+			'core_enrol_get_enrolled_users',
+			{
+				courseid: courseId,
+			},
+			process.env.MOODLE_TOKEN
+		),
+	]);
+
+	const enrolledUsers = (
+		enrolledUsersResult as Array<{
+			id: number;
+			fullname: string;
+			profileimageurl: string;
+			roles: Array<{ shortname: string }>;
+		}>
+	).filter((user) => user.roles.some((role) => role.shortname === 'student'));
+
+	const attempts: QuizAttempt[] = attemptsResult?.attempts || [];
+
+	const attemptsMap = new Map<number, QuizAttempt[]>();
+	for (const attempt of attempts) {
+		const userAttempts = attemptsMap.get(attempt.userid) || [];
+		userAttempts.push(attempt);
+		attemptsMap.set(attempt.userid, userAttempts);
+	}
+
+	const dbStudentMap = await enrichUsersWithDBStudentInfo(
+		enrolledUsers,
+		attemptsMap
+	);
+
+	return enrolledUsers.map((user) => {
+		const userAttempts = attemptsMap.get(user.id) || [];
+		const finishedAttempts = userAttempts.filter(
+			(a) => a.state === 'finished' && a.sumgrades !== null
+		);
+		const bestAttempt =
+			finishedAttempts.length > 0
+				? finishedAttempts.reduce((best, current) =>
+						(current.sumgrades ?? 0) > (best.sumgrades ?? 0) ? current : best
+					)
+				: null;
+
+		return {
+			id: user.id,
+			fullname: user.fullname,
+			profileimageurl: user.profileimageurl,
+			attempts: userAttempts,
+			bestAttempt,
+			dbStudent: dbStudentMap.get(user.id) || null,
+		};
+	});
+}
+
+export async function getQuizAttemptDetails(
+	attemptId: number
+): Promise<QuizAttemptDetails | null> {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	try {
+		const result = await moodleGet(
+			'local_activity_utils_get_quiz_attempt_details',
+			{
+				attemptid: attemptId,
+			}
+		);
+
+		if (!result?.success) {
+			return null;
+		}
+
+		return result.attempt as QuizAttemptDetails;
+	} catch {
+		return null;
+	}
+}
+
+export async function gradeEssayQuestion(
+	attemptId: number,
+	slot: number,
+	mark: number,
+	comment?: string
+): Promise<{ success: boolean; message: string }> {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const params: Record<string, number | string> = {
+		attemptid: attemptId,
+		slot,
+		mark,
+	};
+
+	if (comment) {
+		params.comment = comment;
+	}
+
+	const result = await moodlePost(
+		'local_activity_utils_grade_essay_question',
+		params
+	);
+
+	return {
+		success: result?.success ?? false,
+		message: result?.message ?? 'Unknown error',
+	};
+}
+
+export async function addQuizAttemptFeedback(
+	attemptId: number,
+	feedback: string
+): Promise<{ success: boolean; message: string }> {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const result = await moodlePost('local_activity_utils_add_attempt_feedback', {
+		attemptid: attemptId,
+		feedback,
+	});
+
+	return {
+		success: result?.success ?? false,
+		message: result?.message ?? 'Unknown error',
+	};
+}
+
+export async function getQuizAttemptFeedback(
+	attemptId: number
+): Promise<string | null> {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	try {
+		const result = await moodleGet(
+			'local_activity_utils_get_attempt_feedback',
+			{
+				attemptid: attemptId,
+			}
+		);
+
+		return result?.feedback ?? null;
+	} catch {
+		return null;
+	}
 }

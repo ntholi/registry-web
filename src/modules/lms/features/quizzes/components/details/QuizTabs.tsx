@@ -26,6 +26,7 @@ import {
 import Link from 'next/link';
 import { useQueryState } from 'nuqs';
 import type { MoodleQuiz } from '../../types';
+import { QuizSubmissionsView } from '../submission';
 import QuestionPreview from './QuestionPreview';
 
 type Props = {
@@ -235,14 +236,11 @@ export default function QuizTabs({ quiz, courseId }: Props) {
 			</Tabs.Panel>
 
 			<Tabs.Panel value='submissions' pt='lg'>
-				<Paper p='xl' withBorder ta='center'>
-					<Stack align='center' gap='md'>
-						<ThemeIcon size='xl' variant='light' color='gray' radius='xl'>
-							<IconUsers size={24} />
-						</ThemeIcon>
-						<Text c='dimmed'>Submissions view coming soon...</Text>
-					</Stack>
-				</Paper>
+				<QuizSubmissionsView
+					quizId={quiz.id}
+					courseId={courseId}
+					maxGrade={quiz.grade}
+				/>
 			</Tabs.Panel>
 		</Tabs>
 	);
