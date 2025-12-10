@@ -22,6 +22,7 @@ import {
 	IconTextCaption,
 	IconX,
 } from '@tabler/icons-react';
+import { truncateText } from '@/shared/lib/utils/utils';
 import type { MoodleQuizQuestion } from '../../types';
 
 type Props = {
@@ -177,31 +178,36 @@ function QuestionCard({
 	return (
 		<Paper p='lg' withBorder>
 			<Stack gap='md'>
-				<Group justify='space-between' align='flex-start'>
-					<Group gap='sm'>
-						<ThemeIcon size='lg' variant='filled' color='dark' radius='xl'>
-							<Text size='sm' fw={600}>
-								{index + 1}
-							</Text>
-						</ThemeIcon>
-						<Stack gap={2}>
-							<Text size='sm' fw={500} lineClamp={1}>
-								{question.questionname}
-							</Text>
+				<Group wrap='nowrap' align='center'>
+					<ThemeIcon size='lg' radius='xl' variant='light' color='blue'>
+						<Text size='sm' fw={700}>
+							{index + 1}
+						</Text>
+					</ThemeIcon>
+
+					<Stack gap={2} style={{ flex: 1 }}>
+						<Text size='sm' fw={600} lineClamp={1}>
+							{truncateText(questionText) || 'Untitled Question'}
+						</Text>
+						<Group gap='xs' align='center'>
 							<Badge
-								size='xs'
-								variant='light'
-								color={typeInfo.color}
+								variant='transparent'
+								p={0}
+								size='sm'
+								c='dimmed'
+								fw={500}
+								style={{ textTransform: 'none' }}
 								leftSection={typeInfo.icon}
 							>
 								{typeInfo.label}
 							</Badge>
-						</Stack>
-					</Group>
-					<Badge variant='outline' size='sm'>
-						{question.defaultmark}{' '}
-						{question.defaultmark === 1 ? 'mark' : 'marks'}
-					</Badge>
+							<Divider orientation='vertical' h={12} />
+							<Text size='xs' c='dimmed'>
+								{question.defaultmark}{' '}
+								{question.defaultmark === 1 ? 'mark' : 'marks'}
+							</Text>
+						</Group>
+					</Stack>
 				</Group>
 
 				<Divider />
