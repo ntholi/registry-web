@@ -77,7 +77,6 @@ export default function QuizTabs({ quiz, courseId: _courseId }: Props) {
 	});
 
 	const questionsCount = quiz.questions?.length || 0;
-	const totalMarks = quiz.sumgrades || 0;
 
 	return (
 		<Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt='xl'>
@@ -105,24 +104,7 @@ export default function QuizTabs({ quiz, courseId: _courseId }: Props) {
 			<Tabs.Panel value='preview' pt='lg'>
 				<Grid gutter='lg'>
 					<Grid.Col span={{ base: 12, md: 8 }}>
-						<Stack gap='md'>
-							<Paper p='lg' withBorder>
-								<Stack gap='md'>
-									<Group gap='xs'>
-										<ThemeIcon size='sm' variant='light' color='gray'>
-											<IconEye size={14} />
-										</ThemeIcon>
-										<Title order={5}>Questions Preview</Title>
-									</Group>
-									<Divider />
-									<Text size='sm' c='dimmed'>
-										{questionsCount} question{questionsCount !== 1 ? 's' : ''} •{' '}
-										{totalMarks} total marks
-									</Text>
-								</Stack>
-							</Paper>
-							<QuestionPreview questions={quiz.questions || []} />
-						</Stack>
+						<QuestionPreview questions={quiz.questions || []} />
 					</Grid.Col>
 
 					<Grid.Col span={{ base: 12, md: 4 }}>
@@ -187,6 +169,14 @@ export default function QuizTabs({ quiz, courseId: _courseId }: Props) {
 									</Group>
 									<Divider />
 									<Stack gap='sm'>
+										<Box>
+											<Text size='xs' fw={500} c='dimmed' mb={4}>
+												Total Questions
+											</Text>
+											<Text size='lg' fw={600}>
+												{questionsCount}
+											</Text>
+										</Box>
 										<Box>
 											<Text size='xs' fw={500} c='dimmed' mb={4}>
 												Maximum Grade
