@@ -277,7 +277,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 										>
 											{form.values.questions.map((question, index) => (
 												<QuestionCard
-													key={index}
+													key={question.name}
 													question={question}
 													index={index}
 													onUpdate={updateQuestion}

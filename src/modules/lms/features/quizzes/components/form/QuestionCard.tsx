@@ -164,7 +164,7 @@ function MultiChoiceEditor({
 				Options (mark correct answer{question.single ? '' : 's'}):
 			</Text>
 			{question.answers.map((answer, i) => (
-				<Group key={i} gap='xs' align='flex-start'>
+				<Group key={answer.text} gap='xs' align='flex-start'>
 					{question.single ? (
 						<Radio
 							checked={answer.fraction === 1}
@@ -262,7 +262,7 @@ function ShortAnswerEditor({
 				Accepted answers:
 			</Text>
 			{question.answers.map((answer, i) => (
-				<Group key={i} gap='xs'>
+				<Group key={answer.text} gap='xs'>
 					<TextInput
 						placeholder={`Accepted answer ${i + 1}`}
 						value={answer.text}
@@ -401,7 +401,7 @@ function NumericalEditor({
 				Accepted numerical answers:
 			</Text>
 			{question.answers.map((answer, i) => (
-				<Group key={i} gap='xs' align='flex-end'>
+				<Group key={answer.answer} gap='xs' align='flex-end'>
 					<TextInput
 						label={i === 0 ? 'Answer' : undefined}
 						placeholder='e.g., 42 or 3.14'
