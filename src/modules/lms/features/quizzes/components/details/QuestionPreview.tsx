@@ -176,11 +176,11 @@ function QuestionCard({
 	const questionText = stripHtml(question.questiontext);
 
 	return (
-		<Paper p='lg' withBorder>
-			<Stack gap='md'>
-				<Group wrap='nowrap' align='center'>
-					<ThemeIcon size='lg' radius='xl' variant='light' color='blue'>
-						<Text size='sm' fw={700}>
+		<Paper p='md' withBorder>
+			<Stack gap='sm'>
+				<Group wrap='nowrap' align='center' gap='sm'>
+					<ThemeIcon size='md' radius='xl' variant='light' color='blue'>
+						<Text size='xs' fw={700}>
 							{index + 1}
 						</Text>
 					</ThemeIcon>
@@ -193,7 +193,7 @@ function QuestionCard({
 							<Badge
 								variant='transparent'
 								p={0}
-								size='sm'
+								size='xs'
 								c='dimmed'
 								fw={500}
 								style={{ textTransform: 'none' }}
@@ -210,21 +210,13 @@ function QuestionCard({
 					</Stack>
 				</Group>
 
-				<Divider />
+				<Text size='sm' style={{ lineHeight: 1.5 }}>
+					{questionText || 'No question text available'}
+				</Text>
+
+				<Divider label='Answer' labelPosition='center' />
 
 				<Box>
-					<Text size='sm' style={{ lineHeight: 1.6 }}>
-						{questionText || 'No question text available'}
-					</Text>
-				</Box>
-
-				<Box
-					p='md'
-					style={{
-						backgroundColor: 'var(--mantine-color-dark-7)',
-						borderRadius: 'var(--mantine-radius-md)',
-					}}
-				>
 					<QuestionAnswerPreview qtype={question.qtype} />
 				</Box>
 			</Stack>
