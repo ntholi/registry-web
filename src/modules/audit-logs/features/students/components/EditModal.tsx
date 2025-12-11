@@ -347,8 +347,8 @@ export default function EditStudentModal({ student }: Props) {
 							mt='md'
 							variant='light'
 						>
-							You have not provided a reason for this update. Click Update again
-							to proceed without a reason.
+							You have not provided a reason for this update. Provide the reason
+							then click Update to proceed.
 						</Alert>
 					)}
 
