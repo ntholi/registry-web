@@ -6,7 +6,6 @@ import { assignedModulesRepository } from '@/modules/academic/features/assigned-
 import type { MoodleCourse } from '../types';
 
 export async function getUserCourses(): Promise<MoodleCourse[]> {
-	await new Promise((resolve) => setTimeout(resolve, 500)); 
 	const session = await auth();
 	if (!session?.user) {
 		throw new Error('Unauthorized');
