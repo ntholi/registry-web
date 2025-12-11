@@ -10,14 +10,9 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import {
-	IconCheck,
-	IconCircleNumber1,
-	IconHash,
-	IconLetterA,
-	IconTextCaption,
-} from '@tabler/icons-react';
+import { IconCheck, IconCircleNumber1 } from '@tabler/icons-react';
 import type { MoodleQuizQuestion } from '../../types';
+import { getQuestionTypeInfo, stripHtml } from '../shared/utils';
 
 type Props = {
 	questions: MoodleQuizQuestion[];
@@ -204,59 +199,4 @@ function QuestionCard({
 			</Stack>
 		</Paper>
 	);
-}
-
-function stripHtml(html: string): string {
-	const div =
-		typeof document !== 'undefined' ? document.createElement('div') : null;
-	if (div) {
-		div.innerHTML = html;
-		return div.textContent || div.innerText || '';
-	}
-	return html.replace(/<[^>]*>/g, '');
-}
-
-function getQuestionTypeInfo(qtype: string): {
-	label: string;
-	color: string;
-	icon: React.ReactNode;
-} {
-	switch (qtype) {
-		case 'multichoice':
-			return {
-				label: 'Multiple Choice',
-				color: 'blue',
-				icon: <IconLetterA size={14} />,
-			};
-		case 'truefalse':
-			return {
-				label: 'True/False',
-				color: 'green',
-				icon: <IconCheck size={14} />,
-			};
-		case 'shortanswer':
-			return {
-				label: 'Short Answer',
-				color: 'orange',
-				icon: <IconTextCaption size={14} />,
-			};
-		case 'essay':
-			return {
-				label: 'Essay',
-				color: 'violet',
-				icon: <IconTextCaption size={14} />,
-			};
-		case 'numerical':
-			return {
-				label: 'Numerical',
-				color: 'cyan',
-				icon: <IconHash size={14} />,
-			};
-		default:
-			return {
-				label: qtype,
-				color: 'gray',
-				icon: <IconCircleNumber1 size={14} />,
-			};
-	}
 }

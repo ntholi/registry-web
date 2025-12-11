@@ -6,19 +6,21 @@ import {
 	Box,
 	Button,
 	Card,
+	Divider,
 	Group,
 	NumberInput,
 	Paper,
 	Stack,
 	Text,
 	Textarea,
-	TypographyStylesProvider,
+	ThemeIcon,
 } from '@mantine/core';
 import { IconCheck, IconEdit, IconMinus, IconX } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { gradeEssayQuestion } from '../../server/actions';
 import type { QuizAttemptQuestion } from '../../types';
+import { getQuestionTypeInfo, stripHtml } from '../shared/utils';
 
 type Props = {
 	question: QuizAttemptQuestion;
@@ -79,27 +81,6 @@ function getStateIcon(state: string) {
 	}
 }
 
-function getQuestionTypeLabel(type: string): string {
-	switch (type) {
-		case 'multichoice':
-			return 'Multiple Choice';
-		case 'truefalse':
-			return 'True/False';
-		case 'shortanswer':
-			return 'Short Answer';
-		case 'essay':
-			return 'Essay';
-		case 'numerical':
-			return 'Numerical';
-		case 'match':
-			return 'Matching';
-		case 'description':
-			return 'Description';
-		default:
-			return type;
-	}
-}
-
 export default function QuizQuestionReview({
 	question,
 	attemptId,
@@ -137,18 +118,42 @@ export default function QuizQuestionReview({
 	const needsGrading = question.state === 'needsgrading';
 	const isEssay = question.type === 'essay';
 	const canGrade = isEssay && (needsGrading || question.mark !== null);
+	const typeInfo = getQuestionTypeInfo(question.type);
+	const questionText = stripHtml(question.questiontext);
 
 	return (
 		<Paper withBorder p='md'>
 			<Stack gap='sm'>
-				<Group justify='space-between'>
-					<Group gap='xs'>
-						<Text size='sm' fw={600}>
-							Q{question.slot}
+				<Group wrap='nowrap' align='center' gap='sm'>
+					<ThemeIcon size='md' radius='xl' variant='light' color='blue'>
+						<Text size='xs' fw={700}>
+							{question.slot}
 						</Text>
-						<Badge size='xs' variant='light' color='gray'>
-							{getQuestionTypeLabel(question.type)}
-						</Badge>
+					</ThemeIcon>
+
+					<Stack gap={2} style={{ flex: 1 }}>
+						<Group gap='xs' align='center'>
+							<Badge
+								variant='transparent'
+								p={0}
+								size='xs'
+								c='dimmed'
+								fw={500}
+								style={{ textTransform: 'none' }}
+								leftSection={typeInfo.icon}
+							>
+								{typeInfo.label}
+							</Badge>
+							<Divider orientation='vertical' h={12} />
+							<Text size='xs' c='dimmed'>
+								{question.mark !== null
+									? `${question.mark.toFixed(1)} / ${question.maxmark}`
+									: `- / ${question.maxmark}`}
+							</Text>
+						</Group>
+					</Stack>
+
+					<Group gap='xs'>
 						<Badge
 							size='xs'
 							variant='light'
@@ -157,13 +162,6 @@ export default function QuizQuestionReview({
 						>
 							{getStateLabel(question.state)}
 						</Badge>
-					</Group>
-					<Group gap='xs'>
-						<Text size='sm' c='dimmed'>
-							{question.mark !== null
-								? `${question.mark.toFixed(1)} / ${question.maxmark}`
-								: `- / ${question.maxmark}`}
-						</Text>
 						{canGrade && !isGrading && (
 							<ActionIcon
 								size='sm'
@@ -176,43 +174,33 @@ export default function QuizQuestionReview({
 					</Group>
 				</Group>
 
-				<TypographyStylesProvider>
-					<Box
-						dangerouslySetInnerHTML={{ __html: question.questiontext }}
-						style={{ fontSize: '0.875rem' }}
-					/>
-				</TypographyStylesProvider>
+				<Text size='sm' style={{ lineHeight: 1.5 }}>
+					{questionText || 'No question text available'}
+				</Text>
 
 				{question.response && (
 					<Box>
-						<Text size='xs' c='dimmed' mb={4}>
-							Student Response
-						</Text>
+						<Divider label='Student Response' labelPosition='center' mb='xs' />
 						<Card p='sm' withBorder>
-							{isEssay ? (
-								<TypographyStylesProvider>
-									<Box
-										dangerouslySetInnerHTML={{ __html: question.response }}
-										style={{ fontSize: '0.875rem' }}
-									/>
-								</TypographyStylesProvider>
-							) : (
-								<Text size='sm'>{question.response}</Text>
-							)}
+							<Text size='sm'>
+								{isEssay ? stripHtml(question.response) : question.response}
+							</Text>
 						</Card>
 					</Box>
 				)}
 
-				{question.rightanswer && !isEssay && question.state === 'gradedwrong' && (
-					<Box>
-						<Text size='xs' c='dimmed' mb={4}>
-							Correct Answer
-						</Text>
-						<Text size='sm' c='green'>
-							{question.rightanswer}
-						</Text>
-					</Box>
-				)}
+				{question.rightanswer &&
+					!isEssay &&
+					question.state === 'gradedwrong' && (
+						<Box>
+							<Text size='xs' c='dimmed' mb={4}>
+								Correct Answer
+							</Text>
+							<Text size='sm' c='green'>
+								{question.rightanswer}
+							</Text>
+						</Box>
+					)}
 
 				{question.feedback && !isGrading && (
 					<Box>
