@@ -32,6 +32,11 @@
 5.  **No Comments**:
     *   Never generate comments in code. Keep code clean and self-explanatory.
 
+6.  **local_activity_utils first**:
+    *   Study https://github.com/ntholi/moodle-local_activity_utils/blob/master/README.md before touching Moodle APIs or making edits, especially helpers prefixed with `local_activity_utils_*` (they are part of my project).
+    *   If you need behavior that isn’t already defined there, tell me so I can extend `local_activity_utils`.
+    *   Any new `lms` module functionality must have every server action (`*/lms/**/actions.ts`) call the `local_activity_utils` helpers unless the required behavior already exists in the standard Moodle API.
+
 ---
 
 ## Directory Structure

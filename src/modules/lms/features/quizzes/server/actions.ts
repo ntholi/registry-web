@@ -385,7 +385,14 @@ export async function getCourseQuizzes(
 		return [];
 	}
 
-	return result.quizzes as MoodleQuiz[];
+	return (
+		result.quizzes as Array<
+			MoodleQuiz & { cmid?: number; coursemodule?: number }
+		>
+	).map((quiz) => ({
+		...quiz,
+		coursemoduleid: quiz.coursemoduleid ?? quiz.coursemodule ?? quiz.cmid ?? 0,
+	}));
 }
 
 export async function getQuiz(quizId: number): Promise<MoodleQuiz | null> {
@@ -642,8 +649,8 @@ export async function getQuizSubmissions(
 		const bestAttempt =
 			finishedAttempts.length > 0
 				? finishedAttempts.reduce((best, current) =>
-						(current.sumgrades ?? 0) > (best.sumgrades ?? 0) ? current : best
-					)
+					(current.sumgrades ?? 0) > (best.sumgrades ?? 0) ? current : best
+				)
 				: null;
 
 		return {
