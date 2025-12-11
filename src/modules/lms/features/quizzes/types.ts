@@ -98,17 +98,16 @@ export type Question =
 	| EssayQuestion
 	| NumericalQuestion;
 
-
 export type QuizSettings = {
-	timeOpen?: number; 
-	timeClose?: number; 
-	timelimit?: number; 
+	timeOpen?: number;
+	timeClose?: number;
+	timelimit?: number;
 	overdueHandling?: 'autosubmit' | 'graceperiod' | 'autoabandon';
-	gracePeriod?: number; 
-	grade?: number; 
-	gradeMethod?: 1 | 2 | 3 | 4; 
-	attempts?: number; 
-	questionsPerPage?: number; 
+	gracePeriod?: number;
+	grade?: number;
+	gradeMethod?: 1 | 2 | 3 | 4;
+	attempts?: number;
+	questionsPerPage?: number;
 	navMethod?: 'free' | 'sequential';
 	shuffleAnswers?: boolean;
 	preferredBehaviour?:

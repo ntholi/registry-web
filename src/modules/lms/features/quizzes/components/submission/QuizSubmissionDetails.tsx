@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import {
 	IconClipboardList,
+	IconInfoCircle,
 	IconMessageCircle,
 	IconUsers,
 } from '@tabler/icons-react';
@@ -43,7 +44,7 @@ export default function QuizSubmissionDetails({
 	const [selectedAttemptId, setSelectedAttemptId] = useState<number | null>(
 		null
 	);
-	const [activeTab, setActiveTab] = useState<string | null>('questions');
+	const [activeTab, setActiveTab] = useState<string | null>('summary');
 
 	useEffect(() => {
 		if (selectedUser?.attempts?.length) {
@@ -154,48 +155,48 @@ export default function QuizSubmissionDetails({
 					</Text>
 				</Stack>
 			) : attemptDetails ? (
-				<>
-					<QuizAttemptSummary attempt={attemptDetails} maxGrade={maxGrade} />
+				<Tabs value={activeTab} onChange={setActiveTab} variant='outline'>
+					<TabsList>
+						<TabsTab value='summary' leftSection={<IconInfoCircle size={16} />}>
+							Summary
+						</TabsTab>
+						<TabsTab
+							value='questions'
+							leftSection={<IconClipboardList size={16} />}
+						>
+							Questions ({attemptDetails.questions.length})
+						</TabsTab>
+						<TabsTab
+							value='feedback'
+							leftSection={<IconMessageCircle size={16} />}
+						>
+							Feedback
+						</TabsTab>
+					</TabsList>
 
-					<Tabs value={activeTab} onChange={setActiveTab} variant='outline'>
-						<TabsList>
-							<TabsTab
-								value='questions'
-								leftSection={<IconClipboardList size={16} />}
-							>
-								Questions ({attemptDetails.questions.length})
-							</TabsTab>
-							<TabsTab
-								value='feedback'
-								leftSection={<IconMessageCircle size={16} />}
-							>
-								Feedback
-							</TabsTab>
-						</TabsList>
+					<TabsPanel value='summary' pt='md'>
+						<QuizAttemptSummary attempt={attemptDetails} maxGrade={maxGrade} />
+					</TabsPanel>
 
-						<TabsPanel value='questions' pt='md'>
-							<ScrollArea h='calc(100vh - 550px)' type='auto'>
-								<Stack gap='md'>
-									{attemptDetails.questions.map((question) => (
-										<QuizQuestionReview
-											key={question.slot}
-											question={question}
-											attemptId={attemptDetails.id}
-											quizId={quizId}
-										/>
-									))}
-								</Stack>
-							</ScrollArea>
-						</TabsPanel>
+					<TabsPanel value='questions' pt='md'>
+						<ScrollArea h='calc(100vh - 550px)' type='auto'>
+							<Stack gap='md'>
+								{attemptDetails.questions.map((question) => (
+									<QuizQuestionReview
+										key={question.slot}
+										question={question}
+										attemptId={attemptDetails.id}
+										quizId={quizId}
+									/>
+								))}
+							</Stack>
+						</ScrollArea>
+					</TabsPanel>
 
-						<TabsPanel value='feedback' pt='md'>
-							<QuizFeedbackPanel
-								attemptId={attemptDetails.id}
-								quizId={quizId}
-							/>
-						</TabsPanel>
-					</Tabs>
-				</>
+					<TabsPanel value='feedback' pt='md'>
+						<QuizFeedbackPanel attemptId={attemptDetails.id} quizId={quizId} />
+					</TabsPanel>
+				</Tabs>
 			) : (
 				<Stack align='center' py='xl'>
 					<Text c='dimmed' size='sm'>

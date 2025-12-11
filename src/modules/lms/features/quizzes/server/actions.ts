@@ -96,10 +96,6 @@ async function getOrCreateQuestionCategory(courseId: number): Promise<number> {
 	return result.id;
 }
 
-
-
-
-
 async function createMultiChoiceQuestion(
 	categoryId: number,
 	question: MultiChoiceQuestion
@@ -251,10 +247,6 @@ async function createQuestionInMoodle(
 	}
 }
 
-
-
-
-
 type CreateQuizInput = {
 	courseId: number;
 	moduleId: number;
@@ -293,12 +285,11 @@ export async function createQuiz(input: CreateQuizInput) {
 
 	const sectionNumber = await getOrCreateTestsQuizzesSection(input.courseId);
 
-	
 	const quizParams: Record<string, string | number | boolean> = {
 		courseid: input.courseId,
 		name: input.name,
 		section: sectionNumber,
-		grade: totalMarks, 
+		grade: totalMarks,
 		questionsperpage: 1,
 		preferredbehaviour: 'deferredfeedback',
 		navmethod: 'free',
@@ -307,13 +298,13 @@ export async function createQuiz(input: CreateQuizInput) {
 	};
 
 	if (input.timelimit && input.timelimit > 0) {
-		quizParams.timelimit = input.timelimit * 60; 
+		quizParams.timelimit = input.timelimit * 60;
 	}
 
 	if (input.attempts && input.attempts > 0) {
 		quizParams.attempts = input.attempts;
 	} else {
-		quizParams.attempts = 0; 
+		quizParams.attempts = 0;
 	}
 
 	const quizResult = (await moodlePost(
@@ -339,7 +330,6 @@ export async function createQuiz(input: CreateQuizInput) {
 				throw new Error(`Failed to create question: ${question.name}`);
 			}
 
-			
 			const addResult = (await moodlePost(
 				'local_activity_utils_add_question_to_quiz',
 				{
@@ -370,7 +360,6 @@ export async function createQuiz(input: CreateQuizInput) {
 			}
 		);
 	} catch (error) {
-		
 		await moodlePost('local_activity_utils_delete_quiz', {
 			cmid: courseModuleId,
 		});
@@ -426,10 +415,6 @@ export async function deleteQuiz(cmid: number): Promise<void> {
 		cmid,
 	});
 }
-
-
-
-
 
 export async function getQuestionCategories(courseId: number) {
 	const session = await auth();
@@ -554,7 +539,7 @@ export async function addExistingQuestionToQuiz(
 	const result = await moodlePost('local_activity_utils_add_question_to_quiz', {
 		quizid: quizId,
 		questionbankentryid: questionBankEntryId,
-		page: options?.page || 0, 
+		page: options?.page || 0,
 		maxmark: options?.maxMark,
 		requireprevious: options?.requirePrevious ? 1 : 0,
 	});
