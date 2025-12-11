@@ -96,9 +96,9 @@ async function getOrCreateQuestionCategory(courseId: number): Promise<number> {
 	return result.id;
 }
 
-// ============================================================================
-// Question Creation Functions - Using correct API function names
-// ============================================================================
+
+
+
 
 async function createMultiChoiceQuestion(
 	categoryId: number,
@@ -251,9 +251,9 @@ async function createQuestionInMoodle(
 	}
 }
 
-// ============================================================================
-// Quiz CRUD Operations
-// ============================================================================
+
+
+
 
 type CreateQuizInput = {
 	courseId: number;
@@ -293,12 +293,12 @@ export async function createQuiz(input: CreateQuizInput) {
 
 	const sectionNumber = await getOrCreateTestsQuizzesSection(input.courseId);
 
-	// Create quiz using correct API parameters
+	
 	const quizParams: Record<string, string | number | boolean> = {
 		courseid: input.courseId,
 		name: input.name,
 		section: sectionNumber,
-		grade: totalMarks, // Maximum grade (not grademax)
+		grade: totalMarks, 
 		questionsperpage: 1,
 		preferredbehaviour: 'deferredfeedback',
 		navmethod: 'free',
@@ -307,13 +307,13 @@ export async function createQuiz(input: CreateQuizInput) {
 	};
 
 	if (input.timelimit && input.timelimit > 0) {
-		quizParams.timelimit = input.timelimit * 60; // Convert minutes to seconds
+		quizParams.timelimit = input.timelimit * 60; 
 	}
 
 	if (input.attempts && input.attempts > 0) {
 		quizParams.attempts = input.attempts;
 	} else {
-		quizParams.attempts = 0; // Unlimited
+		quizParams.attempts = 0; 
 	}
 
 	const quizResult = (await moodlePost(
@@ -339,7 +339,7 @@ export async function createQuiz(input: CreateQuizInput) {
 				throw new Error(`Failed to create question: ${question.name}`);
 			}
 
-			// Use questionbankentryid (not questionid) as per the API documentation
+			
 			const addResult = (await moodlePost(
 				'local_activity_utils_add_question_to_quiz',
 				{
@@ -370,7 +370,7 @@ export async function createQuiz(input: CreateQuizInput) {
 			}
 		);
 	} catch (error) {
-		// Rollback: delete the quiz if question creation fails
+		
 		await moodlePost('local_activity_utils_delete_quiz', {
 			cmid: courseModuleId,
 		});
@@ -427,9 +427,9 @@ export async function deleteQuiz(cmid: number): Promise<void> {
 	});
 }
 
-// ============================================================================
-// Question Bank Operations
-// ============================================================================
+
+
+
 
 export async function getQuestionCategories(courseId: number) {
 	const session = await auth();
@@ -554,7 +554,7 @@ export async function addExistingQuestionToQuiz(
 	const result = await moodlePost('local_activity_utils_add_question_to_quiz', {
 		quizid: quizId,
 		questionbankentryid: questionBankEntryId,
-		page: options?.page || 0, // 0 = last page
+		page: options?.page || 0, 
 		maxmark: options?.maxMark,
 		requireprevious: options?.requirePrevious ? 1 : 0,
 	});

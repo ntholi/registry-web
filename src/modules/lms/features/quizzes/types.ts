@@ -98,17 +98,17 @@ export type Question =
 	| EssayQuestion
 	| NumericalQuestion;
 
-// Quiz settings types matching the Moodle API
+
 export type QuizSettings = {
-	timeOpen?: number; // Unix timestamp
-	timeClose?: number; // Unix timestamp
-	timelimit?: number; // Seconds
+	timeOpen?: number; 
+	timeClose?: number; 
+	timelimit?: number; 
 	overdueHandling?: 'autosubmit' | 'graceperiod' | 'autoabandon';
-	gracePeriod?: number; // Seconds
-	grade?: number; // Maximum grade
-	gradeMethod?: 1 | 2 | 3 | 4; // 1=highest, 2=average, 3=first, 4=last
-	attempts?: number; // 0 = unlimited
-	questionsPerPage?: number; // 0 = all on one page
+	gracePeriod?: number; 
+	grade?: number; 
+	gradeMethod?: 1 | 2 | 3 | 4; 
+	attempts?: number; 
+	questionsPerPage?: number; 
 	navMethod?: 'free' | 'sequential';
 	shuffleAnswers?: boolean;
 	preferredBehaviour?:
