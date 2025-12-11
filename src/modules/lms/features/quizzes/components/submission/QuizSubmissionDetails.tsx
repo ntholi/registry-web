@@ -179,7 +179,6 @@ export default function QuizSubmissionDetails({
 					</TabsPanel>
 
 					<TabsPanel value='questions' pt='md'>
-						<ScrollArea h='calc(100vh - 550px)' type='auto'>
 							<Stack gap='md'>
 								{attemptDetails.questions.map((question) => (
 									<QuizQuestionReview
@@ -190,7 +189,6 @@ export default function QuizSubmissionDetails({
 									/>
 								))}
 							</Stack>
-						</ScrollArea>
 					</TabsPanel>
 
 					<TabsPanel value='feedback' pt='md'>

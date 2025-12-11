@@ -8,6 +8,7 @@ import {
 	Card,
 	Group,
 	NumberInput,
+	Paper,
 	Stack,
 	Text,
 	Textarea,
@@ -138,7 +139,7 @@ export default function QuizQuestionReview({
 	const canGrade = isEssay && (needsGrading || question.mark !== null);
 
 	return (
-		<Card withBorder p='md'>
+		<Paper withBorder p='md'>
 			<Stack gap='sm'>
 				<Group justify='space-between'>
 					<Group gap='xs'>
@@ -175,28 +176,19 @@ export default function QuizQuestionReview({
 					</Group>
 				</Group>
 
-				<Box>
-					<Text size='xs' c='dimmed' mb={4}>
-						Question
-					</Text>
-					<TypographyStylesProvider>
-						<Box
-							dangerouslySetInnerHTML={{ __html: question.questiontext }}
-							style={{ fontSize: '0.875rem' }}
-						/>
-					</TypographyStylesProvider>
-				</Box>
+				<TypographyStylesProvider>
+					<Box
+						dangerouslySetInnerHTML={{ __html: question.questiontext }}
+						style={{ fontSize: '0.875rem' }}
+					/>
+				</TypographyStylesProvider>
 
 				{question.response && (
 					<Box>
 						<Text size='xs' c='dimmed' mb={4}>
 							Student Response
 						</Text>
-						<Card
-							p='sm'
-							bg='gray.0'
-							style={{ border: '1px solid var(--mantine-color-gray-3)' }}
-						>
+						<Card p='sm' withBorder>
 							{isEssay ? (
 								<TypographyStylesProvider>
 									<Box
@@ -281,6 +273,6 @@ export default function QuizQuestionReview({
 					</Stack>
 				)}
 			</Stack>
-		</Card>
+		</Paper>
 	);
 }
