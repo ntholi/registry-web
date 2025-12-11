@@ -32,7 +32,7 @@ export default class StudentModuleAuditLogRepository extends BaseRepository<
 			orderBy: (records, { desc }) => [desc(records.updatedAt)],
 			with: {
 				updatedByUser: {
-					columns: { id: true, name: true, email: true },
+					columns: { id: true, name: true, email: true, image: true },
 				},
 			},
 		});

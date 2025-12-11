@@ -24,6 +24,7 @@ interface AuditEntry {
 		id: string;
 		name: string | null;
 		email: string | null;
+		image: string | null;
 	} | null;
 }
 
@@ -201,7 +202,12 @@ export default function AuditHistoryTab({
 						<Timeline.Item
 							key={entry.id}
 							bullet={
-								<Avatar size={28} radius='xl' color='blue'>
+								<Avatar
+									size={28}
+									radius='xl'
+									color='blue'
+									src={entry.updatedByUser?.image || undefined}
+								>
 									{initials}
 								</Avatar>
 							}
