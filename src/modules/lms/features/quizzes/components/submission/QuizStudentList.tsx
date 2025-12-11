@@ -42,7 +42,7 @@ export default function QuizStudentList({
 	const notAttemptedUsers = users.filter((u) => u.attempts.length === 0);
 
 	return (
-		<ScrollArea h='calc(100vh - 350px)' type='auto'>
+		<ScrollArea>
 			<Stack gap={4}>
 				<Text size='xs' fw={600} tt='uppercase' pb='xs'>
 					Attempted ({attemptedUsers.length})

@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Group, Select, Text } from '@mantine/core';
+import { Badge, Group, Select } from '@mantine/core';
 import type { QuizAttempt } from '../../types';
 
 type Props = {
@@ -67,11 +67,6 @@ export default function QuizAttemptSelector({
 				<Badge size='sm' color={getStateColor(attempt.state)} variant='light'>
 					{getStateLabel(attempt.state)}
 				</Badge>
-				{attempt.sumgrades !== null && (
-					<Text size='sm' fw={500}>
-						{attempt.sumgrades.toFixed(1)}/{maxGrade}
-					</Text>
-				)}
 			</Group>
 		);
 	}
