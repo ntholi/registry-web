@@ -52,7 +52,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			assessmentNumber: '',
 			assessmentType: '',
 			weight: 0,
-			timelimit: null,
+			timelimit: 0,
 			attempts: 1,
 			questions: [],
 		},
