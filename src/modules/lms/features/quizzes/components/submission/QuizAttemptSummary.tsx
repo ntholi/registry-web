@@ -6,19 +6,11 @@ import {
 	Divider,
 	Group,
 	Paper,
-	Progress,
 	Stack,
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import {
-	IconCalendarTime,
-	IconCheck,
-	IconClock,
-	IconMinus,
-	IconTarget,
-	IconX,
-} from '@tabler/icons-react';
+import { IconCalendarTime, IconClock, IconTarget } from '@tabler/icons-react';
 import type { QuizAttemptDetails } from '../../types';
 
 type Props = {
@@ -156,65 +148,44 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 
 				<Divider />
 
-				<Box>
-					<Text size='xs' c='dimmed' mb='xs'>
-						Question Results
-					</Text>
-					<Progress.Root size='lg'>
-						<Progress.Section
-							value={(correctCount / totalQuestions) * 100}
-							color='green'
-						>
-							<Progress.Label>{correctCount}</Progress.Label>
-						</Progress.Section>
-						<Progress.Section
-							value={(partialCount / totalQuestions) * 100}
-							color='yellow'
-						>
-							<Progress.Label>{partialCount}</Progress.Label>
-						</Progress.Section>
-						<Progress.Section
-							value={(incorrectCount / totalQuestions) * 100}
-							color='red'
-						>
-							<Progress.Label>{incorrectCount}</Progress.Label>
-						</Progress.Section>
-						<Progress.Section
-							value={(needsGradingCount / totalQuestions) * 100}
-							color='orange'
-						>
-							<Progress.Label>{needsGradingCount}</Progress.Label>
-						</Progress.Section>
-					</Progress.Root>
-					<Group gap='md' mt='xs'>
-						<Group gap={4}>
-							<ThemeIcon size='xs' color='green' variant='filled'>
-								<IconCheck size={10} />
-							</ThemeIcon>
-							<Text size='xs'>Correct: {correctCount}</Text>
-						</Group>
-						<Group gap={4}>
-							<ThemeIcon size='xs' color='yellow' variant='filled'>
-								<IconMinus size={10} />
-							</ThemeIcon>
-							<Text size='xs'>Partial: {partialCount}</Text>
-						</Group>
-						<Group gap={4}>
-							<ThemeIcon size='xs' color='red' variant='filled'>
-								<IconX size={10} />
-							</ThemeIcon>
-							<Text size='xs'>Incorrect: {incorrectCount}</Text>
-						</Group>
-						{needsGradingCount > 0 && (
-							<Group gap={4}>
-								<ThemeIcon size='xs' color='orange' variant='filled'>
-									<IconTarget size={10} />
-								</ThemeIcon>
-								<Text size='xs'>Needs Grading: {needsGradingCount}</Text>
-							</Group>
-						)}
-					</Group>
-				</Box>
+				<Group gap='xl'>
+					<Box>
+						<Text size='xs' c='dimmed'>
+							Correct
+						</Text>
+						<Text size='sm' c='green' fw={500}>
+							{correctCount}
+						</Text>
+					</Box>
+					{partialCount > 0 && (
+						<Box>
+							<Text size='xs' c='dimmed'>
+								Partial
+							</Text>
+							<Text size='sm' c='yellow' fw={500}>
+								{partialCount}
+							</Text>
+						</Box>
+					)}
+					<Box>
+						<Text size='xs' c='dimmed'>
+							Incorrect
+						</Text>
+						<Text size='sm' c='red' fw={500}>
+							{incorrectCount}
+						</Text>
+					</Box>
+					{needsGradingCount > 0 && (
+						<Box>
+							<Text size='xs' c='dimmed'>
+								Pending
+							</Text>
+							<Text size='sm' c='orange' fw={500}>
+								{needsGradingCount}
+							</Text>
+						</Box>
+					)}
+				</Group>
 			</Stack>
 		</Paper>
 	);
