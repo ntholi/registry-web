@@ -10,7 +10,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { IconCalendarTime, IconClock, IconTarget } from '@tabler/icons-react';
+import { IconCalendarTime, IconClock } from '@tabler/icons-react';
 import type { QuizAttemptDetails } from '../../types';
 
 type Props = {
@@ -55,7 +55,6 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 	const needsGradingCount = attempt.questions.filter(
 		(q) => q.state === 'needsgrading'
 	).length;
-	const totalQuestions = attempt.questions.length;
 
 	const gradePercentage =
 		attempt.sumgrades !== null ? (attempt.sumgrades / maxGrade) * 100 : null;
@@ -69,7 +68,7 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 
 	return (
 		<Paper p='md' withBorder>
-			<Stack gap='md'>
+			<Stack gap='lg'>
 				<Group justify='space-between' wrap='nowrap'>
 					<Box>
 						<Text size='xs' c='dimmed' mb={4}>
@@ -106,7 +105,7 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 
 				<Divider />
 
-				<Group gap='xl'>
+				<Group gap={50}>
 					<Group gap='xs'>
 						<ThemeIcon size='sm' variant='light' color='gray'>
 							<IconCalendarTime size={14} />
@@ -132,23 +131,11 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 							</Text>
 						</Box>
 					</Group>
-
-					<Group gap='xs'>
-						<ThemeIcon size='sm' variant='light' color='gray'>
-							<IconTarget size={14} />
-						</ThemeIcon>
-						<Box>
-							<Text size='xs' c='dimmed'>
-								Questions
-							</Text>
-							<Text size='sm'>{totalQuestions}</Text>
-						</Box>
-					</Group>
 				</Group>
 
 				<Divider />
 
-				<Group gap='xl'>
+				<Group gap={80}>
 					<Box>
 						<Text size='xs' c='dimmed'>
 							Correct
@@ -175,7 +162,6 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 							{incorrectCount}
 						</Text>
 					</Box>
-					{needsGradingCount > 0 && (
 						<Box>
 							<Text size='xs' c='dimmed'>
 								Pending
@@ -184,7 +170,6 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 								{needsGradingCount}
 							</Text>
 						</Box>
-					)}
 				</Group>
 			</Stack>
 		</Paper>
