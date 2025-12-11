@@ -101,17 +101,8 @@ export default function AssignmentForm({
 			} else {
 				formSetFieldValueRef.current('assessmentNumber', 'CW1');
 			}
-
-			const currentTotalWeight = assessments.reduce(
-				(sum, a) => sum + a.weight,
-				0
-			);
-
-			const remainingWeight = Math.max(0, 100 - currentTotalWeight);
-			formSetFieldValueRef.current('weight', remainingWeight);
 		} else {
 			formSetFieldValueRef.current('assessmentNumber', 'CW1');
-			formSetFieldValueRef.current('weight', 100);
 		}
 	}, [opened, assessments]);
 

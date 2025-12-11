@@ -96,17 +96,8 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			} else {
 				formSetFieldValueRef.current('assessmentNumber', 'CW1');
 			}
-
-			const currentTotalWeight = assessments.reduce(
-				(sum, a) => sum + a.weight,
-				0
-			);
-
-			const remainingWeight = Math.max(0, 100 - currentTotalWeight);
-			formSetFieldValueRef.current('weight', remainingWeight);
 		} else {
 			formSetFieldValueRef.current('assessmentNumber', 'CW1');
-			formSetFieldValueRef.current('weight', 100);
 		}
 	}, [opened, assessments]);
 
@@ -194,7 +185,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			<Modal
 				opened={opened}
 				onClose={close}
-				title='Create Assessment'
+				title='Create Test/Quiz Assessment'
 				fullScreen
 				styles={{
 					content: { display: 'flex', flexDirection: 'column' },
