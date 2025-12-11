@@ -20,6 +20,7 @@ import {
 } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import { truncateText } from '@/shared/lib/utils/utils';
+import { DeleteButton } from '@/shared/ui/adease';
 import type {
 	EssayQuestion,
 	MultiChoiceQuestion,
@@ -521,16 +522,14 @@ export default function QuestionCard({
 							max={100}
 							style={{ width: 100 }}
 						/>
-						<ActionIcon
+						<DeleteButton
+							handleDelete={async () => onDelete(index)}
+							message='Are you sure you want to delete this question?'
+							onSuccess={() => {}}
 							variant='light'
-							color='red'
 							size='lg'
 							mt={25}
-							onClick={() => onDelete(index)}
-							aria-label='Delete question'
-						>
-							<IconTrash size={18} />
-						</ActionIcon>
+						/>
 					</Group>
 
 					<Textarea

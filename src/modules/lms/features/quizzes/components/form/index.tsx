@@ -151,7 +151,10 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 
 	const addQuestion = () => {
 		const lastType = form.values.questions.at(-1)?.type ?? 'multichoice';
-		const newQuestion = createDefaultQuestion(lastType, form.values.questions.length);
+		const newQuestion = createDefaultQuestion(
+			lastType,
+			form.values.questions.length
+		);
 		form.setFieldValue('questions', [...form.values.questions, newQuestion]);
 		setOpenedQuestion(`question-${form.values.questions.length}`);
 	};
