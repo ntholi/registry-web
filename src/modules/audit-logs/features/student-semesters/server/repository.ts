@@ -33,6 +33,18 @@ export default class StudentSemesterSyncRepository extends BaseRepository<
 		});
 	}
 
+	async findByStudentSemesterIdWithUser(studentSemesterId: number) {
+		return db.query.studentSemesterAuditLogs.findMany({
+			where: eq(studentSemesterAuditLogs.studentSemesterId, studentSemesterId),
+			orderBy: (records, { desc }) => [desc(records.updatedAt)],
+			with: {
+				updatedByUser: {
+					columns: { id: true, name: true, email: true },
+				},
+			},
+		});
+	}
+
 	async findUnsynced() {
 		return db.query.studentSemesterAuditLogs.findMany({
 			where: (records, { isNull }) => isNull(records.syncedAt),

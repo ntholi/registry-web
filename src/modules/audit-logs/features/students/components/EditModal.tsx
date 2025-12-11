@@ -2,6 +2,7 @@
 
 import {
 	ActionIcon,
+	Alert,
 	Button,
 	Group,
 	Modal,
@@ -14,15 +15,16 @@ import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconEdit } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import {
 	gender,
 	maritalStatusEnum,
 	studentStatus,
 } from '@/modules/registry/database/schema/enums';
-import { updateStudent } from '../server/actions';
+import AuditHistoryTab from '../../../components/AuditHistoryTab';
+import { getStudentAuditHistory, updateStudent } from '../server/actions';
 
 interface Student {
 	stdNo: number;
@@ -45,10 +47,34 @@ interface Props {
 	student: Student;
 }
 
+const FIELD_LABELS = {
+	name: 'Full Name',
+	nationalId: 'National ID',
+	status: 'Status',
+	dateOfBirth: 'Date of Birth',
+	phone1: 'Primary Phone',
+	phone2: 'Secondary Phone',
+	gender: 'Gender',
+	maritalStatus: 'Marital Status',
+	country: 'Country',
+	race: 'Race',
+	nationality: 'Nationality',
+	birthPlace: 'Birth Place',
+	religion: 'Religion',
+};
+
 export default function EditStudentModal({ student }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [showReasonWarning, setShowReasonWarning] = useState(false);
+	const [pendingSubmit, setPendingSubmit] = useState(false);
+
+	const { data: historyData, isLoading: isLoadingHistory } = useQuery({
+		queryKey: ['student-audit-history', student.stdNo],
+		queryFn: () => getStudentAuditHistory(student.stdNo),
+		enabled: opened,
+	});
 
 	const form = useForm({
 		initialValues: {
@@ -87,10 +113,12 @@ export default function EditStudentModal({ student }: Props) {
 				religion: student.religion || '',
 				reasons: '',
 			});
+			setShowReasonWarning(false);
+			setPendingSubmit(false);
 		}
 	}, [opened, student, form.setValues]);
 
-	const handleSubmit = useCallback(
+	const executeSubmit = useCallback(
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
@@ -125,6 +153,9 @@ export default function EditStudentModal({ student }: Props) {
 				queryClient.invalidateQueries({
 					queryKey: ['student'],
 				});
+				queryClient.invalidateQueries({
+					queryKey: ['student-audit-history', student.stdNo],
+				});
 
 				form.reset();
 				close();
@@ -136,9 +167,23 @@ export default function EditStudentModal({ student }: Props) {
 				});
 			} finally {
 				setIsSubmitting(false);
+				setShowReasonWarning(false);
+				setPendingSubmit(false);
 			}
 		},
 		[student.stdNo, form, close, queryClient]
+	);
+
+	const handleSubmit = useCallback(
+		async (values: typeof form.values) => {
+			if (!values.reasons.trim() && !pendingSubmit) {
+				setShowReasonWarning(true);
+				setPendingSubmit(true);
+				return;
+			}
+			await executeSubmit(values);
+		},
+		[executeSubmit, pendingSubmit]
 	);
 
 	return (
@@ -154,6 +199,7 @@ export default function EditStudentModal({ student }: Props) {
 							<Tabs.Tab value='contact'>Contact</Tabs.Tab>
 							<Tabs.Tab value='personal'>Personal</Tabs.Tab>
 							<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
+							<Tabs.Tab value='history'>History</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='details' pt='md'>
@@ -284,7 +330,27 @@ export default function EditStudentModal({ student }: Props) {
 								{...form.getInputProps('reasons')}
 							/>
 						</Tabs.Panel>
+
+						<Tabs.Panel value='history' pt='md'>
+							<AuditHistoryTab
+								data={historyData}
+								isLoading={isLoadingHistory}
+								fieldLabels={FIELD_LABELS}
+							/>
+						</Tabs.Panel>
 					</Tabs>
+
+					{showReasonWarning && (
+						<Alert
+							icon={<IconAlertCircle size={16} />}
+							color='yellow'
+							mt='md'
+							variant='light'
+						>
+							You have not provided a reason for this update. Click Update again
+							to proceed without a reason.
+						</Alert>
+					)}
 
 					<Group justify='flex-end' mt='md'>
 						<Button variant='outline' onClick={close} disabled={isSubmitting}>

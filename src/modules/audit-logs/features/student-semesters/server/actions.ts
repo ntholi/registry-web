@@ -43,3 +43,9 @@ export async function updateStudentSemester(
 	revalidatePath('/dashboard/students');
 	return result;
 }
+
+export async function getStudentSemesterAuditHistory(
+	studentSemesterId: number
+) {
+	return service.getHistoryByStudentSemesterId(studentSemesterId);
+}

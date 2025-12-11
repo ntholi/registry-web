@@ -3,6 +3,7 @@
 import { getStructuresByProgramId } from '@academic/structures';
 import {
 	ActionIcon,
+	Alert,
 	Button,
 	Group,
 	Loader,
@@ -17,14 +18,18 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { getAllTerms } from '@registry/terms';
-import { IconEdit } from '@tabler/icons-react';
+import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import {
 	programStatus,
 	type StudentProgramStatus,
 } from '@/modules/registry/database/schema/enums';
-import { updateStudentProgram } from '../server/actions';
+import AuditHistoryTab from '../../../components/AuditHistoryTab';
+import {
+	getStudentProgramAuditHistory,
+	updateStudentProgram,
+} from '../server/actions';
 
 function parseDate(dateString: string | null): Date | null {
 	if (!dateString) return null;
@@ -58,10 +63,22 @@ interface Props {
 	program: StudentProgram;
 }
 
+const FIELD_LABELS = {
+	status: 'Status',
+	structureId: 'Structure',
+	intakeDate: 'Intake Date',
+	regDate: 'Registration Date',
+	startTerm: 'Start Term',
+	graduationDate: 'Graduation Date',
+	programId: 'Program',
+};
+
 export default function EditStudentProgramModal({ program }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [showReasonWarning, setShowReasonWarning] = useState(false);
+	const [pendingSubmit, setPendingSubmit] = useState(false);
 
 	const { data: termsData = [], isLoading: isLoadingTerms } = useQuery({
 		queryKey: ['terms'],
@@ -86,6 +103,12 @@ export default function EditStudentProgramModal({ program }: Props) {
 				})),
 		});
 
+	const { data: historyData, isLoading: isLoadingHistory } = useQuery({
+		queryKey: ['student-program-audit-history', program.id],
+		queryFn: () => getStudentProgramAuditHistory(program.id),
+		enabled: opened,
+	});
+
 	const form = useForm({
 		initialValues: {
 			intakeDate: parseDate(program.intakeDate),
@@ -109,10 +132,12 @@ export default function EditStudentProgramModal({ program }: Props) {
 				status: program.status,
 				reasons: '',
 			});
+			setShowReasonWarning(false);
+			setPendingSubmit(false);
 		}
 	}, [opened, program, form.setValues]);
 
-	const handleSubmit = useCallback(
+	const executeSubmit = useCallback(
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
@@ -138,6 +163,9 @@ export default function EditStudentProgramModal({ program }: Props) {
 				queryClient.invalidateQueries({
 					queryKey: ['student'],
 				});
+				queryClient.invalidateQueries({
+					queryKey: ['student-program-audit-history', program.id],
+				});
 
 				form.reset();
 				close();
@@ -149,9 +177,23 @@ export default function EditStudentProgramModal({ program }: Props) {
 				});
 			} finally {
 				setIsSubmitting(false);
+				setShowReasonWarning(false);
+				setPendingSubmit(false);
 			}
 		},
 		[program.id, form, close, queryClient]
+	);
+
+	const handleSubmit = useCallback(
+		async (values: typeof form.values) => {
+			if (!values.reasons.trim() && !pendingSubmit) {
+				setShowReasonWarning(true);
+				setPendingSubmit(true);
+				return;
+			}
+			await executeSubmit(values);
+		},
+		[executeSubmit, pendingSubmit]
 	);
 
 	return (
@@ -185,6 +227,7 @@ export default function EditStudentProgramModal({ program }: Props) {
 						<Tabs.List>
 							<Tabs.Tab value='details'>Details</Tabs.Tab>
 							<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
+							<Tabs.Tab value='history'>History</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='details' pt='md'>
@@ -266,7 +309,28 @@ export default function EditStudentProgramModal({ program }: Props) {
 								{...form.getInputProps('reasons')}
 							/>
 						</Tabs.Panel>
+
+						<Tabs.Panel value='history' pt='md'>
+							<AuditHistoryTab
+								data={historyData}
+								isLoading={isLoadingHistory}
+								fieldLabels={FIELD_LABELS}
+								excludeFields={['stdNo']}
+							/>
+						</Tabs.Panel>
 					</Tabs>
+
+					{showReasonWarning && (
+						<Alert
+							icon={<IconAlertCircle size={16} />}
+							color='yellow'
+							mt='md'
+							variant='light'
+						>
+							You have not provided a reason for this update. Click Update again
+							to proceed without a reason.
+						</Alert>
+					)}
 
 					<Group justify='flex-end' mt='md'>
 						<Button

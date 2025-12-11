@@ -26,6 +26,18 @@ export default class StudentProgramAuditRepository extends BaseRepository<
 		});
 	}
 
+	async findByStudentProgramIdWithUser(studentProgramId: number) {
+		return db.query.studentProgramAuditLogs.findMany({
+			where: eq(studentProgramAuditLogs.studentProgramId, studentProgramId),
+			orderBy: (records, { desc }) => [desc(records.updatedAt)],
+			with: {
+				updatedByUser: {
+					columns: { id: true, name: true, email: true },
+				},
+			},
+		});
+	}
+
 	async findUnsynced() {
 		return db.query.studentProgramAuditLogs.findMany({
 			where: (records, { isNull }) => isNull(records.syncedAt),

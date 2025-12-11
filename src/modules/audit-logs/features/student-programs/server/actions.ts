@@ -36,3 +36,7 @@ export async function updateStudentProgram(
 	revalidatePath('/dashboard/students');
 	return result;
 }
+
+export async function getStudentProgramAuditHistory(studentProgramId: number) {
+	return service.getHistoryByStudentProgramId(studentProgramId);
+}

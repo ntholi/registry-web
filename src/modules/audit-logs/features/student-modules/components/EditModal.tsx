@@ -3,6 +3,7 @@
 import {
 	ActionIcon,
 	type ActionIconProps,
+	Alert,
 	Box,
 	Button,
 	Group,
@@ -17,7 +18,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconEdit } from '@tabler/icons-react';
+import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { type Grade, grade } from '@/modules/academic/database/schema/enums';
@@ -26,7 +27,12 @@ import {
 	studentModuleStatus,
 } from '@/modules/registry/database/schema/enums';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
-import { canEditMarksAndGrades, updateStudentModule } from '../server/actions';
+import AuditHistoryTab from '../../../components/AuditHistoryTab';
+import {
+	canEditMarksAndGrades,
+	getStudentModuleAuditHistory,
+	updateStudentModule,
+} from '../server/actions';
 
 interface StudentModule {
 	id: number;
@@ -41,10 +47,20 @@ type Props = {
 	module: StudentModule;
 } & ActionIconProps;
 
+const FIELD_LABELS = {
+	status: 'Status',
+	marks: 'Marks',
+	grade: 'Grade',
+	moduleCode: 'Module Code',
+	moduleName: 'Module Name',
+};
+
 export default function EditStudentModuleModal({ module, ...rest }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [showReasonWarning, setShowReasonWarning] = useState(false);
+	const [pendingSubmit, setPendingSubmit] = useState(false);
 
 	const { data: canEditMarks = false, isLoading: isLoadingPermissions } =
 		useQuery({
@@ -53,6 +69,12 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 			staleTime: 1000 * 60 * 15,
 			enabled: opened,
 		});
+
+	const { data: historyData, isLoading: isLoadingHistory } = useQuery({
+		queryKey: ['student-module-audit-history', module.id],
+		queryFn: () => getStudentModuleAuditHistory(module.id),
+		enabled: opened,
+	});
 
 	const form = useForm({
 		initialValues: {
@@ -71,6 +93,8 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 				grade: module.grade,
 				reasons: '',
 			});
+			setShowReasonWarning(false);
+			setPendingSubmit(false);
 		}
 	}, [opened, module, form.setValues]);
 
@@ -90,7 +114,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 		[form]
 	);
 
-	const handleSubmit = useCallback(
+	const executeSubmit = useCallback(
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
@@ -113,6 +137,9 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 				queryClient.invalidateQueries({
 					queryKey: ['student'],
 				});
+				queryClient.invalidateQueries({
+					queryKey: ['student-module-audit-history', module.id],
+				});
 
 				form.reset();
 				close();
@@ -124,9 +151,23 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 				});
 			} finally {
 				setIsSubmitting(false);
+				setShowReasonWarning(false);
+				setPendingSubmit(false);
 			}
 		},
 		[module.id, form, close, queryClient]
+	);
+
+	const handleSubmit = useCallback(
+		async (values: typeof form.values) => {
+			if (!values.reasons.trim() && !pendingSubmit) {
+				setShowReasonWarning(true);
+				setPendingSubmit(true);
+				return;
+			}
+			await executeSubmit(values);
+		},
+		[executeSubmit, pendingSubmit]
 	);
 
 	return (
@@ -163,6 +204,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 						<Tabs.List>
 							<Tabs.Tab value='details'>Details</Tabs.Tab>
 							<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
+							<Tabs.Tab value='history'>History</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='details' pt='md'>
@@ -222,7 +264,28 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								{...form.getInputProps('reasons')}
 							/>
 						</Tabs.Panel>
+
+						<Tabs.Panel value='history' pt='md'>
+							<AuditHistoryTab
+								data={historyData}
+								isLoading={isLoadingHistory}
+								fieldLabels={FIELD_LABELS}
+								excludeFields={['studentSemesterId', 'moduleId']}
+							/>
+						</Tabs.Panel>
 					</Tabs>
+
+					{showReasonWarning && (
+						<Alert
+							icon={<IconAlertCircle size={16} />}
+							color='yellow'
+							mt='md'
+							variant='light'
+						>
+							You have not provided a reason for this update. Click Update again
+							to proceed without a reason.
+						</Alert>
+					)}
 
 					<Group justify='flex-end' mt='md'>
 						<Button

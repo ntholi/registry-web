@@ -23,6 +23,18 @@ export default class StudentAuditLogRepository extends BaseRepository<
 		});
 	}
 
+	async findByStudentIdWithUser(stdNo: number) {
+		return db.query.studentAuditLogs.findMany({
+			where: eq(studentAuditLogs.stdNo, stdNo),
+			orderBy: (records, { desc }) => [desc(records.updatedAt)],
+			with: {
+				updatedByUser: {
+					columns: { id: true, name: true, email: true },
+				},
+			},
+		});
+	}
+
 	async findUnsynced() {
 		return db.query.studentAuditLogs.findMany({
 			where: (records, { isNull }) => isNull(records.syncedAt),

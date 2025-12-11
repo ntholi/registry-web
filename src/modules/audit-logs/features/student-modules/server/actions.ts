@@ -45,3 +45,7 @@ export async function updateStudentModule(
 	revalidatePath('/dashboard/students');
 	return result;
 }
+
+export async function getStudentModuleAuditHistory(studentModuleId: number) {
+	return service.getHistoryByStudentModuleId(studentModuleId);
+}

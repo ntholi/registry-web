@@ -47,6 +47,12 @@ class StudentSemesterSyncService extends BaseService<
 			);
 		}, ['registry', 'admin']);
 	}
+
+	async getHistoryByStudentSemesterId(studentSemesterId: number) {
+		return withAuth(async () => {
+			return this.repository.findByStudentSemesterIdWithUser(studentSemesterId);
+		}, ['registry', 'admin']);
+	}
 }
 
 export const studentSemesterSyncService = serviceWrapper(

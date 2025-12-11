@@ -3,6 +3,7 @@
 import { getAllSponsors } from '@finance/sponsors';
 import {
 	ActionIcon,
+	Alert,
 	Button,
 	Group,
 	Loader,
@@ -15,15 +16,17 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { getAllTerms } from '@registry/terms';
-import { IconEdit } from '@tabler/icons-react';
+import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import {
 	type SemesterStatus,
 	semesterStatus,
 } from '@/modules/registry/database/schema/enums';
+import AuditHistoryTab from '../../../components/AuditHistoryTab';
 import {
 	getStructureSemestersByStructureId,
+	getStudentSemesterAuditHistory,
 	updateStudentSemester,
 } from '../server/actions';
 
@@ -41,6 +44,14 @@ interface Props {
 	structureId: number;
 }
 
+const FIELD_LABELS = {
+	term: 'Term',
+	status: 'Status',
+	structureSemesterId: 'Structure Semester',
+	sponsorId: 'Sponsor',
+	studentProgramId: 'Student Program',
+};
+
 export default function EditStudentSemesterModal({
 	semester,
 	structureId,
@@ -48,6 +59,8 @@ export default function EditStudentSemesterModal({
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [showReasonWarning, setShowReasonWarning] = useState(false);
+	const [pendingSubmit, setPendingSubmit] = useState(false);
 
 	const { data: termsData = [], isLoading: isLoadingTerms } = useQuery({
 		queryKey: ['terms'],
@@ -85,6 +98,12 @@ export default function EditStudentSemesterModal({
 			})),
 	});
 
+	const { data: historyData, isLoading: isLoadingHistory } = useQuery({
+		queryKey: ['student-semester-audit-history', semester.id],
+		queryFn: () => getStudentSemesterAuditHistory(semester.id),
+		enabled: opened,
+	});
+
 	const form = useForm({
 		initialValues: {
 			term: semester.term,
@@ -104,10 +123,12 @@ export default function EditStudentSemesterModal({
 				sponsorId: semester.sponsorId?.toString() || '',
 				reasons: '',
 			});
+			setShowReasonWarning(false);
+			setPendingSubmit(false);
 		}
 	}, [opened, semester, form.setValues]);
 
-	const handleSubmit = useCallback(
+	const executeSubmit = useCallback(
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
@@ -131,6 +152,9 @@ export default function EditStudentSemesterModal({
 				queryClient.invalidateQueries({
 					queryKey: ['student'],
 				});
+				queryClient.invalidateQueries({
+					queryKey: ['student-semester-audit-history', semester.id],
+				});
 
 				form.reset();
 				close();
@@ -142,9 +166,23 @@ export default function EditStudentSemesterModal({
 				});
 			} finally {
 				setIsSubmitting(false);
+				setShowReasonWarning(false);
+				setPendingSubmit(false);
 			}
 		},
 		[semester.id, form, close, queryClient]
+	);
+
+	const handleSubmit = useCallback(
+		async (values: typeof form.values) => {
+			if (!values.reasons.trim() && !pendingSubmit) {
+				setShowReasonWarning(true);
+				setPendingSubmit(true);
+				return;
+			}
+			await executeSubmit(values);
+		},
+		[executeSubmit, pendingSubmit]
 	);
 
 	return (
@@ -178,6 +216,7 @@ export default function EditStudentSemesterModal({
 						<Tabs.List>
 							<Tabs.Tab value='details'>Details</Tabs.Tab>
 							<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
+							<Tabs.Tab value='history'>History</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='details' pt='md'>
@@ -246,7 +285,27 @@ export default function EditStudentSemesterModal({
 								{...form.getInputProps('reasons')}
 							/>
 						</Tabs.Panel>
+
+						<Tabs.Panel value='history' pt='md'>
+							<AuditHistoryTab
+								data={historyData}
+								isLoading={isLoadingHistory}
+								fieldLabels={FIELD_LABELS}
+							/>
+						</Tabs.Panel>
 					</Tabs>
+
+					{showReasonWarning && (
+						<Alert
+							icon={<IconAlertCircle size={16} />}
+							color='yellow'
+							mt='md'
+							variant='light'
+						>
+							You have not provided a reason for this update. Click Update again
+							to proceed without a reason.
+						</Alert>
+					)}
 
 					<Group justify='flex-end' mt='md'>
 						<Button

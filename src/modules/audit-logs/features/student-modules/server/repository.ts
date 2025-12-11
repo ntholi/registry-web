@@ -26,6 +26,18 @@ export default class StudentModuleAuditLogRepository extends BaseRepository<
 		});
 	}
 
+	async findByStudentModuleIdWithUser(studentModuleId: number) {
+		return db.query.studentModuleAuditLogs.findMany({
+			where: eq(studentModuleAuditLogs.studentModuleId, studentModuleId),
+			orderBy: (records, { desc }) => [desc(records.updatedAt)],
+			with: {
+				updatedByUser: {
+					columns: { id: true, name: true, email: true },
+				},
+			},
+		});
+	}
+
 	async findUnsynced() {
 		return db.query.studentModuleAuditLogs.findMany({
 			where: (records, { isNull }) => isNull(records.syncedAt),

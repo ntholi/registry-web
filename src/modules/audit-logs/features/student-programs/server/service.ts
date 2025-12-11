@@ -41,6 +41,12 @@ class StudentProgramAuditService extends BaseService<
 			);
 		}, ['registry', 'admin']);
 	}
+
+	async getHistoryByStudentProgramId(studentProgramId: number) {
+		return withAuth(async () => {
+			return this.repository.findByStudentProgramIdWithUser(studentProgramId);
+		}, ['registry', 'admin']);
+	}
 }
 
 export const studentProgramAuditService = serviceWrapper(

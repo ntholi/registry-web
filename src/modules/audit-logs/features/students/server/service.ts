@@ -35,6 +35,12 @@ class StudentAuditLogService extends BaseService<
 			);
 		}, ['registry', 'admin']);
 	}
+
+	async getHistoryByStudentId(stdNo: number) {
+		return withAuth(async () => {
+			return this.repository.findByStudentIdWithUser(stdNo);
+		}, ['registry', 'admin']);
+	}
 }
 
 export const studentAuditLogService = serviceWrapper(

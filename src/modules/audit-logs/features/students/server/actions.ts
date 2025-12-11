@@ -32,3 +32,7 @@ export async function updateStudent(
 	revalidatePath(`/registry/students/${stdNo}`);
 	return result;
 }
+
+export async function getStudentAuditHistory(stdNo: number) {
+	return service.getHistoryByStudentId(stdNo);
+}
