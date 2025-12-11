@@ -1,18 +1,18 @@
 'use client';
 
+import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import {
 	Avatar,
 	Box,
 	Group,
 	Loader,
-	ScrollArea,
 	Stack,
 	Tabs,
 	TabsList,
 	TabsPanel,
 	TabsTab,
 	Text,
-	ThemeIcon,
+	ThemeIcon
 } from '@mantine/core';
 import {
 	IconClipboardList,
@@ -22,7 +22,6 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import { getQuizAttemptDetails } from '../../server/actions';
 import type { QuizSubmissionUser } from '../../types';
 import QuizAttemptSelector from './QuizAttemptSelector';

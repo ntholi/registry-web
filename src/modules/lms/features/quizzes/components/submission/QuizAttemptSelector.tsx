@@ -64,9 +64,6 @@ export default function QuizAttemptSelector({
 		const attempt = attempts[0];
 		return (
 			<Group gap='sm'>
-				<Text size='sm' c='dimmed'>
-					Attempt 1
-				</Text>
 				<Badge size='sm' color={getStateColor(attempt.state)} variant='light'>
 					{getStateLabel(attempt.state)}
 				</Badge>
