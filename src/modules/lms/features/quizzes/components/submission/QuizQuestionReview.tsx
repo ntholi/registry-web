@@ -203,7 +203,7 @@ export default function QuizQuestionReview({
 					</Box>
 				)}
 
-				{question.rightanswer && !isEssay && (
+				{question.rightanswer && !isEssay && question.state === 'gradedwrong' && (
 					<Box>
 						<Text size='xs' c='dimmed' mb={4}>
 							Correct Answer
