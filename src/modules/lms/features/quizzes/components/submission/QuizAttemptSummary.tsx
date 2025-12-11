@@ -162,14 +162,14 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 							{incorrectCount}
 						</Text>
 					</Box>
-						<Box>
-							<Text size='xs' c='dimmed'>
-								Pending
-							</Text>
-							<Text size='sm' c='orange' fw={500}>
-								{needsGradingCount}
-							</Text>
-						</Box>
+					<Box>
+						<Text size='xs' c='dimmed'>
+							Pending
+						</Text>
+						<Text size='sm' c='orange' fw={500}>
+							{needsGradingCount}
+						</Text>
+					</Box>
 				</Group>
 			</Stack>
 		</Paper>

@@ -1,6 +1,5 @@
 'use client';
 
-import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import {
 	Avatar,
 	Box,
@@ -12,7 +11,7 @@ import {
 	TabsPanel,
 	TabsTab,
 	Text,
-	ThemeIcon
+	ThemeIcon,
 } from '@mantine/core';
 import {
 	IconClipboardList,
@@ -22,6 +21,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import { getQuizAttemptDetails } from '../../server/actions';
 import type { QuizSubmissionUser } from '../../types';
 import QuizAttemptSelector from './QuizAttemptSelector';
@@ -178,16 +178,16 @@ export default function QuizSubmissionDetails({
 					</TabsPanel>
 
 					<TabsPanel value='questions' pt='md'>
-							<Stack gap='md'>
-								{attemptDetails.questions.map((question) => (
-									<QuizQuestionReview
-										key={question.slot}
-										question={question}
-										attemptId={attemptDetails.id}
-										quizId={quizId}
-									/>
-								))}
-							</Stack>
+						<Stack gap='md'>
+							{attemptDetails.questions.map((question) => (
+								<QuizQuestionReview
+									key={question.slot}
+									question={question}
+									attemptId={attemptDetails.id}
+									quizId={quizId}
+								/>
+							))}
+						</Stack>
 					</TabsPanel>
 
 					<TabsPanel value='feedback' pt='md'>

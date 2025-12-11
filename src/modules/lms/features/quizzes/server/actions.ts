@@ -649,8 +649,8 @@ export async function getQuizSubmissions(
 		const bestAttempt =
 			finishedAttempts.length > 0
 				? finishedAttempts.reduce((best, current) =>
-					(current.sumgrades ?? 0) > (best.sumgrades ?? 0) ? current : best
-				)
+						(current.sumgrades ?? 0) > (best.sumgrades ?? 0) ? current : best
+					)
 				: null;
 
 		return {

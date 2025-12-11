@@ -164,7 +164,7 @@ function MultiChoiceEditor({
 				Options (mark correct answer{question.single ? '' : 's'}):
 			</Text>
 			{question.answers.map((answer, i) => (
-				<Group key={answer.text} gap='xs' align='flex-start'>
+				<Group key={`${question.name}-answer-${i}`} gap='xs' align='flex-start'>
 					{question.single ? (
 						<Radio
 							checked={answer.fraction === 1}
