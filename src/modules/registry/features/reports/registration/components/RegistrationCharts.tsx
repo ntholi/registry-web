@@ -194,22 +194,6 @@ export default function RegistrationCharts({
 								]}
 								yAxisProps={{ width: 80 }}
 								barProps={{ radius: 4 }}
-								tooltipProps={{
-									content: ({ payload }) => {
-										if (!payload || payload.length === 0) return null;
-										const item = payload[0];
-										const programCode = item.payload?.code;
-										const count = item.value;
-										return (
-											<Card withBorder p='xs' radius='sm'>
-												<Text fw={500}>{programCode}</Text>
-												<Text size='sm' c='dimmed'>
-													Students: {count}
-												</Text>
-											</Card>
-										);
-									},
-								}}
 							/>
 						</Stack>
 					</Card>
