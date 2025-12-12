@@ -17,6 +17,7 @@ export const modules = pgTable('modules', {
 	code: text().notNull(),
 	name: text().notNull(),
 	status: moduleStatusEnum().notNull().default('Active'),
+	remark: text(),
 	timestamp: text(),
 });
 
