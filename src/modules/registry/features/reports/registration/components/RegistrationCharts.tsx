@@ -1,28 +1,7 @@
 'use client';
-import {
-	Card,
-	Grid,
-	Group,
-	Skeleton,
-	Stack,
-	Text,
-	Title,
-	useMantineTheme,
-} from '@mantine/core';
+import { BarChart, PieChart } from '@mantine/charts';
+import { Card, Grid, Skeleton, Stack, Text, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import {
-	Bar,
-	BarChart,
-	CartesianGrid,
-	Cell,
-	Legend,
-	Pie,
-	PieChart,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
-} from 'recharts';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getRegistrationChartData } from '../server/actions';
 import type { ReportFilter } from './RegistrationFilter';
@@ -51,22 +30,9 @@ function hasAtLeastTwoNonZero(
 	return false;
 }
 
-const COLORS = [
-	'#228be6',
-	'#40c057',
-	'#fab005',
-	'#fd7e14',
-	'#be4bdb',
-	'#15aabf',
-	'#e64980',
-	'#82c91e',
-];
-
 export default function RegistrationCharts({
 	filter,
 }: RegistrationChartsProps) {
-	const theme = useMantineTheme();
-
 	const { data: chartData, isLoading } = useQuery({
 		queryKey: ['registration-chart-data', filter],
 		queryFn: async () => {
@@ -131,41 +97,20 @@ export default function RegistrationCharts({
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<Card withBorder p='md'>
 						<Stack gap='md'>
-							<Group justify='space-between'>
-								<div>
-									<Title order={4}>Students by School</Title>
-									<Text size='sm' c='dimmed'>
-										Distribution of students across schools
-									</Text>
-								</div>
-							</Group>
-							<ResponsiveContainer width='100%' height={300}>
-								<BarChart data={chartData.studentsBySchool}>
-									<CartesianGrid
-										strokeDasharray='3 3'
-										stroke={theme.colors.gray[3]}
-									/>
-									<XAxis
-										dataKey='code'
-										stroke={theme.colors.gray[6]}
-										style={{ fontSize: '12px' }}
-									/>
-									<YAxis stroke={theme.colors.gray[6]} />
-									<Tooltip
-										contentStyle={{
-											backgroundColor: theme.colors.dark[7],
-											border: `1px solid ${theme.colors.dark[4]}`,
-											borderRadius: '4px',
-										}}
-										labelStyle={{ color: theme.colors.gray[0] }}
-									/>
-									<Bar
-										dataKey='count'
-										fill={theme.colors.blue[6]}
-										radius={[4, 4, 0, 0]}
-									/>
-								</BarChart>
-							</ResponsiveContainer>
+							<div>
+								<Title order={4}>Students by School</Title>
+								<Text size='sm' c='dimmed'>
+									Distribution of students across schools
+								</Text>
+							</div>
+							<BarChart
+								h={300}
+								data={chartData.studentsBySchool}
+								dataKey='code'
+								series={[{ name: 'count', label: 'Students', color: 'blue.6' }]}
+								tickLine='y'
+								barProps={{ radius: 4 }}
+							/>
 						</Stack>
 					</Card>
 				</Grid.Col>
@@ -175,41 +120,22 @@ export default function RegistrationCharts({
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<Card withBorder p='md'>
 						<Stack gap='md'>
-							<Group justify='space-between'>
-								<div>
-									<Title order={4}>Students by Semester</Title>
-									<Text size='sm' c='dimmed'>
-										Distribution across academic levels
-									</Text>
-								</div>
-							</Group>
-							<ResponsiveContainer width='100%' height={300}>
-								<BarChart data={studentsBySemester}>
-									<CartesianGrid
-										strokeDasharray='3 3'
-										stroke={theme.colors.gray[3]}
-									/>
-									<XAxis
-										dataKey='semesterLabel'
-										stroke={theme.colors.gray[6]}
-										style={{ fontSize: '12px' }}
-									/>
-									<YAxis stroke={theme.colors.gray[6]} />
-									<Tooltip
-										contentStyle={{
-											backgroundColor: theme.colors.dark[7],
-											border: `1px solid ${theme.colors.dark[4]}`,
-											borderRadius: '4px',
-										}}
-										labelStyle={{ color: theme.colors.gray[0] }}
-									/>
-									<Bar
-										dataKey='count'
-										fill={theme.colors.green[6]}
-										radius={[4, 4, 0, 0]}
-									/>
-								</BarChart>
-							</ResponsiveContainer>
+							<div>
+								<Title order={4}>Students by Semester</Title>
+								<Text size='sm' c='dimmed'>
+									Distribution across academic levels
+								</Text>
+							</div>
+							<BarChart
+								h={300}
+								data={studentsBySemester}
+								dataKey='semesterLabel'
+								series={[
+									{ name: 'count', label: 'Students', color: 'green.6' },
+								]}
+								tickLine='y'
+								barProps={{ radius: 4 }}
+							/>
 						</Stack>
 					</Card>
 				</Grid.Col>
@@ -219,49 +145,30 @@ export default function RegistrationCharts({
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<Card withBorder p='md'>
 						<Stack gap='md'>
-							<Group justify='space-between'>
-								<div>
-									<Title order={4}>Gender Distribution</Title>
-									<Text size='sm' c='dimmed'>
-										Student enrollment by gender
-									</Text>
-								</div>
-							</Group>
-							<ResponsiveContainer width='100%' height={300}>
-								<PieChart>
-									<Pie
-										data={chartData.studentsByGender}
-										cx='50%'
-										cy='50%'
-										labelLine={false}
-										label={({ percent }) =>
-											percent && percent > 0.05
-												? `${(percent * 100).toFixed(0)}%`
-												: ''
-										}
-										outerRadius={100}
-										fill='#8884d8'
-										dataKey='count'
-										nameKey='gender'
-									>
-										{chartData.studentsByGender.map((entry, index) => (
-											<Cell
-												key={`cell-${entry.gender}`}
-												fill={COLORS[index % COLORS.length]}
-											/>
-										))}
-									</Pie>
-									<Tooltip
-										contentStyle={{
-											backgroundColor: theme.colors.gray[0],
-											border: `1px solid ${theme.colors.dark[4]}`,
-											borderRadius: '4px',
-											color: theme.colors.dark[9],
-										}}
-									/>
-									<Legend />
-								</PieChart>
-							</ResponsiveContainer>
+							<div>
+								<Title order={4}>Gender Distribution</Title>
+								<Text size='sm' c='dimmed'>
+									Student enrollment by gender
+								</Text>
+							</div>
+							<PieChart
+								h={300}
+								data={chartData.studentsByGender.map((item) => ({
+									name: item.gender,
+									value: Number(item.count),
+									color:
+										item.gender === 'Male'
+											? 'blue.6'
+											: item.gender === 'Female'
+												? 'pink.6'
+												: 'gray.6',
+								}))}
+								withLabelsLine
+								withLabels
+								labelsPosition='outside'
+								labelsType='percent'
+								withTooltip
+							/>
 						</Stack>
 					</Card>
 				</Grid.Col>
@@ -271,52 +178,39 @@ export default function RegistrationCharts({
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<Card withBorder p='md'>
 						<Stack gap='md'>
-							<Group justify='space-between'>
-								<div>
-									<Title order={4}>Top Programs</Title>
-									<Text size='sm' c='dimmed'>
-										Top 10 programs by enrollment
-									</Text>
-								</div>
-							</Group>
-							<ResponsiveContainer width='100%' height={300}>
-								<BarChart
-									data={chartData.studentsByProgram}
-									layout='vertical'
-									margin={{ left: 10, right: 10 }}
-								>
-									<CartesianGrid
-										strokeDasharray='3 3'
-										stroke={theme.colors.gray[3]}
-									/>
-									<XAxis type='number' stroke={theme.colors.gray[6]} />
-									<YAxis
-										dataKey='code'
-										type='category'
-										stroke={theme.colors.gray[6]}
-										width={80}
-										style={{ fontSize: '11px' }}
-									/>
-									<Tooltip
-										contentStyle={{
-											backgroundColor: theme.colors.dark[7],
-											border: `1px solid ${theme.colors.dark[4]}`,
-											borderRadius: '4px',
-										}}
-										labelFormatter={(value, payload) => {
-											if (payload && payload.length > 0) {
-												return payload[0].payload.name;
-											}
-											return value;
-										}}
-									/>
-									<Bar
-										dataKey='count'
-										fill={theme.colors.orange[6]}
-										radius={[0, 4, 4, 0]}
-									/>
-								</BarChart>
-							</ResponsiveContainer>
+							<div>
+								<Title order={4}>Top Programs</Title>
+								<Text size='sm' c='dimmed'>
+									Top 10 programs by enrollment
+								</Text>
+							</div>
+							<BarChart
+								h={300}
+								data={chartData.studentsByProgram}
+								dataKey='code'
+								orientation='vertical'
+								series={[
+									{ name: 'count', label: 'Students', color: 'orange.6' },
+								]}
+								yAxisProps={{ width: 80 }}
+								barProps={{ radius: 4 }}
+								tooltipProps={{
+									content: ({ payload }) => {
+										if (!payload?.length) return null;
+										const data = payload[0].payload;
+										return (
+											<Card p='xs' withBorder shadow='md'>
+												<Text size='sm' fw={500}>
+													{data.name}
+												</Text>
+												<Text size='sm' c='dimmed'>
+													Students: {data.count}
+												</Text>
+											</Card>
+										);
+									},
+								}}
+							/>
 						</Stack>
 					</Card>
 				</Grid.Col>
@@ -326,49 +220,43 @@ export default function RegistrationCharts({
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<Card withBorder p='md'>
 						<Stack gap='md'>
-							<Group justify='space-between'>
-								<div>
-									<Title order={4}>Programs per School</Title>
-									<Text size='sm' c='dimmed'>
-										Number of active programs in each school
-									</Text>
-								</div>
-							</Group>
-							<ResponsiveContainer width='100%' height={300}>
-								<BarChart data={chartData.programsBySchool}>
-									<CartesianGrid
-										strokeDasharray='3 3'
-										stroke={theme.colors.gray[3]}
-									/>
-									<XAxis
-										dataKey='schoolCode'
-										stroke={theme.colors.gray[6]}
-										style={{ fontSize: '11px' }}
-										angle={-45}
-										textAnchor='end'
-										height={80}
-									/>
-									<YAxis stroke={theme.colors.gray[6]} />
-									<Tooltip
-										contentStyle={{
-											backgroundColor: theme.colors.dark[7],
-											border: `1px solid ${theme.colors.dark[4]}`,
-											borderRadius: '4px',
-										}}
-										labelFormatter={(value, payload) => {
-											if (payload && payload.length > 0) {
-												return payload[0].payload.school;
-											}
-											return value;
-										}}
-									/>
-									<Bar
-										dataKey='programCount'
-										fill={theme.colors.violet[6]}
-										radius={[4, 4, 0, 0]}
-									/>
-								</BarChart>
-							</ResponsiveContainer>
+							<div>
+								<Title order={4}>Programs per School</Title>
+								<Text size='sm' c='dimmed'>
+									Number of active programs in each school
+								</Text>
+							</div>
+							<BarChart
+								h={300}
+								data={chartData.programsBySchool}
+								dataKey='schoolCode'
+								series={[
+									{
+										name: 'programCount',
+										label: 'Programs',
+										color: 'violet.6',
+									},
+								]}
+								tickLine='y'
+								xAxisProps={{ angle: -45 }}
+								barProps={{ radius: 4 }}
+								tooltipProps={{
+									content: ({ payload }) => {
+										if (!payload?.length) return null;
+										const data = payload[0].payload;
+										return (
+											<Card p='xs' withBorder shadow='md'>
+												<Text size='sm' fw={500}>
+													{data.school}
+												</Text>
+												<Text size='sm' c='dimmed'>
+													Programs: {data.programCount}
+												</Text>
+											</Card>
+										);
+									},
+								}}
+							/>
 						</Stack>
 					</Card>
 				</Grid.Col>
@@ -378,57 +266,40 @@ export default function RegistrationCharts({
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<Card withBorder p='md'>
 						<Stack gap='md'>
-							<Group justify='space-between'>
-								<div>
-									<Title order={4}>Top Sponsors</Title>
-									<Text size='sm' c='dimmed'>
-										Top 5 sponsors by student count
-									</Text>
-								</div>
-							</Group>
-							<ResponsiveContainer width='100%' height={300}>
-								<PieChart>
-									<Pie
-										data={chartData.studentsBySponsor}
-										cx='50%'
-										cy='50%'
-										labelLine={false}
-										label={({ percent }) =>
-											percent && percent > 0.05
-												? `${(percent * 100).toFixed(0)}%`
-												: ''
-										}
-										outerRadius={100}
-										fill='#8884d8'
-										dataKey='count'
-										nameKey='sponsor'
-									>
-										{chartData.studentsBySponsor.map((entry, index) => (
-											<Cell
-												key={`cell-${entry.sponsor}`}
-												fill={COLORS[index % COLORS.length]}
-											/>
-										))}
-									</Pie>
-									<Tooltip
-										contentStyle={{
-											backgroundColor: theme.colors.gray[0],
-											border: `1px solid ${theme.colors.dark[4]}`,
-											borderRadius: '4px',
-											color: theme.colors.dark[9],
-										}}
-									/>
-									<Legend
-										wrapperStyle={{ fontSize: '12px' }}
-										formatter={(value) => {
-											const maxLength = 30;
-											return value.length > maxLength
-												? `${value.substring(0, maxLength)}...`
-												: value;
-										}}
-									/>
-								</PieChart>
-							</ResponsiveContainer>
+							<div>
+								<Title order={4}>Top Sponsors</Title>
+								<Text size='sm' c='dimmed'>
+									Top 5 sponsors by student count
+								</Text>
+							</div>
+							<PieChart
+								h={380}
+								data={chartData.studentsBySponsor.map((item, index) => {
+									const colors = [
+										'blue.6',
+										'green.6',
+										'yellow.6',
+										'orange.6',
+										'violet.6',
+										'cyan.6',
+										'pink.6',
+										'teal.6',
+									];
+									return {
+										name:
+											item.sponsor.length > 30
+												? `${item.sponsor.substring(0, 30)}...`
+												: item.sponsor,
+										value: Number(item.count),
+										color: colors[index % colors.length],
+									};
+								})}
+								withLabelsLine
+								withLabels
+								labelsPosition='outside'
+								labelsType='percent'
+								withTooltip
+							/>
 						</Stack>
 					</Card>
 				</Grid.Col>
