@@ -34,18 +34,53 @@ import {
 	IconUsers,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+import { useCallback, useEffect, useState } from 'react';
 
 const PAGE_SIZE = 20;
 
 export default function RegistrationReportPage() {
+	const [urlParams] = useQueryStates({
+		termId: parseAsInteger,
+		schoolId: parseAsInteger,
+		programId: parseAsInteger,
+		semesterNumber: parseAsString,
+		gender: parseAsString,
+		sponsorId: parseAsInteger,
+		ageRangeMin: parseAsInteger,
+		ageRangeMax: parseAsInteger,
+		country: parseAsString,
+		studentStatus: parseAsString,
+		programStatus: parseAsString,
+		semesterStatus: parseAsString,
+	});
+
 	const [filter, setFilter] = useState<ReportFilter>({});
 	const [currentPage, setCurrentPage] = useState(1);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [debouncedSearch] = useDebouncedValue(searchQuery, 500);
 	const [isExportingSummary, setIsExportingSummary] = useState(false);
 	const [isExportingStudents, setIsExportingStudents] = useState(false);
-	const [isFilterApplied, setIsFilterApplied] = useState(false);
+
+	useEffect(() => {
+		const newFilter: ReportFilter = {
+			termIds: urlParams.termId ? [urlParams.termId] : undefined,
+			schoolId: urlParams.schoolId ?? undefined,
+			programId: urlParams.programId ?? undefined,
+			semesterNumber: urlParams.semesterNumber ?? undefined,
+			gender: urlParams.gender ?? undefined,
+			sponsorId: urlParams.sponsorId ?? undefined,
+			ageRangeMin: urlParams.ageRangeMin ?? undefined,
+			ageRangeMax: urlParams.ageRangeMax ?? undefined,
+			country: urlParams.country ?? undefined,
+			studentStatus: urlParams.studentStatus ?? undefined,
+			programStatus: urlParams.programStatus ?? undefined,
+			semesterStatus: urlParams.semesterStatus ?? undefined,
+		};
+		setFilter(newFilter);
+	}, [urlParams]);
+
+	const isFilterApplied = Boolean(filter.termIds && filter.termIds.length > 0);
 
 	const {
 		data: reportData,
@@ -58,8 +93,7 @@ export default function RegistrationReportPage() {
 			const result = await getRegistrationDataPreview(filter.termIds, filter);
 			return result.success ? result.data : null;
 		},
-		enabled:
-			isFilterApplied && Boolean(filter.termIds && filter.termIds.length > 0),
+		enabled: isFilterApplied,
 	});
 
 	const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
@@ -82,8 +116,7 @@ export default function RegistrationReportPage() {
 			);
 			return result.success ? result.data : null;
 		},
-		enabled:
-			isFilterApplied && Boolean(filter.termIds && filter.termIds.length > 0),
+		enabled: isFilterApplied,
 	});
 
 	const canGenerateReport = Boolean(
@@ -100,12 +133,11 @@ export default function RegistrationReportPage() {
 		setCurrentPage(page);
 	};
 
-	const handleFilterChange = (newFilter: ReportFilter) => {
+	const handleFilterChange = useCallback((newFilter: ReportFilter) => {
 		setFilter(newFilter);
 		setCurrentPage(1);
 		setSearchQuery('');
-		setIsFilterApplied(true);
-	};
+	}, []);
 
 	const handleSearchChange = useCallback((query: string) => {
 		setSearchQuery(query);
@@ -227,10 +259,7 @@ export default function RegistrationReportPage() {
 					</Text>
 				</Box>
 
-				<RegistrationFilter
-					filter={filter}
-					onFilterChange={handleFilterChange}
-				/>
+				<RegistrationFilter onFilterChange={handleFilterChange} />
 
 				{!isFilterApplied && (
 					<Alert

@@ -22,7 +22,8 @@ import {
 	IconPlayerPlayFilled,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+import { useEffect } from 'react';
 import {
 	programStatus,
 	semesterStatus,
@@ -61,56 +62,54 @@ export interface ReportFilter {
 }
 
 interface Props {
-	filter: ReportFilter;
 	onFilterChange: (filter: ReportFilter) => void;
 }
 
-export default function RegistrationFilter({ filter, onFilterChange }: Props) {
+export default function RegistrationFilter({ onFilterChange }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
-	const [localFilter, setLocalFilter] = useState<{
-		termId: string;
-		schoolId: string;
-		programId: string;
-		semesterNumber: string;
-		gender: string;
-		sponsorId: string;
-		ageRange: [number, number];
-		country: string;
-		studentStatus: string;
-		programStatus: string;
-		semesterStatus: string;
-	}>({
-		termId: filter.termIds?.[0]?.toString() || '',
-		schoolId: filter.schoolId?.toString() || '',
-		programId: filter.programId?.toString() || '',
-		semesterNumber: filter.semesterNumber || '',
-		gender: filter.gender || '',
-		sponsorId: filter.sponsorId?.toString() || '',
-		ageRange: [filter.ageRangeMin || 12, filter.ageRangeMax || 75],
-		country: filter.country || '',
-		studentStatus: filter.studentStatus || '',
-		programStatus: filter.programStatus || '',
-		semesterStatus: filter.semesterStatus || '',
-	});
+	const [localFilter, setLocalFilter] = useQueryStates(
+		{
+			termId: parseAsInteger,
+			schoolId: parseAsInteger,
+			programId: parseAsInteger,
+			semesterNumber: parseAsString,
+			gender: parseAsString,
+			sponsorId: parseAsInteger,
+			ageRangeMin: parseAsInteger.withDefault(12),
+			ageRangeMax: parseAsInteger.withDefault(75),
+			country: parseAsString,
+			studentStatus: parseAsString,
+			programStatus: parseAsString,
+			semesterStatus: parseAsString,
+		},
+		{
+			history: 'push',
+			shallow: false,
+		}
+	);
 
 	useEffect(() => {
-		setLocalFilter({
-			termId: filter.termIds?.[0]?.toString() || '',
-			schoolId: filter.schoolId?.toString() || '',
-			programId: filter.programId?.toString() || '',
-			semesterNumber: filter.semesterNumber || '',
-			gender: filter.gender || '',
-			sponsorId: filter.sponsorId?.toString() || '',
-			ageRange: [filter.ageRangeMin || 12, filter.ageRangeMax || 75],
-			country: filter.country || '',
-			studentStatus: filter.studentStatus || '',
-			programStatus: filter.programStatus || '',
-			semesterStatus: filter.semesterStatus || '',
-		});
-	}, [filter]);
+		const newFilter: ReportFilter = {
+			termIds: localFilter.termId ? [localFilter.termId] : undefined,
+			schoolId: localFilter.schoolId ?? undefined,
+			programId: localFilter.programId ?? undefined,
+			semesterNumber: localFilter.semesterNumber ?? undefined,
+			gender: localFilter.gender ?? undefined,
+			sponsorId: localFilter.sponsorId ?? undefined,
+			ageRangeMin:
+				localFilter.ageRangeMin !== 12 ? localFilter.ageRangeMin : undefined,
+			ageRangeMax:
+				localFilter.ageRangeMax !== 75 ? localFilter.ageRangeMax : undefined,
+			country: localFilter.country ?? undefined,
+			studentStatus: localFilter.studentStatus ?? undefined,
+			programStatus: localFilter.programStatus ?? undefined,
+			semesterStatus: localFilter.semesterStatus ?? undefined,
+		};
+		onFilterChange(newFilter);
+	}, [localFilter, onFilterChange]);
 
 	const hasAgeFilter =
-		filter.ageRangeMin !== undefined || filter.ageRangeMax !== undefined;
+		localFilter.ageRangeMin !== 12 || localFilter.ageRangeMax !== 75;
 
 	const activeFiltersCount =
 		[
@@ -143,7 +142,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		queryKey: ['registration-report-programs', localFilter.schoolId],
 		queryFn: async () => {
 			const result = await getAvailableProgramsForReports(
-				localFilter.schoolId ? Number(localFilter.schoolId) : undefined
+				localFilter.schoolId ?? undefined
 			);
 			return result.success ? result.data : [];
 		},
@@ -166,50 +165,32 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		},
 	});
 
-	useEffect(() => {
-		if (localFilter.schoolId !== filter.schoolId?.toString()) {
-			setLocalFilter((prev) => ({ ...prev, programId: '' }));
-		}
-	}, [localFilter.schoolId, filter.schoolId]);
-
 	function handleChange(
-		field: keyof typeof localFilter,
-		value: string | [number, number] | null
+		field: string,
+		value: string | number | [number, number] | null
 	) {
-		const updated = {
-			...localFilter,
-			[field]: Array.isArray(value) ? value : value || '',
-			...(field === 'schoolId' && { programId: '', programStatus: '' }),
-			...(field === 'programId' && { programStatus: '' }),
-			...(field === 'semesterNumber' && { semesterStatus: '' }),
+		if (Array.isArray(value)) {
+			setLocalFilter({
+				ageRangeMin: value[0],
+				ageRangeMax: value[1],
+			});
+			return;
+		}
+
+		const updates: Record<string, number | string | null> = {
+			[field]: value,
 		};
 
-		setLocalFilter(updated);
-	}
+		if (field === 'schoolId') {
+			updates.programId = null;
+			updates.programStatus = null;
+		} else if (field === 'programId') {
+			updates.programStatus = null;
+		} else if (field === 'semesterNumber') {
+			updates.semesterStatus = null;
+		}
 
-	function handleApplyFilter() {
-		const newFilter: ReportFilter = {
-			termIds: localFilter.termId ? [Number(localFilter.termId)] : undefined,
-			schoolId: localFilter.schoolId ? Number(localFilter.schoolId) : undefined,
-			programId: localFilter.programId
-				? Number(localFilter.programId)
-				: undefined,
-			semesterNumber: localFilter.semesterNumber || undefined,
-			gender: localFilter.gender || undefined,
-			sponsorId: localFilter.sponsorId
-				? Number(localFilter.sponsorId)
-				: undefined,
-			ageRangeMin:
-				localFilter.ageRange[0] !== 12 ? localFilter.ageRange[0] : undefined,
-			ageRangeMax:
-				localFilter.ageRange[1] !== 75 ? localFilter.ageRange[1] : undefined,
-			country: localFilter.country || undefined,
-			studentStatus: localFilter.studentStatus || undefined,
-			programStatus: localFilter.programStatus || undefined,
-			semesterStatus: localFilter.semesterStatus || undefined,
-		};
-
-		onFilterChange(newFilter);
+		setLocalFilter(updates);
 	}
 
 	return (
@@ -231,8 +212,10 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 									label: term.name,
 								}))}
 								rightSection={termsLoading && <Loader size='xs' />}
-								value={localFilter.termId || null}
-								onChange={(value) => handleChange('termId', value)}
+								value={localFilter.termId?.toString() ?? null}
+								onChange={(value) =>
+									handleChange('termId', value ? Number(value) : null)
+								}
 								searchable
 								clearable
 								withAsterisk
@@ -249,8 +232,10 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 									description: school.name,
 								}))}
 								rightSection={schoolsLoading && <Loader size='xs' />}
-								value={localFilter.schoolId || null}
-								onChange={(value) => handleChange('schoolId', value)}
+								value={localFilter.schoolId?.toString() ?? null}
+								onChange={(value) =>
+									handleChange('schoolId', value ? Number(value) : null)
+								}
 								searchable
 								clearable
 								renderOption={({ option }) => {
@@ -281,8 +266,10 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 									description: program.name,
 								}))}
 								rightSection={programsLoading && <Loader size='xs' />}
-								value={localFilter.programId || null}
-								onChange={(value) => handleChange('programId', value)}
+								value={localFilter.programId?.toString() ?? null}
+								onChange={(value) =>
+									handleChange('programId', value ? Number(value) : null)
+								}
 								searchable
 								clearable
 								disabled={!localFilter.schoolId}
@@ -309,7 +296,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 								label='Semester'
 								placeholder='All semesters'
 								data={semesterOptions}
-								value={localFilter.semesterNumber || null}
+								value={localFilter.semesterNumber ?? null}
 								onChange={(value) => handleChange('semesterNumber', value)}
 								searchable
 								clearable
@@ -333,7 +320,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 						</Button>
 
 						<ActionIcon
-							onClick={handleApplyFilter}
+							onClick={close}
 							disabled={!localFilter.termId}
 							variant='light'
 							size={35}
@@ -358,7 +345,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 							{ value: 'Male', label: 'Male' },
 							{ value: 'Female', label: 'Female' },
 						]}
-						value={localFilter.gender || null}
+						value={localFilter.gender ?? null}
 						onChange={(value) => handleChange('gender', value)}
 						clearable
 					/>
@@ -371,19 +358,21 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 							label: sponsor.name,
 						}))}
 						rightSection={sponsorsLoading && <Loader size='xs' />}
-						value={localFilter.sponsorId || null}
-						onChange={(value) => handleChange('sponsorId', value)}
+						value={localFilter.sponsorId?.toString() ?? null}
+						onChange={(value) =>
+							handleChange('sponsorId', value ? Number(value) : null)
+						}
 						searchable
 						clearable
 					/>
 
 					<Stack gap='xs'>
 						<Text size='sm' fw={500}>
-							Age Range: {localFilter.ageRange[0]} - {localFilter.ageRange[1]}{' '}
+							Age Range: {localFilter.ageRangeMin} - {localFilter.ageRangeMax}{' '}
 							years
 						</Text>
 						<RangeSlider
-							value={localFilter.ageRange}
+							value={[localFilter.ageRangeMin, localFilter.ageRangeMax]}
 							onChange={(value) => handleChange('ageRange', value)}
 							min={12}
 							max={75}
@@ -409,7 +398,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 							label: country,
 						}))}
 						rightSection={countriesLoading && <Loader size='xs' />}
-						value={localFilter.country || null}
+						value={localFilter.country ?? null}
 						onChange={(value) => handleChange('country', value)}
 						searchable
 						clearable
@@ -423,7 +412,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 								value: status,
 								label: status,
 							}))}
-							value={localFilter.studentStatus || null}
+							value={localFilter.studentStatus ?? null}
 							onChange={(value) => handleChange('studentStatus', value)}
 							searchable
 							clearable
@@ -436,7 +425,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 								value: status,
 								label: status,
 							}))}
-							value={localFilter.programStatus || null}
+							value={localFilter.programStatus ?? null}
 							onChange={(value) => handleChange('programStatus', value)}
 							searchable
 							clearable
@@ -450,7 +439,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 							value: status,
 							label: status === 'DroppedOut' ? 'Dropped Out' : status,
 						}))}
-						value={localFilter.semesterStatus || null}
+						value={localFilter.semesterStatus ?? null}
 						onChange={(value) => handleChange('semesterStatus', value)}
 						searchable
 						clearable
