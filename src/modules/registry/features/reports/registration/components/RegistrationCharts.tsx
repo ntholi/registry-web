@@ -1,12 +1,9 @@
 'use client';
 import { BarChart, PieChart } from '@mantine/charts';
 import {
-	Box,
 	Card,
 	Grid,
-	Group,
 	Paper,
-	Progress,
 	Skeleton,
 	Stack,
 	Text,
@@ -79,79 +76,6 @@ interface ProgramData {
 	code: string;
 	count: number;
 	school: string;
-}
-
-interface TopProgramsListProps {
-	data: ProgramData[];
-}
-
-function TopProgramsList({ data }: TopProgramsListProps) {
-	if (!data || data.length === 0) return null;
-
-	const maxCount = Math.max(...data.map((p) => p.count));
-
-	const getRankColor = (index: number): string => {
-		const colors = [
-			'orange.7',
-			'orange.6',
-			'orange.5',
-			'orange.4',
-			'orange.3',
-			'yellow.5',
-			'yellow.4',
-			'yellow.3',
-			'gray.5',
-			'gray.4',
-		];
-		return colors[Math.min(index, colors.length - 1)];
-	};
-
-	return (
-		<Stack gap='xs'>
-			{data.map((program, index) => {
-				const percentage = (program.count / maxCount) * 100;
-				const color = getRankColor(index);
-
-				return (
-					<Box key={`${program.code}-${program.school}-${index}`}>
-						<Group justify='space-between' mb={4}>
-							<Group gap='xs'>
-								<Text size='sm' fw={600} c='dimmed' style={{ width: '20px' }}>
-									#{index + 1}
-								</Text>
-								<Text
-									size='sm'
-									fw={500}
-									lineClamp={1}
-									style={{ maxWidth: '200px' }}
-								>
-									{program.code}
-								</Text>
-								<Text
-									size='xs'
-									c='dimmed'
-									lineClamp={1}
-									style={{ maxWidth: '150px' }}
-								>
-									({program.name})
-								</Text>
-							</Group>
-							<Text size='sm' fw={600} c={color}>
-								{program.count.toLocaleString()}
-							</Text>
-						</Group>
-						<Progress
-							value={percentage}
-							color={color}
-							size='md'
-							radius='sm'
-							animated={index === 0}
-						/>
-					</Box>
-				);
-			})}
-		</Stack>
-	);
 }
 
 export default function RegistrationCharts({
@@ -333,8 +257,23 @@ export default function RegistrationCharts({
 									Top 10 programs by enrollment
 								</Text>
 							</div>
-
-							<TopProgramsList data={programsData} />
+							<BarChart
+								h={300}
+								data={programsData}
+								dataKey='code'
+								series={[{ name: 'count', label: 'Students', color: 'orange.6' }]}
+								tickLine='y'
+								barProps={{ radius: 4 }}
+								tooltipAnimationDuration={200}
+								tooltipProps={{
+									content: ({ label, payload }) => (
+										<ChartTooltip
+											label={label}
+											payload={payload as Record<string, unknown>[] | undefined}
+										/>
+									),
+								}}
+							/>
 						</Stack>
 					</Card>
 				</Grid.Col>
