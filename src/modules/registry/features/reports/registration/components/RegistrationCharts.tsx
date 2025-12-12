@@ -31,6 +31,26 @@ interface RegistrationChartsProps {
 	filter: ReportFilter;
 }
 
+function hasAtLeastTwoNonZero(
+	data: ReadonlyArray<Record<string, unknown>> | null | undefined,
+	valueKey: string
+): boolean {
+	if (!Array.isArray(data)) return false;
+	let nonZeroCount = 0;
+	for (const item of data) {
+		const value = item[valueKey];
+		const isNonZero =
+			typeof value === 'number'
+				? value > 0
+				: typeof value === 'bigint'
+					? Number(value) > 0
+					: Boolean(value);
+		if (isNonZero) nonZeroCount += 1;
+		if (nonZeroCount >= 2) return true;
+	}
+	return false;
+}
+
 const COLORS = [
 	'#228be6',
 	'#40c057',
@@ -75,307 +95,344 @@ export default function RegistrationCharts({
 		return null;
 	}
 
+	const showStudentsBySchool = hasAtLeastTwoNonZero(
+		chartData.studentsBySchool,
+		'count'
+	);
+	const showStudentsBySemester = hasAtLeastTwoNonZero(
+		chartData.studentsBySemester,
+		'count'
+	);
+	const showStudentsByGender = hasAtLeastTwoNonZero(
+		chartData.studentsByGender,
+		'count'
+	);
+	const showStudentsByProgram = hasAtLeastTwoNonZero(
+		chartData.studentsByProgram,
+		'count'
+	);
+	const showProgramsBySchool = hasAtLeastTwoNonZero(
+		chartData.programsBySchool,
+		'programCount'
+	);
+	const showStudentsBySponsor = hasAtLeastTwoNonZero(
+		chartData.studentsBySponsor,
+		'count'
+	);
+
+	const studentsBySemester = chartData.studentsBySemester.map((item) => ({
+		...item,
+		semesterLabel: formatSemester(item.semester, 'mini'),
+	}));
+
 	return (
 		<Grid>
-			<Grid.Col span={{ base: 12, md: 6 }}>
-				<Card withBorder p='md'>
-					<Stack gap='md'>
-						<Group justify='space-between'>
-							<div>
-								<Title order={4}>Students by School</Title>
-								<Text size='sm' c='dimmed'>
-									Distribution of students across schools
-								</Text>
-							</div>
-						</Group>
-						<ResponsiveContainer width='100%' height={300}>
-							<BarChart data={chartData.studentsBySchool}>
-								<CartesianGrid
-									strokeDasharray='3 3'
-									stroke={theme.colors.gray[3]}
-								/>
-								<XAxis
-									dataKey='code'
-									stroke={theme.colors.gray[6]}
-									style={{ fontSize: '12px' }}
-								/>
-								<YAxis stroke={theme.colors.gray[6]} />
-								<Tooltip
-									contentStyle={{
-										backgroundColor: theme.colors.dark[7],
-										border: `1px solid ${theme.colors.dark[4]}`,
-										borderRadius: '4px',
-									}}
-									labelStyle={{ color: theme.colors.gray[0] }}
-								/>
-								<Bar
-									dataKey='count'
-									fill={theme.colors.blue[6]}
-									radius={[4, 4, 0, 0]}
-								/>
-							</BarChart>
-						</ResponsiveContainer>
-					</Stack>
-				</Card>
-			</Grid.Col>
+			{showStudentsBySchool ? (
+				<Grid.Col span={{ base: 12, md: 6 }}>
+					<Card withBorder p='md'>
+						<Stack gap='md'>
+							<Group justify='space-between'>
+								<div>
+									<Title order={4}>Students by School</Title>
+									<Text size='sm' c='dimmed'>
+										Distribution of students across schools
+									</Text>
+								</div>
+							</Group>
+							<ResponsiveContainer width='100%' height={300}>
+								<BarChart data={chartData.studentsBySchool}>
+									<CartesianGrid
+										strokeDasharray='3 3'
+										stroke={theme.colors.gray[3]}
+									/>
+									<XAxis
+										dataKey='code'
+										stroke={theme.colors.gray[6]}
+										style={{ fontSize: '12px' }}
+									/>
+									<YAxis stroke={theme.colors.gray[6]} />
+									<Tooltip
+										contentStyle={{
+											backgroundColor: theme.colors.dark[7],
+											border: `1px solid ${theme.colors.dark[4]}`,
+											borderRadius: '4px',
+										}}
+										labelStyle={{ color: theme.colors.gray[0] }}
+									/>
+									<Bar
+										dataKey='count'
+										fill={theme.colors.blue[6]}
+										radius={[4, 4, 0, 0]}
+									/>
+								</BarChart>
+							</ResponsiveContainer>
+						</Stack>
+					</Card>
+				</Grid.Col>
+			) : null}
 
-			<Grid.Col span={{ base: 12, md: 6 }}>
-				<Card withBorder p='md'>
-					<Stack gap='md'>
-						<Group justify='space-between'>
-							<div>
-								<Title order={4}>Students by Semester</Title>
-								<Text size='sm' c='dimmed'>
-									Distribution across academic levels
-								</Text>
-							</div>
-						</Group>
-						<ResponsiveContainer width='100%' height={300}>
-							<BarChart
-								data={chartData.studentsBySemester.map((item) => ({
-									...item,
-									semesterLabel: formatSemester(item.semester, 'mini'),
-								}))}
-							>
-								<CartesianGrid
-									strokeDasharray='3 3'
-									stroke={theme.colors.gray[3]}
-								/>
-								<XAxis
-									dataKey='semesterLabel'
-									stroke={theme.colors.gray[6]}
-									style={{ fontSize: '12px' }}
-								/>
-								<YAxis stroke={theme.colors.gray[6]} />
-								<Tooltip
-									contentStyle={{
-										backgroundColor: theme.colors.dark[7],
-										border: `1px solid ${theme.colors.dark[4]}`,
-										borderRadius: '4px',
-									}}
-									labelStyle={{ color: theme.colors.gray[0] }}
-								/>
-								<Bar
-									dataKey='count'
-									fill={theme.colors.green[6]}
-									radius={[4, 4, 0, 0]}
-								/>
-							</BarChart>
-						</ResponsiveContainer>
-					</Stack>
-				</Card>
-			</Grid.Col>
+			{showStudentsBySemester ? (
+				<Grid.Col span={{ base: 12, md: 6 }}>
+					<Card withBorder p='md'>
+						<Stack gap='md'>
+							<Group justify='space-between'>
+								<div>
+									<Title order={4}>Students by Semester</Title>
+									<Text size='sm' c='dimmed'>
+										Distribution across academic levels
+									</Text>
+								</div>
+							</Group>
+							<ResponsiveContainer width='100%' height={300}>
+								<BarChart data={studentsBySemester}>
+									<CartesianGrid
+										strokeDasharray='3 3'
+										stroke={theme.colors.gray[3]}
+									/>
+									<XAxis
+										dataKey='semesterLabel'
+										stroke={theme.colors.gray[6]}
+										style={{ fontSize: '12px' }}
+									/>
+									<YAxis stroke={theme.colors.gray[6]} />
+									<Tooltip
+										contentStyle={{
+											backgroundColor: theme.colors.dark[7],
+											border: `1px solid ${theme.colors.dark[4]}`,
+											borderRadius: '4px',
+										}}
+										labelStyle={{ color: theme.colors.gray[0] }}
+									/>
+									<Bar
+										dataKey='count'
+										fill={theme.colors.green[6]}
+										radius={[4, 4, 0, 0]}
+									/>
+								</BarChart>
+							</ResponsiveContainer>
+						</Stack>
+					</Card>
+				</Grid.Col>
+			) : null}
 
-			<Grid.Col span={{ base: 12, md: 6 }}>
-				<Card withBorder p='md'>
-					<Stack gap='md'>
-						<Group justify='space-between'>
-							<div>
-								<Title order={4}>Gender Distribution</Title>
-								<Text size='sm' c='dimmed'>
-									Student enrollment by gender
-								</Text>
-							</div>
-						</Group>
-						<ResponsiveContainer width='100%' height={300}>
-							<PieChart>
-								<Pie
-									data={chartData.studentsByGender}
-									cx='50%'
-									cy='50%'
-									labelLine={false}
-									label={({ percent }) =>
-										percent && percent > 0.05
-											? `${(percent * 100).toFixed(0)}%`
-											: ''
-									}
-									outerRadius={100}
-									fill='#8884d8'
-									dataKey='count'
-									nameKey='gender'
-								>
-									{chartData.studentsByGender.map((entry, index) => (
-										<Cell
-											key={`cell-${entry.gender}`}
-											fill={COLORS[index % COLORS.length]}
-										/>
-									))}
-								</Pie>
-								<Tooltip
-									contentStyle={{
-										backgroundColor: theme.colors.gray[0],
-										border: `1px solid ${theme.colors.dark[4]}`,
-										borderRadius: '4px',
-										color: theme.colors.dark[9],
-									}}
-								/>
-								<Legend />
-							</PieChart>
-						</ResponsiveContainer>
-					</Stack>
-				</Card>
-			</Grid.Col>
-
-			<Grid.Col span={{ base: 12, md: 6 }}>
-				<Card withBorder p='md'>
-					<Stack gap='md'>
-						<Group justify='space-between'>
-							<div>
-								<Title order={4}>Top Programs</Title>
-								<Text size='sm' c='dimmed'>
-									Top 10 programs by enrollment
-								</Text>
-							</div>
-						</Group>
-						<ResponsiveContainer width='100%' height={300}>
-							<BarChart
-								data={chartData.studentsByProgram}
-								layout='vertical'
-								margin={{ left: 10, right: 10 }}
-							>
-								<CartesianGrid
-									strokeDasharray='3 3'
-									stroke={theme.colors.gray[3]}
-								/>
-								<XAxis type='number' stroke={theme.colors.gray[6]} />
-								<YAxis
-									dataKey='code'
-									type='category'
-									stroke={theme.colors.gray[6]}
-									width={80}
-									style={{ fontSize: '11px' }}
-								/>
-								<Tooltip
-									contentStyle={{
-										backgroundColor: theme.colors.dark[7],
-										border: `1px solid ${theme.colors.dark[4]}`,
-										borderRadius: '4px',
-									}}
-									labelFormatter={(value, payload) => {
-										if (payload && payload.length > 0) {
-											return payload[0].payload.name;
+			{showStudentsByGender ? (
+				<Grid.Col span={{ base: 12, md: 6 }}>
+					<Card withBorder p='md'>
+						<Stack gap='md'>
+							<Group justify='space-between'>
+								<div>
+									<Title order={4}>Gender Distribution</Title>
+									<Text size='sm' c='dimmed'>
+										Student enrollment by gender
+									</Text>
+								</div>
+							</Group>
+							<ResponsiveContainer width='100%' height={300}>
+								<PieChart>
+									<Pie
+										data={chartData.studentsByGender}
+										cx='50%'
+										cy='50%'
+										labelLine={false}
+										label={({ percent }) =>
+											percent && percent > 0.05
+												? `${(percent * 100).toFixed(0)}%`
+												: ''
 										}
-										return value;
-									}}
-								/>
-								<Bar
-									dataKey='count'
-									fill={theme.colors.orange[6]}
-									radius={[0, 4, 4, 0]}
-								/>
-							</BarChart>
-						</ResponsiveContainer>
-					</Stack>
-				</Card>
-			</Grid.Col>
+										outerRadius={100}
+										fill='#8884d8'
+										dataKey='count'
+										nameKey='gender'
+									>
+										{chartData.studentsByGender.map((entry, index) => (
+											<Cell
+												key={`cell-${entry.gender}`}
+												fill={COLORS[index % COLORS.length]}
+											/>
+										))}
+									</Pie>
+									<Tooltip
+										contentStyle={{
+											backgroundColor: theme.colors.gray[0],
+											border: `1px solid ${theme.colors.dark[4]}`,
+											borderRadius: '4px',
+											color: theme.colors.dark[9],
+										}}
+									/>
+									<Legend />
+								</PieChart>
+							</ResponsiveContainer>
+						</Stack>
+					</Card>
+				</Grid.Col>
+			) : null}
 
-			<Grid.Col span={{ base: 12, md: 6 }}>
-				<Card withBorder p='md'>
-					<Stack gap='md'>
-						<Group justify='space-between'>
-							<div>
-								<Title order={4}>Programs per School</Title>
-								<Text size='sm' c='dimmed'>
-									Number of active programs in each school
-								</Text>
-							</div>
-						</Group>
-						<ResponsiveContainer width='100%' height={300}>
-							<BarChart data={chartData.programsBySchool}>
-								<CartesianGrid
-									strokeDasharray='3 3'
-									stroke={theme.colors.gray[3]}
-								/>
-								<XAxis
-									dataKey='schoolCode'
-									stroke={theme.colors.gray[6]}
-									style={{ fontSize: '11px' }}
-									angle={-45}
-									textAnchor='end'
-									height={80}
-								/>
-								<YAxis stroke={theme.colors.gray[6]} />
-								<Tooltip
-									contentStyle={{
-										backgroundColor: theme.colors.dark[7],
-										border: `1px solid ${theme.colors.dark[4]}`,
-										borderRadius: '4px',
-									}}
-									labelFormatter={(value, payload) => {
-										if (payload && payload.length > 0) {
-											return payload[0].payload.school;
-										}
-										return value;
-									}}
-								/>
-								<Bar
-									dataKey='programCount'
-									fill={theme.colors.violet[6]}
-									radius={[4, 4, 0, 0]}
-								/>
-							</BarChart>
-						</ResponsiveContainer>
-					</Stack>
-				</Card>
-			</Grid.Col>
-
-			<Grid.Col span={{ base: 12, md: 6 }}>
-				<Card withBorder p='md'>
-					<Stack gap='md'>
-						<Group justify='space-between'>
-							<div>
-								<Title order={4}>Top Sponsors</Title>
-								<Text size='sm' c='dimmed'>
-									Top 5 sponsors by student count
-								</Text>
-							</div>
-						</Group>
-						<ResponsiveContainer width='100%' height={300}>
-							<PieChart>
-								<Pie
-									data={chartData.studentsBySponsor}
-									cx='50%'
-									cy='50%'
-									labelLine={false}
-									label={({ percent }) =>
-										percent && percent > 0.05
-											? `${(percent * 100).toFixed(0)}%`
-											: ''
-									}
-									outerRadius={100}
-									fill='#8884d8'
-									dataKey='count'
-									nameKey='sponsor'
+			{showStudentsByProgram ? (
+				<Grid.Col span={{ base: 12, md: 6 }}>
+					<Card withBorder p='md'>
+						<Stack gap='md'>
+							<Group justify='space-between'>
+								<div>
+									<Title order={4}>Top Programs</Title>
+									<Text size='sm' c='dimmed'>
+										Top 10 programs by enrollment
+									</Text>
+								</div>
+							</Group>
+							<ResponsiveContainer width='100%' height={300}>
+								<BarChart
+									data={chartData.studentsByProgram}
+									layout='vertical'
+									margin={{ left: 10, right: 10 }}
 								>
-									{chartData.studentsBySponsor.map((entry, index) => (
-										<Cell
-											key={`cell-${entry.sponsor}`}
-											fill={COLORS[index % COLORS.length]}
-										/>
-									))}
-								</Pie>
-								<Tooltip
-									contentStyle={{
-										backgroundColor: theme.colors.gray[0],
-										border: `1px solid ${theme.colors.dark[4]}`,
-										borderRadius: '4px',
-										color: theme.colors.dark[9],
-									}}
-								/>
-								<Legend
-									wrapperStyle={{ fontSize: '12px' }}
-									formatter={(value) => {
-										const maxLength = 30;
-										return value.length > maxLength
-											? `${value.substring(0, maxLength)}...`
-											: value;
-									}}
-								/>
-							</PieChart>
-						</ResponsiveContainer>
-					</Stack>
-				</Card>
-			</Grid.Col>
+									<CartesianGrid
+										strokeDasharray='3 3'
+										stroke={theme.colors.gray[3]}
+									/>
+									<XAxis type='number' stroke={theme.colors.gray[6]} />
+									<YAxis
+										dataKey='code'
+										type='category'
+										stroke={theme.colors.gray[6]}
+										width={80}
+										style={{ fontSize: '11px' }}
+									/>
+									<Tooltip
+										contentStyle={{
+											backgroundColor: theme.colors.dark[7],
+											border: `1px solid ${theme.colors.dark[4]}`,
+											borderRadius: '4px',
+										}}
+										labelFormatter={(value, payload) => {
+											if (payload && payload.length > 0) {
+												return payload[0].payload.name;
+											}
+											return value;
+										}}
+									/>
+									<Bar
+										dataKey='count'
+										fill={theme.colors.orange[6]}
+										radius={[0, 4, 4, 0]}
+									/>
+								</BarChart>
+							</ResponsiveContainer>
+						</Stack>
+					</Card>
+				</Grid.Col>
+			) : null}
+
+			{showProgramsBySchool ? (
+				<Grid.Col span={{ base: 12, md: 6 }}>
+					<Card withBorder p='md'>
+						<Stack gap='md'>
+							<Group justify='space-between'>
+								<div>
+									<Title order={4}>Programs per School</Title>
+									<Text size='sm' c='dimmed'>
+										Number of active programs in each school
+									</Text>
+								</div>
+							</Group>
+							<ResponsiveContainer width='100%' height={300}>
+								<BarChart data={chartData.programsBySchool}>
+									<CartesianGrid
+										strokeDasharray='3 3'
+										stroke={theme.colors.gray[3]}
+									/>
+									<XAxis
+										dataKey='schoolCode'
+										stroke={theme.colors.gray[6]}
+										style={{ fontSize: '11px' }}
+										angle={-45}
+										textAnchor='end'
+										height={80}
+									/>
+									<YAxis stroke={theme.colors.gray[6]} />
+									<Tooltip
+										contentStyle={{
+											backgroundColor: theme.colors.dark[7],
+											border: `1px solid ${theme.colors.dark[4]}`,
+											borderRadius: '4px',
+										}}
+										labelFormatter={(value, payload) => {
+											if (payload && payload.length > 0) {
+												return payload[0].payload.school;
+											}
+											return value;
+										}}
+									/>
+									<Bar
+										dataKey='programCount'
+										fill={theme.colors.violet[6]}
+										radius={[4, 4, 0, 0]}
+									/>
+								</BarChart>
+							</ResponsiveContainer>
+						</Stack>
+					</Card>
+				</Grid.Col>
+			) : null}
+
+			{showStudentsBySponsor ? (
+				<Grid.Col span={{ base: 12, md: 6 }}>
+					<Card withBorder p='md'>
+						<Stack gap='md'>
+							<Group justify='space-between'>
+								<div>
+									<Title order={4}>Top Sponsors</Title>
+									<Text size='sm' c='dimmed'>
+										Top 5 sponsors by student count
+									</Text>
+								</div>
+							</Group>
+							<ResponsiveContainer width='100%' height={300}>
+								<PieChart>
+									<Pie
+										data={chartData.studentsBySponsor}
+										cx='50%'
+										cy='50%'
+										labelLine={false}
+										label={({ percent }) =>
+											percent && percent > 0.05
+												? `${(percent * 100).toFixed(0)}%`
+												: ''
+										}
+										outerRadius={100}
+										fill='#8884d8'
+										dataKey='count'
+										nameKey='sponsor'
+									>
+										{chartData.studentsBySponsor.map((entry, index) => (
+											<Cell
+												key={`cell-${entry.sponsor}`}
+												fill={COLORS[index % COLORS.length]}
+											/>
+										))}
+									</Pie>
+									<Tooltip
+										contentStyle={{
+											backgroundColor: theme.colors.gray[0],
+											border: `1px solid ${theme.colors.dark[4]}`,
+											borderRadius: '4px',
+											color: theme.colors.dark[9],
+										}}
+									/>
+									<Legend
+										wrapperStyle={{ fontSize: '12px' }}
+										formatter={(value) => {
+											const maxLength = 30;
+											return value.length > maxLength
+												? `${value.substring(0, maxLength)}...`
+												: value;
+										}}
+									/>
+								</PieChart>
+							</ResponsiveContainer>
+						</Stack>
+					</Card>
+				</Grid.Col>
+			) : null}
 		</Grid>
 	);
 }
