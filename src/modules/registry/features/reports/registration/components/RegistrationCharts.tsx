@@ -194,22 +194,6 @@ export default function RegistrationCharts({
 								]}
 								yAxisProps={{ width: 80 }}
 								barProps={{ radius: 4 }}
-								tooltipProps={{
-									content: ({ payload }) => {
-										if (!payload?.length) return null;
-										const data = payload[0].payload;
-										return (
-											<Card p='xs' withBorder shadow='md'>
-												<Text size='sm' fw={500}>
-													{data.name}
-												</Text>
-												<Text size='sm' c='dimmed'>
-													Students: {data.count}
-												</Text>
-											</Card>
-										);
-									},
-								}}
 							/>
 						</Stack>
 					</Card>
@@ -240,22 +224,6 @@ export default function RegistrationCharts({
 								tickLine='y'
 								xAxisProps={{ angle: -45 }}
 								barProps={{ radius: 4 }}
-								tooltipProps={{
-									content: ({ payload }) => {
-										if (!payload?.length) return null;
-										const data = payload[0].payload;
-										return (
-											<Card p='xs' withBorder shadow='md'>
-												<Text size='sm' fw={500}>
-													{data.school}
-												</Text>
-												<Text size='sm' c='dimmed'>
-													Programs: {data.programCount}
-												</Text>
-											</Card>
-										);
-									},
-								}}
 							/>
 						</Stack>
 					</Card>
