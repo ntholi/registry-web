@@ -8,7 +8,6 @@ import {
 	Group,
 	Loader,
 	Modal,
-	MultiSelect,
 	Paper,
 	RangeSlider,
 	Select,
@@ -69,7 +68,7 @@ interface Props {
 export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [localFilter, setLocalFilter] = useState<{
-		termIds: string[];
+		termId: string;
 		schoolId: string;
 		programId: string;
 		semesterNumber: string;
@@ -81,7 +80,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 		programStatus: string;
 		semesterStatus: string;
 	}>({
-		termIds: filter.termIds?.map((id) => id.toString()) || [],
+		termId: filter.termIds?.[0]?.toString() || '',
 		schoolId: filter.schoolId?.toString() || '',
 		programId: filter.programId?.toString() || '',
 		semesterNumber: filter.semesterNumber || '',
@@ -96,7 +95,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 
 	useEffect(() => {
 		setLocalFilter({
-			termIds: filter.termIds?.map((id) => id.toString()) || [],
+			termId: filter.termIds?.[0]?.toString() || '',
 			schoolId: filter.schoolId?.toString() || '',
 			programId: filter.programId?.toString() || '',
 			semesterNumber: filter.semesterNumber || '',
@@ -175,7 +174,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 
 	function handleChange(
 		field: keyof typeof localFilter,
-		value: string | string[] | [number, number] | null
+		value: string | [number, number] | null
 	) {
 		const updated = {
 			...localFilter,
@@ -190,10 +189,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 
 	function handleApplyFilter() {
 		const newFilter: ReportFilter = {
-			termIds:
-				localFilter.termIds.length > 0
-					? localFilter.termIds.map((id) => Number(id))
-					: undefined,
+			termIds: localFilter.termId ? [Number(localFilter.termId)] : undefined,
 			schoolId: localFilter.schoolId ? Number(localFilter.schoolId) : undefined,
 			programId: localFilter.programId
 				? Number(localFilter.programId)
@@ -226,24 +222,24 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 
 				<Flex align={'flex-end'} gap={'sm'}>
 					<Grid gutter='md' flex={1}>
-						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-							<MultiSelect
-								label='Academic Terms'
-								placeholder='Select terms'
+						<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+							<Select
+								label='Term'
+								placeholder='Select term'
 								data={terms.map((term) => ({
 									value: term.id?.toString() || '',
 									label: term.name,
 								}))}
 								rightSection={termsLoading && <Loader size='xs' />}
-								value={localFilter.termIds}
-								onChange={(value) => handleChange('termIds', value)}
+								value={localFilter.termId || null}
+								onChange={(value) => handleChange('termId', value)}
 								searchable
 								clearable
 								withAsterisk
 							/>
 						</Grid.Col>
 
-						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
 							<Select
 								label='School'
 								placeholder='All schools'
@@ -275,7 +271,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 							/>
 						</Grid.Col>
 
-						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
 							<Select
 								label='Program'
 								placeholder='All programs'
@@ -328,7 +324,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 							onClick={open}
 							size='sm'
 						>
-							More Filters
+							Filters
 							{activeFiltersCount > 0 && (
 								<Badge size='sm' circle ml='xs'>
 									{activeFiltersCount}
@@ -338,7 +334,7 @@ export default function RegistrationFilter({ filter, onFilterChange }: Props) {
 
 						<ActionIcon
 							onClick={handleApplyFilter}
-							disabled={localFilter.termIds.length === 0}
+							disabled={!localFilter.termId}
 							variant='light'
 							size={35}
 						>
