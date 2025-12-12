@@ -1,6 +1,17 @@
 'use client';
 import { BarChart, PieChart } from '@mantine/charts';
-import { Card, Grid, Skeleton, Stack, Text, Title } from '@mantine/core';
+import {
+	Box,
+	Card,
+	Grid,
+	Group,
+	Paper,
+	Progress,
+	Skeleton,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getRegistrationChartData } from '../server/actions';
@@ -28,6 +39,119 @@ function hasAtLeastTwoNonZero(
 		if (nonZeroCount >= 2) return true;
 	}
 	return false;
+}
+
+interface ChartTooltipProps {
+	label: React.ReactNode;
+	payload: Record<string, unknown>[] | undefined;
+	seriesName?: string;
+}
+
+function ChartTooltip({
+	label,
+	payload,
+	seriesName = 'Students',
+}: ChartTooltipProps) {
+	if (!payload || payload.length === 0) return null;
+
+	const filteredPayload = payload.filter(
+		(item) => item.value !== undefined && item.value !== null
+	);
+
+	if (filteredPayload.length === 0) return null;
+
+	return (
+		<Paper px='md' py='sm' withBorder shadow='md' radius='md'>
+			<Text fw={500} mb={5}>
+				{label}
+			</Text>
+			{filteredPayload.map((item) => (
+				<Text key={String(item.name)} c={String(item.color)} fz='sm'>
+					{seriesName}: {String(item.value)}
+				</Text>
+			))}
+		</Paper>
+	);
+}
+
+interface ProgramData {
+	name: string;
+	code: string;
+	count: number;
+	school: string;
+}
+
+interface TopProgramsListProps {
+	data: ProgramData[];
+}
+
+function TopProgramsList({ data }: TopProgramsListProps) {
+	if (!data || data.length === 0) return null;
+
+	const maxCount = Math.max(...data.map((p) => p.count));
+
+	const getRankColor = (index: number): string => {
+		const colors = [
+			'orange.7',
+			'orange.6',
+			'orange.5',
+			'orange.4',
+			'orange.3',
+			'yellow.5',
+			'yellow.4',
+			'yellow.3',
+			'gray.5',
+			'gray.4',
+		];
+		return colors[Math.min(index, colors.length - 1)];
+	};
+
+	return (
+		<Stack gap='xs'>
+			{data.map((program, index) => {
+				const percentage = (program.count / maxCount) * 100;
+				const color = getRankColor(index);
+
+				return (
+					<Box key={`${program.code}-${program.school}-${index}`}>
+						<Group justify='space-between' mb={4}>
+							<Group gap='xs'>
+								<Text size='sm' fw={600} c='dimmed' style={{ width: '20px' }}>
+									#{index + 1}
+								</Text>
+								<Text
+									size='sm'
+									fw={500}
+									lineClamp={1}
+									style={{ maxWidth: '200px' }}
+								>
+									{program.code}
+								</Text>
+								<Text
+									size='xs'
+									c='dimmed'
+									lineClamp={1}
+									style={{ maxWidth: '150px' }}
+								>
+									({program.name})
+								</Text>
+							</Group>
+							<Text size='sm' fw={600} c={color}>
+								{program.count.toLocaleString()}
+							</Text>
+						</Group>
+						<Progress
+							value={percentage}
+							color={color}
+							size='md'
+							radius='sm'
+							animated={index === 0}
+						/>
+					</Box>
+				);
+			})}
+		</Stack>
+	);
 }
 
 export default function RegistrationCharts({
@@ -91,6 +215,13 @@ export default function RegistrationCharts({
 		semesterLabel: formatSemester(item.semester, 'mini'),
 	}));
 
+	const programsData: ProgramData[] = (
+		chartData.studentsByProgram as ProgramData[]
+	).map((item) => ({
+		...item,
+		count: Number(item.count),
+	}));
+
 	return (
 		<Grid>
 			{showStudentsBySchool ? (
@@ -110,6 +241,15 @@ export default function RegistrationCharts({
 								series={[{ name: 'count', label: 'Students', color: 'blue.6' }]}
 								tickLine='y'
 								barProps={{ radius: 4 }}
+								tooltipAnimationDuration={200}
+								tooltipProps={{
+									content: ({ label, payload }) => (
+										<ChartTooltip
+											label={label}
+											payload={payload as Record<string, unknown>[] | undefined}
+										/>
+									),
+								}}
 							/>
 						</Stack>
 					</Card>
@@ -135,6 +275,15 @@ export default function RegistrationCharts({
 								]}
 								tickLine='y'
 								barProps={{ radius: 4 }}
+								tooltipAnimationDuration={200}
+								tooltipProps={{
+									content: ({ label, payload }) => (
+										<ChartTooltip
+											label={label}
+											payload={payload as Record<string, unknown>[] | undefined}
+										/>
+									),
+								}}
 							/>
 						</Stack>
 					</Card>
@@ -184,17 +333,8 @@ export default function RegistrationCharts({
 									Top 10 programs by enrollment
 								</Text>
 							</div>
-							<BarChart
-								h={300}
-								data={chartData.studentsByProgram}
-								dataKey='code'
-								orientation='vertical'
-								series={[
-									{ name: 'count', label: 'Students', color: 'orange.6' },
-								]}
-								yAxisProps={{ width: 80 }}
-								barProps={{ radius: 4 }}
-							/>
+
+							<TopProgramsList data={programsData} />
 						</Stack>
 					</Card>
 				</Grid.Col>
@@ -222,8 +362,17 @@ export default function RegistrationCharts({
 									},
 								]}
 								tickLine='y'
-								xAxisProps={{ angle: -45 }}
 								barProps={{ radius: 4 }}
+								tooltipAnimationDuration={200}
+								tooltipProps={{
+									content: ({ label, payload }) => (
+										<ChartTooltip
+											label={label}
+											payload={payload as Record<string, unknown>[] | undefined}
+											seriesName='Programs'
+										/>
+									),
+								}}
 							/>
 						</Stack>
 					</Card>
