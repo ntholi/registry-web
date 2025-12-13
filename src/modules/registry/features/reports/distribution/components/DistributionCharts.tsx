@@ -32,29 +32,6 @@ interface ChartTooltipProps {
 	payload: Record<string, unknown>[] | undefined;
 }
 
-function ChartTooltip({ label, payload }: ChartTooltipProps) {
-	if (!payload || payload.length === 0) return null;
-
-	const filteredPayload = payload.filter(
-		(item) => item.value !== undefined && item.value !== null
-	);
-
-	if (filteredPayload.length === 0) return null;
-
-	return (
-		<Paper px='md' py='sm' withBorder shadow='md' radius='md'>
-			<Text fw={500} mb={5}>
-				{label}
-			</Text>
-			{filteredPayload.map((item) => (
-				<Text key={String(item.name)} c={String(item.color)} fz='sm'>
-					Count: {String(item.value)}
-				</Text>
-			))}
-		</Paper>
-	);
-}
-
 const CHART_COLORS = [
 	'blue.6',
 	'teal.6',
@@ -70,13 +47,177 @@ const CHART_COLORS = [
 	'grape.6',
 ];
 
-function assignColors(
-	data: Array<{ name: string; value: number; color?: string }>
-) {
-	return data.map((item, index) => ({
-		...item,
-		color: item.color || CHART_COLORS[index % CHART_COLORS.length],
-	}));
+export default function DistributionCharts({
+	filter,
+	distributionType,
+}: Props) {
+	const { containerRef, isLayoutReady, containerStyle, getItemStyle } =
+		useMasonryLayout({ columns: 2, gap: 16 });
+
+	const { data, isLoading, error } = useQuery({
+		queryKey: ['distribution-data', distributionType, filter],
+		queryFn: async () => {
+			if (!filter.termIds || filter.termIds.length === 0 || !distributionType) {
+				return null;
+			}
+			const result = await getDistributionData(
+				distributionType,
+				filter.termIds,
+				filter
+			);
+			return result.success ? result.data : null;
+		},
+		enabled: Boolean(
+			filter.termIds && filter.termIds.length > 0 && distributionType
+		),
+	});
+
+	if (isLoading) {
+		return (
+			<Stack gap='lg'>
+				<Skeleton height={400} />
+				<SimpleGrid cols={{ base: 1, md: 2 }}>
+					{[1, 2, 3, 4].map((num) => (
+						<Skeleton key={`skeleton-${num}`} height={350} />
+					))}
+				</SimpleGrid>
+			</Stack>
+		);
+	}
+
+	if (error) {
+		return (
+			<Card withBorder p='xl'>
+				<Text c='red'>Error loading distribution data. Please try again.</Text>
+			</Card>
+		);
+	}
+
+	if (!data) {
+		return null;
+	}
+
+	return (
+		<Stack gap='lg'>
+			<OverviewSection data={data} />
+
+			<Box
+				ref={containerRef}
+				style={{
+					...containerStyle,
+					opacity: isLayoutReady ? 1 : 0,
+					transition: 'opacity 0.2s',
+				}}
+			>
+				{data.bySchool.length > 1 && (
+					<Card withBorder p='md' style={getItemStyle({ colSpan: 2 })}>
+						<Stack gap='md'>
+							<div>
+								<Title order={4}>Distribution by School</Title>
+								<Text size='sm' c='dimmed'>
+									Stacked comparison across {data.bySchool.length} schools
+								</Text>
+							</div>
+							<BarChart
+								h={350}
+								data={data.bySchool.slice(0, 10).map((breakdown) => {
+									const row: Record<string, string | number> = {
+										category: breakdown.category,
+									};
+									for (const point of breakdown.data) {
+										row[point.name] = point.value;
+									}
+									return row;
+								})}
+								dataKey='category'
+								type='default'
+								series={Array.from(
+									new Set(
+										data.bySchool.flatMap((b) => b.data.map((d) => d.name))
+									)
+								).map((name, index) => ({
+									name,
+									color: CHART_COLORS[index % CHART_COLORS.length],
+								}))}
+								tickLine='y'
+								barProps={{ radius: 4 }}
+								withLegend
+								legendProps={{ verticalAlign: 'bottom', height: 50 }}
+								tooltipAnimationDuration={200}
+							/>
+						</Stack>
+					</Card>
+				)}
+
+				{data.bySchool.length > 0 && (
+					<DistributionComparisonCard
+						title='Percentage by School'
+						data={data.bySchool}
+					/>
+				)}
+
+				{data.bySemester.length > 0 && (
+					<BreakdownCard
+						title='Distribution by Semester'
+						data={data.bySemester}
+						type='stacked'
+					/>
+				)}
+
+				{data.bySemesterStatus.length > 0 && (
+					<BreakdownCard
+						title='By Semester Status'
+						data={data.bySemesterStatus}
+						type='donut'
+					/>
+				)}
+
+				{data.byProgram.length > 0 && (
+					<Card
+						withBorder
+						p='md'
+						style={getItemStyle({ colSpan: data.byProgram.length > 5 ? 2 : 1 })}
+					>
+						<Stack gap='md'>
+							<div>
+								<Title order={4}>Top Programs</Title>
+								<Text size='sm' c='dimmed'>
+									{data.byProgram.length} programs with enrolled students
+								</Text>
+							</div>
+							<BarChart
+								h={350}
+								data={data.byProgram.slice(0, 15).map((breakdown) => {
+									const row: Record<string, string | number> = {
+										category: breakdown.category,
+									};
+									for (const point of breakdown.data) {
+										row[point.name] = point.value;
+									}
+									return row;
+								})}
+								dataKey='category'
+								type='stacked'
+								series={Array.from(
+									new Set(
+										data.byProgram.flatMap((b) => b.data.map((d) => d.name))
+									)
+								).map((name, index) => ({
+									name,
+									color: CHART_COLORS[index % CHART_COLORS.length],
+								}))}
+								tickLine='y'
+								barProps={{ radius: 4 }}
+								withLegend
+								legendProps={{ verticalAlign: 'bottom', height: 50 }}
+								tooltipAnimationDuration={200}
+							/>
+						</Stack>
+					</Card>
+				)}
+			</Box>
+		</Stack>
+	);
 }
 
 function OverviewSection({ data }: { data: DistributionResult }) {
@@ -327,175 +468,34 @@ function DistributionComparisonCard({
 	);
 }
 
-export default function DistributionCharts({
-	filter,
-	distributionType,
-}: Props) {
-	const { containerRef, isLayoutReady, containerStyle, getItemStyle } =
-		useMasonryLayout({ columns: 2, gap: 16 });
+function ChartTooltip({ label, payload }: ChartTooltipProps) {
+	if (!payload || payload.length === 0) return null;
 
-	const { data, isLoading, error } = useQuery({
-		queryKey: ['distribution-data', distributionType, filter],
-		queryFn: async () => {
-			if (!filter.termIds || filter.termIds.length === 0 || !distributionType) {
-				return null;
-			}
-			const result = await getDistributionData(
-				distributionType,
-				filter.termIds,
-				filter
-			);
-			return result.success ? result.data : null;
-		},
-		enabled: Boolean(
-			filter.termIds && filter.termIds.length > 0 && distributionType
-		),
-	});
+	const filteredPayload = payload.filter(
+		(item) => item.value !== undefined && item.value !== null
+	);
 
-	if (isLoading) {
-		return (
-			<Stack gap='lg'>
-				<Skeleton height={400} />
-				<SimpleGrid cols={{ base: 1, md: 2 }}>
-					{[1, 2, 3, 4].map((num) => (
-						<Skeleton key={`skeleton-${num}`} height={350} />
-					))}
-				</SimpleGrid>
-			</Stack>
-		);
-	}
-
-	if (error) {
-		return (
-			<Card withBorder p='xl'>
-				<Text c='red'>Error loading distribution data. Please try again.</Text>
-			</Card>
-		);
-	}
-
-	if (!data) {
-		return null;
-	}
+	if (filteredPayload.length === 0) return null;
 
 	return (
-		<Stack gap='lg'>
-			<OverviewSection data={data} />
-
-			<Box
-				ref={containerRef}
-				style={{
-					...containerStyle,
-					opacity: isLayoutReady ? 1 : 0,
-					transition: 'opacity 0.2s',
-				}}
-			>
-				{data.bySchool.length > 1 && (
-					<Card withBorder p='md' style={getItemStyle({ colSpan: 2 })}>
-						<Stack gap='md'>
-							<div>
-								<Title order={4}>Distribution by School</Title>
-								<Text size='sm' c='dimmed'>
-									Stacked comparison across {data.bySchool.length} schools
-								</Text>
-							</div>
-							<BarChart
-								h={350}
-								data={data.bySchool.slice(0, 10).map((breakdown) => {
-									const row: Record<string, string | number> = {
-										category: breakdown.category,
-									};
-									for (const point of breakdown.data) {
-										row[point.name] = point.value;
-									}
-									return row;
-								})}
-								dataKey='category'
-								type='stacked'
-								series={Array.from(
-									new Set(
-										data.bySchool.flatMap((b) => b.data.map((d) => d.name))
-									)
-								).map((name, index) => ({
-									name,
-									color: CHART_COLORS[index % CHART_COLORS.length],
-								}))}
-								tickLine='y'
-								barProps={{ radius: 4 }}
-								withLegend
-								legendProps={{ verticalAlign: 'bottom', height: 50 }}
-								tooltipAnimationDuration={200}
-							/>
-						</Stack>
-					</Card>
-				)}
-
-				{data.bySchool.length > 1 && (
-					<DistributionComparisonCard
-						title='Percentage by School'
-						data={data.bySchool}
-					/>
-				)}
-
-				{data.bySemester.length > 1 && (
-					<BreakdownCard
-						title='Distribution by Semester'
-						data={data.bySemester}
-						type='stacked'
-					/>
-				)}
-
-				{data.bySemesterStatus.length > 1 && (
-					<BreakdownCard
-						title='By Semester Status'
-						data={data.bySemesterStatus}
-						type='donut'
-					/>
-				)}
-
-				{data.byProgram.length > 0 && (
-					<Card
-						withBorder
-						p='md'
-						style={getItemStyle({ colSpan: data.byProgram.length > 5 ? 2 : 1 })}
-					>
-						<Stack gap='md'>
-							<div>
-								<Title order={4}>Top Programs</Title>
-								<Text size='sm' c='dimmed'>
-									{data.byProgram.length} programs with enrolled students
-								</Text>
-							</div>
-							<BarChart
-								h={350}
-								data={data.byProgram.slice(0, 15).map((breakdown) => {
-									const row: Record<string, string | number> = {
-										category: breakdown.category,
-									};
-									for (const point of breakdown.data) {
-										row[point.name] = point.value;
-									}
-									return row;
-								})}
-								dataKey='category'
-								type='stacked'
-								series={Array.from(
-									new Set(
-										data.byProgram.flatMap((b) => b.data.map((d) => d.name))
-									)
-								).map((name, index) => ({
-									name,
-									color: CHART_COLORS[index % CHART_COLORS.length],
-								}))}
-								tickLine='y'
-								barProps={{ radius: 4 }}
-								withLegend
-								legendProps={{ verticalAlign: 'bottom', height: 50 }}
-								tooltipAnimationDuration={200}
-							/>
-						</Stack>
-					</Card>
-				)}
-			</Box>
-		</Stack>
+		<Paper px='md' py='sm' withBorder shadow='md' radius='md'>
+			<Text fw={500} mb={5}>
+				{label}
+			</Text>
+			{filteredPayload.map((item) => (
+				<Text key={String(item.name)} c={String(item.color)} fz='sm'>
+					Count: {String(item.value)}
+				</Text>
+			))}
+		</Paper>
 	);
+}
+
+function assignColors(
+	data: Array<{ name: string; value: number; color?: string }>
+) {
+	return data.map((item, index) => ({
+		...item,
+		color: item.color || CHART_COLORS[index % CHART_COLORS.length],
+	}));
 }
