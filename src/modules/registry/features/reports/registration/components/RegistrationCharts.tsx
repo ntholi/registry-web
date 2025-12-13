@@ -11,7 +11,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useMasonryLayout } from '@/shared/lib/hooks/use-masonry';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getRegistrationChartData } from '../server/actions';
 import type { ReportFilter } from './RegistrationFilter';
@@ -60,67 +60,11 @@ interface ProgramData {
 	school: string;
 }
 
-function useMasonryLayout(columnCount: number, gap: number) {
-	const containerRef = useRef<HTMLDivElement>(null);
-	const [isLayoutReady, setIsLayoutReady] = useState(false);
-
-	useEffect(() => {
-		const container = containerRef.current;
-		if (!container) return;
-
-		const layoutMasonry = () => {
-			const items = Array.from(container.children) as HTMLElement[];
-			if (items.length === 0) return;
-
-			const columnHeights = new Array(columnCount).fill(0);
-
-			items.forEach((item) => {
-				const minColumnIndex = columnHeights.indexOf(
-					Math.min(...columnHeights)
-				);
-				const left = minColumnIndex * (100 / columnCount);
-				const top = columnHeights[minColumnIndex];
-
-				item.style.position = 'absolute';
-				item.style.left = `${left}%`;
-				item.style.top = `${top}px`;
-				item.style.width = `calc(${100 / columnCount}% - ${(gap * (columnCount - 1)) / columnCount}px)`;
-
-				columnHeights[minColumnIndex] += item.offsetHeight + gap;
-			});
-
-			const maxHeight = Math.max(...columnHeights);
-			container.style.height = `${maxHeight}px`;
-			setIsLayoutReady(true);
-		};
-
-		const resizeObserver = new ResizeObserver(() => {
-			layoutMasonry();
-		});
-
-		const mutationObserver = new MutationObserver(() => {
-			layoutMasonry();
-		});
-
-		resizeObserver.observe(container);
-		mutationObserver.observe(container, { childList: true, subtree: true });
-
-		setTimeout(layoutMasonry, 100);
-
-		return () => {
-			resizeObserver.disconnect();
-			mutationObserver.disconnect();
-		};
-	}, [columnCount, gap]);
-
-	return { containerRef, isLayoutReady };
-}
-
 export default function RegistrationCharts({
 	filter,
 }: RegistrationChartsProps) {
-	const [columnCount, setColumnCount] = useState(2);
-	const { containerRef, isLayoutReady } = useMasonryLayout(columnCount, 16);
+	const { containerRef, isLayoutReady, containerStyle, getItemStyle } =
+		useMasonryLayout({ columns: 2, gap: 16 });
 
 	const { data: chartData, isLoading } = useQuery({
 		queryKey: ['registration-chart-data', filter],
@@ -132,31 +76,9 @@ export default function RegistrationCharts({
 		enabled: Boolean(filter.termIds && filter.termIds.length > 0),
 	});
 
-	useEffect(() => {
-		const updateColumns = () => {
-			const width = window.innerWidth;
-			if (width < 768) {
-				setColumnCount(1);
-			}  else {
-				setColumnCount(2);
-			}
-		};
-
-		updateColumns();
-		window.addEventListener('resize', updateColumns);
-		return () => window.removeEventListener('resize', updateColumns);
-	}, []);
-
 	if (isLoading) {
 		return (
-			<Box
-				ref={containerRef}
-				style={{
-					position: 'relative',
-					width: '100%',
-					minHeight: '400px',
-				}}
-			>
+			<Box ref={containerRef} style={containerStyle}>
 				{[1, 2, 3, 4, 5, 6].map((num) => (
 					<Card key={`skeleton-${num}`} withBorder p='md'>
 						<Skeleton height={300} />
@@ -186,13 +108,38 @@ export default function RegistrationCharts({
 		<Box
 			ref={containerRef}
 			style={{
-				position: 'relative',
-				width: '100%',
-				minHeight: '400px',
+				...containerStyle,
 				opacity: isLayoutReady ? 1 : 0,
 				transition: 'opacity 0.2s',
 			}}
 		>
+			<Card withBorder p='md' style={getItemStyle({ colSpan: programsData.length > 10 ? 2 : 1 })}>
+				<Stack gap='md'>
+					<div>
+						<Title order={4}>Programs</Title>
+						<Text size='sm' c='dimmed'>
+							Programs by enrollment
+						</Text>
+					</div>
+					<BarChart
+						h={300}
+						data={programsData}
+						dataKey='code'
+						series={[{ name: 'count', label: 'Students', color: 'orange.6' }]}
+						tickLine='y'
+						barProps={{ radius: 4 }}
+						tooltipAnimationDuration={200}
+						tooltipProps={{
+							content: ({ label, payload }) => (
+								<ChartTooltip
+									label={label}
+									payload={payload as Record<string, unknown>[] | undefined}
+								/>
+							),
+						}}
+					/>
+				</Stack>
+			</Card>
 			<Card withBorder p='md'>
 				<Stack gap='md'>
 					<div>
@@ -277,34 +224,6 @@ export default function RegistrationCharts({
 							withTooltip
 						/>
 					</Center>
-				</Stack>
-			</Card>
-
-			<Card withBorder p='md'>
-				<Stack gap='md'>
-					<div>
-						<Title order={4}>Top Programs</Title>
-						<Text size='sm' c='dimmed'>
-							Top 10 programs by enrollment
-						</Text>
-					</div>
-					<BarChart
-						h={300}
-						data={programsData}
-						dataKey='code'
-						series={[{ name: 'count', label: 'Students', color: 'orange.6' }]}
-						tickLine='y'
-						barProps={{ radius: 4 }}
-						tooltipAnimationDuration={200}
-						tooltipProps={{
-							content: ({ label, payload }) => (
-								<ChartTooltip
-									label={label}
-									payload={payload as Record<string, unknown>[] | undefined}
-								/>
-							),
-						}}
-					/>
 				</Stack>
 			</Card>
 

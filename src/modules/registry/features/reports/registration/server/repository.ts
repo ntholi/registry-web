@@ -442,8 +442,7 @@ export class RegistrationReportRepository {
 					count: data.count,
 					school: data.school,
 				}))
-				.sort((a, b) => b.count - a.count)
-				.slice(0, 10),
+				.sort((a, b) => b.count - a.count),
 			studentsBySemester: Array.from(semesterMap.entries())
 				.map(([semester, count]) => ({ semester, count }))
 				.sort((a, b) => a.semester.localeCompare(b.semester)),
