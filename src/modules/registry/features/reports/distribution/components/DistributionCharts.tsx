@@ -12,7 +12,6 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { IconChartBar, IconChartDonut } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useMasonryLayout } from '@/shared/lib/hooks/use-masonry';
 import { getDistributionData } from '../server/actions';
@@ -235,18 +234,14 @@ function OverviewSection({ data }: { data: DistributionResult }) {
 	return (
 		<Card withBorder p='lg'>
 			<Stack gap='md'>
-				<Group justify='space-between' align='flex-start'>
-					<div>
-						<Title order={3}>{data.label}</Title>
-						<Text size='sm' c='dimmed'>
-							{total.toLocaleString()} total students
-							{topItem &&
-								` • Most common: ${topItem.name} (${topItem.value.toLocaleString()})`}
-						</Text>
-					</div>
-					<IconChartDonut size={24} opacity={0.5} />
-				</Group>
-
+				<Box>
+					<Title order={3}>{data.label}</Title>
+					<Text size='sm' c='dimmed'>
+						{total.toLocaleString()} total students
+						{topItem &&
+							` • Most common: ${topItem.name} (${topItem.value.toLocaleString()})`}
+					</Text>
+				</Box>
 				<SimpleGrid cols={{ base: 1, md: 2 }} spacing='xl'>
 					<Center>
 						<PieChart
@@ -339,17 +334,14 @@ function BreakdownCard({
 	return (
 		<Card withBorder p='md' style={style}>
 			<Stack gap='md'>
-				<Group justify='space-between' align='flex-start'>
-					<div>
-						<Title order={4}>{title}</Title>
-						<Text size='sm' c='dimmed'>
-							{data.length} {data.length === 1 ? 'category' : 'categories'}
-							{topBreakdown &&
-								` • Largest: ${topBreakdown.category} (${topBreakdown.total.toLocaleString()})`}
-						</Text>
-					</div>
-					<IconChartBar size={20} opacity={0.5} />
-				</Group>
+				<Box>
+					<Title order={4}>{title}</Title>
+					<Text size='sm' c='dimmed'>
+						{data.length} {data.length === 1 ? 'category' : 'categories'}
+						{topBreakdown &&
+							` • Largest: ${topBreakdown.category} (${topBreakdown.total.toLocaleString()})`}
+					</Text>
+				</Box>
 
 				{type === 'stacked' ? (
 					<BarChart
