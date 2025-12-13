@@ -2,6 +2,7 @@ import { countByStatus as countGraduationByStatus } from '@registry/graduation/c
 import { countByStatus } from '@registry/registration';
 import {
 	IconBan,
+	IconChartDonut,
 	IconCheck,
 	IconCircleCheck,
 	IconClipboardList,
@@ -152,6 +153,25 @@ export const registryConfig: ModuleConfig = {
 				label: 'Student Registration',
 				href: '/registry/reports/registration',
 				icon: IconFileDescription,
+				roles: ['academic', 'registry', 'admin', 'finance'],
+				isVisible: (session) => {
+					if (
+						['admin', 'registry', 'finance'].includes(
+							session?.user?.role as UserRole
+						)
+					)
+						return true;
+					const academicRole = session?.user?.position as UserPosition;
+					return !!(
+						academicRole &&
+						['manager', 'admin', 'program_leader'].includes(academicRole)
+					);
+				},
+			},
+			{
+				label: 'Distribution Reports',
+				href: '/registry/reports/distribution',
+				icon: IconChartDonut,
 				roles: ['academic', 'registry', 'admin', 'finance'],
 				isVisible: (session) => {
 					if (
