@@ -161,7 +161,7 @@ export default function DistributionCharts({
 						title='Distribution by Semester'
 						data={data.bySemester}
 						type='default'
-						style={getItemStyle({ colSpan: 1 })}
+						style={getItemStyle({ colSpan: 2 })}
 					/>
 				)}
 
@@ -244,12 +244,13 @@ function OverviewSection({ data }: { data: DistributionResult }) {
 				</Box>
 				<SimpleGrid cols={{ base: 1, md: 2 }} spacing='xl'>
 					<Center>
-						<PieChart
+						<DonutChart
 							size={280}
+							thickness={30}
+							paddingAngle={3}
 							data={chartData.slice(0, 10)}
 							withLabelsLine
 							withLabels
-							labelsPosition='outside'
 							labelsType='percent'
 							withTooltip
 							tooltipDataSource='segment'

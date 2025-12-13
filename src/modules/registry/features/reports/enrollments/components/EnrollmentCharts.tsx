@@ -14,9 +14,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useMasonryLayout } from '@/shared/lib/hooks/use-masonry';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getRegistrationChartData } from '../server/actions';
-import type { ReportFilter } from './RegistrationFilter';
+import type { ReportFilter } from './Filter';
 
-interface RegistrationChartsProps {
+interface Props {
 	filter: ReportFilter;
 }
 
@@ -60,9 +60,7 @@ interface ProgramData {
 	school: string;
 }
 
-export default function RegistrationCharts({
-	filter,
-}: RegistrationChartsProps) {
+export default function RegistrationCharts({ filter }: Props) {
 	const { containerRef, isLayoutReady, containerStyle, getItemStyle } =
 		useMasonryLayout({ columns: 2, gap: 16 });
 
@@ -302,7 +300,7 @@ export default function RegistrationCharts({
 			<Card withBorder p='md'>
 				<Stack gap='md'>
 					<div>
-						<Title order={4}>Gender Distribution</Title>
+						<Title order={4}>Gender</Title>
 						<Text size='sm' c='dimmed'>
 							{maleCount} Male, {femaleCount} Female
 							{genderRatio && ` • Ratio: ${genderRatio}`}
@@ -460,7 +458,7 @@ export default function RegistrationCharts({
 				<Card withBorder p='md' style={getItemStyle({ colSpan: 2 })}>
 					<Stack gap='md'>
 						<div>
-							<Title order={4}>Age Distribution</Title>
+							<Title order={4}>Age</Title>
 							<Text size='sm' c='dimmed'>
 								Range: {minAge}-{maxAge} years • Most common: {mostCommonAge}{' '}
 								years

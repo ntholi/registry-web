@@ -19,14 +19,6 @@ import {
 	type ReportFilter,
 } from '@registry/reports';
 import {
-	generateStudentsListReport,
-	generateSummaryRegistrationReport,
-	getPaginatedRegistrationStudents,
-	getRegistrationDataPreview,
-	ProgramBreakdownTable,
-	StudentTable,
-} from '@registry/reports/registration';
-import {
 	IconChartBar,
 	IconChartPie,
 	IconDownload,
@@ -36,6 +28,14 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
+import {
+	generateStudentsListReport,
+	generateSummaryRegistrationReport,
+	getPaginatedRegistrationStudents,
+	getRegistrationDataPreview,
+	ProgramBreakdownTable,
+	StudentTable,
+} from '@/modules/registry/features/reports/enrollments';
 
 const PAGE_SIZE = 20;
 

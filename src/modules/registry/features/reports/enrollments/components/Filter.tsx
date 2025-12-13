@@ -65,7 +65,7 @@ interface Props {
 	onFilterChange: (filter: ReportFilter) => void;
 }
 
-export default function RegistrationFilter({ onFilterChange }: Props) {
+export default function EnrollmentFilter({ onFilterChange }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [localFilter, setLocalFilter] = useQueryStates(
 		{

@@ -1,19 +1,19 @@
 import { Card, Group, Stack, Text } from '@mantine/core';
 import { IconBook2, IconBuilding, IconUsers } from '@tabler/icons-react';
 
-interface RegistrationStatsProps {
+interface Props {
 	totalStudents: number;
 	totalSchools: number;
 	totalPrograms: number;
 	termName: string;
 }
 
-export default function RegistrationStats({
+export default function EnrollmentStats({
 	totalStudents,
 	totalSchools,
 	totalPrograms,
 	termName,
-}: RegistrationStatsProps) {
+}: Props) {
 	return (
 		<Group grow>
 			<Card withBorder p='md'>

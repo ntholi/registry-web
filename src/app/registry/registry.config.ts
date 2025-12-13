@@ -150,8 +150,8 @@ export const registryConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Student Registration',
-				href: '/registry/reports/registration',
+				label: 'Student Enrollments',
+				href: '/registry/reports/enrollments',
 				icon: IconFileDescription,
 				roles: ['academic', 'registry', 'admin', 'finance'],
 				isVisible: (session) => {
@@ -169,7 +169,7 @@ export const registryConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Distribution Reports',
+				label: 'Enrollment Distribution',
 				href: '/registry/reports/distribution',
 				icon: IconChartDonut,
 				roles: ['academic', 'registry', 'admin', 'finance'],
