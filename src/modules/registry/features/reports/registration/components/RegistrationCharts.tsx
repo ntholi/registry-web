@@ -118,7 +118,7 @@ export default function RegistrationCharts({
 					<div>
 						<Title order={4}>Programs</Title>
 						<Text size='sm' c='dimmed'>
-							Programs by enrollment
+							{programsData.length} {programsData.length === 1 ? 'program' : 'programs'} by enrollment
 						</Text>
 					</div>
 					<BarChart
@@ -146,7 +146,7 @@ export default function RegistrationCharts({
 						<div>
 							<Title order={4}>Students by School</Title>
 							<Text size='sm' c='dimmed'>
-								Distribution of students across schools
+								Distribution across {chartData.studentsBySchool.length} {chartData.studentsBySchool.length === 1 ? 'school' : 'schools'}
 							</Text>
 						</div>
 						<BarChart
@@ -175,7 +175,7 @@ export default function RegistrationCharts({
 					<div>
 						<Title order={4}>Students by Semester</Title>
 						<Text size='sm' c='dimmed'>
-							Distribution across academic levels
+							Distribution across {studentsBySemester.length} {studentsBySemester.length === 1 ? 'semester' : 'semesters'}
 						</Text>
 					</div>
 					<BarChart
@@ -203,7 +203,7 @@ export default function RegistrationCharts({
 					<div>
 						<Title order={4}>Gender Distribution</Title>
 						<Text size='sm' c='dimmed'>
-							Student enrollment by gender
+							{chartData.studentsByGender.length} {chartData.studentsByGender.length === 1 ? 'gender' : 'genders'}
 						</Text>
 					</div>
 					<Center>
@@ -235,7 +235,7 @@ export default function RegistrationCharts({
 						<div>
 							<Title order={4}>Programs per School</Title>
 							<Text size='sm' c='dimmed'>
-								Number of active programs in each school
+								{chartData.programsBySchool.length} {chartData.programsBySchool.length === 1 ? 'school' : 'schools'} with active programs
 							</Text>
 						</div>
 						<BarChart
@@ -269,9 +269,9 @@ export default function RegistrationCharts({
 			<Card withBorder p='md'>
 				<Stack gap='md'>
 					<div>
-						<Title order={4}>Top Sponsors</Title>
+						<Title order={4}>Sponsors</Title>
 						<Text size='sm' c='dimmed'>
-							Top 5 sponsors by student count
+							{chartData.studentsBySponsor.length} {chartData.studentsBySponsor.length === 1 ? 'sponsor' : 'sponsors'}
 						</Text>
 					</div>
 					<Center>
