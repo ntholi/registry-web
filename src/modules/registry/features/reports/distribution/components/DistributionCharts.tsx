@@ -144,6 +144,14 @@ export default function DistributionCharts({
 								withLegend
 								legendProps={{ verticalAlign: 'bottom', height: 50 }}
 								tooltipAnimationDuration={200}
+								tooltipProps={{
+									content: ({ label, payload }) => (
+										<ChartTooltip
+											label={label}
+											payload={payload as Record<string, unknown>[] | undefined}
+										/>
+									),
+								}}
 							/>
 						</Stack>
 					</Card>
@@ -211,6 +219,14 @@ export default function DistributionCharts({
 								withLegend
 								legendProps={{ verticalAlign: 'bottom', height: 50 }}
 								tooltipAnimationDuration={200}
+								tooltipProps={{
+									content: ({ label, payload }) => (
+										<ChartTooltip
+											label={label}
+											payload={payload as Record<string, unknown>[] | undefined}
+										/>
+									),
+								}}
 							/>
 						</Stack>
 					</Card>
@@ -251,6 +267,10 @@ function OverviewSection({ data }: { data: DistributionResult }) {
 							labelsType='percent'
 							withTooltip
 							tooltipDataSource='segment'
+							valueFormatter={(value) => {
+								const percentage = ((value / total) * 100).toFixed(1);
+								return `${value.toLocaleString()} (${percentage}%)`;
+							}}
 						/>
 					</Center>
 
@@ -377,6 +397,13 @@ function BreakdownCard({
 							labelsType='percent'
 							withTooltip
 							tooltipDataSource='segment'
+							valueFormatter={(value) => {
+								const total = data
+									.slice(0, 8)
+									.reduce((sum, b) => sum + b.total, 0);
+								const percentage = ((value / total) * 100).toFixed(1);
+								return `${value.toLocaleString()} (${percentage}%)`;
+							}}
 						/>
 					</Center>
 				) : type === 'default' ? (
@@ -497,6 +524,14 @@ function DistributionComparisonCard({
 					legendProps={{ verticalAlign: 'bottom', height: 50 }}
 					tooltipAnimationDuration={200}
 					unit={type === 'percent' ? '%' : undefined}
+					tooltipProps={{
+						content: ({ label, payload }) => (
+							<ChartTooltip
+								label={label}
+								payload={payload as Record<string, unknown>[] | undefined}
+							/>
+						),
+					}}
 				/>
 			</Stack>
 		</Card>
@@ -512,16 +547,25 @@ function ChartTooltip({ label, payload }: ChartTooltipProps) {
 
 	if (filteredPayload.length === 0) return null;
 
+	const total = filteredPayload.reduce(
+		(sum, item) => sum + (Number(item.value) || 0),
+		0
+	);
+
 	return (
 		<Paper px='md' py='sm' withBorder shadow='md' radius='md'>
 			<Text fw={500} mb={5}>
 				{label}
 			</Text>
-			{filteredPayload.map((item) => (
-				<Text key={String(item.name)} c={String(item.color)} fz='sm'>
-					Count: {String(item.value)}
-				</Text>
-			))}
+			{filteredPayload.map((item) => {
+				const value = Number(item.value) || 0;
+				const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+				return (
+					<Text key={String(item.name)} c={String(item.color)} fz='sm'>
+						{String(item.name)}: {value.toLocaleString()} ({percentage}%)
+					</Text>
+				);
+			})}
 		</Paper>
 	);
 }
