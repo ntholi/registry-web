@@ -1,5 +1,5 @@
 'use client';
-import { BarChart, PieChart } from '@mantine/charts';
+import { BarChart, LineChart, PieChart } from '@mantine/charts';
 import {
 	Box,
 	Card,
@@ -104,6 +104,79 @@ export default function RegistrationCharts({
 		count: Number(item.count),
 	}));
 
+	const totalStudents = programsData.reduce(
+		(sum, item) => sum + item.count,
+		0
+	);
+	const largestProgram = programsData.reduce(
+		(max, item) => (item.count > max.count ? item : max),
+		programsData[0]
+	);
+
+	const genderData = chartData.studentsByGender.map((item) => ({
+		...item,
+		count: Number(item.count),
+	}));
+	const maleCount = genderData.find((g) => g.gender === 'Male')?.count || 0;
+	const femaleCount =
+		genderData.find((g) => g.gender === 'Female')?.count || 0;
+	const genderRatio =
+		maleCount && femaleCount
+			? maleCount > femaleCount
+				? `${(maleCount / femaleCount).toFixed(1)}:1 M:F`
+				: `1:${(femaleCount / maleCount).toFixed(1)} M:F`
+			: '';
+
+	const ageData = chartData.studentsByAge.map((item) => ({
+		age: Number(item.age),
+		count: Number(item.count),
+	}));
+	const minAge = ageData.length > 0 ? Math.min(...ageData.map((a) => a.age)) : 0;
+	const maxAge = ageData.length > 0 ? Math.max(...ageData.map((a) => a.age)) : 0;
+	const mostCommonAge =
+		ageData.length > 0
+			? ageData.reduce((max, item) => (item.count > max.count ? item : max))
+					.age
+			: 0;
+
+	const schoolData = chartData.studentsBySchool.map((item) => ({
+		...item,
+		count: Number(item.count),
+	}));
+	const largestSchool =
+		schoolData.length > 0
+			? schoolData.reduce((max, item) => (item.count > max.count ? item : max))
+			: null;
+
+	const semesterData = studentsBySemester.map((item) => ({
+		...item,
+		count: Number(item.count),
+	}));
+	const mostPopularSemester =
+		semesterData.length > 0
+			? semesterData.reduce((max, item) =>
+					item.count > max.count ? item : max
+				)
+			: null;
+
+	const sponsorData = chartData.studentsBySponsor.map((item) => ({
+		...item,
+		count: Number(item.count),
+	}));
+	const topSponsor =
+		sponsorData.length > 0
+			? sponsorData.reduce((max, item) => (item.count > max.count ? item : max))
+			: null;
+
+	const countryData = chartData.studentsByCountry.map((item) => ({
+		...item,
+		count: Number(item.count),
+	}));
+	const topCountry =
+		countryData.length > 0
+			? countryData.reduce((max, item) => (item.count > max.count ? item : max))
+			: null;
+
 	return (
 		<Box
 			ref={containerRef}
@@ -113,12 +186,19 @@ export default function RegistrationCharts({
 				transition: 'opacity 0.2s',
 			}}
 		>
-			<Card withBorder p='md' style={getItemStyle({ colSpan: programsData.length > 10 ? 2 : 1 })}>
+			<Card
+				withBorder
+				p='md'
+				style={getItemStyle({ colSpan: programsData.length > 10 ? 2 : 1 })}
+			>
 				<Stack gap='md'>
 					<div>
 						<Title order={4}>Programs</Title>
 						<Text size='sm' c='dimmed'>
-							{programsData.length} {programsData.length === 1 ? 'program' : 'programs'} by enrollment
+							{totalStudents} students across {programsData.length}{' '}
+							{programsData.length === 1 ? 'program' : 'programs'}
+							{largestProgram &&
+								` • Largest: ${largestProgram.code} (${largestProgram.count})`}
 						</Text>
 					</div>
 					<BarChart
@@ -146,7 +226,10 @@ export default function RegistrationCharts({
 						<div>
 							<Title order={4}>Students by School</Title>
 							<Text size='sm' c='dimmed'>
-								Distribution across {chartData.studentsBySchool.length} {chartData.studentsBySchool.length === 1 ? 'school' : 'schools'}
+								{chartData.studentsBySchool.length}{' '}
+								{chartData.studentsBySchool.length === 1 ? 'school' : 'schools'}
+								{largestSchool &&
+									` • Largest: ${largestSchool.code} (${largestSchool.count} students)`}
 							</Text>
 						</div>
 						<BarChart
@@ -175,7 +258,10 @@ export default function RegistrationCharts({
 					<div>
 						<Title order={4}>Students by Semester</Title>
 						<Text size='sm' c='dimmed'>
-							Distribution across {studentsBySemester.length} {studentsBySemester.length === 1 ? 'semester' : 'semesters'}
+							{studentsBySemester.length}{' '}
+							{studentsBySemester.length === 1 ? 'semester' : 'semesters'}
+							{mostPopularSemester &&
+								` • Most common: ${mostPopularSemester.semesterLabel} (${mostPopularSemester.count} students)`}
 						</Text>
 					</div>
 					<BarChart
@@ -203,7 +289,8 @@ export default function RegistrationCharts({
 					<div>
 						<Title order={4}>Gender Distribution</Title>
 						<Text size='sm' c='dimmed'>
-							{chartData.studentsByGender.length} {chartData.studentsByGender.length === 1 ? 'gender' : 'genders'}
+							{maleCount} Male, {femaleCount} Female
+							{genderRatio && ` • Ratio: ${genderRatio}`}
 						</Text>
 					</div>
 					<Center>
@@ -235,7 +322,9 @@ export default function RegistrationCharts({
 						<div>
 							<Title order={4}>Programs per School</Title>
 							<Text size='sm' c='dimmed'>
-								{chartData.programsBySchool.length} {chartData.programsBySchool.length === 1 ? 'school' : 'schools'} with active programs
+								{chartData.programsBySchool.length}{' '}
+								{chartData.programsBySchool.length === 1 ? 'school' : 'schools'}{' '}
+								with active programs
 							</Text>
 						</div>
 						<BarChart
@@ -271,7 +360,10 @@ export default function RegistrationCharts({
 					<div>
 						<Title order={4}>Sponsors</Title>
 						<Text size='sm' c='dimmed'>
-							{chartData.studentsBySponsor.length} {chartData.studentsBySponsor.length === 1 ? 'sponsor' : 'sponsors'}
+							{chartData.studentsBySponsor.length}{' '}
+							{chartData.studentsBySponsor.length === 1 ? 'sponsor' : 'sponsors'}
+							{topSponsor &&
+								` • Top: ${topSponsor.sponsor.length > 25 ? `${topSponsor.sponsor.substring(0, 25)}...` : topSponsor.sponsor} (${topSponsor.count})`}
 						</Text>
 					</div>
 					<Center>
@@ -306,6 +398,125 @@ export default function RegistrationCharts({
 					</Center>
 				</Stack>
 			</Card>
+
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Semester Status</Title>
+							<Text size='sm' c='dimmed'>
+								{chartData.studentsBySemesterStatus.length}{' '}
+								{chartData.studentsBySemesterStatus.length === 1
+									? 'status'
+									: 'statuses'}
+							</Text>
+						</div>
+						<Center>
+							<PieChart
+								size={220}
+								data={chartData.studentsBySemesterStatus.map((item, index) => {
+									const statusColors: Record<string, string> = {
+										Active: 'green.6',
+										Repeat: 'yellow.6',
+										Deferred: 'blue.6',
+										DroppedOut: 'red.6',
+										Completed: 'teal.6',
+										Unknown: 'gray.6',
+									};
+									const fallbackColors = [
+										'violet.6',
+										'orange.6',
+										'cyan.6',
+										'pink.6',
+									];
+									return {
+										name:
+											item.status === 'DroppedOut'
+												? 'Dropped Out'
+												: item.status,
+										value: Number(item.count),
+										color:
+											statusColors[item.status] ||
+											fallbackColors[index % fallbackColors.length],
+									};
+								})}
+								withLabelsLine
+								withLabels
+								labelsPosition='outside'
+								labelsType='percent'
+								withTooltip
+							/>
+						</Center>
+					</Stack>
+				</Card>
+			{chartData.studentsByAge.length > 0 && (
+				<Card withBorder p='md' style={getItemStyle({ colSpan: 2 })}>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Age Distribution</Title>
+							<Text size='sm' c='dimmed'>
+								Range: {minAge}-{maxAge} years • Most common: {mostCommonAge}{' '}
+								years
+							</Text>
+						</div>
+						<LineChart
+							h={300}
+							data={chartData.studentsByAge}
+							dataKey='age'
+							series={[{ name: 'count', label: 'Students', color: 'teal.6' }]}
+							curveType='natural'
+							tickLine='y'
+							tooltipAnimationDuration={200}
+							tooltipProps={{
+								content: ({ label, payload }) => (
+									<ChartTooltip
+										label={`Age ${label}`}
+										payload={payload as Record<string, unknown>[] | undefined}
+									/>
+								),
+							}}
+						/>
+					</Stack>
+				</Card>
+			)}
+
+			{chartData.studentsByCountry.length > 0 && (
+				<Card
+					withBorder
+					p='md'
+					style={getItemStyle({
+						colSpan: chartData.studentsByCountry.length > 10 ? 2 : 1,
+					})}
+				>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Students by Country</Title>
+							<Text size='sm' c='dimmed'>
+								{chartData.studentsByCountry.length}{' '}
+								{chartData.studentsByCountry.length === 1 ? 'country' : 'countries'}
+								{topCountry && ` • Top: ${topCountry.country} (${topCountry.count})`}
+								{chartData.studentsByCountry.length > 15 && ' • Showing top 15'}
+							</Text>
+						</div>
+						<BarChart
+							h={300}
+							data={chartData.studentsByCountry.slice(0, 15)}
+							dataKey='country'
+							series={[{ name: 'count', label: 'Students', color: 'cyan.6' }]}
+							tickLine='y'
+							barProps={{ radius: 4 }}
+							tooltipAnimationDuration={200}
+							tooltipProps={{
+								content: ({ label, payload }) => (
+									<ChartTooltip
+										label={label}
+										payload={payload as Record<string, unknown>[] | undefined}
+									/>
+								),
+							}}
+						/>
+					</Stack>
+				</Card>
+			)}
 		</Box>
 	);
 }

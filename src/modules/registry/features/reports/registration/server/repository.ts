@@ -87,6 +87,9 @@ interface ChartDataResult {
 		schoolCode: string;
 		programCount: number;
 	}>;
+	studentsByAge: Array<{ age: number; count: number }>;
+	studentsByCountry: Array<{ country: string; count: number }>;
+	studentsBySemesterStatus: Array<{ status: string; count: number }>;
 }
 
 interface StudentQueryRow {
@@ -115,6 +118,7 @@ interface ChartQueryRow {
 	studentId: number;
 	dateOfBirth: Date | null;
 	country: string | null;
+	semesterStatus: string;
 }
 
 export class RegistrationReportRepository {
@@ -181,6 +185,7 @@ export class RegistrationReportRepository {
 				studentId: students.stdNo,
 				dateOfBirth: students.dateOfBirth,
 				country: students.country,
+				semesterStatus: studentSemesters.status,
 			})
 			.from(studentSemesters)
 			.innerJoin(
@@ -394,6 +399,11 @@ export class RegistrationReportRepository {
 			string,
 			{ programs: Set<string>; schoolCode: string }
 		>();
+		const ageMap = new Map<number, number>();
+		const countryMap = new Map<string, number>();
+		const semesterStatusMap = new Map<string, number>();
+
+		const currentDate = new Date();
 
 		result.forEach((row) => {
 			schoolMap.set(row.schoolName, (schoolMap.get(row.schoolName) || 0) + 1);
@@ -425,6 +435,26 @@ export class RegistrationReportRepository {
 				});
 			}
 			schoolProgramsMap.get(row.schoolName)!.programs.add(row.programName);
+
+			if (row.dateOfBirth) {
+				const birthDate = new Date(row.dateOfBirth);
+				const age = Math.floor(
+					(currentDate.getTime() - birthDate.getTime()) /
+						(365.25 * 24 * 60 * 60 * 1000)
+				);
+				if (age >= 0 && age <= 100) {
+					ageMap.set(age, (ageMap.get(age) || 0) + 1);
+				}
+			}
+
+			const country = row.country || 'Unknown';
+			countryMap.set(country, (countryMap.get(country) || 0) + 1);
+
+			const semesterStatus = row.semesterStatus || 'Unknown';
+			semesterStatusMap.set(
+				semesterStatus,
+				(semesterStatusMap.get(semesterStatus) || 0) + 1
+			);
 		});
 
 		return {
@@ -460,6 +490,15 @@ export class RegistrationReportRepository {
 					programCount: data.programs.size,
 				}))
 				.sort((a, b) => b.programCount - a.programCount),
+			studentsByAge: Array.from(ageMap.entries())
+				.map(([age, count]) => ({ age, count }))
+				.sort((a, b) => a.age - b.age),
+			studentsByCountry: Array.from(countryMap.entries())
+				.map(([country, count]) => ({ country, count }))
+				.sort((a, b) => b.count - a.count),
+			studentsBySemesterStatus: Array.from(semesterStatusMap.entries())
+				.map(([status, count]) => ({ status, count }))
+				.sort((a, b) => b.count - a.count),
 		};
 	}
 
