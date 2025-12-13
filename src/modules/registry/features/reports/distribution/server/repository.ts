@@ -254,7 +254,19 @@ export class DistributionReportRepository {
 					return `Y${year}S${semester}`;
 				},
 				valueExtractor
-			),
+			).sort((a, b) => {
+				const aMatch = a.category.match(/^Y(\d+)S(\d+)$/);
+				const bMatch = b.category.match(/^Y(\d+)S(\d+)$/);
+				if (!aMatch && !bMatch) return 0;
+				if (!aMatch) return 1;
+				if (!bMatch) return -1;
+				const aYear = parseInt(aMatch[1], 10);
+				const bYear = parseInt(bMatch[1], 10);
+				if (aYear !== bYear) return aYear - bYear;
+				const aSem = parseInt(aMatch[2], 10);
+				const bSem = parseInt(bMatch[2], 10);
+				return aSem - bSem;
+			}),
 			bySemesterStatus: this.aggregateByCategory(
 				rows,
 				(row) =>
