@@ -2,6 +2,7 @@
 import { BarChart, PieChart } from '@mantine/charts';
 import {
 	Card,
+	Center,
 	Grid,
 	Paper,
 	Skeleton,
@@ -16,26 +17,6 @@ import type { ReportFilter } from './RegistrationFilter';
 
 interface RegistrationChartsProps {
 	filter: ReportFilter;
-}
-
-function hasAtLeastTwoNonZero(
-	data: ReadonlyArray<Record<string, unknown>> | null | undefined,
-	valueKey: string
-): boolean {
-	if (!Array.isArray(data)) return false;
-	let nonZeroCount = 0;
-	for (const item of data) {
-		const value = item[valueKey];
-		const isNonZero =
-			typeof value === 'number'
-				? value > 0
-				: typeof value === 'bigint'
-					? Number(value) > 0
-					: Boolean(value);
-		if (isNonZero) nonZeroCount += 1;
-		if (nonZeroCount >= 2) return true;
-	}
-	return false;
 }
 
 interface ChartTooltipProps {
@@ -109,31 +90,6 @@ export default function RegistrationCharts({
 		return null;
 	}
 
-	const showStudentsBySchool = hasAtLeastTwoNonZero(
-		chartData.studentsBySchool,
-		'count'
-	);
-	const showStudentsBySemester = hasAtLeastTwoNonZero(
-		chartData.studentsBySemester,
-		'count'
-	);
-	const showStudentsByGender = hasAtLeastTwoNonZero(
-		chartData.studentsByGender,
-		'count'
-	);
-	const showStudentsByProgram = hasAtLeastTwoNonZero(
-		chartData.studentsByProgram,
-		'count'
-	);
-	const showProgramsBySchool = hasAtLeastTwoNonZero(
-		chartData.programsBySchool,
-		'programCount'
-	);
-	const showStudentsBySponsor = hasAtLeastTwoNonZero(
-		chartData.studentsBySponsor,
-		'count'
-	);
-
 	const studentsBySemester = chartData.studentsBySemester.map((item) => ({
 		...item,
 		semesterLabel: formatSemester(item.semester, 'mini'),
@@ -148,84 +104,79 @@ export default function RegistrationCharts({
 
 	return (
 		<Grid>
-			{showStudentsBySchool ? (
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<Card withBorder p='md'>
-						<Stack gap='md'>
-							<div>
-								<Title order={4}>Students by School</Title>
-								<Text size='sm' c='dimmed'>
-									Distribution of students across schools
-								</Text>
-							</div>
-							<BarChart
-								h={300}
-								data={chartData.studentsBySchool}
-								dataKey='code'
-								series={[{ name: 'count', label: 'Students', color: 'blue.6' }]}
-								tickLine='y'
-								barProps={{ radius: 4 }}
-								tooltipAnimationDuration={200}
-								tooltipProps={{
-									content: ({ label, payload }) => (
-										<ChartTooltip
-											label={label}
-											payload={payload as Record<string, unknown>[] | undefined}
-										/>
-									),
-								}}
-							/>
-						</Stack>
-					</Card>
-				</Grid.Col>
-			) : null}
+			<Grid.Col span={{ base: 12, md: 6 }}>
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Students by School</Title>
+							<Text size='sm' c='dimmed'>
+								Distribution of students across schools
+							</Text>
+						</div>
+						<BarChart
+							h={300}
+							data={chartData.studentsBySchool}
+							dataKey='code'
+							series={[{ name: 'count', label: 'Students', color: 'blue.6' }]}
+							tickLine='y'
+							barProps={{ radius: 4 }}
+							tooltipAnimationDuration={200}
+							tooltipProps={{
+								content: ({ label, payload }) => (
+									<ChartTooltip
+										label={label}
+										payload={payload as Record<string, unknown>[] | undefined}
+									/>
+								),
+							}}
+						/>
+					</Stack>
+				</Card>
+			</Grid.Col>
 
-			{showStudentsBySemester ? (
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<Card withBorder p='md'>
-						<Stack gap='md'>
-							<div>
-								<Title order={4}>Students by Semester</Title>
-								<Text size='sm' c='dimmed'>
-									Distribution across academic levels
-								</Text>
-							</div>
-							<BarChart
-								h={300}
-								data={studentsBySemester}
-								dataKey='semesterLabel'
-								series={[
-									{ name: 'count', label: 'Students', color: 'green.6' },
-								]}
-								tickLine='y'
-								barProps={{ radius: 4 }}
-								tooltipAnimationDuration={200}
-								tooltipProps={{
-									content: ({ label, payload }) => (
-										<ChartTooltip
-											label={label}
-											payload={payload as Record<string, unknown>[] | undefined}
-										/>
-									),
-								}}
-							/>
-						</Stack>
-					</Card>
-				</Grid.Col>
-			) : null}
+			<Grid.Col span={{ base: 12, md: 6 }}>
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Students by Semester</Title>
+							<Text size='sm' c='dimmed'>
+								Distribution across academic levels
+							</Text>
+						</div>
+						<BarChart
+							h={300}
+							data={studentsBySemester}
+							dataKey='semesterLabel'
+							series={[{ name: 'count', label: 'Students', color: 'green.6' }]}
+							tickLine='y'
+							barProps={{ radius: 4 }}
+							tooltipAnimationDuration={200}
+							tooltipProps={{
+								content: ({ label, payload }) => (
+									<ChartTooltip
+										label={label}
+										payload={payload as Record<string, unknown>[] | undefined}
+									/>
+								),
+							}}
+						/>
+					</Stack>
+				</Card>
+			</Grid.Col>
 
-			{showStudentsByGender ? (
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<Card withBorder p='md'>
-						<Stack gap='md'>
-							<div>
-								<Title order={4}>Gender Distribution</Title>
-								<Text size='sm' c='dimmed'>
-									Student enrollment by gender
-								</Text>
-							</div>
+			<Grid.Col span={{ base: 12, md: 6 }}>
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Gender Distribution</Title>
+							<Text size='sm' c='dimmed'>
+								Student enrollment by gender
+							</Text>
+						</div>
+						<Center>
 							<PieChart
 								h={300}
+								w={300}
 								data={chartData.studentsByGender.map((item) => ({
 									name: item.gender,
 									value: Number(item.count),
@@ -242,94 +193,90 @@ export default function RegistrationCharts({
 								labelsType='percent'
 								withTooltip
 							/>
-						</Stack>
-					</Card>
-				</Grid.Col>
-			) : null}
+						</Center>
+					</Stack>
+				</Card>
+			</Grid.Col>
 
-			{showStudentsByProgram ? (
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<Card withBorder p='md'>
-						<Stack gap='md'>
-							<div>
-								<Title order={4}>Top Programs</Title>
-								<Text size='sm' c='dimmed'>
-									Top 10 programs by enrollment
-								</Text>
-							</div>
-							<BarChart
-								h={300}
-								data={programsData}
-								dataKey='code'
-								series={[{ name: 'count', label: 'Students', color: 'orange.6' }]}
-								tickLine='y'
-								barProps={{ radius: 4 }}
-								tooltipAnimationDuration={200}
-								tooltipProps={{
-									content: ({ label, payload }) => (
-										<ChartTooltip
-											label={label}
-											payload={payload as Record<string, unknown>[] | undefined}
-										/>
-									),
-								}}
-							/>
-						</Stack>
-					</Card>
-				</Grid.Col>
-			) : null}
+			<Grid.Col span={{ base: 12, md: 6 }}>
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Top Programs</Title>
+							<Text size='sm' c='dimmed'>
+								Top 10 programs by enrollment
+							</Text>
+						</div>
+						<BarChart
+							h={300}
+							data={programsData}
+							dataKey='code'
+							series={[{ name: 'count', label: 'Students', color: 'orange.6' }]}
+							tickLine='y'
+							barProps={{ radius: 4 }}
+							tooltipAnimationDuration={200}
+							tooltipProps={{
+								content: ({ label, payload }) => (
+									<ChartTooltip
+										label={label}
+										payload={payload as Record<string, unknown>[] | undefined}
+									/>
+								),
+							}}
+						/>
+					</Stack>
+				</Card>
+			</Grid.Col>
 
-			{showProgramsBySchool ? (
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<Card withBorder p='md'>
-						<Stack gap='md'>
-							<div>
-								<Title order={4}>Programs per School</Title>
-								<Text size='sm' c='dimmed'>
-									Number of active programs in each school
-								</Text>
-							</div>
-							<BarChart
-								h={300}
-								data={chartData.programsBySchool}
-								dataKey='schoolCode'
-								series={[
-									{
-										name: 'programCount',
-										label: 'Programs',
-										color: 'violet.6',
-									},
-								]}
-								tickLine='y'
-								barProps={{ radius: 4 }}
-								tooltipAnimationDuration={200}
-								tooltipProps={{
-									content: ({ label, payload }) => (
-										<ChartTooltip
-											label={label}
-											payload={payload as Record<string, unknown>[] | undefined}
-											seriesName='Programs'
-										/>
-									),
-								}}
-							/>
-						</Stack>
-					</Card>
-				</Grid.Col>
-			) : null}
+			<Grid.Col span={{ base: 12, md: 6 }}>
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Programs per School</Title>
+							<Text size='sm' c='dimmed'>
+								Number of active programs in each school
+							</Text>
+						</div>
+						<BarChart
+							h={300}
+							data={chartData.programsBySchool}
+							dataKey='schoolCode'
+							series={[
+								{
+									name: 'programCount',
+									label: 'Programs',
+									color: 'violet.6',
+								},
+							]}
+							tickLine='y'
+							barProps={{ radius: 4 }}
+							tooltipAnimationDuration={200}
+							tooltipProps={{
+								content: ({ label, payload }) => (
+									<ChartTooltip
+										label={label}
+										payload={payload as Record<string, unknown>[] | undefined}
+										seriesName='Programs'
+									/>
+								),
+							}}
+						/>
+					</Stack>
+				</Card>
+			</Grid.Col>
 
-			{showStudentsBySponsor ? (
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<Card withBorder p='md'>
-						<Stack gap='md'>
-							<div>
-								<Title order={4}>Top Sponsors</Title>
-								<Text size='sm' c='dimmed'>
-									Top 5 sponsors by student count
-								</Text>
-							</div>
+			<Grid.Col span={{ base: 12, md: 6 }}>
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Top Sponsors</Title>
+							<Text size='sm' c='dimmed'>
+								Top 5 sponsors by student count
+							</Text>
+						</div>
+						<Center>
 							<PieChart
-								h={380}
+								h={300}
 								data={chartData.studentsBySponsor.map((item, index) => {
 									const colors = [
 										'blue.6',
@@ -356,10 +303,10 @@ export default function RegistrationCharts({
 								labelsType='percent'
 								withTooltip
 							/>
-						</Stack>
-					</Card>
-				</Grid.Col>
-			) : null}
+						</Center>
+					</Stack>
+				</Card>
+			</Grid.Col>
 		</Grid>
 	);
 }
