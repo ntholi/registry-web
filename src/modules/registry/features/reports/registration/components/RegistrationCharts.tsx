@@ -1,5 +1,5 @@
 'use client';
-import { BarChart, LineChart, PieChart } from '@mantine/charts';
+import { BarChart, DonutChart, LineChart, PieChart } from '@mantine/charts';
 import {
 	Box,
 	Card,
@@ -174,6 +174,24 @@ export default function RegistrationCharts({
 			? countryData.reduce((max, item) => (item.count > max.count ? item : max))
 			: null;
 
+	const levelLabels: Record<string, string> = {
+		certificate: 'Certificate',
+		diploma: 'Diploma',
+		degree: 'Degree',
+		Unknown: 'Unknown',
+	};
+	const programLevelData = chartData.studentsByProgramLevel.map((item) => ({
+		level: item.level,
+		label: levelLabels[item.level] || item.level,
+		count: Number(item.count),
+	}));
+	const topProgramLevel =
+		programLevelData.length > 0
+			? programLevelData.reduce((max, item) =>
+					item.count > max.count ? item : max
+				)
+			: null;
+
 	return (
 		<Box
 			ref={containerRef}
@@ -313,34 +331,31 @@ export default function RegistrationCharts({
 				</Stack>
 			</Card>
 
-			{chartData.studentsByProgramLevel.length > 0 && (
+			{programLevelData.length > 0 && (
 				<Card withBorder p='md'>
 					<Stack gap='md'>
 						<div>
 							<Title order={4}>Program Level</Title>
 							<Text size='sm' c='dimmed'>
-								Distribution by qualification level
+								{programLevelData.length}{' '}
+								{programLevelData.length === 1 ? 'level' : 'levels'}
+								{topProgramLevel &&
+									` • Most common: ${topProgramLevel.label} (${topProgramLevel.count})`}
 							</Text>
 						</div>
 						<Center>
 							<PieChart
 								size={220}
-								data={chartData.studentsByProgramLevel.map((item) => {
+								data={programLevelData.map((item) => {
 									const levelColors: Record<string, string> = {
 										certificate: 'teal.6',
 										diploma: 'blue.6',
 										degree: 'violet.6',
 										Unknown: 'gray.6',
 									};
-									const levelLabels: Record<string, string> = {
-										certificate: 'Certificate',
-										diploma: 'Diploma',
-										degree: 'Degree',
-										Unknown: 'Unknown',
-									};
 									return {
-										name: levelLabels[item.level] || item.level,
-										value: Number(item.count),
+										name: item.label,
+										value: item.count,
 										color: levelColors[item.level] || 'gray.6',
 									};
 								})}
@@ -408,8 +423,10 @@ export default function RegistrationCharts({
 						</Text>
 					</div>
 					<Center>
-						<PieChart
+						<DonutChart
 							size={220}
+							thickness={28}
+							paddingAngle={4}
 							data={chartData.studentsBySponsor.map((item, index) => {
 								const colors = [
 									'blue.6',
@@ -423,8 +440,8 @@ export default function RegistrationCharts({
 								];
 								return {
 									name:
-										item.sponsor.length > 30
-											? `${item.sponsor.substring(0, 30)}...`
+										item.sponsor.length > 25
+											? `${item.sponsor.substring(0, 25)}...`
 											: item.sponsor,
 									value: Number(item.count),
 									color: colors[index % colors.length],
@@ -432,7 +449,6 @@ export default function RegistrationCharts({
 							})}
 							withLabelsLine
 							withLabels
-							labelsPosition='outside'
 							labelsType='percent'
 							withTooltip
 						/>
