@@ -225,6 +225,12 @@ export class DistributionReportRepository {
 			'semester-status': 'Semester Status Distribution',
 		};
 
+		const programBreakdown = this.aggregateByCategory(
+			rows,
+			(row) => row.programCode,
+			valueExtractor
+		);
+
 		return {
 			type,
 			label: labels[type],
@@ -235,11 +241,7 @@ export class DistributionReportRepository {
 				(row) => row.schoolCode,
 				valueExtractor
 			),
-			byProgram: this.aggregateByCategory(
-				rows,
-				(row) => row.programCode,
-				valueExtractor
-			),
+			byProgram: programBreakdown,
 			bySemester: this.aggregateByCategory(
 				rows,
 				(row) => {
@@ -282,24 +284,5 @@ export class DistributionReportRepository {
 			.from(schools)
 			.where(eq(schools.isActive, true))
 			.orderBy(schools.code);
-	}
-
-	async getAvailablePrograms(schoolId?: number) {
-		const baseQuery = db
-			.select({
-				id: programs.id,
-				code: programs.code,
-				name: programs.name,
-				schoolId: programs.schoolId,
-			})
-			.from(programs);
-
-		if (schoolId) {
-			return await baseQuery
-				.where(eq(programs.schoolId, schoolId))
-				.orderBy(sql`${programs.id} DESC`);
-		}
-
-		return await baseQuery.orderBy(sql`${programs.id} DESC`);
 	}
 }

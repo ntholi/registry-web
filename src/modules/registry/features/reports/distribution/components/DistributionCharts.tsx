@@ -153,6 +153,8 @@ export default function DistributionCharts({
 					<DistributionComparisonCard
 						title='Percentage by School'
 						data={data.bySchool}
+						style={getItemStyle({ colSpan: 2 })}
+						type='default'
 					/>
 				)}
 
@@ -160,7 +162,8 @@ export default function DistributionCharts({
 					<BreakdownCard
 						title='Distribution by Semester'
 						data={data.bySemester}
-						type='stacked'
+						type='default'
+						style={getItemStyle({ colSpan: 2 })}
 					/>
 				)}
 
@@ -169,25 +172,22 @@ export default function DistributionCharts({
 						title='By Semester Status'
 						data={data.bySemesterStatus}
 						type='donut'
+						style={getItemStyle({ colSpan: 1 })}
 					/>
 				)}
 
 				{data.byProgram.length > 0 && (
-					<Card
-						withBorder
-						p='md'
-						style={getItemStyle({ colSpan: data.byProgram.length > 5 ? 2 : 1 })}
-					>
+					<Card withBorder p='md' style={getItemStyle({ colSpan: 2 })}>
 						<Stack gap='md'>
 							<div>
-								<Title order={4}>Top Programs</Title>
+								<Title order={4}>Programs</Title>
 								<Text size='sm' c='dimmed'>
 									{data.byProgram.length} programs with enrolled students
 								</Text>
 							</div>
 							<BarChart
 								h={350}
-								data={data.byProgram.slice(0, 15).map((breakdown) => {
+								data={data.byProgram.map((breakdown) => {
 									const row: Record<string, string | number> = {
 										category: breakdown.category,
 									};
@@ -290,10 +290,12 @@ function BreakdownCard({
 	title,
 	data,
 	type,
+	style,
 }: {
 	title: string;
 	data: DistributionResult['bySchool'];
-	type: 'bar' | 'donut' | 'stacked';
+	type: 'bar' | 'donut' | 'stacked' | 'default';
+	style?: React.CSSProperties;
 }) {
 	if (data.length === 0) return null;
 
@@ -324,7 +326,7 @@ function BreakdownCard({
 	const topBreakdown = data[0];
 
 	return (
-		<Card withBorder p='md'>
+		<Card withBorder p='md' style={style}>
 			<Stack gap='md'>
 				<Group justify='space-between' align='flex-start'>
 					<div>
@@ -377,6 +379,27 @@ function BreakdownCard({
 							tooltipDataSource='segment'
 						/>
 					</Center>
+				) : type === 'default' ? (
+					<BarChart
+						h={350}
+						data={chartData}
+						dataKey='category'
+						type='default'
+						series={series}
+						tickLine='y'
+						barProps={{ radius: 4 }}
+						withLegend
+						legendProps={{ verticalAlign: 'bottom', height: 50 }}
+						tooltipAnimationDuration={200}
+						tooltipProps={{
+							content: ({ label, payload }) => (
+								<ChartTooltip
+									label={label}
+									payload={payload as Record<string, unknown>[] | undefined}
+								/>
+							),
+						}}
+					/>
 				) : (
 					<BarChart
 						h={300}
@@ -408,9 +431,13 @@ function BreakdownCard({
 function DistributionComparisonCard({
 	title,
 	data,
+	style,
+	type,
 }: {
 	title: string;
 	data: DistributionResult['bySchool'];
+	style?: React.CSSProperties;
+	type: 'default' | 'percent';
 }) {
 	if (data.length === 0) return null;
 
@@ -428,9 +455,15 @@ function DistributionComparisonCard({
 		};
 		for (const cat of categories) {
 			const point = breakdown.data.find((d) => d.name === cat);
-			const percentage =
-				breakdown.total > 0 ? ((point?.value || 0) / breakdown.total) * 100 : 0;
-			row[cat] = Math.round(percentage * 10) / 10;
+			if (type === 'percent') {
+				const percentage =
+					breakdown.total > 0
+						? ((point?.value || 0) / breakdown.total) * 100
+						: 0;
+				row[cat] = Math.round(percentage * 10) / 10;
+			} else {
+				row[cat] = point?.value || 0;
+			}
 		}
 		return row;
 	});
@@ -441,12 +474,14 @@ function DistributionComparisonCard({
 	}));
 
 	return (
-		<Card withBorder p='md'>
+		<Card withBorder p='md' style={style}>
 			<Stack gap='md'>
 				<div>
 					<Title order={4}>{title}</Title>
 					<Text size='sm' c='dimmed'>
-						Percentage breakdown across categories
+						{type === 'percent'
+							? 'Percentage breakdown across categories'
+							: 'Breakdown across categories'}
 					</Text>
 				</div>
 
@@ -454,14 +489,14 @@ function DistributionComparisonCard({
 					h={350}
 					data={chartData}
 					dataKey='category'
-					type='percent'
+					type={type}
 					series={series}
 					tickLine='y'
 					barProps={{ radius: 4 }}
 					withLegend
 					legendProps={{ verticalAlign: 'bottom', height: 50 }}
 					tooltipAnimationDuration={200}
-					unit='%'
+					unit={type === 'percent' ? '%' : undefined}
 				/>
 			</Stack>
 		</Card>
