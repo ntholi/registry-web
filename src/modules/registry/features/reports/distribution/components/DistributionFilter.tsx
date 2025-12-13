@@ -33,6 +33,13 @@ const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	};
 });
 
+interface ProgramOption {
+	id: number;
+	code: string;
+	name: string;
+	schoolId: number;
+}
+
 interface Props {
 	onFilterChange: (
 		filter: DistributionReportFilter,
@@ -84,13 +91,15 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 		},
 	});
 
-	const { data: programs = [], isLoading: programsLoading } = useQuery({
+	const { data: programs = [], isLoading: programsLoading } = useQuery<
+		ProgramOption[]
+	>({
 		queryKey: ['distribution-programs', localFilter.schoolId],
 		queryFn: async () => {
 			const result = await getDistributionPrograms(
 				localFilter.schoolId ?? undefined
 			);
-			return result.success ? result.data : [];
+			return result.success ? (result.data as ProgramOption[]) : [];
 		},
 		enabled: Boolean(localFilter.schoolId),
 	});
