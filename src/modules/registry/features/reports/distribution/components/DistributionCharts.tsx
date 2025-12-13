@@ -170,7 +170,7 @@ export default function DistributionCharts({
 					<BreakdownCard
 						title='By Semester Status'
 						data={data.bySemesterStatus}
-						type='donut'
+						type='pie'
 						style={getItemStyle({ colSpan: 1 })}
 					/>
 				)}
@@ -305,7 +305,7 @@ function BreakdownCard({
 }: {
 	title: string;
 	data: DistributionResult['bySchool'];
-	type: 'bar' | 'donut' | 'stacked' | 'default';
+	type: 'bar' | 'donut' | 'stacked' | 'default' | 'pie';
 	style?: React.CSSProperties;
 }) {
 	if (data.length === 0) return null;
@@ -385,6 +385,30 @@ function BreakdownCard({
 							}))}
 							withLabelsLine
 							withLabels
+							labelsType='percent'
+							withTooltip
+							tooltipDataSource='segment'
+							valueFormatter={(value) => {
+								const total = data
+									.slice(0, 8)
+									.reduce((sum, b) => sum + b.total, 0);
+								const percentage = ((value / total) * 100).toFixed(1);
+								return `${value.toLocaleString()} (${percentage}%)`;
+							}}
+						/>
+					</Center>
+				) : type === 'pie' ? (
+					<Center>
+						<PieChart
+							size={230}
+							data={data.slice(0, 8).map((breakdown, index) => ({
+								name: breakdown.category,
+								value: breakdown.total,
+								color: CHART_COLORS[index % CHART_COLORS.length],
+							}))}
+							withLabelsLine
+							withLabels
+							labelsPosition='outside'
 							labelsType='percent'
 							withTooltip
 							tooltipDataSource='segment'
