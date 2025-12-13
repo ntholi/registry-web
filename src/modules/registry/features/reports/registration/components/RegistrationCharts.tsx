@@ -140,33 +140,35 @@ export default function RegistrationCharts({
 					/>
 				</Stack>
 			</Card>
-			<Card withBorder p='md'>
-				<Stack gap='md'>
-					<div>
-						<Title order={4}>Students by School</Title>
-						<Text size='sm' c='dimmed'>
-							Distribution of students across schools
-						</Text>
-					</div>
-					<BarChart
-						h={300}
-						data={chartData.studentsBySchool}
-						dataKey='code'
-						series={[{ name: 'count', label: 'Students', color: 'blue.6' }]}
-						tickLine='y'
-						barProps={{ radius: 4 }}
-						tooltipAnimationDuration={200}
-						tooltipProps={{
-							content: ({ label, payload }) => (
-								<ChartTooltip
-									label={label}
-									payload={payload as Record<string, unknown>[] | undefined}
-								/>
-							),
-						}}
-					/>
-				</Stack>
-			</Card>
+			{chartData.studentsBySchool.length > 1 && (
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Students by School</Title>
+							<Text size='sm' c='dimmed'>
+								Distribution of students across schools
+							</Text>
+						</div>
+						<BarChart
+							h={300}
+							data={chartData.studentsBySchool}
+							dataKey='code'
+							series={[{ name: 'count', label: 'Students', color: 'blue.6' }]}
+							tickLine='y'
+							barProps={{ radius: 4 }}
+							tooltipAnimationDuration={200}
+							tooltipProps={{
+								content: ({ label, payload }) => (
+									<ChartTooltip
+										label={label}
+										payload={payload as Record<string, unknown>[] | undefined}
+									/>
+								),
+							}}
+						/>
+					</Stack>
+				</Card>
+			)}
 
 			<Card withBorder p='md'>
 				<Stack gap='md'>
@@ -227,40 +229,42 @@ export default function RegistrationCharts({
 				</Stack>
 			</Card>
 
-			<Card withBorder p='md'>
-				<Stack gap='md'>
-					<div>
-						<Title order={4}>Programs per School</Title>
-						<Text size='sm' c='dimmed'>
-							Number of active programs in each school
-						</Text>
-					</div>
-					<BarChart
-						h={300}
-						data={chartData.programsBySchool}
-						dataKey='schoolCode'
-						series={[
-							{
-								name: 'programCount',
-								label: 'Programs',
-								color: 'violet.6',
-							},
-						]}
-						tickLine='y'
-						barProps={{ radius: 4 }}
-						tooltipAnimationDuration={200}
-						tooltipProps={{
-							content: ({ label, payload }) => (
-								<ChartTooltip
-									label={label}
-									payload={payload as Record<string, unknown>[] | undefined}
-									seriesName='Programs'
-								/>
-							),
-						}}
-					/>
-				</Stack>
-			</Card>
+			{chartData.programsBySchool.length > 1 && (
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Programs per School</Title>
+							<Text size='sm' c='dimmed'>
+								Number of active programs in each school
+							</Text>
+						</div>
+						<BarChart
+							h={300}
+							data={chartData.programsBySchool}
+							dataKey='schoolCode'
+							series={[
+								{
+									name: 'programCount',
+									label: 'Programs',
+									color: 'violet.6',
+								},
+							]}
+							tickLine='y'
+							barProps={{ radius: 4 }}
+							tooltipAnimationDuration={200}
+							tooltipProps={{
+								content: ({ label, payload }) => (
+									<ChartTooltip
+										label={label}
+										payload={payload as Record<string, unknown>[] | undefined}
+										seriesName='Programs'
+									/>
+								),
+							}}
+						/>
+					</Stack>
+				</Card>
+			)}
 
 			<Card withBorder p='md'>
 				<Stack gap='md'>
