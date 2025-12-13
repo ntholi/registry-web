@@ -90,6 +90,7 @@ interface ChartDataResult {
 	studentsByAge: Array<{ age: number; count: number }>;
 	studentsByCountry: Array<{ country: string; count: number }>;
 	studentsBySemesterStatus: Array<{ status: string; count: number }>;
+	studentsByProgramLevel: Array<{ level: string; count: number }>;
 }
 
 interface StudentQueryRow {
@@ -112,6 +113,7 @@ interface ChartQueryRow {
 	schoolCode: string;
 	programName: string;
 	programCode: string;
+	programLevel: string;
 	semesterNumber: string | null;
 	gender: string | null;
 	sponsorName: string | null;
@@ -179,6 +181,7 @@ export class RegistrationReportRepository {
 				schoolCode: schools.code,
 				programName: programs.name,
 				programCode: programs.code,
+				programLevel: programs.level,
 				semesterNumber: structureSemesters.semesterNumber,
 				gender: students.gender,
 				sponsorName: sponsors.name,
@@ -402,6 +405,7 @@ export class RegistrationReportRepository {
 		const ageMap = new Map<number, number>();
 		const countryMap = new Map<string, number>();
 		const semesterStatusMap = new Map<string, number>();
+		const programLevelMap = new Map<string, number>();
 
 		const currentDate = new Date();
 
@@ -455,6 +459,12 @@ export class RegistrationReportRepository {
 				semesterStatus,
 				(semesterStatusMap.get(semesterStatus) || 0) + 1
 			);
+
+			const programLevel = row.programLevel || 'Unknown';
+			programLevelMap.set(
+				programLevel,
+				(programLevelMap.get(programLevel) || 0) + 1
+			);
 		});
 
 		return {
@@ -498,6 +508,9 @@ export class RegistrationReportRepository {
 				.sort((a, b) => b.count - a.count),
 			studentsBySemesterStatus: Array.from(semesterStatusMap.entries())
 				.map(([status, count]) => ({ status, count }))
+				.sort((a, b) => b.count - a.count),
+			studentsByProgramLevel: Array.from(programLevelMap.entries())
+				.map(([level, count]) => ({ level, count }))
 				.sort((a, b) => b.count - a.count),
 		};
 	}

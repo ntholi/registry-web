@@ -104,10 +104,7 @@ export default function RegistrationCharts({
 		count: Number(item.count),
 	}));
 
-	const totalStudents = programsData.reduce(
-		(sum, item) => sum + item.count,
-		0
-	);
+	const totalStudents = programsData.reduce((sum, item) => sum + item.count, 0);
 	const largestProgram = programsData.reduce(
 		(max, item) => (item.count > max.count ? item : max),
 		programsData[0]
@@ -118,8 +115,7 @@ export default function RegistrationCharts({
 		count: Number(item.count),
 	}));
 	const maleCount = genderData.find((g) => g.gender === 'Male')?.count || 0;
-	const femaleCount =
-		genderData.find((g) => g.gender === 'Female')?.count || 0;
+	const femaleCount = genderData.find((g) => g.gender === 'Female')?.count || 0;
 	const genderRatio =
 		maleCount && femaleCount
 			? maleCount > femaleCount
@@ -131,12 +127,13 @@ export default function RegistrationCharts({
 		age: Number(item.age),
 		count: Number(item.count),
 	}));
-	const minAge = ageData.length > 0 ? Math.min(...ageData.map((a) => a.age)) : 0;
-	const maxAge = ageData.length > 0 ? Math.max(...ageData.map((a) => a.age)) : 0;
+	const minAge =
+		ageData.length > 0 ? Math.min(...ageData.map((a) => a.age)) : 0;
+	const maxAge =
+		ageData.length > 0 ? Math.max(...ageData.map((a) => a.age)) : 0;
 	const mostCommonAge =
 		ageData.length > 0
-			? ageData.reduce((max, item) => (item.count > max.count ? item : max))
-					.age
+			? ageData.reduce((max, item) => (item.count > max.count ? item : max)).age
 			: 0;
 
 	const schoolData = chartData.studentsBySchool.map((item) => ({
@@ -316,6 +313,48 @@ export default function RegistrationCharts({
 				</Stack>
 			</Card>
 
+			{chartData.studentsByProgramLevel.length > 0 && (
+				<Card withBorder p='md'>
+					<Stack gap='md'>
+						<div>
+							<Title order={4}>Program Level</Title>
+							<Text size='sm' c='dimmed'>
+								Distribution by qualification level
+							</Text>
+						</div>
+						<Center>
+							<PieChart
+								size={220}
+								data={chartData.studentsByProgramLevel.map((item) => {
+									const levelColors: Record<string, string> = {
+										certificate: 'teal.6',
+										diploma: 'blue.6',
+										degree: 'violet.6',
+										Unknown: 'gray.6',
+									};
+									const levelLabels: Record<string, string> = {
+										certificate: 'Certificate',
+										diploma: 'Diploma',
+										degree: 'Degree',
+										Unknown: 'Unknown',
+									};
+									return {
+										name: levelLabels[item.level] || item.level,
+										value: Number(item.count),
+										color: levelColors[item.level] || 'gray.6',
+									};
+								})}
+								withLabelsLine
+								withLabels
+								labelsPosition='outside'
+								labelsType='percent'
+								withTooltip
+							/>
+						</Center>
+					</Stack>
+				</Card>
+			)}
+
 			{chartData.programsBySchool.length > 1 && (
 				<Card withBorder p='md'>
 					<Stack gap='md'>
@@ -361,7 +400,9 @@ export default function RegistrationCharts({
 						<Title order={4}>Sponsors</Title>
 						<Text size='sm' c='dimmed'>
 							{chartData.studentsBySponsor.length}{' '}
-							{chartData.studentsBySponsor.length === 1 ? 'sponsor' : 'sponsors'}
+							{chartData.studentsBySponsor.length === 1
+								? 'sponsor'
+								: 'sponsors'}
 							{topSponsor &&
 								` • Top: ${topSponsor.sponsor.length > 25 ? `${topSponsor.sponsor.substring(0, 25)}...` : topSponsor.sponsor} (${topSponsor.count})`}
 						</Text>
@@ -399,55 +440,6 @@ export default function RegistrationCharts({
 				</Stack>
 			</Card>
 
-				<Card withBorder p='md'>
-					<Stack gap='md'>
-						<div>
-							<Title order={4}>Semester Status</Title>
-							<Text size='sm' c='dimmed'>
-								{chartData.studentsBySemesterStatus.length}{' '}
-								{chartData.studentsBySemesterStatus.length === 1
-									? 'status'
-									: 'statuses'}
-							</Text>
-						</div>
-						<Center>
-							<PieChart
-								size={220}
-								data={chartData.studentsBySemesterStatus.map((item, index) => {
-									const statusColors: Record<string, string> = {
-										Active: 'green.6',
-										Repeat: 'yellow.6',
-										Deferred: 'blue.6',
-										DroppedOut: 'red.6',
-										Completed: 'teal.6',
-										Unknown: 'gray.6',
-									};
-									const fallbackColors = [
-										'violet.6',
-										'orange.6',
-										'cyan.6',
-										'pink.6',
-									];
-									return {
-										name:
-											item.status === 'DroppedOut'
-												? 'Dropped Out'
-												: item.status,
-										value: Number(item.count),
-										color:
-											statusColors[item.status] ||
-											fallbackColors[index % fallbackColors.length],
-									};
-								})}
-								withLabelsLine
-								withLabels
-								labelsPosition='outside'
-								labelsType='percent'
-								withTooltip
-							/>
-						</Center>
-					</Stack>
-				</Card>
 			{chartData.studentsByAge.length > 0 && (
 				<Card withBorder p='md' style={getItemStyle({ colSpan: 2 })}>
 					<Stack gap='md'>
@@ -479,6 +471,54 @@ export default function RegistrationCharts({
 				</Card>
 			)}
 
+			<Card withBorder p='md'>
+				<Stack gap='md'>
+					<div>
+						<Title order={4}>Semester Status</Title>
+						<Text size='sm' c='dimmed'>
+							{chartData.studentsBySemesterStatus.length}{' '}
+							{chartData.studentsBySemesterStatus.length === 1
+								? 'status'
+								: 'statuses'}
+						</Text>
+					</div>
+					<Center>
+						<PieChart
+							size={220}
+							data={chartData.studentsBySemesterStatus.map((item, index) => {
+								const statusColors: Record<string, string> = {
+									Active: 'green.6',
+									Repeat: 'yellow.6',
+									Deferred: 'blue.6',
+									DroppedOut: 'red.6',
+									Completed: 'teal.6',
+									Unknown: 'gray.6',
+								};
+								const fallbackColors = [
+									'violet.6',
+									'orange.6',
+									'cyan.6',
+									'pink.6',
+								];
+								return {
+									name:
+										item.status === 'DroppedOut' ? 'Dropped Out' : item.status,
+									value: Number(item.count),
+									color:
+										statusColors[item.status] ||
+										fallbackColors[index % fallbackColors.length],
+								};
+							})}
+							withLabelsLine
+							withLabels
+							labelsPosition='outside'
+							labelsType='percent'
+							withTooltip
+						/>
+					</Center>
+				</Stack>
+			</Card>
+
 			{chartData.studentsByCountry.length > 0 && (
 				<Card
 					withBorder
@@ -492,8 +532,11 @@ export default function RegistrationCharts({
 							<Title order={4}>Students by Country</Title>
 							<Text size='sm' c='dimmed'>
 								{chartData.studentsByCountry.length}{' '}
-								{chartData.studentsByCountry.length === 1 ? 'country' : 'countries'}
-								{topCountry && ` • Top: ${topCountry.country} (${topCountry.count})`}
+								{chartData.studentsByCountry.length === 1
+									? 'country'
+									: 'countries'}
+								{topCountry &&
+									` • Top: ${topCountry.country} (${topCountry.count})`}
 								{chartData.studentsByCountry.length > 15 && ' • Showing top 15'}
 							</Text>
 						</div>
