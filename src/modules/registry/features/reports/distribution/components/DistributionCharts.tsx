@@ -157,21 +157,12 @@ export default function DistributionCharts({
 					</Card>
 				)}
 
-				{data.bySchool.length > 0 && (
-					<DistributionComparisonCard
-						title='Percentage by School'
-						data={data.bySchool}
-						style={getItemStyle({ colSpan: 2 })}
-						type='default'
-					/>
-				)}
-
 				{data.bySemester.length > 0 && (
 					<BreakdownCard
 						title='Distribution by Semester'
 						data={data.bySemester}
 						type='default'
-						style={getItemStyle({ colSpan: 2 })}
+						style={getItemStyle({ colSpan: 1 })}
 					/>
 				)}
 
@@ -450,89 +441,6 @@ function BreakdownCard({
 						}}
 					/>
 				)}
-			</Stack>
-		</Card>
-	);
-}
-
-function DistributionComparisonCard({
-	title,
-	data,
-	style,
-	type,
-}: {
-	title: string;
-	data: DistributionResult['bySchool'];
-	style?: React.CSSProperties;
-	type: 'default' | 'percent';
-}) {
-	if (data.length === 0) return null;
-
-	const allCategories = new Set<string>();
-	for (const breakdown of data) {
-		for (const point of breakdown.data) {
-			allCategories.add(point.name);
-		}
-	}
-	const categories = Array.from(allCategories);
-
-	const chartData = data.slice(0, 10).map((breakdown) => {
-		const row: Record<string, string | number> = {
-			category: breakdown.category,
-		};
-		for (const cat of categories) {
-			const point = breakdown.data.find((d) => d.name === cat);
-			if (type === 'percent') {
-				const percentage =
-					breakdown.total > 0
-						? ((point?.value || 0) / breakdown.total) * 100
-						: 0;
-				row[cat] = Math.round(percentage * 10) / 10;
-			} else {
-				row[cat] = point?.value || 0;
-			}
-		}
-		return row;
-	});
-
-	const series = categories.map((cat, index) => ({
-		name: cat,
-		color: CHART_COLORS[index % CHART_COLORS.length],
-	}));
-
-	return (
-		<Card withBorder p='md' style={style}>
-			<Stack gap='md'>
-				<div>
-					<Title order={4}>{title}</Title>
-					<Text size='sm' c='dimmed'>
-						{type === 'percent'
-							? 'Percentage breakdown across categories'
-							: 'Breakdown across categories'}
-					</Text>
-				</div>
-
-				<BarChart
-					h={350}
-					data={chartData}
-					dataKey='category'
-					type={type}
-					series={series}
-					tickLine='y'
-					barProps={{ radius: 4 }}
-					withLegend
-					legendProps={{ verticalAlign: 'bottom', height: 50 }}
-					tooltipAnimationDuration={200}
-					unit={type === 'percent' ? '%' : undefined}
-					tooltipProps={{
-						content: ({ label, payload }) => (
-							<ChartTooltip
-								label={label}
-								payload={payload as Record<string, unknown>[] | undefined}
-							/>
-						),
-					}}
-				/>
 			</Stack>
 		</Card>
 	);
