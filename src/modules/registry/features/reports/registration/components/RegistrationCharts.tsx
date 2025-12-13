@@ -175,8 +175,7 @@ export default function RegistrationCharts({
 						</div>
 						<Center>
 							<PieChart
-								h={300}
-								w={300}
+								size={220}
 								data={chartData.studentsByGender.map((item) => ({
 									name: item.gender,
 									value: Number(item.count),
@@ -276,7 +275,7 @@ export default function RegistrationCharts({
 						</div>
 						<Center>
 							<PieChart
-								h={300}
+								size={220}
 								data={chartData.studentsBySponsor.map((item, index) => {
 									const colors = [
 										'blue.6',

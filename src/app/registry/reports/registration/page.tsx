@@ -40,7 +40,8 @@ import { useCallback, useEffect, useState } from 'react';
 const PAGE_SIZE = 20;
 
 export default function RegistrationReportPage() {
-	const [urlParams] = useQueryStates({
+	const [urlParams, setUrlParams] = useQueryStates({
+		tab: parseAsString.withDefault('summary'),
 		termId: parseAsInteger,
 		schoolId: parseAsInteger,
 		programId: parseAsInteger,
@@ -284,7 +285,10 @@ export default function RegistrationReportPage() {
 				)}
 
 				{isFilterApplied && canGenerateReport && (
-					<Tabs defaultValue='summary'>
+					<Tabs
+						value={urlParams.tab}
+						onChange={(value) => setUrlParams({ tab: value })}
+					>
 						<Tabs.List>
 							<Tabs.Tab
 								value='summary'
