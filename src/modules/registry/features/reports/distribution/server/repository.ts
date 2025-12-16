@@ -1,4 +1,4 @@
-import { and, eq, inArray, type SQL, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import {
 	db,
 	programs,
@@ -68,7 +68,17 @@ export class DistributionReportRepository {
 	}
 
 	private buildFilterConditions(filter?: DistributionReportFilter) {
-		const conditions: SQL[] = [];
+		const conditions = [
+			inArray(studentPrograms.status, ['Active', 'Completed']),
+			inArray(studentSemesters.status, [
+				'Active',
+				'Enrolled',
+				'Exempted',
+				'Outstanding',
+				'Repeat',
+				'DNR',
+			]),
+		];
 
 		if (filter?.schoolId) {
 			conditions.push(eq(schools.id, filter.schoolId));

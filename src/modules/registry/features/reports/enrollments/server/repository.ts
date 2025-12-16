@@ -218,11 +218,24 @@ export class RegistrationReportRepository {
 
 		if (filter?.programStatus) {
 			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
+		} else {
+			conditions.push(inArray(studentPrograms.status, ['Active', 'Completed']));
 		}
 
 		if (filter?.semesterStatus) {
 			conditions.push(
 				sql`${studentSemesters.status} = ${filter.semesterStatus}`
+			);
+		} else {
+			conditions.push(
+				inArray(studentSemesters.status, [
+					'Active',
+					'Enrolled',
+					'Exempted',
+					'Outstanding',
+					'Repeat',
+					'DNR',
+				])
 			);
 		}
 
