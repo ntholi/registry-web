@@ -465,6 +465,20 @@ export async function deleteRubric(cmid: number) {
 	return result;
 }
 
+export async function copyRubric(sourceCmid: number, targetCmid: number) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const result = await moodlePost('local_activity_utils_copy_rubric', {
+		sourcecmid: sourceCmid,
+		targetcmid: targetCmid,
+	});
+
+	return result;
+}
+
 export async function deleteAssignment(cmid: number) {
 	const session = await auth();
 	if (!session?.user) {

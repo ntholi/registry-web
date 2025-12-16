@@ -120,6 +120,7 @@ export type RubricOptions = {
 	showscorestudent?: number;
 	enableremarks?: number;
 	showremarksstudent?: number;
+	alwaysshowdefinition?: number;
 };
 
 export type Rubric = {
@@ -130,6 +131,7 @@ export type Rubric = {
 	criteria: RubricCriterion[];
 	options: RubricOptions;
 	maxscore: number;
+	gradingmethod: 'simple' | 'fivedays' | string;
 	success: boolean;
 	message: string;
 };
@@ -140,6 +142,12 @@ export type CreateRubricParams = {
 	description?: string;
 	criteria: RubricCriterion[];
 	options?: RubricOptions;
+};
+
+export type CopyRubricResult = {
+	definitionid: number;
+	success: boolean;
+	message: string;
 };
 
 export type RubricFilling = {

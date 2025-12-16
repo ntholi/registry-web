@@ -18,7 +18,7 @@ import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useImperativeHandle } from 'react';
 import { createRubric, updateRubric } from '../../server/actions';
-import type { Rubric, RubricCriterion } from '../../types';
+import type { Rubric } from '../../types';
 
 type Props = {
 	cmid: number;
@@ -29,10 +29,21 @@ type Props = {
 	formRef?: React.RefObject<{ submit: () => void } | null>;
 };
 
+type FormCriterion = {
+	id?: number;
+	description: string;
+	sortorder?: number;
+	levels: Array<{
+		id?: number;
+		score: number;
+		definition: string;
+	}>;
+};
+
 type FormValues = {
 	name: string;
 	description: string;
-	criteria: RubricCriterion[];
+	criteria: FormCriterion[];
 };
 
 export default function RubricForm({
@@ -101,18 +112,23 @@ export default function RubricForm({
 
 	const saveMutation = useMutation({
 		mutationFn: async (values: FormValues) => {
+			const criteriaWithSortOrder = values.criteria.map((c, idx) => ({
+				...c,
+				sortorder: c.sortorder ?? idx,
+			}));
+
 			if (existingRubric) {
 				return updateRubric(cmid, {
 					name: values.name,
 					description: values.description,
-					criteria: values.criteria,
+					criteria: criteriaWithSortOrder,
 				});
 			}
 			return createRubric({
 				cmid,
 				name: values.name,
 				description: values.description,
-				criteria: values.criteria,
+				criteria: criteriaWithSortOrder,
 			});
 		},
 		onSuccess: () => {
@@ -166,6 +182,19 @@ export default function RubricForm({
 	return (
 		<form onSubmit={form.onSubmit((values) => saveMutation.mutate(values))}>
 			<Stack gap='md'>
+				<SimpleGrid cols={2} spacing='md'>
+					<TextInput
+						label='Rubric Name'
+						placeholder='Enter rubric name'
+						{...form.getInputProps('name')}
+					/>
+					<TextInput
+						label='Description'
+						placeholder='Enter rubric description (optional)'
+						{...form.getInputProps('description')}
+					/>
+				</SimpleGrid>
+
 				<Paper p='sm' withBorder bg={isOverLimit ? 'red.0' : undefined}>
 					<Group justify='space-between'>
 						<Text size='sm' fw={500}>
