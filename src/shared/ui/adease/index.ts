@@ -1,5 +1,4 @@
 export { DeleteButton, type DeleteButtonProps } from './DeleteButton';
-export { default as DeleteConfirmContent } from './DeleteConfirmContent';
 export { DeleteModal, type DeleteModalProps } from './DeleteModal';
 export { DetailsView, type DetailsViewProps } from './DetailsView';
 export { DetailsViewBody, type DetailsViewBodyProps } from './DetailsViewBody';

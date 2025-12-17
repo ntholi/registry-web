@@ -1,8 +1,16 @@
 'use client';
 
-import { Box, Button, Group, Modal } from '@mantine/core';
+import {
+	Alert,
+	Box,
+	Button,
+	Group,
+	Modal,
+	Text,
+	TextInput,
+} from '@mantine/core';
+import { IconAlertTriangle } from '@tabler/icons-react';
 import { useState } from 'react';
-import DeleteConfirmContent from './DeleteConfirmContent';
 
 export type DeleteModalProps = {
 	opened: boolean;
@@ -23,8 +31,10 @@ export function DeleteModal({
 	warningMessage,
 	title = `Delete ${itemType}`,
 }: DeleteModalProps) {
-	const [isConfirmed, setIsConfirmed] = useState(false);
+	const [confirmValue, setConfirmValue] = useState('');
 	const [isDeleting, setIsDeleting] = useState(false);
+
+	const isConfirmed = confirmValue === 'delete permanently';
 
 	async function handleDelete() {
 		if (!isConfirmed) return;
@@ -39,7 +49,7 @@ export function DeleteModal({
 	}
 
 	function handleClose() {
-		setIsConfirmed(false);
+		setConfirmValue('');
 		setIsDeleting(false);
 		onClose();
 	}
@@ -53,11 +63,34 @@ export function DeleteModal({
 			centered
 		>
 			<Box mb='md'>
-				<DeleteConfirmContent
-					itemName={itemName}
-					itemType={itemType}
-					warningMessage={warningMessage}
-					onConfirmChange={setIsConfirmed}
+				<Alert
+					icon={<IconAlertTriangle size={16} />}
+					title='Warning'
+					color='red'
+					mb='md'
+				>
+					<Text fw={500} mb='xs'>
+						You are about to delete {itemType} "{itemName}".
+					</Text>
+					<Text size='sm'>
+						{warningMessage ||
+							'This will permanently remove all associated data. This action cannot be undone.'}
+					</Text>
+				</Alert>
+
+				<Text size='sm' mb='md'>
+					To confirm deletion, please type{' '}
+					<Text span fw={700}>
+						delete permanently
+					</Text>{' '}
+					in the field below:
+				</Text>
+
+				<TextInput
+					placeholder='delete permanently'
+					value={confirmValue}
+					onChange={(e) => setConfirmValue(e.target.value)}
+					data-autofocus
 				/>
 			</Box>
 
