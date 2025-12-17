@@ -200,7 +200,8 @@ type CreateQuizInput = {
 	name: string;
 	assessmentNumber: string;
 	weight: number;
-	timelimit: number | null;
+	startDateTime: Date | null;
+	endDateTime: Date | null;
 	attempts: number;
 	questions: Question[];
 };
@@ -249,8 +250,24 @@ export async function createQuiz(input: CreateQuizInput) {
 		visible: 1,
 	};
 
-	if (input.timelimit && input.timelimit > 0) {
-		quizParams.timelimit = input.timelimit * 60;
+	const startDate = input.startDateTime ? new Date(input.startDateTime) : null;
+	const endDate = input.endDateTime ? new Date(input.endDateTime) : null;
+
+	if (startDate) {
+		quizParams.timeopen = Math.floor(startDate.getTime() / 1000);
+	}
+
+	if (endDate) {
+		quizParams.timeclose = Math.floor(endDate.getTime() / 1000);
+	}
+
+	if (startDate && endDate) {
+		const timeLimitSeconds = Math.floor(
+			(endDate.getTime() - startDate.getTime()) / 1000
+		);
+		if (timeLimitSeconds > 0) {
+			quizParams.timelimit = timeLimitSeconds;
+		}
 	}
 
 	if (input.attempts && input.attempts > 0) {

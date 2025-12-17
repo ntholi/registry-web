@@ -184,7 +184,8 @@ export type QuizFormValues = {
 	assessmentNumber: string;
 	assessmentType: string;
 	weight: number;
-	timelimit: number | null;
+	startDateTime: Date | null;
+	endDateTime: Date | null;
 	attempts: number;
 	questions: Question[];
 };

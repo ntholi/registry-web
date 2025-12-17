@@ -14,8 +14,8 @@ import {
 	Select,
 	Stack,
 	Text,
-	TextInput,
 } from '@mantine/core';
+import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -52,7 +52,8 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			assessmentNumber: '',
 			assessmentType: '',
 			weight: 0,
-			timelimit: 0,
+			startDateTime: null,
+			endDateTime: null,
 			attempts: 1,
 			questions: [],
 		},
@@ -118,7 +119,8 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 				name: typeLabel,
 				assessmentNumber: values.assessmentNumber,
 				weight: values.weight,
-				timelimit: values.timelimit,
+				startDateTime: values.startDateTime,
+				endDateTime: values.endDateTime,
 				attempts: values.attempts,
 				questions: values.questions,
 			});
@@ -289,7 +291,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 												<Text size='sm' fw={500}>
 													Total Marks
 												</Text>
-												<Badge radius={'sm'}  color='green' variant='light'>
+												<Badge radius={'sm'} color='green' variant='light'>
 													{totalMarks} Marks
 												</Badge>
 											</Group>
@@ -313,8 +315,6 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 
 										<Divider />
 
-
-
 										<NumberInput
 											label='Weight (%)'
 											placeholder='0'
@@ -325,12 +325,19 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 
 										<Divider />
 
-										<TextInput
-											label='Time Limit (minutes)'
-											placeholder='No limit'
-											type='number'
-											min={0}
-											{...form.getInputProps('timelimit')}
+										<DateTimePicker
+											label='Start Date/Time'
+											placeholder='Select start date and time'
+											clearable
+											{...form.getInputProps('startDateTime')}
+										/>
+
+										<DateTimePicker
+											label='End Date/Time'
+											placeholder='Select end date and time'
+											clearable
+											minDate={form.values.startDateTime || undefined}
+											{...form.getInputProps('endDateTime')}
 										/>
 
 										<NumberInput
