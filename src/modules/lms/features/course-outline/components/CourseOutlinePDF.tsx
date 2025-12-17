@@ -22,36 +22,37 @@ const tw = createTw({
 	},
 });
 
+export type AcademicStaff = {
+	name: string;
+	qualification?: string;
+};
+
+export type Prerequisite = {
+	code: string;
+	name: string;
+};
+
 export type CourseOutlinePDFData = {
 	courseName: string;
 	courseCode: string;
-	programme?: string;
-	academicStaff: string[];
+	programmeName: string;
+	semesterDisplay: string;
+	academicStaff: AcademicStaff[];
 	rationale: string;
-	semester: string;
-	lectureHours: number;
-	tutorialHours: number;
-	labTestHours: number;
-	assignmentHours: number;
-	totalHours: number;
 	creditValue: number;
-	prerequisites: string;
+	prerequisites: Prerequisite[];
 	objectives: string[];
 	learningOutcomes: string[];
 	transferableSkills: string[];
 	teachingStrategy: string;
 	synopsis: string;
 	modeOfDelivery: string;
-	assessmentMethods: Array<{ type: string; weight: string }>;
-	courseObjectivesMapping: Array<{
-		objectives: string;
-		programmeObjectives: string;
-	}>;
-	learningOutcomeMapping: Array<{
-		learningOutcome: string;
-		programmeLearningOutcome: string;
-	}>;
 	topics: CourseTopic[];
+	references?: {
+		compulsory?: string;
+		additional?: string;
+	};
+	additionalInfo?: string;
 };
 
 type CourseOutlinePDFProps = {
@@ -64,7 +65,34 @@ function stripHtml(html: string): string {
 		tempDiv.innerHTML = html;
 		return tempDiv.textContent || tempDiv.innerText || '';
 	}
-	return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+	return html
+		.replace(/<[^>]*>/g, '')
+		.replace(/&nbsp;/g, ' ')
+		.replace(/&amp;/g, '&')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&quot;/g, '"');
+}
+
+function Header({ programmeName }: { programmeName: string }) {
+	return (
+		<View style={tw('bg-[#4472C4] py-1.5 px-2 border border-black mb-0')} fixed>
+			<Text style={tw('text-[10px] font-bold text-white text-center')}>
+				{programmeName}
+			</Text>
+		</View>
+	);
+}
+
+function Footer({ programmeName }: { programmeName: string }) {
+	return (
+		<View style={tw('absolute bottom-6 left-10 right-10')} fixed>
+			<Text style={tw('text-[8px] italic')}>
+				Limkokwing University of Creative Technology
+			</Text>
+			<Text style={tw('text-[8px] italic')}>{programmeName}</Text>
+		</View>
+	);
 }
 
 function TableRow({
@@ -79,75 +107,194 @@ function TableRow({
 	isLast?: boolean;
 }) {
 	return (
-		<View style={tw(`flex-row ${isLast ? '' : 'border-b border-black'}`)}>
+		<View
+			style={tw(`flex-row ${isLast ? '' : 'border-b border-black'}`)}
+			wrap={false}
+		>
 			<View
 				style={tw(
-					'w-[5%] py-1.5 px-1 border-r border-black justify-start items-start'
+					'w-[6%] py-2 px-1.5 border-r border-black justify-start items-start'
 				)}
 			>
 				<Text style={tw('text-[9px]')}>{number}</Text>
 			</View>
 			<View
 				style={tw(
-					'w-[20%] py-1.5 px-1.5 border-r border-black justify-start items-start'
+					'w-[18%] py-2 px-2 border-r border-black justify-start items-start'
 				)}
 			>
 				<Text style={tw('text-[9px]')}>{label}</Text>
 			</View>
-			<View style={tw('w-[75%] py-1.5 px-1.5 justify-start items-start')}>
+			<View style={tw('w-[76%] py-2 px-2 justify-start items-start')}>
 				{children}
 			</View>
 		</View>
 	);
 }
 
-function SubTableRow({
+function TableRowWrappable({
+	number,
+	label,
 	children,
 	isLast = false,
 }: {
+	number: string;
+	label: string;
 	children: React.ReactNode;
 	isLast?: boolean;
 }) {
 	return (
 		<View style={tw(`flex-row ${isLast ? '' : 'border-b border-black'}`)}>
-			{children}
+			<View
+				style={tw(
+					'w-[6%] py-2 px-1.5 border-r border-black justify-start items-start'
+				)}
+			>
+				<Text style={tw('text-[9px]')}>{number}</Text>
+			</View>
+			<View
+				style={tw(
+					'w-[18%] py-2 px-2 border-r border-black justify-start items-start'
+				)}
+			>
+				<Text style={tw('text-[9px]')}>{label}</Text>
+			</View>
+			<View style={tw('w-[76%] py-2 px-2 justify-start items-start')}>
+				{children}
+			</View>
 		</View>
 	);
 }
 
-function SubTableCell({
-	children,
-	isLast = false,
-	bold = false,
-}: {
-	children: React.ReactNode;
-	isLast?: boolean;
-	bold?: boolean;
-}) {
+function NumberedItem({ number, text }: { number: number; text: string }) {
 	return (
-		<View
-			style={tw(
-				`flex-1 py-1 px-1 text-center ${isLast ? '' : 'border-r border-black'}`
-			)}
-		>
-			<Text style={tw(`text-[9px] text-center ${bold ? 'font-bold' : ''}`)}>
-				{children}
+		<View style={tw('flex-row mb-1 ml-4')}>
+			<Text style={tw('text-[9px] w-[15px]')}>{number}.</Text>
+			<Text style={tw('text-[9px] flex-1')}>{stripHtml(text)}</Text>
+		</View>
+	);
+}
+
+function BulletItem({ text, bold = false }: { text: string; bold?: boolean }) {
+	return (
+		<View style={tw('flex-row mb-0.5 ml-4')}>
+			<Text style={tw('text-[9px] w-[15px]')}>•</Text>
+			<Text style={tw(`text-[9px] flex-1 ${bold ? 'font-bold' : ''}`)}>
+				{stripHtml(text)}
 			</Text>
 		</View>
 	);
 }
 
+function TopicsTable({ topics }: { topics: CourseTopic[] }) {
+	const sortedTopics = [...topics].sort((a, b) => a.weekNumber - b.weekNumber);
+
+	const totals = {
+		lecture: sortedTopics.length * 2,
+		tutorial: sortedTopics.length * 1,
+		sl: sortedTopics.length * 3,
+		total: sortedTopics.length * 6,
+	};
+
+	return (
+		<View style={tw('border border-black mt-1')}>
+			<View style={tw('flex-row border-b border-black bg-white')}>
+				<View style={tw('w-[55%] py-1.5 px-2 border-r border-black')}>
+					<Text style={tw('text-[9px] font-bold text-center')}>Topic</Text>
+				</View>
+				<View style={tw('w-[11%] py-1.5 px-1 border-r border-black')}>
+					<Text style={tw('text-[9px] font-bold text-center')}>Lecture</Text>
+				</View>
+				<View style={tw('w-[11%] py-1.5 px-1 border-r border-black')}>
+					<Text style={tw('text-[9px] font-bold text-center')}>Tutorial</Text>
+				</View>
+				<View style={tw('w-[11%] py-1.5 px-1 border-r border-black')}>
+					<Text style={tw('text-[9px] font-bold text-center')}>SL</Text>
+				</View>
+				<View style={tw('w-[12%] py-1.5 px-1')}>
+					<Text style={tw('text-[9px] font-bold text-center')}>Total SLL</Text>
+				</View>
+			</View>
+			{sortedTopics.map((topic, index) => (
+				<View
+					key={topic.id}
+					style={tw(
+						`flex-row ${index === sortedTopics.length - 1 ? '' : 'border-b border-black'}`
+					)}
+					wrap={false}
+				>
+					<View style={tw('w-[55%] py-1.5 px-2 border-r border-black')}>
+						<Text style={tw('text-[9px] font-bold')}>
+							{topic.weekNumber}.0 {topic.title.toUpperCase()}
+						</Text>
+						{topic.description && (
+							<View style={tw('mt-0.5')}>
+								{stripHtml(topic.description)
+									.split('\n')
+									.filter((line) => line.trim())
+									.map((line, i) => (
+										<BulletItem key={`${topic.id}-${i}`} text={line.trim()} />
+									))}
+							</View>
+						)}
+					</View>
+					<View style={tw('w-[11%] py-1.5 px-1 border-r border-black')}>
+						<Text style={tw('text-[9px] text-center')}>2</Text>
+					</View>
+					<View style={tw('w-[11%] py-1.5 px-1 border-r border-black')}>
+						<Text style={tw('text-[9px] text-center')}>1</Text>
+					</View>
+					<View style={tw('w-[11%] py-1.5 px-1 border-r border-black')}>
+						<Text style={tw('text-[9px] text-center')}>3</Text>
+					</View>
+					<View style={tw('w-[12%] py-1.5 px-1')}>
+						<Text style={tw('text-[9px] text-center')}>6</Text>
+					</View>
+				</View>
+			))}
+			<View style={tw('flex-row border-t border-black')} wrap={false}>
+				<View style={tw('w-[55%] py-1.5 px-2 border-r border-black')}>
+					<Text style={tw('text-[9px] font-bold text-right')}>Total</Text>
+				</View>
+				<View style={tw('w-[11%] py-1.5 px-1 border-r border-black')}>
+					<Text style={tw('text-[9px] font-bold text-center')}>
+						{totals.lecture}
+					</Text>
+				</View>
+				<View style={tw('w-[11%] py-1.5 px-1 border-r border-black')}>
+					<Text style={tw('text-[9px] font-bold text-center')}>
+						{totals.tutorial}
+					</Text>
+				</View>
+				<View style={tw('w-[11%] py-1.5 px-1 border-r border-black')}>
+					<Text style={tw('text-[9px] font-bold text-center')}>
+						{totals.sl}
+					</Text>
+				</View>
+				<View style={tw('w-[12%] py-1.5 px-1')}>
+					<Text style={tw('text-[9px] font-bold text-center')}>
+						{totals.total}
+					</Text>
+				</View>
+			</View>
+		</View>
+	);
+}
+
 export default function CourseOutlinePDF({ data }: CourseOutlinePDFProps) {
+	const prerequisitesText =
+		data.prerequisites.length > 0
+			? data.prerequisites.map((p) => `${p.code}, ${p.name}`).join('; ')
+			: 'None';
+
 	return (
 		<Document>
 			<Page
 				size='A4'
-				style={tw('font-arial text-[9px] pt-10 pb-10 px-10 leading-normal')}
+				style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
 			>
-				<Text style={tw('text-[11px] font-bold text-center mb-4 underline')}>
-					{data.programme || 'Course Outline'}
-				</Text>
-				<View style={tw('w-full border border-black')}>
+				<Header programmeName={data.programmeName} />
+				<View style={tw('w-full border-l border-r border-b border-black')}>
 					<TableRow number='1' label='Name of course'>
 						<Text style={tw('text-[9px]')}>{data.courseName}</Text>
 					</TableRow>
@@ -155,264 +302,161 @@ export default function CourseOutlinePDF({ data }: CourseOutlinePDFProps) {
 						<Text style={tw('text-[9px]')}>{data.courseCode}</Text>
 					</TableRow>
 					<TableRow number='3' label='Name(s) of academic staff'>
-						{data.academicStaff.map((staff) => (
-							<View key={staff} style={tw('ml-4 mt-0.5')}>
-								<Text style={tw('text-[9px]')}>• {staff}</Text>
+						{data.academicStaff.map((staff, index) => (
+							<View key={`staff-${index}`} style={tw(index > 0 ? 'mt-2' : '')}>
+								<Text style={tw('text-[9px] font-bold')}>{staff.name}</Text>
+								{staff.qualification && (
+									<BulletItem text={staff.qualification} />
+								)}
 							</View>
 						))}
 					</TableRow>
-					<TableRow
+					<TableRowWrappable
 						number='4'
-						label='Rationale for the inclusion of the course/course in the programme'
+						label='Rationale for the inclusion of the course/ course in the programme'
 					>
-						<Text style={tw('text-[9px]')}>{stripHtml(data.rationale)}</Text>
-					</TableRow>
+						<Text style={tw('text-[9px] text-justify leading-relaxed')}>
+							{stripHtml(data.rationale)}
+						</Text>
+					</TableRowWrappable>
 					<TableRow number='5' label='Semester and Year Offered'>
-						<Text style={tw('text-[9px]')}>{data.semester}</Text>
-					</TableRow>
-					<TableRow number='6' label='Total Student Learning Time (SLT)'>
-						<View style={tw('border border-black mt-1')}>
-							<SubTableRow>
-								<SubTableCell bold>Lecture</SubTableCell>
-								<SubTableCell bold>Tutorial</SubTableCell>
-								<SubTableCell bold>Lab Tests</SubTableCell>
-								<SubTableCell bold>Assignments</SubTableCell>
-								<SubTableCell bold isLast>
-									Total Guided and Independent Learning
-								</SubTableCell>
-							</SubTableRow>
-							<SubTableRow isLast>
-								<SubTableCell>{data.lectureHours}</SubTableCell>
-								<SubTableCell>{data.tutorialHours}</SubTableCell>
-								<SubTableCell>{data.labTestHours}</SubTableCell>
-								<SubTableCell>{data.assignmentHours}</SubTableCell>
-								<SubTableCell isLast>{data.totalHours}</SubTableCell>
-							</SubTableRow>
-						</View>
+						<Text style={tw('text-[9px]')}>{data.semesterDisplay}</Text>
 					</TableRow>
 					<TableRow number='7' label='Credit Value'>
 						<Text style={tw('text-[9px]')}>{data.creditValue}</Text>
 					</TableRow>
 					<TableRow number='8' label='Pre-requisites (if any)' isLast>
-						<Text style={tw('text-[9px]')}>{data.prerequisites || 'None'}</Text>
+						<Text style={tw('text-[9px]')}>{prerequisitesText}</Text>
 					</TableRow>
 				</View>
-				<Text style={tw('absolute bottom-5 left-10 text-[8px] italic')}>
-					Limkokwing University of Creative Technology
-				</Text>
+				<Footer programmeName={data.programmeName} />
 			</Page>
 
 			<Page
 				size='A4'
-				style={tw('font-arial text-[9px] pt-10 pb-10 px-10 leading-normal')}
+				style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
 			>
 				<View style={tw('w-full border border-black')}>
-					<TableRow number='9' label='Objectives'>
-						<Text style={tw('text-[9px]')}>
+					<TableRowWrappable number='9' label='Objectives'>
+						<Text style={tw('text-[9px] mb-1')}>
 							In this course, students will be:
 						</Text>
 						{data.objectives.map((obj, i) => (
-							<View key={obj} style={tw('ml-2.5 mt-0.5')}>
-								<Text style={tw('text-[9px]')}>
-									{i + 1}. {stripHtml(obj)}
-								</Text>
-							</View>
+							<NumberedItem key={`obj-${i}`} number={i + 1} text={obj} />
 						))}
-					</TableRow>
-					<TableRow number='10' label='Learning Outcomes'>
-						<Text style={tw('text-[9px]')}>
+					</TableRowWrappable>
+					<TableRowWrappable number='10' label='Learning Outcomes'>
+						<Text style={tw('text-[9px] mb-1')}>
 							Upon completion of the course, students will be able to:
 						</Text>
 						{data.learningOutcomes.map((lo, i) => (
-							<View key={lo} style={tw('ml-2.5 mt-0.5')}>
-								<Text style={tw('text-[9px]')}>
-									{i + 1}. {stripHtml(lo)}
-								</Text>
-							</View>
+							<NumberedItem key={`lo-${i}`} number={i + 1} text={lo} />
 						))}
-					</TableRow>
-					<TableRow number='11' label='Transferable skills'>
-						<Text style={tw('text-[9px]')}>
+					</TableRowWrappable>
+					<TableRowWrappable number='11' label='Transferable skills'>
+						<Text style={tw('text-[9px] mb-1')}>
 							Students will acquire the following skills:
 						</Text>
 						{data.transferableSkills.map((skill, i) => (
-							<View key={skill} style={tw('ml-2.5 mt-0.5')}>
-								<Text style={tw('text-[9px]')}>
-									{i + 1}. {stripHtml(skill)}
-								</Text>
-							</View>
+							<NumberedItem key={`skill-${i}`} number={i + 1} text={skill} />
 						))}
-					</TableRow>
-					<TableRow
+					</TableRowWrappable>
+					<TableRowWrappable
 						number='12'
 						label='Teaching-learning and assessment strategy'
 						isLast
 					>
-						<Text style={tw('text-[9px]')}>
+						<Text style={tw('text-[9px] text-justify leading-relaxed')}>
 							{stripHtml(data.teachingStrategy)}
 						</Text>
-					</TableRow>
+					</TableRowWrappable>
 				</View>
-				<Text style={tw('absolute bottom-5 left-10 text-[8px] italic')}>
-					Limkokwing University of Creative Technology
-				</Text>
+				<Footer programmeName={data.programmeName} />
 			</Page>
 
 			<Page
 				size='A4'
-				style={tw('font-arial text-[9px] pt-10 pb-10 px-10 leading-normal')}
+				style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
 			>
 				<View style={tw('w-full border border-black')}>
-					<TableRow number='13' label='Synopsis'>
-						<Text style={tw('text-[9px]')}>{stripHtml(data.synopsis)}</Text>
-					</TableRow>
-					<TableRow number='14' label='Mode of Delivery'>
+					<TableRowWrappable number='13' label='Synopsis'>
+						<Text style={tw('text-[9px] text-justify leading-relaxed')}>
+							{stripHtml(data.synopsis)}
+						</Text>
+					</TableRowWrappable>
+					<TableRow number='14' label='Mode of Delivery' isLast>
 						<Text style={tw('text-[9px]')}>{data.modeOfDelivery}</Text>
 					</TableRow>
-					<TableRow number='15' label='Assessment Methods and Types'>
-						<View style={tw('border border-black mt-1')}>
-							{data.assessmentMethods.map((method, i) => (
-								<SubTableRow
-									key={method.type}
-									isLast={i === data.assessmentMethods.length - 1}
-								>
-									<SubTableCell>{method.type}</SubTableCell>
-									<SubTableCell isLast>{method.weight}</SubTableCell>
-								</SubTableRow>
-							))}
-						</View>
-					</TableRow>
-					<TableRow
-						number='16'
-						label='Mapping of the course/module to the Programme Objectives'
-					>
-						<View style={tw('border border-black mt-1')}>
-							<SubTableRow>
-								<SubTableCell bold>
-									Course/Module (topic) Objectives
-								</SubTableCell>
-								<SubTableCell bold isLast>
-									Programme Objectives
-								</SubTableCell>
-							</SubTableRow>
-							{data.courseObjectivesMapping.map((mapping, i) => (
-								<SubTableRow
-									key={mapping.objectives}
-									isLast={i === data.courseObjectivesMapping.length - 1}
-								>
-									<SubTableCell>{mapping.objectives}</SubTableCell>
-									<SubTableCell isLast>
-										{mapping.programmeObjectives}
-									</SubTableCell>
-								</SubTableRow>
-							))}
-						</View>
-					</TableRow>
-					<TableRow
-						number='17'
-						label='Mapping of the course/module to the Programme Learning Outcome'
-						isLast
-					>
-						<View style={tw('border border-black mt-1')}>
-							<SubTableRow>
-								<SubTableCell bold>
-									Course/Module (topic) Learning Outcome
-								</SubTableCell>
-								<SubTableCell bold isLast>
-									Programme Learning Outcome
-								</SubTableCell>
-							</SubTableRow>
-							{data.learningOutcomeMapping.map((mapping, i) => (
-								<SubTableRow
-									key={mapping.learningOutcome}
-									isLast={i === data.learningOutcomeMapping.length - 1}
-								>
-									<SubTableCell>{mapping.learningOutcome}</SubTableCell>
-									<SubTableCell isLast>
-										{mapping.programmeLearningOutcome}
-									</SubTableCell>
-								</SubTableRow>
-							))}
-						</View>
-					</TableRow>
 				</View>
-				<Text style={tw('absolute bottom-5 left-10 text-[8px] italic')}>
-					Limkokwing University of Creative Technology
-				</Text>
+				<Footer programmeName={data.programmeName} />
 			</Page>
 
 			{data.topics.length > 0 && (
 				<Page
 					size='A4'
-					style={tw('font-arial text-[9px] pt-10 pb-10 px-10 leading-normal')}
+					style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
 				>
-					<Text style={tw('text-[11px] font-bold text-center mb-4 underline')}>
-						Course Topics
-					</Text>
 					<View style={tw('w-full border border-black')}>
-						<View style={tw('flex-row border-b border-black')}>
+						<View style={tw('flex-row')}>
 							<View
 								style={tw(
-									'w-[10%] py-1.5 px-1 border-r border-black justify-start items-start'
+									'w-[6%] py-2 px-1.5 border-r border-black justify-start items-start'
 								)}
 							>
-								<Text style={tw('text-[9px] font-bold')}>Week</Text>
+								<Text style={tw('text-[9px]')}>18</Text>
 							</View>
 							<View
 								style={tw(
-									'w-[25%] py-1.5 px-1.5 border-r border-black justify-start items-start'
+									'w-[18%] py-2 px-2 border-r border-black justify-start items-start'
 								)}
 							>
-								<Text style={tw('text-[9px] font-bold')}>Topic</Text>
+								<Text style={tw('text-[9px]')}>
+									Content Outline of the course/module and the SLT per topic
+								</Text>
 							</View>
-							<View
-								style={tw('w-[65%] py-1.5 px-1.5 justify-start items-start')}
-							>
-								<Text style={tw('text-[9px] font-bold')}>Content</Text>
+							<View style={tw('w-[76%] py-2 px-2 justify-start items-start')}>
+								<TopicsTable topics={data.topics} />
 							</View>
 						</View>
-						{[...data.topics]
-							.sort((a, b) => a.weekNumber - b.weekNumber)
-							.map((topic, i) => (
-								<View
-									key={topic.id}
-									style={tw(
-										`flex-row ${i === data.topics.length - 1 ? '' : 'border-b border-black'}`
-									)}
-								>
-									<View
-										style={tw(
-											'w-[10%] py-1.5 px-1 border-r border-black justify-start items-start'
-										)}
-									>
-										<Text style={tw('text-[9px]')}>
-											Week {topic.weekNumber}
-										</Text>
-									</View>
-									<View
-										style={tw(
-											'w-[25%] py-1.5 px-1.5 border-r border-black justify-start items-start'
-										)}
-									>
-										<Text style={tw('text-[9px]')}>{topic.title}</Text>
-									</View>
-									<View
-										style={tw(
-											'w-[65%] py-1.5 px-1.5 justify-start items-start'
-										)}
-									>
-										<Text style={tw('text-[9px]')}>
-											{stripHtml(topic.description)}
-										</Text>
-									</View>
-								</View>
-							))}
 					</View>
-					<Text style={tw('absolute bottom-5 left-10 text-[8px] italic')}>
-						Limkokwing University of Creative Technology
-					</Text>
+					<Footer programmeName={data.programmeName} />
 				</Page>
 			)}
+
+			<Page
+				size='A4'
+				style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
+			>
+				<View style={tw('w-full border border-black')}>
+					<TableRowWrappable number='19' label='References'>
+						{data.references?.compulsory && (
+							<View style={tw('mb-2')}>
+								<Text style={tw('text-[9px] font-bold')}>Compulsory</Text>
+								<Text style={tw('text-[9px] ml-4')}>
+									{data.references.compulsory}
+								</Text>
+							</View>
+						)}
+						{data.references?.additional && (
+							<View>
+								<Text style={tw('text-[9px] font-bold')}>Additional</Text>
+								<Text style={tw('text-[9px] ml-4')}>
+									{data.references.additional}
+								</Text>
+							</View>
+						)}
+						{!data.references?.compulsory && !data.references?.additional && (
+							<Text style={tw('text-[9px]')}>None</Text>
+						)}
+					</TableRowWrappable>
+					<TableRow number='20' label='Additional Information' isLast>
+						<Text style={tw('text-[9px]')}>
+							{data.additionalInfo || 'None'}
+						</Text>
+					</TableRow>
+				</View>
+				<Footer programmeName={data.programmeName} />
+			</Page>
 		</Document>
 	);
 }
