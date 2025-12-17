@@ -4,12 +4,9 @@ import { Box, Card, Slider, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import type { FillRubricFilling } from '../../types';
-import {
-	fillRubric,
-	getRubric,
-	getRubricFillings,
-} from '../rubric/server/actions';
+import type { FillRubricFilling } from '../../../types';
+import { getRubric } from '../../rubric/server/actions';
+import { fillRubric, getRubricFillings } from '../server/actions';
 
 type Props = {
 	cmid: number;
@@ -18,7 +15,7 @@ type Props = {
 	onGradeChange?: (grade: number) => void;
 };
 
-export default function RubricView({
+export default function RubricGrading({
 	cmid,
 	assignmentId,
 	userId,

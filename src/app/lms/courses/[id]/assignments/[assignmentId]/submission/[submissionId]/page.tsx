@@ -1,5 +1,8 @@
-import { getAssignment, getAssignmentSubmissions } from '@lms/assignments';
-import { SubmissionViewer } from '@lms/assignments/components/submission/viewer';
+import {
+	getAssignment,
+	getAssignmentSubmissions,
+	SubmissionViewer,
+} from '@lms/assignments';
 import { getUserCourses } from '@lms/courses';
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/core/auth';

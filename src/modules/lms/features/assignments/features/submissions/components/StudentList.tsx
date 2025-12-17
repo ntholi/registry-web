@@ -2,7 +2,7 @@
 
 import { Avatar, Badge, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
 import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
-import type { SubmissionUser } from '../../types';
+import type { SubmissionUser } from '../../../types';
 
 type Props = {
 	users: SubmissionUser[];

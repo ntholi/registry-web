@@ -11,9 +11,9 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { IconDownload, IconExternalLink, IconFile } from '@tabler/icons-react';
-import type { SubmissionFile } from '../../types';
+import type { SubmissionFile } from '../../../types';
+import { formatFileSize } from '../utils';
 import FileIcon from './FileIcon';
-import { formatFileSize } from './utils';
 
 type Props = {
 	files: SubmissionFile[];

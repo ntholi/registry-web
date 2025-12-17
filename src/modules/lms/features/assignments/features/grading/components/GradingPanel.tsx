@@ -17,14 +17,14 @@ import { IconListCheck, IconMessageCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import type { FillRubricFilling } from '../../../types';
+import { getRubric } from '../../rubric/server/actions';
+import { CommentsView } from '../../submissions/components';
 import {
 	fillRubric,
-	getRubric,
+	getAssignmentGrades,
 	getRubricFillings,
-} from '../../rubric/server/actions';
-import CommentsView from '../CommentsView';
-import GradeInput from '../GradeInput';
-import { getAssignmentGrades } from './server/actions';
+} from '../server/actions';
+import GradeInput from './GradeInput';
 
 type Props = {
 	assignmentId: number;

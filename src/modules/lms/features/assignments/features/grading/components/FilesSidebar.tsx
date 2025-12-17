@@ -3,8 +3,8 @@
 import { NavLink, ScrollArea, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconFile } from '@tabler/icons-react';
 import type { SubmissionFile } from '../../../types';
-import FileIcon from '../FileIcon';
-import { formatFileSize } from '../utils';
+import { FileIcon } from '../../submissions/components';
+import { formatFileSize } from '../../submissions/utils';
 
 type Props = {
 	files: SubmissionFile[];

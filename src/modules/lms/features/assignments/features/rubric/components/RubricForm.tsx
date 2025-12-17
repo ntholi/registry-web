@@ -17,8 +17,8 @@ import { useForm } from '@mantine/form';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useImperativeHandle } from 'react';
-import type { Rubric } from '../../types';
-import { createRubric, updateRubric } from './server/actions';
+import type { Rubric } from '../../../types';
+import { createRubric, updateRubric } from '../server/actions';
 
 type Props = {
 	cmid: number;

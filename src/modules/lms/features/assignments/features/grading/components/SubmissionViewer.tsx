@@ -8,7 +8,7 @@ import type {
 	SubmissionFile,
 	SubmissionUser,
 } from '../../../types';
-import { getSubmissionFiles } from '../utils';
+import { getSubmissionFiles } from '../../submissions/utils';
 import FilePreview from './FilePreview';
 import FilesSidebar from './FilesSidebar';
 import GradingPanel from './GradingPanel';

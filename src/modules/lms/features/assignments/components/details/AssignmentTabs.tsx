@@ -30,10 +30,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useRef, useState } from 'react';
 import { DeleteButton } from '@/shared/ui/adease';
+import { deleteRubric, getRubric, RubricView } from '../../features/rubric';
+import { SubmissionsView } from '../../features/submissions';
 import type { MoodleAssignment } from '../../types';
-import RubricView from '../rubric';
-import { deleteRubric, getRubric } from '../rubric/server/actions';
-import SubmissionsView from '../submission';
 
 type Props = {
 	assignment: MoodleAssignment;

@@ -4,11 +4,8 @@ import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type {
 	CreateRubricParams,
-	FillRubricParams,
-	FillRubricResult,
 	Rubric,
 	RubricCriterion,
-	RubricGradeData,
 } from '../../../types';
 
 export async function getRubric(cmid: number): Promise<Rubric | null> {
@@ -30,73 +27,6 @@ export async function getRubric(cmid: number): Promise<Rubric | null> {
 	} catch {
 		return null;
 	}
-}
-
-export async function getRubricFillings(
-	cmid: number,
-	userId: number
-): Promise<RubricGradeData | null> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
-
-	try {
-		const result = await moodleGet('local_activity_utils_get_rubric_filling', {
-			cmid,
-			userid: userId,
-		});
-
-		if (!result?.success || !result?.fillings) {
-			return null;
-		}
-
-		return result as RubricGradeData;
-	} catch {
-		return null;
-	}
-}
-
-export async function fillRubric(
-	params: FillRubricParams
-): Promise<FillRubricResult> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
-
-	const requestParams: Record<string, string | number> = {
-		cmid: params.cmid,
-		userid: params.userid,
-	};
-
-	if (params.overallremark) {
-		requestParams.overallremark = params.overallremark;
-	}
-
-	params.fillings.forEach((filling, index) => {
-		requestParams[`fillings[${index}][criterionid]`] = filling.criterionid;
-		if (filling.levelid !== undefined) {
-			requestParams[`fillings[${index}][levelid]`] = filling.levelid;
-		}
-		if (filling.score !== undefined) {
-			requestParams[`fillings[${index}][score]`] = filling.score;
-		}
-		if (filling.remark) {
-			requestParams[`fillings[${index}][remark]`] = filling.remark;
-		}
-	});
-
-	const result = await moodlePost(
-		'local_activity_utils_fill_rubric',
-		requestParams
-	);
-
-	if (!result?.success) {
-		throw new Error(result?.message || 'Failed to save rubric grade');
-	}
-
-	return result as FillRubricResult;
 }
 
 function buildCriteriaParams(

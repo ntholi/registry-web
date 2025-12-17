@@ -20,13 +20,12 @@ import {
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
-import type { SubmissionFile, SubmissionUser } from '../../types';
+import type { SubmissionFile, SubmissionUser } from '../../../types';
+import { GradeInput, RubricGrading } from '../../grading/components';
+import { formatDate } from '../utils';
 import CommentsView from './CommentsView';
 import FileList from './FileList';
-import GradeInput from './GradeInput';
-import RubricView from './RubricView';
 import TurnitinView from './TurnitinView';
-import { formatDate } from './utils';
 
 type Props = {
 	selectedUser: SubmissionUser | null;
@@ -134,7 +133,7 @@ export default function SubmissionDetails({
 
 					<TabsPanel value='rubric' pt='md'>
 						{cmid ? (
-							<RubricView
+							<RubricGrading
 								cmid={cmid}
 								assignmentId={assignmentId}
 								userId={selectedUser.id}

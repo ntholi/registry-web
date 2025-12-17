@@ -11,7 +11,7 @@ import {
 import Link from 'next/link';
 import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import type { MoodleAssignment, SubmissionUser } from '../../../types';
-import { formatDate } from '../utils';
+import { formatDate } from '../../submissions/utils';
 
 type Props = {
 	assignment: MoodleAssignment;
