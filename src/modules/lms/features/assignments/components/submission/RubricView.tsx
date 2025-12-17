@@ -88,20 +88,18 @@ export default function RubricView({
 	}
 
 	const handleLevelChange = (criterionId: number, value: number) => {
-		setSelectedLevels((prev) => {
-			const updated = {
-				...prev,
-				[criterionId]: value,
-			};
-			const newTotal = Object.values(updated).reduce(
-				(sum, score) => sum + score,
-				0
-			);
-			if (onGradeChange) {
-				onGradeChange(newTotal);
-			}
-			return updated;
-		});
+		const updated = {
+			...selectedLevels,
+			[criterionId]: value,
+		};
+		setSelectedLevels(updated);
+		const newTotal = Object.values(updated).reduce(
+			(sum, score) => sum + score,
+			0
+		);
+		if (onGradeChange) {
+			onGradeChange(newTotal);
+		}
 	};
 
 	const handleLevelChangeEnd = (criterionId: number, value: number) => {
@@ -156,7 +154,6 @@ export default function RubricView({
 								}
 								min={minScore}
 								max={maxScore}
-								restrictToMarks
 								marks={marks}
 								size='md'
 								styles={{

@@ -40,15 +40,49 @@
 ---
 
 ## Directory Structure
-```text
-src/modules/[module]/features/[feature]/
-├── database/schema/entity.ts      # DB Schema
-├── server/
-│   ├── actions.ts                 # 'use server' entry point
-│   ├── service.ts                 # Business logic + Auth
-│   └── repository.ts              # DB Access (The ONLY place db is imported)
-├── components/                    # Feature-specific UI
-└── index.ts                       # Public API (exports actions/types)
+
+```
+src/
+├── app/(module)/feature/           # Next.js routes
+│   ├── layout.tsx                  # ListLayout with sidebar
+│   ├── page.tsx                    # NothingSelected
+│   ├── new/page.tsx                # Create form
+│   └── [id]/
+│       ├── page.tsx                # DetailsView
+│       └── edit/page.tsx           # Edit form
+│
+├── modules/[module]/               # Business logic (8 modules)
+│   ├── database/
+│   │   ├── schema/entity.ts        # Drizzle tables
+│   │   ├── index.ts                # Export all schemas
+│   │   └── relations.ts            # Module relations
+│   ├── features/[feature]/
+│   │   ├── server/
+│   │   │   ├── repository.ts       # extends BaseRepository
+│   │   │   ├── service.ts          # extends BaseService + serviceWrapper
+│   │   │   └── actions.ts          # 'use server' exports
+│   │   ├── components/Form.tsx
+│   │   ├── index.ts                # Export components + actions
+│   │   └── types.ts
+│   └── shared/                     # Module-level shared
+│
+├── core/
+│   ├── database/
+│   │   ├── index.ts                # Aggregates all module schemas
+│   │   ├── relations.ts            # CENTRALIZED relations (all modules)
+│   │   └── types.ts                # Common type exports
+│   ├── platform/
+│   │   ├── BaseRepository.ts       # Generic CRUD + pagination
+│   │   ├── BaseService.ts          # Role-based auth wrapper
+│   │   ├── withAuth.ts             # Authorization HOF
+│   │   └── serviceWrapper.ts       # Logging proxy
+│   ├── auth.ts                     # NextAuth config
+│   └── integrations/               # Google, AWS S3
+│
+└── shared/
+    ├── ui/adease/                  # Custom components (Form, ListLayout, etc)
+    ├── lib/hooks/                  # use-current-term, use-user-schools, etc
+    └── lib/utils/                  # gradeCalculations, auditUtils, etc
 ```
 
 ## Implementation Guide & Snippets
