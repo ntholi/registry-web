@@ -174,3 +174,24 @@ export type RubricGradeData = {
 	success: boolean;
 	message?: string;
 };
+
+export type FillRubricFilling = {
+	criterionid: number;
+	levelid?: number;
+	score?: number;
+	remark?: string;
+};
+
+export type FillRubricParams = {
+	cmid: number;
+	userid: number;
+	fillings: FillRubricFilling[];
+	overallremark?: string;
+};
+
+export type FillRubricResult = {
+	instanceid: number;
+	grade: number;
+	success: boolean;
+	message: string;
+};

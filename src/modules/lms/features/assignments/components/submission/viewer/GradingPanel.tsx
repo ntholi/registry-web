@@ -12,15 +12,17 @@ import {
 	TabsTab,
 	Text,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { IconListCheck, IconMessageCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import {
+	fillRubric,
 	getAssignmentGrades,
 	getRubric,
 	getRubricFillings,
-	saveAssignmentGrade,
 } from '../../../server/actions';
+import type { FillRubricFilling } from '../../../types';
 import CommentsView from '../CommentsView';
 import GradeInput from '../GradeInput';
 
@@ -84,14 +86,29 @@ export default function GradingPanel({
 		}
 	}, [rubricFillings, rubric]);
 
-	const gradeMutation = useMutation({
-		mutationFn: async (newGrade: number) => {
-			await saveAssignmentGrade(assignmentId, userId, newGrade);
-			return newGrade;
+	const rubricMutation = useMutation({
+		mutationFn: async (fillings: FillRubricFilling[]) => {
+			if (!cmid) throw new Error('No cmid provided');
+			return fillRubric({
+				cmid,
+				userid: userId,
+				fillings,
+			});
 		},
-		onSuccess: () => {
+		onSuccess: (result) => {
+			setRubricGrade(result.grade);
 			queryClient.invalidateQueries({
 				queryKey: ['assignment-grades', assignmentId],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ['rubric-fillings', cmid, userId],
+			});
+		},
+		onError: (error) => {
+			notifications.show({
+				title: 'Failed to save rubric grade',
+				message: error instanceof Error ? error.message : 'Unknown error',
+				color: 'red',
 			});
 		},
 	});
@@ -114,15 +131,29 @@ export default function GradingPanel({
 	}
 
 	function handleLevelChangeEnd(criterionId: number, value: number) {
+		if (!rubric?.criteria) return;
+
 		const updated = {
 			...selectedLevels,
 			[criterionId]: value,
 		};
-		const newTotal = Object.values(updated).reduce(
-			(sum, score) => sum + score,
-			0
-		);
-		gradeMutation.mutate(newTotal);
+
+		const fillings: FillRubricFilling[] = rubric.criteria
+			.filter((criterion) => criterion.id !== undefined)
+			.map((criterion) => {
+				const score = updated[criterion.id!];
+				const level = criterion.levels.find((l) => l.score === score);
+				return {
+					criterionid: criterion.id!,
+					levelid: level?.id,
+					score: level?.id ? undefined : score,
+				};
+			})
+			.filter((f) => f.levelid !== undefined || f.score !== undefined);
+
+		if (fillings.length > 0) {
+			rubricMutation.mutate(fillings);
+		}
 	}
 
 	return (
