@@ -4,8 +4,12 @@ import { Box, Card, Slider, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { fillRubric, getRubric, getRubricFillings } from '../../server/actions';
 import type { FillRubricFilling } from '../../types';
+import {
+	fillRubric,
+	getRubric,
+	getRubricFillings,
+} from '../rubric/server/actions';
 
 type Props = {
 	cmid: number;

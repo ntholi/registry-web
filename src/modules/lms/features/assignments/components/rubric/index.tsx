@@ -15,9 +15,9 @@ import {
 import { IconRuler2 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRef } from 'react';
-import { getRubric } from '../../server/actions';
 import type { Rubric, RubricCriterion, RubricLevel } from '../../types';
 import RubricForm from './RubricForm';
+import { getRubric } from './server/actions';
 
 type Props = {
 	cmid: number;

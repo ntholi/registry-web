@@ -4,14 +4,12 @@ import { Grid, Loader, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import {
-	getAssignmentGrades,
-	getAssignmentSubmissions,
-} from '../../server/actions';
 import type { SubmissionUser } from '../../types';
 import StudentList from './StudentList';
 import SubmissionDetails from './SubmissionDetails';
+import { getAssignmentSubmissions } from './server/actions';
 import { getSubmissionFiles } from './utils';
+import { getAssignmentGrades } from './viewer/server/actions';
 
 type Props = {
 	assignmentId: number;

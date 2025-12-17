@@ -3,7 +3,10 @@
 import { Box, Group, Text, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { getAssignmentGrades, saveAssignmentGrade } from '../../server/actions';
+import {
+	getAssignmentGrades,
+	saveAssignmentGrade,
+} from './viewer/server/actions';
 
 type Props = {
 	assignmentId: number;

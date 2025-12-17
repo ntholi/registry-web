@@ -3,15 +3,17 @@ export { default as AssignmentForm } from './components/form';
 export { AssignmentsList } from './components/list';
 export {
 	copyRubric,
-	createAssignment,
 	createRubric,
 	deleteRubric,
-	getAssignment,
-	getAssignmentSubmissions,
-	getCourseAssignments,
 	getRubric,
 	getRubricFillings,
 	updateRubric,
+} from './components/rubric/server/actions';
+export { getAssignmentSubmissions } from './components/submission/server/actions';
+export {
+	createAssignment,
+	getAssignment,
+	getCourseAssignments,
 } from './server/actions';
 export type {
 	CopyRubricResult,

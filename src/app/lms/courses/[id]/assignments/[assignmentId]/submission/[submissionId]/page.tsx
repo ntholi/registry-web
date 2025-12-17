@@ -36,7 +36,9 @@ export default async function SubmissionViewerPage({
 
 	const users = await getAssignmentSubmissions(assignment.id, course.id);
 	const userId = Number(submissionId);
-	const currentUserIndex = users.findIndex((u) => u.id === userId);
+	const currentUserIndex = users.findIndex(
+		(u: { id: number }) => u.id === userId
+	);
 
 	if (currentUserIndex === -1) {
 		notFound();

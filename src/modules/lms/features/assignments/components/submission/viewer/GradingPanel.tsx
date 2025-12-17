@@ -16,15 +16,15 @@ import { notifications } from '@mantine/notifications';
 import { IconListCheck, IconMessageCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import type { FillRubricFilling } from '../../../types';
 import {
 	fillRubric,
-	getAssignmentGrades,
 	getRubric,
 	getRubricFillings,
-} from '../../../server/actions';
-import type { FillRubricFilling } from '../../../types';
+} from '../../rubric/server/actions';
 import CommentsView from '../CommentsView';
 import GradeInput from '../GradeInput';
+import { getAssignmentGrades } from './server/actions';
 
 type Props = {
 	assignmentId: number;
