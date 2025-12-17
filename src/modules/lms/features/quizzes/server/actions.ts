@@ -42,15 +42,21 @@ async function getCourseSections(courseId: number): Promise<CourseSection[]> {
 	return result as CourseSection[];
 }
 
+function isTestsQuizzesSection(sectionName: string): boolean {
+	const normalized = sectionName
+		.trim()
+		.toLowerCase()
+		.replace(/&amp;/g, '&');
+	return normalized === 'tests & quizzes' || normalized === 'tests and quizzes';
+}
+
 async function getOrCreateTestsQuizzesSection(
 	courseId: number
 ): Promise<number> {
 	const sections = await getCourseSections(courseId);
 
-	const quizSection = sections.find(
-		(section) =>
-			section.name.toLowerCase() === 'tests & quizzes' ||
-			section.name.toLowerCase() === 'tests and quizzes'
+	const quizSection = sections.find((section) =>
+		isTestsQuizzesSection(section.name)
 	);
 
 	if (quizSection) {
@@ -69,8 +75,8 @@ async function getOrCreateTestsQuizzesSection(
 		}
 
 		const updatedSections = await getCourseSections(courseId);
-		const newSection = updatedSections.find(
-			(section) => section.name === 'Tests & Quizzes'
+		const newSection = updatedSections.find((section) =>
+			isTestsQuizzesSection(section.name)
 		);
 		return newSection?.section || 0;
 	} catch (error) {
