@@ -46,7 +46,9 @@ export default function RubricView({
 		) {
 			const fillingsMap: Record<number, number> = {};
 			for (const filling of rubricFillings.fillings) {
-				fillingsMap[filling.criterionid] = filling.level.score;
+				if (filling.level) {
+					fillingsMap[filling.criterionid] = filling.level.score;
+				}
 			}
 			setSelectedLevels(fillingsMap);
 			if (onGradeChange && rubricFillings.grade) {
