@@ -313,7 +313,6 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 											{...form.getInputProps('assessmentType')}
 										/>
 
-										<Divider />
 
 										<NumberInput
 											label='Weight (%)'
@@ -323,7 +322,6 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 											{...form.getInputProps('weight')}
 										/>
 
-										<Divider />
 
 										<DateTimePicker
 											label='Start Date/Time'
@@ -340,12 +338,26 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 											{...form.getInputProps('endDateTime')}
 										/>
 
-										<NumberInput
+										<Select
 											label='Allowed Attempts'
-											placeholder='1'
-											min={0}
-											description='0 = unlimited'
-											{...form.getInputProps('attempts')}
+											description='Number of times a student can attempt this quiz'
+											data={[
+												{ value: '0', label: 'Unlimited' },
+												{ value: '1', label: '1' },
+												{ value: '2', label: '2' },
+												{ value: '3', label: '3' },
+												{ value: '4', label: '4' },
+												{ value: '5', label: '5' },
+												{ value: '6', label: '6' },
+												{ value: '7', label: '7' },
+												{ value: '8', label: '8' },
+												{ value: '9', label: '9' },
+												{ value: '10', label: '10' },
+											]}
+											value={String(form.values.attempts)}
+											onChange={(value) =>
+												form.setFieldValue('attempts', Number(value))
+											}
 										/>
 
 										<Divider />

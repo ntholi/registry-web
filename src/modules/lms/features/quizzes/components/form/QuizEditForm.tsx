@@ -531,12 +531,25 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 									<Title order={5}>Attempts</Title>
 									<Divider />
 
-									<NumberInput
+									<Select
 										label='Allowed Attempts'
-										placeholder='Unlimited'
-										min={0}
-										{...form.getInputProps('attempts')}
-										description='0 = unlimited attempts'
+										data={[
+											{ value: '0', label: 'Unlimited' },
+											{ value: '1', label: '1' },
+											{ value: '2', label: '2' },
+											{ value: '3', label: '3' },
+											{ value: '4', label: '4' },
+											{ value: '5', label: '5' },
+											{ value: '6', label: '6' },
+											{ value: '7', label: '7' },
+											{ value: '8', label: '8' },
+											{ value: '9', label: '9' },
+											{ value: '10', label: '10' },
+										]}
+										value={String(form.values.attempts)}
+										onChange={(value) =>
+											form.setFieldValue('attempts', Number(value))
+										}
 									/>
 
 									<Select
