@@ -5,6 +5,7 @@ import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
 import { studentRepository } from '@/modules/lms/features/students/server/repository';
+import { getOrReuseSection } from '@/modules/lms/shared/utils';
 import { getCurrentTerm } from '@/modules/registry/features/terms';
 import type {
 	AddQuestionToQuizResponse,
@@ -22,69 +23,9 @@ import type {
 	TrueFalseQuestion,
 } from '../types';
 
-type CourseSection = {
-	id: number;
-	name: string;
-	section: number;
-	summaryformat: number;
-	summary: string;
-	modules: Array<{
-		id: number;
-		name: string;
-		modname: string;
-	}>;
-};
-
-async function getCourseSections(courseId: number): Promise<CourseSection[]> {
-	const result = await moodleGet('core_course_get_contents', {
-		courseid: courseId,
-	});
-	return result as CourseSection[];
-}
-
 function isTestsQuizzesSection(sectionName: string): boolean {
-	const normalized = sectionName
-		.trim()
-		.toLowerCase()
-		.replace(/&amp;/g, '&');
+	const normalized = sectionName.trim().toLowerCase().replace(/&amp;/g, '&');
 	return normalized === 'tests & quizzes' || normalized === 'tests and quizzes';
-}
-
-async function getOrCreateTestsQuizzesSection(
-	courseId: number
-): Promise<number> {
-	const sections = await getCourseSections(courseId);
-
-	const quizSection = sections.find((section) =>
-		isTestsQuizzesSection(section.name)
-	);
-
-	if (quizSection) {
-		return quizSection.section;
-	}
-
-	try {
-		const result = await moodlePost('local_activity_utils_create_section', {
-			courseid: courseId,
-			name: 'Tests & Quizzes',
-			summary: 'Course tests and quizzes',
-		});
-
-		if (result && result.sectionnum !== undefined) {
-			return result.sectionnum;
-		}
-
-		const updatedSections = await getCourseSections(courseId);
-		const newSection = updatedSections.find((section) =>
-			isTestsQuizzesSection(section.name)
-		);
-		return newSection?.section || 0;
-	} catch (error) {
-		console.error('Failed to create Tests & Quizzes section:', error);
-		throw new Error(
-			'Unable to create Tests & Quizzes section. Please ensure the local_activity_utils plugin is installed.'
-		);
-	}
 }
 
 async function getOrCreateQuestionCategory(courseId: number): Promise<number> {
@@ -289,7 +230,12 @@ export async function createQuiz(input: CreateQuizInput) {
 
 	const totalMarks = input.questions.reduce((sum, q) => sum + q.defaultMark, 0);
 
-	const sectionNumber = await getOrCreateTestsQuizzesSection(input.courseId);
+	const sectionNumber = await getOrReuseSection({
+		courseId: input.courseId,
+		sectionName: 'Tests & Quizzes',
+		summary: 'Course tests and quizzes',
+		matchFn: isTestsQuizzesSection,
+	});
 
 	const quizParams: Record<string, string | number | boolean> = {
 		courseid: input.courseId,

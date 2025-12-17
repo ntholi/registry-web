@@ -2,6 +2,10 @@
 
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import {
+	getCourseSections as getCourseSectionsShared,
+	getOrReuseSection,
+} from '@/modules/lms/shared/utils';
 import type {
 	CreateFileParams,
 	CreatePageParams,
@@ -35,11 +39,7 @@ export async function getCourseSections(
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet('core_course_get_contents', {
-		courseid: courseId,
-	});
-
-	return result as MoodleSection[];
+	return getCourseSectionsShared(courseId) as Promise<MoodleSection[]>;
 }
 
 export async function getCoursePages(courseId: number): Promise<MoodlePage[]> {
@@ -60,43 +60,11 @@ export async function getCoursePages(courseId: number): Promise<MoodlePage[]> {
 }
 
 async function findOrCreateMaterialSection(courseId: number): Promise<number> {
-	const sections = await getCourseSections(courseId);
-
-	const materialSection = sections.find(
-		(section) => section.name.toLowerCase() === 'material'
-	);
-
-	if (materialSection) {
-		return materialSection.section;
-	}
-
-	try {
-		const result = await moodlePost('local_activity_utils_create_section', {
-			courseid: courseId,
-			name: 'Material',
-			summary: 'Course materials and resources',
-		});
-
-		if (result && result.sectionnum !== undefined) {
-			return result.sectionnum;
-		}
-
-		const updatedSections = await getCourseSections(courseId);
-		const newSection = updatedSections.find(
-			(section) => section.name.toLowerCase() === 'material'
-		);
-
-		if (newSection) {
-			return newSection.section;
-		}
-
-		throw new Error('Failed to create Material section');
-	} catch (error) {
-		console.error('Error creating Material section:', error);
-		throw new Error(
-			'Unable to create Material section. Please ensure the local_activity_utils plugin is installed.'
-		);
-	}
+	return getOrReuseSection({
+		courseId,
+		sectionName: 'Material',
+		summary: 'Course materials and resources',
+	});
 }
 
 export async function createPage(params: CreatePageParams) {

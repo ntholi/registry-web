@@ -2,6 +2,10 @@
 
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import {
+	getCourseSections as getCourseSectionsShared,
+	getOrReuseSection,
+} from '@/modules/lms/shared/utils';
 import type {
 	BigBlueButtonSession,
 	CreateBigBlueButtonParams,
@@ -18,57 +22,7 @@ export async function getCourseSections(
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet('core_course_get_contents', {
-		courseid: courseId,
-	});
-
-	return result as MoodleSection[];
-}
-
-async function findOrCreateVirtualClassroomSection(
-	courseId: number
-): Promise<number> {
-	const sections = await getCourseSections(courseId);
-
-	const virtualClassroomSection = sections.find(
-		(section) =>
-			section.name.toLowerCase() ===
-			VIRTUAL_CLASSROOM_SECTION_NAME.toLowerCase()
-	);
-
-	if (virtualClassroomSection) {
-		return virtualClassroomSection.section;
-	}
-
-	try {
-		const result = await moodlePost('local_activity_utils_create_section', {
-			courseid: courseId,
-			name: VIRTUAL_CLASSROOM_SECTION_NAME,
-			summary: 'Live virtual classroom sessions using BigBlueButton',
-		});
-
-		if (result && result.sectionnum !== undefined) {
-			return result.sectionnum;
-		}
-
-		const updatedSections = await getCourseSections(courseId);
-		const newSection = updatedSections.find(
-			(section) =>
-				section.name.toLowerCase() ===
-				VIRTUAL_CLASSROOM_SECTION_NAME.toLowerCase()
-		);
-
-		if (newSection) {
-			return newSection.section;
-		}
-
-		throw new Error('Failed to create Virtual Classroom section');
-	} catch (error) {
-		console.error('Error creating Virtual Classroom section:', error);
-		throw new Error(
-			'Unable to create Virtual Classroom section. Please ensure the local_activity_utils plugin is installed.'
-		);
-	}
+	return getCourseSectionsShared(courseId) as Promise<MoodleSection[]>;
 }
 
 export async function createBigBlueButtonSession(
@@ -83,9 +37,11 @@ export async function createBigBlueButtonSession(
 		throw new Error('Session name is required');
 	}
 
-	const sectionNumber = await findOrCreateVirtualClassroomSection(
-		params.courseid
-	);
+	const sectionNumber = await getOrReuseSection({
+		courseId: params.courseid,
+		sectionName: VIRTUAL_CLASSROOM_SECTION_NAME,
+		summary: 'Live virtual classroom sessions using BigBlueButton',
+	});
 
 	try {
 		const requestParams: Record<string, string | number> = {

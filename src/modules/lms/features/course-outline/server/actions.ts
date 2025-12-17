@@ -1,8 +1,11 @@
 'use server';
 
-import { getCourseSections } from '@lms/material';
 import { auth } from '@/core/auth';
 import { moodlePost } from '@/core/integrations/moodle';
+import {
+	getCourseSections,
+	getOrReuseSection,
+} from '@/modules/lms/shared/utils';
 import type {
 	BookChapter,
 	CourseOutlineBook,
@@ -17,33 +20,6 @@ import type {
 const COURSE_OUTLINE_SECTION_NAME = 'Course Outline';
 const COURSE_OUTLINE_BOOK_NAME = 'Course Outline';
 const TOPICS_CHAPTER_TITLE = 'Topics';
-
-async function findOrCreateCourseOutlineSection(
-	courseId: number
-): Promise<number> {
-	const sections = await getCourseSections(courseId);
-
-	const outlineSection = sections.find(
-		(section) =>
-			section.name.toLowerCase() === COURSE_OUTLINE_SECTION_NAME.toLowerCase()
-	);
-
-	if (outlineSection) {
-		return outlineSection.section;
-	}
-
-	const result = await moodlePost('local_activity_utils_create_section', {
-		courseid: courseId,
-		name: COURSE_OUTLINE_SECTION_NAME,
-		summary: 'Course outline containing sections and topics',
-	});
-
-	if (result && result.sectionnum !== undefined) {
-		return result.sectionnum;
-	}
-
-	throw new Error('Failed to create Course Outline section');
-}
 
 async function findCourseOutlineBook(
 	courseId: number
@@ -73,7 +49,11 @@ async function findCourseOutlineBook(
 async function createCourseOutlineBook(
 	courseId: number
 ): Promise<MoodleBookResponse> {
-	const sectionNum = await findOrCreateCourseOutlineSection(courseId);
+	const sectionNum = await getOrReuseSection({
+		courseId,
+		sectionName: COURSE_OUTLINE_SECTION_NAME,
+		summary: 'Course outline containing sections and topics',
+	});
 
 	const result = await moodlePost('local_activity_utils_create_book', {
 		courseid: courseId,

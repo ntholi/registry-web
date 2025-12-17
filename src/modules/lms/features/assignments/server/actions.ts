@@ -5,6 +5,7 @@ import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
 import { studentRepository } from '@/modules/lms/features/students/server/repository';
+import { getOrReuseSection } from '@/modules/lms/shared/utils';
 import { getCurrentTerm } from '@/modules/registry/features/terms';
 import type {
 	CreateAssignmentParams,
@@ -18,19 +19,6 @@ import type {
 	RubricGradeData,
 	SubmissionUser,
 } from '../types';
-
-type CourseSection = {
-	id: number;
-	name: string;
-	section: number;
-	summaryformat: number;
-	summary: string;
-	modules: Array<{
-		id: number;
-		name: string;
-		modname: string;
-	}>;
-};
 
 export async function getCourseAssignments(
 	courseId: number
@@ -57,53 +45,6 @@ export async function getAssignment(
 ): Promise<MoodleAssignment | null> {
 	const assignments = await getCourseAssignments(courseId);
 	return assignments.find((a) => a.id === assignmentId) || null;
-}
-
-async function getCourseSections(courseId: number): Promise<CourseSection[]> {
-	const result = await moodleGet('core_course_get_contents', {
-		courseid: courseId,
-	});
-
-	return result as CourseSection[];
-}
-
-async function getOrCreateAssignmentsSection(
-	courseId: number
-): Promise<number> {
-	const sections = await getCourseSections(courseId);
-
-	const assignmentSection = sections.find(
-		(section) =>
-			section.name.toLowerCase() === 'assignments' ||
-			section.name.toLowerCase() === 'assignment'
-	);
-
-	if (assignmentSection) {
-		return assignmentSection.section;
-	}
-
-	try {
-		const result = await moodlePost('local_activity_utils_create_section', {
-			courseid: courseId,
-			name: 'Assignments',
-			summary: 'Course assignments and submissions',
-		});
-
-		if (result && result.sectionnum !== undefined) {
-			return result.sectionnum;
-		}
-
-		const updatedSections = await getCourseSections(courseId);
-		const newSection = updatedSections.find(
-			(section) => section.name === 'Assignments'
-		);
-		return newSection?.section || 0;
-	} catch (error) {
-		console.error('Failed to create Assignments section:', error);
-		throw new Error(
-			'Unable to create Assignments section. Please ensure the local_activity_utils plugin is installed.'
-		);
-	}
 }
 
 async function fileToBase64(file: File): Promise<string> {
@@ -134,7 +75,14 @@ export async function createAssignment(params: CreateAssignmentParams) {
 		throw new Error('Assignment number is required');
 	}
 
-	const sectionNumber = await getOrCreateAssignmentsSection(params.courseid);
+	const sectionNumber = await getOrReuseSection({
+		courseId: params.courseid,
+		sectionName: 'Assignments',
+		summary: 'Course assignments and submissions',
+		matchFn: (name) =>
+			name.toLowerCase() === 'assignments' ||
+			name.toLowerCase() === 'assignment',
+	});
 
 	const requestParams: Record<string, string | number> = {
 		courseid: params.courseid,
