@@ -5,6 +5,7 @@ import {
 	Badge,
 	Box,
 	Card,
+	Flex,
 	Group,
 	Menu,
 	Stack,
@@ -20,6 +21,7 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import Link from 'next/link';
 import {
 	deleteAssessment,
@@ -62,6 +64,7 @@ function getQuizStatus(quiz: MoodleQuiz): {
 
 export default function QuizCard({ quiz, courseId }: Props) {
 	const status = getQuizStatus(quiz);
+	const openDate = quiz.timeopen ? new Date(quiz.timeopen * 1000) : null;
 	const closeDate = quiz.timeclose ? new Date(quiz.timeclose * 1000) : null;
 	const isOverdue = closeDate && closeDate < new Date();
 	const queryClient = useQueryClient();
@@ -178,30 +181,20 @@ export default function QuizCard({ quiz, courseId }: Props) {
 					</Box>
 
 					<Card.Section withBorder inheritPadding py='xs'>
-						<Group gap='xl'>
-							{closeDate && (
-								<Group gap='xs'>
-									<IconClock size={16} />
-									<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
-										Closes: {closeDate.toLocaleDateString()} at{' '}
-										{closeDate.toLocaleTimeString([], {
-											hour: '2-digit',
-											minute: '2-digit',
-										})}
+						<Group>
+							<IconClock size={16} />
+							<Flex gap='xl' justify={'space-between'}>
+								{openDate && (
+									<Text size='xs' c='dimmed'>
+										Opens: {dayjs(openDate).format('DD MMM [at] HH:mm')}
 									</Text>
-								</Group>
-							)}
-							{quiz.attempts > 0 && (
-								<Text size='xs' c='dimmed'>
-									{quiz.attempts} {quiz.attempts === 1 ? 'attempt' : 'attempts'}{' '}
-									allowed
-								</Text>
-							)}
-							{quiz.attempts === 0 && (
-								<Text size='xs' c='dimmed'>
-									Unlimited attempts
-								</Text>
-							)}
+								)}
+								{closeDate && (
+									<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
+										Closes: {dayjs(closeDate).format('DD MMM [at] HH:mm')}
+									</Text>
+								)}
+							</Flex>
 						</Group>
 					</Card.Section>
 				</Stack>
