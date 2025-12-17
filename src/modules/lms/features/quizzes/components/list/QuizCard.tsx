@@ -17,7 +17,6 @@ import {
 	IconDotsVertical,
 	IconEdit,
 	IconExternalLink,
-	IconQuestionMark,
 	IconTrash,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -159,31 +158,22 @@ export default function QuizCard({ quiz, courseId }: Props) {
 						href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
 						style={{ textDecoration: 'none', color: 'inherit' }}
 					>
-						<Group gap='lg' py='xs'>
-							<Group gap='xs'>
-								<IconQuestionMark size={16} />
-								<Text size='sm' c='dimmed'>
-									{quiz.questions?.length || 0} questions
-								</Text>
-							</Group>
+						<Group justify='s' gap='lg' py='xs'>
 							{quiz.timelimit > 0 && (
-								<Group gap='xs'>
-									<IconClock size={16} />
-									<Text size='sm' c='dimmed'>
+								<Text size='sm' c='dimmed'>
+									Duration:{' '}
+									<Text component='span' c='bright'>
 										{formatDuration(quiz.timelimit)}
 									</Text>
-								</Group>
+								</Text>
 							)}
-							<Badge variant='outline' size='sm'>
-								{quiz.grade} marks
-							</Badge>
 						</Group>
 					</Box>
 
 					<Card.Section withBorder inheritPadding py='xs'>
 						<Group>
 							<IconClock size={16} />
-							<Flex gap='xl' justify={'space-between'}>
+							<Flex flex={1} gap='xl' justify={'space-between'}>
 								{openDate && (
 									<Text size='xs' c='dimmed'>
 										Opens: {dayjs(openDate).format('DD MMM [at] HH:mm')}
