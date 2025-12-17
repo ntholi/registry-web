@@ -284,7 +284,16 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 							<div style={{ width: 350, minWidth: 350 }}>
 								<Paper withBorder p='md'>
 									<Stack gap='md'>
-										<Text fw={500}>Quiz Settings</Text>
+										<Box>
+											<Group justify='space-between'>
+												<Text size='sm' fw={500}>
+													Total Marks
+												</Text>
+												<Badge radius={'sm'}  color='green' variant='light'>
+													{totalMarks} Marks
+												</Badge>
+											</Group>
+										</Box>
 
 										<Select
 											label='Assessment Number'
@@ -304,19 +313,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 
 										<Divider />
 
-										<Box>
-											<Group justify='space-between' mb='xs'>
-												<Text size='sm' c='dimmed'>
-													Total Marks
-												</Text>
-												<Badge size='lg' variant='light'>
-													{totalMarks}
-												</Badge>
-											</Group>
-											<Text size='xs' c='dimmed'>
-												Calculated from question marks
-											</Text>
-										</Box>
+
 
 										<NumberInput
 											label='Weight (%)'
