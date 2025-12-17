@@ -313,7 +313,6 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 											{...form.getInputProps('assessmentType')}
 										/>
 
-
 										<NumberInput
 											label='Weight (%)'
 											placeholder='0'
@@ -321,7 +320,6 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 											max={100}
 											{...form.getInputProps('weight')}
 										/>
-
 
 										<DateTimePicker
 											label='Start Date/Time'

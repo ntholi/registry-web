@@ -29,7 +29,6 @@
 			},
 			"suspicious": {
 				"noExplicitAny": "error",
-				"noArrayIndexKey": "warn",
 				"noDoubleEquals": "warn"
 			}
 		}
