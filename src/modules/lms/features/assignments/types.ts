@@ -154,11 +154,12 @@ export type RubricFilling = {
 	criterionid: number;
 	criteriondescription?: string;
 	levelid: number;
-	level: {
+	level?: {
 		id: number;
 		score: number;
 		definition: string;
 	};
+	customscore?: number;
 	remark?: string;
 };
 

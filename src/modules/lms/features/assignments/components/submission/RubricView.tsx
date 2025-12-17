@@ -46,7 +46,9 @@ export default function RubricView({
 		) {
 			const fillingsMap: Record<number, number> = {};
 			for (const filling of rubricFillings.fillings) {
-				if (filling.level) {
+				if (filling.customscore !== undefined && filling.customscore !== null) {
+					fillingsMap[filling.criterionid] = filling.customscore;
+				} else if (filling.level) {
 					fillingsMap[filling.criterionid] = filling.level.score;
 				}
 			}

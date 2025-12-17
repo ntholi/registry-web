@@ -33,7 +33,8 @@
     *   Never generate comments in code. Keep code clean and self-explanatory.
 
 6.  **local_activity_utils first**:
-    *   Study https://github.com/ntholi/moodle-local_activity_utils/blob/master/README.md before touching Moodle APIs or adding changes, especially helpers named `local_activity_utils_*` (they are part of my project).
+    *   Study the README at `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils\README.md` before touching Moodle APIs or adding changes, especially helpers named `local_activity_utils_*` (they are part of my project).
+    *   Source code is at `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils`. You may make adjustments it if necessary.
     *   If you need functionality that isn’t already defined there, tell me so I can extend `local_activity_utils`.
     *   Any new `lms` module functionality must have every server action (`*/lms/**/actions.ts`) call the `local_activity_utils` helpers unless the needed behavior already exists in the standard Moodle API.
 

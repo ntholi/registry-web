@@ -71,7 +71,11 @@ export default function GradingPanel({
 		) {
 			const fillingsMap: Record<number, number> = {};
 			for (const filling of rubricFillings.fillings) {
-				fillingsMap[filling.criterionid] = filling.level.score;
+				if (filling.customscore !== undefined && filling.customscore !== null) {
+					fillingsMap[filling.criterionid] = filling.customscore;
+				} else if (filling.level) {
+					fillingsMap[filling.criterionid] = filling.level.score;
+				}
 			}
 			setSelectedLevels(fillingsMap);
 			if (rubricFillings.grade) {
