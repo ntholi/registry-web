@@ -10,7 +10,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { modals } from '@mantine/modals';
+import { useDisclosure } from '@mantine/hooks';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -19,13 +19,13 @@ import {
 	IconQuestionMark,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import {
 	deleteAssessment,
 	getAssessmentByLmsId,
 } from '@/modules/academic/features/assessments/server/actions';
-import { DeleteConfirmContent } from '@/shared/ui/adease';
+import { DeleteModal } from '@/shared/ui/adease';
 import { deleteQuiz } from '../../server/actions';
 import type { MoodleQuiz } from '../../types';
 
@@ -65,52 +65,16 @@ export default function QuizCard({ quiz, courseId }: Props) {
 	const closeDate = quiz.timeclose ? new Date(quiz.timeclose * 1000) : null;
 	const isOverdue = closeDate && closeDate < new Date();
 	const queryClient = useQueryClient();
+	const [deleteOpened, { open: openDelete, close: closeDelete }] =
+		useDisclosure(false);
 
-	const deleteMutation = useMutation({
-		mutationFn: async () => {
-			const assessment = await getAssessmentByLmsId(quiz.id);
-			if (assessment) {
-				await deleteAssessment(assessment.id);
-			}
-			await deleteQuiz(quiz.coursemoduleid);
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['course-quizzes'] });
-		},
-	});
-
-	function handleDelete() {
-		let canConfirm = false;
-
-		modals.openConfirmModal({
-			title: 'Delete Quiz',
-			children: (
-				<DeleteConfirmContent
-					itemName={quiz.name}
-					itemType='quiz'
-					warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
-					onConfirmChange={(isValid) => {
-						canConfirm = isValid;
-					}}
-				/>
-			),
-			labels: { confirm: 'Delete', cancel: 'Cancel' },
-			confirmProps: { color: 'red' },
-			onConfirm: () => {
-				if (canConfirm) {
-					deleteMutation.mutate();
-				} else {
-					modals.open({
-						title: 'Deletion Cancelled',
-						children: (
-							<Text size='sm'>
-								Please type "delete permanently" to confirm deletion.
-							</Text>
-						),
-					});
-				}
-			},
-		});
+	async function handleDelete() {
+		const assessment = await getAssessmentByLmsId(quiz.id);
+		if (assessment) {
+			await deleteAssessment(assessment.id);
+		}
+		await deleteQuiz(quiz.coursemoduleid);
+		queryClient.invalidateQueries({ queryKey: ['course-quizzes'] });
 	}
 
 	function handleViewInMoodle() {
@@ -122,116 +86,126 @@ export default function QuizCard({ quiz, courseId }: Props) {
 	}
 
 	return (
-		<Card padding='md' withBorder>
-			<Stack gap='sm'>
-				<Card.Section withBorder inheritPadding py='xs'>
-					<Group justify='space-between' wrap='nowrap'>
-						<Box
-							component={Link}
-							href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
-							style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
-						>
-							<Text fw={500} size='md'>
-								{quiz.name}
-							</Text>
-						</Box>
-						<Group gap='xs' wrap='nowrap'>
-							<Badge size='sm' variant='light' color={status.color}>
-								{status.label}
-							</Badge>
-							<Menu position='bottom-end' withArrow shadow='md'>
-								<Menu.Target>
-									<ActionIcon
-										variant='subtle'
-										color='gray'
-										size='sm'
-										onClick={(e) => e.preventDefault()}
-									>
-										<IconDotsVertical size={16} />
-									</ActionIcon>
-								</Menu.Target>
-								<Menu.Dropdown>
-									<Menu.Item
-										leftSection={<IconEdit size={14} />}
-										component={Link}
-										href={`/lms/courses/${courseId}/quizzes/${quiz.id}/edit`}
-									>
-										Edit
-									</Menu.Item>
-									<Menu.Item
-										leftSection={<IconExternalLink size={14} />}
-										onClick={handleViewInMoodle}
-									>
-										View in Moodle
-									</Menu.Item>
-									<Menu.Divider />
-									<Menu.Item
-										leftSection={<IconTrash size={14} />}
-										color='red'
-										onClick={handleDelete}
-									>
-										Delete
-									</Menu.Item>
-								</Menu.Dropdown>
-							</Menu>
+		<>
+			<DeleteModal
+				opened={deleteOpened}
+				onClose={closeDelete}
+				onDelete={handleDelete}
+				itemName={quiz.name}
+				itemType='quiz'
+				warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
+			/>
+			<Card padding='md' withBorder>
+				<Stack gap='sm'>
+					<Card.Section withBorder inheritPadding py='xs'>
+						<Group justify='space-between' wrap='nowrap'>
+							<Box
+								component={Link}
+								href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
+								style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
+							>
+								<Text fw={500} size='md'>
+									{quiz.name}
+								</Text>
+							</Box>
+							<Group gap='xs' wrap='nowrap'>
+								<Badge size='sm' variant='light' color={status.color}>
+									{status.label}
+								</Badge>
+								<Menu position='bottom-end' withArrow shadow='md'>
+									<Menu.Target>
+										<ActionIcon
+											variant='subtle'
+											color='gray'
+											size='sm'
+											onClick={(e) => e.preventDefault()}
+										>
+											<IconDotsVertical size={16} />
+										</ActionIcon>
+									</Menu.Target>
+									<Menu.Dropdown>
+										<Menu.Item
+											leftSection={<IconEdit size={14} />}
+											component={Link}
+											href={`/lms/courses/${courseId}/quizzes/${quiz.id}/edit`}
+										>
+											Edit
+										</Menu.Item>
+										<Menu.Item
+											leftSection={<IconExternalLink size={14} />}
+											onClick={handleViewInMoodle}
+										>
+											View in Moodle
+										</Menu.Item>
+										<Menu.Divider />
+										<Menu.Item
+											leftSection={<IconTrash size={14} />}
+											color='red'
+											onClick={openDelete}
+										>
+											Delete
+										</Menu.Item>
+									</Menu.Dropdown>
+								</Menu>
+							</Group>
 						</Group>
-					</Group>
-				</Card.Section>
+					</Card.Section>
 
-				<Box
-					component={Link}
-					href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
-					style={{ textDecoration: 'none', color: 'inherit' }}
-				>
-					<Group gap='lg' py='xs'>
-						<Group gap='xs'>
-							<IconQuestionMark size={16} />
-							<Text size='sm' c='dimmed'>
-								{quiz.questions?.length || 0} questions
-							</Text>
-						</Group>
-						{quiz.timelimit > 0 && (
+					<Box
+						component={Link}
+						href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
+						style={{ textDecoration: 'none', color: 'inherit' }}
+					>
+						<Group gap='lg' py='xs'>
 							<Group gap='xs'>
-								<IconClock size={16} />
+								<IconQuestionMark size={16} />
 								<Text size='sm' c='dimmed'>
-									{formatDuration(quiz.timelimit)}
+									{quiz.questions?.length || 0} questions
 								</Text>
 							</Group>
-						)}
-						<Badge variant='outline' size='sm'>
-							{quiz.grade} marks
-						</Badge>
-					</Group>
-				</Box>
+							{quiz.timelimit > 0 && (
+								<Group gap='xs'>
+									<IconClock size={16} />
+									<Text size='sm' c='dimmed'>
+										{formatDuration(quiz.timelimit)}
+									</Text>
+								</Group>
+							)}
+							<Badge variant='outline' size='sm'>
+								{quiz.grade} marks
+							</Badge>
+						</Group>
+					</Box>
 
-				<Card.Section withBorder inheritPadding py='xs'>
-					<Group gap='xl'>
-						{closeDate && (
-							<Group gap='xs'>
-								<IconClock size={16} />
-								<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
-									Closes: {closeDate.toLocaleDateString()} at{' '}
-									{closeDate.toLocaleTimeString([], {
-										hour: '2-digit',
-										minute: '2-digit',
-									})}
+					<Card.Section withBorder inheritPadding py='xs'>
+						<Group gap='xl'>
+							{closeDate && (
+								<Group gap='xs'>
+									<IconClock size={16} />
+									<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
+										Closes: {closeDate.toLocaleDateString()} at{' '}
+										{closeDate.toLocaleTimeString([], {
+											hour: '2-digit',
+											minute: '2-digit',
+										})}
+									</Text>
+								</Group>
+							)}
+							{quiz.attempts > 0 && (
+								<Text size='xs' c='dimmed'>
+									{quiz.attempts} {quiz.attempts === 1 ? 'attempt' : 'attempts'}{' '}
+									allowed
 								</Text>
-							</Group>
-						)}
-						{quiz.attempts > 0 && (
-							<Text size='xs' c='dimmed'>
-								{quiz.attempts} {quiz.attempts === 1 ? 'attempt' : 'attempts'}{' '}
-								allowed
-							</Text>
-						)}
-						{quiz.attempts === 0 && (
-							<Text size='xs' c='dimmed'>
-								Unlimited attempts
-							</Text>
-						)}
-					</Group>
-				</Card.Section>
-			</Stack>
-		</Card>
+							)}
+							{quiz.attempts === 0 && (
+								<Text size='xs' c='dimmed'>
+									Unlimited attempts
+								</Text>
+							)}
+						</Group>
+					</Card.Section>
+				</Stack>
+			</Card>
+		</>
 	);
 }

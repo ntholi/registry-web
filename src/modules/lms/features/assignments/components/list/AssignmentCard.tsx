@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionIcon, Box, Card, Group, Menu, Stack, Text } from '@mantine/core';
-import { modals } from '@mantine/modals';
+import { useDisclosure } from '@mantine/hooks';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -9,13 +9,13 @@ import {
 	IconExternalLink,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import {
 	deleteAssessment,
 	getAssessmentByLmsId,
 } from '@/modules/academic/features/assessments/server/actions';
-import { DeleteConfirmContent } from '@/shared/ui/adease';
+import { DeleteModal } from '@/shared/ui/adease';
 import { deleteAssignment } from '../../server/actions';
 import type { MoodleAssignment } from '../../types';
 import AssignmentStatus from '../details/AssignmentStatus';
@@ -31,52 +31,16 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 		: null;
 	const isOverdue = dueDate && dueDate < new Date();
 	const queryClient = useQueryClient();
+	const [deleteOpened, { open: openDelete, close: closeDelete }] =
+		useDisclosure(false);
 
-	const deleteMutation = useMutation({
-		mutationFn: async () => {
-			const assessment = await getAssessmentByLmsId(assignment.id);
-			if (assessment) {
-				await deleteAssessment(assessment.id);
-			}
-			await deleteAssignment(assignment.cmid!);
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['course-assignments'] });
-		},
-	});
-
-	function handleDelete() {
-		let canConfirm = false;
-
-		modals.openConfirmModal({
-			title: 'Delete Assignment',
-			children: (
-				<DeleteConfirmContent
-					itemName={assignment.name}
-					itemType='assignment'
-					warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
-					onConfirmChange={(isValid) => {
-						canConfirm = isValid;
-					}}
-				/>
-			),
-			labels: { confirm: 'Delete', cancel: 'Cancel' },
-			confirmProps: { color: 'red' },
-			onConfirm: () => {
-				if (canConfirm) {
-					deleteMutation.mutate();
-				} else {
-					modals.open({
-						title: 'Deletion Cancelled',
-						children: (
-							<Text size='sm'>
-								Please type "delete permanently" to confirm deletion.
-							</Text>
-						),
-					});
-				}
-			},
-		});
+	async function handleDelete() {
+		const assessment = await getAssessmentByLmsId(assignment.id);
+		if (assessment) {
+			await deleteAssessment(assessment.id);
+		}
+		await deleteAssignment(assignment.cmid!);
+		queryClient.invalidateQueries({ queryKey: ['course-assignments'] });
 	}
 
 	function handleViewInMoodle() {
@@ -88,98 +52,108 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 	}
 
 	return (
-		<Card padding='md' withBorder>
-			<Stack gap='sm'>
-				<Card.Section withBorder inheritPadding py='xs'>
-					<Group justify='space-between' wrap='nowrap'>
-						<Box
-							component={Link}
-							href={`/lms/courses/${courseId}/assignments/${assignment.id}`}
-							style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
-						>
-							<Text fw={500} size='md'>
-								{assignment.name}
-							</Text>
-						</Box>
-						<Group gap='xs' wrap='nowrap'>
-							<AssignmentStatus
-								assignment={assignment}
-								size='sm'
-								variant='light'
-							/>
-							<Menu position='bottom-end' withArrow shadow='md'>
-								<Menu.Target>
-									<ActionIcon
-										variant='subtle'
-										color='gray'
-										size='sm'
-										onClick={(e) => e.preventDefault()}
-									>
-										<IconDotsVertical size={16} />
-									</ActionIcon>
-								</Menu.Target>
-								<Menu.Dropdown>
-									<Menu.Item
-										leftSection={<IconEdit size={14} />}
-										component={Link}
-										href={`/lms/courses/${courseId}/assignments/${assignment.id}/edit`}
-									>
-										Edit
-									</Menu.Item>
-									<Menu.Item
-										leftSection={<IconExternalLink size={14} />}
-										onClick={handleViewInMoodle}
-									>
-										View in Moodle
-									</Menu.Item>
-									<Menu.Divider />
-									<Menu.Item
-										leftSection={<IconTrash size={14} />}
-										color='red'
-										onClick={handleDelete}
-									>
-										Delete
-									</Menu.Item>
-								</Menu.Dropdown>
-							</Menu>
-						</Group>
-					</Group>
-				</Card.Section>
-
-				<Box
-					component={Link}
-					href={`/lms/courses/${courseId}/assignments/${assignment.id}`}
-					style={{ textDecoration: 'none', color: 'inherit' }}
-				>
-					{assignment.intro ? (
-						<Text py='xs' size='sm' lineClamp={2}>
-							{shorten(assignment.intro)}
-						</Text>
-					) : (
-						<Text py='xs' size='sm' c='dimmed'>
-							No Description
-						</Text>
-					)}
-				</Box>
-
-				<Card.Section withBorder inheritPadding py='xs'>
-					<Group gap='xl'>
-						{dueDate && (
-							<Group gap='xs'>
-								<IconClock size={16} />
-								<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
-									Due: {dueDate.toLocaleDateString()} at{' '}
-									{dueDate.toLocaleTimeString([], {
-										hour: '2-digit',
-										minute: '2-digit',
-									})}
+		<>
+			<DeleteModal
+				opened={deleteOpened}
+				onClose={closeDelete}
+				onDelete={handleDelete}
+				itemName={assignment.name}
+				itemType='assignment'
+				warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
+			/>
+			<Card padding='md' withBorder>
+				<Stack gap='sm'>
+					<Card.Section withBorder inheritPadding py='xs'>
+						<Group justify='space-between' wrap='nowrap'>
+							<Box
+								component={Link}
+								href={`/lms/courses/${courseId}/assignments/${assignment.id}`}
+								style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
+							>
+								<Text fw={500} size='md'>
+									{assignment.name}
 								</Text>
+							</Box>
+							<Group gap='xs' wrap='nowrap'>
+								<AssignmentStatus
+									assignment={assignment}
+									size='sm'
+									variant='light'
+								/>
+								<Menu position='bottom-end' withArrow shadow='md'>
+									<Menu.Target>
+										<ActionIcon
+											variant='subtle'
+											color='gray'
+											size='sm'
+											onClick={(e) => e.preventDefault()}
+										>
+											<IconDotsVertical size={16} />
+										</ActionIcon>
+									</Menu.Target>
+									<Menu.Dropdown>
+										<Menu.Item
+											leftSection={<IconEdit size={14} />}
+											component={Link}
+											href={`/lms/courses/${courseId}/assignments/${assignment.id}/edit`}
+										>
+											Edit
+										</Menu.Item>
+										<Menu.Item
+											leftSection={<IconExternalLink size={14} />}
+											onClick={handleViewInMoodle}
+										>
+											View in Moodle
+										</Menu.Item>
+										<Menu.Divider />
+										<Menu.Item
+											leftSection={<IconTrash size={14} />}
+											color='red'
+											onClick={openDelete}
+										>
+											Delete
+										</Menu.Item>
+									</Menu.Dropdown>
+								</Menu>
 							</Group>
+						</Group>
+					</Card.Section>
+
+					<Box
+						component={Link}
+						href={`/lms/courses/${courseId}/assignments/${assignment.id}`}
+						style={{ textDecoration: 'none', color: 'inherit' }}
+					>
+						{assignment.intro ? (
+							<Text py='xs' size='sm' lineClamp={2}>
+								{shorten(assignment.intro)}
+							</Text>
+						) : (
+							<Text py='xs' size='sm' c='dimmed'>
+								No Description
+							</Text>
 						)}
-					</Group>
-				</Card.Section>
-			</Stack>
-		</Card>
+					</Box>
+
+					<Card.Section withBorder inheritPadding py='xs'>
+						<Group gap='xl'>
+							{dueDate && (
+								<Group gap='xs'>
+									<IconClock size={16} />
+									<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
+										Due: {dueDate.toLocaleDateString()} at{' '}
+										{dueDate.toLocaleTimeString([], {
+											hour: '2-digit',
+											minute: '2-digit',
+										})}
+									</Text>
+								</Group>
+							)}
+						</Group>
+					</Card.Section>
+				</Stack>
+			</Card>
+		</>
 	);
 }
 
