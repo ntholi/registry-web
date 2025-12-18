@@ -1,4 +1,5 @@
 import {
+	IconBell,
 	IconBook,
 	IconBooks,
 	IconBuildingBank,
@@ -32,6 +33,12 @@ export const adminConfig: ModuleConfig = {
 				label: 'Users',
 				href: '/admin/users',
 				icon: IconUserShield,
+				roles: ['admin'],
+			},
+			{
+				label: 'Notifications',
+				href: '/admin/notifications',
+				icon: IconBell,
 				roles: ['admin'],
 			},
 			{

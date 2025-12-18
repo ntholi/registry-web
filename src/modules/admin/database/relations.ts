@@ -3,6 +3,11 @@ import { schools } from '@/modules/academic/database';
 import { users } from '@/modules/auth/database';
 import { students } from '@/modules/registry/database';
 import { fortinetRegistrations } from './schema/fortinet';
+import {
+	notificationDismissals,
+	notificationRecipients,
+	notifications,
+} from './schema/notifications';
 import { taskAssignments, tasks } from './schema/tasks';
 
 export const fortinetRegistrationsRelations = relations(
@@ -36,6 +41,46 @@ export const taskAssignmentsRelations = relations(
 		}),
 		user: one(users, {
 			fields: [taskAssignments.userId],
+			references: [users.id],
+		}),
+	})
+);
+
+export const notificationsRelations = relations(
+	notifications,
+	({ one, many }) => ({
+		creator: one(users, {
+			fields: [notifications.createdBy],
+			references: [users.id],
+		}),
+		recipients: many(notificationRecipients),
+		dismissals: many(notificationDismissals),
+	})
+);
+
+export const notificationRecipientsRelations = relations(
+	notificationRecipients,
+	({ one }) => ({
+		notification: one(notifications, {
+			fields: [notificationRecipients.notificationId],
+			references: [notifications.id],
+		}),
+		user: one(users, {
+			fields: [notificationRecipients.userId],
+			references: [users.id],
+		}),
+	})
+);
+
+export const notificationDismissalsRelations = relations(
+	notificationDismissals,
+	({ one }) => ({
+		notification: one(notifications, {
+			fields: [notificationDismissals.notificationId],
+			references: [notifications.id],
+		}),
+		user: one(users, {
+			fields: [notificationDismissals.userId],
 			references: [users.id],
 		}),
 	})
