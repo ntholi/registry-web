@@ -32,6 +32,10 @@ export default async function TermDetails({ params }: Props) {
 			/>
 			<DetailsViewBody>
 				<FieldView label='Code'>{term.code}</FieldView>
+				<FieldView label='Name'>{term.name}</FieldView>
+				<FieldView label='Year'>{term.year}</FieldView>
+				<FieldView label='Start Date'>{term.startDate}</FieldView>
+				<FieldView label='End Date'>{term.endDate}</FieldView>
 				<FieldView label='Semester'>{term.semester}</FieldView>
 				<FieldView label='Is Active'>
 					<Badge color={term.isActive ? 'green' : 'red'}>

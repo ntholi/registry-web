@@ -10,7 +10,11 @@ import {
 export const terms = pgTable('terms', {
 	id: serial().primaryKey(),
 	code: text().notNull().unique(),
+	name: text(),
+	year: integer(),
+	startDate: text(),
+	endDate: text(),
 	isActive: boolean().notNull().default(false),
-	semester: integer().notNull(),
+	semester: integer(),
 	createdAt: timestamp().defaultNow(),
 });
