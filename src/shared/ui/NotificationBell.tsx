@@ -158,26 +158,18 @@ export default function NotificationBell() {
 				title={selectedNotification?.title}
 			>
 				{selectedNotification && (
-					<Stack gap='xl'>
+					<Stack gap='sm'>
+						<Text>{selectedNotification.message}</Text>
+
 						<Box>
-							<Text
-								size='md'
-								style={{
-									whiteSpace: 'pre-wrap',
-									lineHeight: 1.6,
-								}}
-							>
-								{selectedNotification.message}
+							<Divider my={'sm'} />
+							<Text size='xs' c='dimmed'>
+								Date
+							</Text>
+							<Text size='xs'>
+								{formatDate(selectedNotification.createdAt)}
 							</Text>
 						</Box>
-
-						<Divider />
-
-						<Group gap='xs' align='center'>
-							<Badge variant='light' size='lg' radius='sm'>
-								{formatDate(selectedNotification.visibleFrom)}
-							</Badge>
-						</Group>
 					</Stack>
 				)}
 			</Modal>
