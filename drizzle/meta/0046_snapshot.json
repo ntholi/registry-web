@@ -1,6 +1,6 @@
 {
-	"id": "64230d06-349d-4aa4-82e7-adc67ae06e62",
-	"prevId": "91357884-0795-412a-8afd-b013ba2ea648",
+	"id": "983186d8-94e8-4356-9607-2aed28cbce17",
+	"prevId": "64230d06-349d-4aa4-82e7-adc67ae06e62",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -1664,6 +1664,158 @@
 					"columnsFrom": ["created_by"],
 					"columnsTo": ["id"],
 					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.task_assignees": {
+			"name": "task_assignees",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"task_id": {
+					"name": "task_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"assigned_at": {
+					"name": "assigned_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"task_assignees_task_id_tasks_id_fk": {
+					"name": "task_assignees_task_id_tasks_id_fk",
+					"tableFrom": "task_assignees",
+					"tableTo": "tasks",
+					"columnsFrom": ["task_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"task_assignees_user_id_users_id_fk": {
+					"name": "task_assignees_user_id_users_id_fk",
+					"tableFrom": "task_assignees",
+					"tableTo": "users",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.tasks": {
+			"name": "tasks",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"title": {
+					"name": "title",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"priority": {
+					"name": "priority",
+					"type": "task_priority",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'medium'"
+				},
+				"status": {
+					"name": "status",
+					"type": "task_status",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'todo'"
+				},
+				"due_date": {
+					"name": "due_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"scheduled_date": {
+					"name": "scheduled_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"completed_at": {
+					"name": "completed_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"tasks_created_by_users_id_fk": {
+					"name": "tasks_created_by_users_id_fk",
+					"tableFrom": "tasks",
+					"tableTo": "users",
+					"columnsFrom": ["created_by"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
 			},
@@ -5859,6 +6011,16 @@
 			"name": "notification_target_type",
 			"schema": "public",
 			"values": ["all", "role", "users"]
+		},
+		"public.task_priority": {
+			"name": "task_priority",
+			"schema": "public",
+			"values": ["low", "medium", "high", "urgent"]
+		},
+		"public.task_status": {
+			"name": "task_status",
+			"schema": "public",
+			"values": ["todo", "in_progress", "on_hold", "completed", "cancelled"]
 		},
 		"public.operation_type": {
 			"name": "operation_type",

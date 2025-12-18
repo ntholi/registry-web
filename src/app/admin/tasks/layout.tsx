@@ -1,0 +1,100 @@
+'use client';
+
+import { findAllTasks, type TaskWithAssignees } from '@admin/tasks';
+import { Badge, Group, Stack, Text } from '@mantine/core';
+import { IconCalendar, IconFlag, IconUser } from '@tabler/icons-react';
+import type { PropsWithChildren } from 'react';
+import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+
+const priorityColors: Record<string, string> = {
+	low: 'gray',
+	medium: 'blue',
+	high: 'orange',
+	urgent: 'red',
+};
+
+const statusColors: Record<string, string> = {
+	todo: 'gray',
+	in_progress: 'blue',
+	on_hold: 'yellow',
+	completed: 'green',
+	cancelled: 'red',
+};
+
+const statusLabels: Record<string, string> = {
+	todo: 'To Do',
+	in_progress: 'In Progress',
+	on_hold: 'On Hold',
+	completed: 'Completed',
+	cancelled: 'Cancelled',
+};
+
+function formatDate(date: Date | string | null | undefined) {
+	if (!date) return null;
+	return new Date(date).toLocaleDateString('en-US', {
+		month: 'short',
+		day: 'numeric',
+	});
+}
+
+export default function Layout({ children }: PropsWithChildren) {
+	return (
+		<ListLayout<TaskWithAssignees>
+			path={'/admin/tasks'}
+			queryKey={['tasks']}
+			getData={findAllTasks}
+			actionIcons={[<NewLink key={'new-link'} href='/admin/tasks/new' />]}
+			renderItem={(task) => (
+				<ListItem
+					id={task.id}
+					label={
+						<Stack gap={4}>
+							<Group gap='xs' justify='space-between'>
+								<Text size='sm' fw={500} lineClamp={1} style={{ flex: 1 }}>
+									{task.title}
+								</Text>
+								<Badge
+									size='xs'
+									color={priorityColors[task.priority]}
+									variant='light'
+								>
+									<Group gap={4}>
+										<IconFlag size={10} />
+										{task.priority}
+									</Group>
+								</Badge>
+							</Group>
+							<Group gap='xs'>
+								<Badge
+									size='xs'
+									color={statusColors[task.status]}
+									variant='dot'
+								>
+									{statusLabels[task.status]}
+								</Badge>
+								{task.dueDate && (
+									<Badge size='xs' variant='light' color='gray'>
+										<Group gap={4}>
+											<IconCalendar size={10} />
+											{formatDate(task.dueDate)}
+										</Group>
+									</Badge>
+								)}
+								{task.assignees?.length > 0 && (
+									<Badge size='xs' variant='light' color='gray'>
+										<Group gap={4}>
+											<IconUser size={10} />
+											{task.assignees.length}
+										</Group>
+									</Badge>
+								)}
+							</Group>
+						</Stack>
+					}
+				/>
+			)}
+		>
+			{children}
+		</ListLayout>
+	);
+}

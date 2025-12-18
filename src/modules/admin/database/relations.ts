@@ -8,6 +8,7 @@ import {
 	notificationRecipients,
 	notifications,
 } from './schema/notifications';
+import { taskAssignees, tasks } from './schema/tasks';
 
 export const fortinetRegistrationsRelations = relations(
 	fortinetRegistrations,
@@ -62,3 +63,22 @@ export const notificationDismissalsRelations = relations(
 		}),
 	})
 );
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+	creator: one(users, {
+		fields: [tasks.createdBy],
+		references: [users.id],
+	}),
+	assignees: many(taskAssignees),
+}));
+
+export const taskAssigneesRelations = relations(taskAssignees, ({ one }) => ({
+	task: one(tasks, {
+		fields: [taskAssignees.taskId],
+		references: [tasks.id],
+	}),
+	user: one(users, {
+		fields: [taskAssignees.userId],
+		references: [users.id],
+	}),
+}));

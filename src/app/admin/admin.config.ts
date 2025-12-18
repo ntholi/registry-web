@@ -6,6 +6,7 @@ import {
 	IconCalculator,
 	IconCalendarMonth,
 	IconChartBar,
+	IconChecklist,
 	IconFileExport,
 	IconFlask,
 	IconPackage,
@@ -28,6 +29,12 @@ export const adminConfig: ModuleConfig = {
 
 	navigation: {
 		dashboard: [
+			{
+				label: 'Tasks',
+				href: '/admin/tasks',
+				icon: IconChecklist,
+				roles: ['admin', 'registry', 'finance'],
+			},
 			{
 				label: 'Users',
 				href: '/admin/users',
