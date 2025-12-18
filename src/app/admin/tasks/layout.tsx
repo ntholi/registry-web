@@ -2,7 +2,7 @@
 
 import { findAllTasks, type TaskWithAssignees } from '@admin/tasks';
 import { Badge, Group, Stack, Text } from '@mantine/core';
-import { IconCalendar, IconFlag, IconUser } from '@tabler/icons-react';
+import { IconCalendar, IconUser } from '@tabler/icons-react';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
@@ -56,19 +56,16 @@ export default function Layout({ children }: PropsWithChildren) {
 								<Badge
 									size='xs'
 									color={priorityColors[task.priority]}
-									variant='light'
+									variant='dot'
 								>
-									<Group gap={4}>
-										<IconFlag size={10} />
-										{task.priority}
-									</Group>
+									{task.priority}
 								</Badge>
 							</Group>
 							<Group gap='xs'>
 								<Badge
 									size='xs'
 									color={statusColors[task.status]}
-									variant='dot'
+									variant={task.status === 'todo' ? 'light' : 'dot'}
 								>
 									{statusLabels[task.status]}
 								</Badge>
