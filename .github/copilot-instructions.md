@@ -1,218 +1,226 @@
-# Registry Web - LLM Developer Context
+# Registry Web - LLM Context
 
-**Stack**: Next.js 16 (App Router), Neon Postgres, Drizzle ORM, Mantine v8, Auth.js, TanStack Query.
-**Architecture**: Modular Monolith. Strict TypeScript. Biome Linting.
+**Stack**: Next.js 16 (App Router), Neon Postgres, Drizzle ORM, Mantine v8, Auth.js, TanStack Query. Modular monolith. Strict TypeScript. Biome linting.
 
-## 🚨 CRITICAL RULES (Do Not Ignore)
+## Critical Rules
+1. **Architecture**: UI → Server Actions → Services → Repositories → DB. Only `repository.ts` imports `db`.
+2. **Reuse First**: Check existing modules via aliases (`@registry/terms`, `@academic/module-grades`) before creating.
+3. **Performance**: Use `db.transaction` for multi-step writes; avoid N+1 queries.
+4. **UI**: Mantine-only styling (no custom CSS); follow existing ListLayout/DetailsView patterns; optimize for dark mode. The UI should look extremely professional and clean, consistent with the rest of the system. It should be very beautiful but minimalist.
+5. **No Comments**: Code should be self-explanatory.
+6. **Moodle/LMS**: every time before editing anything in the lms module, read `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils\README.md` first.
+7. **Student Portal**: `src/app/student-portal` uses a unique layout. Unlike administration modules (Academic, Registry, etc.) which use `src/app/dashboard/dashboard.tsx` and `adease` patterns, the student portal does not follow these conventions.
 
-1.  **Strict Layered Architecture**:
-    *   **UI** calls **Server Actions**.
-    *   **Server Actions** call **Services**.
-    *   **Services** call **Repositories**.
-    *   **Repositories** call **Database**.
-    *   *Constraint*: **Only** `repository.ts` files may import `db`. Never access the DB from actions or services directly.
+## Path Aliases (tsconfig.json)
+`@academic/*`, `@registry/*`, `@finance/*`, `@admin/*`, `@lms/*`, `@timetable/*`, `@auth/*`, `@audit-logs/*` → `src/modules/[module]/features/*`
 
-2.  **Code Reuse First**:
-    *   Before creating a function (e.g., `getSchools`), check if it exists in another module (e.g., `@registry/schools`).
-    *   Import from existing features using path aliases (e.g., `import { getSchools } from '@registry/schools'`).
-    *   Do not duplicate logic.
-
-3.  **Performance**:
-    *   Avoid multiple database calls
-    *   Use `db.transaction` for multi-step writes.
-
-4.  **UI Design Principles**:
-    *   **Visual Quality**: Create beautiful, minimalistic, and highly professional interfaces.
-    *   **Mantine Native**: Use Mantine's native components and their built-in props exclusively. Avoid external CSS customization.
-    *   **Theme Awareness**: Design for both dark and light modes. Optimize for dark mode as it's the primary usage mode.
-    *   **Minimal Interactions**: Avoid hover effects and unnecessary animations unless absolutely essential for functionality.
-    *   **Pattern Consistency**: Strictly follow existing UI patterns (ListLayout, DetailsView). Do not invent new patterns; mimic existing screens.
-    *   **Native Styling**: Use only Mantine's component props (size, variant, color, radius, etc.) for styling. No custom CSS classes.
-
-5.  **No Comments**:
-    *   Never generate comments in code. Keep code clean and self-explanatory.
-
-6.  **local_activity_utils first**:
-    *   Study the README at `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils\README.md` before touching Moodle APIs or making edits, especially helpers prefixed with `local_activity_utils_*` (they are part of my project).
-    *   Source code is at `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils`. You may make adjustments it if necessary.
-    *   If you need behavior that isn’t already defined there, tell me so I can extend `local_activity_utils`.
-    *   Any new `lms` module functionality must have every server action (`*/lms/**/actions.ts`) call the `local_activity_utils` helpers unless the required behavior already exists in the standard Moodle API.
-
----
-
-## Directory Structure
-
+## Structure
 ```
-src/
-├── app/(module)/feature/           # Next.js routes
-│   ├── layout.tsx                  # ListLayout with sidebar
-│   ├── page.tsx                    # NothingSelected
-│   ├── new/page.tsx                # Create form
-│   └── [id]/
-│       ├── page.tsx                # DetailsView
-│       └── edit/page.tsx           # Edit form
-│
-├── modules/[module]/               # Business logic (8 modules)
-│   ├── database/
-│   │   ├── schema/entity.ts        # Drizzle tables
-│   │   ├── index.ts                # Export all schemas
-│   │   └── relations.ts            # Module relations
-│   ├── features/[feature]/
-│   │   ├── server/
-│   │   │   ├── repository.ts       # extends BaseRepository
-│   │   │   ├── service.ts          # extends BaseService + serviceWrapper
-│   │   │   └── actions.ts          # 'use server' exports
-│   │   ├── components/Form.tsx
-│   │   ├── index.ts                # Export components + actions
-│   │   └── types.ts
-│   └── shared/                     # Module-level shared
-│
-├── core/
-│   ├── database/
-│   │   ├── index.ts                # Aggregates all module schemas
-│   │   ├── relations.ts            # CENTRALIZED relations (all modules)
-│   │   └── types.ts                # Common type exports
-│   ├── platform/
-│   │   ├── BaseRepository.ts       # Generic CRUD + pagination
-│   │   ├── BaseService.ts          # Role-based auth wrapper
-│   │   ├── withAuth.ts             # Authorization HOF
-│   │   └── serviceWrapper.ts       # Logging proxy
-│   ├── auth.ts                     # NextAuth config
-│   └── integrations/               # Google, AWS S3
-│
-└── shared/
-    ├── ui/adease/                  # Custom components (Form, ListLayout, etc)
-    ├── lib/hooks/                  # use-current-term, use-user-schools, etc
-    └── lib/utils/                  # gradeCalculations, auditUtils, etc
+src/app/(module)/feature/           # Routes: layout.tsx, page.tsx, new/page.tsx, [id]/page.tsx, [id]/edit/page.tsx
+src/modules/[module]/features/[feature]/
+├── server/                         # repository.ts, service.ts, actions.ts
+├── components/Form.tsx
+├── index.ts                        # Re-export: components + actions
+└── types.ts
+src/core/database/                  # Aggregates schemas, centralized relations
+src/core/platform/                  # BaseRepository, BaseService, withAuth, serviceWrapper
+src/shared/ui/adease/               # Form, ListLayout, DetailsView, FieldView, ListItem, NewLink, NothingSelected
 ```
 
-## Implementation Guide & Snippets
+## Naming Conventions
+| Layer | Pattern | Example |
+|-------|---------|---------|
+| Table | `snake_case` plural | `module_grades` |
+| Column | `camelCase` | `stdNo`, `createdAt` |
+| Schema export | `camelCase` plural | `export const moduleGrades = pgTable(...)` |
+| Repository class | `PascalCase` + Repository | `ModuleGradeRepository` |
+| Repository instance | `camelCase` + Repository | `moduleGradesRepository` |
+| Service class | `PascalCase` + Service | `ModuleGradeService` |
+| Service export | `camelCase` + Service | `moduleGradesService` |
+| Actions | `verb` + `Entity` singular/plural | `getTerm`, `findAllTerms`, `createTerm`, `updateTerm`, `deleteTerm` |
+| Form component | `PascalCase` + Form | `TermForm` |
+| Query keys | kebab-case array | `['terms']`, `['module-grades']` |
 
-### 1. Database Schema
-**File**: `src/modules/[module]/database/schema/[entity].ts`
-*Rules*: `snake_case` tables, `camelCase` columns. Always include `createdAt`.
-```typescript
-import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+## Implementation Patterns (Reference: `@registry/terms`, `@academic/module-grades`)
 
-export const tableName = pgTable('table_name', {
+### Schema (`modules/[module]/database/schema/[entity].ts`)
+```ts
+export const terms = pgTable('terms', {
   id: serial().primaryKey(),
-  name: text().notNull(),
-  isActive: boolean().notNull().default(true),
+  name: text().notNull().unique(),
+  isActive: boolean().notNull().default(false),
   createdAt: timestamp().defaultNow(),
 });
 ```
 
-### 2. Repository (The ONLY DB Access)
-**File**: `src/modules/[module]/features/[feature]/server/repository.ts`
-*Rules*: Extend `BaseRepository`. Use `db.query` for reads.
-```typescript
-import { eq } from 'drizzle-orm';
-import { db } from '@/core/database'; // <--- ONLY ALLOWED HERE
-import { tableName } from '@/core/database';
+### Repository (`features/[feature]/server/repository.ts`)
+```ts
+import { db, terms } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
-export default class EntityRepository extends BaseRepository<typeof tableName, 'id'> {
-  constructor() { super(tableName, tableName.id); }
+export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
+  constructor() { super(terms, terms.id); }
 
-  // Example: Optimized query with relations (Avoid N+1)
-  async findWithRelations(id: number) {
-    return db.query.tableName.findFirst({
-      where: eq(tableName.id, id),
-      with: { relatedTable: true }
-    });
+  async getActive() {
+    return db.query.terms.findFirst({ where: eq(terms.isActive, true) });
   }
 }
-export const entityRepository = new EntityRepository();
 ```
 
-### 3. Service (Logic & Auth)
-**File**: `src/modules/[module]/features/[feature]/server/service.ts`
-*Rules*: Extend `BaseService`. Define roles.
-```typescript
+### Service (`features/[feature]/server/service.ts`)
+```ts
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import { entityRepository } from './repository';
+import withAuth from '@/core/platform/withAuth';
+import TermRepository from './repository';
 
-class EntityService extends BaseService<typeof entityRepository.table, 'id'> {
-  constructor() {
-    super(entityRepository, {
-      byIdRoles: ['dashboard'], // Roles allowed to view details
-      findAllRoles: ['dashboard'],
-    });
+class TermService extends BaseService<typeof terms, 'id'> {
+  constructor() { super(new TermRepository(), { findAllRoles: ['dashboard'] }); }
+
+  async getActive() {
+    return withAuth(() => (this.repository as TermRepository).getActive(), ['all']);
   }
 }
-export const entityService = serviceWrapper(EntityService, 'EntityService');
+
+export const termsService = serviceWrapper(TermService, 'TermsService');
 ```
 
-### 4. Server Actions (Public API)
-**File**: `src/modules/[module]/features/[feature]/server/actions.ts`
-*Rules*: `'use server'`, pass-through to Service.
-```typescript
+### Actions (`features/[feature]/server/actions.ts`)
+```ts
 'use server';
-import { entityService as service } from './service';
+import type { terms } from '@/core/database';
+import { termsService as service } from './service';
 
-export async function getAllEntities() { return service.getAll(); }
-export async function createEntity(data: any) { return service.create(data); }
-export async function updateEntity(id: number, data: any) { return service.update(id, data); }
+type Term = typeof terms.$inferInsert;
+
+export async function getTerm(id: number) { return service.get(id); }
+export async function findAllTerms(page = 1, search = '') {
+  return service.findAll({ page, search, sort: [{ column: 'name', order: 'desc' }] });
+}
+export async function createTerm(term: Term) { return service.create(term); }
+export async function updateTerm(id: number, term: Term) { return service.update(id, term); }
+export async function deleteTerm(id: number) { return service.delete(id); }
 ```
 
-### 5. UI: List Page
-**File**: `src/app/(module)/[feature]/layout.tsx`
-*Rules*: Use `ListLayout` and `ListItem`.
-```typescript
+### Index (`features/[feature]/index.ts`)
+```ts
+export { default as Form } from './components/Form';
+export * from './server/actions';
+export * from './types';
+```
+
+### Layout (`app/(module)/feature/layout.tsx`)
+```tsx
 'use client';
-import { findAllEntities } from '@module/feature';
-import { ListLayout, ListItem, NewLink } from '@/shared/ui/adease';
+import { findAllTerms } from '@registry/terms';
+import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <ListLayout
-      path='/feature'
-      queryKey={['entities']} // TanStack Query key
-      getData={findAllEntities}
-      actionIcons={[<NewLink key='new' href='/feature/new' />]}
+      path={'/registry/terms'}
+      queryKey={['terms']}
+      getData={findAllTerms}
+      actionIcons={[<NewLink key={'new'} href='/registry/terms/new' />]}
       renderItem={(it) => <ListItem id={it.id} label={it.name} />}
-    >
-      {children}
-    </ListLayout>
+    >{children}</ListLayout>
   );
 }
 ```
 
-### 6. UI: Form
-**File**: `src/modules/[module]/features/[feature]/components/Form.tsx`
-*Rules*: Use `drizzle-zod`, `Form` from `@/shared/ui/adease`.
-```typescript
-'use client';
-import { TextInput } from '@mantine/core';
-import { createInsertSchema } from 'drizzle-zod';
-import { Form } from '@/shared/ui/adease';
-import { tableName } from '@/core/database';
+### Page (`app/(module)/feature/page.tsx`)
+```tsx
+import { NothingSelected } from '@/shared/ui/adease';
+export default function Page() { return <NothingSelected title='Terms' />; }
+```
 
-export default function EntityForm({ onSubmit, defaultValues, title }: any) {
+### New Page (`app/(module)/feature/new/page.tsx`)
+```tsx
+import { Box } from '@mantine/core';
+import { createTerm, Form } from '@registry/terms';
+
+export default async function NewPage() {
+  return <Box p={'lg'}><Form title={'Create Term'} onSubmit={createTerm} /></Box>;
+}
+```
+
+### Details Page (`app/(module)/feature/[id]/page.tsx`)
+```tsx
+import { deleteTerm, getTerm } from '@registry/terms';
+import { notFound } from 'next/navigation';
+import { DetailsView, DetailsViewBody, DetailsViewHeader, FieldView } from '@/shared/ui/adease';
+
+export default async function TermDetails({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const term = await getTerm(Number(id));
+  if (!term) return notFound();
+
   return (
-    <Form
-      title={title}
-      action={onSubmit}
-      queryKey={['entities']}
-      schema={createInsertSchema(tableName)}
-      defaultValues={defaultValues}
-      onSuccess={({ id }) => { /* redirect */ }}
-    >
+    <DetailsView>
+      <DetailsViewHeader title={'Term'} queryKey={['terms']} handleDelete={async () => { 'use server'; await deleteTerm(Number(id)); }} />
+      <DetailsViewBody>
+        <FieldView label='Name'>{term.name}</FieldView>
+      </DetailsViewBody>
+    </DetailsView>
+  );
+}
+```
+
+### Edit Page (`app/(module)/feature/[id]/edit/page.tsx`)
+```tsx
+import { Box } from '@mantine/core';
+import { Form, getTerm, updateTerm } from '@registry/terms';
+import { notFound } from 'next/navigation';
+
+export default async function TermEdit({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const term = await getTerm(Number(id));
+  if (!term) return notFound();
+
+  return (
+    <Box p={'lg'}>
+      <Form title={'Edit Term'} defaultValues={term} onSubmit={async (value) => { 'use server'; return await updateTerm(Number(id), value); }} />
+    </Box>
+  );
+}
+```
+
+### Form Component (`features/[feature]/components/Form.tsx`)
+```tsx
+'use client';
+import { TextInput, Switch } from '@mantine/core';
+import { createInsertSchema } from 'drizzle-zod';
+import { useRouter } from 'nextjs-toploader/app';
+import { terms } from '@/modules/academic/database';
+import { Form } from '@/shared/ui/adease';
+
+type Term = typeof terms.$inferInsert;
+
+type Props = {
+  onSubmit: (values: Term) => Promise<Term>;
+  defaultValues?: Term;
+  title?: string;
+};
+
+export default function TermForm({ onSubmit, defaultValues, title }: Props) {
+  const router = useRouter();
+  return (
+    <Form title={title} action={onSubmit} queryKey={['terms']} schema={createInsertSchema(terms)} defaultValues={defaultValues} onSuccess={({ id }) => router.push(`/registry/terms/${id}`)}>
       {(form) => (
-        <TextInput label='Name' {...form.getInputProps('name')} />
+        <>
+          <TextInput label='Name' {...form.getInputProps('name')} />
+          <Switch label='Set as Active' {...form.getInputProps('isActive', { type: 'checkbox' })} />
+        </>
       )}
     </Form>
   );
 }
 ```
 
-## Coding Standards
-1.  **Functions**: Use `function name() {}`. **NO** arrow functions for top-level exports.
-2.  **Types**: Strict TS. No `any`. Infer from Drizzle (`typeof table.$inferSelect`).
-3.  **Imports**: Use aliases (`@registry/terms`, `@shared/ui/adease`).
-4.  **Always and every single time always do the following:**:
-    *   Run `pnpm tsc --noEmit` (run iteratively until no more issues).
-    *   Run `pnpm lint:fix` (Must pass).
-
-5.  **Data Fetching**: Never use useEffect for data fetching but always use TanStack Query. TanStack Query keys should use kebab-case.
+## Standards
+- Use `function name() {}` for exports, never arrow functions at top level
+- Derive types from Drizzle: `typeof table.$inferInsert`, `typeof table.$inferSelect`
+- Use TanStack Query for all data fetching (no `useEffect`)
+- Dashboard features need `NavItem` in `module-name.config.ts` and inclusion in `src/app/dashboard/dashboard.tsx`
+- Component order: Props type → constants → default export → private components
+- **Always run**: `pnpm tsc --noEmit & pnpm lint:fix` (iterate until clean)
