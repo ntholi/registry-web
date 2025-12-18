@@ -331,7 +331,7 @@ export default function EditRegistrationPage() {
 						Update Registration
 					</Title>
 					<Group justify='space-between'>
-						<Text c='dimmed'>Term: {currentTerm.name}</Text>
+						<Text c='dimmed'>Term: {currentTerm.code}</Text>
 						<Badge
 							color={
 								registrationRequest.status === 'pending' ? 'yellow' : 'blue'

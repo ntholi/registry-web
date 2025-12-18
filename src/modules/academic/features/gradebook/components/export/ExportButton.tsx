@@ -17,7 +17,7 @@ type Props = {
 	moduleName?: string;
 	moduleCode?: string;
 	lecturerName?: string;
-	termName?: string;
+	termCode?: string;
 	className?: string;
 };
 
@@ -26,7 +26,7 @@ export default function ExportButton({
 	moduleName,
 	moduleCode,
 	lecturerName,
-	termName,
+	termCode,
 	className,
 }: Props) {
 	const [isExporting, setIsExporting] = useState(false);
@@ -59,7 +59,7 @@ export default function ExportButton({
 				moduleName: moduleName || 'Unknown Module',
 				moduleCode: moduleCode || 'N/A',
 				lecturerName: lecturerName || 'Unknown Lecturer',
-				termName: termName || 'N/A',
+				termCode: termCode || 'N/A',
 				className: className || 'All Programs',
 			});
 		} finally {

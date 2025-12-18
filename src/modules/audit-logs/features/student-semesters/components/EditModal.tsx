@@ -68,8 +68,8 @@ export default function EditStudentSemesterModal({
 		enabled: opened,
 		select: (data) =>
 			data.map((t) => ({
-				value: t.name,
-				label: t.name,
+				value: t.code,
+				label: t.code,
 			})),
 	});
 

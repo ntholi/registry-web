@@ -9,13 +9,13 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
+import { users } from '@/modules/auth/database';
+import { grade } from '../../../academic/database/schema/enums';
+import { semesterModules } from '../../../academic/database/schema/modules';
 import {
-	grade,
-	semesterModules,
 	structureSemesters,
 	structures,
-} from '@/modules/academic/database';
-import { users } from '@/modules/auth/database';
+} from '../../../academic/database/schema/structures';
 import {
 	educationLevel,
 	educationType,

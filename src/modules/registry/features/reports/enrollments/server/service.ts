@@ -22,15 +22,15 @@ export class RegistrationReportService {
 			}
 
 			const reportData = await this.repository.getFullRegistrationData(
-				term.name,
+				term.code,
 				filter
 			);
 			const summaryData = await this.repository.getSummaryRegistrationData(
-				term.name,
+				term.code,
 				filter
 			);
 			const fullReport = {
-				termName: term.name,
+				termCode: term.code,
 				totalStudents: reportData.length,
 				students: reportData,
 				generatedAt: new Date(),
@@ -50,10 +50,10 @@ export class RegistrationReportService {
 				throw new Error('Terms not found');
 			}
 
-			const termNames = terms.map((t) => t.name);
+			const termCodes = terms.map((t) => t.code);
 			const reportData =
 				await this.repository.getSummaryRegistrationDataForMultipleTerms(
-					termNames,
+					termCodes,
 					filter
 				);
 
@@ -73,19 +73,19 @@ export class RegistrationReportService {
 				throw new Error('Terms not found');
 			}
 
-			const termNames = terms.map((t) => t.name);
+			const termCodes = terms.map((t) => t.code);
 			const reportData =
 				await this.repository.getFullRegistrationDataForMultipleTerms(
-					termNames,
+					termCodes,
 					filter
 				);
 			const summaryData =
 				await this.repository.getSummaryRegistrationDataForMultipleTerms(
-					termNames,
+					termCodes,
 					filter
 				);
 			const fullReport = {
-				termName: terms.map((t) => t.name).join(', '),
+				termCode: terms.map((t) => t.code).join(', '),
 				totalStudents: reportData.length,
 				students: reportData,
 				generatedAt: new Date(),
@@ -112,22 +112,22 @@ export class RegistrationReportService {
 				throw new Error('Terms not found');
 			}
 
-			const termNames = terms.map((t) => t.name);
+			const termCodes = terms.map((t) => t.code);
 			const fullData =
 				await this.repository.getFullRegistrationDataForMultipleTerms(
-					termNames,
+					termCodes,
 					filter
 				);
 			const summaryData =
 				await this.repository.getSummaryRegistrationDataForMultipleTerms(
-					termNames,
+					termCodes,
 					filter
 				);
 
 			return {
 				terms,
 				fullData: {
-					termName: terms.map((t) => t.name).join(', '),
+					termCode: terms.map((t) => t.code).join(', '),
 					totalStudents: fullData.length,
 					students: fullData,
 					generatedAt: new Date(),
@@ -149,9 +149,9 @@ export class RegistrationReportService {
 				throw new Error('Terms not found');
 			}
 
-			const termNames = terms.map((t) => t.name);
+			const termCodes = terms.map((t) => t.code);
 			return await this.repository.getPaginatedRegistrationDataForMultipleTerms(
-				termNames,
+				termCodes,
 				page,
 				pageSize,
 				filter
@@ -178,9 +178,9 @@ export class RegistrationReportService {
 				throw new Error('Terms not found');
 			}
 
-			const termNames = terms.map((t) => t.name);
+			const termCodes = terms.map((t) => t.code);
 			return await this.repository.getChartDataForMultipleTerms(
-				termNames,
+				termCodes,
 				filter
 			);
 		}, ['registry', 'admin', 'finance', 'academic']);

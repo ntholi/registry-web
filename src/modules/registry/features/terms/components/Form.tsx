@@ -34,7 +34,7 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 		>
 			{(form) => (
 				<>
-					<TextInput label='Name' {...form.getInputProps('name')} />
+					<TextInput label='Code' {...form.getInputProps('code')} />
 					<NumberInput
 						min={1}
 						max={2}

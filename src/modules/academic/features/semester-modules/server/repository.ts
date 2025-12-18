@@ -366,10 +366,10 @@ export default class SemesterModuleRepository extends BaseRepository<
 			return 0;
 		}
 
-		const termNames = studentSemesterTerms.map((t) => t.term);
+		const termCodes = studentSemesterTerms.map((t) => t.term);
 
 		const mostRecentTerm = await db.query.terms.findFirst({
-			where: inArray(terms.name, termNames),
+			where: inArray(terms.code, termCodes),
 			orderBy: [desc(terms.id)],
 		});
 
@@ -383,7 +383,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 			.where(
 				and(
 					eq(studentSemesters.structureSemesterId, previousSemester.id),
-					eq(studentSemesters.term, mostRecentTerm.name)
+					eq(studentSemesters.term, mostRecentTerm.code)
 				)
 			);
 

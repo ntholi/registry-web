@@ -412,7 +412,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 								term: {
 									columns: {
 										id: true,
-										name: true,
+										code: true,
 									},
 								},
 							},

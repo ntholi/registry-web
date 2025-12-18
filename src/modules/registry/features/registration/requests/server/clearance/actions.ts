@@ -116,7 +116,7 @@ export async function exportClearancesByStatus(
 			Program: activeProgram?.structure.program.name || 'N/A',
 			Department: clearance.department,
 			Status: clearance.status,
-			Term: clearance.registrationRequest?.term.name || 'N/A',
+			Term: clearance.registrationRequest?.term.code || 'N/A',
 			'Response Date': clearance.responseDate
 				? new Date(clearance.responseDate).toLocaleDateString()
 				: 'N/A',

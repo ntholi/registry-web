@@ -17,8 +17,8 @@ export class DistributionReportService {
 				throw new Error('Terms not found');
 			}
 
-			const termNames = terms.map((t) => t.name);
-			return await this.repository.getDistributionData(type, termNames, filter);
+			const termCodes = terms.map((t) => t.code);
+			return await this.repository.getDistributionData(type, termCodes, filter);
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 

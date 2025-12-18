@@ -67,7 +67,7 @@ type Props = {
 	}[];
 	userId: string;
 	selectedTermId: number | null;
-	termName: string | undefined;
+	termCode: string | undefined;
 	totalMinutes: number;
 	totalStudents: number;
 	defaults: ReturnType<typeof useConfigDefaults>['defaults'];

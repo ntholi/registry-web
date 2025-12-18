@@ -16,7 +16,7 @@ export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
 		const result = await db
 			.select()
 			.from(this.table as unknown as typeof terms)
-			.orderBy(desc(terms.name));
+			.orderBy(desc(terms.code));
 		return result;
 	}
 

@@ -88,7 +88,7 @@ export async function createFullRegistrationExcel(
 	worksheet.getCell('A6').alignment = { horizontal: 'center' };
 
 	worksheet.mergeCells('A7:H7');
-	worksheet.getCell('A7').value = `Term: ${report.termName}`;
+	worksheet.getCell('A7').value = `Term: ${report.termCode}`;
 	worksheet.getCell('A7').font = { name: 'Arial', size: 12, bold: true };
 	worksheet.getCell('A7').alignment = { horizontal: 'center' };
 

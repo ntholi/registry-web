@@ -11,13 +11,13 @@ import { useState } from 'react';
 
 interface ProofOfRegistrationDownloadProps {
 	stdNo: number;
-	termName: string;
+	termCode: string;
 	semesterNumber: string;
 }
 
 export default function ProofOfRegistrationDownload({
 	stdNo,
-	termName,
+	termCode,
 	semesterNumber,
 }: ProofOfRegistrationDownloadProps) {
 	const [loading, setLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function ProofOfRegistrationDownload({
 
 			const studentData = await getStudentRegistrationDataByTerm(
 				stdNo,
-				termName
+				termCode
 			);
 
 			if (
@@ -51,7 +51,7 @@ export default function ProofOfRegistrationDownload({
 
 			const targetSemester = activeProgram.semesters.find(
 				(s) =>
-					s.term === termName &&
+					s.term === termCode &&
 					s.structureSemester?.semesterNumber === semesterNumber
 			);
 
@@ -79,7 +79,7 @@ export default function ProofOfRegistrationDownload({
 			const url = URL.createObjectURL(pdfBlob);
 			const link = document.createElement('a');
 			link.href = url;
-			link.download = `proof_of_registration_${stdNo}_${termName.replace(/\s+/g, '_')}_semester_${semesterNumber}.pdf`;
+			link.download = `proof_of_registration_${stdNo}_${termCode.replace(/\s+/g, '_')}_semester_${semesterNumber}.pdf`;
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);

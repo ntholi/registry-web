@@ -38,7 +38,7 @@ type ExportData = {
 	moduleName: string;
 	moduleCode: string;
 	lecturerName: string;
-	termName: string;
+	termCode: string;
 	className: string;
 };
 
@@ -109,7 +109,7 @@ export async function exportToExcel(data: ExportData) {
 	const infoCells = [
 		{ label: 'MODULE', value: data.moduleName, row: infoStartRow },
 		{ label: 'CODE', value: data.moduleCode, row: infoStartRow + 1 },
-		{ label: 'Semester Date', value: data.termName, row: infoStartRow + 2 },
+		{ label: 'Semester Date', value: data.termCode, row: infoStartRow + 2 },
 		{ label: 'CLASS', value: data.className, row: infoStartRow + 3 },
 	];
 

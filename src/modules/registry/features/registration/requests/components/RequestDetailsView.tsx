@@ -28,7 +28,7 @@ export default function RequestDetailsView({ value, sponsorship }: Props) {
 			<StudentNameView stdNo={value.stdNo} name={value.student.name} />
 
 			<FieldView label='Term' underline={false}>
-				{value.term.name}
+				{value.term.code}
 			</FieldView>
 
 			<Flex justify={'space-between'} w='100%'>

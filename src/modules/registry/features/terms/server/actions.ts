@@ -21,7 +21,7 @@ export async function findAllTerms(page: number = 1, search = '') {
 	return service.findAll({
 		page,
 		search,
-		sort: [{ column: 'name', order: 'desc' }],
+		sort: [{ column: 'code', order: 'desc' }],
 	});
 }
 

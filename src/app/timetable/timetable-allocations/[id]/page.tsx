@@ -96,7 +96,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 					placeholder='Select a term'
 					data={terms.map((term) => ({
 						value: term.id.toString(),
-						label: term.name + (term.isActive ? ' (Current)' : ''),
+						label: term.code + (term.isActive ? ' (Current)' : ''),
 					}))}
 					value={selectedTermId ? selectedTermId.toString() : null}
 					onChange={(value) => {
@@ -129,7 +129,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 							filteredAllocations={filteredAllocations}
 							userId={id}
 							selectedTermId={selectedTermId}
-							termName={terms.find((term) => term.id === selectedTermId)?.name}
+							termCode={terms.find((term) => term.id === selectedTermId)?.code}
 							totalMinutes={totalMinutes}
 							totalStudents={totalStudents}
 							defaults={defaults}

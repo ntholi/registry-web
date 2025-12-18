@@ -41,7 +41,7 @@ export default function TermSelector({
 				data={
 					terms?.map((term) => ({
 						value: term.id.toString(),
-						label: `${term.name}${term.isActive ? ' (Current)' : ''}`,
+						label: `${term.code}${term.isActive ? ' (Current)' : ''}`,
 					})) || []
 				}
 				value={value?.toString() || null}

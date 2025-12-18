@@ -361,7 +361,7 @@ export default function RegistrationRequestForm({
 							placeholder='Select term'
 							data={allTerms.map((term) => ({
 								value: term.id.toString(),
-								label: term.name,
+								label: term.code,
 							}))}
 							{...form.getInputProps('termId')}
 							onChange={(value: string | null) => {

@@ -95,7 +95,7 @@ export default function ModuleDetailsCard({
 						<Group gap={5}>
 							<IconCalendar size={'1rem'} />
 							<Text size='sm' c='dimmed'>
-								{currentTerm?.name}
+								{currentTerm?.code}
 							</Text>
 						</Group>
 
@@ -121,7 +121,7 @@ export default function ModuleDetailsCard({
 						moduleName={modules.at(0)?.semesterModule?.module?.name}
 						moduleCode={modules.at(0)?.semesterModule?.module?.code}
 						lecturerName={session?.user?.name || 'Unknown Lecturer'}
-						termName={currentTerm?.name}
+						termCode={currentTerm?.code}
 						className={className}
 					/>
 				</Stack>

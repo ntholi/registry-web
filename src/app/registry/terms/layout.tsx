@@ -15,7 +15,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}
-					label={it.name}
+					label={it.code}
 					rightSection={
 						it.isActive ? <IconCheck size={'1rem'} color='green' /> : null
 					}

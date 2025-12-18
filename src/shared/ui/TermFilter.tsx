@@ -53,7 +53,7 @@ export default function TermFilter({
 
 	const termOptions = terms?.map((term) => ({
 		value: term.id.toString(),
-		label: term.name + (term.isActive ? ' (Current)' : ''),
+		label: term.code + (term.isActive ? ' (Current)' : ''),
 	}));
 
 	const currentTerm = terms?.find((term) => term.isActive);

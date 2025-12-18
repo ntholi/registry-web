@@ -28,7 +28,7 @@ export default async function ClearanceRequestDetails({ params }: Props) {
 		<DetailsView>
 			<ClearanceHeader
 				studentName={request.registrationRequest.student.name}
-				termName={request.registrationRequest.term.name}
+				termCode={request.registrationRequest.term.code}
 				versionCount={request.registrationRequest.count}
 			/>
 			<Tabs defaultValue='details' variant='outline'>

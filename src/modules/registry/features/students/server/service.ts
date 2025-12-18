@@ -36,7 +36,7 @@ class StudentService {
 
 			return {
 				...data,
-				programs: removeTermFromPrograms(data.programs, currentTerm.name),
+				programs: removeTermFromPrograms(data.programs, currentTerm.code),
 			};
 		}, ['academic', 'registry', 'finance', 'student']);
 	}
@@ -50,9 +50,9 @@ class StudentService {
 		);
 	}
 
-	async getRegistrationDataByTerm(stdNo: number, termName: string) {
+	async getRegistrationDataByTerm(stdNo: number, termCode: string) {
 		return withAuth(
-			async () => this.repository.findRegistrationDataByTerm(stdNo, termName),
+			async () => this.repository.findRegistrationDataByTerm(stdNo, termCode),
 			async (session) =>
 				session.user?.stdNo === stdNo ||
 				['academic', 'registry', 'finance'].includes(session.user?.role || '')
@@ -68,7 +68,7 @@ class StudentService {
 	async findByModuleId(moduleId: number) {
 		const term = await getCurrentTerm();
 		return withAuth(
-			async () => this.repository.findByModuleId(moduleId, term.name),
+			async () => this.repository.findByModuleId(moduleId, term.code),
 			['dashboard']
 		);
 	}
@@ -142,11 +142,11 @@ class StudentService {
 	}
 }
 
-function removeTermFromPrograms(programs: Program[], termName: string) {
+function removeTermFromPrograms(programs: Program[], termCode: string) {
 	return programs.map((program) => ({
 		...program,
 		semesters:
-			program.semesters?.filter((semester) => semester.term !== termName) || [],
+			program.semesters?.filter((semester) => semester.term !== termCode) || [],
 	}));
 }
 

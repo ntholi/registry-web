@@ -1,6 +1,5 @@
 import { deleteTask, getTask } from '@admin/tasks';
 import {
-	Anchor,
 	Avatar,
 	AvatarGroup,
 	Badge,
@@ -11,7 +10,7 @@ import {
 	Text,
 	Tooltip,
 } from '@mantine/core';
-import { IconCalendar, IconSchool, IconUser } from '@tabler/icons-react';
+import { IconCalendar, IconUser } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,

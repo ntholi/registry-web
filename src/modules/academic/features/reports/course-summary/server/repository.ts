@@ -27,7 +27,7 @@ export interface CourseSummaryData {
 	courseName: string;
 	programName: string;
 	programCode: string;
-	termName: string;
+	termCode: string;
 	moduleId: number;
 	studentModules: Array<{
 		studentId: number;
@@ -46,7 +46,7 @@ export interface CourseSummaryReport {
 	programCode: string;
 	lecturer: string;
 	date: string;
-	termName: string;
+	termCode: string;
 	totalStudents: number;
 	totalPasses: number;
 	totalFailures: number;
@@ -64,7 +64,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 	}
 	async getCourseSummaryData(
 		semesterModuleId: number,
-		termName: string,
+		termCode: string,
 		programFilter?: number
 	): Promise<CourseSummaryData | null> {
 		const semesterModule = await db.query.semesterModules.findFirst({
@@ -110,7 +110,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 		let validStudentModules = studentModulesData.filter(
 			(sm) =>
 				sm.studentSemester &&
-				sm.studentSemester.term === termName &&
+				sm.studentSemester.term === termCode &&
 				!['Delete', 'Drop'].includes(sm.status) &&
 				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
 					sm.studentSemester.status
@@ -131,7 +131,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 			programName:
 				semesterModule.semester?.structure.program.name || 'Unknown Program',
 			programCode: semesterModule.semester?.structure.program.code || 'Unknown',
-			termName,
+			termCode,
 			moduleId: semesterModule.module.id,
 			studentModules: validStudentModules.map((sm) => ({
 				studentId: sm.studentSemester!.studentProgram.student.stdNo,
@@ -191,11 +191,11 @@ export default class CourseSummaryRepository extends BaseRepository<
 	}
 	async getOptimizedCourseSummaryData(
 		semesterModuleId: number,
-		termName: string,
+		termCode: string,
 		programFilter?: number
 	) {
 		const term = await db.query.terms.findFirst({
-			where: eq(terms.name, termName),
+			where: eq(terms.code, termCode),
 			columns: { id: true },
 		});
 
@@ -261,7 +261,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 		let validStudentModules = studentModulesData.filter(
 			(sm) =>
 				sm.studentSemester &&
-				sm.studentSemester.term === termName &&
+				sm.studentSemester.term === termCode &&
 				!['Delete', 'Drop'].includes(sm.status) &&
 				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
 					sm.studentSemester.status
@@ -361,7 +361,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 			programName:
 				semesterModule.semester?.structure.program.name || 'Unknown Program',
 			programCode: semesterModule.semester?.structure.program.code || 'Unknown',
-			termName,
+			termCode,
 			moduleId: semesterModule.module.id,
 			students,
 			assessments: Array.from(assessmentsByStudent.entries()).flatMap(

@@ -58,14 +58,14 @@ export interface SummarySchoolData {
 }
 
 export interface FullRegistrationReport {
-	termName: string;
+	termCode: string;
 	totalStudents: number;
 	students: FullRegistrationStudent[];
 	generatedAt: Date;
 }
 
 export interface SummaryRegistrationReport {
-	termName: string;
+	termCode: string;
 	totalStudents: number;
 	schools: SummarySchoolData[];
 	generatedAt: Date;
@@ -376,7 +376,7 @@ export class RegistrationReportRepository {
 	}
 
 	private buildSummaryReport(
-		termName: string,
+		termCode: string,
 		fullData: FullRegistrationStudent[],
 		schoolsMap: Map<string, SummarySchoolData>,
 		programsMap: Map<string, SummaryProgramData>
@@ -391,7 +391,7 @@ export class RegistrationReportRepository {
 			.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
 
 		return {
-			termName,
+			termCode,
 			totalStudents: fullData.length,
 			schools: schoolsList,
 			generatedAt: new Date(),
@@ -525,12 +525,12 @@ export class RegistrationReportRepository {
 	}
 
 	async getFullRegistrationData(
-		termName: string,
+		termCode: string,
 		filter?: RegistrationReportFilter
 	): Promise<FullRegistrationStudent[]> {
 		const query = this.createBaseStudentQuery();
 		const conditions = [
-			eq(studentSemesters.term, termName),
+			eq(studentSemesters.term, termCode),
 			...this.buildFilterConditions(filter),
 		];
 
@@ -542,7 +542,7 @@ export class RegistrationReportRepository {
 	}
 
 	async getPaginatedRegistrationData(
-		termName: string,
+		termCode: string,
 		page: number = 1,
 		pageSize: number = 20,
 		filter?: RegistrationReportFilter
@@ -558,7 +558,7 @@ export class RegistrationReportRepository {
 		const countQuery = this.createCountQuery();
 
 		const conditions = [
-			eq(studentSemesters.term, termName),
+			eq(studentSemesters.term, termCode),
 			...this.buildFilterConditions(filter, { includeSearchQuery: true }),
 		];
 
@@ -585,12 +585,12 @@ export class RegistrationReportRepository {
 	}
 
 	async getSummaryRegistrationData(
-		termName: string,
+		termCode: string,
 		filter?: RegistrationReportFilter
 	): Promise<SummaryRegistrationReport> {
-		const fullData = await this.getFullRegistrationData(termName, filter);
+		const fullData = await this.getFullRegistrationData(termCode, filter);
 		const { schoolsMap, programsMap } = this.processSummaryData(fullData);
-		return this.buildSummaryReport(termName, fullData, schoolsMap, programsMap);
+		return this.buildSummaryReport(termCode, fullData, schoolsMap, programsMap);
 	}
 
 	async getTermById(termId: number) {
@@ -608,11 +608,11 @@ export class RegistrationReportRepository {
 			.select()
 			.from(terms)
 			.where(inArray(terms.id, termIds))
-			.orderBy(desc(terms.name));
+			.orderBy(desc(terms.code));
 	}
 
 	async getAllActiveTerms() {
-		return await db.select().from(terms).orderBy(desc(terms.name));
+		return await db.select().from(terms).orderBy(desc(terms.code));
 	}
 
 	async getAvailableSchools() {
@@ -647,12 +647,12 @@ export class RegistrationReportRepository {
 	}
 
 	async getChartData(
-		termName: string,
+		termCode: string,
 		filter?: RegistrationReportFilter
 	): Promise<ChartDataResult> {
 		const query = this.createChartQuery();
 		const conditions = [
-			eq(studentSemesters.term, termName),
+			eq(studentSemesters.term, termCode),
 			...this.buildFilterConditions(filter),
 		];
 
@@ -661,12 +661,12 @@ export class RegistrationReportRepository {
 	}
 
 	async getChartDataForMultipleTerms(
-		termNames: string[],
+		termCodes: string[],
 		filter?: RegistrationReportFilter
 	): Promise<ChartDataResult> {
 		const query = this.createChartQuery();
 		const conditions = [
-			inArray(studentSemesters.term, termNames),
+			inArray(studentSemesters.term, termCodes),
 			...this.buildFilterConditions(filter),
 		];
 
@@ -695,12 +695,12 @@ export class RegistrationReportRepository {
 	}
 
 	async getFullRegistrationDataForMultipleTerms(
-		termNames: string[],
+		termCodes: string[],
 		filter?: RegistrationReportFilter
 	): Promise<FullRegistrationStudent[]> {
 		const query = this.createBaseStudentQuery();
 		const conditions = [
-			inArray(studentSemesters.term, termNames),
+			inArray(studentSemesters.term, termCodes),
 			...this.buildFilterConditions(filter),
 		];
 
@@ -712,7 +712,7 @@ export class RegistrationReportRepository {
 	}
 
 	async getPaginatedRegistrationDataForMultipleTerms(
-		termNames: string[],
+		termCodes: string[],
 		page: number = 1,
 		pageSize: number = 20,
 		filter?: RegistrationReportFilter
@@ -728,7 +728,7 @@ export class RegistrationReportRepository {
 		const countQuery = this.createCountQuery();
 
 		const conditions = [
-			inArray(studentSemesters.term, termNames),
+			inArray(studentSemesters.term, termCodes),
 			...this.buildFilterConditions(filter, { includeSearchQuery: true }),
 		];
 
@@ -755,16 +755,16 @@ export class RegistrationReportRepository {
 	}
 
 	async getSummaryRegistrationDataForMultipleTerms(
-		termNames: string[],
+		termCodes: string[],
 		filter?: RegistrationReportFilter
 	): Promise<SummaryRegistrationReport> {
 		const fullData = await this.getFullRegistrationDataForMultipleTerms(
-			termNames,
+			termCodes,
 			filter
 		);
 		const { schoolsMap, programsMap } = this.processSummaryData(fullData);
 		return this.buildSummaryReport(
-			termNames.join(', '),
+			termCodes.join(', '),
 			fullData,
 			schoolsMap,
 			programsMap

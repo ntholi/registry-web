@@ -77,7 +77,7 @@ export default function CreateCourseModal() {
 
 			return createMoodleCourse({
 				fullname: module.name,
-				shortname: `${module.code}_${currentTerm.name}`,
+				shortname: `${module.code}_${currentTerm.code}`,
 				categoryid: categoryId,
 				semesterModuleId: selectedModule.semesterModuleId,
 			});

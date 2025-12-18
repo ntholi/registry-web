@@ -40,7 +40,7 @@ export default class StudentRepository extends BaseRepository<
 		return this.findStudentByStdNo(stdNo);
 	}
 
-	async findRegistrationDataByTerm(stdNo: number, termName: string) {
+	async findRegistrationDataByTerm(stdNo: number, termCode: string) {
 		return await db.query.students.findFirst({
 			where: eq(students.stdNo, stdNo),
 			with: {
@@ -82,7 +82,7 @@ export default class StudentRepository extends BaseRepository<
 								sponsorId: true,
 								studentProgramId: true,
 							},
-							where: eq(studentSemesters.term, termName),
+							where: eq(studentSemesters.term, termCode),
 							with: {
 								structureSemester: {
 									columns: {
@@ -226,7 +226,7 @@ export default class StudentRepository extends BaseRepository<
 		return this.findStudentByStdNo(stdNo);
 	}
 
-	async findByModuleId(moduleId: number, termName: string) {
+	async findByModuleId(moduleId: number, termCode: string) {
 		return await db
 			.select({
 				stdNo: students.stdNo,
@@ -252,7 +252,7 @@ export default class StudentRepository extends BaseRepository<
 			.where(
 				and(
 					eq(semesterModules.moduleId, moduleId),
-					eq(studentSemesters.term, termName),
+					eq(studentSemesters.term, termCode),
 					notInArray(studentModules.status, ['Delete', 'Drop'])
 				)
 			)
@@ -382,7 +382,7 @@ export default class StudentRepository extends BaseRepository<
 			if (needsTermJoin) {
 				joinedQuery = joinedQuery.innerJoin(
 					terms,
-					eq(terms.name, studentSemesters.term)
+					eq(terms.code, studentSemesters.term)
 				);
 			}
 
@@ -415,7 +415,7 @@ export default class StudentRepository extends BaseRepository<
 			if (needsTermJoin) {
 				countJoinedQuery = countJoinedQuery.innerJoin(
 					terms,
-					eq(terms.name, studentSemesters.term)
+					eq(terms.code, studentSemesters.term)
 				);
 			}
 

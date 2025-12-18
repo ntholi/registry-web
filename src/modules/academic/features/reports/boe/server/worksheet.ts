@@ -41,7 +41,7 @@ export function createWorksheet(
 	worksheet: ExcelJS.Worksheet,
 	programReport: ProgramSemesterReport,
 	schoolName: string,
-	termName: string
+	termCode: string
 ): void {
 	const currentDate = new Date();
 	const dateStr = currentDate.toLocaleDateString('en-GB', {
@@ -100,7 +100,7 @@ export function createWorksheet(
 	}
 
 	worksheet.addRow([programReport.programName]);
-	worksheet.addRow([`Term : ${termName}`]);
+	worksheet.addRow([`Term : ${termCode}`]);
 	worksheet.addRow([`Printing date : ${dateStr}, ${timeStr}`]);
 	worksheet.addRow(['By Country : Lesotho']);
 	const programSemesterLabel = `${programReport.programCode}${formatSemester(programReport.semesterNumber, 'mini')}`;

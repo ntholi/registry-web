@@ -44,7 +44,7 @@ export interface ProgramSemesterReport {
 export interface FacultyReport {
 	facultyId: number;
 	facultyName: string;
-	termName: string;
+	termCode: string;
 	programs: ProgramSemesterReport[];
 }
 
@@ -56,7 +56,7 @@ export default class BoeReportRepository extends BaseRepository<
 		super(students, students.stdNo);
 	}
 
-	async getStudentSemestersForFaculty(schoolId: number, termName: string) {
+	async getStudentSemestersForFaculty(schoolId: number, termCode: string) {
 		const facultyPrograms = await db.query.programs.findMany({
 			where: eq(programs.schoolId, schoolId),
 		});
@@ -79,7 +79,7 @@ export default class BoeReportRepository extends BaseRepository<
 
 		return await db.query.studentSemesters.findMany({
 			where: and(
-				eq(studentSemesters.term, termName),
+				eq(studentSemesters.term, termCode),
 				inArray(studentSemesters.studentProgramId, studentProgramIds),
 				ne(studentSemesters.status, 'Deleted')
 			),
@@ -109,7 +109,7 @@ export default class BoeReportRepository extends BaseRepository<
 		});
 	}
 
-	async getStudentSemestersForProgram(programId: number, termName: string) {
+	async getStudentSemestersForProgram(programId: number, termCode: string) {
 		const structureRows = await db
 			.select({ id: structures.id })
 			.from(structures)
@@ -126,7 +126,7 @@ export default class BoeReportRepository extends BaseRepository<
 
 		return await db.query.studentSemesters.findMany({
 			where: and(
-				eq(studentSemesters.term, termName),
+				eq(studentSemesters.term, termCode),
 				inArray(studentSemesters.studentProgramId, studentProgramIds),
 				ne(studentSemesters.status, 'Deleted')
 			),

@@ -80,7 +80,7 @@ export default async function page({ params }: Props) {
 
 						<Flex justify={'space-between'} align={'center'}>
 							<Text c='dimmed' size='sm'>
-								{registration.term.name} •{' '}
+								{registration.term.code} •{' '}
 								{formatSemester(registration.semesterNumber)}
 							</Text>
 							{registration.status === 'pending' &&
@@ -99,7 +99,7 @@ export default async function page({ params }: Props) {
 							{registration.status === 'registered' && (
 								<ProofOfRegistrationDownload
 									stdNo={registration.stdNo}
-									termName={registration.term.name}
+									termCode={registration.term.code}
 									semesterNumber={registration.semesterNumber}
 								/>
 							)}

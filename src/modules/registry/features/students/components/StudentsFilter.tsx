@@ -113,7 +113,7 @@ export default function StudentsFilter() {
 			desc = addSemesterDescription(desc, selectedSemester, selectedTerm);
 
 			if (selectedTerm) {
-				desc += ` registered for ${selectedTerm.name}`;
+				desc += ` registered for ${selectedTerm.code}`;
 			}
 
 			return desc;
@@ -124,7 +124,7 @@ export default function StudentsFilter() {
 			desc = addSemesterDescription(desc, selectedSemester, selectedTerm);
 
 			if (selectedTerm) {
-				desc += ` registered for ${selectedTerm.name}`;
+				desc += ` registered for ${selectedTerm.code}`;
 			}
 
 			return desc;
@@ -135,7 +135,7 @@ export default function StudentsFilter() {
 			desc = addSemesterDescription(desc, selectedSemester, selectedTerm);
 
 			if (selectedTerm) {
-				desc += ` registered for ${selectedTerm.name}`;
+				desc += ` registered for ${selectedTerm.code}`;
 			}
 
 			return desc;
@@ -242,7 +242,7 @@ export default function StudentsFilter() {
 						placeholder='Select term'
 						data={terms.map((term) => ({
 							value: term.id?.toString() || '',
-							label: term.name,
+							label: term.code,
 						}))}
 						value={filters.termId || null}
 						onChange={(value) =>

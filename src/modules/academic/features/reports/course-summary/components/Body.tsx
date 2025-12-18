@@ -185,7 +185,7 @@ export default function Body() {
 					<Stack gap='md'>
 						<Text my='xs'>
 							Select a module from your assigned modules to generate a course
-							summary report for {currentTerm?.name}.
+							summary report for {currentTerm?.code}.
 						</Text>
 
 						<Select

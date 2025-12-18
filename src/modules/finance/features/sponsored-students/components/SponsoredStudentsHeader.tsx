@@ -79,7 +79,7 @@ export default function SponsoredStudentsHeader({
 	const termOptions =
 		terms?.map((term) => ({
 			value: term.id.toString(),
-			label: term.name + (term.isActive ? ' (Current)' : ''),
+			label: term.code + (term.isActive ? ' (Current)' : ''),
 		})) || [];
 
 	return (

@@ -106,7 +106,7 @@ export default function Body() {
 					<Stack gap='md'>
 						<Text my='xs'>
 							Select a school to generate BOE reports for all programs and
-							students in that school for {currentTerm?.name}.
+							students in that school for {currentTerm?.code}.
 						</Text>
 
 						<Select

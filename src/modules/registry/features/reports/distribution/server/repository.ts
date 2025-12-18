@@ -210,12 +210,12 @@ export class DistributionReportRepository {
 
 	async getDistributionData(
 		type: DistributionType,
-		termNames: string[],
+		termCodes: string[],
 		filter?: DistributionReportFilter
 	): Promise<DistributionResult> {
 		const query = this.createBaseQuery();
 		const conditions = [
-			inArray(studentSemesters.term, termNames),
+			inArray(studentSemesters.term, termCodes),
 			...this.buildFilterConditions(filter),
 		];
 
@@ -290,7 +290,7 @@ export class DistributionReportRepository {
 	}
 
 	async getAllActiveTerms() {
-		return await db.select().from(terms).orderBy(sql`${terms.name} DESC`);
+		return await db.select().from(terms).orderBy(sql`${terms.code} DESC`);
 	}
 
 	async getAvailableSchools() {

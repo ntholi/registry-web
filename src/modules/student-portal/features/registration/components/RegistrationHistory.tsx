@@ -46,7 +46,7 @@ export default function RegistrationHistory({ data, stdNo }: Props) {
 										<IconCalendar size={'1rem'} />
 									</ThemeIcon>
 									<Text fw={600} size='lg'>
-										{request.term.name}
+										{request.term.code}
 									</Text>
 								</Group>
 								<StatusBadge status={request.status} requestId={request.id} />
@@ -60,7 +60,7 @@ export default function RegistrationHistory({ data, stdNo }: Props) {
 							{request.status === 'registered' && (
 								<ProofOfRegistrationDownload
 									stdNo={stdNo}
-									termName={request.term.name}
+									termCode={request.term.code}
 									semesterNumber={request.semesterNumber}
 								/>
 							)}

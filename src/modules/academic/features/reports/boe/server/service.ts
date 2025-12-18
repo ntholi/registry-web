@@ -47,7 +47,7 @@ export default class BoeReportService {
 		const studentSemesters =
 			await this.repository.getStudentSemestersForFaculty(
 				school.id,
-				currentTerm.name
+				currentTerm.code
 			);
 
 		const programGroups = this.groupByProgram(
@@ -95,7 +95,7 @@ export default class BoeReportService {
 					worksheet,
 					programReport,
 					school.name,
-					currentTerm.name
+					currentTerm.code
 				);
 			}
 		}

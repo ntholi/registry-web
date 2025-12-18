@@ -8,20 +8,20 @@ import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 
 interface Props {
 	studentName: string;
-	termName: string;
+	termCode: string;
 	versionCount?: number;
 }
 
 export default function ClearanceHeader({
 	studentName,
-	termName,
+	termCode,
 	versionCount,
 }: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [, setView] = useViewSelect();
 	const { currentTerm } = useCurrentTerm();
 
-	const isCurrentTerm = currentTerm?.name === termName;
+	const isCurrentTerm = currentTerm?.code === termCode;
 
 	return (
 		<>
@@ -43,7 +43,7 @@ export default function ClearanceHeader({
 				<Group>
 					{!isCurrentTerm && (
 						<Badge color={'red'} variant={'filled'}>
-							{termName}
+							{termCode}
 						</Badge>
 					)}
 

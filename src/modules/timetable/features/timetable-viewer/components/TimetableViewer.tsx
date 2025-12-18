@@ -236,7 +236,7 @@ export default function TimetableViewer() {
 							size='sm'
 							data={terms.map((term) => ({
 								value: term.id.toString(),
-								label: term.name,
+								label: term.code,
 							}))}
 							value={selectedTermId ? selectedTermId.toString() : null}
 							onChange={(value) => {

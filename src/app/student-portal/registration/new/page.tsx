@@ -311,7 +311,7 @@ export default function NewRegistrationPage() {
 					<Title order={2} mb='xs'>
 						New Registration
 					</Title>
-					<Text c='dimmed'>Term: {currentTerm.name}</Text>
+					<Text c='dimmed'>Term: {currentTerm.code}</Text>
 				</div>
 
 				<Box>

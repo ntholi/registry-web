@@ -32,7 +32,7 @@ type StudentRegistrationHistory = {
 	createdAt: Date | null;
 	term: {
 		id: number;
-		name: string;
+		code: string;
 	};
 };
 
@@ -109,7 +109,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 							<Group justify='space-between' align='center'>
 								<Stack gap={4}>
 									<Text size='sm' fw={500}>
-										No registration for {currentTerm.name}
+										No registration for {currentTerm.code}
 									</Text>
 									<Text size='xs' c='dimmed'>
 										Create a registration request for this student
@@ -139,7 +139,7 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 									<Group justify='space-between' align='center'>
 										<Group gap='xs' align='center'>
 											<Text fw={500} size='sm'>
-												{request.term.name}
+												{request.term.code}
 											</Text>
 											<Badge
 												size='xs'

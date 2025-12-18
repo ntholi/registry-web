@@ -5,14 +5,14 @@ interface Props {
 	totalStudents: number;
 	totalSchools: number;
 	totalPrograms: number;
-	termName: string;
+	termCode: string;
 }
 
 export default function EnrollmentStats({
 	totalStudents,
 	totalSchools,
 	totalPrograms,
-	termName,
+	termCode,
 }: Props) {
 	return (
 		<Group grow>
@@ -67,7 +67,7 @@ export default function EnrollmentStats({
 						TERM
 					</Text>
 					<Text size='sm' fw={600} ta='center'>
-						{termName}
+						{termCode}
 					</Text>
 					<Text size='xs' c='dimmed' ta='center'>
 						Current Selection

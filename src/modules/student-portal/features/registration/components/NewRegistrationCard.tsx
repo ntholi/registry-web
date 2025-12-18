@@ -26,7 +26,7 @@ export default function NewRegistrationCard() {
 			.flatMap((program) => program.semesters)
 			.some(
 				(semester) =>
-					semester.term === currentTerm?.name &&
+					semester.term === currentTerm?.code &&
 					!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
 						semester.status
 					)
@@ -111,7 +111,7 @@ export default function NewRegistrationCard() {
 					<Text size='sm' c='dimmed' ta='center'>
 						You don&apos;t have a registration request for
 						<Text span fw={600}>
-							{currentTerm?.name}
+							{currentTerm?.code}
 						</Text>
 						yet. Click below to start your registration process.
 					</Text>

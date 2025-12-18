@@ -108,8 +108,8 @@ export function createFullRegistrationDocument(
 
 	const doc = new Document({
 		creator: 'Limkokwing University Registry System',
-		title: `Full Registration Report - ${report.termName}`,
-		description: `Complete registration report for ${report.termName}`,
+		title: `Full Registration Report - ${report.termCode}`,
+		description: `Complete registration report for ${report.termCode}`,
 		sections: [
 			{
 				properties: {
@@ -234,8 +234,8 @@ export function createSummaryRegistrationDocument(
 
 	const doc = new Document({
 		creator: 'Limkokwing University Registry System',
-		title: `Summary Registration Report - ${report.termName}`,
-		description: `Summary registration report for ${report.termName}`,
+		title: `Summary Registration Report - ${report.termCode}`,
+		description: `Summary registration report for ${report.termCode}`,
 		sections: [
 			{
 				properties: {
@@ -351,7 +351,7 @@ function createFullReportInfoTable(report: FullRegistrationReport): Table {
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: report.termName,
+										text: report.termCode,
 										font: 'Arial',
 										bold: true,
 										size: 18,
@@ -457,7 +457,7 @@ function createSummaryReportInfoTable(
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: report.termName,
+										text: report.termCode,
 										font: 'Arial',
 										bold: true,
 										size: 20,

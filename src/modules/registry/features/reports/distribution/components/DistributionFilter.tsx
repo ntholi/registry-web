@@ -135,7 +135,7 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 							placeholder='Select term'
 							data={terms.map((term) => ({
 								value: term.id?.toString() || '',
-								label: term.name,
+								label: term.code,
 							}))}
 							rightSection={termsLoading && <Loader size='xs' />}
 							value={localFilter.termId?.toString() ?? null}

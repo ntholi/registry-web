@@ -42,7 +42,7 @@ export default function ActiveTermDisplay() {
 		<Text size='sm'>
 			Active Term:
 			<Text component='span' c='green'>
-				{` ${activeTerm.name}`}
+				{` ${activeTerm.code}`}
 			</Text>
 		</Text>
 	);

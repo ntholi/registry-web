@@ -29,7 +29,7 @@ type CourseSummaryData = {
 	courseName: string;
 	programName: string;
 	programCode: string;
-	termName: string;
+	termCode: string;
 };
 
 export default class CourseSummaryService {
@@ -45,7 +45,7 @@ export default class CourseSummaryService {
 
 		const reportData = await this.repository.getOptimizedCourseSummaryData(
 			semesterModuleId,
-			currentTerm.name,
+			currentTerm.code,
 			programId
 		);
 
@@ -151,7 +151,7 @@ export default class CourseSummaryService {
 				month: 'long',
 				year: 'numeric',
 			}),
-			termName: data.termName,
+			termCode: data.termCode,
 			totalStudents: data.students.length,
 			totalPasses,
 			totalFailures: failedStudents.length,
