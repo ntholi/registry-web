@@ -15,20 +15,3 @@ export const fortinetRegistrationStatus = pgEnum(
 	'fortinet_registration_status',
 	['pending', 'approved', 'rejected', 'completed']
 );
-
-export const taskStatus = pgEnum('task_status', [
-	'scheduled',
-	'active',
-	'in_progress',
-	'completed',
-	'cancelled',
-]);
-export type TaskStatus = (typeof taskStatus.enumValues)[number];
-
-export const taskPriority = pgEnum('task_priority', [
-	'low',
-	'medium',
-	'high',
-	'urgent',
-]);
-export type TaskPriority = (typeof taskPriority.enumValues)[number];

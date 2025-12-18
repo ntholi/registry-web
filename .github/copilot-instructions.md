@@ -8,7 +8,7 @@
 3. **Performance**: Use `db.transaction` for multi-step writes; avoid N+1 queries.
 4. **UI**: Mantine-only styling (no custom CSS); follow existing ListLayout/DetailsView patterns; optimize for dark mode. The UI should look extremely professional and clean, consistent with the rest of the system. It should be very beautiful but minimalist.
 5. **No Comments**: Code should be self-explanatory.
-6. **Moodle/LMS**: every time before editing anything in the lms module, read `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils\README.md` first.
+6. **Moodle/LMS**: every time before editing anything in the lms module, read `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils\README.md` first. You may edit this project if necessary, but always ask for approval first.
 7. **Student Portal**: `src/app/student-portal` uses a unique layout. Unlike administration modules (Academic, Registry, etc.) which use `src/app/dashboard/dashboard.tsx` and `adease` patterns, the student portal does not follow these conventions.
 
 ## Path Aliases (tsconfig.json)

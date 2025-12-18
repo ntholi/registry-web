@@ -11,7 +11,6 @@ import {
 	IconPackage,
 	IconSchool,
 	IconSettings,
-	IconSubtask,
 	IconUserShield,
 	IconUsersPlus,
 } from '@tabler/icons-react';
@@ -39,12 +38,6 @@ export const adminConfig: ModuleConfig = {
 				label: 'Notifications',
 				href: '/admin/notifications',
 				icon: IconBell,
-				roles: ['admin'],
-			},
-			{
-				label: 'Tasks',
-				href: '/admin/tasks',
-				icon: IconSubtask,
 				roles: ['admin'],
 			},
 			{

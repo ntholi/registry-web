@@ -52,8 +52,6 @@ async function cleanupTestDatabase() {
 	try {
 		await testPool.query(`
 			TRUNCATE TABLE
-				task_assignments,
-				tasks,
 				fortinet_registrations,
 				documents,
 				student_card_prints,
