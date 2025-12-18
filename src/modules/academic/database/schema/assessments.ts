@@ -12,6 +12,7 @@ import {
 	unique,
 } from 'drizzle-orm/pg-core';
 import { users } from '@/modules/auth/database';
+import { terms } from '@/modules/registry/database';
 import {
 	assessmentMarksAuditAction,
 	assessmentNumber,
@@ -19,7 +20,6 @@ import {
 	grade,
 } from './enums';
 import { modules, semesterModules } from './modules';
-import { terms } from './terms';
 
 export const activityTypeEnum = pgEnum('activity_type', [
 	'quiz',

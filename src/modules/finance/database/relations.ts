@@ -1,6 +1,9 @@
 import { relations } from 'drizzle-orm';
-import { terms } from '@/modules/academic/database';
-import { registrationRequests, students } from '@/modules/registry/database';
+import {
+	registrationRequests,
+	students,
+	terms,
+} from '@/modules/registry/database';
 import {
 	sponsoredStudents,
 	sponsoredTerms,

@@ -10,8 +10,7 @@ import {
 	unique,
 	varchar,
 } from 'drizzle-orm/pg-core';
-import { terms } from '@/modules/academic/database';
-import { students } from '@/modules/registry/database';
+import { students, terms } from '@/modules/registry/database';
 
 export const sponsors = pgTable('sponsors', {
 	id: serial().primaryKey(),

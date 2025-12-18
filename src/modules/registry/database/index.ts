@@ -5,3 +5,4 @@ export * from './schema/graduation';
 export * from './schema/printing';
 export * from './schema/registration';
 export * from './schema/students';
+export * from './schema/terms';

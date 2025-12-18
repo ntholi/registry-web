@@ -6,7 +6,6 @@ import type {
 	programs,
 	schools,
 	structures,
-	terms,
 } from '@/modules/academic/database';
 import type { accounts, users } from '@/modules/auth/database';
 import type {
@@ -14,6 +13,7 @@ import type {
 	studentEducation,
 	studentPrograms,
 	students,
+	terms,
 } from '@/modules/registry/database';
 
 export type User = typeof users.$inferSelect;

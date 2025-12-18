@@ -9,8 +9,9 @@ import {
 	time,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { semesterModules, terms } from '@/modules/academic/database';
+import { semesterModules } from '@/modules/academic/database';
 import { users } from '@/modules/auth/database';
+import { terms } from '@/modules/registry/database';
 import { venueTypes } from './venues';
 
 export const dayOfWeekEnum = pgEnum('day_of_week', [

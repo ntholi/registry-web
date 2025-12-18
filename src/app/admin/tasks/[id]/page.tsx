@@ -18,8 +18,8 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 } from '@/shared/ui/adease';
-import TaskStatusSelect from './TaskStatusSelect';
 import Link from '@/shared/ui/Link';
+import TaskStatusSelect from './TaskStatusSelect';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -144,7 +144,7 @@ export default async function TaskDetails({ params }: Props) {
 						</>
 					)}
 
-										{task.students && task.students.length > 0 && (
+					{task.students && task.students.length > 0 && (
 						<>
 							<Divider />
 							<Box>

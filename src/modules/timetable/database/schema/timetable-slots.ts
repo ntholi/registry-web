@@ -8,7 +8,7 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { terms } from '@/modules/academic/database';
+import { terms } from '@/modules/registry/database';
 import { dayOfWeekEnum, timetableAllocations } from './timetable-allocations';
 import { venues } from './venues';
 

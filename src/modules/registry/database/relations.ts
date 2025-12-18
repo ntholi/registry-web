@@ -1,9 +1,10 @@
 import { relations } from 'drizzle-orm';
 import {
+	assessments,
+	assignedModules,
 	semesterModules,
 	structureSemesters,
 	structures,
-	terms,
 } from '@/modules/academic/database';
 import { users } from '@/modules/auth/database';
 import { sponsoredStudents } from '@/modules/finance/database';
@@ -33,6 +34,7 @@ import {
 	studentSemesters,
 	students,
 } from './schema/students';
+import { terms } from './schema/terms';
 
 export const studentsRelations = relations(students, ({ many, one }) => ({
 	user: one(users, {
@@ -111,6 +113,12 @@ export const studentEducationRelations = relations(
 		}),
 	})
 );
+
+export const termsRelations = relations(terms, ({ many }) => ({
+	assignedModules: many(assignedModules),
+	assessments: many(assessments),
+	registrationRequests: many(registrationRequests),
+}));
 
 export const registrationRequestsRelations = relations(
 	registrationRequests,

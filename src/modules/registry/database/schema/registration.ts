@@ -11,8 +11,9 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { semesterModules, terms } from '@/modules/academic/database';
+import { semesterModules } from '@/modules/academic/database';
 import { dashboardUsers, users } from '@/modules/auth/database';
+import { terms } from '@/modules/registry/database';
 import {
 	clearanceRequestStatus,
 	registrationRequestStatus,

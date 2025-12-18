@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm';
-import { schools, semesterModules, terms } from '@/modules/academic/database';
+import { schools, semesterModules } from '@/modules/academic/database';
 import { users } from '@/modules/auth/database';
+import { terms } from '@/modules/registry/database';
 import {
 	timetableAllocations,
 	timetableAllocationVenueTypes,

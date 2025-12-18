@@ -157,113 +157,116 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 			defaultValues={initialValues}
 			onSuccess={({ id }) => router.push(`/admin/tasks/${id}`)}
 		>
-			{(form) => { 
+			{(form) => {
 				console.log('Form values:', form);
 				return (
-				<Stack gap='md'>
-					<TextInput
-						label='Title'
-						placeholder='Enter task title'
-						required
-						{...form.getInputProps('title')}
-					/>
-
-					<Textarea
-						label='Description'
-						placeholder='Enter task description'
-						minRows={3}
-						autosize
-						{...form.getInputProps('description')}
-					/>
-
-					<SimpleGrid cols={{ base: 1, sm: 2 }}>
-						<Select
-							label='Priority'
-							placeholder='Select priority'
-							data={priorityOptions}
-							{...form.getInputProps('priority')}
+					<Stack gap='md'>
+						<TextInput
+							label='Title'
+							placeholder='Enter task title'
+							required
+							{...form.getInputProps('title')}
 						/>
 
-						<Select
-							label='Status'
-							placeholder='Select status'
-							data={statusOptions}
-							{...form.getInputProps('status')}
-						/>
-					</SimpleGrid>
-
-					<SimpleGrid cols={{ base: 1, sm: 2 }}>
-						<DateInput
-							label='Due Date'
-							placeholder='Select due date'
-							clearable
-							value={form.values.dueDate ? new Date(form.values.dueDate) : null}
-							onChange={(date) =>
-								form.setFieldValue('dueDate', date as Date | null)
-							}
+						<Textarea
+							label='Description'
+							placeholder='Enter task description'
+							minRows={3}
+							autosize
+							{...form.getInputProps('description')}
 						/>
 
-						<DateInput
-							label='Scheduled Date'
-							placeholder='Select scheduled date'
-							clearable
-							value={
-								form.values.scheduledDate
-									? new Date(form.values.scheduledDate)
-									: null
-							}
-							onChange={(date) =>
-								form.setFieldValue('scheduledDate', date as Date | null)
-							}
-						/>
-					</SimpleGrid>
-
-					{canAssignOthers && (
-						<Stack gap='sm'>
-							{isAdmin && (
-								<MultiSelect
-									label='Departments'
-									placeholder='Select departments to assign'
-									data={departmentOptions}
-									value={selectedDepartments}
-									onChange={setSelectedDepartments}
-									clearable
-								/>
-							)}
-
-							{(isAdmin ? selectedDepartments.length > 0 : true) && (
-								<Checkbox
-									label={
-										isAdmin
-											? 'Assign to all users in selected departments'
-											: `Assign to all users in ${managerRoleLabel}`
-									}
-									checked={assignToAll}
-									onChange={(e) => handleAssignToAllChange(e.target.checked)}
-								/>
-							)}
-
-							<MultiUserInput
-								label='Assign to'
-								placeholder='Search users to assign'
-								value={selectedUsers}
-								onChange={setSelectedUsers}
-								role={isAdmin ? undefined : (userRole as User['role'])}
-								disabled={assignToAll}
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
+							<Select
+								label='Priority'
+								placeholder='Select priority'
+								data={priorityOptions}
+								{...form.getInputProps('priority')}
 							/>
-						</Stack>
-					)}
 
-					<Divider label='Related Students' labelPosition='left' />
+							<Select
+								label='Status'
+								placeholder='Select status'
+								data={statusOptions}
+								{...form.getInputProps('status')}
+							/>
+						</SimpleGrid>
 
-					<MultiStudentInput
-						label='Associated Students'
-						placeholder='Search students by name or student number'
-						value={selectedStudents}
-						onChange={setSelectedStudents}
-					/>
-				</Stack>
-			)}}
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
+							<DateInput
+								label='Due Date'
+								placeholder='Select due date'
+								clearable
+								value={
+									form.values.dueDate ? new Date(form.values.dueDate) : null
+								}
+								onChange={(date) =>
+									form.setFieldValue('dueDate', date as Date | null)
+								}
+							/>
+
+							<DateInput
+								label='Scheduled Date'
+								placeholder='Select scheduled date'
+								clearable
+								value={
+									form.values.scheduledDate
+										? new Date(form.values.scheduledDate)
+										: null
+								}
+								onChange={(date) =>
+									form.setFieldValue('scheduledDate', date as Date | null)
+								}
+							/>
+						</SimpleGrid>
+
+						{canAssignOthers && (
+							<Stack gap='sm'>
+								{isAdmin && (
+									<MultiSelect
+										label='Departments'
+										placeholder='Select departments to assign'
+										data={departmentOptions}
+										value={selectedDepartments}
+										onChange={setSelectedDepartments}
+										clearable
+									/>
+								)}
+
+								{(isAdmin ? selectedDepartments.length > 0 : true) && (
+									<Checkbox
+										label={
+											isAdmin
+												? 'Assign to all users in selected departments'
+												: `Assign to all users in ${managerRoleLabel}`
+										}
+										checked={assignToAll}
+										onChange={(e) => handleAssignToAllChange(e.target.checked)}
+									/>
+								)}
+
+								<MultiUserInput
+									label='Assign to'
+									placeholder='Search users to assign'
+									value={selectedUsers}
+									onChange={setSelectedUsers}
+									role={isAdmin ? undefined : (userRole as User['role'])}
+									disabled={assignToAll}
+								/>
+							</Stack>
+						)}
+
+						<Divider label='Related Students' labelPosition='left' />
+
+						<MultiStudentInput
+							label='Associated Students'
+							placeholder='Search students by name or student number'
+							value={selectedStudents}
+							onChange={setSelectedStudents}
+						/>
+					</Stack>
+				);
+			}}
 		</Form>
 	);
 }
