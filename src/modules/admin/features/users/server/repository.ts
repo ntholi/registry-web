@@ -40,6 +40,10 @@ export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 			.where(eq(userSchools.userId, userId));
 		return data.map((item) => item.schoolId);
 	}
+
+	async findAllByRoles(roles: (typeof users.$inferSelect)['role'][]) {
+		return db.select().from(users).where(inArray(users.role, roles));
+	}
 }
 
 export const usersRepository = new UserRepository();

@@ -1,3 +1,5 @@
+'use client';
+
 import { findAllByRole } from '@admin/users';
 import {
 	ActionIcon,
@@ -10,7 +12,8 @@ import {
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconX } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import type { users } from '@/core/database';
 
 type User = typeof users.$inferSelect;
@@ -22,6 +25,7 @@ interface MultiUserInputProps extends BoxProps {
 	label?: string;
 	error?: string;
 	placeholder?: string;
+	disabled?: boolean;
 }
 
 export default function MultiUserInput({
@@ -31,36 +35,23 @@ export default function MultiUserInput({
 	label,
 	error,
 	placeholder,
+	disabled,
 	...props
 }: MultiUserInputProps) {
 	const [inputValue, setInputValue] = useState('');
-	const [searchResults, setSearchResults] = useState<User[]>([]);
-	const [isSearching, setIsSearching] = useState(false);
 	const [debounced] = useDebouncedValue(inputValue, 300);
 
-	useEffect(() => {
-		async function searchUsers() {
-			if (!debounced) {
-				setSearchResults([]);
-				return;
-			}
-
-			setIsSearching(true);
-			try {
-				const result = await findAllByRole(1, debounced, role);
-				const filteredUsers = result.items.filter(
-					(u) => !value.some((selected) => selected.id === u.id)
-				);
-				setSearchResults(filteredUsers);
-			} catch (err) {
-				console.error('Error searching users:', err);
-			} finally {
-				setIsSearching(false);
-			}
-		}
-
-		searchUsers();
-	}, [debounced, role, value]);
+	const { data: searchResults = [], isLoading } = useQuery({
+		queryKey: ['users-search', debounced, role],
+		queryFn: async () => {
+			if (!debounced) return [];
+			const result = await findAllByRole(1, debounced, role);
+			return result.items.filter(
+				(u) => !value.some((selected) => selected.id === u.id)
+			);
+		},
+		enabled: !!debounced && !disabled,
+	});
 
 	const options = searchResults.map((user) => ({
 		value: `${user.id}:${user.name || user.email}`,
@@ -73,7 +64,6 @@ export default function MultiUserInput({
 		if (selectedUser && !value.some((u) => u.id === selectedUser.id)) {
 			onChange?.([...value, selectedUser]);
 			setInputValue('');
-			setSearchResults([]);
 		}
 	}
 
@@ -90,6 +80,7 @@ export default function MultiUserInput({
 				onChange={setInputValue}
 				onOptionSubmit={handleSelect}
 				data={options}
+				disabled={disabled}
 				renderOption={({ option }) => {
 					const userId = option.value.split(':')[0];
 					const user = searchResults.find((u) => u.id === userId);
@@ -102,7 +93,7 @@ export default function MultiUserInput({
 						</div>
 					);
 				}}
-				rightSection={isSearching ? <Loader size='xs' /> : null}
+				rightSection={isLoading ? <Loader size='xs' /> : null}
 				error={error}
 			/>
 			{value.length > 0 && (
@@ -112,13 +103,15 @@ export default function MultiUserInput({
 							key={user.id}
 							variant='light'
 							rightSection={
-								<ActionIcon
-									size='xs'
-									variant='transparent'
-									onClick={() => handleRemove(user.id)}
-								>
-									<IconX size={12} />
-								</ActionIcon>
+								!disabled && (
+									<ActionIcon
+										size='xs'
+										variant='transparent'
+										onClick={() => handleRemove(user.id)}
+									>
+										<IconX size={12} />
+									</ActionIcon>
+								)
 							}
 						>
 							{user.name || user.email}

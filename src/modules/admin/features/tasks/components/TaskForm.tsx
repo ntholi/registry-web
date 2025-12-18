@@ -1,13 +1,24 @@
 'use client';
 
-import { Select, SimpleGrid, Stack, Textarea, TextInput } from '@mantine/core';
+import { findAllByRoles } from '@admin/users';
+import {
+	Checkbox,
+	MultiSelect,
+	Select,
+	SimpleGrid,
+	Stack,
+	Textarea,
+	TextInput,
+} from '@mantine/core';
 import { DateInput } from '@mantine/dates';
+import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { tasks } from '@/modules/admin/database';
 import type { users } from '@/modules/auth/database';
+import { dashboardUsers } from '@/modules/auth/database';
 import { Form } from '@/shared/ui/adease';
 import type { TaskWithAssignees } from '../types';
 import MultiUserInput from './MultiUserInput';
@@ -16,7 +27,9 @@ type Task = typeof tasks.$inferInsert;
 type User = typeof users.$inferSelect;
 
 type Props = {
-	onSubmit: (values: Task & { assigneeIds?: string[] }) => Promise<Task>;
+	onSubmit: (
+		values: Task & { assigneeIds?: string[]; assignToRoles?: string[] }
+	) => Promise<Task>;
 	defaultValues?: TaskWithAssignees | null;
 	title?: string;
 };
@@ -36,16 +49,44 @@ const statusOptions = [
 	{ value: 'cancelled', label: 'Cancelled' },
 ];
 
+const departmentOptions = dashboardUsers.enumValues
+	.filter((r) => r !== 'admin')
+	.map((role) => ({
+		value: role,
+		label: role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+	}));
+
 export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
 	const { data: session } = useSession();
+	const userRole = session?.user?.role;
 	const isManager = session?.user?.position === 'manager';
-	const isAdmin = session?.user?.role === 'admin';
+	const isAdmin = userRole === 'admin';
 	const canAssignOthers = isManager || isAdmin;
 
 	const defaultAssignees: User[] =
 		defaultValues?.assignees?.map((a) => a.user) ?? [];
 	const [selectedUsers, setSelectedUsers] = useState<User[]>(defaultAssignees);
+	const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+	const [assignToAll, setAssignToAll] = useState(false);
+
+	const managerRoleLabel = userRole
+		? userRole
+				.replace(/_/g, ' ')
+				.replace(/\b\w/g, (c: string) => c.toUpperCase())
+		: '';
+
+	const { data: departmentUsers = [] } = useQuery({
+		queryKey: ['department-users', selectedDepartments],
+		queryFn: () => findAllByRoles(selectedDepartments as User['role'][]),
+		enabled: isAdmin && selectedDepartments.length > 0 && assignToAll,
+	});
+
+	const { data: managerDepartmentUsers = [] } = useQuery({
+		queryKey: ['manager-department-users', userRole],
+		queryFn: () => findAllByRoles([userRole as User['role']]),
+		enabled: isManager && !isAdmin && assignToAll && !!userRole,
+	});
 
 	const initialValues = {
 		title: defaultValues?.title ?? '',
@@ -57,14 +98,31 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 	};
 
 	async function handleSubmit(values: Task) {
-		const assigneeIds = canAssignOthers
-			? selectedUsers.map((u) => u.id)
-			: undefined;
+		let assigneeIds: string[] | undefined;
+
+		if (canAssignOthers) {
+			if (assignToAll) {
+				if (isAdmin) {
+					assigneeIds = departmentUsers.map((u) => u.id);
+				} else {
+					assigneeIds = managerDepartmentUsers.map((u) => u.id);
+				}
+			} else {
+				assigneeIds = selectedUsers.map((u) => u.id);
+			}
+		}
 
 		return onSubmit({
 			...values,
 			assigneeIds,
 		});
+	}
+
+	function handleAssignToAllChange(checked: boolean) {
+		setAssignToAll(checked);
+		if (checked) {
+			setSelectedUsers([]);
+		}
 	}
 
 	return (
@@ -142,12 +200,39 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 					</SimpleGrid>
 
 					{canAssignOthers && (
-						<MultiUserInput
-							label='Assign to'
-							placeholder='Search users to assign'
-							value={selectedUsers}
-							onChange={setSelectedUsers}
-						/>
+						<Stack gap='sm'>
+							{isAdmin && (
+								<MultiSelect
+									label='Departments'
+									placeholder='Select departments to assign'
+									data={departmentOptions}
+									value={selectedDepartments}
+									onChange={setSelectedDepartments}
+									clearable
+								/>
+							)}
+
+							{(isAdmin ? selectedDepartments.length > 0 : true) && (
+								<Checkbox
+									label={
+										isAdmin
+											? 'Assign to all users in selected departments'
+											: `Assign to all users in ${managerRoleLabel}`
+									}
+									checked={assignToAll}
+									onChange={(e) => handleAssignToAllChange(e.target.checked)}
+								/>
+							)}
+
+							<MultiUserInput
+								label='Assign to'
+								placeholder='Search users to assign'
+								value={selectedUsers}
+								onChange={setSelectedUsers}
+								role={isAdmin ? undefined : (userRole as User['role'])}
+								disabled={assignToAll}
+							/>
+						</Stack>
 					)}
 				</Stack>
 			)}

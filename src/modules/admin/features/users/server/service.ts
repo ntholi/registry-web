@@ -6,6 +6,7 @@ import withAuth from '@/core/platform/withAuth';
 import UserRepository from './repository';
 
 type User = typeof users.$inferInsert;
+type UserSelect = typeof users.$inferSelect;
 
 type UserWithSchools = User & { schoolIds?: number[] };
 
@@ -87,6 +88,13 @@ class UserService {
 
 	async count() {
 		return withAuth(async () => this.repository.count(), []);
+	}
+
+	async findAllByRoles(roles: NonNullable<UserSelect['role']>[]) {
+		return withAuth(
+			async () => this.repository.findAllByRoles(roles),
+			['dashboard']
+		);
 	}
 }
 

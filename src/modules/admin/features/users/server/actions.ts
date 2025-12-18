@@ -5,6 +5,7 @@ import { db, users } from '@/core/database';
 import { usersService as service } from './service';
 
 type User = typeof users.$inferInsert;
+type UserSelect = typeof users.$inferSelect;
 type UserWithSchools = User & { schoolIds?: number[] };
 
 export async function getUser(id: string) {
@@ -31,6 +32,10 @@ export async function findAllByRole(
 		searchColumns: ['email', 'name'],
 		filter: role !== undefined ? eq(users.role, role) : undefined,
 	});
+}
+
+export async function findAllByRoles(roles: NonNullable<UserSelect['role']>[]) {
+	return service.findAllByRoles(roles);
 }
 
 export async function createUser(user: UserWithSchools) {
