@@ -1,11 +1,21 @@
 import { deleteTask, getTask } from '@admin/tasks';
-import { Avatar, Badge, Group, Stack, Text, Tooltip } from '@mantine/core';
+import {
+	Avatar,
+	AvatarGroup,
+	Badge,
+	Box,
+	Divider,
+	Group,
+	Stack,
+	Text,
+	Tooltip,
+} from '@mantine/core';
+import { IconCalendar, IconUser } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
-	FieldView,
 } from '@/shared/ui/adease';
 import TaskStatusSelect from './TaskStatusSelect';
 
@@ -77,98 +87,156 @@ export default async function TaskDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<Stack gap='md'>
-					<FieldView label='Title'>
-						<Text size='lg' fw={600}>
+				<Stack gap='xl'>
+					<Box>
+						<Text size='xl' fw={600} mb='xs'>
 							{task.title}
 						</Text>
-					</FieldView>
-
-					{task.description && (
-						<FieldView label='Description'>
-							<Text size='sm' style={{ whiteSpace: 'pre-wrap' }}>
-								{task.description}
-							</Text>
-						</FieldView>
-					)}
-
-					<FieldView label='Priority'>
-						<Badge color={priorityColors[task.priority]} variant='light'>
-							{task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-						</Badge>
-					</FieldView>
-
-					<FieldView label='Status'>
-						<Group gap='md'>
-							<Badge color={statusColors[task.status]} variant='light'>
+						<Group gap='xs'>
+							<Badge
+								color={statusColors[task.status]}
+								variant='light'
+								size='md'
+							>
 								{statusLabels[task.status]}
+							</Badge>
+							<Badge
+								color={priorityColors[task.priority]}
+								variant='dot'
+								size='md'
+							>
+								{task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
 							</Badge>
 							<TaskStatusSelect taskId={task.id} currentStatus={task.status} />
 						</Group>
-					</FieldView>
+					</Box>
 
-					{task.dueDate && (
-						<FieldView label='Due Date'>
-							<Text size='sm'>{formatDate(task.dueDate)}</Text>
-						</FieldView>
-					)}
-
-					{task.scheduledDate && (
-						<FieldView label='Scheduled Date'>
-							<Text size='sm'>{formatDate(task.scheduledDate)}</Text>
-						</FieldView>
-					)}
-
-					<FieldView label='Created By'>
-						<Group gap='sm'>
-							<Avatar
-								src={task.creator.image}
-								alt={task.creator.name || 'User'}
+					{task.description && (
+						<Box>
+							<Text size='sm' fw={500} mb='xs' c='dimmed'>
+								Description
+							</Text>
+							<Text
 								size='sm'
-								radius='xl'
-							/>
-							<Text size='sm'>{task.creator.name || task.creator.email}</Text>
-						</Group>
-					</FieldView>
+								style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
+							>
+								{task.description}
+							</Text>
+						</Box>
+					)}
 
-					{task.assignees.length > 0 && (
-						<FieldView label='Assigned To'>
-							<Group gap='xs'>
-								{task.assignees.map(({ user }) => (
-									<Tooltip
-										key={user.id}
-										label={user.name || user.email}
-										withArrow
-									>
-										<Avatar
-											src={user.image}
-											alt={user.name || 'User'}
-											size='sm'
-											radius='xl'
-										/>
-									</Tooltip>
-								))}
+					{(task.dueDate || task.scheduledDate || task.completedAt) && (
+						<>
+							<Divider />
+							<Box>
+								<Text size='sm' fw={500} mb='md' c='dimmed'>
+									Timeline
+								</Text>
+								<Stack gap='sm'>
+									{task.scheduledDate && (
+										<Group gap='xs'>
+											<IconCalendar size={16} opacity={0.6} />
+											<Text size='sm' c='dimmed'>
+												Scheduled:
+											</Text>
+											<Text size='sm'>{formatDate(task.scheduledDate)}</Text>
+										</Group>
+									)}
+									{task.dueDate && (
+										<Group gap='xs'>
+											<IconCalendar size={16} opacity={0.6} />
+											<Text size='sm' c='dimmed'>
+												Due:
+											</Text>
+											<Text size='sm' fw={500}>
+												{formatDate(task.dueDate)}
+											</Text>
+										</Group>
+									)}
+									{task.completedAt && (
+										<Group gap='xs'>
+											<IconCalendar size={16} opacity={0.6} />
+											<Text size='sm' c='dimmed'>
+												Completed:
+											</Text>
+											<Text size='sm'>{formatDateTime(task.completedAt)}</Text>
+										</Group>
+									)}
+								</Stack>
+							</Box>
+						</>
+					)}
+
+					<Divider />
+
+					<Box>
+						<Text size='sm' fw={500} mb='md' c='dimmed'>
+							People
+						</Text>
+						<Stack gap='md'>
+							<Group gap='sm'>
+								<IconUser size={16} opacity={0.6} />
+								<Text size='sm' c='dimmed' w={80}>
+									Created by
+								</Text>
+								<Group gap='xs'>
+									<Avatar
+										src={task.creator.image}
+										alt={task.creator.name || 'User'}
+										size='sm'
+										radius='xl'
+									/>
+									<Text size='sm'>
+										{task.creator.name || task.creator.email}
+									</Text>
+								</Group>
 							</Group>
-						</FieldView>
-					)}
 
-					{task.completedAt && (
-						<FieldView label='Completed At'>
-							<Text size='sm'>{formatDateTime(task.completedAt)}</Text>
-						</FieldView>
-					)}
+							{task.assignees.length > 0 && (
+								<Group gap='sm'>
+									<IconUser size={16} opacity={0.6} />
+									<Text size='sm' c='dimmed' w={80}>
+										Assigned to
+									</Text>
+									<AvatarGroup spacing='sm'>
+										{task.assignees.map(({ user }) => (
+											<Tooltip
+												key={user.id}
+												label={user.name || user.email}
+												withArrow
+											>
+												<Avatar
+													src={user.image}
+													alt={user.name || 'User'}
+													size='sm'
+													radius='xl'
+												/>
+											</Tooltip>
+										))}
+									</AvatarGroup>
+								</Group>
+							)}
+						</Stack>
+					</Box>
 
-					<FieldView label='Created At'>
-						<Text size='sm' c='dimmed'>
-							{formatDateTime(task.createdAt)}
-						</Text>
-					</FieldView>
+					<Divider />
 
-					<FieldView label='Last Updated' underline={false}>
-						<Text size='sm' c='dimmed'>
-							{formatDateTime(task.updatedAt)}
-						</Text>
-					</FieldView>
+					<Box>
+						<Group gap='xl'>
+							<Box>
+								<Text size='xs' c='dimmed' mb={4}>
+									Created
+								</Text>
+								<Text size='sm'>{formatDateTime(task.createdAt)}</Text>
+							</Box>
+							<Box>
+								<Text size='xs' c='dimmed' mb={4}>
+									Updated
+								</Text>
+								<Text size='sm'>{formatDateTime(task.updatedAt)}</Text>
+							</Box>
+						</Group>
+					</Box>
 				</Stack>
 			</DetailsViewBody>
 		</DetailsView>
