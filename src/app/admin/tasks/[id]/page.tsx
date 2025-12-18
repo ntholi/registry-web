@@ -30,22 +30,6 @@ const priorityColors: Record<string, string> = {
 	urgent: 'red',
 };
 
-const statusColors: Record<string, string> = {
-	todo: 'gray',
-	in_progress: 'blue',
-	on_hold: 'yellow',
-	completed: 'green',
-	cancelled: 'red',
-};
-
-const statusLabels: Record<string, string> = {
-	todo: 'To Do',
-	in_progress: 'In Progress',
-	on_hold: 'On Hold',
-	completed: 'Completed',
-	cancelled: 'Cancelled',
-};
-
 function formatDate(date: Date | string | null | undefined) {
 	if (!date) return null;
 	return new Date(date).toLocaleDateString('en-US', {
@@ -79,7 +63,7 @@ export default async function TaskDetails({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Task'
+				title={task.title}
 				queryKey={['tasks']}
 				handleDelete={async () => {
 					'use server';
@@ -89,21 +73,12 @@ export default async function TaskDetails({ params }: Props) {
 			<DetailsViewBody>
 				<Stack gap='xl'>
 					<Box>
-						<Text size='xl' fw={600} mb='xs'>
-							{task.title}
-						</Text>
-						<Group gap='xs'>
-							<Badge
-								color={statusColors[task.status]}
-								variant='light'
-								size='md'
-							>
-								{statusLabels[task.status]}
-							</Badge>
+						<Group gap='xs' justify='space-between'>
 							<Badge
 								color={priorityColors[task.priority]}
 								variant='dot'
 								size='md'
+								radius={'sm'}
 							>
 								{task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
 							</Badge>

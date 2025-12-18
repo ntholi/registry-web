@@ -1,6 +1,6 @@
 'use client';
 
-import { Select, Stack, Textarea, TextInput } from '@mantine/core';
+import { Select, SimpleGrid, Stack, Textarea, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useSession } from 'next-auth/react';
@@ -99,43 +99,47 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 						{...form.getInputProps('description')}
 					/>
 
-					<Select
-						label='Priority'
-						placeholder='Select priority'
-						data={priorityOptions}
-						{...form.getInputProps('priority')}
-					/>
+					<SimpleGrid cols={{ base: 1, sm: 2 }}>
+						<Select
+							label='Priority'
+							placeholder='Select priority'
+							data={priorityOptions}
+							{...form.getInputProps('priority')}
+						/>
 
-					<Select
-						label='Status'
-						placeholder='Select status'
-						data={statusOptions}
-						{...form.getInputProps('status')}
-					/>
+						<Select
+							label='Status'
+							placeholder='Select status'
+							data={statusOptions}
+							{...form.getInputProps('status')}
+						/>
+					</SimpleGrid>
 
-					<DateInput
-						label='Due Date'
-						placeholder='Select due date'
-						clearable
-						value={form.values.dueDate ? new Date(form.values.dueDate) : null}
-						onChange={(date) =>
-							form.setFieldValue('dueDate', date as Date | null)
-						}
-					/>
+					<SimpleGrid cols={{ base: 1, sm: 2 }}>
+						<DateInput
+							label='Due Date'
+							placeholder='Select due date'
+							clearable
+							value={form.values.dueDate ? new Date(form.values.dueDate) : null}
+							onChange={(date) =>
+								form.setFieldValue('dueDate', date as Date | null)
+							}
+						/>
 
-					<DateInput
-						label='Scheduled Date'
-						placeholder='Select scheduled date'
-						clearable
-						value={
-							form.values.scheduledDate
-								? new Date(form.values.scheduledDate)
-								: null
-						}
-						onChange={(date) =>
-							form.setFieldValue('scheduledDate', date as Date | null)
-						}
-					/>
+						<DateInput
+							label='Scheduled Date'
+							placeholder='Select scheduled date'
+							clearable
+							value={
+								form.values.scheduledDate
+									? new Date(form.values.scheduledDate)
+									: null
+							}
+							onChange={(date) =>
+								form.setFieldValue('scheduledDate', date as Date | null)
+							}
+						/>
+					</SimpleGrid>
 
 					{canAssignOthers && (
 						<MultiUserInput

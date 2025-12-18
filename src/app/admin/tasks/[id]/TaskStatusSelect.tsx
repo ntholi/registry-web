@@ -59,7 +59,7 @@ export default function TaskStatusSelect({ taskId, currentStatus }: Props) {
 
 	return (
 		<Select
-			size='xs'
+			size='sm'
 			placeholder='Change status'
 			data={statusOptions}
 			value={currentStatus}
