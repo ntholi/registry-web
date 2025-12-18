@@ -1,13 +1,21 @@
 import { and, desc, eq, inArray, or, type SQL, sql } from 'drizzle-orm';
-import { db, taskAssignees, tasks, type users } from '@/core/database';
+import {
+	db,
+	type students,
+	taskAssignees,
+	taskStudents,
+	tasks,
+	type users,
+} from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
 export type TaskInsert = typeof tasks.$inferInsert;
 export type TaskSelect = typeof tasks.$inferSelect;
-export type TaskWithAssignees = TaskSelect & {
+export type TaskWithRelations = TaskSelect & {
 	assignees: { user: typeof users.$inferSelect }[];
+	students: { student: typeof students.$inferSelect }[];
 	creator: typeof users.$inferSelect;
 };
 
@@ -16,7 +24,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		super(tasks, tasks.id);
 	}
 
-	async findByIdWithRelations(id: number): Promise<TaskWithAssignees | null> {
+	async findByIdWithRelations(id: number): Promise<TaskWithRelations | null> {
 		const result = await db.query.tasks.findFirst({
 			where: eq(tasks.id, id),
 			with: {
@@ -24,6 +32,11 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 				assignees: {
 					with: {
 						user: true,
+					},
+				},
+				students: {
+					with: {
+						student: true,
 					},
 				},
 			},
@@ -74,6 +87,11 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 				assignees: {
 					with: {
 						user: true,
+					},
+				},
+				students: {
+					with: {
+						student: true,
 					},
 				},
 			},
@@ -137,9 +155,10 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		return Number(result[0]?.count ?? 0);
 	}
 
-	async createWithAssignees(
+	async createWithRelations(
 		task: TaskInsert,
-		assigneeIds: string[]
+		assigneeIds: string[],
+		studentIds: number[]
 	): Promise<TaskSelect> {
 		return db.transaction(async (tx) => {
 			const [created] = await tx.insert(tasks).values(task).returning();
@@ -153,14 +172,24 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 				);
 			}
 
+			if (studentIds.length > 0) {
+				await tx.insert(taskStudents).values(
+					studentIds.map((stdNo) => ({
+						taskId: created.id,
+						stdNo,
+					}))
+				);
+			}
+
 			return created;
 		});
 	}
 
-	async updateWithAssignees(
+	async updateWithRelations(
 		id: number,
 		task: Partial<TaskInsert>,
-		assigneeIds?: string[]
+		assigneeIds?: string[],
+		studentIds?: number[]
 	): Promise<TaskSelect> {
 		return db.transaction(async (tx) => {
 			const [updated] = await tx
@@ -182,6 +211,19 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 				}
 			}
 
+			if (studentIds !== undefined) {
+				await tx.delete(taskStudents).where(eq(taskStudents.taskId, id));
+
+				if (studentIds.length > 0) {
+					await tx.insert(taskStudents).values(
+						studentIds.map((stdNo) => ({
+							taskId: id,
+							stdNo,
+						}))
+					);
+				}
+			}
+
 			return updated;
 		});
 	}
@@ -189,6 +231,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	async deleteTask(id: number): Promise<void> {
 		await db.transaction(async (tx) => {
 			await tx.delete(taskAssignees).where(eq(taskAssignees.taskId, id));
+			await tx.delete(taskStudents).where(eq(taskStudents.taskId, id));
 			await tx.delete(tasks).where(eq(tasks.id, id));
 		});
 	}

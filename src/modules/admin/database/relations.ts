@@ -8,7 +8,7 @@ import {
 	notificationRecipients,
 	notifications,
 } from './schema/notifications';
-import { taskAssignees, tasks } from './schema/tasks';
+import { taskAssignees, taskStudents, tasks } from './schema/tasks';
 
 export const fortinetRegistrationsRelations = relations(
 	fortinetRegistrations,
@@ -70,6 +70,7 @@ export const tasksRelations = relations(tasks, ({ one, many }) => ({
 		references: [users.id],
 	}),
 	assignees: many(taskAssignees),
+	students: many(taskStudents),
 }));
 
 export const taskAssigneesRelations = relations(taskAssignees, ({ one }) => ({
@@ -80,5 +81,16 @@ export const taskAssigneesRelations = relations(taskAssignees, ({ one }) => ({
 	user: one(users, {
 		fields: [taskAssignees.userId],
 		references: [users.id],
+	}),
+}));
+
+export const taskStudentsRelations = relations(taskStudents, ({ one }) => ({
+	task: one(tasks, {
+		fields: [taskStudents.taskId],
+		references: [tasks.id],
+	}),
+	student: one(students, {
+		fields: [taskStudents.stdNo],
+		references: [students.stdNo],
 	}),
 }));

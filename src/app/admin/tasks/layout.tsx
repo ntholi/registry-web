@@ -1,8 +1,8 @@
 'use client';
 
-import { findAllTasks, type TaskWithAssignees } from '@admin/tasks';
+import { findAllTasks, type TaskWithRelations } from '@admin/tasks';
 import { Badge, Group, Stack, Text } from '@mantine/core';
-import { IconCalendar, IconUser } from '@tabler/icons-react';
+import { IconCalendar, IconSchool, IconUser } from '@tabler/icons-react';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
@@ -39,7 +39,7 @@ function formatDate(date: Date | string | null | undefined) {
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (
-		<ListLayout<TaskWithAssignees>
+		<ListLayout<TaskWithRelations>
 			path={'/admin/tasks'}
 			queryKey={['tasks']}
 			getData={findAllTasks}
@@ -82,6 +82,14 @@ export default function Layout({ children }: PropsWithChildren) {
 										<Group gap={4}>
 											<IconUser size={10} />
 											{task.assignees.length}
+										</Group>
+									</Badge>
+								)}
+								{task.students?.length > 0 && (
+									<Badge size='xs' variant='light' color='cyan'>
+										<Group gap={4}>
+											<IconSchool size={10} />
+											{task.students.length}
 										</Group>
 									</Badge>
 								)}

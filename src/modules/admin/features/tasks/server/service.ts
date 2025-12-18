@@ -62,7 +62,7 @@ class TaskService {
 	}
 
 	async create(
-		data: TaskInsert & { assigneeIds?: string[] },
+		data: TaskInsert & { assigneeIds?: string[]; studentIds?: number[] },
 		session?: Session | null
 	) {
 		return withAuth(async (sess) => {
@@ -76,6 +76,7 @@ class TaskService {
 			}
 
 			let assigneeIds = data.assigneeIds || [];
+			const studentIds = data.studentIds || [];
 
 			if (!isManager && !isAdmin) {
 				assigneeIds = [userId];
@@ -95,13 +96,20 @@ class TaskService {
 				createdBy: userId,
 			};
 
-			return this.repository.createWithAssignees(taskData, assigneeIds);
+			return this.repository.createWithRelations(
+				taskData,
+				assigneeIds,
+				studentIds
+			);
 		}, ALLOWED_ROLES);
 	}
 
 	async update(
 		id: number,
-		data: Partial<TaskInsert> & { assigneeIds?: string[] },
+		data: Partial<TaskInsert> & {
+			assigneeIds?: string[];
+			studentIds?: number[];
+		},
 		session?: Session | null
 	) {
 		return withAuth(async (sess) => {
@@ -129,9 +137,14 @@ class TaskService {
 				assigneeIds = undefined;
 			}
 
-			const { assigneeIds: _, ...taskData } = data;
+			const { assigneeIds: _, studentIds, ...taskData } = data;
 
-			return this.repository.updateWithAssignees(id, taskData, assigneeIds);
+			return this.repository.updateWithRelations(
+				id,
+				taskData,
+				assigneeIds,
+				studentIds
+			);
 		}, ALLOWED_ROLES);
 	}
 

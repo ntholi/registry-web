@@ -3,6 +3,7 @@
 import { findAllByRoles } from '@admin/users';
 import {
 	Checkbox,
+	Divider,
 	MultiSelect,
 	Select,
 	SimpleGrid,
@@ -20,17 +21,23 @@ import { tasks } from '@/modules/admin/database';
 import type { users } from '@/modules/auth/database';
 import { dashboardUsers } from '@/modules/auth/database';
 import { Form } from '@/shared/ui/adease';
-import type { TaskWithAssignees } from '../types';
+import type { TaskWithRelations } from '../types';
+import MultiStudentInput from './MultiStudentInput';
 import MultiUserInput from './MultiUserInput';
 
 type Task = typeof tasks.$inferInsert;
 type User = typeof users.$inferSelect;
+type StudentBasic = { stdNo: number; name: string };
 
 type Props = {
 	onSubmit: (
-		values: Task & { assigneeIds?: string[]; assignToRoles?: string[] }
+		values: Task & {
+			assigneeIds?: string[];
+			assignToRoles?: string[];
+			studentIds?: number[];
+		}
 	) => Promise<Task>;
-	defaultValues?: TaskWithAssignees | null;
+	defaultValues?: TaskWithRelations | null;
 	title?: string;
 };
 
@@ -66,7 +73,14 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 
 	const defaultAssignees: User[] =
 		defaultValues?.assignees?.map((a) => a.user) ?? [];
+	const defaultStudents: StudentBasic[] =
+		defaultValues?.students?.map((s) => ({
+			stdNo: s.student.stdNo,
+			name: s.student.name,
+		})) ?? [];
 	const [selectedUsers, setSelectedUsers] = useState<User[]>(defaultAssignees);
+	const [selectedStudents, setSelectedStudents] =
+		useState<StudentBasic[]>(defaultStudents);
 	const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
 	const [assignToAll, setAssignToAll] = useState(false);
 
@@ -112,9 +126,12 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 			}
 		}
 
+		const studentIds = selectedStudents.map((s) => s.stdNo);
+
 		return onSubmit({
 			...values,
 			assigneeIds,
+			studentIds,
 		});
 	}
 
@@ -140,7 +157,9 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 			defaultValues={initialValues}
 			onSuccess={({ id }) => router.push(`/admin/tasks/${id}`)}
 		>
-			{(form) => (
+			{(form) => { 
+				console.log('Form values:', form);
+				return (
 				<Stack gap='md'>
 					<TextInput
 						label='Title'
@@ -234,8 +253,17 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 							/>
 						</Stack>
 					)}
+
+					<Divider label='Related Students' labelPosition='left' />
+
+					<MultiStudentInput
+						label='Associated Students'
+						placeholder='Search students by name or student number'
+						value={selectedStudents}
+						onChange={setSelectedStudents}
+					/>
 				</Stack>
-			)}
+			)}}
 		</Form>
 	);
 }

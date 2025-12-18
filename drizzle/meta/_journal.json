@@ -330,6 +330,13 @@
 			"when": 1766060172069,
 			"tag": "0046_daffy_marvel_boy",
 			"breakpoints": true
+		},
+		{
+			"idx": 47,
+			"version": "7",
+			"when": 1766071305132,
+			"tag": "0047_stale_tag",
+			"breakpoints": true
 		}
 	]
 }

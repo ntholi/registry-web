@@ -1,5 +1,7 @@
 import {
+	bigint,
 	date,
+	index,
 	integer,
 	pgEnum,
 	pgTable,
@@ -8,6 +10,7 @@ import {
 	timestamp,
 } from 'drizzle-orm/pg-core';
 import { users } from '@/modules/auth/database';
+import { students } from '@/modules/registry/database';
 
 export const taskPriority = pgEnum('task_priority', [
 	'low',
@@ -50,3 +53,21 @@ export const taskAssignees = pgTable('task_assignees', {
 		.references(() => users.id, { onDelete: 'cascade' }),
 	assignedAt: timestamp({ mode: 'date' }).defaultNow(),
 });
+
+export const taskStudents = pgTable(
+	'task_students',
+	{
+		id: serial().primaryKey(),
+		taskId: integer()
+			.notNull()
+			.references(() => tasks.id, { onDelete: 'cascade' }),
+		stdNo: bigint({ mode: 'number' })
+			.notNull()
+			.references(() => students.stdNo, { onDelete: 'cascade' }),
+		addedAt: timestamp({ mode: 'date' }).defaultNow(),
+	},
+	(table) => ({
+		taskIdIdx: index('idx_task_students_task_id').on(table.taskId),
+		stdNoIdx: index('idx_task_students_std_no').on(table.stdNo),
+	})
+);
