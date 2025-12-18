@@ -105,6 +105,38 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		};
 	}
 
+	async countUncompleted(userId?: string, isManager?: boolean) {
+		let baseFilter: SQL | undefined;
+
+		if (!isManager && userId) {
+			const assignedTaskIds = db
+				.select({ taskId: taskAssignees.taskId })
+				.from(taskAssignees)
+				.where(eq(taskAssignees.userId, userId));
+
+			baseFilter = or(
+				eq(tasks.createdBy, userId),
+				inArray(tasks.id, assignedTaskIds)
+			);
+		}
+
+		const statusFilter = and(
+			sql`${tasks.status} != 'completed'`,
+			sql`${tasks.status} != 'cancelled'`
+		);
+
+		const whereClause = baseFilter
+			? and(baseFilter, statusFilter)
+			: statusFilter;
+
+		const result = await db
+			.select({ count: sql<number>`count(*)` })
+			.from(tasks)
+			.where(whereClause);
+
+		return Number(result[0]?.count ?? 0);
+	}
+
 	async createWithAssignees(
 		task: TaskInsert,
 		assigneeIds: string[]

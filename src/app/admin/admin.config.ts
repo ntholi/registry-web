@@ -1,3 +1,4 @@
+import { countUncompletedTasks } from '@admin/tasks';
 import {
 	IconBell,
 	IconBook,
@@ -34,6 +35,11 @@ export const adminConfig: ModuleConfig = {
 				href: '/admin/tasks',
 				icon: IconChecklist,
 				roles: ['admin', 'registry', 'finance'],
+				notificationCount: {
+					queryKey: ['tasks', 'uncompleted'],
+					queryFn: () => countUncompletedTasks(),
+					color: 'red',
+				},
 			},
 			{
 				label: 'Users',

@@ -54,3 +54,7 @@ export async function updateTaskStatus(
 export async function getTaskCounts() {
 	return service.getTaskCounts();
 }
+
+export async function countUncompletedTasks() {
+	return service.countUncompleted();
+}
