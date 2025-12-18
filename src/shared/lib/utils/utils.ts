@@ -205,3 +205,17 @@ export function truncateText(text: string, maxLength: number = 50) {
 	}
 	return `${text.slice(0, maxLength - 3)}...`;
 }
+
+export function calculateAge(
+	birthDate: Date | number | string | null | undefined
+) {
+	if (!birthDate) return null;
+	const birth = new Date(birthDate);
+	const today = new Date();
+	let age = today.getFullYear() - birth.getFullYear();
+	const monthDiff = today.getMonth() - birth.getMonth();
+	if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+		age--;
+	}
+	return age;
+}

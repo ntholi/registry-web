@@ -21,6 +21,7 @@ import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import type { UserRole } from '@/core/database';
 import {
+	calculateAge,
 	formatDate,
 	formatPhoneNumber,
 	formatSemester,
@@ -153,7 +154,7 @@ export default function StudentView({ student }: Props) {
 						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem
 								label='Date of Birth'
-								value={formatDate(student.dateOfBirth)}
+								value={`${formatDate(student.dateOfBirth)} • ${calculateAge(student.dateOfBirth)} Years`}
 							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
