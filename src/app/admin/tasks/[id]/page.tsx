@@ -12,7 +12,6 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { IconCalendar, IconSchool, IconUser } from '@tabler/icons-react';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -20,6 +19,7 @@ import {
 	DetailsViewHeader,
 } from '@/shared/ui/adease';
 import TaskStatusSelect from './TaskStatusSelect';
+import Link from '@/shared/ui/Link';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -144,6 +144,32 @@ export default async function TaskDetails({ params }: Props) {
 						</>
 					)}
 
+										{task.students && task.students.length > 0 && (
+						<>
+							<Divider />
+							<Box>
+								<Text size='sm' fw={500} mb='md' c='dimmed'>
+									Related Students
+								</Text>
+								<Stack gap='sm'>
+									{task.students.map(({ student }) => (
+										<Group key={student.stdNo} gap='sm'>
+											<Link
+												href={`/registry/students/${student.stdNo}`}
+												size='sm'
+											>
+												{student.name}
+											</Link>
+											<Badge variant='light' size='sm'>
+												{student.stdNo}
+											</Badge>
+										</Group>
+									))}
+								</Stack>
+							</Box>
+						</>
+					)}
+
 					<Divider />
 
 					<Box>
@@ -195,34 +221,6 @@ export default async function TaskDetails({ params }: Props) {
 							)}
 						</Stack>
 					</Box>
-
-					{task.students && task.students.length > 0 && (
-						<>
-							<Divider />
-							<Box>
-								<Text size='sm' fw={500} mb='md' c='dimmed'>
-									Related Students
-								</Text>
-								<Stack gap='sm'>
-									{task.students.map(({ student }) => (
-										<Group key={student.stdNo} gap='sm'>
-											<IconSchool size={16} opacity={0.6} />
-											<Anchor
-												component={Link}
-												href={`/registry/students/${student.stdNo}`}
-												size='sm'
-											>
-												{student.name}
-											</Anchor>
-											<Badge variant='light' size='sm'>
-												{student.stdNo}
-											</Badge>
-										</Group>
-									))}
-								</Stack>
-							</Box>
-						</>
-					)}
 
 					<Divider />
 
