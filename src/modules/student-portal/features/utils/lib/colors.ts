@@ -174,7 +174,7 @@ function getColorFromMap<T extends Record<string, string>>(
 	value: string | undefined | null,
 	colorMap: T,
 	fallback: string = semantic.neutral
-): string {
+) {
 	if (!value) return fallback;
 	const normalized = value.toLowerCase().replace(/\s+/g, '');
 	if (normalized in colorMap) {
@@ -186,14 +186,14 @@ function getColorFromMap<T extends Record<string, string>>(
 export function getBooleanColor(
 	value: boolean,
 	type: BooleanColorType = 'positive'
-): string {
+) {
 	return value ? booleanColors[type].true : booleanColors[type].false;
 }
 
 export function getOptionalColor(
 	condition: boolean,
 	color: string = semantic.dimmed
-): string | undefined {
+) {
 	return condition ? color : undefined;
 }
 
@@ -201,7 +201,7 @@ function getThresholdColor(
 	value: number | null | undefined,
 	thresholds: { good: number; moderate?: number },
 	colors: { good?: string; moderate?: string; bad?: string; none?: string } = {}
-): string {
+) {
 	const {
 		good = semantic.success,
 		moderate = semantic.warning,
@@ -216,7 +216,7 @@ function getThresholdColor(
 	return bad;
 }
 
-export function getStatusColor(status: string): string {
+export function getStatusColor(status: string) {
 	if (!status) return semantic.neutral;
 	const normalized = status.toLowerCase().replace(/\s+/g, '');
 
@@ -241,12 +241,13 @@ export function getStatusColor(status: string): string {
 	return semantic.neutral;
 }
 
-export function getGradeColor(grade: string): string {
+export function getGradeColor(grade: string) {
 	if (!grade) return semantic.neutral;
 	const g = grade.toUpperCase();
 
 	if (g === 'ANN') return semantic.error;
-	if (['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'PX'].includes(g)) return statusColors.grade.excellent;
+	if (['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'PX'].includes(g))
+		return statusColors.grade.excellent;
 	if (['PP', 'DEF', 'NM'].includes(g)) return statusColors.grade.incomplete;
 	if (['F', 'FX', 'FIN', 'D', 'D+', 'D-', 'E', 'E+', 'E-'].includes(g))
 		return statusColors.grade.poor;
@@ -254,7 +255,7 @@ export function getGradeColor(grade: string): string {
 	return semantic.neutral;
 }
 
-export function getModuleTypeColor(type: string): string {
+export function getModuleTypeColor(type: string) {
 	if (!type) return semantic.neutral;
 	const normalized = type.toLowerCase();
 
@@ -270,10 +271,7 @@ export function getModuleTypeColor(type: string): string {
 	return semantic.neutral;
 }
 
-export function getQuizStatusColor(
-	isNotYetOpen: boolean,
-	isClosed: boolean
-): { label: string; color: string } {
+export function getQuizStatusColor(isNotYetOpen: boolean, isClosed: boolean) {
 	if (isNotYetOpen) {
 		return {
 			label: 'Not yet open',
@@ -289,7 +287,7 @@ export function getQuizStatusColor(
 export function getAssignmentStatusColor(
 	isOverdue: boolean,
 	isUpcoming: boolean
-): { label: string; color: string } {
+) {
 	if (isOverdue) {
 		return { label: 'Overdue', color: statusColors.availability.overdue };
 	}
@@ -347,13 +345,13 @@ export const getVersionCountColor = (count: number) => {
 	return semantic.error;
 };
 
-export function getModuleStatusTextColor(status: string): string | undefined {
+export function getModuleStatusTextColor(status: string) {
 	const normalized = status.toLowerCase();
 	if (normalized.startsWith('repeat')) return semantic.error;
 	return undefined;
 }
 
-export function getSemesterResultColor(status: string): string {
+export function getSemesterResultColor(status: string) {
 	const normalized = status.toLowerCase();
 	if (normalized === 'active') return semantic.success;
 	if (normalized === 'repeat') return semantic.caution;
