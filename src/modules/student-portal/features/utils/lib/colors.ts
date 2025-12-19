@@ -300,30 +300,39 @@ export function getAssignmentStatusColor(
 export function getActionColor(action: 'add' | 'remove' | 'update') {
 	return statusColors.action[action];
 }
+
 export function getAuditActionColor(action: 'create' | 'update' | 'delete') {
 	return statusColors.action[action];
 }
+
 export function getAlertColor(type: 'info' | 'warning' | 'error' | 'success') {
 	return statusColors.alert[type];
 }
+
 export function getQuizStateColor(state: string) {
 	return getColorFromMap(state, statusColors.quizState);
 }
+
 export function getQuestionTypeColor(type: string) {
 	return getColorFromMap(type, statusColors.questionType);
 }
+
 export function getClassTypeColor(type: string) {
 	return getColorFromMap(type, statusColors.classType, 'cyan.3');
 }
+
 export function getGenderColor(gender: string) {
 	return getColorFromMap(gender, statusColors.gender, 'gray.6');
 }
+
 export function getProgramLevelColor(level: string) {
 	return getColorFromMap(level, statusColors.programLevel, 'gray.6');
 }
+
 export function getChartSemesterStatusColor(status: string) {
 	return getColorFromMap(status, statusColors.semesterStatus, 'gray.6');
 }
+
 export function getPostTypeColor(type: 'announcement' | 'discussion') {
 	return statusColors.approval[
 		type === 'announcement' ? 'confirmed' : 'pending'
@@ -331,9 +340,11 @@ export function getPostTypeColor(type: 'announcement' | 'discussion') {
 		? semantic.info
 		: semantic.accent;
 }
+
 export function getTaskPriorityColor(priority: string) {
 	return getColorFromMap(priority, statusColors.priority);
 }
+
 export function getTaskStatusColor(status: string) {
 	return getColorFromMap(status, statusColors.taskStatus);
 }
@@ -341,6 +352,7 @@ export function getTaskStatusColor(status: string) {
 export function getPercentageColor(percentage: number | null) {
 	return getThresholdColor(percentage, { good: 75, moderate: 50 });
 }
+
 export function getPointsColor(points: number | null) {
 	return getThresholdColor(
 		points,
@@ -348,6 +360,7 @@ export function getPointsColor(points: number | null) {
 		{ moderate: semantic.info, bad: semantic.caution }
 	);
 }
+
 export function getMarksPercentageColor(
 	marks: number | null | undefined,
 	maxMarks: number
@@ -355,6 +368,7 @@ export function getMarksPercentageColor(
 	if (marks === null || marks === undefined) return semantic.neutral;
 	return getThresholdColor((marks / maxMarks) * 100, { good: 50 });
 }
+
 export function getVersionCountColor(count: number) {
 	if (count === 1) return semantic.success;
 	if (count <= 3) return semantic.warning;
