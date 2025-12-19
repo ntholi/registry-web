@@ -1,6 +1,9 @@
 'use client';
 
-import { upsertModuleGrade } from '@academic/module-grades';
+import {
+	type ModuleGradeData,
+	upsertModuleGrade,
+} from '@academic/module-grades';
 import {
 	ActionIcon,
 	Badge,
@@ -22,7 +25,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { grade, moduleGrades } from '@/modules/academic/database';
+import type { grade } from '@/modules/academic/database';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 interface Props {
@@ -34,7 +37,7 @@ interface Props {
 }
 
 type Grade = 'DEF' | 'ANN' | 'EXP' | 'DNS';
-type ModuleGrade = typeof moduleGrades.$inferSelect;
+type ModuleGrade = ModuleGradeData;
 
 export default function GradeSymbolModal({
 	studentId,

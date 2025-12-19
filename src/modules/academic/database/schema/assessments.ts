@@ -17,7 +17,6 @@ import {
 	assessmentMarksAuditAction,
 	assessmentNumber,
 	assessmentsAuditAction,
-	grade,
 } from './enums';
 import { modules, semesterModules } from './modules';
 
@@ -161,24 +160,6 @@ export const assessmentsAudit = pgTable(
 			table.assessmentId
 		),
 		createdByIdx: index('fk_assessments_audit_created_by').on(table.createdBy),
-	})
-);
-
-export const moduleGrades = pgTable(
-	'module_grades',
-	{
-		id: serial().primaryKey(),
-		moduleId: integer()
-			.references(() => modules.id, { onDelete: 'cascade' })
-			.notNull(),
-		stdNo: bigint({ mode: 'number' }).notNull(),
-		grade: grade().notNull(),
-		weightedTotal: real().notNull(),
-		createdAt: timestamp().defaultNow(),
-		updatedAt: timestamp().defaultNow(),
-	},
-	(table) => ({
-		uniqueModuleStudent: unique().on(table.moduleId, table.stdNo),
 	})
 );
 

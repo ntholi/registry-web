@@ -1,45 +1,29 @@
-import type { moduleGrades } from '@/core/database';
-import BaseService from '@/core/platform/BaseService';
-import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import ModuleGradeRepository from './repository';
+import ModuleGradeRepository, { type ModuleGradeInsert } from './repository';
 
-type ModuleGrade = typeof moduleGrades.$inferInsert;
-
-class ModuleGradeService extends BaseService<typeof moduleGrades, 'id'> {
-	constructor() {
-		super(new ModuleGradeRepository());
-	}
+class ModuleGradeService {
+	private repository = new ModuleGradeRepository();
 
 	async findByModuleAndStudent(moduleId: number, stdNo: number) {
 		return withAuth(
-			async () =>
-				(this.repository as ModuleGradeRepository).findByModuleAndStudent(
-					moduleId,
-					stdNo
-				),
+			async () => this.repository.findByModuleAndStudent(moduleId, stdNo),
 			['academic']
 		);
 	}
 
 	async getByModuleId(moduleId: number) {
 		return withAuth(
-			async () =>
-				(this.repository as ModuleGradeRepository).findByModuleId(moduleId),
+			async () => this.repository.findByModuleId(moduleId),
 			['academic']
 		);
 	}
 
-	async upsertModuleGrade(data: ModuleGrade) {
+	async upsertModuleGrade(data: ModuleGradeInsert) {
 		return withAuth(
-			async () =>
-				(this.repository as ModuleGradeRepository).upsertModuleGrade(data),
+			async () => this.repository.upsertModuleGrade(data),
 			['academic']
 		);
 	}
 }
 
-export const moduleGradesService = serviceWrapper(
-	ModuleGradeService,
-	'ModuleGradeService'
-);
+export const moduleGradesService = new ModuleGradeService();

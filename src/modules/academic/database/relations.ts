@@ -8,7 +8,6 @@ import {
 	assessmentsAudit,
 	assignedModules,
 	lmsAssessments,
-	moduleGrades,
 } from './schema/assessments';
 import {
 	modulePrerequisites,
@@ -52,7 +51,6 @@ export const structureSemestersRelations = relations(
 export const modulesRelations = relations(modules, ({ many }) => ({
 	semesterModules: many(semesterModules),
 	assessments: many(assessments),
-	moduleGrades: many(moduleGrades),
 }));
 
 export const semesterModulesRelations = relations(
@@ -165,13 +163,6 @@ export const assessmentsAuditRelations = relations(
 		}),
 	})
 );
-
-export const moduleGradesRelations = relations(moduleGrades, ({ one }) => ({
-	module: one(modules, {
-		fields: [moduleGrades.moduleId],
-		references: [modules.id],
-	}),
-}));
 
 export const lmsAssessmentsRelations = relations(lmsAssessments, ({ one }) => ({
 	assessment: one(assessments, {

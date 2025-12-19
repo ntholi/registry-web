@@ -1,12 +1,5 @@
-import { and, inArray } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
-import {
-	db,
-	type Grade,
-	moduleGrades,
-	type StudentModuleStatus,
-	type schools,
-} from '@/core/database';
+import type { StudentModuleStatus, schools } from '@/core/database';
 import { getCurrentTerm } from '@/modules/registry/features/dates/terms';
 import {
 	getAcademicRemarks,
@@ -104,73 +97,6 @@ export default class BoeReportService {
 		return Buffer.from(buffer);
 	}
 	private async mapCurrentSemesterGrades(semesters: StudentSemester[]) {
-		semesters.forEach((semester) => {
-			semester.studentModules.forEach((studentModule) => {
-				studentModule.grade = 'NM' as Grade;
-				studentModule.marks = '';
-			});
-		});
-
-		const moduleStudentPairs: Array<{
-			moduleId: number;
-			stdNo: number;
-			semesterModuleId: number;
-		}> = [];
-
-		semesters.forEach((semester) => {
-			const student = semester.studentProgram.student;
-			semester.studentModules.forEach((studentModule) => {
-				if (studentModule.semesterModule.moduleId) {
-					moduleStudentPairs.push({
-						moduleId: studentModule.semesterModule.moduleId,
-						stdNo: student.stdNo,
-						semesterModuleId: studentModule.semesterModuleId,
-					});
-				}
-			});
-		});
-
-		if (moduleStudentPairs.length === 0) {
-			return semesters;
-		}
-
-		const moduleIds = [...new Set(moduleStudentPairs.map((p) => p.moduleId))];
-		const stdNos = [...new Set(moduleStudentPairs.map((p) => p.stdNo))];
-
-		const moduleGradesData = await db.query.moduleGrades.findMany({
-			where: and(
-				inArray(moduleGrades.moduleId, moduleIds),
-				inArray(moduleGrades.stdNo, stdNos)
-			),
-		});
-
-		const gradesMap = new Map<
-			string,
-			{ grade: Grade; weightedTotal: number }
-		>();
-		moduleGradesData.forEach((gradeData) => {
-			const key = `${gradeData.moduleId}-${gradeData.stdNo}`;
-			gradesMap.set(key, {
-				grade: gradeData.grade,
-				weightedTotal: gradeData.weightedTotal,
-			});
-		});
-
-		semesters.forEach((semester) => {
-			const student = semester.studentProgram.student;
-			semester.studentModules.forEach((studentModule) => {
-				if (studentModule.semesterModule.moduleId) {
-					const key = `${studentModule.semesterModule.moduleId}-${student.stdNo}`;
-					const gradeData = gradesMap.get(key);
-
-					if (gradeData) {
-						studentModule.grade = gradeData.grade;
-						studentModule.marks = gradeData.weightedTotal.toString();
-					}
-				}
-			});
-		});
-
 		return semesters;
 	}
 

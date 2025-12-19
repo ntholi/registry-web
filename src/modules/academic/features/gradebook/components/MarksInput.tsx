@@ -4,18 +4,16 @@ import {
 	createAssessmentMark,
 	updateAssessmentMark,
 } from '@academic/assessment-marks';
+import type { ModuleGradeData } from '@academic/module-grades';
 import { Box, Group, Text, TextInput } from '@mantine/core';
 import { getMarksPercentageColor } from '@student-portal/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import type {
-	assessmentMarks,
-	moduleGrades,
-} from '@/modules/academic/database';
+import type { assessmentMarks } from '@/modules/academic/database';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 
 type AssessmentMark = typeof assessmentMarks.$inferSelect;
-type ModuleGrade = typeof moduleGrades.$inferSelect;
+type ModuleGrade = ModuleGradeData;
 
 type Props = {
 	assessment: { id: number; maxMarks: number; totalMarks: number };

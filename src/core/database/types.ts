@@ -1,7 +1,6 @@
 import type {
 	assessmentMarks,
 	assessments,
-	moduleGrades,
 	modules,
 	programs,
 	schools,
@@ -32,4 +31,3 @@ export type Module = typeof modules.$inferSelect;
 
 export type Assessment = typeof assessments.$inferSelect;
 export type AssessmentMark = typeof assessmentMarks.$inferSelect;
-export type ModuleGrade = typeof moduleGrades.$inferSelect;

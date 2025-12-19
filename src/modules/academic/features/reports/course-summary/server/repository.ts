@@ -1,8 +1,7 @@
-import { and, eq, inArray } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import {
 	assessmentMarks,
 	db,
-	moduleGrades,
 	semesterModules,
 	structures,
 	studentModules,
@@ -283,42 +282,26 @@ export default class CourseSummaryRepository extends BaseRepository<
 		const studentNumbers = validStudentModules.map(
 			(sm) => sm.studentSemester!.studentProgram.student.stdNo
 		);
-		const [moduleGradesData, allAssessmentMarks] = await Promise.all([
-			db.query.moduleGrades.findMany({
-				where: and(
-					eq(moduleGrades.moduleId, semesterModule.module.id),
-					inArray(moduleGrades.stdNo, studentNumbers)
-				),
-				columns: { stdNo: true, grade: true, weightedTotal: true },
-			}),
 
-			db.query.assessmentMarks.findMany({
-				where: inArray(assessmentMarks.stdNo, studentNumbers),
-				columns: { stdNo: true, marks: true },
-				with: {
-					assessment: {
-						columns: {
-							assessmentType: true,
-							totalMarks: true,
-							moduleId: true,
-							termId: true,
-						},
+		const allAssessmentMarks = await db.query.assessmentMarks.findMany({
+			where: inArray(assessmentMarks.stdNo, studentNumbers),
+			columns: { stdNo: true, marks: true },
+			with: {
+				assessment: {
+					columns: {
+						assessmentType: true,
+						totalMarks: true,
+						moduleId: true,
+						termId: true,
 					},
 				},
-			}),
-		]);
+			},
+		});
 
 		const relevantAssessmentMarks = allAssessmentMarks.filter(
 			(am) =>
 				am.assessment?.moduleId === semesterModule.module!.id &&
 				am.assessment?.termId === term.id
-		);
-
-		const gradesMap = new Map(
-			moduleGradesData.map((mg) => [
-				mg.stdNo,
-				{ grade: mg.grade, weightedTotal: mg.weightedTotal },
-			])
 		);
 
 		const assessmentsByStudent = new Map<
@@ -343,14 +326,13 @@ export default class CourseSummaryRepository extends BaseRepository<
 
 		const students = validStudentModules.map((sm) => {
 			const student = sm.studentSemester!.studentProgram.student;
-			const gradeData = gradesMap.get(student.stdNo);
 
 			return {
 				stdNo: student.stdNo,
 				name: student.name,
 				status: sm.status,
-				grade: gradeData?.grade || sm.grade,
-				weightedTotal: gradeData?.weightedTotal || parseFloat(sm.marks),
+				grade: sm.grade,
+				weightedTotal: parseFloat(sm.marks) || 0,
 				marks: sm.marks,
 			};
 		});
