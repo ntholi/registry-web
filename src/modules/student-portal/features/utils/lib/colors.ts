@@ -128,20 +128,20 @@ export const statusColors = {
 		practical: 'red.3',
 	},
 	gender: {
-		male: 'blue.6',
-		female: 'pink.6',
+		male: 'blue',
+		female: 'pink',
 	},
 	programLevel: {
-		certificate: 'teal.6',
-		diploma: 'blue.6',
-		degree: 'violet.6',
+		certificate: 'teal',
+		diploma: 'blue',
+		degree: 'violet',
 	},
 	semesterStatus: {
-		active: 'green.6',
-		repeat: 'yellow.6',
-		deferred: 'blue.6',
-		droppedout: 'red.6',
-		completed: 'teal.6',
+		active: 'green',
+		repeat: 'yellow',
+		deferred: 'blue',
+		droppedout: 'red',
+		completed: 'teal',
 	},
 	priority: {
 		low: semantic.neutral,
@@ -319,15 +319,15 @@ export function getClassTypeColor(type: string) {
 }
 
 export function getGenderColor(gender: string) {
-	return getColorFromMap(gender, statusColors.gender, 'gray.6');
+	return getColorFromMap(gender, statusColors.gender, 'gray');
 }
 
 export function getProgramLevelColor(level: string) {
-	return getColorFromMap(level, statusColors.programLevel, 'gray.6');
+	return getColorFromMap(level, statusColors.programLevel, 'gray');
 }
 
 export function getChartSemesterStatusColor(status: string) {
-	return getColorFromMap(status, statusColors.semesterStatus, 'gray.6');
+	return getColorFromMap(status, statusColors.semesterStatus, 'gray');
 }
 
 export function getPostTypeColor(type: 'announcement' | 'discussion') {
