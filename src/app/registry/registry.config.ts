@@ -2,6 +2,7 @@ import { countByStatus as countGraduationByStatus } from '@registry/graduation/c
 import { countByStatus } from '@registry/registration';
 import {
 	IconBan,
+	IconCalendarMonth,
 	IconChartDonut,
 	IconCheck,
 	IconCircleCheck,
@@ -133,6 +134,26 @@ export const registryConfig: ModuleConfig = {
 						},
 					},
 				] as NavItem[],
+			},
+			{
+				label: 'Dates',
+				icon: IconSchoolBell,
+				roles: ['registry', 'admin'],
+				collapsed: true,
+				children: [
+					{
+						label: 'Terms',
+						href: '/registry/terms',
+						icon: IconCalendarMonth,
+						roles: ['admin', 'registry'],
+					},
+					{
+						label: 'Graduations',
+						href: '/registry/graduations',
+						icon: IconCalendarMonth,
+						roles: ['admin', 'registry'],
+					},
+				],
 			},
 			{
 				label: 'Board of Examination',

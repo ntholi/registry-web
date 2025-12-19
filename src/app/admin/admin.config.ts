@@ -65,12 +65,7 @@ export const adminConfig: ModuleConfig = {
 				icon: IconBooks,
 				roles: ['admin'],
 			},
-			{
-				label: 'Terms',
-				href: '/registry/terms',
-				icon: IconCalendarMonth,
-				roles: ['admin'],
-			},
+
 			{
 				label: 'Sponsors',
 				href: '/finance/sponsors',
