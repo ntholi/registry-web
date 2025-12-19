@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { getImportResultColor, statusColors } from '@student-portal/utils';
+import { getBooleanColor, statusColors } from '@student-portal/utils';
 import {
 	IconAlertCircle,
 	IconCheck,
@@ -291,7 +291,7 @@ export default function ImportAccountDetailsModal() {
 			notifications.show({
 				title: 'Import Complete',
 				message: `${successCount} records updated successfully, ${errorCount} failed out of ${requestData.length} total records.`,
-				color: getImportResultColor(errorCount === 0),
+				color: getBooleanColor(errorCount === 0),
 				icon: <IconCheck size='1rem' />,
 			});
 

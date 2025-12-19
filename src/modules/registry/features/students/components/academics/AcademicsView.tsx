@@ -15,7 +15,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { getProgramStatusColor } from '@student-portal/utils';
+import { getStatusColor } from '@student-portal/utils';
 import { IconSchool } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
@@ -80,7 +80,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 										style={{ position: 'relative' }}
 									>
 										<Badge
-											color={getProgramStatusColor(program.status)}
+											color={getStatusColor(program.status)}
 											size='xs'
 											variant='transparent'
 										>

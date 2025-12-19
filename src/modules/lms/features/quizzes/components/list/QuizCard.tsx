@@ -12,7 +12,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getOverdueTextColor, getQuizStatusColor } from '@student-portal/utils';
+import { getBooleanColor, getQuizStatusColor } from '@student-portal/utils';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -174,7 +174,7 @@ export default function QuizCard({ quiz, courseId }: Props) {
 									</Text>
 								)}
 								{closeDate && (
-									<Text size='xs' c={getOverdueTextColor(!!isOverdue)}>
+									<Text size='xs' c={getBooleanColor(!!isOverdue, 'negative')}>
 										Closes: {dayjs(closeDate).format('DD MMM [at] HH:mm')}
 									</Text>
 								)}

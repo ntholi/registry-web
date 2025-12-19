@@ -16,7 +16,7 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { getHiddenTextColor } from '@student-portal/utils';
+import { getOptionalColor, semantic } from '@student-portal/utils';
 import {
 	IconArrowLeft,
 	IconBook,
@@ -169,7 +169,10 @@ export default function StructureDetailsPage() {
 														<Link
 															size='sm'
 															href={`/academic/semester-modules/${semModule.id}`}
-															c={getHiddenTextColor(semModule.hidden)}
+															c={getOptionalColor(
+																semModule.hidden,
+																semantic.dark
+															)}
 														>
 															{semModule.module?.code}
 														</Link>
@@ -177,7 +180,10 @@ export default function StructureDetailsPage() {
 													<Table.Td>
 														<Text
 															size='sm'
-															c={getHiddenTextColor(semModule.hidden)}
+															c={getOptionalColor(
+																semModule.hidden,
+																semantic.dark
+															)}
 														>
 															{semModule.module?.name}
 														</Text>
@@ -185,7 +191,10 @@ export default function StructureDetailsPage() {
 													<Table.Td>
 														<Text
 															size='sm'
-															c={getHiddenTextColor(semModule.hidden)}
+															c={getOptionalColor(
+																semModule.hidden,
+																semantic.dark
+															)}
 														>
 															{semModule.type}
 														</Text>
@@ -193,7 +202,10 @@ export default function StructureDetailsPage() {
 													<Table.Td>
 														<Text
 															size='sm'
-															c={getHiddenTextColor(semModule.hidden)}
+															c={getOptionalColor(
+																semModule.hidden,
+																semantic.dark
+															)}
 														>
 															{semModule.credits}
 														</Text>

@@ -15,7 +15,7 @@ import {
 	useMantineColorScheme,
 } from '@mantine/core';
 import {
-	getModuleStatusColor,
+	getModuleTypeColor,
 	getSemesterResultColor,
 } from '@student-portal/utils';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -190,7 +190,7 @@ export default function SemesterStatusModal({
 											</Table.Td>
 											<Table.Td>
 												<Badge
-													color={getModuleStatusColor(module.status)}
+													color={getModuleTypeColor(module.status)}
 													variant='light'
 													size='sm'
 												>

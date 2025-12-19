@@ -12,7 +12,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { getImportResultColor } from '@student-portal/utils';
+import { getBooleanColor } from '@student-portal/utils';
 import {
 	IconAlertCircle,
 	IconCheck,
@@ -270,7 +270,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 												<IconAlertCircle size={16} />
 											)
 										}
-										color={getImportResultColor(importResult.success)}
+										color={getBooleanColor(importResult.success)}
 									>
 										<Group justify='space-between'>
 											<div>

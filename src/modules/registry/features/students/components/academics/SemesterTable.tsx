@@ -13,8 +13,8 @@ import {
 	useComputedColorScheme,
 } from '@mantine/core';
 import {
-	getDroppedDeletedColor,
 	getGradeColor,
+	getOptionalColor,
 	getStatusColor,
 } from '@student-portal/utils';
 import { useSession } from 'next-auth/react';
@@ -239,10 +239,7 @@ export default function SemesterTable({
 												</Anchor>
 											</Tooltip>
 										) : (
-											<Text
-												size='sm'
-												c={getDroppedDeletedColor(isDroppedOrDeleted)}
-											>
+											<Text size='sm' c={getOptionalColor(isDroppedOrDeleted)}>
 												{module.code}
 											</Text>
 										)}
@@ -263,10 +260,7 @@ export default function SemesterTable({
 									</Group>
 								</Table.Td>
 								<Table.Td>
-									<Text
-										size='sm'
-										c={getDroppedDeletedColor(isDroppedOrDeleted)}
-									>
+									<Text size='sm' c={getOptionalColor(isDroppedOrDeleted)}>
 										{module.name}
 									</Text>
 								</Table.Td>
@@ -283,19 +277,13 @@ export default function SemesterTable({
 									</Text>
 								</Table.Td>
 								<Table.Td>
-									<Text
-										size='sm'
-										c={getDroppedDeletedColor(isDroppedOrDeleted)}
-									>
+									<Text size='sm' c={getOptionalColor(isDroppedOrDeleted)}>
 										{module.credits}
 									</Text>
 								</Table.Td>
 								{showMarks && (
 									<Table.Td>
-										<Text
-											size='sm'
-											c={getDroppedDeletedColor(isDroppedOrDeleted)}
-										>
+										<Text size='sm' c={getOptionalColor(isDroppedOrDeleted)}>
 											{module.marks}
 										</Text>
 									</Table.Td>

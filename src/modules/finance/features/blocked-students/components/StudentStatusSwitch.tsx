@@ -2,10 +2,7 @@
 
 import { Group, Paper, Stack, Switch, Text, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-	getBlockedStatusColor,
-	getNotificationColor,
-} from '@student-portal/utils';
+import { getAlertColor, getBooleanColor } from '@student-portal/utils';
 import {
 	IconCheck,
 	IconExclamationCircle,
@@ -47,7 +44,7 @@ export default function StudentStatusSwitch({
 			notifications.show({
 				title: 'Status Updated',
 				message: `Student ${stdNo} has been ${newStatus}`,
-				color: getBlockedStatusColor(newStatus === 'blocked'),
+				color: getBooleanColor(newStatus === 'blocked', 'negative'),
 				icon: <IconCheck size='1rem' />,
 			});
 		},
@@ -56,7 +53,7 @@ export default function StudentStatusSwitch({
 			notifications.show({
 				title: 'Error',
 				message: 'Failed to update student status. Please try again.',
-				color: getNotificationColor('error'),
+				color: getAlertColor('error'),
 				icon: <IconExclamationCircle size='1rem' />,
 			});
 			console.error('Failed to update student status:', error);
@@ -85,7 +82,7 @@ export default function StudentStatusSwitch({
 							<IconLockOpen size='1.2rem' color='green' />
 						)}
 						<Stack gap={2}>
-							<Title order={6} c={getBlockedStatusColor(isBlocked)}>
+							<Title order={6} c={getBooleanColor(isBlocked, 'negative')}>
 								Student Status
 							</Title>
 							<Text size='xs' c='dimmed'>

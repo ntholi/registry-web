@@ -3,7 +3,7 @@
 import { createOrUpdateMarksInBulk } from '@academic/assessment-marks';
 import { Button, Group, Paper, Progress, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { getImportResultColor } from '@student-portal/utils';
+import { getBooleanColor } from '@student-portal/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import type { ImportResult, ParsedRow } from './types';
@@ -85,7 +85,7 @@ export default function ImportProgress({
 			notifications.show({
 				title: 'Import Complete',
 				message: `Successfully imported ${result.imported} records${result.failed > 0 ? `, ${result.failed} failed` : ''}`,
-				color: getImportResultColor(result.success),
+				color: getBooleanColor(result.success),
 			});
 
 			onImportComplete(result);

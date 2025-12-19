@@ -3,7 +3,7 @@
 import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
 import {
 	getModuleStatusTextColor,
-	getRequestStatusColor,
+	getStatusColor,
 } from '@student-portal/utils';
 import Link from '@/shared/ui/Link';
 import type { getRegistrationRequest } from '../server/requests/actions';
@@ -32,11 +32,7 @@ export default function ModulesView({ value }: Props) {
 					{moduleStatus}
 				</Table.Td>
 				<Table.Td>
-					<Badge
-						variant='light'
-						size='sm'
-						color={getRequestStatusColor(status)}
-					>
+					<Badge variant='light' size='sm' color={getStatusColor(status)}>
 						{status}
 					</Badge>
 				</Table.Td>

@@ -3,7 +3,7 @@
 import { updateModuleVisibility } from '@academic/semester-modules';
 import { ActionIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { getVisibilityColor } from '@student-portal/utils';
+import { getBooleanColor } from '@student-portal/utils';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -42,7 +42,7 @@ export default function HideButton({ moduleId, hidden, structureId }: Props) {
 			variant='subtle'
 			onClick={() => mutate()}
 			loading={isPending}
-			color={getVisibilityColor(hidden)}
+			color={getBooleanColor(hidden, 'negative')}
 		>
 			{hidden ? <IconEyeOff size={'1rem'} /> : <IconEye size={'1rem'} />}
 		</ActionIcon>

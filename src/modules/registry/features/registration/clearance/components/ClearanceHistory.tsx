@@ -10,7 +10,7 @@ import {
 	Table,
 	Text,
 } from '@mantine/core';
-import { getClearanceStatusColor } from '@student-portal/utils';
+import { getStatusColor } from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
@@ -55,7 +55,7 @@ export default function ClearanceHistory({ stdNo }: Props) {
 									Term: {clearance.registrationRequest?.term.code || 'N/A'}
 								</Text>
 								<Badge
-									color={getClearanceStatusColor(clearance.status)}
+									color={getStatusColor(clearance.status)}
 									variant='outline'
 									size='sm'
 								>

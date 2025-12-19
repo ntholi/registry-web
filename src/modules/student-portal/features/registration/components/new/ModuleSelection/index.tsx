@@ -6,7 +6,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { getExceededLimitColor } from '@student-portal/utils';
+import { getBooleanColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import type { StudentModuleStatus } from '@/core/database';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
@@ -175,8 +175,9 @@ export default function ModuleSelection({
 			{selectedModules.length > 0 && (
 				<Alert
 					icon={<IconInfoCircle size='1rem' />}
-					color={getExceededLimitColor(
-						selectedModules.length > MAX_REG_MODULES
+					color={getBooleanColor(
+						selectedModules.length > MAX_REG_MODULES,
+						'negative'
 					)}
 				>
 					You have selected {selectedModules.length} module

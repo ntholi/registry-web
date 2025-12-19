@@ -28,7 +28,7 @@ import {
 	getStudent,
 	getStudentRegistrationData,
 } from '@registry/students';
-import { getModuleStatusColor } from '@student-portal/utils';
+import { getModuleTypeColor } from '@student-portal/utils';
 import {
 	IconAlertCircle,
 	IconExclamationCircle,
@@ -520,7 +520,7 @@ function ModuleTable({
 							</Table.Td>
 							<Table.Td>
 								<Badge
-									color={getModuleStatusColor(module.status)}
+									color={getModuleTypeColor(module.status)}
 									variant='light'
 									size='sm'
 								>

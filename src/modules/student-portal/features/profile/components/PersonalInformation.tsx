@@ -1,7 +1,7 @@
 'use client';
 import { Box, Grid, Paper, Text, Title } from '@mantine/core';
 import type { Student } from '@registry/students';
-import { getEmptyValueColor } from '@student-portal/utils';
+import { getOptionalColor } from '@student-portal/utils';
 import { formatDate } from '@/shared/lib/utils/utils';
 
 type Props = {
@@ -23,11 +23,7 @@ function InfoItem({
 			<Text size='sm' c='dimmed' mb={4}>
 				{label}
 			</Text>
-			<Text
-				size='sm'
-				fw={hasValue ? 500 : 400}
-				c={getEmptyValueColor(hasValue)}
-			>
+			<Text size='sm' fw={hasValue ? 500 : 400} c={getOptionalColor(!hasValue)}>
 				{displayValue}
 			</Text>
 		</Box>

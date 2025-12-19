@@ -17,7 +17,7 @@ import {
 	ThemeIcon,
 	useMantineColorScheme,
 } from '@mantine/core';
-import { getProgramStatusColor } from '@student-portal/utils';
+import { getStatusColor } from '@student-portal/utils';
 import { IconLock, IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
 import type { getStudent } from '../../server/actions';
@@ -96,7 +96,7 @@ export default function BlockedAcademicsView({
 										<Text fw={500}>{program.structure.program.name}</Text>
 										<Group gap={'xs'}>
 											<Badge
-												color={getProgramStatusColor(program.status)}
+												color={getStatusColor(program.status)}
 												size='xs'
 												variant='transparent'
 											>

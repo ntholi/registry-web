@@ -17,11 +17,7 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-	getCopiedColor,
-	getProgramStatusColor,
-	getStudentStatusColor,
-} from '@student-portal/utils';
+import { getBooleanColor, getStatusColor } from '@student-portal/utils';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import type { UserRole } from '@/core/database';
@@ -138,7 +134,7 @@ export default function StudentView({ student }: Props) {
 					</Group>
 					<Badge
 						radius='sm'
-						color={getStudentStatusColor(student.status)}
+						color={getStatusColor(student.status)}
 						variant='light'
 					>
 						{student.status}
@@ -185,7 +181,7 @@ export default function StudentView({ student }: Props) {
 						</Title>
 						<Badge
 							radius={'sm'}
-							color={getProgramStatusColor(activePrograms[0].status)}
+							color={getStatusColor(activePrograms[0].status)}
 							variant='light'
 						>
 							{activePrograms[0].status}
@@ -356,7 +352,7 @@ function InfoItem({
 							<Tooltip label={copied ? 'Copied' : 'Copy'}>
 								<ActionIcon
 									variant='subtle'
-									color={getCopiedColor(copied)}
+									color={getBooleanColor(copied, 'highlight')}
 									onClick={copy}
 									className='copy-button'
 									style={{

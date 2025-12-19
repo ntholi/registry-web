@@ -12,6 +12,14 @@ export const semantic = {
 	dimmed: 'dimmed',
 } as const;
 
+export const booleanColors = {
+	positive: { true: semantic.success, false: semantic.neutral },
+	negative: { true: semantic.error, false: semantic.neutral },
+	highlight: { true: semantic.info, false: semantic.dimmed },
+} as const;
+
+export type BooleanColorType = keyof typeof booleanColors;
+
 export const statusColors = {
 	approval: {
 		approved: semantic.success,
@@ -162,7 +170,7 @@ const allStatuses = {
 	...statusColors.dataOp,
 } as const;
 
-export function getColorFromMap<T extends Record<string, string>>(
+function getColorFromMap<T extends Record<string, string>>(
 	value: string | undefined | null,
 	colorMap: T,
 	fallback: string = semantic.neutral
@@ -177,20 +185,19 @@ export function getColorFromMap<T extends Record<string, string>>(
 
 export function getBooleanColor(
 	value: boolean,
-	trueColor: string = semantic.success,
-	falseColor: string = semantic.error
+	type: BooleanColorType = 'positive'
 ): string {
-	return value ? trueColor : falseColor;
+	return value ? booleanColors[type].true : booleanColors[type].false;
 }
 
-export function getOptionalBooleanColor(
+export function getOptionalColor(
 	condition: boolean,
-	activeColor: string
+	color: string = semantic.dimmed
 ): string | undefined {
-	return condition ? activeColor : undefined;
+	return condition ? color : undefined;
 }
 
-export function getThresholdColor(
+function getThresholdColor(
 	value: number | null | undefined,
 	thresholds: { good: number; moderate?: number },
 	colors: { good?: string; moderate?: string; bad?: string; none?: string } = {}
@@ -239,9 +246,7 @@ export function getGradeColor(grade: string): string {
 	const g = grade.toUpperCase();
 
 	if (g === 'ANN') return semantic.error;
-	if (['A+', 'A', 'A-'].includes(g)) return statusColors.grade.excellent;
-	if (['B+', 'B', 'B-'].includes(g)) return statusColors.grade.good;
-	if (['C+', 'C', 'C-'].includes(g)) return statusColors.grade.average;
+	if (['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'PX'].includes(g)) return statusColors.grade.excellent;
 	if (['PP', 'DEF', 'NM'].includes(g)) return statusColors.grade.incomplete;
 	if (['F', 'FX', 'FIN', 'D', 'D+', 'D-', 'E', 'E+', 'E-'].includes(g))
 		return statusColors.grade.poor;
@@ -294,20 +299,12 @@ export function getAssignmentStatusColor(
 	return { label: 'Active', color: statusColors.activity.active };
 }
 
-export const getSemesterStatusColor = getStatusColor;
-export const getStudentStatusColor = getStatusColor;
-export const getClearanceStatusColor = getStatusColor;
-export const getProgramStatusColor = getStatusColor;
-export const getRequestStatusColor = getStatusColor;
-export const getModuleStatusColor = getModuleTypeColor;
-
 export const getActionColor = (action: 'add' | 'remove' | 'update') =>
 	statusColors.action[action];
 export const getAuditActionColor = (action: 'create' | 'update' | 'delete') =>
 	statusColors.action[action];
 export const getAlertColor = (type: 'info' | 'warning' | 'error' | 'success') =>
 	statusColors.alert[type];
-export const getNotificationColor = getAlertColor;
 export const getQuizStateColor = (state: string) =>
 	getColorFromMap(state, statusColors.quizState);
 export const getQuestionTypeColor = (type: string) =>
@@ -349,45 +346,6 @@ export const getVersionCountColor = (count: number) => {
 	if (count <= 3) return semantic.warning;
 	return semantic.error;
 };
-
-export const getPassFailColor = (passed: boolean) => getBooleanColor(passed);
-export const getActiveInactiveColor = (active: boolean) =>
-	getBooleanColor(active);
-export const getBooleanStatusColor = (active: boolean) =>
-	getBooleanColor(active, semantic.success, semantic.neutral);
-export const getBlockedStatusColor = (blocked: boolean) =>
-	getBooleanColor(
-		blocked,
-		statusColors.activity.blocked,
-		statusColors.activity.unblocked
-	);
-export const getOverdueColor = (overdue: boolean) =>
-	getBooleanColor(overdue, semantic.error, semantic.info);
-export const getVisibilityColor = (hidden: boolean) =>
-	getBooleanColor(hidden, semantic.error, semantic.info);
-export const getImportResultColor = (success: boolean) =>
-	getBooleanColor(success, semantic.success, semantic.caution);
-export const getCorrectAnswerColor = (correct: boolean) =>
-	getBooleanColor(correct, semantic.success, semantic.neutral);
-export const getCopiedColor = (copied: boolean) =>
-	getBooleanColor(copied, semantic.accent, semantic.neutral);
-
-export const getTermMismatchColor = (isCurrentTerm: boolean) =>
-	getOptionalBooleanColor(!isCurrentTerm, semantic.error);
-export const getExceededLimitColor = (exceeded: boolean) =>
-	getBooleanColor(exceeded, semantic.error, semantic.info);
-export const getHiddenTextColor = (hidden: boolean) =>
-	getOptionalBooleanColor(hidden, semantic.dark);
-export const getDroppedDeletedColor = (dropped: boolean) =>
-	getOptionalBooleanColor(dropped, semantic.dimmed);
-export const getNavActiveColor = (active: boolean) =>
-	getBooleanColor(active, semantic.info, semantic.dimmed);
-export const getFilterActiveColor = (hasFilters: boolean) =>
-	getOptionalBooleanColor(hasFilters, semantic.info);
-export const getEmptyValueColor = (hasValue: boolean) =>
-	getOptionalBooleanColor(!hasValue, semantic.dimmed);
-export const getOverdueTextColor = (overdue: boolean) =>
-	getBooleanColor(overdue, semantic.error, semantic.dimmed);
 
 export function getModuleStatusTextColor(status: string): string | undefined {
 	const normalized = status.toLowerCase();

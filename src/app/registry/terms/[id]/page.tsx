@@ -1,6 +1,6 @@
 import { Badge } from '@mantine/core';
 import { deleteTerm, getTerm } from '@registry/terms';
-import { getActiveInactiveColor } from '@student-portal/utils';
+import { getBooleanColor } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -39,7 +39,7 @@ export default async function TermDetails({ params }: Props) {
 				<FieldView label='End Date'>{term.endDate}</FieldView>
 				<FieldView label='Semester'>{term.semester}</FieldView>
 				<FieldView label='Is Active'>
-					<Badge color={getActiveInactiveColor(term.isActive)}>
+					<Badge color={getBooleanColor(term.isActive)}>
 						{term.isActive ? 'Active' : 'Inactive'}
 					</Badge>
 				</FieldView>

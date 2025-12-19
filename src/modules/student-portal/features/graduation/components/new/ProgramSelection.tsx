@@ -10,7 +10,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { getProgramStatusColor } from '@student-portal/utils';
+import { getStatusColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
 import type { programs, structures } from '@/modules/academic/database';
@@ -107,7 +107,7 @@ function ProgramCard({ program }: { program: StudentProgram }) {
 				<Text fw={500}>{program.structure.program.name}</Text>
 				<Group gap='xs'>
 					<Badge
-						color={getProgramStatusColor(program.status)}
+						color={getStatusColor(program.status)}
 						variant='light'
 						size='xs'
 					>

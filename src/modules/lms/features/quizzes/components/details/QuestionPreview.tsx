@@ -10,7 +10,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { getCorrectAnswerColor } from '@student-portal/utils';
+import { getBooleanColor } from '@student-portal/utils';
 import { IconCheck, IconCircleNumber1 } from '@tabler/icons-react';
 import type { MoodleQuizQuestion } from '../../types';
 import { getQuestionTypeInfo, stripHtml } from '../shared/utils';
@@ -68,7 +68,7 @@ function QuestionAnswerPreview({ question }: { question: MoodleQuizQuestion }) {
 								<ThemeIcon
 									size='sm'
 									variant='light'
-									color={getCorrectAnswerColor(isCorrect)}
+									color={getBooleanColor(isCorrect)}
 									radius='xl'
 								>
 									{isCorrect ? (

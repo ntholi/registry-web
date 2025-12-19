@@ -3,8 +3,9 @@
 import { ActionIcon, Badge, Divider, Flex, Group, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import {
-	getTermMismatchColor,
+	getOptionalColor,
 	getVersionCountColor,
+	semantic,
 } from '@student-portal/utils';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
@@ -47,7 +48,7 @@ export default function ClearanceHeader({
 				<Group>
 					{!isCurrentTerm && (
 						<Badge
-							color={getTermMismatchColor(isCurrentTerm)}
+							color={getOptionalColor(!isCurrentTerm, semantic.error)}
 							variant={'filled'}
 						>
 							{termCode}
