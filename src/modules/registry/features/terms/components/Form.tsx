@@ -25,11 +25,6 @@ function formatDate(date: Date | string | null): string {
 	return date.toISOString().split('T')[0];
 }
 
-function parseDate(dateStr: string | undefined): Date | undefined {
-	if (!dateStr) return undefined;
-	return new Date(dateStr);
-}
-
 export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
 
@@ -57,7 +52,7 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 					<DateInput
 						label='Start Date'
 						valueFormat='YYYY-MM-DD'
-						value={parseDate(form.values.startDate)}
+						value={form.values.startDate}
 						onChange={(date) =>
 							form.setFieldValue('startDate', formatDate(date))
 						}
@@ -66,7 +61,7 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 					<DateInput
 						label='End Date'
 						valueFormat='YYYY-MM-DD'
-						value={parseDate(form.values.endDate)}
+						value={form.values.endDate}
 						onChange={(date) => form.setFieldValue('endDate', formatDate(date))}
 						error={form.errors.endDate}
 					/>

@@ -12,7 +12,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getStudentPhoto } from '@registry/students';
-import { studentColors } from '@student-portal/utils';
+import { statusColors } from '@student-portal/utils';
 import { IconBook, IconTrophy, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
@@ -40,7 +40,7 @@ export default function Hero() {
 						size={70}
 						radius='sm'
 						src={photoUrl}
-						color={studentColors.theme.primary}
+						color={statusColors.theme.primary}
 						variant='filled'
 					>
 						{!photoUrl && <IconUser size='1.8rem' />}
@@ -76,7 +76,7 @@ export default function Hero() {
 									<ThemeIcon
 										size={'xl'}
 										variant='light'
-										color={studentColors.theme.secondary}
+										color={statusColors.theme.secondary}
 										radius='md'
 									>
 										<IconTrophy size='1.2rem' />
@@ -98,7 +98,7 @@ export default function Hero() {
 									<ThemeIcon
 										size={'xl'}
 										variant='light'
-										color={studentColors.theme.accent}
+										color={statusColors.theme.accent}
 										radius='md'
 									>
 										<IconBook size='1.2rem' />

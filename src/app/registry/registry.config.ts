@@ -1,9 +1,3 @@
-import type {
-	ModuleConfig,
-	NavItem,
-} from '@/app/dashboard/module-config.types';
-import { moduleConfig } from '@/config/modules.config';
-import type { UserPosition, UserRole } from '@/core/database';
 import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance';
 import { countByStatus } from '@registry/registration';
 import {
@@ -21,6 +15,12 @@ import {
 	IconUsers,
 	IconUserX,
 } from '@tabler/icons-react';
+import type {
+	ModuleConfig,
+	NavItem,
+} from '@/app/dashboard/module-config.types';
+import { moduleConfig } from '@/config/modules.config';
+import type { UserPosition, UserRole } from '@/core/database';
 
 export const registryConfig: ModuleConfig = {
 	id: 'registry',

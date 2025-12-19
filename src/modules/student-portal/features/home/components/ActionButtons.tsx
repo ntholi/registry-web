@@ -9,7 +9,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { studentColors } from '@student-portal/utils';
+import { statusColors } from '@student-portal/utils';
 import {
 	type Icon,
 	IconChevronRight,
@@ -34,21 +34,21 @@ const baseActions: Action[] = [
 		label: 'Registration',
 		icon: IconClipboardCheck,
 		href: '/student-portal/registration',
-		color: studentColors.theme.primary,
+		color: statusColors.theme.primary,
 		description: 'Submit or view your registration requests',
 	},
 	{
 		label: 'Transcripts',
 		icon: IconFileCertificate,
 		href: '/student-portal/transcripts',
-		color: studentColors.theme.primary,
+		color: statusColors.theme.primary,
 		description: 'View and download your academic transcripts',
 	},
 	{
 		label: 'Graduation',
 		icon: IconSchool,
 		href: '/student-portal/graduation',
-		color: studentColors.theme.primary,
+		color: statusColors.theme.primary,
 		description: 'Submit your graduation request',
 	},
 ];
@@ -74,7 +74,7 @@ export default function ActionButtons() {
 			label: 'Fortinet Training',
 			icon: IconShield,
 			href: '/student-portal/fortinet-registration',
-			color: studentColors.theme.primary,
+			color: statusColors.theme.primary,
 			description: 'Register for Fortinet network security certification',
 		});
 	}

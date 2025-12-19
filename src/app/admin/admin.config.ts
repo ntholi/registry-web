@@ -5,7 +5,6 @@ import {
 	IconBooks,
 	IconBuildingBank,
 	IconCalculator,
-	IconCalendarMonth,
 	IconChartBar,
 	IconChecklist,
 	IconFileExport,
