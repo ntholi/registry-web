@@ -7,7 +7,7 @@ import {
 	Stack,
 	ThemeIcon,
 } from '@mantine/core';
-import { statusColors } from '@student-portal/utils';
+import { semantic } from '@student-portal/utils';
 import { IconBook, IconTrophy } from '@tabler/icons-react';
 
 type Props = {
@@ -46,7 +46,7 @@ export default function HeroSkeleton({ isMobile }: Props) {
 									<ThemeIcon
 										size='xl'
 										variant='light'
-										color={statusColors.theme.secondary}
+										color={semantic.caution}
 										radius='md'
 									>
 										<IconTrophy size='1.2rem' />
@@ -64,7 +64,7 @@ export default function HeroSkeleton({ isMobile }: Props) {
 									<ThemeIcon
 										size='xl'
 										variant='light'
-										color={statusColors.theme.accent}
+										color={semantic.highlight}
 										radius='md'
 									>
 										<IconBook size='1.2rem' />

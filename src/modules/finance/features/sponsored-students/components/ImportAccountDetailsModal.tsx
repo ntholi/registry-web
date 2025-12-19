@@ -375,12 +375,12 @@ export default function ImportAccountDetailsModal() {
 							</Text>
 							<Group gap='xs'>
 								{successCount > 0 && (
-									<Badge color={statusColors.notification.success} size='sm'>
+									<Badge color={statusColors.alert.success} size='sm'>
 										{successCount} success
 									</Badge>
 								)}
 								{errorCount > 0 && (
-									<Badge color={statusColors.notification.error} size='sm'>
+									<Badge color={statusColors.alert.error} size='sm'>
 										{errorCount} errors
 									</Badge>
 								)}

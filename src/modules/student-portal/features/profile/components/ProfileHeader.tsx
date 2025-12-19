@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import type { Student } from '@registry/students';
 import { getStudentPhoto } from '@registry/students';
-import { statusColors } from '@student-portal/utils';
+import { semantic } from '@student-portal/utils';
 import {
 	IconCalendar,
 	IconGenderBigender,
@@ -51,7 +51,7 @@ export default function ProfileHeader({ student }: Props) {
 					size={180}
 					radius='md'
 					src={photoUrl}
-					color={statusColors.theme.primary}
+					color={semantic.neutral}
 					style={{ minWidth: 120 }}
 				>
 					{!photoUrl && <>{<IconUser size='3rem' />}</>}
@@ -66,7 +66,7 @@ export default function ProfileHeader({ student }: Props) {
 							<Badge
 								size='lg'
 								variant='light'
-								color={statusColors.theme.primary}
+								color={semantic.neutral}
 								leftSection={<IconIdBadge2 size={16} />}
 							>
 								{student.stdNo}

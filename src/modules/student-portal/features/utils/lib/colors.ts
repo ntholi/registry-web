@@ -1,85 +1,107 @@
+export const semantic = {
+	success: 'green',
+	error: 'red',
+	warning: 'yellow',
+	info: 'blue',
+	neutral: 'gray',
+	accent: 'teal',
+	highlight: 'violet',
+	progress: 'cyan',
+	caution: 'orange',
+	dark: 'dark',
+	dimmed: 'dimmed',
+} as const;
+
 export const statusColors = {
-	status: {
-		active: 'green',
-		approved: 'green',
-		registered: 'blue',
-		rejected: 'red',
-		partial: 'orange',
-		pending: 'yellow',
-		enrolled: 'gray',
-		outstanding: 'dark',
-		deleted: 'red',
-		inactive: 'gray',
-		dnr: 'red',
-		droppedout: 'red',
-		deferred: 'yellow',
-		exempted: 'blue',
-		confirmed: 'green',
-		repeat: 'violet',
-		supplementary: 'yellow',
-		drop: 'red',
-		delete: 'red',
-		open: 'green',
-		closed: 'red',
-		notyetopen: 'gray',
-		proceed: 'green',
-		remaininsemester: 'red',
-		nomarks: 'yellow',
-		blocked: 'red',
-		unblocked: 'green',
-		hidden: 'gray',
-		visible: 'green',
-		assigned: 'blue',
-		unassigned: 'gray',
-		overdue: 'red',
-		upcoming: 'teal',
-		graduated: 'blue',
-		suspended: 'red',
-		terminated: 'red',
-		withdrawn: 'gray',
-		deceased: 'gray',
-		applied: 'yellow',
-		changed: 'blue',
-		completed: 'cyan',
+	approval: {
+		approved: semantic.success,
+		confirmed: semantic.success,
+		rejected: semantic.error,
+		pending: semantic.warning,
+		applied: semantic.warning,
+		partial: semantic.caution,
+	},
+	activity: {
+		active: semantic.success,
+		inactive: semantic.neutral,
+		visible: semantic.success,
+		hidden: semantic.neutral,
+		blocked: semantic.error,
+		unblocked: semantic.success,
+	},
+	enrollment: {
+		enrolled: semantic.neutral,
+		registered: semantic.info,
+		graduated: semantic.info,
+		suspended: semantic.error,
+		terminated: semantic.error,
+		droppedout: semantic.error,
+		dnr: semantic.error,
+		withdrawn: semantic.neutral,
+		deceased: semantic.neutral,
+	},
+	academic: {
+		proceed: semantic.success,
+		completed: semantic.progress,
+		repeat: semantic.highlight,
+		deferred: semantic.warning,
+		supplementary: semantic.warning,
+		nomarks: semantic.warning,
+		remaininsemester: semantic.error,
+		exempted: semantic.info,
+		changed: semantic.info,
+	},
+	availability: {
+		open: semantic.success,
+		closed: semantic.error,
+		notyetopen: semantic.neutral,
+		overdue: semantic.error,
+		upcoming: semantic.accent,
+	},
+	assignment: {
+		assigned: semantic.info,
+		unassigned: semantic.neutral,
+	},
+	dataOp: {
+		deleted: semantic.error,
+		drop: semantic.error,
+		outstanding: semantic.dark,
 	},
 	grade: {
-		excellent: 'green',
-		good: 'blue',
-		average: 'yellow',
-		poor: 'red',
-		incomplete: 'orange',
+		excellent: semantic.success,
+		good: semantic.info,
+		average: semantic.warning,
+		poor: semantic.error,
+		incomplete: semantic.caution,
 	},
 	action: {
-		add: 'green',
-		remove: 'red',
-		update: 'blue',
+		add: semantic.success,
+		remove: semantic.error,
+		update: semantic.info,
+		create: semantic.success,
+		delete: semantic.error,
 	},
 	alert: {
-		info: 'blue',
-		warning: 'orange',
-		error: 'red',
-		success: 'green',
-	},
-	theme: {
-		primary: 'gray',
-		secondary: 'orange',
-		accent: 'violet',
+		info: semantic.info,
+		warning: semantic.caution,
+		error: semantic.error,
+		success: semantic.success,
 	},
 	moduleType: {
-		compulsory: 'blue',
-		elective: 'green',
-		repeat: 'orange',
-		resit: 'yellow',
-		exempted: 'teal',
+		compulsory: semantic.info,
+		elective: semantic.success,
+		repeat: semantic.caution,
+		resit: semantic.warning,
+		exempted: semantic.accent,
 	},
 	quizState: {
-		gradedright: 'green',
-		gradedwrong: 'red',
-		gradedpartial: 'yellow',
-		needsgrading: 'orange',
-		gaveup: 'gray',
-		todo: 'gray',
-		complete: 'blue',
+		gradedright: semantic.success,
+		gradedwrong: semantic.error,
+		gradedpartial: semantic.warning,
+		needsgrading: semantic.caution,
+		gaveup: semantic.neutral,
+		todo: semantic.neutral,
+		complete: semantic.info,
 	},
 	questionType: {
 		multichoice: 'blue',
@@ -97,13 +119,6 @@ export const statusColors = {
 		workshop: 'purple.3',
 		practical: 'red.3',
 	},
-	programStatus: {
-		active: 'green',
-		changed: 'blue',
-		completed: 'cyan',
-		deleted: 'red',
-		inactive: 'gray',
-	},
 	gender: {
 		male: 'blue.6',
 		female: 'pink.6',
@@ -120,136 +135,122 @@ export const statusColors = {
 		droppedout: 'red.6',
 		completed: 'teal.6',
 	},
-	postType: {
-		announcement: 'blue',
-		discussion: 'teal',
-	},
-	boolean: {
-		true: 'green',
-		false: 'red',
-	},
-	notification: {
-		success: 'green',
-		error: 'red',
-		warning: 'orange',
-		info: 'blue',
-	},
-	requestStatus: {
-		registered: 'green',
-		rejected: 'red',
-		pending: 'gray',
-	},
-	taskPriority: {
-		low: 'gray',
-		medium: 'blue',
-		high: 'orange',
-		urgent: 'red',
+	priority: {
+		low: semantic.neutral,
+		medium: semantic.info,
+		high: semantic.caution,
+		urgent: semantic.error,
 	},
 	taskStatus: {
-		todo: 'gray',
-		in_progress: 'blue',
-		inprogress: 'blue',
-		on_hold: 'yellow',
-		onhold: 'yellow',
-		completed: 'green',
-		cancelled: 'red',
-	},
-	versionCount: {
-		first: 'green',
-		few: 'yellow',
-		many: 'red',
+		todo: semantic.neutral,
+		in_progress: semantic.info,
+		inprogress: semantic.info,
+		on_hold: semantic.warning,
+		onhold: semantic.warning,
+		completed: semantic.success,
+		cancelled: semantic.error,
 	},
 } as const;
 
-export function getStatusColor(status: string) {
-	if (!status) return 'gray';
-	const normalizedStatus = status.toLowerCase().replace(/\s+/g, '');
+const allStatuses = {
+	...statusColors.approval,
+	...statusColors.activity,
+	...statusColors.enrollment,
+	...statusColors.academic,
+	...statusColors.availability,
+	...statusColors.assignment,
+	...statusColors.dataOp,
+} as const;
 
-	if (normalizedStatus in statusColors.status) {
-		return statusColors.status[
-			normalizedStatus as keyof typeof statusColors.status
-		];
+export function getColorFromMap<T extends Record<string, string>>(
+	value: string | undefined | null,
+	colorMap: T,
+	fallback: string = semantic.neutral
+): string {
+	if (!value) return fallback;
+	const normalized = value.toLowerCase().replace(/\s+/g, '');
+	if (normalized in colorMap) {
+		return colorMap[normalized as keyof T];
 	}
-
-	if (normalizedStatus.includes('pending')) return statusColors.status.pending;
-	if (normalizedStatus.includes('reject')) return statusColors.status.rejected;
-	if (
-		normalizedStatus.includes('pass') ||
-		normalizedStatus.includes('success') ||
-		normalizedStatus.includes('proceed')
-	)
-		return statusColors.status.active;
-	if (normalizedStatus.includes('fail') || normalizedStatus.includes('remain'))
-		return statusColors.status.rejected;
-	if (normalizedStatus.includes('supplementary'))
-		return statusColors.status.supplementary;
-	if (normalizedStatus.includes('repeat')) return statusColors.status.repeat;
-
-	return 'gray';
+	return fallback;
 }
 
-export function getGradeColor(grade: string) {
-	if (!grade) return 'gray';
+export function getBooleanColor(
+	value: boolean,
+	trueColor: string = semantic.success,
+	falseColor: string = semantic.error
+): string {
+	return value ? trueColor : falseColor;
+}
+
+export function getOptionalBooleanColor(
+	condition: boolean,
+	activeColor: string
+): string | undefined {
+	return condition ? activeColor : undefined;
+}
+
+export function getThresholdColor(
+	value: number | null | undefined,
+	thresholds: { good: number; moderate?: number },
+	colors: { good?: string; moderate?: string; bad?: string; none?: string } = {}
+): string {
+	const {
+		good = semantic.success,
+		moderate = semantic.warning,
+		bad = semantic.error,
+		none = semantic.neutral,
+	} = colors;
+
+	if (value === null || value === undefined) return none;
+	if (value >= thresholds.good) return good;
+	if (thresholds.moderate !== undefined && value >= thresholds.moderate)
+		return moderate;
+	return bad;
+}
+
+export function getStatusColor(status: string): string {
+	if (!status) return semantic.neutral;
+	const normalized = status.toLowerCase().replace(/\s+/g, '');
+
+	if (normalized in allStatuses) {
+		return allStatuses[normalized as keyof typeof allStatuses];
+	}
+
+	if (normalized.includes('pending')) return statusColors.approval.pending;
+	if (normalized.includes('reject')) return statusColors.approval.rejected;
+	if (
+		normalized.includes('pass') ||
+		normalized.includes('success') ||
+		normalized.includes('proceed')
+	)
+		return statusColors.activity.active;
+	if (normalized.includes('fail') || normalized.includes('remain'))
+		return statusColors.approval.rejected;
+	if (normalized.includes('supplementary'))
+		return statusColors.academic.supplementary;
+	if (normalized.includes('repeat')) return statusColors.academic.repeat;
+
+	return semantic.neutral;
+}
+
+export function getGradeColor(grade: string): string {
+	if (!grade) return semantic.neutral;
 	const g = grade.toUpperCase();
 
-	if (g === 'ANN') return 'red';
+	if (g === 'ANN') return semantic.error;
 	if (['A+', 'A', 'A-'].includes(g)) return statusColors.grade.excellent;
 	if (['B+', 'B', 'B-'].includes(g)) return statusColors.grade.good;
 	if (['C+', 'C', 'C-'].includes(g)) return statusColors.grade.average;
-	if (['PP', 'DEF'].includes(g)) return statusColors.grade.incomplete;
-	if (['NM'].includes(g)) return statusColors.grade.incomplete;
+	if (['PP', 'DEF', 'NM'].includes(g)) return statusColors.grade.incomplete;
 	if (['F', 'FX', 'FIN', 'D', 'D+', 'D-', 'E', 'E+', 'E-'].includes(g))
 		return statusColors.grade.poor;
 
-	return 'gray';
+	return semantic.neutral;
 }
 
-export function getSemesterStatusColor(status: string) {
-	return getStatusColor(status);
-}
-
-export function getActionColor(action: 'add' | 'remove' | 'update') {
-	return statusColors.action[action];
-}
-
-export function getAlertColor(type: 'info' | 'warning' | 'error' | 'success') {
-	return statusColors.alert[type];
-}
-
-export function getPercentageColor(
-	percentage: number | null
-): 'green' | 'yellow' | 'red' | 'gray' {
-	if (percentage === null) return 'gray';
-	if (percentage >= 75) return 'green';
-	if (percentage >= 50) return 'yellow';
-	return 'red';
-}
-
-export function getPointsColor(points: number | null) {
-	if (points === null) return 'gray';
-	if (points >= 4.0) return 'green';
-	if (points >= 3.0) return 'blue';
-	if (points >= 2.0) return 'orange';
-	return 'red';
-}
-
-export function getStudentStatusColor(status: string) {
-	return getStatusColor(status);
-}
-
-export function getProgramStatusColor(status: string) {
-	if (!status) return 'gray';
-	const normalized = status.toLowerCase().replace(/\s+/g, '');
-	if (normalized in statusColors.programStatus) {
-		return statusColors.programStatus[
-			normalized as keyof typeof statusColors.programStatus
-		];
-	}
-	return getStatusColor(status);
-}
-
-export function getModuleTypeColor(type: string) {
-	if (!type) return 'gray';
+export function getModuleTypeColor(type: string): string {
+	if (!type) return semantic.neutral;
 	const normalized = type.toLowerCase();
 
 	if (normalized in statusColors.moduleType) {
@@ -259,25 +260,9 @@ export function getModuleTypeColor(type: string) {
 	}
 	if (normalized.startsWith('repeat')) return statusColors.moduleType.repeat;
 	if (normalized.startsWith('resit')) return statusColors.moduleType.resit;
-	if (normalized === 'drop' || normalized === 'delete') return 'red';
+	if (normalized === 'drop' || normalized === 'delete') return semantic.error;
 
-	return 'gray';
-}
-
-export function getModuleStatusColor(status: string) {
-	return getModuleTypeColor(status);
-}
-
-export function getQuizStateColor(
-	state: string
-): 'green' | 'red' | 'yellow' | 'orange' | 'gray' | 'blue' {
-	const normalized = state.toLowerCase();
-	if (normalized in statusColors.quizState) {
-		return statusColors.quizState[
-			normalized as keyof typeof statusColors.quizState
-		] as 'green' | 'red' | 'yellow' | 'orange' | 'gray' | 'blue';
-	}
-	return 'gray';
+	return semantic.neutral;
 }
 
 export function getQuizStatusColor(
@@ -285,12 +270,15 @@ export function getQuizStatusColor(
 	isClosed: boolean
 ): { label: string; color: string } {
 	if (isNotYetOpen) {
-		return { label: 'Not yet open', color: statusColors.status.notyetopen };
+		return {
+			label: 'Not yet open',
+			color: statusColors.availability.notyetopen,
+		};
 	}
 	if (isClosed) {
-		return { label: 'Closed', color: statusColors.status.closed };
+		return { label: 'Closed', color: statusColors.availability.closed };
 	}
-	return { label: 'Open', color: statusColors.status.open };
+	return { label: 'Open', color: statusColors.availability.open };
 }
 
 export function getAssignmentStatusColor(
@@ -298,212 +286,118 @@ export function getAssignmentStatusColor(
 	isUpcoming: boolean
 ): { label: string; color: string } {
 	if (isOverdue) {
-		return { label: 'Overdue', color: statusColors.status.overdue };
+		return { label: 'Overdue', color: statusColors.availability.overdue };
 	}
 	if (isUpcoming) {
-		return { label: 'Upcoming', color: statusColors.status.upcoming };
+		return { label: 'Upcoming', color: statusColors.availability.upcoming };
 	}
-	return { label: 'Active', color: statusColors.status.active };
+	return { label: 'Active', color: statusColors.activity.active };
 }
 
-export function getQuestionTypeColor(questionType: string) {
-	const normalized = questionType.toLowerCase();
-	if (normalized in statusColors.questionType) {
-		return statusColors.questionType[
-			normalized as keyof typeof statusColors.questionType
-		];
-	}
-	return 'gray';
-}
+export const getSemesterStatusColor = getStatusColor;
+export const getStudentStatusColor = getStatusColor;
+export const getClearanceStatusColor = getStatusColor;
+export const getProgramStatusColor = getStatusColor;
+export const getRequestStatusColor = getStatusColor;
+export const getModuleStatusColor = getModuleTypeColor;
 
-export function getClassTypeColor(classType: string): string {
-	const normalized = classType.toLowerCase();
-	if (normalized in statusColors.classType) {
-		return statusColors.classType[
-			normalized as keyof typeof statusColors.classType
-		];
-	}
-	return 'cyan.3';
-}
+export const getActionColor = (action: 'add' | 'remove' | 'update') =>
+	statusColors.action[action];
+export const getAuditActionColor = (action: 'create' | 'update' | 'delete') =>
+	statusColors.action[action];
+export const getAlertColor = (type: 'info' | 'warning' | 'error' | 'success') =>
+	statusColors.alert[type];
+export const getNotificationColor = getAlertColor;
+export const getQuizStateColor = (state: string) =>
+	getColorFromMap(state, statusColors.quizState);
+export const getQuestionTypeColor = (type: string) =>
+	getColorFromMap(type, statusColors.questionType);
+export const getClassTypeColor = (type: string) =>
+	getColorFromMap(type, statusColors.classType, 'cyan.3');
+export const getGenderColor = (gender: string) =>
+	getColorFromMap(gender, statusColors.gender, 'gray.6');
+export const getProgramLevelColor = (level: string) =>
+	getColorFromMap(level, statusColors.programLevel, 'gray.6');
+export const getChartSemesterStatusColor = (status: string) =>
+	getColorFromMap(status, statusColors.semesterStatus, 'gray.6');
+export const getPostTypeColor = (type: 'announcement' | 'discussion') =>
+	statusColors.approval[type === 'announcement' ? 'confirmed' : 'pending']
+		? semantic.info
+		: semantic.accent;
+export const getTaskPriorityColor = (priority: string) =>
+	getColorFromMap(priority, statusColors.priority);
+export const getTaskStatusColor = (status: string) =>
+	getColorFromMap(status, statusColors.taskStatus);
 
-export function getPassFailColor(hasPassed: boolean) {
-	return hasPassed ? statusColors.boolean.true : statusColors.boolean.false;
-}
-
-export function getBooleanStatusColor(isActive: boolean) {
-	return isActive ? 'green' : 'gray';
-}
-
-export function getActiveInactiveColor(isActive: boolean) {
-	return isActive ? statusColors.boolean.true : statusColors.boolean.false;
-}
-
-export function getVisibilityColor(hidden: boolean) {
-	return hidden ? 'red' : 'blue';
-}
-
-export function getClearanceStatusColor(status: string) {
-	return getStatusColor(status);
-}
-
-export function getGenderColor(gender: string) {
-	const normalized = gender.toLowerCase();
-	if (normalized in statusColors.gender) {
-		return statusColors.gender[normalized as keyof typeof statusColors.gender];
-	}
-	return 'gray.6';
-}
-
-export function getProgramLevelColor(level: string) {
-	const normalized = level.toLowerCase();
-	if (normalized in statusColors.programLevel) {
-		return statusColors.programLevel[
-			normalized as keyof typeof statusColors.programLevel
-		];
-	}
-	return 'gray.6';
-}
-
-export function getChartSemesterStatusColor(status: string) {
-	const normalized = status.toLowerCase().replace(/\s+/g, '');
-	if (normalized in statusColors.semesterStatus) {
-		return statusColors.semesterStatus[
-			normalized as keyof typeof statusColors.semesterStatus
-		];
-	}
-	return 'gray.6';
-}
-
-export function getPostTypeColor(type: 'announcement' | 'discussion') {
-	return statusColors.postType[type];
-}
-
-export function getOverdueColor(isOverdue: boolean) {
-	return isOverdue ? 'red' : 'blue';
-}
-
-export function getBlockedStatusColor(isBlocked: boolean) {
-	return isBlocked
-		? statusColors.status.blocked
-		: statusColors.status.unblocked;
-}
-
-export function getNotificationColor(
-	type: 'success' | 'error' | 'warning' | 'info'
-) {
-	return statusColors.notification[type];
-}
-
-export function getMarksPercentageColor(
+export const getPercentageColor = (percentage: number | null) =>
+	getThresholdColor(percentage, { good: 75, moderate: 50 });
+export const getPointsColor = (points: number | null) =>
+	getThresholdColor(
+		points,
+		{ good: 4.0, moderate: 3.0 },
+		{ moderate: semantic.info, bad: semantic.caution }
+	);
+export const getMarksPercentageColor = (
 	marks: number | null | undefined,
 	maxMarks: number
-): 'green' | 'red' | 'gray' {
-	if (marks === null || marks === undefined) return 'gray';
-	const percentage = (marks / maxMarks) * 100;
-	return percentage >= 50 ? 'green' : 'red';
-}
+) => {
+	if (marks === null || marks === undefined) return semantic.neutral;
+	return getThresholdColor((marks / maxMarks) * 100, { good: 50 });
+};
+export const getVersionCountColor = (count: number) => {
+	if (count === 1) return semantic.success;
+	if (count <= 3) return semantic.warning;
+	return semantic.error;
+};
 
-export function getRequestStatusColor(
-	status: 'registered' | 'rejected' | 'pending' | string
-) {
+export const getPassFailColor = (passed: boolean) => getBooleanColor(passed);
+export const getActiveInactiveColor = (active: boolean) =>
+	getBooleanColor(active);
+export const getBooleanStatusColor = (active: boolean) =>
+	getBooleanColor(active, semantic.success, semantic.neutral);
+export const getBlockedStatusColor = (blocked: boolean) =>
+	getBooleanColor(
+		blocked,
+		statusColors.activity.blocked,
+		statusColors.activity.unblocked
+	);
+export const getOverdueColor = (overdue: boolean) =>
+	getBooleanColor(overdue, semantic.error, semantic.info);
+export const getVisibilityColor = (hidden: boolean) =>
+	getBooleanColor(hidden, semantic.error, semantic.info);
+export const getImportResultColor = (success: boolean) =>
+	getBooleanColor(success, semantic.success, semantic.caution);
+export const getCorrectAnswerColor = (correct: boolean) =>
+	getBooleanColor(correct, semantic.success, semantic.neutral);
+export const getCopiedColor = (copied: boolean) =>
+	getBooleanColor(copied, semantic.accent, semantic.neutral);
+
+export const getTermMismatchColor = (isCurrentTerm: boolean) =>
+	getOptionalBooleanColor(!isCurrentTerm, semantic.error);
+export const getExceededLimitColor = (exceeded: boolean) =>
+	getBooleanColor(exceeded, semantic.error, semantic.info);
+export const getHiddenTextColor = (hidden: boolean) =>
+	getOptionalBooleanColor(hidden, semantic.dark);
+export const getDroppedDeletedColor = (dropped: boolean) =>
+	getOptionalBooleanColor(dropped, semantic.dimmed);
+export const getNavActiveColor = (active: boolean) =>
+	getBooleanColor(active, semantic.info, semantic.dimmed);
+export const getFilterActiveColor = (hasFilters: boolean) =>
+	getOptionalBooleanColor(hasFilters, semantic.info);
+export const getEmptyValueColor = (hasValue: boolean) =>
+	getOptionalBooleanColor(!hasValue, semantic.dimmed);
+export const getOverdueTextColor = (overdue: boolean) =>
+	getBooleanColor(overdue, semantic.error, semantic.dimmed);
+
+export function getModuleStatusTextColor(status: string): string | undefined {
 	const normalized = status.toLowerCase();
-	if (normalized in statusColors.requestStatus) {
-		return statusColors.requestStatus[
-			normalized as keyof typeof statusColors.requestStatus
-		];
-	}
-	return 'gray';
-}
-
-export function getCorrectAnswerColor(isCorrect: boolean) {
-	return isCorrect ? 'green' : 'gray';
-}
-
-export function getCopiedColor(copied: boolean) {
-	return copied ? 'teal' : 'gray';
-}
-
-export function getHiddenTextColor(hidden: boolean) {
-	return hidden ? 'dark' : undefined;
-}
-
-export function getModuleStatusTextColor(status: string) {
-	const normalized = status.toLowerCase();
-	if (normalized.startsWith('repeat')) return 'red';
+	if (normalized.startsWith('repeat')) return semantic.error;
 	return undefined;
 }
 
-export function getDroppedDeletedColor(isDroppedOrDeleted: boolean) {
-	return isDroppedOrDeleted ? 'dimmed' : undefined;
-}
-
-export function getNavActiveColor(isActive: boolean) {
-	return isActive ? 'blue' : 'dimmed';
-}
-
-export function getFilterActiveColor(hasActiveFilters: boolean) {
-	return hasActiveFilters ? 'blue' : undefined;
-}
-
-export function getImportResultColor(success: boolean) {
-	return success ? 'green' : 'orange';
-}
-
-export function getTaskPriorityColor(priority: string) {
-	if (!priority) return 'gray';
-	const normalized = priority.toLowerCase();
-	if (normalized in statusColors.taskPriority) {
-		return statusColors.taskPriority[
-			normalized as keyof typeof statusColors.taskPriority
-		];
-	}
-	return 'gray';
-}
-
-export function getTaskStatusColor(status: string) {
-	if (!status) return 'gray';
-	const normalized = status.toLowerCase().replace(/\s+/g, '');
-	if (normalized in statusColors.taskStatus) {
-		return statusColors.taskStatus[
-			normalized as keyof typeof statusColors.taskStatus
-		];
-	}
-	return 'gray';
-}
-
-export function getVersionCountColor(
-	count: number
-): 'green' | 'yellow' | 'red' {
-	if (count === 1) return statusColors.versionCount.first as 'green';
-	if (count <= 3) return statusColors.versionCount.few as 'yellow';
-	return statusColors.versionCount.many as 'red';
-}
-
-export function getTermMismatchColor(isCurrentTerm: boolean) {
-	return isCurrentTerm ? undefined : 'red';
-}
-
-export function getSemesterResultColor(status: string) {
+export function getSemesterResultColor(status: string): string {
 	const normalized = status.toLowerCase();
-	if (normalized === 'active') return 'green';
-	if (normalized === 'repeat') return 'orange';
+	if (normalized === 'active') return semantic.success;
+	if (normalized === 'repeat') return semantic.caution;
 	return getStatusColor(status);
-}
-
-export function getOverdueTextColor(isOverdue: boolean) {
-	return isOverdue ? 'red' : 'dimmed';
-}
-
-export function getExceededLimitColor(isExceeded: boolean) {
-	return isExceeded ? 'red' : 'blue';
-}
-
-export function getEmptyValueColor(hasValue: boolean) {
-	return hasValue ? undefined : 'dimmed';
-}
-
-export function getAuditActionColor(action: 'create' | 'update' | 'delete') {
-	return statusColors.action[
-		action === 'create' ? 'add' : action === 'delete' ? 'remove' : 'update'
-	];
 }
