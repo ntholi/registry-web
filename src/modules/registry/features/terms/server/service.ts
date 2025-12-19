@@ -11,6 +11,13 @@ class TermService extends BaseService<typeof terms, 'id'> {
 		});
 	}
 
+	async getByCode(code: string) {
+		return withAuth(
+			async () => (this.repository as TermRepository).getByCode(code),
+			['all']
+		);
+	}
+
 	async getActive() {
 		return withAuth(
 			async () => (this.repository as TermRepository).getActive(),

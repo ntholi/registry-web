@@ -14,7 +14,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			actionIcons={[<NewLink key={'new-link'} href='/registry/terms/new' />]}
 			renderItem={(it) => (
 				<ListItem
-					id={it.id}
+					id={it.code}
 					label={it.code}
 					rightSection={
 						it.isActive ? <IconCheck size={'1rem'} color='green' /> : null

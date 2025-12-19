@@ -12,6 +12,10 @@ export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
 		super(terms, terms.id);
 	}
 
+	async getByCode(code: string) {
+		return db.query.terms.findFirst({ where: eq(terms.code, code) });
+	}
+
 	async findAll() {
 		const result = await db
 			.select()

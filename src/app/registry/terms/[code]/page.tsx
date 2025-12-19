@@ -1,5 +1,5 @@
 import { Badge } from '@mantine/core';
-import { deleteTerm, getTerm } from '@registry/terms';
+import { deleteTerm, getTermByCode } from '@registry/terms';
 import { getBooleanColor } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
 import {
@@ -10,12 +10,12 @@ import {
 } from '@/shared/ui/adease';
 
 type Props = {
-	params: Promise<{ id: string }>;
+	params: Promise<{ code: string }>;
 };
 
 export default async function TermDetails({ params }: Props) {
-	const { id } = await params;
-	const term = await getTerm(Number(id));
+	const { code } = await params;
+	const term = await getTermByCode(code);
 
 	if (!term) {
 		return notFound();
@@ -28,7 +28,7 @@ export default async function TermDetails({ params }: Props) {
 				queryKey={['terms']}
 				handleDelete={async () => {
 					'use server';
-					await deleteTerm(Number(id));
+					await deleteTerm(term.id);
 				}}
 			/>
 			<DetailsViewBody>

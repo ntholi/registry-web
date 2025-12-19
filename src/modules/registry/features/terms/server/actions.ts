@@ -9,6 +9,10 @@ export async function getTerm(id: number) {
 	return service.get(id);
 }
 
+export async function getTermByCode(code: string) {
+	return service.getByCode(code);
+}
+
 export async function getCurrentTerm() {
 	const term = await service.getActive();
 	if (!term) {
