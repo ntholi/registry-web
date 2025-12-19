@@ -28,7 +28,7 @@ export default function TranscriptDownloadButton({
 		enabled: !!stdNo,
 	});
 
-	const handleDownload = async () => {
+	async function handleDownload() {
 		if (!student) {
 			console.error('No student data available for download');
 			return;
@@ -57,7 +57,7 @@ export default function TranscriptDownloadButton({
 		} finally {
 			setIsGenerating(false);
 		}
-	};
+	}
 
 	return isMobile ? (
 		<ActionIcon

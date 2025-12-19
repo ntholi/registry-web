@@ -233,7 +233,7 @@ export default function InformationConfirmation({
 	);
 }
 
-function getPhoneNumbers(student: Student): string {
+function getPhoneNumbers(student: Student) {
 	const phoneNumbers = [];
 	if (student.phone1) {
 		phoneNumbers.push(student.phone1);

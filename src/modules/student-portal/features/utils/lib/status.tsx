@@ -28,7 +28,7 @@ export function getStatusColor(status: RegistrationStatus | GraduationStatus) {
 
 export function getClearanceStatus<T extends { clearance: { status: string } }>(
 	clearances: T[] | undefined
-): 'pending' | 'approved' | 'rejected' {
+) {
 	if (!clearances || clearances.length === 0) {
 		return 'pending';
 	}

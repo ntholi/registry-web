@@ -24,11 +24,11 @@ export default function ModuleCheckbox({
 	isSelected,
 	onToggle,
 }: ModuleCheckboxProps) {
-	const hasPrerequisites = (module: ModuleWithStatus): boolean => {
+	function hasPrerequisites(module: ModuleWithStatus) {
 		return (
 			module.prerequisites !== undefined && module.prerequisites.length > 0
 		);
-	};
+	}
 
 	const hasPrereqs = hasPrerequisites(module);
 	const isDisabled = hasPrereqs;

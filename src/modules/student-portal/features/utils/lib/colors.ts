@@ -297,53 +297,69 @@ export function getAssignmentStatusColor(
 	return { label: 'Active', color: statusColors.activity.active };
 }
 
-export const getActionColor = (action: 'add' | 'remove' | 'update') =>
-	statusColors.action[action];
-export const getAuditActionColor = (action: 'create' | 'update' | 'delete') =>
-	statusColors.action[action];
-export const getAlertColor = (type: 'info' | 'warning' | 'error' | 'success') =>
-	statusColors.alert[type];
-export const getQuizStateColor = (state: string) =>
-	getColorFromMap(state, statusColors.quizState);
-export const getQuestionTypeColor = (type: string) =>
-	getColorFromMap(type, statusColors.questionType);
-export const getClassTypeColor = (type: string) =>
-	getColorFromMap(type, statusColors.classType, 'cyan.3');
-export const getGenderColor = (gender: string) =>
-	getColorFromMap(gender, statusColors.gender, 'gray.6');
-export const getProgramLevelColor = (level: string) =>
-	getColorFromMap(level, statusColors.programLevel, 'gray.6');
-export const getChartSemesterStatusColor = (status: string) =>
-	getColorFromMap(status, statusColors.semesterStatus, 'gray.6');
-export const getPostTypeColor = (type: 'announcement' | 'discussion') =>
-	statusColors.approval[type === 'announcement' ? 'confirmed' : 'pending']
+export function getActionColor(action: 'add' | 'remove' | 'update') {
+	return statusColors.action[action];
+}
+export function getAuditActionColor(action: 'create' | 'update' | 'delete') {
+	return statusColors.action[action];
+}
+export function getAlertColor(type: 'info' | 'warning' | 'error' | 'success') {
+	return statusColors.alert[type];
+}
+export function getQuizStateColor(state: string) {
+	return getColorFromMap(state, statusColors.quizState);
+}
+export function getQuestionTypeColor(type: string) {
+	return getColorFromMap(type, statusColors.questionType);
+}
+export function getClassTypeColor(type: string) {
+	return getColorFromMap(type, statusColors.classType, 'cyan.3');
+}
+export function getGenderColor(gender: string) {
+	return getColorFromMap(gender, statusColors.gender, 'gray.6');
+}
+export function getProgramLevelColor(level: string) {
+	return getColorFromMap(level, statusColors.programLevel, 'gray.6');
+}
+export function getChartSemesterStatusColor(status: string) {
+	return getColorFromMap(status, statusColors.semesterStatus, 'gray.6');
+}
+export function getPostTypeColor(type: 'announcement' | 'discussion') {
+	return statusColors.approval[
+		type === 'announcement' ? 'confirmed' : 'pending'
+	]
 		? semantic.info
 		: semantic.accent;
-export const getTaskPriorityColor = (priority: string) =>
-	getColorFromMap(priority, statusColors.priority);
-export const getTaskStatusColor = (status: string) =>
-	getColorFromMap(status, statusColors.taskStatus);
+}
+export function getTaskPriorityColor(priority: string) {
+	return getColorFromMap(priority, statusColors.priority);
+}
+export function getTaskStatusColor(status: string) {
+	return getColorFromMap(status, statusColors.taskStatus);
+}
 
-export const getPercentageColor = (percentage: number | null) =>
-	getThresholdColor(percentage, { good: 75, moderate: 50 });
-export const getPointsColor = (points: number | null) =>
-	getThresholdColor(
+export function getPercentageColor(percentage: number | null) {
+	return getThresholdColor(percentage, { good: 75, moderate: 50 });
+}
+export function getPointsColor(points: number | null) {
+	return getThresholdColor(
 		points,
 		{ good: 4.0, moderate: 3.0 },
 		{ moderate: semantic.info, bad: semantic.caution }
 	);
-export const getMarksPercentageColor = (
+}
+export function getMarksPercentageColor(
 	marks: number | null | undefined,
 	maxMarks: number
-) => {
+) {
 	if (marks === null || marks === undefined) return semantic.neutral;
 	return getThresholdColor((marks / maxMarks) * 100, { good: 50 });
-};
-export const getVersionCountColor = (count: number) => {
+}
+export function getVersionCountColor(count: number) {
 	if (count === 1) return semantic.success;
 	if (count <= 3) return semantic.warning;
 	return semantic.error;
-};
+}
 
 export function getModuleStatusTextColor(status: string) {
 	const normalized = status.toLowerCase();

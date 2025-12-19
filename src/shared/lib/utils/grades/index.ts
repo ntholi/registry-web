@@ -1,11 +1,6 @@
 import { getVisibleModulesForStructure } from '@academic/semester-modules';
-import type { Grade, grade } from '@/core/database';
-import type {
-	FacultyRemarksResult,
-	GradePoint,
-	Program,
-	StudentModule,
-} from './type';
+import type { grade } from '@/core/database';
+import type { GradePoint, Program, StudentModule } from './type';
 
 export type GradeDefinition = {
 	grade: (typeof grade.enumValues)[number];
@@ -161,11 +156,11 @@ export const grades: GradeDefinition[] = [
 	},
 ];
 
-export function normalizeGradeSymbol(grade: string): string {
+export function normalizeGradeSymbol(grade: string) {
 	return grade.trim().toUpperCase();
 }
 
-export function normalizeModuleName(name: string): string {
+export function normalizeModuleName(name: string) {
 	return name
 		.trim()
 		.toLowerCase()
@@ -190,11 +185,11 @@ export function normalizeModuleName(name: string): string {
 		.trim();
 }
 
-export function getGradeBySymbol(grade: string): GradeDefinition | undefined {
+export function getGradeBySymbol(grade: string) {
 	return grades.find((g) => g.grade === normalizeGradeSymbol(grade));
 }
 
-export function getGradeByPoints(points: number): GradeDefinition | undefined {
+export function getGradeByPoints(points: number) {
 	const gradesWithPoints = grades.filter((g) => g.points !== null);
 	const sortedGrades = gradesWithPoints.sort(
 		(a, b) => (b.points as number) - (a.points as number)
@@ -207,41 +202,41 @@ export function getGradeByPoints(points: number): GradeDefinition | undefined {
 	return sortedGrades[sortedGrades.length - 1];
 }
 
-export function getGradeByMarks(marks: number): GradeDefinition | undefined {
+export function getGradeByMarks(marks: number) {
 	return grades.find(
 		(g) =>
 			g.marksRange && marks >= g.marksRange.min && marks <= g.marksRange.max
 	);
 }
 
-export function getLetterGrade(marks: number): Grade {
+export function getLetterGrade(marks: number) {
 	const gradeDefinition = getGradeByMarks(marks);
 	return gradeDefinition?.grade || 'F';
 }
 
-export function getGradePoints(grade: string): number {
+export function getGradePoints(grade: string) {
 	const gradeDefinition = getGradeBySymbol(grade);
 	return gradeDefinition?.points ?? 0;
 }
 
-export function isFailingGrade(grade: string): boolean {
+export function isFailingGrade(grade: string) {
 	return ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
 		normalizeGradeSymbol(grade)
 	);
 }
 
-export function isPassingGrade(grade: string): boolean {
+export function isPassingGrade(grade: string) {
 	const passingGrades = grades
 		.filter((g) => g.points !== null && g.points > 0)
 		.map((g) => g.grade as string);
 	return passingGrades.includes(normalizeGradeSymbol(grade));
 }
 
-export function isSupplementaryGrade(grade: string): boolean {
+export function isSupplementaryGrade(grade: string) {
 	return normalizeGradeSymbol(grade) === 'PP';
 }
 
-export function isFailingOrSupGrade(grade: string): boolean {
+export function isFailingOrSupGrade(grade: string) {
 	return isFailingGrade(grade) || isSupplementaryGrade(grade);
 }
 
@@ -285,7 +280,7 @@ function calculateGPA(points: number, creditsForGPA: number) {
 	return creditsForGPA > 0 ? points / creditsForGPA : 0;
 }
 
-export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
+export function getAcademicRemarks(programs: Program[]) {
 	const { semesters, studentModules } = extractData(programs);
 
 	const points: GradePoint[] = [];

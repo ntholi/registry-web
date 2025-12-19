@@ -13,13 +13,15 @@ let mockedUser: User = {
 	image: null,
 };
 
-export const getMockUser = () => mockedUser;
+export function getMockUser() {
+	return mockedUser;
+}
 
-export const setMockUser = (user: User) => {
+export function setMockUser(user: User) {
 	mockedUser = user;
-};
+}
 
-export const resetMockUser = () => {
+export function resetMockUser() {
 	mockedUser = {
 		id: 'test-user',
 		name: 'Test User',
@@ -29,6 +31,6 @@ export const resetMockUser = () => {
 		emailVerified: null,
 		image: null,
 	};
-};
+}
 
 export const auth = vi.fn(() => Promise.resolve({ user: mockedUser }));
