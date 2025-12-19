@@ -1,16 +1,47 @@
+export type TextFormat = 0 | 1 | 2 | 4;
+
+export type BooleanNumber = 0 | 1;
+
+export type BigBlueButtonType = 0 | 1 | 2 | 3;
+
+export type ModuleName =
+	| 'assign'
+	| 'bigbluebuttonbn'
+	| 'book'
+	| 'chat'
+	| 'choice'
+	| 'data'
+	| 'feedback'
+	| 'folder'
+	| 'forum'
+	| 'glossary'
+	| 'h5pactivity'
+	| 'imscp'
+	| 'label'
+	| 'lesson'
+	| 'lti'
+	| 'page'
+	| 'quiz'
+	| 'resource'
+	| 'scorm'
+	| 'survey'
+	| 'url'
+	| 'wiki'
+	| 'workshop';
+
 export type BigBlueButtonSession = {
 	id: number;
 	coursemoduleid: number;
 	meetingid: string;
 	name: string;
 	intro?: string;
-	type?: number;
+	type?: BigBlueButtonType;
 	welcome?: string;
 	voicebridge?: number;
-	wait?: number;
+	wait?: BooleanNumber;
 	userlimit?: number;
-	record?: number;
-	muteonstart?: number;
+	record?: BooleanNumber;
+	muteonstart?: BooleanNumber;
 	openingtime?: number;
 	closingtime?: number;
 };
@@ -19,12 +50,12 @@ export type CreateBigBlueButtonParams = {
 	courseid: number;
 	name: string;
 	intro?: string;
-	type?: number;
+	type?: BigBlueButtonType;
 	welcome?: string;
-	wait?: number;
+	wait?: BooleanNumber;
 	userlimit?: number;
-	record?: number;
-	muteonstart?: number;
+	record?: BooleanNumber;
+	muteonstart?: BooleanNumber;
 	openingtime?: number;
 	closingtime?: number;
 };
@@ -32,11 +63,11 @@ export type CreateBigBlueButtonParams = {
 export type MoodleSection = {
 	id: number;
 	name: string;
-	visible: number;
+	visible: BooleanNumber;
 	summary: string;
-	summaryformat: number;
+	summaryformat: TextFormat;
 	section: number;
-	hiddenbynumsections: number;
+	hiddenbynumsections: BooleanNumber;
 	uservisible: boolean;
 	modules?: Array<{
 		id: number;
@@ -44,11 +75,11 @@ export type MoodleSection = {
 		name: string;
 		instance: number;
 		contextid: number;
-		visible: number;
+		visible: BooleanNumber;
 		uservisible: boolean;
-		visibleoncoursepage: number;
+		visibleoncoursepage: BooleanNumber;
 		modicon: string;
-		modname: string;
+		modname: ModuleName;
 		modplural: string;
 		indent: number;
 	}>;

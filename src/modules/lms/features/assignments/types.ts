@@ -1,35 +1,53 @@
+export type TextFormat = 0 | 1 | 2 | 4;
+
+export type BooleanNumber = 0 | 1;
+
+export type AttemptReopenMethod = 'none' | 'manual' | 'untilpass';
+
+export type SubmissionPluginType =
+	| 'onlinetext'
+	| 'file'
+	| 'comments'
+	| 'locallib';
+
+export type SubmissionPluginSubtype = 'assignsubmission' | 'assignfeedback';
+
+export type SubmissionStatus = 'new' | 'draft' | 'submitted' | 'reopened';
+
+export type GradingMethod = 'simple' | 'rubric' | 'guide';
+
 export type MoodleAssignment = {
 	id: number;
 	course: number;
 	name: string;
 	intro: string;
-	introformat: number;
-	alwaysshowdescription: number;
-	submissiondrafts: number;
-	sendnotifications: number;
-	sendlatenotifications: number;
-	sendstudentnotifications: number;
+	introformat: TextFormat;
+	alwaysshowdescription: BooleanNumber;
+	submissiondrafts: BooleanNumber;
+	sendnotifications: BooleanNumber;
+	sendlatenotifications: BooleanNumber;
+	sendstudentnotifications: BooleanNumber;
 	duedate: number;
 	allowsubmissionsfromdate: number;
 	grade: number;
 	timemodified: number;
-	completionsubmit: number;
+	completionsubmit: BooleanNumber;
 	cutoffdate: number;
-	teamsubmission: number;
-	requireallteammemberssubmit: number;
+	teamsubmission: BooleanNumber;
+	requireallteammemberssubmit: BooleanNumber;
 	teamsubmissiongroupingid: number;
-	blindmarking: number;
-	hidegrader: number;
-	revealidentities: number;
-	attemptreopenmethod: string;
+	blindmarking: BooleanNumber;
+	hidegrader: BooleanNumber;
+	revealidentities: BooleanNumber;
+	attemptreopenmethod: AttemptReopenMethod;
 	maxattempts: number;
-	markingworkflow: number;
-	markingallocation: number;
-	requiresubmissionstatement: number;
-	preventsubmissionnotingroup: number;
+	markingworkflow: BooleanNumber;
+	markingallocation: BooleanNumber;
+	requiresubmissionstatement: BooleanNumber;
+	preventsubmissionnotingroup: BooleanNumber;
 	configs?: Array<{
 		plugin: string;
-		subtype: string;
+		subtype: SubmissionPluginSubtype;
 		name: string;
 		value: string;
 	}>;
@@ -60,7 +78,7 @@ export type SubmissionFile = {
 };
 
 export type SubmissionPlugin = {
-	type: string;
+	type: SubmissionPluginType;
 	name: string;
 	fileareas?: Array<{
 		area: string;
@@ -70,7 +88,7 @@ export type SubmissionPlugin = {
 		name: string;
 		description: string;
 		text: string;
-		format: number;
+		format: TextFormat;
 	}>;
 };
 
@@ -80,7 +98,7 @@ export type MoodleSubmission = {
 	attemptnumber: number;
 	timecreated: number;
 	timemodified: number;
-	status: 'new' | 'draft' | 'submitted';
+	status: SubmissionStatus;
 	groupid: number;
 	plugins: SubmissionPlugin[];
 };
@@ -112,26 +130,28 @@ export type RubricCriterion = {
 };
 
 export type RubricOptions = {
-	sortlevelsasc?: number;
-	lockzeropoints?: number;
-	showdescriptionstudent?: number;
-	showdescriptionteacher?: number;
-	showscoreteacher?: number;
-	showscorestudent?: number;
-	enableremarks?: number;
-	showremarksstudent?: number;
-	alwaysshowdefinition?: number;
+	sortlevelsasc?: BooleanNumber;
+	lockzeropoints?: BooleanNumber;
+	showdescriptionstudent?: BooleanNumber;
+	showdescriptionteacher?: BooleanNumber;
+	showscoreteacher?: BooleanNumber;
+	showscorestudent?: BooleanNumber;
+	enableremarks?: BooleanNumber;
+	showremarksstudent?: BooleanNumber;
+	alwaysshowdefinition?: BooleanNumber;
 };
+
+export type RubricStatus = 0 | 10 | 20;
 
 export type Rubric = {
 	definitionid: number;
 	name: string;
 	description: string;
-	status: number;
+	status: RubricStatus;
 	criteria: RubricCriterion[];
 	options: RubricOptions;
 	maxscore: number;
-	gradingmethod: 'simple' | 'fivedays' | string;
+	gradingmethod: GradingMethod;
 	success: boolean;
 	message: string;
 };

@@ -1,21 +1,40 @@
 export type PostType = 'announcement' | 'discussion';
 
+export type TextFormat = 0 | 1 | 2 | 4;
+
+export type BooleanNumber = 0 | 1;
+
+export type ForumType =
+	| 'blog'
+	| 'eachuser'
+	| 'general'
+	| 'news'
+	| 'qanda'
+	| 'single'
+	| 'social';
+
+export type ForumSubscriptionMode = 0 | 1 | 2 | 3;
+
+export type ForumTrackingType = 0 | 1 | 2;
+
+export type ForumRssType = 0 | 1 | 2;
+
 export type MoodleForum = {
 	id: number;
 	course: number;
-	type: string;
+	type: ForumType;
 	name: string;
 	intro: string;
-	introformat: number;
-	assessed: number;
+	introformat: TextFormat;
+	assessed: BooleanNumber;
 	assesstimestart: number;
 	assesstimefinish: number;
 	scale: number;
 	maxbytes: number;
 	maxattachments: number;
-	forcesubscribe: number;
-	trackingtype: number;
-	rsstype: number;
+	forcesubscribe: ForumSubscriptionMode;
+	trackingtype: ForumTrackingType;
+	rsstype: ForumRssType;
 	rssarticles: number;
 	timemodified: number;
 	warnafter: number;
@@ -43,14 +62,14 @@ export type MoodleDiscussion = {
 	userid: number;
 	created: number;
 	modified: number;
-	mailed: number;
+	mailed: BooleanNumber;
 	subject: string;
 	message: string;
-	messageformat: number;
-	messagetrust: number;
+	messageformat: TextFormat;
+	messagetrust: BooleanNumber;
 	attachment: string;
 	totalscore: number;
-	mailnow: number;
+	mailnow: BooleanNumber;
 	userfullname: string;
 	usermodifiedfullname?: string;
 	userpictureurl: string;

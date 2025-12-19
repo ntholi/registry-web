@@ -3,7 +3,46 @@ export type QuestionType =
 	| 'truefalse'
 	| 'shortanswer'
 	| 'essay'
-	| 'numerical';
+	| 'numerical'
+	| 'match'
+	| 'cloze'
+	| 'description'
+	| 'calculated'
+	| 'calculatedmulti'
+	| 'calculatedsimple'
+	| 'ddimageortext'
+	| 'ddmarker'
+	| 'ddwtos'
+	| 'gapselect'
+	| 'missingtype'
+	| 'random'
+	| 'randomsamatch';
+
+export type TextFormat = 0 | 1 | 2 | 4;
+
+export type AnswerNumbering = 'abc' | 'ABC' | '123' | 'iii' | 'III' | 'none';
+
+export type GradeMethod = 1 | 2 | 3 | 4;
+
+export type QuizOverdueHandling = 'autosubmit' | 'graceperiod' | 'autoabandon';
+
+export type QuizNavMethod = 'free' | 'sequential';
+
+export type QuizPreferredBehaviour =
+	| 'deferredfeedback'
+	| 'adaptivenopenalty'
+	| 'adaptive'
+	| 'interactive'
+	| 'immediatefeedback'
+	| 'immediatecbm'
+	| 'deferredcbm';
+
+export type EssayResponseFormat =
+	| 'editor'
+	| 'editorfilepicker'
+	| 'plain'
+	| 'monospaced'
+	| 'noinline';
 
 export type MultiChoiceAnswer = {
 	text: string;
@@ -31,7 +70,7 @@ export type MultiChoiceQuestion = {
 	defaultMark: number;
 	single: boolean;
 	shuffleAnswers?: boolean;
-	answerNumbering?: 'abc' | 'ABC' | '123' | 'iii' | 'III' | 'none';
+	answerNumbering?: AnswerNumbering;
 	answers: MultiChoiceAnswer[];
 	generalFeedback?: string;
 	correctFeedback?: string;
@@ -65,12 +104,7 @@ export type EssayQuestion = {
 	name: string;
 	questionText: string;
 	defaultMark: number;
-	responseFormat:
-		| 'editor'
-		| 'editorfilepicker'
-		| 'plain'
-		| 'monospaced'
-		| 'noinline';
+	responseFormat: EssayResponseFormat;
 	responseRequired?: boolean;
 	responseFieldLines: number;
 	minWordLimit?: number;
@@ -102,21 +136,15 @@ export type QuizSettings = {
 	timeOpen?: number;
 	timeClose?: number;
 	timelimit?: number;
-	overdueHandling?: 'autosubmit' | 'graceperiod' | 'autoabandon';
+	overdueHandling?: QuizOverdueHandling;
 	gracePeriod?: number;
 	grade?: number;
-	gradeMethod?: 1 | 2 | 3 | 4;
+	gradeMethod?: GradeMethod;
 	attempts?: number;
 	questionsPerPage?: number;
-	navMethod?: 'free' | 'sequential';
+	navMethod?: QuizNavMethod;
 	shuffleAnswers?: boolean;
-	preferredBehaviour?:
-		| 'deferredfeedback'
-		| 'adaptivenopenalty'
-		| 'adaptive'
-		| 'interactive'
-		| 'immediatefeedback'
-		| 'immediatecbm';
+	preferredBehaviour?: QuizPreferredBehaviour;
 	password?: string;
 	visible?: boolean;
 };
@@ -131,29 +159,31 @@ export type MoodleQuizSection = {
 export type MoodleQuestionAnswer = {
 	id: number;
 	answer: string;
-	answerformat: number;
+	answerformat: TextFormat;
 	fraction: number;
 	feedback?: string;
 };
+
+export type MoodleQuestionStatus = 'ready' | 'draft' | 'hidden';
 
 export type MoodleQuizQuestion = {
 	slotid: number;
 	slot: number;
 	page: number;
 	maxmark: number;
-	requireprevious: number;
+	requireprevious: 0 | 1;
 	displaynumber: string;
 	questionbankentryid: number;
 	questionid: number;
 	questionidnumber: string;
 	questionname: string;
-	qtype: string;
+	qtype: QuestionType;
 	questiontext: string;
 	defaultmark: number;
 	version: number;
-	status: string;
+	status: MoodleQuestionStatus;
 	answers?: MoodleQuestionAnswer[];
-	correctanswer?: number;
+	correctanswer?: 0 | 1;
 };
 
 export type MoodleQuiz = {
@@ -164,13 +194,13 @@ export type MoodleQuiz = {
 	course?: number;
 	name: string;
 	intro: string;
-	introformat?: number;
+	introformat?: TextFormat;
 	timeopen: number;
 	timeclose: number;
 	timelimit: number;
-	preferredbehaviour: string;
+	preferredbehaviour: QuizPreferredBehaviour;
 	attempts: number;
-	grademethod: number;
+	grademethod: GradeMethod;
 	decimalpoints: number;
 	questiondecimalpoints: number;
 	sumgrades: number;
@@ -226,7 +256,12 @@ export type QuestionState =
 	| 'needsgrading'
 	| 'gaveup'
 	| 'todo'
-	| 'complete';
+	| 'complete'
+	| 'notanswered'
+	| 'invalid'
+	| 'mangrright'
+	| 'mangrwrong'
+	| 'mangrpartial';
 
 export type QuizAttemptUser = {
 	id: number;
@@ -248,7 +283,7 @@ export type QuizAttempt = {
 
 export type QuizAttemptQuestion = {
 	slot: number;
-	type: string;
+	type: QuestionType;
 	name: string;
 	questiontext: string;
 	maxmark: number;

@@ -1,32 +1,67 @@
+export type TextFormat = 0 | 1 | 2 | 4;
+
+export type BooleanNumber = 0 | 1;
+
+export type GroupMode = 0 | 1 | 2;
+
+export type PageDisplay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export type ModuleName =
+	| 'assign'
+	| 'bigbluebuttonbn'
+	| 'book'
+	| 'chat'
+	| 'choice'
+	| 'data'
+	| 'feedback'
+	| 'folder'
+	| 'forum'
+	| 'glossary'
+	| 'h5pactivity'
+	| 'imscp'
+	| 'label'
+	| 'lesson'
+	| 'lti'
+	| 'page'
+	| 'quiz'
+	| 'resource'
+	| 'scorm'
+	| 'survey'
+	| 'url'
+	| 'wiki'
+	| 'workshop';
+
+export type ContentType = 'file' | 'content' | 'url';
+
 export type MoodlePage = {
 	id: number;
 	coursemodule: number;
 	course: number;
 	name: string;
 	intro: string;
-	introformat: number;
+	introformat: TextFormat;
 	content: string;
-	contentformat: number;
-	legacyfiles: number;
+	contentformat: TextFormat;
+	legacyfiles: BooleanNumber;
 	legacyfileslast: number;
-	display: number;
+	display: PageDisplay;
 	displayoptions: string;
 	revision: number;
 	timemodified: number;
 	section?: number;
-	visible?: number;
-	groupmode?: number;
+	visible?: BooleanNumber;
+	groupmode?: GroupMode;
 	groupingid?: number;
 };
 
 export type MoodleSection = {
 	id: number;
 	name: string;
-	visible: number;
+	visible: BooleanNumber;
 	summary: string;
-	summaryformat: number;
+	summaryformat: TextFormat;
 	section: number;
-	hiddenbynumsections: number;
+	hiddenbynumsections: BooleanNumber;
 	uservisible: boolean;
 	modules?: Array<{
 		id: number;
@@ -34,15 +69,15 @@ export type MoodleSection = {
 		name: string;
 		instance: number;
 		contextid: number;
-		visible: number;
+		visible: BooleanNumber;
 		uservisible: boolean;
-		visibleoncoursepage: number;
+		visibleoncoursepage: BooleanNumber;
 		modicon: string;
-		modname: string;
+		modname: ModuleName;
 		modplural: string;
 		indent: number;
 		contents?: Array<{
-			type: string;
+			type: ContentType;
 			filename: string;
 			fileurl: string;
 		}>;

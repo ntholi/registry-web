@@ -1,3 +1,15 @@
+export type TextFormat = 0 | 1 | 2 | 4;
+
+export type RoleShortname =
+	| 'manager'
+	| 'coursecreator'
+	| 'editingteacher'
+	| 'teacher'
+	| 'student'
+	| 'guest'
+	| 'user'
+	| 'frontpage';
+
 export type MoodleEnrolledUser = {
 	id: number;
 	username: string;
@@ -10,13 +22,13 @@ export type MoodleEnrolledUser = {
 	lastaccess: number;
 	lastcourseaccess: number;
 	description: string;
-	descriptionformat: number;
+	descriptionformat: TextFormat;
 	profileimageurlsmall: string;
 	profileimageurl: string;
 	roles: Array<{
 		roleid: number;
 		name: string;
-		shortname: string;
+		shortname: RoleShortname;
 		sortorder: number;
 	}>;
 	enrolledcourses?: Array<{

@@ -102,6 +102,8 @@ function createDefaultQuestion(type: QuestionType, index: number): Question {
 				defaultMark: 1,
 				answers: [{ answer: '', tolerance: 0, fraction: 1, feedback: '' }],
 			};
+		default:
+			throw new Error(`Unsupported question type: ${type}`);
 	}
 }
 
