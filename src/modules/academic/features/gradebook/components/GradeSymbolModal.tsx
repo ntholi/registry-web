@@ -3,7 +3,7 @@
 import {
 	type ModuleGradeData,
 	upsertModuleGrade,
-} from '@academic/module-grades';
+} from '@academic/semester-modules';
 import {
 	ActionIcon,
 	Badge,

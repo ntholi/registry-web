@@ -4,7 +4,7 @@ import {
 	createAssessmentMark,
 	updateAssessmentMark,
 } from '@academic/assessment-marks';
-import type { ModuleGradeData } from '@academic/module-grades';
+import type { ModuleGradeData } from '@academic/semester-modules';
 import { Box, Group, Text, TextInput } from '@mantine/core';
 import { getMarksPercentageColor } from '@student-portal/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

@@ -1,6 +1,7 @@
 'use server';
 
 import type { semesterModules } from '@/core/database';
+import type { ModuleGradeInsert } from './repository';
 import { semesterModulesService } from './service';
 
 type Module = typeof semesterModules.$inferInsert;
@@ -118,4 +119,19 @@ export async function searchModulesWithDetails(search = '') {
 }
 export async function getStudentCountForModule(id: number) {
 	return semesterModulesService.getStudentCountForModule(id);
+}
+
+export async function findModuleGradeByModuleAndStudent(
+	moduleId: number,
+	stdNo: number
+) {
+	return semesterModulesService.findGradeByModuleAndStudent(moduleId, stdNo);
+}
+
+export async function getModuleGradesByModuleId(moduleId: number) {
+	return semesterModulesService.getGradesByModuleId(moduleId);
+}
+
+export async function upsertModuleGrade(moduleGrade: ModuleGradeInsert) {
+	return semesterModulesService.upsertModuleGrade(moduleGrade);
 }

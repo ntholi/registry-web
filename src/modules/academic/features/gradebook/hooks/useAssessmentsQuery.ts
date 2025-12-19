@@ -2,7 +2,7 @@
 
 import { getAssessmentMarksByModuleId } from '@academic/assessment-marks';
 import { getAssessmentByModuleId } from '@academic/assessments';
-import { getModuleGradesByModuleId } from '@academic/module-grades';
+import { getModuleGradesByModuleId } from '@academic/semester-modules';
 import { useQuery } from '@tanstack/react-query';
 
 export function useAssessmentsQuery(moduleId: number) {
