@@ -12,7 +12,11 @@ import {
 	Tooltip,
 	useComputedColorScheme,
 } from '@mantine/core';
-import { getGradeColor, getStatusColor } from '@student-portal/utils';
+import {
+	getDroppedDeletedColor,
+	getGradeColor,
+	getStatusColor,
+} from '@student-portal/utils';
 import { useSession } from 'next-auth/react';
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -237,7 +241,7 @@ export default function SemesterTable({
 										) : (
 											<Text
 												size='sm'
-												c={isDroppedOrDeleted ? 'dimmed' : undefined}
+												c={getDroppedDeletedColor(isDroppedOrDeleted)}
 											>
 												{module.code}
 											</Text>
@@ -259,7 +263,10 @@ export default function SemesterTable({
 									</Group>
 								</Table.Td>
 								<Table.Td>
-									<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+									<Text
+										size='sm'
+										c={getDroppedDeletedColor(isDroppedOrDeleted)}
+									>
 										{module.name}
 									</Text>
 								</Table.Td>
@@ -276,7 +283,10 @@ export default function SemesterTable({
 									</Text>
 								</Table.Td>
 								<Table.Td>
-									<Text size='sm' c={isDroppedOrDeleted ? 'dimmed' : undefined}>
+									<Text
+										size='sm'
+										c={getDroppedDeletedColor(isDroppedOrDeleted)}
+									>
 										{module.credits}
 									</Text>
 								</Table.Td>
@@ -284,7 +294,7 @@ export default function SemesterTable({
 									<Table.Td>
 										<Text
 											size='sm'
-											c={isDroppedOrDeleted ? 'dimmed' : undefined}
+											c={getDroppedDeletedColor(isDroppedOrDeleted)}
 										>
 											{module.marks}
 										</Text>

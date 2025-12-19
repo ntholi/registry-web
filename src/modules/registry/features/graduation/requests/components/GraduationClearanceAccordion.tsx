@@ -1,6 +1,7 @@
 'use client';
 
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
+import { getStatusColor } from '@student-portal/utils';
 import {
 	IconCheck,
 	IconClock,
@@ -104,18 +105,7 @@ export default function GraduationClearanceAccordion({
 	);
 }
 
-const getStatusColor = (status: Status) => {
-	switch (status) {
-		case 'approved':
-			return 'green';
-		case 'rejected':
-			return 'red';
-		default:
-			return 'yellow';
-	}
-};
-
-const getStatusIcon = (status: Status) => {
+function getStatusIcon(status: Status) {
 	switch (status) {
 		case 'approved':
 			return <IconCheck size='1rem' />;
@@ -124,4 +114,4 @@ const getStatusIcon = (status: Status) => {
 		default:
 			return <IconClock size='1rem' />;
 	}
-};
+}

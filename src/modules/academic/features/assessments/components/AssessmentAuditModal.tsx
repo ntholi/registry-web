@@ -17,6 +17,7 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { getAuditActionColor } from '@student-portal/utils';
 import {
 	IconEdit,
 	IconHistory,
@@ -54,19 +55,6 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 				return <IconTrash size={16} />;
 			default:
 				return <IconEdit size={16} />;
-		}
-	};
-
-	const getActionColor = (action: 'create' | 'update' | 'delete') => {
-		switch (action) {
-			case 'create':
-				return 'green';
-			case 'update':
-				return 'blue';
-			case 'delete':
-				return 'red';
-			default:
-				return 'gray';
 		}
 	};
 	return (
@@ -162,7 +150,7 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 											<Avatar
 												size='sm'
 												radius='xl'
-												color={getActionColor(audit.action)}
+												color={getAuditActionColor(audit.action)}
 												variant='light'
 											>
 												{getActionIcon(audit.action)}
@@ -172,7 +160,7 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 											<Paper p='md' radius='md' withBorder shadow='xs' mb='md'>
 												<Stack gap={'xs'}>
 													<Badge
-														color={getActionColor(audit.action)}
+														color={getAuditActionColor(audit.action)}
 														variant='light'
 														size='md'
 														radius='md'

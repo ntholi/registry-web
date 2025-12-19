@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Group, Text, TextInput } from '@mantine/core';
+import { getMarksPercentageColor } from '@student-portal/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { getAssignmentGrades, saveAssignmentGrade } from '../server/actions';
@@ -146,8 +147,7 @@ export default function GradeInput({
 	function getGradeStatus() {
 		const displayGrade = pendingGrade ?? currentGrade;
 		if (displayGrade === undefined) return null;
-		const percentage = (displayGrade / maxGrade) * 100;
-		return percentage >= 50 ? 'green' : 'red';
+		return getMarksPercentageColor(displayGrade, maxGrade);
 	}
 
 	const gradeDisplay = pendingGrade ?? currentGrade ?? '-';

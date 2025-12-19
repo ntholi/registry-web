@@ -9,6 +9,10 @@ import {
 	TableTr,
 	Text,
 } from '@mantine/core';
+import {
+	getModuleStatusTextColor,
+	getStatusColor,
+} from '@student-portal/utils';
 import type { getClearance } from '../../requests/server/clearance/actions';
 
 type Module = NonNullable<
@@ -34,10 +38,7 @@ export function ModulesTable({
 				<TableTd>{semesterModule.module!.name}</TableTd>
 				<TableTd>{semesterModule.credits}</TableTd>
 				<TableTd>
-					<Text
-						size='sm'
-						c={semesterModule.type === 'Delete' ? 'red' : undefined}
-					>
+					<Text size='sm' c={getStatusColor(semesterModule.type)}>
 						{semesterModule.type}
 					</Text>
 				</TableTd>
@@ -48,9 +49,7 @@ export function ModulesTable({
 						color={
 							moduleStatus === 'Compulsory'
 								? 'green'
-								: moduleStatus.startsWith('Repeat')
-									? 'red'
-									: 'blue'
+								: getModuleStatusTextColor(moduleStatus) || 'blue'
 						}
 					>
 						{moduleStatus}

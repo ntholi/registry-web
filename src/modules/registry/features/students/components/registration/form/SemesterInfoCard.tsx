@@ -10,6 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { getStatusColor } from '@student-portal/utils';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type SemesterData = {
@@ -79,7 +80,7 @@ export default function SemesterInfoCard({
 					) : (
 						<Badge
 							radius={'sm'}
-							color={semesterData?.status === 'Active' ? 'blue' : 'orange'}
+							color={getStatusColor(semesterData?.status || '')}
 						>
 							{semesterData?.status}
 						</Badge>

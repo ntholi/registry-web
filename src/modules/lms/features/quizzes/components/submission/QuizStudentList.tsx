@@ -9,6 +9,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { getPercentageColor } from '@student-portal/utils';
 import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import type { QuizSubmissionUser } from '../../types';
 
@@ -19,12 +20,10 @@ type Props = {
 	maxGrade: number;
 };
 
-function getGradeColor(grade: number | null, maxGrade: number): string {
+function getGradeColorFromMark(grade: number | null, maxGrade: number): string {
 	if (grade === null) return 'gray';
 	const percentage = (grade / maxGrade) * 100;
-	if (percentage >= 75) return 'green';
-	if (percentage >= 50) return 'yellow';
-	return 'red';
+	return getPercentageColor(percentage);
 }
 
 function formatGrade(grade: number | null, maxGrade: number): string {
@@ -87,7 +86,7 @@ export default function QuizStudentList({
 								<Badge
 									size='sm'
 									variant='light'
-									color={getGradeColor(bestGrade, maxGrade)}
+									color={getGradeColorFromMark(bestGrade, maxGrade)}
 								>
 									{formatGrade(bestGrade, maxGrade)}
 								</Badge>

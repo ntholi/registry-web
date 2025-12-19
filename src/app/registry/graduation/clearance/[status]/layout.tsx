@@ -1,6 +1,7 @@
 'use client';
 
 import { graduationClearanceByStatus } from '@registry/graduation/clearance';
+import { getStatusColor } from '@student-portal/utils';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
@@ -69,12 +70,13 @@ export default function Layout({ children }: PropsWithChildren) {
 }
 
 function getStatusIcon(status: 'pending' | 'approved' | 'rejected') {
+	const color = getStatusColor(status);
 	switch (status) {
 		case 'pending':
-			return <IconClock size={'1rem'} color='orange' />;
+			return <IconClock size={'1rem'} color={color} />;
 		case 'approved':
-			return <IconCheck size={'1rem'} color='green' />;
+			return <IconCheck size={'1rem'} color={color} />;
 		case 'rejected':
-			return <IconAlertCircle size={'1rem'} color='red' />;
+			return <IconAlertCircle size={'1rem'} color={color} />;
 	}
 }

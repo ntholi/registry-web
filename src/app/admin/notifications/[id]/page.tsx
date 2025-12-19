@@ -1,5 +1,6 @@
 import { deleteNotification, getNotification } from '@admin/notifications';
 import { Badge, Group, Stack, Text } from '@mantine/core';
+import { getBooleanStatusColor } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
@@ -58,7 +59,7 @@ export default async function NotificationDetails({ params }: Props) {
 					</Group>
 
 					<FieldView label='Status'>
-						<Badge color={notification.isActive ? 'green' : 'gray'}>
+						<Badge color={getBooleanStatusColor(notification.isActive)}>
 							{notification.isActive ? 'Active' : 'Inactive'}
 						</Badge>
 					</FieldView>

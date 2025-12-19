@@ -10,6 +10,7 @@ import {
 	Table,
 	Text,
 } from '@mantine/core';
+import { getClearanceStatusColor } from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
@@ -52,7 +53,7 @@ export default function GraduationClearanceHistory({ stdNo }: Props) {
 							<Group justify='space-between' pe={'md'}>
 								<Text fw={500}>Graduation Request</Text>
 								<Badge
-									color={clearance.status === 'approved' ? 'green' : 'red'}
+									color={getClearanceStatusColor(clearance.status)}
 									variant='outline'
 									size='sm'
 								>

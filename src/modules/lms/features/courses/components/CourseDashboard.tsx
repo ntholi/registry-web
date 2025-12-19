@@ -14,6 +14,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { getOverdueColor } from '@student-portal/utils';
 import { IconClipboardCheck, IconMessageCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -82,7 +83,7 @@ function AssignmentCard({
 					<Box
 						w={3}
 						h={32}
-						bg={isOverdue ? 'red.5' : 'blue.5'}
+						bg={`${getOverdueColor(isOverdue)}.5`}
 						style={{ borderRadius: 2, flexShrink: 0 }}
 					/>
 					<Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
@@ -95,7 +96,7 @@ function AssignmentCard({
 					</Stack>
 					<Badge
 						variant='light'
-						color={isOverdue ? 'red' : 'blue'}
+						color={getOverdueColor(isOverdue)}
 						size='sm'
 						style={{ flexShrink: 0 }}
 					>

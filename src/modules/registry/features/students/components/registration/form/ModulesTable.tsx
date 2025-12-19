@@ -9,6 +9,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { getModuleTypeColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import type { StudentModuleStatus } from '@/modules/registry/database';
 import { studentModuleStatus } from '@/modules/registry/database';
@@ -43,16 +44,6 @@ export default function ModulesTable({
 	onStatusChange,
 	error,
 }: Props) {
-	const getStatusColor = (status: string) => {
-		if (status === 'Compulsory') return 'blue';
-		if (status === 'Elective') return 'green';
-		if (status.includes('Repeat')) return 'orange';
-		if (status.includes('Resit')) return 'yellow';
-		if (status === 'Drop' || status === 'Delete') return 'red';
-		if (status === 'Exempted') return 'teal';
-		return 'gray';
-	};
-
 	return (
 		<>
 			<Title order={4} mb='md'>
@@ -112,7 +103,7 @@ export default function ModulesTable({
 											}}
 											styles={{
 												input: {
-													color: `var(--mantine-color-${getStatusColor(module.status)}-5)`,
+													color: `var(--mantine-color-${getModuleTypeColor(module.status)}-5)`,
 												},
 											}}
 										/>

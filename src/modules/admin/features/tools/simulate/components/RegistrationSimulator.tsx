@@ -28,6 +28,7 @@ import {
 	getStudent,
 	getStudentRegistrationData,
 } from '@registry/students';
+import { getModuleStatusColor } from '@student-portal/utils';
 import {
 	IconAlertCircle,
 	IconExclamationCircle,
@@ -519,7 +520,7 @@ function ModuleTable({
 							</Table.Td>
 							<Table.Td>
 								<Badge
-									color={getStatusColor(module.status)}
+									color={getModuleStatusColor(module.status)}
 									variant='light'
 									size='sm'
 								>
@@ -557,11 +558,4 @@ function ModuleTable({
 			</Table>
 		</ScrollArea>
 	);
-}
-
-function getStatusColor(status: string) {
-	if (status === 'Compulsory') return 'blue';
-	if (status === 'Elective') return 'green';
-	if (status.startsWith('Repeat')) return 'orange';
-	return 'gray';
 }

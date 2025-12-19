@@ -17,6 +17,7 @@ import {
 	ThemeIcon,
 	useMantineColorScheme,
 } from '@mantine/core';
+import { getProgramStatusColor } from '@student-portal/utils';
 import { IconLock, IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
 import type { getStudent } from '../../server/actions';
@@ -201,23 +202,6 @@ export default function BlockedAcademicsView({
 		</Stack>
 	);
 }
-
-const getProgramStatusColor = (status: string) => {
-	switch (status) {
-		case 'Active':
-			return 'green';
-		case 'Changed':
-			return 'blue';
-		case 'Completed':
-			return 'cyan';
-		case 'Deleted':
-			return 'red';
-		case 'Inactive':
-			return 'gray';
-		default:
-			return 'gray';
-	}
-};
 
 type BlockedModuleTableProps = {
 	moduleCount: number;

@@ -11,6 +11,7 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { getStatusColor } from '@student-portal/utils';
 import { IconCopy } from '@tabler/icons-react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
@@ -35,10 +36,7 @@ export default function RequestDetailsView({ value, sponsorship }: Props) {
 				<FieldView label='Semester' underline={false}>
 					{formatSemester(value.semesterNumber)}
 				</FieldView>
-				<Badge
-					radius={'sm'}
-					color={value.semesterStatus === 'Active' ? 'blue' : 'red'}
-				>
+				<Badge radius={'sm'} color={getStatusColor(value.semesterStatus)}>
 					{value.semesterStatus}
 				</Badge>
 			</Flex>

@@ -15,7 +15,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { getGraduationRequestByStudentNo } from '@registry/graduation/clearance';
-
+import { getStatusColor } from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -150,19 +150,6 @@ function RequestCard({ request }: { request?: GraduationRequest | null }) {
 		if (allApproved) return 'approved';
 
 		return 'pending';
-	}
-
-	function getStatusColor(status: string) {
-		switch (status) {
-			case 'approved':
-				return 'green';
-			case 'rejected':
-				return 'red';
-			case 'pending':
-				return 'yellow';
-			default:
-				return 'gray';
-		}
 	}
 
 	const status = getGraduationStatus(request);

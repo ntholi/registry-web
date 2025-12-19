@@ -14,6 +14,10 @@ import {
 	Title,
 	useMantineColorScheme,
 } from '@mantine/core';
+import {
+	getModuleStatusColor,
+	getSemesterResultColor,
+} from '@student-portal/utils';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type SemesterStatusResult = {
@@ -48,10 +52,6 @@ export default function SemesterStatusModal({
 	const { colorScheme } = useMantineColorScheme();
 
 	if (!result) return null;
-
-	const getStatusColor = (status: string) => {
-		return status === 'Active' ? 'green' : 'orange';
-	};
 
 	const totalCredits = selectedModules.reduce(
 		(sum, module) => sum + module.credits,
@@ -89,12 +89,12 @@ export default function SemesterStatusModal({
 									order={2}
 									size='h2'
 									fw={600}
-									c={getStatusColor(result.status)}
+									c={getSemesterResultColor(result.status)}
 								>
 									{formatSemester(result.semesterNo)}
 								</Title>
 								<Badge
-									color={getStatusColor(result.status)}
+									color={getSemesterResultColor(result.status)}
 									variant='filled'
 									radius='sm'
 								>
@@ -207,11 +207,4 @@ export default function SemesterStatusModal({
 			</Stack>
 		</Modal>
 	);
-}
-
-function getModuleStatusColor(status: string) {
-	if (status === 'Compulsory') return 'blue';
-	if (status === 'Elective') return 'green';
-	if (status.startsWith('Repeat')) return 'orange';
-	return 'gray';
 }

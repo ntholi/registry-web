@@ -10,6 +10,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { getProgramStatusColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
 import type { programs, structures } from '@/modules/academic/database';
@@ -100,24 +101,13 @@ export default function ProgramSelection({
 }
 
 function ProgramCard({ program }: { program: StudentProgram }) {
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case 'Completed':
-				return 'green';
-			case 'Active':
-				return 'blue';
-			default:
-				return 'gray';
-		}
-	};
-
 	return (
 		<Box>
 			<Group justify='space-between' mb={3}>
 				<Text fw={500}>{program.structure.program.name}</Text>
 				<Group gap='xs'>
 					<Badge
-						color={getStatusColor(program.status)}
+						color={getProgramStatusColor(program.status)}
 						variant='light'
 						size='xs'
 					>

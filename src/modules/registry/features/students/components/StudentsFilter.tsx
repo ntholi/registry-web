@@ -15,6 +15,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { getAllTerms } from '@registry/terms';
+import { getFilterActiveColor } from '@student-portal/utils';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
@@ -185,7 +186,7 @@ export default function StudentsFilter() {
 						variant={hasActiveFilters ? 'white' : 'default'}
 						size={33}
 						onClick={toggle}
-						color={hasActiveFilters ? 'blue' : undefined}
+						color={getFilterActiveColor(!!hasActiveFilters)}
 					>
 						<IconFilter size={'1rem'} />
 					</ActionIcon>

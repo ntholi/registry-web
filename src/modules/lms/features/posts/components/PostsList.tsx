@@ -18,6 +18,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
+import { getPostTypeColor } from '@student-portal/utils';
 import {
 	IconBellRinging,
 	IconChevronDown,
@@ -223,7 +224,9 @@ function PostCard({ post, type, courseId }: PostCardProps) {
 						<Badge
 							size='xs'
 							variant='light'
-							color={isAnnouncement ? 'blue' : 'teal'}
+							color={getPostTypeColor(
+								isAnnouncement ? 'announcement' : 'discussion'
+							)}
 							leftSection={
 								isAnnouncement ? (
 									<IconBellRinging size={10} />

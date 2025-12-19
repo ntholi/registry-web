@@ -2,6 +2,10 @@
 
 import { ActionIcon, Badge, Divider, Flex, Group, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import {
+	getTermMismatchColor,
+	getVersionCountColor,
+} from '@student-portal/utils';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
 import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
@@ -42,20 +46,17 @@ export default function ClearanceHeader({
 				)}
 				<Group>
 					{!isCurrentTerm && (
-						<Badge color={'red'} variant={'filled'}>
+						<Badge
+							color={getTermMismatchColor(isCurrentTerm)}
+							variant={'filled'}
+						>
 							{termCode}
 						</Badge>
 					)}
 
 					{versionCount && (
 						<Badge
-							color={
-								versionCount === 1
-									? 'green'
-									: versionCount <= 3
-										? 'yellow'
-										: 'red'
-							}
+							color={getVersionCountColor(versionCount)}
 							variant='light'
 							size='sm'
 						>

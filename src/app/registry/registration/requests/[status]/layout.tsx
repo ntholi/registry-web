@@ -2,6 +2,7 @@
 
 import { findAllRegistrationRequests } from '@registry/registration/requests';
 import { getCurrentTerm } from '@registry/terms';
+import { getStatusColor } from '@student-portal/utils';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
@@ -82,12 +83,13 @@ export default function Layout({ children }: PropsWithChildren) {
 }
 
 function getStatusIcon(status: Status) {
+	const color = getStatusColor(status);
 	switch (status) {
 		case 'pending':
-			return <IconClock size={'1rem'} color='orange' />;
+			return <IconClock size={'1rem'} color={color} />;
 		case 'registered':
-			return <IconCheck size={'1rem'} color='green' />;
+			return <IconCheck size={'1rem'} color={color} />;
 		case 'rejected':
-			return <IconAlertCircle size={'1rem'} color='red' />;
+			return <IconAlertCircle size={'1rem'} color={color} />;
 	}
 }

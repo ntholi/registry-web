@@ -12,6 +12,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { getPassFailColor } from '@student-portal/utils';
 import {
 	IconAlertTriangle,
 	IconChevronLeft,
@@ -165,7 +166,7 @@ export default function TotalMarkDisplay({
 			<Badge
 				variant='light'
 				pos='relative'
-				color={hasPassed ? 'green' : 'red'}
+				color={getPassFailColor(hasPassed)}
 				radius={'sm'}
 				w={40}
 				style={{

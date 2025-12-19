@@ -15,6 +15,7 @@ import {
 	Textarea,
 	ThemeIcon,
 } from '@mantine/core';
+import { getQuizStateColor } from '@student-portal/utils';
 import { IconCheck, IconEdit, IconMinus, IconX } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -27,25 +28,6 @@ type Props = {
 	attemptId: number;
 	quizId: number;
 };
-
-function getStateColor(
-	state: string
-): 'green' | 'red' | 'yellow' | 'orange' | 'gray' {
-	switch (state) {
-		case 'gradedright':
-			return 'green';
-		case 'gradedwrong':
-			return 'red';
-		case 'gradedpartial':
-			return 'yellow';
-		case 'needsgrading':
-			return 'orange';
-		case 'gaveup':
-			return 'gray';
-		default:
-			return 'gray';
-	}
-}
 
 function getStateLabel(state: string): string {
 	switch (state) {
@@ -157,7 +139,7 @@ export default function QuizQuestionReview({
 						<Badge
 							size='xs'
 							variant='light'
-							color={getStateColor(question.state)}
+							color={getQuizStateColor(question.state)}
 							leftSection={getStateIcon(question.state)}
 						>
 							{getStateLabel(question.state)}

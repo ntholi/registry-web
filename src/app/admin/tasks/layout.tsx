@@ -2,24 +2,13 @@
 
 import { findAllTasks, type TaskWithRelations } from '@admin/tasks';
 import { Badge, Group, Stack, Text } from '@mantine/core';
+import {
+	getTaskPriorityColor,
+	getTaskStatusColor,
+} from '@student-portal/utils';
 import { IconCalendar, IconSchool, IconUser } from '@tabler/icons-react';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
-
-const priorityColors: Record<string, string> = {
-	low: 'gray',
-	medium: 'blue',
-	high: 'orange',
-	urgent: 'red',
-};
-
-const statusColors: Record<string, string> = {
-	todo: 'gray',
-	in_progress: 'blue',
-	on_hold: 'yellow',
-	completed: 'green',
-	cancelled: 'red',
-};
 
 const statusLabels: Record<string, string> = {
 	todo: 'To Do',
@@ -55,7 +44,7 @@ export default function Layout({ children }: PropsWithChildren) {
 								</Text>
 								<Badge
 									size='xs'
-									color={priorityColors[task.priority]}
+									color={getTaskPriorityColor(task.priority)}
 									variant='dot'
 								>
 									{task.priority}
@@ -64,7 +53,7 @@ export default function Layout({ children }: PropsWithChildren) {
 							<Group gap='xs'>
 								<Badge
 									size='xs'
-									color={statusColors[task.status]}
+									color={getTaskStatusColor(task.status)}
 									variant={task.status === 'todo' ? 'light' : 'dot'}
 								>
 									{statusLabels[task.status]}

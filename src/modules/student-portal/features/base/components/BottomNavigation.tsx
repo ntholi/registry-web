@@ -8,6 +8,7 @@ import {
 	useMantineColorScheme,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { getNavActiveColor } from '@student-portal/utils';
 import {
 	IconClipboardCheck,
 	IconFileCertificate,
@@ -107,12 +108,12 @@ export default function BottomNavigation() {
 						>
 							<ActionIcon
 								variant={active ? 'filled' : 'transparent'}
-								color={active ? 'blue' : 'dimmed'}
+								color={getNavActiveColor(active)}
 								size='lg'
 							>
 								{item.icon}
 							</ActionIcon>
-							<Text size='xs' c={active ? 'blue' : 'dimmed'} ta='center'>
+							<Text size='xs' c={getNavActiveColor(active)} ta='center'>
 								{item.label}
 							</Text>
 						</Stack>

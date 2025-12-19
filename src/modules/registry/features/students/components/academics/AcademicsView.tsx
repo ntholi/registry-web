@@ -15,6 +15,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
+import { getProgramStatusColor } from '@student-portal/utils';
 import { IconSchool } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
@@ -225,20 +226,3 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 		</Stack>
 	);
 }
-
-export const getProgramStatusColor = (status: string) => {
-	switch (status) {
-		case 'Active':
-			return 'green';
-		case 'Changed':
-			return 'blue';
-		case 'Completed':
-			return 'cyan';
-		case 'Deleted':
-			return 'red';
-		case 'Inactive':
-			return 'gray';
-		default:
-			return 'gray';
-	}
-};

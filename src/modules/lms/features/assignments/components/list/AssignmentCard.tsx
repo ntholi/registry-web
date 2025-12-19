@@ -2,6 +2,7 @@
 
 import { ActionIcon, Box, Card, Group, Menu, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { getOverdueTextColor } from '@student-portal/utils';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -140,7 +141,7 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 							{dueDate && (
 								<Group gap='xs'>
 									<IconClock size={16} />
-									<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
+									<Text size='xs' c={getOverdueTextColor(!!isOverdue)}>
 										Due: {dueDate.toLocaleDateString()} at{' '}
 										{dueDate.toLocaleTimeString([], {
 											hour: '2-digit',

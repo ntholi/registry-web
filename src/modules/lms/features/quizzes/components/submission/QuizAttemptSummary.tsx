@@ -10,6 +10,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
+import { getPercentageColor } from '@student-portal/utils';
 import { IconCalendarTime, IconClock } from '@tabler/icons-react';
 import type { QuizAttemptDetails } from '../../types';
 
@@ -59,13 +60,6 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 	const gradePercentage =
 		attempt.sumgrades !== null ? (attempt.sumgrades / maxGrade) * 100 : null;
 
-	function getGradeColor(percentage: number | null): string {
-		if (percentage === null) return 'gray';
-		if (percentage >= 75) return 'green';
-		if (percentage >= 50) return 'yellow';
-		return 'red';
-	}
-
 	return (
 		<Paper p='md' withBorder>
 			<Stack gap='lg'>
@@ -75,7 +69,7 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 							Grade
 						</Text>
 						<Group gap='xs' align='baseline'>
-							<Text size='xl' fw={700} c={getGradeColor(gradePercentage)}>
+							<Text size='xl' fw={700} c={getPercentageColor(gradePercentage)}>
 								{attempt.sumgrades !== null
 									? attempt.sumgrades.toFixed(1)
 									: '-'}
@@ -87,7 +81,7 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 								<Badge
 									size='sm'
 									variant='light'
-									color={getGradeColor(gradePercentage)}
+									color={getPercentageColor(gradePercentage)}
 								>
 									{gradePercentage.toFixed(0)}%
 								</Badge>

@@ -2,6 +2,7 @@
 
 import type { BadgeProps } from '@mantine/core';
 import { Badge } from '@mantine/core';
+import { getAssignmentStatusColor } from '@student-portal/utils';
 import type { MoodleAssignment } from '../../types';
 
 type Props = {
@@ -16,26 +17,14 @@ export default function AssignmentStatus({ assignment, ...badgeProps }: Props) {
 		? new Date(assignment.allowsubmissionsfromdate * 1000)
 		: null;
 	const now = new Date();
-	const isOverdue = dueDate && dueDate < now;
-	const isUpcoming = availableFrom && availableFrom > now;
+	const isOverdue = !!(dueDate && dueDate < now);
+	const isUpcoming = !!(availableFrom && availableFrom > now);
 
-	let color: string;
-	let text: string;
-
-	if (isOverdue) {
-		color = 'red';
-		text = 'Overdue';
-	} else if (isUpcoming) {
-		color = 'teal';
-		text = 'Upcoming';
-	} else {
-		color = 'green';
-		text = 'Active';
-	}
+	const { label, color } = getAssignmentStatusColor(isOverdue, isUpcoming);
 
 	return (
 		<Badge color={color} {...badgeProps}>
-			{text}
+			{label}
 		</Badge>
 	);
 }

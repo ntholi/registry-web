@@ -22,6 +22,7 @@ import {
 	GraduationRequestDetailsView,
 	ProofOfClearancePrinter,
 } from '@registry/graduation/requests';
+import { getStatusColor } from '@student-portal/utils';
 import {
 	IconCheck,
 	IconClock,
@@ -52,17 +53,6 @@ function getOverallClearanceStatus(
 	if (statuses.some((status) => status === 'rejected')) return 'rejected';
 	if (statuses.some((status) => status === 'pending')) return 'pending';
 	return 'approved';
-}
-
-function getStatusColor(status: 'approved' | 'rejected' | 'pending') {
-	switch (status) {
-		case 'approved':
-			return 'green';
-		case 'rejected':
-			return 'red';
-		default:
-			return 'yellow';
-	}
 }
 
 function getStatusIcon(status: 'approved' | 'rejected' | 'pending') {

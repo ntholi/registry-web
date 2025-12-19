@@ -12,6 +12,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { getOverdueTextColor, getQuizStatusColor } from '@student-portal/utils';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -49,16 +50,9 @@ function getQuizStatus(quiz: MoodleQuiz): {
 	color: string;
 } {
 	const now = Date.now() / 1000;
-
-	if (quiz.timeopen > 0 && now < quiz.timeopen) {
-		return { label: 'Not yet open', color: 'gray' };
-	}
-
-	if (quiz.timeclose > 0 && now > quiz.timeclose) {
-		return { label: 'Closed', color: 'red' };
-	}
-
-	return { label: 'Open', color: 'green' };
+	const isNotYetOpen = quiz.timeopen > 0 && now < quiz.timeopen;
+	const isClosed = quiz.timeclose > 0 && now > quiz.timeclose;
+	return getQuizStatusColor(isNotYetOpen, isClosed);
 }
 
 export default function QuizCard({ quiz, courseId }: Props) {
@@ -180,7 +174,7 @@ export default function QuizCard({ quiz, courseId }: Props) {
 									</Text>
 								)}
 								{closeDate && (
-									<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
+									<Text size='xs' c={getOverdueTextColor(!!isOverdue)}>
 										Closes: {dayjs(closeDate).format('DD MMM [at] HH:mm')}
 									</Text>
 								)}

@@ -5,6 +5,7 @@ import {
 	updateAssessmentMark,
 } from '@academic/assessment-marks';
 import { Box, Group, Text, TextInput } from '@mantine/core';
+import { getMarksPercentageColor } from '@student-portal/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import type {
@@ -288,8 +289,7 @@ export default function MarksInput({
 		const currentMark = pendingMark ?? existingMark;
 		if (currentMark === undefined) return null;
 		const maxMarks = assessment.maxMarks || 100;
-		const percentage = (currentMark / maxMarks) * 100;
-		return percentage >= 50 ? 'green' : 'red';
+		return getMarksPercentageColor(currentMark, maxMarks);
 	};
 
 	const markDisplay = pendingMark ?? existingMark ?? '-';

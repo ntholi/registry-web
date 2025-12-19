@@ -17,6 +17,11 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import {
+	getCopiedColor,
+	getProgramStatusColor,
+	getStudentStatusColor,
+} from '@student-portal/utils';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import type { UserRole } from '@/core/database';
@@ -28,7 +33,6 @@ import {
 } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 import type { getStudent } from '../../server/actions';
-import { getProgramStatusColor } from '../academics/AcademicsView';
 import EditStudentUserModal from '../academics/EditStudentUserModal';
 import AcademicSummary from './AcademicSummary';
 import PhotoView from './PhotoView';
@@ -352,7 +356,7 @@ function InfoItem({
 							<Tooltip label={copied ? 'Copied' : 'Copy'}>
 								<ActionIcon
 									variant='subtle'
-									color={copied ? 'teal' : 'gray'}
+									color={getCopiedColor(copied)}
 									onClick={copy}
 									className='copy-button'
 									style={{
@@ -378,23 +382,4 @@ function stripPhoneNumber(phone: string | null | undefined) {
 		.replaceAll('-', '')
 		.replaceAll('(', '')
 		.replaceAll(')', '');
-}
-
-function getStudentStatusColor(status: string) {
-	switch (status) {
-		case 'Active':
-			return 'green';
-		case 'Graduated':
-			return 'blue';
-		case 'Suspended':
-		case 'Terminated':
-			return 'red';
-		case 'Withdrawn':
-		case 'Deceased':
-			return 'gray';
-		case 'Applied':
-			return 'yellow';
-		default:
-			return 'gray';
-	}
 }

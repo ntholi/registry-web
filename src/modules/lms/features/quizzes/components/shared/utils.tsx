@@ -1,5 +1,6 @@
 'use client';
 
+import { getQuestionTypeColor } from '@student-portal/utils';
 import {
 	IconCheck,
 	IconCircleNumber1,
@@ -14,57 +15,26 @@ export type QuestionTypeInfo = {
 	icon: React.ReactNode;
 };
 
+const QUESTION_TYPE_CONFIG: Record<
+	string,
+	{ label: string; icon: React.ReactNode }
+> = {
+	multichoice: { label: 'Multiple Choice', icon: <IconLetterA size={14} /> },
+	truefalse: { label: 'True/False', icon: <IconCheck size={14} /> },
+	shortanswer: { label: 'Short Answer', icon: <IconTextCaption size={14} /> },
+	essay: { label: 'Essay', icon: <IconTextCaption size={14} /> },
+	numerical: { label: 'Numerical', icon: <IconHash size={14} /> },
+	match: { label: 'Matching', icon: <IconCircleNumber1 size={14} /> },
+	description: { label: 'Description', icon: <IconTextCaption size={14} /> },
+};
+
 export function getQuestionTypeInfo(qtype: string): QuestionTypeInfo {
-	switch (qtype) {
-		case 'multichoice':
-			return {
-				label: 'Multiple Choice',
-				color: 'blue',
-				icon: <IconLetterA size={14} />,
-			};
-		case 'truefalse':
-			return {
-				label: 'True/False',
-				color: 'green',
-				icon: <IconCheck size={14} />,
-			};
-		case 'shortanswer':
-			return {
-				label: 'Short Answer',
-				color: 'orange',
-				icon: <IconTextCaption size={14} />,
-			};
-		case 'essay':
-			return {
-				label: 'Essay',
-				color: 'violet',
-				icon: <IconTextCaption size={14} />,
-			};
-		case 'numerical':
-			return {
-				label: 'Numerical',
-				color: 'cyan',
-				icon: <IconHash size={14} />,
-			};
-		case 'match':
-			return {
-				label: 'Matching',
-				color: 'teal',
-				icon: <IconCircleNumber1 size={14} />,
-			};
-		case 'description':
-			return {
-				label: 'Description',
-				color: 'gray',
-				icon: <IconTextCaption size={14} />,
-			};
-		default:
-			return {
-				label: qtype,
-				color: 'gray',
-				icon: <IconCircleNumber1 size={14} />,
-			};
-	}
+	const config = QUESTION_TYPE_CONFIG[qtype];
+	return {
+		label: config?.label ?? qtype,
+		color: getQuestionTypeColor(qtype),
+		icon: config?.icon ?? <IconCircleNumber1 size={14} />,
+	};
 }
 
 export function stripHtml(html: string): string {

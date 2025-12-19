@@ -1,6 +1,10 @@
 'use client';
 
 import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
+import {
+	getModuleStatusTextColor,
+	getRequestStatusColor,
+} from '@student-portal/utils';
 import Link from '@/shared/ui/Link';
 import type { getRegistrationRequest } from '../server/requests/actions';
 
@@ -24,20 +28,14 @@ export default function ModulesView({ value }: Props) {
 				</Table.Td>
 				<Table.Td>{semesterModule.module!.name}</Table.Td>
 				<Table.Td>{semesterModule.credits}</Table.Td>
-				<Table.Td c={moduleStatus.startsWith('Repeat') ? 'red' : undefined}>
+				<Table.Td c={getModuleStatusTextColor(moduleStatus)}>
 					{moduleStatus}
 				</Table.Td>
 				<Table.Td>
 					<Badge
 						variant='light'
 						size='sm'
-						color={
-							status === 'registered'
-								? 'green'
-								: status === 'rejected'
-									? 'red'
-									: 'gray'
-						}
+						color={getRequestStatusColor(status)}
 					>
 						{status}
 					</Badge>

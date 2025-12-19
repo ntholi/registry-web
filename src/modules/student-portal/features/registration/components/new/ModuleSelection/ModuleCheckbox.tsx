@@ -1,4 +1,5 @@
 import { Badge, Checkbox, Flex, Group, Text } from '@mantine/core';
+import { getModuleTypeColor } from '@student-portal/utils';
 import { IconLock } from '@tabler/icons-react';
 
 type ModuleWithStatus = {
@@ -27,13 +28,6 @@ export default function ModuleCheckbox({
 		return (
 			module.prerequisites !== undefined && module.prerequisites.length > 0
 		);
-	};
-
-	const getStatusColor = (status: string) => {
-		if (status === 'Compulsory') return 'blue';
-		if (status === 'Elective') return 'green';
-		if (status.startsWith('Repeat')) return 'orange';
-		return 'gray';
 	};
 
 	const hasPrereqs = hasPrerequisites(module);
@@ -79,7 +73,7 @@ export default function ModuleCheckbox({
 							{module.code}
 						</Text>
 						<Badge
-							color={getStatusColor(module.status)}
+							color={getModuleTypeColor(module.status)}
 							size='sm'
 							variant='light'
 						>

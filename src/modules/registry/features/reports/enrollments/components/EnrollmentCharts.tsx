@@ -10,6 +10,11 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import {
+	getChartSemesterStatusColor,
+	getGenderColor,
+	getProgramLevelColor,
+} from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useMasonryLayout } from '@/shared/lib/hooks/use-masonry';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -312,12 +317,7 @@ export default function RegistrationCharts({ filter }: Props) {
 							data={chartData.studentsByGender.map((item) => ({
 								name: item.gender,
 								value: Number(item.count),
-								color:
-									item.gender === 'Male'
-										? 'blue.6'
-										: item.gender === 'Female'
-											? 'pink.6'
-											: 'gray.6',
+								color: getGenderColor(item.gender),
 							}))}
 							withLabelsLine
 							withLabels
@@ -344,19 +344,11 @@ export default function RegistrationCharts({ filter }: Props) {
 						<Center>
 							<PieChart
 								size={220}
-								data={programLevelData.map((item) => {
-									const levelColors: Record<string, string> = {
-										certificate: 'teal.6',
-										diploma: 'blue.6',
-										degree: 'violet.6',
-										Unknown: 'gray.6',
-									};
-									return {
-										name: item.label,
-										value: item.count,
-										color: levelColors[item.level] || 'gray.6',
-									};
-								})}
+								data={programLevelData.map((item) => ({
+									name: item.label,
+									value: item.count,
+									color: getProgramLevelColor(item.level),
+								}))}
 								withLabelsLine
 								withLabels
 								labelsPosition='outside'
@@ -499,30 +491,12 @@ export default function RegistrationCharts({ filter }: Props) {
 					<Center>
 						<PieChart
 							size={220}
-							data={chartData.studentsBySemesterStatus.map((item, index) => {
-								const statusColors: Record<string, string> = {
-									Active: 'green.6',
-									Repeat: 'yellow.6',
-									Deferred: 'blue.6',
-									DroppedOut: 'red.6',
-									Completed: 'teal.6',
-									Unknown: 'gray.6',
-								};
-								const fallbackColors = [
-									'violet.6',
-									'orange.6',
-									'cyan.6',
-									'pink.6',
-								];
-								return {
-									name:
-										item.status === 'DroppedOut' ? 'Dropped Out' : item.status,
-									value: Number(item.count),
-									color:
-										statusColors[item.status] ||
-										fallbackColors[index % fallbackColors.length],
-								};
-							})}
+							data={chartData.studentsBySemesterStatus.map((item) => ({
+								name:
+									item.status === 'DroppedOut' ? 'Dropped Out' : item.status,
+								value: Number(item.count),
+								color: getChartSemesterStatusColor(item.status),
+							}))}
 							withLabelsLine
 							withLabels
 							labelsPosition='outside'

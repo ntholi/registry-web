@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Card, Center, Stack, Table, Text } from '@mantine/core';
+import { getClassTypeColor } from '@student-portal/utils';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type SlotAllocation = {
@@ -77,23 +78,6 @@ const DAY_LABELS: Record<(typeof DAYS)[number], string> = {
 	thursday: 'Thursday',
 	friday: 'Friday',
 };
-
-function getClassTypeColor(classType: string): string {
-	switch (classType) {
-		case 'lecture':
-			return 'blue.3';
-		case 'tutorial':
-			return 'green.3';
-		case 'lab':
-			return 'orange.3';
-		case 'workshop':
-			return 'purple.3';
-		case 'practical':
-			return 'red.3';
-		default:
-			return 'cyan.3';
-	}
-}
 
 function toClassName(
 	semesterModule: {

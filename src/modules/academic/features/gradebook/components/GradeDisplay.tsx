@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge, Text } from '@mantine/core';
+import { getGradeColor } from '@student-portal/utils';
 import TotalMarkDisplay from './TotalMarkDisplay';
 
 type ModuleGrade = {
@@ -21,8 +22,6 @@ type Props = {
 	isLoading?: boolean;
 };
 
-import { isFailingGrade } from '@/shared/lib/utils/grades';
-
 export default function GradeDisplay({
 	studentId,
 	displayType,
@@ -30,15 +29,6 @@ export default function GradeDisplay({
 	moduleGrade,
 	isLoading = false,
 }: Props) {
-	const getGradeColor = (grade: string): string => {
-		if (grade === 'ANN') return 'red';
-		if (['A', 'B', 'C'].some((letter) => grade.startsWith(letter)))
-			return 'green';
-		if (['PP', 'DEF'].includes(grade)) return 'yellow';
-		if (isFailingGrade(grade)) return 'red';
-		return 'gray';
-	};
-
 	if (isLoading) {
 		return (
 			<Text c='dimmed' size='sm'>
