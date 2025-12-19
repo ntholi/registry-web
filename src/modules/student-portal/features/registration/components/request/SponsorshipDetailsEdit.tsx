@@ -10,6 +10,7 @@ import {
 	Text,
 	TextInput,
 } from '@mantine/core';
+import { getAlertColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
@@ -157,7 +158,10 @@ export default function SponsorshipDetailsEdit({
 				</Stack>
 			</Card>
 
-			<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+			<Alert
+				icon={<IconInfoCircle size='1rem' />}
+				color={getAlertColor('info')}
+			>
 				<Text size='sm'>
 					<strong>Note:</strong> When editing your registration, only sponsor
 					and borrower number can be updated. Banking details cannot be changed
@@ -174,7 +178,10 @@ export default function SponsorshipDetailsEdit({
 			</Alert>
 
 			{sponsors.length === 0 && !sponsorsLoading && (
-				<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
+				<Alert
+					icon={<IconInfoCircle size='1rem' />}
+					color={getAlertColor('warning')}
+				>
 					No sponsors found. Please contact the administration to set up
 					sponsors.
 				</Alert>

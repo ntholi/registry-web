@@ -3,6 +3,7 @@ import {
 	IconClock,
 	IconExclamationCircle,
 } from '@tabler/icons-react';
+import { getStatusColor as getBaseStatusColor } from './colors';
 
 export type BaseStatus = 'pending' | 'approved' | 'rejected' | 'confirmed';
 export type RegistrationStatus = BaseStatus | 'partial' | 'registered';
@@ -22,18 +23,7 @@ export function getStatusIcon(status: RegistrationStatus | GraduationStatus) {
 }
 
 export function getStatusColor(status: RegistrationStatus | GraduationStatus) {
-	switch (status) {
-		case 'approved':
-		case 'confirmed':
-		case 'registered':
-			return 'green';
-		case 'rejected':
-			return 'red';
-		case 'partial':
-			return 'orange';
-		default:
-			return 'yellow';
-	}
+	return getBaseStatusColor(status);
 }
 
 export function getClearanceStatus<T extends { clearance: { status: string } }>(

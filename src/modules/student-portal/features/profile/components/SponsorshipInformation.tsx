@@ -10,6 +10,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { getAlertColor, getStatusColor } from '@student-portal/utils';
 import { IconInfoCircle, IconWallet } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -57,7 +58,10 @@ export default function SponsorshipInformation({
 							Sponsorship Information
 						</Text>
 					</Group>
-					<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+					<Alert
+						icon={<IconInfoCircle size='1rem' />}
+						color={getAlertColor('info')}
+					>
 						<Text size='sm'>
 							No sponsorship information found. If you believe this is an error,
 							please contact the finance office.
@@ -121,7 +125,9 @@ export default function SponsorshipInformation({
 								Status
 							</Text>
 							<Badge
-								color={sponsorship.confirmed ? 'green' : 'orange'}
+								color={getStatusColor(
+									sponsorship.confirmed ? 'confirmed' : 'pending'
+								)}
 								variant='light'
 							>
 								{sponsorship.confirmed ? 'Confirmed' : 'Pending Confirmation'}
@@ -131,7 +137,10 @@ export default function SponsorshipInformation({
 				</Stack>
 
 				{isNMDS && !sponsorship.confirmed && (
-					<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
+					<Alert
+						icon={<IconInfoCircle size='1rem' />}
+						color={getAlertColor('warning')}
+					>
 						<Text size='sm'>
 							Your NMDS sponsorship is pending confirmation. Please ensure your
 							borrower number and bank details are correct.

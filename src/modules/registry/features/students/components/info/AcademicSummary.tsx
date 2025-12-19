@@ -10,6 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { getStatusColor } from '@student-portal/utils';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import type { getStudent } from '../../server/actions';
 
@@ -31,19 +32,6 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 	}
 
 	const academicRemarks = getAcademicRemarks([activeProgram]);
-
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case 'Proceed':
-				return 'green';
-			case 'Remain in Semester':
-				return 'red';
-			case 'No Marks':
-				return 'yellow';
-			default:
-				return 'gray';
-		}
-	};
 
 	return (
 		<div>
@@ -120,7 +108,11 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 								<Stack gap='xs'>
 									{academicRemarks.failedModules.map((module, index) => (
 										<Group key={`failed-${module.code}-${index}`} gap='xs'>
-											<Badge size='xs' color='red' variant='dot'>
+											<Badge
+												size='xs'
+												color={getStatusColor('repeat')}
+												variant='dot'
+											>
 												Repeat
 											</Badge>
 											<Text size='sm'>
@@ -133,7 +125,11 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 											key={`supplementary-${module.code}-${index}`}
 											gap='xs'
 										>
-											<Badge size='xs' color='yellow' variant='dot'>
+											<Badge
+												size='xs'
+												color={getStatusColor('supplementary')}
+												variant='dot'
+											>
 												Supplementary
 											</Badge>
 											<Text size='sm'>

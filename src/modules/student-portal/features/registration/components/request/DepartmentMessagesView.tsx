@@ -2,6 +2,7 @@
 
 import { Alert, Box, Divider, Stack, Text } from '@mantine/core';
 import type { getRegistrationRequest } from '@registry/registration';
+import { getAlertColor } from '@student-portal/utils';
 import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 
@@ -22,7 +23,7 @@ export default function DepartmentMessagesView({ registration }: Props) {
 				<Divider my='sm' />
 				<Alert
 					icon={<IconInfoCircle size='1rem' />}
-					color='blue'
+					color={getAlertColor('info')}
 					variant='light'
 					title='Message'
 				>
@@ -48,7 +49,7 @@ export default function DepartmentMessagesView({ registration }: Props) {
 			<Divider my='sm' />
 			<Alert
 				icon={<IconExclamationCircle size='1rem' />}
-				color='red'
+				color={getAlertColor('error')}
 				variant='outline'
 				title={title}
 			>

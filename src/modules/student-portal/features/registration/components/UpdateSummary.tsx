@@ -10,7 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getSemesterStatusColor } from '@student-portal/utils';
+import { getActionColor, getSemesterStatusColor } from '@student-portal/utils';
 import type { StudentModuleStatus } from '@/modules/registry/database';
 
 type SelectedModule = {
@@ -133,7 +133,7 @@ export default function UpdateSummary({
 						<Stack gap='xs'>
 							{addedModules.length > 0 && (
 								<Box>
-									<Text size='sm' c='green' fw={500}>
+									<Text size='sm' c={getActionColor('add')} fw={500}>
 										Added Modules ({addedModules.length})
 									</Text>
 									{addedModules.map((module) => (
@@ -146,7 +146,7 @@ export default function UpdateSummary({
 
 							{removedModules.length > 0 && (
 								<Box>
-									<Text size='sm' c='red' fw={500}>
+									<Text size='sm' c={getActionColor('remove')} fw={500}>
 										Removed Modules ({removedModules.length})
 									</Text>
 									{removedModules.map((module) => (
@@ -159,7 +159,7 @@ export default function UpdateSummary({
 
 							{changedModules.length > 0 && (
 								<Box>
-									<Text size='sm' c='blue' fw={500}>
+									<Text size='sm' c={getActionColor('update')} fw={500}>
 										Status Changes ({changedModules.length})
 									</Text>
 									{changedModules.map((module) => {
@@ -197,7 +197,7 @@ export default function UpdateSummary({
 									{originalSponsorship?.sponsorId !==
 										updatedSponsorship?.sponsorId && (
 										<Box>
-											<Text size='sm' c='blue' fw={500}>
+											<Text size='sm' c={getActionColor('update')} fw={500}>
 												Sponsor
 											</Text>
 											<Text size='xs' c='dimmed' pl='sm'>
@@ -215,7 +215,7 @@ export default function UpdateSummary({
 									{originalSponsorship?.borrowerNo !==
 										updatedSponsorship?.borrowerNo && (
 										<Box>
-											<Text size='sm' c='blue' fw={500}>
+											<Text size='sm' c={getActionColor('update')} fw={500}>
 												Borrower Number
 											</Text>
 											<Text size='xs' c='dimmed' pl='sm'>

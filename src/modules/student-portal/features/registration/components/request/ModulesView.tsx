@@ -12,6 +12,7 @@ import {
 	Title,
 } from '@mantine/core';
 import type { getRegistrationRequest } from '@registry/registration';
+import { getAlertColor, getStatusColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 
 type Props = {
@@ -23,7 +24,10 @@ export default function ModulesView({ registration }: Props) {
 
 	if (requestedModules.length === 0) {
 		return (
-			<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+			<Alert
+				icon={<IconInfoCircle size='1rem' />}
+				color={getAlertColor('info')}
+			>
 				No modules have been requested for this registration.
 			</Alert>
 		);
@@ -59,17 +63,7 @@ export default function ModulesView({ registration }: Props) {
 					</Stack>
 				</Table.Td>
 				<Table.Td w={80}>
-					<Badge
-						variant='light'
-						size='xs'
-						color={
-							status === 'registered'
-								? 'green'
-								: status === 'rejected'
-									? 'red'
-									: 'gray'
-						}
-					>
+					<Badge variant='light' size='xs' color={getStatusColor(status)}>
 						{status}
 					</Badge>
 				</Table.Td>
@@ -119,7 +113,7 @@ export default function ModulesView({ registration }: Props) {
 				{totalCredits !== approvedCredits && (
 					<Alert
 						icon={<IconInfoCircle size='1rem' />}
-						color='blue'
+						color={getAlertColor('info')}
 						variant='light'
 					>
 						<Text size='sm'>

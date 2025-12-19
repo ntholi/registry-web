@@ -4,6 +4,7 @@ import { ActionIcon, Button, Group, Modal } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { getActionColor, getAlertColor } from '@student-portal/utils';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
@@ -94,7 +95,7 @@ export default function EditAllocationModal({
 			notifications.show({
 				title: 'Success',
 				message: 'Allocation updated successfully',
-				color: 'green',
+				color: getAlertColor('success'),
 			});
 			close();
 		},
@@ -102,7 +103,7 @@ export default function EditAllocationModal({
 			notifications.show({
 				title: 'Error',
 				message: error.message || 'Failed to update allocation',
-				color: 'red',
+				color: getAlertColor('error'),
 			});
 		},
 	});
@@ -126,7 +127,12 @@ export default function EditAllocationModal({
 
 	return (
 		<>
-			<ActionIcon variant='subtle' color='blue' size='sm' onClick={handleOpen}>
+			<ActionIcon
+				variant='subtle'
+				color={getActionColor('update')}
+				size='sm'
+				onClick={handleOpen}
+			>
 				<IconEdit size={16} />
 			</ActionIcon>
 

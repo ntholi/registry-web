@@ -13,6 +13,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
+import { getStatusColor } from '@student-portal/utils';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -221,7 +222,9 @@ export default function SponsoredStudentsTable() {
 								{sponsoredStudent.sponsor?.name === 'NMDS' ? (
 									<Text
 										size='sm'
-										c={sponsoredStudent.confirmed ? 'green' : 'orange'}
+										c={getStatusColor(
+											sponsoredStudent.confirmed ? 'confirmed' : 'pending'
+										)}
 										fw={500}
 									>
 										{sponsoredStudent.confirmed ? 'Confirmed' : 'Pending'}

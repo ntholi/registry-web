@@ -15,6 +15,7 @@ import {
 	ThemeIcon,
 	useMantineTheme,
 } from '@mantine/core';
+import { getStatusColor } from '@student-portal/utils';
 import { IconExternalLink, IconVideo, IconVideoOff } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -128,7 +129,11 @@ export default function VirtualClassroomList({
 													<Text size='xs' c='dimmed'>
 														•
 													</Text>
-													<Badge size='xs' variant='light' color='gray'>
+													<Badge
+														size='xs'
+														variant='light'
+														color={getStatusColor('hidden')}
+													>
 														Hidden
 													</Badge>
 												</>

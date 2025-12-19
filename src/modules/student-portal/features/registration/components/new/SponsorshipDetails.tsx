@@ -10,6 +10,7 @@ import {
 	Text,
 	TextInput,
 } from '@mantine/core';
+import { getAlertColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
@@ -217,7 +218,10 @@ export default function SponsorshipDetails({
 				</Stack>
 			</Card>
 
-			<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+			<Alert
+				icon={<IconInfoCircle size='1rem' />}
+				color={getAlertColor('info')}
+			>
 				<Text size='sm'>
 					<strong>Important:</strong> Make sure your sponsorship details are
 					correct.
@@ -234,7 +238,10 @@ export default function SponsorshipDetails({
 			</Alert>
 
 			{sponsors.length === 0 && !sponsorsLoading && (
-				<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
+				<Alert
+					icon={<IconInfoCircle size='1rem' />}
+					color={getAlertColor('warning')}
+				>
 					No sponsors found. Please contact the administration to set up
 					sponsors.
 				</Alert>
