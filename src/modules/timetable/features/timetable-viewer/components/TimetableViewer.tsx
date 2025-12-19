@@ -10,7 +10,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { getAllTerms } from '@registry/terms';
+import { getAllTerms } from '@registry/dates/terms';
 import { useQuery } from '@tanstack/react-query';
 import { getAllVenues } from '@timetable/venues';
 import { useAtom } from 'jotai';

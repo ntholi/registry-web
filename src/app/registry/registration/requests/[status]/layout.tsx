@@ -1,7 +1,7 @@
 'use client';
 
+import { getCurrentTerm } from '@registry/dates/terms';
 import { findAllRegistrationRequests } from '@registry/registration/requests';
-import { getCurrentTerm } from '@registry/terms';
 import { getStatusIcon } from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';

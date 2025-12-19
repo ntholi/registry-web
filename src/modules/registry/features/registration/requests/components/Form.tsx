@@ -11,8 +11,8 @@ import {
 	Table,
 	Text,
 } from '@mantine/core';
+import { getAllTerms } from '@registry/dates/terms';
 import { getStudentRegistrationData } from '@registry/students';
-import { getAllTerms } from '@registry/terms';
 import { IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';

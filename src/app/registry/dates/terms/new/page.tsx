@@ -1,5 +1,5 @@
 import { Box } from '@mantine/core';
-import { createTerm, Form } from '@registry/terms';
+import { createTerm, Form } from '@registry/dates/terms';
 
 export default async function NewPage() {
 	return (

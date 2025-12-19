@@ -1,11 +1,11 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import { getCurrentTerm } from '@registry/dates/terms';
 import { ClearanceDetails, ClearanceHistory } from '@registry/registration';
 import {
 	AcademicsLoader,
 	ClearanceHeader,
 } from '@registry/registration/clearance';
 import { getClearance } from '@registry/registration/requests';
-import { getCurrentTerm } from '@registry/terms';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { DetailsView } from '@/shared/ui/adease';

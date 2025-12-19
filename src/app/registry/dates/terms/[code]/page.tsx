@@ -1,5 +1,5 @@
 import { Badge } from '@mantine/core';
-import { deleteTerm, getTermByCode } from '@registry/terms';
+import { deleteTerm, getTermByCode } from '@registry/dates/terms';
 import { getBooleanColor } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
 import {

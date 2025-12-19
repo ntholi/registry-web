@@ -2,7 +2,7 @@ import { getAssessmentTypeLabel } from '@academic/assessments';
 import { Packer } from 'docx';
 import { auth } from '@/core/auth';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import { termsRepository } from '@/modules/registry/features/terms/server/repository';
+import { termsRepository } from '@/modules/registry/features/dates/terms/server/repository';
 import { createCourseSummaryDocument } from './document';
 import {
 	type CourseSummaryReport,

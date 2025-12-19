@@ -1,7 +1,7 @@
 'use client';
 
+import { getCurrentTerm } from '@registry/dates/terms';
 import { clearanceByStatus } from '@registry/registration/requests';
-import { getCurrentTerm } from '@registry/terms';
 import { getStatusColor } from '@student-portal/utils';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';

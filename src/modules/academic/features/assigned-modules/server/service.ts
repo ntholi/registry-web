@@ -1,4 +1,4 @@
-import { getCurrentTerm } from '@registry/terms';
+import { getCurrentTerm } from '@registry/dates/terms';
 import type { assignedModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';

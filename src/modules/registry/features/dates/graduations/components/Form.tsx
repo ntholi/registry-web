@@ -47,8 +47,8 @@ export default function GraduationForm({
 			queryKey={['graduations']}
 			schema={createInsertSchema(graduations)}
 			defaultValues={defaultValues}
-			onSuccess={({ id }) => {
-				router.push(`/registry/graduations/${id}`);
+			onSuccess={({ graduationDate }) => {
+				router.push(`/registry/dates/graduations/${graduationDate}`);
 			}}
 		>
 			{(form) => (

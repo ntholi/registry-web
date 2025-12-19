@@ -145,13 +145,13 @@ export const registryConfig: ModuleConfig = {
 				children: [
 					{
 						label: 'Terms',
-						href: '/registry/terms',
+						href: '/registry/dates/terms',
 						icon: IconCalendarDue,
 						roles: ['admin', 'registry'],
 					},
 					{
 						label: 'Graduations',
-						href: '/registry/graduations',
+						href: '/registry/dates/graduations',
 						icon: IconCalendarEvent,
 						roles: ['admin', 'registry'],
 					},

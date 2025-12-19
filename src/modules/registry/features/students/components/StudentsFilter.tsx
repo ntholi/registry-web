@@ -14,7 +14,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@registry/terms';
+import { getAllTerms } from '@registry/dates/terms';
 import { getBooleanColor } from '@student-portal/utils';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';

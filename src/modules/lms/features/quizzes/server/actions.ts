@@ -6,7 +6,7 @@ import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
 import { studentRepository } from '@/modules/lms/features/students/server/repository';
 import { getOrReuseSection } from '@/modules/lms/shared/utils';
-import { getCurrentTerm } from '@/modules/registry/features/terms';
+import { getCurrentTerm } from '@/modules/registry/features/dates/terms';
 import type {
 	AddQuestionToQuizResponse,
 	CreateQuestionResponse,

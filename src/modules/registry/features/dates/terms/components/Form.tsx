@@ -35,8 +35,8 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 			queryKey={['terms']}
 			schema={createInsertSchema(terms)}
 			defaultValues={defaultValues}
-			onSuccess={({ id }) => {
-				router.push(`/registry/terms/${id}`);
+			onSuccess={({ code }) => {
+				router.push(`/registry/dates/terms/${code}`);
 			}}
 		>
 			{(form) => (

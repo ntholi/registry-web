@@ -12,7 +12,7 @@ import {
 	Stack,
 	TextInput,
 } from '@mantine/core';
-import { getAllTerms } from '@registry/terms';
+import { getAllTerms } from '@registry/dates/terms';
 import { IconFilter, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 

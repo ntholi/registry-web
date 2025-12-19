@@ -11,7 +11,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getAllTerms } from '@registry/terms';
+import { getAllTerms } from '@registry/dates/terms';
 import { useQuery } from '@tanstack/react-query';
 import { getTimetableAllocationsByUserId } from '@timetable/timetable-allocations';
 import AllocationTab from '@timetable/timetable-allocations/components/AllocationTab';

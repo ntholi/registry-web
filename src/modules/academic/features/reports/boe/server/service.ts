@@ -7,7 +7,7 @@ import {
 	type StudentModuleStatus,
 	type schools,
 } from '@/core/database';
-import { getCurrentTerm } from '@/modules/registry/features/terms';
+import { getCurrentTerm } from '@/modules/registry/features/dates/terms';
 import {
 	getAcademicRemarks,
 	summarizeModules,

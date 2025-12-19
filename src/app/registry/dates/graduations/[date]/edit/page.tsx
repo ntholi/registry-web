@@ -3,8 +3,8 @@ import {
 	Form,
 	getGraduationByDate,
 	updateGraduation,
-} from '@registry/graduations';
-import { getAllTerms } from '@registry/terms';
+} from '@registry/dates/graduations';
+import { getAllTerms } from '@registry/dates/terms';
 import { notFound } from 'next/navigation';
 
 type Props = {
