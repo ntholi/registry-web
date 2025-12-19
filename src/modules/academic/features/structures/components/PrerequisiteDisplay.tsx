@@ -1,5 +1,5 @@
 import { Group, Text } from '@mantine/core';
-import { getOptionalColor, semantic } from '@student-portal/utils';
+import { getOptionalColor } from '@student-portal/utils';
 import { Fragment } from 'react';
 import Link from '@/shared/ui/Link';
 
@@ -41,7 +41,7 @@ export default function PrerequisiteDisplay({ prerequisites, hidden }: Props) {
 				<Fragment key={it.id}>
 					<Group gap={'xs'}>
 						<Link
-							c={getOptionalColor(hidden, semantic.dark)}
+							c={getOptionalColor(hidden)}
 							href={`/academic/semester-modules/${it.prerequisite.id}`}
 							size='0.8rem'
 						>

@@ -190,11 +190,8 @@ export function getBooleanColor(
 	return value ? booleanColors[type].true : booleanColors[type].false;
 }
 
-export function getOptionalColor(
-	condition: boolean,
-	color: string = semantic.dimmed
-) {
-	return condition ? color : undefined;
+export function getOptionalColor(condition: boolean) {
+	return condition ? semantic.dimmed : undefined;
 }
 
 function getThresholdColor(
