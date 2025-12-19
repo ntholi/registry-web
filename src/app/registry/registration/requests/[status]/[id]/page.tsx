@@ -15,14 +15,9 @@ import {
 	getRegistrationRequest,
 	ModulesView,
 } from '@registry/registration/requests';
-import { getStatusColor } from '@student-portal/utils';
-import {
-	IconCheck,
-	IconClock,
-	IconExclamationCircle,
-} from '@tabler/icons-react';
+import { getStatusColor, getStatusIcon } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
-import type { DashboardUser, registrationRequestStatus } from '@/core/database';
+import type { DashboardUser } from '@/core/database';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 interface Props {
@@ -46,19 +41,6 @@ function getOverallClearanceStatus(
 	if (statuses.some((status) => status === 'rejected')) return 'rejected';
 	if (statuses.some((status) => status === 'pending')) return 'pending';
 	return 'approved';
-}
-
-function getStatusIcon(
-	status: (typeof registrationRequestStatus.enumValues)[number]
-) {
-	switch (status) {
-		case 'approved':
-			return <IconCheck size={16} />;
-		case 'rejected':
-			return <IconExclamationCircle size={16} />;
-		default:
-			return <IconClock size={16} />;
-	}
 }
 
 export default async function RegistrationRequestDetails({
@@ -109,7 +91,9 @@ export default async function RegistrationRequestDetails({
 								variant='light'
 								size={20}
 							>
-								{getStatusIcon(getOverallClearanceStatus(registrationRequest))}
+								{getStatusIcon(getOverallClearanceStatus(registrationRequest), {
+									size: 16,
+								})}
 							</ThemeIcon>
 							Clearance
 						</Group>

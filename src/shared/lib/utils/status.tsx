@@ -3,6 +3,7 @@ import {
 	IconClock,
 	IconExclamationCircle,
 } from '@tabler/icons-react';
+import { getStatusColor } from './colors';
 
 export type StatusType =
 	| 'pending'
@@ -12,15 +13,23 @@ export type StatusType =
 	| 'partial'
 	| 'registered';
 
-export function getStatusIcon(status: StatusType) {
+export type StatusIconSize = '1rem' | 16 | 20 | 24;
+
+export function getStatusIcon(
+	status: StatusType,
+	options?: { size?: StatusIconSize; withColor?: boolean }
+) {
+	const { size = '1rem', withColor = false } = options || {};
+	const color = withColor ? getStatusColor(status) : undefined;
+
 	switch (status) {
 		case 'approved':
 		case 'confirmed':
 		case 'registered':
-			return <IconCircleCheck size='1rem' />;
+			return <IconCircleCheck size={size} color={color} />;
 		case 'rejected':
-			return <IconExclamationCircle size='1rem' />;
+			return <IconExclamationCircle size={size} color={color} />;
 		default:
-			return <IconClock size='1rem' />;
+			return <IconClock size={size} color={color} />;
 	}
 }

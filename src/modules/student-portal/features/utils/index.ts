@@ -1,6 +1,7 @@
 export * from '../../../../shared/lib/utils/colors';
 export {
 	getStatusIcon,
+	type StatusIconSize,
 	type StatusType,
 } from '../../../../shared/lib/utils/status';
 export {

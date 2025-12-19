@@ -1,14 +1,8 @@
 'use client';
 
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { getStatusColor } from '@student-portal/utils';
-import {
-	IconCheck,
-	IconClock,
-	IconExclamationCircle,
-} from '@tabler/icons-react';
+import { getStatusColor, getStatusIcon } from '@student-portal/utils';
 import type { DashboardUser } from '@/core/database';
-import type { registrationRequestStatus } from '@/modules/registry/database';
 import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 import type { getRegistrationRequest } from '../server/requests/actions';
@@ -17,8 +11,6 @@ interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
 	defaultDept?: DashboardUser;
 }
-
-type Status = (typeof registrationRequestStatus.enumValues)[number];
 
 const departments: DashboardUser[] = ['finance', 'library'];
 
@@ -101,15 +93,4 @@ export default function ClearanceAccordion({ value, defaultDept }: Props) {
 			})}
 		</Accordion>
 	);
-}
-
-function getStatusIcon(status: Status) {
-	switch (status) {
-		case 'approved':
-			return <IconCheck size='1rem' />;
-		case 'rejected':
-			return <IconExclamationCircle size='1rem' />;
-		default:
-			return <IconClock size='1rem' />;
-	}
 }

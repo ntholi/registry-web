@@ -22,12 +22,7 @@ import {
 	GraduationRequestDetailsView,
 	ProofOfClearancePrinter,
 } from '@registry/graduation/requests';
-import { getStatusColor } from '@student-portal/utils';
-import {
-	IconCheck,
-	IconClock,
-	IconExclamationCircle,
-} from '@tabler/icons-react';
+import { getStatusColor, getStatusIcon } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
 import type { DashboardUser } from '@/core/database';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
@@ -53,17 +48,6 @@ function getOverallClearanceStatus(
 	if (statuses.some((status) => status === 'rejected')) return 'rejected';
 	if (statuses.some((status) => status === 'pending')) return 'pending';
 	return 'approved';
-}
-
-function getStatusIcon(status: 'approved' | 'rejected' | 'pending') {
-	switch (status) {
-		case 'approved':
-			return <IconCheck size={16} />;
-		case 'rejected':
-			return <IconExclamationCircle size={16} />;
-		default:
-			return <IconClock size={16} />;
-	}
 }
 
 export default async function GraduationRequestDetails({
@@ -112,7 +96,9 @@ export default async function GraduationRequestDetails({
 								variant='light'
 								size={20}
 							>
-								{getStatusIcon(getOverallClearanceStatus(graduationRequest))}
+								{getStatusIcon(getOverallClearanceStatus(graduationRequest), {
+									size: 16,
+								})}
 							</ThemeIcon>
 							Clearance
 						</Group>
