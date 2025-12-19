@@ -1,24 +1,26 @@
-import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance';
-import { countByStatus } from '@registry/registration';
-import {
-	IconBan,
-	IconCalendarMonth,
-	IconChartDonut,
-	IconCheck,
-	IconCircleCheck,
-	IconClipboardList,
-	IconFileDescription,
-	IconGavel,
-	IconHourglass,
-	IconSchoolBell,
-	IconUsers,
-} from '@tabler/icons-react';
 import type {
 	ModuleConfig,
 	NavItem,
 } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 import type { UserPosition, UserRole } from '@/core/database';
+import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance';
+import { countByStatus } from '@registry/registration';
+import {
+	IconCalendarDue,
+	IconCalendarEvent,
+	IconCalendarMonth,
+	IconCertificate,
+	IconChartDonut,
+	IconCircleCheck,
+	IconGavel,
+	IconHourglass,
+	IconReportAnalytics,
+	IconUserCheck,
+	IconUserPlus,
+	IconUsers,
+	IconUserX,
+} from '@tabler/icons-react';
 
 export const registryConfig: ModuleConfig = {
 	id: 'registry',
@@ -51,7 +53,7 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Registration Requests',
-				icon: IconClipboardList,
+				icon: IconUserPlus,
 				roles: ['registry', 'admin'],
 				collapsed: true,
 				children: [
@@ -68,7 +70,7 @@ export const registryConfig: ModuleConfig = {
 					{
 						label: 'Registered',
 						href: '/registry/registration/requests/registered',
-						icon: IconCheck,
+						icon: IconUserCheck,
 						notificationCount: {
 							queryKey: ['registration-requests', 'registered'],
 							queryFn: () => countByStatus('registered'),
@@ -78,7 +80,7 @@ export const registryConfig: ModuleConfig = {
 					{
 						label: 'Rejected',
 						href: '/registry/registration/requests/rejected',
-						icon: IconBan,
+						icon: IconUserX,
 						notificationCount: {
 							queryKey: ['registration-requests', 'rejected'],
 							queryFn: () => countByStatus('rejected'),
@@ -99,7 +101,7 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Graduation Requests',
-				icon: IconSchoolBell,
+				icon: IconCertificate,
 				roles: ['registry', 'admin'],
 				collapsed: true,
 				children: [
@@ -126,7 +128,7 @@ export const registryConfig: ModuleConfig = {
 					{
 						label: 'Rejected',
 						href: '/registry/graduation/requests/rejected',
-						icon: IconBan,
+						icon: IconUserX,
 						notificationCount: {
 							queryKey: ['graduation-requests', 'rejected'],
 							queryFn: () => countGraduationByStatus('rejected'),
@@ -137,20 +139,20 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Dates',
-				icon: IconSchoolBell,
+				icon: IconCalendarMonth,
 				roles: ['registry', 'admin'],
 				collapsed: true,
 				children: [
 					{
 						label: 'Terms',
 						href: '/registry/terms',
-						icon: IconCalendarMonth,
+						icon: IconCalendarDue,
 						roles: ['admin', 'registry'],
 					},
 					{
 						label: 'Graduations',
 						href: '/registry/graduations',
-						icon: IconCalendarMonth,
+						icon: IconCalendarEvent,
 						roles: ['admin', 'registry'],
 					},
 				],
@@ -173,7 +175,7 @@ export const registryConfig: ModuleConfig = {
 			{
 				label: 'Student Enrollments',
 				href: '/registry/reports/enrollments',
-				icon: IconFileDescription,
+				icon: IconReportAnalytics,
 				roles: ['academic', 'registry', 'admin', 'finance'],
 				isVisible: (session) => {
 					if (
