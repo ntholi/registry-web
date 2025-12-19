@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge, Center, Stack, Table, Text } from '@mantine/core';
+import { getGradeColor } from '@student-portal/utils';
 import { IconFileCertificate } from '@tabler/icons-react';
 
 interface StudentModule {
@@ -22,13 +23,6 @@ interface DesktopTableProps {
 }
 
 export default function DesktopTable({ modules }: DesktopTableProps) {
-	const getGradeColor = (grade: string) => {
-		if (['A+', 'A', 'A-'].includes(grade)) return 'green';
-		if (['B+', 'B', 'B-'].includes(grade)) return 'blue';
-		if (['C+', 'C', 'C-'].includes(grade)) return 'yellow';
-		return 'red';
-	};
-
 	if (modules.length === 0) {
 		return (
 			<Center py='xl'>

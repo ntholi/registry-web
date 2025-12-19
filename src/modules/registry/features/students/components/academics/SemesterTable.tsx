@@ -12,6 +12,7 @@ import {
 	Tooltip,
 	useComputedColorScheme,
 } from '@mantine/core';
+import { getGradeColor, getStatusColor } from '@student-portal/utils';
 import { useSession } from 'next-auth/react';
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -155,13 +156,7 @@ export default function SemesterTable({
 								<Badge
 									size='md'
 									variant='light'
-									color={
-										failed(attempt.grade)
-											? 'red'
-											: attempt.grade === 'NM'
-												? 'orange'
-												: 'green'
-									}
+									color={getGradeColor(attempt.grade)}
 								>
 									{attempt.grade}
 								</Badge>
@@ -273,7 +268,7 @@ export default function SemesterTable({
 										size='sm'
 										c={
 											['Drop', 'Delete'].includes(module.status)
-												? 'red'
+												? getStatusColor(module.status)
 												: undefined
 										}
 									>
@@ -299,13 +294,7 @@ export default function SemesterTable({
 									<Badge
 										size='sm'
 										variant='light'
-										color={
-											failed(module.grade)
-												? 'red'
-												: module.grade === 'NM' || module.grade === 'DEF'
-													? 'orange'
-													: 'green'
-										}
+										color={getGradeColor(module.grade)}
 										style={isDroppedOrDeleted ? { opacity: 0.7 } : undefined}
 									>
 										{module.grade}

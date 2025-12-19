@@ -10,6 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { getSemesterStatusColor } from '@student-portal/utils';
 import type { StudentModuleStatus } from '@/modules/registry/database';
 
 type SelectedModule = {
@@ -115,9 +116,7 @@ export default function UpdateSummary({
 							Semester Status
 						</Text>
 						<Group>
-							<Badge
-								color={semesterData.status === 'Active' ? 'blue' : 'orange'}
-							>
+							<Badge color={getSemesterStatusColor(semesterData.status)}>
 								{semesterData.status}
 							</Badge>
 							<Text size='sm'>Semester {semesterData.semesterNo}</Text>
