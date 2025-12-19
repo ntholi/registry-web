@@ -14,6 +14,7 @@ import {
 	graduationRequests,
 	paymentReceipts,
 } from './schema/graduation';
+import { graduations } from './schema/graduations';
 import {
 	statementOfResultsPrints,
 	studentCardPrints,
@@ -118,6 +119,14 @@ export const termsRelations = relations(terms, ({ many }) => ({
 	assignedModules: many(assignedModules),
 	assessments: many(assessments),
 	registrationRequests: many(registrationRequests),
+	graduations: many(graduations),
+}));
+
+export const graduationRelations = relations(graduations, ({ one }) => ({
+	term: one(terms, {
+		fields: [graduations.termId],
+		references: [terms.id],
+	}),
 }));
 
 export const registrationRequestsRelations = relations(

@@ -1,4 +1,4 @@
-import { deleteGraduation, getGraduation } from '@registry/graduations';
+import { deleteGraduation, getGraduationByDate } from '@registry/graduations';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -8,12 +8,12 @@ import {
 } from '@/shared/ui/adease';
 
 type Props = {
-	params: Promise<{ id: string }>;
+	params: Promise<{ date: string }>;
 };
 
 export default async function GraduationDetails({ params }: Props) {
-	const { id } = await params;
-	const graduation = await getGraduation(Number(id));
+	const { date } = await params;
+	const graduation = await getGraduationByDate(date);
 
 	if (!graduation) {
 		return notFound();
@@ -26,7 +26,7 @@ export default async function GraduationDetails({ params }: Props) {
 				queryKey={['graduations']}
 				handleDelete={async () => {
 					'use server';
-					await deleteGraduation(Number(id));
+					await deleteGraduation(graduation.id);
 				}}
 			/>
 			<DetailsViewBody>

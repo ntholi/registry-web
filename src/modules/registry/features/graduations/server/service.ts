@@ -18,6 +18,13 @@ class GraduationService extends BaseService<typeof graduations, 'id'> {
 		);
 	}
 
+	async getByDateWithTerm(date: string) {
+		return withAuth(
+			async () => (this.repository as GraduationRepository).findByDate(date),
+			['dashboard']
+		);
+	}
+
 	async deleteGraduation(id: number) {
 		const graduation = await this.repository.findById(id);
 		await this.repository.delete(id);

@@ -12,6 +12,13 @@ export default class GraduationRepository extends BaseRepository<
 		super(graduations, graduations.id);
 	}
 
+	async findByDate(date: string) {
+		return db.query.graduations.findFirst({
+			where: eq(graduations.graduationDate, date),
+			with: { term: true },
+		});
+	}
+
 	async findAll() {
 		return db
 			.select({
