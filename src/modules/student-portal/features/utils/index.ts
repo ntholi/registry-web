@@ -1,4 +1,4 @@
-export * from './lib/colors';
+export * from '../../../../shared/lib/utils/colors';
 export {
 	type BaseStatus,
 	type GraduationStatus,

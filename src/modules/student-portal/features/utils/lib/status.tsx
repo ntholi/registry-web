@@ -3,7 +3,7 @@ import {
 	IconClock,
 	IconExclamationCircle,
 } from '@tabler/icons-react';
-import { getStatusColor as getBaseStatusColor } from './colors';
+import { getStatusColor as getBaseStatusColor } from '../../../../../shared/lib/utils/colors';
 
 export type BaseStatus = 'pending' | 'approved' | 'rejected' | 'confirmed';
 export type RegistrationStatus = BaseStatus | 'partial' | 'registered';
