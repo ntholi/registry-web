@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Card, Center, Stack, Table, Text } from '@mantine/core';
-import { getClassTypeColor } from '@student-portal/utils';
+import { type ClassType, getClassTypeColor } from '@student-portal/utils';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type SlotAllocation = {
@@ -9,7 +9,7 @@ type SlotAllocation = {
 	timetableAllocationId: number;
 	createdAt: Date | null;
 	timetableAllocation: {
-		classType: string;
+		classType: ClassType;
 		groupName: string | null;
 		semesterModule: {
 			moduleId: number;
@@ -102,7 +102,7 @@ function toClassName(
 type GroupedModule = {
 	moduleCode: string;
 	moduleName: string;
-	classType: string;
+	classType: ClassType;
 	venueId: number;
 	venueName: string;
 	classNames: string[];

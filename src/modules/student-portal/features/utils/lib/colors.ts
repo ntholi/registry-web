@@ -1,3 +1,28 @@
+import type { Grade, ModuleType } from '@/modules/academic/database';
+import type { programLevelEnum } from '@/modules/academic/database/schema/enums';
+import type { taskPriority, taskStatus } from '@/modules/admin/database';
+import type {
+	QuestionType as LmsQuestionType,
+	QuestionState,
+} from '@/modules/lms/features/quizzes/types';
+import type {
+	SemesterStatus,
+	StudentModuleStatus,
+	StudentProgramStatus,
+} from '@/modules/registry/database';
+import type {
+	gender,
+	studentStatus,
+} from '@/modules/registry/database/schema/enums';
+import type { classTypeEnum } from '@/modules/timetable/database';
+
+type Gender = (typeof gender.enumValues)[number];
+type ProgramLevel = (typeof programLevelEnum.enumValues)[number];
+type ClassTypeDb = (typeof classTypeEnum.enumValues)[number];
+type TaskPriority = (typeof taskPriority.enumValues)[number];
+type TaskStatus = (typeof taskStatus.enumValues)[number];
+type StudentStatus = (typeof studentStatus.enumValues)[number];
+
 export const semantic = {
 	success: 'green',
 	error: 'red',
@@ -170,8 +195,38 @@ const allStatuses = {
 	...statusColors.dataOp,
 } as const;
 
-function getColorFromMap<T extends Record<string, string>>(
-	value: string | undefined | null,
+export type AllStatusType =
+	| keyof typeof allStatuses
+	| StudentStatus
+	| StudentProgramStatus
+	| SemesterStatus
+	| StudentModuleStatus
+	| ModuleType;
+export type QuizStateType = keyof typeof statusColors.quizState | QuestionState;
+export type QuestionType =
+	| keyof typeof statusColors.questionType
+	| LmsQuestionType;
+export type ClassType = keyof typeof statusColors.classType | ClassTypeDb;
+export type GenderType = keyof typeof statusColors.gender | Gender;
+export type ProgramLevelType =
+	| keyof typeof statusColors.programLevel
+	| ProgramLevel;
+export type ChartSemesterStatusType =
+	| keyof typeof statusColors.semesterStatus
+	| SemesterStatus;
+export type TaskPriorityType =
+	| keyof typeof statusColors.priority
+	| TaskPriority;
+export type TaskStatusType = keyof typeof statusColors.taskStatus | TaskStatus;
+export type ModuleTypeColorKey =
+	| keyof typeof statusColors.moduleType
+	| StudentModuleStatus
+	| ModuleType
+	| `Repeat${number}`
+	| `Resit${number}`;
+
+function getColorFromMap<T extends Record<string, string>, V extends string>(
+	value: V,
 	colorMap: T,
 	fallback: string = semantic.neutral
 ) {
@@ -213,7 +268,7 @@ function getThresholdColor(
 	return bad;
 }
 
-export function getStatusColor(status: string) {
+export function getStatusColor(status: AllStatusType) {
 	if (!status) return semantic.neutral;
 	const normalized = status.toLowerCase().replace(/\s+/g, '');
 
@@ -238,7 +293,7 @@ export function getStatusColor(status: string) {
 	return semantic.neutral;
 }
 
-export function getGradeColor(grade: string) {
+export function getGradeColor(grade: Grade) {
 	if (!grade) return semantic.neutral;
 	const g = grade.toUpperCase();
 
@@ -252,7 +307,9 @@ export function getGradeColor(grade: string) {
 	return semantic.neutral;
 }
 
-export function getModuleTypeColor(type: string) {
+export function getModuleTypeColor(
+	type: StudentModuleStatus | ModuleTypeColorKey
+) {
 	if (!type) return semantic.neutral;
 	const normalized = type.toLowerCase();
 
@@ -306,27 +363,27 @@ export function getAlertColor(type: 'info' | 'warning' | 'error' | 'success') {
 	return statusColors.alert[type];
 }
 
-export function getQuizStateColor(state: string) {
+export function getQuizStateColor(state: QuizStateType) {
 	return getColorFromMap(state, statusColors.quizState);
 }
 
-export function getQuestionTypeColor(type: string) {
+export function getQuestionTypeColor(type: QuestionType) {
 	return getColorFromMap(type, statusColors.questionType);
 }
 
-export function getClassTypeColor(type: string) {
+export function getClassTypeColor(type: ClassType) {
 	return getColorFromMap(type, statusColors.classType, 'cyan.3');
 }
 
-export function getGenderColor(gender: string) {
+export function getGenderColor(gender: GenderType) {
 	return getColorFromMap(gender, statusColors.gender, 'gray');
 }
 
-export function getProgramLevelColor(level: string) {
+export function getProgramLevelColor(level: ProgramLevelType) {
 	return getColorFromMap(level, statusColors.programLevel, 'gray');
 }
 
-export function getChartSemesterStatusColor(status: string) {
+export function getChartSemesterStatusColor(status: ChartSemesterStatusType) {
 	return getColorFromMap(status, statusColors.semesterStatus, 'gray');
 }
 
@@ -338,11 +395,11 @@ export function getPostTypeColor(type: 'announcement' | 'discussion') {
 		: semantic.accent;
 }
 
-export function getTaskPriorityColor(priority: string) {
+export function getTaskPriorityColor(priority: TaskPriorityType) {
 	return getColorFromMap(priority, statusColors.priority);
 }
 
-export function getTaskStatusColor(status: string) {
+export function getTaskStatusColor(status: TaskStatusType) {
 	return getColorFromMap(status, statusColors.taskStatus);
 }
 
@@ -372,15 +429,17 @@ export function getVersionCountColor(count: number) {
 	return semantic.error;
 }
 
-export function getModuleStatusTextColor(status: string) {
+export function getModuleStatusTextColor(status: StudentModuleStatus) {
 	const normalized = status.toLowerCase();
 	if (normalized.startsWith('repeat')) return semantic.error;
 	return undefined;
 }
 
-export function getSemesterResultColor(status: string) {
+export function getSemesterResultColor(
+	status: SemesterStatus | ChartSemesterStatusType
+) {
 	const normalized = status.toLowerCase();
 	if (normalized === 'active') return semantic.success;
 	if (normalized === 'repeat') return semantic.caution;
-	return getStatusColor(status);
+	return getStatusColor(status as AllStatusType);
 }

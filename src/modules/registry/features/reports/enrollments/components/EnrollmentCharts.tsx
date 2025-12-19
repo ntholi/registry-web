@@ -11,9 +11,12 @@ import {
 	Title,
 } from '@mantine/core';
 import {
+	type ChartSemesterStatusType,
+	type GenderType,
 	getChartSemesterStatusColor,
 	getGenderColor,
 	getProgramLevelColor,
+	type ProgramLevelType,
 } from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useMasonryLayout } from '@/shared/lib/hooks/use-masonry';
@@ -317,7 +320,7 @@ export default function RegistrationCharts({ filter }: Props) {
 							data={chartData.studentsByGender.map((item) => ({
 								name: item.gender,
 								value: Number(item.count),
-								color: getGenderColor(item.gender),
+								color: getGenderColor(item.gender.toLowerCase() as GenderType),
 							}))}
 							withLabelsLine
 							withLabels
@@ -347,7 +350,7 @@ export default function RegistrationCharts({ filter }: Props) {
 								data={programLevelData.map((item) => ({
 									name: item.label,
 									value: item.count,
-									color: getProgramLevelColor(item.level),
+									color: getProgramLevelColor(item.level as ProgramLevelType),
 								}))}
 								withLabelsLine
 								withLabels
@@ -495,7 +498,9 @@ export default function RegistrationCharts({ filter }: Props) {
 								name:
 									item.status === 'DroppedOut' ? 'Dropped Out' : item.status,
 								value: Number(item.count),
-								color: getChartSemesterStatusColor(item.status),
+								color: getChartSemesterStatusColor(
+									item.status.toLowerCase() as ChartSemesterStatusType
+								),
 							}))}
 							withLabelsLine
 							withLabels

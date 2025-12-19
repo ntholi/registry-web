@@ -2,6 +2,7 @@
 
 import { Button, Group, NumberInput, Select, Stack } from '@mantine/core';
 import { useState } from 'react';
+import type { Grade } from '@/modules/academic/database';
 import {
 	getGradeByMarks,
 	getGradeByPoints,
@@ -13,7 +14,7 @@ import { GradeResultDisplay } from './GradeResultDisplay';
 type InputType = 'marks' | 'points' | 'grade';
 
 type GradeResult = {
-	grade: string;
+	grade: Grade;
 	points: number | null;
 	description: string;
 	marksRange?: { min: number; max: number };

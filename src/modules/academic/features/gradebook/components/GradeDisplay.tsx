@@ -2,13 +2,14 @@
 
 import { Badge, Text } from '@mantine/core';
 import { getGradeColor } from '@student-portal/utils';
+import type { Grade } from '@/modules/academic/database';
 import TotalMarkDisplay from './TotalMarkDisplay';
 
 type ModuleGrade = {
 	id: number;
 	moduleId: number;
 	stdNo: number;
-	grade: string;
+	grade: Grade;
 	weightedTotal: number;
 	createdAt: Date | null;
 	updatedAt: Date | null;

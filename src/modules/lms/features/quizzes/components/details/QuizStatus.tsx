@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, type BadgeProps } from '@mantine/core';
-import { getStatusColor } from '@student-portal/utils';
+import { type AllStatusType, getStatusColor } from '@student-portal/utils';
 import type { MoodleQuiz } from '../../types';
 
 type Props = {
@@ -13,19 +13,23 @@ export default function QuizStatus({ quiz, ...badgeProps }: Props) {
 	const isNotYetOpen = quiz.timeopen > 0 && now < quiz.timeopen;
 	const isClosed = quiz.timeclose > 0 && now > quiz.timeclose;
 
-	let text: string;
+	let text: AllStatusType;
+	let label: string;
 
 	if (isNotYetOpen) {
-		text = 'Not yet open';
+		text = 'notyetopen';
+		label = 'Not yet open';
 	} else if (isClosed) {
-		text = 'Closed';
+		text = 'closed';
+		label = 'Closed';
 	} else {
-		text = 'Open';
+		text = 'open';
+		label = 'Open';
 	}
 
 	return (
 		<Badge color={getStatusColor(text)} {...badgeProps}>
-			{text}
+			{label}
 		</Badge>
 	);
 }

@@ -13,11 +13,14 @@ import {
 	useComputedColorScheme,
 } from '@mantine/core';
 import {
+	type AllStatusType,
 	getGradeColor,
 	getOptionalColor,
 	getStatusColor,
 } from '@student-portal/utils';
 import { useSession } from 'next-auth/react';
+import type { Grade } from '@/modules/academic/database';
+import type { StudentModuleStatus } from '@/modules/registry/database';
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
@@ -27,9 +30,9 @@ type ModuleTableProps = {
 		code: string;
 		name: string;
 		type: string;
-		status: string;
+		status: StudentModuleStatus;
 		marks: string;
-		grade: string;
+		grade: Grade;
 		credits: number;
 	}[];
 	showMarks?: boolean;
@@ -42,8 +45,8 @@ type ModuleTableProps = {
 					code: string;
 				};
 			};
-			grade: string;
-			status: string;
+			grade: Grade;
+			status: AllStatusType;
 		}[];
 	}[];
 };
@@ -112,7 +115,7 @@ export default function SemesterTable({
 				return {
 					term: sem.term,
 					semesterNumber: sem.semesterNumber ?? '',
-					grade: studentModule?.grade ?? '',
+					grade: studentModule?.grade,
 				};
 			})
 			.sort((a, b) => {
@@ -160,9 +163,9 @@ export default function SemesterTable({
 								<Badge
 									size='md'
 									variant='light'
-									color={getGradeColor(attempt.grade)}
+									color={attempt.grade ? getGradeColor(attempt.grade) : 'gray'}
 								>
-									{attempt.grade}
+									{attempt.grade ?? '-'}
 								</Badge>
 							</Group>
 						</Card>

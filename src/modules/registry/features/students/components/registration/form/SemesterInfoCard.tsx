@@ -80,9 +80,13 @@ export default function SemesterInfoCard({
 					) : (
 						<Badge
 							radius={'sm'}
-							color={getStatusColor(semesterData?.status || '')}
+							color={
+								semesterData?.status
+									? getStatusColor(semesterData.status)
+									: 'gray'
+							}
 						>
-							{semesterData?.status}
+							{semesterData?.status ?? '-'}
 						</Badge>
 					)}
 				</Group>

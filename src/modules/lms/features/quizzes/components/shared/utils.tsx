@@ -1,6 +1,6 @@
 'use client';
 
-import { getQuestionTypeColor } from '@student-portal/utils';
+import { getQuestionTypeColor, type QuestionType } from '@student-portal/utils';
 import {
 	IconCheck,
 	IconCircleNumber1,
@@ -15,9 +15,8 @@ export type QuestionTypeInfo = {
 	icon: React.ReactNode;
 };
 
-const QUESTION_TYPE_CONFIG: Record<
-	string,
-	{ label: string; icon: React.ReactNode }
+const QUESTION_TYPE_CONFIG: Partial<
+	Record<QuestionType, { label: string; icon: React.ReactNode }>
 > = {
 	multichoice: { label: 'Multiple Choice', icon: <IconLetterA size={14} /> },
 	truefalse: { label: 'True/False', icon: <IconCheck size={14} /> },
@@ -28,7 +27,7 @@ const QUESTION_TYPE_CONFIG: Record<
 	description: { label: 'Description', icon: <IconTextCaption size={14} /> },
 };
 
-export function getQuestionTypeInfo(qtype: string): QuestionTypeInfo {
+export function getQuestionTypeInfo(qtype: QuestionType): QuestionTypeInfo {
 	const config = QUESTION_TYPE_CONFIG[qtype];
 	return {
 		label: config?.label ?? qtype,

@@ -10,7 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getStatusColor } from '@student-portal/utils';
+import { type AllStatusType, getStatusColor } from '@student-portal/utils';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import type { getStudent } from '../../server/actions';
 
@@ -41,7 +41,9 @@ export default function AcademicSummary({ student }: AcademicSummaryProps) {
 				</Title>
 				<Badge
 					radius='sm'
-					color={getStatusColor(academicRemarks.status)}
+					color={getStatusColor(
+						academicRemarks.status.toLowerCase() as AllStatusType
+					)}
 					variant='light'
 				>
 					{academicRemarks.status}

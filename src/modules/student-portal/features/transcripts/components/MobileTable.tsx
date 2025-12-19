@@ -13,10 +13,11 @@ import {
 } from '@mantine/core';
 import { getGradeColor } from '@student-portal/utils';
 import { IconFileCertificate } from '@tabler/icons-react';
+import type { Grade } from '@/modules/academic/database';
 
 interface StudentModule {
 	id: number;
-	grade: string;
+	grade: Grade;
 	marks: string;
 	status: string;
 	semesterModule?: {

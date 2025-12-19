@@ -1,10 +1,11 @@
 'use client';
 
 import { Badge, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import type { Grade } from '@/modules/academic/database';
 import { getGradeColor, getPointsColor } from '../lib/gradeColors';
 
 type GradeResult = {
-	grade: string;
+	grade: Grade;
 	points: number | null;
 	description: string;
 	marksRange?: { min: number; max: number };
