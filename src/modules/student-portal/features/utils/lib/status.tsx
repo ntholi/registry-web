@@ -1,30 +1,5 @@
-import {
-	IconCircleCheck,
-	IconClock,
-	IconExclamationCircle,
-} from '@tabler/icons-react';
-import { getStatusColor as getBaseStatusColor } from '../../../../../shared/lib/utils/colors';
-
 export type BaseStatus = 'pending' | 'approved' | 'rejected' | 'confirmed';
 export type RegistrationStatus = BaseStatus | 'partial' | 'registered';
-export type GraduationStatus = BaseStatus;
-
-export function getStatusIcon(status: RegistrationStatus | GraduationStatus) {
-	switch (status) {
-		case 'approved':
-		case 'confirmed':
-		case 'registered':
-			return <IconCircleCheck size='1rem' />;
-		case 'rejected':
-			return <IconExclamationCircle size='1rem' />;
-		default:
-			return <IconClock size='1rem' />;
-	}
-}
-
-export function getStatusColor(status: RegistrationStatus | GraduationStatus) {
-	return getBaseStatusColor(status);
-}
 
 export function getClearanceStatus<T extends { clearance: { status: string } }>(
 	clearances: T[] | undefined
@@ -46,7 +21,7 @@ export function getClearanceStatus<T extends { clearance: { status: string } }>(
 
 export function getGraduationStatus(graduation: {
 	informationConfirmed: boolean;
-	graduationClearances?: { clearance: { status: GraduationStatus } }[];
+	graduationClearances?: { clearance: { status: BaseStatus } }[];
 }) {
 	const clearanceStatus = graduation.graduationClearances
 		? getClearanceStatus(graduation.graduationClearances)

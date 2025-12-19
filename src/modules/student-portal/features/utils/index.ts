@@ -1,11 +1,13 @@
 export * from '../../../../shared/lib/utils/colors';
 export {
+	getStatusIcon,
+	type StatusType,
+} from '../../../../shared/lib/utils/status';
+export {
 	type BaseStatus,
-	type GraduationStatus,
 	getClearanceStatus,
 	getGraduationStatus,
 	getRegistrationOverallClearanceStatus,
-	getStatusIcon,
 	type RegistrationStatus,
 } from './lib/status';
 export * from './types';
