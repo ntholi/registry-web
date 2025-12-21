@@ -18,9 +18,12 @@ export default class AssessmentMarkRepository extends BaseRepository<
 		super(assessmentMarks, assessmentMarks.id);
 	}
 
-	async findByModuleId(moduleId: number) {
+	async findByModuleId(moduleId: number, termId: number) {
 		const moduleAssessments = await db.query.assessments.findMany({
-			where: eq(assessments.moduleId, moduleId),
+			where: and(
+				eq(assessments.moduleId, moduleId),
+				eq(assessments.termId, termId)
+			),
 			columns: {
 				id: true,
 			},
@@ -40,9 +43,16 @@ export default class AssessmentMarkRepository extends BaseRepository<
 		});
 	}
 
-	async findByModuleAndStudent(moduleId: number, stdNo: number) {
+	async findByModuleAndStudent(
+		moduleId: number,
+		stdNo: number,
+		termId: number
+	) {
 		const moduleAssessments = await db.query.assessments.findMany({
-			where: eq(assessments.moduleId, moduleId),
+			where: and(
+				eq(assessments.moduleId, moduleId),
+				eq(assessments.termId, termId)
+			),
 			columns: {
 				id: true,
 			},
@@ -62,9 +72,12 @@ export default class AssessmentMarkRepository extends BaseRepository<
 		});
 	}
 
-	async getAssessmentsByModuleId(moduleId: number) {
+	async getAssessmentsByModuleId(moduleId: number, termId: number) {
 		return db.query.assessments.findMany({
-			where: eq(assessments.moduleId, moduleId),
+			where: and(
+				eq(assessments.moduleId, moduleId),
+				eq(assessments.termId, termId)
+			),
 		});
 	}
 

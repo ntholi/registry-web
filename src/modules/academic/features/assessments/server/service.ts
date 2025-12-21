@@ -39,10 +39,13 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		);
 	}
 
-	async getByModuleId(moduleId: number) {
+	async getByModuleId(moduleId: number, termId: number) {
 		return withAuth(
 			async () =>
-				(this.repository as AssessmentRepository).getByModuleId(moduleId),
+				(this.repository as AssessmentRepository).getByModuleId(
+					moduleId,
+					termId
+				),
 			['academic']
 		);
 	}

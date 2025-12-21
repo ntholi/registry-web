@@ -1,6 +1,7 @@
 'use server';
 
 import { upsertModuleGrade } from '@academic/semester-modules';
+import { getCurrentTerm } from '@registry/dates/terms';
 import type { assessmentMarks } from '@/core/database';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 import { assessmentMarksService as service } from './service';
@@ -16,7 +17,8 @@ export async function getAssessmentMarks(page: number = 1, search = '') {
 }
 
 export async function getAssessmentMarksByModuleId(moduleId: number) {
-	return service.getByModuleId(moduleId);
+	const term = await getCurrentTerm();
+	return service.getByModuleId(moduleId, term.id);
 }
 
 export async function getAssessmentMarksAuditHistory(assessmentMarkId: number) {
@@ -87,8 +89,13 @@ export async function calculateAndSaveModuleGrade(
 	moduleId: number,
 	stdNo: number
 ) {
-	const assessments = await service.getAssessmentsByModuleId(moduleId);
-	const assessmentMarks = await service.getByModuleAndStudent(moduleId, stdNo);
+	const term = await getCurrentTerm();
+	const assessments = await service.getAssessmentsByModuleId(moduleId, term.id);
+	const assessmentMarks = await service.getByModuleAndStudent(
+		moduleId,
+		stdNo,
+		term.id
+	);
 
 	if (!assessments || assessments.length === 0) {
 		return null;

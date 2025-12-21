@@ -37,23 +37,24 @@ class AssessmentMarkService {
 		return withAuth(async () => this.repository.count(), []);
 	}
 
-	async getByModuleId(moduleId: number) {
+	async getByModuleId(moduleId: number, termId: number) {
 		return withAuth(
-			async () => this.repository.findByModuleId(moduleId),
+			async () => this.repository.findByModuleId(moduleId, termId),
 			['academic']
 		);
 	}
 
-	async getByModuleAndStudent(moduleId: number, stdNo: number) {
+	async getByModuleAndStudent(moduleId: number, stdNo: number, termId: number) {
 		return withAuth(
-			async () => this.repository.findByModuleAndStudent(moduleId, stdNo),
+			async () =>
+				this.repository.findByModuleAndStudent(moduleId, stdNo, termId),
 			['academic']
 		);
 	}
 
-	async getAssessmentsByModuleId(moduleId: number) {
+	async getAssessmentsByModuleId(moduleId: number, termId: number) {
 		return withAuth(
-			async () => this.repository.getAssessmentsByModuleId(moduleId),
+			async () => this.repository.getAssessmentsByModuleId(moduleId, termId),
 			['academic']
 		);
 	}

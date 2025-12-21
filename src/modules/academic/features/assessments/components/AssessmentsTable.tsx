@@ -1,10 +1,5 @@
 'use client';
 
-import { getModule } from '@academic/modules';
-import type { assessments } from '@/modules/academic/database';
-
-type Assessment = typeof assessments.$inferSelect;
-
 import {
 	ActionIcon,
 	Badge,
@@ -20,10 +15,14 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import type { assessments } from '@/modules/academic/database';
+import { getAssessmentByModuleId } from '../server/actions';
 import { getAssessmentNumberLabel, getAssessmentTypeLabel } from '../utils';
 import AssessmentAuditModal from './AssessmentAuditModal';
 import AssessmentDelete from './AssessmentDelete';
 import AssessmentModal from './AssessmentModal';
+
+type Assessment = typeof assessments.$inferSelect;
 
 interface Props {
 	moduleId: number;
@@ -32,13 +31,12 @@ interface Props {
 export default function AssessmentsTable({ moduleId }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [selectedAssessment, setSelectedAssessment] = useState<
-		| NonNullable<Awaited<ReturnType<typeof getModule>>>['assessments'][0]
-		| undefined
+		Assessment | undefined
 	>(undefined);
 
-	const { data: module, isLoading } = useQuery({
-		queryKey: ['module', moduleId],
-		queryFn: () => getModule(moduleId),
+	const { data: assessmentsList, isLoading } = useQuery({
+		queryKey: ['assessments', moduleId],
+		queryFn: () => getAssessmentByModuleId(moduleId),
 	});
 
 	const handleAddAssessment = () => {
@@ -46,11 +44,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
 		open();
 	};
 
-	const handleEditAssessment = (
-		assessment: NonNullable<
-			Awaited<ReturnType<typeof getModule>>
-		>['assessments'][0]
-	) => {
+	const handleEditAssessment = (assessment: Assessment) => {
 		setSelectedAssessment(assessment);
 		open();
 	};
@@ -64,10 +58,10 @@ export default function AssessmentsTable({ moduleId }: Props) {
 					</Title>
 					<Badge variant='light' radius={'xs'}>
 						Weight:{' '}
-						{module?.assessments.reduce(
+						{assessmentsList?.reduce(
 							(sum: number, a: Assessment) => sum + a.weight,
 							0
-						)}
+						) ?? 0}
 						%
 					</Badge>
 				</Group>
@@ -83,7 +77,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
 				<Text c='dimmed' ta='center' py='xl'>
 					Loading assessments...
 				</Text>
-			) : module?.assessments && module.assessments.length > 0 ? (
+			) : assessmentsList && assessmentsList.length > 0 ? (
 				<Table striped highlightOnHover>
 					<Table.Thead>
 						<Table.Tr>
@@ -95,7 +89,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
 						</Table.Tr>
 					</Table.Thead>
 					<Table.Tbody>
-						{module.assessments.map((assessment: Assessment) => (
+						{assessmentsList.map((assessment) => (
 							<Table.Tr key={assessment.id}>
 								<Table.Td>
 									{getAssessmentNumberLabel(assessment.assessmentNumber)}

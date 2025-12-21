@@ -13,9 +13,6 @@ export default class ModuleRepository extends BaseRepository<
 	override async findById(id: number) {
 		return db.query.modules.findFirst({
 			where: eq(modules.id, id),
-			with: {
-				assessments: true,
-			},
 		});
 	}
 }

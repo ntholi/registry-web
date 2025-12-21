@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import {
 	assessments,
@@ -39,9 +39,12 @@ export default class AssessmentRepository extends BaseRepository<
 		return lmsAssessment?.assessment;
 	}
 
-	async getByModuleId(moduleId: number) {
+	async getByModuleId(moduleId: number, termId: number) {
 		return db.query.assessments.findMany({
-			where: eq(assessments.moduleId, moduleId),
+			where: and(
+				eq(assessments.moduleId, moduleId),
+				eq(assessments.termId, termId)
+			),
 		});
 	}
 

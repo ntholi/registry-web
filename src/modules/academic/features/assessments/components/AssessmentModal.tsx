@@ -1,6 +1,5 @@
 'use client';
 
-import type { getModule } from '@academic/modules';
 import { Button, Group, Modal, NumberInput, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -14,9 +13,7 @@ import { createAssessment, updateAssessment } from '../server/actions';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from '../utils';
 
 type AssessmentNumberType = (typeof assessmentNumber.enumValues)[number];
-type Assessment = NonNullable<
-	Awaited<ReturnType<typeof getModule>>
->['assessments'][number];
+type Assessment = typeof assessments.$inferSelect;
 
 const schema = createInsertSchema(assessments);
 
@@ -78,12 +75,13 @@ export default function AssessmentModal({
 		} else if (!isEditing) {
 			formResetRef.current();
 
-			const moduleData = queryClient.getQueryData<{
-				assessments: Assessment[];
-			}>(['module', moduleId]);
+			const assessmentsList = queryClient.getQueryData<Assessment[]>([
+				'assessments',
+				moduleId,
+			]);
 
-			if (moduleData?.assessments && moduleData.assessments.length > 0) {
-				const assessmentNumbers = moduleData.assessments.map((a) => {
+			if (assessmentsList && assessmentsList.length > 0) {
+				const assessmentNumbers = assessmentsList.map((a) => {
 					const match = a.assessmentNumber.match(/CW(\d+)/);
 					return match ? parseInt(match[1], 10) : 0;
 				});
@@ -98,7 +96,7 @@ export default function AssessmentModal({
 					);
 				}
 
-				const currentTotalWeight = moduleData.assessments.reduce(
+				const currentTotalWeight = assessmentsList.reduce(
 					(sum, a) => sum + a.weight,
 					0
 				);
@@ -113,12 +111,13 @@ export default function AssessmentModal({
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
-				const moduleData = queryClient.getQueryData<{
-					assessments: Assessment[];
-				}>(['module', moduleId]);
+				const assessmentsList = queryClient.getQueryData<Assessment[]>([
+					'assessments',
+					moduleId,
+				]);
 
-				if (moduleData?.assessments) {
-					const currentTotalWeight = moduleData.assessments.reduce((sum, a) => {
+				if (assessmentsList) {
+					const currentTotalWeight = assessmentsList.reduce((sum, a) => {
 						if (isEditing && assessment && a.id === assessment.id) {
 							return sum;
 						}
@@ -164,11 +163,7 @@ export default function AssessmentModal({
 				}
 
 				queryClient.invalidateQueries({
-					queryKey: ['module', moduleId],
-				});
-
-				queryClient.invalidateQueries({
-					queryKey: ['modules'],
+					queryKey: ['assessments', moduleId],
 				});
 
 				form.reset();

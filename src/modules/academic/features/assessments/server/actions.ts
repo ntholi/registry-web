@@ -19,7 +19,8 @@ export async function getAssessments(page: number = 1, search = '') {
 }
 
 export async function getAssessmentByModuleId(moduleId: number) {
-	return service.getByModuleId(moduleId);
+	const term = await getCurrentTerm();
+	return service.getByModuleId(moduleId, term.id);
 }
 
 export async function getAssessmentByLmsId(lmsId: number) {
