@@ -54,3 +54,4 @@ webtest.db
 /.agent
 /docs
 /.kiro
+/backup_db
