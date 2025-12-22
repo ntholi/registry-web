@@ -22,13 +22,13 @@ import {
 } from '@student-portal/transcripts';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 export default function TranscriptsPage() {
 	const { student, program, isLoading } = useUserStudent();
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
 	const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
@@ -89,7 +89,7 @@ export default function TranscriptsPage() {
 	}
 
 	const semesters = getCleanedSemesters(program).filter(
-		(it: { termCode: string }) => it.termCode !== currentTerm?.code
+		(it: { termCode: string }) => it.termCode !== activeTerm?.code
 	);
 
 	return (

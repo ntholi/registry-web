@@ -19,14 +19,14 @@ import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 
 export default function NewSponsoredStudentModal() {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [studentNumber, setStudentNumber] = useState<number | string>('');
 	const [selectedSponsor, setSelectedSponsor] = useState<string | null>(null);
 	const queryClient = useQueryClient();
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const { data: sponsors, isLoading: isLoadingSponsors } = useQuery({
 		queryKey: ['sponsors'],
@@ -73,14 +73,14 @@ export default function NewSponsoredStudentModal() {
 		return strNumber.length === 9 && strNumber.startsWith('9010');
 	};
 
-	const canSubmit = isValidStudentNumber() && selectedSponsor && currentTerm;
+	const canSubmit = isValidStudentNumber() && selectedSponsor && activeTerm;
 
 	const handleSubmit = () => {
 		if (!canSubmit) return;
 
 		createMutation.mutate({
 			stdNo: Number(studentNumber),
-			termId: currentTerm.id,
+			termId: activeTerm.id,
 			sponsorId: Number(selectedSponsor),
 		});
 	};
@@ -134,7 +134,7 @@ export default function NewSponsoredStudentModal() {
 						}}
 					/>
 
-					{!currentTerm && (
+					{!activeTerm && (
 						<Alert color='red'>
 							<Text size='sm'>
 								No active term found. Please ensure there is an active term to

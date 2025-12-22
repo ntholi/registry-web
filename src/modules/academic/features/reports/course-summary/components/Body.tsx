@@ -18,7 +18,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { generateCourseSummaryReport } from '../server/actions';
 
@@ -50,7 +50,7 @@ export default function Body() {
 		},
 		enabled: !!selectedModuleId && !!assignedModules,
 	});
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const moduleOptions = useMemo(() => {
 		return (
@@ -185,7 +185,7 @@ export default function Body() {
 					<Stack gap='md'>
 						<Text my='xs'>
 							Select a module from your assigned modules to generate a course
-							summary report for {currentTerm?.code}.
+							summary report for {activeTerm?.code}.
 						</Text>
 
 						<Select

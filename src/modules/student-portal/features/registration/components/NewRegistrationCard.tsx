@@ -14,19 +14,19 @@ import { getStudentRegistrationHistory } from '@registry/registration';
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 export default function NewRegistrationCard() {
 	const { student, isLoading: studentLoading } = useUserStudent();
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const hasExistingSemester =
 		student?.programs
 			.flatMap((program) => program.semesters)
 			.some(
 				(semester) =>
-					semester.termCode === currentTerm?.code &&
+					semester.termCode === activeTerm?.code &&
 					!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
 						semester.status
 					)
@@ -69,14 +69,14 @@ export default function NewRegistrationCard() {
 		return null;
 	}
 
-	const hasCurrentRegistration =
+	const hasActiveRegistration =
 		registrationHistory?.some(
-			(request) => request.term.id === currentTerm?.id
+			(request) => request.term.id === activeTerm?.id
 		) || false;
 
 	const isBlocked = blockedStudent && blockedStudent.status === 'blocked';
 
-	if (hasCurrentRegistration) {
+	if (hasActiveRegistration) {
 		return null;
 	}
 
@@ -111,7 +111,7 @@ export default function NewRegistrationCard() {
 					<Text size='sm' c='dimmed' ta='center'>
 						You don&apos;t have a registration request for
 						<Text span fw={600}>
-							{currentTerm?.code}
+							{activeTerm?.code}
 						</Text>
 						yet. Click below to start your registration process.
 					</Text>

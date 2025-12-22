@@ -36,7 +36,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { StudentModuleStatus } from '@/modules/registry/database';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type SelectedModule = {
@@ -80,7 +80,7 @@ export default function NewRegistrationPage() {
 	const [sponsorshipData, setSponsorshipData] =
 		useState<SponsorshipData | null>(null);
 	const [accountConfirmed, setAccountConfirmed] = useState(false);
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const { data: sponsors } = useQuery({
 		queryKey: ['sponsors'],
@@ -138,7 +138,7 @@ export default function NewRegistrationPage() {
 				!selectedModules ||
 				!semesterData ||
 				!sponsorshipData ||
-				!currentTerm
+				!activeTerm
 			) {
 				throw new Error('Missing required data for registration');
 			}
@@ -152,7 +152,7 @@ export default function NewRegistrationPage() {
 				borrowerNo: sponsorshipData.borrowerNo,
 				bankName: sponsorshipData.bankName,
 				accountNumber: sponsorshipData.accountNumber,
-				termId: currentTerm.id,
+				termId: activeTerm.id,
 			});
 		},
 		onSuccess: () => {
@@ -249,7 +249,7 @@ export default function NewRegistrationPage() {
 		);
 	}
 
-	if (!currentTerm) {
+	if (!activeTerm) {
 		return (
 			<Container size='lg' py='xl'>
 				<Alert
@@ -311,7 +311,7 @@ export default function NewRegistrationPage() {
 					<Title order={2} mb='xs'>
 						New Registration
 					</Title>
-					<Text c='dimmed'>Term: {currentTerm.code}</Text>
+					<Text c='dimmed'>Term: {activeTerm.code}</Text>
 				</div>
 
 				<Box>

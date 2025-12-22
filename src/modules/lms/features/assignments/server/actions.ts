@@ -5,7 +5,7 @@ import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
 import { getOrReuseSection } from '@/modules/lms/shared/utils';
-import { getCurrentTerm } from '@/modules/registry/features/dates/terms';
+import { getActiveTerm } from '@/modules/registry/features/dates/terms';
 import type { CreateAssignmentParams, MoodleAssignment } from '../types';
 
 export async function getCourseAssignments(
@@ -46,7 +46,7 @@ export async function createAssignment(params: CreateAssignmentParams) {
 	if (!session?.user) {
 		throw new Error('Unauthorized');
 	}
-	const term = await getCurrentTerm();
+	const term = await getActiveTerm();
 	if (!term) {
 		throw new Error('No active term found');
 	}

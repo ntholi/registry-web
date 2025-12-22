@@ -1,16 +1,16 @@
-import { getCurrentTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@registry/dates/terms';
 import { useQuery } from '@tanstack/react-query';
 
-export function useCurrentTerm() {
+export function useActiveTerm() {
 	const { data, isLoading, isError } = useQuery({
-		queryKey: ['current-term'],
-		queryFn: () => getCurrentTerm(),
+		queryKey: ['active-term'],
+		queryFn: () => getActiveTerm(),
 		// 20 minutes
 		staleTime: 1000 * 60 * 20,
 	});
 
 	return {
-		currentTerm: data,
+		activeTerm: data,
 		isLoading,
 		isError,
 	};

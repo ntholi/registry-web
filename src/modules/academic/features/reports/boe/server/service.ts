@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs';
 import type { StudentModuleStatus, schools } from '@/core/database';
-import { getCurrentTerm } from '@/modules/registry/features/dates/terms';
+import { getActiveTerm } from '@/modules/registry/features/dates/terms';
 import {
 	getAcademicRemarks,
 	summarizeModules,
@@ -32,15 +32,15 @@ type SemesterModuleData = {
 export default class BoeReportService {
 	private repository = boeReportRepository;
 	async generateBoeReportForFaculty(school: School): Promise<Buffer> {
-		const currentTerm = await getCurrentTerm();
-		if (!currentTerm) {
+		const activeTerm = await getActiveTerm();
+		if (!activeTerm) {
 			throw new Error('No active term found');
 		}
 
 		const studentSemesters =
 			await this.repository.getStudentSemestersForFaculty(
 				school.id,
-				currentTerm.code
+				activeTerm.code
 			);
 
 		const programGroups = this.groupByProgram(
@@ -84,12 +84,7 @@ export default class BoeReportService {
 				const sheetName = `${programReport.programCode}${formatSemester(semesterNumber, 'mini')}`;
 				const worksheet = workbook.addWorksheet(sheetName);
 
-				createWorksheet(
-					worksheet,
-					programReport,
-					school.name,
-					currentTerm.code
-				);
+				createWorksheet(worksheet, programReport, school.name, activeTerm.code);
 			}
 		}
 

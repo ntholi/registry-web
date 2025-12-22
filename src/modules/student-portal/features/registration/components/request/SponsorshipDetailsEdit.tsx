@@ -14,7 +14,7 @@ import { getAlertColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type SponsorshipData = {
@@ -34,7 +34,7 @@ export default function SponsorshipDetailsEdit({
 	loading,
 }: SponsorshipDetailsEditProps) {
 	const { student } = useUserStudent();
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const [borrowerNo, setBorrowerNo] = useState(
 		sponsorshipData?.borrowerNo || ''
@@ -47,9 +47,9 @@ export default function SponsorshipDetailsEdit({
 	});
 
 	const { data: previousSponsorshipData } = useQuery({
-		queryKey: ['previous-sponsorship', student?.stdNo, currentTerm?.id],
-		queryFn: () => getSponsoredStudent(student!.stdNo, currentTerm!.id),
-		enabled: !!student?.stdNo && !!currentTerm?.id,
+		queryKey: ['previous-sponsorship', student?.stdNo, activeTerm?.id],
+		queryFn: () => getSponsoredStudent(student!.stdNo, activeTerm!.id),
+		enabled: !!student?.stdNo && !!activeTerm?.id,
 	});
 
 	const sponsors = sponsorsData || [];

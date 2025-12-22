@@ -56,14 +56,14 @@ export default function TermFilter({
 		label: term.code + (term.isActive ? ' (Current)' : ''),
 	}));
 
-	const currentTerm = terms?.find((term) => term.isActive);
-	const isCurrentTermSelected = currentTerm && selectedTerm === currentTerm.id;
+	const activeTerm = terms?.find((term) => term.isActive);
+	const isActiveTermSelected = activeTerm && selectedTerm === activeTerm.id;
 
 	return (
 		<>
 			<Tooltip label={label}>
 				<ActionIcon
-					variant={isLoading || isCurrentTermSelected ? variant : 'white'}
+					variant={isLoading || isActiveTermSelected ? variant : 'white'}
 					color={color}
 					onClick={open}
 					size={'input-sm'}

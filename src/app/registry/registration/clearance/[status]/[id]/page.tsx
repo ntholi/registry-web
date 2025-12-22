@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
-import { getCurrentTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@registry/dates/terms';
 import { ClearanceDetails, ClearanceHistory } from '@registry/registration';
 import {
 	AcademicsLoader,
@@ -18,7 +18,7 @@ export default async function ClearanceRequestDetails({ params }: Props) {
 	const { id } = await params;
 	const request = await getClearance(Number(id));
 	const session = await auth();
-	const term = await getCurrentTerm();
+	const term = await getActiveTerm();
 
 	if (!request) {
 		return notFound();

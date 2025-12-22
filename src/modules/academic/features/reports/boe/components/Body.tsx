@@ -14,7 +14,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { generateBoeReportForFaculty } from '../server/actions';
 
@@ -25,7 +25,7 @@ export default function Body() {
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
 	});
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 	const { userSchools, isLoading: userSchoolsLoading } = useUserSchools();
 
 	React.useEffect(() => {
@@ -106,7 +106,7 @@ export default function Body() {
 					<Stack gap='md'>
 						<Text my='xs'>
 							Select a school to generate BOE reports for all programs and
-							students in that school for {currentTerm?.code}.
+							students in that school for {activeTerm?.code}.
 						</Text>
 
 						<Select

@@ -23,7 +23,7 @@ export default function TranscriptDownloadButton({
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
 	const { data: student } = useQuery({
-		queryKey: ['academic-history', stdNo, 'no-current-term'],
+		queryKey: ['academic-history', stdNo, 'no-active-term'],
 		queryFn: () => getAcademicHistory(stdNo, true),
 		enabled: !!stdNo,
 	});

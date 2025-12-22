@@ -4,7 +4,7 @@ import { ActionIcon, Badge, Divider, Flex, Group, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getBooleanColor, getVersionCountColor } from '@student-portal/utils';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 
 interface Props {
@@ -20,9 +20,9 @@ export default function ClearanceHeader({
 }: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [, setView] = useViewSelect();
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
-	const isCurrentTerm = currentTerm?.code === termCode;
+	const isActiveTerm = activeTerm?.code === termCode;
 
 	return (
 		<>
@@ -42,9 +42,9 @@ export default function ClearanceHeader({
 					</Title>
 				)}
 				<Group>
-					{!isCurrentTerm && (
+					{!isActiveTerm && (
 						<Badge
-							color={getBooleanColor(!isCurrentTerm, 'negative')}
+							color={getBooleanColor(!isActiveTerm, 'negative')}
 							variant={'filled'}
 						>
 							{termCode}

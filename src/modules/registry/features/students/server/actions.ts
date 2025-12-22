@@ -24,9 +24,9 @@ export async function getStudent(stdNo: number) {
 
 export async function getAcademicHistory(
 	stdNo: number,
-	excludeCurrentTerm: boolean = false
+	excludeActiveTerm: boolean = false
 ) {
-	return service.getAcademicHistory(stdNo, excludeCurrentTerm);
+	return service.getAcademicHistory(stdNo, excludeActiveTerm);
 }
 
 export async function getStudentByUserId(userId: string | undefined | null) {

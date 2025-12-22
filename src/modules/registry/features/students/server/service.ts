@@ -1,4 +1,4 @@
-import { getCurrentTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@registry/dates/terms';
 import type { students } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -26,17 +26,17 @@ class StudentService {
 		}, ['dashboard']);
 	}
 
-	async getAcademicHistory(stdNo: number, excludeCurrentTerm: boolean = false) {
+	async getAcademicHistory(stdNo: number, excludeActiveTerm: boolean = false) {
 		return withAuth(async () => {
 			const data = await this.repository.findAcademicHistory(stdNo);
-			if (!excludeCurrentTerm) return data;
+			if (!excludeActiveTerm) return data;
 
-			const currentTerm = await getCurrentTerm();
+			const activeTerm = await getActiveTerm();
 			if (!data) return data;
 
 			return {
 				...data,
-				programs: removeTermFromPrograms(data.programs, currentTerm.code),
+				programs: removeTermFromPrograms(data.programs, activeTerm.code),
 			};
 		}, ['academic', 'registry', 'finance', 'student']);
 	}
@@ -66,7 +66,7 @@ class StudentService {
 	}
 
 	async findBySemesterModules(semesterModuleIds: number[]) {
-		const term = await getCurrentTerm();
+		const term = await getActiveTerm();
 		return withAuth(
 			async () =>
 				this.repository.findBySemesterModules(semesterModuleIds, term.code),

@@ -4,7 +4,7 @@ import { Paper, Select, Title } from '@mantine/core';
 import { getAllTerms } from '@registry/dates/terms';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 
 interface TermSelectorProps {
 	value: number | null;
@@ -17,7 +17,7 @@ export default function TermSelector({
 	onChange,
 	error,
 }: TermSelectorProps) {
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const { data: terms, isLoading: termsLoading } = useQuery({
 		queryKey: ['terms'],
@@ -25,10 +25,10 @@ export default function TermSelector({
 	});
 
 	useEffect(() => {
-		if (currentTerm && !value) {
-			onChange(currentTerm.id);
+		if (activeTerm && !value) {
+			onChange(activeTerm.id);
 		}
-	}, [currentTerm, value, onChange]);
+	}, [activeTerm, value, onChange]);
 
 	return (
 		<Paper withBorder p='md'>

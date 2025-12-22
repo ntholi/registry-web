@@ -37,7 +37,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { StudentModuleStatus } from '@/modules/registry/database';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type SelectedModule = {
@@ -82,7 +82,7 @@ export default function EditRegistrationPage() {
 	} | null>(null);
 	const [sponsorshipData, setSponsorshipData] =
 		useState<SponsorshipData | null>(null);
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const registrationId = Number(params.id);
 
@@ -116,9 +116,9 @@ export default function EditRegistrationPage() {
 	const availableModules = moduleResult?.modules || [];
 
 	const { data: previousSponsorshipData } = useQuery({
-		queryKey: ['previous-sponsorship', student?.stdNo, currentTerm?.id],
-		queryFn: () => getSponsoredStudent(student!.stdNo, currentTerm!.id),
-		enabled: !!student?.stdNo && !!currentTerm?.id,
+		queryKey: ['previous-sponsorship', student?.stdNo, activeTerm?.id],
+		queryFn: () => getSponsoredStudent(student!.stdNo, activeTerm!.id),
+		enabled: !!student?.stdNo && !!activeTerm?.id,
 	});
 
 	const { data: semesterStatus, isLoading: semesterStatusLoading } = useQuery({
@@ -261,7 +261,7 @@ export default function EditRegistrationPage() {
 		);
 	}
 
-	if (!currentTerm) {
+	if (!activeTerm) {
 		return (
 			<Container size='lg' py='xl'>
 				<Alert
@@ -331,7 +331,7 @@ export default function EditRegistrationPage() {
 						Update Registration
 					</Title>
 					<Group justify='space-between'>
-						<Text c='dimmed'>Term: {currentTerm.code}</Text>
+						<Text c='dimmed'>Term: {activeTerm.code}</Text>
 						<Badge
 							color={
 								registrationRequest.status === 'pending' ? 'yellow' : 'blue'

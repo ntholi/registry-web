@@ -16,7 +16,7 @@ export default function TranscriptPreview({
 	isActive,
 }: TranscriptPreviewProps) {
 	const { data: student, isLoading } = useQuery({
-		queryKey: ['student', stdNo, 'no-current-term'],
+		queryKey: ['student', stdNo, 'no-active-term'],
 		queryFn: () => getAcademicHistory(stdNo, true),
 		enabled: isActive,
 	});

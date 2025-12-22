@@ -21,7 +21,7 @@ import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import type { modules, semesterModules } from '@/modules/academic/database';
 import type { StudentModuleStatus } from '@/modules/registry/database';
 import { studentModuleStatus } from '@/modules/registry/database';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
@@ -103,7 +103,7 @@ export default function RegistrationRequestForm({
 		initialStructureId ?? null
 	);
 
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 	const { data: allTerms = [] } = useQuery({
 		queryKey: ['terms'],
 		queryFn: async () => await getAllTerms(),
@@ -257,7 +257,7 @@ export default function RegistrationRequestForm({
 				stdNo: initialStdNo || defaultValues?.stdNo,
 				selectedModules: defaultValues?.selectedModules || [],
 				semesterNumber: defaultValues?.semesterNumber?.toString(),
-				termId: defaultValues?.termId || currentTerm?.id || '',
+				termId: defaultValues?.termId || activeTerm?.id || '',
 			}}
 			onSuccess={({ id }) => {
 				router.push(`/registry/registration/requests/pending/${id}`);

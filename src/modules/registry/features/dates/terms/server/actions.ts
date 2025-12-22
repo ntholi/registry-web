@@ -13,7 +13,7 @@ export async function getTermByCode(code: string) {
 	return service.getByCode(code);
 }
 
-export async function getCurrentTerm() {
+export async function getActiveTerm() {
 	const term = await service.getActive();
 	if (!term) {
 		throw new Error('No active term');

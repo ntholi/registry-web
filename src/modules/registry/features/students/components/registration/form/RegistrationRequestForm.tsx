@@ -21,7 +21,7 @@ import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { StudentModuleStatus } from '@/modules/registry/database';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { getAcademicHistory } from '../../../server/actions';
 import type { Student } from '../../../utils';
@@ -84,7 +84,7 @@ function normalizeModuleStatus(
 export default function RegistrationRequestForm({
 	stdNo,
 }: Omit<Props, 'opened' | 'onClose'>) {
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 	const queryClient = useQueryClient();
 	const [selectedModules, setSelectedModules] = useState<Set<number>>(
 		new Set()
@@ -106,7 +106,7 @@ export default function RegistrationRequestForm({
 				bankName: undefined,
 				accountNumber: '',
 			},
-			selectedTermId: currentTerm?.id || null,
+			selectedTermId: activeTerm?.id || null,
 		},
 		validate: {
 			modules: (value) =>

@@ -38,14 +38,14 @@ export default class CourseSummaryService {
 		programId: number | undefined,
 		semesterModuleId: number
 	): Promise<Buffer> {
-		const currentTerm = await termsRepository.getActive();
-		if (!currentTerm) {
+		const activeTerm = await termsRepository.getActive();
+		if (!activeTerm) {
 			throw new Error('No active term found');
 		}
 
 		const reportData = await this.repository.getOptimizedCourseSummaryData(
 			semesterModuleId,
-			currentTerm.code,
+			activeTerm.code,
 			programId
 		);
 

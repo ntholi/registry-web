@@ -17,7 +17,7 @@ import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { createMoodleCourse, getMoodleCategories } from '../server/actions';
 
 type AssignedModule = Awaited<
@@ -43,7 +43,7 @@ export default function CreateCourseModal() {
 		enabled: opened,
 	});
 
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const createCourseMutation = useMutation({
 		mutationFn: async () => {
@@ -59,8 +59,8 @@ export default function CreateCourseModal() {
 				throw new Error('Module or school information is missing');
 			}
 
-			if (!currentTerm) {
-				throw new Error('Current term is not set');
+			if (!activeTerm) {
+				throw new Error('Active term is not set');
 			}
 
 			const category = categories?.find(
@@ -77,7 +77,7 @@ export default function CreateCourseModal() {
 
 			return createMoodleCourse({
 				fullname: module.name,
-				shortname: `${module.code}_${currentTerm.code}`,
+				shortname: `${module.code}_${activeTerm.code}`,
 				categoryid: categoryId,
 				semesterModuleId: selectedModule.semesterModuleId,
 			});

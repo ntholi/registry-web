@@ -15,7 +15,7 @@ import { IconBook } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { useAssessmentsQuery } from '../hooks/useAssessmentsQuery';
 import ExportButton from './export/ExportButton';
@@ -33,7 +33,7 @@ export default function ModuleDetailsCard({
 	moduleId,
 }: ModuleDetailsCardProps) {
 	const [programId, setProgramId] = useQueryState('programId');
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 	const { data: session } = useSession();
 	const { data: assessments } = useAssessmentsQuery(moduleId);
 
@@ -151,7 +151,7 @@ export default function ModuleDetailsCard({
 							moduleName={modules.at(0)?.semesterModule?.module?.name}
 							moduleCode={modules.at(0)?.semesterModule?.module?.code}
 							lecturerName={session?.user?.name || 'Unknown Lecturer'}
-							termCode={currentTerm?.code}
+							termCode={activeTerm?.code}
 							className={className}
 						/>
 					</Group>

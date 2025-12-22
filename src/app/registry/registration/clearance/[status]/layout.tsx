@@ -1,6 +1,6 @@
 'use client';
 
-import { getCurrentTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@registry/dates/terms';
 import { clearanceByStatus } from '@registry/registration/requests';
 import { getStatusColor } from '@student-portal/utils';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
@@ -36,14 +36,14 @@ export default function Layout({ children }: PropsWithChildren) {
 	const status = params.status as Status;
 	const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 
-	const { data: currentTerm } = useQuery({
-		queryKey: ['current-term'],
-		queryFn: getCurrentTerm,
+	const { data: activeTerm } = useQuery({
+		queryKey: ['active-term'],
+		queryFn: getActiveTerm,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
 
-	if (currentTerm?.id && !selectedTerm) {
-		setSelectedTerm(currentTerm.id);
+	if (activeTerm?.id && !selectedTerm) {
+		setSelectedTerm(activeTerm.id);
 	}
 
 	if (!statusTitles[status]) {
@@ -56,10 +56,10 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={[
 				'clearances',
 				status,
-				selectedTerm?.toString() || currentTerm?.id?.toString() || 'all',
+				selectedTerm?.toString() || activeTerm?.id?.toString() || 'all',
 			]}
 			getData={async (page, search) => {
-				const termToUse = selectedTerm || currentTerm?.id;
+				const termToUse = selectedTerm || activeTerm?.id;
 				const response = await clearanceByStatus(
 					status,
 					page,

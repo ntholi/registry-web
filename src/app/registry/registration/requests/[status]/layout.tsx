@@ -1,6 +1,6 @@
 'use client';
 
-import { getCurrentTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@registry/dates/terms';
 import { findAllRegistrationRequests } from '@registry/registration/requests';
 import { getStatusIcon } from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -25,14 +25,14 @@ export default function Layout({ children }: PropsWithChildren) {
 	const status = params.status as Status;
 	const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 
-	const { data: currentTerm } = useQuery({
-		queryKey: ['current-term'],
-		queryFn: getCurrentTerm,
+	const { data: activeTerm } = useQuery({
+		queryKey: ['active-term'],
+		queryFn: getActiveTerm,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
 
-	if (currentTerm?.id && selectedTerm === null) {
-		setSelectedTerm(currentTerm.id);
+	if (activeTerm?.id && selectedTerm === null) {
+		setSelectedTerm(activeTerm.id);
 	}
 
 	if (!statusTitles[status]) {

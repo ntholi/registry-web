@@ -1,4 +1,4 @@
-import { getCurrentTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@registry/dates/terms';
 import type { AcademicRemarks, Student } from '@registry/students';
 import {
 	dashboardUsers,
@@ -58,7 +58,7 @@ class RegistrationRequestService {
 	async countByStatus(
 		status: 'pending' | 'registered' | 'rejected' | 'approved'
 	) {
-		const term = await getCurrentTerm();
+		const term = await getActiveTerm();
 		return withAuth(
 			async () => this.repository.countByStatus(status, term.id),
 			['dashboard']

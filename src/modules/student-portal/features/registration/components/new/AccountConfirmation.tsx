@@ -14,7 +14,7 @@ import {
 import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 
 type SponsorshipData = {
@@ -36,17 +36,17 @@ export default function AccountConfirmation({
 	loading,
 }: AccountConfirmationProps) {
 	const { student } = useUserStudent();
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 	const queryClient = useQueryClient();
 	const [confirmedAccountNumber, setConfirmedAccountNumber] = useState('');
 	const [isConfirmed, setIsConfirmed] = useState(false);
 
 	const confirmationMutation = useMutation({
 		mutationFn: async () => {
-			if (!student || !currentTerm) {
+			if (!student || !activeTerm) {
 				throw new Error('Missing student or term data');
 			}
-			return confirmAccountDetails(student.stdNo, currentTerm.id);
+			return confirmAccountDetails(student.stdNo, activeTerm.id);
 		},
 		onSuccess: () => {
 			setIsConfirmed(true);

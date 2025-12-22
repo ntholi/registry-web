@@ -1,6 +1,6 @@
 'use server';
 
-import { getCurrentTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@registry/dates/terms';
 import type { assessments, lmsAssessments } from '@/core/database';
 import { assessmentsService as service } from './service';
 
@@ -20,7 +20,7 @@ export async function getAssessments(page: number = 1, search = '') {
 }
 
 export async function getAssessmentByModuleId(moduleId: number) {
-	const term = await getCurrentTerm();
+	const term = await getActiveTerm();
 	return service.getByModuleId(moduleId, term.id);
 }
 
@@ -32,7 +32,7 @@ export async function createAssessment(
 	assessment: Assessment,
 	lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
 ) {
-	const term = await getCurrentTerm();
+	const term = await getActiveTerm();
 	return service.create({ ...assessment, termId: term.id }, lmsData);
 }
 

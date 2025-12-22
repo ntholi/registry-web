@@ -18,7 +18,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 
 interface SponsoredStudentData {
 	id: number;
@@ -65,7 +65,7 @@ export default function EditSponsorDetailsModal({
 		{ value: 'LPB', label: 'Lesotho Post Bank' },
 	];
 
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 	const queryClient = useQueryClient();
 
 	const { data: sponsors, isLoading: isLoadingSponsors } = useQuery({
@@ -117,7 +117,7 @@ export default function EditSponsorDetailsModal({
 	};
 
 	const handleSubmit = () => {
-		if (!currentTerm) {
+		if (!activeTerm) {
 			notifications.show({
 				title: 'Error',
 				message: 'No active term found',
@@ -128,7 +128,7 @@ export default function EditSponsorDetailsModal({
 
 		updateMutation.mutate({
 			stdNo: sponsoredStudent.stdNo,
-			termId: currentTerm.id,
+			termId: activeTerm.id,
 			sponsorId,
 			borrowerNo: borrowerNo || undefined,
 			bankName: bankName || undefined,

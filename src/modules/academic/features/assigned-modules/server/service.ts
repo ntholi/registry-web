@@ -1,4 +1,4 @@
-import { getCurrentTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@registry/dates/terms';
 import type { assignedModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -41,7 +41,7 @@ class AssignedModuleService {
 	async assignModulesToLecturer(userId: string, semesterModuleIds: number[]) {
 		return withAuth(async () => {
 			await this.repository.removeModuleAssignments(userId, semesterModuleIds);
-			const term = await getCurrentTerm();
+			const term = await getActiveTerm();
 			const assignments = semesterModuleIds.map((semesterModuleId) => ({
 				userId,
 				semesterModuleId,

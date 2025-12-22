@@ -21,7 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import type { registrationRequests } from '@/modules/registry/database';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 import RegistrationModal from './form/RegistrationModal';
 
@@ -42,7 +42,7 @@ type Props = {
 };
 
 export default function RegistrationView({ stdNo, isActive = true }: Props) {
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 	const [opened, { open, close }] = useDisclosure(false);
 	const { data: session } = useSession();
 
@@ -68,8 +68,8 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 		);
 	}
 
-	const hasCurrentTermRegistration = registrationRequests?.some(
-		(request) => request.term.id === currentTerm?.id
+	const hasActiveTermRegistration = registrationRequests?.some(
+		(request) => request.term.id === activeTerm?.id
 	);
 
 	if (!registrationRequests || registrationRequests.length === 0) {
@@ -102,14 +102,14 @@ export default function RegistrationView({ stdNo, isActive = true }: Props) {
 	return (
 		<>
 			<Stack gap='md'>
-				{!hasCurrentTermRegistration &&
-					currentTerm &&
+				{!hasActiveTermRegistration &&
+					activeTerm &&
 					['registry', 'admin'].includes(session?.user?.role ?? '') && (
 						<Card withBorder p='md'>
 							<Group justify='space-between' align='center'>
 								<Stack gap={4}>
 									<Text size='sm' fw={500}>
-										No registration for {currentTerm.code}
+										No registration for {activeTerm.code}
 									</Text>
 									<Text size='xs' c='dimmed'>
 										Create a registration request for this student

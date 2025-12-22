@@ -23,7 +23,7 @@ export default function TranscriptPrinter({ stdNo, disabled }: Props) {
 	const { data: session } = useSession();
 
 	const { data: student } = useQuery({
-		queryKey: ['student', stdNo, 'no-current-term'],
+		queryKey: ['student', stdNo, 'no-active-term'],
 		queryFn: () => getAcademicHistory(stdNo, true),
 	});
 
