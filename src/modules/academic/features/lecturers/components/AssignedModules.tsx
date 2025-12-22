@@ -2,7 +2,6 @@
 
 import { getAssignedModulesByUser } from '@academic/assigned-modules';
 import {
-	Avatar,
 	Badge,
 	Card,
 	Group,
@@ -57,13 +56,13 @@ export default function AssignedModules({ user }: Props) {
 						pos='absolute'
 						top={8}
 						right={8}
-					/>{' '}
+					/>
 					<Group gap='md' align='flex-start'>
-						<Avatar size={70} radius='md' variant='default'>
+						<Card withBorder py={'xl'} px={'sm'} radius='md' variant='default'>
 							<Text ff={'monospace'} size='xs' fw={700} ta='center'>
 								{assignment.semesterModule?.module?.code || 'N/A'}
 							</Text>
-						</Avatar>
+						</Card>
 						<Stack gap='xs' style={{ flex: 1 }}>
 							<Text fw={500} size='md'>
 								{assignment.semesterModule?.module?.name || 'Unknown Module'}
