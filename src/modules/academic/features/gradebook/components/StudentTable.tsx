@@ -4,7 +4,6 @@ import {
 	Center,
 	CloseButton,
 	Group,
-	Paper,
 	Skeleton,
 	Stack,
 	Table,
@@ -28,7 +27,6 @@ import {
 import { type Student, useStudentsQuery } from '../hooks/useStudentsQuery';
 import GradeDisplay from './GradeDisplay';
 import GradeSymbolModal from './GradeSymbolModal';
-import ExcelImport from './import/ExcelImport';
 import MarksAuditModal from './MarksAuditModal';
 import MarksInput from './MarksInput';
 
@@ -367,13 +365,13 @@ export default function StudentTable({ moduleId, semesterModuleIds }: Props) {
 		});
 	}
 	return (
-		<Stack>
+		<Stack gap='md'>
 			<Group justify='space-between' align='center' wrap='nowrap'>
 				<TextInput
 					placeholder='Search by name or student number'
 					value={searchQuery}
 					onChange={(event) => setSearchQuery(event.currentTarget.value)}
-					style={{ flex: 1 }}
+					style={{ flex: 1, maxWidth: 400 }}
 					rightSection={
 						searchQuery ? (
 							<CloseButton
@@ -383,31 +381,14 @@ export default function StudentTable({ moduleId, semesterModuleIds }: Props) {
 							/>
 						) : null
 					}
-					leftSection={<IconSearch size='1.2rem' />}
-				/>{' '}
-				<Group>
-					{assessments && assessments.length > 0 && (
-						<ExcelImport
-							moduleId={moduleId}
-							semesterModuleIds={semesterModuleIds}
-							assessments={assessments.map((assessment) => ({
-								id: assessment.id,
-								assessmentType: assessment.assessmentType,
-								assessmentNumber: assessment.assessmentNumber,
-								totalMarks: assessment.totalMarks,
-								weight: assessment.weight,
-							}))}
-						/>
-					)}
-					{!studentsLoading && studentsData && (
-						<Paper withBorder p={8.5}>
-							<Text size='xs' c='dimmed' style={{ whiteSpace: 'nowrap' }}>
-								{sortedStudents.length} student
-								{sortedStudents.length !== 1 ? 's' : ''} displayed
-							</Text>
-						</Paper>
-					)}
-				</Group>
+					leftSection={<IconSearch size='1rem' />}
+				/>
+				{!studentsLoading && studentsData && (
+					<Text size='sm' c='dimmed'>
+						{sortedStudents.length} student
+						{sortedStudents.length !== 1 ? 's' : ''}
+					</Text>
+				)}
 			</Group>
 
 			<Table highlightOnHover withTableBorder>

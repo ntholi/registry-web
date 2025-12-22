@@ -169,11 +169,12 @@ export default function ExcelImport({
 	return (
 		<>
 			<Button
-				leftSection={<IconFileImport size={'1rem'} />}
+				leftSection={<IconFileImport size='1rem' />}
+				size='xs'
 				variant='light'
 				onClick={open}
 			>
-				Import from Excel
+				Import
 			</Button>
 
 			<Modal

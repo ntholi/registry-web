@@ -1,6 +1,6 @@
 import { getAssignedModuleByUserAndModule } from '@academic/assigned-modules';
 import { ModuleDetailsCard, StudentTable } from '@academic/gradebook';
-import { Container, Paper } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import { notFound } from 'next/navigation';
 
 type Props = {
@@ -19,14 +19,12 @@ export default async function GradebookModuleView({ params }: Props) {
 	const semesterModuleIds = modules.map((m) => m.semesterModuleId);
 
 	return (
-		<Container size='xl' p='md'>
+		<Stack gap='lg' p='lg'>
 			<ModuleDetailsCard modules={modules} moduleId={Number(id)} />
-			<Paper withBorder radius='md' shadow='sm' p='lg'>
-				<StudentTable
-					moduleId={Number(id)}
-					semesterModuleIds={semesterModuleIds}
-				/>
-			</Paper>
-		</Container>
+			<StudentTable
+				moduleId={Number(id)}
+				semesterModuleIds={semesterModuleIds}
+			/>
+		</Stack>
 	);
 }
