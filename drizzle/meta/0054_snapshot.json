@@ -1,6 +1,6 @@
 {
-	"id": "a7a2d394-0481-4f10-ac0b-530066412a2b",
-	"prevId": "1b4b8fcf-e391-46b5-8a0f-8e21737df955",
+	"id": "1d99cd56-c754-47a8-b3e4-b2eb635ba9e6",
+	"prevId": "a7a2d394-0481-4f10-ac0b-530066412a2b",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -20,9 +20,9 @@
 					"primaryKey": false,
 					"notNull": true
 				},
-				"std_no": {
-					"name": "std_no",
-					"type": "bigint",
+				"student_module_id": {
+					"name": "student_module_id",
+					"type": "integer",
 					"primaryKey": false,
 					"notNull": true
 				},
@@ -56,11 +56,11 @@
 					"method": "btree",
 					"with": {}
 				},
-				"fk_assessment_marks_std_no": {
-					"name": "fk_assessment_marks_std_no",
+				"fk_assessment_marks_student_module_id": {
+					"name": "fk_assessment_marks_student_module_id",
 					"columns": [
 						{
-							"expression": "std_no",
+							"expression": "student_module_id",
 							"isExpression": false,
 							"asc": true,
 							"nulls": "last"
@@ -71,8 +71,8 @@
 					"method": "btree",
 					"with": {}
 				},
-				"idx_assessment_marks_assessment_id_std_no": {
-					"name": "idx_assessment_marks_assessment_id_std_no",
+				"idx_assessment_marks_assessment_id_student_module_id": {
+					"name": "idx_assessment_marks_assessment_id_student_module_id",
 					"columns": [
 						{
 							"expression": "assessment_id",
@@ -81,7 +81,7 @@
 							"nulls": "last"
 						},
 						{
-							"expression": "std_no",
+							"expression": "student_module_id",
 							"isExpression": false,
 							"asc": true,
 							"nulls": "last"
@@ -99,6 +99,15 @@
 					"tableFrom": "assessment_marks",
 					"tableTo": "assessments",
 					"columnsFrom": ["assessment_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"assessment_marks_student_module_id_student_modules_id_fk": {
+					"name": "assessment_marks_student_module_id_student_modules_id_fk",
+					"tableFrom": "assessment_marks",
+					"tableTo": "student_modules",
+					"columnsFrom": ["student_module_id"],
 					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"

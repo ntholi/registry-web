@@ -383,15 +383,8 @@
 		{
 			"idx": 54,
 			"version": "7",
-			"when": 1766387484360,
-			"tag": "0054_orange_norrin_radd",
-			"breakpoints": true
-		},
-		{
-			"idx": 55,
-			"version": "7",
 			"when": 1766409038979,
-			"tag": "0055_tiny_lucky_pierre",
+			"tag": "0054_tiny_lucky_pierre",
 			"breakpoints": true
 		}
 	]
