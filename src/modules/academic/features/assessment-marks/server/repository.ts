@@ -78,6 +78,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 				eq(assessments.moduleId, moduleId),
 				eq(assessments.termId, termId)
 			),
+			orderBy: (assessments, { asc }) => [asc(assessments.assessmentNumber)],
 		});
 	}
 

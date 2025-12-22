@@ -15,6 +15,7 @@ export async function getAssessments(page: number = 1, search = '') {
 		page,
 		search,
 		searchColumns: ['assessmentNumber', 'assessmentType'],
+		sort: [{ column: 'assessmentNumber', order: 'asc' }],
 	});
 }
 
