@@ -39,36 +39,31 @@ export default class AssessmentMarkRepository extends BaseRepository<
 			where: inArray(assessmentMarks.assessmentId, assessmentIds),
 			with: {
 				assessment: true,
+				studentModule: {
+					columns: { id: true },
+					with: {
+						studentSemester: {
+							columns: {},
+							with: {
+								studentProgram: {
+									columns: { stdNo: true },
+								},
+							},
+						},
+					},
+				},
 			},
 		});
 	}
 
-	async findByModuleAndStudent(
-		moduleId: number,
-		stdNo: number,
-		termId: number
-	) {
-		const moduleAssessments = await db.query.assessments.findMany({
-			where: and(
-				eq(assessments.moduleId, moduleId),
-				eq(assessments.termId, termId)
-			),
-			columns: {
-				id: true,
-			},
-		});
-
-		const assessmentIds = moduleAssessments.map((assessment) => assessment.id);
-
-		if (assessmentIds.length === 0) {
-			return [];
-		}
-
+	async findByStudentModuleId(studentModuleId: number) {
 		return db.query.assessmentMarks.findMany({
-			where: and(
-				inArray(assessmentMarks.assessmentId, assessmentIds),
-				eq(assessmentMarks.stdNo, stdNo)
-			),
+			where: eq(assessmentMarks.studentModuleId, studentModuleId),
+			with: {
+				assessment: {
+					columns: { id: true, termId: true },
+				},
+			},
 		});
 	}
 
@@ -193,7 +188,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 				.where(
 					and(
 						eq(assessmentMarks.assessmentId, data.assessmentId),
-						eq(assessmentMarks.stdNo, data.stdNo)
+						eq(assessmentMarks.studentModuleId, data.studentModuleId)
 					)
 				)
 				.limit(1)
@@ -217,22 +212,21 @@ export default class AssessmentMarkRepository extends BaseRepository<
 				}
 
 				return { mark: updated, isNew: false };
-			} else {
-				const [created] = await tx
-					.insert(assessmentMarks)
-					.values(data)
-					.returning();
-
-				await tx.insert(assessmentMarksAudit).values({
-					assessmentMarkId: created.id,
-					action: 'create',
-					previousMarks: null,
-					newMarks: created.marks,
-					createdBy: session.user.id,
-				});
-
-				return { mark: created, isNew: true };
 			}
+			const [created] = await tx
+				.insert(assessmentMarks)
+				.values(data)
+				.returning();
+
+			await tx.insert(assessmentMarksAudit).values({
+				assessmentMarkId: created.id,
+				action: 'create',
+				previousMarks: null,
+				newMarks: created.marks,
+				createdBy: session.user.id,
+			});
+
+			return { mark: created, isNew: true };
 		});
 		return result;
 	}
@@ -248,9 +242,9 @@ export default class AssessmentMarkRepository extends BaseRepository<
 		const results: {
 			mark: Mark;
 			isNew: boolean;
-			stdNo: number;
+			studentModuleId: number;
 		}[] = [];
-		const processedStudents = new Set<number>();
+		const processedStudentModules = new Set<number>();
 		const errors: string[] = [];
 
 		for (let i = 0; i < dataArray.length; i += batchSize) {
@@ -258,7 +252,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 			const batchResults: {
 				mark: Mark;
 				isNew: boolean;
-				stdNo: number;
+				studentModuleId: number;
 			}[] = [];
 			const batchAuditEntries: (typeof assessmentMarksAudit.$inferInsert)[] =
 				[];
@@ -268,7 +262,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 					const assessmentIds = [
 						...new Set(batch.map((data) => data.assessmentId)),
 					];
-					const stdNos = batch.map((data) => data.stdNo);
+					const studentModuleIds = batch.map((data) => data.studentModuleId);
 
 					const existingMarks = await tx
 						.select()
@@ -276,13 +270,13 @@ export default class AssessmentMarkRepository extends BaseRepository<
 						.where(
 							and(
 								inArray(assessmentMarks.assessmentId, assessmentIds),
-								inArray(assessmentMarks.stdNo, stdNos)
+								inArray(assessmentMarks.studentModuleId, studentModuleIds)
 							)
 						);
 
 					const existingMarksMap = new Map(
 						existingMarks.map((mark) => [
-							`${mark.assessmentId}-${mark.stdNo}`,
+							`${mark.assessmentId}-${mark.studentModuleId}`,
 							mark,
 						])
 					);
@@ -295,7 +289,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 					const insertsData: (typeof assessmentMarks.$inferInsert)[] = [];
 
 					for (const data of batch) {
-						const key = `${data.assessmentId}-${data.stdNo}`;
+						const key = `${data.assessmentId}-${data.studentModuleId}`;
 						const existing = existingMarksMap.get(key);
 
 						if (existing) {
@@ -309,7 +303,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 							batchResults.push({
 								mark: { ...existing, marks: data.marks },
 								isNew: false,
-								stdNo: data.stdNo,
+								studentModuleId: data.studentModuleId,
 							});
 						} else {
 							insertsData.push(data);
@@ -351,7 +345,7 @@ export default class AssessmentMarkRepository extends BaseRepository<
 							batchResults.push({
 								mark: inserted,
 								isNew: true,
-								stdNo: inserted.stdNo,
+								studentModuleId: inserted.studentModuleId,
 							});
 
 							batchAuditEntries.push({
@@ -370,31 +364,31 @@ export default class AssessmentMarkRepository extends BaseRepository<
 				});
 
 				results.push(...batchResults);
-				batchResults.forEach((result) => {
-					processedStudents.add(result.stdNo);
-				});
+				for (const result of batchResults) {
+					processedStudentModules.add(result.studentModuleId);
+				}
 			} catch (error) {
-				const batchStdNos = batch.map((data) => data.stdNo).join(', ');
+				const batchIds = batch.map((data) => data.studentModuleId).join(', ');
 				errors.push(
-					`Failed to process batch with students ${batchStdNos}: ${error instanceof Error ? error.message : 'Unknown error'}`
+					`Failed to process batch with studentModuleIds ${batchIds}: ${error instanceof Error ? error.message : 'Unknown error'}`
 				);
 			}
 		}
 
 		return {
 			results,
-			processedStudents: Array.from(processedStudents),
+			processedStudentModules: Array.from(processedStudentModules),
 			errors,
 			successful: results.length,
 			failed: errors.length,
 		};
 	}
 
-	async getStudentAuditHistory(stdNo: number) {
+	async getStudentAuditHistory(studentModuleId: number) {
 		const studentAssessmentMarks = await db
 			.select({ id: assessmentMarks.id })
 			.from(assessmentMarks)
-			.where(eq(assessmentMarks.stdNo, stdNo));
+			.where(eq(assessmentMarks.studentModuleId, studentModuleId));
 
 		if (studentAssessmentMarks.length === 0) {
 			return [];

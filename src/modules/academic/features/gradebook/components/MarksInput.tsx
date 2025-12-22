@@ -17,7 +17,7 @@ type ModuleGrade = ModuleGradeData;
 
 type Props = {
 	assessment: { id: number; maxMarks: number; totalMarks: number };
-	studentId: number;
+	studentModuleId: number;
 	existingMark?: number;
 	existingMarkId?: number;
 	moduleId: number;
@@ -25,7 +25,7 @@ type Props = {
 
 export default function MarksInput({
 	assessment,
-	studentId,
+	studentModuleId,
 	existingMark,
 	existingMarkId,
 	moduleId,
@@ -45,12 +45,11 @@ export default function MarksInput({
 	const markMutation = useMutation({
 		mutationFn: async (data: {
 			assessmentId: number;
-			stdNo: number;
+			studentModuleId: number;
 			marks: number;
 		}) => {
 			let result: AssessmentMark;
 			if (existingMarkId !== undefined) {
-				console.log('Updating existing mark:', existingMarkId, data);
 				result = await updateAssessmentMark(existingMarkId, data, moduleId);
 			} else {
 				result = await createAssessmentMark(data, moduleId);
@@ -65,7 +64,7 @@ export default function MarksInput({
 				queryKey: ['module-grades', moduleId],
 			});
 			await queryClient.cancelQueries({
-				queryKey: ['module-grade', moduleId, studentId],
+				queryKey: ['module-grade', moduleId, studentModuleId],
 			});
 
 			const previousAssessmentMarks = queryClient.getQueryData([
@@ -79,7 +78,7 @@ export default function MarksInput({
 			const previousModuleGrade = queryClient.getQueryData([
 				'module-grade',
 				moduleId,
-				studentId,
+				studentModuleId,
 			]);
 
 			queryClient.setQueryData(
@@ -93,18 +92,17 @@ export default function MarksInput({
 								? { ...mark, marks: newMark.marks }
 								: mark
 						);
-					} else {
-						return [
-							...old,
-							{
-								id: Date.now(),
-								assessmentId: newMark.assessmentId,
-								stdNo: newMark.stdNo,
-								marks: newMark.marks,
-								createdAt: new Date(),
-							},
-						];
 					}
+					return [
+						...old,
+						{
+							id: Date.now(),
+							assessmentId: newMark.assessmentId,
+							studentModuleId: newMark.studentModuleId,
+							marks: newMark.marks,
+							createdAt: new Date(),
+						},
+					];
 				}
 			);
 
@@ -123,8 +121,9 @@ export default function MarksInput({
 				]) as AssessmentMark[];
 
 				const studentMarks =
-					updatedAssessmentMarks?.filter((mark) => mark.stdNo === studentId) ||
-					[];
+					updatedAssessmentMarks?.filter(
+						(mark) => mark.studentModuleId === studentModuleId
+					) || [];
 
 				const gradeCalculation = calculateModuleGrade(
 					assessments.map((a) => ({
@@ -140,9 +139,9 @@ export default function MarksInput({
 
 				if (gradeCalculation.hasMarks) {
 					const newModuleGrade = {
-						id: Date.now(),
+						id: studentModuleId,
 						moduleId,
-						stdNo: studentId,
+						stdNo: 0,
 						grade: gradeCalculation.grade,
 						weightedTotal: gradeCalculation.weightedTotal,
 						createdAt: new Date(),
@@ -150,7 +149,7 @@ export default function MarksInput({
 					};
 
 					queryClient.setQueryData(
-						['module-grade', moduleId, studentId],
+						['module-grade', moduleId, studentModuleId],
 						newModuleGrade
 					);
 
@@ -160,16 +159,19 @@ export default function MarksInput({
 							if (!old) return [newModuleGrade];
 
 							const existingIndex = old.findIndex(
-								(grade) => grade.stdNo === studentId
+								(grade) => grade.id === studentModuleId
 							);
 
 							if (existingIndex >= 0) {
 								const updated = [...old];
-								updated[existingIndex] = newModuleGrade;
+								updated[existingIndex] = {
+									...updated[existingIndex],
+									grade: gradeCalculation.grade,
+									weightedTotal: gradeCalculation.weightedTotal,
+								};
 								return updated;
-							} else {
-								return [...old, newModuleGrade];
 							}
+							return [...old, newModuleGrade];
 						}
 					);
 				}
@@ -192,7 +194,7 @@ export default function MarksInput({
 			});
 
 			queryClient.invalidateQueries({
-				queryKey: ['module-grade', moduleId, studentId],
+				queryKey: ['module-grade', moduleId, studentModuleId],
 			});
 		},
 		onError: (_error, _newMark, context) => {
@@ -210,7 +212,7 @@ export default function MarksInput({
 			}
 			if (context?.previousModuleGrade) {
 				queryClient.setQueryData(
-					['module-grade', moduleId, studentId],
+					['module-grade', moduleId, studentModuleId],
 					context.previousModuleGrade
 				);
 			}
@@ -257,7 +259,7 @@ export default function MarksInput({
 
 		markMutation.mutate({
 			assessmentId: assessment.id,
-			stdNo: studentId,
+			studentModuleId,
 			marks: numericMark,
 		});
 

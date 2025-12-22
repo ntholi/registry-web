@@ -3,6 +3,7 @@ import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import type { Grade } from '@/modules/academic/database';
 import ModuleRepository, { type ModuleGradeInsert } from './repository';
 
 class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
@@ -164,6 +165,22 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 	async upsertModuleGrade(data: ModuleGradeInsert) {
 		return withAuth(
 			async () => (this.repository as ModuleRepository).upsertModuleGrade(data),
+			['academic']
+		);
+	}
+
+	async updateGradeByStudentModuleId(
+		studentModuleId: number,
+		grade: Grade,
+		weightedTotal: number
+	) {
+		return withAuth(
+			async () =>
+				(this.repository as ModuleRepository).updateGradeByStudentModuleId(
+					studentModuleId,
+					grade,
+					weightedTotal
+				),
 			['academic']
 		);
 	}

@@ -1,6 +1,6 @@
 'use server';
 
-import { upsertModuleGrade } from '@academic/semester-modules';
+import { updateGradeByStudentModuleId } from '@academic/semester-modules';
 import { getCurrentTerm } from '@registry/dates/terms';
 import type { assessmentMarks } from '@/core/database';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
@@ -30,7 +30,7 @@ export async function createAssessmentMark(
 	moduleId: number
 ) {
 	const result = await service.create(assessmentMark);
-	await calculateAndSaveModuleGrade(moduleId, assessmentMark.stdNo);
+	await calculateAndSaveModuleGrade(moduleId, assessmentMark.studentModuleId);
 	return result;
 }
 
@@ -54,12 +54,12 @@ export async function createOrUpdateMarksInBulk(
 
 	const result = await service.createOrUpdateMarksInBulk(assessmentMarks);
 
-	for (const stdNo of result.processedStudents) {
+	for (const studentModuleId of result.processedStudentModules) {
 		try {
-			await calculateAndSaveModuleGrade(moduleId, stdNo);
+			await calculateAndSaveModuleGrade(moduleId, studentModuleId);
 		} catch (error) {
 			result.errors.push(
-				`Failed to calculate grade for student ${stdNo}: ${error instanceof Error ? error.message : 'Unknown error'}`
+				`Failed to calculate grade for studentModuleId ${studentModuleId}: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
 		}
 	}
@@ -77,7 +77,7 @@ export async function updateAssessmentMark(
 	}
 
 	const result = await service.update(id, assessmentMark);
-	await calculateAndSaveModuleGrade(moduleId, assessmentMark.stdNo);
+	await calculateAndSaveModuleGrade(moduleId, assessmentMark.studentModuleId);
 	return result;
 }
 
@@ -87,15 +87,11 @@ export async function deleteAssessmentMark(id: number) {
 
 export async function calculateAndSaveModuleGrade(
 	moduleId: number,
-	stdNo: number
+	studentModuleId: number
 ) {
 	const term = await getCurrentTerm();
 	const assessments = await service.getAssessmentsByModuleId(moduleId, term.id);
-	const assessmentMarks = await service.getByModuleAndStudent(
-		moduleId,
-		stdNo,
-		term.id
-	);
+	const assessmentMarks = await service.getByStudentModuleId(studentModuleId);
 
 	if (!assessments || assessments.length === 0) {
 		return null;
@@ -112,18 +108,18 @@ export async function calculateAndSaveModuleGrade(
 			marks: m.marks,
 		}))
 	);
+
 	if (gradeCalculation.hasMarks) {
-		await upsertModuleGrade({
-			moduleId,
-			stdNo,
-			grade: gradeCalculation.grade,
-			weightedTotal: gradeCalculation.weightedTotal,
-		});
+		await updateGradeByStudentModuleId(
+			studentModuleId,
+			gradeCalculation.grade,
+			gradeCalculation.weightedTotal
+		);
 	}
 
 	return gradeCalculation;
 }
 
-export async function getMarksAudit(stdNo: number) {
-	return service.getStudentAuditHistory(stdNo);
+export async function getMarksAudit(studentModuleId: number) {
+	return service.getStudentAuditHistory(studentModuleId);
 }

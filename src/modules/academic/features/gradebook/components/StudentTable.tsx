@@ -137,11 +137,13 @@ export default function StudentTable({ moduleId }: Props) {
 	const { data: moduleGrades, isLoading: moduleGradesLoading } =
 		useModuleGradesQuery(moduleId);
 
-	const getStudentMark = (studentId: number, assessmentId: number) => {
+	const getStudentMark = (studentModuleId: number, assessmentId: number) => {
 		if (!assessmentMarks) return { mark: undefined, markId: undefined };
 
 		const mark = assessmentMarks.find(
-			(mark) => mark.stdNo === studentId && mark.assessmentId === assessmentId
+			(mark) =>
+				mark.studentModuleId === studentModuleId &&
+				mark.assessmentId === assessmentId
 		);
 
 		return {
@@ -150,9 +152,9 @@ export default function StudentTable({ moduleId }: Props) {
 		};
 	};
 
-	const getStudentGrade = (studentId: number) => {
+	const getStudentGrade = (studentModuleId: number) => {
 		if (!moduleGrades) return null;
-		return moduleGrades.find((grade) => grade.stdNo === studentId) || null;
+		return moduleGrades.find((grade) => grade.id === studentModuleId) || null;
 	};
 
 	function renderTableHeaders() {
@@ -295,7 +297,7 @@ export default function StudentTable({ moduleId }: Props) {
 								))
 						: assessments?.map((assessment) => {
 								const { mark, markId } = getStudentMark(
-									student.stdNo,
+									student.studentModuleId,
 									assessment.id
 								);
 								return (
@@ -309,7 +311,7 @@ export default function StudentTable({ moduleId }: Props) {
 												maxMarks: assessment.totalMarks,
 												totalMarks: assessment.totalMarks,
 											}}
-											studentId={student.stdNo}
+											studentModuleId={student.studentModuleId}
 											existingMark={mark}
 											existingMarkId={markId}
 											moduleId={moduleId}
@@ -322,17 +324,17 @@ export default function StudentTable({ moduleId }: Props) {
 							<Table.Td align='center'>
 								<Group gap='xs' justify='center' wrap='nowrap'>
 									<GradeDisplay
-										studentId={student.stdNo}
+										studentModuleId={student.studentModuleId}
 										displayType='total'
 										moduleId={moduleId}
-										moduleGrade={getStudentGrade(student.stdNo)}
+										moduleGrade={getStudentGrade(student.studentModuleId)}
 										isLoading={moduleGradesLoading}
 									/>
 									<GradeDisplay
-										studentId={student.stdNo}
+										studentModuleId={student.studentModuleId}
 										displayType='grade'
 										moduleId={moduleId}
-										moduleGrade={getStudentGrade(student.stdNo)}
+										moduleGrade={getStudentGrade(student.studentModuleId)}
 										isLoading={moduleGradesLoading}
 									/>
 								</Group>
@@ -340,16 +342,19 @@ export default function StudentTable({ moduleId }: Props) {
 							<Table.Td align='center'>
 								<Group gap={3} justify='center' wrap='nowrap'>
 									<MarksAuditModal
-										stdNo={student.stdNo}
+										studentModuleId={student.studentModuleId}
 										studentName={student.name}
 									/>
 									<GradeSymbolModal
-										studentId={student.stdNo}
+										studentModuleId={student.studentModuleId}
+										stdNo={student.stdNo}
 										studentName={student.name}
 										moduleId={moduleId}
-										currentGrade={getStudentGrade(student.stdNo)?.grade}
+										currentGrade={
+											getStudentGrade(student.studentModuleId)?.grade
+										}
 										weightedTotal={
-											getStudentGrade(student.stdNo)?.weightedTotal
+											getStudentGrade(student.studentModuleId)?.weightedTotal
 										}
 									/>
 								</Group>

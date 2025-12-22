@@ -44,10 +44,9 @@ class AssessmentMarkService {
 		);
 	}
 
-	async getByModuleAndStudent(moduleId: number, stdNo: number, termId: number) {
+	async getByStudentModuleId(studentModuleId: number) {
 		return withAuth(
-			async () =>
-				this.repository.findByModuleAndStudent(moduleId, stdNo, termId),
+			async () => this.repository.findByStudentModuleId(studentModuleId),
 			['academic']
 		);
 	}
@@ -65,6 +64,7 @@ class AssessmentMarkService {
 			['academic']
 		);
 	}
+
 	async createOrUpdateMarks(data: AssessmentMark) {
 		return withAuth(
 			async () => this.repository.createOrUpdateMarks(data),
@@ -79,9 +79,9 @@ class AssessmentMarkService {
 		);
 	}
 
-	async getStudentAuditHistory(stdNo: number) {
+	async getStudentAuditHistory(studentModuleId: number) {
 		return withAuth(
-			async () => this.repository.getStudentAuditHistory(stdNo),
+			async () => this.repository.getStudentAuditHistory(studentModuleId),
 			['academic']
 		);
 	}

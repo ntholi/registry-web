@@ -4,6 +4,7 @@ import ExcelJS from 'exceljs';
 type Student = {
 	stdNo: number;
 	name: string;
+	studentModuleId: number;
 	programId?: number | null;
 };
 
@@ -18,7 +19,7 @@ type Assessment = {
 type AssessmentMark = {
 	id: number;
 	assessmentId: number;
-	stdNo: number;
+	studentModuleId: number;
 	marks: number;
 };
 
@@ -274,7 +275,9 @@ export async function exportToExcel(data: ExportData) {
 		let currentCol = 4;
 		data.assessments.forEach((assessment) => {
 			const mark = data.assessmentMarks.find(
-				(m) => m.stdNo === student.stdNo && m.assessmentId === assessment.id
+				(m) =>
+					m.studentModuleId === student.studentModuleId &&
+					m.assessmentId === assessment.id
 			);
 
 			const scoreCell = row.getCell(currentCol);
@@ -290,7 +293,7 @@ export async function exportToExcel(data: ExportData) {
 		});
 
 		const moduleGrade = data.moduleGrades.find(
-			(g) => g.stdNo === student.stdNo
+			(g) => g.id === student.studentModuleId
 		);
 
 		const totalCell = row.getCell(currentCol);

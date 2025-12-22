@@ -231,7 +231,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 
 		const studentModulesData = await db.query.studentModules.findMany({
 			where: eq(studentModules.semesterModuleId, semesterModuleId),
-			columns: { status: true, marks: true, grade: true },
+			columns: { id: true, status: true, marks: true, grade: true },
 			with: {
 				studentSemester: {
 					columns: { term: true, status: true },
@@ -279,13 +279,18 @@ export default class CourseSummaryRepository extends BaseRepository<
 			return null;
 		}
 
-		const studentNumbers = validStudentModules.map(
-			(sm) => sm.studentSemester!.studentProgram.student.stdNo
-		);
+		const allStudentModuleIds = studentModulesData
+			.filter(
+				(sm) =>
+					sm.studentSemester &&
+					sm.studentSemester.term === termCode &&
+					!['Delete', 'Drop'].includes(sm.status)
+			)
+			.map((sm) => sm.id);
 
 		const allAssessmentMarks = await db.query.assessmentMarks.findMany({
-			where: inArray(assessmentMarks.stdNo, studentNumbers),
-			columns: { stdNo: true, marks: true },
+			where: inArray(assessmentMarks.studentModuleId, allStudentModuleIds),
+			columns: { studentModuleId: true, marks: true },
 			with: {
 				assessment: {
 					columns: {
@@ -304,6 +309,16 @@ export default class CourseSummaryRepository extends BaseRepository<
 				am.assessment?.termId === term.id
 		);
 
+		const studentModuleIdToStdNo = new Map<number, number>();
+		studentModulesData.forEach((sm) => {
+			if (sm.id && sm.studentSemester?.studentProgram.student.stdNo) {
+				studentModuleIdToStdNo.set(
+					sm.id,
+					sm.studentSemester.studentProgram.student.stdNo
+				);
+			}
+		});
+
 		const assessmentsByStudent = new Map<
 			number,
 			Array<{
@@ -314,10 +329,12 @@ export default class CourseSummaryRepository extends BaseRepository<
 		>();
 
 		relevantAssessmentMarks.forEach((am) => {
-			if (!assessmentsByStudent.has(am.stdNo)) {
-				assessmentsByStudent.set(am.stdNo, []);
+			const stdNo = studentModuleIdToStdNo.get(am.studentModuleId);
+			if (!stdNo) return;
+			if (!assessmentsByStudent.has(stdNo)) {
+				assessmentsByStudent.set(stdNo, []);
 			}
-			assessmentsByStudent.get(am.stdNo)!.push({
+			assessmentsByStudent.get(stdNo)!.push({
 				assessmentType: am.assessment!.assessmentType,
 				marks: am.marks,
 				totalMarks: am.assessment!.totalMarks,

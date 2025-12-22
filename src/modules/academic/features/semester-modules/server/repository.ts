@@ -557,6 +557,27 @@ export default class SemesterModuleRepository extends BaseRepository<
 			updatedAt: sm.createdAt,
 		}));
 	}
+
+	async updateGradeByStudentModuleId(
+		studentModuleId: number,
+		grade: Grade,
+		weightedTotal: number
+	) {
+		const updated = await db
+			.update(studentModules)
+			.set({
+				grade,
+				marks: weightedTotal.toString(),
+			})
+			.where(eq(studentModules.id, studentModuleId))
+			.returning();
+
+		if (updated.length === 0) {
+			throw new Error(`Student module not found: ${studentModuleId}`);
+		}
+
+		return updated[0];
+	}
 }
 
 export const modulesRepository = new SemesterModuleRepository();

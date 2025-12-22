@@ -27,7 +27,9 @@ export default function ImportProgress({
 	const queryClient = useQueryClient();
 	const importMutation = useMutation({
 		mutationFn: async (rows: ParsedRow[]) => {
-			const validRows = rows.filter((row) => row.isValid && row.isRegistered);
+			const validRows = rows.filter(
+				(row) => row.isValid && row.isRegistered && row.studentModuleId
+			);
 			let imported = 0;
 			let failed = 0;
 			const errors: string[] = [];
@@ -35,7 +37,7 @@ export default function ImportProgress({
 			try {
 				const bulkData: Array<{
 					assessmentId: number;
-					stdNo: number;
+					studentModuleId: number;
 					marks: number;
 				}> = [];
 
@@ -45,7 +47,7 @@ export default function ImportProgress({
 					)) {
 						bulkData.push({
 							assessmentId: parseInt(assessmentId, 10),
-							stdNo: parseInt(row.studentNumber, 10),
+							studentModuleId: row.studentModuleId!,
 							marks,
 						});
 					}

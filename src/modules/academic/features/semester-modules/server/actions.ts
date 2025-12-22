@@ -1,6 +1,7 @@
 'use server';
 
 import type { semesterModules } from '@/core/database';
+import type { Grade } from '@/modules/academic/database';
 import type { ModuleGradeInsert } from './repository';
 import { semesterModulesService } from './service';
 
@@ -134,4 +135,16 @@ export async function getModuleGradesByModuleId(moduleId: number) {
 
 export async function upsertModuleGrade(moduleGrade: ModuleGradeInsert) {
 	return semesterModulesService.upsertModuleGrade(moduleGrade);
+}
+
+export async function updateGradeByStudentModuleId(
+	studentModuleId: number,
+	grade: Grade,
+	weightedTotal: number
+) {
+	return semesterModulesService.updateGradeByStudentModuleId(
+		studentModuleId,
+		grade,
+		weightedTotal
+	);
 }

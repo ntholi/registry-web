@@ -1,9 +1,6 @@
 'use client';
 
-import {
-	type ModuleGradeData,
-	upsertModuleGrade,
-} from '@academic/semester-modules';
+import { updateGradeByStudentModuleId } from '@academic/semester-modules';
 import {
 	ActionIcon,
 	Badge,
@@ -29,18 +26,19 @@ import type { grade } from '@/modules/academic/database';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 interface Props {
-	studentId: number;
+	studentModuleId: number;
+	stdNo: number;
 	studentName: string;
 	moduleId: number;
 	currentGrade?: string;
 	weightedTotal?: number;
 }
 
-type Grade = 'DEF' | 'ANN' | 'EXP' | 'DNS';
-type ModuleGrade = ModuleGradeData;
+type ManualGrade = 'DEF' | 'ANN' | 'EXP' | 'DNS';
 
 export default function GradeSymbolModal({
-	studentId,
+	studentModuleId,
+	stdNo,
 	studentName,
 	moduleId,
 	currentGrade,
@@ -49,78 +47,21 @@ export default function GradeSymbolModal({
 	const theme = useMantineTheme();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [mode, setMode] = useState<'automatic' | 'manual'>('automatic');
-	const [selectedGrade, setSelectedGrade] = useState<Grade>('DEF');
+	const [selectedGrade, setSelectedGrade] = useState<ManualGrade>('DEF');
 	const queryClient = useQueryClient();
+
 	const gradeUpdateMutation = useMutation({
 		mutationFn: async (data: {
 			grade: (typeof grade.enumValues)[number];
 			weightedTotal: number;
 		}) => {
-			return await upsertModuleGrade({
-				moduleId,
-				stdNo: studentId,
-				grade: data.grade,
-				weightedTotal: data.weightedTotal,
-			});
-		},
-		onMutate: async (data) => {
-			await queryClient.cancelQueries({
-				queryKey: ['module-grade', moduleId, studentId],
-			});
-			await queryClient.cancelQueries({
-				queryKey: ['module-grades', moduleId],
-			});
-
-			const previousModuleGrade = queryClient.getQueryData([
-				'module-grade',
-				moduleId,
-				studentId,
-			]);
-			const previousModuleGrades = queryClient.getQueryData([
-				'module-grades',
-				moduleId,
-			]);
-
-			const optimisticModuleGrade = {
-				id: Date.now(),
-				moduleId,
-				stdNo: studentId,
-				grade: data.grade,
-				weightedTotal: data.weightedTotal,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			};
-
-			queryClient.setQueryData(
-				['module-grade', moduleId, studentId],
-				optimisticModuleGrade
+			return await updateGradeByStudentModuleId(
+				studentModuleId,
+				data.grade,
+				data.weightedTotal
 			);
-
-			queryClient.setQueryData(
-				['module-grades', moduleId],
-				(old: ModuleGrade[]) => {
-					if (!old) return [optimisticModuleGrade];
-
-					const existingIndex = old.findIndex(
-						(grade) => grade.stdNo === studentId
-					);
-
-					if (existingIndex >= 0) {
-						const updated = [...old];
-						updated[existingIndex] = optimisticModuleGrade;
-						return updated;
-					} else {
-						return [...old, optimisticModuleGrade];
-					}
-				}
-			);
-
-			return { previousModuleGrade, previousModuleGrades };
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['module-grade', moduleId, studentId],
-			});
 			queryClient.invalidateQueries({
 				queryKey: ['module-grades', moduleId],
 			});
@@ -131,20 +72,7 @@ export default function GradeSymbolModal({
 			});
 			close();
 		},
-		onError: (error, _data, context) => {
-			if (context?.previousModuleGrade) {
-				queryClient.setQueryData(
-					['module-grade', moduleId, studentId],
-					context.previousModuleGrade
-				);
-			}
-			if (context?.previousModuleGrades) {
-				queryClient.setQueryData(
-					['module-grades', moduleId],
-					context.previousModuleGrades
-				);
-			}
-
+		onError: (error) => {
 			notifications.show({
 				title: 'Error',
 				message: 'Failed to update grade symbol',
@@ -208,7 +136,7 @@ export default function GradeSymbolModal({
 								<Text size='sm' fw={600}>
 									{studentName}{' '}
 									<Text component='span' size='xs' c='dimmed'>
-										({studentId})
+										({stdNo})
 									</Text>
 								</Text>
 							</Group>
@@ -274,7 +202,7 @@ export default function GradeSymbolModal({
 								</Text>
 								<Radio.Group
 									value={selectedGrade}
-									onChange={(value) => setSelectedGrade(value as Grade)}
+									onChange={(value) => setSelectedGrade(value as ManualGrade)}
 									size='md'
 								>
 									<Group gap={rem(24)}>

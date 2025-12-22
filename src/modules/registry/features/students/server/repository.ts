@@ -232,7 +232,7 @@ export default class StudentRepository extends BaseRepository<
 				stdNo: students.stdNo,
 				name: students.name,
 				programId: structures.programId,
-				semesterModuleId: studentModules.semesterModuleId,
+				studentModuleId: studentModules.id,
 			})
 			.from(students)
 			.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
@@ -260,7 +260,7 @@ export default class StudentRepository extends BaseRepository<
 				students.stdNo,
 				students.name,
 				structures.programId,
-				studentModules.semesterModuleId
+				studentModules.id
 			);
 	}
 

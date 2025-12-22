@@ -31,17 +31,20 @@ import { format } from 'date-fns';
 import { generateAssessmentMarkAuditMessage } from '@/shared/lib/utils/auditUtils';
 
 interface Props {
-	stdNo: number;
+	studentModuleId: number;
 	studentName: string;
 }
 
-export default function MarksAuditModal({ stdNo, studentName }: Props) {
+export default function MarksAuditModal({
+	studentModuleId,
+	studentName,
+}: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const { colorScheme } = useMantineColorScheme();
 
 	const { data: auditHistory, isLoading } = useQuery({
-		queryKey: ['marks-audit', stdNo],
-		queryFn: () => getMarksAudit(stdNo),
+		queryKey: ['marks-audit', studentModuleId],
+		queryFn: () => getMarksAudit(studentModuleId),
 		enabled: opened,
 	});
 
@@ -65,7 +68,7 @@ export default function MarksAuditModal({ stdNo, studentName }: Props) {
 								Assessment Marks History
 							</Text>
 							<Text size='sm' c='dimmed'>
-								{studentName} ({stdNo})
+								{studentName}
 							</Text>
 						</Box>
 					</Group>

@@ -16,7 +16,7 @@ type ModuleGrade = {
 };
 
 type Props = {
-	studentId: number;
+	studentModuleId: number;
 	displayType: 'total' | 'grade';
 	moduleId: number;
 	moduleGrade?: ModuleGrade | null;
@@ -24,7 +24,7 @@ type Props = {
 };
 
 export default function GradeDisplay({
-	studentId,
+	studentModuleId,
 	displayType,
 	moduleId,
 	moduleGrade,
@@ -52,7 +52,7 @@ export default function GradeDisplay({
 			<TotalMarkDisplay
 				weightedTotal={weightedTotal}
 				hasPassed={hasPassed}
-				studentId={studentId}
+				studentModuleId={studentModuleId}
 				moduleId={moduleId}
 			/>
 		);

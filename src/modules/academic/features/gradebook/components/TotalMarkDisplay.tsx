@@ -1,9 +1,6 @@
 'use client';
 
-import {
-	type ModuleGradeData,
-	upsertModuleGrade,
-} from '@academic/semester-modules';
+import { updateGradeByStudentModuleId } from '@academic/semester-modules';
 import {
 	Alert,
 	Badge,
@@ -25,19 +22,17 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
-type ModuleGrade = ModuleGradeData;
-
 type Props = {
 	weightedTotal: number;
 	hasPassed: boolean;
-	studentId: number;
+	studentModuleId: number;
 	moduleId: number;
 };
 
 export default function TotalMarkDisplay({
 	weightedTotal,
 	hasPassed,
-	studentId,
+	studentModuleId,
 	moduleId,
 }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
@@ -67,90 +62,17 @@ export default function TotalMarkDisplay({
 	const adjustGradeMutation = useMutation({
 		mutationFn: async (newScore: number) => {
 			const grade = getLetterGrade(newScore);
-			return await upsertModuleGrade({
-				moduleId,
-				stdNo: studentId,
+			return await updateGradeByStudentModuleId(
+				studentModuleId,
 				grade,
-				weightedTotal: newScore,
-			});
-		},
-		onMutate: async (newScore) => {
-			await queryClient.cancelQueries({
-				queryKey: ['module-grade', moduleId, studentId],
-			});
-			await queryClient.cancelQueries({
-				queryKey: ['module-grades', moduleId],
-			});
-
-			const previousModuleGrade = queryClient.getQueryData([
-				'module-grade',
-				moduleId,
-				studentId,
-			]);
-			const previousModuleGrades = queryClient.getQueryData([
-				'module-grades',
-				moduleId,
-			]);
-
-			const newGrade = getLetterGrade(newScore);
-			const optimisticModuleGrade = {
-				id: Date.now(),
-				moduleId,
-				stdNo: studentId,
-				grade: newGrade,
-				weightedTotal: newScore,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			};
-
-			queryClient.setQueryData(
-				['module-grade', moduleId, studentId],
-				optimisticModuleGrade
+				newScore
 			);
-
-			queryClient.setQueryData(
-				['module-grades', moduleId],
-				(old: ModuleGrade[]) => {
-					if (!old) return [optimisticModuleGrade];
-
-					const existingIndex = old.findIndex(
-						(grade) => grade.stdNo === studentId
-					);
-
-					if (existingIndex >= 0) {
-						const updated = [...old];
-						updated[existingIndex] = optimisticModuleGrade;
-						return updated;
-					} else {
-						return [...old, optimisticModuleGrade];
-					}
-				}
-			);
-
-			return { previousModuleGrade, previousModuleGrades };
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['module-grade', moduleId, studentId],
-			});
 			queryClient.invalidateQueries({
 				queryKey: ['module-grades', moduleId],
 			});
 			close();
-		},
-		onError: (_error, _newScore, context) => {
-			if (context?.previousModuleGrade) {
-				queryClient.setQueryData(
-					['module-grade', moduleId, studentId],
-					context.previousModuleGrade
-				);
-			}
-			if (context?.previousModuleGrades) {
-				queryClient.setQueryData(
-					['module-grades', moduleId],
-					context.previousModuleGrades
-				);
-			}
 		},
 	});
 

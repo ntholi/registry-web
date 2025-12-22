@@ -266,7 +266,7 @@ function parseExcelData(
 	excelData: ExcelData,
 	assessments: AssessmentInfo[],
 	mapping: ColumnMapping,
-	registeredStudents: Array<{ stdNo: number }>
+	registeredStudents: Array<{ stdNo: number; studentModuleId: number }>
 ): ParsedRow[] {
 	const studentNumberColIndex = mapping.studentNumberColumn
 		? columnLetterToIndex(mapping.studentNumberColumn)
@@ -280,8 +280,8 @@ function parseExcelData(
 			columnLetterToIndex(column);
 	}
 
-	const registeredStudentNumbers = new Set(
-		registeredStudents.map((s) => s.stdNo.toString())
+	const registeredStudentMap = new Map(
+		registeredStudents.map((s) => [s.stdNo.toString(), s.studentModuleId])
 	);
 
 	return excelData.rows
@@ -317,13 +317,15 @@ function parseExcelData(
 				}
 			}
 
-			const isRegistered = studentNumber
-				? registeredStudentNumbers.has(studentNumber)
-				: false;
+			const studentModuleId = studentNumber
+				? registeredStudentMap.get(studentNumber)
+				: undefined;
+			const isRegistered = studentModuleId !== undefined;
 
 			return {
 				rowIndex: index,
 				studentNumber,
+				studentModuleId,
 				assessmentMarks,
 				isValid: errors.length === 0 && studentNumber !== '',
 				isRegistered,

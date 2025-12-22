@@ -45,6 +45,7 @@ export interface ImportResult {
 export interface ParsedRow {
 	rowIndex: number;
 	studentNumber: string;
+	studentModuleId?: number;
 	studentName?: string;
 	assessmentMarks: Record<number, number>;
 	isValid: boolean;
