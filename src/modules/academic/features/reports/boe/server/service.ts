@@ -208,7 +208,7 @@ export default class BoeReportService {
 					},
 					semesters: studentSemesters.map((ss) => ({
 						id: ss.id,
-						term: ss.term,
+						termCode: ss.termCode,
 						semesterNumber: ss.structureSemester?.semesterNumber ?? '',
 						status: ss.status,
 						studentModules: ss.studentModules.map((sm) => ({

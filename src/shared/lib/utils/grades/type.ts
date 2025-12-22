@@ -32,7 +32,7 @@ export type Program = {
 	semesters: {
 		id: number;
 		status: SemesterStatus;
-		term: string;
+		termCode: string;
 		structureSemester?: {
 			semesterNumber: string;
 		} | null;

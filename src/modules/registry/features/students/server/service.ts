@@ -147,7 +147,8 @@ function removeTermFromPrograms(programs: Program[], termCode: string) {
 	return programs.map((program) => ({
 		...program,
 		semesters:
-			program.semesters?.filter((semester) => semester.term !== termCode) || [],
+			program.semesters?.filter((semester) => semester.termCode !== termCode) ||
+			[],
 	}));
 }
 

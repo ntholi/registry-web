@@ -530,7 +530,7 @@ export class RegistrationReportRepository {
 	): Promise<FullRegistrationStudent[]> {
 		const query = this.createBaseStudentQuery();
 		const conditions = [
-			eq(studentSemesters.term, termCode),
+			eq(studentSemesters.termCode, termCode),
 			...this.buildFilterConditions(filter),
 		];
 
@@ -558,7 +558,7 @@ export class RegistrationReportRepository {
 		const countQuery = this.createCountQuery();
 
 		const conditions = [
-			eq(studentSemesters.term, termCode),
+			eq(studentSemesters.termCode, termCode),
 			...this.buildFilterConditions(filter, { includeSearchQuery: true }),
 		];
 
@@ -652,7 +652,7 @@ export class RegistrationReportRepository {
 	): Promise<ChartDataResult> {
 		const query = this.createChartQuery();
 		const conditions = [
-			eq(studentSemesters.term, termCode),
+			eq(studentSemesters.termCode, termCode),
 			...this.buildFilterConditions(filter),
 		];
 
@@ -666,7 +666,7 @@ export class RegistrationReportRepository {
 	): Promise<ChartDataResult> {
 		const query = this.createChartQuery();
 		const conditions = [
-			inArray(studentSemesters.term, termCodes),
+			inArray(studentSemesters.termCode, termCodes),
 			...this.buildFilterConditions(filter),
 		];
 
@@ -700,7 +700,7 @@ export class RegistrationReportRepository {
 	): Promise<FullRegistrationStudent[]> {
 		const query = this.createBaseStudentQuery();
 		const conditions = [
-			inArray(studentSemesters.term, termCodes),
+			inArray(studentSemesters.termCode, termCodes),
 			...this.buildFilterConditions(filter),
 		];
 
@@ -728,7 +728,7 @@ export class RegistrationReportRepository {
 		const countQuery = this.createCountQuery();
 
 		const conditions = [
-			inArray(studentSemesters.term, termCodes),
+			inArray(studentSemesters.termCode, termCodes),
 			...this.buildFilterConditions(filter, { includeSearchQuery: true }),
 		];
 

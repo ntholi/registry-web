@@ -313,7 +313,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 				studentSemesters,
 				and(
 					eq(studentSemesters.id, studentModules.studentSemesterId),
-					eq(studentSemesters.term, activeTerm.code)
+					eq(studentSemesters.termCode, activeTerm.code)
 				)
 			)
 			.where(
@@ -407,7 +407,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 		}
 
 		const studentSemesterTerms = await db
-			.selectDistinct({ term: studentSemesters.term })
+			.selectDistinct({ termCode: studentSemesters.termCode })
 			.from(studentSemesters)
 			.where(eq(studentSemesters.structureSemesterId, previousSemester.id));
 
@@ -415,7 +415,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 			return 0;
 		}
 
-		const termCodes = studentSemesterTerms.map((t) => t.term);
+		const termCodes = studentSemesterTerms.map((t) => t.termCode);
 
 		const mostRecentTerm = await db.query.terms.findFirst({
 			where: inArray(terms.code, termCodes),
@@ -432,7 +432,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 			.where(
 				and(
 					eq(studentSemesters.structureSemesterId, previousSemester.id),
-					eq(studentSemesters.term, mostRecentTerm.code)
+					eq(studentSemesters.termCode, mostRecentTerm.code)
 				)
 			);
 

@@ -109,7 +109,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 		let validStudentModules = studentModulesData.filter(
 			(sm) =>
 				sm.studentSemester &&
-				sm.studentSemester.term === termCode &&
+				sm.studentSemester.termCode === termCode &&
 				!['Delete', 'Drop'].includes(sm.status) &&
 				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
 					sm.studentSemester.status
@@ -234,7 +234,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 			columns: { id: true, status: true, marks: true, grade: true },
 			with: {
 				studentSemester: {
-					columns: { term: true, status: true },
+					columns: { termCode: true, status: true },
 					with: {
 						studentProgram: {
 							columns: {},
@@ -260,7 +260,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 		let validStudentModules = studentModulesData.filter(
 			(sm) =>
 				sm.studentSemester &&
-				sm.studentSemester.term === termCode &&
+				sm.studentSemester.termCode === termCode &&
 				!['Delete', 'Drop'].includes(sm.status) &&
 				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
 					sm.studentSemester.status
@@ -283,7 +283,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 			.filter(
 				(sm) =>
 					sm.studentSemester &&
-					sm.studentSemester.term === termCode &&
+					sm.studentSemester.termCode === termCode &&
 					!['Delete', 'Drop'].includes(sm.status)
 			)
 			.map((sm) => sm.id);

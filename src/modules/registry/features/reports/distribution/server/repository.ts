@@ -215,7 +215,7 @@ export class DistributionReportRepository {
 	): Promise<DistributionResult> {
 		const query = this.createBaseQuery();
 		const conditions = [
-			inArray(studentSemesters.term, termCodes),
+			inArray(studentSemesters.termCode, termCodes),
 			...this.buildFilterConditions(filter),
 		];
 

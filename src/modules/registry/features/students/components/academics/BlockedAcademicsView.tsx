@@ -53,7 +53,7 @@ export default function BlockedAcademicsView({
 	const generatePlaceholderSemesters = () => {
 		return Array.from({ length: 3 }, (_, i) => ({
 			id: i + 1,
-			term: `████████`,
+			termCode: `████████`,
 			semesterNumber: i + 1,
 			status: 'Active',
 			moduleCount: Math.floor(Math.random() * 3) + 4,
@@ -126,7 +126,7 @@ export default function BlockedAcademicsView({
 														<Flex align='flex-end' justify='space-between'>
 															<Group gap={'xs'} align='flex-end'>
 																<Badge radius={'xs'} variant='default'>
-																	{semester.term}
+																	{semester.termCode}
 																</Badge>
 																<Text size='sm'>
 																	Semester {semester.semesterNumber}

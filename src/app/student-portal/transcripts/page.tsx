@@ -89,7 +89,7 @@ export default function TranscriptsPage() {
 	}
 
 	const semesters = getCleanedSemesters(program).filter(
-		(it: { term: string }) => it.term !== currentTerm?.code
+		(it: { termCode: string }) => it.termCode !== currentTerm?.code
 	);
 
 	return (
@@ -153,7 +153,7 @@ export default function TranscriptsPage() {
 									<Accordion.Control>
 										<Box>
 											<Text size='sm' fw={600}>
-												{semester.term}
+												{semester.termCode}
 											</Text>
 											<Text size='sm' c='dimmed'>
 												{semester.structureSemester?.semesterNumber

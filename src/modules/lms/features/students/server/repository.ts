@@ -112,7 +112,7 @@ export default class StudentRepository extends BaseRepository<
 				and(
 					eq(students.stdNo, stdNo),
 					eq(studentPrograms.status, 'Active'),
-					eq(studentSemesters.term, courseTerm),
+					eq(studentSemesters.termCode, courseTerm),
 					eq(modules.name, courseFullname)
 				)
 			)

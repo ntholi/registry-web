@@ -434,7 +434,7 @@ export default function StatementOfResultsPDF({
 								return (
 									<View key={semester.id} style={styles.semesterSection}>
 										<View style={styles.semesterTitle} wrap={false}>
-											<Text>{semester.term}</Text>
+											<Text>{semester.termCode}</Text>
 											<Text>GPA: {semesterGPA.toFixed(2)}</Text>
 										</View>
 

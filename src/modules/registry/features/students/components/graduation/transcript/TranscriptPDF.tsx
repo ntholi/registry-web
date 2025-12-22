@@ -163,7 +163,9 @@ const TermSection = ({
 
 	return (
 		<View style={tw('mb-2')}>
-			<Text style={tw('mb-0.5 font-bold')}>{formatTerm(semester.term)}</Text>
+			<Text style={tw('mb-0.5 font-bold')}>
+				{formatTerm(semester.termCode)}
+			</Text>
 			{(semester.studentModules || []).map((sm, smIdx) => (
 				<GradeRow
 					key={`${sm.semesterModule?.module?.code}-${sm.id}-${smIdx}`}
@@ -213,7 +215,7 @@ export function TranscriptPages({
 				const programPrimarySemester = programSemesters[0] || null;
 				const admissionDate = program.intakeDate
 					? formatMonthYear(program.intakeDate)
-					: programPrimarySemester?.term || 'Unknown';
+					: programPrimarySemester?.termCode || 'Unknown';
 
 				const completionDate = program.graduationDate
 					? new Date(program.graduationDate).toLocaleDateString('en-GB', {

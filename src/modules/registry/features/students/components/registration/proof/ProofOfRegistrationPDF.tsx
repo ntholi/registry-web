@@ -326,7 +326,7 @@ export default function ProofOfRegistrationPDF({
 								<Text>Term:</Text>
 							</View>
 							<View style={[styles.valueCell]}>
-								<Text>{latestSemester.term}</Text>
+								<Text>{latestSemester.termCode}</Text>
 							</View>
 						</View>
 						<View style={styles.lastTableRow}>
@@ -445,7 +445,7 @@ export default function ProofOfRegistrationPDF({
 				<View style={styles.footerSection}>
 					<Text style={styles.footerText}>
 						Document ID: registration_{student.stdNo}_
-						{latestSemester.term.replace(/\s+/g, '_')}_
+						{latestSemester.termCode.replace(/\s+/g, '_')}_
 						{formatDate(new Date()).replace(/\//g, '')} | This document serves
 						as official proof of registration for the above student.
 						Registration processed through the official university system on{' '}

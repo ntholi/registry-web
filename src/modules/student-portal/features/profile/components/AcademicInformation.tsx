@@ -129,7 +129,7 @@ export default function AcademicInformation({ program, semester }: Props) {
 								<Grid.Col span={{ base: 12, sm: 6 }}>
 									<InfoItem
 										label='Term'
-										value={semester.term}
+										value={semester.termCode}
 										icon={<IconCalendar size={14} />}
 									/>
 								</Grid.Col>

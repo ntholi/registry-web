@@ -133,7 +133,7 @@ export const studentSemesters = pgTable(
 	'student_semesters',
 	{
 		id: serial().primaryKey(),
-		term: text().notNull(),
+		termCode: text().notNull(),
 		structureSemesterId: integer()
 			.references(() => structureSemesters.id, { onDelete: 'cascade' })
 			.notNull(),
@@ -152,7 +152,7 @@ export const studentSemesters = pgTable(
 		structureSemesterIdIdx: index(
 			'fk_student_semesters_structure_semester_id'
 		).on(table.structureSemesterId),
-		termIdx: index('idx_student_semesters_term').on(table.term),
+		termIdx: index('idx_student_semesters_term').on(table.termCode),
 		statusIdx: index('idx_student_semesters_status').on(table.status),
 		sponsorIdIdx: index('fk_student_semesters_sponsor_id').on(table.sponsorId),
 	})

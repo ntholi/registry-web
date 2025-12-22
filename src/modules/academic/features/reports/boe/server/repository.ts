@@ -79,7 +79,7 @@ export default class BoeReportRepository extends BaseRepository<
 
 		return await db.query.studentSemesters.findMany({
 			where: and(
-				eq(studentSemesters.term, termCode),
+				eq(studentSemesters.termCode, termCode),
 				inArray(studentSemesters.studentProgramId, studentProgramIds),
 				ne(studentSemesters.status, 'Deleted')
 			),
@@ -126,7 +126,7 @@ export default class BoeReportRepository extends BaseRepository<
 
 		return await db.query.studentSemesters.findMany({
 			where: and(
-				eq(studentSemesters.term, termCode),
+				eq(studentSemesters.termCode, termCode),
 				inArray(studentSemesters.studentProgramId, studentProgramIds),
 				ne(studentSemesters.status, 'Deleted')
 			),
@@ -230,8 +230,8 @@ export default class BoeReportRepository extends BaseRepository<
 		}
 
 		return allResults.sort((a, b) => {
-			if (a.term !== b.term) {
-				return a.term.localeCompare(b.term);
+			if (a.termCode !== b.termCode) {
+				return a.termCode.localeCompare(b.termCode);
 			}
 			return compareSemesters(
 				a.structureSemester?.semesterNumber ?? '',
@@ -296,8 +296,8 @@ export default class BoeReportRepository extends BaseRepository<
 		}
 
 		return allResults.sort((a, b) => {
-			if (a.term !== b.term) {
-				return a.term.localeCompare(b.term);
+			if (a.termCode !== b.termCode) {
+				return a.termCode.localeCompare(b.termCode);
 			}
 			return compareSemesters(
 				a.structureSemester?.semesterNumber ?? '',

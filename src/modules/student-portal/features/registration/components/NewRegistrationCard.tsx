@@ -26,7 +26,7 @@ export default function NewRegistrationCard() {
 			.flatMap((program) => program.semesters)
 			.some(
 				(semester) =>
-					semester.term === currentTerm?.code &&
+					semester.termCode === currentTerm?.code &&
 					!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
 						semester.status
 					)

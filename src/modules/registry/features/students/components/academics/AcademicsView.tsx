@@ -133,7 +133,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																style={{ position: 'relative' }}
 															>
 																<Badge radius={'xs'} variant='default'>
-																	{semester.term}
+																	{semester.termCode}
 																</Badge>
 																<Text size='sm'>
 																	{formatSemester(
@@ -176,7 +176,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																}))}
 																showMarks={showMarks}
 																allSemesters={program.semesters.map((sem) => ({
-																	term: sem.term,
+																	termCode: sem.termCode,
 																	semesterNumber:
 																		sem.structureSemester?.semesterNumber,
 																	studentModules: sem.studentModules.map(

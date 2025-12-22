@@ -21,7 +21,7 @@ type StudentProgram = typeof studentPrograms.$inferSelect & {
 		program: typeof programs.$inferSelect;
 	};
 	semesters: Array<{
-		term: string;
+		termCode: string;
 	}>;
 };
 

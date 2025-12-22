@@ -77,13 +77,13 @@ export default class StudentRepository extends BaseRepository<
 						semesters: {
 							columns: {
 								id: true,
-								term: true,
+								termCode: true,
 								status: true,
 								structureSemesterId: true,
 								sponsorId: true,
 								studentProgramId: true,
 							},
-							where: eq(studentSemesters.term, termCode),
+							where: eq(studentSemesters.termCode, termCode),
 							with: {
 								structureSemester: {
 									columns: {
@@ -161,7 +161,7 @@ export default class StudentRepository extends BaseRepository<
 						semesters: {
 							columns: {
 								id: true,
-								term: true,
+								termCode: true,
 								status: true,
 								structureSemesterId: true,
 								sponsorId: true,
@@ -255,7 +255,7 @@ export default class StudentRepository extends BaseRepository<
 			.where(
 				and(
 					inArray(semesterModules.id, semesterModuleIds),
-					eq(studentSemesters.term, termCode),
+					eq(studentSemesters.termCode, termCode),
 					notInArray(studentModules.status, ['Delete', 'Drop'])
 				)
 			)
@@ -385,7 +385,7 @@ export default class StudentRepository extends BaseRepository<
 			if (needsTermJoin) {
 				joinedQuery = joinedQuery.innerJoin(
 					terms,
-					eq(terms.code, studentSemesters.term)
+					eq(terms.code, studentSemesters.termCode)
 				);
 			}
 
@@ -418,7 +418,7 @@ export default class StudentRepository extends BaseRepository<
 			if (needsTermJoin) {
 				countJoinedQuery = countJoinedQuery.innerJoin(
 					terms,
-					eq(terms.code, studentSemesters.term)
+					eq(terms.code, studentSemesters.termCode)
 				);
 			}
 
@@ -503,7 +503,7 @@ export default class StudentRepository extends BaseRepository<
 						semesters: {
 							columns: {
 								id: true,
-								term: true,
+								termCode: true,
 								status: true,
 								structureSemesterId: true,
 								sponsorId: true,

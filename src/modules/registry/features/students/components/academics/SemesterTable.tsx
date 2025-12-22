@@ -37,7 +37,7 @@ type ModuleTableProps = {
 	}[];
 	showMarks?: boolean;
 	allSemesters?: {
-		term: string;
+		termCode: string;
 		semesterNumber: string | null;
 		studentModules: {
 			semesterModule: {
@@ -113,14 +113,14 @@ export default function SemesterTable({
 						m.status !== 'Delete'
 				);
 				return {
-					term: sem.term,
+					termCode: sem.termCode,
 					semesterNumber: sem.semesterNumber ?? '',
 					grade: studentModule?.grade,
 				};
 			})
 			.sort((a, b) => {
-				const [yearA, monthA] = a.term.split('-').map(Number);
-				const [yearB, monthB] = b.term.split('-').map(Number);
+				const [yearA, monthA] = a.termCode.split('-').map(Number);
+				const [yearB, monthB] = b.termCode.split('-').map(Number);
 				if (yearA !== yearB) {
 					return yearA - yearB;
 				}
@@ -148,11 +148,15 @@ export default function SemesterTable({
 				</Text>
 				<Stack gap='xs'>
 					{attempts.map((attempt) => (
-						<Card key={`${attempt.term}-${attempt.grade}`} p='xs' withBorder>
+						<Card
+							key={`${attempt.termCode}-${attempt.grade}`}
+							p='xs'
+							withBorder
+						>
 							<Group justify='space-between' gap='xl'>
 								<Stack gap={2}>
 									<Text size='sm' fw={500}>
-										{attempt.term}
+										{attempt.termCode}
 									</Text>
 									<Text size='xs' c='dimmed'>
 										{attempt.semesterNumber

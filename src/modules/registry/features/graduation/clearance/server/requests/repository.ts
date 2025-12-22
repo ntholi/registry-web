@@ -179,7 +179,7 @@ export default class GraduationRequestRepository extends BaseRepository<
 		if (completedProgram) {
 			// Check if any semester has the required terms
 			const hasRequiredTerms = completedProgram.semesters.some((semester) =>
-				['2025-02', '2024-07', '2024-02'].includes(semester.term)
+				['2025-02', '2024-07', '2024-02'].includes(semester.termCode)
 			);
 
 			if (hasRequiredTerms) {

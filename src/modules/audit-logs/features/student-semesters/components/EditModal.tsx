@@ -32,7 +32,7 @@ import {
 
 interface StudentSemester {
 	id: number;
-	term: string;
+	termCode: string;
 	structureSemesterId: number;
 	status: SemesterStatus;
 	sponsorId: number | null;
@@ -45,7 +45,7 @@ interface Props {
 }
 
 const FIELD_LABELS = {
-	term: 'Term',
+	termCode: 'Term',
 	status: 'Status',
 	structureSemesterId: 'Structure Semester',
 	sponsorId: 'Sponsor',
@@ -106,7 +106,7 @@ export default function EditStudentSemesterModal({
 
 	const form = useForm({
 		initialValues: {
-			term: semester.term,
+			termCode: semester.termCode,
 			status: semester.status,
 			structureSemesterId: semester.structureSemesterId.toString(),
 			sponsorId: semester.sponsorId?.toString() || '',
@@ -117,7 +117,7 @@ export default function EditStudentSemesterModal({
 	useEffect(() => {
 		if (opened) {
 			form.setValues({
-				term: semester.term,
+				termCode: semester.termCode,
 				status: semester.status,
 				structureSemesterId: semester.structureSemesterId.toString(),
 				sponsorId: semester.sponsorId?.toString() || '',
@@ -135,7 +135,7 @@ export default function EditStudentSemesterModal({
 				await updateStudentSemester(
 					semester.id,
 					{
-						term: values.term,
+						termCode: values.termCode,
 						status: values.status as SemesterStatus,
 						structureSemesterId: parseInt(values.structureSemesterId, 10),
 						sponsorId: values.sponsorId ? parseInt(values.sponsorId, 10) : null,
@@ -229,7 +229,7 @@ export default function EditStudentSemesterModal({
 								required
 								mb='md'
 								disabled={isLoadingTerms}
-								{...form.getInputProps('term')}
+								{...form.getInputProps('termCode')}
 								rightSection={isLoadingTerms ? <Loader size='xs' /> : undefined}
 							/>
 
