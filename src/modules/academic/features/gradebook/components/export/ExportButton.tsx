@@ -14,6 +14,7 @@ import { exportToExcel } from './exportToExcel';
 
 type Props = {
 	moduleId: number;
+	semesterModuleIds: number[];
 	moduleName?: string;
 	moduleCode?: string;
 	lecturerName?: string;
@@ -23,6 +24,7 @@ type Props = {
 
 export default function ExportButton({
 	moduleId,
+	semesterModuleIds,
 	moduleName,
 	moduleCode,
 	lecturerName,
@@ -32,7 +34,10 @@ export default function ExportButton({
 	const [isExporting, setIsExporting] = useState(false);
 	const [programId] = useQueryState('programId');
 
-	const { data: students } = useStudentsQuery({ moduleId, searchQuery: '' });
+	const { data: students } = useStudentsQuery({
+		semesterModuleIds,
+		searchQuery: '',
+	});
 	const { data: assessments } = useAssessmentsQuery(moduleId);
 	const { data: assessmentMarks } = useAssessmentMarksQuery(moduleId);
 	const { data: moduleGrades } = useModuleGradesQuery(moduleId);

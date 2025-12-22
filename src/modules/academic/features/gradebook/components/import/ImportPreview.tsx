@@ -11,7 +11,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getStudentsByModuleId } from '@registry/students';
+import { getStudentsBySemesterModules } from '@registry/students';
 import { IconEye } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
@@ -31,7 +31,7 @@ type Props = {
 	excelData: ExcelData;
 	columnMapping: ColumnMapping;
 	assessments: AssessmentInfo[];
-	moduleId: number;
+	semesterModuleIds: number[];
 	onPreviewGenerated: (rows: ParsedRow[]) => void;
 	onBack: () => void;
 };
@@ -40,12 +40,13 @@ export default function ImportPreview({
 	excelData,
 	columnMapping,
 	assessments,
-	moduleId,
+	semesterModuleIds,
 	onPreviewGenerated,
 }: Props) {
 	const { data: registeredStudents } = useQuery({
-		queryKey: ['students', moduleId],
-		queryFn: () => getStudentsByModuleId(moduleId),
+		queryKey: ['students', semesterModuleIds],
+		queryFn: () => getStudentsBySemesterModules(semesterModuleIds),
+		enabled: semesterModuleIds.length > 0,
 	});
 
 	const parsedData = useMemo(

@@ -34,6 +34,7 @@ import MarksInput from './MarksInput';
 
 type Props = {
 	moduleId: number;
+	semesterModuleIds: number[];
 };
 
 interface ThProps {
@@ -107,13 +108,13 @@ function sortData(
 		});
 }
 
-export default function StudentTable({ moduleId }: Props) {
+export default function StudentTable({ moduleId, semesterModuleIds }: Props) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState<keyof Student | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
 
 	const { data: studentsData, isLoading: studentsLoading } = useStudentsQuery({
-		moduleId,
+		semesterModuleIds,
 		searchQuery: '',
 	});
 
@@ -388,6 +389,7 @@ export default function StudentTable({ moduleId }: Props) {
 					{assessments && assessments.length > 0 && (
 						<ExcelImport
 							moduleId={moduleId}
+							semesterModuleIds={semesterModuleIds}
 							assessments={assessments.map((assessment) => ({
 								id: assessment.id,
 								assessmentType: assessment.assessmentType,

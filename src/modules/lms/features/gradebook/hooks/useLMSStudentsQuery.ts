@@ -8,19 +8,20 @@ export type Student = Awaited<ReturnType<typeof getStudentsByCourseId>>[number];
 
 type UseLMSStudentsQueryParams = {
 	courseId: number;
-	moduleId: number;
+	semesterModuleIds: number[];
 	searchQuery: string;
 };
 
 export function useLMSStudentsQuery({
 	courseId,
-	moduleId,
+	semesterModuleIds,
 	searchQuery,
 }: UseLMSStudentsQueryParams) {
 	const [programId] = useQueryState('programId');
 	return useQuery({
-		queryKey: ['lms-gradebook-students', courseId, moduleId],
-		queryFn: () => getStudentsByCourseId(courseId, moduleId),
+		queryKey: ['lms-gradebook-students', courseId, semesterModuleIds],
+		queryFn: () => getStudentsByCourseId(courseId, semesterModuleIds),
+		enabled: semesterModuleIds.length > 0,
 		select(data) {
 			let filteredData = data;
 

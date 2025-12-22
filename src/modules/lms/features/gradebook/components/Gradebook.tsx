@@ -35,8 +35,9 @@ export default function Gradebook({ courseId }: GradebookProps) {
 	}
 
 	const moduleId = assignedModule.semesterModule?.moduleId;
+	const semesterModuleId = assignedModule.semesterModuleId;
 
-	if (!moduleId) {
+	if (!moduleId || !semesterModuleId) {
 		return (
 			<Center py='xl'>
 				<Text c='dimmed'>
@@ -48,7 +49,11 @@ export default function Gradebook({ courseId }: GradebookProps) {
 
 	return (
 		<Paper withBorder shadow='sm' p='lg' bg={'dark.8'}>
-			<LMSStudentTable courseId={courseId} moduleId={moduleId} />
+			<LMSStudentTable
+				courseId={courseId}
+				moduleId={moduleId}
+				semesterModuleIds={[semesterModuleId]}
+			/>
 		</Paper>
 	);
 }

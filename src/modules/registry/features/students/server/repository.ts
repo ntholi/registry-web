@@ -4,6 +4,7 @@ import {
 	desc,
 	eq,
 	ilike,
+	inArray,
 	notInArray,
 	or,
 	type SQL,
@@ -226,7 +227,9 @@ export default class StudentRepository extends BaseRepository<
 		return this.findStudentByStdNo(stdNo);
 	}
 
-	async findByModuleId(moduleId: number, termCode: string) {
+	async findBySemesterModules(semesterModuleIds: number[], termCode: string) {
+		if (semesterModuleIds.length === 0) return [];
+
 		return await db
 			.select({
 				stdNo: students.stdNo,
@@ -251,7 +254,7 @@ export default class StudentRepository extends BaseRepository<
 			)
 			.where(
 				and(
-					eq(semesterModules.moduleId, moduleId),
+					inArray(semesterModules.id, semesterModuleIds),
 					eq(studentSemesters.term, termCode),
 					notInArray(studentModules.status, ['Delete', 'Drop'])
 				)

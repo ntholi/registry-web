@@ -42,10 +42,15 @@ import type {
 
 interface Props {
 	moduleId: number;
+	semesterModuleIds: number[];
 	assessments: AssessmentInfo[];
 }
 
-export default function ExcelImport({ moduleId, assessments }: Props) {
+export default function ExcelImport({
+	moduleId,
+	semesterModuleIds,
+	assessments,
+}: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [activeStep, setActiveStep] = useState(0);
 	const [file, setFile] = useState<File | null>(null);
@@ -240,7 +245,7 @@ export default function ExcelImport({ moduleId, assessments }: Props) {
 										excelData={excelData}
 										columnMapping={columnMapping}
 										assessments={assessments}
-										moduleId={moduleId}
+										semesterModuleIds={semesterModuleIds}
 										onPreviewGenerated={handlePreviewGenerated}
 										onBack={() => setActiveStep(1)}
 									/>

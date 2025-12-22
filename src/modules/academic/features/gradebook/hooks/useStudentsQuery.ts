@@ -1,25 +1,28 @@
 'use client';
 
-import { getStudentsByModuleId } from '@registry/students';
+import { getStudentsBySemesterModules } from '@registry/students';
 
-export type Student = Awaited<ReturnType<typeof getStudentsByModuleId>>[number];
+export type Student = Awaited<
+	ReturnType<typeof getStudentsBySemesterModules>
+>[number];
 
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 
 type UseStudentsQueryParams = {
-	moduleId: number;
+	semesterModuleIds: number[];
 	searchQuery: string;
 };
 
 export function useStudentsQuery({
-	moduleId,
+	semesterModuleIds,
 	searchQuery,
 }: UseStudentsQueryParams) {
 	const [programId] = useQueryState('programId');
 	return useQuery({
-		queryKey: ['students', moduleId],
-		queryFn: () => getStudentsByModuleId(moduleId),
+		queryKey: ['students', semesterModuleIds],
+		queryFn: () => getStudentsBySemesterModules(semesterModuleIds),
+		enabled: semesterModuleIds.length > 0,
 		select(data) {
 			let filteredData = data;
 

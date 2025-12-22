@@ -12,15 +12,20 @@ export default async function GradebookModuleView({ params }: Props) {
 
 	const modules = await getAssignedModuleByUserAndModule(Number(id));
 
-	if (!modules) {
+	if (!modules || modules.length === 0) {
 		return notFound();
 	}
+
+	const semesterModuleIds = modules.map((m) => m.semesterModuleId);
 
 	return (
 		<Container size='xl' p='md'>
 			<ModuleDetailsCard modules={modules} moduleId={Number(id)} />
 			<Paper withBorder radius='md' shadow='sm' p='lg'>
-				<StudentTable moduleId={Number(id)} />
+				<StudentTable
+					moduleId={Number(id)}
+					semesterModuleIds={semesterModuleIds}
+				/>
 			</Paper>
 		</Container>
 	);

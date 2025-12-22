@@ -118,6 +118,7 @@ export default function ModuleDetailsCard({
 					/>
 					<ExportButton
 						moduleId={moduleId}
+						semesterModuleIds={modules.map((m) => m.semesterModuleId)}
 						moduleName={modules.at(0)?.semesterModule?.module?.name}
 						moduleCode={modules.at(0)?.semesterModule?.module?.code}
 						lecturerName={session?.user?.name || 'Unknown Lecturer'}

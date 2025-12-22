@@ -37,6 +37,7 @@ import {
 type Props = {
 	courseId: number;
 	moduleId: number;
+	semesterModuleIds: number[];
 };
 
 interface ThProps {
@@ -110,7 +111,11 @@ function sortData(
 		});
 }
 
-export default function LMSStudentTable({ courseId, moduleId }: Props) {
+export default function LMSStudentTable({
+	courseId,
+	moduleId,
+	semesterModuleIds,
+}: Props) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState<keyof Student | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
@@ -118,7 +123,7 @@ export default function LMSStudentTable({ courseId, moduleId }: Props) {
 	const { data: studentsData, isLoading: studentsLoading } =
 		useLMSStudentsQuery({
 			courseId,
-			moduleId,
+			semesterModuleIds,
 			searchQuery: '',
 		});
 
@@ -392,6 +397,7 @@ export default function LMSStudentTable({ courseId, moduleId }: Props) {
 				{assessments && assessments.length > 0 && (
 					<ExcelImport
 						moduleId={moduleId}
+						semesterModuleIds={semesterModuleIds}
 						assessments={assessments.map((assessment) => ({
 							id: assessment.id,
 							assessmentType: assessment.assessmentType,

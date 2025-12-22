@@ -65,10 +65,11 @@ class StudentService {
 		}, ['auth']);
 	}
 
-	async findByModuleId(moduleId: number) {
+	async findBySemesterModules(semesterModuleIds: number[]) {
 		const term = await getCurrentTerm();
 		return withAuth(
-			async () => this.repository.findByModuleId(moduleId, term.code),
+			async () =>
+				this.repository.findBySemesterModules(semesterModuleIds, term.code),
 			['dashboard']
 		);
 	}
