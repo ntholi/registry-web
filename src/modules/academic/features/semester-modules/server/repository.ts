@@ -273,6 +273,15 @@ export default class SemesterModuleRepository extends BaseRepository<
 	}
 
 	async searchModulesWithDetails(search = '') {
+		const activeTerm = await db.query.terms.findFirst({
+			where: eq(terms.isActive, true),
+			columns: { code: true },
+		});
+
+		if (!activeTerm) {
+			return [];
+		}
+
 		const results = await db
 			.select({
 				semesterModuleId: semesterModules.id,
@@ -286,6 +295,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 				programId: programs.id,
 				programName: programs.name,
 				programCode: programs.code,
+				studentCount: count(studentSemesters.id),
 			})
 			.from(semesterModules)
 			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
@@ -295,17 +305,40 @@ export default class SemesterModuleRepository extends BaseRepository<
 			)
 			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
-			.where(
+			.leftJoin(
+				studentModules,
+				eq(studentModules.semesterModuleId, semesterModules.id)
+			)
+			.leftJoin(
+				studentSemesters,
 				and(
-					search
-						? or(
-								like(modules.code, `%${search}%`),
-								like(modules.name, `%${search}%`)
-							)
-						: undefined
+					eq(studentSemesters.id, studentModules.studentSemesterId),
+					eq(studentSemesters.term, activeTerm.code)
 				)
 			)
-			.orderBy(desc(semesterModules.id));
+			.where(
+				search
+					? or(
+							like(modules.code, `%${search}%`),
+							like(modules.name, `%${search}%`)
+						)
+					: undefined
+			)
+			.groupBy(
+				semesterModules.id,
+				semesterModules.semesterId,
+				modules.code,
+				modules.name,
+				modules.id,
+				structureSemesters.id,
+				structureSemesters.name,
+				structureSemesters.structureId,
+				programs.id,
+				programs.name,
+				programs.code
+			)
+			.orderBy(desc(semesterModules.id))
+			.limit(50);
 
 		const groupedModules = new Map<string, ModuleInfo>();
 		for (const it of results) {
@@ -320,10 +353,6 @@ export default class SemesterModuleRepository extends BaseRepository<
 				});
 			}
 
-			const studentCount = await this.getStudentCountForPreviousSemester(
-				it.semesterModuleId
-			);
-
 			groupedModules.get(key)?.semesters.push({
 				semesterModuleId: it.semesterModuleId,
 				semesterId: it.semesterId!,
@@ -333,7 +362,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 				programId: it.programId,
 				programName: it.programName,
 				programCode: it.programCode,
-				studentCount,
+				studentCount: it.studentCount,
 			});
 		}
 		return Array.from(groupedModules.values());
