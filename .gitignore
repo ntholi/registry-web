@@ -48,7 +48,6 @@ test.db
 data/*
 .vercel
 webtest.db
-/.claude
 /.windsurf
 /.idea
 /.agent
