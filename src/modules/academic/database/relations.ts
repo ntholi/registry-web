@@ -1,6 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { users } from '@/modules/auth/database';
-import { terms } from '@/modules/registry/database';
+import { studentModules, terms } from '@/modules/registry/database';
 import {
 	assessmentMarks,
 	assessmentMarksAudit,
@@ -131,6 +131,10 @@ export const assessmentMarksRelations = relations(
 		assessment: one(assessments, {
 			fields: [assessmentMarks.assessmentId],
 			references: [assessments.id],
+		}),
+		studentModule: one(studentModules, {
+			fields: [assessmentMarks.studentModuleId],
+			references: [studentModules.id],
 		}),
 		audits: many(assessmentMarksAudit),
 	})

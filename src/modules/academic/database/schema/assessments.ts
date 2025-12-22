@@ -1,5 +1,4 @@
 import {
-	bigint,
 	boolean,
 	index,
 	integer,
@@ -12,7 +11,7 @@ import {
 	unique,
 } from 'drizzle-orm/pg-core';
 import { users } from '@/modules/auth/database';
-import { terms } from '@/modules/registry/database';
+import { studentModules, terms } from '@/modules/registry/database';
 import {
 	assessmentMarksAuditAction,
 	assessmentNumber,
@@ -93,7 +92,9 @@ export const assessmentMarks = pgTable(
 		assessmentId: integer()
 			.references(() => assessments.id, { onDelete: 'cascade' })
 			.notNull(),
-		stdNo: bigint({ mode: 'number' }).notNull(),
+		studentModuleId: integer()
+			.references(() => studentModules.id, { onDelete: 'cascade' })
+			.notNull(),
 		marks: real().notNull(),
 		createdAt: timestamp().defaultNow(),
 	},
@@ -101,11 +102,12 @@ export const assessmentMarks = pgTable(
 		assessmentIdIdx: index('fk_assessment_marks_assessment_id').on(
 			table.assessmentId
 		),
-		stdNoIdx: index('fk_assessment_marks_std_no').on(table.stdNo),
-		assessmentIdStdNoIdx: index('idx_assessment_marks_assessment_id_std_no').on(
-			table.assessmentId,
-			table.stdNo
+		studentModuleIdIdx: index('fk_assessment_marks_student_module_id').on(
+			table.studentModuleId
 		),
+		assessmentIdStudentModuleIdIdx: index(
+			'idx_assessment_marks_assessment_id_student_module_id'
+		).on(table.assessmentId, table.studentModuleId),
 	})
 );
 
