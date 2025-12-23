@@ -9,11 +9,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useEffect, useRef } from 'react';
 import { z } from 'zod';
-import { getAssessmentByModuleId } from '@/modules/academic/features/assessments/server/actions';
 import {
 	ASSESSMENT_TYPES,
 	COURSE_WORK_OPTIONS,
-} from '@/modules/academic/features/assessments/utils';
+} from '@/app/academic/assessments/_lib/utils';
+import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
 import { createAssignment } from '../../server/actions';
 import AttachmentsSection from './AttachmentsSection';
 import ContentTabs from './ContentTabs';

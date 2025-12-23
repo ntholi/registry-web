@@ -16,8 +16,11 @@ import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { assessments } from '@/modules/academic/database';
-import { getAssessmentByModuleId } from '../server/actions';
-import { getAssessmentNumberLabel, getAssessmentTypeLabel } from '../utils';
+import {
+	getAssessmentNumberLabel,
+	getAssessmentTypeLabel,
+} from '../_lib/utils';
+import { getAssessmentByModuleId } from '../_server/actions';
 import AssessmentAuditModal from './AssessmentAuditModal';
 import AssessmentDelete from './AssessmentDelete';
 import AssessmentModal from './AssessmentModal';

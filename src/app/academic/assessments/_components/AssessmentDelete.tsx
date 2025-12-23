@@ -7,8 +7,8 @@ import { IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { assessments } from '@/modules/academic/database';
 import { DeleteModal } from '@/shared/ui/adease';
-import { deleteAssessment } from '../server/actions';
-import { getAssessmentTypeLabel } from '../utils';
+import { getAssessmentTypeLabel } from '../_lib/utils';
+import { deleteAssessment } from '../_server/actions';
 
 type Props = {
 	assessment: typeof assessments.$inferSelect;

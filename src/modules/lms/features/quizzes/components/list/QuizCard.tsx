@@ -26,7 +26,7 @@ import Link from 'next/link';
 import {
 	deleteAssessment,
 	getAssessmentByLmsId,
-} from '@/modules/academic/features/assessments/server/actions';
+} from '@/app/academic/assessments/_server/actions';
 import { DeleteModal } from '@/shared/ui/adease';
 import { deleteQuiz } from '../../server/actions';
 import type { MoodleQuiz } from '../../types';

@@ -9,8 +9,8 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { assessmentNumber } from '@/modules/academic/database';
 import { assessments } from '@/modules/academic/database';
-import { createAssessment, updateAssessment } from '../server/actions';
-import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from '../utils';
+import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from '../_lib/utils';
+import { createAssessment, updateAssessment } from '../_server/actions';
 
 type AssessmentNumberType = (typeof assessmentNumber.enumValues)[number];
 type Assessment = typeof assessments.$inferSelect;

@@ -1,9 +1,9 @@
 'use server';
 
+import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
 import { auth } from '@/core/auth';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
-import { createAssessment as createAcademicAssessment } from '@/modules/academic/features/assessments/server/actions';
 import { studentRepository } from '@/modules/lms/features/students/server/repository';
 import { getOrReuseSection } from '@/modules/lms/shared/utils';
 import { getActiveTerm } from '@/modules/registry/features/dates/terms';

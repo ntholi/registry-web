@@ -29,8 +29,11 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import type { assessments } from '@/modules/academic/database';
 import { generateAssessmentAuditMessage } from '@/shared/lib/utils/auditUtils';
-import { getAssessmentAuditHistory } from '../server/actions';
-import { getAssessmentNumberLabel, getAssessmentTypeLabel } from '../utils';
+import {
+	getAssessmentNumberLabel,
+	getAssessmentTypeLabel,
+} from '../_lib/utils';
+import { getAssessmentAuditHistory } from '../_server/actions';
 
 interface Props {
 	assessment: NonNullable<typeof assessments.$inferSelect>;

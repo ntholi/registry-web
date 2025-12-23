@@ -22,11 +22,11 @@ import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { getAssessmentByModuleId } from '@/modules/academic/features/assessments/server/actions';
 import {
 	ASSESSMENT_TYPES,
 	COURSE_WORK_OPTIONS,
-} from '@/modules/academic/features/assessments/utils';
+} from '@/app/academic/assessments/_lib/utils';
+import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
 import { createQuiz } from '../../server/actions';
 import type { Question, QuizFormValues } from '../../types';
 import QuestionCard, { createDefaultQuestion } from './QuestionCard';
