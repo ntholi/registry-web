@@ -25,7 +25,7 @@
 			"@registry/*": ["./src/modules/registry/features/*"],
 			"@student-portal/*": ["./src/modules/student-portal/features/*"],
 			"@finance/*": ["./src/modules/finance/features/*"],
-			"@admin/*": ["./src/modules/admin/features/*"],
+			"@admin/*": ["./src/app/admin/*"],
 			"@lms/*": ["./src/modules/lms/features/*"],
 			"@timetable/*": ["./src/app/timetable/*"],
 			"@auth/*": ["./src/modules/auth/features/*"],

@@ -1,8 +1,8 @@
 'use client';
 
-import { findAllNotifications } from '@admin/notifications';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import { findAllNotifications } from './_server/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (

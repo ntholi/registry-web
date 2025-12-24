@@ -1,11 +1,11 @@
+import { Box } from '@mantine/core';
+import { notFound } from 'next/navigation';
+import Form from '../../_components/Form';
 import {
-	Form,
 	getNotification,
 	getRecipientUserIds,
 	updateNotification,
-} from '@admin/notifications';
-import { Box } from '@mantine/core';
-import { notFound } from 'next/navigation';
+} from '../../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

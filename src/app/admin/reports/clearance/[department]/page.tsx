@@ -1,12 +1,5 @@
 'use client';
 
-import { StatsTable } from '@admin/reports';
-import { fetchClearanceStats, StatsSummary } from '@admin/reports/clearance';
-import type {
-	ClearanceFilter,
-	ClearanceType,
-} from '@admin/reports/clearance/server/repository';
-import type { ClearanceStatsSummary } from '@admin/reports/clearance/server/service';
 import {
 	Button,
 	Card,
@@ -23,6 +16,11 @@ import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import type { DashboardUser } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
+import { StatsSummary } from '../_components/StatsSummary';
+import { StatsTable } from '../_components/StatsTable';
+import { fetchClearanceStats } from '../_server/actions';
+import type { ClearanceFilter, ClearanceType } from '../_server/repository';
+import type { ClearanceStatsSummary } from '../_server/service';
 
 export default function ClearanceReportsPage() {
 	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([

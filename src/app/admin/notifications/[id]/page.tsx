@@ -1,4 +1,3 @@
-import { deleteNotification, getNotification } from '@admin/notifications';
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import { getBooleanColor } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
@@ -9,6 +8,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import { deleteNotification, getNotification } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
