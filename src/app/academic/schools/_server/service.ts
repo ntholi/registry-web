@@ -19,7 +19,14 @@ class SchoolService {
 		return withAuth(async () => this.repository.findAll(), ['dashboard']);
 	}
 
-	async getProgramsBySchoolId(schoolId: number) {
+	async getActiveSchools() {
+		return withAuth(
+			async () => this.repository.getActiveSchools(),
+			['dashboard']
+		);
+	}
+
+	async getProgramsBySchoolId(schoolId?: number) {
 		return withAuth(
 			async () => this.repository.getProgramsBySchoolId(schoolId),
 			['dashboard']

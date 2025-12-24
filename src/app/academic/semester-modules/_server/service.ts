@@ -58,29 +58,6 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 		);
 	}
 
-	async getSchools() {
-		return withAuth(
-			async () => (this.repository as ModuleRepository).getSchools(),
-			['dashboard']
-		);
-	}
-
-	async getProgramsBySchool(schoolId: number) {
-		return withAuth(
-			async () =>
-				(this.repository as ModuleRepository).getProgramsBySchool(schoolId),
-			['dashboard']
-		);
-	}
-
-	async getStructuresByProgram(programId: number) {
-		return withAuth(
-			async () =>
-				(this.repository as ModuleRepository).getStructuresByProgram(programId),
-			['dashboard']
-		);
-	}
-
 	async getStructuresByModule(moduleId: number) {
 		return withAuth(
 			async () =>
@@ -182,6 +159,14 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 					weightedTotal
 				),
 			['academic']
+		);
+	}
+
+	async deleteSemesterModule(id: number) {
+		return withAuth(
+			async () =>
+				(this.repository as ModuleRepository).deleteSemesterModule(id),
+			['registry']
 		);
 	}
 }

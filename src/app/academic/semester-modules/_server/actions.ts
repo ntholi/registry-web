@@ -75,18 +75,6 @@ export async function getModulesByStructure(structureId: number) {
 	return await semesterModulesService.getModulesByStructure(structureId);
 }
 
-export async function getSchools() {
-	return await semesterModulesService.getSchools();
-}
-
-export async function getProgramsBySchool(schoolId: number) {
-	return await semesterModulesService.getProgramsBySchool(schoolId);
-}
-
-export async function getStructuresByProgram(programId: number) {
-	return await semesterModulesService.getStructuresByProgram(programId);
-}
-
 export async function getStructuresByModule(moduleId: number) {
 	return await semesterModulesService.getStructuresByModule(moduleId);
 }
@@ -147,4 +135,8 @@ export async function updateGradeByStudentModuleId(
 		grade,
 		weightedTotal
 	);
+}
+
+export async function deleteSemesterModule(id: number) {
+	return semesterModulesService.deleteSemesterModule(id);
 }

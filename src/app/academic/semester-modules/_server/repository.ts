@@ -5,7 +5,6 @@ import {
 	modulePrerequisites,
 	modules,
 	programs,
-	schools,
 	semesterModules,
 	structureSemesters,
 	structures,
@@ -218,18 +217,6 @@ export default class SemesterModuleRepository extends BaseRepository<
 		return semestersWithModules;
 	}
 
-	async getSchools() {
-		return db.select().from(schools).orderBy(schools.id);
-	}
-
-	async getProgramsBySchool(schoolId: number) {
-		return db
-			.select()
-			.from(programs)
-			.where(eq(programs.schoolId, schoolId))
-			.orderBy(programs.code);
-	}
-
 	async getStructuresByModule(moduleId: number) {
 		return db
 			.select({
@@ -249,14 +236,6 @@ export default class SemesterModuleRepository extends BaseRepository<
 			.groupBy(structures.id, structures.code, programs.id, programs.name)
 			.orderBy(programs.name, structures.code)
 			.limit(20);
-	}
-
-	async getStructuresByProgram(programId: number) {
-		return db
-			.select()
-			.from(structures)
-			.where(eq(structures.programId, programId))
-			.orderBy(desc(structures.id));
 	}
 
 	async getModulesForStructure(structureId: number) {
@@ -606,6 +585,10 @@ export default class SemesterModuleRepository extends BaseRepository<
 		}
 
 		return updated[0];
+	}
+
+	async deleteSemesterModule(id: number) {
+		await db.delete(semesterModules).where(eq(semesterModules.id, id));
 	}
 }
 

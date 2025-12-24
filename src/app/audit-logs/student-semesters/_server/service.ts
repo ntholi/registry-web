@@ -22,12 +22,6 @@ class StudentSemesterSyncService extends BaseService<
 		});
 	}
 
-	async getStructureSemestersByStructureId(structureId: number) {
-		return withAuth(async () => {
-			return this.repository.getStructureSemestersByStructureId(structureId);
-		}, ['registry', 'admin']);
-	}
-
 	async updateStudentSemester(
 		studentSemesterId: number,
 		updates: StudentSemesterUpdate,

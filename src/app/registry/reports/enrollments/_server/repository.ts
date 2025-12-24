@@ -615,37 +615,6 @@ export class RegistrationReportRepository {
 		return await db.select().from(terms).orderBy(desc(terms.code));
 	}
 
-	async getAvailableSchools() {
-		return await db
-			.select({
-				id: schools.id,
-				code: schools.code,
-				name: schools.name,
-			})
-			.from(schools)
-			.where(eq(schools.isActive, true))
-			.orderBy(schools.code);
-	}
-
-	async getAvailablePrograms(schoolId?: number) {
-		const baseQuery = db
-			.select({
-				id: programs.id,
-				code: programs.code,
-				name: programs.name,
-				schoolId: programs.schoolId,
-			})
-			.from(programs);
-
-		if (schoolId) {
-			return await baseQuery
-				.where(eq(programs.schoolId, schoolId))
-				.orderBy(desc(programs.id));
-		}
-
-		return await baseQuery.orderBy(desc(programs.id));
-	}
-
 	async getChartData(
 		termCode: string,
 		filter?: RegistrationReportFilter
@@ -672,16 +641,6 @@ export class RegistrationReportRepository {
 
 		const result = await query.where(and(...conditions));
 		return this.aggregateChartData(result);
-	}
-
-	async getAvailableSponsors() {
-		return await db
-			.select({
-				id: sponsors.id,
-				name: sponsors.name,
-			})
-			.from(sponsors)
-			.orderBy(sponsors.name);
 	}
 
 	async getAvailableCountries() {

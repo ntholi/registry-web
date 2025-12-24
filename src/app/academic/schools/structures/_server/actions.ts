@@ -1,5 +1,6 @@
 'use server';
 
+import { deleteSemesterModule as deleteSemesterModuleAction } from '@academic/semester-modules/_server/actions';
 import type { structures } from '@/core/database';
 import { structuresService as service } from './service';
 
@@ -10,7 +11,7 @@ export async function getStructure(id: number) {
 }
 
 export async function deleteSemesterModule(id: number) {
-	await service.deleteSemesterModule(id);
+	await deleteSemesterModuleAction(id);
 }
 
 export async function findAllStructures(page: number = 1, search = '') {
@@ -35,4 +36,8 @@ export async function getStructuresByProgramId(programId: number) {
 
 export async function getStructureModules(structureId: number) {
 	return service.getStructureModules(structureId);
+}
+
+export async function getStructureSemestersByStructureId(structureId: number) {
+	return service.getStructureSemestersByStructureId(structureId);
 }

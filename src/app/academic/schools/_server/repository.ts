@@ -10,16 +10,35 @@ export default class SchoolRepository extends BaseRepository<
 		super(schools, schools.id);
 	}
 
-	async getProgramsBySchoolId(schoolId: number) {
-		return db.query.programs.findMany({
-			columns: {
-				id: true,
-				name: true,
-				code: true,
-			},
-			where: eq(programs.schoolId, schoolId),
-			orderBy: desc(programs.id),
-		});
+	async getActiveSchools() {
+		return db
+			.select({
+				id: schools.id,
+				code: schools.code,
+				name: schools.name,
+			})
+			.from(schools)
+			.where(eq(schools.isActive, true))
+			.orderBy(schools.code);
+	}
+
+	async getProgramsBySchoolId(schoolId?: number) {
+		const baseQuery = db
+			.select({
+				id: programs.id,
+				code: programs.code,
+				name: programs.name,
+				schoolId: programs.schoolId,
+			})
+			.from(programs);
+
+		if (schoolId) {
+			return await baseQuery
+				.where(eq(programs.schoolId, schoolId))
+				.orderBy(desc(programs.id));
+		}
+
+		return await baseQuery.orderBy(desc(programs.id));
 	}
 
 	async getAllPrograms() {

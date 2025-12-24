@@ -1,7 +1,7 @@
 'use server';
 
 import { eq } from 'drizzle-orm';
-import { db, users } from '@/core/database';
+import { users } from '@/core/database';
 import { usersService as service } from './service';
 
 type User = typeof users.$inferInsert;
@@ -52,13 +52,6 @@ export async function updateUserSchools(userId: string, schoolIds: number[]) {
 
 export async function deleteUser(id: string) {
 	return service.delete(id);
-}
-
-export async function findAllSchools() {
-	const result = await db.query.schools.findMany({
-		orderBy: (schools) => [schools.name],
-	});
-	return { data: result };
 }
 
 export async function getUserSchoolIds(userId?: string) {

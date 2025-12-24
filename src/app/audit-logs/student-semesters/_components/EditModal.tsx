@@ -1,5 +1,6 @@
 'use client';
 
+import { getStructureSemestersByStructureId } from '@academic/schools/structures/_server/actions';
 import { getAllSponsors } from '@finance/sponsors';
 import {
 	ActionIcon,
@@ -25,7 +26,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import AuditHistoryTab from '../../_components/AuditHistoryTab';
 import {
-	getStructureSemestersByStructureId,
 	getStudentSemesterAuditHistory,
 	updateStudentSemester,
 } from '../_server/actions';

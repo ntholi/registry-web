@@ -27,20 +27,22 @@ class StructureService extends BaseService<typeof structures, 'id'> {
 		);
 	}
 
-	async deleteSemesterModule(id: number) {
-		withAuth(
-			async () =>
-				(this.repository as StructureRepository).deleteSemesterModule(id),
-			[]
-		);
-	}
-
 	async getStructureModules(structureId: number) {
 		return withAuth(
 			async () =>
 				(this.repository as StructureRepository).getStructureModules(
 					structureId
 				),
+			['dashboard']
+		);
+	}
+
+	async getStructureSemestersByStructureId(structureId: number) {
+		return withAuth(
+			async () =>
+				(
+					this.repository as StructureRepository
+				).getStructureSemestersByStructureId(structureId),
 			['dashboard']
 		);
 	}

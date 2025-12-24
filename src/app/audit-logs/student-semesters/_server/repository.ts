@@ -1,7 +1,6 @@
 import { eq } from 'drizzle-orm';
 import {
 	db,
-	structureSemesters,
 	studentSemesterAuditLogs,
 	studentSemesters,
 } from '@/core/database';
@@ -58,14 +57,6 @@ export default class StudentSemesterSyncRepository extends BaseRepository<
 			.set({ syncedAt: new Date() })
 			.where(eq(studentSemesterAuditLogs.id, id))
 			.returning();
-	}
-
-	async getStructureSemestersByStructureId(structureId: number) {
-		return db.query.structureSemesters.findMany({
-			where: eq(structureSemesters.structureId, structureId),
-			columns: { id: true, name: true, semesterNumber: true },
-			orderBy: (sems, { asc }) => [asc(sems.semesterNumber)],
-		});
 	}
 
 	async updateStudentSemesterWithAudit(

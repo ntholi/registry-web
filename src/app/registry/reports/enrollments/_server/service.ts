@@ -159,18 +159,6 @@ export class RegistrationReportService {
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
-	async getAvailableSchools() {
-		return withAuth(async () => {
-			return await this.repository.getAvailableSchools();
-		}, ['registry', 'admin', 'finance', 'academic']);
-	}
-
-	async getAvailablePrograms(schoolId?: number) {
-		return withAuth(async () => {
-			return await this.repository.getAvailablePrograms(schoolId);
-		}, ['registry', 'admin', 'finance', 'academic']);
-	}
-
 	async getChartData(termIds: number[], filter?: RegistrationReportFilter) {
 		return withAuth(async () => {
 			const terms = await this.repository.getTermsByIds(termIds);
@@ -183,12 +171,6 @@ export class RegistrationReportService {
 				termCodes,
 				filter
 			);
-		}, ['registry', 'admin', 'finance', 'academic']);
-	}
-
-	async getAvailableSponsors() {
-		return withAuth(async () => {
-			return await this.repository.getAvailableSponsors();
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 

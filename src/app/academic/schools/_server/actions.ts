@@ -13,11 +13,15 @@ export async function getAllSchools() {
 	return data.items;
 }
 
+export async function getActiveSchools() {
+	return service.getActiveSchools();
+}
+
 export async function getSchool(id: number) {
 	return service.get(id);
 }
 
-export async function getProgramsBySchoolId(schoolId: number) {
+export async function getProgramsBySchoolId(schoolId?: number) {
 	return service.getProgramsBySchoolId(schoolId);
 }
 

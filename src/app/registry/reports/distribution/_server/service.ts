@@ -27,18 +27,6 @@ export class DistributionReportService {
 			return await this.repository.getAllActiveTerms();
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
-
-	async getAvailableSchools() {
-		return withAuth(async () => {
-			return await this.repository.getAvailableSchools();
-		}, ['registry', 'admin', 'finance', 'academic']);
-	}
-
-	async getAvailablePrograms(schoolId?: number) {
-		return withAuth(async () => {
-			return await this.repository.getAvailablePrograms(schoolId);
-		}, ['registry', 'admin', 'finance', 'academic']);
-	}
 }
 
 export const distributionReportService = serviceWrapper(

@@ -1,6 +1,6 @@
 'use client';
 
-import type { schools } from '@academic/_database';
+import { getAllSchools } from '@academic/schools/_server/actions';
 import type { users } from '@auth/_database';
 import { userPositions, userRoles } from '@auth/_database';
 import {
@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
-import { findAllSchools, getUserSchools } from '../_server/actions';
+import { getUserSchools } from '../_server/actions';
 
 type User = typeof users.$inferInsert;
 
@@ -43,9 +43,9 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 	const [selectedSchools, setSelectedSchools] = useState<string[]>([]);
 	const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
 
-	const { data: schoolsData } = useQuery({
+	const { data: schools } = useQuery({
 		queryKey: ['schools'],
-		queryFn: () => findAllSchools(),
+		queryFn: () => getAllSchools(),
 	});
 
 	const { data: userSchoolsData } = useQuery({
@@ -57,8 +57,8 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 		enabled: !!defaultValues?.id,
 	});
 
-	const schoolsOptions = schoolsData?.data
-		? schoolsData.data.map((school: typeof schools.$inferSelect) => ({
+	const schoolsOptions = schools
+		? schools.map((school) => ({
 				value: school.id.toString(),
 				label: school.name,
 			}))

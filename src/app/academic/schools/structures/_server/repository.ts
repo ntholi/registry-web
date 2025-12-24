@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { db, semesterModules, structures } from '@/core/database';
+import { db, structureSemesters, structures } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class StructureRepository extends BaseRepository<
@@ -90,10 +90,6 @@ export default class StructureRepository extends BaseRepository<
 		};
 	}
 
-	async deleteSemesterModule(id: number) {
-		await db.delete(semesterModules).where(eq(semesterModules.id, id));
-	}
-
 	async getStructureModules(structureId: number) {
 		const structure = await db.query.structures.findFirst({
 			where: () => eq(structures.id, structureId),
@@ -128,6 +124,14 @@ export default class StructureRepository extends BaseRepository<
 			.filter((mod) => mod.moduleId && mod.code && mod.name);
 
 		return modules;
+	}
+
+	async getStructureSemestersByStructureId(structureId: number) {
+		return db.query.structureSemesters.findMany({
+			where: eq(structureSemesters.structureId, structureId),
+			columns: { id: true, name: true, semesterNumber: true },
+			orderBy: (sems, { asc }) => [asc(sems.semesterNumber)],
+		});
 	}
 }
 

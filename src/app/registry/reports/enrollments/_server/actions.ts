@@ -1,5 +1,10 @@
 'use server';
 
+import {
+	getActiveSchools,
+	getProgramsBySchoolId,
+} from '@academic/schools/_server/actions';
+import { getAllSponsors } from '@finance/sponsors/_server/actions';
 import type { RegistrationReportFilter } from './repository';
 import { registrationReportService } from './service';
 
@@ -123,7 +128,7 @@ export async function getPaginatedRegistrationStudents(
 
 export async function getAvailableSchoolsForReports() {
 	try {
-		const schools = await registrationReportService.getAvailableSchools();
+		const schools = await getActiveSchools();
 		return { success: true, data: schools };
 	} catch (error) {
 		console.error('Error fetching available schools:', error);
@@ -136,8 +141,7 @@ export async function getAvailableSchoolsForReports() {
 
 export async function getAvailableProgramsForReports(schoolId?: number) {
 	try {
-		const programs =
-			await registrationReportService.getAvailablePrograms(schoolId);
+		const programs = await getProgramsBySchoolId(schoolId);
 		return { success: true, data: programs };
 	} catch (error) {
 		console.error('Error fetching available programs:', error);
@@ -166,7 +170,7 @@ export async function getRegistrationChartData(
 
 export async function getAvailableSponsorsForReports() {
 	try {
-		const sponsors = await registrationReportService.getAvailableSponsors();
+		const sponsors = await getAllSponsors();
 		return { success: true, data: sponsors };
 	} catch (error) {
 		console.error('Error fetching available sponsors:', error);

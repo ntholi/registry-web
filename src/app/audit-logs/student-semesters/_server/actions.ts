@@ -26,10 +26,6 @@ export async function createSyncRecord(record: StudentSemesterSyncRecord) {
 	return service.create(record);
 }
 
-export async function getStructureSemestersByStructureId(structureId: number) {
-	return service.getStructureSemestersByStructureId(structureId);
-}
-
 export async function updateStudentSemester(
 	studentSemesterId: number,
 	updates: StudentSemesterUpdate,

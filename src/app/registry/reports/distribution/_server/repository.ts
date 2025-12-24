@@ -292,35 +292,4 @@ export class DistributionReportRepository {
 	async getAllActiveTerms() {
 		return await db.select().from(terms).orderBy(sql`${terms.code} DESC`);
 	}
-
-	async getAvailableSchools() {
-		return await db
-			.select({
-				id: schools.id,
-				code: schools.code,
-				name: schools.name,
-			})
-			.from(schools)
-			.where(eq(schools.isActive, true))
-			.orderBy(schools.code);
-	}
-
-	async getAvailablePrograms(schoolId?: number) {
-		const baseQuery = db
-			.select({
-				id: programs.id,
-				code: programs.code,
-				name: programs.name,
-				schoolId: programs.schoolId,
-			})
-			.from(programs);
-
-		if (schoolId) {
-			return await baseQuery
-				.where(eq(programs.schoolId, schoolId))
-				.orderBy(programs.code);
-		}
-
-		return await baseQuery.orderBy(programs.code);
-	}
 }
