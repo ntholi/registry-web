@@ -1,8 +1,8 @@
-import AssignedModules from '../_components/AssignedModules';
-import ModuleAssignModal from '../_components/ModuleAssignModal';
 import { getUser } from '@admin/users';
 import { Box, Divider, Flex, Stack, Text, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import AssignedModules from '../_components/AssignedModules';
+import ModuleAssignModal from '../_components/ModuleAssignModal';
 
 type Props = {
 	params: Promise<{ id: string }>;

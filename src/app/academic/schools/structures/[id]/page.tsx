@@ -1,9 +1,5 @@
 'use client';
 
-import EditButton from '../../_components/EditButton';
-import HideButton from '../../_components/HideButton';
-import PrerequisiteDisplay from '../../_components/PrerequisiteDisplay';
-import { getStructure } from '../_server/actions';
 import {
 	Box,
 	Breadcrumbs,
@@ -31,6 +27,10 @@ import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
+import EditButton from '../../_components/EditButton';
+import HideButton from '../../_components/HideButton';
+import PrerequisiteDisplay from '../../_components/PrerequisiteDisplay';
+import { getStructure } from '../_server/actions';
 
 export default function StructureDetailsPage() {
 	const params = useParams();

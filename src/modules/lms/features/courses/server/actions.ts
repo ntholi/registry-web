@@ -1,8 +1,8 @@
 'use server';
 
+import { assignedModulesRepository } from '@academic/assigned-modules/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
-import { assignedModulesRepository } from '@academic/assigned-modules/_server/repository';
 import type { MoodleCourse } from '../types';
 
 export async function getUserCourses(): Promise<MoodleCourse[]> {

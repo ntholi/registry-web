@@ -1,8 +1,8 @@
 'use client';
 
-import { findAllModules } from './_server/actions';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import { findAllModules } from './_server/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (

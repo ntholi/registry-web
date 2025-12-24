@@ -1,9 +1,4 @@
 import {
-	deleteModule,
-	getModulePrerequisites,
-	getSemesterModule,
-} from '../_server/actions';
-import {
 	Fieldset,
 	List,
 	ListItem,
@@ -20,6 +15,11 @@ import {
 	FieldView,
 } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
+import {
+	deleteModule,
+	getModulePrerequisites,
+	getSemesterModule,
+} from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

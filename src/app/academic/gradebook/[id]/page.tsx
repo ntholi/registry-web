@@ -1,9 +1,8 @@
 import { getAssignedModuleByUserAndModule } from '@academic/assigned-modules';
 import { Stack } from '@mantine/core';
-
+import { notFound } from 'next/navigation';
 import ModuleDetailsCard from '../_components/ModuleDetailsCard';
 import StudentTable from '../_components/StudentTable';
-import { notFound } from 'next/navigation';
 
 type Props = {
 	params: Promise<{ id: string }>;

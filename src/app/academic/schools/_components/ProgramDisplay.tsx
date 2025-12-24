@@ -1,6 +1,5 @@
 'use client';
 
-import { getStructuresByProgramId } from '../structures/_server/actions';
 import {
 	Accordion,
 	Alert,
@@ -21,6 +20,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
+import { getStructuresByProgramId } from '../structures/_server/actions';
 
 type Structure = {
 	id: number;

@@ -1,6 +1,6 @@
+import { getActiveTerm } from '@registry/dates/terms';
 import ExcelJS from 'exceljs';
 import type { StudentModuleStatus, schools } from '@/core/database';
-import { getActiveTerm } from '@registry/dates/terms';
 import {
 	getAcademicRemarks,
 	summarizeModules,
