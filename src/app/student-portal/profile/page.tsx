@@ -1,13 +1,13 @@
 'use client';
 import { Center, Container, Stack, Text } from '@mantine/core';
+import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	AcademicInformation,
 	PersonalInformation,
 	ProfileHeader,
 	ProfileSkeleton,
 	SponsorshipInformation,
-} from '@student-portal/profile';
-import useUserStudent from '@/shared/lib/hooks/use-user-student';
+} from './_components';
 
 export default function Profile() {
 	const { student, program, semester, remarks, isLoading } = useUserStudent();

@@ -16,13 +16,6 @@ import {
 	Title,
 } from '@mantine/core';
 import { getRegistrationRequest } from '@registry/registration/requests';
-import {
-	ClearanceStatusView,
-	DepartmentMessagesView,
-	ModulesView,
-	ProofOfRegistrationDownload,
-} from '@student-portal/registration';
-import { getRegistrationOverallClearanceStatus as getOverallClearanceStatus } from '@student-portal/utils/status';
 import { IconBooks, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
@@ -31,6 +24,13 @@ import { MAX_REGISTRATION_ATTEMPTS } from '@/modules/registry/shared/constants';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import {
+	ClearanceStatusView,
+	DepartmentMessagesView,
+	ModulesView,
+	ProofOfRegistrationDownload,
+} from '../_components';
+import { getRegistrationOverallClearanceStatus as getOverallClearanceStatus } from '../_lib/status';
 
 type Props = {
 	params: Promise<{

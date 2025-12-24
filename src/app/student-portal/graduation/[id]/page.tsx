@@ -16,21 +16,18 @@ import {
 	Title,
 } from '@mantine/core';
 import { getGraduationRequest } from '@registry/graduation/clearance';
-import {
-	GraduationClearanceView,
-	PaymentReceiptsView,
-	ProofOfClearanceDownload,
-} from '@student-portal/graduation';
-import {
-	getClearanceStatus,
-	getGraduationStatus,
-} from '@student-portal/utils/status';
 import { IconReceipt } from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { formatDateTime } from '@/shared/lib/utils/utils';
+import {
+	GraduationClearanceView,
+	PaymentReceiptsView,
+	ProofOfClearanceDownload,
+} from '../_components';
+import { getClearanceStatus, getGraduationStatus } from '../_lib/status';
 
 type Props = {
 	params: Promise<{

@@ -14,17 +14,17 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getCleanedSemesters } from '@registry/students';
-import {
-	DesktopTable,
-	LoadingSkeleton,
-	MobileTable,
-	TranscriptDownloadButton,
-} from '@student-portal/transcripts';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import {
+	DesktopTable,
+	LoadingSkeleton,
+	MobileTable,
+	TranscriptDownloadButton,
+} from './_components';
 
 export default function TranscriptsPage() {
 	const { student, program, isLoading } = useUserStudent();

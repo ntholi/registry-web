@@ -23,7 +23,7 @@
 			"@/*": ["./src/*"],
 			"@academic/*": ["./src/app/academic/*"],
 			"@registry/*": ["./src/app/registry/*"],
-			"@student-portal/*": ["./src/modules/student-portal/features/*"],
+			"@student-portal/*": ["./src/app/student-portal/*"],
 			"@finance/*": ["./src/app/finance/*"],
 			"@admin/*": ["./src/app/admin/*"],
 			"@lms/*": ["./src/modules/lms/features/*"],

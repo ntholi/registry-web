@@ -21,12 +21,6 @@ import {
 	getStudentSemesterModules,
 } from '@registry/registration/requests';
 import {
-	AccountConfirmation,
-	ModuleSelection,
-	SemesterConfirmation,
-	SponsorshipDetails,
-} from '@student-portal/registration';
-import {
 	IconArrowLeft,
 	IconArrowRight,
 	IconInfoCircle,
@@ -38,6 +32,12 @@ import type { StudentModuleStatus } from '@/modules/registry/database';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import {
+	AccountConfirmation,
+	ModuleSelection,
+	SemesterConfirmation,
+	SponsorshipDetails,
+} from '../_components';
 
 type SelectedModule = {
 	moduleId: number;

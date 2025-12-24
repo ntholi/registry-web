@@ -19,12 +19,6 @@ import {
 	getGraduationRequestByStudentNo,
 } from '@registry/graduation/clearance';
 import {
-	InformationConfirmation,
-	PaymentReceiptsInput,
-	ProgramSelection,
-	ReviewAndSubmit,
-} from '@student-portal/graduation';
-import {
 	IconArrowLeft,
 	IconArrowRight,
 	IconInfoCircle,
@@ -34,6 +28,12 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { paymentType } from '@/modules/registry/database';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import {
+	InformationConfirmation,
+	PaymentReceiptsInput,
+	ProgramSelection,
+	ReviewAndSubmit,
+} from '../_components';
 
 type PaymentReceiptData = {
 	paymentType: (typeof paymentType.enumValues)[number];

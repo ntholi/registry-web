@@ -1,8 +1,8 @@
 'use client';
 
 import { Center, Container, Loader } from '@mantine/core';
-import { ActionButtons, Hero } from '@student-portal/home';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { ActionButtons, Hero } from './home';
 
 export default function Page() {
 	const {
