@@ -70,3 +70,11 @@ export async function checkModuleAssignment(
 export async function getAssignedModuleByLmsCourseId(lmsCourseId: string) {
 	return service.getByLmsCourseId(lmsCourseId);
 }
+
+export async function linkCourseToAssignment(
+	userId: string,
+	semesterModuleId: number,
+	lmsCourseId: string
+) {
+	return service.linkCourseToAssignment(userId, semesterModuleId, lmsCourseId);
+}

@@ -1,7 +1,7 @@
 'use server';
 
 import { getOrReuseSection } from '@lms/_shared/utils';
-import { studentRepository } from '@lms/students/_server/repository';
+import { findStudentsByLmsUserIdsForSubmissions } from '@lms/students';
 import { getActiveTerm } from '@registry/dates/terms';
 import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
 import { auth } from '@/core/auth';
@@ -556,9 +556,7 @@ async function enrichUsersWithDBStudentInfo(
 	}
 
 	const dbStudents =
-		await studentRepository.findStudentsByLmsUserIdsForSubmissions(
-			usersWithAttempts
-		);
+		await findStudentsByLmsUserIdsForSubmissions(usersWithAttempts);
 
 	return new Map(
 		dbStudents.map((s) => [s.lmsUserId!, { stdNo: s.stdNo, name: s.name }])

@@ -99,6 +99,22 @@ class AssignedModuleService {
 			['dashboard']
 		);
 	}
+
+	async linkCourseToAssignment(
+		userId: string,
+		semesterModuleId: number,
+		lmsCourseId: string
+	) {
+		return withAuth(
+			async () =>
+				this.repository.linkCourseToAssignment(
+					userId,
+					semesterModuleId,
+					lmsCourseId
+				),
+			['dashboard']
+		);
+	}
 }
 
 export const assignedModulesService = serviceWrapper(

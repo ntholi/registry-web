@@ -1,6 +1,6 @@
 'use server';
 
-import { assignedModulesRepository } from '@academic/assigned-modules/_server/repository';
+import { linkCourseToAssignment } from '@academic/assigned-modules';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type { MoodleCourse } from '../types';
@@ -79,11 +79,7 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 		process.env.MOODLE_TOKEN
 	);
 
-	await assignedModulesRepository.linkCourseToAssignment(
-		session.user.id,
-		semesterModuleId,
-		courseId
-	);
+	await linkCourseToAssignment(session.user.id, semesterModuleId, courseId);
 
 	return { courseId, shortname };
 }

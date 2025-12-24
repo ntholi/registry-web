@@ -1,6 +1,6 @@
 'use server';
 
-import { studentRepository } from '@lms/students/_server/repository';
+import { findStudentsByLmsUserIdsForSubmissions } from '@lms/students';
 import { auth } from '@/core/auth';
 import { moodleGet } from '@/core/integrations/moodle';
 import type { MoodleSubmission, SubmissionUser } from '../../../types';
@@ -25,9 +25,7 @@ async function enrichUsersWithDBStudentInfo(
 	}
 
 	const dbStudents =
-		await studentRepository.findStudentsByLmsUserIdsForSubmissions(
-			submittedUserIds
-		);
+		await findStudentsByLmsUserIdsForSubmissions(submittedUserIds);
 
 	return new Map(
 		dbStudents.map((s) => [s.lmsUserId!, { stdNo: s.stdNo, name: s.name }])

@@ -112,6 +112,17 @@ export async function searchStudentsForEnrollment(
 	return studentRepository.searchStudentsForEnrollment(searchCondition);
 }
 
+export async function findStudentsByLmsUserIdsForSubmissions(
+	lmsUserIds: number[]
+) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	return studentRepository.findStudentsByLmsUserIdsForSubmissions(lmsUserIds);
+}
+
 export async function enrollStudentInCourse(
 	courseId: number,
 	studentStdNo: number,
