@@ -21,7 +21,7 @@
 		],
 		"paths": {
 			"@/*": ["./src/*"],
-			"@academic/*": ["./src/modules/academic/features/*"],
+			"@academic/*": ["./src/app/academic/*"],
 			"@registry/*": ["./src/modules/registry/features/*"],
 			"@student-portal/*": ["./src/modules/student-portal/features/*"],
 			"@finance/*": ["./src/modules/finance/features/*"],

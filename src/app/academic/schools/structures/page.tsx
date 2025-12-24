@@ -1,10 +1,7 @@
 'use client';
 
-import {
-	getProgramsBySchoolId,
-	getSchool,
-	ProgramDisplay,
-} from '@academic/schools';
+import { getProgramsBySchoolId, getSchool } from '../_server/actions';
+import ProgramDisplay from '../_components/ProgramDisplay';
 import {
 	Accordion,
 	Card,

@@ -1,15 +1,5 @@
 'use client';
 import { getAssessmentTypeLabel } from '@academic/assessments';
-import GradeDisplay from '@academic/gradebook/_components/GradeDisplay';
-import GradeSymbolModal from '@academic/gradebook/_components/GradeSymbolModal';
-import ExcelImport from '@academic/gradebook/_components/import/ExcelImport';
-import MarksAuditModal from '@academic/gradebook/_components/MarksAuditModal';
-import MarksInput from '@academic/gradebook/_components/MarksInput';
-import {
-	useAssessmentMarksQuery,
-	useAssessmentsQuery,
-	useModuleGradesQuery,
-} from '@academic/gradebook/_hooks/useAssessmentsQuery';
 import {
 	Center,
 	CloseButton,
@@ -30,12 +20,17 @@ import {
 import React, { useState } from 'react';
 import Link from '@/shared/ui/Link';
 import {
-	type Student,
-	useLMSStudentsQuery,
-} from '../hooks/useLMSStudentsQuery';
+	useAssessmentMarksQuery,
+	useAssessmentsQuery,
+	useModuleGradesQuery,
+} from '../_hooks/useAssessmentsQuery';
+import { type Student, useStudentsQuery } from '../_hooks/useStudentsQuery';
+import GradeDisplay from './GradeDisplay';
+import GradeSymbolModal from './GradeSymbolModal';
+import MarksAuditModal from './MarksAuditModal';
+import MarksInput from './MarksInput';
 
 type Props = {
-	courseId: number;
 	moduleId: number;
 	semesterModuleIds: number[];
 };
@@ -111,21 +106,15 @@ function sortData(
 		});
 }
 
-export default function LMSStudentTable({
-	courseId,
-	moduleId,
-	semesterModuleIds,
-}: Props) {
+export default function StudentTable({ moduleId, semesterModuleIds }: Props) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState<keyof Student | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
 
-	const { data: studentsData, isLoading: studentsLoading } =
-		useLMSStudentsQuery({
-			courseId,
-			semesterModuleIds,
-			searchQuery: '',
-		});
+	const { data: studentsData, isLoading: studentsLoading } = useStudentsQuery({
+		semesterModuleIds,
+		searchQuery: '',
+	});
 
 	const setSorting = (field: keyof Student) => {
 		const reversed = field === sortBy ? !reverseSortDirection : false;
@@ -277,10 +266,10 @@ export default function LMSStudentTable({
 				<Table.Tr>
 					<Table.Td colSpan={assessments ? assessments.length + 4 : 4}>
 						<Center p='md'>
-							<Text size='sm' c='dimmed'>
+							<Text>
 								{searchQuery
 									? 'No students match your search.'
-									: 'No students enrolled in this course.'}
+									: 'No students found.'}
 							</Text>
 						</Center>
 					</Table.Td>
@@ -376,13 +365,13 @@ export default function LMSStudentTable({
 		});
 	}
 	return (
-		<Stack>
+		<Stack gap='md'>
 			<Group justify='space-between' align='center' wrap='nowrap'>
 				<TextInput
 					placeholder='Search by name or student number'
 					value={searchQuery}
 					onChange={(event) => setSearchQuery(event.currentTarget.value)}
-					style={{ flex: 1 }}
+					style={{ flex: 1, maxWidth: 400 }}
 					rightSection={
 						searchQuery ? (
 							<CloseButton
@@ -392,20 +381,13 @@ export default function LMSStudentTable({
 							/>
 						) : null
 					}
-					leftSection={<IconSearch size='1.2rem' />}
+					leftSection={<IconSearch size='1rem' />}
 				/>
-				{assessments && assessments.length > 0 && (
-					<ExcelImport
-						moduleId={moduleId}
-						semesterModuleIds={semesterModuleIds}
-						assessments={assessments.map((assessment) => ({
-							id: assessment.id,
-							assessmentType: assessment.assessmentType,
-							assessmentNumber: assessment.assessmentNumber,
-							totalMarks: assessment.totalMarks,
-							weight: assessment.weight,
-						}))}
-					/>
+				{!studentsLoading && studentsData && (
+					<Text size='sm' c='dimmed'>
+						{sortedStudents.length} student
+						{sortedStudents.length !== 1 ? 's' : ''}
+					</Text>
 				)}
 			</Group>
 

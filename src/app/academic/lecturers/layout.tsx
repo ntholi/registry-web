@@ -1,6 +1,6 @@
 'use client';
 
-import { getLecturers } from '@academic/lecturers';
+import { getLecturers } from './_server/actions';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 

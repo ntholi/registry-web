@@ -1,4 +1,4 @@
-import { Body } from '@academic/reports/boe';
+import Body from './_components/Body';
 
 export default function page() {
 	return <Body />;

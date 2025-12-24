@@ -1,4 +1,5 @@
-import { AssignedModules, ModuleAssignModal } from '@academic/lecturers';
+import AssignedModules from '../_components/AssignedModules';
+import ModuleAssignModal from '../_components/ModuleAssignModal';
 import { getUser } from '@admin/users';
 import { Box, Divider, Flex, Stack, Text, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';

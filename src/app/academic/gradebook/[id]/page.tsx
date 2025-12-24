@@ -1,6 +1,8 @@
 import { getAssignedModuleByUserAndModule } from '@academic/assigned-modules';
-import { ModuleDetailsCard, StudentTable } from '@academic/gradebook';
 import { Stack } from '@mantine/core';
+
+import ModuleDetailsCard from '../_components/ModuleDetailsCard';
+import StudentTable from '../_components/StudentTable';
 import { notFound } from 'next/navigation';
 
 type Props = {

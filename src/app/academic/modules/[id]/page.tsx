@@ -1,4 +1,4 @@
-import { getModule } from '@academic/modules';
+import { getModule } from '../_server/actions';
 import {
 	deleteModule,
 	getStructuresByModule,
