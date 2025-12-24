@@ -1,5 +1,6 @@
 'use client';
 
+import StudentAvatar from '@lms/_shared/StudentAvatar';
 import {
 	ActionIcon,
 	Avatar,
@@ -12,7 +13,6 @@ import {
 } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import type { SubmissionUser } from '../../../types';
 
 type Props = {

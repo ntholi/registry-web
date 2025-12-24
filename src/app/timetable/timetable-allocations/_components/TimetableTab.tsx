@@ -2,8 +2,8 @@
 
 import { Center, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import TimetableGrid from '@timetable/_shared/components/TimetableGrid';
 import { getUserTimetableSlots } from '@timetable/slots';
-import TimetableGrid from '@/modules/timetable/shared/components/TimetableGrid';
 
 type Props = {
 	userId: string;

@@ -1,5 +1,6 @@
 'use client';
 
+import StudentAvatar from '@lms/_shared/StudentAvatar';
 import {
 	Avatar,
 	Badge,
@@ -9,7 +10,6 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import { getPercentageColor } from '@/shared/lib/utils/colors';
 import type { QuizSubmissionUser } from '../../types';
 

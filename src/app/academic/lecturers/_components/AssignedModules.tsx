@@ -1,6 +1,7 @@
 'use client';
 
 import { getAssignedModulesByUser } from '@academic/assigned-modules';
+import type { users } from '@auth/_database';
 import {
 	Badge,
 	Card,
@@ -11,7 +12,6 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import type { users } from '@/modules/auth/database';
 import { toClassName } from '@/shared/lib/utils/utils';
 import DeleteModuleButton from './DeleteModuleButton';
 

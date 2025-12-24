@@ -17,14 +17,14 @@ import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import {
+	programStatus,
+	type StudentProgramStatus,
+} from '@registry/_database/schema/enums';
 import { getAllTerms } from '@registry/dates/terms';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import {
-	programStatus,
-	type StudentProgramStatus,
-} from '@/modules/registry/database/schema/enums';
 import AuditHistoryTab from '../../_components/AuditHistoryTab';
 import {
 	getStudentProgramAuditHistory,

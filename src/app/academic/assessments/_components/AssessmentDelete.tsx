@@ -1,11 +1,11 @@
 'use client';
 
+import type { assessments } from '@academic/_database';
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import type { assessments } from '@/modules/academic/database';
 import { DeleteModal } from '@/shared/ui/adease';
 import { getAssessmentTypeLabel } from '../_lib/utils';
 import { deleteAssessment } from '../_server/actions';

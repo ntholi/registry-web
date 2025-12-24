@@ -1,286 +1,387 @@
 ---
 name: create-feature
-description: Scaffolds a new feature module including database schema, repository, service, actions, UI components, and pages following the project's architectural standards.
-allowed-tools: Read, Write, Bash
+description: Scaffolds a new feature module with database schema, repository, service, actions, UI components, and pages. Use when asked to create a new feature, CRUD functionality, or entity management within the Registry Web application.
 ---
 
 # Create Feature Skill
 
-This skill automates the creation of a new feature within the Registry Web application. It follows the "Modular Monolith" architecture.
+Automates scaffolding a new feature within the Registry Web modular monolith architecture. Reference implementation: `src/app/academic/semester-modules/`.
 
-## Usage
+## Non-Negotiable Repository Rules
 
-1.  **Invoke**: "Create a new feature for [module] called [feature] for entity [Entity]."
-    *   Example: "Create a new feature for `registry` called `terms` for entity `Term`."
-2.  **Parameters needed**:
-    *   `module`: Existing module folder (e.g., `academic`, `registry`).
-    *   `feature`: URL-friendly feature name (e.g., `module-grades`).
-    *   `Entity`: PascalCase entity name (e.g., `ModuleGrade`).
-    *   `table_name`: snake_case database table name (e.g., `module_grades`).
+### Ownership rule (schema/module)
 
-## Steps
+When creating or modifying server functions, place them under the *module/feature that owns the schema/table being queried or mutated*:
 
-Follow these steps sequentially. If a file already exists, ask before overwriting.
+- If the data comes from Academic schemas (e.g. `src/app/academic/_database/schema/schools.ts`), the Server Actions must live under the Academic feature that represents that domain (e.g. `src/app/academic/schools/_server/`), implemented as actions → service → repository.
+- If another module needs that data, it should import and call the Academic actions via aliases (don’t duplicate the same server function in the consuming module).
 
-### 1. Database Schema
-**Path**: `src/modules/{{module}}/database/schema/{{table_name}}.ts`
+Concrete example:
+- Implement `getSchools()` in `src/app/academic/schools/_server/actions.ts` (calling through `service.ts` → `repository.ts`), even if the UI that uses it lives in `registry/` or `finance/`.
+
+### UI logic centralization (colors + status icons)
+
+If your feature needs any conditional/semantic UI color logic or status icon logic:
+
+- Use `src/shared/lib/utils/colors.ts` for all color mapping/logic.
+- Use `src/shared/lib/utils/status.tsx` for status icon mapping/logic.
+- Do not embed ad-hoc `status -> color` or `status -> icon` switch statements inside feature UI components.
+
+## Invocation
+
+**Trigger phrases:**
+- "Create a new feature for [module] called [feature]"
+- "Add [Entity] management to [module]"
+- "Scaffold CRUD for [entity] in [module]"
+
+**Required parameters:**
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `module` | Existing module folder | `academic`, `registry`, `finance` |
+| `feature` | URL-friendly feature name (kebab-case) | `semester-modules` |
+| `Entity` | PascalCase entity name | `SemesterModule` |
+| `table_name` | snake_case database table name | `semester_modules` |
+| `entities` | camelCase plural for schema export | `semesterModules` |
+
+## File Structure to Create
+
+```
+src/app/{{module}}/{{feature}}/
+├── _server/
+│   ├── repository.ts
+│   ├── service.ts
+│   └── actions.ts
+├── _components/
+│   └── Form.tsx
+├── _lib/
+│   └── types.ts
+├── new/
+│   └── page.tsx
+├── [id]/
+│   ├── page.tsx
+│   └── edit/
+│       └── page.tsx
+├── layout.tsx
+├── page.tsx
+└── index.ts
+```
+
+## Implementation Steps
+
+### Step 1: Database Schema
+**Path:** `src/app/{{module}}/_database/schema/{{table_name}}.ts`
+
 ```typescript
-import { pgTable, serial, text, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const {{entities}} = pgTable('{{table_name}}', {
-  id: serial().primaryKey(),
-  name: text().notNull(), // Modify as needed
-  isActive: boolean().notNull().default(true),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()),
+	id: serial().primaryKey(),
+	name: text().notNull(),
+	isActive: boolean().notNull().default(true),
+	createdAt: timestamp().defaultNow(),
+	updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()),
 });
 ```
 
-### 2. Repository
-**Path**: `src/modules/{{module}}/features/{{feature}}/server/repository.ts`
+### Step 2: Repository
+**Path:** `src/app/{{module}}/{{feature}}/_server/repository.ts`
+
 ```typescript
 import { db, {{entities}} } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
-import { eq } from 'drizzle-orm';
 
 export default class {{Entity}}Repository extends BaseRepository<typeof {{entities}}, 'id'> {
-  constructor() {
-    super({{entities}}, {{entities}}.id);
-  }
-
-  // Add custom queries here
-  // async findActive() {
-  //   return db.query.{{entities}}.findMany({ where: eq({{entities}}.isActive, true) });
-  // }
+	constructor() {
+		super({{entities}}, {{entities}}.id);
+	}
 }
 ```
 
-### 3. Service
-**Path**: `src/modules/{{module}}/features/{{feature}}/server/service.ts`
+### Step 3: Service
+**Path:** `src/app/{{module}}/{{feature}}/_server/service.ts`
+
 ```typescript
+import type { {{entities}} } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
 import {{Entity}}Repository from './repository';
-import type { {{entities}} } from '@/core/database';
 
 class {{Entity}}Service extends BaseService<typeof {{entities}}, 'id'> {
-  constructor() {
-    super(new {{Entity}}Repository(), { 
-        findAllRoles: ['dashboard'], // Adjust roles as needed
-        createRoles: ['dashboard'],
-        updateRoles: ['dashboard'],
-        deleteRoles: ['dashboard']
-    });
-  }
-
-  // Example custom method
-  // async findActive() {
-  //   return withAuth(() => (this.repository as {{Entity}}Repository).findActive(), ['dashboard']);
-  // }
+	constructor() {
+		super(new {{Entity}}Repository(), {
+			byIdRoles: ['dashboard'],
+			findAllRoles: ['dashboard'],
+			createRoles: ['dashboard'],
+			updateRoles: ['dashboard'],
+			deleteRoles: ['dashboard'],
+		});
+	}
 }
 
-export const {{entity}}Service = serviceWrapper({{Entity}}Service, '{{Entity}}Service');
+export const {{entities}}Service = serviceWrapper({{Entity}}Service, '{{Entity}}Service');
 ```
 
-### 4. Server Actions
-**Path**: `src/modules/{{module}}/features/{{feature}}/server/actions.ts`
+### Step 4: Server Actions
+**Path:** `src/app/{{module}}/{{feature}}/_server/actions.ts`
+
 ```typescript
 'use server';
 
-import { {{entity}}Service as service } from './service';
 import type { {{entities}} } from '@/core/database';
+import { {{entities}}Service } from './service';
 
 type {{Entity}} = typeof {{entities}}.$inferInsert;
 
 export async function get{{Entity}}(id: number) {
-  return service.get(id);
+	return {{entities}}Service.get(id);
 }
 
 export async function findAll{{Entity}}s(page = 1, search = '') {
-  return service.findAll({ 
-    page, 
-    search, 
-    sort: [{ column: 'createdAt', order: 'desc' }] // Adjust default sort
-  });
+	return {{entities}}Service.findAll({
+		page,
+		search,
+		sort: [{ column: 'createdAt', order: 'desc' }],
+	});
 }
 
 export async function create{{Entity}}(data: {{Entity}}) {
-  return service.create(data);
+	return {{entities}}Service.create(data);
 }
 
 export async function update{{Entity}}(id: number, data: {{Entity}}) {
-  return service.update(id, data);
+	return {{entities}}Service.update(id, data);
 }
 
 export async function delete{{Entity}}(id: number) {
-  return service.delete(id);
+	return {{entities}}Service.delete(id);
 }
 ```
 
-### 5. Types & Index
-**Path**: `src/modules/{{module}}/features/{{feature}}/types.ts`
+### Step 5: Types
+**Path:** `src/app/{{module}}/{{feature}}/_lib/types.ts`
+
 ```typescript
-// Add specific types if needed, otherwise leave empty or export inferred types
-export type {{Entity}}DTO = {
-    // specific frontend types
-};
+import type { {{entities}} } from '@/core/database';
+
+export type {{Entity}} = typeof {{entities}}.$inferSelect;
+export type {{Entity}}Insert = typeof {{entities}}.$inferInsert;
 ```
 
-**Path**: `src/modules/{{module}}/features/{{feature}}/index.ts`
+### Step 6: Index (Re-exports)
+**Path:** `src/app/{{module}}/{{feature}}/index.ts`
+
 ```typescript
-export { default as Form } from './components/Form';
-export * from './server/actions';
-export * from './types';
+export { default as Form } from './_components/Form';
+export * from './_lib/types';
+export * from './_server/actions';
 ```
 
-### 6. Form Component
-**Path**: `src/modules/{{module}}/features/{{feature}}/components/Form.tsx`
+### Step 7: Form Component
+**Path:** `src/app/{{module}}/{{feature}}/_components/Form.tsx`
+
 ```typescript
 'use client';
 
-import { TextInput, Switch } from '@mantine/core';
+import { {{entities}} } from '@{{module}}/_database';
+import { Switch, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { {{entities}} } from '@/modules/{{module}}/database';
 import { Form } from '@/shared/ui/adease';
 
 type {{Entity}} = typeof {{entities}}.$inferInsert;
 
 type Props = {
-  onSubmit: (values: {{Entity}}) => Promise<{{Entity}}>;
-  defaultValues?: {{Entity}};
-  title?: string;
+	onSubmit: (values: {{Entity}}) => Promise<{{Entity}}>;
+	defaultValues?: {{Entity}};
+	title?: string;
 };
 
-// Adjust schema as needed (e.g., .omit({ id: true, createdAt: true }))
-const schema = createInsertSchema({{entities}});
-
 export default function {{Entity}}Form({ onSubmit, defaultValues, title }: Props) {
-  const router = useRouter();
-  return (
-    <Form 
-      title={title} 
-      action={onSubmit} 
-      queryKey={['{{entities}}']} 
-      schema={schema} 
-      defaultValues={defaultValues} 
-      onSuccess={({ id }) => router.push(`/{{module}}/{{feature}}/${id}`)}
-    >
-      {(form) => (
-        <>
-          <TextInput label='Name' {...form.getInputProps('name')} />
-          <Switch label='Active' {...form.getInputProps('isActive', { type: 'checkbox' })} />
-        </>
-      )}
-    </Form>
-  );
+	const router = useRouter();
+
+	return (
+		<Form
+			title={title}
+			action={onSubmit}
+			queryKey={['{{feature}}']}
+			schema={createInsertSchema({{entities}})}
+			defaultValues={defaultValues}
+			onSuccess={({ id }) => router.push('/{{module}}/{{feature}}/' + id)}
+		>
+			{(form) => (
+				<>
+					<TextInput label='Name' {...form.getInputProps('name')} />
+					<Switch label='Active' {...form.getInputProps('isActive', { type: 'checkbox' })} />
+				</>
+			)}
+		</Form>
+	);
 }
 ```
 
-### 7. UI Pages (Layout)
-**Path**: `src/app/(dashboard)/{{module}}/{{feature}}/layout.tsx` (Note: Check if `(dashboard)` group exists or just `{{module}}`)
+### Step 8: Layout
+**Path:** `src/app/{{module}}/{{feature}}/layout.tsx`
+
 ```typescript
 'use client';
 
-import { findAll{{Entity}}s } from '@/modules/{{module}}/features/{{feature}}';
+import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import { findAll{{Entity}}s } from './_server/actions';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <ListLayout
-      path={'/{{module}}/{{feature}}'}
-      queryKey={['{{entities}}']}
-      getData={findAll{{Entity}}s}
-      actionIcons={[<NewLink key={'new'} href='/{{module}}/{{feature}}/new' />]}
-      renderItem={(it) => <ListItem id={it.id} label={it.name} />}
-    >
-      {children}
-    </ListLayout>
-  );
+export default function Layout({ children }: PropsWithChildren) {
+	return (
+		<ListLayout
+			path={'/{{module}}/{{feature}}'}
+			queryKey={['{{feature}}']}
+			getData={findAll{{Entity}}s}
+			actionIcons={[
+				<NewLink key={'new-link'} href='/{{module}}/{{feature}}/new' />,
+			]}
+			renderItem={(it) => <ListItem id={it.id} label={it.name} />}
+		>
+			{children}
+		</ListLayout>
+	);
 }
 ```
 
-### 8. UI Pages (Index/NothingSelected)
-**Path**: `src/app/(dashboard)/{{module}}/{{feature}}/page.tsx`
+### Step 9: Index Page
+**Path:** `src/app/{{module}}/{{feature}}/page.tsx`
+
 ```typescript
 import { NothingSelected } from '@/shared/ui/adease';
 
 export default function Page() {
-  return <NothingSelected title='{{Entity}}s' />;
+	return <NothingSelected title='{{Entity}}s' />;
 }
 ```
 
-### 9. UI Pages (New)
-**Path**: `src/app/(dashboard)/{{module}}/{{feature}}/new/page.tsx`
+### Step 10: New Page
+**Path:** `src/app/{{module}}/{{feature}}/new/page.tsx`
+
 ```typescript
 import { Box } from '@mantine/core';
-import { create{{Entity}}, Form } from '@/modules/{{module}}/features/{{feature}}';
+import Form from '../_components/Form';
+import { create{{Entity}} } from '../_server/actions';
 
 export default async function NewPage() {
-  return (
-    <Box p={'lg'}>
-      <Form title={'Create {{Entity}}'} onSubmit={create{{Entity}}} />
-    </Box>
-  );
+	return (
+		<Box p={'lg'}>
+			<Form title={'Create {{Entity}}'} onSubmit={create{{Entity}}} />
+		</Box>
+	);
 }
 ```
 
-### 10. UI Pages (Details)
-**Path**: `src/app/(dashboard)/{{module}}/{{feature}}/[id]/page.tsx`
+### Step 11: Details Page
+**Path:** `src/app/{{module}}/{{feature}}/[id]/page.tsx`
+
 ```typescript
-import { delete{{Entity}}, get{{Entity}} } from '@/modules/{{module}}/features/{{feature}}';
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewBody, DetailsViewHeader, FieldView } from '@/shared/ui/adease';
+import {
+	DetailsView,
+	DetailsViewBody,
+	DetailsViewHeader,
+	FieldView,
+} from '@/shared/ui/adease';
+import { delete{{Entity}}, get{{Entity}} } from '../_server/actions';
 
-export default async function {{Entity}}Details({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const data = await get{{Entity}}(Number(id));
-  if (!data) return notFound();
+type Props = {
+	params: Promise<{ id: string }>;
+};
 
-  return (
-    <DetailsView>
-      <DetailsViewHeader 
-        title={'{{Entity}}'} 
-        queryKey={['{{entities}}']} 
-        handleDelete={async () => { 'use server'; await delete{{Entity}}(Number(id)); }} 
-      />
-      <DetailsViewBody>
-        <FieldView label='Name'>{data.name}</FieldView>
-        <FieldView label='Status'>{data.isActive ? 'Active' : 'Inactive'}</FieldView>
-      </DetailsViewBody>
-    </DetailsView>
-  );
+export default async function {{Entity}}Details({ params }: Props) {
+	const { id } = await params;
+	const item = await get{{Entity}}(Number(id));
+
+	if (!item) {
+		return notFound();
+	}
+
+	return (
+		<DetailsView>
+			<DetailsViewHeader
+				title={'{{Entity}}'}
+				queryKey={['{{feature}}']}
+				handleDelete={async () => {
+					'use server';
+					await delete{{Entity}}(Number(id));
+				}}
+			/>
+			<DetailsViewBody>
+				<FieldView label='Name'>{item.name}</FieldView>
+				<FieldView label='Status'>{item.isActive ? 'Active' : 'Inactive'}</FieldView>
+			</DetailsViewBody>
+		</DetailsView>
+	);
 }
 ```
 
-### 11. UI Pages (Edit)
-**Path**: `src/app/(dashboard)/{{module}}/{{feature}}/[id]/edit/page.tsx`
+### Step 12: Edit Page
+**Path:** `src/app/{{module}}/{{feature}}/[id]/edit/page.tsx`
+
 ```typescript
 import { Box } from '@mantine/core';
-import { Form, get{{Entity}}, update{{Entity}} } from '@/modules/{{module}}/features/{{feature}}';
 import { notFound } from 'next/navigation';
+import Form from '../../_components/Form';
+import { get{{Entity}}, update{{Entity}} } from '../../_server/actions';
 
-export default async function {{Entity}}Edit({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const data = await get{{Entity}}(Number(id));
-  if (!data) return notFound();
+type Props = {
+	params: Promise<{ id: string }>;
+};
 
-  return (
-    <Box p={'lg'}>
-      <Form 
-        title={'Edit {{Entity}}'} 
-        defaultValues={data} 
-        onSubmit={async (value) => { 'use server'; return await update{{Entity}}(Number(id), value); }} 
-      />
-    </Box>
-  );
+export default async function {{Entity}}Edit({ params }: Props) {
+	const { id } = await params;
+	const item = await get{{Entity}}(Number(id));
+	if (!item) {
+		return notFound();
+	}
+
+	return (
+		<Box p={'lg'}>
+			<Form
+				title={'Edit {{Entity}}'}
+				defaultValues={item}
+				onSubmit={async (value) => {
+					'use server';
+					return await update{{Entity}}(Number(id), value);
+				}}
+			/>
+		</Box>
+	);
 }
 ```
 
-### 12. Final Manual Steps (User Action Required)
-Remind the user to:
-1.  **Register Schema**: Add `export * from './schema/{{table_name}}';` to `src/modules/{{module}}/database/index.ts` (or `schema/index.ts` if split).
-2.  **Register TS Path**: Add `"@{{module}}/{{feature}}/*": ["./src/modules/{{module}}/features/{{feature}}/*"]` to `tsconfig.json`.
-3.  **Run Migrations**: Run `pnpm db:generate` and `pnpm db:migrate` (or push).
-4.  **Restart Server**: If paths changed.
+## Post-Creation Checklist
+
+After scaffolding, remind user to:
+
+1. **Register schema export** - Add to `src/app/{{module}}/_database/index.ts`:
+   ```typescript
+   export * from './schema/{{table_name}}';
+   ```
+
+2. **Add relations** (if needed) - Update `src/app/{{module}}/_database/relations.ts`
+
+3. **Run database migrations**:
+   ```bash
+   pnpm db:generate
+   pnpm db:migrate
+   ```
+
+4. **Add navigation** (optional) - Add `NavItem` to `src/app/{{module}}/{{module}}.config.ts`
+
+5. **Validate**:
+   ```bash
+   pnpm tsc --noEmit & pnpm lint:fix
+   ```
+
+## Reference Implementation
+
+See `src/app/academic/semester-modules/` for a complete working example:
+- [repository.ts](src/app/academic/semester-modules/_server/repository.ts) - Extended repository with custom queries
+- [service.ts](src/app/academic/semester-modules/_server/service.ts) - Service with role-based auth
+- [actions.ts](src/app/academic/semester-modules/_server/actions.ts) - Server actions
+- [Form.tsx](src/app/academic/semester-modules/_components/Form.tsx) - Complex form with relations
+- [layout.tsx](src/app/academic/semester-modules/layout.tsx) - ListLayout implementation

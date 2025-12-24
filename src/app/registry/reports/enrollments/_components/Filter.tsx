@@ -17,6 +17,11 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
+	programStatus,
+	semesterStatus,
+	studentStatus,
+} from '@registry/_database/schema/enums';
+import {
 	IconAdjustments,
 	IconFilter,
 	IconPlayerPlayFilled,
@@ -24,11 +29,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useEffect } from 'react';
-import {
-	programStatus,
-	semesterStatus,
-	studentStatus,
-} from '@/modules/registry/database/schema/enums';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getAvailableCountriesForReports,

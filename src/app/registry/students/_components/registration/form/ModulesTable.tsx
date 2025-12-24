@@ -9,9 +9,9 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import type { StudentModuleStatus } from '@registry/_database';
+import { studentModuleStatus } from '@registry/_database';
 import { IconInfoCircle } from '@tabler/icons-react';
-import type { StudentModuleStatus } from '@/modules/registry/database';
-import { studentModuleStatus } from '@/modules/registry/database';
 import { getModuleTypeColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 

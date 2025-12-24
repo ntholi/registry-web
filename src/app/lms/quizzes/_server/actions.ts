@@ -1,12 +1,12 @@
 'use server';
 
+import { getOrReuseSection } from '@lms/_shared/utils';
 import { studentRepository } from '@lms/students/_server/repository';
 import { getActiveTerm } from '@registry/dates/terms';
 import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
 import { auth } from '@/core/auth';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
-import { getOrReuseSection } from '@/modules/lms/shared/utils';
 import type {
 	AddQuestionToQuizResponse,
 	CreateQuestionResponse,

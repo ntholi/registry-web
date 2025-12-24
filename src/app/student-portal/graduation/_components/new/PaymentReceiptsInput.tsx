@@ -17,14 +17,14 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
+import type { PaymentType } from '@registry/_database';
+import { paymentType } from '@registry/_database';
 import {
 	IconCurrencyDollar,
 	IconPlus,
 	IconReceipt,
 	IconTrash,
 } from '@tabler/icons-react';
-import type { PaymentType } from '@/modules/registry/database';
-import { paymentType } from '@/modules/registry/database';
 
 type PaymentReceiptData = {
 	paymentType: (typeof paymentType.enumValues)[number];

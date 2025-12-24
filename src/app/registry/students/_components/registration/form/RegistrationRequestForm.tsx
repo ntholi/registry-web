@@ -12,6 +12,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import type { StudentModuleStatus } from '@registry/_database';
 import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
@@ -20,7 +21,6 @@ import {
 import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { StudentModuleStatus } from '@/modules/registry/database';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import type { Student } from '../../../_lib/utils';

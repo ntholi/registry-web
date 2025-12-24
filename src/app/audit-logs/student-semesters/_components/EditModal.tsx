@@ -15,14 +15,14 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import {
+	type SemesterStatus,
+	semesterStatus,
+} from '@registry/_database/schema/enums';
 import { getAllTerms } from '@registry/dates/terms';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import {
-	type SemesterStatus,
-	semesterStatus,
-} from '@/modules/registry/database/schema/enums';
 import AuditHistoryTab from '../../_components/AuditHistoryTab';
 import {
 	getStructureSemestersByStructureId,

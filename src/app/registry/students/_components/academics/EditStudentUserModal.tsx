@@ -1,5 +1,6 @@
 'use client';
 
+import type { users } from '@auth/_database';
 import {
 	ActionIcon,
 	Button,
@@ -14,7 +15,6 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { users } from '@/modules/auth/database';
 import UserInput from '@/shared/ui/UserInput';
 import { updateStudentUserId } from '../../_server/actions';
 

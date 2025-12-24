@@ -1,5 +1,8 @@
 'use client';
 
+import type { schools } from '@academic/_database';
+import type { users } from '@auth/_database';
+import { userPositions, userRoles } from '@auth/_database';
 import {
 	ActionIcon,
 	Button,
@@ -16,9 +19,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
-import type { schools } from '@/modules/academic/database';
-import type { users } from '@/modules/auth/database';
-import { userPositions, userRoles } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import { findAllSchools, getUserSchools } from '../_server/actions';

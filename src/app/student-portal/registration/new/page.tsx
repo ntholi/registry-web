@@ -15,6 +15,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import type { StudentModuleStatus } from '@registry/_database';
 import {
 	createRegistrationWithModules,
 	determineSemesterStatus,
@@ -29,7 +30,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { config } from '@/config';
-import type { StudentModuleStatus } from '@/modules/registry/database';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {

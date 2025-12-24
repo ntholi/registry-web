@@ -12,6 +12,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import type { PaymentType, students } from '@registry/_database';
 import {
 	IconGenderFemale,
 	IconGenderMale,
@@ -20,7 +21,6 @@ import {
 	IconSchool,
 	IconUser,
 } from '@tabler/icons-react';
-import type { PaymentType, students } from '@/modules/registry/database';
 
 type Student = typeof students.$inferSelect & {
 	user?: { name?: string | null } | null;

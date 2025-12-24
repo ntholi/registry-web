@@ -1,5 +1,6 @@
 'use client';
 
+import type { assessmentMarks } from '@academic/_database';
 import {
 	createAssessmentMark,
 	updateAssessmentMark,
@@ -8,7 +9,6 @@ import type { ModuleGradeData } from '@academic/semester-modules';
 import { Box, Group, Text, TextInput } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import type { assessmentMarks } from '@/modules/academic/database';
 import { getMarksPercentageColor } from '@/shared/lib/utils/colors';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 

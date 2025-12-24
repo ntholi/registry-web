@@ -1,5 +1,6 @@
 'use client';
 
+import type { programs, structures } from '@academic/_database';
 import {
 	Alert,
 	Badge,
@@ -10,10 +11,9 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import type { studentPrograms } from '@registry/_database';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
-import type { programs, structures } from '@/modules/academic/database';
-import type { studentPrograms } from '@/modules/registry/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 
 type StudentProgram = typeof studentPrograms.$inferSelect & {

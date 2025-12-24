@@ -1,6 +1,9 @@
 'use client';
 
+import { tasks } from '@admin/_database';
 import { findAllByRoles } from '@admin/users';
+import type { users } from '@auth/_database';
+import { dashboardUsers } from '@auth/_database';
 import {
 	Checkbox,
 	Divider,
@@ -17,9 +20,6 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import { tasks } from '@/modules/admin/database';
-import type { users } from '@/modules/auth/database';
-import { dashboardUsers } from '@/modules/auth/database';
 import { Form } from '@/shared/ui/adease';
 import type { TaskWithRelations } from '../_server/types';
 import MultiStudentInput from './MultiStudentInput';

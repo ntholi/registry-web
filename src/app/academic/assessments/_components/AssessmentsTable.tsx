@@ -1,5 +1,6 @@
 'use client';
 
+import type { assessments } from '@academic/_database';
 import {
 	ActionIcon,
 	Badge,
@@ -15,7 +16,6 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { assessments } from '@/modules/academic/database';
 import {
 	getAssessmentNumberLabel,
 	getAssessmentTypeLabel,

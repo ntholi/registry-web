@@ -1,7 +1,7 @@
 'use client';
 
+import StudentAvatar from '@lms/_shared/StudentAvatar';
 import { Box } from '@mantine/core';
-import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 
 type StudentPhotoCellProps = {
 	stdNo: number;

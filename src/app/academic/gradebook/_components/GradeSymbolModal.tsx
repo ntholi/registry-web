@@ -1,5 +1,6 @@
 'use client';
 
+import type { grade } from '@academic/_database';
 import { updateGradeByStudentModuleId } from '@academic/semester-modules';
 import {
 	ActionIcon,
@@ -22,7 +23,6 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { grade } from '@/modules/academic/database';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 interface Props {

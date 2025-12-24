@@ -1,8 +1,8 @@
 'use client';
 
+import type { Grade } from '@academic/_database';
 import { Badge, Center, Stack, Table, Text } from '@mantine/core';
 import { IconFileCertificate } from '@tabler/icons-react';
-import type { Grade } from '@/modules/academic/database';
 import { getGradeColor } from '@/shared/lib/utils/colors';
 
 interface StudentModule {

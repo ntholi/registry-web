@@ -1,13 +1,13 @@
 'use client';
 
+import type { dashboardUsers } from '@auth/_database';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { clearanceRequestStatus } from '@registry/_database';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { updateGraduationClearance } from '@/app/registry/graduation/clearance/_server/clearance/actions';
-import type { dashboardUsers } from '@/modules/auth/database';
-import { clearanceRequestStatus } from '@/modules/registry/database';
 
 type Status = Exclude<
 	(typeof clearanceRequestStatus.enumValues)[number],

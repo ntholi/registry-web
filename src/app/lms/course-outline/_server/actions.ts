@@ -1,11 +1,8 @@
 'use server';
 
+import { getCourseSections, getOrReuseSection } from '@lms/_shared/utils';
 import { auth } from '@/core/auth';
 import { moodlePost } from '@/core/integrations/moodle';
-import {
-	getCourseSections,
-	getOrReuseSection,
-} from '@/modules/lms/shared/utils';
 import type {
 	BookChapter,
 	CourseOutlineBook,

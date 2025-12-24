@@ -1,5 +1,6 @@
 'use client';
 
+import type { assessments } from '@academic/_database';
 import {
 	ActionIcon,
 	Avatar,
@@ -26,7 +27,6 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import type { assessments } from '@/modules/academic/database';
 import { generateAssessmentAuditMessage } from '@/shared/lib/utils/auditUtils';
 import { getAuditActionColor } from '@/shared/lib/utils/colors';
 import {

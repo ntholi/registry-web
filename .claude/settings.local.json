@@ -97,7 +97,8 @@
 			"Bash(Get-ChildItem \"C:\\Users\\nthol\\Documents\\Projects\\Limkokwing\\Registry\\registry-web\\drizzle\\*.sql\")",
 			"Bash(npx tsx:*)",
 			"Bash(node -e:*)",
-			"Bash(backup_db/restore.bat)"
+			"Bash(backup_db/restore.bat)",
+			"Bash(xargs sed:*)"
 		],
 		"deny": [],
 		"ask": []

@@ -1,11 +1,11 @@
 'use server';
 
-import { auth } from '@/core/auth';
-import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import {
 	getCourseSections as getCourseSectionsShared,
 	getOrReuseSection,
-} from '@/modules/lms/shared/utils';
+} from '@lms/_shared/utils';
+import { auth } from '@/core/auth';
+import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type {
 	CreateFileParams,
 	CreatePageParams,

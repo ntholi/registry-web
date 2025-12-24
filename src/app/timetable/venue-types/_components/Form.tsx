@@ -1,9 +1,9 @@
 'use client';
 
 import { Textarea, TextInput } from '@mantine/core';
+import { venueTypes } from '@timetable/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { venueTypes } from '@/modules/timetable/database';
 import { Form } from '@/shared/ui/adease';
 
 type VenueType = typeof venueTypes.$inferInsert;

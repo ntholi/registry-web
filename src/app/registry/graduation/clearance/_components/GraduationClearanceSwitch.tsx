@@ -1,12 +1,12 @@
 'use client';
 
+import type { dashboardUsers } from '@auth/_database';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { clearanceRequestStatus } from '@registry/_database';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import type { dashboardUsers } from '@/modules/auth/database';
-import { clearanceRequestStatus } from '@/modules/registry/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	type getGraduationClearance,

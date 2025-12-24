@@ -1,5 +1,6 @@
 'use client';
 
+import type { modules, semesterModules } from '@academic/_database';
 import { getModulesForStructure } from '@academic/semester-modules';
 import {
 	ActionIcon,
@@ -11,6 +12,8 @@ import {
 	Table,
 	Text,
 } from '@mantine/core';
+import type { StudentModuleStatus } from '@registry/_database';
+import { studentModuleStatus } from '@registry/_database';
 import { getAllTerms } from '@registry/dates/terms';
 import { getStudentRegistrationData } from '@registry/students';
 import { IconTrash } from '@tabler/icons-react';
@@ -18,9 +21,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
-import type { modules, semesterModules } from '@/modules/academic/database';
-import type { StudentModuleStatus } from '@/modules/registry/database';
-import { studentModuleStatus } from '@/modules/registry/database';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';

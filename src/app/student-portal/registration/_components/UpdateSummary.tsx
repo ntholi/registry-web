@@ -10,7 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import type { StudentModuleStatus } from '@/modules/registry/database';
+import type { StudentModuleStatus } from '@registry/_database';
 import { getActionColor, getStatusColor } from '@/shared/lib/utils/colors';
 
 type SelectedModule = {

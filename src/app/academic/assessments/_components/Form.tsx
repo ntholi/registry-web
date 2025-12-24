@@ -1,9 +1,9 @@
 'use client';
 
+import { assessments } from '@academic/_database';
 import { Grid, NumberInput, Select } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { assessments } from '@/modules/academic/database';
 import { Form } from '@/shared/ui/adease';
 import { ASSESSMENT_TYPES } from '../_lib/utils';
 

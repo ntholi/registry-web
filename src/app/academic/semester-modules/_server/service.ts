@@ -1,9 +1,9 @@
+import type { Grade } from '@academic/_database';
 import type { semesterModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import type { Grade } from '@/modules/academic/database';
 import ModuleRepository, { type ModuleGradeInsert } from './repository';
 
 class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {

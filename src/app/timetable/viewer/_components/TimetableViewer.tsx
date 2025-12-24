@@ -12,10 +12,10 @@ import {
 } from '@mantine/core';
 import { getAllTerms } from '@registry/dates/terms';
 import { useQuery } from '@tanstack/react-query';
+import TimetableGrid from '@timetable/_shared/components/TimetableGrid';
 import { getAllVenues } from '@timetable/venues';
 import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
-import TimetableGrid from '@/modules/timetable/shared/components/TimetableGrid';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 import {

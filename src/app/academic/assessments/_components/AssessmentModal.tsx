@@ -1,5 +1,7 @@
 'use client';
 
+import type { assessmentNumber } from '@academic/_database';
+import { assessments } from '@academic/_database';
 import { Button, Group, Modal, NumberInput, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -7,8 +9,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { assessmentNumber } from '@/modules/academic/database';
-import { assessments } from '@/modules/academic/database';
 import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from '../_lib/utils';
 import { createAssessment, updateAssessment } from '../_server/actions';
 

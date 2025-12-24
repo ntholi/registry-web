@@ -28,7 +28,7 @@
 			"@admin/*": ["./src/app/admin/*"],
 			"@lms/*": ["./src/app/lms/*"],
 			"@timetable/*": ["./src/app/timetable/*"],
-			"@auth/*": ["./src/modules/auth/features/*"],
+			"@auth/*": ["./src/app/auth/*"],
 			"@audit-logs/*": ["./src/app/audit-logs/*"],
 			"@server/*": ["./src/server/*"]
 		}

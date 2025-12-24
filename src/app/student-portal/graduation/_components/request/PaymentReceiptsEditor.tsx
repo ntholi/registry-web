@@ -23,6 +23,8 @@ import {
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import type { PaymentType } from '@registry/_database';
+import { paymentType } from '@registry/_database';
 import {
 	IconCurrencyDollar,
 	IconPlus,
@@ -30,8 +32,6 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { PaymentType } from '@/modules/registry/database';
-import { paymentType } from '@/modules/registry/database';
 
 type PaymentReceipt = {
 	id: number;

@@ -2,8 +2,8 @@
 
 import { Center, Select, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import TimetableGrid from '@timetable/_shared/components/TimetableGrid';
 import { useState } from 'react';
-import TimetableGrid from '@/modules/timetable/shared/components/TimetableGrid';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getClassesWithTimetable,

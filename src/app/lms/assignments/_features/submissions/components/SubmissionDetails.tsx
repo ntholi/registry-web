@@ -1,5 +1,6 @@
 'use client';
 
+import StudentAvatar from '@lms/_shared/StudentAvatar';
 import {
 	Avatar,
 	Box,
@@ -19,7 +20,6 @@ import {
 	IconUsers,
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import type { SubmissionFile, SubmissionUser } from '../../../types';
 import { GradeInput, RubricGrading } from '../../grading/components';
 import { formatDate } from '../utils';

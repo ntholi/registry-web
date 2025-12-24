@@ -1,5 +1,6 @@
 'use client';
 
+import type { modules, semesterModules } from '@academic/_database';
 import {
 	Accordion,
 	ActionIcon,
@@ -14,7 +15,6 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { type ReactNode, useState } from 'react';
-import type { modules, semesterModules } from '@/modules/academic/database';
 import { compareSemesters } from '@/shared/lib/utils/utils';
 
 type Module = typeof modules.$inferSelect;

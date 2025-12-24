@@ -5,15 +5,15 @@ import type {
 	programs,
 	schools,
 	structures,
-} from '@/modules/academic/database';
-import type { accounts, users } from '@/modules/auth/database';
+} from '@academic/_database';
+import type { accounts, users } from '@auth/_database';
 import type {
 	nextOfKins,
 	studentEducation,
 	studentPrograms,
 	students,
 	terms,
-} from '@/modules/registry/database';
+} from '@registry/_database';
 
 export type User = typeof users.$inferSelect;
 export type Account = typeof accounts.$inferSelect;

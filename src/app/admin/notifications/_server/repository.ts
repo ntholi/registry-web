@@ -1,3 +1,4 @@
+import type { UserPosition, UserRole } from '@auth/_database';
 import { and, desc, eq, gte, lte, or, sql } from 'drizzle-orm';
 import {
 	db,
@@ -6,7 +7,6 @@ import {
 	notifications,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
-import type { UserPosition, UserRole } from '@/modules/auth/database';
 
 export type NotificationInsert = typeof notifications.$inferInsert;
 export type NotificationSelect = typeof notifications.$inferSelect;

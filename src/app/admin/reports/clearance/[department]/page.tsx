@@ -1,5 +1,6 @@
 'use client';
 
+import type { DashboardUser } from '@auth/_database';
 import {
 	Button,
 	Card,
@@ -14,7 +15,6 @@ import { DatePickerInput, type DatesRangeValue } from '@mantine/dates';
 import { IconCalendar, IconFilter, IconSearch } from '@tabler/icons-react';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import type { DashboardUser } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { StatsSummary } from '../_components/StatsSummary';
 import { StatsTable } from '../_components/StatsTable';

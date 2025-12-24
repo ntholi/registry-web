@@ -2,9 +2,9 @@
 
 import { Select } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
+import { graduations } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { graduations } from '@/modules/registry/database';
 import { Form } from '@/shared/ui/adease';
 
 type Graduation = typeof graduations.$inferInsert;

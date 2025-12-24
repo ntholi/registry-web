@@ -1,7 +1,7 @@
 'use client';
 
+import type { Grade } from '@academic/_database';
 import { Badge, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
-import type { Grade } from '@/modules/academic/database';
 import { getGradeColor, getPointsColor } from '../_lib/gradeColors';
 
 type GradeResult = {

@@ -13,6 +13,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import type { paymentType } from '@registry/_database';
 import {
 	createGraduationRequestWithPaymentReceipts,
 	getEligiblePrograms,
@@ -26,7 +27,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import type { paymentType } from '@/modules/registry/database';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	InformationConfirmation,

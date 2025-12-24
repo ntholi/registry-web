@@ -2,9 +2,9 @@
 
 import type { getStructureModules } from '@academic/structures';
 import { ActionIcon, Box, Group, Paper } from '@mantine/core';
+import type { StudentModuleStatus } from '@registry/_database';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
-import type { StudentModuleStatus } from '@/modules/registry/database';
 import { ModuleSearchInput } from './ModuleSearchInput';
 import ModulesTable from './ModulesTable';
 

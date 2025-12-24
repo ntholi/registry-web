@@ -1,5 +1,6 @@
 'use client';
 
+import { userPositions, userRoles } from '@auth/_database';
 import {
 	ActionIcon,
 	Badge,
@@ -17,7 +18,6 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import type { notifications, users } from '@/core/database';
-import { userPositions, userRoles } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import UserInput from '@/shared/ui/UserInput';

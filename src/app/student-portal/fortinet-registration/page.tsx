@@ -1,5 +1,6 @@
 'use client';
 
+import { fortinetLevel } from '@admin/_database';
 import {
 	Alert,
 	Button,
@@ -17,7 +18,6 @@ import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconShield } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { fortinetLevel } from '@/modules/admin/database';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	createFortinetRegistration,

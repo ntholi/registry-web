@@ -1,7 +1,7 @@
 'use server';
 
+import type { Grade } from '@academic/_database';
 import type { semesterModules } from '@/core/database';
-import type { Grade } from '@/modules/academic/database';
 import type { ModuleGradeInsert } from './repository';
 import { semesterModulesService } from './service';
 

@@ -1,5 +1,6 @@
 'use client';
 
+import StudentAvatar from '@lms/_shared/StudentAvatar';
 import { ActionIcon, Avatar, Box, Group, Text, Tooltip } from '@mantine/core';
 import {
 	IconArrowLeft,
@@ -9,7 +10,6 @@ import {
 	IconExternalLink,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import type { MoodleAssignment, SubmissionUser } from '../../../types';
 import { formatDate } from '../../submissions/utils';
 

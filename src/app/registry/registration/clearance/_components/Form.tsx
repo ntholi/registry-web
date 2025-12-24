@@ -1,9 +1,9 @@
 'use client';
 
 import { TextInput } from '@mantine/core';
+import { clearance } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { clearance } from '@/modules/registry/database';
 import { Form } from '@/shared/ui/adease';
 
 type Clearance = typeof clearance.$inferInsert;

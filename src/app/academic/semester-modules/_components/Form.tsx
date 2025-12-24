@@ -1,5 +1,6 @@
 'use client';
 
+import { moduleType, semesterModules } from '@academic/_database';
 import { MultiSelect, NumberInput, Select } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
@@ -7,7 +8,6 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
-import { moduleType, semesterModules } from '@/modules/academic/database';
 import { Form } from '@/shared/ui/adease';
 import { findAllModules } from '../_server/actions';
 

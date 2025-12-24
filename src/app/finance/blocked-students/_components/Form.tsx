@@ -1,11 +1,11 @@
 'use client';
 
 import { Textarea } from '@mantine/core';
+import { blockedStudents } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
-import { blockedStudents } from '@/modules/registry/database';
 import { Form } from '@/shared/ui/adease';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;

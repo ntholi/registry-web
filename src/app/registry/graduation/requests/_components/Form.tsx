@@ -1,12 +1,12 @@
 'use client';
 
 import { Select, Stack, TextInput } from '@mantine/core';
+import { graduationRequests } from '@registry/_database';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getEligiblePrograms } from '@/app/registry/graduation/clearance/_server/requests/actions';
-import { graduationRequests } from '@/modules/registry/database';
 import { Form } from '@/shared/ui/adease';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;

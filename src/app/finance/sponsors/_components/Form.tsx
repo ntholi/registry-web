@@ -1,9 +1,9 @@
 'use client';
 
+import { sponsors } from '@finance/_database';
 import { TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { sponsors } from '@/modules/finance/database';
 import { Form } from '@/shared/ui/adease';
 
 type Sponsor = typeof sponsors.$inferInsert;

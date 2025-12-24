@@ -1,7 +1,7 @@
 'use client';
 
+import StudentAvatar from '@lms/_shared/StudentAvatar';
 import { Avatar, Badge, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
-import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
 import type { SubmissionUser } from '../../../types';
 
 type Props = {

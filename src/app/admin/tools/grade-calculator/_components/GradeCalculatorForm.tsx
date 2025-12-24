@@ -1,8 +1,8 @@
 'use client';
 
+import type { Grade } from '@academic/_database';
 import { Button, Group, NumberInput, Select, Stack } from '@mantine/core';
 import { useState } from 'react';
-import type { Grade } from '@/modules/academic/database';
 import {
 	getGradeByMarks,
 	getGradeByPoints,

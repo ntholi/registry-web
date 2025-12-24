@@ -15,12 +15,12 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import type { registrationRequests } from '@registry/_database';
 import { getStudentRegistrationHistory } from '@registry/registration';
 import { IconChevronRight, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import type { registrationRequests } from '@/modules/registry/database';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 import RegistrationModal from './form/RegistrationModal';

@@ -2,9 +2,9 @@
 
 import { NumberInput, Switch, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
+import { terms } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { terms } from '@/modules/registry/database';
 import { Form } from '@/shared/ui/adease';
 
 type Term = typeof terms.$inferInsert;

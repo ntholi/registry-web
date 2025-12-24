@@ -1,5 +1,6 @@
 'use client';
 
+import type { Grade } from '@academic/_database';
 import { EditStudentModuleModal } from '@audit-logs/student-modules';
 import {
 	Anchor,
@@ -12,9 +13,8 @@ import {
 	Tooltip,
 	useComputedColorScheme,
 } from '@mantine/core';
+import type { StudentModuleStatus } from '@registry/_database';
 import { useSession } from 'next-auth/react';
-import type { Grade } from '@/modules/academic/database';
-import type { StudentModuleStatus } from '@/modules/registry/database';
 import {
 	type AllStatusType,
 	getGradeColor,

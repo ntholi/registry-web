@@ -3,10 +3,10 @@
 import { getAllSchools } from '@academic/schools';
 import { MultiSelect, NumberInput, Select, TextInput } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import { venues } from '@timetable/_database';
 import { getAllVenueTypes } from '@timetable/venue-types';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { venues } from '@/modules/timetable/database';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { Form } from '@/shared/ui/adease';
 

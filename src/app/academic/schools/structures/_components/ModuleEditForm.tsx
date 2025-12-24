@@ -1,5 +1,6 @@
 'use client';
 
+import type { modules, semesterModules } from '@academic/_database';
 import { findModulesByStructure } from '@academic/semester-modules';
 import { MultiSelect, Radio, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -8,7 +9,6 @@ import { notifications } from '@mantine/notifications';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import type { modules, semesterModules } from '@/modules/academic/database';
 
 type SemesterModule = typeof semesterModules.$inferInsert & {
 	prerequisiteCodes?: string[];

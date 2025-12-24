@@ -11,6 +11,7 @@ import {
 	TextInput,
 	Title,
 } from '@mantine/core';
+import type { students } from '@registry/_database';
 import {
 	IconAlertTriangle,
 	IconGenderFemale,
@@ -20,7 +21,6 @@ import {
 	IconUser,
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import type { students } from '@/modules/registry/database';
 
 type Student = typeof students.$inferSelect & {
 	user?: { name?: string | null } | null;

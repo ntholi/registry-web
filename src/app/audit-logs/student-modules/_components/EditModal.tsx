@@ -1,5 +1,6 @@
 'use client';
 
+import { type Grade, grade } from '@academic/_database/schema/enums';
 import {
 	ActionIcon,
 	type ActionIconProps,
@@ -18,14 +19,13 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
-import { type Grade, grade } from '@/modules/academic/database/schema/enums';
 import {
 	type StudentModuleStatus,
 	studentModuleStatus,
-} from '@/modules/registry/database/schema/enums';
+} from '@registry/_database/schema/enums';
+import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 import AuditHistoryTab from '../../_components/AuditHistoryTab';
 import {
