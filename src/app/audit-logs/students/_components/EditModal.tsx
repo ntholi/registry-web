@@ -23,8 +23,8 @@ import {
 	maritalStatusEnum,
 	studentStatus,
 } from '@/modules/registry/database/schema/enums';
-import AuditHistoryTab from '../../../components/AuditHistoryTab';
-import { getStudentAuditHistory, updateStudent } from '../server/actions';
+import AuditHistoryTab from '../../_components/AuditHistoryTab';
+import { getStudentAuditHistory, updateStudent } from '../_server/actions';
 
 interface Student {
 	stdNo: number;

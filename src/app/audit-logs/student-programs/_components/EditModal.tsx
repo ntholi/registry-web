@@ -25,11 +25,11 @@ import {
 	programStatus,
 	type StudentProgramStatus,
 } from '@/modules/registry/database/schema/enums';
-import AuditHistoryTab from '../../../components/AuditHistoryTab';
+import AuditHistoryTab from '../../_components/AuditHistoryTab';
 import {
 	getStudentProgramAuditHistory,
 	updateStudentProgram,
-} from '../server/actions';
+} from '../_server/actions';
 
 function parseDate(dateString: string | null): Date | null {
 	if (!dateString) return null;

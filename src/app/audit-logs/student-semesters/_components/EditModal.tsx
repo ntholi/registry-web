@@ -1,86 +1,115 @@
 'use client';
 
+import { getAllSponsors } from '@finance/sponsors';
 import {
 	ActionIcon,
-	type ActionIconProps,
 	Alert,
-	Box,
 	Button,
 	Group,
 	Loader,
 	Modal,
 	Select,
 	Tabs,
-	Text,
 	Textarea,
-	TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { getAllTerms } from '@registry/dates/terms';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { type Grade, grade } from '@/modules/academic/database/schema/enums';
 import {
-	type StudentModuleStatus,
-	studentModuleStatus,
+	type SemesterStatus,
+	semesterStatus,
 } from '@/modules/registry/database/schema/enums';
-import { getLetterGrade } from '@/shared/lib/utils/grades';
-import AuditHistoryTab from '../../../components/AuditHistoryTab';
+import AuditHistoryTab from '../../_components/AuditHistoryTab';
 import {
-	canEditMarksAndGrades,
-	getStudentModuleAuditHistory,
-	updateStudentModule,
-} from '../server/actions';
+	getStructureSemestersByStructureId,
+	getStudentSemesterAuditHistory,
+	updateStudentSemester,
+} from '../_server/actions';
 
-interface StudentModule {
+interface StudentSemester {
 	id: number;
-	code: string;
-	name: string;
-	status: StudentModuleStatus;
-	marks: string;
-	grade: Grade;
+	termCode: string;
+	structureSemesterId: number;
+	status: SemesterStatus;
+	sponsorId: number | null;
+	studentProgramId: number;
 }
 
-type Props = {
-	module: StudentModule;
-} & ActionIconProps;
+interface Props {
+	semester: StudentSemester;
+	structureId: number;
+}
 
 const FIELD_LABELS = {
+	termCode: 'Term',
 	status: 'Status',
-	marks: 'Marks',
-	grade: 'Grade',
-	moduleCode: 'Module Code',
-	moduleName: 'Module Name',
+	structureSemesterId: 'Structure Semester',
+	sponsorId: 'Sponsor',
+	studentProgramId: 'Student Program',
 };
 
-export default function EditStudentModuleModal({ module, ...rest }: Props) {
+export default function EditStudentSemesterModal({
+	semester,
+	structureId,
+}: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
 	const [pendingSubmit, setPendingSubmit] = useState(false);
 
-	const { data: canEditMarks = false, isLoading: isLoadingPermissions } =
-		useQuery({
-			queryKey: ['can-edit-marks'],
-			queryFn: canEditMarksAndGrades,
-			staleTime: 1000 * 60 * 15,
-			enabled: opened,
-		});
+	const { data: termsData = [], isLoading: isLoadingTerms } = useQuery({
+		queryKey: ['terms'],
+		queryFn: getAllTerms,
+		enabled: opened,
+		select: (data) =>
+			data.map((t) => ({
+				value: t.code,
+				label: t.code,
+			})),
+	});
+
+	const { data: sponsorsData = [], isLoading: isLoadingSponsors } = useQuery({
+		queryKey: ['sponsors'],
+		queryFn: getAllSponsors,
+		enabled: opened,
+		select: (data) =>
+			data.map((s) => ({
+				value: s.id.toString(),
+				label: s.name,
+			})),
+	});
+
+	const {
+		data: structureSemestersData = [],
+		isLoading: isLoadingStructureSemesters,
+	} = useQuery({
+		queryKey: ['structure-semesters', structureId],
+		queryFn: () => getStructureSemestersByStructureId(structureId),
+		enabled: opened,
+		select: (data) =>
+			data.map((s) => ({
+				value: s.id.toString(),
+				label: s.name,
+			})),
+	});
 
 	const { data: historyData, isLoading: isLoadingHistory } = useQuery({
-		queryKey: ['student-module-audit-history', module.id],
-		queryFn: () => getStudentModuleAuditHistory(module.id),
+		queryKey: ['student-semester-audit-history', semester.id],
+		queryFn: () => getStudentSemesterAuditHistory(semester.id),
 		enabled: opened,
 	});
 
 	const form = useForm({
 		initialValues: {
-			status: module.status,
-			marks: module.marks,
-			grade: module.grade,
+			termCode: semester.termCode,
+			status: semester.status,
+			structureSemesterId: semester.structureSemesterId.toString(),
+			sponsorId: semester.sponsorId?.toString() || '',
 			reasons: '',
 		},
 	});
@@ -88,49 +117,35 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 	useEffect(() => {
 		if (opened) {
 			form.setValues({
-				status: module.status,
-				marks: module.marks,
-				grade: module.grade,
+				termCode: semester.termCode,
+				status: semester.status,
+				structureSemesterId: semester.structureSemesterId.toString(),
+				sponsorId: semester.sponsorId?.toString() || '',
 				reasons: '',
 			});
 			setShowReasonWarning(false);
 			setPendingSubmit(false);
 		}
-	}, [opened, module, form.setValues]);
-
-	const handleMarksChange = useCallback(
-		(value: string) => {
-			form.setFieldValue('marks', value);
-			const numericMarks = Number.parseFloat(value);
-			if (
-				!Number.isNaN(numericMarks) &&
-				numericMarks >= 0 &&
-				numericMarks <= 100
-			) {
-				const determinedGrade = getLetterGrade(numericMarks);
-				form.setFieldValue('grade', determinedGrade);
-			}
-		},
-		[form]
-	);
+	}, [opened, semester, form.setValues]);
 
 	const executeSubmit = useCallback(
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
-				await updateStudentModule(
-					module.id,
+				await updateStudentSemester(
+					semester.id,
 					{
-						status: values.status as StudentModuleStatus,
-						marks: values.marks,
-						grade: values.grade as Grade,
+						termCode: values.termCode,
+						status: values.status as SemesterStatus,
+						structureSemesterId: parseInt(values.structureSemesterId, 10),
+						sponsorId: values.sponsorId ? parseInt(values.sponsorId, 10) : null,
 					},
 					values.reasons
 				);
 
 				notifications.show({
 					title: 'Success',
-					message: 'Student module updated successfully',
+					message: 'Student semester updated successfully',
 					color: 'green',
 				});
 
@@ -138,7 +153,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 					queryKey: ['student'],
 				});
 				queryClient.invalidateQueries({
-					queryKey: ['student-module-audit-history', module.id],
+					queryKey: ['student-semester-audit-history', semester.id],
 				});
 
 				form.reset();
@@ -146,7 +161,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 			} catch (error) {
 				notifications.show({
 					title: 'Error',
-					message: `Failed to update student module: ${error}`,
+					message: `Failed to update student semester: ${error}`,
 					color: 'red',
 				});
 			} finally {
@@ -155,7 +170,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 				setPendingSubmit(false);
 			}
 		},
-		[module.id, form, close, queryClient]
+		[semester.id, form, close, queryClient]
 	);
 
 	const handleSubmit = useCallback(
@@ -173,30 +188,27 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 	return (
 		<>
 			<ActionIcon
+				component='div'
 				size='sm'
 				variant='subtle'
 				color='gray'
-				onClick={open}
+				onClick={(e) => {
+					e.stopPropagation();
+					open();
+				}}
 				style={{
 					opacity: 0,
 					transition: 'opacity 0.2s',
+					cursor: 'pointer',
 				}}
-				className='edit-module-icon'
-				{...rest}
+				className='edit-semester-icon'
 			>
 				<IconEdit size='1rem' />
 			</ActionIcon>
 			<Modal
 				opened={opened}
 				onClose={close}
-				title={
-					<Box>
-						<Box style={{ fontWeight: 600 }}>Edit Student Module</Box>
-						<Text size='sm' c='dimmed' mt='xs'>
-							{module.code} - {module.name}
-						</Text>
-					</Box>
-				}
+				title='Edit Student Semester'
 				size='md'
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
@@ -209,10 +221,24 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 
 						<Tabs.Panel value='details' pt='md'>
 							<Select
+								label='Term'
+								placeholder='Select term'
+								searchable
+								clearable
+								data={termsData}
+								required
+								mb='md'
+								disabled={isLoadingTerms}
+								{...form.getInputProps('termCode')}
+								rightSection={isLoadingTerms ? <Loader size='xs' /> : undefined}
+							/>
+
+							<Select
 								label='Status'
 								placeholder='Select status'
 								searchable
-								data={studentModuleStatus.enumValues.map((s) => ({
+								clearable
+								data={semesterStatus.enumValues.map((s) => ({
 									value: s,
 									label: s,
 								}))}
@@ -221,37 +247,32 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								{...form.getInputProps('status')}
 							/>
 
-							<TextInput
-								label='Marks'
-								placeholder='Enter marks'
+							<Select
+								label='Structure Semester'
+								placeholder='Select structure semester'
+								searchable
+								clearable
+								data={structureSemestersData}
 								required
 								mb='md'
-								disabled={!canEditMarks || isLoadingPermissions}
-								value={form.values.marks}
-								onChange={(event) =>
-									handleMarksChange(event.currentTarget.value)
-								}
-								error={form.errors.marks}
+								disabled={isLoadingStructureSemesters}
+								{...form.getInputProps('structureSemesterId')}
 								rightSection={
-									isLoadingPermissions ? <Loader size='xs' /> : undefined
+									isLoadingStructureSemesters ? <Loader size='xs' /> : undefined
 								}
 							/>
 
 							<Select
-								label='Grade'
-								placeholder='Select grade'
+								label='Sponsor'
+								placeholder='Select sponsor (optional)'
 								searchable
 								clearable
-								data={grade.enumValues.map((g) => ({
-									value: g,
-									label: g,
-								}))}
-								required
+								data={sponsorsData}
 								mb='md'
-								disabled={!canEditMarks || isLoadingPermissions}
-								{...form.getInputProps('grade')}
+								disabled={isLoadingSponsors}
+								{...form.getInputProps('sponsorId')}
 								rightSection={
-									isLoadingPermissions ? <Loader size='xs' /> : undefined
+									isLoadingSponsors ? <Loader size='xs' /> : undefined
 								}
 							/>
 						</Tabs.Panel>
@@ -270,7 +291,6 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								data={historyData}
 								isLoading={isLoadingHistory}
 								fieldLabels={FIELD_LABELS}
-								excludeFields={['studentSemesterId', 'moduleId']}
 							/>
 						</Tabs.Panel>
 					</Tabs>
@@ -291,14 +311,23 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 						<Button
 							variant='outline'
 							onClick={close}
-							disabled={isSubmitting || isLoadingPermissions}
+							disabled={
+								isSubmitting ||
+								isLoadingTerms ||
+								isLoadingSponsors ||
+								isLoadingStructureSemesters
+							}
 						>
 							Cancel
 						</Button>
 						<Button
 							type='submit'
 							loading={isSubmitting}
-							disabled={isLoadingPermissions}
+							disabled={
+								isLoadingTerms ||
+								isLoadingSponsors ||
+								isLoadingStructureSemesters
+							}
 						>
 							Update
 						</Button>

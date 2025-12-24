@@ -29,7 +29,7 @@
 			"@lms/*": ["./src/app/lms/*"],
 			"@timetable/*": ["./src/app/timetable/*"],
 			"@auth/*": ["./src/modules/auth/features/*"],
-			"@audit-logs/*": ["./src/modules/audit-logs/features/*"],
+			"@audit-logs/*": ["./src/app/audit-logs/*"],
 			"@server/*": ["./src/server/*"]
 		}
 	},

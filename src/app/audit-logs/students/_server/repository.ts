@@ -65,7 +65,6 @@ export default class StudentAuditLogRepository extends BaseRepository<
 				throw new Error('Student not found');
 			}
 
-			// Convert dateOfBirth string to Date object if present
 			const processedUpdates = {
 				...updates,
 				dateOfBirth: updates.dateOfBirth
