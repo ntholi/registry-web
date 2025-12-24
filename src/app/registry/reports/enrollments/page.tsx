@@ -14,11 +14,6 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
-	RegistrationCharts,
-	RegistrationFilter,
-	type ReportFilter,
-} from '@registry/reports';
-import {
 	IconChartBar,
 	IconChartPie,
 	IconDownload,
@@ -28,14 +23,16 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
+import RegistrationCharts from './_components/EnrollmentCharts';
+import RegistrationFilter, { type ReportFilter } from './_components/Filter';
+import ProgramBreakdownTable from './_components/ProgramBreakdownTable';
+import StudentTable from './_components/StudentTable';
 import {
 	generateStudentsListReport,
 	generateSummaryRegistrationReport,
 	getPaginatedRegistrationStudents,
 	getRegistrationDataPreview,
-	ProgramBreakdownTable,
-	StudentTable,
-} from '@/modules/registry/features/reports/enrollments';
+} from './_server/actions';
 
 const PAGE_SIZE = 20;
 

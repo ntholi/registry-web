@@ -1,11 +1,11 @@
 'use server';
 
+import { getActiveTerm } from '@registry/dates/terms';
 import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
 import { auth } from '@/core/auth';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { getOrReuseSection } from '@/modules/lms/shared/utils';
-import { getActiveTerm } from '@/modules/registry/features/dates/terms';
 import type { CreateAssignmentParams, MoodleAssignment } from '../types';
 
 export async function getCourseAssignments(

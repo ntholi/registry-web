@@ -1,8 +1,6 @@
-import { getBlockedStudentByStdNo } from '@finance/blocked-students';
-import { getStudent, StudentTabs } from '@registry/students';
+import { getStudent, StudentTabs, StudentView } from '@registry/students';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { auth } from '@/core/auth';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 type Props = {
@@ -21,22 +19,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function StudentDetails({ params }: Props) {
 	const { id } = await params;
 	const student = await getStudent(Number(id));
-	const session = await auth();
 
 	if (!student) {
 		return notFound();
 	}
 
-	const blockedStudent = await getBlockedStudentByStdNo(student.stdNo);
-
 	return (
 		<DetailsView>
 			<DetailsViewHeader title={student.name} queryKey={['students']} />
-			<StudentTabs
-				student={student}
-				session={session}
-				blockedStudent={blockedStudent}
-			/>
+			<StudentTabs student={student}>
+				<StudentView student={student} />
+			</StudentTabs>
 		</DetailsView>
 	);
 }

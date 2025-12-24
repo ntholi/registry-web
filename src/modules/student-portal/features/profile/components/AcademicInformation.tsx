@@ -19,10 +19,10 @@ import { IconBook, IconCalendar, IconTrophy } from '@tabler/icons-react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Program = ReturnType<
-	typeof import('@/modules/registry/features/students/utils').getActiveProgram
+	typeof import('@/app/registry/students/_lib/utils').getActiveProgram
 >;
 type Semester = ReturnType<
-	typeof import('@/modules/registry/features/students/utils').getCurrentSemester
+	typeof import('@/app/registry/students/_lib/utils').getCurrentSemester
 >;
 
 type Props = {

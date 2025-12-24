@@ -42,7 +42,7 @@ export default function ProofOfRegistrationDownload({
 
 			const activeProgram = studentData.programs.find(
 				(p) => p.status === 'Active'
-			) as NonNullable<(typeof studentData.programs)[number]>;
+			);
 
 			if (!activeProgram) {
 				console.error('No active program found');
@@ -62,18 +62,28 @@ export default function ProofOfRegistrationDownload({
 				return;
 			}
 
-			const modifiedStudentData = {
-				...studentData,
-				programs: [
-					{
-						...activeProgram,
-						semesters: [targetSemester],
-					},
-				],
+			const pdfData = {
+				stdNo: studentData.stdNo,
+				name: studentData.name,
+				program: activeProgram.structure.program.name,
+				faculty: activeProgram.structure.program.school?.name ?? '',
+				semesterNumber: targetSemester.structureSemester?.semesterNumber ?? '',
+				semesterStatus: targetSemester.status as 'Active' | 'Repeat',
+				termCode: targetSemester.termCode ?? '',
+				modules: targetSemester.studentModules.map((sm) => ({
+					code: sm.semesterModule?.module?.code ?? '',
+					name: sm.semesterModule?.module?.name ?? '',
+					credits: sm.credits ?? 0,
+					type: '',
+					semesterNumber:
+						targetSemester.structureSemester?.semesterNumber ?? '',
+				})),
+				sponsor: undefined,
+				registrationDate: new Date(),
 			};
 
 			const pdfBlob = await pdf(
-				<ProofOfRegistrationPDF student={modifiedStudentData} />
+				<ProofOfRegistrationPDF data={pdfData} />
 			).toBlob();
 
 			const url = URL.createObjectURL(pdfBlob);

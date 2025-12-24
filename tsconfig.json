@@ -22,7 +22,7 @@
 		"paths": {
 			"@/*": ["./src/*"],
 			"@academic/*": ["./src/app/academic/*"],
-			"@registry/*": ["./src/modules/registry/features/*"],
+			"@registry/*": ["./src/app/registry/*"],
 			"@student-portal/*": ["./src/modules/student-portal/features/*"],
 			"@finance/*": ["./src/modules/finance/features/*"],
 			"@admin/*": ["./src/app/admin/*"],
