@@ -1,10 +1,10 @@
-import type { Grade, ModuleType } from '@/modules/academic/database';
-import type { programLevelEnum } from '@/modules/academic/database/schema/enums';
-import type { taskPriority, taskStatus } from '@/modules/admin/database';
 import type {
 	QuestionType as LmsQuestionType,
 	QuestionState,
-} from '@/modules/lms/features/quizzes/types';
+} from '@lms/quizzes';
+import type { Grade, ModuleType } from '@/modules/academic/database';
+import type { programLevelEnum } from '@/modules/academic/database/schema/enums';
+import type { taskPriority, taskStatus } from '@/modules/admin/database';
 import type {
 	SemesterStatus,
 	StudentModuleStatus,
