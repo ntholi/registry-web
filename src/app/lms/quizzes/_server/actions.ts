@@ -1,6 +1,6 @@
 'use server';
 
-import { studentRepository } from '@lms/students';
+import { studentRepository } from '@lms/students/_server/repository';
 import { getActiveTerm } from '@registry/dates/terms';
 import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
 import { auth } from '@/core/auth';

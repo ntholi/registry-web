@@ -1,6 +1,6 @@
 'use server';
 
-import { studentRepository } from '@lms/students';
+import { studentRepository } from '@lms/students/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet } from '@/core/integrations/moodle';
 import type { MoodleSubmission, SubmissionUser } from '../../../types';
