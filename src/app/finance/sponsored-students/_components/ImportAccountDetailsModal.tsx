@@ -14,7 +14,6 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { getBooleanColor, statusColors } from '@student-portal/utils';
 import {
 	IconAlertCircle,
 	IconCheck,
@@ -24,6 +23,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
+import { getBooleanColor, statusColors } from '@/shared/lib/utils/colors';
 
 interface ImportRow {
 	stdNo: string;

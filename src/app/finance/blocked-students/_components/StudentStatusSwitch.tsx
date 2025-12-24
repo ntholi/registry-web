@@ -2,7 +2,6 @@
 
 import { Group, Paper, Stack, Switch, Text, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { getAlertColor, getBooleanColor } from '@student-portal/utils';
 import {
 	IconCheck,
 	IconExclamationCircle,
@@ -12,6 +11,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useEffect, useState } from 'react';
+import { getAlertColor, getBooleanColor } from '@/shared/lib/utils/colors';
 import { updateBlockedStudent } from '../_server/actions';
 
 type Props = {

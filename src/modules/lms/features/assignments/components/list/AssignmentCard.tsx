@@ -2,7 +2,6 @@
 
 import { ActionIcon, Box, Card, Group, Menu, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getBooleanColor } from '@student-portal/utils';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -16,6 +15,7 @@ import {
 	deleteAssessment,
 	getAssessmentByLmsId,
 } from '@/app/academic/assessments/_server/actions';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { DeleteModal } from '@/shared/ui/adease';
 import { deleteAssignment } from '../../server/actions';
 import type { MoodleAssignment } from '../../types';

@@ -10,6 +10,8 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
+import { useMasonryLayout } from '@/shared/lib/hooks/use-masonry';
 import {
 	type ChartSemesterStatusType,
 	type GenderType,
@@ -17,9 +19,7 @@ import {
 	getGenderColor,
 	getProgramLevelColor,
 	type ProgramLevelType,
-} from '@student-portal/utils';
-import { useQuery } from '@tanstack/react-query';
-import { useMasonryLayout } from '@/shared/lib/hooks/use-masonry';
+} from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getRegistrationChartData } from '../_server/actions';
 import type { ReportFilter } from './Filter';

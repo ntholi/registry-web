@@ -14,11 +14,11 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { getBooleanColor } from '@student-portal/utils';
 import { IconClipboardCheck, IconMessageCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 
 dayjs.extend(relativeTime);
 

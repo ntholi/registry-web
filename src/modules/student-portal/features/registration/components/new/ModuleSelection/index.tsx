@@ -6,10 +6,10 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { getBooleanColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import type { StudentModuleStatus } from '@/core/database';
 import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 import ModuleCheckbox from './ModuleCheckbox';
 
 type ModuleWithStatus = {

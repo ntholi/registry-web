@@ -9,8 +9,8 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { getPercentageColor } from '@student-portal/utils';
 import StudentAvatar from '@/modules/lms/shared/StudentAvatar';
+import { getPercentageColor } from '@/shared/lib/utils/colors';
 import type { QuizSubmissionUser } from '../../types';
 
 type Props = {

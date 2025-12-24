@@ -2,8 +2,8 @@
 
 import { Alert, Box, Divider, Stack, Text } from '@mantine/core';
 import type { getRegistrationRequest } from '@registry/registration';
-import { getAlertColor } from '@student-portal/utils';
 import { IconExclamationCircle, IconInfoCircle } from '@tabler/icons-react';
+import { getAlertColor } from '@/shared/lib/utils/colors';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {

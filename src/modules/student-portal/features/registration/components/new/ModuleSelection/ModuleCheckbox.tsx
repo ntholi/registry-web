@@ -1,6 +1,6 @@
 import { Badge, Checkbox, Flex, Group, Text } from '@mantine/core';
-import { getModuleTypeColor } from '@student-portal/utils';
 import { IconLock } from '@tabler/icons-react';
+import { getModuleTypeColor } from '@/shared/lib/utils/colors';
 
 type ModuleWithStatus = {
 	semesterModuleId: number;

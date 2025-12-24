@@ -14,8 +14,8 @@ import {
 	Title,
 } from '@mantine/core';
 import type { AcademicRemarks } from '@registry/students';
-import { getStatusColor } from '@student-portal/utils';
 import { IconBook, IconCalendar, IconTrophy } from '@tabler/icons-react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Program = ReturnType<

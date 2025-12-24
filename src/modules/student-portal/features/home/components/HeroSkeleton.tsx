@@ -7,8 +7,8 @@ import {
 	Stack,
 	ThemeIcon,
 } from '@mantine/core';
-import { semantic } from '@student-portal/utils';
 import { IconBook, IconTrophy } from '@tabler/icons-react';
+import { semantic } from '@/shared/lib/utils/colors';
 
 type Props = {
 	isMobile: boolean;

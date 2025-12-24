@@ -10,7 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { type AllStatusType, getStatusColor } from '@student-portal/utils';
+import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import type { getStudent } from '../../_server/actions';
 

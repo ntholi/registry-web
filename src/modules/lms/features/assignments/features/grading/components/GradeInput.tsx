@@ -1,9 +1,9 @@
 'use client';
 
 import { Box, Group, Text, TextInput } from '@mantine/core';
-import { getMarksPercentageColor } from '@student-portal/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
+import { getMarksPercentageColor } from '@/shared/lib/utils/colors';
 import { getAssignmentGrades, saveAssignmentGrade } from '../server/actions';
 
 type Props = {

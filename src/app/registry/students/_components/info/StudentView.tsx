@@ -17,10 +17,10 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { getBooleanColor, getStatusColor } from '@student-portal/utils';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import type { UserRole } from '@/core/database';
+import { getBooleanColor, getStatusColor } from '@/shared/lib/utils/colors';
 import {
 	calculateAge,
 	formatDate,

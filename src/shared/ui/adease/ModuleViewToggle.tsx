@@ -1,9 +1,9 @@
 'use client';
 
 import { ActionIcon, Tooltip } from '@mantine/core';
-import { getStatusColor } from '@student-portal/utils';
 import { IconFilter, IconFilterOff } from '@tabler/icons-react';
 import { useState } from 'react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 
 export interface ModuleViewToggleProps {
 	onToggle: (showAssignedOnly: boolean) => void;

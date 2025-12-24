@@ -12,7 +12,7 @@ import {
 import {
 	getModuleStatusTextColor,
 	getStatusColor,
-} from '@student-portal/utils';
+} from '@/shared/lib/utils/colors';
 import type { getClearance } from '../../requests/_server/clearance/actions';
 
 type Module = NonNullable<

@@ -12,8 +12,8 @@ import {
 	Title,
 } from '@mantine/core';
 import type { getRegistrationRequest } from '@registry/registration';
-import { getAlertColor, getStatusColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
+import { getAlertColor, getStatusColor } from '@/shared/lib/utils/colors';
 
 type Props = {
 	registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;

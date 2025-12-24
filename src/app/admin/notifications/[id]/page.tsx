@@ -1,6 +1,6 @@
 import { Badge, Group, Stack, Text } from '@mantine/core';
-import { getBooleanColor } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	DetailsView,

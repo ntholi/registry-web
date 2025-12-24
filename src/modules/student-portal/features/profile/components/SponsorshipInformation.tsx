@@ -10,9 +10,9 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { getAlertColor, getStatusColor } from '@student-portal/utils';
 import { IconInfoCircle, IconWallet } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { getAlertColor, getStatusColor } from '@/shared/lib/utils/colors';
 
 interface SponsorshipInformationProps {
 	studentNo: number;

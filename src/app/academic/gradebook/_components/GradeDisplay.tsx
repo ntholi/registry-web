@@ -1,8 +1,8 @@
 'use client';
 
 import { Badge, Text } from '@mantine/core';
-import { getGradeColor } from '@student-portal/utils';
 import type { Grade } from '@/modules/academic/database';
+import { getGradeColor } from '@/shared/lib/utils/colors';
 import TotalMarkDisplay from './TotalMarkDisplay';
 
 type ModuleGrade = {

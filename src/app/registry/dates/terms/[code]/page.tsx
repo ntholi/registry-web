@@ -1,7 +1,7 @@
 import { Badge } from '@mantine/core';
 import { deleteTerm, getTermByCode } from '@registry/dates/terms';
-import { getBooleanColor } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 import {
 	DetailsView,
 	DetailsViewBody,

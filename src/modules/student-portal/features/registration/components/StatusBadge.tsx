@@ -4,10 +4,10 @@ import { Badge, Skeleton } from '@mantine/core';
 import { getRegistrationRequest } from '@registry/registration';
 import {
 	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
-	getStatusColor,
 	type RegistrationStatus,
-} from '@student-portal/utils';
+} from '@student-portal/utils/status';
 import { useQuery } from '@tanstack/react-query';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 
 interface Props {
 	requestId: number;

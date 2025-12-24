@@ -17,7 +17,6 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAuditActionColor } from '@student-portal/utils';
 import {
 	IconEdit,
 	IconHistory,
@@ -29,6 +28,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import type { assessments } from '@/modules/academic/database';
 import { generateAssessmentAuditMessage } from '@/shared/lib/utils/auditUtils';
+import { getAuditActionColor } from '@/shared/lib/utils/colors';
 import {
 	getAssessmentNumberLabel,
 	getAssessmentTypeLabel,

@@ -15,12 +15,12 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { getAllTerms } from '@registry/dates/terms';
-import { getBooleanColor } from '@student-portal/utils';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Term } from '@/core/database';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {

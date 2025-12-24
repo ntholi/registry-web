@@ -10,8 +10,8 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { getBooleanColor } from '@student-portal/utils';
 import { IconCheck, IconCircleNumber1 } from '@tabler/icons-react';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 import type { MoodleQuizQuestion } from '../../types';
 import { getQuestionTypeInfo, stripHtml } from '../shared/utils';
 

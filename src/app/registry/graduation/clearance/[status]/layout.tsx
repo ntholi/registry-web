@@ -1,9 +1,9 @@
 'use client';
 
 import { graduationClearanceByStatus } from '@registry/graduation/clearance';
-import { getStatusIcon } from '@student-portal/utils';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
+import { getStatusIcon } from '@/shared/lib/utils/status';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 
 type Status = 'pending' | 'approved' | 'rejected';

@@ -3,8 +3,7 @@
 import { ActionIcon } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
 import { getGraduationClearanceData } from '@registry/graduation/clearance';
-
-import { getClearanceStatus } from '@student-portal/utils';
+import { getClearanceStatus } from '@student-portal/utils/status';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
 import ProofOfClearancePDF from './ProofOfClearancePDF';

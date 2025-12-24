@@ -2,12 +2,12 @@
 
 import { findAllTasks, type TaskWithRelations } from '@admin/tasks';
 import { Badge, Group, Stack, Text } from '@mantine/core';
+import { IconCalendar, IconSchool, IconUser } from '@tabler/icons-react';
+import type { PropsWithChildren } from 'react';
 import {
 	getTaskPriorityColor,
 	getTaskStatusColor,
-} from '@student-portal/utils';
-import { IconCalendar, IconSchool, IconUser } from '@tabler/icons-react';
-import type { PropsWithChildren } from 'react';
+} from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 const statusLabels: Record<string, string> = {

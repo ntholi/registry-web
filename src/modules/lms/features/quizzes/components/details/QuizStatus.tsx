@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, type BadgeProps } from '@mantine/core';
-import { type AllStatusType, getStatusColor } from '@student-portal/utils';
+import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import type { MoodleQuiz } from '../../types';
 
 type Props = {

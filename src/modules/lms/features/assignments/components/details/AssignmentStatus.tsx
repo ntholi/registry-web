@@ -2,7 +2,7 @@
 
 import type { BadgeProps } from '@mantine/core';
 import { Badge } from '@mantine/core';
-import { getAssignmentStatusColor } from '@student-portal/utils';
+import { getAssignmentStatusColor } from '@/shared/lib/utils/colors';
 import type { MoodleAssignment } from '../../types';
 
 type Props = {

@@ -13,10 +13,10 @@ import {
 	Title,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { getStatusColor } from '@student-portal/utils';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import Link from '@/shared/ui/Link';
 import DownloadSponsoredStudentsButton from './DownloadButton';
 import EditSponsorDetailsModal from './EditSponsorDetailsModal';

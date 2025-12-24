@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Card, Center, Stack, Table, Text } from '@mantine/core';
-import { type ClassType, getClassTypeColor } from '@student-portal/utils';
+import { type ClassType, getClassTypeColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type SlotAllocation = {

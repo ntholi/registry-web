@@ -11,8 +11,8 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { getStatusColor } from '@student-portal/utils';
 import { IconCopy } from '@tabler/icons-react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';

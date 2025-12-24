@@ -3,9 +3,9 @@
 import { createOrUpdateMarksInBulk } from '@academic/assessment-marks';
 import { Button, Group, Paper, Progress, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { getBooleanColor } from '@student-portal/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 import type { ImportResult, ParsedRow } from './types';
 
 interface Props {

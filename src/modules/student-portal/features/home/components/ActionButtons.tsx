@@ -9,7 +9,6 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { semantic } from '@student-portal/utils';
 import {
 	type Icon,
 	IconChevronRight,
@@ -20,6 +19,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { semantic } from '@/shared/lib/utils/colors';
 
 type Action = {
 	label: string;

@@ -15,10 +15,10 @@ import {
 	Textarea,
 	ThemeIcon,
 } from '@mantine/core';
-import { getQuizStateColor } from '@student-portal/utils';
 import { IconCheck, IconEdit, IconMinus, IconX } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { getQuizStateColor } from '@/shared/lib/utils/colors';
 import { gradeEssayQuestion } from '../../server/actions';
 import type { QuizAttemptQuestion } from '../../types';
 import { getQuestionTypeInfo, stripHtml } from '../shared/utils';

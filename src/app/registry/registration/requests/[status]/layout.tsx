@@ -2,11 +2,11 @@
 
 import { getActiveTerm } from '@registry/dates/terms';
 import { findAllRegistrationRequests } from '@registry/registration/requests';
-import { getStatusIcon } from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
+import { getStatusIcon } from '@/shared/lib/utils/status';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 import TermFilter from '@/shared/ui/TermFilter';

@@ -10,8 +10,8 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { getPercentageColor } from '@student-portal/utils';
 import { IconCalendarTime, IconClock } from '@tabler/icons-react';
+import { getPercentageColor } from '@/shared/lib/utils/colors';
 import type { QuizAttemptDetails } from '../../types';
 
 type Props = {

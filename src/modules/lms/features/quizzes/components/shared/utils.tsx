@@ -1,6 +1,5 @@
 'use client';
 
-import { getQuestionTypeColor, type QuestionType } from '@student-portal/utils';
 import {
 	IconCheck,
 	IconCircleNumber1,
@@ -8,6 +7,10 @@ import {
 	IconLetterA,
 	IconTextCaption,
 } from '@tabler/icons-react';
+import {
+	getQuestionTypeColor,
+	type QuestionType,
+} from '@/shared/lib/utils/colors';
 
 export type QuestionTypeInfo = {
 	label: string;

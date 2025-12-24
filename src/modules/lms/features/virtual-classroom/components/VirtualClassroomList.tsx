@@ -15,9 +15,9 @@ import {
 	ThemeIcon,
 	useMantineTheme,
 } from '@mantine/core';
-import { getStatusColor } from '@student-portal/utils';
 import { IconExternalLink, IconVideo, IconVideoOff } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import {
 	getBigBlueButtonJoinUrl,
 	getVirtualClassroomSessions,

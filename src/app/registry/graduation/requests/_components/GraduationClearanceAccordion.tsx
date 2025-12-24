@@ -1,9 +1,10 @@
 'use client';
 
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { getStatusColor, getStatusIcon } from '@student-portal/utils';
 import type { getGraduationRequest } from '@/app/registry/graduation/clearance/_server/requests/actions';
 import type { DashboardUser } from '@/core/database';
+import { getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusIcon } from '@/shared/lib/utils/status';
 import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 

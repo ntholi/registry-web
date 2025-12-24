@@ -10,11 +10,11 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { getStatusColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
 import type { programs, structures } from '@/modules/academic/database';
 import type { studentPrograms } from '@/modules/registry/database';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 
 type StudentProgram = typeof studentPrograms.$inferSelect & {
 	structure: typeof structures.$inferSelect & {

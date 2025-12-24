@@ -14,12 +14,10 @@ import {
 	Title,
 } from '@mantine/core';
 import type { getRegistrationRequest } from '@registry/registration';
-import {
-	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
-	getStatusColor,
-	getStatusIcon,
-} from '@student-portal/utils';
+import { getRegistrationOverallClearanceStatus as getOverallClearanceStatus } from '@student-portal/utils/status';
 import { IconInfoCircle } from '@tabler/icons-react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusIcon } from '@/shared/lib/utils/status';
 import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {

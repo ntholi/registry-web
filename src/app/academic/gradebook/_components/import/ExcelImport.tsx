@@ -12,7 +12,6 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { getBooleanColor } from '@student-portal/utils';
 import {
 	IconAlertCircle,
 	IconCheck,
@@ -23,6 +22,7 @@ import {
 	IconUpload,
 } from '@tabler/icons-react';
 import { useCallback, useState } from 'react';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 
 import AssessmentMapping from './AssessmentMapping';
 import { ColumnDetector } from './ColumnDetector';

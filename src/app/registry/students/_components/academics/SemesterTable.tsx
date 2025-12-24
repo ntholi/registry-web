@@ -12,15 +12,15 @@ import {
 	Tooltip,
 	useComputedColorScheme,
 } from '@mantine/core';
+import { useSession } from 'next-auth/react';
+import type { Grade } from '@/modules/academic/database';
+import type { StudentModuleStatus } from '@/modules/registry/database';
 import {
 	type AllStatusType,
 	getGradeColor,
 	getOptionalColor,
 	getStatusColor,
-} from '@student-portal/utils';
-import { useSession } from 'next-auth/react';
-import type { Grade } from '@/modules/academic/database';
-import type { StudentModuleStatus } from '@/modules/registry/database';
+} from '@/shared/lib/utils/colors';
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 

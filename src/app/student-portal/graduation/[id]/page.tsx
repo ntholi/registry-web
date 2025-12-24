@@ -24,12 +24,12 @@ import {
 import {
 	getClearanceStatus,
 	getGraduationStatus,
-	getStatusColor,
-	getStatusIcon,
-} from '@student-portal/utils';
+} from '@student-portal/utils/status';
 import { IconReceipt } from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
+import { getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusIcon } from '@/shared/lib/utils/status';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 
 type Props = {

@@ -18,7 +18,6 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
-import { getPostTypeColor } from '@student-portal/utils';
 import {
 	IconBellRinging,
 	IconChevronDown,
@@ -33,6 +32,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
+import { getPostTypeColor } from '@/shared/lib/utils/colors';
 import { deletePost, getAllPosts, getDiscussionPosts } from '../server/actions';
 import type { MoodleDiscussion, MoodlePost, PostType } from '../types';
 

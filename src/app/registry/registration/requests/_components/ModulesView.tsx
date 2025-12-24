@@ -4,7 +4,7 @@ import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
 import {
 	getModuleStatusTextColor,
 	getStatusColor,
-} from '@student-portal/utils';
+} from '@/shared/lib/utils/colors';
 import Link from '@/shared/ui/Link';
 import type { getRegistrationRequest } from '../_server/requests/actions';
 

@@ -15,11 +15,11 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { getStatusColor } from '@student-portal/utils';
 import { IconSchool } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import SemesterStatus from '@/app/registry/students/_components/academics/SemesterStatus';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import type { getStudent } from '../../_server/actions';

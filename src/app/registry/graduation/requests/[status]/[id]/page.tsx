@@ -22,9 +22,10 @@ import {
 	GraduationRequestDetailsView,
 	ProofOfClearancePrinter,
 } from '@registry/graduation/requests';
-import { getStatusColor, getStatusIcon } from '@student-portal/utils';
 import { notFound } from 'next/navigation';
 import type { DashboardUser } from '@/core/database';
+import { getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusIcon } from '@/shared/lib/utils/status';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 
 interface Props {

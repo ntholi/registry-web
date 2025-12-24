@@ -3,9 +3,9 @@
 import { updateModuleVisibility } from '@academic/semester-modules';
 import { ActionIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { getBooleanColor } from '@student-portal/utils';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 
 type Props = {
 	moduleId: number;

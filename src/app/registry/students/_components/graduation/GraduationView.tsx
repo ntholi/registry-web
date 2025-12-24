@@ -15,10 +15,10 @@ import {
 	Text,
 } from '@mantine/core';
 import { getGraduationRequestByStudentNo } from '@registry/graduation/clearance';
-import { getStatusColor } from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getAcademicHistory } from '../../_server/actions';
 import CertificateDownloader from './certificate/CertificateDownloader';
 import CertificatePreview from './certificate/CertificatePreview';

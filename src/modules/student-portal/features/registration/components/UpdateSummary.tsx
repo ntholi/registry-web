@@ -10,8 +10,8 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getActionColor, getStatusColor } from '@student-portal/utils';
 import type { StudentModuleStatus } from '@/modules/registry/database';
+import { getActionColor, getStatusColor } from '@/shared/lib/utils/colors';
 
 type SelectedModule = {
 	moduleId: number;

@@ -14,7 +14,6 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { getOptionalColor } from '@student-portal/utils';
 import {
 	IconArrowLeft,
 	IconBook,
@@ -25,6 +24,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import { getOptionalColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 import EditButton from '../../_components/EditButton';

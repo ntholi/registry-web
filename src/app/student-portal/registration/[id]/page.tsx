@@ -22,16 +22,14 @@ import {
 	ModulesView,
 	ProofOfRegistrationDownload,
 } from '@student-portal/registration';
-import {
-	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
-	getStatusColor,
-	getStatusIcon,
-} from '@student-portal/utils';
+import { getRegistrationOverallClearanceStatus as getOverallClearanceStatus } from '@student-portal/utils/status';
 import { IconBooks, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { MAX_REGISTRATION_ATTEMPTS } from '@/modules/registry/shared/constants';
+import { getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusIcon } from '@/shared/lib/utils/status';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type Props = {

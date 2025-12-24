@@ -8,7 +8,6 @@ import {
 	useMantineColorScheme,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { getBooleanColor } from '@student-portal/utils';
 import {
 	IconClipboardCheck,
 	IconFileCertificate,
@@ -17,6 +16,7 @@ import {
 } from '@tabler/icons-react';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 
 interface NavItem {
 	icon: React.ReactNode;

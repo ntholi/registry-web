@@ -10,12 +10,12 @@ import {
 	Text,
 	TextInput,
 } from '@mantine/core';
-import { getAlertColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { getAlertColor } from '@/shared/lib/utils/colors';
 
 type SponsorshipData = {
 	sponsorId: number;

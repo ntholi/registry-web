@@ -17,7 +17,7 @@ import {
 import {
 	getModuleTypeColor,
 	getSemesterResultColor,
-} from '@student-portal/utils';
+} from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type SemesterStatusResult = {

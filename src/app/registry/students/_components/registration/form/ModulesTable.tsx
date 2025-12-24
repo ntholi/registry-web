@@ -9,10 +9,10 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getModuleTypeColor } from '@student-portal/utils';
 import { IconInfoCircle } from '@tabler/icons-react';
 import type { StudentModuleStatus } from '@/modules/registry/database';
 import { studentModuleStatus } from '@/modules/registry/database';
+import { getModuleTypeColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 type ModuleWithStatus = {

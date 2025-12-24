@@ -31,11 +31,6 @@ const statusColorMap: Record<'Active' | 'Repeat', string> = {
 	Repeat: 'yellow',
 };
 
-const semesterOptions = Array.from({ length: 14 }, (_, i) => ({
-	value: `${i + 1}`,
-	label: formatSemester(`${i + 1}`),
-}));
-
 export default function SemesterInfoCard({
 	semesterData,
 	selectedModules,

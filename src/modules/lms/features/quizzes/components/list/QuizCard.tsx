@@ -12,7 +12,6 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getBooleanColor, getQuizStatusColor } from '@student-portal/utils';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -27,6 +26,7 @@ import {
 	deleteAssessment,
 	getAssessmentByLmsId,
 } from '@/app/academic/assessments/_server/actions';
+import { getBooleanColor, getQuizStatusColor } from '@/shared/lib/utils/colors';
 import { DeleteModal } from '@/shared/ui/adease';
 import { deleteQuiz } from '../../server/actions';
 import type { MoodleQuiz } from '../../types';

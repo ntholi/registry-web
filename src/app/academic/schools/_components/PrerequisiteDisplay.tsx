@@ -1,6 +1,6 @@
 import { Group, Text } from '@mantine/core';
-import { getOptionalColor } from '@student-portal/utils';
 import { Fragment } from 'react';
+import { getOptionalColor } from '@/shared/lib/utils/colors';
 import Link from '@/shared/ui/Link';
 
 type Prerequisite = {

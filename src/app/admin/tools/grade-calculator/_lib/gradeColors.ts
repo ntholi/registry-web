@@ -1,1 +1,1 @@
-export { getGradeColor, getPointsColor } from '@student-portal/utils';
+export { getGradeColor, getPointsColor } from '@/shared/lib/utils/colors';

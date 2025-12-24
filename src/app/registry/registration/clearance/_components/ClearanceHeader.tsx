@@ -2,10 +2,13 @@
 
 import { ActionIcon, Badge, Divider, Flex, Group, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { getBooleanColor, getVersionCountColor } from '@student-portal/utils';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
+import {
+	getBooleanColor,
+	getVersionCountColor,
+} from '@/shared/lib/utils/colors';
 
 interface Props {
 	studentName: string;

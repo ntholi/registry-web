@@ -10,8 +10,8 @@ import {
 	Table,
 	Text,
 } from '@mantine/core';
-import { getStatusColor } from '@student-portal/utils';
 import { useQuery } from '@tanstack/react-query';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 import { getGraduationClearanceHistoryByStudentNo } from '../_server/clearance/actions';

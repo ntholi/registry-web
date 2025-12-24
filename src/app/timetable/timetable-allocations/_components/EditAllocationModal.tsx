@@ -4,12 +4,12 @@ import { ActionIcon, Button, Group, Modal } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { getActionColor, getAlertColor } from '@student-portal/utils';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { getActionColor, getAlertColor } from '@/shared/lib/utils/colors';
 import {
 	updateTimetableAllocation,
 	updateTimetableAllocationVenueTypes,

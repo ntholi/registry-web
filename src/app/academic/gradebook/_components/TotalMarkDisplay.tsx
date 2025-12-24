@@ -12,7 +12,6 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getBooleanColor } from '@student-portal/utils';
 import {
 	IconAlertTriangle,
 	IconChevronLeft,
@@ -20,6 +19,7 @@ import {
 	IconExclamationMark,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 type Props = {

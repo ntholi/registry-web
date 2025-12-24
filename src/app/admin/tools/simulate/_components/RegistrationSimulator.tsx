@@ -28,7 +28,6 @@ import {
 	getStudent,
 	getStudentRegistrationData,
 } from '@registry/students';
-import { getModuleTypeColor } from '@student-portal/utils';
 import {
 	IconAlertCircle,
 	IconExclamationCircle,
@@ -39,6 +38,7 @@ import {
 } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
+import { getModuleTypeColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';

@@ -17,9 +17,9 @@ import {
 	ThemeIcon,
 	useMantineColorScheme,
 } from '@mantine/core';
-import { getStatusColor } from '@student-portal/utils';
 import { IconLock, IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import type { getStudent } from '../../_server/actions';
 import GpaDisplay from './GpaDisplay';
 
