@@ -19,8 +19,8 @@ import { getRegistrationRequest } from '@registry/registration/requests';
 import { IconBooks, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
+import { config } from '@/config';
 import { auth } from '@/core/auth';
-import { MAX_REGISTRATION_ATTEMPTS } from '@/modules/registry/shared/constants';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -82,7 +82,8 @@ export default async function page({ params }: Props) {
 								{formatSemester(registration.semesterNumber)}
 							</Text>
 							{registration.status === 'pending' &&
-								registration.count <= MAX_REGISTRATION_ATTEMPTS && (
+								registration.count <=
+									config.registry.maxRegistrationAttempts && (
 									<Button
 										component={Link}
 										href={`/student-portal/registration/${registration.id}/edit`}

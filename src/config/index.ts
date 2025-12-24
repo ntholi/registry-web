@@ -8,9 +8,13 @@ export type DayOfWeek =
 	| 'sunday';
 
 export type AppConfig = {
+	registry: {
+		maxRegModules: number;
+		maxRegistrationAttempts: number;
+	};
 	timetable: {
 		timetableAllocations: {
-			maxSlotsPerDay: number; // Maximum number of slots (class) a lecturer or student class can have per day
+			maxSlotsPerDay: number;
 			duration: number;
 			allowedDays: DayOfWeek[];
 			startTime: string;

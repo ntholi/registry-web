@@ -11,6 +11,7 @@ import {
 	sql,
 } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm/sql';
+import { config } from '@/config';
 import {
 	clearance,
 	db,
@@ -25,7 +26,6 @@ import {
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
-import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
 
 type RequestedModule = typeof requestedModules.$inferInsert;
 type RegistrationRequestInsert = typeof registrationRequests.$inferInsert;
@@ -350,8 +350,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		modules: { moduleId: number; moduleStatus: StudentModuleStatus }[]
 	) {
 		if (!modules.length) throw new Error('No modules selected');
-		if (modules.length > MAX_REG_MODULES)
-			throw new Error(`You can only select up to ${MAX_REG_MODULES} modules.`);
+		if (modules.length > config.registry.maxRegModules)
+			throw new Error(
+				`You can only select up to ${config.registry.maxRegModules} modules.`
+			);
 
 		await tx
 			.delete(requestedModules)

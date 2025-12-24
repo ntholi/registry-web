@@ -7,8 +7,8 @@ import {
 	Text,
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
+import { config } from '@/config';
 import type { StudentModuleStatus } from '@/core/database';
-import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import ModuleCheckbox from './ModuleCheckbox';
 
@@ -176,19 +176,22 @@ export default function ModuleSelection({
 				<Alert
 					icon={<IconInfoCircle size='1rem' />}
 					color={getBooleanColor(
-						selectedModules.length > MAX_REG_MODULES,
+						selectedModules.length > config.registry.maxRegModules,
 						'negative'
 					)}
 				>
 					You have selected {selectedModules.length} module
 					{selectedModules.length !== 1 ? 's' : ''}
 					for registration.
-					{selectedModules.length > MAX_REG_MODULES && (
+					{selectedModules.length > config.registry.maxRegModules && (
 						<Text size='sm' mt='xs'>
-							Maximum allowed modules: {MAX_REG_MODULES}. Please deselect{' '}
-							{selectedModules.length - MAX_REG_MODULES} module
-							{selectedModules.length - MAX_REG_MODULES !== 1 ? 's' : ''} to
-							continue.
+							Maximum allowed modules: {config.registry.maxRegModules}. Please
+							deselect {selectedModules.length - config.registry.maxRegModules}{' '}
+							module
+							{selectedModules.length - config.registry.maxRegModules !== 1
+								? 's'
+								: ''}{' '}
+							to continue.
 						</Text>
 					)}
 				</Alert>

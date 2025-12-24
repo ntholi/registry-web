@@ -30,8 +30,8 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { config } from '@/config';
 import type { StudentModuleStatus } from '@/modules/registry/database';
-import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
@@ -224,7 +224,8 @@ export default function EditRegistrationPage() {
 	};
 
 	const canProceedStep1 =
-		selectedModules.length > 0 && selectedModules.length <= MAX_REG_MODULES;
+		selectedModules.length > 0 &&
+		selectedModules.length <= config.registry.maxRegModules;
 	const canProceedStep2 = semesterData !== null;
 	const canSubmit = sponsorshipData !== null;
 
