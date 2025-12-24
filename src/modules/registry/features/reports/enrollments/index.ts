@@ -6,4 +6,3 @@ export {
 export { default as ProgramBreakdownTable } from './components/ProgramBreakdownTable';
 export { default as StudentTable } from './components/StudentTable';
 export * from './server/actions';
-export * from './types';

@@ -5,4 +5,3 @@ export { default as GraduationClearanceSwitch } from './components/GraduationCle
 export { default as PaymentReceipts } from './components/PaymentReceipts';
 export * from './server/clearance/actions';
 export * from './server/requests/actions';
-export * from './types';

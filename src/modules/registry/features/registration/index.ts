@@ -8,7 +8,6 @@ export {
 	ModulesTable,
 	SponsorInfo,
 } from './clearance';
-export * from './clearance/types';
 export * from './requests';
 export {
 	ClearanceAccordion,
@@ -18,4 +17,3 @@ export {
 	RequestDetailsView,
 	SponsorInput,
 } from './requests';
-export * from './requests/types';

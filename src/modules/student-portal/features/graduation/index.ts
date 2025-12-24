@@ -11,4 +11,3 @@ export { default as ProofOfClearancePDF } from './components/ProofOfClearancePDF
 export { default as GraduationClearanceView } from './components/request/GraduationClearanceView';
 export { default as PaymentReceiptsEditor } from './components/request/PaymentReceiptsEditor';
 export { default as PaymentReceiptsView } from './components/request/PaymentReceiptsView';
-export * from './types';

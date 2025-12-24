@@ -14,4 +14,3 @@ export { default as ModulesView } from './components/request/ModulesView';
 export { default as SponsorshipDetailsEdit } from './components/request/SponsorshipDetailsEdit';
 export { default as StatusBadge } from './components/StatusBadge';
 export { default as UpdateSummary } from './components/UpdateSummary';
-export * from './types';

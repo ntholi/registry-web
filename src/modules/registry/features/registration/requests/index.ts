@@ -6,4 +6,3 @@ export { default as RequestDetailsView } from './components/RequestDetailsView';
 export { default as SponsorInput } from './components/SponsorInput';
 export * from './server/clearance/actions';
 export * from './server/requests/actions';
-export * from './types';

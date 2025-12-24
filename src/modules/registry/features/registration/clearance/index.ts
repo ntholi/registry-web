@@ -6,4 +6,3 @@ export { default as ClearanceSwitch } from './components/ClearanceSwitch';
 export { default as Form } from './components/Form';
 export { ModulesTable } from './components/ModulesTable';
 export { default as SponsorInfo } from './components/SponsorInfo';
-export * from './types';

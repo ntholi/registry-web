@@ -1,1 +1,1 @@
-export * from './types';
+// Empty index file

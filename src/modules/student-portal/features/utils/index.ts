@@ -11,4 +11,3 @@ export {
 	getRegistrationOverallClearanceStatus,
 	type RegistrationStatus,
 } from './lib/status';
-export * from './types';
