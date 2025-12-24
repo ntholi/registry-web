@@ -23,7 +23,7 @@ import {
 	getClassTimetableSlots,
 	getLecturerTimetableSlots,
 	getVenueTimetableSlots,
-} from '../server/actions';
+} from '../_server/actions';
 
 type ViewType = 'lecturers' | 'venues' | 'students';
 

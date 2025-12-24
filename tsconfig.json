@@ -27,7 +27,7 @@
 			"@finance/*": ["./src/modules/finance/features/*"],
 			"@admin/*": ["./src/modules/admin/features/*"],
 			"@lms/*": ["./src/modules/lms/features/*"],
-			"@timetable/*": ["./src/modules/timetable/features/*"],
+			"@timetable/*": ["./src/app/timetable/*"],
 			"@auth/*": ["./src/modules/auth/features/*"],
 			"@audit-logs/*": ["./src/modules/audit-logs/features/*"],
 			"@server/*": ["./src/server/*"]

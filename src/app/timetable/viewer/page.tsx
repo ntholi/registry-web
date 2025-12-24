@@ -1,4 +1,4 @@
-import { TimetableViewer } from '@timetable/timetable-viewer';
+import { TimetableViewer } from '.';
 
 export default function TimetableViewerPage() {
 	return <TimetableViewer />;

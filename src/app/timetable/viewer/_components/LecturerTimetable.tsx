@@ -5,7 +5,7 @@ import { Center, Select, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import TimetableGrid from '@/modules/timetable/shared/components/TimetableGrid';
-import { getLecturerTimetableSlots } from '../server/actions';
+import { getLecturerTimetableSlots } from '../_server/actions';
 
 type Props = {
 	termId: number;

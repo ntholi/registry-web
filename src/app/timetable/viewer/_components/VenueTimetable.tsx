@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllVenues } from '@timetable/venues';
 import { useState } from 'react';
 import TimetableGrid from '@/modules/timetable/shared/components/TimetableGrid';
-import { getVenueTimetableSlots } from '../server/actions';
+import { getVenueTimetableSlots } from '../_server/actions';
 
 type Props = {
 	termId: number;

@@ -13,15 +13,15 @@ import {
 } from '@mantine/core';
 import { getAllTerms } from '@registry/dates/terms';
 import { useQuery } from '@tanstack/react-query';
-import { getTimetableAllocationsByUserId } from '@timetable/timetable-allocations';
-import AllocationTab from '@timetable/timetable-allocations/components/AllocationTab';
-import TimetableTab from '@timetable/timetable-allocations/components/TimetableTab';
 import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
 import { use, useEffect, useMemo } from 'react';
 import useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
 import { DetailsView } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
+import AllocationTab from '../_components/AllocationTab';
+import TimetableTab from '../_components/TimetableTab';
+import { getTimetableAllocationsByUserId } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

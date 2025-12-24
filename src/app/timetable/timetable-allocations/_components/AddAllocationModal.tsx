@@ -26,7 +26,7 @@ import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	createTimetableAllocationsWithVenueTypes,
 	createTimetableAllocationWithVenueTypes,
-} from '../server/actions';
+} from '../_server/actions';
 import {
 	AllocationForm,
 	baseAllocationSchema,

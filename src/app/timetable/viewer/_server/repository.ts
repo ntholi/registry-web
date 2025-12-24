@@ -1,4 +1,4 @@
-import type { UserSlot } from '@timetable/slots/server/repository';
+import type { UserSlot } from '@timetable/slots';
 import { and, eq, inArray } from 'drizzle-orm';
 import {
 	db,

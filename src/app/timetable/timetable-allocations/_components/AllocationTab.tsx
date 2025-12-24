@@ -15,14 +15,12 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-	AddAllocationModal,
-	deleteTimetableAllocation,
-	EditAllocationModal,
-} from '@timetable/timetable-allocations';
 import type useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { DeleteButton } from '@/shared/ui/adease';
+import { deleteTimetableAllocation } from '../_server/actions';
+import AddAllocationModal from './AddAllocationModal';
+import EditAllocationModal from './EditAllocationModal';
 
 type Props = {
 	filteredAllocations: {

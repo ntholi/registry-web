@@ -735,7 +735,6 @@ function checkLecturerConflicts(
 			(startMinutes <= slot.startMinutes && endMinutes >= slot.endMinutes);
 
 		if (overlaps) {
-			// Check for different modules
 			if (slot.moduleName !== allocation.semesterModule.module.name) {
 				return {
 					valid: false,
@@ -743,7 +742,6 @@ function checkLecturerConflicts(
 				};
 			}
 
-			// Check for different class types (even if same module)
 			if (slot.classType !== allocation.classType) {
 				return {
 					valid: false,

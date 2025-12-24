@@ -13,7 +13,7 @@ import { z } from 'zod';
 import {
 	updateTimetableAllocation,
 	updateTimetableAllocationVenueTypes,
-} from '../server/actions';
+} from '../_server/actions';
 import {
 	AllocationForm,
 	baseAllocationSchema,

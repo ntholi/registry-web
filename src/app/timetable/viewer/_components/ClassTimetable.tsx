@@ -8,7 +8,7 @@ import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getClassesWithTimetable,
 	getClassTimetableSlots,
-} from '../server/actions';
+} from '../_server/actions';
 
 type Props = {
 	termId: number;
