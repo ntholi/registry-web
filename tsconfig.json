@@ -24,7 +24,7 @@
 			"@academic/*": ["./src/app/academic/*"],
 			"@registry/*": ["./src/app/registry/*"],
 			"@student-portal/*": ["./src/modules/student-portal/features/*"],
-			"@finance/*": ["./src/modules/finance/features/*"],
+			"@finance/*": ["./src/app/finance/*"],
 			"@admin/*": ["./src/app/admin/*"],
 			"@lms/*": ["./src/modules/lms/features/*"],
 			"@timetable/*": ["./src/app/timetable/*"],

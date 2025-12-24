@@ -299,7 +299,6 @@ export default class SponsorRepository extends BaseRepository<
 
 		const rawItems = await itemsQuery;
 
-		// Get the sponsored student IDs to fetch relations
 		const sponsoredStudentIds = rawItems.map(
 			(item) => item.sponsored_students.id
 		);

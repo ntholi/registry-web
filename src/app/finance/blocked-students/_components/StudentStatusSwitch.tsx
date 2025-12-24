@@ -12,7 +12,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { updateBlockedStudent } from '../server/actions';
+import { updateBlockedStudent } from '../_server/actions';
 
 type Props = {
 	id: number;

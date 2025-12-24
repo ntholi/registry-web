@@ -1,10 +1,7 @@
-import {
-	Form,
-	getBlockedStudent,
-	updateBlockedStudent,
-} from '@finance/blocked-students';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import Form from '../../_components/Form';
+import { getBlockedStudent, updateBlockedStudent } from '../../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -65,7 +65,6 @@ export default function DownloadButton({
 		try {
 			const allItems: SponsoredStudentItem[] = [];
 			let page = 1;
-			// Prime first page to know total pages
 			const confirmedParam =
 				confirmation === 'confirmed'
 					? true

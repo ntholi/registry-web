@@ -1,4 +1,3 @@
-import { deleteSponsor, getSponsor, StudentsTable } from '@finance/sponsors';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
@@ -7,6 +6,8 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import StudentsTable from '../_components/StudentsTable';
+import { deleteSponsor, getSponsor } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -231,7 +231,6 @@ export default function ImportAccountDetailsModal() {
 		const updatedData = [...importData];
 
 		try {
-			// Process in batches for better performance
 			for (let i = 0; i < requestData.length; i += BATCH_SIZE) {
 				const batch = requestData.slice(i, i + BATCH_SIZE);
 
@@ -241,7 +240,6 @@ export default function ImportAccountDetailsModal() {
 						batchSize: BATCH_SIZE,
 					});
 
-					// Update UI with batch results
 					batchResults.forEach((result, batchIndex) => {
 						const overallIndex = i + batchIndex;
 						if (result.success) {
@@ -261,16 +259,13 @@ export default function ImportAccountDetailsModal() {
 					allResults.push(...batchResults);
 					processedCount += batch.length;
 
-					// Update progress
 					const progressPercentage =
 						(processedCount / requestData.length) * 100;
 					setProgress(progressPercentage);
 					setImportData([...updatedData]);
 
-					// Small delay to allow UI updates
 					await new Promise((resolve) => setTimeout(resolve, 50));
 				} catch (_batchError) {
-					// Mark all items in this batch as errors
 					for (let j = 0; j < batch.length; j++) {
 						const overallIndex = i + j;
 						if (overallIndex < updatedData.length) {

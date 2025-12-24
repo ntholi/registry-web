@@ -1,7 +1,7 @@
 'use client';
 
-import { SponsoredStudentsTable } from '@finance/sponsored-students';
 import { Paper } from '@mantine/core';
+import SponsoredStudentsTable from './_components/SponsoredStudentsTable';
 
 export default function SponsoredStudentsPage() {
 	return (

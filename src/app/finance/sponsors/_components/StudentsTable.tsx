@@ -17,7 +17,7 @@ import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import Link from '@/shared/ui/Link';
-import { getSponsoredStudents } from '../server/actions';
+import { getSponsoredStudents } from '../_server/actions';
 
 type Props = {
 	sponsorId: string;
