@@ -90,6 +90,9 @@ export const nextOfKins = pgTable(
 		relationship: nextOfKinRelationship().notNull(),
 		phone: text(),
 		email: text(),
+		occupation: text(),
+		address: text(),
+		country: text(),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
