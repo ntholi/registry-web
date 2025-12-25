@@ -14,7 +14,8 @@ import {
 } from '@mantine/core';
 import { IconCalendarWeek, IconTable } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { parseAsInteger, useQueryState } from 'nuqs';
+import { useEffect } from 'react';
 import {
 	getAssignedModulesForCurrentUser,
 	getWeeksForTerm,
@@ -30,8 +31,11 @@ function formatDate(date: Date) {
 }
 
 export default function AttendanceView() {
-	const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
-	const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
+	const [selectedModuleId, setSelectedModuleId] = useQueryState(
+		'module',
+		parseAsInteger
+	);
+	const [selectedWeek, setSelectedWeek] = useQueryState('week', parseAsInteger);
 
 	const { data: modules, isLoading: modulesLoading } = useQuery({
 		queryKey: ['assigned-modules-attendance'],
@@ -39,7 +43,7 @@ export default function AttendanceView() {
 	});
 
 	const selectedModule = modules?.find(
-		(m) => m.semesterModuleId.toString() === selectedModuleId
+		(m) => m.semesterModuleId === selectedModuleId
 	);
 
 	const { data: weeks, isLoading: weeksLoading } = useQuery({
@@ -50,9 +54,27 @@ export default function AttendanceView() {
 
 	const currentWeek = weeks?.find((w) => w.isCurrent);
 
+	useEffect(() => {
+		if (weeks && currentWeek && selectedModuleId && !selectedWeek) {
+			setSelectedWeek(currentWeek.weekNumber);
+		}
+	}, [weeks, currentWeek, selectedModuleId, selectedWeek, setSelectedWeek]);
+
 	const handleModuleChange = (value: string | null) => {
-		setSelectedModuleId(value);
+		if (value) {
+			setSelectedModuleId(parseInt(value, 10));
+		} else {
+			setSelectedModuleId(null);
+		}
 		setSelectedWeek(null);
+	};
+
+	const handleWeekChange = (value: string | null) => {
+		if (value) {
+			setSelectedWeek(parseInt(value, 10));
+		} else {
+			setSelectedWeek(null);
+		}
 	};
 
 	if (modulesLoading) {
@@ -100,7 +122,7 @@ export default function AttendanceView() {
 						label='Module'
 						placeholder='Select a module'
 						data={moduleOptions}
-						value={selectedModuleId}
+						value={selectedModuleId?.toString() ?? null}
 						onChange={handleModuleChange}
 						searchable
 						clearable
@@ -111,8 +133,8 @@ export default function AttendanceView() {
 							selectedModuleId ? 'Select a week' : 'Select a module first'
 						}
 						data={weekOptions}
-						value={selectedWeek}
-						onChange={setSelectedWeek}
+						value={selectedWeek?.toString() ?? null}
+						onChange={handleWeekChange}
 						disabled={!selectedModuleId || weeksLoading}
 						searchable
 						rightSection={weeksLoading ? <Loader size='xs' /> : null}
@@ -143,7 +165,7 @@ export default function AttendanceView() {
 							<AttendanceForm
 								semesterModuleId={selectedModule.semesterModuleId}
 								termId={selectedModule.termId}
-								weekNumber={parseInt(selectedWeek, 10)}
+								weekNumber={selectedWeek}
 								assignedModuleId={selectedModule.assignedModuleId}
 							/>
 						) : (
@@ -159,9 +181,7 @@ export default function AttendanceView() {
 													variant={w.isCurrent ? 'filled' : 'light'}
 													color={w.isCurrent ? 'blue' : 'gray'}
 													style={{ cursor: 'pointer' }}
-													onClick={() =>
-														setSelectedWeek(w.weekNumber.toString())
-													}
+													onClick={() => setSelectedWeek(w.weekNumber)}
 												>
 													Week {w.weekNumber}
 												</Badge>

@@ -17,14 +17,14 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import {
-	IconCheck,
 	IconChevronDown,
+	IconCircleCheck,
+	IconCircleMinus,
+	IconCircleX,
 	IconClock,
-	IconMinus,
 	IconQuestionMark,
 	IconSearch,
 	IconTrash,
-	IconX,
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
@@ -45,13 +45,13 @@ type Props = {
 const statusOptions: {
 	value: AttendanceStatus;
 	label: string;
-	icon: typeof IconCheck;
+	icon: typeof IconCircleCheck;
 }[] = [
-	{ value: 'present', label: 'Present', icon: IconCheck },
-	{ value: 'absent', label: 'Absent', icon: IconX },
+	{ value: 'present', label: 'Present', icon: IconCircleCheck },
+	{ value: 'absent', label: 'Absent', icon: IconCircleX },
 	{ value: 'late', label: 'Late', icon: IconClock },
 	{ value: 'excused', label: 'Excused', icon: IconQuestionMark },
-	{ value: 'na', label: 'N/A', icon: IconMinus },
+	{ value: 'na', label: 'N/A', icon: IconCircleMinus },
 ];
 
 export default function AttendanceForm({
@@ -238,7 +238,7 @@ export default function AttendanceForm({
 						<Table.Tr>
 							<Table.Th>Student No</Table.Th>
 							<Table.Th>Name</Table.Th>
-							<Table.Th>Status</Table.Th>
+							<Table.Th style={{ textAlign: 'right' }}>Status</Table.Th>
 						</Table.Tr>
 					</Table.Thead>
 					<Table.Tbody>
@@ -246,7 +246,7 @@ export default function AttendanceForm({
 							<Table.Tr key={student.stdNo}>
 								<Table.Td>{student.stdNo}</Table.Td>
 								<Table.Td>{student.name}</Table.Td>
-								<Table.Td>
+								<Table.Td style={{ textAlign: 'right' }}>
 									<SegmentedControl
 										size='xs'
 										value={student.status}
@@ -268,6 +268,9 @@ export default function AttendanceForm({
 										styles={{
 											root: {
 												backgroundColor: 'transparent',
+											},
+											indicator: {
+												backgroundColor: 'rgba(99, 150, 184, 0.29)',
 											},
 										}}
 									/>
