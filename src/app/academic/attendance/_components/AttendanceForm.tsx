@@ -30,6 +30,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { AttendanceStatus } from '@/core/database';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import {
 	deleteAttendanceForWeek,
 	getAttendanceForWeek,
@@ -268,12 +269,10 @@ export default function AttendanceForm({
 												</Group>
 											),
 										}))}
+										color={getStatusColor(student.status)}
 										styles={{
 											root: {
 												backgroundColor: 'transparent',
-											},
-											indicator: {
-												backgroundColor: 'rgba(99, 150, 184, 0.29)',
 											},
 										}}
 									/>
