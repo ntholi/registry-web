@@ -18,7 +18,8 @@ export const attendanceStatus = pgEnum('attendance_status', [
 	'absent',
 	'late',
 	'excused',
-	'na',
+	'no_class',
+	'not_marked',
 ]);
 
 export type AttendanceStatus = (typeof attendanceStatus.enumValues)[number];
@@ -36,7 +37,7 @@ export const attendance = pgTable(
 			.references(() => semesterModules.id, { onDelete: 'cascade' })
 			.notNull(),
 		weekNumber: integer().notNull(),
-		status: attendanceStatus().notNull().default('na'),
+		status: attendanceStatus().notNull().default('not_marked'),
 		markedBy: text().references(() => users.id, { onDelete: 'set null' }),
 		markedAt: timestamp().defaultNow(),
 		createdAt: timestamp().defaultNow(),

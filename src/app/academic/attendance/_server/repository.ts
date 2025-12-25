@@ -145,7 +145,7 @@ export default class AttendanceRepository extends BaseRepository<
 				stdNo: student.stdNo,
 				name: student.name,
 				attendanceId: existing?.id ?? null,
-				status: existing?.status ?? 'na',
+				status: existing?.status ?? 'not_marked',
 			};
 		});
 	}
@@ -246,7 +246,8 @@ export default class AttendanceRepository extends BaseRepository<
 			const weeklyAttendance = weeks.map((week) => ({
 				weekNumber: week.weekNumber,
 				status:
-					attendanceMap.get(`${student.stdNo}-${week.weekNumber}`) ?? 'na',
+					attendanceMap.get(`${student.stdNo}-${week.weekNumber}`) ??
+					'not_marked',
 			}));
 
 			const presentCount = weeklyAttendance.filter(
@@ -262,7 +263,7 @@ export default class AttendanceRepository extends BaseRepository<
 				(w) => w.status === 'excused'
 			).length;
 			const markedWeeks = weeklyAttendance.filter(
-				(w) => w.status !== 'na'
+				(w) => w.status !== 'not_marked' && w.status !== 'no_class'
 			).length;
 
 			const attendanceRate =

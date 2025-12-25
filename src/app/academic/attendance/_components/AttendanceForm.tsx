@@ -17,6 +17,7 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import {
+	IconCalendarOff,
 	IconChevronDown,
 	IconCircleCheck,
 	IconCircleMinus,
@@ -51,7 +52,8 @@ const statusOptions: {
 	{ value: 'absent', label: 'Absent', icon: IconCircleX },
 	{ value: 'late', label: 'Late', icon: IconClock },
 	{ value: 'excused', label: 'Excused', icon: IconQuestionMark },
-	{ value: 'na', label: 'N/A', icon: IconCircleMinus },
+	{ value: 'no_class', label: 'No Class', icon: IconCalendarOff },
+	{ value: 'not_marked', label: 'Not Marked', icon: IconCircleMinus },
 ];
 
 export default function AttendanceForm({

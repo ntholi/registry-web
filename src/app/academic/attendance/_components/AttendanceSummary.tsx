@@ -28,7 +28,8 @@ function StatusBadge({ status }: { status: AttendanceStatus }) {
 		absent: 'A',
 		late: 'L',
 		excused: 'E',
-		na: '-',
+		no_class: 'NC',
+		not_marked: '-',
 	};
 
 	const tooltipMap: Record<AttendanceStatus, string> = {
@@ -36,14 +37,15 @@ function StatusBadge({ status }: { status: AttendanceStatus }) {
 		absent: 'Absent',
 		late: 'Late',
 		excused: 'Excused',
-		na: 'Not Marked',
+		no_class: 'No Class',
+		not_marked: 'Not Marked',
 	};
 
 	return (
 		<Tooltip label={tooltipMap[status]}>
 			<Badge
 				size='sm'
-				variant={status === 'na' ? 'outline' : 'filled'}
+				variant={status === 'not_marked' ? 'outline' : 'filled'}
 				color={getStatusColor(status)}
 				radius='sm'
 				w={28}
@@ -117,7 +119,11 @@ export default function AttendanceSummary({ semesterModuleId, termId }: Props) {
 					<Text size='xs'>Excused</Text>
 				</Group>
 				<Group gap='xs'>
-					<StatusBadge status='na' />
+					<StatusBadge status='no_class' />
+					<Text size='xs'>No Class</Text>
+				</Group>
+				<Group gap='xs'>
+					<StatusBadge status='not_marked' />
 					<Text size='xs'>Not Marked</Text>
 				</Group>
 			</Group>
@@ -177,7 +183,7 @@ export default function AttendanceSummary({ semesterModuleId, termId }: Props) {
 									{ length: totalWeeks - student.weeklyAttendance.length },
 									(_, i) => (
 										<Table.Td key={`empty-${i}`} ta='center'>
-											<StatusBadge status='na' />
+											<StatusBadge status='not_marked' />
 										</Table.Td>
 									)
 								)}

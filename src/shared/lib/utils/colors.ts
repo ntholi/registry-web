@@ -97,7 +97,8 @@ export const statusColors = {
 		absent: semantic.error,
 		late: semantic.warning,
 		excused: semantic.info,
-		na: semantic.neutral,
+		no_class: semantic.accent,
+		not_marked: semantic.neutral,
 	},
 	dataOp: {
 		deleted: semantic.error,
