@@ -21,7 +21,12 @@ import {
 	IconUsers,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+import {
+	parseAsArrayOf,
+	parseAsInteger,
+	parseAsString,
+	useQueryStates,
+} from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
 import RegistrationCharts from './_components/EnrollmentCharts';
 import RegistrationFilter, { type ReportFilter } from './_components/Filter';
@@ -40,7 +45,7 @@ export default function RegistrationReportPage() {
 	const [urlParams, setUrlParams] = useQueryStates({
 		tab: parseAsString.withDefault('summary'),
 		termId: parseAsInteger,
-		schoolId: parseAsInteger,
+		schoolIds: parseAsArrayOf(parseAsInteger),
 		programId: parseAsInteger,
 		semesterNumber: parseAsString,
 		gender: parseAsString,
@@ -63,7 +68,10 @@ export default function RegistrationReportPage() {
 	useEffect(() => {
 		const newFilter: ReportFilter = {
 			termIds: urlParams.termId ? [urlParams.termId] : undefined,
-			schoolId: urlParams.schoolId ?? undefined,
+			schoolIds:
+				urlParams.schoolIds && urlParams.schoolIds.length > 0
+					? urlParams.schoolIds
+					: undefined,
 			programId: urlParams.programId ?? undefined,
 			semesterNumber: urlParams.semesterNumber ?? undefined,
 			gender: urlParams.gender ?? undefined,

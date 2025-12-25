@@ -9,7 +9,7 @@ export type DistributionType =
 
 export interface DistributionReportFilter {
 	termIds?: number[];
-	schoolId?: number;
+	schoolIds?: number[];
 	programId?: number;
 	semesterNumber?: string;
 }

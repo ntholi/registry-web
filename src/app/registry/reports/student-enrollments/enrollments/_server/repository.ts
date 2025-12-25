@@ -14,7 +14,7 @@ import {
 
 export interface RegistrationReportFilter {
 	termIds?: number[];
-	schoolId?: number;
+	schoolIds?: number[];
 	programId?: number;
 	semesterNumber?: string;
 	searchQuery?: string;
@@ -239,8 +239,8 @@ export class RegistrationReportRepository {
 			);
 		}
 
-		if (filter?.schoolId) {
-			conditions.push(eq(schools.id, filter.schoolId));
+		if (filter?.schoolIds && filter.schoolIds.length > 0) {
+			conditions.push(inArray(schools.id, filter.schoolIds));
 		}
 
 		if (filter?.programId) {

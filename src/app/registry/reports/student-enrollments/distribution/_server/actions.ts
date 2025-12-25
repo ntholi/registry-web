@@ -2,7 +2,7 @@
 
 import {
 	getActiveSchools,
-	getProgramsBySchoolId,
+	getProgramsBySchoolIds,
 } from '@academic/schools/_server/actions';
 import type { DistributionReportFilter, DistributionType } from '../types';
 import { distributionReportService } from './service';
@@ -54,9 +54,9 @@ export async function getDistributionSchools() {
 	}
 }
 
-export async function getDistributionPrograms(schoolId?: number) {
+export async function getDistributionPrograms(schoolIds?: number[]) {
 	try {
-		const programs = await getProgramsBySchoolId(schoolId);
+		const programs = await getProgramsBySchoolIds(schoolIds);
 		return { success: true, data: programs };
 	} catch (error) {
 		console.error('Error fetching programs:', error);

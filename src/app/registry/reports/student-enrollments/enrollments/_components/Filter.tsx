@@ -8,6 +8,7 @@ import {
 	Group,
 	Loader,
 	Modal,
+	MultiSelect,
 	Paper,
 	RangeSlider,
 	Select,
@@ -27,7 +28,12 @@ import {
 	IconPlayerPlayFilled,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+import {
+	parseAsArrayOf,
+	parseAsInteger,
+	parseAsString,
+	useQueryStates,
+} from 'nuqs';
 import { useEffect } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
@@ -48,7 +54,7 @@ const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 
 export interface ReportFilter {
 	termIds?: number[];
-	schoolId?: number;
+	schoolIds?: number[];
 	programId?: number;
 	semesterNumber?: string;
 	gender?: string;
@@ -70,7 +76,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 	const [localFilter, setLocalFilter] = useQueryStates(
 		{
 			termId: parseAsInteger,
-			schoolId: parseAsInteger,
+			schoolIds: parseAsArrayOf(parseAsInteger),
 			programId: parseAsInteger,
 			semesterNumber: parseAsString,
 			gender: parseAsString,
@@ -91,7 +97,10 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 	useEffect(() => {
 		const newFilter: ReportFilter = {
 			termIds: localFilter.termId ? [localFilter.termId] : undefined,
-			schoolId: localFilter.schoolId ?? undefined,
+			schoolIds:
+				localFilter.schoolIds && localFilter.schoolIds.length > 0
+					? localFilter.schoolIds
+					: undefined,
 			programId: localFilter.programId ?? undefined,
 			semesterNumber: localFilter.semesterNumber ?? undefined,
 			gender: localFilter.gender ?? undefined,
@@ -139,14 +148,15 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
-		queryKey: ['registration-report-programs', localFilter.schoolId],
+		queryKey: ['registration-report-programs', localFilter.schoolIds],
 		queryFn: async () => {
 			const result = await getAvailableProgramsForReports(
-				localFilter.schoolId ?? undefined
+				localFilter.schoolIds ?? undefined
 			);
 			return result.success ? result.data : [];
 		},
-		enabled: Boolean(localFilter.schoolId),
+		enabled:
+			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});
 
 	const { data: sponsors = [], isLoading: sponsorsLoading } = useQuery({
@@ -167,24 +177,38 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 
 	function handleChange(
 		field: string,
-		value: string | number | [number, number] | null
+		value: string | number | [number, number] | string[] | null
 	) {
-		if (Array.isArray(value)) {
+		if (
+			Array.isArray(value) &&
+			value.length === 2 &&
+			typeof value[0] === 'number'
+		) {
 			setLocalFilter({
-				ageRangeMin: value[0],
-				ageRangeMax: value[1],
+				ageRangeMin: value[0] as number,
+				ageRangeMax: value[1] as number,
+			});
+			return;
+		}
+
+		if (field === 'schoolIds') {
+			const schoolIds =
+				Array.isArray(value) && value.length > 0
+					? value.map((v) => Number(v))
+					: null;
+			setLocalFilter({
+				schoolIds,
+				programId: null,
+				programStatus: null,
 			});
 			return;
 		}
 
 		const updates: Record<string, number | string | null> = {
-			[field]: value,
+			[field]: value as number | string | null,
 		};
 
-		if (field === 'schoolId') {
-			updates.programId = null;
-			updates.programStatus = null;
-		} else if (field === 'programId') {
+		if (field === 'programId') {
 			updates.programStatus = null;
 		} else if (field === 'semesterNumber') {
 			updates.semesterStatus = null;
@@ -223,36 +247,18 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 						</Grid.Col>
 
 						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-							<Select
-								label='School'
-								placeholder='All schools'
+							<MultiSelect
+								label='Schools'
+								placeholder='Schools'
 								data={schools.map((school) => ({
 									value: school.id?.toString() || '',
 									label: school.code,
-									description: school.name,
 								}))}
 								rightSection={schoolsLoading && <Loader size='xs' />}
-								value={localFilter.schoolId?.toString() ?? null}
-								onChange={(value) =>
-									handleChange('schoolId', value ? Number(value) : null)
-								}
+								value={localFilter.schoolIds?.map(String) ?? []}
+								onChange={(value) => handleChange('schoolIds', value)}
 								searchable
 								clearable
-								renderOption={({ option }) => {
-									const customOption = option as {
-										value: string;
-										label: string;
-										description: string;
-									};
-									return (
-										<div>
-											<Text size='sm'>{customOption.label}</Text>
-											<Text size='xs' c='dimmed'>
-												{customOption.description}
-											</Text>
-										</div>
-									);
-								}}
 							/>
 						</Grid.Col>
 
@@ -272,7 +278,9 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 								}
 								searchable
 								clearable
-								disabled={!localFilter.schoolId}
+								disabled={
+									!localFilter.schoolIds || localFilter.schoolIds.length === 0
+								}
 								renderOption={({ option }) => {
 									const customOption = option as {
 										value: string;

@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 import { db, programs, schools } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -50,6 +50,25 @@ export default class SchoolRepository extends BaseRepository<
 			},
 			orderBy: desc(programs.id),
 		});
+	}
+
+	async getProgramsBySchoolIds(schoolIds?: number[]) {
+		const baseQuery = db
+			.select({
+				id: programs.id,
+				code: programs.code,
+				name: programs.name,
+				schoolId: programs.schoolId,
+			})
+			.from(programs);
+
+		if (schoolIds && schoolIds.length > 0) {
+			return await baseQuery
+				.where(inArray(programs.schoolId, schoolIds))
+				.orderBy(desc(programs.id));
+		}
+
+		return await baseQuery.orderBy(desc(programs.id));
 	}
 }
 

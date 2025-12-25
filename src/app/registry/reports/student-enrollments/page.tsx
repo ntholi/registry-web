@@ -3,6 +3,7 @@
 import {
 	Box,
 	Card,
+	Container,
 	Flex,
 	SimpleGrid,
 	Stack,
@@ -18,6 +19,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 
 type ReportLink = {
 	title: string;
@@ -45,30 +47,40 @@ const reports: ReportLink[] = [
 
 export default function EnrollmentReportsPage() {
 	const { activeTerm } = useActiveTerm();
+	const { userSchools } = useUserSchools();
 
 	function buildHref(baseHref: string) {
+		const params = new URLSearchParams();
 		if (activeTerm?.id) {
-			return `${baseHref}?termId=${activeTerm.id}`;
+			params.set('termId', activeTerm.id.toString());
 		}
-		return baseHref;
+		if (userSchools.length > 0) {
+			for (const it of userSchools) {
+				params.append('schoolIds', it.schoolId.toString());
+			}
+		}
+		const queryString = params.toString();
+		return queryString ? `${baseHref}?${queryString}` : baseHref;
 	}
 
 	return (
-		<Stack p='lg'>
-			<Title order={2}>Enrollment Reports</Title>
-			<Text c='dimmed' size='sm'>
-				Select a report type to view enrollment data and analytics
-			</Text>
+		<Container size='xl' p={{ base: 'sm', sm: 'xl' }}>
+			<Stack>
+				<Title order={2}>Enrollment Reports</Title>
+				<Text c='dimmed' size='sm'>
+					Select a report type to view enrollment data and analytics
+				</Text>
 
-			<SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} mt='md'>
-				{reports.map((report) => (
-					<ReportCard
-						key={report.href}
-						report={{ ...report, href: buildHref(report.href) }}
-					/>
-				))}
-			</SimpleGrid>
-		</Stack>
+				<SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} mt='md'>
+					{reports.map((report) => (
+						<ReportCard
+							key={report.href}
+							report={{ ...report, href: buildHref(report.href) }}
+						/>
+					))}
+				</SimpleGrid>
+			</Stack>
+		</Container>
 	);
 }
 

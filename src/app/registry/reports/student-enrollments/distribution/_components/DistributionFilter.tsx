@@ -5,13 +5,19 @@ import {
 	Grid,
 	Group,
 	Loader,
+	MultiSelect,
 	Paper,
 	Select,
 	Text,
 } from '@mantine/core';
 import { IconFilter, IconPlayerPlayFilled } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+import {
+	parseAsArrayOf,
+	parseAsInteger,
+	parseAsString,
+	useQueryStates,
+} from 'nuqs';
 import { useEffect } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
@@ -51,7 +57,7 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 	const [localFilter, setLocalFilter] = useQueryStates(
 		{
 			termId: parseAsInteger,
-			schoolId: parseAsInteger,
+			schoolIds: parseAsArrayOf(parseAsInteger),
 			programId: parseAsInteger,
 			semesterNumber: parseAsString,
 			distributionType: parseAsString,
@@ -65,7 +71,10 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 	useEffect(() => {
 		const newFilter: DistributionReportFilter = {
 			termIds: localFilter.termId ? [localFilter.termId] : undefined,
-			schoolId: localFilter.schoolId ?? undefined,
+			schoolIds:
+				localFilter.schoolIds && localFilter.schoolIds.length > 0
+					? localFilter.schoolIds
+					: undefined,
 			programId: localFilter.programId ?? undefined,
 			semesterNumber: localFilter.semesterNumber ?? undefined,
 		};
@@ -94,24 +103,36 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 	const { data: programs = [], isLoading: programsLoading } = useQuery<
 		ProgramOption[]
 	>({
-		queryKey: ['distribution-programs', localFilter.schoolId],
+		queryKey: ['distribution-programs', localFilter.schoolIds],
 		queryFn: async () => {
 			const result = await getDistributionPrograms(
-				localFilter.schoolId ?? undefined
+				localFilter.schoolIds ?? undefined
 			);
 			return result.success ? (result.data as ProgramOption[]) : [];
 		},
-		enabled: Boolean(localFilter.schoolId),
+		enabled:
+			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});
 
-	function handleChange(field: string, value: string | number | null) {
-		const updates: Record<string, number | string | null> = {
-			[field]: value,
-		};
-
-		if (field === 'schoolId') {
-			updates.programId = null;
+	function handleChange(
+		field: string,
+		value: string | number | string[] | null
+	) {
+		if (field === 'schoolIds') {
+			const schoolIds =
+				Array.isArray(value) && value.length > 0
+					? value.map((v) => Number(v))
+					: null;
+			setLocalFilter({
+				schoolIds,
+				programId: null,
+			});
+			return;
 		}
+
+		const updates: Record<string, number | string | null> = {
+			[field]: value as number | string | null,
+		};
 
 		setLocalFilter(updates);
 	}
@@ -160,36 +181,18 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 					</Grid.Col>
 
 					<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-						<Select
-							label='School'
-							placeholder='All schools'
+						<MultiSelect
+							label='Schools'
+							placeholder='Schools'
 							data={schools.map((school) => ({
 								value: school.id?.toString() || '',
 								label: school.code,
-								description: school.name,
 							}))}
 							rightSection={schoolsLoading && <Loader size='xs' />}
-							value={localFilter.schoolId?.toString() ?? null}
-							onChange={(value) =>
-								handleChange('schoolId', value ? Number(value) : null)
-							}
+							value={localFilter.schoolIds?.map(String) ?? []}
+							onChange={(value) => handleChange('schoolIds', value)}
 							searchable
 							clearable
-							renderOption={({ option }) => {
-								const customOption = option as {
-									value: string;
-									label: string;
-									description: string;
-								};
-								return (
-									<div>
-										<Text size='sm'>{customOption.label}</Text>
-										<Text size='xs' c='dimmed'>
-											{customOption.description}
-										</Text>
-									</div>
-								);
-							}}
 						/>
 					</Grid.Col>
 
@@ -209,7 +212,9 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 							}
 							searchable
 							clearable
-							disabled={!localFilter.schoolId}
+							disabled={
+								!localFilter.schoolIds || localFilter.schoolIds.length === 0
+							}
 							renderOption={({ option }) => {
 								const customOption = option as {
 									value: string;

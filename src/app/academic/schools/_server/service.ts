@@ -39,6 +39,13 @@ class SchoolService {
 			['dashboard']
 		);
 	}
+
+	async getProgramsBySchoolIds(schoolIds?: number[]) {
+		return withAuth(
+			async () => this.repository.getProgramsBySchoolIds(schoolIds),
+			['dashboard']
+		);
+	}
 }
 
 export const schoolsService = serviceWrapper(SchoolService, 'SchoolsService');

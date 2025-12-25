@@ -2,7 +2,7 @@
 
 import {
 	getActiveSchools,
-	getProgramsBySchoolId,
+	getProgramsBySchoolIds,
 } from '@academic/schools/_server/actions';
 import { getAllSponsors } from '@finance/sponsors/_server/actions';
 import type { RegistrationReportFilter } from './repository';
@@ -139,9 +139,9 @@ export async function getAvailableSchoolsForReports() {
 	}
 }
 
-export async function getAvailableProgramsForReports(schoolId?: number) {
+export async function getAvailableProgramsForReports(schoolIds?: number[]) {
 	try {
-		const programs = await getProgramsBySchoolId(schoolId);
+		const programs = await getProgramsBySchoolIds(schoolIds);
 		return { success: true, data: programs };
 	} catch (error) {
 		console.error('Error fetching available programs:', error);
