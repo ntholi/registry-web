@@ -66,8 +66,7 @@ function getNavigation(
 		'Course Summary',
 		'Clearance',
 		'Board of Examination',
-		'Student Enrollments',
-		'Enrollment Distribution',
+		'Enrollments',
 	];
 
 	const getLabelKey = (label: React.ReactNode): string => {

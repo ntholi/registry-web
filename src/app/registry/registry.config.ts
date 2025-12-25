@@ -5,7 +5,6 @@ import {
 	IconCalendarEvent,
 	IconCalendarMonth,
 	IconCertificate,
-	IconChartDonut,
 	IconCircleCheck,
 	IconGavel,
 	IconHourglass,
@@ -173,28 +172,9 @@ export const registryConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Student Enrollments',
-				href: '/registry/reports/enrollments',
+				label: 'Enrollments',
+				href: '/registry/reports',
 				icon: IconReportAnalytics,
-				roles: ['academic', 'registry', 'admin', 'finance'],
-				isVisible: (session) => {
-					if (
-						['admin', 'registry', 'finance'].includes(
-							session?.user?.role as UserRole
-						)
-					)
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
-					);
-				},
-			},
-			{
-				label: 'Enrollment Distribution',
-				href: '/registry/reports/distribution',
-				icon: IconChartDonut,
 				roles: ['academic', 'registry', 'admin', 'finance'],
 				isVisible: (session) => {
 					if (
