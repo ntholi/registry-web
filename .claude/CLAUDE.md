@@ -33,19 +33,20 @@ University student registration portal managing academic records, course registr
 - Use `function name() {}` for exports, never arrow functions at top level
 - Derive types from Drizzle: `typeof table.$inferInsert`, `typeof table.$inferSelect`
 - No comments - code should be self-explanatory
-- Component order: Props type → constants → default export → private components
+- Component order: Props type → constants → default export → private props type → private components
+- Use short identifier names
 
 ### UI Rules
 - Mantine-only styling (no custom CSS)
 - Optimize for dark mode
-- Professional, clean, minimalist design
+- Provide very beautiful, professional, clean, minimalist design
 - Never hardcode colors - use `src/shared/lib/utils/colors.ts`
 - Never hardcode status icons - use `src/shared/lib/utils/status.tsx`
 - If there is *any* conditional/semantic color mapping (statuses, grades, module types, etc.), add/extend the mapping in `colors.ts` and consume it from features.
 - If there is *any* status icon mapping (status → icon, with optional color), add/extend it in `status.tsx` and consume it from features.
 
-### Validation
-Always run before committing: `pnpm tsc --noEmit & pnpm lint:fix`
+### Validation:
+When you are done, it is extremely important crucial that you run `pnpm tsc --noEmit & pnpm lint:fix` then fix the issues, run the same commands again until there are no issues.
 
 ## Project Structure
 

@@ -111,7 +111,8 @@ export default function AttendanceView() {
 	const weekOptions =
 		weeks?.map((w) => ({
 			value: w.weekNumber.toString(),
-			label: `Week ${w.weekNumber} (${formatDate(w.startDate)} - ${formatDate(w.endDate)})${w.isCurrent ? ' - Current' : ''}`,
+			label: `Week ${w.weekNumber}${w.isCurrent ? ' (Current)' : ''}`,
+			description: `${formatDate(w.startDate)} - ${formatDate(w.endDate)}`,
 		})) ?? [];
 
 	return (
@@ -138,6 +139,14 @@ export default function AttendanceView() {
 						disabled={!selectedModuleId || weeksLoading}
 						searchable
 						rightSection={weeksLoading ? <Loader size='xs' /> : null}
+						renderOption={({ option }) => (
+							<Stack gap={0}>
+								<Text size='sm'>{option.label}</Text>
+								<Text size='xs' c='dimmed'>
+									{(option as { description?: string }).description}
+								</Text>
+							</Stack>
+						)}
 					/>
 				</Group>
 				{currentWeek && selectedModuleId && !selectedWeek && (
