@@ -30,14 +30,14 @@ const reports: ReportLink[] = [
 		title: 'Student Enrollments',
 		description:
 			'View detailed student enrollment data by semester, program, and status',
-		href: '/registry/reports/enrollments',
+		href: '/registry/reports/student-enrollments/enrollments',
 		icon: IconReportAnalytics,
 	},
 	{
 		title: 'Enrollment Distribution',
 		description:
 			'Visualize enrollment distribution with interactive charts and graphs',
-		href: '/registry/reports/distribution',
+		href: '/registry/reports/student-enrollments/distribution',
 		icon: IconChartDonut,
 	},
 ];

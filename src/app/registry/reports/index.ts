@@ -1,2 +1,2 @@
-export * from './distribution';
-export * from './enrollments';
+export * from './student-enrollments/distribution';
+export * from './student-enrollments/enrollments';

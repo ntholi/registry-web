@@ -172,8 +172,8 @@ export const registryConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Enrollments',
-				href: '/registry/reports',
+				label: 'Student Enrollments',
+				href: '/registry/reports/student-enrollments',
 				icon: IconReportAnalytics,
 				roles: ['academic', 'registry', 'admin', 'finance'],
 				isVisible: (session) => {
