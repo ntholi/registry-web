@@ -98,7 +98,8 @@
 			"Bash(npx tsx:*)",
 			"Bash(node -e:*)",
 			"Bash(backup_db/restore.bat)",
-			"Bash(xargs sed:*)"
+			"Bash(xargs sed:*)",
+			"Bash(pnpm next build:*)"
 		],
 		"deny": [],
 		"ask": []

@@ -66,6 +66,21 @@ export const academicConfig: ModuleConfig = {
 					return session?.user?.position !== 'admin';
 				},
 			},
+			{
+				label: 'Attendance Report',
+				href: '/academic/reports/attendance',
+				icon: IconReportAnalytics,
+				roles: ['academic', 'admin', 'registry'],
+				isVisible: (session) => {
+					const position = session?.user?.position;
+					return !!(
+						position &&
+						['manager', 'admin', 'program_leader', 'year_leader'].includes(
+							position
+						)
+					);
+				},
+			},
 		],
 	},
 
