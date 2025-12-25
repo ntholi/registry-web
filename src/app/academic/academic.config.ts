@@ -1,4 +1,5 @@
 import {
+	IconCalendarEvent,
 	IconClipboardData,
 	IconListCheck,
 	IconPresentation,
@@ -32,6 +33,15 @@ export const academicConfig: ModuleConfig = {
 				label: 'Assessments',
 				href: '/academic/assessments',
 				icon: IconListCheck,
+				roles: ['academic'],
+				isVisible: (session) => {
+					return session?.user?.position !== 'admin';
+				},
+			},
+			{
+				label: 'Attendance',
+				href: '/academic/attendance',
+				icon: IconCalendarEvent,
 				roles: ['academic'],
 				isVisible: (session) => {
 					return session?.user?.position !== 'admin';

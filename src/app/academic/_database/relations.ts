@@ -1,5 +1,5 @@
 import { users } from '@auth/_database';
-import { studentModules, terms } from '@registry/_database';
+import { studentModules, students, terms } from '@registry/_database';
 import { relations } from 'drizzle-orm';
 import {
 	assessmentMarks,
@@ -9,6 +9,7 @@ import {
 	assignedModules,
 	lmsAssessments,
 } from './schema/assessments';
+import { attendance } from './schema/attendance';
 import {
 	modulePrerequisites,
 	modules,
@@ -172,5 +173,28 @@ export const lmsAssessmentsRelations = relations(lmsAssessments, ({ one }) => ({
 	assessment: one(assessments, {
 		fields: [lmsAssessments.assessmentId],
 		references: [assessments.id],
+	}),
+}));
+
+export const attendanceRelations = relations(attendance, ({ one }) => ({
+	student: one(students, {
+		fields: [attendance.stdNo],
+		references: [students.stdNo],
+	}),
+	term: one(terms, {
+		fields: [attendance.termId],
+		references: [terms.id],
+	}),
+	semesterModule: one(semesterModules, {
+		fields: [attendance.semesterModuleId],
+		references: [semesterModules.id],
+	}),
+	markedByUser: one(users, {
+		fields: [attendance.markedBy],
+		references: [users.id],
+	}),
+	assignedModule: one(assignedModules, {
+		fields: [attendance.assignedModuleId],
+		references: [assignedModules.id],
 	}),
 }));

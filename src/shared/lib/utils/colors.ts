@@ -92,6 +92,13 @@ export const statusColors = {
 		assigned: semantic.info,
 		unassigned: semantic.neutral,
 	},
+	attendance: {
+		present: semantic.success,
+		absent: semantic.error,
+		late: semantic.warning,
+		excused: semantic.info,
+		na: semantic.neutral,
+	},
 	dataOp: {
 		deleted: semantic.error,
 		drop: semantic.error,
@@ -189,6 +196,7 @@ const allStatuses = {
 	...statusColors.academic,
 	...statusColors.availability,
 	...statusColors.assignment,
+	...statusColors.attendance,
 	...statusColors.dataOp,
 } as const;
 

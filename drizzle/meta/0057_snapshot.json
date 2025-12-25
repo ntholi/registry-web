@@ -1,6 +1,6 @@
 {
-	"id": "7aed7105-3ccc-4ef2-8669-29ec0c68a4ab",
-	"prevId": "9d30924f-0ab1-493b-a2ce-632d5a425758",
+	"id": "2478d247-393b-4d06-8f48-6f138cf58f77",
+	"prevId": "7aed7105-3ccc-4ef2-8669-29ec0c68a4ab",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -718,6 +718,200 @@
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.attendance": {
+			"name": "attendance",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"assigned_module_id": {
+					"name": "assigned_module_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"std_no": {
+					"name": "std_no",
+					"type": "bigint",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"term_id": {
+					"name": "term_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"semester_module_id": {
+					"name": "semester_module_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"week_number": {
+					"name": "week_number",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"status": {
+					"name": "status",
+					"type": "attendance_status",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'na'"
+				},
+				"marked_by": {
+					"name": "marked_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"marked_at": {
+					"name": "marked_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				}
+			},
+			"indexes": {
+				"fk_attendance_std_no": {
+					"name": "fk_attendance_std_no",
+					"columns": [
+						{
+							"expression": "std_no",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"fk_attendance_term_id": {
+					"name": "fk_attendance_term_id",
+					"columns": [
+						{
+							"expression": "term_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"fk_attendance_semester_module_id": {
+					"name": "fk_attendance_semester_module_id",
+					"columns": [
+						{
+							"expression": "semester_module_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_attendance_week_number": {
+					"name": "idx_attendance_week_number",
+					"columns": [
+						{
+							"expression": "week_number",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"fk_attendance_assigned_module_id": {
+					"name": "fk_attendance_assigned_module_id",
+					"columns": [
+						{
+							"expression": "assigned_module_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"attendance_term_id_terms_id_fk": {
+					"name": "attendance_term_id_terms_id_fk",
+					"tableFrom": "attendance",
+					"tableTo": "terms",
+					"columnsFrom": ["term_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"attendance_semester_module_id_semester_modules_id_fk": {
+					"name": "attendance_semester_module_id_semester_modules_id_fk",
+					"tableFrom": "attendance",
+					"tableTo": "semester_modules",
+					"columnsFrom": ["semester_module_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"attendance_marked_by_users_id_fk": {
+					"name": "attendance_marked_by_users_id_fk",
+					"tableFrom": "attendance",
+					"tableTo": "users",
+					"columnsFrom": ["marked_by"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"attendance_stdNo_termId_semesterModuleId_weekNumber_unique": {
+					"name": "attendance_stdNo_termId_semesterModuleId_weekNumber_unique",
+					"nullsNotDistinct": false,
+					"columns": ["std_no", "term_id", "semester_module_id", "week_number"]
+				}
+			},
 			"policies": {},
 			"checkConstraints": {},
 			"isRLSEnabled": false
@@ -6032,6 +6226,11 @@
 				"feedback",
 				"scorm"
 			]
+		},
+		"public.attendance_status": {
+			"name": "attendance_status",
+			"schema": "public",
+			"values": ["present", "absent", "late", "excused", "na"]
 		},
 		"public.assessment_marks_audit_action": {
 			"name": "assessment_marks_audit_action",
