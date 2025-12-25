@@ -199,7 +199,7 @@ export default function AttendanceForm({
 					<Menu shadow='md' width={200}>
 						<Menu.Target>
 							<Button
-								variant='light'
+								variant='default'
 								rightSection={<IconChevronDown size={16} />}
 								loading={saveMutation.isPending}
 							>
@@ -233,7 +233,7 @@ export default function AttendanceForm({
 			</Group>
 
 			<Paper withBorder>
-				<Table striped highlightOnHover>
+				<Table striped>
 					<Table.Thead>
 						<Table.Tr>
 							<Table.Th>Student No</Table.Th>

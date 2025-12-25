@@ -153,10 +153,10 @@ export default function AttendanceView() {
 				<Tabs defaultValue='mark'>
 					<Tabs.List>
 						<Tabs.Tab value='mark' leftSection={<IconCalendarWeek size={16} />}>
-							Mark Attendance
+							Attendance
 						</Tabs.Tab>
 						<Tabs.Tab value='summary' leftSection={<IconTable size={16} />}>
-							Summary View
+							Summary
 						</Tabs.Tab>
 					</Tabs.List>
 
