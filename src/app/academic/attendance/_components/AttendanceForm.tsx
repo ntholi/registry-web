@@ -202,6 +202,7 @@ export default function AttendanceForm({
 						<Menu.Target>
 							<Button
 								variant='default'
+								w={150}
 								rightSection={<IconChevronDown size={16} />}
 								loading={saveMutation.isPending}
 							>

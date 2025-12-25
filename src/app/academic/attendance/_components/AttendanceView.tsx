@@ -16,6 +16,7 @@ import { IconCalendarWeek, IconTable } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
+import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	getAssignedModulesForCurrentUser,
 	getWeeksForTerm,
@@ -105,7 +106,7 @@ export default function AttendanceView() {
 
 	const moduleOptions = modules.map((m) => ({
 		value: m.semesterModuleId.toString(),
-		label: `${m.moduleCode} - ${m.moduleName} (${m.semesterName})`,
+		label: `${toClassName(m.programCode, m.semesterName)} - ${m.moduleName}`,
 	}));
 
 	const weekOptions =

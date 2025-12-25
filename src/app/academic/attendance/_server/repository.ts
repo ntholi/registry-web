@@ -5,6 +5,7 @@ import {
 	attendance,
 	db,
 	modules,
+	programs,
 	semesterModules,
 	structureSemesters,
 	structures,
@@ -323,6 +324,7 @@ export default class AttendanceRepository extends BaseRepository<
 				semesterModuleId: semesterModules.id,
 				moduleCode: modules.code,
 				moduleName: modules.name,
+				programCode: programs.code,
 				programId: structures.programId,
 				semesterName: structureSemesters.name,
 				termId: assignedModules.termId,
@@ -338,6 +340,7 @@ export default class AttendanceRepository extends BaseRepository<
 				eq(semesterModules.semesterId, structureSemesters.id)
 			)
 			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
 			.where(
 				and(
 					eq(assignedModules.userId, userId),
