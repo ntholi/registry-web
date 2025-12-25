@@ -54,24 +54,37 @@ export default class AttendanceRepository extends BaseRepository<
 		const today = new Date();
 		const weeks: WeekInfo[] = [];
 		let weekNumber = 1;
-		const currentWeekStart = new Date(startDate);
+
+		const firstSunday = new Date(startDate);
+		const dayOfWeek = firstSunday.getDay();
+		if (dayOfWeek !== 0) {
+			firstSunday.setDate(firstSunday.getDate() - dayOfWeek);
+		}
+
+		const currentWeekStart = new Date(firstSunday);
 
 		while (currentWeekStart <= endDate) {
 			const weekEnd = new Date(currentWeekStart);
 			weekEnd.setDate(weekEnd.getDate() + 6);
 
+			const actualWeekStart =
+				currentWeekStart < startDate ? startDate : currentWeekStart;
 			const actualWeekEnd = weekEnd > endDate ? endDate : weekEnd;
-			const isCurrent = today >= currentWeekStart && today <= actualWeekEnd;
 
-			weeks.push({
-				weekNumber,
-				startDate: new Date(currentWeekStart),
-				endDate: actualWeekEnd,
-				isCurrent,
-			});
+			if (actualWeekStart <= endDate) {
+				const isCurrent = today >= actualWeekStart && today <= actualWeekEnd;
+
+				weeks.push({
+					weekNumber,
+					startDate: new Date(actualWeekStart),
+					endDate: new Date(actualWeekEnd),
+					isCurrent,
+				});
+
+				weekNumber++;
+			}
 
 			currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-			weekNumber++;
 		}
 
 		return weeks;
