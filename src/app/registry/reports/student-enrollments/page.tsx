@@ -17,6 +17,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 
 type ReportLink = {
 	title: string;
@@ -43,6 +44,15 @@ const reports: ReportLink[] = [
 ];
 
 export default function EnrollmentReportsPage() {
+	const { activeTerm } = useActiveTerm();
+
+	function buildHref(baseHref: string) {
+		if (activeTerm?.id) {
+			return `${baseHref}?termId=${activeTerm.id}`;
+		}
+		return baseHref;
+	}
+
 	return (
 		<Stack p='lg'>
 			<Title order={2}>Enrollment Reports</Title>
@@ -52,7 +62,10 @@ export default function EnrollmentReportsPage() {
 
 			<SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} mt='md'>
 				{reports.map((report) => (
-					<ReportCard key={report.href} report={report} />
+					<ReportCard
+						key={report.href}
+						report={{ ...report, href: buildHref(report.href) }}
+					/>
 				))}
 			</SimpleGrid>
 		</Stack>
