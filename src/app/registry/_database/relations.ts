@@ -83,6 +83,10 @@ export const studentSemestersRelations = relations(
 			fields: [studentSemesters.structureSemesterId],
 			references: [structureSemesters.id],
 		}),
+		registrationRequest: one(registrationRequests, {
+			fields: [studentSemesters.registrationRequestId],
+			references: [registrationRequests.id],
+		}),
 		studentModules: many(studentModules),
 	})
 );
@@ -146,6 +150,10 @@ export const registrationRequestsRelations = relations(
 		}),
 		clearances: many(registrationClearance),
 		requestedModules: many(requestedModules),
+		studentSemester: one(studentSemesters, {
+			fields: [registrationRequests.id],
+			references: [studentSemesters.registrationRequestId],
+		}),
 	})
 );
 

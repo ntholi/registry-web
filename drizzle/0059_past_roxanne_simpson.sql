@@ -1,0 +1,3 @@
+ALTER TABLE "student_semesters" ADD COLUMN "registration_request_id" integer;--> statement-breakpoint
+ALTER TABLE "student_semesters" ADD CONSTRAINT "student_semesters_registration_request_id_registration_requests_id_fk" FOREIGN KEY ("registration_request_id") REFERENCES "public"."registration_requests"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "fk_student_semesters_registration_request_id" ON "student_semesters" USING btree ("registration_request_id");

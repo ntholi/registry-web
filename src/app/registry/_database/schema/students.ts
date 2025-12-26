@@ -27,6 +27,7 @@ import {
 	studentModuleStatus,
 	studentStatus,
 } from './enums';
+import { registrationRequests } from './registration';
 
 export const students = pgTable(
 	'students',
@@ -144,6 +145,9 @@ export const studentSemesters = pgTable(
 		studentProgramId: integer()
 			.references(() => studentPrograms.id, { onDelete: 'cascade' })
 			.notNull(),
+		registrationRequestId: integer().references(() => registrationRequests.id, {
+			onDelete: 'set null',
+		}),
 		sponsorId: integer(),
 		cafDate: text(),
 		createdAt: timestamp().defaultNow(),
@@ -158,6 +162,9 @@ export const studentSemesters = pgTable(
 		termIdx: index('idx_student_semesters_term').on(table.termCode),
 		statusIdx: index('idx_student_semesters_status').on(table.status),
 		sponsorIdIdx: index('fk_student_semesters_sponsor_id').on(table.sponsorId),
+		registrationRequestIdIdx: index(
+			'fk_student_semesters_registration_request_id'
+		).on(table.registrationRequestId),
 	})
 );
 
