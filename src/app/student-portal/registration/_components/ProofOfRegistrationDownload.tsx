@@ -62,28 +62,8 @@ export default function ProofOfRegistrationDownload({
 				return;
 			}
 
-			const pdfData = {
-				stdNo: studentData.stdNo,
-				name: studentData.name,
-				program: activeProgram.structure.program.name,
-				faculty: activeProgram.structure.program.school?.name ?? '',
-				semesterNumber: targetSemester.structureSemester?.semesterNumber ?? '',
-				semesterStatus: targetSemester.status as 'Active' | 'Repeat',
-				termCode: targetSemester.termCode ?? '',
-				modules: targetSemester.studentModules.map((sm) => ({
-					code: sm.semesterModule?.module?.code ?? '',
-					name: sm.semesterModule?.module?.name ?? '',
-					credits: sm.credits ?? 0,
-					type: '',
-					semesterNumber:
-						targetSemester.structureSemester?.semesterNumber ?? '',
-				})),
-				sponsor: undefined,
-				registrationDate: new Date(),
-			};
-
 			const pdfBlob = await pdf(
-				<ProofOfRegistrationPDF data={pdfData} />
+				<ProofOfRegistrationPDF student={studentData} />
 			).toBlob();
 
 			const url = URL.createObjectURL(pdfBlob);

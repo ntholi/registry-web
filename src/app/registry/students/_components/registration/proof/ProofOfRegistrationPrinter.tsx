@@ -1,84 +1,120 @@
 'use client';
 
-import { Button, Group, Loader } from '@mantine/core';
+import { Button, Loader } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
-import { getStudentForProofOfRegistration } from '@registry/registration';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { getStudentRegistrationData } from '../../../_server/actions';
 import ProofOfRegistrationPDF from './ProofOfRegistrationPDF';
 
 type Props = {
-	registrationId: number;
+	stdNo: number;
 };
 
-export default function ProofOfRegistrationPrinter({ registrationId }: Props) {
-	const [isPrinting, setIsPrinting] = useState(false);
+export default function ProofOfRegistrationPrinter({ stdNo }: Props) {
+	const [isGenerating, setIsGenerating] = useState(false);
 
-	const { data, isLoading, error } = useQuery({
-		queryKey: ['proof-of-registration', registrationId],
-		queryFn: () => getStudentForProofOfRegistration(registrationId),
+	const { refetch: fetchRegistrationData, isLoading } = useQuery({
+		queryKey: ['student-registration-data', stdNo],
+		queryFn: () => getStudentRegistrationData(stdNo),
+		enabled: false,
 	});
 
 	const handlePrint = async () => {
-		if (!data) return;
-
-		setIsPrinting(true);
+		setIsGenerating(true);
 		try {
-			const blob = await pdf(<ProofOfRegistrationPDF data={data} />).toBlob();
+			const result = await fetchRegistrationData();
+			const studentData = result.data;
+
+			if (
+				!studentData ||
+				!studentData.programs ||
+				studentData.programs.length === 0
+			) {
+				console.error('Invalid student data for PDF generation');
+				setIsGenerating(false);
+				return;
+			}
+
+			console.log(
+				'Generating Proof of Registration PDF for student:',
+				studentData.stdNo
+			);
+
+			const blob = await pdf(
+				<ProofOfRegistrationPDF student={studentData} />
+			).toBlob();
+
+			console.log('PDF blob generated, size:', blob.size);
+
+			if (blob.size === 0) {
+				throw new Error('Generated PDF is empty');
+			}
+
 			const url = URL.createObjectURL(blob);
 
 			const iframe = document.createElement('iframe');
-			iframe.style.position = 'fixed';
-			iframe.style.right = '0';
-			iframe.style.bottom = '0';
-			iframe.style.width = '0';
-			iframe.style.height = '0';
-			iframe.style.border = 'none';
+			iframe.style.display = 'none';
+			iframe.src = url;
 			document.body.appendChild(iframe);
 
-			iframe.src = url;
-
 			iframe.onload = () => {
-				setTimeout(() => {
-					iframe.contentWindow?.print();
-				}, 500);
+				if (iframe.contentWindow) {
+					iframe.contentWindow.focus();
+					iframe.contentWindow.print();
+
+					const handleAfterPrint = () => {
+						URL.revokeObjectURL(url);
+						if (iframe.parentNode) {
+							iframe.parentNode.removeChild(iframe);
+						}
+						setIsGenerating(false);
+						if (iframe.contentWindow) {
+							iframe.contentWindow.removeEventListener(
+								'afterprint',
+								handleAfterPrint
+							);
+						}
+					};
+
+					iframe.contentWindow.addEventListener('afterprint', handleAfterPrint);
+				} else {
+					console.error('Failed to access iframe content window.');
+					URL.revokeObjectURL(url);
+					if (iframe.parentNode) {
+						iframe.parentNode.removeChild(iframe);
+					}
+					setIsGenerating(false);
+				}
 			};
 
-			setTimeout(() => {
-				document.body.removeChild(iframe);
+			iframe.onerror = () => {
+				console.error('Failed to load PDF in iframe.');
 				URL.revokeObjectURL(url);
-			}, 60000);
-		} catch (err) {
-			console.error('Failed to print proof of registration:', err);
-		} finally {
-			setIsPrinting(false);
+				if (iframe.parentNode) {
+					iframe.parentNode.removeChild(iframe);
+				}
+				setIsGenerating(false);
+			};
+		} catch (error) {
+			console.error('Error generating PDF for printing:', error);
+			setIsGenerating(false);
 		}
 	};
-
-	if (isLoading) {
-		return (
-			<Group gap='xs'>
-				<Loader size='xs' />
-				<span>Loading...</span>
-			</Group>
-		);
-	}
-
-	if (error || !data) {
-		return null;
-	}
 
 	return (
 		<Button
 			leftSection={
-				isPrinting ? <Loader size='xs' /> : <IconPrinter size={16} />
+				isLoading ? <Loader size={'xs'} /> : <IconPrinter size='1rem' />
 			}
+			variant='subtle'
+			color='gray'
+			size='xs'
+			disabled={isGenerating}
 			onClick={handlePrint}
-			disabled={isPrinting}
-			variant='light'
 		>
-			{isPrinting ? 'Preparing...' : 'Print Proof of Registration'}
+			Print
 		</Button>
 	);
 }
