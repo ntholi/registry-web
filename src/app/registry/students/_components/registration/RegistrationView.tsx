@@ -29,6 +29,7 @@ import { useState } from 'react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 import RegistrationModal from './form/RegistrationModal';
+import ProofOfRegistrationPrinter from './proof/ProofOfRegistrationPrinter';
 import RegisteredSemestersView from './RegisteredSemestersView';
 
 type StudentRegistrationHistory = {
@@ -138,31 +139,44 @@ function RequestsView({ stdNo, isActive = true }: RequestsViewProps) {
 	return (
 		<>
 			<Stack gap='md'>
-				{!hasActiveTermRegistration &&
-					activeTerm &&
-					['registry', 'admin'].includes(session?.user?.role ?? '') && (
-						<Card withBorder p='md'>
-							<Group justify='space-between' align='center'>
-								<Stack gap={4}>
+				{activeTerm && (
+					<Card withBorder p='md'>
+						<Group justify='space-between' align='center'>
+							<Stack gap={4}>
+								<Group gap='xs'>
 									<Text size='sm' fw={500}>
-										No registration for {activeTerm.code}
+										{activeTerm.code}
 									</Text>
-									<Text size='xs' c='dimmed'>
-										Create a registration request for this student
-									</Text>
-								</Stack>
-								<Button
-									leftSection={<IconPlus size={14} />}
-									variant='filled'
-									size='sm'
-									color='blue'
-									onClick={open}
-								>
-									Create
-								</Button>
-							</Group>
-						</Card>
-					)}
+									{hasActiveTermRegistration && (
+										<Badge size='xs' variant='light' color='green'>
+											Registered
+										</Badge>
+									)}
+								</Group>
+								<Text size='xs' c='dimmed'>
+									{hasActiveTermRegistration
+										? 'Student is registered for the current term'
+										: 'Create a registration request for this student'}
+								</Text>
+							</Stack>
+							{hasActiveTermRegistration ? (
+								<ProofOfRegistrationPrinter stdNo={stdNo} />
+							) : (
+								['registry', 'admin'].includes(session?.user?.role ?? '') && (
+									<Button
+										leftSection={<IconPlus size={14} />}
+										variant='filled'
+										size='sm'
+										color='blue'
+										onClick={open}
+									>
+										Create
+									</Button>
+								)
+							)}
+						</Group>
+					</Card>
+				)}
 
 				<Accordion
 					variant='separated'
