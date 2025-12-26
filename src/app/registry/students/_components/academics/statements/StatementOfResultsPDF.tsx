@@ -1,6 +1,10 @@
 import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
-import { formatDate, formatSemester } from '@/shared/lib/utils/utils';
+import {
+	formatDate,
+	formatSemester,
+	formatTerm,
+} from '@/shared/lib/utils/utils';
 import type { getAcademicHistory } from '../../../_server/actions';
 
 type StatementOfResultsPDFProps = {
@@ -163,16 +167,31 @@ export default function StatementOfResultsPDF({
 										>
 											<View
 												style={tw(
-													'text-[11pt] font-bold bg-gray-e0 text-gray-333 p-[8pt] flex-row justify-between items-center border border-gray-ccc border-b-0'
+													'bg-gray-e0 px-[8pt] py-[5pt] flex-row justify-between items-center border border-gray-ccc border-b-0'
 												)}
 											>
-												<Text>
-													{semesterNumber
-														? formatSemester(semesterNumber)
-														: semester.termCode}{' '}
-													({semester.termCode})
-												</Text>
-												<Text>GPA: {semesterGPA.toFixed(2)}</Text>
+												<View>
+													<Text
+														style={tw('text-[9pt] font-semibold text-black')}
+													>
+														{semesterNumber
+															? formatSemester(semesterNumber)
+															: semester.termCode}
+													</Text>
+													<Text style={tw('text-[8pt] text-gray-666')}>
+														{formatTerm(semester.termCode, 'long')}
+													</Text>
+												</View>
+												<View>
+													<Text style={tw('text-[8pt] text-gray-666')}>
+														GPA:
+													</Text>
+													<Text
+														style={tw('text-[9pt] font-semibold text-gray-333')}
+													>
+														{semesterGPA.toFixed(2)}
+													</Text>
+												</View>
 											</View>
 											<View
 												style={tw('w-auto border border-solid border-gray-ccc')}

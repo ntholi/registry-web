@@ -219,3 +219,23 @@ export function calculateAge(
 	}
 	return age;
 }
+
+export function formatTerm(
+	term: string | undefined | null,
+	type: 'long' | 'short' = 'short'
+) {
+	if (!term) return '';
+
+	const [year, month] = term.split('-');
+	if (!year || !month) return term;
+
+	const monthNum = Number.parseInt(month, 10);
+	if (Number.isNaN(monthNum) || monthNum < 1 || monthNum > 12) return term;
+
+	const date = new Date(Number.parseInt(year, 10), monthNum - 1);
+	const monthName = date.toLocaleDateString('en-US', {
+		month: type === 'long' ? 'long' : 'short',
+	});
+
+	return `${monthName} ${year}`;
+}
