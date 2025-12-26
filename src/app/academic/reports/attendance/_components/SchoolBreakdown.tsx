@@ -3,17 +3,20 @@
 import {
 	Accordion,
 	Badge,
+	Box,
 	Card,
+	Divider,
 	Group,
 	Progress,
+	RingProgress,
 	ScrollArea,
+	SimpleGrid,
 	Stack,
 	Table,
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
 import {
-	IconBuilding,
 	IconSchool,
 	IconUserExclamation,
 	IconUsers,
@@ -38,6 +41,199 @@ function AttendanceRateBadge({ rate }: { rate: number }) {
 	);
 }
 
+type SchoolHeaderProps = {
+	school: SchoolAttendanceSummary;
+};
+
+function SchoolHeader({ school }: SchoolHeaderProps) {
+	return (
+		<Box>
+			<Group justify='space-between' align='flex-start' mb='md'>
+				<Box>
+					<Text size='xl' fw={700} c='white'>
+						{school.schoolCode}
+					</Text>
+					<Text size='sm' c='dimmed'>
+						{school.programs.length} program
+						{school.programs.length !== 1 ? 's' : ''}
+					</Text>
+				</Box>
+				<SimpleGrid cols={3} spacing='xl'>
+					<Box ta='center'>
+						<Group gap={6} justify='center'>
+							<IconUsers size={16} style={{ opacity: 0.7 }} />
+							<Text size='xl' fw={700}>
+								{school.totalStudents}
+							</Text>
+						</Group>
+						<Text size='xs' c='dimmed'>
+							Students
+						</Text>
+					</Box>
+					<Box ta='center'>
+						<RingProgress
+							size={50}
+							thickness={5}
+							roundCaps
+							sections={[
+								{
+									value: school.avgAttendanceRate,
+									color: getAttendanceColor(school.avgAttendanceRate),
+								},
+							]}
+							label={
+								<Text size='xs' ta='center' fw={600}>
+									{school.avgAttendanceRate}%
+								</Text>
+							}
+						/>
+						<Text size='xs' c='dimmed' mt={4}>
+							Attendance
+						</Text>
+					</Box>
+					<Box ta='center'>
+						<Text
+							size='xl'
+							fw={700}
+							c={school.atRiskCount > 0 ? 'red' : 'green'}
+						>
+							{school.atRiskCount}
+						</Text>
+						<Text size='xs' c='dimmed'>
+							At Risk
+						</Text>
+					</Box>
+				</SimpleGrid>
+			</Group>
+		</Box>
+	);
+}
+
+type ProgramAccordionProps = {
+	programs: SchoolAttendanceSummary['programs'];
+};
+
+function ProgramAccordion({ programs }: ProgramAccordionProps) {
+	return (
+		<Accordion variant='contained' radius='md'>
+			{programs.map((program) => (
+				<Accordion.Item key={program.programCode} value={program.programCode}>
+					<Accordion.Control>
+						<Group justify='space-between' wrap='nowrap' pr='md'>
+							<Group gap='sm'>
+								<ThemeIcon variant='light' size='md' color='violet'>
+									<IconSchool size={16} />
+								</ThemeIcon>
+								<Box>
+									<Text fw={600} size='sm'>
+										{program.programCode}
+									</Text>
+									<Text size='xs' c='dimmed' lineClamp={1}>
+										{program.programName}
+									</Text>
+								</Box>
+							</Group>
+							<Group gap='lg'>
+								<Group gap={4}>
+									<IconUsers size={14} style={{ opacity: 0.6 }} />
+									<Text size='sm' fw={500}>
+										{program.totalStudents}
+									</Text>
+								</Group>
+								<AttendanceRateBadge rate={program.avgAttendanceRate} />
+								{program.atRiskCount > 0 && (
+									<Group gap={4}>
+										<IconUserExclamation
+											size={14}
+											color='var(--mantine-color-red-6)'
+										/>
+										<Text size='xs' c='red' fw={500}>
+											{program.atRiskCount}
+										</Text>
+									</Group>
+								)}
+							</Group>
+						</Group>
+					</Accordion.Control>
+					<Accordion.Panel>
+						<ScrollArea>
+							<Table striped highlightOnHover withTableBorder fz='xs'>
+								<Table.Thead>
+									<Table.Tr>
+										<Table.Th>Class</Table.Th>
+										<Table.Th ta='center'>Students</Table.Th>
+										<Table.Th ta='center'>Attendance</Table.Th>
+										<Table.Th ta='center'>Present</Table.Th>
+										<Table.Th ta='center'>Absent</Table.Th>
+										<Table.Th ta='center'>Late</Table.Th>
+										<Table.Th ta='center'>Excused</Table.Th>
+										<Table.Th ta='center'>At Risk</Table.Th>
+									</Table.Tr>
+								</Table.Thead>
+								<Table.Tbody>
+									{program.classes.map((cls) => (
+										<Table.Tr key={cls.className}>
+											<Table.Td>
+												<Text fw={500}>{cls.className}</Text>
+											</Table.Td>
+											<Table.Td ta='center'>{cls.totalStudents}</Table.Td>
+											<Table.Td ta='center'>
+												<Group gap={6} justify='center'>
+													<Progress
+														value={cls.avgAttendanceRate}
+														color={getAttendanceColor(cls.avgAttendanceRate)}
+														size='sm'
+														w={40}
+														radius='xl'
+													/>
+													<Text size='xs' fw={500}>
+														{cls.avgAttendanceRate}%
+													</Text>
+												</Group>
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Text c='green' fw={500}>
+													{cls.totalPresent}
+												</Text>
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Text c='red' fw={500}>
+													{cls.totalAbsent}
+												</Text>
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Text c='yellow' fw={500}>
+													{cls.totalLate}
+												</Text>
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Text c='blue' fw={500}>
+													{cls.totalExcused}
+												</Text>
+											</Table.Td>
+											<Table.Td ta='center'>
+												{cls.atRiskCount > 0 ? (
+													<Badge size='xs' color='red' variant='filled'>
+														{cls.atRiskCount}
+													</Badge>
+												) : (
+													<Text size='xs' c='dimmed'>
+														—
+													</Text>
+												)}
+											</Table.Td>
+										</Table.Tr>
+									))}
+								</Table.Tbody>
+							</Table>
+						</ScrollArea>
+					</Accordion.Panel>
+				</Accordion.Item>
+			))}
+		</Accordion>
+	);
+}
+
 export default function SchoolBreakdown({ data }: Props) {
 	if (data.length === 0) {
 		return (
@@ -48,156 +244,14 @@ export default function SchoolBreakdown({ data }: Props) {
 	}
 
 	return (
-		<Accordion variant='separated' radius='md'>
-			{data.map((school) => (
-				<Accordion.Item key={school.schoolCode} value={school.schoolCode}>
-					<Accordion.Control>
-						<Group justify='space-between' wrap='nowrap' pr='md'>
-							<Group gap='sm'>
-								<ThemeIcon variant='light' size='md' color='blue'>
-									<IconBuilding size={16} />
-								</ThemeIcon>
-								<div>
-									<Text fw={600}>{school.schoolCode}</Text>
-									<Text size='xs' c='dimmed'>
-										{school.programs.length} program
-										{school.programs.length !== 1 ? 's' : ''}
-									</Text>
-								</div>
-							</Group>
-							<Group gap='lg'>
-								<Group gap={4}>
-									<IconUsers size={14} />
-									<Text size='sm'>{school.totalStudents}</Text>
-								</Group>
-								<AttendanceRateBadge rate={school.avgAttendanceRate} />
-								{school.atRiskCount > 0 && (
-									<Badge color='red' size='sm' variant='filled'>
-										{school.atRiskCount} at risk
-									</Badge>
-								)}
-							</Group>
-						</Group>
-					</Accordion.Control>
-					<Accordion.Panel>
-						<Stack gap='md'>
-							{school.programs.map((program) => (
-								<Card key={program.programCode} withBorder p='sm'>
-									<Stack gap='sm'>
-										<Group justify='space-between'>
-											<Group gap='sm'>
-												<ThemeIcon variant='light' size='sm' color='violet'>
-													<IconSchool size={14} />
-												</ThemeIcon>
-												<div>
-													<Text fw={500} size='sm'>
-														{program.programCode}
-													</Text>
-													<Text size='xs' c='dimmed'>
-														{program.programName}
-													</Text>
-												</div>
-											</Group>
-											<Group gap='md'>
-												<Group gap={4}>
-													<IconUsers size={12} />
-													<Text size='xs'>{program.totalStudents}</Text>
-												</Group>
-												<AttendanceRateBadge rate={program.avgAttendanceRate} />
-												{program.atRiskCount > 0 && (
-													<Group gap={4}>
-														<IconUserExclamation size={14} color='red' />
-														<Text size='xs' c='red'>
-															{program.atRiskCount}
-														</Text>
-													</Group>
-												)}
-											</Group>
-										</Group>
-
-										<ScrollArea>
-											<Table
-												striped
-												highlightOnHover
-												withTableBorder
-												withColumnBorders
-												fz='xs'
-											>
-												<Table.Thead>
-													<Table.Tr>
-														<Table.Th>Class</Table.Th>
-														<Table.Th ta='center'>Students</Table.Th>
-														<Table.Th ta='center'>Attendance Rate</Table.Th>
-														<Table.Th ta='center'>Present</Table.Th>
-														<Table.Th ta='center'>Absent</Table.Th>
-														<Table.Th ta='center'>Late</Table.Th>
-														<Table.Th ta='center'>Excused</Table.Th>
-														<Table.Th ta='center'>At Risk</Table.Th>
-													</Table.Tr>
-												</Table.Thead>
-												<Table.Tbody>
-													{program.classes.map((cls) => (
-														<Table.Tr key={cls.className}>
-															<Table.Td>
-																<Text fw={500}>{cls.className}</Text>
-															</Table.Td>
-															<Table.Td ta='center'>
-																{cls.totalStudents}
-															</Table.Td>
-															<Table.Td ta='center'>
-																<Group gap={4} justify='center'>
-																	<Progress
-																		value={cls.avgAttendanceRate}
-																		color={getAttendanceColor(
-																			cls.avgAttendanceRate
-																		)}
-																		size='sm'
-																		w={50}
-																	/>
-																	<Text size='xs'>
-																		{cls.avgAttendanceRate}%
-																	</Text>
-																</Group>
-															</Table.Td>
-															<Table.Td ta='center'>
-																<Text c='green'>{cls.totalPresent}</Text>
-															</Table.Td>
-															<Table.Td ta='center'>
-																<Text c='red'>{cls.totalAbsent}</Text>
-															</Table.Td>
-															<Table.Td ta='center'>
-																<Text c='yellow'>{cls.totalLate}</Text>
-															</Table.Td>
-															<Table.Td ta='center'>
-																<Text c='blue'>{cls.totalExcused}</Text>
-															</Table.Td>
-															<Table.Td ta='center'>
-																{cls.atRiskCount > 0 ? (
-																	<Badge size='xs' color='red' variant='filled'>
-																		{cls.atRiskCount}
-																	</Badge>
-																) : (
-																	<Badge
-																		size='xs'
-																		color='green'
-																		variant='light'
-																	>
-																		0
-																	</Badge>
-																)}
-															</Table.Td>
-														</Table.Tr>
-													))}
-												</Table.Tbody>
-											</Table>
-										</ScrollArea>
-									</Stack>
-								</Card>
-							))}
-						</Stack>
-					</Accordion.Panel>
-				</Accordion.Item>
+		<Stack gap='xl'>
+			{data.map((school, index) => (
+				<Box key={school.schoolCode}>
+					<SchoolHeader school={school} />
+					<ProgramAccordion programs={school.programs} />
+					{index < data.length - 1 && <Divider my='xl' />}
+				</Box>
 			))}
-		</Accordion>
+		</Stack>
 	);
 }
