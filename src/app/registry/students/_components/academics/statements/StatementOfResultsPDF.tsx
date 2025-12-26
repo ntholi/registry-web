@@ -7,7 +7,7 @@ import {
 	Text,
 	View,
 } from '@react-pdf/renderer';
-import { formatDate } from '@/shared/lib/utils/utils';
+import { formatDate, formatSemester } from '@/shared/lib/utils/utils';
 import type { getAcademicHistory } from '../../../_server/actions';
 
 type StatementOfResultsPDFProps = {
@@ -17,21 +17,12 @@ type StatementOfResultsPDFProps = {
 };
 
 Font.register({
-	family: 'Roboto',
+	family: 'Tahoma',
 	fonts: [
-		{
-			src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf',
-			fontWeight: 'normal',
-		},
-		{
-			src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf',
-			fontWeight: 'bold',
-		},
-		{
-			src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-italic-webfont.ttf',
-			fontWeight: 'normal',
-			fontStyle: 'italic',
-		},
+		{ src: '/fonts/TAHOMA_NORMAL.TTF' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold' },
+		{ src: '/fonts/TAHOMA_NORMAL.TTF', fontStyle: 'italic' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold', fontStyle: 'italic' },
 	],
 });
 
@@ -40,7 +31,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'column',
 		backgroundColor: '#fff',
 		padding: 40,
-		fontFamily: 'Roboto',
+		fontFamily: 'Tahoma',
 		fontSize: 10,
 	},
 	header: {
@@ -52,10 +43,6 @@ const styles = StyleSheet.create({
 		height: 90,
 		alignSelf: 'center',
 		marginBottom: 10,
-	},
-	universityHeader: {
-		textAlign: 'center',
-		marginBottom: 20,
 	},
 	universityAddress: {
 		fontSize: 9,
@@ -100,37 +87,29 @@ const styles = StyleSheet.create({
 		flex: 1,
 		color: '#000',
 	},
-	programSection: {
-		marginBottom: 15,
-		backgroundColor: '#fff',
-		border: '1px solid #ccc',
-		borderRadius: 2,
-	},
-	programTitle: {
+	programHeader: {
 		fontSize: 14,
 		fontWeight: 'bold',
-		marginBottom: 10,
+		marginBottom: 15,
 		backgroundColor: '#000',
 		color: '#fff',
 		padding: 8,
-		borderTopLeftRadius: 2,
-		borderTopRightRadius: 2,
+		borderRadius: 2,
 	},
 	semesterSection: {
-		marginBottom: 10,
-		padding: 10,
+		marginBottom: 15,
 	},
 	semesterTitle: {
-		fontSize: 12,
+		fontSize: 11,
 		fontWeight: 'bold',
-		marginBottom: 6,
 		backgroundColor: '#e0e0e0',
 		color: '#333',
-		padding: 6,
-		borderRadius: 2,
+		padding: 8,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
+		border: '1px solid #ccc',
+		borderBottom: 'none',
 	},
 	moduleText: {
 		fontSize: 9,
@@ -141,8 +120,6 @@ const styles = StyleSheet.create({
 		borderStyle: 'solid',
 		borderWidth: 1,
 		borderColor: '#ccc',
-		marginBottom: 5,
-		borderRadius: 2,
 	},
 	tableRow: {
 		flexDirection: 'row',
@@ -150,6 +127,7 @@ const styles = StyleSheet.create({
 	tableHeader: {
 		fontWeight: 'bold',
 		color: '#333',
+		backgroundColor: '#f5f5f5',
 	},
 	tableCell: {
 		padding: 4,
@@ -159,12 +137,16 @@ const styles = StyleSheet.create({
 		textAlign: 'left',
 	},
 	codeCell: {
-		width: '18%',
+		width: '15%',
 	},
 	nameCell: {
-		width: '52%',
+		width: '43%',
 	},
 	creditsCell: {
+		width: '10%',
+		textAlign: 'center',
+	},
+	marksCell: {
 		width: '12%',
 		textAlign: 'center',
 	},
@@ -173,26 +155,8 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 	},
 	pointsCell: {
-		width: '8%',
+		width: '10%',
 		textAlign: 'center',
-	},
-	summarySection: {
-		marginTop: 10,
-		backgroundColor: '#f0f0f0',
-		padding: 10,
-		borderRadius: 2,
-	},
-	summaryRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginBottom: 4,
-	},
-	summaryLabel: {
-		fontWeight: 'bold',
-		color: '#333',
-	},
-	summaryValue: {
-		color: '#000',
 	},
 	cumulativeSummary: {
 		marginTop: 20,
@@ -272,19 +236,6 @@ const styles = StyleSheet.create({
 		color: '#000',
 		paddingLeft: 4,
 	},
-	remarksDetails: {
-		fontSize: 9,
-		color: '#666',
-		marginTop: 5,
-		fontStyle: 'italic',
-	},
-	signatureAndQrContainer: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'flex-start',
-		marginBottom: 15,
-		marginTop: 50,
-	},
 	signatureContainer: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
@@ -325,15 +276,6 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		lineHeight: 1.2,
 	},
-	registrarInfo: {
-		fontSize: 8,
-		color: '#666',
-		marginTop: 2,
-	},
-	officialText: {
-		flex: 1,
-		paddingRight: 20,
-	},
 	failedGrade: {
 		color: '#000',
 		fontWeight: 'bold',
@@ -344,15 +286,6 @@ const styles = StyleSheet.create({
 	outstandingGrade: {
 		color: '#000',
 		fontWeight: 'bold',
-	},
-	warningText: {
-		color: '#666',
-		fontWeight: 'bold',
-	},
-	gradeScale: {
-		marginTop: 15,
-		fontSize: 8,
-		color: '#666',
 	},
 });
 
@@ -420,81 +353,39 @@ export default function StatementOfResultsPDF({
 							<Text style={styles.value}>{formatDate(new Date())}</Text>
 						</View>
 					</View>
-					{programs.map((program) => (
-						<View key={program.id} style={styles.programSection}>
-							<Text style={styles.programTitle}>
-								{program.structure.program.name}
-							</Text>
-							{getCleanedSemesters(program).map((semester) => {
-								const semesterPoint = academicRemarks.points.find(
-									(point) => point.semesterId === semester.id
-								);
-								const semesterGPA = semesterPoint?.gpa || 0;
+					{programs.map((program) => {
+						const semesters = getCleanedSemesters(program);
 
-								return (
-									<View key={semester.id} style={styles.semesterSection}>
-										<View style={styles.semesterTitle} wrap={false}>
-											<Text>{semester.termCode}</Text>
-											<Text>GPA: {semesterGPA.toFixed(2)}</Text>
-										</View>
+						return (
+							<View key={program.id}>
+								<Text style={styles.programHeader}>
+									{program.structure.program.name}
+								</Text>
+								{semesters.map((semester) => {
+									const semesterPoint = academicRemarks.points.find(
+										(point) => point.semesterId === semester.id
+									);
+									const semesterGPA = semesterPoint?.gpa || 0;
+									const semesterNumber =
+										semester.structureSemester?.semesterNumber;
 
-										<View style={styles.table}>
-											<View
-												style={[styles.tableRow, styles.tableHeader]}
-												wrap={false}
-											>
-												<Text
-													style={[
-														styles.tableCell,
-														styles.codeCell,
-														styles.moduleText,
-													]}
-												>
-													Code
+									return (
+										<View
+											key={semester.id}
+											style={styles.semesterSection}
+											wrap={false}
+										>
+											<View style={styles.semesterTitle}>
+												<Text>
+													{semesterNumber
+														? formatSemester(semesterNumber)
+														: semester.termCode}{' '}
+													({semester.termCode})
 												</Text>
-												<Text
-													style={[
-														styles.tableCell,
-														styles.nameCell,
-														styles.moduleText,
-													]}
-												>
-													Module Name
-												</Text>
-												<Text
-													style={[
-														styles.tableCell,
-														styles.creditsCell,
-														styles.moduleText,
-													]}
-												>
-													Credits
-												</Text>
-												<Text
-													style={[
-														styles.tableCell,
-														styles.gradeCell,
-														styles.moduleText,
-													]}
-												>
-													Grade
-												</Text>
-												<Text
-													style={[
-														styles.tableCell,
-														styles.pointsCell,
-														styles.moduleText,
-													]}
-												>
-													Points
-												</Text>
+												<Text>GPA: {semesterGPA.toFixed(2)}</Text>
 											</View>
-											{(semester.studentModules || []).map((sm, index) => (
-												<View
-													key={`${semester.id}-${sm.semesterModuleId}-${index}`}
-													style={styles.tableRow}
-													wrap={false}
-												>
+											<View style={styles.table}>
+												<View style={[styles.tableRow, styles.tableHeader]}>
 													<Text
 														style={[
 															styles.tableCell,
@@ -502,8 +393,7 @@ export default function StatementOfResultsPDF({
 															styles.moduleText,
 														]}
 													>
-														{sm.semesterModule?.module?.code ??
-															`${sm.semesterModuleId}`}
+														Code
 													</Text>
 													<Text
 														style={[
@@ -512,8 +402,7 @@ export default function StatementOfResultsPDF({
 															styles.moduleText,
 														]}
 													>
-														{sm.semesterModule?.module?.name ??
-															`<<Semester Module ID: ${sm.semesterModuleId}>>`}
+														Module Name
 													</Text>
 													<Text
 														style={[
@@ -522,17 +411,25 @@ export default function StatementOfResultsPDF({
 															styles.moduleText,
 														]}
 													>
-														{sm.credits || 0}
+														Credits
+													</Text>
+													<Text
+														style={[
+															styles.tableCell,
+															styles.marksCell,
+															styles.moduleText,
+														]}
+													>
+														Marks
 													</Text>
 													<Text
 														style={[
 															styles.tableCell,
 															styles.gradeCell,
 															styles.moduleText,
-															styles[getGradeStyle(sm.grade || 'NM')],
 														]}
 													>
-														{sm.grade || 'NM'}
+														Grade
 													</Text>
 													<Text
 														style={[
@@ -541,16 +438,80 @@ export default function StatementOfResultsPDF({
 															styles.moduleText,
 														]}
 													>
-														{getGradePoints(sm.grade || 'NM').toFixed(1)}
+														Points
 													</Text>
 												</View>
-											))}
+												{(semester.studentModules || []).map((sm, index) => (
+													<View
+														key={`${semester.id}-${sm.semesterModuleId}-${index}`}
+														style={styles.tableRow}
+													>
+														<Text
+															style={[
+																styles.tableCell,
+																styles.codeCell,
+																styles.moduleText,
+															]}
+														>
+															{sm.semesterModule?.module?.code ??
+																`${sm.semesterModuleId}`}
+														</Text>
+														<Text
+															style={[
+																styles.tableCell,
+																styles.nameCell,
+																styles.moduleText,
+															]}
+														>
+															{sm.semesterModule?.module?.name ??
+																`<<Semester Module ID: ${sm.semesterModuleId}>>`}
+														</Text>
+														<Text
+															style={[
+																styles.tableCell,
+																styles.creditsCell,
+																styles.moduleText,
+															]}
+														>
+															{sm.credits || 0}
+														</Text>
+														<Text
+															style={[
+																styles.tableCell,
+																styles.marksCell,
+																styles.moduleText,
+															]}
+														>
+															{sm.marks || '-'}
+														</Text>
+														<Text
+															style={[
+																styles.tableCell,
+																styles.gradeCell,
+																styles.moduleText,
+																styles[getGradeStyle(sm.grade || 'NM')],
+															]}
+														>
+															{sm.grade || 'NM'}
+														</Text>
+														<Text
+															style={[
+																styles.tableCell,
+																styles.pointsCell,
+																styles.moduleText,
+															]}
+														>
+															{getGradePoints(sm.grade || 'NM').toFixed(1)}
+														</Text>
+													</View>
+												))}
+											</View>
 										</View>
-									</View>
-								);
-							})}
-						</View>
-					))}
+									);
+								})}
+							</View>
+						);
+					})}
 					<View wrap={false}>
 						<View style={styles.cumulativeSummary}>
 							<Text style={styles.cumulativeTitle}>
