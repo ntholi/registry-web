@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Loader } from '@mantine/core';
+import { ActionIcon } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -19,7 +19,7 @@ export default function ProofOfRegistrationTermPrinter({
 }: Props) {
 	const [isGenerating, setIsGenerating] = useState(false);
 
-	const { refetch, isLoading } = useQuery({
+	const { refetch } = useQuery({
 		queryKey: ['student-registration-data-term', stdNo, termCode],
 		queryFn: () => getStudentRegistrationDataByTerm(stdNo, termCode),
 		enabled: false,
@@ -101,21 +101,8 @@ export default function ProofOfRegistrationTermPrinter({
 	};
 
 	return (
-		<Button
-			leftSection={
-				isLoading || isGenerating ? (
-					<Loader size='xs' />
-				) : (
-					<IconPrinter size='1rem' />
-				)
-			}
-			variant='light'
-			color='blue'
-			size='xs'
-			disabled={isGenerating}
-			onClick={handlePrint}
-		>
-			Print
-		</Button>
+		<ActionIcon disabled={isGenerating} onClick={handlePrint} variant='default'>
+			<IconPrinter size='1rem' />
+		</ActionIcon>
 	);
 }

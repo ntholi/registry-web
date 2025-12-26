@@ -2,16 +2,14 @@
 
 import {
 	Alert,
-	Badge,
-	Box,
 	Card,
 	Group,
+	Paper,
 	Skeleton,
 	Stack,
 	Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getStudentRegistrationData } from '../../_server/actions';
 import ProofOfRegistrationTermPrinter from './proof/ProofOfRegistrationTermPrinter';
@@ -45,7 +43,9 @@ export default function SemestersView({ stdNo, isActive = true }: Props) {
 	}
 
 	const activeProgram = data?.programs?.find((p) => p.status === 'Active');
-	const semesters = activeProgram?.semesters || [];
+	const semesters = (activeProgram?.semesters || [])
+		.filter((s) => s.status === 'Active')
+		.sort((a, b) => b.termCode.localeCompare(a.termCode));
 
 	if (semesters.length === 0) {
 		return (
@@ -81,20 +81,13 @@ function SemesterCard({ semester, stdNo }: SemesterCardProps) {
 		semester.studentModules?.reduce((sum, m) => sum + (m.credits || 0), 0) || 0;
 
 	return (
-		<Card withBorder p='md'>
+		<Paper withBorder p='md'>
 			<Group justify='space-between' align='flex-start'>
 				<Stack gap={4}>
 					<Group gap='xs'>
 						<Text fw={500} size='sm'>
 							{semester.termCode}
 						</Text>
-						<Badge
-							size='xs'
-							radius='xs'
-							color={getStatusColor(semester.status)}
-						>
-							{semester.status}
-						</Badge>
 					</Group>
 					<Text size='xs' c='dimmed'>
 						{formatSemester(semesterNumber)}
@@ -104,14 +97,12 @@ function SemesterCard({ semester, stdNo }: SemesterCardProps) {
 						credits
 					</Text>
 				</Stack>
-				<Box>
-					<ProofOfRegistrationTermPrinter
-						stdNo={stdNo}
-						termCode={semester.termCode}
-					/>
-				</Box>
+				<ProofOfRegistrationTermPrinter
+					stdNo={stdNo}
+					termCode={semester.termCode}
+				/>
 			</Group>
-		</Card>
+		</Paper>
 	);
 }
 
