@@ -59,6 +59,7 @@ export interface AtRiskStudent {
 	semesterNumber: string;
 	className: string;
 	schoolCode: string;
+	schoolName: string;
 	attendanceRate: number;
 	presentCount: number;
 	absentCount: number;
@@ -245,6 +246,7 @@ export class AttendanceReportRepository {
 				programName: programs.name,
 				semesterNumber: structureSemesters.semesterNumber,
 				schoolCode: schools.code,
+				schoolName: schools.name,
 				schoolId: schools.id,
 				programId: programs.id,
 			})
@@ -366,6 +368,7 @@ export class AttendanceReportRepository {
 				semesterNumber: student.semesterNumber || '',
 				className,
 				schoolCode: student.schoolCode,
+				schoolName: student.schoolName,
 				attendanceRate,
 				presentCount: stats.present,
 				absentCount: stats.absent,
@@ -449,7 +452,7 @@ export class AttendanceReportRepository {
 			if (!schoolMap.has(student.schoolCode)) {
 				schoolMap.set(student.schoolCode, {
 					schoolCode: student.schoolCode,
-					schoolName: student.schoolCode,
+					schoolName: student.schoolName,
 					programs: new Map(),
 				});
 			}

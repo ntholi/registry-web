@@ -8,9 +8,7 @@ import {
 	Divider,
 	Group,
 	Progress,
-	RingProgress,
 	ScrollArea,
-	SimpleGrid,
 	Stack,
 	Table,
 	Text,
@@ -54,56 +52,20 @@ function SchoolHeader({ school }: SchoolHeaderProps) {
 						{school.schoolCode}
 					</Text>
 					<Text size='sm' c='dimmed'>
-						{school.programs.length} program
-						{school.programs.length !== 1 ? 's' : ''}
+						{school.schoolName}
 					</Text>
 				</Box>
-				<SimpleGrid cols={3} spacing='xl'>
-					<Box ta='center'>
-						<Group gap={6} justify='center'>
-							<IconUsers size={16} style={{ opacity: 0.7 }} />
-							<Text size='xl' fw={700}>
-								{school.totalStudents}
-							</Text>
-						</Group>
-						<Text size='xs' c='dimmed'>
-							Students
+				<Box ta='end'>
+					<Group gap={6} justify='center'>
+						<IconUsers size={16} style={{ opacity: 0.7 }} />
+						<Text size='xl' fw={700}>
+							{school.totalStudents}
 						</Text>
-					</Box>
-					<Box ta='center'>
-						<RingProgress
-							size={50}
-							thickness={5}
-							roundCaps
-							sections={[
-								{
-									value: school.avgAttendanceRate,
-									color: getAttendanceColor(school.avgAttendanceRate),
-								},
-							]}
-							label={
-								<Text size='xs' ta='center' fw={600}>
-									{school.avgAttendanceRate}%
-								</Text>
-							}
-						/>
-						<Text size='xs' c='dimmed' mt={4}>
-							Attendance
-						</Text>
-					</Box>
-					<Box ta='center'>
-						<Text
-							size='xl'
-							fw={700}
-							c={school.atRiskCount > 0 ? 'red' : 'green'}
-						>
-							{school.atRiskCount}
-						</Text>
-						<Text size='xs' c='dimmed'>
-							At Risk
-						</Text>
-					</Box>
-				</SimpleGrid>
+					</Group>
+					<Text size='xs' c='dimmed'>
+						Students
+					</Text>
+				</Box>
 			</Group>
 		</Box>
 	);
