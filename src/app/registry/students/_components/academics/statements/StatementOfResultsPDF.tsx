@@ -1,12 +1,5 @@
-import {
-	Document,
-	Font,
-	Image,
-	Page,
-	StyleSheet,
-	Text,
-	View,
-} from '@react-pdf/renderer';
+import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
+import { createTw } from 'react-pdf-tailwind';
 import { formatDate, formatSemester } from '@/shared/lib/utils/utils';
 import type { getAcademicHistory } from '../../../_server/actions';
 
@@ -26,266 +19,16 @@ Font.register({
 	],
 });
 
-const styles = StyleSheet.create({
-	page: {
-		flexDirection: 'column',
-		backgroundColor: '#fff',
-		padding: 40,
-		fontFamily: 'Tahoma',
-		fontSize: 10,
+const tw = createTw({
+	fontFamily: {
+		tahoma: ['Tahoma'],
 	},
-	header: {
-		marginBottom: 30,
-		borderBottom: '2px solid #000',
-		paddingBottom: 15,
-	},
-	logo: {
-		height: 90,
-		alignSelf: 'center',
-		marginBottom: 10,
-	},
-	universityAddress: {
-		fontSize: 9,
-		color: '#666',
-		marginTop: 1,
-		textAlign: 'center',
-	},
-	title: {
-		fontSize: 18,
-		fontWeight: 'bold',
-		textAlign: 'center',
-		marginTop: 1,
-		color: '#000',
-		letterSpacing: 1,
-		textTransform: 'uppercase',
-	},
-	studentInfo: {
-		marginBottom: 25,
-		backgroundColor: '#fff',
-		padding: 15,
-		border: '1px solid #ccc',
-		borderRadius: 2,
-	},
-	studentInfoTitle: {
-		fontSize: 12,
-		fontWeight: 'bold',
-		marginBottom: 10,
-		color: '#000',
-		borderBottom: '1px solid #ccc',
-		paddingBottom: 5,
-	},
-	studentDetail: {
-		flexDirection: 'row',
-		marginBottom: 6,
-	},
-	label: {
-		fontWeight: 'bold',
-		width: 140,
-		color: '#333',
-	},
-	value: {
-		flex: 1,
-		color: '#000',
-	},
-	programHeader: {
-		fontSize: 14,
-		fontWeight: 'bold',
-		marginBottom: 15,
-		backgroundColor: '#000',
-		color: '#fff',
-		padding: 8,
-		borderRadius: 2,
-	},
-	semesterSection: {
-		marginBottom: 15,
-	},
-	semesterTitle: {
-		fontSize: 11,
-		fontWeight: 'bold',
-		backgroundColor: '#e0e0e0',
-		color: '#333',
-		padding: 8,
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		border: '1px solid #ccc',
-		borderBottom: 'none',
-	},
-	moduleText: {
-		fontSize: 9,
-		lineHeight: 1.2,
-	},
-	table: {
-		width: 'auto',
-		borderStyle: 'solid',
-		borderWidth: 1,
-		borderColor: '#ccc',
-	},
-	tableRow: {
-		flexDirection: 'row',
-	},
-	tableHeader: {
-		fontWeight: 'bold',
-		color: '#333',
-		backgroundColor: '#f5f5f5',
-	},
-	tableCell: {
-		padding: 4,
-		borderStyle: 'solid',
-		borderWidth: 0.5,
-		borderColor: '#ccc',
-		textAlign: 'left',
-	},
-	codeCell: {
-		width: '15%',
-	},
-	nameCell: {
-		width: '43%',
-	},
-	creditsCell: {
-		width: '10%',
-		textAlign: 'center',
-	},
-	marksCell: {
-		width: '12%',
-		textAlign: 'center',
-	},
-	gradeCell: {
-		width: '10%',
-		textAlign: 'center',
-	},
-	pointsCell: {
-		width: '10%',
-		textAlign: 'center',
-	},
-	cumulativeSummary: {
-		marginTop: 20,
-		border: '2px solid #000',
-		padding: 15,
-		borderRadius: 2,
-	},
-	cumulativeTitle: {
-		fontSize: 12,
-		fontWeight: 'bold',
-		marginBottom: 15,
-		textAlign: 'center',
-		color: '#000',
-		borderBottom: '1px solid #000',
-		paddingBottom: 8,
-	},
-	cumulativeGrid: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'flex-start',
-	},
-	cumulativeColumn: {
-		flex: 1,
-	},
-	cumulativeItem: {
-		marginBottom: 8,
-	},
-	cumulativeLabel: {
-		fontSize: 10,
-		marginBottom: 2,
-		color: '#333',
-	},
-	cumulativeValue: {
-		fontSize: 12,
-		fontWeight: 'bold',
-		color: '#000',
-	},
-	academicRemarksColumn: {
-		flex: 1,
-		paddingLeft: 20,
-	},
-	academicRemarksSection: {
-		marginBottom: 12,
-	},
-	academicRemarksLabel: {
-		fontSize: 10,
-		marginBottom: 4,
-		color: '#333',
-		fontWeight: 'bold',
-	},
-	academicRemarksValue: {
-		fontSize: 14,
-		fontWeight: 'bold',
-		color: '#000',
-		marginBottom: 2,
-	},
-	academicRemarksDetails: {
-		fontSize: 9,
-		color: '#666',
-		fontStyle: 'italic',
-		marginBottom: 8,
-	},
-	outstandingModulesSection: {
-		marginTop: 8,
-		paddingTop: 8,
-		borderTop: '1px solid #e0e0e0',
-	},
-	outstandingModulesTitle: {
-		fontSize: 10,
-		fontWeight: 'bold',
-		marginBottom: 6,
-		color: '#333',
-	},
-	outstandingModuleItem: {
-		fontSize: 8,
-		marginBottom: 2,
-		color: '#000',
-		paddingLeft: 4,
-	},
-	signatureContainer: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'flex-start',
-		marginTop: 20,
-		marginBottom: 3,
-	},
-	signatureSection: {
-		alignItems: 'center',
-		width: 200,
-	},
-	signatureImage: {
-		width: 120,
-		height: 60,
-	},
-	signatureLine: {
-		borderBottom: '1px solid #333',
-		width: 150,
-		marginBottom: 3,
-	},
-	signatureLabel: {
-		fontSize: 8,
-		color: '#333',
-		fontWeight: 'bold',
-	},
-	qrCodeSection: {
-		alignItems: 'center',
-		width: 120,
-	},
-	qrCodeImage: {
-		width: 60,
-		height: 60,
-		marginBottom: 3,
-	},
-	qrCodeLabel: {
-		fontSize: 7,
-		color: '#333',
-		textAlign: 'center',
-		lineHeight: 1.2,
-	},
-	failedGrade: {
-		color: '#000',
-		fontWeight: 'bold',
-	},
-	passedGrade: {
-		color: '#333',
-	},
-	outstandingGrade: {
-		color: '#000',
-		fontWeight: 'bold',
+	colors: {
+		'gray-333': '#333333',
+		'gray-666': '#666666',
+		'gray-ccc': '#cccccc',
+		'gray-e0': '#e0e0e0',
+		'gray-f5': '#f5f5f5',
 	},
 });
 
@@ -296,10 +39,10 @@ import {
 } from '@/shared/lib/utils/grades';
 import { getCleanedSemesters } from './utils';
 
-function getGradeStyle(grade: string) {
-	if (isFailingGrade(grade)) return 'failedGrade';
-	if (['A+', 'A', 'A-'].includes(grade)) return 'outstandingGrade';
-	return 'passedGrade';
+function getGradeClassName(grade: string) {
+	if (isFailingGrade(grade)) return 'text-black font-bold';
+	if (['A+', 'A', 'A-'].includes(grade)) return 'text-black font-bold';
+	return 'text-gray-333';
 }
 
 export default function StatementOfResultsPDF({
@@ -311,7 +54,10 @@ export default function StatementOfResultsPDF({
 		if (!student || !student.programs) {
 			return (
 				<Document>
-					<Page size='A4' style={styles.page}>
+					<Page
+						size='A4'
+						style={tw('flex-col bg-white p-10 font-tahoma text-[10pt]')}
+					>
 						<Text>No student data available</Text>
 					</Page>
 				</Document>
@@ -326,31 +72,63 @@ export default function StatementOfResultsPDF({
 
 		return (
 			<Document>
-				<Page size='A4' style={styles.page}>
-					<View style={styles.header}>
-						<Image style={styles.logo} src='/images/logo-lesotho.jpg' />
-						<Text style={styles.title}>STATEMENT OF RESULTS</Text>
-						<Text style={styles.universityAddress}>
+				<Page
+					size='A4'
+					style={tw('flex-col bg-white p-10 font-tahoma text-[10pt]')}
+				>
+					<View style={tw('mb-[30pt] border-b-2 border-black pb-[15pt]')}>
+						<Image
+							style={tw('h-[90pt] self-center mb-[10pt]')}
+							src='/images/logo-lesotho.jpg'
+						/>
+						<Text
+							style={tw(
+								'text-[18pt] font-bold text-center mt-[1pt] text-black tracking-[1pt] uppercase'
+							)}
+						>
+							STATEMENT OF RESULTS
+						</Text>
+						<Text style={tw('text-[9pt] text-gray-666 mt-[1pt] text-center')}>
 							This document does not certify graduation
 						</Text>
 					</View>
-					<View style={styles.studentInfo}>
-						<Text style={styles.studentInfoTitle}>STUDENT INFORMATION</Text>
-						<View style={styles.studentDetail}>
-							<Text style={styles.label}>Student Number:</Text>
-							<Text style={styles.value}>{student.stdNo}</Text>
+					<View
+						style={tw(
+							'mb-[25pt] bg-white p-[15pt] border border-gray-ccc rounded-[2pt]'
+						)}
+					>
+						<Text
+							style={tw(
+								'text-[12pt] font-bold mb-[10pt] text-black border-b border-gray-ccc pb-[5pt]'
+							)}
+						>
+							STUDENT INFORMATION
+						</Text>
+						<View style={tw('flex-row mb-[6pt]')}>
+							<Text style={tw('font-bold w-[140pt] text-gray-333')}>
+								Student Number:
+							</Text>
+							<Text style={tw('flex-1 text-black')}>{student.stdNo}</Text>
 						</View>
-						<View style={styles.studentDetail}>
-							<Text style={styles.label}>Full Name:</Text>
-							<Text style={styles.value}>{student.name}</Text>
+						<View style={tw('flex-row mb-[6pt]')}>
+							<Text style={tw('font-bold w-[140pt] text-gray-333')}>
+								Full Name:
+							</Text>
+							<Text style={tw('flex-1 text-black')}>{student.name}</Text>
 						</View>
-						<View style={styles.studentDetail}>
-							<Text style={styles.label}>ID/Passport:</Text>
-							<Text style={styles.value}>{student.nationalId}</Text>
+						<View style={tw('flex-row mb-[6pt]')}>
+							<Text style={tw('font-bold w-[140pt] text-gray-333')}>
+								ID/Passport:
+							</Text>
+							<Text style={tw('flex-1 text-black')}>{student.nationalId}</Text>
 						</View>
-						<View style={styles.studentDetail}>
-							<Text style={styles.label}>Date of Issue:</Text>
-							<Text style={styles.value}>{formatDate(new Date())}</Text>
+						<View style={tw('flex-row mb-[6pt]')}>
+							<Text style={tw('font-bold w-[140pt] text-gray-333')}>
+								Date of Issue:
+							</Text>
+							<Text style={tw('flex-1 text-black')}>
+								{formatDate(new Date())}
+							</Text>
 						</View>
 					</View>
 					{programs.map((program) => {
@@ -358,7 +136,11 @@ export default function StatementOfResultsPDF({
 
 						return (
 							<View key={program.id}>
-								<Text style={styles.programHeader}>
+								<Text
+									style={tw(
+										'text-[14pt] font-bold mb-[15pt] bg-black text-white p-[8pt] rounded-[2pt]'
+									)}
+								>
 									{program.structure.program.name}
 								</Text>
 								{semesters.map((semester) => {
@@ -372,10 +154,14 @@ export default function StatementOfResultsPDF({
 									return (
 										<View
 											key={semester.id}
-											style={styles.semesterSection}
+											style={tw('mb-[15pt]')}
 											wrap={false}
 										>
-											<View style={styles.semesterTitle}>
+											<View
+												style={tw(
+													'text-[11pt] font-bold bg-gray-e0 text-gray-333 p-[8pt] flex-row justify-between items-center border border-gray-ccc border-b-0'
+												)}
+											>
 												<Text>
 													{semesterNumber
 														? formatSemester(semesterNumber)
@@ -384,59 +170,53 @@ export default function StatementOfResultsPDF({
 												</Text>
 												<Text>GPA: {semesterGPA.toFixed(2)}</Text>
 											</View>
-											<View style={styles.table}>
-												<View style={[styles.tableRow, styles.tableHeader]}>
+											<View
+												style={tw('w-auto border border-solid border-gray-ccc')}
+											>
+												<View
+													style={tw(
+														'flex-row font-bold text-gray-333 bg-gray-f5'
+													)}
+												>
 													<Text
-														style={[
-															styles.tableCell,
-															styles.codeCell,
-															styles.moduleText,
-														]}
+														style={tw(
+															'p-[4pt] border-[0.5pt] border-solid border-gray-ccc text-left w-[15%] text-[9pt] leading-[1.2]'
+														)}
 													>
 														Code
 													</Text>
 													<Text
-														style={[
-															styles.tableCell,
-															styles.nameCell,
-															styles.moduleText,
-														]}
+														style={tw(
+															'p-[4pt] border-[0.5pt] border-solid border-gray-ccc text-left w-[43%] text-[9pt] leading-[1.2]'
+														)}
 													>
 														Module Name
 													</Text>
 													<Text
-														style={[
-															styles.tableCell,
-															styles.creditsCell,
-															styles.moduleText,
-														]}
+														style={tw(
+															'p-[4pt] border-[0.5pt] border-solid border-gray-ccc w-[10%] text-center text-[9pt] leading-[1.2]'
+														)}
 													>
 														Credits
 													</Text>
 													<Text
-														style={[
-															styles.tableCell,
-															styles.marksCell,
-															styles.moduleText,
-														]}
+														style={tw(
+															'p-[4pt] border-[0.5pt] border-solid border-gray-ccc w-[12%] text-center text-[9pt] leading-[1.2]'
+														)}
 													>
 														Marks
 													</Text>
 													<Text
-														style={[
-															styles.tableCell,
-															styles.gradeCell,
-															styles.moduleText,
-														]}
+														style={tw(
+															'p-[4pt] border-[0.5pt] border-solid border-gray-ccc w-[10%] text-center text-[9pt] leading-[1.2]'
+														)}
 													>
 														Grade
 													</Text>
 													<Text
-														style={[
-															styles.tableCell,
-															styles.pointsCell,
-															styles.moduleText,
-														]}
+														style={tw(
+															'p-[4pt] border-[0.5pt] border-solid border-gray-ccc w-[10%] text-center text-[9pt] leading-[1.2]'
+														)}
 													>
 														Points
 													</Text>
@@ -444,62 +224,49 @@ export default function StatementOfResultsPDF({
 												{(semester.studentModules || []).map((sm, index) => (
 													<View
 														key={`${semester.id}-${sm.semesterModuleId}-${index}`}
-														style={styles.tableRow}
+														style={tw('flex-row')}
 													>
 														<Text
-															style={[
-																styles.tableCell,
-																styles.codeCell,
-																styles.moduleText,
-															]}
+															style={tw(
+																'p-[4pt] border-[0.5pt] border-solid border-gray-ccc text-left w-[15%] text-[9pt] leading-[1.2]'
+															)}
 														>
 															{sm.semesterModule?.module?.code ??
 																`${sm.semesterModuleId}`}
 														</Text>
 														<Text
-															style={[
-																styles.tableCell,
-																styles.nameCell,
-																styles.moduleText,
-															]}
+															style={tw(
+																'p-[4pt] border-[0.5pt] border-solid border-gray-ccc text-left w-[43%] text-[9pt] leading-[1.2]'
+															)}
 														>
 															{sm.semesterModule?.module?.name ??
 																`<<Semester Module ID: ${sm.semesterModuleId}>>`}
 														</Text>
 														<Text
-															style={[
-																styles.tableCell,
-																styles.creditsCell,
-																styles.moduleText,
-															]}
+															style={tw(
+																'p-[4pt] border-[0.5pt] border-solid border-gray-ccc w-[10%] text-center text-[9pt] leading-[1.2]'
+															)}
 														>
 															{sm.credits || 0}
 														</Text>
 														<Text
-															style={[
-																styles.tableCell,
-																styles.marksCell,
-																styles.moduleText,
-															]}
+															style={tw(
+																'p-[4pt] border-[0.5pt] border-solid border-gray-ccc w-[12%] text-center text-[9pt] leading-[1.2]'
+															)}
 														>
 															{sm.marks || '-'}
 														</Text>
 														<Text
-															style={[
-																styles.tableCell,
-																styles.gradeCell,
-																styles.moduleText,
-																styles[getGradeStyle(sm.grade || 'NM')],
-															]}
+															style={tw(
+																`p-[4pt] border-[0.5pt] border-solid border-gray-ccc w-[10%] text-center text-[9pt] leading-[1.2] ${getGradeClassName(sm.grade || 'NM')}`
+															)}
 														>
 															{sm.grade || 'NM'}
 														</Text>
 														<Text
-															style={[
-																styles.tableCell,
-																styles.pointsCell,
-																styles.moduleText,
-															]}
+															style={tw(
+																'p-[4pt] border-[0.5pt] border-solid border-gray-ccc w-[10%] text-center text-[9pt] leading-[1.2]'
+															)}
 														>
 															{getGradePoints(sm.grade || 'NM').toFixed(1)}
 														</Text>
@@ -513,49 +280,73 @@ export default function StatementOfResultsPDF({
 						);
 					})}
 					<View wrap={false}>
-						<View style={styles.cumulativeSummary}>
-							<Text style={styles.cumulativeTitle}>
+						<View
+							style={tw(
+								'mt-[20pt] border-2 border-black p-[15pt] rounded-[2pt]'
+							)}
+						>
+							<Text
+								style={tw(
+									'text-[12pt] font-bold mb-[15pt] text-center text-black border-b border-black pb-[8pt]'
+								)}
+							>
 								CUMULATIVE ACADEMIC SUMMARY
 							</Text>
-							<View style={styles.cumulativeGrid}>
-								<View style={styles.cumulativeColumn}>
-									<View style={styles.cumulativeItem}>
-										<Text style={styles.cumulativeLabel}>
+							<View style={tw('flex-row justify-between items-start')}>
+								<View style={tw('flex-1')}>
+									<View style={tw('mb-[8pt]')}>
+										<Text style={tw('text-[10pt] mb-[2pt] text-gray-333')}>
 											Credits Attempted
 										</Text>
-										<Text style={styles.cumulativeValue}>
+										<Text style={tw('text-[12pt] font-bold text-black')}>
 											{academicRemarks.totalCreditsAttempted}
 										</Text>
 									</View>
-									<View style={styles.cumulativeItem}>
-										<Text style={styles.cumulativeLabel}>Credits Earned</Text>
-										<Text style={styles.cumulativeValue}>
+									<View style={tw('mb-[8pt]')}>
+										<Text style={tw('text-[10pt] mb-[2pt] text-gray-333')}>
+											Credits Earned
+										</Text>
+										<Text style={tw('text-[12pt] font-bold text-black')}>
 											{academicRemarks.totalCreditsCompleted}
 										</Text>
 									</View>
-									<View style={styles.cumulativeItem}>
-										<Text style={styles.cumulativeLabel}>Cumulative GPA</Text>
-										<Text style={styles.cumulativeValue}>
+									<View style={tw('mb-[8pt]')}>
+										<Text style={tw('text-[10pt] mb-[2pt] text-gray-333')}>
+											Cumulative GPA
+										</Text>
+										<Text style={tw('text-[12pt] font-bold text-black')}>
 											{academicRemarks.latestPoints?.cgpa.toFixed(2)}
 										</Text>
 									</View>
 								</View>
-								<View style={styles.academicRemarksColumn}>
-									<View style={styles.academicRemarksSection}>
-										<Text style={styles.academicRemarksLabel}>
+								<View style={tw('flex-1 pl-[20pt]')}>
+									<View style={tw('mb-[12pt]')}>
+										<Text
+											style={tw('text-[10pt] mb-[4pt] text-gray-333 font-bold')}
+										>
 											Academic Status
 										</Text>
-										<Text style={styles.academicRemarksValue}>
+										<Text
+											style={tw('text-[14pt] font-bold text-black mb-[2pt]')}
+										>
 											{academicRemarks.status}
 										</Text>
-										<Text style={styles.academicRemarksDetails}>
+										<Text
+											style={tw('text-[9pt] text-gray-666 italic mb-[8pt]')}
+										>
 											{academicRemarks.details}
 										</Text>
 									</View>
 									{(academicRemarks.failedModules.length > 0 ||
 										academicRemarks.supplementaryModules.length > 0) && (
-										<View style={styles.outstandingModulesSection}>
-											<Text style={styles.outstandingModulesTitle}>
+										<View
+											style={tw('mt-[8pt] pt-[8pt] border-t border-gray-e0')}
+										>
+											<Text
+												style={tw(
+													'text-[10pt] font-bold mb-[6pt] text-gray-333'
+												)}
+											>
 												Outstanding Requirements (
 												{academicRemarks.failedModules.length +
 													academicRemarks.supplementaryModules.length}
@@ -564,7 +355,7 @@ export default function StatementOfResultsPDF({
 											{academicRemarks.failedModules.map((module, index) => (
 												<Text
 													key={`failed-${module.code}-${index}`}
-													style={styles.outstandingModuleItem}
+													style={tw('text-[8pt] mb-[2pt] text-black pl-[4pt]')}
 												>
 													• {module.code} - {module.name} (Repeat)
 												</Text>
@@ -573,7 +364,9 @@ export default function StatementOfResultsPDF({
 												(module, index) => (
 													<Text
 														key={`supplementary-${module.code}-${index}`}
-														style={styles.outstandingModuleItem}
+														style={tw(
+															'text-[8pt] mb-[2pt] text-black pl-[4pt]'
+														)}
 													>
 														• {module.code} - {module.name} (Supplementary)
 													</Text>
@@ -585,19 +378,34 @@ export default function StatementOfResultsPDF({
 							</View>
 						</View>
 						{includeSignature && (
-							<View style={styles.signatureContainer}>
-								<View style={styles.signatureSection}>
+							<View
+								style={tw(
+									'flex-row justify-between items-start mt-[20pt] mb-[3pt]'
+								)}
+							>
+								<View style={tw('items-center w-[200pt]')}>
 									<Image
-										style={styles.signatureImage}
+										style={tw('w-[120pt] h-[60pt]')}
 										src='/images/signature_small.png'
 									/>
-									<Text style={styles.signatureLine}></Text>
-									<Text style={styles.signatureLabel}>Registrar</Text>
+									<Text
+										style={tw('border-b border-gray-333 w-[150pt] mb-[3pt]')}
+									></Text>
+									<Text style={tw('text-[8pt] text-gray-333 font-bold')}>
+										Registrar
+									</Text>
 								</View>
 								{qrCodeDataURL && (
-									<View style={styles.qrCodeSection}>
-										<Image style={styles.qrCodeImage} src={qrCodeDataURL} />
-										<Text style={styles.qrCodeLabel}>
+									<View style={tw('items-center w-[120pt]')}>
+										<Image
+											style={tw('w-[60pt] h-[60pt] mb-[3pt]')}
+											src={qrCodeDataURL}
+										/>
+										<Text
+											style={tw(
+												'text-[7pt] text-gray-333 text-center leading-[1.2]'
+											)}
+										>
 											Scan to verify{'\n'}statement authenticity
 										</Text>
 									</View>
@@ -612,7 +420,10 @@ export default function StatementOfResultsPDF({
 		console.error('Error generating statement of results:', error);
 		return (
 			<Document>
-				<Page size='A4' style={styles.page}>
+				<Page
+					size='A4'
+					style={tw('flex-col bg-white p-10 font-tahoma text-[10pt]')}
+				>
 					<Text>Error generating statement of results</Text>
 				</Page>
 			</Document>
