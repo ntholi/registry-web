@@ -24,11 +24,15 @@ const tw = createTw({
 		tahoma: ['Tahoma'],
 	},
 	colors: {
-		'gray-333': '#333333',
-		'gray-666': '#666666',
-		'gray-ccc': '#cccccc',
-		'gray-e0': '#e0e0e0',
-		'gray-f5': '#f5f5f5',
+		black: '#000000',
+		white: '#ffffff',
+		gray: {
+			'333': '#333333',
+			'666': '#666666',
+			ccc: '#cccccc',
+			e0: '#e0e0e0',
+			f5: '#f5f5f5',
+		} as unknown as Record<number, string>,
 	},
 });
 
