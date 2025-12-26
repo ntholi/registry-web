@@ -12,6 +12,10 @@ import {
 	Paper,
 	Skeleton,
 	Stack,
+	Tabs,
+	TabsList,
+	TabsPanel,
+	TabsTab,
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -21,9 +25,11 @@ import { IconChevronRight, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 import RegistrationModal from './form/RegistrationModal';
+import RegisteredSemestersView from './RegisteredSemestersView';
 
 type StudentRegistrationHistory = {
 	id: number;
@@ -42,6 +48,36 @@ type Props = {
 };
 
 export default function RegistrationView({ stdNo, isActive = true }: Props) {
+	const [activeTab, setActiveTab] = useState<string | null>('requests');
+
+	return (
+		<Tabs value={activeTab} onChange={setActiveTab} variant='default'>
+			<TabsList>
+				<TabsTab value='requests'>Requests</TabsTab>
+				<TabsTab value='semesters'>Semesters</TabsTab>
+			</TabsList>
+			<TabsPanel value='requests' pt='xl'>
+				<RequestsView
+					stdNo={stdNo}
+					isActive={isActive && activeTab === 'requests'}
+				/>
+			</TabsPanel>
+			<TabsPanel value='semesters' pt='xl'>
+				<RegisteredSemestersView
+					stdNo={stdNo}
+					isActive={isActive && activeTab === 'semesters'}
+				/>
+			</TabsPanel>
+		</Tabs>
+	);
+}
+
+type RequestsViewProps = {
+	stdNo: number;
+	isActive?: boolean;
+};
+
+function RequestsView({ stdNo, isActive = true }: RequestsViewProps) {
 	const { activeTerm } = useActiveTerm();
 	const [opened, { open, close }] = useDisclosure(false);
 	const { data: session } = useSession();

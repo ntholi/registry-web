@@ -13,7 +13,6 @@ import StudentCardView from './card/StudentCardView';
 import DocumentsView from './documents/DocumentsView';
 import GraduationView from './graduation/GraduationView';
 import StudentView from './info/StudentView';
-import ProofOfRegistrationPrinter from './registration/proof/ProofOfRegistrationPrinter';
 import RegistrationView from './registration/RegistrationView';
 
 type StudentTabsProps = {
@@ -82,13 +81,6 @@ export default function StudentTabs({
 						/>
 					</Box>
 				)}
-				{showRegistration &&
-					activeTab === 'registration' &&
-					['registry', 'admin'].includes(session?.user?.role ?? '') && (
-						<Box ml='auto'>
-							<ProofOfRegistrationPrinter stdNo={student.stdNo} />
-						</Box>
-					)}
 				{showStudentCard && activeTab === 'studentcard' && (
 					<Box ml='auto'>
 						<StudentCardPrinter
