@@ -13,7 +13,7 @@ import StudentCardView from './card/StudentCardView';
 import DocumentsView from './documents/DocumentsView';
 import GraduationView from './graduation/GraduationView';
 import StudentView from './info/StudentView';
-import RegistrationView from './registration/RegistrationView';
+import RegistrationTabs from './registration/RegistrationTabs';
 
 type StudentTabsProps = {
 	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -106,7 +106,7 @@ export default function StudentTabs({
 				<StudentView student={student} />
 			</TabsPanel>
 			<TabsPanel value='registration' pt={'xl'} p={'sm'} key='registration'>
-				<RegistrationView
+				<RegistrationTabs
 					stdNo={student.stdNo}
 					isActive={activeTab === 'registration'}
 				/>

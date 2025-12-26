@@ -25,10 +25,7 @@ type StudentData = Awaited<ReturnType<typeof getStudentRegistrationData>>;
 type Program = NonNullable<StudentData>['programs'][number];
 type Semester = Program['semesters'][number];
 
-export default function RegisteredSemestersView({
-	stdNo,
-	isActive = true,
-}: Props) {
+export default function SemestersView({ stdNo, isActive = true }: Props) {
 	const { data, isLoading, error } = useQuery({
 		queryKey: ['student-registration-data', stdNo],
 		queryFn: () => getStudentRegistrationData(stdNo),

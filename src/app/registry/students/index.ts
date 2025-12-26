@@ -46,7 +46,7 @@ export { default as StructureView } from './_components/registration/form/Struct
 export { default as TermSelector } from './_components/registration/form/TermSelector';
 export { default as ProofOfRegistrationPDF } from './_components/registration/proof/ProofOfRegistrationPDF';
 export { default as ProofOfRegistrationPrinter } from './_components/registration/proof/ProofOfRegistrationPrinter';
-export { default as RegistrationView } from './_components/registration/RegistrationView';
+export { default as RegistrationView } from './_components/registration/RegistrationTabs';
 export { default as StudentsFilter } from './_components/StudentsFilter';
 export { default as StudentTabs } from './_components/StudentTabs';
 export * from './_lib/utils';
