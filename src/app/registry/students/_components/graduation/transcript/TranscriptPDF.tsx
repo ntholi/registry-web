@@ -7,46 +7,37 @@ import { getCleanedSemesters } from '../../academics/statements/utils';
 import GradeClassificationPage from './GradeClassificationPage';
 
 Font.register({
-	family: 'Arial',
-	src: '/fonts/ARIAL.TTF',
-});
-
-Font.register({
-	family: 'Arial-Bold',
-	src: '/fonts/ARIALBD.TTF',
+	family: 'Tahoma',
+	fonts: [
+		{ src: '/fonts/TAHOMA_NORMAL.TTF' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold' },
+		{ src: '/fonts/TAHOMA_NORMAL.TTF', fontStyle: 'italic' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold', fontStyle: 'italic' },
+	],
 });
 
 Font.register({
 	family: 'ui-sans-serif',
-	src: '/fonts/ARIAL.TTF',
-});
-
-Font.register({
-	family: 'ui-sans-serif-bold',
-	src: '/fonts/ARIALBD.TTF',
+	fonts: [
+		{ src: '/fonts/TAHOMA_NORMAL.TTF' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold' },
+	],
 });
 
 const tw = createTw({
-	theme: {
-		fontFamily: {
-			sans: ['Arial'],
-			bold: ['Arial-Bold'],
-		},
-		extend: {
-			colors: {
-				border: '#000000',
-			},
-			borderWidth: {
-				DEFAULT: '0.1pt',
-			},
-		},
+	fontFamily: {
+		tahoma: ['Tahoma'],
+		sans: ['Tahoma'],
+	},
+	colors: {
+		black: '#000000',
 	},
 });
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 
 const HeaderRow = ({ label, value }: { label: string; value: string }) => (
-	<View style={tw('flex flex-row items-start')}>
+	<View style={tw('flex flex-row items-start font-tahoma')}>
 		<Text style={tw('w-[90pt] font-bold')}>{label}</Text>
 		<Text style={tw('w-[10pt]')}>:</Text>
 		<Text style={tw('flex-1')}>{value}</Text>
@@ -54,7 +45,7 @@ const HeaderRow = ({ label, value }: { label: string; value: string }) => (
 );
 
 const TableHeader = () => (
-	<View style={tw('flex flex-row font-bold py-1')}>
+	<View style={tw('flex flex-row font-bold py-1 font-tahoma')}>
 		<Text style={tw('w-[60pt]')}>Code</Text>
 		<Text style={tw('flex-1')}>Module Name</Text>
 		<Text style={tw('w-[38pt] text-right mr-2')}>Credit</Text>
@@ -93,7 +84,7 @@ const GradeRow = ({
 	credits: number;
 	grade: string;
 }) => (
-	<View style={tw('flex flex-row min-h-[7pt] items-start')}>
+	<View style={tw('flex flex-row min-h-[7pt] items-start font-tahoma')}>
 		<Text style={tw('w-[60pt]')}>{courseCode}</Text>
 		<Text style={tw('flex-1')}>{courseName}</Text>
 		<Text style={tw('w-[38pt] text-right mr-2')}>{credits}</Text>
@@ -112,7 +103,7 @@ const TermSummary = ({
 	cgpa: number;
 	cumulativeCredits: number;
 }) => (
-	<View style={tw('ml-[60pt] mt-1')}>
+	<View style={tw('ml-[60pt] mt-1 font-tahoma')}>
 		<View style={tw('flex flex-row justify-between w-[85%]')}>
 			<View style={tw('w-[60pt] flex-row justify-between')}>
 				<Text>GPA</Text>
@@ -162,7 +153,7 @@ const TermSection = ({
 		.reduce((sum, point) => sum + (point.creditsCompleted || 0), 0);
 
 	return (
-		<View style={tw('mb-2')}>
+		<View style={tw('mb-2 font-tahoma')}>
 			<Text style={tw('mb-0.5 font-bold')}>
 				{formatTerm(semester.termCode)}
 			</Text>
@@ -237,9 +228,9 @@ export function TranscriptPages({
 					<Fragment key={key}>
 						<Page
 							size='A4'
-							style={tw('pt-5 px-10 pb-10 font-sans text-[6.5pt] pt-[155pt]')}
+							style={tw('pt-5 px-10 pb-10 font-tahoma text-[6.5pt] pt-[155pt]')}
 						>
-							<View style={tw('border-t border-b py-1')}>
+							<View style={tw('border-t border-b border-black py-1')}>
 								<View style={tw('flex flex-row')}>
 									<View style={tw('w-1/2 pr-1')}>
 										<HeaderRow label='Student Name' value={student.name} />
@@ -276,7 +267,11 @@ export function TranscriptPages({
 								</View>
 							</View>
 
-							<View style={tw('mt-1.5 flex flex-row gap-2 border-t border-b')}>
+							<View
+								style={tw(
+									'mt-1.5 flex flex-row gap-2 border-t border-b border-black'
+								)}
+							>
 								<View style={tw('flex-1')}>
 									<TableHeader />
 								</View>
@@ -330,7 +325,7 @@ export function TranscriptPages({
 
 							<View
 								style={tw(
-									'absolute bottom-[50pt] right-14 w-[190pt] border-t pt-1'
+									'absolute bottom-[50pt] right-14 w-[190pt] border-t border-black pt-1'
 								)}
 							>
 								<Text style={tw('pt-0.5 text-center font-bold')}>
@@ -359,7 +354,7 @@ export default function TranscriptPDF({ student }: { student: Student }) {
 	if (!completedPrograms || completedPrograms.length === 0) {
 		return (
 			<Document>
-				<Page size='A4' style={tw('pt-5 px-10 pb-10 font-sans text-[7pt]')}>
+				<Page size='A4' style={tw('pt-5 px-10 pb-10 font-tahoma text-[7pt]')}>
 					<Text>No completed programs found</Text>
 				</Page>
 			</Document>
