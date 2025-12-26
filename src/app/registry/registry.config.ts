@@ -175,7 +175,6 @@ export const registryConfig: ModuleConfig = {
 				label: 'Student Enrollments',
 				href: '/registry/reports/student-enrollments',
 				icon: IconReportAnalytics,
-				roles: ['academic', 'registry', 'admin', 'finance'],
 				isVisible: (session) => {
 					if (
 						['admin', 'registry', 'finance'].includes(

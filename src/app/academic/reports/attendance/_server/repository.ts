@@ -51,6 +51,37 @@ export interface ModuleAttendanceSummary {
 	atRiskCount: number;
 }
 
+export interface StudentModuleAttendance {
+	moduleCode: string;
+	moduleName: string;
+	attendanceRate: number;
+	present: number;
+	absent: number;
+	late: number;
+	excused: number;
+	totalMarked: number;
+}
+
+export interface StudentWithModuleAttendance {
+	stdNo: number;
+	name: string;
+	programCode: string;
+	programName: string;
+	className: string;
+	schoolCode: string;
+	schoolName: string;
+	overallAttendanceRate: number;
+	modules: StudentModuleAttendance[];
+}
+
+export interface PaginatedStudentsResult {
+	students: StudentWithModuleAttendance[];
+	total: number;
+	page: number;
+	pageSize: number;
+	totalPages: number;
+}
+
 export interface AtRiskStudent {
 	stdNo: number;
 	name: string;
@@ -804,6 +835,276 @@ export class AttendanceReportRepository {
 		}
 
 		return result.sort((a, b) => a.avgAttendanceRate - b.avgAttendanceRate);
+	}
+
+	async getPaginatedStudentsWithModuleAttendance(
+		filter: AttendanceReportFilter,
+		page = 1,
+		pageSize = 20,
+		search?: string
+	): Promise<PaginatedStudentsResult> {
+		if (!filter.termId) {
+			return { students: [], total: 0, page, pageSize, totalPages: 0 };
+		}
+
+		const term = await this.getTermById(filter.termId);
+		if (!term) {
+			throw new Error('Term not found');
+		}
+
+		const conditions = [eq(studentSemesters.termCode, term.code)];
+
+		if (filter.schoolIds && filter.schoolIds.length > 0) {
+			conditions.push(inArray(schools.id, filter.schoolIds));
+		}
+		if (filter.programId) {
+			conditions.push(eq(programs.id, filter.programId));
+		}
+		if (filter.semesterNumber) {
+			conditions.push(
+				eq(structureSemesters.semesterNumber, filter.semesterNumber)
+			);
+		}
+
+		conditions.push(
+			inArray(studentSemesters.status, [
+				'Active',
+				'Enrolled',
+				'Outstanding',
+				'Repeat',
+			])
+		);
+
+		if (search) {
+			const searchLower = search.toLowerCase();
+			conditions.push(
+				sql`(LOWER(${students.name}) LIKE ${`%${searchLower}%`} OR ${students.stdNo}::text LIKE ${`%${search}%`} OR LOWER(${programs.code}) LIKE ${`%${searchLower}%`})`
+			);
+		}
+
+		const enrolledStudentsQuery = db
+			.selectDistinct({
+				stdNo: students.stdNo,
+				name: students.name,
+				programCode: programs.code,
+				programName: programs.name,
+				semesterNumber: structureSemesters.semesterNumber,
+				schoolCode: schools.code,
+				schoolName: schools.name,
+			})
+			.from(studentSemesters)
+			.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			)
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
+			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.where(and(...conditions));
+
+		const allStudents = await enrolledStudentsQuery;
+		const total = allStudents.length;
+		const totalPages = Math.ceil(total / pageSize);
+
+		const studentMap = new Map<
+			number,
+			{
+				stdNo: number;
+				name: string;
+				programCode: string;
+				programName: string;
+				semesterNumber: string;
+				schoolCode: string;
+				schoolName: string;
+			}
+		>();
+		for (const s of allStudents) {
+			studentMap.set(s.stdNo, s);
+		}
+
+		const paginatedStdNos = allStudents
+			.slice((page - 1) * pageSize, page * pageSize)
+			.map((s) => s.stdNo);
+
+		if (paginatedStdNos.length === 0) {
+			return { students: [], total, page, pageSize, totalPages };
+		}
+
+		const moduleEnrollments = await db
+			.select({
+				stdNo: students.stdNo,
+				semesterModuleId: semesterModules.id,
+				moduleCode: modules.code,
+				moduleName: modules.name,
+			})
+			.from(studentModules)
+			.innerJoin(
+				studentSemesters,
+				eq(studentModules.studentSemesterId, studentSemesters.id)
+			)
+			.innerJoin(
+				semesterModules,
+				eq(studentModules.semesterModuleId, semesterModules.id)
+			)
+			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
+			.innerJoin(
+				studentPrograms,
+				eq(studentSemesters.studentProgramId, studentPrograms.id)
+			)
+			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.where(
+				and(
+					eq(studentSemesters.termCode, term.code),
+					inArray(students.stdNo, paginatedStdNos),
+					sql`${studentModules.status} NOT IN ('Delete', 'Drop')`
+				)
+			);
+
+		const attendanceConditions = [
+			eq(attendance.termId, term.id),
+			inArray(attendance.stdNo, paginatedStdNos),
+		];
+
+		if (filter.weekNumber) {
+			attendanceConditions.push(eq(attendance.weekNumber, filter.weekNumber));
+		}
+
+		const attendanceRecords = await db
+			.select({
+				stdNo: attendance.stdNo,
+				semesterModuleId: attendance.semesterModuleId,
+				status: attendance.status,
+			})
+			.from(attendance)
+			.where(and(...attendanceConditions));
+
+		const studentModuleAttendanceMap = new Map<
+			number,
+			Map<
+				number,
+				{
+					moduleCode: string;
+					moduleName: string;
+					present: number;
+					absent: number;
+					late: number;
+					excused: number;
+					total: number;
+				}
+			>
+		>();
+
+		for (const enrollment of moduleEnrollments) {
+			if (!studentModuleAttendanceMap.has(enrollment.stdNo)) {
+				studentModuleAttendanceMap.set(enrollment.stdNo, new Map());
+			}
+			const moduleMap = studentModuleAttendanceMap.get(enrollment.stdNo)!;
+			if (!moduleMap.has(enrollment.semesterModuleId)) {
+				moduleMap.set(enrollment.semesterModuleId, {
+					moduleCode: enrollment.moduleCode,
+					moduleName: enrollment.moduleName,
+					present: 0,
+					absent: 0,
+					late: 0,
+					excused: 0,
+					total: 0,
+				});
+			}
+		}
+
+		for (const record of attendanceRecords) {
+			const moduleMap = studentModuleAttendanceMap.get(record.stdNo);
+			if (!moduleMap) continue;
+
+			const moduleStats = moduleMap.get(record.semesterModuleId);
+			if (!moduleStats) continue;
+
+			if (record.status === 'present') {
+				moduleStats.present++;
+				moduleStats.total++;
+			} else if (record.status === 'absent') {
+				moduleStats.absent++;
+				moduleStats.total++;
+			} else if (record.status === 'late') {
+				moduleStats.late++;
+				moduleStats.total++;
+			} else if (record.status === 'excused') {
+				moduleStats.excused++;
+				moduleStats.total++;
+			}
+		}
+
+		const studentResults: StudentWithModuleAttendance[] = [];
+
+		for (const stdNo of paginatedStdNos) {
+			const studentInfo = studentMap.get(stdNo);
+			if (!studentInfo) continue;
+
+			const year =
+				studentInfo.semesterNumber?.match(/Year (\d+)/)?.[1] ||
+				(studentInfo.semesterNumber
+					? Math.ceil(Number(studentInfo.semesterNumber) / 2).toString()
+					: '');
+			const sem =
+				studentInfo.semesterNumber?.match(/Sem (\d+)/)?.[1] ||
+				(studentInfo.semesterNumber
+					? (Number(studentInfo.semesterNumber) % 2 === 0 ? 2 : 1).toString()
+					: '');
+			const className = `${studentInfo.programCode}Y${year}S${sem}`;
+
+			const moduleMap = studentModuleAttendanceMap.get(stdNo);
+			const modulesList: StudentModuleAttendance[] = [];
+
+			let totalPresent = 0;
+			let totalMarked = 0;
+
+			if (moduleMap) {
+				for (const [, stats] of moduleMap) {
+					const rate =
+						stats.total > 0
+							? Math.round(((stats.present + stats.late) / stats.total) * 100)
+							: 0;
+
+					modulesList.push({
+						moduleCode: stats.moduleCode,
+						moduleName: stats.moduleName,
+						attendanceRate: rate,
+						present: stats.present,
+						absent: stats.absent,
+						late: stats.late,
+						excused: stats.excused,
+						totalMarked: stats.total,
+					});
+
+					totalPresent += stats.present + stats.late;
+					totalMarked += stats.total;
+				}
+			}
+
+			modulesList.sort((a, b) => a.moduleCode.localeCompare(b.moduleCode));
+
+			const overallRate =
+				totalMarked > 0 ? Math.round((totalPresent / totalMarked) * 100) : 0;
+
+			studentResults.push({
+				stdNo,
+				name: studentInfo.name,
+				programCode: studentInfo.programCode,
+				programName: studentInfo.programName,
+				className,
+				schoolCode: studentInfo.schoolCode,
+				schoolName: studentInfo.schoolName,
+				overallAttendanceRate: overallRate,
+				modules: modulesList,
+			});
+		}
+
+		return { students: studentResults, total, page, pageSize, totalPages };
 	}
 }
 

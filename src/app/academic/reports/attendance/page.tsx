@@ -15,6 +15,7 @@ import {
 	IconChartBar,
 	IconInfoCircle,
 	IconUserExclamation,
+	IconUsers,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsString, useQueryStates } from 'nuqs';
@@ -23,6 +24,7 @@ import AtRiskStudentsTable from './_components/AtRiskStudentsTable';
 import AttendanceFilter from './_components/Filter';
 import ModuleBreakdown from './_components/ModuleBreakdown';
 import SchoolBreakdown from './_components/SchoolBreakdown';
+import StudentAttendanceTab from './_components/StudentAttendanceTab';
 import { getAttendanceReportData } from './_server/actions';
 import type { AttendanceReportFilter } from './_server/repository';
 
@@ -127,6 +129,9 @@ export default function AttendanceReportPage() {
 							<Tabs.Tab value='modules' leftSection={<IconBook2 size={16} />}>
 								Modules
 							</Tabs.Tab>
+							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
+								Students
+							</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='attendance' pt='xl'>
@@ -166,6 +171,21 @@ export default function AttendanceReportPage() {
 									</Text>
 								</Box>
 								<ModuleBreakdown data={reportData.moduleBreakdown} />
+							</Stack>
+						</Tabs.Panel>
+
+						<Tabs.Panel value='students' pt='xl'>
+							<Stack gap='md'>
+								<Box>
+									<Title order={3} size='h4'>
+										Student Attendance by Module
+									</Title>
+									<Text size='sm' c='dimmed'>
+										Browse all students and their attendance breakdown per
+										module
+									</Text>
+								</Box>
+								<StudentAttendanceTab filter={filter} />
 							</Stack>
 						</Tabs.Panel>
 					</Tabs>

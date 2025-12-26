@@ -28,6 +28,22 @@ class AttendanceReportService {
 			return attendanceReportRepository.getAttendanceReportData(filter);
 		}, ['academic']);
 	}
+
+	async getPaginatedStudentsWithModuleAttendance(
+		filter: AttendanceReportFilter,
+		page: number,
+		pageSize: number,
+		search?: string
+	) {
+		return withAuth(async () => {
+			return attendanceReportRepository.getPaginatedStudentsWithModuleAttendance(
+				filter,
+				page,
+				pageSize,
+				search
+			);
+		}, ['academic']);
+	}
 }
 
 export const attendanceReportService = new AttendanceReportService();
