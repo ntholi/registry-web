@@ -1,216 +1,30 @@
-import {
-	Document,
-	Font,
-	Image,
-	Page,
-	StyleSheet,
-	Text,
-	View,
-} from '@react-pdf/renderer';
+import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
+import { createTw } from 'react-pdf-tailwind';
 import { formatDate, formatSemester } from '@/shared/lib/utils/utils';
 import type { getStudentRegistrationData } from '../../../_server/actions';
 
 Font.register({
-	family: 'Arial',
+	family: 'Tahoma',
 	fonts: [
-		{ src: '/fonts/ARIAL.TTF' },
-		{ src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' },
+		{ src: '/fonts/TAHOMA_NORMAL.TTF' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold' },
+		{ src: '/fonts/TAHOMA_NORMAL.TTF', fontStyle: 'italic' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold', fontStyle: 'italic' },
 	],
 });
 
-const styles = StyleSheet.create({
-	page: {
-		fontFamily: 'Arial',
-		fontSize: 10,
-		paddingTop: 30,
-		paddingBottom: 30,
-		paddingHorizontal: 35,
-		lineHeight: 1.1,
+const tw = createTw({
+	fontFamily: {
+		tahoma: ['Tahoma'],
 	},
-	headerContainer: {
-		paddingBottom: 15,
-		borderBottom: '1px solid #000',
-	},
-	headerContent: {
-		flexDirection: 'row',
-		alignItems: 'flex-start',
-		justifyContent: 'space-between',
-		width: '100%',
-	},
-	universityName: {
-		fontSize: 14,
-		fontWeight: 'bold',
-		marginBottom: 8,
-		lineHeight: 1.1,
-		color: '#000',
-	},
-	addressContainer: {
-		marginTop: 5,
-	},
-	addressLine: {
-		fontSize: 9,
-		marginBottom: 1,
-		lineHeight: 1.1,
-		color: '#000',
-	},
-	logo: {
-		width: 'auto',
-		height: 95,
-		marginLeft: 10,
-	},
-	title: {
-		fontSize: 12,
-		fontWeight: 'bold',
-		marginTop: 25,
-		marginBottom: 20,
-		textAlign: 'left',
-		color: '#000',
-	},
-	studentInfoSection: {
-		marginBottom: 25,
-		borderBottom: '1px solid #666666',
-	},
-	infoTable: {
-		width: '100%',
-		border: '1px solid #BDBDBD',
-	},
-	tableRow: {
-		flexDirection: 'row',
-		borderBottom: '1px solid #BDBDBD',
-		minHeight: 22,
-	},
-	lastTableRow: {
-		flexDirection: 'row',
-		minHeight: 22,
-	},
-	labelCell: {
-		width: '25%',
-		padding: 8,
-		fontWeight: 'bold',
-		borderRight: '1px solid #BDBDBD',
-		justifyContent: 'center',
-		fontSize: 9,
-	},
-	valueCell: {
-		width: '75%',
-		padding: 8,
-		justifyContent: 'center',
-		fontSize: 9,
-		backgroundColor: '#ffffff',
-	},
-	modulesSection: {
-		marginBottom: 20,
-	},
-	sectionTitle: {
-		fontSize: 11,
-		fontWeight: 'bold',
-		marginBottom: 12,
-		color: '#000',
-	},
-	moduleTable: {
-		width: '100%',
-		borderTop: '1px solid #000',
-		borderLeft: '1px solid #000',
-		borderRight: '1px solid #000',
-		borderBottom: '1px solid #000',
-		marginBottom: 12,
-	},
-	moduleHeaderRow: {
-		flexDirection: 'row',
-		backgroundColor: '#4a4a4a',
-		borderBottom: '1px solid #666666',
-		minHeight: 25,
-	},
-	moduleHeaderCell: {
-		padding: 4,
-		borderRight: '1px solid #666666',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	moduleHeaderText: {
-		fontSize: 9,
-		fontWeight: 'bold',
-		color: '#ffffff',
-		textAlign: 'center',
-	},
-	moduleDataRow: {
-		flexDirection: 'row',
-		borderBottom: '1px solid #666666',
-		minHeight: 35,
-	},
-	moduleLastDataRow: {
-		flexDirection: 'row',
-		minHeight: 35,
-	},
-	moduleDataCell: {
-		padding: 4,
-		borderRight: '1px solid #666666',
-		justifyContent: 'center',
-	},
-	moduleLastDataCell: {
-		padding: 4,
-		borderRight: '1px solid #666666',
-		justifyContent: 'center',
-	},
-	moduleNumberCol: {
-		width: '6%',
-	},
-	moduleCodeDescCol: {
-		width: '64%',
-	},
-	moduleTypeCol: {
-		width: '15%',
-	},
-	moduleCreditsCol: {
-		width: '15%',
-	},
-	moduleCode: {
-		fontSize: 9,
-		fontWeight: 'bold',
-		marginBottom: 2,
-		color: '#000',
-	},
-	moduleDescription: {
-		fontSize: 8,
-		color: '#000',
-	},
-	moduleNumber: {
-		fontSize: 9,
-		fontWeight: 'bold',
-		textAlign: 'center',
-		color: '#000',
-	},
-	moduleType: {
-		fontSize: 9,
-		textAlign: 'center',
-		color: '#000',
-	},
-	moduleCredits: {
-		fontSize: 9,
-		textAlign: 'center',
-		color: '#000',
-	},
-	creditsRow: {
-		flexDirection: 'row',
-		justifyContent: 'flex-end',
-		marginTop: 8,
-		marginBottom: 25,
-	},
-	creditsLabel: {
-		fontSize: 10,
-		fontWeight: 'bold',
-		color: '#000',
-	},
-	footerSection: {
-		marginTop: 20,
-		paddingTop: 15,
-		borderTop: '1px solid #000',
-	},
-	footerText: {
-		fontSize: 7,
-		textAlign: 'justify',
-		lineHeight: 1.2,
-		color: '#000',
+	colors: {
+		black: '#000000',
+		white: '#ffffff',
+		gray: {
+			'4a': '#4a4a4a',
+			'666': '#666666',
+			bd: '#bdbdbd',
+		} as unknown as Record<number, string>,
 	},
 });
 
@@ -231,7 +45,12 @@ export default function ProofOfRegistrationPDF({
 	if (!student || !student.programs || student.programs.length === 0) {
 		return (
 			<Document>
-				<Page size='A4' style={styles.page}>
+				<Page
+					size='A4'
+					style={tw(
+						'flex-col bg-white py-[30pt] px-[35pt] font-tahoma text-[10pt] leading-[1.1]'
+					)}
+				>
 					<Text>No student data available</Text>
 				</Page>
 			</Document>
@@ -243,7 +62,12 @@ export default function ProofOfRegistrationPDF({
 	if (!activeProgram) {
 		return (
 			<Document>
-				<Page size='A4' style={styles.page}>
+				<Page
+					size='A4'
+					style={tw(
+						'flex-col bg-white py-[30pt] px-[35pt] font-tahoma text-[10pt] leading-[1.1]'
+					)}
+				>
 					<Text>No active program found</Text>
 				</Page>
 			</Document>
@@ -255,7 +79,12 @@ export default function ProofOfRegistrationPDF({
 	if (!latestSemester) {
 		return (
 			<Document>
-				<Page size='A4' style={styles.page}>
+				<Page
+					size='A4'
+					style={tw(
+						'flex-col bg-white py-[30pt] px-[35pt] font-tahoma text-[10pt] leading-[1.1]'
+					)}
+				>
 					<Text>No semester data available</Text>
 				</Page>
 			</Document>
@@ -273,67 +102,141 @@ export default function ProofOfRegistrationPDF({
 
 	return (
 		<Document>
-			<Page size='A4' style={styles.page}>
-				<View style={styles.headerContainer}>
-					<Text style={styles.universityName}>
+			<Page
+				size='A4'
+				style={tw(
+					'flex-col bg-white py-[30pt] px-[35pt] font-tahoma text-[10pt] leading-[1.1]'
+				)}
+			>
+				<View style={tw('pb-[15pt] border-b border-solid border-black')}>
+					<Text
+						style={tw(
+							'text-[14pt] font-bold mb-[8pt] leading-[1.1] text-black'
+						)}
+					>
 						Limkokwing University of Creative Technology
 					</Text>
-					<View style={styles.headerContent}>
-						<View style={styles.addressContainer}>
-							<Text style={styles.addressLine}>
+					<View style={tw('flex-row items-start justify-between w-[100%]')}>
+						<View style={tw('mt-[5pt]')}>
+							<Text style={tw('text-[9pt] mb-[1pt] leading-[1.1] text-black')}>
 								Moshoshoe Road Maseru Central
 							</Text>
-							<Text style={styles.addressLine}>P.O. Box 8571</Text>
-							<Text style={styles.addressLine}>Maseru Maseru 0101</Text>
-							<Text style={styles.addressLine}>Lesotho</Text>
-							<Text style={styles.addressLine}>+(266) 22315767 | Ext. 116</Text>
-							<Text style={styles.addressLine}>registry@limkokwing.ac.ls</Text>
+							<Text style={tw('text-[9pt] mb-[1pt] leading-[1.1] text-black')}>
+								P.O. Box 8571
+							</Text>
+							<Text style={tw('text-[9pt] mb-[1pt] leading-[1.1] text-black')}>
+								Maseru Maseru 0101
+							</Text>
+							<Text style={tw('text-[9pt] mb-[1pt] leading-[1.1] text-black')}>
+								Lesotho
+							</Text>
+							<Text style={tw('text-[9pt] mb-[1pt] leading-[1.1] text-black')}>
+								+(266) 22315767 | Ext. 116
+							</Text>
+							<Text style={tw('text-[9pt] mb-[1pt] leading-[1.1] text-black')}>
+								registry@limkokwing.ac.ls
+							</Text>
 						</View>
-						<Image style={styles.logo} src='/images/logo-lesotho.jpg' />
+						<Image
+							style={tw('w-auto h-[95pt] ml-[10pt]')}
+							src='/images/logo-lesotho.jpg'
+						/>
 					</View>
 				</View>
 
-				<Text style={styles.title}>PROOF OF REGISTRATION</Text>
+				<Text
+					style={tw(
+						'text-[12pt] font-bold mt-[25pt] mb-[20pt] text-left text-black'
+					)}
+				>
+					PROOF OF REGISTRATION
+				</Text>
 
-				<View style={styles.studentInfoSection}>
-					<View style={styles.infoTable}>
-						<View style={styles.tableRow}>
-							<View style={[styles.labelCell]}>
+				<View style={tw('mb-[25pt] border-b border-solid border-gray-666')}>
+					<View style={tw('w-[100%] border border-solid border-gray-bd')}>
+						<View
+							style={tw(
+								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+							)}
+						>
+							<View
+								style={tw(
+									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
+								)}
+							>
 								<Text>Student Number:</Text>
 							</View>
-							<View style={[styles.valueCell]}>
+							<View
+								style={tw('w-[75%] p-[8pt] justify-center text-[9pt] bg-white')}
+							>
 								<Text>{student.stdNo}</Text>
 							</View>
 						</View>
-						<View style={styles.tableRow}>
-							<View style={[styles.labelCell]}>
+						<View
+							style={tw(
+								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+							)}
+						>
+							<View
+								style={tw(
+									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
+								)}
+							>
 								<Text>Student Name:</Text>
 							</View>
-							<View style={[styles.valueCell]}>
+							<View
+								style={tw('w-[75%] p-[8pt] justify-center text-[9pt] bg-white')}
+							>
 								<Text>{student.name}</Text>
 							</View>
 						</View>
-						<View style={styles.tableRow}>
-							<View style={[styles.labelCell]}>
+						<View
+							style={tw(
+								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+							)}
+						>
+							<View
+								style={tw(
+									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
+								)}
+							>
 								<Text>Program:</Text>
 							</View>
-							<View style={[styles.valueCell]}>
+							<View
+								style={tw('w-[75%] p-[8pt] justify-center text-[9pt] bg-white')}
+							>
 								<Text>{activeProgram.structure.program.name}</Text>
 							</View>
 						</View>
-						<View style={styles.tableRow}>
-							<View style={[styles.labelCell]}>
+						<View
+							style={tw(
+								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+							)}
+						>
+							<View
+								style={tw(
+									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
+								)}
+							>
 								<Text>Term:</Text>
 							</View>
-							<View style={[styles.valueCell]}>
+							<View
+								style={tw('w-[75%] p-[8pt] justify-center text-[9pt] bg-white')}
+							>
 								<Text>{latestSemester.termCode}</Text>
 							</View>
 						</View>
-						<View style={styles.lastTableRow}>
-							<View style={[styles.labelCell]}>
+						<View style={tw('flex-row min-h-[22pt]')}>
+							<View
+								style={tw(
+									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
+								)}
+							>
 								<Text>Semester:</Text>
 							</View>
-							<View style={[styles.valueCell]}>
+							<View
+								style={tw('w-[75%] p-[8pt] justify-center text-[9pt] bg-white')}
+							>
 								<Text>
 									{formatSemester(
 										latestSemester.structureSemester?.semesterNumber,
@@ -345,24 +248,54 @@ export default function ProofOfRegistrationPDF({
 					</View>
 				</View>
 
-				<View style={styles.modulesSection}>
-					<Text style={styles.sectionTitle}>REGISTERED MODULES</Text>
+				<View style={tw('mb-[20pt]')}>
+					<Text style={tw('text-[11pt] font-bold mb-[12pt] text-black')}>
+						REGISTERED MODULES
+					</Text>
 
-					<View style={styles.moduleTable}>
-						<View style={styles.moduleHeaderRow}>
-							<View style={[styles.moduleHeaderCell, styles.moduleNumberCol]}>
-								<Text style={styles.moduleHeaderText}>#</Text>
+					<View
+						style={tw('w-[100%] border border-solid border-black mb-[12pt]')}
+					>
+						<View
+							style={tw(
+								'flex-row bg-gray-4a border-b border-solid border-gray-666 min-h-[25pt]'
+							)}
+						>
+							<View
+								style={tw(
+									'w-[6%] p-[4pt] border-r border-solid border-gray-666 justify-center items-center'
+								)}
+							>
+								<Text style={tw('text-[9pt] font-bold text-white text-center')}>
+									#
+								</Text>
 							</View>
-							<View style={[styles.moduleHeaderCell, styles.moduleCodeDescCol]}>
-								<Text style={styles.moduleHeaderText}>
+							<View
+								style={tw(
+									'w-[64%] p-[4pt] border-r border-solid border-gray-666 justify-center items-center'
+								)}
+							>
+								<Text style={tw('text-[9pt] font-bold text-white text-center')}>
 									Module Code & Description
 								</Text>
 							</View>
-							<View style={[styles.moduleHeaderCell, styles.moduleTypeCol]}>
-								<Text style={styles.moduleHeaderText}>Type</Text>
+							<View
+								style={tw(
+									'w-[15%] p-[4pt] border-r border-solid border-gray-666 justify-center items-center'
+								)}
+							>
+								<Text style={tw('text-[9pt] font-bold text-white text-center')}>
+									Type
+								</Text>
 							</View>
-							<View style={[styles.moduleHeaderCell, styles.moduleCreditsCol]}>
-								<Text style={styles.moduleHeaderText}>Credits</Text>
+							<View
+								style={tw(
+									'w-[15%] p-[4pt] border-r border-solid border-gray-666 justify-center items-center'
+								)}
+							>
+								<Text style={tw('text-[9pt] font-bold text-white text-center')}>
+									Credits
+								</Text>
 							</View>
 						</View>
 
@@ -372,60 +305,54 @@ export default function ProofOfRegistrationPDF({
 								return (
 									<View
 										key={studentModule.id}
-										style={
-											isLastRow
-												? styles.moduleLastDataRow
-												: styles.moduleDataRow
-										}
+										style={tw(
+											`flex-row min-h-[35pt] ${isLastRow ? '' : 'border-b border-solid border-gray-666'}`
+										)}
 									>
 										<View
-											style={[
-												isLastRow
-													? styles.moduleLastDataCell
-													: styles.moduleDataCell,
-												styles.moduleNumberCol,
-											]}
+											style={tw(
+												'w-[6%] p-[4pt] border-r border-solid border-gray-666 justify-center'
+											)}
 										>
-											<Text style={styles.moduleNumber}>{index + 1}</Text>
+											<Text
+												style={tw(
+													'text-[9pt] font-bold text-center text-black'
+												)}
+											>
+												{index + 1}
+											</Text>
 										</View>
 										<View
-											style={[
-												isLastRow
-													? styles.moduleLastDataCell
-													: styles.moduleDataCell,
-												styles.moduleCodeDescCol,
-											]}
+											style={tw(
+												'w-[64%] p-[4pt] border-r border-solid border-gray-666 justify-center'
+											)}
 										>
-											<Text style={styles.moduleCode}>
+											<Text
+												style={tw('text-[9pt] font-bold mb-[2pt] text-black')}
+											>
 												{studentModule.semesterModule.module?.code || 'N/A'}
 											</Text>
-											<Text style={styles.moduleDescription}>
+											<Text style={tw('text-[8pt] text-black')}>
 												{studentModule.semesterModule.module?.name || 'N/A'}
 											</Text>
 										</View>
 										<View
-											style={[
-												isLastRow
-													? styles.moduleLastDataCell
-													: styles.moduleDataCell,
-												styles.moduleTypeCol,
-											]}
+											style={tw(
+												'w-[15%] p-[4pt] border-r border-solid border-gray-666 justify-center'
+											)}
 										>
-											<Text style={styles.moduleType}>
+											<Text style={tw('text-[9pt] text-center text-black')}>
 												{studentModule.semesterModule.type === 'Major'
 													? 'Major'
 													: 'Minor'}
 											</Text>
 										</View>
 										<View
-											style={[
-												isLastRow
-													? styles.moduleLastDataCell
-													: styles.moduleDataCell,
-												styles.moduleCreditsCol,
-											]}
+											style={tw(
+												'w-[15%] p-[4pt] border-r border-solid border-gray-666 justify-center'
+											)}
 										>
-											<Text style={styles.moduleCredits}>
+											<Text style={tw('text-[9pt] text-center text-black')}>
 												{studentModule.credits.toFixed(1)}
 											</Text>
 										</View>
@@ -435,15 +362,17 @@ export default function ProofOfRegistrationPDF({
 						)}
 					</View>
 
-					<View style={styles.creditsRow}>
-						<Text style={styles.creditsLabel}>
+					<View style={tw('flex-row justify-end mt-[8pt] mb-[25pt]')}>
+						<Text style={tw('text-[10pt] font-bold text-black')}>
 							Credits: {totalCredits.toFixed(1)}
 						</Text>
 					</View>
 				</View>
 
-				<View style={styles.footerSection}>
-					<Text style={styles.footerText}>
+				<View
+					style={tw('mt-[20pt] pt-[15pt] border-t border-solid border-black')}
+				>
+					<Text style={tw('text-[7pt] text-justify leading-[1.2] text-black')}>
 						Document ID: registration_{student.stdNo}_
 						{latestSemester.termCode.replace(/\s+/g, '_')}_
 						{formatDate(new Date()).replace(/\//g, '')} | This document serves
