@@ -20,7 +20,7 @@ export interface AttendanceReportFilter {
 	schoolIds?: number[];
 	programId?: number;
 	semesterNumber?: string;
-	semesterModuleId?: number;
+	weekNumber?: number;
 }
 
 export interface ClassAttendanceSummary {
@@ -281,10 +281,8 @@ export class AttendanceReportRepository {
 
 		const attendanceConditions = [eq(attendance.termId, term[0].id)];
 
-		if (filter.semesterModuleId) {
-			attendanceConditions.push(
-				eq(attendance.semesterModuleId, filter.semesterModuleId)
-			);
+		if (filter.weekNumber) {
+			attendanceConditions.push(eq(attendance.weekNumber, filter.weekNumber));
 		}
 
 		const attendanceRecords = await db
@@ -631,9 +629,6 @@ export class AttendanceReportRepository {
 				eq(structureSemesters.semesterNumber, filter.semesterNumber)
 			);
 		}
-		if (filter.semesterModuleId) {
-			conditions.push(eq(semesterModules.id, filter.semesterModuleId));
-		}
 
 		conditions.push(
 			inArray(studentSemesters.status, [
@@ -682,6 +677,11 @@ export class AttendanceReportRepository {
 				)
 			);
 
+		const attendanceConditions = [eq(attendance.termId, term[0].id)];
+		if (filter.weekNumber) {
+			attendanceConditions.push(eq(attendance.weekNumber, filter.weekNumber));
+		}
+
 		const attendanceRecords = await db
 			.select({
 				semesterModuleId: attendance.semesterModuleId,
@@ -689,7 +689,7 @@ export class AttendanceReportRepository {
 				status: attendance.status,
 			})
 			.from(attendance)
-			.where(eq(attendance.termId, term[0].id));
+			.where(and(...attendanceConditions));
 
 		const moduleAttendanceMap = new Map<
 			number,

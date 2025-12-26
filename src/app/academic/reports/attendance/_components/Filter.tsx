@@ -20,14 +20,12 @@ import {
 import { useEffect } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
-	getModulesForAttendanceReport,
 	getProgramsForAttendanceReport,
 	getSchoolsForAttendanceReport,
 	getTermsForAttendanceReport,
 } from '../_server/actions';
 
 type Term = { id: number; code: string };
-type Module = { id: number; moduleCode: string };
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString().padStart(2, '0');
@@ -37,12 +35,17 @@ const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	};
 });
 
+const weekOptions = Array.from({ length: 16 }, (_, i) => ({
+	value: (i + 1).toString(),
+	label: `Week ${i + 1}`,
+}));
+
 export interface AttendanceReportFilter {
 	termId?: number;
 	schoolIds?: number[];
 	programId?: number;
 	semesterNumber?: string;
-	semesterModuleId?: number;
+	weekNumber?: number;
 }
 
 type Props = {
@@ -56,7 +59,7 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 			schoolIds: parseAsArrayOf(parseAsInteger),
 			programId: parseAsInteger,
 			semesterNumber: parseAsString,
-			semesterModuleId: parseAsInteger,
+			weekNumber: parseAsInteger,
 		},
 		{
 			history: 'push',
@@ -73,7 +76,7 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 					: undefined,
 			programId: localFilter.programId ?? undefined,
 			semesterNumber: localFilter.semesterNumber ?? undefined,
-			semesterModuleId: localFilter.semesterModuleId ?? undefined,
+			weekNumber: localFilter.weekNumber ?? undefined,
 		};
 		onFilterChange(newFilter);
 	}, [localFilter, onFilterChange]);
@@ -106,22 +109,6 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});
 
-	const { data: modules = [], isLoading: modulesLoading } = useQuery<Module[]>({
-		queryKey: [
-			'attendance-report-modules',
-			localFilter.programId,
-			localFilter.semesterNumber,
-		],
-		queryFn: async () => {
-			const result = await getModulesForAttendanceReport(
-				localFilter.programId ?? undefined,
-				localFilter.semesterNumber ?? undefined
-			);
-			return result.success ? (result.data as Module[]) : [];
-		},
-		enabled: Boolean(localFilter.programId),
-	});
-
 	function handleChange(
 		field: string,
 		value: string | number | string[] | null
@@ -134,7 +121,6 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 			setLocalFilter({
 				schoolIds,
 				programId: null,
-				semesterModuleId: null,
 			});
 			return;
 		}
@@ -142,12 +128,6 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 		const updates: Record<string, number | string | null> = {
 			[field]: value as number | string | null,
 		};
-
-		if (field === 'programId') {
-			updates.semesterModuleId = null;
-		} else if (field === 'semesterNumber') {
-			updates.semesterModuleId = null;
-		}
 
 		setLocalFilter(updates);
 	}
@@ -232,20 +212,15 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 
 				<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
 					<Select
-						label='Module'
-						placeholder='All modules'
-						data={modules.map((mod) => ({
-							value: mod.id?.toString() || '',
-							label: mod.moduleCode,
-						}))}
-						rightSection={modulesLoading && <Loader size='xs' />}
-						value={localFilter.semesterModuleId?.toString() ?? null}
+						label='Week'
+						placeholder='All weeks'
+						data={weekOptions}
+						value={localFilter.weekNumber?.toString() ?? null}
 						onChange={(value) =>
-							handleChange('semesterModuleId', value ? Number(value) : null)
+							handleChange('weekNumber', value ? Number(value) : null)
 						}
 						searchable
 						clearable
-						disabled={!localFilter.programId}
 					/>
 				</Grid.Col>
 			</Grid>
