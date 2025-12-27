@@ -38,6 +38,7 @@ University student registration portal managing academic records, course registr
 
 ### UI Rules
 - Mantine-only styling (no custom CSS)
+- Modals must be self-contained (include their own trigger)
 - Optimize for dark mode
 - Provide very beautiful, professional, clean, minimalist design
 - Never hardcode colors - use `src/shared/lib/utils/colors.ts`
@@ -106,7 +107,8 @@ src/
 | Layer | Pattern | Example |
 |-------|---------|---------|
 | Table | `snake_case` plural | `semester_modules` |
-| Column | `camelCase` | `moduleId`, `createdAt` |
+| Column (TS) | `camelCase` | `moduleId`, `createdAt` |
+| Raw SQL | `snake_case` | `SELECT module_id FROM semester_modules` |
 | Schema export | `camelCase` plural | `export const semesterModules = pgTable(...)` |
 | Repository class | `PascalCase` + Repository | `SemesterModuleRepository` |
 | Service class | `PascalCase` + Service | `SemesterModuleService` |
