@@ -402,12 +402,8 @@ export default function ProofOfRegistrationPDF({
 					style={tw('mt-[20pt] pt-[15pt] border-t border-solid border-black')}
 				>
 					<Text style={tw('text-[7pt] text-justify leading-[1.2] text-black')}>
-						Document ID: registration_{student.stdNo}_
-						{latestSemester.termCode.replace(/\s+/g, '_')}_
-						{formatDate(new Date()).replace(/\//g, '')} | This document serves
-						as official proof of registration for the above student.
-						Registration processed through the official university system on{' '}
-						{formatDate(new Date())}.
+						This document serves as official proof of registration for the above
+						student. Generated on {formatDate(new Date())}.
 					</Text>
 				</View>
 			</Page>
