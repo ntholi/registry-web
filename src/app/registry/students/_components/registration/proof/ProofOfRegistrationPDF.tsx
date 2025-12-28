@@ -152,11 +152,11 @@ export default function ProofOfRegistrationPDF({
 					PROOF OF REGISTRATION
 				</Text>
 
-				<View style={tw('mb-[25pt] border-b border-solid border-gray-666')}>
-					<View style={tw('w-[100%] border border-solid border-gray-bd')}>
+				<View style={tw('mb-[25pt] border-b border-solid')}>
+					<View style={tw('w-[100%]')}>
 						<View
 							style={tw(
-								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+								'flex-row border-t border-l border-r border-solid border-gray-bd min-h-[22pt]'
 							)}
 						>
 							<View
@@ -174,7 +174,7 @@ export default function ProofOfRegistrationPDF({
 						</View>
 						<View
 							style={tw(
-								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+								'flex-row border-t border-l border-r border-solid border-gray-bd min-h-[22pt]'
 							)}
 						>
 							<View
@@ -192,7 +192,7 @@ export default function ProofOfRegistrationPDF({
 						</View>
 						<View
 							style={tw(
-								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+								'flex-row border-t border-l border-r border-solid border-gray-bd min-h-[22pt]'
 							)}
 						>
 							<View
@@ -210,7 +210,7 @@ export default function ProofOfRegistrationPDF({
 						</View>
 						<View
 							style={tw(
-								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+								'flex-row border-t border-l border-r border-solid border-gray-bd min-h-[22pt]'
 							)}
 						>
 							<View
@@ -226,7 +226,11 @@ export default function ProofOfRegistrationPDF({
 								<Text>{latestSemester.termCode}</Text>
 							</View>
 						</View>
-						<View style={tw('flex-row min-h-[22pt]')}>
+						<View
+							style={tw(
+								'flex-row border border-solid border-gray-bd min-h-[22pt]'
+							)}
+						>
 							<View
 								style={tw(
 									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
