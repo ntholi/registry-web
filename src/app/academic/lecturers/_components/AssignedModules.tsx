@@ -12,7 +12,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { toClassName } from '@/shared/lib/utils/utils';
+import { getStudentClassName } from '@/shared/lib/utils/utils';
 import DeleteModuleButton from './DeleteModuleButton';
 
 type Props = {
@@ -68,12 +68,9 @@ export default function AssignedModules({ user }: Props) {
 								{assignment.semesterModule?.module?.name || 'Unknown Module'}
 							</Text>
 
-							{assignment.semesterModule?.semester?.name && (
+							{assignment.semesterModule?.semester && (
 								<Badge variant='light' color='gray' size='sm'>
-									{toClassName(
-										assignment.semesterModule.semester.structure.program.code,
-										assignment.semesterModule.semester.name
-									)}
+									{getStudentClassName(assignment.semesterModule.semester)}
 								</Badge>
 							)}
 						</Stack>

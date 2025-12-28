@@ -16,7 +16,7 @@ import {
 } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import type useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
-import { formatSemester } from '@/shared/lib/utils/utils';
+import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { DeleteButton } from '@/shared/ui/adease';
 import { deleteTimetableAllocation } from '../_server/actions';
 import AddAllocationModal from './AddAllocationModal';
@@ -99,9 +99,7 @@ function toClassName(
 	groupName: string | null
 ) {
 	if (!semesterModule.semester) return 'Unknown';
-	const code = semesterModule.semester.structure?.program?.code;
-	const num = semesterModule.semester.semesterNumber;
-	return `${code}${formatSemester(num, 'mini')}${groupName ? `${groupName}` : ''}`;
+	return `${getStudentClassName(semesterModule.semester)}${groupName ? `${groupName}` : ''}`;
 }
 
 export default function AllocationTab({

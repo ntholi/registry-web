@@ -130,6 +130,15 @@ export function toClassName(programCode: string, semesterName: string) {
 	return `${programCode}Y${year}S${semester}`;
 }
 
+export function getStudentClassName(structureSemester: {
+	semesterNumber: string;
+	structure: { program: { code: string } };
+}) {
+	const code = structureSemester.structure.program.code;
+	const num = structureSemester.semesterNumber;
+	return `${code}${formatSemester(num, 'mini')}`;
+}
+
 export function formatPhoneNumber(phone: string | null | undefined) {
 	if (!phone) return null;
 

@@ -2,7 +2,7 @@
 
 import { Box, Card, Center, Stack, Table, Text } from '@mantine/core';
 import { type ClassType, getClassTypeColor } from '@/shared/lib/utils/colors';
-import { formatSemester } from '@/shared/lib/utils/utils';
+import { getStudentClassName } from '@/shared/lib/utils/utils';
 
 type SlotAllocation = {
 	slotId: number;
@@ -18,7 +18,7 @@ type SlotAllocation = {
 				name: string;
 			};
 			semester?: {
-				semesterNumber: string | number;
+				semesterNumber: string;
 				structure?: {
 					program: {
 						code: string;
@@ -82,7 +82,7 @@ const DAY_LABELS: Record<(typeof DAYS)[number], string> = {
 function toClassName(
 	semesterModule: {
 		semester?: {
-			semesterNumber: number | string;
+			semesterNumber: string;
 			structure?: {
 				program: {
 					code: string;
@@ -94,9 +94,7 @@ function toClassName(
 ) {
 	if (!semesterModule.semester || !semesterModule.semester.structure)
 		return 'Unknown';
-	const code = semesterModule.semester.structure.program.code;
-	const num = String(semesterModule.semester.semesterNumber);
-	return `${code}${formatSemester(num, 'mini')}${groupName ? `${groupName}` : ''}`;
+	return `${getStudentClassName(semesterModule.semester as { semesterNumber: string; structure: { program: { code: string } } })}${groupName ? `${groupName}` : ''}`;
 }
 
 type GroupedModule = {

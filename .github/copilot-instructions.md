@@ -21,6 +21,12 @@ University student registration portal managing academic records, course registr
 
 ## Project Guidelines
 
+### Domain Concepts
+- **Class**: Students in a program semester. ID: `[ProgramCode][SemesterMini]` (e.g., `DITY1S1`). Use `getStudentClassName(structureSemester)` from `@/shared/lib/utils/utils`.
+- **Term Code**: Formatted as `YYYY-MM` (e.g., `2025-02`).
+- **School/Faculty**: Interchangeable. Codebase uses **School**. Always translate "Faculty" to "School".
+- **Dates**: Always format as `YYYY-MM-DD`.
+
 ### Architecture
 - **Flow**: UI → Server Actions → Services → Repositories → DB
 - Only `repository.ts` files import `db` directly
@@ -38,6 +44,7 @@ University student registration portal managing academic records, course registr
 
 ### UI Rules
 - Mantine-only styling (no custom CSS)
+- Mantine Date components use string values and mantine calendars must start on Sunday.
 - Modals must be self-contained (include their own trigger)
 - Optimize for dark mode
 - Provide very beautiful, professional, clean, minimalist design
@@ -45,6 +52,7 @@ University student registration portal managing academic records, course registr
 - Never hardcode status icons - use `src/shared/lib/utils/status.tsx`
 - If there is *any* conditional/semantic color mapping (statuses, grades, module types, etc.), add/extend the mapping in `colors.ts` and consume it from features.
 - If there is *any* status icon mapping (status → icon, with optional color), add/extend it in `status.tsx` and consume it from features.
+
 
 ### Validation (MANDATORY FINAL STEP):
 When you are done, it is extremely important crucial that you run `pnpm tsc --noEmit & pnpm lint:fix` then fix the issues, run the same commands again until there are no issues.
