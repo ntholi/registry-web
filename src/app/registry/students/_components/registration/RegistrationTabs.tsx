@@ -14,8 +14,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { getStudentRegistrationHistory } from '@/app/registry/registration';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { getStudentRegistrationData } from '../../_server/actions';
 import RegistrationModal from './form/RegistrationModal';
 import ProofOfRegistrationPrinter from './proof/ProofOfRegistrationPrinter';
 import RequestsView from './RequestsView';
@@ -31,14 +31,18 @@ export default function RegistrationTabs({ stdNo, isActive = true }: Props) {
 	const { activeTerm } = useActiveTerm();
 	const { data: session } = useSession();
 
-	const { data: registrationRequests } = useQuery({
-		queryKey: ['registration-history', stdNo],
-		queryFn: () => getStudentRegistrationHistory(stdNo),
+	const { data: studentData } = useQuery({
+		queryKey: ['student-registration-data', stdNo],
+		queryFn: () => getStudentRegistrationData(stdNo),
 		enabled: isActive,
 	});
 
-	const hasActiveTermRegistration = registrationRequests?.some(
-		(request) => request.term.id === activeTerm?.id
+	const activeProgram = studentData?.programs?.find(
+		(p) => p.status === 'Active'
+	);
+	const hasActiveTermRegistration = activeProgram?.semesters?.some(
+		(semester) =>
+			semester.termCode === activeTerm?.code && semester.status === 'Active'
 	);
 
 	return (
