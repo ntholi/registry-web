@@ -42,7 +42,7 @@ export const registrationRequests = pgTable(
 		message: text(),
 		createdAt: timestamp().defaultNow(),
 		updatedAt: timestamp(),
-		dateApproved: timestamp(),
+		dateRegistered: timestamp(),
 	},
 	(table) => ({
 		uniqueRegistrationRequests: unique().on(table.stdNo, table.termId),
