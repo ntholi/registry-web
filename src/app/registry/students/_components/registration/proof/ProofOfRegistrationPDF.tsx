@@ -226,7 +226,11 @@ export default function ProofOfRegistrationPDF({
 								<Text>{latestSemester.termCode}</Text>
 							</View>
 						</View>
-						<View style={tw('flex-row min-h-[22pt]')}>
+						<View
+							style={tw(
+								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+							)}
+						>
 							<View
 								style={tw(
 									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
@@ -242,6 +246,48 @@ export default function ProofOfRegistrationPDF({
 										latestSemester.structureSemester?.semesterNumber,
 										'full'
 									)}
+								</Text>
+							</View>
+						</View>
+						<View
+							style={tw(
+								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
+							)}
+						>
+							<View
+								style={tw(
+									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
+								)}
+							>
+								<Text>Date Requested:</Text>
+							</View>
+							<View
+								style={tw('w-[75%] p-[8pt] justify-center text-[9pt] bg-white')}
+							>
+								<Text>
+									{latestSemester.registrationRequest?.createdAt
+										? formatDate(latestSemester.registrationRequest.createdAt)
+										: 'N/A'}
+								</Text>
+							</View>
+						</View>
+						<View style={tw('flex-row min-h-[22pt]')}>
+							<View
+								style={tw(
+									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
+								)}
+							>
+								<Text>Date Registered:</Text>
+							</View>
+							<View
+								style={tw('w-[75%] p-[8pt] justify-center text-[9pt] bg-white')}
+							>
+								<Text>
+									{latestSemester.registrationRequest?.dateRegistered
+										? formatDate(
+												latestSemester.registrationRequest.dateRegistered
+											)
+										: 'N/A'}
 								</Text>
 							</View>
 						</View>
@@ -285,7 +331,7 @@ export default function ProofOfRegistrationPDF({
 								)}
 							>
 								<Text style={tw('text-[9pt] font-bold text-white text-center')}>
-									Type
+									Status
 								</Text>
 							</View>
 							<View
@@ -342,9 +388,7 @@ export default function ProofOfRegistrationPDF({
 											)}
 										>
 											<Text style={tw('text-[9pt] text-center text-black')}>
-												{studentModule.semesterModule.type === 'Major'
-													? 'Major'
-													: 'Minor'}
+												{studentModule.status}
 											</Text>
 										</View>
 										<View

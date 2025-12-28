@@ -90,6 +90,13 @@ export default class StudentRepository extends BaseRepository<
 										semesterNumber: true,
 									},
 								},
+								registrationRequest: {
+									columns: {
+										id: true,
+										createdAt: true,
+										dateRegistered: true,
+									},
+								},
 								studentModules: {
 									columns: {
 										id: true,
@@ -171,6 +178,13 @@ export default class StudentRepository extends BaseRepository<
 								structureSemester: {
 									columns: {
 										semesterNumber: true,
+									},
+								},
+								registrationRequest: {
+									columns: {
+										id: true,
+										createdAt: true,
+										dateRegistered: true,
 									},
 								},
 								studentModules: {
