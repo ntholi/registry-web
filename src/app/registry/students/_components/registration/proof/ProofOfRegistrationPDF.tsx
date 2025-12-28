@@ -226,11 +226,7 @@ export default function ProofOfRegistrationPDF({
 								<Text>{latestSemester.termCode}</Text>
 							</View>
 						</View>
-						<View
-							style={tw(
-								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
-							)}
-						>
+						<View style={tw('flex-row min-h-[22pt]')}>
 							<View
 								style={tw(
 									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
@@ -246,48 +242,6 @@ export default function ProofOfRegistrationPDF({
 										latestSemester.structureSemester?.semesterNumber,
 										'full'
 									)}
-								</Text>
-							</View>
-						</View>
-						<View
-							style={tw(
-								'flex-row border-b border-solid border-gray-bd min-h-[22pt]'
-							)}
-						>
-							<View
-								style={tw(
-									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
-								)}
-							>
-								<Text>Date Requested:</Text>
-							</View>
-							<View
-								style={tw('w-[75%] p-[8pt] justify-center text-[9pt] bg-white')}
-							>
-								<Text>
-									{latestSemester.registrationRequest?.createdAt
-										? formatDate(latestSemester.registrationRequest.createdAt)
-										: 'N/A'}
-								</Text>
-							</View>
-						</View>
-						<View style={tw('flex-row min-h-[22pt]')}>
-							<View
-								style={tw(
-									'w-[25%] p-[8pt] font-bold border-r border-solid border-gray-bd justify-center text-[9pt]'
-								)}
-							>
-								<Text>Date Registered:</Text>
-							</View>
-							<View
-								style={tw('w-[75%] p-[8pt] justify-center text-[9pt] bg-white')}
-							>
-								<Text>
-									{latestSemester.registrationRequest?.dateRegistered
-										? formatDate(
-												latestSemester.registrationRequest.dateRegistered
-											)
-										: 'N/A'}
 								</Text>
 							</View>
 						</View>
@@ -406,9 +360,36 @@ export default function ProofOfRegistrationPDF({
 						)}
 					</View>
 
-					<View style={tw('flex-row justify-end mt-[8pt] mb-[25pt]')}>
+					<View style={tw('flex-row justify-end mt-[8pt]')}>
 						<Text style={tw('text-[10pt] font-bold text-black')}>
 							Credits: {totalCredits.toFixed(1)}
+						</Text>
+					</View>
+				</View>
+
+				<View
+					style={tw(
+						'flex-row justify-between mt-[15pt] pt-[12pt] border-t border-solid border-gray-bd'
+					)}
+				>
+					<View style={tw('flex-row')}>
+						<Text style={tw('text-[9pt] font-bold text-black')}>
+							Date Requested:{' '}
+						</Text>
+						<Text style={tw('text-[9pt] text-black')}>
+							{latestSemester.registrationRequest?.createdAt
+								? formatDate(latestSemester.registrationRequest.createdAt)
+								: 'N/A'}
+						</Text>
+					</View>
+					<View style={tw('flex-row')}>
+						<Text style={tw('text-[9pt] font-bold text-black')}>
+							Date Registered:{' '}
+						</Text>
+						<Text style={tw('text-[9pt] text-black')}>
+							{latestSemester.registrationRequest?.dateRegistered
+								? formatDate(latestSemester.registrationRequest.dateRegistered)
+								: 'N/A'}
 						</Text>
 					</View>
 				</View>
