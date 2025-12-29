@@ -235,7 +235,6 @@ export default function EditStudentModal({ student }: Props) {
 
 							<DateInput
 								label='Date of Birth'
-								firstDayOfWeek={0}
 								placeholder='Select date of birth'
 								clearable
 								mb='md'

@@ -145,14 +145,12 @@ export default function NotificationForm({
 							label='Visible From'
 							placeholder='Select start date and time'
 							required
-							firstDayOfWeek={0}
 							{...form.getInputProps('visibleFrom')}
 						/>
 						<DateTimePicker
 							label='Visible Until'
 							placeholder='Select end date and time'
 							required
-							firstDayOfWeek={0}
 							{...form.getInputProps('visibleUntil')}
 						/>
 					</Group>

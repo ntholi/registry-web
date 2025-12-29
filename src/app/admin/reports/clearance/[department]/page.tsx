@@ -105,7 +105,6 @@ export default function ClearanceReportsPage() {
 
 							<DatePickerInput
 								type='range'
-								firstDayOfWeek={0}
 								placeholder='Pick date range'
 								value={dateRange as [Date, Date]}
 								onChange={(value: DatesRangeValue) => {

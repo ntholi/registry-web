@@ -34,7 +34,6 @@ export default function SettingsPanel({ form }: SettingsPanelProps) {
 
 				<DateTimePicker
 					label='Available From'
-					firstDayOfWeek={0}
 					placeholder='Select date and time'
 					valueFormat='DD MMM YYYY HH:mm'
 					clearable
@@ -43,7 +42,6 @@ export default function SettingsPanel({ form }: SettingsPanelProps) {
 
 				<DateTimePicker
 					label='Due Date'
-					firstDayOfWeek={0}
 					placeholder='Select date and time'
 					valueFormat='DD MMM YYYY HH:mm'
 					withAsterisk
