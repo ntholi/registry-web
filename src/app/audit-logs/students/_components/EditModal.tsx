@@ -236,6 +236,7 @@ export default function EditStudentModal({ student }: Props) {
 							<DateInput
 								label='Date of Birth'
 								placeholder='Select date of birth'
+								valueFormat='YYYY-MM-DD'
 								clearable
 								mb='md'
 								{...form.getInputProps('dateOfBirth')}

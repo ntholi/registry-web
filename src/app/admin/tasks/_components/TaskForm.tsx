@@ -196,6 +196,7 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 							<DateInput
 								label='Due Date'
 								placeholder='Select due date'
+								valueFormat='YYYY-MM-DD'
 								clearable
 								value={
 									form.values.dueDate ? new Date(form.values.dueDate) : null
@@ -208,6 +209,7 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 							<DateInput
 								label='Scheduled Date'
 								placeholder='Select scheduled date'
+								valueFormat='YYYY-MM-DD'
 								clearable
 								value={
 									form.values.scheduledDate

@@ -28,7 +28,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 						settings={{
 							firstDayOfWeek: 0,
 							locale: 'en',
-							weekendDays: [0, 6],
 						}}
 					>
 						<Notifications />

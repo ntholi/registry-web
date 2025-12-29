@@ -35,7 +35,7 @@ export default function SettingsPanel({ form }: SettingsPanelProps) {
 				<DateTimePicker
 					label='Available From'
 					placeholder='Select date and time'
-					valueFormat='DD MMM YYYY HH:mm'
+					valueFormat='YYYY-MM-DD HH:mm'
 					clearable
 					{...form.getInputProps('availableFrom')}
 				/>
@@ -43,7 +43,7 @@ export default function SettingsPanel({ form }: SettingsPanelProps) {
 				<DateTimePicker
 					label='Due Date'
 					placeholder='Select date and time'
-					valueFormat='DD MMM YYYY HH:mm'
+					valueFormat='YYYY-MM-DD HH:mm'
 					withAsterisk
 					{...form.getInputProps('dueDate')}
 				/>

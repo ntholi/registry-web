@@ -324,6 +324,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 										<DateTimePicker
 											label='Start Date/Time'
 											placeholder='Select start date and time'
+											valueFormat='YYYY-MM-DD HH:mm'
 											clearable
 											{...form.getInputProps('startDateTime')}
 										/>
@@ -331,6 +332,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 										<DateTimePicker
 											label='End Date/Time'
 											placeholder='Select end date and time'
+											valueFormat='YYYY-MM-DD HH:mm'
 											clearable
 											minDate={form.values.startDateTime || undefined}
 											{...form.getInputProps('endDateTime')}
