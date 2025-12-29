@@ -2,6 +2,9 @@
 
 University student registration portal managing academic records, course registrations, and administrative workflows.
 
+> [!IMPORTANT]
+> Read this entire document before starting any task. Adhere to all guidelines strictly.
+
 ## Tech Stack
 
 ### Backend
@@ -41,6 +44,27 @@ University student registration portal managing academic records, course registr
 - No comments - code should be self-explanatory
 - Component order: Props type → constants → default export → private props type → private components
 - Use short identifier names
+- **File Naming**: Use `kebab-case` for all files and directories.
+- **Type Safety**: Avoid `any` at all costs. Use `interface` for object definitions and `type` for unions/intersections and props.
+
+### React & Next.js Patterns
+- **Server Components**: Favor React Server Components (RSC) by default. Use `'use client'` only for small leaf components requiring interactivity.
+- **Server Actions**: Use Server Actions for all mutations.
+- **Data Fetching**: Use async/await in RSC for initial data load. Use TanStack Query for client-side state and re-fetching.
+- **Forms**: Use the `Form` component from `@/shared/ui/adease/` which integrates with TanStack Query.
+
+### Error Handling & Validation
+- **Validation**: Use Zod for all input validation (schemas should live in `_lib/types.ts` or near the form).
+- **Early Returns**: Use guard clauses and early returns to reduce nesting.
+- **Action Results**: Return a consistent `{ data, error }` or `{ success, message }` object from Server Actions.
+
+### Negative Constraints
+- **Never** use `useEffect` for data fetching; use TanStack Query or RSC.
+- **Never** use `any` or `unknown` unless absolutely necessary; prefer strict typing.
+- **Never** use arrow functions for top-level exports.
+- **Never** use custom CSS or Tailwind; use Mantine v8 components only.
+- **Never** use the `pages` router; use the `app` router exclusively.
+- **Never** import `db` outside of `repository.ts` files.
 
 ### UI Rules
 - Mantine-only styling (no custom CSS)
@@ -56,6 +80,12 @@ University student registration portal managing academic records, course registr
 
 ### Validation (MANDATORY FINAL STEP):
 When you are done, it is extremely important crucial that you run `pnpm tsc --noEmit & pnpm lint:fix` then fix the issues, run the same commands again until there are no issues.
+
+## Communication Style
+- Be concise, technical, and professional.
+- Avoid conversational filler ("Sure", "I can help with that").
+- If a request violates project guidelines, explain why and suggest the correct approach.
+- Always provide the full file path when mentioning files.
 
 ## Project Structure
 

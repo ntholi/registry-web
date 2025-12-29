@@ -51,7 +51,6 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 					/>
 					<DateInput
 						label='Start Date'
-						valueFormat='YYYY-MM-DD'
 						value={form.values.startDate}
 						onChange={(date) =>
 							form.setFieldValue('startDate', formatDate(date))
@@ -60,7 +59,6 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 					/>
 					<DateInput
 						label='End Date'
-						valueFormat='YYYY-MM-DD'
 						value={form.values.endDate}
 						onChange={(date) => form.setFieldValue('endDate', formatDate(date))}
 						error={form.errors.endDate}

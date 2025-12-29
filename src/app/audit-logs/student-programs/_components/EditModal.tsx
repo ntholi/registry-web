@@ -264,14 +264,12 @@ export default function EditStudentProgramModal({ program }: Props) {
 										label='Intake Date'
 										placeholder='Select intake date'
 										clearable
-										valueFormat='YYYY-MM-DD'
 										{...form.getInputProps('intakeDate')}
 									/>
 									<DateInput
 										label='Registration Date'
 										placeholder='Select registration date'
 										clearable
-										valueFormat='YYYY-MM-DD'
 										{...form.getInputProps('regDate')}
 									/>
 								</Group>
@@ -292,7 +290,6 @@ export default function EditStudentProgramModal({ program }: Props) {
 									label='Graduation Date'
 									placeholder='Select graduation date'
 									clearable
-									valueFormat='YYYY-MM-DD'
 									{...form.getInputProps('graduationDate')}
 								/>
 							</Stack>

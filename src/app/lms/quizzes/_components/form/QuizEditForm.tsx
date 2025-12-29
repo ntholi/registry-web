@@ -480,7 +480,6 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 										<DateTimePicker
 											label='Open Date'
 											placeholder='Select when the quiz opens'
-											valueFormat='YYYY-MM-DD HH:mm'
 											clearable
 											{...form.getInputProps('timeopen')}
 										/>
@@ -488,7 +487,6 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 										<DateTimePicker
 											label='Close Date'
 											placeholder='Select when the quiz closes'
-											valueFormat='YYYY-MM-DD HH:mm'
 											clearable
 											{...form.getInputProps('timeclose')}
 										/>

@@ -106,7 +106,6 @@ export default function ClearanceReportsPage() {
 							<DatePickerInput
 								type='range'
 								placeholder='Pick date range'
-								valueFormat='YYYY-MM-DD'
 								value={dateRange as [Date, Date]}
 								onChange={(value: DatesRangeValue) => {
 									setDateRange(value as [Date | null, Date | null]);

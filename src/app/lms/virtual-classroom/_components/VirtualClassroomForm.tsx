@@ -160,14 +160,12 @@ export default function VirtualClassroomForm({
 							<DateTimePicker
 								label='Opening Time'
 								placeholder='Select opening time (optional)'
-								valueFormat='YYYY-MM-DD HH:mm'
 								clearable
 								{...form.getInputProps('openingtime')}
 							/>
 							<DateTimePicker
 								label='Closing Time'
 								placeholder='Select closing time (optional)'
-								valueFormat='YYYY-MM-DD HH:mm'
 								clearable
 								{...form.getInputProps('closingtime')}
 							/>

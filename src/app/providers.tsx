@@ -1,14 +1,40 @@
 'use client';
 
-import { MantineProvider } from '@mantine/core';
+import { createTheme, MantineProvider } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { SessionProvider } from 'next-auth/react';
 import NextTopLoader from 'nextjs-toploader';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import type React from 'react';
+
+dayjs.extend(customParseFormat);
+
+const theme = createTheme({
+	components: {
+		DateInput: {
+			defaultProps: {
+				valueFormat: 'YYYY-MM-DD',
+				dateParser: (value: string) =>
+					dayjs(value, 'YYYY-MM-DD', true).toDate(),
+			},
+		},
+		DateTimePicker: {
+			defaultProps: {
+				valueFormat: 'YYYY-MM-DD HH:mm',
+			},
+		},
+		DatePickerInput: {
+			defaultProps: {
+				valueFormat: 'YYYY-MM-DD',
+			},
+		},
+	},
+});
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -23,7 +49,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 	return (
 		<SessionProvider>
 			<QueryClientProvider client={queryClient}>
-				<MantineProvider defaultColorScheme='dark'>
+				<MantineProvider theme={theme} defaultColorScheme='dark'>
 					<DatesProvider
 						settings={{
 							firstDayOfWeek: 0,

@@ -55,7 +55,6 @@ export default function GraduationForm({
 				<>
 					<DateInput
 						label='Graduation Date'
-						valueFormat='YYYY-MM-DD'
 						value={parseDate(form.values.graduationDate)}
 						onChange={(date) =>
 							form.setFieldValue('graduationDate', formatDate(date))

@@ -144,14 +144,12 @@ export default function NotificationForm({
 						<DateTimePicker
 							label='Visible From'
 							placeholder='Select start date and time'
-							valueFormat='YYYY-MM-DD HH:mm'
 							required
 							{...form.getInputProps('visibleFrom')}
 						/>
 						<DateTimePicker
 							label='Visible Until'
 							placeholder='Select end date and time'
-							valueFormat='YYYY-MM-DD HH:mm'
 							required
 							{...form.getInputProps('visibleUntil')}
 						/>

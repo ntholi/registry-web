@@ -45,7 +45,6 @@ export default function StudentForm({ onSubmit, defaultValues, title }: Props) {
 					<TextInput label='Religion' {...form.getInputProps('religion')} />
 					<DateInput
 						label='Date of Birth'
-						valueFormat='YYYY-MM-DD'
 						{...form.getInputProps('dateOfBirth')}
 					/>
 					<Select
