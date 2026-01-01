@@ -4,6 +4,7 @@ import {
 	Badge,
 	Card,
 	Group,
+	Skeleton,
 	Stack,
 	Tabs,
 	TabsList,
@@ -31,7 +32,7 @@ export default function RegistrationTabs({ stdNo, isActive = true }: Props) {
 	const { activeTerm } = useActiveTerm();
 	const { data: session } = useSession();
 
-	const { data: studentData } = useQuery({
+	const { data: studentData, isLoading } = useQuery({
 		queryKey: ['student-registration-data', stdNo],
 		queryFn: () => getStudentRegistrationData(stdNo),
 		enabled: isActive,
@@ -47,35 +48,47 @@ export default function RegistrationTabs({ stdNo, isActive = true }: Props) {
 
 	return (
 		<Stack>
-			{activeTerm && (
+			{isLoading ? (
 				<Card withBorder p='md'>
 					<Group justify='space-between' align='center'>
 						<Stack gap={4}>
-							<Group gap='xs'>
-								<Text size='sm' fw={500}>
-									{activeTerm.code}
-								</Text>
-								{hasActiveTermRegistration && (
-									<Badge size='xs' variant='light' color='green'>
-										Registered
-									</Badge>
-								)}
-							</Group>
-							<Text size='xs' c='dimmed'>
-								{hasActiveTermRegistration
-									? 'Student is registered for the current term'
-									: 'Create a registration request for this student'}
-							</Text>
+							<Skeleton height={16} width={60} />
+							<Skeleton height={12} width={200} />
 						</Stack>
-						{hasActiveTermRegistration ? (
-							<ProofOfRegistrationPrinter stdNo={stdNo} />
-						) : (
-							['registry', 'admin'].includes(session?.user?.role ?? '') && (
-								<RegistrationModal stdNo={stdNo} />
-							)
-						)}
+						<Skeleton height={36} width={120} />
 					</Group>
 				</Card>
+			) : (
+				activeTerm && (
+					<Card withBorder p='md'>
+						<Group justify='space-between' align='center'>
+							<Stack gap={4}>
+								<Group gap='xs'>
+									<Text size='sm' fw={500}>
+										{activeTerm.code}
+									</Text>
+									{hasActiveTermRegistration && (
+										<Badge size='xs' variant='light' color='green'>
+											Registered
+										</Badge>
+									)}
+								</Group>
+								<Text size='xs' c='dimmed'>
+									{hasActiveTermRegistration
+										? 'Student is registered for the current term'
+										: 'Create a registration request for this student'}
+								</Text>
+							</Stack>
+							{hasActiveTermRegistration ? (
+								<ProofOfRegistrationPrinter stdNo={stdNo} />
+							) : (
+								['registry', 'admin'].includes(session?.user?.role ?? '') && (
+									<RegistrationModal stdNo={stdNo} />
+								)
+							)}
+						</Group>
+					</Card>
+				)
 			)}
 
 			<Tabs value={activeTab} onChange={setActiveTab} variant='default'>
