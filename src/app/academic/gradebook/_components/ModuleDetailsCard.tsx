@@ -2,16 +2,15 @@
 
 import type { getAssignedModuleByUserAndModule } from '@academic/assigned-modules';
 import {
-	Badge,
-	Flex,
+	Box,
+	Divider,
 	Group,
 	Paper,
 	Select,
-	Stack,
 	Text,
-	Title,
+	ThemeIcon,
 } from '@mantine/core';
-import { IconBook } from '@tabler/icons-react';
+import { IconBook2, IconSchool } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
@@ -95,68 +94,76 @@ export default function ModuleDetailsCard({
 		return program.name || 'All Programs';
 	}, [program, modules]);
 
+	const moduleData = modules.at(0)?.semesterModule?.module;
+
 	return (
-		<Paper withBorder radius='md' shadow='sm' p='lg' mb='lg'>
-			<Stack gap='md'>
-				<Group justify='space-between' align='flex-start' wrap='nowrap'>
-					<Title order={3} fw={600}>
-						{modules.at(0)?.semesterModule?.module?.name}
-					</Title>
-					<Select
-						size='sm'
-						placeholder='Filter by program'
-						data={moduleOptions}
-						value={programId || ''}
-						onChange={(value) => setProgramId(value === '' ? null : value)}
-						clearable
-						w={220}
-					/>
+		<Paper withBorder radius='md' p='md' mb='md'>
+			<Group justify='space-between' align='center' wrap='nowrap'>
+				<Group gap='md' wrap='nowrap'>
+					<ThemeIcon size='xl' radius='md' variant='light' color='blue'>
+						<IconBook2 size={22} stroke={1.5} />
+					</ThemeIcon>
+					<Box>
+						<Text fw={600} size='lg' lh={1.2}>
+							{moduleData?.name}
+						</Text>
+						<Text size='xs' c='dimmed' ff='monospace'>
+							{moduleData?.code}
+						</Text>
+					</Box>
 				</Group>
 
-				<Flex justify='space-between' align='center' gap='sm'>
-					<Group>
-						<Badge
-							radius={'sm'}
-							variant='light'
-							color='gray'
-							size='lg'
-							ff='monospace'
-						>
-							{modules.at(0)?.semesterModule?.module?.code}
-						</Badge>
-						<Group gap={6}>
-							<IconBook size={16} stroke={1.5} />
-							<Text size='sm' c='dimmed'>
-								{program?.name || 'All Programs'}
-							</Text>
-						</Group>
-					</Group>
-					<Group gap='sm'>
-						{assessments && assessments.length > 0 && (
-							<ExcelImport
-								moduleId={moduleId}
-								semesterModuleIds={modules.map((m) => m.semesterModuleId)}
-								assessments={assessments.map((a) => ({
-									id: a.id,
-									assessmentType: a.assessmentType,
-									assessmentNumber: a.assessmentNumber,
-									totalMarks: a.totalMarks,
-									weight: a.weight,
-								}))}
-							/>
-						)}
-						<ExportButton
+				<Select
+					size='sm'
+					variant='filled'
+					placeholder='Filter by class'
+					data={moduleOptions}
+					value={programId || ''}
+					onChange={(value) => setProgramId(value === '' ? null : value)}
+					clearable
+					w={188}
+				/>
+			</Group>
+
+			<Divider my='sm' />
+
+			<Group justify='space-between' align='center'>
+				<Group gap='xs'>
+					<IconSchool
+						size={16}
+						stroke={1.5}
+						color='var(--mantine-color-dimmed)'
+					/>
+					<Text size='sm' c='dimmed'>
+						{program?.name || 'All Programs'}
+					</Text>
+				</Group>
+
+				<Group gap='xs'>
+					{assessments && assessments.length > 0 && (
+						<ExcelImport
 							moduleId={moduleId}
 							semesterModuleIds={modules.map((m) => m.semesterModuleId)}
-							moduleName={modules.at(0)?.semesterModule?.module?.name}
-							moduleCode={modules.at(0)?.semesterModule?.module?.code}
-							lecturerName={session?.user?.name || 'Unknown Lecturer'}
-							termCode={activeTerm?.code}
-							className={className}
+							assessments={assessments.map((a) => ({
+								id: a.id,
+								assessmentType: a.assessmentType,
+								assessmentNumber: a.assessmentNumber,
+								totalMarks: a.totalMarks,
+								weight: a.weight,
+							}))}
 						/>
-					</Group>
-				</Flex>
-			</Stack>
+					)}
+					<ExportButton
+						moduleId={moduleId}
+						semesterModuleIds={modules.map((m) => m.semesterModuleId)}
+						moduleName={moduleData?.name}
+						moduleCode={moduleData?.code}
+						lecturerName={session?.user?.name || 'Unknown Lecturer'}
+						termCode={activeTerm?.code}
+						className={className}
+					/>
+				</Group>
+			</Group>
 		</Paper>
 	);
 }
