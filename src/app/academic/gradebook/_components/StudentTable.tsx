@@ -4,6 +4,7 @@ import {
 	Center,
 	CloseButton,
 	Group,
+	Paper,
 	Skeleton,
 	Stack,
 	Table,
@@ -365,31 +366,33 @@ export default function StudentTable({ moduleId, semesterModuleIds }: Props) {
 		});
 	}
 	return (
-		<Stack gap='md'>
-			<Group justify='space-between' align='center' wrap='nowrap'>
-				<TextInput
-					placeholder='Search by name or student number'
-					value={searchQuery}
-					onChange={(event) => setSearchQuery(event.currentTarget.value)}
-					style={{ flex: 1, maxWidth: 400 }}
-					rightSection={
-						searchQuery ? (
-							<CloseButton
-								onClick={() => setSearchQuery('')}
-								variant='subtle'
-								size='sm'
-							/>
-						) : null
-					}
-					leftSection={<IconSearch size='1rem' />}
-				/>
-				{!studentsLoading && studentsData && (
-					<Text size='sm' c='dimmed'>
-						{sortedStudents.length} student
-						{sortedStudents.length !== 1 ? 's' : ''}
-					</Text>
-				)}
-			</Group>
+		<Stack gap='xs'>
+			<Paper p={'md'} withBorder>
+				<Group justify='space-between' align='center' wrap='nowrap'>
+					<TextInput
+						placeholder='Search by name or student number'
+						value={searchQuery}
+						onChange={(event) => setSearchQuery(event.currentTarget.value)}
+						style={{ flex: 1, maxWidth: 400 }}
+						rightSection={
+							searchQuery ? (
+								<CloseButton
+									onClick={() => setSearchQuery('')}
+									variant='subtle'
+									size='sm'
+								/>
+							) : null
+						}
+						leftSection={<IconSearch size='1rem' />}
+					/>
+					{!studentsLoading && studentsData && (
+						<Text size='sm' c='dimmed'>
+							{sortedStudents.length} student
+							{sortedStudents.length !== 1 ? 's' : ''}
+						</Text>
+					)}
+				</Group>
+			</Paper>
 
 			<Table highlightOnHover withTableBorder>
 				<Table.Thead>{renderTableHeaders()}</Table.Thead>
