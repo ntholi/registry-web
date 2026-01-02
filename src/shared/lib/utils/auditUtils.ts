@@ -82,14 +82,3 @@ export function generateAssessmentAuditMessage(
 			return 'Assessment modified';
 	}
 }
-
-export function formatAuditDate(date: Date) {
-	return new Intl.DateTimeFormat('en-US', {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: true,
-	}).format(date);
-}

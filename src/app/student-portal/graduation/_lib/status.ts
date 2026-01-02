@@ -41,18 +41,3 @@ export function getGraduationStatus(graduation: {
 
 	return 'pending';
 }
-
-export function getRegistrationOverallClearanceStatus(registration: {
-	clearances: { clearance: { status: RegistrationStatus } }[];
-	status: RegistrationStatus;
-}) {
-	const baseStatus = getClearanceStatus(registration.clearances);
-	if (baseStatus === 'approved' && registration.status === 'registered') {
-		return 'registered';
-	}
-	if (baseStatus === 'pending' && registration.status === 'partial') {
-		return 'partial';
-	}
-
-	return baseStatus as RegistrationStatus;
-}

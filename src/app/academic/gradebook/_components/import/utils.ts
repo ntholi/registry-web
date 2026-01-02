@@ -45,19 +45,6 @@ export function columnIndexToLetter(index: number): string {
 	return result;
 }
 
-export function isNumericValue(value: string | number | unknown): boolean {
-	if (typeof value === 'number') {
-		return !Number.isNaN(value) && Number.isFinite(value);
-	}
-
-	if (typeof value === 'string') {
-		const num = parseFloat(value.replace(/\s/g, ''));
-		return !Number.isNaN(num) && Number.isFinite(num);
-	}
-
-	return false;
-}
-
 export function parseNumericValue(
 	value: string | number | unknown
 ): number | null {

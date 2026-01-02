@@ -41,14 +41,6 @@ export const moduleConfig = {
 	auditLogs: isModuleEnabled('audit-logs'),
 };
 
-export function getEnabledModules(): ModuleKey[] {
-	return (Object.keys(moduleEnvKeys) as ModuleKey[]).filter(isModuleEnabled);
-}
-
-export function checkModuleAccess(moduleKey: ModuleKey): boolean {
-	return isModuleEnabled(moduleKey);
-}
-
 export function getModuleConfig() {
 	return {
 		academic: moduleConfig.academic,

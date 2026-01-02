@@ -120,7 +120,3 @@ export async function updateGradeByStudentModuleId(
 		weightedTotal
 	);
 }
-
-export async function deleteSemesterModule(id: number) {
-	return semesterModulesService.deleteSemesterModule(id);
-}
