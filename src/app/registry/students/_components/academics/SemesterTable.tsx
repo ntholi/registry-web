@@ -22,6 +22,7 @@ import {
 } from '@/shared/lib/utils/colors';
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
 import { formatSemester, isActiveModule } from '@/shared/lib/utils/utils';
+import AssessmentMarksModal from './AssessmentMarksModal';
 
 type ModuleTableProps = {
 	modules: {
@@ -60,6 +61,13 @@ export default function SemesterTable({
 
 	const canEdit =
 		session?.user?.role === 'registry' || session?.user?.role === 'admin';
+
+	const canViewAssessmentMarks =
+		session?.user?.role === 'admin' ||
+		(session?.user?.role === 'registry' &&
+			session?.user?.position === 'manager') ||
+		(session?.user?.role === 'academic' &&
+			session?.user?.position === 'manager');
 
 	const getModulesWithFailHistory = (moduleCode: string) => {
 		if (!allSemesters) return false;
@@ -284,9 +292,19 @@ export default function SemesterTable({
 								</Table.Td>
 								{showMarks && (
 									<Table.Td>
-										<Text size='sm' c={getOptionalColor(isDroppedOrDeleted)}>
-											{module.marks}
-										</Text>
+										{canViewAssessmentMarks ? (
+											<AssessmentMarksModal
+												studentModuleId={module.id}
+												moduleCode={module.code}
+												moduleName={module.name}
+												totalMarks={module.marks}
+												isDroppedOrDeleted={isDroppedOrDeleted}
+											/>
+										) : (
+											<Text size='sm' c={getOptionalColor(isDroppedOrDeleted)}>
+												{module.marks}
+											</Text>
+										)}
 									</Table.Td>
 								)}
 								<Table.Td>

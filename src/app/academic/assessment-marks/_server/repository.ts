@@ -67,6 +67,23 @@ export default class AssessmentMarkRepository extends BaseRepository<
 		});
 	}
 
+	async findByStudentModuleIdWithDetails(studentModuleId: number) {
+		return db.query.assessmentMarks.findMany({
+			where: eq(assessmentMarks.studentModuleId, studentModuleId),
+			with: {
+				assessment: {
+					columns: {
+						id: true,
+						assessmentNumber: true,
+						assessmentType: true,
+						totalMarks: true,
+						weight: true,
+					},
+				},
+			},
+		});
+	}
+
 	async getAssessmentsByModuleId(moduleId: number, termId: number) {
 		return db.query.assessments.findMany({
 			where: and(

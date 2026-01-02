@@ -123,3 +123,9 @@ export async function calculateAndSaveModuleGrade(
 export async function getMarksAudit(studentModuleId: number) {
 	return service.getStudentAuditHistory(studentModuleId);
 }
+
+export async function getAssessmentMarksByStudentModuleId(
+	studentModuleId: number
+) {
+	return service.getByStudentModuleIdWithDetails(studentModuleId);
+}

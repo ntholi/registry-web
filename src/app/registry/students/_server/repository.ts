@@ -27,8 +27,8 @@ import {
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
-import type { StudentFilter } from './actions';
 import { INACTIVE_SEMESTER_STATUSES } from '@/shared/lib/utils/utils';
+import type { StudentFilter } from './actions';
 
 export default class StudentRepository extends BaseRepository<
 	typeof students,

@@ -51,6 +51,14 @@ class AssessmentMarkService {
 		);
 	}
 
+	async getByStudentModuleIdWithDetails(studentModuleId: number) {
+		return withAuth(
+			async () =>
+				this.repository.findByStudentModuleIdWithDetails(studentModuleId),
+			['academic', 'registry', 'admin']
+		);
+	}
+
 	async getAssessmentsByModuleId(moduleId: number, termId: number) {
 		return withAuth(
 			async () => this.repository.getAssessmentsByModuleId(moduleId, termId),
