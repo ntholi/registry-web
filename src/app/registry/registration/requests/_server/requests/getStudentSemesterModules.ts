@@ -12,6 +12,7 @@ import {
 	semesterModules,
 	structureSemesters,
 } from '@/core/database';
+import { isActiveSemester } from '@/shared/lib/utils/utils';
 
 type ModuleWithStatus = {
 	semesterModuleId: number;
@@ -73,7 +74,7 @@ export async function getStudentSemesterModulesLogic(
 	const attemptedModules = new Set(
 		student.programs
 			.flatMap((p) => p.semesters)
-			.filter((s) => s.status !== 'Deleted')
+			.filter((s) => isActiveSemester(s.status))
 			.flatMap((s) => s.studentModules)
 			.filter((m) => m.status !== 'Drop' && m.status !== 'Delete')
 			.map((m) => m.semesterModule.module?.name)

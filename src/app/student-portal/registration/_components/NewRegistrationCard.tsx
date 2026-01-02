@@ -16,6 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { isActiveSemester } from '@/shared/lib/utils/utils';
 
 export default function NewRegistrationCard() {
 	const { student, isLoading: studentLoading } = useUserStudent();
@@ -27,9 +28,7 @@ export default function NewRegistrationCard() {
 			.some(
 				(semester) =>
 					semester.termCode === activeTerm?.code &&
-					!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
-						semester.status
-					)
+					isActiveSemester(semester.status)
 			) || false;
 
 	const shouldFetchData = !!student?.stdNo && !hasExistingSemester;

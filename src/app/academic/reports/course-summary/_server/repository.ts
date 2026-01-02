@@ -9,6 +9,7 @@ import {
 	terms,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
+import { isActiveSemester } from '@/shared/lib/utils/utils';
 
 export interface StudentModuleReport {
 	studentId: number;
@@ -111,9 +112,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 				sm.studentSemester &&
 				sm.studentSemester.termCode === termCode &&
 				!['Delete', 'Drop'].includes(sm.status) &&
-				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
-					sm.studentSemester.status
-				)
+				isActiveSemester(sm.studentSemester.status)
 		);
 
 		if (programFilter) {
@@ -262,9 +261,7 @@ export default class CourseSummaryRepository extends BaseRepository<
 				sm.studentSemester &&
 				sm.studentSemester.termCode === termCode &&
 				!['Delete', 'Drop'].includes(sm.status) &&
-				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(
-					sm.studentSemester.status
-				)
+				isActiveSemester(sm.studentSemester.status)
 		);
 
 		if (programFilter) {

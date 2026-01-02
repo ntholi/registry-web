@@ -23,7 +23,7 @@ import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
-import { formatSemester } from '@/shared/lib/utils/utils';
+import { formatSemester, isActiveSemester } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import {
 	determineSemesterStatus,
@@ -281,7 +281,7 @@ export default function RegistrationRequestForm({
 							if (student) {
 								const allStudentModules = student.programs
 									.flatMap((p) => p.semesters)
-									.filter((s) => s.status !== 'Deleted')
+									.filter((s) => isActiveSemester(s.status))
 									.flatMap((s) => s.studentModules)
 									.filter((m) => m.status !== 'Drop' && m.status !== 'Delete');
 

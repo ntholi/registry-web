@@ -1,5 +1,6 @@
 import { getVisibleModulesForStructure } from '@academic/semester-modules';
 import type { grade } from '@/core/database';
+import { isActiveSemester } from '../utils';
 import type { GradePoint, Program, StudentModule } from './type';
 
 export type GradeDefinition = {
@@ -440,10 +441,7 @@ function extractData(_programs: Program[]) {
 	}
 	const semesters = programs[0].semesters || [];
 	const filtered = [...semesters]
-		.filter(
-			(s) =>
-				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(s.status)
-		)
+		.filter((s) => isActiveSemester(s.status))
 		.sort((a, b) => a.id - b.id);
 
 	const studentModules = filtered

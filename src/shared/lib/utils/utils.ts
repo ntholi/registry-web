@@ -1,3 +1,17 @@
+import type { SemesterStatus } from '@registry/_database';
+
+export const INACTIVE_SEMESTER_STATUSES: SemesterStatus[] = [
+	'Deleted',
+	'Deferred',
+	'DroppedOut',
+	'Withdrawn',
+	'Inactive',
+];
+
+export function isActiveSemester(status: SemesterStatus): boolean {
+	return !INACTIVE_SEMESTER_STATUSES.includes(status);
+}
+
 export function formatDate(
 	timestamp: number | Date | undefined | null,
 	type: 'long' | 'short' | 'numeric' = 'long'

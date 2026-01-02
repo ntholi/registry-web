@@ -1,4 +1,4 @@
-import { and, eq, inArray, ne, notInArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, notInArray, sql } from 'drizzle-orm';
 import {
 	db,
 	programs,
@@ -10,7 +10,10 @@ import {
 	students,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
-import { compareSemesters } from '@/shared/lib/utils/utils';
+import {
+	compareSemesters,
+	INACTIVE_SEMESTER_STATUSES,
+} from '@/shared/lib/utils/utils';
 
 export interface BoeFilter {
 	termId: number;
@@ -113,7 +116,7 @@ export default class BoeReportRepository extends BaseRepository<
 		const semesterConditions = [
 			eq(studentSemesters.termCode, term.code),
 			inArray(studentSemesters.studentProgramId, studentProgramIds),
-			ne(studentSemesters.status, 'Deleted'),
+			notInArray(studentSemesters.status, INACTIVE_SEMESTER_STATUSES),
 		];
 
 		if (semesterNumber) {
@@ -198,7 +201,7 @@ export default class BoeReportRepository extends BaseRepository<
 			.where(
 				and(
 					eq(studentSemesters.termCode, term.code),
-					ne(studentSemesters.status, 'Deleted'),
+					notInArray(studentSemesters.status, INACTIVE_SEMESTER_STATUSES),
 					inArray(schools.id, schoolIds),
 					programId ? eq(programs.id, programId) : undefined,
 					semesterNumber
@@ -281,7 +284,7 @@ export default class BoeReportRepository extends BaseRepository<
 								)
 							)
 					),
-					ne(studentSemesters.status, 'Deleted')
+					notInArray(studentSemesters.status, INACTIVE_SEMESTER_STATUSES)
 				),
 				with: {
 					structureSemester: true,
