@@ -129,3 +129,9 @@ export async function getAssessmentMarksByStudentModuleId(
 ) {
 	return service.getByStudentModuleIdWithDetails(studentModuleId);
 }
+
+export async function getAllAssessmentsWithMarksByStudentModuleId(
+	studentModuleId: number
+) {
+	return service.getAllAssessmentsWithMarksByStudentModuleId(studentModuleId);
+}

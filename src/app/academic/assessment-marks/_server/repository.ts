@@ -5,6 +5,8 @@ import {
 	assessmentMarksAudit,
 	assessments,
 	db,
+	studentModules,
+	terms,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -81,6 +83,65 @@ export default class AssessmentMarkRepository extends BaseRepository<
 					},
 				},
 			},
+		});
+	}
+
+	async findAllAssessmentsWithMarksByStudentModuleId(studentModuleId: number) {
+		const studentModule = await db.query.studentModules.findFirst({
+			where: eq(studentModules.id, studentModuleId),
+			with: {
+				semesterModule: {
+					columns: { moduleId: true },
+				},
+				studentSemester: {
+					columns: { termCode: true },
+				},
+			},
+		});
+
+		if (!studentModule?.semesterModule?.moduleId) {
+			return [];
+		}
+
+		const term = await db.query.terms.findFirst({
+			where: eq(terms.code, studentModule.studentSemester.termCode),
+			columns: { id: true },
+		});
+
+		if (!term) {
+			return [];
+		}
+
+		const moduleId = studentModule.semesterModule.moduleId;
+		const termId = term.id;
+
+		const allAssessments = await db.query.assessments.findMany({
+			where: and(
+				eq(assessments.moduleId, moduleId),
+				eq(assessments.termId, termId)
+			),
+			orderBy: (assessments, { asc }) => [asc(assessments.assessmentNumber)],
+		});
+
+		const marks = await db.query.assessmentMarks.findMany({
+			where: eq(assessmentMarks.studentModuleId, studentModuleId),
+		});
+
+		const marksMap = new Map(marks.map((m) => [m.assessmentId, m]));
+
+		return allAssessments.map((assessment) => {
+			const mark = marksMap.get(assessment.id);
+			return {
+				assessment: {
+					id: assessment.id,
+					assessmentNumber: assessment.assessmentNumber,
+					assessmentType: assessment.assessmentType,
+					totalMarks: assessment.totalMarks,
+					weight: assessment.weight,
+				},
+				marks: mark?.marks ?? null,
+				id: mark?.id ?? null,
+			};
 		});
 	}
 

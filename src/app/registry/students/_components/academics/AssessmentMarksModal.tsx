@@ -1,6 +1,6 @@
 'use client';
 
-import { getAssessmentMarksByStudentModuleId } from '@academic/assessment-marks';
+import { getAllAssessmentsWithMarksByStudentModuleId } from '@academic/assessment-marks';
 import {
 	Box,
 	Group,
@@ -34,8 +34,8 @@ export default function AssessmentMarksModal({
 	const [opened, { open, close }] = useDisclosure(false);
 
 	const { data, isLoading } = useQuery({
-		queryKey: ['assessment-marks-details', studentModuleId],
-		queryFn: () => getAssessmentMarksByStudentModuleId(studentModuleId),
+		queryKey: ['all-assessments-with-marks', studentModuleId],
+		queryFn: () => getAllAssessmentsWithMarksByStudentModuleId(studentModuleId),
 		enabled: opened,
 	});
 
@@ -72,13 +72,14 @@ export default function AssessmentMarksModal({
 					</Stack>
 				) : !data || data.length === 0 ? (
 					<Text c='dimmed' ta='center' py='xl'>
-						No assessment marks found
+						No assessments found for this module
 					</Text>
 				) : (
 					<Stack gap='md'>
 						<Table>
 							<Table.Thead>
 								<Table.Tr>
+									<Table.Th>No.</Table.Th>
 									<Table.Th>Assessment</Table.Th>
 									<Table.Th ta='center'>Marks</Table.Th>
 									<Table.Th ta='center'>Out of</Table.Th>
@@ -86,33 +87,31 @@ export default function AssessmentMarksModal({
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
-								{data.map((mark) => (
-									<Table.Tr key={mark.id}>
+								{data.map((item) => (
+									<Table.Tr key={item.assessment.id}>
+										<Table.Td>{item.assessment.assessmentNumber}</Table.Td>
 										<Table.Td>
-											<Group gap={'xs'} align='baseline'>
-												<Text size='sm'>
-													{getAssessmentTypeLabel(
-														mark.assessment.assessmentType
-													)}
-												</Text>
-												<Text size='xs' c='dimmed'>
-													({mark.assessment.assessmentNumber})
-												</Text>
-											</Group>
+											{getAssessmentTypeLabel(item.assessment.assessmentType)}
 										</Table.Td>
 										<Table.Td ta='center'>
-											<Text size='sm' fw={500}>
-												{mark.marks.toFixed(1)}
+											{item.marks !== null ? (
+												<Text size='sm' fw={500}>
+													{item.marks.toFixed(1)}
+												</Text>
+											) : (
+												<Text size='sm' c='dimmed'>
+													—
+												</Text>
+											)}
+										</Table.Td>
+										<Table.Td ta='center'>
+											<Text size='sm' c='dimmed'>
+												{item.assessment.totalMarks}
 											</Text>
 										</Table.Td>
 										<Table.Td ta='center'>
 											<Text size='sm' c='dimmed'>
-												{mark.assessment.totalMarks}
-											</Text>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Text size='sm' c='dimmed'>
-												{mark.assessment.weight}%
+												{item.assessment.weight}%
 											</Text>
 										</Table.Td>
 									</Table.Tr>
