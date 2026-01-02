@@ -2,10 +2,9 @@
 
 import { getStudentMarks } from '@academic/assessment-marks';
 import {
-	Box,
+	Badge,
 	Group,
 	Modal,
-	Progress,
 	Skeleton,
 	Stack,
 	Table,
@@ -15,6 +14,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { getAssessmentTypeLabel } from '@/app/academic/assessments';
+import { getPercentageColor } from '@/shared/lib/utils/colors';
 
 type Props = {
 	studentModuleId: number;
@@ -119,31 +119,21 @@ export default function AssessmentMarksModal({
 							</Table.Tbody>
 						</Table>
 
-						<Box>
-							<Group justify='space-between' mb={4}>
-								<Text size='sm' fw={500}>
-									Total Marks
-								</Text>
-								<Text size='sm' fw={600}>
-									{totalMarks}
-								</Text>
-							</Group>
-							<Progress
-								value={Number.parseFloat(totalMarks) || 0}
-								size='sm'
-								color={getProgressColor(Number.parseFloat(totalMarks) || 0)}
-							/>
-						</Box>
+						<Group justify='space-between' pt='sm'>
+							<Text size='sm' fw={500}>
+								Total Marks
+							</Text>
+							<Badge
+								size='lg'
+								variant='light'
+								color={getPercentageColor(Number.parseFloat(totalMarks) || 0)}
+							>
+								{totalMarks}
+							</Badge>
+						</Group>
 					</Stack>
 				)}
 			</Modal>
 		</>
 	);
-}
-
-function getProgressColor(marks: number): string {
-	if (marks >= 80) return 'teal';
-	if (marks >= 60) return 'blue';
-	if (marks >= 50) return 'yellow';
-	return 'red';
 }
