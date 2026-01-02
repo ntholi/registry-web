@@ -50,13 +50,6 @@ export interface ProgramSemesterReport {
 	students: StudentSemesterReport[];
 }
 
-export interface FacultyReport {
-	facultyId: number;
-	facultyName: string;
-	termCode: string;
-	programs: ProgramSemesterReport[];
-}
-
 export interface BoeSummaryProgram {
 	programId: number;
 	programCode: string;
@@ -81,7 +74,7 @@ export default class BoeReportRepository extends BaseRepository<
 		super(students, students.stdNo);
 	}
 
-	async getStudentSemestersWithFilter(filter: BoeFilter) {
+	async findSemesters(filter: BoeFilter) {
 		const { termId, schoolIds, programId, semesterNumber } = filter;
 
 		const term = await db.query.terms.findFirst({
@@ -169,7 +162,7 @@ export default class BoeReportRepository extends BaseRepository<
 		});
 	}
 
-	async getBoeSummary(filter: BoeFilter): Promise<BoeSummarySchool[]> {
+	async getSummary(filter: BoeFilter): Promise<BoeSummarySchool[]> {
 		const { termId, schoolIds, programId, semesterNumber } = filter;
 
 		const term = await db.query.terms.findFirst({
@@ -263,191 +256,7 @@ export default class BoeReportRepository extends BaseRepository<
 		);
 	}
 
-	async getStudentSemestersForFaculty(schoolId: number, termCode: string) {
-		const facultyPrograms = await db.query.programs.findMany({
-			where: eq(programs.schoolId, schoolId),
-		});
-
-		const programIds = facultyPrograms.map((program) => program.id);
-
-		const structureRows = await db
-			.select({ id: structures.id })
-			.from(structures)
-			.where(inArray(structures.programId, programIds));
-
-		const structureIds = structureRows.map((row) => row.id);
-
-		const studentProgramRows = await db
-			.select({ id: studentPrograms.id })
-			.from(studentPrograms)
-			.where(inArray(studentPrograms.structureId, structureIds));
-
-		const studentProgramIds = studentProgramRows.map((row) => row.id);
-
-		return await db.query.studentSemesters.findMany({
-			where: and(
-				eq(studentSemesters.termCode, termCode),
-				inArray(studentSemesters.studentProgramId, studentProgramIds),
-				ne(studentSemesters.status, 'Deleted')
-			),
-			with: {
-				structureSemester: true,
-				studentProgram: {
-					with: {
-						student: true,
-						structure: {
-							with: {
-								program: true,
-							},
-						},
-					},
-				},
-				studentModules: {
-					where: (modules) => notInArray(modules.status, ['Drop', 'Delete']),
-					with: {
-						semesterModule: {
-							with: {
-								module: true,
-							},
-						},
-					},
-				},
-			},
-		});
-	}
-
-	async getStudentSemestersForProgram(programId: number, termCode: string) {
-		const structureRows = await db
-			.select({ id: structures.id })
-			.from(structures)
-			.where(eq(structures.programId, programId));
-
-		const structureIds = structureRows.map((row) => row.id);
-
-		const studentProgramRows = await db
-			.select({ id: studentPrograms.id })
-			.from(studentPrograms)
-			.where(inArray(studentPrograms.structureId, structureIds));
-
-		const studentProgramIds = studentProgramRows.map((row) => row.id);
-
-		return await db.query.studentSemesters.findMany({
-			where: and(
-				eq(studentSemesters.termCode, termCode),
-				inArray(studentSemesters.studentProgramId, studentProgramIds),
-				ne(studentSemesters.status, 'Deleted')
-			),
-			with: {
-				structureSemester: true,
-				studentProgram: {
-					with: {
-						student: true,
-						structure: {
-							with: {
-								program: true,
-							},
-						},
-					},
-				},
-				studentModules: {
-					where: (modules) => notInArray(modules.status, ['Drop', 'Delete']),
-					with: {
-						semesterModule: {
-							with: {
-								module: true,
-							},
-						},
-					},
-				},
-			},
-		});
-	}
-
-	async getStudentSemesterHistoryForFaculty(schoolId: number) {
-		const programIds = await db.query.programs
-			.findMany({
-				columns: {
-					id: true,
-				},
-				where: eq(programs.schoolId, schoolId),
-			})
-			.then((rows) => rows.map((row) => row.id));
-
-		if (programIds.length === 0) {
-			return [];
-		}
-
-		const structureIds = await db
-			.select({ id: structures.id })
-			.from(structures)
-			.where(inArray(structures.programId, programIds))
-			.then((rows) => rows.map((row) => row.id));
-
-		if (structureIds.length === 0) {
-			return [];
-		}
-
-		const studentProgramIds = await db
-			.select({ id: studentPrograms.id })
-			.from(studentPrograms)
-			.where(inArray(studentPrograms.structureId, structureIds))
-			.then((rows) => rows.map((row) => row.id));
-
-		if (studentProgramIds.length === 0) {
-			return [];
-		}
-
-		const allResults = [];
-		const batchSize = 100;
-
-		for (let i = 0; i < studentProgramIds.length; i += batchSize) {
-			const batch = studentProgramIds.slice(i, i + batchSize);
-
-			const batchResults = await db.query.studentSemesters.findMany({
-				where: and(
-					inArray(studentSemesters.studentProgramId, batch),
-					ne(studentSemesters.status, 'Deleted')
-				),
-				with: {
-					structureSemester: true,
-					studentProgram: {
-						with: {
-							student: true,
-							structure: {
-								with: {
-									program: true,
-								},
-							},
-						},
-					},
-					studentModules: {
-						where: (modules) => notInArray(modules.status, ['Drop', 'Delete']),
-						with: {
-							semesterModule: {
-								with: {
-									module: true,
-								},
-							},
-						},
-					},
-				},
-			});
-
-			allResults.push(...batchResults);
-		}
-
-		return allResults.sort((a, b) => {
-			if (a.termCode !== b.termCode) {
-				return a.termCode.localeCompare(b.termCode);
-			}
-			return compareSemesters(
-				a.structureSemester?.semesterNumber ?? '',
-				b.structureSemester?.semesterNumber ?? ''
-			);
-		});
-	}
-
-	async getStudentSemesterHistoryForStudents(studentNumbers: number[]) {
+	async findHistory(studentNumbers: number[]) {
 		if (studentNumbers.length === 0) {
 			return [];
 		}

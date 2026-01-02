@@ -22,11 +22,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { ClassReportsList } from './_components/ClassReportTable';
 import BoeFilter, { type BoeReportFilter } from './_components/Filter';
-import {
-	generateBoeReport,
-	getBoeClassReports,
-	getBoePreview,
-} from './_server/actions';
+import { generateExcel, getClassReports, getPreview } from './_server/actions';
 import type { BoeFilter as BoeFilterType } from './_server/repository';
 
 export default function BoeReportPage() {
@@ -75,7 +71,7 @@ export default function BoeReportPage() {
 		queryKey: ['boe-preview', serverFilter],
 		queryFn: async () => {
 			if (!serverFilter) return null;
-			const result = await getBoePreview(serverFilter);
+			const result = await getPreview(serverFilter);
 			return result.success ? result.data : null;
 		},
 		enabled: isFilterApplied,
@@ -85,7 +81,7 @@ export default function BoeReportPage() {
 		queryKey: ['boe-class-reports', serverFilter],
 		queryFn: async () => {
 			if (!serverFilter) return null;
-			const result = await getBoeClassReports(serverFilter);
+			const result = await getClassReports(serverFilter);
 			return result.success ? result.data : null;
 		},
 		enabled: isFilterApplied,
@@ -106,7 +102,7 @@ export default function BoeReportPage() {
 
 		setIsExporting(true);
 		try {
-			const result = await generateBoeReport(serverFilter);
+			const result = await generateExcel(serverFilter);
 
 			if (result.success && result.data) {
 				const byteCharacters = atob(result.data);

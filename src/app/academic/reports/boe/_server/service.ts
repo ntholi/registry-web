@@ -16,7 +16,7 @@ import {
 import { createWorksheet } from './worksheet';
 
 type StudentSemester = Awaited<
-	ReturnType<typeof boeReportRepository.getStudentSemestersWithFilter>
+	ReturnType<typeof boeReportRepository.findSemesters>
 >[number];
 
 type ModuleForRemarks = {
@@ -33,26 +33,6 @@ type SemesterModuleData = {
 	semesterNumber: string;
 	modules: ModuleForRemarks[];
 };
-
-export interface BoePreviewStudent {
-	studentId: number;
-	studentName: string;
-	programCode: string;
-	programName: string;
-	semesterNumber: string;
-	modulesCount: number;
-	creditsAttempted: number;
-	creditsEarned: number;
-	totalPoints: number;
-	gpa: string;
-	modules: {
-		code: string;
-		name: string;
-		credits: number;
-		marks: string;
-		grade: string;
-	}[];
-}
 
 export interface BoePreviewData {
 	summary: BoeSummarySchool[];
@@ -93,8 +73,8 @@ export interface BoeSchoolGroupedReports {
 export default class BoeReportService {
 	private repository = boeReportRepository;
 
-	async getBoePreviewData(filter: BoeFilter): Promise<BoePreviewData> {
-		const summary = await this.repository.getBoeSummary(filter);
+	async getPreview(filter: BoeFilter): Promise<BoePreviewData> {
+		const summary = await this.repository.getSummary(filter);
 		const totalStudents = summary.reduce((acc, s) => acc + s.totalStudents, 0);
 
 		const term = await db.query.terms.findFirst({
@@ -108,11 +88,8 @@ export default class BoeReportService {
 		};
 	}
 
-	async getBoeClassReports(
-		filter: BoeFilter
-	): Promise<BoeSchoolGroupedReports[]> {
-		const studentSemesters =
-			await this.repository.getStudentSemestersWithFilter(filter);
+	async getClassReports(filter: BoeFilter): Promise<BoeSchoolGroupedReports[]> {
+		const studentSemesters = await this.repository.findSemesters(filter);
 
 		const classMap = new Map<string, BoeClassReport>();
 
@@ -190,14 +167,13 @@ export default class BoeReportService {
 			.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
 	}
 
-	async generateBoeReportWithFilter(filter: BoeFilter): Promise<Buffer> {
+	async generateExcel(filter: BoeFilter): Promise<Buffer> {
 		const term = await db.query.terms.findFirst({
 			where: eq(terms.id, filter.termId),
 		});
 		if (!term) throw new Error('Term not found');
 
-		const studentSemesters =
-			await this.repository.getStudentSemestersWithFilter(filter);
+		const studentSemesters = await this.repository.findSemesters(filter);
 
 		const schoolGroups = this.groupBySchool(
 			studentSemesters as StudentSemester[]
@@ -219,17 +195,11 @@ export default class BoeReportService {
 				for (const [semesterNumber, semesters] of Object.entries(
 					semesterGroups
 				)) {
-					const updatedCurrentSemesters = await this.mapCurrentSemesterGrades(
-						semesters as StudentSemester[]
-					);
-
-					const studentNumbers = updatedCurrentSemesters.map(
+					const studentNumbers = semesters.map(
 						(s) => s.studentProgram.student.stdNo
 					);
 					const allStudentSemesters =
-						await this.repository.getStudentSemesterHistoryForStudents(
-							studentNumbers
-						);
+						await this.repository.findHistory(studentNumbers);
 
 					const programReport: ProgramSemesterReport = {
 						programId: parseInt(programId, 10),
@@ -239,7 +209,7 @@ export default class BoeReportService {
 							semesters[0]?.studentProgram.structure.program.name || '',
 						semesterNumber: semesterNumber,
 						students: this.createStudentReports(
-							updatedCurrentSemesters,
+							semesters as StudentSemester[],
 							allStudentSemesters as unknown as StudentSemester[],
 							semesterNumber
 						),
@@ -255,10 +225,6 @@ export default class BoeReportService {
 
 		const buffer = await workbook.xlsx.writeBuffer();
 		return Buffer.from(buffer);
-	}
-
-	private async mapCurrentSemesterGrades(semesters: StudentSemester[]) {
-		return semesters;
 	}
 
 	private groupBySchool(studentSemesters: StudentSemester[]) {
