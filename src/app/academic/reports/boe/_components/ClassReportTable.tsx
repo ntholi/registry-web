@@ -3,6 +3,7 @@ import {
 	Accordion,
 	Alert,
 	Badge,
+	Divider,
 	Group,
 	Paper,
 	ScrollArea,
@@ -13,7 +14,10 @@ import {
 } from '@mantine/core';
 import { Fragment } from 'react';
 import { getGradePoints } from '@/shared/lib/utils/grades';
-import type { BoeClassReport } from '../_server/service';
+import type {
+	BoeClassReport,
+	BoeSchoolGroupedReports,
+} from '../_server/service';
 
 const NAME_WIDTH = 180;
 const STUDENT_ID_WIDTH = 100;
@@ -182,7 +186,7 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 }
 
 interface ClassReportsListProps {
-	reports?: BoeClassReport[];
+	reports?: BoeSchoolGroupedReports[];
 	loading?: boolean;
 }
 
@@ -209,28 +213,35 @@ export function ClassReportsList({ reports, loading }: ClassReportsListProps) {
 	}
 
 	return (
-		<Accordion variant='separated'>
-			{reports.map((report) => (
-				<Accordion.Item key={report.className} value={report.className}>
-					<Accordion.Control>
-						<Group justify='space-between' align='center'>
-							<div>
-								<Text fw={500}>{report.className}</Text>
-								<Text size='xs' c='dimmed'>
-									{report.programName} • {report.schoolName}
-								</Text>
-							</div>
-							<Badge size='sm' variant='default' mr='md'>
-								{report.students.length} student
-								{report.students.length !== 1 ? 's' : ''}
-							</Badge>
-						</Group>
-					</Accordion.Control>
-					<Accordion.Panel>
-						<ClassReportTable report={report} />
-					</Accordion.Panel>
-				</Accordion.Item>
+		<Stack gap='xl'>
+			{reports.map((schoolGroup, index) => (
+				<Stack key={schoolGroup.schoolName} gap='md'>
+					{reports.length > 1 && index > 0 && <Divider mb='xs' />}
+					<Accordion variant='separated'>
+						{schoolGroup.reports.map((report) => (
+							<Accordion.Item key={report.className} value={report.className}>
+								<Accordion.Control>
+									<Group justify='space-between' align='center'>
+										<div>
+											<Text fw={500}>{report.className}</Text>
+											<Text size='xs' c='dimmed'>
+												{report.programName}
+											</Text>
+										</div>
+										<Badge size='sm' variant='default' mr='md'>
+											{report.students.length} student
+											{report.students.length !== 1 ? 's' : ''}
+										</Badge>
+									</Group>
+								</Accordion.Control>
+								<Accordion.Panel>
+									<ClassReportTable report={report} />
+								</Accordion.Panel>
+							</Accordion.Item>
+						))}
+					</Accordion>
+				</Stack>
 			))}
-		</Accordion>
+		</Stack>
 	);
 }

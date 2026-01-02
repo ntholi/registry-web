@@ -85,6 +85,11 @@ export interface BoeClassReport {
 	allModules: { code: string; name: string; credits: number }[];
 }
 
+export interface BoeSchoolGroupedReports {
+	schoolName: string;
+	reports: BoeClassReport[];
+}
+
 export default class BoeReportService {
 	private repository = boeReportRepository;
 
@@ -103,7 +108,9 @@ export default class BoeReportService {
 		};
 	}
 
-	async getBoeClassReports(filter: BoeFilter): Promise<BoeClassReport[]> {
+	async getBoeClassReports(
+		filter: BoeFilter
+	): Promise<BoeSchoolGroupedReports[]> {
 		const studentSemesters =
 			await this.repository.getStudentSemestersWithFilter(filter);
 
@@ -166,7 +173,21 @@ export default class BoeReportService {
 			report.students.sort((a, b) => parseFloat(b.gpa) - parseFloat(a.gpa));
 		}
 
-		return reports.sort((a, b) => a.className.localeCompare(b.className));
+		// Group by school
+		const schoolGroups = new Map<string, BoeClassReport[]>();
+		for (const report of reports) {
+			if (!schoolGroups.has(report.schoolName)) {
+				schoolGroups.set(report.schoolName, []);
+			}
+			schoolGroups.get(report.schoolName)!.push(report);
+		}
+
+		return Array.from(schoolGroups.entries())
+			.map(([schoolName, reports]) => ({
+				schoolName,
+				reports: reports.sort((a, b) => a.className.localeCompare(b.className)),
+			}))
+			.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
 	}
 
 	async generateBoeReportWithFilter(filter: BoeFilter): Promise<Buffer> {
