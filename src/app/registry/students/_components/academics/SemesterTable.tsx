@@ -16,13 +16,12 @@ import {
 import type { StudentModuleStatus } from '@registry/_database';
 import { useSession } from 'next-auth/react';
 import {
-	type AllStatusType,
 	getGradeColor,
 	getOptionalColor,
 	getStatusColor,
 } from '@/shared/lib/utils/colors';
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
-import { formatSemester } from '@/shared/lib/utils/utils';
+import { formatSemester, isActiveModule } from '@/shared/lib/utils/utils';
 
 type ModuleTableProps = {
 	modules: {
@@ -46,7 +45,7 @@ type ModuleTableProps = {
 				};
 			};
 			grade: Grade;
-			status: AllStatusType;
+			status: StudentModuleStatus;
 		}[];
 	}[];
 };
@@ -70,16 +69,14 @@ export default function SemesterTable({
 				sem.studentModules.some(
 					(m) =>
 						m.semesterModule.module.code === moduleCode &&
-						m.status !== 'Drop' &&
-						m.status !== 'Delete'
+						isActiveModule(m.status)
 				)
 			)
 			.map((sem) => {
 				const studentModule = sem.studentModules.find(
 					(m) =>
 						m.semesterModule.module.code === moduleCode &&
-						m.status !== 'Drop' &&
-						m.status !== 'Delete'
+						isActiveModule(m.status)
 				);
 				return {
 					grade: studentModule?.grade ?? '',
@@ -101,16 +98,14 @@ export default function SemesterTable({
 				sem.studentModules.some(
 					(m) =>
 						m.semesterModule.module.code === moduleCode &&
-						m.status !== 'Drop' &&
-						m.status !== 'Delete'
+						isActiveModule(m.status)
 				)
 			)
 			.map((sem) => {
 				const studentModule = sem.studentModules.find(
 					(m) =>
 						m.semesterModule.module.code === moduleCode &&
-						m.status !== 'Drop' &&
-						m.status !== 'Delete'
+						isActiveModule(m.status)
 				);
 				return {
 					termCode: sem.termCode,
@@ -194,8 +189,7 @@ export default function SemesterTable({
 				</Table.Thead>
 				<Table.Tbody>
 					{modules.map((module) => {
-						const isDroppedOrDeleted =
-							module.status === 'Drop' || module.status === 'Delete';
+						const isDroppedOrDeleted = !isActiveModule(module.status);
 
 						return (
 							<Table.Tr

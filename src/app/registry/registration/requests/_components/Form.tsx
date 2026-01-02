@@ -23,7 +23,11 @@ import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
-import { formatSemester, isActiveSemester } from '@/shared/lib/utils/utils';
+import {
+	formatSemester,
+	isActiveModule,
+	isActiveSemester,
+} from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import {
 	determineSemesterStatus,
@@ -283,7 +287,7 @@ export default function RegistrationRequestForm({
 									.flatMap((p) => p.semesters)
 									.filter((s) => isActiveSemester(s.status))
 									.flatMap((s) => s.studentModules)
-									.filter((m) => m.status !== 'Drop' && m.status !== 'Delete');
+									.filter((m) => isActiveModule(m.status));
 
 								const attempts = allStudentModules.filter(
 									(sm) => sm.semesterModule.module?.name === module.module?.name

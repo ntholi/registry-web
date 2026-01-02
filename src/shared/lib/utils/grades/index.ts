@@ -1,6 +1,6 @@
 import { getVisibleModulesForStructure } from '@academic/semester-modules';
 import type { grade } from '@/core/database';
-import { isActiveSemester } from '../utils';
+import { isActiveModule, isActiveSemester } from '../utils';
 import type { GradePoint, Program, StudentModule } from './type';
 
 export type GradeDefinition = {
@@ -293,7 +293,7 @@ export function getAcademicRemarks(programs: Program[]) {
 		cumulativePoints += semesterSummary.points;
 
 		const semesterCreditsForGPA = semester.studentModules
-			.filter((sm) => !['Delete', 'Drop'].includes(sm.status || ''))
+			.filter((sm) => isActiveModule(sm.status))
 			.filter((sm) => sm.grade && sm.grade !== 'NM')
 			.reduce((sum, sm) => sum + Number(sm.credits), 0);
 
@@ -446,7 +446,7 @@ function extractData(_programs: Program[]) {
 
 	const studentModules = filtered
 		.flatMap((s) => s.studentModules)
-		.filter((m) => !['Delete', 'Drop'].includes(m.status));
+		.filter((m) => isActiveModule(m.status));
 
 	return {
 		semesters: filtered,

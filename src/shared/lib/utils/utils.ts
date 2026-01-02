@@ -1,4 +1,4 @@
-import type { SemesterStatus } from '@registry/_database';
+import type { SemesterStatus, StudentModuleStatus } from '@registry/_database';
 
 export const INACTIVE_SEMESTER_STATUSES: SemesterStatus[] = [
 	'Deleted',
@@ -8,8 +8,12 @@ export const INACTIVE_SEMESTER_STATUSES: SemesterStatus[] = [
 	'Inactive',
 ];
 
-export function isActiveSemester(status: SemesterStatus): boolean {
+export function isActiveSemester(status: SemesterStatus) {
 	return !INACTIVE_SEMESTER_STATUSES.includes(status);
+}
+
+export function isActiveModule(status: StudentModuleStatus) {
+	return !['Delete', 'Drop'].includes(status as StudentModuleStatus);
 }
 
 export function formatDate(

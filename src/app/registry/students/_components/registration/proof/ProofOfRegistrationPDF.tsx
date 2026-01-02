@@ -1,6 +1,10 @@
 import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
-import { formatDate, formatSemester } from '@/shared/lib/utils/utils';
+import {
+	formatDate,
+	formatSemester,
+	isActiveModule,
+} from '@/shared/lib/utils/utils';
 import type { getStudentRegistrationData } from '../../../_server/actions';
 
 Font.register({
@@ -92,7 +96,7 @@ export default function ProofOfRegistrationPDF({
 	}
 
 	const activeModules = latestSemester.studentModules.filter(
-		(sm: StudentModule) => sm.status !== 'Drop' && sm.status !== 'Delete'
+		(sm: StudentModule) => isActiveModule(sm.status)
 	);
 
 	const totalCredits = activeModules.reduce(
