@@ -175,59 +175,60 @@ export default class BoeReportService {
 		});
 		if (!term) throw new Error('Term not found');
 
-		const schoolsData = await db.query.schools.findMany({
-			where: (s) => eq(s.id, filter.schoolIds[0]),
-		});
-		const schoolName =
-			filter.schoolIds.length === 1 && schoolsData[0]
-				? schoolsData[0].name
-				: 'Multiple Schools';
-
 		const studentSemesters =
 			await this.repository.getStudentSemestersWithFilter(filter);
 
-		const programGroups = this.groupByProgram(
+		const schoolGroups = this.groupBySchool(
 			studentSemesters as StudentSemester[]
 		);
 
 		const workbook = new ExcelJS.Workbook();
 
-		for (const [programId, programSemesters] of Object.entries(programGroups)) {
-			const semesterGroups = this.groupBySemesterNumber(programSemesters);
+		for (const [_, schoolSemesters] of Object.entries(schoolGroups)) {
+			const schoolName =
+				schoolSemesters[0]?.studentProgram.structure.program.school.name ||
+				'Unknown School';
+			const programGroups = this.groupByProgram(schoolSemesters);
 
-			for (const [semesterNumber, semesters] of Object.entries(
-				semesterGroups
+			for (const [programId, programSemesters] of Object.entries(
+				programGroups
 			)) {
-				const updatedCurrentSemesters = await this.mapCurrentSemesterGrades(
-					semesters as StudentSemester[]
-				);
+				const semesterGroups = this.groupBySemesterNumber(programSemesters);
 
-				const studentNumbers = updatedCurrentSemesters.map(
-					(s) => s.studentProgram.student.stdNo
-				);
-				const allStudentSemesters =
-					await this.repository.getStudentSemesterHistoryForStudents(
-						studentNumbers
+				for (const [semesterNumber, semesters] of Object.entries(
+					semesterGroups
+				)) {
+					const updatedCurrentSemesters = await this.mapCurrentSemesterGrades(
+						semesters as StudentSemester[]
 					);
 
-				const programReport: ProgramSemesterReport = {
-					programId: parseInt(programId, 10),
-					programCode:
-						semesters[0]?.studentProgram.structure.program.code || '',
-					programName:
-						semesters[0]?.studentProgram.structure.program.name || '',
-					semesterNumber: semesterNumber,
-					students: this.createStudentReports(
-						updatedCurrentSemesters,
-						allStudentSemesters as unknown as StudentSemester[],
-						semesterNumber
-					),
-				};
+					const studentNumbers = updatedCurrentSemesters.map(
+						(s) => s.studentProgram.student.stdNo
+					);
+					const allStudentSemesters =
+						await this.repository.getStudentSemesterHistoryForStudents(
+							studentNumbers
+						);
 
-				const sheetName = `${programReport.programCode}${formatSemester(semesterNumber, 'mini')}`;
-				const worksheet = workbook.addWorksheet(sheetName);
+					const programReport: ProgramSemesterReport = {
+						programId: parseInt(programId, 10),
+						programCode:
+							semesters[0]?.studentProgram.structure.program.code || '',
+						programName:
+							semesters[0]?.studentProgram.structure.program.name || '',
+						semesterNumber: semesterNumber,
+						students: this.createStudentReports(
+							updatedCurrentSemesters,
+							allStudentSemesters as unknown as StudentSemester[],
+							semesterNumber
+						),
+					};
 
-				createWorksheet(worksheet, programReport, schoolName, term.code);
+					const sheetName = `${programReport.programCode}${formatSemester(semesterNumber, 'mini')}`;
+					const worksheet = workbook.addWorksheet(sheetName);
+
+					createWorksheet(worksheet, programReport, schoolName, term.code);
+				}
 			}
 		}
 
@@ -237,6 +238,20 @@ export default class BoeReportService {
 
 	private async mapCurrentSemesterGrades(semesters: StudentSemester[]) {
 		return semesters;
+	}
+
+	private groupBySchool(studentSemesters: StudentSemester[]) {
+		return studentSemesters.reduce(
+			(groups, semester) => {
+				const schoolId = semester.studentProgram.structure.program.school.id;
+				if (!groups[schoolId]) {
+					groups[schoolId] = [];
+				}
+				groups[schoolId].push(semester);
+				return groups;
+			},
+			{} as Record<string, StudentSemester[]>
+		);
 	}
 
 	private groupBySemesterNumber(studentSemesters: StudentSemester[]) {
