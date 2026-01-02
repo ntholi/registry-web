@@ -3,9 +3,9 @@ import {
 	Alert,
 	Box,
 	Button,
-	Card,
 	Container,
 	Group,
+	Paper,
 	Stack,
 	Text,
 	Title,
@@ -189,7 +189,7 @@ export default function BoeReportPage() {
 
 				{isFilterApplied && (
 					<Stack gap='lg'>
-						<Card>
+						<Paper withBorder p='md'>
 							<Group justify='space-between' align='center'>
 								<Box>
 									<Text fw={600} size='lg'>
@@ -214,7 +214,7 @@ export default function BoeReportPage() {
 									</Button>
 								)}
 							</Group>
-						</Card>
+						</Paper>
 
 						<ClassReportsList
 							reports={classReports ?? undefined}
