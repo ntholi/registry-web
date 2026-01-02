@@ -7,17 +7,11 @@ import {
 	Container,
 	Group,
 	Stack,
-	Tabs,
 	Text,
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-	IconChartBar,
-	IconDownload,
-	IconInfoCircle,
-	IconTable,
-} from '@tabler/icons-react';
+import { IconDownload, IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
 	parseAsArrayOf,
@@ -28,7 +22,6 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { ClassReportsList } from './_components/ClassReportTable';
 import BoeFilter, { type BoeReportFilter } from './_components/Filter';
-import { BoeSummaryTable } from './_components/SummaryTable';
 import {
 	generateBoeReport,
 	getBoeClassReports,
@@ -37,8 +30,7 @@ import {
 import type { BoeFilter as BoeFilterType } from './_server/repository';
 
 export default function BoeReportPage() {
-	const [urlParams, setUrlParams] = useQueryStates({
-		tab: parseAsString.withDefault('summary'),
+	const [urlParams] = useQueryStates({
 		termId: parseAsInteger,
 		schoolIds: parseAsArrayOf(parseAsInteger),
 		programId: parseAsInteger,
@@ -96,7 +88,7 @@ export default function BoeReportPage() {
 			const result = await getBoeClassReports(serverFilter);
 			return result.success ? result.data : null;
 		},
-		enabled: isFilterApplied && urlParams.tab === 'classes',
+		enabled: isFilterApplied,
 	});
 
 	const hasData = Boolean(
@@ -196,92 +188,39 @@ export default function BoeReportPage() {
 				)}
 
 				{isFilterApplied && (
-					<Tabs
-						value={urlParams.tab}
-						onChange={(value) => setUrlParams({ tab: value })}
-					>
-						<Tabs.List>
-							<Tabs.Tab
-								value='summary'
-								leftSection={<IconChartBar size={16} />}
-							>
-								Summary
-							</Tabs.Tab>
-							<Tabs.Tab value='classes' leftSection={<IconTable size={16} />}>
-								Class Reports
-							</Tabs.Tab>
-						</Tabs.List>
+					<Stack gap='lg'>
+						<Card>
+							<Group justify='space-between' align='center'>
+								<Box>
+									<Text fw={600} size='lg'>
+										Class Reports
+									</Text>
+									<Text size='sm' c='dimmed'>
+										{previewData?.totalStudents || 0} student
+										{previewData?.totalStudents !== 1 ? 's' : ''} found
+										{previewData?.termCode &&
+											` • Term: ${previewData.termCode}`}
+									</Text>
+								</Box>
+								{hasData && (
+									<Button
+										leftSection={<IconDownload size={16} />}
+										onClick={handleExport}
+										variant='light'
+										loading={isExporting}
+										disabled={isExporting}
+									>
+										Export Report
+									</Button>
+								)}
+							</Group>
+						</Card>
 
-						<Tabs.Panel value='summary' pt='xl'>
-							<Stack gap='lg'>
-								<Card>
-									<Group justify='space-between' align='center'>
-										<Box>
-											<Text fw={600} size='lg'>
-												Examination Summary
-											</Text>
-											<Text size='sm' c='dimmed'>
-												{previewData?.totalStudents || 0} student
-												{previewData?.totalStudents !== 1 ? 's' : ''} found
-												{previewData?.termCode &&
-													` • Term: ${previewData.termCode}`}
-											</Text>
-										</Box>
-										{hasData && (
-											<Button
-												leftSection={<IconDownload size={16} />}
-												onClick={handleExport}
-												variant='light'
-												loading={isExporting}
-												disabled={isExporting}
-											>
-												Export Report
-											</Button>
-										)}
-									</Group>
-								</Card>
-
-								<BoeSummaryTable
-									schools={previewData?.summary}
-									loading={isLoadingPreview}
-								/>
-							</Stack>
-						</Tabs.Panel>
-
-						<Tabs.Panel value='classes' pt='xl'>
-							<Stack gap='lg'>
-								<Card>
-									<Group justify='space-between' align='center'>
-										<Box>
-											<Text fw={600} size='lg'>
-												Class Reports
-											</Text>
-											<Text size='sm' c='dimmed'>
-												{classReports?.length || 0} class
-												{classReports?.length !== 1 ? 'es' : ''} found
-											</Text>
-										</Box>
-										{hasData && (
-											<Button
-												leftSection={<IconDownload size={16} />}
-												onClick={handleExport}
-												variant='light'
-												loading={isExporting}
-												disabled={isExporting}
-											>
-												Export Report
-											</Button>
-										)}
-									</Group>
-								</Card>
-
-								<ClassReportsList
-									reports={classReports ?? undefined}
-									loading={isLoadingClasses}
-								/>
-							</Stack>
-						</Tabs.Panel>
-					</Tabs>
+						<ClassReportsList
+							reports={classReports ?? undefined}
+							loading={isLoadingClasses}
+						/>
+					</Stack>
 				)}
 
 				{previewError && (

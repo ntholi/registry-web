@@ -252,9 +252,10 @@ export default class BoeReportRepository extends BaseRepository<
 				school.programs.push(program);
 			}
 
-			program.semesters[row.semesterNumber] = row.studentCount;
-			program.totalStudents += row.studentCount;
-			school.totalStudents += row.studentCount;
+			const count = Number(row.studentCount);
+			program.semesters[row.semesterNumber] = count;
+			program.totalStudents += count;
+			school.totalStudents += count;
 		}
 
 		return Array.from(schoolMap.values()).sort((a, b) =>

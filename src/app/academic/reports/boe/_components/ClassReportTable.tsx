@@ -2,16 +2,20 @@
 import {
 	Alert,
 	Badge,
-	Card,
 	Group,
+	Paper,
 	ScrollArea,
 	Skeleton,
 	Table,
 	Text,
 	Title,
 } from '@mantine/core';
+import { Fragment } from 'react';
 import { getGradePoints } from '@/shared/lib/utils/grades';
 import type { BoeClassReport } from '../_server/service';
+
+const NAME_WIDTH = 180;
+const STUDENT_ID_WIDTH = 100;
 
 interface ClassReportTableProps {
 	report: BoeClassReport;
@@ -21,34 +25,40 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 	const moduleColumns = report.allModules;
 
 	return (
-		<Card withBorder>
-			<Group justify='space-between' mb='md'>
+		<Paper withBorder p='md'>
+			<Group justify='space-between' align='end' mb='sm'>
 				<div>
-					<Title order={4}>{report.className}</Title>
-					<Text size='sm' c='dimmed'>
-						{report.programName}
-					</Text>
+					<Title order={5}>{report.className}</Title>
 					<Text size='xs' c='dimmed'>
-						{report.schoolName}
+						{report.programName} • {report.schoolName}
 					</Text>
 				</div>
-				<Badge size='lg' variant='light'>
+				<Badge size='sm' variant='default'>
 					{report.students.length} student
 					{report.students.length !== 1 ? 's' : ''}
 				</Badge>
 			</Group>
 
 			<ScrollArea>
-				<Table striped highlightOnHover withTableBorder withColumnBorders>
+				<Table highlightOnHover withTableBorder withColumnBorders fz='0.85rem'>
 					<Table.Thead>
 						<Table.Tr>
-							<Table.Th rowSpan={3} style={{ verticalAlign: 'bottom' }}>
+							<Table.Th
+								rowSpan={3}
+								style={{ verticalAlign: 'bottom', width: 40 }}
+							>
 								No
 							</Table.Th>
-							<Table.Th rowSpan={3} style={{ verticalAlign: 'bottom' }}>
+							<Table.Th
+								rowSpan={3}
+								style={{ verticalAlign: 'bottom', minWidth: NAME_WIDTH }}
+							>
 								Name
 							</Table.Th>
-							<Table.Th rowSpan={3} style={{ verticalAlign: 'bottom' }}>
+							<Table.Th
+								rowSpan={3}
+								style={{ verticalAlign: 'bottom', minWidth: STUDENT_ID_WIDTH }}
+							>
 								Student ID
 							</Table.Th>
 							{moduleColumns.map((mod) => (
@@ -62,31 +72,11 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 							))}
 							<Table.Th
 								rowSpan={3}
-								style={{ textAlign: 'center', verticalAlign: 'bottom' }}
-							>
-								Modules
-							</Table.Th>
-							<Table.Th
-								rowSpan={3}
-								style={{ textAlign: 'center', verticalAlign: 'bottom' }}
-							>
-								Cr. Att.
-							</Table.Th>
-							<Table.Th
-								rowSpan={3}
-								style={{ textAlign: 'center', verticalAlign: 'bottom' }}
-							>
-								Cr. Earn.
-							</Table.Th>
-							<Table.Th
-								rowSpan={3}
-								style={{ textAlign: 'center', verticalAlign: 'bottom' }}
-							>
-								Points
-							</Table.Th>
-							<Table.Th
-								rowSpan={3}
-								style={{ textAlign: 'center', verticalAlign: 'bottom' }}
+								style={{
+									textAlign: 'center',
+									verticalAlign: 'bottom',
+									width: 50,
+								}}
 							>
 								GPA
 							</Table.Th>
@@ -118,7 +108,7 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 							<Table.Th />
 							<Table.Th />
 							{moduleColumns.map((mod) => (
-								<>
+								<Fragment key={`header-cols-${mod.code}`}>
 									<Table.Th
 										key={`mk-${mod.code}`}
 										style={{ textAlign: 'center' }}
@@ -137,12 +127,8 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 									>
 										Pt
 									</Table.Th>
-								</>
+								</Fragment>
 							))}
-							<Table.Th />
-							<Table.Th />
-							<Table.Th />
-							<Table.Th />
 							<Table.Th />
 						</Table.Tr>
 					</Table.Thead>
@@ -150,8 +136,12 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 						{report.students.map((student, idx) => (
 							<Table.Tr key={student.studentId}>
 								<Table.Td>{idx + 1}</Table.Td>
-								<Table.Td>{student.studentName}</Table.Td>
-								<Table.Td>{student.studentId}</Table.Td>
+								<Table.Td style={{ width: NAME_WIDTH, maxWidth: NAME_WIDTH }}>
+									{student.studentName}
+								</Table.Td>
+								<Table.Td style={{ width: STUDENT_ID_WIDTH }}>
+									{student.studentId}
+								</Table.Td>
 								{moduleColumns.map((mod) => {
 									const studentMod = student.modules.find(
 										(m) => m.code === mod.code
@@ -171,7 +161,9 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 									const points =
 										getGradePoints(studentMod.grade) * studentMod.credits;
 									return (
-										<>
+										<Fragment
+											key={`student-${student.studentId}-mod-${mod.code}`}
+										>
 											<Table.Td
 												key={`mk-${mod.code}-${student.studentId}`}
 												style={{ textAlign: 'center' }}
@@ -190,21 +182,9 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 											>
 												{Number.isNaN(points) ? '' : points.toFixed(2)}
 											</Table.Td>
-										</>
+										</Fragment>
 									);
 								})}
-								<Table.Td style={{ textAlign: 'center' }}>
-									{student.modulesCount}
-								</Table.Td>
-								<Table.Td style={{ textAlign: 'center' }}>
-									{student.creditsAttempted}
-								</Table.Td>
-								<Table.Td style={{ textAlign: 'center' }}>
-									{student.creditsEarned}
-								</Table.Td>
-								<Table.Td style={{ textAlign: 'center' }}>
-									{student.totalPoints.toFixed(2)}
-								</Table.Td>
 								<Table.Td style={{ textAlign: 'center' }}>
 									{student.gpa}
 								</Table.Td>
@@ -213,7 +193,7 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 					</Table.Tbody>
 				</Table>
 			</ScrollArea>
-		</Card>
+		</Paper>
 	);
 }
 
@@ -227,10 +207,10 @@ export function ClassReportsList({ reports, loading }: ClassReportsListProps) {
 		return (
 			<>
 				{Array.from({ length: 2 }, (_, i) => (
-					<Card key={`skeleton-${i}`} withBorder>
-						<Skeleton height={24} width={200} mb='md' />
-						<Skeleton height={300} />
-					</Card>
+					<Paper key={`skeleton-${i}`} withBorder p='md'>
+						<Skeleton height={24} width={200} mb='sm' />
+						<Skeleton height={200} />
+					</Paper>
 				))}
 			</>
 		);
