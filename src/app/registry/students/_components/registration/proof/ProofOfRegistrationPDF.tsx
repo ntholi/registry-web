@@ -142,7 +142,7 @@ export default function ProofOfRegistrationPDF({
 							</Text>
 						</View>
 						<Image
-							style={tw('w-auto h-[95pt] ml-[10pt]')}
+							style={tw('w-auto h-[90pt] ml-[10pt]')}
 							src='/images/logo-lesotho.jpg'
 						/>
 					</View>
