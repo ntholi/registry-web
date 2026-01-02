@@ -1,17 +1,22 @@
-import { getActiveTerm } from '@registry/dates/terms';
+import { eq } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
-import type { StudentModuleStatus, schools } from '@/core/database';
+import type { StudentModuleStatus } from '@/core/database';
+import { db, terms } from '@/core/database';
 import {
 	getAcademicRemarks,
 	summarizeModules,
 } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import { boeReportRepository, type ProgramSemesterReport } from './repository';
+import {
+	type BoeFilter,
+	type BoeSummarySchool,
+	boeReportRepository,
+	type ProgramSemesterReport,
+} from './repository';
 import { createWorksheet } from './worksheet';
 
-type School = typeof schools.$inferSelect;
 type StudentSemester = Awaited<
-	ReturnType<typeof boeReportRepository.getStudentSemestersForFaculty>
+	ReturnType<typeof boeReportRepository.getStudentSemestersWithFilter>
 >[number];
 
 type ModuleForRemarks = {
@@ -29,19 +34,157 @@ type SemesterModuleData = {
 	modules: ModuleForRemarks[];
 };
 
+export interface BoePreviewStudent {
+	studentId: number;
+	studentName: string;
+	programCode: string;
+	programName: string;
+	semesterNumber: string;
+	modulesCount: number;
+	creditsAttempted: number;
+	creditsEarned: number;
+	totalPoints: number;
+	gpa: string;
+	modules: {
+		code: string;
+		name: string;
+		credits: number;
+		marks: string;
+		grade: string;
+	}[];
+}
+
+export interface BoePreviewData {
+	summary: BoeSummarySchool[];
+	totalStudents: number;
+	termCode: string;
+}
+
+export interface BoeClassReport {
+	className: string;
+	programCode: string;
+	programName: string;
+	semesterNumber: string;
+	schoolName: string;
+	students: {
+		studentId: number;
+		studentName: string;
+		modules: {
+			code: string;
+			name: string;
+			credits: number;
+			marks: string;
+			grade: string;
+		}[];
+		modulesCount: number;
+		creditsAttempted: number;
+		creditsEarned: number;
+		totalPoints: number;
+		gpa: string;
+	}[];
+	allModules: { code: string; name: string; credits: number }[];
+}
+
 export default class BoeReportService {
 	private repository = boeReportRepository;
-	async generateBoeReportForFaculty(school: School): Promise<Buffer> {
-		const activeTerm = await getActiveTerm();
-		if (!activeTerm) {
-			throw new Error('No active term found');
+
+	async getBoePreviewData(filter: BoeFilter): Promise<BoePreviewData> {
+		const summary = await this.repository.getBoeSummary(filter);
+		const totalStudents = summary.reduce((acc, s) => acc + s.totalStudents, 0);
+
+		const term = await db.query.terms.findFirst({
+			where: eq(terms.id, filter.termId),
+		});
+
+		return {
+			summary,
+			totalStudents,
+			termCode: term?.code || '',
+		};
+	}
+
+	async getBoeClassReports(filter: BoeFilter): Promise<BoeClassReport[]> {
+		const studentSemesters =
+			await this.repository.getStudentSemestersWithFilter(filter);
+
+		const classMap = new Map<string, BoeClassReport>();
+
+		for (const semester of studentSemesters) {
+			const programCode = semester.studentProgram.structure.program.code;
+			const semNum = semester.structureSemester?.semesterNumber || '01';
+			const className = `${programCode}${formatSemester(semNum, 'mini')}`;
+
+			if (!classMap.has(className)) {
+				classMap.set(className, {
+					className,
+					programCode,
+					programName: semester.studentProgram.structure.program.name,
+					semesterNumber: semNum,
+					schoolName:
+						semester.studentProgram.structure.program.school?.name || '',
+					students: [],
+					allModules: [],
+				});
+			}
+
+			const classReport = classMap.get(className)!;
+			const currentModules = semester.studentModules;
+			const currentSummary = summarizeModules(currentModules);
+
+			const studentModules = currentModules.map((sm) => ({
+				code: sm.semesterModule.module?.code || '',
+				name: sm.semesterModule.module?.name || '',
+				credits: Number(sm.credits),
+				marks: sm.marks,
+				grade: sm.grade,
+			}));
+
+			for (const mod of studentModules) {
+				if (!classReport.allModules.find((m) => m.code === mod.code)) {
+					classReport.allModules.push({
+						code: mod.code,
+						name: mod.name,
+						credits: mod.credits,
+					});
+				}
+			}
+
+			classReport.students.push({
+				studentId: semester.studentProgram.student.stdNo,
+				studentName: semester.studentProgram.student.name,
+				modules: studentModules,
+				modulesCount: currentModules.length,
+				creditsAttempted: currentSummary.creditsAttempted,
+				creditsEarned: currentSummary.creditsCompleted,
+				totalPoints: currentSummary.points,
+				gpa: currentSummary.gpa.toFixed(2),
+			});
 		}
 
+		const reports = Array.from(classMap.values());
+		for (const report of reports) {
+			report.students.sort((a, b) => parseFloat(b.gpa) - parseFloat(a.gpa));
+		}
+
+		return reports.sort((a, b) => a.className.localeCompare(b.className));
+	}
+
+	async generateBoeReportWithFilter(filter: BoeFilter): Promise<Buffer> {
+		const term = await db.query.terms.findFirst({
+			where: eq(terms.id, filter.termId),
+		});
+		if (!term) throw new Error('Term not found');
+
+		const schoolsData = await db.query.schools.findMany({
+			where: (s) => eq(s.id, filter.schoolIds[0]),
+		});
+		const schoolName =
+			filter.schoolIds.length === 1 && schoolsData[0]
+				? schoolsData[0].name
+				: 'Multiple Schools';
+
 		const studentSemesters =
-			await this.repository.getStudentSemestersForFaculty(
-				school.id,
-				activeTerm.code
-			);
+			await this.repository.getStudentSemestersWithFilter(filter);
 
 		const programGroups = this.groupByProgram(
 			studentSemesters as StudentSemester[]
@@ -76,7 +219,7 @@ export default class BoeReportService {
 					semesterNumber: semesterNumber,
 					students: this.createStudentReports(
 						updatedCurrentSemesters,
-						allStudentSemesters as StudentSemester[],
+						allStudentSemesters as unknown as StudentSemester[],
 						semesterNumber
 					),
 				};
@@ -84,13 +227,14 @@ export default class BoeReportService {
 				const sheetName = `${programReport.programCode}${formatSemester(semesterNumber, 'mini')}`;
 				const worksheet = workbook.addWorksheet(sheetName);
 
-				createWorksheet(worksheet, programReport, school.name, activeTerm.code);
+				createWorksheet(worksheet, programReport, schoolName, term.code);
 			}
 		}
 
 		const buffer = await workbook.xlsx.writeBuffer();
 		return Buffer.from(buffer);
 	}
+
 	private async mapCurrentSemesterGrades(semesters: StudentSemester[]) {
 		return semesters;
 	}
