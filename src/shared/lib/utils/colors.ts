@@ -102,6 +102,7 @@ export const statusColors = {
 	},
 	dataOp: {
 		deleted: semantic.error,
+		delete: semantic.error,
 		drop: semantic.error,
 		outstanding: semantic.dark,
 	},

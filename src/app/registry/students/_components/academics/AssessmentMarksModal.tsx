@@ -2,6 +2,7 @@
 
 import { getStudentMarks } from '@academic/assessment-marks';
 import {
+	Anchor,
 	Badge,
 	Group,
 	Modal,
@@ -9,7 +10,6 @@ import {
 	Stack,
 	Table,
 	Text,
-	UnstyledButton,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
@@ -41,15 +41,13 @@ export default function AssessmentMarksModal({
 
 	return (
 		<>
-			<UnstyledButton onClick={open}>
-				<Text
-					size='sm'
-					c={isDroppedOrDeleted ? 'dimmed' : undefined}
-					style={{ cursor: 'pointer' }}
-				>
-					{totalMarks}
-				</Text>
-			</UnstyledButton>
+			<Anchor
+				size='sm'
+				c={isDroppedOrDeleted ? 'dimmed' : 'gray'}
+				onClick={open}
+			>
+				{totalMarks}
+			</Anchor>
 
 			<Modal
 				opened={opened}
