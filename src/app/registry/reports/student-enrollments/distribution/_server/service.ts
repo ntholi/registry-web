@@ -21,12 +21,6 @@ export class DistributionReportService {
 			return await this.repository.getDistributionData(type, termCodes, filter);
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
-
-	async getAvailableTerms() {
-		return withAuth(async () => {
-			return await this.repository.getAllActiveTerms();
-		}, ['registry', 'admin', 'finance', 'academic']);
-	}
 }
 
 export const distributionReportService = serviceWrapper(

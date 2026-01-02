@@ -1,5 +1,9 @@
 'use client';
 import {
+	getActiveSchools,
+	getProgramsBySchoolIds,
+} from '@academic/schools/_server/actions';
+import {
 	ActionIcon,
 	Flex,
 	Grid,
@@ -10,6 +14,7 @@ import {
 	Select,
 	Text,
 } from '@mantine/core';
+import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconFilter, IconPlayerPlayFilled } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -20,11 +25,6 @@ import {
 } from 'nuqs';
 import { useEffect } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import {
-	getDistributionPrograms,
-	getDistributionSchools,
-	getDistributionTerms,
-} from '../_server/actions';
 import {
 	DISTRIBUTION_OPTIONS,
 	type DistributionReportFilter,
@@ -85,31 +85,23 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 	}, [localFilter, onFilterChange]);
 
 	const { data: terms = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['distribution-terms'],
-		queryFn: async () => {
-			const result = await getDistributionTerms();
-			return result.success ? result.data : [];
-		},
+		queryKey: ['terms'],
+		queryFn: getAllTerms,
 	});
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
-		queryKey: ['distribution-schools'],
-		queryFn: async () => {
-			const result = await getDistributionSchools();
-			return result.success ? result.data : [];
-		},
+		queryKey: ['active-schools'],
+		queryFn: getActiveSchools,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery<
 		ProgramOption[]
 	>({
-		queryKey: ['distribution-programs', localFilter.schoolIds],
-		queryFn: async () => {
-			const result = await getDistributionPrograms(
-				localFilter.schoolIds ?? undefined
-			);
-			return result.success ? (result.data as ProgramOption[]) : [];
-		},
+		queryKey: ['programs-by-school', localFilter.schoolIds],
+		queryFn: () =>
+			getProgramsBySchoolIds(localFilter.schoolIds ?? undefined) as Promise<
+				ProgramOption[]
+			>,
 		enabled:
 			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});

@@ -1,9 +1,5 @@
 'use server';
 
-import {
-	getActiveSchools,
-	getProgramsBySchoolIds,
-} from '@academic/schools/_server/actions';
 import { getAllSponsors } from '@finance/sponsors/_server/actions';
 import type { RegistrationReportFilter } from './repository';
 import { registrationReportService } from './service';
@@ -70,19 +66,6 @@ export async function generateStudentsListReport(
 	}
 }
 
-export async function getAvailableTermsForReport() {
-	try {
-		const terms = await registrationReportService.getAvailableTerms();
-		return { success: true, data: terms };
-	} catch (error) {
-		console.error('Error fetching available terms:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
-
 export async function getRegistrationDataPreview(
 	termIds: number[],
 	filter?: RegistrationReportFilter
@@ -119,32 +102,6 @@ export async function getPaginatedRegistrationStudents(
 		return { success: true, data };
 	} catch (error) {
 		console.error('Error fetching paginated registration students:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
-
-export async function getAvailableSchoolsForReports() {
-	try {
-		const schools = await getActiveSchools();
-		return { success: true, data: schools };
-	} catch (error) {
-		console.error('Error fetching available schools:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
-
-export async function getAvailableProgramsForReports(schoolIds?: number[]) {
-	try {
-		const programs = await getProgramsBySchoolIds(schoolIds);
-		return { success: true, data: programs };
-	} catch (error) {
-		console.error('Error fetching available programs:', error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',

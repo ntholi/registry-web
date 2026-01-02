@@ -142,10 +142,6 @@ export interface AttendanceReportData {
 const AT_RISK_THRESHOLD = 75;
 
 export class AttendanceReportRepository {
-	async getTerms() {
-		return db.select().from(terms).orderBy(sql`${terms.code} DESC`);
-	}
-
 	async getTermById(termId: number) {
 		const [term] = await db
 			.select()

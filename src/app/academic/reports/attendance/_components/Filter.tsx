@@ -1,6 +1,10 @@
 'use client';
 
 import {
+	getActiveSchools,
+	getProgramsBySchoolIds,
+} from '@academic/schools/_server/actions';
+import {
 	Grid,
 	Group,
 	Loader,
@@ -9,6 +13,7 @@ import {
 	Select,
 	Text,
 } from '@mantine/core';
+import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -19,13 +24,6 @@ import {
 } from 'nuqs';
 import { useEffect } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import {
-	getProgramsForAttendanceReport,
-	getSchoolsForAttendanceReport,
-	getTermsForAttendanceReport,
-} from '../_server/actions';
-
-type Term = { id: number; code: string };
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString().padStart(2, '0');
@@ -81,30 +79,19 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 		onFilterChange(newFilter);
 	}, [localFilter, onFilterChange]);
 
-	const { data: terms = [], isLoading: termsLoading } = useQuery<Term[]>({
-		queryKey: ['attendance-report-terms'],
-		queryFn: async () => {
-			const result = await getTermsForAttendanceReport();
-			return result.success ? (result.data as Term[]) : [];
-		},
+	const { data: terms = [], isLoading: termsLoading } = useQuery({
+		queryKey: ['terms'],
+		queryFn: getAllTerms,
 	});
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
-		queryKey: ['attendance-report-schools'],
-		queryFn: async () => {
-			const result = await getSchoolsForAttendanceReport();
-			return result.success ? result.data : [];
-		},
+		queryKey: ['active-schools'],
+		queryFn: getActiveSchools,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
-		queryKey: ['attendance-report-programs', localFilter.schoolIds],
-		queryFn: async () => {
-			const result = await getProgramsForAttendanceReport(
-				localFilter.schoolIds ?? undefined
-			);
-			return result.success ? result.data : [];
-		},
+		queryKey: ['programs-by-school', localFilter.schoolIds],
+		queryFn: () => getProgramsBySchoolIds(localFilter.schoolIds ?? undefined),
 		enabled:
 			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});

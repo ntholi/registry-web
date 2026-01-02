@@ -1,9 +1,5 @@
 'use server';
 
-import {
-	getActiveSchools,
-	getProgramsBySchoolIds,
-} from '@academic/schools/_server/actions';
 import type { DistributionReportFilter, DistributionType } from '../types';
 import { distributionReportService } from './service';
 
@@ -21,45 +17,6 @@ export async function getDistributionData(
 		return { success: true, data };
 	} catch (error) {
 		console.error('Error fetching distribution data:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
-
-export async function getDistributionTerms() {
-	try {
-		const terms = await distributionReportService.getAvailableTerms();
-		return { success: true, data: terms };
-	} catch (error) {
-		console.error('Error fetching terms:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
-
-export async function getDistributionSchools() {
-	try {
-		const schools = await getActiveSchools();
-		return { success: true, data: schools };
-	} catch (error) {
-		console.error('Error fetching schools:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
-
-export async function getDistributionPrograms(schoolIds?: number[]) {
-	try {
-		const programs = await getProgramsBySchoolIds(schoolIds);
-		return { success: true, data: programs };
-	} catch (error) {
-		console.error('Error fetching programs:', error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',

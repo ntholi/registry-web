@@ -1,5 +1,9 @@
 'use client';
 import {
+	getActiveSchools,
+	getProgramsBySchoolIds,
+} from '@academic/schools/_server/actions';
+import {
 	ActionIcon,
 	Badge,
 	Button,
@@ -22,6 +26,7 @@ import {
 	semesterStatus,
 	studentStatus,
 } from '@registry/_database/schema/enums';
+import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import {
 	IconAdjustments,
 	IconFilter,
@@ -38,10 +43,7 @@ import { useEffect } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getAvailableCountriesForReports,
-	getAvailableProgramsForReports,
-	getAvailableSchoolsForReports,
 	getAvailableSponsorsForReports,
-	getAvailableTermsForReport,
 } from '../_server/actions';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
@@ -132,29 +134,18 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 		].filter(Boolean).length || 0;
 
 	const { data: terms = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['registration-report-terms'],
-		queryFn: async () => {
-			const result = await getAvailableTermsForReport();
-			return result.success ? result.data : [];
-		},
+		queryKey: ['terms'],
+		queryFn: getAllTerms,
 	});
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
-		queryKey: ['registration-report-schools'],
-		queryFn: async () => {
-			const result = await getAvailableSchoolsForReports();
-			return result.success ? result.data : [];
-		},
+		queryKey: ['active-schools'],
+		queryFn: getActiveSchools,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
-		queryKey: ['registration-report-programs', localFilter.schoolIds],
-		queryFn: async () => {
-			const result = await getAvailableProgramsForReports(
-				localFilter.schoolIds ?? undefined
-			);
-			return result.success ? result.data : [];
-		},
+		queryKey: ['programs-by-school', localFilter.schoolIds],
+		queryFn: () => getProgramsBySchoolIds(localFilter.schoolIds ?? undefined),
 		enabled:
 			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});

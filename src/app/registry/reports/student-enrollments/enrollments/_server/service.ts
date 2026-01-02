@@ -96,12 +96,6 @@ export class RegistrationReportService {
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
-	async getAvailableTerms() {
-		return withAuth(async () => {
-			return await this.repository.getAllActiveTerms();
-		}, ['registry', 'admin', 'finance', 'academic']);
-	}
-
 	async getRegistrationDataForTerms(
 		termIds: number[],
 		filter?: RegistrationReportFilter

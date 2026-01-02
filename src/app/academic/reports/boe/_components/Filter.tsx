@@ -1,5 +1,9 @@
 'use client';
 import {
+	getActiveSchools,
+	getProgramsBySchoolIds,
+} from '@academic/schools/_server/actions';
+import {
 	ActionIcon,
 	Grid,
 	Group,
@@ -9,6 +13,7 @@ import {
 	Select,
 	Text,
 } from '@mantine/core';
+import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconFilter, IconPlayerPlayFilled } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -19,11 +24,6 @@ import {
 } from 'nuqs';
 import { useEffect } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import {
-	getAvailablePrograms,
-	getAvailableSchools,
-	getAvailableTerms,
-} from '../_server/actions';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString().padStart(2, '0');
@@ -72,29 +72,18 @@ export default function BoeFilter({ onFilterChange }: Props) {
 	}, [localFilter, onFilterChange]);
 
 	const { data: termsData = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['boe-report-terms'],
-		queryFn: async () => {
-			const result = await getAvailableTerms();
-			return result.success ? result.data : [];
-		},
+		queryKey: ['terms'],
+		queryFn: getAllTerms,
 	});
 
 	const { data: schoolsData = [], isLoading: schoolsLoading } = useQuery({
-		queryKey: ['boe-report-schools'],
-		queryFn: async () => {
-			const result = await getAvailableSchools();
-			return result.success ? result.data : [];
-		},
+		queryKey: ['active-schools'],
+		queryFn: getActiveSchools,
 	});
 
 	const { data: programsData = [], isLoading: programsLoading } = useQuery({
-		queryKey: ['boe-report-programs', localFilter.schoolIds],
-		queryFn: async () => {
-			const result = await getAvailablePrograms(
-				localFilter.schoolIds ?? undefined
-			);
-			return result.success ? result.data : [];
-		},
+		queryKey: ['programs-by-school', localFilter.schoolIds],
+		queryFn: () => getProgramsBySchoolIds(localFilter.schoolIds ?? undefined),
 		enabled:
 			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});

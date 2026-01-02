@@ -5,12 +5,6 @@ import {
 } from './repository';
 
 class AttendanceReportService {
-	async getTerms() {
-		return withAuth(async () => {
-			return attendanceReportRepository.getTerms();
-		}, ['academic']);
-	}
-
 	async getSemesterModulesForFilter(
 		programId?: number,
 		semesterNumber?: string

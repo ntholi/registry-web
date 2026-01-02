@@ -611,10 +611,6 @@ export class RegistrationReportRepository {
 			.orderBy(desc(terms.code));
 	}
 
-	async getAllActiveTerms() {
-		return await db.select().from(terms).orderBy(desc(terms.code));
-	}
-
 	async getChartData(
 		termCode: string,
 		filter?: RegistrationReportFilter

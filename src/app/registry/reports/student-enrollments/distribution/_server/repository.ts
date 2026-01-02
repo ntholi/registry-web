@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import {
 	db,
 	programs,
@@ -287,9 +287,5 @@ export class DistributionReportRepository {
 
 	async getTermsByIds(termIds: number[]) {
 		return await db.select().from(terms).where(inArray(terms.id, termIds));
-	}
-
-	async getAllActiveTerms() {
-		return await db.select().from(terms).orderBy(sql`${terms.code} DESC`);
 	}
 }
